@@ -2,155 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3E2B1FB104
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 14:44:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EFF41FB10D
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 14:45:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726452AbgFPMoB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 08:44:01 -0400
-Received: from mail-ej1-f65.google.com ([209.85.218.65]:45903 "EHLO
-        mail-ej1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725843AbgFPMoB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Jun 2020 08:44:01 -0400
-Received: by mail-ej1-f65.google.com with SMTP id o15so21307832ejm.12;
-        Tue, 16 Jun 2020 05:43:59 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=L/I9TQBEt18OzZ/8w372CUMf0AE7xIJW6HydiiBZVb8=;
-        b=dAXQqUOiPwpURwSVG9oLhLCgp1WgO4WkZCm566k5yMKuK4NALvag4DxKfIOi7sqVJI
-         4BrthJdHzpaiRNgtVm7f+VMz7VfxTQWkHshazHyAcS3fwi9Ao2UWwIhdRah7n59NHwql
-         gW9Dn0p2rR+MxfWUGp7/XRuzxL5ma/GtlmTiJO9w2HgrswsV0Nms+CmGDfihJtGu/xmL
-         zbvcKzzJMEZc1ED3+LKipS3ufj2iB9QZvk6a4p5Hy+IxveWb67T7z8MLLgRs0NgRXI0S
-         hj3sNyoraZCak1R6qaJgRqu1vYoyMuqN3w+C74EmUIDZb2RUNjLU1t0raHxKeiEnPLtQ
-         0/pg==
-X-Gm-Message-State: AOAM532p47F4IUj1Nb9zQKS9VY1MZ0RaxlFKgj/XMA0Tot5e3Tnm8pUB
-        7f4Oz/Xh4Qur6zHBIfP7Igga7ZdM
-X-Google-Smtp-Source: ABdhPJzzAyauYgNSmpw+IUniLjnYlhQsdYeBtEWlAjFJ80fRrH/Ji3VgfQQzjLNyUooFZ5WvJKKVcg==
-X-Received: by 2002:a17:906:2a4d:: with SMTP id k13mr2679824eje.253.1592311438934;
-        Tue, 16 Jun 2020 05:43:58 -0700 (PDT)
-Received: from localhost (ip-37-188-174-201.eurotel.cz. [37.188.174.201])
-        by smtp.gmail.com with ESMTPSA id i9sm10911153ejv.44.2020.06.16.05.43.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Jun 2020 05:43:58 -0700 (PDT)
-Date:   Tue, 16 Jun 2020 14:43:57 +0200
-From:   Michal Hocko <mhocko@kernel.org>
-To:     David Hildenbrand <david@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Minchan Kim <minchan@kernel.org>,
-        Huang Ying <ying.huang@intel.com>,
-        Wei Yang <richard.weiyang@gmail.com>,
-        Mel Gorman <mgorman@techsingularity.net>
-Subject: Re: [PATCH v1 1/3] mm/shuffle: don't move pages between zones and
- don't read garbage memmaps
-Message-ID: <20200616124357.GG9499@dhcp22.suse.cz>
-References: <20200616115213.13109-1-david@redhat.com>
- <20200616115213.13109-2-david@redhat.com>
+        id S1726261AbgFPMp6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 08:45:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38236 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725843AbgFPMp6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 08:45:58 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id E7ACC2071A;
+        Tue, 16 Jun 2020 12:45:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1592311557;
+        bh=VSam0rIL1Z9N7gSsqHkmqBvoxS8S2nH1Bqeh9ZRJCes=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=FbzrLvNj2f7py2zr98HJkD0p62tEYfy+H+lVMFG3K91FVVkF9Vrtl+0PmRU6dr12W
+         NDlfiS6VCzn+NWy51dW0OjXDKRr35ZWshwMD7Yjg6WdKxJi7CQRRlh9CDe/GxOLA1E
+         nLspAzJDSWc30a1P4rradLJg7KGaYnugMSBxV+0U=
+Date:   Tue, 16 Jun 2020 14:45:51 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Mattia Dongili <malattia@linux.it>
+Cc:     stable@vger.kernel.org
+Subject: Re: sony-laptop fix for 5.6 and 5.7
+Message-ID: <20200616124551.GA3867993@kroah.com>
+References: <20200607035055.GA8646@taihen.jp>
+ <20200616121601.GC3542686@kroah.com>
+ <20200616123031.GA5705@taihen.jp>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200616115213.13109-2-david@redhat.com>
+In-Reply-To: <20200616123031.GA5705@taihen.jp>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue 16-06-20 13:52:11, David Hildenbrand wrote:
-> Especially with memory hotplug, we can have offline sections (with a
-> garbage memmap) and overlapping zones. We have to make sure to only
-> touch initialized memmaps (online sections managed by the buddy) and that
-> the zone matches, to not move pages between zones.
+On Tue, Jun 16, 2020 at 09:30:31PM +0900, Mattia Dongili wrote:
+> On Tue, Jun 16, 2020 at 02:16:01PM +0200, Greg KH wrote:
+> > On Sun, Jun 07, 2020 at 12:50:55PM +0900, Mattia Dongili wrote:
+> > > commit 95e2c5b0fd6d7a022f37e7c762ea093aba7b8e34 upstream
+> > 
+> > I do not see that commit id in Linus's tree.  Are you sure it is
+> > correct?
 > 
-> To test if this can actually happen, I added a simple
-> 	BUG_ON(page_zone(page_i) != page_zone(page_j));
-> right before the swap. When hotplugging a 256M DIMM to a 4G x86-64 VM and
-> onlining the first memory block "online_movable" and the second memory
-> block "online_kernel", it will trigger the BUG, as both zones (NORMAL
-> and MOVABLE) overlap.
+> Heh, no. I didn't rebase my local tree... rookie mistake.
+> It should be 47828d22539f76c8c9dcf2a55f18ea3a8039d8ef.
 > 
-> This might result in all kinds of weird situations (e.g., double
-> allocations, list corruptions, unmovable allocations ending up in the
-> movable zone).
+> I noticed that Sasha Levin autoselected for 5.7 both the patches for
+> sony-laptop related to the ACPI breakage.
+> So they are only missing in 5.6 at this point and it's worth getting
+> both even though only 47828d22539f should be sufficient.
 > 
-> Fixes: e900a918b098 ("mm: shuffle initial free memory to improve memory-side-cache utilization")
-> Cc: stable@vger.kernel.org # v5.2+
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Johannes Weiner <hannes@cmpxchg.org>
-> Cc: Michal Hocko <mhocko@suse.com>
-> Cc: Minchan Kim <minchan@kernel.org>
-> Cc: Huang Ying <ying.huang@intel.com>
-> Cc: Wei Yang <richard.weiyang@gmail.com>
-> Cc: Mel Gorman <mgorman@techsingularity.net>
-> Signed-off-by: David Hildenbrand <david@redhat.com>
-
-Acked-by: Michal Hocko <mhocko@suse.com>
-
-Thanks!
-
-> ---
->  mm/shuffle.c | 18 +++++++++---------
->  1 file changed, 9 insertions(+), 9 deletions(-)
+> The two commit ids that were picked up for 5.7 are:
 > 
-> diff --git a/mm/shuffle.c b/mm/shuffle.c
-> index 44406d9977c77..dd13ab851b3ee 100644
-> --- a/mm/shuffle.c
-> +++ b/mm/shuffle.c
-> @@ -58,25 +58,25 @@ module_param_call(shuffle, shuffle_store, shuffle_show, &shuffle_param, 0400);
->   * For two pages to be swapped in the shuffle, they must be free (on a
->   * 'free_area' lru), have the same order, and have the same migratetype.
->   */
-> -static struct page * __meminit shuffle_valid_page(unsigned long pfn, int order)
-> +static struct page * __meminit shuffle_valid_page(struct zone *zone,
-> +						  unsigned long pfn, int order)
->  {
-> -	struct page *page;
-> +	struct page *page = pfn_to_online_page(pfn);
->  
->  	/*
->  	 * Given we're dealing with randomly selected pfns in a zone we
->  	 * need to ask questions like...
->  	 */
->  
-> -	/* ...is the pfn even in the memmap? */
-> -	if (!pfn_valid_within(pfn))
-> +	/* ... is the page managed by the buddy? */
-> +	if (!page)
->  		return NULL;
->  
-> -	/* ...is the pfn in a present section or a hole? */
-> -	if (!pfn_in_present_section(pfn))
-> +	/* ... is the page assigned to the same zone? */
-> +	if (page_zone(page) != zone)
->  		return NULL;
->  
->  	/* ...is the page free and currently on a free_area list? */
-> -	page = pfn_to_page(pfn);
->  	if (!PageBuddy(page))
->  		return NULL;
->  
-> @@ -123,7 +123,7 @@ void __meminit __shuffle_zone(struct zone *z)
->  		 * page_j randomly selected in the span @zone_start_pfn to
->  		 * @spanned_pages.
->  		 */
-> -		page_i = shuffle_valid_page(i, order);
-> +		page_i = shuffle_valid_page(z, i, order);
->  		if (!page_i)
->  			continue;
->  
-> @@ -137,7 +137,7 @@ void __meminit __shuffle_zone(struct zone *z)
->  			j = z->zone_start_pfn +
->  				ALIGN_DOWN(get_random_long() % z->spanned_pages,
->  						order_pages);
-> -			page_j = shuffle_valid_page(j, order);
-> +			page_j = shuffle_valid_page(z, j, order);
->  			if (page_j && page_j != page_i)
->  				break;
->  		}
-> -- 
-> 2.26.2
+> [ Upstream commit 47828d22539f76c8c9dcf2a55f18ea3a8039d8ef ]
+> [ Upstream commit 476d60b1b4c8a2b14a53ef9b772058f35e604661 ]
 
--- 
-Michal Hocko
-SUSE Labs
+Thanks, I'll go queue those up now.
+
+greg k-h
