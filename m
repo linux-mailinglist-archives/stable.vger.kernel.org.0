@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 628BF1FB68D
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:39:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FDDA1FB746
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:47:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730620AbgFPPiV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:38:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50648 "EHLO mail.kernel.org"
+        id S1731456AbgFPPoi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:44:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730609AbgFPPiT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:38:19 -0400
+        id S1729857AbgFPPof (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:44:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4863C214DB;
-        Tue, 16 Jun 2020 15:38:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 77C7B21475;
+        Tue, 16 Jun 2020 15:44:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592321898;
-        bh=dTnrw0JasMGS76R+m/RltFYVDflbnjset2bZOPtq2lA=;
+        s=default; t=1592322275;
+        bh=NKMdgYii+M/cnUvPSQ4mA5hfpf/iT2vn+aa2rpTVPI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KJnhBsRUxtTIi2TzyhaJp1Fr3qB60pJyoCnyAtprcT3n3jne1V77axDRHXwY//r6/
-         rjQg0GfshiP+z/p+OfNdSmtsMoBdsneqMxjwmzVtxSuPVdFBGjGE3gY7v+ZPqB0x8i
-         AsyAgXcr4mcAY08dRhO1lnasYQ/Y8lx07zYxIVdw=
+        b=xUD+lPP27rOBUrdbduB4GseULh7FrKfBcNaLct6hRuESrFVgAHEla1P0RkwqZLNKd
+         wdZ2uUTAYTIBCFYsU3ngstowQloRqyT/JBmP2X9OLJdq0+pMDNZKhMH6f1gaRG/Zow
+         9tsyN1MOTg5Ty5YrCWNu/FXuVN7GDM6Hyv71UOE4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 059/134] ALSA: pcm: fix snd_pcm_link() lockdep splat
+Subject: [PATCH 5.7 069/163] ALSA: pcm: fix snd_pcm_link() lockdep splat
 Date:   Tue, 16 Jun 2020 17:34:03 +0200
-Message-Id: <20200616153103.599157790@linuxfoundation.org>
+Message-Id: <20200616153110.151343524@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
-References: <20200616153100.633279950@linuxfoundation.org>
+In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
+References: <20200616153106.849127260@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -92,7 +92,7 @@ Signed-off-by: Takashi Iwai <tiwai@suse.de>
 
 --- a/sound/core/pcm_native.c
 +++ b/sound/core/pcm_native.c
-@@ -136,6 +136,16 @@ void snd_pcm_stream_lock_irq(struct snd_
+@@ -138,6 +138,16 @@ void snd_pcm_stream_lock_irq(struct snd_
  }
  EXPORT_SYMBOL_GPL(snd_pcm_stream_lock_irq);
  
@@ -109,7 +109,7 @@ Signed-off-by: Takashi Iwai <tiwai@suse.de>
  /**
   * snd_pcm_stream_unlock_irq - Unlock the PCM stream
   * @substream: PCM substream
-@@ -2028,7 +2038,7 @@ static int snd_pcm_link(struct snd_pcm_s
+@@ -2200,7 +2210,7 @@ static int snd_pcm_link(struct snd_pcm_s
  	snd_pcm_stream_unlock_irq(substream);
  
  	snd_pcm_group_lock_irq(target_group, nonatomic);
@@ -118,7 +118,7 @@ Signed-off-by: Takashi Iwai <tiwai@suse.de>
  	snd_pcm_group_assign(substream1, target_group);
  	refcount_inc(&target_group->refs);
  	snd_pcm_stream_unlock(substream1);
-@@ -2044,7 +2054,7 @@ static int snd_pcm_link(struct snd_pcm_s
+@@ -2216,7 +2226,7 @@ static int snd_pcm_link(struct snd_pcm_s
  
  static void relink_to_local(struct snd_pcm_substream *substream)
  {
