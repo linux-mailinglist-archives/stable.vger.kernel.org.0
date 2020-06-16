@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE31C1FB12C
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 14:52:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A008E1FB131
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 14:53:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726692AbgFPMwZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 08:52:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42662 "EHLO mail.kernel.org"
+        id S1728154AbgFPMxV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 08:53:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726261AbgFPMwY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 08:52:24 -0400
+        id S1726261AbgFPMxU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 08:53:20 -0400
 Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB0B5208D5;
-        Tue, 16 Jun 2020 12:52:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 59C39208D5;
+        Tue, 16 Jun 2020 12:53:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592311944;
-        bh=3m5XB6CNxAzPWdUuL0IGkOEYXTgDpwx7yktZMWeFGpQ=;
+        s=default; t=1592311999;
+        bh=ZYkmHeNte2jnV+XcKmA/cbBlMkVTMsftJpQ3aP0uiEQ=;
         h=From:To:Cc:Subject:Date:From;
-        b=vcTAxUv/Laox++gHtC4vuha/at3gnNw8xogx67+7VCIbB2kt3YKcCZQtuwkohoEBv
-         yZDzbBZ4axRwNbbEPWXobFps8Uvj9cgPqmoshrcBjTucILS6ub8E2TyIYYTNdfv4D+
-         Sa1E+oBcXCuw7zeiYzYY8G/0sNRrxFJoWD+JlPNk=
+        b=IQWWmp5zqQSe42XQHi1wlU0O2BcP0ax88vTkqDnCRm2bTbFZeC9dTPFgUGD8TsJlH
+         iMMfwbVlbKlK0eUgYaWIfJVyoUd7n3p/AORiX8ztOUlDqug+RBO+wmqQhDXJ7pu5nu
+         th+XqtJmsav5HyJA75pOFB23GX+0ZL6sZMSJo5RE=
 Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.lan)
         by disco-boy.misterjones.org with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <maz@kernel.org>)
-        id 1jlB4g-003Q8U-8p; Tue, 16 Jun 2020 13:52:22 +0100
+        id 1jlB5Z-003Q99-Sh; Tue, 16 Jun 2020 13:53:18 +0100
 From:   Marc Zyngier <maz@kernel.org>
 To:     stable@vger.kernel.org
-Cc:     kernel-team@android.com, James Morse <james.morse@arm.com>
-Subject: [PATCH stable-5.7] KVM: arm64: Synchronize sysreg state on injecting an AArch32 exception
-Date:   Tue, 16 Jun 2020 13:52:00 +0100
-Message-Id: <20200616125200.2024340-1-maz@kernel.org>
+Cc:     James Morse <james.morse@arm.com>,
+        Julien Thierry <julien.thierry.kdev@gmail.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        kernel-team@android.com, Mark Rutland <mark.rutland@arm.com>
+Subject: [PATCH stable-5.7] KVM: arm64: Save the host's PtrAuth keys in non-preemptible context
+Date:   Tue, 16 Jun 2020 13:53:10 +0100
+Message-Id: <20200616125310.2024513-1-maz@kernel.org>
 X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 62.31.163.78
-X-SA-Exim-Rcpt-To: stable@vger.kernel.org, kernel-team@android.com, james.morse@arm.com
+X-SA-Exim-Rcpt-To: stable@vger.kernel.org, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, kernel-team@android.com, mark.rutland@arm.com
 X-SA-Exim-Mail-From: maz@kernel.org
 X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
@@ -46,91 +49,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 0370964dd3ff7d3d406f292cb443a927952cbd05 upstream
+commit ef3e40a7ea8dbe2abd0a345032cd7d5023b9684f upstream
 
-On a VHE system, the EL1 state is left in the CPU most of the time,
-and only syncronized back to memory when vcpu_put() is called (most
-of the time on preemption).
+When using the PtrAuth feature in a guest, we need to save the host's
+keys before allowing the guest to program them. For that, we dump
+them in a per-CPU data structure (the so called host context).
 
-Which means that when injecting an exception, we'd better have a way
-to either:
-(1) write directly to the EL1 sysregs
-(2) synchronize the state back to memory, and do the changes there
+But both call sites that do this are in preemptible context,
+which may end up in disaster should the vcpu thread get preempted
+before reentering the guest.
 
-For an AArch64, we already do (1), so we are safe. Unfortunately,
-doing the same thing for AArch32 would be pretty invasive. Instead,
-we can easily implement (2) by calling the put/load architectural
-backends, and keep preemption disabled. We can then reload the
-state back into EL1.
+Instead, save the keys eagerly on each vcpu_load(). This has an
+increased overhead, but is at least safe.
 
 Cc: stable@vger.kernel.org
-Reported-by: James Morse <james.morse@arm.com>
+Reviewed-by: Mark Rutland <mark.rutland@arm.com>
 Signed-off-by: Marc Zyngier <maz@kernel.org>
 ---
- virt/kvm/arm/aarch32.c | 28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+ arch/arm64/include/asm/kvm_emulate.h |  6 ------
+ arch/arm64/kvm/handle_exit.c         | 19 ++-----------------
+ virt/kvm/arm/arm.c                   | 18 +++++++++++++++++-
+ 3 files changed, 19 insertions(+), 24 deletions(-)
 
-diff --git a/virt/kvm/arm/aarch32.c b/virt/kvm/arm/aarch32.c
-index 0a356aa91aa1..40a62a99fbf8 100644
---- a/virt/kvm/arm/aarch32.c
-+++ b/virt/kvm/arm/aarch32.c
-@@ -33,6 +33,26 @@ static const u8 return_offsets[8][2] = {
- 	[7] = { 4, 4 },		/* FIQ, unused */
- };
+diff --git a/arch/arm64/include/asm/kvm_emulate.h b/arch/arm64/include/asm/kvm_emulate.h
+index a30b4eec7cb4..977843e4d5fb 100644
+--- a/arch/arm64/include/asm/kvm_emulate.h
++++ b/arch/arm64/include/asm/kvm_emulate.h
+@@ -112,12 +112,6 @@ static inline void vcpu_ptrauth_disable(struct kvm_vcpu *vcpu)
+ 	vcpu->arch.hcr_el2 &= ~(HCR_API | HCR_APK);
+ }
  
-+static bool pre_fault_synchronize(struct kvm_vcpu *vcpu)
-+{
-+	preempt_disable();
-+	if (vcpu->arch.sysregs_loaded_on_cpu) {
-+		kvm_arch_vcpu_put(vcpu);
-+		return true;
-+	}
-+
-+	preempt_enable();
-+	return false;
-+}
-+
-+static void post_fault_synchronize(struct kvm_vcpu *vcpu, bool loaded)
-+{
-+	if (loaded) {
-+		kvm_arch_vcpu_load(vcpu, smp_processor_id());
-+		preempt_enable();
-+	}
-+}
-+
- /*
-  * When an exception is taken, most CPSR fields are left unchanged in the
-  * handler. However, some are explicitly overridden (e.g. M[4:0]).
-@@ -155,7 +175,10 @@ static void prepare_fault32(struct kvm_vcpu *vcpu, u32 mode, u32 vect_offset)
- 
- void kvm_inject_undef32(struct kvm_vcpu *vcpu)
+-static inline void vcpu_ptrauth_setup_lazy(struct kvm_vcpu *vcpu)
+-{
+-	if (vcpu_has_ptrauth(vcpu))
+-		vcpu_ptrauth_disable(vcpu);
+-}
+-
+ static inline unsigned long vcpu_get_vsesr(struct kvm_vcpu *vcpu)
  {
-+	bool loaded = pre_fault_synchronize(vcpu);
-+
- 	prepare_fault32(vcpu, PSR_AA32_MODE_UND, 4);
-+	post_fault_synchronize(vcpu, loaded);
+ 	return vcpu->arch.vsesr_el2;
+diff --git a/arch/arm64/kvm/handle_exit.c b/arch/arm64/kvm/handle_exit.c
+index aacfc55de44c..e0a4bcdb9451 100644
+--- a/arch/arm64/kvm/handle_exit.c
++++ b/arch/arm64/kvm/handle_exit.c
+@@ -162,31 +162,16 @@ static int handle_sve(struct kvm_vcpu *vcpu, struct kvm_run *run)
+ 	return 1;
+ }
+ 
+-#define __ptrauth_save_key(regs, key)						\
+-({										\
+-	regs[key ## KEYLO_EL1] = read_sysreg_s(SYS_ ## key ## KEYLO_EL1);	\
+-	regs[key ## KEYHI_EL1] = read_sysreg_s(SYS_ ## key ## KEYHI_EL1);	\
+-})
+-
+ /*
+  * Handle the guest trying to use a ptrauth instruction, or trying to access a
+  * ptrauth register.
+  */
+ void kvm_arm_vcpu_ptrauth_trap(struct kvm_vcpu *vcpu)
+ {
+-	struct kvm_cpu_context *ctxt;
+-
+-	if (vcpu_has_ptrauth(vcpu)) {
++	if (vcpu_has_ptrauth(vcpu))
+ 		vcpu_ptrauth_enable(vcpu);
+-		ctxt = vcpu->arch.host_cpu_context;
+-		__ptrauth_save_key(ctxt->sys_regs, APIA);
+-		__ptrauth_save_key(ctxt->sys_regs, APIB);
+-		__ptrauth_save_key(ctxt->sys_regs, APDA);
+-		__ptrauth_save_key(ctxt->sys_regs, APDB);
+-		__ptrauth_save_key(ctxt->sys_regs, APGA);
+-	} else {
++	else
+ 		kvm_inject_undefined(vcpu);
+-	}
  }
  
  /*
-@@ -168,6 +191,9 @@ static void inject_abt32(struct kvm_vcpu *vcpu, bool is_pabt,
- 	u32 vect_offset;
- 	u32 *far, *fsr;
- 	bool is_lpae;
-+	bool loaded;
-+
-+	loaded = pre_fault_synchronize(vcpu);
- 
- 	if (is_pabt) {
- 		vect_offset = 12;
-@@ -191,6 +217,8 @@ static void inject_abt32(struct kvm_vcpu *vcpu, bool is_pabt,
- 		/* no need to shuffle FS[4] into DFSR[10] as its 0 */
- 		*fsr = DFSR_FSC_EXTABT_nLPAE;
- 	}
-+
-+	post_fault_synchronize(vcpu, loaded);
+diff --git a/virt/kvm/arm/arm.c b/virt/kvm/arm/arm.c
+index 48d0ec44ad77..3d7e8fdeebcd 100644
+--- a/virt/kvm/arm/arm.c
++++ b/virt/kvm/arm/arm.c
+@@ -332,6 +332,12 @@ void kvm_arch_vcpu_unblocking(struct kvm_vcpu *vcpu)
+ 	preempt_enable();
  }
  
- void kvm_inject_dabt32(struct kvm_vcpu *vcpu, unsigned long addr)
++#define __ptrauth_save_key(regs, key)						\
++({										\
++	regs[key ## KEYLO_EL1] = read_sysreg_s(SYS_ ## key ## KEYLO_EL1);	\
++	regs[key ## KEYHI_EL1] = read_sysreg_s(SYS_ ## key ## KEYHI_EL1);	\
++})
++
+ void kvm_arch_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
+ {
+ 	int *last_ran;
+@@ -365,7 +371,17 @@ void kvm_arch_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
+ 	else
+ 		vcpu_set_wfx_traps(vcpu);
+ 
+-	vcpu_ptrauth_setup_lazy(vcpu);
++	if (vcpu_has_ptrauth(vcpu)) {
++		struct kvm_cpu_context *ctxt = vcpu->arch.host_cpu_context;
++
++		__ptrauth_save_key(ctxt->sys_regs, APIA);
++		__ptrauth_save_key(ctxt->sys_regs, APIB);
++		__ptrauth_save_key(ctxt->sys_regs, APDA);
++		__ptrauth_save_key(ctxt->sys_regs, APDB);
++		__ptrauth_save_key(ctxt->sys_regs, APGA);
++
++		vcpu_ptrauth_disable(vcpu);
++	}
+ }
+ 
+ void kvm_arch_vcpu_put(struct kvm_vcpu *vcpu)
 -- 
 2.27.0
 
