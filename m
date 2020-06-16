@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42FB11FB9F8
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:08:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F7631FBB0A
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:16:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730697AbgFPPqs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:46:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39254 "EHLO mail.kernel.org"
+        id S1730463AbgFPPkt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:40:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731694AbgFPPqr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:46:47 -0400
+        id S1731262AbgFPPks (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:40:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B28EF21475;
-        Tue, 16 Jun 2020 15:46:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5CD0421531;
+        Tue, 16 Jun 2020 15:40:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322407;
-        bh=bzr/AX9iv/cLZSte631JwVq5+ZiXXYC5kSpMu6k8j4U=;
+        s=default; t=1592322047;
+        bh=Xur/2ps7vCdybjS3oNBWCqE5T1fBUF+bZqPQ5Ga/7Nw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1RMvEshryjm/MgaLQTu7N0HbZ/rjFaa4jIx8EqIvRyEb2CJuJW2avjIV3aCKNxm77
-         ypkMI9p29mVJnenBQ5jb2c0+n54kfnoUS/z/T3YsnHtHbiIG1vLtIBvvDojTBYt42B
-         tPtFoZjjr0oRAS/d79RzkDCdonvnSHRqyJo4DiLo=
+        b=pcr5PQDg6Lx8eg/07xZYEiSgTbW3KtHcpcsig+n8C786ON6WCQIt54SSHlfEda7uB
+         563rtgPctDSg8FOl/m09mlXshprQ9NEfQrhcysS+eD4CEOYPvUTFBJAQK1GEAvAB2A
+         grYEGfuIAiMHkx9agastku/jidMeETbhSd92qcyo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Namjae Jeon <namjae.jeon@samsung.com>
-Subject: [PATCH 5.7 118/163] exfat: fix incorrect update of stream entry in __exfat_truncate()
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        James Morse <james.morse@arm.com>
+Subject: [PATCH 5.4 108/134] KVM: arm64: Stop writing aarch32s CSSELR into ACTLR
 Date:   Tue, 16 Jun 2020 17:34:52 +0200
-Message-Id: <20200616153112.458363768@linuxfoundation.org>
+Message-Id: <20200616153105.958852397@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
-References: <20200616153106.849127260@linuxfoundation.org>
+In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
+References: <20200616153100.633279950@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +43,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namjae Jeon <namjae.jeon@samsung.com>
+From: James Morse <james.morse@arm.com>
 
-commit 29bbb14bfc80dd760b07d2be0a27e610562982e3 upstream.
+commit 7c582bf4ed84f3eb58bdd1f63024a14c17551e7d upstream.
 
-At truncate, there is a problem of incorrect updating in the file entry
-pointer instead of stream entry. This will cause the problem of
-overwriting the time field of the file entry to new_size. Fix it to
-update stream entry.
+aarch32 has pairs of registers to access the high and low parts of 64bit
+registers. KVM has a union of 64bit sys_regs[] and 32bit copro[]. The
+32bit accessors read the high or low part of the 64bit sys_reg[] value
+through the union.
 
-Fixes: 98d917047e8b ("exfat: add file operations")
-Cc: stable@vger.kernel.org # v5.7
-Signed-off-by: Namjae Jeon <namjae.jeon@samsung.com>
+Both sys_reg_descs[] and cp15_regs[] list access_csselr() as the accessor
+for CSSELR{,_EL1}. access_csselr() is only aware of the 64bit sys_regs[],
+and expects r->reg to be 'CSSELR_EL1' in the enum, index 2 of the 64bit
+array.
+
+cp15_regs[] uses the 32bit copro[] alias of sys_regs[]. Here CSSELR is
+c0_CSSELR which is the same location in sys_reg[]. r->reg is 'c0_CSSELR',
+index 4 in the 32bit array.
+
+access_csselr() uses the 32bit r->reg value to access the 64bit array,
+so reads and write the wrong value. sys_regs[4], is ACTLR_EL1, which
+is subsequently save/restored when we enter the guest.
+
+ACTLR_EL1 is supposed to be read-only for the guest. This register
+only affects execution at EL1, and the host's value is restored before
+we return to host EL1.
+
+Convert the 32bit register index back to the 64bit version.
+
+Suggested-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: James Morse <james.morse@arm.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200529150656.7339-2-james.morse@arm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/exfat/file.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/arm64/kvm/sys_regs.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/fs/exfat/file.c
-+++ b/fs/exfat/file.c
-@@ -170,11 +170,11 @@ int __exfat_truncate(struct inode *inode
+--- a/arch/arm64/kvm/sys_regs.c
++++ b/arch/arm64/kvm/sys_regs.c
+@@ -1280,10 +1280,16 @@ static bool access_clidr(struct kvm_vcpu
+ static bool access_csselr(struct kvm_vcpu *vcpu, struct sys_reg_params *p,
+ 			  const struct sys_reg_desc *r)
+ {
++	int reg = r->reg;
++
++	/* See the 32bit mapping in kvm_host.h */
++	if (p->is_aarch32)
++		reg = r->reg / 2;
++
+ 	if (p->is_write)
+-		vcpu_write_sys_reg(vcpu, p->regval, r->reg);
++		vcpu_write_sys_reg(vcpu, p->regval, reg);
+ 	else
+-		p->regval = vcpu_read_sys_reg(vcpu, r->reg);
++		p->regval = vcpu_read_sys_reg(vcpu, reg);
+ 	return true;
+ }
  
- 		/* File size should be zero if there is no cluster allocated */
- 		if (ei->start_clu == EXFAT_EOF_CLUSTER) {
--			ep->dentry.stream.valid_size = 0;
--			ep->dentry.stream.size = 0;
-+			ep2->dentry.stream.valid_size = 0;
-+			ep2->dentry.stream.size = 0;
- 		} else {
--			ep->dentry.stream.valid_size = cpu_to_le64(new_size);
--			ep->dentry.stream.size = ep->dentry.stream.valid_size;
-+			ep2->dentry.stream.valid_size = cpu_to_le64(new_size);
-+			ep2->dentry.stream.size = ep->dentry.stream.valid_size;
- 		}
- 
- 		if (new_size == 0) {
 
 
