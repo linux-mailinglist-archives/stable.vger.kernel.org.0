@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96E6C1FB926
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:02:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 319B51FBB49
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:18:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731837AbgFPPuz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:50:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47118 "EHLO mail.kernel.org"
+        id S1731425AbgFPQSX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 12:18:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732427AbgFPPuy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:50:54 -0400
+        id S1730604AbgFPPiQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:38:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B88A721501;
-        Tue, 16 Jun 2020 15:50:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE39820C56;
+        Tue, 16 Jun 2020 15:38:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322653;
-        bh=359WiajNBAifNn9/ynfRe69bcOYSGqm22DmtL7lD168=;
+        s=default; t=1592321896;
+        bh=t3syh8NXFdpKAyNciH2hnkU2ovTSPSnl0INFvSsgUww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UmcM/GFqZATsC46IWDmO4HtYP/UuiNrG1S1dhBSQiz44Lgu4XQpmpmElAn9B8K4Uh
-         CJvSKjt7yQGsHHEaP2968yasLM3+RrY5rvuR72zsHLJo+hzczUOs3hOyDnnebKgRvt
-         pNKNxlt8acsayNaIjdsMiwNg3aaA9kWY07pp8Bm4=
+        b=0LqlLGrvwCtDebIMJ8LWhf9gd1N/egXrlLSP9H3JtNoFPwjVlK99cX9WrZBW32cAl
+         IPAlph+vSnQ5fAN9VydhxhiJh4gq23ZAqAeQiJee1izhAqbbgrhx3w6t1SGZLyBGJJ
+         nemPO/gh1qwOMEjJ8VEgROlknF2kMK/r3Ed1MIpw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Anthony Steinhauser <asteinhauser@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.6 051/161] x86/speculation: Prevent rogue cross-process SSBD shutdown
-Date:   Tue, 16 Jun 2020 17:34:01 +0200
-Message-Id: <20200616153108.808176983@linuxfoundation.org>
+        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 058/134] ALSA: pcm: disallow linking stream to itself
+Date:   Tue, 16 Jun 2020 17:34:02 +0200
+Message-Id: <20200616153103.552524198@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
-References: <20200616153106.402291280@linuxfoundation.org>
+In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
+References: <20200616153100.633279950@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,96 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anthony Steinhauser <asteinhauser@google.com>
+From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 
-commit dbbe2ad02e9df26e372f38cc3e70dab9222c832e upstream.
+commit 951e2736f4b11b58dc44d41964fa17c3527d882a upstream.
 
-On context switch the change of TIF_SSBD and TIF_SPEC_IB are evaluated
-to adjust the mitigations accordingly. This is optimized to avoid the
-expensive MSR write if not needed.
+Prevent SNDRV_PCM_IOCTL_LINK linking stream to itself - the code
+can't handle it. Fixed commit is not where bug was introduced, but
+changes the context significantly.
 
-This optimization is buggy and allows an attacker to shutdown the SSBD
-protection of a victim process.
-
-The update logic reads the cached base value for the speculation control
-MSR which has neither the SSBD nor the STIBP bit set. It then OR's the
-SSBD bit only when TIF_SSBD is different and requests the MSR update.
-
-That means if TIF_SSBD of the previous and next task are the same, then
-the base value is not updated, even if TIF_SSBD is set. The MSR write is
-not requested.
-
-Subsequently if the TIF_STIBP bit differs then the STIBP bit is updated
-in the base value and the MSR is written with a wrong SSBD value.
-
-This was introduced when the per task/process conditional STIPB
-switching was added on top of the existing SSBD switching.
-
-It is exploitable if the attacker creates a process which enforces SSBD
-and has the contrary value of STIBP than the victim process (i.e. if the
-victim process enforces STIBP, the attacker process must not enforce it;
-if the victim process does not enforce STIBP, the attacker process must
-enforce it) and schedule it on the same core as the victim process. If
-the victim runs after the attacker the victim becomes vulnerable to
-Spectre V4.
-
-To fix this, update the MSR value independent of the TIF_SSBD difference
-and dependent on the SSBD mitigation method available. This ensures that
-a subsequent STIPB initiated MSR write has the correct state of SSBD.
-
-[ tglx: Handle X86_FEATURE_VIRT_SSBD & X86_FEATURE_VIRT_SSBD correctly
-        and massaged changelog ]
-
-Fixes: 5bfbe3ad5840 ("x86/speculation: Prepare for per task indirect branch speculation control")
-Signed-off-by: Anthony Steinhauser <asteinhauser@google.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Cc: stable@vger.kernel.org
+Fixes: 0888c321de70 ("pcm_native: switch to fdget()/fdput()")
+Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Link: https://lore.kernel.org/r/89c4a2487609a0ed6af3ecf01cc972bdc59a7a2d.1591634956.git.mirq-linux@rere.qmqm.pl
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/process.c |   28 ++++++++++------------------
- 1 file changed, 10 insertions(+), 18 deletions(-)
+ sound/core/pcm_native.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/arch/x86/kernel/process.c
-+++ b/arch/x86/kernel/process.c
-@@ -546,28 +546,20 @@ static __always_inline void __speculatio
- 
- 	lockdep_assert_irqs_disabled();
- 
--	/*
--	 * If TIF_SSBD is different, select the proper mitigation
--	 * method. Note that if SSBD mitigation is disabled or permanentely
--	 * enabled this branch can't be taken because nothing can set
--	 * TIF_SSBD.
--	 */
--	if (tif_diff & _TIF_SSBD) {
--		if (static_cpu_has(X86_FEATURE_VIRT_SSBD)) {
-+	/* Handle change of TIF_SSBD depending on the mitigation method. */
-+	if (static_cpu_has(X86_FEATURE_VIRT_SSBD)) {
-+		if (tif_diff & _TIF_SSBD)
- 			amd_set_ssb_virt_state(tifn);
--		} else if (static_cpu_has(X86_FEATURE_LS_CFG_SSBD)) {
-+	} else if (static_cpu_has(X86_FEATURE_LS_CFG_SSBD)) {
-+		if (tif_diff & _TIF_SSBD)
- 			amd_set_core_ssb_state(tifn);
--		} else if (static_cpu_has(X86_FEATURE_SPEC_CTRL_SSBD) ||
--			   static_cpu_has(X86_FEATURE_AMD_SSBD)) {
--			msr |= ssbd_tif_to_spec_ctrl(tifn);
--			updmsr  = true;
--		}
-+	} else if (static_cpu_has(X86_FEATURE_SPEC_CTRL_SSBD) ||
-+		   static_cpu_has(X86_FEATURE_AMD_SSBD)) {
-+		updmsr |= !!(tif_diff & _TIF_SSBD);
-+		msr |= ssbd_tif_to_spec_ctrl(tifn);
+--- a/sound/core/pcm_native.c
++++ b/sound/core/pcm_native.c
+@@ -1994,6 +1994,12 @@ static int snd_pcm_link(struct snd_pcm_s
  	}
- 
--	/*
--	 * Only evaluate TIF_SPEC_IB if conditional STIBP is enabled,
--	 * otherwise avoid the MSR write.
--	 */
-+	/* Only evaluate TIF_SPEC_IB if conditional STIBP is enabled. */
- 	if (IS_ENABLED(CONFIG_SMP) &&
- 	    static_branch_unlikely(&switch_to_cond_stibp)) {
- 		updmsr |= !!(tif_diff & _TIF_SPEC_IB);
+ 	pcm_file = f.file->private_data;
+ 	substream1 = pcm_file->substream;
++
++	if (substream == substream1) {
++		res = -EINVAL;
++		goto _badf;
++	}
++
+ 	group = kzalloc(sizeof(*group), GFP_KERNEL);
+ 	if (!group) {
+ 		res = -ENOMEM;
 
 
