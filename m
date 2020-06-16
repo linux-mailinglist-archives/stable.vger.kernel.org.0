@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C377D1FB6B4
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:43:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CD871FB807
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:53:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730049AbgFPPjc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:39:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52958 "EHLO mail.kernel.org"
+        id S1732755AbgFPPwK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:52:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730951AbgFPPja (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:39:30 -0400
+        id S1732754AbgFPPwI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:52:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C3152145D;
-        Tue, 16 Jun 2020 15:39:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5507321534;
+        Tue, 16 Jun 2020 15:52:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592321970;
-        bh=RHVyUJryWVBrb37z8EtnL+5Xxwy5WhIbryfW9d+mlY4=;
+        s=default; t=1592322727;
+        bh=qPXtMOTdflutZMIJ3Kxe+EfHyqUsxZqyhk7CaUbd0Do=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JNOD9wLMQhCPITDotwtwlcv+crJzmfaZvja50VnFYsweEx+bcu77AynJKLeqYcYsM
-         1pL4omj7p0E6RWTCRuo7bBQQY3hKR5c746K0Ie2fZC2bAsBjIyqpRmE9PvPnK3wcCB
-         0a31Xr0wmWE5H/GFgpbCKjb3bgJSktb/0dq94APw=
+        b=XmKHDL6qNNsELrXIC1SUIYi639P6tcGLaWejb8f8J3NRwLwMdeLoWyOGnnZjtE74o
+         J5JwYorXyGtmf1q2sxcnkPAOfmFTOScen9mEJ5MZ5mLWnJmjBy+s9yBk3KVxt5nQGf
+         H7mLfha/n4s/VayBotdpWQElT3ytIInMlmXboo50=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, LABBE Corentin <clabbe@baylibre.com>,
-        Gonglei <arei.gonglei@huawei.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        virtualization@lists.linux-foundation.org,
-        "Longpeng(Mike)" <longpeng2@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 086/134] crypto: virtio: Fix use-after-free in virtio_crypto_skcipher_finalize_req()
-Date:   Tue, 16 Jun 2020 17:34:30 +0200
-Message-Id: <20200616153104.901978904@linuxfoundation.org>
+        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Jeremy Linton <jeremy.linton@arm.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 5.6 081/161] arm64: acpi: fix UBSAN warning
+Date:   Tue, 16 Jun 2020 17:34:31 +0200
+Message-Id: <20200616153110.235892960@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
-References: <20200616153100.633279950@linuxfoundation.org>
+In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
+References: <20200616153106.402291280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,75 +46,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Longpeng(Mike) <longpeng2@huawei.com>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-[ Upstream commit 8c855f0720ff006d75d0a2512c7f6c4f60ff60ee ]
+commit a194c33f45f83068ef13bf1d16e26d4ca3ecc098 upstream.
 
-The system'll crash when the users insmod crypto/tcrypto.ko with mode=155
-( testing "authenc(hmac(sha1),cbc(aes))" ). It's caused by reuse the memory
-of request structure.
+Will reported a UBSAN warning:
 
-In crypto_authenc_init_tfm(), the reqsize is set to:
-  [PART 1] sizeof(authenc_request_ctx) +
-  [PART 2] ictx->reqoff +
-  [PART 3] MAX(ahash part, skcipher part)
-and the 'PART 3' is used by both ahash and skcipher in turn.
+UBSAN: null-ptr-deref in arch/arm64/kernel/smp.c:596:6
+member access within null pointer of type 'struct acpi_madt_generic_interrupt'
+CPU: 0 PID: 0 Comm: swapper Not tainted 5.7.0-rc6-00124-g96bc42ff0a82 #1
+Call trace:
+ dump_backtrace+0x0/0x384
+ show_stack+0x28/0x38
+ dump_stack+0xec/0x174
+ handle_null_ptr_deref+0x134/0x174
+ __ubsan_handle_type_mismatch_v1+0x84/0xa4
+ acpi_parse_gic_cpu_interface+0x60/0xe8
+ acpi_parse_entries_array+0x288/0x498
+ acpi_table_parse_entries_array+0x178/0x1b4
+ acpi_table_parse_madt+0xa4/0x110
+ acpi_parse_and_init_cpus+0x38/0x100
+ smp_init_cpus+0x74/0x258
+ setup_arch+0x350/0x3ec
+ start_kernel+0x98/0x6f4
 
-When the virtio_crypto driver finish skcipher req, it'll call ->complete
-callback(in crypto_finalize_skcipher_request) and then free its
-resources whose pointers are recorded in 'skcipher parts'.
+This is from the use of the ACPI_OFFSET in
+arch/arm64/include/asm/acpi.h. Replace its use with offsetof from
+include/linux/stddef.h which should implement the same logic using
+__builtin_offsetof, so that UBSAN wont warn.
 
-However, the ->complete is 'crypto_authenc_encrypt_done' in this case,
-it will use the 'ahash part' of the request and change its content,
-so virtio_crypto driver will get the wrong pointer after ->complete
-finish and mistakenly free some other's memory. So the system will crash
-when these memory will be used again.
-
-The resources which need to be cleaned up are not used any more. But the
-pointers of these resources may be changed in the function
-"crypto_finalize_skcipher_request". Thus release specific resources before
-calling this function.
-
-Fixes: dbaf0624ffa5 ("crypto: add virtio-crypto driver")
-Reported-by: LABBE Corentin <clabbe@baylibre.com>
-Cc: Gonglei <arei.gonglei@huawei.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: virtualization@lists.linux-foundation.org
-Cc: linux-kernel@vger.kernel.org
+Reported-by: Will Deacon <will@kernel.org>
+Suggested-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Jeremy Linton <jeremy.linton@arm.com>
+Acked-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200123101000.GB24255@Red
-Acked-by: Gonglei <arei.gonglei@huawei.com>
-Signed-off-by: Longpeng(Mike) <longpeng2@huawei.com>
-Link: https://lore.kernel.org/r/20200602070501.2023-3-longpeng2@huawei.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/lkml/20200521100952.GA5360@willie-the-truck/
+Link: https://lore.kernel.org/r/20200608203818.189423-1-ndesaulniers@google.com
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/crypto/virtio/virtio_crypto_algs.c | 5 +++--
+ arch/arm64/include/asm/acpi.h |    5 +++--
  1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/crypto/virtio/virtio_crypto_algs.c b/drivers/crypto/virtio/virtio_crypto_algs.c
-index 82b316b2f537..fea55b5da8b5 100644
---- a/drivers/crypto/virtio/virtio_crypto_algs.c
-+++ b/drivers/crypto/virtio/virtio_crypto_algs.c
-@@ -580,10 +580,11 @@ static void virtio_crypto_ablkcipher_finalize_req(
- 		scatterwalk_map_and_copy(req->info, req->dst,
- 					 req->nbytes - AES_BLOCK_SIZE,
- 					 AES_BLOCK_SIZE, 0);
--	crypto_finalize_ablkcipher_request(vc_sym_req->base.dataq->engine,
--					   req, err);
- 	kzfree(vc_sym_req->iv);
- 	virtcrypto_clear_request(&vc_sym_req->base);
-+
-+	crypto_finalize_ablkcipher_request(vc_sym_req->base.dataq->engine,
-+					   req, err);
- }
+--- a/arch/arm64/include/asm/acpi.h
++++ b/arch/arm64/include/asm/acpi.h
+@@ -12,6 +12,7 @@
+ #include <linux/efi.h>
+ #include <linux/memblock.h>
+ #include <linux/psci.h>
++#include <linux/stddef.h>
  
- static struct virtio_crypto_algo virtio_crypto_algs[] = { {
--- 
-2.25.1
-
+ #include <asm/cputype.h>
+ #include <asm/io.h>
+@@ -31,14 +32,14 @@
+  * is therefore used to delimit the MADT GICC structure minimum length
+  * appropriately.
+  */
+-#define ACPI_MADT_GICC_MIN_LENGTH   ACPI_OFFSET(  \
++#define ACPI_MADT_GICC_MIN_LENGTH   offsetof(  \
+ 	struct acpi_madt_generic_interrupt, efficiency_class)
+ 
+ #define BAD_MADT_GICC_ENTRY(entry, end)					\
+ 	(!(entry) || (entry)->header.length < ACPI_MADT_GICC_MIN_LENGTH || \
+ 	(unsigned long)(entry) + (entry)->header.length > (end))
+ 
+-#define ACPI_MADT_GICC_SPE  (ACPI_OFFSET(struct acpi_madt_generic_interrupt, \
++#define ACPI_MADT_GICC_SPE  (offsetof(struct acpi_madt_generic_interrupt, \
+ 	spe_interrupt) + sizeof(u16))
+ 
+ /* Basic configuration for ACPI */
 
 
