@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FDDA1FB746
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:47:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFA591FB7E7
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:51:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731456AbgFPPoi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:44:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34992 "EHLO mail.kernel.org"
+        id S1732631AbgFPPu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:50:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729857AbgFPPof (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:44:35 -0400
+        id S1732629AbgFPPu7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:50:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 77C7B21475;
-        Tue, 16 Jun 2020 15:44:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 37EC521508;
+        Tue, 16 Jun 2020 15:50:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322275;
-        bh=NKMdgYii+M/cnUvPSQ4mA5hfpf/iT2vn+aa2rpTVPI4=;
+        s=default; t=1592322658;
+        bh=NfyeYBv3Ytqvwx2GLkdolh2/BfKmm02Zfnl6JpkxPis=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xUD+lPP27rOBUrdbduB4GseULh7FrKfBcNaLct6hRuESrFVgAHEla1P0RkwqZLNKd
-         wdZ2uUTAYTIBCFYsU3ngstowQloRqyT/JBmP2X9OLJdq0+pMDNZKhMH6f1gaRG/Zow
-         9tsyN1MOTg5Ty5YrCWNu/FXuVN7GDM6Hyv71UOE4=
+        b=NdAKucZCj33lAc0HlDjczRDVopbtP/HX9JdKLmpVYzua8F1iZkuBoRtkTQe9Xw2Ep
+         esrciZ6z91ynXxeQZ0KCjx7mRS2xGAprhahqbz1bW7OIxWTjpcsQspIkOm8zP6HeLN
+         +ZiqM0IhPJcTPD4ks3Yj971Os1kr6+uMsAleKe4A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.7 069/163] ALSA: pcm: fix snd_pcm_link() lockdep splat
+        Anthony Steinhauser <asteinhauser@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.6 053/161] x86/speculation: PR_SPEC_FORCE_DISABLE enforcement for indirect branches.
 Date:   Tue, 16 Jun 2020 17:34:03 +0200
-Message-Id: <20200616153110.151343524@linuxfoundation.org>
+Message-Id: <20200616153108.905780865@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
-References: <20200616153106.849127260@linuxfoundation.org>
+In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
+References: <20200616153106.402291280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,88 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+From: Anthony Steinhauser <asteinhauser@google.com>
 
-commit e18035cf5cb3d2bf8e4f4d350a23608bd208b934 upstream.
+commit 4d8df8cbb9156b0a0ab3f802b80cb5db57acc0bf upstream.
 
-Add and use snd_pcm_stream_lock_nested() in snd_pcm_link/unlink
-implementation.  The code is fine, but generates a lockdep complaint:
+Currently, it is possible to enable indirect branch speculation even after
+it was force-disabled using the PR_SPEC_FORCE_DISABLE option. Moreover, the
+PR_GET_SPECULATION_CTRL command gives afterwards an incorrect result
+(force-disabled when it is in fact enabled). This also is inconsistent
+vs. STIBP and the documention which cleary states that
+PR_SPEC_FORCE_DISABLE cannot be undone.
 
-============================================
-WARNING: possible recursive locking detected
-5.7.1mq+ #381 Tainted: G           O
---------------------------------------------
-pulseaudio/4180 is trying to acquire lock:
-ffff888402d6f508 (&group->lock){-...}-{2:2}, at: snd_pcm_common_ioctl+0xda8/0xee0 [snd_pcm]
+Fix this by actually enforcing force-disabled indirect branch
+speculation. PR_SPEC_ENABLE called after PR_SPEC_FORCE_DISABLE now fails
+with -EPERM as described in the documentation.
 
-but task is already holding lock:
-ffff8883f7a8cf18 (&group->lock){-...}-{2:2}, at: snd_pcm_common_ioctl+0xe4e/0xee0 [snd_pcm]
-
-other info that might help us debug this:
- Possible unsafe locking scenario:
-
-       CPU0
-       ----
-  lock(&group->lock);
-  lock(&group->lock);
-
- *** DEADLOCK ***
-
- May be due to missing lock nesting notation
-
-2 locks held by pulseaudio/4180:
- #0: ffffffffa1a05190 (snd_pcm_link_rwsem){++++}-{3:3}, at: snd_pcm_common_ioctl+0xca0/0xee0 [snd_pcm]
- #1: ffff8883f7a8cf18 (&group->lock){-...}-{2:2}, at: snd_pcm_common_ioctl+0xe4e/0xee0 [snd_pcm]
-[...]
-
+Fixes: 9137bb27e60e ("x86/speculation: Add prctl() control for indirect branch speculation")
+Signed-off-by: Anthony Steinhauser <asteinhauser@google.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Cc: stable@vger.kernel.org
-Fixes: f57f3df03a8e ("ALSA: pcm: More fine-grained PCM link locking")
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Link: https://lore.kernel.org/r/37252c65941e58473b1219ca9fab03d48f47e3e3.1591610330.git.mirq-linux@rere.qmqm.pl
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-
 ---
- sound/core/pcm_native.c |   14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ arch/x86/kernel/cpu/bugs.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/sound/core/pcm_native.c
-+++ b/sound/core/pcm_native.c
-@@ -138,6 +138,16 @@ void snd_pcm_stream_lock_irq(struct snd_
- }
- EXPORT_SYMBOL_GPL(snd_pcm_stream_lock_irq);
- 
-+static void snd_pcm_stream_lock_nested(struct snd_pcm_substream *substream)
-+{
-+	struct snd_pcm_group *group = &substream->self_group;
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -1268,11 +1268,14 @@ static int ib_prctl_set(struct task_stru
+ 			return 0;
+ 		/*
+ 		 * Indirect branch speculation is always disabled in strict
+-		 * mode.
++		 * mode. It can neither be enabled if it was force-disabled
++		 * by a  previous prctl call.
 +
-+	if (substream->pcm->nonatomic)
-+		mutex_lock_nested(&group->mutex, SINGLE_DEPTH_NESTING);
-+	else
-+		spin_lock_nested(&group->lock, SINGLE_DEPTH_NESTING);
-+}
-+
- /**
-  * snd_pcm_stream_unlock_irq - Unlock the PCM stream
-  * @substream: PCM substream
-@@ -2200,7 +2210,7 @@ static int snd_pcm_link(struct snd_pcm_s
- 	snd_pcm_stream_unlock_irq(substream);
- 
- 	snd_pcm_group_lock_irq(target_group, nonatomic);
--	snd_pcm_stream_lock(substream1);
-+	snd_pcm_stream_lock_nested(substream1);
- 	snd_pcm_group_assign(substream1, target_group);
- 	refcount_inc(&target_group->refs);
- 	snd_pcm_stream_unlock(substream1);
-@@ -2216,7 +2226,7 @@ static int snd_pcm_link(struct snd_pcm_s
- 
- static void relink_to_local(struct snd_pcm_substream *substream)
- {
--	snd_pcm_stream_lock(substream);
-+	snd_pcm_stream_lock_nested(substream);
- 	snd_pcm_group_assign(substream, &substream->self_group);
- 	snd_pcm_stream_unlock(substream);
- }
+ 		 */
+ 		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_STRICT ||
+ 		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT ||
+-		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED)
++		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED ||
++		    task_spec_ib_force_disable(task))
+ 			return -EPERM;
+ 		task_clear_spec_ib_disable(task);
+ 		task_update_spec_tif(task);
 
 
