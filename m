@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EA771FB910
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:01:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E946A1FBB01
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:16:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732255AbgFPQAz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 12:00:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50120 "EHLO mail.kernel.org"
+        id S1731098AbgFPPkG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:40:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732787AbgFPPwg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:52:36 -0400
+        id S1730247AbgFPPkE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:40:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AEEC0208D5;
-        Tue, 16 Jun 2020 15:52:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ECE1B21475;
+        Tue, 16 Jun 2020 15:40:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322756;
-        bh=ImD1zoy+Fx0CsZrmk+QIEfgyjaPXOBH8d6zBqOiEGqI=;
+        s=default; t=1592322003;
+        bh=YpiDX//DCZyndsHiTNDCXemrMW/Ng3bYPltKA4HZ0As=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eCNvlJT1j+sEKy+nd47kQpf9iOMiuXkVFWzdTMZ5ik78JLm5+wv08xzAYhnhjFUyh
-         Z6jjdfz9j4KgTZJjFjl328ZyP22ZWo6iJm1GtUZgmPs06TTQIYzIXif4FywjFsjKPh
-         WefNDB0w+xA92IfZbYfSIETHPdzN89Xb9dI74NlM=
+        b=tmFkT8IqM5xcIxKS0RUm1FJsyQChqZsDsYh6TPKLISCdEtETbHt8PPfxLkQMStgVj
+         em63ev9P89wpDZV7c16B4caDLG8AGW8WSNW93VN8aYxsstOntS+b9ZP7/ZGpmZUtDW
+         65qsvfy5APIiI5Gkt/Z+T80cNQKvhzURSGv1GEoU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Kamal Dasu <kdasu.kdev@gmail.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.6 091/161] spi: bcm-qspi: Handle clock probe deferral
-Date:   Tue, 16 Jun 2020 17:34:41 +0200
-Message-Id: <20200616153110.713624489@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.4 098/134] cpufreq: Fix up cpufreq_boost_set_sw()
+Date:   Tue, 16 Jun 2020 17:34:42 +0200
+Message-Id: <20200616153105.476609204@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
-References: <20200616153106.402291280@linuxfoundation.org>
+In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
+References: <20200616153100.633279950@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,51 +46,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-commit 0392727c261bab65a35cd4f82ee9459bc237591d upstream.
+commit 552abb884e97d26589964e5a8c7e736f852f95f0 upstream.
 
-The clock provider may not be ready by the time spi-bcm-qspi gets
-probed, handle probe deferral using devm_clk_get_optional().
+After commit 18c49926c4bf ("cpufreq: Add QoS requests for userspace
+constraints") the return value of freq_qos_update_request(), that can
+be 1, passed by cpufreq_boost_set_sw() to its caller sometimes
+confuses the latter, which only expects to see 0 or negative error
+codes, so notice that cpufreq_boost_set_sw() can return an error code
+(which should not be -EINVAL for that matter) as soon as the first
+policy without a frequency table is found (because either all policies
+have a frequency table or none of them have it) and rework it to meet
+its caller's expectations.
 
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Kamal Dasu <kdasu.kdev@gmail.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200420190853.45614-2-kdasu.kdev@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 18c49926c4bf ("cpufreq: Add QoS requests for userspace constraints")
+Reported-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Reported-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Cc: 5.3+ <stable@vger.kernel.org> # 5.3+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/spi/spi-bcm-qspi.c |   12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ drivers/cpufreq/cpufreq.c |   11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- a/drivers/spi/spi-bcm-qspi.c
-+++ b/drivers/spi/spi-bcm-qspi.c
-@@ -1222,6 +1222,11 @@ int bcm_qspi_probe(struct platform_devic
+--- a/drivers/cpufreq/cpufreq.c
++++ b/drivers/cpufreq/cpufreq.c
+@@ -2507,26 +2507,27 @@ EXPORT_SYMBOL_GPL(cpufreq_update_limits)
+ static int cpufreq_boost_set_sw(int state)
+ {
+ 	struct cpufreq_policy *policy;
+-	int ret = -EINVAL;
+ 
+ 	for_each_active_policy(policy) {
++		int ret;
++
+ 		if (!policy->freq_table)
+-			continue;
++			return -ENXIO;
+ 
+ 		ret = cpufreq_frequency_table_cpuinfo(policy,
+ 						      policy->freq_table);
+ 		if (ret) {
+ 			pr_err("%s: Policy frequency update failed\n",
+ 			       __func__);
+-			break;
++			return ret;
+ 		}
+ 
+ 		ret = freq_qos_update_request(policy->max_freq_req, policy->max);
+ 		if (ret < 0)
+-			break;
++			return ret;
  	}
  
- 	qspi = spi_master_get_devdata(master);
-+
-+	qspi->clk = devm_clk_get_optional(&pdev->dev, NULL);
-+	if (IS_ERR(qspi->clk))
-+		return PTR_ERR(qspi->clk);
-+
- 	qspi->pdev = pdev;
- 	qspi->trans_pos.trans = NULL;
- 	qspi->trans_pos.byte = 0;
-@@ -1335,13 +1340,6 @@ int bcm_qspi_probe(struct platform_devic
- 		qspi->soc_intc = NULL;
- 	}
+-	return ret;
++	return 0;
+ }
  
--	qspi->clk = devm_clk_get(&pdev->dev, NULL);
--	if (IS_ERR(qspi->clk)) {
--		dev_warn(dev, "unable to get clock\n");
--		ret = PTR_ERR(qspi->clk);
--		goto qspi_probe_err;
--	}
--
- 	ret = clk_prepare_enable(qspi->clk);
- 	if (ret) {
- 		dev_err(dev, "failed to prepare clock\n");
+ int cpufreq_boost_trigger_state(int state)
 
 
