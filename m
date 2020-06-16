@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 316AD1FAE49
+	by mail.lfdr.de (Postfix) with ESMTP id C3D3E1FAE4A
 	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 12:43:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727804AbgFPKnR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728367AbgFPKnR (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 16 Jun 2020 06:43:17 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:58055 "EHLO
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:60769 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726526AbgFPKnP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Jun 2020 06:43:15 -0400
+        by vger.kernel.org with ESMTP id S1726452AbgFPKnR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Jun 2020 06:43:17 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 0706B1940577;
-        Tue, 16 Jun 2020 06:43:14 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id A91B6194057C;
+        Tue, 16 Jun 2020 06:43:15 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Tue, 16 Jun 2020 06:43:14 -0400
+  by compute1.internal (MEProxy); Tue, 16 Jun 2020 06:43:15 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=hTyiNn
-        xpMiyijgs4+42c2pETEW0L8+LN0vso/4jUHKY=; b=K/4W0ehG9uICAgWZfZUbyW
-        SY+jSE5zbCmLEoZx+h6qCfzF8hTgsVyEWWi6/PPaec1x3177SEX2G1qTKo7lmBlb
-        U3XmI5aD4Jea2TBomW/qCS6RLyivFeVWcPEJsWv4vWDWK70ADpHZlqfRALoToL+u
-        C0VO29501htVMR8DRx9SU+niBpVh8qWkcLDxfj9dDBbsDEg/qdGEPeeNjiwf24/e
-        iBZNpze375AyWGt9wHn4l1fvPaHp7sS3Q4NePhVgqZtX36EPzSdekobzVq7HH/35
-        bc+LQgUyf9Kbvrgce54gI66SU8Ph0gGyvw+RaVlTktITLaJI9+yjzjuj3JY81wTA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=goYvic
+        feodZSNPNFtJnm2oEntB/iEBMVTk7wiIaDnuc=; b=ChUUN0g2mK90GMTeTJW9iu
+        Hm+P2ZbKqjq9WAXl4ymalOipdQNaTz7PtjylbnmraaeWNVYihfWkEewyPEFld1AA
+        ML2MApphBXpQxyfB+AdSA8zQFomwRXXwktGw5sPOlWqYm/v48ff+4A8fh6HeWQzL
+        LkinATU/MRKymVs4bsjhBzmbtqDDbucDm4QUkxAz7W1NaYczQ/5KNWGhGXLd1YxJ
+        FSEoBBTnYRBUdH0v9imDIlwrHv08R8hlrRxyYDgtwRus3Y7sTdVXZFITLj3diDtF
+        zukDl1SFxwzMcRr9s5NHsLqFqmbiqDzpK8wfljJvstcgNoITciTF94F9soVRuScw
         ==
-X-ME-Sender: <xms:QaLoXrLkbXFVTKrpC5Mv_isK9uyMJ8gWXRstO7E2kzx0ZpKd8duS1g>
+X-ME-Sender: <xms:Q6LoXto3TVnEbGfNgxUIUW76hfP7UetsioiatXvZY_WR9Uj8N3rfUg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudejtddgfeehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
-    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    vghrufhiiigvpedvnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
     drtghomh
-X-ME-Proxy: <xmx:QaLoXvJnUH8VaNCtQgjZWJylpigs-tHO6o4XOxUg8zvyScnJMRhssQ>
-    <xmx:QaLoXjsGGBnVIAP1AZF0kWdOeI19DhuvJNxwSDgm-1ETCW-USneqYQ>
-    <xmx:QaLoXkYVG3JZtoc9cjfT_XxQzctMog93W9eysfkJ1ZAT9mhqk9JR0A>
-    <xmx:QqLoXlxDKTCUUeL3L6DXqCLUZ5P_riJbuQNUE-RKyhW9WOsO92uk3g>
+X-ME-Proxy: <xmx:Q6LoXvq__DaOHLwgC8ZUuJCCoVr22rRnsZyTuIy4OQlYYr3LrOPk_w>
+    <xmx:Q6LoXqOx8DvrKXVdoegfvVQ8kzEmp7gs0egUuP9m8Hz_pUr7CSdXqw>
+    <xmx:Q6LoXo6AOyaPyxzMh7XpzhDJBoiU5Du1QjRAXEq1Vu3V2R3UmeUOog>
+    <xmx:Q6LoXqTPYMSzRk-QksRPoRVtZ-S1udLJaTrzJWoXGGVHeCJZ8k1nyA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 9949E328005E;
-        Tue, 16 Jun 2020 06:43:13 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: nVMX: Skip IBPB when switching between vmcs01 and vmcs02" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 3F94B3280064;
+        Tue, 16 Jun 2020 06:43:15 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: nVMX: Skip IBPB when switching between vmcs01 and vmcs02" failed to apply to 4.14-stable tree
 To:     sean.j.christopherson@intel.com, graf@amazon.com,
         karahmed@amazon.de, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 16 Jun 2020 12:43:07 +0200
-Message-ID: <1592304187103223@kroah.com>
+Date:   Tue, 16 Jun 2020 12:43:08 +0200
+Message-ID: <1592304188229105@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
