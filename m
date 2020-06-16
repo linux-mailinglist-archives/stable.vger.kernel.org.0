@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D1D7B1FB92A
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:02:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 857301FBA9B
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:13:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732483AbgFPPvR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:51:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47726 "EHLO mail.kernel.org"
+        id S1731858AbgFPPnu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:43:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732649AbgFPPvQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:51:16 -0400
+        id S1728448AbgFPPnt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:43:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6BA3214DB;
-        Tue, 16 Jun 2020 15:51:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 33169208D5;
+        Tue, 16 Jun 2020 15:43:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322676;
-        bh=KZN4esAhNn4tE9475bsicHCYB2W4CJffoDW1qFb/rn8=;
+        s=default; t=1592322228;
+        bh=tsKDLnWFTSaaElZKoZK2jgT8PGZj3lzOrzE87+HxmHA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S6cNvYUbRmMm+erQOwR3l438yelX3TOOFrhnlK32vX0uZK6QLWaR6IPICsLFyO0Xn
-         HZOtboEPG9VRlslUrzpBA9HFvJHH3FR8R24Q0csPis+SQ/iexRQXgBr9+10uvAEAT2
-         81Zl7IS4JFFeJQMxNv0nvMHCp0Vpk5mTvlPcRE2g=
+        b=ITXpQoLKcPz/GVKWfqEbdQeC0/8k2V+vvtke/4HslFQV1e6cgu8FXmWVQPv+SdKn5
+         CelU5BAR+IPnoCQeUsLhhbQvvoT5l9YvIVGST8AdAWC/UehFtSPCXG2ipdxFY2Ro44
+         ai3NHwn41u0hS7NgwS01b6g9LxQrsV+mYmKiRjww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Denis <pro.denis@protonmail.com>,
-        Masashi Honma <masashi.honma@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 033/161] ath9k_htc: Silence undersized packet warnings
-Date:   Tue, 16 Jun 2020 17:33:43 +0200
-Message-Id: <20200616153107.964775796@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.7 050/163] powerpc/ptdump: Properly handle non standard page size
+Date:   Tue, 16 Jun 2020 17:33:44 +0200
+Message-Id: <20200616153109.245579324@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
-References: <20200616153106.402291280@linuxfoundation.org>
+In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
+References: <20200616153106.849127260@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,49 +44,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masashi Honma <masashi.honma@gmail.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit 450edd2805982d14ed79733a82927d2857b27cac ]
+commit b00ff6d8c1c3898b0f768cbb38ef722d25bd2f39 upstream.
 
-Some devices like TP-Link TL-WN722N produces this kind of messages
-frequently.
+In order to properly display information regardless of the page size,
+it is necessary to take into account real page size.
 
-kernel: ath: phy0: Short RX data len, dropping (dlen: 4)
+Fixes: cabe8138b23c ("powerpc: dump as a single line areas mapping a single physical page.")
+Cc: stable@vger.kernel.org
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/a53b2a0ffd042a8d85464bf90d55bc5b970e00a1.1589866984.git.christophe.leroy@csgroup.eu
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-This warning is useful for developers to recognize that the device
-(Wi-Fi dongle or USB hub etc) is noisy but not for general users. So
-this patch make this warning to debug message.
-
-Reported-By: Denis <pro.denis@protonmail.com>
-Ref: https://bugzilla.kernel.org/show_bug.cgi?id=207539
-Fixes: cd486e627e67 ("ath9k_htc: Discard undersized packets")
-Signed-off-by: Masashi Honma <masashi.honma@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200504214443.4485-1-masashi.honma@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/htc_drv_txrx.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/powerpc/mm/ptdump/ptdump.c |   21 ++++++++++++---------
+ 1 file changed, 12 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
-index 9cec5c216e1f..118e5550b10c 100644
---- a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
-+++ b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
-@@ -999,9 +999,9 @@ static bool ath9k_rx_prepare(struct ath9k_htc_priv *priv,
- 	 * which are not PHY_ERROR (short radar pulses have a length of 3)
- 	 */
- 	if (unlikely(!rs_datalen || (rs_datalen < 10 && !is_phyerr))) {
--		ath_warn(common,
--			 "Short RX data len, dropping (dlen: %d)\n",
--			 rs_datalen);
-+		ath_dbg(common, ANY,
-+			"Short RX data len, dropping (dlen: %d)\n",
-+			rs_datalen);
- 		goto rx_next;
- 	}
+--- a/arch/powerpc/mm/ptdump/ptdump.c
++++ b/arch/powerpc/mm/ptdump/ptdump.c
+@@ -60,6 +60,7 @@ struct pg_state {
+ 	unsigned long start_address;
+ 	unsigned long start_pa;
+ 	unsigned long last_pa;
++	unsigned long page_size;
+ 	unsigned int level;
+ 	u64 current_flags;
+ 	bool check_wx;
+@@ -157,9 +158,9 @@ static void dump_addr(struct pg_state *s
+ #endif
  
--- 
-2.25.1
-
+ 	pt_dump_seq_printf(st->seq, REG "-" REG " ", st->start_address, addr - 1);
+-	if (st->start_pa == st->last_pa && st->start_address + PAGE_SIZE != addr) {
++	if (st->start_pa == st->last_pa && st->start_address + st->page_size != addr) {
+ 		pt_dump_seq_printf(st->seq, "[" REG "]", st->start_pa);
+-		delta = PAGE_SIZE >> 10;
++		delta = st->page_size >> 10;
+ 	} else {
+ 		pt_dump_seq_printf(st->seq, " " REG " ", st->start_pa);
+ 		delta = (addr - st->start_address) >> 10;
+@@ -190,7 +191,7 @@ static void note_prot_wx(struct pg_state
+ }
+ 
+ static void note_page(struct pg_state *st, unsigned long addr,
+-	       unsigned int level, u64 val)
++	       unsigned int level, u64 val, unsigned long page_size)
+ {
+ 	u64 flag = val & pg_level[level].mask;
+ 	u64 pa = val & PTE_RPN_MASK;
+@@ -202,6 +203,7 @@ static void note_page(struct pg_state *s
+ 		st->start_address = addr;
+ 		st->start_pa = pa;
+ 		st->last_pa = pa;
++		st->page_size = page_size;
+ 		pt_dump_seq_printf(st->seq, "---[ %s ]---\n", st->marker->name);
+ 	/*
+ 	 * Dump the section of virtual memory when:
+@@ -213,7 +215,7 @@ static void note_page(struct pg_state *s
+ 	 */
+ 	} else if (flag != st->current_flags || level != st->level ||
+ 		   addr >= st->marker[1].start_address ||
+-		   (pa != st->last_pa + PAGE_SIZE &&
++		   (pa != st->last_pa + st->page_size &&
+ 		    (pa != st->start_pa || st->start_pa != st->last_pa))) {
+ 
+ 		/* Check the PTE flags */
+@@ -241,6 +243,7 @@ static void note_page(struct pg_state *s
+ 		st->start_address = addr;
+ 		st->start_pa = pa;
+ 		st->last_pa = pa;
++		st->page_size = page_size;
+ 		st->current_flags = flag;
+ 		st->level = level;
+ 	} else {
+@@ -256,7 +259,7 @@ static void walk_pte(struct pg_state *st
+ 
+ 	for (i = 0; i < PTRS_PER_PTE; i++, pte++) {
+ 		addr = start + i * PAGE_SIZE;
+-		note_page(st, addr, 4, pte_val(*pte));
++		note_page(st, addr, 4, pte_val(*pte), PAGE_SIZE);
+ 
+ 	}
+ }
+@@ -273,7 +276,7 @@ static void walk_pmd(struct pg_state *st
+ 			/* pmd exists */
+ 			walk_pte(st, pmd, addr);
+ 		else
+-			note_page(st, addr, 3, pmd_val(*pmd));
++			note_page(st, addr, 3, pmd_val(*pmd), PMD_SIZE);
+ 	}
+ }
+ 
+@@ -289,7 +292,7 @@ static void walk_pud(struct pg_state *st
+ 			/* pud exists */
+ 			walk_pmd(st, pud, addr);
+ 		else
+-			note_page(st, addr, 2, pud_val(*pud));
++			note_page(st, addr, 2, pud_val(*pud), PUD_SIZE);
+ 	}
+ }
+ 
+@@ -308,7 +311,7 @@ static void walk_pagetables(struct pg_st
+ 			/* pgd exists */
+ 			walk_pud(st, pgd, addr);
+ 		else
+-			note_page(st, addr, 1, pgd_val(*pgd));
++			note_page(st, addr, 1, pgd_val(*pgd), PGDIR_SIZE);
+ 	}
+ }
+ 
+@@ -363,7 +366,7 @@ static int ptdump_show(struct seq_file *
+ 
+ 	/* Traverse kernel page tables */
+ 	walk_pagetables(&st);
+-	note_page(&st, 0, 0, 0);
++	note_page(&st, 0, 0, 0, 0);
+ 	return 0;
+ }
+ 
 
 
