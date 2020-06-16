@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E58331FB914
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:01:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BED21FBB00
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:16:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729223AbgFPQBI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 12:01:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49852 "EHLO mail.kernel.org"
+        id S1731054AbgFPPj5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:39:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732008AbgFPPw3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:52:29 -0400
+        id S1730235AbgFPPj4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:39:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8BE321527;
-        Tue, 16 Jun 2020 15:52:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4701C20B1F;
+        Tue, 16 Jun 2020 15:39:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322748;
-        bh=xGuCdumdCJT2WPa2goTh3ru2pazbuwDH84OieTAPy34=;
+        s=default; t=1592321995;
+        bh=CMRK0YGa62R+ERoa35vn8G2WswH6HGAdKOZ5PGYl8x0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qKUahZUM7MI7Xk3z2gUygnk3fedpGAD9xsAcY+VthRl4MSpEM6ZD4qDXCqfgs1yW/
-         mFry9atgnwlv+xkoZ9gE7/3EZ69+5rzy5RBiNpdp5Af0WE0v4PssbBHlUNCdRL6fsz
-         NuqrMRVrDG1R6971c4QH7aOUA+W+mTCVRawm5UNw=
+        b=tYp5TrNKp7mETQzA4umqWo8pSMla6n4OtujyIaODDFxanzU1ABa9B86J6Mfg/+PwG
+         YgNvGYqYEnBj2Dag4nP2emXinWgSisd0WSTe8i0q/3WtnyOXCnM++X+17YiMn2mtln
+         OWiAS4y0h1JH8K0y4vV3eNp7rgdaJgz8SSsWe470=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.6 088/161] spi: pxa2xx: Fix runtime PM ref imbalance on probe error
-Date:   Tue, 16 Jun 2020 17:34:38 +0200
-Message-Id: <20200616153110.564418252@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+7d2debdcdb3cb93c1e5e@syzkaller.appspotmail.com,
+        "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: [PATCH 5.4 095/134] proc: Use new_inode not new_inode_pseudo
+Date:   Tue, 16 Jun 2020 17:34:39 +0200
+Message-Id: <20200616153105.332228385@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
-References: <20200616153106.402291280@linuxfoundation.org>
+In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
+References: <20200616153100.633279950@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +44,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Eric W. Biederman <ebiederm@xmission.com>
 
-commit 65e318e17358a3fd4fcb5a69d89b14016dee2f06 upstream.
+commit ef1548adada51a2f32ed7faef50aa465e1b4c5da upstream.
 
-The PXA2xx SPI driver releases a runtime PM ref in the probe error path
-even though it hasn't acquired a ref earlier.
+Recently syzbot reported that unmounting proc when there is an ongoing
+inotify watch on the root directory of proc could result in a use
+after free when the watch is removed after the unmount of proc
+when the watcher exits.
 
-Apparently commit e2b714afee32 ("spi: pxa2xx: Disable runtime PM if
-controller registration fails") sought to copy-paste the invocation of
-pm_runtime_disable() from pxa2xx_spi_remove(), but erroneously copied
-the call to pm_runtime_put_noidle() as well.  Drop it.
+Commit 69879c01a0c3 ("proc: Remove the now unnecessary internal mount
+of proc") made it easier to unmount proc and allowed syzbot to see the
+problem, but looking at the code it has been around for a long time.
 
-Fixes: e2b714afee32 ("spi: pxa2xx: Disable runtime PM if controller registration fails")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Reviewed-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: stable@vger.kernel.org # v4.17+
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Link: https://lore.kernel.org/r/58b2ac6942ca1f91aaeeafe512144bc5343e1d84.1590408496.git.lukas@wunner.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Looking at the code the fsnotify watch should have been removed by
+fsnotify_sb_delete in generic_shutdown_super.  Unfortunately the inode
+was allocated with new_inode_pseudo instead of new_inode so the inode
+was not on the sb->s_inodes list.  Which prevented
+fsnotify_unmount_inodes from finding the inode and removing the watch
+as well as made it so the "VFS: Busy inodes after unmount" warning
+could not find the inodes to warn about them.
+
+Make all of the inodes in proc visible to generic_shutdown_super,
+and fsnotify_sb_delete by using new_inode instead of new_inode_pseudo.
+The only functional difference is that new_inode places the inodes
+on the sb->s_inodes list.
+
+I wrote a small test program and I can verify that without changes it
+can trigger this issue, and by replacing new_inode_pseudo with
+new_inode the issues goes away.
+
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/000000000000d788c905a7dfa3f4@google.com
+Reported-by: syzbot+7d2debdcdb3cb93c1e5e@syzkaller.appspotmail.com
+Fixes: 0097875bd415 ("proc: Implement /proc/thread-self to point at the directory of the current thread")
+Fixes: 021ada7dff22 ("procfs: switch /proc/self away from proc_dir_entry")
+Fixes: 51f0885e5415 ("vfs,proc: guarantee unique inodes in /proc")
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/spi/spi-pxa2xx.c |    1 -
- 1 file changed, 1 deletion(-)
+ fs/proc/inode.c       |    2 +-
+ fs/proc/self.c        |    2 +-
+ fs/proc/thread_self.c |    2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/spi/spi-pxa2xx.c
-+++ b/drivers/spi/spi-pxa2xx.c
-@@ -1888,7 +1888,6 @@ static int pxa2xx_spi_probe(struct platf
- 	return status;
+--- a/fs/proc/inode.c
++++ b/fs/proc/inode.c
+@@ -448,7 +448,7 @@ const struct inode_operations proc_link_
  
- out_error_pm_runtime_enabled:
--	pm_runtime_put_noidle(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
+ struct inode *proc_get_inode(struct super_block *sb, struct proc_dir_entry *de)
+ {
+-	struct inode *inode = new_inode_pseudo(sb);
++	struct inode *inode = new_inode(sb);
  
- out_error_clock_enabled:
+ 	if (inode) {
+ 		inode->i_ino = de->low_ino;
+--- a/fs/proc/self.c
++++ b/fs/proc/self.c
+@@ -43,7 +43,7 @@ int proc_setup_self(struct super_block *
+ 	inode_lock(root_inode);
+ 	self = d_alloc_name(s->s_root, "self");
+ 	if (self) {
+-		struct inode *inode = new_inode_pseudo(s);
++		struct inode *inode = new_inode(s);
+ 		if (inode) {
+ 			inode->i_ino = self_inum;
+ 			inode->i_mtime = inode->i_atime = inode->i_ctime = current_time(inode);
+--- a/fs/proc/thread_self.c
++++ b/fs/proc/thread_self.c
+@@ -43,7 +43,7 @@ int proc_setup_thread_self(struct super_
+ 	inode_lock(root_inode);
+ 	thread_self = d_alloc_name(s->s_root, "thread-self");
+ 	if (thread_self) {
+-		struct inode *inode = new_inode_pseudo(s);
++		struct inode *inode = new_inode(s);
+ 		if (inode) {
+ 			inode->i_ino = thread_self_inum;
+ 			inode->i_mtime = inode->i_atime = inode->i_ctime = current_time(inode);
 
 
