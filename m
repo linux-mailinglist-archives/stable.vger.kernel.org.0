@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 618291FB7AB
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:50:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9198E1FB81C
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:53:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732397AbgFPPsQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:48:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42348 "EHLO mail.kernel.org"
+        id S1732845AbgFPPxR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:53:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729390AbgFPPsO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:48:14 -0400
+        id S1732645AbgFPPxQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:53:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25D832071A;
-        Tue, 16 Jun 2020 15:48:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 40C4E207C4;
+        Tue, 16 Jun 2020 15:53:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322493;
-        bh=gGUmW2DrTIls4lFdQDuM1ToOLsMmr9KRvqtR7zLRIM4=;
+        s=default; t=1592322796;
+        bh=ZXs9ocW7Ed+eH9yAMQJE98d/MX0NoYJxO6UE9FsODYQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GoOowpgi8676TT45hwS1OLm/ys21b8ht9A6rW2NDUmWpD07oNxqdGwtMio1stqT+l
-         vlpZGxAVzuIYl1afY1lDavakwcIADskwrROO5B5viLTlXmVKb/1ZZTRLgmXTXT7CIc
-         aHBIWVp7j/Yn5PWH4v4rWDsxCtfL6TMJe/iBVtbs=
+        b=bqUIqtsIzFHPuhzYUQgpbQ0Fb6Zj3p5KTJ1LqHEBunrJQ0rAsAVqcKnGP/+Xu9ZwR
+         i/bV3HnRO14bCg2cV1pua992JECcZVzEMcSYp+E/bntjND5RkYk5z5LFJoFHXVw5+5
+         aut8I9G3+GQg8VX09VROOl17znYjWggU0Du9Q8po=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>,
-        kbuild test robot <lkp@intel.com>,
-        Alexey Charkov <alchark@gmail.com>,
-        Paul Mundt <lethal@linux-sh.org>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [PATCH 5.7 124/163] video: vt8500lcdfb: fix fallthrough warning
+        stable@vger.kernel.org, Tanner Love <tannerlove@google.com>,
+        Willem de Bruijn <willemb@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.6 108/161] selftests/net: in rxtimestamp getopt_long needs terminating null entry
 Date:   Tue, 16 Jun 2020 17:34:58 +0200
-Message-Id: <20200616153112.750913113@linuxfoundation.org>
+Message-Id: <20200616153111.505557328@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
-References: <20200616153106.849127260@linuxfoundation.org>
+In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
+References: <20200616153106.402291280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,45 +44,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sam Ravnborg <sam@ravnborg.org>
+From: tannerlove <tannerlove@google.com>
 
-commit 1c49f35e9e9156273124a0cfd38b57f7a7d4828f upstream.
+[ Upstream commit 865a6cbb2288f8af7f9dc3b153c61b7014fdcf1e ]
 
-Fix following warning:
-vt8500lcdfb.c: In function 'vt8500lcd_blank':
-vt8500lcdfb.c:229:6: warning: this statement may fall through [-Wimplicit-fallthrough=]
-      if (info->fix.visual == FB_VISUAL_PSEUDOCOLOR ||
-         ^
-vt8500lcdfb.c:233:2: note: here
-     case FB_BLANK_UNBLANK:
-     ^~~~
+getopt_long requires the last element to be filled with zeros.
+Otherwise, passing an unrecognized option can cause a segfault.
 
-Adding a simple "fallthrough;" fixed the warning.
-The fix was build tested.
-
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Reported-by: kbuild test robot <lkp@intel.com>
-Fixes: e41f1a989408 ("fbdev: Implement simple blanking in pseudocolor modes for vt8500lcdfb")
-Cc: Alexey Charkov <alchark@gmail.com>
-Cc: Paul Mundt <lethal@linux-sh.org>
-Cc: <stable@vger.kernel.org> # v2.6.38+
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200412202143.GA26948@ravnborg.org
+Fixes: 16e781224198 ("selftests/net: Add a test to validate behavior of rx timestamps")
+Signed-off-by: Tanner Love <tannerlove@google.com>
+Acked-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/video/fbdev/vt8500lcdfb.c |    1 +
+ tools/testing/selftests/networking/timestamping/rxtimestamp.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/drivers/video/fbdev/vt8500lcdfb.c
-+++ b/drivers/video/fbdev/vt8500lcdfb.c
-@@ -230,6 +230,7 @@ static int vt8500lcd_blank(int blank, st
- 		    info->fix.visual == FB_VISUAL_STATIC_PSEUDOCOLOR)
- 			for (i = 0; i < 256; i++)
- 				vt8500lcd_setcolreg(i, 0, 0, 0, 0, info);
-+		fallthrough;
- 	case FB_BLANK_UNBLANK:
- 		if (info->fix.visual == FB_VISUAL_PSEUDOCOLOR ||
- 		    info->fix.visual == FB_VISUAL_STATIC_PSEUDOCOLOR)
+--- a/tools/testing/selftests/networking/timestamping/rxtimestamp.c
++++ b/tools/testing/selftests/networking/timestamping/rxtimestamp.c
+@@ -115,6 +115,7 @@ static struct option long_options[] = {
+ 	{ "tcp", no_argument, 0, 't' },
+ 	{ "udp", no_argument, 0, 'u' },
+ 	{ "ip", no_argument, 0, 'i' },
++	{ NULL, 0, NULL, 0 },
+ };
+ 
+ static int next_port = 19999;
 
 
