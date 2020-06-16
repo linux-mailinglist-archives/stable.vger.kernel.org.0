@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA1571FB6A8
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:39:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 354CD1FB7E1
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:51:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730277AbgFPPjU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:39:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52558 "EHLO mail.kernel.org"
+        id S1732613AbgFPPun (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:50:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730894AbgFPPjQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:39:16 -0400
+        id S1732419AbgFPPuf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:50:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 060E62166E;
-        Tue, 16 Jun 2020 15:39:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BDD92207C4;
+        Tue, 16 Jun 2020 15:50:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592321956;
-        bh=5/lH2KRzHCeETvLwWO2Es2Pqsk6+CLgbLIvVr3d8lLE=;
+        s=default; t=1592322635;
+        bh=j9M1WN/brfT//+MBtoFc8ogiYL/4e5DjXJV04nVF3hk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c4X+X//hF/x9XYq0NJfwVe+ClvcEm5FWs5HLBeQY1Oa4CNIip/yXzkGmqwahofGB9
-         aItn9EbQlSTALd0IZJfLbKICSfL7FBA/HyOBBUlYs7v8nydgCE/Z8zJtUiJGWlSHek
-         HbLY7818DNcZ1BFL0pss6F+VDObufx+mwHbgJ5io=
+        b=fUrlKzCqnur8gYD/COKucefYhz5T5dSXyCPAfPL6Qe/rbR5CYkNjY4plVmj6LTmci
+         uVDvPdgZoNKswDiBCDmqzva+AqFduRQFMPP0chm9SE2RyzrJ2bhJWuVHXn/yGTmAqA
+         L39bX5hKfLx4Gp5hXJnprX6tG+hBFYLsv1Qi60HM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Denis Efremov <efremov@linux.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.4 050/134] io_uring: use kvfree() in io_sqe_buffer_register()
-Date:   Tue, 16 Jun 2020 17:33:54 +0200
-Message-Id: <20200616153103.181618765@linuxfoundation.org>
+        stable@vger.kernel.org, Yongqiang Sun <yongqiang.sun@amd.com>,
+        Tony Cheng <Tony.Cheng@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 045/161] drm/amd/display: Not doing optimize bandwidth if flip pending.
+Date:   Tue, 16 Jun 2020 17:33:55 +0200
+Message-Id: <20200616153108.516551042@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
-References: <20200616153100.633279950@linuxfoundation.org>
+In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
+References: <20200616153106.402291280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +46,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Denis Efremov <efremov@linux.com>
+From: Yongqiang Sun <yongqiang.sun@amd.com>
 
-commit a8c73c1a614f6da6c0b04c393f87447e28cb6de4 upstream.
+[ Upstream commit 9941b8129030c9202aaf39114477a0e58c0d6ffc ]
 
-Use kvfree() to free the pages and vmas, since they are allocated by
-kvmalloc_array() in a loop.
+[Why]
+In some scenario like 1366x768 VSR enabled connected with a 4K monitor
+and playing 4K video in clone mode, underflow will be observed due to
+decrease dppclk when previouse surface scan isn't finished
 
-Fixes: d4ef647510b1 ("io_uring: avoid page allocation warnings")
-Signed-off-by: Denis Efremov <efremov@linux.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200605093203.40087-1-efremov@linux.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[How]
+In this use case, surface flip is switching between 4K and 1366x768,
+1366x768 needs smaller dppclk, and when decrease the clk and previous
+surface scan is for 4K and scan isn't done, underflow will happen.  Not
+doing optimize bandwidth in case of flip pending.
 
+Signed-off-by: Yongqiang Sun <yongqiang.sun@amd.com>
+Reviewed-by: Tony Cheng <Tony.Cheng@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/display/dc/core/dc.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -3498,8 +3498,8 @@ static int io_sqe_buffer_register(struct
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
+index 48e4eb5a37dd..fff95e6b46c7 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
+@@ -1362,6 +1362,26 @@ bool dc_commit_state(struct dc *dc, struct dc_state *context)
+ 	return (result == DC_OK);
+ }
  
- 		ret = 0;
- 		if (!pages || nr_pages > got_pages) {
--			kfree(vmas);
--			kfree(pages);
-+			kvfree(vmas);
-+			kvfree(pages);
- 			pages = kvmalloc_array(nr_pages, sizeof(struct page *),
- 						GFP_KERNEL);
- 			vmas = kvmalloc_array(nr_pages,
++static bool is_flip_pending_in_pipes(struct dc *dc, struct dc_state *context)
++{
++	int i;
++	struct pipe_ctx *pipe;
++
++	for (i = 0; i < MAX_PIPES; i++) {
++		pipe = &context->res_ctx.pipe_ctx[i];
++
++		if (!pipe->plane_state)
++			continue;
++
++		/* Must set to false to start with, due to OR in update function */
++		pipe->plane_state->status.is_flip_pending = false;
++		dc->hwss.update_pending_status(pipe);
++		if (pipe->plane_state->status.is_flip_pending)
++			return true;
++	}
++	return false;
++}
++
+ bool dc_post_update_surfaces_to_stream(struct dc *dc)
+ {
+ 	int i;
+@@ -1372,6 +1392,9 @@ bool dc_post_update_surfaces_to_stream(struct dc *dc)
+ 
+ 	post_surface_trace(dc);
+ 
++	if (is_flip_pending_in_pipes(dc, context))
++		return true;
++
+ 	for (i = 0; i < dc->res_pool->pipe_count; i++)
+ 		if (context->res_ctx.pipe_ctx[i].stream == NULL ||
+ 		    context->res_ctx.pipe_ctx[i].plane_state == NULL) {
+-- 
+2.25.1
+
 
 
