@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA1D21FBB03
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:16:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E50851FBA01
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:08:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731129AbgFPPkS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:40:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54642 "EHLO mail.kernel.org"
+        id S1729913AbgFPQH4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 12:07:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731118AbgFPPkR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:40:17 -0400
+        id S1732216AbgFPPqh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:46:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B7012082F;
-        Tue, 16 Jun 2020 15:40:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5538820776;
+        Tue, 16 Jun 2020 15:46:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322016;
-        bh=Y7GdLNJHI2Hd160+eiyQ7RPdrDBWi0SuwVkbiLOYrPs=;
+        s=default; t=1592322396;
+        bh=JMlBOiZ+vCeIqMWFevpV9y3+A1JmqSlgaldOXzG2dsY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OAU5EevcYAXmYjhK745e9q9LZCwHOl1x2Qh/Z8W+3hD9Dl6ljcMofuMMVBd1cqIy+
-         AVXrGroz47ET1KjUnlKtB4DSq1x0k3qi1iZrN/2/Y8GJ2x4N6NuGqU9W+nShi1lJ1P
-         uH9gMQv3jVKn1Kahu6/jdmhd1Wzl1oYY70uz7Rkk=
+        b=vf6xSHM577ciPFz67LuUyGpHOgD2jqicayJix/gx+rNBnIV9B2yu100VYaW+8olaF
+         dwFCV5dZjq+7yOgQKUdDec5+1Yn5o2TwafY5/0IR+MUXxzQTxjwzL248xgqGrnmG9T
+         F65tLOGTQJJ5vU688w7Sh4+d8/niEKNhQWjsB5Gs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.4 103/134] KVM: nSVM: fix condition for filtering async PF
-Date:   Tue, 16 Jun 2020 17:34:47 +0200
-Message-Id: <20200616153105.724080334@linuxfoundation.org>
+        stable@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>,
+        Miklos Szeredi <mszeredi@redhat.com>,
+        syzbot+61958888b1c60361a791@syzkaller.appspotmail.com
+Subject: [PATCH 5.7 115/163] ovl: fix out of bounds access warning in ovl_check_fb_len()
+Date:   Tue, 16 Jun 2020 17:34:49 +0200
+Message-Id: <20200616153112.311331992@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
-References: <20200616153100.633279950@linuxfoundation.org>
+In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
+References: <20200616153106.849127260@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Amir Goldstein <amir73il@gmail.com>
 
-commit a3535be731c2a343912578465021f50937f7b099 upstream.
+commit 522f6e6cba6880a038e2bd88e10390b84cd3febd upstream.
 
-Async page faults have to be trapped in the host (L1 in this case),
-since the APF reason was passed from L0 to L1 and stored in the L1 APF
-data page.  This was completely reversed: the page faults were passed
-to the guest, a L2 hypervisor.
+syzbot reported out of bounds memory access from open_by_handle_at()
+with a crafted file handle that looks like this:
 
-Cc: stable@vger.kernel.org
-Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+  { .handle_bytes = 2, .handle_type = OVL_FILEID_V1 }
+
+handle_bytes gets rounded down to 0 and we end up calling:
+  ovl_check_fh_len(fh, 0) => ovl_check_fb_len(fh + 3, -3)
+
+But fh buffer is only 2 bytes long, so accessing struct ovl_fb at
+fh + 3 is illegal.
+
+Fixes: cbe7fba8edfc ("ovl: make sure that real fid is 32bit aligned in memory")
+Reported-and-tested-by: syzbot+61958888b1c60361a791@syzkaller.appspotmail.com
+Cc: <stable@vger.kernel.org> # v5.5
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/svm.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/overlayfs/overlayfs.h |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/x86/kvm/svm.c
-+++ b/arch/x86/kvm/svm.c
-@@ -3237,8 +3237,8 @@ static int nested_svm_exit_special(struc
- 			return NESTED_EXIT_HOST;
- 		break;
- 	case SVM_EXIT_EXCP_BASE + PF_VECTOR:
--		/* When we're shadowing, trap PFs, but not async PF */
--		if (!npt_enabled && svm->vcpu.arch.apf.host_apf_reason == 0)
-+		/* Trap async PF even if not shadowing */
-+		if (!npt_enabled || svm->vcpu.arch.apf.host_apf_reason)
- 			return NESTED_EXIT_HOST;
- 		break;
- 	default:
+--- a/fs/overlayfs/overlayfs.h
++++ b/fs/overlayfs/overlayfs.h
+@@ -355,6 +355,9 @@ int ovl_check_fb_len(struct ovl_fb *fb,
+ 
+ static inline int ovl_check_fh_len(struct ovl_fh *fh, int fh_len)
+ {
++	if (fh_len < sizeof(struct ovl_fh))
++		return -EINVAL;
++
+ 	return ovl_check_fb_len(&fh->fb, fh_len - OVL_FH_WIRE_OFFSET);
+ }
+ 
 
 
