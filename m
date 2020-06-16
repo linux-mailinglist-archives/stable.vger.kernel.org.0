@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9C941FBA03
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:08:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D703C1FB9F3
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:08:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732442AbgFPQID (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 12:08:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38570 "EHLO mail.kernel.org"
+        id S1732215AbgFPPqh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:46:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731789AbgFPPq1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:46:27 -0400
+        id S1732209AbgFPPqa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:46:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DDCA620776;
-        Tue, 16 Jun 2020 15:46:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A2AA32071A;
+        Tue, 16 Jun 2020 15:46:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322386;
-        bh=ZBnV5sxUwynEG5lSAIADmzfkPNAJRl5QKE8Qtn7F+yA=;
+        s=default; t=1592322389;
+        bh=DstgrDs8R08mFlxBplzEZyCjzwwUFtv/2y1NO8+vwjs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z3DUOK7rGxbLDWGs6uiiMD+jPjtEGj05Dx++BE/awa961sjllfQ2g/gjtnPbmcoJk
-         +BbE8s9neDPrcLdMCV8hTqlcn2CYbBo371dpe9iWPqPk5H1qBOOQafA9T59tnrUR48
-         uFy2FOSCEAQHRi/5PoIZHiVvAo0FgoHpBJpN4hm4=
+        b=I7OVD1UPJt+Hk86dBM3VQqJgQFt2RcP7MWzv18Yqy8unwZqY+8i9j3adghGnh8Vbw
+         3x0T1gnrpG47DjK2hb7ihIS9bOxtYWblcTvY7alqUK8UaswQ2Bo0fDkcSWCG5zXOBw
+         tA9MNwcXsX+rBD2EpXepAzSQnkyCwajBwqTeufpw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Grygorii Strashko <grygorii.strashko@ti.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.7 111/163] net: ethernet: ti: ale: fix allmulti for nu type ale
-Date:   Tue, 16 Jun 2020 17:34:45 +0200
-Message-Id: <20200616153112.122979967@linuxfoundation.org>
+Subject: [PATCH 5.7 112/163] net: ethernet: ti: am65-cpsw-nuss: fix ale parameters init
+Date:   Tue, 16 Jun 2020 17:34:46 +0200
+Message-Id: <20200616153112.170524664@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
 References: <20200616153106.849127260@linuxfoundation.org>
@@ -46,96 +46,29 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 
-[ Upstream commit bc139119a1708ae3db1ebb379630f286e28d06e8 ]
+[ Upstream commit 2074f9eaa58795a99e9da61c10f93180f810cfd6 ]
 
-On AM65xx MCU CPSW2G NUSS and 66AK2E/L NUSS allmulti setting does not allow
-unregistered mcast packets to pass.
+The ALE parameters structure is created on stack, so it has to be reset
+before passing to cpsw_ale_create() to avoid garbage values.
 
-This happens, because ALE VLAN entries on these SoCs do not contain port
-masks for reg/unreg mcast packets, but instead store indexes of
-ALE_VLAN_MASK_MUXx_REG registers which intended for store port masks for
-reg/unreg mcast packets.
-This path was missed by commit 9d1f6447274f ("net: ethernet: ti: ale: fix
-seeing unreg mcast packets with promisc and allmulti disabled").
-
-Hence, fix it by taking into account ALE type in cpsw_ale_set_allmulti().
-
-Fixes: 9d1f6447274f ("net: ethernet: ti: ale: fix seeing unreg mcast packets with promisc and allmulti disabled")
+Fixes: 93a76530316a ("net: ethernet: ti: introduce am65x/j721e gigabit eth subsystem driver")
 Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/ti/cpsw_ale.c |   49 ++++++++++++++++++++++++++++++-------
- 1 file changed, 40 insertions(+), 9 deletions(-)
+ drivers/net/ethernet/ti/am65-cpsw-nuss.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/ti/cpsw_ale.c
-+++ b/drivers/net/ethernet/ti/cpsw_ale.c
-@@ -604,10 +604,44 @@ void cpsw_ale_set_unreg_mcast(struct cps
- 	}
- }
+--- a/drivers/net/ethernet/ti/am65-cpsw-nuss.c
++++ b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
+@@ -1804,7 +1804,7 @@ MODULE_DEVICE_TABLE(of, am65_cpsw_nuss_o
  
-+static void cpsw_ale_vlan_set_unreg_mcast(struct cpsw_ale *ale, u32 *ale_entry,
-+					  int allmulti)
-+{
-+	int unreg_mcast;
-+
-+	unreg_mcast =
-+		cpsw_ale_get_vlan_unreg_mcast(ale_entry,
-+					      ale->vlan_field_bits);
-+	if (allmulti)
-+		unreg_mcast |= ALE_PORT_HOST;
-+	else
-+		unreg_mcast &= ~ALE_PORT_HOST;
-+	cpsw_ale_set_vlan_unreg_mcast(ale_entry, unreg_mcast,
-+				      ale->vlan_field_bits);
-+}
-+
-+static void
-+cpsw_ale_vlan_set_unreg_mcast_idx(struct cpsw_ale *ale, u32 *ale_entry,
-+				  int allmulti)
-+{
-+	int unreg_mcast;
-+	int idx;
-+
-+	idx = cpsw_ale_get_vlan_unreg_mcast_idx(ale_entry);
-+
-+	unreg_mcast = readl(ale->params.ale_regs + ALE_VLAN_MASK_MUX(idx));
-+
-+	if (allmulti)
-+		unreg_mcast |= ALE_PORT_HOST;
-+	else
-+		unreg_mcast &= ~ALE_PORT_HOST;
-+
-+	writel(unreg_mcast, ale->params.ale_regs + ALE_VLAN_MASK_MUX(idx));
-+}
-+
- void cpsw_ale_set_allmulti(struct cpsw_ale *ale, int allmulti, int port)
+ static int am65_cpsw_nuss_probe(struct platform_device *pdev)
  {
- 	u32 ale_entry[ALE_ENTRY_WORDS];
--	int unreg_mcast = 0;
- 	int type, idx;
- 
- 	for (idx = 0; idx < ale->params.ale_entries; idx++) {
-@@ -624,15 +658,12 @@ void cpsw_ale_set_allmulti(struct cpsw_a
- 		if (port != -1 && !(vlan_members & BIT(port)))
- 			continue;
- 
--		unreg_mcast =
--			cpsw_ale_get_vlan_unreg_mcast(ale_entry,
--						      ale->vlan_field_bits);
--		if (allmulti)
--			unreg_mcast |= ALE_PORT_HOST;
-+		if (!ale->params.nu_switch_ale)
-+			cpsw_ale_vlan_set_unreg_mcast(ale, ale_entry, allmulti);
- 		else
--			unreg_mcast &= ~ALE_PORT_HOST;
--		cpsw_ale_set_vlan_unreg_mcast(ale_entry, unreg_mcast,
--					      ale->vlan_field_bits);
-+			cpsw_ale_vlan_set_unreg_mcast_idx(ale, ale_entry,
-+							  allmulti);
-+
- 		cpsw_ale_write(ale, idx, ale_entry);
- 	}
- }
+-	struct cpsw_ale_params ale_params;
++	struct cpsw_ale_params ale_params = { 0 };
+ 	const struct of_device_id *of_id;
+ 	struct device *dev = &pdev->dev;
+ 	struct am65_cpsw_common *common;
 
 
