@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FE9E1FB736
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:46:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7ED21FB7C0
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:50:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731924AbgFPPoG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:44:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33902 "EHLO mail.kernel.org"
+        id S1730583AbgFPPtJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:49:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731902AbgFPPoE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:44:04 -0400
+        id S1732239AbgFPPtH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:49:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71901208E4;
-        Tue, 16 Jun 2020 15:44:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E2D82071A;
+        Tue, 16 Jun 2020 15:49:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322244;
-        bh=AU8kPO1hPe5EGPaST5+To5lYsboUwNEV7+7aWvUfdVY=;
+        s=default; t=1592322547;
+        bh=iI/BZKi97QLx0JPtrtFK7ox1FG7npbhQVMDwhtTaRYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t2ASHxiMGEE92BdGsHqaCMtbAr9q2ttgTAFrSlpqcsid4nSvJq0gvKqhIa3eCP0OK
-         PN6bYNzU1uioFVB+funV3yI/iOO75G7eS1iprwhxAGyjSrMgefLxu8cfGRuMDGmg8q
-         Ha3D8WdtNQjMBnwg7wAjUh0C6t4+8Py5GJOcXFW4=
+        b=orGxxcIqeisw8vPeXV0vd/2TOz9AM9sevoofGtlA3BNz7icEouOwhSPQz7ZAfSULl
+         bDPNkHVS+vLxlHVR7l8CVtKHjFZKxIrJ8sGl8lD9pJhxjAPEw1AidGFS6uxSVe7vJY
+         Cnd4MnfMgMrEKmqK1x+Dtqd0yQqZYwFD6mvlSMS0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 026/163] smack: avoid unused sip variable warning
-Date:   Tue, 16 Jun 2020 17:33:20 +0200
-Message-Id: <20200616153108.134501400@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+8eac6d030e7807c21d32@syzkaller.appspotmail.com,
+        Jon Maloy <jmaloy@redhat.com>,
+        Tuong Lien <tuong.t.lien@dektech.com.au>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.6 011/161] tipc: fix NULL pointer dereference in streaming
+Date:   Tue, 16 Jun 2020 17:33:21 +0200
+Message-Id: <20200616153106.955581775@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
-References: <20200616153106.849127260@linuxfoundation.org>
+In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
+References: <20200616153106.402291280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,166 +46,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Tuong Lien <tuong.t.lien@dektech.com.au>
 
-[ Upstream commit 00720f0e7f288d29681d265c23b22bb0f0f4e5b4 ]
+[ Upstream commit 5e9eeccc58f3e6bcc99b929670665d2ce047e9c9 ]
 
-The mix of IS_ENABLED() and #ifdef checks has left a combination
-that causes a warning about an unused variable:
+syzbot found the following crash:
 
-security/smack/smack_lsm.c: In function 'smack_socket_connect':
-security/smack/smack_lsm.c:2838:24: error: unused variable 'sip' [-Werror=unused-variable]
- 2838 |   struct sockaddr_in6 *sip = (struct sockaddr_in6 *)sap;
+general protection fault, probably for non-canonical address 0xdffffc0000000019: 0000 [#1] PREEMPT SMP KASAN
+KASAN: null-ptr-deref in range [0x00000000000000c8-0x00000000000000cf]
+CPU: 1 PID: 7060 Comm: syz-executor394 Not tainted 5.7.0-rc6-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:__tipc_sendstream+0xbde/0x11f0 net/tipc/socket.c:1591
+Code: 00 00 00 00 48 39 5c 24 28 48 0f 44 d8 e8 fa 3e db f9 48 b8 00 00 00 00 00 fc ff df 48 8d bb c8 00 00 00 48 89 fa 48 c1 ea 03 <80> 3c 02 00 0f 85 e2 04 00 00 48 8b 9b c8 00 00 00 48 b8 00 00 00
+RSP: 0018:ffffc90003ef7818 EFLAGS: 00010202
+RAX: dffffc0000000000 RBX: 0000000000000000 RCX: ffffffff8797fd9d
+RDX: 0000000000000019 RSI: ffffffff8797fde6 RDI: 00000000000000c8
+RBP: ffff888099848040 R08: ffff88809a5f6440 R09: fffffbfff1860b4c
+R10: ffffffff8c305a5f R11: fffffbfff1860b4b R12: ffff88809984857e
+R13: 0000000000000000 R14: ffff888086aa4000 R15: 0000000000000000
+FS:  00000000009b4880(0000) GS:ffff8880ae700000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000020000140 CR3: 00000000a7fdf000 CR4: 00000000001406e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ tipc_sendstream+0x4c/0x70 net/tipc/socket.c:1533
+ sock_sendmsg_nosec net/socket.c:652 [inline]
+ sock_sendmsg+0xcf/0x120 net/socket.c:672
+ ____sys_sendmsg+0x32f/0x810 net/socket.c:2352
+ ___sys_sendmsg+0x100/0x170 net/socket.c:2406
+ __sys_sendmmsg+0x195/0x480 net/socket.c:2496
+ __do_sys_sendmmsg net/socket.c:2525 [inline]
+ __se_sys_sendmmsg net/socket.c:2522 [inline]
+ __x64_sys_sendmmsg+0x99/0x100 net/socket.c:2522
+ do_syscall_64+0xf6/0x7d0 arch/x86/entry/common.c:295
+ entry_SYSCALL_64_after_hwframe+0x49/0xb3
+RIP: 0033:0x440199
+...
 
-Change the code to use C-style checks consistently so the compiler
-can handle it correctly.
+This bug was bisected to commit 0a3e060f340d ("tipc: add test for Nagle
+algorithm effectiveness"). However, it is not the case, the trouble was
+from the base in the case of zero data length message sending, we would
+unexpectedly make an empty 'txq' queue after the 'tipc_msg_append()' in
+Nagle mode.
 
-Fixes: 87fbfffcc89b ("broken ping to ipv6 linklocal addresses on debian buster")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+A similar crash can be generated even without the bisected patch but at
+the link layer when it accesses the empty queue.
+
+We solve the issues by building at least one buffer to go with socket's
+header and an optional data section that may be empty like what we had
+with the 'tipc_msg_build()'.
+
+Note: the previous commit 4c21daae3dbc ("tipc: Fix NULL pointer
+dereference in __tipc_sendstream()") is obsoleted by this one since the
+'txq' will be never empty and the check of 'skb != NULL' is unnecessary
+but it is safe anyway.
+
+Reported-by: syzbot+8eac6d030e7807c21d32@syzkaller.appspotmail.com
+Fixes: c0bceb97db9e ("tipc: add smart nagle feature")
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Signed-off-by: Tuong Lien <tuong.t.lien@dektech.com.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/smack/smack.h     |  6 ------
- security/smack/smack_lsm.c | 25 ++++++++-----------------
- 2 files changed, 8 insertions(+), 23 deletions(-)
+ net/tipc/msg.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/security/smack/smack.h b/security/smack/smack.h
-index 62529f382942..335d2411abe4 100644
---- a/security/smack/smack.h
-+++ b/security/smack/smack.h
-@@ -148,7 +148,6 @@ struct smk_net4addr {
- 	struct smack_known	*smk_label;	/* label */
- };
+--- a/net/tipc/msg.c
++++ b/net/tipc/msg.c
+@@ -221,7 +221,7 @@ int tipc_msg_append(struct tipc_msg *_hd
+ 	accounted = skb ? msg_blocks(buf_msg(skb)) : 0;
+ 	total = accounted;
  
--#if IS_ENABLED(CONFIG_IPV6)
- /*
-  * An entry in the table identifying IPv6 hosts.
-  */
-@@ -159,9 +158,7 @@ struct smk_net6addr {
- 	int			smk_masks;	/* mask size */
- 	struct smack_known	*smk_label;	/* label */
- };
--#endif /* CONFIG_IPV6 */
- 
--#ifdef SMACK_IPV6_PORT_LABELING
- /*
-  * An entry in the table identifying ports.
-  */
-@@ -174,7 +171,6 @@ struct smk_port_label {
- 	short			smk_sock_type;	/* Socket type */
- 	short			smk_can_reuse;
- };
--#endif /* SMACK_IPV6_PORT_LABELING */
- 
- struct smack_known_list_elem {
- 	struct list_head	list;
-@@ -335,9 +331,7 @@ extern struct smack_known smack_known_web;
- extern struct mutex	smack_known_lock;
- extern struct list_head smack_known_list;
- extern struct list_head smk_net4addr_list;
--#if IS_ENABLED(CONFIG_IPV6)
- extern struct list_head smk_net6addr_list;
--#endif /* CONFIG_IPV6 */
- 
- extern struct mutex     smack_onlycap_lock;
- extern struct list_head smack_onlycap_list;
-diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index 8c61d175e195..14bf2f4aea3b 100644
---- a/security/smack/smack_lsm.c
-+++ b/security/smack/smack_lsm.c
-@@ -50,10 +50,8 @@
- #define SMK_RECEIVING	1
- #define SMK_SENDING	2
- 
--#ifdef SMACK_IPV6_PORT_LABELING
--DEFINE_MUTEX(smack_ipv6_lock);
-+static DEFINE_MUTEX(smack_ipv6_lock);
- static LIST_HEAD(smk_ipv6_port_list);
--#endif
- static struct kmem_cache *smack_inode_cache;
- struct kmem_cache *smack_rule_cache;
- int smack_enabled;
-@@ -2320,7 +2318,6 @@ static struct smack_known *smack_ipv4host_label(struct sockaddr_in *sip)
- 	return NULL;
+-	while (rem) {
++	do {
+ 		if (!skb || skb->len >= mss) {
+ 			prev = skb;
+ 			skb = tipc_buf_acquire(mss, GFP_KERNEL);
+@@ -249,7 +249,7 @@ int tipc_msg_append(struct tipc_msg *_hd
+ 		skb_put(skb, cpy);
+ 		rem -= cpy;
+ 		total += msg_blocks(hdr) - curr;
+-	}
++	} while (rem);
+ 	return total - accounted;
  }
  
--#if IS_ENABLED(CONFIG_IPV6)
- /*
-  * smk_ipv6_localhost - Check for local ipv6 host address
-  * @sip: the address
-@@ -2388,7 +2385,6 @@ static struct smack_known *smack_ipv6host_label(struct sockaddr_in6 *sip)
- 
- 	return NULL;
- }
--#endif /* CONFIG_IPV6 */
- 
- /**
-  * smack_netlabel - Set the secattr on a socket
-@@ -2477,7 +2473,6 @@ static int smack_netlabel_send(struct sock *sk, struct sockaddr_in *sap)
- 	return smack_netlabel(sk, sk_lbl);
- }
- 
--#if IS_ENABLED(CONFIG_IPV6)
- /**
-  * smk_ipv6_check - check Smack access
-  * @subject: subject Smack label
-@@ -2510,7 +2505,6 @@ static int smk_ipv6_check(struct smack_known *subject,
- 	rc = smk_bu_note("IPv6 check", subject, object, MAY_WRITE, rc);
- 	return rc;
- }
--#endif /* CONFIG_IPV6 */
- 
- #ifdef SMACK_IPV6_PORT_LABELING
- /**
-@@ -2599,6 +2593,7 @@ static void smk_ipv6_port_label(struct socket *sock, struct sockaddr *address)
- 	mutex_unlock(&smack_ipv6_lock);
- 	return;
- }
-+#endif
- 
- /**
-  * smk_ipv6_port_check - check Smack port access
-@@ -2661,7 +2656,6 @@ static int smk_ipv6_port_check(struct sock *sk, struct sockaddr_in6 *address,
- 
- 	return smk_ipv6_check(skp, object, address, act);
- }
--#endif /* SMACK_IPV6_PORT_LABELING */
- 
- /**
-  * smack_inode_setsecurity - set smack xattrs
-@@ -2836,24 +2830,21 @@ static int smack_socket_connect(struct socket *sock, struct sockaddr *sap,
- 		return 0;
- 	if (IS_ENABLED(CONFIG_IPV6) && sap->sa_family == AF_INET6) {
- 		struct sockaddr_in6 *sip = (struct sockaddr_in6 *)sap;
--#ifdef SMACK_IPV6_SECMARK_LABELING
--		struct smack_known *rsp;
--#endif
-+		struct smack_known *rsp = NULL;
- 
- 		if (addrlen < SIN6_LEN_RFC2133)
- 			return 0;
--#ifdef SMACK_IPV6_SECMARK_LABELING
--		rsp = smack_ipv6host_label(sip);
-+		if (__is_defined(SMACK_IPV6_SECMARK_LABELING))
-+			rsp = smack_ipv6host_label(sip);
- 		if (rsp != NULL) {
- 			struct socket_smack *ssp = sock->sk->sk_security;
- 
- 			rc = smk_ipv6_check(ssp->smk_out, rsp, sip,
- 					    SMK_CONNECTING);
- 		}
--#endif
--#ifdef SMACK_IPV6_PORT_LABELING
--		rc = smk_ipv6_port_check(sock->sk, sip, SMK_CONNECTING);
--#endif
-+		if (__is_defined(SMACK_IPV6_PORT_LABELING))
-+			rc = smk_ipv6_port_check(sock->sk, sip, SMK_CONNECTING);
-+
- 		return rc;
- 	}
- 	if (sap->sa_family != AF_INET || addrlen < sizeof(struct sockaddr_in))
--- 
-2.25.1
-
 
 
