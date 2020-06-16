@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B641B1FB8B5
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:58:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1754C1FB8A4
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:58:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730855AbgFPP6O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:58:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53858 "EHLO mail.kernel.org"
+        id S1733064AbgFPP5g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:57:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732144AbgFPPyc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:54:32 -0400
+        id S1729857AbgFPPzA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:55:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6A4FD21532;
-        Tue, 16 Jun 2020 15:54:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CEF9B21534;
+        Tue, 16 Jun 2020 15:54:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322871;
-        bh=H74n6MAvvB1UwVfIs7kkoqmc7JsILcseQ+7gWMFrCa8=;
+        s=default; t=1592322900;
+        bh=NBVUODQbI1T1MtGAlUTn/rshWC+w1j++5qEaRVUjYSg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x+6fCW27znAQ9LWpeSUDGeZqyeQOSj7o4DwrQDbCovl0nN5UDvtVIpEgCMgq/XqB3
-         ayX920lzRPwsoCbkjKkDWpSjEynAeR8AXfeera6J+BlRHeMiMxsuooWXLEOFfCpnNN
-         +j6qE0Y7XMPVhHcD0ZVLwc9R+b4eyh0ZIjC/m7gg=
+        b=SvSsfckEcy72OhEFbHK5hZefHXmnXv1WlQyIeMJIKRZmlXpTGjMBUSxh1euuzo1kz
+         SBJp7ZPeXyLM+iv4oTAxgmQFb/x9eeDrLwvORaWIgQhoiB9FxMRs1I3+Tu3ODeUUOH
+         +VbFd4j7e33pPFv6hOTYzbI7arBAFBAoo4U03/Uw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
         Xing Li <lixing@loongson.cn>, Huacai Chen <chenhc@lemote.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.6 129/161] KVM: MIPS: Define KVM_ENTRYHI_ASID to cpu_asid_mask(&boot_cpu_data)
-Date:   Tue, 16 Jun 2020 17:35:19 +0200
-Message-Id: <20200616153112.503941539@linuxfoundation.org>
+Subject: [PATCH 5.6 130/161] KVM: MIPS: Fix VPN2_MASK definition for variable cpu_vmbits
+Date:   Tue, 16 Jun 2020 17:35:20 +0200
+Message-Id: <20200616153112.548923697@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
 References: <20200616153106.402291280@linuxfoundation.org>
@@ -47,43 +47,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Xing Li <lixing@loongson.cn>
 
-commit fe2b73dba47fb6d6922df1ad44e83b1754d5ed4d upstream.
+commit 5816c76dea116a458f1932eefe064e35403248eb upstream.
 
-The code in decode_config4() of arch/mips/kernel/cpu-probe.c
+If a CPU support more than 32bit vmbits (which is true for 64bit CPUs),
+VPN2_MASK set to fixed 0xffffe000 will lead to a wrong EntryHi in some
+functions such as _kvm_mips_host_tlb_inv().
 
-        asid_mask = MIPS_ENTRYHI_ASID;
-        if (config4 & MIPS_CONF4_AE)
-                asid_mask |= MIPS_ENTRYHI_ASIDX;
-        set_cpu_asid_mask(c, asid_mask);
+The cpu_vmbits definition of 32bit CPU in cpu-features.h is 31, so we
+still use the old definition.
 
-set asid_mask to cpuinfo->asid_mask.
-
-So in order to support variable ASID_MASK, KVM_ENTRYHI_ASID should also
-be changed to cpu_asid_mask(&boot_cpu_data).
-
-Cc: Stable <stable@vger.kernel.org>  #4.9+
+Cc: Stable <stable@vger.kernel.org>
 Reviewed-by: Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>
 Signed-off-by: Xing Li <lixing@loongson.cn>
-[Huacai: Change current_cpu_data to boot_cpu_data for optimization]
+[Huacai: Improve commit messages]
 Signed-off-by: Huacai Chen <chenhc@lemote.com>
-Message-Id: <1590220602-3547-2-git-send-email-chenhc@lemote.com>
+Message-Id: <1590220602-3547-3-git-send-email-chenhc@lemote.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/mips/include/asm/kvm_host.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/include/asm/kvm_host.h |    4 ++++
+ 1 file changed, 4 insertions(+)
 
 --- a/arch/mips/include/asm/kvm_host.h
 +++ b/arch/mips/include/asm/kvm_host.h
-@@ -275,7 +275,7 @@ enum emulation_result {
+@@ -274,7 +274,11 @@ enum emulation_result {
+ #define MIPS3_PG_SHIFT		6
  #define MIPS3_PG_FRAME		0x3fffffc0
  
++#if defined(CONFIG_64BIT)
++#define VPN2_MASK		GENMASK(cpu_vmbits - 1, 13)
++#else
  #define VPN2_MASK		0xffffe000
--#define KVM_ENTRYHI_ASID	MIPS_ENTRYHI_ASID
-+#define KVM_ENTRYHI_ASID	cpu_asid_mask(&boot_cpu_data)
++#endif
+ #define KVM_ENTRYHI_ASID	cpu_asid_mask(&boot_cpu_data)
  #define TLB_IS_GLOBAL(x)	((x).tlb_lo[0] & (x).tlb_lo[1] & ENTRYLO_G)
  #define TLB_VPN2(x)		((x).tlb_hi & VPN2_MASK)
- #define TLB_ASID(x)		((x).tlb_hi & KVM_ENTRYHI_ASID)
 
 
