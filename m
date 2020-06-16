@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FEA31FB675
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:39:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D20CB1FB7FA
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:53:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730313AbgFPPhe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:37:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49112 "EHLO mail.kernel.org"
+        id S1732669AbgFPPv3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:51:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730330AbgFPPhd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:37:33 -0400
+        id S1732664AbgFPPv1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:51:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 16DF3214F1;
-        Tue, 16 Jun 2020 15:37:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B5D1208D5;
+        Tue, 16 Jun 2020 15:51:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592321852;
-        bh=bJ5vHl2H8/BvNDVhsIs4pfBDlyCaMBFtm0KMc8o1C+U=;
+        s=default; t=1592322686;
+        bh=AU8kPO1hPe5EGPaST5+To5lYsboUwNEV7+7aWvUfdVY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XIkPRhq6SwR55qa+Pmgsjri5+BbpxDDqZIi64g6EfMwv3dJ18dZN5kDNG2trnxt6q
-         yelhZlGQ7a73Z8o3UbsRCyWDBUFoQLO8lZ45pVJnUnWpb9VAQw3GfAOJVAcLklqWZO
-         VqctlxmKEzikrtpEw94og+4+GyIDe0hL4DYqEvwE=
+        b=G+yTT5kljlEhuvJK7SHb9Pku84zKmGMJemHI816EOakBU06FjBN4O7sHmLmrpzCr7
+         kZgg/FH4imAG32j6njWYAeOQ1xeiRAsNymjsgHGe61Nfo4zFqz5K9M5WVLUYEbxdvx
+         vgt5P8FWq/Q7wypyzYbYGLIgGJm8bPBamOb389dM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaochun Lee <lixc17@lenovo.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 5.4 039/134] x86/PCI: Mark Intel C620 MROMs as having non-compliant BARs
-Date:   Tue, 16 Jun 2020 17:33:43 +0200
-Message-Id: <20200616153102.667930938@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 034/161] smack: avoid unused sip variable warning
+Date:   Tue, 16 Jun 2020 17:33:44 +0200
+Message-Id: <20200616153108.013763072@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
-References: <20200616153100.633279950@linuxfoundation.org>
+In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
+References: <20200616153106.402291280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +44,166 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaochun Lee <lixc17@lenovo.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 1574051e52cb4b5b7f7509cfd729b76ca1117808 upstream.
+[ Upstream commit 00720f0e7f288d29681d265c23b22bb0f0f4e5b4 ]
 
-The Intel C620 Platform Controller Hub has MROM functions that have non-PCI
-registers (undocumented in the public spec) where BAR 0 is supposed to be,
-which results in messages like this:
+The mix of IS_ENABLED() and #ifdef checks has left a combination
+that causes a warning about an unused variable:
 
-  pci 0000:00:11.0: [Firmware Bug]: reg 0x30: invalid BAR (can't size)
+security/smack/smack_lsm.c: In function 'smack_socket_connect':
+security/smack/smack_lsm.c:2838:24: error: unused variable 'sip' [-Werror=unused-variable]
+ 2838 |   struct sockaddr_in6 *sip = (struct sockaddr_in6 *)sap;
 
-Mark these MROM functions as having non-compliant BARs so we don't try to
-probe any of them.  There are no other BARs on these devices.
+Change the code to use C-style checks consistently so the compiler
+can handle it correctly.
 
-See the Intel C620 Series Chipset Platform Controller Hub Datasheet,
-May 2019, Document Number 336067-007US, sec 2.1, 35.5, 35.6.
-
-[bhelgaas: commit log, add 0xa26d]
-Link: https://lore.kernel.org/r/1589513467-17070-1-git-send-email-lixiaochun.2888@163.com
-Signed-off-by: Xiaochun Lee <lixc17@lenovo.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 87fbfffcc89b ("broken ping to ipv6 linklocal addresses on debian buster")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/pci/fixup.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ security/smack/smack.h     |  6 ------
+ security/smack/smack_lsm.c | 25 ++++++++-----------------
+ 2 files changed, 8 insertions(+), 23 deletions(-)
 
---- a/arch/x86/pci/fixup.c
-+++ b/arch/x86/pci/fixup.c
-@@ -572,6 +572,10 @@ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_IN
- DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x6f60, pci_invalid_bar);
- DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x6fa0, pci_invalid_bar);
- DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x6fc0, pci_invalid_bar);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0xa1ec, pci_invalid_bar);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0xa1ed, pci_invalid_bar);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0xa26c, pci_invalid_bar);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0xa26d, pci_invalid_bar);
+diff --git a/security/smack/smack.h b/security/smack/smack.h
+index 62529f382942..335d2411abe4 100644
+--- a/security/smack/smack.h
++++ b/security/smack/smack.h
+@@ -148,7 +148,6 @@ struct smk_net4addr {
+ 	struct smack_known	*smk_label;	/* label */
+ };
  
+-#if IS_ENABLED(CONFIG_IPV6)
  /*
-  * Device [1022:7808]
+  * An entry in the table identifying IPv6 hosts.
+  */
+@@ -159,9 +158,7 @@ struct smk_net6addr {
+ 	int			smk_masks;	/* mask size */
+ 	struct smack_known	*smk_label;	/* label */
+ };
+-#endif /* CONFIG_IPV6 */
+ 
+-#ifdef SMACK_IPV6_PORT_LABELING
+ /*
+  * An entry in the table identifying ports.
+  */
+@@ -174,7 +171,6 @@ struct smk_port_label {
+ 	short			smk_sock_type;	/* Socket type */
+ 	short			smk_can_reuse;
+ };
+-#endif /* SMACK_IPV6_PORT_LABELING */
+ 
+ struct smack_known_list_elem {
+ 	struct list_head	list;
+@@ -335,9 +331,7 @@ extern struct smack_known smack_known_web;
+ extern struct mutex	smack_known_lock;
+ extern struct list_head smack_known_list;
+ extern struct list_head smk_net4addr_list;
+-#if IS_ENABLED(CONFIG_IPV6)
+ extern struct list_head smk_net6addr_list;
+-#endif /* CONFIG_IPV6 */
+ 
+ extern struct mutex     smack_onlycap_lock;
+ extern struct list_head smack_onlycap_list;
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 8c61d175e195..14bf2f4aea3b 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -50,10 +50,8 @@
+ #define SMK_RECEIVING	1
+ #define SMK_SENDING	2
+ 
+-#ifdef SMACK_IPV6_PORT_LABELING
+-DEFINE_MUTEX(smack_ipv6_lock);
++static DEFINE_MUTEX(smack_ipv6_lock);
+ static LIST_HEAD(smk_ipv6_port_list);
+-#endif
+ static struct kmem_cache *smack_inode_cache;
+ struct kmem_cache *smack_rule_cache;
+ int smack_enabled;
+@@ -2320,7 +2318,6 @@ static struct smack_known *smack_ipv4host_label(struct sockaddr_in *sip)
+ 	return NULL;
+ }
+ 
+-#if IS_ENABLED(CONFIG_IPV6)
+ /*
+  * smk_ipv6_localhost - Check for local ipv6 host address
+  * @sip: the address
+@@ -2388,7 +2385,6 @@ static struct smack_known *smack_ipv6host_label(struct sockaddr_in6 *sip)
+ 
+ 	return NULL;
+ }
+-#endif /* CONFIG_IPV6 */
+ 
+ /**
+  * smack_netlabel - Set the secattr on a socket
+@@ -2477,7 +2473,6 @@ static int smack_netlabel_send(struct sock *sk, struct sockaddr_in *sap)
+ 	return smack_netlabel(sk, sk_lbl);
+ }
+ 
+-#if IS_ENABLED(CONFIG_IPV6)
+ /**
+  * smk_ipv6_check - check Smack access
+  * @subject: subject Smack label
+@@ -2510,7 +2505,6 @@ static int smk_ipv6_check(struct smack_known *subject,
+ 	rc = smk_bu_note("IPv6 check", subject, object, MAY_WRITE, rc);
+ 	return rc;
+ }
+-#endif /* CONFIG_IPV6 */
+ 
+ #ifdef SMACK_IPV6_PORT_LABELING
+ /**
+@@ -2599,6 +2593,7 @@ static void smk_ipv6_port_label(struct socket *sock, struct sockaddr *address)
+ 	mutex_unlock(&smack_ipv6_lock);
+ 	return;
+ }
++#endif
+ 
+ /**
+  * smk_ipv6_port_check - check Smack port access
+@@ -2661,7 +2656,6 @@ static int smk_ipv6_port_check(struct sock *sk, struct sockaddr_in6 *address,
+ 
+ 	return smk_ipv6_check(skp, object, address, act);
+ }
+-#endif /* SMACK_IPV6_PORT_LABELING */
+ 
+ /**
+  * smack_inode_setsecurity - set smack xattrs
+@@ -2836,24 +2830,21 @@ static int smack_socket_connect(struct socket *sock, struct sockaddr *sap,
+ 		return 0;
+ 	if (IS_ENABLED(CONFIG_IPV6) && sap->sa_family == AF_INET6) {
+ 		struct sockaddr_in6 *sip = (struct sockaddr_in6 *)sap;
+-#ifdef SMACK_IPV6_SECMARK_LABELING
+-		struct smack_known *rsp;
+-#endif
++		struct smack_known *rsp = NULL;
+ 
+ 		if (addrlen < SIN6_LEN_RFC2133)
+ 			return 0;
+-#ifdef SMACK_IPV6_SECMARK_LABELING
+-		rsp = smack_ipv6host_label(sip);
++		if (__is_defined(SMACK_IPV6_SECMARK_LABELING))
++			rsp = smack_ipv6host_label(sip);
+ 		if (rsp != NULL) {
+ 			struct socket_smack *ssp = sock->sk->sk_security;
+ 
+ 			rc = smk_ipv6_check(ssp->smk_out, rsp, sip,
+ 					    SMK_CONNECTING);
+ 		}
+-#endif
+-#ifdef SMACK_IPV6_PORT_LABELING
+-		rc = smk_ipv6_port_check(sock->sk, sip, SMK_CONNECTING);
+-#endif
++		if (__is_defined(SMACK_IPV6_PORT_LABELING))
++			rc = smk_ipv6_port_check(sock->sk, sip, SMK_CONNECTING);
++
+ 		return rc;
+ 	}
+ 	if (sap->sa_family != AF_INET || addrlen < sizeof(struct sockaddr_in))
+-- 
+2.25.1
+
 
 
