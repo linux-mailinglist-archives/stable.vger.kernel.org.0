@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 483C91FB8B4
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:58:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B83DE1FB8EE
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:00:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732916AbgFPP6O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:58:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53680 "EHLO mail.kernel.org"
+        id S1729789AbgFPP77 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:59:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732986AbgFPPy1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:54:27 -0400
+        id S1732482AbgFPPxL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:53:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F879208D5;
-        Tue, 16 Jun 2020 15:54:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C25D208D5;
+        Tue, 16 Jun 2020 15:53:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322866;
-        bh=SGKlEm4akjwRBtp7JgMewDQ7F6ow21dNEkrsU9VG3ow=;
+        s=default; t=1592322791;
+        bh=hGX29h/XEmSvwgUH6YsyVe/7+5yKRFxO/MI5vqy7xRg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S01rn2JrDfPAhcfwYHPsKpBLN31eYOpDhBN5K2Uq2tfpK0d2XiXBSbWrMaGtdbkJh
-         iexbsuavrDNRZGoMD+txDp8CTXTQmoHp+CI/e7wg0jsYpwNI8DJNrICJ3ZyuRX+TEl
-         8eCVdqtAhXCZi7INEGwlmeKVJnlAF1ACtiAWjngY=
+        b=TrnJ/+vMR3pG7u50rvNA+Ci3PLBYaUCL9EZHvJtzQlz8ok+93rUY/6i45dA4dCCsK
+         buGgPjo85EY/jbffobwlyveQtGH7zcrh0He8wc7JS4bLja3GnQ6XLCJ8vJ6z+1stGR
+         gTsZ4lkLbJ0IizCkkVhcW+bwtgWrqL18ImSA198w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Franck LENORMAND <franck.lenormand@nxp.com>,
-        Leonard Crestez <leonard.crestez@nxp.com>,
-        Dong Aisheng <aisheng.dong@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 105/161] firmware: imx: scu: Fix corruption of header
-Date:   Tue, 16 Jun 2020 17:34:55 +0200
-Message-Id: <20200616153111.360167837@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Hai <wanghai38@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.6 106/161] dccp: Fix possible memleak in dccp_init and dccp_fini
+Date:   Tue, 16 Jun 2020 17:34:56 +0200
+Message-Id: <20200616153111.408318496@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
 References: <20200616153106.402291280@linuxfoundation.org>
@@ -47,72 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Franck LENORMAND <franck.lenormand@nxp.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit f5f27b79eab80de0287c243a22169e4876b08d5e ]
+[ Upstream commit c96b6acc8f89a4a7f6258dfe1d077654c11415be ]
 
-The header of the message to send can be changed if the
-response is longer than the request:
- - 1st word, the header is sent
- - the remaining words of the message are sent
- - the response is received asynchronously during the
-   execution of the loop, changing the size field in
-   the header
- - the for loop test the termination condition using
-   the corrupted header
+There are some memory leaks in dccp_init() and dccp_fini().
 
-It is the case for the API build_info which has just a
-header as request but 3 words in response.
+In dccp_fini() and the error handling path in dccp_init(), free lhash2
+is missing. Add inet_hashinfo2_free_mod() to do it.
 
-This issue is fixed storing the header locally instead of
-using a pointer on it.
+If inet_hashinfo2_init_mod() failed in dccp_init(),
+percpu_counter_destroy() should be called to destroy dccp_orphan_count.
+It need to goto out_free_percpu when inet_hashinfo2_init_mod() failed.
 
-Fixes: edbee095fafb (firmware: imx: add SCU firmware driver support)
-
-Signed-off-by: Franck LENORMAND <franck.lenormand@nxp.com>
-Reviewed-by: Leonard Crestez <leonard.crestez@nxp.com>
-Signed-off-by: Leonard Crestez <leonard.crestez@nxp.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: c92c81df93df ("net: dccp: fix kernel crash on module load")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/imx/imx-scu.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ include/net/inet_hashtables.h |    6 ++++++
+ net/dccp/proto.c              |    7 +++++--
+ 2 files changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/firmware/imx/imx-scu.c b/drivers/firmware/imx/imx-scu.c
-index e94a5585b698..b3da2e193ad2 100644
---- a/drivers/firmware/imx/imx-scu.c
-+++ b/drivers/firmware/imx/imx-scu.c
-@@ -158,7 +158,7 @@ static void imx_scu_rx_callback(struct mbox_client *c, void *msg)
+--- a/include/net/inet_hashtables.h
++++ b/include/net/inet_hashtables.h
+@@ -185,6 +185,12 @@ static inline spinlock_t *inet_ehash_loc
  
- static int imx_scu_ipc_write(struct imx_sc_ipc *sc_ipc, void *msg)
+ int inet_ehash_locks_alloc(struct inet_hashinfo *hashinfo);
+ 
++static inline void inet_hashinfo2_free_mod(struct inet_hashinfo *h)
++{
++	kfree(h->lhash2);
++	h->lhash2 = NULL;
++}
++
+ static inline void inet_ehash_locks_free(struct inet_hashinfo *hashinfo)
  {
--	struct imx_sc_rpc_msg *hdr = msg;
-+	struct imx_sc_rpc_msg hdr = *(struct imx_sc_rpc_msg *)msg;
- 	struct imx_sc_chan *sc_chan;
- 	u32 *data = msg;
- 	int ret;
-@@ -166,13 +166,13 @@ static int imx_scu_ipc_write(struct imx_sc_ipc *sc_ipc, void *msg)
- 	int i;
+ 	kvfree(hashinfo->ehash_locks);
+--- a/net/dccp/proto.c
++++ b/net/dccp/proto.c
+@@ -1139,14 +1139,14 @@ static int __init dccp_init(void)
+ 	inet_hashinfo_init(&dccp_hashinfo);
+ 	rc = inet_hashinfo2_init_mod(&dccp_hashinfo);
+ 	if (rc)
+-		goto out_fail;
++		goto out_free_percpu;
+ 	rc = -ENOBUFS;
+ 	dccp_hashinfo.bind_bucket_cachep =
+ 		kmem_cache_create("dccp_bind_bucket",
+ 				  sizeof(struct inet_bind_bucket), 0,
+ 				  SLAB_HWCACHE_ALIGN, NULL);
+ 	if (!dccp_hashinfo.bind_bucket_cachep)
+-		goto out_free_percpu;
++		goto out_free_hashinfo2;
  
- 	/* Check size */
--	if (hdr->size > IMX_SC_RPC_MAX_MSG)
-+	if (hdr.size > IMX_SC_RPC_MAX_MSG)
- 		return -EINVAL;
+ 	/*
+ 	 * Size and allocate the main established and bind bucket
+@@ -1242,6 +1242,8 @@ out_free_dccp_ehash:
+ 	free_pages((unsigned long)dccp_hashinfo.ehash, ehash_order);
+ out_free_bind_bucket_cachep:
+ 	kmem_cache_destroy(dccp_hashinfo.bind_bucket_cachep);
++out_free_hashinfo2:
++	inet_hashinfo2_free_mod(&dccp_hashinfo);
+ out_free_percpu:
+ 	percpu_counter_destroy(&dccp_orphan_count);
+ out_fail:
+@@ -1265,6 +1267,7 @@ static void __exit dccp_fini(void)
+ 	kmem_cache_destroy(dccp_hashinfo.bind_bucket_cachep);
+ 	dccp_ackvec_exit();
+ 	dccp_sysctl_exit();
++	inet_hashinfo2_free_mod(&dccp_hashinfo);
+ 	percpu_counter_destroy(&dccp_orphan_count);
+ }
  
--	dev_dbg(sc_ipc->dev, "RPC SVC %u FUNC %u SIZE %u\n", hdr->svc,
--		hdr->func, hdr->size);
-+	dev_dbg(sc_ipc->dev, "RPC SVC %u FUNC %u SIZE %u\n", hdr.svc,
-+		hdr.func, hdr.size);
- 
--	size = sc_ipc->fast_ipc ? 1 : hdr->size;
-+	size = sc_ipc->fast_ipc ? 1 : hdr.size;
- 	for (i = 0; i < size; i++) {
- 		sc_chan = &sc_ipc->chans[i % 4];
- 
--- 
-2.25.1
-
 
 
