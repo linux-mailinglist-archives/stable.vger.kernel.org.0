@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E07131FB8D1
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:00:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 618291FB7AB
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:50:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732099AbgFPPxP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:53:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51336 "EHLO mail.kernel.org"
+        id S1732397AbgFPPsQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:48:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732447AbgFPPxO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:53:14 -0400
+        id S1729390AbgFPPsO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:48:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8AEF021532;
-        Tue, 16 Jun 2020 15:53:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 25D832071A;
+        Tue, 16 Jun 2020 15:48:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322794;
-        bh=Y30ZBQNG3mszmrEQPnFxg46/oMSsg75n3uKrSV01Gnk=;
+        s=default; t=1592322493;
+        bh=gGUmW2DrTIls4lFdQDuM1ToOLsMmr9KRvqtR7zLRIM4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ThNmxeSRK5Gws0xBLOauFokFYaJ4BZcH/XV8dWHCPkWV2CQBeVgxTenaA6jchv83D
-         FCx90H+qtVU67kxoBclFkzLRsz59+42JQz6XVolvnCQ4YYp/HGxdKpXD/jSaLlmclQ
-         Dq/q15OTvrq5jsm0/v2+Xs/yPQQdZWZSBrftZk+8=
+        b=GoOowpgi8676TT45hwS1OLm/ys21b8ht9A6rW2NDUmWpD07oNxqdGwtMio1stqT+l
+         vlpZGxAVzuIYl1afY1lDavakwcIADskwrROO5B5viLTlXmVKb/1ZZTRLgmXTXT7CIc
+         aHBIWVp7j/Yn5PWH4v4rWDsxCtfL6TMJe/iBVtbs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.6 107/161] net: mvneta: do not redirect frames during reconfiguration
-Date:   Tue, 16 Jun 2020 17:34:57 +0200
-Message-Id: <20200616153111.457746369@linuxfoundation.org>
+        stable@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>,
+        kbuild test robot <lkp@intel.com>,
+        Alexey Charkov <alchark@gmail.com>,
+        Paul Mundt <lethal@linux-sh.org>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Subject: [PATCH 5.7 124/163] video: vt8500lcdfb: fix fallthrough warning
+Date:   Tue, 16 Jun 2020 17:34:58 +0200
+Message-Id: <20200616153112.750913113@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
-References: <20200616153106.402291280@linuxfoundation.org>
+In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
+References: <20200616153106.849127260@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,67 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Sam Ravnborg <sam@ravnborg.org>
 
-[ Upstream commit 62a502cc91f97e3ffd312d9b42e8d01a137c63ff ]
+commit 1c49f35e9e9156273124a0cfd38b57f7a7d4828f upstream.
 
-Disable frames injection in mvneta_xdp_xmit routine during hw
-re-configuration in order to avoid hardware hangs
+Fix following warning:
+vt8500lcdfb.c: In function 'vt8500lcd_blank':
+vt8500lcdfb.c:229:6: warning: this statement may fall through [-Wimplicit-fallthrough=]
+      if (info->fix.visual == FB_VISUAL_PSEUDOCOLOR ||
+         ^
+vt8500lcdfb.c:233:2: note: here
+     case FB_BLANK_UNBLANK:
+     ^~~~
 
-Fixes: b0a43db9087a ("net: mvneta: add XDP_TX support")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Adding a simple "fallthrough;" fixed the warning.
+The fix was build tested.
+
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Reported-by: kbuild test robot <lkp@intel.com>
+Fixes: e41f1a989408 ("fbdev: Implement simple blanking in pseudocolor modes for vt8500lcdfb")
+Cc: Alexey Charkov <alchark@gmail.com>
+Cc: Paul Mundt <lethal@linux-sh.org>
+Cc: <stable@vger.kernel.org> # v2.6.38+
+Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200412202143.GA26948@ravnborg.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/marvell/mvneta.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
 
---- a/drivers/net/ethernet/marvell/mvneta.c
-+++ b/drivers/net/ethernet/marvell/mvneta.c
-@@ -418,11 +418,17 @@ struct mvneta_pcpu_port {
- 	u32			cause_rx_tx;
- };
- 
-+enum {
-+	__MVNETA_DOWN,
-+};
-+
- struct mvneta_port {
- 	u8 id;
- 	struct mvneta_pcpu_port __percpu	*ports;
- 	struct mvneta_pcpu_stats __percpu	*stats;
- 
-+	unsigned long state;
-+
- 	int pkt_size;
- 	void __iomem *base;
- 	struct mvneta_rx_queue *rxqs;
-@@ -2066,6 +2072,9 @@ mvneta_xdp_xmit(struct net_device *dev,
- 	int i, drops = 0;
- 	u32 ret;
- 
-+	if (unlikely(test_bit(__MVNETA_DOWN, &pp->state)))
-+		return -ENETDOWN;
-+
- 	if (unlikely(flags & ~XDP_XMIT_FLAGS_MASK))
- 		return -EINVAL;
- 
-@@ -3489,12 +3498,16 @@ static void mvneta_start_dev(struct mvne
- 
- 	phylink_start(pp->phylink);
- 	netif_tx_start_all_queues(pp->dev);
-+
-+	clear_bit(__MVNETA_DOWN, &pp->state);
- }
- 
- static void mvneta_stop_dev(struct mvneta_port *pp)
- {
- 	unsigned int cpu;
- 
-+	set_bit(__MVNETA_DOWN, &pp->state);
-+
- 	phylink_stop(pp->phylink);
- 
- 	if (!pp->neta_armada3700) {
+---
+ drivers/video/fbdev/vt8500lcdfb.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/drivers/video/fbdev/vt8500lcdfb.c
++++ b/drivers/video/fbdev/vt8500lcdfb.c
+@@ -230,6 +230,7 @@ static int vt8500lcd_blank(int blank, st
+ 		    info->fix.visual == FB_VISUAL_STATIC_PSEUDOCOLOR)
+ 			for (i = 0; i < 256; i++)
+ 				vt8500lcd_setcolreg(i, 0, 0, 0, 0, info);
++		fallthrough;
+ 	case FB_BLANK_UNBLANK:
+ 		if (info->fix.visual == FB_VISUAL_PSEUDOCOLOR ||
+ 		    info->fix.visual == FB_VISUAL_STATIC_PSEUDOCOLOR)
 
 
