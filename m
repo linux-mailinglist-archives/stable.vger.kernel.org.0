@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 719821FB6A1
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:39:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16B771FB7FF
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:53:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730829AbgFPPjC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:39:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51808 "EHLO mail.kernel.org"
+        id S1732522AbgFPPvl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:51:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730800AbgFPPi4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:38:56 -0400
+        id S1732690AbgFPPvk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:51:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 04EED214DB;
-        Tue, 16 Jun 2020 15:38:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A121A208D5;
+        Tue, 16 Jun 2020 15:51:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592321935;
-        bh=hrPJaqBtBAC9t2XIQGFN01J5C4GBN6PhtjcTxc7Cm6g=;
+        s=default; t=1592322699;
+        bh=O3c6iltuc1lppIxXzZtDkjFfjVRwir70kK1um3VlF10=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KWhrxaH6G8DH4w5q5TRXjlTt+crlL7/ScURCsKlZZyw4kDcb+innCtm5BNBv/712E
-         ijeJ9R9KSfDIMNc5DoxxEkyfvOIFAvtP6cJxE2JYk9SLMwP9oQ2RzcgE0ClxuHjgRa
-         b53QjRWOVII5Z97gng4V/qaoEP0ZwCmOE+/jf6vA=
+        b=tGndKkhz93fpgybwdEbsRsOYAeVt14GnQ3OPuIHvT2RxDGKmgQo/jPBuAC9T+n5tq
+         Z1xMMIiHCuwLwtBRbAePZ4uuegwyMRcIXke1IaVL0lVovBh/64e6k7LbMZmTr6iFT0
+         jvkO1p6Lky4QrU2Xnztlvz76vjkrNZt5gLkIdElA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.4 045/134] KVM: x86/mmu: Set mmio_value to 0 if reserved #PF cant be generated
+        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.6 039/161] KVM: x86: only do L1TF workaround on affected processors
 Date:   Tue, 16 Jun 2020 17:33:49 +0200
-Message-Id: <20200616153102.948427458@linuxfoundation.org>
+Message-Id: <20200616153108.240462359@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
-References: <20200616153100.633279950@linuxfoundation.org>
+In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
+References: <20200616153106.402291280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,64 +43,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-commit 6129ed877d409037b79866327102c9dc59a302fe upstream.
+[ Upstream commit d43e2675e96fc6ae1a633b6a69d296394448cc32 ]
 
-Set the mmio_value to '0' instead of simply clearing the present bit to
-squash a benign warning in kvm_mmu_set_mmio_spte_mask() that complains
-about the mmio_value overlapping the lower GFN mask on systems with 52
-bits of PA space.
+KVM stores the gfn in MMIO SPTEs as a caching optimization.  These are split
+in two parts, as in "[high 11111 low]", to thwart any attempt to use these bits
+in an L1TF attack.  This works as long as there are 5 free bits between
+MAXPHYADDR and bit 50 (inclusive), leaving bit 51 free so that the MMIO
+access triggers a reserved-bit-set page fault.
 
-Opportunistically clean up the code and comments.
+The bit positions however were computed wrongly for AMD processors that have
+encryption support.  In this case, x86_phys_bits is reduced (for example
+from 48 to 43, to account for the C bit at position 47 and four bits used
+internally to store the SEV ASID and other stuff) while x86_cache_bits in
+would remain set to 48, and _all_ bits between the reduced MAXPHYADDR
+and bit 51 are set.  Then low_phys_bits would also cover some of the
+bits that are set in the shadow_mmio_value, terribly confusing the gfn
+caching mechanism.
+
+To fix this, avoid splitting gfns as long as the processor does not have
+the L1TF bug (which includes all AMD processors).  When there is no
+splitting, low_phys_bits can be set to the reduced MAXPHYADDR removing
+the overlap.  This fixes "npt=0" operation on EPYC processors.
+
+Thanks to Maxim Levitsky for bisecting this bug.
 
 Cc: stable@vger.kernel.org
-Fixes: d43e2675e96fc ("KVM: x86: only do L1TF workaround on affected processors")
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Message-Id: <20200527084909.23492-1-sean.j.christopherson@intel.com>
+Fixes: 52918ed5fcf0 ("KVM: SVM: Override default MMIO mask if memory encryption is enabled")
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/mmu.c |   27 +++++++++------------------
- 1 file changed, 9 insertions(+), 18 deletions(-)
+ arch/x86/kvm/mmu/mmu.c | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
---- a/arch/x86/kvm/mmu.c
-+++ b/arch/x86/kvm/mmu.c
-@@ -6248,25 +6248,16 @@ static void kvm_set_mmio_spte_mask(void)
- 	u64 mask;
- 
- 	/*
--	 * Set the reserved bits and the present bit of an paging-structure
--	 * entry to generate page fault with PFER.RSV = 1.
-+	 * Set a reserved PA bit in MMIO SPTEs to generate page faults with
-+	 * PFEC.RSVD=1 on MMIO accesses.  64-bit PTEs (PAE, x86-64, and EPT
-+	 * paging) support a maximum of 52 bits of PA, i.e. if the CPU supports
-+	 * 52-bit physical addresses then there are no reserved PA bits in the
-+	 * PTEs and so the reserved PA approach must be disabled.
+diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
+index 87e9ba27ada1..b0138530d085 100644
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -343,6 +343,8 @@ void kvm_mmu_set_mmio_spte_mask(u64 mmio_mask, u64 mmio_value, u64 access_mask)
+ {
+ 	BUG_ON((u64)(unsigned)access_mask != access_mask);
+ 	BUG_ON((mmio_mask & mmio_value) != mmio_value);
++	WARN_ON(mmio_value & (shadow_nonpresent_or_rsvd_mask << shadow_nonpresent_or_rsvd_mask_len));
++	WARN_ON(mmio_value & shadow_nonpresent_or_rsvd_lower_gfn_mask);
+ 	shadow_mmio_value = mmio_value | SPTE_MMIO_MASK;
+ 	shadow_mmio_mask = mmio_mask | SPTE_SPECIAL_MASK;
+ 	shadow_mmio_access_mask = access_mask;
+@@ -591,16 +593,15 @@ static void kvm_mmu_reset_all_pte_masks(void)
+ 	 * the most significant bits of legal physical address space.
  	 */
--
--	/*
--	 * Mask the uppermost physical address bit, which would be reserved as
--	 * long as the supported physical address width is less than 52.
--	 */
--	mask = 1ull << 51;
--
--	/* Set the present bit. */
--	mask |= 1ull;
--
--	/*
--	 * If reserved bit is not supported, clear the present bit to disable
--	 * mmio page fault.
--	 */
--	if (shadow_phys_bits == 52)
--		mask &= ~1ull;
-+	if (shadow_phys_bits < 52)
-+		mask = BIT_ULL(51) | PT_PRESENT_MASK;
-+	else
-+		mask = 0;
+ 	shadow_nonpresent_or_rsvd_mask = 0;
+-	low_phys_bits = boot_cpu_data.x86_cache_bits;
+-	if (boot_cpu_data.x86_cache_bits <
+-	    52 - shadow_nonpresent_or_rsvd_mask_len) {
++	low_phys_bits = boot_cpu_data.x86_phys_bits;
++	if (boot_cpu_has_bug(X86_BUG_L1TF) &&
++	    !WARN_ON_ONCE(boot_cpu_data.x86_cache_bits >=
++			  52 - shadow_nonpresent_or_rsvd_mask_len)) {
++		low_phys_bits = boot_cpu_data.x86_cache_bits
++			- shadow_nonpresent_or_rsvd_mask_len;
+ 		shadow_nonpresent_or_rsvd_mask =
+-			rsvd_bits(boot_cpu_data.x86_cache_bits -
+-				  shadow_nonpresent_or_rsvd_mask_len,
+-				  boot_cpu_data.x86_cache_bits - 1);
+-		low_phys_bits -= shadow_nonpresent_or_rsvd_mask_len;
+-	} else
+-		WARN_ON_ONCE(boot_cpu_has_bug(X86_BUG_L1TF));
++			rsvd_bits(low_phys_bits, boot_cpu_data.x86_cache_bits - 1);
++	}
  
- 	kvm_mmu_set_mmio_spte_mask(mask, mask, ACC_WRITE_MASK | ACC_USER_MASK);
- }
+ 	shadow_nonpresent_or_rsvd_lower_gfn_mask =
+ 		GENMASK_ULL(low_phys_bits - 1, PAGE_SHIFT);
+-- 
+2.25.1
+
 
 
