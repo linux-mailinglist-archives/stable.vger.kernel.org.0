@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8F371FB965
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:04:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB0A21FBB3D
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:18:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731815AbgFPQDI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 12:03:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46064 "EHLO mail.kernel.org"
+        id S1730788AbgFPQRn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 12:17:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731603AbgFPPuW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:50:22 -0400
+        id S1730839AbgFPPjG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:39:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B1F7E208D5;
-        Tue, 16 Jun 2020 15:50:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8D07C20B1F;
+        Tue, 16 Jun 2020 15:39:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322622;
-        bh=j7OcEmK8XA4y3KDzPwvCTXJWkrh36DMJPbqCnvQSD6Q=;
+        s=default; t=1592321946;
+        bh=+eTaB3DunXf0dfxF8RjyOnRTQDPp0qInF/gYdu3xS0c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mwPZDAdG/SKFzbXuO9yW/EIwfkbmhlVaPbLwA2rAM2nEcjGtkTI+Ecf5KfB8mO/dy
-         A2RfAspG2I4eBfyX8a9RJ/zEFrV6gydZjkUC5tBJyFfyZuSQv0YtXvehqOU71n8bM4
-         rhzwwC00V8Jpj0PiOU35OwQ6Bl845RfHev3K6u50=
+        b=liW+AVVQ4mOp0L/+eG/LLY3DCnGRGuzQXbGQJt2ixne1gC1lxOZUB+iRVuOTJu/F5
+         ggmLg4tPzI9gxtrHyIS8VWEIm1Rmbl6zAnjP6xhuIbFuEfyR7PJGfGlnWPdFP06XL2
+         OCJODTHedelt5xGIOii1WheXnx7eCrtOPfMF/5OY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.6 040/161] PCI/PM: Adjust pcie_wait_for_link_delay() for caller delay
+        stable@vger.kernel.org, Felipe Franciosi <felipe@nutanix.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.4 046/134] KVM: x86: respect singlestep when emulating instruction
 Date:   Tue, 16 Jun 2020 17:33:50 +0200
-Message-Id: <20200616153108.286969525@linuxfoundation.org>
+Message-Id: <20200616153102.997527401@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
-References: <20200616153106.402291280@linuxfoundation.org>
+In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
+References: <20200616153100.633279950@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,44 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Helgaas <bhelgaas@google.com>
+From: Felipe Franciosi <felipe@nutanix.com>
 
-[ Upstream commit f044baaff1eb7ae5aa7a36f1b7ad5bd8eeb672c4 ]
+commit 384dea1c9183880be183cfaae161d99aafd16df6 upstream.
 
-The caller of pcie_wait_for_link_delay() specifies the time to wait after
-the link becomes active.  When the downstream port doesn't support link
-active reporting, obviously we can't tell when the link becomes active, so
-we waited the worst-case time (1000 ms) plus 100 ms, ignoring the delay
-from the caller.
+When userspace configures KVM_GUESTDBG_SINGLESTEP, KVM will manage the
+presence of X86_EFLAGS_TF via kvm_set/get_rflags on vcpus. The actual
+rflag bit is therefore hidden from callers.
 
-Instead, wait for 1000 ms + the delay from the caller.
+That includes init_emulate_ctxt() which uses the value returned from
+kvm_get_flags() to set ctxt->tf. As a result, x86_emulate_instruction()
+will skip a single step, leaving singlestep_rip stale and not returning
+to userspace.
 
-Fixes: 4827d63891b6 ("PCI/PM: Add pcie_wait_for_link_delay()")
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This resolves the issue by observing the vcpu guest_debug configuration
+alongside ctxt->tf in x86_emulate_instruction(), performing the single
+step if set.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Felipe Franciosi <felipe@nutanix.com>
+Message-Id: <20200519081048.8204-1-felipe@nutanix.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/pci/pci.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/kvm/x86.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index d828ca835a98..fe9fbb74ce72 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -4616,10 +4616,10 @@ static bool pcie_wait_for_link_delay(struct pci_dev *pdev, bool active,
- 
- 	/*
- 	 * Some controllers might not implement link active reporting. In this
--	 * case, we wait for 1000 + 100 ms.
-+	 * case, we wait for 1000 ms + any delay requested by the caller.
- 	 */
- 	if (!pdev->link_active_reporting) {
--		msleep(1100);
-+		msleep(timeout + delay);
- 		return true;
- 	}
- 
--- 
-2.25.1
-
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -6833,7 +6833,7 @@ restart:
+ 		if (!ctxt->have_exception ||
+ 		    exception_type(ctxt->exception.vector) == EXCPT_TRAP) {
+ 			kvm_rip_write(vcpu, ctxt->eip);
+-			if (r && ctxt->tf)
++			if (r && (ctxt->tf || (vcpu->guest_debug & KVM_GUESTDBG_SINGLESTEP)))
+ 				r = kvm_vcpu_do_singlestep(vcpu);
+ 			__kvm_set_rflags(vcpu, ctxt->eflags);
+ 		}
 
 
