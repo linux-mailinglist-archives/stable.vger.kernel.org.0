@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDE721FB9D0
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:07:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA83D1FBAEE
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:16:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729279AbgFPQG5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 12:06:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40506 "EHLO mail.kernel.org"
+        id S1730535AbgFPPlL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:41:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732325AbgFPPrX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:47:23 -0400
+        id S1729861AbgFPPlJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:41:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8BDCD2071A;
-        Tue, 16 Jun 2020 15:47:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BD3F220C56;
+        Tue, 16 Jun 2020 15:41:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322443;
-        bh=mDDX03FzmPFI8VsvJmpXLYbjW3UZIUMBjMhepZSu4DI=;
+        s=default; t=1592322069;
+        bh=mBnQN4Ex9jVGvZAugizJRWy2rfQJ1lYAFpAUvJ2znTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bKR1lKR5BgLIuYnZKUnLEdA+v2PVbv203POs6+sRgAnXST5R9SgI3kMNEjpBS+JEp
-         8nVd+6Uxsx89JYXvspRa2U0qyFENmsZNWZBcvK6FQtdHy4cBmRAARCbLHrYmK34jfD
-         fCqo/YDOq1rgnDP94wqlHayh7cyWZv7O0MR/KKpI=
+        b=kf9gIYDYBV1JCRpkVKdEBzQ6h3E1XKQ/hNdJTnDua7dACBu0Z9rWqqdEZ3Y9UTGrB
+         8v409qdg4ymDO8KCh1Ri8WwtkSB32gz1Zp1gwE3Bjsvq6f0qBU9vXeABjT0VgAReCN
+         Ghu+RAvBk6UD3xnLWjTNbW8WaXXeEL59q4U9Xu+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.7 134/163] KVM: arm64: Make vcpu_cp1x() work on Big Endian hosts
+        stable@vger.kernel.org,
+        Veerabhadrarao Badiganti <vbadigan@codeaurora.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.4 124/134] mmc: sdhci-msm: Clear tuning done flag while hs400 tuning
 Date:   Tue, 16 Jun 2020 17:35:08 +0200
-Message-Id: <20200616153113.228643512@linuxfoundation.org>
+Message-Id: <20200616153106.725964658@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
-References: <20200616153106.849127260@linuxfoundation.org>
+In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
+References: <20200616153100.633279950@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Veerabhadrarao Badiganti <vbadigan@codeaurora.org>
 
-commit 3204be4109ad681523e3461ce64454c79278450a upstream.
+commit 9253d71011c349d5f5cc0cebdf68b4a80811b92d upstream.
 
-AArch32 CP1x registers are overlayed on their AArch64 counterparts
-in the vcpu struct. This leads to an interesting problem as they
-are stored in their CPU-local format, and thus a CP1x register
-doesn't "hit" the lower 32bit portion of the AArch64 register on
-a BE host.
+Clear tuning_done flag while executing tuning to ensure vendor
+specific HS400 settings are applied properly when the controller
+is re-initialized in HS400 mode.
 
-To workaround this unfortunate situation, introduce a bias trick
-in the vcpu_cp1x() accessors which picks the correct half of the
-64bit register.
+Without this, re-initialization of the qcom SDHC in HS400 mode fails
+while resuming the driver from runtime-suspend or system-suspend.
 
+Fixes: ff06ce417828 ("mmc: sdhci-msm: Add HS400 platform support")
 Cc: stable@vger.kernel.org
-Reported-by: James Morse <james.morse@arm.com>
-Tested-by: James Morse <james.morse@arm.com>
-Acked-by: James Morse <james.morse@arm.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Veerabhadrarao Badiganti <vbadigan@codeaurora.org>
+Link: https://lore.kernel.org/r/1590678838-18099-1-git-send-email-vbadigan@codeaurora.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/include/asm/kvm_host.h |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/mmc/host/sdhci-msm.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/arch/arm64/include/asm/kvm_host.h
-+++ b/arch/arm64/include/asm/kvm_host.h
-@@ -405,8 +405,10 @@ void vcpu_write_sys_reg(struct kvm_vcpu
-  * CP14 and CP15 live in the same array, as they are backed by the
-  * same system registers.
-  */
--#define vcpu_cp14(v,r)		((v)->arch.ctxt.copro[(r)])
--#define vcpu_cp15(v,r)		((v)->arch.ctxt.copro[(r)])
-+#define CPx_BIAS		IS_ENABLED(CONFIG_CPU_BIG_ENDIAN)
-+
-+#define vcpu_cp14(v,r)		((v)->arch.ctxt.copro[(r) ^ CPx_BIAS])
-+#define vcpu_cp15(v,r)		((v)->arch.ctxt.copro[(r) ^ CPx_BIAS])
+--- a/drivers/mmc/host/sdhci-msm.c
++++ b/drivers/mmc/host/sdhci-msm.c
+@@ -1113,6 +1113,12 @@ static int sdhci_msm_execute_tuning(stru
+ 	msm_host->use_cdr = true;
  
- struct kvm_vm_stat {
- 	ulong remote_tlb_flush;
+ 	/*
++	 * Clear tuning_done flag before tuning to ensure proper
++	 * HS400 settings.
++	 */
++	msm_host->tuning_done = 0;
++
++	/*
+ 	 * For HS400 tuning in HS200 timing requires:
+ 	 * - select MCLK/2 in VENDOR_SPEC
+ 	 * - program MCLK to 400MHz (or nearest supported) in GCC
 
 
