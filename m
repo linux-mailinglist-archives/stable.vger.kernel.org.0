@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 845971FB696
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:39:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A42E1FB7F7
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:53:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730724AbgFPPii (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:38:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51240 "EHLO mail.kernel.org"
+        id S1732662AbgFPPvU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:51:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729912AbgFPPih (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:38:37 -0400
+        id S1732658AbgFPPvT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:51:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE71920B1F;
-        Tue, 16 Jun 2020 15:38:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7A8CF208D5;
+        Tue, 16 Jun 2020 15:51:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592321917;
-        bh=caW8/Y6VPKp5vVcWf/wLPLBPATAnCb5BJZT3tCjbtaY=;
+        s=default; t=1592322678;
+        bh=tsKDLnWFTSaaElZKoZK2jgT8PGZj3lzOrzE87+HxmHA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BAWrgdc3bRBYzZcOye2qkZemKAhP+z45A2u7SxsMsM0ae8bZT/6GOx/SqVXusM2q4
-         rhVwNqCCxJcXTuggVhUHvQsKMcEm4SIcmiwg5mDRcFTL7s14grRLSNoDh37ZbJ+hc2
-         GSUGHkHS8Ch4A35JHPHtcS6Z1QbhsJhKRyXfNcgU=
+        b=Ql367wKCw+IQsM/wMyP11Vo0zOsnY4X4BGX5wo6bR/iUOTjprNoIT3H+mYL0J/yDd
+         xq3ojNf7aalbozuvlna4yEi+oykquFgDpDYd1w+0LIEf2EpVhUdrzE/eblmeM7DUkC
+         CV7343lmCccer/34cK4zAXprrjRvfM5MAn7qQCe8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        youling257@gmail.com,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.4 065/134] ACPI: PM: Avoid using power resources if there are none for D0
-Date:   Tue, 16 Jun 2020 17:34:09 +0200
-Message-Id: <20200616153103.880863466@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.6 060/161] powerpc/ptdump: Properly handle non standard page size
+Date:   Tue, 16 Jun 2020 17:34:10 +0200
+Message-Id: <20200616153109.235914013@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
-References: <20200616153100.633279950@linuxfoundation.org>
+In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
+References: <20200616153106.402291280@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,121 +44,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit 956ad9d98b73f59e442cc119c98ba1e04e94fe6d upstream.
+commit b00ff6d8c1c3898b0f768cbb38ef722d25bd2f39 upstream.
 
-As recently reported, some platforms provide a list of power
-resources for device power state D3hot, through the _PR3 object,
-but they do not provide a list of power resources for device power
-state D0.
+In order to properly display information regardless of the page size,
+it is necessary to take into account real page size.
 
-Among other things, this causes acpi_device_get_power() to return
-D3hot as the current state of the device in question if all of the
-D3hot power resources are "on", because it sees the power_resources
-flag set and calls acpi_power_get_inferred_state() which finds that
-D3hot is the shallowest power state with all of the associated power
-resources turned "on", so that's what it returns.  Moreover, that
-value takes precedence over the acpi_dev_pm_explicit_get() return
-value, because it means a deeper power state.  The device may very
-well be in D0 physically at that point, however.
-
-Moreover, the presence of _PR3 without _PR0 for a given device
-means that only one D3-level power state can be supported by it.
-Namely, because there are no power resources to turn "off" when
-transitioning the device from D0 into D3cold (which should be
-supported since _PR3 is present), the evaluation of _PS3 should
-be sufficient to put it straight into D3cold, but this means that
-the effect of turning "on" the _PR3 power resources is unclear,
-so it is better to avoid doing that altogether.  Consequently,
-there is no practical way do distinguish D3cold from D3hot for
-the device in question and the power states of it can be labeled
-so that D3hot is the deepest supported one (and Linux assumes
-that putting a device into D3hot via ACPI may cause power to be
-removed from it anyway, for legacy reasons).
-
-To work around the problem described above modify the ACPI
-enumeration of devices so that power resources are only used
-for device power management if the list of D0 power resources
-is not empty and make it mart D3cold as supported only if that
-is the case and the D3hot list of power resources is not empty
-too.
-
-Fixes: ef85bdbec444 ("ACPI / scan: Consolidate extraction of power resources lists")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=205057
-Link: https://lore.kernel.org/linux-acpi/20200603194659.185757-1-hdegoede@redhat.com/
-Reported-by: Hans de Goede <hdegoede@redhat.com>
-Tested-by: Hans de Goede <hdegoede@redhat.com>
-Tested-by: youling257@gmail.com
-Cc: 3.10+ <stable@vger.kernel.org> # 3.10+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Fixes: cabe8138b23c ("powerpc: dump as a single line areas mapping a single physical page.")
+Cc: stable@vger.kernel.org
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/a53b2a0ffd042a8d85464bf90d55bc5b970e00a1.1589866984.git.christophe.leroy@csgroup.eu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/acpi/device_pm.c |    2 +-
- drivers/acpi/scan.c      |   28 +++++++++++++++++++---------
- 2 files changed, 20 insertions(+), 10 deletions(-)
+ arch/powerpc/mm/ptdump/ptdump.c |   21 ++++++++++++---------
+ 1 file changed, 12 insertions(+), 9 deletions(-)
 
---- a/drivers/acpi/device_pm.c
-+++ b/drivers/acpi/device_pm.c
-@@ -186,7 +186,7 @@ int acpi_device_set_power(struct acpi_de
- 		 * possibly drop references to the power resources in use.
- 		 */
- 		state = ACPI_STATE_D3_HOT;
--		/* If _PR3 is not available, use D3hot as the target state. */
-+		/* If D3cold is not supported, use D3hot as the target state. */
- 		if (!device->power.states[ACPI_STATE_D3_COLD].flags.valid)
- 			target_state = state;
- 	} else if (!device->power.states[state].flags.valid) {
---- a/drivers/acpi/scan.c
-+++ b/drivers/acpi/scan.c
-@@ -919,12 +919,9 @@ static void acpi_bus_init_power_state(st
+--- a/arch/powerpc/mm/ptdump/ptdump.c
++++ b/arch/powerpc/mm/ptdump/ptdump.c
+@@ -60,6 +60,7 @@ struct pg_state {
+ 	unsigned long start_address;
+ 	unsigned long start_pa;
+ 	unsigned long last_pa;
++	unsigned long page_size;
+ 	unsigned int level;
+ 	u64 current_flags;
+ 	bool check_wx;
+@@ -157,9 +158,9 @@ static void dump_addr(struct pg_state *s
+ #endif
  
- 		if (buffer.length && package
- 		    && package->type == ACPI_TYPE_PACKAGE
--		    && package->package.count) {
--			int err = acpi_extract_power_resources(package, 0,
--							       &ps->resources);
--			if (!err)
--				device->power.flags.power_resources = 1;
--		}
-+		    && package->package.count)
-+			acpi_extract_power_resources(package, 0, &ps->resources);
-+
- 		ACPI_FREE(buffer.pointer);
- 	}
- 
-@@ -971,14 +968,27 @@ static void acpi_bus_get_power_flags(str
- 		acpi_bus_init_power_state(device, i);
- 
- 	INIT_LIST_HEAD(&device->power.states[ACPI_STATE_D3_COLD].resources);
--	if (!list_empty(&device->power.states[ACPI_STATE_D3_HOT].resources))
--		device->power.states[ACPI_STATE_D3_COLD].flags.valid = 1;
- 
--	/* Set defaults for D0 and D3hot states (always valid) */
-+	/* Set the defaults for D0 and D3hot (always supported). */
- 	device->power.states[ACPI_STATE_D0].flags.valid = 1;
- 	device->power.states[ACPI_STATE_D0].power = 100;
- 	device->power.states[ACPI_STATE_D3_HOT].flags.valid = 1;
- 
-+	/*
-+	 * Use power resources only if the D0 list of them is populated, because
-+	 * some platforms may provide _PR3 only to indicate D3cold support and
-+	 * in those cases the power resources list returned by it may be bogus.
-+	 */
-+	if (!list_empty(&device->power.states[ACPI_STATE_D0].resources)) {
-+		device->power.flags.power_resources = 1;
-+		/*
-+		 * D3cold is supported if the D3hot list of power resources is
-+		 * not empty.
-+		 */
-+		if (!list_empty(&device->power.states[ACPI_STATE_D3_HOT].resources))
-+			device->power.states[ACPI_STATE_D3_COLD].flags.valid = 1;
-+	}
-+
- 	if (acpi_bus_init_power(device))
- 		device->flags.power_manageable = 0;
+ 	pt_dump_seq_printf(st->seq, REG "-" REG " ", st->start_address, addr - 1);
+-	if (st->start_pa == st->last_pa && st->start_address + PAGE_SIZE != addr) {
++	if (st->start_pa == st->last_pa && st->start_address + st->page_size != addr) {
+ 		pt_dump_seq_printf(st->seq, "[" REG "]", st->start_pa);
+-		delta = PAGE_SIZE >> 10;
++		delta = st->page_size >> 10;
+ 	} else {
+ 		pt_dump_seq_printf(st->seq, " " REG " ", st->start_pa);
+ 		delta = (addr - st->start_address) >> 10;
+@@ -190,7 +191,7 @@ static void note_prot_wx(struct pg_state
  }
+ 
+ static void note_page(struct pg_state *st, unsigned long addr,
+-	       unsigned int level, u64 val)
++	       unsigned int level, u64 val, unsigned long page_size)
+ {
+ 	u64 flag = val & pg_level[level].mask;
+ 	u64 pa = val & PTE_RPN_MASK;
+@@ -202,6 +203,7 @@ static void note_page(struct pg_state *s
+ 		st->start_address = addr;
+ 		st->start_pa = pa;
+ 		st->last_pa = pa;
++		st->page_size = page_size;
+ 		pt_dump_seq_printf(st->seq, "---[ %s ]---\n", st->marker->name);
+ 	/*
+ 	 * Dump the section of virtual memory when:
+@@ -213,7 +215,7 @@ static void note_page(struct pg_state *s
+ 	 */
+ 	} else if (flag != st->current_flags || level != st->level ||
+ 		   addr >= st->marker[1].start_address ||
+-		   (pa != st->last_pa + PAGE_SIZE &&
++		   (pa != st->last_pa + st->page_size &&
+ 		    (pa != st->start_pa || st->start_pa != st->last_pa))) {
+ 
+ 		/* Check the PTE flags */
+@@ -241,6 +243,7 @@ static void note_page(struct pg_state *s
+ 		st->start_address = addr;
+ 		st->start_pa = pa;
+ 		st->last_pa = pa;
++		st->page_size = page_size;
+ 		st->current_flags = flag;
+ 		st->level = level;
+ 	} else {
+@@ -256,7 +259,7 @@ static void walk_pte(struct pg_state *st
+ 
+ 	for (i = 0; i < PTRS_PER_PTE; i++, pte++) {
+ 		addr = start + i * PAGE_SIZE;
+-		note_page(st, addr, 4, pte_val(*pte));
++		note_page(st, addr, 4, pte_val(*pte), PAGE_SIZE);
+ 
+ 	}
+ }
+@@ -273,7 +276,7 @@ static void walk_pmd(struct pg_state *st
+ 			/* pmd exists */
+ 			walk_pte(st, pmd, addr);
+ 		else
+-			note_page(st, addr, 3, pmd_val(*pmd));
++			note_page(st, addr, 3, pmd_val(*pmd), PMD_SIZE);
+ 	}
+ }
+ 
+@@ -289,7 +292,7 @@ static void walk_pud(struct pg_state *st
+ 			/* pud exists */
+ 			walk_pmd(st, pud, addr);
+ 		else
+-			note_page(st, addr, 2, pud_val(*pud));
++			note_page(st, addr, 2, pud_val(*pud), PUD_SIZE);
+ 	}
+ }
+ 
+@@ -308,7 +311,7 @@ static void walk_pagetables(struct pg_st
+ 			/* pgd exists */
+ 			walk_pud(st, pgd, addr);
+ 		else
+-			note_page(st, addr, 1, pgd_val(*pgd));
++			note_page(st, addr, 1, pgd_val(*pgd), PGDIR_SIZE);
+ 	}
+ }
+ 
+@@ -363,7 +366,7 @@ static int ptdump_show(struct seq_file *
+ 
+ 	/* Traverse kernel page tables */
+ 	walk_pagetables(&st);
+-	note_page(&st, 0, 0, 0);
++	note_page(&st, 0, 0, 0, 0);
+ 	return 0;
+ }
+ 
 
 
