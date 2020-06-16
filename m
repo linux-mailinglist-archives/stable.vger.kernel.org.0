@@ -2,38 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 039DB1FB940
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:03:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB0411FBA3D
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:10:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731947AbgFPQCa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 12:02:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47854 "EHLO mail.kernel.org"
+        id S1730634AbgFPQJ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 12:09:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732496AbgFPPvX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:51:23 -0400
+        id S1730211AbgFPPo7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:44:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1080C214DB;
-        Tue, 16 Jun 2020 15:51:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CCF5C214DB;
+        Tue, 16 Jun 2020 15:44:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322681;
-        bh=tm5emzIZe1eyeA5dlv4d4lUnsTh7XE+ZpULMTA+WaiU=;
+        s=default; t=1592322298;
+        bh=QIcS73uwgRHW6LMWNWdiRKdRJrtAF/id/hyM7AUDHKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=upHbOABkb5iRfPHIo1+hLOhUhT2KznMXtTqCfjsyQ4K+dJLMNNVnHHgUfVu05oN9b
-         rxmLOaJjaFzArhP2PQcgJ5wbmUlNpzaDKY71gzG4P5cq44NhKMzNeef9CbeM0JXqwU
-         cmZ7P1lZ70fdTzHfZyS1YYPxueR3ApONiI0ivMu0=
+        b=GwGJ8P2YZ84FSXVJ6XsfHxEZA+ZZmY+zhCrtnNEirxr2MnJBr6+xfWC5kfeUj2LzF
+         BjaUb2Zz+X4Gv0kSa+4dCOY63HiEn+hbnGdXSUNOzFJYXwX23eCg+cZomEJyVTrdV9
+         BR29DXzTlOrd82//Eerid8Z9c63pL2dDEJhDJwd0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Dobias <dobias@2n.cz>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.6 061/161] ASoC: max9867: fix volume controls
+        stable@vger.kernel.org, Dave Rodgman <dave.rodgman@arm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Mark Rutland <mark.rutland@arm.com>, Willy Tarreau <w@1wt.eu>,
+        Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>,
+        "Markus F.X.J. Oberhumer" <markus@oberhumer.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Nitin Gupta <ngupta@vflare.org>, Chao Yu <yuchao0@huawei.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.7 077/163] lib/lzo: fix ambiguous encoding bug in lzo-rle
 Date:   Tue, 16 Jun 2020 17:34:11 +0200
-Message-Id: <20200616153109.282503835@linuxfoundation.org>
+Message-Id: <20200616153110.534648551@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
-References: <20200616153106.402291280@linuxfoundation.org>
+In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
+References: <20200616153106.849127260@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,42 +49,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Dobias <dobias@2n.cz>
+From: Dave Rodgman <dave.rodgman@arm.com>
 
-commit 8ba4dc3cff8cbe2c571063a5fd7116e8bde563ca upstream.
+commit b5265c813ce4efbfa2e46fd27cdf9a7f44a35d2e upstream.
 
-The xmax values for Master Playback Volume and Mic Boost
-Capture Volume are specified incorrectly (one greater)
-which results in the wrong dB gain being shown to the user
-in the case of Master Playback Volume.
+In some rare cases, for input data over 32 KB, lzo-rle could encode two
+different inputs to the same compressed representation, so that
+decompression is then ambiguous (i.e.  data may be corrupted - although
+zram is not affected because it operates over 4 KB pages).
 
-Signed-off-by: Pavel Dobias <dobias@2n.cz>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200515120757.24669-1-dobias@2n.cz
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This modifies the compressor without changing the decompressor or the
+bitstream format, such that:
+
+ - there is no change to how data produced by the old compressor is
+   decompressed
+
+ - an old decompressor will correctly decode data from the updated
+   compressor
+
+ - performance and compression ratio are not affected
+
+ - we avoid introducing a new bitstream format
+
+In testing over 12.8M real-world files totalling 903 GB, three files
+were affected by this bug.  I also constructed 37M semi-random 64 KB
+files totalling 2.27 TB, and saw no affected files.  Finally I tested
+over files constructed to contain each of the ~1024 possible bad input
+sequences; for all of these cases, updated lzo-rle worked correctly.
+
+There is no significant impact to performance or compression ratio.
+
+Signed-off-by: Dave Rodgman <dave.rodgman@arm.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Dave Rodgman <dave.rodgman@arm.com>
+Cc: Willy Tarreau <w@1wt.eu>
+Cc: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
+Cc: Markus F.X.J. Oberhumer <markus@oberhumer.com>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Nitin Gupta <ngupta@vflare.org>
+Cc: Chao Yu <yuchao0@huawei.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200507100203.29785-1-dave.rodgman@arm.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/codecs/max9867.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ Documentation/lzo.txt    |    8 ++++++--
+ lib/lzo/lzo1x_compress.c |   13 +++++++++++++
+ 2 files changed, 19 insertions(+), 2 deletions(-)
 
---- a/sound/soc/codecs/max9867.c
-+++ b/sound/soc/codecs/max9867.c
-@@ -46,13 +46,13 @@ static const SNDRV_CTL_TLVD_DECLARE_DB_R
+--- a/Documentation/lzo.txt
++++ b/Documentation/lzo.txt
+@@ -159,11 +159,15 @@ Byte sequences
+            distance = 16384 + (H << 14) + D
+            state = S (copy S literals after this block)
+            End of stream is reached if distance == 16384
++           In version 1 only, to prevent ambiguity with the RLE case when
++           ((distance & 0x803f) == 0x803f) && (261 <= length <= 264), the
++           compressor must not emit block copies where distance and length
++           meet these conditions.
  
- static const struct snd_kcontrol_new max9867_snd_controls[] = {
- 	SOC_DOUBLE_R_TLV("Master Playback Volume", MAX9867_LEFTVOL,
--			MAX9867_RIGHTVOL, 0, 41, 1, max9867_master_tlv),
-+			MAX9867_RIGHTVOL, 0, 40, 1, max9867_master_tlv),
- 	SOC_DOUBLE_R_TLV("Line Capture Volume", MAX9867_LEFTLINELVL,
- 			MAX9867_RIGHTLINELVL, 0, 15, 1, max9867_line_tlv),
- 	SOC_DOUBLE_R_TLV("Mic Capture Volume", MAX9867_LEFTMICGAIN,
- 			MAX9867_RIGHTMICGAIN, 0, 20, 1, max9867_mic_tlv),
- 	SOC_DOUBLE_R_TLV("Mic Boost Capture Volume", MAX9867_LEFTMICGAIN,
--			MAX9867_RIGHTMICGAIN, 5, 4, 0, max9867_micboost_tlv),
-+			MAX9867_RIGHTMICGAIN, 5, 3, 0, max9867_micboost_tlv),
- 	SOC_SINGLE("Digital Sidetone Volume", MAX9867_SIDETONE, 0, 31, 1),
- 	SOC_SINGLE_TLV("Digital Playback Volume", MAX9867_DACLEVEL, 0, 15, 1,
- 			max9867_dac_tlv),
+         In version 1 only, this instruction is also used to encode a run of
+-        zeros if distance = 0xbfff, i.e. H = 1 and the D bits are all 1.
++           zeros if distance = 0xbfff, i.e. H = 1 and the D bits are all 1.
+            In this case, it is followed by a fourth byte, X.
+-           run length = ((X << 3) | (0 0 0 0 0 L L L)) + 4.
++           run length = ((X << 3) | (0 0 0 0 0 L L L)) + 4
+ 
+       0 0 1 L L L L L  (32..63)
+            Copy of small block within 16kB distance (preferably less than 34B)
+--- a/lib/lzo/lzo1x_compress.c
++++ b/lib/lzo/lzo1x_compress.c
+@@ -268,6 +268,19 @@ m_len_done:
+ 				*op++ = (M4_MARKER | ((m_off >> 11) & 8)
+ 						| (m_len - 2));
+ 			else {
++				if (unlikely(((m_off & 0x403f) == 0x403f)
++						&& (m_len >= 261)
++						&& (m_len <= 264))
++						&& likely(bitstream_version)) {
++					// Under lzo-rle, block copies
++					// for 261 <= length <= 264 and
++					// (distance & 0x80f3) == 0x80f3
++					// can result in ambiguous
++					// output. Adjust length
++					// to 260 to prevent ambiguity.
++					ip -= m_len - 260;
++					m_len = 260;
++				}
+ 				m_len -= M4_MAX_LEN;
+ 				*op++ = (M4_MARKER | ((m_off >> 11) & 8));
+ 				while (unlikely(m_len > 255)) {
 
 
