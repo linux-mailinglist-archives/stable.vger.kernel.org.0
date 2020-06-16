@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58BAC1FB9DA
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:07:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 718891FB9CD
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:07:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732298AbgFPPrL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:47:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40084 "EHLO mail.kernel.org"
+        id S1732546AbgFPQGo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 12:06:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732294AbgFPPrL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:47:11 -0400
+        id S1732354AbgFPPrj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:47:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 224BE21475;
-        Tue, 16 Jun 2020 15:47:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1A24920776;
+        Tue, 16 Jun 2020 15:47:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322430;
-        bh=Ww/3zxU6fbSSh6OUodW4LyHhRVCSyKXuqOzIlIhcuJs=;
+        s=default; t=1592322458;
+        bh=dyqp+Fnlnyi5NeHTmMqL6I3YbaA5yLh7dj/yLkB9YR8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N7YOepvPI6Cz7Uk7/oWLgovUDCIXOE45tXh7BC5tQtHFUgTYABpPrq+6V/5LDO7gm
-         vqX72KNbfuLoF4Z2rSdH95bi3fGvrE+hukeRrjyJ+Gcz6X4i9Jq7wniH2WKebyVp4p
-         kJfaf+X2W1bv4wHgVjNZ+/NOKWWq3qiPDq7R/eEI=
+        b=r7xws0yn4ghR/pp8YZLdYivxZCgWKO7MnvZYorhH+KaJ7b5okWn4RF1i7ov3briv5
+         bXUJQvBAh042DnsPaIMbqpFP9nyaSHe3SmaY2gzJeLJYQ6sxMO6LbfA8UHoV8aefK+
+         F79UzgySrx948+CA4WvitBmApfNyf1aoC/XoxpnM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Suman Anna <s-anna@ti.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Arnaud Pouliquen <arnaud.pouliquen@st.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: [PATCH 5.7 121/163] remoteproc: Fix and restore the parenting hierarchy for vdev
-Date:   Tue, 16 Jun 2020 17:34:55 +0200
-Message-Id: <20200616153112.607448077@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.7 122/163] cpufreq: Fix up cpufreq_boost_set_sw()
+Date:   Tue, 16 Jun 2020 17:34:56 +0200
+Message-Id: <20200616153112.655066932@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
 References: <20200616153106.849127260@linuxfoundation.org>
@@ -45,46 +46,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suman Anna <s-anna@ti.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-commit c774ad010873bb89dcc0cdcb1e96aef6664d8caf upstream.
+commit 552abb884e97d26589964e5a8c7e736f852f95f0 upstream.
 
-The commit 086d08725d34 ("remoteproc: create vdev subdevice with specific
-dma memory pool") has introduced a new vdev subdevice for each vdev
-declared in the firmware resource table and made it as the parent for the
-created virtio rpmsg devices instead of the previous remoteproc device.
-This changed the overall parenting hierarchy for the rpmsg devices, which
-were children of virtio devices, and does not allow the corresponding
-rpmsg drivers to retrieve the parent rproc device through the
-rproc_get_by_child() API.
+After commit 18c49926c4bf ("cpufreq: Add QoS requests for userspace
+constraints") the return value of freq_qos_update_request(), that can
+be 1, passed by cpufreq_boost_set_sw() to its caller sometimes
+confuses the latter, which only expects to see 0 or negative error
+codes, so notice that cpufreq_boost_set_sw() can return an error code
+(which should not be -EINVAL for that matter) as soon as the first
+policy without a frequency table is found (because either all policies
+have a frequency table or none of them have it) and rework it to meet
+its caller's expectations.
 
-Fix this by restoring the remoteproc device as the parent. The new vdev
-subdevice can continue to inherit the DMA attributes from the remoteproc's
-parent device (actual platform device).
-
-Cc: stable@vger.kernel.org
-Fixes: 086d08725d34 ("remoteproc: create vdev subdevice with specific dma memory pool")
-Signed-off-by: Suman Anna <s-anna@ti.com>
-Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Acked-by: Arnaud Pouliquen <arnaud.pouliquen@st.com>
-Link: https://lore.kernel.org/r/20200420160600.10467-3-s-anna@ti.com
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Fixes: 18c49926c4bf ("cpufreq: Add QoS requests for userspace constraints")
+Reported-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Reported-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Cc: 5.3+ <stable@vger.kernel.org> # 5.3+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/remoteproc/remoteproc_core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/cpufreq/cpufreq.c |   11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- a/drivers/remoteproc/remoteproc_core.c
-+++ b/drivers/remoteproc/remoteproc_core.c
-@@ -517,7 +517,7 @@ static int rproc_handle_vdev(struct rpro
+--- a/drivers/cpufreq/cpufreq.c
++++ b/drivers/cpufreq/cpufreq.c
+@@ -2535,26 +2535,27 @@ EXPORT_SYMBOL_GPL(cpufreq_update_limits)
+ static int cpufreq_boost_set_sw(int state)
+ {
+ 	struct cpufreq_policy *policy;
+-	int ret = -EINVAL;
  
- 	/* Initialise vdev subdevice */
- 	snprintf(name, sizeof(name), "vdev%dbuffer", rvdev->index);
--	rvdev->dev.parent = rproc->dev.parent;
-+	rvdev->dev.parent = &rproc->dev;
- 	rvdev->dev.dma_pfn_offset = rproc->dev.parent->dma_pfn_offset;
- 	rvdev->dev.release = rproc_rvdev_release;
- 	dev_set_name(&rvdev->dev, "%s#%s", dev_name(rvdev->dev.parent), name);
+ 	for_each_active_policy(policy) {
++		int ret;
++
+ 		if (!policy->freq_table)
+-			continue;
++			return -ENXIO;
+ 
+ 		ret = cpufreq_frequency_table_cpuinfo(policy,
+ 						      policy->freq_table);
+ 		if (ret) {
+ 			pr_err("%s: Policy frequency update failed\n",
+ 			       __func__);
+-			break;
++			return ret;
+ 		}
+ 
+ 		ret = freq_qos_update_request(policy->max_freq_req, policy->max);
+ 		if (ret < 0)
+-			break;
++			return ret;
+ 	}
+ 
+-	return ret;
++	return 0;
+ }
+ 
+ int cpufreq_boost_trigger_state(int state)
 
 
