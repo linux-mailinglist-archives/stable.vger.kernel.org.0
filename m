@@ -2,40 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C4041FB664
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:38:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3ED381FB70A
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:43:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730060AbgFPPgs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:36:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47750 "EHLO mail.kernel.org"
+        id S1731744AbgFPPnL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:43:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730027AbgFPPgr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:36:47 -0400
+        id S1731059AbgFPPnI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:43:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9CA7220E65;
-        Tue, 16 Jun 2020 15:36:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 54F39214DB;
+        Tue, 16 Jun 2020 15:43:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592321806;
-        bh=nlJdig9ZgoQ+1epDga6Pnedfd5LFOzlP0peHjt3qs3c=;
+        s=default; t=1592322187;
+        bh=a7avgGW8Pb6mY9ujyM5PSFtctNJTkJfibtYp4fwY5Z8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SBIdnB2BJOTRKy547WtHybe+ZWYDojnbycnoLtHdKWMybOgf2ikAyaMNu8Ivpg7hu
-         iCQyyyPtqizRWciJDwJavGjiBIV3eUQcN+bDjnhku09vgzDWJMV8n5o0n9LU437XMf
-         /wPax7EFoNCweItY7Zr22fYMzLZYlRU5ECEPGJqc=
+        b=hbMn/HK3HwUwyu8SqmgW66n3wKtT7TyJplyDEUI1y9Cz3HZC8due/lrPOUTd419EE
+         LFZRs4NE3vCCbBkOG9oOe0mLlxob7MMRcSvhUFTSxG8LJ1jYErAR6Rf9UxR0hXNwVW
+         2yzDoN/Eu58160YGppnibVe70AQO/KwJcTpCK3M8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Jordan <daniel.m.jordan@oracle.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        linux-crypto@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 023/134] padata: add separate cpuhp node for CPUHP_PADATA_DEAD
-Date:   Tue, 16 Jun 2020 17:33:27 +0200
-Message-Id: <20200616153101.847913241@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Alistair Delva <adelva@google.com>,
+        Fangrui Song <maskray@google.com>,
+        Bob Haarman <inglorion@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Andi Kleen <ak@linux.intel.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Sedat Dilek <sedat.dilek@gmail.com>
+Subject: [PATCH 5.7 035/163] x86_64: Fix jiffies ODR violation
+Date:   Tue, 16 Jun 2020 17:33:29 +0200
+Message-Id: <20200616153108.543251819@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
-References: <20200616153100.633279950@linuxfoundation.org>
+In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
+References: <20200616153106.849127260@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,122 +52,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Jordan <daniel.m.jordan@oracle.com>
+From: Bob Haarman <inglorion@google.com>
 
-[ Upstream commit 3c2214b6027ff37945799de717c417212e1a8c54 ]
+commit d8ad6d39c35d2b44b3d48b787df7f3359381dcbf upstream.
 
-Removing the pcrypt module triggers this:
+'jiffies' and 'jiffies_64' are meant to alias (two different symbols that
+share the same address).  Most architectures make the symbols alias to the
+same address via a linker script assignment in their
+arch/<arch>/kernel/vmlinux.lds.S:
 
-  general protection fault, probably for non-canonical
-    address 0xdead000000000122
-  CPU: 5 PID: 264 Comm: modprobe Not tainted 5.6.0+ #2
-  Hardware name: QEMU Standard PC
-  RIP: 0010:__cpuhp_state_remove_instance+0xcc/0x120
-  Call Trace:
-   padata_sysfs_release+0x74/0xce
-   kobject_put+0x81/0xd0
-   padata_free+0x12/0x20
-   pcrypt_exit+0x43/0x8ee [pcrypt]
+jiffies = jiffies_64;
 
-padata instances wrongly use the same hlist node for the online and dead
-states, so __padata_free()'s second cpuhp remove call chokes on the node
-that the first poisoned.
+which is effectively a definition of jiffies.
 
-cpuhp multi-instance callbacks only walk forward in cpuhp_step->list and
-the same node is linked in both the online and dead lists, so the list
-corruption that results from padata_alloc() adding the node to a second
-list without removing it from the first doesn't cause problems as long
-as no instances are freed.
+jiffies and jiffies_64 are both forward declared for all architectures in
+include/linux/jiffies.h. jiffies_64 is defined in kernel/time/timer.c.
 
-Avoid the issue by giving each state its own node.
+x86_64 was peculiar in that it wasn't doing the above linker script
+assignment, but rather was:
+1. defining jiffies in arch/x86/kernel/time.c instead via the linker script.
+2. overriding the symbol jiffies_64 from kernel/time/timer.c in
+arch/x86/kernel/vmlinux.lds.s via 'jiffies_64 = jiffies;'.
 
-Fixes: 894c9ef9780c ("padata: validate cpumask without removed CPU during offline")
-Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Steffen Klassert <steffen.klassert@secunet.com>
-Cc: linux-crypto@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org # v5.4+
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+As Fangrui notes:
+
+  In LLD, symbol assignments in linker scripts override definitions in
+  object files. GNU ld appears to have the same behavior. It would
+  probably make sense for LLD to error "duplicate symbol" but GNU ld
+  is unlikely to adopt for compatibility reasons.
+
+This results in an ODR violation (UB), which seems to have survived
+thus far. Where it becomes harmful is when;
+
+1. -fno-semantic-interposition is used:
+
+As Fangrui notes:
+
+  Clang after LLVM commit 5b22bcc2b70d
+  ("[X86][ELF] Prefer to lower MC_GlobalAddress operands to .Lfoo$local")
+  defaults to -fno-semantic-interposition similar semantics which help
+  -fpic/-fPIC code avoid GOT/PLT when the referenced symbol is defined
+  within the same translation unit. Unlike GCC
+  -fno-semantic-interposition, Clang emits such relocations referencing
+  local symbols for non-pic code as well.
+
+This causes references to jiffies to refer to '.Ljiffies$local' when
+jiffies is defined in the same translation unit. Likewise, references to
+jiffies_64 become references to '.Ljiffies_64$local' in translation units
+that define jiffies_64.  Because these differ from the names used in the
+linker script, they will not be rewritten to alias one another.
+
+2. Full LTO
+
+Full LTO effectively treats all source files as one translation
+unit, causing these local references to be produced everywhere.  When
+the linker processes the linker script, there are no longer any
+references to jiffies_64' anywhere to replace with 'jiffies'.  And
+thus '.Ljiffies$local' and '.Ljiffies_64$local' no longer alias
+at all.
+
+In the process of porting patches enabling Full LTO from arm64 to x86_64,
+spooky bugs have been observed where the kernel appeared to boot, but init
+doesn't get scheduled.
+
+Avoid the ODR violation by matching other architectures and define jiffies
+only by linker script.  For -fno-semantic-interposition + Full LTO, there
+is no longer a global definition of jiffies for the compiler to produce a
+local symbol which the linker script won't ensure aliases to jiffies_64.
+
+Fixes: 40747ffa5aa8 ("asmlinkage: Make jiffies visible")
+Reported-by: Nathan Chancellor <natechancellor@gmail.com>
+Reported-by: Alistair Delva <adelva@google.com>
+Debugged-by: Nick Desaulniers <ndesaulniers@google.com>
+Debugged-by: Sami Tolvanen <samitolvanen@google.com>
+Suggested-by: Fangrui Song <maskray@google.com>
+Signed-off-by: Bob Haarman <inglorion@google.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Sedat Dilek <sedat.dilek@gmail.com> # build+boot on
+Reviewed-by: Andi Kleen <ak@linux.intel.com>
+Reviewed-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: stable@vger.kernel.org
+Link: https://github.com/ClangBuiltLinux/linux/issues/852
+Link: https://lkml.kernel.org/r/20200602193100.229287-1-inglorion@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- include/linux/padata.h |  6 ++++--
- kernel/padata.c        | 14 ++++++++------
- 2 files changed, 12 insertions(+), 8 deletions(-)
+ arch/x86/kernel/time.c        |    4 ----
+ arch/x86/kernel/vmlinux.lds.S |    4 ++--
+ 2 files changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/include/linux/padata.h b/include/linux/padata.h
-index cccab7a59787..fa35dcfbd13f 100644
---- a/include/linux/padata.h
-+++ b/include/linux/padata.h
-@@ -145,7 +145,8 @@ struct padata_shell {
- /**
-  * struct padata_instance - The overall control structure.
-  *
-- * @cpu_notifier: cpu hotplug notifier.
-+ * @cpu_online_node: Linkage for CPU online callback.
-+ * @cpu_dead_node: Linkage for CPU offline callback.
-  * @parallel_wq: The workqueue used for parallel work.
-  * @serial_wq: The workqueue used for serial work.
-  * @pslist: List of padata_shell objects attached to this instance.
-@@ -160,7 +161,8 @@ struct padata_shell {
-  * @flags: padata flags.
-  */
- struct padata_instance {
--	struct hlist_node		 node;
-+	struct hlist_node		cpu_online_node;
-+	struct hlist_node		cpu_dead_node;
- 	struct workqueue_struct		*parallel_wq;
- 	struct workqueue_struct		*serial_wq;
- 	struct list_head		pslist;
-diff --git a/kernel/padata.c b/kernel/padata.c
-index c4b774331e46..92a4867e8adc 100644
---- a/kernel/padata.c
-+++ b/kernel/padata.c
-@@ -782,7 +782,7 @@ static int padata_cpu_online(unsigned int cpu, struct hlist_node *node)
- 	struct padata_instance *pinst;
- 	int ret;
+--- a/arch/x86/kernel/time.c
++++ b/arch/x86/kernel/time.c
+@@ -25,10 +25,6 @@
+ #include <asm/hpet.h>
+ #include <asm/time.h>
  
--	pinst = hlist_entry_safe(node, struct padata_instance, node);
-+	pinst = hlist_entry_safe(node, struct padata_instance, cpu_online_node);
- 	if (!pinst_has_cpu(pinst, cpu))
- 		return 0;
- 
-@@ -797,7 +797,7 @@ static int padata_cpu_dead(unsigned int cpu, struct hlist_node *node)
- 	struct padata_instance *pinst;
- 	int ret;
- 
--	pinst = hlist_entry_safe(node, struct padata_instance, node);
-+	pinst = hlist_entry_safe(node, struct padata_instance, cpu_dead_node);
- 	if (!pinst_has_cpu(pinst, cpu))
- 		return 0;
- 
-@@ -813,8 +813,9 @@ static enum cpuhp_state hp_online;
- static void __padata_free(struct padata_instance *pinst)
+-#ifdef CONFIG_X86_64
+-__visible volatile unsigned long jiffies __cacheline_aligned_in_smp = INITIAL_JIFFIES;
+-#endif
+-
+ unsigned long profile_pc(struct pt_regs *regs)
  {
- #ifdef CONFIG_HOTPLUG_CPU
--	cpuhp_state_remove_instance_nocalls(CPUHP_PADATA_DEAD, &pinst->node);
--	cpuhp_state_remove_instance_nocalls(hp_online, &pinst->node);
-+	cpuhp_state_remove_instance_nocalls(CPUHP_PADATA_DEAD,
-+					    &pinst->cpu_dead_node);
-+	cpuhp_state_remove_instance_nocalls(hp_online, &pinst->cpu_online_node);
+ 	unsigned long pc = instruction_pointer(regs);
+--- a/arch/x86/kernel/vmlinux.lds.S
++++ b/arch/x86/kernel/vmlinux.lds.S
+@@ -40,13 +40,13 @@ OUTPUT_FORMAT(CONFIG_OUTPUT_FORMAT)
+ #ifdef CONFIG_X86_32
+ OUTPUT_ARCH(i386)
+ ENTRY(phys_startup_32)
+-jiffies = jiffies_64;
+ #else
+ OUTPUT_ARCH(i386:x86-64)
+ ENTRY(phys_startup_64)
+-jiffies_64 = jiffies;
  #endif
  
- 	WARN_ON(!list_empty(&pinst->pslist));
-@@ -1020,9 +1021,10 @@ static struct padata_instance *padata_alloc(const char *name,
- 	mutex_init(&pinst->lock);
- 
- #ifdef CONFIG_HOTPLUG_CPU
--	cpuhp_state_add_instance_nocalls_cpuslocked(hp_online, &pinst->node);
-+	cpuhp_state_add_instance_nocalls_cpuslocked(hp_online,
-+						    &pinst->cpu_online_node);
- 	cpuhp_state_add_instance_nocalls_cpuslocked(CPUHP_PADATA_DEAD,
--						    &pinst->node);
-+						    &pinst->cpu_dead_node);
- #endif
- 
- 	put_online_cpus();
--- 
-2.25.1
-
++jiffies = jiffies_64;
++
+ #if defined(CONFIG_X86_64)
+ /*
+  * On 64-bit, align RODATA to 2MB so we retain large page mappings for
 
 
