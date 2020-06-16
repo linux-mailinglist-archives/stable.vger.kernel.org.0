@@ -2,46 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FCD31FBAD7
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:15:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C29781FBB5F
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:22:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731637AbgFPPmO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:42:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58614 "EHLO mail.kernel.org"
+        id S1729847AbgFPPgQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:36:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730841AbgFPPmM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:42:12 -0400
+        id S1729609AbgFPPgO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:36:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CCB7620C56;
-        Tue, 16 Jun 2020 15:42:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8F41A20B1F;
+        Tue, 16 Jun 2020 15:36:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322131;
-        bh=cR0PP+/MQZYLqQf3bbJfXoLuvhvnjpmt6Okx0cKiyf4=;
+        s=default; t=1592321774;
+        bh=R8b4aXiaDVa9gpxOJ77HU6fmfPrXxPzH9NZlAi6jZ1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QbPCuNTjTKXeLfeu1BTUxcJ6lmUCPX+MbTxIEpZBmeC+uJ/l9YQRo4q6cpZbNX8P8
-         CsyxaxTlMemE4G5/ZwDT6G+BK/dYpKwhuzXs80WlZvvlJ81VR9iKr7JpmC8aOl4ryq
-         Wy38PXCkejE9jm9JTqYZFXnd66/qy6upXojHIbuY=
+        b=yXtUE/YkEvXaPhsPBPPFE2Wg2bz/6iKf00m9eT2VzPpONUZHng84KJGfTSYQTqGb6
+         VNmAQMjZlXL9iplVA9hB/iYlpw4dsrnSqPJDWON6aNIw2J8aAurN3EAJHX223UU8k3
+         oLbbZv9nfGun6HQxSTG2f23dtp2buA2WsrDYDjfw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Fangrui Song <maskray@google.com>,
-        Jeremy Fitzhardinge <jeremy@goop.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Jian Cai <jiancai@google.com>,
-        Ilie Halip <ilie.halip@gmail.com>
-Subject: [PATCH 5.7 013/163] elfnote: mark all .note sections SHF_ALLOC
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 003/134] net_failover: fixed rollback in net_failover_open()
 Date:   Tue, 16 Jun 2020 17:33:07 +0200
-Message-Id: <20200616153107.510290511@linuxfoundation.org>
+Message-Id: <20200616153100.815427638@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
-References: <20200616153106.849127260@linuxfoundation.org>
+In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
+References: <20200616153100.633279950@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,58 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-commit 51da9dfb7f20911ae4e79e9b412a9c2d4c373d4b upstream.
+[ Upstream commit e8224bfe77293494626f6eec1884fee7b87d0ced ]
 
-ELFNOTE_START allows callers to specify flags for .pushsection assembler
-directives.  All callsites but ELF_NOTE use "a" for SHF_ALLOC.  For vdso's
-that explicitly use ELF_NOTE_START and BUILD_SALT, the same section is
-specified twice after preprocessing, once with "a" flag, once without.
-Example:
+found by smatch:
+drivers/net/net_failover.c:65 net_failover_open() error:
+ we previously assumed 'primary_dev' could be null (see line 43)
 
-.pushsection .note.Linux, "a", @note ;
-.pushsection .note.Linux, "", @note ;
-
-While GNU as allows this ordering, it warns for the opposite ordering,
-making these directives position dependent.  We'd prefer not to precisely
-match this behavior in Clang's integrated assembler.  Instead, the non
-__ASSEMBLY__ definition of ELF_NOTE uses
-__attribute__((section(".note.Linux"))) which is created with SHF_ALLOC,
-so let's make the __ASSEMBLY__ definition of ELF_NOTE consistent with C
-and just always use "a" flag.
-
-This allows Clang to assemble a working mainline (5.6) kernel via:
-$ make CC=clang AS=clang
-
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Fangrui Song <maskray@google.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Link: https://github.com/ClangBuiltLinux/linux/issues/913
-Link: http://lkml.kernel.org/r/20200325231250.99205-1-ndesaulniers@google.com
-Debugged-by: Ilie Halip <ilie.halip@gmail.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Jian Cai <jiancai@google.com>
+Fixes: cfc80d9a1163 ("net: Introduce net_failover driver")
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- include/linux/elfnote.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/net_failover.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/include/linux/elfnote.h
-+++ b/include/linux/elfnote.h
-@@ -54,7 +54,7 @@
- .popsection				;
+--- a/drivers/net/net_failover.c
++++ b/drivers/net/net_failover.c
+@@ -61,7 +61,8 @@ static int net_failover_open(struct net_
+ 	return 0;
  
- #define ELFNOTE(name, type, desc)		\
--	ELFNOTE_START(name, type, "")		\
-+	ELFNOTE_START(name, type, "a")		\
- 		desc			;	\
- 	ELFNOTE_END
- 
+ err_standby_open:
+-	dev_close(primary_dev);
++	if (primary_dev)
++		dev_close(primary_dev);
+ err_primary_open:
+ 	netif_tx_disable(dev);
+ 	return err;
 
 
