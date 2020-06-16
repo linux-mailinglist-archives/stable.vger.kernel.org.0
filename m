@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE1651FB830
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:55:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 410CF1FB8DD
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:00:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732914AbgFPPx5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:53:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52632 "EHLO mail.kernel.org"
+        id S1732927AbgFPPyA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:54:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730565AbgFPPx4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:53:56 -0400
+        id S1732922AbgFPPx7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:53:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7611C21532;
-        Tue, 16 Jun 2020 15:53:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 19AC7215A4;
+        Tue, 16 Jun 2020 15:53:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322836;
-        bh=gGUmW2DrTIls4lFdQDuM1ToOLsMmr9KRvqtR7zLRIM4=;
+        s=default; t=1592322838;
+        bh=KERNEO/I/JhTJOE7gZeiLLtKqNd+wcWeZV80AwRWTDw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=teoIW4z3S/o6yJzjT6OVwCllLfLzWqE4jeGmppAi8dskA8XFUq1mcGuJKsSlEsVn/
-         kQAOPNvi9Wy4guFcxvOccvdikFerHR4B3KCGRtzsu+F4yiecHrscmED0oog0ilMRSd
-         TbTfFJvHEk11MYY+E4Fz98SUyEnmpMAU0r1c5o20=
+        b=ijuv+L+CnBmyHLjiebI1O5hAv/MHDrNFfHSLNKm6nAUrRJqYsIYEEhGvcAvIYXO3m
+         R7kt5wYhZ39iZPKxa/pw1XNh670XO6+AisC9mDbegrzmTEnE/FIYHghCbx+HDFucuR
+         XjfrWSxofVz7uBlm1SiUkzEDjbnSr2O9cucVpYf4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>,
-        kbuild test robot <lkp@intel.com>,
-        Alexey Charkov <alchark@gmail.com>,
-        Paul Mundt <lethal@linux-sh.org>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [PATCH 5.6 122/161] video: vt8500lcdfb: fix fallthrough warning
-Date:   Tue, 16 Jun 2020 17:35:12 +0200
-Message-Id: <20200616153112.171028150@linuxfoundation.org>
+        stable@vger.kernel.org, Richard Purdie <rpurdie@rpsys.net>,
+        Antonino Daplas <adaplas@pol.net>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Sam Ravnborg <sam@ravnborg.org>
+Subject: [PATCH 5.6 123/161] video: fbdev: w100fb: Fix a potential double free.
+Date:   Tue, 16 Jun 2020 17:35:13 +0200
+Message-Id: <20200616153112.220930130@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
 References: <20200616153106.402291280@linuxfoundation.org>
@@ -46,45 +46,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sam Ravnborg <sam@ravnborg.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 1c49f35e9e9156273124a0cfd38b57f7a7d4828f upstream.
+commit 18722d48a6bb9c2e8d046214c0a5fd19d0a7c9f6 upstream.
 
-Fix following warning:
-vt8500lcdfb.c: In function 'vt8500lcd_blank':
-vt8500lcdfb.c:229:6: warning: this statement may fall through [-Wimplicit-fallthrough=]
-      if (info->fix.visual == FB_VISUAL_PSEUDOCOLOR ||
-         ^
-vt8500lcdfb.c:233:2: note: here
-     case FB_BLANK_UNBLANK:
-     ^~~~
+Some memory is vmalloc'ed in the 'w100fb_save_vidmem' function and freed in
+the 'w100fb_restore_vidmem' function. (these functions are called
+respectively from the 'suspend' and the 'resume' functions)
 
-Adding a simple "fallthrough;" fixed the warning.
-The fix was build tested.
+However, it is also freed in the 'remove' function.
 
+In order to avoid a potential double free, set the corresponding pointer
+to NULL once freed in the 'w100fb_restore_vidmem' function.
+
+Fixes: aac51f09d96a ("[PATCH] w100fb: Rewrite for platform independence")
+Cc: Richard Purdie <rpurdie@rpsys.net>
+Cc: Antonino Daplas <adaplas@pol.net>
+Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Cc: <stable@vger.kernel.org> # v2.6.14+
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Reported-by: kbuild test robot <lkp@intel.com>
-Fixes: e41f1a989408 ("fbdev: Implement simple blanking in pseudocolor modes for vt8500lcdfb")
-Cc: Alexey Charkov <alchark@gmail.com>
-Cc: Paul Mundt <lethal@linux-sh.org>
-Cc: <stable@vger.kernel.org> # v2.6.38+
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200412202143.GA26948@ravnborg.org
+Link: https://patchwork.freedesktop.org/patch/msgid/20200506181902.193290-1-christophe.jaillet@wanadoo.fr
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/video/fbdev/vt8500lcdfb.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/video/fbdev/w100fb.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/video/fbdev/vt8500lcdfb.c
-+++ b/drivers/video/fbdev/vt8500lcdfb.c
-@@ -230,6 +230,7 @@ static int vt8500lcd_blank(int blank, st
- 		    info->fix.visual == FB_VISUAL_STATIC_PSEUDOCOLOR)
- 			for (i = 0; i < 256; i++)
- 				vt8500lcd_setcolreg(i, 0, 0, 0, 0, info);
-+		fallthrough;
- 	case FB_BLANK_UNBLANK:
- 		if (info->fix.visual == FB_VISUAL_PSEUDOCOLOR ||
- 		    info->fix.visual == FB_VISUAL_STATIC_PSEUDOCOLOR)
+--- a/drivers/video/fbdev/w100fb.c
++++ b/drivers/video/fbdev/w100fb.c
+@@ -588,6 +588,7 @@ static void w100fb_restore_vidmem(struct
+ 		memsize=par->mach->mem->size;
+ 		memcpy_toio(remapped_fbuf + (W100_FB_BASE-MEM_WINDOW_BASE), par->saved_extmem, memsize);
+ 		vfree(par->saved_extmem);
++		par->saved_extmem = NULL;
+ 	}
+ 	if (par->saved_intmem) {
+ 		memsize=MEM_INT_SIZE;
+@@ -596,6 +597,7 @@ static void w100fb_restore_vidmem(struct
+ 		else
+ 			memcpy_toio(remapped_fbuf + (W100_FB_BASE-MEM_WINDOW_BASE), par->saved_intmem, memsize);
+ 		vfree(par->saved_intmem);
++		par->saved_intmem = NULL;
+ 	}
+ }
+ 
 
 
