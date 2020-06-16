@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77BAD1FB84B
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:55:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC31B1FB7B5
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 17:50:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730506AbgFPPzC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:55:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54672 "EHLO mail.kernel.org"
+        id S1732429AbgFPPsh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:48:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733036AbgFPPy5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:54:57 -0400
+        id S1732427AbgFPPsh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:48:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2DAF921527;
-        Tue, 16 Jun 2020 15:54:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2548E21508;
+        Tue, 16 Jun 2020 15:48:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322897;
-        bh=VwSN0YU9Oj7OXqaDGPp3XR8cYu0IhWpaSJ1/3foAwJ4=;
+        s=default; t=1592322516;
+        bh=o3vd1nboQGcSyTIkGiclCbkZFraU9o8+oTSXrVp8N5s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CEs3GbwXW1tuC4AcnxdI/wR1rVcOE3TcOkMyZrFhl3KE8m4kHI91vn+zGr+SJWCjL
-         YMuZwA9N5qYndSogM0YZUFzhsAoPRfBALHjw/7NvpmcYXi/otTX6E3+dxR4nbCb4Uw
-         hNLqtjfVHZgSOaj9aNYTfHeacql/apx9B7mPLwjA=
+        b=IhVRKsqOZ/GNC+/WRn+93edIsQTujhpEvBi/6vqlRXvgCcvPxdI0Mt1pCidNcalS4
+         ejdZ35Ymv4MEkEtgRNb4d1T1DcEX9BjknGvHLwDJBemPtZtWEG2C4KH+IMz0j9wZQd
+         I4NV41OKKxF4PGpzggBsZtiQ8QU6x//TkrGClnUg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Andi Shyti <andi.shyti@intel.com>
-Subject: [PATCH 5.6 147/161] agp/intel: Reinforce the barrier after GTT updates
+        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.7 163/163] KVM: arm64: Synchronize sysreg state on injecting an AArch32 exception
 Date:   Tue, 16 Jun 2020 17:35:37 +0200
-Message-Id: <20200616153113.345397960@linuxfoundation.org>
+Message-Id: <20200616153114.612915039@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
-References: <20200616153106.402291280@linuxfoundation.org>
+In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
+References: <20200616153106.849127260@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,55 +43,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Marc Zyngier <maz@kernel.org>
 
-commit f30d3ced9fafa03e4855508929b5b6334907f45e upstream.
+commit 0370964dd3ff7d3d406f292cb443a927952cbd05 upstream.
 
-After changing the timing between GTT updates and execution on the GPU,
-we started seeing sporadic failures on Ironlake. These were narrowed
-down to being an insufficiently strong enough barrier/delay after
-updating the GTT and scheduling execution on the GPU. By forcing the
-uncached read, and adding the missing barrier for the singular
-insert_page (relocation paths), the sporadic failures go away.
+On a VHE system, the EL1 state is left in the CPU most of the time,
+and only syncronized back to memory when vcpu_put() is called (most
+of the time on preemption).
 
-Fixes: 983d308cb8f6 ("agp/intel: Serialise after GTT updates")
-Fixes: 3497971a71d8 ("agp/intel: Flush chipset writes after updating a single PTE")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Acked-by: Andi Shyti <andi.shyti@intel.com>
-Cc: stable@vger.kernel.org # v4.0+
-Link: https://patchwork.freedesktop.org/patch/msgid/20200410083535.25464-1-chris@chris-wilson.co.uk
+Which means that when injecting an exception, we'd better have a way
+to either:
+(1) write directly to the EL1 sysregs
+(2) synchronize the state back to memory, and do the changes there
+
+For an AArch64, we already do (1), so we are safe. Unfortunately,
+doing the same thing for AArch32 would be pretty invasive. Instead,
+we can easily implement (2) by calling the put/load architectural
+backends, and keep preemption disabled. We can then reload the
+state back into EL1.
+
+Cc: stable@vger.kernel.org
+Reported-by: James Morse <james.morse@arm.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/char/agp/intel-gtt.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ virt/kvm/arm/aarch32.c |   28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
---- a/drivers/char/agp/intel-gtt.c
-+++ b/drivers/char/agp/intel-gtt.c
-@@ -846,6 +846,7 @@ void intel_gtt_insert_page(dma_addr_t ad
- 			   unsigned int flags)
- {
- 	intel_private.driver->write_entry(addr, pg, flags);
-+	readl(intel_private.gtt + pg);
- 	if (intel_private.driver->chipset_flush)
- 		intel_private.driver->chipset_flush();
- }
-@@ -871,7 +872,7 @@ void intel_gtt_insert_sg_entries(struct
- 			j++;
- 		}
- 	}
--	wmb();
-+	readl(intel_private.gtt + j - 1);
- 	if (intel_private.driver->chipset_flush)
- 		intel_private.driver->chipset_flush();
- }
-@@ -1105,6 +1106,7 @@ static void i9xx_cleanup(void)
+--- a/virt/kvm/arm/aarch32.c
++++ b/virt/kvm/arm/aarch32.c
+@@ -33,6 +33,26 @@ static const u8 return_offsets[8][2] = {
+ 	[7] = { 4, 4 },		/* FIQ, unused */
+ };
  
- static void i9xx_chipset_flush(void)
++static bool pre_fault_synchronize(struct kvm_vcpu *vcpu)
++{
++	preempt_disable();
++	if (vcpu->arch.sysregs_loaded_on_cpu) {
++		kvm_arch_vcpu_put(vcpu);
++		return true;
++	}
++
++	preempt_enable();
++	return false;
++}
++
++static void post_fault_synchronize(struct kvm_vcpu *vcpu, bool loaded)
++{
++	if (loaded) {
++		kvm_arch_vcpu_load(vcpu, smp_processor_id());
++		preempt_enable();
++	}
++}
++
+ /*
+  * When an exception is taken, most CPSR fields are left unchanged in the
+  * handler. However, some are explicitly overridden (e.g. M[4:0]).
+@@ -155,7 +175,10 @@ static void prepare_fault32(struct kvm_v
+ 
+ void kvm_inject_undef32(struct kvm_vcpu *vcpu)
  {
-+	wmb();
- 	if (intel_private.i9xx_flush_page)
- 		writel(1, intel_private.i9xx_flush_page);
++	bool loaded = pre_fault_synchronize(vcpu);
++
+ 	prepare_fault32(vcpu, PSR_AA32_MODE_UND, 4);
++	post_fault_synchronize(vcpu, loaded);
  }
+ 
+ /*
+@@ -168,6 +191,9 @@ static void inject_abt32(struct kvm_vcpu
+ 	u32 vect_offset;
+ 	u32 *far, *fsr;
+ 	bool is_lpae;
++	bool loaded;
++
++	loaded = pre_fault_synchronize(vcpu);
+ 
+ 	if (is_pabt) {
+ 		vect_offset = 12;
+@@ -191,6 +217,8 @@ static void inject_abt32(struct kvm_vcpu
+ 		/* no need to shuffle FS[4] into DFSR[10] as its 0 */
+ 		*fsr = DFSR_FSC_EXTABT_nLPAE;
+ 	}
++
++	post_fault_synchronize(vcpu, loaded);
+ }
+ 
+ void kvm_inject_dabt32(struct kvm_vcpu *vcpu, unsigned long addr)
 
 
