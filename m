@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 76B821FBAFC
-	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:16:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E70A1FB9C6
+	for <lists+stable@lfdr.de>; Tue, 16 Jun 2020 18:07:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730516AbgFPPlC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 11:41:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56240 "EHLO mail.kernel.org"
+        id S1731989AbgFPPrV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Jun 2020 11:47:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730009AbgFPPlB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:41:01 -0400
+        id S1732317AbgFPPrS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Jun 2020 11:47:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8CCEA208E4;
-        Tue, 16 Jun 2020 15:41:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4BC3820E65;
+        Tue, 16 Jun 2020 15:47:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592322061;
-        bh=SrQIZo4/w6tvt/sn10MdGljp2fb7x+ziSKjuxf924D4=;
+        s=default; t=1592322437;
+        bh=NBVUODQbI1T1MtGAlUTn/rshWC+w1j++5qEaRVUjYSg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jEv7xaKtdlERy8qYUHoOl7FlU/ojbOB56XGx3KC/5efyzvM86OPX+7rXS2A7I/X83
-         KrQJ1UOOgAIUAEZWOIlSkjsCh9ugGXD2P0JvdlJyqltocBEjJAd3/TVdvslpVWLLj1
-         xRZPQ1rhicEMbPHNGspEHvXkJaGlO03nHJGj1MbE=
+        b=B9QivGj4rlFN5/RxL5TAjXTPEGclN6xzRt96a8SwwXamI7+Fbh7ZiMAXfqBpgvZ2m
+         QuR5YX+w99/k6mAHnjcH+CRCdlXRpaFjiTBgVYireStRh5fpdwQkbFCS27tjvmNjmC
+         TXIqd1+Zb+UXaJNrg/YPyQFXb2tNscCJFMfxU7yc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+6f1624f937d9d6911e2d@syzkaller.appspotmail.com,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Marco Elver <elver@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 121/134] fat: dont allow to mount if the FAT length == 0
-Date:   Tue, 16 Jun 2020 17:35:05 +0200
-Message-Id: <20200616153106.581691635@linuxfoundation.org>
+        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
+        Xing Li <lixing@loongson.cn>, Huacai Chen <chenhc@lemote.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.7 132/163] KVM: MIPS: Fix VPN2_MASK definition for variable cpu_vmbits
+Date:   Tue, 16 Jun 2020 17:35:06 +0200
+Message-Id: <20200616153113.136106158@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200616153100.633279950@linuxfoundation.org>
-References: <20200616153100.633279950@linuxfoundation.org>
+In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
+References: <20200616153106.849127260@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,42 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+From: Xing Li <lixing@loongson.cn>
 
-commit b1b65750b8db67834482f758fc385bfa7560d228 upstream.
+commit 5816c76dea116a458f1932eefe064e35403248eb upstream.
 
-If FAT length == 0, the image doesn't have any data. And it can be the
-cause of overlapping the root dir and FAT entries.
+If a CPU support more than 32bit vmbits (which is true for 64bit CPUs),
+VPN2_MASK set to fixed 0xffffe000 will lead to a wrong EntryHi in some
+functions such as _kvm_mips_host_tlb_inv().
 
-Also Windows treats it as invalid format.
+The cpu_vmbits definition of 32bit CPU in cpu-features.h is 31, so we
+still use the old definition.
 
-Reported-by: syzbot+6f1624f937d9d6911e2d@syzkaller.appspotmail.com
-Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Marco Elver <elver@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Link: http://lkml.kernel.org/r/87r1wz8mrd.fsf@mail.parknet.co.jp
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Stable <stable@vger.kernel.org>
+Reviewed-by: Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>
+Signed-off-by: Xing Li <lixing@loongson.cn>
+[Huacai: Improve commit messages]
+Signed-off-by: Huacai Chen <chenhc@lemote.com>
+Message-Id: <1590220602-3547-3-git-send-email-chenhc@lemote.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/fat/inode.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/mips/include/asm/kvm_host.h |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/fs/fat/inode.c
-+++ b/fs/fat/inode.c
-@@ -1519,6 +1519,12 @@ static int fat_read_bpb(struct super_blo
- 		goto out;
- 	}
+--- a/arch/mips/include/asm/kvm_host.h
++++ b/arch/mips/include/asm/kvm_host.h
+@@ -274,7 +274,11 @@ enum emulation_result {
+ #define MIPS3_PG_SHIFT		6
+ #define MIPS3_PG_FRAME		0x3fffffc0
  
-+	if (bpb->fat_fat_length == 0 && bpb->fat32_length == 0) {
-+		if (!silent)
-+			fat_msg(sb, KERN_ERR, "bogus number of FAT sectors");
-+		goto out;
-+	}
-+
- 	error = 0;
- 
- out:
++#if defined(CONFIG_64BIT)
++#define VPN2_MASK		GENMASK(cpu_vmbits - 1, 13)
++#else
+ #define VPN2_MASK		0xffffe000
++#endif
+ #define KVM_ENTRYHI_ASID	cpu_asid_mask(&boot_cpu_data)
+ #define TLB_IS_GLOBAL(x)	((x).tlb_lo[0] & (x).tlb_lo[1] & ENTRYLO_G)
+ #define TLB_VPN2(x)		((x).tlb_hi & VPN2_MASK)
 
 
