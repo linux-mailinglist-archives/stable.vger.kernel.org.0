@@ -2,73 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C42271FD226
-	for <lists+stable@lfdr.de>; Wed, 17 Jun 2020 18:29:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E2BD1FD2D2
+	for <lists+stable@lfdr.de>; Wed, 17 Jun 2020 18:52:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726886AbgFQQ2Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 12:28:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56634 "EHLO mail.kernel.org"
+        id S1726758AbgFQQvo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 12:51:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726864AbgFQQ2Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 12:28:24 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        id S1726597AbgFQQvo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 12:51:44 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2899C208D5;
-        Wed, 17 Jun 2020 16:28:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E19A220897;
+        Wed, 17 Jun 2020 16:51:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592411304;
-        bh=5Ub+KICIdK4W45sSWxWJs8h5B1Ics3JByQW+e6T6Xwc=;
+        s=default; t=1592412703;
+        bh=yJIMgYmxE2b021HNjLcZ5z539vezI9aKTyvm8qWgNZ8=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=1Cn6OdUEu9xi5CMzccO9nVGArdk6UglGXBE5LmNNzw538M3NsVeIMt8U+LGFFjqqT
-         V6X43/FPfsmNTvi5evQLU/4xsdH4WhXqeg+Q59yw/it9FMLFChQEZjED3B1eaoel0B
-         qArbmGYZMEoSZelInpo1q7ZqXvLjeaEGPe1RjKGk=
-Date:   Wed, 17 Jun 2020 12:28:23 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Ido Schimmel <idosch@idosch.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Ido Schimmel <idosch@mellanox.com>,
-        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
-        "David S . Miller" <davem@davemloft.net>, netdev@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.7 264/274] vxlan: Avoid infinite loop when
- suppressing NS messages with invalid options
-Message-ID: <20200617162823.GR1931@sasha-vm>
-References: <20200608230607.3361041-1-sashal@kernel.org>
- <20200608230607.3361041-264-sashal@kernel.org>
- <20200609065548.GA2113611@splinter>
+        b=cldD3ElD8yqoB76E4PyeMP7F89GQLxHb0bzpP4BRLOSM2q7MkRU/jGZPSLhPDV6PN
+         reHpz1KbRt+UwiyRS8ii7eEDQlLJF1pr6q6QGK25H6y6mjkzCgssKuow5mU8kMutAo
+         arEspLenHqyJUAiJ3Gnn4XNYqz7YnEzeEsiwcAgA=
+Date:   Wed, 17 Jun 2020 18:51:36 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Jon Hunter <jonathanh@nvidia.com>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org,
+        linux-tegra <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 5.7 000/162] 5.7.3-rc2 review
+Message-ID: <20200617165136.GA3794995@kroah.com>
+References: <20200616172615.453746383@linuxfoundation.org>
+ <77015800-d0a2-38f7-e70a-e6dcbc6325f9@nvidia.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200609065548.GA2113611@splinter>
+In-Reply-To: <77015800-d0a2-38f7-e70a-e6dcbc6325f9@nvidia.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 09, 2020 at 09:55:48AM +0300, Ido Schimmel wrote:
->On Mon, Jun 08, 2020 at 07:05:57PM -0400, Sasha Levin wrote:
->> From: Ido Schimmel <idosch@mellanox.com>
->>
->> [ Upstream commit 8066e6b449e050675df48e7c4b16c29f00507ff0 ]
->
->Hi,
->
->In the same patch set I also included a similar fix for the bridge
->module:
->https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=53fc685243bd6fb90d90305cea54598b78d3cbfc
->
->But I don't see it in the patch sets you sent.
->
->Don't see it here as well:
->https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git/tree/queue-5.7
->https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/log/?h=linux-5.7.y
->
->Did it get lost or it's just pending somewhere else?
+On Tue, Jun 16, 2020 at 09:21:09PM +0100, Jon Hunter wrote:
+> 
+> On 16/06/2020 18:27, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.7.3 release.
+> > There are 162 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Thu, 18 Jun 2020 17:25:43 +0000.
+> > Anything received after that time might be too late.
+> > 
+> > The whole patch series can be found in one patch at:
+> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.7.3-rc2.gz
+> > or in the git tree and branch at:
+> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.7.y
+> > and the diffstat can be found below.
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> 
+> All tests are passing for Tegra ...
+> 
+> Test results for stable-v5.7:
+>     11 builds:	11 pass, 0 fail
+>     26 boots:	26 pass, 0 fail
+>     56 tests:	56 pass, 0 fail
+> 
+> Linux version:	5.7.3-rc2-g55b987cbccd9
+> Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+>                 tegra194-p2972-0000, tegra20-ventana,
+>                 tegra210-p2371-2180, tegra210-p3450-0000,
+>                 tegra30-cardhu-a04
+> 
 
-AUTOSEL ignores net/ patches that are maintained by David Miller.
+Thanks for testing all of these and letting me know.
 
-I can pick it up manually.
-
--- 
-Thanks,
-Sasha
+greg k-h
