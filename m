@@ -2,109 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 765741FCF43
-	for <lists+stable@lfdr.de>; Wed, 17 Jun 2020 16:16:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64F501FCF45
+	for <lists+stable@lfdr.de>; Wed, 17 Jun 2020 16:16:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726328AbgFQOPq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 10:15:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54606 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727016AbgFQOPo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 10:15:44 -0400
-Received: from dhcp-10-100-145-180.wdl.wdc.com (unknown [199.255.45.60])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7BDFF207DD;
-        Wed, 17 Jun 2020 14:15:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592403344;
-        bh=cZ9rLHRSCMvYUTacBKpulUViRcf8ol8ccz9sF6lRIkw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=bpR6Va/JM8pntwrhxC6AtX/r8X3GFuX9VnY34ZcyMbBq4Nxz3H0xYAuM9kTbA3/wP
-         z+laxaBXpYtmi/tAgYgm07KkFV3DQJdw5BuS5fde6GX08FmEVR0rFbsKbG0wpuY33F
-         h5tzaEBt+hB4bNcpCQVxNB7/iEC2faS63kYbULd4=
-Date:   Wed, 17 Jun 2020 07:15:41 -0700
-From:   Keith Busch <kbusch@kernel.org>
-To:     Dakshaja Uppalapati <dakshaja@chelsio.com>
-Cc:     eduard@hasenleithner.at, sagi@grimberg.me, hch@lst.de,
-        stable@vger.kernel.org, nirranjan@chelsio.com, bharat@chelsio.com
-Subject: Re: [PATCH for-stable nvmet 0/6] nvme: Fix for blk_update_request IO
- error.
-Message-ID: <20200617141541.GA712019@dhcp-10-100-145-180.wdl.wdc.com>
-References: <20200611155339.9429-1-dakshaja@chelsio.com>
+        id S1726851AbgFQOQH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 10:16:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56992 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726809AbgFQOQG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Jun 2020 10:16:06 -0400
+Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D01ACC06174E;
+        Wed, 17 Jun 2020 07:16:06 -0700 (PDT)
+Received: by mail-pg1-x542.google.com with SMTP id b5so1340217pgm.8;
+        Wed, 17 Jun 2020 07:16:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=mfndk5N0w8Iv4fVwaHeA1worwlJaTizl87QwfFhj0ek=;
+        b=W+zpoAkn12uMALVb1E6Pe5rLdj8li7pG8D1bIj/vCaVZH9BMnvYpC1AiaR2zznPvXd
+         FLfgYeUYF8Aj71hl73NKf+/JmsCihBrmXS0ttUmsXT5HliYpx2Q5rvNQoEhPbEwUX+bY
+         iw13oBc2qXHZ07xu4ZHEJ/JqbLEUSflrkP85dRxuCBpvLminahKCZiuaxDIEjVHocE6W
+         /s4Whno4jFDfITOpMNCeHb9XZgOwdPJCJ83N0wWOp9UIEA1EcKgB47qeKdHloBIIqqP2
+         HkIX3PADBG0QiSDWqjj0++pI0P+R8TJ+KAfd/tnRGmG9UwC5WQejTsuFLmAUifstV6m1
+         VueA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=mfndk5N0w8Iv4fVwaHeA1worwlJaTizl87QwfFhj0ek=;
+        b=Lmn/u2wnxTgASocKPJCC+AvWBknh5BD8FqjzOHLnGr9exLb7ETcx9aAVAI9lTjGm+T
+         iI1SIyBWurdlMBaGLfU+IELtqpXnBhZmnnOfEKLGmuPwnrXLtLuXOnEPKojjc9uJ83Mb
+         u7XYvxt0JBymCWTrFveXcRE794LTTdfg8FGnV9AJWjRPQ9/GPPLCmg/z7woOG0x3wEjs
+         XQJopzDOdYFu/7v1PlBgujVbjc/yNqcoluPGpqJUHX7JG6G5o/bINVD21bSzdf1LoVcL
+         g100s9O7EUxrxby5rEoLQCCDSa6TZVZcWNID/fb+G8iZLd6AA1CO68WRBuhEszCxJqI4
+         wQsQ==
+X-Gm-Message-State: AOAM532dPsPFxOXNCvEwwkoDv8uE9QvP9vEbgYgpJ6i32zjTpOFg/t9o
+        yJtVgvrFRQU5rL+21j7bNafB3oHP
+X-Google-Smtp-Source: ABdhPJxdNTEcHTeTa9pNALJHsqozRHP/heu3JtTMi8PJwsHC0nnezgVC6GLd756z9Wrb4RDcji+Uwg==
+X-Received: by 2002:a65:6106:: with SMTP id z6mr6487022pgu.368.1592403366462;
+        Wed, 17 Jun 2020 07:16:06 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id z8sm410207pjr.41.2020.06.17.07.16.05
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Wed, 17 Jun 2020 07:16:05 -0700 (PDT)
+Date:   Wed, 17 Jun 2020 07:16:05 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 5.6 000/158] 5.6.19-rc2 review
+Message-ID: <20200617141605.GB93431@roeck-us.net>
+References: <20200616172611.492085670@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200611155339.9429-1-dakshaja@chelsio.com>
+In-Reply-To: <20200616172611.492085670@linuxfoundation.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 11, 2020 at 09:23:33PM +0530, Dakshaja Uppalapati wrote:
-> The below error is seen in dmesg, while formatting the disks discovered on host.
+On Tue, Jun 16, 2020 at 07:26:59PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.6.19 release.
+> There are 158 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> dmesg:
->         [  636.733374] blk_update_request: I/O error, dev nvme4n1, sector 0 op 0x3:(DISCARD) flags 0x800 phys_seg 1 prio class 0
+> Responses should be made by Thu, 18 Jun 2020 17:25:39 +0000.
+> Anything received after that time might be too late.
 > 
-> Patch 6 fixes it and there are 5 other dependent patches that also need to be 
-> pulled from upstream to stable, 5.4 and 4.19 branches.
-> 
-> Patch 1 dependent patch
-> 
-> Patch 2 dependent patch
-> 
-> Patch 3 dependent patch
-> 
-> Patch 4 dependent patch
-> 
-> Patch 5 dependent patch
-> 
-> Patch 6 fix patch
 
-1. You need to copy the linux-nvme mainling list for linux nvme kernel patches.
+Build results:
+	total: 155 pass: 155 fail: 0
+Qemu test results:
+	total: 431 pass: 431 fail: 0
 
-2. If you're sending someone else's patch, the patch is supposed to have
-the From: tag so the author is appropriately identified.
-
-3. Stable patches must referece the upstream commit ID.
-
-As for this particular issue, while stable patches are required to
-reference an upstream commit, you don't need to bring in dependent
-patches. You are allowed to write an equivalent fix specific to the
-stable branch so that stable doesn't need to take a bunch of unrelated
-changes. For example, it looks like this particular isssue can be fixed
-with the following simple stable patch:
-
----
-diff --git a/drivers/nvme/target/io-cmd-bdev.c b/drivers/nvme/target/io-cmd-bdev.c
-index 1096dd01ca22..9399e23e69c3 100644
---- a/drivers/nvme/target/io-cmd-bdev.c
-+++ b/drivers/nvme/target/io-cmd-bdev.c
-@@ -234,8 +234,8 @@ u16 nvmet_bdev_parse_io_cmd(struct nvmet_req *req)
- 		return 0;
- 	case nvme_cmd_dsm:
- 		req->execute = nvmet_bdev_execute_dsm;
--		req->data_len = (le32_to_cpu(cmd->dsm.nr) + 1) *
--			sizeof(struct nvme_dsm_range);
-+		req->data_len = max((le32_to_cpu(cmd->dsm.nr) + 1) *
-+			sizeof(struct nvme_dsm_range), req->transfer_len);
- 		return 0;
- 	case nvme_cmd_write_zeroes:
- 		req->execute = nvmet_bdev_execute_write_zeroes;
-diff --git a/drivers/nvme/target/io-cmd-file.c b/drivers/nvme/target/io-cmd-file.c
-index 39d972e2595f..f2fa6482d6dd 100644
---- a/drivers/nvme/target/io-cmd-file.c
-+++ b/drivers/nvme/target/io-cmd-file.c
-@@ -332,8 +332,8 @@ u16 nvmet_file_parse_io_cmd(struct nvmet_req *req)
- 		return 0;
- 	case nvme_cmd_dsm:
- 		req->execute = nvmet_file_execute_dsm;
--		req->data_len = (le32_to_cpu(cmd->dsm.nr) + 1) *
--			sizeof(struct nvme_dsm_range);
-+		req->data_len = max((le32_to_cpu(cmd->dsm.nr) + 1) *
-+			sizeof(struct nvme_dsm_range), req->transfer_len);
- 		return 0;
- 	case nvme_cmd_write_zeroes:
- 		req->execute = nvmet_file_execute_write_zeroes;
---
+Guenter
