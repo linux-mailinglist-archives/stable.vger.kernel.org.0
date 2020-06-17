@@ -2,87 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3277C1FC3DB
-	for <lists+stable@lfdr.de>; Wed, 17 Jun 2020 03:47:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EDD31FC54C
+	for <lists+stable@lfdr.de>; Wed, 17 Jun 2020 06:39:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726624AbgFQBrZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Jun 2020 21:47:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54682 "EHLO
+        id S1726321AbgFQEjr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 00:39:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726275AbgFQBrY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Jun 2020 21:47:24 -0400
-Received: from mail-il1-x143.google.com (mail-il1-x143.google.com [IPv6:2607:f8b0:4864:20::143])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C846EC061573
-        for <stable@vger.kernel.org>; Tue, 16 Jun 2020 18:47:24 -0700 (PDT)
-Received: by mail-il1-x143.google.com with SMTP id e11so571624ilr.4
-        for <stable@vger.kernel.org>; Tue, 16 Jun 2020 18:47:24 -0700 (PDT)
+        with ESMTP id S1725808AbgFQEjr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Jun 2020 00:39:47 -0400
+Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C592BC061573;
+        Tue, 16 Jun 2020 21:39:46 -0700 (PDT)
+Received: by mail-pf1-x441.google.com with SMTP id j1so521442pfe.4;
+        Tue, 16 Jun 2020 21:39:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=Z7qZkCC78niGrQpOK/h//rZ5fVXVPMkzzzEIQT+ASg4=;
-        b=g+C9Loe269/MRRGgfWpXmCDKWtmpOozqIAi7h1TbbvCqIbWs56rjQSHBT3PQpnyilm
-         HGgAOU0I7QMUE+D6eL4t70NRWW/j+E+1lrvBU5Lxy8DOed7EeGzJ8ZGCDVB+w5g/rUWx
-         X2XG3X1NI+zCebtGvKMeO87V7cIBYZYW+L8r9/WK5AU7xshlp5GeqW5aCDEmxKmkr6UB
-         2GLTKMgX7/Rx/76Ki1Ey58ZBv2GdSbn1O9n/DwbQOmZmrwxkT704P9Yh28+3RQsBgzhB
-         Af/lQb36ePNVCjrfJFm167dYBaTyarO1HfTQT2jCN7LM4fKDusMNxi16faea4fsmsAX2
-         r4mg==
+        h=subject:from:to:cc:references:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=wjIS6quU1lqmjDVhNjwaJnXFCnUiOtUwKImzRhZ2bgc=;
+        b=A2sl74xLMtbifaX9arP7WG0Nvc0k8r6ElGrJK5gpjailYwkH8k29L17jpK6Qj1uITQ
+         +KqzQcaecorBYwYZ4EAIB3lA//jZbV5lku/OtcchMNgPpXtQZBazVCieXXjeM1ntE0bJ
+         Q2/4JdFFhPmH9xBIkqaoTWBOpg7tlcgb3VtbVEGK8kdQP6DHUrAdM/dky/cUkoswsq+0
+         q3WMWxslAVdfSs23NjjJpmIcNEhokrOfWTdIIekQu5/J61hxsk2eSusBEFGPBFcKzKtJ
+         8kMNZgjfTI9MX1v8+t8DmAh3u/CmDJIhevxgjBGGoY5HEcN4VFJ55dV+lNoX8wJfDxqQ
+         oyqw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=Z7qZkCC78niGrQpOK/h//rZ5fVXVPMkzzzEIQT+ASg4=;
-        b=AD6JYVUkPDQvajjntw1LIqEShthELfp1YbPXOGUOIBBB/K4/KtxLaSr6Fnv0NhEeK3
-         oM1xTo0aTFdkJZNFJFeb1+puoMk+q16FX1DJfm3h9uv4nAvIyycHBlZfx0gceIhgdwYG
-         6vSB0Frjp1VuoyUPdhFMmIPpCy+DthhT7OLNe4m8s8C/tuTxvi8o1JjqebwlMpWUAyTK
-         wK78FpgQ94wJpChSQGeTbRyKC65aNoz9gsPzhPzlmR8d93EuoXJWczDcqPusPZXE+sAm
-         5SYdVDa1necwnyfFT7Jrud6eMQTA1f1HES+4IHzXBfy6ymtj9z45sV9NW6ku4JFKuYN7
-         5WWg==
-X-Gm-Message-State: AOAM5325k/qaFWbPjMsLIIghOUzqp2eyj9BfFcTRGLna0g5RK/oR5B2C
-        YJhRYy80IdZa/PBWrfwMKLU21yGnIhzJXRw7WHo=
-X-Google-Smtp-Source: ABdhPJxqwtbD3vsl0/VpRzpCEvBAlzdsKC7hDpC2qLrDJ84g9rJNn7CLp789axDSBP4TDRRTeMeNdBb5jtidjr9Y2vY=
-X-Received: by 2002:a92:c809:: with SMTP id v9mr6110867iln.209.1592358444240;
- Tue, 16 Jun 2020 18:47:24 -0700 (PDT)
+        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=wjIS6quU1lqmjDVhNjwaJnXFCnUiOtUwKImzRhZ2bgc=;
+        b=hc9OyI9D4Jrf+UsJCUdl/s6M96UMd5g+zasluHym1XkIv6xEJrJcsvPpIQTpkwwYsg
+         VKwiQqtv/eV0IND3J+NUNGS4RHR7OH+t+RRC3aEHEVACmATjBz6pbXu1TkA40Lya25Kg
+         2Jen53h9Zv4Q/UxuHu3+1nOBxbriaK8X7gL+TdvGG1zeIn+E/Fbn/uN3yyMXDbEMe8JM
+         QfIWGjomgY2199A3GyRro1B1ULKv5jgPx1398x2TQynrSVzNV9UFJ0LINICWTzY0j7Hp
+         x3EiPZx75/uZ1Y9mPbwZMDYqwmSbvfOw54LF2wlszdM5FCcuCg1qjIOOro3NLNomQ6V8
+         /a6A==
+X-Gm-Message-State: AOAM532KKSlKB1MLgtM168gcbAH1F8+KmmfyPB+Qrr8g+5Oub6qiVlV1
+        H288pXOfBvGKyXbl4yQEfSnhIFX0
+X-Google-Smtp-Source: ABdhPJzhXvMS9kSx+ExP9yrbN6n3d+LE44zdO2gChfNiINIH7YwdBgj2hmb0sOL0xUBhT3aW4iN32A==
+X-Received: by 2002:a63:4b44:: with SMTP id k4mr4924320pgl.305.1592368785092;
+        Tue, 16 Jun 2020 21:39:45 -0700 (PDT)
+Received: from [10.230.188.43] ([192.19.223.252])
+        by smtp.gmail.com with ESMTPSA id 12sm19545757pfb.3.2020.06.16.21.39.43
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 16 Jun 2020 21:39:44 -0700 (PDT)
+Subject: Re: [PATCH stable 4.9 00/21] Unbreak 32-bit DVB applications on
+ 64-bit kernels
+From:   Florian Fainelli <f.fainelli@gmail.com>
+To:     linux-kernel@vger.kernel.org,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Michael Krufky <mkrufky@linuxtv.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>,
+        Jaedon Shin <jaedon.shin@gmail.com>,
+        Colin Ian King <colin.king@canonical.com>,
+        Katsuhiro Suzuki <suzuki.katsuhiro@socionext.com>,
+        Satendra Singh Thakur <satendra.t@samsung.com>,
+        "open list:MEDIA INPUT INFRASTRUCTURE (V4L/DVB)" 
+        <linux-media@vger.kernel.org>,
+        "open list:FILESYSTEMS (VFS and infrastructure)" 
+        <linux-fsdevel@vger.kernel.org>
+References: <20200605162518.28099-1-florian.fainelli@broadcom.com>
+ <6b1f0668-572e-ae52-27e6-c897bab4204c@gmail.com>
+Message-ID: <0c0ba84e-4b2d-53ac-5092-40312ecba13b@gmail.com>
+Date:   Tue, 16 Jun 2020 21:39:42 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Firefox/68.0 Thunderbird/68.9.0
 MIME-Version: 1.0
-Received: by 2002:a4f:b505:0:0:0:0:0 with HTTP; Tue, 16 Jun 2020 18:47:23
- -0700 (PDT)
-Reply-To: tofilbaman@gmail.com
-From:   Tofil Bama <alainekamba1@gmail.com>
-Date:   Tue, 16 Jun 2020 18:47:23 -0700
-Message-ID: <CAJnPJCPctm8kvhukZ7kJwKU9bcxedTcM1-k62qHiGm6My534KQ@mail.gmail.com>
-Subject: KINDEST MESSAGE.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <6b1f0668-572e-ae52-27e6-c897bab4204c@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear,
 
-My name is Mr Alif Tomar, I am the Bill and Exchange (assistant)
-Manager of Bank of Africa Ouagadougou, Burkina Faso. In my department
-I discovered an abandoned sum of eighteen million three hundred
-thousand United State of American dollars (18.3MILLION USA DOLLARS) in
-an account that belongs to one of our foreign customer who died in
-airline that crashed on 4th October 2001.
 
-Since I got information about his death I have been expecting his next
-of kin to come over and claim his money because we can not release it
-unless somebody applies for it as the next of kin or relation to the
-deceased as indicated in our banking guidelines, but unfortunately we
-learnt that all his supposed next of kin or relation died alongside
-with him in the plane crash leaving nobody behind for the claim. It is
-therefore upon this discovery that I decided to make this business
-proposal to you and release the money to you as next of kin or
-relation to the deceased for safety and subsequent disbursement since
-nobody is coming for it and I don't want the money to go into the bank
-treasury as unclaimed bill.
+On 6/11/2020 9:45 PM, Florian Fainelli wrote:
+> 
+> 
+> On 6/5/2020 9:24 AM, Florian Fainelli wrote:
+>> Hi all,
+>>
+>> This long patch series was motivated by backporting Jaedon's changes
+>> which add a proper ioctl compatibility layer for 32-bit applications
+>> running on 64-bit kernels. We have a number of Android TV-based products
+>> currently running on the 4.9 kernel and this was broken for them.
+>>
+>> Thanks to Robert McConnell for identifying and providing the patches in
+>> their initial format.
+>>
+>> In order for Jaedon's patches to apply cleanly a number of changes were
+>> applied to support those changes. If you deem the patch series too big
+>> please let me know.
+> 
+> Mauro, can you review this? I would prefer not to maintain those patches
+> in our downstream 4.9 kernel as there are quite a few of them, and this
+> is likely beneficial to other people.
 
-You will be entitled with 40% of the total sum while 60% will be for
-me after which I will visit your Country to invest my own share when
-the fund is successfully transferred into your account, Please I would
-like you to keep this transaction confidential and as a top secret as
-you may wish to know that I am a bank official.
-
-Yours sincerely,
-Mr Alif Tomar.
+Hello? Anybody here?
+-- 
+Florian
