@@ -2,82 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69ED01FD1C4
-	for <lists+stable@lfdr.de>; Wed, 17 Jun 2020 18:16:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C42271FD226
+	for <lists+stable@lfdr.de>; Wed, 17 Jun 2020 18:29:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726329AbgFQQQS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 12:16:18 -0400
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:38051 "EHLO
-        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726341AbgFQQQR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Jun 2020 12:16:17 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 380EE5C0151;
-        Wed, 17 Jun 2020 12:16:16 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Wed, 17 Jun 2020 12:16:16 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=UaYnvLSAOyUgSOLm32J0pHtE69N
-        N8DT37pJoP1LX07o=; b=AmS3bOLe/0kkgPwZTjfqesyWlEO0vM8oDh23AmfeCTf
-        gY/WLjnVFE3CeTYrQTb0SDOqebzvcJaWSKhHiQ08h4v7DdsDpe2AVe9DlVnJGdDJ
-        44C5/ms3l+ZhWqbjrDcZYM53aWfRjB/qsKnMnPHm2SEEdzyN+0oQ1x4rntztZ1tf
-        ridLKw33jbmfil/RA8yF+TlhMKyuYIWMIpZWXQAvXgJ2k3gdwr0JKZ3y1NVnY6LL
-        s6c6Q/R3ygSTkZEC3rH6kBCEECdMdEU38YjPiOLqs3ddhd06leY3zFF8uskGRSHO
-        rdVHqPPvV4VYKIC+GM86GJtqKoVmazFkWlghYC5aCrg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=UaYnvL
-        SAOyUgSOLm32J0pHtE69NN8DT37pJoP1LX07o=; b=EqqhvNadkDbAtyb+82RFML
-        UGQnOvzr0sH6VoOsk+hIdyMHRV1slaTvKs6ME4Szd8CP5Llwgv18k/IouBQTL/6o
-        J1NNm43ezG9DzIky+zHG8mxLWHgEacgaSdNQ+IBgEkxCFA2g6l+KT0V0258+q2+U
-        uN5UsqyZMBKv6vn4xVszNCiIExFjZz7avVsRgkgKEyE8s/Iuw8s3qE7FNzjObRh6
-        tDHeAZJP2xqCZOFAnV+XM2u74/10It0JT30PswG5gHuqmNVwM2Z4V7sA144xkPxJ
-        5nYKG22LsimuQIOyd2F46Lv5tXIVFiQ1BPb3a58NdLkX6MrdPUjlKvRRKNIO5KXQ
-        ==
-X-ME-Sender: <xms:0EHqXsciHCU-TlLQxDs-pSVhVq6cvHegHwQwaRDUZfHj2Q3X-tVxLw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudejvddgleekucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
-    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucfkphepkeef
-    rdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
-    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:0EHqXuO0o_14dPUKy2xk_Fk4KBJEM4LjFWatd7lNRUGRmcYZ2YMcCg>
-    <xmx:0EHqXthO3KUF7ykpnB0P-XgK2qU4ob25SfA-V5BMPSnNzq-0iPaQag>
-    <xmx:0EHqXh8Op9FastTWrdt6v2_vQ7NSpcOGiUJGS-E_Eus0HAk7kdDkDg>
-    <xmx:0EHqXm5_TW5vZOUUKnmWvSRo2v13l7VLR1YVwCJlJqqWFEr5g772zw>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C9CAD3060FE7;
-        Wed, 17 Jun 2020 12:16:15 -0400 (EDT)
-Date:   Wed, 17 Jun 2020 18:16:06 +0200
-From:   Greg KH <greg@kroah.com>
-To:     David Miller <davem@davemloft.net>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCHES] Networking
-Message-ID: <20200617161606.GA3788378@kroah.com>
-References: <20200615.182706.1005238769928076763.davem@davemloft.net>
- <20200616074356.GA2253721@kroah.com>
+        id S1726886AbgFQQ2Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 12:28:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56634 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726864AbgFQQ2Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 12:28:24 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2899C208D5;
+        Wed, 17 Jun 2020 16:28:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1592411304;
+        bh=5Ub+KICIdK4W45sSWxWJs8h5B1Ics3JByQW+e6T6Xwc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=1Cn6OdUEu9xi5CMzccO9nVGArdk6UglGXBE5LmNNzw538M3NsVeIMt8U+LGFFjqqT
+         V6X43/FPfsmNTvi5evQLU/4xsdH4WhXqeg+Q59yw/it9FMLFChQEZjED3B1eaoel0B
+         qArbmGYZMEoSZelInpo1q7ZqXvLjeaEGPe1RjKGk=
+Date:   Wed, 17 Jun 2020 12:28:23 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Ido Schimmel <idosch@idosch.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Ido Schimmel <idosch@mellanox.com>,
+        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
+        "David S . Miller" <davem@davemloft.net>, netdev@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.7 264/274] vxlan: Avoid infinite loop when
+ suppressing NS messages with invalid options
+Message-ID: <20200617162823.GR1931@sasha-vm>
+References: <20200608230607.3361041-1-sashal@kernel.org>
+ <20200608230607.3361041-264-sashal@kernel.org>
+ <20200609065548.GA2113611@splinter>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20200616074356.GA2253721@kroah.com>
+In-Reply-To: <20200609065548.GA2113611@splinter>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 16, 2020 at 09:43:56AM +0200, Greg KH wrote:
-> On Mon, Jun 15, 2020 at 06:27:06PM -0700, David Miller wrote:
-> > 
-> > Please queue up the following networking bug fixes for v5.6 and
-> > v5.7 -stable, respectively.
-> 
-> All queued up now, thanks!
+On Tue, Jun 09, 2020 at 09:55:48AM +0300, Ido Schimmel wrote:
+>On Mon, Jun 08, 2020 at 07:05:57PM -0400, Sasha Levin wrote:
+>> From: Ido Schimmel <idosch@mellanox.com>
+>>
+>> [ Upstream commit 8066e6b449e050675df48e7c4b16c29f00507ff0 ]
+>
+>Hi,
+>
+>In the same patch set I also included a similar fix for the bridge
+>module:
+>https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=53fc685243bd6fb90d90305cea54598b78d3cbfc
+>
+>But I don't see it in the patch sets you sent.
+>
+>Don't see it here as well:
+>https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git/tree/queue-5.7
+>https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/log/?h=linux-5.7.y
+>
+>Did it get lost or it's just pending somewhere else?
 
-Note, 5.6 is now end-of-life, so no need for any more stable patches for
-that tree, thanks!
+AUTOSEL ignores net/ patches that are maintained by David Miller.
 
-greg k-h
+I can pick it up manually.
+
+-- 
+Thanks,
+Sasha
