@@ -2,181 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85CC81FC726
-	for <lists+stable@lfdr.de>; Wed, 17 Jun 2020 09:25:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FF661FC785
+	for <lists+stable@lfdr.de>; Wed, 17 Jun 2020 09:35:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725929AbgFQHZK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 03:25:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49848 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725873AbgFQHZK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Jun 2020 03:25:10 -0400
-Received: from mail-lf1-x144.google.com (mail-lf1-x144.google.com [IPv6:2a00:1450:4864:20::144])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ED5BC061573
-        for <stable@vger.kernel.org>; Wed, 17 Jun 2020 00:25:10 -0700 (PDT)
-Received: by mail-lf1-x144.google.com with SMTP id u25so676906lfm.1
-        for <stable@vger.kernel.org>; Wed, 17 Jun 2020 00:25:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=NBcvyI8n8mcl8pFmre/YEhhWOCxkmqr93q9SNpHj6AY=;
-        b=TCeAAJHU0EBOzLN4IVmZFmkJhthcHcN4UVfGDvgGblyACZg9SzIIlwFEkXtV7J0csc
-         EbSYK1ijp2RZv6cBdg2CZG8hjmoq200sCpHSv23DAjmmzQiUnorC7pf4UvFhb4/f8D+F
-         iYWEsHY69Cz5LJ1DPCE2PJ4dtQWjr4RHHhGJrAv1iRT5NLst1fNKo5VORSkLdX0NrxhT
-         TiJX7vqAwBYT1o05XLldvJbQK78OWbIv20PDQN2PPX0MI0aKlykA6NSckCxtxJ4ZwQKH
-         z/zYJBj6B5ZzKoczj2tCzxT0GRM7NfwMUyrgGGEaBvgyADfhY5v3QVP99FdcXpxXe/wR
-         2Nww==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=NBcvyI8n8mcl8pFmre/YEhhWOCxkmqr93q9SNpHj6AY=;
-        b=DhpxUqTtioAZ7Sxdiz3b2g9LMyZjc2512iReHJb7jFNZEE8Kg50EnCzZJY495a2pDG
-         6YsuqZhDGpq3w+UEs+lBOwrj+1r9knVon2ARfUJ2r5Awe95g3uAXjZQaCnPutZ8OhtiQ
-         Ag2tISQ+5dTQDEfgCv9SliFrFHj7Op3tSBrpVCB30yjBvTLTHJi4ypVrx0gYz9HKEl3F
-         AxyaT4tMA1WGjaZz88VLgB8DpsQiqrPlfQf+yryIcfjFyRcxdfyhJ+FpIkE8CV6i8ZcQ
-         be9KOea74HriwGh1dhciiEEybv9gCCqqfdSK4H7nbGfdKK8HBP0gIQQLz3TItsI0cm8f
-         CIVQ==
-X-Gm-Message-State: AOAM532ykjlhTA6uONv8DF02HIgVjEt0iKRfsI2aBG0A2xQjJne6Io56
-        3uLrt5zWtAhFFcYk+aMwUc63w+Sk7WfsorXxpeOfvw==
-X-Google-Smtp-Source: ABdhPJyU7JeiKPrBiW/e15v4R/wbxTaFvBmDKHV7eA18MzDsA0i4Crhlnxn2+q7mBbv8Gi8oEnu3vETuUmCeAxhnKm0=
-X-Received: by 2002:a19:2292:: with SMTP id i140mr3714997lfi.95.1592378708022;
- Wed, 17 Jun 2020 00:25:08 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200616172615.453746383@linuxfoundation.org>
-In-Reply-To: <20200616172615.453746383@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 17 Jun 2020 12:54:56 +0530
-Message-ID: <CA+G9fYsBwdUZtXTqoLJNm=8XPy+Hq4rUbZSmyGg=rLWRdF_j7Q@mail.gmail.com>
-Subject: Re: [PATCH 5.7 000/162] 5.7.3-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        id S1725894AbgFQHfK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 03:35:10 -0400
+Received: from mailout2.samsung.com ([203.254.224.25]:33500 "EHLO
+        mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725967AbgFQHfJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Jun 2020 03:35:09 -0400
+Received: from epcas1p2.samsung.com (unknown [182.195.41.46])
+        by mailout2.samsung.com (KnoxPortal) with ESMTP id 20200617073506epoutp02c6b54f130d3118325b005d34f1bb1058~ZRIrIKEbr2617826178epoutp02S
+        for <stable@vger.kernel.org>; Wed, 17 Jun 2020 07:35:06 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.samsung.com 20200617073506epoutp02c6b54f130d3118325b005d34f1bb1058~ZRIrIKEbr2617826178epoutp02S
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1592379306;
+        bh=HEobwd96ZYMrqYboJ3eyoTj3cwltQNyjyGdgFD8m7Xo=;
+        h=From:To:Cc:Subject:Date:References:From;
+        b=WYc0lpAlnJYwyil6uXNOs7BdWOaFlUj6FMxGarMnayKAGQvFo2zW+4L36aaEa/xrO
+         EkKA9QOpEe7QIgL5+mlEWrJhqHWaO6uRLYvt2qRR6a6E7N4BD0v2KCkiIVsiluGkar
+         aBXfr7+gh5eMK+GnyUY/dyv6YlH9dNcLla7na6Ds=
+Received: from epsnrtp1.localdomain (unknown [182.195.42.162]) by
+        epcas1p2.samsung.com (KnoxPortal) with ESMTP id
+        20200617073505epcas1p29f1c05df6b14f21834afda7b3f537534~ZRIqyhYvZ0074200742epcas1p2Q;
+        Wed, 17 Jun 2020 07:35:05 +0000 (GMT)
+Received: from epsmges1p4.samsung.com (unknown [182.195.40.161]) by
+        epsnrtp1.localdomain (Postfix) with ESMTP id 49mxfw5d6MzMqYlp; Wed, 17 Jun
+        2020 07:35:04 +0000 (GMT)
+Received: from epcas1p3.samsung.com ( [182.195.41.47]) by
+        epsmges1p4.samsung.com (Symantec Messaging Gateway) with SMTP id
+        FB.9C.28581.7A7C9EE5; Wed, 17 Jun 2020 16:35:03 +0900 (KST)
+Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
+        epcas1p3.samsung.com (KnoxPortal) with ESMTPA id
+        20200617073503epcas1p3db5d4c13b5add4952fbd93be79644782~ZRIoYxzDc2844528445epcas1p3p;
+        Wed, 17 Jun 2020 07:35:03 +0000 (GMT)
+Received: from epsmgms1p2.samsung.com (unknown [182.195.42.42]) by
+        epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
+        20200617073503epsmtrp1f089876fc96e447a536367b7cc005e69~ZRIoXsdTM2104421044epsmtrp16;
+        Wed, 17 Jun 2020 07:35:03 +0000 (GMT)
+X-AuditID: b6c32a38-2e3ff70000006fa5-01-5ee9c7a75b4a
+Received: from epsmtip2.samsung.com ( [182.195.34.31]) by
+        epsmgms1p2.samsung.com (Symantec Messaging Gateway) with SMTP id
+        DC.BC.08303.7A7C9EE5; Wed, 17 Jun 2020 16:35:03 +0900 (KST)
+Received: from localhost.localdomain (unknown [10.88.103.87]) by
+        epsmtip2.samsung.com (KnoxPortal) with ESMTPA id
+        20200617073502epsmtip2e3d469690d8a4018be20cb14ed5c69a8~ZRIoM9oRg1402814028epsmtip2R;
+        Wed, 17 Jun 2020 07:35:02 +0000 (GMT)
+From:   Namjae Jeon <namjae.jeon@samsung.com>
+To:     linux-fsdevel@vger.kernel.org
+Cc:     kohada.t2@gmail.com, sj1557.seo@samsung.com,
+        stable@vger.kernel.org, Namjae Jeon <namjae.jeon@samsung.com>
+Subject: [PATCH] exfat: move setting VOL_DIRTY over exfat_remove_entries()
+Date:   Wed, 17 Jun 2020 16:30:05 +0900
+Message-Id: <20200617073005.2888-1-namjae.jeon@samsung.com>
+X-Mailer: git-send-email 2.17.1
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFtrJKsWRmVeSWpSXmKPExsWy7bCmvu7y4y/jDPr2q1j8mHubxWLP3pMs
+        Fj+m11ts+XeE1WLBxkeMDqweO2fdZffo27KK0ePzJrkA5qgcm4zUxJTUIoXUvOT8lMy8dFsl
+        7+B453hTMwNDXUNLC3MlhbzE3FRbJRefAF23zBygjUoKZYk5pUChgMTiYiV9O5ui/NKSVIWM
+        /OISW6XUgpScAkODAr3ixNzi0rx0veT8XCtDAwMjU6DKhJyM3Sf2sxT0cVac/LOAsYHxGnsX
+        IyeHhICJxKf2ZrYuRi4OIYEdjBJ9W1+wQDifGCV+72hmgnA+M0rsnHYWrqXl/lqoll2MEg/+
+        bWSCa+m4uIy5i5GDg01AW+LPFlEQU0RAUeLyeyeQXmaBAonTc7exgdjCAl4S71c/YwaxWQRU
+        JY6cuws2n1fAWuLTgjlsELvkJVZvOMAMMl5CoJtd4sulM1BHuEi09ZxggbCFJV4d3wIVl5J4
+        2d/GDrJXQqBa4uN+ZohwB6PEi++2ELaxxM31G1hBSpgFNCXW79KHCCtK7Pw9lxHiTD6Jd197
+        WCGm8Ep0tAlBlKhK9F06zARhS0t0tX+AWuohcWjSDrCLhQRiJU5Pf8Y2gVF2FsKCBYyMqxjF
+        UguKc9NTiw0LTJCjaBMjOA1pWexgnPv2g94hRiYOxkOMEhzMSiK8zr9fxAnxpiRWVqUW5ccX
+        leakFh9iNAUG10RmKdHkfGAizCuJNzQ1MjY2tjAxMzczNVYS5z1pdSFOSCA9sSQ1OzW1ILUI
+        po+Jg1OqgSnW1fObdtbX2tNrnD+tu1YVk3DHYUb5fU7/t/Er7NSErBNTtv1WUZRliVcSn921
+        2ud32DpPHQ39i2HTD/XF/X879TTn80+vc6XaLH/ctDiT21D4IEvtje2ZDb6T5kvu6DnP++Os
+        ROLqZVeet/1L4rI4rce0h3MzfwYz796SqYqSmrov5TPOSfj4XL28e6b5EY1jB9b2+gXOrKx0
+        lkm9VdKww7w64jZHRljI6emdST3/TrwVMJfijX1+jWtfrFpS4Bk5DXujhKPLvpaaXe7fZMdk
+        wG3QKi6WFRuSMf3z4pS/dSu0l0Y8qAwXStokLKi24ETk8eXuNdnT61usl01k7Zu7L8xl3are
+        V7p7r67TVGIpzkg01GIuKk4EABDpsuXMAwAA
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrOJMWRmVeSWpSXmKPExsWy7bCSvO7y4y/jDDauYbX4Mfc2i8WevSdZ
+        LH5Mr7fY8u8Iq8WCjY8YHVg9ds66y+7Rt2UVo8fnTXIBzFFcNimpOZllqUX6dglcGbtP7Gcp
+        6OOsOPlnAWMD4zX2LkZODgkBE4mW+2vZuhi5OIQEdjBKrD35hRkiIS1x7MQZIJsDyBaWOHy4
+        GKLmA6PE9LYfjCBxNgFtiT9bREFMEQFFicvvnUA6mQVKJCad/cQEYgsLeEm8X/0MbCKLgKrE
+        kXN3wdbyClhLfFowhw1ik7zE6g0HmCcw8ixgZFjFKJlaUJybnltsWGCUl1quV5yYW1yal66X
+        nJ+7iREcFlpaOxj3rPqgd4iRiYPxEKMEB7OSCK/z7xdxQrwpiZVVqUX58UWlOanFhxilOViU
+        xHm/zloYJySQnliSmp2aWpBaBJNl4uCUamBK4j3z71vdFduj/qW1nl1OxpGmJy8KfJw559cx
+        44dSwu5Gppuyj254O5VDpITzUe0djtt7Z+vnh0rrnT21c7/3wgKx0g+evk7/JKvVpSOviJ12
+        st6o9q1zS/CelbbdZoc6lSs8d+/sfD/j3aStyXFJ96xVX1n+jmjeYC16YN2cIBmj06b2yTyP
+        rqnJzPKvbT2sE/CTP0Evjn8Zd+FapudfSlNj2S8IzXKv3dCrVa9g/Vwnckrl6oef26SEz3ns
+        2+GR/Tpj/stvubI9O2ckTy080GMf+n1X9kWBfgXGB4W3U8M/PZvJ/rYkSEKgpSGrj32J9LZZ
+        7qH75FzPOpwTqe26XVZ+6ObpbRIJu8R9u5RYijMSDbWYi4oTATdgVnF6AgAA
+X-CMS-MailID: 20200617073503epcas1p3db5d4c13b5add4952fbd93be79644782
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-Sendblock-Type: SVC_REQ_APPROVE
+CMS-TYPE: 101P
+DLP-Filter: Pass
+X-CFilter-Loop: Reflected
+X-CMS-RootMailID: 20200617073503epcas1p3db5d4c13b5add4952fbd93be79644782
+References: <CGME20200617073503epcas1p3db5d4c13b5add4952fbd93be79644782@epcas1p3.samsung.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 16 Jun 2020 at 22:57, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.7.3 release.
-> There are 162 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 18 Jun 2020 17:25:43 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.7.3-rc2.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.7.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+Move setting VOL_DIRTY over exfat_remove_entries() to avoid unneeded
+leaving VOL_DIRTY on -ENOTEMPTY.
 
+Fixes: 5f2aa075070c ("exfat: add inode operations")
+Cc: stable@vger.kernel.org # v5.7
+Reported-by: Tetsuhiro Kohada <kohada.t2@gmail.com>
+Reviewed-by: Sungjong Seo <sj1557.seo@samsung.com>
+Signed-off-by: Namjae Jeon <namjae.jeon@samsung.com>
+---
+ fs/exfat/namei.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+diff --git a/fs/exfat/namei.c b/fs/exfat/namei.c
+index edd8023865a0..2b9e21094a96 100644
+--- a/fs/exfat/namei.c
++++ b/fs/exfat/namei.c
+@@ -975,7 +975,6 @@ static int exfat_rmdir(struct inode *dir, struct dentry *dentry)
+ 		goto unlock;
+ 	}
+ 
+-	exfat_set_vol_flags(sb, VOL_DIRTY);
+ 	exfat_chain_set(&clu_to_free, ei->start_clu,
+ 		EXFAT_B_TO_CLU_ROUND_UP(i_size_read(inode), sbi), ei->flags);
+ 
+@@ -1002,6 +1001,7 @@ static int exfat_rmdir(struct inode *dir, struct dentry *dentry)
+ 	num_entries++;
+ 	brelse(bh);
+ 
++	exfat_set_vol_flags(sb, VOL_DIRTY);
+ 	err = exfat_remove_entries(dir, &cdir, entry, 0, num_entries);
+ 	if (err) {
+ 		exfat_err(sb, "failed to exfat_remove_entries : err(%d)", err);
+-- 
+2.17.1
 
-Summary
-------------------------------------------------------------------------
-
-kernel: 5.7.3-rc2
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-5.7.y
-git commit: 55b987cbccd9e2536c0ceec2c1be7207560add0e
-git describe: v5.7.2-163-g55b987cbccd9
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.7-oe/bui=
-ld/v5.7.2-163-g55b987cbccd9
-
-No regressions (compared to build v5.7.1-25-g00f7cc67908b)
-
-No fixes (compared to build v5.7.1-25-g00f7cc67908b)
-
-Ran 31881 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c
-- hi6220-hikey
-- i386
-- juno-r2
-- juno-r2-compat
-- juno-r2-kasan
-- nxp-ls2088
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15
-- x86
-- x86-kasan
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* install-android-platform-tools-r2800
-* kselftest
-* kselftest/drivers
-* kselftest/filesystems
-* kselftest/net
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-commands-tests
-* ltp-controllers-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* perf
-* ltp-cap_bounds-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* network-basic-tests
-* ltp-cve-tests
-* ltp-open-posix-tests
-* v4l2-compliance
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-native/drivers
-* kselftest-vsyscall-mode-native/filesystems
-* kselftest-vsyscall-mode-native/net
-* kselftest-vsyscall-mode-none
-* kselftest-vsyscall-mode-none/drivers
-* kselftest-vsyscall-mode-none/filesystems
-* kselftest-vsyscall-mode-none/net
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
