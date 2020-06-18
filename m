@@ -2,127 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 44E361FE1D3
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:58:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B4C81FE0F5
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:52:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731362AbgFRBZJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:25:09 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:57418 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727995AbgFRBZH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Jun 2020 21:25:07 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1592443505;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Aqj1ArPukFGK/qJUycjzo0g+sizWqNKXPf2rroolkYI=;
-        b=g5sanARHDD1lcSCxnAiBQrkEC+5WA7J1pUMSa+DGLcFPCM87aFbl3svKOqi1+bdRc8JH0s
-        Swxtd6Qt1pA9Xe6EBNkb7vX18h5bW1XNSnSOxZ2DA19xgB/CdH327cqaMdKkK7Q4CL4Kwo
-        EhJ9lDQ+vCbQyaxhdD/y7+YjuuYeepc=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-344-mvQFyElLOnWBcZG1gZ5MzA-1; Wed, 17 Jun 2020 21:25:03 -0400
-X-MC-Unique: mvQFyElLOnWBcZG1gZ5MzA-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1731556AbgFRBvN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:51:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35026 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731783AbgFRB1H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:27:07 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0ADA4A0BD7;
-        Thu, 18 Jun 2020 01:25:02 +0000 (UTC)
-Received: from x1.home (ovpn-112-195.phx2.redhat.com [10.3.112.195])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 80C3410013D5;
-        Thu, 18 Jun 2020 01:25:01 +0000 (UTC)
-Date:   Wed, 17 Jun 2020 19:25:01 -0600
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Qian Cai <cai@lca.pw>, kvm@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.7 280/388] vfio/pci: fix memory leaks of
- eventfd ctx
-Message-ID: <20200617192501.2310afe6@x1.home>
-In-Reply-To: <20200618010805.600873-280-sashal@kernel.org>
-References: <20200618010805.600873-1-sashal@kernel.org>
-        <20200618010805.600873-280-sashal@kernel.org>
-Organization: Red Hat
+        by mail.kernel.org (Postfix) with ESMTPSA id 91AD620B1F;
+        Thu, 18 Jun 2020 01:27:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1592443626;
+        bh=PrN/lW54aaqiWQ+7/FcQ7+J/s4bKEjEdBNQxuoUCfag=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=QNQiSFaiayD9pcRBCDrRXzsE70QFoiZEkBxIqS8+Qym1KPsFTfFq/OBcNgnAbjvre
+         hUpZgWKbpNjdT0IvmWwPAfr1vY+WFrBSxlQaj+faX62Cw8XwvXwUrnFHaunoUsfd8U
+         O/mNeLdp3g6HT4Z/0LxnsruEGi4uGEk6PwOdiPxI=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Viacheslav Dubeyko <v.dubeiko@yadro.com>,
+        Roman Bolshakov <r.bolshakov@yadro.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 051/108] scsi: qla2xxx: Fix warning after FC target reset
+Date:   Wed, 17 Jun 2020 21:25:03 -0400
+Message-Id: <20200618012600.608744-51-sashal@kernel.org>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20200618012600.608744-1-sashal@kernel.org>
+References: <20200618012600.608744-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 17 Jun 2020 21:06:17 -0400
-Sasha Levin <sashal@kernel.org> wrote:
+From: Viacheslav Dubeyko <v.dubeiko@yadro.com>
 
-> From: Qian Cai <cai@lca.pw>
-> 
-> [ Upstream commit 1518ac272e789cae8c555d69951b032a275b7602 ]
-> 
-> Finished a qemu-kvm (-device vfio-pci,host=0001:01:00.0) triggers a few
-> memory leaks after a while because vfio_pci_set_ctx_trigger_single()
-> calls eventfd_ctx_fdget() without the matching eventfd_ctx_put() later.
-> Fix it by calling eventfd_ctx_put() for those memory in
-> vfio_pci_release() before vfio_device_release().
-> 
-> unreferenced object 0xebff008981cc2b00 (size 128):
->   comm "qemu-kvm", pid 4043, jiffies 4294994816 (age 9796.310s)
->   hex dump (first 32 bytes):
->     01 00 00 00 6b 6b 6b 6b 00 00 00 00 ad 4e ad de  ....kkkk.....N..
->     ff ff ff ff 6b 6b 6b 6b ff ff ff ff ff ff ff ff  ....kkkk........
->   backtrace:
->     [<00000000917e8f8d>] slab_post_alloc_hook+0x74/0x9c
->     [<00000000df0f2aa2>] kmem_cache_alloc_trace+0x2b4/0x3d4
->     [<000000005fcec025>] do_eventfd+0x54/0x1ac
->     [<0000000082791a69>] __arm64_sys_eventfd2+0x34/0x44
->     [<00000000b819758c>] do_el0_svc+0x128/0x1dc
->     [<00000000b244e810>] el0_sync_handler+0xd0/0x268
->     [<00000000d495ef94>] el0_sync+0x164/0x180
-> unreferenced object 0x29ff008981cc4180 (size 128):
->   comm "qemu-kvm", pid 4043, jiffies 4294994818 (age 9796.290s)
->   hex dump (first 32 bytes):
->     01 00 00 00 6b 6b 6b 6b 00 00 00 00 ad 4e ad de  ....kkkk.....N..
->     ff ff ff ff 6b 6b 6b 6b ff ff ff ff ff ff ff ff  ....kkkk........
->   backtrace:
->     [<00000000917e8f8d>] slab_post_alloc_hook+0x74/0x9c
->     [<00000000df0f2aa2>] kmem_cache_alloc_trace+0x2b4/0x3d4
->     [<000000005fcec025>] do_eventfd+0x54/0x1ac
->     [<0000000082791a69>] __arm64_sys_eventfd2+0x34/0x44
->     [<00000000b819758c>] do_el0_svc+0x128/0x1dc
->     [<00000000b244e810>] el0_sync_handler+0xd0/0x268
->     [<00000000d495ef94>] el0_sync+0x164/0x180
-> 
-> Signed-off-by: Qian Cai <cai@lca.pw>
-> Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/vfio/pci/vfio_pci.c | 4 ++++
->  1 file changed, 4 insertions(+)
-> 
-> diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
-> index 6c6b37b5c04e..080e6608f297 100644
-> --- a/drivers/vfio/pci/vfio_pci.c
-> +++ b/drivers/vfio/pci/vfio_pci.c
-> @@ -519,6 +519,10 @@ static void vfio_pci_release(void *device_data)
->  		vfio_pci_vf_token_user_add(vdev, -1);
->  		vfio_spapr_pci_eeh_release(vdev->pdev);
->  		vfio_pci_disable(vdev);
-> +		if (vdev->err_trigger)
-> +			eventfd_ctx_put(vdev->err_trigger);
-> +		if (vdev->req_trigger)
-> +			eventfd_ctx_put(vdev->req_trigger);
->  	}
->  
->  	mutex_unlock(&vdev->reflck->lock);
+[ Upstream commit f839544ccff60cbe534282aac68858fc3fb278ca ]
 
+Currently, FC target reset finishes with the warning message:
 
-This has a fix pending, I'd suggest not picking it on its own:
+[84010.596893] ------------[ cut here ]------------
+[84010.596917] WARNING: CPU: 238 PID: 279973 at ../drivers/scsi/qla2xxx/qla_target.c:6644 qlt_enable_vha+0x1d0/0x260 [qla2xxx]
+[84010.596918] Modules linked in: vrf af_packet 8021q garp mrp stp llc netlink_diag target_tatlin_tblock(OEX) dm_ec(OEX) ttln_rdma(OEX) dm_frontend(OEX) nvme_rdma nvmet tcm_qla2xxx iscsi_target_mod target_core_mod at24 nvmem_core pnv_php ipmi_watchdog ipmi_ssif vmx_crypto gf128mul crct10dif_vpmsum qla2xxx rpcrdma nvme_fc powernv_flash(X) nvme_fabrics uio_pdrv_genirq mtd rtc_opal(X) ibmpowernv(X) opal_prd(X) uio scsi_transport_fc i2c_opal(X) ses enclosure ipmi_poweroff ast i2c_algo_bit ttm bmc_mcu(OEX) drm_kms_helper syscopyarea sysfillrect sysimgblt fb_sys_fops drm drm_panel_orientation_quirks agpgart nfsd auth_rpcgss nfs_acl ipmi_powernv(X) lockd ipmi_devintf ipmi_msghandler grace dummy ext4 crc16 jbd2 mbcache sd_mod rdma_ucm ib_iser rdma_cm ib_umad iw_cm ib_ipoib libiscsi scsi_transport_iscsi ib_cm
+[84010.596975]  configfs mlx5_ib ib_uverbs ib_core mlx5_core crc32c_vpmsum xhci_pci xhci_hcd mpt3sas(OEX) tg3 usbcore mlxfw tls raid_class libphy scsi_transport_sas devlink ptp pps_core nvme nvme_core sunrpc dm_mirror dm_region_hash dm_log sg dm_multipath dm_mod scsi_dh_rdac scsi_dh_emc scsi_dh_alua scsi_mod autofs4
+[84010.597001] Supported: Yes, External
+[84010.597004] CPU: 238 PID: 279973 Comm: bash Tainted: G           OE      4.12.14-197.29-default #1 SLE15-SP1
+[84010.597006] task: c000000a104c0000 task.stack: c000000b52188000
+[84010.597007] NIP: d00000001ffd7f78 LR: d00000001ffd7f6c CTR: c0000000001676c0
+[84010.597008] REGS: c000000b5218b910 TRAP: 0700   Tainted: G           OE       (4.12.14-197.29-default)
+[84010.597008] MSR: 900000010282b033 <SF,HV,VEC,VSX,EE,FP,ME,IR,DR,RI,LE,TM[E]>
+[84010.597015]   CR: 48242424  XER: 00000000
+[84010.597016] CFAR: d00000001ff45d08 SOFTE: 1
+               GPR00: d00000001ffd7f6c c000000b5218bb90 d00000002001b228 0000000000000102
+               GPR04: 0000000000000001 0000000000000001 00013d91ed0a5e2d 0000000000000000
+               GPR08: c000000007793300 0000000000000000 0000000000000000 c000000a086e7818
+               GPR12: 0000000000002200 c000000007793300 0000000000000000 000000012bc937c0
+               GPR16: 000000012bbf7ed0 0000000000000000 000000012bc3dd10 0000000000000000
+               GPR20: 000000012bc4db28 0000010036442810 000000012bc97828 000000012bc96c70
+               GPR24: 00000100365b1550 0000000000000000 00000100363f3d80 c000000be20d3080
+               GPR28: c000000bda7eae00 c000000be20db7e8 c000000be20d3778 c000000be20db7e8
+[84010.597042] NIP [d00000001ffd7f78] qlt_enable_vha+0x1d0/0x260 [qla2xxx]
+[84010.597051] LR [d00000001ffd7f6c] qlt_enable_vha+0x1c4/0x260 [qla2xxx]
+[84010.597051] Call Trace:
+[84010.597061] [c000000b5218bb90] [d00000001ffd7f6c] qlt_enable_vha+0x1c4/0x260 [qla2xxx] (unreliable)
+[84010.597064] [c000000b5218bc20] [d000000009820b6c] tcm_qla2xxx_tpg_enable_store+0xc4/0x130 [tcm_qla2xxx]
+[84010.597067] [c000000b5218bcb0] [d0000000185d0e68] configfs_write_file+0xd0/0x190 [configfs]
+[84010.597072] [c000000b5218bd00] [c0000000003d0edc] __vfs_write+0x3c/0x1e0
+[84010.597074] [c000000b5218bd90] [c0000000003d2ea8] vfs_write+0xd8/0x220
+[84010.597076] [c000000b5218bde0] [c0000000003d4ddc] SyS_write+0x6c/0x110
+[84010.597079] [c000000b5218be30] [c00000000000b188] system_call+0x3c/0x130
+[84010.597080] Instruction dump:
+[84010.597082] 7d0050a8 7d084b78 7d0051ad 40c2fff4 7fa3eb78 4bf73965 60000000 7fa3eb78
+[84010.597086] 4bf6dcd9 60000000 2fa30000 419eff40 <0fe00000> 4bffff38 e95f0058 a12a0180
+[84010.597090] ---[ end trace e32abaf6e6fee826 ]---
 
-https://lore.kernel.org/kvm/20200616085052.sahrunsesjyjeyf2@beryllium.lan/
-https://lore.kernel.org/kvm/159234276956.31057.6902954364435481688.stgit@gimli.home/
+To reproduce:
 
-Thanks,
-Alex
+echo 0x7fffffff > /sys/module/qla2xxx/parameters/logging
+modprobe target_core_mod
+modprobe tcm_qla2xxx
+mkdir /sys/kernel/config/target/qla2xxx
+mkdir /sys/kernel/config/target/qla2xxx/<port-name>
+mkdir /sys/kernel/config/target/qla2xxx/<port-name>/tpgt_1
+echo 1 > /sys/kernel/config/target/qla2xxx/<port-name>/tpgt_1/enable
+echo 0 > /sys/kernel/config/target/qla2xxx/<port-name>/tpgt_1/enable
+echo 1 > /sys/kernel/config/target/qla2xxx/<port-name>/tpgt_1/enable
+
+SYSTEM START
+kernel: pid 327:drivers/scsi/qla2xxx/qla_init.c:2174 qla2x00_initialize_adapter(): vha->flags.online 0x0
+<...>
+kernel: pid 327:drivers/scsi/qla2xxx/qla_os.c:3444 qla2x00_probe_one(): vha->flags.online 0x1
+
+echo 1 > /sys/kernel/config/target/qla2xxx/21:00:00:24:ff:86:a6:2a/tpgt_1/enable
+kernel: pid 348:drivers/scsi/qla2xxx/qla_init.c:6641 qla2x00_abort_isp_cleanup(): vha->flags.online 0x0, ISP_ABORT_NEEDED 0x0
+<...>
+kernel: pid 348:drivers/scsi/qla2xxx/qla_init.c:6998 qla2x00_restart_isp(): vha->flags.online 0x0
+
+echo 0 > /sys/kernel/config/target/qla2xxx/21:00:00:24:ff:86:a6:2a/tpgt_1/enable
+kernel: pid 348:drivers/scsi/qla2xxx/qla_init.c:6641 qla2x00_abort_isp_cleanup(): vha->flags.online 0x0, ISP_ABORT_NEEDED 0x0
+<...>
+kernel: pid 1404:drivers/scsi/qla2xxx/qla_os.c:1107 qla2x00_wait_for_hba_online(): base_vha->flags.online 0x0
+
+echo 1 > /sys/kernel/config/target/qla2xxx/21:00:00:24:ff:86:a6:2a/tpgt_1/enable
+kernel: pid 1404:drivers/scsi/qla2xxx/qla_os.c:1107 qla2x00_wait_for_hba_online(): base_vha->flags.online 0x0
+kernel: -----------[ cut here ]-----------
+kernel: WARNING: CPU: 1 PID: 1404 at drivers/scsi/qla2xxx/qla_target.c:6654 qlt_enable_vha+0x1e0/0x280 [qla2xxx]
+
+The issue happens because no real ISP reset is executed.  The
+qla2x00_abort_isp(scsi_qla_host_t *vha) function expects that
+vha->flags.online will be not zero for ISP reset procedure.  This patch
+sets vha->flags.online to 1 before calling ->abort_isp() for starting the
+ISP reset.
+
+Link: https://lore.kernel.org/r/1d7b21bf9f7676643239eb3d60eaca7cfa505cf0.camel@yadro.com
+Reviewed-by: Roman Bolshakov <r.bolshakov@yadro.com>
+Signed-off-by: Viacheslav Dubeyko <v.dubeiko@yadro.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/scsi/qla2xxx/qla_os.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
+index d4024015f859..ea60c6e603c0 100644
+--- a/drivers/scsi/qla2xxx/qla_os.c
++++ b/drivers/scsi/qla2xxx/qla_os.c
+@@ -5824,6 +5824,7 @@ qla2x00_do_dpc(void *data)
+ 
+ 			if (do_reset && !(test_and_set_bit(ABORT_ISP_ACTIVE,
+ 			    &base_vha->dpc_flags))) {
++				base_vha->flags.online = 1;
+ 				ql_dbg(ql_dbg_dpc, base_vha, 0x4007,
+ 				    "ISP abort scheduled.\n");
+ 				if (ha->isp_ops->abort_isp(base_vha)) {
+-- 
+2.25.1
 
