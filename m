@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B84FC1FE15B
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:54:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 597F71FE157
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:54:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731739AbgFRByK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:54:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33434 "EHLO mail.kernel.org"
+        id S1727048AbgFRByH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:54:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731597AbgFRB0H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:26:07 -0400
+        id S1731599AbgFRB0I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:26:08 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7AA2E2075E;
-        Thu, 18 Jun 2020 01:26:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9AE4021D7F;
+        Thu, 18 Jun 2020 01:26:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443567;
-        bh=vVie/ygbR0DLrb/Ebw/E2vK9WDMcdwM+9xRJs4xgTwg=;
+        s=default; t=1592443568;
+        bh=PYgYh5EClCZLJSgI9EwuJGo8e/rRyeyZ+97SNn09/1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DacWbn9n3iSQRZH7aBEwEIWg3ZEMFFEKti1NG6M3iNhb7UDlWTXXqs1UBsjQjKrGJ
-         QHjHr5nLYF6TU0WrE4mqZqWQUp77kVmrHjBgMh2+LTaWLROQDM8S79CSbNgw0wJYXM
-         PTBgHZ7xq+IA6i68Yv9OdOl88bwDN6E6PZ7hZxSk=
+        b=mcWiJ3z3tVo1uV5mmprDD8oBu+41zhigyxTU7GStXh5GFnOpNM1Z9jbMRIF1J9Ne4
+         zjHLOTWuWKtxwV8wE2UAQ75qWD/hv7cFQ4T0e5bwqaAxMBeq1gh965J5iv8uF/GAEg
+         u/RuJw75UsBhHh5soCX7PtewYRz0oCLZAE/tUHZo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 005/108] iio: light: isl29125: fix iio_triggered_buffer_{predisable,postenable} positions
-Date:   Wed, 17 Jun 2020 21:24:17 -0400
-Message-Id: <20200618012600.608744-5-sashal@kernel.org>
+Cc:     Alex Elder <elder@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Suman Anna <s-anna@ti.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-remoteproc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 006/108] remoteproc: Fix IDR initialisation in rproc_alloc()
+Date:   Wed, 17 Jun 2020 21:24:18 -0400
+Message-Id: <20200618012600.608744-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012600.608744-1-sashal@kernel.org>
 References: <20200618012600.608744-1-sashal@kernel.org>
@@ -43,87 +46,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandru Ardelean <alexandru.ardelean@analog.com>
+From: Alex Elder <elder@linaro.org>
 
-[ Upstream commit 9b7a12c3e090cf3fba6f66f1f23abbc6e0e86021 ]
+[ Upstream commit 6442df49400b466431979e7634849a464a5f1861 ]
 
-The iio_triggered_buffer_{predisable,postenable} functions attach/detach
-the poll functions.
+If ida_simple_get() returns an error when called in rproc_alloc(),
+put_device() is called to clean things up.  By this time the rproc
+device type has been assigned, with rproc_type_release() as the
+release function.
 
-For the predisable hook, the disable code should occur before detaching
-the poll func, and for the postenable hook, the poll func should be
-attached before the enable code.
+The first thing rproc_type_release() does is call:
+    idr_destroy(&rproc->notifyids);
 
-This change reworks the predisable/postenable hooks so that the pollfunc is
-attached/detached in the correct position.
-It also balances the calls a bit, by grouping the preenable and the
-iio_triggered_buffer_postenable() into a single
-isl29125_buffer_postenable() function.
+But at the time the ida_simple_get() call is made, the notifyids
+field in the remoteproc structure has not been initialized.
 
-Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+I'm not actually sure this case causes an observable problem, but
+it's incorrect.  Fix this by initializing the notifyids field before
+calling ida_simple_get() in rproc_alloc().
+
+Fixes: b5ab5e24e960 ("remoteproc: maintain a generic child device for each rproc")
+Signed-off-by: Alex Elder <elder@linaro.org>
+Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Reviewed-by: Suman Anna <s-anna@ti.com>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20200415204858.2448-2-mathieu.poirier@linaro.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/light/isl29125.c | 28 +++++++++++++++++++---------
- 1 file changed, 19 insertions(+), 9 deletions(-)
+ drivers/remoteproc/remoteproc_core.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/iio/light/isl29125.c b/drivers/iio/light/isl29125.c
-index 1d2c0c8a1d4f..4802cc031a0e 100644
---- a/drivers/iio/light/isl29125.c
-+++ b/drivers/iio/light/isl29125.c
-@@ -217,13 +217,24 @@ static const struct iio_info isl29125_info = {
- 	.driver_module = THIS_MODULE,
- };
+diff --git a/drivers/remoteproc/remoteproc_core.c b/drivers/remoteproc/remoteproc_core.c
+index 8f4fa1a52f05..d6372470e5be 100644
+--- a/drivers/remoteproc/remoteproc_core.c
++++ b/drivers/remoteproc/remoteproc_core.c
+@@ -1432,6 +1432,7 @@ struct rproc *rproc_alloc(struct device *dev, const char *name,
+ 	rproc->dev.type = &rproc_type;
+ 	rproc->dev.class = &rproc_class;
+ 	rproc->dev.driver_data = rproc;
++	idr_init(&rproc->notifyids);
  
--static int isl29125_buffer_preenable(struct iio_dev *indio_dev)
-+static int isl29125_buffer_postenable(struct iio_dev *indio_dev)
- {
- 	struct isl29125_data *data = iio_priv(indio_dev);
-+	int err;
-+
-+	err = iio_triggered_buffer_postenable(indio_dev);
-+	if (err)
-+		return err;
+ 	/* Assign a unique device index and name */
+ 	rproc->index = ida_simple_get(&rproc_dev_index, 0, 0, GFP_KERNEL);
+@@ -1450,8 +1451,6 @@ struct rproc *rproc_alloc(struct device *dev, const char *name,
  
- 	data->conf1 |= ISL29125_MODE_RGB;
--	return i2c_smbus_write_byte_data(data->client, ISL29125_CONF1,
-+	err = i2c_smbus_write_byte_data(data->client, ISL29125_CONF1,
- 		data->conf1);
-+	if (err) {
-+		iio_triggered_buffer_predisable(indio_dev);
-+		return err;
-+	}
-+
-+	return 0;
- }
+ 	mutex_init(&rproc->lock);
  
- static int isl29125_buffer_predisable(struct iio_dev *indio_dev)
-@@ -231,19 +242,18 @@ static int isl29125_buffer_predisable(struct iio_dev *indio_dev)
- 	struct isl29125_data *data = iio_priv(indio_dev);
- 	int ret;
- 
--	ret = iio_triggered_buffer_predisable(indio_dev);
--	if (ret < 0)
--		return ret;
+-	idr_init(&rproc->notifyids);
 -
- 	data->conf1 &= ~ISL29125_MODE_MASK;
- 	data->conf1 |= ISL29125_MODE_PD;
--	return i2c_smbus_write_byte_data(data->client, ISL29125_CONF1,
-+	ret = i2c_smbus_write_byte_data(data->client, ISL29125_CONF1,
- 		data->conf1);
-+
-+	iio_triggered_buffer_predisable(indio_dev);
-+
-+	return ret;
- }
- 
- static const struct iio_buffer_setup_ops isl29125_buffer_setup_ops = {
--	.preenable = isl29125_buffer_preenable,
--	.postenable = &iio_triggered_buffer_postenable,
-+	.postenable = isl29125_buffer_postenable,
- 	.predisable = isl29125_buffer_predisable,
- };
- 
+ 	INIT_LIST_HEAD(&rproc->carveouts);
+ 	INIT_LIST_HEAD(&rproc->mappings);
+ 	INIT_LIST_HEAD(&rproc->traces);
 -- 
 2.25.1
 
