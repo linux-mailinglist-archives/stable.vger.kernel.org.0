@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9364F1FDD29
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:24:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B3CC1FDD2C
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:24:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731172AbgFRBYU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:24:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58746 "EHLO mail.kernel.org"
+        id S1730690AbgFRBYV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:24:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731160AbgFRBYS (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1731168AbgFRBYS (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 17 Jun 2020 21:24:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 89EFF21D90;
-        Thu, 18 Jun 2020 01:24:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A750420B1F;
+        Thu, 18 Jun 2020 01:24:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443457;
-        bh=/1Wn2oDkvoSs0umI9QOna5G4NVtlHTUEes0RmrJM/6Q=;
+        s=default; t=1592443458;
+        bh=PWav+9ikj8+zabOZRazem7Q7xxnWjtHYD9L3xHv3d+M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fV3Vc0WoRWB45Vm8m57xp1DMKlazk2JRyHt6zXr/YOIJhR2rDJ+ka9GDpDv7mbCoV
-         AAWqQ0r4X7ZZXnf8tXVzvO1MEyI+UaFiz02NLBJPCNK4WPoCORocOusUL01XDE8o+g
-         CDbWHSjbzjMi4NTVFtS0kjWydQ0aL8HG+pEPJI+I=
+        b=Oqj/BItkbss8zSk5vFLzUmI502Cv8SXBfkfUzuU9/WttGQI13e2uq3dZIejeskZsg
+         X3qzd/82x8RTWNpNHJAR1MrwIasPvj33Zwb9AyLIHnOHk0GmL8MRgSfHppaRyhcbk4
+         g7p6T/TTFTDVOaV4Q0dDJnTqBMEBIqWE9Y120oIs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Cristian Klein <cristian.klein@elastisys.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 091/172] HID: Add quirks for Trust Panora Graphic Tablet
-Date:   Wed, 17 Jun 2020 21:20:57 -0400
-Message-Id: <20200618012218.607130-91-sashal@kernel.org>
+Cc:     Feng Tang <feng.tang@intel.com>,
+        Corey Minyard <cminyard@mvista.com>,
+        Sasha Levin <sashal@kernel.org>,
+        openipmi-developer@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 4.19 092/172] ipmi: use vzalloc instead of kmalloc for user creation
+Date:   Wed, 17 Jun 2020 21:20:58 -0400
+Message-Id: <20200618012218.607130-92-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012218.607130-1-sashal@kernel.org>
 References: <20200618012218.607130-1-sashal@kernel.org>
@@ -43,73 +44,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Klein <cristian.klein@elastisys.com>
+From: Feng Tang <feng.tang@intel.com>
 
-[ Upstream commit fb68ada81e65d593b51544fa43c284322107a742 ]
+[ Upstream commit 7c47a219b95d0e06b5ef5fcc7bad807895015eac ]
 
-The Trust Panora Graphic Tablet has two interfaces. Interface zero reports pen
-movement, pen pressure and pen buttons. Interface one reports tablet buttons
-and tablet scroll. Both use the mouse protocol.
+We met mulitple times of failure of staring bmc-watchdog,
+due to the runtime memory allocation failure of order 4.
 
-Without these quirks, libinput gets confused about what device it talks to.
+     bmc-watchdog: page allocation failure: order:4, mode:0x40cc0(GFP_KERNEL|__GFP_COMP), nodemask=(null),cpuset=/,mems_allowed=0-1
+     CPU: 1 PID: 2571 Comm: bmc-watchdog Not tainted 5.5.0-00045-g7d6bb61d6188c #1
+     Hardware name: Intel Corporation S2600WFT/S2600WFT, BIOS SE5C620.86B.00.01.0015.110720180833 11/07/2018
+     Call Trace:
+      dump_stack+0x66/0x8b
+      warn_alloc+0xfe/0x160
+      __alloc_pages_slowpath+0xd3e/0xd80
+      __alloc_pages_nodemask+0x2f0/0x340
+      kmalloc_order+0x18/0x70
+      kmalloc_order_trace+0x1d/0xb0
+      ipmi_create_user+0x55/0x2c0 [ipmi_msghandler]
+      ipmi_open+0x72/0x110 [ipmi_devintf]
+      chrdev_open+0xcb/0x1e0
+      do_dentry_open+0x1ce/0x380
+      path_openat+0x305/0x14f0
+      do_filp_open+0x9b/0x110
+      do_sys_open+0x1bd/0x250
+      do_syscall_64+0x5b/0x1f0
+      entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-For completeness, here is the usbhid-dump:
+Using vzalloc/vfree for creating ipmi_user heals the
+problem
 
-```
-$ sudo usbhid-dump -d 145f:0212
-003:013:001:DESCRIPTOR         1588949402.559961
- 05 0D 09 01 A1 01 85 07 A1 02 09 00 75 08 95 07
- 81 02 C0 C0 09 0E A1 01 85 05 09 23 A1 02 09 52
- 09 53 25 0A 75 08 95 02 B1 02 C0 C0 05 0C 09 36
- A1 00 85 06 05 09 19 01 29 20 15 00 25 01 95 20
- 75 01 81 02 C0
+Thanks to Stephen Rothwell for finding the vmalloc.h
+inclusion issue.
 
-003:013:000:DESCRIPTOR         1588949402.563942
- 05 01 09 02 A1 01 85 08 09 01 A1 00 05 09 19 01
- 29 03 15 00 25 01 95 03 75 01 81 02 95 05 81 01
- 05 01 09 30 09 31 09 38 09 00 15 81 25 7F 75 08
- 95 04 81 06 C0 C0 05 01 09 02 A1 01 85 09 09 01
- A1 00 05 09 19 01 29 03 15 00 25 01 95 03 75 01
- 81 02 95 05 81 01 05 01 09 30 09 31 26 FF 7F 95
- 02 75 10 81 02 05 0D 09 30 26 FF 03 95 01 75 10
- 81 02 C0 C0 05 01 09 00 A1 01 85 04 A1 00 26 FF
- 00 09 00 75 08 95 07 B1 02 C0 C0
-```
-
-Signed-off-by: Cristian Klein <cristian.klein@elastisys.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Feng Tang <feng.tang@intel.com>
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h    | 3 +++
- drivers/hid/hid-quirks.c | 1 +
- 2 files changed, 4 insertions(+)
+ drivers/char/ipmi/ipmi_msghandler.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index c1fed1aaecdf..f8026c71e2e4 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -1121,6 +1121,9 @@
- #define USB_DEVICE_ID_TPV_OPTICAL_TOUCHSCREEN_8882	0x8882
- #define USB_DEVICE_ID_TPV_OPTICAL_TOUCHSCREEN_8883	0x8883
+diff --git a/drivers/char/ipmi/ipmi_msghandler.c b/drivers/char/ipmi/ipmi_msghandler.c
+index 69734b1df792..cb85516e1eb3 100644
+--- a/drivers/char/ipmi/ipmi_msghandler.c
++++ b/drivers/char/ipmi/ipmi_msghandler.c
+@@ -30,6 +30,7 @@
+ #include <linux/workqueue.h>
+ #include <linux/uuid.h>
+ #include <linux/nospec.h>
++#include <linux/vmalloc.h>
  
-+#define USB_VENDOR_ID_TRUST             0x145f
-+#define USB_DEVICE_ID_TRUST_PANORA_TABLET   0x0212
-+
- #define USB_VENDOR_ID_TURBOX		0x062a
- #define USB_DEVICE_ID_TURBOX_KEYBOARD	0x0201
- #define USB_DEVICE_ID_ASUS_MD_5110	0x5110
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index e5beee3e8582..f4bab7004aff 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -168,6 +168,7 @@ static const struct hid_device_id hid_quirks[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_TOUCHPACK, USB_DEVICE_ID_TOUCHPACK_RTS), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_TPV, USB_DEVICE_ID_TPV_OPTICAL_TOUCHSCREEN_8882), HID_QUIRK_NOGET },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_TPV, USB_DEVICE_ID_TPV_OPTICAL_TOUCHSCREEN_8883), HID_QUIRK_NOGET },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_TRUST, USB_DEVICE_ID_TRUST_PANORA_TABLET), HID_QUIRK_MULTI_INPUT | HID_QUIRK_HIDINPUT_FORCE },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_TURBOX_KEYBOARD), HID_QUIRK_NOGET },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_KNA5), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_TWA60), HID_QUIRK_MULTI_INPUT },
+ #define PFX "IPMI message handler: "
+ 
+@@ -1089,7 +1090,7 @@ static void free_user_work(struct work_struct *work)
+ 					      remove_work);
+ 
+ 	cleanup_srcu_struct(&user->release_barrier);
+-	kfree(user);
++	vfree(user);
+ }
+ 
+ int ipmi_create_user(unsigned int          if_num,
+@@ -1121,7 +1122,7 @@ int ipmi_create_user(unsigned int          if_num,
+ 	if (rv)
+ 		return rv;
+ 
+-	new_user = kmalloc(sizeof(*new_user), GFP_KERNEL);
++	new_user = vzalloc(sizeof(*new_user));
+ 	if (!new_user)
+ 		return -ENOMEM;
+ 
+@@ -1170,7 +1171,7 @@ int ipmi_create_user(unsigned int          if_num,
+ 
+ out_kfree:
+ 	srcu_read_unlock(&ipmi_interfaces_srcu, index);
+-	kfree(new_user);
++	vfree(new_user);
+ 	return rv;
+ }
+ EXPORT_SYMBOL(ipmi_create_user);
 -- 
 2.25.1
 
