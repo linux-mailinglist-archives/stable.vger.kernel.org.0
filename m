@@ -2,36 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 200C41FE85D
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:48:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DAF551FE86C
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:48:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728357AbgFRBJ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:09:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36706 "EHLO mail.kernel.org"
+        id S1729020AbgFRCs2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:48:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728343AbgFRBJ4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:09:56 -0400
+        id S1728332AbgFRBJ6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:09:58 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DCB4221D92;
-        Thu, 18 Jun 2020 01:09:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3469E2193E;
+        Thu, 18 Jun 2020 01:09:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442595;
-        bh=LOq9WDryFQBQbvgVCaB1OKHLeNMRXnbcTegbuYzqQAY=;
+        s=default; t=1592442598;
+        bh=DniUFTlXwGalAKP2so1Cq2H7Y49WsUvq1O2AbSTIvmU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ii3/40K02JKSed7s3eqJNmXksE8hBl7aS2hoX0UxhNZTvD6ryV+vNXr4LXAnZsbYT
-         C0GZiGSLfAXdz/HFp+P2tkaVlBYIUNjdXtLk1YfG6SiccSgj8CalYUvAHLj1uqa8m1
-         bsCL8SIfFZqkdTqfSN8r5JVurMnEOhLkI6l7W2yA=
+        b=vIRs32vrIKev8q/UXuP8x+m/PtNdHHK3kNtGruaJKUgs9uwGWkSmp+0Up8M33Ke5G
+         FTB8+YVmNBeU2ifKH7rXP3hOH6N8xWIAr2LGmCoDtnNW2fUAVO+i025i62a31ToAZf
+         v498vBl4K8Css+NlK2fuNBW77O1sRMLp2O8yExT0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Paulo Alcantara <pc@cjr.nz>, Aurelien Aptel <aaptel@suse.com>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org,
-        samba-technical@lists.samba.org
-Subject: [PATCH AUTOSEL 5.7 084/388] cifs: set up next DFS target before generic_ip_connect()
-Date:   Wed, 17 Jun 2020 21:03:01 -0400
-Message-Id: <20200618010805.600873-84-sashal@kernel.org>
+Cc:     John Stultz <john.stultz@linaro.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Patrick Lai <plai@codeaurora.org>,
+        Banajit Goswami <bgoswami@codeaurora.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>, Vinod Koul <vkoul@kernel.org>,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Todd Kjos <tkjos@google.com>,
+        Alistair Delva <adelva@google.com>,
+        Amit Pundir <amit.pundir@linaro.org>,
+        Sumit Semwal <sumit.semwal@linaro.org>,
+        alsa-devel@alsa-project.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.7 085/388] ASoC: qcom: q6asm-dai: kCFI fix
+Date:   Wed, 17 Jun 2020 21:03:02 -0400
+Message-Id: <20200618010805.600873-85-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
@@ -44,102 +56,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paulo Alcantara <pc@cjr.nz>
+From: John Stultz <john.stultz@linaro.org>
 
-[ Upstream commit aaa3aef34d3ab9499a5c7633823429f7a24e6dff ]
+[ Upstream commit a6b675a89e51a1cdad0481b809b7840d3f86e4b5 ]
 
-If we mount a very specific DFS link
+Fixes the following kCFI crash seen on db845c, caused
+by the function prototypes not matching the callback
+function prototype.
 
-    \\FS0.FOO.COM\dfs\link -> \FS0\share1, \FS1\share2
+[   82.585661] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000001
+[   82.595387] Mem abort info:
+[   82.599463]   ESR = 0x96000005
+[   82.602658]   EC = 0x25: DABT (current EL), IL = 32 bits
+[   82.608177]   SET = 0, FnV = 0
+[   82.611829]   EA = 0, S1PTW = 0
+[   82.615369] Data abort info:
+[   82.618751]   ISV = 0, ISS = 0x00000005
+[   82.622641]   CM = 0, WnR = 0
+[   82.625774] user pgtable: 4k pages, 39-bit VAs, pgdp=0000000174259000
+[   82.632292] [0000000000000001] pgd=0000000000000000, pud=0000000000000000
+[   82.639167] Internal error: Oops: 96000005 [#1] PREEMPT SMP
+[   82.644795] Modules linked in: hci_uart btqca xhci_plat_hcd xhci_pci_renesas xhci_pci xhci_hcd wcn36xx wcnss_ctrl wcd934x vctrl_regulator ufs_qcom syscon_reboot_e
+[   82.644927]  qcom_apcs_ipc_mailbox q6asm_dai q6routing q6asm q6afe_dai q6adm q6afe q6core q6dsp_common pm8941_pwrkey pm8916_wdt platform_mhu pinctrl_spmi_mpp pine
+[   82.812982] CPU: 3 PID: 240 Comm: kworker/u16:4 Tainted: G        W         5.6.0-rc7-mainline-00960-g0c34353d11b9-dirty #1
+[   82.824201] Hardware name: Thundercomm Dragonboard 845c (DT)
+[   82.829937] Workqueue: qcom_apr_rx apr_rxwq [apr]
+[   82.834698] pstate: 80c00005 (Nzcv daif +PAN +UAO)
+[   82.839553] pc : __cfi_check_fail+0x4/0x1c [q6asm_dai]
+[   82.844754] lr : __cfi_check+0x3a8/0x3b0 [q6asm_dai]
+[   82.849767] sp : ffffffc0105f3c20
+[   82.853123] x29: ffffffc0105f3c30 x28: 0000000000000020
+[   82.858489] x27: ffffff80f4588400 x26: ffffff80f458ec94
+[   82.863854] x25: ffffff80f458ece8 x24: ffffffe3670c7000
+[   82.869220] x23: ffffff8094bb7b34 x22: ffffffe367137000
+[   82.874585] x21: bd07909b332eada6 x20: 0000000000000001
+[   82.879950] x19: ffffffe36713863c x18: ffffff80f8df4430
+[   82.885316] x17: 0000000000000001 x16: ffffffe39d15e660
+[   82.890681] x15: 0000000000000001 x14: 0000000000000027
+[   82.896047] x13: 0000000000000000 x12: ffffffe39e6465a0
+[   82.901413] x11: 0000000000000051 x10: 000000000000ffff
+[   82.906779] x9 : 000ffffffe366c19 x8 : c3c5f18762d1ceef
+[   82.912145] x7 : 0000000000000000 x6 : ffffffc010877698
+[   82.917511] x5 : ffffffc0105f3c00 x4 : 0000000000000000
+[   82.922877] x3 : 0000000000000000 x2 : 0000000000000001
+[   82.928243] x1 : ffffffe36713863c x0 : 0000000000000001
+[   82.933610] Call trace:
+[   82.936099]  __cfi_check_fail+0x4/0x1c [q6asm_dai]
+[   82.940955]  q6asm_srvc_callback+0x22c/0x618 [q6asm]
+[   82.945973]  apr_rxwq+0x1a8/0x27c [apr]
+[   82.949861]  process_one_work+0x2e8/0x54c
+[   82.953919]  worker_thread+0x27c/0x4d4
+[   82.957715]  kthread+0x144/0x154
+[   82.960985]  ret_from_fork+0x10/0x18
+[   82.964603] Code: a8c37bfd f85f8e5e d65f03c0 b40000a0 (39400008)
+[   82.970762] ---[ end trace 410accb839617143 ]---
+[   82.975429] Kernel panic - not syncing: Fatal exception
 
-where its target list contains NB names ("FS0" & "FS1") rather than
-FQDN ones ("FS0.FOO.COM" & "FS1.FOO.COM"), we end up connecting to
-\FOO\share1 but server->hostname will have "FOO.COM".  The reason is
-because both "FS0" and "FS0.FOO.COM" resolve to same IP address and
-they share same TCP server connection, but "FS0.FOO.COM" was the first
-hostname set -- which is OK.
-
-However, if the echo thread timeouts and we still have a good
-connection to "FS0", in cifs_reconnect()
-
-    rc = generic_ip_connect(server) -> success
-    if (rc) {
-            ...
-            reconn_inval_dfs_target(server, cifs_sb, &tgt_list,
-	                            &tgt_it);
-            ...
-     }
-     ...
-
-it successfully reconnects to "FS0" server but does not set up next
-DFS target - which should be the same target server "\FS0\share1" -
-and server->hostname remains set to "FS0.FOO.COM" rather than "FS0",
-as reconn_inval_dfs_target() would have it set to "FS0" if called
-earlier.
-
-Finally, in __smb2_reconnect(), the reconnect of tcons would fail
-because tcon->ses->server->hostname (FS0.FOO.COM) does not match DFS
-target's hostname (FS0).
-
-Fix that by calling reconn_inval_dfs_target() before
-generic_ip_connect() so server->hostname will get updated correctly
-prior to reconnecting its tcons in __smb2_reconnect().
-
-With "cifs: handle hostnames that resolve to same ip in failover"
-patch
-
-    - The above problem would not occur.
-    - We could save an DNS query to find out that they both resolve to
-      the same ip address.
-
-Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Reviewed-by: Aurelien Aptel <aaptel@suse.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: John Stultz <john.stultz@linaro.org>
+Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Cc: Patrick Lai <plai@codeaurora.org>
+Cc: Banajit Goswami <bgoswami@codeaurora.org>
+Cc: Liam Girdwood <lgirdwood@gmail.com>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: Jaroslav Kysela <perex@perex.cz>
+Cc: Takashi Iwai <tiwai@suse.com>
+Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Cc: Vinod Koul <vkoul@kernel.org>
+Cc: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Cc: Stephan Gerhold <stephan@gerhold.net>
+Cc: Sami Tolvanen <samitolvanen@google.com>
+Cc: Todd Kjos <tkjos@google.com>
+Cc: Alistair Delva <adelva@google.com>
+Cc: Amit Pundir <amit.pundir@linaro.org>
+Cc: Sumit Semwal <sumit.semwal@linaro.org>
+Cc: alsa-devel@alsa-project.org
+Link: https://lore.kernel.org/r/20200529213823.98812-1-john.stultz@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/connect.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ sound/soc/qcom/qdsp6/q6asm-dai.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index 28268ed461b8..47b9fbb70bf5 100644
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -572,26 +572,26 @@ cifs_reconnect(struct TCP_Server_Info *server)
- 		try_to_freeze();
+diff --git a/sound/soc/qcom/qdsp6/q6asm-dai.c b/sound/soc/qcom/qdsp6/q6asm-dai.c
+index 125af00bba53..4640804aab7f 100644
+--- a/sound/soc/qcom/qdsp6/q6asm-dai.c
++++ b/sound/soc/qcom/qdsp6/q6asm-dai.c
+@@ -176,7 +176,7 @@ static const struct snd_compr_codec_caps q6asm_compr_caps = {
+ };
  
- 		mutex_lock(&server->srv_mutex);
-+#ifdef CONFIG_CIFS_DFS_UPCALL
- 		/*
- 		 * Set up next DFS target server (if any) for reconnect. If DFS
- 		 * feature is disabled, then we will retry last server we
- 		 * connected to before.
- 		 */
-+		reconn_inval_dfs_target(server, cifs_sb, &tgt_list, &tgt_it);
-+#endif
-+		rc = reconn_set_ipaddr(server);
-+		if (rc) {
-+			cifs_dbg(FYI, "%s: failed to resolve hostname: %d\n",
-+				 __func__, rc);
-+		}
-+
- 		if (cifs_rdma_enabled(server))
- 			rc = smbd_reconnect(server);
- 		else
- 			rc = generic_ip_connect(server);
- 		if (rc) {
- 			cifs_dbg(FYI, "reconnect error %d\n", rc);
--#ifdef CONFIG_CIFS_DFS_UPCALL
--			reconn_inval_dfs_target(server, cifs_sb, &tgt_list,
--						&tgt_it);
--#endif
--			rc = reconn_set_ipaddr(server);
--			if (rc) {
--				cifs_dbg(FYI, "%s: failed to resolve hostname: %d\n",
--					 __func__, rc);
--			}
- 			mutex_unlock(&server->srv_mutex);
- 			msleep(3000);
- 		} else {
+ static void event_handler(uint32_t opcode, uint32_t token,
+-			  uint32_t *payload, void *priv)
++			  void *payload, void *priv)
+ {
+ 	struct q6asm_dai_rtd *prtd = priv;
+ 	struct snd_pcm_substream *substream = prtd->substream;
+@@ -490,7 +490,7 @@ static int q6asm_dai_hw_params(struct snd_soc_component *component,
+ }
+ 
+ static void compress_event_handler(uint32_t opcode, uint32_t token,
+-				   uint32_t *payload, void *priv)
++				   void *payload, void *priv)
+ {
+ 	struct q6asm_dai_rtd *prtd = priv;
+ 	struct snd_compr_stream *substream = prtd->cstream;
 -- 
 2.25.1
 
