@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DEC1D1FE648
+	by mail.lfdr.de (Postfix) with ESMTP id 5E7D41FE647
 	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:32:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729886AbgFRCck (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:32:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45096 "EHLO mail.kernel.org"
+        id S1729144AbgFRCcj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:32:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729439AbgFRBPH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:15:07 -0400
+        id S1729441AbgFRBPI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:15:08 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 31AB92193E;
-        Thu, 18 Jun 2020 01:15:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7C6B221D7B;
+        Thu, 18 Jun 2020 01:15:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442907;
-        bh=pa5xwxs/YMVeg48Xp1oAklH4xCcH4s/8Z/abaSwieRU=;
+        s=default; t=1592442908;
+        bh=5U5PiWIjiwW7vjikoQHtJKRjG+IOR2gWNoMdCr8MBEc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZeB0sSOxuTdEuw/vxZcykWXgQK5g1r40nstHIQ5wAmp7vNY67FtyxSl7/KXvAwfkE
-         VW76I0KgXCg6GtCs4I1TBun2VnAwKy1zE0IK9KOYZHF3gYqlLmlMOMgugMxIzZJNs2
-         4RKqzqBmmAIYz/q1hhtrFXMhOUvBtN9nqLJA2Yio=
+        b=vDDK0HyOhVc5PIBzQ73MG2Yf0bLEfSxGT14ps3D3E9jrbx+K9xO+j19Z9Q93YCkv7
+         iEAc8ctOnvqU2SOW4FaGQs2w8pO3z6ZmupJyteIe7TgCnq6TqH6qSQLlmGqDB1iUPS
+         ENXVNvgFp6/mR2nfCZRU1Tzm8temhYxuqSjD672Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.7 326/388] pinctrl: freescale: imx: Use 'devm_of_iomap()' to avoid a resource leak in case of error in 'imx_pinctrl_probe()'
-Date:   Wed, 17 Jun 2020 21:07:03 -0400
-Message-Id: <20200618010805.600873-326-sashal@kernel.org>
+Cc:     "J. Bruce Fields" <bfields@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 327/388] nfsd: safer handling of corrupted c_type
+Date:   Wed, 17 Jun 2020 21:07:04 -0400
+Message-Id: <20200618010805.600873-327-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
@@ -45,47 +42,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: "J. Bruce Fields" <bfields@redhat.com>
 
-[ Upstream commit ba403242615c2c99e27af7984b1650771a2cc2c9 ]
+[ Upstream commit c25bf185e57213b54ea0d632ac04907310993433 ]
 
-Use 'devm_of_iomap()' instead 'of_iomap()' to avoid a resource leak in
-case of error.
+This can only happen if there's a bug somewhere, so let's make it a WARN
+not a printk.  Also, I think it's safest to ignore the corruption rather
+than trying to fix it by removing a cache entry.
 
-Update the error handling code accordingly.
-
-Fixes: 26d8cde5260b ("pinctrl: freescale: imx: add shared input select reg support")
-Suggested-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20200602200626.677981-1-christophe.jaillet@wanadoo.fr
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/freescale/pinctrl-imx.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ fs/nfsd/nfscache.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/pinctrl/freescale/pinctrl-imx.c b/drivers/pinctrl/freescale/pinctrl-imx.c
-index 1f81569c7ae3..cb7e0f08d2cf 100644
---- a/drivers/pinctrl/freescale/pinctrl-imx.c
-+++ b/drivers/pinctrl/freescale/pinctrl-imx.c
-@@ -824,12 +824,13 @@ int imx_pinctrl_probe(struct platform_device *pdev,
- 				return -EINVAL;
- 			}
- 
--			ipctl->input_sel_base = of_iomap(np, 0);
-+			ipctl->input_sel_base = devm_of_iomap(&pdev->dev, np,
-+							      0, NULL);
- 			of_node_put(np);
--			if (!ipctl->input_sel_base) {
-+			if (IS_ERR(ipctl->input_sel_base)) {
- 				dev_err(&pdev->dev,
- 					"iomuxc input select base address not found\n");
--				return -ENOMEM;
-+				return PTR_ERR(ipctl->input_sel_base);
- 			}
- 		}
+diff --git a/fs/nfsd/nfscache.c b/fs/nfsd/nfscache.c
+index 0c10bfea039e..4a258065188e 100644
+--- a/fs/nfsd/nfscache.c
++++ b/fs/nfsd/nfscache.c
+@@ -469,8 +469,7 @@ nfsd_cache_lookup(struct svc_rqst *rqstp)
+ 		rtn = RC_REPLY;
+ 		break;
+ 	default:
+-		printk(KERN_WARNING "nfsd: bad repcache type %d\n", rp->c_type);
+-		nfsd_reply_cache_free_locked(b, rp, nn);
++		WARN_ONCE(1, "nfsd: bad repcache type %d\n", rp->c_type);
  	}
+ 
+ 	goto out;
 -- 
 2.25.1
 
