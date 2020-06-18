@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E80751FE1C1
+	by mail.lfdr.de (Postfix) with ESMTP id 79D301FE1C0
 	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:57:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731393AbgFRBZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:25:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60358 "EHLO mail.kernel.org"
+        id S1732126AbgFRB45 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:56:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731390AbgFRBZP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:25:15 -0400
+        id S1731395AbgFRBZR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:25:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BBD0B206D7;
-        Thu, 18 Jun 2020 01:25:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 144CE2075E;
+        Thu, 18 Jun 2020 01:25:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443515;
-        bh=PUQJ+8bqGqzjz+y7Oq/eHD+478RlUH0lRCqGWqYDAzU=;
+        s=default; t=1592443517;
+        bh=b54IEHmFz7bmWQszzKimOy7e6xhMHWb9MYvGLvxm254=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jV2t4XUf1Vc9Kwnyx3xVY4387FUDxiK7g7yr158qzIOT9ts832TXWFV2wO28E1A27
-         sRJZN7AARs+44MNXdWaBc699CaYX2gaRYGMnkO3RJwKk9D4isdq1oN3Kceu0ZI92QC
-         VYzF3FRgJvl5n/Jke+gIV4OWs3JJFZxW0uSkhNhI=
+        b=isCpelr4kq4myJdI3J3gIXGWqo73fVydZ4NyRaMfLLqod+itkaD0+KZY6y86floct
+         mkmfM7iJU/CcjKXIt5R17Mxd/3zxSBuBFgtAwdPsgT/AHB+JwVY0qe8QFlr57I3oqG
+         yrbMYh2nbuNMrnSYEKCYJRzGNsWXq9qqS5Sn82Uc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qiushi Wu <wu000273@umn.edu>, Lee Duncan <lduncan@suse.com>,
+Cc:     Can Guo <cang@codeaurora.org>,
+        Stanley Chu <stanley.chu@mediatek.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, open-iscsi@googlegroups.com,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 139/172] scsi: iscsi: Fix reference count leak in iscsi_boot_create_kobj
-Date:   Wed, 17 Jun 2020 21:21:45 -0400
-Message-Id: <20200618012218.607130-139-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 140/172] scsi: ufs: Don't update urgent bkops level when toggling auto bkops
+Date:   Wed, 17 Jun 2020 21:21:46 -0400
+Message-Id: <20200618012218.607130-140-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012218.607130-1-sashal@kernel.org>
 References: <20200618012218.607130-1-sashal@kernel.org>
@@ -44,36 +46,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Can Guo <cang@codeaurora.org>
 
-[ Upstream commit 0267ffce562c8bbf9b57ebe0e38445ad04972890 ]
+[ Upstream commit be32acff43800c87dc5c707f5d47cc607b76b653 ]
 
-kobject_init_and_add() takes reference even when it fails. If this
-function returns an error, kobject_put() must be called to properly
-clean up the memory associated with the object.
+Urgent bkops level is used to compare against actual bkops status read from
+UFS device. Urgent bkops level is set during initialization and might be
+updated in exception event handler during runtime. But it should not be
+updated to the actual bkops status every time when auto bkops is toggled.
+Otherwise, if urgent bkops level is updated to 0, auto bkops shall always
+be kept enabled.
 
-Link: https://lore.kernel.org/r/20200528201353.14849-1-wu000273@umn.edu
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+Link: https://lore.kernel.org/r/1590632686-17866-1-git-send-email-cang@codeaurora.org
+Fixes: 24366c2afbb0 ("scsi: ufs: Recheck bkops level if bkops is disabled")
+Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
+Signed-off-by: Can Guo <cang@codeaurora.org>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/iscsi_boot_sysfs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/ufs/ufshcd.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/scsi/iscsi_boot_sysfs.c b/drivers/scsi/iscsi_boot_sysfs.c
-index d453667612f8..15d64f96e623 100644
---- a/drivers/scsi/iscsi_boot_sysfs.c
-+++ b/drivers/scsi/iscsi_boot_sysfs.c
-@@ -360,7 +360,7 @@ iscsi_boot_create_kobj(struct iscsi_boot_kset *boot_kset,
- 	boot_kobj->kobj.kset = boot_kset->kset;
- 	if (kobject_init_and_add(&boot_kobj->kobj, &iscsi_boot_ktype,
- 				 NULL, name, index)) {
--		kfree(boot_kobj);
-+		kobject_put(&boot_kobj->kobj);
- 		return NULL;
- 	}
- 	boot_kobj->data = data;
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 803d67b3a166..bd21c9cdf818 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -5122,7 +5122,6 @@ static int ufshcd_bkops_ctrl(struct ufs_hba *hba,
+ 		err = ufshcd_enable_auto_bkops(hba);
+ 	else
+ 		err = ufshcd_disable_auto_bkops(hba);
+-	hba->urgent_bkops_lvl = curr_status;
+ out:
+ 	return err;
+ }
 -- 
 2.25.1
 
