@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B59A51FDD8E
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:27:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 545041FDD8F
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:27:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727023AbgFRB05 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:26:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34680 "EHLO mail.kernel.org"
+        id S1727084AbgFRB06 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:26:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731766AbgFRB04 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:26:56 -0400
+        id S1726987AbgFRB05 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:26:57 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BEC6F20776;
-        Thu, 18 Jun 2020 01:26:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EBFF121D7A;
+        Thu, 18 Jun 2020 01:26:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443615;
-        bh=sgML1kiYHFWj9/9/5wfhrnb0KZZ60yVf8cLgS7JaLx8=;
+        s=default; t=1592443616;
+        bh=oqIcZ64gHNPxT0KHLAgO/j9K6bCutIfJbvYtWmH2lWQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0GlYfxi4zoElD8nMZecYJguBC7h4Jh3ZBlnjRfUs8Zdx8vFKUAvgSDurJOda/vYE6
-         tobRARQ1b3ciBFNIr4hrEhaMBaEspeDNWc7i+dN1aDccq+C2jRBxogq0foniS7+jKk
-         MCWLpf8WSXjzusTQbDVsh+34GOgElODeauK3EX+I=
+        b=TispCKQ9ZF9BFIuJua/OFPk5CU7uuXYf2hcKVsmYBpGbBSN2Sf9F5J3DdYlDdDixq
+         SFIZY2TyhQMwZV2LE1VLh/uLe/5LCn1AEM09usO+xun5KghrbMl7dgDILYXhsDnL7y
+         LT6IF7diZfEtfRur6z4OqoyKW7QDA940WOIiuLO4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Julian Wiedmann <jwi@linux.ibm.com>,
-        Benjamin Block <bblock@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 042/108] s390/qdio: put thinint indicator after early error
-Date:   Wed, 17 Jun 2020 21:24:54 -0400
-Message-Id: <20200618012600.608744-42-sashal@kernel.org>
+Cc:     Raghavendra Rao Ananta <rananta@codeaurora.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.14 043/108] tty: hvc: Fix data abort due to race in hvc_open
+Date:   Wed, 17 Jun 2020 21:24:55 -0400
+Message-Id: <20200618012600.608744-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012600.608744-1-sashal@kernel.org>
 References: <20200618012600.608744-1-sashal@kernel.org>
@@ -44,83 +43,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+From: Raghavendra Rao Ananta <rananta@codeaurora.org>
 
-[ Upstream commit 75e82bec6b2622c6f455b7a543fb5476a5d0eed7 ]
+[ Upstream commit e2bd1dcbe1aa34ff5570b3427c530e4332ecf0fe ]
 
-qdio_establish() calls qdio_setup_thinint() via qdio_setup_irq().
-If the subsequent qdio_establish_thinint() fails, we miss to put the
-DSCI again. Thus the DSCI isn't available for re-use. Given enough of
-such errors, we could end up with having only the shared DSCI available.
+Potentially, hvc_open() can be called in parallel when two tasks calls
+open() on /dev/hvcX. In such a scenario, if the hp->ops->notifier_add()
+callback in the function fails, where it sets the tty->driver_data to
+NULL, the parallel hvc_open() can see this NULL and cause a memory abort.
+Hence, serialize hvc_open and check if tty->private_data is NULL before
+proceeding ahead.
 
-Merge qdio_setup_thinint() into qdio_establish_thinint(), and deal with
-such an error internally.
+The issue can be easily reproduced by launching two tasks simultaneously
+that does nothing but open() and close() on /dev/hvcX.
+For example:
+$ ./simple_open_close /dev/hvc0 & ./simple_open_close /dev/hvc0 &
 
-Fixes: 779e6e1c724d ("[S390] qdio: new qdio driver.")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Raghavendra Rao Ananta <rananta@codeaurora.org>
+Link: https://lore.kernel.org/r/20200428032601.22127-1-rananta@codeaurora.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/cio/qdio.h         |  1 -
- drivers/s390/cio/qdio_setup.c   |  1 -
- drivers/s390/cio/qdio_thinint.c | 14 ++++++++------
- 3 files changed, 8 insertions(+), 8 deletions(-)
+ drivers/tty/hvc/hvc_console.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/cio/qdio.h b/drivers/s390/cio/qdio.h
-index 29d6b5222f1c..0f8d13288611 100644
---- a/drivers/s390/cio/qdio.h
-+++ b/drivers/s390/cio/qdio.h
-@@ -377,7 +377,6 @@ static inline int multicast_outbound(struct qdio_q *q)
- extern u64 last_ai_time;
+diff --git a/drivers/tty/hvc/hvc_console.c b/drivers/tty/hvc/hvc_console.c
+index d52221ae1b85..663cbe3669e1 100644
+--- a/drivers/tty/hvc/hvc_console.c
++++ b/drivers/tty/hvc/hvc_console.c
+@@ -88,6 +88,8 @@ static LIST_HEAD(hvc_structs);
+  */
+ static DEFINE_SPINLOCK(hvc_structs_lock);
  
- /* prototypes for thin interrupt */
--void qdio_setup_thinint(struct qdio_irq *irq_ptr);
- int qdio_establish_thinint(struct qdio_irq *irq_ptr);
- void qdio_shutdown_thinint(struct qdio_irq *irq_ptr);
- void tiqdio_add_input_queues(struct qdio_irq *irq_ptr);
-diff --git a/drivers/s390/cio/qdio_setup.c b/drivers/s390/cio/qdio_setup.c
-index d0090c5c88e7..a64615a10352 100644
---- a/drivers/s390/cio/qdio_setup.c
-+++ b/drivers/s390/cio/qdio_setup.c
-@@ -479,7 +479,6 @@ int qdio_setup_irq(struct qdio_initialize *init_data)
- 	setup_queues(irq_ptr, init_data);
- 
- 	setup_qib(irq_ptr, init_data);
--	qdio_setup_thinint(irq_ptr);
- 	set_impl_params(irq_ptr, init_data->qib_param_field_format,
- 			init_data->qib_param_field,
- 			init_data->input_slib_elements,
-diff --git a/drivers/s390/cio/qdio_thinint.c b/drivers/s390/cio/qdio_thinint.c
-index 831a3a0a2837..4dc1108069d4 100644
---- a/drivers/s390/cio/qdio_thinint.c
-+++ b/drivers/s390/cio/qdio_thinint.c
-@@ -270,17 +270,19 @@ int __init tiqdio_register_thinints(void)
- 
- int qdio_establish_thinint(struct qdio_irq *irq_ptr)
++/* Mutex to serialize hvc_open */
++static DEFINE_MUTEX(hvc_open_mutex);
+ /*
+  * This value is used to assign a tty->index value to a hvc_struct based
+  * upon order of exposure via hvc_probe(), when we can not match it to
+@@ -332,16 +334,24 @@ static int hvc_install(struct tty_driver *driver, struct tty_struct *tty)
+  */
+ static int hvc_open(struct tty_struct *tty, struct file * filp)
  {
-+	int rc;
-+
- 	if (!is_thinint_irq(irq_ptr))
- 		return 0;
--	return set_subchannel_ind(irq_ptr, 0);
--}
+-	struct hvc_struct *hp = tty->driver_data;
++	struct hvc_struct *hp;
+ 	unsigned long flags;
+ 	int rc = 0;
  
--void qdio_setup_thinint(struct qdio_irq *irq_ptr)
--{
--	if (!is_thinint_irq(irq_ptr))
--		return;
- 	irq_ptr->dsci = get_indicator();
- 	DBF_HEX(&irq_ptr->dsci, sizeof(void *));
++	mutex_lock(&hvc_open_mutex);
 +
-+	rc = set_subchannel_ind(irq_ptr, 0);
-+	if (rc)
-+		put_indicator(irq_ptr->dsci);
++	hp = tty->driver_data;
++	if (!hp) {
++		rc = -EIO;
++		goto out;
++	}
 +
-+	return rc;
+ 	spin_lock_irqsave(&hp->port.lock, flags);
+ 	/* Check and then increment for fast path open. */
+ 	if (hp->port.count++ > 0) {
+ 		spin_unlock_irqrestore(&hp->port.lock, flags);
+ 		hvc_kick();
+-		return 0;
++		goto out;
+ 	} /* else count == 0 */
+ 	spin_unlock_irqrestore(&hp->port.lock, flags);
+ 
+@@ -369,6 +379,8 @@ static int hvc_open(struct tty_struct *tty, struct file * filp)
+ 	/* Force wakeup of the polling thread */
+ 	hvc_kick();
+ 
++out:
++	mutex_unlock(&hvc_open_mutex);
+ 	return rc;
  }
  
- void qdio_shutdown_thinint(struct qdio_irq *irq_ptr)
 -- 
 2.25.1
 
