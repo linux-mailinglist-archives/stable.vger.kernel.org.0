@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C4141FE530
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:24:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC9351FE52A
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:24:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729727AbgFRCXz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:23:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49054 "EHLO mail.kernel.org"
+        id S1730506AbgFRCXk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:23:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729825AbgFRBRt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:17:49 -0400
+        id S1729827AbgFRBRu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:17:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0EBA421D94;
-        Thu, 18 Jun 2020 01:17:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 85C5621D79;
+        Thu, 18 Jun 2020 01:17:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443068;
-        bh=VtHKZqz2xn017e+T2y5e0Ye8xv7zSR2bJF9S5Y+Nafo=;
+        s=default; t=1592443069;
+        bh=HJF2uAlzAp+gLKcikaWDlSRt68qDrH/h1QK9+wzPX44=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z2Guuey0nuXjE+4sf6oGbEjiUkmdL5qLQdo/L8MS9rXjgwBQkr5IvJaty8aDB5H8P
-         A5nu1CflQ5VMoUjy1jQKqEwcl7qNCDQtn3OEYIIEbtjVDxngnKOPG2RUK/b9hFpPI8
-         9smf7/T5yloaDscPTCaeMsqdlpdzZ1G6vEQVjuP4=
+        b=WnauIURXMEJQjejEUPMc4RvP9QVC1+9xBD3T6K7EvGkcN0BuMYQKYiyMUrAcNFQJn
+         uyGCulh5gT9vQ7rfKvqGzvBrAlaVVNOLpGlsb8bIyVId6iDlZU4KMH7bCsScwNKrLN
+         p7qeuibgVoirEVRcM2h4sOtwUq1OZD0mesx7I1ns=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Quanyang Wang <quanyang.wang@windriver.com>,
-        Michal Simek <michal.simek@xilinx.com>,
-        Tejas Patel <tejas.patel@xilinx.com>,
-        Jolly Shah <jolly.shah@xilinx.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 057/266] clk: zynqmp: fix memory leak in zynqmp_register_clocks
-Date:   Wed, 17 Jun 2020 21:13:02 -0400
-Message-Id: <20200618011631.604574-57-sashal@kernel.org>
+Cc:     Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Daniel Wagner <dwagner@suse.de>,
+        James Smart <james.smart@broadcom.com>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 058/266] scsi: lpfc: Fix lpfc_nodelist leak when processing unsolicited event
+Date:   Wed, 17 Jun 2020 21:13:03 -0400
+Message-Id: <20200618011631.604574-58-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
@@ -47,98 +46,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quanyang Wang <quanyang.wang@windriver.com>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-[ Upstream commit 58b0fb86260063f86afecaebf4056c876fff2a19 ]
+[ Upstream commit 7217e6e694da3aae6d17db8a7f7460c8d4817ebf ]
 
-This is detected by kmemleak running on zcu102 board:
+In order to create or activate a new node, lpfc_els_unsol_buffer() invokes
+lpfc_nlp_init() or lpfc_enable_node() or lpfc_nlp_get(), all of them will
+return a reference of the specified lpfc_nodelist object to "ndlp" with
+increased refcnt.
 
-unreferenced object 0xffffffc877e48180 (size 128):
-comm "swapper/0", pid 1, jiffies 4294892909 (age 315.436s)
-hex dump (first 32 bytes):
-64 70 5f 76 69 64 65 6f 5f 72 65 66 5f 64 69 76 dp_video_ref_div
-31 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 1...............
-backtrace:
-[<00000000c9be883b>] __kmalloc_track_caller+0x200/0x380
-[<00000000f02c3809>] kvasprintf+0x7c/0x100
-[<00000000e51dde4d>] kasprintf+0x60/0x80
-[<0000000092298b05>] zynqmp_register_clocks+0x29c/0x398
-[<00000000faaff182>] zynqmp_clock_probe+0x3cc/0x4c0
-[<000000005f5986f0>] platform_drv_probe+0x58/0xa8
-[<00000000d5810136>] really_probe+0xd8/0x2a8
-[<00000000f5b671be>] driver_probe_device+0x5c/0x100
-[<0000000038f91fcf>] __device_attach_driver+0x98/0xb8
-[<000000008a3f2ac2>] bus_for_each_drv+0x74/0xd8
-[<000000001cb2783d>] __device_attach+0xe0/0x140
-[<00000000c268031b>] device_initial_probe+0x24/0x30
-[<000000006998de4b>] bus_probe_device+0x9c/0xa8
-[<00000000647ae6ff>] device_add+0x3c0/0x610
-[<0000000071c14bb8>] of_device_add+0x40/0x50
-[<000000004bb5d132>] of_platform_device_create_pdata+0xbc/0x138
+When lpfc_els_unsol_buffer() returns, local variable "ndlp" becomes
+invalid, so the refcount should be decreased to keep refcount balanced.
 
-This is because that when num_nodes is larger than 1, clk_out is
-allocated using kasprintf for these nodes but only the last node's
-clk_out is freed.
+The reference counting issue happens in one exception handling path of
+lpfc_els_unsol_buffer(). When "ndlp" in DEV_LOSS, the function forgets to
+decrease the refcnt increased by lpfc_nlp_init() or lpfc_enable_node() or
+lpfc_nlp_get(), causing a refcnt leak.
 
-Signed-off-by: Quanyang Wang <quanyang.wang@windriver.com>
-Signed-off-by: Michal Simek <michal.simek@xilinx.com>
-Signed-off-by: Tejas Patel <tejas.patel@xilinx.com>
-Signed-off-by: Jolly Shah <jolly.shah@xilinx.com>
-Link: https://lkml.kernel.org/r/1583185843-20707-5-git-send-email-jolly.shah@xilinx.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fix this issue by calling lpfc_nlp_put() when "ndlp" in DEV_LOSS.
+
+Link: https://lore.kernel.org/r/1590416184-52592-1-git-send-email-xiyuyang19@fudan.edu.cn
+Reviewed-by: Daniel Wagner <dwagner@suse.de>
+Reviewed-by: James Smart <james.smart@broadcom.com>
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/zynqmp/clkc.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ drivers/scsi/lpfc/lpfc_els.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/clk/zynqmp/clkc.c b/drivers/clk/zynqmp/clkc.c
-index a11f93ecbf34..6f057ab9df03 100644
---- a/drivers/clk/zynqmp/clkc.c
-+++ b/drivers/clk/zynqmp/clkc.c
-@@ -558,7 +558,7 @@ static struct clk_hw *zynqmp_register_clk_topology(int clk_id, char *clk_name,
- {
- 	int j;
- 	u32 num_nodes, clk_dev_id;
--	char *clk_out = NULL;
-+	char *clk_out[MAX_NODES];
- 	struct clock_topology *nodes;
- 	struct clk_hw *hw = NULL;
- 
-@@ -572,16 +572,16 @@ static struct clk_hw *zynqmp_register_clk_topology(int clk_id, char *clk_name,
- 		 * Intermediate clock names are postfixed with type of clock.
- 		 */
- 		if (j != (num_nodes - 1)) {
--			clk_out = kasprintf(GFP_KERNEL, "%s%s", clk_name,
-+			clk_out[j] = kasprintf(GFP_KERNEL, "%s%s", clk_name,
- 					    clk_type_postfix[nodes[j].type]);
- 		} else {
--			clk_out = kasprintf(GFP_KERNEL, "%s", clk_name);
-+			clk_out[j] = kasprintf(GFP_KERNEL, "%s", clk_name);
- 		}
- 
- 		if (!clk_topology[nodes[j].type])
- 			continue;
- 
--		hw = (*clk_topology[nodes[j].type])(clk_out, clk_dev_id,
-+		hw = (*clk_topology[nodes[j].type])(clk_out[j], clk_dev_id,
- 						    parent_names,
- 						    num_parents,
- 						    &nodes[j]);
-@@ -590,9 +590,12 @@ static struct clk_hw *zynqmp_register_clk_topology(int clk_id, char *clk_name,
- 				     __func__,  clk_dev_id, clk_name,
- 				     PTR_ERR(hw));
- 
--		parent_names[0] = clk_out;
-+		parent_names[0] = clk_out[j];
+diff --git a/drivers/scsi/lpfc/lpfc_els.c b/drivers/scsi/lpfc/lpfc_els.c
+index 66f8867dd837..94d8f2834100 100644
+--- a/drivers/scsi/lpfc/lpfc_els.c
++++ b/drivers/scsi/lpfc/lpfc_els.c
+@@ -8394,6 +8394,8 @@ lpfc_els_unsol_buffer(struct lpfc_hba *phba, struct lpfc_sli_ring *pring,
+ 	spin_lock_irq(shost->host_lock);
+ 	if (ndlp->nlp_flag & NLP_IN_DEV_LOSS) {
+ 		spin_unlock_irq(shost->host_lock);
++		if (newnode)
++			lpfc_nlp_put(ndlp);
+ 		goto dropit;
  	}
--	kfree(clk_out);
-+
-+	for (j = 0; j < num_nodes; j++)
-+		kfree(clk_out[j]);
-+
- 	return hw;
- }
- 
+ 	spin_unlock_irq(shost->host_lock);
 -- 
 2.25.1
 
