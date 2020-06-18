@@ -2,45 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C0711FE742
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:40:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17A251FE738
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:39:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729016AbgFRBM5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:12:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41804 "EHLO mail.kernel.org"
+        id S1727038AbgFRCjo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:39:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729013AbgFRBM4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:12:56 -0400
+        id S1728051AbgFRBM6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:12:58 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AD6D520EDD;
-        Thu, 18 Jun 2020 01:12:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B43C8214DB;
+        Thu, 18 Jun 2020 01:12:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442775;
-        bh=kxqYAnNo0yfJL0M5VhwLgRuBA7I/XIp6kxVkT84dpAs=;
+        s=default; t=1592442778;
+        bh=QzHsFMc7e1sAg3TGj2D+4DGxTg90cYJi1ce6cG/HcDY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YiWnTlLwtNZhH/fHnK3OFgSviK/nUa/xs0ojD8qXfiwKSNlIgzZMOHstq1YStG/VS
-         4D4jPfxo4IVbUIRcrhE2sdipb/jm+CKRwQesH2U5X+YGLNM6XuxYI0d4DSeHzsL6CN
-         WVnzUl09YEWQeIudKBvW28BCC2yZUWkuNY1O3nBQ=
+        b=WEAKdeDvC6VfbF2KaH5xqS1cIIWVq5MKAEWURbodcwLtrCFT0IcKXjSue3C75AX3s
+         uMnoT6iwmm8JlgHXl3oOS28rS4nu2sd4J7exiYgdzPJSdou1HDdd/EU+gZHxA883MF
+         aaUAebt15C5JzFVdjqyJp/1UXgHtA3MJcplD3g0Y=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Marek=20Beh=C3=BAn?= <marek.behun@nic.cz>,
-        Tomasz Maciej Nowak <tmn505@gmail.com>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Rob Herring <robh@kernel.org>,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.7 222/388] PCI: aardvark: Improve link training
-Date:   Wed, 17 Jun 2020 21:05:19 -0400
-Message-Id: <20200618010805.600873-222-sashal@kernel.org>
+Cc:     Bharat Gooty <bharat.gooty@broadcom.com>,
+        Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.7 224/388] drivers: phy: sr-usb: do not use internal fsm for USB2 phy init
+Date:   Wed, 17 Jun 2020 21:05:21 -0400
+Message-Id: <20200618010805.600873-224-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -49,213 +44,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Behún <marek.behun@nic.cz>
+From: Bharat Gooty <bharat.gooty@broadcom.com>
 
-[ Upstream commit 43fc679ced18006b12d918d7a8a4af392b7fbfe7 ]
+[ Upstream commit 6f0577d1411337a0d97d545abe4a784e9e611516 ]
 
-Currently the aardvark driver trains link in PCIe gen2 mode. This may
-cause some buggy gen1 cards (such as Compex WLE900VX) to be unstable or
-even not detected. Moreover when ASPM code tries to retrain link second
-time, these cards may stop responding and link goes down. If gen1 is
-used this does not happen.
+During different reboot cycles, USB PHY PLL may not always lock
+during initialization and therefore can cause USB to be not usable.
 
-Unconditionally forcing gen1 is not a good solution since it may have
-performance impact on gen2 cards.
+Hence do not use internal FSM programming sequence for the USB
+PHY initialization.
 
-To overcome this, read 'max-link-speed' property (as defined in PCI
-device tree bindings) and use this as max gen mode. Then iteratively try
-link training at this mode or lower until successful. After successful
-link training choose final controller gen based on Negotiated Link Speed
-from Link Status register, which should match card speed.
-
-Link: https://lore.kernel.org/r/20200430080625.26070-5-pali@kernel.org
-Tested-by: Tomasz Maciej Nowak <tmn505@gmail.com>
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Marek Behún <marek.behun@nic.cz>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Acked-by: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+Fixes: 4dcddbb38b64 ("phy: sr-usb: Add Stingray USB PHY driver")
+Signed-off-by: Bharat Gooty <bharat.gooty@broadcom.com>
+Signed-off-by: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+Link: https://lore.kernel.org/r/20200513173947.10919-1-rayagonda.kokatanur@broadcom.com
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-aardvark.c | 114 ++++++++++++++++++++------
- 1 file changed, 89 insertions(+), 25 deletions(-)
+ drivers/phy/broadcom/phy-bcm-sr-usb.c | 55 +--------------------------
+ 1 file changed, 2 insertions(+), 53 deletions(-)
 
-diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
-index 74b90940a9d4..e202f954eb84 100644
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -40,6 +40,7 @@
- #define PCIE_CORE_LINK_CTRL_STAT_REG				0xd0
- #define     PCIE_CORE_LINK_L0S_ENTRY				BIT(0)
- #define     PCIE_CORE_LINK_TRAINING				BIT(5)
-+#define     PCIE_CORE_LINK_SPEED_SHIFT				16
- #define     PCIE_CORE_LINK_WIDTH_SHIFT				20
- #define PCIE_CORE_ERR_CAPCTL_REG				0x118
- #define     PCIE_CORE_ERR_CAPCTL_ECRC_CHK_TX			BIT(5)
-@@ -201,6 +202,7 @@ struct advk_pcie {
- 	struct mutex msi_used_lock;
- 	u16 msi_msg;
- 	int root_bus_nr;
-+	int link_gen;
- 	struct pci_bridge_emul bridge;
+diff --git a/drivers/phy/broadcom/phy-bcm-sr-usb.c b/drivers/phy/broadcom/phy-bcm-sr-usb.c
+index fe6c58910e4c..7c7862b4f41f 100644
+--- a/drivers/phy/broadcom/phy-bcm-sr-usb.c
++++ b/drivers/phy/broadcom/phy-bcm-sr-usb.c
+@@ -16,8 +16,6 @@ enum bcm_usb_phy_version {
  };
  
-@@ -225,20 +227,16 @@ static int advk_pcie_link_up(struct advk_pcie *pcie)
+ enum bcm_usb_phy_reg {
+-	PLL_NDIV_FRAC,
+-	PLL_NDIV_INT,
+ 	PLL_CTRL,
+ 	PHY_CTRL,
+ 	PHY_PLL_CTRL,
+@@ -31,18 +29,11 @@ static const u8 bcm_usb_combo_phy_ss[] = {
+ };
  
- static int advk_pcie_wait_for_link(struct advk_pcie *pcie)
- {
--	struct device *dev = &pcie->pdev->dev;
- 	int retries;
+ static const u8 bcm_usb_combo_phy_hs[] = {
+-	[PLL_NDIV_FRAC]	= 0x04,
+-	[PLL_NDIV_INT]	= 0x08,
+ 	[PLL_CTRL]	= 0x0c,
+ 	[PHY_CTRL]	= 0x10,
+ };
  
- 	/* check if the link is up or not */
- 	for (retries = 0; retries < LINK_WAIT_MAX_RETRIES; retries++) {
--		if (advk_pcie_link_up(pcie)) {
--			dev_info(dev, "link up\n");
-+		if (advk_pcie_link_up(pcie))
- 			return 0;
--		}
- 
- 		usleep_range(LINK_WAIT_USLEEP_MIN, LINK_WAIT_USLEEP_MAX);
- 	}
- 
--	dev_err(dev, "link never came up\n");
- 	return -ETIMEDOUT;
- }
- 
-@@ -253,6 +251,85 @@ static void advk_pcie_wait_for_retrain(struct advk_pcie *pcie)
- 	}
- }
- 
-+static int advk_pcie_train_at_gen(struct advk_pcie *pcie, int gen)
-+{
-+	int ret, neg_gen;
-+	u32 reg;
-+
-+	/* Setup link speed */
-+	reg = advk_readl(pcie, PCIE_CORE_CTRL0_REG);
-+	reg &= ~PCIE_GEN_SEL_MSK;
-+	if (gen == 3)
-+		reg |= SPEED_GEN_3;
-+	else if (gen == 2)
-+		reg |= SPEED_GEN_2;
-+	else
-+		reg |= SPEED_GEN_1;
-+	advk_writel(pcie, reg, PCIE_CORE_CTRL0_REG);
-+
-+	/*
-+	 * Enable link training. This is not needed in every call to this
-+	 * function, just once suffices, but it does not break anything either.
-+	 */
-+	reg = advk_readl(pcie, PCIE_CORE_CTRL0_REG);
-+	reg |= LINK_TRAINING_EN;
-+	advk_writel(pcie, reg, PCIE_CORE_CTRL0_REG);
-+
-+	/*
-+	 * Start link training immediately after enabling it.
-+	 * This solves problems for some buggy cards.
-+	 */
-+	reg = advk_readl(pcie, PCIE_CORE_LINK_CTRL_STAT_REG);
-+	reg |= PCIE_CORE_LINK_TRAINING;
-+	advk_writel(pcie, reg, PCIE_CORE_LINK_CTRL_STAT_REG);
-+
-+	ret = advk_pcie_wait_for_link(pcie);
-+	if (ret)
-+		return ret;
-+
-+	reg = advk_readl(pcie, PCIE_CORE_LINK_CTRL_STAT_REG);
-+	neg_gen = (reg >> PCIE_CORE_LINK_SPEED_SHIFT) & 0xf;
-+
-+	return neg_gen;
-+}
-+
-+static void advk_pcie_train_link(struct advk_pcie *pcie)
-+{
-+	struct device *dev = &pcie->pdev->dev;
-+	int neg_gen = -1, gen;
-+
-+	/*
-+	 * Try link training at link gen specified by device tree property
-+	 * 'max-link-speed'. If this fails, iteratively train at lower gen.
-+	 */
-+	for (gen = pcie->link_gen; gen > 0; --gen) {
-+		neg_gen = advk_pcie_train_at_gen(pcie, gen);
-+		if (neg_gen > 0)
-+			break;
-+	}
-+
-+	if (neg_gen < 0)
-+		goto err;
-+
-+	/*
-+	 * After successful training if negotiated gen is lower than requested,
-+	 * train again on negotiated gen. This solves some stability issues for
-+	 * some buggy gen1 cards.
-+	 */
-+	if (neg_gen < gen) {
-+		gen = neg_gen;
-+		neg_gen = advk_pcie_train_at_gen(pcie, gen);
-+	}
-+
-+	if (neg_gen == gen) {
-+		dev_info(dev, "link up at gen %i\n", gen);
-+		return;
-+	}
-+
-+err:
-+	dev_err(dev, "link never came up\n");
-+}
-+
- static void advk_pcie_setup_hw(struct advk_pcie *pcie)
- {
- 	u32 reg;
-@@ -288,12 +365,6 @@ static void advk_pcie_setup_hw(struct advk_pcie *pcie)
- 		PCIE_CORE_CTRL2_TD_ENABLE;
- 	advk_writel(pcie, reg, PCIE_CORE_CTRL2_REG);
- 
--	/* Set GEN2 */
--	reg = advk_readl(pcie, PCIE_CORE_CTRL0_REG);
--	reg &= ~PCIE_GEN_SEL_MSK;
--	reg |= SPEED_GEN_2;
--	advk_writel(pcie, reg, PCIE_CORE_CTRL0_REG);
+-#define HSPLL_NDIV_INT_VAL	0x13
+-#define HSPLL_NDIV_FRAC_VAL	0x1005
 -
- 	/* Set lane X1 */
- 	reg = advk_readl(pcie, PCIE_CORE_CTRL0_REG);
- 	reg &= ~LANE_CNT_MSK;
-@@ -341,20 +412,7 @@ static void advk_pcie_setup_hw(struct advk_pcie *pcie)
- 	 */
- 	msleep(PCI_PM_D3COLD_WAIT);
+ static const u8 bcm_usb_hs_phy[] = {
+-	[PLL_NDIV_FRAC]	= 0x0,
+-	[PLL_NDIV_INT]	= 0x4,
+ 	[PLL_CTRL]	= 0x8,
+ 	[PHY_CTRL]	= 0xc,
+ };
+@@ -52,7 +43,6 @@ enum pll_ctrl_bits {
+ 	SSPLL_SUSPEND_EN,
+ 	PLL_SEQ_START,
+ 	PLL_LOCK,
+-	PLL_PDIV,
+ };
  
--	/* Enable link training */
--	reg = advk_readl(pcie, PCIE_CORE_CTRL0_REG);
--	reg |= LINK_TRAINING_EN;
--	advk_writel(pcie, reg, PCIE_CORE_CTRL0_REG);
+ static const u8 u3pll_ctrl[] = {
+@@ -66,29 +56,17 @@ static const u8 u3pll_ctrl[] = {
+ #define HSPLL_PDIV_VAL		0x1
+ 
+ static const u8 u2pll_ctrl[] = {
+-	[PLL_PDIV]	= 1,
+ 	[PLL_RESETB]	= 5,
+ 	[PLL_LOCK]	= 6,
+ };
+ 
+ enum bcm_usb_phy_ctrl_bits {
+ 	CORERDY,
+-	AFE_LDO_PWRDWNB,
+-	AFE_PLL_PWRDWNB,
+-	AFE_BG_PWRDWNB,
+-	PHY_ISO,
+ 	PHY_RESETB,
+ 	PHY_PCTL,
+ };
+ 
+ #define PHY_PCTL_MASK	0xffff
+-/*
+- * 0x0806 of PCTL_VAL has below bits set
+- * BIT-8 : refclk divider 1
+- * BIT-3:2: device mode; mode is not effect
+- * BIT-1: soft reset active low
+- */
+-#define HSPHY_PCTL_VAL	0x0806
+ #define SSPHY_PCTL_VAL	0x0006
+ 
+ static const u8 u3phy_ctrl[] = {
+@@ -98,10 +76,6 @@ static const u8 u3phy_ctrl[] = {
+ 
+ static const u8 u2phy_ctrl[] = {
+ 	[CORERDY]		= 0,
+-	[AFE_LDO_PWRDWNB]	= 1,
+-	[AFE_PLL_PWRDWNB]	= 2,
+-	[AFE_BG_PWRDWNB]	= 3,
+-	[PHY_ISO]		= 4,
+ 	[PHY_RESETB]		= 5,
+ 	[PHY_PCTL]		= 6,
+ };
+@@ -186,38 +160,13 @@ static int bcm_usb_hs_phy_init(struct bcm_usb_phy_cfg *phy_cfg)
+ 	int ret = 0;
+ 	void __iomem *regs = phy_cfg->regs;
+ 	const u8 *offset;
+-	u32 rd_data;
+ 
+ 	offset = phy_cfg->offset;
+ 
+-	writel(HSPLL_NDIV_INT_VAL, regs + offset[PLL_NDIV_INT]);
+-	writel(HSPLL_NDIV_FRAC_VAL, regs + offset[PLL_NDIV_FRAC]);
 -
--	/*
--	 * Start link training immediately after enabling it.
--	 * This solves problems for some buggy cards.
--	 */
--	reg = advk_readl(pcie, PCIE_CORE_LINK_CTRL_STAT_REG);
--	reg |= PCIE_CORE_LINK_TRAINING;
--	advk_writel(pcie, reg, PCIE_CORE_LINK_CTRL_STAT_REG);
+-	rd_data = readl(regs + offset[PLL_CTRL]);
+-	rd_data &= ~(HSPLL_PDIV_MASK << u2pll_ctrl[PLL_PDIV]);
+-	rd_data |= (HSPLL_PDIV_VAL << u2pll_ctrl[PLL_PDIV]);
+-	writel(rd_data, regs + offset[PLL_CTRL]);
 -
--	advk_pcie_wait_for_link(pcie);
-+	advk_pcie_train_link(pcie);
+-	/* Set Core Ready high */
+-	bcm_usb_reg32_setbits(regs + offset[PHY_CTRL],
+-			      BIT(u2phy_ctrl[CORERDY]));
+-
+-	/* Maximum timeout for Core Ready done */
+-	msleep(30);
+-
++	bcm_usb_reg32_clrbits(regs + offset[PLL_CTRL],
++			      BIT(u2pll_ctrl[PLL_RESETB]));
+ 	bcm_usb_reg32_setbits(regs + offset[PLL_CTRL],
+ 			      BIT(u2pll_ctrl[PLL_RESETB]));
+-	bcm_usb_reg32_setbits(regs + offset[PHY_CTRL],
+-			      BIT(u2phy_ctrl[PHY_RESETB]));
+-
+-
+-	rd_data = readl(regs + offset[PHY_CTRL]);
+-	rd_data &= ~(PHY_PCTL_MASK << u2phy_ctrl[PHY_PCTL]);
+-	rd_data |= (HSPHY_PCTL_VAL << u2phy_ctrl[PHY_PCTL]);
+-	writel(rd_data, regs + offset[PHY_CTRL]);
+-
+-	/* Maximum timeout for PLL reset done */
+-	msleep(30);
  
- 	reg = advk_readl(pcie, PCIE_CORE_CMD_STATUS_REG);
- 	reg |= PCIE_CORE_CMD_MEM_ACCESS_EN |
-@@ -988,6 +1046,12 @@ static int advk_pcie_probe(struct platform_device *pdev)
- 	}
- 	pcie->root_bus_nr = bus->start;
- 
-+	ret = of_pci_get_max_link_speed(dev->of_node);
-+	if (ret <= 0 || ret > 3)
-+		pcie->link_gen = 3;
-+	else
-+		pcie->link_gen = ret;
-+
- 	advk_pcie_setup_hw(pcie);
- 
- 	advk_sw_pci_bridge_init(pcie);
+ 	ret = bcm_usb_pll_lock_check(regs + offset[PLL_CTRL],
+ 				     BIT(u2pll_ctrl[PLL_LOCK]));
 -- 
 2.25.1
 
