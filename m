@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F10E31FE8A3
+	by mail.lfdr.de (Postfix) with ESMTP id 021791FE8A1
 	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:50:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730420AbgFRCuI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:50:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35688 "EHLO mail.kernel.org"
+        id S1728422AbgFRCuC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:50:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728134AbgFRBJY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:09:24 -0400
+        id S1728146AbgFRBJZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:09:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4CA7F21D95;
-        Thu, 18 Jun 2020 01:09:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C086F21974;
+        Thu, 18 Jun 2020 01:09:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442563;
-        bh=K+mrTajsndKPiC8wLfTz3WLdxQVTm05TBMz1SzUWW/8=;
+        s=default; t=1592442564;
+        bh=GPCQ9o9OX610tutUcHN29RME33dv4QpzreXiArdMxI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zRSnW/aQTJsbRSisyr6oU/SrdDk/XcX/fBrnbFPS1sqU0nBms1I8TT6oxHn8XoHQc
-         w3cMGr2UYmYC7NpzcHM4zNZTElYCKQE/ZoYIdBUYI6mbnCTdfzU48mCmobOIhsRLbv
-         1ZUMASXVQseEFovQPr9BvmNuLx4xLGRSqClp8XBc=
+        b=Enf5E4lBLeV3zH8HIXGanKZ3trM/usw74hTVpi8lgdNI/a0CGKDsdMF7s39Z16qW9
+         ousyKx3kbChuBSkDhskUdDzH9HYycIsRihsef7snhotmZztj3fPY6Gqv7SpZehdy0E
+         B6O3/FD5axWECG4vAzYb12iyYwu7UDeKI6oji5nM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Emmanuel Nicolet <emmanuel.nicolet@gmail.com>,
-        Geoff Levand <geoff@infradead.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org,
-        linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 058/388] ps3disk: use the default segment boundary
-Date:   Wed, 17 Jun 2020 21:02:35 -0400
-Message-Id: <20200618010805.600873-58-sashal@kernel.org>
+Cc:     Andre Przywara <andre.przywara@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 059/388] arm64: dts: fvp/juno: Fix node address fields
+Date:   Wed, 17 Jun 2020 21:02:36 -0400
+Message-Id: <20200618010805.600873-59-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
@@ -45,87 +44,170 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Emmanuel Nicolet <emmanuel.nicolet@gmail.com>
+From: Andre Przywara <andre.przywara@arm.com>
 
-[ Upstream commit 720bc316690bd27dea9d71510b50f0cd698ffc32 ]
+[ Upstream commit bb5cce12ac717c7462217cd493ed701d12d6dbce ]
 
-Since commit dcebd755926b ("block: use bio_for_each_bvec() to compute
-multi-page bvec count"), the kernel will bug_on on the PS3 because
-bio_split() is called with sectors == 0:
+The Arm Ltd. boards were using an outdated address convention in the DT
+node names, by separating the high from the low 32-bits of an address by
+a comma.
 
-  kernel BUG at block/bio.c:1853!
-  Oops: Exception in kernel mode, sig: 5 [#1]
-  BE PAGE_SIZE=4K MMU=Hash PREEMPT SMP NR_CPUS=8 NUMA PS3
-  Modules linked in: firewire_sbp2 rtc_ps3(+) soundcore ps3_gelic(+) \
-  ps3rom(+) firewire_core ps3vram(+) usb_common crc_itu_t
-  CPU: 0 PID: 97 Comm: blkid Not tainted 5.3.0-rc4 #1
-  NIP:  c00000000027d0d0 LR: c00000000027d0b0 CTR: 0000000000000000
-  REGS: c00000000135ae90 TRAP: 0700   Not tainted  (5.3.0-rc4)
-  MSR:  8000000000028032 <SF,EE,IR,DR,RI>  CR: 44008240  XER: 20000000
-  IRQMASK: 0
-  GPR00: c000000000289368 c00000000135b120 c00000000084a500 c000000004ff8300
-  GPR04: 0000000000000c00 c000000004c905e0 c000000004c905e0 000000000000ffff
-  GPR08: 0000000000000000 0000000000000001 0000000000000000 000000000000ffff
-  GPR12: 0000000000000000 c0000000008ef000 000000000000003e 0000000000080001
-  GPR16: 0000000000000100 000000000000ffff 0000000000000000 0000000000000004
-  GPR20: c00000000062fd7e 0000000000000001 000000000000ffff 0000000000000080
-  GPR24: c000000000781788 c00000000135b350 0000000000000080 c000000004c905e0
-  GPR28: c00000000135b348 c000000004ff8300 0000000000000000 c000000004c90000
-  NIP [c00000000027d0d0] .bio_split+0x28/0xac
-  LR [c00000000027d0b0] .bio_split+0x8/0xac
-  Call Trace:
-  [c00000000135b120] [c00000000027d130] .bio_split+0x88/0xac (unreliable)
-  [c00000000135b1b0] [c000000000289368] .__blk_queue_split+0x11c/0x53c
-  [c00000000135b2d0] [c00000000028f614] .blk_mq_make_request+0x80/0x7d4
-  [c00000000135b3d0] [c000000000283a8c] .generic_make_request+0x118/0x294
-  [c00000000135b4b0] [c000000000283d34] .submit_bio+0x12c/0x174
-  [c00000000135b580] [c000000000205a44] .mpage_bio_submit+0x3c/0x4c
-  [c00000000135b600] [c000000000206184] .mpage_readpages+0xa4/0x184
-  [c00000000135b750] [c0000000001ff8fc] .blkdev_readpages+0x24/0x38
-  [c00000000135b7c0] [c0000000001589f0] .read_pages+0x6c/0x1a8
-  [c00000000135b8b0] [c000000000158c74] .__do_page_cache_readahead+0x118/0x184
-  [c00000000135b9b0] [c0000000001591a8] .force_page_cache_readahead+0xe4/0xe8
-  [c00000000135ba50] [c00000000014fc24] .generic_file_read_iter+0x1d8/0x830
-  [c00000000135bb50] [c0000000001ffadc] .blkdev_read_iter+0x40/0x5c
-  [c00000000135bbc0] [c0000000001b9e00] .new_sync_read+0x144/0x1a0
-  [c00000000135bcd0] [c0000000001bc454] .vfs_read+0xa0/0x124
-  [c00000000135bd70] [c0000000001bc7a4] .ksys_read+0x70/0xd8
-  [c00000000135be20] [c00000000000a524] system_call+0x5c/0x70
-  Instruction dump:
-  7fe3fb78 482e30dc 7c0802a6 482e3085 7c9e2378 f821ff71 7ca42b78 7d3e00d0
-  7c7d1b78 79290fe0 7cc53378 69290001 <0b090000> 81230028 7bca0020 7929ba62
-  [ end trace 313fec760f30aa1f ]---
+Remove the comma from the node name suffix to be DT spec compliant.
 
-The problem originates from setting the segment boundary of the
-request queue to -1UL. This makes get_max_segment_size() return zero
-when offset is zero, whatever the max segment size. The test with
-BLK_SEG_BOUNDARY_MASK fails and 'mask - (mask & offset) + 1' overflows
-to zero in the return statement.
-
-Not setting the segment boundary and using the default
-value (BLK_SEG_BOUNDARY_MASK) fixes the problem.
-
-Signed-off-by: Emmanuel Nicolet <emmanuel.nicolet@gmail.com>
-Signed-off-by: Geoff Levand <geoff@infradead.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/060a416c43138f45105c0540eff1a45539f7e2fc.1589049250.git.geoff@infradead.org
+Link: https://lore.kernel.org/r/20200513103016.130417-3-andre.przywara@arm.com
+Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/ps3disk.c | 1 -
- 1 file changed, 1 deletion(-)
+ arch/arm/boot/dts/vexpress-v2m-rs1.dtsi              | 10 +++++-----
+ arch/arm64/boot/dts/arm/foundation-v8.dtsi           |  4 ++--
+ arch/arm64/boot/dts/arm/juno-motherboard.dtsi        |  6 +++---
+ arch/arm64/boot/dts/arm/rtsm_ve-motherboard-rs2.dtsi |  2 +-
+ arch/arm64/boot/dts/arm/rtsm_ve-motherboard.dtsi     |  6 +++---
+ 5 files changed, 14 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/block/ps3disk.c b/drivers/block/ps3disk.c
-index c5c6487a19d5..7b55811c2a81 100644
---- a/drivers/block/ps3disk.c
-+++ b/drivers/block/ps3disk.c
-@@ -454,7 +454,6 @@ static int ps3disk_probe(struct ps3_system_bus_device *_dev)
- 	queue->queuedata = dev;
+diff --git a/arch/arm/boot/dts/vexpress-v2m-rs1.dtsi b/arch/arm/boot/dts/vexpress-v2m-rs1.dtsi
+index 5c183483ec3b..8010cdcdb37a 100644
+--- a/arch/arm/boot/dts/vexpress-v2m-rs1.dtsi
++++ b/arch/arm/boot/dts/vexpress-v2m-rs1.dtsi
+@@ -31,7 +31,7 @@ motherboard {
+ 			#interrupt-cells = <1>;
+ 			ranges;
  
- 	blk_queue_max_hw_sectors(queue, dev->bounce_size >> 9);
--	blk_queue_segment_boundary(queue, -1UL);
- 	blk_queue_dma_alignment(queue, dev->blk_size-1);
- 	blk_queue_logical_block_size(queue, dev->blk_size);
+-			nor_flash: flash@0,00000000 {
++			nor_flash: flash@0 {
+ 				compatible = "arm,vexpress-flash", "cfi-flash";
+ 				reg = <0 0x00000000 0x04000000>,
+ 				      <4 0x00000000 0x04000000>;
+@@ -41,13 +41,13 @@ partitions {
+ 				};
+ 			};
  
+-			psram@1,00000000 {
++			psram@100000000 {
+ 				compatible = "arm,vexpress-psram", "mtd-ram";
+ 				reg = <1 0x00000000 0x02000000>;
+ 				bank-width = <4>;
+ 			};
+ 
+-			ethernet@2,02000000 {
++			ethernet@202000000 {
+ 				compatible = "smsc,lan9118", "smsc,lan9115";
+ 				reg = <2 0x02000000 0x10000>;
+ 				interrupts = <15>;
+@@ -59,14 +59,14 @@ ethernet@2,02000000 {
+ 				vddvario-supply = <&v2m_fixed_3v3>;
+ 			};
+ 
+-			usb@2,03000000 {
++			usb@203000000 {
+ 				compatible = "nxp,usb-isp1761";
+ 				reg = <2 0x03000000 0x20000>;
+ 				interrupts = <16>;
+ 				port1-otg;
+ 			};
+ 
+-			iofpga@3,00000000 {
++			iofpga@300000000 {
+ 				compatible = "simple-bus";
+ 				#address-cells = <1>;
+ 				#size-cells = <1>;
+diff --git a/arch/arm64/boot/dts/arm/foundation-v8.dtsi b/arch/arm64/boot/dts/arm/foundation-v8.dtsi
+index 60ec37d6c9d3..e2da63f78298 100644
+--- a/arch/arm64/boot/dts/arm/foundation-v8.dtsi
++++ b/arch/arm64/boot/dts/arm/foundation-v8.dtsi
+@@ -151,7 +151,7 @@ bus@8000000 {
+ 				<0 0 41 &gic 0 GIC_SPI 41 IRQ_TYPE_LEVEL_HIGH>,
+ 				<0 0 42 &gic 0 GIC_SPI 42 IRQ_TYPE_LEVEL_HIGH>;
+ 
+-		ethernet@2,02000000 {
++		ethernet@202000000 {
+ 			compatible = "smsc,lan91c111";
+ 			reg = <2 0x02000000 0x10000>;
+ 			interrupts = <15>;
+@@ -178,7 +178,7 @@ v2m_refclk32khz: refclk32khz {
+ 			clock-output-names = "v2m:refclk32khz";
+ 		};
+ 
+-		iofpga@3,00000000 {
++		iofpga@300000000 {
+ 			compatible = "simple-bus";
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
+diff --git a/arch/arm64/boot/dts/arm/juno-motherboard.dtsi b/arch/arm64/boot/dts/arm/juno-motherboard.dtsi
+index e3983ded3c3c..d5cefddde08c 100644
+--- a/arch/arm64/boot/dts/arm/juno-motherboard.dtsi
++++ b/arch/arm64/boot/dts/arm/juno-motherboard.dtsi
+@@ -103,7 +103,7 @@ nmi-button {
+ 				};
+ 			};
+ 
+-			flash@0,00000000 {
++			flash@0 {
+ 				/* 2 * 32MiB NOR Flash memory mounted on CS0 */
+ 				compatible = "arm,vexpress-flash", "cfi-flash";
+ 				reg = <0 0x00000000 0x04000000>;
+@@ -120,7 +120,7 @@ partitions {
+ 				};
+ 			};
+ 
+-			ethernet@2,00000000 {
++			ethernet@200000000 {
+ 				compatible = "smsc,lan9118", "smsc,lan9115";
+ 				reg = <2 0x00000000 0x10000>;
+ 				interrupts = <3>;
+@@ -133,7 +133,7 @@ ethernet@2,00000000 {
+ 				vddvario-supply = <&mb_fixed_3v3>;
+ 			};
+ 
+-			iofpga@3,00000000 {
++			iofpga@300000000 {
+ 				compatible = "simple-bus";
+ 				#address-cells = <1>;
+ 				#size-cells = <1>;
+diff --git a/arch/arm64/boot/dts/arm/rtsm_ve-motherboard-rs2.dtsi b/arch/arm64/boot/dts/arm/rtsm_ve-motherboard-rs2.dtsi
+index 60703b5763c6..350cbf17e8b4 100644
+--- a/arch/arm64/boot/dts/arm/rtsm_ve-motherboard-rs2.dtsi
++++ b/arch/arm64/boot/dts/arm/rtsm_ve-motherboard-rs2.dtsi
+@@ -9,7 +9,7 @@ bus@8000000 {
+ 		motherboard {
+ 			arm,v2m-memory-map = "rs2";
+ 
+-			iofpga@3,00000000 {
++			iofpga@300000000 {
+ 				virtio-p9@140000 {
+ 					compatible = "virtio,mmio";
+ 					reg = <0x140000 0x200>;
+diff --git a/arch/arm64/boot/dts/arm/rtsm_ve-motherboard.dtsi b/arch/arm64/boot/dts/arm/rtsm_ve-motherboard.dtsi
+index e333c8d2d0e4..d1bfa62ca073 100644
+--- a/arch/arm64/boot/dts/arm/rtsm_ve-motherboard.dtsi
++++ b/arch/arm64/boot/dts/arm/rtsm_ve-motherboard.dtsi
+@@ -17,14 +17,14 @@ motherboard {
+ 			#interrupt-cells = <1>;
+ 			ranges;
+ 
+-			flash@0,00000000 {
++			flash@0 {
+ 				compatible = "arm,vexpress-flash", "cfi-flash";
+ 				reg = <0 0x00000000 0x04000000>,
+ 				      <4 0x00000000 0x04000000>;
+ 				bank-width = <4>;
+ 			};
+ 
+-			ethernet@2,02000000 {
++			ethernet@202000000 {
+ 				compatible = "smsc,lan91c111";
+ 				reg = <2 0x02000000 0x10000>;
+ 				interrupts = <15>;
+@@ -51,7 +51,7 @@ v2m_refclk32khz: refclk32khz {
+ 				clock-output-names = "v2m:refclk32khz";
+ 			};
+ 
+-			iofpga@3,00000000 {
++			iofpga@300000000 {
+ 				compatible = "simple-bus";
+ 				#address-cells = <1>;
+ 				#size-cells = <1>;
 -- 
 2.25.1
 
