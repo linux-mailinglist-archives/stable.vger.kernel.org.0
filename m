@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 673C41FE05C
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:48:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE3E81FE059
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:48:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732160AbgFRBr1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:47:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36770 "EHLO mail.kernel.org"
+        id S1732121AbgFRBrT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:47:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732049AbgFRB2N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:28:13 -0400
+        id S1732051AbgFRB2P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:28:15 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5DDCD2220B;
-        Thu, 18 Jun 2020 01:28:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 83721221F3;
+        Thu, 18 Jun 2020 01:28:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443693;
-        bh=IGcZDGzQwT8lDapCx09AldDJfWfNz+Syf1bWHEnISck=;
+        s=default; t=1592443694;
+        bh=WJhUlbUTIN1K73n4tY0V57/KVBPeXnvmTmlAw1UHdiw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BdYpaK9QdpiC/mfXVaO/Xz01dCESmLDua47YylgMA4xPTQNT9T93rR9o03L39RkF/
-         bmgmV9fUnb4kAs69N9PNUniO+N5RDSXiF4SgEPl5hG3s90Xd12/nNaYyTjpnbg7rnW
-         CpR3tFj2Ngaj7NRE3SOu8suPpd9C+ZmkUpoCXM98=
+        b=JNyvPbHXxkChM2UkctyvAHhKRQT68s/jzIHHd7rjpTkIN1eJBPFif8sY90Q1sZAT/
+         NGTjcqwE9yqGEmUrGVCWqW5/SKV1pSlYnO9bAnqEIgaAqkEc2oT88IWq2aROLK76GG
+         LuZBdmT6dblUp+fOJ34IdBDZqEyMZbAAioA313FE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bob Peterson <rpeterso@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 4.14 104/108] gfs2: fix use-after-free on transaction ail lists
-Date:   Wed, 17 Jun 2020 21:25:56 -0400
-Message-Id: <20200618012600.608744-104-sashal@kernel.org>
+Cc:     tannerlove <tannerlove@google.com>,
+        Willem de Bruijn <willemb@google.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 105/108] selftests/net: in timestamping, strncpy needs to preserve null byte
+Date:   Wed, 17 Jun 2020 21:25:57 -0400
+Message-Id: <20200618012600.608744-105-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012600.608744-1-sashal@kernel.org>
 References: <20200618012600.608744-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,77 +46,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: tannerlove <tannerlove@google.com>
 
-[ Upstream commit 83d060ca8d90fa1e3feac227f995c013100862d3 ]
+[ Upstream commit 8027bc0307ce59759b90679fa5d8b22949586d20 ]
 
-Before this patch, transactions could be merged into the system
-transaction by function gfs2_merge_trans(), but the transaction ail
-lists were never merged. Because the ail flushing mechanism can run
-separately, bd elements can be attached to the transaction's buffer
-list during the transaction (trans_add_meta, etc) but quickly moved
-to its ail lists. Later, in function gfs2_trans_end, the transaction
-can be freed (by gfs2_trans_end) while it still has bd elements
-queued to its ail lists, which can cause it to either lose track of
-the bd elements altogether (memory leak) or worse, reference the bd
-elements after the parent transaction has been freed.
+If user passed an interface option longer than 15 characters, then
+device.ifr_name and hwtstamp.ifr_name became non-null-terminated
+strings. The compiler warned about this:
 
-Although I've not seen any serious consequences, the problem becomes
-apparent with the previous patch's addition of:
+timestamping.c:353:2: warning: ‘strncpy’ specified bound 16 equals \
+destination size [-Wstringop-truncation]
+  353 |  strncpy(device.ifr_name, interface, sizeof(device.ifr_name));
 
-	gfs2_assert_warn(sdp, list_empty(&tr->tr_ail1_list));
-
-to function gfs2_trans_free().
-
-This patch adds logic into gfs2_merge_trans() to move the merged
-transaction's ail lists to the sdp transaction. This prevents the
-use-after-free. To do this properly, we need to hold the ail lock,
-so we pass sdp into the function instead of the transaction itself.
-
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Fixes: cb9eff097831 ("net: new user space API for time stamping of incoming and outgoing packets")
+Signed-off-by: Tanner Love <tannerlove@google.com>
+Acked-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/log.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ .../selftests/networking/timestamping/timestamping.c   | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/fs/gfs2/log.c b/fs/gfs2/log.c
-index a3208511f35a..f30418911e1b 100644
---- a/fs/gfs2/log.c
-+++ b/fs/gfs2/log.c
-@@ -804,8 +804,10 @@ void gfs2_log_flush(struct gfs2_sbd *sdp, struct gfs2_glock *gl,
-  * @new: New transaction to be merged
-  */
+diff --git a/tools/testing/selftests/networking/timestamping/timestamping.c b/tools/testing/selftests/networking/timestamping/timestamping.c
+index 5cdfd743447b..900ed4b47899 100644
+--- a/tools/testing/selftests/networking/timestamping/timestamping.c
++++ b/tools/testing/selftests/networking/timestamping/timestamping.c
+@@ -332,10 +332,16 @@ int main(int argc, char **argv)
+ 	int val;
+ 	socklen_t len;
+ 	struct timeval next;
++	size_t if_len;
  
--static void gfs2_merge_trans(struct gfs2_trans *old, struct gfs2_trans *new)
-+static void gfs2_merge_trans(struct gfs2_sbd *sdp, struct gfs2_trans *new)
- {
-+	struct gfs2_trans *old = sdp->sd_log_tr;
-+
- 	WARN_ON_ONCE(!test_bit(TR_ATTACHED, &old->tr_flags));
+ 	if (argc < 2)
+ 		usage(0);
+ 	interface = argv[1];
++	if_len = strlen(interface);
++	if (if_len >= IFNAMSIZ) {
++		printf("interface name exceeds IFNAMSIZ\n");
++		exit(1);
++	}
  
- 	old->tr_num_buf_new	+= new->tr_num_buf_new;
-@@ -817,6 +819,11 @@ static void gfs2_merge_trans(struct gfs2_trans *old, struct gfs2_trans *new)
+ 	for (i = 2; i < argc; i++) {
+ 		if (!strcasecmp(argv[i], "SO_TIMESTAMP"))
+@@ -369,12 +375,12 @@ int main(int argc, char **argv)
+ 		bail("socket");
  
- 	list_splice_tail_init(&new->tr_databuf, &old->tr_databuf);
- 	list_splice_tail_init(&new->tr_buf, &old->tr_buf);
-+
-+	spin_lock(&sdp->sd_ail_lock);
-+	list_splice_tail_init(&new->tr_ail1_list, &old->tr_ail1_list);
-+	list_splice_tail_init(&new->tr_ail2_list, &old->tr_ail2_list);
-+	spin_unlock(&sdp->sd_ail_lock);
- }
+ 	memset(&device, 0, sizeof(device));
+-	strncpy(device.ifr_name, interface, sizeof(device.ifr_name));
++	memcpy(device.ifr_name, interface, if_len + 1);
+ 	if (ioctl(sock, SIOCGIFADDR, &device) < 0)
+ 		bail("getting interface IP address");
  
- static void log_refund(struct gfs2_sbd *sdp, struct gfs2_trans *tr)
-@@ -828,7 +835,7 @@ static void log_refund(struct gfs2_sbd *sdp, struct gfs2_trans *tr)
- 	gfs2_log_lock(sdp);
- 
- 	if (sdp->sd_log_tr) {
--		gfs2_merge_trans(sdp->sd_log_tr, tr);
-+		gfs2_merge_trans(sdp, tr);
- 	} else if (tr->tr_num_buf_new || tr->tr_num_databuf_new) {
- 		gfs2_assert_withdraw(sdp, test_bit(TR_ALLOCED, &tr->tr_flags));
- 		sdp->sd_log_tr = tr;
+ 	memset(&hwtstamp, 0, sizeof(hwtstamp));
+-	strncpy(hwtstamp.ifr_name, interface, sizeof(hwtstamp.ifr_name));
++	memcpy(hwtstamp.ifr_name, interface, if_len + 1);
+ 	hwtstamp.ifr_data = (void *)&hwconfig;
+ 	memset(&hwconfig, 0, sizeof(hwconfig));
+ 	hwconfig.tx_type =
 -- 
 2.25.1
 
