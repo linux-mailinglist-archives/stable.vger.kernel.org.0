@@ -2,54 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D5071FF946
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 18:31:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EF6C1FF94D
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 18:33:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727880AbgFRQbh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Jun 2020 12:31:37 -0400
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:52001 "EHLO
+        id S1728607AbgFRQdW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Jun 2020 12:33:22 -0400
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:56369 "EHLO
         wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726928AbgFRQbf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Jun 2020 12:31:35 -0400
+        by vger.kernel.org with ESMTP id S1726928AbgFRQdT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Jun 2020 12:33:19 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 563C9395;
-        Thu, 18 Jun 2020 12:31:34 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Thu, 18 Jun 2020 12:31:34 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id 1E97C9DE;
+        Thu, 18 Jun 2020 12:33:19 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Thu, 18 Jun 2020 12:33:19 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=dunYNS
-        ttOx0yoB7MsCa6vtksxj4SSPDzatIfl7WcG6w=; b=ozHnUy+ntxvRHf5J804FyI
-        rjDfyBKbYz9PDrChH3ZJb8Iye/ii5W16sm0R7C6yIj/j0pjDHqVIsqMJmhF/q/VA
-        AdaiOx2lwDvPmUc1TU/P2uA/RY952RrauEziEvfsqssGKUywgRP2j/qivskhNuyj
-        ho6fHOT+Um7xPwtqIX/Dd/D/CimP4E05l18GXCsWSW93UJx4TwpwjzBQuT3VCSHE
-        3HGCcPQp3qBvNg7HHAWbbASdzLorjOJfUjAMi9rJgwZRPZ6Jnu0Uzhq6umB8XzZG
-        ENCrdr36DXBUej1r/R+Xs/QXGuIdZZpGh+Ej7uJdVq8b/hHWeFgQKbRS20GN0Xzg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=lS10pT
+        NtD48hUDR7gs2XCpjA2VdPc1vN/4oF/di4bMM=; b=E6a00kNEw/SJMHMWLYTDBF
+        MoblXPzifS+AfyyxA56CTSk0mqo09vM26d4i5FSZgKNcRueLIzDH/8zSAzbkEO6g
+        Eka4Xfj5lgcYV8A6JtrzqV0NeeVz18dHH2egUAG0etBJJYp380OXuSsMjX9kdDG9
+        UCalACtlrhIaxjqQNPr9eVRuuQfoRQtzoL+SJp+pXC6ylhSj4pvCAbsmQkvtQGIn
+        0PROeSCC4qDqFy8PB9JsMEaEeG8xU2Gi+VzBts1sohUdOxx2gg9vcZgxSRdGnpzI
+        yXO5rMDHjJKcI8MPDwrpcBiG6aSBM1H+gE5yZgL1WAY9bLhY3wKUzd+zHIuzx/4Q
         ==
-X-ME-Sender: <xms:5ZbrXi75DgCaNX40NukNrgK7gVMc4DGVBjimi01cS5_7p1BZ8C7Hlg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudejgedguddtvdcutefuodetggdotefrod
+X-ME-Sender: <xms:TpfrXrB0Ex6WoaN5a8sztEizBwL0CFqPjnXTc4hNpNDb8fHsEdeF0g>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudejgedguddtgecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
-    rhhgqeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehje
-    duteevueevledujeejgfetheenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhs
-    thgvrhfuihiivgepieenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
-    hhrdgtohhm
-X-ME-Proxy: <xmx:5ZbrXr6InVxfEVQRDw99S8DqiXBOTFS1g_O53I_iaooFmj_eKOv3FA>
-    <xmx:5ZbrXhdFdsJa8GGxOpit2aS4nwCqalxr-t6zToT8qn3Zj_MOe3W-iA>
-    <xmx:5ZbrXvKAhfY9Os37mKmzrhh775vg1PjJJIlLM6ItCGPshT6pi7u6fg>
-    <xmx:5ZbrXgxOyPMQE69p8v6tlq9QWkGvw_t5Uz6HUs9k-JQMURidU_PwiSZV6MM>
+    rhhgqeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduud
+    ekgeefleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhp
+    peekfedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmh
+    epmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:TpfrXhjrVMMUmmoASAUAOG_Y_wF7kbSfY6Mxm0wn5cGtmA8ouZlpoA>
+    <xmx:TpfrXmkB4Pd1yF57vka3w_76BhDSVhjbhMoL3gSxDIT5asVIWdA5zA>
+    <xmx:TpfrXtxbVGsJvunDHOHZjGl6Zc6Z_xr_OFVKlPFluDN4WX8E2scdkA>
+    <xmx:TpfrXvNoMj6-puDPXoBzae4ahI_ZonsKBs_WWDFXs_j69s723t5bWzWQ4f8>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 84CC53061CCB;
-        Thu, 18 Jun 2020 12:31:33 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] ima: Set again build_ima_appraise variable" failed to apply to 5.7-stable tree
-To:     krzysztof.struczynski@huawei.com, roberto.sassu@huawei.com,
-        zohar@linux.ibm.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 15DA93280068;
+        Thu, 18 Jun 2020 12:33:17 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] ext4: fix race between ext4_sync_parent() and rename()" failed to apply to 4.4-stable tree
+To:     ebiggers@google.com, tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 18 Jun 2020 18:31:19 +0200
-Message-ID: <15924978792949@kroah.com>
+Date:   Thu, 18 Jun 2020 18:33:10 +0200
+Message-ID: <159249799084104@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.7-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,47 +69,106 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b59fda449cf07f2db3be3a67142e6c000f5e8d79 Mon Sep 17 00:00:00 2001
-From: Krzysztof Struczynski <krzysztof.struczynski@huawei.com>
-Date: Mon, 27 Apr 2020 12:28:59 +0200
-Subject: [PATCH] ima: Set again build_ima_appraise variable
+From 08adf452e628b0e2ce9a01048cfbec52353703d7 Mon Sep 17 00:00:00 2001
+From: Eric Biggers <ebiggers@google.com>
+Date: Wed, 6 May 2020 11:31:40 -0700
+Subject: [PATCH] ext4: fix race between ext4_sync_parent() and rename()
 
-After adding the new add_rule() function in commit c52657d93b05
-("ima: refactor ima_init_policy()"), all appraisal flags are added to the
-temp_ima_appraise variable. Revert to the previous behavior instead of
-removing build_ima_appraise, to benefit from the protection offered by
-__ro_after_init.
+'igrab(d_inode(dentry->d_parent))' without holding dentry->d_lock is
+broken because without d_lock, d_parent can be concurrently changed due
+to a rename().  Then if the old directory is immediately deleted, old
+d_parent->inode can be NULL.  That causes a NULL dereference in igrab().
 
-The mentioned commit introduced a bug, as it makes all the flags
-modifiable, while build_ima_appraise flags can be protected with
-__ro_after_init.
+To fix this, use dget_parent() to safely grab a reference to the parent
+dentry, which pins the inode.  This also eliminates the need to use
+d_find_any_alias() other than for the initial inode, as we no longer
+throw away the dentry at each step.
 
-Cc: stable@vger.kernel.org # 5.0.x
-Fixes: c52657d93b05 ("ima: refactor ima_init_policy()")
-Co-developed-by: Roberto Sassu <roberto.sassu@huawei.com>
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-Signed-off-by: Krzysztof Struczynski <krzysztof.struczynski@huawei.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+This is an extremely hard race to hit, but it is possible.  Adding a
+udelay() in between the reads of ->d_parent and its ->d_inode makes it
+reproducible on a no-journal filesystem using the following program:
 
-diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
-index ea9b991f0232..ef7f68cc935e 100644
---- a/security/integrity/ima/ima_policy.c
-+++ b/security/integrity/ima/ima_policy.c
-@@ -643,8 +643,14 @@ static void add_rules(struct ima_rule_entry *entries, int count,
+    #include <fcntl.h>
+    #include <unistd.h>
+
+    int main()
+    {
+        if (fork()) {
+            for (;;) {
+                mkdir("dir1", 0700);
+                int fd = open("dir1/file", O_RDWR|O_CREAT|O_SYNC);
+                write(fd, "X", 1);
+                close(fd);
+            }
+        } else {
+            mkdir("dir2", 0700);
+            for (;;) {
+                rename("dir1/file", "dir2/file");
+                rmdir("dir1");
+            }
+        }
+    }
+
+Fixes: d59729f4e794 ("ext4: fix races in ext4_sync_parent()")
+Cc: stable@vger.kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Link: https://lore.kernel.org/r/20200506183140.541194-1-ebiggers@kernel.org
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+
+diff --git a/fs/ext4/fsync.c b/fs/ext4/fsync.c
+index e10206e7f4bb..093c359952cd 100644
+--- a/fs/ext4/fsync.c
++++ b/fs/ext4/fsync.c
+@@ -44,30 +44,28 @@
+  */
+ static int ext4_sync_parent(struct inode *inode)
+ {
+-	struct dentry *dentry = NULL;
+-	struct inode *next;
++	struct dentry *dentry, *next;
+ 	int ret = 0;
  
- 			list_add_tail(&entry->list, &ima_policy_rules);
- 		}
--		if (entries[i].action == APPRAISE)
--			temp_ima_appraise |= ima_appraise_flag(entries[i].func);
-+		if (entries[i].action == APPRAISE) {
-+			if (entries != build_appraise_rules)
-+				temp_ima_appraise |=
-+					ima_appraise_flag(entries[i].func);
-+			else
-+				build_ima_appraise |=
-+					ima_appraise_flag(entries[i].func);
-+		}
+ 	if (!ext4_test_inode_state(inode, EXT4_STATE_NEWENTRY))
+ 		return 0;
+-	inode = igrab(inode);
++	dentry = d_find_any_alias(inode);
++	if (!dentry)
++		return 0;
+ 	while (ext4_test_inode_state(inode, EXT4_STATE_NEWENTRY)) {
+ 		ext4_clear_inode_state(inode, EXT4_STATE_NEWENTRY);
+-		dentry = d_find_any_alias(inode);
+-		if (!dentry)
+-			break;
+-		next = igrab(d_inode(dentry->d_parent));
++
++		next = dget_parent(dentry);
+ 		dput(dentry);
+-		if (!next)
+-			break;
+-		iput(inode);
+-		inode = next;
++		dentry = next;
++		inode = dentry->d_inode;
++
+ 		/*
+ 		 * The directory inode may have gone through rmdir by now. But
+ 		 * the inode itself and its blocks are still allocated (we hold
+-		 * a reference to the inode so it didn't go through
+-		 * ext4_evict_inode()) and so we are safe to flush metadata
+-		 * blocks and the inode.
++		 * a reference to the inode via its dentry), so it didn't go
++		 * through ext4_evict_inode()) and so we are safe to flush
++		 * metadata blocks and the inode.
+ 		 */
+ 		ret = sync_mapping_buffers(inode->i_mapping);
+ 		if (ret)
+@@ -76,7 +74,7 @@ static int ext4_sync_parent(struct inode *inode)
+ 		if (ret)
+ 			break;
  	}
+-	iput(inode);
++	dput(dentry);
+ 	return ret;
  }
  
 
