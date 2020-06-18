@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 28A8E1FE3D3
+	by mail.lfdr.de (Postfix) with ESMTP id 971441FE3D4
 	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:14:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387509AbgFRCN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2387501AbgFRCN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 17 Jun 2020 22:13:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53416 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:53444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730435AbgFRBVB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:21:01 -0400
+        id S1729761AbgFRBVC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:21:02 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 86C2921927;
-        Thu, 18 Jun 2020 01:21:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C4AC21D82;
+        Thu, 18 Jun 2020 01:21:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443261;
-        bh=qSWUva7WVPHlE3RKgcRXLdCFyKWBerSDst6rVbst7qk=;
+        s=default; t=1592443262;
+        bh=ufG/LO2wu+SJn0Q769p90/ZBOImZJGlo/tsAnXrUPqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pxbm2gFy0l68grFPD+eiH7+R5Y5u8jT5n7KMkArOCkUdNlalg89XoaHAZGfW7cgSV
-         T9vFB2xABLktnWsEXu2iDf3+Sjwy1OpzGa4NkIsYHeZdjAVaishuQnICSZ/WVhO6+F
-         e7+diAK4omEQc9QNhiuWk9X0DX3zyYMvLEt4q7J0=
+        b=WKXReXu1XfOn6FiCsWXQmewqkK3un/zKOCuiSXoKrTKMsIt7FQcOjYsDTJZcISgRp
+         hmuZqRKpet1TrTtfsCxrFXqMh8Lr7B4MJodTDQ0aMb/S2iSiixbnvOkPG1td4oPIMH
+         ylnEm2xPhO9+hNIRuAyX2HtXSD2XRBeSVxDhF0oQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 208/266] extcon: adc-jack: Fix an error handling path in 'adc_jack_probe()'
-Date:   Wed, 17 Jun 2020 21:15:33 -0400
-Message-Id: <20200618011631.604574-208-sashal@kernel.org>
+Cc:     Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.4 209/266] ASoC: fsl_asrc_dma: Fix dma_chan leak when config DMA channel failed
+Date:   Wed, 17 Jun 2020 21:15:34 -0400
+Message-Id: <20200618011631.604574-209-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
@@ -43,47 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-[ Upstream commit bc84cff2c92ae5ccb2c37da73756e7174b1b430f ]
+[ Upstream commit 36124fb19f1ae68a500cd76a76d40c6e81bee346 ]
 
-In some error handling paths, a call to 'iio_channel_get()' is not balanced
-by a corresponding call to 'iio_channel_release()'.
+fsl_asrc_dma_hw_params() invokes dma_request_channel() or
+fsl_asrc_get_dma_channel(), which returns a reference of the specified
+dma_chan object to "pair->dma_chan[dir]" with increased refcnt.
 
-This can be achieved easily by using the devm_ variant of
-'iio_channel_get()'.
+The reference counting issue happens in one exception handling path of
+fsl_asrc_dma_hw_params(). When config DMA channel failed for Back-End,
+the function forgets to decrease the refcnt increased by
+dma_request_channel() or fsl_asrc_get_dma_channel(), causing a refcnt
+leak.
 
-This has the extra benefit to simplify the remove function.
+Fix this issue by calling dma_release_channel() when config DMA channel
+failed.
 
-Fixes: 19939860dcae ("extcon: adc_jack: adc-jack driver to support 3.5 pi or simliar devices")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Link: https://lore.kernel.org/r/1590415966-52416-1-git-send-email-xiyuyang19@fudan.edu.cn
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/extcon/extcon-adc-jack.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ sound/soc/fsl/fsl_asrc_dma.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/extcon/extcon-adc-jack.c b/drivers/extcon/extcon-adc-jack.c
-index ad02dc6747a4..0317b614b680 100644
---- a/drivers/extcon/extcon-adc-jack.c
-+++ b/drivers/extcon/extcon-adc-jack.c
-@@ -124,7 +124,7 @@ static int adc_jack_probe(struct platform_device *pdev)
- 	for (i = 0; data->adc_conditions[i].id != EXTCON_NONE; i++);
- 	data->num_conditions = i;
+diff --git a/sound/soc/fsl/fsl_asrc_dma.c b/sound/soc/fsl/fsl_asrc_dma.c
+index 01052a0808b0..5aee6b8366d2 100644
+--- a/sound/soc/fsl/fsl_asrc_dma.c
++++ b/sound/soc/fsl/fsl_asrc_dma.c
+@@ -241,6 +241,7 @@ static int fsl_asrc_dma_hw_params(struct snd_pcm_substream *substream,
+ 	ret = dmaengine_slave_config(pair->dma_chan[dir], &config_be);
+ 	if (ret) {
+ 		dev_err(dev, "failed to config DMA channel for Back-End\n");
++		dma_release_channel(pair->dma_chan[dir]);
+ 		return ret;
+ 	}
  
--	data->chan = iio_channel_get(&pdev->dev, pdata->consumer_channel);
-+	data->chan = devm_iio_channel_get(&pdev->dev, pdata->consumer_channel);
- 	if (IS_ERR(data->chan))
- 		return PTR_ERR(data->chan);
- 
-@@ -164,7 +164,6 @@ static int adc_jack_remove(struct platform_device *pdev)
- 
- 	free_irq(data->irq, data);
- 	cancel_work_sync(&data->handler.work);
--	iio_channel_release(data->chan);
- 
- 	return 0;
- }
 -- 
 2.25.1
 
