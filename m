@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 901AB1FDC4C
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:18:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 809BB1FDC4E
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:18:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729896AbgFRBSR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:18:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49612 "EHLO mail.kernel.org"
+        id S1729911AbgFRBSX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:18:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729894AbgFRBSO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:18:14 -0400
+        id S1729900AbgFRBSR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:18:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 766E0206F1;
-        Thu, 18 Jun 2020 01:18:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9FBE621D80;
+        Thu, 18 Jun 2020 01:18:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443094;
-        bh=1KICtU+7Ipxdndkbsv962r1msAcOgKW2WYbRsAws1IE=;
+        s=default; t=1592443096;
+        bh=yB7wWyi9+IYrPrdKr8DWQdWd+iR//4lrmBwaUYqQMNA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wQ7OdlTt09J5T/RghFbedBvgLJWmM4pTxm06rHP1BzD2VRwcnLvkQuRu2uh8b7+Bm
-         9K1bPScsMw3S61Nvm3KCQ/k/7jj1Tnut5AY+n24UwkoR7KRtRV5mdIEYAl9fzWyQ+K
-         s/gzGdGx/18kmqzAZnz+lep9nYkO5Q+tgbOj/Snk=
+        b=yTMHOvG1agfF3XBQM0RYU5fjW/BOo/t7SUuDW47YQ3mKtZmuEA+t508XJkXsVT0yZ
+         mdEhB+tUr+NtU1DGusJiS4zDPe2I/b8BRR1f2o6fAevcBAnx+kWwRv0G8zntNdBlps
+         +tENtbM8Fscwp3rXrf3CKg+UGwcfTJd/EJ1OXH5Y=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     ashimida <ashimida@linux.alibaba.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-kbuild@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 074/266] mksysmap: Fix the mismatch of '.L' symbols in System.map
-Date:   Wed, 17 Jun 2020 21:13:19 -0400
-Message-Id: <20200618011631.604574-74-sashal@kernel.org>
+Cc:     Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Hauke Mehrtens <hauke@hauke-m.de>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 076/266] net: dsa: lantiq_gswip: fix and improve the unsupported interface error
+Date:   Wed, 17 Jun 2020 21:13:21 -0400
+Message-Id: <20200618011631.604574-76-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
@@ -43,44 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ashimida <ashimida@linux.alibaba.com>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-[ Upstream commit 72d24accf02add25e08733f0ecc93cf10fcbd88c ]
+[ Upstream commit 4d3da2d8d91f66988a829a18a0ce59945e8ae4fb ]
 
-When System.map was generated, the kernel used mksysmap to
-filter the kernel symbols, but all the symbols with the
-second letter 'L' in the kernel were filtered out, not just
-the symbols starting with 'dot + L'.
+While trying to use the lantiq_gswip driver on one of my boards I made
+a mistake when specifying the phy-mode (because the out-of-tree driver
+wants phy-mode "gmii" or "mii" for the internal PHYs). In this case the
+following error is printed multiple times:
+  Unsupported interface: 3
 
-For example:
-ashimida@ubuntu:~/linux$ cat System.map |grep ' .L'
-ashimida@ubuntu:~/linux$ nm -n vmlinux |grep ' .L'
-ffff0000088028e0 t bLength_show
-......
-ffff0000092e0408 b PLLP_OUTC_lock
-ffff0000092e0410 b PLLP_OUTA_lock
+While it gives at least a hint at what may be wrong it is not very user
+friendly. Print the human readable phy-mode and also which port is
+configured incorrectly (this hardware supports ports 0..6) to improve
+the cases where someone made a mistake.
 
-The original intent should be to filter out all local symbols
-starting with '.L', so the dot should be escaped.
-
-Fixes: 00902e984732 ("mksysmap: Add h8300 local symbol pattern")
-Signed-off-by: ashimida <ashimida@linux.alibaba.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Fixes: 14fceff4771e51 ("net: dsa: Add Lantiq / Intel DSA driver for vrx200")
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Acked-by: Hauke Mehrtens <hauke@hauke-m.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/mksysmap | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/dsa/lantiq_gswip.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/scripts/mksysmap b/scripts/mksysmap
-index a35acc0d0b82..9aa23d15862a 100755
---- a/scripts/mksysmap
-+++ b/scripts/mksysmap
-@@ -41,4 +41,4 @@
- # so we just ignore them to let readprofile continue to work.
- # (At least sparc64 has __crc_ in the middle).
+diff --git a/drivers/net/dsa/lantiq_gswip.c b/drivers/net/dsa/lantiq_gswip.c
+index a69c9b9878b7..636966e93517 100644
+--- a/drivers/net/dsa/lantiq_gswip.c
++++ b/drivers/net/dsa/lantiq_gswip.c
+@@ -1451,7 +1451,8 @@ static void gswip_phylink_validate(struct dsa_switch *ds, int port,
  
--$NM -n $1 | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( .L\)' > $2
-+$NM -n $1 | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( \.L\)' > $2
+ unsupported:
+ 	bitmap_zero(supported, __ETHTOOL_LINK_MODE_MASK_NBITS);
+-	dev_err(ds->dev, "Unsupported interface: %d\n", state->interface);
++	dev_err(ds->dev, "Unsupported interface '%s' for port %d\n",
++		phy_modes(state->interface), port);
+ 	return;
+ }
+ 
 -- 
 2.25.1
 
