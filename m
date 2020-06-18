@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 505521FDDE8
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:29:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A54481FDDF3
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:29:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732283AbgFRB3V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:29:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38650 "EHLO mail.kernel.org"
+        id S1732318AbgFRB3d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:29:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732279AbgFRB3U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:29:20 -0400
+        id S1732314AbgFRB3d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:29:33 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4899B2222F;
-        Thu, 18 Jun 2020 01:29:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B076A2222D;
+        Thu, 18 Jun 2020 01:29:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443759;
-        bh=p5j9bXEfQihepKV8ulcRN1vZrOTxa+RtQpCBl17Vk5Q=;
+        s=default; t=1592443772;
+        bh=kQxud7MSwkmirSk8sl1Z6U/M4EKYnQvsC+GuLnHvsI0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MXFUb2DzehuA3aFX/kDJcaLMTfsmfyRbYeAzuWd3kbmu1XRhD7WAnyJSC4gSC1KmN
-         TAlpDNmAxcZs60KbkC0p4HX87/8Y52JtarppKUtg+mmT+JK5Ui+magNn5Rvobhk8sW
-         vbL2e4e5/9BueLlHC+UpsWIqZ+lHdvou8US3HfkY=
+        b=MpWeXuVuME3j52Ebco8AqvAKewtJZCVLdF+H3gds1IgrMQlC7h3vJyKPubm4eVZnw
+         bYodssLzSZT2BHk8zPMMUAWrqvAycsTajeTsB/6mrldBAhIueIY/RRF6WrEoOHEyNG
+         YBZfq8Iq4u3udH5pbKQMR/Mp0wP8H9RruH1w/amQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gregory CLEMENT <gregory.clement@bootlin.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 46/80] tty: n_gsm: Fix waking up upper tty layer when room available
-Date:   Wed, 17 Jun 2020 21:27:45 -0400
-Message-Id: <20200618012819.609778-46-sashal@kernel.org>
+Cc:     Bjorn Helgaas <bhelgaas@google.com>,
+        Aditya Paluri <Venkata.AdityaPaluri@synopsys.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 56/80] PCI/PTM: Inherit Switch Downstream Port PTM settings from Upstream Port
+Date:   Wed, 17 Jun 2020 21:27:55 -0400
+Message-Id: <20200618012819.609778-56-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012819.609778-1-sashal@kernel.org>
 References: <20200618012819.609778-1-sashal@kernel.org>
@@ -43,88 +43,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gregory CLEMENT <gregory.clement@bootlin.com>
+From: Bjorn Helgaas <bhelgaas@google.com>
 
-[ Upstream commit 01dbb362f0a114fbce19c8abe4cd6f4710e934d5 ]
+[ Upstream commit 7b38fd9760f51cc83d80eed2cfbde8b5ead9e93a ]
 
-Warn the upper layer when n_gms is ready to receive data
-again. Without this the associated virtual tty remains blocked
-indefinitely.
+Except for Endpoints, we enable PTM at enumeration-time.  Previously we did
+not account for the fact that Switch Downstream Ports are not permitted to
+have a PTM capability; their PTM behavior is controlled by the Upstream
+Port (PCIe r5.0, sec 7.9.16).  Since Downstream Ports don't have a PTM
+capability, we did not mark them as "ptm_enabled", which meant that
+pci_enable_ptm() on an Endpoint failed because there was no PTM path to it.
 
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
-Link: https://lore.kernel.org/r/20200512115323.1447922-4-gregory.clement@bootlin.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Mark Downstream Ports as "ptm_enabled" if their Upstream Port has PTM
+enabled.
+
+Fixes: eec097d43100 ("PCI: Add pci_enable_ptm() for drivers to enable PTM on endpoints")
+Reported-by: Aditya Paluri <Venkata.AdityaPaluri@synopsys.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_gsm.c | 26 ++++++++++++++++++++++----
- 1 file changed, 22 insertions(+), 4 deletions(-)
+ drivers/pci/pcie/ptm.c | 22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
-index d5efacd27b15..56716f525030 100644
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -681,7 +681,7 @@ static struct gsm_msg *gsm_data_alloc(struct gsm_mux *gsm, u8 addr, int len,
-  *	FIXME: lock against link layer control transmissions
-  */
+diff --git a/drivers/pci/pcie/ptm.c b/drivers/pci/pcie/ptm.c
+index 3008bba360f3..ec6f6213960b 100644
+--- a/drivers/pci/pcie/ptm.c
++++ b/drivers/pci/pcie/ptm.c
+@@ -47,10 +47,6 @@ void pci_ptm_init(struct pci_dev *dev)
+ 	if (!pci_is_pcie(dev))
+ 		return;
  
--static void gsm_data_kick(struct gsm_mux *gsm)
-+static void gsm_data_kick(struct gsm_mux *gsm, struct gsm_dlci *dlci)
- {
- 	struct gsm_msg *msg, *nmsg;
- 	int len;
-@@ -713,6 +713,24 @@ static void gsm_data_kick(struct gsm_mux *gsm)
+-	pos = pci_find_ext_capability(dev, PCI_EXT_CAP_ID_PTM);
+-	if (!pos)
+-		return;
+-
+ 	/*
+ 	 * Enable PTM only on interior devices (root ports, switch ports,
+ 	 * etc.) on the assumption that it causes no link traffic until an
+@@ -60,6 +56,23 @@ void pci_ptm_init(struct pci_dev *dev)
+ 	     pci_pcie_type(dev) == PCI_EXP_TYPE_RC_END))
+ 		return;
  
- 		list_del(&msg->list);
- 		kfree(msg);
++	/*
++	 * Switch Downstream Ports are not permitted to have a PTM
++	 * capability; their PTM behavior is controlled by the Upstream
++	 * Port (PCIe r5.0, sec 7.9.16).
++	 */
++	ups = pci_upstream_bridge(dev);
++	if (pci_pcie_type(dev) == PCI_EXP_TYPE_DOWNSTREAM &&
++	    ups && ups->ptm_enabled) {
++		dev->ptm_granularity = ups->ptm_granularity;
++		dev->ptm_enabled = 1;
++		return;
++	}
 +
-+		if (dlci) {
-+			tty_port_tty_wakeup(&dlci->port);
-+		} else {
-+			int i = 0;
++	pos = pci_find_ext_capability(dev, PCI_EXT_CAP_ID_PTM);
++	if (!pos)
++		return;
 +
-+			for (i = 0; i < NUM_DLCI; i++) {
-+				struct gsm_dlci *dlci;
-+
-+				dlci = gsm->dlci[i];
-+				if (dlci == NULL) {
-+					i++;
-+					continue;
-+				}
-+
-+				tty_port_tty_wakeup(&dlci->port);
-+			}
-+		}
- 	}
- }
+ 	pci_read_config_dword(dev, pos + PCI_PTM_CAP, &cap);
+ 	local_clock = (cap & PCI_PTM_GRANULARITY_MASK) >> 8;
  
-@@ -764,7 +782,7 @@ static void __gsm_data_queue(struct gsm_dlci *dlci, struct gsm_msg *msg)
- 	/* Add to the actual output queue */
- 	list_add_tail(&msg->list, &gsm->tx_list);
- 	gsm->tx_bytes += msg->len;
--	gsm_data_kick(gsm);
-+	gsm_data_kick(gsm, dlci);
- }
- 
- /**
-@@ -1225,7 +1243,7 @@ static void gsm_control_message(struct gsm_mux *gsm, unsigned int command,
- 		gsm_control_reply(gsm, CMD_FCON, NULL, 0);
- 		/* Kick the link in case it is idling */
- 		spin_lock_irqsave(&gsm->tx_lock, flags);
--		gsm_data_kick(gsm);
-+		gsm_data_kick(gsm, NULL);
- 		spin_unlock_irqrestore(&gsm->tx_lock, flags);
- 		break;
- 	case CMD_FCOFF:
-@@ -2408,7 +2426,7 @@ static void gsmld_write_wakeup(struct tty_struct *tty)
- 	/* Queue poll */
- 	clear_bit(TTY_DO_WRITE_WAKEUP, &tty->flags);
- 	spin_lock_irqsave(&gsm->tx_lock, flags);
--	gsm_data_kick(gsm);
-+	gsm_data_kick(gsm, NULL);
- 	if (gsm->tx_bytes < TX_THRESH_LO) {
- 		gsm_dlci_data_sweep(gsm);
- 	}
+@@ -69,7 +82,6 @@ void pci_ptm_init(struct pci_dev *dev)
+ 	 * the spec recommendation (PCIe r3.1, sec 7.32.3), select the
+ 	 * furthest upstream Time Source as the PTM Root.
+ 	 */
+-	ups = pci_upstream_bridge(dev);
+ 	if (ups && ups->ptm_enabled) {
+ 		ctrl = PCI_PTM_CTRL_ENABLE;
+ 		if (ups->ptm_granularity == 0)
 -- 
 2.25.1
 
