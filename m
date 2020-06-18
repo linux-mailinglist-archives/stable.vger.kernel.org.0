@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49CF11FE3C2
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:14:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B172D1FE3B7
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:14:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730936AbgFRCMz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:12:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53562 "EHLO mail.kernel.org"
+        id S1730469AbgFRBVQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:21:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729411AbgFRBVM (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729726AbgFRBVM (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 17 Jun 2020 21:21:12 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B7CE20776;
-        Thu, 18 Jun 2020 01:21:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 94DF621D79;
+        Thu, 18 Jun 2020 01:21:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443268;
-        bh=gcYIdJSBndXo8ib41qkOp7IDNKCp6T94n1aw+8dxIIM=;
+        s=default; t=1592443269;
+        bh=mIJ1TUXp7dszAtRrMyJYmXKkKV2repG8ZIcsS6zctIo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BoN2KpAvGSJw8WGp4UGyp/FvDPvv+Mz30sqwWUlzK+SD0IxpKy4USlWZB0ot6GAy/
-         l1Cs5ciagwGxP9+pPXQgp83Eo88LYHKgAr5EqKd0cshdiN9ll9ZARvbISRGiaC1V+5
-         Ra1/JDmeKvf6XgJQU2xbPnu53wQUJPleHu09CzgQ=
+        b=uPR9mbNwFyTmtfOJJlhCfO/texBAKbGnoJqJxPDQc+274JU/iJmxluVvUPvP3Fosb
+         kac4bE1BuM/LL+FDJ+4VatzcriMrGtzai80ggg+OXmpwm/3P3IBRM1noN7FnxhMPOH
+         iDdgtEgqlLvRP6Exd88vNKSXpzKAyHA6/WeV/e1s=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stafford Horne <shorne@gmail.com>, Sasha Levin <sashal@kernel.org>,
-        openrisc@lists.librecores.org
-Subject: [PATCH AUTOSEL 5.4 214/266] openrisc: Fix issue with argument clobbering for clone/fork
-Date:   Wed, 17 Jun 2020 21:15:39 -0400
-Message-Id: <20200618011631.604574-214-sashal@kernel.org>
+Cc:     Ben Skeggs <bskeggs@redhat.com>, Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 215/266] drm/nouveau/disp/gm200-: fix NV_PDISP_SOR_HDMI2_CTRL(n) selection
+Date:   Wed, 17 Jun 2020 21:15:40 -0400
+Message-Id: <20200618011631.604574-215-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
@@ -42,46 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stafford Horne <shorne@gmail.com>
+From: Ben Skeggs <bskeggs@redhat.com>
 
-[ Upstream commit 6bd140e14d9aaa734ec37985b8b20a96c0ece948 ]
+[ Upstream commit a1ef8bad506e4ffa0c57ac5f8cb99ab5cbc3b1fc ]
 
-Working on the OpenRISC glibc port I found that sometimes clone was
-working strange.  That the tls data argument sent in r7 was always
-wrong.  Further investigation revealed that the arguments were getting
-clobbered in the entry code.  This patch removes the code that writes to
-the argument registers.  This was likely due to some old code hanging
-around.
+This is a SOR register, and not indexed by the bound head.
 
-This patch fixes this up for clone and fork.  This fork clobber is
-harmless but also useless so remove.
+Fixes display not coming up on high-bandwidth HDMI displays under a
+number of configurations.
 
-Signed-off-by: Stafford Horne <shorne@gmail.com>
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/openrisc/kernel/entry.S | 4 ++--
+ drivers/gpu/drm/nouveau/nvkm/engine/disp/hdmigm200.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/openrisc/kernel/entry.S b/arch/openrisc/kernel/entry.S
-index e4a78571f883..c6481cfc5220 100644
---- a/arch/openrisc/kernel/entry.S
-+++ b/arch/openrisc/kernel/entry.S
-@@ -1166,13 +1166,13 @@ ENTRY(__sys_clone)
- 	l.movhi	r29,hi(sys_clone)
- 	l.ori	r29,r29,lo(sys_clone)
- 	l.j	_fork_save_extra_regs_and_call
--	 l.addi	r7,r1,0
-+	 l.nop
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/disp/hdmigm200.c b/drivers/gpu/drm/nouveau/nvkm/engine/disp/hdmigm200.c
+index 9b16a08eb4d9..bf6d41fb0c9f 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/disp/hdmigm200.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/disp/hdmigm200.c
+@@ -27,10 +27,10 @@ void
+ gm200_hdmi_scdc(struct nvkm_ior *ior, int head, u8 scdc)
+ {
+ 	struct nvkm_device *device = ior->disp->engine.subdev.device;
+-	const u32 hoff = head * 0x800;
++	const u32 soff = nv50_ior_base(ior);
+ 	const u32 ctrl = scdc & 0x3;
  
- ENTRY(__sys_fork)
- 	l.movhi	r29,hi(sys_fork)
- 	l.ori	r29,r29,lo(sys_fork)
- 	l.j	_fork_save_extra_regs_and_call
--	 l.addi	r3,r1,0
-+	 l.nop
+-	nvkm_mask(device, 0x61c5bc + hoff, 0x00000003, ctrl);
++	nvkm_mask(device, 0x61c5bc + soff, 0x00000003, ctrl);
  
- ENTRY(sys_rt_sigreturn)
- 	l.jal	_sys_rt_sigreturn
+ 	ior->tmds.high_speed = !!(scdc & 0x2);
+ }
 -- 
 2.25.1
 
