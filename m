@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2B4B1FDF70
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:43:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CB9B1FDF74
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:43:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732452AbgFRBaF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:30:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39896 "EHLO mail.kernel.org"
+        id S1732459AbgFRBaI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:30:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732445AbgFRBaE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:30:04 -0400
+        id S1732457AbgFRBaH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:30:07 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D9ED322248;
-        Thu, 18 Jun 2020 01:30:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0BCD222228;
+        Thu, 18 Jun 2020 01:30:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443803;
-        bh=w1Fn5hNivPkHo01+vQNRBChxXLG0OTgTaZXmGrUOtNM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KlgfPZLdxSDFYu8SeTT1Ib3nhc16eSB2f8t4n/iohEpLA/xVTosLoclBM2AuYz5DV
-         tyKmwc8yJBndkYDP9Oy/zLAv8PhgeDFO1R2wOwhJRpcTNNqWu1ud9hLveertlschci
-         Q/hM20jOdL1QI8gbBdt6o8628U2g4hpzj515bask=
+        s=default; t=1592443806;
+        bh=5zEtzJuWRo1Jwn5HqRi+yeM2H7mdgFA/fudPDaMECuU=;
+        h=From:To:Cc:Subject:Date:From;
+        b=nsfXgJDkDqzq53Q75/wNP1zJmbWLiu0/T0YGpWKxmbPZBoId3qcWOK7OxW9WS9lkW
+         EQsVLTtq53zMvCweBFC1TcGgPfTSI7J80/EJkKU6njnJ1L4LD4nLqFMhpOb70Bz5A+
+         +uox8z4lBB/DkxnUK5Rw2D3Lt5pRintfSkDj41DA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 80/80] scsi: acornscsi: Fix an error handling path in acornscsi_probe()
-Date:   Wed, 17 Jun 2020 21:28:19 -0400
-Message-Id: <20200618012819.609778-80-sashal@kernel.org>
+Cc:     Rikard Falkeborn <rikard.falkeborn@gmail.com>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.4 01/60] clk: sunxi: Fix incorrect usage of round_down()
+Date:   Wed, 17 Jun 2020 21:29:05 -0400
+Message-Id: <20200618013004.610532-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200618012819.609778-1-sashal@kernel.org>
-References: <20200618012819.609778-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,38 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Rikard Falkeborn <rikard.falkeborn@gmail.com>
 
-[ Upstream commit 42c76c9848e13dbe0538d7ae0147a269dfa859cb ]
+[ Upstream commit ee25d9742dabed3fd18158b518f846abeb70f319 ]
 
-'ret' is known to be 0 at this point.  Explicitly return -ENOMEM if one of
-the 'ecardm_iomap()' calls fail.
+round_down() can only round to powers of 2. If round_down() is asked
+to round to something that is not a power of 2, incorrect results are
+produced. The incorrect results can be both too large and too small.
 
-Link: https://lore.kernel.org/r/20200530081622.577888-1-christophe.jaillet@wanadoo.fr
-Fixes: e95a1b656a98 ("[ARM] rpc: acornscsi: update to new style ecard driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Instead, use rounddown() which can round to any number.
+
+Fixes: 6a721db180a2 ("clk: sunxi: Add A31 clocks support")
+Signed-off-by: Rikard Falkeborn <rikard.falkeborn@gmail.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/arm/acornscsi.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/clk/sunxi/clk-sunxi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/arm/acornscsi.c b/drivers/scsi/arm/acornscsi.c
-index 12b88294d667..76ad20e49126 100644
---- a/drivers/scsi/arm/acornscsi.c
-+++ b/drivers/scsi/arm/acornscsi.c
-@@ -2913,8 +2913,10 @@ static int acornscsi_probe(struct expansion_card *ec, const struct ecard_id *id)
+diff --git a/drivers/clk/sunxi/clk-sunxi.c b/drivers/clk/sunxi/clk-sunxi.c
+index 9c79af0c03b2..2cec9e83831f 100644
+--- a/drivers/clk/sunxi/clk-sunxi.c
++++ b/drivers/clk/sunxi/clk-sunxi.c
+@@ -311,7 +311,7 @@ static void sun6i_a31_get_pll1_factors(u32 *freq, u32 parent_rate,
+ 	 * Round down the frequency to the closest multiple of either
+ 	 * 6 or 16
+ 	 */
+-	u32 round_freq_6 = round_down(freq_mhz, 6);
++	u32 round_freq_6 = rounddown(freq_mhz, 6);
+ 	u32 round_freq_16 = round_down(freq_mhz, 16);
  
- 	ashost->base = ecardm_iomap(ec, ECARD_RES_MEMC, 0, 0);
- 	ashost->fast = ecardm_iomap(ec, ECARD_RES_IOCFAST, 0, 0);
--	if (!ashost->base || !ashost->fast)
-+	if (!ashost->base || !ashost->fast) {
-+		ret = -ENOMEM;
- 		goto out_put;
-+	}
- 
- 	host->irq = ec->irq;
- 	ashost->host = host;
+ 	if (round_freq_6 > round_freq_16)
 -- 
 2.25.1
 
