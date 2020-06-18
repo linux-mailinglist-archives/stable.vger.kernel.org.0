@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDFFC1FE38E
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:12:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BA421FE38B
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:12:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729831AbgFRCLa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:11:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54144 "EHLO mail.kernel.org"
+        id S1731067AbgFRCLR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:11:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730549AbgFRBVh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:21:37 -0400
+        id S1730562AbgFRBVj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:21:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6645820CC7;
-        Thu, 18 Jun 2020 01:21:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C6EEA20776;
+        Thu, 18 Jun 2020 01:21:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443297;
-        bh=jwppOJWJ0KbGh3W6BOSV/XYDkefGSCvIOHRBpZ0GYuA=;
+        s=default; t=1592443298;
+        bh=yQ6zGEg68uBMvVRpNLAQbZHrrJu0GQfWTYez5A52PhU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K+jcCy3yGsqS7Z7jbyxBGbeiwtLkavL7m95AsnIvYa4+sdbYrZMh+SEjDJ6k5p++O
-         3E8uXbivliQg3Nm91kbDqiWNEfRAdYUOH85hXW95llUm5St9yEu2leMOD+3pix97cS
-         BIx9gdKUuL97Rx4QYyJC8Lci+lq58L/He6XYkNWs=
+        b=PZ2ukCGNanuPsrF9olnJlyyz1N+YzG5FEfrVsjbVLx5DXFuzZmGIgP3Dgy59sQh0G
+         wWfpajJN0sv2I0RpKw0gcZo+c0v9SxpEYgovPf3G28AznEzQfynfmhzcOdv9r/65Ur
+         TFxGmIvLDbRwyz2IHuGDXdejntzb+N2QUa8Tq8XQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Sanjay R Mehta <sanju.mehta@amd.com>,
-        Logan Gunthorpe <logang@deltatee.com>,
         Arindam Nath <arindam.nath@amd.com>,
         Jon Mason <jdmason@kudzu.us>, Sasha Levin <sashal@kernel.org>,
         linux-ntb@googlegroups.com
-Subject: [PATCH AUTOSEL 5.4 237/266] ntb_perf: pass correct struct device to dma_alloc_coherent
-Date:   Wed, 17 Jun 2020 21:16:02 -0400
-Message-Id: <20200618011631.604574-237-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 238/266] ntb_tool: pass correct struct device to dma_alloc_coherent
+Date:   Wed, 17 Jun 2020 21:16:03 -0400
+Message-Id: <20200618011631.604574-238-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
@@ -47,7 +46,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sanjay R Mehta <sanju.mehta@amd.com>
 
-[ Upstream commit 98f4e140264eeb52f22ff05be6b6dd48237255ac ]
+[ Upstream commit 433efe720674efd9fdbcef78be75793393cf05db ]
 
 Currently, ntb->dev is passed to dma_alloc_coherent
 and dma_free_coherent calls. The returned dma_addr_t
@@ -59,45 +58,45 @@ first parameter of dma_alloc_coherent() as ntb->pdev->dev
 instead.
 
 Fixes: 5648e56d03fa ("NTB: ntb_perf: Add full multi-port NTB API support")
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
 Signed-off-by: Sanjay R Mehta <sanju.mehta@amd.com>
 Signed-off-by: Arindam Nath <arindam.nath@amd.com>
 Signed-off-by: Jon Mason <jdmason@kudzu.us>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ntb/test/ntb_perf.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/ntb/test/ntb_tool.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/ntb/test/ntb_perf.c b/drivers/ntb/test/ntb_perf.c
-index e9b7c2dfc730..52c29791fc02 100644
---- a/drivers/ntb/test/ntb_perf.c
-+++ b/drivers/ntb/test/ntb_perf.c
-@@ -556,7 +556,7 @@ static void perf_free_inbuf(struct perf_peer *peer)
- 		return;
+diff --git a/drivers/ntb/test/ntb_tool.c b/drivers/ntb/test/ntb_tool.c
+index d592c0ffbd19..025747c1568e 100644
+--- a/drivers/ntb/test/ntb_tool.c
++++ b/drivers/ntb/test/ntb_tool.c
+@@ -590,7 +590,7 @@ static int tool_setup_mw(struct tool_ctx *tc, int pidx, int widx,
+ 	inmw->size = min_t(resource_size_t, req_size, size);
+ 	inmw->size = round_up(inmw->size, addr_align);
+ 	inmw->size = round_up(inmw->size, size_align);
+-	inmw->mm_base = dma_alloc_coherent(&tc->ntb->dev, inmw->size,
++	inmw->mm_base = dma_alloc_coherent(&tc->ntb->pdev->dev, inmw->size,
+ 					   &inmw->dma_base, GFP_KERNEL);
+ 	if (!inmw->mm_base)
+ 		return -ENOMEM;
+@@ -612,7 +612,7 @@ static int tool_setup_mw(struct tool_ctx *tc, int pidx, int widx,
+ 	return 0;
  
- 	(void)ntb_mw_clear_trans(peer->perf->ntb, peer->pidx, peer->gidx);
--	dma_free_coherent(&peer->perf->ntb->dev, peer->inbuf_size,
-+	dma_free_coherent(&peer->perf->ntb->pdev->dev, peer->inbuf_size,
- 			  peer->inbuf, peer->inbuf_xlat);
- 	peer->inbuf = NULL;
- }
-@@ -585,8 +585,9 @@ static int perf_setup_inbuf(struct perf_peer *peer)
+ err_free_dma:
+-	dma_free_coherent(&tc->ntb->dev, inmw->size, inmw->mm_base,
++	dma_free_coherent(&tc->ntb->pdev->dev, inmw->size, inmw->mm_base,
+ 			  inmw->dma_base);
+ 	inmw->mm_base = NULL;
+ 	inmw->dma_base = 0;
+@@ -629,7 +629,7 @@ static void tool_free_mw(struct tool_ctx *tc, int pidx, int widx)
  
- 	perf_free_inbuf(peer);
+ 	if (inmw->mm_base != NULL) {
+ 		ntb_mw_clear_trans(tc->ntb, pidx, widx);
+-		dma_free_coherent(&tc->ntb->dev, inmw->size,
++		dma_free_coherent(&tc->ntb->pdev->dev, inmw->size,
+ 				  inmw->mm_base, inmw->dma_base);
+ 	}
  
--	peer->inbuf = dma_alloc_coherent(&perf->ntb->dev, peer->inbuf_size,
--					 &peer->inbuf_xlat, GFP_KERNEL);
-+	peer->inbuf = dma_alloc_coherent(&perf->ntb->pdev->dev,
-+					 peer->inbuf_size, &peer->inbuf_xlat,
-+					 GFP_KERNEL);
- 	if (!peer->inbuf) {
- 		dev_err(&perf->ntb->dev, "Failed to alloc inbuf of %pa\n",
- 			&peer->inbuf_size);
-@@ -1517,4 +1518,3 @@ static void __exit perf_exit(void)
- 	destroy_workqueue(perf_wq);
- }
- module_exit(perf_exit);
--
 -- 
 2.25.1
 
