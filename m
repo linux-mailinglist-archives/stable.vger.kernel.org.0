@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17F241FDFFC
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:46:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07FA91FDFEF
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:45:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731132AbgFRBo1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:44:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37888 "EHLO mail.kernel.org"
+        id S1732189AbgFRB24 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:28:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732182AbgFRB2y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:28:54 -0400
+        id S1728680AbgFRB2z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:28:55 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 099AF22203;
-        Thu, 18 Jun 2020 01:28:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6D8A522200;
+        Thu, 18 Jun 2020 01:28:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443734;
-        bh=1DjVf4x6Kv2CJYuM2vBCCnZyAX5U4axJg1eon0whqtY=;
+        s=default; t=1592443735;
+        bh=1KICtU+7Ipxdndkbsv962r1msAcOgKW2WYbRsAws1IE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yyeW3+E52wbu/k/KOED5G6WHyBWOAF+w9K4ILjPTuhCKGCd+oPSGAD5S6sKWm4SaR
-         Rs+AoNB1L5Mi97l1sV+pJV5gPeKQ/LC+vd8+HBfgHXsyzjFmSV9jK8e6ITQNypUhkp
-         lSb+AxVpqaurKYFRTYMmb7NIpfiqVLIiDGRdGS1Q=
+        b=QVVqCAF0Yq+eIrN2bbW0619JZuabweUXMo0iSlgNsPBV8C/kTRdsIIzuPfXRSoG8v
+         LvDp66wmtkyN9XL7qfvGtBgSDaeW3V1JwNWY8xBPL7PoFRVuUd+0Y9E6G13UhiSlAW
+         SJdtFYAl7IYMJw6zjTWn0iGhkPROY3fcLmnQ9QsY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        syzbot+6f1624f937d9d6911e2d@syzkaller.appspotmail.com,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Marco Elver <elver@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 25/80] fat: don't allow to mount if the FAT length == 0
-Date:   Wed, 17 Jun 2020 21:27:24 -0400
-Message-Id: <20200618012819.609778-25-sashal@kernel.org>
+Cc:     ashimida <ashimida@linux.alibaba.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-kbuild@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 26/80] mksysmap: Fix the mismatch of '.L' symbols in System.map
+Date:   Wed, 17 Jun 2020 21:27:25 -0400
+Message-Id: <20200618012819.609778-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012819.609778-1-sashal@kernel.org>
 References: <20200618012819.609778-1-sashal@kernel.org>
@@ -47,44 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+From: ashimida <ashimida@linux.alibaba.com>
 
-[ Upstream commit b1b65750b8db67834482f758fc385bfa7560d228 ]
+[ Upstream commit 72d24accf02add25e08733f0ecc93cf10fcbd88c ]
 
-If FAT length == 0, the image doesn't have any data. And it can be the
-cause of overlapping the root dir and FAT entries.
+When System.map was generated, the kernel used mksysmap to
+filter the kernel symbols, but all the symbols with the
+second letter 'L' in the kernel were filtered out, not just
+the symbols starting with 'dot + L'.
 
-Also Windows treats it as invalid format.
+For example:
+ashimida@ubuntu:~/linux$ cat System.map |grep ' .L'
+ashimida@ubuntu:~/linux$ nm -n vmlinux |grep ' .L'
+ffff0000088028e0 t bLength_show
+......
+ffff0000092e0408 b PLLP_OUTC_lock
+ffff0000092e0410 b PLLP_OUTA_lock
 
-Reported-by: syzbot+6f1624f937d9d6911e2d@syzkaller.appspotmail.com
-Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Marco Elver <elver@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Link: http://lkml.kernel.org/r/87r1wz8mrd.fsf@mail.parknet.co.jp
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+The original intent should be to filter out all local symbols
+starting with '.L', so the dot should be escaped.
+
+Fixes: 00902e984732 ("mksysmap: Add h8300 local symbol pattern")
+Signed-off-by: ashimida <ashimida@linux.alibaba.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fat/inode.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ scripts/mksysmap | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/fat/inode.c b/fs/fat/inode.c
-index f0387d040331..9af410142f78 100644
---- a/fs/fat/inode.c
-+++ b/fs/fat/inode.c
-@@ -1512,6 +1512,12 @@ static int fat_read_bpb(struct super_block *sb, struct fat_boot_sector *b,
- 		goto out;
- 	}
+diff --git a/scripts/mksysmap b/scripts/mksysmap
+index a35acc0d0b82..9aa23d15862a 100755
+--- a/scripts/mksysmap
++++ b/scripts/mksysmap
+@@ -41,4 +41,4 @@
+ # so we just ignore them to let readprofile continue to work.
+ # (At least sparc64 has __crc_ in the middle).
  
-+	if (bpb->fat_fat_length == 0 && bpb->fat32_length == 0) {
-+		if (!silent)
-+			fat_msg(sb, KERN_ERR, "bogus number of FAT sectors");
-+		goto out;
-+	}
-+
- 	error = 0;
- 
- out:
+-$NM -n $1 | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( .L\)' > $2
++$NM -n $1 | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( \.L\)' > $2
 -- 
 2.25.1
 
