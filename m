@@ -2,149 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59F921FF6F3
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 17:35:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C1B01FF841
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 17:56:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727841AbgFRPfW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Jun 2020 11:35:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37220 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727114AbgFRPfV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Jun 2020 11:35:21 -0400
-Received: from mail-io1-xd43.google.com (mail-io1-xd43.google.com [IPv6:2607:f8b0:4864:20::d43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCE49C06174E
-        for <stable@vger.kernel.org>; Thu, 18 Jun 2020 08:35:21 -0700 (PDT)
-Received: by mail-io1-xd43.google.com with SMTP id s18so7546422ioe.2
-        for <stable@vger.kernel.org>; Thu, 18 Jun 2020 08:35:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=BA5RnOXcxTj8hK9eSefXUNgaxNw2cPIOxfV7OKbWZJo=;
-        b=OvYRTDZiWIx12SygT7T3rbcJhZ300TxFRhCHfP84sTWuSOxaAofcKzIuzpyzIq8kc/
-         qBFCEny9VBUq8hwxXaB5mRQCP5f1h9SVPvTYkJumS8YS7FPe8vtI83yeWwIi4WYzODBE
-         /7GSOaLcbdOFF/9/KqJr1upA6GIKGX6ljZnkd79UcVKdOW03e/aSHdtzjduGBsvV2RU+
-         mjgrpcebU5C63lYtIGmEUBsiG5j1kiV2srCPRcHkJKKdoCOFQIEciS+Xjgzf8MDfU/9v
-         jbd/wSMA/S3easB6HBHL7xpewYwY+zbuuslonYny8ZGG1WSekJ37MaQsxdqWzinN0MDL
-         PcsA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=BA5RnOXcxTj8hK9eSefXUNgaxNw2cPIOxfV7OKbWZJo=;
-        b=jHGDD5LLKmeYnQ3/pQXAGko68aNaiW3hMSxS8BB6luR9oPYtC4eNxx4jNpOVJYch90
-         00fSlWsFg+SHIHkWfN9vs4fvoED6UZdBZlxMeOnUXW+PNC+B4Q7eRT9tEm2vrwnahdBq
-         IQrBgOGbbGgLYr2egjVcq7yCZdLFScPTJYcv6QNm+7fhp8S95PBtT9roQ5xXUZRqZWey
-         FhzfZWeWeFPcVNri9pDfY97gqZA7Voj7xm7XH9egphnnxVb7YiGrHRAbJ+N3DakpWGpo
-         gGP98BwESVoe1tSbNyZaEmUyyNcKZD4TawI5+5PjZgPGxYqnMXB3+2pX17jBUQx8jEoj
-         uscQ==
-X-Gm-Message-State: AOAM533tAQ/zzygi4DanLf66aMc/xXuIdoNvhaWUikZMwo9S8LZy1rwX
-        rpEbjQBl2CZ+Tok2UNqi9sBitA5DPqJOBhfz16nqPg==
-X-Google-Smtp-Source: ABdhPJzQIiGOwADOZRzvtxgBJzd3IfscQPuWF4bJxJoB3vza/ZN99xd7C6x/g3+ozZenw6HqPag3+Kbp4jfbfB+tjDk=
-X-Received: by 2002:a02:4e42:: with SMTP id r63mr4854423jaa.46.1592494520481;
- Thu, 18 Jun 2020 08:35:20 -0700 (PDT)
+        id S1728448AbgFRPz7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Jun 2020 11:55:59 -0400
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:34263 "EHLO
+        forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728414AbgFRPz6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Jun 2020 11:55:58 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.nyi.internal (Postfix) with ESMTP id DFAD1194094C;
+        Thu, 18 Jun 2020 11:55:55 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Thu, 18 Jun 2020 11:55:55 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=y6jYDL
+        igSFwnWyH8oPKnqWx1Mvh8QIg+yZmyX2feVCc=; b=gKUQMytPee+L0/JP5OmIFy
+        w3bF56nrvPvWuNKPuLiKh4X4tFDQVFDWK4FMzIGxXhPO/suLoi/aL+d1Gm1Eltgu
+        gI1pyX3SUoc+Qg3CkpQ5lAAzOvfSNK2uVcHwTZqeU/Lz6DTIVScHLiXQ83sQa6pv
+        POOzTQrDD+3z87Mv7EaRVvAFbmTB7tlsyr5/2l6CR/FAYWBLJy/q9YBH3kdqzEm4
+        88xo6mcBqFu27Ku65+/8NZ+wOwRSxk6s29JWZmGRybEhHjumqtYp85PFjtxjJWVJ
+        S7KWSRYCOfQrd8nbEW2hvegzDQhN9Ow1zHwwlwMh0O0ZhF9Mo91ZNsd/WRMD8xXA
+        ==
+X-ME-Sender: <xms:iY7rXgCVZAN432FFwubTENKBkZr2Wc8yV1B9ayLpebbBEFsspuB7Sw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudejgedgleeiucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
+    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
+    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
+    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:iY7rXiiNp3MuVA7e3sLpdQsESRBTYXpw1zr4zZfwS60l6OLCOcRQ4w>
+    <xmx:iY7rXjliaY9qQT0IcamwG7u06cBpN_S9A8vcDzf7nxxTLS4EfdsegA>
+    <xmx:iY7rXmx0jf0h2BhpiZkMlKxxo2hHN4d7NSzwKvpAjnowoFZmxi0a9w>
+    <xmx:i47rXlYCs6SlbeubjxwhBcB18ABYRZhh3t2LOdTb3HOiPDRE3XVAQ3QKfMY>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id EB04130618C1;
+        Thu, 18 Jun 2020 11:55:52 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] mm: call cond_resched() from deferred_init_memmap()" failed to apply to 5.7-stable tree
+To:     pasha.tatashin@soleen.com, akpm@linux-foundation.org,
+        dan.j.williams@intel.com, daniel.m.jordan@oracle.com,
+        david@redhat.com, jmorris@namei.org, ktkhai@virtuozzo.com,
+        mhocko@suse.com, pankaj.gupta.linux@gmail.com, sashal@kernel.org,
+        shile.zhang@linux.alibaba.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, vbabka@suse.cz, yiwei@redhat.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 18 Jun 2020 17:55:43 +0200
+Message-ID: <15924957437531@kroah.com>
 MIME-Version: 1.0
-References: <20200608093950.86293-1-gprocida@google.com> <CAGvU0HmbWA5aKZ-8jnYgaQGbfcVzGsGo7pm2Rf+ZfG8dHro_Bw@mail.gmail.com>
- <CAGvU0H=Gd5CUMMW35wBFV=ZaE4u6aiu3VKPCiJNujGcwOvy3WA@mail.gmail.com>
- <20200618073258.GA3856402@kroah.com> <CAGvU0HmmV9+bkavHqB7TPbGwgUWvygLfWrCCmLmJ0uVOSHXoQQ@mail.gmail.com>
- <20200618145904.GB3017232@kroah.com>
-In-Reply-To: <20200618145904.GB3017232@kroah.com>
-From:   Giuliano Procida <gprocida@google.com>
-Date:   Thu, 18 Jun 2020 16:35:03 +0100
-Message-ID: <CAGvU0HkAXae67ABKZQfjyc99u1ojeTmDTcykQa1O4jJ4B9iC4A@mail.gmail.com>
-Subject: Re: [PATCH] blk-mq: sync the update nr_hw_queues with blk_mq_queue_tag_busy_iter
-To:     Greg KH <greg@kroah.com>
-Cc:     stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi.
 
-On Thu, 18 Jun 2020 at 15:59, Greg KH <greg@kroah.com> wrote:
->
-> On Thu, Jun 18, 2020 at 10:16:45AM +0100, Giuliano Procida wrote:
-> > Hi.
-> >
-> > On Thu, 18 Jun 2020 at 08:33, Greg KH <greg@kroah.com> wrote:
-> > >
-> > >
-> > > A: http://en.wikipedia.org/wiki/Top_post
-> > > Q: Were do I find info about this thing called top-posting?
-> > > A: Because it messes up the order in which people normally read text.
-> > > Q: Why is top-posting such a bad thing?
-> > > A: Top-posting.
-> > > Q: What is the most annoying thing in e-mail?
-> > >
-> > > A: No.
-> > > Q: Should I include quotations after my reply?
-> > >
-> > > http://daringfireball.net/2007/07/on_top
-> > >
-> > > :)
-> >
-> > I'm well aware of the above.
-> > Alas, I haven't used mutt properly in about 15 years and I'm still
-> > doing everything with Gmail.
->
-> gmail can handle proper quoting, if you are stuck with that :)
->
-> > Given that I was referring to the entire email thread, I punted on
-> > finding a place to insert a comment.
-> > BTW, there's a typo in the Q&A above. s/Were/Where/
->
-> Ah, nice catch, first one to notice that in years!
->
-> > > On Thu, Jun 18, 2020 at 08:27:55AM +0100, Giuliano Procida wrote:
-> > > > Hi Greg.
-> > > >
-> > > > Is this patch (and the similar one for 4.9) queued?
-> > >
-> > > f5bbbbe4d635 ("blk-mq: sync the update nr_hw_queues with
-> > > blk_mq_queue_tag_busy_iter") is in the following stable releases:
-> > >         4.4.224 4.9.219 4.14.176 4.19
-> > >
-> > > Do you not see it there?
-> >
-> > We are referring to different "it"s.
-> >
-> > Yours: f5bbbbe4d635 is the upstream patch that went into v4.19-rc1 and
-> > which you back-ported to at least some of these kernels. This is
-> > clearly there.
->
-> Great.
->
-> > Mine: the commit sent earlier in this email thread - it's a
-> > re-back-port, as I think the original back-port for 4.14 (and
-> > similarly for 4.9) is incorrect. This has clearly not reached public
-> > git, hence my question about whether the change was queued.
->
-> I don't know what the git commit id you are looking for here, sorry.  I
-> don't have the whole thread anywhere.
->
-> > These are the ids of messages containing my commits:
-> >
-> > 4.14: 20200608093950.86293-1-gprocida@google.com
-> > 4.9: 20200608094030.87031-1-gprocida@google.com
->
-> Pointers to this on lore.kernel.org perhaps?
->
+The patch below does not apply to the 5.7-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-I wasn't aware stable was publicly archived. Here you go:
+thanks,
 
-4.14: https://lore.kernel.org/stable/20200608093950.86293-1-gprocida@google.com/
-4.9: https://lore.kernel.org/stable/20200608094030.87031-1-gprocida@google.com/
+greg k-h
 
-Regards,
-Giuliano.
+------------------ original commit in Linus's tree ------------------
 
-> thanks
+From da97f2d56bbd880b4138916a7ef96f9881a551b2 Mon Sep 17 00:00:00 2001
+From: Pavel Tatashin <pasha.tatashin@soleen.com>
+Date: Wed, 3 Jun 2020 15:59:27 -0700
+Subject: [PATCH] mm: call cond_resched() from deferred_init_memmap()
 
-> Remember, some of us get thousands of patches a week to handle,
-> remembering old email thread, or even keeping them around, is
-> impossible...
->
-> greg k-h
+Now that deferred pages are initialized with interrupts enabled we can
+replace touch_nmi_watchdog() with cond_resched(), as it was before
+3a2d7fa8a3d5.
+
+For now, we cannot do the same in deferred_grow_zone() as it is still
+initializes pages with interrupts disabled.
+
+This change fixes RCU problem described in
+https://lkml.kernel.org/r/20200401104156.11564-2-david@redhat.com
+
+[   60.474005] rcu: INFO: rcu_sched detected stalls on CPUs/tasks:
+[   60.475000] rcu:  1-...0: (0 ticks this GP) idle=02a/1/0x4000000000000000 softirq=1/1 fqs=15000
+[   60.475000] rcu:  (detected by 0, t=60002 jiffies, g=-1199, q=1)
+[   60.475000] Sending NMI from CPU 0 to CPUs 1:
+[    1.760091] NMI backtrace for cpu 1
+[    1.760091] CPU: 1 PID: 20 Comm: pgdatinit0 Not tainted 4.18.0-147.9.1.el8_1.x86_64 #1
+[    1.760091] Hardware name: Red Hat KVM, BIOS 1.13.0-1.module+el8.2.0+5520+4e5817f3 04/01/2014
+[    1.760091] RIP: 0010:__init_single_page.isra.65+0x10/0x4f
+[    1.760091] Code: 48 83 cf 63 48 89 f8 0f 1f 40 00 48 89 c6 48 89 d7 e8 6b 18 80 ff 66 90 5b c3 31 c0 b9 10 00 00 00 49 89 f8 48 c1 e6 33 f3 ab <b8> 07 00 00 00 48 c1 e2 36 41 c7 40 34 01 00 00 00 48 c1 e0 33 41
+[    1.760091] RSP: 0000:ffffba783123be40 EFLAGS: 00000006
+[    1.760091] RAX: 0000000000000000 RBX: fffffad34405e300 RCX: 0000000000000000
+[    1.760091] RDX: 0000000000000000 RSI: 0010000000000000 RDI: fffffad34405e340
+[    1.760091] RBP: 0000000033f3177e R08: fffffad34405e300 R09: 0000000000000002
+[    1.760091] R10: 000000000000002b R11: ffff98afb691a500 R12: 0000000000000002
+[    1.760091] R13: 0000000000000000 R14: 000000003f03ea00 R15: 000000003e10178c
+[    1.760091] FS:  0000000000000000(0000) GS:ffff9c9ebeb00000(0000) knlGS:0000000000000000
+[    1.760091] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    1.760091] CR2: 00000000ffffffff CR3: 000000a1cf20a001 CR4: 00000000003606e0
+[    1.760091] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[    1.760091] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[    1.760091] Call Trace:
+[    1.760091]  deferred_init_pages+0x8f/0xbf
+[    1.760091]  deferred_init_memmap+0x184/0x29d
+[    1.760091]  ? deferred_free_pages.isra.97+0xba/0xba
+[    1.760091]  kthread+0x112/0x130
+[    1.760091]  ? kthread_flush_work_fn+0x10/0x10
+[    1.760091]  ret_from_fork+0x35/0x40
+[   89.123011] node 0 initialised, 1055935372 pages in 88650ms
+
+Fixes: 3a2d7fa8a3d5 ("mm: disable interrupts while initializing deferred pages")
+Reported-by: Yiqian Wei <yiwei@redhat.com>
+Signed-off-by: Pavel Tatashin <pasha.tatashin@soleen.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Tested-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: James Morris <jmorris@namei.org>
+Cc: Kirill Tkhai <ktkhai@virtuozzo.com>
+Cc: Sasha Levin <sashal@kernel.org>
+Cc: Shile Zhang <shile.zhang@linux.alibaba.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: <stable@vger.kernel.org>	[4.17+]
+Link: http://lkml.kernel.org/r/20200403140952.17177-4-pasha.tatashin@soleen.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index c75561a3f144..2dbc571f68de 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -1870,7 +1870,7 @@ static int __init deferred_init_memmap(void *data)
+ 	 */
+ 	while (spfn < epfn) {
+ 		nr_pages += deferred_init_maxorder(&i, zone, &spfn, &epfn);
+-		touch_nmi_watchdog();
++		cond_resched();
+ 	}
+ zone_empty:
+ 	/* Sanity check that the next zone really is unpopulated */
+
