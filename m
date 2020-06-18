@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C92171FE908
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:53:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 322311FE90B
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:53:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730217AbgFRCws (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727115AbgFRCws (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 17 Jun 2020 22:52:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33914 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:33930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727112AbgFRBIV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:08:21 -0400
+        id S1727775AbgFRBIW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:08:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7F16021974;
-        Thu, 18 Jun 2020 01:08:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1DD6F2193E;
+        Thu, 18 Jun 2020 01:08:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442500;
-        bh=7nE8C1YbYrTwvD5y/SKbRWoc0Mb/3j5lKq5bUoSzKQc=;
+        s=default; t=1592442501;
+        bh=lmz8b9o30HBzXmdnXtTw1XQwTxgBU8r+b8UEb1BATFQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TnqdQ+ulZu53UiHj+PNH05dh7gx7LQBwrwtVhgMSqbjWA19CxDgCABpWPyvcfp6dh
-         mrEOAsGyYaMuHx5m0GGxKdlR2m2Ct36qyUa4JOUVrzg1DP0bUwzvHH8F3pDGYDEamH
-         CzUBeWJTFc4ox8lsvbNKzX0xYXxPzpVAkacc/a2g=
+        b=wsQjMEevk+xWXObSz7E5Ho+8PoIMprHa2DsAQ1yhhfvhxduwmhhshUglzOOqmvAjJ
+         yOFWi/qZ8yg7bJx4oPnFVp9PwHa3dNu6p1e+RomUp+7lNAPHP0miW8QZy3SlRUFVV4
+         PUd7zU6qzPlirR9gf8aQJyTuW+nYm1kNcyn6SRMk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bryan O'Donoghue <bryan.odonoghue@linaro.org>,
-        Georgi Djakov <georgi.djakov@linaro.org>,
-        Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        linux-clk@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 011/388] clk: qcom: msm8916: Fix the address location of pll->config_reg
-Date:   Wed, 17 Jun 2020 21:01:48 -0400
-Message-Id: <20200618010805.600873-11-sashal@kernel.org>
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        =?UTF-8?q?J=C3=A9r=C3=B4me=20Pouiller?= 
+        <jerome.pouiller@silabs.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org
+Subject: [PATCH AUTOSEL 5.7 012/388] staging: wfx: check ssidlen and prevent an array overflow
+Date:   Wed, 17 Jun 2020 21:01:49 -0400
+Message-Id: <20200618010805.600873-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -48,92 +46,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit f47ab3c2f5338828a67e89d5f688d2cef9605245 ]
+[ Upstream commit 87f86cddda65cab8a7e3df8a00e16abeccaa0730 ]
 
-During the process of debugging a processor derived from the msm8916 which
-we found the new processor was not starting one of its PLLs.
+We need to cap "ssidlen" to prevent a memcpy() overflow.
 
-After tracing the addresses and writes that downstream was doing and
-comparing to upstream it became obvious that we were writing to a different
-register location than downstream when trying to configure the PLL.
-
-This error is also present in upstream msm8916.
-
-As an example clk-pll.c::clk_pll_recalc_rate wants to write to
-pll->config_reg updating the bit-field POST_DIV_RATIO. That bit-field is
-defined in PLL_USER_CTL not in PLL_CONFIG_CTL. Taking the BIMC PLL as an
-example
-
-lm80-p0436-13_c_qc_snapdragon_410_processor_hrd.pdf
-
-0x01823010 GCC_BIMC_PLL_USER_CTL
-0x01823014 GCC_BIMC_PLL_CONFIG_CTL
-
-This pattern is repeated for gpll0, gpll1, gpll2 and bimc_pll.
-
-This error is likely not apparent since the bootloader will already have
-initialized these PLLs.
-
-This patch corrects the location of config_reg from PLL_CONFIG_CTL to
-PLL_USER_CTL for all relevant PLLs on msm8916.
-
-Fixes commit 3966fab8b6ab ("clk: qcom: Add MSM8916 Global Clock Controller support")
-
-Cc: Georgi Djakov <georgi.djakov@linaro.org>
-Cc: Andy Gross <agross@kernel.org>
-Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: Michael Turquette <mturquette@baylibre.com>
-Cc: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Link: https://lkml.kernel.org/r/20200329124116.4185447-1-bryan.odonoghue@linaro.org
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 40115bbc40e2 ("staging: wfx: implement the rest of mac80211 API")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Jérôme Pouiller <jerome.pouiller@silabs.com>
+Link: https://lore.kernel.org/r/20200424104235.GA416402@mwanda
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/gcc-msm8916.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/staging/wfx/sta.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/qcom/gcc-msm8916.c b/drivers/clk/qcom/gcc-msm8916.c
-index 4e329a7baf2b..17e4a5a2a9fd 100644
---- a/drivers/clk/qcom/gcc-msm8916.c
-+++ b/drivers/clk/qcom/gcc-msm8916.c
-@@ -260,7 +260,7 @@ static struct clk_pll gpll0 = {
- 	.l_reg = 0x21004,
- 	.m_reg = 0x21008,
- 	.n_reg = 0x2100c,
--	.config_reg = 0x21014,
-+	.config_reg = 0x21010,
- 	.mode_reg = 0x21000,
- 	.status_reg = 0x2101c,
- 	.status_bit = 17,
-@@ -287,7 +287,7 @@ static struct clk_pll gpll1 = {
- 	.l_reg = 0x20004,
- 	.m_reg = 0x20008,
- 	.n_reg = 0x2000c,
--	.config_reg = 0x20014,
-+	.config_reg = 0x20010,
- 	.mode_reg = 0x20000,
- 	.status_reg = 0x2001c,
- 	.status_bit = 17,
-@@ -314,7 +314,7 @@ static struct clk_pll gpll2 = {
- 	.l_reg = 0x4a004,
- 	.m_reg = 0x4a008,
- 	.n_reg = 0x4a00c,
--	.config_reg = 0x4a014,
-+	.config_reg = 0x4a010,
- 	.mode_reg = 0x4a000,
- 	.status_reg = 0x4a01c,
- 	.status_bit = 17,
-@@ -341,7 +341,7 @@ static struct clk_pll bimc_pll = {
- 	.l_reg = 0x23004,
- 	.m_reg = 0x23008,
- 	.n_reg = 0x2300c,
--	.config_reg = 0x23014,
-+	.config_reg = 0x23010,
- 	.mode_reg = 0x23000,
- 	.status_reg = 0x2301c,
- 	.status_bit = 17,
+diff --git a/drivers/staging/wfx/sta.c b/drivers/staging/wfx/sta.c
+index 9d430346a58b..969d7a4a7fbd 100644
+--- a/drivers/staging/wfx/sta.c
++++ b/drivers/staging/wfx/sta.c
+@@ -520,7 +520,9 @@ static void wfx_do_join(struct wfx_vif *wvif)
+ 		ssidie = ieee80211_bss_get_ie(bss, WLAN_EID_SSID);
+ 	if (ssidie) {
+ 		ssidlen = ssidie[1];
+-		memcpy(ssid, &ssidie[2], ssidie[1]);
++		if (ssidlen > IEEE80211_MAX_SSID_LEN)
++			ssidlen = IEEE80211_MAX_SSID_LEN;
++		memcpy(ssid, &ssidie[2], ssidlen);
+ 	}
+ 	rcu_read_unlock();
+ 
 -- 
 2.25.1
 
