@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BBC61FDB27
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:11:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E58511FDB2E
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:11:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728514AbgFRBK3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:10:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37604 "EHLO mail.kernel.org"
+        id S1728559AbgFRBKi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:10:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728511AbgFRBK2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:10:28 -0400
+        id S1728551AbgFRBKh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:10:37 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6A3E121D7B;
-        Thu, 18 Jun 2020 01:10:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F88521D91;
+        Thu, 18 Jun 2020 01:10:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442628;
-        bh=DTCgtkWUhkeyQkENmpKt7QMNjpcD8gw5ONKHWXYAk/E=;
+        s=default; t=1592442636;
+        bh=bVaM4Oa6CUGC0jBT/s9iBtmSZnSHuKA783uTZAZZZwk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T0/H4FCjgHIlXLAXgxztUHlZqGzHXLMG0v7UXN5QMQ5GgWrpEvyCO/siUzlsl6oed
-         C9Oi8gMcvsOCfdtyxeIsh/1ruErEMOMJO0nZ1IYGzykkv7a+8FtWP2zoVYAOtP1V/j
-         4RCbn9CmpFlNnWD8xMU4xhfi9jR6hDL8KuS2Z9T0=
+        b=CuT2rTohFLyyuhg9wXzf/Wv4EBAUAjK0V2KrWjdWlF6/pMHAo7gLikCVDCCnSzZa9
+         xpMC6j2tsaA/acsjWm4UgMtlgRslT1EjFwVieDJ7UE825tLgXrc9gDt3kO5DLjidmN
+         C31sdvM0XUsJp3zFzZ+aa0MipGFCyZ+wGfy9X7hg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Simon Arlott <simon@octiron.net>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 106/388] scsi: sr: Fix sr_probe() missing deallocate of device minor
-Date:   Wed, 17 Jun 2020 21:03:23 -0400
-Message-Id: <20200618010805.600873-106-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>, Borislav Petkov <bp@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.7 113/388] x86/purgatory: Disable various profiling and sanitizing options
+Date:   Wed, 17 Jun 2020 21:03:30 -0400
+Message-Id: <20200618010805.600873-113-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
@@ -43,45 +42,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Simon Arlott <simon@octiron.net>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 6555781b3fdec5e94e6914511496144241df7dee ]
+[ Upstream commit e2ac07c06058ae2d58b45bbf2a2a352771d76fcb ]
 
-If the cdrom fails to be registered then the device minor should be
-deallocated.
+Since the purgatory is a special stand-alone binary, various profiling
+and sanitizing options must be disabled. Having these options enabled
+typically will cause dependencies on various special symbols exported by
+special libs / stubs used by these frameworks. Since the purgatory is
+special, it is not linked against these stubs causing missing symbols in
+the purgatory if these options are not disabled.
 
-Link: https://lore.kernel.org/r/072dac4b-8402-4de8-36bd-47e7588969cd@0882a8b5-c6c3-11e9-b005-00805fc181fe
-Signed-off-by: Simon Arlott <simon@octiron.net>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Sync the set of disabled profiling and sanitizing options with that from
+drivers/firmware/efi/libstub/Makefile, adding
+-DDISABLE_BRANCH_PROFILING to the CFLAGS and setting:
+
+  GCOV_PROFILE                    := n
+  UBSAN_SANITIZE                  := n
+
+This fixes broken references to ftrace_likely_update() when
+CONFIG_TRACE_BRANCH_PROFILING is enabled and to __gcov_init() and
+__gcov_exit() when CONFIG_GCOV_KERNEL is enabled.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20200317130841.290418-1-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/sr.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/x86/purgatory/Makefile | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/sr.c b/drivers/scsi/sr.c
-index 8d062d4f3ce0..1e13c6a0f0ca 100644
---- a/drivers/scsi/sr.c
-+++ b/drivers/scsi/sr.c
-@@ -797,7 +797,7 @@ static int sr_probe(struct device *dev)
- 	cd->cdi.disk = disk;
+diff --git a/arch/x86/purgatory/Makefile b/arch/x86/purgatory/Makefile
+index fb4ee5444379..9733d1cc791d 100644
+--- a/arch/x86/purgatory/Makefile
++++ b/arch/x86/purgatory/Makefile
+@@ -17,7 +17,10 @@ CFLAGS_sha256.o := -D__DISABLE_EXPORTS
+ LDFLAGS_purgatory.ro := -e purgatory_start -r --no-undefined -nostdlib -z nodefaultlib
+ targets += purgatory.ro
  
- 	if (register_cdrom(&cd->cdi))
--		goto fail_put;
-+		goto fail_minor;
++# Sanitizer, etc. runtimes are unavailable and cannot be linked here.
++GCOV_PROFILE	:= n
+ KASAN_SANITIZE	:= n
++UBSAN_SANITIZE	:= n
+ KCOV_INSTRUMENT := n
  
- 	/*
- 	 * Initialize block layer runtime PM stuffs before the
-@@ -815,6 +815,10 @@ static int sr_probe(struct device *dev)
+ # These are adjustments to the compiler flags used for objects that
+@@ -25,7 +28,7 @@ KCOV_INSTRUMENT := n
  
- 	return 0;
+ PURGATORY_CFLAGS_REMOVE := -mcmodel=kernel
+ PURGATORY_CFLAGS := -mcmodel=large -ffreestanding -fno-zero-initialized-in-bss
+-PURGATORY_CFLAGS += $(DISABLE_STACKLEAK_PLUGIN)
++PURGATORY_CFLAGS += $(DISABLE_STACKLEAK_PLUGIN) -DDISABLE_BRANCH_PROFILING
  
-+fail_minor:
-+	spin_lock(&sr_index_lock);
-+	clear_bit(minor, sr_index_bits);
-+	spin_unlock(&sr_index_lock);
- fail_put:
- 	put_disk(disk);
- 	mutex_destroy(&cd->lock);
+ # Default KBUILD_CFLAGS can have -pg option set when FTRACE is enabled. That
+ # in turn leaves some undefined symbols like __fentry__ in purgatory and not
 -- 
 2.25.1
 
