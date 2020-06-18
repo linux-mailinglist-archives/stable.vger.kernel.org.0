@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D254D1FDC05
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:16:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89C7F1FDC08
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:16:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729191AbgFRBQM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:16:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46480 "EHLO mail.kernel.org"
+        id S1729240AbgFRBQ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:16:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729538AbgFRBQF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:16:05 -0400
+        id S1728536AbgFRBQU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:16:20 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DCB1F21D94;
-        Thu, 18 Jun 2020 01:16:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B61B221D79;
+        Thu, 18 Jun 2020 01:16:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442963;
-        bh=5I6Kz1baumUuPbBBYu9LWI6kVb4C70yGT/IDXOIvPXw=;
+        s=default; t=1592442980;
+        bh=RNPq6SF4ZWwRpZosC3065GmzXtKZyf+9MuZsESPrs74=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mq4Ob2Q9fuugvnUbN9ZWbHaHgxEAY4dL+tmIgZ3ygyNNAzIeGLO4wMOsGKi3fYUZF
-         YP/vCvPccYgqny6vbIaBLoVmlnskvnzObtZ15m2Lgf4fe9zck0WXOXLRbpc1OpDFMq
-         BOjNcuoTwpYC4lZLDO/9ewZVJS3/cwRDMiWbTTY4=
+        b=BwvtPiCqJGuWzQ8ASi0VS4gbnyLklRgGx71JGVSWxNqGzGCBBL1JfP8rbs5M36LIr
+         cDp3+uE9Eid+xEhSJ4MC5ZaAsFIXSEReuF9weNDPjfZemNWJxTHxJ2E6Y1jJEvK7Jh
+         zHA6H/f3CpGtSUhoi8lm0Xwx/Kjc7LpCLUu+GzII=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jean-Philippe Brucker <jean-philippe@linaro.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Yonghong Song <yhs@fb.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
+Cc:     Li RongQing <lirongqing@baidu.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>,
         Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
         bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 369/388] tracing/probe: Fix bpf_task_fd_query() for kprobes and uprobes
-Date:   Wed, 17 Jun 2020 21:07:46 -0400
-Message-Id: <20200618010805.600873-369-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.7 382/388] xdp: Fix xsk_generic_xmit errno
+Date:   Wed, 17 Jun 2020 21:07:59 -0400
+Message-Id: <20200618010805.600873-382-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,55 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+From: Li RongQing <lirongqing@baidu.com>
 
-[ Upstream commit 22d5bd6867364b41576a712755271a7d6161abd6 ]
+[ Upstream commit aa2cad0600ed2ca6a0ab39948d4db1666b6c962b ]
 
-Commit 60d53e2c3b75 ("tracing/probe: Split trace_event related data from
-trace_probe") removed the trace_[ku]probe structure from the
-trace_event_call->data pointer. As bpf_get_[ku]probe_info() were
-forgotten in that change, fix them now. These functions are currently
-only used by the bpf_task_fd_query() syscall handler to collect
-information about a perf event.
+Propagate sock_alloc_send_skb error code, not set it to
+EAGAIN unconditionally, when fail to allocate skb, which
+might cause that user space unnecessary loops.
 
-Fixes: 60d53e2c3b75 ("tracing/probe: Split trace_event related data from trace_probe")
-Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Yonghong Song <yhs@fb.com>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Link: https://lore.kernel.org/bpf/20200608124531.819838-1-jean-philippe@linaro.org
+Fixes: 35fcde7f8deb ("xsk: support for Tx")
+Signed-off-by: Li RongQing <lirongqing@baidu.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Björn Töpel <bjorn.topel@intel.com>
+Link: https://lore.kernel.org/bpf/1591852266-24017-1-git-send-email-lirongqing@baidu.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_kprobe.c | 2 +-
- kernel/trace/trace_uprobe.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ net/xdp/xsk.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/kernel/trace/trace_kprobe.c b/kernel/trace/trace_kprobe.c
-index 35989383ae11..8eeb95e04bf5 100644
---- a/kernel/trace/trace_kprobe.c
-+++ b/kernel/trace/trace_kprobe.c
-@@ -1629,7 +1629,7 @@ int bpf_get_kprobe_info(const struct perf_event *event, u32 *fd_type,
- 	if (perf_type_tracepoint)
- 		tk = find_trace_kprobe(pevent, group);
- 	else
--		tk = event->tp_event->data;
-+		tk = trace_kprobe_primary_from_call(event->tp_event);
- 	if (!tk)
- 		return -EINVAL;
+diff --git a/net/xdp/xsk.c b/net/xdp/xsk.c
+index c350108aa38d..a4676107fad0 100644
+--- a/net/xdp/xsk.c
++++ b/net/xdp/xsk.c
+@@ -397,10 +397,8 @@ static int xsk_generic_xmit(struct sock *sk)
  
-diff --git a/kernel/trace/trace_uprobe.c b/kernel/trace/trace_uprobe.c
-index 2a8e8e9c1c75..fdd47f99b18f 100644
---- a/kernel/trace/trace_uprobe.c
-+++ b/kernel/trace/trace_uprobe.c
-@@ -1412,7 +1412,7 @@ int bpf_get_uprobe_info(const struct perf_event *event, u32 *fd_type,
- 	if (perf_type_tracepoint)
- 		tu = find_probe_event(pevent, group);
- 	else
--		tu = event->tp_event->data;
-+		tu = trace_uprobe_primary_from_call(event->tp_event);
- 	if (!tu)
- 		return -EINVAL;
+ 		len = desc.len;
+ 		skb = sock_alloc_send_skb(sk, len, 1, &err);
+-		if (unlikely(!skb)) {
+-			err = -EAGAIN;
++		if (unlikely(!skb))
+ 			goto out;
+-		}
  
+ 		skb_put(skb, len);
+ 		addr = desc.addr;
 -- 
 2.25.1
 
