@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 534181FDE9F
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:36:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA0751FDEA2
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:36:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732742AbgFRBbO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:31:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41754 "EHLO mail.kernel.org"
+        id S1730328AbgFRBgC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:36:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731647AbgFRBbM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:31:12 -0400
+        id S1732738AbgFRBbN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:31:13 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D5CA22257;
-        Thu, 18 Jun 2020 01:31:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B99AD221EC;
+        Thu, 18 Jun 2020 01:31:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443872;
-        bh=V3xSI5/zZpF0MVwHKDI/qCulDykZwcknnUze45wcd+8=;
+        s=default; t=1592443873;
+        bh=L7krQWvQ/BaFmjdN656B/vQz1kmE70ALqk8CeDzjA+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z1qVjGZkYCfcOGkB1VhzIwAO6AuMSJuFUiFCIUxVlh6u3iOE8RJ0h5jDkkdsMZyyP
-         Eqw87AyFMcD505rzal/FWVUuKMuHJUmmQrYNZu0oZuThyFrqplzxbNWqjga5Ds8DAV
-         MgRaN68Idb+DSrTX4noFj4Q1aZaJ7RUB+7R99b60=
+        b=ar2EHbiz2aD6WDI3frCG9Hw922ba21BPatR19T6SkFZO41UBOU55CLJRTlsCXRkm7
+         8SO+pT6yR2Mr1j6Cs0vEE5P7y9WweOqG5RroBaBoBFXO0ChOnfifjBU758ehC/RAdp
+         CUXnB9Sdf9GQUklqXBDcQIuGT6frcsihM9n8nOyg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.4 52/60] ASoC: fsl_asrc_dma: Fix dma_chan leak when config DMA channel failed
-Date:   Wed, 17 Jun 2020 21:29:56 -0400
-Message-Id: <20200618013004.610532-52-sashal@kernel.org>
+Cc:     Stafford Horne <shorne@gmail.com>, Sasha Levin <sashal@kernel.org>,
+        openrisc@lists.librecores.org
+Subject: [PATCH AUTOSEL 4.4 53/60] openrisc: Fix issue with argument clobbering for clone/fork
+Date:   Wed, 17 Jun 2020 21:29:57 -0400
+Message-Id: <20200618013004.610532-53-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618013004.610532-1-sashal@kernel.org>
 References: <20200618013004.610532-1-sashal@kernel.org>
@@ -45,44 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+From: Stafford Horne <shorne@gmail.com>
 
-[ Upstream commit 36124fb19f1ae68a500cd76a76d40c6e81bee346 ]
+[ Upstream commit 6bd140e14d9aaa734ec37985b8b20a96c0ece948 ]
 
-fsl_asrc_dma_hw_params() invokes dma_request_channel() or
-fsl_asrc_get_dma_channel(), which returns a reference of the specified
-dma_chan object to "pair->dma_chan[dir]" with increased refcnt.
+Working on the OpenRISC glibc port I found that sometimes clone was
+working strange.  That the tls data argument sent in r7 was always
+wrong.  Further investigation revealed that the arguments were getting
+clobbered in the entry code.  This patch removes the code that writes to
+the argument registers.  This was likely due to some old code hanging
+around.
 
-The reference counting issue happens in one exception handling path of
-fsl_asrc_dma_hw_params(). When config DMA channel failed for Back-End,
-the function forgets to decrease the refcnt increased by
-dma_request_channel() or fsl_asrc_get_dma_channel(), causing a refcnt
-leak.
+This patch fixes this up for clone and fork.  This fork clobber is
+harmless but also useless so remove.
 
-Fix this issue by calling dma_release_channel() when config DMA channel
-failed.
-
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Link: https://lore.kernel.org/r/1590415966-52416-1-git-send-email-xiyuyang19@fudan.edu.cn
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Stafford Horne <shorne@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/fsl_asrc_dma.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/openrisc/kernel/entry.S | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/fsl/fsl_asrc_dma.c b/sound/soc/fsl/fsl_asrc_dma.c
-index ffc000bc1f15..56a873ba08e4 100644
---- a/sound/soc/fsl/fsl_asrc_dma.c
-+++ b/sound/soc/fsl/fsl_asrc_dma.c
-@@ -243,6 +243,7 @@ static int fsl_asrc_dma_hw_params(struct snd_pcm_substream *substream,
- 	ret = dmaengine_slave_config(pair->dma_chan[dir], &config_be);
- 	if (ret) {
- 		dev_err(dev, "failed to config DMA channel for Back-End\n");
-+		dma_release_channel(pair->dma_chan[dir]);
- 		return ret;
- 	}
+diff --git a/arch/openrisc/kernel/entry.S b/arch/openrisc/kernel/entry.S
+index c17e8451d997..3fbe420f49c4 100644
+--- a/arch/openrisc/kernel/entry.S
++++ b/arch/openrisc/kernel/entry.S
+@@ -1092,13 +1092,13 @@ ENTRY(__sys_clone)
+ 	l.movhi	r29,hi(sys_clone)
+ 	l.ori	r29,r29,lo(sys_clone)
+ 	l.j	_fork_save_extra_regs_and_call
+-	 l.addi	r7,r1,0
++	 l.nop
  
+ ENTRY(__sys_fork)
+ 	l.movhi	r29,hi(sys_fork)
+ 	l.ori	r29,r29,lo(sys_fork)
+ 	l.j	_fork_save_extra_regs_and_call
+-	 l.addi	r3,r1,0
++	 l.nop
+ 
+ ENTRY(sys_rt_sigreturn)
+ 	l.j	_sys_rt_sigreturn
 -- 
 2.25.1
 
