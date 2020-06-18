@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE15A1FDB8D
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:13:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADEB41FDB90
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:13:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728407AbgFRBMy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:12:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41716 "EHLO mail.kernel.org"
+        id S1729026AbgFRBM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:12:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728063AbgFRBMw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:12:52 -0400
+        id S1729018AbgFRBM6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:12:58 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D5CA920CC7;
-        Thu, 18 Jun 2020 01:12:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4590C221ED;
+        Thu, 18 Jun 2020 01:12:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442771;
-        bh=OqayClWImIhBqOFAFtfiY7UDh3l2XDUGo57JCkuN/ts=;
+        s=default; t=1592442777;
+        bh=Ofauh1tBppSKUpqFNfZSf4nuYCyIJ5cLtkEC6ulDfek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P3ACGsSvpQSqSMQlxwp264AhcoQFGqKloK7cudLfxgSocd6N/OocM0Ibne9HDVUWf
-         2mfRNnIpnIab/aGFARaPcDlpQ8ow2PmbGRbmHMG2A2zHfESJcn7YEx4pr/5m8/QCdb
-         jJ26Skal4fDNpbpRnKzncFM8yUZbQqRYpayANF98=
+        b=Y5itvmspFirUGLJ7e4a4hbJeCNnbdXNJ81Lek596J2A8OXmbCLtcg2roRUb8aowDn
+         /gW1dwnCKHocalOTC6uxHXstGX56M9VCj9tWfJiiVpKUuLIHtQmHCVkbcygGUMJFYJ
+         v3SaIX/1KpgXnOoJUOGyCS11unp6HeMOVHg7gGm8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.7 219/388] powerpc/64s/exceptions: Machine check reconcile irq state
-Date:   Wed, 17 Jun 2020 21:05:16 -0400
-Message-Id: <20200618010805.600873-219-sashal@kernel.org>
+Cc:     =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Tomasz Maciej Nowak <tmn505@gmail.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.7 223/388] PCI: aardvark: Issue PERST via GPIO
+Date:   Wed, 17 Jun 2020 21:05:20 -0400
+Message-Id: <20200618010805.600873-223-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,88 +47,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit f0fd9dd3c213c947dfb5bc2cad3ef5e30d3258ec ]
+[ Upstream commit 5169a9851daaa2782a7bd2bb83d5b1bd224b2879 ]
 
-pseries fwnmi machine check code pops the soft-irq checks in rtas_call
-(after the next patch to remove rtas_token from this call path).
-Rather than play whack a mole with these and forever having fragile
-code, it seems better to have the early machine check handler perform
-the same kind of reconcile as the other NMI interrupts.
+Add support for issuing PERST via GPIO specified in 'reset-gpios'
+property (as described in PCI device tree bindings).
 
-  WARNING: CPU: 0 PID: 493 at arch/powerpc/kernel/irq.c:343
-  CPU: 0 PID: 493 Comm: a Tainted: G        W
-  NIP:  c00000000001ed2c LR: c000000000042c40 CTR: 0000000000000000
-  REGS: c0000001fffd38b0 TRAP: 0700   Tainted: G        W
-  MSR:  8000000000021003 <SF,ME,RI,LE>  CR: 28000488  XER: 00000000
-  CFAR: c00000000001ec90 IRQMASK: 0
-  GPR00: c000000000043820 c0000001fffd3b40 c0000000012ba300 0000000000000000
-  GPR04: 0000000048000488 0000000000000000 0000000000000000 00000000deadbeef
-  GPR08: 0000000000000080 0000000000000000 0000000000000000 0000000000001001
-  GPR12: 0000000000000000 c0000000014a0000 0000000000000000 0000000000000000
-  GPR16: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
-  GPR20: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
-  GPR24: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
-  GPR28: 0000000000000000 0000000000000001 c000000001360810 0000000000000000
-  NIP [c00000000001ed2c] arch_local_irq_restore.part.0+0xac/0x100
-  LR [c000000000042c40] unlock_rtas+0x30/0x90
-  Call Trace:
-  [c0000001fffd3b40] [c000000001360810] 0xc000000001360810 (unreliable)
-  [c0000001fffd3b60] [c000000000043820] rtas_call+0x1c0/0x280
-  [c0000001fffd3bb0] [c0000000000dc328] fwnmi_release_errinfo+0x38/0x70
-  [c0000001fffd3c10] [c0000000000dcd8c] pseries_machine_check_realmode+0x1dc/0x540
-  [c0000001fffd3cd0] [c00000000003fe04] machine_check_early+0x54/0x70
-  [c0000001fffd3d00] [c000000000008384] machine_check_early_common+0x134/0x1f0
-  --- interrupt: 200 at 0x13f1307c8
-      LR = 0x7fff888b8528
-  Instruction dump:
-  60000000 7d2000a6 71298000 41820068 39200002 7d210164 4bffff9c 60000000
-  60000000 7d2000a6 71298000 4c820020 <0fe00000> 4e800020 60000000 60000000
+Some buggy cards (e.g. Compex WLE900VX or WLE1216) are not detected
+after reboot when PERST is not issued during driver initialization.
 
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200508043408.886394-5-npiggin@gmail.com
+If bootloader already enabled link training then issuing PERST has no
+effect for some buggy cards (e.g. Compex WLE900VX) and these cards are
+not detected. We therefore clear the LINK_TRAINING_EN register before.
+
+It was observed that Compex WLE900VX card needs to be in PERST reset
+for at least 10ms if bootloader enabled link training.
+
+Tested on Turris MOX.
+
+Link: https://lore.kernel.org/r/20200430080625.26070-6-pali@kernel.org
+Tested-by: Tomasz Maciej Nowak <tmn505@gmail.com>
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Acked-by: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/exceptions-64s.S | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ drivers/pci/controller/pci-aardvark.c | 43 ++++++++++++++++++++++++++-
+ 1 file changed, 42 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kernel/exceptions-64s.S b/arch/powerpc/kernel/exceptions-64s.S
-index 463372046169..d3e19934cca9 100644
---- a/arch/powerpc/kernel/exceptions-64s.S
-+++ b/arch/powerpc/kernel/exceptions-64s.S
-@@ -1117,11 +1117,30 @@ END_FTR_SECTION_IFSET(CPU_FTR_HVMODE)
- 	li	r10,MSR_RI
- 	mtmsrd	r10,1
+diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
+index e202f954eb84..2ecc79c03ade 100644
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -9,6 +9,7 @@
+  */
  
-+	/*
-+	 * Set IRQS_ALL_DISABLED and save PACAIRQHAPPENED (see
-+	 * system_reset_common)
-+	 */
-+	li	r10,IRQS_ALL_DISABLED
-+	stb	r10,PACAIRQSOFTMASK(r13)
-+	lbz	r10,PACAIRQHAPPENED(r13)
-+	std	r10,RESULT(r1)
-+	ori	r10,r10,PACA_IRQ_HARD_DIS
-+	stb	r10,PACAIRQHAPPENED(r13)
-+
- 	addi	r3,r1,STACK_FRAME_OVERHEAD
- 	bl	machine_check_early
- 	std	r3,RESULT(r1)	/* Save result */
- 	ld	r12,_MSR(r1)
+ #include <linux/delay.h>
++#include <linux/gpio.h>
+ #include <linux/interrupt.h>
+ #include <linux/irq.h>
+ #include <linux/irqdomain.h>
+@@ -18,6 +19,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/msi.h>
+ #include <linux/of_address.h>
++#include <linux/of_gpio.h>
+ #include <linux/of_pci.h>
  
-+	/*
-+	 * Restore soft mask settings.
-+	 */
-+	ld	r10,RESULT(r1)
-+	stb	r10,PACAIRQHAPPENED(r13)
-+	ld	r10,SOFTE(r1)
-+	stb	r10,PACAIRQSOFTMASK(r13)
+ #include "../pci.h"
+@@ -204,6 +206,7 @@ struct advk_pcie {
+ 	int root_bus_nr;
+ 	int link_gen;
+ 	struct pci_bridge_emul bridge;
++	struct gpio_desc *reset_gpio;
+ };
+ 
+ static inline void advk_writel(struct advk_pcie *pcie, u32 val, u64 reg)
+@@ -330,10 +333,31 @@ static void advk_pcie_train_link(struct advk_pcie *pcie)
+ 	dev_err(dev, "link never came up\n");
+ }
+ 
++static void advk_pcie_issue_perst(struct advk_pcie *pcie)
++{
++	u32 reg;
 +
- #ifdef CONFIG_PPC_P7_NAP
++	if (!pcie->reset_gpio)
++		return;
++
++	/* PERST does not work for some cards when link training is enabled */
++	reg = advk_readl(pcie, PCIE_CORE_CTRL0_REG);
++	reg &= ~LINK_TRAINING_EN;
++	advk_writel(pcie, reg, PCIE_CORE_CTRL0_REG);
++
++	/* 10ms delay is needed for some cards */
++	dev_info(&pcie->pdev->dev, "issuing PERST via reset GPIO for 10ms\n");
++	gpiod_set_value_cansleep(pcie->reset_gpio, 1);
++	usleep_range(10000, 11000);
++	gpiod_set_value_cansleep(pcie->reset_gpio, 0);
++}
++
+ static void advk_pcie_setup_hw(struct advk_pcie *pcie)
+ {
+ 	u32 reg;
+ 
++	advk_pcie_issue_perst(pcie);
++
+ 	/* Set to Direct mode */
+ 	reg = advk_readl(pcie, CTRL_CONFIG_REG);
+ 	reg &= ~(CTRL_MODE_MASK << CTRL_MODE_SHIFT);
+@@ -406,7 +430,8 @@ static void advk_pcie_setup_hw(struct advk_pcie *pcie)
+ 
  	/*
- 	 * Check if thread was in power saving mode. We come here when any
+ 	 * PERST# signal could have been asserted by pinctrl subsystem before
+-	 * probe() callback has been called, making the endpoint going into
++	 * probe() callback has been called or issued explicitly by reset gpio
++	 * function advk_pcie_issue_perst(), making the endpoint going into
+ 	 * fundamental reset. As required by PCI Express spec a delay for at
+ 	 * least 100ms after such a reset before link training is needed.
+ 	 */
+@@ -1046,6 +1071,22 @@ static int advk_pcie_probe(struct platform_device *pdev)
+ 	}
+ 	pcie->root_bus_nr = bus->start;
+ 
++	pcie->reset_gpio = devm_gpiod_get_from_of_node(dev, dev->of_node,
++						       "reset-gpios", 0,
++						       GPIOD_OUT_LOW,
++						       "pcie1-reset");
++	ret = PTR_ERR_OR_ZERO(pcie->reset_gpio);
++	if (ret) {
++		if (ret == -ENOENT) {
++			pcie->reset_gpio = NULL;
++		} else {
++			if (ret != -EPROBE_DEFER)
++				dev_err(dev, "Failed to get reset-gpio: %i\n",
++					ret);
++			return ret;
++		}
++	}
++
+ 	ret = of_pci_get_max_link_speed(dev->of_node);
+ 	if (ret <= 0 || ret > 3)
+ 		pcie->link_gen = 3;
 -- 
 2.25.1
 
