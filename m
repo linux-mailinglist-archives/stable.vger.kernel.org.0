@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 830AD1FDAF7
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:09:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 459C91FDAFF
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:09:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728178AbgFRBJ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:09:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35854 "EHLO mail.kernel.org"
+        id S1728246AbgFRBJj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:09:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728159AbgFRBJ3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:09:29 -0400
+        id S1728242AbgFRBJi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:09:38 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6420921974;
-        Thu, 18 Jun 2020 01:09:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2CB44221F3;
+        Thu, 18 Jun 2020 01:09:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442568;
-        bh=St+32PWtOnP3r5Q0VnSaOgp8ULPNXgJlQD252LrToqI=;
+        s=default; t=1592442577;
+        bh=vdJFMv8yHEs/2MvMI6fAtqmj1XRhq7UnKx2s5j72/GI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GcFLz1YCVOETdI6GpDA1WtWU019HKLCtJk/zPXIfNAg1DKT2ED4NeB9mgk3bjdKWI
-         aUOPH3130eWhfLVofzT5++0F+5jFCCgN9dU+6hMtbkfv4f7WXlrW6WuZb9oD0MPsQl
-         fPPn/ISq1VH85FUhW8dAzVxjn5kiUVjEiOH2rCCc=
+        b=LbbIBaTAV+bQqBD2bGuraCJ3gif1jTUSvx9qYDD1bnBzwn8fflr7aCvdhTEW7T9LO
+         tryOs9jcZeuIIfgb6gQs16owuBtQc/MjRB1rsSk3sr2XRw7qTPfqSvRUpkrPWMz5F/
+         nrmsfBBzLd8ics6/ENaZ4R0fZa3ilYUo0nk+doYY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.7 062/388] coresight: tmc: Fix TMC mode read in tmc_read_prepare_etb()
-Date:   Wed, 17 Jun 2020 21:02:39 -0400
-Message-Id: <20200618010805.600873-62-sashal@kernel.org>
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Serge Semin <fancer.lancer@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 070/388] gpio: dwapb: Call acpi_gpiochip_free_interrupts() on GPIO chip de-registration
+Date:   Wed, 17 Jun 2020 21:02:47 -0400
+Message-Id: <20200618010805.600873-70-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
@@ -46,91 +44,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 347adb0d6385c3220dc01ab61807a5b1892901cc ]
+[ Upstream commit 494a94e38dcf62543a32a4424d646ff80b4b28bd ]
 
-On some QCOM platforms like SC7180, SDM845 and SM8150,
-reading TMC mode register without proper coresight power
-management can lead to async exceptions like the one in
-the call trace below in tmc_read_prepare_etb(). This can
-happen if the user tries to read the TMC etf data via
-device node without setting up source and the sink first.
-Fix this by having a check for coresight sysfs mode
-before reading TMC mode management register.
+Add missed acpi_gpiochip_free_interrupts() call when unregistering ports.
 
- Kernel panic - not syncing: Asynchronous SError Interrupt
- CPU: 7 PID: 2605 Comm: hexdump Tainted: G S                5.4.30 #122
- Call trace:
-  dump_backtrace+0x0/0x188
-  show_stack+0x20/0x2c
-  dump_stack+0xdc/0x144
-  panic+0x168/0x36c
-  panic+0x0/0x36c
-  arm64_serror_panic+0x78/0x84
-  do_serror+0x130/0x138
-  el1_error+0x84/0xf8
-  tmc_read_prepare_etb+0x88/0xb8
-  tmc_open+0x40/0xd8
-  misc_open+0x120/0x158
-  chrdev_open+0xb8/0x1a4
-  do_dentry_open+0x268/0x3a0
-  vfs_open+0x34/0x40
-  path_openat+0x39c/0xdf4
-  do_filp_open+0x90/0x10c
-  do_sys_open+0x150/0x3e8
-  __arm64_compat_sys_openat+0x28/0x34
-  el0_svc_common+0xa8/0x160
-  el0_svc_compat_handler+0x2c/0x38
-  el0_svc_compat+0x8/0x10
+While at it, drop extra check to call acpi_gpiochip_request_interrupts().
+There is no need to have an additional check to call
+acpi_gpiochip_request_interrupts(). Even without any interrupts available
+the registered ACPI Event handlers can be useful for debugging purposes.
 
-Fixes: 4525412a5046 ("coresight: tmc: making prepare/unprepare functions generic")
-Reported-by: Stephen Boyd <swboyd@chromium.org>
-Suggested-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Signed-off-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Link: https://lore.kernel.org/r/20200518180242.7916-14-mathieu.poirier@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: e6cb3486f5a1 ("gpio: dwapb: add gpio-signaled acpi event support")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Tested-by: Serge Semin <fancer.lancer@gmail.com>
+Acked-by: Serge Semin <fancer.lancer@gmail.com>
+Link: https://lore.kernel.org/r/20200519131233.59032-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwtracing/coresight/coresight-tmc-etf.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/gpio/gpio-dwapb.c | 25 ++++++++++++++++---------
+ 1 file changed, 16 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/hwtracing/coresight/coresight-tmc-etf.c b/drivers/hwtracing/coresight/coresight-tmc-etf.c
-index d0cc3985b72a..36cce2bfb744 100644
---- a/drivers/hwtracing/coresight/coresight-tmc-etf.c
-+++ b/drivers/hwtracing/coresight/coresight-tmc-etf.c
-@@ -596,13 +596,6 @@ int tmc_read_prepare_etb(struct tmc_drvdata *drvdata)
- 		goto out;
- 	}
+diff --git a/drivers/gpio/gpio-dwapb.c b/drivers/gpio/gpio-dwapb.c
+index 92e127e74813..02cf4c43a4c4 100644
+--- a/drivers/gpio/gpio-dwapb.c
++++ b/drivers/gpio/gpio-dwapb.c
+@@ -533,26 +533,33 @@ static int dwapb_gpio_add_port(struct dwapb_gpio *gpio,
+ 		dwapb_configure_irqs(gpio, port, pp);
  
--	/* There is no point in reading a TMC in HW FIFO mode */
--	mode = readl_relaxed(drvdata->base + TMC_MODE);
--	if (mode != TMC_MODE_CIRCULAR_BUFFER) {
--		ret = -EINVAL;
--		goto out;
--	}
--
- 	/* Don't interfere if operated from Perf */
- 	if (drvdata->mode == CS_MODE_PERF) {
- 		ret = -EINVAL;
-@@ -616,8 +609,15 @@ int tmc_read_prepare_etb(struct tmc_drvdata *drvdata)
- 	}
- 
- 	/* Disable the TMC if need be */
--	if (drvdata->mode == CS_MODE_SYSFS)
-+	if (drvdata->mode == CS_MODE_SYSFS) {
-+		/* There is no point in reading a TMC in HW FIFO mode */
-+		mode = readl_relaxed(drvdata->base + TMC_MODE);
-+		if (mode != TMC_MODE_CIRCULAR_BUFFER) {
-+			ret = -EINVAL;
-+			goto out;
-+		}
- 		__tmc_etb_disable_hw(drvdata);
+ 	err = gpiochip_add_data(&port->gc, port);
+-	if (err)
++	if (err) {
+ 		dev_err(gpio->dev, "failed to register gpiochip for port%d\n",
+ 			port->idx);
+-	else
+-		port->is_registered = true;
++		return err;
 +	}
  
- 	drvdata->reading = true;
- out:
+ 	/* Add GPIO-signaled ACPI event support */
+-	if (pp->has_irq)
+-		acpi_gpiochip_request_interrupts(&port->gc);
++	acpi_gpiochip_request_interrupts(&port->gc);
+ 
+-	return err;
++	port->is_registered = true;
++
++	return 0;
+ }
+ 
+ static void dwapb_gpio_unregister(struct dwapb_gpio *gpio)
+ {
+ 	unsigned int m;
+ 
+-	for (m = 0; m < gpio->nr_ports; ++m)
+-		if (gpio->ports[m].is_registered)
+-			gpiochip_remove(&gpio->ports[m].gc);
++	for (m = 0; m < gpio->nr_ports; ++m) {
++		struct dwapb_gpio_port *port = &gpio->ports[m];
++
++		if (!port->is_registered)
++			continue;
++
++		acpi_gpiochip_free_interrupts(&port->gc);
++		gpiochip_remove(&port->gc);
++	}
+ }
+ 
+ static struct dwapb_platform_data *
 -- 
 2.25.1
 
