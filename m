@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34E391FE2E6
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:05:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 581D81FE2E0
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:05:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729161AbgFRCEl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:04:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56206 "EHLO mail.kernel.org"
+        id S1730893AbgFRBW7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:22:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730882AbgFRBW5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:22:57 -0400
+        id S1730885AbgFRBW6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:22:58 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 649C120CC7;
-        Thu, 18 Jun 2020 01:22:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B763A20663;
+        Thu, 18 Jun 2020 01:22:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443377;
-        bh=f3IrhpYIO11PWkZc3xRDXXaFzg5TqWFtpqCE+5k93P0=;
+        s=default; t=1592443378;
+        bh=7tbR37TlDsxb2DvWezaDQ8YEVSOAqo98BHGh0rZj/rE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XEeELnDE+GjaJdVAHGAz+LKvR7h+GnwmYzm1KYJbPWvOFUpUSmNQv/myAg8gIgV9e
-         qAl8vg6G7T/gF4PDRk10qAtCsgwT8e+LRvEP1ZoUOvtTseL08nDBQcAAvR0yyGigyx
-         mADR3+TjZp17VhlsnHSrHlDa0VBCeXwuxEUHrLcI=
+        b=pd2G8YRE7ZGoKcg0FL8BkH4lsroCH4NMZA/S5j3Ff8c6ateqYBAc+cVHki1SA4RJd
+         ifww6MRyoILcose5/WP6yEXJEgQ0DTp4+8fCQAhvIKSEtxlZrLO7HQOMEWILVvF+px
+         o74DfZj+JkBKfToHSbopp2a+VaJabDSS85y+xVtE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Aharon Landau <aharonl@mellanox.com>,
-        Maor Gottlieb <maorg@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 029/172] RDMA/mlx5: Add init2init as a modify command
-Date:   Wed, 17 Jun 2020 21:19:55 -0400
-Message-Id: <20200618012218.607130-29-sashal@kernel.org>
+Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Greg Ungerer <gerg@linux-m68k.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-m68k@lists.linux-m68k.org
+Subject: [PATCH AUTOSEL 4.19 030/172] m68k/PCI: Fix a memory leak in an error handling path
+Date:   Wed, 17 Jun 2020 21:19:56 -0400
+Message-Id: <20200618012218.607130-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012218.607130-1-sashal@kernel.org>
 References: <20200618012218.607130-1-sashal@kernel.org>
@@ -45,37 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aharon Landau <aharonl@mellanox.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 819f7427bafd494ef7ca4942ec6322db20722d7b ]
+[ Upstream commit c3f4ec050f56eeab7c1f290321f9b762c95bd332 ]
 
-Missing INIT2INIT entry in the list of modify commands caused DEVX
-applications to be unable to modify_qp for this transition state. Add the
-MLX5_CMD_OP_INIT2INIT_QP opcode to the list of allowed DEVX opcodes.
+If 'ioremap' fails, we must free 'bridge', as done in other error handling
+path bellow.
 
-Fixes: e662e14d801b ("IB/mlx5: Add DEVX support for modify and query commands")
-Link: https://lore.kernel.org/r/20200513095550.211345-1-leon@kernel.org
-Signed-off-by: Aharon Landau <aharonl@mellanox.com>
-Reviewed-by: Maor Gottlieb <maorg@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: 19cc4c843f40 ("m68k/PCI: Replace pci_fixup_irqs() call with host bridge IRQ mapping hooks")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mlx5/devx.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/m68k/coldfire/pci.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/mlx5/devx.c b/drivers/infiniband/hw/mlx5/devx.c
-index 02f36ab72ad4..4c90a007e09d 100644
---- a/drivers/infiniband/hw/mlx5/devx.c
-+++ b/drivers/infiniband/hw/mlx5/devx.c
-@@ -328,6 +328,7 @@ static bool devx_is_obj_modify_cmd(const void *in)
- 	case MLX5_CMD_OP_SET_L2_TABLE_ENTRY:
- 	case MLX5_CMD_OP_RST2INIT_QP:
- 	case MLX5_CMD_OP_INIT2RTR_QP:
-+	case MLX5_CMD_OP_INIT2INIT_QP:
- 	case MLX5_CMD_OP_RTR2RTS_QP:
- 	case MLX5_CMD_OP_RTS2RTS_QP:
- 	case MLX5_CMD_OP_SQERR2RTS_QP:
+diff --git a/arch/m68k/coldfire/pci.c b/arch/m68k/coldfire/pci.c
+index 62b0eb6cf69a..84eab0f5e00a 100644
+--- a/arch/m68k/coldfire/pci.c
++++ b/arch/m68k/coldfire/pci.c
+@@ -216,8 +216,10 @@ static int __init mcf_pci_init(void)
+ 
+ 	/* Keep a virtual mapping to IO/config space active */
+ 	iospace = (unsigned long) ioremap(PCI_IO_PA, PCI_IO_SIZE);
+-	if (iospace == 0)
++	if (iospace == 0) {
++		pci_free_host_bridge(bridge);
+ 		return -ENODEV;
++	}
+ 	pr_info("Coldfire: PCI IO/config window mapped to 0x%x\n",
+ 		(u32) iospace);
+ 
 -- 
 2.25.1
 
