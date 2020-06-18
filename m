@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 286541FE53F
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:25:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39D781FE53B
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:25:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729737AbgFRCYg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:24:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48816 "EHLO mail.kernel.org"
+        id S1728189AbgFRBRn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:17:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728878AbgFRBRi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:17:38 -0400
+        id S1729184AbgFRBRj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:17:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 46CE7206F1;
-        Thu, 18 Jun 2020 01:17:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 832E921D79;
+        Thu, 18 Jun 2020 01:17:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443058;
-        bh=rg6dt3CgmhuAqP0vnDsrUS7uZ9EdNF3ayal5wE+ExhQ=;
+        s=default; t=1592443059;
+        bh=HFcuNX+faoaTX2GQ5GoMYIAdRLwuZgOaKcgrxIXVxi4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MKSWhK/jktlyFrX0JWHAn19Oquu0/KDMbSbB2bQO4uwYsy136Qsa/njabdAd4LKqI
-         4z1uxCByBKlh8/q8LmuAdybyLlwXu0sHmF8rFvfpYTzBMyivOXKkMB1W69xabAKk+4
-         Qab/ex5TWfjTr/5WQ2H/Z8uEn3aKkUruEN3aIyRc=
+        b=SRRid2ki8u5re/yt21fryN5RV+DrqCIU7J6BIlBsoxgoOty5obWMiXqTTRa9JrFhz
+         j2VvXVpSa89Nb7NWW9n/Q+H0AFTA4fEWCDk+GMudtdTIbovzWd/LhEf91ZqkWbBt/S
+         XKYyFgUrpd/1Wr0Z6zoD9JKXZC4HSSTysXxyUJzQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Luo Jiaxing <luojiaxing@huawei.com>,
-        John Garry <john.garry@huawei.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 049/266] scsi: hisi_sas: Do not reset phy timer to wait for stray phy up
-Date:   Wed, 17 Jun 2020 21:12:54 -0400
-Message-Id: <20200618011631.604574-49-sashal@kernel.org>
+Cc:     Jon Derrick <jonathan.derrick@intel.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 050/266] PCI: pci-bridge-emul: Fix PCIe bit conflicts
+Date:   Wed, 17 Jun 2020 21:12:55 -0400
+Message-Id: <20200618011631.604574-50-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
@@ -44,45 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luo Jiaxing <luojiaxing@huawei.com>
+From: Jon Derrick <jonathan.derrick@intel.com>
 
-[ Upstream commit e16b9ed61e078d836a0f24a82080cf29d7539c7e ]
+[ Upstream commit c88d19181771bd189147681ef38fc1533ebeff4c ]
 
-We found out that after phy up, the hardware reports another oob interrupt
-but did not follow a phy up interrupt:
+This patch fixes two bit conflicts in the pci-bridge-emul driver:
 
-oob ready -> phy up -> DEV found -> oob read -> wait phy up -> timeout
+1. Bit 3 of Device Status (19 of Device Control) is marked as both
+   Write-1-to-Clear and Read-Only. It should be Write-1-to-Clear.
+   The Read-Only and Reserved bitmasks are shifted by 1 bit due to this
+   error.
 
-We run link reset when wait phy up timeout, and it send a normal disk into
-reset processing. So we made some circumvention action in the code, so that
-this abnormal oob interrupt will not start the timer to wait for phy up.
+2. Bit 12 of Slot Control is marked as both Read-Write and Reserved.
+   It should be Read-Write.
 
-Link: https://lore.kernel.org/r/1589552025-165012-2-git-send-email-john.garry@huawei.com
-Signed-off-by: Luo Jiaxing <luojiaxing@huawei.com>
-Signed-off-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Link: https://lore.kernel.org/r/20200511162117.6674-2-jonathan.derrick@intel.com
+Signed-off-by: Jon Derrick <jonathan.derrick@intel.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Acked-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/hisi_sas/hisi_sas_main.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/pci/pci-bridge-emul.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
-index 6f4692f0d714..031aa4043c5e 100644
---- a/drivers/scsi/hisi_sas/hisi_sas_main.c
-+++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
-@@ -904,8 +904,11 @@ void hisi_sas_phy_oob_ready(struct hisi_hba *hisi_hba, int phy_no)
- 	struct hisi_sas_phy *phy = &hisi_hba->phy[phy_no];
- 	struct device *dev = hisi_hba->dev;
+diff --git a/drivers/pci/pci-bridge-emul.c b/drivers/pci/pci-bridge-emul.c
+index 5fd90105510d..d3b6b9a05618 100644
+--- a/drivers/pci/pci-bridge-emul.c
++++ b/drivers/pci/pci-bridge-emul.c
+@@ -195,8 +195,8 @@ static const struct pci_bridge_reg_behavior pcie_cap_regs_behavior[] = {
+ 		 * RO, the rest is reserved
+ 		 */
+ 		.w1c = GENMASK(19, 16),
+-		.ro = GENMASK(20, 19),
+-		.rsvd = GENMASK(31, 21),
++		.ro = GENMASK(21, 20),
++		.rsvd = GENMASK(31, 22),
+ 	},
  
-+	dev_dbg(dev, "phy%d OOB ready\n", phy_no);
-+	if (phy->phy_attached)
-+		return;
-+
- 	if (!timer_pending(&phy->timer)) {
--		dev_dbg(dev, "phy%d OOB ready\n", phy_no);
- 		phy->timer.expires = jiffies + HISI_SAS_WAIT_PHYUP_TIMEOUT * HZ;
- 		add_timer(&phy->timer);
- 	}
+ 	[PCI_EXP_LNKCAP / 4] = {
+@@ -236,7 +236,7 @@ static const struct pci_bridge_reg_behavior pcie_cap_regs_behavior[] = {
+ 			PCI_EXP_SLTSTA_CC | PCI_EXP_SLTSTA_DLLSC) << 16,
+ 		.ro = (PCI_EXP_SLTSTA_MRLSS | PCI_EXP_SLTSTA_PDS |
+ 		       PCI_EXP_SLTSTA_EIS) << 16,
+-		.rsvd = GENMASK(15, 12) | (GENMASK(15, 9) << 16),
++		.rsvd = GENMASK(15, 13) | (GENMASK(15, 9) << 16),
+ 	},
+ 
+ 	[PCI_EXP_RTCTL / 4] = {
 -- 
 2.25.1
 
