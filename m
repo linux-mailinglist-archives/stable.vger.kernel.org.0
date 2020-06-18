@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C7611FE7A6
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:43:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7FD11FE7C0
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:43:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728781AbgFRBLo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:11:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39640 "EHLO mail.kernel.org"
+        id S1728992AbgFRCnU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:43:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728745AbgFRBLi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:11:38 -0400
+        id S1728765AbgFRBLj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:11:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3CA2E21974;
-        Thu, 18 Jun 2020 01:11:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 83EB820CC7;
+        Thu, 18 Jun 2020 01:11:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442698;
-        bh=nZiTh/x0+BJwJJK5EHwTZcOVVxfwS36S2zGYTDgC4ZU=;
+        s=default; t=1592442699;
+        bh=lffGI+usafluNIt52bJY49hTytGuNJw+IaRZwkMO2Rs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pkBgkTForBTTz7VuKwDRtFnFgF0uth22pPe8HWvv/eR2EzEDHNtctM1s6peFUozzm
-         clqDAKZtJ5n6L9YsFkPmFdNHX38nE29A5PpwkvyXCBmzR80W3vy5xhDbUQIci1OCLc
-         eQ3gC0GlSm2sLmtGXDorDHNbco7jNGy41ajTCpu0=
+        b=mbDV9gjVCpCNQT6ZpeoEzqGzchqet5AiOmpDJRw0CatHmTnq9kPEJnTILr6jMJWTv
+         Hky2d2KxN+dcOenYG9bIZWPdW5ifLfDJAluEHDahK9W/OJlrKgrWoZ3UuHo8z5CsVn
+         qE7xZeu+h7EZEkNN4LrTXNPD53e6wO+ejgua5QVI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-amlogic@lists.infradead.org, linux-clk@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.7 161/388] clk: meson: meson8b: Don't rely on u-boot to init all GP_PLL registers
-Date:   Wed, 17 Jun 2020 21:04:18 -0400
-Message-Id: <20200618010805.600873-161-sashal@kernel.org>
+Cc:     Yong Zhi <yong.zhi@intel.com>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.7 162/388] ASoC: max98373: reorder max98373_reset() in resume
+Date:   Wed, 17 Jun 2020 21:04:19 -0400
+Message-Id: <20200618010805.600873-162-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
@@ -45,81 +42,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+From: Yong Zhi <yong.zhi@intel.com>
 
-[ Upstream commit a29ae8600d50ece1856b062a39ed296b8b952259 ]
+[ Upstream commit 1a446873d7dd3a450f685928ce7f1907bde4583d ]
 
-Not all u-boot versions initialize the HHI_GP_PLL_CNTL[2-5] registers.
-In that case all HHI_GPLL_PLL_CNTL[1-5] registers are 0x0 and when
-booting Linux the PLL fails to lock.
-The initialization sequence from u-boot is:
-- put the PLL into reset
-- write 0x59C88000 to HHI_GP_PLL_CNTL2
-- write 0xCA463823 to HHI_GP_PLL_CNTL3
-- write 0x0286A027 to HHI_GP_PLL_CNTL4
-- write 0x00003000 to HHI_GP_PLL_CNTL5
-- set M, N, OD and the enable bit
-- take the PLL out of reset
-- check if it has locked
-- disable the PLL
+During S3 test, the following error was observed:
 
-In Linux we already initialize M, N, OD, the enable and the reset bits.
-Also the HHI_GP_PLL_CNTL[2-5] registers with these magic values (the
-exact meaning is unknown) so the PLL can lock when the vendor u-boot did
-not initialize these registers yet.
+[ 726.174237] i2c_designware i2c_designware.0: platform_pm_resume+0x0/0x3d returned 0 after 0 usecs
+[ 726.184187] max98373 i2c-MX98373:00: calling max98373_resume+0x0/0x30 [snd_soc_max98373] @ 12698, parent: i2c-11
+[ 726.195589] max98373 i2c-MX98373:00: Reset command failed. (ret:-16)
 
-Fixes: b882964b376f21 ("clk: meson: meson8b: add support for the GP_PLL clock on Meson8m2")
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
-Link: https://lore.kernel.org/r/20200501215717.735393-1-martin.blumenstingl@googlemail.com
+When calling regmap_update_bits(), since map->reg_update_bits is NULL,
+_regmap_read() is entered with the following logic:
+
+	if (!map->cache_bypass) {
+		ret = regcache_read(map, reg, val);
+		if (ret == 0)
+			return 0;
+	}
+
+	if (map->cache_only)
+		return -EBUSY;
+
+regcache_read() hits -EINVAL because MAX98373_R2000_SW_RESET is volatile,
+as map->cache_only is set by codec suspend, thus -EBUSY is returned.
+Fix by moving max98373_reset() after cache_only set to false in max98373_resume().
+
+Signed-off-by: Yong Zhi <yong.zhi@intel.com>
+Link: https://lore.kernel.org/r/1588376661-29799-1-git-send-email-yong.zhi@intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/meson/meson8b.c | 9 +++++++++
- drivers/clk/meson/meson8b.h | 4 ++++
- 2 files changed, 13 insertions(+)
+ sound/soc/codecs/max98373.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/meson/meson8b.c b/drivers/clk/meson/meson8b.c
-index 5f375799ce46..11f6b868cf2b 100644
---- a/drivers/clk/meson/meson8b.c
-+++ b/drivers/clk/meson/meson8b.c
-@@ -1918,6 +1918,13 @@ static struct clk_regmap meson8b_mali = {
- 	},
- };
+diff --git a/sound/soc/codecs/max98373.c b/sound/soc/codecs/max98373.c
+index cae1def8902d..96718e3a1ad0 100644
+--- a/sound/soc/codecs/max98373.c
++++ b/sound/soc/codecs/max98373.c
+@@ -850,8 +850,8 @@ static int max98373_resume(struct device *dev)
+ {
+ 	struct max98373_priv *max98373 = dev_get_drvdata(dev);
  
-+static const struct reg_sequence meson8m2_gp_pll_init_regs[] = {
-+	{ .reg = HHI_GP_PLL_CNTL2,	.def = 0x59c88000 },
-+	{ .reg = HHI_GP_PLL_CNTL3,	.def = 0xca463823 },
-+	{ .reg = HHI_GP_PLL_CNTL4,	.def = 0x0286a027 },
-+	{ .reg = HHI_GP_PLL_CNTL5,	.def = 0x00003000 },
-+};
-+
- static const struct pll_params_table meson8m2_gp_pll_params_table[] = {
- 	PLL_PARAMS(182, 3),
- 	{ /* sentinel */ },
-@@ -1951,6 +1958,8 @@ static struct clk_regmap meson8m2_gp_pll_dco = {
- 			.width   = 1,
- 		},
- 		.table = meson8m2_gp_pll_params_table,
-+		.init_regs = meson8m2_gp_pll_init_regs,
-+		.init_count = ARRAY_SIZE(meson8m2_gp_pll_init_regs),
- 	},
- 	.hw.init = &(struct clk_init_data){
- 		.name = "gp_pll_dco",
-diff --git a/drivers/clk/meson/meson8b.h b/drivers/clk/meson/meson8b.h
-index c889fbeec30f..c91fb07fcb65 100644
---- a/drivers/clk/meson/meson8b.h
-+++ b/drivers/clk/meson/meson8b.h
-@@ -20,6 +20,10 @@
-  * [0] http://dn.odroid.com/S805/Datasheet/S805_Datasheet%20V0.8%2020150126.pdf
-  */
- #define HHI_GP_PLL_CNTL			0x40  /* 0x10 offset in data sheet */
-+#define HHI_GP_PLL_CNTL2		0x44  /* 0x11 offset in data sheet */
-+#define HHI_GP_PLL_CNTL3		0x48  /* 0x12 offset in data sheet */
-+#define HHI_GP_PLL_CNTL4		0x4C  /* 0x13 offset in data sheet */
-+#define HHI_GP_PLL_CNTL5		0x50  /* 0x14 offset in data sheet */
- #define HHI_VIID_CLK_DIV		0x128 /* 0x4a offset in data sheet */
- #define HHI_VIID_CLK_CNTL		0x12c /* 0x4b offset in data sheet */
- #define HHI_GCLK_MPEG0			0x140 /* 0x50 offset in data sheet */
+-	max98373_reset(max98373, dev);
+ 	regcache_cache_only(max98373->regmap, false);
++	max98373_reset(max98373, dev);
+ 	regcache_sync(max98373->regmap);
+ 	return 0;
+ }
 -- 
 2.25.1
 
