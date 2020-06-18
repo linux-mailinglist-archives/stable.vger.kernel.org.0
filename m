@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2003B1FE349
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:08:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A544F1FE344
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:07:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730670AbgFRBWK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:22:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55022 "EHLO mail.kernel.org"
+        id S1730676AbgFRBWM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:22:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730659AbgFRBWJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:22:09 -0400
+        id S1728705AbgFRBWK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:22:10 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D45C920CC7;
-        Thu, 18 Jun 2020 01:22:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3BD8121D79;
+        Thu, 18 Jun 2020 01:22:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443328;
-        bh=peDTYNHEUfnCxbVfnWAt6h2520DHO5lsM1u8rApleLw=;
+        s=default; t=1592443330;
+        bh=EYH7/kEgNRJTHJX5SU2E60AicyWDr58tlgaXuyLRoIg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0thg7zgOyui1J80AsUEj5ocV8iU5Fu10sa1i2RevOY27/8mQZzgX0Tu1fVptKUWvv
-         TQojQJaW/ywL4j+L1z5et9yrZ51PwtCsEq+tkyAYRaPSCIbzCQmyO6HxhG2Z6J6MMf
-         5xt88RaS+1YOGWqepUSScvZt7SGiXRwNejEEcbKM=
+        b=DSbE8PuXex5GKGlqP87wkxayRc6iDZhTG15uSsNgHAOD71+2OdyNCRgYkdZBK1ER9
+         +8gKRfscZNQxXozSlW5rZ4Dt02cGis4GSyMJUEhGZsb8dwbjYEiwQ0YYDdYGcZD7ue
+         PMO+b3hfDyD44tXGb16sHEdv40hqhaSKz+QGGuqo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     YiFei Zhu <zhuyifei1999@gmail.com>,
-        YiFei Zhu <zhuyifei@google.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Stanislav Fomichev <sdf@google.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 261/266] net/filter: Permit reading NET in load_bytes_relative when MAC not set
-Date:   Wed, 17 Jun 2020 21:16:26 -0400
-Message-Id: <20200618011631.604574-261-sashal@kernel.org>
+Cc:     Christoph Hellwig <hch@lst.de>, Keith Busch <kbusch@kernel.org>,
+        Sagi Grimberg <sagi@grimberg.me>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 262/266] nvme-pci: use simple suspend when a HMB is enabled
+Date:   Wed, 17 Jun 2020 21:16:27 -0400
+Message-Id: <20200618011631.604574-262-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
@@ -46,71 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YiFei Zhu <zhuyifei1999@gmail.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 0f5d82f187e1beda3fe7295dfc500af266a5bd80 ]
+[ Upstream commit b97120b15ebd3de51325084136d3b9c3cce656d6 ]
 
-Added a check in the switch case on start_header that checks for
-the existence of the header, and in the case that MAC is not set
-and the caller requests for MAC, -EFAULT. If the caller requests
-for NET then MAC's existence is completely ignored.
+While the NVMe specification allows the device to access the host memory
+buffer in host DRAM from all power states, hosts will fail access to
+DRAM during S3 and similar power states.
 
-There is no function to check NET header's existence and as far
-as cgroup_skb/egress is concerned it should always be set.
-
-Removed for ptr >= the start of header, considering offset is
-bounded unsigned and should always be true. len <= end - mac is
-redundant to ptr + len <= end.
-
-Fixes: 3eee1f75f2b9 ("bpf: fix bpf_skb_load_bytes_relative pkt length check")
-Signed-off-by: YiFei Zhu <zhuyifei@google.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: Stanislav Fomichev <sdf@google.com>
-Link: https://lore.kernel.org/bpf/76bb820ddb6a95f59a772ecbd8c8a336f646b362.1591812755.git.zhuyifei@google.com
+Fixes: d916b1be94b6 ("nvme-pci: use host managed power state for suspend")
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/filter.c | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ drivers/nvme/host/pci.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/net/core/filter.c b/net/core/filter.c
-index f1f2304822e3..a0a492f7cf9c 100644
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -1766,25 +1766,27 @@ BPF_CALL_5(bpf_skb_load_bytes_relative, const struct sk_buff *, skb,
- 	   u32, offset, void *, to, u32, len, u32, start_header)
- {
- 	u8 *end = skb_tail_pointer(skb);
--	u8 *net = skb_network_header(skb);
--	u8 *mac = skb_mac_header(skb);
--	u8 *ptr;
-+	u8 *start, *ptr;
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index cd64ddb129e5..acbdf21b76ed 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -2962,9 +2962,15 @@ static int nvme_suspend(struct device *dev)
+ 	 * the PCI bus layer to put it into D3 in order to take the PCIe link
+ 	 * down, so as to allow the platform to achieve its minimum low-power
+ 	 * state (which may not be possible if the link is up).
++	 *
++	 * If a host memory buffer is enabled, shut down the device as the NVMe
++	 * specification allows the device to access the host memory buffer in
++	 * host DRAM from all power states, but hosts will fail access to DRAM
++	 * during S3.
+ 	 */
+ 	if (pm_suspend_via_firmware() || !ctrl->npss ||
+ 	    !pcie_aspm_enabled(pdev) ||
++	    ndev->nr_host_mem_descs ||
+ 	    (ndev->ctrl.quirks & NVME_QUIRK_SIMPLE_SUSPEND))
+ 		return nvme_disable_prepare_reset(ndev, true);
  
--	if (unlikely(offset > 0xffff || len > (end - mac)))
-+	if (unlikely(offset > 0xffff))
- 		goto err_clear;
- 
- 	switch (start_header) {
- 	case BPF_HDR_START_MAC:
--		ptr = mac + offset;
-+		if (unlikely(!skb_mac_header_was_set(skb)))
-+			goto err_clear;
-+		start = skb_mac_header(skb);
- 		break;
- 	case BPF_HDR_START_NET:
--		ptr = net + offset;
-+		start = skb_network_header(skb);
- 		break;
- 	default:
- 		goto err_clear;
- 	}
- 
--	if (likely(ptr >= mac && ptr + len <= end)) {
-+	ptr = start + offset;
-+
-+	if (likely(ptr + len <= end)) {
- 		memcpy(to, ptr, len);
- 		return 0;
- 	}
 -- 
 2.25.1
 
