@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C6131FE799
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:42:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CF8F1FE790
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:42:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728861AbgFRCmU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:42:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40572 "EHLO mail.kernel.org"
+        id S1732865AbgFRCmL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:42:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728117AbgFRBMI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:12:08 -0400
+        id S1728861AbgFRBMJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:12:09 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF521214DB;
-        Thu, 18 Jun 2020 01:12:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3495D20EDD;
+        Thu, 18 Jun 2020 01:12:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442727;
-        bh=lmsOjpJfu1F/07xtNKZqZw1bsoKKOBllErHB92ejtMc=;
+        s=default; t=1592442729;
+        bh=NznlWfKmX/UWHufbw5kvuUbn4Bkrlk5WDFiJ3oJ4Oiw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PZ6MzIOaugBA/g2Wf9m1vzM4ijJcm03pDC4uK7O2uWisbMydpPHo3Q/mJ+MDZC1D6
-         YJxu32lDkhGdgICn/zxdfDylij2Y02UQBmr4687lt5TyBu8Vmw02EH+4XvxWY5OMx/
-         nu8y/Liz7m9tt/gGBJuiHvXt0ZTSTvZFRCi9gsEI=
+        b=GhFk5Dw0u3OhnRJAuo5JKURn61Kt0+tpOt2QLMPMBbWiG3RRl5st+Kdh7HFLw+/YP
+         BdrCVxuSfYsoWZz4kGel5cB4+Gi+JxIZs/9P+ZuX/MUFxwdm1V12mgdcQvUc0OuvxD
+         dD2f1eWzi8k7hg7TvbAkSG2+x3AyYtIQCEF4lBVg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wei Yongjun <weiyongjun1@huawei.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Hulk Robot <hulkci@huawei.com>,
+Cc:     Loic Poulain <loic.poulain@linaro.org>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-remoteproc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.7 184/388] remoteproc/mediatek: fix invalid use of sizeof in scp_ipi_init()
-Date:   Wed, 17 Jun 2020 21:04:41 -0400
-Message-Id: <20200618010805.600873-184-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 185/388] arm64: dts: msm8996: Fix CSI IRQ types
+Date:   Wed, 17 Jun 2020 21:04:42 -0400
+Message-Id: <20200618010805.600873-185-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
@@ -48,39 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Loic Poulain <loic.poulain@linaro.org>
 
-[ Upstream commit 8096f80a5c09b716be207eb042c4e40d6cdefbd2 ]
+[ Upstream commit 4a4a26317ec8aba575f6b85789a42639937bc1a4 ]
 
-sizeof() when applied to a pointer typed expression gives the
-size of the pointer, not that of the pointed data.
+Each IRQ_TYPE_NONE interrupt causes a warning at boot.
+Fix that by defining an appropriate type.
 
-Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Fixes: 63c13d61eafe ("remoteproc/mediatek: add SCP support for mt8183")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Link: https://lore.kernel.org/r/20200509084237.36293-1-weiyongjun1@huawei.com
+Fixes: e0531312e78f ("arm64: dts: qcom: msm8996: Add CAMSS support")
+Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
+Link: https://lore.kernel.org/r/1587470425-13726-1-git-send-email-loic.poulain@linaro.org
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/remoteproc/mtk_scp.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/qcom/msm8996.dtsi | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/remoteproc/mtk_scp.c b/drivers/remoteproc/mtk_scp.c
-index 2bead57c9cf9..ac13e7b046a6 100644
---- a/drivers/remoteproc/mtk_scp.c
-+++ b/drivers/remoteproc/mtk_scp.c
-@@ -132,8 +132,8 @@ static int scp_ipi_init(struct mtk_scp *scp)
- 		(struct mtk_share_obj __iomem *)(scp->sram_base + recv_offset);
- 	scp->send_buf =
- 		(struct mtk_share_obj __iomem *)(scp->sram_base + send_offset);
--	memset_io(scp->recv_buf, 0, sizeof(scp->recv_buf));
--	memset_io(scp->send_buf, 0, sizeof(scp->send_buf));
-+	memset_io(scp->recv_buf, 0, sizeof(*scp->recv_buf));
-+	memset_io(scp->send_buf, 0, sizeof(*scp->send_buf));
- 
- 	return 0;
- }
+diff --git a/arch/arm64/boot/dts/qcom/msm8996.dtsi b/arch/arm64/boot/dts/qcom/msm8996.dtsi
+index 98634d5c4440..d22c364b520a 100644
+--- a/arch/arm64/boot/dts/qcom/msm8996.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8996.dtsi
+@@ -989,16 +989,16 @@ camss: camss@a00000 {
+ 				"csi_clk_mux",
+ 				"vfe0",
+ 				"vfe1";
+-			interrupts = <GIC_SPI 78 0>,
+-				<GIC_SPI 79 0>,
+-				<GIC_SPI 80 0>,
+-				<GIC_SPI 296 0>,
+-				<GIC_SPI 297 0>,
+-				<GIC_SPI 298 0>,
+-				<GIC_SPI 299 0>,
+-				<GIC_SPI 309 0>,
+-				<GIC_SPI 314 0>,
+-				<GIC_SPI 315 0>;
++			interrupts = <GIC_SPI 78 IRQ_TYPE_EDGE_RISING>,
++				<GIC_SPI 79 IRQ_TYPE_EDGE_RISING>,
++				<GIC_SPI 80 IRQ_TYPE_EDGE_RISING>,
++				<GIC_SPI 296 IRQ_TYPE_EDGE_RISING>,
++				<GIC_SPI 297 IRQ_TYPE_EDGE_RISING>,
++				<GIC_SPI 298 IRQ_TYPE_EDGE_RISING>,
++				<GIC_SPI 299 IRQ_TYPE_EDGE_RISING>,
++				<GIC_SPI 309 IRQ_TYPE_EDGE_RISING>,
++				<GIC_SPI 314 IRQ_TYPE_EDGE_RISING>,
++				<GIC_SPI 315 IRQ_TYPE_EDGE_RISING>;
+ 			interrupt-names = "csiphy0",
+ 				"csiphy1",
+ 				"csiphy2",
 -- 
 2.25.1
 
