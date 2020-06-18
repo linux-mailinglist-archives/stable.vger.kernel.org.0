@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CEAB41FE621
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:31:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EF9A1FE61D
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:31:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729540AbgFRCb3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:31:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45558 "EHLO mail.kernel.org"
+        id S1728590AbgFRBPd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:15:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728563AbgFRBP3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:15:29 -0400
+        id S1729482AbgFRBPb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:15:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C38C421D79;
-        Thu, 18 Jun 2020 01:15:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E0A872088E;
+        Thu, 18 Jun 2020 01:15:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442929;
-        bh=GJ34EjidoZBzIOjN/wVvFdpLNoYkvOoGaKbAlBWHRAM=;
+        s=default; t=1592442930;
+        bh=8HOfJK/aY0wBjwqxKotd7OQLl1ES1+HHF9/+kdoyKbQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uwX8cLEp9Wo6HD0GyxxFNnZL8qCjVLKfG8IU4rJJKR8bZ/KlurlszVHOPK34iCWtq
-         xmodBnGa+x1/Js9ph1ATwA66QDrSBfNAsA1RShcAXjfvKJuMazbbWx2MjdHvA0zRM1
-         F0mSNoZx9Y1ZXY7wZmZPtENuDIdQqHogBTOBY77g=
+        b=mP0DeQ05FtI2UJv6ebMa+ZPCJyT/YxQAgnOo6pqqQpsKQdT+tYMMo7luVmBX+dRi0
+         odxY7pW9sPnMG4wfW783NxUDptzO08K4K9G0uamluMHJCPFaGoGT5GuWidi7H/HUOU
+         bT3DSj9C6bkdE2bOd/2on6akAhJ96erubikJr7fM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bob Peterson <rpeterso@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 5.7 343/388] gfs2: fix use-after-free on transaction ail lists
-Date:   Wed, 17 Jun 2020 21:07:20 -0400
-Message-Id: <20200618010805.600873-343-sashal@kernel.org>
+Cc:     Dan Murphy <dmurphy@ti.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 344/388] net: dp83867: Fix OF_MDIO config check
+Date:   Wed, 17 Jun 2020 21:07:21 -0400
+Message-Id: <20200618010805.600873-344-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
@@ -43,77 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Dan Murphy <dmurphy@ti.com>
 
-[ Upstream commit 83d060ca8d90fa1e3feac227f995c013100862d3 ]
+[ Upstream commit 506de00677b84dfc6718cbbd3495b1d90df5d098 ]
 
-Before this patch, transactions could be merged into the system
-transaction by function gfs2_merge_trans(), but the transaction ail
-lists were never merged. Because the ail flushing mechanism can run
-separately, bd elements can be attached to the transaction's buffer
-list during the transaction (trans_add_meta, etc) but quickly moved
-to its ail lists. Later, in function gfs2_trans_end, the transaction
-can be freed (by gfs2_trans_end) while it still has bd elements
-queued to its ail lists, which can cause it to either lose track of
-the bd elements altogether (memory leak) or worse, reference the bd
-elements after the parent transaction has been freed.
+When CONFIG_OF_MDIO is set to be a module the code block is not
+compiled. Use the IS_ENABLED macro that checks for both built in as
+well as module.
 
-Although I've not seen any serious consequences, the problem becomes
-apparent with the previous patch's addition of:
-
-	gfs2_assert_warn(sdp, list_empty(&tr->tr_ail1_list));
-
-to function gfs2_trans_free().
-
-This patch adds logic into gfs2_merge_trans() to move the merged
-transaction's ail lists to the sdp transaction. This prevents the
-use-after-free. To do this properly, we need to hold the ail lock,
-so we pass sdp into the function instead of the transaction itself.
-
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Fixes: 2a10154abcb75 ("net: phy: dp83867: Add TI dp83867 phy")
+Signed-off-by: Dan Murphy <dmurphy@ti.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/log.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/net/phy/dp83867.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/gfs2/log.c b/fs/gfs2/log.c
-index 0644e58c6191..b7a5221bea7d 100644
---- a/fs/gfs2/log.c
-+++ b/fs/gfs2/log.c
-@@ -1003,8 +1003,10 @@ void gfs2_log_flush(struct gfs2_sbd *sdp, struct gfs2_glock *gl, u32 flags)
-  * @new: New transaction to be merged
-  */
- 
--static void gfs2_merge_trans(struct gfs2_trans *old, struct gfs2_trans *new)
-+static void gfs2_merge_trans(struct gfs2_sbd *sdp, struct gfs2_trans *new)
- {
-+	struct gfs2_trans *old = sdp->sd_log_tr;
-+
- 	WARN_ON_ONCE(!test_bit(TR_ATTACHED, &old->tr_flags));
- 
- 	old->tr_num_buf_new	+= new->tr_num_buf_new;
-@@ -1016,6 +1018,11 @@ static void gfs2_merge_trans(struct gfs2_trans *old, struct gfs2_trans *new)
- 
- 	list_splice_tail_init(&new->tr_databuf, &old->tr_databuf);
- 	list_splice_tail_init(&new->tr_buf, &old->tr_buf);
-+
-+	spin_lock(&sdp->sd_ail_lock);
-+	list_splice_tail_init(&new->tr_ail1_list, &old->tr_ail1_list);
-+	list_splice_tail_init(&new->tr_ail2_list, &old->tr_ail2_list);
-+	spin_unlock(&sdp->sd_ail_lock);
+diff --git a/drivers/net/phy/dp83867.c b/drivers/net/phy/dp83867.c
+index b55e3c0403ed..ddac79960ea7 100644
+--- a/drivers/net/phy/dp83867.c
++++ b/drivers/net/phy/dp83867.c
+@@ -488,7 +488,7 @@ static int dp83867_verify_rgmii_cfg(struct phy_device *phydev)
+ 	return 0;
  }
  
- static void log_refund(struct gfs2_sbd *sdp, struct gfs2_trans *tr)
-@@ -1027,7 +1034,7 @@ static void log_refund(struct gfs2_sbd *sdp, struct gfs2_trans *tr)
- 	gfs2_log_lock(sdp);
- 
- 	if (sdp->sd_log_tr) {
--		gfs2_merge_trans(sdp->sd_log_tr, tr);
-+		gfs2_merge_trans(sdp, tr);
- 	} else if (tr->tr_num_buf_new || tr->tr_num_databuf_new) {
- 		gfs2_assert_withdraw(sdp, test_bit(TR_ALLOCED, &tr->tr_flags));
- 		sdp->sd_log_tr = tr;
+-#ifdef CONFIG_OF_MDIO
++#if IS_ENABLED(CONFIG_OF_MDIO)
+ static int dp83867_of_init(struct phy_device *phydev)
+ {
+ 	struct dp83867_private *dp83867 = phydev->priv;
 -- 
 2.25.1
 
