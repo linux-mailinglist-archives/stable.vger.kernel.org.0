@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D26481FE439
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:17:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9D6D1FE43B
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:17:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387564AbgFRCQp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729313AbgFRCQp (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 17 Jun 2020 22:16:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52208 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:52262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729561AbgFRBUJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:20:09 -0400
+        id S1728774AbgFRBUK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:20:10 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 99D4D221F1;
-        Thu, 18 Jun 2020 01:20:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC0FC21D90;
+        Thu, 18 Jun 2020 01:20:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443209;
-        bh=r9cAeOlq1yFQF0rprhLhPNc4ZUVGAgeDwB5qDxlMPy4=;
+        s=default; t=1592443210;
+        bh=t5Bgx/bu+7cOVDYp+ujArvCBoHhBFp8tTdGO9LXeT6w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pLLkRcG5wpUfVaVu5Yu7aS/Whpld9ldDsI3/FTsrTlcWkNzeh6yprKEg5iGiHIsdf
-         W8+TopVJYLABVdWQrhesg1JCE60rUYwgT0j+EyJ6h15Yt4AytHX/el3fD+CbOr0LRw
-         7jsF/ui5U9GT1p4XqVi/xOaVBHanCjqaJNbWMwRM=
+        b=BmxqB6MeZum0yAQGOfmRyisd5iwgShjWOcoWIAeITof///FhCUVI4tBoawdb4OApb
+         zsXcxefrEyVw+NDeofv2Je/OjT2eBfh9VHMXDJbnUux4Hh87ZcccoMNnY43UyLEOOA
+         qfeBfrbYN+VuckG+vcwbJ+ORG5imfvnruZm6BerQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wei Yongjun <weiyongjun1@huawei.com>,
-        Dong Aisheng <aisheng.dong@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 166/266] firmware: imx: scu: Fix possible memory leak in imx_scu_probe()
-Date:   Wed, 17 Jun 2020 21:14:51 -0400
-Message-Id: <20200618011631.604574-166-sashal@kernel.org>
+Cc:     Miklos Szeredi <mszeredi@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 167/266] fuse: fix copy_file_range cache issues
+Date:   Wed, 17 Jun 2020 21:14:52 -0400
+Message-Id: <20200618011631.604574-167-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
@@ -45,35 +42,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-[ Upstream commit 89f12d6509bff004852c51cb713a439a86816b24 ]
+[ Upstream commit 2c4656dfd994538176db30ce09c02cc0dfc361ae ]
 
-'chan_name' is malloced in imx_scu_probe() and should be freed
-before leaving from the error handling cases, otherwise it will
-cause memory leak.
+a) Dirty cache needs to be written back not just in the writeback_cache
+case, since the dirty pages may come from memory maps.
 
-Fixes: edbee095fafb ("firmware: imx: add SCU firmware driver support")
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+b) The fuse_writeback_range() helper takes an inclusive interval, so the
+end position needs to be pos+len-1 instead of pos+len.
+
+Fixes: 88bc7d5097a1 ("fuse: add support for copy_file_range()")
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/imx/imx-scu.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/fuse/file.c | 20 ++++++++------------
+ 1 file changed, 8 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/firmware/imx/imx-scu.c b/drivers/firmware/imx/imx-scu.c
-index e48d971ffb61..a3b11bc71dcb 100644
---- a/drivers/firmware/imx/imx-scu.c
-+++ b/drivers/firmware/imx/imx-scu.c
-@@ -300,6 +300,7 @@ static int imx_scu_probe(struct platform_device *pdev)
- 			if (ret != -EPROBE_DEFER)
- 				dev_err(dev, "Failed to request mbox chan %s ret %d\n",
- 					chan_name, ret);
-+			kfree(chan_name);
- 			return ret;
- 		}
+diff --git a/fs/fuse/file.c b/fs/fuse/file.c
+index 713d55a61890..e730e3d8ad99 100644
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -3280,13 +3280,11 @@ static ssize_t __fuse_copy_file_range(struct file *file_in, loff_t pos_in,
+ 	if (file_inode(file_in)->i_sb != file_inode(file_out)->i_sb)
+ 		return -EXDEV;
  
+-	if (fc->writeback_cache) {
+-		inode_lock(inode_in);
+-		err = fuse_writeback_range(inode_in, pos_in, pos_in + len);
+-		inode_unlock(inode_in);
+-		if (err)
+-			return err;
+-	}
++	inode_lock(inode_in);
++	err = fuse_writeback_range(inode_in, pos_in, pos_in + len - 1);
++	inode_unlock(inode_in);
++	if (err)
++		return err;
+ 
+ 	inode_lock(inode_out);
+ 
+@@ -3294,11 +3292,9 @@ static ssize_t __fuse_copy_file_range(struct file *file_in, loff_t pos_in,
+ 	if (err)
+ 		goto out;
+ 
+-	if (fc->writeback_cache) {
+-		err = fuse_writeback_range(inode_out, pos_out, pos_out + len);
+-		if (err)
+-			goto out;
+-	}
++	err = fuse_writeback_range(inode_out, pos_out, pos_out + len - 1);
++	if (err)
++		goto out;
+ 
+ 	if (is_unstable)
+ 		set_bit(FUSE_I_SIZE_UNSTABLE, &fi_out->state);
 -- 
 2.25.1
 
