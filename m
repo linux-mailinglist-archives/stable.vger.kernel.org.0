@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B7781FE2BE
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:04:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A52931FE2C7
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:04:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730951AbgFRBXT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:23:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56746 "EHLO mail.kernel.org"
+        id S1730233AbgFRCDz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:03:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729544AbgFRBXP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:23:15 -0400
+        id S1730944AbgFRBXR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:23:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC86E20776;
-        Thu, 18 Jun 2020 01:23:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9EB4821974;
+        Thu, 18 Jun 2020 01:23:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443394;
-        bh=8rEuU+HOd7oL+2eFUd+0ScN7CiMpOIKu5iY4f3aIeb8=;
+        s=default; t=1592443397;
+        bh=NaeUBIVSmD3RtKqfRPaGRQxSmQWkd6xKcrKjHPr9CLg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vHC1G7fSTeXcdd4UZTuqoWHvdehDYxOmLD94izq/z52NvB/26vLrv+vHhnjJh2waj
-         sm3NDzPOEAqg4ixQRKCFujAtlfiGgGiXk3sZqOaVuuYlsjyBTf+7Dh/DZ9YHvtlfQW
-         a4lBXYWc1ui3xaiZNb2DSW5VkORyjhmrB+2Mf/y8=
+        b=IOrnn1pAHPZ7IN7VtHwVWajJW/B/bJjusNaG0Dhogr/8Ma5AtNPZzH6LEBHFYT+ep
+         arsMbZ91FqVBrnY/4i6dgNABNuM53251imuLZzuPK1uAsVm0/KV3sQREQxaudDCV93
+         v+rA8RQdtF2GRiyuL58URKeGOqrukavZfEQdDXo8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        syzbot+6f1624f937d9d6911e2d@syzkaller.appspotmail.com,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Marco Elver <elver@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 041/172] fat: don't allow to mount if the FAT length == 0
-Date:   Wed, 17 Jun 2020 21:20:07 -0400
-Message-Id: <20200618012218.607130-41-sashal@kernel.org>
+Cc:     Logan Gunthorpe <logang@deltatee.com>,
+        Allen Hubbe <allenbh@gmail.com>,
+        Alexander Fomichev <fomichev.ru@gmail.com>,
+        Jon Mason <jdmason@kudzu.us>, Sasha Levin <sashal@kernel.org>,
+        linux-ntb@googlegroups.com
+Subject: [PATCH AUTOSEL 4.19 043/172] NTB: Fix the default port and peer numbers for legacy drivers
+Date:   Wed, 17 Jun 2020 21:20:09 -0400
+Message-Id: <20200618012218.607130-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012218.607130-1-sashal@kernel.org>
 References: <20200618012218.607130-1-sashal@kernel.org>
@@ -47,44 +45,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+From: Logan Gunthorpe <logang@deltatee.com>
 
-[ Upstream commit b1b65750b8db67834482f758fc385bfa7560d228 ]
+[ Upstream commit fc8b086d9dbd57458d136c4fa70ee26f832c3a2e ]
 
-If FAT length == 0, the image doesn't have any data. And it can be the
-cause of overlapping the root dir and FAT entries.
+When the commit adding ntb_default_port_number() and
+ntb_default_peer_port_number()  entered the kernel there was no
+users of it so it was impossible to tell what the API needed.
 
-Also Windows treats it as invalid format.
+When a user finally landed a year later (ntb_pingpong) there were
+more NTB topologies were created and no consideration was considered
+to how other drivers had changed.
 
-Reported-by: syzbot+6f1624f937d9d6911e2d@syzkaller.appspotmail.com
-Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Marco Elver <elver@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Link: http://lkml.kernel.org/r/87r1wz8mrd.fsf@mail.parknet.co.jp
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Now that there is a user it can be fixed to provide a sensible default
+for the legacy drivers that do not implement ntb_{peer_}port_number().
+Seeing ntb_pingpong doesn't check error codes returning EINVAL was also
+not sensible.
+
+Patches for ntb_pingpong and ntb_perf follow (which are broken
+otherwise) to support hardware that doesn't have port numbers. This is
+important not only to not break support with existing drivers but for
+the cross link topology which, due to its perfect symmetry, cannot
+assign unique port numbers to each side.
+
+Fixes: 1e5301196a88 ("NTB: Add indexed ports NTB API")
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Acked-by: Allen Hubbe <allenbh@gmail.com>
+Tested-by: Alexander Fomichev <fomichev.ru@gmail.com>
+Signed-off-by: Jon Mason <jdmason@kudzu.us>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fat/inode.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/ntb/ntb.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/fs/fat/inode.c b/fs/fat/inode.c
-index 70d37a5fd72c..607e1d124062 100644
---- a/fs/fat/inode.c
-+++ b/fs/fat/inode.c
-@@ -1519,6 +1519,12 @@ static int fat_read_bpb(struct super_block *sb, struct fat_boot_sector *b,
- 		goto out;
+diff --git a/drivers/ntb/ntb.c b/drivers/ntb/ntb.c
+index 2581ab724c34..c9a0912b175f 100644
+--- a/drivers/ntb/ntb.c
++++ b/drivers/ntb/ntb.c
+@@ -214,10 +214,8 @@ int ntb_default_port_number(struct ntb_dev *ntb)
+ 	case NTB_TOPO_B2B_DSD:
+ 		return NTB_PORT_SEC_DSD;
+ 	default:
+-		break;
++		return 0;
  	}
+-
+-	return -EINVAL;
+ }
+ EXPORT_SYMBOL(ntb_default_port_number);
  
-+	if (bpb->fat_fat_length == 0 && bpb->fat32_length == 0) {
-+		if (!silent)
-+			fat_msg(sb, KERN_ERR, "bogus number of FAT sectors");
-+		goto out;
-+	}
-+
- 	error = 0;
+@@ -240,10 +238,8 @@ int ntb_default_peer_port_number(struct ntb_dev *ntb, int pidx)
+ 	case NTB_TOPO_B2B_DSD:
+ 		return NTB_PORT_PRI_USD;
+ 	default:
+-		break;
++		return 0;
+ 	}
+-
+-	return -EINVAL;
+ }
+ EXPORT_SYMBOL(ntb_default_peer_port_number);
  
- out:
 -- 
 2.25.1
 
