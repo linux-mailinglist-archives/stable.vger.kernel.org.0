@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CF4A1FE321
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:07:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D866C1FE31C
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:07:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730916AbgFRCGf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:06:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55518 "EHLO mail.kernel.org"
+        id S1731718AbgFRCGY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:06:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730751AbgFRBWb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:22:31 -0400
+        id S1729459AbgFRBWc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:22:32 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3742120B1F;
-        Thu, 18 Jun 2020 01:22:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C8A3F20FC3;
+        Thu, 18 Jun 2020 01:22:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443350;
-        bh=5lAhQ1gq5mOP3m9JLMtwjImb+mAnBynpnQ+lzfOAdkM=;
+        s=default; t=1592443351;
+        bh=ArbydbByMQGa5MxYDfZJ31Z+e7FlUqRx1HAxjuomTqc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iqse0ki+2PhseJqPn3GwhRim/Fo6Wm0gECmAq8Lmqbzn/KMNdLdMDWT9I2GLwn9e8
-         6Y0HzQ2bMwEsF0/ZDYqIihEw+RM9UGUnu2zYL+CnRlZl3OQyoP2CUdgPC9CeypyNzJ
-         GjOcAaG82IAL/5yQy4vBmSZ2iK9ulLIMMvNqoPI0=
+        b=XWIj6rzZYHL2qDRBZOwV15fhzSGaohe+YGObS1V8N3p+AA58RZI+asMvhK47Yq5ZS
+         09mUEkfWWN9VIvPcAi7Z9/w6bKnHqA6Togfe8JbvM8cfmfvi6OJRCfcez01dj7Artz
+         3Dx1F2cantXrwYblu+v/u+0qyzbLyXk0aoe315ZA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bryan O'Donoghue <bryan.odonoghue@linaro.org>,
-        Georgi Djakov <georgi.djakov@linaro.org>,
-        Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        linux-clk@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 009/172] clk: qcom: msm8916: Fix the address location of pll->config_reg
-Date:   Wed, 17 Jun 2020 21:19:35 -0400
-Message-Id: <20200618012218.607130-9-sashal@kernel.org>
+Cc:     Jon Hunter <jonathanh@nvidia.com>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 010/172] backlight: lp855x: Ensure regulators are disabled on probe failure
+Date:   Wed, 17 Jun 2020 21:19:36 -0400
+Message-Id: <20200618012218.607130-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012218.607130-1-sashal@kernel.org>
 References: <20200618012218.607130-1-sashal@kernel.org>
@@ -48,92 +45,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+From: Jon Hunter <jonathanh@nvidia.com>
 
-[ Upstream commit f47ab3c2f5338828a67e89d5f688d2cef9605245 ]
+[ Upstream commit d8207c155a7c6015eb7f43739baa7dfb1fa638af ]
 
-During the process of debugging a processor derived from the msm8916 which
-we found the new processor was not starting one of its PLLs.
+If probing the LP885x backlight fails after the regulators have been
+enabled, then the following warning is seen when releasing the
+regulators ...
 
-After tracing the addresses and writes that downstream was doing and
-comparing to upstream it became obvious that we were writing to a different
-register location than downstream when trying to configure the PLL.
+ WARNING: CPU: 1 PID: 289 at drivers/regulator/core.c:2051 _regulator_put.part.28+0x158/0x160
+ Modules linked in: tegra_xudc lp855x_bl(+) host1x pwm_tegra ip_tables x_tables ipv6 nf_defrag_ipv6
+ CPU: 1 PID: 289 Comm: systemd-udevd Not tainted 5.6.0-rc2-next-20200224 #1
+ Hardware name: NVIDIA Jetson TX1 Developer Kit (DT)
 
-This error is also present in upstream msm8916.
+ ...
 
-As an example clk-pll.c::clk_pll_recalc_rate wants to write to
-pll->config_reg updating the bit-field POST_DIV_RATIO. That bit-field is
-defined in PLL_USER_CTL not in PLL_CONFIG_CTL. Taking the BIMC PLL as an
-example
+ Call trace:
+  _regulator_put.part.28+0x158/0x160
+  regulator_put+0x34/0x50
+  devm_regulator_release+0x10/0x18
+  release_nodes+0x12c/0x230
+  devres_release_all+0x34/0x50
+  really_probe+0x1c0/0x370
+  driver_probe_device+0x58/0x100
+  device_driver_attach+0x6c/0x78
+  __driver_attach+0xb0/0xf0
+  bus_for_each_dev+0x68/0xc8
+  driver_attach+0x20/0x28
+  bus_add_driver+0x160/0x1f0
+  driver_register+0x60/0x110
+  i2c_register_driver+0x40/0x80
+  lp855x_driver_init+0x20/0x1000 [lp855x_bl]
+  do_one_initcall+0x58/0x1a0
+  do_init_module+0x54/0x1d0
+  load_module+0x1d80/0x21c8
+  __do_sys_finit_module+0xe8/0x100
+  __arm64_sys_finit_module+0x18/0x20
+  el0_svc_common.constprop.3+0xb0/0x168
+  do_el0_svc+0x20/0x98
+  el0_sync_handler+0xf4/0x1b0
+  el0_sync+0x140/0x180
 
-lm80-p0436-13_c_qc_snapdragon_410_processor_hrd.pdf
+Fix this by ensuring that the regulators are disabled, if enabled, on
+probe failure.
 
-0x01823010 GCC_BIMC_PLL_USER_CTL
-0x01823014 GCC_BIMC_PLL_CONFIG_CTL
+Finally, ensure that the vddio regulator is disabled in the driver
+remove handler.
 
-This pattern is repeated for gpll0, gpll1, gpll2 and bimc_pll.
-
-This error is likely not apparent since the bootloader will already have
-initialized these PLLs.
-
-This patch corrects the location of config_reg from PLL_CONFIG_CTL to
-PLL_USER_CTL for all relevant PLLs on msm8916.
-
-Fixes commit 3966fab8b6ab ("clk: qcom: Add MSM8916 Global Clock Controller support")
-
-Cc: Georgi Djakov <georgi.djakov@linaro.org>
-Cc: Andy Gross <agross@kernel.org>
-Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: Michael Turquette <mturquette@baylibre.com>
-Cc: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Link: https://lkml.kernel.org/r/20200329124116.4185447-1-bryan.odonoghue@linaro.org
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/gcc-msm8916.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/video/backlight/lp855x_bl.c | 20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/clk/qcom/gcc-msm8916.c b/drivers/clk/qcom/gcc-msm8916.c
-index ac2b0aa1e8b5..03e0ade7a6f3 100644
---- a/drivers/clk/qcom/gcc-msm8916.c
-+++ b/drivers/clk/qcom/gcc-msm8916.c
-@@ -268,7 +268,7 @@ static struct clk_pll gpll0 = {
- 	.l_reg = 0x21004,
- 	.m_reg = 0x21008,
- 	.n_reg = 0x2100c,
--	.config_reg = 0x21014,
-+	.config_reg = 0x21010,
- 	.mode_reg = 0x21000,
- 	.status_reg = 0x2101c,
- 	.status_bit = 17,
-@@ -295,7 +295,7 @@ static struct clk_pll gpll1 = {
- 	.l_reg = 0x20004,
- 	.m_reg = 0x20008,
- 	.n_reg = 0x2000c,
--	.config_reg = 0x20014,
-+	.config_reg = 0x20010,
- 	.mode_reg = 0x20000,
- 	.status_reg = 0x2001c,
- 	.status_bit = 17,
-@@ -322,7 +322,7 @@ static struct clk_pll gpll2 = {
- 	.l_reg = 0x4a004,
- 	.m_reg = 0x4a008,
- 	.n_reg = 0x4a00c,
--	.config_reg = 0x4a014,
-+	.config_reg = 0x4a010,
- 	.mode_reg = 0x4a000,
- 	.status_reg = 0x4a01c,
- 	.status_bit = 17,
-@@ -349,7 +349,7 @@ static struct clk_pll bimc_pll = {
- 	.l_reg = 0x23004,
- 	.m_reg = 0x23008,
- 	.n_reg = 0x2300c,
--	.config_reg = 0x23014,
-+	.config_reg = 0x23010,
- 	.mode_reg = 0x23000,
- 	.status_reg = 0x2301c,
- 	.status_bit = 17,
+diff --git a/drivers/video/backlight/lp855x_bl.c b/drivers/video/backlight/lp855x_bl.c
+index 73612485ed07..bd43d8cff389 100644
+--- a/drivers/video/backlight/lp855x_bl.c
++++ b/drivers/video/backlight/lp855x_bl.c
+@@ -460,7 +460,7 @@ static int lp855x_probe(struct i2c_client *cl, const struct i2c_device_id *id)
+ 		ret = regulator_enable(lp->enable);
+ 		if (ret < 0) {
+ 			dev_err(lp->dev, "failed to enable vddio: %d\n", ret);
+-			return ret;
++			goto disable_supply;
+ 		}
+ 
+ 		/*
+@@ -475,24 +475,34 @@ static int lp855x_probe(struct i2c_client *cl, const struct i2c_device_id *id)
+ 	ret = lp855x_configure(lp);
+ 	if (ret) {
+ 		dev_err(lp->dev, "device config err: %d", ret);
+-		return ret;
++		goto disable_vddio;
+ 	}
+ 
+ 	ret = lp855x_backlight_register(lp);
+ 	if (ret) {
+ 		dev_err(lp->dev,
+ 			"failed to register backlight. err: %d\n", ret);
+-		return ret;
++		goto disable_vddio;
+ 	}
+ 
+ 	ret = sysfs_create_group(&lp->dev->kobj, &lp855x_attr_group);
+ 	if (ret) {
+ 		dev_err(lp->dev, "failed to register sysfs. err: %d\n", ret);
+-		return ret;
++		goto disable_vddio;
+ 	}
+ 
+ 	backlight_update_status(lp->bl);
++
+ 	return 0;
++
++disable_vddio:
++	if (lp->enable)
++		regulator_disable(lp->enable);
++disable_supply:
++	if (lp->supply)
++		regulator_disable(lp->supply);
++
++	return ret;
+ }
+ 
+ static int lp855x_remove(struct i2c_client *cl)
+@@ -501,6 +511,8 @@ static int lp855x_remove(struct i2c_client *cl)
+ 
+ 	lp->bl->props.brightness = 0;
+ 	backlight_update_status(lp->bl);
++	if (lp->enable)
++		regulator_disable(lp->enable);
+ 	if (lp->supply)
+ 		regulator_disable(lp->supply);
+ 	sysfs_remove_group(&lp->dev->kobj, &lp855x_attr_group);
 -- 
 2.25.1
 
