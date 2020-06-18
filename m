@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 312631FDCEE
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:24:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0816E1FDCF2
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:24:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730738AbgFRBWZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:22:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55382 "EHLO mail.kernel.org"
+        id S1728544AbgFRBWl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:22:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729683AbgFRBWY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:22:24 -0400
+        id S1730804AbgFRBWj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:22:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1745420776;
-        Thu, 18 Jun 2020 01:22:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5960520FC3;
+        Thu, 18 Jun 2020 01:22:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443343;
-        bh=1CjNh4IAkmtHBplhmUA60VGWBjx2+lXxBppXNT/XFZg=;
+        s=default; t=1592443359;
+        bh=1KY3sCatdlrZk8pPgJHuVIdcaXAwLRkY5NEVDPA9ANA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PTRFHtjssE0Ue5JtLQPeRBdkUCdZwKUWzGRO1OpZqzvCSd3KGPQwJIGOgUzXxJ4gh
-         lioXele3XY4idzvEH1bFBiEHDID8oJUI2TP3wJbRjyLRsGDkTSxlWyqE5M4PJkm9lu
-         tysEj5qTrZmdC4pc0rUUv3jwzdO9Xyc8zK7p8IQg=
+        b=0QcG+tOcUbQ71d03szY0vArVAOZNTc7ZTJD7qFq4jeylDLM59tk7x1WdZ2u1egRdf
+         gd+2g5dF+BUoI0Fp3y0z9MORttFsVoylAfzUlbCT/G9LDr/j8w02BxNd6pSff5m29T
+         7nBEGF2GXRJOl6T765b9AvO/I9q2vcsNwsRtt66c=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jason Gunthorpe <jgg@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 004/172] RDMA/uverbs: Make the event_queue fds return POLLERR when disassociated
-Date:   Wed, 17 Jun 2020 21:19:30 -0400
-Message-Id: <20200618012218.607130-4-sashal@kernel.org>
+Cc:     Ard Biesheuvel <ardb@kernel.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 016/172] PCI: Allow pci_resize_resource() for devices on root bus
+Date:   Wed, 17 Jun 2020 21:19:42 -0400
+Message-Id: <20200618012218.607130-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012218.607130-1-sashal@kernel.org>
 References: <20200618012218.607130-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,38 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@mellanox.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit eb356e6dc15a30af604f052cd0e170450193c254 ]
+[ Upstream commit d09ddd8190fbdc07696bf34b548ae15aa1816714 ]
 
-If is_closed is set, and the event list is empty, then read() will return
--EIO without blocking. After setting is_closed in
-ib_uverbs_free_event_queue(), we do trigger a wake_up on the poll_wait,
-but the fops->poll() function does not check it, so poll will continue to
-sleep on an empty list.
+When resizing a BAR, pci_reassign_bridge_resources() is invoked to bring
+the bridge windows of parent bridges in line with the new BAR assignment.
 
-Fixes: 14e23bd6d221 ("RDMA/core: Fix locking in ib_uverbs_event_read")
-Link: https://lore.kernel.org/r/0-v1-ace813388969+48859-uverbs_poll_fix%25jgg@mellanox.com
-Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+This assumes the device whose BAR is being resized lives on a subordinate
+bus, but this is not necessarily the case. A device may live on the root
+bus, in which case dev->bus->self is NULL, and passing a NULL pci_dev
+pointer to pci_reassign_bridge_resources() will cause it to crash.
+
+So let's make the call to pci_reassign_bridge_resources() conditional on
+whether dev->bus->self is non-NULL in the first place.
+
+Fixes: 8bb705e3e79d84e7 ("PCI: Add pci_resize_resource() for resizing BARs")
+Link: https://lore.kernel.org/r/20200421162256.26887-1-ardb@kernel.org
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/uverbs_main.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/pci/setup-res.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/infiniband/core/uverbs_main.c b/drivers/infiniband/core/uverbs_main.c
-index 5404717998b0..fc4b46258c75 100644
---- a/drivers/infiniband/core/uverbs_main.c
-+++ b/drivers/infiniband/core/uverbs_main.c
-@@ -360,6 +360,8 @@ static __poll_t ib_uverbs_event_poll(struct ib_uverbs_event_queue *ev_queue,
- 	spin_lock_irq(&ev_queue->lock);
- 	if (!list_empty(&ev_queue->event_list))
- 		pollflags = EPOLLIN | EPOLLRDNORM;
-+	else if (ev_queue->is_closed)
-+		pollflags = EPOLLERR;
- 	spin_unlock_irq(&ev_queue->lock);
+diff --git a/drivers/pci/setup-res.c b/drivers/pci/setup-res.c
+index d8ca40a97693..d21fa04fa44d 100644
+--- a/drivers/pci/setup-res.c
++++ b/drivers/pci/setup-res.c
+@@ -439,10 +439,11 @@ int pci_resize_resource(struct pci_dev *dev, int resno, int size)
+ 	res->end = res->start + pci_rebar_size_to_bytes(size) - 1;
  
- 	return pollflags;
+ 	/* Check if the new config works by trying to assign everything. */
+-	ret = pci_reassign_bridge_resources(dev->bus->self, res->flags);
+-	if (ret)
+-		goto error_resize;
+-
++	if (dev->bus->self) {
++		ret = pci_reassign_bridge_resources(dev->bus->self, res->flags);
++		if (ret)
++			goto error_resize;
++	}
+ 	return 0;
+ 
+ error_resize:
 -- 
 2.25.1
 
