@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 621A91FE6C2
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:36:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42C341FE69B
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:36:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728995AbgFRCgU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:36:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43468 "EHLO mail.kernel.org"
+        id S1729247AbgFRBOA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:14:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728079AbgFRBN6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:13:58 -0400
+        id S1727872AbgFRBN7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:13:59 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB436221F1;
-        Thu, 18 Jun 2020 01:13:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1319C21974;
+        Thu, 18 Jun 2020 01:13:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442837;
-        bh=r+sGKsCZdJ6ItZ8zWIiODoB6JpSbLYt8qmx53pm6jdY=;
+        s=default; t=1592442838;
+        bh=Y+jEq1yhHR4AS49M3ETtytKwmvQKhGusQVIqWiHKyME=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fbfnFGRP0qn5v+2EEER51ha004HaA8Eqg0X+VJCWtYFkJldX+01Vj7hlg+u9wqjNG
-         BeqnrlOnKk5uS+3+hMlVJ76qfiLs/0NbjdQMmY8qQTqX1//xPbAJ81O6te5VQGW3J8
-         MlLx7FKijU3dvpw0zba4lm8CgLwficXsd++G1Oow=
+        b=S7uwXnjzmp+cEaKjfJShbXPI+QRzR8jupKyMuKLlMaXw+BWmNR3z68wNzMk5QeamR
+         H87JCN+qx9viZqWdxpqIexzKmrAI14k6Z3hNs8wYm45zJbI1nyRNJu9gDOxtNp7AWP
+         k3Q+MdYdevKjn2fGnFdPnbNhmRQtJRrIBpHjtDR0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Potnuri Bharat Teja <bharat@chelsio.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 271/388] RDMA/iw_cxgb4: cleanup device debugfs entries on ULD remove
-Date:   Wed, 17 Jun 2020 21:06:08 -0400
-Message-Id: <20200618010805.600873-271-sashal@kernel.org>
+Cc:     Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.7 272/388] x86/apic: Make TSC deadline timer detection message visible
+Date:   Wed, 17 Jun 2020 21:06:09 -0400
+Message-Id: <20200618010805.600873-272-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
@@ -43,33 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Potnuri Bharat Teja <bharat@chelsio.com>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit 49ea0c036ede81f126f1a9389d377999fdf5c5a1 ]
+[ Upstream commit de308d1815c9e8fe602a958c5c76142ff6501d75 ]
 
-Remove device specific debugfs entries immediately if LLD detaches a
-particular ULD device in case of fatal PCI errors.
+The commit
 
-Link: https://lore.kernel.org/r/20200524190814.17599-1-bharat@chelsio.com
-Signed-off-by: Potnuri Bharat Teja <bharat@chelsio.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+  c84cb3735fd5 ("x86/apic: Move TSC deadline timer debug printk")
+
+removed the message which said that the deadline timer was enabled.
+It added a pr_debug() message which is issued when deadline timer
+validation succeeds.
+
+Well, issued only when CONFIG_DYNAMIC_DEBUG is enabled - otherwise
+pr_debug() calls get optimized away if DEBUG is not defined in the
+compilation unit.
+
+Therefore, make the above message pr_info() so that it is visible in
+dmesg.
+
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20200525104218.27018-1-bp@alien8.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/cxgb4/device.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/kernel/apic/apic.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/cxgb4/device.c b/drivers/infiniband/hw/cxgb4/device.c
-index 599340c1f0b8..541dbcf22d0e 100644
---- a/drivers/infiniband/hw/cxgb4/device.c
-+++ b/drivers/infiniband/hw/cxgb4/device.c
-@@ -953,6 +953,7 @@ void c4iw_dealloc(struct uld_ctx *ctx)
- static void c4iw_remove(struct uld_ctx *ctx)
- {
- 	pr_debug("c4iw_dev %p\n", ctx->dev);
-+	debugfs_remove_recursive(ctx->dev->debugfs_root);
- 	c4iw_unregister_device(ctx->dev);
- 	c4iw_dealloc(ctx);
- }
+diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
+index e53dda210cd7..21d2f1de1057 100644
+--- a/arch/x86/kernel/apic/apic.c
++++ b/arch/x86/kernel/apic/apic.c
+@@ -2093,7 +2093,7 @@ void __init init_apic_mappings(void)
+ 	unsigned int new_apicid;
+ 
+ 	if (apic_validate_deadline_timer())
+-		pr_debug("TSC deadline timer available\n");
++		pr_info("TSC deadline timer available\n");
+ 
+ 	if (x2apic_mode) {
+ 		boot_cpu_physical_apicid = read_apic_id();
 -- 
 2.25.1
 
