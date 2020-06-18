@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55C191FE4D2
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:21:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 798861FE4BF
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:20:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729593AbgFRCVC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:21:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50312 "EHLO mail.kernel.org"
+        id S1730029AbgFRBSw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:18:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728913AbgFRBSr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:18:47 -0400
+        id S1730020AbgFRBSt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:18:49 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 53E0321D80;
-        Thu, 18 Jun 2020 01:18:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D061B21D90;
+        Thu, 18 Jun 2020 01:18:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443127;
-        bh=wHkSkEP48QqY9sVrWec+oICiOy5IX+3I8wiXhfmvmRU=;
+        s=default; t=1592443129;
+        bh=Xwqp5VeiNd1IsDMeWotZ1nD25aou2uHxHhgfdlOCxX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KOZ7gKERuxI7RyRGZAZnUQt/dmWIyHGXYQFBaKqedgprmlfsahLiQ1lR4gtHe4BiL
-         qOUFlbFjMrswHGAtHT9ISZlg8Xj2tvLZ3u2y2Jrp61XB5MZo6uAPt9upGbmDeEfwZ3
-         Qs+Kh8R6Dch1VRubSj1I0ZEC9sAucnTokQs+rY7Q=
+        b=eItFGNVlcsJB1ZSKxRnTteOHwGu2lLIVvQDRlHRy97OZdwzNRKf74+5ztj1wvgXKR
+         FdtE+2BBdEGPR5o4jnXzVHqfuANZEwG+B87nvLfoXprkGZEsThrJfbf1K3xxFQijnP
+         s5S5O6GbQ/FRfcHrYzfbhy1cFD15CDi2cGbq3mZk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org
-Subject: [PATCH AUTOSEL 5.4 100/266] staging: gasket: Fix mapping refcnt leak when register/store fails
-Date:   Wed, 17 Jun 2020 21:13:45 -0400
-Message-Id: <20200618011631.604574-100-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 102/266] ALSA: usb-audio: Fix racy list management in output queue
+Date:   Wed, 17 Jun 2020 21:13:47 -0400
+Message-Id: <20200618011631.604574-102-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
@@ -44,46 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit e3436ce60cf5f5eaedda2b8c622f69feb97595e2 ]
+[ Upstream commit 5b6cc38f3f3f37109ce72b60bda215a5f6892c0b ]
 
-gasket_sysfs_register_store() invokes get_mapping(), which returns a
-reference of the specified gasket_sysfs_mapping object to "mapping" with
-increased refcnt.
+The linked list entry from FIFO is peeked at
+queue_pending_output_urbs() but the actual element pop-out is
+performed outside the spinlock, and it's potentially racy.
 
-When gasket_sysfs_register_store() returns, local variable "mapping"
-becomes invalid, so the refcount should be decreased to keep refcount
-balanced.
+Do delete the link at the right place inside the spinlock.
 
-The reference counting issue happens in one exception handling path of
-gasket_sysfs_register_store(). When gasket_dev is NULL, the function
-forgets to decrease the refcnt increased by get_mapping(), causing a
-refcnt leak.
-
-Fix this issue by calling put_mapping() when gasket_dev is NULL.
-
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Link: https://lore.kernel.org/r/1587618941-13718-1-git-send-email-xiyuyang19@fudan.edu.cn
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 8fdff6a319e7 ("ALSA: snd-usb: implement new endpoint streaming model")
+Link: https://lore.kernel.org/r/20200424074016.14301-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/gasket/gasket_sysfs.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/usb/endpoint.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/staging/gasket/gasket_sysfs.c b/drivers/staging/gasket/gasket_sysfs.c
-index ad852ea1d4a9..af26bc9f184a 100644
---- a/drivers/staging/gasket/gasket_sysfs.c
-+++ b/drivers/staging/gasket/gasket_sysfs.c
-@@ -373,6 +373,7 @@ ssize_t gasket_sysfs_register_store(struct device *device,
- 	gasket_dev = mapping->gasket_dev;
- 	if (!gasket_dev) {
- 		dev_err(device, "Device driver may have been removed\n");
-+		put_mapping(mapping);
- 		return 0;
- 	}
+diff --git a/sound/usb/endpoint.c b/sound/usb/endpoint.c
+index d8dc7cb56d43..50104f658ed4 100644
+--- a/sound/usb/endpoint.c
++++ b/sound/usb/endpoint.c
+@@ -346,17 +346,17 @@ static void queue_pending_output_urbs(struct snd_usb_endpoint *ep)
+ 			ep->next_packet_read_pos %= MAX_URBS;
  
+ 			/* take URB out of FIFO */
+-			if (!list_empty(&ep->ready_playback_urbs))
++			if (!list_empty(&ep->ready_playback_urbs)) {
+ 				ctx = list_first_entry(&ep->ready_playback_urbs,
+ 					       struct snd_urb_ctx, ready_list);
++				list_del_init(&ctx->ready_list);
++			}
+ 		}
+ 		spin_unlock_irqrestore(&ep->lock, flags);
+ 
+ 		if (ctx == NULL)
+ 			return;
+ 
+-		list_del_init(&ctx->ready_list);
+-
+ 		/* copy over the length information */
+ 		for (i = 0; i < packet->packets; i++)
+ 			ctx->packet_size[i] = packet->packet_size[i];
 -- 
 2.25.1
 
