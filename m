@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C1AA1FE180
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:55:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 832CF1FE173
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:55:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731012AbgFRBzI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:55:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32952 "EHLO mail.kernel.org"
+        id S1731518AbgFRBZv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:25:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731511AbgFRBZt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:25:49 -0400
+        id S1730345AbgFRBZu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:25:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B76322088E;
-        Thu, 18 Jun 2020 01:25:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 358AA2075E;
+        Thu, 18 Jun 2020 01:25:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443548;
-        bh=Bt6ZEXdLA0UnS2fNEifmKdZSL9+XTRkjajHnMGGenKM=;
+        s=default; t=1592443550;
+        bh=NDVL0WOLvQUU3WGWVLdkeWQr9oituaVCLeI8lELCp+E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iTw7J4K1Y63ecV/Mi5hCQnKPsZpmXRGFvzO3/2vtVYHl4OvtLSCh638ZD7Oi0oXtx
-         tQ50rNkbHRIx2Bv1hrpdpk5x4+wF6ijgvJXoKNTA6SS4LyLQRLN5eaKvzCrDr1iZas
-         gejYXLNAEfSsE8qjlTul4WAB+TjfNc1hd486taoo=
+        b=leGq1NBq5C9P+uUUg3n8QWdOdY6ub5f1G/SszJoWQignwtLPxM2vQg8CybTP4w/ht
+         lw+D+blz1ZEOvPUCrPHlofm5H9zwjyjPrnaYlOGlV/VTYtgXzlgQbZ4/lSDRPU9yd5
+         SWeeUuAoLMSzIwUHSQpyR11+LoGXo6duYk6E4QQo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Daniel Baluta <daniel.baluta@nxp.com>,
+Cc:     Hans de Goede <hdegoede@redhat.com>,
         Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
-        Daniel Baluta <daniel.baluta@gmail.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.19 164/172] ASoC: core: only convert non DPCM link to DPCM link
-Date:   Wed, 17 Jun 2020 21:22:10 -0400
-Message-Id: <20200618012218.607130-164-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 165/172] ASoC: Intel: bytcr_rt5640: Add quirk for Toshiba Encore WT10-A tablet
+Date:   Wed, 17 Jun 2020 21:22:11 -0400
+Message-Id: <20200618012218.607130-165-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012218.607130-1-sashal@kernel.org>
 References: <20200618012218.607130-1-sashal@kernel.org>
@@ -47,70 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bard Liao <yung-chuan.liao@linux.intel.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 607fa205a7e4dfad28b8a67ab1c985756ddbccb0 ]
+[ Upstream commit 199a5e8fda54ab3c8c6f6bf980c004e97ebf5ccb ]
 
-Additional checks for valid DAIs expose a corner case, where existing
-BE dailinks get modified, e.g. HDMI links are tagged with
-dpcm_capture=1 even if the DAIs are for playback.
+The Toshiba Encore WT10-A tablet almost fully works with the default
+settings for Bay Trail CR devices. The only issue is that it uses a
+digital mic. connected the the DMIC1 input instead of an analog mic.
 
-This patch makes those changes conditional and flags configuration
-issues when a BE dailink is has no_pcm=0 but dpcm_playback or
-dpcm_capture=1 (which makes no sense).
+Add a quirk for this model using the default settings with the input-map
+replaced with BYT_RT5640_DMIC1_MAP.
 
-As discussed on the alsa-devel mailing list, there are redundant flags
-for dpcm_playback, dpcm_capture, playback_only, capture_only. This
-will have to be cleaned-up in a future update. For now only correct
-and flag problematic configurations.
-
-Fixes: 218fe9b7ec7f3 ("ASoC: soc-core: Set dpcm_playback / dpcm_capture")
-Suggested-by: Daniel Baluta <daniel.baluta@nxp.com>
-Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Reviewed-by: Daniel Baluta <daniel.baluta@gmail.com>
-Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Link: https://lore.kernel.org/r/20200608194415.4663-3-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20200608204634.93407-1-hdegoede@redhat.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-core.c | 22 +++++++++++++++++++---
- 1 file changed, 19 insertions(+), 3 deletions(-)
+ sound/soc/intel/boards/bytcr_rt5640.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
-index e45dfcb62b6a..595fe20bbc6d 100644
---- a/sound/soc/soc-core.c
-+++ b/sound/soc/soc-core.c
-@@ -1920,9 +1920,25 @@ static void soc_check_tplg_fes(struct snd_soc_card *card)
- 			dai_link->platform_name = component->name;
- 
- 			/* convert non BE into BE */
--			dai_link->no_pcm = 1;
--			dai_link->dpcm_playback = 1;
--			dai_link->dpcm_capture = 1;
-+			if (!dai_link->no_pcm) {
-+				dai_link->no_pcm = 1;
-+
-+				if (dai_link->dpcm_playback)
-+					dev_warn(card->dev,
-+						 "invalid configuration, dailink %s has flags no_pcm=0 and dpcm_playback=1\n",
-+						 dai_link->name);
-+				if (dai_link->dpcm_capture)
-+					dev_warn(card->dev,
-+						 "invalid configuration, dailink %s has flags no_pcm=0 and dpcm_capture=1\n",
-+						 dai_link->name);
-+
-+				/* convert normal link into DPCM one */
-+				if (!(dai_link->dpcm_playback ||
-+				      dai_link->dpcm_capture)) {
-+					dai_link->dpcm_playback = !dai_link->capture_only;
-+					dai_link->dpcm_capture = !dai_link->playback_only;
-+				}
-+			}
- 
- 			/* override any BE fixups */
- 			dai_link->be_hw_params_fixup =
+diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
+index 5dfc17987b2b..0dcd249877c5 100644
+--- a/sound/soc/intel/boards/bytcr_rt5640.c
++++ b/sound/soc/intel/boards/bytcr_rt5640.c
+@@ -724,6 +724,18 @@ static const struct dmi_system_id byt_rt5640_quirk_table[] = {
+ 					BYT_RT5640_JD_NOT_INV |
+ 					BYT_RT5640_MCLK_EN),
+ 	},
++	{	/* Toshiba Encore WT10-A */
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "TOSHIBA WT10-A-103"),
++		},
++		.driver_data = (void *)(BYT_RT5640_DMIC1_MAP |
++					BYT_RT5640_JD_SRC_JD1_IN4P |
++					BYT_RT5640_OVCD_TH_2000UA |
++					BYT_RT5640_OVCD_SF_0P75 |
++					BYT_RT5640_SSP0_AIF2 |
++					BYT_RT5640_MCLK_EN),
++	},
+ 	{	/* Catch-all for generic Insyde tablets, must be last */
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "Insyde"),
 -- 
 2.25.1
 
