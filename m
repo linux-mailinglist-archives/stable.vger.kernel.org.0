@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD76B1FDC35
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:18:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10AE51FDC3C
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:18:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729824AbgFRBRr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:17:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49032 "EHLO mail.kernel.org"
+        id S1729064AbgFRBR6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:17:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729818AbgFRBRr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:17:47 -0400
+        id S1729842AbgFRBR4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:17:56 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DBAB8206F1;
-        Thu, 18 Jun 2020 01:17:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3618C221F2;
+        Thu, 18 Jun 2020 01:17:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443066;
-        bh=Z/WbnyE4ZXlpudncQs5OzvRsFKu8fkgoznjwuRiGmao=;
+        s=default; t=1592443075;
+        bh=kdkzSxgfFIfHUHViOxjBrNTMU3GKF3qfRz+hQ5K0UQ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WIvLRAcx+GgjQClulg/2+c247y0zwuk4thSiOuO6HgJv2p9tVI6wMrZNIxdqSoXVx
-         ugqi7BMS0kSX5sOYgfxO0Llg7LcFnkSAi8c300SJLlJe8cySiipnqt6C+wdi3eIzQ9
-         bH/5ovRW4JcY8T+1M4HqibSxf/CvQgddhDi71F8k=
+        b=i35k76F0Nx51VzFRgHxfbLtdipqlSXUcKxhA5uKxeIG6IiXLMvvBhbwTL+dmHf2uZ
+         IEgiUwlahhN+d2pt1WWvOKeJDq4QzhaTVJVoJwxDQC7KzRrX+IFVocFH/8wDqG6h8+
+         XspPrFDv0qX6+wsa40h9O6kt/sHuYbFxIA+rZAfQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 056/266] scsi: cxgb3i: Fix some leaks in init_act_open()
-Date:   Wed, 17 Jun 2020 21:13:01 -0400
-Message-Id: <20200618011631.604574-56-sashal@kernel.org>
+Cc:     Kajol Jain <kjain@linux.ibm.com>,
+        Sukadev Bhattiprolu <sukadev@linux.vnet.ibm.com>,
+        Madhavan Srinivasan <maddy@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.4 062/266] powerpc/perf/hv-24x7: Fix inconsistent output values incase multiple hv-24x7 events run
+Date:   Wed, 17 Jun 2020 21:13:07 -0400
+Message-Id: <20200618011631.604574-62-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
@@ -43,71 +45,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Kajol Jain <kjain@linux.ibm.com>
 
-[ Upstream commit b6170a49c59c27a10efed26c5a2969403e69aaba ]
+[ Upstream commit b4ac18eead28611ff470d0f47a35c4e0ac080d9c ]
 
-There wasn't any clean up done if cxgb3_alloc_atid() failed and also the
-original code didn't release "csk->l2t".
+Commit 2b206ee6b0df ("powerpc/perf/hv-24x7: Display change in counter
+values")' added to print _change_ in the counter value rather then raw
+value for 24x7 counters. Incase of transactions, the event count
+is set to 0 at the beginning of the transaction. It also sets
+the event's prev_count to the raw value at the time of initialization.
+Because of setting event count to 0, we are seeing some weird behaviour,
+whenever we run multiple 24x7 events at a time.
 
-Link: https://lore.kernel.org/r/20200521121221.GA247492@mwanda
-Fixes: 6f7efaabefeb ("[SCSI] cxgb3i: change cxgb3i to use libcxgbi")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+For example:
+
+command#: ./perf stat -e "{hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=0/,
+			   hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=1/}"
+	  		   -C 0 -I 1000 sleep 100
+
+     1.000121704                120 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=0/
+     1.000121704                  5 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=1/
+     2.000357733                  8 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=0/
+     2.000357733                 10 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=1/
+     3.000495215 18,446,744,073,709,551,616 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=0/
+     3.000495215 18,446,744,073,709,551,616 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=1/
+     4.000641884                 56 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=0/
+     4.000641884 18,446,744,073,709,551,616 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=1/
+     5.000791887 18,446,744,073,709,551,616 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=0/
+
+Getting these large values in case we do -I.
+
+As we are setting event_count to 0, for interval case, overall event_count is not
+coming in incremental order. As we may can get new delta lesser then previous count.
+Because of which when we print intervals, we are getting negative value which create
+these large values.
+
+This patch removes part where we set event_count to 0 in function
+'h_24x7_event_read'. There won't be much impact as we do set event->hw.prev_count
+to the raw value at the time of initialization to print change value.
+
+With this patch
+In power9 platform
+
+command#: ./perf stat -e "{hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=0/,
+		           hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=1/}"
+			   -C 0 -I 1000 sleep 100
+
+     1.000117685                 93 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=0/
+     1.000117685                  1 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=1/
+     2.000349331                 98 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=0/
+     2.000349331                  2 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=1/
+     3.000495900                131 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=0/
+     3.000495900                  4 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=1/
+     4.000645920                204 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=0/
+     4.000645920                 61 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=1/
+     4.284169997                 22 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=0/
+
+Suggested-by: Sukadev Bhattiprolu <sukadev@linux.vnet.ibm.com>
+Signed-off-by: Kajol Jain <kjain@linux.ibm.com>
+Tested-by: Madhavan Srinivasan <maddy@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200525104308.9814-2-kjain@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/cxgbi/cxgb3i/cxgb3i.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ arch/powerpc/perf/hv-24x7.c | 10 ----------
+ 1 file changed, 10 deletions(-)
 
-diff --git a/drivers/scsi/cxgbi/cxgb3i/cxgb3i.c b/drivers/scsi/cxgbi/cxgb3i/cxgb3i.c
-index 524cdbcd29aa..ec7d01f6e2d5 100644
---- a/drivers/scsi/cxgbi/cxgb3i/cxgb3i.c
-+++ b/drivers/scsi/cxgbi/cxgb3i/cxgb3i.c
-@@ -959,6 +959,7 @@ static int init_act_open(struct cxgbi_sock *csk)
- 	struct net_device *ndev = cdev->ports[csk->port_id];
- 	struct cxgbi_hba *chba = cdev->hbas[csk->port_id];
- 	struct sk_buff *skb = NULL;
-+	int ret;
+diff --git a/arch/powerpc/perf/hv-24x7.c b/arch/powerpc/perf/hv-24x7.c
+index 573e0b309c0c..48e8f4b17b91 100644
+--- a/arch/powerpc/perf/hv-24x7.c
++++ b/arch/powerpc/perf/hv-24x7.c
+@@ -1400,16 +1400,6 @@ static void h_24x7_event_read(struct perf_event *event)
+ 			h24x7hw = &get_cpu_var(hv_24x7_hw);
+ 			h24x7hw->events[i] = event;
+ 			put_cpu_var(h24x7hw);
+-			/*
+-			 * Clear the event count so we can compute the _change_
+-			 * in the 24x7 raw counter value at the end of the txn.
+-			 *
+-			 * Note that we could alternatively read the 24x7 value
+-			 * now and save its value in event->hw.prev_count. But
+-			 * that would require issuing a hcall, which would then
+-			 * defeat the purpose of using the txn interface.
+-			 */
+-			local64_set(&event->count, 0);
+ 		}
  
- 	log_debug(1 << CXGBI_DBG_TOE | 1 << CXGBI_DBG_SOCK,
- 		"csk 0x%p,%u,0x%lx.\n", csk, csk->state, csk->flags);
-@@ -979,16 +980,16 @@ static int init_act_open(struct cxgbi_sock *csk)
- 	csk->atid = cxgb3_alloc_atid(t3dev, &t3_client, csk);
- 	if (csk->atid < 0) {
- 		pr_err("NO atid available.\n");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto put_sock;
- 	}
- 	cxgbi_sock_set_flag(csk, CTPF_HAS_ATID);
- 	cxgbi_sock_get(csk);
- 
- 	skb = alloc_wr(sizeof(struct cpl_act_open_req), 0, GFP_KERNEL);
- 	if (!skb) {
--		cxgb3_free_atid(t3dev, csk->atid);
--		cxgbi_sock_put(csk);
--		return -ENOMEM;
-+		ret = -ENOMEM;
-+		goto free_atid;
- 	}
- 	skb->sk = (struct sock *)csk;
- 	set_arp_failure_handler(skb, act_open_arp_failure);
-@@ -1010,6 +1011,15 @@ static int init_act_open(struct cxgbi_sock *csk)
- 	cxgbi_sock_set_state(csk, CTP_ACTIVE_OPEN);
- 	send_act_open_req(csk, skb, csk->l2t);
- 	return 0;
-+
-+free_atid:
-+	cxgb3_free_atid(t3dev, csk->atid);
-+put_sock:
-+	cxgbi_sock_put(csk);
-+	l2t_release(t3dev, csk->l2t);
-+	csk->l2t = NULL;
-+
-+	return ret;
- }
- 
- cxgb3_cpl_handler_func cxgb3i_cpl_handlers[NUM_CPL_CMDS] = {
+ 		put_cpu_var(hv_24x7_reqb);
 -- 
 2.25.1
 
