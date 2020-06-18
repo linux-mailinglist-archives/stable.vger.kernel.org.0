@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DAA31FE42D
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:17:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D82281FE423
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:16:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731547AbgFRCQO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730364AbgFRCQO (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 17 Jun 2020 22:16:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52290 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:52402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730286AbgFRBUU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:20:20 -0400
+        id S1728947AbgFRBUV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:20:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3EDC221D90;
-        Thu, 18 Jun 2020 01:20:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B8F0F20B1F;
+        Thu, 18 Jun 2020 01:20:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443220;
-        bh=KtA8mhHELH+n/ciQv/OODDDRgp1wxznsDrQScNAW2j8=;
+        s=default; t=1592443221;
+        bh=SY8Eqoo2nu1v+0yBJH5UYzi2Ls/8iqjVxJLxfoN0Pa0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sA/utWMrKWYOnCOwEZ5qajIxcUyV/GW7LXukdiwLWvJ+bxSU/T8oWV1XNySDUMRKr
-         EKgml2QTRxhmbHHvQibkKGeN43RbCj0Fzpj/K7vHVK/pNaylE62u3IqlP7HDcNhpX2
-         EEn7B5/1tDWg3YJAJQ+x+nARG7vK7Ftdq2jNEYNk=
+        b=WiYzvvid8mkUpQuSofVQcyjfxwPHcriyS4ANt+qmRkRAlBguBMKbyzGqgG56tYWEY
+         sLMUOY+OroRjluAMaptWPoJLUZixA6lWP7oPjhsOCBKrCyFD7FpTRe2YK84eJWnhl4
+         iucejFLvNbCPjDvXaQi3Hm8jwBrE8y+XAzHtBgw8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marc Zyngier <maz@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-pci@vger.kernel.org, linux-amlogic@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 175/266] PCI: amlogic: meson: Don't use FAST_LINK_MODE to set up link
-Date:   Wed, 17 Jun 2020 21:15:00 -0400
-Message-Id: <20200618011631.604574-175-sashal@kernel.org>
+Cc:     Maor Gottlieb <maorg@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 176/266] IB/cma: Fix ports memory leak in cma_configfs
+Date:   Wed, 17 Jun 2020 21:15:01 -0400
+Message-Id: <20200618011631.604574-176-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
@@ -46,55 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Maor Gottlieb <maorg@mellanox.com>
 
-[ Upstream commit 87dccf09323fc363bd0d072fcc12b96622ab8c69 ]
+[ Upstream commit 63a3345c2d42a9b29e1ce2d3a4043689b3995cea ]
 
-The vim3l board does not work with a standard PCIe switch (ASM1184e),
-spitting all kind of errors - hinting at HW misconfiguration (no link,
-port enumeration issues, etc).
+The allocated ports structure in never freed. The free function should be
+called by release_cma_ports_group, but the group is never released since
+we don't remove its default group.
 
-According to the the Synopsys DWC PCIe Reference Manual, in the section
-dedicated to the PLCR register, bit 7 is described (FAST_LINK_MODE) as:
+Remove default groups when device group is deleted.
 
-"Sets all internal timers to fast mode for simulation purposes."
-
-it is sound to set this bit from a simulation perspective, but on actual
-silicon, which expects timers to have a nominal value, it is not.
-
-Make sure the FAST_LINK_MODE bit is cleared when configuring the RC
-to solve this problem.
-
-Link: https://lore.kernel.org/r/20200429164230.309922-1-maz@kernel.org
-Fixes: 9c0ef6d34fdb ("PCI: amlogic: Add the Amlogic Meson PCIe controller driver")
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-[lorenzo.pieralisi@arm.com: commit log]
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Acked-by: Rob Herring <robh@kernel.org>
+Fixes: 045959db65c6 ("IB/cma: Add configfs for rdma_cm")
+Link: https://lore.kernel.org/r/20200521072650.567908-1-leon@kernel.org
+Signed-off-by: Maor Gottlieb <maorg@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/dwc/pci-meson.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/infiniband/core/cma_configfs.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/drivers/pci/controller/dwc/pci-meson.c b/drivers/pci/controller/dwc/pci-meson.c
-index b927a92e3463..8c9f88704874 100644
---- a/drivers/pci/controller/dwc/pci-meson.c
-+++ b/drivers/pci/controller/dwc/pci-meson.c
-@@ -301,11 +301,11 @@ static void meson_pcie_init_dw(struct meson_pcie *mp)
- 	meson_cfg_writel(mp, val, PCIE_CFG0);
+diff --git a/drivers/infiniband/core/cma_configfs.c b/drivers/infiniband/core/cma_configfs.c
+index 8b0b5ae22e4c..726e70b68249 100644
+--- a/drivers/infiniband/core/cma_configfs.c
++++ b/drivers/infiniband/core/cma_configfs.c
+@@ -322,8 +322,21 @@ static struct config_group *make_cma_dev(struct config_group *group,
+ 	return ERR_PTR(err);
+ }
  
- 	val = meson_elb_readl(mp, PCIE_PORT_LINK_CTRL_OFF);
--	val &= ~LINK_CAPABLE_MASK;
-+	val &= ~(LINK_CAPABLE_MASK | FAST_LINK_MODE);
- 	meson_elb_writel(mp, val, PCIE_PORT_LINK_CTRL_OFF);
++static void drop_cma_dev(struct config_group *cgroup, struct config_item *item)
++{
++	struct config_group *group =
++		container_of(item, struct config_group, cg_item);
++	struct cma_dev_group *cma_dev_group =
++		container_of(group, struct cma_dev_group, device_group);
++
++	configfs_remove_default_groups(&cma_dev_group->ports_group);
++	configfs_remove_default_groups(&cma_dev_group->device_group);
++	config_item_put(item);
++}
++
+ static struct configfs_group_operations cma_subsys_group_ops = {
+ 	.make_group	= make_cma_dev,
++	.drop_item	= drop_cma_dev,
+ };
  
- 	val = meson_elb_readl(mp, PCIE_PORT_LINK_CTRL_OFF);
--	val |= LINK_CAPABLE_X1 | FAST_LINK_MODE;
-+	val |= LINK_CAPABLE_X1;
- 	meson_elb_writel(mp, val, PCIE_PORT_LINK_CTRL_OFF);
- 
- 	val = meson_elb_readl(mp, PCIE_GEN2_CTRL_OFF);
+ static const struct config_item_type cma_subsys_type = {
 -- 
 2.25.1
 
