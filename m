@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D6471FE125
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:53:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FE0C1FE12F
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:53:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731699AbgFRB0f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:26:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34096 "EHLO mail.kernel.org"
+        id S1731176AbgFRBwp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:52:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731044AbgFRB0d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:26:33 -0400
+        id S1731697AbgFRB0f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:26:35 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B3F82088E;
-        Thu, 18 Jun 2020 01:26:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BC2F221D80;
+        Thu, 18 Jun 2020 01:26:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443593;
-        bh=jMKMGH9oLq4ZwU2DuxOlSu/A8eXbglr0iWQy84qeamc=;
+        s=default; t=1592443594;
+        bh=H5eg7BiM/xtYXqFV7PyYEmuDRqwWCaHPZ2wHPuN04oQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=00CQXpGpTq32Zvca/DOfaYqa8jQ5A3GT3GiqxuweuH2rDfEZtUHpXa3SoaC2T68qo
-         pPCscwjpP/SoF81X0Dc/0nqFf98k4MavdHwUArdcWMhGyqMpEO5iY9nguiKRCyR8x1
-         7I5VnLR3ne2PtXypo+0F3UpIO42GjLnKvlAbdFP8=
+        b=IohAz+ZPk3Vci7tIbt6E3EZL8roEpEu0LtCrTUhcws6qlfXYlRu47tsurTpsRMff7
+         G40mjCqSUcfChViZdlgvl35klYIubtSQfRJMxCRgUoH4mw3qfOZngR3Esx8kQI0EHr
+         9/amxeYK1TR86nfs15s0balI49IoBCBwo97fFfvU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alain Volmat <avolmat@me.com>,
-        Patrice Chotard <patrice.chotard@st.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 026/108] clk: clk-flexgen: fix clock-critical handling
-Date:   Wed, 17 Jun 2020 21:24:38 -0400
-Message-Id: <20200618012600.608744-26-sashal@kernel.org>
+Cc:     Kajol Jain <kjain@linux.ibm.com>,
+        Sukadev Bhattiprolu <sukadev@linux.vnet.ibm.com>,
+        Madhavan Srinivasan <maddy@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.14 027/108] powerpc/perf/hv-24x7: Fix inconsistent output values incase multiple hv-24x7 events run
+Date:   Wed, 17 Jun 2020 21:24:39 -0400
+Message-Id: <20200618012600.608744-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012600.608744-1-sashal@kernel.org>
 References: <20200618012600.608744-1-sashal@kernel.org>
@@ -44,35 +45,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alain Volmat <avolmat@me.com>
+From: Kajol Jain <kjain@linux.ibm.com>
 
-[ Upstream commit a403bbab1a73d798728d76931cab3ff0399b9560 ]
+[ Upstream commit b4ac18eead28611ff470d0f47a35c4e0ac080d9c ]
 
-Fixes an issue leading to having all clocks following a critical
-clocks marked as well as criticals.
+Commit 2b206ee6b0df ("powerpc/perf/hv-24x7: Display change in counter
+values")' added to print _change_ in the counter value rather then raw
+value for 24x7 counters. Incase of transactions, the event count
+is set to 0 at the beginning of the transaction. It also sets
+the event's prev_count to the raw value at the time of initialization.
+Because of setting event count to 0, we are seeing some weird behaviour,
+whenever we run multiple 24x7 events at a time.
 
-Fixes: fa6415affe20 ("clk: st: clk-flexgen: Detect critical clocks")
-Signed-off-by: Alain Volmat <avolmat@me.com>
-Link: https://lkml.kernel.org/r/20200322140740.3970-1-avolmat@me.com
-Reviewed-by: Patrice Chotard <patrice.chotard@st.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+For example:
+
+command#: ./perf stat -e "{hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=0/,
+			   hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=1/}"
+	  		   -C 0 -I 1000 sleep 100
+
+     1.000121704                120 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=0/
+     1.000121704                  5 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=1/
+     2.000357733                  8 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=0/
+     2.000357733                 10 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=1/
+     3.000495215 18,446,744,073,709,551,616 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=0/
+     3.000495215 18,446,744,073,709,551,616 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=1/
+     4.000641884                 56 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=0/
+     4.000641884 18,446,744,073,709,551,616 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=1/
+     5.000791887 18,446,744,073,709,551,616 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=0/
+
+Getting these large values in case we do -I.
+
+As we are setting event_count to 0, for interval case, overall event_count is not
+coming in incremental order. As we may can get new delta lesser then previous count.
+Because of which when we print intervals, we are getting negative value which create
+these large values.
+
+This patch removes part where we set event_count to 0 in function
+'h_24x7_event_read'. There won't be much impact as we do set event->hw.prev_count
+to the raw value at the time of initialization to print change value.
+
+With this patch
+In power9 platform
+
+command#: ./perf stat -e "{hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=0/,
+		           hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=1/}"
+			   -C 0 -I 1000 sleep 100
+
+     1.000117685                 93 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=0/
+     1.000117685                  1 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=1/
+     2.000349331                 98 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=0/
+     2.000349331                  2 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=1/
+     3.000495900                131 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=0/
+     3.000495900                  4 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=1/
+     4.000645920                204 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=0/
+     4.000645920                 61 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=1/
+     4.284169997                 22 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=0/
+
+Suggested-by: Sukadev Bhattiprolu <sukadev@linux.vnet.ibm.com>
+Signed-off-by: Kajol Jain <kjain@linux.ibm.com>
+Tested-by: Madhavan Srinivasan <maddy@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200525104308.9814-2-kjain@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/st/clk-flexgen.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/perf/hv-24x7.c | 10 ----------
+ 1 file changed, 10 deletions(-)
 
-diff --git a/drivers/clk/st/clk-flexgen.c b/drivers/clk/st/clk-flexgen.c
-index 918ba3164da9..cd856210db58 100644
---- a/drivers/clk/st/clk-flexgen.c
-+++ b/drivers/clk/st/clk-flexgen.c
-@@ -373,6 +373,7 @@ static void __init st_of_flexgen_setup(struct device_node *np)
- 			break;
+diff --git a/arch/powerpc/perf/hv-24x7.c b/arch/powerpc/perf/hv-24x7.c
+index 72238eedc360..2bb798918483 100644
+--- a/arch/powerpc/perf/hv-24x7.c
++++ b/arch/powerpc/perf/hv-24x7.c
+@@ -1413,16 +1413,6 @@ static void h_24x7_event_read(struct perf_event *event)
+ 			h24x7hw = &get_cpu_var(hv_24x7_hw);
+ 			h24x7hw->events[i] = event;
+ 			put_cpu_var(h24x7hw);
+-			/*
+-			 * Clear the event count so we can compute the _change_
+-			 * in the 24x7 raw counter value at the end of the txn.
+-			 *
+-			 * Note that we could alternatively read the 24x7 value
+-			 * now and save its value in event->hw.prev_count. But
+-			 * that would require issuing a hcall, which would then
+-			 * defeat the purpose of using the txn interface.
+-			 */
+-			local64_set(&event->count, 0);
  		}
  
-+		flex_flags &= ~CLK_IS_CRITICAL;
- 		of_clk_detect_critical(np, i, &flex_flags);
- 
- 		/*
+ 		put_cpu_var(hv_24x7_reqb);
 -- 
 2.25.1
 
