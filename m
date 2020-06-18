@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14E361FE4BC
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:20:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C1F31FE4B1
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:20:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729544AbgFRCUg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:20:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50396 "EHLO mail.kernel.org"
+        id S1730051AbgFRBS6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:18:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728431AbgFRBSz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:18:55 -0400
+        id S1729683AbgFRBS4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:18:56 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD19421D7E;
-        Thu, 18 Jun 2020 01:18:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2010E21D82;
+        Thu, 18 Jun 2020 01:18:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443134;
-        bh=10sXDbedggxckhqYcZsB+MHV9CqU9ANcMhYsBRC6/bc=;
+        s=default; t=1592443136;
+        bh=Zemdb6Gh2fXWhmsy+EqLLEiMhrL7ra6MUS3oNMd/tFg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Io7Ab+5pCsdrMKf4vxDrJYYreuijBsPjSc17TLhfPItIFK+QbHx/YmR8HFZcmTJba
-         qmn8TluUVlkCPSvDeS0WszUooPE4EEND7FkPQELsm5pHDGbkU3PizayevLodCXVmMB
-         1or6i32HHl/acI94hjHMQ5KHA7V5n73oRUb313Bg=
+        b=wW9R581mLc0DMX2tpetIRPlyU+oOJChb4KY0JP8o34n7le3BOUPpzAZzcVjFg0BB2
+         3pyDyU/SLIlvXyazAgRRgmbbrJCbnw07GPHB/8898g4ae/Xrh+EEmxZmLNkJZfx4C9
+         UlpQo0L3G23CCQfjVtBhR4y8frqseGE7fF8aLCLk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.4 106/266] slimbus: ngd: get drvdata from correct device
-Date:   Wed, 17 Jun 2020 21:13:51 -0400
-Message-Id: <20200618011631.604574-106-sashal@kernel.org>
+Cc:     Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Jerome Brunet <jbrunet@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-amlogic@lists.infradead.org, linux-clk@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 107/266] clk: meson: meson8b: Fix the first parent of vid_pll_in_sel
+Date:   Wed, 17 Jun 2020 21:13:52 -0400
+Message-Id: <20200618011631.604574-107-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
@@ -44,48 +46,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-[ Upstream commit b58c663059b484f7ff547d076a34cf6d7a302e56 ]
+[ Upstream commit da1978ac3d6cf278dedf5edbf350445a0fff2f08 ]
 
-Get drvdata directly from parent instead of ngd dev, as ngd
-dev can probe defer and previously set drvdata will become null.
+Use hdmi_pll_lvds_out as parent of the vid_pll_in_sel clock. It's not
+easy to see that the vendor kernel does the same, but it actually does.
+meson_clk_pll_ops in mainline still cannot fully recalculate all rates
+from the HDMI PLL registers because some register bits (at the time of
+writing it's unknown which bits are used for this) double the HDMI PLL
+output rate (compared to simply considering M, N and FRAC) for some (but
+not all) PLL settings.
 
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20200417093618.7929-1-srinivas.kandagatla@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Update the vid_pll_in_sel parent so our clock calculation works for
+simple clock settings like the CVBS output (where no rate doubling is
+going on). The PLL ops need to be fixed later on for more complex clock
+settings (all HDMI rates).
+
+Fixes: 6cb57c678bb70 ("clk: meson: meson8b: add the read-only video clock trees")
+Suggested-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+Link: https://lore.kernel.org/r/20200417184127.1319871-2-martin.blumenstingl@googlemail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/slimbus/qcom-ngd-ctrl.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/clk/meson/meson8b.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/slimbus/qcom-ngd-ctrl.c b/drivers/slimbus/qcom-ngd-ctrl.c
-index 29fbab55c3b3..01a17d84b606 100644
---- a/drivers/slimbus/qcom-ngd-ctrl.c
-+++ b/drivers/slimbus/qcom-ngd-ctrl.c
-@@ -1354,7 +1354,6 @@ static int of_qcom_slim_ngd_register(struct device *parent,
- 		ngd->pdev->driver_override = QCOM_SLIM_NGD_DRV_NAME;
- 		ngd->pdev->dev.of_node = node;
- 		ctrl->ngd = ngd;
--		platform_set_drvdata(ngd->pdev, ctrl);
- 
- 		platform_device_add(ngd->pdev);
- 		ngd->base = ctrl->base + ngd->id * data->offset +
-@@ -1369,12 +1368,13 @@ static int of_qcom_slim_ngd_register(struct device *parent,
- 
- static int qcom_slim_ngd_probe(struct platform_device *pdev)
- {
--	struct qcom_slim_ngd_ctrl *ctrl = platform_get_drvdata(pdev);
- 	struct device *dev = &pdev->dev;
-+	struct qcom_slim_ngd_ctrl *ctrl = dev_get_drvdata(dev->parent);
- 	int ret;
- 
- 	ctrl->ctrl.dev = dev;
- 
-+	platform_set_drvdata(pdev, ctrl);
- 	pm_runtime_use_autosuspend(dev);
- 	pm_runtime_set_autosuspend_delay(dev, QCOM_SLIM_NGD_AUTOSUSPEND);
- 	pm_runtime_set_suspended(dev);
+diff --git a/drivers/clk/meson/meson8b.c b/drivers/clk/meson/meson8b.c
+index 8856ce476ccf..ab0b56daec54 100644
+--- a/drivers/clk/meson/meson8b.c
++++ b/drivers/clk/meson/meson8b.c
+@@ -1071,7 +1071,7 @@ static struct clk_regmap meson8b_vid_pll_in_sel = {
+ 		 * Meson8m2: vid2_pll
+ 		 */
+ 		.parent_hws = (const struct clk_hw *[]) {
+-			&meson8b_hdmi_pll_dco.hw
++			&meson8b_hdmi_pll_lvds_out.hw
+ 		},
+ 		.num_parents = 1,
+ 		.flags = CLK_SET_RATE_PARENT,
 -- 
 2.25.1
 
