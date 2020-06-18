@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DCBD1FDEE6
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:39:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 726F91FDECC
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:39:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732676AbgFRBgu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:36:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41256 "EHLO mail.kernel.org"
+        id S1732657AbgFRBa5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:30:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732651AbgFRBaz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:30:55 -0400
+        id S1732655AbgFRBa4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:30:56 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 05B0720CC7;
-        Thu, 18 Jun 2020 01:30:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3255F21D82;
+        Thu, 18 Jun 2020 01:30:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443854;
-        bh=/QpeyPTgpv4TJQv1GenvxiHv2ovCnuOrJTrNBcBINyc=;
+        s=default; t=1592443855;
+        bh=sz2VY7bKf1cEfS5TP7IGpkiCBgblk54msJDFCj5Xo9w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A13x2wvzJL8xEE+zy6ibwF+haLLJeOCmnjpMCNZ75ukIFLHW1nC62JfjmEaixugWV
-         UpSso+NEMwyi6dxlDQuY+az7b9vu8YgNk/YuNpvdB5JpjxDFvFdGwGOW0gAqcxsrv2
-         Fe+z/Oprdcm15ng556tCWY/8gJpNZEeY+AABu6r4=
+        b=Y9chRHnZiQZvKxZRhB8c0EqVN2VH3jPdKw0EuzpiiZ87Ak0PBNc5wqd5ypYyWVCJ1
+         Ts1tDdqAUBjbejZCLUZLOhY4YnXvGyzngGBICe0ufCEz2jtOAigJLTlMkEc8GgXdj6
+         TFWb/LGJn9SujyKhbjOdyMhJr5IMdvuutQ4R0+EE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicholas Piggin <npiggin@gmail.com>,
+Cc:     Geoff Levand <geoff@infradead.org>,
         Michael Ellerman <mpe@ellerman.id.au>,
-        Mahesh Salgaonkar <mahesh@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.4 38/60] powerpc/pseries/ras: Fix FWNMI_VALID off by one
-Date:   Wed, 17 Jun 2020 21:29:42 -0400
-Message-Id: <20200618013004.610532-38-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 39/60] powerpc/ps3: Fix kexec shutdown hang
+Date:   Wed, 17 Jun 2020 21:29:43 -0400
+Message-Id: <20200618013004.610532-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618013004.610532-1-sashal@kernel.org>
 References: <20200618013004.610532-1-sashal@kernel.org>
@@ -44,44 +43,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Geoff Levand <geoff@infradead.org>
 
-[ Upstream commit deb70f7a35a22dffa55b2c3aac71bc6fb0f486ce ]
+[ Upstream commit 126554465d93b10662742128918a5fc338cda4aa ]
 
-This was discovered developing qemu fwnmi sreset support. This
-off-by-one bug means the last 16 bytes of the rtas area can not
-be used for a 16 byte save area.
+The ps3_mm_region_destroy() and ps3_mm_vas_destroy() routines
+are called very late in the shutdown via kexec's mmu_cleanup_all
+routine.  By the time mmu_cleanup_all runs it is too late to use
+udbg_printf, and calling it will cause PS3 systems to hang.
 
-It's not a serious bug, and QEMU implementation has to retain a
-workaround for old kernels, but it's good to tighten it.
+Remove all debugging statements from ps3_mm_region_destroy() and
+ps3_mm_vas_destroy() and replace any error reporting with calls
+to lv1_panic.
 
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+With this change builds with 'DEBUG' defined will not cause kexec
+reboots to hang, and builds with 'DEBUG' defined or not will end
+in lv1_panic if an error is encountered.
+
+Signed-off-by: Geoff Levand <geoff@infradead.org>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Acked-by: Mahesh Salgaonkar <mahesh@linux.ibm.com>
-Link: https://lore.kernel.org/r/20200508043408.886394-7-npiggin@gmail.com
+Link: https://lore.kernel.org/r/7325c4af2b4c989c19d6a26b90b1fec9c0615ddf.1589049250.git.geoff@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/ras.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/powerpc/platforms/ps3/mm.c | 22 ++++++++++++----------
+ 1 file changed, 12 insertions(+), 10 deletions(-)
 
-diff --git a/arch/powerpc/platforms/pseries/ras.c b/arch/powerpc/platforms/pseries/ras.c
-index 9795e52bab3d..9e817c1b7808 100644
---- a/arch/powerpc/platforms/pseries/ras.c
-+++ b/arch/powerpc/platforms/pseries/ras.c
-@@ -265,10 +265,11 @@ static irqreturn_t ras_error_interrupt(int irq, void *dev_id)
- /*
-  * Some versions of FWNMI place the buffer inside the 4kB page starting at
-  * 0x7000. Other versions place it inside the rtas buffer. We check both.
-+ * Minimum size of the buffer is 16 bytes.
-  */
- #define VALID_FWNMI_BUFFER(A) \
--	((((A) >= 0x7000) && ((A) < 0x7ff0)) || \
--	(((A) >= rtas.base) && ((A) < (rtas.base + rtas.size - 16))))
-+	((((A) >= 0x7000) && ((A) <= 0x8000 - 16)) || \
-+	(((A) >= rtas.base) && ((A) <= (rtas.base + rtas.size - 16))))
+diff --git a/arch/powerpc/platforms/ps3/mm.c b/arch/powerpc/platforms/ps3/mm.c
+index b0f34663b1ae..19bae78b1f25 100644
+--- a/arch/powerpc/platforms/ps3/mm.c
++++ b/arch/powerpc/platforms/ps3/mm.c
+@@ -212,13 +212,14 @@ void ps3_mm_vas_destroy(void)
+ {
+ 	int result;
  
- /*
-  * Get the error information for errors coming through the
+-	DBG("%s:%d: map.vas_id    = %llu\n", __func__, __LINE__, map.vas_id);
+-
+ 	if (map.vas_id) {
+ 		result = lv1_select_virtual_address_space(0);
+-		BUG_ON(result);
+-		result = lv1_destruct_virtual_address_space(map.vas_id);
+-		BUG_ON(result);
++		result += lv1_destruct_virtual_address_space(map.vas_id);
++
++		if (result) {
++			lv1_panic(0);
++		}
++
+ 		map.vas_id = 0;
+ 	}
+ }
+@@ -316,19 +317,20 @@ static void ps3_mm_region_destroy(struct mem_region *r)
+ 	int result;
+ 
+ 	if (!r->destroy) {
+-		pr_info("%s:%d: Not destroying high region: %llxh %llxh\n",
+-			__func__, __LINE__, r->base, r->size);
+ 		return;
+ 	}
+ 
+-	DBG("%s:%d: r->base = %llxh\n", __func__, __LINE__, r->base);
+-
+ 	if (r->base) {
+ 		result = lv1_release_memory(r->base);
+-		BUG_ON(result);
++
++		if (result) {
++			lv1_panic(0);
++		}
++
+ 		r->size = r->base = r->offset = 0;
+ 		map.total = map.rm.size;
+ 	}
++
+ 	ps3_mm_set_repository_highmem(NULL);
+ }
+ 
 -- 
 2.25.1
 
