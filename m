@@ -2,199 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62CEF1FF5CC
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 16:54:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F59A1FF5F5
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 16:59:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731107AbgFROyL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Jun 2020 10:54:11 -0400
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:44061 "EHLO
-        wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731039AbgFROyK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Jun 2020 10:54:10 -0400
+        id S1727060AbgFRO7P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Jun 2020 10:59:15 -0400
+Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:51435 "EHLO
+        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726382AbgFRO7O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Jun 2020 10:59:14 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 664AF75F;
-        Thu, 18 Jun 2020 10:54:08 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Thu, 18 Jun 2020 10:54:08 -0400
+        by mailout.west.internal (Postfix) with ESMTP id 1594C8D4;
+        Thu, 18 Jun 2020 10:59:13 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Thu, 18 Jun 2020 10:59:13 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=nKFTbjl5ChmuW47gp9PYsbDBII9
+        L6MXY5u74A8/YFMA=; b=ggBp5vK14RIWAbjW8lpetsmh3770pvj3e4qFATTGgPF
+        51N1cs+quSfRbR/+JNoGBs9l197KylJ7BQMKCIspIhIxVzS+2ICSC5VNtHddyAMo
+        ipgqLdvQs9C+lGjinAhX8x6mnVGpFNQhe+kTGXTUjS8TNvwoebeYb6iQdyGdhHH8
+        kR2eXkNB9eEV1ynWyWK1kp87smimigQUXGl2MXqmiC2HOwvc9zcZOjmnnG7ZJr1G
+        mMOrBCTf9t4Q0HAH7ZQPGGAGsNUVYKIHgWKDOd9d6TUACyXbQ1oaOM8LgVi3aTbK
+        f5wPb3Jiyg9tFMKp/E28h2Q5PlUlf5s98aCn+e+IGTA==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=6EYJgy
-        cW/t/pHBpYdiOYY9TSZvp2uNxafi/klBA0aYY=; b=H5PXd7EIAG5Kgp3fzjMWZg
-        iHNCBqXBS52XZVzHM7iddoHtdxN6pPDmyZOP+Bdz0bHEZtM0Cp+xEm7/5nWOFr6n
-        eBP2Ftb5jnJUDlxJpbOKUv2jOdf5AfhEF9sFR/WWzxf02e0Qxum5ZaEDrBSCu13v
-        8vlZMlMeRLzgFehtcNwKbPjf+dJkb6qtQzIFzxrJAf+Z110YyaV9bkCnaWuOEwyn
-        acEw86qRbSgkIGRupmf7bhJRVvIjTCXXWrKO0h6PwDhC0US1cPq7VW7O7CV7k7rB
-        Znxy+zuPEvvhVZ52xcybsnfEfnvF/0Rb9+UddbtQ8vFpc1/DhoQg/vTRwsKtTWxQ
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=nKFTbj
+        l5ChmuW47gp9PYsbDBII9L6MXY5u74A8/YFMA=; b=YR6VLoVkHIHKI7KIP5e0Q8
+        fC+avlZmd3jQMH991Hfd6GU4xAcGXO3AIhgHtT0EzkSlrAQJ6dw/l5kmUHQJcIPu
+        HtaZw6lL4XLlZodiZqTbtlk5aP98mkIPVMevV3JNROfwzBbRv/qvJfQEAzv+FlfT
+        oU4dM0zoU+ySm8FwgC1PWabjB6VyTa/MjysytnyMO79BNSJGWyOomRPOn9AF/LWL
+        1th5xu7vjjXIHEk5djRo5il08DRNIyBDB8QPjzhlE43h++BOfTdHtSW2yyybauKI
+        yhNWCq3VovMw0pAciLbd5oWqmp9o1PtbIEbSjmWnYgphpxxmpsqeAwXfucf2LBFg
         ==
-X-ME-Sender: <xms:D4DrXpoEAZoA4rvUWcseMWau3GsoM9euitgbI-cixC3CNjtMFsi6Rg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudejgedgkedvucetufdoteggodetrfdotf
+X-ME-Sender: <xms:QIHrXiYuqs0hPec3dYLqCVkjx5Evac4WJXNjFGjKHOZmoaY--8wc5Q>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudejgedgkeefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
-    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:D4DrXrptf47--phCoNeNnvMtLaWTdZxasFKCfsjTqTCzfTt6iMoKaA>
-    <xmx:D4DrXmMsr5O_7OLRBg7JCYE6521UnGial9KXHJclbbWxv-krLPLpDg>
-    <xmx:D4DrXk5Enk3oVmVyvfGYfJLEEJ8hJi2rtw76SzVMG9Ec0ZBJdKre2w>
-    <xmx:EIDrXthSwuXQjLJxHQROjhDu0SmjrdhKGYI0oEALEf29N3FomA_DMjpiJlk>
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeeiieeltd
+    dtudeluddvueegtedvfedvieefgeeklefftedugeeggfdukedttedvhfenucffohhmrghi
+    nhepfihikhhiphgvughirgdrohhrghdpuggrrhhinhhgfhhirhgvsggrlhhlrdhnvghtpd
+    hkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:QIHrXlbm6T3gdVnRrv3-s4Yi4WH7-o1dihcknldmZ2tsw0jQ_sHbiA>
+    <xmx:QIHrXs-uMGQSnppt4LvJf7GoevFdyg_VWL_71HOZJXfz9EM84yVY-w>
+    <xmx:QIHrXkrUf1MV4siJdAfwoddAlpTecLPa2BzkSBdG0lZJkWgUwScjbQ>
+    <xmx:QIHrXsQ2ESSvXI1MA0eNMNQuvox2Xz-jCPy-tdpBzyrjIcui6SCPvg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 7BE2730614FA;
-        Thu, 18 Jun 2020 10:54:07 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] btrfs: reloc: fix reloc root leak and NULL pointer" failed to apply to 5.4-stable tree
-To:     wqu@suse.com, dsterba@suse.com, johannes.thumshirn@wdc.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 18 Jun 2020 16:54:00 +0200
-Message-ID: <159249204034160@kroah.com>
+        by mail.messagingengine.com (Postfix) with ESMTPA id B506C3280060;
+        Thu, 18 Jun 2020 10:59:11 -0400 (EDT)
+Date:   Thu, 18 Jun 2020 16:59:04 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Giuliano Procida <gprocida@google.com>
+Cc:     stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH] blk-mq: sync the update nr_hw_queues with
+ blk_mq_queue_tag_busy_iter
+Message-ID: <20200618145904.GB3017232@kroah.com>
+References: <20200608093950.86293-1-gprocida@google.com>
+ <CAGvU0HmbWA5aKZ-8jnYgaQGbfcVzGsGo7pm2Rf+ZfG8dHro_Bw@mail.gmail.com>
+ <CAGvU0H=Gd5CUMMW35wBFV=ZaE4u6aiu3VKPCiJNujGcwOvy3WA@mail.gmail.com>
+ <20200618073258.GA3856402@kroah.com>
+ <CAGvU0HmmV9+bkavHqB7TPbGwgUWvygLfWrCCmLmJ0uVOSHXoQQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAGvU0HmmV9+bkavHqB7TPbGwgUWvygLfWrCCmLmJ0uVOSHXoQQ@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Jun 18, 2020 at 10:16:45AM +0100, Giuliano Procida wrote:
+> Hi.
+> 
+> On Thu, 18 Jun 2020 at 08:33, Greg KH <greg@kroah.com> wrote:
+> >
+> >
+> > A: http://en.wikipedia.org/wiki/Top_post
+> > Q: Were do I find info about this thing called top-posting?
+> > A: Because it messes up the order in which people normally read text.
+> > Q: Why is top-posting such a bad thing?
+> > A: Top-posting.
+> > Q: What is the most annoying thing in e-mail?
+> >
+> > A: No.
+> > Q: Should I include quotations after my reply?
+> >
+> > http://daringfireball.net/2007/07/on_top
+> >
+> > :)
+> 
+> I'm well aware of the above.
+> Alas, I haven't used mutt properly in about 15 years and I'm still
+> doing everything with Gmail.
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+gmail can handle proper quoting, if you are stuck with that :)
+
+> Given that I was referring to the entire email thread, I punted on
+> finding a place to insert a comment.
+> BTW, there's a typo in the Q&A above. s/Were/Where/
+
+Ah, nice catch, first one to notice that in years!
+
+> > On Thu, Jun 18, 2020 at 08:27:55AM +0100, Giuliano Procida wrote:
+> > > Hi Greg.
+> > >
+> > > Is this patch (and the similar one for 4.9) queued?
+> >
+> > f5bbbbe4d635 ("blk-mq: sync the update nr_hw_queues with
+> > blk_mq_queue_tag_busy_iter") is in the following stable releases:
+> >         4.4.224 4.9.219 4.14.176 4.19
+> >
+> > Do you not see it there?
+> 
+> We are referring to different "it"s.
+> 
+> Yours: f5bbbbe4d635 is the upstream patch that went into v4.19-rc1 and
+> which you back-ported to at least some of these kernels. This is
+> clearly there.
+
+Great.
+
+> Mine: the commit sent earlier in this email thread - it's a
+> re-back-port, as I think the original back-port for 4.14 (and
+> similarly for 4.9) is incorrect. This has clearly not reached public
+> git, hence my question about whether the change was queued.
+
+I don't know what the git commit id you are looking for here, sorry.  I
+don't have the whole thread anywhere.
+
+> These are the ids of messages containing my commits:
+> 
+> 4.14: 20200608093950.86293-1-gprocida@google.com
+> 4.9: 20200608094030.87031-1-gprocida@google.com
+
+Pointers to this on lore.kernel.org perhaps?
+
+Remember, some of us get thousands of patches a week to handle,
+remembering old email thread, or even keeping them around, is
+impossible...
 
 thanks,
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 51415b6c1b117e223bc083e30af675cb5c5498f3 Mon Sep 17 00:00:00 2001
-From: Qu Wenruo <wqu@suse.com>
-Date: Tue, 19 May 2020 10:13:20 +0800
-Subject: [PATCH] btrfs: reloc: fix reloc root leak and NULL pointer
- dereference
-
-[BUG]
-When balance is canceled, there is a pretty high chance that unmounting
-the fs can lead to lead the NULL pointer dereference:
-
-  BTRFS warning (device dm-3): page private not zero on page 223158272
-  ...
-  BTRFS warning (device dm-3): page private not zero on page 223162368
-  BTRFS error (device dm-3): leaked root 18446744073709551608-304 refcount 1
-  BUG: kernel NULL pointer dereference, address: 0000000000000168
-  #PF: supervisor read access in kernel mode
-  #PF: error_code(0x0000) - not-present page
-  PGD 0 P4D 0
-  Oops: 0000 [#1] PREEMPT SMP NOPTI
-  CPU: 2 PID: 5793 Comm: umount Tainted: G           O      5.7.0-rc5-custom+ #53
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
-  RIP: 0010:__lock_acquire+0x5dc/0x24c0
-  Call Trace:
-   lock_acquire+0xab/0x390
-   _raw_spin_lock+0x39/0x80
-   btrfs_release_extent_buffer_pages+0xd7/0x200 [btrfs]
-   release_extent_buffer+0xb2/0x170 [btrfs]
-   free_extent_buffer+0x66/0xb0 [btrfs]
-   btrfs_put_root+0x8e/0x130 [btrfs]
-   btrfs_check_leaked_roots.cold+0x5/0x5d [btrfs]
-   btrfs_free_fs_info+0xe5/0x120 [btrfs]
-   btrfs_kill_super+0x1f/0x30 [btrfs]
-   deactivate_locked_super+0x3b/0x80
-   deactivate_super+0x3e/0x50
-   cleanup_mnt+0x109/0x160
-   __cleanup_mnt+0x12/0x20
-   task_work_run+0x67/0xa0
-   exit_to_usermode_loop+0xc5/0xd0
-   syscall_return_slowpath+0x205/0x360
-   do_syscall_64+0x6e/0xb0
-   entry_SYSCALL_64_after_hwframe+0x49/0xb3
-  RIP: 0033:0x7fd028ef740b
-
-[CAUSE]
-When balance is canceled, all reloc roots are marked as orphan, and
-orphan reloc roots are going to be cleaned up.
-
-However for orphan reloc roots and merged reloc roots, their lifespan
-are quite different:
-
-	Merged reloc roots	|	Orphan reloc roots by cancel
---------------------------------------------------------------------
-create_reloc_root()		| create_reloc_root()
-|- refs == 1			| |- refs == 1
-				|
-btrfs_grab_root(reloc_root);	| btrfs_grab_root(reloc_root);
-|- refs == 2			| |- refs == 2
-				|
-root->reloc_root = reloc_root;	| root->reloc_root = reloc_root;
-		>>> No difference so far <<<
-				|
-prepare_to_merge()		| prepare_to_merge()
-|- btrfs_set_root_refs(item, 1);| |- if (!err) (err == -EINTR)
-				|
-merge_reloc_roots()		| merge_reloc_roots()
-|- merge_reloc_root()		| |- Doing nothing to put reloc root
-   |- insert_dirty_subvol()	| |- refs == 2
-      |- __del_reloc_root()	|
-         |- btrfs_put_root()	|
-            |- refs == 1	|
-		>>> Now orphan reloc roots still have refs 2 <<<
-				|
-clean_dirty_subvols()		| clean_dirty_subvols()
-|- btrfs_drop_snapshot()	| |- btrfS_drop_snapshot()
-   |- reloc_root get freed	|    |- reloc_root still has refs 2
-				|	related ebs get freed, but
-				|	reloc_root still recorded in
-				|	allocated_roots
-btrfs_check_leaked_roots()	| btrfs_check_leaked_roots()
-|- No leaked roots		| |- Leaked reloc_roots detected
-				| |- btrfs_put_root()
-				|    |- free_extent_buffer(root->node);
-				|       |- eb already freed, caused NULL
-				|	   pointer dereference
-
-[FIX]
-The fix is to clear fs_root->reloc_root and put it at
-merge_reloc_roots() time, so that we won't leak reloc roots.
-
-Fixes: d2311e698578 ("btrfs: relocation: Delay reloc tree deletion after merge_reloc_roots")
-CC: stable@vger.kernel.org # 5.1+
-Tested-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-
-diff --git a/fs/btrfs/relocation.c b/fs/btrfs/relocation.c
-index 58f56e01de0d..81b076e46143 100644
---- a/fs/btrfs/relocation.c
-+++ b/fs/btrfs/relocation.c
-@@ -1917,12 +1917,10 @@ void merge_reloc_roots(struct reloc_control *rc)
- 		reloc_root = list_entry(reloc_roots.next,
- 					struct btrfs_root, root_list);
- 
-+		root = read_fs_root(fs_info, reloc_root->root_key.offset);
- 		if (btrfs_root_refs(&reloc_root->root_item) > 0) {
--			root = read_fs_root(fs_info,
--					    reloc_root->root_key.offset);
- 			BUG_ON(IS_ERR(root));
- 			BUG_ON(root->reloc_root != reloc_root);
--
- 			ret = merge_reloc_root(rc, root);
- 			btrfs_put_root(root);
- 			if (ret) {
-@@ -1932,6 +1930,14 @@ void merge_reloc_roots(struct reloc_control *rc)
- 				goto out;
- 			}
- 		} else {
-+			if (!IS_ERR(root)) {
-+				if (root->reloc_root == reloc_root) {
-+					root->reloc_root = NULL;
-+					btrfs_put_root(reloc_root);
-+				}
-+				btrfs_put_root(root);
-+			}
-+
- 			list_del_init(&reloc_root->root_list);
- 			/* Don't forget to queue this reloc root for cleanup */
- 			list_add_tail(&reloc_root->reloc_dirty_list,
-
