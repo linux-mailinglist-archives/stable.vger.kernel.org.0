@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1C1D1FE526
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:23:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D17A1FE523
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:23:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729833AbgFRBRx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:17:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49126 "EHLO mail.kernel.org"
+        id S1728129AbgFRCXf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:23:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729046AbgFRBRw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:17:52 -0400
+        id S1727879AbgFRBRy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:17:54 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A17EF206F1;
-        Thu, 18 Jun 2020 01:17:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE87921D90;
+        Thu, 18 Jun 2020 01:17:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443072;
-        bh=2k53BUB6tR7j3zcSfFJF3SuY35bWiRwDUV7sos9HbBc=;
+        s=default; t=1592443073;
+        bh=dUkmD52lNqPmRdAMdoB/PrJJyegJXyeJhm0rTeXELTM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=froT7pKA2zBiyw4qGfZwbPSM9uy5AUmj5xFR/h+u4pgzzDRPCiQjlvEy2CHD3ZDhw
-         8StzEj33iMNL+ALrtrVtMReWEQCjEkq+mETqD1zH+Y2LYd3jhHlCAPFEIdJVdw4wE/
-         yh+YqZkkOp8kW5jESIsxXYQeEXFI9ASjzwcYEEh8=
+        b=P0y4WQSXAmKZhV+1XmeQ9LhGIKnOEco2RCDYorCOuZ2Lsc1j3GNx384LEyFKORQq6
+         Tf4ob10J56GDDOflkyXJEUuwff/7myk0eV4IgIPRRrxpiuNYGXRLbMU5SlBOrhKn5G
+         IpfAHdYBBzP5tGYP1Kl5/sGWrgFcJLKFEqKghMRo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alain Volmat <avolmat@me.com>,
-        Patrice Chotard <patrice.chotard@st.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 060/266] clk: clk-flexgen: fix clock-critical handling
-Date:   Wed, 17 Jun 2020 21:13:05 -0400
-Message-Id: <20200618011631.604574-60-sashal@kernel.org>
+Cc:     Mark Zhang <markz@mellanox.com>,
+        Maor Gottlieb <maorg@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 061/266] IB/mlx5: Fix DEVX support for MLX5_CMD_OP_INIT2INIT_QP command
+Date:   Wed, 17 Jun 2020 21:13:06 -0400
+Message-Id: <20200618011631.604574-61-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
@@ -44,35 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alain Volmat <avolmat@me.com>
+From: Mark Zhang <markz@mellanox.com>
 
-[ Upstream commit a403bbab1a73d798728d76931cab3ff0399b9560 ]
+[ Upstream commit d246a3061528be6d852156d25c02ea69d6db7e65 ]
 
-Fixes an issue leading to having all clocks following a critical
-clocks marked as well as criticals.
+The commit citied in the Fixes line wasn't complete and solved
+only part of the problems. Update the mlx5_ib to properly support
+MLX5_CMD_OP_INIT2INIT_QP command in the DEVX, that is required when
+modify the QP tx_port_affinity.
 
-Fixes: fa6415affe20 ("clk: st: clk-flexgen: Detect critical clocks")
-Signed-off-by: Alain Volmat <avolmat@me.com>
-Link: https://lkml.kernel.org/r/20200322140740.3970-1-avolmat@me.com
-Reviewed-by: Patrice Chotard <patrice.chotard@st.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 819f7427bafd ("RDMA/mlx5: Add init2init as a modify command")
+Link: https://lore.kernel.org/r/20200527135703.482501-1-leon@kernel.org
+Signed-off-by: Mark Zhang <markz@mellanox.com>
+Reviewed-by: Maor Gottlieb <maorg@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/st/clk-flexgen.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/infiniband/hw/mlx5/devx.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/clk/st/clk-flexgen.c b/drivers/clk/st/clk-flexgen.c
-index 4413b6e04a8e..55873d4b7603 100644
---- a/drivers/clk/st/clk-flexgen.c
-+++ b/drivers/clk/st/clk-flexgen.c
-@@ -375,6 +375,7 @@ static void __init st_of_flexgen_setup(struct device_node *np)
- 			break;
- 		}
- 
-+		flex_flags &= ~CLK_IS_CRITICAL;
- 		of_clk_detect_critical(np, i, &flex_flags);
- 
- 		/*
+diff --git a/drivers/infiniband/hw/mlx5/devx.c b/drivers/infiniband/hw/mlx5/devx.c
+index bba7ab078430..fd75a9043bf1 100644
+--- a/drivers/infiniband/hw/mlx5/devx.c
++++ b/drivers/infiniband/hw/mlx5/devx.c
+@@ -489,6 +489,10 @@ static u64 devx_get_obj_id(const void *in)
+ 		obj_id = get_enc_obj_id(MLX5_CMD_OP_CREATE_QP,
+ 					MLX5_GET(rst2init_qp_in, in, qpn));
+ 		break;
++	case MLX5_CMD_OP_INIT2INIT_QP:
++		obj_id = get_enc_obj_id(MLX5_CMD_OP_CREATE_QP,
++					MLX5_GET(init2init_qp_in, in, qpn));
++		break;
+ 	case MLX5_CMD_OP_INIT2RTR_QP:
+ 		obj_id = get_enc_obj_id(MLX5_CMD_OP_CREATE_QP,
+ 					MLX5_GET(init2rtr_qp_in, in, qpn));
 -- 
 2.25.1
 
