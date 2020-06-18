@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AAF101FE504
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:22:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71D7C1FE4FD
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:22:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730004AbgFRCWg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:22:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49788 "EHLO mail.kernel.org"
+        id S1729488AbgFRCW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:22:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729258AbgFRBSX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:18:23 -0400
+        id S1729915AbgFRBSY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:18:24 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1074B21D7E;
-        Thu, 18 Jun 2020 01:18:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3433121D80;
+        Thu, 18 Jun 2020 01:18:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443102;
-        bh=0Ay2VrYDZCNa/G+QpJVcum2WYAuiEWtwlcEtxLmeHNY=;
+        s=default; t=1592443104;
+        bh=IYJNKOK5cBTrSDuxAQOv5bJd8WQAogwI6p6Osfy88qk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N+rQgKCoDnr78RVUIsl+KDx4grrsK2cg0xVVXrvZw65vWOmHuFxVtcDGh8IVSt+Oe
-         aeAH3yN2cAS2RWsaZZTDkY4IJhwLvXbjtjZ27Q6Ouun0ws9XVmKK/VQgk8mWE8jC/Q
-         E26T+Poo9Ef/mUWVcpD5gpuAIFcJwFU00MWDB+rg=
+        b=0T+f9RVVmOfgFhXirxqXB0bjab4QwfK8kgO1AgHQkmy32g6DIFDyc1RXzsKsdi9bz
+         xX4UzbhMddKb9df2DBbD/pjPo8N0jF8sQB3PNESSryze2EID7JY+ult60LNfL+zQO9
+         4QVa4L6RHSUurnOYPZ+wuOaq89767Gk31et5faUE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Simon Arlott <simon@octiron.net>,
+Cc:     Tyrel Datwyler <tyreld@linux.ibm.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 081/266] scsi: sr: Fix sr_probe() missing deallocate of device minor
-Date:   Wed, 17 Jun 2020 21:13:26 -0400
-Message-Id: <20200618011631.604574-81-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.4 082/266] scsi: ibmvscsi: Don't send host info in adapter info MAD after LPM
+Date:   Wed, 17 Jun 2020 21:13:27 -0400
+Message-Id: <20200618011631.604574-82-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
@@ -43,45 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Simon Arlott <simon@octiron.net>
+From: Tyrel Datwyler <tyreld@linux.ibm.com>
 
-[ Upstream commit 6555781b3fdec5e94e6914511496144241df7dee ]
+[ Upstream commit 4919b33b63c8b69d8dcf2b867431d0e3b6dc6d28 ]
 
-If the cdrom fails to be registered then the device minor should be
-deallocated.
+The adapter info MAD is used to send the client info and receive the host
+info as a response. A persistent buffer is used and as such the client info
+is overwritten after the response. During the course of a normal adapter
+reset the client info is refreshed in the buffer in preparation for sending
+the adapter info MAD.
 
-Link: https://lore.kernel.org/r/072dac4b-8402-4de8-36bd-47e7588969cd@0882a8b5-c6c3-11e9-b005-00805fc181fe
-Signed-off-by: Simon Arlott <simon@octiron.net>
+However, in the special case of LPM where we reenable the CRQ instead of a
+full CRQ teardown and reset we fail to refresh the client info in the
+adapter info buffer. As a result, after Live Partition Migration (LPM) we
+erroneously report the host's info as our own.
+
+[mkp: typos]
+
+Link: https://lore.kernel.org/r/20200603203632.18426-1-tyreld@linux.ibm.com
+Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/sr.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/scsi/ibmvscsi/ibmvscsi.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/scsi/sr.c b/drivers/scsi/sr.c
-index 4664fdf75c0f..70a28f6fb1d0 100644
---- a/drivers/scsi/sr.c
-+++ b/drivers/scsi/sr.c
-@@ -750,7 +750,7 @@ static int sr_probe(struct device *dev)
- 	cd->cdi.disk = disk;
+diff --git a/drivers/scsi/ibmvscsi/ibmvscsi.c b/drivers/scsi/ibmvscsi/ibmvscsi.c
+index 59f0f1030c54..c5711c659b51 100644
+--- a/drivers/scsi/ibmvscsi/ibmvscsi.c
++++ b/drivers/scsi/ibmvscsi/ibmvscsi.c
+@@ -415,6 +415,8 @@ static int ibmvscsi_reenable_crq_queue(struct crq_queue *queue,
+ 	int rc = 0;
+ 	struct vio_dev *vdev = to_vio_dev(hostdata->dev);
  
- 	if (register_cdrom(&cd->cdi))
--		goto fail_put;
-+		goto fail_minor;
- 
- 	/*
- 	 * Initialize block layer runtime PM stuffs before the
-@@ -768,6 +768,10 @@ static int sr_probe(struct device *dev)
- 
- 	return 0;
- 
-+fail_minor:
-+	spin_lock(&sr_index_lock);
-+	clear_bit(minor, sr_index_bits);
-+	spin_unlock(&sr_index_lock);
- fail_put:
- 	put_disk(disk);
- fail_free:
++	set_adapter_info(hostdata);
++
+ 	/* Re-enable the CRQ */
+ 	do {
+ 		if (rc)
 -- 
 2.25.1
 
