@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B79D51FE2AC
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:03:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3F4B1FE2AA
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:03:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728068AbgFRCDV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:03:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57214 "EHLO mail.kernel.org"
+        id S2387422AbgFRCDP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:03:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730993AbgFRBXb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:23:31 -0400
+        id S1726984AbgFRBXf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:23:35 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 20D22214DB;
-        Thu, 18 Jun 2020 01:23:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3802221D90;
+        Thu, 18 Jun 2020 01:23:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443411;
-        bh=VXgt2tx5O4PMvPYQWsJ40a0pQ96+5woG6XYfjopagNc=;
+        s=default; t=1592443415;
+        bh=WQPR6mvXeIxc49x78rvYQQK2rrCRLXag0OgKUIAQ/Cw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2vIqSHIVXsjC6+O0HxcWNP7CCoxkmHPXMMSLDUNHC9N0ws5zHcyBIj+hlVzG3bB68
-         ZHHqPPW2KDNx/GB/vYYA4I2uy9PAb4HCKzuyFZabSS/F8AOiwX4svWTkCEr408w6DI
-         jjo9/Nt8T+fj32OH8qImIPxVj966YkAjPwpcVUGM=
+        b=1joyJBH+Ud9YTTzuFdUg5d1gIRT2Rlku3S/XSVDkJoZ1cEof/Eu9Pwoj+1FZINmQV
+         2ln5Mme7ou+4Vpn2IPvNcl120mFKjXV4aaR5Ym4eNAkrfsrxpggKNVIdYJT5CqU1zu
+         aXhZUpJRMefbsZubZU/QWZFI0op6Dm3MA9IFcHFg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hsin-Yi Wang <hsinyi@chromium.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 054/172] arm64: dts: mt8173: fix unit name warnings
-Date:   Wed, 17 Jun 2020 21:20:20 -0400
-Message-Id: <20200618012218.607130-54-sashal@kernel.org>
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Serge Semin <fancer.lancer@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 057/172] gpio: dwapb: Append MODULE_ALIAS for platform driver
+Date:   Wed, 17 Jun 2020 21:20:23 -0400
+Message-Id: <20200618012218.607130-57-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012218.607130-1-sashal@kernel.org>
 References: <20200618012218.607130-1-sashal@kernel.org>
@@ -45,127 +44,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hsin-Yi Wang <hsinyi@chromium.org>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 72b29215aced394d01ca25e432963b619daa0098 ]
+[ Upstream commit c58220cba2e03618659fa7d5dfae31f5ad4ae9d0 ]
 
-Fixing several unit name warnings:
+The commit 3d2613c4289f
+  ("GPIO: gpio-dwapb: Enable platform driver binding to MFD driver")
+introduced a use of the platform driver but missed to add the following line
+to it:
+  MODULE_ALIAS("platform:gpio-dwapb");
 
-Warning (unit_address_vs_reg): /oscillator@0: node has a unit name, but no reg property
-Warning (unit_address_vs_reg): /oscillator@1: node has a unit name, but no reg property
-Warning (unit_address_vs_reg): /oscillator@2: node has a unit name, but no reg property
-Warning (unit_address_vs_reg): /thermal-zones/cpu_thermal/trips/trip-point@0: node has a unit name, but no reg property
-Warning (unit_address_vs_reg): /thermal-zones/cpu_thermal/trips/trip-point@1: node has a unit name, but no reg property
-Warning (unit_address_vs_reg): /thermal-zones/cpu_thermal/trips/cpu_crit@0: node has a unit name, but no reg property
-Warning (unit_address_vs_reg): /thermal-zones/cpu_thermal/cooling-maps/map@0: node has a unit name, but no reg property
-Warning (unit_address_vs_reg): /thermal-zones/cpu_thermal/cooling-maps/map@1: node has a unit name, but no reg property
-Warning (unit_address_vs_reg): /reserved-memory/vpu_dma_mem_region: node has a reg or ranges property, but no unit name
-Warning (simple_bus_reg): /soc/pinctrl@10005000: simple-bus unit address format error, expected "1000b000"
-Warning (simple_bus_reg): /soc/interrupt-controller@10220000: simple-bus unit address format error, expected "10221000"
+Add this to get driver loaded automatically if platform device is registered.
 
-Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
-Link: https://lore.kernel.org/r/20200210063523.133333-4-hsinyi@chromium.org
-[mb: drop fixes for '_' in property name]
-Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+Fixes: 3d2613c4289f ("GPIO: gpio-dwapb: Enable platform driver binding to MFD driver")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Tested-by: Serge Semin <fancer.lancer@gmail.com>
+Reviewed-by: Serge Semin <fancer.lancer@gmail.com>
+Link: https://lore.kernel.org/r/20200415141534.31240-2-andriy.shevchenko@linux.intel.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/mediatek/mt8173.dtsi | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ drivers/gpio/gpio-dwapb.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/mediatek/mt8173.dtsi b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
-index abd2f15a544b..bd9fc50ac154 100644
---- a/arch/arm64/boot/dts/mediatek/mt8173.dtsi
-+++ b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
-@@ -223,21 +223,21 @@ psci {
- 		cpu_on	      = <0x84000003>;
- 	};
+diff --git a/drivers/gpio/gpio-dwapb.c b/drivers/gpio/gpio-dwapb.c
+index 68db0033d158..2a56efced798 100644
+--- a/drivers/gpio/gpio-dwapb.c
++++ b/drivers/gpio/gpio-dwapb.c
+@@ -51,7 +51,9 @@
+ #define GPIO_EXT_PORTC		0x58
+ #define GPIO_EXT_PORTD		0x5c
  
--	clk26m: oscillator@0 {
-+	clk26m: oscillator0 {
- 		compatible = "fixed-clock";
- 		#clock-cells = <0>;
- 		clock-frequency = <26000000>;
- 		clock-output-names = "clk26m";
- 	};
++#define DWAPB_DRIVER_NAME	"gpio-dwapb"
+ #define DWAPB_MAX_PORTS		4
++
+ #define GPIO_EXT_PORT_STRIDE	0x04 /* register stride 32 bits */
+ #define GPIO_SWPORT_DR_STRIDE	0x0c /* register stride 3*32 bits */
+ #define GPIO_SWPORT_DDR_STRIDE	0x0c /* register stride 3*32 bits */
+@@ -400,7 +402,7 @@ static void dwapb_configure_irqs(struct dwapb_gpio *gpio,
+ 		return;
  
--	clk32k: oscillator@1 {
-+	clk32k: oscillator1 {
- 		compatible = "fixed-clock";
- 		#clock-cells = <0>;
- 		clock-frequency = <32000>;
- 		clock-output-names = "clk32k";
- 	};
+ 	err = irq_alloc_domain_generic_chips(gpio->domain, ngpio, 2,
+-					     "gpio-dwapb", handle_level_irq,
++					     DWAPB_DRIVER_NAME, handle_level_irq,
+ 					     IRQ_NOREQUEST, 0,
+ 					     IRQ_GC_INIT_NESTED_LOCK);
+ 	if (err) {
+@@ -457,7 +459,7 @@ static void dwapb_configure_irqs(struct dwapb_gpio *gpio,
+ 		 */
+ 		err = devm_request_irq(gpio->dev, pp->irq[0],
+ 				       dwapb_irq_handler_mfd,
+-				       IRQF_SHARED, "gpio-dwapb-mfd", gpio);
++				       IRQF_SHARED, DWAPB_DRIVER_NAME, gpio);
+ 		if (err) {
+ 			dev_err(gpio->dev, "error requesting IRQ\n");
+ 			irq_domain_remove(gpio->domain);
+@@ -849,7 +851,7 @@ static SIMPLE_DEV_PM_OPS(dwapb_gpio_pm_ops, dwapb_gpio_suspend,
  
--	cpum_ck: oscillator@2 {
-+	cpum_ck: oscillator2 {
- 		compatible = "fixed-clock";
- 		#clock-cells = <0>;
- 		clock-frequency = <0>;
-@@ -253,19 +253,19 @@ cpu_thermal: cpu_thermal {
- 			sustainable-power = <1500>; /* milliwatts */
- 
- 			trips {
--				threshold: trip-point@0 {
-+				threshold: trip-point0 {
- 					temperature = <68000>;
- 					hysteresis = <2000>;
- 					type = "passive";
- 				};
- 
--				target: trip-point@1 {
-+				target: trip-point1 {
- 					temperature = <85000>;
- 					hysteresis = <2000>;
- 					type = "passive";
- 				};
- 
--				cpu_crit: cpu_crit@0 {
-+				cpu_crit: cpu_crit0 {
- 					temperature = <115000>;
- 					hysteresis = <2000>;
- 					type = "critical";
-@@ -273,12 +273,12 @@ cpu_crit: cpu_crit@0 {
- 			};
- 
- 			cooling-maps {
--				map@0 {
-+				map0 {
- 					trip = <&target>;
- 					cooling-device = <&cpu0 0 0>;
- 					contribution = <3072>;
- 				};
--				map@1 {
-+				map1 {
- 					trip = <&target>;
- 					cooling-device = <&cpu2 0 0>;
- 					contribution = <1024>;
-@@ -291,7 +291,7 @@ reserved-memory {
- 		#address-cells = <2>;
- 		#size-cells = <2>;
- 		ranges;
--		vpu_dma_reserved: vpu_dma_mem_region {
-+		vpu_dma_reserved: vpu_dma_mem_region@b7000000 {
- 			compatible = "shared-dma-pool";
- 			reg = <0 0xb7000000 0 0x500000>;
- 			alignment = <0x1000>;
-@@ -343,7 +343,7 @@ syscfg_pctl_a: syscfg_pctl_a@10005000 {
- 			reg = <0 0x10005000 0 0x1000>;
- 		};
- 
--		pio: pinctrl@10005000 {
-+		pio: pinctrl@1000b000 {
- 			compatible = "mediatek,mt8173-pinctrl";
- 			reg = <0 0x1000b000 0 0x1000>;
- 			mediatek,pctl-regmap = <&syscfg_pctl_a>;
-@@ -541,7 +541,7 @@ mipi_tx1: mipi-dphy@10216000 {
- 			status = "disabled";
- 		};
- 
--		gic: interrupt-controller@10220000 {
-+		gic: interrupt-controller@10221000 {
- 			compatible = "arm,gic-400";
- 			#interrupt-cells = <3>;
- 			interrupt-parent = <&gic>;
+ static struct platform_driver dwapb_gpio_driver = {
+ 	.driver		= {
+-		.name	= "gpio-dwapb",
++		.name	= DWAPB_DRIVER_NAME,
+ 		.pm	= &dwapb_gpio_pm_ops,
+ 		.of_match_table = of_match_ptr(dwapb_of_match),
+ 		.acpi_match_table = ACPI_PTR(dwapb_acpi_match),
+@@ -863,3 +865,4 @@ module_platform_driver(dwapb_gpio_driver);
+ MODULE_LICENSE("GPL");
+ MODULE_AUTHOR("Jamie Iles");
+ MODULE_DESCRIPTION("Synopsys DesignWare APB GPIO driver");
++MODULE_ALIAS("platform:" DWAPB_DRIVER_NAME);
 -- 
 2.25.1
 
