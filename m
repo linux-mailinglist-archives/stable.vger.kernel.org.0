@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D17A1FE523
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:23:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EEF8D1FE522
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:23:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728129AbgFRCXf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:23:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49144 "EHLO mail.kernel.org"
+        id S1729852AbgFRBR5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:17:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727879AbgFRBRy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:17:54 -0400
+        id S1729848AbgFRBR4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:17:56 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE87921D90;
-        Thu, 18 Jun 2020 01:17:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7E58621D82;
+        Thu, 18 Jun 2020 01:17:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443073;
-        bh=dUkmD52lNqPmRdAMdoB/PrJJyegJXyeJhm0rTeXELTM=;
+        s=default; t=1592443076;
+        bh=Jn566st4WXENMqlUQMlT38EichEb2vGs1vnaLTneYyo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P0y4WQSXAmKZhV+1XmeQ9LhGIKnOEco2RCDYorCOuZ2Lsc1j3GNx384LEyFKORQq6
-         Tf4ob10J56GDDOflkyXJEUuwff/7myk0eV4IgIPRRrxpiuNYGXRLbMU5SlBOrhKn5G
-         IpfAHdYBBzP5tGYP1Kl5/sGWrgFcJLKFEqKghMRo=
+        b=vcS9mFbrEy7WDqYA8kbhjAbTwAafGGnBxnmQA/cb9xy9WTrVJWWotWWbzjN9GzWSB
+         4v5w5v0b8D4S58/HmYP4xSIKaqosohtLTyBG8Ua38yv6vWBQ8aiQXGLv+Ud0ZmFINV
+         LIOdE3OVFjmdoSIgA7Z/Gqx0b1qIY3AOjhMmD1h4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mark Zhang <markz@mellanox.com>,
-        Maor Gottlieb <maorg@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 061/266] IB/mlx5: Fix DEVX support for MLX5_CMD_OP_INIT2INIT_QP command
-Date:   Wed, 17 Jun 2020 21:13:06 -0400
-Message-Id: <20200618011631.604574-61-sashal@kernel.org>
+Cc:     Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        "J . Bruce Fields" <bfields@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 063/266] nfsd: Fix svc_xprt refcnt leak when setup callback client failed
+Date:   Wed, 17 Jun 2020 21:13:08 -0400
+Message-Id: <20200618011631.604574-63-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
@@ -45,41 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Zhang <markz@mellanox.com>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-[ Upstream commit d246a3061528be6d852156d25c02ea69d6db7e65 ]
+[ Upstream commit a4abc6b12eb1f7a533c2e7484cfa555454ff0977 ]
 
-The commit citied in the Fixes line wasn't complete and solved
-only part of the problems. Update the mlx5_ib to properly support
-MLX5_CMD_OP_INIT2INIT_QP command in the DEVX, that is required when
-modify the QP tx_port_affinity.
+nfsd4_process_cb_update() invokes svc_xprt_get(), which increases the
+refcount of the "c->cn_xprt".
 
-Fixes: 819f7427bafd ("RDMA/mlx5: Add init2init as a modify command")
-Link: https://lore.kernel.org/r/20200527135703.482501-1-leon@kernel.org
-Signed-off-by: Mark Zhang <markz@mellanox.com>
-Reviewed-by: Maor Gottlieb <maorg@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+The reference counting issue happens in one exception handling path of
+nfsd4_process_cb_update(). When setup callback client failed, the
+function forgets to decrease the refcnt increased by svc_xprt_get(),
+causing a refcnt leak.
+
+Fix this issue by calling svc_xprt_put() when setup callback client
+failed.
+
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mlx5/devx.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ fs/nfsd/nfs4callback.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/infiniband/hw/mlx5/devx.c b/drivers/infiniband/hw/mlx5/devx.c
-index bba7ab078430..fd75a9043bf1 100644
---- a/drivers/infiniband/hw/mlx5/devx.c
-+++ b/drivers/infiniband/hw/mlx5/devx.c
-@@ -489,6 +489,10 @@ static u64 devx_get_obj_id(const void *in)
- 		obj_id = get_enc_obj_id(MLX5_CMD_OP_CREATE_QP,
- 					MLX5_GET(rst2init_qp_in, in, qpn));
- 		break;
-+	case MLX5_CMD_OP_INIT2INIT_QP:
-+		obj_id = get_enc_obj_id(MLX5_CMD_OP_CREATE_QP,
-+					MLX5_GET(init2init_qp_in, in, qpn));
-+		break;
- 	case MLX5_CMD_OP_INIT2RTR_QP:
- 		obj_id = get_enc_obj_id(MLX5_CMD_OP_CREATE_QP,
- 					MLX5_GET(init2rtr_qp_in, in, qpn));
+diff --git a/fs/nfsd/nfs4callback.c b/fs/nfsd/nfs4callback.c
+index afca3287184b..efe55d101b0e 100644
+--- a/fs/nfsd/nfs4callback.c
++++ b/fs/nfsd/nfs4callback.c
+@@ -1230,6 +1230,8 @@ static void nfsd4_process_cb_update(struct nfsd4_callback *cb)
+ 	err = setup_callback_client(clp, &conn, ses);
+ 	if (err) {
+ 		nfsd4_mark_cb_down(clp, err);
++		if (c)
++			svc_xprt_put(c->cn_xprt);
+ 		return;
+ 	}
+ }
 -- 
 2.25.1
 
