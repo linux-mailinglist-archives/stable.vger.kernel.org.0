@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CA7C1FE855
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:48:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 560B41FE840
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:47:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732815AbgFRCrv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:47:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37210 "EHLO mail.kernel.org"
+        id S1728455AbgFRBKS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:10:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728426AbgFRBKM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:10:12 -0400
+        id S1728446AbgFRBKR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:10:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3FEAB21D90;
-        Thu, 18 Jun 2020 01:10:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7E6D12089D;
+        Thu, 18 Jun 2020 01:10:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442612;
-        bh=8cYg6YWaQ92yyXv7/1wtOlTaxEGIiAIY8Tv1LNlbrn8=;
+        s=default; t=1592442617;
+        bh=1KICtU+7Ipxdndkbsv962r1msAcOgKW2WYbRsAws1IE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RJ3w3U6QqyAvhzqVcQgb4prhQqLwHiuYMVKqfir2OFf7LQHMDQi06jV7048n+D6U5
-         UF8zPqLYkAt/sF14VATYvtJ/0zuQ7wp9iuewYG4ecNwjY1Sq3uapL/aI72K1uFkCnT
-         lgsgVvpGW6r/8jAjCl2ILS/pKgDbHsp707JpNjaw=
+        b=tY94N6Z6aWNzBhH3aDWSxUVyEnM7k2lB/MRy0o6BZgxnNCOZR/7CVyOFPG36oIuIh
+         Ys439sy3sXrJF1tOoJMw1DXeTimX56/3MPT5/tTlcxf2QP7YXX0bqfyYij6jhxUMue
+         +FBgaLwDLKNEGL3nt9EmnambZBUF9jDm8HqlLKto=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Ahmed S. Darwish" <a.darwish@linutronix.de>,
-        kernel test robot <lkp@intel.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 093/388] net: mdiobus: Disable preemption upon u64_stats update
-Date:   Wed, 17 Jun 2020 21:03:10 -0400
-Message-Id: <20200618010805.600873-93-sashal@kernel.org>
+Cc:     ashimida <ashimida@linux.alibaba.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-kbuild@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 097/388] mksysmap: Fix the mismatch of '.L' symbols in System.map
+Date:   Wed, 17 Jun 2020 21:03:14 -0400
+Message-Id: <20200618010805.600873-97-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
@@ -45,48 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Ahmed S. Darwish" <a.darwish@linutronix.de>
+From: ashimida <ashimida@linux.alibaba.com>
 
-[ Upstream commit c7e261d81783387a0502878cd229327e7c54322e ]
+[ Upstream commit 72d24accf02add25e08733f0ecc93cf10fcbd88c ]
 
-The u64_stats mechanism uses sequence counters to protect against 64-bit
-values tearing on 32-bit architectures. Updating u64_stats is thus a
-sequence counter write side critical section where preemption must be
-disabled.
+When System.map was generated, the kernel used mksysmap to
+filter the kernel symbols, but all the symbols with the
+second letter 'L' in the kernel were filtered out, not just
+the symbols starting with 'dot + L'.
 
-For mdiobus_stats_acct(), disable preemption upon the u64_stats update.
-It is called from process context through mdiobus_read() and
-mdiobus_write().
+For example:
+ashimida@ubuntu:~/linux$ cat System.map |grep ' .L'
+ashimida@ubuntu:~/linux$ nm -n vmlinux |grep ' .L'
+ffff0000088028e0 t bLength_show
+......
+ffff0000092e0408 b PLLP_OUTC_lock
+ffff0000092e0410 b PLLP_OUTA_lock
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Ahmed S. Darwish <a.darwish@linutronix.de>
-Reviewed-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The original intent should be to filter out all local symbols
+starting with '.L', so the dot should be escaped.
+
+Fixes: 00902e984732 ("mksysmap: Add h8300 local symbol pattern")
+Signed-off-by: ashimida <ashimida@linux.alibaba.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/mdio_bus.c | 2 ++
- 1 file changed, 2 insertions(+)
+ scripts/mksysmap | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/phy/mdio_bus.c b/drivers/net/phy/mdio_bus.c
-index 7a4eb3f2cb74..a1a4dee2a033 100644
---- a/drivers/net/phy/mdio_bus.c
-+++ b/drivers/net/phy/mdio_bus.c
-@@ -757,6 +757,7 @@ EXPORT_SYMBOL(mdiobus_scan);
+diff --git a/scripts/mksysmap b/scripts/mksysmap
+index a35acc0d0b82..9aa23d15862a 100755
+--- a/scripts/mksysmap
++++ b/scripts/mksysmap
+@@ -41,4 +41,4 @@
+ # so we just ignore them to let readprofile continue to work.
+ # (At least sparc64 has __crc_ in the middle).
  
- static void mdiobus_stats_acct(struct mdio_bus_stats *stats, bool op, int ret)
- {
-+	preempt_disable();
- 	u64_stats_update_begin(&stats->syncp);
- 
- 	u64_stats_inc(&stats->transfers);
-@@ -771,6 +772,7 @@ static void mdiobus_stats_acct(struct mdio_bus_stats *stats, bool op, int ret)
- 		u64_stats_inc(&stats->writes);
- out:
- 	u64_stats_update_end(&stats->syncp);
-+	preempt_enable();
- }
- 
- /**
+-$NM -n $1 | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( .L\)' > $2
++$NM -n $1 | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( \.L\)' > $2
 -- 
 2.25.1
 
