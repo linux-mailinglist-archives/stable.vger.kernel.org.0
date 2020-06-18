@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3A9D1FE359
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:08:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1B331FE351
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:08:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730768AbgFRCIX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:08:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54804 "EHLO mail.kernel.org"
+        id S1730799AbgFRCIL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:08:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730633AbgFRBWC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:22:02 -0400
+        id S1730643AbgFRBWE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:22:04 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6616920B1F;
-        Thu, 18 Jun 2020 01:22:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D9F5020CC7;
+        Thu, 18 Jun 2020 01:22:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443322;
-        bh=OC9h1BBLtnbRbYuhuP/ImaI0glFnt5/0DlTZ4avqXGM=;
+        s=default; t=1592443323;
+        bh=LhWCgqMpOimMUIh/VYqwEEVS7oF4YKfUj2TxcSiqHWQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ySdtmu9xljEVE/9YnUBTxC2JTplt3yFzxXjDGVpwf3YACdwNv51jzDOWSXhfnRFlH
-         YjwzpaFdD8Snrm52YL0u+pW1LKlufaggvaCHigaHEH+YNPzLkNhVbSSp5AE03MYO+a
-         CK4qZ+We4tx4iIRPPSzDqjKYQWJtZ3g8HrEKVU8c=
+        b=vv4ml2OiS98z7H+EwL31LByglnuzuCWN2DkWo2HfCuraNAKAslKQCAP9cVJcUSnXT
+         evrKSuRXXjCLeuQGRQCZnO4z8utkziWYMntXT2yxBdCnAeilpnOQRdjXkR2yxeqENj
+         y+T2rsjpTiHTzIyvtxKO2RfEWDE1Q5N1MkMwv1Hc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jean-Philippe Brucker <jean-philippe@linaro.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Yonghong Song <yhs@fb.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 256/266] tracing/probe: Fix bpf_task_fd_query() for kprobes and uprobes
-Date:   Wed, 17 Jun 2020 21:16:21 -0400
-Message-Id: <20200618011631.604574-256-sashal@kernel.org>
+Cc:     Jernej Skrabec <jernej.skrabec@siol.net>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 257/266] drm/sun4i: hdmi ddc clk: Fix size of m divider
+Date:   Wed, 17 Jun 2020 21:16:22 -0400
+Message-Id: <20200618011631.604574-257-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
@@ -46,54 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+From: Jernej Skrabec <jernej.skrabec@siol.net>
 
-[ Upstream commit 22d5bd6867364b41576a712755271a7d6161abd6 ]
+[ Upstream commit 54e1e06bcf1cf6e7ac3f86daa5f7454add24b494 ]
 
-Commit 60d53e2c3b75 ("tracing/probe: Split trace_event related data from
-trace_probe") removed the trace_[ku]probe structure from the
-trace_event_call->data pointer. As bpf_get_[ku]probe_info() were
-forgotten in that change, fix them now. These functions are currently
-only used by the bpf_task_fd_query() syscall handler to collect
-information about a perf event.
+m divider in DDC clock register is 4 bits wide. Fix that.
 
-Fixes: 60d53e2c3b75 ("tracing/probe: Split trace_event related data from trace_probe")
-Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Yonghong Song <yhs@fb.com>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Link: https://lore.kernel.org/bpf/20200608124531.819838-1-jean-philippe@linaro.org
+Fixes: 9c5681011a0c ("drm/sun4i: Add HDMI support")
+Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
+Reviewed-by: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200413095457.1176754-1-jernej.skrabec@siol.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_kprobe.c | 2 +-
- kernel/trace/trace_uprobe.c | 2 +-
+ drivers/gpu/drm/sun4i/sun4i_hdmi.h         | 2 +-
+ drivers/gpu/drm/sun4i/sun4i_hdmi_ddc_clk.c | 2 +-
  2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/trace/trace_kprobe.c b/kernel/trace/trace_kprobe.c
-index fba4b48451f6..26de9c654956 100644
---- a/kernel/trace/trace_kprobe.c
-+++ b/kernel/trace/trace_kprobe.c
-@@ -1464,7 +1464,7 @@ int bpf_get_kprobe_info(const struct perf_event *event, u32 *fd_type,
- 	if (perf_type_tracepoint)
- 		tk = find_trace_kprobe(pevent, group);
- 	else
--		tk = event->tp_event->data;
-+		tk = trace_kprobe_primary_from_call(event->tp_event);
- 	if (!tk)
- 		return -EINVAL;
+diff --git a/drivers/gpu/drm/sun4i/sun4i_hdmi.h b/drivers/gpu/drm/sun4i/sun4i_hdmi.h
+index 7ad3f06c127e..00ca35f07ba5 100644
+--- a/drivers/gpu/drm/sun4i/sun4i_hdmi.h
++++ b/drivers/gpu/drm/sun4i/sun4i_hdmi.h
+@@ -148,7 +148,7 @@
+ #define SUN4I_HDMI_DDC_CMD_IMPLICIT_WRITE	3
  
-diff --git a/kernel/trace/trace_uprobe.c b/kernel/trace/trace_uprobe.c
-index 2619bc5ed520..5294843de6ef 100644
---- a/kernel/trace/trace_uprobe.c
-+++ b/kernel/trace/trace_uprobe.c
-@@ -1405,7 +1405,7 @@ int bpf_get_uprobe_info(const struct perf_event *event, u32 *fd_type,
- 	if (perf_type_tracepoint)
- 		tu = find_probe_event(pevent, group);
- 	else
--		tu = event->tp_event->data;
-+		tu = trace_uprobe_primary_from_call(event->tp_event);
- 	if (!tu)
- 		return -EINVAL;
+ #define SUN4I_HDMI_DDC_CLK_REG		0x528
+-#define SUN4I_HDMI_DDC_CLK_M(m)			(((m) & 0x7) << 3)
++#define SUN4I_HDMI_DDC_CLK_M(m)			(((m) & 0xf) << 3)
+ #define SUN4I_HDMI_DDC_CLK_N(n)			((n) & 0x7)
+ 
+ #define SUN4I_HDMI_DDC_LINE_CTRL_REG	0x540
+diff --git a/drivers/gpu/drm/sun4i/sun4i_hdmi_ddc_clk.c b/drivers/gpu/drm/sun4i/sun4i_hdmi_ddc_clk.c
+index 2ff780114106..12430b9d4e93 100644
+--- a/drivers/gpu/drm/sun4i/sun4i_hdmi_ddc_clk.c
++++ b/drivers/gpu/drm/sun4i/sun4i_hdmi_ddc_clk.c
+@@ -33,7 +33,7 @@ static unsigned long sun4i_ddc_calc_divider(unsigned long rate,
+ 	unsigned long best_rate = 0;
+ 	u8 best_m = 0, best_n = 0, _m, _n;
+ 
+-	for (_m = 0; _m < 8; _m++) {
++	for (_m = 0; _m < 16; _m++) {
+ 		for (_n = 0; _n < 8; _n++) {
+ 			unsigned long tmp_rate;
  
 -- 
 2.25.1
