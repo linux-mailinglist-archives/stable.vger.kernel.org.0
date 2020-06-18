@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B10941FE6C5
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:36:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 621A91FE6C2
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:36:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731276AbgFRCg0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:36:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43422 "EHLO mail.kernel.org"
+        id S1728995AbgFRCgU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:36:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729241AbgFRBN5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:13:57 -0400
+        id S1728079AbgFRBN6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:13:58 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EBE9221974;
-        Thu, 18 Jun 2020 01:13:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB436221F1;
+        Thu, 18 Jun 2020 01:13:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442836;
-        bh=0hZx3zP10Ds1j10gCx37S3rT5JDXBnvUZQIeZ4Q/Jbo=;
+        s=default; t=1592442837;
+        bh=r+sGKsCZdJ6ItZ8zWIiODoB6JpSbLYt8qmx53pm6jdY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sdI9z0YBf/+zOneeLxr+G5IJ9Pof+A0vVAiY92f8fdXDCcoQ0sKtdLS7pE5c6XiqE
-         PhjkkYA4D/XCRn47l/YeB+9zFC9TUX1ZOB7xXdaOSg8djyOxxyhWAHD3i8QhOG4sdg
-         hSEPqxvFBYpyMV/xGNqjOHV26Ui23S83cUm+klTw=
+        b=fbfnFGRP0qn5v+2EEER51ha004HaA8Eqg0X+VJCWtYFkJldX+01Vj7hlg+u9wqjNG
+         BeqnrlOnKk5uS+3+hMlVJ76qfiLs/0NbjdQMmY8qQTqX1//xPbAJ81O6te5VQGW3J8
+         MlLx7FKijU3dvpw0zba4lm8CgLwficXsd++G1Oow=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Siddharth Gupta <sidgup@codeaurora.org>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.7 270/388] scripts: headers_install: Exit with error on config leak
-Date:   Wed, 17 Jun 2020 21:06:07 -0400
-Message-Id: <20200618010805.600873-270-sashal@kernel.org>
+Cc:     Potnuri Bharat Teja <bharat@chelsio.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 271/388] RDMA/iw_cxgb4: cleanup device debugfs entries on ULD remove
+Date:   Wed, 17 Jun 2020 21:06:08 -0400
+Message-Id: <20200618010805.600873-271-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
@@ -43,59 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Siddharth Gupta <sidgup@codeaurora.org>
+From: Potnuri Bharat Teja <bharat@chelsio.com>
 
-[ Upstream commit 5967577231f9b19acd5a59485e9075964065bbe3 ]
+[ Upstream commit 49ea0c036ede81f126f1a9389d377999fdf5c5a1 ]
 
-Misuse of CONFIG_* in UAPI headers should result in an error. These config
-options can be set in userspace by the user application which includes
-these headers to control the APIs and structures being used in a kernel
-which supports multiple targets.
+Remove device specific debugfs entries immediately if LLD detaches a
+particular ULD device in case of fatal PCI errors.
 
-Signed-off-by: Siddharth Gupta <sidgup@codeaurora.org>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Link: https://lore.kernel.org/r/20200524190814.17599-1-bharat@chelsio.com
+Signed-off-by: Potnuri Bharat Teja <bharat@chelsio.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/headers_install.sh | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/infiniband/hw/cxgb4/device.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/scripts/headers_install.sh b/scripts/headers_install.sh
-index a07668a5c36b..94a833597a88 100755
---- a/scripts/headers_install.sh
-+++ b/scripts/headers_install.sh
-@@ -64,7 +64,7 @@ configs=$(sed -e '
- 	d
- ' $OUTFILE)
- 
--# The entries in the following list are not warned.
-+# The entries in the following list do not result in an error.
- # Please do not add a new entry. This list is only for existing ones.
- # The list will be reduced gradually, and deleted eventually. (hopefully)
- #
-@@ -98,18 +98,19 @@ include/uapi/linux/raw.h:CONFIG_MAX_RAW_DEVS
- 
- for c in $configs
- do
--	warn=1
-+	leak_error=1
- 
- 	for ignore in $config_leak_ignores
- 	do
- 		if echo "$INFILE:$c" | grep -q "$ignore$"; then
--			warn=
-+			leak_error=
- 			break
- 		fi
- 	done
- 
--	if [ "$warn" = 1 ]; then
--		echo "warning: $INFILE: leak $c to user-space" >&2
-+	if [ "$leak_error" = 1 ]; then
-+		echo "error: $INFILE: leak $c to user-space" >&2
-+		exit 1
- 	fi
- done
- 
+diff --git a/drivers/infiniband/hw/cxgb4/device.c b/drivers/infiniband/hw/cxgb4/device.c
+index 599340c1f0b8..541dbcf22d0e 100644
+--- a/drivers/infiniband/hw/cxgb4/device.c
++++ b/drivers/infiniband/hw/cxgb4/device.c
+@@ -953,6 +953,7 @@ void c4iw_dealloc(struct uld_ctx *ctx)
+ static void c4iw_remove(struct uld_ctx *ctx)
+ {
+ 	pr_debug("c4iw_dev %p\n", ctx->dev);
++	debugfs_remove_recursive(ctx->dev->debugfs_root);
+ 	c4iw_unregister_device(ctx->dev);
+ 	c4iw_dealloc(ctx);
+ }
 -- 
 2.25.1
 
