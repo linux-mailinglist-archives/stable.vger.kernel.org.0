@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D71691FE3BF
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:14:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 800491FE3BC
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:14:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729462AbgFRCMo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:12:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53712 "EHLO mail.kernel.org"
+        id S1731001AbgFRCMf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:12:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730480AbgFRBVS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:21:18 -0400
+        id S1729842AbgFRBVT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:21:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2269221927;
-        Thu, 18 Jun 2020 01:21:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F3BC20776;
+        Thu, 18 Jun 2020 01:21:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443277;
-        bh=qwWVZZSogKHOKdD+/TNkv9MdERr/wR1hK4lokgNE7TI=;
+        s=default; t=1592443279;
+        bh=FgPG6cCgUeE3avIJ+Y2VCR4P+1TbrZ2c2zsyKos1QuI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b4mhvRo4OpDX4bK++T7GlA7UQLJ6FSdPwFcCbrKc8eKAz1+l0kENUVWAN59sFxba4
-         jO0BQ9RMfLTQxxDRio/JgyO9ruZfRP/5hfbwuPnBPLodwEO2pT3du6/t3BUZdlq1mq
-         5BAZSiNYjyomQ2BaGPtq1EZl8k3QYsBF+K64VkDE=
+        b=iwWtcj8xuw0FvPLBU+lMr11n85fLxTw1c/hjlPOF1YjLkColr6cEtQGshqzF6qNFF
+         EsMH8OFcI18dPgVTdrmLU4J13ZRVSjiKnNCyD7Zl95VYJ7/Qeskw6QjLf0tCGQdUK9
+         u7oQ+fD2XWWRdwFCbVbE2GGt7IDV6tNLvZynx1ss=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Dong Aisheng <aisheng.dong@nxp.com>,
         Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 222/266] pinctrl: imxl: Fix an error handling path in 'imx1_pinctrl_core_probe()'
-Date:   Wed, 17 Jun 2020 21:15:47 -0400
-Message-Id: <20200618011631.604574-222-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 223/266] pinctrl: freescale: imx: Fix an error handling path in 'imx_pinctrl_probe()'
+Date:   Wed, 17 Jun 2020 21:15:48 -0400
+Message-Id: <20200618011631.604574-223-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
@@ -46,34 +47,71 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 9eb728321286c4b31e964d2377fca2368526d408 ]
+[ Upstream commit 11d8da5cabf7c6c3263ba2cd9c00260395867048 ]
 
-When 'pinctrl_register()' has been turned into 'devm_pinctrl_register()',
-an error handling path has not been updated.
+'pinctrl_unregister()' should not be called to undo
+'devm_pinctrl_register_and_init()', it is already handled by the framework.
 
-Axe a now unneeded 'pinctrl_unregister()'.
+This simplifies the error handling paths of the probe function.
+The 'imx_free_resources()' can be removed as well.
 
-Fixes: e55e025d1687 ("pinctrl: imxl: Use devm_pinctrl_register() for pinctrl registration")
+Fixes: a51c158bf0f7 ("pinctrl: imx: use radix trees for groups and functions")
 Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/20200530201952.585798-1-christophe.jaillet@wanadoo.fr
+Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
+Link: https://lore.kernel.org/r/20200530204955.588962-1-christophe.jaillet@wanadoo.fr
 Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/freescale/pinctrl-imx1-core.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/pinctrl/freescale/pinctrl-imx.c | 19 ++-----------------
+ 1 file changed, 2 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/pinctrl/freescale/pinctrl-imx1-core.c b/drivers/pinctrl/freescale/pinctrl-imx1-core.c
-index 7e29e3fecdb2..5bb183c0ce31 100644
---- a/drivers/pinctrl/freescale/pinctrl-imx1-core.c
-+++ b/drivers/pinctrl/freescale/pinctrl-imx1-core.c
-@@ -638,7 +638,6 @@ int imx1_pinctrl_core_probe(struct platform_device *pdev,
+diff --git a/drivers/pinctrl/freescale/pinctrl-imx.c b/drivers/pinctrl/freescale/pinctrl-imx.c
+index 9f42036c5fbb..1f81569c7ae3 100644
+--- a/drivers/pinctrl/freescale/pinctrl-imx.c
++++ b/drivers/pinctrl/freescale/pinctrl-imx.c
+@@ -774,16 +774,6 @@ static int imx_pinctrl_probe_dt(struct platform_device *pdev,
+ 	return 0;
+ }
  
- 	ret = of_platform_populate(pdev->dev.of_node, NULL, NULL, &pdev->dev);
- 	if (ret) {
+-/*
+- * imx_free_resources() - free memory used by this driver
+- * @info: info driver instance
+- */
+-static void imx_free_resources(struct imx_pinctrl *ipctl)
+-{
+-	if (ipctl->pctl)
 -		pinctrl_unregister(ipctl->pctl);
- 		dev_err(&pdev->dev, "Failed to populate subdevices\n");
- 		return ret;
+-}
+-
+ int imx_pinctrl_probe(struct platform_device *pdev,
+ 		      const struct imx_pinctrl_soc_info *info)
+ {
+@@ -874,23 +864,18 @@ int imx_pinctrl_probe(struct platform_device *pdev,
+ 					     &ipctl->pctl);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "could not register IMX pinctrl driver\n");
+-		goto free;
++		return ret;
  	}
+ 
+ 	ret = imx_pinctrl_probe_dt(pdev, ipctl);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "fail to probe dt properties\n");
+-		goto free;
++		return ret;
+ 	}
+ 
+ 	dev_info(&pdev->dev, "initialized IMX pinctrl driver\n");
+ 
+ 	return pinctrl_enable(ipctl->pctl);
+-
+-free:
+-	imx_free_resources(ipctl);
+-
+-	return ret;
+ }
+ 
+ static int __maybe_unused imx_pinctrl_suspend(struct device *dev)
 -- 
 2.25.1
 
