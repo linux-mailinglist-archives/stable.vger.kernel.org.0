@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84B611FDB72
+	by mail.lfdr.de (Postfix) with ESMTP id F20EC1FDB73
 	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:13:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727060AbgFRBLp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:11:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39756 "EHLO mail.kernel.org"
+        id S1728790AbgFRBLq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:11:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728770AbgFRBLm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:11:42 -0400
+        id S1728783AbgFRBLp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:11:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2062320B1F;
-        Thu, 18 Jun 2020 01:11:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE0EE2193E;
+        Thu, 18 Jun 2020 01:11:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442702;
-        bh=HyWkwtaU0/RoTtrJwEMQ2IOLdNbG66utKfyAaE3FH+A=;
+        s=default; t=1592442704;
+        bh=vBCBMzp/dJxu7P6BbPG/qZxbQff9ivykBWjmPDcspNE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cUF3JzZ3cCUoQpbPWImubojPtFYTPfi8wT4uIpw20TjE8Kml/ZWFCnowBTIWQGPFW
-         TFpNH9HMaYOtZ9rM+qnC56QpPjmVMWD1G9luDcpqo2RLK4pKxh7hEdRonrxXJiOKhE
-         hAoPW0Gr8BB+mgwTkSL6RdUbY7lef8pmlQJy8gS8=
+        b=L+4460dC2NVk/0LwIaikLKDXVfmmIvISp3wx1yKLCWRgaX+fwqSUxPtgPo3R8Holt
+         WfssjV8JyyJ/bDHyLbFnOfHbP0+SsUYFUnsItjMTkyKozWEarfVOz8vZCAfR0fty09
+         WjmBeoyNOH8B/srJ8BzlozK/TCk4d9un4/V6C6ZM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eddie James <eajames@linux.ibm.com>, Joel Stanley <joel@jms.id.au>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.7 164/388] ARM: dts: aspeed: ast2600: Set arch timer always-on
-Date:   Wed, 17 Jun 2020 21:04:21 -0400
-Message-Id: <20200618010805.600873-164-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 166/388] HID: intel-ish-hid: avoid bogus uninitialized-variable warning
+Date:   Wed, 17 Jun 2020 21:04:23 -0400
+Message-Id: <20200618010805.600873-166-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
@@ -43,48 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eddie James <eajames@linux.ibm.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit c998f40f2ae6a48e93206e2c1ea0691479989611 ]
+[ Upstream commit 0b66fb3e6b7a53688f8e20945ac78cd3d832c65f ]
 
-According to ASPEED, FTTMR010 is not intended to be used in the AST2600.
-The arch timer should be used, but Linux doesn't enable high-res timers
-without being assured that the arch timer is always on, so set that
-property in the devicetree.
+Older compilers like gcc-4.8 don't see that the variable is
+initialized when it is used:
 
-The FTTMR010 device is described by set to disabled.
+In file included from include/linux/compiler_types.h:68:0,
+                 from <command-line>:0:
+drivers/hid/intel-ish-hid/ishtp-fw-loader.c: In function 'load_fw_from_host':
+include/linux/compiler-gcc.h:75:45: warning: 'fw_info.ldr_capability.max_dma_buf_size' may be used uninitialized in this function [-Wmaybe-uninitialized]
+ #define __UNIQUE_ID(prefix) __PASTE(__PASTE(__UNIQUE_ID_, prefix), __COUNTER__)
+                                             ^
+drivers/hid/intel-ish-hid/ishtp-fw-loader.c:770:22: note: 'fw_info.ldr_capability.max_dma_buf_size' was declared here
+  struct shim_fw_info fw_info;
+                      ^
 
-This fixes highres timer support for AST2600.
+Make sure to initialize it before returning an error from ish_query_loader_prop().
 
-Fixes: 2ca5646b5c2f ("ARM: dts: aspeed: Add AST2600 and EVB")
-Signed-off-by: Eddie James <eajames@linux.ibm.com>
-Reviewed-by: Joel Stanley <joel@jms.id.au>
-Signed-off-by: Joel Stanley <joel@jms.id.au>
+Fixes: 91b228107da3 ("HID: intel-ish-hid: ISH firmware loader client driver")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/aspeed-g6.dtsi | 2 ++
+ drivers/hid/intel-ish-hid/ishtp-fw-loader.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm/boot/dts/aspeed-g6.dtsi b/arch/arm/boot/dts/aspeed-g6.dtsi
-index 0a29b3b57a9d..fd0e483737a0 100644
---- a/arch/arm/boot/dts/aspeed-g6.dtsi
-+++ b/arch/arm/boot/dts/aspeed-g6.dtsi
-@@ -65,6 +65,7 @@ timer {
- 			     <GIC_PPI 10 (GIC_CPU_MASK_SIMPLE(2) | IRQ_TYPE_LEVEL_LOW)>;
- 		clocks = <&syscon ASPEED_CLK_HPLL>;
- 		arm,cpu-registers-not-fw-configured;
-+		always-on;
- 	};
+diff --git a/drivers/hid/intel-ish-hid/ishtp-fw-loader.c b/drivers/hid/intel-ish-hid/ishtp-fw-loader.c
+index aa2dbed30fc3..6cf59fd26ad7 100644
+--- a/drivers/hid/intel-ish-hid/ishtp-fw-loader.c
++++ b/drivers/hid/intel-ish-hid/ishtp-fw-loader.c
+@@ -480,6 +480,7 @@ static int ish_query_loader_prop(struct ishtp_cl_data *client_data,
+ 			    sizeof(ldr_xfer_query_resp));
+ 	if (rv < 0) {
+ 		client_data->flag_retry = true;
++		*fw_info = (struct shim_fw_info){};
+ 		return rv;
+ 	}
  
- 	ahb {
-@@ -368,6 +369,7 @@ timer: timer@1e782000 {
- 						<&gic  GIC_SPI 23 IRQ_TYPE_LEVEL_HIGH>;
- 				clocks = <&syscon ASPEED_CLK_APB1>;
- 				clock-names = "PCLK";
-+				status = "disabled";
-                         };
+@@ -489,6 +490,7 @@ static int ish_query_loader_prop(struct ishtp_cl_data *client_data,
+ 			"data size %d is not equal to size of loader_xfer_query_response %zu\n",
+ 			rv, sizeof(struct loader_xfer_query_response));
+ 		client_data->flag_retry = true;
++		*fw_info = (struct shim_fw_info){};
+ 		return -EMSGSIZE;
+ 	}
  
- 			uart1: serial@1e783000 {
 -- 
 2.25.1
 
