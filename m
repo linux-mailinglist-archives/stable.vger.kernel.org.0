@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 303621FDD77
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:26:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B44C1FDD7A
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:26:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730727AbgFRB0Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:26:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33876 "EHLO mail.kernel.org"
+        id S1731685AbgFRB0b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:26:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731014AbgFRB0Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:26:25 -0400
+        id S1731676AbgFRB03 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:26:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B183D20B1F;
-        Thu, 18 Jun 2020 01:26:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BBBA320B1F;
+        Thu, 18 Jun 2020 01:26:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443584;
-        bh=UGhfDyzH5DKoRcZ9PfBcUbV7VLVNuUQ36yNDMsI1WJA=;
+        s=default; t=1592443589;
+        bh=Vvix1eNkW7Lav4Up7MIJ75b402kMSnFT8rO+55Bkmjw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JSIp9F9yX/43dwq5ycPHSiONKYpHN2LzEU+k5Du3/AuRytDHCZL+DJ45jKk9uJpUs
-         rqBE/2VtxXZqHBK831c+n77cgEi39RvvCIm0gNGs4G4Jq6+ABXkSE6wN1SGGeEcmoX
-         Y3uZZ1lvYcVX7tj1uNKOsuKO4Z0pJO8agLZbd/Hk=
+        b=y4jU8KeFQhyXpykJY1I6XXVzc+BDbEfT9eXLZvMCZ2SRh+NMUw9AnFHalOoN13ie3
+         4ylfse0T30S1hzTSJjJAB6XROjDPPpIuwracbpyg6a/lLAmdFZRo7EQxyjWsc2e6XP
+         johGEn+IuL8ZP+r9RG062hj19mVt8bNNWUs68jUc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Martin Wilck <mwilck@suse.com>, Hannes Reinecke <hare@suse.de>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, dm-devel@redhat.com
-Subject: [PATCH AUTOSEL 4.14 019/108] dm mpath: switch paths in dm_blk_ioctl() code path
-Date:   Wed, 17 Jun 2020 21:24:31 -0400
-Message-Id: <20200618012600.608744-19-sashal@kernel.org>
+Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Greg Ungerer <gerg@linux-m68k.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-m68k@lists.linux-m68k.org
+Subject: [PATCH AUTOSEL 4.14 023/108] m68k/PCI: Fix a memory leak in an error handling path
+Date:   Wed, 17 Jun 2020 21:24:35 -0400
+Message-Id: <20200618012600.608744-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012600.608744-1-sashal@kernel.org>
 References: <20200618012600.608744-1-sashal@kernel.org>
@@ -43,47 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Wilck <mwilck@suse.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 2361ae595352dec015d14292f1b539242d8446d6 ]
+[ Upstream commit c3f4ec050f56eeab7c1f290321f9b762c95bd332 ]
 
-SCSI LUN passthrough code such as qemu's "scsi-block" device model
-pass every IO to the host via SG_IO ioctls. Currently, dm-multipath
-calls choose_pgpath() only in the block IO code path, not in the ioctl
-code path (unless current_pgpath is NULL). This has the effect that no
-path switching and thus no load balancing is done for SCSI-passthrough
-IO, unless the active path fails.
+If 'ioremap' fails, we must free 'bridge', as done in other error handling
+path bellow.
 
-Fix this by using the same logic in multipath_prepare_ioctl() as in
-multipath_clone_and_map().
-
-Note: The allegedly best path selection algorithm, service-time,
-still wouldn't work perfectly, because the io size of the current
-request is always set to 0. Changing that for the IO passthrough
-case would require the ioctl cmd and arg to be passed to dm's
-prepare_ioctl() method.
-
-Signed-off-by: Martin Wilck <mwilck@suse.com>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Fixes: 19cc4c843f40 ("m68k/PCI: Replace pci_fixup_irqs() call with host bridge IRQ mapping hooks")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-mpath.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/m68k/coldfire/pci.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/md/dm-mpath.c b/drivers/md/dm-mpath.c
-index 8b7328666eaa..7c60aace8d25 100644
---- a/drivers/md/dm-mpath.c
-+++ b/drivers/md/dm-mpath.c
-@@ -1815,7 +1815,7 @@ static int multipath_prepare_ioctl(struct dm_target *ti,
- 	int r;
+diff --git a/arch/m68k/coldfire/pci.c b/arch/m68k/coldfire/pci.c
+index 3097fa2ca746..1e428d18d268 100644
+--- a/arch/m68k/coldfire/pci.c
++++ b/arch/m68k/coldfire/pci.c
+@@ -316,8 +316,10 @@ static int __init mcf_pci_init(void)
  
- 	current_pgpath = READ_ONCE(m->current_pgpath);
--	if (!current_pgpath)
-+	if (!current_pgpath || !test_bit(MPATHF_QUEUE_IO, &m->flags))
- 		current_pgpath = choose_pgpath(m, 0);
+ 	/* Keep a virtual mapping to IO/config space active */
+ 	iospace = (unsigned long) ioremap(PCI_IO_PA, PCI_IO_SIZE);
+-	if (iospace == 0)
++	if (iospace == 0) {
++		pci_free_host_bridge(bridge);
+ 		return -ENODEV;
++	}
+ 	pr_info("Coldfire: PCI IO/config window mapped to 0x%x\n",
+ 		(u32) iospace);
  
- 	if (current_pgpath) {
 -- 
 2.25.1
 
