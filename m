@@ -2,335 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 719411FEF1B
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 11:59:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1360E1FEF8D
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 12:20:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728279AbgFRJ7A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Jun 2020 05:59:00 -0400
-Received: from mail29.static.mailgun.info ([104.130.122.29]:21278 "EHLO
-        mail29.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728315AbgFRJ65 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Jun 2020 05:58:57 -0400
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1592474336; h=Content-Transfer-Encoding: Content-Type:
- In-Reply-To: MIME-Version: Date: Message-ID: From: References: Cc: To:
- Subject: Sender; bh=rNkhuxG99K8tVZNE3kdPTirsJ1GISBhhATer2cIRmW8=; b=TCQLCkPpBB1lF9C76iXW3ck+XqYSkQ46hdyOfzf+1GxkpHl063Dw24YmZm7dK8EoiEPFyDPA
- moDBef4UVuYsNc9RL1LXZl1FVnOSRu66kMbbsWGRfYhHgEVoNWg+zThpMZXWIcRpmXa+V/YT
- z2XPMBHENER2Hgs7zI9SWwZgw7s=
-X-Mailgun-Sending-Ip: 104.130.122.29
-X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org
- (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
- smtp-out-n13.prod.us-east-1.postgun.com with SMTP id
- 5eeb3ae0356bcc26ab78b08c (version=TLS1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Thu, 18 Jun 2020 09:58:56
- GMT
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id 4EC0FC43395; Thu, 18 Jun 2020 09:58:55 +0000 (UTC)
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=2.0 tests=ALL_TRUSTED,SPF_NONE
-        autolearn=unavailable autolearn_force=no version=3.4.0
-Received: from [192.168.1.102] (unknown [183.83.143.239])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        (Authenticated sender: charante)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id AC27AC433C8;
-        Thu, 18 Jun 2020 09:58:51 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org AC27AC433C8
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=charante@codeaurora.org
-Subject: Re: [PATCH] dmabuf: use spinlock to access dmabuf->name
-To:     "Ruhl, Michael J" <michael.j.ruhl@intel.com>,
-        Sumit Semwal <sumit.semwal@linaro.org>,
-        "open list:DMA BUFFER SHARING FRAMEWORK" 
-        <linux-media@vger.kernel.org>,
-        DRI mailing list <dri-devel@lists.freedesktop.org>
-Cc:     Linaro MM SIG <linaro-mm-sig@lists.linaro.org>,
-        "vinmenon@codeaurora.org" <vinmenon@codeaurora.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-References: <316a5cf9-ca71-6506-bf8b-e79ded9055b2@codeaurora.org>
- <14063C7AD467DE4B82DEDB5C278E8663010F365EF5@fmsmsx107.amr.corp.intel.com>
- <14063C7AD467DE4B82DEDB5C278E8663010F365F7D@fmsmsx107.amr.corp.intel.com>
- <5b960c9a-ef9d-b43d-716d-113efc793fe5@codeaurora.org>
- <14063C7AD467DE4B82DEDB5C278E866301154B8339@FMSMSX108.amr.corp.intel.com>
-From:   Charan Teja Kalla <charante@codeaurora.org>
-Message-ID: <3ce92582-479e-caf2-1bf1-ffd99970403a@codeaurora.org>
-Date:   Thu, 18 Jun 2020 15:28:49 +0530
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.9.0
-MIME-Version: 1.0
-In-Reply-To: <14063C7AD467DE4B82DEDB5C278E866301154B8339@FMSMSX108.amr.corp.intel.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        id S1728048AbgFRKUK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Jun 2020 06:20:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44912 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727981AbgFRKUH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Jun 2020 06:20:07 -0400
+Received: from mail-wm1-x341.google.com (mail-wm1-x341.google.com [IPv6:2a00:1450:4864:20::341])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2898C0613ED
+        for <stable@vger.kernel.org>; Thu, 18 Jun 2020 03:20:06 -0700 (PDT)
+Received: by mail-wm1-x341.google.com with SMTP id r15so5052874wmh.5
+        for <stable@vger.kernel.org>; Thu, 18 Jun 2020 03:20:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=codeblueprint-co-uk.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id;
+        bh=ZDzS22ABd2kr6Q9N+iZeVVpuX4ohPjiFNCxXA+YL224=;
+        b=Ef5BGNQS6PKmHdhwWTN+Ge5JUtxlUBRtnxbp1aS7NYEdRQ72nR7VdsWHWRmnmPS1Q7
+         ZQMPNBp4pq4CcSfc+7p4qO9opYot/KLOEvPmJE2ei7g+6Uj79BRpQjD2ieWUBfHGuoLn
+         CUISNvWDP/m/5+ablwzXSJcAn+AdMWgvXqcKRhjV9WKeqnSj1ZcQh1SFMZ7eaDdAz7TV
+         FwwUZQVaVtVfaMneQcjwd2D7td800FXkoC9SDQGicfp/KsnxuAwNv0w/LzMPPOlYCUMG
+         gg4pbB7jIRFwi/iF+JN67ib3eV4Z+U/19Jxv/9XclDPvtwS1uf4BQ+LDSEyQUdc3G6Zj
+         EdLw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=ZDzS22ABd2kr6Q9N+iZeVVpuX4ohPjiFNCxXA+YL224=;
+        b=EHz4S2AN+nQfipVMOIdy5ZSgpAGU9aK2VkENxJb25zFOU+NDQM5Sj4jOXxv81fa5Mz
+         LbeGBP6S8cDliTEJ0F4F2dfogLWlE5sgleJJk/fSRCNanicKFMqpvwEriroVjJLB4c+O
+         wM0VKWVd+BazQDAjsSK05Udg1dPXgDxfdCKpUFyRfwS2WdNBC9bjHMq836j+T+NgkwJY
+         tTA2vxy/1pRQNdAwvP50BJZrYzZuj3E2qVIHab6QK6KySnhIPCiPmO5oWZ/2xbUxe80r
+         bJPT0D7L8vZcacLF+Gm0g4k4wSzL3IyluF8jigxFklYDyWyJvScyzlceH/7+2S8RYnVW
+         IHAQ==
+X-Gm-Message-State: AOAM5304W/ZDHdB/84GbvS6iGCBa/PDr/fexvlopN4GbE5eXFRARcjBI
+        q/31FHxxcGOEY38ZyTqiz7ctKw==
+X-Google-Smtp-Source: ABdhPJwwTnfV7bRfhIc9q9uf5O+5ALgdu5SAYXBjZl/zv6XL3RbYHaDXVITG/X1DIgpnQtI8C7JS/g==
+X-Received: by 2002:a05:600c:4146:: with SMTP id h6mr3373407wmm.170.1592475605123;
+        Thu, 18 Jun 2020 03:20:05 -0700 (PDT)
+Received: from localhost ([51.19.80.112])
+        by smtp.gmail.com with ESMTPSA id x8sm3170591wrs.43.2020.06.18.03.20.04
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Thu, 18 Jun 2020 03:20:04 -0700 (PDT)
+From:   Matt Fleming <matt@codeblueprint.co.uk>
+To:     Ingo Molnar <mingo@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>
+Cc:     Alexey Dobriyan <adobriyan@gmail.com>,
+        linux-kernel@vger.kernel.org,
+        Matt Fleming <matt@codeblueprint.co.uk>,
+        "Grimm, Jon" <Jon.Grimm@amd.com>,
+        "Kumar, Venkataramanan" <Venkataramanan.Kumar@amd.com>,
+        Jan Kara <jack@suse.cz>, stable@vger.kernel.org
+Subject: [PATCH] x86/asm/64: Align start of __clear_user() loop to 16-bytes
+Date:   Thu, 18 Jun 2020 11:20:02 +0100
+Message-Id: <20200618102002.30034-1-matt@codeblueprint.co.uk>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+x86 CPUs can suffer severe performance drops if a tight loop, such as
+the ones in __clear_user(), straddles a 16-byte instruction fetch
+window, or worse, a 64-byte cacheline. This issues was discovered in the
+SUSE kernel with the following commit,
 
+  1153933703d9 ("x86/asm/64: Micro-optimize __clear_user() - Use immediate constants")
 
-On 6/17/2020 11:13 PM, Ruhl, Michael J wrote:
->> -----Original Message-----
->> From: charante=codeaurora.org@mg.codeaurora.org
->> <charante=codeaurora.org@mg.codeaurora.org> On Behalf Of Charan Teja
->> Kalla
->> Sent: Wednesday, June 17, 2020 2:29 AM
->> To: Ruhl, Michael J <michael.j.ruhl@intel.com>; Sumit Semwal
->> <sumit.semwal@linaro.org>; open list:DMA BUFFER SHARING FRAMEWORK
->> <linux-media@vger.kernel.org>; DRI mailing list <dri-
->> devel@lists.freedesktop.org>
->> Cc: Linaro MM SIG <linaro-mm-sig@lists.linaro.org>;
->> vinmenon@codeaurora.org; LKML <linux-kernel@vger.kernel.org>;
->> stable@vger.kernel.org
->> Subject: Re: [PATCH] dmabuf: use spinlock to access dmabuf->name
->>
->> Thanks Michael for the comments..
->>
->> On 6/16/2020 7:29 PM, Ruhl, Michael J wrote:
->>>> -----Original Message-----
->>>> From: dri-devel <dri-devel-bounces@lists.freedesktop.org> On Behalf Of
->>>> Ruhl, Michael J
->>>> Sent: Tuesday, June 16, 2020 9:51 AM
->>>> To: Charan Teja Kalla <charante@codeaurora.org>; Sumit Semwal
->>>> <sumit.semwal@linaro.org>; open list:DMA BUFFER SHARING
->> FRAMEWORK
->>>> <linux-media@vger.kernel.org>; DRI mailing list <dri-
->>>> devel@lists.freedesktop.org>
->>>> Cc: Linaro MM SIG <linaro-mm-sig@lists.linaro.org>;
->>>> vinmenon@codeaurora.org; LKML <linux-kernel@vger.kernel.org>;
->>>> stable@vger.kernel.org
->>>> Subject: RE: [PATCH] dmabuf: use spinlock to access dmabuf->name
->>>>
->>>>> -----Original Message-----
->>>>> From: dri-devel <dri-devel-bounces@lists.freedesktop.org> On Behalf Of
->>>>> Charan Teja Kalla
->>>>> Sent: Thursday, June 11, 2020 9:40 AM
->>>>> To: Sumit Semwal <sumit.semwal@linaro.org>; open list:DMA BUFFER
->>>>> SHARING FRAMEWORK <linux-media@vger.kernel.org>; DRI mailing list
->> <dri-
->>>>> devel@lists.freedesktop.org>
->>>>> Cc: Linaro MM SIG <linaro-mm-sig@lists.linaro.org>;
->>>>> vinmenon@codeaurora.org; LKML <linux-kernel@vger.kernel.org>;
->>>>> stable@vger.kernel.org
->>>>> Subject: [PATCH] dmabuf: use spinlock to access dmabuf->name
->>>>>
->>>>> There exists a sleep-while-atomic bug while accessing the dmabuf->name
->>>>> under mutex in the dmabuffs_dname(). This is caused from the SELinux
->>>>> permissions checks on a process where it tries to validate the inherited
->>>>> files from fork() by traversing them through iterate_fd() (which
->>>>> traverse files under spin_lock) and call
->>>>> match_file(security/selinux/hooks.c) where the permission checks
->> happen.
->>>>> This audit information is logged using dump_common_audit_data()
->> where it
->>>>> calls d_path() to get the file path name. If the file check happen on
->>>>> the dmabuf's fd, then it ends up in ->dmabuffs_dname() and use mutex
->> to
->>>>> access dmabuf->name. The flow will be like below:
->>>>> flush_unauthorized_files()
->>>>>  iterate_fd()
->>>>>    spin_lock() --> Start of the atomic section.
->>>>>      match_file()
->>>>>        file_has_perm()
->>>>>          avc_has_perm()
->>>>>            avc_audit()
->>>>>              slow_avc_audit()
->>>>> 	        common_lsm_audit()
->>>>> 		  dump_common_audit_data()
->>>>> 		    audit_log_d_path()
->>>>> 		      d_path()
->>>>>                        dmabuffs_dname()
->>>>>                          mutex_lock()--> Sleep while atomic.
->>>>>
->>>>> Call trace captured (on 4.19 kernels) is below:
->>>>> ___might_sleep+0x204/0x208
->>>>> __might_sleep+0x50/0x88
->>>>> __mutex_lock_common+0x5c/0x1068
->>>>> __mutex_lock_common+0x5c/0x1068
->>>>> mutex_lock_nested+0x40/0x50
->>>>> dmabuffs_dname+0xa0/0x170
->>>>> d_path+0x84/0x290
->>>>> audit_log_d_path+0x74/0x130
->>>>> common_lsm_audit+0x334/0x6e8
->>>>> slow_avc_audit+0xb8/0xf8
->>>>> avc_has_perm+0x154/0x218
->>>>> file_has_perm+0x70/0x180
->>>>> match_file+0x60/0x78
->>>>> iterate_fd+0x128/0x168
->>>>> selinux_bprm_committing_creds+0x178/0x248
->>>>> security_bprm_committing_creds+0x30/0x48
->>>>> install_exec_creds+0x1c/0x68
->>>>> load_elf_binary+0x3a4/0x14e0
->>>>> search_binary_handler+0xb0/0x1e0
->>>>>
->>>>> So, use spinlock to access dmabuf->name to avoid sleep-while-atomic.
->>>>>
->>>>> Cc: <stable@vger.kernel.org> [5.3+]
->>>>> Signed-off-by: Charan Teja Reddy <charante@codeaurora.org>
->>>>> ---
->>>>> drivers/dma-buf/dma-buf.c | 13 +++++++------
->>>>> include/linux/dma-buf.h   |  1 +
->>>>> 2 files changed, 8 insertions(+), 6 deletions(-)
->>>>>
->>>>> diff --git a/drivers/dma-buf/dma-buf.c b/drivers/dma-buf/dma-buf.c
->>>>> index 01ce125..2e0456c 100644
->>>>> --- a/drivers/dma-buf/dma-buf.c
->>>>> +++ b/drivers/dma-buf/dma-buf.c
->>>>> @@ -45,10 +45,10 @@ static char *dmabuffs_dname(struct dentry
->> *dentry,
->>>>> char *buffer, int buflen)
->>>>> 	size_t ret = 0;
->>>>>
->>>>> 	dmabuf = dentry->d_fsdata;
->>>>> -	dma_resv_lock(dmabuf->resv, NULL);
->>>>> +	spin_lock(&dmabuf->name_lock);
->>>>> 	if (dmabuf->name)
->>>>> 		ret = strlcpy(name, dmabuf->name, DMA_BUF_NAME_LEN);
->>>>> -	dma_resv_unlock(dmabuf->resv);
->>>>> +	spin_unlock(&dmabuf->name_lock);
->>>>
->>>> I am not really clear on why you need this lock.
->>>>
->>>> If name == NULL you have no issues.
->>>> If name is real, you have no issues.
->>
->> Yeah, ideal cases...
->>
->>>>
->>>> If name is freed you will copy garbage, but the only way
->>>> for that to happen is that _set_name or _release have to be called
->>>> at just the right time.
->>>>
->>>> And the above would probably only be an issue if the set_name
->>>> was called, so you will get NULL or a real name.
->>
->> And there exists a use-after-free to avoid which requires the lock. Say
->> that memcpy() in dmabuffs_dname is in progress and in parallel _set_name
->> will free the same buffer that memcpy is operating on.
-> 
-> Hmm...  I can see that.
-> 
-> However, note that in dma_buf_set_name, you cannot use the spinlock
-> to protect the dma_buf->attachements list.
-> 
-> I think you need to do this:
-> 
-> 	dma_resv_lock(dmabuf->resv, NULL);
->  	if (!list_empty(&dmabuf->attachments)) {
->  		ret = -EBUSY;
->  		kfree(name);
->               }
-> 	dma_resv_unlock(dmabuf->resv, NULL);
-> 	if (ret)
-> 		return ret;
-> 
-> 	spinlock(nam_lock)
-> 	namestuff;
-> 	spinunlock
+which increased the code object size from 10 bytes to 15 bytes and
+caused the 8-byte copy loop in __clear_user() to be split across a
+64-byte cacheline.
 
-Hmm..Yes, I should use the dma_resv_lock() to access the ->attachments
-list. Will correct this in V2.
+Aligning the start of the loop to 16-bytes makes this fit neatly inside
+a single instruction fetch window again and restores the performance of
+__clear_user() which is used heavily when reading from /dev/zero.
 
-> 
-> 	return 0;
-> 
-> Mike
-> 
->>>> Is there a reason for the lock here?
->>>>
->>>> Mike
->>>
->>> Maybe dmabuf->name = NULL after the kfree(dmabuf->name) in:
->>>
->>> dma_buf_release()
->>>
->>> Would be sufficient?
->>
->> I don't think that we will access the 'dmabuf'(thus dmabuf->name) once
->> it is in the dma_buf_release(). So, setting the NULL in the _release()
->> is not required at all.
->>
->>>
->>> M
->>>>> 	return dynamic_dname(dentry, buffer, buflen, "/%s:%s",
->>>>> 			     dentry->d_name.name, ret > 0 ? name : "");
->>>>> @@ -335,7 +335,7 @@ static long dma_buf_set_name(struct dma_buf
->>>>> *dmabuf, const char __user *buf)
->>>>> 	if (IS_ERR(name))
->>>>> 		return PTR_ERR(name);
->>>>>
->>>>> -	dma_resv_lock(dmabuf->resv, NULL);
->>>>> +	spin_lock(&dmabuf->name_lock);
->>>>> 	if (!list_empty(&dmabuf->attachments)) {
->>>>> 		ret = -EBUSY;
->>>>> 		kfree(name);
->>>>> @@ -345,7 +345,7 @@ static long dma_buf_set_name(struct dma_buf
->>>>> *dmabuf, const char __user *buf)
->>>>> 	dmabuf->name = name;
->>>>>
->>>>> out_unlock:
->>>>> -	dma_resv_unlock(dmabuf->resv);
->>>>> +	spin_unlock(&dmabuf->name_lock);
->>>>> 	return ret;
->>>>> }
->>>>>
->>>>> @@ -405,10 +405,10 @@ static void dma_buf_show_fdinfo(struct
->> seq_file
->>>>> *m, struct file *file)
->>>>> 	/* Don't count the temporary reference taken inside procfs seq_show
->>>>> */
->>>>> 	seq_printf(m, "count:\t%ld\n", file_count(dmabuf->file) - 1);
->>>>> 	seq_printf(m, "exp_name:\t%s\n", dmabuf->exp_name);
->>>>> -	dma_resv_lock(dmabuf->resv, NULL);
->>>>> +	spin_lock(&dmabuf->name_lock);
->>>>> 	if (dmabuf->name)
->>>>> 		seq_printf(m, "name:\t%s\n", dmabuf->name);
->>>>> -	dma_resv_unlock(dmabuf->resv);
->>>>> +	spin_unlock(&dmabuf->name_lock);
->>>>> }
->>>>>
->>>>> static const struct file_operations dma_buf_fops = {
->>>>> @@ -546,6 +546,7 @@ struct dma_buf *dma_buf_export(const struct
->>>>> dma_buf_export_info *exp_info)
->>>>> 	dmabuf->size = exp_info->size;
->>>>> 	dmabuf->exp_name = exp_info->exp_name;
->>>>> 	dmabuf->owner = exp_info->owner;
->>>>> +	spin_lock_init(&dmabuf->name_lock);
->>>>> 	init_waitqueue_head(&dmabuf->poll);
->>>>> 	dmabuf->cb_excl.poll = dmabuf->cb_shared.poll = &dmabuf->poll;
->>>>> 	dmabuf->cb_excl.active = dmabuf->cb_shared.active = 0;
->>>>> diff --git a/include/linux/dma-buf.h b/include/linux/dma-buf.h
->>>>> index ab0c156..93108fd 100644
->>>>> --- a/include/linux/dma-buf.h
->>>>> +++ b/include/linux/dma-buf.h
->>>>> @@ -311,6 +311,7 @@ struct dma_buf {
->>>>> 	void *vmap_ptr;
->>>>> 	const char *exp_name;
->>>>> 	const char *name;
->>>>> +	spinlock_t name_lock;
->>>>> 	struct module *owner;
->>>>> 	struct list_head list_node;
->>>>> 	void *priv;
->>>>> --
->>>>> The Qualcomm Innovation Center, Inc. is a member of the Code Aurora
->>>>> Forum, a Linux Foundation Collaborative Project
->>>>> _______________________________________________
->>>>> dri-devel mailing list
->>>>> dri-devel@lists.freedesktop.org
->>>>> https://lists.freedesktop.org/mailman/listinfo/dri-devel
->>>> _______________________________________________
->>>> dri-devel mailing list
->>>> dri-devel@lists.freedesktop.org
->>>> https://lists.freedesktop.org/mailman/listinfo/dri-devel
->>
->> --
->> The Qualcomm Innovation Center, Inc. is a member of the Code Aurora
->> Forum, a Linux Foundation Collaborative Project
+Here are some numbers from running libmicro's read_z* and pread_z*
+microbenchmarks which read from /dev/zero:
 
+  Zen 1 (Naples)
+
+  libmicro-file
+                                        5.7.0-rc6              5.7.0-rc6              5.7.0-rc6
+                                                    revert-1153933703d9+               align16+
+  Time mean95-pread_z100k       9.9195 (   0.00%)      5.9856 (  39.66%)      5.9938 (  39.58%)
+  Time mean95-pread_z10k        1.1378 (   0.00%)      0.7450 (  34.52%)      0.7467 (  34.38%)
+  Time mean95-pread_z1k         0.2623 (   0.00%)      0.2251 (  14.18%)      0.2252 (  14.15%)
+  Time mean95-pread_zw100k      9.9974 (   0.00%)      6.0648 (  39.34%)      6.0756 (  39.23%)
+  Time mean95-read_z100k        9.8940 (   0.00%)      5.9885 (  39.47%)      5.9994 (  39.36%)
+  Time mean95-read_z10k         1.1394 (   0.00%)      0.7483 (  34.33%)      0.7482 (  34.33%)
+
+Note that this doesn't affect Haswell or Broadwell microarchitectures
+which seem to avoid the alignment issue by executing the loop straight
+out of the Loop Stream Detector (verified using perf events).
+
+Fixes: 1153933703d9 ("x86/asm/64: Micro-optimize __clear_user() - Use immediate constants")
+Cc: "Grimm, Jon" <Jon.Grimm@amd.com>
+Cc: "Kumar, Venkataramanan" <Venkataramanan.Kumar@amd.com>
+CC: Jan Kara <jack@suse.cz>
+Cc: <stable@vger.kernel.org> # v4.19+
+Signed-off-by: Matt Fleming <matt@codeblueprint.co.uk>
+---
+ arch/x86/lib/usercopy_64.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/x86/lib/usercopy_64.c b/arch/x86/lib/usercopy_64.c
+index fff28c6f73a2..b0dfac3d3df7 100644
+--- a/arch/x86/lib/usercopy_64.c
++++ b/arch/x86/lib/usercopy_64.c
+@@ -24,6 +24,7 @@ unsigned long __clear_user(void __user *addr, unsigned long size)
+ 	asm volatile(
+ 		"	testq  %[size8],%[size8]\n"
+ 		"	jz     4f\n"
++		"	.align 16\n"
+ 		"0:	movq $0,(%[dst])\n"
+ 		"	addq   $8,%[dst]\n"
+ 		"	decl %%ecx ; jnz   0b\n"
 -- 
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora
-Forum, a Linux Foundation Collaborative Project
+2.17.1
+
