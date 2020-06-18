@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DFEB1FE3FB
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:14:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22F4C1FE403
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:16:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730336AbgFRBUn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:20:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52936 "EHLO mail.kernel.org"
+        id S1727043AbgFRCO4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:14:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730328AbgFRBUk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:20:40 -0400
+        id S1730332AbgFRBUl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:20:41 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DBA1020CC7;
-        Thu, 18 Jun 2020 01:20:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0738720776;
+        Thu, 18 Jun 2020 01:20:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443239;
-        bh=yQ+EPRKOgzEMoRCrMgASq94CU8eenfNluTLG2ZL6VGg=;
+        s=default; t=1592443241;
+        bh=jgjHGsVhsJSxDyGA5Ork60r7TWAvi3KNCTPoeYEILdo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YXf00QIgXAu8WyIdaasf0H3V/SYk+VnMpy83tiDDiwCqKEJi4OihALisWwT/rhMOa
-         7O1bK1xYuuAzpFxUv6MKliGUW75EzcYeZEGLKH3wTEoEtfItYjf+oSyTMpz5STTa/+
-         Ne8SlCuS2MoOeloRAozYUdfgyBdNSknPPf1sZYpk=
+        b=I6TMmsQlwvykcti/s8QMx1bkCetcMEhYB0W0gNap1elxP8QJbf4DeVZmO+OxtOC9v
+         krn4CuDK1MbEQoRtQvBjqrUq9ZAL51YU+BNjC8WPswgkvFs2LxqlNu9zu+wPqPkr1t
+         Ch0b+IQ/CaiB8vj8rcqRtV6ISmPd6IfOT7LSB6o0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qian Cai <cai@lca.pw>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 191/266] vfio/pci: fix memory leaks of eventfd ctx
-Date:   Wed, 17 Jun 2020 21:15:16 -0400
-Message-Id: <20200618011631.604574-191-sashal@kernel.org>
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        Mike Christie <mchristi@redhat.com>,
+        David Disseldorp <ddiss@suse.de>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
+        target-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 192/266] scsi: target: tcmu: Fix a use after free in tcmu_check_expired_queue_cmd()
+Date:   Wed, 17 Jun 2020 21:15:17 -0400
+Message-Id: <20200618011631.604574-192-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
@@ -43,65 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 1518ac272e789cae8c555d69951b032a275b7602 ]
+[ Upstream commit 9d7464b18892332e35ff37f0b024429a1a9835e6 ]
 
-Finished a qemu-kvm (-device vfio-pci,host=0001:01:00.0) triggers a few
-memory leaks after a while because vfio_pci_set_ctx_trigger_single()
-calls eventfd_ctx_fdget() without the matching eventfd_ctx_put() later.
-Fix it by calling eventfd_ctx_put() for those memory in
-vfio_pci_release() before vfio_device_release().
+The pr_debug() dereferences "cmd" after we already freed it by calling
+tcmu_free_cmd(cmd).  The debug printk needs to be done earlier.
 
-unreferenced object 0xebff008981cc2b00 (size 128):
-  comm "qemu-kvm", pid 4043, jiffies 4294994816 (age 9796.310s)
-  hex dump (first 32 bytes):
-    01 00 00 00 6b 6b 6b 6b 00 00 00 00 ad 4e ad de  ....kkkk.....N..
-    ff ff ff ff 6b 6b 6b 6b ff ff ff ff ff ff ff ff  ....kkkk........
-  backtrace:
-    [<00000000917e8f8d>] slab_post_alloc_hook+0x74/0x9c
-    [<00000000df0f2aa2>] kmem_cache_alloc_trace+0x2b4/0x3d4
-    [<000000005fcec025>] do_eventfd+0x54/0x1ac
-    [<0000000082791a69>] __arm64_sys_eventfd2+0x34/0x44
-    [<00000000b819758c>] do_el0_svc+0x128/0x1dc
-    [<00000000b244e810>] el0_sync_handler+0xd0/0x268
-    [<00000000d495ef94>] el0_sync+0x164/0x180
-unreferenced object 0x29ff008981cc4180 (size 128):
-  comm "qemu-kvm", pid 4043, jiffies 4294994818 (age 9796.290s)
-  hex dump (first 32 bytes):
-    01 00 00 00 6b 6b 6b 6b 00 00 00 00 ad 4e ad de  ....kkkk.....N..
-    ff ff ff ff 6b 6b 6b 6b ff ff ff ff ff ff ff ff  ....kkkk........
-  backtrace:
-    [<00000000917e8f8d>] slab_post_alloc_hook+0x74/0x9c
-    [<00000000df0f2aa2>] kmem_cache_alloc_trace+0x2b4/0x3d4
-    [<000000005fcec025>] do_eventfd+0x54/0x1ac
-    [<0000000082791a69>] __arm64_sys_eventfd2+0x34/0x44
-    [<00000000b819758c>] do_el0_svc+0x128/0x1dc
-    [<00000000b244e810>] el0_sync_handler+0xd0/0x268
-    [<00000000d495ef94>] el0_sync+0x164/0x180
-
-Signed-off-by: Qian Cai <cai@lca.pw>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Link: https://lore.kernel.org/r/20200523101129.GB98132@mwanda
+Fixes: 61fb24822166 ("scsi: target: tcmu: Userspace must not complete queued commands")
+Reviewed-by: Mike Christie <mchristi@redhat.com>
+Reviewed-by: David Disseldorp <ddiss@suse.de>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/pci/vfio_pci.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/target/target_core_user.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
-index 02206162eaa9..d917dd2df3b3 100644
---- a/drivers/vfio/pci/vfio_pci.c
-+++ b/drivers/vfio/pci/vfio_pci.c
-@@ -472,6 +472,10 @@ static void vfio_pci_release(void *device_data)
- 	if (!(--vdev->refcnt)) {
- 		vfio_spapr_pci_eeh_release(vdev->pdev);
- 		vfio_pci_disable(vdev);
-+		if (vdev->err_trigger)
-+			eventfd_ctx_put(vdev->err_trigger);
-+		if (vdev->req_trigger)
-+			eventfd_ctx_put(vdev->req_trigger);
- 	}
+diff --git a/drivers/target/target_core_user.c b/drivers/target/target_core_user.c
+index 70c64e69a1d2..a497e7c1f4fc 100644
+--- a/drivers/target/target_core_user.c
++++ b/drivers/target/target_core_user.c
+@@ -1292,13 +1292,13 @@ static void tcmu_check_expired_queue_cmd(struct tcmu_cmd *cmd)
+ 	if (!time_after(jiffies, cmd->deadline))
+ 		return;
  
- 	mutex_unlock(&vdev->reflck->lock);
++	pr_debug("Timing out queued cmd %p on dev %s.\n",
++		  cmd, cmd->tcmu_dev->name);
++
+ 	list_del_init(&cmd->queue_entry);
+ 	se_cmd = cmd->se_cmd;
+ 	tcmu_free_cmd(cmd);
+ 
+-	pr_debug("Timing out queued cmd %p on dev %s.\n",
+-		  cmd, cmd->tcmu_dev->name);
+-
+ 	target_complete_cmd(se_cmd, SAM_STAT_TASK_SET_FULL);
+ }
+ 
 -- 
 2.25.1
 
