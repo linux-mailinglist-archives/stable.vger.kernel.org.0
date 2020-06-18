@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 735D31FDC62
+	by mail.lfdr.de (Postfix) with ESMTP id E010B1FDC63
 	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:19:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728459AbgFRBTE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:19:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50566 "EHLO mail.kernel.org"
+        id S1730064AbgFRBTF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:19:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730057AbgFRBTA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:19:00 -0400
+        id S1730065AbgFRBTB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:19:01 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29F3621D7E;
-        Thu, 18 Jun 2020 01:18:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 78DE321D80;
+        Thu, 18 Jun 2020 01:19:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443140;
-        bh=cTOLi/ciaKomP/JR0cQ5e2fwwWUbRGRAWN8tGxILFp0=;
+        s=default; t=1592443141;
+        bh=EvwO6JCvwjH0ii7c8P2k9TCjFrLWsFBoTY+wiB+vL34=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CeyWZYOIO8yUW0Zr8WvXzBecGdk/C5zmrPpi6bfl1lKca/+Vx+D+GChC7W+ab7rKz
-         g2ODmJzJpCnUtqQgFB8BG8uGfPLvWpSjV39TchQ/YzXFWXT9wUl4146wmHv2T9oA5Z
-         0TS1p4ujBXGDBoYkSMQwzfJvMHifoYJOgN+P/4LA=
+        b=smoQjOzW2LiqJhngY6QBYojmCA0m531EgvFft0s9TCHHdvBRMiqfIVk++oz74d4I1
+         X/RGlCRy3IGTK2adGwltPd8mD8cryvZ+IE6+vxbmQGFJmki5EyXq1uv3zmcsk5Ne9c
+         6vV7+qzbSCQQwfwUwY7XgUqBNHTSPkNmPwXDrFkQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Marcel Gudert <m.gudert@eckelmann.de>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 110/266] gpio: pca953x: fix handling of automatic address incrementing
-Date:   Wed, 17 Jun 2020 21:13:55 -0400
-Message-Id: <20200618011631.604574-110-sashal@kernel.org>
+Cc:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Amit Kucheria <amit.kucheria@linaro.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org,
+        linux-omap@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 111/266] thermal/drivers/ti-soc-thermal: Avoid dereferencing ERR_PTR
+Date:   Wed, 17 Jun 2020 21:13:56 -0400
+Message-Id: <20200618011631.604574-111-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -47,141 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 
-[ Upstream commit bcf41dc480b179bfb669a232080a2e26dc7294b4 ]
+[ Upstream commit 7440f518dad9d861d76c64956641eeddd3586f75 ]
 
-Some of the chips supported by the pca953x driver need the most
-significant bit in the address word set to automatically increment the
-address pointer on subsequent reads and writes (example: PCA9505). With
-this bit unset the same register is read multiple times on a multi-byte
-read sequence. Other chips must not have this bit set and autoincrement
-always (example: PCA9555).
+On error the function ti_bandgap_get_sensor_data() returns the error
+code in ERR_PTR() but we only checked if the return value is NULL or
+not. And, so we can dereference an error code inside ERR_PTR.
+While at it, convert a check to IS_ERR_OR_NULL.
 
-Up to now this AI bit was interpreted to be part of the address, which
-resulted in inconsistent regmap caching when a register was written with
-AI set and then read without it. This happened for the PCA9505 in
-pca953x_gpio_set_multiple() where pca953x_read_regs() bulk read from the
-cache for registers 0x8-0xc and then wrote to registers 0x88-0x8c. (Side
-note: reading 5 values from offset 0x8 yiels OP0 5 times because AI must
-be set to get OP0-OP4, which is another bug that is resolved here as a
-by-product.) The same problem happens when calls to gpio_set_value() and
-gpio_set_array_value() were mixed.
-
-With this patch the AI bit is always set for chips that support it. This
-works as there are no code locations that make use of the behaviour with
-AI unset (for the chips that support it).
-
-Note that the call to pca953x_setup_gpio() had to be done a bit earlier
-to make the NBANK macro work.
-
-The history of this bug is a bit complicated. Commit b32cecb46bdc
-("gpio: pca953x: Extract the register address mangling to single
-function") changed which chips and functions are affected. Commit
-3b00691cc46a ("gpio: pca953x: hack to fix 24 bit gpio expanders") used
-some duct tape to make the driver at least appear to work. Commit
-49427232764d ("gpio: pca953x: Perform basic regmap conversion")
-introduced the caching. Commit b4818afeacbd ("gpio: pca953x: Add
-set_multiple to allow multiple bits to be set in one write.") introduced
-the .set_multiple() callback which didn't work for chips that need the
-AI bit which was fixed later for some chips in 8958262af3fb ("gpio:
-pca953x: Repair multi-byte IO address increment on PCA9575"). So I'm
-sorry, I don't know which commit I should pick for a Fixes: line.
-
-Tested-by: Marcel Gudert <m.gudert@eckelmann.de>
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Tested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Reviewed-by: Amit Kucheria <amit.kucheria@linaro.org>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20200424161944.6044-1-sudipm.mukherjee@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-pca953x.c | 44 +++++++++++++++++++++++--------------
- 1 file changed, 28 insertions(+), 16 deletions(-)
+ drivers/thermal/ti-soc-thermal/ti-thermal-common.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpio/gpio-pca953x.c b/drivers/gpio/gpio-pca953x.c
-index 3edc1762803a..29ba26742c8f 100644
---- a/drivers/gpio/gpio-pca953x.c
-+++ b/drivers/gpio/gpio-pca953x.c
-@@ -306,8 +306,22 @@ static const struct regmap_config pca953x_i2c_regmap = {
- 	.volatile_reg = pca953x_volatile_register,
+diff --git a/drivers/thermal/ti-soc-thermal/ti-thermal-common.c b/drivers/thermal/ti-soc-thermal/ti-thermal-common.c
+index d3e959d01606..85776db4bf34 100644
+--- a/drivers/thermal/ti-soc-thermal/ti-thermal-common.c
++++ b/drivers/thermal/ti-soc-thermal/ti-thermal-common.c
+@@ -169,7 +169,7 @@ int ti_thermal_expose_sensor(struct ti_bandgap *bgp, int id,
  
- 	.cache_type = REGCACHE_RBTREE,
--	/* REVISIT: should be 0x7f but some 24 bit chips use REG_ADDR_AI */
--	.max_register = 0xff,
-+	.max_register = 0x7f,
-+};
-+
-+static const struct regmap_config pca953x_ai_i2c_regmap = {
-+	.reg_bits = 8,
-+	.val_bits = 8,
-+
-+	.read_flag_mask = REG_ADDR_AI,
-+	.write_flag_mask = REG_ADDR_AI,
-+
-+	.readable_reg = pca953x_readable_register,
-+	.writeable_reg = pca953x_writeable_register,
-+	.volatile_reg = pca953x_volatile_register,
-+
-+	.cache_type = REGCACHE_RBTREE,
-+	.max_register = 0x7f,
- };
+ 	data = ti_bandgap_get_sensor_data(bgp, id);
  
- static u8 pca953x_recalc_addr(struct pca953x_chip *chip, int reg, int off,
-@@ -318,18 +332,6 @@ static u8 pca953x_recalc_addr(struct pca953x_chip *chip, int reg, int off,
- 	int pinctrl = (reg & PCAL_PINCTRL_MASK) << 1;
- 	u8 regaddr = pinctrl | addr | (off / BANK_SZ);
+-	if (!data || IS_ERR(data))
++	if (!IS_ERR_OR_NULL(data))
+ 		data = ti_thermal_build_data(bgp, id);
  
--	/* Single byte read doesn't need AI bit set. */
--	if (!addrinc)
--		return regaddr;
--
--	/* Chips with 24 and more GPIOs always support Auto Increment */
--	if (write && NBANK(chip) > 2)
--		regaddr |= REG_ADDR_AI;
--
--	/* PCA9575 needs address-increment on multi-byte writes */
--	if (PCA_CHIP_TYPE(chip->driver_data) == PCA957X_TYPE)
--		regaddr |= REG_ADDR_AI;
--
- 	return regaddr;
- }
+ 	if (!data)
+@@ -196,7 +196,7 @@ int ti_thermal_remove_sensor(struct ti_bandgap *bgp, int id)
  
-@@ -897,6 +899,7 @@ static int pca953x_probe(struct i2c_client *client,
- 	int ret;
- 	u32 invert = 0;
- 	struct regulator *reg;
-+	const struct regmap_config *regmap_config;
+ 	data = ti_bandgap_get_sensor_data(bgp, id);
  
- 	chip = devm_kzalloc(&client->dev,
- 			sizeof(struct pca953x_chip), GFP_KERNEL);
-@@ -960,7 +963,17 @@ static int pca953x_probe(struct i2c_client *client,
+-	if (data && data->ti_thermal) {
++	if (!IS_ERR_OR_NULL(data) && data->ti_thermal) {
+ 		if (data->our_zone)
+ 			thermal_zone_device_unregister(data->ti_thermal);
+ 	}
+@@ -262,7 +262,7 @@ int ti_thermal_unregister_cpu_cooling(struct ti_bandgap *bgp, int id)
  
- 	i2c_set_clientdata(client, chip);
+ 	data = ti_bandgap_get_sensor_data(bgp, id);
  
--	chip->regmap = devm_regmap_init_i2c(client, &pca953x_i2c_regmap);
-+	pca953x_setup_gpio(chip, chip->driver_data & PCA_GPIO_MASK);
-+
-+	if (NBANK(chip) > 2 || PCA_CHIP_TYPE(chip->driver_data) == PCA957X_TYPE) {
-+		dev_info(&client->dev, "using AI\n");
-+		regmap_config = &pca953x_ai_i2c_regmap;
-+	} else {
-+		dev_info(&client->dev, "using no AI\n");
-+		regmap_config = &pca953x_i2c_regmap;
-+	}
-+
-+	chip->regmap = devm_regmap_init_i2c(client, regmap_config);
- 	if (IS_ERR(chip->regmap)) {
- 		ret = PTR_ERR(chip->regmap);
- 		goto err_exit;
-@@ -991,7 +1004,6 @@ static int pca953x_probe(struct i2c_client *client,
- 	/* initialize cached registers from their original values.
- 	 * we can't share this chip with another i2c master.
- 	 */
--	pca953x_setup_gpio(chip, chip->driver_data & PCA_GPIO_MASK);
- 
- 	if (PCA_CHIP_TYPE(chip->driver_data) == PCA953X_TYPE) {
- 		chip->regs = &pca953x_regs;
+-	if (data) {
++	if (!IS_ERR_OR_NULL(data)) {
+ 		cpufreq_cooling_unregister(data->cool_dev);
+ 		if (data->policy)
+ 			cpufreq_cpu_put(data->policy);
 -- 
 2.25.1
 
