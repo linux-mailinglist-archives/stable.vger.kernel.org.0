@@ -2,126 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 171F61FDEF9
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:39:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D25C71FE610
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:30:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731939AbgFRBhj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:37:39 -0400
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:46410 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1732861AbgFRBhf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Jun 2020 21:37:35 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1592444254;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=uAQoxQtYf9o5VqaT/fLVHNu7f5XQuSefUz3MAMf7JgU=;
-        b=d3tAI7/7HIwOa1whht1VIp6UxTwoPQEr3ZrnlRSjKTmnGDqdt1D1UGM20AshibNHFzyf/5
-        swcWgGvyrBpugPuwFyQkM12GznyMUVuTcTm1pPFT8o9bG3Vt3t0e0DNdAfzv7FfzCKMyik
-        F/n8ymOs9wy3kRQnuGV+Dm32RAdP9lc=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-425-SgHeQMSeMj6EAXqzuPBpVA-1; Wed, 17 Jun 2020 21:37:30 -0400
-X-MC-Unique: SgHeQMSeMj6EAXqzuPBpVA-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S2387636AbgFRCal (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:30:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45988 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728450AbgFRBPn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:15:43 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 3DCBF107ACCA;
-        Thu, 18 Jun 2020 01:37:29 +0000 (UTC)
-Received: from x1.home (ovpn-112-195.phx2.redhat.com [10.3.112.195])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id D1D847CAC4;
-        Thu, 18 Jun 2020 01:37:28 +0000 (UTC)
-Date:   Wed, 17 Jun 2020 19:37:28 -0600
-From:   Alex Williamson <alex.williamson@redhat.com>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Qian Cai <cai@lca.pw>, kvm@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 4.4 50/60] vfio/pci: fix memory leaks of eventfd
- ctx
-Message-ID: <20200617193728.30244c2b@x1.home>
-In-Reply-To: <20200618013004.610532-50-sashal@kernel.org>
-References: <20200618013004.610532-1-sashal@kernel.org>
-        <20200618013004.610532-50-sashal@kernel.org>
-Organization: Red Hat
+        by mail.kernel.org (Postfix) with ESMTPSA id AAE5321D79;
+        Thu, 18 Jun 2020 01:15:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1592442942;
+        bh=fAt8arPsk10vlHfV7fzglD1mjYS2ObhiDsvpwLieti0=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=u+AJcvb3zqgFtagVxPH79FwkVyCI/kfcukRbRn7qVdOnZpdAu5hotES22ErnZeONo
+         dQJbq1grTHayDqpJ7WydZvhNFP4oJL7yiSqajSsqm10+/PEm5Qc6lN9UOk/vy2YUKF
+         fWIFdE3Sj4h12crAvKibsf1EcaiKrmShyTNDo0xI=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Logan Gunthorpe <logang@deltatee.com>,
+        Allen Hubbe <allenbh@gmail.com>,
+        Alexander Fomichev <fomichev.ru@gmail.com>,
+        Jon Mason <jdmason@kudzu.us>, Sasha Levin <sashal@kernel.org>,
+        linux-ntb@googlegroups.com
+Subject: [PATCH AUTOSEL 5.7 353/388] NTB: perf: Fix race condition when run with ntb_test
+Date:   Wed, 17 Jun 2020 21:07:30 -0400
+Message-Id: <20200618010805.600873-353-sashal@kernel.org>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
+References: <20200618010805.600873-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 17 Jun 2020 21:29:54 -0400
-Sasha Levin <sashal@kernel.org> wrote:
+From: Logan Gunthorpe <logang@deltatee.com>
 
-> From: Qian Cai <cai@lca.pw>
-> 
-> [ Upstream commit 1518ac272e789cae8c555d69951b032a275b7602 ]
-> 
-> Finished a qemu-kvm (-device vfio-pci,host=0001:01:00.0) triggers a few
-> memory leaks after a while because vfio_pci_set_ctx_trigger_single()
-> calls eventfd_ctx_fdget() without the matching eventfd_ctx_put() later.
-> Fix it by calling eventfd_ctx_put() for those memory in
-> vfio_pci_release() before vfio_device_release().
-> 
-> unreferenced object 0xebff008981cc2b00 (size 128):
->   comm "qemu-kvm", pid 4043, jiffies 4294994816 (age 9796.310s)
->   hex dump (first 32 bytes):
->     01 00 00 00 6b 6b 6b 6b 00 00 00 00 ad 4e ad de  ....kkkk.....N..
->     ff ff ff ff 6b 6b 6b 6b ff ff ff ff ff ff ff ff  ....kkkk........
->   backtrace:
->     [<00000000917e8f8d>] slab_post_alloc_hook+0x74/0x9c
->     [<00000000df0f2aa2>] kmem_cache_alloc_trace+0x2b4/0x3d4
->     [<000000005fcec025>] do_eventfd+0x54/0x1ac
->     [<0000000082791a69>] __arm64_sys_eventfd2+0x34/0x44
->     [<00000000b819758c>] do_el0_svc+0x128/0x1dc
->     [<00000000b244e810>] el0_sync_handler+0xd0/0x268
->     [<00000000d495ef94>] el0_sync+0x164/0x180
-> unreferenced object 0x29ff008981cc4180 (size 128):
->   comm "qemu-kvm", pid 4043, jiffies 4294994818 (age 9796.290s)
->   hex dump (first 32 bytes):
->     01 00 00 00 6b 6b 6b 6b 00 00 00 00 ad 4e ad de  ....kkkk.....N..
->     ff ff ff ff 6b 6b 6b 6b ff ff ff ff ff ff ff ff  ....kkkk........
->   backtrace:
->     [<00000000917e8f8d>] slab_post_alloc_hook+0x74/0x9c
->     [<00000000df0f2aa2>] kmem_cache_alloc_trace+0x2b4/0x3d4
->     [<000000005fcec025>] do_eventfd+0x54/0x1ac
->     [<0000000082791a69>] __arm64_sys_eventfd2+0x34/0x44
->     [<00000000b819758c>] do_el0_svc+0x128/0x1dc
->     [<00000000b244e810>] el0_sync_handler+0xd0/0x268
->     [<00000000d495ef94>] el0_sync+0x164/0x180
-> 
-> Signed-off-by: Qian Cai <cai@lca.pw>
-> Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/vfio/pci/vfio_pci.c | 4 ++++
->  1 file changed, 4 insertions(+)
-> 
-> diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
-> index 7a82735d5308..ab765770e8dd 100644
-> --- a/drivers/vfio/pci/vfio_pci.c
-> +++ b/drivers/vfio/pci/vfio_pci.c
-> @@ -255,6 +255,10 @@ static void vfio_pci_release(void *device_data)
->  	if (!(--vdev->refcnt)) {
->  		vfio_spapr_pci_eeh_release(vdev->pdev);
->  		vfio_pci_disable(vdev);
-> +		if (vdev->err_trigger)
-> +			eventfd_ctx_put(vdev->err_trigger);
-> +		if (vdev->req_trigger)
-> +			eventfd_ctx_put(vdev->req_trigger);
->  	}
->  
->  	mutex_unlock(&driver_lock);
+[ Upstream commit 34d8673a01b053b6231a995a4eec9341163d63be ]
 
-This has a fix pending, I'd suggest not picking it on its own:
+When running ntb_test, the script tries to run the ntb_perf test
+immediately after probing the modules. Since adding multi-port support,
+this fails seeing the new initialization procedure in ntb_perf
+can not complete instantly.
 
-https://lore.kernel.org/kvm/20200616085052.sahrunsesjyjeyf2@beryllium.lan/
-https://lore.kernel.org/kvm/159234276956.31057.6902954364435481688.stgit@gimli.home/
+To fix this we add a completion which is waited on when a test is
+started. In this way, run can be written any time after the module is
+loaded and it will wait for the initialization to complete instead of
+sending an error.
 
-Thanks,
-Alex
+Fixes: 5648e56d03fa ("NTB: ntb_perf: Add full multi-port NTB API support")
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Acked-by: Allen Hubbe <allenbh@gmail.com>
+Tested-by: Alexander Fomichev <fomichev.ru@gmail.com>
+Signed-off-by: Jon Mason <jdmason@kudzu.us>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/ntb/test/ntb_perf.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/ntb/test/ntb_perf.c b/drivers/ntb/test/ntb_perf.c
+index 0b1eae07b133..528751803419 100644
+--- a/drivers/ntb/test/ntb_perf.c
++++ b/drivers/ntb/test/ntb_perf.c
+@@ -159,6 +159,8 @@ struct perf_peer {
+ 	/* NTB connection setup service */
+ 	struct work_struct	service;
+ 	unsigned long		sts;
++
++	struct completion init_comp;
+ };
+ #define to_peer_service(__work) \
+ 	container_of(__work, struct perf_peer, service)
+@@ -547,6 +549,7 @@ static int perf_setup_outbuf(struct perf_peer *peer)
+ 
+ 	/* Initialization is finally done */
+ 	set_bit(PERF_STS_DONE, &peer->sts);
++	complete_all(&peer->init_comp);
+ 
+ 	return 0;
+ }
+@@ -638,6 +641,7 @@ static void perf_service_work(struct work_struct *work)
+ 		perf_setup_outbuf(peer);
+ 
+ 	if (test_and_clear_bit(PERF_CMD_CLEAR, &peer->sts)) {
++		init_completion(&peer->init_comp);
+ 		clear_bit(PERF_STS_DONE, &peer->sts);
+ 		if (test_bit(0, &peer->perf->busy_flag) &&
+ 		    peer == peer->perf->test_peer) {
+@@ -1084,8 +1088,9 @@ static int perf_submit_test(struct perf_peer *peer)
+ 	struct perf_thread *pthr;
+ 	int tidx, ret;
+ 
+-	if (!test_bit(PERF_STS_DONE, &peer->sts))
+-		return -ENOLINK;
++	ret = wait_for_completion_interruptible(&peer->init_comp);
++	if (ret < 0)
++		return ret;
+ 
+ 	if (test_and_set_bit_lock(0, &perf->busy_flag))
+ 		return -EBUSY;
+@@ -1456,6 +1461,7 @@ static int perf_init_peers(struct perf_ctx *perf)
+ 			peer->gidx = pidx;
+ 		}
+ 		INIT_WORK(&peer->service, perf_service_work);
++		init_completion(&peer->init_comp);
+ 	}
+ 	if (perf->gidx == -1)
+ 		perf->gidx = pidx;
+-- 
+2.25.1
 
