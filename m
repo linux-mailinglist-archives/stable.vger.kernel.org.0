@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 753BC1FE8FB
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:52:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A22AF1FE901
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:53:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727824AbgFRBId (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727817AbgFRBId (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 17 Jun 2020 21:08:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34084 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:34206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727782AbgFRBI1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:08:27 -0400
+        id S1727802AbgFRBI3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:08:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 72C9A21974;
-        Thu, 18 Jun 2020 01:08:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1907921D93;
+        Thu, 18 Jun 2020 01:08:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442506;
-        bh=IeWIS46IeaHcbE+ILKyGGVA02wS6QtLXW2LFlM4IIxc=;
+        s=default; t=1592442508;
+        bh=t32yjB2TpLN1r28meG1mSbZ0wZv5Q6aRzPklQgdrAlU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MiojPmtzZIMhYQGByqvIbbZJkMvnuZ8y6rdfFw3WmJACIxhPk+WDi45ajzALwIQET
-         /U7XL6Kesi+D0kdIHgHP2Iik02sR2K8yqywt8feJRV8tUiWpu8P5vuAMDqQl5mDBbD
-         naosnkJA3lIAw+211G0F3xSI0lWrDKJL3HJH2PCQ=
+        b=noBLxAHalCAsWLlnazDfMIKOwfetSXD+wHVe4T5p03cE9sB52wp6zXP9tU3g1AIsL
+         piWIeLxehNovkjXE1koeT+8G17ya+193I3pzwNhXoOPcP6gNqdmtQltW97qz0NNj9h
+         EJRHMQ5IPpaXA2VPcaeZm9u7fQFLKXfIo86qLtUs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+Cc:     Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>,
-        linux-renesas-soc@vger.kernel.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 015/388] ARM: dts: renesas: Fix IOMMU device node names
-Date:   Wed, 17 Jun 2020 21:01:52 -0400
-Message-Id: <20200618010805.600873-15-sashal@kernel.org>
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.7 017/388] ARM: integrator: Add some Kconfig selections
+Date:   Wed, 17 Jun 2020 21:01:54 -0400
+Message-Id: <20200618010805.600873-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -47,458 +43,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit ae990a1de014396ffc8d0fcc31b6888c9b0ce59a ]
+[ Upstream commit d2854bbe5f5c4b4bec8061caf4f2e603d8819446 ]
 
-Fix IOMMU device node names as "iommu@".
+The CMA and DMA_CMA Kconfig options need to be selected
+by the Integrator in order to produce boot console on some
+Integrator systems.
 
-Fixes: bbb44da0b595 ("ARM: dts: r8a7743: Add IPMMU DT nodes")
-Fixes: 0dcba3de5835 ("ARM: dts: r8a7745: Add IPMMU DT nodes")
-Fixes: 350ae49b97c4 ("ARM: dts: r8a7744: Add IPMMU DT nodes")
-Fixes: 70496727c082 ("ARM: shmobile: r8a7790: Add IPMMU DT nodes")
-Fixes: f1951852ed17 ("ARM: shmobile: r8a7791: Add IPMMU DT nodes")
-Fixes: 098cb3a601e6 ("ARM: shmobile: r8a7793: Add IPMMU nodes")
-Fixes: 1cb2794f6082 ("ARM: shmobile: r8a7794: Add IPMMU DT nodes")
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Link: https://lore.kernel.org/r/1587461756-13317-1-git-send-email-yoshihiro.shimoda.uh@renesas.com
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+The REGULATOR and REGULATOR_FIXED_VOLTAGE need to be
+selected in order to boot the system from an external
+MMC card when using MMCI/PL181 from the device tree
+probe path.
+
+Select these things directly from the Kconfig so we are
+sure to be able to bring the systems up with console
+from any device tree.
+
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/r8a7743.dtsi | 12 ++++++------
- arch/arm/boot/dts/r8a7744.dtsi | 12 ++++++------
- arch/arm/boot/dts/r8a7745.dtsi | 12 ++++++------
- arch/arm/boot/dts/r8a7790.dtsi | 12 ++++++------
- arch/arm/boot/dts/r8a7791.dtsi | 14 +++++++-------
- arch/arm/boot/dts/r8a7793.dtsi | 14 +++++++-------
- arch/arm/boot/dts/r8a7794.dtsi | 12 ++++++------
- 7 files changed, 44 insertions(+), 44 deletions(-)
+ arch/arm/mach-integrator/Kconfig | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/r8a7743.dtsi b/arch/arm/boot/dts/r8a7743.dtsi
-index e8b340bb99bc..fff123753b85 100644
---- a/arch/arm/boot/dts/r8a7743.dtsi
-+++ b/arch/arm/boot/dts/r8a7743.dtsi
-@@ -338,7 +338,7 @@ thermal: thermal@e61f0000 {
- 			#thermal-sensor-cells = <0>;
- 		};
+diff --git a/arch/arm/mach-integrator/Kconfig b/arch/arm/mach-integrator/Kconfig
+index 982eabc36163..2406cab73835 100644
+--- a/arch/arm/mach-integrator/Kconfig
++++ b/arch/arm/mach-integrator/Kconfig
+@@ -4,6 +4,8 @@ menuconfig ARCH_INTEGRATOR
+ 	depends on ARCH_MULTI_V4T || ARCH_MULTI_V5 || ARCH_MULTI_V6
+ 	select ARM_AMBA
+ 	select COMMON_CLK_VERSATILE
++	select CMA
++	select DMA_CMA
+ 	select HAVE_TCM
+ 	select ICST
+ 	select MFD_SYSCON
+@@ -35,14 +37,13 @@ config INTEGRATOR_IMPD1
+ 	select ARM_VIC
+ 	select GPIO_PL061
+ 	select GPIOLIB
++	select REGULATOR
++	select REGULATOR_FIXED_VOLTAGE
+ 	help
+ 	  The IM-PD1 is an add-on logic module for the Integrator which
+ 	  allows ARM(R) Ltd PrimeCells to be developed and evaluated.
+ 	  The IM-PD1 can be found on the Integrator/PP2 platform.
  
--		ipmmu_sy0: mmu@e6280000 {
-+		ipmmu_sy0: iommu@e6280000 {
- 			compatible = "renesas,ipmmu-r8a7743",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xe6280000 0 0x1000>;
-@@ -348,7 +348,7 @@ ipmmu_sy0: mmu@e6280000 {
- 			status = "disabled";
- 		};
- 
--		ipmmu_sy1: mmu@e6290000 {
-+		ipmmu_sy1: iommu@e6290000 {
- 			compatible = "renesas,ipmmu-r8a7743",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xe6290000 0 0x1000>;
-@@ -357,7 +357,7 @@ ipmmu_sy1: mmu@e6290000 {
- 			status = "disabled";
- 		};
- 
--		ipmmu_ds: mmu@e6740000 {
-+		ipmmu_ds: iommu@e6740000 {
- 			compatible = "renesas,ipmmu-r8a7743",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xe6740000 0 0x1000>;
-@@ -367,7 +367,7 @@ ipmmu_ds: mmu@e6740000 {
- 			status = "disabled";
- 		};
- 
--		ipmmu_mp: mmu@ec680000 {
-+		ipmmu_mp: iommu@ec680000 {
- 			compatible = "renesas,ipmmu-r8a7743",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xec680000 0 0x1000>;
-@@ -376,7 +376,7 @@ ipmmu_mp: mmu@ec680000 {
- 			status = "disabled";
- 		};
- 
--		ipmmu_mx: mmu@fe951000 {
-+		ipmmu_mx: iommu@fe951000 {
- 			compatible = "renesas,ipmmu-r8a7743",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xfe951000 0 0x1000>;
-@@ -386,7 +386,7 @@ ipmmu_mx: mmu@fe951000 {
- 			status = "disabled";
- 		};
- 
--		ipmmu_gp: mmu@e62a0000 {
-+		ipmmu_gp: iommu@e62a0000 {
- 			compatible = "renesas,ipmmu-r8a7743",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xe62a0000 0 0x1000>;
-diff --git a/arch/arm/boot/dts/r8a7744.dtsi b/arch/arm/boot/dts/r8a7744.dtsi
-index def840b8b2d3..5050ac19041d 100644
---- a/arch/arm/boot/dts/r8a7744.dtsi
-+++ b/arch/arm/boot/dts/r8a7744.dtsi
-@@ -338,7 +338,7 @@ thermal: thermal@e61f0000 {
- 			#thermal-sensor-cells = <0>;
- 		};
- 
--		ipmmu_sy0: mmu@e6280000 {
-+		ipmmu_sy0: iommu@e6280000 {
- 			compatible = "renesas,ipmmu-r8a7744",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xe6280000 0 0x1000>;
-@@ -348,7 +348,7 @@ ipmmu_sy0: mmu@e6280000 {
- 			status = "disabled";
- 		};
- 
--		ipmmu_sy1: mmu@e6290000 {
-+		ipmmu_sy1: iommu@e6290000 {
- 			compatible = "renesas,ipmmu-r8a7744",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xe6290000 0 0x1000>;
-@@ -357,7 +357,7 @@ ipmmu_sy1: mmu@e6290000 {
- 			status = "disabled";
- 		};
- 
--		ipmmu_ds: mmu@e6740000 {
-+		ipmmu_ds: iommu@e6740000 {
- 			compatible = "renesas,ipmmu-r8a7744",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xe6740000 0 0x1000>;
-@@ -367,7 +367,7 @@ ipmmu_ds: mmu@e6740000 {
- 			status = "disabled";
- 		};
- 
--		ipmmu_mp: mmu@ec680000 {
-+		ipmmu_mp: iommu@ec680000 {
- 			compatible = "renesas,ipmmu-r8a7744",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xec680000 0 0x1000>;
-@@ -376,7 +376,7 @@ ipmmu_mp: mmu@ec680000 {
- 			status = "disabled";
- 		};
- 
--		ipmmu_mx: mmu@fe951000 {
-+		ipmmu_mx: iommu@fe951000 {
- 			compatible = "renesas,ipmmu-r8a7744",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xfe951000 0 0x1000>;
-@@ -386,7 +386,7 @@ ipmmu_mx: mmu@fe951000 {
- 			status = "disabled";
- 		};
- 
--		ipmmu_gp: mmu@e62a0000 {
-+		ipmmu_gp: iommu@e62a0000 {
- 			compatible = "renesas,ipmmu-r8a7744",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xe62a0000 0 0x1000>;
-diff --git a/arch/arm/boot/dts/r8a7745.dtsi b/arch/arm/boot/dts/r8a7745.dtsi
-index 7ab58d8bb740..b0d1fc24e97e 100644
---- a/arch/arm/boot/dts/r8a7745.dtsi
-+++ b/arch/arm/boot/dts/r8a7745.dtsi
-@@ -302,7 +302,7 @@ irqc: interrupt-controller@e61c0000 {
- 			resets = <&cpg 407>;
- 		};
- 
--		ipmmu_sy0: mmu@e6280000 {
-+		ipmmu_sy0: iommu@e6280000 {
- 			compatible = "renesas,ipmmu-r8a7745",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xe6280000 0 0x1000>;
-@@ -312,7 +312,7 @@ ipmmu_sy0: mmu@e6280000 {
- 			status = "disabled";
- 		};
- 
--		ipmmu_sy1: mmu@e6290000 {
-+		ipmmu_sy1: iommu@e6290000 {
- 			compatible = "renesas,ipmmu-r8a7745",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xe6290000 0 0x1000>;
-@@ -321,7 +321,7 @@ ipmmu_sy1: mmu@e6290000 {
- 			status = "disabled";
- 		};
- 
--		ipmmu_ds: mmu@e6740000 {
-+		ipmmu_ds: iommu@e6740000 {
- 			compatible = "renesas,ipmmu-r8a7745",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xe6740000 0 0x1000>;
-@@ -331,7 +331,7 @@ ipmmu_ds: mmu@e6740000 {
- 			status = "disabled";
- 		};
- 
--		ipmmu_mp: mmu@ec680000 {
-+		ipmmu_mp: iommu@ec680000 {
- 			compatible = "renesas,ipmmu-r8a7745",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xec680000 0 0x1000>;
-@@ -340,7 +340,7 @@ ipmmu_mp: mmu@ec680000 {
- 			status = "disabled";
- 		};
- 
--		ipmmu_mx: mmu@fe951000 {
-+		ipmmu_mx: iommu@fe951000 {
- 			compatible = "renesas,ipmmu-r8a7745",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xfe951000 0 0x1000>;
-@@ -350,7 +350,7 @@ ipmmu_mx: mmu@fe951000 {
- 			status = "disabled";
- 		};
- 
--		ipmmu_gp: mmu@e62a0000 {
-+		ipmmu_gp: iommu@e62a0000 {
- 			compatible = "renesas,ipmmu-r8a7745",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xe62a0000 0 0x1000>;
-diff --git a/arch/arm/boot/dts/r8a7790.dtsi b/arch/arm/boot/dts/r8a7790.dtsi
-index e5ef9fd4284a..166d5566229d 100644
---- a/arch/arm/boot/dts/r8a7790.dtsi
-+++ b/arch/arm/boot/dts/r8a7790.dtsi
-@@ -427,7 +427,7 @@ thermal: thermal@e61f0000 {
- 			#thermal-sensor-cells = <0>;
- 		};
- 
--		ipmmu_sy0: mmu@e6280000 {
-+		ipmmu_sy0: iommu@e6280000 {
- 			compatible = "renesas,ipmmu-r8a7790",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xe6280000 0 0x1000>;
-@@ -437,7 +437,7 @@ ipmmu_sy0: mmu@e6280000 {
- 			status = "disabled";
- 		};
- 
--		ipmmu_sy1: mmu@e6290000 {
-+		ipmmu_sy1: iommu@e6290000 {
- 			compatible = "renesas,ipmmu-r8a7790",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xe6290000 0 0x1000>;
-@@ -446,7 +446,7 @@ ipmmu_sy1: mmu@e6290000 {
- 			status = "disabled";
- 		};
- 
--		ipmmu_ds: mmu@e6740000 {
-+		ipmmu_ds: iommu@e6740000 {
- 			compatible = "renesas,ipmmu-r8a7790",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xe6740000 0 0x1000>;
-@@ -456,7 +456,7 @@ ipmmu_ds: mmu@e6740000 {
- 			status = "disabled";
- 		};
- 
--		ipmmu_mp: mmu@ec680000 {
-+		ipmmu_mp: iommu@ec680000 {
- 			compatible = "renesas,ipmmu-r8a7790",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xec680000 0 0x1000>;
-@@ -465,7 +465,7 @@ ipmmu_mp: mmu@ec680000 {
- 			status = "disabled";
- 		};
- 
--		ipmmu_mx: mmu@fe951000 {
-+		ipmmu_mx: iommu@fe951000 {
- 			compatible = "renesas,ipmmu-r8a7790",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xfe951000 0 0x1000>;
-@@ -475,7 +475,7 @@ ipmmu_mx: mmu@fe951000 {
- 			status = "disabled";
- 		};
- 
--		ipmmu_rt: mmu@ffc80000 {
-+		ipmmu_rt: iommu@ffc80000 {
- 			compatible = "renesas,ipmmu-r8a7790",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xffc80000 0 0x1000>;
-diff --git a/arch/arm/boot/dts/r8a7791.dtsi b/arch/arm/boot/dts/r8a7791.dtsi
-index 6e5bd86731cd..09e47cc17765 100644
---- a/arch/arm/boot/dts/r8a7791.dtsi
-+++ b/arch/arm/boot/dts/r8a7791.dtsi
-@@ -350,7 +350,7 @@ thermal: thermal@e61f0000 {
- 			#thermal-sensor-cells = <0>;
- 		};
- 
--		ipmmu_sy0: mmu@e6280000 {
-+		ipmmu_sy0: iommu@e6280000 {
- 			compatible = "renesas,ipmmu-r8a7791",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xe6280000 0 0x1000>;
-@@ -360,7 +360,7 @@ ipmmu_sy0: mmu@e6280000 {
- 			status = "disabled";
- 		};
- 
--		ipmmu_sy1: mmu@e6290000 {
-+		ipmmu_sy1: iommu@e6290000 {
- 			compatible = "renesas,ipmmu-r8a7791",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xe6290000 0 0x1000>;
-@@ -369,7 +369,7 @@ ipmmu_sy1: mmu@e6290000 {
- 			status = "disabled";
- 		};
- 
--		ipmmu_ds: mmu@e6740000 {
-+		ipmmu_ds: iommu@e6740000 {
- 			compatible = "renesas,ipmmu-r8a7791",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xe6740000 0 0x1000>;
-@@ -379,7 +379,7 @@ ipmmu_ds: mmu@e6740000 {
- 			status = "disabled";
- 		};
- 
--		ipmmu_mp: mmu@ec680000 {
-+		ipmmu_mp: iommu@ec680000 {
- 			compatible = "renesas,ipmmu-r8a7791",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xec680000 0 0x1000>;
-@@ -388,7 +388,7 @@ ipmmu_mp: mmu@ec680000 {
- 			status = "disabled";
- 		};
- 
--		ipmmu_mx: mmu@fe951000 {
-+		ipmmu_mx: iommu@fe951000 {
- 			compatible = "renesas,ipmmu-r8a7791",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xfe951000 0 0x1000>;
-@@ -398,7 +398,7 @@ ipmmu_mx: mmu@fe951000 {
- 			status = "disabled";
- 		};
- 
--		ipmmu_rt: mmu@ffc80000 {
-+		ipmmu_rt: iommu@ffc80000 {
- 			compatible = "renesas,ipmmu-r8a7791",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xffc80000 0 0x1000>;
-@@ -407,7 +407,7 @@ ipmmu_rt: mmu@ffc80000 {
- 			status = "disabled";
- 		};
- 
--		ipmmu_gp: mmu@e62a0000 {
-+		ipmmu_gp: iommu@e62a0000 {
- 			compatible = "renesas,ipmmu-r8a7791",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xe62a0000 0 0x1000>;
-diff --git a/arch/arm/boot/dts/r8a7793.dtsi b/arch/arm/boot/dts/r8a7793.dtsi
-index dadbda16161b..1b62a7e06b42 100644
---- a/arch/arm/boot/dts/r8a7793.dtsi
-+++ b/arch/arm/boot/dts/r8a7793.dtsi
-@@ -336,7 +336,7 @@ thermal: thermal@e61f0000 {
- 			#thermal-sensor-cells = <0>;
- 		};
- 
--		ipmmu_sy0: mmu@e6280000 {
-+		ipmmu_sy0: iommu@e6280000 {
- 			compatible = "renesas,ipmmu-r8a7793",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xe6280000 0 0x1000>;
-@@ -346,7 +346,7 @@ ipmmu_sy0: mmu@e6280000 {
- 			status = "disabled";
- 		};
- 
--		ipmmu_sy1: mmu@e6290000 {
-+		ipmmu_sy1: iommu@e6290000 {
- 			compatible = "renesas,ipmmu-r8a7793",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xe6290000 0 0x1000>;
-@@ -355,7 +355,7 @@ ipmmu_sy1: mmu@e6290000 {
- 			status = "disabled";
- 		};
- 
--		ipmmu_ds: mmu@e6740000 {
-+		ipmmu_ds: iommu@e6740000 {
- 			compatible = "renesas,ipmmu-r8a7793",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xe6740000 0 0x1000>;
-@@ -365,7 +365,7 @@ ipmmu_ds: mmu@e6740000 {
- 			status = "disabled";
- 		};
- 
--		ipmmu_mp: mmu@ec680000 {
-+		ipmmu_mp: iommu@ec680000 {
- 			compatible = "renesas,ipmmu-r8a7793",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xec680000 0 0x1000>;
-@@ -374,7 +374,7 @@ ipmmu_mp: mmu@ec680000 {
- 			status = "disabled";
- 		};
- 
--		ipmmu_mx: mmu@fe951000 {
-+		ipmmu_mx: iommu@fe951000 {
- 			compatible = "renesas,ipmmu-r8a7793",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xfe951000 0 0x1000>;
-@@ -384,7 +384,7 @@ ipmmu_mx: mmu@fe951000 {
- 			status = "disabled";
- 		};
- 
--		ipmmu_rt: mmu@ffc80000 {
-+		ipmmu_rt: iommu@ffc80000 {
- 			compatible = "renesas,ipmmu-r8a7793",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xffc80000 0 0x1000>;
-@@ -393,7 +393,7 @@ ipmmu_rt: mmu@ffc80000 {
- 			status = "disabled";
- 		};
- 
--		ipmmu_gp: mmu@e62a0000 {
-+		ipmmu_gp: iommu@e62a0000 {
- 			compatible = "renesas,ipmmu-r8a7793",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xe62a0000 0 0x1000>;
-diff --git a/arch/arm/boot/dts/r8a7794.dtsi b/arch/arm/boot/dts/r8a7794.dtsi
-index 2c9e7a1ebfec..8d7f8798628a 100644
---- a/arch/arm/boot/dts/r8a7794.dtsi
-+++ b/arch/arm/boot/dts/r8a7794.dtsi
-@@ -290,7 +290,7 @@ irqc0: interrupt-controller@e61c0000 {
- 			resets = <&cpg 407>;
- 		};
- 
--		ipmmu_sy0: mmu@e6280000 {
-+		ipmmu_sy0: iommu@e6280000 {
- 			compatible = "renesas,ipmmu-r8a7794",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xe6280000 0 0x1000>;
-@@ -300,7 +300,7 @@ ipmmu_sy0: mmu@e6280000 {
- 			status = "disabled";
- 		};
- 
--		ipmmu_sy1: mmu@e6290000 {
-+		ipmmu_sy1: iommu@e6290000 {
- 			compatible = "renesas,ipmmu-r8a7794",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xe6290000 0 0x1000>;
-@@ -309,7 +309,7 @@ ipmmu_sy1: mmu@e6290000 {
- 			status = "disabled";
- 		};
- 
--		ipmmu_ds: mmu@e6740000 {
-+		ipmmu_ds: iommu@e6740000 {
- 			compatible = "renesas,ipmmu-r8a7794",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xe6740000 0 0x1000>;
-@@ -319,7 +319,7 @@ ipmmu_ds: mmu@e6740000 {
- 			status = "disabled";
- 		};
- 
--		ipmmu_mp: mmu@ec680000 {
-+		ipmmu_mp: iommu@ec680000 {
- 			compatible = "renesas,ipmmu-r8a7794",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xec680000 0 0x1000>;
-@@ -328,7 +328,7 @@ ipmmu_mp: mmu@ec680000 {
- 			status = "disabled";
- 		};
- 
--		ipmmu_mx: mmu@fe951000 {
-+		ipmmu_mx: iommu@fe951000 {
- 			compatible = "renesas,ipmmu-r8a7794",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xfe951000 0 0x1000>;
-@@ -338,7 +338,7 @@ ipmmu_mx: mmu@fe951000 {
- 			status = "disabled";
- 		};
- 
--		ipmmu_gp: mmu@e62a0000 {
-+		ipmmu_gp: iommu@e62a0000 {
- 			compatible = "renesas,ipmmu-r8a7794",
- 				     "renesas,ipmmu-vmsa";
- 			reg = <0 0xe62a0000 0 0x1000>;
+-	  To compile this driver as a module, choose M here: the
+-	  module will be called impd1.
+-
+ config INTEGRATOR_CM7TDMI
+ 	bool "Integrator/CM7TDMI core module"
+ 	depends on ARCH_INTEGRATOR_AP
 -- 
 2.25.1
 
