@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CF3D1FE30B
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:06:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B181D1FE305
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:06:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731388AbgFRCGF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:06:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55730 "EHLO mail.kernel.org"
+        id S1732390AbgFRCFm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:05:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730794AbgFRBWi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:22:38 -0400
+        id S1730808AbgFRBWk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:22:40 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A5EE20663;
-        Thu, 18 Jun 2020 01:22:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 92DA520776;
+        Thu, 18 Jun 2020 01:22:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443357;
-        bh=pZAaIKjkv2LG4+I0TntsRr+1UM8Ya3d3av/5lBBnhV8=;
+        s=default; t=1592443360;
+        bh=zBzG+XQLAb/qyuKQzJ5OOYujuxtJFnwnJn8P+8Fyby0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rXBmI+zNxN1ZbiF/vGBW6PCR7adx4PfVcCN+hS30jvg4J8w9zGcw9vXeTjq4kyykg
-         JnUoLpg6sJFomwDD7yi/FdPZWm/jjOnr3PlVA1mSbfVqzdverOLZUg1iK+5mQQMuib
-         GD8l2cSVGjCxFZm+XoY4aIfqgiViHxUWn4eU7Yq8=
+        b=lazXY993v/5q06mZ5Wo8JO6wRbg/Rl/TnmalHVxOQytqOlKSZXC9HXYTfRbSW5E69
+         qLoLdeRHQ9gY0yqhtXcFZBISk09EA0hkcWOVtRRrt1zpVwJ+phT750U13i9Fk4xIsy
+         J9bI0BhRZwk3ej6FqDZZW4LVSYne6+7QCMBpAVWI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.19 015/172] ALSA: isa/wavefront: prevent out of bounds write in ioctl
-Date:   Wed, 17 Jun 2020 21:19:41 -0400
-Message-Id: <20200618012218.607130-15-sashal@kernel.org>
+Cc:     Casey Schaufler <casey@schaufler-ca.com>,
+        Hillf Danton <hdanton@sina.com>,
+        syzbot+bfdd4a2f07be52351350@syzkaller.appspotmail.com,
+        Sasha Levin <sashal@kernel.org>,
+        linux-security-module@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 017/172] Smack: slab-out-of-bounds in vsscanf
+Date:   Wed, 17 Jun 2020 21:19:43 -0400
+Message-Id: <20200618012218.607130-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012218.607130-1-sashal@kernel.org>
 References: <20200618012218.607130-1-sashal@kernel.org>
@@ -43,47 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Casey Schaufler <casey@schaufler-ca.com>
 
-[ Upstream commit 7f0d5053c5a9d23fe5c2d337495a9d79038d267b ]
+[ Upstream commit 84e99e58e8d1e26f04c097f4266e431a33987f36 ]
 
-The "header->number" comes from the ioctl and it needs to be clamped to
-prevent out of bounds writes.
+Add barrier to soob. Return -EOVERFLOW if the buffer
+is exceeded.
 
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20200501094011.GA960082@mwanda
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Suggested-by: Hillf Danton <hdanton@sina.com>
+Reported-by: syzbot+bfdd4a2f07be52351350@syzkaller.appspotmail.com
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/isa/wavefront/wavefront_synth.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ security/smack/smackfs.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/sound/isa/wavefront/wavefront_synth.c b/sound/isa/wavefront/wavefront_synth.c
-index 0b1e4b34b299..13c8e6542a2f 100644
---- a/sound/isa/wavefront/wavefront_synth.c
-+++ b/sound/isa/wavefront/wavefront_synth.c
-@@ -1175,7 +1175,10 @@ wavefront_send_alias (snd_wavefront_t *dev, wavefront_patch_info *header)
- 				      "alias for %d\n",
- 				      header->number,
- 				      header->hdr.a.OriginalSample);
--    
-+
-+	if (header->number >= WF_MAX_SAMPLE)
-+		return -EINVAL;
-+
- 	munge_int32 (header->number, &alias_hdr[0], 2);
- 	munge_int32 (header->hdr.a.OriginalSample, &alias_hdr[2], 2);
- 	munge_int32 (*((unsigned int *)&header->hdr.a.sampleStartOffset),
-@@ -1206,6 +1209,9 @@ wavefront_send_multisample (snd_wavefront_t *dev, wavefront_patch_info *header)
- 	int num_samples;
- 	unsigned char *msample_hdr;
+diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
+index f6482e53d55a..371ae368da35 100644
+--- a/security/smack/smackfs.c
++++ b/security/smack/smackfs.c
+@@ -906,11 +906,21 @@ static ssize_t smk_set_cipso(struct file *file, const char __user *buf,
+ 	else
+ 		rule += strlen(skp->smk_known) + 1;
  
-+	if (header->number >= WF_MAX_SAMPLE)
-+		return -EINVAL;
++	if (rule > data + count) {
++		rc = -EOVERFLOW;
++		goto out;
++	}
 +
- 	msample_hdr = kmalloc(WF_MSAMPLE_BYTES, GFP_KERNEL);
- 	if (! msample_hdr)
- 		return -ENOMEM;
+ 	ret = sscanf(rule, "%d", &maplevel);
+ 	if (ret != 1 || maplevel > SMACK_CIPSO_MAXLEVEL)
+ 		goto out;
+ 
+ 	rule += SMK_DIGITLEN;
++	if (rule > data + count) {
++		rc = -EOVERFLOW;
++		goto out;
++	}
++
+ 	ret = sscanf(rule, "%d", &catlen);
+ 	if (ret != 1 || catlen > SMACK_CIPSO_MAXCATNUM)
+ 		goto out;
 -- 
 2.25.1
 
