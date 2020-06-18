@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43C781FE5FA
+	by mail.lfdr.de (Postfix) with ESMTP id C00651FE5FB
 	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:30:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729596AbgFRC3v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2387684AbgFRC3v (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 17 Jun 2020 22:29:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46342 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727041AbgFRBP7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:15:59 -0400
+        id S1729283AbgFRBQB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:16:01 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C644B206F1;
-        Thu, 18 Jun 2020 01:15:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 112C12088E;
+        Thu, 18 Jun 2020 01:15:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442959;
-        bh=BeQ0B2nTHtzYEGzPxvCGhPDOvHTxZ3OCCHHesvAzRys=;
+        s=default; t=1592442961;
+        bh=kE4r/DncWHkvPGYKD8JFmPlP3Dy3jow243D+vlxfFl4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xpc5glJxYzVrcWIqxb0WIEJHa3TJMFz41166ZNcGuMSTocqvGcRO0ldDNZ3xWkub7
-         5B2/a2jHhqCWfQGcRzxYlxK2q1ZF/absqCDxcsolmsrJtQEEg+X/taFCGz0kU1QuHJ
-         B0QA5L9E3irFQMdMf9LLw9Gy0zag2nRzAGbMLqSA=
+        b=nTTbtMmVfHW6AZE1kOfTycl3cXcd/upOqFbR+5RpAkqnCw7xzI47h5gh9on4Rk9Dd
+         PiPpzNY1BSDlt/Xma4KFUJQZOHOc8H37fb7NK5/t64N4zlWgSMmgC29tZr2x1GRcAA
+         M8fGBACy8jSGmS6V1U+OduEKHLEIqQcbkjB5OBhg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.7 366/388] ASoC: rt5645: Add platform-data for Asus T101HA
-Date:   Wed, 17 Jun 2020 21:07:43 -0400
-Message-Id: <20200618010805.600873-366-sashal@kernel.org>
+Cc:     dihu <anny.hu@linux.alibaba.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 367/388] bpf/sockmap: Fix kernel panic at __tcp_bpf_recvmsg
+Date:   Wed, 17 Jun 2020 21:07:44 -0400
+Message-Id: <20200618010805.600873-367-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
@@ -44,58 +46,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: dihu <anny.hu@linux.alibaba.com>
 
-[ Upstream commit 79d4f823a06796656289f97b922493da5690e46c ]
+[ Upstream commit 487082fb7bd2a32b66927d2b22e3a81b072b44f0 ]
 
-The Asus T101HA uses the default jack-detect mode 3, but instead of
-using an analog microphone it is using a DMIC on dmic-data-pin 1,
-like the Asus T100HA. Note unlike the T100HA its jack-detect is not
-inverted.
+When user application calls read() with MSG_PEEK flag to read data
+of bpf sockmap socket, kernel panic happens at
+__tcp_bpf_recvmsg+0x12c/0x350. sk_msg is not removed from ingress_msg
+queue after read out under MSG_PEEK flag is set. Because it's not
+judged whether sk_msg is the last msg of ingress_msg queue, the next
+sk_msg may be the head of ingress_msg queue, whose memory address of
+sg page is invalid. So it's necessary to add check codes to prevent
+this problem.
 
-Add a DMI quirk with the correct settings for this model.
+[20759.125457] BUG: kernel NULL pointer dereference, address:
+0000000000000008
+[20759.132118] CPU: 53 PID: 51378 Comm: envoy Tainted: G            E
+5.4.32 #1
+[20759.140890] Hardware name: Inspur SA5212M4/YZMB-00370-109, BIOS
+4.1.12 06/18/2017
+[20759.149734] RIP: 0010:copy_page_to_iter+0xad/0x300
+[20759.270877] __tcp_bpf_recvmsg+0x12c/0x350
+[20759.276099] tcp_bpf_recvmsg+0x113/0x370
+[20759.281137] inet_recvmsg+0x55/0xc0
+[20759.285734] __sys_recvfrom+0xc8/0x130
+[20759.290566] ? __audit_syscall_entry+0x103/0x130
+[20759.296227] ? syscall_trace_enter+0x1d2/0x2d0
+[20759.301700] ? __audit_syscall_exit+0x1e4/0x290
+[20759.307235] __x64_sys_recvfrom+0x24/0x30
+[20759.312226] do_syscall_64+0x55/0x1b0
+[20759.316852] entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20200608204634.93407-2-hdegoede@redhat.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: dihu <anny.hu@linux.alibaba.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Acked-by: Jakub Sitnicki <jakub@cloudflare.com>
+Link: https://lore.kernel.org/bpf/20200605084625.9783-1-anny.hu@linux.alibaba.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt5645.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ net/ipv4/tcp_bpf.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/soc/codecs/rt5645.c b/sound/soc/codecs/rt5645.c
-index 6ba1849a77b0..e2e1d5b03b38 100644
---- a/sound/soc/codecs/rt5645.c
-+++ b/sound/soc/codecs/rt5645.c
-@@ -3625,6 +3625,12 @@ static const struct rt5645_platform_data asus_t100ha_platform_data = {
- 	.inv_jd1_1 = true,
- };
+diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
+index 9c5540887fbe..7aa68f4aae6c 100644
+--- a/net/ipv4/tcp_bpf.c
++++ b/net/ipv4/tcp_bpf.c
+@@ -64,6 +64,9 @@ int __tcp_bpf_recvmsg(struct sock *sk, struct sk_psock *psock,
+ 		} while (i != msg_rx->sg.end);
  
-+static const struct rt5645_platform_data asus_t101ha_platform_data = {
-+	.dmic1_data_pin = RT5645_DMIC_DATA_IN2N,
-+	.dmic2_data_pin = RT5645_DMIC2_DISABLE,
-+	.jd_mode = 3,
-+};
-+
- static const struct rt5645_platform_data lenovo_ideapad_miix_310_pdata = {
- 	.jd_mode = 3,
- 	.in2_diff = true,
-@@ -3708,6 +3714,14 @@ static const struct dmi_system_id dmi_platform_data[] = {
- 		},
- 		.driver_data = (void *)&asus_t100ha_platform_data,
- 	},
-+	{
-+		.ident = "ASUS T101HA",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "T101HA"),
-+		},
-+		.driver_data = (void *)&asus_t101ha_platform_data,
-+	},
- 	{
- 		.ident = "MINIX Z83-4",
- 		.matches = {
+ 		if (unlikely(peek)) {
++			if (msg_rx == list_last_entry(&psock->ingress_msg,
++						      struct sk_msg, list))
++				break;
+ 			msg_rx = list_next_entry(msg_rx, list);
+ 			continue;
+ 		}
 -- 
 2.25.1
 
