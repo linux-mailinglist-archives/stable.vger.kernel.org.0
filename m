@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED9861FE40B
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:16:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADF6F1FE400
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:16:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727929AbgFRCPV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:15:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52778 "EHLO mail.kernel.org"
+        id S1729769AbgFRBUj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:20:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728803AbgFRBUf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:20:35 -0400
+        id S1728587AbgFRBUg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:20:36 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 17E76206F1;
-        Thu, 18 Jun 2020 01:20:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6CF3A20776;
+        Thu, 18 Jun 2020 01:20:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443234;
-        bh=jooARIFQyutBq1ygAucaUY+mBk/+xG06hczMM+cGxrQ=;
+        s=default; t=1592443236;
+        bh=Jiv2L8x1UrhUVZJ3+GJukZ7OLVFFYw+CmLuVM0LVPtU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZFQBSwXrObF4kZ+fWuQAYBmb6tpcDsznZ4etaApXK5ZY5ZAvkGEn+QaZZ4OhDiRjp
-         1lTr+PGtdMByYgNxTI6ECFFPE5sRmK1mLDHUFWzOa3kJ38yLl/fW70NoWzHfABxOQ4
-         rY5whY03Psjb/Hug46NBDUP/C1FJX2k51z/DQyCA=
+        b=YgBPV2dP1cCZ23w9s9eJ4Ktj9iXi7h1MnRLVjQtV+qpwp2sDs/svrsufYygLa5mId
+         hkx8ZPk/Y2ZJKWOlEfKZvUQkx4zlOpqr25CeB/+mcaZpoEofA2jFqpUMFGS6H7wkub
+         GQOde/a+68vUh4/lyONrPMr81Tv2kGvEx0+6wsyY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Amelie Delaunay <amelie.delaunay@st.com>,
@@ -30,9 +30,9 @@ Cc:     Amelie Delaunay <amelie.delaunay@st.com>,
         Sasha Levin <sashal@kernel.org>,
         linux-stm32@st-md-mailman.stormreply.com,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 187/266] mfd: stmfx: Fix stmfx_irq_init error path
-Date:   Wed, 17 Jun 2020 21:15:12 -0400
-Message-Id: <20200618011631.604574-187-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 188/266] mfd: stmfx: Disable IRQ in suspend to avoid spurious interrupt
+Date:   Wed, 17 Jun 2020 21:15:13 -0400
+Message-Id: <20200618011631.604574-188-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
@@ -47,45 +47,64 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Amelie Delaunay <amelie.delaunay@st.com>
 
-[ Upstream commit 60c2c4bcb9202acad4cc26af20b44b6bd7874f7b ]
+[ Upstream commit 97eda5dcc2cde5dcc778bef7a9344db3b6bf8ef5 ]
 
-In case the interrupt signal can't be configured, IRQ domain needs to be
-removed.
+When STMFX supply is stopped, spurious interrupt can occur. To avoid that,
+disable the interrupt in suspend before disabling the regulator and
+re-enable it at the end of resume.
 
 Fixes: 06252ade9156 ("mfd: Add ST Multi-Function eXpander (STMFX) core driver")
 Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/stmfx.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/mfd/stmfx.c       | 6 ++++++
+ include/linux/mfd/stmfx.h | 1 +
+ 2 files changed, 7 insertions(+)
 
 diff --git a/drivers/mfd/stmfx.c b/drivers/mfd/stmfx.c
-index fde6541e347c..1977fe95f876 100644
+index 1977fe95f876..711979afd90a 100644
 --- a/drivers/mfd/stmfx.c
 +++ b/drivers/mfd/stmfx.c
-@@ -287,14 +287,19 @@ static int stmfx_irq_init(struct i2c_client *client)
- 
- 	ret = regmap_write(stmfx->map, STMFX_REG_IRQ_OUT_PIN, irqoutpin);
+@@ -296,6 +296,8 @@ static int stmfx_irq_init(struct i2c_client *client)
  	if (ret)
--		return ret;
-+		goto irq_exit;
+ 		goto irq_exit;
  
- 	ret = devm_request_threaded_irq(stmfx->dev, client->irq,
- 					NULL, stmfx_irq_handler,
- 					irqtrigger | IRQF_ONESHOT,
- 					"stmfx", stmfx);
++	stmfx->irq = client->irq;
++
+ 	return 0;
+ 
+ irq_exit:
+@@ -486,6 +488,8 @@ static int stmfx_suspend(struct device *dev)
  	if (ret)
--		stmfx_irq_exit(client);
-+		goto irq_exit;
-+
-+	return 0;
-+
-+irq_exit:
-+	stmfx_irq_exit(client);
+ 		return ret;
  
- 	return ret;
++	disable_irq(stmfx->irq);
++
+ 	if (stmfx->vdd)
+ 		return regulator_disable(stmfx->vdd);
+ 
+@@ -529,6 +533,8 @@ static int stmfx_resume(struct device *dev)
+ 	if (ret)
+ 		return ret;
+ 
++	enable_irq(stmfx->irq);
++
+ 	return 0;
  }
+ #endif
+diff --git a/include/linux/mfd/stmfx.h b/include/linux/mfd/stmfx.h
+index 3c67983678ec..744dce63946e 100644
+--- a/include/linux/mfd/stmfx.h
++++ b/include/linux/mfd/stmfx.h
+@@ -109,6 +109,7 @@ struct stmfx {
+ 	struct device *dev;
+ 	struct regmap *map;
+ 	struct regulator *vdd;
++	int irq;
+ 	struct irq_domain *irq_domain;
+ 	struct mutex lock; /* IRQ bus lock */
+ 	u8 irq_src;
 -- 
 2.25.1
 
