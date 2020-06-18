@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 451731FDB6C
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:13:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97A6F1FDB70
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:13:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728749AbgFRBLf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:11:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39524 "EHLO mail.kernel.org"
+        id S1727864AbgFRBLi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:11:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728743AbgFRBLd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:11:33 -0400
+        id S1727980AbgFRBLh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:11:37 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B61CF21924;
-        Thu, 18 Jun 2020 01:11:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C8CD52193E;
+        Thu, 18 Jun 2020 01:11:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442693;
-        bh=1GHEktr/FGZJLGxJRB9jHKx37ExbftyAROwdmO92/to=;
+        s=default; t=1592442696;
+        bh=0eBh3Q0tasAH7NSrRJtTwSQ5nfxknCIIN9MpMfO0/s4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IRo+xIWUceqgRKC+HTHebBzVPHj4eK2s8puR8I1+wjZhzxR0m0bPvtHGwl0iRwJ1G
-         XMhFNMB3okpdubvLaW8bsp0XJOnYolxCiXajPcij71JP7Pz5yaF/Rt0xyRisAXthcQ
-         /LifQeFIW72+b/Hmuq0iBTsCQ/Wk2KfO0p4oCwPE=
+        b=Ttkk8bVjQQqyiBSXCxF+CrK8y1zH86ml/MT0ib/nNIoC+fyvgvGLUbbX4F9BgkO0g
+         5E/bDE+Vedv9rvbaP8nByj4pnZeHhS30JmeyGc+Cc3eZEQi2q2q9dxYDM18a1e9ndJ
+         55rn9hv+dXImzqMKzZIC9D5170Gz4smveLzMzods=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Neil Armstrong <narmstrong@baylibre.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-amlogic@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.7 158/388] arm64: dts: meson-g12b-ugoos-am6: fix board compatible
-Date:   Wed, 17 Jun 2020 21:04:15 -0400
-Message-Id: <20200618010805.600873-158-sashal@kernel.org>
+Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        sound-open-firmware@alsa-project.org, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.7 160/388] ASoC: SOF: Update correct LED status at the first time usage of update_mute_led()
+Date:   Wed, 17 Jun 2020 21:04:17 -0400
+Message-Id: <20200618010805.600873-160-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
@@ -45,36 +46,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neil Armstrong <narmstrong@baylibre.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit 5c28dcbb3a1be167c07784b5f710ec602a57bea2 ]
+[ Upstream commit 49c22696348d6e7c8a2ecfd7e60fddfe188ded82 ]
 
-Add missing amlogic,s922x in the board compatible list.
+At the first time update_mute_led() gets called, if channels are already
+muted, the temp value equals to led_value as 0, skipping the following
+LED setting.
 
-It fixes:
-meson-g12b-ugoos-am6.dt.yaml: /: compatible: ['ugoos,am6', 'amlogic,g12b'] is not valid under any of the given schemas
+So set led_value to -1 as an uninitialized state, to update the correct
+LED status at first time usage.
 
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Kevin Hilman <khilman@baylibre.com>
-Link: https://lore.kernel.org/r/20200326165958.19274-4-narmstrong@baylibre.com
+Fixes: 5d43001ae436 ("ASoC: SOF: acpi led support for switch controls")
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Acked-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Link: https://lore.kernel.org/r/20200430091139.7003-1-kai.heng.feng@canonical.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-g12b-ugoos-am6.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/sof/control.c   | 4 ++--
+ sound/soc/sof/sof-audio.h | 2 +-
+ sound/soc/sof/topology.c  | 2 ++
+ 3 files changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-g12b-ugoos-am6.dts b/arch/arm64/boot/dts/amlogic/meson-g12b-ugoos-am6.dts
-index 06c5430eb92d..fdaacfd96b97 100644
---- a/arch/arm64/boot/dts/amlogic/meson-g12b-ugoos-am6.dts
-+++ b/arch/arm64/boot/dts/amlogic/meson-g12b-ugoos-am6.dts
-@@ -14,7 +14,7 @@
- #include <dt-bindings/sound/meson-g12a-tohdmitx.h>
+diff --git a/sound/soc/sof/control.c b/sound/soc/sof/control.c
+index dfc412e2d956..6d63768d42aa 100644
+--- a/sound/soc/sof/control.c
++++ b/sound/soc/sof/control.c
+@@ -19,8 +19,8 @@ static void update_mute_led(struct snd_sof_control *scontrol,
+ 			    struct snd_kcontrol *kcontrol,
+ 			    struct snd_ctl_elem_value *ucontrol)
+ {
+-	unsigned int temp = 0;
+-	unsigned int mask;
++	int temp = 0;
++	int mask;
+ 	int i;
  
- / {
--	compatible = "ugoos,am6", "amlogic,g12b";
-+	compatible = "ugoos,am6", "amlogic,s922x", "amlogic,g12b";
- 	model = "Ugoos AM6";
+ 	mask = 1U << snd_ctl_get_ioffidx(kcontrol, &ucontrol->id);
+diff --git a/sound/soc/sof/sof-audio.h b/sound/soc/sof/sof-audio.h
+index bf65f31af858..875a5fc13297 100644
+--- a/sound/soc/sof/sof-audio.h
++++ b/sound/soc/sof/sof-audio.h
+@@ -56,7 +56,7 @@ struct snd_sof_pcm {
+ struct snd_sof_led_control {
+ 	unsigned int use_led;
+ 	unsigned int direction;
+-	unsigned int led_value;
++	int led_value;
+ };
  
- 	aliases {
+ /* ALSA SOF Kcontrol device */
+diff --git a/sound/soc/sof/topology.c b/sound/soc/sof/topology.c
+index fe8ba3e05e08..ab2b69de1d4d 100644
+--- a/sound/soc/sof/topology.c
++++ b/sound/soc/sof/topology.c
+@@ -1203,6 +1203,8 @@ static int sof_control_load(struct snd_soc_component *scomp, int index,
+ 		return ret;
+ 	}
+ 
++	scontrol->led_ctl.led_value = -1;
++
+ 	dobj->private = scontrol;
+ 	list_add(&scontrol->list, &sdev->kcontrol_list);
+ 	return ret;
 -- 
 2.25.1
 
