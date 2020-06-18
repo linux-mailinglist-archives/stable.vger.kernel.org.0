@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A544F1FE344
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:07:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83E061FE34C
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:08:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730676AbgFRBWM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:22:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55046 "EHLO mail.kernel.org"
+        id S1730986AbgFRCH5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:07:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728705AbgFRBWK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:22:10 -0400
+        id S1730673AbgFRBWM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:22:12 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3BD8121D79;
-        Thu, 18 Jun 2020 01:22:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE1E1221EF;
+        Thu, 18 Jun 2020 01:22:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443330;
-        bh=EYH7/kEgNRJTHJX5SU2E60AicyWDr58tlgaXuyLRoIg=;
+        s=default; t=1592443332;
+        bh=Qst3gLNK9wrok6P6osrJ4g7xTY41Syzr7EHJ/Cl8yVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DSbE8PuXex5GKGlqP87wkxayRc6iDZhTG15uSsNgHAOD71+2OdyNCRgYkdZBK1ER9
-         +8gKRfscZNQxXozSlW5rZ4Dt02cGis4GSyMJUEhGZsb8dwbjYEiwQ0YYDdYGcZD7ue
-         PMO+b3hfDyD44tXGb16sHEdv40hqhaSKz+QGGuqo=
+        b=WORZfR56P3nzA12RbV9lh0uCfD/mUf71Cu6RF11UzBPMv/Rg412p7AXnLT3YqNoUL
+         5pK617GemWL7yBW1IrFnFehPEtENn+N96AoteDBz0m5mWJp4bee58RvqaxoCixql/k
+         Zc8EJJAeSSuvpUtkcKZP72K8Lqi+EvScpTUSb1z0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christoph Hellwig <hch@lst.de>, Keith Busch <kbusch@kernel.org>,
-        Sagi Grimberg <sagi@grimberg.me>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 262/266] nvme-pci: use simple suspend when a HMB is enabled
-Date:   Wed, 17 Jun 2020 21:16:27 -0400
-Message-Id: <20200618011631.604574-262-sashal@kernel.org>
+Cc:     Li RongQing <lirongqing@baidu.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 264/266] xdp: Fix xsk_generic_xmit errno
+Date:   Wed, 17 Jun 2020 21:16:29 -0400
+Message-Id: <20200618011631.604574-264-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,44 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Li RongQing <lirongqing@baidu.com>
 
-[ Upstream commit b97120b15ebd3de51325084136d3b9c3cce656d6 ]
+[ Upstream commit aa2cad0600ed2ca6a0ab39948d4db1666b6c962b ]
 
-While the NVMe specification allows the device to access the host memory
-buffer in host DRAM from all power states, hosts will fail access to
-DRAM during S3 and similar power states.
+Propagate sock_alloc_send_skb error code, not set it to
+EAGAIN unconditionally, when fail to allocate skb, which
+might cause that user space unnecessary loops.
 
-Fixes: d916b1be94b6 ("nvme-pci: use host managed power state for suspend")
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 35fcde7f8deb ("xsk: support for Tx")
+Signed-off-by: Li RongQing <lirongqing@baidu.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Björn Töpel <bjorn.topel@intel.com>
+Link: https://lore.kernel.org/bpf/1591852266-24017-1-git-send-email-lirongqing@baidu.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ net/xdp/xsk.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index cd64ddb129e5..acbdf21b76ed 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -2962,9 +2962,15 @@ static int nvme_suspend(struct device *dev)
- 	 * the PCI bus layer to put it into D3 in order to take the PCIe link
- 	 * down, so as to allow the platform to achieve its minimum low-power
- 	 * state (which may not be possible if the link is up).
-+	 *
-+	 * If a host memory buffer is enabled, shut down the device as the NVMe
-+	 * specification allows the device to access the host memory buffer in
-+	 * host DRAM from all power states, but hosts will fail access to DRAM
-+	 * during S3.
- 	 */
- 	if (pm_suspend_via_firmware() || !ctrl->npss ||
- 	    !pcie_aspm_enabled(pdev) ||
-+	    ndev->nr_host_mem_descs ||
- 	    (ndev->ctrl.quirks & NVME_QUIRK_SIMPLE_SUSPEND))
- 		return nvme_disable_prepare_reset(ndev, true);
+diff --git a/net/xdp/xsk.c b/net/xdp/xsk.c
+index 7181a30666b4..f9eb5efb237c 100644
+--- a/net/xdp/xsk.c
++++ b/net/xdp/xsk.c
+@@ -362,10 +362,8 @@ static int xsk_generic_xmit(struct sock *sk)
  
+ 		len = desc.len;
+ 		skb = sock_alloc_send_skb(sk, len, 1, &err);
+-		if (unlikely(!skb)) {
+-			err = -EAGAIN;
++		if (unlikely(!skb))
+ 			goto out;
+-		}
+ 
+ 		skb_put(skb, len);
+ 		addr = desc.addr;
 -- 
 2.25.1
 
