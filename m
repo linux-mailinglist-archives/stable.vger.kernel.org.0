@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CD1D1FE129
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:53:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9F4F1FE116
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:52:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731714AbgFRBwc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:52:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34206 "EHLO mail.kernel.org"
+        id S1731717AbgFRB0n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:26:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731704AbgFRB0h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:26:37 -0400
+        id S1730599AbgFRB0m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:26:42 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 41AB521D7A;
-        Thu, 18 Jun 2020 01:26:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 262C820B1F;
+        Thu, 18 Jun 2020 01:26:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443597;
-        bh=k5fJn4/BHCsHWqjor/jslrTNiMZt/S9sgjvZvWRPe4U=;
+        s=default; t=1592443602;
+        bh=Xmp9h8I4G3YC2FTtCRXoSzOyc0t02HvCHHCQWkH0dYk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MV96FjcgYShAjX09qxluE8oX8ydeT6rnjDbeJsvQd4cEoWmIR2E0jMyHjVR6oTdkL
-         qdNLqMUgSf2PdV5j8D0oN6y6OK/cGxq9C5NXcyhDzeuGITBCFKRCT9qs3E3BCbZ7Uj
-         +MkdHGti+l8XmWM8omMCUAj3KY2lVdvgmn0PSpbI=
+        b=gP33bUzZsNyDy9zUC9zIxg5HwnYOjgg5b8y+EYa+/9yyOoDiZBdIxEQAev0kzMoos
+         Ev9UlZ6SaeQ6WWThGTuATcoqO3AAoKJ0VumzEmTfnuxM5tqLqj99kMnHwW3eFykc+q
+         0HZuK0MU6r3Gt2QSSFO6Mer3/HDxhK18Qnu+HHXA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pingfan Liu <kernelfans@gmail.com>,
-        Hari Bathini <hbathini@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.14 029/108] powerpc/crashkernel: Take "mem=" option into account
-Date:   Wed, 17 Jun 2020 21:24:41 -0400
-Message-Id: <20200618012600.608744-29-sashal@kernel.org>
+Cc:     OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+        syzbot+6f1624f937d9d6911e2d@syzkaller.appspotmail.com,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Marco Elver <elver@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 031/108] fat: don't allow to mount if the FAT length == 0
+Date:   Wed, 17 Jun 2020 21:24:43 -0400
+Message-Id: <20200618012600.608744-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012600.608744-1-sashal@kernel.org>
 References: <20200618012600.608744-1-sashal@kernel.org>
@@ -44,79 +47,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pingfan Liu <kernelfans@gmail.com>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
 
-[ Upstream commit be5470e0c285a68dc3afdea965032f5ddc8269d7 ]
+[ Upstream commit b1b65750b8db67834482f758fc385bfa7560d228 ]
 
-'mem=" option is an easy way to put high pressure on memory during
-some test. Hence after applying the memory limit, instead of total
-mem, the actual usable memory should be considered when reserving mem
-for crashkernel. Otherwise the boot up may experience OOM issue.
+If FAT length == 0, the image doesn't have any data. And it can be the
+cause of overlapping the root dir and FAT entries.
 
-E.g. it would reserve 4G prior to the change and 512M afterward, if
-passing
-crashkernel="2G-4G:384M,4G-16G:512M,16G-64G:1G,64G-128G:2G,128G-:4G",
-and mem=5G on a 256G machine.
+Also Windows treats it as invalid format.
 
-This issue is powerpc specific because it puts higher priority on
-fadump and kdump reservation than on "mem=". Referring the following
-code:
-    if (fadump_reserve_mem() == 0)
-            reserve_crashkernel();
-    ...
-    /* Ensure that total memory size is page-aligned. */
-    limit = ALIGN(memory_limit ?: memblock_phys_mem_size(), PAGE_SIZE);
-    memblock_enforce_memory_limit(limit);
-
-While on other arches, the effect of "mem=" takes a higher priority
-and pass through memblock_phys_mem_size() before calling
-reserve_crashkernel().
-
-Signed-off-by: Pingfan Liu <kernelfans@gmail.com>
-Reviewed-by: Hari Bathini <hbathini@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1585749644-4148-1-git-send-email-kernelfans@gmail.com
+Reported-by: syzbot+6f1624f937d9d6911e2d@syzkaller.appspotmail.com
+Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Marco Elver <elver@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Link: http://lkml.kernel.org/r/87r1wz8mrd.fsf@mail.parknet.co.jp
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/machine_kexec.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ fs/fat/inode.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/powerpc/kernel/machine_kexec.c b/arch/powerpc/kernel/machine_kexec.c
-index 9dafd7af39b8..cb4d6cd949fc 100644
---- a/arch/powerpc/kernel/machine_kexec.c
-+++ b/arch/powerpc/kernel/machine_kexec.c
-@@ -113,11 +113,12 @@ void machine_kexec(struct kimage *image)
- 
- void __init reserve_crashkernel(void)
- {
--	unsigned long long crash_size, crash_base;
-+	unsigned long long crash_size, crash_base, total_mem_sz;
- 	int ret;
- 
-+	total_mem_sz = memory_limit ? memory_limit : memblock_phys_mem_size();
- 	/* use common parsing */
--	ret = parse_crashkernel(boot_command_line, memblock_phys_mem_size(),
-+	ret = parse_crashkernel(boot_command_line, total_mem_sz,
- 			&crash_size, &crash_base);
- 	if (ret == 0 && crash_size > 0) {
- 		crashk_res.start = crash_base;
-@@ -176,6 +177,7 @@ void __init reserve_crashkernel(void)
- 	/* Crash kernel trumps memory limit */
- 	if (memory_limit && memory_limit <= crashk_res.end) {
- 		memory_limit = crashk_res.end + 1;
-+		total_mem_sz = memory_limit;
- 		printk("Adjusted memory limit for crashkernel, now 0x%llx\n",
- 		       memory_limit);
+diff --git a/fs/fat/inode.c b/fs/fat/inode.c
+index 1df023c4c2cc..c41393e30a04 100644
+--- a/fs/fat/inode.c
++++ b/fs/fat/inode.c
+@@ -1512,6 +1512,12 @@ static int fat_read_bpb(struct super_block *sb, struct fat_boot_sector *b,
+ 		goto out;
  	}
-@@ -184,7 +186,7 @@ void __init reserve_crashkernel(void)
- 			"for crashkernel (System RAM: %ldMB)\n",
- 			(unsigned long)(crash_size >> 20),
- 			(unsigned long)(crashk_res.start >> 20),
--			(unsigned long)(memblock_phys_mem_size() >> 20));
-+			(unsigned long)(total_mem_sz >> 20));
  
- 	if (!memblock_is_region_memory(crashk_res.start, crash_size) ||
- 	    memblock_reserve(crashk_res.start, crash_size)) {
++	if (bpb->fat_fat_length == 0 && bpb->fat32_length == 0) {
++		if (!silent)
++			fat_msg(sb, KERN_ERR, "bogus number of FAT sectors");
++		goto out;
++	}
++
+ 	error = 0;
+ 
+ out:
 -- 
 2.25.1
 
