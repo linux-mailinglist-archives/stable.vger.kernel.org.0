@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EE6D1FE718
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:39:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 641B41FE707
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:38:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728684AbgFRCi0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:38:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42618 "EHLO mail.kernel.org"
+        id S1729249AbgFRCiP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:38:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729113AbgFRBNY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:13:24 -0400
+        id S1728519AbgFRBN0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:13:26 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B07C0221EB;
-        Thu, 18 Jun 2020 01:13:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E8DD621924;
+        Thu, 18 Jun 2020 01:13:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442804;
-        bh=cXzM0HwmnhLTWU3D2/CI1kjx1fxQuOW04icjN0TxhcY=;
+        s=default; t=1592442805;
+        bh=v5N8waNpxM9QaHC/q6Kemel3FYBJtDE1nisF7iGPgM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aP6wCBQr9aC22M9A9ae/HjabcGxZ+T52UqPv6c+TE30I+2kO05cz88s07xSKxPPeB
-         Mne/Dk4iT1lBZya4devrX42M+XRbre3ihD5klENtkLmnIwb+YO61PczkBnWrs6kgY1
-         kpHyGC0XAx5LRv/WyrhRsYPfN609LYlbaLXsNq2s=
+        b=LlWjOVNZL6EeKIznO1W2kjm7X78GuMhCyAvBUnNipXU4gGOg2nWJy86wXhE0JkPmy
+         wHzxOuBLNaXB1KMpZ6rmOgnlc7dkY/DxZx4/9OgtzauyknLNz2eLmQfwUa1ywqv1yr
+         t1qSmeEC6Jvov53GjX4U0ZaxAoVid6OgDYrY0Dbo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wei Yongjun <weiyongjun1@huawei.com>,
-        Dong Aisheng <aisheng.dong@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.7 244/388] firmware: imx: scu: Fix possible memory leak in imx_scu_probe()
-Date:   Wed, 17 Jun 2020 21:05:41 -0400
-Message-Id: <20200618010805.600873-244-sashal@kernel.org>
+Cc:     Miklos Szeredi <mszeredi@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 245/388] fuse: fix copy_file_range cache issues
+Date:   Wed, 17 Jun 2020 21:05:42 -0400
+Message-Id: <20200618010805.600873-245-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
@@ -45,35 +42,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-[ Upstream commit 89f12d6509bff004852c51cb713a439a86816b24 ]
+[ Upstream commit 2c4656dfd994538176db30ce09c02cc0dfc361ae ]
 
-'chan_name' is malloced in imx_scu_probe() and should be freed
-before leaving from the error handling cases, otherwise it will
-cause memory leak.
+a) Dirty cache needs to be written back not just in the writeback_cache
+case, since the dirty pages may come from memory maps.
 
-Fixes: edbee095fafb ("firmware: imx: add SCU firmware driver support")
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+b) The fuse_writeback_range() helper takes an inclusive interval, so the
+end position needs to be pos+len-1 instead of pos+len.
+
+Fixes: 88bc7d5097a1 ("fuse: add support for copy_file_range()")
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/imx/imx-scu.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/fuse/file.c | 20 ++++++++------------
+ 1 file changed, 8 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/firmware/imx/imx-scu.c b/drivers/firmware/imx/imx-scu.c
-index b3da2e193ad2..176ddd151375 100644
---- a/drivers/firmware/imx/imx-scu.c
-+++ b/drivers/firmware/imx/imx-scu.c
-@@ -314,6 +314,7 @@ static int imx_scu_probe(struct platform_device *pdev)
- 			if (ret != -EPROBE_DEFER)
- 				dev_err(dev, "Failed to request mbox chan %s ret %d\n",
- 					chan_name, ret);
-+			kfree(chan_name);
- 			return ret;
- 		}
+diff --git a/fs/fuse/file.c b/fs/fuse/file.c
+index d400b71b98d5..d58324198b7a 100644
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -3280,13 +3280,11 @@ static ssize_t __fuse_copy_file_range(struct file *file_in, loff_t pos_in,
+ 	if (file_inode(file_in)->i_sb != file_inode(file_out)->i_sb)
+ 		return -EXDEV;
  
+-	if (fc->writeback_cache) {
+-		inode_lock(inode_in);
+-		err = fuse_writeback_range(inode_in, pos_in, pos_in + len);
+-		inode_unlock(inode_in);
+-		if (err)
+-			return err;
+-	}
++	inode_lock(inode_in);
++	err = fuse_writeback_range(inode_in, pos_in, pos_in + len - 1);
++	inode_unlock(inode_in);
++	if (err)
++		return err;
+ 
+ 	inode_lock(inode_out);
+ 
+@@ -3294,11 +3292,9 @@ static ssize_t __fuse_copy_file_range(struct file *file_in, loff_t pos_in,
+ 	if (err)
+ 		goto out;
+ 
+-	if (fc->writeback_cache) {
+-		err = fuse_writeback_range(inode_out, pos_out, pos_out + len);
+-		if (err)
+-			goto out;
+-	}
++	err = fuse_writeback_range(inode_out, pos_out, pos_out + len - 1);
++	if (err)
++		goto out;
+ 
+ 	if (is_unstable)
+ 		set_bit(FUSE_I_SIZE_UNSTABLE, &fi_out->state);
 -- 
 2.25.1
 
