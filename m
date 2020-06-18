@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E69C91FE4E6
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:22:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B565D1FE4D5
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:21:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727016AbgFRCVj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:21:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50144 "EHLO mail.kernel.org"
+        id S1731542AbgFRCVS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:21:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729983AbgFRBSi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:18:38 -0400
+        id S1727016AbgFRBSj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:18:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 51C5A21D80;
-        Thu, 18 Jun 2020 01:18:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 946B421D82;
+        Thu, 18 Jun 2020 01:18:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443118;
-        bh=QrDIPDzw2nnB1EWe8NJGhZJD+HUCRnXOh6fABOytZdg=;
+        s=default; t=1592443119;
+        bh=D8MAFFTVPpLP8dncp5JzGg3VHGSOJhBl+2J7eEbuAYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IKNPt5oOCdCuAVYgwLOKDWKN47/O1ohpzBYFztyCHN/qA0dc9AxYgZq+NfT4uLu7R
-         HHvrRVRJuyRFowfachwhI0bJ22aBx3S2GFz1adqWMBhqs66C6AsalQJGjKsr9uw8Ro
-         iIW1fyi1zyt5z45644izypvuDUnpTr13RwHdwcns=
+        b=vPd6xMvV3R6VWJHeb657+ju70GQ0Tj9+WS8bOor6itK0hRUTOGC5v4pA9wRmzumnr
+         IvOdrgRB6zu3TsZIpf5UOEh/jYIECI+J4xF2BGUomhxxYvpO23I7gP91Zv8N9E5sTN
+         EthxUMVjMGVGURdBBXh1PXHtMNnRI9CiOB4oJrlU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chad Dupuis <cdupuis@marvell.com>,
-        Saurav Kashyap <skashyap@marvell.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 093/266] scsi: qedf: Fix crash when MFW calls for protocol stats while function is still probing
-Date:   Wed, 17 Jun 2020 21:13:38 -0400
-Message-Id: <20200618011631.604574-93-sashal@kernel.org>
+Cc:     Lars-Peter Clausen <lars@metafoo.de>,
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 094/266] iio: buffer: Don't allow buffers without any channels enabled to be activated
+Date:   Wed, 17 Jun 2020 21:13:39 -0400
+Message-Id: <20200618011631.604574-94-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
@@ -44,127 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chad Dupuis <cdupuis@marvell.com>
+From: Lars-Peter Clausen <lars@metafoo.de>
 
-[ Upstream commit ad40f5256095c68dc17c991eb976261d5ea2daaa ]
+[ Upstream commit b7329249ea5b08b2a1c2c3f24a2f4c495c4f14b8 ]
 
-The MFW may make a call to qed and then to qedf for protocol statistics
-while the function is still probing.  If this happens it's possible that
-some members of the struct qedf_ctx may not be fully initialized which can
-result in a NULL pointer dereference or general protection fault.
+Before activating a buffer make sure that at least one channel is enabled.
+Activating a buffer with 0 channels enabled doesn't make too much sense and
+disallowing this case makes sure that individual driver don't have to add
+special case code to handle it.
 
-To prevent this, add a new flag call QEDF_PROBING and set it when the
-__qedf_probe() function is active. Then in the qedf_get_protocol_tlv_data()
-function we can check if the function is still probing and return
-immediantely before any uninitialized structures can be touched.
+Currently, without this patch enabling a buffer is possible and no error is
+produced. With this patch -EINVAL is returned.
 
-Link: https://lore.kernel.org/r/20200416084314.18851-9-skashyap@marvell.com
-Signed-off-by: Chad Dupuis <cdupuis@marvell.com>
-Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+An example of execution with this patch and some instrumented print-code:
+   root@analog:~# cd /sys/bus/iio/devices/iio\:device3/buffer
+   root@analog:/sys/bus/iio/devices/iio:device3/buffer# echo 1 > enable
+   0: iio_verify_update 748 indio_dev->masklength 2 *insert_buffer->scan_mask 00000000
+   1: iio_verify_update 753
+   2:__iio_update_buffers 1115 ret -22
+   3: iio_buffer_store_enable 1241 ret -22
+   -bash: echo: write error: Invalid argument
+1, 2 & 3 are exit-error paths. 0 the first print in iio_verify_update()
+rergardless of error path.
+
+Without this patch (and same instrumented print-code):
+   root@analog:~# cd /sys/bus/iio/devices/iio\:device3/buffer
+   root@analog:/sys/bus/iio/devices/iio:device3/buffer# echo 1 > enable
+   0: iio_verify_update 748 indio_dev->masklength 2 *insert_buffer->scan_mask 00000000
+   root@analog:/sys/bus/iio/devices/iio:device3/buffer#
+Buffer is enabled with no error.
+
+Note from Jonathan: Probably not suitable for automatic application to stable.
+This has been there from the very start.  It tidies up an odd corner
+case but won't effect any 'real' users.
+
+Fixes: 84b36ce5f79c0 ("staging:iio: Add support for multiple buffers")
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qedf/qedf.h      |  1 +
- drivers/scsi/qedf/qedf_main.c | 35 +++++++++++++++++++++++++++++++----
- 2 files changed, 32 insertions(+), 4 deletions(-)
+ drivers/iio/industrialio-buffer.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/scsi/qedf/qedf.h b/drivers/scsi/qedf/qedf.h
-index f3f399fe10c8..0da4e16fb23a 100644
---- a/drivers/scsi/qedf/qedf.h
-+++ b/drivers/scsi/qedf/qedf.h
-@@ -355,6 +355,7 @@ struct qedf_ctx {
- #define QEDF_GRCDUMP_CAPTURE		4
- #define QEDF_IN_RECOVERY		5
- #define QEDF_DBG_STOP_IO		6
-+#define QEDF_PROBING			8
- 	unsigned long flags; /* Miscellaneous state flags */
- 	int fipvlan_retries;
- 	u8 num_queues;
-diff --git a/drivers/scsi/qedf/qedf_main.c b/drivers/scsi/qedf/qedf_main.c
-index 59ca98f12afd..3d0e345947c1 100644
---- a/drivers/scsi/qedf/qedf_main.c
-+++ b/drivers/scsi/qedf/qedf_main.c
-@@ -3153,7 +3153,7 @@ static int __qedf_probe(struct pci_dev *pdev, int mode)
- {
- 	int rc = -EINVAL;
- 	struct fc_lport *lport;
--	struct qedf_ctx *qedf;
-+	struct qedf_ctx *qedf = NULL;
- 	struct Scsi_Host *host;
- 	bool is_vf = false;
- 	struct qed_ll2_params params;
-@@ -3183,6 +3183,7 @@ static int __qedf_probe(struct pci_dev *pdev, int mode)
+diff --git a/drivers/iio/industrialio-buffer.c b/drivers/iio/industrialio-buffer.c
+index 112225c0e486..caacc9d00636 100644
+--- a/drivers/iio/industrialio-buffer.c
++++ b/drivers/iio/industrialio-buffer.c
+@@ -687,6 +687,13 @@ static int iio_verify_update(struct iio_dev *indio_dev,
+ 	bool scan_timestamp;
+ 	unsigned int modes;
  
- 		/* Initialize qedf_ctx */
- 		qedf = lport_priv(lport);
-+		set_bit(QEDF_PROBING, &qedf->flags);
- 		qedf->lport = lport;
- 		qedf->ctlr.lp = lport;
- 		qedf->pdev = pdev;
-@@ -3206,9 +3207,12 @@ static int __qedf_probe(struct pci_dev *pdev, int mode)
- 	} else {
- 		/* Init pointers during recovery */
- 		qedf = pci_get_drvdata(pdev);
-+		set_bit(QEDF_PROBING, &qedf->flags);
- 		lport = qedf->lport;
- 	}
- 
-+	QEDF_INFO(&qedf->dbg_ctx, QEDF_LOG_DISC, "Probe started.\n");
-+
- 	host = lport->host;
- 
- 	/* Allocate mempool for qedf_io_work structs */
-@@ -3513,6 +3517,10 @@ static int __qedf_probe(struct pci_dev *pdev, int mode)
- 	else
- 		fc_fabric_login(lport);
- 
-+	QEDF_INFO(&qedf->dbg_ctx, QEDF_LOG_DISC, "Probe done.\n");
-+
-+	clear_bit(QEDF_PROBING, &qedf->flags);
-+
- 	/* All good */
- 	return 0;
- 
-@@ -3538,6 +3546,11 @@ static int __qedf_probe(struct pci_dev *pdev, int mode)
- err1:
- 	scsi_host_put(lport->host);
- err0:
-+	if (qedf) {
-+		QEDF_INFO(&qedf->dbg_ctx, QEDF_LOG_DISC, "Probe done.\n");
-+
-+		clear_bit(QEDF_PROBING, &qedf->flags);
-+	}
- 	return rc;
- }
- 
-@@ -3687,11 +3700,25 @@ void qedf_get_protocol_tlv_data(void *dev, void *data)
- {
- 	struct qedf_ctx *qedf = dev;
- 	struct qed_mfw_tlv_fcoe *fcoe = data;
--	struct fc_lport *lport = qedf->lport;
--	struct Scsi_Host *host = lport->host;
--	struct fc_host_attrs *fc_host = shost_to_fc_host(host);
-+	struct fc_lport *lport;
-+	struct Scsi_Host *host;
-+	struct fc_host_attrs *fc_host;
- 	struct fc_host_statistics *hst;
- 
-+	if (!qedf) {
-+		QEDF_ERR(NULL, "qedf is null.\n");
-+		return;
++	if (insert_buffer &&
++	    bitmap_empty(insert_buffer->scan_mask, indio_dev->masklength)) {
++		dev_dbg(&indio_dev->dev,
++			"At least one scan element must be enabled first\n");
++		return -EINVAL;
 +	}
 +
-+	if (test_bit(QEDF_PROBING, &qedf->flags)) {
-+		QEDF_ERR(&qedf->dbg_ctx, "Function is still probing.\n");
-+		return;
-+	}
-+
-+	lport = qedf->lport;
-+	host = lport->host;
-+	fc_host = shost_to_fc_host(host);
-+
- 	/* Force a refresh of the fc_host stats including offload stats */
- 	hst = qedf_fc_get_host_stats(host);
+ 	memset(config, 0, sizeof(*config));
+ 	config->watermark = ~0;
  
 -- 
 2.25.1
