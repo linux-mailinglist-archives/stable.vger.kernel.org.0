@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2972E1FE488
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:19:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACA211FE487
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:19:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730438AbgFRCTJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729842AbgFRCTJ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 17 Jun 2020 22:19:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51102 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:51150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730118AbgFRBTW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:19:22 -0400
+        id S1730122AbgFRBTX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:19:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8396A21D90;
-        Thu, 18 Jun 2020 01:19:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9856B221F2;
+        Thu, 18 Jun 2020 01:19:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443162;
-        bh=6wPbTGryZ+Li9KZ2RtFbqqOF5Zpo2oly5gKwKhYSdhI=;
+        s=default; t=1592443163;
+        bh=th9LzinmB/iJByqx4yAfdoibilCaqLb71XRYANjmnxQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l6sxm7ztEwVNbDDVwb+G50Id7IKTpJnjdKZM2p5tJhkH/zJmMyEOO2tZ6CW11fvKf
-         98N0jHkLzMIiaSudNHTZbfacM4CLr+1aE1krsGh86pSmEJBxcXOV+SiiMg1pMOELN+
-         qGuBdxXzQruYaJ9nGDgZ9o9qG8BI66FIqHlpzrw8=
+        b=LPi3I82vcFAb1uJB/sqr1YcZzk/jhqhM4wX5k+gGw9AcBT7IKyQ/ZHUox4R6omdXL
+         kyJkCx7lvaR+bQk6jTjiKloXPOAp4PuFThsbaJGohCr9xczcvwneC3+idmKpRXaQqI
+         RJOypXdEF3kJIsettx0RrOrP2X731RYIIJaMzvSU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+Cc:     Dmitry Osipenko <digetx@gmail.com>,
+        David Heidelberg <david@ixit.cz>,
         Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 128/266] power: supply: lp8788: Fix an error handling path in 'lp8788_charger_probe()'
-Date:   Wed, 17 Jun 2020 21:14:13 -0400
-Message-Id: <20200618011631.604574-128-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 129/266] power: supply: smb347-charger: IRQSTAT_D is volatile
+Date:   Wed, 17 Jun 2020 21:14:14 -0400
+Message-Id: <20200618011631.604574-129-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
@@ -43,68 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-[ Upstream commit 934ed3847a4ebc75b655659c4d2349ba4337941c ]
+[ Upstream commit c32ea07a30630ace950e07ffe7a18bdcc25898e1 ]
 
-In the probe function, in case of error, resources allocated in
-'lp8788_setup_adc_channel()' must be released.
+Fix failure when USB cable is connected:
+smb347 2-006a: reading IRQSTAT_D failed
 
-This can be achieved easily by using the devm_ variant of
-'iio_channel_get()'.
-This has the extra benefit to simplify the remove function and to axe the
-'lp8788_release_adc_channel()' function which is now useless.
+Fixes: 1502cfe19bac ("smb347-charger: Fix battery status reporting logic for charger faults")
 
-Fixes: 98a276649358 ("power_supply: Add new lp8788 charger driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Tested-by: David Heidelberg <david@ixit.cz>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: David Heidelberg <david@ixit.cz>
 Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/lp8788-charger.c | 18 ++----------------
- 1 file changed, 2 insertions(+), 16 deletions(-)
+ drivers/power/supply/smb347-charger.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/power/supply/lp8788-charger.c b/drivers/power/supply/lp8788-charger.c
-index 84a206f42a8e..e7931ffb7151 100644
---- a/drivers/power/supply/lp8788-charger.c
-+++ b/drivers/power/supply/lp8788-charger.c
-@@ -572,27 +572,14 @@ static void lp8788_setup_adc_channel(struct device *dev,
- 		return;
- 
- 	/* ADC channel for battery voltage */
--	chan = iio_channel_get(dev, pdata->adc_vbatt);
-+	chan = devm_iio_channel_get(dev, pdata->adc_vbatt);
- 	pchg->chan[LP8788_VBATT] = IS_ERR(chan) ? NULL : chan;
- 
- 	/* ADC channel for battery temperature */
--	chan = iio_channel_get(dev, pdata->adc_batt_temp);
-+	chan = devm_iio_channel_get(dev, pdata->adc_batt_temp);
- 	pchg->chan[LP8788_BATT_TEMP] = IS_ERR(chan) ? NULL : chan;
- }
- 
--static void lp8788_release_adc_channel(struct lp8788_charger *pchg)
--{
--	int i;
--
--	for (i = 0; i < LP8788_NUM_CHG_ADC; i++) {
--		if (!pchg->chan[i])
--			continue;
--
--		iio_channel_release(pchg->chan[i]);
--		pchg->chan[i] = NULL;
--	}
--}
--
- static ssize_t lp8788_show_charger_status(struct device *dev,
- 				struct device_attribute *attr, char *buf)
- {
-@@ -735,7 +722,6 @@ static int lp8788_charger_remove(struct platform_device *pdev)
- 	flush_work(&pchg->charger_work);
- 	lp8788_irq_unregister(pdev, pchg);
- 	lp8788_psy_unregister(pchg);
--	lp8788_release_adc_channel(pchg);
- 
- 	return 0;
- }
+diff --git a/drivers/power/supply/smb347-charger.c b/drivers/power/supply/smb347-charger.c
+index c1d124b8be0c..d102921b3ab2 100644
+--- a/drivers/power/supply/smb347-charger.c
++++ b/drivers/power/supply/smb347-charger.c
+@@ -1138,6 +1138,7 @@ static bool smb347_volatile_reg(struct device *dev, unsigned int reg)
+ 	switch (reg) {
+ 	case IRQSTAT_A:
+ 	case IRQSTAT_C:
++	case IRQSTAT_D:
+ 	case IRQSTAT_E:
+ 	case IRQSTAT_F:
+ 	case STAT_A:
 -- 
 2.25.1
 
