@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0AE01FDDB0
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:27:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FA191FDDBA
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:28:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731924AbgFRB1o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:27:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35994 "EHLO mail.kernel.org"
+        id S1731988AbgFRB14 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:27:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731918AbgFRB1m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:27:42 -0400
+        id S1731982AbgFRB14 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:27:56 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5976722226;
-        Thu, 18 Jun 2020 01:27:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8D8DB22200;
+        Thu, 18 Jun 2020 01:27:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443662;
-        bh=fGKTLP95sbZfnZ9+Q6Kij6h2zYSX7kKXwqsIwZlt73g=;
+        s=default; t=1592443675;
+        bh=PUQJ+8bqGqzjz+y7Oq/eHD+478RlUH0lRCqGWqYDAzU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XMW4mq4OSnF6WXEhN3faexYvvqJGtGEZUcGWr8k7YRa5q5r09Mv3FLD9wbEKMgFwy
-         B4njDpO5NipYO4RtYefFGOBGagC6fJgs/vUeaIoDP2V7dvWhxPxCgGFz/dfInzzNHa
-         7lMKfmG1xrFUaJMMLXksJ5Y9czEuw/56pa7flnOA=
+        b=JZbH0lbijoiJwrssWgkFz+GOkPXNQPsh2bOBJjui9UQyETddpsw+9rlNY3fkT7iic
+         smPSc0r0q32gmVe5pNmZ/QFlR9Kwaz73Q49R5lFnWiI4ej6Q7YvidMDihjN+YBko71
+         LDMEdVfJ8OP2PC69MW6qxgmo2aiAF/7Ay8M5bxCw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org,
-        bcm-kernel-feedback-list@broadcom.com,
-        linux-rpi-kernel@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 080/108] clk: bcm2835: Fix return type of bcm2835_register_gate
-Date:   Wed, 17 Jun 2020 21:25:32 -0400
-Message-Id: <20200618012600.608744-80-sashal@kernel.org>
+Cc:     Qiushi Wu <wu000273@umn.edu>, Lee Duncan <lduncan@suse.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, open-iscsi@googlegroups.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 091/108] scsi: iscsi: Fix reference count leak in iscsi_boot_create_kobj
+Date:   Wed, 17 Jun 2020 21:25:43 -0400
+Message-Id: <20200618012600.608744-91-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012600.608744-1-sashal@kernel.org>
 References: <20200618012600.608744-1-sashal@kernel.org>
@@ -46,57 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Qiushi Wu <wu000273@umn.edu>
 
-[ Upstream commit f376c43bec4f8ee8d1ba5c5c4cfbd6e84fb279cb ]
+[ Upstream commit 0267ffce562c8bbf9b57ebe0e38445ad04972890 ]
 
-bcm2835_register_gate is used as a callback for the clk_register member
-of bcm2835_clk_desc, which expects a struct clk_hw * return type but
-bcm2835_register_gate returns a struct clk *.
+kobject_init_and_add() takes reference even when it fails. If this
+function returns an error, kobject_put() must be called to properly
+clean up the memory associated with the object.
 
-This discrepancy is hidden by the fact that bcm2835_register_gate is
-cast to the typedef bcm2835_clk_register by the _REGISTER macro. This
-turns out to be a control flow integrity violation, which is how this
-was noticed.
-
-Change the return type of bcm2835_register_gate to be struct clk_hw *
-and use clk_hw_register_gate to do so. This should be a non-functional
-change as clk_register_gate calls clk_hw_register_gate anyways but this
-is needed to avoid issues with further changes.
-
-Fixes: b19f009d4510 ("clk: bcm2835: Migrate to clk_hw based registration and OF APIs")
-Link: https://github.com/ClangBuiltLinux/linux/issues/1028
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Link: https://lkml.kernel.org/r/20200516080806.1459784-1-natechancellor@gmail.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Link: https://lore.kernel.org/r/20200528201353.14849-1-wu000273@umn.edu
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/bcm/clk-bcm2835.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/scsi/iscsi_boot_sysfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/bcm/clk-bcm2835.c b/drivers/clk/bcm/clk-bcm2835.c
-index 5f8082d89131..6db4204e5d5d 100644
---- a/drivers/clk/bcm/clk-bcm2835.c
-+++ b/drivers/clk/bcm/clk-bcm2835.c
-@@ -1483,13 +1483,13 @@ static struct clk_hw *bcm2835_register_clock(struct bcm2835_cprman *cprman,
- 	return &clock->hw;
- }
- 
--static struct clk *bcm2835_register_gate(struct bcm2835_cprman *cprman,
-+static struct clk_hw *bcm2835_register_gate(struct bcm2835_cprman *cprman,
- 					 const struct bcm2835_gate_data *data)
- {
--	return clk_register_gate(cprman->dev, data->name, data->parent,
--				 CLK_IGNORE_UNUSED | CLK_SET_RATE_GATE,
--				 cprman->regs + data->ctl_reg,
--				 CM_GATE_BIT, 0, &cprman->regs_lock);
-+	return clk_hw_register_gate(cprman->dev, data->name, data->parent,
-+				    CLK_IGNORE_UNUSED | CLK_SET_RATE_GATE,
-+				    cprman->regs + data->ctl_reg,
-+				    CM_GATE_BIT, 0, &cprman->regs_lock);
- }
- 
- typedef struct clk_hw *(*bcm2835_clk_register)(struct bcm2835_cprman *cprman,
+diff --git a/drivers/scsi/iscsi_boot_sysfs.c b/drivers/scsi/iscsi_boot_sysfs.c
+index d453667612f8..15d64f96e623 100644
+--- a/drivers/scsi/iscsi_boot_sysfs.c
++++ b/drivers/scsi/iscsi_boot_sysfs.c
+@@ -360,7 +360,7 @@ iscsi_boot_create_kobj(struct iscsi_boot_kset *boot_kset,
+ 	boot_kobj->kobj.kset = boot_kset->kset;
+ 	if (kobject_init_and_add(&boot_kobj->kobj, &iscsi_boot_ktype,
+ 				 NULL, name, index)) {
+-		kfree(boot_kobj);
++		kobject_put(&boot_kobj->kobj);
+ 		return NULL;
+ 	}
+ 	boot_kobj->data = data;
 -- 
 2.25.1
 
