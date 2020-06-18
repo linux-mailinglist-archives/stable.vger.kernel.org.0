@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E32A1FE665
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:33:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 521321FE654
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:33:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729468AbgFRCdX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:33:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44584 "EHLO mail.kernel.org"
+        id S1728103AbgFRBOy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:14:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729372AbgFRBOu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:14:50 -0400
+        id S1729384AbgFRBOw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:14:52 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D4A9E20EDD;
-        Thu, 18 Jun 2020 01:14:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0EDD821D7B;
+        Thu, 18 Jun 2020 01:14:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442889;
-        bh=lTf3psMkvzYLlXoW5mhe7q+SLED4DuOEqoOrFxakpfQ=;
+        s=default; t=1592442891;
+        bh=mIJ1TUXp7dszAtRrMyJYmXKkKV2repG8ZIcsS6zctIo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mi+X8g9KwtoUf5wEK9Kdb9mU95tYdk+THgFZBo59VDO+C1xpYB47GZF9DXsb7A8tF
-         9SljUfqYp8Sb6jM1cD5/QR+AaBRQZjkmUfdoR6Oj4U99l0eGh3eJdKFjzpFfXQxtVv
-         V6jPAvqYqAtJD6aS9U/+N69+2UzyFqgiDTWWYcUI=
+        b=DTWvIGZS2MrSC/X735ehRXNLIFjta010kH1iqXTcfcAa+a1r8PrJAHl67pd6KKcit
+         ei2LC2C/0TcGnR7ZroLmOJh5QlZVzTE72K3wbtFQ3CxbusFsxRXAz9Ro5dGjR28V7m
+         rT+MVcTWdQXzFd8QKrfgKRyVE55duCm4cU/+H1fY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Howells <dhowells@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-afs@lists.infradead.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 312/388] rxrpc: Adjust /proc/net/rxrpc/calls to display call->debug_id not user_ID
-Date:   Wed, 17 Jun 2020 21:06:49 -0400
-Message-Id: <20200618010805.600873-312-sashal@kernel.org>
+Cc:     Ben Skeggs <bskeggs@redhat.com>, Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.7 314/388] drm/nouveau/disp/gm200-: fix NV_PDISP_SOR_HDMI2_CTRL(n) selection
+Date:   Wed, 17 Jun 2020 21:06:51 -0400
+Message-Id: <20200618010805.600873-314-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
@@ -43,51 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Ben Skeggs <bskeggs@redhat.com>
 
-[ Upstream commit 32f71aa497cfb23d37149c2ef16ad71fce2e45e2 ]
+[ Upstream commit a1ef8bad506e4ffa0c57ac5f8cb99ab5cbc3b1fc ]
 
-The user ID value isn't actually much use - and leaks a kernel pointer or a
-userspace value - so replace it with the call debug ID, which appears in trace
-points.
+This is a SOR register, and not indexed by the bound head.
 
-Signed-off-by: David Howells <dhowells@redhat.com>
+Fixes display not coming up on high-bandwidth HDMI displays under a
+number of configurations.
+
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rxrpc/proc.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/nouveau/nvkm/engine/disp/hdmigm200.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/rxrpc/proc.c b/net/rxrpc/proc.c
-index 8b179e3c802a..543afd9bd664 100644
---- a/net/rxrpc/proc.c
-+++ b/net/rxrpc/proc.c
-@@ -68,7 +68,7 @@ static int rxrpc_call_seq_show(struct seq_file *seq, void *v)
- 			 "Proto Local                                          "
- 			 " Remote                                         "
- 			 " SvID ConnID   CallID   End Use State    Abort   "
--			 " UserID           TxSeq    TW RxSeq    RW RxSerial RxTimo\n");
-+			 " DebugId  TxSeq    TW RxSeq    RW RxSerial RxTimo\n");
- 		return 0;
- 	}
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/disp/hdmigm200.c b/drivers/gpu/drm/nouveau/nvkm/engine/disp/hdmigm200.c
+index 9b16a08eb4d9..bf6d41fb0c9f 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/disp/hdmigm200.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/disp/hdmigm200.c
+@@ -27,10 +27,10 @@ void
+ gm200_hdmi_scdc(struct nvkm_ior *ior, int head, u8 scdc)
+ {
+ 	struct nvkm_device *device = ior->disp->engine.subdev.device;
+-	const u32 hoff = head * 0x800;
++	const u32 soff = nv50_ior_base(ior);
+ 	const u32 ctrl = scdc & 0x3;
  
-@@ -100,7 +100,7 @@ static int rxrpc_call_seq_show(struct seq_file *seq, void *v)
- 	rx_hard_ack = READ_ONCE(call->rx_hard_ack);
- 	seq_printf(seq,
- 		   "UDP   %-47.47s %-47.47s %4x %08x %08x %s %3u"
--		   " %-8.8s %08x %lx %08x %02x %08x %02x %08x %06lx\n",
-+		   " %-8.8s %08x %08x %08x %02x %08x %02x %08x %06lx\n",
- 		   lbuff,
- 		   rbuff,
- 		   call->service_id,
-@@ -110,7 +110,7 @@ static int rxrpc_call_seq_show(struct seq_file *seq, void *v)
- 		   atomic_read(&call->usage),
- 		   rxrpc_call_states[call->state],
- 		   call->abort_code,
--		   call->user_call_ID,
-+		   call->debug_id,
- 		   tx_hard_ack, READ_ONCE(call->tx_top) - tx_hard_ack,
- 		   rx_hard_ack, READ_ONCE(call->rx_top) - rx_hard_ack,
- 		   call->rx_serial,
+-	nvkm_mask(device, 0x61c5bc + hoff, 0x00000003, ctrl);
++	nvkm_mask(device, 0x61c5bc + soff, 0x00000003, ctrl);
+ 
+ 	ior->tmds.high_speed = !!(scdc & 0x2);
+ }
 -- 
 2.25.1
 
