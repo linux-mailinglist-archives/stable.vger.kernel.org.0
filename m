@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E03351FE49A
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:19:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76C311FE48D
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:19:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730545AbgFRCTU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730380AbgFRCTU (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 17 Jun 2020 22:19:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51048 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:51056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730111AbgFRBTU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:19:20 -0400
+        id S1730114AbgFRBTV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:19:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 296D421D79;
-        Thu, 18 Jun 2020 01:19:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6891221D7E;
+        Thu, 18 Jun 2020 01:19:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443159;
-        bh=BEAiEKNgDYTlkHaTwqBnJDc9b8IAIxrsgMBGN1yiXQw=;
+        s=default; t=1592443161;
+        bh=kUGcVXRVxnsE4PRZ85J75kYg4bxTrLdCNBvOPXpXS+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g90evAye2GQqACDG/DoZGeunZW6Gm9N4AtTc3eoddJHy+M3An7lbZeuEx1bZmgoWZ
-         j0fC8/m0tZxMUtW/KoO6IABiYOw3Y/E9R6QHZ/wrQclH4wugVfs7ETiWqohZzyHGDu
-         TvirXp/ZGcItrSS6MZ1Popagb7qtVEigMLf7H2rw=
+        b=ve3ILFa37zhWTHeOkMPAyznMcleaCjbSI+Uuzl3g2+c6lZmLLD+lcpKS3WqWgPSUs
+         +CkX87ik4cDlr9MvDvOuBXtiFSbXwV2eAD2+VVfzqgxSChkS9IW3ZyMzEk7dklptKR
+         3ZDGxHhQYzSa+2DQHiInCdTdAzEKmeLQDexviUy0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Viacheslav Dubeyko <v.dubeiko@yadro.com>,
-        Roman Bolshakov <r.bolshakov@yadro.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 126/266] scsi: qla2xxx: Fix warning after FC target reset
-Date:   Wed, 17 Jun 2020 21:14:11 -0400
-Message-Id: <20200618011631.604574-126-sashal@kernel.org>
+Cc:     Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 127/266] ALSA: firewire-lib: fix invalid assignment to union data for directional parameter
+Date:   Wed, 17 Jun 2020 21:14:12 -0400
+Message-Id: <20200618011631.604574-127-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
@@ -44,106 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Viacheslav Dubeyko <v.dubeiko@yadro.com>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-[ Upstream commit f839544ccff60cbe534282aac68858fc3fb278ca ]
+[ Upstream commit 8304cf77c92038cd1c50c27b69d30be695cc8003 ]
 
-Currently, FC target reset finishes with the warning message:
+Although the value of FDF is used just for outgoing stream, the assignment
+to union member is done for both directions of stream. At present this
+causes no issue because the value of same position is reassigned later for
+opposite stream. However, it's better to add if statement.
 
-[84010.596893] ------------[ cut here ]------------
-[84010.596917] WARNING: CPU: 238 PID: 279973 at ../drivers/scsi/qla2xxx/qla_target.c:6644 qlt_enable_vha+0x1d0/0x260 [qla2xxx]
-[84010.596918] Modules linked in: vrf af_packet 8021q garp mrp stp llc netlink_diag target_tatlin_tblock(OEX) dm_ec(OEX) ttln_rdma(OEX) dm_frontend(OEX) nvme_rdma nvmet tcm_qla2xxx iscsi_target_mod target_core_mod at24 nvmem_core pnv_php ipmi_watchdog ipmi_ssif vmx_crypto gf128mul crct10dif_vpmsum qla2xxx rpcrdma nvme_fc powernv_flash(X) nvme_fabrics uio_pdrv_genirq mtd rtc_opal(X) ibmpowernv(X) opal_prd(X) uio scsi_transport_fc i2c_opal(X) ses enclosure ipmi_poweroff ast i2c_algo_bit ttm bmc_mcu(OEX) drm_kms_helper syscopyarea sysfillrect sysimgblt fb_sys_fops drm drm_panel_orientation_quirks agpgart nfsd auth_rpcgss nfs_acl ipmi_powernv(X) lockd ipmi_devintf ipmi_msghandler grace dummy ext4 crc16 jbd2 mbcache sd_mod rdma_ucm ib_iser rdma_cm ib_umad iw_cm ib_ipoib libiscsi scsi_transport_iscsi ib_cm
-[84010.596975]  configfs mlx5_ib ib_uverbs ib_core mlx5_core crc32c_vpmsum xhci_pci xhci_hcd mpt3sas(OEX) tg3 usbcore mlxfw tls raid_class libphy scsi_transport_sas devlink ptp pps_core nvme nvme_core sunrpc dm_mirror dm_region_hash dm_log sg dm_multipath dm_mod scsi_dh_rdac scsi_dh_emc scsi_dh_alua scsi_mod autofs4
-[84010.597001] Supported: Yes, External
-[84010.597004] CPU: 238 PID: 279973 Comm: bash Tainted: G           OE      4.12.14-197.29-default #1 SLE15-SP1
-[84010.597006] task: c000000a104c0000 task.stack: c000000b52188000
-[84010.597007] NIP: d00000001ffd7f78 LR: d00000001ffd7f6c CTR: c0000000001676c0
-[84010.597008] REGS: c000000b5218b910 TRAP: 0700   Tainted: G           OE       (4.12.14-197.29-default)
-[84010.597008] MSR: 900000010282b033 <SF,HV,VEC,VSX,EE,FP,ME,IR,DR,RI,LE,TM[E]>
-[84010.597015]   CR: 48242424  XER: 00000000
-[84010.597016] CFAR: d00000001ff45d08 SOFTE: 1
-               GPR00: d00000001ffd7f6c c000000b5218bb90 d00000002001b228 0000000000000102
-               GPR04: 0000000000000001 0000000000000001 00013d91ed0a5e2d 0000000000000000
-               GPR08: c000000007793300 0000000000000000 0000000000000000 c000000a086e7818
-               GPR12: 0000000000002200 c000000007793300 0000000000000000 000000012bc937c0
-               GPR16: 000000012bbf7ed0 0000000000000000 000000012bc3dd10 0000000000000000
-               GPR20: 000000012bc4db28 0000010036442810 000000012bc97828 000000012bc96c70
-               GPR24: 00000100365b1550 0000000000000000 00000100363f3d80 c000000be20d3080
-               GPR28: c000000bda7eae00 c000000be20db7e8 c000000be20d3778 c000000be20db7e8
-[84010.597042] NIP [d00000001ffd7f78] qlt_enable_vha+0x1d0/0x260 [qla2xxx]
-[84010.597051] LR [d00000001ffd7f6c] qlt_enable_vha+0x1c4/0x260 [qla2xxx]
-[84010.597051] Call Trace:
-[84010.597061] [c000000b5218bb90] [d00000001ffd7f6c] qlt_enable_vha+0x1c4/0x260 [qla2xxx] (unreliable)
-[84010.597064] [c000000b5218bc20] [d000000009820b6c] tcm_qla2xxx_tpg_enable_store+0xc4/0x130 [tcm_qla2xxx]
-[84010.597067] [c000000b5218bcb0] [d0000000185d0e68] configfs_write_file+0xd0/0x190 [configfs]
-[84010.597072] [c000000b5218bd00] [c0000000003d0edc] __vfs_write+0x3c/0x1e0
-[84010.597074] [c000000b5218bd90] [c0000000003d2ea8] vfs_write+0xd8/0x220
-[84010.597076] [c000000b5218bde0] [c0000000003d4ddc] SyS_write+0x6c/0x110
-[84010.597079] [c000000b5218be30] [c00000000000b188] system_call+0x3c/0x130
-[84010.597080] Instruction dump:
-[84010.597082] 7d0050a8 7d084b78 7d0051ad 40c2fff4 7fa3eb78 4bf73965 60000000 7fa3eb78
-[84010.597086] 4bf6dcd9 60000000 2fa30000 419eff40 <0fe00000> 4bffff38 e95f0058 a12a0180
-[84010.597090] ---[ end trace e32abaf6e6fee826 ]---
-
-To reproduce:
-
-echo 0x7fffffff > /sys/module/qla2xxx/parameters/logging
-modprobe target_core_mod
-modprobe tcm_qla2xxx
-mkdir /sys/kernel/config/target/qla2xxx
-mkdir /sys/kernel/config/target/qla2xxx/<port-name>
-mkdir /sys/kernel/config/target/qla2xxx/<port-name>/tpgt_1
-echo 1 > /sys/kernel/config/target/qla2xxx/<port-name>/tpgt_1/enable
-echo 0 > /sys/kernel/config/target/qla2xxx/<port-name>/tpgt_1/enable
-echo 1 > /sys/kernel/config/target/qla2xxx/<port-name>/tpgt_1/enable
-
-SYSTEM START
-kernel: pid 327:drivers/scsi/qla2xxx/qla_init.c:2174 qla2x00_initialize_adapter(): vha->flags.online 0x0
-<...>
-kernel: pid 327:drivers/scsi/qla2xxx/qla_os.c:3444 qla2x00_probe_one(): vha->flags.online 0x1
-
-echo 1 > /sys/kernel/config/target/qla2xxx/21:00:00:24:ff:86:a6:2a/tpgt_1/enable
-kernel: pid 348:drivers/scsi/qla2xxx/qla_init.c:6641 qla2x00_abort_isp_cleanup(): vha->flags.online 0x0, ISP_ABORT_NEEDED 0x0
-<...>
-kernel: pid 348:drivers/scsi/qla2xxx/qla_init.c:6998 qla2x00_restart_isp(): vha->flags.online 0x0
-
-echo 0 > /sys/kernel/config/target/qla2xxx/21:00:00:24:ff:86:a6:2a/tpgt_1/enable
-kernel: pid 348:drivers/scsi/qla2xxx/qla_init.c:6641 qla2x00_abort_isp_cleanup(): vha->flags.online 0x0, ISP_ABORT_NEEDED 0x0
-<...>
-kernel: pid 1404:drivers/scsi/qla2xxx/qla_os.c:1107 qla2x00_wait_for_hba_online(): base_vha->flags.online 0x0
-
-echo 1 > /sys/kernel/config/target/qla2xxx/21:00:00:24:ff:86:a6:2a/tpgt_1/enable
-kernel: pid 1404:drivers/scsi/qla2xxx/qla_os.c:1107 qla2x00_wait_for_hba_online(): base_vha->flags.online 0x0
-kernel: -----------[ cut here ]-----------
-kernel: WARNING: CPU: 1 PID: 1404 at drivers/scsi/qla2xxx/qla_target.c:6654 qlt_enable_vha+0x1e0/0x280 [qla2xxx]
-
-The issue happens because no real ISP reset is executed.  The
-qla2x00_abort_isp(scsi_qla_host_t *vha) function expects that
-vha->flags.online will be not zero for ISP reset procedure.  This patch
-sets vha->flags.online to 1 before calling ->abort_isp() for starting the
-ISP reset.
-
-Link: https://lore.kernel.org/r/1d7b21bf9f7676643239eb3d60eaca7cfa505cf0.camel@yadro.com
-Reviewed-by: Roman Bolshakov <r.bolshakov@yadro.com>
-Signed-off-by: Viacheslav Dubeyko <v.dubeiko@yadro.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: d3d10a4a1b19 ("ALSA: firewire-lib: use union for directional parameters")
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20200508043635.349339-2-o-takashi@sakamocchi.jp
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_os.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/firewire/amdtp-am824.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
-index 03d272a09e26..d7ec4083a091 100644
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -6295,6 +6295,7 @@ qla2x00_do_dpc(void *data)
+diff --git a/sound/firewire/amdtp-am824.c b/sound/firewire/amdtp-am824.c
+index 67d735e9a6a4..fea92e148790 100644
+--- a/sound/firewire/amdtp-am824.c
++++ b/sound/firewire/amdtp-am824.c
+@@ -82,7 +82,8 @@ int amdtp_am824_set_parameters(struct amdtp_stream *s, unsigned int rate,
+ 	if (err < 0)
+ 		return err;
  
- 			if (do_reset && !(test_and_set_bit(ABORT_ISP_ACTIVE,
- 			    &base_vha->dpc_flags))) {
-+				base_vha->flags.online = 1;
- 				ql_dbg(ql_dbg_dpc, base_vha, 0x4007,
- 				    "ISP abort scheduled.\n");
- 				if (ha->isp_ops->abort_isp(base_vha)) {
+-	s->ctx_data.rx.fdf = AMDTP_FDF_AM824 | s->sfc;
++	if (s->direction == AMDTP_OUT_STREAM)
++		s->ctx_data.rx.fdf = AMDTP_FDF_AM824 | s->sfc;
+ 
+ 	p->pcm_channels = pcm_channels;
+ 	p->midi_ports = midi_ports;
 -- 
 2.25.1
 
