@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7927D1FDABF
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:08:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C2A81FDAC4
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:08:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726913AbgFRBII (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:08:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33610 "EHLO mail.kernel.org"
+        id S1726879AbgFRBIN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:08:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726879AbgFRBII (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:08:08 -0400
+        id S1726986AbgFRBIM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:08:12 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 05FCD2193E;
-        Thu, 18 Jun 2020 01:08:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DD35621D7B;
+        Thu, 18 Jun 2020 01:08:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442487;
-        bh=3ixtTqSgLT06EGmTqWLRPWX9EpoK3ocTPIYY48k+Euc=;
-        h=From:To:Cc:Subject:Date:From;
-        b=QqIdWrNZKNKV+wqOJWLxGXAwpcmLF8Jz38jxeuIK1Th716Dys5IrnKlQV/E03VLhc
-         nrXMVjaUGg0sPXXx/KZQaw1Nl3xzy2yVNAEmhDwtoe0BBt6sHYCl9WKNl0TaDjSNTF
-         dUS6hLQJpm1/qmGueM7KQBgux1IygnMgrkM0Tj/k=
+        s=default; t=1592442492;
+        bh=pvXFFlikRX1sr0H7u04Pi2QjezLjA5EYEWdtSY9EDks=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=MnJTmIZWeMZk1tYbtjRiCc4iC1FDfRsOyhoZn4OJXKgcI7D8fZ91lC901QYWE/My+
+         saGoRCFV3hcNy53YpPjC4IALdZUnMypHmqgby+Le/waop6xm4KZV0Nzm+XohFL8Ehu
+         ToX5dZcFOrQu6taC2zAg1vGtKR7XXEKEKputDraY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?J=C3=A9r=C3=B4me=20Pouiller?= 
-        <jerome.pouiller@silabs.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org
-Subject: [PATCH AUTOSEL 5.7 001/388] staging: wfx: fix potential deadlock in wfx_tx_flush()
-Date:   Wed, 17 Jun 2020 21:01:38 -0400
-Message-Id: <20200618010805.600873-1-sashal@kernel.org>
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 005/388] rtc: rc5t619: Fix an ERR_PTR vs NULL check
+Date:   Wed, 17 Jun 2020 21:01:42 -0400
+Message-Id: <20200618010805.600873-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
+References: <20200618010805.600873-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,50 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jérôme Pouiller <jerome.pouiller@silabs.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit a39e761aa4fefa2a8aaf549217329933b91da7c9 ]
+[ Upstream commit 11ddbdfb68e4f9791e4bd4f8d7c87d3f19670967 ]
 
-wfx_tx_flush() wait there are no more frame in device buffer. However,
-this event may never happens since wfx_tx_flush() don't forbid to
-enqueue new frames.
+The devm_kzalloc() function returns NULL on error, it doesn't return
+error pointers so this check doesn't work.
 
-Note that wfx_tx_flush() should only ensure that all frames currently in
-hardware queues are sent. So the current code is more restrictive that
-it should.
-
-Note that wfx_tx_flush() release the lock before to return while
-wfx_tx_lock_flush() keep the lock.
-
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Jérôme Pouiller <jerome.pouiller@silabs.com>
-Link: https://lore.kernel.org/r/20200401110405.80282-31-Jerome.Pouiller@silabs.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 540d1e15393d ("rtc: rc5t619: Add Ricoh RC5T619 RTC driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20200407092852.GI68494@mwanda
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/wfx/queue.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/rtc/rtc-rc5t619.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/staging/wfx/queue.c b/drivers/staging/wfx/queue.c
-index 39d9127ce4b9..8ae23681e29b 100644
---- a/drivers/staging/wfx/queue.c
-+++ b/drivers/staging/wfx/queue.c
-@@ -35,6 +35,7 @@ void wfx_tx_flush(struct wfx_dev *wdev)
- 	if (wdev->chip_frozen)
- 		return;
+diff --git a/drivers/rtc/rtc-rc5t619.c b/drivers/rtc/rtc-rc5t619.c
+index 24e386ecbc7e..dd1a20977478 100644
+--- a/drivers/rtc/rtc-rc5t619.c
++++ b/drivers/rtc/rtc-rc5t619.c
+@@ -356,10 +356,8 @@ static int rc5t619_rtc_probe(struct platform_device *pdev)
+ 	int err;
  
-+	wfx_tx_lock(wdev);
- 	mutex_lock(&wdev->hif_cmd.lock);
- 	ret = wait_event_timeout(wdev->hif.tx_buffers_empty,
- 				 !wdev->hif.tx_buffers_used,
-@@ -47,6 +48,7 @@ void wfx_tx_flush(struct wfx_dev *wdev)
- 		wdev->chip_frozen = 1;
- 	}
- 	mutex_unlock(&wdev->hif_cmd.lock);
-+	wfx_tx_unlock(wdev);
- }
+ 	rtc = devm_kzalloc(dev, sizeof(*rtc), GFP_KERNEL);
+-	if (IS_ERR(rtc)) {
+-		err = PTR_ERR(rtc);
++	if (!rtc)
+ 		return -ENOMEM;
+-	}
  
- void wfx_tx_lock_flush(struct wfx_dev *wdev)
+ 	rtc->rn5t618 = rn5t618;
+ 
 -- 
 2.25.1
 
