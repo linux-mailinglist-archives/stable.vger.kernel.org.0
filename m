@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 344901FE58A
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:26:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CD6A1FE588
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:26:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730323AbgFRC0b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1733254AbgFRC0b (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 17 Jun 2020 22:26:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48130 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:48150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729718AbgFRBRC (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729721AbgFRBRC (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 17 Jun 2020 21:17:02 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 95EFF21D80;
-        Thu, 18 Jun 2020 01:17:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 073FC221F1;
+        Thu, 18 Jun 2020 01:17:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443021;
-        bh=RfpH5jAqHoO6gcETFHPV4M6Wpv7wVgxjqm0XsSzlCOo=;
+        s=default; t=1592443022;
+        bh=1r1fw6u+sogIcOlFix7QL3YOSTMRICnyNQPQivxLnH4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qnTlkNPJ2mRXjYCzgA4ZTOrbU6SFqA9KdFgTetF7YBzorop314WNKSnQixzmT7iH/
-         EMObDOYgPJUV5r9cvZIYeBuTwHHwvKilKQvZFGKPqCY3iTR0HKTXDVROyPep+cQCSo
-         DfdpfhKV+thLG03IjwiHQdqSrH9AS2/frn1iwwRo=
+        b=iIEuIjG/RtAZUz5rLibp/jIjstSCSouFW8pkYYekm9tkxsliyuPOIYzkJ7I7r+AFa
+         boKd33dioAK95ZNXzZWKfDcGedjU2eQhn/z1Aa418w5KoAofl5sDMLkmz9DQKAcZd3
+         HW10esePDSvlMPHR4DgM49pO1lRYRp1IAeJf4znM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Viacheslav Dubeyko <v.dubeiko@yadro.com>,
-        Roman Bolshakov <r.bolshakov@yadro.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 022/266] scsi: qla2xxx: Fix issue with adapter's stopping state
-Date:   Wed, 17 Jun 2020 21:12:27 -0400
-Message-Id: <20200618011631.604574-22-sashal@kernel.org>
+Cc:     Marco Felsch <m.felsch@pengutronix.de>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 023/266] Input: edt-ft5x06 - fix get_default register write access
+Date:   Wed, 17 Jun 2020 21:12:28 -0400
+Message-Id: <20200618011631.604574-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
@@ -45,89 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Viacheslav Dubeyko <v.dubeiko@yadro.com>
+From: Marco Felsch <m.felsch@pengutronix.de>
 
-[ Upstream commit 803e45550b11c8e43d89812356fe6f105adebdf9 ]
+[ Upstream commit 255cdaf73412de13608fb776101402dca68bed2b ]
 
-The goal of the following command sequence is to restart the adapter.
-However, the tgt_stop flag remains set, indicating that the adapter is
-still in stopping state even after re-enabling it.
+Since commit b6eba86030bf ("Input: edt-ft5x06 - add offset support for
+ev-ft5726") offset-x and offset-y is supported. Devices using those
+offset parameters don't support the offset parameter so we need to add
+the NO_REGISTER check for edt_ft5x06_ts_get_defaults().
 
-echo 0x7fffffff > /sys/module/qla2xxx/parameters/logging
-modprobe target_core_mod
-modprobe tcm_qla2xxx
-mkdir /sys/kernel/config/target/qla2xxx
-mkdir /sys/kernel/config/target/qla2xxx/<port-name>
-mkdir /sys/kernel/config/target/qla2xxx/<port-name>/tpgt_1
-echo 1 > /sys/kernel/config/target/qla2xxx/<port-name>/tpgt_1/enable
-echo 0 > /sys/kernel/config/target/qla2xxx/<port-name>/tpgt_1/enable
-echo 1 > /sys/kernel/config/target/qla2xxx/<port-name>/tpgt_1/enable
-
-kernel: PID 1396:qla_target.c:1555 qlt_stop_phase1(): tgt_stop 0x0, tgt_stopped 0x0
-kernel: qla2xxx [0001:00:02.0]-e803:1: PID 1396:qla_target.c:1567: Stopping target for host 1(c0000000033557e8)
-kernel: PID 1396:qla_target.c:1579 qlt_stop_phase1(): tgt_stop 0x1, tgt_stopped 0x0
-kernel: PID 1396:qla_target.c:1266 qlt_schedule_sess_for_deletion(): tgt_stop 0x1, tgt_stopped 0x0
-kernel: qla2xxx [0001:00:02.0]-e801:1: PID 1396:qla_target.c:1316: Scheduling sess c00000002d5cd800 for deletion 21:00:00:24:ff:7f:35:c7
-<skipped>
-kernel: qla2xxx [0001:00:02.0]-290a:1: PID 340:qla_target.c:1187: qlt_unreg_sess sess c00000002d5cd800 for deletion 21:00:00:24:ff:7f:35:c7
-<skipped>
-kernel: qla2xxx [0001:00:02.0]-f801:1: PID 340:qla_target.c:1145: Unregistration of sess c00000002d5cd800 21:00:00:24:ff:7f:35:c7 finished fcp_cnt 0
-kernel: PID 340:qla_target.c:1155 qlt_free_session_done(): tgt_stop 0x1, tgt_stopped 0x0
-kernel: qla2xxx [0001:00:02.0]-4807:1: PID 346:qla_os.c:6329: ISP abort scheduled.
-<skipped>
-kernel: qla2xxx [0001:00:02.0]-28f1:1: PID 346:qla_os.c:3956: Mark all dev lost
-kernel: PID 346:qla_target.c:1266 qlt_schedule_sess_for_deletion(): tgt_stop 0x1, tgt_stopped 0x0
-kernel: qla2xxx [0001:00:02.0]-4808:1: PID 346:qla_os.c:6338: ISP abort end.
-<skipped>
-kernel: PID 1396:qla_target.c:6812 qlt_enable_vha(): tgt_stop 0x1, tgt_stopped 0x0
-<skipped>
-kernel: qla2xxx [0001:00:02.0]-4807:1: PID 346:qla_os.c:6329: ISP abort scheduled.
-<skipped>
-kernel: qla2xxx [0001:00:02.0]-4808:1: PID 346:qla_os.c:6338: ISP abort end.
-
-qlt_handle_cmd_for_atio() rejects the request to send commands because the
-adapter is in the stopping state:
-
-kernel: PID 0:qla_target.c:4442 qlt_handle_cmd_for_atio(): tgt_stop 0x1, tgt_stopped 0x0
-kernel: qla2xxx [0001:00:02.0]-3861:1: PID 0:qla_target.c:4447: New command while device c000000005314600 is shutting down
-kernel: qla2xxx [0001:00:02.0]-e85f:1: PID 0:qla_target.c:5728: qla_target: Unable to send command to target
-
-This patch calls qla_stop_phase2() in addition to qlt_stop_phase1() in
-tcm_qla2xxx_tpg_enable_store() and tcm_qla2xxx_npiv_tpg_enable_store(). The
-qlt_stop_phase1() marks adapter as stopping (tgt_stop == 0x1, tgt_stopped
-== 0x0) but qlt_stop_phase2() marks adapter as stopped (tgt_stop == 0x0,
-tgt_stopped == 0x1).
-
-Link: https://lore.kernel.org/r/52be1e8a3537f6c5407eae3edd4c8e08a9545ea5.camel@yadro.com
-Reviewed-by: Roman Bolshakov <r.bolshakov@yadro.com>
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Viacheslav Dubeyko <v.dubeiko@yadro.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: b6eba86030bf ("Input: edt-ft5x06 - add offset support for ev-ft5726")
+Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+Link: https://lore.kernel.org/r/20200227112819.16754-2-m.felsch@pengutronix.de
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/tcm_qla2xxx.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/input/touchscreen/edt-ft5x06.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/tcm_qla2xxx.c b/drivers/scsi/qla2xxx/tcm_qla2xxx.c
-index abe7f79bb789..744cd93189da 100644
---- a/drivers/scsi/qla2xxx/tcm_qla2xxx.c
-+++ b/drivers/scsi/qla2xxx/tcm_qla2xxx.c
-@@ -926,6 +926,7 @@ static ssize_t tcm_qla2xxx_tpg_enable_store(struct config_item *item,
+diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+index 240e8de24cd2..b41b97c962ed 100644
+--- a/drivers/input/touchscreen/edt-ft5x06.c
++++ b/drivers/input/touchscreen/edt-ft5x06.c
+@@ -935,19 +935,25 @@ static void edt_ft5x06_ts_get_defaults(struct device *dev,
  
- 		atomic_set(&tpg->lport_tpg_enabled, 0);
- 		qlt_stop_phase1(vha->vha_tgt.qla_tgt);
-+		qlt_stop_phase2(vha->vha_tgt.qla_tgt);
+ 	error = device_property_read_u32(dev, "offset", &val);
+ 	if (!error) {
+-		edt_ft5x06_register_write(tsdata, reg_addr->reg_offset, val);
++		if (reg_addr->reg_offset != NO_REGISTER)
++			edt_ft5x06_register_write(tsdata,
++						  reg_addr->reg_offset, val);
+ 		tsdata->offset = val;
  	}
  
- 	return count;
-@@ -1088,6 +1089,7 @@ static ssize_t tcm_qla2xxx_npiv_tpg_enable_store(struct config_item *item,
- 
- 		atomic_set(&tpg->lport_tpg_enabled, 0);
- 		qlt_stop_phase1(vha->vha_tgt.qla_tgt);
-+		qlt_stop_phase2(vha->vha_tgt.qla_tgt);
+ 	error = device_property_read_u32(dev, "offset-x", &val);
+ 	if (!error) {
+-		edt_ft5x06_register_write(tsdata, reg_addr->reg_offset_x, val);
++		if (reg_addr->reg_offset_x != NO_REGISTER)
++			edt_ft5x06_register_write(tsdata,
++						  reg_addr->reg_offset_x, val);
+ 		tsdata->offset_x = val;
  	}
  
- 	return count;
+ 	error = device_property_read_u32(dev, "offset-y", &val);
+ 	if (!error) {
+-		edt_ft5x06_register_write(tsdata, reg_addr->reg_offset_y, val);
++		if (reg_addr->reg_offset_y != NO_REGISTER)
++			edt_ft5x06_register_write(tsdata,
++						  reg_addr->reg_offset_y, val);
+ 		tsdata->offset_y = val;
+ 	}
+ }
 -- 
 2.25.1
 
