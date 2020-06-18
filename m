@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E88AE1FDBDA
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:15:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EB3F1FDBE1
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:15:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728530AbgFRBPL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:15:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45074 "EHLO mail.kernel.org"
+        id S1729477AbgFRBP3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:15:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729436AbgFRBPG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:15:06 -0400
+        id S1729474AbgFRBP2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:15:28 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C4637221EA;
-        Thu, 18 Jun 2020 01:15:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 79B192193E;
+        Thu, 18 Jun 2020 01:15:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442905;
-        bh=FgPG6cCgUeE3avIJ+Y2VCR4P+1TbrZ2c2zsyKos1QuI=;
+        s=default; t=1592442928;
+        bh=Z0RcWYenrpj8+WEO56fwKNjTcwN2Tnh89HFmd30u+7s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u93fT35/LXUAGvqxB03JFmkW/0XADitz3UwkPKN5EAmxYCwiobhvlyPjOwunxI20x
-         8VIRvH5E5BbWbt+DZDudBuumg62B2O0tAA9bKBVE45EsEJz0ctpNiem3PyyYVyNQ91
-         zo6zj2IHzD353gc7XXGKOMEXe+jHqCWwCG7SdrH4=
+        b=ehoTLYQtnp4AKHJwIefrdbJzkk2JiZ5I4Ck2iL0SPCJkSMC9Gl40+AWCZKkKjyNjq
+         FqoukQB20oB+dDCnHtXDGKJ8aNjIjs4xcxmYBnJUirol6uGSQaXJjREA4r3h2O7Kd/
+         RzJ/8TqDfrIvr8GunPBi/2LeZUXfqjUNb8v15b6E=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Dong Aisheng <aisheng.dong@nxp.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.7 325/388] pinctrl: freescale: imx: Fix an error handling path in 'imx_pinctrl_probe()'
-Date:   Wed, 17 Jun 2020 21:07:02 -0400
-Message-Id: <20200618010805.600873-325-sashal@kernel.org>
+Cc:     Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Marcelo Bandeira Condotta <mcondotta@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 342/388] KVM: selftests: Fix build with "make ARCH=x86_64"
+Date:   Wed, 17 Jun 2020 21:07:19 -0400
+Message-Id: <20200618010805.600873-342-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
@@ -45,73 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-[ Upstream commit 11d8da5cabf7c6c3263ba2cd9c00260395867048 ]
+[ Upstream commit b80db73dc8be7022adae1b4414a1bebce50fe915 ]
 
-'pinctrl_unregister()' should not be called to undo
-'devm_pinctrl_register_and_init()', it is already handled by the framework.
+Marcelo reports that kvm selftests fail to build with
+"make ARCH=x86_64":
 
-This simplifies the error handling paths of the probe function.
-The 'imx_free_resources()' can be removed as well.
+gcc -Wall -Wstrict-prototypes -Wuninitialized -O2 -g -std=gnu99
+ -fno-stack-protector -fno-PIE -I../../../../tools/include
+ -I../../../../tools/arch/x86_64/include  -I../../../../usr/include/
+ -Iinclude -Ilib -Iinclude/x86_64 -I.. -c lib/kvm_util.c
+ -o /var/tmp/20200604202744-bin/lib/kvm_util.o
 
-Fixes: a51c158bf0f7 ("pinctrl: imx: use radix trees for groups and functions")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
-Link: https://lore.kernel.org/r/20200530204955.588962-1-christophe.jaillet@wanadoo.fr
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+In file included from lib/kvm_util.c:11:
+include/x86_64/processor.h:14:10: fatal error: asm/msr-index.h: No such
+ file or directory
+
+ #include <asm/msr-index.h>
+          ^~~~~~~~~~~~~~~~~
+compilation terminated.
+
+"make ARCH=x86", however, works. The problem is that arch specific headers
+for x86_64 live in 'tools/arch/x86/include', not in
+'tools/arch/x86_64/include'.
+
+Fixes: 66d69e081b52 ("selftests: fix kvm relocatable native/cross builds and installs")
+Reported-by: Marcelo Bandeira Condotta <mcondotta@redhat.com>
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Message-Id: <20200605142028.550068-1-vkuznets@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/freescale/pinctrl-imx.c | 19 ++-----------------
- 1 file changed, 2 insertions(+), 17 deletions(-)
+ tools/testing/selftests/kvm/Makefile | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/pinctrl/freescale/pinctrl-imx.c b/drivers/pinctrl/freescale/pinctrl-imx.c
-index 9f42036c5fbb..1f81569c7ae3 100644
---- a/drivers/pinctrl/freescale/pinctrl-imx.c
-+++ b/drivers/pinctrl/freescale/pinctrl-imx.c
-@@ -774,16 +774,6 @@ static int imx_pinctrl_probe_dt(struct platform_device *pdev,
- 	return 0;
- }
- 
--/*
-- * imx_free_resources() - free memory used by this driver
-- * @info: info driver instance
-- */
--static void imx_free_resources(struct imx_pinctrl *ipctl)
--{
--	if (ipctl->pctl)
--		pinctrl_unregister(ipctl->pctl);
--}
--
- int imx_pinctrl_probe(struct platform_device *pdev,
- 		      const struct imx_pinctrl_soc_info *info)
- {
-@@ -874,23 +864,18 @@ int imx_pinctrl_probe(struct platform_device *pdev,
- 					     &ipctl->pctl);
- 	if (ret) {
- 		dev_err(&pdev->dev, "could not register IMX pinctrl driver\n");
--		goto free;
-+		return ret;
- 	}
- 
- 	ret = imx_pinctrl_probe_dt(pdev, ipctl);
- 	if (ret) {
- 		dev_err(&pdev->dev, "fail to probe dt properties\n");
--		goto free;
-+		return ret;
- 	}
- 
- 	dev_info(&pdev->dev, "initialized IMX pinctrl driver\n");
- 
- 	return pinctrl_enable(ipctl->pctl);
--
--free:
--	imx_free_resources(ipctl);
--
--	return ret;
- }
- 
- static int __maybe_unused imx_pinctrl_suspend(struct device *dev)
+diff --git a/tools/testing/selftests/kvm/Makefile b/tools/testing/selftests/kvm/Makefile
+index 42f4f49f2a48..2c85b9dd86f5 100644
+--- a/tools/testing/selftests/kvm/Makefile
++++ b/tools/testing/selftests/kvm/Makefile
+@@ -80,7 +80,11 @@ LIBKVM += $(LIBKVM_$(UNAME_M))
+ INSTALL_HDR_PATH = $(top_srcdir)/usr
+ LINUX_HDR_PATH = $(INSTALL_HDR_PATH)/include/
+ LINUX_TOOL_INCLUDE = $(top_srcdir)/tools/include
++ifeq ($(ARCH),x86_64)
++LINUX_TOOL_ARCH_INCLUDE = $(top_srcdir)/tools/arch/x86/include
++else
+ LINUX_TOOL_ARCH_INCLUDE = $(top_srcdir)/tools/arch/$(ARCH)/include
++endif
+ CFLAGS += -Wall -Wstrict-prototypes -Wuninitialized -O2 -g -std=gnu99 \
+ 	-fno-stack-protector -fno-PIE -I$(LINUX_TOOL_INCLUDE) \
+ 	-I$(LINUX_TOOL_ARCH_INCLUDE) -I$(LINUX_HDR_PATH) -Iinclude \
 -- 
 2.25.1
 
