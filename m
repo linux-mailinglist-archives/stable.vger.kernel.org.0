@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EEF131FE0E2
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:51:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67EFA1FE0E3
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:51:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731806AbgFRB1L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:27:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35108 "EHLO mail.kernel.org"
+        id S1730172AbgFRB1M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:27:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728735AbgFRB1K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:27:10 -0400
+        id S1731811AbgFRB1L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:27:11 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1BCBE20B1F;
-        Thu, 18 Jun 2020 01:27:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7E1E920776;
+        Thu, 18 Jun 2020 01:27:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443630;
-        bh=Yln1hZ20AEHUtQDAe4xs6Il5U4uOR8pYvQTXwN+ITaw=;
+        s=default; t=1592443631;
+        bh=SKGdyvdYEo5KOQKMYtFl1cGwRKjegXn7ZE3svyTwsRE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fq3MtzlXTwB7oOHbN2tJXOHlZUSKl0kwPP5DCasIMfGNLae3DEXmcgnDps4BGyCg9
-         45qHsW7W1vFvqcDNmOPPZTCrQGHacBiqdvCiDPe2yiNA9NVr/LDxc/cJlZ1EeSuwDJ
-         7pviaH+Vl69iSq/uejjcplxwcs1efrc1ZdD2v+hY=
+        b=daTcDu4hIS0nZLW1nECBS21d95UaY4xgd7Ureg5qsAvhbWHEco710DOwrpPuRBoZl
+         suoUWbJLLrH8kbg494aNeJrNDvg8efl70NOYZMptvBAwfd7GNCK9gBnSGrqaceqOlb
+         TYLJr90C7jjjONERgWHj0e4bdLHtFqCD9g+kznJU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Suganath Prabu S <suganath-prabu.subramani@broadcom.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>,
-        MPT-FusionLinux.pdl@broadcom.com, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 054/108] scsi: mpt3sas: Fix double free warnings
-Date:   Wed, 17 Jun 2020 21:25:06 -0400
-Message-Id: <20200618012600.608744-54-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        clang-built-linux@googlegroups.com,
+        David Teigland <teigland@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
+Subject: [PATCH AUTOSEL 4.14 055/108] dlm: remove BUG() before panic()
+Date:   Wed, 17 Jun 2020 21:25:07 -0400
+Message-Id: <20200618012600.608744-55-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012600.608744-1-sashal@kernel.org>
 References: <20200618012600.608744-1-sashal@kernel.org>
@@ -45,41 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suganath Prabu S <suganath-prabu.subramani@broadcom.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit cbbfdb2a2416c9f0cde913cf09670097ac281282 ]
+[ Upstream commit fe204591cc9480347af7d2d6029b24a62e449486 ]
 
-Fix following warning from Smatch static analyser:
+Building a kernel with clang sometimes fails with an objtool error in dlm:
 
-drivers/scsi/mpt3sas/mpt3sas_base.c:5256 _base_allocate_memory_pools()
-warn: 'ioc->hpr_lookup' double freed
+fs/dlm/lock.o: warning: objtool: revert_lock_pc()+0xbd: can't find jump dest instruction at .text+0xd7fc
 
-drivers/scsi/mpt3sas/mpt3sas_base.c:5256 _base_allocate_memory_pools()
-warn: 'ioc->internal_lookup' double freed
+The problem is that BUG() never returns and the compiler knows
+that anything after it is unreachable, however the panic still
+emits some code that does not get fully eliminated.
 
-Link: https://lore.kernel.org/r/20200508110738.30732-1-suganath-prabu.subramani@broadcom.com
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Suganath Prabu S <suganath-prabu.subramani@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Having both BUG() and panic() is really pointless as the BUG()
+kills the current process and the subsequent panic() never hits.
+In most cases, we probably don't really want either and should
+replace the DLM_ASSERT() statements with WARN_ON(), as has
+been done for some of them.
+
+Remove the BUG() here so the user at least sees the panic message
+and we can reliably build randconfig kernels.
+
+Fixes: e7fd41792fc0 ("[DLM] The core of the DLM for GFS2/CLVM")
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: clang-built-linux@googlegroups.com
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/mpt3sas/mpt3sas_base.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/dlm/dlm_internal.h | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/scsi/mpt3sas/mpt3sas_base.c b/drivers/scsi/mpt3sas/mpt3sas_base.c
-index 817a7963a038..556971c5f0b0 100644
---- a/drivers/scsi/mpt3sas/mpt3sas_base.c
-+++ b/drivers/scsi/mpt3sas/mpt3sas_base.c
-@@ -3263,7 +3263,9 @@ _base_release_memory_pools(struct MPT3SAS_ADAPTER *ioc)
- 		ioc->scsi_lookup = NULL;
- 	}
- 	kfree(ioc->hpr_lookup);
-+	ioc->hpr_lookup = NULL;
- 	kfree(ioc->internal_lookup);
-+	ioc->internal_lookup = NULL;
- 	if (ioc->chain_lookup) {
- 		for (i = 0; i < ioc->chain_depth; i++) {
- 			if (ioc->chain_lookup[i].chain_buffer)
+diff --git a/fs/dlm/dlm_internal.h b/fs/dlm/dlm_internal.h
+index 748e8d59e611..cb287df13a7a 100644
+--- a/fs/dlm/dlm_internal.h
++++ b/fs/dlm/dlm_internal.h
+@@ -99,7 +99,6 @@ do { \
+                __LINE__, __FILE__, #x, jiffies); \
+     {do} \
+     printk("\n"); \
+-    BUG(); \
+     panic("DLM:  Record message above and reboot.\n"); \
+   } \
+ }
 -- 
 2.25.1
 
