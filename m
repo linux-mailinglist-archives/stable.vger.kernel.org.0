@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FE2D1FF5C3
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 16:54:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62CEF1FF5CC
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 16:54:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727041AbgFROxY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Jun 2020 10:53:24 -0400
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:32943 "EHLO
+        id S1731107AbgFROyL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Jun 2020 10:54:11 -0400
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:44061 "EHLO
         wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725982AbgFROxX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Jun 2020 10:53:23 -0400
+        by vger.kernel.org with ESMTP id S1731039AbgFROyK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Jun 2020 10:54:10 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 5A7165A3;
-        Thu, 18 Jun 2020 10:53:22 -0400 (EDT)
+        by mailforward.west.internal (Postfix) with ESMTP id 664AF75F;
+        Thu, 18 Jun 2020 10:54:08 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Thu, 18 Jun 2020 10:53:22 -0400
+  by compute1.internal (MEProxy); Thu, 18 Jun 2020 10:54:08 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=tI20Ul
-        rtIdCb1xWsQWW7ffT2Q53PYxmndePrWPuRiYY=; b=neRV/plll65ghKKyE0mOWc
-        +3BccB0BJqnR793v8Aj93fst+CEd7en1PyI/uTpiubMg3Kv9R3GVQ4Z05lgJv2E6
-        7Iy1+Guhsfxfa72OGV7M0MWhLxR8/8qQ56rPL35H//sV+HYozKM4ezwMtIfSJUZr
-        OawNPJmmclR2px7sTDuBQzayHN9hudwBLaXu49fw56aAotDLC5yD5unErDPevrUZ
-        TXIAmzXVZoVowt/YLpxoMzvFwjj9d6Us64JyXQQqvQJTBO/d+3eB+N6Xr2k7TOEV
-        39vXrU9EG9jlR6d7oy9LIFIdk9lj6pVh6mqpWBdMn2qZxUWI2k3siPbhu0y+kg4Q
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=6EYJgy
+        cW/t/pHBpYdiOYY9TSZvp2uNxafi/klBA0aYY=; b=H5PXd7EIAG5Kgp3fzjMWZg
+        iHNCBqXBS52XZVzHM7iddoHtdxN6pPDmyZOP+Bdz0bHEZtM0Cp+xEm7/5nWOFr6n
+        eBP2Ftb5jnJUDlxJpbOKUv2jOdf5AfhEF9sFR/WWzxf02e0Qxum5ZaEDrBSCu13v
+        8vlZMlMeRLzgFehtcNwKbPjf+dJkb6qtQzIFzxrJAf+Z110YyaV9bkCnaWuOEwyn
+        acEw86qRbSgkIGRupmf7bhJRVvIjTCXXWrKO0h6PwDhC0US1cPq7VW7O7CV7k7rB
+        Znxy+zuPEvvhVZ52xcybsnfEfnvF/0Rb9+UddbtQ8vFpc1/DhoQg/vTRwsKtTWxQ
         ==
-X-ME-Sender: <xms:4X_rXh0OijyysEPEc_PiiWyYNcejYUWpW08wEU-oJ7tanOvSfkRyVA>
+X-ME-Sender: <xms:D4DrXpoEAZoA4rvUWcseMWau3GsoM9euitgbI-cixC3CNjtMFsi6Rg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudejgedgkedvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepfeetteehueetheekueevhfefveejheegtdeiudehue
-    ekheeijeefgfeuhfeigefhnecuffhomhgrihhnpehqvghmuhdrohhrghenucfkphepkeef
-    rdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehmrg
-    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:4X_rXoEsKEA_NpFBi9gK9k4YI91a2srMA5YBRsEQAgKpVk5VYdN9aw>
-    <xmx:4X_rXh4xY0VsM_g1RAYblUGTBnsA9s8upJf016WMOF6SxZxKvQIc0A>
-    <xmx:4X_rXu1J6Dm0gJJq2QTi4em00dpCYHG9j-k-77yb-15rEkfQWbieNw>
-    <xmx:4n_rXnwOOzYyEyM_HiM3zXgpMJaVJt2eHZ-DdxTRtvOBapItAkhqozEnlHk>
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
+    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:D4DrXrptf47--phCoNeNnvMtLaWTdZxasFKCfsjTqTCzfTt6iMoKaA>
+    <xmx:D4DrXmMsr5O_7OLRBg7JCYE6521UnGial9KXHJclbbWxv-krLPLpDg>
+    <xmx:D4DrXk5Enk3oVmVyvfGYfJLEEJ8hJi2rtw76SzVMG9Ec0ZBJdKre2w>
+    <xmx:EIDrXthSwuXQjLJxHQROjhDu0SmjrdhKGYI0oEALEf29N3FomA_DMjpiJlk>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 4EB5D306215A;
-        Thu, 18 Jun 2020 10:53:21 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] btrfs: fix a race between scrub and block group" failed to apply to 4.19-stable tree
-To:     fdmanana@suse.com, dsterba@suse.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 7BE2730614FA;
+        Thu, 18 Jun 2020 10:54:07 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] btrfs: reloc: fix reloc root leak and NULL pointer" failed to apply to 5.4-stable tree
+To:     wqu@suse.com, dsterba@suse.com, johannes.thumshirn@wdc.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 18 Jun 2020 16:53:14 +0200
-Message-ID: <1592491994121191@kroah.com>
+Date:   Thu, 18 Jun 2020 16:54:00 +0200
+Message-ID: <159249204034160@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -69,268 +69,132 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 2473d24f2b77da0ffabcbb916793e58e7f57440b Mon Sep 17 00:00:00 2001
-From: Filipe Manana <fdmanana@suse.com>
-Date: Fri, 8 May 2020 11:01:10 +0100
-Subject: [PATCH] btrfs: fix a race between scrub and block group
- removal/allocation
+From 51415b6c1b117e223bc083e30af675cb5c5498f3 Mon Sep 17 00:00:00 2001
+From: Qu Wenruo <wqu@suse.com>
+Date: Tue, 19 May 2020 10:13:20 +0800
+Subject: [PATCH] btrfs: reloc: fix reloc root leak and NULL pointer
+ dereference
 
-When scrub is verifying the extents of a block group for a device, it is
-possible that the corresponding block group gets removed and its logical
-address and device extents get used for a new block group allocation.
-When this happens scrub incorrectly reports that errors were detected
-and, if the the new block group has a different profile then the old one,
-deleted block group, we can crash due to a null pointer dereference.
-Possibly other unexpected and weird consequences can happen as well.
+[BUG]
+When balance is canceled, there is a pretty high chance that unmounting
+the fs can lead to lead the NULL pointer dereference:
 
-Consider the following sequence of actions that leads to the null pointer
-dereference crash when scrub is running in parallel with balance:
+  BTRFS warning (device dm-3): page private not zero on page 223158272
+  ...
+  BTRFS warning (device dm-3): page private not zero on page 223162368
+  BTRFS error (device dm-3): leaked root 18446744073709551608-304 refcount 1
+  BUG: kernel NULL pointer dereference, address: 0000000000000168
+  #PF: supervisor read access in kernel mode
+  #PF: error_code(0x0000) - not-present page
+  PGD 0 P4D 0
+  Oops: 0000 [#1] PREEMPT SMP NOPTI
+  CPU: 2 PID: 5793 Comm: umount Tainted: G           O      5.7.0-rc5-custom+ #53
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
+  RIP: 0010:__lock_acquire+0x5dc/0x24c0
+  Call Trace:
+   lock_acquire+0xab/0x390
+   _raw_spin_lock+0x39/0x80
+   btrfs_release_extent_buffer_pages+0xd7/0x200 [btrfs]
+   release_extent_buffer+0xb2/0x170 [btrfs]
+   free_extent_buffer+0x66/0xb0 [btrfs]
+   btrfs_put_root+0x8e/0x130 [btrfs]
+   btrfs_check_leaked_roots.cold+0x5/0x5d [btrfs]
+   btrfs_free_fs_info+0xe5/0x120 [btrfs]
+   btrfs_kill_super+0x1f/0x30 [btrfs]
+   deactivate_locked_super+0x3b/0x80
+   deactivate_super+0x3e/0x50
+   cleanup_mnt+0x109/0x160
+   __cleanup_mnt+0x12/0x20
+   task_work_run+0x67/0xa0
+   exit_to_usermode_loop+0xc5/0xd0
+   syscall_return_slowpath+0x205/0x360
+   do_syscall_64+0x6e/0xb0
+   entry_SYSCALL_64_after_hwframe+0x49/0xb3
+  RIP: 0033:0x7fd028ef740b
 
-1) Balance sets block group X to read-only mode and starts relocating it.
-   Block group X is a metadata block group, has a raid1 profile (two
-   device extents, each one in a different device) and a logical address
-   of 19424870400;
+[CAUSE]
+When balance is canceled, all reloc roots are marked as orphan, and
+orphan reloc roots are going to be cleaned up.
 
-2) Scrub is running and finds device extent E, which belongs to block
-   group X. It enters scrub_stripe() to find all extents allocated to
-   block group X, the search is done using the extent tree;
+However for orphan reloc roots and merged reloc roots, their lifespan
+are quite different:
 
-3) Balance finishes relocating block group X and removes block group X;
+	Merged reloc roots	|	Orphan reloc roots by cancel
+--------------------------------------------------------------------
+create_reloc_root()		| create_reloc_root()
+|- refs == 1			| |- refs == 1
+				|
+btrfs_grab_root(reloc_root);	| btrfs_grab_root(reloc_root);
+|- refs == 2			| |- refs == 2
+				|
+root->reloc_root = reloc_root;	| root->reloc_root = reloc_root;
+		>>> No difference so far <<<
+				|
+prepare_to_merge()		| prepare_to_merge()
+|- btrfs_set_root_refs(item, 1);| |- if (!err) (err == -EINTR)
+				|
+merge_reloc_roots()		| merge_reloc_roots()
+|- merge_reloc_root()		| |- Doing nothing to put reloc root
+   |- insert_dirty_subvol()	| |- refs == 2
+      |- __del_reloc_root()	|
+         |- btrfs_put_root()	|
+            |- refs == 1	|
+		>>> Now orphan reloc roots still have refs 2 <<<
+				|
+clean_dirty_subvols()		| clean_dirty_subvols()
+|- btrfs_drop_snapshot()	| |- btrfS_drop_snapshot()
+   |- reloc_root get freed	|    |- reloc_root still has refs 2
+				|	related ebs get freed, but
+				|	reloc_root still recorded in
+				|	allocated_roots
+btrfs_check_leaked_roots()	| btrfs_check_leaked_roots()
+|- No leaked roots		| |- Leaked reloc_roots detected
+				| |- btrfs_put_root()
+				|    |- free_extent_buffer(root->node);
+				|       |- eb already freed, caused NULL
+				|	   pointer dereference
 
-4) Balance starts relocating another block group and when trying to
-   commit the current transaction as part of the preparation step
-   (prepare_to_relocate()), it blocks because scrub is running;
+[FIX]
+The fix is to clear fs_root->reloc_root and put it at
+merge_reloc_roots() time, so that we won't leak reloc roots.
 
-5) The scrub task finds the metadata extent at the logical address
-   19425001472 and marks the pages of the extent to be read by a bio
-   (struct scrub_bio). The extent item's flags, which have the bit
-   BTRFS_EXTENT_FLAG_TREE_BLOCK set, are added to each page (struct
-   scrub_page). It is these flags in the scrub pages that tells the
-   bio's end io function (scrub_bio_end_io_worker) which type of extent
-   it is dealing with. At this point we end up with 4 pages in a bio
-   which is ready for submission (the metadata extent has a size of
-   16Kb, so that gives 4 pages on x86);
-
-6) At the next iteration of scrub_stripe(), scrub checks that there is a
-   pause request from the relocation task trying to commit a transaction,
-   therefore it submits the pending bio and pauses, waiting for the
-   transaction commit to complete before resuming;
-
-7) The relocation task commits the transaction. The device extent E, that
-   was used by our block group X, is now available for allocation, since
-   the commit root for the device tree was swapped by the transaction
-   commit;
-
-8) Another task doing a direct IO write allocates a new data block group Y
-   which ends using device extent E. This new block group Y also ends up
-   getting the same logical address that block group X had: 19424870400.
-   This happens because block group X was the block group with the highest
-   logical address and, when allocating Y, find_next_chunk() returns the
-   end offset of the current last block group to be used as the logical
-   address for the new block group, which is
-
-        18351128576 + 1073741824 = 19424870400
-
-   So our new block group Y has the same logical address and device extent
-   that block group X had. However Y is a data block group, while X was
-   a metadata one, and Y has a raid0 profile, while X had a raid1 profile;
-
-9) After allocating block group Y, the direct IO submits a bio to write
-   to device extent E;
-
-10) The read bio submitted by scrub reads the 4 pages (16Kb) from device
-    extent E, which now correspond to the data written by the task that
-    did a direct IO write. Then at the end io function associated with
-    the bio, scrub_bio_end_io_worker(), we call scrub_block_complete()
-    which calls scrub_checksum(). This later function checks the flags
-    of the first page, and sees that the bit BTRFS_EXTENT_FLAG_TREE_BLOCK
-    is set in the flags, so it assumes it has a metadata extent and
-    then calls scrub_checksum_tree_block(). That functions returns an
-    error, since interpreting data as a metadata extent causes the
-    checksum verification to fail.
-
-    So this makes scrub_checksum() call scrub_handle_errored_block(),
-    which determines 'failed_mirror_index' to be 1, since the device
-    extent E was allocated as the second mirror of block group X.
-
-    It allocates BTRFS_MAX_MIRRORS scrub_block structures as an array at
-    'sblocks_for_recheck', and all the memory is initialized to zeroes by
-    kcalloc().
-
-    After that it calls scrub_setup_recheck_block(), which is responsible
-    for filling each of those structures. However, when that function
-    calls btrfs_map_sblock() against the logical address of the metadata
-    extent, 19425001472, it gets a struct btrfs_bio ('bbio') that matches
-    the current block group Y. However block group Y has a raid0 profile
-    and not a raid1 profile like X had, so the following call returns 1:
-
-       scrub_nr_raid_mirrors(bbio)
-
-    And as a result scrub_setup_recheck_block() only initializes the
-    first (index 0) scrub_block structure in 'sblocks_for_recheck'.
-
-    Then scrub_recheck_block() is called by scrub_handle_errored_block()
-    with the second (index 1) scrub_block structure as the argument,
-    because 'failed_mirror_index' was previously set to 1.
-    This scrub_block was not initialized by scrub_setup_recheck_block(),
-    so it has zero pages, its 'page_count' member is 0 and its 'pagev'
-    page array has all members pointing to NULL.
-
-    Finally when scrub_recheck_block() calls scrub_recheck_block_checksum()
-    we have a NULL pointer dereference when accessing the flags of the first
-    page, as pavev[0] is NULL:
-
-    static void scrub_recheck_block_checksum(struct scrub_block *sblock)
-    {
-        (...)
-        if (sblock->pagev[0]->flags & BTRFS_EXTENT_FLAG_DATA)
-            scrub_checksum_data(sblock);
-        (...)
-    }
-
-    Producing a stack trace like the following:
-
-    [542998.008985] BUG: kernel NULL pointer dereference, address: 0000000000000028
-    [542998.010238] #PF: supervisor read access in kernel mode
-    [542998.010878] #PF: error_code(0x0000) - not-present page
-    [542998.011516] PGD 0 P4D 0
-    [542998.011929] Oops: 0000 [#1] PREEMPT SMP DEBUG_PAGEALLOC PTI
-    [542998.012786] CPU: 3 PID: 4846 Comm: kworker/u8:1 Tainted: G    B   W         5.6.0-rc7-btrfs-next-58 #1
-    [542998.014524] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
-    [542998.016065] Workqueue: btrfs-scrub btrfs_work_helper [btrfs]
-    [542998.017255] RIP: 0010:scrub_recheck_block_checksum+0xf/0x20 [btrfs]
-    [542998.018474] Code: 4c 89 e6 ...
-    [542998.021419] RSP: 0018:ffffa7af0375fbd8 EFLAGS: 00010202
-    [542998.022120] RAX: 0000000000000000 RBX: ffff9792e674d120 RCX: 0000000000000000
-    [542998.023178] RDX: 0000000000000001 RSI: ffff9792e674d120 RDI: ffff9792e674d120
-    [542998.024465] RBP: 0000000000000000 R08: 0000000000000067 R09: 0000000000000001
-    [542998.025462] R10: ffffa7af0375fa50 R11: 0000000000000000 R12: ffff9791f61fe800
-    [542998.026357] R13: ffff9792e674d120 R14: 0000000000000001 R15: ffffffffc0e3dfc0
-    [542998.027237] FS:  0000000000000000(0000) GS:ffff9792fb200000(0000) knlGS:0000000000000000
-    [542998.028327] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-    [542998.029261] CR2: 0000000000000028 CR3: 00000000b3b18003 CR4: 00000000003606e0
-    [542998.030301] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-    [542998.031316] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-    [542998.032380] Call Trace:
-    [542998.032752]  scrub_recheck_block+0x162/0x400 [btrfs]
-    [542998.033500]  ? __alloc_pages_nodemask+0x31e/0x460
-    [542998.034228]  scrub_handle_errored_block+0x6f8/0x1920 [btrfs]
-    [542998.035170]  scrub_bio_end_io_worker+0x100/0x520 [btrfs]
-    [542998.035991]  btrfs_work_helper+0xaa/0x720 [btrfs]
-    [542998.036735]  process_one_work+0x26d/0x6a0
-    [542998.037275]  worker_thread+0x4f/0x3e0
-    [542998.037740]  ? process_one_work+0x6a0/0x6a0
-    [542998.038378]  kthread+0x103/0x140
-    [542998.038789]  ? kthread_create_worker_on_cpu+0x70/0x70
-    [542998.039419]  ret_from_fork+0x3a/0x50
-    [542998.039875] Modules linked in: dm_snapshot dm_thin_pool ...
-    [542998.047288] CR2: 0000000000000028
-    [542998.047724] ---[ end trace bde186e176c7f96a ]---
-
-This issue has been around for a long time, possibly since scrub exists.
-The last time I ran into it was over 2 years ago. After recently fixing
-fstests to pass the "--full-balance" command line option to btrfs-progs
-when doing balance, several tests started to more heavily exercise balance
-with fsstress, scrub and other operations in parallel, and therefore
-started to hit this issue again (with btrfs/061 for example).
-
-Fix this by having scrub increment the 'trimming' counter of the block
-group, which pins the block group in such a way that it guarantees neither
-its logical address nor device extents can be reused by future block group
-allocations until we decrement the 'trimming' counter. Also make sure that
-on each iteration of scrub_stripe() we stop scrubbing the block group if
-it was removed already.
-
-A later patch in the series will rename the block group's 'trimming'
-counter and its helpers to a more generic name, since now it is not used
-exclusively for pinning while trimming anymore.
-
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Fixes: d2311e698578 ("btrfs: relocation: Delay reloc tree deletion after merge_reloc_roots")
+CC: stable@vger.kernel.org # 5.1+
+Tested-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/scrub.c b/fs/btrfs/scrub.c
-index adaf8ab694d5..7c50ac5b6876 100644
---- a/fs/btrfs/scrub.c
-+++ b/fs/btrfs/scrub.c
-@@ -3046,7 +3046,8 @@ static noinline_for_stack int scrub_raid56_parity(struct scrub_ctx *sctx,
- static noinline_for_stack int scrub_stripe(struct scrub_ctx *sctx,
- 					   struct map_lookup *map,
- 					   struct btrfs_device *scrub_dev,
--					   int num, u64 base, u64 length)
-+					   int num, u64 base, u64 length,
-+					   struct btrfs_block_group *cache)
- {
- 	struct btrfs_path *path, *ppath;
- 	struct btrfs_fs_info *fs_info = sctx->fs_info;
-@@ -3284,6 +3285,20 @@ static noinline_for_stack int scrub_stripe(struct scrub_ctx *sctx,
- 				break;
- 			}
+diff --git a/fs/btrfs/relocation.c b/fs/btrfs/relocation.c
+index 58f56e01de0d..81b076e46143 100644
+--- a/fs/btrfs/relocation.c
++++ b/fs/btrfs/relocation.c
+@@ -1917,12 +1917,10 @@ void merge_reloc_roots(struct reloc_control *rc)
+ 		reloc_root = list_entry(reloc_roots.next,
+ 					struct btrfs_root, root_list);
  
-+			/*
-+			 * If our block group was removed in the meanwhile, just
-+			 * stop scrubbing since there is no point in continuing.
-+			 * Continuing would prevent reusing its device extents
-+			 * for new block groups for a long time.
-+			 */
-+			spin_lock(&cache->lock);
-+			if (cache->removed) {
-+				spin_unlock(&cache->lock);
-+				ret = 0;
-+				goto out;
-+			}
-+			spin_unlock(&cache->lock);
-+
- 			extent = btrfs_item_ptr(l, slot,
- 						struct btrfs_extent_item);
- 			flags = btrfs_extent_flags(l, extent);
-@@ -3457,7 +3472,7 @@ static noinline_for_stack int scrub_chunk(struct scrub_ctx *sctx,
- 		if (map->stripes[i].dev->bdev == scrub_dev->bdev &&
- 		    map->stripes[i].physical == dev_offset) {
- 			ret = scrub_stripe(sctx, map, scrub_dev, i,
--					   chunk_offset, length);
-+					   chunk_offset, length, cache);
- 			if (ret)
++		root = read_fs_root(fs_info, reloc_root->root_key.offset);
+ 		if (btrfs_root_refs(&reloc_root->root_item) > 0) {
+-			root = read_fs_root(fs_info,
+-					    reloc_root->root_key.offset);
+ 			BUG_ON(IS_ERR(root));
+ 			BUG_ON(root->reloc_root != reloc_root);
+-
+ 			ret = merge_reloc_root(rc, root);
+ 			btrfs_put_root(root);
+ 			if (ret) {
+@@ -1932,6 +1930,14 @@ void merge_reloc_roots(struct reloc_control *rc)
  				goto out;
- 		}
-@@ -3554,6 +3569,23 @@ int scrub_enumerate_chunks(struct scrub_ctx *sctx,
- 		if (!cache)
- 			goto skip;
- 
-+		/*
-+		 * Make sure that while we are scrubbing the corresponding block
-+		 * group doesn't get its logical address and its device extents
-+		 * reused for another block group, which can possibly be of a
-+		 * different type and different profile. We do this to prevent
-+		 * false error detections and crashes due to bogus attempts to
-+		 * repair extents.
-+		 */
-+		spin_lock(&cache->lock);
-+		if (cache->removed) {
-+			spin_unlock(&cache->lock);
-+			btrfs_put_block_group(cache);
-+			goto skip;
-+		}
-+		btrfs_get_block_group_trimming(cache);
-+		spin_unlock(&cache->lock);
-+
- 		/*
- 		 * we need call btrfs_inc_block_group_ro() with scrubs_paused,
- 		 * to avoid deadlock caused by:
-@@ -3609,6 +3641,7 @@ int scrub_enumerate_chunks(struct scrub_ctx *sctx,
+ 			}
  		} else {
- 			btrfs_warn(fs_info,
- 				   "failed setting block group ro: %d", ret);
-+			btrfs_put_block_group_trimming(cache);
- 			btrfs_put_block_group(cache);
- 			scrub_pause_off(fs_info);
- 			break;
-@@ -3695,6 +3728,7 @@ int scrub_enumerate_chunks(struct scrub_ctx *sctx,
- 			spin_unlock(&cache->lock);
- 		}
- 
-+		btrfs_put_block_group_trimming(cache);
- 		btrfs_put_block_group(cache);
- 		if (ret)
- 			break;
++			if (!IS_ERR(root)) {
++				if (root->reloc_root == reloc_root) {
++					root->reloc_root = NULL;
++					btrfs_put_root(reloc_root);
++				}
++				btrfs_put_root(root);
++			}
++
+ 			list_del_init(&reloc_root->root_list);
+ 			/* Don't forget to queue this reloc root for cleanup */
+ 			list_add_tail(&reloc_root->reloc_dirty_list,
 
