@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E93C1FDEC8
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:39:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD6981FDEF6
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:39:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732622AbgFRBas (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:30:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41014 "EHLO mail.kernel.org"
+        id S1731557AbgFRBhb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:37:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732616AbgFRBar (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1731939AbgFRBar (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 17 Jun 2020 21:30:47 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8FF1D2224E;
-        Thu, 18 Jun 2020 01:30:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C742E221EC;
+        Thu, 18 Jun 2020 01:30:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443846;
-        bh=pavhGKGyWx6CGwzqnnEJzC1BuJLEq611bP7n5T+QGDI=;
+        s=default; t=1592443847;
+        bh=r22kJpkaw3xZhTgw3O801kzZRzM5D2whyI7HfVm1ddo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eHta+rBmeh5YD2/P9OLCkwUvriMd09snb804UVLTg7msI28JNHRaHmOhdQI9uLLZ+
-         Mt/XRfYsjfLIKiaa36Y4Jwm3PHlcNpcFzwM4RrHiBh2vP0p7iqQhfuGrQzkmcFOW8W
-         hSVXs5yGr1iuEIcn/eLHQOi0tgOYNV1tcJ6hHB+U=
+        b=JbF9hCkAB0X6szbo0l4TjldDeVCs1CqoElFUGwSt2WE90jd1claniPscJBaBtiVmm
+         lMSYkWZI1TF87JNe9dsp9qI03LdVK4UW6PL0CZ4EAc00koMyZWGZrDeV1znbk5DuGa
+         rsXLxWw+q7h3orgmCEr6Hl7w5jmosD7JFzBrS4V4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 31/60] PCI/ASPM: Allow ASPM on links to PCIe-to-PCI/PCI-X Bridges
-Date:   Wed, 17 Jun 2020 21:29:35 -0400
-Message-Id: <20200618013004.610532-31-sashal@kernel.org>
+Cc:     Dmitry Osipenko <digetx@gmail.com>,
+        David Heidelberg <david@ixit.cz>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 32/60] power: supply: smb347-charger: IRQSTAT_D is volatile
+Date:   Wed, 17 Jun 2020 21:29:36 -0400
+Message-Id: <20200618013004.610532-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618013004.610532-1-sashal@kernel.org>
 References: <20200618013004.610532-1-sashal@kernel.org>
@@ -44,53 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-[ Upstream commit 66ff14e59e8a30690755b08bc3042359703fb07a ]
+[ Upstream commit c32ea07a30630ace950e07ffe7a18bdcc25898e1 ]
 
-7d715a6c1ae5 ("PCI: add PCI Express ASPM support") added the ability for
-Linux to enable ASPM, but for some undocumented reason, it didn't enable
-ASPM on links where the downstream component is a PCIe-to-PCI/PCI-X Bridge.
+Fix failure when USB cable is connected:
+smb347 2-006a: reading IRQSTAT_D failed
 
-Remove this exclusion so we can enable ASPM on these links.
+Fixes: 1502cfe19bac ("smb347-charger: Fix battery status reporting logic for charger faults")
 
-The Dell OptiPlex 7080 mentioned in the bugzilla has a TI XIO2001
-PCIe-to-PCI Bridge.  Enabling ASPM on the link leading to it allows the
-Intel SoC to enter deeper Package C-states, which is a significant power
-savings.
-
-[bhelgaas: commit log]
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=207571
-Link: https://lore.kernel.org/r/20200505173423.26968-1-kai.heng.feng@canonical.com
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Tested-by: David Heidelberg <david@ixit.cz>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: David Heidelberg <david@ixit.cz>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pcie/aspm.c | 10 ----------
- 1 file changed, 10 deletions(-)
+ drivers/power/smb347-charger.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/pci/pcie/aspm.c b/drivers/pci/pcie/aspm.c
-index c6a012b5ba39..966b6947e565 100644
---- a/drivers/pci/pcie/aspm.c
-+++ b/drivers/pci/pcie/aspm.c
-@@ -388,16 +388,6 @@ static void pcie_aspm_cap_init(struct pcie_link_state *link, int blacklist)
- 
- 	/* Setup initial capable state. Will be updated later */
- 	link->aspm_capable = link->aspm_support;
--	/*
--	 * If the downstream component has pci bridge function, don't
--	 * do ASPM for now.
--	 */
--	list_for_each_entry(child, &linkbus->devices, bus_list) {
--		if (pci_pcie_type(child) == PCI_EXP_TYPE_PCI_BRIDGE) {
--			link->aspm_disable = ASPM_STATE_ALL;
--			break;
--		}
--	}
- 
- 	/* Get and check endpoint acceptable latencies */
- 	list_for_each_entry(child, &linkbus->devices, bus_list) {
+diff --git a/drivers/power/smb347-charger.c b/drivers/power/smb347-charger.c
+index 072c5189bd6d..0655dbdc7000 100644
+--- a/drivers/power/smb347-charger.c
++++ b/drivers/power/smb347-charger.c
+@@ -1141,6 +1141,7 @@ static bool smb347_volatile_reg(struct device *dev, unsigned int reg)
+ 	switch (reg) {
+ 	case IRQSTAT_A:
+ 	case IRQSTAT_C:
++	case IRQSTAT_D:
+ 	case IRQSTAT_E:
+ 	case IRQSTAT_F:
+ 	case STAT_A:
 -- 
 2.25.1
 
