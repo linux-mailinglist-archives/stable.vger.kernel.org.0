@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33CEE1FE512
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:23:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B575B1FE50F
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:23:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729215AbgFRCXG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:23:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49496 "EHLO mail.kernel.org"
+        id S1727774AbgFRBSM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:18:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729882AbgFRBSG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:18:06 -0400
+        id S1729891AbgFRBSM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:18:12 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 53DFC21D90;
-        Thu, 18 Jun 2020 01:18:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C1385206F1;
+        Thu, 18 Jun 2020 01:18:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443086;
-        bh=OSy/OGfvGshqjHEGkwGYZClMEVPpuaEOBEcpLWkcDoQ=;
+        s=default; t=1592443091;
+        bh=8nYM76nMA33YbflA8NpPkoeLy8IEh0EayB8T55DpMXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XgYqeWNKfpxg3NhhaZYurjv14pjePToWpaT+YsZo3Xgn2hsPa039XE/iwrs6xKamZ
-         sUWIQzQpB/u4W6guJ1pidV15gytHOfg1zpOrgOaBnCoWGkGvK5N7UgSarsxnJm5HcN
-         7yS1mrz6nVybBX1UN/RaRGd4BONkjdoudaZnUzgI=
+        b=muCOf/+YF1LTLysOO1wqH0e6H0CKkog9P/VHEzPOiWzg9kktOwBuw7noLuoj43lp2
+         1Yzx96qORix3kW6tPqbvSmTkZgyUbh6qAS11ZSHvZbU/Ar2l4b1i4KsXjC70PmgY3M
+         c/EQrNarvuaHw0+kdOieCYFagSWjA7Mi9ixGyOmE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Will Deacon <will@kernel.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        "Kirill A . Shutemov" <kirill@shutemov.name>,
-        Sasha Levin <sashal@kernel.org>, sparclinux@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 070/266] sparc32: mm: Don't try to free page-table pages if ctor() fails
-Date:   Wed, 17 Jun 2020 21:13:15 -0400
-Message-Id: <20200618011631.604574-70-sashal@kernel.org>
+Cc:     Logan Gunthorpe <logang@deltatee.com>,
+        Allen Hubbe <allenbh@gmail.com>,
+        Alexander Fomichev <fomichev.ru@gmail.com>,
+        Jon Mason <jdmason@kudzu.us>, Sasha Levin <sashal@kernel.org>,
+        linux-ntb@googlegroups.com
+Subject: [PATCH AUTOSEL 5.4 072/266] NTB: ntb_pingpong: Choose doorbells based on port number
+Date:   Wed, 17 Jun 2020 21:13:17 -0400
+Message-Id: <20200618011631.604574-72-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
@@ -44,39 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Logan Gunthorpe <logang@deltatee.com>
 
-[ Upstream commit 454b0289c6b5f2c66164654b80212d15fbef7a03 ]
+[ Upstream commit ca93c45755da98302c93abdd788fc09113baf9e0 ]
 
-The pages backing page-table allocations for SRMMU are allocated via
-memblock as part of the "nocache" region initialisation during
-srmmu_paging_init() and should not be freed even if a later call to
-pgtable_pte_page_ctor() fails.
+This commit fixes pingpong support for existing drivers that do not
+implement ntb_default_port_number() and ntb_default_peer_port_number().
+This is required for hardware (like the crosslink topology of
+switchtec) which cannot assign reasonable port numbers to each port due
+to its perfect symmetry.
 
-Remove the broken call to __free_page().
+Instead of picking the doorbell to use based on the the index of the
+peer, we use the peer's port number. This is a bit clearer and easier
+to understand.
 
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Kirill A. Shutemov <kirill@shutemov.name>
-Fixes: 1ae9ae5f7df7 ("sparc: handle pgtable_page_ctor() fail")
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: c7aeb0afdcc2 ("NTB: ntb_pp: Add full multi-port NTB API support")
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Acked-by: Allen Hubbe <allenbh@gmail.com>
+Tested-by: Alexander Fomichev <fomichev.ru@gmail.com>
+Signed-off-by: Jon Mason <jdmason@kudzu.us>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sparc/mm/srmmu.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/ntb/test/ntb_pingpong.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
-diff --git a/arch/sparc/mm/srmmu.c b/arch/sparc/mm/srmmu.c
-index cc3ad64479ac..9e256d4d1f4c 100644
---- a/arch/sparc/mm/srmmu.c
-+++ b/arch/sparc/mm/srmmu.c
-@@ -379,7 +379,6 @@ pgtable_t pte_alloc_one(struct mm_struct *mm)
- 		return NULL;
- 	page = pfn_to_page(__nocache_pa(pte) >> PAGE_SHIFT);
- 	if (!pgtable_pte_page_ctor(page)) {
--		__free_page(page);
- 		return NULL;
+diff --git a/drivers/ntb/test/ntb_pingpong.c b/drivers/ntb/test/ntb_pingpong.c
+index 65865e460ab8..18d00eec7b02 100644
+--- a/drivers/ntb/test/ntb_pingpong.c
++++ b/drivers/ntb/test/ntb_pingpong.c
+@@ -121,15 +121,14 @@ static int pp_find_next_peer(struct pp_ctx *pp)
+ 	link = ntb_link_is_up(pp->ntb, NULL, NULL);
+ 
+ 	/* Find next available peer */
+-	if (link & pp->nmask) {
++	if (link & pp->nmask)
+ 		pidx = __ffs64(link & pp->nmask);
+-		out_db = BIT_ULL(pidx + 1);
+-	} else if (link & pp->pmask) {
++	else if (link & pp->pmask)
+ 		pidx = __ffs64(link & pp->pmask);
+-		out_db = BIT_ULL(pidx);
+-	} else {
++	else
+ 		return -ENODEV;
+-	}
++
++	out_db = BIT_ULL(ntb_peer_port_number(pp->ntb, pidx));
+ 
+ 	spin_lock(&pp->lock);
+ 	pp->out_pidx = pidx;
+@@ -303,7 +302,7 @@ static void pp_init_flds(struct pp_ctx *pp)
+ 			break;
  	}
- 	return page;
+ 
+-	pp->in_db = BIT_ULL(pidx);
++	pp->in_db = BIT_ULL(lport);
+ 	pp->pmask = GENMASK_ULL(pidx, 0) >> 1;
+ 	pp->nmask = GENMASK_ULL(pcnt - 1, pidx);
+ 
+@@ -435,4 +434,3 @@ static void __exit pp_exit(void)
+ 	debugfs_remove_recursive(pp_dbgfs_topdir);
+ }
+ module_exit(pp_exit);
+-
 -- 
 2.25.1
 
