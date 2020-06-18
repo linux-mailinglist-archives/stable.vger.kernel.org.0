@@ -2,100 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A49B41FFC7D
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 22:29:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADA871FFD0A
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 23:01:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729270AbgFRU3U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Jun 2020 16:29:20 -0400
-Received: from mga04.intel.com ([192.55.52.120]:51202 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726193AbgFRU3S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 18 Jun 2020 16:29:18 -0400
-IronPort-SDR: KAIkDS+jXuia26DMs2yCPuetCM/4Bq4ZQPiRVgOaczlMrczjnzzCqbSdrPU6vUmPEA7CnQULFN
- gKvpIiJCYtLw==
-X-IronPort-AV: E=McAfee;i="6000,8403,9656"; a="140240125"
-X-IronPort-AV: E=Sophos;i="5.75,252,1589266800"; 
-   d="scan'208";a="140240125"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jun 2020 13:29:17 -0700
-IronPort-SDR: mUPA4RGvkOlj+3E87uSmjqXZKpywcjo7iuNFSWb7OcRlB9fv2yslUe1hWCEMvBzckuJoWlOQSe
- EPSyXGktJcZA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.75,252,1589266800"; 
-   d="scan'208";a="477318158"
-Received: from rdvivi-losangeles.jf.intel.com ([10.165.21.202])
-  by fmsmga006.fm.intel.com with ESMTP; 18 Jun 2020 13:29:17 -0700
-From:   Rodrigo Vivi <rodrigo.vivi@intel.com>
-To:     stable@vger.kernel.org
-Cc:     intel-gfx@lists.freedesktop.org,
-        Swathi Dhanavanthri <swathi.dhanavanthri@intel.com>,
-        Rafael Antognolli <rafael.antognolli@intel.com>,
-        Matt Roper <matthew.d.roper@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH] drm/i915/tgl: Make Wa_14010229206 permanent
-Date:   Thu, 18 Jun 2020 13:27:00 -0700
-Message-Id: <20200618202701.729-1-rodrigo.vivi@intel.com>
-X-Mailer: git-send-email 2.24.1
+        id S1726896AbgFRVBz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Jun 2020 17:01:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59394 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725829AbgFRVBz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Jun 2020 17:01:55 -0400
+Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A29BC06174E;
+        Thu, 18 Jun 2020 14:01:55 -0700 (PDT)
+Received: by mail-ej1-x642.google.com with SMTP id dr13so7903308ejc.3;
+        Thu, 18 Jun 2020 14:01:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=/pSg+CjVVGDmkJgSAWGcUvsAuaB+HD/87Cz0ih1iEpU=;
+        b=PLb5yOPFdttKNB7R79USKjGUc6xJvIlhZqG+6dY5T4MJMkja97YVPqO+VSTT/MP9BC
+         VhKNgCL/UdQeqWQ44SWAUxDfJSr0Oxs6mPorLGZDnq4kdo2ExhUoMSBG3VN3AUlstCy7
+         mjhlDXSgDAZiv8qjLEcuOBxTeO2lZ4T+DUgGf3CmeTxaF87+K23NqjjR/JhyexUBycN7
+         C013wGARBTw1P0OoO36i1zedNrT8Jz5IGC1BJuzLM20q9H+Gp6tCPmKhxfLwQjGeh6gm
+         7Rh9cMIQZVKkbZHFnGg42SctEGeuL4SbcMi/gl+DX5ADL1/ocrDljJhq7BnwVmC/TXOI
+         6cuA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=/pSg+CjVVGDmkJgSAWGcUvsAuaB+HD/87Cz0ih1iEpU=;
+        b=ClPj4HiYlGMuWTBvsrLpx7zZfHbXBpJnZH9T2E80r8Ge31sKYMjeJHJ1POnPwmvXbR
+         fXJl2ZEGQ4t3XCxM2n8Po2osnkaz+lF/Ugiiq+sJhZ58cNvJ/wxvAeqNBxCRELxhr0ft
+         WcoomjedFgSMv2JshcAChcafEJL58uTKzPkS1Ahg0KplwEqP+kgPpF9bfo1cAB5NZqoe
+         fneLfTrIoVzw0ohzWP/eg5QC8KmBAdQUWG6k1icwhIZEn0ECTgd2fou33TJByqyX64Uv
+         Ku98f2t3Zv00NUMJJ9E1h2LCLA2znFPoR6drDpw89XjUzZC3EhcsxKKyzccFlgDjtuSB
+         p9IA==
+X-Gm-Message-State: AOAM533Qww6KVTkWFO5u1ZjFsqpUWu0/dUbfJIACZ2tQFk/fqtfUNN/v
+        cdth1Fy3o7EuFCtfogAdITsun5Y=
+X-Google-Smtp-Source: ABdhPJxFMaX1igYF/2oYZFm9JCYMhnUSwHbNoa+JbsF9ix71XlOeB9rMQ3F27PPCT+1Hr7sPKSN9ew==
+X-Received: by 2002:a17:906:4e59:: with SMTP id g25mr583619ejw.60.1592514113829;
+        Thu, 18 Jun 2020 14:01:53 -0700 (PDT)
+Received: from localhost.localdomain ([46.53.250.254])
+        by smtp.gmail.com with ESMTPSA id z15sm3133755eju.18.2020.06.18.14.01.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 18 Jun 2020 14:01:53 -0700 (PDT)
+Date:   Fri, 19 Jun 2020 00:01:51 +0300
+From:   Alexey Dobriyan <adobriyan@gmail.com>
+To:     David Laight <David.Laight@aculab.com>
+Cc:     'Matt Fleming' <matt@codeblueprint.co.uk>,
+        Ingo Molnar <mingo@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "Grimm, Jon" <Jon.Grimm@amd.com>,
+        "Kumar, Venkataramanan" <Venkataramanan.Kumar@amd.com>,
+        Jan Kara <jack@suse.cz>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH] x86/asm/64: Align start of __clear_user() loop to
+ 16-bytes
+Message-ID: <20200618210151.GA2212102@localhost.localdomain>
+References: <20200618102002.30034-1-matt@codeblueprint.co.uk>
+ <39f8304b75094f87a54ace7732708d30@AcuMS.aculab.com>
+ <20200618131655.GA24607@localhost.localdomain>
+ <20b0166e11f44bf491062838090b93be@AcuMS.aculab.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20b0166e11f44bf491062838090b93be@AcuMS.aculab.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Swathi Dhanavanthri <swathi.dhanavanthri@intel.com>
+On Thu, Jun 18, 2020 at 04:39:35PM +0000, David Laight wrote:
+> From: Alexey Dobriyan 
+> > Sent: 18 June 2020 14:17
+> ...
+> > > > diff --git a/arch/x86/lib/usercopy_64.c b/arch/x86/lib/usercopy_64.c
+> > > > index fff28c6f73a2..b0dfac3d3df7 100644
+> > > > --- a/arch/x86/lib/usercopy_64.c
+> > > > +++ b/arch/x86/lib/usercopy_64.c
+> > > > @@ -24,6 +24,7 @@ unsigned long __clear_user(void __user *addr, unsigned long size)
+> > > >  	asm volatile(
+> > > >  		"	testq  %[size8],%[size8]\n"
+> > > >  		"	jz     4f\n"
+> > > > +		"	.align 16\n"
+> > > >  		"0:	movq $0,(%[dst])\n"
+> > > >  		"	addq   $8,%[dst]\n"
+> > > >  		"	decl %%ecx ; jnz   0b\n"
+> > >
+> > > You can do better that that loop.
+> > > Change 'dst' to point to the end of the buffer, negate the count
+> > > and divide by 8 and you get:
+> > > 		"0:	movq $0,($[dst],%%ecx,8)\n"
+> > > 		"	add $1,%%ecx"
+> > > 		"	jnz 0b\n"
+> > > which might run at one iteration per clock especially on cpu that pair
+> > > the add and jnz into a single uop.
+> > > (You need to use add not inc.)
+> > 
+> > /dev/zero should probably use REP STOSB etc just like everything else.
+> 
+> Almost certainly it shouldn't, and neither should anything else.
+> Potentially it could use whatever memset() is patched to.
+> That MIGHT be 'rep stos' on some cpu variants, but in general
+> it is slow.
 
-commit 63d0f3ea8ebb67160eca281320d255c72b0cb51a upstream.
-
-This workaround now applies to all steppings, not just A0.
-Wa_1409085225 is a temporary A0-only W/A however it is
-identical to Wa_14010229206 and hence the combined workaround
-is made permanent.
-Bspec: 52890
-
-Signed-off-by: Swathi Dhanavanthri <swathi.dhanavanthri@intel.com>
-Tested-by: Rafael Antognolli <rafael.antognolli@intel.com>
-Reviewed-by: Matt Roper <matthew.d.roper@intel.com>
-[mattrope: added missing blank line]
-Signed-off-by: Matt Roper <matthew.d.roper@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200326234955.16155-1-swathi.dhanavanthri@intel.com
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
----
- drivers/gpu/drm/i915/gt/intel_workarounds.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/gpu/drm/i915/gt/intel_workarounds.c b/drivers/gpu/drm/i915/gt/intel_workarounds.c
-index 5176ad1a3976..092a42367851 100644
---- a/drivers/gpu/drm/i915/gt/intel_workarounds.c
-+++ b/drivers/gpu/drm/i915/gt/intel_workarounds.c
-@@ -1379,12 +1379,6 @@ rcs_engine_wa_init(struct intel_engine_cs *engine, struct i915_wa_list *wal)
- 			    GEN7_FF_THREAD_MODE,
- 			    GEN12_FF_TESSELATION_DOP_GATE_DISABLE);
- 
--		/*
--		 * Wa_1409085225:tgl
--		 * Wa_14010229206:tgl
--		 */
--		wa_masked_en(wal, GEN9_ROW_CHICKEN4, GEN12_DISABLE_TDL_PUSH);
--
- 		/* Wa_1408615072:tgl */
- 		wa_write_or(wal, UNSLICE_UNIT_LEVEL_CLKGATE2,
- 			    VSUNIT_CLKGATE_DIS_TGL);
-@@ -1402,6 +1396,12 @@ rcs_engine_wa_init(struct intel_engine_cs *engine, struct i915_wa_list *wal)
- 		wa_masked_en(wal,
- 			     GEN9_CS_DEBUG_MODE1,
- 			     FF_DOP_CLOCK_GATE_DISABLE);
-+
-+		/*
-+		 * Wa_1409085225:tgl
-+		 * Wa_14010229206:tgl
-+		 */
-+		wa_masked_en(wal, GEN9_ROW_CHICKEN4, GEN12_DISABLE_TDL_PUSH);
- 	}
- 
- 	if (IS_GEN(i915, 11)) {
--- 
-2.24.1
-
+Yes, that's what I meant: alternatives choosing REP variant.
+memset loops are so 21-st century.
