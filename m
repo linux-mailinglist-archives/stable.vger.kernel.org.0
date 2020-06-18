@@ -2,88 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 893A31FFC73
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 22:25:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A49B41FFC7D
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 22:29:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728951AbgFRUZc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Jun 2020 16:25:32 -0400
-Received: from sonic303-3.consmr.mail.bf2.yahoo.com ([74.6.131.42]:42874 "EHLO
-        sonic303-3.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728908AbgFRUZb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Jun 2020 16:25:31 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1592511930; bh=DPYuw2gUpgtMJzJhlH/AVmRGu2wSKCY1C+f8nOCoxu0=; h=Date:From:Reply-To:Subject:References:From:Subject; b=nYB58LgWoEcdMmHWwrdthpRA1xaVx43anSpXoNP2kJ49AozE4a5wo1REsgbqHQAStqfWFwlZpjXYR7H1c3ivgqd4xgqmmmcH1HkxzbaTXCTmEkOJgxKNjDxXxwCit5YO8lWaJ2zcp5PCkGQ94DThTnTg8lvuwM65UR9hkGokVzuzb486TcvL7yyN75/xxBV4KAcgY7afNpEh6RW1x4oY2h/tyAZlP4rgBr3L5lpmh7rzenDBZFixTpC+SYbl0A8qgikhH0sSz8u8vNB+KaUa77o/HpjUoA9GCarBbivH1PABSogNu/xrCRyrnwWBL+Mq72BRn0viNmgRlDJa1Ib+pg==
-X-YMail-OSG: PIL7Tn8VM1nMtxedTZDOaqVsORaJ40hRu6tjrKIPE0Pgunx6P3GO5fJkE6Or07v
- 8jaxM3jJLqwIVNZiTSfOEkhUUxG5IVF.2QZjlDSJuslvnzYYTTKLaEIzwMTidozvIqia497CUAtF
- goH5h25gqi9zUtCtYG1HzBQg9NpFveV4TJcPZIU3gJeMP5tEofc03QbsskYBLS3bMlwL4KytXCP9
- .QB9Nl7NAw74fzLqMH_QunTk00rOn4DUKyRFaYKDkWAp00RJOGnm..ts7nDEB4tbyFFCgBYSCK0L
- nLIHk22wQC6Pe2SNdNT6t1YEhZn_OAaei9odztoEr3s2_3FIt3gkGJeYmfrYwUhvfAKJwWI9Lizc
- F0IMy1FIPrIJI6dshbeduFY9jESVjblW3rWQOKpsuRV4tH8vkQhEdDEIFQtqZYRPeZ7swxPl5vba
- tW1SHUe0M4CHoA2mZRTUDY43qddf7.bjAKnnahHZU_B2GNz9G4AMIEwzLWcwxfsNWUiZAHy8k_6a
- PzGCkqJv77zBvtfSk5nnZcwc1Kt.R028.kLz3ufzNC50FxHJlDQG3RgF2K095VXqG2zF5W.2v8YG
- AVZGznVAe7.EheXPcKewng_caYjze4ht2jbnzDHxotzEKKsPwb41PxW9fumyHK7FWd2.m0BLL63i
- jGJpc5OxCAmNGd21aqoflbO61PUsdAz6X9VdTWl02vwuogpaKsB4bOtLMmCpI6JcHbXUYHx8Vatc
- cG1ifsNbBZ6acYSdI_c5zHHWLFBxs3tpgO8EDzMROvWo7Ggd2zFyOPX7elaAXU.Y3g0.XPQSxd90
- gpwE-
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic303.consmr.mail.bf2.yahoo.com with HTTP; Thu, 18 Jun 2020 20:25:30 +0000
-Date:   Thu, 18 Jun 2020 20:25:26 +0000 (UTC)
-From:   "Mrs. Mina A. Brunel" <brunelminaa@gmail.com>
-Reply-To: mrsminaabrunel63@gmail.com
-Message-ID: <729462874.282615.1592511926179@mail.yahoo.com>
-Subject: My Dear in the lord
+        id S1729270AbgFRU3U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Jun 2020 16:29:20 -0400
+Received: from mga04.intel.com ([192.55.52.120]:51202 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726193AbgFRU3S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Jun 2020 16:29:18 -0400
+IronPort-SDR: KAIkDS+jXuia26DMs2yCPuetCM/4Bq4ZQPiRVgOaczlMrczjnzzCqbSdrPU6vUmPEA7CnQULFN
+ gKvpIiJCYtLw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9656"; a="140240125"
+X-IronPort-AV: E=Sophos;i="5.75,252,1589266800"; 
+   d="scan'208";a="140240125"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga006.fm.intel.com ([10.253.24.20])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jun 2020 13:29:17 -0700
+IronPort-SDR: mUPA4RGvkOlj+3E87uSmjqXZKpywcjo7iuNFSWb7OcRlB9fv2yslUe1hWCEMvBzckuJoWlOQSe
+ EPSyXGktJcZA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.75,252,1589266800"; 
+   d="scan'208";a="477318158"
+Received: from rdvivi-losangeles.jf.intel.com ([10.165.21.202])
+  by fmsmga006.fm.intel.com with ESMTP; 18 Jun 2020 13:29:17 -0700
+From:   Rodrigo Vivi <rodrigo.vivi@intel.com>
+To:     stable@vger.kernel.org
+Cc:     intel-gfx@lists.freedesktop.org,
+        Swathi Dhanavanthri <swathi.dhanavanthri@intel.com>,
+        Rafael Antognolli <rafael.antognolli@intel.com>,
+        Matt Roper <matthew.d.roper@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH] drm/i915/tgl: Make Wa_14010229206 permanent
+Date:   Thu, 18 Jun 2020 13:27:00 -0700
+Message-Id: <20200618202701.729-1-rodrigo.vivi@intel.com>
+X-Mailer: git-send-email 2.24.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-References: <729462874.282615.1592511926179.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.16138 YMailNodin Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36
-To:     unlisted-recipients:; (no To-header on input)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Swathi Dhanavanthri <swathi.dhanavanthri@intel.com>
 
+commit 63d0f3ea8ebb67160eca281320d255c72b0cb51a upstream.
 
-My Dear in the lord
+This workaround now applies to all steppings, not just A0.
+Wa_1409085225 is a temporary A0-only W/A however it is
+identical to Wa_14010229206 and hence the combined workaround
+is made permanent.
+Bspec: 52890
 
+Signed-off-by: Swathi Dhanavanthri <swathi.dhanavanthri@intel.com>
+Tested-by: Rafael Antognolli <rafael.antognolli@intel.com>
+Reviewed-by: Matt Roper <matthew.d.roper@intel.com>
+[mattrope: added missing blank line]
+Signed-off-by: Matt Roper <matthew.d.roper@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200326234955.16155-1-swathi.dhanavanthri@intel.com
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+---
+ drivers/gpu/drm/i915/gt/intel_workarounds.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-My name is Mrs. Mina A. Brunel I am a Norway Citizen who is living in Burki=
-na Faso, I am married to Mr. Brunel Patrice, a politicians who owns a small=
- gold company in Burkina Faso; He died of Leprosy and Radesyge, in year Feb=
-ruary 2010, During his lifetime he deposited the sum of =E2=82=AC 8.5 Milli=
-on Euro) Eight million, Five hundred thousand Euros in a bank in Ouagadougo=
-u the capital city of of Burkina in West Africa. The money was from the sal=
-e of his company and death benefits payment and entitlements of my deceased=
- husband by his company.
+diff --git a/drivers/gpu/drm/i915/gt/intel_workarounds.c b/drivers/gpu/drm/i915/gt/intel_workarounds.c
+index 5176ad1a3976..092a42367851 100644
+--- a/drivers/gpu/drm/i915/gt/intel_workarounds.c
++++ b/drivers/gpu/drm/i915/gt/intel_workarounds.c
+@@ -1379,12 +1379,6 @@ rcs_engine_wa_init(struct intel_engine_cs *engine, struct i915_wa_list *wal)
+ 			    GEN7_FF_THREAD_MODE,
+ 			    GEN12_FF_TESSELATION_DOP_GATE_DISABLE);
+ 
+-		/*
+-		 * Wa_1409085225:tgl
+-		 * Wa_14010229206:tgl
+-		 */
+-		wa_masked_en(wal, GEN9_ROW_CHICKEN4, GEN12_DISABLE_TDL_PUSH);
+-
+ 		/* Wa_1408615072:tgl */
+ 		wa_write_or(wal, UNSLICE_UNIT_LEVEL_CLKGATE2,
+ 			    VSUNIT_CLKGATE_DIS_TGL);
+@@ -1402,6 +1396,12 @@ rcs_engine_wa_init(struct intel_engine_cs *engine, struct i915_wa_list *wal)
+ 		wa_masked_en(wal,
+ 			     GEN9_CS_DEBUG_MODE1,
+ 			     FF_DOP_CLOCK_GATE_DISABLE);
++
++		/*
++		 * Wa_1409085225:tgl
++		 * Wa_14010229206:tgl
++		 */
++		wa_masked_en(wal, GEN9_ROW_CHICKEN4, GEN12_DISABLE_TDL_PUSH);
+ 	}
+ 
+ 	if (IS_GEN(i915, 11)) {
+-- 
+2.24.1
 
-I am sending you this message with heavy tears in my eyes and great sorrow =
-in my heart, and also praying that it will reach you in good health because=
- I am not in good health, I sleep every night without knowing if I may be a=
-live to see the next day. I am suffering from long time cancer and presentl=
-y I am partially suffering from Leprosy, which has become difficult for me =
-to move around. I was married to my late husband for more than 6 years with=
-out having a child and my doctor confided that I have less chance to live, =
-having to know when the cup of death will come, I decided to contact you to=
- claim the fund since I don't have any relation I grew up from an orphanage=
- home.
-
-I have decided to donate this money for the support of helping Motherless b=
-abies/Less privileged/Widows and churches also to build the house of God be=
-cause I am dying and diagnosed with cancer for about 3 years ago. I have de=
-cided to donate from what I have inherited from my late husband to you for =
-the good work of Almighty God; I will be going in for an operation surgery =
-soon.
-
-Now I want you to stand as my next of kin to claim the funds for charity pu=
-rposes. Because of this money remains unclaimed after my death, the bank ex=
-ecutives or the government will take the money as unclaimed fund and maybe =
-use it for selfishness and worthless ventures, I need a very honest person =
-who can claim this money and use it for Charity works, for orphanages, wido=
-ws and also build schools and churches for less privilege that will be name=
-d after my late husband and my name.
-
-I need your urgent answer to know if you will be able to execute this proje=
-ct, and I will give you more information on how the fund will be transferre=
-d to your bank account or online banking.
-
-Thanks
-Mrs. Mina A. Brunel
