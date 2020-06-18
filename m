@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EEF8D1FE522
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:23:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98B171FE51F
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:23:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729852AbgFRBR5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:17:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49218 "EHLO mail.kernel.org"
+        id S1729861AbgFRBSA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:18:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729848AbgFRBR4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:17:56 -0400
+        id S1729436AbgFRBR7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:17:59 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E58621D82;
-        Thu, 18 Jun 2020 01:17:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D6C11221ED;
+        Thu, 18 Jun 2020 01:17:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443076;
-        bh=Jn566st4WXENMqlUQMlT38EichEb2vGs1vnaLTneYyo=;
+        s=default; t=1592443078;
+        bh=ENwQaP6raiAviYta8LkKJFZWMDOkBRB+CQ9P1wDuPN4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vcS9mFbrEy7WDqYA8kbhjAbTwAafGGnBxnmQA/cb9xy9WTrVJWWotWWbzjN9GzWSB
-         4v5w5v0b8D4S58/HmYP4xSIKaqosohtLTyBG8Ua38yv6vWBQ8aiQXGLv+Ud0ZmFINV
-         LIOdE3OVFjmdoSIgA7Z/Gqx0b1qIY3AOjhMmD1h4=
+        b=stlHjkoUCHERgxKOYRR/ztfx9/vwiNu5yx347QyS0D7bOIht8ZnOFyAq26rnbPVr0
+         3dYoX5R7I2OaAWJc0ZtRT8NHZWy4KSSwyL8b22dW+241bdSFxyLu+nLK04kyey0io/
+         DSPxMpV5e/xxu55N3ZDvFF/43wnJdU7LVaeUDIf8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        "J . Bruce Fields" <bfields@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 063/266] nfsd: Fix svc_xprt refcnt leak when setup callback client failed
-Date:   Wed, 17 Jun 2020 21:13:08 -0400
-Message-Id: <20200618011631.604574-63-sashal@kernel.org>
+Cc:     Qiushi Wu <wu000273@umn.edu>, Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 065/266] RDMA/core: Fix several reference count leaks.
+Date:   Wed, 17 Jun 2020 21:13:10 -0400
+Message-Id: <20200618011631.604574-65-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
@@ -44,42 +42,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+From: Qiushi Wu <wu000273@umn.edu>
 
-[ Upstream commit a4abc6b12eb1f7a533c2e7484cfa555454ff0977 ]
+[ Upstream commit 0b8e125e213204508e1b3c4bdfe69713280b7abd ]
 
-nfsd4_process_cb_update() invokes svc_xprt_get(), which increases the
-refcount of the "c->cn_xprt".
+kobject_init_and_add() takes reference even when it fails.  If this
+function returns an error, kobject_put() must be called to properly clean
+up the memory associated with the object. Previous
+commit b8eb718348b8 ("net-sysfs: Fix reference count leak in
+rx|netdev_queue_add_kobject") fixed a similar problem.
 
-The reference counting issue happens in one exception handling path of
-nfsd4_process_cb_update(). When setup callback client failed, the
-function forgets to decrease the refcnt increased by svc_xprt_get(),
-causing a refcnt leak.
-
-Fix this issue by calling svc_xprt_put() when setup callback client
-failed.
-
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Link: https://lore.kernel.org/r/20200528030231.9082-1-wu000273@umn.edu
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4callback.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/infiniband/core/sysfs.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/fs/nfsd/nfs4callback.c b/fs/nfsd/nfs4callback.c
-index afca3287184b..efe55d101b0e 100644
---- a/fs/nfsd/nfs4callback.c
-+++ b/fs/nfsd/nfs4callback.c
-@@ -1230,6 +1230,8 @@ static void nfsd4_process_cb_update(struct nfsd4_callback *cb)
- 	err = setup_callback_client(clp, &conn, ses);
- 	if (err) {
- 		nfsd4_mark_cb_down(clp, err);
-+		if (c)
-+			svc_xprt_put(c->cn_xprt);
- 		return;
+diff --git a/drivers/infiniband/core/sysfs.c b/drivers/infiniband/core/sysfs.c
+index 7a50cedcef1f..091cca9d88ed 100644
+--- a/drivers/infiniband/core/sysfs.c
++++ b/drivers/infiniband/core/sysfs.c
+@@ -1060,8 +1060,7 @@ static int add_port(struct ib_core_device *coredev, int port_num)
+ 				   coredev->ports_kobj,
+ 				   "%d", port_num);
+ 	if (ret) {
+-		kfree(p);
+-		return ret;
++		goto err_put;
  	}
- }
+ 
+ 	p->gid_attr_group = kzalloc(sizeof(*p->gid_attr_group), GFP_KERNEL);
+@@ -1074,8 +1073,7 @@ static int add_port(struct ib_core_device *coredev, int port_num)
+ 	ret = kobject_init_and_add(&p->gid_attr_group->kobj, &gid_attr_type,
+ 				   &p->kobj, "gid_attrs");
+ 	if (ret) {
+-		kfree(p->gid_attr_group);
+-		goto err_put;
++		goto err_put_gid_attrs;
+ 	}
+ 
+ 	if (device->ops.process_mad && is_full_dev) {
+@@ -1406,8 +1404,10 @@ int ib_port_register_module_stat(struct ib_device *device, u8 port_num,
+ 
+ 		ret = kobject_init_and_add(kobj, ktype, &port->kobj, "%s",
+ 					   name);
+-		if (ret)
++		if (ret) {
++			kobject_put(kobj);
+ 			return ret;
++		}
+ 	}
+ 
+ 	return 0;
 -- 
 2.25.1
 
