@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC3771FDF06
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:39:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BEB61FDF02
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:39:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731650AbgFRBiP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:38:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40502 "EHLO mail.kernel.org"
+        id S1731758AbgFRBiH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:38:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731811AbgFRBae (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:30:34 -0400
+        id S1732562AbgFRBaf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:30:35 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 21E6621D90;
-        Thu, 18 Jun 2020 01:30:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5BEA421D82;
+        Thu, 18 Jun 2020 01:30:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443833;
-        bh=ttn8Ozt/ANtbplld6OHlA8lbucWzZr1/YkK0kMkRdas=;
+        s=default; t=1592443835;
+        bh=kxG45STq5CMYA1inuAgbobc/i/Q6V2Gzuxo39Hd6l2I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=avHwUyKgwM0X8EMfoyj6oUGWuIVx4ACm54SUj7bhfH93Vo6cC1MoWirNUJhxJaIq3
-         JcOOOO6G1+4N8JdUDZlf2s71ZG7oDdBjIon3RGjpZr65q+m6cB1VwUhf/i/Neesj0D
-         EDmPebt1Z0RpCniBo/nUxSsZcvAVOSbA4QATn5HU=
+        b=RRRdi+lOBNXN7slNO+iksN+PfYfpQ740uZ/IbVJb/eaQfSU1rUP2tC2VTr6Wryl7N
+         IO7N+FVM7hpxeu22UOY8D2PBRoF9LtsW1rjgVr4bG+djVt53MkUkTwg9CN2qgXqXQF
+         qlkMeP+ztmv7UDhsJ4SBTr0PB+2uIDycMP3iTItQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tyrel Datwyler <tyreld@linux.ibm.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.4 21/60] scsi: ibmvscsi: Don't send host info in adapter info MAD after LPM
-Date:   Wed, 17 Jun 2020 21:29:25 -0400
-Message-Id: <20200618013004.610532-21-sashal@kernel.org>
+Cc:     Aiman Najjar <aiman.najjar@hurranet.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org
+Subject: [PATCH AUTOSEL 4.4 22/60] staging: rtl8712: fix multiline derefernce warnings
+Date:   Wed, 17 Jun 2020 21:29:26 -0400
+Message-Id: <20200618013004.610532-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618013004.610532-1-sashal@kernel.org>
 References: <20200618013004.610532-1-sashal@kernel.org>
@@ -44,44 +44,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tyrel Datwyler <tyreld@linux.ibm.com>
+From: Aiman Najjar <aiman.najjar@hurranet.com>
 
-[ Upstream commit 4919b33b63c8b69d8dcf2b867431d0e3b6dc6d28 ]
+[ Upstream commit 269da10b1477c31c660288633c8d613e421b131f ]
 
-The adapter info MAD is used to send the client info and receive the host
-info as a response. A persistent buffer is used and as such the client info
-is overwritten after the response. During the course of a normal adapter
-reset the client info is refreshed in the buffer in preparation for sending
-the adapter info MAD.
+This patch fixes remaining checkpatch warnings
+in rtl871x_xmit.c:
 
-However, in the special case of LPM where we reenable the CRQ instead of a
-full CRQ teardown and reset we fail to refresh the client info in the
-adapter info buffer. As a result, after Live Partition Migration (LPM) we
-erroneously report the host's info as our own.
+WARNING: Avoid multiple line dereference - prefer 'psecuritypriv->PrivacyKeyIndex'
+636: FILE: drivers/staging//rtl8712/rtl871x_xmit.c:636:
++					      (u8)psecuritypriv->
++					      PrivacyKeyIndex);
 
-[mkp: typos]
+WARNING: Avoid multiple line dereference - prefer 'psecuritypriv->XGrpKeyid'
+643: FILE: drivers/staging//rtl8712/rtl871x_xmit.c:643:
++						   (u8)psecuritypriv->
++						   XGrpKeyid);
 
-Link: https://lore.kernel.org/r/20200603203632.18426-1-tyreld@linux.ibm.com
-Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+WARNING: Avoid multiple line dereference - prefer 'psecuritypriv->XGrpKeyid'
+652: FILE: drivers/staging//rtl8712/rtl871x_xmit.c:652:
++						   (u8)psecuritypriv->
++						   XGrpKeyid);
+
+Signed-off-by: Aiman Najjar <aiman.najjar@hurranet.com>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/98805a72b92e9bbf933e05b827d27944663b7bc1.1585508171.git.aiman.najjar@hurranet.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ibmvscsi/ibmvscsi.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/staging/rtl8712/rtl871x_xmit.c | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/scsi/ibmvscsi/ibmvscsi.c b/drivers/scsi/ibmvscsi/ibmvscsi.c
-index e26747a1b35a..e7075aae15da 100644
---- a/drivers/scsi/ibmvscsi/ibmvscsi.c
-+++ b/drivers/scsi/ibmvscsi/ibmvscsi.c
-@@ -427,6 +427,8 @@ static int ibmvscsi_reenable_crq_queue(struct crq_queue *queue,
- 	int rc = 0;
- 	struct vio_dev *vdev = to_vio_dev(hostdata->dev);
- 
-+	set_adapter_info(hostdata);
-+
- 	/* Re-enable the CRQ */
- 	do {
- 		if (rc)
+diff --git a/drivers/staging/rtl8712/rtl871x_xmit.c b/drivers/staging/rtl8712/rtl871x_xmit.c
+index d3ad89c7b8af..f82bbbe82244 100644
+--- a/drivers/staging/rtl8712/rtl871x_xmit.c
++++ b/drivers/staging/rtl8712/rtl871x_xmit.c
+@@ -593,7 +593,7 @@ sint r8712_xmitframe_coalesce(struct _adapter *padapter, _pkt *pkt,
+ 	addr_t addr;
+ 	u8 *pframe, *mem_start, *ptxdesc;
+ 	struct sta_info		*psta;
+-	struct security_priv	*psecuritypriv = &padapter->securitypriv;
++	struct security_priv	*psecpriv = &padapter->securitypriv;
+ 	struct mlme_priv	*pmlmepriv = &padapter->mlmepriv;
+ 	struct xmit_priv	*pxmitpriv = &padapter->xmitpriv;
+ 	struct pkt_attrib	*pattrib = &pxmitframe->attrib;
+@@ -636,15 +636,13 @@ sint r8712_xmitframe_coalesce(struct _adapter *padapter, _pkt *pkt,
+ 				case _WEP40_:
+ 				case _WEP104_:
+ 					WEP_IV(pattrib->iv, psta->txpn,
+-					       (u8)psecuritypriv->
+-					       PrivacyKeyIndex);
++					       (u8)psecpriv->PrivacyKeyIndex);
+ 					break;
+ 				case _TKIP_:
+ 					if (bmcst)
+ 						TKIP_IV(pattrib->iv,
+ 						    psta->txpn,
+-						    (u8)psecuritypriv->
+-						    XGrpKeyid);
++						    (u8)psecpriv->XGrpKeyid);
+ 					else
+ 						TKIP_IV(pattrib->iv, psta->txpn,
+ 							0);
+@@ -652,8 +650,7 @@ sint r8712_xmitframe_coalesce(struct _adapter *padapter, _pkt *pkt,
+ 				case _AES_:
+ 					if (bmcst)
+ 						AES_IV(pattrib->iv, psta->txpn,
+-						    (u8)psecuritypriv->
+-						    XGrpKeyid);
++						    (u8)psecpriv->XGrpKeyid);
+ 					else
+ 						AES_IV(pattrib->iv, psta->txpn,
+ 						       0);
 -- 
 2.25.1
 
