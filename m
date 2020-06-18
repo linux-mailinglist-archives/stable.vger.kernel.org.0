@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C79D1FE85E
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:48:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16AA11FE868
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:48:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728365AbgFRBKB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:10:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36840 "EHLO mail.kernel.org"
+        id S1728426AbgFRCsX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:48:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728353AbgFRBKA (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728361AbgFRBKA (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 17 Jun 2020 21:10:00 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 95E8121D7B;
-        Thu, 18 Jun 2020 01:09:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C0DCD21D7F;
+        Thu, 18 Jun 2020 01:09:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442599;
-        bh=VJzaoxoKeF198IG1//NwSmmQ60SybCGGZhxLajDECV0=;
+        s=default; t=1592442600;
+        bh=I2F6fN+42izECEedNu+3CiXDqLSxar4fLW5EChKmkQ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SU6twZ204jAf9EgOktPU+BISYzMll3te/oVa+xwHk/s5UJxc/JLidt7wyTs77icKS
-         EDN/piwTUdcgLXOYQE+BcWGWDWbohsVIrBTUhlCxGgeudtc6LNqsgkTmOUjOaJPbUT
-         itmfmUJsKrn1mc5JlyqvNMD6XX5ZvFQFPGoTfJng=
+        b=cDopKRbu4QptvK3qQQqv6KFEzeyZCs6mtuKI/EXMHtgcpNPRa16nNYPvRLGFBJfu5
+         TwYRPAsM5X7BLOx0BKj0osozIw85m7Ex6LPv+FumsMsiUw5IGHcooNdOjI/Nhvo0Bs
+         LDvvhyIKMF5/6Lvsr5hVB4NauviGSNK2n/R66E+Y=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pingfan Liu <kernelfans@gmail.com>,
-        Hari Bathini <hbathini@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.7 086/388] powerpc/crashkernel: Take "mem=" option into account
-Date:   Wed, 17 Jun 2020 21:03:03 -0400
-Message-Id: <20200618010805.600873-86-sashal@kernel.org>
+Cc:     Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pwm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 087/388] pwm: img: Call pm_runtime_put() in pm_runtime_get_sync() failed case
+Date:   Wed, 17 Jun 2020 21:03:04 -0400
+Message-Id: <20200618010805.600873-87-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
@@ -44,79 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pingfan Liu <kernelfans@gmail.com>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit be5470e0c285a68dc3afdea965032f5ddc8269d7 ]
+[ Upstream commit ca162ce98110b98e7d97b7157328d34dcfdd40a9 ]
 
-'mem=" option is an easy way to put high pressure on memory during
-some test. Hence after applying the memory limit, instead of total
-mem, the actual usable memory should be considered when reserving mem
-for crashkernel. Otherwise the boot up may experience OOM issue.
+Even in failed case of pm_runtime_get_sync(), the usage_count is
+incremented. In order to keep the usage_count with correct value call
+appropriate pm_runtime_put().
 
-E.g. it would reserve 4G prior to the change and 512M afterward, if
-passing
-crashkernel="2G-4G:384M,4G-16G:512M,16G-64G:1G,64G-128G:2G,128G-:4G",
-and mem=5G on a 256G machine.
-
-This issue is powerpc specific because it puts higher priority on
-fadump and kdump reservation than on "mem=". Referring the following
-code:
-    if (fadump_reserve_mem() == 0)
-            reserve_crashkernel();
-    ...
-    /* Ensure that total memory size is page-aligned. */
-    limit = ALIGN(memory_limit ?: memblock_phys_mem_size(), PAGE_SIZE);
-    memblock_enforce_memory_limit(limit);
-
-While on other arches, the effect of "mem=" takes a higher priority
-and pass through memblock_phys_mem_size() before calling
-reserve_crashkernel().
-
-Signed-off-by: Pingfan Liu <kernelfans@gmail.com>
-Reviewed-by: Hari Bathini <hbathini@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1585749644-4148-1-git-send-email-kernelfans@gmail.com
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kexec/core.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/pwm/pwm-img.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/kexec/core.c b/arch/powerpc/kexec/core.c
-index 078fe3d76feb..56da5eb2b923 100644
---- a/arch/powerpc/kexec/core.c
-+++ b/arch/powerpc/kexec/core.c
-@@ -115,11 +115,12 @@ void machine_kexec(struct kimage *image)
+diff --git a/drivers/pwm/pwm-img.c b/drivers/pwm/pwm-img.c
+index c9e57bd109fb..599a0f66a384 100644
+--- a/drivers/pwm/pwm-img.c
++++ b/drivers/pwm/pwm-img.c
+@@ -129,8 +129,10 @@ static int img_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
+ 	duty = DIV_ROUND_UP(timebase * duty_ns, period_ns);
  
- void __init reserve_crashkernel(void)
- {
--	unsigned long long crash_size, crash_base;
-+	unsigned long long crash_size, crash_base, total_mem_sz;
+ 	ret = pm_runtime_get_sync(chip->dev);
+-	if (ret < 0)
++	if (ret < 0) {
++		pm_runtime_put_autosuspend(chip->dev);
+ 		return ret;
++	}
+ 
+ 	val = img_pwm_readl(pwm_chip, PWM_CTRL_CFG);
+ 	val &= ~(PWM_CTRL_CFG_DIV_MASK << PWM_CTRL_CFG_DIV_SHIFT(pwm->hwpwm));
+@@ -331,8 +333,10 @@ static int img_pwm_remove(struct platform_device *pdev)
  	int ret;
  
-+	total_mem_sz = memory_limit ? memory_limit : memblock_phys_mem_size();
- 	/* use common parsing */
--	ret = parse_crashkernel(boot_command_line, memblock_phys_mem_size(),
-+	ret = parse_crashkernel(boot_command_line, total_mem_sz,
- 			&crash_size, &crash_base);
- 	if (ret == 0 && crash_size > 0) {
- 		crashk_res.start = crash_base;
-@@ -178,6 +179,7 @@ void __init reserve_crashkernel(void)
- 	/* Crash kernel trumps memory limit */
- 	if (memory_limit && memory_limit <= crashk_res.end) {
- 		memory_limit = crashk_res.end + 1;
-+		total_mem_sz = memory_limit;
- 		printk("Adjusted memory limit for crashkernel, now 0x%llx\n",
- 		       memory_limit);
- 	}
-@@ -186,7 +188,7 @@ void __init reserve_crashkernel(void)
- 			"for crashkernel (System RAM: %ldMB)\n",
- 			(unsigned long)(crash_size >> 20),
- 			(unsigned long)(crashk_res.start >> 20),
--			(unsigned long)(memblock_phys_mem_size() >> 20));
-+			(unsigned long)(total_mem_sz >> 20));
+ 	ret = pm_runtime_get_sync(&pdev->dev);
+-	if (ret < 0)
++	if (ret < 0) {
++		pm_runtime_put(&pdev->dev);
+ 		return ret;
++	}
  
- 	if (!memblock_is_region_memory(crashk_res.start, crash_size) ||
- 	    memblock_reserve(crashk_res.start, crash_size)) {
+ 	for (i = 0; i < pwm_chip->chip.npwm; i++) {
+ 		val = img_pwm_readl(pwm_chip, PWM_CTRL_CFG);
 -- 
 2.25.1
 
