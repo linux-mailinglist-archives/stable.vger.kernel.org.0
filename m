@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9623B1FE460
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:18:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D32691FE467
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:18:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730342AbgFRCR5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:17:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51808 "EHLO mail.kernel.org"
+        id S1728381AbgFRCSD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:18:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729294AbgFRBTv (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730208AbgFRBTv (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 17 Jun 2020 21:19:51 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4FF5E221F9;
-        Thu, 18 Jun 2020 01:19:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B73A21D80;
+        Thu, 18 Jun 2020 01:19:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443188;
-        bh=hAwUW1FZgpbIAhZkC6+layR+gnfzuWLNUL2910wi+e4=;
+        s=default; t=1592443189;
+        bh=d8hWKR8nu0SzVC4KJO15bRIP1AlgJ0tDnm9EpB/vIhU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XMMGwcd5WwWbVIcAKV354Cb7b3/iezXVATryTP8uwg89NlPA+o6lyl3ZdKQtP2eO2
-         Jn63s20fsg0/vjqA6dix98q4bAaHEqc/+nyrM0btoDTAmSQkBZNkC9NrEPNiLH1jJ+
-         h45aAyxWlR4puA6GL8u7nlVMx9kiHbCbDF0WEa0k=
+        b=VUh3jU1aFOfflb6/F/rJPr2BP7DTxO9T91QTtgzoG3UMJlwqKDGQopNXck/zTr0ag
+         BBhjrMFfWxJTvyRWeCR9hlSRq2qRkZFuXPeJacAigyvB4zkdJQf5/s5kd7qA3cLx9F
+         8Q1ILlWnZbUzepy8q5UN/5peA1pYzW8Khw4/PfQY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Feng Tang <feng.tang@intel.com>,
-        Corey Minyard <cminyard@mvista.com>,
-        Sasha Levin <sashal@kernel.org>,
-        openipmi-developer@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.4 149/266] ipmi: use vzalloc instead of kmalloc for user creation
-Date:   Wed, 17 Jun 2020 21:14:34 -0400
-Message-Id: <20200618011631.604574-149-sashal@kernel.org>
+Cc:     Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.4 150/266] powerpc/64s/exception: Fix machine check no-loss idle wakeup
+Date:   Wed, 17 Jun 2020 21:14:35 -0400
+Message-Id: <20200618011631.604574-150-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
@@ -44,85 +43,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Feng Tang <feng.tang@intel.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit 7c47a219b95d0e06b5ef5fcc7bad807895015eac ]
+[ Upstream commit 8a5054d8cbbe03c68dcb0957c291c942132e4101 ]
 
-We met mulitple times of failure of staring bmc-watchdog,
-due to the runtime memory allocation failure of order 4.
+The architecture allows for machine check exceptions to cause idle
+wakeups which resume at the 0x200 address which has to return via
+the idle wakeup code, but the early machine check handler is run
+first.
 
-     bmc-watchdog: page allocation failure: order:4, mode:0x40cc0(GFP_KERNEL|__GFP_COMP), nodemask=(null),cpuset=/,mems_allowed=0-1
-     CPU: 1 PID: 2571 Comm: bmc-watchdog Not tainted 5.5.0-00045-g7d6bb61d6188c #1
-     Hardware name: Intel Corporation S2600WFT/S2600WFT, BIOS SE5C620.86B.00.01.0015.110720180833 11/07/2018
-     Call Trace:
-      dump_stack+0x66/0x8b
-      warn_alloc+0xfe/0x160
-      __alloc_pages_slowpath+0xd3e/0xd80
-      __alloc_pages_nodemask+0x2f0/0x340
-      kmalloc_order+0x18/0x70
-      kmalloc_order_trace+0x1d/0xb0
-      ipmi_create_user+0x55/0x2c0 [ipmi_msghandler]
-      ipmi_open+0x72/0x110 [ipmi_devintf]
-      chrdev_open+0xcb/0x1e0
-      do_dentry_open+0x1ce/0x380
-      path_openat+0x305/0x14f0
-      do_filp_open+0x9b/0x110
-      do_sys_open+0x1bd/0x250
-      do_syscall_64+0x5b/0x1f0
-      entry_SYSCALL_64_after_hwframe+0x44/0xa9
+The case of a no state-loss sleep is broken because the early
+handler uses non-volatile register r1 , which is needed for the wakeup
+protocol, but it is not restored.
 
-Using vzalloc/vfree for creating ipmi_user heals the
-problem
+Fix this by loading r1 from the MCE exception frame before returning
+to the idle wakeup code. Also update the comment which has become
+stale since the idle rewrite in C.
 
-Thanks to Stephen Rothwell for finding the vmalloc.h
-inclusion issue.
+This crash was found and fix confirmed with a machine check injection
+test in qemu powernv model (which is not upstream in qemu yet).
 
-Signed-off-by: Feng Tang <feng.tang@intel.com>
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
+Fixes: 10d91611f426d ("powerpc/64s: Reimplement book3s idle code in C")
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200508043408.886394-2-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/ipmi/ipmi_msghandler.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ arch/powerpc/kernel/exceptions-64s.S | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/char/ipmi/ipmi_msghandler.c b/drivers/char/ipmi/ipmi_msghandler.c
-index 90f5292e2051..ac656a6d5daf 100644
---- a/drivers/char/ipmi/ipmi_msghandler.c
-+++ b/drivers/char/ipmi/ipmi_msghandler.c
-@@ -33,6 +33,7 @@
- #include <linux/workqueue.h>
- #include <linux/uuid.h>
- #include <linux/nospec.h>
-+#include <linux/vmalloc.h>
+diff --git a/arch/powerpc/kernel/exceptions-64s.S b/arch/powerpc/kernel/exceptions-64s.S
+index d0018dd17e0a..70ac8a6ba0c1 100644
+--- a/arch/powerpc/kernel/exceptions-64s.S
++++ b/arch/powerpc/kernel/exceptions-64s.S
+@@ -1090,17 +1090,19 @@ EXC_COMMON_BEGIN(machine_check_idle_common)
+ 	bl	machine_check_queue_event
  
- #define IPMI_DRIVER_VERSION "39.2"
+ 	/*
+-	 * We have not used any non-volatile GPRs here, and as a rule
+-	 * most exception code including machine check does not.
+-	 * Therefore PACA_NAPSTATELOST does not need to be set. Idle
+-	 * wakeup will restore volatile registers.
++	 * GPR-loss wakeups are relatively straightforward, because the
++	 * idle sleep code has saved all non-volatile registers on its
++	 * own stack, and r1 in PACAR1.
+ 	 *
+-	 * Load the original SRR1 into r3 for pnv_powersave_wakeup_mce.
++	 * For no-loss wakeups the r1 and lr registers used by the
++	 * early machine check handler have to be restored first. r2 is
++	 * the kernel TOC, so no need to restore it.
+ 	 *
+ 	 * Then decrement MCE nesting after finishing with the stack.
+ 	 */
+ 	ld	r3,_MSR(r1)
+ 	ld	r4,_LINK(r1)
++	ld	r1,GPR1(r1)
  
-@@ -1170,7 +1171,7 @@ static void free_user_work(struct work_struct *work)
- 					      remove_work);
+ 	lhz	r11,PACA_IN_MCE(r13)
+ 	subi	r11,r11,1
+@@ -1109,7 +1111,7 @@ EXC_COMMON_BEGIN(machine_check_idle_common)
+ 	mtlr	r4
+ 	rlwinm	r10,r3,47-31,30,31
+ 	cmpwi	cr1,r10,2
+-	bltlr	cr1	/* no state loss, return to idle caller */
++	bltlr	cr1	/* no state loss, return to idle caller with r3=SRR1 */
+ 	b	idle_return_gpr_loss
+ #endif
  
- 	cleanup_srcu_struct(&user->release_barrier);
--	kfree(user);
-+	vfree(user);
- }
- 
- int ipmi_create_user(unsigned int          if_num,
-@@ -1202,7 +1203,7 @@ int ipmi_create_user(unsigned int          if_num,
- 	if (rv)
- 		return rv;
- 
--	new_user = kmalloc(sizeof(*new_user), GFP_KERNEL);
-+	new_user = vzalloc(sizeof(*new_user));
- 	if (!new_user)
- 		return -ENOMEM;
- 
-@@ -1249,7 +1250,7 @@ int ipmi_create_user(unsigned int          if_num,
- 
- out_kfree:
- 	srcu_read_unlock(&ipmi_interfaces_srcu, index);
--	kfree(new_user);
-+	vfree(new_user);
- 	return rv;
- }
- EXPORT_SYMBOL(ipmi_create_user);
 -- 
 2.25.1
 
