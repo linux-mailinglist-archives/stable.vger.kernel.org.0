@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66FBF1FE883
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:49:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77B181FE881
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:49:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730447AbgFRCtP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:49:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36270 "EHLO mail.kernel.org"
+        id S1728269AbgFRCtH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:49:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727095AbgFRBJk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:09:40 -0400
+        id S1728263AbgFRBJn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:09:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F3BB21D95;
-        Thu, 18 Jun 2020 01:09:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0175521D81;
+        Thu, 18 Jun 2020 01:09:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442580;
-        bh=aPTm7gnbRhn+AoOex2mpPU0mnV+1Gnr/jAxPnNYSzHk=;
+        s=default; t=1592442582;
+        bh=Z/WbnyE4ZXlpudncQs5OzvRsFKu8fkgoznjwuRiGmao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RB6XJph5mlPJrkWvLNzt3bJc6z+PvB93OCabOjX1tmwopGhnUapq9DVkjD+UrHpyV
-         L8ajuTTEKIRerN+LrqOIQJ8L7eNaVSqBfCnhSHJR3WGaOlcSg7pgygQ44yse7AmunV
-         4HXq9dGoeHFwjMMgurA1GYSJgkH7Vf/bNX5Cr7mg=
+        b=JpN6VQNsojOp6CB8w9rmfTF1tJH4oTiDOjGDeFPQ06AHdza97EAVpzNZWFI8xHzmG
+         /Bk9D/rr2+PHPAz+8Y9tAbVyi+42VzoUQZDDdFQYWDkHeIFHkd7N88fzDH4QeNujqJ
+         R8t7ZcivvRSHs/IqJDuKYtVbgNzpGAo5h0n3Asnk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.7 072/388] powerpc/ptdump: Add _PAGE_COHERENT flag
-Date:   Wed, 17 Jun 2020 21:02:49 -0400
-Message-Id: <20200618010805.600873-72-sashal@kernel.org>
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 074/388] scsi: cxgb3i: Fix some leaks in init_act_open()
+Date:   Wed, 17 Jun 2020 21:02:51 -0400
+Message-Id: <20200618010805.600873-74-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
@@ -43,38 +43,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 3af4786eb429b2df76cbd7ce3bae21467ac3e4fb ]
+[ Upstream commit b6170a49c59c27a10efed26c5a2969403e69aaba ]
 
-For platforms using shared.c (4xx, Book3e, Book3s/32), also handle the
-_PAGE_COHERENT flag which corresponds to the M bit of the WIMG flags.
+There wasn't any clean up done if cxgb3_alloc_atid() failed and also the
+original code didn't release "csk->l2t".
 
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-[mpe: Make it more verbose, use "coherent" rather than "m"]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/324c3d860717e8e91fca3bb6c0f8b23e1644a404.1589866984.git.christophe.leroy@csgroup.eu
+Link: https://lore.kernel.org/r/20200521121221.GA247492@mwanda
+Fixes: 6f7efaabefeb ("[SCSI] cxgb3i: change cxgb3i to use libcxgbi")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/mm/ptdump/shared.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/scsi/cxgbi/cxgb3i/cxgb3i.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
-diff --git a/arch/powerpc/mm/ptdump/shared.c b/arch/powerpc/mm/ptdump/shared.c
-index f7ed2f187cb0..784f8df17f73 100644
---- a/arch/powerpc/mm/ptdump/shared.c
-+++ b/arch/powerpc/mm/ptdump/shared.c
-@@ -30,6 +30,11 @@ static const struct flag_info flag_array[] = {
- 		.val	= _PAGE_PRESENT,
- 		.set	= "present",
- 		.clear	= "       ",
-+	}, {
-+		.mask	= _PAGE_COHERENT,
-+		.val	= _PAGE_COHERENT,
-+		.set	= "coherent",
-+		.clear	= "        ",
- 	}, {
- 		.mask	= _PAGE_GUARDED,
- 		.val	= _PAGE_GUARDED,
+diff --git a/drivers/scsi/cxgbi/cxgb3i/cxgb3i.c b/drivers/scsi/cxgbi/cxgb3i/cxgb3i.c
+index 524cdbcd29aa..ec7d01f6e2d5 100644
+--- a/drivers/scsi/cxgbi/cxgb3i/cxgb3i.c
++++ b/drivers/scsi/cxgbi/cxgb3i/cxgb3i.c
+@@ -959,6 +959,7 @@ static int init_act_open(struct cxgbi_sock *csk)
+ 	struct net_device *ndev = cdev->ports[csk->port_id];
+ 	struct cxgbi_hba *chba = cdev->hbas[csk->port_id];
+ 	struct sk_buff *skb = NULL;
++	int ret;
+ 
+ 	log_debug(1 << CXGBI_DBG_TOE | 1 << CXGBI_DBG_SOCK,
+ 		"csk 0x%p,%u,0x%lx.\n", csk, csk->state, csk->flags);
+@@ -979,16 +980,16 @@ static int init_act_open(struct cxgbi_sock *csk)
+ 	csk->atid = cxgb3_alloc_atid(t3dev, &t3_client, csk);
+ 	if (csk->atid < 0) {
+ 		pr_err("NO atid available.\n");
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto put_sock;
+ 	}
+ 	cxgbi_sock_set_flag(csk, CTPF_HAS_ATID);
+ 	cxgbi_sock_get(csk);
+ 
+ 	skb = alloc_wr(sizeof(struct cpl_act_open_req), 0, GFP_KERNEL);
+ 	if (!skb) {
+-		cxgb3_free_atid(t3dev, csk->atid);
+-		cxgbi_sock_put(csk);
+-		return -ENOMEM;
++		ret = -ENOMEM;
++		goto free_atid;
+ 	}
+ 	skb->sk = (struct sock *)csk;
+ 	set_arp_failure_handler(skb, act_open_arp_failure);
+@@ -1010,6 +1011,15 @@ static int init_act_open(struct cxgbi_sock *csk)
+ 	cxgbi_sock_set_state(csk, CTP_ACTIVE_OPEN);
+ 	send_act_open_req(csk, skb, csk->l2t);
+ 	return 0;
++
++free_atid:
++	cxgb3_free_atid(t3dev, csk->atid);
++put_sock:
++	cxgbi_sock_put(csk);
++	l2t_release(t3dev, csk->l2t);
++	csk->l2t = NULL;
++
++	return ret;
+ }
+ 
+ cxgb3_cpl_handler_func cxgb3i_cpl_handlers[NUM_CPL_CMDS] = {
 -- 
 2.25.1
 
