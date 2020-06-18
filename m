@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 958831FE413
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:16:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B23861FE3FE
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:16:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728730AbgFRCPn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:15:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52664 "EHLO mail.kernel.org"
+        id S1730320AbgFRBUc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:20:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730304AbgFRBU2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:20:28 -0400
+        id S1730312AbgFRBUa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:20:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 49DC920CC7;
-        Thu, 18 Jun 2020 01:20:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BECDD21974;
+        Thu, 18 Jun 2020 01:20:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443228;
-        bh=2SXgvA7tUSdP75dvHaiTMCQP+0FRDnVljzClLq3/NNo=;
+        s=default; t=1592443230;
+        bh=0hZx3zP10Ds1j10gCx37S3rT5JDXBnvUZQIeZ4Q/Jbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=septxn67crc3dwdorjlqZCSSwrjS50+ctMveQVph0Wj2Ab/zcytIpWGe1tZq44QyC
-         0SXm3P623fs0TsJE4fw5bpELpfjVFeO6D8rJwA4LI4jn2scWXTtEjsu5ckTfs1eIe1
-         gAldO5R+elMQbB0n2rOQIpkaNLiA9iGtp2Dj9RwI=
+        b=Z6An+V2WzScB8tRPFKpyL8841YglJoYFv07iMRt4Ho5axJ2or6Nr/eKS+riiYayCG
+         cXsuL9Oeos9TF8rzG0Rf95DvL3bEDTr23Y3ziOx7taUD3a/YlYAD2xxxUfHMrC3Sns
+         MudC5JloeVVOApqPqa2DrFriKnt60KCoCSIhW8bQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qiushi Wu <wu000273@umn.edu>, Felipe Balbi <balbi@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 181/266] usb: gadget: fix potential double-free in m66592_probe.
-Date:   Wed, 17 Jun 2020 21:15:06 -0400
-Message-Id: <20200618011631.604574-181-sashal@kernel.org>
+Cc:     Siddharth Gupta <sidgup@codeaurora.org>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 183/266] scripts: headers_install: Exit with error on config leak
+Date:   Wed, 17 Jun 2020 21:15:08 -0400
+Message-Id: <20200618011631.604574-183-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
@@ -42,36 +43,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Siddharth Gupta <sidgup@codeaurora.org>
 
-[ Upstream commit 44734a594196bf1d474212f38fe3a0d37a73278b ]
+[ Upstream commit 5967577231f9b19acd5a59485e9075964065bbe3 ]
 
-m66592_free_request() is called under label "err_add_udc"
-and "clean_up", and m66592->ep0_req is not set to NULL after
-first free, leading to a double-free. Fix this issue by
-setting m66592->ep0_req to NULL after the first free.
+Misuse of CONFIG_* in UAPI headers should result in an error. These config
+options can be set in userspace by the user application which includes
+these headers to control the APIs and structures being used in a kernel
+which supports multiple targets.
 
-Fixes: 0f91349b89f3 ("usb: gadget: convert all users to the new udc infrastructure")
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Siddharth Gupta <sidgup@codeaurora.org>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/m66592-udc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ scripts/headers_install.sh | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/usb/gadget/udc/m66592-udc.c b/drivers/usb/gadget/udc/m66592-udc.c
-index a8288df6aadf..ea59b56e5402 100644
---- a/drivers/usb/gadget/udc/m66592-udc.c
-+++ b/drivers/usb/gadget/udc/m66592-udc.c
-@@ -1667,7 +1667,7 @@ static int m66592_probe(struct platform_device *pdev)
+diff --git a/scripts/headers_install.sh b/scripts/headers_install.sh
+index a07668a5c36b..94a833597a88 100755
+--- a/scripts/headers_install.sh
++++ b/scripts/headers_install.sh
+@@ -64,7 +64,7 @@ configs=$(sed -e '
+ 	d
+ ' $OUTFILE)
  
- err_add_udc:
- 	m66592_free_request(&m66592->ep[0].ep, m66592->ep0_req);
--
-+	m66592->ep0_req = NULL;
- clean_up3:
- 	if (m66592->pdata->on_chip) {
- 		clk_disable(m66592->clk);
+-# The entries in the following list are not warned.
++# The entries in the following list do not result in an error.
+ # Please do not add a new entry. This list is only for existing ones.
+ # The list will be reduced gradually, and deleted eventually. (hopefully)
+ #
+@@ -98,18 +98,19 @@ include/uapi/linux/raw.h:CONFIG_MAX_RAW_DEVS
+ 
+ for c in $configs
+ do
+-	warn=1
++	leak_error=1
+ 
+ 	for ignore in $config_leak_ignores
+ 	do
+ 		if echo "$INFILE:$c" | grep -q "$ignore$"; then
+-			warn=
++			leak_error=
+ 			break
+ 		fi
+ 	done
+ 
+-	if [ "$warn" = 1 ]; then
+-		echo "warning: $INFILE: leak $c to user-space" >&2
++	if [ "$leak_error" = 1 ]; then
++		echo "error: $INFILE: leak $c to user-space" >&2
++		exit 1
+ 	fi
+ done
+ 
 -- 
 2.25.1
 
