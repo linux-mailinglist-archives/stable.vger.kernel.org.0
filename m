@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C0F31FDF64
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:43:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5326F1FDF62
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:43:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732372AbgFRB3t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:29:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39348 "EHLO mail.kernel.org"
+        id S1732369AbgFRB3s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:29:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732368AbgFRB3q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:29:46 -0400
+        id S1732363AbgFRB3r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:29:47 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5AC602222D;
-        Thu, 18 Jun 2020 01:29:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 90C7622241;
+        Thu, 18 Jun 2020 01:29:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443786;
-        bh=eDhOjtL5MBU9u/Vv6IAaoIxN3zDU6wp5sF/W1TP+/+o=;
+        s=default; t=1592443787;
+        bh=G4bkkyjWj86w3yp7WUpYpiW55fqCz919jo6I3uzBYmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qpXVch/nCRJ7kEmq1OA+2mPAN3Dv4/JuR1D9s4GIoYBI2IWI049+wksoFIs6KLm3P
-         ruy9R0G6sCppnH48UQm3rdnsLtpD/uxOG8GT/cMYd/y2IK0v2XkZ7sL3qjg4TUDlXZ
-         r0eu/L6iYSUpC2UDes2+dEi9dA2j4b83yEwPKx3M=
+        b=N+7pprY8yg1BnImuHXjgjD4EL2aBIo5KmxsBLKDQ3GjhuL3EcaHw7lnf238DVKmFA
+         /WDYvfhFmbIXRP1YB+QdKx5yUcfV752VyxqnYZS5G/7GQiy71/UwrMKrwlrAjlSiJw
+         cjHdbaJi/mnIe5PMro6kYLhAzy4Oe/8bvcBvgA+Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Olga Kornievskaia <olga.kornievskaia@gmail.com>,
-        Olga Kornievskaia <kolga@netapp.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 67/80] NFSv4.1 fix rpc_call_done assignment for BIND_CONN_TO_SESSION
-Date:   Wed, 17 Jun 2020 21:28:06 -0400
-Message-Id: <20200618012819.609778-67-sashal@kernel.org>
+Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 68/80] extcon: adc-jack: Fix an error handling path in 'adc_jack_probe()'
+Date:   Wed, 17 Jun 2020 21:28:07 -0400
+Message-Id: <20200618012819.609778-68-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012819.609778-1-sashal@kernel.org>
 References: <20200618012819.609778-1-sashal@kernel.org>
@@ -44,31 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olga Kornievskaia <olga.kornievskaia@gmail.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 1c709b766e73e54d64b1dde1b7cfbcf25bcb15b9 ]
+[ Upstream commit bc84cff2c92ae5ccb2c37da73756e7174b1b430f ]
 
-Fixes: 02a95dee8cf0 ("NFS add callback_ops to nfs4_proc_bind_conn_to_session_callback")
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+In some error handling paths, a call to 'iio_channel_get()' is not balanced
+by a corresponding call to 'iio_channel_release()'.
+
+This can be achieved easily by using the devm_ variant of
+'iio_channel_get()'.
+
+This has the extra benefit to simplify the remove function.
+
+Fixes: 19939860dcae ("extcon: adc_jack: adc-jack driver to support 3.5 pi or simliar devices")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4proc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/extcon/extcon-adc-jack.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index 632d3c3f8dfb..c189722bf9c7 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -7151,7 +7151,7 @@ nfs4_bind_one_conn_to_session_done(struct rpc_task *task, void *calldata)
+diff --git a/drivers/extcon/extcon-adc-jack.c b/drivers/extcon/extcon-adc-jack.c
+index bc538708c753..cdee6d6d5453 100644
+--- a/drivers/extcon/extcon-adc-jack.c
++++ b/drivers/extcon/extcon-adc-jack.c
+@@ -128,7 +128,7 @@ static int adc_jack_probe(struct platform_device *pdev)
+ 	for (i = 0; data->adc_conditions[i].id != EXTCON_NONE; i++);
+ 	data->num_conditions = i;
+ 
+-	data->chan = iio_channel_get(&pdev->dev, pdata->consumer_channel);
++	data->chan = devm_iio_channel_get(&pdev->dev, pdata->consumer_channel);
+ 	if (IS_ERR(data->chan))
+ 		return PTR_ERR(data->chan);
+ 
+@@ -170,7 +170,6 @@ static int adc_jack_remove(struct platform_device *pdev)
+ 
+ 	free_irq(data->irq, data);
+ 	cancel_work_sync(&data->handler.work);
+-	iio_channel_release(data->chan);
+ 
+ 	return 0;
  }
- 
- static const struct rpc_call_ops nfs4_bind_one_conn_to_session_ops = {
--	.rpc_call_done =  &nfs4_bind_one_conn_to_session_done,
-+	.rpc_call_done =  nfs4_bind_one_conn_to_session_done,
- };
- 
- /*
 -- 
 2.25.1
 
