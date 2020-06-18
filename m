@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D90FE1FDD22
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:24:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9364F1FDD29
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:24:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728543AbgFRBYB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:24:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58188 "EHLO mail.kernel.org"
+        id S1731172AbgFRBYU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:24:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731111AbgFRBYA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:24:00 -0400
+        id S1731160AbgFRBYS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:24:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 33D7920776;
-        Thu, 18 Jun 2020 01:23:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 89EFF21D90;
+        Thu, 18 Jun 2020 01:24:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443439;
-        bh=4ywg7c0rNAEOpMZA9GvBOulJBUAdreL/gLXUUPsQwYg=;
+        s=default; t=1592443457;
+        bh=/1Wn2oDkvoSs0umI9QOna5G4NVtlHTUEes0RmrJM/6Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sdgo3i1VK9yPSm5w3QxxXPmN6WHxg1v5sWEAHcquYHye+E4QlkIFAYx0wCWl9IlWK
-         6yTLN/7+sE0JGnBtx9oeOtACwF/qdAX4lW5PjpJ4gxC3tYv2FaBzxmxt4B+lajQE23
-         3AX0Ru/VcculdTADM/xOuxBUlZu5w/C8acTxFRa4=
+        b=fV3Vc0WoRWB45Vm8m57xp1DMKlazk2JRyHt6zXr/YOIJhR2rDJ+ka9GDpDv7mbCoV
+         AAWqQ0r4X7ZZXnf8tXVzvO1MEyI+UaFiz02NLBJPCNK4WPoCORocOusUL01XDE8o+g
+         CDbWHSjbzjMi4NTVFtS0kjWydQ0aL8HG+pEPJI+I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kuppuswamy Sathyanarayanan 
-        <sathyanarayanan.kuppuswamy@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 077/172] drivers: base: Fix NULL pointer exception in __platform_driver_probe() if a driver developer is foolish
-Date:   Wed, 17 Jun 2020 21:20:43 -0400
-Message-Id: <20200618012218.607130-77-sashal@kernel.org>
+Cc:     Cristian Klein <cristian.klein@elastisys.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 091/172] HID: Add quirks for Trust Panora Graphic Tablet
+Date:   Wed, 17 Jun 2020 21:20:57 -0400
+Message-Id: <20200618012218.607130-91-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012218.607130-1-sashal@kernel.org>
 References: <20200618012218.607130-1-sashal@kernel.org>
@@ -44,82 +43,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+From: Cristian Klein <cristian.klein@elastisys.com>
 
-[ Upstream commit 388bcc6ecc609fca1b4920de7dc3806c98ec535e ]
+[ Upstream commit fb68ada81e65d593b51544fa43c284322107a742 ]
 
-If platform bus driver registration is failed then, accessing
-platform bus spin lock (&drv->driver.bus->p->klist_drivers.k_lock)
-in __platform_driver_probe() without verifying the return value
-__platform_driver_register() can lead to NULL pointer exception.
+The Trust Panora Graphic Tablet has two interfaces. Interface zero reports pen
+movement, pen pressure and pen buttons. Interface one reports tablet buttons
+and tablet scroll. Both use the mouse protocol.
 
-So check the return value before attempting the spin lock.
+Without these quirks, libinput gets confused about what device it talks to.
 
-One such example is below:
+For completeness, here is the usbhid-dump:
 
-For a custom usecase, I have intentionally failed the platform bus
-registration and I expected all the platform device/driver
-registrations to fail gracefully. But I came across this panic
-issue.
+```
+$ sudo usbhid-dump -d 145f:0212
+003:013:001:DESCRIPTOR         1588949402.559961
+ 05 0D 09 01 A1 01 85 07 A1 02 09 00 75 08 95 07
+ 81 02 C0 C0 09 0E A1 01 85 05 09 23 A1 02 09 52
+ 09 53 25 0A 75 08 95 02 B1 02 C0 C0 05 0C 09 36
+ A1 00 85 06 05 09 19 01 29 20 15 00 25 01 95 20
+ 75 01 81 02 C0
 
-[    1.331067] BUG: kernel NULL pointer dereference, address: 00000000000000c8
-[    1.331118] #PF: supervisor write access in kernel mode
-[    1.331163] #PF: error_code(0x0002) - not-present page
-[    1.331208] PGD 0 P4D 0
-[    1.331233] Oops: 0002 [#1] PREEMPT SMP
-[    1.331268] CPU: 3 PID: 1 Comm: swapper/0 Tainted: G        W         5.6.0-00049-g670d35fb0144 #165
-[    1.331341] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
-[    1.331406] RIP: 0010:_raw_spin_lock+0x15/0x30
-[    1.331588] RSP: 0000:ffffc9000001be70 EFLAGS: 00010246
-[    1.331632] RAX: 0000000000000000 RBX: 00000000000000c8 RCX: 0000000000000001
-[    1.331696] RDX: 0000000000000001 RSI: 0000000000000092 RDI: 0000000000000000
-[    1.331754] RBP: 00000000ffffffed R08: 0000000000000501 R09: 0000000000000001
-[    1.331817] R10: ffff88817abcc520 R11: 0000000000000670 R12: 00000000ffffffed
-[    1.331881] R13: ffffffff82dbc268 R14: ffffffff832f070a R15: 0000000000000000
-[    1.331945] FS:  0000000000000000(0000) GS:ffff88817bd80000(0000) knlGS:0000000000000000
-[    1.332008] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    1.332062] CR2: 00000000000000c8 CR3: 000000000681e001 CR4: 00000000003606e0
-[    1.332126] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[    1.332189] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[    1.332252] Call Trace:
-[    1.332281]  __platform_driver_probe+0x92/0xee
-[    1.332323]  ? rtc_dev_init+0x2b/0x2b
-[    1.332358]  cmos_init+0x37/0x67
-[    1.332396]  do_one_initcall+0x7d/0x168
-[    1.332428]  kernel_init_freeable+0x16c/0x1c9
-[    1.332473]  ? rest_init+0xc0/0xc0
-[    1.332508]  kernel_init+0x5/0x100
-[    1.332543]  ret_from_fork+0x1f/0x30
-[    1.332579] CR2: 00000000000000c8
-[    1.332616] ---[ end trace 3bd87f12e9010b87 ]---
-[    1.333549] note: swapper/0[1] exited with preempt_count 1
-[    1.333592] Kernel panic - not syncing: Attempted to kill init! exitcode=0x00000009
-[    1.333736] Kernel Offset: disabled
+003:013:000:DESCRIPTOR         1588949402.563942
+ 05 01 09 02 A1 01 85 08 09 01 A1 00 05 09 19 01
+ 29 03 15 00 25 01 95 03 75 01 81 02 95 05 81 01
+ 05 01 09 30 09 31 09 38 09 00 15 81 25 7F 75 08
+ 95 04 81 06 C0 C0 05 01 09 02 A1 01 85 09 09 01
+ A1 00 05 09 19 01 29 03 15 00 25 01 95 03 75 01
+ 81 02 95 05 81 01 05 01 09 30 09 31 26 FF 7F 95
+ 02 75 10 81 02 05 0D 09 30 26 FF 03 95 01 75 10
+ 81 02 C0 C0 05 01 09 00 A1 01 85 04 A1 00 26 FF
+ 00 09 00 75 08 95 07 B1 02 C0 C0
+```
 
-Note, this can only be triggered if a driver errors out from this call,
-which should never happen.  If it does, the driver needs to be fixed.
-
-Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-Link: https://lore.kernel.org/r/20200408214003.3356-1-sathyanarayanan.kuppuswamy@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Cristian Klein <cristian.klein@elastisys.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/platform.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/hid/hid-ids.h    | 3 +++
+ drivers/hid/hid-quirks.c | 1 +
+ 2 files changed, 4 insertions(+)
 
-diff --git a/drivers/base/platform.c b/drivers/base/platform.c
-index d1f901b58f75..349c2754eed7 100644
---- a/drivers/base/platform.c
-+++ b/drivers/base/platform.c
-@@ -700,6 +700,8 @@ int __init_or_module __platform_driver_probe(struct platform_driver *drv,
- 	/* temporary section violation during probe() */
- 	drv->probe = probe;
- 	retval = code = __platform_driver_register(drv, module);
-+	if (retval)
-+		return retval;
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index c1fed1aaecdf..f8026c71e2e4 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -1121,6 +1121,9 @@
+ #define USB_DEVICE_ID_TPV_OPTICAL_TOUCHSCREEN_8882	0x8882
+ #define USB_DEVICE_ID_TPV_OPTICAL_TOUCHSCREEN_8883	0x8883
  
- 	/*
- 	 * Fixup that section violation, being paranoid about code scanning
++#define USB_VENDOR_ID_TRUST             0x145f
++#define USB_DEVICE_ID_TRUST_PANORA_TABLET   0x0212
++
+ #define USB_VENDOR_ID_TURBOX		0x062a
+ #define USB_DEVICE_ID_TURBOX_KEYBOARD	0x0201
+ #define USB_DEVICE_ID_ASUS_MD_5110	0x5110
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index e5beee3e8582..f4bab7004aff 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -168,6 +168,7 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_TOUCHPACK, USB_DEVICE_ID_TOUCHPACK_RTS), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_TPV, USB_DEVICE_ID_TPV_OPTICAL_TOUCHSCREEN_8882), HID_QUIRK_NOGET },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_TPV, USB_DEVICE_ID_TPV_OPTICAL_TOUCHSCREEN_8883), HID_QUIRK_NOGET },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_TRUST, USB_DEVICE_ID_TRUST_PANORA_TABLET), HID_QUIRK_MULTI_INPUT | HID_QUIRK_HIDINPUT_FORCE },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_TURBOX_KEYBOARD), HID_QUIRK_NOGET },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_KNA5), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_TWA60), HID_QUIRK_MULTI_INPUT },
 -- 
 2.25.1
 
