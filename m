@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3F4B1FE2AA
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:03:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A14941FE2A3
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:03:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387422AbgFRCDP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:03:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57362 "EHLO mail.kernel.org"
+        id S1731021AbgFRBXh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:23:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726984AbgFRBXf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:23:35 -0400
+        id S1731013AbgFRBXh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:23:37 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3802221D90;
-        Thu, 18 Jun 2020 01:23:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7C3C320776;
+        Thu, 18 Jun 2020 01:23:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443415;
-        bh=WQPR6mvXeIxc49x78rvYQQK2rrCRLXag0OgKUIAQ/Cw=;
+        s=default; t=1592443416;
+        bh=f2xq+IdYHdu0JPb5RaqyEwHmdxOYR7J9ACK2wF0bpps=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1joyJBH+Ud9YTTzuFdUg5d1gIRT2Rlku3S/XSVDkJoZ1cEof/Eu9Pwoj+1FZINmQV
-         2ln5Mme7ou+4Vpn2IPvNcl120mFKjXV4aaR5Ym4eNAkrfsrxpggKNVIdYJT5CqU1zu
-         aXhZUpJRMefbsZubZU/QWZFI0op6Dm3MA9IFcHFg=
+        b=Fz6SqARcI7SeHGtTaBqhS/139SVq5SE0GCSxfNmLpndO/ApkoxlwlQZOI2iHve3+v
+         ztX1RgIzElmUIqC3hafEaK51lEcCG+5KHobYuMORrHGWr7jZqbPg9m1mCz+AjAPE0f
+         7bn/FnBfTjXlp136dmLQTAbb7O4xIm1YgsgtO5d8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Serge Semin <fancer.lancer@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 057/172] gpio: dwapb: Append MODULE_ALIAS for platform driver
-Date:   Wed, 17 Jun 2020 21:20:23 -0400
-Message-Id: <20200618012218.607130-57-sashal@kernel.org>
+Cc:     Chad Dupuis <cdupuis@marvell.com>,
+        Saurav Kashyap <skashyap@marvell.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 058/172] scsi: qedf: Fix crash when MFW calls for protocol stats while function is still probing
+Date:   Wed, 17 Jun 2020 21:20:24 -0400
+Message-Id: <20200618012218.607130-58-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012218.607130-1-sashal@kernel.org>
 References: <20200618012218.607130-1-sashal@kernel.org>
@@ -44,75 +44,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Chad Dupuis <cdupuis@marvell.com>
 
-[ Upstream commit c58220cba2e03618659fa7d5dfae31f5ad4ae9d0 ]
+[ Upstream commit ad40f5256095c68dc17c991eb976261d5ea2daaa ]
 
-The commit 3d2613c4289f
-  ("GPIO: gpio-dwapb: Enable platform driver binding to MFD driver")
-introduced a use of the platform driver but missed to add the following line
-to it:
-  MODULE_ALIAS("platform:gpio-dwapb");
+The MFW may make a call to qed and then to qedf for protocol statistics
+while the function is still probing.  If this happens it's possible that
+some members of the struct qedf_ctx may not be fully initialized which can
+result in a NULL pointer dereference or general protection fault.
 
-Add this to get driver loaded automatically if platform device is registered.
+To prevent this, add a new flag call QEDF_PROBING and set it when the
+__qedf_probe() function is active. Then in the qedf_get_protocol_tlv_data()
+function we can check if the function is still probing and return
+immediantely before any uninitialized structures can be touched.
 
-Fixes: 3d2613c4289f ("GPIO: gpio-dwapb: Enable platform driver binding to MFD driver")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Tested-by: Serge Semin <fancer.lancer@gmail.com>
-Reviewed-by: Serge Semin <fancer.lancer@gmail.com>
-Link: https://lore.kernel.org/r/20200415141534.31240-2-andriy.shevchenko@linux.intel.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20200416084314.18851-9-skashyap@marvell.com
+Signed-off-by: Chad Dupuis <cdupuis@marvell.com>
+Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-dwapb.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/scsi/qedf/qedf.h      |  1 +
+ drivers/scsi/qedf/qedf_main.c | 35 +++++++++++++++++++++++++++++++----
+ 2 files changed, 32 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpio/gpio-dwapb.c b/drivers/gpio/gpio-dwapb.c
-index 68db0033d158..2a56efced798 100644
---- a/drivers/gpio/gpio-dwapb.c
-+++ b/drivers/gpio/gpio-dwapb.c
-@@ -51,7 +51,9 @@
- #define GPIO_EXT_PORTC		0x58
- #define GPIO_EXT_PORTD		0x5c
+diff --git a/drivers/scsi/qedf/qedf.h b/drivers/scsi/qedf/qedf.h
+index 2c78d8fb9122..fc06be4fd10c 100644
+--- a/drivers/scsi/qedf/qedf.h
++++ b/drivers/scsi/qedf/qedf.h
+@@ -335,6 +335,7 @@ struct qedf_ctx {
+ #define QEDF_GRCDUMP_CAPTURE		4
+ #define QEDF_IN_RECOVERY		5
+ #define QEDF_DBG_STOP_IO		6
++#define QEDF_PROBING			8
+ 	unsigned long flags; /* Miscellaneous state flags */
+ 	int fipvlan_retries;
+ 	u8 num_queues;
+diff --git a/drivers/scsi/qedf/qedf_main.c b/drivers/scsi/qedf/qedf_main.c
+index cd61905ca2f5..b253523217b8 100644
+--- a/drivers/scsi/qedf/qedf_main.c
++++ b/drivers/scsi/qedf/qedf_main.c
+@@ -2961,7 +2961,7 @@ static int __qedf_probe(struct pci_dev *pdev, int mode)
+ {
+ 	int rc = -EINVAL;
+ 	struct fc_lport *lport;
+-	struct qedf_ctx *qedf;
++	struct qedf_ctx *qedf = NULL;
+ 	struct Scsi_Host *host;
+ 	bool is_vf = false;
+ 	struct qed_ll2_params params;
+@@ -2989,6 +2989,7 @@ static int __qedf_probe(struct pci_dev *pdev, int mode)
  
-+#define DWAPB_DRIVER_NAME	"gpio-dwapb"
- #define DWAPB_MAX_PORTS		4
+ 		/* Initialize qedf_ctx */
+ 		qedf = lport_priv(lport);
++		set_bit(QEDF_PROBING, &qedf->flags);
+ 		qedf->lport = lport;
+ 		qedf->ctlr.lp = lport;
+ 		qedf->pdev = pdev;
+@@ -3011,9 +3012,12 @@ static int __qedf_probe(struct pci_dev *pdev, int mode)
+ 	} else {
+ 		/* Init pointers during recovery */
+ 		qedf = pci_get_drvdata(pdev);
++		set_bit(QEDF_PROBING, &qedf->flags);
+ 		lport = qedf->lport;
+ 	}
+ 
++	QEDF_INFO(&qedf->dbg_ctx, QEDF_LOG_DISC, "Probe started.\n");
 +
- #define GPIO_EXT_PORT_STRIDE	0x04 /* register stride 32 bits */
- #define GPIO_SWPORT_DR_STRIDE	0x0c /* register stride 3*32 bits */
- #define GPIO_SWPORT_DDR_STRIDE	0x0c /* register stride 3*32 bits */
-@@ -400,7 +402,7 @@ static void dwapb_configure_irqs(struct dwapb_gpio *gpio,
- 		return;
+ 	host = lport->host;
  
- 	err = irq_alloc_domain_generic_chips(gpio->domain, ngpio, 2,
--					     "gpio-dwapb", handle_level_irq,
-+					     DWAPB_DRIVER_NAME, handle_level_irq,
- 					     IRQ_NOREQUEST, 0,
- 					     IRQ_GC_INIT_NESTED_LOCK);
- 	if (err) {
-@@ -457,7 +459,7 @@ static void dwapb_configure_irqs(struct dwapb_gpio *gpio,
- 		 */
- 		err = devm_request_irq(gpio->dev, pp->irq[0],
- 				       dwapb_irq_handler_mfd,
--				       IRQF_SHARED, "gpio-dwapb-mfd", gpio);
-+				       IRQF_SHARED, DWAPB_DRIVER_NAME, gpio);
- 		if (err) {
- 			dev_err(gpio->dev, "error requesting IRQ\n");
- 			irq_domain_remove(gpio->domain);
-@@ -849,7 +851,7 @@ static SIMPLE_DEV_PM_OPS(dwapb_gpio_pm_ops, dwapb_gpio_suspend,
+ 	/* Allocate mempool for qedf_io_work structs */
+@@ -3312,6 +3316,10 @@ static int __qedf_probe(struct pci_dev *pdev, int mode)
+ 	else
+ 		fc_fabric_login(lport);
  
- static struct platform_driver dwapb_gpio_driver = {
- 	.driver		= {
--		.name	= "gpio-dwapb",
-+		.name	= DWAPB_DRIVER_NAME,
- 		.pm	= &dwapb_gpio_pm_ops,
- 		.of_match_table = of_match_ptr(dwapb_of_match),
- 		.acpi_match_table = ACPI_PTR(dwapb_acpi_match),
-@@ -863,3 +865,4 @@ module_platform_driver(dwapb_gpio_driver);
- MODULE_LICENSE("GPL");
- MODULE_AUTHOR("Jamie Iles");
- MODULE_DESCRIPTION("Synopsys DesignWare APB GPIO driver");
-+MODULE_ALIAS("platform:" DWAPB_DRIVER_NAME);
++	QEDF_INFO(&qedf->dbg_ctx, QEDF_LOG_DISC, "Probe done.\n");
++
++	clear_bit(QEDF_PROBING, &qedf->flags);
++
+ 	/* All good */
+ 	return 0;
+ 
+@@ -3337,6 +3345,11 @@ static int __qedf_probe(struct pci_dev *pdev, int mode)
+ err1:
+ 	scsi_host_put(lport->host);
+ err0:
++	if (qedf) {
++		QEDF_INFO(&qedf->dbg_ctx, QEDF_LOG_DISC, "Probe done.\n");
++
++		clear_bit(QEDF_PROBING, &qedf->flags);
++	}
+ 	return rc;
+ }
+ 
+@@ -3484,11 +3497,25 @@ void qedf_get_protocol_tlv_data(void *dev, void *data)
+ {
+ 	struct qedf_ctx *qedf = dev;
+ 	struct qed_mfw_tlv_fcoe *fcoe = data;
+-	struct fc_lport *lport = qedf->lport;
+-	struct Scsi_Host *host = lport->host;
+-	struct fc_host_attrs *fc_host = shost_to_fc_host(host);
++	struct fc_lport *lport;
++	struct Scsi_Host *host;
++	struct fc_host_attrs *fc_host;
+ 	struct fc_host_statistics *hst;
+ 
++	if (!qedf) {
++		QEDF_ERR(NULL, "qedf is null.\n");
++		return;
++	}
++
++	if (test_bit(QEDF_PROBING, &qedf->flags)) {
++		QEDF_ERR(&qedf->dbg_ctx, "Function is still probing.\n");
++		return;
++	}
++
++	lport = qedf->lport;
++	host = lport->host;
++	fc_host = shost_to_fc_host(host);
++
+ 	/* Force a refresh of the fc_host stats including offload stats */
+ 	hst = qedf_fc_get_host_stats(host);
+ 
 -- 
 2.25.1
 
