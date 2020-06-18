@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 545041FDD8F
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:27:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 400CD1FDD92
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:27:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727084AbgFRB06 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:26:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34686 "EHLO mail.kernel.org"
+        id S1731178AbgFRB1B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:27:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726987AbgFRB05 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:26:57 -0400
+        id S1731013AbgFRB1A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:27:00 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EBFF121D7A;
-        Thu, 18 Jun 2020 01:26:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8690D21D7A;
+        Thu, 18 Jun 2020 01:26:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443616;
-        bh=oqIcZ64gHNPxT0KHLAgO/j9K6bCutIfJbvYtWmH2lWQ=;
+        s=default; t=1592443620;
+        bh=lvqK+OEl2mVBWoRcfXzFrNQSTJaOjX4d3F1R6xzTIUk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TispCKQ9ZF9BFIuJua/OFPk5CU7uuXYf2hcKVsmYBpGbBSN2Sf9F5J3DdYlDdDixq
-         SFIZY2TyhQMwZV2LE1VLh/uLe/5LCn1AEM09usO+xun5KghrbMl7dgDILYXhsDnL7y
-         LT6IF7diZfEtfRur6z4OqoyKW7QDA940WOIiuLO4=
+        b=jxY4LHm+0zh22icMEFfu38SVD1apaIshW1EOE8WOXWwnDgWHBGEV9N7pqwzOvEuSx
+         C+X5AS39kcHZ8IPFo4BirFRX0MuhYoAtm3dctZNMvbq62C3knYDvYa/AK34XRQqTNJ
+         u7vwmxK7YbbfEoq2gGV9+FWMeNRSbaFvQoF9YjoA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Raghavendra Rao Ananta <rananta@codeaurora.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.14 043/108] tty: hvc: Fix data abort due to race in hvc_open
-Date:   Wed, 17 Jun 2020 21:24:55 -0400
-Message-Id: <20200618012600.608744-43-sashal@kernel.org>
+Cc:     Russell King <rmk+kernel@armlinux.org.uk>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-i2c@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 046/108] i2c: pxa: fix i2c_pxa_scream_blue_murder() debug output
+Date:   Wed, 17 Jun 2020 21:24:58 -0400
+Message-Id: <20200618012600.608744-46-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012600.608744-1-sashal@kernel.org>
 References: <20200618012600.608744-1-sashal@kernel.org>
@@ -43,79 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raghavendra Rao Ananta <rananta@codeaurora.org>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit e2bd1dcbe1aa34ff5570b3427c530e4332ecf0fe ]
+[ Upstream commit 88b73ee7ca4c90baf136ed5a8377fc5a9b73ac08 ]
 
-Potentially, hvc_open() can be called in parallel when two tasks calls
-open() on /dev/hvcX. In such a scenario, if the hp->ops->notifier_add()
-callback in the function fails, where it sets the tty->driver_data to
-NULL, the parallel hvc_open() can see this NULL and cause a memory abort.
-Hence, serialize hvc_open and check if tty->private_data is NULL before
-proceeding ahead.
+The IRQ log output is supposed to appear on a single line.  However,
+commit 3a2dc1677b60 ("i2c: pxa: Update debug function to dump more info
+on error") resulted in it being printed one-entry-per-line, which is
+excessively long.
 
-The issue can be easily reproduced by launching two tasks simultaneously
-that does nothing but open() and close() on /dev/hvcX.
-For example:
-$ ./simple_open_close /dev/hvc0 & ./simple_open_close /dev/hvc0 &
+Fixing this is not a trivial matter; using pr_cont() doesn't work as
+the previous dev_dbg() may not have been compiled in, or may be
+dynamic.
 
-Signed-off-by: Raghavendra Rao Ananta <rananta@codeaurora.org>
-Link: https://lore.kernel.org/r/20200428032601.22127-1-rananta@codeaurora.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Since the rest of this function output is at error level, and is also
+debug output, promote this to error level as well to avoid this
+problem.
+
+Reduce the number of always zero prefix digits to save screen real-
+estate.
+
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/hvc/hvc_console.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-pxa.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/tty/hvc/hvc_console.c b/drivers/tty/hvc/hvc_console.c
-index d52221ae1b85..663cbe3669e1 100644
---- a/drivers/tty/hvc/hvc_console.c
-+++ b/drivers/tty/hvc/hvc_console.c
-@@ -88,6 +88,8 @@ static LIST_HEAD(hvc_structs);
-  */
- static DEFINE_SPINLOCK(hvc_structs_lock);
- 
-+/* Mutex to serialize hvc_open */
-+static DEFINE_MUTEX(hvc_open_mutex);
- /*
-  * This value is used to assign a tty->index value to a hvc_struct based
-  * upon order of exposure via hvc_probe(), when we can not match it to
-@@ -332,16 +334,24 @@ static int hvc_install(struct tty_driver *driver, struct tty_struct *tty)
-  */
- static int hvc_open(struct tty_struct *tty, struct file * filp)
- {
--	struct hvc_struct *hp = tty->driver_data;
-+	struct hvc_struct *hp;
- 	unsigned long flags;
- 	int rc = 0;
- 
-+	mutex_lock(&hvc_open_mutex);
-+
-+	hp = tty->driver_data;
-+	if (!hp) {
-+		rc = -EIO;
-+		goto out;
-+	}
-+
- 	spin_lock_irqsave(&hp->port.lock, flags);
- 	/* Check and then increment for fast path open. */
- 	if (hp->port.count++ > 0) {
- 		spin_unlock_irqrestore(&hp->port.lock, flags);
- 		hvc_kick();
--		return 0;
-+		goto out;
- 	} /* else count == 0 */
- 	spin_unlock_irqrestore(&hp->port.lock, flags);
- 
-@@ -369,6 +379,8 @@ static int hvc_open(struct tty_struct *tty, struct file * filp)
- 	/* Force wakeup of the polling thread */
- 	hvc_kick();
- 
-+out:
-+	mutex_unlock(&hvc_open_mutex);
- 	return rc;
+diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+index ecc84aea5131..e300f9530f19 100644
+--- a/drivers/i2c/busses/i2c-pxa.c
++++ b/drivers/i2c/busses/i2c-pxa.c
+@@ -315,11 +315,10 @@ static void i2c_pxa_scream_blue_murder(struct pxa_i2c *i2c, const char *why)
+ 	dev_err(dev, "IBMR: %08x IDBR: %08x ICR: %08x ISR: %08x\n",
+ 		readl(_IBMR(i2c)), readl(_IDBR(i2c)), readl(_ICR(i2c)),
+ 		readl(_ISR(i2c)));
+-	dev_dbg(dev, "log: ");
++	dev_err(dev, "log:");
+ 	for (i = 0; i < i2c->irqlogidx; i++)
+-		pr_debug("[%08x:%08x] ", i2c->isrlog[i], i2c->icrlog[i]);
+-
+-	pr_debug("\n");
++		pr_cont(" [%03x:%05x]", i2c->isrlog[i], i2c->icrlog[i]);
++	pr_cont("\n");
  }
  
+ #else /* ifdef DEBUG */
 -- 
 2.25.1
 
