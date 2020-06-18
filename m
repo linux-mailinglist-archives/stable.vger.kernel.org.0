@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D891A1FE267
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:02:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91BFC1FE256
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:01:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731268AbgFRCBY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:01:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58484 "EHLO mail.kernel.org"
+        id S1731281AbgFRCA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:00:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731138AbgFRBYK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:24:10 -0400
+        id S1731142AbgFRBYL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:24:11 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 09DD1221EE;
-        Thu, 18 Jun 2020 01:24:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 564EC221F0;
+        Thu, 18 Jun 2020 01:24:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443449;
-        bh=SKGdyvdYEo5KOQKMYtFl1cGwRKjegXn7ZE3svyTwsRE=;
+        s=default; t=1592443451;
+        bh=gEt8NogzQywn3uywtnxX7bgCdgWhFora7R/87tWIrwc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GBNbbqGDX7Nul7VMUsaDLZhzolowiE4NcQDVaWfohuTRR1N9dKrHzfwSvp4SvAekh
-         ob7QaJUT/CnU2XpKBAioGtekRso0LRf/a1B+u5K/xJpteY6xXfBYgX+P4vTU8To5lT
-         YDWlcYMXAcz0Wg4CN4mTQf6lcEK2vUXjUy3o+WM0=
+        b=O/CwJy9YMvh09BF6bdYiUDCp5Qr5LnJ4lyVLg3p536LhWZnbDvu70aM/ZhyFs6iig
+         mHUqRjUD5jgKSrCi6PQc/Ogwr0GEKqTdEtMGVeBxx0s4lljmehADD6Y8CMK+8BSD23
+         tm8va08v/hsuBukxSJkTxUwkX03bkxmS8wNtkbXo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        clang-built-linux@googlegroups.com,
-        David Teigland <teigland@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 4.19 085/172] dlm: remove BUG() before panic()
-Date:   Wed, 17 Jun 2020 21:20:51 -0400
-Message-Id: <20200618012218.607130-85-sashal@kernel.org>
+Cc:     Tero Kristo <t-kristo@ti.com>,
+        Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
+        linux-clk@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 086/172] clk: ti: composite: fix memory leak
+Date:   Wed, 17 Jun 2020 21:20:52 -0400
+Message-Id: <20200618012218.607130-86-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012218.607130-1-sashal@kernel.org>
 References: <20200618012218.607130-1-sashal@kernel.org>
@@ -45,49 +46,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Tero Kristo <t-kristo@ti.com>
 
-[ Upstream commit fe204591cc9480347af7d2d6029b24a62e449486 ]
+[ Upstream commit c7c1cbbc9217ebb5601b88d138d4a5358548de9d ]
 
-Building a kernel with clang sometimes fails with an objtool error in dlm:
+The parent_names is never released for a component clock definition,
+causing some memory leak. Fix by releasing it once it is no longer
+needed.
 
-fs/dlm/lock.o: warning: objtool: revert_lock_pc()+0xbd: can't find jump dest instruction at .text+0xd7fc
-
-The problem is that BUG() never returns and the compiler knows
-that anything after it is unreachable, however the panic still
-emits some code that does not get fully eliminated.
-
-Having both BUG() and panic() is really pointless as the BUG()
-kills the current process and the subsequent panic() never hits.
-In most cases, we probably don't really want either and should
-replace the DLM_ASSERT() statements with WARN_ON(), as has
-been done for some of them.
-
-Remove the BUG() here so the user at least sees the panic message
-and we can reliably build randconfig kernels.
-
-Fixes: e7fd41792fc0 ("[DLM] The core of the DLM for GFS2/CLVM")
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: clang-built-linux@googlegroups.com
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: David Teigland <teigland@redhat.com>
+Reported-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Signed-off-by: Tero Kristo <t-kristo@ti.com>
+Link: https://lkml.kernel.org/r/20200429131341.4697-2-t-kristo@ti.com
+Acked-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dlm/dlm_internal.h | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/clk/ti/composite.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/dlm/dlm_internal.h b/fs/dlm/dlm_internal.h
-index 748e8d59e611..cb287df13a7a 100644
---- a/fs/dlm/dlm_internal.h
-+++ b/fs/dlm/dlm_internal.h
-@@ -99,7 +99,6 @@ do { \
-                __LINE__, __FILE__, #x, jiffies); \
-     {do} \
-     printk("\n"); \
--    BUG(); \
-     panic("DLM:  Record message above and reboot.\n"); \
-   } \
- }
+diff --git a/drivers/clk/ti/composite.c b/drivers/clk/ti/composite.c
+index 030e8b2c1050..c6478d0b996b 100644
+--- a/drivers/clk/ti/composite.c
++++ b/drivers/clk/ti/composite.c
+@@ -196,6 +196,7 @@ static void __init _register_composite(void *user,
+ 		if (!cclk->comp_clks[i])
+ 			continue;
+ 		list_del(&cclk->comp_clks[i]->link);
++		kfree(cclk->comp_clks[i]->parent_names);
+ 		kfree(cclk->comp_clks[i]);
+ 	}
+ 
 -- 
 2.25.1
 
