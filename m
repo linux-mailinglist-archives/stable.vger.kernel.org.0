@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A31441FE3D2
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:14:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28A8E1FE3D3
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:14:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387515AbgFRCN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2387509AbgFRCN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 17 Jun 2020 22:13:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53384 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:53416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730433AbgFRBVA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:21:00 -0400
+        id S1730435AbgFRBVB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:21:01 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 61F7221974;
-        Thu, 18 Jun 2020 01:20:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 86C2921927;
+        Thu, 18 Jun 2020 01:21:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443260;
-        bh=UE99R/8O57eB1sCguwm+EjnLTOZkZ01A8/nNZo5jfic=;
+        s=default; t=1592443261;
+        bh=qSWUva7WVPHlE3RKgcRXLdCFyKWBerSDst6rVbst7qk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HY7z4BeSWkV6UO0mlPwMcc52MtNobvARuV3wphSuyQzyaTaIoTk4hHSXgj1hqOqlS
-         NgiU6dow0FFeoH/tDAQE6hz8vaaxyFQ+8Qpa+yDTzcpMEdAPRbIuqL/b0gW/kskKK+
-         f5k9/ffWbeQZD7M2LPkpbgqMjwZyrRNhTnRFqe28=
+        b=Pxbm2gFy0l68grFPD+eiH7+R5Y5u8jT5n7KMkArOCkUdNlalg89XoaHAZGfW7cgSV
+         T9vFB2xABLktnWsEXu2iDf3+Sjwy1OpzGa4NkIsYHeZdjAVaishuQnICSZ/WVhO6+F
+         e7+diAK4omEQc9QNhiuWk9X0DX3zyYMvLEt4q7J0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     huhai <huhai@tj.kylinos.cn>, Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.4 207/266] powerpc/4xx: Don't unmap NULL mbase
-Date:   Wed, 17 Jun 2020 21:15:32 -0400
-Message-Id: <20200618011631.604574-207-sashal@kernel.org>
+Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 208/266] extcon: adc-jack: Fix an error handling path in 'adc_jack_probe()'
+Date:   Wed, 17 Jun 2020 21:15:33 -0400
+Message-Id: <20200618011631.604574-208-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
@@ -42,41 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: huhai <huhai@tj.kylinos.cn>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit bcec081ecc940fc38730b29c743bbee661164161 ]
+[ Upstream commit bc84cff2c92ae5ccb2c37da73756e7174b1b430f ]
 
-Signed-off-by: huhai <huhai@tj.kylinos.cn>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200521072648.1254699-1-mpe@ellerman.id.au
+In some error handling paths, a call to 'iio_channel_get()' is not balanced
+by a corresponding call to 'iio_channel_release()'.
+
+This can be achieved easily by using the devm_ variant of
+'iio_channel_get()'.
+
+This has the extra benefit to simplify the remove function.
+
+Fixes: 19939860dcae ("extcon: adc_jack: adc-jack driver to support 3.5 pi or simliar devices")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/4xx/pci.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/extcon/extcon-adc-jack.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/platforms/4xx/pci.c b/arch/powerpc/platforms/4xx/pci.c
-index e6e2adcc7b64..c13d64c3b019 100644
---- a/arch/powerpc/platforms/4xx/pci.c
-+++ b/arch/powerpc/platforms/4xx/pci.c
-@@ -1242,7 +1242,7 @@ static void __init ppc460sx_pciex_check_link(struct ppc4xx_pciex_port *port)
- 	if (mbase == NULL) {
- 		printk(KERN_ERR "%pOF: Can't map internal config space !",
- 			port->node);
--		goto done;
-+		return;
- 	}
+diff --git a/drivers/extcon/extcon-adc-jack.c b/drivers/extcon/extcon-adc-jack.c
+index ad02dc6747a4..0317b614b680 100644
+--- a/drivers/extcon/extcon-adc-jack.c
++++ b/drivers/extcon/extcon-adc-jack.c
+@@ -124,7 +124,7 @@ static int adc_jack_probe(struct platform_device *pdev)
+ 	for (i = 0; data->adc_conditions[i].id != EXTCON_NONE; i++);
+ 	data->num_conditions = i;
  
- 	while (attempt && (0 == (in_le32(mbase + PECFG_460SX_DLLSTA)
-@@ -1252,9 +1252,7 @@ static void __init ppc460sx_pciex_check_link(struct ppc4xx_pciex_port *port)
- 	}
- 	if (attempt)
- 		port->link = 1;
--done:
- 	iounmap(mbase);
--
+-	data->chan = iio_channel_get(&pdev->dev, pdata->consumer_channel);
++	data->chan = devm_iio_channel_get(&pdev->dev, pdata->consumer_channel);
+ 	if (IS_ERR(data->chan))
+ 		return PTR_ERR(data->chan);
+ 
+@@ -164,7 +164,6 @@ static int adc_jack_remove(struct platform_device *pdev)
+ 
+ 	free_irq(data->irq, data);
+ 	cancel_work_sync(&data->handler.work);
+-	iio_channel_release(data->chan);
+ 
+ 	return 0;
  }
- 
- static struct ppc4xx_pciex_hwops ppc460sx_pcie_hwops __initdata = {
 -- 
 2.25.1
 
