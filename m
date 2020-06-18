@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 853301FE131
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:53:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D6471FE125
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:53:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731697AbgFRBwz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:52:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34014 "EHLO mail.kernel.org"
+        id S1731699AbgFRB0f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:26:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34096 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731680AbgFRB0a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:26:30 -0400
+        id S1731044AbgFRB0d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:26:33 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA815221F0;
-        Thu, 18 Jun 2020 01:26:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B3F82088E;
+        Thu, 18 Jun 2020 01:26:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443590;
-        bh=mcXClTOp0+hQTm9MdTcIiVYhdOSDa9JzXKSYbxtnZSI=;
+        s=default; t=1592443593;
+        bh=jMKMGH9oLq4ZwU2DuxOlSu/A8eXbglr0iWQy84qeamc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NcD+sk4WnOFzQD6AAodZ6PLd2vaRUvODx9kvqNf93rLTN4RenJ02rSrY//GPC2l7p
-         XVVCqz+EM+DKNCAImciokuOr2GKSqzyxLqSQJIzcMM69DzXZBg3YX4WTPbqq/l6RiJ
-         KkAnbqpxP7XxG5IzF6rf8lhjaOfOD9O4iG2FMIMM=
+        b=00CQXpGpTq32Zvca/DOfaYqa8jQ5A3GT3GiqxuweuH2rDfEZtUHpXa3SoaC2T68qo
+         pPCscwjpP/SoF81X0Dc/0nqFf98k4MavdHwUArdcWMhGyqMpEO5iY9nguiKRCyR8x1
+         7I5VnLR3ne2PtXypo+0F3UpIO42GjLnKvlAbdFP8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marek Szyprowski <m.szyprowski@samsung.com>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, patches@opensource.cirrus.com
-Subject: [PATCH AUTOSEL 4.14 024/108] mfd: wm8994: Fix driver operation if loaded as modules
-Date:   Wed, 17 Jun 2020 21:24:36 -0400
-Message-Id: <20200618012600.608744-24-sashal@kernel.org>
+Cc:     Alain Volmat <avolmat@me.com>,
+        Patrice Chotard <patrice.chotard@st.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 026/108] clk: clk-flexgen: fix clock-critical handling
+Date:   Wed, 17 Jun 2020 21:24:38 -0400
+Message-Id: <20200618012600.608744-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012600.608744-1-sashal@kernel.org>
 References: <20200618012600.608744-1-sashal@kernel.org>
@@ -44,36 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Alain Volmat <avolmat@me.com>
 
-[ Upstream commit d4f9b5428b53dd67f49ee8deed8d4366ed6b1933 ]
+[ Upstream commit a403bbab1a73d798728d76931cab3ff0399b9560 ]
 
-WM8994 chip has built-in regulators, which might be used for chip
-operation. They are controlled by a separate wm8994-regulator driver,
-which should be loaded before this driver calls regulator_get(), because
-that driver also provides consumer-supply mapping for the them. If that
-driver is not yet loaded, regulator core substitute them with dummy
-regulator, what breaks chip operation, because the built-in regulators are
-never enabled. Fix this by annotating this driver with MODULE_SOFTDEP()
-"pre" dependency to "wm8994_regulator" module.
+Fixes an issue leading to having all clocks following a critical
+clocks marked as well as criticals.
 
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Fixes: fa6415affe20 ("clk: st: clk-flexgen: Detect critical clocks")
+Signed-off-by: Alain Volmat <avolmat@me.com>
+Link: https://lkml.kernel.org/r/20200322140740.3970-1-avolmat@me.com
+Reviewed-by: Patrice Chotard <patrice.chotard@st.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/wm8994-core.c | 1 +
+ drivers/clk/st/clk-flexgen.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/mfd/wm8994-core.c b/drivers/mfd/wm8994-core.c
-index 953d0790ffd5..3259fb82d3c4 100644
---- a/drivers/mfd/wm8994-core.c
-+++ b/drivers/mfd/wm8994-core.c
-@@ -696,3 +696,4 @@ module_i2c_driver(wm8994_i2c_driver);
- MODULE_DESCRIPTION("Core support for the WM8994 audio CODEC");
- MODULE_LICENSE("GPL");
- MODULE_AUTHOR("Mark Brown <broonie@opensource.wolfsonmicro.com>");
-+MODULE_SOFTDEP("pre: wm8994_regulator");
+diff --git a/drivers/clk/st/clk-flexgen.c b/drivers/clk/st/clk-flexgen.c
+index 918ba3164da9..cd856210db58 100644
+--- a/drivers/clk/st/clk-flexgen.c
++++ b/drivers/clk/st/clk-flexgen.c
+@@ -373,6 +373,7 @@ static void __init st_of_flexgen_setup(struct device_node *np)
+ 			break;
+ 		}
+ 
++		flex_flags &= ~CLK_IS_CRITICAL;
+ 		of_clk_detect_critical(np, i, &flex_flags);
+ 
+ 		/*
 -- 
 2.25.1
 
