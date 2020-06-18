@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74C511FDD73
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:26:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 303621FDD77
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:26:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731650AbgFRB0V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:26:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33814 "EHLO mail.kernel.org"
+        id S1730727AbgFRB0Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:26:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731645AbgFRB0U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:26:20 -0400
+        id S1731014AbgFRB0Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:26:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1520520897;
-        Thu, 18 Jun 2020 01:26:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B183D20B1F;
+        Thu, 18 Jun 2020 01:26:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443579;
-        bh=Dwsp6Z4kPZv3ymP53cYNbkg+qUMWFYj7QbpPlxBj5Cs=;
+        s=default; t=1592443584;
+        bh=UGhfDyzH5DKoRcZ9PfBcUbV7VLVNuUQ36yNDMsI1WJA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DVSFdpsrGQnsuVPGigG79qGSjuch6QV8VvrBjfXwFOom3iqVVgB/GQ9JNz0ibs/hf
-         xDSQ8/Un7s2TwYXXvTlZ5mSTCV72lxXcFuIczNQvIJoe/Sz7i5AUnJen+KFKhIVqaR
-         V48Z7GaqHgo6VypVP1i6yZeh46b/n2m09wPqbm3A=
+        b=JSIp9F9yX/43dwq5ycPHSiONKYpHN2LzEU+k5Du3/AuRytDHCZL+DJ45jKk9uJpUs
+         rqBE/2VtxXZqHBK831c+n77cgEi39RvvCIm0gNGs4G4Jq6+ABXkSE6wN1SGGeEcmoX
+         Y3uZZ1lvYcVX7tj1uNKOsuKO4Z0pJO8agLZbd/Hk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andreas Klinger <ak@it-klinger.de>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 015/108] iio: bmp280: fix compensation of humidity
-Date:   Wed, 17 Jun 2020 21:24:27 -0400
-Message-Id: <20200618012600.608744-15-sashal@kernel.org>
+Cc:     Martin Wilck <mwilck@suse.com>, Hannes Reinecke <hare@suse.de>,
+        Mike Snitzer <snitzer@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, dm-devel@redhat.com
+Subject: [PATCH AUTOSEL 4.14 019/108] dm mpath: switch paths in dm_blk_ioctl() code path
+Date:   Wed, 17 Jun 2020 21:24:31 -0400
+Message-Id: <20200618012600.608744-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012600.608744-1-sashal@kernel.org>
 References: <20200618012600.608744-1-sashal@kernel.org>
@@ -43,48 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Klinger <ak@it-klinger.de>
+From: Martin Wilck <mwilck@suse.com>
 
-[ Upstream commit dee2dabc0e4115b80945fe2c91603e634f4b4686 ]
+[ Upstream commit 2361ae595352dec015d14292f1b539242d8446d6 ]
 
-Limit the output of humidity compensation to the range between 0 and 100
-percent.
+SCSI LUN passthrough code such as qemu's "scsi-block" device model
+pass every IO to the host via SG_IO ioctls. Currently, dm-multipath
+calls choose_pgpath() only in the block IO code path, not in the ioctl
+code path (unless current_pgpath is NULL). This has the effect that no
+path switching and thus no load balancing is done for SCSI-passthrough
+IO, unless the active path fails.
 
-Depending on the calibration parameters of the individual sensor it
-happens, that a humidity above 100 percent or below 0 percent is
-calculated, which don't make sense in terms of relative humidity.
+Fix this by using the same logic in multipath_prepare_ioctl() as in
+multipath_clone_and_map().
 
-Add a clamp to the compensation formula as described in the datasheet of
-the sensor in chapter 4.2.3.
+Note: The allegedly best path selection algorithm, service-time,
+still wouldn't work perfectly, because the io size of the current
+request is always set to 0. Changing that for the IO passthrough
+case would require the ioctl cmd and arg to be passed to dm's
+prepare_ioctl() method.
 
-Although this clamp is documented, it was never in the driver of the
-kernel.
-
-It depends on the circumstances (calibration parameters, temperature,
-humidity) if one can see a value above 100 percent without the clamp.
-The writer of this patch was working with this type of sensor without
-noting this error. So it seems to be a rare event when this bug occures.
-
-Signed-off-by: Andreas Klinger <ak@it-klinger.de>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Martin Wilck <mwilck@suse.com>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/pressure/bmp280-core.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/md/dm-mpath.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iio/pressure/bmp280-core.c b/drivers/iio/pressure/bmp280-core.c
-index 3204dff34e0a..ae415b4e381a 100644
---- a/drivers/iio/pressure/bmp280-core.c
-+++ b/drivers/iio/pressure/bmp280-core.c
-@@ -182,6 +182,8 @@ static u32 bmp280_compensate_humidity(struct bmp280_data *data,
- 		+ (s32)2097152) * H2 + 8192) >> 14);
- 	var -= ((((var >> 15) * (var >> 15)) >> 7) * (s32)H1) >> 4;
+diff --git a/drivers/md/dm-mpath.c b/drivers/md/dm-mpath.c
+index 8b7328666eaa..7c60aace8d25 100644
+--- a/drivers/md/dm-mpath.c
++++ b/drivers/md/dm-mpath.c
+@@ -1815,7 +1815,7 @@ static int multipath_prepare_ioctl(struct dm_target *ti,
+ 	int r;
  
-+	var = clamp_val(var, 0, 419430400);
-+
- 	return var >> 12;
- };
+ 	current_pgpath = READ_ONCE(m->current_pgpath);
+-	if (!current_pgpath)
++	if (!current_pgpath || !test_bit(MPATHF_QUEUE_IO, &m->flags))
+ 		current_pgpath = choose_pgpath(m, 0);
  
+ 	if (current_pgpath) {
 -- 
 2.25.1
 
