@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37E051FE341
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:07:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EED121FE33A
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:07:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726984AbgFRCHh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:07:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55176 "EHLO mail.kernel.org"
+        id S1730846AbgFRCHY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:07:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730699AbgFRBWQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:22:16 -0400
+        id S1730722AbgFRBWU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:22:20 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 14599221F0;
-        Thu, 18 Jun 2020 01:22:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F67D20776;
+        Thu, 18 Jun 2020 01:22:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443335;
-        bh=84CiTjOmC6L1iB5HAl8uSFlVjOWCYawhCLhEijI3Jpk=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C8pE7w4gwpKdS7XbVZOaKNOnLQJMRYQAJGcol5219RrH4UcNFwZtq2Mscu9xhIZMH
-         mpUzpVnk19jOpsd+CoUuYBTKmzOqqWoLhuD/adIAOSStC/XCSaXC8dSSat5rq2zRt6
-         zfdJof+FtRMh93bNg8YV1HERA1NRDjKXGHxzkXCM=
+        s=default; t=1592443340;
+        bh=pfMglipJmW2Nk/4AvOsxQl4v5eafwLNehc1TxMDPaGc=;
+        h=From:To:Cc:Subject:Date:From;
+        b=qyX/v+ac8KpJ65td3K8RR4iowzQffrOErhcjeLFxOOO8tARssJI5Nf8+XBB52qLTC
+         QRIKw5VpJI8Cxt0Y68wRAyHqJsN5GFwqaY64Hlvd/6jMYgUxfF36PTmeHmcd7UtnpM
+         aSjhgtfuAON2URgUGMhersacODOuKc9DykXdC6hA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrey Ignatov <rdna@fb.com>, Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 266/266] bpf: Fix memlock accounting for sock_hash
-Date:   Wed, 17 Jun 2020 21:16:31 -0400
-Message-Id: <20200618011631.604574-266-sashal@kernel.org>
+Cc:     Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 001/172] power: supply: bq24257_charger: Replace depends on REGMAP_I2C with select
+Date:   Wed, 17 Jun 2020 21:19:27 -0400
+Message-Id: <20200618012218.607130-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
-References: <20200618011631.604574-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,57 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Ignatov <rdna@fb.com>
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 
-[ Upstream commit 60e5ca8a64bad8f3e2e20a1e57846e497361c700 ]
+[ Upstream commit 87c3d579c8ed0eaea6b1567d529a8daa85a2bc6c ]
 
-Add missed bpf_map_charge_init() in sock_hash_alloc() and
-correspondingly bpf_map_charge_finish() on ENOMEM.
+regmap is a library function that gets selected by drivers that need
+it. No driver modules should depend on it. Depending on REGMAP_I2C makes
+this driver only build if another driver already selected REGMAP_I2C,
+as the symbol can't be selected through the menu kernel configuration.
 
-It was found accidentally while working on unrelated selftest that
-checks "map->memory.pages > 0" is true for all map types.
-
-Before:
-	# bpftool m l
-	...
-	3692: sockhash  name m_sockhash  flags 0x0
-		key 4B  value 4B  max_entries 8  memlock 0B
-
-After:
-	# bpftool m l
-	...
-	84: sockmap  name m_sockmap  flags 0x0
-		key 4B  value 4B  max_entries 8  memlock 4096B
-
-Fixes: 604326b41a6f ("bpf, sockmap: convert to generic sk_msg interface")
-Signed-off-by: Andrey Ignatov <rdna@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20200612000857.2881453-1-rdna@fb.com
+Fixes: 2219a935963e ("power_supply: Add TI BQ24257 charger driver")
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/sock_map.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/power/supply/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/core/sock_map.c b/net/core/sock_map.c
-index b22e9f119180..6bbc118bf00e 100644
---- a/net/core/sock_map.c
-+++ b/net/core/sock_map.c
-@@ -837,11 +837,15 @@ static struct bpf_map *sock_hash_alloc(union bpf_attr *attr)
- 		err = -EINVAL;
- 		goto free_htab;
- 	}
-+	err = bpf_map_charge_init(&htab->map.memory, cost);
-+	if (err)
-+		goto free_htab;
- 
- 	htab->buckets = bpf_map_area_alloc(htab->buckets_num *
- 					   sizeof(struct bpf_htab_bucket),
- 					   htab->map.numa_node);
- 	if (!htab->buckets) {
-+		bpf_map_charge_finish(&htab->map.memory);
- 		err = -ENOMEM;
- 		goto free_htab;
- 	}
+diff --git a/drivers/power/supply/Kconfig b/drivers/power/supply/Kconfig
+index ff6dab0bf0dd..76c699b5abda 100644
+--- a/drivers/power/supply/Kconfig
++++ b/drivers/power/supply/Kconfig
+@@ -555,7 +555,7 @@ config CHARGER_BQ24257
+ 	tristate "TI BQ24250/24251/24257 battery charger driver"
+ 	depends on I2C
+ 	depends on GPIOLIB || COMPILE_TEST
+-	depends on REGMAP_I2C
++	select REGMAP_I2C
+ 	help
+ 	  Say Y to enable support for the TI BQ24250, BQ24251, and BQ24257 battery
+ 	  chargers.
 -- 
 2.25.1
 
