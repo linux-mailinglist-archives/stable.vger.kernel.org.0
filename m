@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A904B1FE1C6
+	by mail.lfdr.de (Postfix) with ESMTP id 334821FE1C5
 	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:57:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733294AbgFRB5G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:57:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60226 "EHLO mail.kernel.org"
+        id S1733289AbgFRB5F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:57:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731371AbgFRBZL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:25:11 -0400
+        id S1731373AbgFRBZM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:25:12 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6EA0A221E9;
-        Thu, 18 Jun 2020 01:25:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8AF04221EE;
+        Thu, 18 Jun 2020 01:25:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443511;
-        bh=8m4HbIApK/nNGLBITxfwbW+hGZ0kunCHWQffAxXTSRY=;
+        s=default; t=1592443512;
+        bh=oz9WUU05V+vR5SeYhnmeKUgrS8zd6RKplIzjiqi8ZWI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HkGZatSjWrH+gwzh0BLZhtHEmOWWCfdwoaVb2kBhIruPX3n+dep1zf99H7oQN37vc
-         zs7yji7AG53rI2J9okYkIbSmy37Kpm83EjG+yNX+RXRZ2Jfy/bUp4UTOi2EnQDLqAI
-         YtW4cn2hkVm/uYELR9dge/+QcLg3JONmRhPb5C9w=
+        b=KJ6rWp3p1PRgwzGkqne1aSSL7LHUbCYhLTVixi8/QrzXuRnBZ4wb538lZmn3aHAhd
+         ButQ2+7g4EGSWk/K4KINcTfaoM/uXGEdLjj9F1LTzXmJ7zZbiGcQsE+ZuMsOv2Zlvt
+         pcAvvbJS/26odpp56SsD19RmhfN6sWZBLr1l95gA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Howells <dhowells@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-afs@lists.infradead.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 135/172] rxrpc: Adjust /proc/net/rxrpc/calls to display call->debug_id not user_ID
-Date:   Wed, 17 Jun 2020 21:21:41 -0400
-Message-Id: <20200618012218.607130-135-sashal@kernel.org>
+Cc:     Stafford Horne <shorne@gmail.com>, Sasha Levin <sashal@kernel.org>,
+        openrisc@lists.librecores.org
+Subject: [PATCH AUTOSEL 4.19 136/172] openrisc: Fix issue with argument clobbering for clone/fork
+Date:   Wed, 17 Jun 2020 21:21:42 -0400
+Message-Id: <20200618012218.607130-136-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012218.607130-1-sashal@kernel.org>
 References: <20200618012218.607130-1-sashal@kernel.org>
@@ -43,51 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Stafford Horne <shorne@gmail.com>
 
-[ Upstream commit 32f71aa497cfb23d37149c2ef16ad71fce2e45e2 ]
+[ Upstream commit 6bd140e14d9aaa734ec37985b8b20a96c0ece948 ]
 
-The user ID value isn't actually much use - and leaks a kernel pointer or a
-userspace value - so replace it with the call debug ID, which appears in trace
-points.
+Working on the OpenRISC glibc port I found that sometimes clone was
+working strange.  That the tls data argument sent in r7 was always
+wrong.  Further investigation revealed that the arguments were getting
+clobbered in the entry code.  This patch removes the code that writes to
+the argument registers.  This was likely due to some old code hanging
+around.
 
-Signed-off-by: David Howells <dhowells@redhat.com>
+This patch fixes this up for clone and fork.  This fork clobber is
+harmless but also useless so remove.
+
+Signed-off-by: Stafford Horne <shorne@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rxrpc/proc.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/openrisc/kernel/entry.S | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/rxrpc/proc.c b/net/rxrpc/proc.c
-index 9805e3b85c36..81a765dd8c9b 100644
---- a/net/rxrpc/proc.c
-+++ b/net/rxrpc/proc.c
-@@ -72,7 +72,7 @@ static int rxrpc_call_seq_show(struct seq_file *seq, void *v)
- 			 "Proto Local                                          "
- 			 " Remote                                         "
- 			 " SvID ConnID   CallID   End Use State    Abort   "
--			 " UserID           TxSeq    TW RxSeq    RW RxSerial RxTimo\n");
-+			 " DebugId  TxSeq    TW RxSeq    RW RxSerial RxTimo\n");
- 		return 0;
- 	}
+diff --git a/arch/openrisc/kernel/entry.S b/arch/openrisc/kernel/entry.S
+index ee6159d2ed22..01b59d2ce174 100644
+--- a/arch/openrisc/kernel/entry.S
++++ b/arch/openrisc/kernel/entry.S
+@@ -1170,13 +1170,13 @@ ENTRY(__sys_clone)
+ 	l.movhi	r29,hi(sys_clone)
+ 	l.ori	r29,r29,lo(sys_clone)
+ 	l.j	_fork_save_extra_regs_and_call
+-	 l.addi	r7,r1,0
++	 l.nop
  
-@@ -104,7 +104,7 @@ static int rxrpc_call_seq_show(struct seq_file *seq, void *v)
- 	rx_hard_ack = READ_ONCE(call->rx_hard_ack);
- 	seq_printf(seq,
- 		   "UDP   %-47.47s %-47.47s %4x %08x %08x %s %3u"
--		   " %-8.8s %08x %lx %08x %02x %08x %02x %08x %06lx\n",
-+		   " %-8.8s %08x %08x %08x %02x %08x %02x %08x %06lx\n",
- 		   lbuff,
- 		   rbuff,
- 		   call->service_id,
-@@ -114,7 +114,7 @@ static int rxrpc_call_seq_show(struct seq_file *seq, void *v)
- 		   atomic_read(&call->usage),
- 		   rxrpc_call_states[call->state],
- 		   call->abort_code,
--		   call->user_call_ID,
-+		   call->debug_id,
- 		   tx_hard_ack, READ_ONCE(call->tx_top) - tx_hard_ack,
- 		   rx_hard_ack, READ_ONCE(call->rx_top) - rx_hard_ack,
- 		   call->rx_serial,
+ ENTRY(__sys_fork)
+ 	l.movhi	r29,hi(sys_fork)
+ 	l.ori	r29,r29,lo(sys_fork)
+ 	l.j	_fork_save_extra_regs_and_call
+-	 l.addi	r3,r1,0
++	 l.nop
+ 
+ ENTRY(sys_rt_sigreturn)
+ 	l.jal	_sys_rt_sigreturn
 -- 
 2.25.1
 
