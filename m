@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD8161FE28E
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:02:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA70A1FE286
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:02:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731456AbgFRCCd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:02:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57934 "EHLO mail.kernel.org"
+        id S1731083AbgFRBXy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:23:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731073AbgFRBXv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:23:51 -0400
+        id S1731077AbgFRBXw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:23:52 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4158020CC7;
-        Thu, 18 Jun 2020 01:23:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 829DB20663;
+        Thu, 18 Jun 2020 01:23:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443431;
-        bh=zsf3BNbMkMFZFRzExFDVzfc4J9xwxSZPT9wxEK4Rizs=;
+        s=default; t=1592443432;
+        bh=SZWhEUlrFwpvsPH3D1fybotIlI+x0hXe/brgVE34O10=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GWwGbPpiivuJ0S2zc1PTCMRVwmovI1/28HyHufR1rOvqSiAK7ho4AwH5dl+S+9Sqs
-         CSNmh2c2y1+dYU5LO/xLRO1HtpC/3OngMp8HwFmAbQiDApPFGGLvsjKxPXcJqy39u1
-         BvuCb+5uLqY7QneNWLo935iCsKS/u7ymo7Ftq9t4=
+        b=m5oBVun1RfgJDLIPZW4MoNgN87QqxsO6S8B1sdoXMYV0K1z59NjCRgAhCUTHdlqjx
+         /8R4viTAs6eD/FdIgL1akCLpQAioNVh8OKvbiOGpyLwxVuaDmzlkWyCxJiQEJJeD0X
+         7tGr1pkU1mGGgzx3dHjfelDkQtJ+NE8fMzSgTCuk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Amit Kucheria <amit.kucheria@linaro.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org,
-        linux-omap@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 070/172] thermal/drivers/ti-soc-thermal: Avoid dereferencing ERR_PTR
-Date:   Wed, 17 Jun 2020 21:20:36 -0400
-Message-Id: <20200618012218.607130-70-sashal@kernel.org>
+Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.19 071/172] soundwire: slave: don't init debugfs on device registration error
+Date:   Wed, 17 Jun 2020 21:20:37 -0400
+Message-Id: <20200618012218.607130-71-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012218.607130-1-sashal@kernel.org>
 References: <20200618012218.607130-1-sashal@kernel.org>
@@ -45,55 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit 7440f518dad9d861d76c64956641eeddd3586f75 ]
+[ Upstream commit 8893ab5e8ee5d7c12e0fc1dca4a309475064473d ]
 
-On error the function ti_bandgap_get_sensor_data() returns the error
-code in ERR_PTR() but we only checked if the return value is NULL or
-not. And, so we can dereference an error code inside ERR_PTR.
-While at it, convert a check to IS_ERR_OR_NULL.
+The error handling flow seems incorrect, there is no reason to try and
+add debugfs support if the device registration did not
+succeed. Return on error.
 
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Reviewed-by: Amit Kucheria <amit.kucheria@linaro.org>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20200424161944.6044-1-sudipm.mukherjee@gmail.com
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
+Link: https://lore.kernel.org/r/20200419185117.4233-2-yung-chuan.liao@linux.intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/ti-soc-thermal/ti-thermal-common.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/soundwire/slave.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/thermal/ti-soc-thermal/ti-thermal-common.c b/drivers/thermal/ti-soc-thermal/ti-thermal-common.c
-index b4f981daeaf2..452e034aedc1 100644
---- a/drivers/thermal/ti-soc-thermal/ti-thermal-common.c
-+++ b/drivers/thermal/ti-soc-thermal/ti-thermal-common.c
-@@ -183,7 +183,7 @@ int ti_thermal_expose_sensor(struct ti_bandgap *bgp, int id,
- 
- 	data = ti_bandgap_get_sensor_data(bgp, id);
- 
--	if (!data || IS_ERR(data))
-+	if (!IS_ERR_OR_NULL(data))
- 		data = ti_thermal_build_data(bgp, id);
- 
- 	if (!data)
-@@ -210,7 +210,7 @@ int ti_thermal_remove_sensor(struct ti_bandgap *bgp, int id)
- 
- 	data = ti_bandgap_get_sensor_data(bgp, id);
- 
--	if (data && data->ti_thermal) {
-+	if (!IS_ERR_OR_NULL(data) && data->ti_thermal) {
- 		if (data->our_zone)
- 			thermal_zone_device_unregister(data->ti_thermal);
+diff --git a/drivers/soundwire/slave.c b/drivers/soundwire/slave.c
+index ac103bd0c176..b6330b6672d5 100644
+--- a/drivers/soundwire/slave.c
++++ b/drivers/soundwire/slave.c
+@@ -55,6 +55,8 @@ static int sdw_slave_add(struct sdw_bus *bus,
+ 		list_del(&slave->node);
+ 		mutex_unlock(&bus->bus_lock);
+ 		put_device(&slave->dev);
++
++		return ret;
  	}
-@@ -276,7 +276,7 @@ int ti_thermal_unregister_cpu_cooling(struct ti_bandgap *bgp, int id)
  
- 	data = ti_bandgap_get_sensor_data(bgp, id);
- 
--	if (data) {
-+	if (!IS_ERR_OR_NULL(data)) {
- 		cpufreq_cooling_unregister(data->cool_dev);
- 		if (data->policy)
- 			cpufreq_cpu_put(data->policy);
+ 	return ret;
 -- 
 2.25.1
 
