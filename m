@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A03C11FE6D3
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:38:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B10941FE6C5
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:36:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731337AbgFRCg1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:36:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43408 "EHLO mail.kernel.org"
+        id S1731276AbgFRCg0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:36:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729239AbgFRBN4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:13:56 -0400
+        id S1729241AbgFRBN5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:13:57 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B9FCD21924;
-        Thu, 18 Jun 2020 01:13:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EBE9221974;
+        Thu, 18 Jun 2020 01:13:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442835;
-        bh=L+2u2x+M17UPWRFkAT8mRWoi6IoHPRAravkJ2WX2OFE=;
+        s=default; t=1592442836;
+        bh=0hZx3zP10Ds1j10gCx37S3rT5JDXBnvUZQIeZ4Q/Jbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eQ3nCr3SHpbkua+1tYSTYfI+OkILvLU1HiP0imX4P6ckqBtyXu/xrsebVoRpHELqV
-         PQ1N4MmsBTyuCOxFAlmvpDq/zqlymqUBTZpVg7diDTaxUZO1NfYDt/B7z7ZMA+ZiIj
-         R4Ikc2Zulgo+gsvWW60av4m01qMHDAhouKUFx8Ok=
+        b=sdI9z0YBf/+zOneeLxr+G5IJ9Pof+A0vVAiY92f8fdXDCcoQ0sKtdLS7pE5c6XiqE
+         PhjkkYA4D/XCRn47l/YeB+9zFC9TUX1ZOB7xXdaOSg8djyOxxyhWAHD3i8QhOG4sdg
+         hSEPqxvFBYpyMV/xGNqjOHV26Ui23S83cUm+klTw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tiezhu Yang <yangtiezhu@loongson.cn>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.7 269/388] pinctrl: Fix return value about devm_platform_ioremap_resource()
-Date:   Wed, 17 Jun 2020 21:06:06 -0400
-Message-Id: <20200618010805.600873-269-sashal@kernel.org>
+Cc:     Siddharth Gupta <sidgup@codeaurora.org>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.7 270/388] scripts: headers_install: Exit with error on config leak
+Date:   Wed, 17 Jun 2020 21:06:07 -0400
+Message-Id: <20200618010805.600873-270-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
@@ -44,49 +43,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tiezhu Yang <yangtiezhu@loongson.cn>
+From: Siddharth Gupta <sidgup@codeaurora.org>
 
-[ Upstream commit b5d9ff10dca49f4d4b7846c3751c6bec50d07375 ]
+[ Upstream commit 5967577231f9b19acd5a59485e9075964065bbe3 ]
 
-When call function devm_platform_ioremap_resource(), we should use IS_ERR()
-to check the return value and return PTR_ERR() if failed.
+Misuse of CONFIG_* in UAPI headers should result in an error. These config
+options can be set in userspace by the user application which includes
+these headers to control the APIs and structures being used in a kernel
+which supports multiple targets.
 
-Fixes: 4b024225c4a8 ("pinctrl: use devm_platform_ioremap_resource() to simplify code")
-Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
-Link: https://lore.kernel.org/r/1590234326-2194-1-git-send-email-yangtiezhu@loongson.cn
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Siddharth Gupta <sidgup@codeaurora.org>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/bcm/pinctrl-bcm281xx.c | 2 +-
- drivers/pinctrl/pinctrl-at91-pio4.c    | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ scripts/headers_install.sh | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/pinctrl/bcm/pinctrl-bcm281xx.c b/drivers/pinctrl/bcm/pinctrl-bcm281xx.c
-index f690fc5cd688..71e666178300 100644
---- a/drivers/pinctrl/bcm/pinctrl-bcm281xx.c
-+++ b/drivers/pinctrl/bcm/pinctrl-bcm281xx.c
-@@ -1406,7 +1406,7 @@ static int __init bcm281xx_pinctrl_probe(struct platform_device *pdev)
- 	pdata->reg_base = devm_platform_ioremap_resource(pdev, 0);
- 	if (IS_ERR(pdata->reg_base)) {
- 		dev_err(&pdev->dev, "Failed to ioremap MEM resource\n");
--		return -ENODEV;
-+		return PTR_ERR(pdata->reg_base);
- 	}
+diff --git a/scripts/headers_install.sh b/scripts/headers_install.sh
+index a07668a5c36b..94a833597a88 100755
+--- a/scripts/headers_install.sh
++++ b/scripts/headers_install.sh
+@@ -64,7 +64,7 @@ configs=$(sed -e '
+ 	d
+ ' $OUTFILE)
  
- 	/* Initialize the dynamic part of pinctrl_desc */
-diff --git a/drivers/pinctrl/pinctrl-at91-pio4.c b/drivers/pinctrl/pinctrl-at91-pio4.c
-index 694912409fd9..54222ccddfb1 100644
---- a/drivers/pinctrl/pinctrl-at91-pio4.c
-+++ b/drivers/pinctrl/pinctrl-at91-pio4.c
-@@ -1019,7 +1019,7 @@ static int atmel_pinctrl_probe(struct platform_device *pdev)
+-# The entries in the following list are not warned.
++# The entries in the following list do not result in an error.
+ # Please do not add a new entry. This list is only for existing ones.
+ # The list will be reduced gradually, and deleted eventually. (hopefully)
+ #
+@@ -98,18 +98,19 @@ include/uapi/linux/raw.h:CONFIG_MAX_RAW_DEVS
  
- 	atmel_pioctrl->reg_base = devm_platform_ioremap_resource(pdev, 0);
- 	if (IS_ERR(atmel_pioctrl->reg_base))
--		return -EINVAL;
-+		return PTR_ERR(atmel_pioctrl->reg_base);
+ for c in $configs
+ do
+-	warn=1
++	leak_error=1
  
- 	atmel_pioctrl->clk = devm_clk_get(dev, NULL);
- 	if (IS_ERR(atmel_pioctrl->clk)) {
+ 	for ignore in $config_leak_ignores
+ 	do
+ 		if echo "$INFILE:$c" | grep -q "$ignore$"; then
+-			warn=
++			leak_error=
+ 			break
+ 		fi
+ 	done
+ 
+-	if [ "$warn" = 1 ]; then
+-		echo "warning: $INFILE: leak $c to user-space" >&2
++	if [ "$leak_error" = 1 ]; then
++		echo "error: $INFILE: leak $c to user-space" >&2
++		exit 1
+ 	fi
+ done
+ 
 -- 
 2.25.1
 
