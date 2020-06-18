@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 450A51FE4ED
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:22:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD4461FE4EC
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:22:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729266AbgFRBSc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:18:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49930 "EHLO mail.kernel.org"
+        id S1729958AbgFRBSd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:18:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729944AbgFRBSb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:18:31 -0400
+        id S1729951AbgFRBSc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:18:32 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C9A521D79;
-        Thu, 18 Jun 2020 01:18:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CD14B21D80;
+        Thu, 18 Jun 2020 01:18:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443110;
-        bh=X4mFPAhXCqgWnpjyToeM07iL7ggBfJsvEFxQqtErWhE=;
+        s=default; t=1592443111;
+        bh=LRLpbnrBw2bFkxZw25KLj9MPejpHu/5+1ulq9fStIAk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gNLhIbzrXOrJ8m9dDiDFjcteiKwDMnPxxooVGX+fwnB6B+egpbjfUwEAb3uN65cMo
-         QxkZ0HpUkhttX3EDrBzhLafB5Pr7irSseWda5EcqeIPz4/N9MrNH0wcFnnzD7daAQS
-         +RFZrUGVP0FY/OJNs91BgYKpYiP4LZL/zRBJgoqM=
+        b=jpe5/Vpyd8iwq/AfB2k4iGmGnQe0xb9pMx6nv2xlx/ZMuCeI9fB7LbEkcyHAqaYKz
+         wryCeRyimPfCtUKllOnX/yU5j3dXfuOnZHZApYlyz8R6WhluhCbS6sedDjJ13jd2Nf
+         foaC6Cqv29asjD2sSdxf5uDmPAS/N0puQbkAHu30=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hsin-Yi Wang <hsinyi@chromium.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 087/266] arm64: dts: mt8173: fix unit name warnings
-Date:   Wed, 17 Jun 2020 21:13:32 -0400
-Message-Id: <20200618011631.604574-87-sashal@kernel.org>
+Cc:     Nilesh Javali <njavali@marvell.com>, Lee Duncan <lduncan@suse.com>,
+        Manish Rangankar <mrangankar@marvell.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 088/266] scsi: qedi: Do not flush offload work if ARP not resolved
+Date:   Wed, 17 Jun 2020 21:13:33 -0400
+Message-Id: <20200618011631.604574-88-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
@@ -45,128 +44,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hsin-Yi Wang <hsinyi@chromium.org>
+From: Nilesh Javali <njavali@marvell.com>
 
-[ Upstream commit 72b29215aced394d01ca25e432963b619daa0098 ]
+[ Upstream commit 927527aea0e2a9c1d336c7d33f77f1911481d008 ]
 
-Fixing several unit name warnings:
+For an unreachable target, offload_work is not initialized and the endpoint
+state is set to OFLDCONN_NONE. This results in a WARN_ON due to the check
+of the work function field being set to zero.
 
-Warning (unit_address_vs_reg): /oscillator@0: node has a unit name, but no reg property
-Warning (unit_address_vs_reg): /oscillator@1: node has a unit name, but no reg property
-Warning (unit_address_vs_reg): /oscillator@2: node has a unit name, but no reg property
-Warning (unit_address_vs_reg): /thermal-zones/cpu_thermal/trips/trip-point@0: node has a unit name, but no reg property
-Warning (unit_address_vs_reg): /thermal-zones/cpu_thermal/trips/trip-point@1: node has a unit name, but no reg property
-Warning (unit_address_vs_reg): /thermal-zones/cpu_thermal/trips/cpu_crit@0: node has a unit name, but no reg property
-Warning (unit_address_vs_reg): /thermal-zones/cpu_thermal/cooling-maps/map@0: node has a unit name, but no reg property
-Warning (unit_address_vs_reg): /thermal-zones/cpu_thermal/cooling-maps/map@1: node has a unit name, but no reg property
-Warning (unit_address_vs_reg): /reserved-memory/vpu_dma_mem_region: node has a reg or ranges property, but no unit name
-Warning (simple_bus_reg): /soc/pinctrl@10005000: simple-bus unit address format error, expected "1000b000"
-Warning (simple_bus_reg): /soc/interrupt-controller@10220000: simple-bus unit address format error, expected "10221000"
+------------[ cut here ]------------
+WARNING: CPU: 24 PID: 18587 at ../kernel/workqueue.c:3037 __flush_work+0x1c1/0x1d0
+:
+Hardware name: HPE ProLiant DL380 Gen10/ProLiant DL380 Gen10, BIOS U30 02/01/2020
+RIP: 0010:__flush_work+0x1c1/0x1d0
+Code: ba 6d 00 03 80 c9 f0 eb b6 48 c7 c7 20 ee 6c a4 e8 52 d3 04 00 0f 0b 31 c0 e9 d1 fe ff
+ff 48 c7 c7 20 ee 6c a4 e8 3d d3 04 00 <0f> 0b 31 c0 e9 bc fe ff ff e8 11 f3 f
+ 00 31 f6
+RSP: 0018:ffffac5a8cd47a80 EFLAGS: 00010282
+RAX: 0000000000000024 RBX: ffff98d68c1fcaf0 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: ffff98ce9fd99898 RDI: ffff98ce9fd99898
+RBP: ffff98d68c1fcbc0 R08: 00000000000006fa R09: 0000000000000001
+R10: ffffac5a8cd47b50 R11: 0000000000000001 R12: 0000000000000000
+R13: 000000000000489b R14: ffff98d68c1fc800 R15: ffff98d692132c00
+FS:  00007f65f7f62280(0000) GS:ffff98ce9fd80000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007ffd2435e880 CR3: 0000000809334003 CR4: 00000000007606e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+PKRU: 55555554
+Call Trace:
+ ? class_create_release+0x40/0x40
+ ? klist_put+0x2c/0x80
+ qedi_ep_disconnect+0xdd/0x400 [qedi]
+ iscsi_if_ep_disconnect.isra.20+0x59/0x70 [scsi_transport_iscsi]
+ iscsi_if_rx+0x129b/0x1670 [scsi_transport_iscsi]
+ ? __netlink_lookup+0xe7/0x160
+ netlink_unicast+0x21d/0x300
+ netlink_sendmsg+0x30f/0x430
+ sock_sendmsg+0x5b/0x60
+ ____sys_sendmsg+0x1e2/0x240
+ ? copy_msghdr_from_user+0xd9/0x160
+ ___sys_sendmsg+0x88/0xd0
+ ? ___sys_recvmsg+0xa2/0xe0
+ ? hrtimer_try_to_cancel+0x25/0x100
+ ? do_nanosleep+0x9c/0x170
+ ? __sys_sendmsg+0x5e/0xa0
+ __sys_sendmsg+0x5e/0xa0
+ do_syscall_64+0x60/0x1f0
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x7f65f6f16107
+Code: 64 89 02 48 c7 c0 ff ff ff ff eb b9 0f 1f 80 00 00 00 00 8b 05 aa d2 2b 00 48 63 d2 48
+63 ff 85 c0 75 18 b8 2e 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 59 f3 c3 0f 1f 8
+    0 00 00 00 00 53 48 89 f3 48
+ RSP: 002b:00007ffd24367ca8 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+ RAX: ffffffffffffffda RBX: 000055a7aeaaf110 RCX: 00007f65f6f16107
+ RDX: 0000000000000000 RSI: 00007ffd24367cc0 RDI: 0000000000000003
+ RBP: 0000000000000070 R08: 0000000000000000 R09: 0000000000000000
+ R10: 000000000000075c R11: 0000000000000246 R12: 00007ffd24367cc0
+ R13: 000055a7ae560008 R14: 00007ffd24367db0 R15: 0000000000000000
+ ---[ end trace 54f499c05d41f8bb ]---
 
-Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
-Link: https://lore.kernel.org/r/20200210063523.133333-4-hsinyi@chromium.org
-[mb: drop fixes for '_' in property name]
-Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
+Only flush if the connection endpoint state if different from
+OFLDCONN_NONE.
+
+[mkp: clarified commit desc]
+
+Link: https://lore.kernel.org/r/20200408064332.19377-5-mrangankar@marvell.com
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Manish Rangankar <mrangankar@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/mediatek/mt8173.dtsi | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ drivers/scsi/qedi/qedi_iscsi.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/mediatek/mt8173.dtsi b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
-index 5891b7151432..dec5e4113ce4 100644
---- a/arch/arm64/boot/dts/mediatek/mt8173.dtsi
-+++ b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
-@@ -238,21 +238,21 @@ psci {
- 		cpu_on	      = <0x84000003>;
- 	};
+diff --git a/drivers/scsi/qedi/qedi_iscsi.c b/drivers/scsi/qedi/qedi_iscsi.c
+index 84a639698343..0f57c8073406 100644
+--- a/drivers/scsi/qedi/qedi_iscsi.c
++++ b/drivers/scsi/qedi/qedi_iscsi.c
+@@ -997,7 +997,8 @@ static void qedi_ep_disconnect(struct iscsi_endpoint *ep)
+ 	if (qedi_ep->state == EP_STATE_OFLDCONN_START)
+ 		goto ep_exit_recover;
  
--	clk26m: oscillator@0 {
-+	clk26m: oscillator0 {
- 		compatible = "fixed-clock";
- 		#clock-cells = <0>;
- 		clock-frequency = <26000000>;
- 		clock-output-names = "clk26m";
- 	};
+-	flush_work(&qedi_ep->offload_work);
++	if (qedi_ep->state != EP_STATE_OFLDCONN_NONE)
++		flush_work(&qedi_ep->offload_work);
  
--	clk32k: oscillator@1 {
-+	clk32k: oscillator1 {
- 		compatible = "fixed-clock";
- 		#clock-cells = <0>;
- 		clock-frequency = <32000>;
- 		clock-output-names = "clk32k";
- 	};
- 
--	cpum_ck: oscillator@2 {
-+	cpum_ck: oscillator2 {
- 		compatible = "fixed-clock";
- 		#clock-cells = <0>;
- 		clock-frequency = <0>;
-@@ -268,19 +268,19 @@ cpu_thermal: cpu_thermal {
- 			sustainable-power = <1500>; /* milliwatts */
- 
- 			trips {
--				threshold: trip-point@0 {
-+				threshold: trip-point0 {
- 					temperature = <68000>;
- 					hysteresis = <2000>;
- 					type = "passive";
- 				};
- 
--				target: trip-point@1 {
-+				target: trip-point1 {
- 					temperature = <85000>;
- 					hysteresis = <2000>;
- 					type = "passive";
- 				};
- 
--				cpu_crit: cpu_crit@0 {
-+				cpu_crit: cpu_crit0 {
- 					temperature = <115000>;
- 					hysteresis = <2000>;
- 					type = "critical";
-@@ -288,13 +288,13 @@ cpu_crit: cpu_crit@0 {
- 			};
- 
- 			cooling-maps {
--				map@0 {
-+				map0 {
- 					trip = <&target>;
- 					cooling-device = <&cpu0 0 0>,
- 							 <&cpu1 0 0>;
- 					contribution = <3072>;
- 				};
--				map@1 {
-+				map1 {
- 					trip = <&target>;
- 					cooling-device = <&cpu2 0 0>,
- 							 <&cpu3 0 0>;
-@@ -308,7 +308,7 @@ reserved-memory {
- 		#address-cells = <2>;
- 		#size-cells = <2>;
- 		ranges;
--		vpu_dma_reserved: vpu_dma_mem_region {
-+		vpu_dma_reserved: vpu_dma_mem_region@b7000000 {
- 			compatible = "shared-dma-pool";
- 			reg = <0 0xb7000000 0 0x500000>;
- 			alignment = <0x1000>;
-@@ -360,7 +360,7 @@ syscfg_pctl_a: syscfg_pctl_a@10005000 {
- 			reg = <0 0x10005000 0 0x1000>;
- 		};
- 
--		pio: pinctrl@10005000 {
-+		pio: pinctrl@1000b000 {
- 			compatible = "mediatek,mt8173-pinctrl";
- 			reg = <0 0x1000b000 0 0x1000>;
- 			mediatek,pctl-regmap = <&syscfg_pctl_a>;
-@@ -567,7 +567,7 @@ mipi_tx1: mipi-dphy@10216000 {
- 			status = "disabled";
- 		};
- 
--		gic: interrupt-controller@10220000 {
-+		gic: interrupt-controller@10221000 {
- 			compatible = "arm,gic-400";
- 			#interrupt-cells = <3>;
- 			interrupt-parent = <&gic>;
+ 	if (qedi_ep->conn) {
+ 		qedi_conn = qedi_ep->conn;
 -- 
 2.25.1
 
