@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E7821FE49F
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:19:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A5691FE4A6
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:20:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731714AbgFRCTn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:19:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50676 "EHLO mail.kernel.org"
+        id S1730347AbgFRCTm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:19:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729371AbgFRBTJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:19:09 -0400
+        id S1727799AbgFRBTK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:19:10 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1EBE021D79;
-        Thu, 18 Jun 2020 01:19:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 50E0221D7E;
+        Thu, 18 Jun 2020 01:19:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443148;
-        bh=7j13jfJAS5TmqGJhiUKQwtVBulobDufXNR5FSmvh8BY=;
+        s=default; t=1592443150;
+        bh=JS+n9eHJSbbyBwQT+4ZlUCQqCKe0Fm6rnx22FfFJZq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N4qqGlxhQC0b9nXAq7lNvz1VkNirp8mKrLDX4mXSlOidfcIM8DygmT3iX7lFtTOrl
-         v4AgxDuW2QuX6CEP1FKz7+YElzRovKXuQisM6BqogB2qTI1OZJJu7TpyOZ2qSyYOON
-         FZ7Q9jFMjuIixPAhii1CL30KyONubJ44KKTLM6fI=
+        b=EUaN5itMJaj+MG5mIlP7aU/Vs7zm6dXmjB5LVNWVGd/hEKogk/k2VmH/xM3rwhcki
+         CqQBKlGwOmx6rethrCK3PLwjYvybJWsjY4sD95JYGchKFA6dAEidIRGdUaB6/1z50p
+         KBjs9XcLkdlZj0SUcZseN79bWJQKUHBjVOrFc2+s=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        Thinh Nguyen <thinhn@synopsys.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 117/266] usb: dwc3: gadget: Properly handle failed kick_transfer
-Date:   Wed, 17 Jun 2020 21:14:02 -0400
-Message-Id: <20200618011631.604574-117-sashal@kernel.org>
+Cc:     Oscar Carter <oscar.carter@gmx.com>,
+        Ajay Singh <ajay.kathat@microchip.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, devel@driverdev.osuosl.org
+Subject: [PATCH AUTOSEL 5.4 118/266] staging: wilc1000: Increase the size of wid_list array
+Date:   Wed, 17 Jun 2020 21:14:03 -0400
+Message-Id: <20200618011631.604574-118-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
@@ -44,66 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Oscar Carter <oscar.carter@gmx.com>
 
-[ Upstream commit 8d99087c2db863c5fa3a4a1f3cb82b3a493705ca ]
+[ Upstream commit a4338ed2e1cf724563956ec5f91deeaabfedbe23 ]
 
-If dwc3 fails to issue START_TRANSFER/UPDATE_TRANSFER command, then we
-should properly end an active transfer and give back all the started
-requests. However if it's for an isoc endpoint, the failure maybe due to
-bus-expiry status. In this case, don't give back the requests and wait
-for the next retry.
+Increase by one the size of wid_list array as index variable can reach a
+value of 5. If this happens, an out-of-bounds access is performed.
 
-Fixes: 72246da40f37 ("usb: Introduce DesignWare USB3 DRD Driver")
-Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Also, use a #define instead of a hard-coded literal for the new array
+size.
+
+Addresses-Coverity-ID: 1451981 ("Out-of-bounds access")
+Fixes: f5a3cb90b802d ("staging: wilc1000: add passive scan support")
+Acked-by: Ajay Singh <ajay.kathat@microchip.com>
+Signed-off-by: Oscar Carter <oscar.carter@gmx.com>
+Link: https://lore.kernel.org/r/20200504150911.4470-1-oscar.carter@gmx.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/gadget.c | 24 ++++++++++++++++--------
- 1 file changed, 16 insertions(+), 8 deletions(-)
+ drivers/staging/wilc1000/wilc_hif.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 05180a09e70d..17340864a540 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -1217,6 +1217,8 @@ static void dwc3_prepare_trbs(struct dwc3_ep *dep)
- 	}
- }
+diff --git a/drivers/staging/wilc1000/wilc_hif.c b/drivers/staging/wilc1000/wilc_hif.c
+index 77d0732f451b..221e3d93db14 100644
+--- a/drivers/staging/wilc1000/wilc_hif.c
++++ b/drivers/staging/wilc1000/wilc_hif.c
+@@ -12,6 +12,8 @@
+ #define WILC_FALSE_FRMWR_CHANNEL		100
+ #define WILC_MAX_RATES_SUPPORTED		12
  
-+static void dwc3_gadget_ep_cleanup_cancelled_requests(struct dwc3_ep *dep);
++#define WILC_SCAN_WID_LIST_SIZE		6
 +
- static int __dwc3_gadget_kick_transfer(struct dwc3_ep *dep)
+ struct wilc_rcvd_mac_info {
+ 	u8 status;
+ };
+@@ -233,7 +235,7 @@ int wilc_scan(struct wilc_vif *vif, u8 scan_source, u8 scan_type,
+ 	      void *user_arg, struct cfg80211_scan_request *request)
  {
- 	struct dwc3_gadget_ep_cmd_params params;
-@@ -1256,14 +1258,20 @@ static int __dwc3_gadget_kick_transfer(struct dwc3_ep *dep)
- 
- 	ret = dwc3_send_gadget_ep_cmd(dep, cmd, &params);
- 	if (ret < 0) {
--		/*
--		 * FIXME we need to iterate over the list of requests
--		 * here and stop, unmap, free and del each of the linked
--		 * requests instead of what we do now.
--		 */
--		if (req->trb)
--			memset(req->trb, 0, sizeof(struct dwc3_trb));
--		dwc3_gadget_del_and_unmap_request(dep, req, ret);
-+		struct dwc3_request *tmp;
-+
-+		if (ret == -EAGAIN)
-+			return ret;
-+
-+		dwc3_stop_active_transfer(dep, true, true);
-+
-+		list_for_each_entry_safe(req, tmp, &dep->started_list, list)
-+			dwc3_gadget_move_cancelled_request(req);
-+
-+		/* If ep isn't started, then there's no end transfer pending */
-+		if (!(dep->flags & DWC3_EP_END_TRANSFER_PENDING))
-+			dwc3_gadget_ep_cleanup_cancelled_requests(dep);
-+
- 		return ret;
- 	}
- 
+ 	int result = 0;
+-	struct wid wid_list[5];
++	struct wid wid_list[WILC_SCAN_WID_LIST_SIZE];
+ 	u32 index = 0;
+ 	u32 i, scan_timeout;
+ 	u8 *buffer;
 -- 
 2.25.1
 
