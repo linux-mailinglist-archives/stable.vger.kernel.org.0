@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D08451FE178
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:55:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C69B1FE168
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:54:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731589AbgFRByp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:54:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33128 "EHLO mail.kernel.org"
+        id S1729938AbgFRByi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:54:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730005AbgFRBZz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:25:55 -0400
+        id S1728404AbgFRBZ4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:25:56 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D40E20776;
-        Thu, 18 Jun 2020 01:25:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 729092075E;
+        Thu, 18 Jun 2020 01:25:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443555;
-        bh=iLpKnNLcCmnU67a1CwsUEPaUwcpiD+DGwyuTxy6efnk=;
+        s=default; t=1592443556;
+        bh=os6n/9kN27wCSarGN1/VzYvMf39rkPiyKxsiw3Y+JXk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zmwHMj7N3OYN4ZipGicDLX+pMwjO2rL+01IpqurMMTvPh3PzVbunYbpign/7Lz2Ys
-         UgwzFCT7AtuNSPfPHjVU/BJzpg0Ojrh/2PWmYZ/4TRFOG6PYSeQIMleN+WqnzjtJ2h
-         IRrrgl+d/OmSfE+9L5EFkRrcUuZWo0Qt1h1hpd/k=
+        b=neHP/Pr0nlFdKdbS+DdieEC9pjNO4bNMWxBoHtTWIlJhY1EK+GpwNd9Xst6b44/CG
+         OZsZA1xDMsE+wx0//pixYgf6K7Vn0GPICISNE4IgDiaO7XYbij3OkRLrJ0CMyqQbwd
+         4WSd5oq3qWVHjE9ETmUdC/qQ+tY9EeKN/H+9uVZc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 169/172] scsi: acornscsi: Fix an error handling path in acornscsi_probe()
-Date:   Wed, 17 Jun 2020 21:22:15 -0400
-Message-Id: <20200618012218.607130-169-sashal@kernel.org>
+Cc:     Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 170/172] x86/idt: Keep spurious entries unset in system_vectors
+Date:   Wed, 17 Jun 2020 21:22:16 -0400
+Message-Id: <20200618012218.607130-170-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012218.607130-1-sashal@kernel.org>
 References: <20200618012218.607130-1-sashal@kernel.org>
@@ -44,38 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-[ Upstream commit 42c76c9848e13dbe0538d7ae0147a269dfa859cb ]
+[ Upstream commit 1f1fbc70c10e81f70e9fbe2102d439c883269811 ]
 
-'ret' is known to be 0 at this point.  Explicitly return -ENOMEM if one of
-the 'ecardm_iomap()' calls fail.
+With commit dc20b2d52653 ("x86/idt: Move interrupt gate initialization to
+IDT code") non assigned system vectors are also marked as used in
+'used_vectors' (now 'system_vectors') bitmap. This makes checks in
+arch_show_interrupts() whether a particular system vector is allocated to
+always pass and e.g. 'Hyper-V reenlightenment interrupts' entry always
+shows up in /proc/interrupts.
 
-Link: https://lore.kernel.org/r/20200530081622.577888-1-christophe.jaillet@wanadoo.fr
-Fixes: e95a1b656a98 ("[ARM] rpc: acornscsi: update to new style ecard driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Another side effect of having all unassigned system vectors marked as used
+is that irq_matrix_debug_show() will wrongly count them among 'System'
+vectors.
+
+As it is now ensured that alloc_intr_gate() is not called after init, it is
+possible to leave unused entries in 'system_vectors' unset to fix these
+issues.
+
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20200428093824.1451532-4-vkuznets@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/arm/acornscsi.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/x86/kernel/idt.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/arm/acornscsi.c b/drivers/scsi/arm/acornscsi.c
-index 421fe869a11e..ef9d907f2df5 100644
---- a/drivers/scsi/arm/acornscsi.c
-+++ b/drivers/scsi/arm/acornscsi.c
-@@ -2914,8 +2914,10 @@ static int acornscsi_probe(struct expansion_card *ec, const struct ecard_id *id)
+diff --git a/arch/x86/kernel/idt.c b/arch/x86/kernel/idt.c
+index a7e0e975043f..e1f9355307b8 100644
+--- a/arch/x86/kernel/idt.c
++++ b/arch/x86/kernel/idt.c
+@@ -320,7 +320,11 @@ void __init idt_setup_apic_and_irq_gates(void)
  
- 	ashost->base = ecardm_iomap(ec, ECARD_RES_MEMC, 0, 0);
- 	ashost->fast = ecardm_iomap(ec, ECARD_RES_IOCFAST, 0, 0);
--	if (!ashost->base || !ashost->fast)
-+	if (!ashost->base || !ashost->fast) {
-+		ret = -ENOMEM;
- 		goto out_put;
-+	}
- 
- 	host->irq = ec->irq;
- 	ashost->host = host;
+ #ifdef CONFIG_X86_LOCAL_APIC
+ 	for_each_clear_bit_from(i, system_vectors, NR_VECTORS) {
+-		set_bit(i, system_vectors);
++		/*
++		 * Don't set the non assigned system vectors in the
++		 * system_vectors bitmap. Otherwise they show up in
++		 * /proc/interrupts.
++		 */
+ 		entry = spurious_entries_start + 8 * (i - FIRST_SYSTEM_VECTOR);
+ 		set_intr_gate(i, entry);
+ 	}
 -- 
 2.25.1
 
