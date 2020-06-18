@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F14D31FDAF8
+	by mail.lfdr.de (Postfix) with ESMTP id 830AD1FDAF7
 	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:09:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728185AbgFRBJa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:09:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35802 "EHLO mail.kernel.org"
+        id S1728178AbgFRBJ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:09:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728170AbgFRBJ1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:09:27 -0400
+        id S1728159AbgFRBJ3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:09:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 31D5321BE5;
-        Thu, 18 Jun 2020 01:09:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6420921974;
+        Thu, 18 Jun 2020 01:09:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442567;
-        bh=BCck0kQnMhAfG7wmIdj+cka0AdBZOnZe4nLqeQw3x8M=;
+        s=default; t=1592442568;
+        bh=St+32PWtOnP3r5Q0VnSaOgp8ULPNXgJlQD252LrToqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YfFhefDlkiYbAMIMTLE2SROWppImYqa0AevDdoZFlJZvnVfh/GqBoMmLG4mmLtdJm
-         nEVRjA+NTJ/MW8V5YaCwv0JDWS18ATdIxpa8/dI856W5KqYQuswG54DlxXNtLOAKHm
-         VzXU/NqNygKWNVoZqKEXQu5B8iReZTzRB6ZB8Rk0=
+        b=GcFLz1YCVOETdI6GpDA1WtWU019HKLCtJk/zPXIfNAg1DKT2ED4NeB9mgk3bjdKWI
+         aUOPH3130eWhfLVofzT5++0F+5jFCCgN9dU+6hMtbkfv4f7WXlrW6WuZb9oD0MPsQl
+         fPPn/ISq1VH85FUhW8dAzVxjn5kiUVjEiOH2rCCc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Maulik Shah <mkshah@codeaurora.org>, devicetree@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 061/388] arm64: dts: qcom: sc7180: Correct the pdc interrupt ranges
-Date:   Wed, 17 Jun 2020 21:02:38 -0400
-Message-Id: <20200618010805.600873-61-sashal@kernel.org>
+Cc:     Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.7 062/388] coresight: tmc: Fix TMC mode read in tmc_read_prepare_etb()
+Date:   Wed, 17 Jun 2020 21:02:39 -0400
+Message-Id: <20200618010805.600873-62-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
@@ -43,37 +46,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maulik Shah <mkshah@codeaurora.org>
+From: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
 
-[ Upstream commit 7d2f29e49477aa51339e719cf73f0945c39c8a9e ]
+[ Upstream commit 347adb0d6385c3220dc01ab61807a5b1892901cc ]
 
-Few PDC interrupts do not map to respective parent GIC interrupt.
-Fix this by correcting the pdc interrupt map.
+On some QCOM platforms like SC7180, SDM845 and SM8150,
+reading TMC mode register without proper coresight power
+management can lead to async exceptions like the one in
+the call trace below in tmc_read_prepare_etb(). This can
+happen if the user tries to read the TMC etf data via
+device node without setting up source and the sink first.
+Fix this by having a check for coresight sysfs mode
+before reading TMC mode management register.
 
-Fixes: 22f185ee81d2 ("arm64: dts: qcom: sc7180: Add pdc interrupt controller")
-Cc: devicetree@vger.kernel.org
-Signed-off-by: Maulik Shah <mkshah@codeaurora.org>
-Link: https://lore.kernel.org/r/1589804402-27130-1-git-send-email-mkshah@codeaurora.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+ Kernel panic - not syncing: Asynchronous SError Interrupt
+ CPU: 7 PID: 2605 Comm: hexdump Tainted: G S                5.4.30 #122
+ Call trace:
+  dump_backtrace+0x0/0x188
+  show_stack+0x20/0x2c
+  dump_stack+0xdc/0x144
+  panic+0x168/0x36c
+  panic+0x0/0x36c
+  arm64_serror_panic+0x78/0x84
+  do_serror+0x130/0x138
+  el1_error+0x84/0xf8
+  tmc_read_prepare_etb+0x88/0xb8
+  tmc_open+0x40/0xd8
+  misc_open+0x120/0x158
+  chrdev_open+0xb8/0x1a4
+  do_dentry_open+0x268/0x3a0
+  vfs_open+0x34/0x40
+  path_openat+0x39c/0xdf4
+  do_filp_open+0x90/0x10c
+  do_sys_open+0x150/0x3e8
+  __arm64_compat_sys_openat+0x28/0x34
+  el0_svc_common+0xa8/0x160
+  el0_svc_compat_handler+0x2c/0x38
+  el0_svc_compat+0x8/0x10
+
+Fixes: 4525412a5046 ("coresight: tmc: making prepare/unprepare functions generic")
+Reported-by: Stephen Boyd <swboyd@chromium.org>
+Suggested-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Signed-off-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Link: https://lore.kernel.org/r/20200518180242.7916-14-mathieu.poirier@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sc7180.dtsi | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/hwtracing/coresight/coresight-tmc-etf.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sc7180.dtsi b/arch/arm64/boot/dts/qcom/sc7180.dtsi
-index 998f101ad623..eea92b314fc6 100644
---- a/arch/arm64/boot/dts/qcom/sc7180.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sc7180.dtsi
-@@ -1657,8 +1657,7 @@ dispcc: clock-controller@af00000 {
- 		pdc: interrupt-controller@b220000 {
- 			compatible = "qcom,sc7180-pdc", "qcom,pdc";
- 			reg = <0 0x0b220000 0 0x30000>;
--			qcom,pdc-ranges = <0 480 15>, <17 497 98>,
--					  <119 634 4>, <124 639 1>;
-+			qcom,pdc-ranges = <0 480 94>, <94 609 31>, <125 63 1>;
- 			#interrupt-cells = <2>;
- 			interrupt-parent = <&intc>;
- 			interrupt-controller;
+diff --git a/drivers/hwtracing/coresight/coresight-tmc-etf.c b/drivers/hwtracing/coresight/coresight-tmc-etf.c
+index d0cc3985b72a..36cce2bfb744 100644
+--- a/drivers/hwtracing/coresight/coresight-tmc-etf.c
++++ b/drivers/hwtracing/coresight/coresight-tmc-etf.c
+@@ -596,13 +596,6 @@ int tmc_read_prepare_etb(struct tmc_drvdata *drvdata)
+ 		goto out;
+ 	}
+ 
+-	/* There is no point in reading a TMC in HW FIFO mode */
+-	mode = readl_relaxed(drvdata->base + TMC_MODE);
+-	if (mode != TMC_MODE_CIRCULAR_BUFFER) {
+-		ret = -EINVAL;
+-		goto out;
+-	}
+-
+ 	/* Don't interfere if operated from Perf */
+ 	if (drvdata->mode == CS_MODE_PERF) {
+ 		ret = -EINVAL;
+@@ -616,8 +609,15 @@ int tmc_read_prepare_etb(struct tmc_drvdata *drvdata)
+ 	}
+ 
+ 	/* Disable the TMC if need be */
+-	if (drvdata->mode == CS_MODE_SYSFS)
++	if (drvdata->mode == CS_MODE_SYSFS) {
++		/* There is no point in reading a TMC in HW FIFO mode */
++		mode = readl_relaxed(drvdata->base + TMC_MODE);
++		if (mode != TMC_MODE_CIRCULAR_BUFFER) {
++			ret = -EINVAL;
++			goto out;
++		}
+ 		__tmc_etb_disable_hw(drvdata);
++	}
+ 
+ 	drvdata->reading = true;
+ out:
 -- 
 2.25.1
 
