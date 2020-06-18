@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77B181FE881
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:49:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1691B1FE87E
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:49:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728269AbgFRCtH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:49:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36390 "EHLO mail.kernel.org"
+        id S1726979AbgFRCtB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:49:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728263AbgFRBJn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:09:43 -0400
+        id S1728269AbgFRBJo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:09:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0175521D81;
-        Thu, 18 Jun 2020 01:09:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 19E6021D7E;
+        Thu, 18 Jun 2020 01:09:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442582;
-        bh=Z/WbnyE4ZXlpudncQs5OzvRsFKu8fkgoznjwuRiGmao=;
+        s=default; t=1592442584;
+        bh=YGX0lrnfxqvr/T0mkwVDpFrgfYUGjzlfvTyPYgsITqY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JpN6VQNsojOp6CB8w9rmfTF1tJH4oTiDOjGDeFPQ06AHdza97EAVpzNZWFI8xHzmG
-         /Bk9D/rr2+PHPAz+8Y9tAbVyi+42VzoUQZDDdFQYWDkHeIFHkd7N88fzDH4QeNujqJ
-         R8t7ZcivvRSHs/IqJDuKYtVbgNzpGAo5h0n3Asnk=
+        b=ByQITHnCSDbR7BToO+0RZvFIIgKGpv+vqRMOSLCnxbV7pHChj8PsZ8U+xNLN6P3Pv
+         uuhYnwag/CnCKRQehEBg2IAVSk8B4tD+fCXvXG2RJ76XWADz7NYJOilJzTjwM/sdD8
+         2L1fvN3tutiXIayo8kViPhvmH/tY8QIg+ZcEsW/w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 074/388] scsi: cxgb3i: Fix some leaks in init_act_open()
-Date:   Wed, 17 Jun 2020 21:02:51 -0400
-Message-Id: <20200618010805.600873-74-sashal@kernel.org>
+Cc:     Quanyang Wang <quanyang.wang@windriver.com>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Tejas Patel <tejas.patel@xilinx.com>,
+        Jolly Shah <jolly.shah@xilinx.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.7 075/388] clk: zynqmp: fix memory leak in zynqmp_register_clocks
+Date:   Wed, 17 Jun 2020 21:02:52 -0400
+Message-Id: <20200618010805.600873-75-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
@@ -43,71 +47,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Quanyang Wang <quanyang.wang@windriver.com>
 
-[ Upstream commit b6170a49c59c27a10efed26c5a2969403e69aaba ]
+[ Upstream commit 58b0fb86260063f86afecaebf4056c876fff2a19 ]
 
-There wasn't any clean up done if cxgb3_alloc_atid() failed and also the
-original code didn't release "csk->l2t".
+This is detected by kmemleak running on zcu102 board:
 
-Link: https://lore.kernel.org/r/20200521121221.GA247492@mwanda
-Fixes: 6f7efaabefeb ("[SCSI] cxgb3i: change cxgb3i to use libcxgbi")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+unreferenced object 0xffffffc877e48180 (size 128):
+comm "swapper/0", pid 1, jiffies 4294892909 (age 315.436s)
+hex dump (first 32 bytes):
+64 70 5f 76 69 64 65 6f 5f 72 65 66 5f 64 69 76 dp_video_ref_div
+31 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 1...............
+backtrace:
+[<00000000c9be883b>] __kmalloc_track_caller+0x200/0x380
+[<00000000f02c3809>] kvasprintf+0x7c/0x100
+[<00000000e51dde4d>] kasprintf+0x60/0x80
+[<0000000092298b05>] zynqmp_register_clocks+0x29c/0x398
+[<00000000faaff182>] zynqmp_clock_probe+0x3cc/0x4c0
+[<000000005f5986f0>] platform_drv_probe+0x58/0xa8
+[<00000000d5810136>] really_probe+0xd8/0x2a8
+[<00000000f5b671be>] driver_probe_device+0x5c/0x100
+[<0000000038f91fcf>] __device_attach_driver+0x98/0xb8
+[<000000008a3f2ac2>] bus_for_each_drv+0x74/0xd8
+[<000000001cb2783d>] __device_attach+0xe0/0x140
+[<00000000c268031b>] device_initial_probe+0x24/0x30
+[<000000006998de4b>] bus_probe_device+0x9c/0xa8
+[<00000000647ae6ff>] device_add+0x3c0/0x610
+[<0000000071c14bb8>] of_device_add+0x40/0x50
+[<000000004bb5d132>] of_platform_device_create_pdata+0xbc/0x138
+
+This is because that when num_nodes is larger than 1, clk_out is
+allocated using kasprintf for these nodes but only the last node's
+clk_out is freed.
+
+Signed-off-by: Quanyang Wang <quanyang.wang@windriver.com>
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+Signed-off-by: Tejas Patel <tejas.patel@xilinx.com>
+Signed-off-by: Jolly Shah <jolly.shah@xilinx.com>
+Link: https://lkml.kernel.org/r/1583185843-20707-5-git-send-email-jolly.shah@xilinx.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/cxgbi/cxgb3i/cxgb3i.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ drivers/clk/zynqmp/clkc.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/scsi/cxgbi/cxgb3i/cxgb3i.c b/drivers/scsi/cxgbi/cxgb3i/cxgb3i.c
-index 524cdbcd29aa..ec7d01f6e2d5 100644
---- a/drivers/scsi/cxgbi/cxgb3i/cxgb3i.c
-+++ b/drivers/scsi/cxgbi/cxgb3i/cxgb3i.c
-@@ -959,6 +959,7 @@ static int init_act_open(struct cxgbi_sock *csk)
- 	struct net_device *ndev = cdev->ports[csk->port_id];
- 	struct cxgbi_hba *chba = cdev->hbas[csk->port_id];
- 	struct sk_buff *skb = NULL;
-+	int ret;
+diff --git a/drivers/clk/zynqmp/clkc.c b/drivers/clk/zynqmp/clkc.c
+index 10e89f23880b..b66c3a62233a 100644
+--- a/drivers/clk/zynqmp/clkc.c
++++ b/drivers/clk/zynqmp/clkc.c
+@@ -558,7 +558,7 @@ static struct clk_hw *zynqmp_register_clk_topology(int clk_id, char *clk_name,
+ {
+ 	int j;
+ 	u32 num_nodes, clk_dev_id;
+-	char *clk_out = NULL;
++	char *clk_out[MAX_NODES];
+ 	struct clock_topology *nodes;
+ 	struct clk_hw *hw = NULL;
  
- 	log_debug(1 << CXGBI_DBG_TOE | 1 << CXGBI_DBG_SOCK,
- 		"csk 0x%p,%u,0x%lx.\n", csk, csk->state, csk->flags);
-@@ -979,16 +980,16 @@ static int init_act_open(struct cxgbi_sock *csk)
- 	csk->atid = cxgb3_alloc_atid(t3dev, &t3_client, csk);
- 	if (csk->atid < 0) {
- 		pr_err("NO atid available.\n");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto put_sock;
- 	}
- 	cxgbi_sock_set_flag(csk, CTPF_HAS_ATID);
- 	cxgbi_sock_get(csk);
+@@ -572,16 +572,16 @@ static struct clk_hw *zynqmp_register_clk_topology(int clk_id, char *clk_name,
+ 		 * Intermediate clock names are postfixed with type of clock.
+ 		 */
+ 		if (j != (num_nodes - 1)) {
+-			clk_out = kasprintf(GFP_KERNEL, "%s%s", clk_name,
++			clk_out[j] = kasprintf(GFP_KERNEL, "%s%s", clk_name,
+ 					    clk_type_postfix[nodes[j].type]);
+ 		} else {
+-			clk_out = kasprintf(GFP_KERNEL, "%s", clk_name);
++			clk_out[j] = kasprintf(GFP_KERNEL, "%s", clk_name);
+ 		}
  
- 	skb = alloc_wr(sizeof(struct cpl_act_open_req), 0, GFP_KERNEL);
- 	if (!skb) {
--		cxgb3_free_atid(t3dev, csk->atid);
--		cxgbi_sock_put(csk);
--		return -ENOMEM;
-+		ret = -ENOMEM;
-+		goto free_atid;
+ 		if (!clk_topology[nodes[j].type])
+ 			continue;
+ 
+-		hw = (*clk_topology[nodes[j].type])(clk_out, clk_dev_id,
++		hw = (*clk_topology[nodes[j].type])(clk_out[j], clk_dev_id,
+ 						    parent_names,
+ 						    num_parents,
+ 						    &nodes[j]);
+@@ -590,9 +590,12 @@ static struct clk_hw *zynqmp_register_clk_topology(int clk_id, char *clk_name,
+ 				     __func__,  clk_dev_id, clk_name,
+ 				     PTR_ERR(hw));
+ 
+-		parent_names[0] = clk_out;
++		parent_names[0] = clk_out[j];
  	}
- 	skb->sk = (struct sock *)csk;
- 	set_arp_failure_handler(skb, act_open_arp_failure);
-@@ -1010,6 +1011,15 @@ static int init_act_open(struct cxgbi_sock *csk)
- 	cxgbi_sock_set_state(csk, CTP_ACTIVE_OPEN);
- 	send_act_open_req(csk, skb, csk->l2t);
- 	return 0;
+-	kfree(clk_out);
 +
-+free_atid:
-+	cxgb3_free_atid(t3dev, csk->atid);
-+put_sock:
-+	cxgbi_sock_put(csk);
-+	l2t_release(t3dev, csk->l2t);
-+	csk->l2t = NULL;
++	for (j = 0; j < num_nodes; j++)
++		kfree(clk_out[j]);
 +
-+	return ret;
+ 	return hw;
  }
  
- cxgb3_cpl_handler_func cxgb3i_cpl_handlers[NUM_CPL_CMDS] = {
 -- 
 2.25.1
 
