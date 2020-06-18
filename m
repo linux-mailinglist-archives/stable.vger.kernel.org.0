@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D67331FE8A7
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:50:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A37E1FE89D
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:50:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728027AbgFRCuR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:50:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35630 "EHLO mail.kernel.org"
+        id S1728132AbgFRBJX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:09:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728119AbgFRBJV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:09:21 -0400
+        id S1728127AbgFRBJW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:09:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9AD5721D90;
-        Thu, 18 Jun 2020 01:09:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D0F9E21BE5;
+        Thu, 18 Jun 2020 01:09:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442560;
-        bh=FgERd5sewvBMOH5a47mfPFwGkB1P6KA+Fm1olXzkvko=;
+        s=default; t=1592442561;
+        bh=3Sxq9xEUjMoEAHJMR3O3vPC8exhvz74ULRwjGDQLRRU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f462k587s7Wf2m5+NhkPNgvIwOZreZEKUhPi4g9Qe3I3rFJVfKBwPeinnOAfy/Pkw
-         sqg5Q3pV0bJ3yMe/M2tkcY6XWdY459TvcOK9+JfqB+5TOl710Yl1Sj1e0o686/KV+x
-         0jvNw7Q+4G4S0biu6LUEUCL7ObIgmOqtYXqHCk7k=
+        b=fGuSW+Q2426utX2GDd1wrJRhtbaG/5B44+jEbLbMZ8S9KAAxz7g377R2Uh0o4qJ4K
+         vi7phIn37YboO12+4HNzu6G+XpWLdE79ulkgj8LWMh7WlLgThC38mvB9+X9ipoLv1c
+         DolWdQJ911siTbTm3YFkfZ1M53X8RsxgtHiZM/Tg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andre Przywara <andre.przywara@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 056/388] arm64: dts: fvp: Fix GIC child nodes
-Date:   Wed, 17 Jun 2020 21:02:33 -0400
-Message-Id: <20200618010805.600873-56-sashal@kernel.org>
+Cc:     =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Tomasz Maciej Nowak <tmn505@gmail.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Rob Herring <robh@kernel.org>,
+        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.7 057/388] PCI: aardvark: Don't blindly enable ASPM L0s and don't write to read-only register
+Date:   Wed, 17 Jun 2020 21:02:34 -0400
+Message-Id: <20200618010805.600873-57-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,169 +48,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andre Przywara <andre.przywara@arm.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 78631aecc52c4b2adcf611769df2ff9c67ac16d0 ]
+[ Upstream commit 90c6cb4a355e7befcb557d217d1d8b8bd5875a05 ]
 
-The GIC DT nodes for the fastmodels were not fully compliant with the
-DT binding, which has certain expectations about child nodes and their
-size and address cells values.
+Trying to change Link Status register does not have any effect as this
+is a read-only register. Trying to overwrite bits for Negotiated Link
+Width does not make sense.
 
-Use smaller #address-cells and #size-cells values, as the binding
-requests, and adjust the reg properties accordingly.
-This requires adjusting the interrupt nexus nodes as well, as one
-field of the interrupt-map property depends on the GIC's address-size.
+In future proper change of link width can be done via Lane Count Select
+bits in PCIe Control 0 register.
 
-Since the .dts files share interrupt nexus nodes across different
-interrupt controllers (GICv2 vs. GICv3), we need to use the only
-commonly allowed #address-size value of <1> for both.
+Trying to unconditionally enable ASPM L0s via ASPM Control bits in Link
+Control register is wrong. There should be at least some detection if
+endpoint supports L0s as isn't mandatory.
 
-Link: https://lore.kernel.org/r/20200513103016.130417-11-andre.przywara@arm.com
-Signed-off-by: Andre Przywara <andre.przywara@arm.com>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Moreover ASPM Control bits in Link Control register are controlled by
+pcie/aspm.c code which sets it according to system ASPM settings,
+immediately after aardvark driver probes. So setting these bits by
+aardvark driver has no long running effect.
+
+Remove code which touches ASPM L0s bits from this driver and let
+kernel's ASPM implementation to set ASPM state properly.
+
+Some users are reporting issues that this code is problematic for some
+Intel wifi cards and removing it fixes them, see e.g.:
+https://bugzilla.kernel.org/show_bug.cgi?id=196339
+
+If problems with Intel wifi cards occur even after this commit, then
+pcie/aspm.c code could be modified / hooked to not enable ASPM L0s state
+for affected problematic cards.
+
+Link: https://lore.kernel.org/r/20200430080625.26070-3-pali@kernel.org
+Tested-by: Tomasz Maciej Nowak <tmn505@gmail.com>
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Acked-by: Rob Herring <robh@kernel.org>
+Acked-by: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../boot/dts/arm/foundation-v8-gicv2.dtsi     |  2 +-
- .../boot/dts/arm/foundation-v8-gicv3.dtsi     |  8 +-
- arch/arm64/boot/dts/arm/foundation-v8.dtsi    | 86 +++++++++----------
- 3 files changed, 48 insertions(+), 48 deletions(-)
+ drivers/pci/controller/pci-aardvark.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/arm/foundation-v8-gicv2.dtsi b/arch/arm64/boot/dts/arm/foundation-v8-gicv2.dtsi
-index 15fe81738e94..dfb23dfc0b0f 100644
---- a/arch/arm64/boot/dts/arm/foundation-v8-gicv2.dtsi
-+++ b/arch/arm64/boot/dts/arm/foundation-v8-gicv2.dtsi
-@@ -8,7 +8,7 @@ / {
- 	gic: interrupt-controller@2c001000 {
- 		compatible = "arm,cortex-a15-gic", "arm,cortex-a9-gic";
- 		#interrupt-cells = <3>;
--		#address-cells = <2>;
-+		#address-cells = <1>;
- 		interrupt-controller;
- 		reg = <0x0 0x2c001000 0 0x1000>,
- 		      <0x0 0x2c002000 0 0x2000>,
-diff --git a/arch/arm64/boot/dts/arm/foundation-v8-gicv3.dtsi b/arch/arm64/boot/dts/arm/foundation-v8-gicv3.dtsi
-index f2c75c756039..906f51935b36 100644
---- a/arch/arm64/boot/dts/arm/foundation-v8-gicv3.dtsi
-+++ b/arch/arm64/boot/dts/arm/foundation-v8-gicv3.dtsi
-@@ -8,9 +8,9 @@ / {
- 	gic: interrupt-controller@2f000000 {
- 		compatible = "arm,gic-v3";
- 		#interrupt-cells = <3>;
--		#address-cells = <2>;
--		#size-cells = <2>;
--		ranges;
-+		#address-cells = <1>;
-+		#size-cells = <1>;
-+		ranges = <0x0 0x0 0x2f000000 0x100000>;
- 		interrupt-controller;
- 		reg =	<0x0 0x2f000000 0x0 0x10000>,
- 			<0x0 0x2f100000 0x0 0x200000>,
-@@ -22,7 +22,7 @@ gic: interrupt-controller@2f000000 {
- 		its: its@2f020000 {
- 			compatible = "arm,gic-v3-its";
- 			msi-controller;
--			reg = <0x0 0x2f020000 0x0 0x20000>;
-+			reg = <0x20000 0x20000>;
- 		};
- 	};
- };
-diff --git a/arch/arm64/boot/dts/arm/foundation-v8.dtsi b/arch/arm64/boot/dts/arm/foundation-v8.dtsi
-index 12f039fa3dad..60ec37d6c9d3 100644
---- a/arch/arm64/boot/dts/arm/foundation-v8.dtsi
-+++ b/arch/arm64/boot/dts/arm/foundation-v8.dtsi
-@@ -107,49 +107,49 @@ bus@8000000 {
+diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
+index 2a20b649f40c..3a6d07dc0a38 100644
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -353,10 +353,6 @@ static void advk_pcie_setup_hw(struct advk_pcie *pcie)
  
- 		#interrupt-cells = <1>;
- 		interrupt-map-mask = <0 0 63>;
--		interrupt-map = <0 0  0 &gic 0 0 GIC_SPI  0 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0  1 &gic 0 0 GIC_SPI  1 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0  2 &gic 0 0 GIC_SPI  2 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0  3 &gic 0 0 GIC_SPI  3 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0  4 &gic 0 0 GIC_SPI  4 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0  5 &gic 0 0 GIC_SPI  5 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0  6 &gic 0 0 GIC_SPI  6 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0  7 &gic 0 0 GIC_SPI  7 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0  8 &gic 0 0 GIC_SPI  8 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0  9 &gic 0 0 GIC_SPI  9 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 10 &gic 0 0 GIC_SPI 10 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 11 &gic 0 0 GIC_SPI 11 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 12 &gic 0 0 GIC_SPI 12 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 13 &gic 0 0 GIC_SPI 13 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 14 &gic 0 0 GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 15 &gic 0 0 GIC_SPI 15 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 16 &gic 0 0 GIC_SPI 16 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 17 &gic 0 0 GIC_SPI 17 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 18 &gic 0 0 GIC_SPI 18 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 19 &gic 0 0 GIC_SPI 19 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 20 &gic 0 0 GIC_SPI 20 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 21 &gic 0 0 GIC_SPI 21 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 22 &gic 0 0 GIC_SPI 22 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 23 &gic 0 0 GIC_SPI 23 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 24 &gic 0 0 GIC_SPI 24 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 25 &gic 0 0 GIC_SPI 25 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 26 &gic 0 0 GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 27 &gic 0 0 GIC_SPI 27 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 28 &gic 0 0 GIC_SPI 28 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 29 &gic 0 0 GIC_SPI 29 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 30 &gic 0 0 GIC_SPI 30 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 31 &gic 0 0 GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 32 &gic 0 0 GIC_SPI 32 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 33 &gic 0 0 GIC_SPI 33 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 34 &gic 0 0 GIC_SPI 34 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 35 &gic 0 0 GIC_SPI 35 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 36 &gic 0 0 GIC_SPI 36 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 37 &gic 0 0 GIC_SPI 37 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 38 &gic 0 0 GIC_SPI 38 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 39 &gic 0 0 GIC_SPI 39 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 40 &gic 0 0 GIC_SPI 40 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 41 &gic 0 0 GIC_SPI 41 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 42 &gic 0 0 GIC_SPI 42 IRQ_TYPE_LEVEL_HIGH>;
-+		interrupt-map = <0 0  0 &gic 0 GIC_SPI  0 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0  1 &gic 0 GIC_SPI  1 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0  2 &gic 0 GIC_SPI  2 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0  3 &gic 0 GIC_SPI  3 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0  4 &gic 0 GIC_SPI  4 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0  5 &gic 0 GIC_SPI  5 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0  6 &gic 0 GIC_SPI  6 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0  7 &gic 0 GIC_SPI  7 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0  8 &gic 0 GIC_SPI  8 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0  9 &gic 0 GIC_SPI  9 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 10 &gic 0 GIC_SPI 10 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 11 &gic 0 GIC_SPI 11 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 12 &gic 0 GIC_SPI 12 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 13 &gic 0 GIC_SPI 13 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 14 &gic 0 GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 15 &gic 0 GIC_SPI 15 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 16 &gic 0 GIC_SPI 16 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 17 &gic 0 GIC_SPI 17 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 18 &gic 0 GIC_SPI 18 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 19 &gic 0 GIC_SPI 19 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 20 &gic 0 GIC_SPI 20 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 21 &gic 0 GIC_SPI 21 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 22 &gic 0 GIC_SPI 22 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 23 &gic 0 GIC_SPI 23 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 24 &gic 0 GIC_SPI 24 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 25 &gic 0 GIC_SPI 25 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 26 &gic 0 GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 27 &gic 0 GIC_SPI 27 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 28 &gic 0 GIC_SPI 28 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 29 &gic 0 GIC_SPI 29 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 30 &gic 0 GIC_SPI 30 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 31 &gic 0 GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 32 &gic 0 GIC_SPI 32 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 33 &gic 0 GIC_SPI 33 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 34 &gic 0 GIC_SPI 34 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 35 &gic 0 GIC_SPI 35 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 36 &gic 0 GIC_SPI 36 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 37 &gic 0 GIC_SPI 37 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 38 &gic 0 GIC_SPI 38 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 39 &gic 0 GIC_SPI 39 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 40 &gic 0 GIC_SPI 40 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 41 &gic 0 GIC_SPI 41 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 42 &gic 0 GIC_SPI 42 IRQ_TYPE_LEVEL_HIGH>;
+ 	advk_pcie_wait_for_link(pcie);
  
- 		ethernet@2,02000000 {
- 			compatible = "smsc,lan91c111";
+-	reg = PCIE_CORE_LINK_L0S_ENTRY |
+-		(1 << PCIE_CORE_LINK_WIDTH_SHIFT);
+-	advk_writel(pcie, reg, PCIE_CORE_LINK_CTRL_STAT_REG);
+-
+ 	reg = advk_readl(pcie, PCIE_CORE_CMD_STATUS_REG);
+ 	reg |= PCIE_CORE_CMD_MEM_ACCESS_EN |
+ 		PCIE_CORE_CMD_IO_ACCESS_EN |
 -- 
 2.25.1
 
