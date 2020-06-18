@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1246F1FDDF8
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:29:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0317A1FDDFA
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:29:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730759AbgFRB3n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:29:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39254 "EHLO mail.kernel.org"
+        id S1731493AbgFRB3s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:29:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732358AbgFRB3m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:29:42 -0400
+        id S1729696AbgFRB3o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:29:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 68F4E2223D;
-        Thu, 18 Jun 2020 01:29:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B8C6B2220B;
+        Thu, 18 Jun 2020 01:29:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443781;
-        bh=O3tvKx+NS2+bVc+ofXf/adPnj8RSK2W99Bq/DIda5do=;
+        s=default; t=1592443783;
+        bh=vwPg8yQwOC7KdRKw7KYgCpGvhDYGfVaBJR4Vg7IRaoU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lGmdAe/9C/CpT162j+8Y2Q0/cyDfBe4/GVDUZ/B+RWI2PBalY5zYnlnobn3WiIVy9
-         VOx6eCiH20ZEoD1lKk6Mi2ZcHA59bMtY63GjTKL1gEnhGeOPHNhSwzWczrm2rEr+FW
-         dTs9Zm2kIb2RqLhi+Bc1hmoBwicqT964IM2/8myI=
+        b=IGm0A2qlsU6UQtVaoVLrHQpUD7bPsIg/q2Mv0LIcbDy/FdOFCKfGqKogLulPKlRJQ
+         u/apr0xh4xT/HGnBVXGYLRXkNc245pmOyzi2NzcnxRu/arq+OOhwoa+Hp3srlMtM0i
+         jhUCPCZRVBH0x9bd4rBPFnmgz7Io+hBu6ZRe+Kv8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pawel Laszczak <pawell@cadence.com>,
-        Jayshri Pawar <jpawar@cadence.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 63/80] usb: gadget: Fix issue with config_ep_by_speed function
-Date:   Wed, 17 Jun 2020 21:28:02 -0400
-Message-Id: <20200618012819.609778-63-sashal@kernel.org>
+Cc:     Nathan Chancellor <natechancellor@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org,
+        bcm-kernel-feedback-list@broadcom.com,
+        linux-rpi-kernel@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.9 65/80] clk: bcm2835: Fix return type of bcm2835_register_gate
+Date:   Wed, 17 Jun 2020 21:28:04 -0400
+Message-Id: <20200618012819.609778-65-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012819.609778-1-sashal@kernel.org>
 References: <20200618012819.609778-1-sashal@kernel.org>
@@ -44,224 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawel Laszczak <pawell@cadence.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 5d363120aa548ba52d58907a295eee25f8207ed2 ]
+[ Upstream commit f376c43bec4f8ee8d1ba5c5c4cfbd6e84fb279cb ]
 
-This patch adds new config_ep_by_speed_and_alt function which
-extends the config_ep_by_speed about alt parameter.
-This additional parameter allows to find proper usb_ss_ep_comp_descriptor.
+bcm2835_register_gate is used as a callback for the clk_register member
+of bcm2835_clk_desc, which expects a struct clk_hw * return type but
+bcm2835_register_gate returns a struct clk *.
 
-Problem has appeared during testing f_tcm (BOT/UAS) driver function.
+This discrepancy is hidden by the fact that bcm2835_register_gate is
+cast to the typedef bcm2835_clk_register by the _REGISTER macro. This
+turns out to be a control flow integrity violation, which is how this
+was noticed.
 
-f_tcm function for SS use array of headers for both  BOT/UAS alternate
-setting:
+Change the return type of bcm2835_register_gate to be struct clk_hw *
+and use clk_hw_register_gate to do so. This should be a non-functional
+change as clk_register_gate calls clk_hw_register_gate anyways but this
+is needed to avoid issues with further changes.
 
-static struct usb_descriptor_header *uasp_ss_function_desc[] = {
-        (struct usb_descriptor_header *) &bot_intf_desc,
-        (struct usb_descriptor_header *) &uasp_ss_bi_desc,
-        (struct usb_descriptor_header *) &bot_bi_ep_comp_desc,
-        (struct usb_descriptor_header *) &uasp_ss_bo_desc,
-        (struct usb_descriptor_header *) &bot_bo_ep_comp_desc,
-
-        (struct usb_descriptor_header *) &uasp_intf_desc,
-        (struct usb_descriptor_header *) &uasp_ss_bi_desc,
-        (struct usb_descriptor_header *) &uasp_bi_ep_comp_desc,
-        (struct usb_descriptor_header *) &uasp_bi_pipe_desc,
-        (struct usb_descriptor_header *) &uasp_ss_bo_desc,
-        (struct usb_descriptor_header *) &uasp_bo_ep_comp_desc,
-        (struct usb_descriptor_header *) &uasp_bo_pipe_desc,
-        (struct usb_descriptor_header *) &uasp_ss_status_desc,
-        (struct usb_descriptor_header *) &uasp_status_in_ep_comp_desc,
-        (struct usb_descriptor_header *) &uasp_status_pipe_desc,
-        (struct usb_descriptor_header *) &uasp_ss_cmd_desc,
-        (struct usb_descriptor_header *) &uasp_cmd_comp_desc,
-        (struct usb_descriptor_header *) &uasp_cmd_pipe_desc,
-        NULL,
-};
-
-The first 5 descriptors are associated with BOT alternate setting,
-and others are associated with UAS.
-
-During handling UAS alternate setting f_tcm driver invokes
-config_ep_by_speed and this function sets incorrect companion endpoint
-descriptor in usb_ep object.
-
-Instead setting ep->comp_desc to uasp_bi_ep_comp_desc function in this
-case set ep->comp_desc to uasp_ss_bi_desc.
-
-This is due to the fact that it searches endpoint based on endpoint
-address:
-
-        for_each_ep_desc(speed_desc, d_spd) {
-                chosen_desc = (struct usb_endpoint_descriptor *)*d_spd;
-                if (chosen_desc->bEndpoitAddress == _ep->address)
-                        goto ep_found;
-        }
-
-And in result it uses the descriptor from BOT alternate setting
-instead UAS.
-
-Finally, it causes that controller driver during enabling endpoints
-detect that just enabled endpoint for bot.
-
-Signed-off-by: Jayshri Pawar <jpawar@cadence.com>
-Signed-off-by: Pawel Laszczak <pawell@cadence.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Fixes: b19f009d4510 ("clk: bcm2835: Migrate to clk_hw based registration and OF APIs")
+Link: https://github.com/ClangBuiltLinux/linux/issues/1028
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Link: https://lkml.kernel.org/r/20200516080806.1459784-1-natechancellor@gmail.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/composite.c | 78 ++++++++++++++++++++++++++--------
- include/linux/usb/composite.h  |  3 ++
- 2 files changed, 64 insertions(+), 17 deletions(-)
+ drivers/clk/bcm/clk-bcm2835.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/usb/gadget/composite.c b/drivers/usb/gadget/composite.c
-index 2e545d025030..5a1723d99fe5 100644
---- a/drivers/usb/gadget/composite.c
-+++ b/drivers/usb/gadget/composite.c
-@@ -100,40 +100,43 @@ function_descriptors(struct usb_function *f,
+diff --git a/drivers/clk/bcm/clk-bcm2835.c b/drivers/clk/bcm/clk-bcm2835.c
+index 73aab6e984cd..2b5075298cdc 100644
+--- a/drivers/clk/bcm/clk-bcm2835.c
++++ b/drivers/clk/bcm/clk-bcm2835.c
+@@ -1295,13 +1295,13 @@ static struct clk_hw *bcm2835_register_clock(struct bcm2835_cprman *cprman,
+ 	return &clock->hw;
  }
  
- /**
-- * next_ep_desc() - advance to the next EP descriptor
-+ * next_desc() - advance to the next desc_type descriptor
-  * @t: currect pointer within descriptor array
-+ * @desc_type: descriptor type
-  *
-- * Return: next EP descriptor or NULL
-+ * Return: next desc_type descriptor or NULL
-  *
-- * Iterate over @t until either EP descriptor found or
-+ * Iterate over @t until either desc_type descriptor found or
-  * NULL (that indicates end of list) encountered
-  */
- static struct usb_descriptor_header**
--next_ep_desc(struct usb_descriptor_header **t)
-+next_desc(struct usb_descriptor_header **t, u8 desc_type)
+-static struct clk *bcm2835_register_gate(struct bcm2835_cprman *cprman,
++static struct clk_hw *bcm2835_register_gate(struct bcm2835_cprman *cprman,
+ 					 const struct bcm2835_gate_data *data)
  {
- 	for (; *t; t++) {
--		if ((*t)->bDescriptorType == USB_DT_ENDPOINT)
-+		if ((*t)->bDescriptorType == desc_type)
- 			return t;
- 	}
- 	return NULL;
+-	return clk_register_gate(cprman->dev, data->name, data->parent,
+-				 CLK_IGNORE_UNUSED | CLK_SET_RATE_GATE,
+-				 cprman->regs + data->ctl_reg,
+-				 CM_GATE_BIT, 0, &cprman->regs_lock);
++	return clk_hw_register_gate(cprman->dev, data->name, data->parent,
++				    CLK_IGNORE_UNUSED | CLK_SET_RATE_GATE,
++				    cprman->regs + data->ctl_reg,
++				    CM_GATE_BIT, 0, &cprman->regs_lock);
  }
  
- /*
-- * for_each_ep_desc()- iterate over endpoint descriptors in the
-- *		descriptors list
-- * @start:	pointer within descriptor array.
-- * @ep_desc:	endpoint descriptor to use as the loop cursor
-+ * for_each_desc() - iterate over desc_type descriptors in the
-+ * descriptors list
-+ * @start: pointer within descriptor array.
-+ * @iter_desc: desc_type descriptor to use as the loop cursor
-+ * @desc_type: wanted descriptr type
-  */
--#define for_each_ep_desc(start, ep_desc) \
--	for (ep_desc = next_ep_desc(start); \
--	      ep_desc; ep_desc = next_ep_desc(ep_desc+1))
-+#define for_each_desc(start, iter_desc, desc_type) \
-+	for (iter_desc = next_desc(start, desc_type); \
-+	     iter_desc; iter_desc = next_desc(iter_desc + 1, desc_type))
- 
- /**
-- * config_ep_by_speed() - configures the given endpoint
-+ * config_ep_by_speed_and_alt() - configures the given endpoint
-  * according to gadget speed.
-  * @g: pointer to the gadget
-  * @f: usb function
-  * @_ep: the endpoint to configure
-+ * @alt: alternate setting number
-  *
-  * Return: error code, 0 on success
-  *
-@@ -146,11 +149,13 @@ next_ep_desc(struct usb_descriptor_header **t)
-  * Note: the supplied function should hold all the descriptors
-  * for supported speeds
-  */
--int config_ep_by_speed(struct usb_gadget *g,
--			struct usb_function *f,
--			struct usb_ep *_ep)
-+int config_ep_by_speed_and_alt(struct usb_gadget *g,
-+				struct usb_function *f,
-+				struct usb_ep *_ep,
-+				u8 alt)
- {
- 	struct usb_endpoint_descriptor *chosen_desc = NULL;
-+	struct usb_interface_descriptor *int_desc = NULL;
- 	struct usb_descriptor_header **speed_desc = NULL;
- 
- 	struct usb_ss_ep_comp_descriptor *comp_desc = NULL;
-@@ -186,8 +191,21 @@ int config_ep_by_speed(struct usb_gadget *g,
- 	default:
- 		speed_desc = f->fs_descriptors;
- 	}
-+
-+	/* find correct alternate setting descriptor */
-+	for_each_desc(speed_desc, d_spd, USB_DT_INTERFACE) {
-+		int_desc = (struct usb_interface_descriptor *)*d_spd;
-+
-+		if (int_desc->bAlternateSetting == alt) {
-+			speed_desc = d_spd;
-+			goto intf_found;
-+		}
-+	}
-+	return -EIO;
-+
-+intf_found:
- 	/* find descriptors */
--	for_each_ep_desc(speed_desc, d_spd) {
-+	for_each_desc(speed_desc, d_spd, USB_DT_ENDPOINT) {
- 		chosen_desc = (struct usb_endpoint_descriptor *)*d_spd;
- 		if (chosen_desc->bEndpointAddress == _ep->address)
- 			goto ep_found;
-@@ -240,6 +258,32 @@ int config_ep_by_speed(struct usb_gadget *g,
- 	}
- 	return 0;
- }
-+EXPORT_SYMBOL_GPL(config_ep_by_speed_and_alt);
-+
-+/**
-+ * config_ep_by_speed() - configures the given endpoint
-+ * according to gadget speed.
-+ * @g: pointer to the gadget
-+ * @f: usb function
-+ * @_ep: the endpoint to configure
-+ *
-+ * Return: error code, 0 on success
-+ *
-+ * This function chooses the right descriptors for a given
-+ * endpoint according to gadget speed and saves it in the
-+ * endpoint desc field. If the endpoint already has a descriptor
-+ * assigned to it - overwrites it with currently corresponding
-+ * descriptor. The endpoint maxpacket field is updated according
-+ * to the chosen descriptor.
-+ * Note: the supplied function should hold all the descriptors
-+ * for supported speeds
-+ */
-+int config_ep_by_speed(struct usb_gadget *g,
-+			struct usb_function *f,
-+			struct usb_ep *_ep)
-+{
-+	return config_ep_by_speed_and_alt(g, f, _ep, 0);
-+}
- EXPORT_SYMBOL_GPL(config_ep_by_speed);
- 
- /**
-diff --git a/include/linux/usb/composite.h b/include/linux/usb/composite.h
-index 667d20454a21..0ec7185e5ddf 100644
---- a/include/linux/usb/composite.h
-+++ b/include/linux/usb/composite.h
-@@ -248,6 +248,9 @@ int usb_function_activate(struct usb_function *);
- 
- int usb_interface_id(struct usb_configuration *, struct usb_function *);
- 
-+int config_ep_by_speed_and_alt(struct usb_gadget *g, struct usb_function *f,
-+				struct usb_ep *_ep, u8 alt);
-+
- int config_ep_by_speed(struct usb_gadget *g, struct usb_function *f,
- 			struct usb_ep *_ep);
- 
+ typedef struct clk_hw *(*bcm2835_clk_register)(struct bcm2835_cprman *cprman,
 -- 
 2.25.1
 
