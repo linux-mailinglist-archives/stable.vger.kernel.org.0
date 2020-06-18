@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 342FB1FE1D8
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:58:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A904B1FE1C6
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:57:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733300AbgFRB5G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1733294AbgFRB5G (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 17 Jun 2020 21:57:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60204 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:60226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727995AbgFRBZK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:25:10 -0400
+        id S1731371AbgFRBZL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:25:11 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 27C3B21D80;
-        Thu, 18 Jun 2020 01:25:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6EA0A221E9;
+        Thu, 18 Jun 2020 01:25:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443510;
-        bh=id24scQiiVfNzQN1qVqP92RtF/b6HEXy4lOg2XzRJBA=;
+        s=default; t=1592443511;
+        bh=8m4HbIApK/nNGLBITxfwbW+hGZ0kunCHWQffAxXTSRY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JM3H8o8gopaffWlOr0wze/BXz89zHmG0L16i/Hylw2l6/4v/hwU5yxzYIKaB7GmIj
-         tHdTNf7xJNgbBnTJUYXCfc06uZlb6GCdYIqCQxW3EIFfc0KEv0Jcd96ClMVFEHQaCk
-         u9fhp+CdpWGlrzqZu7eVm8YoHuYqZJcM7J0ye9ZM=
+        b=HkGZatSjWrH+gwzh0BLZhtHEmOWWCfdwoaVb2kBhIruPX3n+dep1zf99H7oQN37vc
+         zs7yji7AG53rI2J9okYkIbSmy37Kpm83EjG+yNX+RXRZ2Jfy/bUp4UTOi2EnQDLqAI
+         YtW4cn2hkVm/uYELR9dge/+QcLg3JONmRhPb5C9w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qiushi Wu <wu000273@umn.edu>, Cornelia Huck <cohuck@redhat.com>,
-        Kirti Wankhede <kwankhede@nvidia.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 134/172] vfio/mdev: Fix reference count leak in add_mdev_supported_type
-Date:   Wed, 17 Jun 2020 21:21:40 -0400
-Message-Id: <20200618012218.607130-134-sashal@kernel.org>
+Cc:     David Howells <dhowells@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-afs@lists.infradead.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 135/172] rxrpc: Adjust /proc/net/rxrpc/calls to display call->debug_id not user_ID
+Date:   Wed, 17 Jun 2020 21:21:41 -0400
+Message-Id: <20200618012218.607130-135-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012218.607130-1-sashal@kernel.org>
 References: <20200618012218.607130-1-sashal@kernel.org>
@@ -44,39 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit aa8ba13cae3134b8ef1c1b6879f66372531da738 ]
+[ Upstream commit 32f71aa497cfb23d37149c2ef16ad71fce2e45e2 ]
 
-kobject_init_and_add() takes reference even when it fails.
-If this function returns an error, kobject_put() must be called to
-properly clean up the memory associated with the object. Thus,
-replace kfree() by kobject_put() to fix this issue. Previous
-commit "b8eb718348b8" fixed a similar problem.
+The user ID value isn't actually much use - and leaks a kernel pointer or a
+userspace value - so replace it with the call debug ID, which appears in trace
+points.
 
-Fixes: 7b96953bc640 ("vfio: Mediated device Core driver")
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Kirti Wankhede <kwankhede@nvidia.com>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/mdev/mdev_sysfs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/rxrpc/proc.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/vfio/mdev/mdev_sysfs.c b/drivers/vfio/mdev/mdev_sysfs.c
-index e7770b511d03..1692a0cc3036 100644
---- a/drivers/vfio/mdev/mdev_sysfs.c
-+++ b/drivers/vfio/mdev/mdev_sysfs.c
-@@ -113,7 +113,7 @@ struct mdev_type *add_mdev_supported_type(struct mdev_parent *parent,
- 				   "%s-%s", dev_driver_string(parent->dev),
- 				   group->name);
- 	if (ret) {
--		kfree(type);
-+		kobject_put(&type->kobj);
- 		return ERR_PTR(ret);
+diff --git a/net/rxrpc/proc.c b/net/rxrpc/proc.c
+index 9805e3b85c36..81a765dd8c9b 100644
+--- a/net/rxrpc/proc.c
++++ b/net/rxrpc/proc.c
+@@ -72,7 +72,7 @@ static int rxrpc_call_seq_show(struct seq_file *seq, void *v)
+ 			 "Proto Local                                          "
+ 			 " Remote                                         "
+ 			 " SvID ConnID   CallID   End Use State    Abort   "
+-			 " UserID           TxSeq    TW RxSeq    RW RxSerial RxTimo\n");
++			 " DebugId  TxSeq    TW RxSeq    RW RxSerial RxTimo\n");
+ 		return 0;
  	}
  
+@@ -104,7 +104,7 @@ static int rxrpc_call_seq_show(struct seq_file *seq, void *v)
+ 	rx_hard_ack = READ_ONCE(call->rx_hard_ack);
+ 	seq_printf(seq,
+ 		   "UDP   %-47.47s %-47.47s %4x %08x %08x %s %3u"
+-		   " %-8.8s %08x %lx %08x %02x %08x %02x %08x %06lx\n",
++		   " %-8.8s %08x %08x %08x %02x %08x %02x %08x %06lx\n",
+ 		   lbuff,
+ 		   rbuff,
+ 		   call->service_id,
+@@ -114,7 +114,7 @@ static int rxrpc_call_seq_show(struct seq_file *seq, void *v)
+ 		   atomic_read(&call->usage),
+ 		   rxrpc_call_states[call->state],
+ 		   call->abort_code,
+-		   call->user_call_ID,
++		   call->debug_id,
+ 		   tx_hard_ack, READ_ONCE(call->tx_top) - tx_hard_ack,
+ 		   rx_hard_ack, READ_ONCE(call->rx_top) - rx_hard_ack,
+ 		   call->rx_serial,
 -- 
 2.25.1
 
