@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25E481FE6CC
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:38:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA29A1FE6EE
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:38:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729187AbgFRBNn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:13:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42962 "EHLO mail.kernel.org"
+        id S1727093AbgFRChf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:37:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729174AbgFRBNk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:13:40 -0400
+        id S1728610AbgFRBNm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:13:42 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6502F221EB;
-        Thu, 18 Jun 2020 01:13:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A740521924;
+        Thu, 18 Jun 2020 01:13:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442820;
-        bh=PGIajTLNvn1TlSKGVmd+/Ro+viHxJzQ4+cuGN8MOxDA=;
+        s=default; t=1592442821;
+        bh=+7/PlDzWUjyfolRw+6reVX66V0k0Iko13dyWim3CMY0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fgmk6Tp5AmLgFnz+Vty6rmPTMvmLI+g0bKagi+CeTJc21J75LlUSdR6pzYG4GH/f1
-         k3LMYjVgajENzu2r97jv2qFDOpz2pxmlKd5M2ceTKHdhcbiwLFMRKGxniW3DaZCeKM
-         Cb2VYR+qVFZAuXp+Ye7CnwrTg+R05PE8YbguMVWM=
+        b=sddd2DOQO+XZ2HjHKK2SIMigVF5QnzkN/YU1b3nwiR0CruEdwju4p+BrzIOPxRCq2
+         q9nAFRs9vDiy398BWNeBsAYYihALdJaHYhyC3T0SzEh4X46mpj2jiHglHAgmSKE18V
+         L7BRkyq2WOuBhxmpbX2fdASNfjJVtUnhff5nJcq8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wei Yongjun <weiyongjun1@huawei.com>,
+Cc:     Marc Zyngier <maz@kernel.org>,
         Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
-        linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 257/388] PCI: dwc: pci-dra7xx: Use devm_platform_ioremap_resource_byname()
-Date:   Wed, 17 Jun 2020 21:05:54 -0400
-Message-Id: <20200618010805.600873-257-sashal@kernel.org>
+        Jingoo Han <jingoohan1@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 258/388] PCI: dwc: Fix inner MSI IRQ domain registration
+Date:   Wed, 17 Jun 2020 21:05:55 -0400
+Message-Id: <20200618010805.600873-258-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
@@ -44,50 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit c8a119779f5609de8dcd98630f71cc7f1b2e4e8c ]
+[ Upstream commit 0414b93e78d87ecc24ae1a7e61fe97deb29fa2f4 ]
 
-platform_get_resource() may fail and return NULL, so we had better
-check its return value to avoid a NULL pointer dereference a bit later
-in the code. Fix it to use devm_platform_ioremap_resource_byname()
-instead of calling platform_get_resource_byname() and devm_ioremap().
+On a system that uses the internal DWC MSI widget, I get this
+warning from debugfs when CONFIG_GENERIC_IRQ_DEBUGFS is selected:
 
-Link: https://lore.kernel.org/r/20200429015027.134485-1-weiyongjun1@huawei.com
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-[lorenzo.pieralisi@arm.com: commit log]
+  debugfs: File ':soc:pcie@fc000000' in directory 'domains' already present!
+
+This is due to the fact that the DWC MSI code tries to register two
+IRQ domains for the same firmware node, without telling the low
+level code how to distinguish them (by setting a bus token). This
+further confuses debugfs which tries to create corresponding
+files for each domain.
+
+Fix it by tagging the inner domain as DOMAIN_BUS_NEXUS, which is
+the closest thing we have as to "generic MSI".
+
+Link: https://lore.kernel.org/r/20200501113921.366597-1-maz@kernel.org
+Signed-off-by: Marc Zyngier <maz@kernel.org>
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Acked-by: Jingoo Han <jingoohan1@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/dwc/pci-dra7xx.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/pci/controller/dwc/pcie-designware-host.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/pci/controller/dwc/pci-dra7xx.c b/drivers/pci/controller/dwc/pci-dra7xx.c
-index 3b0e58f2de58..6184ebc9392d 100644
---- a/drivers/pci/controller/dwc/pci-dra7xx.c
-+++ b/drivers/pci/controller/dwc/pci-dra7xx.c
-@@ -840,7 +840,6 @@ static int __init dra7xx_pcie_probe(struct platform_device *pdev)
- 	struct phy **phy;
- 	struct device_link **link;
- 	void __iomem *base;
--	struct resource *res;
- 	struct dw_pcie *pci;
- 	struct dra7xx_pcie *dra7xx;
- 	struct device *dev = &pdev->dev;
-@@ -877,10 +876,9 @@ static int __init dra7xx_pcie_probe(struct platform_device *pdev)
- 		return irq;
+diff --git a/drivers/pci/controller/dwc/pcie-designware-host.c b/drivers/pci/controller/dwc/pcie-designware-host.c
+index 395feb8ca051..3c43311bb95c 100644
+--- a/drivers/pci/controller/dwc/pcie-designware-host.c
++++ b/drivers/pci/controller/dwc/pcie-designware-host.c
+@@ -264,6 +264,8 @@ int dw_pcie_allocate_domains(struct pcie_port *pp)
+ 		return -ENOMEM;
  	}
  
--	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "ti_conf");
--	base = devm_ioremap(dev, res->start, resource_size(res));
--	if (!base)
--		return -ENOMEM;
-+	base = devm_platform_ioremap_resource_byname(pdev, "ti_conf");
-+	if (IS_ERR(base))
-+		return PTR_ERR(base);
- 
- 	phy_count = of_property_count_strings(np, "phy-names");
- 	if (phy_count < 0) {
++	irq_domain_update_bus_token(pp->irq_domain, DOMAIN_BUS_NEXUS);
++
+ 	pp->msi_domain = pci_msi_create_irq_domain(fwnode,
+ 						   &dw_pcie_msi_domain_info,
+ 						   pp->irq_domain);
 -- 
 2.25.1
 
