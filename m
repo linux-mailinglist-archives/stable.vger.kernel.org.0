@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CD6D1FE737
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:39:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 206741FE70D
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:39:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729567AbgFRCje (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:39:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41966 "EHLO mail.kernel.org"
+        id S1729041AbgFRBNF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:13:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729032AbgFRBNC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:13:02 -0400
+        id S1729034AbgFRBND (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:13:03 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E4E5214DB;
-        Thu, 18 Jun 2020 01:13:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 948B2221EF;
+        Thu, 18 Jun 2020 01:13:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442782;
-        bh=ogNUmHb4ecHAb3xp0gFwbZJRDxgJbUk5Zy0HwUo3QbM=;
+        s=default; t=1592442783;
+        bh=eaD84W3GW/ZIqkQYnnxcu2kJ30TFB3Y1Jad/xEldKic=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iomfH5F2e1MPXSIL4LniY2fzXvlFgV9CjbLYokI+7d0Zle+cUGZMnlbRSgZLYctW5
-         gUnNj+Nl1CHvljDckwDNQdZ/1jvYj9C2bTb8UcPmShXG87SGa6TMicPyCUIFXxROYD
-         7G9juesyDK2VyOvhvdphGbM6yOod/jUQQa6CTdT8=
+        b=IXIV/z+1RWZDDjleVivak/NyFd+oLPxm/xM/Mo0F+6zkRYLHFUDzEdYbbDQP8F2hI
+         LGVNMyxwrd9CmyAMW/h2MQzNlAfkNJ4UEaZFFD+Ou0qOywR9ATU3aLBHlDF36IfIqA
+         rETf5Sb8hKwdgOiPJ6g2rWNxF0qVgKSBaDwmZfGE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jean-Philippe Brucker <jean-philippe@linaro.org>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
-        iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.7 227/388] iommu/arm-smmu-v3: Don't reserve implementation defined register space
-Date:   Wed, 17 Jun 2020 21:05:24 -0400
-Message-Id: <20200618010805.600873-227-sashal@kernel.org>
+Cc:     Alex Williamson <alex.williamson@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 228/388] vfio-pci: Mask cap zero
+Date:   Wed, 17 Jun 2020 21:05:25 -0400
+Message-Id: <20200618010805.600873-228-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
@@ -45,107 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+From: Alex Williamson <alex.williamson@redhat.com>
 
-[ Upstream commit 52f3fab0067d6fa9e99c1b7f63265dd48ca76046 ]
+[ Upstream commit bc138db1b96264b9c1779cf18d5a3b186aa90066 ]
 
-Some SMMUv3 implementation embed the Perf Monitor Group Registers (PMCG)
-inside the first 64kB region of the SMMU. Since PMCG are managed by a
-separate driver, this layout causes resource reservation conflicts
-during boot.
+The PCI Code and ID Assignment Specification changed capability ID 0
+from reserved to a NULL capability in the v1.1 revision.  The NULL
+capability is defined to include only the 16-bit capability header,
+ie. only the ID and next pointer.  Unfortunately vfio-pci creates a
+map of config space, where ID 0 is used to reserve the standard type
+0 header.  Finding an actual capability with this ID therefore results
+in a bogus range marked in that map and conflicts with subsequent
+capabilities.  As this seems to be a dummy capability anyway and we
+already support dropping capabilities, let's hide this one rather than
+delving into the potentially subtle dependencies within our map.
 
-To avoid this conflict, don't reserve the MMIO regions that are
-implementation defined. Although devm_ioremap_resource() still works on
-full pages under the hood, this way we benefit from resource conflict
-checks.
+Seen on an NVIDIA Tesla T4.
 
-Fixes: 7d839b4b9e00 ("perf/smmuv3: Add arm64 smmuv3 pmu driver")
-Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Reviewed-by: Robin Murphy <robin.murphy@arm.com>
-Link: https://lore.kernel.org/r/20200513110255.597203-1-jean-philippe@linaro.org
-Signed-off-by: Will Deacon <will@kernel.org>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/arm-smmu-v3.c | 35 +++++++++++++++++++++++++++++++----
- 1 file changed, 31 insertions(+), 4 deletions(-)
+ drivers/vfio/pci/vfio_pci_config.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/arm-smmu-v3.c b/drivers/iommu/arm-smmu-v3.c
-index 82508730feb7..af21d24a09e8 100644
---- a/drivers/iommu/arm-smmu-v3.c
-+++ b/drivers/iommu/arm-smmu-v3.c
-@@ -171,6 +171,8 @@
- #define ARM_SMMU_PRIQ_IRQ_CFG1		0xd8
- #define ARM_SMMU_PRIQ_IRQ_CFG2		0xdc
+diff --git a/drivers/vfio/pci/vfio_pci_config.c b/drivers/vfio/pci/vfio_pci_config.c
+index 43b95f9cdaf7..814bcbe0dd4e 100644
+--- a/drivers/vfio/pci/vfio_pci_config.c
++++ b/drivers/vfio/pci/vfio_pci_config.c
+@@ -1462,7 +1462,12 @@ static int vfio_cap_init(struct vfio_pci_device *vdev)
+ 		if (ret)
+ 			return ret;
  
-+#define ARM_SMMU_REG_SZ			0xe00
-+
- /* Common MSI config fields */
- #define MSI_CFG0_ADDR_MASK		GENMASK_ULL(51, 2)
- #define MSI_CFG2_SH			GENMASK(5, 4)
-@@ -628,6 +630,7 @@ struct arm_smmu_strtab_cfg {
- struct arm_smmu_device {
- 	struct device			*dev;
- 	void __iomem			*base;
-+	void __iomem			*page1;
- 
- #define ARM_SMMU_FEAT_2_LVL_STRTAB	(1 << 0)
- #define ARM_SMMU_FEAT_2_LVL_CDTAB	(1 << 1)
-@@ -733,9 +736,8 @@ static struct arm_smmu_option_prop arm_smmu_options[] = {
- static inline void __iomem *arm_smmu_page1_fixup(unsigned long offset,
- 						 struct arm_smmu_device *smmu)
- {
--	if ((offset > SZ_64K) &&
--	    (smmu->options & ARM_SMMU_OPT_PAGE0_REGS_ONLY))
--		offset -= SZ_64K;
-+	if (offset > SZ_64K)
-+		return smmu->page1 + offset - SZ_64K;
- 
- 	return smmu->base + offset;
- }
-@@ -4021,6 +4023,18 @@ err_reset_pci_ops: __maybe_unused;
- 	return err;
- }
- 
-+static void __iomem *arm_smmu_ioremap(struct device *dev, resource_size_t start,
-+				      resource_size_t size)
-+{
-+	struct resource res = {
-+		.flags = IORESOURCE_MEM,
-+		.start = start,
-+		.end = start + size - 1,
-+	};
-+
-+	return devm_ioremap_resource(dev, &res);
-+}
-+
- static int arm_smmu_device_probe(struct platform_device *pdev)
- {
- 	int irq, ret;
-@@ -4056,10 +4070,23 @@ static int arm_smmu_device_probe(struct platform_device *pdev)
- 	}
- 	ioaddr = res->start;
- 
--	smmu->base = devm_ioremap_resource(dev, res);
-+	/*
-+	 * Don't map the IMPLEMENTATION DEFINED regions, since they may contain
-+	 * the PMCG registers which are reserved by the PMU driver.
-+	 */
-+	smmu->base = arm_smmu_ioremap(dev, ioaddr, ARM_SMMU_REG_SZ);
- 	if (IS_ERR(smmu->base))
- 		return PTR_ERR(smmu->base);
- 
-+	if (arm_smmu_resource_size(smmu) > SZ_64K) {
-+		smmu->page1 = arm_smmu_ioremap(dev, ioaddr + SZ_64K,
-+					       ARM_SMMU_REG_SZ);
-+		if (IS_ERR(smmu->page1))
-+			return PTR_ERR(smmu->page1);
-+	} else {
-+		smmu->page1 = smmu->base;
-+	}
-+
- 	/* Interrupt lines */
- 
- 	irq = platform_get_irq_byname_optional(pdev, "combined");
+-		if (cap <= PCI_CAP_ID_MAX) {
++		/*
++		 * ID 0 is a NULL capability, conflicting with our fake
++		 * PCI_CAP_ID_BASIC.  As it has no content, consider it
++		 * hidden for now.
++		 */
++		if (cap && cap <= PCI_CAP_ID_MAX) {
+ 			len = pci_cap_length[cap];
+ 			if (len == 0xFF) { /* Variable length */
+ 				len = vfio_cap_len(vdev, cap, pos);
 -- 
 2.25.1
 
