@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A91921FE8F5
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:52:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AEC51FE8F2
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:52:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728177AbgFRCwR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:52:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34504 "EHLO mail.kernel.org"
+        id S1727931AbgFRCwQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:52:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727857AbgFRBIk (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727860AbgFRBIk (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 17 Jun 2020 21:08:40 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 42EF22193E;
-        Thu, 18 Jun 2020 01:08:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 85C4421BE5;
+        Thu, 18 Jun 2020 01:08:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442519;
-        bh=LxL7S9dAh4/os9b+6g3X1dJuv95ULz6V2uieImdNiH4=;
+        s=default; t=1592442520;
+        bh=1s2JKDNxjceJ1O3r0ip5ARBFDU1vucPtZNVNj07YFA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AAyZD+CtvDXX3NXhh0Mc4sTe3c7fzfYaNNyVghCnHmisAS3SBpvy6sOb/X+7sKHUj
-         +VzdCH+cDN970k1d4amziub/GPi5CSjhgTAnA5gbX9aylCsE46efGp6zzxKrYoM/ID
-         dkS/jIAxSBFBUFn0NoAomwGPKRnmzLrMG6D3wy+A=
+        b=HjjkEUoNG9cxf0OG3/8nMEXl+D55J4dHmscOClW+mRZSsVhQCKOHZQsyNLdhfe6YB
+         8R/5pdwQdO79lijopIiUJeLcKwHlWAsBYfPw+qkFd9/stIdogz/Mh0SULudTxAYCjU
+         pjMcXXrA2Hn8a4gVOAmyaov8T5xqc88wPKC0kYsM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Neil Armstrong <narmstrong@baylibre.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-amlogic@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.7 024/388] arm64: dts: meson: fixup SCP sram nodes
-Date:   Wed, 17 Jun 2020 21:02:01 -0400
-Message-Id: <20200618010805.600873-24-sashal@kernel.org>
+Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.7 025/388] ALSA: hda/realtek - Introduce polarity for micmute LED GPIO
+Date:   Wed, 17 Jun 2020 21:02:02 -0400
+Message-Id: <20200618010805.600873-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
@@ -45,83 +43,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neil Armstrong <narmstrong@baylibre.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit 9ecded10b4b6af238da0c86197b0418912e7513e ]
+[ Upstream commit dbd13179780555ecd3c992dea1222ca31920e892 ]
 
-The GX and AXG SCP sram nodes were using invalid compatible and
-node names for the sram entries.
+Currently mute LED and micmute LED share the same GPIO polarity.
 
-Fixup the sram entries node names, and use proper compatible for them.
+So split the polarity for mute and micmute, in case they have different
+polarities.
 
-It notably fixes:
-sram@c8000000: 'scp-shmem@0', 'scp-shmem@200' do not match any of the regexes: '^([a-z]*-)?sram(-section)?@[a-f0-9]+$', 'pinctrl-[0-9]+'
-
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Kevin Hilman <khilman@baylibre.com>
-Link: https://lore.kernel.org/r/20200326165958.19274-3-narmstrong@baylibre.com
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Link: https://lore.kernel.org/r/20200430083255.5093-1-kai.heng.feng@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-axg.dtsi |  6 +++---
- arch/arm64/boot/dts/amlogic/meson-gx.dtsi  | 10 +++++-----
- 2 files changed, 8 insertions(+), 8 deletions(-)
+ sound/pci/hda/patch_realtek.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-axg.dtsi b/arch/arm64/boot/dts/amlogic/meson-axg.dtsi
-index aace3d32a3df..8e6281c685fa 100644
---- a/arch/arm64/boot/dts/amlogic/meson-axg.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/meson-axg.dtsi
-@@ -1735,18 +1735,18 @@ sd_emmc_c: mmc@7000 {
- 		};
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index 2c4575909441..e057ecb5a904 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -81,6 +81,7 @@ struct alc_spec {
  
- 		sram: sram@fffc0000 {
--			compatible = "amlogic,meson-axg-sram", "mmio-sram";
-+			compatible = "mmio-sram";
- 			reg = <0x0 0xfffc0000 0x0 0x20000>;
- 			#address-cells = <1>;
- 			#size-cells = <1>;
- 			ranges = <0 0x0 0xfffc0000 0x20000>;
+ 	/* mute LED for HP laptops, see alc269_fixup_mic_mute_hook() */
+ 	int mute_led_polarity;
++	int micmute_led_polarity;
+ 	hda_nid_t mute_led_nid;
+ 	hda_nid_t cap_mute_led_nid;
  
--			cpu_scp_lpri: scp-shmem@13000 {
-+			cpu_scp_lpri: scp-sram@13000 {
- 				compatible = "amlogic,meson-axg-scp-shmem";
- 				reg = <0x13000 0x400>;
- 			};
+@@ -4080,11 +4081,9 @@ static void alc269_fixup_hp_mute_led_mic3(struct hda_codec *codec,
  
--			cpu_scp_hpri: scp-shmem@13400 {
-+			cpu_scp_hpri: scp-sram@13400 {
- 				compatible = "amlogic,meson-axg-scp-shmem";
- 				reg = <0x13400 0x400>;
- 			};
-diff --git a/arch/arm64/boot/dts/amlogic/meson-gx.dtsi b/arch/arm64/boot/dts/amlogic/meson-gx.dtsi
-index 03f79fe045b7..e2bb68ec8502 100644
---- a/arch/arm64/boot/dts/amlogic/meson-gx.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/meson-gx.dtsi
-@@ -398,20 +398,20 @@ gic: interrupt-controller@c4301000 {
- 		};
+ /* update LED status via GPIO */
+ static void alc_update_gpio_led(struct hda_codec *codec, unsigned int mask,
+-				bool enabled)
++				int polarity, bool enabled)
+ {
+-	struct alc_spec *spec = codec->spec;
+-
+-	if (spec->mute_led_polarity)
++	if (polarity)
+ 		enabled = !enabled;
+ 	alc_update_gpio_data(codec, mask, !enabled); /* muted -> LED on */
+ }
+@@ -4095,7 +4094,8 @@ static void alc_fixup_gpio_mute_hook(void *private_data, int enabled)
+ 	struct hda_codec *codec = private_data;
+ 	struct alc_spec *spec = codec->spec;
  
- 		sram: sram@c8000000 {
--			compatible = "amlogic,meson-gx-sram", "amlogic,meson-gxbb-sram", "mmio-sram";
-+			compatible = "mmio-sram";
- 			reg = <0x0 0xc8000000 0x0 0x14000>;
+-	alc_update_gpio_led(codec, spec->gpio_mute_led_mask, enabled);
++	alc_update_gpio_led(codec, spec->gpio_mute_led_mask,
++			    spec->mute_led_polarity, enabled);
+ }
  
- 			#address-cells = <1>;
- 			#size-cells = <1>;
- 			ranges = <0 0x0 0xc8000000 0x14000>;
+ /* turn on/off mic-mute LED via GPIO per capture hook */
+@@ -4104,6 +4104,7 @@ static void alc_gpio_micmute_update(struct hda_codec *codec)
+ 	struct alc_spec *spec = codec->spec;
  
--			cpu_scp_lpri: scp-shmem@0 {
--				compatible = "amlogic,meson-gx-scp-shmem", "amlogic,meson-gxbb-scp-shmem";
-+			cpu_scp_lpri: scp-sram@0 {
-+				compatible = "amlogic,meson-gxbb-scp-shmem";
- 				reg = <0x13000 0x400>;
- 			};
+ 	alc_update_gpio_led(codec, spec->gpio_mic_led_mask,
++			    spec->micmute_led_polarity,
+ 			    spec->gen.micmute_led.led_value);
+ }
  
--			cpu_scp_hpri: scp-shmem@200 {
--				compatible = "amlogic,meson-gx-scp-shmem", "amlogic,meson-gxbb-scp-shmem";
-+			cpu_scp_hpri: scp-sram@200 {
-+				compatible = "amlogic,meson-gxbb-scp-shmem";
- 				reg = <0x13400 0x400>;
- 			};
- 		};
+@@ -5808,7 +5809,8 @@ static void alc280_hp_gpio4_automute_hook(struct hda_codec *codec,
+ 
+ 	snd_hda_gen_hp_automute(codec, jack);
+ 	/* mute_led_polarity is set to 0, so we pass inverted value here */
+-	alc_update_gpio_led(codec, 0x10, !spec->gen.hp_jack_present);
++	alc_update_gpio_led(codec, 0x10, spec->mute_led_polarity,
++			    !spec->gen.hp_jack_present);
+ }
+ 
+ /* Manage GPIOs for HP EliteBook Folio 9480m.
 -- 
 2.25.1
 
