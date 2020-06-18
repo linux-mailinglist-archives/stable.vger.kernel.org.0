@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A343E1FF5A1
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 16:49:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE7EF1FF5BD
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 16:52:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730839AbgFROtE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Jun 2020 10:49:04 -0400
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:47437 "EHLO
+        id S1730881AbgFROwo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Jun 2020 10:52:44 -0400
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:51951 "EHLO
         wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726927AbgFROtE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Jun 2020 10:49:04 -0400
+        by vger.kernel.org with ESMTP id S1730839AbgFROwm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Jun 2020 10:52:42 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id E575E3C7;
-        Thu, 18 Jun 2020 10:49:02 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Thu, 18 Jun 2020 10:49:03 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id F294967F;
+        Thu, 18 Jun 2020 10:52:40 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Thu, 18 Jun 2020 10:52:41 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=HQm4Ss
-        I1yO8Np6bTNU+6s5m4V4yYojuvn+OHndRkP9o=; b=UaJhvPQkKenWhu26IlT49K
-        A7kHs/yVliz+dFIsn1fuBMZNiGpM9LgA4iSrS+fEZVRaIXHaGNMo4FRqGt4/DjuP
-        4KX8+iFpndBgD7+Re3rnJFQXXJk+OtXf4Hz/oKw74DhjRvPsxl2pWTxzoeqYc1Ua
-        Ok/hGvNogaLnmYWnPzbTH9e4bNje13OMNlJ8flnD2Jx3n0MVvy7B/YyjTRJXpQ/6
-        jxouPEshqVb6+DEDRR0pTj/LBscbe40guoI+newrJDFmQJFUoehMd3iES76GOdx7
-        ba3PqpmcNFioBluetpr9quM5YH7Ktt3lQxWk1Hp+wj5r7NBhEpPF/HxdCY1/5Wsw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=a4z/aN
+        Ld3NlbsqX6qZZrstARgoJvJg2h1XRHnXqNa9c=; b=OSfOG/65anondXDkcsHZxI
+        e8M8+RSKeJXkcl+KH3xCir5OO5y+yo33QU/wniZ1LnaP9EegpTV2FscOlu2183Op
+        sGbc/dMT+B6juLBQ8jHF1Jg+e9R9ouiOKPlU9e2AQsnAojMeOr2Fa/7RoNolKodI
+        5KjE0mbZzTIMOr9AYOEeczy0DBvexB7WX3FlNMt8tVnQ8xQ2vmQWEBeqbtUxc2HT
+        r8Inw+xGy1VMCgbqMiAobjFE+rsM/bjz3T083y65dv9lnkiwcfAx11pW53gduLiI
+        SSpSL9B8FhmuaU187ro0xQYa1p6f3JLY7JozLhDGUHj/fPHE8MlUJCIKQWxQvsdA
         ==
-X-ME-Sender: <xms:3n7rXiydevTWoqpAbguDUk18ALZ3lQhXFRBm9wRkixKs-Kef7PmEIw>
+X-ME-Sender: <xms:uH_rXnTzhNn7odA4F6iF__txEbHeB2nA2JvqUVePM-3-SLZYYXb5Lg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudejgedgkedvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepfeetteehueetheekueevhfefveejheegtdeiudehue
     ekheeijeefgfeuhfeigefhnecuffhomhgrihhnpehqvghmuhdrohhrghenucfkphepkeef
-    rdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepjeenucfrrghrrghmpehmrg
+    rdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepkeenucfrrghrrghmpehmrg
     hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:3n7rXuSP8JWL_1L5Fu9vkprkj8qL0rr0l90NaMU8isFrOH25hpFbFA>
-    <xmx:3n7rXkV0RE7PFtRF0j2ThAZwWIG0rYZlAhZcUfEWz97UmNOe0jIWBg>
-    <xmx:3n7rXojrGh7-O566WwS1EWUBOQdUVWz4Vz_KrUWp0K5WbpPBkKbb2w>
-    <xmx:3n7rXj9bGZWa_j6cnDeJL6GNSu5id7ISUh9HZmer8PjQ20_MBb8XcHS5sjA>
+X-ME-Proxy: <xmx:uH_rXoz8O19NupKdmr5g9rDLLxpNEdXQ8XPaDe2SFTsveeP63ZCCCw>
+    <xmx:uH_rXs2n4KGBMo6gdL3eqcSnnSUzvyGPSkJ2LNydYtj3Tn5k451Scg>
+    <xmx:uH_rXnAMSX-hxOdT-h-uTrCAoDzzAi2Y6BMyUwH1QjU2OMQuYNQlhw>
+    <xmx:uH_rXue0lmzBxYnCsjIJrmDuC9U0ERthe7nuXK6XxbZ2WEy68tsXYbAVIr4>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 239DA3280067;
-        Thu, 18 Jun 2020 10:49:02 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] btrfs: fix space_info bytes_may_use underflow during space" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id EB69C30618B7;
+        Thu, 18 Jun 2020 10:52:39 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] btrfs: fix a race between scrub and block group" failed to apply to 5.4-stable tree
 To:     fdmanana@suse.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 18 Jun 2020 16:48:47 +0200
-Message-ID: <159249172776204@kroah.com>
+Date:   Thu, 18 Jun 2020 16:52:30 +0200
+Message-ID: <159249195060248@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -69,144 +69,268 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 2166e5edce9ac1edf3b113d6091ef72fcac2d6c4 Mon Sep 17 00:00:00 2001
+From 2473d24f2b77da0ffabcbb916793e58e7f57440b Mon Sep 17 00:00:00 2001
 From: Filipe Manana <fdmanana@suse.com>
-Date: Wed, 27 May 2020 11:16:19 +0100
-Subject: [PATCH] btrfs: fix space_info bytes_may_use underflow during space
- cache writeout
+Date: Fri, 8 May 2020 11:01:10 +0100
+Subject: [PATCH] btrfs: fix a race between scrub and block group
+ removal/allocation
 
-We always preallocate a data extent for writing a free space cache, which
-causes writeback to always try the nocow path first, since the free space
-inode has the prealloc bit set in its flags.
+When scrub is verifying the extents of a block group for a device, it is
+possible that the corresponding block group gets removed and its logical
+address and device extents get used for a new block group allocation.
+When this happens scrub incorrectly reports that errors were detected
+and, if the the new block group has a different profile then the old one,
+deleted block group, we can crash due to a null pointer dereference.
+Possibly other unexpected and weird consequences can happen as well.
 
-However if the block group that contains the data extent for the space
-cache has been turned to RO mode due to a running scrub or balance for
-example, we have to fallback to the cow path. In that case once a new data
-extent is allocated we end up calling btrfs_add_reserved_bytes(), which
-decrements the counter named bytes_may_use from the data space_info object
-with the expection that this counter was previously incremented with the
-same amount (the size of the data extent).
+Consider the following sequence of actions that leads to the null pointer
+dereference crash when scrub is running in parallel with balance:
 
-However when we started writeout of the space cache at cache_save_setup(),
-we incremented the value of the bytes_may_use counter through a call to
-btrfs_check_data_free_space() and then decremented it through a call to
-btrfs_prealloc_file_range_trans() immediately after. So when starting the
-writeback if we fallback to cow mode we have to increment the counter
-bytes_may_use of the data space_info again to compensate for the extent
-allocation done by the cow path.
+1) Balance sets block group X to read-only mode and starts relocating it.
+   Block group X is a metadata block group, has a raid1 profile (two
+   device extents, each one in a different device) and a logical address
+   of 19424870400;
 
-When this issue happens we are incorrectly decrementing the bytes_may_use
-counter and when its current value is smaller then the amount we try to
-subtract we end up with the following warning:
+2) Scrub is running and finds device extent E, which belongs to block
+   group X. It enters scrub_stripe() to find all extents allocated to
+   block group X, the search is done using the extent tree;
 
- ------------[ cut here ]------------
- WARNING: CPU: 3 PID: 657 at fs/btrfs/space-info.h:115 btrfs_add_reserved_bytes+0x3d6/0x4e0 [btrfs]
- Modules linked in: btrfs blake2b_generic xor raid6_pq libcrc32c (...)
- CPU: 3 PID: 657 Comm: kworker/u8:7 Tainted: G        W         5.6.0-rc7-btrfs-next-58 #5
- Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
- Workqueue: writeback wb_workfn (flush-btrfs-1591)
- RIP: 0010:btrfs_add_reserved_bytes+0x3d6/0x4e0 [btrfs]
- Code: ff ff 48 (...)
- RSP: 0000:ffffa41608f13660 EFLAGS: 00010287
- RAX: 0000000000001000 RBX: ffff9615b93ae400 RCX: 0000000000000000
- RDX: 0000000000000002 RSI: 0000000000000000 RDI: ffff9615b96ab410
- RBP: fffffffffffee000 R08: 0000000000000001 R09: 0000000000000000
- R10: ffff961585e62a40 R11: 0000000000000000 R12: ffff9615b96ab400
- R13: ffff9615a1a2a000 R14: 0000000000012000 R15: ffff9615b93ae400
- FS:  0000000000000000(0000) GS:ffff9615bb200000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 000055cbbc2ae178 CR3: 0000000115794006 CR4: 00000000003606e0
- DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
- DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
- Call Trace:
-  find_free_extent+0x4a0/0x16c0 [btrfs]
-  btrfs_reserve_extent+0x91/0x180 [btrfs]
-  cow_file_range+0x12d/0x490 [btrfs]
-  btrfs_run_delalloc_range+0x9f/0x6d0 [btrfs]
-  ? find_lock_delalloc_range+0x221/0x250 [btrfs]
-  writepage_delalloc+0xe8/0x150 [btrfs]
-  __extent_writepage+0xe8/0x4c0 [btrfs]
-  extent_write_cache_pages+0x237/0x530 [btrfs]
-  extent_writepages+0x44/0xa0 [btrfs]
-  do_writepages+0x23/0x80
-  __writeback_single_inode+0x59/0x700
-  writeback_sb_inodes+0x267/0x5f0
-  __writeback_inodes_wb+0x87/0xe0
-  wb_writeback+0x382/0x590
-  ? wb_workfn+0x4a2/0x6c0
-  wb_workfn+0x4a2/0x6c0
-  process_one_work+0x26d/0x6a0
-  worker_thread+0x4f/0x3e0
-  ? process_one_work+0x6a0/0x6a0
-  kthread+0x103/0x140
-  ? kthread_create_worker_on_cpu+0x70/0x70
-  ret_from_fork+0x3a/0x50
- irq event stamp: 0
- hardirqs last  enabled at (0): [<0000000000000000>] 0x0
- hardirqs last disabled at (0): [<ffffffffb2abdedf>] copy_process+0x74f/0x2020
- softirqs last  enabled at (0): [<ffffffffb2abdedf>] copy_process+0x74f/0x2020
- softirqs last disabled at (0): [<0000000000000000>] 0x0
- ---[ end trace bd7c03622e0b0a52 ]---
- ------------[ cut here ]------------
+3) Balance finishes relocating block group X and removes block group X;
 
-So fix this by incrementing the bytes_may_use counter of the data
-space_info when we fallback to the cow path. If the cow path is successful
-the counter is decremented after extent allocation (by
-btrfs_add_reserved_bytes()), if it fails it ends up being decremented as
-well when clearing the delalloc range (extent_clear_unlock_delalloc()).
+4) Balance starts relocating another block group and when trying to
+   commit the current transaction as part of the preparation step
+   (prepare_to_relocate()), it blocks because scrub is running;
 
-This could be triggered sporadically by the test case btrfs/061 from
-fstests.
+5) The scrub task finds the metadata extent at the logical address
+   19425001472 and marks the pages of the extent to be read by a bio
+   (struct scrub_bio). The extent item's flags, which have the bit
+   BTRFS_EXTENT_FLAG_TREE_BLOCK set, are added to each page (struct
+   scrub_page). It is these flags in the scrub pages that tells the
+   bio's end io function (scrub_bio_end_io_worker) which type of extent
+   it is dealing with. At this point we end up with 4 pages in a bio
+   which is ready for submission (the metadata extent has a size of
+   16Kb, so that gives 4 pages on x86);
 
-Fixes: 82d5902d9c681b ("Btrfs: Support reading/writing on disk free ino cache")
+6) At the next iteration of scrub_stripe(), scrub checks that there is a
+   pause request from the relocation task trying to commit a transaction,
+   therefore it submits the pending bio and pauses, waiting for the
+   transaction commit to complete before resuming;
+
+7) The relocation task commits the transaction. The device extent E, that
+   was used by our block group X, is now available for allocation, since
+   the commit root for the device tree was swapped by the transaction
+   commit;
+
+8) Another task doing a direct IO write allocates a new data block group Y
+   which ends using device extent E. This new block group Y also ends up
+   getting the same logical address that block group X had: 19424870400.
+   This happens because block group X was the block group with the highest
+   logical address and, when allocating Y, find_next_chunk() returns the
+   end offset of the current last block group to be used as the logical
+   address for the new block group, which is
+
+        18351128576 + 1073741824 = 19424870400
+
+   So our new block group Y has the same logical address and device extent
+   that block group X had. However Y is a data block group, while X was
+   a metadata one, and Y has a raid0 profile, while X had a raid1 profile;
+
+9) After allocating block group Y, the direct IO submits a bio to write
+   to device extent E;
+
+10) The read bio submitted by scrub reads the 4 pages (16Kb) from device
+    extent E, which now correspond to the data written by the task that
+    did a direct IO write. Then at the end io function associated with
+    the bio, scrub_bio_end_io_worker(), we call scrub_block_complete()
+    which calls scrub_checksum(). This later function checks the flags
+    of the first page, and sees that the bit BTRFS_EXTENT_FLAG_TREE_BLOCK
+    is set in the flags, so it assumes it has a metadata extent and
+    then calls scrub_checksum_tree_block(). That functions returns an
+    error, since interpreting data as a metadata extent causes the
+    checksum verification to fail.
+
+    So this makes scrub_checksum() call scrub_handle_errored_block(),
+    which determines 'failed_mirror_index' to be 1, since the device
+    extent E was allocated as the second mirror of block group X.
+
+    It allocates BTRFS_MAX_MIRRORS scrub_block structures as an array at
+    'sblocks_for_recheck', and all the memory is initialized to zeroes by
+    kcalloc().
+
+    After that it calls scrub_setup_recheck_block(), which is responsible
+    for filling each of those structures. However, when that function
+    calls btrfs_map_sblock() against the logical address of the metadata
+    extent, 19425001472, it gets a struct btrfs_bio ('bbio') that matches
+    the current block group Y. However block group Y has a raid0 profile
+    and not a raid1 profile like X had, so the following call returns 1:
+
+       scrub_nr_raid_mirrors(bbio)
+
+    And as a result scrub_setup_recheck_block() only initializes the
+    first (index 0) scrub_block structure in 'sblocks_for_recheck'.
+
+    Then scrub_recheck_block() is called by scrub_handle_errored_block()
+    with the second (index 1) scrub_block structure as the argument,
+    because 'failed_mirror_index' was previously set to 1.
+    This scrub_block was not initialized by scrub_setup_recheck_block(),
+    so it has zero pages, its 'page_count' member is 0 and its 'pagev'
+    page array has all members pointing to NULL.
+
+    Finally when scrub_recheck_block() calls scrub_recheck_block_checksum()
+    we have a NULL pointer dereference when accessing the flags of the first
+    page, as pavev[0] is NULL:
+
+    static void scrub_recheck_block_checksum(struct scrub_block *sblock)
+    {
+        (...)
+        if (sblock->pagev[0]->flags & BTRFS_EXTENT_FLAG_DATA)
+            scrub_checksum_data(sblock);
+        (...)
+    }
+
+    Producing a stack trace like the following:
+
+    [542998.008985] BUG: kernel NULL pointer dereference, address: 0000000000000028
+    [542998.010238] #PF: supervisor read access in kernel mode
+    [542998.010878] #PF: error_code(0x0000) - not-present page
+    [542998.011516] PGD 0 P4D 0
+    [542998.011929] Oops: 0000 [#1] PREEMPT SMP DEBUG_PAGEALLOC PTI
+    [542998.012786] CPU: 3 PID: 4846 Comm: kworker/u8:1 Tainted: G    B   W         5.6.0-rc7-btrfs-next-58 #1
+    [542998.014524] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
+    [542998.016065] Workqueue: btrfs-scrub btrfs_work_helper [btrfs]
+    [542998.017255] RIP: 0010:scrub_recheck_block_checksum+0xf/0x20 [btrfs]
+    [542998.018474] Code: 4c 89 e6 ...
+    [542998.021419] RSP: 0018:ffffa7af0375fbd8 EFLAGS: 00010202
+    [542998.022120] RAX: 0000000000000000 RBX: ffff9792e674d120 RCX: 0000000000000000
+    [542998.023178] RDX: 0000000000000001 RSI: ffff9792e674d120 RDI: ffff9792e674d120
+    [542998.024465] RBP: 0000000000000000 R08: 0000000000000067 R09: 0000000000000001
+    [542998.025462] R10: ffffa7af0375fa50 R11: 0000000000000000 R12: ffff9791f61fe800
+    [542998.026357] R13: ffff9792e674d120 R14: 0000000000000001 R15: ffffffffc0e3dfc0
+    [542998.027237] FS:  0000000000000000(0000) GS:ffff9792fb200000(0000) knlGS:0000000000000000
+    [542998.028327] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+    [542998.029261] CR2: 0000000000000028 CR3: 00000000b3b18003 CR4: 00000000003606e0
+    [542998.030301] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+    [542998.031316] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+    [542998.032380] Call Trace:
+    [542998.032752]  scrub_recheck_block+0x162/0x400 [btrfs]
+    [542998.033500]  ? __alloc_pages_nodemask+0x31e/0x460
+    [542998.034228]  scrub_handle_errored_block+0x6f8/0x1920 [btrfs]
+    [542998.035170]  scrub_bio_end_io_worker+0x100/0x520 [btrfs]
+    [542998.035991]  btrfs_work_helper+0xaa/0x720 [btrfs]
+    [542998.036735]  process_one_work+0x26d/0x6a0
+    [542998.037275]  worker_thread+0x4f/0x3e0
+    [542998.037740]  ? process_one_work+0x6a0/0x6a0
+    [542998.038378]  kthread+0x103/0x140
+    [542998.038789]  ? kthread_create_worker_on_cpu+0x70/0x70
+    [542998.039419]  ret_from_fork+0x3a/0x50
+    [542998.039875] Modules linked in: dm_snapshot dm_thin_pool ...
+    [542998.047288] CR2: 0000000000000028
+    [542998.047724] ---[ end trace bde186e176c7f96a ]---
+
+This issue has been around for a long time, possibly since scrub exists.
+The last time I ran into it was over 2 years ago. After recently fixing
+fstests to pass the "--full-balance" command line option to btrfs-progs
+when doing balance, several tests started to more heavily exercise balance
+with fsstress, scrub and other operations in parallel, and therefore
+started to hit this issue again (with btrfs/061 for example).
+
+Fix this by having scrub increment the 'trimming' counter of the block
+group, which pins the block group in such a way that it guarantees neither
+its logical address nor device extents can be reused by future block group
+allocations until we decrement the 'trimming' counter. Also make sure that
+on each iteration of scrub_stripe() we stop scrubbing the block group if
+it was removed already.
+
+A later patch in the series will rename the block group's 'trimming'
+counter and its helpers to a more generic name, since now it is not used
+exclusively for pinning while trimming anymore.
+
 CC: stable@vger.kernel.org # 4.4+
 Signed-off-by: Filipe Manana <fdmanana@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index 486b1da2fc5c..1242d0aa108d 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -1359,6 +1359,8 @@ static int fallback_to_cow(struct inode *inode, struct page *locked_page,
- 			   const u64 start, const u64 end,
- 			   int *page_started, unsigned long *nr_written)
+diff --git a/fs/btrfs/scrub.c b/fs/btrfs/scrub.c
+index adaf8ab694d5..7c50ac5b6876 100644
+--- a/fs/btrfs/scrub.c
++++ b/fs/btrfs/scrub.c
+@@ -3046,7 +3046,8 @@ static noinline_for_stack int scrub_raid56_parity(struct scrub_ctx *sctx,
+ static noinline_for_stack int scrub_stripe(struct scrub_ctx *sctx,
+ 					   struct map_lookup *map,
+ 					   struct btrfs_device *scrub_dev,
+-					   int num, u64 base, u64 length)
++					   int num, u64 base, u64 length,
++					   struct btrfs_block_group *cache)
  {
-+	const bool is_space_ino = btrfs_is_free_space_inode(BTRFS_I(inode));
-+	const u64 range_bytes = end + 1 - start;
- 	struct extent_io_tree *io_tree = &BTRFS_I(inode)->io_tree;
- 	u64 range_start = start;
- 	u64 count;
-@@ -1386,19 +1388,27 @@ static int fallback_to_cow(struct inode *inode, struct page *locked_page,
- 	 *    that if the COW path fails for any reason, it decrements (through
- 	 *    extent_clear_unlock_delalloc()) the bytes_may_use counter of the
- 	 *    data space info, which we incremented in the step above.
-+	 *
-+	 * If we need to fallback to cow and the inode corresponds to a free
-+	 * space cache inode, we must also increment bytes_may_use of the data
-+	 * space_info for the same reason. Space caches always get a prealloc
-+	 * extent for them, however scrub or balance may have set the block
-+	 * group that contains that extent to RO mode.
- 	 */
--	count = count_range_bits(io_tree, &range_start, end, end + 1 - start,
-+	count = count_range_bits(io_tree, &range_start, end, range_bytes,
- 				 EXTENT_NORESERVE, 0);
--	if (count > 0) {
-+	if (count > 0 || is_space_ino) {
-+		const u64 bytes = is_space_ino ? range_bytes : count;
- 		struct btrfs_fs_info *fs_info = BTRFS_I(inode)->root->fs_info;
- 		struct btrfs_space_info *sinfo = fs_info->data_sinfo;
+ 	struct btrfs_path *path, *ppath;
+ 	struct btrfs_fs_info *fs_info = sctx->fs_info;
+@@ -3284,6 +3285,20 @@ static noinline_for_stack int scrub_stripe(struct scrub_ctx *sctx,
+ 				break;
+ 			}
  
- 		spin_lock(&sinfo->lock);
--		btrfs_space_info_update_bytes_may_use(fs_info, sinfo, count);
-+		btrfs_space_info_update_bytes_may_use(fs_info, sinfo, bytes);
- 		spin_unlock(&sinfo->lock);
++			/*
++			 * If our block group was removed in the meanwhile, just
++			 * stop scrubbing since there is no point in continuing.
++			 * Continuing would prevent reusing its device extents
++			 * for new block groups for a long time.
++			 */
++			spin_lock(&cache->lock);
++			if (cache->removed) {
++				spin_unlock(&cache->lock);
++				ret = 0;
++				goto out;
++			}
++			spin_unlock(&cache->lock);
++
+ 			extent = btrfs_item_ptr(l, slot,
+ 						struct btrfs_extent_item);
+ 			flags = btrfs_extent_flags(l, extent);
+@@ -3457,7 +3472,7 @@ static noinline_for_stack int scrub_chunk(struct scrub_ctx *sctx,
+ 		if (map->stripes[i].dev->bdev == scrub_dev->bdev &&
+ 		    map->stripes[i].physical == dev_offset) {
+ 			ret = scrub_stripe(sctx, map, scrub_dev, i,
+-					   chunk_offset, length);
++					   chunk_offset, length, cache);
+ 			if (ret)
+ 				goto out;
+ 		}
+@@ -3554,6 +3569,23 @@ int scrub_enumerate_chunks(struct scrub_ctx *sctx,
+ 		if (!cache)
+ 			goto skip;
  
--		clear_extent_bit(io_tree, start, end, EXTENT_NORESERVE, 0, 0,
--				 NULL);
-+		if (count > 0)
-+			clear_extent_bit(io_tree, start, end, EXTENT_NORESERVE,
-+					 0, 0, NULL);
- 	}
++		/*
++		 * Make sure that while we are scrubbing the corresponding block
++		 * group doesn't get its logical address and its device extents
++		 * reused for another block group, which can possibly be of a
++		 * different type and different profile. We do this to prevent
++		 * false error detections and crashes due to bogus attempts to
++		 * repair extents.
++		 */
++		spin_lock(&cache->lock);
++		if (cache->removed) {
++			spin_unlock(&cache->lock);
++			btrfs_put_block_group(cache);
++			goto skip;
++		}
++		btrfs_get_block_group_trimming(cache);
++		spin_unlock(&cache->lock);
++
+ 		/*
+ 		 * we need call btrfs_inc_block_group_ro() with scrubs_paused,
+ 		 * to avoid deadlock caused by:
+@@ -3609,6 +3641,7 @@ int scrub_enumerate_chunks(struct scrub_ctx *sctx,
+ 		} else {
+ 			btrfs_warn(fs_info,
+ 				   "failed setting block group ro: %d", ret);
++			btrfs_put_block_group_trimming(cache);
+ 			btrfs_put_block_group(cache);
+ 			scrub_pause_off(fs_info);
+ 			break;
+@@ -3695,6 +3728,7 @@ int scrub_enumerate_chunks(struct scrub_ctx *sctx,
+ 			spin_unlock(&cache->lock);
+ 		}
  
- 	return cow_file_range(inode, locked_page, start, end, page_started,
++		btrfs_put_block_group_trimming(cache);
+ 		btrfs_put_block_group(cache);
+ 		if (ret)
+ 			break;
 
