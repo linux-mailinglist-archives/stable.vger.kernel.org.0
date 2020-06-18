@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 449691FDB81
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:13:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33ED01FDB83
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:13:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728895AbgFRBMW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:12:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40826 "EHLO mail.kernel.org"
+        id S1728905AbgFRBMY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:12:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40868 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728890AbgFRBMU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:12:20 -0400
+        id S1728745AbgFRBMX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:12:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6834F21D7E;
-        Thu, 18 Jun 2020 01:12:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EC1B920B1F;
+        Thu, 18 Jun 2020 01:12:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442740;
-        bh=zrR7EWqR9FOZ7/8Tm7ym4wywgV/bCyV61N5vb0zUF8M=;
+        s=default; t=1592442742;
+        bh=Bxm1IXhPhmJlEOsXKfUJfwDjGaZpX7kqDL/sa5kdcJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EdI2tio0REoMspEDeuHToM4Z9G8qWoXEXZGhf8Gw/0ueSXC4MiP1lkg/Nog0kv1C4
-         YRtuGMv/+QRGPgutmedSeQxJq/nvmxAQ8fOzcROuCxG1p4MP2xGPthd4UHDx8ZsxVC
-         4SfBnXrJ24LUPF4nMnzwf7zyilDLSQGpWz0ZKag4=
+        b=QM6/A3ekay6DP8zupekGvHNh3WUzesZF9Q94UREzKi4kZLnNzyWwRL6iX7ZUlu87I
+         bTfDyNATio8is97xEY2AB/g5sUpw5xwmTMz0U8TcIbYTKG6BPJuytd2Na0sgZ/Xm9a
+         5hu5j6P5H86qKA0xlHM8gOf7O0C/uRPcBUl+nmsk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.7 194/388] ASoC: ux500: mop500: Fix some refcounted resources issues
-Date:   Wed, 17 Jun 2020 21:04:51 -0400
-Message-Id: <20200618010805.600873-194-sashal@kernel.org>
+Cc:     Dafna Hirschfeld <dafna.hirschfeld@collabora.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.7 196/388] pinctrl: rockchip: fix memleak in rockchip_dt_node_to_map
+Date:   Wed, 17 Jun 2020 21:04:53 -0400
+Message-Id: <20200618010805.600873-196-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
@@ -43,56 +46,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
 
-[ Upstream commit 4e8748fcaeec073e3ba794871ce86c545e4f961f ]
+[ Upstream commit d7faa8ffb6be57bf8233a4b5a636d76b83c51ce7 ]
 
-There are 2 issues here:
-   - if one of the 'of_parse_phandle' fails, calling 'mop500_of_node_put()'
-     is a no-op because the 'mop500_dai_links' structure has not been
-     initialized yet, so the referenced are not decremented
-   - The reference stored in 'mop500_dai_links[i].codecs' is refcounted
-     only once in the probe and must be decremented only once.
+In function rockchip_dt_node_to_map, a new_map variable is
+allocated by:
 
-Fixes: 39013bd60e79 ("ASoC: Ux500: Dispose of device nodes correctly")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/20200512100705.246349-1-christophe.jaillet@wanadoo.fr
-Signed-off-by: Mark Brown <broonie@kernel.org>
+new_map = devm_kcalloc(pctldev->dev, map_num, sizeof(*new_map),
+		       GFP_KERNEL);
+
+This uses devres and attaches new_map to the pinctrl driver.
+This cause a leak since new_map is not released when the probed
+driver is removed. Fix it by using kcalloc to allocate new_map
+and free it in `rockchip_dt_free_map`
+
+Signed-off-by: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
+Reviewed-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://lore.kernel.org/r/20200506100903.15420-1-dafna.hirschfeld@collabora.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/ux500/mop500.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/pinctrl/pinctrl-rockchip.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/ux500/mop500.c b/sound/soc/ux500/mop500.c
-index 2873e8e6f02b..cdae1190b930 100644
---- a/sound/soc/ux500/mop500.c
-+++ b/sound/soc/ux500/mop500.c
-@@ -63,10 +63,11 @@ static void mop500_of_node_put(void)
- {
- 	int i;
- 
--	for (i = 0; i < 2; i++) {
-+	for (i = 0; i < 2; i++)
- 		of_node_put(mop500_dai_links[i].cpus->of_node);
--		of_node_put(mop500_dai_links[i].codecs->of_node);
--	}
-+
-+	/* Both links use the same codec, which is refcounted only once */
-+	of_node_put(mop500_dai_links[0].codecs->of_node);
- }
- 
- static int mop500_of_probe(struct platform_device *pdev,
-@@ -81,7 +82,9 @@ static int mop500_of_probe(struct platform_device *pdev,
- 
- 	if (!(msp_np[0] && msp_np[1] && codec_np)) {
- 		dev_err(&pdev->dev, "Phandle missing or invalid\n");
--		mop500_of_node_put();
-+		for (i = 0; i < 2; i++)
-+			of_node_put(msp_np[i]);
-+		of_node_put(codec_np);
- 		return -EINVAL;
+diff --git a/drivers/pinctrl/pinctrl-rockchip.c b/drivers/pinctrl/pinctrl-rockchip.c
+index 098951346339..d7869b636889 100644
+--- a/drivers/pinctrl/pinctrl-rockchip.c
++++ b/drivers/pinctrl/pinctrl-rockchip.c
+@@ -508,8 +508,8 @@ static int rockchip_dt_node_to_map(struct pinctrl_dev *pctldev,
  	}
  
+ 	map_num += grp->npins;
+-	new_map = devm_kcalloc(pctldev->dev, map_num, sizeof(*new_map),
+-								GFP_KERNEL);
++
++	new_map = kcalloc(map_num, sizeof(*new_map), GFP_KERNEL);
+ 	if (!new_map)
+ 		return -ENOMEM;
+ 
+@@ -519,7 +519,7 @@ static int rockchip_dt_node_to_map(struct pinctrl_dev *pctldev,
+ 	/* create mux map */
+ 	parent = of_get_parent(np);
+ 	if (!parent) {
+-		devm_kfree(pctldev->dev, new_map);
++		kfree(new_map);
+ 		return -EINVAL;
+ 	}
+ 	new_map[0].type = PIN_MAP_TYPE_MUX_GROUP;
+@@ -546,6 +546,7 @@ static int rockchip_dt_node_to_map(struct pinctrl_dev *pctldev,
+ static void rockchip_dt_free_map(struct pinctrl_dev *pctldev,
+ 				    struct pinctrl_map *map, unsigned num_maps)
+ {
++	kfree(map);
+ }
+ 
+ static const struct pinctrl_ops rockchip_pctrl_ops = {
 -- 
 2.25.1
 
