@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA9801FE26B
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:02:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C267D1FE269
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:02:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387466AbgFRCB3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:01:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58378 "EHLO mail.kernel.org"
+        id S1730330AbgFRCB2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:01:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731129AbgFRBYH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:24:07 -0400
+        id S1731134AbgFRBYJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:24:09 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5AA5E20B1F;
-        Thu, 18 Jun 2020 01:24:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F0B921974;
+        Thu, 18 Jun 2020 01:24:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443447;
-        bh=XjLwWG3ywh1AX4F0gMD1EW1r5Nwmn6q/j0s9sHz7G34=;
+        s=default; t=1592443448;
+        bh=T8yuiFplhkHxiUAjaifpVYPPuG9x26CJk7BTd3i7XHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cbNboTuf65VIRcQo2HO/MV2rEzfR2zkDojhCBwViJNeTS4ICvpaKNh1Irdca3qPrS
-         Oh52O15pQNY7Ayzq6jmq9vF02fMwlEObo9oXfsGS6Kw4xjTn3w5UYivbhZa6LDM2Xe
-         n3biIOSszQhMx8cjbyoh49KrksDThekTNvxlEtQA=
+        b=EvfamgsdMcDi45MjCdx80Lf9b7CLDIZdS562dVqnNqVrcEilDdHcPOuU4EtqzLkJG
+         9dNHPfLYOFpWdyA4JN74Iet10054aZJ8fSfk/IxmoMjp5uVEfzHxOzxp6rx/2p7zeD
+         516EyGBWILz9/0BxcXNDZeocOvtQEGjCzN9bu99w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Suganath Prabu S <suganath-prabu.subramani@broadcom.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>,
-        MPT-FusionLinux.pdl@broadcom.com, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 083/172] scsi: mpt3sas: Fix double free warnings
-Date:   Wed, 17 Jun 2020 21:20:49 -0400
-Message-Id: <20200618012218.607130-83-sashal@kernel.org>
+Cc:     Dafna Hirschfeld <dafna.hirschfeld@collabora.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 084/172] pinctrl: rockchip: fix memleak in rockchip_dt_node_to_map
+Date:   Wed, 17 Jun 2020 21:20:50 -0400
+Message-Id: <20200618012218.607130-84-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012218.607130-1-sashal@kernel.org>
 References: <20200618012218.607130-1-sashal@kernel.org>
@@ -45,41 +46,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suganath Prabu S <suganath-prabu.subramani@broadcom.com>
+From: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
 
-[ Upstream commit cbbfdb2a2416c9f0cde913cf09670097ac281282 ]
+[ Upstream commit d7faa8ffb6be57bf8233a4b5a636d76b83c51ce7 ]
 
-Fix following warning from Smatch static analyser:
+In function rockchip_dt_node_to_map, a new_map variable is
+allocated by:
 
-drivers/scsi/mpt3sas/mpt3sas_base.c:5256 _base_allocate_memory_pools()
-warn: 'ioc->hpr_lookup' double freed
+new_map = devm_kcalloc(pctldev->dev, map_num, sizeof(*new_map),
+		       GFP_KERNEL);
 
-drivers/scsi/mpt3sas/mpt3sas_base.c:5256 _base_allocate_memory_pools()
-warn: 'ioc->internal_lookup' double freed
+This uses devres and attaches new_map to the pinctrl driver.
+This cause a leak since new_map is not released when the probed
+driver is removed. Fix it by using kcalloc to allocate new_map
+and free it in `rockchip_dt_free_map`
 
-Link: https://lore.kernel.org/r/20200508110738.30732-1-suganath-prabu.subramani@broadcom.com
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Suganath Prabu S <suganath-prabu.subramani@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
+Reviewed-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://lore.kernel.org/r/20200506100903.15420-1-dafna.hirschfeld@collabora.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/mpt3sas/mpt3sas_base.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/pinctrl/pinctrl-rockchip.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/mpt3sas/mpt3sas_base.c b/drivers/scsi/mpt3sas/mpt3sas_base.c
-index 2c556c7fcf0d..9fbe20e38ad0 100644
---- a/drivers/scsi/mpt3sas/mpt3sas_base.c
-+++ b/drivers/scsi/mpt3sas/mpt3sas_base.c
-@@ -4284,7 +4284,9 @@ _base_release_memory_pools(struct MPT3SAS_ADAPTER *ioc)
+diff --git a/drivers/pinctrl/pinctrl-rockchip.c b/drivers/pinctrl/pinctrl-rockchip.c
+index 8d83817935da..005df24f5b3f 100644
+--- a/drivers/pinctrl/pinctrl-rockchip.c
++++ b/drivers/pinctrl/pinctrl-rockchip.c
+@@ -507,8 +507,8 @@ static int rockchip_dt_node_to_map(struct pinctrl_dev *pctldev,
  	}
  
- 	kfree(ioc->hpr_lookup);
-+	ioc->hpr_lookup = NULL;
- 	kfree(ioc->internal_lookup);
-+	ioc->internal_lookup = NULL;
- 	if (ioc->chain_lookup) {
- 		for (i = 0; i < ioc->scsiio_depth; i++) {
- 			for (j = ioc->chains_per_prp_buffer;
+ 	map_num += grp->npins;
+-	new_map = devm_kcalloc(pctldev->dev, map_num, sizeof(*new_map),
+-								GFP_KERNEL);
++
++	new_map = kcalloc(map_num, sizeof(*new_map), GFP_KERNEL);
+ 	if (!new_map)
+ 		return -ENOMEM;
+ 
+@@ -518,7 +518,7 @@ static int rockchip_dt_node_to_map(struct pinctrl_dev *pctldev,
+ 	/* create mux map */
+ 	parent = of_get_parent(np);
+ 	if (!parent) {
+-		devm_kfree(pctldev->dev, new_map);
++		kfree(new_map);
+ 		return -EINVAL;
+ 	}
+ 	new_map[0].type = PIN_MAP_TYPE_MUX_GROUP;
+@@ -545,6 +545,7 @@ static int rockchip_dt_node_to_map(struct pinctrl_dev *pctldev,
+ static void rockchip_dt_free_map(struct pinctrl_dev *pctldev,
+ 				    struct pinctrl_map *map, unsigned num_maps)
+ {
++	kfree(map);
+ }
+ 
+ static const struct pinctrl_ops rockchip_pctrl_ops = {
 -- 
 2.25.1
 
