@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62BE11FDC42
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:18:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 901AB1FDC4C
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:18:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729893AbgFRBSN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:18:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49556 "EHLO mail.kernel.org"
+        id S1729896AbgFRBSR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:18:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727098AbgFRBSK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:18:10 -0400
+        id S1729894AbgFRBSO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:18:14 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6119821D7E;
-        Thu, 18 Jun 2020 01:18:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 766E0206F1;
+        Thu, 18 Jun 2020 01:18:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443090;
-        bh=2qodh3uYCK+UWwNLdpcdGPCezWMVsZdyfkfnb++3Vr8=;
+        s=default; t=1592443094;
+        bh=1KICtU+7Ipxdndkbsv962r1msAcOgKW2WYbRsAws1IE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rkAgnsYv0HB2NgMG1TiZYCvO06Vvdo3vIyrK61uZrDt6cuvCt84PCDtuYwZbKEaQU
-         dYehMWaquGKo1oXmTdkLY7wzfU9QEZoqWp0DmQx651ZX+14KenKfFRJmf+AW7cLADD
-         cjK/X4v6mWlo7v9dV38xpPuzBH4kayX5dYEyM69s=
+        b=wQ7OdlTt09J5T/RghFbedBvgLJWmM4pTxm06rHP1BzD2VRwcnLvkQuRu2uh8b7+Bm
+         9K1bPScsMw3S61Nvm3KCQ/k/7jj1Tnut5AY+n24UwkoR7KRtRV5mdIEYAl9fzWyQ+K
+         s/gzGdGx/18kmqzAZnz+lep9nYkO5Q+tgbOj/Snk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wang Hai <wanghai38@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, linux-hams@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 071/266] yam: fix possible memory leak in yam_init_driver
-Date:   Wed, 17 Jun 2020 21:13:16 -0400
-Message-Id: <20200618011631.604574-71-sashal@kernel.org>
+Cc:     ashimida <ashimida@linux.alibaba.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-kbuild@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 074/266] mksysmap: Fix the mismatch of '.L' symbols in System.map
+Date:   Wed, 17 Jun 2020 21:13:19 -0400
+Message-Id: <20200618011631.604574-74-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
@@ -44,34 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: ashimida <ashimida@linux.alibaba.com>
 
-[ Upstream commit 98749b7188affbf2900c2aab704a8853901d1139 ]
+[ Upstream commit 72d24accf02add25e08733f0ecc93cf10fcbd88c ]
 
-If register_netdev(dev) fails, free_netdev(dev) needs
-to be called, otherwise a memory leak will occur.
+When System.map was generated, the kernel used mksysmap to
+filter the kernel symbols, but all the symbols with the
+second letter 'L' in the kernel were filtered out, not just
+the symbols starting with 'dot + L'.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+For example:
+ashimida@ubuntu:~/linux$ cat System.map |grep ' .L'
+ashimida@ubuntu:~/linux$ nm -n vmlinux |grep ' .L'
+ffff0000088028e0 t bLength_show
+......
+ffff0000092e0408 b PLLP_OUTC_lock
+ffff0000092e0410 b PLLP_OUTA_lock
+
+The original intent should be to filter out all local symbols
+starting with '.L', so the dot should be escaped.
+
+Fixes: 00902e984732 ("mksysmap: Add h8300 local symbol pattern")
+Signed-off-by: ashimida <ashimida@linux.alibaba.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/hamradio/yam.c | 1 +
- 1 file changed, 1 insertion(+)
+ scripts/mksysmap | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/hamradio/yam.c b/drivers/net/hamradio/yam.c
-index 71cdef9fb56b..5ab53e9942f3 100644
---- a/drivers/net/hamradio/yam.c
-+++ b/drivers/net/hamradio/yam.c
-@@ -1133,6 +1133,7 @@ static int __init yam_init_driver(void)
- 		err = register_netdev(dev);
- 		if (err) {
- 			printk(KERN_WARNING "yam: cannot register net device %s\n", dev->name);
-+			free_netdev(dev);
- 			goto error;
- 		}
- 		yam_devs[i] = dev;
+diff --git a/scripts/mksysmap b/scripts/mksysmap
+index a35acc0d0b82..9aa23d15862a 100755
+--- a/scripts/mksysmap
++++ b/scripts/mksysmap
+@@ -41,4 +41,4 @@
+ # so we just ignore them to let readprofile continue to work.
+ # (At least sparc64 has __crc_ in the middle).
+ 
+-$NM -n $1 | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( .L\)' > $2
++$NM -n $1 | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( \.L\)' > $2
 -- 
 2.25.1
 
