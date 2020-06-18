@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65A441FE422
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:16:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C93BF1FE425
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:16:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730293AbgFRBUW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:20:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52426 "EHLO mail.kernel.org"
+        id S1733146AbgFRCQP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:16:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729532AbgFRBUS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:20:18 -0400
+        id S1728847AbgFRBUT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:20:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8B42206F1;
-        Thu, 18 Jun 2020 01:20:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 03FAD214DB;
+        Thu, 18 Jun 2020 01:20:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443217;
-        bh=iplyPM27PcNRmVU8iO4tDZsu6oYuCl3PiRkC1vxjPIc=;
+        s=default; t=1592443218;
+        bh=8JyAkH6qXlEWTgDmDyyoHedmSsQIwvlwfRUXETdFmJo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UIkRj8qPUV0l7ume2DeHkVsweRoIQy1KeEN+f+xRKlfaBgqjaXcX685Da7hvpK4zE
-         GQ1cYgZvQ4LM7bRxCPiNw7vjTQ6T4wZuOCS/MIzLqbhtMuF5pLLvbpN/XkV6/MokBQ
-         AV7O6/nf/lI70MK1IwiGSCaQnDTzUdmy3YEkqS8g=
+        b=gsQOL5DcnJjp6p2K1eAJO/20Yy1E1fCnp4RyHVJpBRFnoT33FZYU92j93xd/vst1y
+         z+9wgiwsyu0ru9H3EWJ08iqWUPzkelCMpau9CuO/92oq4+GiM4Dvt0z7w3fCDD3JyU
+         LoXJ/x1IwGZjcqc5fV6J7TS47gcZbU04ZEhZz0LQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bjorn Helgaas <bhelgaas@google.com>,
-        Aditya Paluri <Venkata.AdityaPaluri@synopsys.com>,
+Cc:     Marc Zyngier <maz@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Jingoo Han <jingoohan1@gmail.com>,
         Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 173/266] PCI/PTM: Inherit Switch Downstream Port PTM settings from Upstream Port
-Date:   Wed, 17 Jun 2020 21:14:58 -0400
-Message-Id: <20200618011631.604574-173-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 174/266] PCI: dwc: Fix inner MSI IRQ domain registration
+Date:   Wed, 17 Jun 2020 21:14:59 -0400
+Message-Id: <20200618011631.604574-174-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
@@ -43,75 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Helgaas <bhelgaas@google.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit 7b38fd9760f51cc83d80eed2cfbde8b5ead9e93a ]
+[ Upstream commit 0414b93e78d87ecc24ae1a7e61fe97deb29fa2f4 ]
 
-Except for Endpoints, we enable PTM at enumeration-time.  Previously we did
-not account for the fact that Switch Downstream Ports are not permitted to
-have a PTM capability; their PTM behavior is controlled by the Upstream
-Port (PCIe r5.0, sec 7.9.16).  Since Downstream Ports don't have a PTM
-capability, we did not mark them as "ptm_enabled", which meant that
-pci_enable_ptm() on an Endpoint failed because there was no PTM path to it.
+On a system that uses the internal DWC MSI widget, I get this
+warning from debugfs when CONFIG_GENERIC_IRQ_DEBUGFS is selected:
 
-Mark Downstream Ports as "ptm_enabled" if their Upstream Port has PTM
-enabled.
+  debugfs: File ':soc:pcie@fc000000' in directory 'domains' already present!
 
-Fixes: eec097d43100 ("PCI: Add pci_enable_ptm() for drivers to enable PTM on endpoints")
-Reported-by: Aditya Paluri <Venkata.AdityaPaluri@synopsys.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+This is due to the fact that the DWC MSI code tries to register two
+IRQ domains for the same firmware node, without telling the low
+level code how to distinguish them (by setting a bus token). This
+further confuses debugfs which tries to create corresponding
+files for each domain.
+
+Fix it by tagging the inner domain as DOMAIN_BUS_NEXUS, which is
+the closest thing we have as to "generic MSI".
+
+Link: https://lore.kernel.org/r/20200501113921.366597-1-maz@kernel.org
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Acked-by: Jingoo Han <jingoohan1@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pcie/ptm.c | 22 +++++++++++++++++-----
- 1 file changed, 17 insertions(+), 5 deletions(-)
+ drivers/pci/controller/dwc/pcie-designware-host.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/pci/pcie/ptm.c b/drivers/pci/pcie/ptm.c
-index 9361f3aa26ab..357a454cafa0 100644
---- a/drivers/pci/pcie/ptm.c
-+++ b/drivers/pci/pcie/ptm.c
-@@ -39,10 +39,6 @@ void pci_ptm_init(struct pci_dev *dev)
- 	if (!pci_is_pcie(dev))
- 		return;
+diff --git a/drivers/pci/controller/dwc/pcie-designware-host.c b/drivers/pci/controller/dwc/pcie-designware-host.c
+index 8615f1548882..fbcb211cceb4 100644
+--- a/drivers/pci/controller/dwc/pcie-designware-host.c
++++ b/drivers/pci/controller/dwc/pcie-designware-host.c
+@@ -263,6 +263,8 @@ int dw_pcie_allocate_domains(struct pcie_port *pp)
+ 		return -ENOMEM;
+ 	}
  
--	pos = pci_find_ext_capability(dev, PCI_EXT_CAP_ID_PTM);
--	if (!pos)
--		return;
--
- 	/*
- 	 * Enable PTM only on interior devices (root ports, switch ports,
- 	 * etc.) on the assumption that it causes no link traffic until an
-@@ -52,6 +48,23 @@ void pci_ptm_init(struct pci_dev *dev)
- 	     pci_pcie_type(dev) == PCI_EXP_TYPE_RC_END))
- 		return;
- 
-+	/*
-+	 * Switch Downstream Ports are not permitted to have a PTM
-+	 * capability; their PTM behavior is controlled by the Upstream
-+	 * Port (PCIe r5.0, sec 7.9.16).
-+	 */
-+	ups = pci_upstream_bridge(dev);
-+	if (pci_pcie_type(dev) == PCI_EXP_TYPE_DOWNSTREAM &&
-+	    ups && ups->ptm_enabled) {
-+		dev->ptm_granularity = ups->ptm_granularity;
-+		dev->ptm_enabled = 1;
-+		return;
-+	}
++	irq_domain_update_bus_token(pp->irq_domain, DOMAIN_BUS_NEXUS);
 +
-+	pos = pci_find_ext_capability(dev, PCI_EXT_CAP_ID_PTM);
-+	if (!pos)
-+		return;
-+
- 	pci_read_config_dword(dev, pos + PCI_PTM_CAP, &cap);
- 	local_clock = (cap & PCI_PTM_GRANULARITY_MASK) >> 8;
- 
-@@ -61,7 +74,6 @@ void pci_ptm_init(struct pci_dev *dev)
- 	 * the spec recommendation (PCIe r3.1, sec 7.32.3), select the
- 	 * furthest upstream Time Source as the PTM Root.
- 	 */
--	ups = pci_upstream_bridge(dev);
- 	if (ups && ups->ptm_enabled) {
- 		ctrl = PCI_PTM_CTRL_ENABLE;
- 		if (ups->ptm_granularity == 0)
+ 	pp->msi_domain = pci_msi_create_irq_domain(fwnode,
+ 						   &dw_pcie_msi_domain_info,
+ 						   pp->irq_domain);
 -- 
 2.25.1
 
