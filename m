@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B403D1FDFE9
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:45:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 579F01FE017
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:46:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732143AbgFRB2m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:28:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37550 "EHLO mail.kernel.org"
+        id S1731675AbgFRBpZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:45:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731439AbgFRB2m (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1732140AbgFRB2m (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 17 Jun 2020 21:28:42 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 67D4A221FC;
-        Thu, 18 Jun 2020 01:28:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 857532220D;
+        Thu, 18 Jun 2020 01:28:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443721;
-        bh=JhiNskNvgTi/rnnAYFmjMfjZC1q7ong5a4d9tPQF0dw=;
+        s=default; t=1592443722;
+        bh=WMSSxLlp0/ZaTJ4TLfHiw0XFmnBGQrGSj2HVAH+vOnk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KJ+2B+dZ7anExdsgAUvtbi5nLAI7lxDW2gnzssmzY5PpbQsby7MalVjU767tatFeY
-         GaC7RggyzpGG2VpytCEZgUWZNOx8BkxGsSJ7KzTEMyPCSJKbiMuhIhJWm3O4rnsIWS
-         0dt/46qCow/rCwHHxT/1ZDLcG75IWDsMaqaTy4ow=
+        b=WtgsyIRaZ9CJyOQFPyjIqwrv7y0zZI+Ge2vghQnPq3UAcWyko3X1g/GYTF6NfCKBn
+         3lISS8MKwxYn0Zi20xsd6+9dDnqTk2ULaAwnJFAOoCtsp0JNweyAfdAcfH9ZX294E/
+         dvN7g+zPJyrKqTfoArsFfHnz1LidMu7BY4vEdIgU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qian Cai <cai@lca.pw>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 17/80] vfio/pci: fix memory leaks in alloc_perm_bits()
-Date:   Wed, 17 Jun 2020 21:27:16 -0400
-Message-Id: <20200618012819.609778-17-sashal@kernel.org>
+Cc:     Marek Szyprowski <m.szyprowski@samsung.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, patches@opensource.cirrus.com
+Subject: [PATCH AUTOSEL 4.9 18/80] mfd: wm8994: Fix driver operation if loaded as modules
+Date:   Wed, 17 Jun 2020 21:27:17 -0400
+Message-Id: <20200618012819.609778-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012819.609778-1-sashal@kernel.org>
 References: <20200618012819.609778-1-sashal@kernel.org>
@@ -43,72 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit 3e63b94b6274324ff2e7d8615df31586de827c4e ]
+[ Upstream commit d4f9b5428b53dd67f49ee8deed8d4366ed6b1933 ]
 
-vfio_pci_disable() calls vfio_config_free() but forgets to call
-free_perm_bits() resulting in memory leaks,
+WM8994 chip has built-in regulators, which might be used for chip
+operation. They are controlled by a separate wm8994-regulator driver,
+which should be loaded before this driver calls regulator_get(), because
+that driver also provides consumer-supply mapping for the them. If that
+driver is not yet loaded, regulator core substitute them with dummy
+regulator, what breaks chip operation, because the built-in regulators are
+never enabled. Fix this by annotating this driver with MODULE_SOFTDEP()
+"pre" dependency to "wm8994_regulator" module.
 
-unreferenced object 0xc000000c4db2dee0 (size 16):
-  comm "qemu-kvm", pid 4305, jiffies 4295020272 (age 3463.780s)
-  hex dump (first 16 bytes):
-    00 00 ff 00 ff ff ff ff ff ff ff ff ff ff 00 00  ................
-  backtrace:
-    [<00000000a6a4552d>] alloc_perm_bits+0x58/0xe0 [vfio_pci]
-    [<00000000ac990549>] vfio_config_init+0xdf0/0x11b0 [vfio_pci]
-    init_pci_cap_msi_perm at drivers/vfio/pci/vfio_pci_config.c:1125
-    (inlined by) vfio_msi_cap_len at drivers/vfio/pci/vfio_pci_config.c:1180
-    (inlined by) vfio_cap_len at drivers/vfio/pci/vfio_pci_config.c:1241
-    (inlined by) vfio_cap_init at drivers/vfio/pci/vfio_pci_config.c:1468
-    (inlined by) vfio_config_init at drivers/vfio/pci/vfio_pci_config.c:1707
-    [<000000006db873a1>] vfio_pci_open+0x234/0x700 [vfio_pci]
-    [<00000000630e1906>] vfio_group_fops_unl_ioctl+0x8e0/0xb84 [vfio]
-    [<000000009e34c54f>] ksys_ioctl+0xd8/0x130
-    [<000000006577923d>] sys_ioctl+0x28/0x40
-    [<000000006d7b1cf2>] system_call_exception+0x114/0x1e0
-    [<0000000008ea7dd5>] system_call_common+0xf0/0x278
-unreferenced object 0xc000000c4db2e330 (size 16):
-  comm "qemu-kvm", pid 4305, jiffies 4295020272 (age 3463.780s)
-  hex dump (first 16 bytes):
-    00 ff ff 00 ff ff ff ff ff ff ff ff ff ff 00 00  ................
-  backtrace:
-    [<000000004c71914f>] alloc_perm_bits+0x44/0xe0 [vfio_pci]
-    [<00000000ac990549>] vfio_config_init+0xdf0/0x11b0 [vfio_pci]
-    [<000000006db873a1>] vfio_pci_open+0x234/0x700 [vfio_pci]
-    [<00000000630e1906>] vfio_group_fops_unl_ioctl+0x8e0/0xb84 [vfio]
-    [<000000009e34c54f>] ksys_ioctl+0xd8/0x130
-    [<000000006577923d>] sys_ioctl+0x28/0x40
-    [<000000006d7b1cf2>] system_call_exception+0x114/0x1e0
-    [<0000000008ea7dd5>] system_call_common+0xf0/0x278
-
-Fixes: 89e1f7d4c66d ("vfio: Add PCI device driver")
-Signed-off-by: Qian Cai <cai@lca.pw>
-[aw: rolled in follow-up patch]
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/pci/vfio_pci_config.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/mfd/wm8994-core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/vfio/pci/vfio_pci_config.c b/drivers/vfio/pci/vfio_pci_config.c
-index 84905d074c4f..608b94a0ee0e 100644
---- a/drivers/vfio/pci/vfio_pci_config.c
-+++ b/drivers/vfio/pci/vfio_pci_config.c
-@@ -1729,8 +1729,11 @@ void vfio_config_free(struct vfio_pci_device *vdev)
- 	vdev->vconfig = NULL;
- 	kfree(vdev->pci_config_map);
- 	vdev->pci_config_map = NULL;
--	kfree(vdev->msi_perm);
--	vdev->msi_perm = NULL;
-+	if (vdev->msi_perm) {
-+		free_perm_bits(vdev->msi_perm);
-+		kfree(vdev->msi_perm);
-+		vdev->msi_perm = NULL;
-+	}
- }
- 
- /*
+diff --git a/drivers/mfd/wm8994-core.c b/drivers/mfd/wm8994-core.c
+index 8588dbad3301..925c1828ec28 100644
+--- a/drivers/mfd/wm8994-core.c
++++ b/drivers/mfd/wm8994-core.c
+@@ -698,3 +698,4 @@ module_i2c_driver(wm8994_i2c_driver);
+ MODULE_DESCRIPTION("Core support for the WM8994 audio CODEC");
+ MODULE_LICENSE("GPL");
+ MODULE_AUTHOR("Mark Brown <broonie@opensource.wolfsonmicro.com>");
++MODULE_SOFTDEP("pre: wm8994_regulator");
 -- 
 2.25.1
 
