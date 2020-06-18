@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BF0E1FE062
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:48:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63BD41FE060
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:48:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732562AbgFRBr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1732597AbgFRBr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 17 Jun 2020 21:47:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36698 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:36746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730276AbgFRB2K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:28:10 -0400
+        id S1732037AbgFRB2L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:28:11 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 09C4922203;
-        Thu, 18 Jun 2020 01:28:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 265D5221FC;
+        Thu, 18 Jun 2020 01:28:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443689;
-        bh=mFoaddF+m9JiGC5ftJhBtqlH9k/GWcHFK59nfe0L50s=;
+        s=default; t=1592443690;
+        bh=F2lXI3qesTQ+5ktrZF+jSSye8OoC8cc88VkD4w4IXdc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BuDnO718t1NBLRSQfGb64S+rSDKT1q3OjvUby/TVMWyL9YHbZprZE1fo8mgEFYZdd
-         JnIjV43w2lu0Jqlf9ZKK0Nc5KrPj6aKehbI2vdhQLFShuPYXJ9d0//+C7/cfpE6fru
-         mZA7nlwzxVI73QievjQ/fxEN2TRRWWNZiB7ySi00=
+        b=rm/nkT+7whofmDy9HelW4/DHTvMmsIu34MU53lFO9B8ReP32GAFjvRr8sQNltjWUZ
+         82TMt5le/YicyGQkMebJAgEy/sAbL2pE1iZ9WyKUJ1eiJFdL1eyXGmuLJHjmR4mYFv
+         twRd5KuM3anEqLU/GLF6OzkRYNhgCJcvFmCb/mjs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
         Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
         linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 101/108] blktrace: use errno instead of bi_status
-Date:   Wed, 17 Jun 2020 21:25:53 -0400
-Message-Id: <20200618012600.608744-101-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 102/108] blktrace: fix endianness in get_pdu_int()
+Date:   Wed, 17 Jun 2020 21:25:54 -0400
+Message-Id: <20200618012600.608744-102-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012600.608744-1-sashal@kernel.org>
 References: <20200618012600.608744-1-sashal@kernel.org>
@@ -45,46 +45,31 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
 
-[ Upstream commit 48bc3cd3e07a1486f45d9971c75d6090976c3b1b ]
+[ Upstream commit 71df3fd82e7cccec7b749a8607a4662d9f7febdd ]
 
-In blk_add_trace_spliti() blk_add_trace_bio_remap() use
-blk_status_to_errno() to pass the error instead of pasing the bi_status.
-This fixes the sparse warning.
+In function get_pdu_len() replace variable type from __u64 to
+__be64. This fixes sparse warning.
 
 Signed-off-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/blktrace.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ kernel/trace/blktrace.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/kernel/trace/blktrace.c b/kernel/trace/blktrace.c
-index a60c09e0bda8..30a98156f474 100644
+index 30a98156f474..be97e0b4ae7d 100644
 --- a/kernel/trace/blktrace.c
 +++ b/kernel/trace/blktrace.c
-@@ -1022,8 +1022,10 @@ static void blk_add_trace_split(void *ignore,
+@@ -1285,7 +1285,7 @@ static inline __u16 t_error(const struct trace_entry *ent)
  
- 		__blk_add_trace(bt, bio->bi_iter.bi_sector,
- 				bio->bi_iter.bi_size, bio_op(bio), bio->bi_opf,
--				BLK_TA_SPLIT, bio->bi_status, sizeof(rpdu),
--				&rpdu, blk_trace_bio_get_cgid(q, bio));
-+				BLK_TA_SPLIT,
-+				blk_status_to_errno(bio->bi_status),
-+				sizeof(rpdu), &rpdu,
-+				blk_trace_bio_get_cgid(q, bio));
- 	}
- 	rcu_read_unlock();
+ static __u64 get_pdu_int(const struct trace_entry *ent, bool has_cg)
+ {
+-	const __u64 *val = pdu_start(ent, has_cg);
++	const __be64 *val = pdu_start(ent, has_cg);
+ 	return be64_to_cpu(*val);
  }
-@@ -1060,7 +1062,8 @@ static void blk_add_trace_bio_remap(void *ignore,
- 	r.sector_from = cpu_to_be64(from);
  
- 	__blk_add_trace(bt, bio->bi_iter.bi_sector, bio->bi_iter.bi_size,
--			bio_op(bio), bio->bi_opf, BLK_TA_REMAP, bio->bi_status,
-+			bio_op(bio), bio->bi_opf, BLK_TA_REMAP,
-+			blk_status_to_errno(bio->bi_status),
- 			sizeof(r), &r, blk_trace_bio_get_cgid(q, bio));
- 	rcu_read_unlock();
- }
 -- 
 2.25.1
 
