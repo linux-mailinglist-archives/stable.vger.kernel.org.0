@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD7621FF93A
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 18:29:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34DC91FF93F
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 18:30:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726981AbgFRQ3H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Jun 2020 12:29:07 -0400
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:35643 "EHLO
+        id S1728489AbgFRQay (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Jun 2020 12:30:54 -0400
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:48491 "EHLO
         wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728489AbgFRQ3G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 18 Jun 2020 12:29:06 -0400
+        by vger.kernel.org with ESMTP id S1727880AbgFRQax (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 18 Jun 2020 12:30:53 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 0F3B89CA;
-        Thu, 18 Jun 2020 12:29:05 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Thu, 18 Jun 2020 12:29:06 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id ABE519E7;
+        Thu, 18 Jun 2020 12:30:52 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Thu, 18 Jun 2020 12:30:52 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=+BR4uP
-        uvOOWt8b0svqLVQR2CNSTHQF06s2yQfVsq060=; b=brTdSZiFXT8ysyBMWMry3q
-        eRuMQM/AsJbkogt7YPa5UyUBBAscrChpw3Y4sb4royV+s0yf1rRMrIUSVuhYpqvp
-        zn2XQgDVN1dypIAQySokWQQwYowBQAO1v1DOFwrAgSjBs3nh2ifkQ1+NW4U7Te70
-        8Cs5J9me4c3odkhRjVL0cZwMPe1gOy64p0saiJwW2p4BdFLQrS+2mjMQNpg/NoI3
-        EzBWoLbOessw+R8E5b1+1t3/wBAzpSwUIpPRG7eoyCkQHgWThJ3gPkiChH+Ciqmg
-        axGbRb3qBmeiKRcBYFuHJgWzm0AIa+F5q5CDr1Cmrh1WBqnhOhw1tO+WicdLHSiQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=XsdPG7
+        u1DjECEfozaROXor7gjSvOWtnIdI0ES/enLes=; b=dO5beU4qBA6qfaBGVLOKIm
+        XNUtl2rQAqBm/x9okD4g4/yyySJCCVFKkbLI1MdRJVB+HpxSCHP0r3+hG4mpgfbu
+        CpVQ7Cc0HDXsvi07IDXbZPfeg/JuTIreoiCEzX7Cl7G7Ax2EY1Z1yb+sLfsPVP+m
+        8op7gbn1B7TgG4WIXHfuygzX2LVA0o8GpxLDHIqzKpYmg0kpfGYzQrY+dSzNa/A3
+        3V8z/Qjnq0rfQh7ZcArMF7cDr6h0NuecU1xT+ygI+0Ku4ZPnY81Fq9P446G3zE/x
+        KNku46GdBZdTPKvrQf88pGRoJq00WH1qFBSp28gSP9A8WAwG9AQ8yWldviXF/BJg
         ==
-X-ME-Sender: <xms:UZbrXk9tYwfD9Xq1dcYw0LhvCYoDMYbBbVEzOHOFJnmgxm9TOA-QSw>
+X-ME-Sender: <xms:u5brXmzJjf0G2Ya-nb88xsCovvAjA8cowtGyUL7BgFfEX4Q-gxsDWQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudejgedguddtvdcutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
     rhhgqeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehje
     duteevueevledujeejgfetheenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhs
-    thgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
+    thgvrhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
     hhrdgtohhm
-X-ME-Proxy: <xmx:UZbrXsugVAjOBPFBBBmiaEHE6gW43aZNzpne5liRwI3WCJCDhjrRAg>
-    <xmx:UZbrXqAwA9HMLPb0nhtzEclCe_uxUYtnSlt0CSA8wAW2AnDySx-TXQ>
-    <xmx:UZbrXkfgbrQ27WIPezkvsVnnaoqMDfjndkkU8I-QiXtHAMZrJYHrfA>
-    <xmx:UZbrXrXBCXxAeLaB1CNX9o4xQSEhMDwVqi5XmGFZW0NDXM-AJkatAX4Fjy0>
+X-ME-Proxy: <xmx:u5brXiTn2_ccfJYU0Mn5Fz2GGZzk_9Xtbl59I8Q2KYoap47_JufpGg>
+    <xmx:u5brXoUa3F6TUwIVQq10lLtQxtXnpoBwe__zGmD4F8xbMMVLwHSTuA>
+    <xmx:u5brXsg0CjHoLV4UqTBpEDs35lXCEvMDz4KtB4CiTSJV77T_SA1Vpw>
+    <xmx:vJbrXjojXododOavPZ79nW7BA7WiVH05WqOiXP3nPZ3RvSqaoDedK6L06yg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id F35BA3280059;
-        Thu, 18 Jun 2020 12:29:04 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] ima: Directly assign the ima_default_policy pointer to" failed to apply to 4.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 9DC5A306218B;
+        Thu, 18 Jun 2020 12:30:51 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] ima: Call ima_calc_boot_aggregate() in ima_eventdigest_init()" failed to apply to 4.4-stable tree
 To:     roberto.sassu@huawei.com, tiwai@suse.de, zohar@linux.ibm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 18 Jun 2020 18:28:55 +0200
-Message-ID: <159249773513242@kroah.com>
+Date:   Thu, 18 Jun 2020 18:30:43 +0200
+Message-ID: <1592497843184214@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -69,60 +69,111 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 067a436b1b0aafa593344fddd711a755a58afb3b Mon Sep 17 00:00:00 2001
+From 6cc7c266e5b47d3cd2b5bb7fd3aac4e6bb2dd1d2 Mon Sep 17 00:00:00 2001
 From: Roberto Sassu <roberto.sassu@huawei.com>
-Date: Wed, 3 Jun 2020 17:08:20 +0200
-Subject: [PATCH] ima: Directly assign the ima_default_policy pointer to
- ima_rules
+Date: Wed, 3 Jun 2020 17:08:21 +0200
+Subject: [PATCH] ima: Call ima_calc_boot_aggregate() in ima_eventdigest_init()
 
-This patch prevents the following oops:
+If the template field 'd' is chosen and the digest to be added to the
+measurement entry was not calculated with SHA1 or MD5, it is
+recalculated with SHA1, by using the passed file descriptor. However, this
+cannot be done for boot_aggregate, because there is no file descriptor.
 
-[   10.771813] BUG: kernel NULL pointer dereference, address: 0000000000000
-[...]
-[   10.779790] RIP: 0010:ima_match_policy+0xf7/0xb80
-[...]
-[   10.798576] Call Trace:
-[   10.798993]  ? ima_lsm_policy_change+0x2b0/0x2b0
-[   10.799753]  ? inode_init_owner+0x1a0/0x1a0
-[   10.800484]  ? _raw_spin_lock+0x7a/0xd0
-[   10.801592]  ima_must_appraise.part.0+0xb6/0xf0
-[   10.802313]  ? ima_fix_xattr.isra.0+0xd0/0xd0
-[   10.803167]  ima_must_appraise+0x4f/0x70
-[   10.804004]  ima_post_path_mknod+0x2e/0x80
-[   10.804800]  do_mknodat+0x396/0x3c0
+This patch adds a call to ima_calc_boot_aggregate() in
+ima_eventdigest_init(), so that the digest can be recalculated also for the
+boot_aggregate entry.
 
-It occurs when there is a failure during IMA initialization, and
-ima_init_policy() is not called. IMA hooks still call ima_match_policy()
-but ima_rules is NULL. This patch prevents the crash by directly assigning
-the ima_default_policy pointer to ima_rules when ima_rules is defined. This
-wouldn't alter the existing behavior, as ima_rules is always set at the end
-of ima_init_policy().
-
-Cc: stable@vger.kernel.org # 3.7.x
-Fixes: 07f6a79415d7d ("ima: add appraise action keywords and default rules")
+Cc: stable@vger.kernel.org # 3.13.x
+Fixes: 3ce1217d6cd5d ("ima: define template fields library and new helpers")
 Reported-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
 Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 
-diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
-index ef7f68cc935e..e493063a3c34 100644
---- a/security/integrity/ima/ima_policy.c
-+++ b/security/integrity/ima/ima_policy.c
-@@ -204,7 +204,7 @@ static struct ima_rule_entry *arch_policy_entry __ro_after_init;
- static LIST_HEAD(ima_default_rules);
- static LIST_HEAD(ima_policy_rules);
- static LIST_HEAD(ima_temp_rules);
--static struct list_head *ima_rules;
-+static struct list_head *ima_rules = &ima_default_rules;
+diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
+index 02796473238b..df93ac258e01 100644
+--- a/security/integrity/ima/ima.h
++++ b/security/integrity/ima/ima.h
+@@ -57,6 +57,7 @@ extern int ima_hash_algo_idx __ro_after_init;
+ extern int ima_extra_slots __ro_after_init;
+ extern int ima_appraise;
+ extern struct tpm_chip *ima_tpm_chip;
++extern const char boot_aggregate_name[];
  
- /* Pre-allocated buffer used for matching keyrings. */
- static char *ima_keyrings;
-@@ -768,7 +768,6 @@ void __init ima_init_policy(void)
- 			  ARRAY_SIZE(default_appraise_rules),
- 			  IMA_DEFAULT_POLICY);
- 
--	ima_rules = &ima_default_rules;
- 	ima_update_policy_flag();
+ /* IMA event related data */
+ struct ima_event_data {
+@@ -144,7 +145,7 @@ int ima_calc_buffer_hash(const void *buf, loff_t len,
+ 			 struct ima_digest_data *hash);
+ int ima_calc_field_array_hash(struct ima_field_data *field_data,
+ 			      struct ima_template_entry *entry);
+-int __init ima_calc_boot_aggregate(struct ima_digest_data *hash);
++int ima_calc_boot_aggregate(struct ima_digest_data *hash);
+ void ima_add_violation(struct file *file, const unsigned char *filename,
+ 		       struct integrity_iint_cache *iint,
+ 		       const char *op, const char *cause);
+diff --git a/security/integrity/ima/ima_crypto.c b/security/integrity/ima/ima_crypto.c
+index 5201f5ec2ce4..002fdf6994d5 100644
+--- a/security/integrity/ima/ima_crypto.c
++++ b/security/integrity/ima/ima_crypto.c
+@@ -806,8 +806,8 @@ static void __init ima_pcrread(u32 idx, struct tpm_digest *d)
+  * hash algorithm for reading the TPM PCRs as for calculating the boot
+  * aggregate digest as stored in the measurement list.
+  */
+-static int __init ima_calc_boot_aggregate_tfm(char *digest, u16 alg_id,
+-					      struct crypto_shash *tfm)
++static int ima_calc_boot_aggregate_tfm(char *digest, u16 alg_id,
++				       struct crypto_shash *tfm)
+ {
+ 	struct tpm_digest d = { .alg_id = alg_id, .digest = {0} };
+ 	int rc;
+@@ -835,7 +835,7 @@ static int __init ima_calc_boot_aggregate_tfm(char *digest, u16 alg_id,
+ 	return rc;
  }
+ 
+-int __init ima_calc_boot_aggregate(struct ima_digest_data *hash)
++int ima_calc_boot_aggregate(struct ima_digest_data *hash)
+ {
+ 	struct crypto_shash *tfm;
+ 	u16 crypto_id, alg_id;
+diff --git a/security/integrity/ima/ima_init.c b/security/integrity/ima/ima_init.c
+index fc1e1002b48d..4902fe7bd570 100644
+--- a/security/integrity/ima/ima_init.c
++++ b/security/integrity/ima/ima_init.c
+@@ -19,7 +19,7 @@
+ #include "ima.h"
+ 
+ /* name for boot aggregate entry */
+-static const char boot_aggregate_name[] = "boot_aggregate";
++const char boot_aggregate_name[] = "boot_aggregate";
+ struct tpm_chip *ima_tpm_chip;
+ 
+ /* Add the boot aggregate to the IMA measurement list and extend
+diff --git a/security/integrity/ima/ima_template_lib.c b/security/integrity/ima/ima_template_lib.c
+index 9cd1e50f3ccc..635c6ac05050 100644
+--- a/security/integrity/ima/ima_template_lib.c
++++ b/security/integrity/ima/ima_template_lib.c
+@@ -286,6 +286,24 @@ int ima_eventdigest_init(struct ima_event_data *event_data,
+ 		goto out;
+ 	}
+ 
++	if ((const char *)event_data->filename == boot_aggregate_name) {
++		if (ima_tpm_chip) {
++			hash.hdr.algo = HASH_ALGO_SHA1;
++			result = ima_calc_boot_aggregate(&hash.hdr);
++
++			/* algo can change depending on available PCR banks */
++			if (!result && hash.hdr.algo != HASH_ALGO_SHA1)
++				result = -EINVAL;
++
++			if (result < 0)
++				memset(&hash, 0, sizeof(hash));
++		}
++
++		cur_digest = hash.hdr.digest;
++		cur_digestsize = hash_digest_size[HASH_ALGO_SHA1];
++		goto out;
++	}
++
+ 	if (!event_data->file)	/* missing info to re-calculate the digest */
+ 		return -EINVAL;
  
 
