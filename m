@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E06231FE20D
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:59:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F92D1FE20A
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:59:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732013AbgFRB6s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:58:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59510 "EHLO mail.kernel.org"
+        id S1731328AbgFRB6i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:58:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730166AbgFRBYr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:24:47 -0400
+        id S1729068AbgFRBYt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:24:49 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7DC0521927;
-        Thu, 18 Jun 2020 01:24:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DAFBB21927;
+        Thu, 18 Jun 2020 01:24:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443487;
-        bh=2SXgvA7tUSdP75dvHaiTMCQP+0FRDnVljzClLq3/NNo=;
+        s=default; t=1592443489;
+        bh=I6xtW/C29jKr+Sxh28IcwGqum2+CjTHubDmIj/WsSI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dlIPeDOtmJRbwjoeFfZXHLAequ6LpVdnCtxxhV7t/LLQwCKxPUvU5bEhEmst//pUJ
-         NY1Xr60CVUuspAKbl5wY0olH/bscizaD1RsOly+XAbJvkhHI1bQTrkjRjZmwunP2Jk
-         zA4g5d+W/iqus7ljk4J91hsdoyPPNaSTog6+deNc=
+        b=ZB0ypnytsOEQyofV6448IC1CaH3QYybRZS6K2uEre+xdSW1geaQK9ucRqCBvhlTAD
+         cNS8i5yeaFux2z/47V629b3TRZCdeBeYNEG/8HMZSz0C4pME8Te7AzwpsUH2eyJJCq
+         fhSj2XcujHnOVoBg8PT6W+ketoknRehVeZepcSbs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qiushi Wu <wu000273@umn.edu>, Felipe Balbi <balbi@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 115/172] usb: gadget: fix potential double-free in m66592_probe.
-Date:   Wed, 17 Jun 2020 21:21:21 -0400
-Message-Id: <20200618012218.607130-115-sashal@kernel.org>
+Cc:     Potnuri Bharat Teja <bharat@chelsio.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 117/172] RDMA/iw_cxgb4: cleanup device debugfs entries on ULD remove
+Date:   Wed, 17 Jun 2020 21:21:23 -0400
+Message-Id: <20200618012218.607130-117-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012218.607130-1-sashal@kernel.org>
 References: <20200618012218.607130-1-sashal@kernel.org>
@@ -42,36 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Potnuri Bharat Teja <bharat@chelsio.com>
 
-[ Upstream commit 44734a594196bf1d474212f38fe3a0d37a73278b ]
+[ Upstream commit 49ea0c036ede81f126f1a9389d377999fdf5c5a1 ]
 
-m66592_free_request() is called under label "err_add_udc"
-and "clean_up", and m66592->ep0_req is not set to NULL after
-first free, leading to a double-free. Fix this issue by
-setting m66592->ep0_req to NULL after the first free.
+Remove device specific debugfs entries immediately if LLD detaches a
+particular ULD device in case of fatal PCI errors.
 
-Fixes: 0f91349b89f3 ("usb: gadget: convert all users to the new udc infrastructure")
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Link: https://lore.kernel.org/r/20200524190814.17599-1-bharat@chelsio.com
+Signed-off-by: Potnuri Bharat Teja <bharat@chelsio.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/m66592-udc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/hw/cxgb4/device.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/gadget/udc/m66592-udc.c b/drivers/usb/gadget/udc/m66592-udc.c
-index a8288df6aadf..ea59b56e5402 100644
---- a/drivers/usb/gadget/udc/m66592-udc.c
-+++ b/drivers/usb/gadget/udc/m66592-udc.c
-@@ -1667,7 +1667,7 @@ static int m66592_probe(struct platform_device *pdev)
- 
- err_add_udc:
- 	m66592_free_request(&m66592->ep[0].ep, m66592->ep0_req);
--
-+	m66592->ep0_req = NULL;
- clean_up3:
- 	if (m66592->pdata->on_chip) {
- 		clk_disable(m66592->clk);
+diff --git a/drivers/infiniband/hw/cxgb4/device.c b/drivers/infiniband/hw/cxgb4/device.c
+index c13c0ba30f63..af974a257086 100644
+--- a/drivers/infiniband/hw/cxgb4/device.c
++++ b/drivers/infiniband/hw/cxgb4/device.c
+@@ -945,6 +945,7 @@ void c4iw_dealloc(struct uld_ctx *ctx)
+ static void c4iw_remove(struct uld_ctx *ctx)
+ {
+ 	pr_debug("c4iw_dev %p\n", ctx->dev);
++	debugfs_remove_recursive(ctx->dev->debugfs_root);
+ 	c4iw_unregister_device(ctx->dev);
+ 	c4iw_dealloc(ctx);
+ }
 -- 
 2.25.1
 
