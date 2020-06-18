@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFC171FE14A
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:54:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBF971FE14C
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:54:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733202AbgFRBx2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1732273AbgFRBx2 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 17 Jun 2020 21:53:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33644 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:33728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731626AbgFRB0P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:26:15 -0400
+        id S1731637AbgFRB0R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:26:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2DC8D20B1F;
-        Thu, 18 Jun 2020 01:26:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8CB052088E;
+        Thu, 18 Jun 2020 01:26:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443575;
-        bh=UDMO8yPxo/ymHjbdYyC+RM4xaVrptlMQ6yvJ7+uYWVk=;
+        s=default; t=1592443577;
+        bh=zBzG+XQLAb/qyuKQzJ5OOYujuxtJFnwnJn8P+8Fyby0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A6oEB7fF+aP5fEsvrtGBqBL3bufxVGqi07Isfz9iFjtYbETjV4f/mXqoRpyXuK82e
-         pQNtUpkgn7anrP+woHcVjNW2VVkH90j5T5OQ4muGbQy1QgvJMloWSeFMiCaG+nmoSI
-         uspInp6yokDUDSgDkMnjDucrt4cpx2qVga3pW+fc=
+        b=DYzqLJvoa/GoeuUAzWUQxp0JkurlxjUlTMTh8l5LnEUwdF089xiPvY/L7Qa2VLSGg
+         AN/gqQZXsKOaggIxxpuoCWzLzeBCa1BMbkqJMrFzLvSmOXDug8B5IKQqJ5/2HKwj7E
+         DC3T/GVKlXCbiv9tpetAFa8hW9FroT/m7WKC2S34=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
-        Manish Rangankar <mrangankar@marvell.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 011/108] scsi: qedi: Check for buffer overflow in qedi_set_path()
-Date:   Wed, 17 Jun 2020 21:24:23 -0400
-Message-Id: <20200618012600.608744-11-sashal@kernel.org>
+Cc:     Casey Schaufler <casey@schaufler-ca.com>,
+        Hillf Danton <hdanton@sina.com>,
+        syzbot+bfdd4a2f07be52351350@syzkaller.appspotmail.com,
+        Sasha Levin <sashal@kernel.org>,
+        linux-security-module@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 013/108] Smack: slab-out-of-bounds in vsscanf
+Date:   Wed, 17 Jun 2020 21:24:25 -0400
+Message-Id: <20200618012600.608744-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012600.608744-1-sashal@kernel.org>
 References: <20200618012600.608744-1-sashal@kernel.org>
@@ -44,43 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Casey Schaufler <casey@schaufler-ca.com>
 
-[ Upstream commit 4a4c0cfb4be74e216dd4446b254594707455bfc6 ]
+[ Upstream commit 84e99e58e8d1e26f04c097f4266e431a33987f36 ]
 
-Smatch complains that the "path_data->handle" variable is user controlled.
-It comes from iscsi_set_path() so that seems possible.  It's harmless to
-add a limit check.
+Add barrier to soob. Return -EOVERFLOW if the buffer
+is exceeded.
 
-The qedi->ep_tbl[] array has qedi->max_active_conns elements (which is
-always ISCSI_MAX_SESS_PER_HBA (4096) elements).  The array is allocated in
-the qedi_cm_alloc_mem() function.
-
-Link: https://lore.kernel.org/r/20200428131939.GA696531@mwanda
-Fixes: ace7f46ba5fd ("scsi: qedi: Add QLogic FastLinQ offload iSCSI driver framework.")
-Acked-by: Manish Rangankar <mrangankar@marvell.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Suggested-by: Hillf Danton <hdanton@sina.com>
+Reported-by: syzbot+bfdd4a2f07be52351350@syzkaller.appspotmail.com
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qedi/qedi_iscsi.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ security/smack/smackfs.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/scsi/qedi/qedi_iscsi.c b/drivers/scsi/qedi/qedi_iscsi.c
-index 94f3829b1974..1effac1111d5 100644
---- a/drivers/scsi/qedi/qedi_iscsi.c
-+++ b/drivers/scsi/qedi/qedi_iscsi.c
-@@ -1224,6 +1224,10 @@ static int qedi_set_path(struct Scsi_Host *shost, struct iscsi_path *path_data)
- 	}
+diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
+index f6482e53d55a..371ae368da35 100644
+--- a/security/smack/smackfs.c
++++ b/security/smack/smackfs.c
+@@ -906,11 +906,21 @@ static ssize_t smk_set_cipso(struct file *file, const char __user *buf,
+ 	else
+ 		rule += strlen(skp->smk_known) + 1;
  
- 	iscsi_cid = (u32)path_data->handle;
-+	if (iscsi_cid >= qedi->max_active_conns) {
-+		ret = -EINVAL;
-+		goto set_path_exit;
++	if (rule > data + count) {
++		rc = -EOVERFLOW;
++		goto out;
 +	}
- 	qedi_ep = qedi->ep_tbl[iscsi_cid];
- 	QEDI_INFO(&qedi->dbg_ctx, QEDI_LOG_INFO,
- 		  "iscsi_cid=0x%x, qedi_ep=%p\n", iscsi_cid, qedi_ep);
++
+ 	ret = sscanf(rule, "%d", &maplevel);
+ 	if (ret != 1 || maplevel > SMACK_CIPSO_MAXLEVEL)
+ 		goto out;
+ 
+ 	rule += SMK_DIGITLEN;
++	if (rule > data + count) {
++		rc = -EOVERFLOW;
++		goto out;
++	}
++
+ 	ret = sscanf(rule, "%d", &catlen);
+ 	if (ret != 1 || catlen > SMACK_CIPSO_MAXCATNUM)
+ 		goto out;
 -- 
 2.25.1
 
