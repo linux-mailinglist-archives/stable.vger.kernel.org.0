@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7199A1FE8B7
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:51:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CDF61FE8B5
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:51:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730483AbgFRCum (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:50:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35386 "EHLO mail.kernel.org"
+        id S1728061AbgFRCug (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:50:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728070AbgFRBJN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:09:13 -0400
+        id S1728080AbgFRBJO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:09:14 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D389221BE5;
-        Thu, 18 Jun 2020 01:09:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1ECA121D7B;
+        Thu, 18 Jun 2020 01:09:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442552;
-        bh=QtSNzKuWyE2Wb+3XJQb77g6ss9gQeFhfgV33l1sPVuA=;
+        s=default; t=1592442553;
+        bh=lcXH754V5IhHALelKisHGDlzXD3vCcHPDVCwl7AHQoQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m9xlYqQQxMVRk2sYHCVVwe9EiNIz6/aKCdaDuy88XvGYugLOGSiGHa9YpHrBxHwtw
-         VQ8FoyBErm6coLJ9ebsxrlicBHRZJJ4NsvkfrqpS7p8HJxN8ZzRH5Cy4ib8TUCC3lI
-         nolyACi29oxRjzLLc7nfKxsGnJv5Jy2L06Wc7ioQ=
+        b=pNJOh01b9YHcHt03ZBCa3VJKu1776XRQNoNlj2PkdEC1okw9wNCKElYsiBOC8cx0u
+         qzEUblWOaKfxhQxgc6i6E2UWcv0vxczla+f9W/m+HVlqMUDDUzEuW3I4u3M9GcacRq
+         K7ncXV8GsPU2/lGghDkQ3HST7gdkPvi6fbF0U2qA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andre Przywara <andre.przywara@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 050/388] arm64: dts: juno: Fix GIC child nodes
-Date:   Wed, 17 Jun 2020 21:02:27 -0400
-Message-Id: <20200618010805.600873-50-sashal@kernel.org>
+Cc:     Yishai Hadas <yishaih@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 051/388] RDMA/uverbs: Fix create WQ to use the given user handle
+Date:   Wed, 17 Jun 2020 21:02:28 -0400
+Message-Id: <20200618010805.600873-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
@@ -44,130 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andre Przywara <andre.przywara@arm.com>
+From: Yishai Hadas <yishaih@mellanox.com>
 
-[ Upstream commit a78aee9e434932a500db36cc6d88daeff3745e9f ]
+[ Upstream commit dbd67252869ba58d086edfa14113e10f8059b97e ]
 
-The GIC DT nodes for the Juno boards were not fully compliant with
-the DT binding, which has certain expectations about child nodes and
-their size and address cells values.
+Fix create WQ to use the given user handle, in addition dropped some
+duplicated code from this flow.
 
-Use smaller #address-cells and #size-cells values, as the binding
-requests, and adjust the reg properties accordingly.
-This requires adjusting the interrupt nexus nodes as well, as one
-field of the interrupt-map property depends on the GIC's address-size.
-
-Link: https://lore.kernel.org/r/20200513103016.130417-10-andre.przywara@arm.com
-Signed-off-by: Andre Przywara <andre.przywara@arm.com>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Fixes: fd3c7904db6e ("IB/core: Change idr objects to use the new schema")
+Fixes: f213c0527210 ("IB/uverbs: Add WQ support")
+Link: https://lore.kernel.org/r/20200506082444.14502-9-leon@kernel.org
+Signed-off-by: Yishai Hadas <yishaih@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/arm/juno-base.dtsi | 50 +++++++++++++-------------
- 1 file changed, 25 insertions(+), 25 deletions(-)
+ drivers/infiniband/core/uverbs_cmd.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/arm/juno-base.dtsi b/arch/arm64/boot/dts/arm/juno-base.dtsi
-index f5889281545f..59b6ac0b828a 100644
---- a/arch/arm64/boot/dts/arm/juno-base.dtsi
-+++ b/arch/arm64/boot/dts/arm/juno-base.dtsi
-@@ -74,35 +74,35 @@ gic: interrupt-controller@2c010000 {
- 		      <0x0 0x2c02f000 0 0x2000>,
- 		      <0x0 0x2c04f000 0 0x2000>,
- 		      <0x0 0x2c06f000 0 0x2000>;
--		#address-cells = <2>;
-+		#address-cells = <1>;
- 		#interrupt-cells = <3>;
--		#size-cells = <2>;
-+		#size-cells = <1>;
- 		interrupt-controller;
- 		interrupts = <GIC_PPI 9 (GIC_CPU_MASK_SIMPLE(6) | IRQ_TYPE_LEVEL_HIGH)>;
--		ranges = <0 0 0 0x2c1c0000 0 0x40000>;
-+		ranges = <0 0 0x2c1c0000 0x40000>;
+diff --git a/drivers/infiniband/core/uverbs_cmd.c b/drivers/infiniband/core/uverbs_cmd.c
+index 060b4ebbd2ba..d6e9cc94dd90 100644
+--- a/drivers/infiniband/core/uverbs_cmd.c
++++ b/drivers/infiniband/core/uverbs_cmd.c
+@@ -2959,6 +2959,7 @@ static int ib_uverbs_ex_create_wq(struct uverbs_attr_bundle *attrs)
+ 	wq_init_attr.event_handler = ib_uverbs_wq_event_handler;
+ 	wq_init_attr.create_flags = cmd.create_flags;
+ 	INIT_LIST_HEAD(&obj->uevent.event_list);
++	obj->uevent.uobject.user_handle = cmd.user_handle;
  
- 		v2m_0: v2m@0 {
- 			compatible = "arm,gic-v2m-frame";
- 			msi-controller;
--			reg = <0 0 0 0x10000>;
-+			reg = <0 0x10000>;
- 		};
+ 	wq = pd->device->ops.create_wq(pd, &wq_init_attr, &attrs->driver_udata);
+ 	if (IS_ERR(wq)) {
+@@ -2976,8 +2977,6 @@ static int ib_uverbs_ex_create_wq(struct uverbs_attr_bundle *attrs)
+ 	atomic_set(&wq->usecnt, 0);
+ 	atomic_inc(&pd->usecnt);
+ 	atomic_inc(&cq->usecnt);
+-	wq->uobject = obj;
+-	obj->uevent.uobject.object = wq;
  
- 		v2m@10000 {
- 			compatible = "arm,gic-v2m-frame";
- 			msi-controller;
--			reg = <0 0x10000 0 0x10000>;
-+			reg = <0x10000 0x10000>;
- 		};
- 
- 		v2m@20000 {
- 			compatible = "arm,gic-v2m-frame";
- 			msi-controller;
--			reg = <0 0x20000 0 0x10000>;
-+			reg = <0x20000 0x10000>;
- 		};
- 
- 		v2m@30000 {
- 			compatible = "arm,gic-v2m-frame";
- 			msi-controller;
--			reg = <0 0x30000 0 0x10000>;
-+			reg = <0x30000 0x10000>;
- 		};
- 	};
- 
-@@ -546,10 +546,10 @@ pcie_ctlr: pcie@40000000 {
- 			 <0x42000000 0x40 0x00000000 0x40 0x00000000 0x1 0x00000000>;
- 		#interrupt-cells = <1>;
- 		interrupt-map-mask = <0 0 0 7>;
--		interrupt-map = <0 0 0 1 &gic 0 0 GIC_SPI 136 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 0 2 &gic 0 0 GIC_SPI 137 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 0 3 &gic 0 0 GIC_SPI 138 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 0 4 &gic 0 0 GIC_SPI 139 IRQ_TYPE_LEVEL_HIGH>;
-+		interrupt-map = <0 0 0 1 &gic 0 GIC_SPI 136 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 0 2 &gic 0 GIC_SPI 137 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 0 3 &gic 0 GIC_SPI 138 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 0 4 &gic 0 GIC_SPI 139 IRQ_TYPE_LEVEL_HIGH>;
- 		msi-parent = <&v2m_0>;
- 		status = "disabled";
- 		iommu-map-mask = <0x0>;	/* RC has no means to output PCI RID */
-@@ -813,19 +813,19 @@ bus@8000000 {
- 
- 		#interrupt-cells = <1>;
- 		interrupt-map-mask = <0 0 15>;
--		interrupt-map = <0 0  0 &gic 0 0 GIC_SPI  68 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0  1 &gic 0 0 GIC_SPI  69 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0  2 &gic 0 0 GIC_SPI  70 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0  3 &gic 0 0 GIC_SPI 160 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0  4 &gic 0 0 GIC_SPI 161 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0  5 &gic 0 0 GIC_SPI 162 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0  6 &gic 0 0 GIC_SPI 163 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0  7 &gic 0 0 GIC_SPI 164 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0  8 &gic 0 0 GIC_SPI 165 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0  9 &gic 0 0 GIC_SPI 166 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 10 &gic 0 0 GIC_SPI 167 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 11 &gic 0 0 GIC_SPI 168 IRQ_TYPE_LEVEL_HIGH>,
--				<0 0 12 &gic 0 0 GIC_SPI 169 IRQ_TYPE_LEVEL_HIGH>;
-+		interrupt-map = <0 0  0 &gic 0 GIC_SPI  68 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0  1 &gic 0 GIC_SPI  69 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0  2 &gic 0 GIC_SPI  70 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0  3 &gic 0 GIC_SPI 160 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0  4 &gic 0 GIC_SPI 161 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0  5 &gic 0 GIC_SPI 162 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0  6 &gic 0 GIC_SPI 163 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0  7 &gic 0 GIC_SPI 164 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0  8 &gic 0 GIC_SPI 165 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0  9 &gic 0 GIC_SPI 166 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 10 &gic 0 GIC_SPI 167 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 11 &gic 0 GIC_SPI 168 IRQ_TYPE_LEVEL_HIGH>,
-+				<0 0 12 &gic 0 GIC_SPI 169 IRQ_TYPE_LEVEL_HIGH>;
- 	};
- 
- 	site2: tlx@60000000 {
-@@ -835,6 +835,6 @@ site2: tlx@60000000 {
- 		ranges = <0 0 0x60000000 0x10000000>;
- 		#interrupt-cells = <1>;
- 		interrupt-map-mask = <0 0>;
--		interrupt-map = <0 0 &gic 0 0 GIC_SPI 168 IRQ_TYPE_LEVEL_HIGH>;
-+		interrupt-map = <0 0 &gic 0 GIC_SPI 168 IRQ_TYPE_LEVEL_HIGH>;
- 	};
- };
+ 	memset(&resp, 0, sizeof(resp));
+ 	resp.wq_handle = obj->uevent.uobject.id;
 -- 
 2.25.1
 
