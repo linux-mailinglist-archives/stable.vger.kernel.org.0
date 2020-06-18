@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ADEB41FDB90
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:13:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29FAF1FDB91
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:13:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729026AbgFRBM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:12:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41834 "EHLO mail.kernel.org"
+        id S1729046AbgFRBNH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:13:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729018AbgFRBM6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:12:58 -0400
+        id S1729038AbgFRBNF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:13:05 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4590C221ED;
-        Thu, 18 Jun 2020 01:12:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B33C820CC7;
+        Thu, 18 Jun 2020 01:13:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442777;
-        bh=Ofauh1tBppSKUpqFNfZSf4nuYCyIJ5cLtkEC6ulDfek=;
+        s=default; t=1592442784;
+        bh=AF2XYvlFFeCw8fEwDSaLAw8PpHLYuXkprAofXdC4i7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y5itvmspFirUGLJ7e4a4hbJeCNnbdXNJ81Lek596J2A8OXmbCLtcg2roRUb8aowDn
-         /gW1dwnCKHocalOTC6uxHXstGX56M9VCj9tWfJiiVpKUuLIHtQmHCVkbcygGUMJFYJ
-         v3SaIX/1KpgXnOoJUOGyCS11unp6HeMOVHg7gGm8=
+        b=hIBsELQVd8sj3gYt3OnKDYmHK2hBNWvmO1E5Stet4UUJTGCAGBtncMTu8vsL+3lZI
+         NomPiNfYepIw/NZ99f6BzSLMy6r2f4zPPPBTJn/icru/d7m+s4LjBUJPlfuhMdnwWn
+         +SGWwr8PheZWmUl52jwnGujq7EtwdpwOcVq9WKUs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Tomasz Maciej Nowak <tmn505@gmail.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.7 223/388] PCI: aardvark: Issue PERST via GPIO
-Date:   Wed, 17 Jun 2020 21:05:20 -0400
-Message-Id: <20200618010805.600873-223-sashal@kernel.org>
+Cc:     Qais Yousef <qais.yousef@arm.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Tony Prisk <linux@prisktech.co.nz>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Mathias Nyman <mathias.nyman@intel.com>,
+        Oliver Neukum <oneukum@suse.de>,
+        linux-arm-kernel@lists.infradead.org, linux-usb@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.7 229/388] usb/ohci-platform: Fix a warning when hibernating
+Date:   Wed, 17 Jun 2020 21:05:26 -0400
+Message-Id: <20200618010805.600873-229-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -47,128 +48,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Qais Yousef <qais.yousef@arm.com>
 
-[ Upstream commit 5169a9851daaa2782a7bd2bb83d5b1bd224b2879 ]
+[ Upstream commit 1cb3b0095c3d0bb96912bfbbce4fc006d41f367c ]
 
-Add support for issuing PERST via GPIO specified in 'reset-gpios'
-property (as described in PCI device tree bindings).
+The following warning was observed when attempting to suspend to disk
+using a USB flash as a swap device.
 
-Some buggy cards (e.g. Compex WLE900VX or WLE1216) are not detected
-after reboot when PERST is not issued during driver initialization.
+[  111.779649] ------------[ cut here ]------------
+[  111.788382] URB (____ptrval____) submitted while active
+[  111.796646] WARNING: CPU: 3 PID: 365 at drivers/usb/core/urb.c:363 usb_submit_urb+0x3d8/0x590
+[  111.805417] Modules linked in:
+[  111.808584] CPU: 3 PID: 365 Comm: kworker/3:2 Not tainted 5.6.0-rc6-00002-gdfd1731f9a3e-dirty #545
+[  111.817796] Hardware name: ARM Juno development board (r2) (DT)
+[  111.823896] Workqueue: usb_hub_wq hub_event
+[  111.828217] pstate: 60000005 (nZCv daif -PAN -UAO)
+[  111.833156] pc : usb_submit_urb+0x3d8/0x590
+[  111.837471] lr : usb_submit_urb+0x3d8/0x590
+[  111.841783] sp : ffff800018de38b0
+[  111.845205] x29: ffff800018de38b0 x28: 0000000000000003
+[  111.850682] x27: ffff000970530b20 x26: ffff8000133fd000
+[  111.856159] x25: ffff8000133fd000 x24: ffff800018de3b38
+[  111.861635] x23: 0000000000000004 x22: 0000000000000c00
+[  111.867112] x21: 0000000000000000 x20: 00000000fffffff0
+[  111.872589] x19: ffff0009704e7a00 x18: ffffffffffffffff
+[  111.878065] x17: 00000000a7c8f4bc x16: 000000002af33de8
+[  111.883542] x15: ffff8000133fda88 x14: 0720072007200720
+[  111.889019] x13: 0720072007200720 x12: 0720072007200720
+[  111.894496] x11: 0000000000000000 x10: 00000000a5286134
+[  111.899973] x9 : 0000000000000002 x8 : ffff000970c837a0
+[  111.905449] x7 : 0000000000000000 x6 : ffff800018de3570
+[  111.910926] x5 : 0000000000000001 x4 : 0000000000000003
+[  111.916401] x3 : 0000000000000000 x2 : ffff800013427118
+[  111.921879] x1 : 9d4e965b4b7d7c00 x0 : 0000000000000000
+[  111.927356] Call trace:
+[  111.929892]  usb_submit_urb+0x3d8/0x590
+[  111.933852]  hub_activate+0x108/0x7f0
+[  111.937633]  hub_resume+0xac/0x148
+[  111.941149]  usb_resume_interface.isra.10+0x60/0x138
+[  111.946265]  usb_resume_both+0xe4/0x140
+[  111.950225]  usb_runtime_resume+0x24/0x30
+[  111.954365]  __rpm_callback+0xdc/0x138
+[  111.958236]  rpm_callback+0x34/0x98
+[  111.961841]  rpm_resume+0x4a8/0x720
+[  111.965445]  rpm_resume+0x50c/0x720
+[  111.969049]  __pm_runtime_resume+0x4c/0xb8
+[  111.973276]  usb_autopm_get_interface+0x28/0x60
+[  111.977948]  hub_event+0x80/0x16d8
+[  111.981466]  process_one_work+0x2a4/0x748
+[  111.985604]  worker_thread+0x48/0x498
+[  111.989387]  kthread+0x13c/0x140
+[  111.992725]  ret_from_fork+0x10/0x18
+[  111.996415] irq event stamp: 354
+[  111.999756] hardirqs last  enabled at (353): [<ffff80001019ea1c>] console_unlock+0x504/0x5b8
+[  112.008441] hardirqs last disabled at (354): [<ffff8000100a95d0>] do_debug_exception+0x1a8/0x258
+[  112.017479] softirqs last  enabled at (350): [<ffff8000100818a4>] __do_softirq+0x4bc/0x568
+[  112.025984] softirqs last disabled at (343): [<ffff8000101145a4>] irq_exit+0x144/0x150
+[  112.034129] ---[ end trace dc96030b9cf6c8a3 ]---
 
-If bootloader already enabled link training then issuing PERST has no
-effect for some buggy cards (e.g. Compex WLE900VX) and these cards are
-not detected. We therefore clear the LINK_TRAINING_EN register before.
+The problem was tracked down to a missing call to
+pm_runtime_set_active() on resume in ohci-platform.
 
-It was observed that Compex WLE900VX card needs to be in PERST reset
-for at least 10ms if bootloader enabled link training.
-
-Tested on Turris MOX.
-
-Link: https://lore.kernel.org/r/20200430080625.26070-6-pali@kernel.org
-Tested-by: Tomasz Maciej Nowak <tmn505@gmail.com>
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Acked-by: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+Link: https://lore.kernel.org/lkml/20200323143857.db5zphxhq4hz3hmd@e107158-lin.cambridge.arm.com/
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Qais Yousef <qais.yousef@arm.com>
+CC: Tony Prisk <linux@prisktech.co.nz>
+CC: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC: Mathias Nyman <mathias.nyman@intel.com>
+CC: Oliver Neukum <oneukum@suse.de>
+CC: linux-arm-kernel@lists.infradead.org
+CC: linux-usb@vger.kernel.org
+CC: linux-kernel@vger.kernel.org
+Link: https://lore.kernel.org/r/20200518154931.6144-1-qais.yousef@arm.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-aardvark.c | 43 ++++++++++++++++++++++++++-
- 1 file changed, 42 insertions(+), 1 deletion(-)
+ drivers/usb/host/ohci-platform.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
-index e202f954eb84..2ecc79c03ade 100644
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -9,6 +9,7 @@
-  */
- 
- #include <linux/delay.h>
-+#include <linux/gpio.h>
- #include <linux/interrupt.h>
- #include <linux/irq.h>
- #include <linux/irqdomain.h>
-@@ -18,6 +19,7 @@
- #include <linux/platform_device.h>
- #include <linux/msi.h>
- #include <linux/of_address.h>
-+#include <linux/of_gpio.h>
- #include <linux/of_pci.h>
- 
- #include "../pci.h"
-@@ -204,6 +206,7 @@ struct advk_pcie {
- 	int root_bus_nr;
- 	int link_gen;
- 	struct pci_bridge_emul bridge;
-+	struct gpio_desc *reset_gpio;
- };
- 
- static inline void advk_writel(struct advk_pcie *pcie, u32 val, u64 reg)
-@@ -330,10 +333,31 @@ static void advk_pcie_train_link(struct advk_pcie *pcie)
- 	dev_err(dev, "link never came up\n");
- }
- 
-+static void advk_pcie_issue_perst(struct advk_pcie *pcie)
-+{
-+	u32 reg;
-+
-+	if (!pcie->reset_gpio)
-+		return;
-+
-+	/* PERST does not work for some cards when link training is enabled */
-+	reg = advk_readl(pcie, PCIE_CORE_CTRL0_REG);
-+	reg &= ~LINK_TRAINING_EN;
-+	advk_writel(pcie, reg, PCIE_CORE_CTRL0_REG);
-+
-+	/* 10ms delay is needed for some cards */
-+	dev_info(&pcie->pdev->dev, "issuing PERST via reset GPIO for 10ms\n");
-+	gpiod_set_value_cansleep(pcie->reset_gpio, 1);
-+	usleep_range(10000, 11000);
-+	gpiod_set_value_cansleep(pcie->reset_gpio, 0);
-+}
-+
- static void advk_pcie_setup_hw(struct advk_pcie *pcie)
- {
- 	u32 reg;
- 
-+	advk_pcie_issue_perst(pcie);
-+
- 	/* Set to Direct mode */
- 	reg = advk_readl(pcie, CTRL_CONFIG_REG);
- 	reg &= ~(CTRL_MODE_MASK << CTRL_MODE_SHIFT);
-@@ -406,7 +430,8 @@ static void advk_pcie_setup_hw(struct advk_pcie *pcie)
- 
- 	/*
- 	 * PERST# signal could have been asserted by pinctrl subsystem before
--	 * probe() callback has been called, making the endpoint going into
-+	 * probe() callback has been called or issued explicitly by reset gpio
-+	 * function advk_pcie_issue_perst(), making the endpoint going into
- 	 * fundamental reset. As required by PCI Express spec a delay for at
- 	 * least 100ms after such a reset before link training is needed.
- 	 */
-@@ -1046,6 +1071,22 @@ static int advk_pcie_probe(struct platform_device *pdev)
+diff --git a/drivers/usb/host/ohci-platform.c b/drivers/usb/host/ohci-platform.c
+index 7addfc2cbadc..4a8456f12a73 100644
+--- a/drivers/usb/host/ohci-platform.c
++++ b/drivers/usb/host/ohci-platform.c
+@@ -299,6 +299,11 @@ static int ohci_platform_resume(struct device *dev)
  	}
- 	pcie->root_bus_nr = bus->start;
  
-+	pcie->reset_gpio = devm_gpiod_get_from_of_node(dev, dev->of_node,
-+						       "reset-gpios", 0,
-+						       GPIOD_OUT_LOW,
-+						       "pcie1-reset");
-+	ret = PTR_ERR_OR_ZERO(pcie->reset_gpio);
-+	if (ret) {
-+		if (ret == -ENOENT) {
-+			pcie->reset_gpio = NULL;
-+		} else {
-+			if (ret != -EPROBE_DEFER)
-+				dev_err(dev, "Failed to get reset-gpio: %i\n",
-+					ret);
-+			return ret;
-+		}
-+	}
+ 	ohci_resume(hcd, false);
 +
- 	ret = of_pci_get_max_link_speed(dev->of_node);
- 	if (ret <= 0 || ret > 3)
- 		pcie->link_gen = 3;
++	pm_runtime_disable(dev);
++	pm_runtime_set_active(dev);
++	pm_runtime_enable(dev);
++
+ 	return 0;
+ }
+ #endif /* CONFIG_PM_SLEEP */
 -- 
 2.25.1
 
