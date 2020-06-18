@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E1FA1FEDF9
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 10:43:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09FA01FEDFA
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 10:43:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728633AbgFRInT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Jun 2020 04:43:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56670 "EHLO mail.kernel.org"
+        id S1728643AbgFRInX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 18 Jun 2020 04:43:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728320AbgFRInP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 18 Jun 2020 04:43:15 -0400
+        id S1728320AbgFRInW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 18 Jun 2020 04:43:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 95E362089D;
-        Thu, 18 Jun 2020 08:43:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CBBAD214DB;
+        Thu, 18 Jun 2020 08:43:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592469795;
-        bh=+hvO12hkRrRso7HGjM+ZnsR3lJYBF/O06Xn2EGKDvgY=;
+        s=default; t=1592469800;
+        bh=aO8x8BAQf4bA0x3ukEckdZ4vCdDQ4nyGgn7G6wLhtV8=;
         h=Subject:To:From:Date:From;
-        b=IZ6pp4wp2Z8OdwQGPsMjR1T5uAjxLIRjw4H0VN7lLfZPf47xfOQo85D+weitRpy+R
-         19q2JODgCaf11jLeEj3+onhwj+thMEq4ys2laTW/ZatITCUgZHVlfw2VHeyb4/71y0
-         iFiCvr26LjkY+uCqOJc6jbJ7wqkHWc8s8C42D7lQ=
-Subject: patch "usb: dwc2: Postponed gadget registration to the udc class driver" added to usb-linus
-To:     Minas.Harutyunyan@synopsys.com, gregkh@linuxfoundation.org,
-        hminas@synopsys.com, lkp@intel.com, marex@denx.de,
-        stable@vger.kernel.org
+        b=fjKnVEg2cA7lGtSvbc4SE2onpSqeZ4XmSinpDzSqD2sUIOH6k0gh8eJ4zK3pxQ8j9
+         9zvjcdmeyQy2l4upSkpVZMqCJ+h7q7WhvqR/PbMBEho/JTRjDRLi1uS4frxOxskNgO
+         4dY7f/sFr2kni5JtGIgB30iIa5l7WPNwoI6otNK0=
+Subject: patch "USB: ehci: reopen solution for Synopsys HC bug" added to usb-linus
+To:     liulongfang@huawei.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org, stern@rowland.harvard.edu
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 18 Jun 2020 10:43:05 +0200
-Message-ID: <1592469785250114@kroah.com>
+Date:   Thu, 18 Jun 2020 10:43:08 +0200
+Message-ID: <15924697884065@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -41,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: dwc2: Postponed gadget registration to the udc class driver
+    USB: ehci: reopen solution for Synopsys HC bug
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -56,67 +55,61 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 207324a321a866401b098cadf19e4a2dd6584622 Mon Sep 17 00:00:00 2001
-From: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Date: Tue, 9 Jun 2020 12:28:11 +0400
-Subject: usb: dwc2: Postponed gadget registration to the udc class driver
+From 1ddcb71a3edf0e1682b6e056158e4c4b00325f66 Mon Sep 17 00:00:00 2001
+From: Longfang Liu <liulongfang@huawei.com>
+Date: Mon, 8 Jun 2020 11:46:59 +0800
+Subject: USB: ehci: reopen solution for Synopsys HC bug
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-During dwc2 driver probe, after gadget registration to the udc class
-driver, if exist any builtin function driver it immediately bound to
-dwc2 and after init host side (dwc2_hcd_init()) stucked in host mode.
-Patch postpone gadget registration after host side initialization done.
+A Synopsys USB2.0 core used in Huawei Kunpeng920 SoC has a bug which
+might cause the host controller not issuing ping.
 
-Fixes: 117777b2c3bb9 ("usb: dwc2: Move gadget probe function into platform code")
-Reported-by: kbuild test robot <lkp@intel.com>
-Tested-by: Marek Vasut <marex@denx.de>
+Bug description:
+After indicating an Interrupt on Async Advance, the software uses the
+doorbell mechanism to delete the Next Link queue head of the last
+executed queue head. At this time, the host controller still references
+the removed queue head(the queue head is NULL). NULL reference causes
+the host controller to lose the USB device.
+
+Solution:
+After deleting the Next Link queue head, when has_synopsys_hc_bug set
+to 1，the software can write one of the valid queue head addresses to
+the ASYNCLISTADDR register to allow the host controller to get
+the valid queue head. in order to solve that problem, this patch set
+the flag for Huawei Kunpeng920
+
+There are detailed instructions and solutions in this patch:
+commit 2f7ac6c19997 ("USB: ehci: add workaround for Synopsys HC bug")
+
+Signed-off-by: Longfang Liu <liulongfang@huawei.com>
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Minas Harutyunyan <hminas@synopsys.com>
-Link: https://lore.kernel.org/r/f21cb38fecc72a230b86155d94c7e60c9cb66f58.1591690938.git.hminas@synopsys.com
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/1591588019-44284-1-git-send-email-liulongfang@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc2/gadget.c   |  6 ------
- drivers/usb/dwc2/platform.c | 11 +++++++++++
- 2 files changed, 11 insertions(+), 6 deletions(-)
+ drivers/usb/host/ehci-pci.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
-index 12b98b466287..7faf5f8c056d 100644
---- a/drivers/usb/dwc2/gadget.c
-+++ b/drivers/usb/dwc2/gadget.c
-@@ -4920,12 +4920,6 @@ int dwc2_gadget_init(struct dwc2_hsotg *hsotg)
- 					  epnum, 0);
+diff --git a/drivers/usb/host/ehci-pci.c b/drivers/usb/host/ehci-pci.c
+index 3c3820ad9092..af3c1b9b38b2 100644
+--- a/drivers/usb/host/ehci-pci.c
++++ b/drivers/usb/host/ehci-pci.c
+@@ -216,6 +216,13 @@ static int ehci_pci_setup(struct usb_hcd *hcd)
+ 		ehci_info(ehci, "applying MosChip frame-index workaround\n");
+ 		ehci->frame_index_bug = 1;
+ 		break;
++	case PCI_VENDOR_ID_HUAWEI:
++		/* Synopsys HC bug */
++		if (pdev->device == 0xa239) {
++			ehci_info(ehci, "applying Synopsys HC workaround\n");
++			ehci->has_synopsys_hc_bug = 1;
++		}
++		break;
  	}
  
--	ret = usb_add_gadget_udc(dev, &hsotg->gadget);
--	if (ret) {
--		dwc2_hsotg_ep_free_request(&hsotg->eps_out[0]->ep,
--					   hsotg->ctrl_req);
--		return ret;
--	}
- 	dwc2_hsotg_dump(hsotg);
- 
- 	return 0;
-diff --git a/drivers/usb/dwc2/platform.c b/drivers/usb/dwc2/platform.c
-index e571c8ae65ec..c347d93eae64 100644
---- a/drivers/usb/dwc2/platform.c
-+++ b/drivers/usb/dwc2/platform.c
-@@ -575,6 +575,17 @@ static int dwc2_driver_probe(struct platform_device *dev)
- 	if (hsotg->dr_mode == USB_DR_MODE_PERIPHERAL)
- 		dwc2_lowlevel_hw_disable(hsotg);
- 
-+#if IS_ENABLED(CONFIG_USB_DWC2_PERIPHERAL) || \
-+	IS_ENABLED(CONFIG_USB_DWC2_DUAL_ROLE)
-+	/* Postponed adding a new gadget to the udc class driver list */
-+	if (hsotg->gadget_enabled) {
-+		retval = usb_add_gadget_udc(hsotg->dev, &hsotg->gadget);
-+		if (retval) {
-+			dwc2_hsotg_remove(hsotg);
-+			goto error_init;
-+		}
-+	}
-+#endif /* CONFIG_USB_DWC2_PERIPHERAL || CONFIG_USB_DWC2_DUAL_ROLE */
- 	return 0;
- 
- error_init:
+ 	/* optional debug port, normally in the first BAR */
 -- 
 2.27.0
 
