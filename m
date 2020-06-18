@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40DA31FE7C1
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:43:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCE361FE7AA
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:43:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730235AbgFRCnV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:43:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39722 "EHLO mail.kernel.org"
+        id S1728786AbgFRBLq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:11:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728769AbgFRBLk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:11:40 -0400
+        id S1728778AbgFRBLo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:11:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DC2321924;
-        Thu, 18 Jun 2020 01:11:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D44E214DB;
+        Thu, 18 Jun 2020 01:11:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442700;
-        bh=4Souj+467sB2B9t0hqySqp7kimDajinP11k4r16yasg=;
+        s=default; t=1592442703;
+        bh=civejUupUvfmmfhwDBpeah7dotAHq5OcLCZlFNcAbfU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bh2jsqFdChO2kpO06DIxv6KwyXhMvvjSaD6cjTIXIalBWw57iYOA8ZIy43HTX5vTP
-         Z0QaW/Dx1d05nfCCTw48jv4C89QZavv+/ue4X9Yu11tcOqD0dq+0zmQVYvwYRCxZm+
-         E3aoH9uxk5sM69Hxwm41tESdxP4vS5u8hqr9l4ko=
+        b=PxasFqCcmzPxPRt2rIv4OreBP0Em0gy0MaU1cbWe0VVAeEXs9qu2CivN4pmXhhDO+
+         KvYOgYluTRF00HdpHBCKuYGlVKjYIbhtJjZQray7Vr2/xbvB0jqr5xfqqIJI/ErBlr
+         fb+b0xOu18nN7SU6UZkZUpKuskHVuVzpuTwYpt3M=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.7 163/388] soundwire: slave: don't init debugfs on device registration error
-Date:   Wed, 17 Jun 2020 21:04:20 -0400
-Message-Id: <20200618010805.600873-163-sashal@kernel.org>
+Cc:     Andrew Jeffery <andrew@aj.id.au>, Joel Stanley <joel@jms.id.au>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.7 165/388] ARM: dts: aspeed: Change KCS nodes to v2 binding
+Date:   Wed, 17 Jun 2020 21:04:22 -0400
+Message-Id: <20200618010805.600873-165-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
@@ -46,37 +43,144 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Andrew Jeffery <andrew@aj.id.au>
 
-[ Upstream commit 8893ab5e8ee5d7c12e0fc1dca4a309475064473d ]
+[ Upstream commit fa4c8ec6feaa3237f5d44cb8c6d0aa0dff6e1bcc ]
 
-The error handling flow seems incorrect, there is no reason to try and
-add debugfs support if the device registration did not
-succeed. Return on error.
+Fixes the following warnings for both g5 and g6 SoCs:
 
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Link: https://lore.kernel.org/r/20200419185117.4233-2-yung-chuan.liao@linux.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+    arch/arm/boot/dts/aspeed-g5.dtsi:376.19-381.8: Warning
+    (unit_address_vs_reg): /ahb/apb/lpc@1e789000/lpc-bmc@0/kcs1@0: node
+    has a unit name, but no reg property
+
+Signed-off-by: Andrew Jeffery <andrew@aj.id.au>
+Signed-off-by: Joel Stanley <joel@jms.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soundwire/slave.c | 2 ++
- 1 file changed, 2 insertions(+)
+ .../dts/aspeed-bmc-facebook-tiogapass.dts     |  4 ++--
+ arch/arm/boot/dts/aspeed-g5.dtsi              | 24 +++++++++----------
+ arch/arm/boot/dts/aspeed-g6.dtsi              | 23 +++++++++---------
+ 3 files changed, 26 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/soundwire/slave.c b/drivers/soundwire/slave.c
-index aace57fae7f8..4bacdb187eab 100644
---- a/drivers/soundwire/slave.c
-+++ b/drivers/soundwire/slave.c
-@@ -68,6 +68,8 @@ static int sdw_slave_add(struct sdw_bus *bus,
- 		list_del(&slave->node);
- 		mutex_unlock(&bus->bus_lock);
- 		put_device(&slave->dev);
-+
-+		return ret;
- 	}
- 	sdw_slave_debugfs_init(slave);
+diff --git a/arch/arm/boot/dts/aspeed-bmc-facebook-tiogapass.dts b/arch/arm/boot/dts/aspeed-bmc-facebook-tiogapass.dts
+index 5d7cbd9164d4..669980c690f9 100644
+--- a/arch/arm/boot/dts/aspeed-bmc-facebook-tiogapass.dts
++++ b/arch/arm/boot/dts/aspeed-bmc-facebook-tiogapass.dts
+@@ -112,13 +112,13 @@ &uart5 {
+ &kcs2 {
+ 	// BMC KCS channel 2
+ 	status = "okay";
+-	kcs_addr = <0xca8>;
++	aspeed,lpc-io-reg = <0xca8>;
+ };
+ 
+ &kcs3 {
+ 	// BMC KCS channel 3
+ 	status = "okay";
+-	kcs_addr = <0xca2>;
++	aspeed,lpc-io-reg = <0xca2>;
+ };
+ 
+ &mac0 {
+diff --git a/arch/arm/boot/dts/aspeed-g5.dtsi b/arch/arm/boot/dts/aspeed-g5.dtsi
+index f12ec04d3cbc..bc92d3db7b78 100644
+--- a/arch/arm/boot/dts/aspeed-g5.dtsi
++++ b/arch/arm/boot/dts/aspeed-g5.dtsi
+@@ -426,22 +426,22 @@ lpc_bmc: lpc-bmc@0 {
+ 					#size-cells = <1>;
+ 					ranges = <0x0 0x0 0x80>;
+ 
+-					kcs1: kcs1@0 {
+-						compatible = "aspeed,ast2500-kcs-bmc";
++					kcs1: kcs@24 {
++						compatible = "aspeed,ast2500-kcs-bmc-v2";
++						reg = <0x24 0x1>, <0x30 0x1>, <0x3c 0x1>;
+ 						interrupts = <8>;
+-						kcs_chan = <1>;
+ 						status = "disabled";
+ 					};
+-					kcs2: kcs2@0 {
+-						compatible = "aspeed,ast2500-kcs-bmc";
++					kcs2: kcs@28 {
++						compatible = "aspeed,ast2500-kcs-bmc-v2";
++						reg = <0x28 0x1>, <0x34 0x1>, <0x40 0x1>;
+ 						interrupts = <8>;
+-						kcs_chan = <2>;
+ 						status = "disabled";
+ 					};
+-					kcs3: kcs3@0 {
+-						compatible = "aspeed,ast2500-kcs-bmc";
++					kcs3: kcs@2c {
++						compatible = "aspeed,ast2500-kcs-bmc-v2";
++						reg = <0x2c 0x1>, <0x38 0x1>, <0x44 0x1>;
+ 						interrupts = <8>;
+-						kcs_chan = <3>;
+ 						status = "disabled";
+ 					};
+ 				};
+@@ -455,10 +455,10 @@ lpc_host: lpc-host@80 {
+ 					#size-cells = <1>;
+ 					ranges = <0x0 0x80 0x1e0>;
+ 
+-					kcs4: kcs4@0 {
+-						compatible = "aspeed,ast2500-kcs-bmc";
++					kcs4: kcs@94 {
++						compatible = "aspeed,ast2500-kcs-bmc-v2";
++						reg = <0x94 0x1>, <0x98 0x1>, <0x9c 0x1>;
+ 						interrupts = <8>;
+-						kcs_chan = <4>;
+ 						status = "disabled";
+ 					};
+ 
+diff --git a/arch/arm/boot/dts/aspeed-g6.dtsi b/arch/arm/boot/dts/aspeed-g6.dtsi
+index fd0e483737a0..a2d2ac720a51 100644
+--- a/arch/arm/boot/dts/aspeed-g6.dtsi
++++ b/arch/arm/boot/dts/aspeed-g6.dtsi
+@@ -435,22 +435,23 @@ lpc_bmc: lpc-bmc@0 {
+ 					#size-cells = <1>;
+ 					ranges = <0x0 0x0 0x80>;
+ 
+-					kcs1: kcs1@0 {
+-						compatible = "aspeed,ast2600-kcs-bmc";
++					kcs1: kcs@24 {
++						compatible = "aspeed,ast2500-kcs-bmc-v2";
++						reg = <0x24 0x1>, <0x30 0x1>, <0x3c 0x1>;
+ 						interrupts = <GIC_SPI 138 IRQ_TYPE_LEVEL_HIGH>;
+ 						kcs_chan = <1>;
+ 						status = "disabled";
+ 					};
+-					kcs2: kcs2@0 {
+-						compatible = "aspeed,ast2600-kcs-bmc";
++					kcs2: kcs@28 {
++						compatible = "aspeed,ast2500-kcs-bmc-v2";
++						reg = <0x28 0x1>, <0x34 0x1>, <0x40 0x1>;
+ 						interrupts = <GIC_SPI 139 IRQ_TYPE_LEVEL_HIGH>;
+-						kcs_chan = <2>;
+ 						status = "disabled";
+ 					};
+-					kcs3: kcs3@0 {
+-						compatible = "aspeed,ast2600-kcs-bmc";
++					kcs3: kcs@2c {
++						compatible = "aspeed,ast2500-kcs-bmc-v2";
++						reg = <0x2c 0x1>, <0x38 0x1>, <0x44 0x1>;
+ 						interrupts = <GIC_SPI 140 IRQ_TYPE_LEVEL_HIGH>;
+-						kcs_chan = <3>;
+ 						status = "disabled";
+ 					};
+ 				};
+@@ -464,10 +465,10 @@ lpc_host: lpc-host@80 {
+ 					#size-cells = <1>;
+ 					ranges = <0x0 0x80 0x1e0>;
+ 
+-					kcs4: kcs4@0 {
+-						compatible = "aspeed,ast2600-kcs-bmc";
++					kcs4: kcs@94 {
++						compatible = "aspeed,ast2500-kcs-bmc-v2";
++						reg = <0x94 0x1>, <0x98 0x1>, <0x9c 0x1>;
+ 						interrupts = <GIC_SPI 141 IRQ_TYPE_LEVEL_HIGH>;
+-						kcs_chan = <4>;
+ 						status = "disabled";
+ 					};
  
 -- 
 2.25.1
