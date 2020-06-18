@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CB281FE08E
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:50:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E06D11FE071
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:48:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732300AbgFRBsK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:48:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36412 "EHLO mail.kernel.org"
+        id S1732000AbgFRB2C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:28:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731260AbgFRB17 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:27:59 -0400
+        id S1731360AbgFRB2B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:28:01 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7BA29221FC;
-        Thu, 18 Jun 2020 01:27:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C56F1221F8;
+        Thu, 18 Jun 2020 01:27:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443679;
-        bh=xtPIyIMxzMzCn7sGamK3L/n3vaA6uW75Q3DPQfFmjbg=;
+        s=default; t=1592443680;
+        bh=waISGqG+zvSmGQbDSdVIwrX2GvtItD1iRBQynHOjOAo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fuhzyethbftvHpgD/P67X1zS2FFfqVG8TZqKsnETgFIP8V2Ch2AWuVjqj3BA7Ms+U
-         lmsaxN8QwZFVrP4397CpzatsV0ifw53oIQUhaVkHNNU43LNc0hQZSf6dCG/+k6xRs7
-         ZlWhk9XesIrdLIvd/+bF0yaH2pcX2Yr04O0vw7y4=
+        b=V7PUyIbzjvQUij50srQkKVypuiAz+xw7j1niTt7K/ZwaGigEfNxLw4USQ+4q9LfIG
+         XurMi7zfcWOhnAg1Sooxufmc4reyHMHxkO0r+RjD1fpF5q3FZeYOWdiCKLVa+S97F5
+         FNjP09byxTEJr9sOkDjtRbD7mYOJiv+gZUvu39Jw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Dong Aisheng <aisheng.dong@nxp.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 094/108] pinctrl: freescale: imx: Fix an error handling path in 'imx_pinctrl_probe()'
-Date:   Wed, 17 Jun 2020 21:25:46 -0400
-Message-Id: <20200618012600.608744-94-sashal@kernel.org>
+Cc:     Tero Kristo <t-kristo@ti.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 095/108] crypto: omap-sham - add proper load balancing support for multicore
+Date:   Wed, 17 Jun 2020 21:25:47 -0400
+Message-Id: <20200618012600.608744-95-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012600.608744-1-sashal@kernel.org>
 References: <20200618012600.608744-1-sashal@kernel.org>
@@ -45,71 +43,167 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Tero Kristo <t-kristo@ti.com>
 
-[ Upstream commit 11d8da5cabf7c6c3263ba2cd9c00260395867048 ]
+[ Upstream commit 281c377872ff5d15d80df25fc4df02d2676c7cde ]
 
-'pinctrl_unregister()' should not be called to undo
-'devm_pinctrl_register_and_init()', it is already handled by the framework.
+The current implementation of the multiple accelerator core support for
+OMAP SHA does not work properly. It always picks up the first probed
+accelerator core if this is available, and rest of the book keeping also
+gets confused if there are two cores available. Add proper load
+balancing support for SHA, and also fix any bugs related to the
+multicore support while doing it.
 
-This simplifies the error handling paths of the probe function.
-The 'imx_free_resources()' can be removed as well.
-
-Fixes: a51c158bf0f7 ("pinctrl: imx: use radix trees for groups and functions")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
-Link: https://lore.kernel.org/r/20200530204955.588962-1-christophe.jaillet@wanadoo.fr
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Tero Kristo <t-kristo@ti.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/freescale/pinctrl-imx.c | 19 ++-----------------
- 1 file changed, 2 insertions(+), 17 deletions(-)
+ drivers/crypto/omap-sham.c | 64 ++++++++++++++++++--------------------
+ 1 file changed, 31 insertions(+), 33 deletions(-)
 
-diff --git a/drivers/pinctrl/freescale/pinctrl-imx.c b/drivers/pinctrl/freescale/pinctrl-imx.c
-index 17f2c5a505b2..ec0119e1e781 100644
---- a/drivers/pinctrl/freescale/pinctrl-imx.c
-+++ b/drivers/pinctrl/freescale/pinctrl-imx.c
-@@ -661,16 +661,6 @@ static int imx_pinctrl_probe_dt(struct platform_device *pdev,
+diff --git a/drivers/crypto/omap-sham.c b/drivers/crypto/omap-sham.c
+index c1f8da958c78..4e38b87c3228 100644
+--- a/drivers/crypto/omap-sham.c
++++ b/drivers/crypto/omap-sham.c
+@@ -168,8 +168,6 @@ struct omap_sham_hmac_ctx {
+ };
+ 
+ struct omap_sham_ctx {
+-	struct omap_sham_dev	*dd;
+-
+ 	unsigned long		flags;
+ 
+ 	/* fallback stuff */
+@@ -916,27 +914,35 @@ static int omap_sham_update_dma_stop(struct omap_sham_dev *dd)
  	return 0;
  }
  
--/*
-- * imx_free_resources() - free memory used by this driver
-- * @info: info driver instance
-- */
--static void imx_free_resources(struct imx_pinctrl *ipctl)
--{
--	if (ipctl->pctl)
--		pinctrl_unregister(ipctl->pctl);
--}
--
- int imx_pinctrl_probe(struct platform_device *pdev,
- 		      struct imx_pinctrl_soc_info *info)
++struct omap_sham_dev *omap_sham_find_dev(struct omap_sham_reqctx *ctx)
++{
++	struct omap_sham_dev *dd;
++
++	if (ctx->dd)
++		return ctx->dd;
++
++	spin_lock_bh(&sham.lock);
++	dd = list_first_entry(&sham.dev_list, struct omap_sham_dev, list);
++	list_move_tail(&dd->list, &sham.dev_list);
++	ctx->dd = dd;
++	spin_unlock_bh(&sham.lock);
++
++	return dd;
++}
++
+ static int omap_sham_init(struct ahash_request *req)
  {
-@@ -761,21 +751,16 @@ int imx_pinctrl_probe(struct platform_device *pdev,
- 					     &ipctl->pctl);
- 	if (ret) {
- 		dev_err(&pdev->dev, "could not register IMX pinctrl driver\n");
--		goto free;
-+		return ret;
+ 	struct crypto_ahash *tfm = crypto_ahash_reqtfm(req);
+ 	struct omap_sham_ctx *tctx = crypto_ahash_ctx(tfm);
+ 	struct omap_sham_reqctx *ctx = ahash_request_ctx(req);
+-	struct omap_sham_dev *dd = NULL, *tmp;
++	struct omap_sham_dev *dd;
+ 	int bs = 0;
+ 
+-	spin_lock_bh(&sham.lock);
+-	if (!tctx->dd) {
+-		list_for_each_entry(tmp, &sham.dev_list, list) {
+-			dd = tmp;
+-			break;
+-		}
+-		tctx->dd = dd;
+-	} else {
+-		dd = tctx->dd;
+-	}
+-	spin_unlock_bh(&sham.lock);
++	ctx->dd = NULL;
+ 
+-	ctx->dd = dd;
++	dd = omap_sham_find_dev(ctx);
++	if (!dd)
++		return -ENODEV;
+ 
+ 	ctx->flags = 0;
+ 
+@@ -1186,8 +1192,7 @@ static int omap_sham_handle_queue(struct omap_sham_dev *dd,
+ static int omap_sham_enqueue(struct ahash_request *req, unsigned int op)
+ {
+ 	struct omap_sham_reqctx *ctx = ahash_request_ctx(req);
+-	struct omap_sham_ctx *tctx = crypto_tfm_ctx(req->base.tfm);
+-	struct omap_sham_dev *dd = tctx->dd;
++	struct omap_sham_dev *dd = ctx->dd;
+ 
+ 	ctx->op = op;
+ 
+@@ -1197,7 +1202,7 @@ static int omap_sham_enqueue(struct ahash_request *req, unsigned int op)
+ static int omap_sham_update(struct ahash_request *req)
+ {
+ 	struct omap_sham_reqctx *ctx = ahash_request_ctx(req);
+-	struct omap_sham_dev *dd = ctx->dd;
++	struct omap_sham_dev *dd = omap_sham_find_dev(ctx);
+ 
+ 	if (!req->nbytes)
+ 		return 0;
+@@ -1302,21 +1307,8 @@ static int omap_sham_setkey(struct crypto_ahash *tfm, const u8 *key,
+ 	struct omap_sham_hmac_ctx *bctx = tctx->base;
+ 	int bs = crypto_shash_blocksize(bctx->shash);
+ 	int ds = crypto_shash_digestsize(bctx->shash);
+-	struct omap_sham_dev *dd = NULL, *tmp;
+ 	int err, i;
+ 
+-	spin_lock_bh(&sham.lock);
+-	if (!tctx->dd) {
+-		list_for_each_entry(tmp, &sham.dev_list, list) {
+-			dd = tmp;
+-			break;
+-		}
+-		tctx->dd = dd;
+-	} else {
+-		dd = tctx->dd;
+-	}
+-	spin_unlock_bh(&sham.lock);
+-
+ 	err = crypto_shash_setkey(tctx->fallback, key, keylen);
+ 	if (err)
+ 		return err;
+@@ -1334,7 +1326,7 @@ static int omap_sham_setkey(struct crypto_ahash *tfm, const u8 *key,
+ 
+ 	memset(bctx->ipad + keylen, 0, bs - keylen);
+ 
+-	if (!test_bit(FLAGS_AUTO_XOR, &dd->flags)) {
++	if (!test_bit(FLAGS_AUTO_XOR, &sham.flags)) {
+ 		memcpy(bctx->opad, bctx->ipad, bs);
+ 
+ 		for (i = 0; i < bs; i++) {
+@@ -2073,6 +2065,7 @@ static int omap_sham_probe(struct platform_device *pdev)
  	}
  
- 	ret = imx_pinctrl_probe_dt(pdev, ipctl);
- 	if (ret) {
- 		dev_err(&pdev->dev, "fail to probe dt properties\n");
--		goto free;
-+		return ret;
- 	}
+ 	dd->flags |= dd->pdata->flags;
++	sham.flags |= dd->pdata->flags;
  
- 	dev_info(&pdev->dev, "initialized IMX pinctrl driver\n");
+ 	pm_runtime_use_autosuspend(dev);
+ 	pm_runtime_set_autosuspend_delay(dev, DEFAULT_AUTOSUSPEND_DELAY);
+@@ -2098,6 +2091,9 @@ static int omap_sham_probe(struct platform_device *pdev)
+ 	spin_unlock(&sham.lock);
  
- 	return pinctrl_enable(ipctl->pctl);
--
--free:
--	imx_free_resources(ipctl);
--
--	return ret;
- }
+ 	for (i = 0; i < dd->pdata->algs_info_size; i++) {
++		if (dd->pdata->algs_info[i].registered)
++			break;
++
+ 		for (j = 0; j < dd->pdata->algs_info[i].size; j++) {
+ 			struct ahash_alg *alg;
+ 
+@@ -2143,9 +2139,11 @@ static int omap_sham_remove(struct platform_device *pdev)
+ 	list_del(&dd->list);
+ 	spin_unlock(&sham.lock);
+ 	for (i = dd->pdata->algs_info_size - 1; i >= 0; i--)
+-		for (j = dd->pdata->algs_info[i].registered - 1; j >= 0; j--)
++		for (j = dd->pdata->algs_info[i].registered - 1; j >= 0; j--) {
+ 			crypto_unregister_ahash(
+ 					&dd->pdata->algs_info[i].algs_list[j]);
++			dd->pdata->algs_info[i].registered--;
++		}
+ 	tasklet_kill(&dd->done_task);
+ 	pm_runtime_disable(&pdev->dev);
+ 
 -- 
 2.25.1
 
