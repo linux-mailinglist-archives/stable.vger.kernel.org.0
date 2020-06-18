@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7A531FE752
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:40:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 590B91FE74F
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:40:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728957AbgFRCkW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:40:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41466 "EHLO mail.kernel.org"
+        id S2387664AbgFRCkJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:40:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728961AbgFRBMn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:12:43 -0400
+        id S1728983AbgFRBMq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:12:46 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA15020EDD;
-        Thu, 18 Jun 2020 01:12:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 271E920CC7;
+        Thu, 18 Jun 2020 01:12:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442762;
-        bh=Tdbq1AIrRfPytdRb5cFoCFNQsFQuC5C8Pjx/IhsP4n0=;
+        s=default; t=1592442765;
+        bh=EErdMN8eKgwLm5pu88Mv/t1aZoo7WuwsMT7n55tqxVQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pp+Kmm1Hm1yN3PK9LTwI97SEQaTWYF/9hZxUcdW/16gy8Q5Q0vp0myEdkpiSm99yV
-         qYlnPZw4S/81ZyTk+Ur6Qv8dw2dg9Drblf16IgV4w2FLtdf7sY7qqIOORX6b58uZ1O
-         2MXZAL4Xm8969/VL0GRla/pS1MLfbBhQ8G0RR2Jg=
+        b=Xy4urPlQc8UKHFK1qjMOG2lDva6peclOHmdk/WUmUthSemOV9NhIzUb3yaLLekvTP
+         QbnBmmBRHvvVIWU+CAijPWFqdxio8JZcCCX4h+BUMg9NemYzeyNTzJdtFxNsDAio+y
+         g8dYfGzXdywEI7kLhhhfWJzakeT+3rG5b8KSToBE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 212/388] PCI/PM: Assume ports without DLL Link Active train links in 100 ms
-Date:   Wed, 17 Jun 2020 21:05:09 -0400
-Message-Id: <20200618010805.600873-212-sashal@kernel.org>
+Cc:     =?UTF-8?q?Marek=20Beh=C3=BAn?= <marek.behun@nic.cz>,
+        Remi Pommarel <repk@triplefau.lt>,
+        Tomasz Maciej Nowak <tmn505@gmail.com>,
+        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 214/388] arm64: dts: marvell: armada-37xx: Set pcie_reset_pin to gpio function
+Date:   Wed, 17 Jun 2020 21:05:11 -0400
+Message-Id: <20200618010805.600873-214-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,111 +48,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Marek Behún <marek.behun@nic.cz>
 
-[ Upstream commit ec411e02b7a2e785a4ed9ed283207cd14f48699d ]
+[ Upstream commit 715878016984b2617f6c1f177c50039e12e7bd5b ]
 
-Kai-Heng Feng reported that it takes a long time (> 1 s) to resume
-Thunderbolt-connected devices from both runtime suspend and system sleep
-(s2idle).
+We found out that we are unable to control the PERST# signal via the
+default pin dedicated to be PERST# pin (GPIO2[3] pin) on A3700 SOC when
+this pin is in EP_PCIE1_Resetn mode. There is a register in the PCIe
+register space called PERSTN_GPIO_EN (D0088004[3]), but changing the
+value of this register does not change the pin output when measuring
+with voltmeter.
 
-This was because some Downstream Ports that support > 5 GT/s do not also
-support Data Link Layer Link Active reporting.  Per PCIe r5.0 sec 6.6.1:
+We do not know if this is a bug in the SOC, or if it works only when
+PCIe controller is in a certain state.
 
-  With a Downstream Port that supports Link speeds greater than 5.0 GT/s,
-  software must wait a minimum of 100 ms after Link training completes
-  before sending a Configuration Request to the device immediately below
-  that Port. Software can determine when Link training completes by polling
-  the Data Link Layer Link Active bit or by setting up an associated
-  interrupt (see Section 6.7.3.3).
+Commit f4c7d053d7f7 ("PCI: aardvark: Wait for endpoint to be ready
+before training link") says that when this pin changes pinctrl mode
+from EP_PCIE1_Resetn to GPIO, the PERST# signal is asserted for a brief
+moment.
 
-Sec 7.5.3.6 requires such Ports to support DLL Link Active reporting, but
-at least the Intel JHL6240 Thunderbolt 3 Bridge [8086:15c0] and the Intel
-JHL7540 Thunderbolt 3 Bridge [8086:15ea] do not.
+So currently the situation is that on A3700 boards the PERST# signal is
+asserted in U-Boot (because the code in U-Boot issues reset via this pin
+via GPIO mode), and then in Linux by the obscure and undocumented
+mechanism described by the above mentioned commit.
 
-Previously we tried to wait for Link training to complete, but since there
-was no DLL Link Active reporting, all we could do was wait the worst-case
-1000 ms, then another 100 ms.
+We want to issue PERST# signal in a known way, therefore this patch
+changes the pcie_reset_pin function from "pcie" to "gpio" and adds the
+reset-gpios property to the PCIe node in device tree files of
+EspressoBin and Armada 3720 Dev Board (Turris Mox device tree already
+has this property and uDPU does not have a PCIe port).
 
-Instead of using the supported speeds to determine whether to wait for Link
-training, check whether the port supports DLL Link Active reporting.  The
-Ports in question do not, so we'll wait only the 100 ms required for Ports
-that support Link speeds <= 5 GT/s.
-
-This of course assumes these Ports always train the Link within 100 ms even
-if they are operating at > 5 GT/s, which is not required by the spec.
-
-[bhelgaas: commit log, comment]
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=206837
-Link: https://lore.kernel.org/r/20200514133043.27429-1-mika.westerberg@linux.intel.com
-Reported-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Tested-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Marek Behún <marek.behun@nic.cz>
+Cc: Remi Pommarel <repk@triplefau.lt>
+Tested-by: Tomasz Maciej Nowak <tmn505@gmail.com>
+Acked-by: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci.c | 30 +++++++++++++++++++++---------
- 1 file changed, 21 insertions(+), 9 deletions(-)
+ arch/arm64/boot/dts/marvell/armada-3720-db.dts           | 3 +++
+ arch/arm64/boot/dts/marvell/armada-3720-espressobin.dtsi | 1 +
+ arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts   | 4 ----
+ arch/arm64/boot/dts/marvell/armada-37xx.dtsi             | 2 +-
+ 4 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index 6d3234f75692..809f2584e338 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -4660,7 +4660,8 @@ static int pci_pm_reset(struct pci_dev *dev, int probe)
-  * pcie_wait_for_link_delay - Wait until link is active or inactive
-  * @pdev: Bridge device
-  * @active: waiting for active or inactive?
-- * @delay: Delay to wait after link has become active (in ms)
-+ * @delay: Delay to wait after link has become active (in ms). Specify %0
-+ *	   for no delay.
-  *
-  * Use this to wait till link becomes active or inactive.
-  */
-@@ -4701,7 +4702,7 @@ static bool pcie_wait_for_link_delay(struct pci_dev *pdev, bool active,
- 		msleep(10);
- 		timeout -= 10;
- 	}
--	if (active && ret)
-+	if (active && ret && delay)
- 		msleep(delay);
- 	else if (ret != active)
- 		pci_info(pdev, "Data Link Layer Link Active not %s in 1000 msec\n",
-@@ -4822,17 +4823,28 @@ void pci_bridge_wait_for_secondary_bus(struct pci_dev *dev)
- 	if (!pcie_downstream_port(dev))
- 		return;
+diff --git a/arch/arm64/boot/dts/marvell/armada-3720-db.dts b/arch/arm64/boot/dts/marvell/armada-3720-db.dts
+index f2cc00594d64..3e5789f37206 100644
+--- a/arch/arm64/boot/dts/marvell/armada-3720-db.dts
++++ b/arch/arm64/boot/dts/marvell/armada-3720-db.dts
+@@ -128,6 +128,9 @@ phy1: ethernet-phy@1 {
  
--	if (pcie_get_speed_cap(dev) <= PCIE_SPEED_5_0GT) {
--		pci_dbg(dev, "waiting %d ms for downstream link\n", delay);
--		msleep(delay);
--	} else {
--		pci_dbg(dev, "waiting %d ms for downstream link, after activation\n",
--			delay);
--		if (!pcie_wait_for_link_delay(dev, true, delay)) {
-+	/*
-+	 * Per PCIe r5.0, sec 6.6.1, for downstream ports that support
-+	 * speeds > 5 GT/s, we must wait for link training to complete
-+	 * before the mandatory delay.
-+	 *
-+	 * We can only tell when link training completes via DLL Link
-+	 * Active, which is required for downstream ports that support
-+	 * speeds > 5 GT/s (sec 7.5.3.6).  Unfortunately some common
-+	 * devices do not implement Link Active reporting even when it's
-+	 * required, so we'll check for that directly instead of checking
-+	 * the supported link speed.  We assume devices without Link Active
-+	 * reporting can train in 100 ms regardless of speed.
-+	 */
-+	if (dev->link_active_reporting) {
-+		pci_dbg(dev, "waiting for link to train\n");
-+		if (!pcie_wait_for_link_delay(dev, true, 0)) {
- 			/* Did not train, no need to wait any further */
- 			return;
- 		}
- 	}
-+	pci_dbg(child, "waiting %d ms to become accessible\n", delay);
-+	msleep(delay);
+ /* CON15(V2.0)/CON17(V1.4) : PCIe / CON15(V2.0)/CON12(V1.4) :mini-PCIe */
+ &pcie0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pcie_reset_pins &pcie_clkreq_pins>;
++	reset-gpios = <&gpiosb 3 GPIO_ACTIVE_LOW>;
+ 	status = "okay";
+ };
  
- 	if (!pci_device_is_present(child)) {
- 		pci_dbg(child, "waiting additional %d ms to become accessible\n", delay);
+diff --git a/arch/arm64/boot/dts/marvell/armada-3720-espressobin.dtsi b/arch/arm64/boot/dts/marvell/armada-3720-espressobin.dtsi
+index 42e992f9c8a5..c92ad664cb0e 100644
+--- a/arch/arm64/boot/dts/marvell/armada-3720-espressobin.dtsi
++++ b/arch/arm64/boot/dts/marvell/armada-3720-espressobin.dtsi
+@@ -47,6 +47,7 @@ &pcie0 {
+ 	phys = <&comphy1 0>;
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pcie_reset_pins &pcie_clkreq_pins>;
++	reset-gpios = <&gpiosb 3 GPIO_ACTIVE_LOW>;
+ };
+ 
+ /* J6 */
+diff --git a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
+index 0e0491ca2930..1452c821f8c0 100644
+--- a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
++++ b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
+@@ -128,10 +128,6 @@ rtc@6f {
+ 	};
+ };
+ 
+-&pcie_reset_pins {
+-	function = "gpio";
+-};
+-
+ &pcie0 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pcie_reset_pins &pcie_clkreq_pins>;
+diff --git a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
+index 000c135e39b7..7909c146eabf 100644
+--- a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
++++ b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
+@@ -317,7 +317,7 @@ sdio_pins: sdio-pins {
+ 
+ 				pcie_reset_pins: pcie-reset-pins {
+ 					groups = "pcie1";
+-					function = "pcie";
++					function = "gpio";
+ 				};
+ 
+ 				pcie_clkreq_pins: pcie-clkreq-pins {
 -- 
 2.25.1
 
