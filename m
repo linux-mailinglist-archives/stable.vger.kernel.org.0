@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 437A31FDFA0
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:43:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61A381FDF9B
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:43:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732309AbgFRBmE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:42:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38902 "EHLO mail.kernel.org"
+        id S1731928AbgFRBl6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:41:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732305AbgFRB3a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:29:30 -0400
+        id S1732309AbgFRB3c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:29:32 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2BA0322229;
-        Thu, 18 Jun 2020 01:29:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 794B7221E6;
+        Thu, 18 Jun 2020 01:29:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443770;
-        bh=grTMoYmHUjnzVf/gn68pvoeTwzVuwA9jfHoZouBcFWo=;
+        s=default; t=1592443771;
+        bh=eaYBeaX/z4WKFGGbk6W28lOahb1IXKIL5c6euaj8Lmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yRXkleAXMBoN67YTSAlQRVsigDnyZGfsaV3PQvzSmhUV8DcqQ5+2hiytPeCeoWFbH
-         6tFHF4cyEty3+ngcDVmTBh3XILFk6p+H9sQWL6z/0yqNO12h5bArqJRbCuJ42OPcow
-         rjCqOji+T00qn8UzYytzyD4mKwc7CuSxiapTbBas=
+        b=we1yYSBYs942YIMkV8d3kRw+XN99c5f0ZaLC6RD1vZMhZEJpeD5H99CfXpO+T43AK
+         1xpzes9yU3wDOK0qXSbqFoXbcHu3gnkpW+UlnXch7DTcY3O2b5clE8dzjf2ggAG6QA
+         W2052TWQSKRQXhdA0VF7qEWqKQz/AOPLvkyQ3348=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marek Szyprowski <m.szyprowski@samsung.com>,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-samsung-soc@vger.kernel.org, linux-clk@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.9 54/80] clk: samsung: exynos5433: Add IGNORE_UNUSED flag to sclk_i2s1
-Date:   Wed, 17 Jun 2020 21:27:53 -0400
-Message-Id: <20200618012819.609778-54-sashal@kernel.org>
+Cc:     Qian Cai <cai@lca.pw>, Christophe Leroy <christophe.leroy@c-s.fr>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.9 55/80] powerpc/64s/pgtable: fix an undefined behaviour
+Date:   Wed, 17 Jun 2020 21:27:54 -0400
+Message-Id: <20200618012819.609778-55-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012819.609778-1-sashal@kernel.org>
 References: <20200618012819.609778-1-sashal@kernel.org>
@@ -45,66 +43,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit 25bdae0f1c6609ceaf55fe6700654f0be2253d8e ]
+[ Upstream commit c2e929b18cea6cbf71364f22d742d9aad7f4677a ]
 
-Mark the SCLK clock for Exynos5433 I2S1 device with IGNORE_UNUSED flag to
-match its behaviour with SCLK clock for AUD_I2S (I2S0) device until
-a proper fix for Exynos I2S driver is ready.
+Booting a power9 server with hash MMU could trigger an undefined
+behaviour because pud_offset(p4d, 0) will do,
 
-This fixes the following synchronous abort issue revealed by the probe
-order change caused by the commit 93d2e4322aa7 ("of: platform: Batch
-fwnode parsing when adding all top level devices")
+0 >> (PAGE_SHIFT:16 + PTE_INDEX_SIZE:8 + H_PMD_INDEX_SIZE:10)
 
-Internal error: synchronous external abort: 96000210 [#1] PREEMPT SMP
-Modules linked in:
-CPU: 0 PID: 50 Comm: kworker/0:1 Not tainted 5.7.0-rc5+ #701
-Hardware name: Samsung TM2E board (DT)
-Workqueue: events deferred_probe_work_func
-pstate: 60000005 (nZCv daif -PAN -UAO)
-pc : samsung_i2s_probe+0x768/0x8f0
-lr : samsung_i2s_probe+0x688/0x8f0
-...
-Call trace:
- samsung_i2s_probe+0x768/0x8f0
- platform_drv_probe+0x50/0xa8
- really_probe+0x108/0x370
- driver_probe_device+0x54/0xb8
- __device_attach_driver+0x90/0xc0
- bus_for_each_drv+0x70/0xc8
- __device_attach+0xdc/0x140
- device_initial_probe+0x10/0x18
- bus_probe_device+0x94/0xa0
- deferred_probe_work_func+0x70/0xa8
- process_one_work+0x2a8/0x718
- worker_thread+0x48/0x470
- kthread+0x134/0x160
- ret_from_fork+0x10/0x1c
-Code: 17ffffaf d503201f f94086c0 91003000 (88dffc00)
----[ end trace ccf721c9400ddbd6 ]---
+Fix it by converting pud_index() and friends to static inline
+functions.
 
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
+UBSAN: shift-out-of-bounds in arch/powerpc/mm/ptdump/ptdump.c:282:15
+shift exponent 34 is too large for 32-bit type 'int'
+CPU: 6 PID: 1 Comm: swapper/0 Not tainted 5.6.0-rc4-next-20200303+ #13
+Call Trace:
+dump_stack+0xf4/0x164 (unreliable)
+ubsan_epilogue+0x18/0x78
+__ubsan_handle_shift_out_of_bounds+0x160/0x21c
+walk_pagetables+0x2cc/0x700
+walk_pud at arch/powerpc/mm/ptdump/ptdump.c:282
+(inlined by) walk_pagetables at arch/powerpc/mm/ptdump/ptdump.c:311
+ptdump_check_wx+0x8c/0xf0
+mark_rodata_ro+0x48/0x80
+kernel_init+0x74/0x194
+ret_from_kernel_thread+0x5c/0x74
+
+Suggested-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Signed-off-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Reviewed-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Link: https://lore.kernel.org/r/20200306044852.3236-1-cai@lca.pw
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/samsung/clk-exynos5433.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/powerpc/include/asm/book3s/64/pgtable.h | 23 ++++++++++++++++----
+ 1 file changed, 19 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/clk/samsung/clk-exynos5433.c b/drivers/clk/samsung/clk-exynos5433.c
-index 09cdd35dc434..a082b026791a 100644
---- a/drivers/clk/samsung/clk-exynos5433.c
-+++ b/drivers/clk/samsung/clk-exynos5433.c
-@@ -1672,7 +1672,8 @@ static const struct samsung_gate_clock peric_gate_clks[] __initconst = {
- 	GATE(CLK_SCLK_PCM1, "sclk_pcm1", "sclk_pcm1_peric",
- 			ENABLE_SCLK_PERIC, 7, CLK_SET_RATE_PARENT, 0),
- 	GATE(CLK_SCLK_I2S1, "sclk_i2s1", "sclk_i2s1_peric",
--			ENABLE_SCLK_PERIC, 6, CLK_SET_RATE_PARENT, 0),
-+			ENABLE_SCLK_PERIC, 6,
-+			CLK_SET_RATE_PARENT | CLK_IGNORE_UNUSED, 0),
- 	GATE(CLK_SCLK_SPI2, "sclk_spi2", "sclk_spi2_peric", ENABLE_SCLK_PERIC,
- 			5, CLK_SET_RATE_PARENT, 0),
- 	GATE(CLK_SCLK_SPI1, "sclk_spi1", "sclk_spi1_peric", ENABLE_SCLK_PERIC,
+diff --git a/arch/powerpc/include/asm/book3s/64/pgtable.h b/arch/powerpc/include/asm/book3s/64/pgtable.h
+index 9fd77f8794a0..315758c84187 100644
+--- a/arch/powerpc/include/asm/book3s/64/pgtable.h
++++ b/arch/powerpc/include/asm/book3s/64/pgtable.h
+@@ -754,10 +754,25 @@ extern struct page *pgd_page(pgd_t pgd);
+ #define pud_page_vaddr(pud)	__va(pud_val(pud) & ~PUD_MASKED_BITS)
+ #define pgd_page_vaddr(pgd)	__va(pgd_val(pgd) & ~PGD_MASKED_BITS)
+ 
+-#define pgd_index(address) (((address) >> (PGDIR_SHIFT)) & (PTRS_PER_PGD - 1))
+-#define pud_index(address) (((address) >> (PUD_SHIFT)) & (PTRS_PER_PUD - 1))
+-#define pmd_index(address) (((address) >> (PMD_SHIFT)) & (PTRS_PER_PMD - 1))
+-#define pte_index(address) (((address) >> (PAGE_SHIFT)) & (PTRS_PER_PTE - 1))
++static inline unsigned long pgd_index(unsigned long address)
++{
++	return (address >> PGDIR_SHIFT) & (PTRS_PER_PGD - 1);
++}
++
++static inline unsigned long pud_index(unsigned long address)
++{
++	return (address >> PUD_SHIFT) & (PTRS_PER_PUD - 1);
++}
++
++static inline unsigned long pmd_index(unsigned long address)
++{
++	return (address >> PMD_SHIFT) & (PTRS_PER_PMD - 1);
++}
++
++static inline unsigned long pte_index(unsigned long address)
++{
++	return (address >> PAGE_SHIFT) & (PTRS_PER_PTE - 1);
++}
+ 
+ /*
+  * Find an entry in a page-table-directory.  We combine the address region
 -- 
 2.25.1
 
