@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 793BF1FE645
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:32:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BDDA1FE63F
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:32:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729445AbgFRCcj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:32:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45134 "EHLO mail.kernel.org"
+        id S1728743AbgFRBPM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:15:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729442AbgFRBPJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:15:09 -0400
+        id S1729444AbgFRBPL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:15:11 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 880F8221EB;
-        Thu, 18 Jun 2020 01:15:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B7BD4221ED;
+        Thu, 18 Jun 2020 01:15:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442909;
-        bh=8dWe8dNHmHjFruy6tr76/ZHDAnAMRcZD/e9OgpgnMeI=;
+        s=default; t=1592442910;
+        bh=21amvfPGX3hDybz2dRXi+ckX1IpZeShBQQLLp7v3wQM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PoFdzrhR+ZS7JKtwQW+pROHz69+WHZnOQhWT+HMqMs+vCXXegeI3NiuiCYOOzgLfV
-         YXaz0QaKa+ncxckr3qKX8wZr2PW5DblR0EiQngSh4HjpseQEMiDCfu1wjS3yAArR1y
-         mWRnKV1x/qxZWT3yvvwdMOH+85Sxh3N6MBtXsgqE=
+        b=DnVJ46bFKVS9PRyMS+MKqgFFv5Rw74IdNnUMm10xMfvfX5WC9QrMGTwvNjMFnbDhK
+         smKe97Zets8J4ysvnBx51cu+8G+XqeenZNAFgoFXBdjOb/O6dqYAt7D1/TqbtbA+i9
+         ZnyaGJ5TOmosZ91oytSH6P2AEzud+yqOTSDM22mI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ka-Cheong Poon <ka-cheong.poon@oracle.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 328/388] RDMA/cm: Spurious WARNING triggered in cm_destroy_id()
-Date:   Wed, 17 Jun 2020 21:07:05 -0400
-Message-Id: <20200618010805.600873-328-sashal@kernel.org>
+Cc:     Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Hersen Wu <hersenxs.wu@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.7 329/388] drm/amd/display: Revalidate bandwidth before commiting DC updates
+Date:   Wed, 17 Jun 2020 21:07:06 -0400
+Message-Id: <20200618010805.600873-329-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
@@ -43,46 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ka-Cheong Poon <ka-cheong.poon@oracle.com>
+From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
 
-[ Upstream commit fba97dc7fc76b2c9a909fa0b3786d30a9899f5cf ]
+[ Upstream commit a24eaa5c51255b344d5a321f1eeb3205f2775498 ]
 
-If the cm_id state is IB_CM_REP_SENT when cm_destroy_id() is called, it
-calls cm_send_rej_locked().
+[Why]
+Whenever we switch between tiled formats without also switching pixel
+formats or doing anything else that recreates the DC plane state we
+can run into underflow or hangs since we're not updating the
+DML parameters before committing to the hardware.
 
-In cm_send_rej_locked(), it calls cm_enter_timewait() and the state is
-changed to IB_CM_TIMEWAIT.
+[How]
+If the update type is FULL then call validate_bandwidth again to update
+the DML parmeters before committing the state.
 
-Now back to cm_destroy_id(), it breaks from the switch statement, and the
-next call is WARN_ON(cm_id->state != IB_CM_IDLE).
+This is basically just a workaround and protective measure against
+update types being added DC where we could run into this issue in
+the future.
 
-This triggers a spurious warning. Instead, the code should goto retest
-after returning from cm_send_rej_locked() to move the state to IDLE.
+We can only fully validate the state in advance before applying it to
+the hardware if we recreate all the plane and stream states since
+we can't modify what's currently in use.
 
-Fixes: 67b3c8dceac6 ("RDMA/cm: Make sure the cm_id is in the IB_CM_IDLE state in destroy")
-Link: https://lore.kernel.org/r/1591191218-9446-1-git-send-email-ka-cheong.poon@oracle.com
-Signed-off-by: Ka-Cheong Poon <ka-cheong.poon@oracle.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+The next step is to update DM to ensure that we're creating the plane
+and stream states for whatever could potentially be a full update in
+DC to pre-emptively recreate the state for DC global validation.
+
+The workaround can stay until this has been fixed in DM.
+
+Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Reviewed-by: Hersen Wu <hersenxs.wu@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/cm.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/core/dc.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/infiniband/core/cm.c b/drivers/infiniband/core/cm.c
-index 17f14e0eafe4..1c2bf18cda9f 100644
---- a/drivers/infiniband/core/cm.c
-+++ b/drivers/infiniband/core/cm.c
-@@ -1076,7 +1076,9 @@ static void cm_destroy_id(struct ib_cm_id *cm_id, int err)
- 	case IB_CM_REP_SENT:
- 	case IB_CM_MRA_REP_RCVD:
- 		ib_cancel_mad(cm_id_priv->av.port->mad_agent, cm_id_priv->msg);
--		/* Fall through */
-+		cm_send_rej_locked(cm_id_priv, IB_CM_REJ_CONSUMER_DEFINED, NULL,
-+				   0, NULL, 0);
-+		goto retest;
- 	case IB_CM_MRA_REQ_SENT:
- 	case IB_CM_REP_RCVD:
- 	case IB_CM_MRA_REP_SENT:
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
+index 47431ca6986d..4a619328101c 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
+@@ -2517,6 +2517,12 @@ void dc_commit_updates_for_stream(struct dc *dc,
+ 
+ 	copy_stream_update_to_stream(dc, context, stream, stream_update);
+ 
++	if (!dc->res_pool->funcs->validate_bandwidth(dc, context, false)) {
++		DC_ERROR("Mode validation failed for stream update!\n");
++		dc_release_state(context);
++		return;
++	}
++
+ 	commit_planes_for_stream(
+ 				dc,
+ 				srf_updates,
 -- 
 2.25.1
 
