@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3CB41FE215
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:59:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64DEE1FE1FF
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:59:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726986AbgFRB7M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:59:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59400 "EHLO mail.kernel.org"
+        id S1731274AbgFRBYp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:24:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731266AbgFRBYm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:24:42 -0400
+        id S1731271AbgFRBYn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:24:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5368620B1F;
-        Thu, 18 Jun 2020 01:24:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9C64C20776;
+        Thu, 18 Jun 2020 01:24:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443482;
-        bh=dQi9xb866+G9XUycgfZuHfAeROYZU8W+1f9SlK2CqwA=;
+        s=default; t=1592443483;
+        bh=ooEe0JzdAZVN2R62zvx5BbW/z4K/dUN9wFuiu7sEVPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z6LIe/OfXcRPJq7gXh5TW48QywcR1INr3F7KNuHUDT/TeEk64nV1+N9QbXmfXatNo
-         nzSwTG2qFAnHhT7FrnQdbUGcy8KNVQRcPfMqeVfiIFtnuQJhw+LBnb2R4tbvmEntgC
-         nZ9/2VRr/idZd3qVyQ502ENFt+gky8q4IV2sADSw=
+        b=fd47FBErX1WQCiMTKnnwTHLS6XBySJRAEiDWOsPtt2p5gdVQkRPs2tuYJt7LrQzKY
+         fcXw+R0Lv6QBsAjMVEDvPfQo5AwvWaIJpjTVvRNiGv21+JwJtsWAUpsBzgvTdU6N7s
+         BfsJ58SkuUCsbzaJlx+QIhPI3YHhCMRf12eTRSlM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stefan Riedmueller <s.riedmueller@phytec.de>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Adam Thomson <Adam.Thomson.Opensource@diasemi.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 111/172] watchdog: da9062: No need to ping manually before setting timeout
-Date:   Wed, 17 Jun 2020 21:21:17 -0400
-Message-Id: <20200618012218.607130-111-sashal@kernel.org>
+Cc:     Fabrice Gasnier <fabrice.gasnier@st.com>,
+        Minas Harutyunyan <hminas@synopsys.com>,
+        Felipe Balbi <balbi@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 112/172] usb: dwc2: gadget: move gadget resume after the core is in L0 state
+Date:   Wed, 17 Jun 2020 21:21:18 -0400
+Message-Id: <20200618012218.607130-112-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012218.607130-1-sashal@kernel.org>
 References: <20200618012218.607130-1-sashal@kernel.org>
@@ -45,47 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Riedmueller <s.riedmueller@phytec.de>
+From: Fabrice Gasnier <fabrice.gasnier@st.com>
 
-[ Upstream commit a0948ddba65f4f6d3cfb5e2b84685485d0452966 ]
+[ Upstream commit 8c935deacebb8fac8f41378701eb79d12f3c2e2d ]
 
-There is actually no need to ping the watchdog before disabling it
-during timeout change. Disabling the watchdog already takes care of
-resetting the counter.
+When the remote wakeup interrupt is triggered, lx_state is resumed from L2
+to L0 state. But when the gadget resume is called, lx_state is still L2.
+This prevents the resume callback to queue any request. Any attempt
+to queue a request from resume callback will result in:
+- "submit request only in active state" debug message to be issued
+- dwc2_hsotg_ep_queue() returns -EAGAIN
 
-This fixes an issue during boot when the userspace watchdog handler takes
-over and the watchdog is already running. Opening the watchdog in this case
-leads to the first ping and directly after that without the required
-heartbeat delay a second ping issued by the set_timeout call. Due to the
-missing delay this resulted in a reset.
+Call the gadget resume routine after the core is in L0 state.
 
-Signed-off-by: Stefan Riedmueller <s.riedmueller@phytec.de>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
-Link: https://lore.kernel.org/r/20200403130728.39260-3-s.riedmueller@phytec.de
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Fixes: f81f46e1f530 ("usb: dwc2: implement hibernation during bus suspend/resume")
+
+Acked-by: Minas Harutyunyan <hminas@synopsys.com>
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/da9062_wdt.c | 5 -----
- 1 file changed, 5 deletions(-)
+ drivers/usb/dwc2/core_intr.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/watchdog/da9062_wdt.c b/drivers/watchdog/da9062_wdt.c
-index 7f0a8e635286..132d45d003ce 100644
---- a/drivers/watchdog/da9062_wdt.c
-+++ b/drivers/watchdog/da9062_wdt.c
-@@ -60,11 +60,6 @@ static int da9062_wdt_update_timeout_register(struct da9062_watchdog *wdt,
- 					      unsigned int regval)
- {
- 	struct da9062 *chip = wdt->hw;
--	int ret;
--
--	ret = da9062_reset_watchdog_timer(wdt);
--	if (ret)
--		return ret;
+diff --git a/drivers/usb/dwc2/core_intr.c b/drivers/usb/dwc2/core_intr.c
+index 19ae2595f1c3..b23ce535c12e 100644
+--- a/drivers/usb/dwc2/core_intr.c
++++ b/drivers/usb/dwc2/core_intr.c
+@@ -421,10 +421,13 @@ static void dwc2_handle_wakeup_detected_intr(struct dwc2_hsotg *hsotg)
+ 			if (ret && (ret != -ENOTSUPP))
+ 				dev_err(hsotg->dev, "exit power_down failed\n");
  
- 	regmap_update_bits(chip->regmap,
- 				  DA9062AA_CONTROL_D,
++			/* Change to L0 state */
++			hsotg->lx_state = DWC2_L0;
+ 			call_gadget(hsotg, resume);
++		} else {
++			/* Change to L0 state */
++			hsotg->lx_state = DWC2_L0;
+ 		}
+-		/* Change to L0 state */
+-		hsotg->lx_state = DWC2_L0;
+ 	} else {
+ 		if (hsotg->params.power_down)
+ 			return;
 -- 
 2.25.1
 
