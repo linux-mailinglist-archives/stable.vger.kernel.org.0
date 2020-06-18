@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B14221FDACA
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:08:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CBA241FDACC
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:08:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727774AbgFRBIV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:08:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33868 "EHLO mail.kernel.org"
+        id S1727060AbgFRBIY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:08:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727060AbgFRBIT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:08:19 -0400
+        id S1727782AbgFRBIX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:08:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3133B2193E;
-        Thu, 18 Jun 2020 01:08:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 586F721D7D;
+        Thu, 18 Jun 2020 01:08:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442499;
-        bh=dUtyJ0sPCHDAMrCFVYZk9Na/o7Im+6kdHi4WP4M/VJ0=;
+        s=default; t=1592442503;
+        bh=082nMbW7W4EL25ot2oiMRYNGZ531syXYTu7mVW7Gabo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B5kHqYEx7ALMHmA1Q7w/SxOqgKu6OCo9zhGe5XRfSANQs3hpxKlnPpwclu62XYHb7
-         r8/EMgRUFE9MU2bAJUpDpyBPxj8G8WjkGkgZNcKJx6FHxxfNU6UCjVgNqh+hidnbnM
-         OTwMCTjDNkDb3Bfssj7sI5aV9AcDw+xNDkI2K65s=
+        b=05DUXdz8UVIOEo+t+X6SJz3GeSlKJHHr3PhWvf831NjgrbuM/1PlmeRdMZYq+supg
+         oE2KETg9lvggBe2wZLcZGZpVK3oWYlqxtrajnxV1esko+almnn4bVPLobfy7OwTgQz
+         Rc+M8SltyNaB4a/oBL3RmOK69Nk1XrqEhIHuioP4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alex Elder <elder@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Suman Anna <s-anna@ti.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-remoteproc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 010/388] remoteproc: Fix IDR initialisation in rproc_alloc()
-Date:   Wed, 17 Jun 2020 21:01:47 -0400
-Message-Id: <20200618010805.600873-10-sashal@kernel.org>
+Cc:     Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Nicolin Chen <nicoleotsuka@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.7 013/388] ASoC: fsl_esai: Disable exception interrupt before scheduling tasklet
+Date:   Wed, 17 Jun 2020 21:01:50 -0400
+Message-Id: <20200618010805.600873-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
@@ -46,58 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Elder <elder@linaro.org>
+From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-[ Upstream commit 6442df49400b466431979e7634849a464a5f1861 ]
+[ Upstream commit 1fecbb71fe0e46b886f84e3b6decca6643c3af6d ]
 
-If ida_simple_get() returns an error when called in rproc_alloc(),
-put_device() is called to clean things up.  By this time the rproc
-device type has been assigned, with rproc_type_release() as the
-release function.
+Disable exception interrupt before scheduling tasklet, otherwise if
+the tasklet isn't handled immediately, there will be endless xrun
+interrupt.
 
-The first thing rproc_type_release() does is call:
-    idr_destroy(&rproc->notifyids);
-
-But at the time the ida_simple_get() call is made, the notifyids
-field in the remoteproc structure has not been initialized.
-
-I'm not actually sure this case causes an observable problem, but
-it's incorrect.  Fix this by initializing the notifyids field before
-calling ida_simple_get() in rproc_alloc().
-
-Fixes: b5ab5e24e960 ("remoteproc: maintain a generic child device for each rproc")
-Signed-off-by: Alex Elder <elder@linaro.org>
-Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Reviewed-by: Suman Anna <s-anna@ti.com>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20200415204858.2448-2-mathieu.poirier@linaro.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Fixes: 7ccafa2b3879 ("ASoC: fsl_esai: recover the channel swap after xrun")
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Acked-by: Nicolin Chen <nicoleotsuka@gmail.com>
+Link: https://lore.kernel.org/r/a8f2ad955aac9e52587beedc1133b3efbe746895.1587968824.git.shengjiu.wang@nxp.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/remoteproc/remoteproc_core.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ sound/soc/fsl/fsl_esai.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/remoteproc/remoteproc_core.c b/drivers/remoteproc/remoteproc_core.c
-index be15aace9b3c..8f79cfd2e467 100644
---- a/drivers/remoteproc/remoteproc_core.c
-+++ b/drivers/remoteproc/remoteproc_core.c
-@@ -2053,6 +2053,7 @@ struct rproc *rproc_alloc(struct device *dev, const char *name,
- 	rproc->dev.type = &rproc_type;
- 	rproc->dev.class = &rproc_class;
- 	rproc->dev.driver_data = rproc;
-+	idr_init(&rproc->notifyids);
+diff --git a/sound/soc/fsl/fsl_esai.c b/sound/soc/fsl/fsl_esai.c
+index c7a49d03463a..84290be778f0 100644
+--- a/sound/soc/fsl/fsl_esai.c
++++ b/sound/soc/fsl/fsl_esai.c
+@@ -87,6 +87,10 @@ static irqreturn_t esai_isr(int irq, void *devid)
+ 	if ((saisr & (ESAI_SAISR_TUE | ESAI_SAISR_ROE)) &&
+ 	    esai_priv->reset_at_xrun) {
+ 		dev_dbg(&pdev->dev, "reset module for xrun\n");
++		regmap_update_bits(esai_priv->regmap, REG_ESAI_TCR,
++				   ESAI_xCR_xEIE_MASK, 0);
++		regmap_update_bits(esai_priv->regmap, REG_ESAI_RCR,
++				   ESAI_xCR_xEIE_MASK, 0);
+ 		tasklet_schedule(&esai_priv->task);
+ 	}
  
- 	/* Assign a unique device index and name */
- 	rproc->index = ida_simple_get(&rproc_dev_index, 0, 0, GFP_KERNEL);
-@@ -2078,8 +2079,6 @@ struct rproc *rproc_alloc(struct device *dev, const char *name,
- 
- 	mutex_init(&rproc->lock);
- 
--	idr_init(&rproc->notifyids);
--
- 	INIT_LIST_HEAD(&rproc->carveouts);
- 	INIT_LIST_HEAD(&rproc->mappings);
- 	INIT_LIST_HEAD(&rproc->traces);
 -- 
 2.25.1
 
