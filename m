@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBF971FE14C
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:54:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08B341FE139
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:53:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732273AbgFRBx2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:53:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33728 "EHLO mail.kernel.org"
+        id S1730692AbgFRBxR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:53:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731637AbgFRB0R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:26:17 -0400
+        id S1731638AbgFRB0T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:26:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8CB052088E;
-        Thu, 18 Jun 2020 01:26:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C1EF320B1F;
+        Thu, 18 Jun 2020 01:26:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443577;
-        bh=zBzG+XQLAb/qyuKQzJ5OOYujuxtJFnwnJn8P+8Fyby0=;
+        s=default; t=1592443578;
+        bh=XR6+uVa76yezk9XPt7ESeGEDWWGLPrq0lONTocA3qFw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DYzqLJvoa/GoeuUAzWUQxp0JkurlxjUlTMTh8l5LnEUwdF089xiPvY/L7Qa2VLSGg
-         AN/gqQZXsKOaggIxxpuoCWzLzeBCa1BMbkqJMrFzLvSmOXDug8B5IKQqJ5/2HKwj7E
-         DC3T/GVKlXCbiv9tpetAFa8hW9FroT/m7WKC2S34=
+        b=lKTstjbhcZQOWO2kdYoO0vid6YKTxxzS1qAFibKjQ8fxZ9lY8qr/W7IlyL6p97nGB
+         ja1kurugr19Am5w8u2NsGi7CyHEQirXxsuNyT4OCbQirH63Z1PlEjX1BdO2jFtP3MP
+         KzK/lg2faLri1M/UQkp6OZciO8aLXiXlZDGaB8lE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Casey Schaufler <casey@schaufler-ca.com>,
-        Hillf Danton <hdanton@sina.com>,
-        syzbot+bfdd4a2f07be52351350@syzkaller.appspotmail.com,
-        Sasha Levin <sashal@kernel.org>,
-        linux-security-module@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 013/108] Smack: slab-out-of-bounds in vsscanf
-Date:   Wed, 17 Jun 2020 21:24:25 -0400
-Message-Id: <20200618012600.608744-13-sashal@kernel.org>
+Cc:     Viacheslav Dubeyko <v.dubeiko@yadro.com>,
+        Roman Bolshakov <r.bolshakov@yadro.com>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 014/108] scsi: qla2xxx: Fix issue with adapter's stopping state
+Date:   Wed, 17 Jun 2020 21:24:26 -0400
+Message-Id: <20200618012600.608744-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012600.608744-1-sashal@kernel.org>
 References: <20200618012600.608744-1-sashal@kernel.org>
@@ -45,47 +45,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Casey Schaufler <casey@schaufler-ca.com>
+From: Viacheslav Dubeyko <v.dubeiko@yadro.com>
 
-[ Upstream commit 84e99e58e8d1e26f04c097f4266e431a33987f36 ]
+[ Upstream commit 803e45550b11c8e43d89812356fe6f105adebdf9 ]
 
-Add barrier to soob. Return -EOVERFLOW if the buffer
-is exceeded.
+The goal of the following command sequence is to restart the adapter.
+However, the tgt_stop flag remains set, indicating that the adapter is
+still in stopping state even after re-enabling it.
 
-Suggested-by: Hillf Danton <hdanton@sina.com>
-Reported-by: syzbot+bfdd4a2f07be52351350@syzkaller.appspotmail.com
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+echo 0x7fffffff > /sys/module/qla2xxx/parameters/logging
+modprobe target_core_mod
+modprobe tcm_qla2xxx
+mkdir /sys/kernel/config/target/qla2xxx
+mkdir /sys/kernel/config/target/qla2xxx/<port-name>
+mkdir /sys/kernel/config/target/qla2xxx/<port-name>/tpgt_1
+echo 1 > /sys/kernel/config/target/qla2xxx/<port-name>/tpgt_1/enable
+echo 0 > /sys/kernel/config/target/qla2xxx/<port-name>/tpgt_1/enable
+echo 1 > /sys/kernel/config/target/qla2xxx/<port-name>/tpgt_1/enable
+
+kernel: PID 1396:qla_target.c:1555 qlt_stop_phase1(): tgt_stop 0x0, tgt_stopped 0x0
+kernel: qla2xxx [0001:00:02.0]-e803:1: PID 1396:qla_target.c:1567: Stopping target for host 1(c0000000033557e8)
+kernel: PID 1396:qla_target.c:1579 qlt_stop_phase1(): tgt_stop 0x1, tgt_stopped 0x0
+kernel: PID 1396:qla_target.c:1266 qlt_schedule_sess_for_deletion(): tgt_stop 0x1, tgt_stopped 0x0
+kernel: qla2xxx [0001:00:02.0]-e801:1: PID 1396:qla_target.c:1316: Scheduling sess c00000002d5cd800 for deletion 21:00:00:24:ff:7f:35:c7
+<skipped>
+kernel: qla2xxx [0001:00:02.0]-290a:1: PID 340:qla_target.c:1187: qlt_unreg_sess sess c00000002d5cd800 for deletion 21:00:00:24:ff:7f:35:c7
+<skipped>
+kernel: qla2xxx [0001:00:02.0]-f801:1: PID 340:qla_target.c:1145: Unregistration of sess c00000002d5cd800 21:00:00:24:ff:7f:35:c7 finished fcp_cnt 0
+kernel: PID 340:qla_target.c:1155 qlt_free_session_done(): tgt_stop 0x1, tgt_stopped 0x0
+kernel: qla2xxx [0001:00:02.0]-4807:1: PID 346:qla_os.c:6329: ISP abort scheduled.
+<skipped>
+kernel: qla2xxx [0001:00:02.0]-28f1:1: PID 346:qla_os.c:3956: Mark all dev lost
+kernel: PID 346:qla_target.c:1266 qlt_schedule_sess_for_deletion(): tgt_stop 0x1, tgt_stopped 0x0
+kernel: qla2xxx [0001:00:02.0]-4808:1: PID 346:qla_os.c:6338: ISP abort end.
+<skipped>
+kernel: PID 1396:qla_target.c:6812 qlt_enable_vha(): tgt_stop 0x1, tgt_stopped 0x0
+<skipped>
+kernel: qla2xxx [0001:00:02.0]-4807:1: PID 346:qla_os.c:6329: ISP abort scheduled.
+<skipped>
+kernel: qla2xxx [0001:00:02.0]-4808:1: PID 346:qla_os.c:6338: ISP abort end.
+
+qlt_handle_cmd_for_atio() rejects the request to send commands because the
+adapter is in the stopping state:
+
+kernel: PID 0:qla_target.c:4442 qlt_handle_cmd_for_atio(): tgt_stop 0x1, tgt_stopped 0x0
+kernel: qla2xxx [0001:00:02.0]-3861:1: PID 0:qla_target.c:4447: New command while device c000000005314600 is shutting down
+kernel: qla2xxx [0001:00:02.0]-e85f:1: PID 0:qla_target.c:5728: qla_target: Unable to send command to target
+
+This patch calls qla_stop_phase2() in addition to qlt_stop_phase1() in
+tcm_qla2xxx_tpg_enable_store() and tcm_qla2xxx_npiv_tpg_enable_store(). The
+qlt_stop_phase1() marks adapter as stopping (tgt_stop == 0x1, tgt_stopped
+== 0x0) but qlt_stop_phase2() marks adapter as stopped (tgt_stop == 0x0,
+tgt_stopped == 0x1).
+
+Link: https://lore.kernel.org/r/52be1e8a3537f6c5407eae3edd4c8e08a9545ea5.camel@yadro.com
+Reviewed-by: Roman Bolshakov <r.bolshakov@yadro.com>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Viacheslav Dubeyko <v.dubeiko@yadro.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/smack/smackfs.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/scsi/qla2xxx/tcm_qla2xxx.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
-index f6482e53d55a..371ae368da35 100644
---- a/security/smack/smackfs.c
-+++ b/security/smack/smackfs.c
-@@ -906,11 +906,21 @@ static ssize_t smk_set_cipso(struct file *file, const char __user *buf,
- 	else
- 		rule += strlen(skp->smk_known) + 1;
+diff --git a/drivers/scsi/qla2xxx/tcm_qla2xxx.c b/drivers/scsi/qla2xxx/tcm_qla2xxx.c
+index e08ac431bc49..e7aee067b056 100644
+--- a/drivers/scsi/qla2xxx/tcm_qla2xxx.c
++++ b/drivers/scsi/qla2xxx/tcm_qla2xxx.c
+@@ -937,6 +937,7 @@ static ssize_t tcm_qla2xxx_tpg_enable_store(struct config_item *item,
  
-+	if (rule > data + count) {
-+		rc = -EOVERFLOW;
-+		goto out;
-+	}
-+
- 	ret = sscanf(rule, "%d", &maplevel);
- 	if (ret != 1 || maplevel > SMACK_CIPSO_MAXLEVEL)
- 		goto out;
+ 		atomic_set(&tpg->lport_tpg_enabled, 0);
+ 		qlt_stop_phase1(vha->vha_tgt.qla_tgt);
++		qlt_stop_phase2(vha->vha_tgt.qla_tgt);
+ 	}
  
- 	rule += SMK_DIGITLEN;
-+	if (rule > data + count) {
-+		rc = -EOVERFLOW;
-+		goto out;
-+	}
-+
- 	ret = sscanf(rule, "%d", &catlen);
- 	if (ret != 1 || catlen > SMACK_CIPSO_MAXCATNUM)
- 		goto out;
+ 	return count;
+@@ -1101,6 +1102,7 @@ static ssize_t tcm_qla2xxx_npiv_tpg_enable_store(struct config_item *item,
+ 
+ 		atomic_set(&tpg->lport_tpg_enabled, 0);
+ 		qlt_stop_phase1(vha->vha_tgt.qla_tgt);
++		qlt_stop_phase2(vha->vha_tgt.qla_tgt);
+ 	}
+ 
+ 	return count;
 -- 
 2.25.1
 
