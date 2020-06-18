@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE2121FDC13
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:16:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 628361FDC14
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:16:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729604AbgFRBQh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:16:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47380 "EHLO mail.kernel.org"
+        id S1729609AbgFRBQj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:16:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726931AbgFRBQg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:16:36 -0400
+        id S1729607AbgFRBQh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:16:37 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2CCCA206F1;
-        Thu, 18 Jun 2020 01:16:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 63058221ED;
+        Thu, 18 Jun 2020 01:16:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442996;
-        bh=CvIK0l49zjvcdY9OyWFS8PAl3+nXx6+bLvrJnRyv91c=;
+        s=default; t=1592442997;
+        bh=oRtI3EK4vwV1BYLrXFSQDXPl5jMD+2koWknO8vkCueY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HZFVxHjSXLvVxwPRGxFwgghQKQyZaV7jfTB2GEe+EJK5xsfSzdxgiL055jPObPj/q
-         U+xF62XX9MLh8uzQ1B9vv0mf1WQh961zTqNcsFp79AW5Od2PtQCX/CqD8yYJeLq4fE
-         xNAPAK5bMfjzjVW5peJJjCFODWJzMtUqBArybob0=
+        b=2d3tiaimSQoXmVd9KKs/9SZJOleBsGMELi/s5dGJ0DyVqxZs7MPdBbexWH8ktBBub
+         mJAnLqJRuB8KUfGwIIBkVUz4UWNeYDQzc27Y/3/YmH/jSenpsM/sSOTjEF/yLPAkj5
+         eowAv5n+HNN97EPl3k9oOW9M6MhZHtN5zzJ44rHc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dmitry Osipenko <digetx@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org,
-        linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 003/266] ASoC: tegra: tegra_wm8903: Support nvidia, headset property
-Date:   Wed, 17 Jun 2020 21:12:08 -0400
-Message-Id: <20200618011631.604574-3-sashal@kernel.org>
+Cc:     Adam Honse <calcprogrammer1@gmail.com>,
+        Jean Delvare <jdelvare@suse.de>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 004/266] i2c: piix4: Detect secondary SMBus controller on AMD AM4 chipsets
+Date:   Wed, 17 Jun 2020 21:12:09 -0400
+Message-Id: <20200618011631.604574-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
@@ -44,51 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Adam Honse <calcprogrammer1@gmail.com>
 
-[ Upstream commit 3ef9d5073b552d56bd6daf2af1e89b7e8d4df183 ]
+[ Upstream commit f27237c174fd9653033330e4e532cd9d153ce824 ]
 
-The microphone-jack state needs to be masked in a case of a 4-pin jack
-when microphone and ground pins are shorted. Presence of nvidia,headset
-tells that WM8903 CODEC driver should mask microphone's status if short
-circuit is detected, i.e headphones are inserted.
+The AMD X370 and other AM4 chipsets (A/B/X 3/4/5 parts) and Threadripper
+equivalents have a secondary SMBus controller at I/O port address
+0x0B20.  This bus is used by several manufacturers to control
+motherboard RGB lighting via embedded controllers.  I have been using
+this bus in my OpenRGB project to control the Aura RGB on many
+motherboards and ASRock also uses this bus for their Polychrome RGB
+controller.
 
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Link: https://lore.kernel.org/r/20200330204011.18465-3-digetx@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+I am not aware of any CZ-compatible platforms which do not have the
+second SMBus channel.  All of AMD's AM4- and Threadripper- series
+chipsets that OpenRGB users have tested appear to have this secondary
+bus.  I also noticed this secondary bus is present on older AMD
+platforms including my FM1 home server.
+
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=202587
+Signed-off-by: Adam Honse <calcprogrammer1@gmail.com>
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
+Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Tested-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/tegra/tegra_wm8903.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-piix4.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/tegra/tegra_wm8903.c b/sound/soc/tegra/tegra_wm8903.c
-index 6211dfda2195..0fa01cacfec9 100644
---- a/sound/soc/tegra/tegra_wm8903.c
-+++ b/sound/soc/tegra/tegra_wm8903.c
-@@ -159,6 +159,7 @@ static int tegra_wm8903_init(struct snd_soc_pcm_runtime *rtd)
- 	struct snd_soc_component *component = codec_dai->component;
- 	struct snd_soc_card *card = rtd->card;
- 	struct tegra_wm8903 *machine = snd_soc_card_get_drvdata(card);
-+	int shrt = 0;
- 
- 	if (gpio_is_valid(machine->gpio_hp_det)) {
- 		tegra_wm8903_hp_jack_gpio.gpio = machine->gpio_hp_det;
-@@ -171,12 +172,15 @@ static int tegra_wm8903_init(struct snd_soc_pcm_runtime *rtd)
- 					&tegra_wm8903_hp_jack_gpio);
+diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+index 30ded6422e7b..69740a4ff1db 100644
+--- a/drivers/i2c/busses/i2c-piix4.c
++++ b/drivers/i2c/busses/i2c-piix4.c
+@@ -977,7 +977,8 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
  	}
  
-+	if (of_property_read_bool(card->dev->of_node, "nvidia,headset"))
-+		shrt = SND_JACK_MICROPHONE;
-+
- 	snd_soc_card_jack_new(rtd->card, "Mic Jack", SND_JACK_MICROPHONE,
- 			      &tegra_wm8903_mic_jack,
- 			      tegra_wm8903_mic_jack_pins,
- 			      ARRAY_SIZE(tegra_wm8903_mic_jack_pins));
- 	wm8903_mic_detect(component, &tegra_wm8903_mic_jack, SND_JACK_MICROPHONE,
--				0);
-+				shrt);
- 
- 	snd_soc_dapm_force_enable_pin(&card->dapm, "MICBIAS");
+ 	if (dev->vendor == PCI_VENDOR_ID_AMD &&
+-	    dev->device == PCI_DEVICE_ID_AMD_HUDSON2_SMBUS) {
++	    (dev->device == PCI_DEVICE_ID_AMD_HUDSON2_SMBUS ||
++	     dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS)) {
+ 		retval = piix4_setup_sb800(dev, id, 1);
+ 	}
  
 -- 
 2.25.1
