@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 925951FE408
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:16:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DFEB1FE3FB
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:14:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729530AbgFRCPK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:15:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52902 "EHLO mail.kernel.org"
+        id S1730336AbgFRBUn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:20:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727929AbgFRBUi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:20:38 -0400
+        id S1730328AbgFRBUk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:20:40 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE86C21974;
-        Thu, 18 Jun 2020 01:20:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DBA1020CC7;
+        Thu, 18 Jun 2020 01:20:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443238;
-        bh=0W3RvPQjuYJQCDakR0o1Rs3erDv+s2YD4K4wo7Py5p8=;
+        s=default; t=1592443239;
+        bh=yQ+EPRKOgzEMoRCrMgASq94CU8eenfNluTLG2ZL6VGg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BggyMK06FKi8kTgNiH9OD+EkLwgs7v97bo+c1qEHvI/PUHgCDR3cH5BsVOwIt05bJ
-         rhMDZ30hWz3jRagTg6yaCUTMJdkfNmJML91Rvt3Ms5YNbSelmerIpgO/gHvENVXon9
-         YqL5u7ovqirCjB8/S70GB91C+17PIadJXS38liW4=
+        b=YXf00QIgXAu8WyIdaasf0H3V/SYk+VnMpy83tiDDiwCqKEJi4OihALisWwT/rhMOa
+         7O1bK1xYuuAzpFxUv6MKliGUW75EzcYeZEGLKH3wTEoEtfItYjf+oSyTMpz5STTa/+
+         Ne8SlCuS2MoOeloRAozYUdfgyBdNSknPPf1sZYpk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qiushi Wu <wu000273@umn.edu>, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.4 190/266] ASoC: fix incomplete error-handling in img_i2s_in_probe.
-Date:   Wed, 17 Jun 2020 21:15:15 -0400
-Message-Id: <20200618011631.604574-190-sashal@kernel.org>
+Cc:     Qian Cai <cai@lca.pw>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 191/266] vfio/pci: fix memory leaks of eventfd ctx
+Date:   Wed, 17 Jun 2020 21:15:16 -0400
+Message-Id: <20200618011631.604574-191-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
@@ -42,35 +43,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit 25bf943e4e7b47282bd86ae7d39e039217ebb007 ]
+[ Upstream commit 1518ac272e789cae8c555d69951b032a275b7602 ]
 
-Function "pm_runtime_get_sync()" is not handled by "pm_runtime_put()"
-if "PTR_ERR(rst) == -EPROBE_DEFER". Fix this issue by adding
-"pm_runtime_put()" into this error path.
+Finished a qemu-kvm (-device vfio-pci,host=0001:01:00.0) triggers a few
+memory leaks after a while because vfio_pci_set_ctx_trigger_single()
+calls eventfd_ctx_fdget() without the matching eventfd_ctx_put() later.
+Fix it by calling eventfd_ctx_put() for those memory in
+vfio_pci_release() before vfio_device_release().
 
-Fixes: f65bb92ca12e ("ASoC: img-i2s-in: Add runtime PM")
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-Link: https://lore.kernel.org/r/20200525055011.31925-1-wu000273@umn.edu
-Signed-off-by: Mark Brown <broonie@kernel.org>
+unreferenced object 0xebff008981cc2b00 (size 128):
+  comm "qemu-kvm", pid 4043, jiffies 4294994816 (age 9796.310s)
+  hex dump (first 32 bytes):
+    01 00 00 00 6b 6b 6b 6b 00 00 00 00 ad 4e ad de  ....kkkk.....N..
+    ff ff ff ff 6b 6b 6b 6b ff ff ff ff ff ff ff ff  ....kkkk........
+  backtrace:
+    [<00000000917e8f8d>] slab_post_alloc_hook+0x74/0x9c
+    [<00000000df0f2aa2>] kmem_cache_alloc_trace+0x2b4/0x3d4
+    [<000000005fcec025>] do_eventfd+0x54/0x1ac
+    [<0000000082791a69>] __arm64_sys_eventfd2+0x34/0x44
+    [<00000000b819758c>] do_el0_svc+0x128/0x1dc
+    [<00000000b244e810>] el0_sync_handler+0xd0/0x268
+    [<00000000d495ef94>] el0_sync+0x164/0x180
+unreferenced object 0x29ff008981cc4180 (size 128):
+  comm "qemu-kvm", pid 4043, jiffies 4294994818 (age 9796.290s)
+  hex dump (first 32 bytes):
+    01 00 00 00 6b 6b 6b 6b 00 00 00 00 ad 4e ad de  ....kkkk.....N..
+    ff ff ff ff 6b 6b 6b 6b ff ff ff ff ff ff ff ff  ....kkkk........
+  backtrace:
+    [<00000000917e8f8d>] slab_post_alloc_hook+0x74/0x9c
+    [<00000000df0f2aa2>] kmem_cache_alloc_trace+0x2b4/0x3d4
+    [<000000005fcec025>] do_eventfd+0x54/0x1ac
+    [<0000000082791a69>] __arm64_sys_eventfd2+0x34/0x44
+    [<00000000b819758c>] do_el0_svc+0x128/0x1dc
+    [<00000000b244e810>] el0_sync_handler+0xd0/0x268
+    [<00000000d495ef94>] el0_sync+0x164/0x180
+
+Signed-off-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/img/img-i2s-in.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/vfio/pci/vfio_pci.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/sound/soc/img/img-i2s-in.c b/sound/soc/img/img-i2s-in.c
-index fdd2c73fd2fa..869fe0068cbd 100644
---- a/sound/soc/img/img-i2s-in.c
-+++ b/sound/soc/img/img-i2s-in.c
-@@ -482,6 +482,7 @@ static int img_i2s_in_probe(struct platform_device *pdev)
- 	if (IS_ERR(rst)) {
- 		if (PTR_ERR(rst) == -EPROBE_DEFER) {
- 			ret = -EPROBE_DEFER;
-+			pm_runtime_put(&pdev->dev);
- 			goto err_suspend;
- 		}
+diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
+index 02206162eaa9..d917dd2df3b3 100644
+--- a/drivers/vfio/pci/vfio_pci.c
++++ b/drivers/vfio/pci/vfio_pci.c
+@@ -472,6 +472,10 @@ static void vfio_pci_release(void *device_data)
+ 	if (!(--vdev->refcnt)) {
+ 		vfio_spapr_pci_eeh_release(vdev->pdev);
+ 		vfio_pci_disable(vdev);
++		if (vdev->err_trigger)
++			eventfd_ctx_put(vdev->err_trigger);
++		if (vdev->req_trigger)
++			eventfd_ctx_put(vdev->req_trigger);
+ 	}
  
+ 	mutex_unlock(&vdev->reflck->lock);
 -- 
 2.25.1
 
