@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1F6F1FDBC6
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:14:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F3FD1FDBCB
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:15:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729356AbgFRBOn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:14:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44428 "EHLO mail.kernel.org"
+        id S1728388AbgFRBOs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:14:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728724AbgFRBOm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:14:42 -0400
+        id S1729359AbgFRBOq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:14:46 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3644221D7E;
-        Thu, 18 Jun 2020 01:14:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 49A1621D7B;
+        Thu, 18 Jun 2020 01:14:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442882;
-        bh=zfTeIo+BVRtRoc7eft2NV/gL6iT1G/ojaPuXOpIbn/0=;
+        s=default; t=1592442886;
+        bh=fi+m/bnr5keFuFBgdxP/afZxdbREdMtNlTV0G1uL0gs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bd529Ew78SQDmn7+K9jbRar61LwF2Zz1L8TeEsIE6RbLeEToqpKfzRdDHO7HEuhvZ
-         JQwIEav5bhmSRWwtsHb2yHG85iDtixDTbHrVMGj7Xe+08zxJPekdIOHIUu1YQAdIOq
-         XreIn7hyBk2xR2NKqdzUcasSiT11B3RHMdrm9S50=
+        b=LdJnBGeIV6zNiMYPEsXNmEgEOVMFz1IB7a2pbNdM8N02xXWKTReZL+ySoKyNfsgGj
+         4ZzTgILu44UL0iVSnJpM4Gq2lQ9pO0srSkAhhzSKyABUcGoKHlcdKe2pl4+KyDDDy8
+         +SvTM0Hf/CatipcqG2MOdgPHWjxtaVwtD4JgwPz8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.7 306/388] ASoC: fsl_asrc_dma: Fix dma_chan leak when config DMA channel failed
-Date:   Wed, 17 Jun 2020 21:06:43 -0400
-Message-Id: <20200618010805.600873-306-sashal@kernel.org>
+Cc:     Chuhong Yuan <hslester96@gmail.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 309/388] rtc: rv3028: Add missed check for devm_regmap_init_i2c()
+Date:   Wed, 17 Jun 2020 21:06:46 -0400
+Message-Id: <20200618010805.600873-309-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
@@ -45,43 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-[ Upstream commit 36124fb19f1ae68a500cd76a76d40c6e81bee346 ]
+[ Upstream commit c3b29bf6f166f6ed5f04f9c125477358e0e25df8 ]
 
-fsl_asrc_dma_hw_params() invokes dma_request_channel() or
-fsl_asrc_get_dma_channel(), which returns a reference of the specified
-dma_chan object to "pair->dma_chan[dir]" with increased refcnt.
+rv3028_probe() misses a check for devm_regmap_init_i2c().
+Add the missed check to fix it.
 
-The reference counting issue happens in one exception handling path of
-fsl_asrc_dma_hw_params(). When config DMA channel failed for Back-End,
-the function forgets to decrease the refcnt increased by
-dma_request_channel() or fsl_asrc_get_dma_channel(), causing a refcnt
-leak.
-
-Fix this issue by calling dma_release_channel() when config DMA channel
-failed.
-
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Link: https://lore.kernel.org/r/1590415966-52416-1-git-send-email-xiyuyang19@fudan.edu.cn
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: e6e7376cfd7b ("rtc: rv3028: add new driver")
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20200528103950.912353-1-hslester96@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/fsl_asrc_dma.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/rtc/rtc-rv3028.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/soc/fsl/fsl_asrc_dma.c b/sound/soc/fsl/fsl_asrc_dma.c
-index e7178817d7a7..1ee10eafe3e6 100644
---- a/sound/soc/fsl/fsl_asrc_dma.c
-+++ b/sound/soc/fsl/fsl_asrc_dma.c
-@@ -252,6 +252,7 @@ static int fsl_asrc_dma_hw_params(struct snd_soc_component *component,
- 	ret = dmaengine_slave_config(pair->dma_chan[dir], &config_be);
- 	if (ret) {
- 		dev_err(dev, "failed to config DMA channel for Back-End\n");
-+		dma_release_channel(pair->dma_chan[dir]);
- 		return ret;
- 	}
+diff --git a/drivers/rtc/rtc-rv3028.c b/drivers/rtc/rtc-rv3028.c
+index a0ddc86c975a..ec84db0b3d7a 100644
+--- a/drivers/rtc/rtc-rv3028.c
++++ b/drivers/rtc/rtc-rv3028.c
+@@ -755,6 +755,8 @@ static int rv3028_probe(struct i2c_client *client)
+ 		return -ENOMEM;
+ 
+ 	rv3028->regmap = devm_regmap_init_i2c(client, &regmap_config);
++	if (IS_ERR(rv3028->regmap))
++		return PTR_ERR(rv3028->regmap);
+ 
+ 	i2c_set_clientdata(client, rv3028);
  
 -- 
 2.25.1
