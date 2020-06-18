@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ADF6F1FE400
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:16:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B0A71FE407
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:16:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729769AbgFRBUj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:20:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52804 "EHLO mail.kernel.org"
+        id S1728960AbgFRCPJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:15:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728587AbgFRBUg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:20:36 -0400
+        id S1729950AbgFRBUi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:20:38 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6CF3A20776;
-        Thu, 18 Jun 2020 01:20:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A104D20B1F;
+        Thu, 18 Jun 2020 01:20:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443236;
-        bh=Jiv2L8x1UrhUVZJ3+GJukZ7OLVFFYw+CmLuVM0LVPtU=;
+        s=default; t=1592443237;
+        bh=K5OgBpYl0pP+9LXVNTq3dPGN02ofAjd6boci5MgifQA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YgBPV2dP1cCZ23w9s9eJ4Ktj9iXi7h1MnRLVjQtV+qpwp2sDs/svrsufYygLa5mId
-         hkx8ZPk/Y2ZJKWOlEfKZvUQkx4zlOpqr25CeB/+mcaZpoEofA2jFqpUMFGS6H7wkub
-         GQOde/a+68vUh4/lyONrPMr81Tv2kGvEx0+6wsyY=
+        b=Lj1NW9Cwsn+S1SrRoJtGvXLvfh2cxzKifMZiH87fXQyo+ioPQ4T3mQy84NvIYcUpr
+         NdrIG55TGXvL3+Zl5pbqt1P+fetVz0o72FeQ/ZIgQVDjLTgO9wDjUzz6AQYdNCLYLL
+         AJaqD7hvb2BTUrGhMDz9DGuBFe7OP+o0H5bYj/TQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Amelie Delaunay <amelie.delaunay@st.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 188/266] mfd: stmfx: Disable IRQ in suspend to avoid spurious interrupt
-Date:   Wed, 17 Jun 2020 21:15:13 -0400
-Message-Id: <20200618011631.604574-188-sashal@kernel.org>
+Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.4 189/266] powerpc/32s: Don't warn when mapping RO data ROX.
+Date:   Wed, 17 Jun 2020 21:15:14 -0400
+Message-Id: <20200618011631.604574-189-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
@@ -45,66 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amelie Delaunay <amelie.delaunay@st.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit 97eda5dcc2cde5dcc778bef7a9344db3b6bf8ef5 ]
+[ Upstream commit 4b19f96a81bceaf0bcf44d79c0855c61158065ec ]
 
-When STMFX supply is stopped, spurious interrupt can occur. To avoid that,
-disable the interrupt in suspend before disabling the regulator and
-re-enable it at the end of resume.
+Mapping RO data as ROX is not an issue since that data
+cannot be modified to introduce an exploit.
 
-Fixes: 06252ade9156 ("mfd: Add ST Multi-Function eXpander (STMFX) core driver")
-Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+PPC64 accepts to have RO data mapped ROX, as a trade off
+between kernel size and strictness of protection.
+
+On PPC32, kernel size is even more critical as amount of
+memory is usually small.
+
+Depending on the number of available IBATs, the last IBATs
+might overflow the end of text. Only warn if it crosses
+the end of RO data.
+
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/6499f8eeb2a36330e5c9fc1cee9a79374875bd54.1589866984.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/stmfx.c       | 6 ++++++
- include/linux/mfd/stmfx.h | 1 +
- 2 files changed, 7 insertions(+)
+ arch/powerpc/mm/book3s32/mmu.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mfd/stmfx.c b/drivers/mfd/stmfx.c
-index 1977fe95f876..711979afd90a 100644
---- a/drivers/mfd/stmfx.c
-+++ b/drivers/mfd/stmfx.c
-@@ -296,6 +296,8 @@ static int stmfx_irq_init(struct i2c_client *client)
- 	if (ret)
- 		goto irq_exit;
+diff --git a/arch/powerpc/mm/book3s32/mmu.c b/arch/powerpc/mm/book3s32/mmu.c
+index 84d5fab94f8f..1424a120710e 100644
+--- a/arch/powerpc/mm/book3s32/mmu.c
++++ b/arch/powerpc/mm/book3s32/mmu.c
+@@ -187,6 +187,7 @@ void mmu_mark_initmem_nx(void)
+ 	int i;
+ 	unsigned long base = (unsigned long)_stext - PAGE_OFFSET;
+ 	unsigned long top = (unsigned long)_etext - PAGE_OFFSET;
++	unsigned long border = (unsigned long)__init_begin - PAGE_OFFSET;
+ 	unsigned long size;
  
-+	stmfx->irq = client->irq;
-+
- 	return 0;
- 
- irq_exit:
-@@ -486,6 +488,8 @@ static int stmfx_suspend(struct device *dev)
- 	if (ret)
- 		return ret;
- 
-+	disable_irq(stmfx->irq);
-+
- 	if (stmfx->vdd)
- 		return regulator_disable(stmfx->vdd);
- 
-@@ -529,6 +533,8 @@ static int stmfx_resume(struct device *dev)
- 	if (ret)
- 		return ret;
- 
-+	enable_irq(stmfx->irq);
-+
- 	return 0;
- }
- #endif
-diff --git a/include/linux/mfd/stmfx.h b/include/linux/mfd/stmfx.h
-index 3c67983678ec..744dce63946e 100644
---- a/include/linux/mfd/stmfx.h
-+++ b/include/linux/mfd/stmfx.h
-@@ -109,6 +109,7 @@ struct stmfx {
- 	struct device *dev;
- 	struct regmap *map;
- 	struct regulator *vdd;
-+	int irq;
- 	struct irq_domain *irq_domain;
- 	struct mutex lock; /* IRQ bus lock */
- 	u8 irq_src;
+ 	if (IS_ENABLED(CONFIG_PPC_BOOK3S_601))
+@@ -201,9 +202,10 @@ void mmu_mark_initmem_nx(void)
+ 		size = block_size(base, top);
+ 		size = max(size, 128UL << 10);
+ 		if ((top - base) > size) {
+-			if (strict_kernel_rwx_enabled())
+-				pr_warn("Kernel _etext not properly aligned\n");
+ 			size <<= 1;
++			if (strict_kernel_rwx_enabled() && base + size > border)
++				pr_warn("Some RW data is getting mapped X. "
++					"Adjust CONFIG_DATA_SHIFT to avoid that.\n");
+ 		}
+ 		setibat(i++, PAGE_OFFSET + base, base, size, PAGE_KERNEL_TEXT);
+ 		base += size;
 -- 
 2.25.1
 
