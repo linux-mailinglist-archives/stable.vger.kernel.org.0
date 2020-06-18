@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3ACC1FE296
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:03:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2DD61FE290
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:02:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730913AbgFRCCn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:02:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57810 "EHLO mail.kernel.org"
+        id S1731185AbgFRCCc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:02:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731063AbgFRBXt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:23:49 -0400
+        id S1731066AbgFRBXu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:23:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E17D820776;
-        Thu, 18 Jun 2020 01:23:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0923A21927;
+        Thu, 18 Jun 2020 01:23:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443428;
-        bh=0wMSeq300+HLTPZeJnOyyYrhuUw76Ec0Zg0wYdFtlMg=;
+        s=default; t=1592443429;
+        bh=ZwQniGsZaMrpQa0UJdKs4Tf2t9OfA2jff0q6Ie3D2WI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FkWzkaiDRiFUQwmAmN7LBomWBZ5q8A5VxECXz7TKDwjtBihaO5hdaB1GfvxbTZFE/
-         tO0M6EXFYhn34tROSnQuL07ZBgHsmX6YhENwYewba7is1SLIm6PwWCUFgqF7ZNhXU3
-         0UhS2FL0YmG6YGZ1a8EJKG+bJJc14GO/hdvBBWXM=
+        b=nBHj2fH33/VGT/xcF68GADS5wpX5fAAKlH7rWG1TQN33ue4SRXURL0VDwLcv+vSrk
+         b2htR8zCTMlbnQvbQqyrFCVm2HlUHIG8C+kCOZ48GqPXuJZRb0h/3HSquloIzaFpJI
+         odGE+U+dfPibRFlqHrcnMw15h3BTTausqZzu7fZM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Raghavendra Rao Ananta <rananta@codeaurora.org>,
+Cc:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.19 068/172] tty: hvc: Fix data abort due to race in hvc_open
-Date:   Wed, 17 Jun 2020 21:20:34 -0400
-Message-Id: <20200618012218.607130-68-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.19 069/172] slimbus: ngd: get drvdata from correct device
+Date:   Wed, 17 Jun 2020 21:20:35 -0400
+Message-Id: <20200618012218.607130-69-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012218.607130-1-sashal@kernel.org>
 References: <20200618012218.607130-1-sashal@kernel.org>
@@ -43,79 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raghavendra Rao Ananta <rananta@codeaurora.org>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit e2bd1dcbe1aa34ff5570b3427c530e4332ecf0fe ]
+[ Upstream commit b58c663059b484f7ff547d076a34cf6d7a302e56 ]
 
-Potentially, hvc_open() can be called in parallel when two tasks calls
-open() on /dev/hvcX. In such a scenario, if the hp->ops->notifier_add()
-callback in the function fails, where it sets the tty->driver_data to
-NULL, the parallel hvc_open() can see this NULL and cause a memory abort.
-Hence, serialize hvc_open and check if tty->private_data is NULL before
-proceeding ahead.
+Get drvdata directly from parent instead of ngd dev, as ngd
+dev can probe defer and previously set drvdata will become null.
 
-The issue can be easily reproduced by launching two tasks simultaneously
-that does nothing but open() and close() on /dev/hvcX.
-For example:
-$ ./simple_open_close /dev/hvc0 & ./simple_open_close /dev/hvc0 &
-
-Signed-off-by: Raghavendra Rao Ananta <rananta@codeaurora.org>
-Link: https://lore.kernel.org/r/20200428032601.22127-1-rananta@codeaurora.org
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20200417093618.7929-1-srinivas.kandagatla@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/hvc/hvc_console.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ drivers/slimbus/qcom-ngd-ctrl.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/tty/hvc/hvc_console.c b/drivers/tty/hvc/hvc_console.c
-index cdcc64ea2554..f8e43a6faea9 100644
---- a/drivers/tty/hvc/hvc_console.c
-+++ b/drivers/tty/hvc/hvc_console.c
-@@ -75,6 +75,8 @@ static LIST_HEAD(hvc_structs);
-  */
- static DEFINE_MUTEX(hvc_structs_mutex);
+diff --git a/drivers/slimbus/qcom-ngd-ctrl.c b/drivers/slimbus/qcom-ngd-ctrl.c
+index 9221ba7b7863..f40ac8dcb081 100644
+--- a/drivers/slimbus/qcom-ngd-ctrl.c
++++ b/drivers/slimbus/qcom-ngd-ctrl.c
+@@ -1350,7 +1350,6 @@ static int of_qcom_slim_ngd_register(struct device *parent,
+ 		ngd->pdev->driver_override = QCOM_SLIM_NGD_DRV_NAME;
+ 		ngd->pdev->dev.of_node = node;
+ 		ctrl->ngd = ngd;
+-		platform_set_drvdata(ngd->pdev, ctrl);
  
-+/* Mutex to serialize hvc_open */
-+static DEFINE_MUTEX(hvc_open_mutex);
- /*
-  * This value is used to assign a tty->index value to a hvc_struct based
-  * upon order of exposure via hvc_probe(), when we can not match it to
-@@ -346,16 +348,24 @@ static int hvc_install(struct tty_driver *driver, struct tty_struct *tty)
-  */
- static int hvc_open(struct tty_struct *tty, struct file * filp)
+ 		platform_device_add(ngd->pdev);
+ 		ngd->base = ctrl->base + ngd->id * data->offset +
+@@ -1365,12 +1364,13 @@ static int of_qcom_slim_ngd_register(struct device *parent,
+ 
+ static int qcom_slim_ngd_probe(struct platform_device *pdev)
  {
--	struct hvc_struct *hp = tty->driver_data;
-+	struct hvc_struct *hp;
- 	unsigned long flags;
- 	int rc = 0;
+-	struct qcom_slim_ngd_ctrl *ctrl = platform_get_drvdata(pdev);
+ 	struct device *dev = &pdev->dev;
++	struct qcom_slim_ngd_ctrl *ctrl = dev_get_drvdata(dev->parent);
+ 	int ret;
  
-+	mutex_lock(&hvc_open_mutex);
-+
-+	hp = tty->driver_data;
-+	if (!hp) {
-+		rc = -EIO;
-+		goto out;
-+	}
-+
- 	spin_lock_irqsave(&hp->port.lock, flags);
- 	/* Check and then increment for fast path open. */
- 	if (hp->port.count++ > 0) {
- 		spin_unlock_irqrestore(&hp->port.lock, flags);
- 		hvc_kick();
--		return 0;
-+		goto out;
- 	} /* else count == 0 */
- 	spin_unlock_irqrestore(&hp->port.lock, flags);
+ 	ctrl->ctrl.dev = dev;
  
-@@ -383,6 +393,8 @@ static int hvc_open(struct tty_struct *tty, struct file * filp)
- 	/* Force wakeup of the polling thread */
- 	hvc_kick();
- 
-+out:
-+	mutex_unlock(&hvc_open_mutex);
- 	return rc;
- }
- 
++	platform_set_drvdata(pdev, ctrl);
+ 	pm_runtime_use_autosuspend(dev);
+ 	pm_runtime_set_autosuspend_delay(dev, QCOM_SLIM_NGD_AUTOSUSPEND);
+ 	pm_runtime_set_suspended(dev);
 -- 
 2.25.1
 
