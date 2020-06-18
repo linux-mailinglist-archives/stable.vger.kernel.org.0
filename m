@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D514E1FDDE4
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:29:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 505521FDDE8
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:29:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730452AbgFRB3P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:29:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38430 "EHLO mail.kernel.org"
+        id S1732283AbgFRB3V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:29:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732256AbgFRB3N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:29:13 -0400
+        id S1732279AbgFRB3U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:29:20 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C7FF222209;
-        Thu, 18 Jun 2020 01:29:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4899B2222F;
+        Thu, 18 Jun 2020 01:29:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443752;
-        bh=D8zLb6A3eAFY+oTRbtdMRb/vYU6Su0bEE3Y/89xD7JQ=;
+        s=default; t=1592443759;
+        bh=p5j9bXEfQihepKV8ulcRN1vZrOTxa+RtQpCBl17Vk5Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iWg9kaAi/Bbik3Sw79/2uVOu+mRfQi3BPmpwOkbqBk59AeWHAv55jAe2t+HeJSaMX
-         Co4ESE9M2ujmjT9kMYWlMrBSRirZ51CoHbs2k3oBgf9lDUOsn8Vsrz0hyV4OBFumD0
-         bj4rq6SZlpwcGbujRVxlerevRd7Wv03C3FBZZWXg=
+        b=MXFUb2DzehuA3aFX/kDJcaLMTfsmfyRbYeAzuWd3kbmu1XRhD7WAnyJSC4gSC1KmN
+         TAlpDNmAxcZs60KbkC0p4HX87/8Y52JtarppKUtg+mmT+JK5Ui+magNn5Rvobhk8sW
+         vbL2e4e5/9BueLlHC+UpsWIqZ+lHdvou8US3HfkY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 40/80] power: supply: lp8788: Fix an error handling path in 'lp8788_charger_probe()'
-Date:   Wed, 17 Jun 2020 21:27:39 -0400
-Message-Id: <20200618012819.609778-40-sashal@kernel.org>
+Cc:     Gregory CLEMENT <gregory.clement@bootlin.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 46/80] tty: n_gsm: Fix waking up upper tty layer when room available
+Date:   Wed, 17 Jun 2020 21:27:45 -0400
+Message-Id: <20200618012819.609778-46-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012819.609778-1-sashal@kernel.org>
 References: <20200618012819.609778-1-sashal@kernel.org>
@@ -43,68 +43,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Gregory CLEMENT <gregory.clement@bootlin.com>
 
-[ Upstream commit 934ed3847a4ebc75b655659c4d2349ba4337941c ]
+[ Upstream commit 01dbb362f0a114fbce19c8abe4cd6f4710e934d5 ]
 
-In the probe function, in case of error, resources allocated in
-'lp8788_setup_adc_channel()' must be released.
+Warn the upper layer when n_gms is ready to receive data
+again. Without this the associated virtual tty remains blocked
+indefinitely.
 
-This can be achieved easily by using the devm_ variant of
-'iio_channel_get()'.
-This has the extra benefit to simplify the remove function and to axe the
-'lp8788_release_adc_channel()' function which is now useless.
-
-Fixes: 98a276649358 ("power_supply: Add new lp8788 charger driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Link: https://lore.kernel.org/r/20200512115323.1447922-4-gregory.clement@bootlin.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/lp8788-charger.c | 18 ++----------------
- 1 file changed, 2 insertions(+), 16 deletions(-)
+ drivers/tty/n_gsm.c | 26 ++++++++++++++++++++++----
+ 1 file changed, 22 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/power/supply/lp8788-charger.c b/drivers/power/supply/lp8788-charger.c
-index cd614fe69d14..c3075ea011b6 100644
---- a/drivers/power/supply/lp8788-charger.c
-+++ b/drivers/power/supply/lp8788-charger.c
-@@ -603,27 +603,14 @@ static void lp8788_setup_adc_channel(struct device *dev,
- 		return;
+diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
+index d5efacd27b15..56716f525030 100644
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -681,7 +681,7 @@ static struct gsm_msg *gsm_data_alloc(struct gsm_mux *gsm, u8 addr, int len,
+  *	FIXME: lock against link layer control transmissions
+  */
  
- 	/* ADC channel for battery voltage */
--	chan = iio_channel_get(dev, pdata->adc_vbatt);
-+	chan = devm_iio_channel_get(dev, pdata->adc_vbatt);
- 	pchg->chan[LP8788_VBATT] = IS_ERR(chan) ? NULL : chan;
- 
- 	/* ADC channel for battery temperature */
--	chan = iio_channel_get(dev, pdata->adc_batt_temp);
-+	chan = devm_iio_channel_get(dev, pdata->adc_batt_temp);
- 	pchg->chan[LP8788_BATT_TEMP] = IS_ERR(chan) ? NULL : chan;
- }
- 
--static void lp8788_release_adc_channel(struct lp8788_charger *pchg)
--{
--	int i;
--
--	for (i = 0; i < LP8788_NUM_CHG_ADC; i++) {
--		if (!pchg->chan[i])
--			continue;
--
--		iio_channel_release(pchg->chan[i]);
--		pchg->chan[i] = NULL;
--	}
--}
--
- static ssize_t lp8788_show_charger_status(struct device *dev,
- 				struct device_attribute *attr, char *buf)
+-static void gsm_data_kick(struct gsm_mux *gsm)
++static void gsm_data_kick(struct gsm_mux *gsm, struct gsm_dlci *dlci)
  {
-@@ -744,7 +731,6 @@ static int lp8788_charger_remove(struct platform_device *pdev)
- 	lp8788_irq_unregister(pdev, pchg);
- 	sysfs_remove_group(&pdev->dev.kobj, &lp8788_attr_group);
- 	lp8788_psy_unregister(pchg);
--	lp8788_release_adc_channel(pchg);
+ 	struct gsm_msg *msg, *nmsg;
+ 	int len;
+@@ -713,6 +713,24 @@ static void gsm_data_kick(struct gsm_mux *gsm)
  
- 	return 0;
+ 		list_del(&msg->list);
+ 		kfree(msg);
++
++		if (dlci) {
++			tty_port_tty_wakeup(&dlci->port);
++		} else {
++			int i = 0;
++
++			for (i = 0; i < NUM_DLCI; i++) {
++				struct gsm_dlci *dlci;
++
++				dlci = gsm->dlci[i];
++				if (dlci == NULL) {
++					i++;
++					continue;
++				}
++
++				tty_port_tty_wakeup(&dlci->port);
++			}
++		}
+ 	}
  }
+ 
+@@ -764,7 +782,7 @@ static void __gsm_data_queue(struct gsm_dlci *dlci, struct gsm_msg *msg)
+ 	/* Add to the actual output queue */
+ 	list_add_tail(&msg->list, &gsm->tx_list);
+ 	gsm->tx_bytes += msg->len;
+-	gsm_data_kick(gsm);
++	gsm_data_kick(gsm, dlci);
+ }
+ 
+ /**
+@@ -1225,7 +1243,7 @@ static void gsm_control_message(struct gsm_mux *gsm, unsigned int command,
+ 		gsm_control_reply(gsm, CMD_FCON, NULL, 0);
+ 		/* Kick the link in case it is idling */
+ 		spin_lock_irqsave(&gsm->tx_lock, flags);
+-		gsm_data_kick(gsm);
++		gsm_data_kick(gsm, NULL);
+ 		spin_unlock_irqrestore(&gsm->tx_lock, flags);
+ 		break;
+ 	case CMD_FCOFF:
+@@ -2408,7 +2426,7 @@ static void gsmld_write_wakeup(struct tty_struct *tty)
+ 	/* Queue poll */
+ 	clear_bit(TTY_DO_WRITE_WAKEUP, &tty->flags);
+ 	spin_lock_irqsave(&gsm->tx_lock, flags);
+-	gsm_data_kick(gsm);
++	gsm_data_kick(gsm, NULL);
+ 	if (gsm->tx_bytes < TX_THRESH_LO) {
+ 		gsm_dlci_data_sweep(gsm);
+ 	}
 -- 
 2.25.1
 
