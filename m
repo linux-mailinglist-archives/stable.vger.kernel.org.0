@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6017F1FE2ED
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:05:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D4011FE2E9
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:05:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728342AbgFRCFF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:05:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56084 "EHLO mail.kernel.org"
+        id S1730180AbgFRCE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:04:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729612AbgFRBWw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:22:52 -0400
+        id S1730367AbgFRBWx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:22:53 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B1E1221E9;
-        Thu, 18 Jun 2020 01:22:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 44B9B20663;
+        Thu, 18 Jun 2020 01:22:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443371;
-        bh=73WgdEFIZCa7hMRSJddpG2UJDaVIQocYkI0u7kpEY6U=;
+        s=default; t=1592443373;
+        bh=ptpv6AaHe3Ar61d8PWH8ycxxaQqCbcDaY5LkOUNJEmI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eCiIqEQCTgFQiQjrQNU4mo9WL13+GOK6cOytdooJ6hQqTXHdrwPqOtjin4d07JlWB
-         lRX8PfrK5327dG0HdcPbT2vJ+xlgQ6RB3M5ySPxUI1CLU+/UlZWhiNuox0Mx/7FOmA
-         Px5+O0h/W4qB/HYwikmkyHe9UI69IbgZoeZqFn0M=
+        b=tvsEWH/GXosw17DHT7zf6Rt6Gd2qjIh8yvLXdn+HOBiyZylzr8V3e7PmFIeMUk4mb
+         hxQI+4XZ9O/8I3rQaNFhabFk46B0qTwKxVu9JBPq2LkebuUwn1+T6v9+Sa4SPOkW0S
+         ojnejE6wheRLsoRNVqRjeqVA9NoAxNvIzPx+fEfM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Martin Wilck <mwilck@suse.com>, Hannes Reinecke <hare@suse.de>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, dm-devel@redhat.com
-Subject: [PATCH AUTOSEL 4.19 025/172] dm mpath: switch paths in dm_blk_ioctl() code path
-Date:   Wed, 17 Jun 2020 21:19:51 -0400
-Message-Id: <20200618012218.607130-25-sashal@kernel.org>
+Cc:     =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Tomasz Maciej Nowak <tmn505@gmail.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Rob Herring <robh@kernel.org>,
+        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 026/172] PCI: aardvark: Don't blindly enable ASPM L0s and don't write to read-only register
+Date:   Wed, 17 Jun 2020 21:19:52 -0400
+Message-Id: <20200618012218.607130-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012218.607130-1-sashal@kernel.org>
 References: <20200618012218.607130-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,47 +48,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Wilck <mwilck@suse.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 2361ae595352dec015d14292f1b539242d8446d6 ]
+[ Upstream commit 90c6cb4a355e7befcb557d217d1d8b8bd5875a05 ]
 
-SCSI LUN passthrough code such as qemu's "scsi-block" device model
-pass every IO to the host via SG_IO ioctls. Currently, dm-multipath
-calls choose_pgpath() only in the block IO code path, not in the ioctl
-code path (unless current_pgpath is NULL). This has the effect that no
-path switching and thus no load balancing is done for SCSI-passthrough
-IO, unless the active path fails.
+Trying to change Link Status register does not have any effect as this
+is a read-only register. Trying to overwrite bits for Negotiated Link
+Width does not make sense.
 
-Fix this by using the same logic in multipath_prepare_ioctl() as in
-multipath_clone_and_map().
+In future proper change of link width can be done via Lane Count Select
+bits in PCIe Control 0 register.
 
-Note: The allegedly best path selection algorithm, service-time,
-still wouldn't work perfectly, because the io size of the current
-request is always set to 0. Changing that for the IO passthrough
-case would require the ioctl cmd and arg to be passed to dm's
-prepare_ioctl() method.
+Trying to unconditionally enable ASPM L0s via ASPM Control bits in Link
+Control register is wrong. There should be at least some detection if
+endpoint supports L0s as isn't mandatory.
 
-Signed-off-by: Martin Wilck <mwilck@suse.com>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Moreover ASPM Control bits in Link Control register are controlled by
+pcie/aspm.c code which sets it according to system ASPM settings,
+immediately after aardvark driver probes. So setting these bits by
+aardvark driver has no long running effect.
+
+Remove code which touches ASPM L0s bits from this driver and let
+kernel's ASPM implementation to set ASPM state properly.
+
+Some users are reporting issues that this code is problematic for some
+Intel wifi cards and removing it fixes them, see e.g.:
+https://bugzilla.kernel.org/show_bug.cgi?id=196339
+
+If problems with Intel wifi cards occur even after this commit, then
+pcie/aspm.c code could be modified / hooked to not enable ASPM L0s state
+for affected problematic cards.
+
+Link: https://lore.kernel.org/r/20200430080625.26070-3-pali@kernel.org
+Tested-by: Tomasz Maciej Nowak <tmn505@gmail.com>
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Acked-by: Rob Herring <robh@kernel.org>
+Acked-by: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-mpath.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/controller/pci-aardvark.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/drivers/md/dm-mpath.c b/drivers/md/dm-mpath.c
-index 207ca0ad0b59..c1ad84f3414c 100644
---- a/drivers/md/dm-mpath.c
-+++ b/drivers/md/dm-mpath.c
-@@ -1868,7 +1868,7 @@ static int multipath_prepare_ioctl(struct dm_target *ti,
- 	int r;
+diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
+index 6b4555ff2548..0235b6e7dcd1 100644
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -321,10 +321,6 @@ static void advk_pcie_setup_hw(struct advk_pcie *pcie)
  
- 	current_pgpath = READ_ONCE(m->current_pgpath);
--	if (!current_pgpath)
-+	if (!current_pgpath || !test_bit(MPATHF_QUEUE_IO, &m->flags))
- 		current_pgpath = choose_pgpath(m, 0);
+ 	advk_pcie_wait_for_link(pcie);
  
- 	if (current_pgpath) {
+-	reg = PCIE_CORE_LINK_L0S_ENTRY |
+-		(1 << PCIE_CORE_LINK_WIDTH_SHIFT);
+-	advk_writel(pcie, reg, PCIE_CORE_LINK_CTRL_STAT_REG);
+-
+ 	reg = advk_readl(pcie, PCIE_CORE_CMD_STATUS_REG);
+ 	reg |= PCIE_CORE_CMD_MEM_ACCESS_EN |
+ 		PCIE_CORE_CMD_IO_ACCESS_EN |
 -- 
 2.25.1
 
