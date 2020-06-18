@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F4B51FE199
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:56:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90A181FE1AC
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:56:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731429AbgFRBZ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:25:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60652 "EHLO mail.kernel.org"
+        id S1730280AbgFRB4V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:56:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731425AbgFRBZ1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:25:27 -0400
+        id S1729924AbgFRBZ2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:25:28 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4081A21D80;
-        Thu, 18 Jun 2020 01:25:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F07EF221ED;
+        Thu, 18 Jun 2020 01:25:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443526;
-        bh=eJRf/DLe3SoTgQ+rYReWSmo1n75LlOi6Lxrz7lpF1ys=;
+        s=default; t=1592443528;
+        bh=3Y28IQJRP/ezhBpnEpB+dmDxveaTNUSxYYSQeDeRMpI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KjK2k22eDeYleSwU1eJTbLGEJssaI3w/nA8H23KHgyk+U34A1LzflHDlURdBUgGFT
-         3YuV6WcKKoPjjb7mgvCcipERRz4xNgvtwkdyxxkALtMS1ofiOILT229mTZYIRLIWfR
-         vcqPRb1ja0vv0Rx9LfNPzIJ6bEfWG9w2tFxf+/Uk=
+        b=IuyUAptaWgXEUh4E96oFIeB0vatTAV/43YZbU4MNYFh35p/xXqoW/KxlxOMtKdmIo
+         fED9Hb2nQsUVMzVVCjZQbMTEkzsX8NcLh5NQBrySgBAUiAQPzyrTcG2MPgfsXyFZ8W
+         Sia2ZDW4pS8hUbDct1mAKiVPc9rXClGcMBq3zXG4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nick Desaulniers <ndesaulniers@google.com>,
+Cc:     Ram Pai <linuxram@us.ibm.com>,
+        Sandipan Das <sandipan@linux.ibm.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Fangrui Song <maskray@google.com>,
-        Jeremy Fitzhardinge <jeremy@goop.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Ilie Halip <ilie.halip@gmail.com>,
+        Dave Hansen <dave.hansen@intel.com>,
+        Florian Weimer <fweimer@redhat.com>,
+        "Desnes A. Nunes do Rosario" <desnesn@linux.vnet.ibm.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Michal Hocko <mhocko@kernel.org>,
+        Michal Suchanek <msuchanek@suse.de>,
+        Shuah Khan <shuah@kernel.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.19 147/172] elfnote: mark all .note sections SHF_ALLOC
-Date:   Wed, 17 Jun 2020 21:21:53 -0400
-Message-Id: <20200618012218.607130-147-sashal@kernel.org>
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 148/172] selftests/vm/pkeys: fix alloc_random_pkey() to make it really random
+Date:   Wed, 17 Jun 2020 21:21:54 -0400
+Message-Id: <20200618012218.607130-148-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012218.607130-1-sashal@kernel.org>
 References: <20200618012218.607130-1-sashal@kernel.org>
@@ -51,59 +56,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Ram Pai <linuxram@us.ibm.com>
 
-[ Upstream commit 51da9dfb7f20911ae4e79e9b412a9c2d4c373d4b ]
+[ Upstream commit 6e373263ce07eeaa6410843179535fbdf561fc31 ]
 
-ELFNOTE_START allows callers to specify flags for .pushsection assembler
-directives.  All callsites but ELF_NOTE use "a" for SHF_ALLOC.  For vdso's
-that explicitly use ELF_NOTE_START and BUILD_SALT, the same section is
-specified twice after preprocessing, once with "a" flag, once without.
-Example:
+alloc_random_pkey() was allocating the same pkey every time.  Not all
+pkeys were geting tested.  This fixes it.
 
-.pushsection .note.Linux, "a", @note ;
-.pushsection .note.Linux, "", @note ;
-
-While GNU as allows this ordering, it warns for the opposite ordering,
-making these directives position dependent.  We'd prefer not to precisely
-match this behavior in Clang's integrated assembler.  Instead, the non
-__ASSEMBLY__ definition of ELF_NOTE uses
-__attribute__((section(".note.Linux"))) which is created with SHF_ALLOC,
-so let's make the __ASSEMBLY__ definition of ELF_NOTE consistent with C
-and just always use "a" flag.
-
-This allows Clang to assemble a working mainline (5.6) kernel via:
-$ make CC=clang AS=clang
-
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Ram Pai <linuxram@us.ibm.com>
+Signed-off-by: Sandipan Das <sandipan@linux.ibm.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Fangrui Song <maskray@google.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Link: https://github.com/ClangBuiltLinux/linux/issues/913
-Link: http://lkml.kernel.org/r/20200325231250.99205-1-ndesaulniers@google.com
-Debugged-by: Ilie Halip <ilie.halip@gmail.com>
+Acked-by: Dave Hansen <dave.hansen@intel.com>
+Cc: Dave Hansen <dave.hansen@intel.com>
+Cc: Florian Weimer <fweimer@redhat.com>
+Cc: "Desnes A. Nunes do Rosario" <desnesn@linux.vnet.ibm.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Michal Suchanek <msuchanek@suse.de>
+Cc: Shuah Khan <shuah@kernel.org>
+Link: http://lkml.kernel.org/r/0162f55816d4e783a0d6e49e554d0ab9a3c9a23b.1585646528.git.sandipan@linux.ibm.com
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/elfnote.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/x86/protection_keys.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/elfnote.h b/include/linux/elfnote.h
-index f236f5b931b2..7fdd7f355b52 100644
---- a/include/linux/elfnote.h
-+++ b/include/linux/elfnote.h
-@@ -54,7 +54,7 @@
- .popsection				;
+diff --git a/tools/testing/selftests/x86/protection_keys.c b/tools/testing/selftests/x86/protection_keys.c
+index 5d546dcdbc80..b8778960da10 100644
+--- a/tools/testing/selftests/x86/protection_keys.c
++++ b/tools/testing/selftests/x86/protection_keys.c
+@@ -24,6 +24,7 @@
+ #define _GNU_SOURCE
+ #include <errno.h>
+ #include <linux/futex.h>
++#include <time.h>
+ #include <sys/time.h>
+ #include <sys/syscall.h>
+ #include <string.h>
+@@ -612,10 +613,10 @@ int alloc_random_pkey(void)
+ 	int nr_alloced = 0;
+ 	int random_index;
+ 	memset(alloced_pkeys, 0, sizeof(alloced_pkeys));
++	srand((unsigned int)time(NULL));
  
- #define ELFNOTE(name, type, desc)		\
--	ELFNOTE_START(name, type, "")		\
-+	ELFNOTE_START(name, type, "a")		\
- 		desc			;	\
- 	ELFNOTE_END
- 
+ 	/* allocate every possible key and make a note of which ones we got */
+ 	max_nr_pkey_allocs = NR_PKEYS;
+-	max_nr_pkey_allocs = 1;
+ 	for (i = 0; i < max_nr_pkey_allocs; i++) {
+ 		int new_pkey = alloc_pkey();
+ 		if (new_pkey < 0)
 -- 
 2.25.1
 
