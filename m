@@ -2,42 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8739E1FE06A
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:48:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9BB21FE064
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:48:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732034AbgFRBry (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:47:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36576 "EHLO mail.kernel.org"
+        id S1732797AbgFRBr3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:47:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730343AbgFRB2F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:28:05 -0400
+        id S1732034AbgFRB2J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:28:09 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D71B221F2;
-        Thu, 18 Jun 2020 01:28:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C9C68221F0;
+        Thu, 18 Jun 2020 01:28:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443684;
-        bh=tzNlaL0+cJsGcwUowAApTOrBiy72ZUL3GV3N+eP8Bfc=;
+        s=default; t=1592443688;
+        bh=3Y28IQJRP/ezhBpnEpB+dmDxveaTNUSxYYSQeDeRMpI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uL9gf94qSR0yK19VrKv70vnfcy9bga4gX15PCB6JtME76IcfIaRMRlLmpcZn7p83v
-         +3fSkx7JmwkjWRubgkm+JeOX12HuU4rkEg/6gw8hIY5wUf51zqx4/JLiVLxz1rc7VZ
-         zI+Aa9/6enI2979n41x9N3A6Kic8uoMBWFJT8n1Y=
+        b=Ge9Es1oeGzxXLLLasLlv6aL3sQS746cUHJsBK1olr9bxR9AhKr6+/+N6betIE+iwj
+         4XHZ23vkKuIAmBf0WZ7JAvbHFtmQbJc/TdPYLSZ9gS7Q57hYQVsgOa9LzL34liTxau
+         yzzaFGkl5ysHRIbZdzFyf4KkXl0DdTHEYK0omh5g=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
+Cc:     Ram Pai <linuxram@us.ibm.com>,
+        Sandipan Das <sandipan@linux.ibm.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
+        Dave Hansen <dave.hansen@intel.com>,
+        Florian Weimer <fweimer@redhat.com>,
+        "Desnes A. Nunes do Rosario" <desnesn@linux.vnet.ibm.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Michal Hocko <mhocko@kernel.org>,
+        Michal Suchanek <msuchanek@suse.de>,
+        Shuah Khan <shuah@kernel.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.14 098/108] include/linux/bitops.h: avoid clang shift-count-overflow warnings
-Date:   Wed, 17 Jun 2020 21:25:50 -0400
-Message-Id: <20200618012600.608744-98-sashal@kernel.org>
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 100/108] selftests/vm/pkeys: fix alloc_random_pkey() to make it really random
+Date:   Wed, 17 Jun 2020 21:25:52 -0400
+Message-Id: <20200618012600.608744-100-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012600.608744-1-sashal@kernel.org>
 References: <20200618012600.608744-1-sashal@kernel.org>
@@ -50,63 +56,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Ram Pai <linuxram@us.ibm.com>
 
-[ Upstream commit bd93f003b7462ae39a43c531abca37fe7073b866 ]
+[ Upstream commit 6e373263ce07eeaa6410843179535fbdf561fc31 ]
 
-Clang normally does not warn about certain issues in inline functions when
-it only happens in an eliminated code path. However if something else
-goes wrong, it does tend to complain about the definition of hweight_long()
-on 32-bit targets:
+alloc_random_pkey() was allocating the same pkey every time.  Not all
+pkeys were geting tested.  This fixes it.
 
-  include/linux/bitops.h:75:41: error: shift count >= width of type [-Werror,-Wshift-count-overflow]
-          return sizeof(w) == 4 ? hweight32(w) : hweight64(w);
-                                                 ^~~~~~~~~~~~
-  include/asm-generic/bitops/const_hweight.h:29:49: note: expanded from macro 'hweight64'
-   define hweight64(w) (__builtin_constant_p(w) ? __const_hweight64(w) : __arch_hweight64(w))
-                                                  ^~~~~~~~~~~~~~~~~~~~
-  include/asm-generic/bitops/const_hweight.h:21:76: note: expanded from macro '__const_hweight64'
-   define __const_hweight64(w) (__const_hweight32(w) + __const_hweight32((w) >> 32))
-                                                                             ^  ~~
-  include/asm-generic/bitops/const_hweight.h:20:49: note: expanded from macro '__const_hweight32'
-   define __const_hweight32(w) (__const_hweight16(w) + __const_hweight16((w) >> 16))
-                                                  ^
-  include/asm-generic/bitops/const_hweight.h:19:72: note: expanded from macro '__const_hweight16'
-   define __const_hweight16(w) (__const_hweight8(w)  + __const_hweight8((w)  >> 8 ))
-                                                                         ^
-  include/asm-generic/bitops/const_hweight.h:12:9: note: expanded from macro '__const_hweight8'
-            (!!((w) & (1ULL << 2))) +     \
-
-Adding an explicit cast to __u64 avoids that warning and makes it easier
-to read other output.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Ram Pai <linuxram@us.ibm.com>
+Signed-off-by: Sandipan Das <sandipan@linux.ibm.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Link: http://lkml.kernel.org/r/20200505135513.65265-1-arnd@arndb.de
+Acked-by: Dave Hansen <dave.hansen@intel.com>
+Cc: Dave Hansen <dave.hansen@intel.com>
+Cc: Florian Weimer <fweimer@redhat.com>
+Cc: "Desnes A. Nunes do Rosario" <desnesn@linux.vnet.ibm.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Michal Suchanek <msuchanek@suse.de>
+Cc: Shuah Khan <shuah@kernel.org>
+Link: http://lkml.kernel.org/r/0162f55816d4e783a0d6e49e554d0ab9a3c9a23b.1585646528.git.sandipan@linux.ibm.com
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/bitops.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/x86/protection_keys.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/bitops.h b/include/linux/bitops.h
-index c51574fab0b0..00dcb1bad76b 100644
---- a/include/linux/bitops.h
-+++ b/include/linux/bitops.h
-@@ -50,7 +50,7 @@ static inline int get_bitmask_order(unsigned int count)
+diff --git a/tools/testing/selftests/x86/protection_keys.c b/tools/testing/selftests/x86/protection_keys.c
+index 5d546dcdbc80..b8778960da10 100644
+--- a/tools/testing/selftests/x86/protection_keys.c
++++ b/tools/testing/selftests/x86/protection_keys.c
+@@ -24,6 +24,7 @@
+ #define _GNU_SOURCE
+ #include <errno.h>
+ #include <linux/futex.h>
++#include <time.h>
+ #include <sys/time.h>
+ #include <sys/syscall.h>
+ #include <string.h>
+@@ -612,10 +613,10 @@ int alloc_random_pkey(void)
+ 	int nr_alloced = 0;
+ 	int random_index;
+ 	memset(alloced_pkeys, 0, sizeof(alloced_pkeys));
++	srand((unsigned int)time(NULL));
  
- static __always_inline unsigned long hweight_long(unsigned long w)
- {
--	return sizeof(w) == 4 ? hweight32(w) : hweight64(w);
-+	return sizeof(w) == 4 ? hweight32(w) : hweight64((__u64)w);
- }
- 
- /**
+ 	/* allocate every possible key and make a note of which ones we got */
+ 	max_nr_pkey_allocs = NR_PKEYS;
+-	max_nr_pkey_allocs = 1;
+ 	for (i = 0; i < max_nr_pkey_allocs; i++) {
+ 		int new_pkey = alloc_pkey();
+ 		if (new_pkey < 0)
 -- 
 2.25.1
 
