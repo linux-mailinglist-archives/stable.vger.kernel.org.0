@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D84D91FE724
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:39:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94CC71FE71F
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:39:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387799AbgFRCiw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 22:38:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42436 "EHLO mail.kernel.org"
+        id S1727814AbgFRCim (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:38:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729094AbgFRBNT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:13:19 -0400
+        id S1727938AbgFRBNV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:13:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A41CA21924;
-        Thu, 18 Jun 2020 01:13:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D574321D7B;
+        Thu, 18 Jun 2020 01:13:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442799;
-        bh=9yZlXAG/MHQ78T8tk7wwzf6znHSrNc5RQYFaFYd/Xkk=;
+        s=default; t=1592442800;
+        bh=Y3voCUNEE+8e7P/ucqa7SNePS020clMv3FTzPzYTypI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=if59RPg9f8pKzhV11AgQQQ/ASmqzEGF4I5zNeiP4GYXJ12Ru9wuQjo1EBzA6CJx2o
-         wh1yHid2if1x5YAvAMcODyfmQMTpl2FGAsMFunF6f/Q2BmFYfLNNsyA9CE2m9VEh3x
-         CCAGSMdQXHrL8LC3FnfODr+bXIyinPZcPrDMH+68=
+        b=UTylEEICqeSyMzbyHwrmwG/ahxbmzT7/QO9ZmRu7QUjT00SUZT/qFGuUYeYF89+ee
+         tRbsTF55qMoFK0e7oX2HHu0GX8VN64sZEtQpw9yisNzZcQlQ5Fg/eLPGs+Sa7Z1xtv
+         5DuR6cstsYsFuUpk8powuQyyy00PximX5/MPW+JE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lijun Ou <oulijun@huawei.com>, Weihang Li <liweihang@huawei.com>,
+Cc:     Lang Cheng <chenglang@huawei.com>,
+        Weihang Li <liweihang@huawei.com>,
         Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 240/388] RDMA/hns: Bugfix for querying qkey
-Date:   Wed, 17 Jun 2020 21:05:37 -0400
-Message-Id: <20200618010805.600873-240-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.7 241/388] RDMA/hns: Fix cmdq parameter of querying pf timer resource
+Date:   Wed, 17 Jun 2020 21:05:38 -0400
+Message-Id: <20200618010805.600873-241-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
@@ -43,36 +44,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lijun Ou <oulijun@huawei.com>
+From: Lang Cheng <chenglang@huawei.com>
 
-[ Upstream commit 349be276509455ac2f19fa4051ed773082c6a27e ]
+[ Upstream commit 441c88d5b3ff80108ff536c6cf80591187015403 ]
 
-The qkey queried through the query ud qp verb is a fixed value and it
-should be read from qp context.
+The firmware has reduced the number of descriptions of command
+HNS_ROCE_OPC_QUERY_PF_TIMER_RES to 1. The driver needs to adapt, otherwise
+the hardware will report error 4(CMD_NEXT_ERR).
 
-Fixes: 926a01dc000d ("RDMA/hns: Add QP operations support for hip08 SoC")
-Link: https://lore.kernel.org/r/1588931159-56875-2-git-send-email-liweihang@huawei.com
-Signed-off-by: Lijun Ou <oulijun@huawei.com>
+Fixes: 0e40dc2f70cd ("RDMA/hns: Add timer allocation support for hip08")
+Link: https://lore.kernel.org/r/1588931159-56875-3-git-send-email-liweihang@huawei.com
+Signed-off-by: Lang Cheng <chenglang@huawei.com>
 Signed-off-by: Weihang Li <liweihang@huawei.com>
 Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 32 ++++++++--------------
+ 1 file changed, 12 insertions(+), 20 deletions(-)
 
 diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-index c3316672b70e..96ff610bbdc4 100644
+index 96ff610bbdc4..f9fa80ae5560 100644
 --- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
 +++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -4639,7 +4639,7 @@ static int hns_roce_v2_query_qp(struct ib_qp *ibqp, struct ib_qp_attr *qp_attr,
- 	qp_attr->path_mig_state = IB_MIG_ARMED;
- 	qp_attr->ah_attr.type   = RDMA_AH_ATTR_TYPE_ROCE;
- 	if (hr_qp->ibqp.qp_type == IB_QPT_UD)
--		qp_attr->qkey = V2_QKEY_VAL;
-+		qp_attr->qkey = le32_to_cpu(context.qkey_xrcd);
+@@ -1349,34 +1349,26 @@ static int hns_roce_query_pf_resource(struct hns_roce_dev *hr_dev)
+ static int hns_roce_query_pf_timer_resource(struct hns_roce_dev *hr_dev)
+ {
+ 	struct hns_roce_pf_timer_res_a *req_a;
+-	struct hns_roce_cmq_desc desc[2];
+-	int ret, i;
++	struct hns_roce_cmq_desc desc;
++	int ret;
  
- 	qp_attr->rq_psn = roce_get_field(context.byte_108_rx_reqepsn,
- 					 V2_QPC_BYTE_108_RX_REQ_EPSN_M,
+-	for (i = 0; i < 2; i++) {
+-		hns_roce_cmq_setup_basic_desc(&desc[i],
+-					      HNS_ROCE_OPC_QUERY_PF_TIMER_RES,
+-					      true);
++	hns_roce_cmq_setup_basic_desc(&desc, HNS_ROCE_OPC_QUERY_PF_TIMER_RES,
++				      true);
+ 
+-		if (i == 0)
+-			desc[i].flag |= cpu_to_le16(HNS_ROCE_CMD_FLAG_NEXT);
+-		else
+-			desc[i].flag &= ~cpu_to_le16(HNS_ROCE_CMD_FLAG_NEXT);
+-	}
+-
+-	ret = hns_roce_cmq_send(hr_dev, desc, 2);
++	ret = hns_roce_cmq_send(hr_dev, &desc, 1);
+ 	if (ret)
+ 		return ret;
+ 
+-	req_a = (struct hns_roce_pf_timer_res_a *)desc[0].data;
++	req_a = (struct hns_roce_pf_timer_res_a *)desc.data;
+ 
+ 	hr_dev->caps.qpc_timer_bt_num =
+-				roce_get_field(req_a->qpc_timer_bt_idx_num,
+-					PF_RES_DATA_1_PF_QPC_TIMER_BT_NUM_M,
+-					PF_RES_DATA_1_PF_QPC_TIMER_BT_NUM_S);
++		roce_get_field(req_a->qpc_timer_bt_idx_num,
++			       PF_RES_DATA_1_PF_QPC_TIMER_BT_NUM_M,
++			       PF_RES_DATA_1_PF_QPC_TIMER_BT_NUM_S);
+ 	hr_dev->caps.cqc_timer_bt_num =
+-				roce_get_field(req_a->cqc_timer_bt_idx_num,
+-					PF_RES_DATA_2_PF_CQC_TIMER_BT_NUM_M,
+-					PF_RES_DATA_2_PF_CQC_TIMER_BT_NUM_S);
++		roce_get_field(req_a->cqc_timer_bt_idx_num,
++			       PF_RES_DATA_2_PF_CQC_TIMER_BT_NUM_M,
++			       PF_RES_DATA_2_PF_CQC_TIMER_BT_NUM_S);
+ 
+ 	return 0;
+ }
 -- 
 2.25.1
 
