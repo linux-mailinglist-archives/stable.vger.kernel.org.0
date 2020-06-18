@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B86D1FE7FE
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:45:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C56741FE7F4
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:45:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728702AbgFRBLD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:11:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38756 "EHLO mail.kernel.org"
+        id S1730619AbgFRCou (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:44:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727825AbgFRBLC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:11:02 -0400
+        id S1728699AbgFRBLD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:11:03 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EBA2B21D93;
-        Thu, 18 Jun 2020 01:11:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2BF18221E8;
+        Thu, 18 Jun 2020 01:11:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442661;
-        bh=jqpU5mQo/WRf0mgPkzlyjkWGZbn3JmjBFcNLaPQbtmo=;
+        s=default; t=1592442662;
+        bh=iJLj1a92L/XXEgvAOBI4sMQdUEW6CU5xEvBS+HESanE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q7kL1IB2a6507HTzQZF0lLFSXGsOkuooKAtOGp7bC0JZ3k9vT0rc6DbJhD5KYXAKv
-         XkV20/48/3/SynHEMBmVm7JuO4lrYLQagrBpomU8+feeVi1pcsmksX+of8BpE7JkyS
-         FRq7t0rVP39MIEGBEhzsfshy8U05tiS0kZrgDnL4=
+        b=tA6GOo0WPns80Nmh1rkbcGN5b4ROfv0b4F1tZqTqUgi43m9473cqoELB3iZneN4NY
+         fw3dTJZLId9cpkGnSLoz32Y0gGZSlrwjXUDFj7vHgoemPECdWHBVQp9HqJZx1TcxfH
+         svB8wXUS2jFOFugY5nQKWFw/5sicJGhMawbUA1pc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vasily Averin <vvs@virtuozzo.com>,
-        Miklos Szeredi <mszeredi@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 132/388] fuse: BUG_ON correction in fuse_dev_splice_write()
-Date:   Wed, 17 Jun 2020 21:03:49 -0400
-Message-Id: <20200618010805.600873-132-sashal@kernel.org>
+Cc:     Jonathan Marek <jonathan@marek.ca>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 133/388] arm64: dts: qcom: fix pm8150 gpio interrupts
+Date:   Wed, 17 Jun 2020 21:03:50 -0400
+Message-Id: <20200618010805.600873-133-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
@@ -43,39 +44,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Jonathan Marek <jonathan@marek.ca>
 
-[ Upstream commit 0e9fb6f17ad5b386b75451328975a07d7d953c6d ]
+[ Upstream commit 61d2ca503d0b55d2849fd656ce51d8e1e9ba0b6c ]
 
-commit 963545357202 ("fuse: reduce allocation size for splice_write")
-changed size of bufs array, so BUG_ON which checks the index of the array
-shold also be fixed.
+This was mistakenly copied from the downstream dts, however the upstream
+driver works differently.
 
-[SzM: turn BUG_ON into WARN_ON]
+I only tested this with the pm8150_gpios node (used with volume button),
+but the 2 others should be the same.
 
-Fixes: 963545357202 ("fuse: reduce allocation size for splice_write")
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Fixes: e92b61c8e775 ("arm64: dts: qcom: pm8150l: Add base dts file")
+Fixes: 229d5bcad0d0 ("arm64: dts: qcom: pm8150b: Add base dts file")
+Fixes: 5101f22a5c37 ("arm64: dts: qcom: pm8150: Add base dts file")
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Jonathan Marek <jonathan@marek.ca>
+Link: https://lore.kernel.org/r/20200420153543.14512-1-jonathan@marek.ca
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fuse/dev.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/qcom/pm8150.dtsi  | 14 ++------------
+ arch/arm64/boot/dts/qcom/pm8150b.dtsi | 14 ++------------
+ arch/arm64/boot/dts/qcom/pm8150l.dtsi | 14 ++------------
+ 3 files changed, 6 insertions(+), 36 deletions(-)
 
-diff --git a/fs/fuse/dev.c b/fs/fuse/dev.c
-index 97eec7522bf2..5c155437a455 100644
---- a/fs/fuse/dev.c
-+++ b/fs/fuse/dev.c
-@@ -1977,8 +1977,9 @@ static ssize_t fuse_dev_splice_write(struct pipe_inode_info *pipe,
- 		struct pipe_buffer *ibuf;
- 		struct pipe_buffer *obuf;
+diff --git a/arch/arm64/boot/dts/qcom/pm8150.dtsi b/arch/arm64/boot/dts/qcom/pm8150.dtsi
+index b6e304748a57..c0b197458665 100644
+--- a/arch/arm64/boot/dts/qcom/pm8150.dtsi
++++ b/arch/arm64/boot/dts/qcom/pm8150.dtsi
+@@ -73,18 +73,8 @@ pm8150_gpios: gpio@c000 {
+ 			reg = <0xc000>;
+ 			gpio-controller;
+ 			#gpio-cells = <2>;
+-			interrupts = <0x0 0xc0 0x0 IRQ_TYPE_NONE>,
+-				     <0x0 0xc1 0x0 IRQ_TYPE_NONE>,
+-				     <0x0 0xc2 0x0 IRQ_TYPE_NONE>,
+-				     <0x0 0xc3 0x0 IRQ_TYPE_NONE>,
+-				     <0x0 0xc4 0x0 IRQ_TYPE_NONE>,
+-				     <0x0 0xc5 0x0 IRQ_TYPE_NONE>,
+-				     <0x0 0xc6 0x0 IRQ_TYPE_NONE>,
+-				     <0x0 0xc7 0x0 IRQ_TYPE_NONE>,
+-				     <0x0 0xc8 0x0 IRQ_TYPE_NONE>,
+-				     <0x0 0xc9 0x0 IRQ_TYPE_NONE>,
+-				     <0x0 0xca 0x0 IRQ_TYPE_NONE>,
+-				     <0x0 0xcb 0x0 IRQ_TYPE_NONE>;
++			interrupt-controller;
++			#interrupt-cells = <2>;
+ 		};
+ 	};
  
--		BUG_ON(nbuf >= pipe->ring_size);
--		BUG_ON(tail == head);
-+		if (WARN_ON(nbuf >= count || tail == head))
-+			goto out_free;
-+
- 		ibuf = &pipe->bufs[tail & mask];
- 		obuf = &bufs[nbuf];
+diff --git a/arch/arm64/boot/dts/qcom/pm8150b.dtsi b/arch/arm64/boot/dts/qcom/pm8150b.dtsi
+index 322379d5c31f..40b5d75a4a1d 100644
+--- a/arch/arm64/boot/dts/qcom/pm8150b.dtsi
++++ b/arch/arm64/boot/dts/qcom/pm8150b.dtsi
+@@ -62,18 +62,8 @@ pm8150b_gpios: gpio@c000 {
+ 			reg = <0xc000>;
+ 			gpio-controller;
+ 			#gpio-cells = <2>;
+-			interrupts = <0x2 0xc0 0x0 IRQ_TYPE_NONE>,
+-				     <0x2 0xc1 0x0 IRQ_TYPE_NONE>,
+-				     <0x2 0xc2 0x0 IRQ_TYPE_NONE>,
+-				     <0x2 0xc3 0x0 IRQ_TYPE_NONE>,
+-				     <0x2 0xc4 0x0 IRQ_TYPE_NONE>,
+-				     <0x2 0xc5 0x0 IRQ_TYPE_NONE>,
+-				     <0x2 0xc6 0x0 IRQ_TYPE_NONE>,
+-				     <0x2 0xc7 0x0 IRQ_TYPE_NONE>,
+-				     <0x2 0xc8 0x0 IRQ_TYPE_NONE>,
+-				     <0x2 0xc9 0x0 IRQ_TYPE_NONE>,
+-				     <0x2 0xca 0x0 IRQ_TYPE_NONE>,
+-				     <0x2 0xcb 0x0 IRQ_TYPE_NONE>;
++			interrupt-controller;
++			#interrupt-cells = <2>;
+ 		};
+ 	};
+ 
+diff --git a/arch/arm64/boot/dts/qcom/pm8150l.dtsi b/arch/arm64/boot/dts/qcom/pm8150l.dtsi
+index eb0e9a090e42..cf05e0685d10 100644
+--- a/arch/arm64/boot/dts/qcom/pm8150l.dtsi
++++ b/arch/arm64/boot/dts/qcom/pm8150l.dtsi
+@@ -56,18 +56,8 @@ pm8150l_gpios: gpio@c000 {
+ 			reg = <0xc000>;
+ 			gpio-controller;
+ 			#gpio-cells = <2>;
+-			interrupts = <0x4 0xc0 0x0 IRQ_TYPE_NONE>,
+-				     <0x4 0xc1 0x0 IRQ_TYPE_NONE>,
+-				     <0x4 0xc2 0x0 IRQ_TYPE_NONE>,
+-				     <0x4 0xc3 0x0 IRQ_TYPE_NONE>,
+-				     <0x4 0xc4 0x0 IRQ_TYPE_NONE>,
+-				     <0x4 0xc5 0x0 IRQ_TYPE_NONE>,
+-				     <0x4 0xc6 0x0 IRQ_TYPE_NONE>,
+-				     <0x4 0xc7 0x0 IRQ_TYPE_NONE>,
+-				     <0x4 0xc8 0x0 IRQ_TYPE_NONE>,
+-				     <0x4 0xc9 0x0 IRQ_TYPE_NONE>,
+-				     <0x4 0xca 0x0 IRQ_TYPE_NONE>,
+-				     <0x4 0xcb 0x0 IRQ_TYPE_NONE>;
++			interrupt-controller;
++			#interrupt-cells = <2>;
+ 		};
+ 	};
  
 -- 
 2.25.1
