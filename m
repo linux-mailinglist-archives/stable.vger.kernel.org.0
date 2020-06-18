@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7667E1FDBC1
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:14:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C6BF1FDBC3
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:14:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729320AbgFRBOb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:14:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44140 "EHLO mail.kernel.org"
+        id S1729332AbgFRBOe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:14:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729315AbgFRBOa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:14:30 -0400
+        id S1729323AbgFRBOd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:14:33 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 154CA221EE;
-        Thu, 18 Jun 2020 01:14:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 69DC7221EE;
+        Thu, 18 Jun 2020 01:14:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442869;
-        bh=kORKvHUzmV/NBfbheBdOjgteXeEJ0yznxbX4KSGtpMk=;
+        s=default; t=1592442872;
+        bh=KQ6p3Q2gZc/JWmJeHca1YwO82RbLgolHIp072IFgEy0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TNlmPC0lFcBbJOztx5g9voCcA0VMT/lO9dloqY5EvIeYT8z6VoCpbkR3LE6vQpYmo
-         qyDioeu3q9srHp8kU1zxwEnnbycr79iie+TosnBEow6Gw7R6wy5eH5sAkEyj1DnzgR
-         9PNVnlE57UL16qKiQoeWQvnjYKvpDTv5Nk/VBCKM=
+        b=wEEknvDHfHcdHzzpkSnMTBsFKth8q3sOHKbWBdyQO8yQ4ugj6k+52yWWEH47hMYgo
+         /nW9QkGIvb2jKtRXZCKygq2ezs6uza7GUJkrkBuR93N6lRjIJXI8OTfPseCuRlekPJ
+         jXqnKvC/DFTelKuG7qOl9K9dq3ZopOXyeGHxVOi0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Olga Kornievskaia <olga.kornievskaia@gmail.com>,
-        Olga Kornievskaia <kolga@netapp.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 296/388] NFSv4.1 fix rpc_call_done assignment for BIND_CONN_TO_SESSION
-Date:   Wed, 17 Jun 2020 21:06:33 -0400
-Message-Id: <20200618010805.600873-296-sashal@kernel.org>
+Cc:     Kevin Buettner <kevinb@redhat.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 298/388] PCI: Avoid FLR for AMD Starship USB 3.0
+Date:   Wed, 17 Jun 2020 21:06:35 -0400
+Message-Id: <20200618010805.600873-298-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
@@ -44,31 +43,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olga Kornievskaia <olga.kornievskaia@gmail.com>
+From: Kevin Buettner <kevinb@redhat.com>
 
-[ Upstream commit 1c709b766e73e54d64b1dde1b7cfbcf25bcb15b9 ]
+[ Upstream commit 5727043c73fdfe04597971b5f3f4850d879c1f4f ]
 
-Fixes: 02a95dee8cf0 ("NFS add callback_ops to nfs4_proc_bind_conn_to_session_callback")
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+The AMD Starship USB 3.0 host controller advertises Function Level Reset
+support, but it apparently doesn't work.  Add a quirk to prevent use of FLR
+on this device.
+
+Without this quirk, when attempting to assign (pass through) an AMD
+Starship USB 3.0 host controller to a guest OS, the system becomes
+increasingly unresponsive over the course of several minutes, eventually
+requiring a hard reset.  Shortly after attempting to start the guest, I see
+these messages:
+
+  vfio-pci 0000:05:00.3: not ready 1023ms after FLR; waiting
+  vfio-pci 0000:05:00.3: not ready 2047ms after FLR; waiting
+  vfio-pci 0000:05:00.3: not ready 4095ms after FLR; waiting
+  vfio-pci 0000:05:00.3: not ready 8191ms after FLR; waiting
+
+And then eventually:
+
+  vfio-pci 0000:05:00.3: not ready 65535ms after FLR; giving up
+  INFO: NMI handler (perf_event_nmi_handler) took too long to run: 0.000 msecs
+  perf: interrupt took too long (642744 > 2500), lowering kernel.perf_event_max_sample_rate to 1000
+  INFO: NMI handler (perf_event_nmi_handler) took too long to run: 82.270 msecs
+  INFO: NMI handler (perf_event_nmi_handler) took too long to run: 680.608 msecs
+  INFO: NMI handler (perf_event_nmi_handler) took too long to run: 100.952 msecs
+  ...
+  watchdog: BUG: soft lockup - CPU#3 stuck for 22s! [qemu-system-x86:7487]
+
+Tested on a Micro-Star International Co., Ltd. MS-7C59/Creator TRX40
+motherboard with an AMD Ryzen Threadripper 3970X.
+
+Link: https://lore.kernel.org/r/20200524003529.598434ff@f31-4.lan
+Signed-off-by: Kevin Buettner <kevinb@redhat.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4proc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/quirks.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index 9056f3dd380e..e32717fd1169 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -7909,7 +7909,7 @@ nfs4_bind_one_conn_to_session_done(struct rpc_task *task, void *calldata)
+diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+index 43a0c2ce635e..b1db58d00d2b 100644
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -5133,6 +5133,7 @@ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x443, quirk_intel_qat_vf_cap);
+  * FLR may cause the following to devices to hang:
+  *
+  * AMD Starship/Matisse HD Audio Controller 0x1487
++ * AMD Starship USB 3.0 Host Controller 0x148c
+  * AMD Matisse USB 3.0 Host Controller 0x149c
+  * Intel 82579LM Gigabit Ethernet Controller 0x1502
+  * Intel 82579V Gigabit Ethernet Controller 0x1503
+@@ -5143,6 +5144,7 @@ static void quirk_no_flr(struct pci_dev *dev)
+ 	dev->dev_flags |= PCI_DEV_FLAGS_NO_FLR_RESET;
  }
- 
- static const struct rpc_call_ops nfs4_bind_one_conn_to_session_ops = {
--	.rpc_call_done =  &nfs4_bind_one_conn_to_session_done,
-+	.rpc_call_done =  nfs4_bind_one_conn_to_session_done,
- };
- 
- /*
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_AMD, 0x1487, quirk_no_flr);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_AMD, 0x148c, quirk_no_flr);
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_AMD, 0x149c, quirk_no_flr);
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x1502, quirk_no_flr);
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x1503, quirk_no_flr);
 -- 
 2.25.1
 
