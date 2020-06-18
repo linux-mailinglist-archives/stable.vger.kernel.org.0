@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 578CE1FDADC
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:08:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E59551FDAE2
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:09:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727907AbgFRBIr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:08:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34640 "EHLO mail.kernel.org"
+        id S1727964AbgFRBIy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:08:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727884AbgFRBIq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:08:46 -0400
+        id S1727955AbgFRBIx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:08:53 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 37AA72193E;
-        Thu, 18 Jun 2020 01:08:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BEF8F21D6C;
+        Thu, 18 Jun 2020 01:08:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442525;
-        bh=00xTk4v3mdurKVihEVY4jHy4darVxsmRWvWaQxIDUHw=;
+        s=default; t=1592442532;
+        bh=ekHxHA0/0+ucEtW0CwYzY4lQSV0nX8LCO1zOta4a1Pc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mdq3d/aw8ZmEVy9L3LJ0Ir2x5VvnMqjt9d6yh5BOCdPm/8yivDab7CoA6YpsoQuYG
-         zIhbddBF9THir1r9Gai8squN8V69y6Nt9e9unmERpDOZSOu/FoTFgG2pAqYfQ/9lzg
-         XXPRwsv0hQ19Z4CbFR6QTwGVD8FKifrgrdMWqs+c=
+        b=uAZggeOkvT3ekpDhaLarJ6ZVm9oI74gI8HmlIOJYTf1udMgvAr2bP0Iev9Yk7HgVL
+         MFTQ9BxAALllkpPeKIpQRusI4JcKsxem/fZMPZoyq1KK3OO1Qa8c0rkQi7+XKavliY
+         ZidYMIE3NHoVWHUimbhtxtMbZxX5wqjHBv/Ic8P8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Viacheslav Dubeyko <v.dubeiko@yadro.com>,
-        Roman Bolshakov <r.bolshakov@yadro.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 029/388] scsi: qla2xxx: Fix issue with adapter's stopping state
-Date:   Wed, 17 Jun 2020 21:02:06 -0400
-Message-Id: <20200618010805.600873-29-sashal@kernel.org>
+Cc:     Chao Yu <yuchao0@huawei.com>, Daeho Jeong <daehojeong@google.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-f2fs-devel@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 5.7 035/388] f2fs: compress: let lz4 compressor handle output buffer budget properly
+Date:   Wed, 17 Jun 2020 21:02:12 -0400
+Message-Id: <20200618010805.600873-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
@@ -45,89 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Viacheslav Dubeyko <v.dubeiko@yadro.com>
+From: Chao Yu <yuchao0@huawei.com>
 
-[ Upstream commit 803e45550b11c8e43d89812356fe6f105adebdf9 ]
+[ Upstream commit f6644143c63f2eac88973f7fea087582579b0189 ]
 
-The goal of the following command sequence is to restart the adapter.
-However, the tgt_stop flag remains set, indicating that the adapter is
-still in stopping state even after re-enabling it.
+Commonly, in order to handle lz4 worst compress case, caller should
+allocate buffer with size of LZ4_compressBound(inputsize) for target
+compressed data storing, however in this case, if caller didn't
+allocate enough space, lz4 compressor still can handle output buffer
+budget properly, and end up compressing when left space in output
+buffer is not enough.
 
-echo 0x7fffffff > /sys/module/qla2xxx/parameters/logging
-modprobe target_core_mod
-modprobe tcm_qla2xxx
-mkdir /sys/kernel/config/target/qla2xxx
-mkdir /sys/kernel/config/target/qla2xxx/<port-name>
-mkdir /sys/kernel/config/target/qla2xxx/<port-name>/tpgt_1
-echo 1 > /sys/kernel/config/target/qla2xxx/<port-name>/tpgt_1/enable
-echo 0 > /sys/kernel/config/target/qla2xxx/<port-name>/tpgt_1/enable
-echo 1 > /sys/kernel/config/target/qla2xxx/<port-name>/tpgt_1/enable
+So we don't have to allocate buffer with size for worst case, then
+we can avoid 2 * 4KB size intermediate buffer allocation when
+log_cluster_size is 2, and avoid unnecessary compressing work of
+compressor if we can not save at least 4KB space.
 
-kernel: PID 1396:qla_target.c:1555 qlt_stop_phase1(): tgt_stop 0x0, tgt_stopped 0x0
-kernel: qla2xxx [0001:00:02.0]-e803:1: PID 1396:qla_target.c:1567: Stopping target for host 1(c0000000033557e8)
-kernel: PID 1396:qla_target.c:1579 qlt_stop_phase1(): tgt_stop 0x1, tgt_stopped 0x0
-kernel: PID 1396:qla_target.c:1266 qlt_schedule_sess_for_deletion(): tgt_stop 0x1, tgt_stopped 0x0
-kernel: qla2xxx [0001:00:02.0]-e801:1: PID 1396:qla_target.c:1316: Scheduling sess c00000002d5cd800 for deletion 21:00:00:24:ff:7f:35:c7
-<skipped>
-kernel: qla2xxx [0001:00:02.0]-290a:1: PID 340:qla_target.c:1187: qlt_unreg_sess sess c00000002d5cd800 for deletion 21:00:00:24:ff:7f:35:c7
-<skipped>
-kernel: qla2xxx [0001:00:02.0]-f801:1: PID 340:qla_target.c:1145: Unregistration of sess c00000002d5cd800 21:00:00:24:ff:7f:35:c7 finished fcp_cnt 0
-kernel: PID 340:qla_target.c:1155 qlt_free_session_done(): tgt_stop 0x1, tgt_stopped 0x0
-kernel: qla2xxx [0001:00:02.0]-4807:1: PID 346:qla_os.c:6329: ISP abort scheduled.
-<skipped>
-kernel: qla2xxx [0001:00:02.0]-28f1:1: PID 346:qla_os.c:3956: Mark all dev lost
-kernel: PID 346:qla_target.c:1266 qlt_schedule_sess_for_deletion(): tgt_stop 0x1, tgt_stopped 0x0
-kernel: qla2xxx [0001:00:02.0]-4808:1: PID 346:qla_os.c:6338: ISP abort end.
-<skipped>
-kernel: PID 1396:qla_target.c:6812 qlt_enable_vha(): tgt_stop 0x1, tgt_stopped 0x0
-<skipped>
-kernel: qla2xxx [0001:00:02.0]-4807:1: PID 346:qla_os.c:6329: ISP abort scheduled.
-<skipped>
-kernel: qla2xxx [0001:00:02.0]-4808:1: PID 346:qla_os.c:6338: ISP abort end.
-
-qlt_handle_cmd_for_atio() rejects the request to send commands because the
-adapter is in the stopping state:
-
-kernel: PID 0:qla_target.c:4442 qlt_handle_cmd_for_atio(): tgt_stop 0x1, tgt_stopped 0x0
-kernel: qla2xxx [0001:00:02.0]-3861:1: PID 0:qla_target.c:4447: New command while device c000000005314600 is shutting down
-kernel: qla2xxx [0001:00:02.0]-e85f:1: PID 0:qla_target.c:5728: qla_target: Unable to send command to target
-
-This patch calls qla_stop_phase2() in addition to qlt_stop_phase1() in
-tcm_qla2xxx_tpg_enable_store() and tcm_qla2xxx_npiv_tpg_enable_store(). The
-qlt_stop_phase1() marks adapter as stopping (tgt_stop == 0x1, tgt_stopped
-== 0x0) but qlt_stop_phase2() marks adapter as stopped (tgt_stop == 0x0,
-tgt_stopped == 0x1).
-
-Link: https://lore.kernel.org/r/52be1e8a3537f6c5407eae3edd4c8e08a9545ea5.camel@yadro.com
-Reviewed-by: Roman Bolshakov <r.bolshakov@yadro.com>
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Viacheslav Dubeyko <v.dubeiko@yadro.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Suggested-by: Daeho Jeong <daehojeong@google.com>
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/tcm_qla2xxx.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/f2fs/compress.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/tcm_qla2xxx.c b/drivers/scsi/qla2xxx/tcm_qla2xxx.c
-index 1f0a185b2a95..bf00ae16b487 100644
---- a/drivers/scsi/qla2xxx/tcm_qla2xxx.c
-+++ b/drivers/scsi/qla2xxx/tcm_qla2xxx.c
-@@ -949,6 +949,7 @@ static ssize_t tcm_qla2xxx_tpg_enable_store(struct config_item *item,
+diff --git a/fs/f2fs/compress.c b/fs/f2fs/compress.c
+index df7b2d15eacd..c05801758a35 100644
+--- a/fs/f2fs/compress.c
++++ b/fs/f2fs/compress.c
+@@ -236,7 +236,12 @@ static int lz4_init_compress_ctx(struct compress_ctx *cc)
+ 	if (!cc->private)
+ 		return -ENOMEM;
  
- 		atomic_set(&tpg->lport_tpg_enabled, 0);
- 		qlt_stop_phase1(vha->vha_tgt.qla_tgt);
-+		qlt_stop_phase2(vha->vha_tgt.qla_tgt);
- 	}
+-	cc->clen = LZ4_compressBound(PAGE_SIZE << cc->log_cluster_size);
++	/*
++	 * we do not change cc->clen to LZ4_compressBound(inputsize) to
++	 * adapt worst compress case, because lz4 compressor can handle
++	 * output budget properly.
++	 */
++	cc->clen = cc->rlen - PAGE_SIZE - COMPRESS_HEADER_SIZE;
+ 	return 0;
+ }
  
- 	return count;
-@@ -1111,6 +1112,7 @@ static ssize_t tcm_qla2xxx_npiv_tpg_enable_store(struct config_item *item,
+@@ -252,11 +257,9 @@ static int lz4_compress_pages(struct compress_ctx *cc)
  
- 		atomic_set(&tpg->lport_tpg_enabled, 0);
- 		qlt_stop_phase1(vha->vha_tgt.qla_tgt);
-+		qlt_stop_phase2(vha->vha_tgt.qla_tgt);
- 	}
- 
- 	return count;
+ 	len = LZ4_compress_default(cc->rbuf, cc->cbuf->cdata, cc->rlen,
+ 						cc->clen, cc->private);
+-	if (!len) {
+-		printk_ratelimited("%sF2FS-fs (%s): lz4 compress failed\n",
+-				KERN_ERR, F2FS_I_SB(cc->inode)->sb->s_id);
+-		return -EIO;
+-	}
++	if (!len)
++		return -EAGAIN;
++
+ 	cc->clen = len;
+ 	return 0;
+ }
 -- 
 2.25.1
 
