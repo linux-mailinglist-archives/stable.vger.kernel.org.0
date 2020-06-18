@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45AEB1FE0CA
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:50:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B4751FE0EC
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:52:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731999AbgFRBuc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1731869AbgFRBuc (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 17 Jun 2020 21:50:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35512 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:35546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731855AbgFRB1W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:27:22 -0400
+        id S1731857AbgFRB1Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:27:24 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 99A94221EB;
-        Thu, 18 Jun 2020 01:27:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 03D2F20776;
+        Thu, 18 Jun 2020 01:27:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443642;
-        bh=1suXfqXB8wFHhKBMZXOWemYVz8CFAzks7HX0TcBdIrA=;
+        s=default; t=1592443643;
+        bh=IKPyz6tJZvLQGO9raFAy7/YNlQnRZ+ZjNkL39vKhCpk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gH9AxSDfg4M4mkfnR9z+ZO8Zdu3qxL0Erxg/KWjgVBEFpUNmi7dNwfZbjW7oUThUK
-         m5DE4elAw+upGUw/+ihwI7pzbV13+BsKIrL3+O4fZmFwv2EnQsVJ1iohM+MdpwP/xz
-         dy0AavOjUt/wbYb2fhdY+jhbiFoL4RGvYCh73bqg=
+        b=BKcpRE3W8j0sYYuJY7wvjLqUtO29Rza+V2F1rZQ7nWb+o4rYTnOP3Dw/x2LLW0aDO
+         MuEMGPE7X7thL8DEO/2+RjgzBygEUVJR7/Ni0kl2a2F/A7EHi3Vtjut0XVRiP+r0PK
+         6lQqc43oKRXREWMGKpmaT1LFJOFsD3I9zmFFsKLw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Roy Spliet <nouveau@spliet.org>,
-        Abhinav Kumar <abhinavk@codeaurora.org>,
-        Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.14 064/108] drm/msm/mdp5: Fix mdp5_init error path for failed mdp5_kms allocation
-Date:   Wed, 17 Jun 2020 21:25:16 -0400
-Message-Id: <20200618012600.608744-64-sashal@kernel.org>
+Cc:     Tang Bin <tangbin@cmss.chinamobile.com>,
+        Zhang Shengju <zhangshengju@cmss.chinamobile.com>,
+        Peter Chen <peter.chen@nxp.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 065/108] USB: host: ehci-mxc: Add error handling in ehci_mxc_drv_probe()
+Date:   Wed, 17 Jun 2020 21:25:17 -0400
+Message-Id: <20200618012600.608744-65-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012600.608744-1-sashal@kernel.org>
 References: <20200618012600.608744-1-sashal@kernel.org>
@@ -45,35 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roy Spliet <nouveau@spliet.org>
+From: Tang Bin <tangbin@cmss.chinamobile.com>
 
-[ Upstream commit e4337877c5d578722c0716f131fb774522013cf5 ]
+[ Upstream commit d49292025f79693d3348f8e2029a8b4703be0f0a ]
 
-When allocation for mdp5_kms fails, calling mdp5_destroy() leads to undefined
-behaviour, likely a nullptr exception or use-after-free troubles.
+The function ehci_mxc_drv_probe() does not perform sufficient error
+checking after executing platform_get_irq(), thus fix it.
 
-Signed-off-by: Roy Spliet <nouveau@spliet.org>
-Reviewed-by: Abhinav Kumar <abhinavk@codeaurora.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Fixes: 7e8d5cd93fac ("USB: Add EHCI support for MX27 and MX31 based boards")
+Signed-off-by: Zhang Shengju <zhangshengju@cmss.chinamobile.com>
+Signed-off-by: Tang Bin <tangbin@cmss.chinamobile.com>
+Reviewed-by: Peter Chen <peter.chen@nxp.com>
+Link: https://lore.kernel.org/r/20200513132647.5456-1-tangbin@cmss.chinamobile.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/mdp/mdp5/mdp5_kms.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/host/ehci-mxc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/msm/mdp/mdp5/mdp5_kms.c b/drivers/gpu/drm/msm/mdp/mdp5/mdp5_kms.c
-index f7c0698fec40..791a74b9907d 100644
---- a/drivers/gpu/drm/msm/mdp/mdp5/mdp5_kms.c
-+++ b/drivers/gpu/drm/msm/mdp/mdp5/mdp5_kms.c
-@@ -972,7 +972,8 @@ static int mdp5_init(struct platform_device *pdev, struct drm_device *dev)
+diff --git a/drivers/usb/host/ehci-mxc.c b/drivers/usb/host/ehci-mxc.c
+index c7a9b31eeaef..637079a35003 100644
+--- a/drivers/usb/host/ehci-mxc.c
++++ b/drivers/usb/host/ehci-mxc.c
+@@ -63,6 +63,8 @@ static int ehci_mxc_drv_probe(struct platform_device *pdev)
+ 	}
  
- 	return 0;
- fail:
--	mdp5_destroy(pdev);
-+	if (mdp5_kms)
-+		mdp5_destroy(pdev);
- 	return ret;
- }
+ 	irq = platform_get_irq(pdev, 0);
++	if (irq < 0)
++		return irq;
  
+ 	hcd = usb_create_hcd(&ehci_mxc_hc_driver, dev, dev_name(dev));
+ 	if (!hcd)
 -- 
 2.25.1
 
