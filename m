@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 260FA1FE347
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:08:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2003B1FE349
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:08:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730663AbgFRBWI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:22:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54988 "EHLO mail.kernel.org"
+        id S1730670AbgFRBWK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:22:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730654AbgFRBWI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:22:08 -0400
+        id S1730659AbgFRBWJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:22:09 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C637320B1F;
-        Thu, 18 Jun 2020 01:22:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D45C920CC7;
+        Thu, 18 Jun 2020 01:22:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443327;
-        bh=EQOKxm6aV10YMCrUx58JzOqXwaMehrIdJyBLmmicb8M=;
+        s=default; t=1592443328;
+        bh=peDTYNHEUfnCxbVfnWAt6h2520DHO5lsM1u8rApleLw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BEJKEpLG851D8+phUgnCAExQ5bJS7fRIkI+qrlY6h85lQ7m9eySUa7rOjgrIuqUuF
-         EgrmmKhgk9LrYIRS/tzwfXDHGSnh4UeNsVmJChhC6fNQ4iAbvrN0n3yF4sD8wNUyui
-         yciEHJ3BQpmwAWSsCll36tPNCo9KoY77ZNljsyC8=
+        b=0thg7zgOyui1J80AsUEj5ocV8iU5Fu10sa1i2RevOY27/8mQZzgX0Tu1fVptKUWvv
+         TQojQJaW/ywL4j+L1z5et9yrZ51PwtCsEq+tkyAYRaPSCIbzCQmyO6HxhG2Z6J6MMf
+         5xt88RaS+1YOGWqepUSScvZt7SGiXRwNejEEcbKM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 260/266] x86/idt: Keep spurious entries unset in system_vectors
-Date:   Wed, 17 Jun 2020 21:16:25 -0400
-Message-Id: <20200618011631.604574-260-sashal@kernel.org>
+Cc:     YiFei Zhu <zhuyifei1999@gmail.com>,
+        YiFei Zhu <zhuyifei@google.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Stanislav Fomichev <sdf@google.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 261/266] net/filter: Permit reading NET in load_bytes_relative when MAC not set
+Date:   Wed, 17 Jun 2020 21:16:26 -0400
+Message-Id: <20200618011631.604574-261-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
 References: <20200618011631.604574-1-sashal@kernel.org>
@@ -43,49 +46,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: YiFei Zhu <zhuyifei1999@gmail.com>
 
-[ Upstream commit 1f1fbc70c10e81f70e9fbe2102d439c883269811 ]
+[ Upstream commit 0f5d82f187e1beda3fe7295dfc500af266a5bd80 ]
 
-With commit dc20b2d52653 ("x86/idt: Move interrupt gate initialization to
-IDT code") non assigned system vectors are also marked as used in
-'used_vectors' (now 'system_vectors') bitmap. This makes checks in
-arch_show_interrupts() whether a particular system vector is allocated to
-always pass and e.g. 'Hyper-V reenlightenment interrupts' entry always
-shows up in /proc/interrupts.
+Added a check in the switch case on start_header that checks for
+the existence of the header, and in the case that MAC is not set
+and the caller requests for MAC, -EFAULT. If the caller requests
+for NET then MAC's existence is completely ignored.
 
-Another side effect of having all unassigned system vectors marked as used
-is that irq_matrix_debug_show() will wrongly count them among 'System'
-vectors.
+There is no function to check NET header's existence and as far
+as cgroup_skb/egress is concerned it should always be set.
 
-As it is now ensured that alloc_intr_gate() is not called after init, it is
-possible to leave unused entries in 'system_vectors' unset to fix these
-issues.
+Removed for ptr >= the start of header, considering offset is
+bounded unsigned and should always be true. len <= end - mac is
+redundant to ptr + len <= end.
 
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20200428093824.1451532-4-vkuznets@redhat.com
+Fixes: 3eee1f75f2b9 ("bpf: fix bpf_skb_load_bytes_relative pkt length check")
+Signed-off-by: YiFei Zhu <zhuyifei@google.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: Stanislav Fomichev <sdf@google.com>
+Link: https://lore.kernel.org/bpf/76bb820ddb6a95f59a772ecbd8c8a336f646b362.1591812755.git.zhuyifei@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/idt.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ net/core/filter.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/arch/x86/kernel/idt.c b/arch/x86/kernel/idt.c
-index 87ef69a72c52..7bb4c3cbf4dc 100644
---- a/arch/x86/kernel/idt.c
-+++ b/arch/x86/kernel/idt.c
-@@ -318,7 +318,11 @@ void __init idt_setup_apic_and_irq_gates(void)
+diff --git a/net/core/filter.c b/net/core/filter.c
+index f1f2304822e3..a0a492f7cf9c 100644
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -1766,25 +1766,27 @@ BPF_CALL_5(bpf_skb_load_bytes_relative, const struct sk_buff *, skb,
+ 	   u32, offset, void *, to, u32, len, u32, start_header)
+ {
+ 	u8 *end = skb_tail_pointer(skb);
+-	u8 *net = skb_network_header(skb);
+-	u8 *mac = skb_mac_header(skb);
+-	u8 *ptr;
++	u8 *start, *ptr;
  
- #ifdef CONFIG_X86_LOCAL_APIC
- 	for_each_clear_bit_from(i, system_vectors, NR_VECTORS) {
--		set_bit(i, system_vectors);
-+		/*
-+		 * Don't set the non assigned system vectors in the
-+		 * system_vectors bitmap. Otherwise they show up in
-+		 * /proc/interrupts.
-+		 */
- 		entry = spurious_entries_start + 8 * (i - FIRST_SYSTEM_VECTOR);
- 		set_intr_gate(i, entry);
+-	if (unlikely(offset > 0xffff || len > (end - mac)))
++	if (unlikely(offset > 0xffff))
+ 		goto err_clear;
+ 
+ 	switch (start_header) {
+ 	case BPF_HDR_START_MAC:
+-		ptr = mac + offset;
++		if (unlikely(!skb_mac_header_was_set(skb)))
++			goto err_clear;
++		start = skb_mac_header(skb);
+ 		break;
+ 	case BPF_HDR_START_NET:
+-		ptr = net + offset;
++		start = skb_network_header(skb);
+ 		break;
+ 	default:
+ 		goto err_clear;
+ 	}
+ 
+-	if (likely(ptr >= mac && ptr + len <= end)) {
++	ptr = start + offset;
++
++	if (likely(ptr + len <= end)) {
+ 		memcpy(to, ptr, len);
+ 		return 0;
  	}
 -- 
 2.25.1
