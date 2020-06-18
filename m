@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A2131FE829
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:47:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9231A1FE82F
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 04:47:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728511AbgFRBKc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:10:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37678 "EHLO mail.kernel.org"
+        id S1732281AbgFRCqy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 22:46:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726966AbgFRBKb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:10:31 -0400
+        id S1727107AbgFRBKc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:10:32 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC462214DB;
-        Thu, 18 Jun 2020 01:10:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5BF9320CC7;
+        Thu, 18 Jun 2020 01:10:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592442630;
-        bh=P0+2fHaETgW6NNS4KKLoREqjNyFC9AlfVEZ+UAGUoTQ=;
+        s=default; t=1592442632;
+        bh=OhuwWR1pHKkKg0JA0TgwM8GDNArAPfNmbW5ZA4DO098=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OHESbSgnlfk1+h8Ucy7wFADdGfJDZp5eOJzdP31WjzUfLpZe+l1ep7LLgBptYPBLg
-         u+k7ed7DCPu3HB7HyCKMlCVa5rQvAmHMCzkcBfZmi6UB1Et+loFBAFfWaKt8k5B2bN
-         330Z07vLB/r7eKMu8j9R7CC7aib4lsjLp4uLnvoo=
+        b=1Fyu65O0yPxm1z8XBQ6qO1s0hvFoU2WT43c3qNFawxAO16XPmp+QotEB1TwVMUFGX
+         /0lX+Bqy+sU8Zvnlvd5THQEH45zclicLcle607KZETvNrBV6L6OKPcANlhJJaGSkZF
+         Tz56NMcz2fw3KVK0lM6juhOxy2kmmEKur2rl/sm8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marek Szyprowski <m.szyprowski@samsung.com>,
-        Tomi Valkeinen <tomi.valkeinen@ti.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+Cc:     Jonas Karlman <jonas@kwiboo.se>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 108/388] media: s5p-mfc: Properly handle dma_parms for the allocated devices
-Date:   Wed, 17 Jun 2020 21:03:25 -0400
-Message-Id: <20200618010805.600873-108-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 109/388] media: v4l2-ctrls: Unset correct HEVC loop filter flag
+Date:   Wed, 17 Jun 2020 21:03:26 -0400
+Message-Id: <20200618010805.600873-109-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
 References: <20200618010805.600873-1-sashal@kernel.org>
@@ -47,53 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Jonas Karlman <jonas@kwiboo.se>
 
-[ Upstream commit cc8c0363ddce6308168d8223378ca884c213f280 ]
+[ Upstream commit 88441917dc6cd995cb993df603e264f5b88be50c ]
 
-Commit 9495b7e92f71 ("driver core: platform: Initialize dma_parms for
-platform devices") in v5.7-rc5 added allocation of dma_parms structure to
-all platform devices. Then vb2_dma_contig_set_max_seg_size() have been
-changed not to allocate dma_parms structure and rely on the one allocated
-by the device core. Lets allocate the needed structure also for the
-devices created for the 2 MFC device memory ports.
+Wrong loop filter flag is unset when tiles enabled flag is not set,
+this cause HEVC decoding issues with Rockchip Video Decoder.
 
-Reported-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Suggested-by: Ulf Hansson <ulf.hansson@linaro.org>
-Fixes: 9495b7e92f71 ("driver core: platform: Initialize dma_parms for platform devices")
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fix this by unsetting the loop filter across tiles enabled flag instead of
+the pps loop filter across slices enabled flag when tiles are disabled.
+
+Fixes: 256fa3920874 ("media: v4l: Add definitions for HEVC stateless decoding")
+Signed-off-by: Jonas Karlman <jonas@kwiboo.se>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/s5p-mfc/s5p_mfc.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/media/v4l2-core/v4l2-ctrls.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/s5p-mfc/s5p_mfc.c b/drivers/media/platform/s5p-mfc/s5p_mfc.c
-index 5c2a23b953a4..eba2b9f040df 100644
---- a/drivers/media/platform/s5p-mfc/s5p_mfc.c
-+++ b/drivers/media/platform/s5p-mfc/s5p_mfc.c
-@@ -1089,6 +1089,10 @@ static struct device *s5p_mfc_alloc_memdev(struct device *dev,
- 	child->coherent_dma_mask = dev->coherent_dma_mask;
- 	child->dma_mask = dev->dma_mask;
- 	child->release = s5p_mfc_memdev_release;
-+	child->dma_parms = devm_kzalloc(dev, sizeof(*child->dma_parms),
-+					GFP_KERNEL);
-+	if (!child->dma_parms)
-+		goto err;
+diff --git a/drivers/media/v4l2-core/v4l2-ctrls.c b/drivers/media/v4l2-core/v4l2-ctrls.c
+index 93d33d1db4e8..07d9ae7a929c 100644
+--- a/drivers/media/v4l2-core/v4l2-ctrls.c
++++ b/drivers/media/v4l2-core/v4l2-ctrls.c
+@@ -1825,7 +1825,7 @@ static int std_validate_compound(const struct v4l2_ctrl *ctrl, u32 idx,
+ 			       sizeof(p_hevc_pps->row_height_minus1));
  
- 	/*
- 	 * The memdevs are not proper OF platform devices, so in order for them
-@@ -1104,7 +1108,7 @@ static struct device *s5p_mfc_alloc_memdev(struct device *dev,
- 			return child;
- 		device_del(child);
- 	}
--
-+err:
- 	put_device(child);
- 	return NULL;
- }
+ 			p_hevc_pps->flags &=
+-				~V4L2_HEVC_PPS_FLAG_PPS_LOOP_FILTER_ACROSS_SLICES_ENABLED;
++				~V4L2_HEVC_PPS_FLAG_LOOP_FILTER_ACROSS_TILES_ENABLED;
+ 		}
+ 
+ 		if (p_hevc_pps->flags &
 -- 
 2.25.1
 
