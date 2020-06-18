@@ -2,114 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF2C61FE0F9
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:52:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44E361FE1D3
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:58:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731825AbgFRBvW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:51:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34940 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731770AbgFRB1E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:27:04 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1731362AbgFRBZJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:25:09 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:57418 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727995AbgFRBZH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 17 Jun 2020 21:25:07 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1592443505;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Aqj1ArPukFGK/qJUycjzo0g+sizWqNKXPf2rroolkYI=;
+        b=g5sanARHDD1lcSCxnAiBQrkEC+5WA7J1pUMSa+DGLcFPCM87aFbl3svKOqi1+bdRc8JH0s
+        Swxtd6Qt1pA9Xe6EBNkb7vX18h5bW1XNSnSOxZ2DA19xgB/CdH327cqaMdKkK7Q4CL4Kwo
+        EhJ9lDQ+vCbQyaxhdD/y7+YjuuYeepc=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-344-mvQFyElLOnWBcZG1gZ5MzA-1; Wed, 17 Jun 2020 21:25:03 -0400
+X-MC-Unique: mvQFyElLOnWBcZG1gZ5MzA-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2750520897;
-        Thu, 18 Jun 2020 01:27:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443623;
-        bh=eBj2SV0H+lxZ+/rvct+DDT8Lrvn4UMAZ59kaoPGgF3M=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V5YZimYVeGHeths5P+UmTekGGKer1YhprGfMpkPNyfy5MtXk7Yma2acGDHKqTvS7d
-         KfsyKcDBKZfTe+D1fE6SDF/cBXOHnENFrV8pKWUhR30KtxD6Mv1tmu4NF5X3kR/5mf
-         uYZBdPl20mUsf9EmLg1fJFvS0q80/SLyUHdEZmeg=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrew Murray <andrew.murray@arm.com>,
-        Marek Vasut <marek.vasut+renesas@gmail.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 049/108] PCI: rcar: Fix incorrect programming of OB windows
-Date:   Wed, 17 Jun 2020 21:25:01 -0400
-Message-Id: <20200618012600.608744-49-sashal@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200618012600.608744-1-sashal@kernel.org>
-References: <20200618012600.608744-1-sashal@kernel.org>
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0ADA4A0BD7;
+        Thu, 18 Jun 2020 01:25:02 +0000 (UTC)
+Received: from x1.home (ovpn-112-195.phx2.redhat.com [10.3.112.195])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 80C3410013D5;
+        Thu, 18 Jun 2020 01:25:01 +0000 (UTC)
+Date:   Wed, 17 Jun 2020 19:25:01 -0600
+From:   Alex Williamson <alex.williamson@redhat.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Qian Cai <cai@lca.pw>, kvm@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.7 280/388] vfio/pci: fix memory leaks of
+ eventfd ctx
+Message-ID: <20200617192501.2310afe6@x1.home>
+In-Reply-To: <20200618010805.600873-280-sashal@kernel.org>
+References: <20200618010805.600873-1-sashal@kernel.org>
+        <20200618010805.600873-280-sashal@kernel.org>
+Organization: Red Hat
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Murray <andrew.murray@arm.com>
+On Wed, 17 Jun 2020 21:06:17 -0400
+Sasha Levin <sashal@kernel.org> wrote:
 
-[ Upstream commit 2b9f217433e31d125fb697ca7974d3de3ecc3e92 ]
+> From: Qian Cai <cai@lca.pw>
+> 
+> [ Upstream commit 1518ac272e789cae8c555d69951b032a275b7602 ]
+> 
+> Finished a qemu-kvm (-device vfio-pci,host=0001:01:00.0) triggers a few
+> memory leaks after a while because vfio_pci_set_ctx_trigger_single()
+> calls eventfd_ctx_fdget() without the matching eventfd_ctx_put() later.
+> Fix it by calling eventfd_ctx_put() for those memory in
+> vfio_pci_release() before vfio_device_release().
+> 
+> unreferenced object 0xebff008981cc2b00 (size 128):
+>   comm "qemu-kvm", pid 4043, jiffies 4294994816 (age 9796.310s)
+>   hex dump (first 32 bytes):
+>     01 00 00 00 6b 6b 6b 6b 00 00 00 00 ad 4e ad de  ....kkkk.....N..
+>     ff ff ff ff 6b 6b 6b 6b ff ff ff ff ff ff ff ff  ....kkkk........
+>   backtrace:
+>     [<00000000917e8f8d>] slab_post_alloc_hook+0x74/0x9c
+>     [<00000000df0f2aa2>] kmem_cache_alloc_trace+0x2b4/0x3d4
+>     [<000000005fcec025>] do_eventfd+0x54/0x1ac
+>     [<0000000082791a69>] __arm64_sys_eventfd2+0x34/0x44
+>     [<00000000b819758c>] do_el0_svc+0x128/0x1dc
+>     [<00000000b244e810>] el0_sync_handler+0xd0/0x268
+>     [<00000000d495ef94>] el0_sync+0x164/0x180
+> unreferenced object 0x29ff008981cc4180 (size 128):
+>   comm "qemu-kvm", pid 4043, jiffies 4294994818 (age 9796.290s)
+>   hex dump (first 32 bytes):
+>     01 00 00 00 6b 6b 6b 6b 00 00 00 00 ad 4e ad de  ....kkkk.....N..
+>     ff ff ff ff 6b 6b 6b 6b ff ff ff ff ff ff ff ff  ....kkkk........
+>   backtrace:
+>     [<00000000917e8f8d>] slab_post_alloc_hook+0x74/0x9c
+>     [<00000000df0f2aa2>] kmem_cache_alloc_trace+0x2b4/0x3d4
+>     [<000000005fcec025>] do_eventfd+0x54/0x1ac
+>     [<0000000082791a69>] __arm64_sys_eventfd2+0x34/0x44
+>     [<00000000b819758c>] do_el0_svc+0x128/0x1dc
+>     [<00000000b244e810>] el0_sync_handler+0xd0/0x268
+>     [<00000000d495ef94>] el0_sync+0x164/0x180
+> 
+> Signed-off-by: Qian Cai <cai@lca.pw>
+> Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  drivers/vfio/pci/vfio_pci.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+> 
+> diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
+> index 6c6b37b5c04e..080e6608f297 100644
+> --- a/drivers/vfio/pci/vfio_pci.c
+> +++ b/drivers/vfio/pci/vfio_pci.c
+> @@ -519,6 +519,10 @@ static void vfio_pci_release(void *device_data)
+>  		vfio_pci_vf_token_user_add(vdev, -1);
+>  		vfio_spapr_pci_eeh_release(vdev->pdev);
+>  		vfio_pci_disable(vdev);
+> +		if (vdev->err_trigger)
+> +			eventfd_ctx_put(vdev->err_trigger);
+> +		if (vdev->req_trigger)
+> +			eventfd_ctx_put(vdev->req_trigger);
+>  	}
+>  
+>  	mutex_unlock(&vdev->reflck->lock);
 
-The outbound windows (PCIEPAUR(x), PCIEPALR(x)) describe a mapping between
-a CPU address (which is determined by the window number 'x') and a
-programmed PCI address - Thus allowing the controller to translate CPU
-accesses into PCI accesses.
 
-However the existing code incorrectly writes the CPU address - lets fix
-this by writing the PCI address instead.
+This has a fix pending, I'd suggest not picking it on its own:
 
-For memory transactions, existing DT users describe a 1:1 identity mapping
-and thus this change should have no effect. However the same isn't true for
-I/O.
+https://lore.kernel.org/kvm/20200616085052.sahrunsesjyjeyf2@beryllium.lan/
+https://lore.kernel.org/kvm/159234276956.31057.6902954364435481688.stgit@gimli.home/
 
-Link: https://lore.kernel.org/r/20191004132941.6660-1-andrew.murray@arm.com
-Fixes: c25da4778803 ("PCI: rcar: Add Renesas R-Car PCIe driver")
-Tested-by: Marek Vasut <marek.vasut+renesas@gmail.com>
-Signed-off-by: Andrew Murray <andrew.murray@arm.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Marek Vasut <marek.vasut+renesas@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/pci/host/pcie-rcar.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/pci/host/pcie-rcar.c b/drivers/pci/host/pcie-rcar.c
-index 2b0a1f3b8265..0077afca2493 100644
---- a/drivers/pci/host/pcie-rcar.c
-+++ b/drivers/pci/host/pcie-rcar.c
-@@ -328,11 +328,12 @@ static struct pci_ops rcar_pcie_ops = {
- };
- 
- static void rcar_pcie_setup_window(int win, struct rcar_pcie *pcie,
--				   struct resource *res)
-+				   struct resource_entry *window)
- {
- 	/* Setup PCIe address space mappings for each resource */
- 	resource_size_t size;
- 	resource_size_t res_start;
-+	struct resource *res = window->res;
- 	u32 mask;
- 
- 	rcar_pci_write_reg(pcie, 0x00000000, PCIEPTCTLR(win));
-@@ -346,9 +347,9 @@ static void rcar_pcie_setup_window(int win, struct rcar_pcie *pcie,
- 	rcar_pci_write_reg(pcie, mask << 7, PCIEPAMR(win));
- 
- 	if (res->flags & IORESOURCE_IO)
--		res_start = pci_pio_to_address(res->start);
-+		res_start = pci_pio_to_address(res->start) - window->offset;
- 	else
--		res_start = res->start;
-+		res_start = res->start - window->offset;
- 
- 	rcar_pci_write_reg(pcie, upper_32_bits(res_start), PCIEPAUR(win));
- 	rcar_pci_write_reg(pcie, lower_32_bits(res_start) & ~0x7F,
-@@ -377,7 +378,7 @@ static int rcar_pcie_setup(struct list_head *resource, struct rcar_pcie *pci)
- 		switch (resource_type(res)) {
- 		case IORESOURCE_IO:
- 		case IORESOURCE_MEM:
--			rcar_pcie_setup_window(i, pci, res);
-+			rcar_pcie_setup_window(i, pci, win);
- 			i++;
- 			break;
- 		case IORESOURCE_BUS:
--- 
-2.25.1
+Thanks,
+Alex
 
