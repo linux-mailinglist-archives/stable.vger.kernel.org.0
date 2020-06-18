@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F29F1FE0D4
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:51:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85D071FE101
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:52:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731765AbgFRB0z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:26:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34592 "EHLO mail.kernel.org"
+        id S1732264AbgFRBvh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:51:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731758AbgFRB0y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:26:54 -0400
+        id S1727071AbgFRB06 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:26:58 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8373821D7F;
-        Thu, 18 Jun 2020 01:26:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0FB7921D80;
+        Thu, 18 Jun 2020 01:26:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443614;
-        bh=kDfgXbkLOcQsgKi7kCnSID1zbif1f+ACplg1zsdz6pI=;
+        s=default; t=1592443617;
+        bh=1vNCKVBDL3uGljQY3US1t2T4+3QsHCABbxYqhgu8NQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q4oDuDMwwfr/sR37Vd+yTy2nH8w8folLx+zGT2wJFiUtSVKgmzdRcmNVxJROV1I24
-         0wYti3HhPDzSmysdcSWsvHZvz1SQK+93fzaphO/+Nm3JhurYxicqDrUkIhAVANiidT
-         o6cJc/NQEqR+UQVx5obSvr8wLSYTcLMVgDLHvGiE=
+        b=J+HJx6Krzg6BMoqJQ183PlOHciWdIjlGjH2rrwQEO6KnFOQj1Fp0sfOtT0JbT+fST
+         iI9Locv5CJpxNotN+miy83JMru98gTpU+3TzrG/Qg/hdT/rvE4wcr2Ygz3FUH/cOuZ
+         9MefWmvjYxb7hat5mCukd+jRTNix5V8vNKF5wKdw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Tsoy <alexander@tsoy.me>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.14 041/108] ALSA: usb-audio: Improve frames size computation
-Date:   Wed, 17 Jun 2020 21:24:53 -0400
-Message-Id: <20200618012600.608744-41-sashal@kernel.org>
+Cc:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Amit Kucheria <amit.kucheria@linaro.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org,
+        linux-omap@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 044/108] thermal/drivers/ti-soc-thermal: Avoid dereferencing ERR_PTR
+Date:   Wed, 17 Jun 2020 21:24:56 -0400
+Message-Id: <20200618012600.608744-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012600.608744-1-sashal@kernel.org>
 References: <20200618012600.608744-1-sashal@kernel.org>
@@ -42,165 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Tsoy <alexander@tsoy.me>
+From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 
-[ Upstream commit f0bd62b64016508938df9babe47f65c2c727d25c ]
+[ Upstream commit 7440f518dad9d861d76c64956641eeddd3586f75 ]
 
-For computation of the the next frame size current value of fs/fps and
-accumulated fractional parts of fs/fps are used, where values are stored
-in Q16.16 format. This is quite natural for computing frame size for
-asynchronous endpoints driven by explicit feedback, since in this case
-fs/fps is a value provided by the feedback endpoint and it's already in
-the Q format. If an error is accumulated over time, the device can
-adjust fs/fps value to prevent buffer overruns/underruns.
+On error the function ti_bandgap_get_sensor_data() returns the error
+code in ERR_PTR() but we only checked if the return value is NULL or
+not. And, so we can dereference an error code inside ERR_PTR.
+While at it, convert a check to IS_ERR_OR_NULL.
 
-But for synchronous endpoints the accuracy provided by these computations
-is not enough. Due to accumulated error the driver periodically produces
-frames with incorrect size (+/- 1 audio sample).
-
-This patch fixes this issue by implementing a different algorithm for
-frame size computation. It is based on accumulating of the remainders
-from division fs/fps and it doesn't accumulate errors over time. This
-new method is enabled for synchronous and adaptive playback endpoints.
-
-Signed-off-by: Alexander Tsoy <alexander@tsoy.me>
-Link: https://lore.kernel.org/r/20200424022449.14972-1-alexander@tsoy.me
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Reviewed-by: Amit Kucheria <amit.kucheria@linaro.org>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20200424161944.6044-1-sudipm.mukherjee@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/card.h     |  4 ++++
- sound/usb/endpoint.c | 43 ++++++++++++++++++++++++++++++++++++++-----
- sound/usb/endpoint.h |  1 +
- sound/usb/pcm.c      |  2 ++
- 4 files changed, 45 insertions(+), 5 deletions(-)
+ drivers/thermal/ti-soc-thermal/ti-thermal-common.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/sound/usb/card.h b/sound/usb/card.h
-index ed87cc83eb47..9dbcbb27c28e 100644
---- a/sound/usb/card.h
-+++ b/sound/usb/card.h
-@@ -81,6 +81,10 @@ struct snd_usb_endpoint {
- 	dma_addr_t sync_dma;		/* DMA address of syncbuf */
+diff --git a/drivers/thermal/ti-soc-thermal/ti-thermal-common.c b/drivers/thermal/ti-soc-thermal/ti-thermal-common.c
+index c211a8e4a210..fa98c398d70f 100644
+--- a/drivers/thermal/ti-soc-thermal/ti-thermal-common.c
++++ b/drivers/thermal/ti-soc-thermal/ti-thermal-common.c
+@@ -183,7 +183,7 @@ int ti_thermal_expose_sensor(struct ti_bandgap *bgp, int id,
  
- 	unsigned int pipe;		/* the data i/o pipe */
-+	unsigned int framesize[2];	/* small/large frame sizes in samples */
-+	unsigned int sample_rem;	/* remainder from division fs/fps */
-+	unsigned int sample_accum;	/* sample accumulator */
-+	unsigned int fps;		/* frames per second */
- 	unsigned int freqn;		/* nominal sampling rate in fs/fps in Q16.16 format */
- 	unsigned int freqm;		/* momentary sampling rate in fs/fps in Q16.16 format */
- 	int	   freqshift;		/* how much to shift the feedback value to get Q16.16 */
-diff --git a/sound/usb/endpoint.c b/sound/usb/endpoint.c
-index 8caf0b57f9c6..841219560872 100644
---- a/sound/usb/endpoint.c
-+++ b/sound/usb/endpoint.c
-@@ -137,12 +137,12 @@ int snd_usb_endpoint_implicit_feedback_sink(struct snd_usb_endpoint *ep)
+ 	data = ti_bandgap_get_sensor_data(bgp, id);
  
- /*
-  * For streaming based on information derived from sync endpoints,
-- * prepare_outbound_urb_sizes() will call next_packet_size() to
-+ * prepare_outbound_urb_sizes() will call slave_next_packet_size() to
-  * determine the number of samples to be sent in the next packet.
-  *
-- * For implicit feedback, next_packet_size() is unused.
-+ * For implicit feedback, slave_next_packet_size() is unused.
-  */
--int snd_usb_endpoint_next_packet_size(struct snd_usb_endpoint *ep)
-+int snd_usb_endpoint_slave_next_packet_size(struct snd_usb_endpoint *ep)
- {
- 	unsigned long flags;
- 	int ret;
-@@ -159,6 +159,29 @@ int snd_usb_endpoint_next_packet_size(struct snd_usb_endpoint *ep)
- 	return ret;
- }
+-	if (!data || IS_ERR(data))
++	if (!IS_ERR_OR_NULL(data))
+ 		data = ti_thermal_build_data(bgp, id);
  
-+/*
-+ * For adaptive and synchronous endpoints, prepare_outbound_urb_sizes()
-+ * will call next_packet_size() to determine the number of samples to be
-+ * sent in the next packet.
-+ */
-+int snd_usb_endpoint_next_packet_size(struct snd_usb_endpoint *ep)
-+{
-+	int ret;
-+
-+	if (ep->fill_max)
-+		return ep->maxframesize;
-+
-+	ep->sample_accum += ep->sample_rem;
-+	if (ep->sample_accum >= ep->fps) {
-+		ep->sample_accum -= ep->fps;
-+		ret = ep->framesize[1];
-+	} else {
-+		ret = ep->framesize[0];
-+	}
-+
-+	return ret;
-+}
-+
- static void retire_outbound_urb(struct snd_usb_endpoint *ep,
- 				struct snd_urb_ctx *urb_ctx)
- {
-@@ -203,6 +226,8 @@ static void prepare_silent_urb(struct snd_usb_endpoint *ep,
+ 	if (!data)
+@@ -210,7 +210,7 @@ int ti_thermal_remove_sensor(struct ti_bandgap *bgp, int id)
  
- 		if (ctx->packet_size[i])
- 			counts = ctx->packet_size[i];
-+		else if (ep->sync_master)
-+			counts = snd_usb_endpoint_slave_next_packet_size(ep);
- 		else
- 			counts = snd_usb_endpoint_next_packet_size(ep);
+ 	data = ti_bandgap_get_sensor_data(bgp, id);
  
-@@ -889,10 +914,17 @@ int snd_usb_endpoint_set_params(struct snd_usb_endpoint *ep,
- 	ep->maxpacksize = fmt->maxpacksize;
- 	ep->fill_max = !!(fmt->attributes & UAC_EP_CS_ATTR_FILL_MAX);
+-	if (data && data->ti_thermal) {
++	if (!IS_ERR_OR_NULL(data) && data->ti_thermal) {
+ 		if (data->our_zone)
+ 			thermal_zone_device_unregister(data->ti_thermal);
+ 	}
+@@ -276,7 +276,7 @@ int ti_thermal_unregister_cpu_cooling(struct ti_bandgap *bgp, int id)
  
--	if (snd_usb_get_speed(ep->chip->dev) == USB_SPEED_FULL)
-+	if (snd_usb_get_speed(ep->chip->dev) == USB_SPEED_FULL) {
- 		ep->freqn = get_usb_full_speed_rate(rate);
--	else
-+		ep->fps = 1000;
-+	} else {
- 		ep->freqn = get_usb_high_speed_rate(rate);
-+		ep->fps = 8000;
-+	}
-+
-+	ep->sample_rem = rate % ep->fps;
-+	ep->framesize[0] = rate / ep->fps;
-+	ep->framesize[1] = (rate + (ep->fps - 1)) / ep->fps;
+ 	data = ti_bandgap_get_sensor_data(bgp, id);
  
- 	/* calculate the frequency in 16.16 format */
- 	ep->freqm = ep->freqn;
-@@ -951,6 +983,7 @@ int snd_usb_endpoint_start(struct snd_usb_endpoint *ep)
- 	ep->active_mask = 0;
- 	ep->unlink_mask = 0;
- 	ep->phase = 0;
-+	ep->sample_accum = 0;
- 
- 	snd_usb_endpoint_start_quirk(ep);
- 
-diff --git a/sound/usb/endpoint.h b/sound/usb/endpoint.h
-index 63a39d4fa8d8..d23fa0a8c11b 100644
---- a/sound/usb/endpoint.h
-+++ b/sound/usb/endpoint.h
-@@ -28,6 +28,7 @@ void snd_usb_endpoint_release(struct snd_usb_endpoint *ep);
- void snd_usb_endpoint_free(struct snd_usb_endpoint *ep);
- 
- int snd_usb_endpoint_implicit_feedback_sink(struct snd_usb_endpoint *ep);
-+int snd_usb_endpoint_slave_next_packet_size(struct snd_usb_endpoint *ep);
- int snd_usb_endpoint_next_packet_size(struct snd_usb_endpoint *ep);
- 
- void snd_usb_handle_sync_urb(struct snd_usb_endpoint *ep,
-diff --git a/sound/usb/pcm.c b/sound/usb/pcm.c
-index ff38fca1781b..fd73186d6003 100644
---- a/sound/usb/pcm.c
-+++ b/sound/usb/pcm.c
-@@ -1484,6 +1484,8 @@ static void prepare_playback_urb(struct snd_usb_substream *subs,
- 	for (i = 0; i < ctx->packets; i++) {
- 		if (ctx->packet_size[i])
- 			counts = ctx->packet_size[i];
-+		else if (ep->sync_master)
-+			counts = snd_usb_endpoint_slave_next_packet_size(ep);
- 		else
- 			counts = snd_usb_endpoint_next_packet_size(ep);
- 
+-	if (data) {
++	if (!IS_ERR_OR_NULL(data)) {
+ 		cpufreq_cooling_unregister(data->cool_dev);
+ 		cpufreq_cpu_put(data->policy);
+ 	}
 -- 
 2.25.1
 
