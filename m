@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B44C1FDD7A
-	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:26:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E78831FDD7D
+	for <lists+stable@lfdr.de>; Thu, 18 Jun 2020 03:26:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731685AbgFRB0b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Jun 2020 21:26:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34002 "EHLO mail.kernel.org"
+        id S1731696AbgFRB0e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Jun 2020 21:26:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731676AbgFRB03 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:26:29 -0400
+        id S1731690AbgFRB0c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:26:32 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BBBA320B1F;
-        Thu, 18 Jun 2020 01:26:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2EFC120897;
+        Thu, 18 Jun 2020 01:26:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592443589;
-        bh=Vvix1eNkW7Lav4Up7MIJ75b402kMSnFT8rO+55Bkmjw=;
+        s=default; t=1592443592;
+        bh=UsY6ojiGGo04yYN4r3Alru+AS50HUpMPbmnkwX+mkWs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y4jU8KeFQhyXpykJY1I6XXVzc+BDbEfT9eXLZvMCZ2SRh+NMUw9AnFHalOoN13ie3
-         4ylfse0T30S1hzTSJjJAB6XROjDPPpIuwracbpyg6a/lLAmdFZRo7EQxyjWsc2e6XP
-         johGEn+IuL8ZP+r9RG062hj19mVt8bNNWUs68jUc=
+        b=gHgHz3Ol8l/j+n3klM5XFldaxt2pz4OJ8+vnF/giugCXeb3+5jFjEJBzwsl4pjww1
+         5BoKDbDbADNoPmqAiHYYN7Y7Pya0SInmiWNZLBjC7RcIyZhyMONkDyrYGQTy1vB+gv
+         vYC6MLFkCS0Hx25+dIl+1AZcxQV4H3jW8e5zcjrk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-m68k@lists.linux-m68k.org
-Subject: [PATCH AUTOSEL 4.14 023/108] m68k/PCI: Fix a memory leak in an error handling path
-Date:   Wed, 17 Jun 2020 21:24:35 -0400
-Message-Id: <20200618012600.608744-23-sashal@kernel.org>
+Cc:     Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Daniel Wagner <dwagner@suse.de>,
+        James Smart <james.smart@broadcom.com>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 025/108] scsi: lpfc: Fix lpfc_nodelist leak when processing unsolicited event
+Date:   Wed, 17 Jun 2020 21:24:37 -0400
+Message-Id: <20200618012600.608744-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200618012600.608744-1-sashal@kernel.org>
 References: <20200618012600.608744-1-sashal@kernel.org>
@@ -45,38 +46,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-[ Upstream commit c3f4ec050f56eeab7c1f290321f9b762c95bd332 ]
+[ Upstream commit 7217e6e694da3aae6d17db8a7f7460c8d4817ebf ]
 
-If 'ioremap' fails, we must free 'bridge', as done in other error handling
-path bellow.
+In order to create or activate a new node, lpfc_els_unsol_buffer() invokes
+lpfc_nlp_init() or lpfc_enable_node() or lpfc_nlp_get(), all of them will
+return a reference of the specified lpfc_nodelist object to "ndlp" with
+increased refcnt.
 
-Fixes: 19cc4c843f40 ("m68k/PCI: Replace pci_fixup_irqs() call with host bridge IRQ mapping hooks")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
+When lpfc_els_unsol_buffer() returns, local variable "ndlp" becomes
+invalid, so the refcount should be decreased to keep refcount balanced.
+
+The reference counting issue happens in one exception handling path of
+lpfc_els_unsol_buffer(). When "ndlp" in DEV_LOSS, the function forgets to
+decrease the refcnt increased by lpfc_nlp_init() or lpfc_enable_node() or
+lpfc_nlp_get(), causing a refcnt leak.
+
+Fix this issue by calling lpfc_nlp_put() when "ndlp" in DEV_LOSS.
+
+Link: https://lore.kernel.org/r/1590416184-52592-1-git-send-email-xiyuyang19@fudan.edu.cn
+Reviewed-by: Daniel Wagner <dwagner@suse.de>
+Reviewed-by: James Smart <james.smart@broadcom.com>
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/coldfire/pci.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/scsi/lpfc/lpfc_els.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/m68k/coldfire/pci.c b/arch/m68k/coldfire/pci.c
-index 3097fa2ca746..1e428d18d268 100644
---- a/arch/m68k/coldfire/pci.c
-+++ b/arch/m68k/coldfire/pci.c
-@@ -316,8 +316,10 @@ static int __init mcf_pci_init(void)
- 
- 	/* Keep a virtual mapping to IO/config space active */
- 	iospace = (unsigned long) ioremap(PCI_IO_PA, PCI_IO_SIZE);
--	if (iospace == 0)
-+	if (iospace == 0) {
-+		pci_free_host_bridge(bridge);
- 		return -ENODEV;
-+	}
- 	pr_info("Coldfire: PCI IO/config window mapped to 0x%x\n",
- 		(u32) iospace);
- 
+diff --git a/drivers/scsi/lpfc/lpfc_els.c b/drivers/scsi/lpfc/lpfc_els.c
+index 4c84c2ae1112..db1111f7e85a 100644
+--- a/drivers/scsi/lpfc/lpfc_els.c
++++ b/drivers/scsi/lpfc/lpfc_els.c
+@@ -7913,6 +7913,8 @@ lpfc_els_unsol_buffer(struct lpfc_hba *phba, struct lpfc_sli_ring *pring,
+ 	spin_lock_irq(shost->host_lock);
+ 	if (ndlp->nlp_flag & NLP_IN_DEV_LOSS) {
+ 		spin_unlock_irq(shost->host_lock);
++		if (newnode)
++			lpfc_nlp_put(ndlp);
+ 		goto dropit;
+ 	}
+ 	spin_unlock_irq(shost->host_lock);
 -- 
 2.25.1
 
