@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FAD42017CC
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89C2020170D
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:46:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388463AbgFSQn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:43:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34376 "EHLO mail.kernel.org"
+        id S2389401AbgFSOvK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:51:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388476AbgFSOn1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:43:27 -0400
+        id S2389068AbgFSOvH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:51:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9AD022168B;
-        Fri, 19 Jun 2020 14:43:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC30221527;
+        Fri, 19 Jun 2020 14:51:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577807;
-        bh=uFwyZt1jxmvhD48DavXd5qLHB47tEeS/Z/5wVKXfbQk=;
+        s=default; t=1592578267;
+        bh=biZxo7xIfF834z9nqNS71nzofZ7r6Uqho9xZzSIhqPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LE6O7PhZfTgJYu1q0yHPED01VVMfSRneKL7D7e9cK1gI0UUFyWDK3MjTfAMqMmyu6
-         aBWDbo46N9XztKVs9eq7rxFCX0ZNIjmzeYVKZsBSuX6vB1A+1NVr6OHxr3ggMoA5so
-         ZMJQk13UKxav6+zMJ2AtgUwuhAw9/ZBkngYRsJXU=
+        b=MgWCnfGP5g+D06Da8fQvsyRE2TlhhEfAqeHU0t10CRtbP+bPbciAnMT08S07WAUIu
+         uvTOtkWwcdsi0y+E//LRp9wGBG8poixFRxxf/MOGDWlQgA1ZU1ea6Z0p4uqkD+hQpC
+         S7p+Agw0qJ6VMVyBCbV0kArjUQaL2cG6fn/T4S84=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrea Arcangeli <aarcange@redhat.com>,
-        Jann Horn <jannh@google.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 098/128] mm: thp: make the THP mapcount atomic against __split_huge_pmd_locked()
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.14 147/190] ext4: fix race between ext4_sync_parent() and rename()
 Date:   Fri, 19 Jun 2020 16:33:12 +0200
-Message-Id: <20200619141625.314982137@linuxfoundation.org>
+Message-Id: <20200619141641.062726045@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
-References: <20200619141620.148019466@linuxfoundation.org>
+In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
+References: <20200619141633.446429600@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,101 +43,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Arcangeli <aarcange@redhat.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit c444eb564fb16645c172d550359cb3d75fe8a040 upstream.
+commit 08adf452e628b0e2ce9a01048cfbec52353703d7 upstream.
 
-Write protect anon page faults require an accurate mapcount to decide
-if to break the COW or not. This is implemented in the THP path with
-reuse_swap_page() ->
-page_trans_huge_map_swapcount()/page_trans_huge_mapcount().
+'igrab(d_inode(dentry->d_parent))' without holding dentry->d_lock is
+broken because without d_lock, d_parent can be concurrently changed due
+to a rename().  Then if the old directory is immediately deleted, old
+d_parent->inode can be NULL.  That causes a NULL dereference in igrab().
 
-If the COW triggers while the other processes sharing the page are
-under a huge pmd split, to do an accurate reading, we must ensure the
-mapcount isn't computed while it's being transferred from the head
-page to the tail pages.
+To fix this, use dget_parent() to safely grab a reference to the parent
+dentry, which pins the inode.  This also eliminates the need to use
+d_find_any_alias() other than for the initial inode, as we no longer
+throw away the dentry at each step.
 
-reuse_swap_cache() already runs serialized by the page lock, so it's
-enough to add the page lock around __split_huge_pmd_locked too, in
-order to add the missing serialization.
+This is an extremely hard race to hit, but it is possible.  Adding a
+udelay() in between the reads of ->d_parent and its ->d_inode makes it
+reproducible on a no-journal filesystem using the following program:
 
-Note: the commit in "Fixes" is just to facilitate the backporting,
-because the code before such commit didn't try to do an accurate THP
-mapcount calculation and it instead used the page_count() to decide if
-to COW or not. Both the page_count and the pin_count are THP-wide
-refcounts, so they're inaccurate if used in
-reuse_swap_page(). Reverting such commit (besides the unrelated fix to
-the local anon_vma assignment) would have also opened the window for
-memory corruption side effects to certain workloads as documented in
-such commit header.
+    #include <fcntl.h>
+    #include <unistd.h>
 
-Signed-off-by: Andrea Arcangeli <aarcange@redhat.com>
-Suggested-by: Jann Horn <jannh@google.com>
-Reported-by: Jann Horn <jannh@google.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Fixes: 6d0a07edd17c ("mm: thp: calculate the mapcount correctly for THP pages during WP faults")
+    int main()
+    {
+        if (fork()) {
+            for (;;) {
+                mkdir("dir1", 0700);
+                int fd = open("dir1/file", O_RDWR|O_CREAT|O_SYNC);
+                write(fd, "X", 1);
+                close(fd);
+            }
+        } else {
+            mkdir("dir2", 0700);
+            for (;;) {
+                rename("dir1/file", "dir2/file");
+                rmdir("dir1");
+            }
+        }
+    }
+
+Fixes: d59729f4e794 ("ext4: fix races in ext4_sync_parent()")
 Cc: stable@vger.kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Link: https://lore.kernel.org/r/20200506183140.541194-1-ebiggers@kernel.org
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/huge_memory.c |   31 ++++++++++++++++++++++++++++---
- 1 file changed, 28 insertions(+), 3 deletions(-)
+ fs/ext4/fsync.c |   28 +++++++++++++---------------
+ 1 file changed, 13 insertions(+), 15 deletions(-)
 
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -1755,6 +1755,8 @@ void __split_huge_pmd(struct vm_area_str
- 	spinlock_t *ptl;
- 	struct mm_struct *mm = vma->vm_mm;
- 	unsigned long haddr = address & HPAGE_PMD_MASK;
-+	bool was_locked = false;
-+	pmd_t _pmd;
+--- a/fs/ext4/fsync.c
++++ b/fs/ext4/fsync.c
+@@ -44,30 +44,28 @@
+  */
+ static int ext4_sync_parent(struct inode *inode)
+ {
+-	struct dentry *dentry = NULL;
+-	struct inode *next;
++	struct dentry *dentry, *next;
+ 	int ret = 0;
  
- 	mmu_notifier_invalidate_range_start(mm, haddr, haddr + HPAGE_PMD_SIZE);
- 	ptl = pmd_lock(mm, pmd);
-@@ -1764,11 +1766,32 @@ void __split_huge_pmd(struct vm_area_str
- 	 * pmd against. Otherwise we can end up replacing wrong page.
- 	 */
- 	VM_BUG_ON(freeze && !page);
--	if (page && page != pmd_page(*pmd))
--	        goto out;
-+	if (page) {
-+		VM_WARN_ON_ONCE(!PageLocked(page));
-+		was_locked = true;
-+		if (page != pmd_page(*pmd))
-+			goto out;
-+	}
- 
-+repeat:
- 	if (pmd_trans_huge(*pmd)) {
--		page = pmd_page(*pmd);
-+		if (!page) {
-+			page = pmd_page(*pmd);
-+			if (unlikely(!trylock_page(page))) {
-+				get_page(page);
-+				_pmd = *pmd;
-+				spin_unlock(ptl);
-+				lock_page(page);
-+				spin_lock(ptl);
-+				if (unlikely(!pmd_same(*pmd, _pmd))) {
-+					unlock_page(page);
-+					put_page(page);
-+					page = NULL;
-+					goto repeat;
-+				}
-+				put_page(page);
-+			}
-+		}
- 		if (PageMlocked(page))
- 			clear_page_mlock(page);
- 	} else if (!pmd_devmap(*pmd))
-@@ -1776,6 +1799,8 @@ void __split_huge_pmd(struct vm_area_str
- 	__split_huge_pmd_locked(vma, pmd, haddr, freeze);
- out:
- 	spin_unlock(ptl);
-+	if (!was_locked && page)
-+		unlock_page(page);
- 	mmu_notifier_invalidate_range_end(mm, haddr, haddr + HPAGE_PMD_SIZE);
+ 	if (!ext4_test_inode_state(inode, EXT4_STATE_NEWENTRY))
+ 		return 0;
+-	inode = igrab(inode);
++	dentry = d_find_any_alias(inode);
++	if (!dentry)
++		return 0;
+ 	while (ext4_test_inode_state(inode, EXT4_STATE_NEWENTRY)) {
+ 		ext4_clear_inode_state(inode, EXT4_STATE_NEWENTRY);
+-		dentry = d_find_any_alias(inode);
+-		if (!dentry)
+-			break;
+-		next = igrab(d_inode(dentry->d_parent));
++
++		next = dget_parent(dentry);
+ 		dput(dentry);
+-		if (!next)
+-			break;
+-		iput(inode);
+-		inode = next;
++		dentry = next;
++		inode = dentry->d_inode;
++
+ 		/*
+ 		 * The directory inode may have gone through rmdir by now. But
+ 		 * the inode itself and its blocks are still allocated (we hold
+-		 * a reference to the inode so it didn't go through
+-		 * ext4_evict_inode()) and so we are safe to flush metadata
+-		 * blocks and the inode.
++		 * a reference to the inode via its dentry), so it didn't go
++		 * through ext4_evict_inode()) and so we are safe to flush
++		 * metadata blocks and the inode.
+ 		 */
+ 		ret = sync_mapping_buffers(inode->i_mapping);
+ 		if (ret)
+@@ -76,7 +74,7 @@ static int ext4_sync_parent(struct inode
+ 		if (ret)
+ 			break;
+ 	}
+-	iput(inode);
++	dput(dentry);
+ 	return ret;
  }
  
 
