@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A81920178B
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A91F201628
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:32:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388798AbgFSQkA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:40:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37780 "EHLO mail.kernel.org"
+        id S2393943AbgFSQ13 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:27:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388796AbgFSOqF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:46:05 -0400
+        id S2390007AbgFSOzy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:55:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D80621582;
-        Fri, 19 Jun 2020 14:46:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 021A62158C;
+        Fri, 19 Jun 2020 14:55:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577964;
-        bh=AfBtStXJXaYPmnT+dTRLZ/pe4//6x1OcubtVyz9z2Gg=;
+        s=default; t=1592578554;
+        bh=3Gy/92jLZF+v7FYdCtBsRReY/y1P8gmS+TEu783FoGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qXBZhqEdTikibEfHj9mjf3naQGfuywZ01lKwxNz+r3gr00XX2txAdMG5rgDp/p08h
-         +5lh9Wdug2JF2eu8H9Dmg6G330TRm3EbuJvD0BYmNJr0pQuyRKKT82RvRvo21YdwVe
-         lPzXXxmutVXAK5GS6FvQ2v+3cK9ooEQ50xRpmuy8=
+        b=daIYJkwoBF5e3KwDglzGJdRV2hcndCDv+jG1k5R3v7qR35jNYk6vxT/uTvpp1dTkE
+         QW91T/QuPHUTK4IIGeCFBthjDS0uVbD9mY7ECyHttIrfqxbX/KBieakYxm+DXm6ZUh
+         yAUU7nueKt1qtX2NrPp0SDOtx/ZpP1niZWn/9+F8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Miles Chen <miles.chen@mediatek.com>
-Subject: [PATCH 4.14 007/190] lib: Reduce user_access_begin() boundaries in strncpy_from_user() and strnlen_user()
+        stable@vger.kernel.org, Tanner Love <tannerlove@google.com>,
+        Willem de Bruijn <willemb@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 067/267] selftests/net: in rxtimestamp getopt_long needs terminating null entry
 Date:   Fri, 19 Jun 2020 16:30:52 +0200
-Message-Id: <20200619141633.835800444@linuxfoundation.org>
+Message-Id: <20200619141652.101127825@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
-References: <20200619141633.446429600@linuxfoundation.org>
+In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
+References: <20200619141648.840376470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,89 +44,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@c-s.fr>
+From: tannerlove <tannerlove@google.com>
 
-commit ab10ae1c3bef56c29bac61e1201c752221b87b41 upstream.
+[ Upstream commit 865a6cbb2288f8af7f9dc3b153c61b7014fdcf1e ]
 
-The range passed to user_access_begin() by strncpy_from_user() and
-strnlen_user() starts at 'src' and goes up to the limit of userspace
-although reads will be limited by the 'count' param.
+getopt_long requires the last element to be filled with zeros.
+Otherwise, passing an unrecognized option can cause a segfault.
 
-On 32 bits powerpc (book3s/32) access has to be granted for each
-256Mbytes segment and the cost increases with the number of segments to
-unlock.
-
-Limit the range with 'count' param.
-
-Fixes: 594cc251fdd0 ("make 'user_access_begin()' do 'access_ok()'")
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Miles Chen <miles.chen@mediatek.com>
+Fixes: 16e781224198 ("selftests/net: Add a test to validate behavior of rx timestamps")
+Signed-off-by: Tanner Love <tannerlove@google.com>
+Acked-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- lib/strncpy_from_user.c |   14 +++++++-------
- lib/strnlen_user.c      |   14 +++++++-------
- 2 files changed, 14 insertions(+), 14 deletions(-)
+ tools/testing/selftests/networking/timestamping/rxtimestamp.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/lib/strncpy_from_user.c
-+++ b/lib/strncpy_from_user.c
-@@ -29,13 +29,6 @@ static inline long do_strncpy_from_user(
- 	const struct word_at_a_time constants = WORD_AT_A_TIME_CONSTANTS;
- 	unsigned long res = 0;
+--- a/tools/testing/selftests/networking/timestamping/rxtimestamp.c
++++ b/tools/testing/selftests/networking/timestamping/rxtimestamp.c
+@@ -114,6 +114,7 @@ static struct option long_options[] = {
+ 	{ "tcp", no_argument, 0, 't' },
+ 	{ "udp", no_argument, 0, 'u' },
+ 	{ "ip", no_argument, 0, 'i' },
++	{ NULL, 0, NULL, 0 },
+ };
  
--	/*
--	 * Truncate 'max' to the user-specified limit, so that
--	 * we only have one limit we need to check in the loop
--	 */
--	if (max > count)
--		max = count;
--
- 	if (IS_UNALIGNED(src, dst))
- 		goto byte_at_a_time;
- 
-@@ -113,6 +106,13 @@ long strncpy_from_user(char *dst, const
- 		unsigned long max = max_addr - src_addr;
- 		long retval;
- 
-+		/*
-+		 * Truncate 'max' to the user-specified limit, so that
-+		 * we only have one limit we need to check in the loop
-+		 */
-+		if (max > count)
-+			max = count;
-+
- 		kasan_check_write(dst, count);
- 		check_object_size(dst, count, false);
- 		if (user_access_begin(VERIFY_READ, src, max)) {
---- a/lib/strnlen_user.c
-+++ b/lib/strnlen_user.c
-@@ -32,13 +32,6 @@ static inline long do_strnlen_user(const
- 	unsigned long c;
- 
- 	/*
--	 * Truncate 'max' to the user-specified limit, so that
--	 * we only have one limit we need to check in the loop
--	 */
--	if (max > count)
--		max = count;
--
--	/*
- 	 * Do everything aligned. But that means that we
- 	 * need to also expand the maximum..
- 	 */
-@@ -114,6 +107,13 @@ long strnlen_user(const char __user *str
- 		unsigned long max = max_addr - src_addr;
- 		long retval;
- 
-+		/*
-+		 * Truncate 'max' to the user-specified limit, so that
-+		 * we only have one limit we need to check in the loop
-+		 */
-+		if (max > count)
-+			max = count;
-+
- 		if (user_access_begin(VERIFY_READ, str, max)) {
- 			retval = do_strnlen_user(str, count, max);
- 			user_access_end();
+ static int next_port = 19999;
 
 
