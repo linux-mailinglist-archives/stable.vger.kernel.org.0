@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D6EF20106B
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:31:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2ECDE201126
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:42:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404408AbgFSPaS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:30:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34074 "EHLO mail.kernel.org"
+        id S2405114AbgFSPhD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:37:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393716AbgFSPaR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:30:17 -0400
+        id S2393751AbgFSPaq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:30:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E711206B7;
-        Fri, 19 Jun 2020 15:30:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 58C752166E;
+        Fri, 19 Jun 2020 15:30:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580616;
-        bh=n13eyRRomMJps8ls0nwvReLF+/XPiXI8h6Y4M9+PegI=;
+        s=default; t=1592580645;
+        bh=3InnyeHOfX2HAI/p9Sw6CicKSt7MLeeAttZJ9oB0KQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P9mRtqBEbixN96QC5I3VvUf6G/GaCo/FXcIdux3zLDaXClZpYbm2LRtoaR7zb2pMN
-         CXq7lqM92K23LpxaqhHH+wR6jWgGJE+G3b0R/IqcXJfeJbpMqn4W+5GdWOSmD6owtg
-         /EZ/a3vxj+avMaUYeJJqKmKO9XzI61cPJNW+tz+E=
+        b=nSi+w3nfriKAqeUCmGxxhVjCBQvGA4Ya1AbhttyotbzTtecFDKv5u6gp9KxMhIgO+
+         IqcF52eYZgVFAOFRS+iR7sfI8gxeg4fO7oZtQQIFLTjgHROY1+ecJK6adpU3ujvZGH
+         E9hKoVOnF0ae6YjnaLnhAzRhxDp95khbBKwRwWvg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Duyck <alexander.duyck@gmail.com>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Aaron Brown <aaron.f.brown@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-Subject: [PATCH 5.7 310/376] igb: Report speed and duplex as unknown when device is runtime suspended
-Date:   Fri, 19 Jun 2020 16:33:48 +0200
-Message-Id: <20200619141725.010032306@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Monakov <amonakov@ispras.ru>,
+        Borislav Petkov <bp@suse.de>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 5.7 311/376] hwmon: (k10temp) Add AMD family 17h model 60h PCI match
+Date:   Fri, 19 Jun 2020 16:33:49 +0200
+Message-Id: <20200619141725.056898543@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -46,52 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Alexander Monakov <amonakov@ispras.ru>
 
-commit 165ae7a8feb53dc47fb041357e4b253bfc927cf9 upstream.
+commit 279f0b3a4b80660fba6faadc2ca2fa426bf3f7e9 upstream.
 
-igb device gets runtime suspended when there's no link partner. We can't
-get correct speed under that state:
-$ cat /sys/class/net/enp3s0/speed
-1000
+Add support for retrieving Tdie and Tctl on AMD Renoir (4000-series
+Ryzen CPUs).
 
-In addition to that, an error can also be spotted in dmesg:
-[  385.991957] igb 0000:03:00.0 enp3s0: PCIe link lost
+It appears SMU offsets for reading current/voltage and CCD temperature
+have changed for this generation (reads from currently used offsets
+yield zeros), so those features cannot be enabled so trivially.
 
-Since device can only be runtime suspended when there's no link partner,
-we can skip reading register and let the following logic set speed and
-duplex with correct status.
-
-The more generic approach will be wrap get_link_ksettings() with begin()
-and complete() callbacks. However, for this particular issue, begin()
-calls igb_runtime_resume() , which tries to rtnl_lock() while the lock
-is already hold by upper ethtool layer.
-
-So let's take this approach until the igb_runtime_resume() no longer
-needs to hold rtnl_lock.
-
-CC: stable <stable@vger.kernel.org>
-Suggested-by: Alexander Duyck <alexander.duyck@gmail.com>
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Tested-by: Aaron Brown <aaron.f.brown@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Signed-off-by: Alexander Monakov <amonakov@ispras.ru>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lkml.kernel.org/r/20200510204842.2603-3-amonakov@ispras.ru
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/intel/igb/igb_ethtool.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/hwmon/k10temp.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/ethernet/intel/igb/igb_ethtool.c
-+++ b/drivers/net/ethernet/intel/igb/igb_ethtool.c
-@@ -143,7 +143,8 @@ static int igb_get_link_ksettings(struct
- 	u32 speed;
- 	u32 supported, advertising;
- 
--	status = rd32(E1000_STATUS);
-+	status = pm_runtime_suspended(&adapter->pdev->dev) ?
-+		 0 : rd32(E1000_STATUS);
- 	if (hw->phy.media_type == e1000_media_type_copper) {
- 
- 		supported = (SUPPORTED_10baseT_Half |
+--- a/drivers/hwmon/k10temp.c
++++ b/drivers/hwmon/k10temp.c
+@@ -632,6 +632,7 @@ static const struct pci_device_id k10tem
+ 	{ PCI_VDEVICE(AMD, PCI_DEVICE_ID_AMD_17H_DF_F3) },
+ 	{ PCI_VDEVICE(AMD, PCI_DEVICE_ID_AMD_17H_M10H_DF_F3) },
+ 	{ PCI_VDEVICE(AMD, PCI_DEVICE_ID_AMD_17H_M30H_DF_F3) },
++	{ PCI_VDEVICE(AMD, PCI_DEVICE_ID_AMD_17H_M60H_DF_F3) },
+ 	{ PCI_VDEVICE(AMD, PCI_DEVICE_ID_AMD_17H_M70H_DF_F3) },
+ 	{ PCI_VDEVICE(HYGON, PCI_DEVICE_ID_AMD_17H_DF_F3) },
+ 	{}
 
 
