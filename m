@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0253B200F56
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:22:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B282200E13
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:06:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392455AbgFSPQF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:16:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46534 "EHLO mail.kernel.org"
+        id S2391177AbgFSPEo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:04:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392451AbgFSPP7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:15:59 -0400
+        id S2391175AbgFSPEk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:04:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D81242184D;
-        Fri, 19 Jun 2020 15:15:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D862E21974;
+        Fri, 19 Jun 2020 15:04:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579759;
-        bh=5hSc+i7R6HUFUXmaUtMDJxodRMsEDfKC53KLvuOO6t8=;
+        s=default; t=1592579079;
+        bh=lZGs5YKuHh6WGc7H6x/l+k89JKiDGhYKU+t4quqo3c8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CxfLaRxL57TvSrwMfoaabiNIoGmI5qzcDxd0LBsfAJjVhcZN6HHXJdxRLhO2HZDrk
-         pT9X+ubxn/673/j4btGPL4mlVDMIb2hoXzgn1lUmYYN9wqE3Akg1VGwIrQMif7rzRz
-         NIQvPVoW04kPkilh6Coy+rmQBhZTjVlOMbtsWmaU=
+        b=JWVbMY4dXkoWZzNXBkFNT3J1TU4AF3uu6phZUVnLF2wigLhMC+CgZdUpn132Hm5Z0
+         UsqxnbAZtSx7eFkJqp+SLe5x+8uDjvshwy7tsZkKwxVqY/7Yh/Lv9K1MirvTULDbeo
+         JK7vT+W3hSJwTwe+cJQQyBqd0cgLPCV2INAb55a4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
         Nicolas Chauvet <kwizart@gmail.com>,
         Thierry Reding <treding@nvidia.com>
-Subject: [PATCH 5.4 225/261] ARM: tegra: Correct PL310 Auxiliary Control Register initialization
+Subject: [PATCH 4.19 251/267] ARM: tegra: Correct PL310 Auxiliary Control Register initialization
 Date:   Fri, 19 Jun 2020 16:33:56 +0200
-Message-Id: <20200619141700.643109020@linuxfoundation.org>
+Message-Id: <20200619141700.714765950@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
-References: <20200619141649.878808811@linuxfoundation.org>
+In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
+References: <20200619141648.840376470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -70,7 +70,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/arch/arm/mach-tegra/tegra.c
 +++ b/arch/arm/mach-tegra/tegra.c
-@@ -106,8 +106,8 @@ static const char * const tegra_dt_board
+@@ -112,8 +112,8 @@ static const char * const tegra_dt_board
  };
  
  DT_MACHINE_START(TEGRA_DT, "NVIDIA Tegra SoC (Flattened Device Tree)")
