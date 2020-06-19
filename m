@@ -2,36 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AAC60201823
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:48:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88A52201808
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:48:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732225AbgFSOlO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:41:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59536 "EHLO mail.kernel.org"
+        id S2405049AbgFSQqJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:46:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728068AbgFSOlL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:41:11 -0400
+        id S2388278AbgFSOli (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:41:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2330720CC7;
-        Fri, 19 Jun 2020 14:41:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 539D320A8B;
+        Fri, 19 Jun 2020 14:41:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577671;
-        bh=uL5DzlwHh/1AWGFJZh0Ag4fA0tSL7mQIfxjWVnjAN9Y=;
+        s=default; t=1592577697;
+        bh=nf6WbXus/fRJsbsMaoNzI2UGOISYEAtpLYyvozpfqfY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b4EcgS7uXYLxgugAe0bPgw/ns/8S3+rcQGl8czD8ORf/MZI9G6r38uSUaiaAr94MS
-         guhKm2qy3xNHMiFazf0xre68l1Hr4ip5lOnHfWK9UOKjcM6hiDXrmULxaoXlFzfdY+
-         kmmWIsG2BZ4/F4TGb0oLVyrSMJMC04NpoJ+ZXv7c=
+        b=z9+ciDKziNgZa/IkZug6IKeIxQoUTkeQholgIknAek2KS0ggzqi+TGkNmsaLlOTy6
+         CZFgttQFK/TH+kYVIQYxSyqwAoLIIlfAUb2a7YFg0SzBDUG6g63HTiyduXzmoeSUaI
+         R7xyA4kQ0FlVCadI5BiYAKJxRJLwlUcnFhARGpKU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 024/128] ALSA: pcm: disallow linking stream to itself
-Date:   Fri, 19 Jun 2020 16:31:58 +0200
-Message-Id: <20200619141621.457414340@linuxfoundation.org>
+        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
+        Borislav Petkov <bp@suse.de>, "H. Peter Anvin" <hpa@zytor.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        David Woodhouse <dwmw@amazon.co.uk>,
+        Ingo Molnar <mingo@redhat.com>, Jiri Kosina <jkosina@suse.cz>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        KarimAllah Ahmed <karahmed@amazon.de>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Tim Chen <tim.c.chen@linux.intel.com>, x86-ml <x86@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 025/128] x86/speculation: Change misspelled STIPB to STIBP
+Date:   Fri, 19 Jun 2020 16:31:59 +0200
+Message-Id: <20200619141621.505130315@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
 References: <20200619141620.148019466@linuxfoundation.org>
@@ -44,39 +53,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+From: Waiman Long <longman@redhat.com>
 
-commit 951e2736f4b11b58dc44d41964fa17c3527d882a upstream.
+[ Upstream commit aa77bfb354c495fc4361199e63fc5765b9e1e783 ]
 
-Prevent SNDRV_PCM_IOCTL_LINK linking stream to itself - the code
-can't handle it. Fixed commit is not where bug was introduced, but
-changes the context significantly.
+STIBP stands for Single Thread Indirect Branch Predictors. The acronym,
+however, can be easily mis-spelled as STIPB. It is perhaps due to the
+presence of another related term - IBPB (Indirect Branch Predictor
+Barrier).
 
-Cc: stable@vger.kernel.org
-Fixes: 0888c321de70 ("pcm_native: switch to fdget()/fdput()")
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Link: https://lore.kernel.org/r/89c4a2487609a0ed6af3ecf01cc972bdc59a7a2d.1591634956.git.mirq-linux@rere.qmqm.pl
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix the mis-spelling in the code.
 
-
+Signed-off-by: Waiman Long <longman@redhat.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: David Woodhouse <dwmw@amazon.co.uk>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jiri Kosina <jkosina@suse.cz>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: KarimAllah Ahmed <karahmed@amazon.de>
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Tim Chen <tim.c.chen@linux.intel.com>
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/1544039368-9009-1-git-send-email-longman@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/pcm_native.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ arch/x86/kernel/cpu/bugs.c | 6 +++---
+ arch/x86/kernel/process.h  | 2 +-
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/sound/core/pcm_native.c
-+++ b/sound/core/pcm_native.c
-@@ -1836,6 +1836,11 @@ static int snd_pcm_link(struct snd_pcm_s
+diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
+index 5ef0a2b34261..704ffc01a226 100644
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -60,7 +60,7 @@ static u64 __ro_after_init x86_spec_ctrl_mask = SPEC_CTRL_IBRS;
+ u64 __ro_after_init x86_amd_ls_cfg_base;
+ u64 __ro_after_init x86_amd_ls_cfg_ssbd_mask;
+ 
+-/* Control conditional STIPB in switch_to() */
++/* Control conditional STIBP in switch_to() */
+ DEFINE_STATIC_KEY_FALSE(switch_to_cond_stibp);
+ /* Control conditional IBPB in switch_mm() */
+ DEFINE_STATIC_KEY_FALSE(switch_mm_cond_ibpb);
+@@ -749,12 +749,12 @@ spectre_v2_user_select_mitigation(enum spectre_v2_mitigation_cmd v2_cmd)
+ 			"always-on" : "conditional");
  	}
- 	pcm_file = f.file->private_data;
- 	substream1 = pcm_file->substream;
-+	if (substream == substream1) {
-+		res = -EINVAL;
-+		goto _badf;
-+	}
-+
- 	group = kmalloc(sizeof(*group), GFP_KERNEL);
- 	if (!group) {
- 		res = -ENOMEM;
+ 
+-	/* If enhanced IBRS is enabled no STIPB required */
++	/* If enhanced IBRS is enabled no STIBP required */
+ 	if (spectre_v2_enabled == SPECTRE_V2_IBRS_ENHANCED)
+ 		return;
+ 
+ 	/*
+-	 * If SMT is not possible or STIBP is not available clear the STIPB
++	 * If SMT is not possible or STIBP is not available clear the STIBP
+ 	 * mode.
+ 	 */
+ 	if (!smt_possible || !boot_cpu_has(X86_FEATURE_STIBP))
+diff --git a/arch/x86/kernel/process.h b/arch/x86/kernel/process.h
+index 898e97cf6629..320ab978fb1f 100644
+--- a/arch/x86/kernel/process.h
++++ b/arch/x86/kernel/process.h
+@@ -19,7 +19,7 @@ static inline void switch_to_extra(struct task_struct *prev,
+ 	if (IS_ENABLED(CONFIG_SMP)) {
+ 		/*
+ 		 * Avoid __switch_to_xtra() invocation when conditional
+-		 * STIPB is disabled and the only different bit is
++		 * STIBP is disabled and the only different bit is
+ 		 * TIF_SPEC_IB. For CONFIG_SMP=n TIF_SPEC_IB is not
+ 		 * in the TIF_WORK_CTXSW masks.
+ 		 */
+-- 
+2.25.1
+
 
 
