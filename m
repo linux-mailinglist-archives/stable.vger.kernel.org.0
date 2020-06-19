@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FFE6200C2D
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:43:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97FB3200CF0
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:52:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388056AbgFSOmq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:42:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33500 "EHLO mail.kernel.org"
+        id S2389448AbgFSOv1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:51:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388402AbgFSOmm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:42:42 -0400
+        id S2389441AbgFSOv0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:51:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0CF3521556;
-        Fri, 19 Jun 2020 14:42:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2566A2166E;
+        Fri, 19 Jun 2020 14:51:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577761;
-        bh=p64kvqwdHjvutBUyLKF79Z35nfL8WtrSF/yQ7hkXSUQ=;
+        s=default; t=1592578285;
+        bh=qSU5bk/zdU503FulCoQ5cGikvBLDwT/dO8p24RY/tnY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YKfc2t2trRY4Xs5qBoWO0CyVpUhXcePL8O4VrBM1iI70HObPfMiDbSwngUFpJKDIr
-         shz/h4rqNa3CsgbGZLknmknXBKu77HrPa6SKUGY86MaehZPehU3tw5NF3op4cXbCsQ
-         VKzY66r/7KFu5FxzpM5hVThLGDk60wvRuWymU4bQ=
+        b=acWVY12nNW95VnxvwFXH5+9SdH2ew6bJ1Ck+EUeG7AGuNsRscqEtEflRZ+eDY59s0
+         bJvMr4bNtRgODcJmtUuDHEl4fDdncTDPv/pnp8cXg1TgFc8Pem7vCireKzdx+rZWZq
+         TJevdog8vNmxs1x+K3uT45xHfV6Jm3SVL14jixF0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Kerr <jk@ozlabs.org>,
-        Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@lst.de>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 078/128] powerpc/spufs: fix copy_to_user while atomic
+        stable@vger.kernel.org, Finn Thain <fthain@telegraphics.com.au>,
+        Joshua Thompson <funaho@jurai.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Stan Johnson <userm57@yahoo.com>
+Subject: [PATCH 4.14 127/190] m68k: mac: Dont call via_flush_cache() on Mac IIfx
 Date:   Fri, 19 Jun 2020 16:32:52 +0200
-Message-Id: <20200619141624.296090218@linuxfoundation.org>
+Message-Id: <20200619141639.971829716@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
-References: <20200619141620.148019466@linuxfoundation.org>
+In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
+References: <20200619141633.446429600@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,282 +46,169 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Kerr <jk@ozlabs.org>
+From: Finn Thain <fthain@telegraphics.com.au>
 
-[ Upstream commit 88413a6bfbbe2f648df399b62f85c934460b7a4d ]
+[ Upstream commit bcc44f6b74106b31f0b0408b70305a40360d63b7 ]
 
-Currently, we may perform a copy_to_user (through
-simple_read_from_buffer()) while holding a context's register_lock,
-while accessing the context save area.
+There is no VIA2 chip on the Mac IIfx, so don't call via_flush_cache().
+This avoids a boot crash which appeared in v5.4.
 
-This change uses a temporary buffer for the context save area data,
-which we then pass to simple_read_from_buffer.
+printk: console [ttyS0] enabled
+printk: bootconsole [debug0] disabled
+printk: bootconsole [debug0] disabled
+Calibrating delay loop... 9.61 BogoMIPS (lpj=48064)
+pid_max: default: 32768 minimum: 301
+Mount-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
+Mountpoint-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
+devtmpfs: initialized
+random: get_random_u32 called from bucket_table_alloc.isra.27+0x68/0x194 with crng_init=0
+clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 19112604462750000 ns
+futex hash table entries: 256 (order: -1, 3072 bytes, linear)
+NET: Registered protocol family 16
+Data read fault at 0x00000000 in Super Data (pc=0x8a6a)
+BAD KERNEL BUSERR
+Oops: 00000000
+Modules linked in:
+PC: [<00008a6a>] via_flush_cache+0x12/0x2c
+SR: 2700  SP: 01c1fe3c  a2: 01c24000
+d0: 00001119    d1: 0000000c    d2: 00012000    d3: 0000000f
+d4: 01c06840    d5: 00033b92    a0: 00000000    a1: 00000000
+Process swapper (pid: 1, task=01c24000)
+Frame format=B ssw=0755 isc=0200 isb=fff7 daddr=00000000 dobuf=01c1fed0
+baddr=00008a6e dibuf=0000004e ver=f
+Stack from 01c1fec4:
+        01c1fed0 00007d7e 00010080 01c1fedc 0000792e 00000001 01c1fef4 00006b40
+        01c80000 00040000 00000006 00000003 01c1ff1c 004a545e 004ff200 00040000
+        00000000 00000003 01c06840 00033b92 004a5410 004b6c88 01c1ff84 000021e2
+        00000073 00000003 01c06840 00033b92 0038507a 004bb094 004b6ca8 004b6c88
+        004b6ca4 004b6c88 000021ae 00020002 00000000 01c0685d 00000000 01c1ffb4
+        0049f938 00409c85 01c06840 0045bd40 00000073 00000002 00000002 00000000
+Call Trace: [<00007d7e>] mac_cache_card_flush+0x12/0x1c
+ [<00010080>] fix_dnrm+0x2/0x18
+ [<0000792e>] cache_push+0x46/0x5a
+ [<00006b40>] arch_dma_prep_coherent+0x60/0x6e
+ [<00040000>] switched_to_dl+0x76/0xd0
+ [<004a545e>] dma_atomic_pool_init+0x4e/0x188
+ [<00040000>] switched_to_dl+0x76/0xd0
+ [<00033b92>] parse_args+0x0/0x370
+ [<004a5410>] dma_atomic_pool_init+0x0/0x188
+ [<000021e2>] do_one_initcall+0x34/0x1be
+ [<00033b92>] parse_args+0x0/0x370
+ [<0038507a>] strcpy+0x0/0x1e
+ [<000021ae>] do_one_initcall+0x0/0x1be
+ [<00020002>] do_proc_dointvec_conv+0x54/0x74
+ [<0049f938>] kernel_init_freeable+0x126/0x190
+ [<0049f94c>] kernel_init_freeable+0x13a/0x190
+ [<004a5410>] dma_atomic_pool_init+0x0/0x188
+ [<00041798>] complete+0x0/0x3c
+ [<000b9b0c>] kfree+0x0/0x20a
+ [<0038df98>] schedule+0x0/0xd0
+ [<0038d604>] kernel_init+0x0/0xda
+ [<0038d610>] kernel_init+0xc/0xda
+ [<0038d604>] kernel_init+0x0/0xda
+ [<00002d38>] ret_from_kernel_thread+0xc/0x14
+Code: 0000 2079 0048 10da 2279 0048 10c8 d3c8 <1011> 0200 fff7 1280 d1f9 0048 10c8 1010 0000 0008 1080 4e5e 4e75 4e56 0000 2039
+Disabling lock debugging due to kernel taint
+Kernel panic - not syncing: Attempted to kill init! exitcode=0x0000000b
 
-Includes changes from Christoph Hellwig <hch@lst.de>.
+Thanks to Stan Johnson for capturing the console log and running git
+bisect.
 
-Fixes: bf1ab978be23 ("[POWERPC] coredump: Add SPU elf notes to coredump.")
-Signed-off-by: Jeremy Kerr <jk@ozlabs.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-[hch: renamed to function to avoid ___-prefixes]
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Git bisect said commit 8e3a68fb55e0 ("dma-mapping: make
+dma_atomic_pool_init self-contained") is the first "bad" commit. I don't
+know why. Perhaps mach_l2_flush first became reachable with that commit.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-and-tested-by: Stan Johnson <userm57@yahoo.com>
+Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
+Cc: Joshua Thompson <funaho@jurai.org>
+Link: https://lore.kernel.org/r/b8bbeef197d6b3898e82ed0d231ad08f575a4b34.1589949122.git.fthain@telegraphics.com.au
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/cell/spufs/file.c | 113 +++++++++++++++--------
- 1 file changed, 75 insertions(+), 38 deletions(-)
+ arch/m68k/include/asm/mac_via.h |  1 +
+ arch/m68k/mac/config.c          | 21 ++-------------------
+ arch/m68k/mac/via.c             |  6 +++++-
+ 3 files changed, 8 insertions(+), 20 deletions(-)
 
-diff --git a/arch/powerpc/platforms/cell/spufs/file.c b/arch/powerpc/platforms/cell/spufs/file.c
-index 06254467e4dd..f12b00a056cb 100644
---- a/arch/powerpc/platforms/cell/spufs/file.c
-+++ b/arch/powerpc/platforms/cell/spufs/file.c
-@@ -2044,8 +2044,9 @@ static ssize_t __spufs_mbox_info_read(struct spu_context *ctx,
- static ssize_t spufs_mbox_info_read(struct file *file, char __user *buf,
- 				   size_t len, loff_t *pos)
- {
--	int ret;
- 	struct spu_context *ctx = file->private_data;
-+	u32 stat, data;
-+	int ret;
+diff --git a/arch/m68k/include/asm/mac_via.h b/arch/m68k/include/asm/mac_via.h
+index de1470c4d829..1149251ea58d 100644
+--- a/arch/m68k/include/asm/mac_via.h
++++ b/arch/m68k/include/asm/mac_via.h
+@@ -257,6 +257,7 @@ extern int rbv_present,via_alt_mapping;
  
- 	if (!access_ok(VERIFY_WRITE, buf, len))
- 		return -EFAULT;
-@@ -2054,11 +2055,16 @@ static ssize_t spufs_mbox_info_read(struct file *file, char __user *buf,
- 	if (ret)
- 		return ret;
- 	spin_lock(&ctx->csa.register_lock);
--	ret = __spufs_mbox_info_read(ctx, buf, len, pos);
-+	stat = ctx->csa.prob.mb_stat_R;
-+	data = ctx->csa.prob.pu_mb_R;
- 	spin_unlock(&ctx->csa.register_lock);
- 	spu_release_saved(ctx);
+ struct irq_desc;
  
--	return ret;
-+	/* EOF if there's no entry in the mbox */
-+	if (!(stat & 0x0000ff))
-+		return 0;
-+
-+	return simple_read_from_buffer(buf, len, pos, &data, sizeof(data));
++extern void via_l2_flush(int writeback);
+ extern void via_register_interrupts(void);
+ extern void via_irq_enable(int);
+ extern void via_irq_disable(int);
+diff --git a/arch/m68k/mac/config.c b/arch/m68k/mac/config.c
+index 2004b3f72d80..3ea7450c51f2 100644
+--- a/arch/m68k/mac/config.c
++++ b/arch/m68k/mac/config.c
+@@ -61,7 +61,6 @@ extern void iop_preinit(void);
+ extern void iop_init(void);
+ extern void via_init(void);
+ extern void via_init_clock(irq_handler_t func);
+-extern void via_flush_cache(void);
+ extern void oss_init(void);
+ extern void psc_init(void);
+ extern void baboon_init(void);
+@@ -132,21 +131,6 @@ int __init mac_parse_bootinfo(const struct bi_record *record)
+ 	return unknown;
  }
  
- static const struct file_operations spufs_mbox_info_fops = {
-@@ -2085,6 +2091,7 @@ static ssize_t spufs_ibox_info_read(struct file *file, char __user *buf,
- 				   size_t len, loff_t *pos)
- {
- 	struct spu_context *ctx = file->private_data;
-+	u32 stat, data;
- 	int ret;
- 
- 	if (!access_ok(VERIFY_WRITE, buf, len))
-@@ -2094,11 +2101,16 @@ static ssize_t spufs_ibox_info_read(struct file *file, char __user *buf,
- 	if (ret)
- 		return ret;
- 	spin_lock(&ctx->csa.register_lock);
--	ret = __spufs_ibox_info_read(ctx, buf, len, pos);
-+	stat = ctx->csa.prob.mb_stat_R;
-+	data = ctx->csa.priv2.puint_mb_R;
- 	spin_unlock(&ctx->csa.register_lock);
- 	spu_release_saved(ctx);
- 
--	return ret;
-+	/* EOF if there's no entry in the ibox */
-+	if (!(stat & 0xff0000))
-+		return 0;
-+
-+	return simple_read_from_buffer(buf, len, pos, &data, sizeof(data));
- }
- 
- static const struct file_operations spufs_ibox_info_fops = {
-@@ -2107,6 +2119,11 @@ static const struct file_operations spufs_ibox_info_fops = {
- 	.llseek  = generic_file_llseek,
- };
- 
-+static size_t spufs_wbox_info_cnt(struct spu_context *ctx)
-+{
-+	return (4 - ((ctx->csa.prob.mb_stat_R & 0x00ff00) >> 8)) * sizeof(u32);
-+}
-+
- static ssize_t __spufs_wbox_info_read(struct spu_context *ctx,
- 			char __user *buf, size_t len, loff_t *pos)
- {
-@@ -2115,7 +2132,7 @@ static ssize_t __spufs_wbox_info_read(struct spu_context *ctx,
- 	u32 wbox_stat;
- 
- 	wbox_stat = ctx->csa.prob.mb_stat_R;
--	cnt = 4 - ((wbox_stat & 0x00ff00) >> 8);
-+	cnt = spufs_wbox_info_cnt(ctx);
- 	for (i = 0; i < cnt; i++) {
- 		data[i] = ctx->csa.spu_mailbox_data[i];
- 	}
-@@ -2128,7 +2145,8 @@ static ssize_t spufs_wbox_info_read(struct file *file, char __user *buf,
- 				   size_t len, loff_t *pos)
- {
- 	struct spu_context *ctx = file->private_data;
--	int ret;
-+	u32 data[ARRAY_SIZE(ctx->csa.spu_mailbox_data)];
-+	int ret, count;
- 
- 	if (!access_ok(VERIFY_WRITE, buf, len))
- 		return -EFAULT;
-@@ -2137,11 +2155,13 @@ static ssize_t spufs_wbox_info_read(struct file *file, char __user *buf,
- 	if (ret)
- 		return ret;
- 	spin_lock(&ctx->csa.register_lock);
--	ret = __spufs_wbox_info_read(ctx, buf, len, pos);
-+	count = spufs_wbox_info_cnt(ctx);
-+	memcpy(&data, &ctx->csa.spu_mailbox_data, sizeof(data));
- 	spin_unlock(&ctx->csa.register_lock);
- 	spu_release_saved(ctx);
- 
--	return ret;
-+	return simple_read_from_buffer(buf, len, pos, &data,
-+				count * sizeof(u32));
- }
- 
- static const struct file_operations spufs_wbox_info_fops = {
-@@ -2150,27 +2170,33 @@ static const struct file_operations spufs_wbox_info_fops = {
- 	.llseek  = generic_file_llseek,
- };
- 
--static ssize_t __spufs_dma_info_read(struct spu_context *ctx,
--			char __user *buf, size_t len, loff_t *pos)
-+static void spufs_get_dma_info(struct spu_context *ctx,
-+		struct spu_dma_info *info)
- {
--	struct spu_dma_info info;
--	struct mfc_cq_sr *qp, *spuqp;
- 	int i;
- 
--	info.dma_info_type = ctx->csa.priv2.spu_tag_status_query_RW;
--	info.dma_info_mask = ctx->csa.lscsa->tag_mask.slot[0];
--	info.dma_info_status = ctx->csa.spu_chnldata_RW[24];
--	info.dma_info_stall_and_notify = ctx->csa.spu_chnldata_RW[25];
--	info.dma_info_atomic_command_status = ctx->csa.spu_chnldata_RW[27];
-+	info->dma_info_type = ctx->csa.priv2.spu_tag_status_query_RW;
-+	info->dma_info_mask = ctx->csa.lscsa->tag_mask.slot[0];
-+	info->dma_info_status = ctx->csa.spu_chnldata_RW[24];
-+	info->dma_info_stall_and_notify = ctx->csa.spu_chnldata_RW[25];
-+	info->dma_info_atomic_command_status = ctx->csa.spu_chnldata_RW[27];
- 	for (i = 0; i < 16; i++) {
--		qp = &info.dma_info_command_data[i];
--		spuqp = &ctx->csa.priv2.spuq[i];
-+		struct mfc_cq_sr *qp = &info->dma_info_command_data[i];
-+		struct mfc_cq_sr *spuqp = &ctx->csa.priv2.spuq[i];
- 
- 		qp->mfc_cq_data0_RW = spuqp->mfc_cq_data0_RW;
- 		qp->mfc_cq_data1_RW = spuqp->mfc_cq_data1_RW;
- 		qp->mfc_cq_data2_RW = spuqp->mfc_cq_data2_RW;
- 		qp->mfc_cq_data3_RW = spuqp->mfc_cq_data3_RW;
- 	}
-+}
-+
-+static ssize_t __spufs_dma_info_read(struct spu_context *ctx,
-+			char __user *buf, size_t len, loff_t *pos)
-+{
-+	struct spu_dma_info info;
-+
-+	spufs_get_dma_info(ctx, &info);
- 
- 	return simple_read_from_buffer(buf, len, pos, &info,
- 				sizeof info);
-@@ -2180,6 +2206,7 @@ static ssize_t spufs_dma_info_read(struct file *file, char __user *buf,
- 			      size_t len, loff_t *pos)
- {
- 	struct spu_context *ctx = file->private_data;
-+	struct spu_dma_info info;
- 	int ret;
- 
- 	if (!access_ok(VERIFY_WRITE, buf, len))
-@@ -2189,11 +2216,12 @@ static ssize_t spufs_dma_info_read(struct file *file, char __user *buf,
- 	if (ret)
- 		return ret;
- 	spin_lock(&ctx->csa.register_lock);
--	ret = __spufs_dma_info_read(ctx, buf, len, pos);
-+	spufs_get_dma_info(ctx, &info);
- 	spin_unlock(&ctx->csa.register_lock);
- 	spu_release_saved(ctx);
- 
--	return ret;
-+	return simple_read_from_buffer(buf, len, pos, &info,
-+				sizeof(info));
- }
- 
- static const struct file_operations spufs_dma_info_fops = {
-@@ -2202,13 +2230,31 @@ static const struct file_operations spufs_dma_info_fops = {
- 	.llseek = no_llseek,
- };
- 
-+static void spufs_get_proxydma_info(struct spu_context *ctx,
-+		struct spu_proxydma_info *info)
-+{
-+	int i;
-+
-+	info->proxydma_info_type = ctx->csa.prob.dma_querytype_RW;
-+	info->proxydma_info_mask = ctx->csa.prob.dma_querymask_RW;
-+	info->proxydma_info_status = ctx->csa.prob.dma_tagstatus_R;
-+
-+	for (i = 0; i < 8; i++) {
-+		struct mfc_cq_sr *qp = &info->proxydma_info_command_data[i];
-+		struct mfc_cq_sr *puqp = &ctx->csa.priv2.puq[i];
-+
-+		qp->mfc_cq_data0_RW = puqp->mfc_cq_data0_RW;
-+		qp->mfc_cq_data1_RW = puqp->mfc_cq_data1_RW;
-+		qp->mfc_cq_data2_RW = puqp->mfc_cq_data2_RW;
-+		qp->mfc_cq_data3_RW = puqp->mfc_cq_data3_RW;
-+	}
-+}
-+
- static ssize_t __spufs_proxydma_info_read(struct spu_context *ctx,
- 			char __user *buf, size_t len, loff_t *pos)
- {
- 	struct spu_proxydma_info info;
--	struct mfc_cq_sr *qp, *puqp;
- 	int ret = sizeof info;
--	int i;
- 
- 	if (len < ret)
- 		return -EINVAL;
-@@ -2216,18 +2262,7 @@ static ssize_t __spufs_proxydma_info_read(struct spu_context *ctx,
- 	if (!access_ok(VERIFY_WRITE, buf, len))
- 		return -EFAULT;
- 
--	info.proxydma_info_type = ctx->csa.prob.dma_querytype_RW;
--	info.proxydma_info_mask = ctx->csa.prob.dma_querymask_RW;
--	info.proxydma_info_status = ctx->csa.prob.dma_tagstatus_R;
--	for (i = 0; i < 8; i++) {
--		qp = &info.proxydma_info_command_data[i];
--		puqp = &ctx->csa.priv2.puq[i];
+-/*
+- * Flip into 24bit mode for an instant - flushes the L2 cache card. We
+- * have to disable interrupts for this. Our IRQ handlers will crap
+- * themselves if they take an IRQ in 24bit mode!
+- */
 -
--		qp->mfc_cq_data0_RW = puqp->mfc_cq_data0_RW;
--		qp->mfc_cq_data1_RW = puqp->mfc_cq_data1_RW;
--		qp->mfc_cq_data2_RW = puqp->mfc_cq_data2_RW;
--		qp->mfc_cq_data3_RW = puqp->mfc_cq_data3_RW;
--	}
-+	spufs_get_proxydma_info(ctx, &info);
- 
- 	return simple_read_from_buffer(buf, len, pos, &info,
- 				sizeof info);
-@@ -2237,17 +2272,19 @@ static ssize_t spufs_proxydma_info_read(struct file *file, char __user *buf,
- 				   size_t len, loff_t *pos)
+-static void mac_cache_card_flush(int writeback)
+-{
+-	unsigned long flags;
+-
+-	local_irq_save(flags);
+-	via_flush_cache();
+-	local_irq_restore(flags);
+-}
+-
+ void __init config_mac(void)
  {
- 	struct spu_context *ctx = file->private_data;
-+	struct spu_proxydma_info info;
- 	int ret;
+ 	if (!MACH_IS_MAC)
+@@ -179,9 +163,8 @@ void __init config_mac(void)
+ 	 * not.
+ 	 */
  
- 	ret = spu_acquire_saved(ctx);
- 	if (ret)
- 		return ret;
- 	spin_lock(&ctx->csa.register_lock);
--	ret = __spufs_proxydma_info_read(ctx, buf, len, pos);
-+	spufs_get_proxydma_info(ctx, &info);
- 	spin_unlock(&ctx->csa.register_lock);
- 	spu_release_saved(ctx);
- 
--	return ret;
-+	return simple_read_from_buffer(buf, len, pos, &info,
-+				sizeof(info));
+-	if (macintosh_config->ident == MAC_MODEL_IICI
+-	    || macintosh_config->ident == MAC_MODEL_IIFX)
+-		mach_l2_flush = mac_cache_card_flush;
++	if (macintosh_config->ident == MAC_MODEL_IICI)
++		mach_l2_flush = via_l2_flush;
  }
  
- static const struct file_operations spufs_proxydma_info_fops = {
+ 
+diff --git a/arch/m68k/mac/via.c b/arch/m68k/mac/via.c
+index 863806e6775a..6ab6a1d54b37 100644
+--- a/arch/m68k/mac/via.c
++++ b/arch/m68k/mac/via.c
+@@ -300,10 +300,14 @@ void via_debug_dump(void)
+  * the system into 24-bit mode for an instant.
+  */
+ 
+-void via_flush_cache(void)
++void via_l2_flush(int writeback)
+ {
++	unsigned long flags;
++
++	local_irq_save(flags);
+ 	via2[gBufB] &= ~VIA2B_vMode32;
+ 	via2[gBufB] |= VIA2B_vMode32;
++	local_irq_restore(flags);
+ }
+ 
+ /*
 -- 
 2.25.1
 
