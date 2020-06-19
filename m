@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B54CD2017D4
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A645E201700
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:46:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388450AbgFSQoN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:44:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34376 "EHLO mail.kernel.org"
+        id S2389166AbgFSOtZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:49:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388469AbgFSOnU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:43:20 -0400
+        id S2389192AbgFSOtR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:49:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C20CE20CC7;
-        Fri, 19 Jun 2020 14:43:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 66306217BA;
+        Fri, 19 Jun 2020 14:49:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577800;
-        bh=jIWMJy0Y8klCuejhD7uNt/cCKtnlVzy7LJ0nZ60RZzA=;
+        s=default; t=1592578157;
+        bh=rCItgz97uH/w6p0rQznSJvlK8/pyJWrkWMPE1BU7KS0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DiANZbh9KEBk1ecpjj1LIWt3ualLyzs9Pw2Jd5RQ1Xceo3eoKHOtZ3u+RShltpUtK
-         bg0kZURHMnevMsAD3eWQhxBSQDvVD5jeG+J9Tv/jFcLUAfr6+I4yI45mF4zX7Fn996
-         QlIymtvk57+3o4Ysa/vLMBOmaYlDEETvsUx8ZFrw=
+        b=X0+3YUvACA4H+9+DKZDjvGAIE9WNjoT0nkUnyW7b1K+3VnIV7gkt3aXJkme/Kb571
+         Uv86AL5WbAEoxIXgcwgB71byrAnoza0HBEVCI+Hxesr9lskmp/P6QumOXN29hRqUUi
+         NOdGiizz//SWU+099YzDrKPhrmnecixooBm354ec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brad Love <brad@nextdimension.cc>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 055/128] media: si2157: Better check for running tuner in init
-Date:   Fri, 19 Jun 2020 16:32:29 +0200
-Message-Id: <20200619141623.108911162@linuxfoundation.org>
+Subject: [PATCH 4.14 105/190] netfilter: nft_nat: return EOPNOTSUPP if type or flags are not supported
+Date:   Fri, 19 Jun 2020 16:32:30 +0200
+Message-Id: <20200619141638.835664557@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
-References: <20200619141620.148019466@linuxfoundation.org>
+In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
+References: <20200619141633.446429600@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,59 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brad Love <brad@nextdimension.cc>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit e955f959ac52e145f27ff2be9078b646d0352af0 ]
+[ Upstream commit 0d7c83463fdf7841350f37960a7abadd3e650b41 ]
 
-Getting the Xtal trim property to check if running is less error prone.
-Reset if_frequency if state is unknown.
+Instead of EINVAL which should be used for malformed netlink messages.
 
-Replaces the previous "garbage check".
-
-Signed-off-by: Brad Love <brad@nextdimension.cc>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: eb31628e37a0 ("netfilter: nf_tables: Add support for IPv6 NAT")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/tuners/si2157.c | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ net/netfilter/nft_nat.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/tuners/si2157.c b/drivers/media/tuners/si2157.c
-index 57b250847cd3..72a47da0db2a 100644
---- a/drivers/media/tuners/si2157.c
-+++ b/drivers/media/tuners/si2157.c
-@@ -84,24 +84,23 @@ static int si2157_init(struct dvb_frontend *fe)
- 	struct si2157_cmd cmd;
- 	const struct firmware *fw;
- 	const char *fw_name;
--	unsigned int uitmp, chip_id;
-+	unsigned int chip_id, xtal_trim;
+diff --git a/net/netfilter/nft_nat.c b/net/netfilter/nft_nat.c
+index ed548d06b6dd..a18cceecef88 100644
+--- a/net/netfilter/nft_nat.c
++++ b/net/netfilter/nft_nat.c
+@@ -135,7 +135,7 @@ static int nft_nat_init(const struct nft_ctx *ctx, const struct nft_expr *expr,
+ 		priv->type = NF_NAT_MANIP_DST;
+ 		break;
+ 	default:
+-		return -EINVAL;
++		return -EOPNOTSUPP;
+ 	}
  
- 	dev_dbg(&client->dev, "\n");
+ 	if (tb[NFTA_NAT_FAMILY] == NULL)
+@@ -202,7 +202,7 @@ static int nft_nat_init(const struct nft_ctx *ctx, const struct nft_expr *expr,
+ 	if (tb[NFTA_NAT_FLAGS]) {
+ 		priv->flags = ntohl(nla_get_be32(tb[NFTA_NAT_FLAGS]));
+ 		if (priv->flags & ~NF_NAT_RANGE_MASK)
+-			return -EINVAL;
++			return -EOPNOTSUPP;
+ 	}
  
--	/* Returned IF frequency is garbage when firmware is not running */
--	memcpy(cmd.args, "\x15\x00\x06\x07", 4);
-+	/* Try to get Xtal trim property, to verify tuner still running */
-+	memcpy(cmd.args, "\x15\x00\x04\x02", 4);
- 	cmd.wlen = 4;
- 	cmd.rlen = 4;
- 	ret = si2157_cmd_execute(client, &cmd);
--	if (ret)
--		goto err;
- 
--	uitmp = cmd.args[2] << 0 | cmd.args[3] << 8;
--	dev_dbg(&client->dev, "if_frequency kHz=%u\n", uitmp);
-+	xtal_trim = cmd.args[2] | (cmd.args[3] << 8);
- 
--	if (uitmp == dev->if_frequency / 1000)
-+	if (ret == 0 && xtal_trim < 16)
- 		goto warm;
- 
-+	dev->if_frequency = 0; /* we no longer know current tuner state */
-+
- 	/* power up */
- 	if (dev->chiptype == SI2157_CHIPTYPE_SI2146) {
- 		memcpy(cmd.args, "\xc0\x05\x01\x00\x00\x0b\x00\x00\x01", 9);
+ 	return nf_ct_netns_get(ctx->net, family);
 -- 
 2.25.1
 
