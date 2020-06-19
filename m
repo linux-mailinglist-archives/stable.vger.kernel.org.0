@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 614972015B9
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:31:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD16B201623
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:32:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390067AbgFSO4X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:56:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51302 "EHLO mail.kernel.org"
+        id S2390395AbgFSQ1K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:27:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390058AbgFSO4U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:56:20 -0400
+        id S2390064AbgFSO4X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:56:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 89079217D8;
-        Fri, 19 Jun 2020 14:56:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1DD962184D;
+        Fri, 19 Jun 2020 14:56:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578581;
-        bh=h55ON5kaA7BxQH2lIVX2jSGQ5jdYL7N0sFMEo9HEn80=;
+        s=default; t=1592578583;
+        bh=8KQ6F9AGxL2T42f0+XH1LoTkGMUB/lUMpUpOwjWB4Ck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jpFhlfzgvuVtAmRIv0g+pxiokLDhNxeee1Da96u9DzUimhHh/Uapr7Ccn4rYvN0W+
-         VooglfrKh9kivF/zvYvSvJ9h0SMGw3K6qtif96MGalqp7GKB8kA1tYfTf1w4uu7Z6N
-         182W0PbDbcKpOhGto+N6qrSnPBnvFH0X53pLoWWI=
+        b=jEh/Teq90J+1+QaGXJ3W4BjuB6MLzTavHoeJG/bcpjSJ+tz8kOEPzJ6hltIlq9pZ3
+         S2Z7qGmVnk6/TRkxcF6Y1Wy7t3k5HHVWfYoovk52iiL0mrdekGPrGqnoHjJBEf2BhR
+         ICGJSRh0Ao+MuAZ/fbEKrtrkGj1DUB99P+GSbU+s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 4.19 076/267] KVM: arm64: Make vcpu_cp1x() work on Big Endian hosts
-Date:   Fri, 19 Jun 2020 16:31:01 +0200
-Message-Id: <20200619141652.538508546@linuxfoundation.org>
+        stable@vger.kernel.org, Sumit Saxena <sumit.saxena@broadcom.com>,
+        Chandrakanth Patil <chandrakanth.patil@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.19 077/267] scsi: megaraid_sas: TM command refire leads to controller firmware crash
+Date:   Fri, 19 Jun 2020 16:31:02 +0200
+Message-Id: <20200619141652.584476677@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
 References: <20200619141648.840376470@linuxfoundation.org>
@@ -43,45 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Sumit Saxena <sumit.saxena@broadcom.com>
 
-commit 3204be4109ad681523e3461ce64454c79278450a upstream.
+commit 6fd8525a70221c26823b1c7e912fb21f218fb0c5 upstream.
 
-AArch32 CP1x registers are overlayed on their AArch64 counterparts
-in the vcpu struct. This leads to an interesting problem as they
-are stored in their CPU-local format, and thus a CP1x register
-doesn't "hit" the lower 32bit portion of the AArch64 register on
-a BE host.
+When TM command times out, driver invokes the controller reset. Post reset,
+driver re-fires pended TM commands which leads to firmware crash.
 
-To workaround this unfortunate situation, introduce a bias trick
-in the vcpu_cp1x() accessors which picks the correct half of the
-64bit register.
+Post controller reset, return pended TM commands back to OS.
 
+Link: https://lore.kernel.org/r/20200508085242.23406-1-chandrakanth.patil@broadcom.com
 Cc: stable@vger.kernel.org
-Reported-by: James Morse <james.morse@arm.com>
-Tested-by: James Morse <james.morse@arm.com>
-Acked-by: James Morse <james.morse@arm.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Sumit Saxena <sumit.saxena@broadcom.com>
+Signed-off-by: Chandrakanth Patil <chandrakanth.patil@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/include/asm/kvm_host.h |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/scsi/megaraid/megaraid_sas_fusion.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/arch/arm64/include/asm/kvm_host.h
-+++ b/arch/arm64/include/asm/kvm_host.h
-@@ -335,8 +335,10 @@ void vcpu_write_sys_reg(struct kvm_vcpu
-  * CP14 and CP15 live in the same array, as they are backed by the
-  * same system registers.
-  */
--#define vcpu_cp14(v,r)		((v)->arch.ctxt.copro[(r)])
--#define vcpu_cp15(v,r)		((v)->arch.ctxt.copro[(r)])
-+#define CPx_BIAS		IS_ENABLED(CONFIG_CPU_BIG_ENDIAN)
-+
-+#define vcpu_cp14(v,r)		((v)->arch.ctxt.copro[(r) ^ CPx_BIAS])
-+#define vcpu_cp15(v,r)		((v)->arch.ctxt.copro[(r) ^ CPx_BIAS])
+--- a/drivers/scsi/megaraid/megaraid_sas_fusion.c
++++ b/drivers/scsi/megaraid/megaraid_sas_fusion.c
+@@ -3940,6 +3940,7 @@ void megasas_refire_mgmt_cmd(struct mega
+ 	struct fusion_context *fusion;
+ 	struct megasas_cmd *cmd_mfi;
+ 	union MEGASAS_REQUEST_DESCRIPTOR_UNION *req_desc;
++	struct MPI2_RAID_SCSI_IO_REQUEST *scsi_io_req;
+ 	u16 smid;
+ 	bool refire_cmd = 0;
+ 	u8 result;
+@@ -3990,6 +3991,11 @@ void megasas_refire_mgmt_cmd(struct mega
+ 			break;
+ 		}
  
- struct kvm_vm_stat {
- 	ulong remote_tlb_flush;
++		scsi_io_req = (struct MPI2_RAID_SCSI_IO_REQUEST *)
++				cmd_fusion->io_request;
++		if (scsi_io_req->Function == MPI2_FUNCTION_SCSI_TASK_MGMT)
++			result = RETURN_CMD;
++
+ 		switch (result) {
+ 		case REFIRE_CMD:
+ 			megasas_fire_cmd_fusion(instance, req_desc);
+@@ -4187,7 +4193,6 @@ megasas_issue_tm(struct megasas_instance
+ 	if (!timeleft) {
+ 		dev_err(&instance->pdev->dev,
+ 			"task mgmt type 0x%x timed out\n", type);
+-		cmd_mfi->flags |= DRV_DCMD_SKIP_REFIRE;
+ 		mutex_unlock(&instance->reset_mutex);
+ 		rc = megasas_reset_fusion(instance->host, MFI_IO_TIMEOUT_OCR);
+ 		mutex_lock(&instance->reset_mutex);
 
 
