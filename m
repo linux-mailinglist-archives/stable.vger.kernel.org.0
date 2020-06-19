@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 446F4200449
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 10:47:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB5B1200448
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 10:47:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731369AbgFSIrF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1731381AbgFSIrF (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 19 Jun 2020 04:47:05 -0400
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:51533 "EHLO
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:52647 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731364AbgFSIrB (ORCPT
+        by vger.kernel.org with ESMTP id S1731369AbgFSIrB (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 19 Jun 2020 04:47:01 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 3DF42194442C;
-        Fri, 19 Jun 2020 04:46:58 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Fri, 19 Jun 2020 04:46:58 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id 8ECDA1944420;
+        Fri, 19 Jun 2020 04:47:00 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Fri, 19 Jun 2020 04:47:00 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=Xstqrm
-        2C++ZsUTjRPnESL5GVrOzRnAGQkCezFTEME34=; b=i9bLHdESmdYsnJJRD4982w
-        9nhIURTfiMMrxeC1jgvj5ucD58sY6be2WTOKvOLuxd7EVeJAbDZAKvU94419O7K8
-        PVyT1d38AU7hTlSpm9vkybyC1W23noUkolJ1j6g3O/LL/Ast8ai5zqPLRVztrMD7
-        A+PODsNFnetvldkk1rLVTn0y37DO9s9yMmmGCnDnhWG1tCJx+AgQ5bXrkcFgoQkX
-        Rr7zz1MWG/gSSZqKcYlUAf/6ZNtnQCpI2xQPR39IMS12t7nVYCcm80WGsU/rbpca
-        zXeNab+gT0yGVf04zoAKbWkRU917UlZaOHKfx5PEVnQCMBDYBA06L1BzJoHkqu0g
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=U+uneE
+        T4gL1YVIJNvqMaznLXc2PJVtdB7E001sugGSE=; b=ELKfHrqK6uxB+b8lYy6IQS
+        C27OXwdXHhtDbwQJFN/vz73cqcV/iKBUEcA7QOUHuifl1n4JNxAzDFE2jDoUdbIQ
+        Sztqmj+eQPvaKJ1ZCZ2wIZ/4K67GemnvT2MVTSfBexwS48b0g0xqwHZRtNvoOMRd
+        8jmrAJo4tXi5QPPZojt676rIZbPuUcunUZns9DUalHsItgeNjGTbmd4hpDBQlvBp
+        4KOMELDB49t6BQQKFRb4I30GbiDRE5lKU8QtrPKC8rr5SRT59jf3Kb1/lvY8YN+l
+        Tk47V84Zw22kfwiF4iCYNqdcKcVxvOJrPkf0oCtoU2akFkAiWCSHegCLtNdnKkSw
         ==
-X-ME-Sender: <xms:gXvsXknPZ3RVX_ebHDBT8kk-HKnE-XmGYrttcLCgLYClQwFxkVpb4Q>
+X-ME-Sender: <xms:hHvsXi3dtshnhLWKeoFfJD84d0zs4i4tvD2sCnU9LUDuZaPfZNCrmA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudejiedgtdekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -36,19 +36,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudejiedgtdekucetufdoteggod
     euudefveegffeuvdetleeunecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
     vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
     drtghomh
-X-ME-Proxy: <xmx:gXvsXj30sIF-oCqd4qaIGMQPPELdtqrPdmKqVXslfGORf0wCijAw1w>
-    <xmx:gXvsXiokYzkHdbg4BgtJtxk5ba8a_Vb0vHf1mPtPKzB26CrllSy7pg>
-    <xmx:gXvsXgmOT4k3OV1prOknPyKrwzjPUbi6hOkxpo67svvQPiY8TO_qvA>
-    <xmx:gnvsXriRFj8ZSqMA2oFy6UAUiS6zTV_x-X8KBg-17u-ye7UF2DJNiw>
+X-ME-Proxy: <xmx:hHvsXlG2BPTIMB1u5X1JKiF6fpn-pBw80GCqpj1MN8eTyBDY6gIXdw>
+    <xmx:hHvsXq6-2mmRFLxMKXdUSVqOX8exbWICuYKu9qZPORUt_YGbtcwzVg>
+    <xmx:hHvsXj3wvopCmCOdfbZFscMmcrUfTsCACneqs3Aezy3IaqWSdKmDdw>
+    <xmx:hHvsXkwCUXqeCChzzUA6sMqUJuXj6u7PdjjiwX-iW-W5xQAn0cHVlQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 83F9430618B7;
-        Fri, 19 Jun 2020 04:46:57 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] Bluetooth: hci_bcm: fix freeing not-requested IRQ" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 2E21D3280059;
+        Fri, 19 Jun 2020 04:47:00 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] Bluetooth: hci_bcm: fix freeing not-requested IRQ" failed to apply to 4.9-stable tree
 To:     mirq-linux@rere.qmqm.pl, marcel@holtmann.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 19 Jun 2020 10:46:56 +0200
-Message-ID: <1592556416237233@kroah.com>
+Date:   Fri, 19 Jun 2020 10:46:57 +0200
+Message-ID: <159255641715762@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
