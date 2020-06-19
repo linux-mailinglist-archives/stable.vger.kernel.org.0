@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF468200CEC
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:52:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 397E0200CED
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:52:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389426AbgFSOvR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:51:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44492 "EHLO mail.kernel.org"
+        id S2389429AbgFSOvT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:51:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389424AbgFSOvM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:51:12 -0400
+        id S2389402AbgFSOvS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:51:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 071FD2166E;
-        Fri, 19 Jun 2020 14:51:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A8BD21852;
+        Fri, 19 Jun 2020 14:51:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578272;
-        bh=0H0M6rNa8JZRe2IAdgEmWgZBQ0BnC5Nc2BZD7LWS9jQ=;
+        s=default; t=1592578277;
+        bh=8yoXurofjINO9e19tCh1Lw0j0UROoW+aYWBwamOttjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yb/nBNIWH4hxpWQJqfmdBJy62AxvHKP++4iKQ1dGZLBnRyqvdwcrr/ZZUWn5wos1/
-         D3QkUIkE6ppzZ42BmJZJ93p0zvFQnt0Plygc6dhgdVBpiK85LVfxRSYrgIfYBRPCD6
-         7vym+1lVya/mJNWAGm0lJrmOD0OXoinjEuj6f8po=
+        b=1Gdi4sw/qvEckvhyC3vxDr9OSQFCFRB6A2vmiae0JLTynjPLAjrnjKBjt2xNHGCaz
+         Zqw77kJB3PjfUsoKoJomuHE1vD4ZCDW10H6TzyCNeVIefZdW2Csuy/nObxw+QGSoGb
+         zE5wM/Z6R2o/v22M1BsfNlrWsEGkCk3N/vZBredg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marcos Scriven <marcos@scriven.org>,
+        stable@vger.kernel.org, Abhinav Ratna <abhinav.ratna@broadcom.com>,
+        Srinath Mannam <srinath.mannam@broadcom.com>,
         Bjorn Helgaas <bhelgaas@google.com>,
+        Scott Branden <scott.branden@broadcom.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 149/190] PCI: Avoid FLR for AMD Matisse HD Audio & USB 3.0
-Date:   Fri, 19 Jun 2020 16:33:14 +0200
-Message-Id: <20200619141641.179099568@linuxfoundation.org>
+Subject: [PATCH 4.14 151/190] PCI: Add ACS quirk for iProc PAXB
+Date:   Fri, 19 Jun 2020 16:33:16 +0200
+Message-Id: <20200619141641.275161672@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
 References: <20200619141633.446429600@linuxfoundation.org>
@@ -44,60 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcos Scriven <marcos@scriven.org>
+From: Abhinav Ratna <abhinav.ratna@broadcom.com>
 
-[ Upstream commit 0d14f06cd6657ba3446a5eb780672da487b068e7 ]
+[ Upstream commit 46b2c32df7a462d0e64b68c513e5c4c1b2a399a7 ]
 
-The AMD Matisse HD Audio & USB 3.0 devices advertise Function Level Reset
-support, but hang when an FLR is triggered.
+iProc PAXB Root Ports don't advertise an ACS capability, but they do not
+allow peer-to-peer transactions between Root Ports.  Add an ACS quirk so
+each Root Port can be in a separate IOMMU group.
 
-To reproduce the problem, attach the device to a VM, then detach and try to
-attach again.
-
-Rename the existing quirk_intel_no_flr(), which was not Intel-specific, to
-quirk_no_flr(), and apply it to prevent the use of FLR on these AMD
-devices.
-
-Link: https://lore.kernel.org/r/CAAri2DpkcuQZYbT6XsALhx2e6vRqPHwtbjHYeiH7MNp4zmt1RA@mail.gmail.com
-Signed-off-by: Marcos Scriven <marcos@scriven.org>
+[bhelgaas: commit log, comment, use common implementation style]
+Link: https://lore.kernel.org/r/1566275985-25670-1-git-send-email-srinath.mannam@broadcom.com
+Signed-off-by: Abhinav Ratna <abhinav.ratna@broadcom.com>
+Signed-off-by: Srinath Mannam <srinath.mannam@broadcom.com>
 Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Acked-by: Scott Branden <scott.branden@broadcom.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/quirks.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ drivers/pci/quirks.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
 diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index c751f2f81142..8d01c6d372fe 100644
+index 1bc7d4bcfea4..f6e88d5b1c4f 100644
 --- a/drivers/pci/quirks.c
 +++ b/drivers/pci/quirks.c
-@@ -4869,13 +4869,23 @@ static void quirk_intel_qat_vf_cap(struct pci_dev *pdev)
+@@ -4515,6 +4515,19 @@ static int pci_quirk_mf_endpoint_acs(struct pci_dev *dev, u16 acs_flags)
+ 	return acs_flags ? 0 : 1;
  }
- DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x443, quirk_intel_qat_vf_cap);
  
--/* FLR may cause some 82579 devices to hang. */
--static void quirk_intel_no_flr(struct pci_dev *dev)
-+/*
-+ * FLR may cause the following to devices to hang:
-+ *
-+ * AMD Starship/Matisse HD Audio Controller 0x1487
-+ * AMD Matisse USB 3.0 Host Controller 0x149c
-+ * Intel 82579LM Gigabit Ethernet Controller 0x1502
-+ * Intel 82579V Gigabit Ethernet Controller 0x1503
-+ *
-+ */
-+static void quirk_no_flr(struct pci_dev *dev)
- {
- 	dev->dev_flags |= PCI_DEV_FLAGS_NO_FLR_RESET;
- }
--DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x1502, quirk_intel_no_flr);
--DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x1503, quirk_intel_no_flr);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_AMD, 0x1487, quirk_no_flr);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_AMD, 0x149c, quirk_no_flr);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x1502, quirk_no_flr);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x1503, quirk_no_flr);
++static int pci_quirk_brcm_acs(struct pci_dev *dev, u16 acs_flags)
++{
++	/*
++	 * iProc PAXB Root Ports don't advertise an ACS capability, but
++	 * they do not allow peer-to-peer transactions between Root Ports.
++	 * Allow each Root Port to be in a separate IOMMU group by masking
++	 * SV/RR/CR/UF bits.
++	 */
++	acs_flags &= ~(PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF);
++
++	return acs_flags ? 0 : 1;
++}
++
+ static const struct pci_dev_acs_enabled {
+ 	u16 vendor;
+ 	u16 device;
+@@ -4597,6 +4610,7 @@ static const struct pci_dev_acs_enabled {
+ 	{ PCI_VENDOR_ID_CAVIUM, PCI_ANY_ID, pci_quirk_cavium_acs },
+ 	/* APM X-Gene */
+ 	{ PCI_VENDOR_ID_AMCC, 0xE004, pci_quirk_xgene_acs },
++	{ PCI_VENDOR_ID_BROADCOM, 0xD714, pci_quirk_brcm_acs },
+ 	{ 0 }
+ };
  
- static void quirk_no_ext_tags(struct pci_dev *pdev)
- {
 -- 
 2.25.1
 
