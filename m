@@ -2,149 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD65D2009F3
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 15:25:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B83BB200A11
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 15:28:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732715AbgFSNYo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 09:24:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40852 "EHLO
+        id S1732655AbgFSN2Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 09:28:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732699AbgFSNYj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Jun 2020 09:24:39 -0400
-Received: from mail-qt1-x844.google.com (mail-qt1-x844.google.com [IPv6:2607:f8b0:4864:20::844])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 253F8C061794
-        for <stable@vger.kernel.org>; Fri, 19 Jun 2020 06:24:38 -0700 (PDT)
-Received: by mail-qt1-x844.google.com with SMTP id x62so3772580qtd.3
-        for <stable@vger.kernel.org>; Fri, 19 Jun 2020 06:24:38 -0700 (PDT)
+        with ESMTP id S1726124AbgFSN11 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Jun 2020 09:27:27 -0400
+Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AB0CC06174E
+        for <stable@vger.kernel.org>; Fri, 19 Jun 2020 06:27:27 -0700 (PDT)
+Received: by mail-ej1-x642.google.com with SMTP id dp18so10184054ejc.8
+        for <stable@vger.kernel.org>; Fri, 19 Jun 2020 06:27:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=soleen.com; s=google;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=UMmRwCkRAhMS3MbiqQcecS88t7B8fQ168Nxabe54lAo=;
-        b=TLUB1RFGf2DXf2lMtsNGm0Z61F53yxlBfSVOci3GvntHq50uUGDHaVY0Mq8A/Htbhe
-         HrObzydPUXM9jYQddTMnH3n3ZEuW5ltAsn1IYEIskwo09vMJvuWVx/3geAvGRkjapyeE
-         I+1MzLOdMO/bqSDwtxpTD1aSr3r54nCWoi9nScny80dXJlcZo41e9L2jaizJPkzQyip9
-         W9/4zR8n6U3eSQ5okgOrQedTBU+QH9qiLDzHMVlJhog3MKusqDtmamHJ8TFkviPCC+Bv
-         2XU6b3ENxo+HvQ8tDdCzE9IoY8O5BARZ6B8AJdheB0OfqXuD9KnYW9FzV7rBOvmTMhS8
-         euDw==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=DA6Y6jC2TzaiGodk9y32gytpv8P8xdVd55/nEYjazs0=;
+        b=OApq1XezXoo6dYDPPlUTpjnysTFdMg1aN7nLEcfF69A//9AtJMdKm3+oZ8ID5iSPWM
+         2FpqSiRFkGgIeq4Lc0/riQjc0AlnRGzl8jHhOAAbi0NHpS7u36VhJ8kib1BlwAqEOI/Y
+         D/6wgDvfb1LXweuUZEwz8IRFoxmOqS6bwNBQB2m+fe5zqROcgAHwJ7pEtZ3eoNzzRMxn
+         KjWrjpbSBkSBrdGSiYaTwQIJaTuRf5iDYcrHg15CdhZtBDHNiqxr4r8EgyZHUrqGCmkW
+         2C1+BdzFXMKLfw9rwUa9Ou3tKK6fs+gl9I0PNJqVVKgxEhMx904za0w5zBzs2dSFhkxZ
+         ST5w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=UMmRwCkRAhMS3MbiqQcecS88t7B8fQ168Nxabe54lAo=;
-        b=bxGx9ByNEbNAOT2PKht/+feVvPvBVoAIi2ji/QcoSG5QouVCdXzxAgB0H3G+bLHx3w
-         lXOFgEF8fbTIccxDG2ALTSsazjEkg+ovn3EWJLZMaedqMRLPjcYBbl8pAeyxrPFrn+0b
-         da2Xb27DGBZBjxsEEMd8j8A1UrNS/EYjnlwqF/n575t9NYvW/9v8Ovc82AEf2Wb7qa5Z
-         11qtHpLO4dju1FrA/8llDNmFBkXzX0dqrTWd7fhtVzgXpfvzyVvbcJtmgvrVtswBMKKj
-         LPwi8hWb62o6j/Ccx++JHLo/KbGULW1U8zhrD7AOyyBgXSicG+aOwillwZvuOevLIaQj
-         R7zg==
-X-Gm-Message-State: AOAM530+H5N2R26NF5/GkVOVtybxVkWaFW1u0EiDvUHranj8Yls5ktec
-        rPu5BIexbAetZ4mXTwFvq5EFAnDrN9Q=
-X-Google-Smtp-Source: ABdhPJy8CkK8fpA7AN7mH2AOLC1PEgIFwO2iFMu/A0yTeNpMOu9bQE+Kt+886emGTWfKlSZZAn1z3A==
-X-Received: by 2002:ac8:4088:: with SMTP id p8mr3298769qtl.119.1592573076968;
-        Fri, 19 Jun 2020 06:24:36 -0700 (PDT)
-Received: from localhost.localdomain (c-73-69-118-222.hsd1.nh.comcast.net. [73.69.118.222])
-        by smtp.gmail.com with ESMTPSA id m26sm7146268qtm.73.2020.06.19.06.24.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 19 Jun 2020 06:24:36 -0700 (PDT)
-From:   Pavel Tatashin <pasha.tatashin@soleen.com>
-To:     stable@vger.kernel.org, akpm@linux-foundation.org, mhocko@suse.com,
-        dan.j.williams@intel.com, shile.zhang@linux.alibaba.com,
-        daniel.m.jordan@oracle.com, pasha.tatashin@soleen.com,
-        ktkhai@virtuozzo.com, david@redhat.com, jmorris@namei.org,
-        sashal@kernel.org, vbabka@suse.cz, gregkh@linuxfoundation.org,
-        torvalds@linux-foundation.org
-Subject: [PATCH 4.19 7/7] mm: call cond_resched() from deferred_init_memmap()
-Date:   Fri, 19 Jun 2020 09:24:25 -0400
-Message-Id: <20200619132425.425063-7-pasha.tatashin@soleen.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200619132425.425063-1-pasha.tatashin@soleen.com>
-References: <20200619132425.425063-1-pasha.tatashin@soleen.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=DA6Y6jC2TzaiGodk9y32gytpv8P8xdVd55/nEYjazs0=;
+        b=jElFFfrq6odwi6yaqSymynjfIIfvFAz8OBBVYKa/URvAqqaiSDttPEoNqxACgpYDv+
+         ttRLYzTEwVEoD0SM5nVUTlwQMQ8SewaJ8moLUbA4gJXr/txn1TXk9ixV7WvcDoSEXM1b
+         mICIPmVn+FPyj3O3qdTHYLC9kTpodDUficii7DUDwo95Q6s+xHHVwNrFebLK5+k7Sq0p
+         zO/yI2r1Ojridf+5+y3YlUuWzAUoVrVGuD/IUH2OoCPYik78vbHJZkqabRHijw6RLmj6
+         PXEIGARNDWoE27/If1PmhH3LOivda9uLgkZmXl1ui+v2jvEKIPxJeznJTX+ijG/SuUB0
+         x9cA==
+X-Gm-Message-State: AOAM533mZHhmf2dO92O+n7Kt5P0rMI41h/bChQxNC6RwM8i8LsHESVmU
+        F+KoHA4vj8B9ryqDoUgLrl/ymUrwydfM/l6/F+dRNg==
+X-Google-Smtp-Source: ABdhPJyZ++0QWLtFlJW7Ohvqxq3hqku6iM11QCUjQV/1Cya634j+pQUzo57CYEEoOgP3wTOIuueJTUKlbskTDxzTdiA=
+X-Received: by 2002:a17:907:435f:: with SMTP id oc23mr3775910ejb.426.1592573246161;
+ Fri, 19 Jun 2020 06:27:26 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <15924957437531@kroah.com> <20200618162649.GA250996@kroah.com>
+ <20200619022822.GV1931@sasha-vm> <20200619092137.GB12177@dhcp22.suse.cz>
+ <82125cf7-a3e0-8596-ef6a-cda750bee28b@redhat.com> <CA+CK2bDVVcjvQAswxPe-2=DTOjf09Ty3tR69WdcEFaTgd87EqQ@mail.gmail.com>
+ <d5d57204-a503-de53-edb1-63d12709e687@redhat.com> <CA+CK2bAo3dD3A4UqX9f3ruMYjBiiM8PRy1H8wJpi3JWUVgomDQ@mail.gmail.com>
+In-Reply-To: <CA+CK2bAo3dD3A4UqX9f3ruMYjBiiM8PRy1H8wJpi3JWUVgomDQ@mail.gmail.com>
+From:   Pavel Tatashin <pasha.tatashin@soleen.com>
+Date:   Fri, 19 Jun 2020 09:26:50 -0400
+Message-ID: <CA+CK2bAa3YGc8e0vpq7czd6fe0QZDJ+7FTVsy+WAPLjA2Ho-yQ@mail.gmail.com>
+Subject: Re: FAILED: patch "[PATCH] mm: call cond_resched() from
+ deferred_init_memmap()" failed to apply to 5.7-stable tree
+To:     David Hildenbrand <david@redhat.com>
+Cc:     Michal Hocko <mhocko@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Daniel Jordan <daniel.m.jordan@oracle.com>,
+        James Morris <jmorris@namei.org>,
+        Kirill Tkhai <ktkhai@virtuozzo.com>,
+        pankaj.gupta.linux@gmail.com,
+        Shile Zhang <shile.zhang@linux.alibaba.com>,
+        stable <stable@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Vlastimil Babka <vbabka@suse.cz>, Yiqian Wei <yiwei@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Tatashin <pasha.tatashin@soleen.com>
+On Fri, Jun 19, 2020 at 8:43 AM Pavel Tatashin
+<pasha.tatashin@soleen.com> wrote:
+>
+> > > 117003c32771 mm/pagealloc.c: call touch_nmi_watchdog() on max order
+> > > boundaries in deferred init
+> > > 3d060856adfc mm: initialize deferred pages with interrupts enabled
+> > > da97f2d56bbd mm: call cond_resched() from deferred_init_memmap()
+> > >
+> >
+> > Just to note, in contrast to the subject, this is about the 4.19
+> > backport IIRC. Is it really only these patches?
+>
+> Ah, I did not realize it was 4.19 backport.
+>
+> Yeah, it might be more, I have not checked it.
 
-commit 3d060856adfc59afb9d029c233141334cfaba418 upstream.
+5.7 backport:
+https://lore.kernel.org/stable/20200619122555.372957-1-pasha.tatashin@soleen.com
+4.19 backport:
+https://lore.kernel.org/stable/20200619132425.425063-1-pasha.tatashin@soleen.com
 
-Now that deferred pages are initialized with interrupts enabled we can
-replace touch_nmi_watchdog() with cond_resched(), as it was before
-3a2d7fa8a3d5.
-
-For now, we cannot do the same in deferred_grow_zone() as it is still
-initializes pages with interrupts disabled.
-
-This change fixes RCU problem described in
-https://lkml.kernel.org/r/20200401104156.11564-2-david@redhat.com
-
-[   60.474005] rcu: INFO: rcu_sched detected stalls on CPUs/tasks:
-[   60.475000] rcu:  1-...0: (0 ticks this GP) idle=02a/1/0x4000000000000000 softirq=1/1 fqs=15000
-[   60.475000] rcu:  (detected by 0, t=60002 jiffies, g=-1199, q=1)
-[   60.475000] Sending NMI from CPU 0 to CPUs 1:
-[    1.760091] NMI backtrace for cpu 1
-[    1.760091] CPU: 1 PID: 20 Comm: pgdatinit0 Not tainted 4.18.0-147.9.1.el8_1.x86_64 #1
-[    1.760091] Hardware name: Red Hat KVM, BIOS 1.13.0-1.module+el8.2.0+5520+4e5817f3 04/01/2014
-[    1.760091] RIP: 0010:__init_single_page.isra.65+0x10/0x4f
-[    1.760091] Code: 48 83 cf 63 48 89 f8 0f 1f 40 00 48 89 c6 48 89 d7 e8 6b 18 80 ff 66 90 5b c3 31 c0 b9 10 00 00 00 49 89 f8 48 c1 e6 33 f3 ab <b8> 07 00 00 00 48 c1 e2 36 41 c7 40 34 01 00 00 00 48 c1 e0 33 41
-[    1.760091] RSP: 0000:ffffba783123be40 EFLAGS: 00000006
-[    1.760091] RAX: 0000000000000000 RBX: fffffad34405e300 RCX: 0000000000000000
-[    1.760091] RDX: 0000000000000000 RSI: 0010000000000000 RDI: fffffad34405e340
-[    1.760091] RBP: 0000000033f3177e R08: fffffad34405e300 R09: 0000000000000002
-[    1.760091] R10: 000000000000002b R11: ffff98afb691a500 R12: 0000000000000002
-[    1.760091] R13: 0000000000000000 R14: 000000003f03ea00 R15: 000000003e10178c
-[    1.760091] FS:  0000000000000000(0000) GS:ffff9c9ebeb00000(0000) knlGS:0000000000000000
-[    1.760091] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    1.760091] CR2: 00000000ffffffff CR3: 000000a1cf20a001 CR4: 00000000003606e0
-[    1.760091] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[    1.760091] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[    1.760091] Call Trace:
-[    1.760091]  deferred_init_pages+0x8f/0xbf
-[    1.760091]  deferred_init_memmap+0x184/0x29d
-[    1.760091]  ? deferred_free_pages.isra.97+0xba/0xba
-[    1.760091]  kthread+0x112/0x130
-[    1.760091]  ? kthread_flush_work_fn+0x10/0x10
-[    1.760091]  ret_from_fork+0x35/0x40
-[   89.123011] node 0 initialised, 1055935372 pages in 88650ms
-
-Fixes: 3a2d7fa8a3d5 ("mm: disable interrupts while initializing deferred pages")
-Reported-by: Yiqian Wei <yiwei@redhat.com>
-Signed-off-by: Pavel Tatashin <pasha.tatashin@soleen.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Tested-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Daniel Jordan <daniel.m.jordan@oracle.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: James Morris <jmorris@namei.org>
-Cc: Kirill Tkhai <ktkhai@virtuozzo.com>
-Cc: Sasha Levin <sashal@kernel.org>
-Cc: Shile Zhang <shile.zhang@linux.alibaba.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: <stable@vger.kernel.org>	[4.17+]
-Link: http://lkml.kernel.org/r/20200403140952.17177-4-pasha.tatashin@soleen.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
----
- mm/page_alloc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 05c27edbe076..96b8f5e8a008 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -1670,7 +1670,7 @@ static int __init deferred_init_memmap(void *data)
- 	 */
- 	while (spfn < epfn) {
- 		nr_pages += deferred_init_maxorder(&i, zone, &spfn, &epfn);
--		touch_nmi_watchdog();
-+		cond_resched();
- 	}
- zone_empty:
- 	/* Sanity check that the next zone really is unpopulated */
--- 
-2.25.1
-
+>
+> Thanks,
+> Pasha
