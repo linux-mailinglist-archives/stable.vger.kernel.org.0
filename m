@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E02A200CBA
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:52:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4F78200BAE
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:38:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389155AbgFSOtA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:49:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41494 "EHLO mail.kernel.org"
+        id S1726993AbgFSOge (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:36:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389156AbgFSOs7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:48:59 -0400
+        id S2387548AbgFSOgd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:36:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC386217A0;
-        Fri, 19 Jun 2020 14:48:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D8F221548;
+        Fri, 19 Jun 2020 14:36:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578139;
-        bh=H5xDzHKG9GRHH4R47pWgDEYLAYfTowtEAnmIXJQZqIg=;
+        s=default; t=1592577393;
+        bh=0Kk4exPKBCvNorayPAfo/KDmWOa7KJcKQRFDySXXI7c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JByso0eGxXsO4iVU/qmNpMFBZhLXtpU6vZAyowKT6WN7QI2vZve3obxijZ1ni/Mam
-         SRWvkF9ymjwmnOcHMlvqRVQeqpi52keV8sVHUaG97avg550AKQGYqi1riatJirbp5S
-         1bV3wSWJJaC+aHI/PyT5urjl43jrGmDTEY55sNKw=
+        b=wseALY8QG/DgesL6p/I0PpUhrEf3lv9L56RGOxjj3PSMWWCfp3oU+8lu9ROPWXdjW
+         cH/yESqbTxUU2sWWp07bMiAZFNIz21099/RZzkOD8rtrKHfo2m0jpB0cmF6O2b9ksK
+         tC1O3YO0RejG+LEORAwUCa/YPVLmlaiDGvgPUHVI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+6f1624f937d9d6911e2d@syzkaller.appspotmail.com,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Marco Elver <elver@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 068/190] fat: dont allow to mount if the FAT length == 0
+        stable@vger.kernel.org, Zhao Qiang <qiang.zhao@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        "Nobuhiro Iwamatsu (CIP)" <nobuhiro1.iwamatsu@toshiba.co.jp>
+Subject: [PATCH 4.4 004/101] net: phy: marvell: Limit 88m1101 autoneg errata to 88E1145 as well.
 Date:   Fri, 19 Jun 2020 16:31:53 +0200
-Message-Id: <20200619141636.978715334@linuxfoundation.org>
+Message-Id: <20200619141614.239459471@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
-References: <20200619141633.446429600@linuxfoundation.org>
+In-Reply-To: <20200619141614.001544111@linuxfoundation.org>
+References: <20200619141614.001544111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,42 +44,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+From: Zhao Qiang <qiang.zhao@nxp.com>
 
-commit b1b65750b8db67834482f758fc385bfa7560d228 upstream.
+commit c505873eaece2b4aefd07d339dc7e1400e0235ac upstream.
 
-If FAT length == 0, the image doesn't have any data. And it can be the
-cause of overlapping the root dir and FAT entries.
+88E1145 also need this autoneg errata.
 
-Also Windows treats it as invalid format.
-
-Reported-by: syzbot+6f1624f937d9d6911e2d@syzkaller.appspotmail.com
-Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Marco Elver <elver@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Link: http://lkml.kernel.org/r/87r1wz8mrd.fsf@mail.parknet.co.jp
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: f2899788353c ("net: phy: marvell: Limit errata to 88m1101")
+Signed-off-by: Zhao Qiang <qiang.zhao@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- fs/fat/inode.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/phy/marvell.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/fat/inode.c
-+++ b/fs/fat/inode.c
-@@ -1512,6 +1512,12 @@ static int fat_read_bpb(struct super_blo
- 		goto out;
- 	}
- 
-+	if (bpb->fat_fat_length == 0 && bpb->fat32_length == 0) {
-+		if (!silent)
-+			fat_msg(sb, KERN_ERR, "bogus number of FAT sectors");
-+		goto out;
-+	}
-+
- 	error = 0;
- 
- out:
+--- a/drivers/net/phy/marvell.c
++++ b/drivers/net/phy/marvell.c
+@@ -1091,7 +1091,7 @@ static struct phy_driver marvell_drivers
+ 		.features = PHY_GBIT_FEATURES,
+ 		.flags = PHY_HAS_INTERRUPT,
+ 		.config_init = &m88e1145_config_init,
+-		.config_aneg = &marvell_config_aneg,
++		.config_aneg = &m88e1101_config_aneg,
+ 		.read_status = &genphy_read_status,
+ 		.ack_interrupt = &marvell_ack_interrupt,
+ 		.config_intr = &marvell_config_intr,
 
 
