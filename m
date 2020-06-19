@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DC60201881
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 19:01:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 103D2201873
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 19:01:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404185AbgFSQtF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:49:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57450 "EHLO mail.kernel.org"
+        id S2388126AbgFSOkT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:40:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388080AbgFSOjs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:39:48 -0400
+        id S2388121AbgFSOkP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:40:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D5B4208B8;
-        Fri, 19 Jun 2020 14:39:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E37982070A;
+        Fri, 19 Jun 2020 14:40:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577587;
-        bh=ygtLnoiUpOgaLKcoOxtcS9NrtUZR0kTHoYbA9bgfytU=;
+        s=default; t=1592577615;
+        bh=7MF0b77oC01ynraHWDZg4g8n84cneXiha1iL8XpCBbA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZLXm9GevYiUE83l16MclWqjL9fVYx8o2DkwLmDI1qq5d+7yRL0DiMnTJB/Ra/llWy
-         ooYYqvCU05ae9K5VMT66KpRkJLuh4mGISZf8QBSiiyupjewMIK2Xthuh7QGsotOckz
-         gAvADAK96FqEoLS4EJbRhCmoeYhwcRtUWqSDa7Ik=
+        b=OqUU8A7zaclLnvhMJHZKI+69X0pW3sV973p2ar598b2CQ9oob9yhP6VuPBbJdr4Sw
+         I1qkPQkG51IMwsIdMnzcNII894Xz0f+35H3XjIni8qYUMN3KumirkVId+gC53TOMTx
+         CjXiO6xdy+tIbs29pvUwK6MB6Dt64burerkesnr8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
+        stable@vger.kernel.org, Ido Schimmel <idosch@mellanox.com>,
+        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 001/128] ipv6: fix IPV6_ADDRFORM operation logic
-Date:   Fri, 19 Jun 2020 16:31:35 +0200
-Message-Id: <20200619141620.218012110@linuxfoundation.org>
+Subject: [PATCH 4.9 002/128] vxlan: Avoid infinite loop when suppressing NS messages with invalid options
+Date:   Fri, 19 Jun 2020 16:31:36 +0200
+Message-Id: <20200619141620.272273240@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
 References: <20200619141620.148019466@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,77 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Ido Schimmel <idosch@mellanox.com>
 
-[ Upstream commit 79a1f0ccdbb4ad700590f61b00525b390cb53905 ]
+[ Upstream commit 8066e6b449e050675df48e7c4b16c29f00507ff0 ]
 
-Socket option IPV6_ADDRFORM supports UDP/UDPLITE and TCP at present.
-Previously the checking logic looks like:
-if (sk->sk_protocol == IPPROTO_UDP || sk->sk_protocol == IPPROTO_UDPLITE)
-	do_some_check;
-else if (sk->sk_protocol != IPPROTO_TCP)
-	break;
+When proxy mode is enabled the vxlan device might reply to Neighbor
+Solicitation (NS) messages on behalf of remote hosts.
 
-After commit b6f6118901d1 ("ipv6: restrict IPV6_ADDRFORM operation"), TCP
-was blocked as the logic changed to:
-if (sk->sk_protocol == IPPROTO_UDP || sk->sk_protocol == IPPROTO_UDPLITE)
-	do_some_check;
-else if (sk->sk_protocol == IPPROTO_TCP)
-	do_some_check;
-	break;
-else
-	break;
+In case the NS message includes the "Source link-layer address" option
+[1], the vxlan device will use the specified address as the link-layer
+destination address in its reply.
 
-Then after commit 82c9ae440857 ("ipv6: fix restrict IPV6_ADDRFORM operation")
-UDP/UDPLITE were blocked as the logic changed to:
-if (sk->sk_protocol == IPPROTO_UDP || sk->sk_protocol == IPPROTO_UDPLITE)
-	do_some_check;
-if (sk->sk_protocol == IPPROTO_TCP)
-	do_some_check;
+To avoid an infinite loop, break out of the options parsing loop when
+encountering an option with length zero and disregard the NS message.
 
-if (sk->sk_protocol != IPPROTO_TCP)
-	break;
+This is consistent with the IPv6 ndisc code and RFC 4886 which states
+that "Nodes MUST silently discard an ND packet that contains an option
+with length zero" [2].
 
-Fix it by using Eric's code and simply remove the break in TCP check, which
-looks like:
-if (sk->sk_protocol == IPPROTO_UDP || sk->sk_protocol == IPPROTO_UDPLITE)
-	do_some_check;
-else if (sk->sk_protocol == IPPROTO_TCP)
-	do_some_check;
-else
-	break;
+[1] https://tools.ietf.org/html/rfc4861#section-4.3
+[2] https://tools.ietf.org/html/rfc4861#section-4.6
 
-Fixes: 82c9ae440857 ("ipv6: fix restrict IPV6_ADDRFORM operation")
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Fixes: 4b29dba9c085 ("vxlan: fix nonfunctional neigh_reduce()")
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Acked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/ipv6_sockglue.c |   13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/net/vxlan.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/net/ipv6/ipv6_sockglue.c
-+++ b/net/ipv6/ipv6_sockglue.c
-@@ -184,14 +184,15 @@ static int do_ipv6_setsockopt(struct soc
- 					retv = -EBUSY;
- 					break;
- 				}
--			}
--			if (sk->sk_protocol == IPPROTO_TCP &&
--			    sk->sk_prot != &tcpv6_prot) {
--				retv = -EBUSY;
-+			} else if (sk->sk_protocol == IPPROTO_TCP) {
-+				if (sk->sk_prot != &tcpv6_prot) {
-+					retv = -EBUSY;
-+					break;
-+				}
-+			} else {
- 				break;
- 			}
--			if (sk->sk_protocol != IPPROTO_TCP)
--				break;
-+
- 			if (sk->sk_state != TCP_ESTABLISHED) {
- 				retv = -ENOTCONN;
- 				break;
+--- a/drivers/net/vxlan.c
++++ b/drivers/net/vxlan.c
+@@ -1521,6 +1521,10 @@ static struct sk_buff *vxlan_na_create(s
+ 	daddr = eth_hdr(request)->h_source;
+ 	ns_olen = request->len - skb_transport_offset(request) - sizeof(*ns);
+ 	for (i = 0; i < ns_olen-1; i += (ns->opt[i+1]<<3)) {
++		if (!ns->opt[i + 1]) {
++			kfree_skb(reply);
++			return NULL;
++		}
+ 		if (ns->opt[i] == ND_OPT_SOURCE_LL_ADDR) {
+ 			daddr = ns->opt + i + sizeof(struct nd_opt_hdr);
+ 			break;
 
 
