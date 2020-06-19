@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A12462016A3
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:33:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3F062016C4
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:45:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394998AbgFSQdD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:33:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45620 "EHLO mail.kernel.org"
+        id S2388428AbgFSOnC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:43:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389500AbgFSOvs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:51:48 -0400
+        id S2388426AbgFSOnB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:43:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2AF2521556;
-        Fri, 19 Jun 2020 14:51:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD26520A8B;
+        Fri, 19 Jun 2020 14:43:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578308;
-        bh=dA8deVe8Oc5xCiWh0RcR44ajduoZk4p5UPFlT99UIfM=;
+        s=default; t=1592577781;
+        bh=1xAaCVxK8UayJNyozzHJ59syAeYGo1c7dgfEqh4ALZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rrATLhzR8YKbxn+eb4qJDtLixNX7bV01PAWjiTQAfJLIpE0y/ZQNp8+hhZpEYkj0d
-         HUmA/EFOQUSaP+Vfp9bBPCwhonp9BuA5L6YgFVQX6LH5drBjVRL65/5Iwr8RR9oZXT
-         X4MjFoqQH/ofW/1tfa7iWQ50+dI+rZJWwngpB9j4=
+        b=q7OFPws6+niE4MxtO2y615X043EJAamrxgHS8U9Mmb+gInF8i9ZrCBEqRn14yKG22
+         TYK8XKObNkFTIrKx19jIZT1PvolFfXc1imZwjWKf7B5zS9ZQs+xjaGcio2O+t4PPV0
+         CYUmu+lr12Lhwp1z87JTQv2vgFs7TXluy/qXxfcY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bruce Chang <brucechang@via.com.tw>,
-        Harald Welte <HaraldWelte@viatech.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 133/190] mmc: via-sdmmc: Respect the cmd->busy_timeout from the mmc core
-Date:   Fri, 19 Jun 2020 16:32:58 +0200
-Message-Id: <20200619141640.275240310@linuxfoundation.org>
+        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 085/128] x86/boot: Correct relocation destination on old linkers
+Date:   Fri, 19 Jun 2020 16:32:59 +0200
+Message-Id: <20200619141624.641677744@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
-References: <20200619141633.446429600@linuxfoundation.org>
+In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
+References: <20200619141620.148019466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,63 +43,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ulf Hansson <ulf.hansson@linaro.org>
+From: Arvind Sankar <nivedita@alum.mit.edu>
 
-[ Upstream commit 966244ccd2919e28f25555a77f204cd1c109cad8 ]
+[ Upstream commit 5214028dd89e49ba27007c3ee475279e584261f0 ]
 
-Using a fixed 1s timeout for all commands (and data transfers) is a bit
-problematic.
+For the 32-bit kernel, as described in
 
-For some commands it means waiting longer than needed for the timer to
-expire, which may not a big issue, but still. For other commands, like for
-an erase (CMD38) that uses a R1B response, may require longer timeouts than
-1s. In these cases, we may end up treating the command as it failed, while
-it just needed some more time to complete successfully.
+  6d92bc9d483a ("x86/build: Build compressed x86 kernels as PIE"),
 
-Fix the problem by respecting the cmd->busy_timeout, which is provided by
-the mmc core.
+pre-2.26 binutils generates R_386_32 relocations in PIE mode. Since the
+startup code does not perform relocation, any reloc entry with R_386_32
+will remain as 0 in the executing code.
 
-Cc: Bruce Chang <brucechang@via.com.tw>
-Cc: Harald Welte <HaraldWelte@viatech.com>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Link: https://lore.kernel.org/r/20200414161413.3036-17-ulf.hansson@linaro.org
+Commit
+
+  974f221c84b0 ("x86/boot: Move compressed kernel to the end of the
+                 decompression buffer")
+
+added a new symbol _end but did not mark it hidden, which doesn't give
+the correct offset on older linkers. This causes the compressed kernel
+to be copied beyond the end of the decompression buffer, rather than
+flush against it. This region of memory may be reserved or already
+allocated for other purposes by the bootloader.
+
+Mark _end as hidden to fix. This changes the relocation from R_386_32 to
+R_386_RELATIVE even on the pre-2.26 binutils.
+
+For 64-bit, this is not strictly necessary, as the 64-bit kernel is only
+built as PIE if the linker supports -z noreloc-overflow, which implies
+binutils-2.27+, but for consistency, mark _end as hidden here too.
+
+The below illustrates the before/after impact of the patch using
+binutils-2.25 and gcc-4.6.4 (locally compiled from source) and QEMU.
+
+  Disassembly before patch:
+    48:   8b 86 60 02 00 00       mov    0x260(%esi),%eax
+    4e:   2d 00 00 00 00          sub    $0x0,%eax
+                          4f: R_386_32    _end
+  Disassembly after patch:
+    48:   8b 86 60 02 00 00       mov    0x260(%esi),%eax
+    4e:   2d 00 f0 76 00          sub    $0x76f000,%eax
+                          4f: R_386_RELATIVE      *ABS*
+
+Dump from extract_kernel before patch:
+	early console in extract_kernel
+	input_data: 0x0207c098 <--- this is at output + init_size
+	input_len: 0x0074fef1
+	output: 0x01000000
+	output_len: 0x00fa63d0
+	kernel_total_size: 0x0107c000
+	needed_size: 0x0107c000
+
+Dump from extract_kernel after patch:
+	early console in extract_kernel
+	input_data: 0x0190d098 <--- this is at output + init_size - _end
+	input_len: 0x0074fef1
+	output: 0x01000000
+	output_len: 0x00fa63d0
+	kernel_total_size: 0x0107c000
+	needed_size: 0x0107c000
+
+Fixes: 974f221c84b0 ("x86/boot: Move compressed kernel to the end of the decompression buffer")
+Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20200207214926.3564079-1-nivedita@alum.mit.edu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/via-sdmmc.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ arch/x86/boot/compressed/head_32.S | 5 +++--
+ arch/x86/boot/compressed/head_64.S | 1 +
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mmc/host/via-sdmmc.c b/drivers/mmc/host/via-sdmmc.c
-index a838bf5480d8..a863a345fc59 100644
---- a/drivers/mmc/host/via-sdmmc.c
-+++ b/drivers/mmc/host/via-sdmmc.c
-@@ -323,6 +323,8 @@ struct via_crdr_mmc_host {
- /* some devices need a very long delay for power to stabilize */
- #define VIA_CRDR_QUIRK_300MS_PWRDELAY	0x0001
+diff --git a/arch/x86/boot/compressed/head_32.S b/arch/x86/boot/compressed/head_32.S
+index 7532f6f53677..93f41b4f05ce 100644
+--- a/arch/x86/boot/compressed/head_32.S
++++ b/arch/x86/boot/compressed/head_32.S
+@@ -48,16 +48,17 @@
+  * Position Independent Executable (PIE) so that linker won't optimize
+  * R_386_GOT32X relocation to its fixed symbol address.  Older
+  * linkers generate R_386_32 relocations against locally defined symbols,
+- * _bss, _ebss, _got and _egot, in PIE.  It isn't wrong, just less
++ * _bss, _ebss, _got, _egot and _end, in PIE.  It isn't wrong, just less
+  * optimal than R_386_RELATIVE.  But the x86 kernel fails to properly handle
+  * R_386_32 relocations when relocating the kernel.  To generate
+- * R_386_RELATIVE relocations, we mark _bss, _ebss, _got and _egot as
++ * R_386_RELATIVE relocations, we mark _bss, _ebss, _got, _egot and _end as
+  * hidden:
+  */
+ 	.hidden _bss
+ 	.hidden _ebss
+ 	.hidden _got
+ 	.hidden _egot
++	.hidden _end
  
-+#define VIA_CMD_TIMEOUT_MS		1000
-+
- static const struct pci_device_id via_ids[] = {
- 	{PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_9530,
- 	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0,},
-@@ -555,14 +557,17 @@ static void via_sdc_send_command(struct via_crdr_mmc_host *host,
- {
- 	void __iomem *addrbase;
- 	struct mmc_data *data;
-+	unsigned int timeout_ms;
- 	u32 cmdctrl = 0;
+ 	__HEAD
+ ENTRY(startup_32)
+diff --git a/arch/x86/boot/compressed/head_64.S b/arch/x86/boot/compressed/head_64.S
+index 3fac2d133e4e..d096bcfcb3f6 100644
+--- a/arch/x86/boot/compressed/head_64.S
++++ b/arch/x86/boot/compressed/head_64.S
+@@ -40,6 +40,7 @@
+ 	.hidden _ebss
+ 	.hidden _got
+ 	.hidden _egot
++	.hidden _end
  
- 	WARN_ON(host->cmd);
- 
- 	data = cmd->data;
--	mod_timer(&host->timer, jiffies + HZ);
- 	host->cmd = cmd;
- 
-+	timeout_ms = cmd->busy_timeout ? cmd->busy_timeout : VIA_CMD_TIMEOUT_MS;
-+	mod_timer(&host->timer, jiffies + msecs_to_jiffies(timeout_ms));
-+
- 	/*Command index*/
- 	cmdctrl = cmd->opcode << 8;
- 
+ 	__HEAD
+ 	.code32
 -- 
 2.25.1
 
