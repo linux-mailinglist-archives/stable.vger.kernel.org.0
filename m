@@ -2,45 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F224520162C
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:32:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FB7920178F
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390010AbgFSQ1i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:27:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50716 "EHLO mail.kernel.org"
+        id S2389116AbgFSQkI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:40:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390004AbgFSOzq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:55:46 -0400
+        id S2388782AbgFSOp7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:45:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 341EE217D9;
-        Fri, 19 Jun 2020 14:55:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F293C21556;
+        Fri, 19 Jun 2020 14:45:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578546;
-        bh=kKmDstS4uhtLNdfWS9qbd/4hR1Uhf1h9dvXeFVfsYto=;
+        s=default; t=1592577959;
+        bh=uCNmxVWLAvd2UD6qMLaucpPVHNdoLiyvb7ceBA1576o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eZ0fIUalFuvWH9IY+Gmw2kkjdsdsSAO9A5twwEp4SDnM3VIUno/z+7WOD2pTTBJCB
-         rtOnTvdKz6kX4mYoTxeFr4iMKRwqMuNBXUlUmUs5+ZH/0htxttOTE0sqQSqfZAMfc7
-         XWWzCiN4zg3b6aarxwIVCfEBNiji1oziSkP8yqn0=
+        b=QZh5ByAimwXqH4aH1NHl5btRS9h7I5xli4OEOjmv7oGVqGg5Jbkr+E0z1AaggCpJy
+         uZUFte7DNS5g7LyFRmqs7OR59cO3/cExCSIse1b1eZfQshz4vXMVKQh/vG5v/mFPIF
+         5tY+qv2ws/osMATkx7uNmC+b5bU14l4jVafp3Shg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, LABBE Corentin <clabbe@baylibre.com>,
-        Gonglei <arei.gonglei@huawei.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        virtualization@lists.linux-foundation.org,
-        "Longpeng(Mike)" <longpeng2@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 064/267] crypto: virtio: Fix use-after-free in virtio_crypto_skcipher_finalize_req()
-Date:   Fri, 19 Jun 2020 16:30:49 +0200
-Message-Id: <20200619141651.952477707@linuxfoundation.org>
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Stafford Horne <shorne@gmail.com>,
+        Miles Chen <miles.chen@mediatek.com>
+Subject: [PATCH 4.14 005/190] arch/openrisc: Fix issues with access_ok()
+Date:   Fri, 19 Jun 2020 16:30:50 +0200
+Message-Id: <20200619141633.736868337@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
-References: <20200619141648.840376470@linuxfoundation.org>
+In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
+References: <20200619141633.446429600@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,75 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Longpeng(Mike) <longpeng2@huawei.com>
+From: Stafford Horne <shorne@gmail.com>
 
-[ Upstream commit 8c855f0720ff006d75d0a2512c7f6c4f60ff60ee ]
+commit 9cb2feb4d21d97386eb25c7b67e2793efcc1e70a upstream.
 
-The system'll crash when the users insmod crypto/tcrypto.ko with mode=155
-( testing "authenc(hmac(sha1),cbc(aes))" ). It's caused by reuse the memory
-of request structure.
+The commit 594cc251fdd0 ("make 'user_access_begin()' do 'access_ok()'")
+exposed incorrect implementations of access_ok() macro in several
+architectures.  This change fixes 2 issues found in OpenRISC.
 
-In crypto_authenc_init_tfm(), the reqsize is set to:
-  [PART 1] sizeof(authenc_request_ctx) +
-  [PART 2] ictx->reqoff +
-  [PART 3] MAX(ahash part, skcipher part)
-and the 'PART 3' is used by both ahash and skcipher in turn.
+OpenRISC was not properly using parenthesis for arguments and also using
+arguments twice.  This patch fixes those 2 issues.
 
-When the virtio_crypto driver finish skcipher req, it'll call ->complete
-callback(in crypto_finalize_skcipher_request) and then free its
-resources whose pointers are recorded in 'skcipher parts'.
+I test booted this patch with v5.0-rc1 on qemu and it's working fine.
 
-However, the ->complete is 'crypto_authenc_encrypt_done' in this case,
-it will use the 'ahash part' of the request and change its content,
-so virtio_crypto driver will get the wrong pointer after ->complete
-finish and mistakenly free some other's memory. So the system will crash
-when these memory will be used again.
-
-The resources which need to be cleaned up are not used any more. But the
-pointers of these resources may be changed in the function
-"crypto_finalize_skcipher_request". Thus release specific resources before
-calling this function.
-
-Fixes: dbaf0624ffa5 ("crypto: add virtio-crypto driver")
-Reported-by: LABBE Corentin <clabbe@baylibre.com>
-Cc: Gonglei <arei.gonglei@huawei.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: virtualization@lists.linux-foundation.org
-Cc: linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200123101000.GB24255@Red
-Acked-by: Gonglei <arei.gonglei@huawei.com>
-Signed-off-by: Longpeng(Mike) <longpeng2@huawei.com>
-Link: https://lore.kernel.org/r/20200602070501.2023-3-longpeng2@huawei.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Miles Chen <miles.chen@mediatek.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/virtio/virtio_crypto_algs.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/openrisc/include/asm/uaccess.h |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/crypto/virtio/virtio_crypto_algs.c b/drivers/crypto/virtio/virtio_crypto_algs.c
-index 38432721069f..9348060cc32f 100644
---- a/drivers/crypto/virtio/virtio_crypto_algs.c
-+++ b/drivers/crypto/virtio/virtio_crypto_algs.c
-@@ -594,10 +594,11 @@ static void virtio_crypto_ablkcipher_finalize_req(
- 		scatterwalk_map_and_copy(req->info, req->dst,
- 					 req->nbytes - AES_BLOCK_SIZE,
- 					 AES_BLOCK_SIZE, 0);
--	crypto_finalize_ablkcipher_request(vc_sym_req->base.dataq->engine,
--					   req, err);
- 	kzfree(vc_sym_req->iv);
- 	virtcrypto_clear_request(&vc_sym_req->base);
-+
-+	crypto_finalize_ablkcipher_request(vc_sym_req->base.dataq->engine,
-+					   req, err);
- }
+--- a/arch/openrisc/include/asm/uaccess.h
++++ b/arch/openrisc/include/asm/uaccess.h
+@@ -58,8 +58,12 @@
+ /* Ensure that addr is below task's addr_limit */
+ #define __addr_ok(addr) ((unsigned long) addr < get_fs())
  
- static struct virtio_crypto_algo virtio_crypto_algs[] = { {
--- 
-2.25.1
-
+-#define access_ok(type, addr, size) \
+-	__range_ok((unsigned long)addr, (unsigned long)size)
++#define access_ok(type, addr, size)						\
++({ 									\
++	unsigned long __ao_addr = (unsigned long)(addr);		\
++	unsigned long __ao_size = (unsigned long)(size);		\
++	__range_ok(__ao_addr, __ao_size);				\
++})
+ 
+ /*
+  * These are the main single-value transfer routines.  They automatically
 
 
