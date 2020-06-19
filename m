@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D165A2014C4
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:21:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 446432013C4
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:07:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390306AbgFSPAw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:00:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57250 "EHLO mail.kernel.org"
+        id S2392924AbgFSQDj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:03:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390660AbgFSPAp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:00:45 -0400
+        id S2403826AbgFSPL1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:11:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 01B082186A;
-        Fri, 19 Jun 2020 15:00:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1591720776;
+        Fri, 19 Jun 2020 15:11:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578845;
-        bh=CKS5+HdSoST1TSqe2wRB6hzz6m7D616MmSXTHXlLY/U=;
+        s=default; t=1592579486;
+        bh=56jubeqSvCe5abxjdH8iGRYSrHs+X6XVvwqLUlx67Zo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kf3qJcXgdDvUIr+ovviaHJzeE0lyLTrbqV+/3RRGdnTj19PFGPVIBmMh+sTmiXCNt
-         YtJ8ATJQAX3DGqgEvFVoWpxL098tZ9J0yD08yEwsYZVbS+EyoTrCHWtLXr+muu230l
-         uNc2dY7BKEzDYEJGkZPmR8IcR9FuJiLNZfzYDXGY=
+        b=NkxCDdfAHs1XAu+5yW84g3L0k7MljfwEKkjztRhtal3Vx3H+vvekViF8YWGc12OWo
+         Z0vw9M5Gby9w+ZNXGM5QnTpV67jQW9GI0v6os/9OicuiKwWv7GuBrpzAI9/gV8pZFM
+         8Yasf+4v6V2GOOVLt1IX5PXE2JVMpgup4sdf9kYY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rui Miguel Silva <rmfrfs@gmail.com>,
-        Johan Hovold <johan@kernel.org>, Alex Elder <elder@kernel.org>,
-        greybus-dev@lists.linaro.org, Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Chris Chiu <chiu@endlessm.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 178/267] staging: greybus: sdio: Respect the cmd->busy_timeout from the mmc core
+Subject: [PATCH 5.4 152/261] platform/x86: asus_wmi: Reserve more space for struct bias_args
 Date:   Fri, 19 Jun 2020 16:32:43 +0200
-Message-Id: <20200619141657.320999023@linuxfoundation.org>
+Message-Id: <20200619141657.166997708@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
-References: <20200619141648.840376470@linuxfoundation.org>
+In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
+References: <20200619141649.878808811@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,64 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ulf Hansson <ulf.hansson@linaro.org>
+From: Chris Chiu <chiu@endlessm.com>
 
-[ Upstream commit a389087ee9f195fcf2f31cd771e9ec5f02c16650 ]
+[ Upstream commit 7b91f1565fbfbe5a162d91f8a1f6c5580c2fc1d0 ]
 
-Using a fixed 1s timeout for all commands is a bit problematic.
+On the ASUS laptop UX325JA/UX425JA, most of the media keys are not
+working due to the ASUS WMI driver fails to be loaded. The ACPI error
+as follows leads to the failure of asus_wmi_evaluate_method.
+  ACPI BIOS Error (bug): AE_AML_BUFFER_LIMIT, Field [IIA3] at bit offset/length 96/32 exceeds size of target Buffer (96 bits) (20200326/dsopcode-203)
+  No Local Variables are initialized for Method [WMNB]
+  ACPI Error: Aborting method \_SB.ATKD.WMNB due to previous error (AE_AML_BUFFER_LIMIT) (20200326/psparse-531)
 
-For some commands it means waiting longer than needed for the timeout to
-expire, which may not a big issue, but still. For other commands, like for
-an erase (CMD38) that uses a R1B response, may require longer timeouts than
-1s. In these cases, we may end up treating the command as it failed, while
-it just needed some more time to complete successfully.
+The DSDT for the WMNB part shows that 5 DWORD required for local
+variables and the 3rd variable IIA3 hit the buffer limit.
 
-Fix the problem by respecting the cmd->busy_timeout, which is provided by
-the mmc core.
+Method (WMNB, 3, Serialized)
+{ ..
+    CreateDWordField (Arg2, Zero, IIA0)
+    CreateDWordField (Arg2, 0x04, IIA1)
+    CreateDWordField (Arg2, 0x08, IIA2)
+    CreateDWordField (Arg2, 0x0C, IIA3)
+    CreateDWordField (Arg2, 0x10, IIA4)
+    Local0 = (Arg1 & 0xFFFFFFFF)
+    If ((Local0 == 0x54494E49))
+  ..
+}
 
-Cc: Rui Miguel Silva <rmfrfs@gmail.com>
-Cc: Johan Hovold <johan@kernel.org>
-Cc: Alex Elder <elder@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: greybus-dev@lists.linaro.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Acked-by: Rui Miguel Silva <rmfrfs@gmail.com>
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20200414161413.3036-20-ulf.hansson@linaro.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+The limitation is determined by the input acpi_buffer size passed
+to the wmi_evaluate_method. Since the struct bios_args is the data
+structure used as input buffer by default for all ASUS WMI calls,
+the size needs to be expanded to fix the problem.
+
+Signed-off-by: Chris Chiu <chiu@endlessm.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/greybus/sdio.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/platform/x86/asus-wmi.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/staging/greybus/sdio.c b/drivers/staging/greybus/sdio.c
-index 38e85033fc4b..afb2e5e5111a 100644
---- a/drivers/staging/greybus/sdio.c
-+++ b/drivers/staging/greybus/sdio.c
-@@ -411,6 +411,7 @@ static int gb_sdio_command(struct gb_sdio_host *host, struct mmc_command *cmd)
- 	struct gb_sdio_command_request request = {0};
- 	struct gb_sdio_command_response response;
- 	struct mmc_data *data = host->mrq->data;
-+	unsigned int timeout_ms;
- 	u8 cmd_flags;
- 	u8 cmd_type;
- 	int i;
-@@ -469,9 +470,12 @@ static int gb_sdio_command(struct gb_sdio_host *host, struct mmc_command *cmd)
- 		request.data_blksz = cpu_to_le16(data->blksz);
- 	}
+diff --git a/drivers/platform/x86/asus-wmi.c b/drivers/platform/x86/asus-wmi.c
+index 41e28552b2ce..b1f4a31ba1ee 100644
+--- a/drivers/platform/x86/asus-wmi.c
++++ b/drivers/platform/x86/asus-wmi.c
+@@ -111,6 +111,8 @@ struct bios_args {
+ 	u32 arg0;
+ 	u32 arg1;
+ 	u32 arg2; /* At least TUF Gaming series uses 3 dword input buffer. */
++	u32 arg4;
++	u32 arg5;
+ } __packed;
  
--	ret = gb_operation_sync(host->connection, GB_SDIO_TYPE_COMMAND,
--				&request, sizeof(request), &response,
--				sizeof(response));
-+	timeout_ms = cmd->busy_timeout ? cmd->busy_timeout :
-+		GB_OPERATION_TIMEOUT_DEFAULT;
-+
-+	ret = gb_operation_sync_timeout(host->connection, GB_SDIO_TYPE_COMMAND,
-+					&request, sizeof(request), &response,
-+					sizeof(response), timeout_ms);
- 	if (ret < 0)
- 		goto out;
- 
+ /*
 -- 
 2.25.1
 
