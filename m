@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3515A2015A9
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:31:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DACC201659
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:33:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389858AbgFSOyc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:54:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49116 "EHLO mail.kernel.org"
+        id S2390140AbgFSQ3a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:29:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389466AbgFSOy2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:54:28 -0400
+        id S2389871AbgFSOyh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:54:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 512132184D;
-        Fri, 19 Jun 2020 14:54:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB4AC21556;
+        Fri, 19 Jun 2020 14:54:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578468;
-        bh=Idw/pRZv3LUtwmT/aJOqjrXSywFnMB2VZltZY9YiTG0=;
+        s=default; t=1592578474;
+        bh=I9StSnQTve+NRfXNCgjhEtbvSfCpEbTyi7oxIjiSrxE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aBKRJHQz//sPsPvQ+zso+F18tclATpeaaUC+WlxJoc+yCQBB4N2aHB+9/WrCoaR/I
-         zunnzjuCdxPieW5Uf2zdS6hZWAqeojgNnkJmQ19eeqSVbHQf800umY/gnsynlrahe3
-         DXR/w25zZ5/P5RLMKnKWYEJ2HTmU+SvoOf+tqjIU=
+        b=QZ7dSvjAxvIcGroMlF0+KoqWIjTrLp8xHcWso8ek3uwojLLc8mDQPKu5djMz3Lo7g
+         XnMYnLUj8thwiUW2wang++gLYbbwFQiRpzRayeADXyhyaPEKkK9RNUeToRalqrszne
+         RkV9AubcAiQglOvJ6zyxp7osuOcYJvLnjAnRaD8o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 034/267] ALSA: hda/realtek - add a pintbl quirk for several Lenovo machines
-Date:   Fri, 19 Jun 2020 16:30:19 +0200
-Message-Id: <20200619141650.487371732@linuxfoundation.org>
+Subject: [PATCH 4.19 036/267] ALSA: usb-audio: Add vendor, product and profile name for HP Thunderbolt Dock
+Date:   Fri, 19 Jun 2020 16:30:21 +0200
+Message-Id: <20200619141650.577504242@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
 References: <20200619141648.840376470@linuxfoundation.org>
@@ -43,39 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Wang <hui.wang@canonical.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit 573fcbfd319ccef26caa3700320242accea7fd5c upstream.
+commit 0c5086f5699906ec8e31ea6509239489f060f2dc upstream.
 
-A couple of Lenovo ThinkCentre machines all have 2 front mics and they
-use the same codec alc623 and have the same pin config, so add a
-pintbl entry for those machines to apply the fixup
-ALC283_FIXUP_HEADSET_MIC.
+The HP Thunderbolt Dock has two separate USB devices, one is for speaker
+and one is for headset. Add names for them so userspace can apply UCM
+settings.
 
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
-Link: https://lore.kernel.org/r/20200608115541.9531-1-hui.wang@canonical.com
+Link: https://lore.kernel.org/r/20200608062630.10806-1-kai.heng.feng@canonical.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ sound/usb/quirks-table.h |   20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -7694,6 +7694,12 @@ static const struct snd_hda_pin_quirk al
- 		ALC225_STANDARD_PINS,
- 		{0x12, 0xb7a60130},
- 		{0x17, 0x90170110}),
-+	SND_HDA_PIN_QUIRK(0x10ec0623, 0x17aa, "Lenovo", ALC283_FIXUP_HEADSET_MIC,
-+		{0x14, 0x01014010},
-+		{0x17, 0x90170120},
-+		{0x18, 0x02a11030},
-+		{0x19, 0x02a1103f},
-+		{0x21, 0x0221101f}),
- 	{}
- };
+--- a/sound/usb/quirks-table.h
++++ b/sound/usb/quirks-table.h
+@@ -39,6 +39,26 @@
+ 	.idProduct = prod, \
+ 	.bInterfaceClass = USB_CLASS_VENDOR_SPEC
  
++/* HP Thunderbolt Dock Audio Headset */
++{
++	USB_DEVICE(0x03f0, 0x0269),
++	.driver_info = (unsigned long) &(const struct snd_usb_audio_quirk) {
++		.vendor_name = "HP",
++		.product_name = "Thunderbolt Dock Audio Headset",
++		.profile_name = "HP-Thunderbolt-Dock-Audio-Headset",
++		.ifnum = QUIRK_NO_INTERFACE
++	}
++},
++/* HP Thunderbolt Dock Audio Module */
++{
++	USB_DEVICE(0x03f0, 0x0567),
++	.driver_info = (unsigned long) &(const struct snd_usb_audio_quirk) {
++		.vendor_name = "HP",
++		.product_name = "Thunderbolt Dock Audio Module",
++		.profile_name = "HP-Thunderbolt-Dock-Audio-Module",
++		.ifnum = QUIRK_NO_INTERFACE
++	}
++},
+ /* FTDI devices */
+ {
+ 	USB_DEVICE(0x0403, 0xb8d8),
 
 
