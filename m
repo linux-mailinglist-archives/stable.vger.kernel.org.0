@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7945F2014B7
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:14:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2FE8201303
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:00:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393118AbgFSQOz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:14:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60600 "EHLO mail.kernel.org"
+        id S2404241AbgFSPTu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:19:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46274 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390626AbgFSPDs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:03:48 -0400
+        id S2391694AbgFSPPo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:15:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E7B8D206DB;
-        Fri, 19 Jun 2020 15:03:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 27121206DB;
+        Fri, 19 Jun 2020 15:15:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579028;
-        bh=+OZj2jAXCncu9wYrjju7ertIwwrHjJKhK6GfzfHwLvk=;
+        s=default; t=1592579743;
+        bh=io4lJXAVX3uRYaGKl4DRd0WJPif3kVGHmSl/0zcyPaQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RiILUdiBhmXk1ZIRh3zsri77LztcDkBpEKlug4G8TFxtF941BvzQHLYhnnnqV/VEu
-         uL3A8DtygclUQpsjUvgdiUVdWEFmgj1raBHvjwAUhBrbV3hJnQOiNAY0up/ygSwfWH
-         oLB57uTOKZiVUinP/Bnjfg1opOYwCQLio7f0HFNM=
+        b=iaZBkGIOYzwS2HMcnxDwHdnfRn3lWTE1F4C/YcePbQGd60tJ/SV7XoFQi0xeFALLE
+         mmWRjxL0/bI7FPOJaMciWElTRi7ajiEd0NCVT5jtuw7FMqBPAkZXf0GCV0OGIH1Zgt
+         knFti3374ZerJDdW1LwWnGZezhcite+Irpdp58jw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Al Viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH 4.19 247/267] sparc64: fix misuses of access_process_vm() in genregs32_[sg]et()
-Date:   Fri, 19 Jun 2020 16:33:52 +0200
-Message-Id: <20200619141700.550399559@linuxfoundation.org>
+        stable@vger.kernel.org, Hari Bathini <hbathini@linux.ibm.com>,
+        Mahesh Salgaonkar <mahesh@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.4 222/261] powerpc/fadump: consider reserved ranges while reserving memory
+Date:   Fri, 19 Jun 2020 16:33:53 +0200
+Message-Id: <20200619141700.512564632@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
-References: <20200619141648.840376470@linuxfoundation.org>
+In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
+References: <20200619141649.878808811@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,61 +44,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Hari Bathini <hbathini@linux.ibm.com>
 
-commit 142cd25293f6a7ecbdff4fb0af17de6438d46433 upstream.
+commit 140777a3d8dfdb3d3f20ea7707c0f1c0ce1b0aa5 upstream.
 
-We do need access_process_vm() to access the target's reg_window.
-However, access to caller's memory (storing the result in
-genregs32_get(), fetching the new values in case of genregs32_set())
-should be done by normal uaccess primitives.
+Commit 0962e8004e97 ("powerpc/prom: Scan reserved-ranges node for
+memory reservations") enabled support to parse reserved-ranges DT
+node and reserve kernel memory falling in these ranges for F/W
+purposes. Memory reserved for FADump should not overlap with these
+ranges as it could corrupt memory meant for F/W or crash'ed kernel
+memory to be exported as vmcore.
 
-Fixes: ad4f95764040 ([SPARC64]: Fix user accesses in regset code.)
-Cc: stable@kernel.org
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+But since commit 579ca1a27675 ("powerpc/fadump: make use of memblock's
+bottom up allocation mode"), memblock_find_in_range() is being used to
+find the appropriate area to reserve memory for FADump, which can't
+account for reserved-ranges as these ranges are reserved only after
+FADump memory reservation.
+
+With reserved-ranges now being populated during early boot, look out
+for these memory ranges while reserving memory for FADump. Without
+this change, MPIPL on PowerNV systems aborts with hostboot failure,
+when memory reserved for FADump is less than 4096MB.
+
+Fixes: 579ca1a27675 ("powerpc/fadump: make use of memblock's bottom up allocation mode")
+Cc: stable@vger.kernel.org
+Signed-off-by: Hari Bathini <hbathini@linux.ibm.com>
+Reviewed-by: Mahesh Salgaonkar <mahesh@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/158737297693.26700.16193820746269425424.stgit@hbathini.in.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/sparc/kernel/ptrace_64.c |   17 +++--------------
- 1 file changed, 3 insertions(+), 14 deletions(-)
+ arch/powerpc/kernel/fadump.c |   76 +++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 67 insertions(+), 9 deletions(-)
 
---- a/arch/sparc/kernel/ptrace_64.c
-+++ b/arch/sparc/kernel/ptrace_64.c
-@@ -571,19 +571,13 @@ static int genregs32_get(struct task_str
- 			for (; count > 0 && pos < 32; count--) {
- 				if (access_process_vm(target,
- 						      (unsigned long)
--						      &reg_window[pos],
-+						      &reg_window[pos++],
- 						      &reg, sizeof(reg),
- 						      FOLL_FORCE)
- 				    != sizeof(reg))
- 					return -EFAULT;
--				if (access_process_vm(target,
--						      (unsigned long) u,
--						      &reg, sizeof(reg),
--						      FOLL_FORCE | FOLL_WRITE)
--				    != sizeof(reg))
-+				if (put_user(reg, u++))
- 					return -EFAULT;
--				pos++;
--				u++;
- 			}
+--- a/arch/powerpc/kernel/fadump.c
++++ b/arch/powerpc/kernel/fadump.c
+@@ -443,10 +443,72 @@ static int __init fadump_get_boot_mem_re
+ 	return ret;
+ }
+ 
++/*
++ * Returns true, if the given range overlaps with reserved memory ranges
++ * starting at idx. Also, updates idx to index of overlapping memory range
++ * with the given memory range.
++ * False, otherwise.
++ */
++static bool overlaps_reserved_ranges(u64 base, u64 end, int *idx)
++{
++	bool ret = false;
++	int i;
++
++	for (i = *idx; i < reserved_mrange_info.mem_range_cnt; i++) {
++		u64 rbase = reserved_mrange_info.mem_ranges[i].base;
++		u64 rend = rbase + reserved_mrange_info.mem_ranges[i].size;
++
++		if (end <= rbase)
++			break;
++
++		if ((end > rbase) &&  (base < rend)) {
++			*idx = i;
++			ret = true;
++			break;
++		}
++	}
++
++	return ret;
++}
++
++/*
++ * Locate a suitable memory area to reserve memory for FADump. While at it,
++ * lookup reserved-ranges & avoid overlap with them, as they are used by F/W.
++ */
++static u64 __init fadump_locate_reserve_mem(u64 base, u64 size)
++{
++	struct fadump_memory_range *mrngs;
++	phys_addr_t mstart, mend;
++	int idx = 0;
++	u64 i, ret = 0;
++
++	mrngs = reserved_mrange_info.mem_ranges;
++	for_each_free_mem_range(i, NUMA_NO_NODE, MEMBLOCK_NONE,
++				&mstart, &mend, NULL) {
++		pr_debug("%llu) mstart: %llx, mend: %llx, base: %llx\n",
++			 i, mstart, mend, base);
++
++		if (mstart > base)
++			base = PAGE_ALIGN(mstart);
++
++		while ((mend > base) && ((mend - base) >= size)) {
++			if (!overlaps_reserved_ranges(base, base+size, &idx)) {
++				ret = base;
++				goto out;
++			}
++
++			base = mrngs[idx].base + mrngs[idx].size;
++			base = PAGE_ALIGN(base);
++		}
++	}
++
++out:
++	return ret;
++}
++
+ int __init fadump_reserve_mem(void)
+ {
+-	u64 base, size, mem_boundary, bootmem_min, align = PAGE_SIZE;
+-	bool is_memblock_bottom_up = memblock_bottom_up();
++	u64 base, size, mem_boundary, bootmem_min;
+ 	int ret = 1;
+ 
+ 	if (!fw_dump.fadump_enabled)
+@@ -467,9 +529,9 @@ int __init fadump_reserve_mem(void)
+ 			PAGE_ALIGN(fadump_calculate_reserve_size());
+ #ifdef CONFIG_CMA
+ 		if (!fw_dump.nocma) {
+-			align = FADUMP_CMA_ALIGNMENT;
+ 			fw_dump.boot_memory_size =
+-				ALIGN(fw_dump.boot_memory_size, align);
++				ALIGN(fw_dump.boot_memory_size,
++				      FADUMP_CMA_ALIGNMENT);
  		}
- 	}
-@@ -683,12 +677,7 @@ static int genregs32_set(struct task_str
- 			}
- 		} else {
- 			for (; count > 0 && pos < 32; count--) {
--				if (access_process_vm(target,
--						      (unsigned long)
--						      u,
--						      &reg, sizeof(reg),
--						      FOLL_FORCE)
--				    != sizeof(reg))
-+				if (get_user(reg, u++))
- 					return -EFAULT;
- 				if (access_process_vm(target,
- 						      (unsigned long)
+ #endif
+ 
+@@ -537,11 +599,7 @@ int __init fadump_reserve_mem(void)
+ 		 * Reserve memory at an offset closer to bottom of the RAM to
+ 		 * minimize the impact of memory hot-remove operation.
+ 		 */
+-		memblock_set_bottom_up(true);
+-		base = memblock_find_in_range(base, mem_boundary, size, align);
+-
+-		/* Restore the previous allocation mode */
+-		memblock_set_bottom_up(is_memblock_bottom_up);
++		base = fadump_locate_reserve_mem(base, size);
+ 
+ 		if (!base) {
+ 			pr_err("Failed to find memory chunk for reservation!\n");
 
 
