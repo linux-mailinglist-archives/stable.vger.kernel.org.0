@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BB2C2011D4
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:47:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 925F42011D2
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:47:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405229AbgFSPpz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:45:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58766 "EHLO mail.kernel.org"
+        id S2403898AbgFSPps (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:45:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393519AbgFSP1C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:27:02 -0400
+        id S2393526AbgFSP1E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:27:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A5D520734;
-        Fri, 19 Jun 2020 15:27:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A3F2217D8;
+        Fri, 19 Jun 2020 15:27:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580421;
-        bh=sUAeO8rbA0N30Grcc1+ej5kBzyS6iBFuX9rKypyt0+Q=;
+        s=default; t=1592580424;
+        bh=0ipDXHuXsr5Qaoa9TOtSQq6ymopP/5G4FnF3eZVMeJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kiioj7lSBKS1pJ1kVh3o+owwHqdEdn4G7X/ys0Ni2nLrv6ObH9fR0CqAR7GIwCfwD
-         JAU4j5AE+sS9SVrMwexzEhU+pdyClw23Q9fmEA+7zo0kHuVjHj3Ts+awsfUTPMSYEm
-         x/a72UnfxvySCx9RF8o/eTcSX0XurYXaQdVALWzg=
+        b=sQHA268bOl2kMEOsnQCJeBmWX0sFsng58RztAhu1pFkr/1tdfy9+qewyWBZVPY3zt
+         kVS9hDuKPiXzY1Cm+sIVx8fPeSy9dax6I9k9SCIhfVtWT2Tb/Nhsjx8m1v8FBGQMZu
+         8CWNASmT6kz97qAz3mehqN4GyxImeGROx/G/hTlc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 241/376] io_uring: fix overflowed reqs cancellation
-Date:   Fri, 19 Jun 2020 16:32:39 +0200
-Message-Id: <20200619141721.739474082@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 242/376] platform/x86: hp-wmi: Convert simple_strtoul() to kstrtou32()
+Date:   Fri, 19 Jun 2020 16:32:40 +0200
+Message-Id: <20200619141721.786058666@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -43,43 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 7b53d59859bc932b37895d2d37388e7fa29af7a5 ]
+[ Upstream commit 5cdc45ed3948042f0d73c6fec5ee9b59e637d0d2 ]
 
-Overflowed requests in io_uring_cancel_files() should be shed only of
-inflight and overflowed refs. All other left references are owned by
-someone else.
+First of all, unsigned long can overflow u32 value on 64-bit machine.
+Second, simple_strtoul() doesn't check for overflow in the input.
 
-If refcount_sub_and_test() fails, it will go further and put put extra
-ref, don't do that. Also, don't need to do io_wq_cancel_work()
-for overflowed reqs, they will be let go shortly anyway.
+Convert simple_strtoul() to kstrtou32() to eliminate above issues.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/platform/x86/hp-wmi.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 2d5f81a1bf9c..2698e9b08490 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -7477,10 +7477,11 @@ static void io_uring_cancel_files(struct io_ring_ctx *ctx,
- 				finish_wait(&ctx->inflight_wait, &wait);
- 				continue;
- 			}
-+		} else {
-+			io_wq_cancel_work(ctx->io_wq, &cancel_req->work);
-+			io_put_req(cancel_req);
- 		}
- 
--		io_wq_cancel_work(ctx->io_wq, &cancel_req->work);
--		io_put_req(cancel_req);
- 		schedule();
- 		finish_wait(&ctx->inflight_wait, &wait);
- 	}
+diff --git a/drivers/platform/x86/hp-wmi.c b/drivers/platform/x86/hp-wmi.c
+index a881b709af25..a44a2ec33287 100644
+--- a/drivers/platform/x86/hp-wmi.c
++++ b/drivers/platform/x86/hp-wmi.c
+@@ -461,8 +461,14 @@ static ssize_t postcode_show(struct device *dev, struct device_attribute *attr,
+ static ssize_t als_store(struct device *dev, struct device_attribute *attr,
+ 			 const char *buf, size_t count)
+ {
+-	u32 tmp = simple_strtoul(buf, NULL, 10);
+-	int ret = hp_wmi_perform_query(HPWMI_ALS_QUERY, HPWMI_WRITE, &tmp,
++	u32 tmp;
++	int ret;
++
++	ret = kstrtou32(buf, 10, &tmp);
++	if (ret)
++		return ret;
++
++	ret = hp_wmi_perform_query(HPWMI_ALS_QUERY, HPWMI_WRITE, &tmp,
+ 				       sizeof(tmp), sizeof(tmp));
+ 	if (ret)
+ 		return ret < 0 ? ret : -EINVAL;
 -- 
 2.25.1
 
