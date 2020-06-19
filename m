@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD4DA2018A4
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 19:01:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A194D20189D
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 19:01:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388079AbgFSQuu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:50:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55676 "EHLO mail.kernel.org"
+        id S2387902AbgFSQue (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:50:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387885AbgFSOid (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:38:33 -0400
+        id S2387440AbgFSOin (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:38:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D832D2070A;
-        Fri, 19 Jun 2020 14:38:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0365B208B8;
+        Fri, 19 Jun 2020 14:38:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577513;
-        bh=YOkpTZYrfnokcdFwYS0WPntzIjGXEEp96uDBgKME3hY=;
+        s=default; t=1592577523;
+        bh=se+Q4k5Btw+HJigqqx9lLs6qFSbEWJIzh+4yhN0UvOc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uUwoRSmgXzJ6E+AKBLuACjMANvuJUwXEps6x/pPLgzvAGF/a4AIbRRpq8uUKXcQg9
-         dtQuoZCKYbXUqa8Gdlw72e1Rl1nno32HKdWy3FeesvruV+Ofa4/X5XXlPVYNJskrTG
-         v9p+ozG2VHB8xUEkJ1ezRM4hB3tXhsTBnCc5XJq8=
+        b=tVEn99V/IIvlBKYBPGT72nXkxpPC9YtLUPfWcVtg9cw6PHHw0KZYXTKIykHWIGAn7
+         hhz9xjWvbiQBKmXSfdo4MdeobmP8x3vCrgaJRxy2I/9Q6/Yhs/npdwK+i7zld1hN4v
+         7JKIazquVDCeviHO0+1OqZ6Q760jC3XbXDUh4E0I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Roberto Sassu <roberto.sassu@huawei.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 081/101] ima: Directly assign the ima_default_policy pointer to ima_rules
-Date:   Fri, 19 Jun 2020 16:33:10 +0200
-Message-Id: <20200619141618.229547024@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Frank=20Sch=C3=A4fer?= <fschaefer.oss@googlemail.com>,
+        Christian Lamparter <chunkeey@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.4 084/101] carl9170: remove P2P_GO support
+Date:   Fri, 19 Jun 2020 16:33:13 +0200
+Message-Id: <20200619141618.373767359@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141614.001544111@linuxfoundation.org>
 References: <20200619141614.001544111@linuxfoundation.org>
@@ -45,66 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roberto Sassu <roberto.sassu@huawei.com>
+From: Christian Lamparter <chunkeey@gmail.com>
 
-[ Upstream commit 067a436b1b0aafa593344fddd711a755a58afb3b ]
+commit b14fba7ebd04082f7767a11daea7f12f3593de22 upstream.
 
-This patch prevents the following oops:
+This patch follows up on a bug-report by Frank Schäfer that
+discovered P2P GO wasn't working with wpa_supplicant.
+This patch removes part of the broken P2P GO support but
+keeps the vif switchover code in place.
 
-[   10.771813] BUG: kernel NULL pointer dereference, address: 0000000000000
-[...]
-[   10.779790] RIP: 0010:ima_match_policy+0xf7/0xb80
-[...]
-[   10.798576] Call Trace:
-[   10.798993]  ? ima_lsm_policy_change+0x2b0/0x2b0
-[   10.799753]  ? inode_init_owner+0x1a0/0x1a0
-[   10.800484]  ? _raw_spin_lock+0x7a/0xd0
-[   10.801592]  ima_must_appraise.part.0+0xb6/0xf0
-[   10.802313]  ? ima_fix_xattr.isra.0+0xd0/0xd0
-[   10.803167]  ima_must_appraise+0x4f/0x70
-[   10.804004]  ima_post_path_mknod+0x2e/0x80
-[   10.804800]  do_mknodat+0x396/0x3c0
+Cc: <stable@vger.kernel.org>
+Link: <https://lkml.kernel.org/r/3a9d86b6-744f-e670-8792-9167257edef8@googlemail.com>
+Reported-by: Frank Schäfer <fschaefer.oss@googlemail.com>
+Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200425092811.9494-1-chunkeey@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-It occurs when there is a failure during IMA initialization, and
-ima_init_policy() is not called. IMA hooks still call ima_match_policy()
-but ima_rules is NULL. This patch prevents the crash by directly assigning
-the ima_default_policy pointer to ima_rules when ima_rules is defined. This
-wouldn't alter the existing behavior, as ima_rules is always set at the end
-of ima_init_policy().
-
-Cc: stable@vger.kernel.org # 3.7.x
-Fixes: 07f6a79415d7d ("ima: add appraise action keywords and default rules")
-Reported-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/ima/ima_policy.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/wireless/ath/carl9170/fw.c   |    4 +---
+ drivers/net/wireless/ath/carl9170/main.c |   21 ++++-----------------
+ 2 files changed, 5 insertions(+), 20 deletions(-)
 
-diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
-index 3997e206f82d..0ddc8cb6411b 100644
---- a/security/integrity/ima/ima_policy.c
-+++ b/security/integrity/ima/ima_policy.c
-@@ -135,7 +135,7 @@ static struct ima_rule_entry default_appraise_rules[] = {
+--- a/drivers/net/wireless/ath/carl9170/fw.c
++++ b/drivers/net/wireless/ath/carl9170/fw.c
+@@ -351,9 +351,7 @@ static int carl9170_fw(struct ar9170 *ar
+ 		ar->hw->wiphy->interface_modes |= BIT(NL80211_IFTYPE_ADHOC);
  
- static LIST_HEAD(ima_default_rules);
- static LIST_HEAD(ima_policy_rules);
--static struct list_head *ima_rules;
-+static struct list_head *ima_rules = &ima_default_rules;
+ 		if (SUPP(CARL9170FW_WLANTX_CAB)) {
+-			if_comb_types |=
+-				BIT(NL80211_IFTYPE_AP) |
+-				BIT(NL80211_IFTYPE_P2P_GO);
++			if_comb_types |= BIT(NL80211_IFTYPE_AP);
  
- static DEFINE_MUTEX(ima_rules_mutex);
+ #ifdef CONFIG_MAC80211_MESH
+ 			if_comb_types |=
+--- a/drivers/net/wireless/ath/carl9170/main.c
++++ b/drivers/net/wireless/ath/carl9170/main.c
+@@ -582,11 +582,10 @@ static int carl9170_init_interface(struc
+ 	ar->disable_offload |= ((vif->type != NL80211_IFTYPE_STATION) &&
+ 	    (vif->type != NL80211_IFTYPE_AP));
  
-@@ -412,7 +412,6 @@ void __init ima_init_policy(void)
- 			      &ima_default_rules);
- 	}
+-	/* While the driver supports HW offload in a single
+-	 * P2P client configuration, it doesn't support HW
+-	 * offload in the favourit, concurrent P2P GO+CLIENT
+-	 * configuration. Hence, HW offload will always be
+-	 * disabled for P2P.
++	/* The driver used to have P2P GO+CLIENT support,
++	 * but since this was dropped and we don't know if
++	 * there are any gremlins lurking in the shadows,
++	 * so best we keep HW offload disabled for P2P.
+ 	 */
+ 	ar->disable_offload |= vif->p2p;
  
--	ima_rules = &ima_default_rules;
- }
+@@ -639,18 +638,6 @@ static int carl9170_op_add_interface(str
+ 			if (vif->type == NL80211_IFTYPE_STATION)
+ 				break;
  
- /**
--- 
-2.25.1
-
+-			/* P2P GO [master] use-case
+-			 * Because the P2P GO station is selected dynamically
+-			 * by all participating peers of a WIFI Direct network,
+-			 * the driver has be able to change the main interface
+-			 * operating mode on the fly.
+-			 */
+-			if (main_vif->p2p && vif->p2p &&
+-			    vif->type == NL80211_IFTYPE_AP) {
+-				old_main = main_vif;
+-				break;
+-			}
+-
+ 			err = -EBUSY;
+ 			rcu_read_unlock();
+ 
 
 
