@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCB3620103B
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:30:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F040B20103D
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:30:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393589AbgFSP1n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:27:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59490 "EHLO mail.kernel.org"
+        id S2404417AbgFSP1s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:27:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393580AbgFSP1l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:27:41 -0400
+        id S2393594AbgFSP1o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:27:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D7AE21D6C;
-        Fri, 19 Jun 2020 15:27:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF1CA20734;
+        Fri, 19 Jun 2020 15:27:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580460;
-        bh=Xx/TqlwllxnIqxMPUReU/yMw8FZJ0xccZjMf4q8KM2E=;
+        s=default; t=1592580463;
+        bh=I+5PxFlAec6ZbIZDVLDUQQfmz13yYiWv4RHLnKQLQQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S6wwvV/qE5Dj7gj4gk1Ez18qhPhUSTsu5cgQF2lAMtvrm/4tl/k/60kSZGz+eHEi1
-         9wOtqiRMlHBEw4ikfhJZ8C+OVWlYbAUxMurAKds25fRYm6qNikavEE13cMsdeGnx7y
-         VW0X3mdi54ImY4Ic8vLuJ91F82LZmd93ulqWtT08=
+        b=FxbDjr3N9SgUB3pZXErHrBrXTHz6ciEmvCsyua9Ief4ebTb2Xx8qnRP/4QGJjP7lp
+         jgmKJvM0TQzyYDJcjLh8qqvOEJkbfPjzmDGVhY16KrvvHrdS1wQtT1NpP8njsb/usN
+         uFSThNNyD9y9jw0aPOKvdiB6nZ9SUpuvyylHm3zU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Marcos Paulo de Souza <mpdesouza@suse.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.7 258/376] btrfs: fix a race between scrub and block group removal/allocation
-Date:   Fri, 19 Jun 2020 16:32:56 +0200
-Message-Id: <20200619141722.538630638@linuxfoundation.org>
+Subject: [PATCH 5.7 259/376] btrfs: send: emit file capabilities after chown
+Date:   Fri, 19 Jun 2020 16:32:57 +0200
+Message-Id: <20200619141722.586851130@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -43,270 +44,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Marcos Paulo de Souza <mpdesouza@suse.com>
 
-commit 2473d24f2b77da0ffabcbb916793e58e7f57440b upstream.
+commit 89efda52e6b6930f80f5adda9c3c9edfb1397191 upstream.
 
-When scrub is verifying the extents of a block group for a device, it is
-possible that the corresponding block group gets removed and its logical
-address and device extents get used for a new block group allocation.
-When this happens scrub incorrectly reports that errors were detected
-and, if the the new block group has a different profile then the old one,
-deleted block group, we can crash due to a null pointer dereference.
-Possibly other unexpected and weird consequences can happen as well.
+Whenever a chown is executed, all capabilities of the file being touched
+are lost.  When doing incremental send with a file with capabilities,
+there is a situation where the capability can be lost on the receiving
+side. The sequence of actions bellow shows the problem:
 
-Consider the following sequence of actions that leads to the null pointer
-dereference crash when scrub is running in parallel with balance:
+  $ mount /dev/sda fs1
+  $ mount /dev/sdb fs2
 
-1) Balance sets block group X to read-only mode and starts relocating it.
-   Block group X is a metadata block group, has a raid1 profile (two
-   device extents, each one in a different device) and a logical address
-   of 19424870400;
+  $ touch fs1/foo.bar
+  $ setcap cap_sys_nice+ep fs1/foo.bar
+  $ btrfs subvolume snapshot -r fs1 fs1/snap_init
+  $ btrfs send fs1/snap_init | btrfs receive fs2
 
-2) Scrub is running and finds device extent E, which belongs to block
-   group X. It enters scrub_stripe() to find all extents allocated to
-   block group X, the search is done using the extent tree;
+  $ chgrp adm fs1/foo.bar
+  $ setcap cap_sys_nice+ep fs1/foo.bar
 
-3) Balance finishes relocating block group X and removes block group X;
+  $ btrfs subvolume snapshot -r fs1 fs1/snap_complete
+  $ btrfs subvolume snapshot -r fs1 fs1/snap_incremental
 
-4) Balance starts relocating another block group and when trying to
-   commit the current transaction as part of the preparation step
-   (prepare_to_relocate()), it blocks because scrub is running;
+  $ btrfs send fs1/snap_complete | btrfs receive fs2
+  $ btrfs send -p fs1/snap_init fs1/snap_incremental | btrfs receive fs2
 
-5) The scrub task finds the metadata extent at the logical address
-   19425001472 and marks the pages of the extent to be read by a bio
-   (struct scrub_bio). The extent item's flags, which have the bit
-   BTRFS_EXTENT_FLAG_TREE_BLOCK set, are added to each page (struct
-   scrub_page). It is these flags in the scrub pages that tells the
-   bio's end io function (scrub_bio_end_io_worker) which type of extent
-   it is dealing with. At this point we end up with 4 pages in a bio
-   which is ready for submission (the metadata extent has a size of
-   16Kb, so that gives 4 pages on x86);
+At this point, only a chown was emitted by "btrfs send" since only the
+group was changed. This makes the cap_sys_nice capability to be dropped
+from fs2/snap_incremental/foo.bar
 
-6) At the next iteration of scrub_stripe(), scrub checks that there is a
-   pause request from the relocation task trying to commit a transaction,
-   therefore it submits the pending bio and pauses, waiting for the
-   transaction commit to complete before resuming;
+To fix that, only emit capabilities after chown is emitted. The current
+code first checks for xattrs that are new/changed, emits them, and later
+emit the chown. Now, __process_new_xattr skips capabilities, letting
+only finish_inode_if_needed to emit them, if they exist, for the inode
+being processed.
 
-7) The relocation task commits the transaction. The device extent E, that
-   was used by our block group X, is now available for allocation, since
-   the commit root for the device tree was swapped by the transaction
-   commit;
+This behavior was being worked around in "btrfs receive" side by caching
+the capability and only applying it after chown. Now, xattrs are only
+emmited _after_ chown, making that workaround not needed anymore.
 
-8) Another task doing a direct IO write allocates a new data block group Y
-   which ends using device extent E. This new block group Y also ends up
-   getting the same logical address that block group X had: 19424870400.
-   This happens because block group X was the block group with the highest
-   logical address and, when allocating Y, find_next_chunk() returns the
-   end offset of the current last block group to be used as the logical
-   address for the new block group, which is
-
-        18351128576 + 1073741824 = 19424870400
-
-   So our new block group Y has the same logical address and device extent
-   that block group X had. However Y is a data block group, while X was
-   a metadata one, and Y has a raid0 profile, while X had a raid1 profile;
-
-9) After allocating block group Y, the direct IO submits a bio to write
-   to device extent E;
-
-10) The read bio submitted by scrub reads the 4 pages (16Kb) from device
-    extent E, which now correspond to the data written by the task that
-    did a direct IO write. Then at the end io function associated with
-    the bio, scrub_bio_end_io_worker(), we call scrub_block_complete()
-    which calls scrub_checksum(). This later function checks the flags
-    of the first page, and sees that the bit BTRFS_EXTENT_FLAG_TREE_BLOCK
-    is set in the flags, so it assumes it has a metadata extent and
-    then calls scrub_checksum_tree_block(). That functions returns an
-    error, since interpreting data as a metadata extent causes the
-    checksum verification to fail.
-
-    So this makes scrub_checksum() call scrub_handle_errored_block(),
-    which determines 'failed_mirror_index' to be 1, since the device
-    extent E was allocated as the second mirror of block group X.
-
-    It allocates BTRFS_MAX_MIRRORS scrub_block structures as an array at
-    'sblocks_for_recheck', and all the memory is initialized to zeroes by
-    kcalloc().
-
-    After that it calls scrub_setup_recheck_block(), which is responsible
-    for filling each of those structures. However, when that function
-    calls btrfs_map_sblock() against the logical address of the metadata
-    extent, 19425001472, it gets a struct btrfs_bio ('bbio') that matches
-    the current block group Y. However block group Y has a raid0 profile
-    and not a raid1 profile like X had, so the following call returns 1:
-
-       scrub_nr_raid_mirrors(bbio)
-
-    And as a result scrub_setup_recheck_block() only initializes the
-    first (index 0) scrub_block structure in 'sblocks_for_recheck'.
-
-    Then scrub_recheck_block() is called by scrub_handle_errored_block()
-    with the second (index 1) scrub_block structure as the argument,
-    because 'failed_mirror_index' was previously set to 1.
-    This scrub_block was not initialized by scrub_setup_recheck_block(),
-    so it has zero pages, its 'page_count' member is 0 and its 'pagev'
-    page array has all members pointing to NULL.
-
-    Finally when scrub_recheck_block() calls scrub_recheck_block_checksum()
-    we have a NULL pointer dereference when accessing the flags of the first
-    page, as pavev[0] is NULL:
-
-    static void scrub_recheck_block_checksum(struct scrub_block *sblock)
-    {
-        (...)
-        if (sblock->pagev[0]->flags & BTRFS_EXTENT_FLAG_DATA)
-            scrub_checksum_data(sblock);
-        (...)
-    }
-
-    Producing a stack trace like the following:
-
-    [542998.008985] BUG: kernel NULL pointer dereference, address: 0000000000000028
-    [542998.010238] #PF: supervisor read access in kernel mode
-    [542998.010878] #PF: error_code(0x0000) - not-present page
-    [542998.011516] PGD 0 P4D 0
-    [542998.011929] Oops: 0000 [#1] PREEMPT SMP DEBUG_PAGEALLOC PTI
-    [542998.012786] CPU: 3 PID: 4846 Comm: kworker/u8:1 Tainted: G    B   W         5.6.0-rc7-btrfs-next-58 #1
-    [542998.014524] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
-    [542998.016065] Workqueue: btrfs-scrub btrfs_work_helper [btrfs]
-    [542998.017255] RIP: 0010:scrub_recheck_block_checksum+0xf/0x20 [btrfs]
-    [542998.018474] Code: 4c 89 e6 ...
-    [542998.021419] RSP: 0018:ffffa7af0375fbd8 EFLAGS: 00010202
-    [542998.022120] RAX: 0000000000000000 RBX: ffff9792e674d120 RCX: 0000000000000000
-    [542998.023178] RDX: 0000000000000001 RSI: ffff9792e674d120 RDI: ffff9792e674d120
-    [542998.024465] RBP: 0000000000000000 R08: 0000000000000067 R09: 0000000000000001
-    [542998.025462] R10: ffffa7af0375fa50 R11: 0000000000000000 R12: ffff9791f61fe800
-    [542998.026357] R13: ffff9792e674d120 R14: 0000000000000001 R15: ffffffffc0e3dfc0
-    [542998.027237] FS:  0000000000000000(0000) GS:ffff9792fb200000(0000) knlGS:0000000000000000
-    [542998.028327] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-    [542998.029261] CR2: 0000000000000028 CR3: 00000000b3b18003 CR4: 00000000003606e0
-    [542998.030301] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-    [542998.031316] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-    [542998.032380] Call Trace:
-    [542998.032752]  scrub_recheck_block+0x162/0x400 [btrfs]
-    [542998.033500]  ? __alloc_pages_nodemask+0x31e/0x460
-    [542998.034228]  scrub_handle_errored_block+0x6f8/0x1920 [btrfs]
-    [542998.035170]  scrub_bio_end_io_worker+0x100/0x520 [btrfs]
-    [542998.035991]  btrfs_work_helper+0xaa/0x720 [btrfs]
-    [542998.036735]  process_one_work+0x26d/0x6a0
-    [542998.037275]  worker_thread+0x4f/0x3e0
-    [542998.037740]  ? process_one_work+0x6a0/0x6a0
-    [542998.038378]  kthread+0x103/0x140
-    [542998.038789]  ? kthread_create_worker_on_cpu+0x70/0x70
-    [542998.039419]  ret_from_fork+0x3a/0x50
-    [542998.039875] Modules linked in: dm_snapshot dm_thin_pool ...
-    [542998.047288] CR2: 0000000000000028
-    [542998.047724] ---[ end trace bde186e176c7f96a ]---
-
-This issue has been around for a long time, possibly since scrub exists.
-The last time I ran into it was over 2 years ago. After recently fixing
-fstests to pass the "--full-balance" command line option to btrfs-progs
-when doing balance, several tests started to more heavily exercise balance
-with fsstress, scrub and other operations in parallel, and therefore
-started to hit this issue again (with btrfs/061 for example).
-
-Fix this by having scrub increment the 'trimming' counter of the block
-group, which pins the block group in such a way that it guarantees neither
-its logical address nor device extents can be reused by future block group
-allocations until we decrement the 'trimming' counter. Also make sure that
-on each iteration of scrub_stripe() we stop scrubbing the block group if
-it was removed already.
-
-A later patch in the series will rename the block group's 'trimming'
-counter and its helpers to a more generic name, since now it is not used
-exclusively for pinning while trimming anymore.
-
+Link: https://github.com/kdave/btrfs-progs/issues/202
 CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Suggested-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Marcos Paulo de Souza <mpdesouza@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/scrub.c |   38 ++++++++++++++++++++++++++++++++++++--
- 1 file changed, 36 insertions(+), 2 deletions(-)
+ fs/btrfs/send.c |   67 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 67 insertions(+)
 
---- a/fs/btrfs/scrub.c
-+++ b/fs/btrfs/scrub.c
-@@ -3046,7 +3046,8 @@ out:
- static noinline_for_stack int scrub_stripe(struct scrub_ctx *sctx,
- 					   struct map_lookup *map,
- 					   struct btrfs_device *scrub_dev,
--					   int num, u64 base, u64 length)
-+					   int num, u64 base, u64 length,
-+					   struct btrfs_block_group *cache)
- {
- 	struct btrfs_path *path, *ppath;
- 	struct btrfs_fs_info *fs_info = sctx->fs_info;
-@@ -3284,6 +3285,20 @@ static noinline_for_stack int scrub_stri
- 				break;
- 			}
+--- a/fs/btrfs/send.c
++++ b/fs/btrfs/send.c
+@@ -23,6 +23,7 @@
+ #include "btrfs_inode.h"
+ #include "transaction.h"
+ #include "compression.h"
++#include "xattr.h"
  
-+			/*
-+			 * If our block group was removed in the meanwhile, just
-+			 * stop scrubbing since there is no point in continuing.
-+			 * Continuing would prevent reusing its device extents
-+			 * for new block groups for a long time.
-+			 */
-+			spin_lock(&cache->lock);
-+			if (cache->removed) {
-+				spin_unlock(&cache->lock);
-+				ret = 0;
-+				goto out;
-+			}
-+			spin_unlock(&cache->lock);
+ /*
+  * Maximum number of references an extent can have in order for us to attempt to
+@@ -4545,6 +4546,10 @@ static int __process_new_xattr(int num,
+ 	struct fs_path *p;
+ 	struct posix_acl_xattr_header dummy_acl;
+ 
++	/* Capabilities are emitted by finish_inode_if_needed */
++	if (!strncmp(name, XATTR_NAME_CAPS, name_len))
++		return 0;
 +
- 			extent = btrfs_item_ptr(l, slot,
- 						struct btrfs_extent_item);
- 			flags = btrfs_extent_flags(l, extent);
-@@ -3457,7 +3472,7 @@ static noinline_for_stack int scrub_chun
- 		if (map->stripes[i].dev->bdev == scrub_dev->bdev &&
- 		    map->stripes[i].physical == dev_offset) {
- 			ret = scrub_stripe(sctx, map, scrub_dev, i,
--					   chunk_offset, length);
-+					   chunk_offset, length, cache);
- 			if (ret)
- 				goto out;
- 		}
-@@ -3555,6 +3570,23 @@ int scrub_enumerate_chunks(struct scrub_
- 			goto skip;
+ 	p = fs_path_alloc();
+ 	if (!p)
+ 		return -ENOMEM;
+@@ -5107,6 +5112,64 @@ static int send_extent_data(struct send_
+ 	return 0;
+ }
  
- 		/*
-+		 * Make sure that while we are scrubbing the corresponding block
-+		 * group doesn't get its logical address and its device extents
-+		 * reused for another block group, which can possibly be of a
-+		 * different type and different profile. We do this to prevent
-+		 * false error detections and crashes due to bogus attempts to
-+		 * repair extents.
-+		 */
-+		spin_lock(&cache->lock);
-+		if (cache->removed) {
-+			spin_unlock(&cache->lock);
-+			btrfs_put_block_group(cache);
-+			goto skip;
-+		}
-+		btrfs_get_block_group_trimming(cache);
-+		spin_unlock(&cache->lock);
++/*
++ * Search for a capability xattr related to sctx->cur_ino. If the capability is
++ * found, call send_set_xattr function to emit it.
++ *
++ * Return 0 if there isn't a capability, or when the capability was emitted
++ * successfully, or < 0 if an error occurred.
++ */
++static int send_capabilities(struct send_ctx *sctx)
++{
++	struct fs_path *fspath = NULL;
++	struct btrfs_path *path;
++	struct btrfs_dir_item *di;
++	struct extent_buffer *leaf;
++	unsigned long data_ptr;
++	char *buf = NULL;
++	int buf_len;
++	int ret = 0;
 +
-+		/*
- 		 * we need call btrfs_inc_block_group_ro() with scrubs_paused,
- 		 * to avoid deadlock caused by:
- 		 * btrfs_inc_block_group_ro()
-@@ -3609,6 +3641,7 @@ int scrub_enumerate_chunks(struct scrub_
- 		} else {
- 			btrfs_warn(fs_info,
- 				   "failed setting block group ro: %d", ret);
-+			btrfs_put_block_group_trimming(cache);
- 			btrfs_put_block_group(cache);
- 			scrub_pause_off(fs_info);
- 			break;
-@@ -3695,6 +3728,7 @@ int scrub_enumerate_chunks(struct scrub_
- 			spin_unlock(&cache->lock);
- 		}
++	path = alloc_path_for_send();
++	if (!path)
++		return -ENOMEM;
++
++	di = btrfs_lookup_xattr(NULL, sctx->send_root, path, sctx->cur_ino,
++				XATTR_NAME_CAPS, strlen(XATTR_NAME_CAPS), 0);
++	if (!di) {
++		/* There is no xattr for this inode */
++		goto out;
++	} else if (IS_ERR(di)) {
++		ret = PTR_ERR(di);
++		goto out;
++	}
++
++	leaf = path->nodes[0];
++	buf_len = btrfs_dir_data_len(leaf, di);
++
++	fspath = fs_path_alloc();
++	buf = kmalloc(buf_len, GFP_KERNEL);
++	if (!fspath || !buf) {
++		ret = -ENOMEM;
++		goto out;
++	}
++
++	ret = get_cur_path(sctx, sctx->cur_ino, sctx->cur_inode_gen, fspath);
++	if (ret < 0)
++		goto out;
++
++	data_ptr = (unsigned long)(di + 1) + btrfs_dir_name_len(leaf, di);
++	read_extent_buffer(leaf, buf, data_ptr, buf_len);
++
++	ret = send_set_xattr(sctx, fspath, XATTR_NAME_CAPS,
++			strlen(XATTR_NAME_CAPS), buf, buf_len);
++out:
++	kfree(buf);
++	fs_path_free(fspath);
++	btrfs_free_path(path);
++	return ret;
++}
++
+ static int clone_range(struct send_ctx *sctx,
+ 		       struct clone_root *clone_root,
+ 		       const u64 disk_byte,
+@@ -5972,6 +6035,10 @@ static int finish_inode_if_needed(struct
+ 			goto out;
+ 	}
  
-+		btrfs_put_block_group_trimming(cache);
- 		btrfs_put_block_group(cache);
- 		if (ret)
- 			break;
++	ret = send_capabilities(sctx);
++	if (ret < 0)
++		goto out;
++
+ 	/*
+ 	 * If other directory inodes depended on our current directory
+ 	 * inode's move/rename, now do their move/rename operations.
 
 
