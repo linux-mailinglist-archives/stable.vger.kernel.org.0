@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 95816201775
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B8DA2016ED
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:46:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395348AbgFSQix (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:38:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39212 "EHLO mail.kernel.org"
+        id S2388930AbgFSOrO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:47:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388920AbgFSOrK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:47:10 -0400
+        id S1728024AbgFSOrN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:47:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 52EFB2168B;
-        Fri, 19 Jun 2020 14:47:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1997D20A8B;
+        Fri, 19 Jun 2020 14:47:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578029;
-        bh=kIU1GCkQJrmZFCdDbLhvIX7ErBnoyiO8O8nd1wmRA/M=;
+        s=default; t=1592578032;
+        bh=2XIXSXOLf1PgbSfEZzyX74dHJNMxOrXjFNQAdwEwl90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p7CJYAMWrPRb9DvaKzBAAS5S44RwhRONXXpkCk34l3Hq5H6DzydnC/aBlWH60QMqr
-         oZidS9685P/NdGBpXPPis4iPfyNzUOcgKmWmQd87Uklee5/cEuZW4eDcai6f1MOYtu
-         HanUa/0S/202/j8Rb0V2Xew+/JFGAKNvxoRFE/CQ=
+        b=gd47LwiIjlfgpEmOaGAhUJK6e8taPv9ngwMw2QTGJcYLAeopQeh+Cy7lfBHuI1q4N
+         u/SelGa+W4G/RjLQFauWZ3bwUdNrvEEbJmnIA9GgZ+fx2M0wiT+A2mX4ZSpybBIzeK
+         8TDNhIhKX6U7gQ0ghtNgYY0BZ1PrW+lfkTLrbBMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+7d2debdcdb3cb93c1e5e@syzkaller.appspotmail.com,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 4.14 054/190] proc: Use new_inode not new_inode_pseudo
-Date:   Fri, 19 Jun 2020 16:31:39 +0200
-Message-Id: <20200619141636.284305699@linuxfoundation.org>
+        stable@vger.kernel.org, Richard Purdie <rpurdie@rpsys.net>,
+        Antonino Daplas <adaplas@pol.net>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Sam Ravnborg <sam@ravnborg.org>
+Subject: [PATCH 4.14 055/190] video: fbdev: w100fb: Fix a potential double free.
+Date:   Fri, 19 Jun 2020 16:31:40 +0200
+Message-Id: <20200619141636.326806872@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
 References: <20200619141633.446429600@linuxfoundation.org>
@@ -44,83 +46,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric W. Biederman <ebiederm@xmission.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit ef1548adada51a2f32ed7faef50aa465e1b4c5da upstream.
+commit 18722d48a6bb9c2e8d046214c0a5fd19d0a7c9f6 upstream.
 
-Recently syzbot reported that unmounting proc when there is an ongoing
-inotify watch on the root directory of proc could result in a use
-after free when the watch is removed after the unmount of proc
-when the watcher exits.
+Some memory is vmalloc'ed in the 'w100fb_save_vidmem' function and freed in
+the 'w100fb_restore_vidmem' function. (these functions are called
+respectively from the 'suspend' and the 'resume' functions)
 
-Commit 69879c01a0c3 ("proc: Remove the now unnecessary internal mount
-of proc") made it easier to unmount proc and allowed syzbot to see the
-problem, but looking at the code it has been around for a long time.
+However, it is also freed in the 'remove' function.
 
-Looking at the code the fsnotify watch should have been removed by
-fsnotify_sb_delete in generic_shutdown_super.  Unfortunately the inode
-was allocated with new_inode_pseudo instead of new_inode so the inode
-was not on the sb->s_inodes list.  Which prevented
-fsnotify_unmount_inodes from finding the inode and removing the watch
-as well as made it so the "VFS: Busy inodes after unmount" warning
-could not find the inodes to warn about them.
+In order to avoid a potential double free, set the corresponding pointer
+to NULL once freed in the 'w100fb_restore_vidmem' function.
 
-Make all of the inodes in proc visible to generic_shutdown_super,
-and fsnotify_sb_delete by using new_inode instead of new_inode_pseudo.
-The only functional difference is that new_inode places the inodes
-on the sb->s_inodes list.
-
-I wrote a small test program and I can verify that without changes it
-can trigger this issue, and by replacing new_inode_pseudo with
-new_inode the issues goes away.
-
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/000000000000d788c905a7dfa3f4@google.com
-Reported-by: syzbot+7d2debdcdb3cb93c1e5e@syzkaller.appspotmail.com
-Fixes: 0097875bd415 ("proc: Implement /proc/thread-self to point at the directory of the current thread")
-Fixes: 021ada7dff22 ("procfs: switch /proc/self away from proc_dir_entry")
-Fixes: 51f0885e5415 ("vfs,proc: guarantee unique inodes in /proc")
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Fixes: aac51f09d96a ("[PATCH] w100fb: Rewrite for platform independence")
+Cc: Richard Purdie <rpurdie@rpsys.net>
+Cc: Antonino Daplas <adaplas@pol.net>
+Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Cc: <stable@vger.kernel.org> # v2.6.14+
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200506181902.193290-1-christophe.jaillet@wanadoo.fr
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/proc/inode.c       |    2 +-
- fs/proc/self.c        |    2 +-
- fs/proc/thread_self.c |    2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/video/fbdev/w100fb.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/proc/inode.c
-+++ b/fs/proc/inode.c
-@@ -432,7 +432,7 @@ const struct inode_operations proc_link_
+--- a/drivers/video/fbdev/w100fb.c
++++ b/drivers/video/fbdev/w100fb.c
+@@ -583,6 +583,7 @@ static void w100fb_restore_vidmem(struct
+ 		memsize=par->mach->mem->size;
+ 		memcpy_toio(remapped_fbuf + (W100_FB_BASE-MEM_WINDOW_BASE), par->saved_extmem, memsize);
+ 		vfree(par->saved_extmem);
++		par->saved_extmem = NULL;
+ 	}
+ 	if (par->saved_intmem) {
+ 		memsize=MEM_INT_SIZE;
+@@ -591,6 +592,7 @@ static void w100fb_restore_vidmem(struct
+ 		else
+ 			memcpy_toio(remapped_fbuf + (W100_FB_BASE-MEM_WINDOW_BASE), par->saved_intmem, memsize);
+ 		vfree(par->saved_intmem);
++		par->saved_intmem = NULL;
+ 	}
+ }
  
- struct inode *proc_get_inode(struct super_block *sb, struct proc_dir_entry *de)
- {
--	struct inode *inode = new_inode_pseudo(sb);
-+	struct inode *inode = new_inode(sb);
- 
- 	if (inode) {
- 		inode->i_ino = de->low_ino;
---- a/fs/proc/self.c
-+++ b/fs/proc/self.c
-@@ -41,7 +41,7 @@ int proc_setup_self(struct super_block *
- 	inode_lock(root_inode);
- 	self = d_alloc_name(s->s_root, "self");
- 	if (self) {
--		struct inode *inode = new_inode_pseudo(s);
-+		struct inode *inode = new_inode(s);
- 		if (inode) {
- 			inode->i_ino = self_inum;
- 			inode->i_mtime = inode->i_atime = inode->i_ctime = current_time(inode);
---- a/fs/proc/thread_self.c
-+++ b/fs/proc/thread_self.c
-@@ -42,7 +42,7 @@ int proc_setup_thread_self(struct super_
- 	inode_lock(root_inode);
- 	thread_self = d_alloc_name(s->s_root, "thread-self");
- 	if (thread_self) {
--		struct inode *inode = new_inode_pseudo(s);
-+		struct inode *inode = new_inode(s);
- 		if (inode) {
- 			inode->i_ino = thread_self_inum;
- 			inode->i_mtime = inode->i_atime = inode->i_ctime = current_time(inode);
 
 
