@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD86D200BD2
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:38:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78FC4200CE4
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:52:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387866AbgFSOiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:38:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55466 "EHLO mail.kernel.org"
+        id S2389381AbgFSOuz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:50:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733263AbgFSOiX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:38:23 -0400
+        id S2389378AbgFSOuy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:50:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 037F8208B8;
-        Fri, 19 Jun 2020 14:38:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B36DB206DB;
+        Fri, 19 Jun 2020 14:50:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577503;
-        bh=YgsRd3RmLnVM1wIbfeCexFiwLKDhAcn/ht2Pqp1VxRY=;
+        s=default; t=1592578254;
+        bh=sm8euXclJ2m5nLyWIPbkkEmWMOOlBNEoz3YBzD4yL7o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M/48W09YnPyNygCB9U2ytLchTgfMr2XjG/163ThWRyVp954T+UQ2E2G+ZhMosKGby
-         V3Adt/rweSCIWjiTXCVM6TILPB+fdGnY8S1WyR7Wr3bAlP7VUuYRt4sgHK0P6OV3ZP
-         M30HZxC18/H8OF+y2HpCEOCDwqXzw8C2HMwXYQsA=
+        b=EuekWtJ0KNGBIWy+qTwY6JdnPOvo8xhljWkC1SjEVF8ik/vnbKFYNqkAdVgcM2Vqg
+         JE8UouTLR+VFuwkiRRl0tVHYIyTeErmhT4gMb0xZbdyrJFrY32xvJJ/R6/qOYcsPJt
+         s+CpOAB3FqEjUAankz366lkInPochneYCrnNdawY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Harshad Shirwadkar <harshadshirwadkar@gmail.com>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 4.4 077/101] ext4: fix EXT_MAX_EXTENT/INDEX to check for zeroed eh_max
-Date:   Fri, 19 Jun 2020 16:33:06 +0200
-Message-Id: <20200619141618.042142094@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        Mimi Zohar <zohar@linux.ibm.com>
+Subject: [PATCH 4.14 143/190] ima: Directly assign the ima_default_policy pointer to ima_rules
+Date:   Fri, 19 Jun 2020 16:33:08 +0200
+Message-Id: <20200619141640.805513637@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141614.001544111@linuxfoundation.org>
-References: <20200619141614.001544111@linuxfoundation.org>
+In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
+References: <20200619141633.446429600@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harshad Shirwadkar <harshadshirwadkar@gmail.com>
+From: Roberto Sassu <roberto.sassu@huawei.com>
 
-commit c36a71b4e35ab35340facdd6964a00956b9fef0a upstream.
+commit 067a436b1b0aafa593344fddd711a755a58afb3b upstream.
 
-If eh->eh_max is 0, EXT_MAX_EXTENT/INDEX would evaluate to unsigned
-(-1) resulting in illegal memory accesses. Although there is no
-consistent repro, we see that generic/019 sometimes crashes because of
-this bug.
+This patch prevents the following oops:
 
-Ran gce-xfstests smoke and verified that there were no regressions.
+[   10.771813] BUG: kernel NULL pointer dereference, address: 0000000000000
+[...]
+[   10.779790] RIP: 0010:ima_match_policy+0xf7/0xb80
+[...]
+[   10.798576] Call Trace:
+[   10.798993]  ? ima_lsm_policy_change+0x2b0/0x2b0
+[   10.799753]  ? inode_init_owner+0x1a0/0x1a0
+[   10.800484]  ? _raw_spin_lock+0x7a/0xd0
+[   10.801592]  ima_must_appraise.part.0+0xb6/0xf0
+[   10.802313]  ? ima_fix_xattr.isra.0+0xd0/0xd0
+[   10.803167]  ima_must_appraise+0x4f/0x70
+[   10.804004]  ima_post_path_mknod+0x2e/0x80
+[   10.804800]  do_mknodat+0x396/0x3c0
 
-Signed-off-by: Harshad Shirwadkar <harshadshirwadkar@gmail.com>
-Link: https://lore.kernel.org/r/20200421023959.20879-2-harshadshirwadkar@gmail.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+It occurs when there is a failure during IMA initialization, and
+ima_init_policy() is not called. IMA hooks still call ima_match_policy()
+but ima_rules is NULL. This patch prevents the crash by directly assigning
+the ima_default_policy pointer to ima_rules when ima_rules is defined. This
+wouldn't alter the existing behavior, as ima_rules is always set at the end
+of ima_init_policy().
+
+Cc: stable@vger.kernel.org # 3.7.x
+Fixes: 07f6a79415d7d ("ima: add appraise action keywords and default rules")
+Reported-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/ext4_extents.h |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ security/integrity/ima/ima_policy.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/fs/ext4/ext4_extents.h
-+++ b/fs/ext4/ext4_extents.h
-@@ -169,10 +169,13 @@ struct ext4_ext_path {
- 	(EXT_FIRST_EXTENT((__hdr__)) + le16_to_cpu((__hdr__)->eh_entries) - 1)
- #define EXT_LAST_INDEX(__hdr__) \
- 	(EXT_FIRST_INDEX((__hdr__)) + le16_to_cpu((__hdr__)->eh_entries) - 1)
--#define EXT_MAX_EXTENT(__hdr__) \
--	(EXT_FIRST_EXTENT((__hdr__)) + le16_to_cpu((__hdr__)->eh_max) - 1)
-+#define EXT_MAX_EXTENT(__hdr__)	\
-+	((le16_to_cpu((__hdr__)->eh_max)) ? \
-+	((EXT_FIRST_EXTENT((__hdr__)) + le16_to_cpu((__hdr__)->eh_max) - 1)) \
-+					: 0)
- #define EXT_MAX_INDEX(__hdr__) \
--	(EXT_FIRST_INDEX((__hdr__)) + le16_to_cpu((__hdr__)->eh_max) - 1)
-+	((le16_to_cpu((__hdr__)->eh_max)) ? \
-+	((EXT_FIRST_INDEX((__hdr__)) + le16_to_cpu((__hdr__)->eh_max) - 1)) : 0)
+--- a/security/integrity/ima/ima_policy.c
++++ b/security/integrity/ima/ima_policy.c
+@@ -170,7 +170,7 @@ static struct ima_rule_entry secure_boot
+ static LIST_HEAD(ima_default_rules);
+ static LIST_HEAD(ima_policy_rules);
+ static LIST_HEAD(ima_temp_rules);
+-static struct list_head *ima_rules;
++static struct list_head *ima_rules = &ima_default_rules;
  
- static inline struct ext4_extent_header *ext_inode_hdr(struct inode *inode)
- {
+ static int ima_policy __initdata;
+ 
+@@ -468,7 +468,6 @@ void __init ima_init_policy(void)
+ 			temp_ima_appraise |= IMA_APPRAISE_POLICY;
+ 	}
+ 
+-	ima_rules = &ima_default_rules;
+ 	ima_update_policy_flag();
+ }
+ 
 
 
