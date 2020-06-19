@@ -2,36 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DAB3D201310
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:00:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB22A201312
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:00:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392692AbgFSPU3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:20:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51616 "EHLO mail.kernel.org"
+        id S2392505AbgFSPUb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:20:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392482AbgFSPU1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:20:27 -0400
+        id S2392698AbgFSPUa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:20:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 56B2B2158C;
-        Fri, 19 Jun 2020 15:20:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E0C9B20771;
+        Fri, 19 Jun 2020 15:20:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580026;
-        bh=LGucAxx+x52tVKnfbNkMjULMnphu0SKvwqOkseuLR7c=;
+        s=default; t=1592580029;
+        bh=MG/3TpAGaOZF6VTeqb+xQuY8+HXVC7ADyGDWqkiUHqY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vVr0NsFTFo8UQW6jm6c1IiKRNq/wcksxOKknt829u3EiSfinim98uQTUCMYVBUn6Q
-         aGQhn4WekAdIbQW6wy8q8ks5vUMetkUC6IYehUBdcj5yuPjbgVS5J1vmX7sLuY0SE9
-         PImfItKo/XzyMJgv41GCD5+vLr1toYVrbACSTSXU=
+        b=YIUOlqlTDtpWAQh++KSheQYy0hzryBejsS5bmjislFhWCcKg8xCxaLxRNLqgU7SCB
+         NEJToTnPuCTpqYHCjuHbwbw92GHwSSqwmTxqMVb6w7jhlL4nhYCha2vnAul2Jk67Yi
+         m04jwWuM0IvoXJpiqXvoQAjT0rzi4G1x06lQdmc8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Gerd Hoffmann <kraxel@redhat.com>,
+        Dave Airlie <airlied@redhat.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 095/376] net: mscc: ocelot: deal with problematic MAC_ETYPE VCAP IS2 rules
-Date:   Fri, 19 Jun 2020 16:30:13 +0200
-Message-Id: <20200619141714.841234975@linuxfoundation.org>
+Subject: [PATCH 5.7 096/376] drm/ast: Allocate initial CRTC state of the correct size
+Date:   Fri, 19 Jun 2020 16:30:14 +0200
+Message-Id: <20200619141714.890248974@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -44,207 +50,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Thomas Zimmermann <tzimmermann@suse.de>
 
-[ Upstream commit 89f9ffd3eb670bad1260bc579f5e13b8f2d5b3e0 ]
+[ Upstream commit f0adbc382b8bb46a2467c4e5e1027763a197c8e1 ]
 
-By default, the VCAP IS2 will produce a single match for each frame, on
-the most specific classification.
+The ast driver inherits from DRM's CRTC state, but still uses the atomic
+helper for struct drm_crtc_funcs.reset, drm_atomic_helper_crtc_reset().
 
-Example: a ping packet (ICMP over IPv4 over Ethernet) sent from an IP
-address of 10.0.0.1 and a MAC address of 96:18:82:00:04:01 will match
-this rule:
+The helper only allocates enough memory for the core CRTC state. That
+results in an out-ouf-bounds access when duplicating the initial CRTC
+state. Simplified backtrace shown below:
 
-tc filter add dev swp0 ingress protocol ipv4 \
-	flower skip_sw src_ip 10.0.0.1 action drop
+[   21.469321] ==================================================================
+[   21.469434] BUG: KASAN: slab-out-of-bounds in ast_crtc_atomic_duplicate_state+0x84/0x100 [ast]
+[   21.469445] Read of size 8 at addr ffff888036c1c5f8 by task systemd-udevd/382
+[   21.469451]
+[   21.469464] CPU: 2 PID: 382 Comm: systemd-udevd Tainted: G            E     5.5.0-rc6-1-default+ #214
+[   21.469473] Hardware name: Sun Microsystems SUN FIRE X2270 M2/SUN FIRE X2270 M2, BIOS 2.05    07/01/2010
+[   21.469480] Call Trace:
+[   21.469501]  dump_stack+0xb8/0x110
+[   21.469528]  print_address_description.constprop.0+0x1b/0x1e0
+[   21.469557]  ? ast_crtc_atomic_duplicate_state+0x84/0x100 [ast]
+[   21.469581]  ? ast_crtc_atomic_duplicate_state+0x84/0x100 [ast]
+[   21.469597]  __kasan_report.cold+0x1a/0x35
+[   21.469640]  ? ast_crtc_atomic_duplicate_state+0x84/0x100 [ast]
+[   21.469665]  kasan_report+0xe/0x20
+[   21.469693]  ast_crtc_atomic_duplicate_state+0x84/0x100 [ast]
+[   21.469733]  drm_atomic_get_crtc_state+0xbf/0x1c0
+[   21.469768]  __drm_atomic_helper_set_config+0x81/0x5a0
+[   21.469803]  ? drm_atomic_plane_check+0x690/0x690
+[   21.469843]  ? drm_client_rotation+0xae/0x240
+[   21.469876]  drm_client_modeset_commit_atomic+0x230/0x390
+[   21.469888]  ? __mutex_lock+0x8f0/0xbe0
+[   21.469929]  ? drm_client_firmware_config.isra.0+0xa60/0xa60
+[   21.469948]  ? drm_client_modeset_commit_force+0x28/0x230
+[   21.470031]  ? memset+0x20/0x40
+[   21.470078]  drm_client_modeset_commit_force+0x90/0x230
+[   21.470110]  drm_fb_helper_restore_fbdev_mode_unlocked+0x5f/0xc0
+[   21.470132]  drm_fb_helper_set_par+0x59/0x70
+[   21.470155]  fbcon_init+0x61d/0xad0
+[   21.470185]  ? drm_fb_helper_restore_fbdev_mode_unlocked+0xc0/0xc0
+[   21.470232]  visual_init+0x187/0x240
+[   21.470266]  do_bind_con_driver+0x2e3/0x460
+[   21.470321]  do_take_over_console+0x20a/0x290
+[   21.470371]  do_fbcon_takeover+0x85/0x100
+[   21.470402]  register_framebuffer+0x2fd/0x490
+[   21.470425]  ? kzalloc.constprop.0+0x10/0x10
+[   21.470503]  __drm_fb_helper_initial_config_and_unlock+0xf2/0x140
+[   21.470533]  drm_fbdev_client_hotplug+0x162/0x250
+[   21.470563]  drm_fbdev_generic_setup+0xd2/0x155
+[   21.470602]  ast_driver_load+0x688/0x850 [ast]
+<...>
+[   21.472625] ==================================================================
 
-but not this one:
+Allocating enough memory for struct ast_crtc_state in a custom ast CRTC
+reset handler fixes the problem.
 
-tc filter add dev swp0 ingress \
-	flower skip_sw src_mac 96:18:82:00:04:01 action drop
+v2:
+	* implement according to drm_atomic_helper_crtc_reset()
+	* update state with __drm_atomic_helper_crtc_reset()
 
-Currently the driver does not really warn the user in any way about
-this, and the behavior is rather strange anyway.
-
-The current patch is a workaround to force matches on MAC_ETYPE keys
-(DMAC and SMAC) for all packets irrespective of higher layer protocol.
-The setting is made at the port level.
-
-Of course this breaks all other non-src_mac and non-dst_mac matches, so
-rule exclusivity checks have been added to the driver, in order to never
-have rules of both types on any ingress port.
-
-The bits that discard higher-level protocol information are set only
-once a MAC_ETYPE rule is added to a filter block, and only for the ports
-that are bound to that filter block. Then all further non-MAC_ETYPE
-rules added to that filter block should be denied by the ports bound to
-it.
-
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Fixes: 83be6a3ceb11 ("drm/ast: Introduce struct ast_crtc_state")
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Gerd Hoffmann <kraxel@redhat.com>
+Cc: Dave Airlie <airlied@redhat.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Alex Deucher <alexander.deucher@amd.com>
+Cc: "Noralf Trønnes" <noralf@tronnes.org>
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200130094012.32140-1-tzimmermann@suse.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mscc/ocelot_ace.c    | 103 +++++++++++++++++++++-
- drivers/net/ethernet/mscc/ocelot_ace.h    |   5 +-
- drivers/net/ethernet/mscc/ocelot_flower.c |   2 +-
- 3 files changed, 106 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/ast/ast_mode.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mscc/ocelot_ace.c b/drivers/net/ethernet/mscc/ocelot_ace.c
-index 3bd286044480..8a2f7d13ef6d 100644
---- a/drivers/net/ethernet/mscc/ocelot_ace.c
-+++ b/drivers/net/ethernet/mscc/ocelot_ace.c
-@@ -706,13 +706,114 @@ ocelot_ace_rule_get_rule_index(struct ocelot_acl_block *block, int index)
- 	return NULL;
- }
- 
-+/* If @on=false, then SNAP, ARP, IP and OAM frames will not match on keys based
-+ * on destination and source MAC addresses, but only on higher-level protocol
-+ * information. The only frame types to match on keys containing MAC addresses
-+ * in this case are non-SNAP, non-ARP, non-IP and non-OAM frames.
-+ *
-+ * If @on=true, then the above frame types (SNAP, ARP, IP and OAM) will match
-+ * on MAC_ETYPE keys such as destination and source MAC on this ingress port.
-+ * However the setting has the side effect of making these frames not matching
-+ * on any _other_ keys than MAC_ETYPE ones.
-+ */
-+static void ocelot_match_all_as_mac_etype(struct ocelot *ocelot, int port,
-+					  bool on)
-+{
-+	u32 val = 0;
-+
-+	if (on)
-+		val = ANA_PORT_VCAP_S2_CFG_S2_SNAP_DIS(3) |
-+		      ANA_PORT_VCAP_S2_CFG_S2_ARP_DIS(3) |
-+		      ANA_PORT_VCAP_S2_CFG_S2_IP_TCPUDP_DIS(3) |
-+		      ANA_PORT_VCAP_S2_CFG_S2_IP_OTHER_DIS(3) |
-+		      ANA_PORT_VCAP_S2_CFG_S2_OAM_DIS(3);
-+
-+	ocelot_rmw_gix(ocelot, val,
-+		       ANA_PORT_VCAP_S2_CFG_S2_SNAP_DIS_M |
-+		       ANA_PORT_VCAP_S2_CFG_S2_ARP_DIS_M |
-+		       ANA_PORT_VCAP_S2_CFG_S2_IP_TCPUDP_DIS_M |
-+		       ANA_PORT_VCAP_S2_CFG_S2_IP_OTHER_DIS_M |
-+		       ANA_PORT_VCAP_S2_CFG_S2_OAM_DIS_M,
-+		       ANA_PORT_VCAP_S2_CFG, port);
-+}
-+
-+static bool ocelot_ace_is_problematic_mac_etype(struct ocelot_ace_rule *ace)
-+{
-+	if (ace->type != OCELOT_ACE_TYPE_ETYPE)
-+		return false;
-+	if (ether_addr_to_u64(ace->frame.etype.dmac.value) &
-+	    ether_addr_to_u64(ace->frame.etype.dmac.mask))
-+		return true;
-+	if (ether_addr_to_u64(ace->frame.etype.smac.value) &
-+	    ether_addr_to_u64(ace->frame.etype.smac.mask))
-+		return true;
-+	return false;
-+}
-+
-+static bool ocelot_ace_is_problematic_non_mac_etype(struct ocelot_ace_rule *ace)
-+{
-+	if (ace->type == OCELOT_ACE_TYPE_SNAP)
-+		return true;
-+	if (ace->type == OCELOT_ACE_TYPE_ARP)
-+		return true;
-+	if (ace->type == OCELOT_ACE_TYPE_IPV4)
-+		return true;
-+	if (ace->type == OCELOT_ACE_TYPE_IPV6)
-+		return true;
-+	return false;
-+}
-+
-+static bool ocelot_exclusive_mac_etype_ace_rules(struct ocelot *ocelot,
-+						 struct ocelot_ace_rule *ace)
-+{
-+	struct ocelot_acl_block *block = &ocelot->acl_block;
-+	struct ocelot_ace_rule *tmp;
-+	unsigned long port;
-+	int i;
-+
-+	if (ocelot_ace_is_problematic_mac_etype(ace)) {
-+		/* Search for any non-MAC_ETYPE rules on the port */
-+		for (i = 0; i < block->count; i++) {
-+			tmp = ocelot_ace_rule_get_rule_index(block, i);
-+			if (tmp->ingress_port_mask & ace->ingress_port_mask &&
-+			    ocelot_ace_is_problematic_non_mac_etype(tmp))
-+				return false;
-+		}
-+
-+		for_each_set_bit(port, &ace->ingress_port_mask,
-+				 ocelot->num_phys_ports)
-+			ocelot_match_all_as_mac_etype(ocelot, port, true);
-+	} else if (ocelot_ace_is_problematic_non_mac_etype(ace)) {
-+		/* Search for any MAC_ETYPE rules on the port */
-+		for (i = 0; i < block->count; i++) {
-+			tmp = ocelot_ace_rule_get_rule_index(block, i);
-+			if (tmp->ingress_port_mask & ace->ingress_port_mask &&
-+			    ocelot_ace_is_problematic_mac_etype(tmp))
-+				return false;
-+		}
-+
-+		for_each_set_bit(port, &ace->ingress_port_mask,
-+				 ocelot->num_phys_ports)
-+			ocelot_match_all_as_mac_etype(ocelot, port, false);
-+	}
-+
-+	return true;
-+}
-+
- int ocelot_ace_rule_offload_add(struct ocelot *ocelot,
--				struct ocelot_ace_rule *rule)
-+				struct ocelot_ace_rule *rule,
-+				struct netlink_ext_ack *extack)
- {
- 	struct ocelot_acl_block *block = &ocelot->acl_block;
- 	struct ocelot_ace_rule *ace;
- 	int i, index;
- 
-+	if (!ocelot_exclusive_mac_etype_ace_rules(ocelot, rule)) {
-+		NL_SET_ERR_MSG_MOD(extack,
-+				   "Cannot mix MAC_ETYPE with non-MAC_ETYPE rules");
-+		return -EBUSY;
-+	}
-+
- 	/* Add rule to the linked list */
- 	ocelot_ace_rule_add(ocelot, block, rule);
- 
-diff --git a/drivers/net/ethernet/mscc/ocelot_ace.h b/drivers/net/ethernet/mscc/ocelot_ace.h
-index 29d22c566786..099e177f2617 100644
---- a/drivers/net/ethernet/mscc/ocelot_ace.h
-+++ b/drivers/net/ethernet/mscc/ocelot_ace.h
-@@ -194,7 +194,7 @@ struct ocelot_ace_rule {
- 
- 	enum ocelot_ace_action action;
- 	struct ocelot_ace_stats stats;
--	u16 ingress_port_mask;
-+	unsigned long ingress_port_mask;
- 
- 	enum ocelot_vcap_bit dmac_mc;
- 	enum ocelot_vcap_bit dmac_bc;
-@@ -215,7 +215,8 @@ struct ocelot_ace_rule {
+diff --git a/drivers/gpu/drm/ast/ast_mode.c b/drivers/gpu/drm/ast/ast_mode.c
+index cdd6c46d6557..7a9f20a2fd30 100644
+--- a/drivers/gpu/drm/ast/ast_mode.c
++++ b/drivers/gpu/drm/ast/ast_mode.c
+@@ -881,6 +881,17 @@ static const struct drm_crtc_helper_funcs ast_crtc_helper_funcs = {
+ 	.atomic_disable = ast_crtc_helper_atomic_disable,
  };
  
- int ocelot_ace_rule_offload_add(struct ocelot *ocelot,
--				struct ocelot_ace_rule *rule);
-+				struct ocelot_ace_rule *rule,
-+				struct netlink_ext_ack *extack);
- int ocelot_ace_rule_offload_del(struct ocelot *ocelot,
- 				struct ocelot_ace_rule *rule);
- int ocelot_ace_rule_stats_update(struct ocelot *ocelot,
-diff --git a/drivers/net/ethernet/mscc/ocelot_flower.c b/drivers/net/ethernet/mscc/ocelot_flower.c
-index 341923311fec..954cb67eeaa2 100644
---- a/drivers/net/ethernet/mscc/ocelot_flower.c
-+++ b/drivers/net/ethernet/mscc/ocelot_flower.c
-@@ -205,7 +205,7 @@ int ocelot_cls_flower_replace(struct ocelot *ocelot, int port,
- 		return ret;
- 	}
- 
--	return ocelot_ace_rule_offload_add(ocelot, ace);
-+	return ocelot_ace_rule_offload_add(ocelot, ace, f->common.extack);
++static void ast_crtc_reset(struct drm_crtc *crtc)
++{
++	struct ast_crtc_state *ast_state =
++		kzalloc(sizeof(*ast_state), GFP_KERNEL);
++
++	if (crtc->state)
++		crtc->funcs->atomic_destroy_state(crtc, crtc->state);
++
++	__drm_atomic_helper_crtc_reset(crtc, &ast_state->base);
++}
++
+ static void ast_crtc_destroy(struct drm_crtc *crtc)
+ {
+ 	drm_crtc_cleanup(crtc);
+@@ -919,7 +930,7 @@ static void ast_crtc_atomic_destroy_state(struct drm_crtc *crtc,
  }
- EXPORT_SYMBOL_GPL(ocelot_cls_flower_replace);
  
+ static const struct drm_crtc_funcs ast_crtc_funcs = {
+-	.reset = drm_atomic_helper_crtc_reset,
++	.reset = ast_crtc_reset,
+ 	.set_config = drm_crtc_helper_set_config,
+ 	.gamma_set = drm_atomic_helper_legacy_gamma_set,
+ 	.destroy = ast_crtc_destroy,
 -- 
 2.25.1
 
