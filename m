@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41D772015B2
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:31:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C67D82015B1
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:31:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389671AbgFSO4A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2390000AbgFSO4A (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 19 Jun 2020 10:56:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50880 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:50904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388945AbgFSOz5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:55:57 -0400
+        id S2389659AbgFSOz7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:55:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A65A2217D8;
-        Fri, 19 Jun 2020 14:55:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5C4F2217D9;
+        Fri, 19 Jun 2020 14:55:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578557;
-        bh=waDnIzkFy2yPMYa8d+xDQU4UEevm4QyBOITEaJdX0T8=;
+        s=default; t=1592578559;
+        bh=2wK3x9Xyezua4jwnu29bAlX1TuakhDFi6UQptDI5vIw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S3Zw2torBlN1ZNy4Yy17hS5GNdWylaNqAAdhrpiHYvmNyx6RrrhQNjXGgwkQH/ZUO
-         RcJLSrN0if4dv2hmmzly8m8R3WEmKOckVGhYKw9aeYUXjI1Jy/kR6l2q/isjkonjJa
-         h5OwTkczooDO3iW2dbg3H/ywpipt356lvfztmbxw=
+        b=j/LCtPuRPlloSqBzSx7DdbzyD6IZWiXV/85xPPPCcfmRWektibyf/bjKzAnvlVxu7
+         SyFp+ZlRIKJa8S9+6Kf1PVuBDS5dzIznXJKPigR/SN7w65IPZLY7hF/bovZFykrLED
+         7nEAd7iHC9B9SssLwWe9L+An3vttFCr4ZWQz7XyM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yuxuan Shui <yshuiv7@gmail.com>,
-        Alexander Potapenko <glider@google.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 4.19 068/267] ovl: initialize error in ovl_copy_xattr
-Date:   Fri, 19 Jun 2020 16:30:53 +0200
-Message-Id: <20200619141652.149764885@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+7d2debdcdb3cb93c1e5e@syzkaller.appspotmail.com,
+        "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: [PATCH 4.19 069/267] proc: Use new_inode not new_inode_pseudo
+Date:   Fri, 19 Jun 2020 16:30:54 +0200
+Message-Id: <20200619141652.207568902@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
 References: <20200619141648.840376470@linuxfoundation.org>
@@ -44,46 +44,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuxuan Shui <yshuiv7@gmail.com>
+From: Eric W. Biederman <ebiederm@xmission.com>
 
-commit 520da69d265a91c6536c63851cbb8a53946974f0 upstream.
+commit ef1548adada51a2f32ed7faef50aa465e1b4c5da upstream.
 
-In ovl_copy_xattr, if all the xattrs to be copied are overlayfs private
-xattrs, the copy loop will terminate without assigning anything to the
-error variable, thus returning an uninitialized value.
+Recently syzbot reported that unmounting proc when there is an ongoing
+inotify watch on the root directory of proc could result in a use
+after free when the watch is removed after the unmount of proc
+when the watcher exits.
 
-If ovl_copy_xattr is called from ovl_clear_empty, this uninitialized error
-value is put into a pointer by ERR_PTR(), causing potential invalid memory
-accesses down the line.
+Commit 69879c01a0c3 ("proc: Remove the now unnecessary internal mount
+of proc") made it easier to unmount proc and allowed syzbot to see the
+problem, but looking at the code it has been around for a long time.
 
-This commit initialize error with 0. This is the correct value because when
-there's no xattr to copy, because all xattrs are private, ovl_copy_xattr
-should succeed.
+Looking at the code the fsnotify watch should have been removed by
+fsnotify_sb_delete in generic_shutdown_super.  Unfortunately the inode
+was allocated with new_inode_pseudo instead of new_inode so the inode
+was not on the sb->s_inodes list.  Which prevented
+fsnotify_unmount_inodes from finding the inode and removing the watch
+as well as made it so the "VFS: Busy inodes after unmount" warning
+could not find the inodes to warn about them.
 
-This bug is discovered with the help of INIT_STACK_ALL and clang.
+Make all of the inodes in proc visible to generic_shutdown_super,
+and fsnotify_sb_delete by using new_inode instead of new_inode_pseudo.
+The only functional difference is that new_inode places the inodes
+on the sb->s_inodes list.
 
-Signed-off-by: Yuxuan Shui <yshuiv7@gmail.com>
-Link: https://bugs.chromium.org/p/chromium/issues/detail?id=1050405
-Fixes: 0956254a2d5b ("ovl: don't copy up opaqueness")
-Cc: stable@vger.kernel.org # v4.8
-Signed-off-by: Alexander Potapenko <glider@google.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+I wrote a small test program and I can verify that without changes it
+can trigger this issue, and by replacing new_inode_pseudo with
+new_inode the issues goes away.
+
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/000000000000d788c905a7dfa3f4@google.com
+Reported-by: syzbot+7d2debdcdb3cb93c1e5e@syzkaller.appspotmail.com
+Fixes: 0097875bd415 ("proc: Implement /proc/thread-self to point at the directory of the current thread")
+Fixes: 021ada7dff22 ("procfs: switch /proc/self away from proc_dir_entry")
+Fixes: 51f0885e5415 ("vfs,proc: guarantee unique inodes in /proc")
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/overlayfs/copy_up.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/proc/inode.c       |    2 +-
+ fs/proc/self.c        |    2 +-
+ fs/proc/thread_self.c |    2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/overlayfs/copy_up.c
-+++ b/fs/overlayfs/copy_up.c
-@@ -43,7 +43,7 @@ int ovl_copy_xattr(struct dentry *old, s
- {
- 	ssize_t list_size, size, value_size = 0;
- 	char *buf, *name, *value = NULL;
--	int uninitialized_var(error);
-+	int error = 0;
- 	size_t slen;
+--- a/fs/proc/inode.c
++++ b/fs/proc/inode.c
+@@ -451,7 +451,7 @@ const struct inode_operations proc_link_
  
- 	if (!(old->d_inode->i_opflags & IOP_XATTR) ||
+ struct inode *proc_get_inode(struct super_block *sb, struct proc_dir_entry *de)
+ {
+-	struct inode *inode = new_inode_pseudo(sb);
++	struct inode *inode = new_inode(sb);
+ 
+ 	if (inode) {
+ 		inode->i_ino = de->low_ino;
+--- a/fs/proc/self.c
++++ b/fs/proc/self.c
+@@ -42,7 +42,7 @@ int proc_setup_self(struct super_block *
+ 	inode_lock(root_inode);
+ 	self = d_alloc_name(s->s_root, "self");
+ 	if (self) {
+-		struct inode *inode = new_inode_pseudo(s);
++		struct inode *inode = new_inode(s);
+ 		if (inode) {
+ 			inode->i_ino = self_inum;
+ 			inode->i_mtime = inode->i_atime = inode->i_ctime = current_time(inode);
+--- a/fs/proc/thread_self.c
++++ b/fs/proc/thread_self.c
+@@ -42,7 +42,7 @@ int proc_setup_thread_self(struct super_
+ 	inode_lock(root_inode);
+ 	thread_self = d_alloc_name(s->s_root, "thread-self");
+ 	if (thread_self) {
+-		struct inode *inode = new_inode_pseudo(s);
++		struct inode *inode = new_inode(s);
+ 		if (inode) {
+ 			inode->i_ino = thread_self_inum;
+ 			inode->i_mtime = inode->i_atime = inode->i_ctime = current_time(inode);
 
 
