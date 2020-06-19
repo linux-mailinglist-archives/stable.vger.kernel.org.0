@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41AFC201772
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 023932015E8
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:32:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388193AbgFSQio (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:38:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39450 "EHLO mail.kernel.org"
+        id S2390404AbgFSQYQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:24:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388950AbgFSOrW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:47:22 -0400
+        id S2390396AbgFSO63 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:58:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 477A720DD4;
-        Fri, 19 Jun 2020 14:47:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8194121852;
+        Fri, 19 Jun 2020 14:58:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578042;
-        bh=f9IqoZYz1ciQfOagfwTGYcDo8bK24CSu/A4kgC8ilqI=;
+        s=default; t=1592578709;
+        bh=kzpiE8BnnJAqi9y9l9F3C8tiBJxNS1qKQy7aQb0V88Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vxr1AKO1Kcb525KAbXpcCAaPG2Q9ZpCSmbnfTZdXOxptfYc0hST4S9LcgBpbTU4nL
-         5vuuE5EPQGaiDaJg06CtiQq2j2G9BsIT9qJlSqYAI26okP5J+8fQXJygOueo5UE4ja
-         3ARyk21gXCJpvQ4gj3y+S12esWwKMHVj++Wa71wE=
+        b=wAZgBkP9cpZK7/s0MlXfp848D6IyyAu72HLLaZNBZtEEC+qhGh3eQlA9lLukEj2KQ
+         P6koLkEizxV1Yh9taQ/Zibw8Gsp72pwp1ohktbW3BKwsb7/qT4vyt67Uoxo4hk+An8
+         7h77Bq4IyQfJb/c2e8HnXAI8AOlictzNGd7jmCJI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
-        Xiaoyao Li <xiaoyao.li@intel.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.14 058/190] KVM: nVMX: Consult only the "basic" exit reason when routing nested exit
-Date:   Fri, 19 Jun 2020 16:31:43 +0200
-Message-Id: <20200619141636.474352819@linuxfoundation.org>
+        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 119/267] net: vmxnet3: fix possible buffer overflow caused by bad DMA value in vmxnet3_get_rss()
+Date:   Fri, 19 Jun 2020 16:31:44 +0200
+Message-Id: <20200619141654.554894031@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
-References: <20200619141633.446429600@linuxfoundation.org>
+In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
+References: <20200619141648.840376470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-commit 2ebac8bb3c2d35f5135466490fc8eeaf3f3e2d37 upstream.
+[ Upstream commit 3e1c6846b9e108740ef8a37be80314053f5dd52a ]
 
-Consult only the basic exit reason, i.e. bits 15:0 of vmcs.EXIT_REASON,
-when determining whether a nested VM-Exit should be reflected into L1 or
-handled by KVM in L0.
+The value adapter->rss_conf is stored in DMA memory, and it is assigned
+to rssConf, so rssConf->indTableSize can be modified at anytime by
+malicious hardware. Because rssConf->indTableSize is assigned to n,
+buffer overflow may occur when the code "rssConf->indTable[n]" is
+executed.
 
-For better or worse, the switch statement in nested_vmx_exit_reflected()
-currently defaults to "true", i.e. reflects any nested VM-Exit without
-dedicated logic.  Because the case statements only contain the basic
-exit reason, any VM-Exit with modifier bits set will be reflected to L1,
-even if KVM intended to handle it in L0.
+To fix this possible bug, n is checked after being used.
 
-Practically speaking, this only affects EXIT_REASON_MCE_DURING_VMENTRY,
-i.e. a #MC that occurs on nested VM-Enter would be incorrectly routed to
-L1, as "failed VM-Entry" is the only modifier that KVM can currently
-encounter.  The SMM modifiers will never be generated as KVM doesn't
-support/employ a SMI Transfer Monitor.  Ditto for "exit from enclave",
-as KVM doesn't yet support virtualizing SGX, i.e. it's impossible to
-enter an enclave in a KVM guest (L1 or L2).
-
-Fixes: 644d711aa0e1 ("KVM: nVMX: Deciding if L0 or L1 should handle an L2 exit")
-Cc: Jim Mattson <jmattson@google.com>
-Cc: Xiaoyao Li <xiaoyao.li@intel.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Message-Id: <20200227174430.26371-1-sean.j.christopherson@intel.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/vmxnet3/vmxnet3_ethtool.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/x86/kvm/vmx.c
-+++ b/arch/x86/kvm/vmx.c
-@@ -8711,7 +8711,7 @@ static bool nested_vmx_exit_reflected(st
- 				vmcs_read32(VM_EXIT_INTR_ERROR_CODE),
- 				KVM_ISA_VMX);
- 
--	switch (exit_reason) {
-+	switch ((u16)exit_reason) {
- 	case EXIT_REASON_EXCEPTION_NMI:
- 		if (is_nmi(intr_info))
- 			return false;
+diff --git a/drivers/net/vmxnet3/vmxnet3_ethtool.c b/drivers/net/vmxnet3/vmxnet3_ethtool.c
+index 559db051a500..88d18ab83e54 100644
+--- a/drivers/net/vmxnet3/vmxnet3_ethtool.c
++++ b/drivers/net/vmxnet3/vmxnet3_ethtool.c
+@@ -692,6 +692,8 @@ vmxnet3_get_rss(struct net_device *netdev, u32 *p, u8 *key, u8 *hfunc)
+ 		*hfunc = ETH_RSS_HASH_TOP;
+ 	if (!p)
+ 		return 0;
++	if (n > UPT1_RSS_MAX_IND_TABLE_SIZE)
++		return 0;
+ 	while (n--)
+ 		p[n] = rssConf->indTable[n];
+ 	return 0;
+-- 
+2.25.1
+
 
 
