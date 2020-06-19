@@ -2,97 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F33D2004C8
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 11:16:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB1C22004C5
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 11:15:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727114AbgFSJQF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 05:16:05 -0400
-Received: from lucky1.263xmail.com ([211.157.147.131]:43726 "EHLO
-        lucky1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726878AbgFSJQE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Jun 2020 05:16:04 -0400
-X-Greylist: delayed 411 seconds by postgrey-1.27 at vger.kernel.org; Fri, 19 Jun 2020 05:16:03 EDT
-Received: from localhost (unknown [192.168.167.32])
-        by lucky1.263xmail.com (Postfix) with ESMTP id 6D418AFDC6;
-        Fri, 19 Jun 2020 17:09:11 +0800 (CST)
-X-MAIL-GRAY: 0
-X-MAIL-DELIVERY: 1
-X-ADDR-CHECKED4: 1
-X-ANTISPAM-LEVEL: 2
-X-ABS-CHECKED: 0
-Received: from localhost.localdomain (unknown [58.22.7.114])
-        by smtp.263.net (postfix) whith ESMTP id P3326T139697392834304S1592557749877054_;
-        Fri, 19 Jun 2020 17:09:10 +0800 (CST)
-X-IP-DOMAINF: 1
-X-UNIQUE-TAG: <434d5cdc956ae93f131f66b7a903d7ad>
-X-RL-SENDER: finley.xiao@rock-chips.com
-X-SENDER: xf@rock-chips.com
-X-LOGIN-NAME: finley.xiao@rock-chips.com
-X-FST-TO: heiko@sntech.de
-X-SENDER-IP: 58.22.7.114
-X-ATTACHMENT-NUM: 0
-X-DNS-TYPE: 0
-X-System-Flag: 0
-From:   Finley Xiao <finley.xiao@rock-chips.com>
-To:     heiko@sntech.de, amit.kachhap@gmail.com, daniel.lezcano@linaro.org,
-        viresh.kumar@linaro.org, javi.merino@kernel.org,
-        rui.zhang@intel.com, amit.kucheria@verdurent.com
-Cc:     linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-pm@vger.kernel.org, stable@vger.kernel.org,
-        huangtao@rock-chips.com, tony.xie@rock-chips.com,
-        cl@rock-chips.com, Finley Xiao <finley.xiao@rock-chips.com>
-Subject: [PATCH] thermal/drivers/cpufreq_cooling: Fix wrong frequency converted from power
-Date:   Fri, 19 Jun 2020 17:08:25 +0800
-Message-Id: <20200619090825.32747-1-finley.xiao@rock-chips.com>
-X-Mailer: git-send-email 2.11.0
+        id S1725290AbgFSJPB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 05:15:01 -0400
+Received: from sci-ig2.spreadtrum.com ([222.66.158.135]:24341 "EHLO
+        SHSQR01.spreadtrum.com" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1730810AbgFSJPA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Jun 2020 05:15:00 -0400
+X-Greylist: delayed 776 seconds by postgrey-1.27 at vger.kernel.org; Fri, 19 Jun 2020 05:14:53 EDT
+Received: from ig2.spreadtrum.com (bjmbx01.spreadtrum.com [10.0.64.7])
+        by SHSQR01.spreadtrum.com with ESMTPS id 05J9Dcfx045854
+        (version=TLSv1 cipher=AES256-SHA bits=256 verify=NO);
+        Fri, 19 Jun 2020 17:13:39 +0800 (CST)
+        (envelope-from hongyu.jin@unisoc.com)
+Received: from BJMBX01.spreadtrum.com (10.0.64.7) by BJMBX01.spreadtrum.com
+ (10.0.64.7) with Microsoft SMTP Server (TLS) id 15.0.847.32; Fri, 19 Jun 2020
+ 17:13:21 +0800
+Received: from BJMBX01.spreadtrum.com ([fe80::54e:9a:129d:fac7]) by
+ BJMBX01.spreadtrum.com ([fe80::54e:9a:129d:fac7%16]) with mapi id
+ 15.00.0847.030; Fri, 19 Jun 2020 17:13:08 +0800
+From:   =?gb2312?B?vfC67NPuIChIb25neXUgSmluKQ==?= <hongyu.jin@unisoc.com>
+To:     Gao Xiang <hsiangkao@aol.com>,
+        "linux-erofs@lists.ozlabs.org" <linux-erofs@lists.ozlabs.org>,
+        Chao Yu <yuchao0@huawei.com>
+CC:     Chao Yu <chao@kernel.org>, Li Guifu <bluce.liguifu@huawei.com>,
+        Fang Wei <fangwei1@huawei.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Gao Xiang <hsiangkao@redhat.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH v2] erofs: fix partially uninitialized misuse in
+ z_erofs_onlinepage_fixup
+Thread-Topic: [PATCH v2] erofs: fix partially uninitialized misuse in
+ z_erofs_onlinepage_fixup
+Thread-Index: AQHWRcphTFCNsOawuk2LQqgGLvVLoajfp6hw
+Date:   Fri, 19 Jun 2020 09:13:08 +0000
+Message-ID: <206e5c58a4df4136b488eb4bd2958cab@BJMBX01.spreadtrum.com>
+References: <20200618111936.19845-1-hsiangkao@aol.com>
+ <20200618234349.22553-1-hsiangkao@aol.com>
+In-Reply-To: <20200618234349.22553-1-hsiangkao@aol.com>
+Accept-Language: zh-CN, en-US
+Content-Language: zh-CN
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [10.0.126.169]
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+X-MAIL: SHSQR01.spreadtrum.com 05J9Dcfx045854
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The function cpu_power_to_freq is used to find a frequency and set the
-cooling device to consume at most the power to be converted. For example,
-if the power to be converted is 80mW, and the em table is as follow.
-struct em_cap_state table[] = {
-	/* KHz     mW */
-	{ 1008000, 36, 0 },
-	{ 1200000, 49, 0 },
-	{ 1296000, 59, 0 },
-	{ 1416000, 72, 0 },
-	{ 1512000, 86, 0 },
-};
-The target frequency should be 1416000KHz, not 1512000KHz.
-
-Fixes: 349d39dc5739 ("thermal: cpu_cooling: merge frequency and power tables")
-Cc: <stable@vger.kernel.org> # v4.13+
-Signed-off-by: Finley Xiao <finley.xiao@rock-chips.com>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
----
- drivers/thermal/cpufreq_cooling.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/thermal/cpufreq_cooling.c b/drivers/thermal/cpufreq_cooling.c
-index 9e124020519f..6c0e1b053126 100644
---- a/drivers/thermal/cpufreq_cooling.c
-+++ b/drivers/thermal/cpufreq_cooling.c
-@@ -123,12 +123,12 @@ static u32 cpu_power_to_freq(struct cpufreq_cooling_device *cpufreq_cdev,
- {
- 	int i;
- 
--	for (i = cpufreq_cdev->max_level - 1; i >= 0; i--) {
--		if (power > cpufreq_cdev->em->table[i].power)
-+	for (i = cpufreq_cdev->max_level; i >= 0; i--) {
-+		if (power >= cpufreq_cdev->em->table[i].power)
- 			break;
- 	}
- 
--	return cpufreq_cdev->em->table[i + 1].frequency;
-+	return cpufreq_cdev->em->table[i].frequency;
- }
- 
- /**
--- 
-2.11.0
-
-
-
+SGkgeGlhbmc6DQoNCkhvbmd5dSByZXBvcnRlZCAiaWQgIT0gaW5kZXgiIGluIHpfZXJvZnNfb25s
+aW5lcGFnZV9maXh1cCgpIHdpdGggc3BlY2lmaWMgYWFyY2g2NCBlbnZpcm9ubWVudCBlYXNpbHks
+IHdoaWNoIHdhc24ndCBzaG93biBiZWZvcmUuDQoNCkFmdGVyIGRpZ2dpbmcgaW50byB0aGF0LCBJ
+IGZvdW5kIHRoYXQgaGlnaCAzMiBiaXRzIG9mIHBhZ2UtPnByaXZhdGUgd2FzIHNldCB0byAweGFh
+YWFhYWFhIHJhdGhlciB0aGFuIDAgKGR1ZSB0byB6X2Vyb2ZzX29ubGluZXBhZ2VfaW5pdCBiZWhh
+dmlvciB3aXRoIHNwZWNpZmljIGNvbXBpbGVyIG9wdGlvbnMpLiBBY3R1YWxseSB3ZSBvbmx5IHVz
+ZSBsb3cNCjMyIGJpdHMgdG8ga2VlcCB0aGUgcGFnZSBpbmZvcm1hdGlvbiBzaW5jZSBwYWdlLT5w
+cml2YXRlIGlzIG9ubHkgNCBieXRlcyBvbiBtb3N0IDMyLWJpdCBwbGF0Zm9ybXMuIEhvd2V2ZXIg
+el9lcm9mc19vbmxpbmVwYWdlX2ZpeHVwKCkgdXNlcyB0aGUgdXBwZXIgMzIgYml0cyBieSBtaXN0
+YWtlLg0KDQpUZXN0ZWQtYnk6IGhvbmd5dS5qaW5AdW5pc29jLmNvbQ0KDQpJdCdzIG9rLg0KDQot
+LS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogR2FvIFhpYW5nIFttYWlsdG86aHNpYW5n
+a2FvQGFvbC5jb21dDQpTZW50OiBGcmlkYXksIEp1bmUgMTksIDIwMjAgNzo0NCBBTQ0KVG86IGxp
+bnV4LWVyb2ZzQGxpc3RzLm96bGFicy5vcmc7IENoYW8gWXUgPHl1Y2hhbzBAaHVhd2VpLmNvbT4N
+CkNjOiBDaGFvIFl1IDxjaGFvQGtlcm5lbC5vcmc+OyBMaSBHdWlmdSA8Ymx1Y2UubGlndWlmdUBo
+dWF3ZWkuY29tPjsgRmFuZyBXZWkgPGZhbmd3ZWkxQGh1YXdlaS5jb20+OyBMS01MIDxsaW51eC1r
+ZXJuZWxAdmdlci5rZXJuZWwub3JnPjsgR2FvIFhpYW5nIDxoc2lhbmdrYW9AcmVkaGF0LmNvbT47
+IL3wuuzT7iAoSG9uZ3l1IEppbikgPGhvbmd5dS5qaW5AdW5pc29jLmNvbT47IHN0YWJsZUB2Z2Vy
+Lmtlcm5lbC5vcmcNClN1YmplY3Q6IFtQQVRDSCB2Ml0gZXJvZnM6IGZpeCBwYXJ0aWFsbHkgdW5p
+bml0aWFsaXplZCBtaXN1c2UgaW4gel9lcm9mc19vbmxpbmVwYWdlX2ZpeHVwDQoNCkZyb206IEdh
+byBYaWFuZyA8aHNpYW5na2FvQHJlZGhhdC5jb20+DQoNCkhvbmd5dSByZXBvcnRlZCAiaWQgIT0g
+aW5kZXgiIGluIHpfZXJvZnNfb25saW5lcGFnZV9maXh1cCgpIHdpdGggc3BlY2lmaWMgYWFyY2g2
+NCBlbnZpcm9ubWVudCBlYXNpbHksIHdoaWNoIHdhc24ndCBzaG93biBiZWZvcmUuDQoNCkFmdGVy
+IGRpZ2dpbmcgaW50byB0aGF0LCBJIGZvdW5kIHRoYXQgaGlnaCAzMiBiaXRzIG9mIHBhZ2UtPnBy
+aXZhdGUgd2FzIHNldCB0byAweGFhYWFhYWFhIHJhdGhlciB0aGFuIDAgKGR1ZSB0byB6X2Vyb2Zz
+X29ubGluZXBhZ2VfaW5pdCBiZWhhdmlvciB3aXRoIHNwZWNpZmljIGNvbXBpbGVyIG9wdGlvbnMp
+LiBBY3R1YWxseSB3ZSBvbmx5IHVzZSBsb3cNCjMyIGJpdHMgdG8ga2VlcCB0aGUgcGFnZSBpbmZv
+cm1hdGlvbiBzaW5jZSBwYWdlLT5wcml2YXRlIGlzIG9ubHkgNCBieXRlcyBvbiBtb3N0IDMyLWJp
+dCBwbGF0Zm9ybXMuIEhvd2V2ZXIgel9lcm9mc19vbmxpbmVwYWdlX2ZpeHVwKCkgdXNlcyB0aGUg
+dXBwZXIgMzIgYml0cyBieSBtaXN0YWtlLg0KDQpMZXQncyBmaXggaXQgbm93Lg0KDQpSZXBvcnRl
+ZC1ieTogSG9uZ3l1IEppbiA8aG9uZ3l1LmppbkB1bmlzb2MuY29tPg0KRml4ZXM6IDM4ODNhNzlh
+YmQwMiAoInN0YWdpbmc6IGVyb2ZzOiBpbnRyb2R1Y2UgVkxFIGRlY29tcHJlc3Npb24gc3VwcG9y
+dCIpDQpDYzogPHN0YWJsZUB2Z2VyLmtlcm5lbC5vcmc+ICMgNC4xOSsNClNpZ25lZC1vZmYtYnk6
+IEdhbyBYaWFuZyA8aHNpYW5na2FvQHJlZGhhdC5jb20+DQotLS0NCmNoYW5nZSBzaW5jZSB2MToN
+CiBtb3ZlIC52IGFzc2lnbm1lbnQgb3V0IHNpbmNlIGl0IGRvZXNuJ3QgbmVlZCBmb3IgZXZlcnkg
+bG9vcDsNCg0KIGZzL2Vyb2ZzL3pkYXRhLmggfCAyMCArKysrKysrKysrLS0tLS0tLS0tLQ0KIDEg
+ZmlsZSBjaGFuZ2VkLCAxMCBpbnNlcnRpb25zKCspLCAxMCBkZWxldGlvbnMoLSkNCg0KZGlmZiAt
+LWdpdCBhL2ZzL2Vyb2ZzL3pkYXRhLmggYi9mcy9lcm9mcy96ZGF0YS5oIGluZGV4IDc4MjRmNTU2
+M2E1NS4uOWI2NmMyOGIzYWU5IDEwMDY0NA0KLS0tIGEvZnMvZXJvZnMvemRhdGEuaA0KKysrIGIv
+ZnMvZXJvZnMvemRhdGEuaA0KQEAgLTE0NCwyMiArMTQ0LDIyIEBAIHN0YXRpYyBpbmxpbmUgdm9p
+ZCB6X2Vyb2ZzX29ubGluZXBhZ2VfaW5pdChzdHJ1Y3QgcGFnZSAqcGFnZSkgIHN0YXRpYyBpbmxp
+bmUgdm9pZCB6X2Vyb2ZzX29ubGluZXBhZ2VfZml4dXAoc3RydWN0IHBhZ2UgKnBhZ2UsDQogdWlu
+dHB0cl90IGluZGV4LCBib29sIGRvd24pDQogew0KLXVuc2lnbmVkIGxvbmcgKnAsIG8sIHYsIGlk
+Ow0KLXJlcGVhdDoNCi1wID0gJnBhZ2VfcHJpdmF0ZShwYWdlKTsNCi1vID0gUkVBRF9PTkNFKCpw
+KTsNCit1bmlvbiB6X2Vyb2ZzX29ubGluZXBhZ2VfY29udmVydGVyIHUgPSB7IC52ID0gJnBhZ2Vf
+cHJpdmF0ZShwYWdlKSB9Ow0KK2ludCBvcmlnLCBvcmlnX2luZGV4LCB2YWw7DQoNCi1pZCA9IG8g
+Pj4gWl9FUk9GU19PTkxJTkVQQUdFX0lOREVYX1NISUZUOw0KLWlmIChpZCkgew0KK3JlcGVhdDoN
+CitvcmlnID0gYXRvbWljX3JlYWQodS5vKTsNCitvcmlnX2luZGV4ID0gb3JpZyA+PiBaX0VST0ZT
+X09OTElORVBBR0VfSU5ERVhfU0hJRlQ7DQoraWYgKG9yaWdfaW5kZXgpIHsNCiBpZiAoIWluZGV4
+KQ0KIHJldHVybjsNCg0KLURCR19CVUdPTihpZCAhPSBpbmRleCk7DQorREJHX0JVR09OKG9yaWdf
+aW5kZXggIT0gaW5kZXgpOw0KIH0NCg0KLXYgPSAoaW5kZXggPDwgWl9FUk9GU19PTkxJTkVQQUdF
+X0lOREVYX1NISUZUKSB8DQotKChvICYgWl9FUk9GU19PTkxJTkVQQUdFX0NPVU5UX01BU0spICsg
+KHVuc2lnbmVkIGludClkb3duKTsNCi1pZiAoY21weGNoZyhwLCBvLCB2KSAhPSBvKQ0KK3ZhbCA9
+IChpbmRleCA8PCBaX0VST0ZTX09OTElORVBBR0VfSU5ERVhfU0hJRlQpIHwNCisoKG9yaWcgJiBa
+X0VST0ZTX09OTElORVBBR0VfQ09VTlRfTUFTSykgKyAodW5zaWduZWQgaW50KWRvd24pOw0KK2lm
+IChhdG9taWNfY21weGNoZyh1Lm8sIG9yaWcsIHZhbCkgIT0gb3JpZykNCiBnb3RvIHJlcGVhdDsN
+CiB9DQoNCi0tDQoyLjI0LjANCg0KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18NCiBU
+aGlzIGVtYWlsIChpbmNsdWRpbmcgaXRzIGF0dGFjaG1lbnRzKSBpcyBpbnRlbmRlZCBvbmx5IGZv
+ciB0aGUgcGVyc29uIG9yIGVudGl0eSB0byB3aGljaCBpdCBpcyBhZGRyZXNzZWQgYW5kIG1heSBj
+b250YWluIGluZm9ybWF0aW9uIHRoYXQgaXMgcHJpdmlsZWdlZCwgY29uZmlkZW50aWFsIG9yIG90
+aGVyd2lzZSBwcm90ZWN0ZWQgZnJvbSBkaXNjbG9zdXJlLiBVbmF1dGhvcml6ZWQgdXNlLCBkaXNz
+ZW1pbmF0aW9uLCBkaXN0cmlidXRpb24gb3IgY29weWluZyBvZiB0aGlzIGVtYWlsIG9yIHRoZSBp
+bmZvcm1hdGlvbiBoZXJlaW4gb3IgdGFraW5nIGFueSBhY3Rpb24gaW4gcmVsaWFuY2Ugb24gdGhl
+IGNvbnRlbnRzIG9mIHRoaXMgZW1haWwgb3IgdGhlIGluZm9ybWF0aW9uIGhlcmVpbiwgYnkgYW55
+b25lIG90aGVyIHRoYW4gdGhlIGludGVuZGVkIHJlY2lwaWVudCwgb3IgYW4gZW1wbG95ZWUgb3Ig
+YWdlbnQgcmVzcG9uc2libGUgZm9yIGRlbGl2ZXJpbmcgdGhlIG1lc3NhZ2UgdG8gdGhlIGludGVu
+ZGVkIHJlY2lwaWVudCwgaXMgc3RyaWN0bHkgcHJvaGliaXRlZC4gSWYgeW91IGFyZSBub3QgdGhl
+IGludGVuZGVkIHJlY2lwaWVudCwgcGxlYXNlIGRvIG5vdCByZWFkLCBjb3B5LCB1c2Ugb3IgZGlz
+Y2xvc2UgYW55IHBhcnQgb2YgdGhpcyBlLW1haWwgdG8gb3RoZXJzLiBQbGVhc2Ugbm90aWZ5IHRo
+ZSBzZW5kZXIgaW1tZWRpYXRlbHkgYW5kIHBlcm1hbmVudGx5IGRlbGV0ZSB0aGlzIGUtbWFpbCBh
+bmQgYW55IGF0dGFjaG1lbnRzIGlmIHlvdSByZWNlaXZlZCBpdCBpbiBlcnJvci4gSW50ZXJuZXQg
+Y29tbXVuaWNhdGlvbnMgY2Fubm90IGJlIGd1YXJhbnRlZWQgdG8gYmUgdGltZWx5LCBzZWN1cmUs
+IGVycm9yLWZyZWUgb3IgdmlydXMtZnJlZS4gVGhlIHNlbmRlciBkb2VzIG5vdCBhY2NlcHQgbGlh
+YmlsaXR5IGZvciBhbnkgZXJyb3JzIG9yIG9taXNzaW9ucy4NCrG+08q8/rywxuS4vbz+vt/T0LGj
+w9zQ1NbKo6zK3Leowsmxo7uksru1w9C5wrajrL32t6LLzbj4sb7Tyrz+y/nWuMzYtqjK1bz+yMuh
+o9HPvfu3x76tytrIqMq508OhotD7tKuhoreisry78ri01saxvtPKvP678sbkxNrI3aGjyPS3x7jD
+zNi2qMrVvP7Iy6Osx+vO8NTEtsGhori01sahoiDKudPDu/LF+8K2sb7Tyrz+tcTIzrrOxNrI3aGj
+yPTO88rVsb7Tyrz+o6zH67TTz7XNs9bQ08C+w9DUyb6z/bG+08q8/rywy/nT0Li9vP6jrLKi0tS7
+2Li008q8/rXEt73Kvby0v8y45taqt6K8/sjLoaPO3reosaPWpLulwarN+M2o0MW8sMqxoaKwssir
+oaLO3s7zu/K3wLa+oaO3orz+yMu21MjOus607cKpvvmyu7PQtaPU8MjOoaMNCg==
