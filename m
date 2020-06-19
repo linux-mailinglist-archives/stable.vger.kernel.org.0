@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A5B2201358
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:01:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 057A02014E9
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:22:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391599AbgFSQAj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:00:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44932 "EHLO mail.kernel.org"
+        id S2388146AbgFSQPR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:15:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403975AbgFSPOX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:14:23 -0400
+        id S2391030AbgFSPDi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:03:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 66FDB21582;
-        Fri, 19 Jun 2020 15:14:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 62D8C206DB;
+        Fri, 19 Jun 2020 15:03:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579663;
-        bh=r6EliizRfhM4+8HlSDWbsKnzlj+GEis6zN/fAjxUXHM=;
+        s=default; t=1592579018;
+        bh=PfBZKj+6kbGvm7fIdc44BxuCwX0qxQy5FcLqoMUy2L0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=noGss0IcfIKeqn0ncwBHL1Z7p2AO+3HDBjRocwqEMx14Tfn4QwSw3c/UTZESoZLXV
-         nig7xfhcq/c6Gk+Aamh0+e2M1wFYbvMTNEu0vZNVO4Z89ZuMhs7PNAS+TFC2qn9THg
-         0zwZA3OrqSm7EpKmy2Qq4a1f8/sVaPbYPmM6at50=
+        b=ejD0OqhHm1nEVY5zvyAYWe2s4L7rz44ojPEV0zJLd5MP8hPXPi2xfE9ZzfqNJxyRg
+         Y90IoDV/p0e6bh4tObOEahBNwmqQ8btI/vZ3cXiLU7B+wxmwM1HH8FVpMQK8w6Ywz5
+         iEGCsBGduaooanQWToiVKaQXHA+2B/6WI8jVo7LE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Al Viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH 5.4 218/261] sparc64: fix misuses of access_process_vm() in genregs32_[sg]et()
+        stable@vger.kernel.org, Jonathan Bakker <xc-racer2@live.ca>,
+        Krzysztof Kozlowski <krzk@kernel.org>
+Subject: [PATCH 4.19 244/267] pinctrl: samsung: Save/restore eint_mask over suspend for EINT_TYPE GPIOs
 Date:   Fri, 19 Jun 2020 16:33:49 +0200
-Message-Id: <20200619141700.328510834@linuxfoundation.org>
+Message-Id: <20200619141700.398142786@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
-References: <20200619141649.878808811@linuxfoundation.org>
+In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
+References: <20200619141648.840376470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,61 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Jonathan Bakker <xc-racer2@live.ca>
 
-commit 142cd25293f6a7ecbdff4fb0af17de6438d46433 upstream.
+commit f354157a7d184db430c1a564c506434e33b1bec5 upstream.
 
-We do need access_process_vm() to access the target's reg_window.
-However, access to caller's memory (storing the result in
-genregs32_get(), fetching the new values in case of genregs32_set())
-should be done by normal uaccess primitives.
+Currently, for EINT_TYPE GPIOs, the CON and FLTCON registers
+are saved and restored over a suspend/resume cycle.  However, the
+EINT_MASK registers are not.
 
-Fixes: ad4f95764040 ([SPARC64]: Fix user accesses in regset code.)
-Cc: stable@kernel.org
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+On S5PV210 at the very least, these registers are not retained over
+suspend, leading to the interrupts remaining masked upon resume and
+therefore no interrupts being triggered for the device.  There should
+be no effect on any SoCs that do retain these registers as theoretically
+we would just be re-writing what was already there.
+
+Fixes: 7ccbc60cd9c2 ("pinctrl: exynos: Handle suspend/resume of GPIO EINT registers")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/sparc/kernel/ptrace_64.c |   17 +++--------------
- 1 file changed, 3 insertions(+), 14 deletions(-)
+ drivers/pinctrl/samsung/pinctrl-exynos.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/arch/sparc/kernel/ptrace_64.c
-+++ b/arch/sparc/kernel/ptrace_64.c
-@@ -572,19 +572,13 @@ static int genregs32_get(struct task_str
- 			for (; count > 0 && pos < 32; count--) {
- 				if (access_process_vm(target,
- 						      (unsigned long)
--						      &reg_window[pos],
-+						      &reg_window[pos++],
- 						      &reg, sizeof(reg),
- 						      FOLL_FORCE)
- 				    != sizeof(reg))
- 					return -EFAULT;
--				if (access_process_vm(target,
--						      (unsigned long) u,
--						      &reg, sizeof(reg),
--						      FOLL_FORCE | FOLL_WRITE)
--				    != sizeof(reg))
-+				if (put_user(reg, u++))
- 					return -EFAULT;
--				pos++;
--				u++;
- 			}
- 		}
- 	}
-@@ -684,12 +678,7 @@ static int genregs32_set(struct task_str
- 			}
- 		} else {
- 			for (; count > 0 && pos < 32; count--) {
--				if (access_process_vm(target,
--						      (unsigned long)
--						      u,
--						      &reg, sizeof(reg),
--						      FOLL_FORCE)
--				    != sizeof(reg))
-+				if (get_user(reg, u++))
- 					return -EFAULT;
- 				if (access_process_vm(target,
- 						      (unsigned long)
+--- a/drivers/pinctrl/samsung/pinctrl-exynos.c
++++ b/drivers/pinctrl/samsung/pinctrl-exynos.c
+@@ -267,6 +267,7 @@ struct exynos_eint_gpio_save {
+ 	u32 eint_con;
+ 	u32 eint_fltcon0;
+ 	u32 eint_fltcon1;
++	u32 eint_mask;
+ };
+ 
+ /*
+@@ -641,10 +642,13 @@ static void exynos_pinctrl_suspend_bank(
+ 						+ 2 * bank->eint_offset);
+ 	save->eint_fltcon1 = readl(regs + EXYNOS_GPIO_EFLTCON_OFFSET
+ 						+ 2 * bank->eint_offset + 4);
++	save->eint_mask = readl(regs + bank->irq_chip->eint_mask
++						+ bank->eint_offset);
+ 
+ 	pr_debug("%s: save     con %#010x\n", bank->name, save->eint_con);
+ 	pr_debug("%s: save fltcon0 %#010x\n", bank->name, save->eint_fltcon0);
+ 	pr_debug("%s: save fltcon1 %#010x\n", bank->name, save->eint_fltcon1);
++	pr_debug("%s: save    mask %#010x\n", bank->name, save->eint_mask);
+ }
+ 
+ void exynos_pinctrl_suspend(struct samsung_pinctrl_drv_data *drvdata)
+@@ -686,6 +690,9 @@ static void exynos_pinctrl_resume_bank(
+ 	pr_debug("%s: fltcon1 %#010x => %#010x\n", bank->name,
+ 			readl(regs + EXYNOS_GPIO_EFLTCON_OFFSET
+ 			+ 2 * bank->eint_offset + 4), save->eint_fltcon1);
++	pr_debug("%s:    mask %#010x => %#010x\n", bank->name,
++			readl(regs + bank->irq_chip->eint_mask
++			+ bank->eint_offset), save->eint_mask);
+ 
+ 	writel(save->eint_con, regs + EXYNOS_GPIO_ECON_OFFSET
+ 						+ bank->eint_offset);
+@@ -693,6 +700,8 @@ static void exynos_pinctrl_resume_bank(
+ 						+ 2 * bank->eint_offset);
+ 	writel(save->eint_fltcon1, regs + EXYNOS_GPIO_EFLTCON_OFFSET
+ 						+ 2 * bank->eint_offset + 4);
++	writel(save->eint_mask, regs + bank->irq_chip->eint_mask
++						+ bank->eint_offset);
+ }
+ 
+ void exynos_pinctrl_resume(struct samsung_pinctrl_drv_data *drvdata)
 
 
