@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66CEB20122B
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:52:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDD3420122A
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:52:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726545AbgFSPt2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2392318AbgFSPt2 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 19 Jun 2020 11:49:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56950 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:56980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390865AbgFSPZJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:25:09 -0400
+        id S2393377AbgFSPZM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:25:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3FDF121582;
-        Fri, 19 Jun 2020 15:25:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3DA521548;
+        Fri, 19 Jun 2020 15:25:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580308;
-        bh=dvPNjkEX0FRyQBVGbL9mveFmQllKPKlqmbk8N+PJ+1o=;
+        s=default; t=1592580311;
+        bh=Loi2gZDSbCrROCbcd1K6A4WD/voItVzsRtt0yXur1NA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bSTyEepHQGk1QnoJz5fLBeDPs8S0Yj9ZHggU6mncwAn5JJQeD2l8U7W/kal+Oi0Zd
-         lKTa5rWPoy0dZZd+p1SVDq6ifoPwfJ7iW77oEoOTQUgSCsF4w7rPlG++0+sVBEfjst
-         PkFAh8Jkrg9k1mRgiwgfEzWUHPn1bcyjxsKvsSXw=
+        b=hth2z620PAZAvqTJK3sJ6nPkfutfrhSA9K+8C/gAeV/+T5R/fnprKPX01Y75dl7Ax
+         4/g/R9aBYGDCZiGszDT/etJ3WYzKXf4EZPu1OfidVroXZRtQ+yPx2oUcWKOMBS4v4s
+         O4jU8Gk5aawGZOxk6p82rF/j1TPnPd1Q1sU7NQwY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Foster <bfoster@redhat.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 200/376] xfs: dont fail verifier on empty attr3 leaf block
-Date:   Fri, 19 Jun 2020 16:31:58 +0200
-Message-Id: <20200619141719.810025712@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Huaixin Chang <changhuaixin@linux.alibaba.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ben Segall <bsegall@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 201/376] sched: Defend cfs and rt bandwidth quota against overflow
+Date:   Fri, 19 Jun 2020 16:31:59 +0200
+Message-Id: <20200619141719.857518312@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -44,80 +46,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Foster <bfoster@redhat.com>
+From: Huaixin Chang <changhuaixin@linux.alibaba.com>
 
-[ Upstream commit f28cef9e4daca11337cb9f144cdebedaab69d78c ]
+[ Upstream commit d505b8af58912ae1e1a211fabc9995b19bd40828 ]
 
-The attr fork can transition from shortform to leaf format while
-empty if the first xattr doesn't fit in shortform. While this empty
-leaf block state is intended to be transient, it is technically not
-due to the transactional implementation of the xattr set operation.
+When users write some huge number into cpu.cfs_quota_us or
+cpu.rt_runtime_us, overflow might happen during to_ratio() shifts of
+schedulable checks.
 
-We historically have a couple of bandaids to work around this
-problem. The first is to hold the buffer after the format conversion
-to prevent premature writeback of the empty leaf buffer and the
-second is to bypass the xattr count check in the verifier during
-recovery. The latter assumes that the xattr set is also in the log
-and will be recovered into the buffer soon after the empty leaf
-buffer is reconstructed. This is not guaranteed, however.
+to_ratio() could be altered to avoid unnecessary internal overflow, but
+min_cfs_quota_period is less than 1 << BW_SHIFT, so a cutoff would still
+be needed. Set a cap MAX_BW for cfs_quota_us and rt_runtime_us to
+prevent overflow.
 
-If the filesystem crashes after the format conversion but before the
-xattr set that induced it, only the format conversion may exist in
-the log. When recovered, this creates a latent corrupted state on
-the inode as any subsequent attempts to read the buffer fail due to
-verifier failure. This includes further attempts to set xattrs on
-the inode or attempts to destroy the attr fork, which prevents the
-inode from ever being removed from the unlinked list.
-
-To avoid this condition, accept that an empty attr leaf block is a
-valid state and remove the count check from the verifier. This means
-that on rare occasions an attr fork might exist in an unexpected
-state, but is otherwise consistent and functional. Note that we
-retain the logic to avoid racing with metadata writeback to reduce
-the window where this can occur.
-
-Signed-off-by: Brian Foster <bfoster@redhat.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Huaixin Chang <changhuaixin@linux.alibaba.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Ben Segall <bsegall@google.com>
+Link: https://lkml.kernel.org/r/20200425105248.60093-1-changhuaixin@linux.alibaba.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/libxfs/xfs_attr_leaf.c | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ kernel/sched/core.c  |  8 ++++++++
+ kernel/sched/rt.c    | 12 +++++++++++-
+ kernel/sched/sched.h |  2 ++
+ 3 files changed, 21 insertions(+), 1 deletion(-)
 
-diff --git a/fs/xfs/libxfs/xfs_attr_leaf.c b/fs/xfs/libxfs/xfs_attr_leaf.c
-index 1d67cc9f4209..5d0b55281f9d 100644
---- a/fs/xfs/libxfs/xfs_attr_leaf.c
-+++ b/fs/xfs/libxfs/xfs_attr_leaf.c
-@@ -308,14 +308,6 @@ xfs_attr3_leaf_verify(
- 	if (fa)
- 		return fa;
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 0bbf387d0f19..5eccfb816d23 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -7386,6 +7386,8 @@ static DEFINE_MUTEX(cfs_constraints_mutex);
  
--	/*
--	 * In recovery there is a transient state where count == 0 is valid
--	 * because we may have transitioned an empty shortform attr to a leaf
--	 * if the attr didn't fit in shortform.
--	 */
--	if (!xfs_log_in_recovery(mp) && ichdr.count == 0)
--		return __this_address;
--
- 	/*
- 	 * firstused is the block offset of the first name info structure.
- 	 * Make sure it doesn't go off the block or crash into the header.
-@@ -331,6 +323,13 @@ xfs_attr3_leaf_verify(
- 	    (char *)bp->b_addr + ichdr.firstused)
- 		return __this_address;
+ const u64 max_cfs_quota_period = 1 * NSEC_PER_SEC; /* 1s */
+ static const u64 min_cfs_quota_period = 1 * NSEC_PER_MSEC; /* 1ms */
++/* More than 203 days if BW_SHIFT equals 20. */
++static const u64 max_cfs_runtime = MAX_BW * NSEC_PER_USEC;
+ 
+ static int __cfs_schedulable(struct task_group *tg, u64 period, u64 runtime);
+ 
+@@ -7413,6 +7415,12 @@ static int tg_set_cfs_bandwidth(struct task_group *tg, u64 period, u64 quota)
+ 	if (period > max_cfs_quota_period)
+ 		return -EINVAL;
  
 +	/*
-+	 * NOTE: This verifier historically failed empty leaf buffers because
-+	 * we expect the fork to be in another format. Empty attr fork format
-+	 * conversions are possible during xattr set, however, and format
-+	 * conversion is not atomic with the xattr set that triggers it. We
-+	 * cannot assume leaf blocks are non-empty until that is addressed.
-+	*/
- 	buf_end = (char *)bp->b_addr + mp->m_attr_geo->blksize;
- 	for (i = 0, ent = entries; i < ichdr.count; ent++, i++) {
- 		fa = xfs_attr3_leaf_verify_entry(mp, buf_end, leaf, &ichdr,
++	 * Bound quota to defend quota against overflow during bandwidth shift.
++	 */
++	if (quota != RUNTIME_INF && quota > max_cfs_runtime)
++		return -EINVAL;
++
+ 	/*
+ 	 * Prevent race between setting of cfs_rq->runtime_enabled and
+ 	 * unthrottle_offline_cfs_rqs().
+diff --git a/kernel/sched/rt.c b/kernel/sched/rt.c
+index df11d88c9895..6d60ba21ed29 100644
+--- a/kernel/sched/rt.c
++++ b/kernel/sched/rt.c
+@@ -9,6 +9,8 @@
+ 
+ int sched_rr_timeslice = RR_TIMESLICE;
+ int sysctl_sched_rr_timeslice = (MSEC_PER_SEC / HZ) * RR_TIMESLICE;
++/* More than 4 hours if BW_SHIFT equals 20. */
++static const u64 max_rt_runtime = MAX_BW;
+ 
+ static int do_sched_rt_period_timer(struct rt_bandwidth *rt_b, int overrun);
+ 
+@@ -2585,6 +2587,12 @@ static int tg_set_rt_bandwidth(struct task_group *tg,
+ 	if (rt_period == 0)
+ 		return -EINVAL;
+ 
++	/*
++	 * Bound quota to defend quota against overflow during bandwidth shift.
++	 */
++	if (rt_runtime != RUNTIME_INF && rt_runtime > max_rt_runtime)
++		return -EINVAL;
++
+ 	mutex_lock(&rt_constraints_mutex);
+ 	err = __rt_schedulable(tg, rt_period, rt_runtime);
+ 	if (err)
+@@ -2702,7 +2710,9 @@ static int sched_rt_global_validate(void)
+ 		return -EINVAL;
+ 
+ 	if ((sysctl_sched_rt_runtime != RUNTIME_INF) &&
+-		(sysctl_sched_rt_runtime > sysctl_sched_rt_period))
++		((sysctl_sched_rt_runtime > sysctl_sched_rt_period) ||
++		 ((u64)sysctl_sched_rt_runtime *
++			NSEC_PER_USEC > max_rt_runtime)))
+ 		return -EINVAL;
+ 
+ 	return 0;
+diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
+index db3a57675ccf..1f58677a8f23 100644
+--- a/kernel/sched/sched.h
++++ b/kernel/sched/sched.h
+@@ -1918,6 +1918,8 @@ extern void init_dl_inactive_task_timer(struct sched_dl_entity *dl_se);
+ #define BW_SHIFT		20
+ #define BW_UNIT			(1 << BW_SHIFT)
+ #define RATIO_SHIFT		8
++#define MAX_BW_BITS		(64 - BW_SHIFT)
++#define MAX_BW			((1ULL << MAX_BW_BITS) - 1)
+ unsigned long to_ratio(u64 period, u64 runtime);
+ 
+ extern void init_entity_runnable_average(struct sched_entity *se);
 -- 
 2.25.1
 
