@@ -2,89 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 432422008F0
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 14:44:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 866C3200938
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 15:00:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731002AbgFSMof (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 08:44:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34632 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730895AbgFSMoe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Jun 2020 08:44:34 -0400
-Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9173DC06174E
-        for <stable@vger.kernel.org>; Fri, 19 Jun 2020 05:44:34 -0700 (PDT)
-Received: by mail-ej1-x643.google.com with SMTP id l12so10039669ejn.10
-        for <stable@vger.kernel.org>; Fri, 19 Jun 2020 05:44:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=soleen.com; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=xCI3p26DpFemoziWXeJgThj3QZvSObjlmSL6zVJZMZM=;
-        b=mT1iyjzD8b9pQtlhasBVb61xX8KM/sVkswMsNj7rm4VZ9FZjqWjDzgsdzIk1LLdD1r
-         o617NdhQ5SX5LLSmmxkoaiFjpMsoZ9b6L7/OREl7a+uq7OyqbT/x5mMATFbq5OlnXVDC
-         mEnC0v6nlAEpcKio0iRF9U2he4dnrenwnFZ5OPcGRfB/+knEhasC/OdE9c+GNfLKzHGu
-         +3N+z0ZOTRf3ErFW+bP2kNxMtlh4Axv2rO+XTQwyiszjDXx1tUYQlyxXQSznY8yxIa3r
-         V2rINYek0XmG+jr3eaEcT8dN5mBovdD6CjtS9KSbovIA9irtad+Sr9w/YxPa8995axQS
-         mx8Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=xCI3p26DpFemoziWXeJgThj3QZvSObjlmSL6zVJZMZM=;
-        b=b/WmK371dWX8fI3skUZlnumddo1kAVqpP4fAk4DLxFl5LCq0wzaMLIP+3PE8eoM3a/
-         /v+jS7Qdik4w9ciW4FkrNQTmiOTi/whxKUttYW+ADa7ALBWXVF3tz93MhykzVpLqb7lk
-         tj395sReAFdO/qoie3cax0HMyPlCb4/TrPkY3ok9M9NdiS5dW0v0puK1xgmULhji0K6Z
-         V2EWt4bp5dR4/3u9h2ubdut/XRiioXrShZwZ8tUnJfBwHz4Qeyc7CwuwdMzAxQAFnqUJ
-         zWxCwLpW2GW/UY4aYwQdp0WxSbYjzlXuThwz/EJUOzN1lXjSOEIjV+opL1dfh9gxgpxq
-         /k0Q==
-X-Gm-Message-State: AOAM532bflo3INMqxCGN3ztvKdx5P0LFnanyokXF9mxv1umYukdEWn2Q
-        zQTVl0oH6eAkJn232mRohvwTEB5y6ZJbrQYQ0IJ7mA==
-X-Google-Smtp-Source: ABdhPJwEtgcjLXQh69MP0ygbMHygeKyCScYL87FrbKjDGF1cHozGT3auO4g0YX/uieAEXMo03QYRqbbunpRTq9IOVNg=
-X-Received: by 2002:a17:906:e0cf:: with SMTP id gl15mr3341034ejb.501.1592570673333;
- Fri, 19 Jun 2020 05:44:33 -0700 (PDT)
-MIME-Version: 1.0
-References: <15924957437531@kroah.com> <20200618162649.GA250996@kroah.com>
- <20200619022822.GV1931@sasha-vm> <20200619092137.GB12177@dhcp22.suse.cz>
- <82125cf7-a3e0-8596-ef6a-cda750bee28b@redhat.com> <CA+CK2bDVVcjvQAswxPe-2=DTOjf09Ty3tR69WdcEFaTgd87EqQ@mail.gmail.com>
- <d5d57204-a503-de53-edb1-63d12709e687@redhat.com>
-In-Reply-To: <d5d57204-a503-de53-edb1-63d12709e687@redhat.com>
-From:   Pavel Tatashin <pasha.tatashin@soleen.com>
-Date:   Fri, 19 Jun 2020 08:43:57 -0400
-Message-ID: <CA+CK2bAo3dD3A4UqX9f3ruMYjBiiM8PRy1H8wJpi3JWUVgomDQ@mail.gmail.com>
-Subject: Re: FAILED: patch "[PATCH] mm: call cond_resched() from
- deferred_init_memmap()" failed to apply to 5.7-stable tree
-To:     David Hildenbrand <david@redhat.com>
-Cc:     Michal Hocko <mhocko@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        Greg KH <gregkh@linuxfoundation.org>,
+        id S1732942AbgFSM7n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 08:59:43 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:30762 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1732914AbgFSM7m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Jun 2020 08:59:42 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1592571580;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=h8MQWLpEjUwKS/f3ehtlBKkUYUgruSbsLYJMJymo8VE=;
+        b=WD1xPzReyEQnP4GzY7yF9G3YJTn4onodFQ8GTiucQcoBuWvQo6kaERYnpLhSbPJur33/nW
+        6SEj9QhMwxg4SRvoZS46UXvZkzcvYovdCQnR8uIJ8eyJzG0xoN0+3hDmEUtew8HjJk/tC2
+        op8cxQFHprTh8UuM7/wsaiG7VjMl5oQ=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-300-gYNxaS0bPK2dCVjUmxwz4g-1; Fri, 19 Jun 2020 08:59:36 -0400
+X-MC-Unique: gYNxaS0bPK2dCVjUmxwz4g-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 95F54835B45;
+        Fri, 19 Jun 2020 12:59:34 +0000 (UTC)
+Received: from t480s.redhat.com (ovpn-113-137.ams2.redhat.com [10.36.113.137])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 21CEC5D9CA;
+        Fri, 19 Jun 2020 12:59:31 +0000 (UTC)
+From:   David Hildenbrand <david@redhat.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     linux-mm@kvack.org, David Hildenbrand <david@redhat.com>,
+        Michal Hocko <mhocko@suse.com>, stable@vger.kernel.org,
         Andrew Morton <akpm@linux-foundation.org>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Daniel Jordan <daniel.m.jordan@oracle.com>,
-        James Morris <jmorris@namei.org>,
-        Kirill Tkhai <ktkhai@virtuozzo.com>,
-        pankaj.gupta.linux@gmail.com,
-        Shile Zhang <shile.zhang@linux.alibaba.com>,
-        stable <stable@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Vlastimil Babka <vbabka@suse.cz>, Yiqian Wei <yiwei@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Minchan Kim <minchan@kernel.org>,
+        Huang Ying <ying.huang@intel.com>,
+        Wei Yang <richard.weiyang@gmail.com>,
+        Mel Gorman <mgorman@techsingularity.net>
+Subject: [PATCH v2 1/3] mm/shuffle: don't move pages between zones and don't read garbage memmaps
+Date:   Fri, 19 Jun 2020 14:59:20 +0200
+Message-Id: <20200619125923.22602-2-david@redhat.com>
+In-Reply-To: <20200619125923.22602-1-david@redhat.com>
+References: <20200619125923.22602-1-david@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> > 117003c32771 mm/pagealloc.c: call touch_nmi_watchdog() on max order
-> > boundaries in deferred init
-> > 3d060856adfc mm: initialize deferred pages with interrupts enabled
-> > da97f2d56bbd mm: call cond_resched() from deferred_init_memmap()
-> >
->
-> Just to note, in contrast to the subject, this is about the 4.19
-> backport IIRC. Is it really only these patches?
+Especially with memory hotplug, we can have offline sections (with a
+garbage memmap) and overlapping zones. We have to make sure to only
+touch initialized memmaps (online sections managed by the buddy) and that
+the zone matches, to not move pages between zones.
 
-Ah, I did not realize it was 4.19 backport.
+To test if this can actually happen, I added a simple
+	BUG_ON(page_zone(page_i) != page_zone(page_j));
+right before the swap. When hotplugging a 256M DIMM to a 4G x86-64 VM and
+onlining the first memory block "online_movable" and the second memory
+block "online_kernel", it will trigger the BUG, as both zones (NORMAL
+and MOVABLE) overlap.
 
-Yeah, it might be more, I have not checked it.
+This might result in all kinds of weird situations (e.g., double
+allocations, list corruptions, unmovable allocations ending up in the
+movable zone).
 
-Thanks,
-Pasha
+Fixes: e900a918b098 ("mm: shuffle initial free memory to improve memory-side-cache utilization")
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: stable@vger.kernel.org # v5.2+
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Huang Ying <ying.huang@intel.com>
+Cc: Wei Yang <richard.weiyang@gmail.com>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Signed-off-by: David Hildenbrand <david@redhat.com>
+---
+ mm/shuffle.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/mm/shuffle.c b/mm/shuffle.c
+index 44406d9977c77..dd13ab851b3ee 100644
+--- a/mm/shuffle.c
++++ b/mm/shuffle.c
+@@ -58,25 +58,25 @@ module_param_call(shuffle, shuffle_store, shuffle_show, &shuffle_param, 0400);
+  * For two pages to be swapped in the shuffle, they must be free (on a
+  * 'free_area' lru), have the same order, and have the same migratetype.
+  */
+-static struct page * __meminit shuffle_valid_page(unsigned long pfn, int order)
++static struct page * __meminit shuffle_valid_page(struct zone *zone,
++						  unsigned long pfn, int order)
+ {
+-	struct page *page;
++	struct page *page = pfn_to_online_page(pfn);
+ 
+ 	/*
+ 	 * Given we're dealing with randomly selected pfns in a zone we
+ 	 * need to ask questions like...
+ 	 */
+ 
+-	/* ...is the pfn even in the memmap? */
+-	if (!pfn_valid_within(pfn))
++	/* ... is the page managed by the buddy? */
++	if (!page)
+ 		return NULL;
+ 
+-	/* ...is the pfn in a present section or a hole? */
+-	if (!pfn_in_present_section(pfn))
++	/* ... is the page assigned to the same zone? */
++	if (page_zone(page) != zone)
+ 		return NULL;
+ 
+ 	/* ...is the page free and currently on a free_area list? */
+-	page = pfn_to_page(pfn);
+ 	if (!PageBuddy(page))
+ 		return NULL;
+ 
+@@ -123,7 +123,7 @@ void __meminit __shuffle_zone(struct zone *z)
+ 		 * page_j randomly selected in the span @zone_start_pfn to
+ 		 * @spanned_pages.
+ 		 */
+-		page_i = shuffle_valid_page(i, order);
++		page_i = shuffle_valid_page(z, i, order);
+ 		if (!page_i)
+ 			continue;
+ 
+@@ -137,7 +137,7 @@ void __meminit __shuffle_zone(struct zone *z)
+ 			j = z->zone_start_pfn +
+ 				ALIGN_DOWN(get_random_long() % z->spanned_pages,
+ 						order_pages);
+-			page_j = shuffle_valid_page(j, order);
++			page_j = shuffle_valid_page(z, j, order);
+ 			if (page_j && page_j != page_i)
+ 				break;
+ 		}
+-- 
+2.26.2
+
