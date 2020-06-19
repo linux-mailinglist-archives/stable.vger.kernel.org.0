@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C602E20122E
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:52:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66CEB20122B
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:52:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392357AbgFSPtm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:49:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56778 "EHLO mail.kernel.org"
+        id S1726545AbgFSPt2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:49:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404147AbgFSPZC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:25:02 -0400
+        id S2390865AbgFSPZJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:25:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 66EDC20B80;
-        Fri, 19 Jun 2020 15:25:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3FDF121582;
+        Fri, 19 Jun 2020 15:25:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580300;
-        bh=IAEmTo8r0QTBrTT1aCXKT7SMUHR0JX6FwVOf55EPqtY=;
+        s=default; t=1592580308;
+        bh=dvPNjkEX0FRyQBVGbL9mveFmQllKPKlqmbk8N+PJ+1o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yYlxZx/Ck1sljtuBRfgkwyw/0/VUIIuc5RGDXWwWDnzGHH2kw19tNl57tw8MtmUk0
-         t5Q/j5JSV8S+UessU3S45iAjAalFWl2erRNzBuohsXC1uKlu0H23XZH9qSZL/P5pQB
-         QDBGYhGQohgkIVQdRMykkqflUFGRDzWFk96FjGpo=
+        b=bSTyEepHQGk1QnoJz5fLBeDPs8S0Yj9ZHggU6mncwAn5JJQeD2l8U7W/kal+Oi0Zd
+         lKTa5rWPoy0dZZd+p1SVDq6ifoPwfJ7iW77oEoOTQUgSCsF4w7rPlG++0+sVBEfjst
+         PkFAh8Jkrg9k1mRgiwgfEzWUHPn1bcyjxsKvsSXw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Ganapathi Bhat <ganapathi.bhat@nxp.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 197/376] mwifiex: Fix memory corruption in dump_station
-Date:   Fri, 19 Jun 2020 16:31:55 +0200
-Message-Id: <20200619141719.669207725@linuxfoundation.org>
+        stable@vger.kernel.org, Brian Foster <bfoster@redhat.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 200/376] xfs: dont fail verifier on empty attr3 leaf block
+Date:   Fri, 19 Jun 2020 16:31:58 +0200
+Message-Id: <20200619141719.810025712@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -46,87 +44,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Brian Foster <bfoster@redhat.com>
 
-[ Upstream commit 3aa42bae9c4d1641aeb36f1a8585cd1d506cf471 ]
+[ Upstream commit f28cef9e4daca11337cb9f144cdebedaab69d78c ]
 
-The mwifiex_cfg80211_dump_station() uses static variable for iterating
-over a linked list of all associated stations (when the driver is in UAP
-role). This has a race condition if .dump_station is called in parallel
-for multiple interfaces. This corruption can be triggered by registering
-multiple SSIDs and calling, in parallel for multiple interfaces
-    iw dev <iface> station dump
+The attr fork can transition from shortform to leaf format while
+empty if the first xattr doesn't fit in shortform. While this empty
+leaf block state is intended to be transient, it is technically not
+due to the transactional implementation of the xattr set operation.
 
-[16750.719775] Unable to handle kernel paging request at virtual address dead000000000110
-...
-[16750.899173] Call trace:
-[16750.901696]  mwifiex_cfg80211_dump_station+0x94/0x100 [mwifiex]
-[16750.907824]  nl80211_dump_station+0xbc/0x278 [cfg80211]
-[16750.913160]  netlink_dump+0xe8/0x320
-[16750.916827]  netlink_recvmsg+0x1b4/0x338
-[16750.920861]  ____sys_recvmsg+0x7c/0x2b0
-[16750.924801]  ___sys_recvmsg+0x70/0x98
-[16750.928564]  __sys_recvmsg+0x58/0xa0
-[16750.932238]  __arm64_sys_recvmsg+0x28/0x30
-[16750.936453]  el0_svc_common.constprop.3+0x90/0x158
-[16750.941378]  do_el0_svc+0x74/0x90
-[16750.944784]  el0_sync_handler+0x12c/0x1a8
-[16750.948903]  el0_sync+0x114/0x140
-[16750.952312] Code: f9400003 f907f423 eb02007f 54fffd60 (b9401060)
-[16750.958583] ---[ end trace c8ad181c2f4b8576 ]---
+We historically have a couple of bandaids to work around this
+problem. The first is to hold the buffer after the format conversion
+to prevent premature writeback of the empty leaf buffer and the
+second is to bypass the xattr count check in the verifier during
+recovery. The latter assumes that the xattr set is also in the log
+and will be recovered into the buffer soon after the empty leaf
+buffer is reconstructed. This is not guaranteed, however.
 
-This patch drops the use of the static iterator, and instead every time
-the function is called iterates to the idx-th position of the
-linked-list.
+If the filesystem crashes after the format conversion but before the
+xattr set that induced it, only the format conversion may exist in
+the log. When recovered, this creates a latent corrupted state on
+the inode as any subsequent attempts to read the buffer fail due to
+verifier failure. This includes further attempts to set xattrs on
+the inode or attempts to destroy the attr fork, which prevents the
+inode from ever being removed from the unlinked list.
 
-It would be better to convert the code not to use linked list for
-associated stations storage (since the chip has a limited number of
-associated stations anyway - it could just be an array). Such a change
-may be proposed in the future. In the meantime this patch can backported
-into stable kernels in this simple form.
+To avoid this condition, accept that an empty attr leaf block is a
+valid state and remove the count check from the verifier. This means
+that on rare occasions an attr fork might exist in an unexpected
+state, but is otherwise consistent and functional. Note that we
+retain the logic to avoid racing with metadata writeback to reduce
+the window where this can occur.
 
-Fixes: 8baca1a34d4c ("mwifiex: dump station support in uap mode")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Acked-by: Ganapathi Bhat <ganapathi.bhat@nxp.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200515075924.13841-1-pali@kernel.org
+Signed-off-by: Brian Foster <bfoster@redhat.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwifiex/cfg80211.c | 14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ fs/xfs/libxfs/xfs_attr_leaf.c | 15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/wireless/marvell/mwifiex/cfg80211.c b/drivers/net/wireless/marvell/mwifiex/cfg80211.c
-index 1566d2197906..12bfd653a405 100644
---- a/drivers/net/wireless/marvell/mwifiex/cfg80211.c
-+++ b/drivers/net/wireless/marvell/mwifiex/cfg80211.c
-@@ -1496,7 +1496,8 @@ mwifiex_cfg80211_dump_station(struct wiphy *wiphy, struct net_device *dev,
- 			      int idx, u8 *mac, struct station_info *sinfo)
- {
- 	struct mwifiex_private *priv = mwifiex_netdev_get_priv(dev);
--	static struct mwifiex_sta_node *node;
-+	struct mwifiex_sta_node *node;
-+	int i;
+diff --git a/fs/xfs/libxfs/xfs_attr_leaf.c b/fs/xfs/libxfs/xfs_attr_leaf.c
+index 1d67cc9f4209..5d0b55281f9d 100644
+--- a/fs/xfs/libxfs/xfs_attr_leaf.c
++++ b/fs/xfs/libxfs/xfs_attr_leaf.c
+@@ -308,14 +308,6 @@ xfs_attr3_leaf_verify(
+ 	if (fa)
+ 		return fa;
  
- 	if ((GET_BSS_ROLE(priv) == MWIFIEX_BSS_ROLE_STA) &&
- 	    priv->media_connected && idx == 0) {
-@@ -1506,13 +1507,10 @@ mwifiex_cfg80211_dump_station(struct wiphy *wiphy, struct net_device *dev,
- 		mwifiex_send_cmd(priv, HOST_CMD_APCMD_STA_LIST,
- 				 HostCmd_ACT_GEN_GET, 0, NULL, true);
- 
--		if (node && (&node->list == &priv->sta_list)) {
--			node = NULL;
--			return -ENOENT;
--		}
+-	/*
+-	 * In recovery there is a transient state where count == 0 is valid
+-	 * because we may have transitioned an empty shortform attr to a leaf
+-	 * if the attr didn't fit in shortform.
+-	 */
+-	if (!xfs_log_in_recovery(mp) && ichdr.count == 0)
+-		return __this_address;
 -
--		node = list_prepare_entry(node, &priv->sta_list, list);
--		list_for_each_entry_continue(node, &priv->sta_list, list) {
-+		i = 0;
-+		list_for_each_entry(node, &priv->sta_list, list) {
-+			if (i++ != idx)
-+				continue;
- 			ether_addr_copy(mac, node->mac_addr);
- 			return mwifiex_dump_station_info(priv, node, sinfo);
- 		}
+ 	/*
+ 	 * firstused is the block offset of the first name info structure.
+ 	 * Make sure it doesn't go off the block or crash into the header.
+@@ -331,6 +323,13 @@ xfs_attr3_leaf_verify(
+ 	    (char *)bp->b_addr + ichdr.firstused)
+ 		return __this_address;
+ 
++	/*
++	 * NOTE: This verifier historically failed empty leaf buffers because
++	 * we expect the fork to be in another format. Empty attr fork format
++	 * conversions are possible during xattr set, however, and format
++	 * conversion is not atomic with the xattr set that triggers it. We
++	 * cannot assume leaf blocks are non-empty until that is addressed.
++	*/
+ 	buf_end = (char *)bp->b_addr + mp->m_attr_geo->blksize;
+ 	for (i = 0, ent = entries; i < ichdr.count; ent++, i++) {
+ 		fa = xfs_attr3_leaf_verify_entry(mp, buf_end, leaf, &ichdr,
 -- 
 2.25.1
 
