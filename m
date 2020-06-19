@@ -2,46 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F922201572
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:23:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9359201388
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:07:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390627AbgFSPAN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:00:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56488 "EHLO mail.kernel.org"
+        id S2392058AbgFSPKu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:10:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389916AbgFSPAJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:00:09 -0400
+        id S2392050AbgFSPKr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:10:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2DAF2193E;
-        Fri, 19 Jun 2020 15:00:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56F692186A;
+        Fri, 19 Jun 2020 15:10:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578808;
-        bh=rCFqFPN/S5hYmSyfe+QjOdpNml/We5jXqm0Wk0oj8e8=;
+        s=default; t=1592579446;
+        bh=dnV4zmA/lKOZrdwqptWQogvmvKeHWdsg3vUNDmP9uRg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X9NtwERGMfyNXenWKpcIP02bvWb8XPJKQiJHjNoQuxszedilm6tmixYoojn3Kb232
-         O7KMfbbHFxYFuzr58kLEQTmUK9SVVMZOr9gXqPZamCBhO9rM0K5evjjcXdg3iknsdI
-         fdtuMIuBuZU6VYqJakoPcBFYHiFb1IVM8M5gN/mo=
+        b=EYwV+o0BsD94DBbauskKa6gq5xjHh1ORurikIHW5cRQ6meyDSdG/pB3jnG5KKC6xm
+         HWsEZBTF5KQPyVL6FLtMjv4moNaEp2gjgntK8cfpqmmDPRxmc2EV0HqVBC6rnhQFN+
+         mycPtMHINAFVf/87qBytG4BNEEoV+tOFmzcjcFKQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Paul Burton <paulburton@kernel.org>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 165/267] mips: Add udelay lpj numbers adjustment
+        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 139/261] bcache: fix refcount underflow in bcache_device_free()
 Date:   Fri, 19 Jun 2020 16:32:30 +0200
-Message-Id: <20200619141656.728945935@linuxfoundation.org>
+Message-Id: <20200619141656.525953968@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
-References: <20200619141648.840376470@linuxfoundation.org>
+In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
+References: <20200619141649.878808811@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,125 +43,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: Coly Li <colyli@suse.de>
 
-[ Upstream commit ed26aacfb5f71eecb20a51c4467da440cb719d66 ]
+[ Upstream commit 86da9f736740eba602389908574dfbb0f517baa5 ]
 
-Loops-per-jiffies is a special number which represents a number of
-noop-loop cycles per CPU-scheduler quantum - jiffies. As you
-understand aside from CPU-specific implementation it depends on
-the CPU frequency. So when a platform has the CPU frequency fixed,
-we have no problem and the current udelay interface will work
-just fine. But as soon as CPU-freq driver is enabled and the cores
-frequency changes, we'll end up with distorted udelay's. In order
-to fix this we have to accordinly adjust the per-CPU udelay_val
-(the same as the global loops_per_jiffy) number. This can be done
-in the CPU-freq transition event handler. We subscribe to that event
-in the MIPS arch time-inititalization method.
+The problematic code piece in bcache_device_free() is,
 
-Co-developed-by: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
-Signed-off-by: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Reviewed-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: Paul Burton <paulburton@kernel.org>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: devicetree@vger.kernel.org
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+ 785 static void bcache_device_free(struct bcache_device *d)
+ 786 {
+ 787     struct gendisk *disk = d->disk;
+ [snipped]
+ 799     if (disk) {
+ 800             if (disk->flags & GENHD_FL_UP)
+ 801                     del_gendisk(disk);
+ 802
+ 803             if (disk->queue)
+ 804                     blk_cleanup_queue(disk->queue);
+ 805
+ 806             ida_simple_remove(&bcache_device_idx,
+ 807                               first_minor_to_idx(disk->first_minor));
+ 808             put_disk(disk);
+ 809         }
+ [snipped]
+ 816 }
+
+At line 808, put_disk(disk) may encounter kobject refcount of 'disk'
+being underflow.
+
+Here is how to reproduce the issue,
+- Attche the backing device to a cache device and do random write to
+  make the cache being dirty.
+- Stop the bcache device while the cache device has dirty data of the
+  backing device.
+- Only register the backing device back, NOT register cache device.
+- The bcache device node /dev/bcache0 won't show up, because backing
+  device waits for the cache device shows up for the missing dirty
+  data.
+- Now echo 1 into /sys/fs/bcache/pendings_cleanup, to stop the pending
+  backing device.
+- After the pending backing device stopped, use 'dmesg' to check kernel
+  message, a use-after-free warning from KASA reported the refcount of
+  kobject linked to the 'disk' is underflow.
+
+The dropping refcount at line 808 in the above code piece is added by
+add_disk(d->disk) in bch_cached_dev_run(). But in the above condition
+the cache device is not registered, bch_cached_dev_run() has no chance
+to be called and the refcount is not added. The put_disk() for a non-
+added refcount of gendisk kobject triggers a underflow warning.
+
+This patch checks whether GENHD_FL_UP is set in disk->flags, if it is
+not set then the bcache device was not added, don't call put_disk()
+and the the underflow issue can be avoided.
+
+Signed-off-by: Coly Li <colyli@suse.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kernel/time.c | 70 +++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 70 insertions(+)
+ drivers/md/bcache/super.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/arch/mips/kernel/time.c b/arch/mips/kernel/time.c
-index bfe02ded25d1..1e631a484ddf 100644
---- a/arch/mips/kernel/time.c
-+++ b/arch/mips/kernel/time.c
-@@ -22,12 +22,82 @@
- #include <linux/smp.h>
- #include <linux/spinlock.h>
- #include <linux/export.h>
-+#include <linux/cpufreq.h>
-+#include <linux/delay.h>
+diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
+index 658b0f4a01f5..68901745eb20 100644
+--- a/drivers/md/bcache/super.c
++++ b/drivers/md/bcache/super.c
+@@ -789,7 +789,9 @@ static void bcache_device_free(struct bcache_device *d)
+ 		bcache_device_detach(d);
  
- #include <asm/cpu-features.h>
- #include <asm/cpu-type.h>
- #include <asm/div64.h>
- #include <asm/time.h>
+ 	if (disk) {
+-		if (disk->flags & GENHD_FL_UP)
++		bool disk_added = (disk->flags & GENHD_FL_UP) != 0;
++
++		if (disk_added)
+ 			del_gendisk(disk);
  
-+#ifdef CONFIG_CPU_FREQ
-+
-+static DEFINE_PER_CPU(unsigned long, pcp_lpj_ref);
-+static DEFINE_PER_CPU(unsigned long, pcp_lpj_ref_freq);
-+static unsigned long glb_lpj_ref;
-+static unsigned long glb_lpj_ref_freq;
-+
-+static int cpufreq_callback(struct notifier_block *nb,
-+			    unsigned long val, void *data)
-+{
-+	struct cpufreq_freqs *freq = data;
-+	struct cpumask *cpus = freq->policy->cpus;
-+	unsigned long lpj;
-+	int cpu;
-+
-+	/*
-+	 * Skip lpj numbers adjustment if the CPU-freq transition is safe for
-+	 * the loops delay. (Is this possible?)
-+	 */
-+	if (freq->flags & CPUFREQ_CONST_LOOPS)
-+		return NOTIFY_OK;
-+
-+	/* Save the initial values of the lpjes for future scaling. */
-+	if (!glb_lpj_ref) {
-+		glb_lpj_ref = boot_cpu_data.udelay_val;
-+		glb_lpj_ref_freq = freq->old;
-+
-+		for_each_online_cpu(cpu) {
-+			per_cpu(pcp_lpj_ref, cpu) =
-+				cpu_data[cpu].udelay_val;
-+			per_cpu(pcp_lpj_ref_freq, cpu) = freq->old;
-+		}
-+	}
-+
-+	/*
-+	 * Adjust global lpj variable and per-CPU udelay_val number in
-+	 * accordance with the new CPU frequency.
-+	 */
-+	if ((val == CPUFREQ_PRECHANGE  && freq->old < freq->new) ||
-+	    (val == CPUFREQ_POSTCHANGE && freq->old > freq->new)) {
-+		loops_per_jiffy = cpufreq_scale(glb_lpj_ref,
-+						glb_lpj_ref_freq,
-+						freq->new);
-+
-+		for_each_cpu(cpu, cpus) {
-+			lpj = cpufreq_scale(per_cpu(pcp_lpj_ref, cpu),
-+					    per_cpu(pcp_lpj_ref_freq, cpu),
-+					    freq->new);
-+			cpu_data[cpu].udelay_val = (unsigned int)lpj;
-+		}
-+	}
-+
-+	return NOTIFY_OK;
-+}
-+
-+static struct notifier_block cpufreq_notifier = {
-+	.notifier_call  = cpufreq_callback,
-+};
-+
-+static int __init register_cpufreq_notifier(void)
-+{
-+	return cpufreq_register_notifier(&cpufreq_notifier,
-+					 CPUFREQ_TRANSITION_NOTIFIER);
-+}
-+core_initcall(register_cpufreq_notifier);
-+
-+#endif /* CONFIG_CPU_FREQ */
-+
- /*
-  * forward reference
-  */
+ 		if (disk->queue)
+@@ -797,7 +799,8 @@ static void bcache_device_free(struct bcache_device *d)
+ 
+ 		ida_simple_remove(&bcache_device_idx,
+ 				  first_minor_to_idx(disk->first_minor));
+-		put_disk(disk);
++		if (disk_added)
++			put_disk(disk);
+ 	}
+ 
+ 	bioset_exit(&d->bio_split);
 -- 
 2.25.1
 
