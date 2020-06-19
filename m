@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DFC12017E5
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A12462016A3
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:33:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388431AbgFSQot (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:44:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33806 "EHLO mail.kernel.org"
+        id S2394998AbgFSQdD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:33:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388415AbgFSOmy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:42:54 -0400
+        id S2389500AbgFSOvs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:51:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 76E242158C;
-        Fri, 19 Jun 2020 14:42:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2AF2521556;
+        Fri, 19 Jun 2020 14:51:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577773;
-        bh=MNQ8mx7/YoL+DE/atTfoj3dmjqjoE2lBS0qY/fSvAME=;
+        s=default; t=1592578308;
+        bh=dA8deVe8Oc5xCiWh0RcR44ajduoZk4p5UPFlT99UIfM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ycTp7R4Z+CB3ztYVUo16tFSbYnGoRToiXroiVK7Vn3N0VHZt6UJVOgLQ50LKRU//X
-         JuWPhFFGyx1PXkPLmtDh2S+Ift7aww+HCDHSNpesA5ogqdFgyB9WY+slZmAlPGXTXI
-         DCTtAxTb8XperICalY5X4C0xjxCpGGJ2njlQOH58=
+        b=rrATLhzR8YKbxn+eb4qJDtLixNX7bV01PAWjiTQAfJLIpE0y/ZQNp8+hhZpEYkj0d
+         HUmA/EFOQUSaP+Vfp9bBPCwhonp9BuA5L6YgFVQX6LH5drBjVRL65/5Iwr8RR9oZXT
+         X4MjFoqQH/ofW/1tfa7iWQ50+dI+rZJWwngpB9j4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Bruce Chang <brucechang@via.com.tw>,
+        Harald Welte <HaraldWelte@viatech.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 083/128] rtlwifi: Fix a double free in _rtl_usb_tx_urb_setup()
-Date:   Fri, 19 Jun 2020 16:32:57 +0200
-Message-Id: <20200619141624.551087995@linuxfoundation.org>
+Subject: [PATCH 4.14 133/190] mmc: via-sdmmc: Respect the cmd->busy_timeout from the mmc core
+Date:   Fri, 19 Jun 2020 16:32:58 +0200
+Message-Id: <20200619141640.275240310@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
-References: <20200619141620.148019466@linuxfoundation.org>
+In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
+References: <20200619141633.446429600@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,60 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Ulf Hansson <ulf.hansson@linaro.org>
 
-[ Upstream commit beb12813bc75d4a23de43b85ad1c7cb28d27631e ]
+[ Upstream commit 966244ccd2919e28f25555a77f204cd1c109cad8 ]
 
-Seven years ago we tried to fix a leak but actually introduced a double
-free instead.  It was an understandable mistake because the code was a
-bit confusing and the free was done in the wrong place.  The "skb"
-pointer is freed in both _rtl_usb_tx_urb_setup() and _rtl_usb_transmit().
-The free belongs _rtl_usb_transmit() instead of _rtl_usb_tx_urb_setup()
-and I've cleaned the code up a bit to hopefully make it more clear.
+Using a fixed 1s timeout for all commands (and data transfers) is a bit
+problematic.
 
-Fixes: 36ef0b473fbf ("rtlwifi: usb: add missing freeing of skbuff")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200513093951.GD347693@mwanda
+For some commands it means waiting longer than needed for the timer to
+expire, which may not a big issue, but still. For other commands, like for
+an erase (CMD38) that uses a R1B response, may require longer timeouts than
+1s. In these cases, we may end up treating the command as it failed, while
+it just needed some more time to complete successfully.
+
+Fix the problem by respecting the cmd->busy_timeout, which is provided by
+the mmc core.
+
+Cc: Bruce Chang <brucechang@via.com.tw>
+Cc: Harald Welte <HaraldWelte@viatech.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Link: https://lore.kernel.org/r/20200414161413.3036-17-ulf.hansson@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtlwifi/usb.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/mmc/host/via-sdmmc.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/realtek/rtlwifi/usb.c b/drivers/net/wireless/realtek/rtlwifi/usb.c
-index 1f02461de261..93b22a5b6878 100644
---- a/drivers/net/wireless/realtek/rtlwifi/usb.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/usb.c
-@@ -927,10 +927,8 @@ static struct urb *_rtl_usb_tx_urb_setup(struct ieee80211_hw *hw,
+diff --git a/drivers/mmc/host/via-sdmmc.c b/drivers/mmc/host/via-sdmmc.c
+index a838bf5480d8..a863a345fc59 100644
+--- a/drivers/mmc/host/via-sdmmc.c
++++ b/drivers/mmc/host/via-sdmmc.c
+@@ -323,6 +323,8 @@ struct via_crdr_mmc_host {
+ /* some devices need a very long delay for power to stabilize */
+ #define VIA_CRDR_QUIRK_300MS_PWRDELAY	0x0001
  
- 	WARN_ON(NULL == skb);
- 	_urb = usb_alloc_urb(0, GFP_ATOMIC);
--	if (!_urb) {
--		kfree_skb(skb);
-+	if (!_urb)
- 		return NULL;
--	}
- 	_rtl_install_trx_info(rtlusb, skb, ep_num);
- 	usb_fill_bulk_urb(_urb, rtlusb->udev, usb_sndbulkpipe(rtlusb->udev,
- 			  ep_num), skb->data, skb->len, _rtl_tx_complete, skb);
-@@ -945,7 +943,6 @@ static void _rtl_usb_transmit(struct ieee80211_hw *hw, struct sk_buff *skb,
- 	struct rtl_usb *rtlusb = rtl_usbdev(rtl_usbpriv(hw));
- 	u32 ep_num;
- 	struct urb *_urb = NULL;
--	struct sk_buff *_skb = NULL;
++#define VIA_CMD_TIMEOUT_MS		1000
++
+ static const struct pci_device_id via_ids[] = {
+ 	{PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_9530,
+ 	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0,},
+@@ -555,14 +557,17 @@ static void via_sdc_send_command(struct via_crdr_mmc_host *host,
+ {
+ 	void __iomem *addrbase;
+ 	struct mmc_data *data;
++	unsigned int timeout_ms;
+ 	u32 cmdctrl = 0;
  
- 	WARN_ON(NULL == rtlusb->usb_tx_aggregate_hdl);
- 	if (unlikely(IS_USB_STOP(rtlusb))) {
-@@ -955,8 +952,7 @@ static void _rtl_usb_transmit(struct ieee80211_hw *hw, struct sk_buff *skb,
- 		return;
- 	}
- 	ep_num = rtlusb->ep_map.ep_mapping[qnum];
--	_skb = skb;
--	_urb = _rtl_usb_tx_urb_setup(hw, _skb, ep_num);
-+	_urb = _rtl_usb_tx_urb_setup(hw, skb, ep_num);
- 	if (unlikely(!_urb)) {
- 		RT_TRACE(rtlpriv, COMP_ERR, DBG_EMERG,
- 			 "Can't allocate urb. Drop skb!\n");
+ 	WARN_ON(host->cmd);
+ 
+ 	data = cmd->data;
+-	mod_timer(&host->timer, jiffies + HZ);
+ 	host->cmd = cmd;
+ 
++	timeout_ms = cmd->busy_timeout ? cmd->busy_timeout : VIA_CMD_TIMEOUT_MS;
++	mod_timer(&host->timer, jiffies + msecs_to_jiffies(timeout_ms));
++
+ 	/*Command index*/
+ 	cmdctrl = cmd->opcode << 8;
+ 
 -- 
 2.25.1
 
