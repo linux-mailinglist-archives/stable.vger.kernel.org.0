@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B0922011F4
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:47:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17E8E2011F2
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:47:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404256AbgFSPrd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:47:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57734 "EHLO mail.kernel.org"
+        id S2404283AbgFSP0G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:26:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404243AbgFSP0A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:26:00 -0400
+        id S2404275AbgFSP0G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:26:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5658C217A0;
-        Fri, 19 Jun 2020 15:25:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E7F120734;
+        Fri, 19 Jun 2020 15:26:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580359;
-        bh=WalAKmd2wJyO633C/RRtz+BX1RofonbPiTJF5TW5uS0=;
+        s=default; t=1592580365;
+        bh=das6OhBdoFhqMjLDChJE4xhaVUrZDwDw2noq6aBnmqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ERrqVbBnAaG116s2pJ5psJJfXgwajYepBP2ORRg7973TUwfLDnxu9cb4r9nm3h2w5
-         FiGYXdQH9+5tHKMz+/ydB2ehC2htCE1g2yvX1HUt4Hyyp/wlt3gS9Rus16SvxG4IbI
-         nPYsabfwEh9wpE6sIH3uyuYrSG2dnGgykHjcqcg4=
+        b=b3WiiFmDCURbm9b3npd+Ctq33l8tZD0fSvDwM1n1djy4HY2iyQIbh+PxJyvIX8tTC
+         XJvkjDLS143ZKJ2wUNEQbCKdLib2YxxGjXW7Nu+8GqyKvAl1BWK4iwdMxCtrvRS8fR
+         IDZDBOWG0f63g4nxnwGt5TiVC2J7cBEidg1ulviI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Paul Menzel <pmenzel@molgen.mpg.de>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 220/376] ACPI: video: Use native backlight on Acer TravelMate 5735Z
-Date:   Fri, 19 Jun 2020 16:32:18 +0200
-Message-Id: <20200619141720.740932103@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Weiping Zhang <zhangweiping@didiglobal.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 222/376] nvme-pci: make sure write/poll_queues less or equal then cpu count
+Date:   Fri, 19 Jun 2020 16:32:20 +0200
+Message-Id: <20200619141720.833198376@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -45,55 +44,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Menzel <pmenzel@molgen.mpg.de>
+From: Weiping Zhang <zhangweiping@didiglobal.com>
 
-[ Upstream commit c41c36e900a337b4132b12ccabc97f5578248b44 ]
+[ Upstream commit 9c9e76d5792b121f10c3b8ddbb639617e49197f7 ]
 
-Currently, changing the brightness of the internal display of the Acer
-TravelMate 5735Z does not work. Pressing the function keys or changing the
-slider, GNOME Shell 3.36.2 displays the OSD (five steps), but the
-brightness does not change.
+Check module parameter write/poll_queues before using it to catch
+too large values.
 
-The Acer TravelMate 5735Z shipped with Windows 7 and as such does not
-trigger our "win8 ready" heuristic for preferring the native backlight
-interface.
+Reproducer:
 
-Still ACPI backlight control doesn't work on this model, where as the
-native (intel_video) backlight interface does work by adding
-`acpi_backlight=native` or `acpi_backlight=none` to Linux’ command line.
+modprobe -r nvme
+modprobe nvme write_queues=`nproc`
+echo $((`nproc`+1)) > /sys/module/nvme/parameters/write_queues
+echo 1 > /sys/block/nvme0n1/device/reset_controller
 
-So, add a quirk to force using native backlight control on this model.
+[  657.069000] ------------[ cut here ]------------
+[  657.069022] WARNING: CPU: 10 PID: 1163 at kernel/irq/affinity.c:390 irq_create_affinity_masks+0x47c/0x4a0
+[  657.069056]  dm_region_hash dm_log dm_mod
+[  657.069059] CPU: 10 PID: 1163 Comm: kworker/u193:9 Kdump: loaded Tainted: G        W         5.6.0+ #8
+[  657.069060] Hardware name: Inspur SA5212M5/YZMB-00882-104, BIOS 4.0.9 08/27/2019
+[  657.069064] Workqueue: nvme-reset-wq nvme_reset_work [nvme]
+[  657.069066] RIP: 0010:irq_create_affinity_masks+0x47c/0x4a0
+[  657.069067] Code: fe ff ff 48 c7 c0 b0 89 14 95 48 89 46 20 e9 e9 fb ff ff 31 c0 e9 90 fc ff ff 0f 0b 48 c7 44 24 08 00 00 00 00 e9 e9 fc ff ff <0f> 0b e9 87 fe ff ff 48 8b 7c 24 28 e8 33 a0 80 00 e9 b6 fc ff ff
+[  657.069068] RSP: 0018:ffffb505ce1ffc78 EFLAGS: 00010202
+[  657.069069] RAX: 0000000000000060 RBX: ffff9b97921fe5c0 RCX: 0000000000000000
+[  657.069069] RDX: ffff9b67bad80000 RSI: 00000000ffffffa0 RDI: 0000000000000000
+[  657.069070] RBP: 0000000000000000 R08: 0000000000000000 R09: ffff9b97921fe718
+[  657.069070] R10: ffff9b97921fe710 R11: 0000000000000001 R12: 0000000000000064
+[  657.069070] R13: 0000000000000060 R14: 0000000000000000 R15: 0000000000000001
+[  657.069071] FS:  0000000000000000(0000) GS:ffff9b67c0880000(0000) knlGS:0000000000000000
+[  657.069072] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  657.069072] CR2: 0000559eac6fc238 CR3: 000000057860a002 CR4: 00000000007606e0
+[  657.069073] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  657.069073] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  657.069073] PKRU: 55555554
+[  657.069074] Call Trace:
+[  657.069080]  __pci_enable_msix_range+0x233/0x5a0
+[  657.069085]  ? kernfs_put+0xec/0x190
+[  657.069086]  pci_alloc_irq_vectors_affinity+0xbb/0x130
+[  657.069089]  nvme_reset_work+0x6e6/0xeab [nvme]
+[  657.069093]  ? __switch_to_asm+0x34/0x70
+[  657.069094]  ? __switch_to_asm+0x40/0x70
+[  657.069095]  ? nvme_irq_check+0x30/0x30 [nvme]
+[  657.069098]  process_one_work+0x1a7/0x370
+[  657.069101]  worker_thread+0x1c9/0x380
+[  657.069102]  ? max_active_store+0x80/0x80
+[  657.069103]  kthread+0x112/0x130
+[  657.069104]  ? __kthread_parkme+0x70/0x70
+[  657.069105]  ret_from_fork+0x35/0x40
+[  657.069106] ---[ end trace f4f06b7d24513d06 ]---
+[  657.077110] nvme nvme0: 95/1/0 default/read/poll queues
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=207835
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Weiping Zhang <zhangweiping@didiglobal.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/video_detect.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/nvme/host/pci.c | 22 ++++++++++++++++++----
+ 1 file changed, 18 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/acpi/video_detect.c b/drivers/acpi/video_detect.c
-index b4994e50608d..2499d7e3c710 100644
---- a/drivers/acpi/video_detect.c
-+++ b/drivers/acpi/video_detect.c
-@@ -361,6 +361,16 @@ static const struct dmi_system_id video_detect_dmi_table[] = {
- 		DMI_MATCH(DMI_BOARD_NAME, "JV50"),
- 		},
- 	},
-+	{
-+	 /* https://bugzilla.kernel.org/show_bug.cgi?id=207835 */
-+	 .callback = video_detect_force_native,
-+	 .ident = "Acer TravelMate 5735Z",
-+	 .matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
-+		DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate 5735Z"),
-+		DMI_MATCH(DMI_BOARD_NAME, "BA51_MV"),
-+		},
-+	},
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index dcf597fbafad..076bdd90c922 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -68,14 +68,30 @@ static int io_queue_depth = 1024;
+ module_param_cb(io_queue_depth, &io_queue_depth_ops, &io_queue_depth, 0644);
+ MODULE_PARM_DESC(io_queue_depth, "set io queue depth, should >= 2");
  
- 	/*
- 	 * Desktops which falsely report a backlight and which our heuristics
++static int io_queue_count_set(const char *val, const struct kernel_param *kp)
++{
++	unsigned int n;
++	int ret;
++
++	ret = kstrtouint(val, 10, &n);
++	if (ret != 0 || n > num_possible_cpus())
++		return -EINVAL;
++	return param_set_uint(val, kp);
++}
++
++static const struct kernel_param_ops io_queue_count_ops = {
++	.set = io_queue_count_set,
++	.get = param_get_uint,
++};
++
+ static unsigned int write_queues;
+-module_param(write_queues, uint, 0644);
++module_param_cb(write_queues, &io_queue_count_ops, &write_queues, 0644);
+ MODULE_PARM_DESC(write_queues,
+ 	"Number of queues to use for writes. If not set, reads and writes "
+ 	"will share a queue set.");
+ 
+ static unsigned int poll_queues;
+-module_param(poll_queues, uint, 0644);
++module_param_cb(poll_queues, &io_queue_count_ops, &poll_queues, 0644);
+ MODULE_PARM_DESC(poll_queues, "Number of queues to use for polled IO.");
+ 
+ struct nvme_dev;
+@@ -3140,8 +3156,6 @@ static int __init nvme_init(void)
+ 	BUILD_BUG_ON(sizeof(struct nvme_delete_queue) != 64);
+ 	BUILD_BUG_ON(IRQ_AFFINITY_MAX_SETS < 2);
+ 
+-	write_queues = min(write_queues, num_possible_cpus());
+-	poll_queues = min(poll_queues, num_possible_cpus());
+ 	return pci_register_driver(&nvme_driver);
+ }
+ 
 -- 
 2.25.1
 
