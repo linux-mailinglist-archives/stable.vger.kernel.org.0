@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CBC3200C58
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:47:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5799C200CE8
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:52:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387688AbgFSOoo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:44:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35926 "EHLO mail.kernel.org"
+        id S2389396AbgFSOvD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:51:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388597AbgFSOoj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:44:39 -0400
+        id S2389392AbgFSOvC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:51:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4914E21556;
-        Fri, 19 Jun 2020 14:44:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 763A520776;
+        Fri, 19 Jun 2020 14:51:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577878;
-        bh=ePq/fBYgkru+4gDc00SaMaz/zDT+26mobWEOghmA9Bc=;
+        s=default; t=1592578262;
+        bh=YgsRd3RmLnVM1wIbfeCexFiwLKDhAcn/ht2Pqp1VxRY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pUP9QsdH+ykKmQvkvkHdqtZt/X4rNH4E9GJo5mXpt8Is4OFxokvpWt3sdx10Hgoe8
-         mGdvcXs94u62QFoE4nt5IZ3kniOzuabU2T0BdpOm3ddePhEg5thzRis6cQxoaHlPDG
-         KWFYPk6gF1FXxU83jL5zIQkjVyPCBt+ZIretcK/A=
+        b=o7MbREqNr9hKe56kjJhmYfgkajb1SPsZ7hy0ykPxpnb2fPa+6AHoOkKesGfVoNc/f
+         w7k+bK6g3QirmZfFgoaUZ1rgnGnmdksvRX1o6CGY3VZey99MuN63KeHWjlHjoZ3BRr
+         BYn2gI5z8woCB5uksS8wJspSPuCB+vxSmaxRoNuc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 096/128] cpuidle: Fix three reference count leaks
+        stable@vger.kernel.org,
+        Harshad Shirwadkar <harshadshirwadkar@gmail.com>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 4.14 145/190] ext4: fix EXT_MAX_EXTENT/INDEX to check for zeroed eh_max
 Date:   Fri, 19 Jun 2020 16:33:10 +0200
-Message-Id: <20200619141625.211081982@linuxfoundation.org>
+Message-Id: <20200619141640.924168140@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
-References: <20200619141620.148019466@linuxfoundation.org>
+In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
+References: <20200619141633.446429600@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Harshad Shirwadkar <harshadshirwadkar@gmail.com>
 
-[ Upstream commit c343bf1ba5efcbf2266a1fe3baefec9cc82f867f ]
+commit c36a71b4e35ab35340facdd6964a00956b9fef0a upstream.
 
-kobject_init_and_add() takes reference even when it fails.
-If this function returns an error, kobject_put() must be called to
-properly clean up the memory associated with the object.
+If eh->eh_max is 0, EXT_MAX_EXTENT/INDEX would evaluate to unsigned
+(-1) resulting in illegal memory accesses. Although there is no
+consistent repro, we see that generic/019 sometimes crashes because of
+this bug.
 
-Previous commit "b8eb718348b8" fixed a similar problem.
+Ran gce-xfstests smoke and verified that there were no regressions.
 
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-[ rjw: Subject ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Harshad Shirwadkar <harshadshirwadkar@gmail.com>
+Link: https://lore.kernel.org/r/20200421023959.20879-2-harshadshirwadkar@gmail.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/cpuidle/sysfs.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/ext4/ext4_extents.h |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/cpuidle/sysfs.c b/drivers/cpuidle/sysfs.c
-index 9e98a5fbbc1d..e7e92ed34f0c 100644
---- a/drivers/cpuidle/sysfs.c
-+++ b/drivers/cpuidle/sysfs.c
-@@ -412,7 +412,7 @@ static int cpuidle_add_state_sysfs(struct cpuidle_device *device)
- 		ret = kobject_init_and_add(&kobj->kobj, &ktype_state_cpuidle,
- 					   &kdev->kobj, "state%d", i);
- 		if (ret) {
--			kfree(kobj);
-+			kobject_put(&kobj->kobj);
- 			goto error_state;
- 		}
- 		kobject_uevent(&kobj->kobj, KOBJ_ADD);
-@@ -542,7 +542,7 @@ static int cpuidle_add_driver_sysfs(struct cpuidle_device *dev)
- 	ret = kobject_init_and_add(&kdrv->kobj, &ktype_driver_cpuidle,
- 				   &kdev->kobj, "driver");
- 	if (ret) {
--		kfree(kdrv);
-+		kobject_put(&kdrv->kobj);
- 		return ret;
- 	}
+--- a/fs/ext4/ext4_extents.h
++++ b/fs/ext4/ext4_extents.h
+@@ -169,10 +169,13 @@ struct ext4_ext_path {
+ 	(EXT_FIRST_EXTENT((__hdr__)) + le16_to_cpu((__hdr__)->eh_entries) - 1)
+ #define EXT_LAST_INDEX(__hdr__) \
+ 	(EXT_FIRST_INDEX((__hdr__)) + le16_to_cpu((__hdr__)->eh_entries) - 1)
+-#define EXT_MAX_EXTENT(__hdr__) \
+-	(EXT_FIRST_EXTENT((__hdr__)) + le16_to_cpu((__hdr__)->eh_max) - 1)
++#define EXT_MAX_EXTENT(__hdr__)	\
++	((le16_to_cpu((__hdr__)->eh_max)) ? \
++	((EXT_FIRST_EXTENT((__hdr__)) + le16_to_cpu((__hdr__)->eh_max) - 1)) \
++					: 0)
+ #define EXT_MAX_INDEX(__hdr__) \
+-	(EXT_FIRST_INDEX((__hdr__)) + le16_to_cpu((__hdr__)->eh_max) - 1)
++	((le16_to_cpu((__hdr__)->eh_max)) ? \
++	((EXT_FIRST_INDEX((__hdr__)) + le16_to_cpu((__hdr__)->eh_max) - 1)) : 0)
  
-@@ -636,7 +636,7 @@ int cpuidle_add_sysfs(struct cpuidle_device *dev)
- 	error = kobject_init_and_add(&kdev->kobj, &ktype_cpuidle, &cpu_dev->kobj,
- 				   "cpuidle");
- 	if (error) {
--		kfree(kdev);
-+		kobject_put(&kdev->kobj);
- 		return error;
- 	}
- 
--- 
-2.25.1
-
+ static inline struct ext4_extent_header *ext_inode_hdr(struct inode *inode)
+ {
 
 
