@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 328CB200F9E
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:23:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CA8B200FA0
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:23:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404252AbgFSPTv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:19:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49204 "EHLO mail.kernel.org"
+        id S2391662AbgFSPT4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:19:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392597AbgFSPSx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:18:53 -0400
+        id S2403903AbgFSPTA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:19:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A566F218AC;
-        Fri, 19 Jun 2020 15:18:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E87472184D;
+        Fri, 19 Jun 2020 15:18:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579932;
-        bh=a7t4fStzPG3m+Up+iFgKY9RcL2ZlUDwF9z2e11dlUNg=;
+        s=default; t=1592579939;
+        bh=P9JcKZNM/8l/scsQa6x9Ys0iK7XhzU3x66U2UwdZeQk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G1JHG8CzYuqaLVyItvuBm4f7gcLUL3LavJ6ScZJNo7La2Zk4z4m9Eb5M+XtoDQxV7
-         7j4lstvepP7z5UxEF095qUTYHH6TBie79LJaOEGtnFeXhakkAyrgrOfK1u3BVfcVbS
-         ao4nVvtDp9iLcxUDaqek2OnyRwzJUFOt6cGWbTCE=
+        b=DPgWiUoB3A84rz2VvIf831tWXtZKyXyqbSF8lZFdSji5OMBZdDioic+2a6Ly7B6tx
+         nByrM41F8pKMYGoad1CHWleJhKQoJyv3Du5CzCtzSHaVDNUpd2KQIO15CqtCrMb8JC
+         m3QUtdsUpGoi/xzc198Z5KAa0LpY8JuuC661AtT4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Saravana Kannan <saravanak@google.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 059/376] clocksource/drivers/timer-versatile: Clear OF_POPULATED flag
-Date:   Fri, 19 Jun 2020 16:29:37 +0200
-Message-Id: <20200619141713.147241749@linuxfoundation.org>
+Subject: [PATCH 5.7 062/376] btrfs: account for trans_block_rsv in may_commit_transaction
+Date:   Fri, 19 Jun 2020 16:29:40 +0200
+Message-Id: <20200619141713.292497147@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -44,52 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saravana Kannan <saravanak@google.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit 7a3768c206a006525afc090f92d4d618d8356b92 ]
+[ Upstream commit bb4f58a747f0421b10645fbf75a6acc88da0de50 ]
 
-The commit 4f41fe386a94 ("clocksource/drivers/timer-probe: Avoid
-creating dead devices") broke the handling of arm,vexpress-sysreg [1].
+On ppc64le with 64k page size (respectively 64k block size) generic/320
+was failing and debug output showed we were getting a premature ENOSPC
+with a bunch of space in btrfs_fs_info::trans_block_rsv.
 
-The arm,vexpress-sysreg device is handled by both timer-versatile.c and
-drivers/mfd/vexpress-sysreg.c. While the timer driver doesn't use the
-device, the mfd driver still needs a device to probe.
+This meant there were still open transaction handles holding space, yet
+the flusher didn't commit the transaction because it deemed the freed
+space won't be enough to satisfy the current reserve ticket. Fix this
+by accounting for space in trans_block_rsv when deciding whether the
+current transaction should be committed or not.
 
-So, this patch clears the OF_POPULATED flag to continue creating the
-device.
-
-[1] - https://lore.kernel.org/lkml/20200324175955.GA16972@arm.com/
-
-Fixes: 4f41fe386a94 ("clocksource/drivers/timer-probe: Avoid creating dead devices")
-Signed-off-by: Saravana Kannan <saravanak@google.com>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20200324195302.203115-1-saravanak@google.com
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Tested-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/timer-versatile.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/btrfs/space-info.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/clocksource/timer-versatile.c b/drivers/clocksource/timer-versatile.c
-index e4ebb656d005..f5d017b31afa 100644
---- a/drivers/clocksource/timer-versatile.c
-+++ b/drivers/clocksource/timer-versatile.c
-@@ -6,6 +6,7 @@
- 
- #include <linux/clocksource.h>
- #include <linux/io.h>
-+#include <linux/of.h>
- #include <linux/of_address.h>
- #include <linux/sched_clock.h>
- 
-@@ -22,6 +23,8 @@ static int __init versatile_sched_clock_init(struct device_node *node)
- {
- 	void __iomem *base = of_iomap(node, 0);
- 
-+	of_node_clear_flag(node, OF_POPULATED);
+diff --git a/fs/btrfs/space-info.c b/fs/btrfs/space-info.c
+index ff17a4420358..3c0e9999bfd7 100644
+--- a/fs/btrfs/space-info.c
++++ b/fs/btrfs/space-info.c
+@@ -626,6 +626,7 @@ static int may_commit_transaction(struct btrfs_fs_info *fs_info,
+ 	struct reserve_ticket *ticket = NULL;
+ 	struct btrfs_block_rsv *delayed_rsv = &fs_info->delayed_block_rsv;
+ 	struct btrfs_block_rsv *delayed_refs_rsv = &fs_info->delayed_refs_rsv;
++	struct btrfs_block_rsv *trans_rsv = &fs_info->trans_block_rsv;
+ 	struct btrfs_trans_handle *trans;
+ 	u64 bytes_needed;
+ 	u64 reclaim_bytes = 0;
+@@ -688,6 +689,11 @@ static int may_commit_transaction(struct btrfs_fs_info *fs_info,
+ 	spin_lock(&delayed_refs_rsv->lock);
+ 	reclaim_bytes += delayed_refs_rsv->reserved;
+ 	spin_unlock(&delayed_refs_rsv->lock);
 +
- 	if (!base)
- 		return -ENXIO;
- 
++	spin_lock(&trans_rsv->lock);
++	reclaim_bytes += trans_rsv->reserved;
++	spin_unlock(&trans_rsv->lock);
++
+ 	if (reclaim_bytes >= bytes_needed)
+ 		goto commit;
+ 	bytes_needed -= reclaim_bytes;
 -- 
 2.25.1
 
