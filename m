@@ -2,49 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8CA8201756
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:46:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 224A3201824
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:48:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391716AbgFSQhU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:37:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41122 "EHLO mail.kernel.org"
+        id S2405029AbgFSQr3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:47:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389114AbgFSOsl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:48:41 -0400
+        id S2387407AbgFSOlI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:41:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5DD9320DD4;
-        Fri, 19 Jun 2020 14:48:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A14E920A8B;
+        Fri, 19 Jun 2020 14:41:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578121;
-        bh=ve5sv8gFv7HyvXD4yB6SaZpZw1HlQaywAYRES+51m3s=;
+        s=default; t=1592577666;
+        bh=j3L0vg0sqCLdsfzZaqiXwRkts1w+MR6PXYLFGuIKpHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uasq3+i10zLuwbruq54uDa7MlQR45RsLcu0xPnaCDbJtneAg/76y7kfK3RTpV2hYw
-         WLSBdpN1Dgf2DEe1ucNiD7E2R8NTG9xTktYPqtY2lFGrheh5F8Nxt8fDDvzNtkSJLY
-         JF2ankGp7G8gsNiCw4dziYOvhSsWZVTqzN8ZszK0=
+        b=uroFFYb2Kty2YitC38LKs6V75khaWOCIr2bev0Ogl3IIUoyCzbhHvCIISlWiyvLlI
+         Q4EJRkCpxNaiTMnYf1mO2Q9ZNAB9J/fAv87nn6wVzpqv48tQo/vaTBcB0nB4t9mhDG
+         NRWJuPneM94X5qGxRxG4w0ZPl0ff/wq6wGN8596k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Paul Burton <paulburton@kernel.org>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Rob Herring <robh+dt@kernel.org>, linux-mips@vger.kernel.org,
-        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 089/190] clocksource: dw_apb_timer_of: Fix missing clockevent timers
+        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
+        Xing Li <lixing@loongson.cn>, Huacai Chen <chenhc@lemote.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.9 040/128] KVM: MIPS: Define KVM_ENTRYHI_ASID to cpu_asid_mask(&boot_cpu_data)
 Date:   Fri, 19 Jun 2020 16:32:14 +0200
-Message-Id: <20200619141638.035550445@linuxfoundation.org>
+Message-Id: <20200619141622.332370606@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
-References: <20200619141633.446429600@linuxfoundation.org>
+In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
+References: <20200619141620.148019466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,74 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: Xing Li <lixing@loongson.cn>
 
-[ Upstream commit 6d2e16a3181bafb77b535095c39ad1c8b9558c8c ]
+commit fe2b73dba47fb6d6922df1ad44e83b1754d5ed4d upstream.
 
-Commit 100214889973 ("clocksource: dw_apb_timer_of: use
-clocksource_of_init") replaced a publicly available driver
-initialization method with one called by the timer_probe() method
-available after CLKSRC_OF. In current implementation it traverses
-all the timers available in the system and calls their initialization
-methods if corresponding devices were either in dtb or in acpi. But
-if before the commit any number of available timers would be installed
-as clockevent and clocksource devices, after that there would be at most
-two. The rest are just ignored since default case branch doesn't do
-anything. I don't see a reason of such behaviour, neither the commit
-message explains it. Moreover this might be wrong if on some platforms
-these timers might be used for different purpose, as virtually CPU-local
-clockevent timers and as an independent broadcast timer. So in order
-to keep the compatibility with the platforms where the order of the
-timers detection has some meaning, lets add the secondly discovered
-timer to be of clocksource/sched_clock type, while the very first and
-the others would provide the clockevents service.
+The code in decode_config4() of arch/mips/kernel/cpu-probe.c
 
-Fixes: 100214889973 ("clocksource: dw_apb_timer_of: use clocksource_of_init")
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Cc: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: Paul Burton <paulburton@kernel.org>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: linux-mips@vger.kernel.org
-Cc: linux-rtc@vger.kernel.org
-Cc: devicetree@vger.kernel.org
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20200521204818.25436-7-Sergey.Semin@baikalelectronics.ru
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+        asid_mask = MIPS_ENTRYHI_ASID;
+        if (config4 & MIPS_CONF4_AE)
+                asid_mask |= MIPS_ENTRYHI_ASIDX;
+        set_cpu_asid_mask(c, asid_mask);
+
+set asid_mask to cpuinfo->asid_mask.
+
+So in order to support variable ASID_MASK, KVM_ENTRYHI_ASID should also
+be changed to cpu_asid_mask(&boot_cpu_data).
+
+Cc: Stable <stable@vger.kernel.org>  #4.9+
+Reviewed-by: Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>
+Signed-off-by: Xing Li <lixing@loongson.cn>
+[Huacai: Change current_cpu_data to boot_cpu_data for optimization]
+Signed-off-by: Huacai Chen <chenhc@lemote.com>
+Message-Id: <1590220602-3547-2-git-send-email-chenhc@lemote.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/clocksource/dw_apb_timer_of.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ arch/mips/include/asm/kvm_host.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clocksource/dw_apb_timer_of.c b/drivers/clocksource/dw_apb_timer_of.c
-index 69866cd8f4bb..3e4d0e5733d3 100644
---- a/drivers/clocksource/dw_apb_timer_of.c
-+++ b/drivers/clocksource/dw_apb_timer_of.c
-@@ -146,10 +146,6 @@ static int num_called;
- static int __init dw_apb_timer_init(struct device_node *timer)
- {
- 	switch (num_called) {
--	case 0:
--		pr_debug("%s: found clockevent timer\n", __func__);
--		add_clockevent(timer);
--		break;
- 	case 1:
- 		pr_debug("%s: found clocksource timer\n", __func__);
- 		add_clocksource(timer);
-@@ -160,6 +156,8 @@ static int __init dw_apb_timer_init(struct device_node *timer)
- #endif
- 		break;
- 	default:
-+		pr_debug("%s: found clockevent timer\n", __func__);
-+		add_clockevent(timer);
- 		break;
- 	}
+--- a/arch/mips/include/asm/kvm_host.h
++++ b/arch/mips/include/asm/kvm_host.h
+@@ -244,7 +244,7 @@ enum emulation_result {
+ #define MIPS3_PG_FRAME		0x3fffffc0
  
--- 
-2.25.1
-
+ #define VPN2_MASK		0xffffe000
+-#define KVM_ENTRYHI_ASID	MIPS_ENTRYHI_ASID
++#define KVM_ENTRYHI_ASID	cpu_asid_mask(&boot_cpu_data)
+ #define TLB_IS_GLOBAL(x)	((x).tlb_lo[0] & (x).tlb_lo[1] & ENTRYLO_G)
+ #define TLB_VPN2(x)		((x).tlb_hi & VPN2_MASK)
+ #define TLB_ASID(x)		((x).tlb_hi & KVM_ENTRYHI_ASID)
 
 
