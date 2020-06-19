@@ -2,48 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88A52201808
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:48:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54CAE2015E0
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:32:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405049AbgFSQqJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:46:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60264 "EHLO mail.kernel.org"
+        id S2390421AbgFSQXz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:23:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388278AbgFSOli (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:41:38 -0400
+        id S2388025AbgFSO6r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:58:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 539D320A8B;
-        Fri, 19 Jun 2020 14:41:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C114521973;
+        Fri, 19 Jun 2020 14:58:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577697;
-        bh=nf6WbXus/fRJsbsMaoNzI2UGOISYEAtpLYyvozpfqfY=;
+        s=default; t=1592578727;
+        bh=UsEG3iC+oiPsZweDeQ31oi9Cjb/xTjbfwlSd+iowqvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z9+ciDKziNgZa/IkZug6IKeIxQoUTkeQholgIknAek2KS0ggzqi+TGkNmsaLlOTy6
-         CZFgttQFK/TH+kYVIQYxSyqwAoLIIlfAUb2a7YFg0SzBDUG6g63HTiyduXzmoeSUaI
-         R7xyA4kQ0FlVCadI5BiYAKJxRJLwlUcnFhARGpKU=
+        b=PWKfuF7XVjgTVbZht4x0lHC6lDFMbjfLabunDHIGBjaaz6uEBr+lDaLyahhPaHTy3
+         0Aqzv0oYWD/7LDXdPbLdAH53Y9dk+PSJdHGfVploHVTuH0a3iRhypwDC9caPj1aUJK
+         p9oFlXXAbA8+NsZrQkIM0DxBytvF87f99UJozaQs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
-        Borislav Petkov <bp@suse.de>, "H. Peter Anvin" <hpa@zytor.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        David Woodhouse <dwmw@amazon.co.uk>,
-        Ingo Molnar <mingo@redhat.com>, Jiri Kosina <jkosina@suse.cz>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        KarimAllah Ahmed <karahmed@amazon.de>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Tim Chen <tim.c.chen@linux.intel.com>, x86-ml <x86@kernel.org>,
+        stable@vger.kernel.org, Dmitry Golovin <dima@golovin.in>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 025/128] x86/speculation: Change misspelled STIPB to STIBP
+Subject: [PATCH 4.19 134/267] lib/mpi: Fix 64-bit MIPS build with Clang
 Date:   Fri, 19 Jun 2020 16:31:59 +0200
-Message-Id: <20200619141621.505130315@linuxfoundation.org>
+Message-Id: <20200619141655.256732518@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
-References: <20200619141620.148019466@linuxfoundation.org>
+In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
+References: <20200619141648.840376470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,79 +45,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit aa77bfb354c495fc4361199e63fc5765b9e1e783 ]
+[ Upstream commit 18f1ca46858eac22437819937ae44aa9a8f9f2fa ]
 
-STIBP stands for Single Thread Indirect Branch Predictors. The acronym,
-however, can be easily mis-spelled as STIPB. It is perhaps due to the
-presence of another related term - IBPB (Indirect Branch Predictor
-Barrier).
+When building 64r6_defconfig with CONFIG_MIPS32_O32 disabled and
+CONFIG_CRYPTO_RSA enabled:
 
-Fix the mis-spelling in the code.
+lib/mpi/generic_mpih-mul1.c:37:24: error: invalid use of a cast in a
+inline asm context requiring an l-value: remove the cast
+or build with -fheinous-gnu-extensions
+                umul_ppmm(prod_high, prod_low, s1_ptr[j], s2_limb);
+                ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+lib/mpi/longlong.h:664:22: note: expanded from macro 'umul_ppmm'
+                 : "=d" ((UDItype)(w0))
+                         ~~~~~~~~~~^~~
+lib/mpi/generic_mpih-mul1.c:37:13: error: invalid use of a cast in a
+inline asm context requiring an l-value: remove the cast
+or build with -fheinous-gnu-extensions
+                umul_ppmm(prod_high, prod_low, s1_ptr[j], s2_limb);
+                ~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+lib/mpi/longlong.h:668:22: note: expanded from macro 'umul_ppmm'
+                 : "=d" ((UDItype)(w1))
+                         ~~~~~~~~~~^~~
+2 errors generated.
 
-Signed-off-by: Waiman Long <longman@redhat.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: David Woodhouse <dwmw@amazon.co.uk>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jiri Kosina <jkosina@suse.cz>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: KarimAllah Ahmed <karahmed@amazon.de>
-Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Tim Chen <tim.c.chen@linux.intel.com>
-Cc: x86-ml <x86@kernel.org>
-Link: https://lkml.kernel.org/r/1544039368-9009-1-git-send-email-longman@redhat.com
+This special case for umul_ppmm for MIPS64r6 was added in
+commit bbc25bee37d2b ("lib/mpi: Fix umul_ppmm() for MIPS64r6"), due to
+GCC being inefficient and emitting a __multi3 intrinsic.
+
+There is no such issue with clang; with this patch applied, I can build
+this configuration without any problems and there are no link errors
+like mentioned in the commit above (which I can still reproduce with
+GCC 9.3.0 when that commit is reverted). Only use this definition when
+GCC is being used.
+
+This really should have been caught by commit b0c091ae04f67 ("lib/mpi:
+Eliminate unused umul_ppmm definitions for MIPS") when I was messing
+around in this area but I was not testing 64-bit MIPS at the time.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/885
+Reported-by: Dmitry Golovin <dima@golovin.in>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/bugs.c | 6 +++---
- arch/x86/kernel/process.h  | 2 +-
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ lib/mpi/longlong.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
-index 5ef0a2b34261..704ffc01a226 100644
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -60,7 +60,7 @@ static u64 __ro_after_init x86_spec_ctrl_mask = SPEC_CTRL_IBRS;
- u64 __ro_after_init x86_amd_ls_cfg_base;
- u64 __ro_after_init x86_amd_ls_cfg_ssbd_mask;
- 
--/* Control conditional STIPB in switch_to() */
-+/* Control conditional STIBP in switch_to() */
- DEFINE_STATIC_KEY_FALSE(switch_to_cond_stibp);
- /* Control conditional IBPB in switch_mm() */
- DEFINE_STATIC_KEY_FALSE(switch_mm_cond_ibpb);
-@@ -749,12 +749,12 @@ spectre_v2_user_select_mitigation(enum spectre_v2_mitigation_cmd v2_cmd)
- 			"always-on" : "conditional");
- 	}
- 
--	/* If enhanced IBRS is enabled no STIPB required */
-+	/* If enhanced IBRS is enabled no STIBP required */
- 	if (spectre_v2_enabled == SPECTRE_V2_IBRS_ENHANCED)
- 		return;
- 
- 	/*
--	 * If SMT is not possible or STIBP is not available clear the STIPB
-+	 * If SMT is not possible or STIBP is not available clear the STIBP
- 	 * mode.
- 	 */
- 	if (!smt_possible || !boot_cpu_has(X86_FEATURE_STIBP))
-diff --git a/arch/x86/kernel/process.h b/arch/x86/kernel/process.h
-index 898e97cf6629..320ab978fb1f 100644
---- a/arch/x86/kernel/process.h
-+++ b/arch/x86/kernel/process.h
-@@ -19,7 +19,7 @@ static inline void switch_to_extra(struct task_struct *prev,
- 	if (IS_ENABLED(CONFIG_SMP)) {
- 		/*
- 		 * Avoid __switch_to_xtra() invocation when conditional
--		 * STIPB is disabled and the only different bit is
-+		 * STIBP is disabled and the only different bit is
- 		 * TIF_SPEC_IB. For CONFIG_SMP=n TIF_SPEC_IB is not
- 		 * in the TIF_WORK_CTXSW masks.
- 		 */
+diff --git a/lib/mpi/longlong.h b/lib/mpi/longlong.h
+index e01b705556aa..6c5229f98c9e 100644
+--- a/lib/mpi/longlong.h
++++ b/lib/mpi/longlong.h
+@@ -671,7 +671,7 @@ do {						\
+ 	**************  MIPS/64  **************
+ 	***************************************/
+ #if (defined(__mips) && __mips >= 3) && W_TYPE_SIZE == 64
+-#if defined(__mips_isa_rev) && __mips_isa_rev >= 6
++#if defined(__mips_isa_rev) && __mips_isa_rev >= 6 && defined(CONFIG_CC_IS_GCC)
+ /*
+  * GCC ends up emitting a __multi3 intrinsic call for MIPS64r6 with the plain C
+  * code below, so we special case MIPS64r6 until the compiler can do better.
 -- 
 2.25.1
 
