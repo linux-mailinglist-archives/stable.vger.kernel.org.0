@@ -2,35 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75496201340
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:01:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 657C620132C
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:01:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392231AbgFSP71 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:59:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49958 "EHLO mail.kernel.org"
+        id S2392994AbgFSP6J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:58:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390447AbgFSPTL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:19:11 -0400
+        id S2404209AbgFSPTk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:19:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B8D8321582;
-        Fri, 19 Jun 2020 15:19:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E8D9E206DB;
+        Fri, 19 Jun 2020 15:19:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579950;
-        bh=5KjT2Q7sslPxO+QD3x+tYDerEQL9bSgfkWmtLzJrTJI=;
+        s=default; t=1592579979;
+        bh=3YAXEK4s/GPg8WqzWmTln3TcNkCmuYxwrw8nQ+1yss8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2mCzcThRbZBOZgusM4OUEs3yisoIaj4tccXmbDBU9Z8KG7doC17hmkWlfimz90Kar
-         d9K6/q5XwcGGFU2UzBBdMVmFBpvd6XZhiUahTDgPQo4H0yTzexPFfJkaDdTcwzab07
-         hpyGV5+96/lMPX/lSkBfd17x7sggsKcpY09XJbJ4=
+        b=2FCsCzLyLQOVZRe0Pl0ic9nc3oaAtsl770fvdBVBTRa9X0J1NOBrUckLVjIYJuR60
+         n/tD1CH1ZCm9j3Pb+KBJVontlRz8kro/x1zHXJ3Aylikh8hCaBpDMQcv8UKGYvRDqN
+         pcOpUdz8ySNszKDhHS53wqNWg3lmcEylwX06j0T8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org,
+        Dafna Hirschfeld <dafna.hirschfeld@collabora.com>,
+        Helen Koike <helen.koike@collabora.com>,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>,
+        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 048/376] io_uring: cleanup io_poll_remove_one() logic
-Date:   Fri, 19 Jun 2020 16:29:26 +0200
-Message-Id: <20200619141712.629967948@linuxfoundation.org>
+Subject: [PATCH 5.7 049/376] media: i2c: imx219: Fix a bug in imx219_enum_frame_size
+Date:   Fri, 19 Jun 2020 16:29:27 +0200
+Message-Id: <20200619141712.675319974@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -43,71 +49,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
 
-[ Upstream commit 3bfa5bcb26f0b52d7ae8416aa0618fff21aceaaf ]
+[ Upstream commit b2bbf1aac61186ef904fd28079e847d3feadb89e ]
 
-We only need apoll in the one section, do the juggling with the work
-restoration there. This removes a special case further down as well.
+When enumerating the frame sizes, the value sent to
+imx219_get_format_code should be fse->code
+(the code from the ioctl) and not imx219->fmt.code
+which is the code set currently in the driver.
 
-No functional changes in this patch.
-
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 22da1d56e982 ("media: i2c: imx219: Add support for RAW8 bit bayer format")
+Signed-off-by: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
+Reviewed-by: Helen Koike <helen.koike@collabora.com>
+Reviewed-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Reviewed-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 27 +++++++++++++--------------
- 1 file changed, 13 insertions(+), 14 deletions(-)
+ drivers/media/i2c/imx219.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index f071505e3430..07d9414268f1 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -4354,32 +4354,31 @@ static bool __io_poll_remove_one(struct io_kiocb *req,
- 		do_complete = true;
- 	}
- 	spin_unlock(&poll->head->lock);
-+	hash_del(&req->hash_node);
- 	return do_complete;
- }
+diff --git a/drivers/media/i2c/imx219.c b/drivers/media/i2c/imx219.c
+index cb03bdec1f9c..86e0564bfb4f 100644
+--- a/drivers/media/i2c/imx219.c
++++ b/drivers/media/i2c/imx219.c
+@@ -781,7 +781,7 @@ static int imx219_enum_frame_size(struct v4l2_subdev *sd,
+ 	if (fse->index >= ARRAY_SIZE(supported_modes))
+ 		return -EINVAL;
  
- static bool io_poll_remove_one(struct io_kiocb *req)
- {
--	struct async_poll *apoll = NULL;
- 	bool do_complete;
+-	if (fse->code != imx219_get_format_code(imx219, imx219->fmt.code))
++	if (fse->code != imx219_get_format_code(imx219, fse->code))
+ 		return -EINVAL;
  
- 	if (req->opcode == IORING_OP_POLL_ADD) {
- 		do_complete = __io_poll_remove_one(req, &req->poll);
- 	} else {
--		apoll = req->apoll;
-+		struct async_poll *apoll = req->apoll;
-+
- 		/* non-poll requests have submit ref still */
--		do_complete = __io_poll_remove_one(req, &req->apoll->poll);
--		if (do_complete)
-+		do_complete = __io_poll_remove_one(req, &apoll->poll);
-+		if (do_complete) {
- 			io_put_req(req);
--	}
--
--	hash_del(&req->hash_node);
--
--	if (do_complete && apoll) {
--		/*
--		 * restore ->work because we need to call io_req_work_drop_env.
--		 */
--		memcpy(&req->work, &apoll->work, sizeof(req->work));
--		kfree(apoll);
-+			/*
-+			 * restore ->work because we will call
-+			 * io_req_work_drop_env below when dropping the
-+			 * final reference.
-+			 */
-+			memcpy(&req->work, &apoll->work, sizeof(req->work));
-+			kfree(apoll);
-+		}
- 	}
- 
- 	if (do_complete) {
+ 	fse->min_width = supported_modes[fse->index].width;
 -- 
 2.25.1
 
