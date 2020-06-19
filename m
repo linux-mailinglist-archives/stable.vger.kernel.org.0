@@ -2,44 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8525E20161E
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:32:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8FE52016E1
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:45:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390160AbgFSQ0r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:26:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51816 "EHLO mail.kernel.org"
+        id S2388766AbgFSOpw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:45:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390126AbgFSO4o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:56:44 -0400
+        id S2388761AbgFSOpw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:45:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C5C421852;
-        Fri, 19 Jun 2020 14:56:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BC72420A8B;
+        Fri, 19 Jun 2020 14:45:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578604;
-        bh=cNEPnpJuqJuNxVcYVsD15L0dyU2BmeLWUz8WDDfN57w=;
+        s=default; t=1592577951;
+        bh=yVlSZ/n9zmirRQUKA//+cMaYSvBlSctS/WZL1Q04WAM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eLsCfj3xvz8vz/gQPj7rZysU8EpQ76VpVHG08ka7RJKEFafheO5rwzZaY241Z+Avm
-         U9/4eX1+Wi2lYdZPTTFWaPiBE3GpW5Po3lJsBdy9jXqhVuEwfPyHigjc3M0y8Wckp1
-         9eBXRJFT5jjdEafN+Q5VB48bLdXGPgoxPV7JOuJo=
+        b=N81JUJ6/gDuUW9NSqCrTNKa4lGOrg9eH1V8uZPpuLg42XrlyARnyRAy2hzpTzkpdj
+         nLeACaNlU7KipB//JnuRpnJz8cclNZKBGZoOwkMoh76zpuJYg3IZRVRFrR6R+mc1CL
+         APKzCOD3igMLdl4mSZqd1HKZcfhk5s9ZsmjepqMw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Hai <wanghai38@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Christoph Lameter <cl@linux.com>,
-        Pekka Enberg <penberg@kernel.org>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 084/267] mm/slub: fix a memory leak in sysfs_slab_add()
-Date:   Fri, 19 Jun 2020 16:31:09 +0200
-Message-Id: <20200619141652.922828053@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Macpaul Lin <macpaul.lin@mediatek.com>
+Subject: [PATCH 4.14 025/190] ALSA: usb-audio: Fix inconsistent card PM state after resume
+Date:   Fri, 19 Jun 2020 16:31:10 +0200
+Message-Id: <20200619141634.767771607@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
-References: <20200619141648.840376470@linuxfoundation.org>
+In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
+References: <20200619141633.446429600@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,77 +43,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit dde3c6b72a16c2db826f54b2d49bdea26c3534a2 upstream.
+commit 862b2509d157c629dd26d7ac6c6cdbf043d332eb upstream.
 
-syzkaller reports for memory leak when kobject_init_and_add() returns an
-error in the function sysfs_slab_add() [1]
+When a USB-audio interface gets runtime-suspended via auto-pm feature,
+the driver suspends all functionality and increment
+chip->num_suspended_intf.  Later on, when the system gets suspended to
+S3, the driver increments chip->num_suspended_intf again, skips the
+device changes, and sets the card power state to
+SNDRV_CTL_POWER_D3hot.  In return, when the system gets resumed from
+S3, the resume callback decrements chip->num_suspended_intf.  Since
+this refcount is still not zero (it's been runtime-suspended), the
+whole resume is skipped.  But there is a small pitfall here.
 
-When this happened, the function kobject_put() is not called for the
-corresponding kobject, which potentially leads to memory leak.
+The problem is that the driver doesn't restore the card power state
+after this resume call, leaving it as SNDRV_CTL_POWER_D3hot.  So,
+even after the system resume finishes, the card instance still appears
+as if it were system-suspended, and this confuses many ioctl accesses
+that are blocked unexpectedly.
 
-This patch fixes the issue by calling kobject_put() even if
-kobject_init_and_add() fails.
+In details, we have two issues behind the scene: one is that the card
+power state is changed only when the refcount becomes zero, and
+another is that the prior auto-suspend check is kept in a boolean
+flag.  Although the latter problem is almost negligible since the
+auto-pm feature is imposed only on the primary interface, but this can
+be a potential problem on the devices with multiple interfaces.
 
-[1]
-  BUG: memory leak
-  unreferenced object 0xffff8880a6d4be88 (size 8):
-  comm "syz-executor.3", pid 946, jiffies 4295772514 (age 18.396s)
-  hex dump (first 8 bytes):
-    70 69 64 5f 33 00 ff ff                          pid_3...
-  backtrace:
-     kstrdup+0x35/0x70 mm/util.c:60
-     kstrdup_const+0x3d/0x50 mm/util.c:82
-     kvasprintf_const+0x112/0x170 lib/kasprintf.c:48
-     kobject_set_name_vargs+0x55/0x130 lib/kobject.c:289
-     kobject_add_varg lib/kobject.c:384 [inline]
-     kobject_init_and_add+0xd8/0x170 lib/kobject.c:473
-     sysfs_slab_add+0x1d8/0x290 mm/slub.c:5811
-     __kmem_cache_create+0x50a/0x570 mm/slub.c:4384
-     create_cache+0x113/0x1e0 mm/slab_common.c:407
-     kmem_cache_create_usercopy+0x1a1/0x260 mm/slab_common.c:505
-     kmem_cache_create+0xd/0x10 mm/slab_common.c:564
-     create_pid_cachep kernel/pid_namespace.c:54 [inline]
-     create_pid_namespace kernel/pid_namespace.c:96 [inline]
-     copy_pid_ns+0x77c/0x8f0 kernel/pid_namespace.c:148
-     create_new_namespaces+0x26b/0xa30 kernel/nsproxy.c:95
-     unshare_nsproxy_namespaces+0xa7/0x1e0 kernel/nsproxy.c:229
-     ksys_unshare+0x3d2/0x770 kernel/fork.c:2969
-     __do_sys_unshare kernel/fork.c:3037 [inline]
-     __se_sys_unshare kernel/fork.c:3035 [inline]
-     __x64_sys_unshare+0x2d/0x40 kernel/fork.c:3035
-     do_syscall_64+0xa1/0x530 arch/x86/entry/common.c:295
+This patch addresses those issues by the following:
 
-Fixes: 80da026a8e5d ("mm/slub: fix slab double-free in case of duplicate sysfs filename")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Link: http://lkml.kernel.org/r/20200602115033.1054-1-wanghai38@huawei.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+- Replace chip->autosuspended boolean flag with chip->system_suspend
+  counter
+
+- At the first system-suspend, chip->num_suspended_intf is recorded to
+  chip->system_suspend
+
+- At system-resume, the card power state is restored when the
+  chip->num_suspended_intf refcount reaches to chip->system_suspend,
+  i.e. the state returns to the auto-suspended
+
+Also, the patch fixes yet another hidden problem by the code
+refactoring along with the fixes above: namely, when some resume
+procedure failed, the driver left chip->num_suspended_intf that was
+already decreased, and it might lead to the refcount unbalance.
+In the new code, the refcount decrement is done after the whole resume
+procedure, and the problem is avoided as well.
+
+Fixes: 0662292aec05 ("ALSA: usb-audio: Handle normal and auto-suspend equally")
+Reported-and-tested-by: Macpaul Lin <macpaul.lin@mediatek.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200603153709.6293-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/slub.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/usb/card.c     |   20 +++++++++++++-------
+ sound/usb/usbaudio.h |    2 +-
+ 2 files changed, 14 insertions(+), 8 deletions(-)
 
---- a/mm/slub.c
-+++ b/mm/slub.c
-@@ -5738,8 +5738,10 @@ static int sysfs_slab_add(struct kmem_ca
+--- a/sound/usb/card.c
++++ b/sound/usb/card.c
+@@ -768,9 +768,6 @@ static int usb_audio_suspend(struct usb_
+ 	if (chip == (void *)-1L)
+ 		return 0;
  
- 	s->kobj.kset = kset;
- 	err = kobject_init_and_add(&s->kobj, &slab_ktype, NULL, "%s", name);
--	if (err)
-+	if (err) {
-+		kobject_put(&s->kobj);
- 		goto out;
+-	chip->autosuspended = !!PMSG_IS_AUTO(message);
+-	if (!chip->autosuspended)
+-		snd_power_change_state(chip->card, SNDRV_CTL_POWER_D3hot);
+ 	if (!chip->num_suspended_intf++) {
+ 		list_for_each_entry(as, &chip->pcm_list, list) {
+ 			snd_pcm_suspend_all(as->pcm);
+@@ -783,6 +780,11 @@ static int usb_audio_suspend(struct usb_
+ 			snd_usb_mixer_suspend(mixer);
+ 	}
+ 
++	if (!PMSG_IS_AUTO(message) && !chip->system_suspend) {
++		snd_power_change_state(chip->card, SNDRV_CTL_POWER_D3hot);
++		chip->system_suspend = chip->num_suspended_intf;
 +	}
++
+ 	return 0;
+ }
  
- 	err = sysfs_create_group(&s->kobj, &slab_attr_group);
- 	if (err)
+@@ -795,10 +797,11 @@ static int __usb_audio_resume(struct usb
+ 
+ 	if (chip == (void *)-1L)
+ 		return 0;
+-	if (--chip->num_suspended_intf)
+-		return 0;
+ 
+ 	atomic_inc(&chip->active); /* avoid autopm */
++	if (chip->num_suspended_intf > 1)
++		goto out;
++
+ 	/*
+ 	 * ALSA leaves material resumption to user space
+ 	 * we just notify and restart the mixers
+@@ -813,9 +816,12 @@ static int __usb_audio_resume(struct usb
+ 		snd_usbmidi_resume(p);
+ 	}
+ 
+-	if (!chip->autosuspended)
++ out:
++	if (chip->num_suspended_intf == chip->system_suspend) {
+ 		snd_power_change_state(chip->card, SNDRV_CTL_POWER_D0);
+-	chip->autosuspended = 0;
++		chip->system_suspend = 0;
++	}
++	chip->num_suspended_intf--;
+ 
+ err_out:
+ 	atomic_dec(&chip->active); /* allow autopm after this point */
+--- a/sound/usb/usbaudio.h
++++ b/sound/usb/usbaudio.h
+@@ -37,7 +37,7 @@ struct snd_usb_audio {
+ 	struct usb_interface *pm_intf;
+ 	u32 usb_id;
+ 	struct mutex mutex;
+-	unsigned int autosuspended:1;	
++	unsigned int system_suspend;
+ 	atomic_t active;
+ 	atomic_t shutdown;
+ 	atomic_t usage_count;
 
 
