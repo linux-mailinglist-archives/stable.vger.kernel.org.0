@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0207D2010FE
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:37:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CBC6201101
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:37:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404823AbgFSPgt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2404819AbgFSPgt (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 19 Jun 2020 11:36:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34766 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:34828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404463AbgFSPau (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:30:50 -0400
+        id S2404817AbgFSPav (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:30:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E20B520757;
-        Fri, 19 Jun 2020 15:30:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 818C320734;
+        Fri, 19 Jun 2020 15:30:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580648;
-        bh=pl+gPSi2eCibttM7+mX+0j8F6Js2Zgowf5rgnz84zFU=;
+        s=default; t=1592580651;
+        bh=7LFZjE6VzhV8QzbPwumbo7+c/KPcY+V7r3MsGoHhnmA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fdv8isI6ye8BapLXgyTHD29m5J8jLwNgNgxY3JX3KAD51CC/kbNas9Cep0DCJ3Bks
-         ASIicwg3y/f9IAcS10hMNKDZATNjrqeYspLKbmUL7jm8jQRnHokL6Gs+FE8jbfgi0p
-         EyfAXm62ihakVtHRD46JFALKwqKTtEv3LVjAhv5E=
+        b=KtGDm+dVjQiaBbxJzknsyea77DbWAyvwaj3kEc1Qx9waUIY5gzi4NRPqFVFOYc5ag
+         ITFH0049asqHEHxZGWBfs1hiBjW9ucqIEhunI8ZS6PmO70BhBrrGIDR+VLciemAuc8
+         +Q/p/IUzNGU+rjkOfmOtbPX9X7WcLSZ12s7GUoUs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Hari Bathini <hbathini@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.7 329/376] powerpc/fadump: Account for memory_limit while reserving memory
-Date:   Fri, 19 Jun 2020 16:34:07 +0200
-Message-Id: <20200619141725.906461903@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: [PATCH 5.7 330/376] kernel/cpu_pm: Fix uninitted local in cpu_pm
+Date:   Fri, 19 Jun 2020 16:34:08 +0200
+Message-Id: <20200619141725.954930518@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -44,37 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hari Bathini <hbathini@linux.ibm.com>
+From: Douglas Anderson <dianders@chromium.org>
 
-commit 9a2921e5baca1d25eb8d21f21d1e90581a6d0f68 upstream.
+commit b5945214b76a1f22929481724ffd448000ede914 upstream.
 
-If the memory chunk found for reserving memory overshoots the memory
-limit imposed, do not proceed with reserving memory. Default behavior
-was this until commit 140777a3d8df ("powerpc/fadump: consider reserved
-ranges while reserving memory") changed it unwittingly.
+cpu_pm_notify() is basically a wrapper of notifier_call_chain().
+notifier_call_chain() doesn't initialize *nr_calls to 0 before it
+starts incrementing it--presumably it's up to the callers to do this.
 
-Fixes: 140777a3d8df ("powerpc/fadump: consider reserved ranges while reserving memory")
+Unfortunately the callers of cpu_pm_notify() don't init *nr_calls.
+This potentially means you could get too many or two few calls to
+CPU_PM_ENTER_FAILED or CPU_CLUSTER_PM_ENTER_FAILED depending on the
+luck of the stack.
+
+Let's fix this.
+
+Fixes: ab10023e0088 ("cpu_pm: Add cpu power management notifiers")
 Cc: stable@vger.kernel.org
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Hari Bathini <hbathini@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/159057266320.22331.6571453892066907320.stgit@hbathini.in.ibm.com
+Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Link: https://lore.kernel.org/r/20200504104917.v6.3.I2d44fc0053d019f239527a4e5829416714b7e299@changeid
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/fadump.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/cpu_pm.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/kernel/fadump.c
-+++ b/arch/powerpc/kernel/fadump.c
-@@ -603,7 +603,7 @@ int __init fadump_reserve_mem(void)
- 		 */
- 		base = fadump_locate_reserve_mem(base, size);
+--- a/kernel/cpu_pm.c
++++ b/kernel/cpu_pm.c
+@@ -80,7 +80,7 @@ EXPORT_SYMBOL_GPL(cpu_pm_unregister_noti
+  */
+ int cpu_pm_enter(void)
+ {
+-	int nr_calls;
++	int nr_calls = 0;
+ 	int ret = 0;
  
--		if (!base) {
-+		if (!base || (base + size > mem_boundary)) {
- 			pr_err("Failed to find memory chunk for reservation!\n");
- 			goto error_out;
- 		}
+ 	ret = cpu_pm_notify(CPU_PM_ENTER, -1, &nr_calls);
+@@ -131,7 +131,7 @@ EXPORT_SYMBOL_GPL(cpu_pm_exit);
+  */
+ int cpu_cluster_pm_enter(void)
+ {
+-	int nr_calls;
++	int nr_calls = 0;
+ 	int ret = 0;
+ 
+ 	ret = cpu_pm_notify(CPU_CLUSTER_PM_ENTER, -1, &nr_calls);
 
 
