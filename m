@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E2CB201547
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:22:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11E7520139A
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:07:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394509AbgFSQU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:20:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57800 "EHLO mail.kernel.org"
+        id S2403867AbgFSPMI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:12:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390410AbgFSPBY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:01:24 -0400
+        id S2403859AbgFSPMG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:12:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 12A3720776;
-        Fri, 19 Jun 2020 15:01:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7CF5F2158C;
+        Fri, 19 Jun 2020 15:12:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578884;
-        bh=AWo+FzPtuscLoyhgxZsRwU07bUkaec074OF380jB8Z0=;
+        s=default; t=1592579526;
+        bh=9H/ayrhInPhbiryYv+WI4UkOCHnSdm8qAYqXHb8mIZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WrS+LSY+I5YdsRWXaiZOK+NfktKr2omYsFrmHPiC6tywGfIUrzbCrENqQN2VdI4qV
-         VZfhwAMmK14zkdNlW4hjObErXi2AcOSVpVtH1XTi58yP6sx0zT4HV/uH1c8JmULIRB
-         FkZeeX5oLg3usO/rav0clcizFRrR6Sc8B3QQc2Mw=
+        b=uLaMoPhfD8jVNRLy+Gqu6slARhxN3QklxtBTFyKdwurQJtG2CDUq4igC2VWop+TPj
+         jOWGf7csSd3wzdE35OWDdYIjiQhGODEo/wOjf91gO+jbp+w1vwActGlLkjRb/K5vFo
+         1TVi5ssLZR+6ODpXkVwfAElX6uzxD+r5rKdqat0c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Roberto Sassu <roberto.sassu@huawei.com>,
-        Mimi Zohar <zohar@linux.ibm.com>
-Subject: [PATCH 4.19 194/267] ima: Directly assign the ima_default_policy pointer to ima_rules
-Date:   Fri, 19 Jun 2020 16:32:59 +0200
-Message-Id: <20200619141658.058225592@linuxfoundation.org>
+        stable@vger.kernel.org, Andrea Arcangeli <aarcange@redhat.com>,
+        Jann Horn <jannh@google.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 169/261] mm: thp: make the THP mapcount atomic against __split_huge_pmd_locked()
+Date:   Fri, 19 Jun 2020 16:33:00 +0200
+Message-Id: <20200619141658.011212429@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
-References: <20200619141648.840376470@linuxfoundation.org>
+In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
+References: <20200619141649.878808811@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +45,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roberto Sassu <roberto.sassu@huawei.com>
+From: Andrea Arcangeli <aarcange@redhat.com>
 
-commit 067a436b1b0aafa593344fddd711a755a58afb3b upstream.
+commit c444eb564fb16645c172d550359cb3d75fe8a040 upstream.
 
-This patch prevents the following oops:
+Write protect anon page faults require an accurate mapcount to decide
+if to break the COW or not. This is implemented in the THP path with
+reuse_swap_page() ->
+page_trans_huge_map_swapcount()/page_trans_huge_mapcount().
 
-[   10.771813] BUG: kernel NULL pointer dereference, address: 0000000000000
-[...]
-[   10.779790] RIP: 0010:ima_match_policy+0xf7/0xb80
-[...]
-[   10.798576] Call Trace:
-[   10.798993]  ? ima_lsm_policy_change+0x2b0/0x2b0
-[   10.799753]  ? inode_init_owner+0x1a0/0x1a0
-[   10.800484]  ? _raw_spin_lock+0x7a/0xd0
-[   10.801592]  ima_must_appraise.part.0+0xb6/0xf0
-[   10.802313]  ? ima_fix_xattr.isra.0+0xd0/0xd0
-[   10.803167]  ima_must_appraise+0x4f/0x70
-[   10.804004]  ima_post_path_mknod+0x2e/0x80
-[   10.804800]  do_mknodat+0x396/0x3c0
+If the COW triggers while the other processes sharing the page are
+under a huge pmd split, to do an accurate reading, we must ensure the
+mapcount isn't computed while it's being transferred from the head
+page to the tail pages.
 
-It occurs when there is a failure during IMA initialization, and
-ima_init_policy() is not called. IMA hooks still call ima_match_policy()
-but ima_rules is NULL. This patch prevents the crash by directly assigning
-the ima_default_policy pointer to ima_rules when ima_rules is defined. This
-wouldn't alter the existing behavior, as ima_rules is always set at the end
-of ima_init_policy().
+reuse_swap_cache() already runs serialized by the page lock, so it's
+enough to add the page lock around __split_huge_pmd_locked too, in
+order to add the missing serialization.
 
-Cc: stable@vger.kernel.org # 3.7.x
-Fixes: 07f6a79415d7d ("ima: add appraise action keywords and default rules")
-Reported-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Note: the commit in "Fixes" is just to facilitate the backporting,
+because the code before such commit didn't try to do an accurate THP
+mapcount calculation and it instead used the page_count() to decide if
+to COW or not. Both the page_count and the pin_count are THP-wide
+refcounts, so they're inaccurate if used in
+reuse_swap_page(). Reverting such commit (besides the unrelated fix to
+the local anon_vma assignment) would have also opened the window for
+memory corruption side effects to certain workloads as documented in
+such commit header.
+
+Signed-off-by: Andrea Arcangeli <aarcange@redhat.com>
+Suggested-by: Jann Horn <jannh@google.com>
+Reported-by: Jann Horn <jannh@google.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Fixes: 6d0a07edd17c ("mm: thp: calculate the mapcount correctly for THP pages during WP faults")
+Cc: stable@vger.kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- security/integrity/ima/ima_policy.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ mm/huge_memory.c |   31 ++++++++++++++++++++++++++++---
+ 1 file changed, 28 insertions(+), 3 deletions(-)
 
---- a/security/integrity/ima/ima_policy.c
-+++ b/security/integrity/ima/ima_policy.c
-@@ -196,7 +196,7 @@ static struct ima_rule_entry secure_boot
- static LIST_HEAD(ima_default_rules);
- static LIST_HEAD(ima_policy_rules);
- static LIST_HEAD(ima_temp_rules);
--static struct list_head *ima_rules;
-+static struct list_head *ima_rules = &ima_default_rules;
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -2301,6 +2301,8 @@ void __split_huge_pmd(struct vm_area_str
+ {
+ 	spinlock_t *ptl;
+ 	struct mmu_notifier_range range;
++	bool was_locked = false;
++	pmd_t _pmd;
  
- static int ima_policy __initdata;
+ 	mmu_notifier_range_init(&range, MMU_NOTIFY_CLEAR, 0, vma, vma->vm_mm,
+ 				address & HPAGE_PMD_MASK,
+@@ -2313,11 +2315,32 @@ void __split_huge_pmd(struct vm_area_str
+ 	 * pmd against. Otherwise we can end up replacing wrong page.
+ 	 */
+ 	VM_BUG_ON(freeze && !page);
+-	if (page && page != pmd_page(*pmd))
+-	        goto out;
++	if (page) {
++		VM_WARN_ON_ONCE(!PageLocked(page));
++		was_locked = true;
++		if (page != pmd_page(*pmd))
++			goto out;
++	}
  
-@@ -544,7 +544,6 @@ void __init ima_init_policy(void)
- 			temp_ima_appraise |= IMA_APPRAISE_POLICY;
- 	}
- 
--	ima_rules = &ima_default_rules;
- 	ima_update_policy_flag();
- }
- 
++repeat:
+ 	if (pmd_trans_huge(*pmd)) {
+-		page = pmd_page(*pmd);
++		if (!page) {
++			page = pmd_page(*pmd);
++			if (unlikely(!trylock_page(page))) {
++				get_page(page);
++				_pmd = *pmd;
++				spin_unlock(ptl);
++				lock_page(page);
++				spin_lock(ptl);
++				if (unlikely(!pmd_same(*pmd, _pmd))) {
++					unlock_page(page);
++					put_page(page);
++					page = NULL;
++					goto repeat;
++				}
++				put_page(page);
++			}
++		}
+ 		if (PageMlocked(page))
+ 			clear_page_mlock(page);
+ 	} else if (!(pmd_devmap(*pmd) || is_pmd_migration_entry(*pmd)))
+@@ -2325,6 +2348,8 @@ void __split_huge_pmd(struct vm_area_str
+ 	__split_huge_pmd_locked(vma, pmd, range.start, freeze);
+ out:
+ 	spin_unlock(ptl);
++	if (!was_locked && page)
++		unlock_page(page);
+ 	/*
+ 	 * No need to double call mmu_notifier->invalidate_range() callback.
+ 	 * They are 3 cases to consider inside __split_huge_pmd_locked():
 
 
