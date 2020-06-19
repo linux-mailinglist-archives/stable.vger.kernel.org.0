@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4221200FB6
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:23:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48821200E22
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:06:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392753AbgFSPUu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:20:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52082 "EHLO mail.kernel.org"
+        id S2391267AbgFSPFP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:05:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392747AbgFSPUs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:20:48 -0400
+        id S2391262AbgFSPFN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:05:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8799D20B80;
-        Fri, 19 Jun 2020 15:20:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DBB7E206DB;
+        Fri, 19 Jun 2020 15:05:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580048;
-        bh=lpX2+wur1t1gEsxx2uAp+EdCAOVN3IOjp4QxKK+GMt4=;
+        s=default; t=1592579113;
+        bh=KXSAq0Og5Tz6OtS3O4BGo0p1Xs/Cmyx2cDecbwU+sxo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bj6dEw6BsQ1TjqepZhMoWmZav/iSC8r8PZe+wQlBKczS3yBW7Xgi9o91m9kIjzevd
-         mZ9T8/dHtBLucJtuayHtpSDzyCgciv1iDd1Ya9NsHcI7hj/mTA1jLckmV74eT2JWO5
-         Jf/t4wMVGnuj/xYVMEq0e9H5sqTjcEivgl3NwFKw=
+        b=ODjdnl8hdGJBEOdblLFzZt1Prt1px5t87tI1y4knOUNMRYBHE34q6FTQnaGiK2itZ
+         0lCxQ6c2oIBNwVCjT6HJtNpl8Rl2z4QZEzDpYMOo5vsKPM/fk+trBM7JV7jMQTBFLk
+         Km35zEvcIbxKkDGGFdRj0uq2q3IoJmObySrUyc9o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Philipp Zabel <p.zabel@pengutronix.de>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 102/376] media: imx: utils: fix media bus format enumeration
-Date:   Fri, 19 Jun 2020 16:30:20 +0200
-Message-Id: <20200619141715.174125846@linuxfoundation.org>
+        stable@vger.kernel.org, Gavin Shan <gshan@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 013/261] arm64/kernel: Fix range on invalidating dcache for boot page tables
+Date:   Fri, 19 Jun 2020 16:30:24 +0200
+Message-Id: <20200619141650.508600849@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
-References: <20200619141710.350494719@linuxfoundation.org>
+In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
+References: <20200619141649.878808811@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,125 +44,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philipp Zabel <p.zabel@pengutronix.de>
+From: Gavin Shan <gshan@redhat.com>
 
-[ Upstream commit 1df2148fdfc036c9350d41ae81b09b3f8897c9b6 ]
+[ Upstream commit 9d2d75ede59bc1edd8561f2ee9d4702a5ea0ae30 ]
 
-Iterate over all media bus formats, not just over the first format in
-each imx_media_pixfmt entry.
+Prior to commit 8eb7e28d4c642c31 ("arm64/mm: move runtime pgds to
+rodata"), idmap_pgd_dir, tramp_pg_dir, reserved_ttbr0, swapper_pg_dir,
+and init_pg_dir were contiguous at the end of the kernel image. The
+maintenance at the end of __create_page_tables assumed these were
+contiguous, and affected everything from the start of idmap_pg_dir
+to the end of init_pg_dir.
 
-Before:
+That commit moved all but init_pg_dir into the .rodata section, with
+other data placed between idmap_pg_dir and init_pg_dir, but did not
+update the maintenance. Hence the maintenance is performed on much
+more data than necessary (but as the bootloader previously made this
+clean to the PoC there is no functional problem).
 
-  $ v4l2-ctl -d $(media-ctl -e ipu1_csi0) --list-subdev-mbus-codes 0
-  ioctl: VIDIOC_SUBDEV_ENUM_MBUS_CODE (pad=0)
-	0x2006: MEDIA_BUS_FMT_UYVY8_2X8
-	0x2008: MEDIA_BUS_FMT_YUYV8_2X8
-	0x1008: MEDIA_BUS_FMT_RGB565_2X8_LE
-	0x100a: MEDIA_BUS_FMT_RGB888_1X24
-	0x100d: MEDIA_BUS_FMT_ARGB8888_1X32
-	0x3001: MEDIA_BUS_FMT_SBGGR8_1X8
-	0x3013: MEDIA_BUS_FMT_SGBRG8_1X8
-	0x3002: MEDIA_BUS_FMT_SGRBG8_1X8
-	0x3014: MEDIA_BUS_FMT_SRGGB8_1X8
-	0x3007: MEDIA_BUS_FMT_SBGGR10_1X10
-	0x300e: MEDIA_BUS_FMT_SGBRG10_1X10
-	0x300a: MEDIA_BUS_FMT_SGRBG10_1X10
-	0x300f: MEDIA_BUS_FMT_SRGGB10_1X10
-	0x2001: MEDIA_BUS_FMT_Y8_1X8
-	0x200a: MEDIA_BUS_FMT_Y10_1X10
+As we only alter idmap_pg_dir, and init_pg_dir, we only need to perform
+maintenance for these. As the other dirs are in .rodata, the bootloader
+will have initialised them as expected and cleaned them to the PoC. The
+kernel will initialize them as necessary after enabling the MMU.
 
-After:
+This patch reworks the maintenance to only cover the idmap_pg_dir and
+init_pg_dir to avoid this unnecessary work.
 
-  $ v4l2-ctl -d $(media-ctl -e ipu1_csi0) --list-subdev-mbus-codes 0
-  ioctl: VIDIOC_SUBDEV_ENUM_MBUS_CODE (pad=0)
-	0x2006: MEDIA_BUS_FMT_UYVY8_2X8
-	0x200f: MEDIA_BUS_FMT_UYVY8_1X16
-	0x2008: MEDIA_BUS_FMT_YUYV8_2X8
-	0x2011: MEDIA_BUS_FMT_YUYV8_1X16
-	0x1008: MEDIA_BUS_FMT_RGB565_2X8_LE
-	0x100a: MEDIA_BUS_FMT_RGB888_1X24
-	0x100c: MEDIA_BUS_FMT_RGB888_2X12_LE
-	0x100d: MEDIA_BUS_FMT_ARGB8888_1X32
-	0x3001: MEDIA_BUS_FMT_SBGGR8_1X8
-	0x3013: MEDIA_BUS_FMT_SGBRG8_1X8
-	0x3002: MEDIA_BUS_FMT_SGRBG8_1X8
-	0x3014: MEDIA_BUS_FMT_SRGGB8_1X8
-	0x3007: MEDIA_BUS_FMT_SBGGR10_1X10
-	0x3008: MEDIA_BUS_FMT_SBGGR12_1X12
-	0x3019: MEDIA_BUS_FMT_SBGGR14_1X14
-	0x301d: MEDIA_BUS_FMT_SBGGR16_1X16
-	0x300e: MEDIA_BUS_FMT_SGBRG10_1X10
-	0x3010: MEDIA_BUS_FMT_SGBRG12_1X12
-	0x301a: MEDIA_BUS_FMT_SGBRG14_1X14
-	0x301e: MEDIA_BUS_FMT_SGBRG16_1X16
-	0x300a: MEDIA_BUS_FMT_SGRBG10_1X10
-	0x3011: MEDIA_BUS_FMT_SGRBG12_1X12
-	0x301b: MEDIA_BUS_FMT_SGRBG14_1X14
-	0x301f: MEDIA_BUS_FMT_SGRBG16_1X16
-	0x300f: MEDIA_BUS_FMT_SRGGB10_1X10
-	0x3012: MEDIA_BUS_FMT_SRGGB12_1X12
-	0x301c: MEDIA_BUS_FMT_SRGGB14_1X14
-	0x3020: MEDIA_BUS_FMT_SRGGB16_1X16
-	0x2001: MEDIA_BUS_FMT_Y8_1X8
-	0x200a: MEDIA_BUS_FMT_Y10_1X10
-	0x2013: MEDIA_BUS_FMT_Y12_1X12
-
-[laurent.pinchart@ideasonboard.com: Decrement index to replace loop counter k]
-[laurent.pinchart@ideasonboard.com: Return directly from within the loops]
-
-Fixes: e130291212df5 ("[media] media: Add i.MX media core driver")
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Gavin Shan <gshan@redhat.com>
+Reviewed-by: Mark Rutland <mark.rutland@arm.com>
+Link: https://lore.kernel.org/r/20200427235700.112220-1-gshan@redhat.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/imx/imx-media-utils.c | 22 +++++++++++++++------
- 1 file changed, 16 insertions(+), 6 deletions(-)
+ arch/arm64/include/asm/pgtable.h |  1 +
+ arch/arm64/kernel/head.S         | 12 +++++++++---
+ arch/arm64/kernel/vmlinux.lds.S  |  1 +
+ 3 files changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/staging/media/imx/imx-media-utils.c b/drivers/staging/media/imx/imx-media-utils.c
-index 39469031e510..00a71f01786c 100644
---- a/drivers/staging/media/imx/imx-media-utils.c
-+++ b/drivers/staging/media/imx/imx-media-utils.c
-@@ -269,6 +269,7 @@ static int enum_format(u32 *fourcc, u32 *code, u32 index,
- 	for (i = 0; i < ARRAY_SIZE(pixel_formats); i++) {
- 		const struct imx_media_pixfmt *fmt = &pixel_formats[i];
- 		enum codespace_sel fmt_cs_sel;
-+		unsigned int j;
+diff --git a/arch/arm64/include/asm/pgtable.h b/arch/arm64/include/asm/pgtable.h
+index 13ebe2bad79f..41dd4b1f0ccb 100644
+--- a/arch/arm64/include/asm/pgtable.h
++++ b/arch/arm64/include/asm/pgtable.h
+@@ -456,6 +456,7 @@ extern pgd_t init_pg_dir[PTRS_PER_PGD];
+ extern pgd_t init_pg_end[];
+ extern pgd_t swapper_pg_dir[PTRS_PER_PGD];
+ extern pgd_t idmap_pg_dir[PTRS_PER_PGD];
++extern pgd_t idmap_pg_end[];
+ extern pgd_t tramp_pg_dir[PTRS_PER_PGD];
  
- 		fmt_cs_sel = (fmt->cs == IPUV3_COLORSPACE_YUV) ?
- 			CS_SEL_YUV : CS_SEL_RGB;
-@@ -278,15 +279,24 @@ static int enum_format(u32 *fourcc, u32 *code, u32 index,
- 		    (!allow_bayer && fmt->bayer))
- 			continue;
+ extern void set_swapper_pgd(pgd_t *pgdp, pgd_t pgd);
+diff --git a/arch/arm64/kernel/head.S b/arch/arm64/kernel/head.S
+index 989b1944cb71..bdb5ec341900 100644
+--- a/arch/arm64/kernel/head.S
++++ b/arch/arm64/kernel/head.S
+@@ -393,13 +393,19 @@ __create_page_tables:
  
--		if (index == 0) {
--			if (fourcc)
--				*fourcc = fmt->fourcc;
--			if (code)
--				*code = fmt->codes[0];
-+		if (fourcc && index == 0) {
-+			*fourcc = fmt->fourcc;
- 			return 0;
- 		}
- 
--		index--;
-+		if (!code) {
-+			index--;
-+			continue;
-+		}
+ 	/*
+ 	 * Since the page tables have been populated with non-cacheable
+-	 * accesses (MMU disabled), invalidate the idmap and swapper page
+-	 * tables again to remove any speculatively loaded cache lines.
++	 * accesses (MMU disabled), invalidate those tables again to
++	 * remove any speculatively loaded cache lines.
+ 	 */
++	dmb	sy
 +
-+		for (j = 0; j < ARRAY_SIZE(fmt->codes) && fmt->codes[j]; j++) {
-+			if (index == 0) {
-+				*code = fmt->codes[j];
-+				return 0;
-+			}
+ 	adrp	x0, idmap_pg_dir
++	adrp	x1, idmap_pg_end
++	sub	x1, x1, x0
++	bl	__inval_dcache_area
 +
-+			index--;
-+		}
- 	}
++	adrp	x0, init_pg_dir
+ 	adrp	x1, init_pg_end
+ 	sub	x1, x1, x0
+-	dmb	sy
+ 	bl	__inval_dcache_area
  
- 	return -EINVAL;
+ 	ret	x28
+diff --git a/arch/arm64/kernel/vmlinux.lds.S b/arch/arm64/kernel/vmlinux.lds.S
+index aa76f7259668..e1af25dbc57e 100644
+--- a/arch/arm64/kernel/vmlinux.lds.S
++++ b/arch/arm64/kernel/vmlinux.lds.S
+@@ -142,6 +142,7 @@ SECTIONS
+ 	. = ALIGN(PAGE_SIZE);
+ 	idmap_pg_dir = .;
+ 	. += IDMAP_DIR_SIZE;
++	idmap_pg_end = .;
+ 
+ #ifdef CONFIG_UNMAP_KERNEL_AT_EL0
+ 	tramp_pg_dir = .;
 -- 
 2.25.1
 
