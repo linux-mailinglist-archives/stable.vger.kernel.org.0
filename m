@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 409C22010AA
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:36:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 944042010AD
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:36:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404897AbgFSPc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:32:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36426 "EHLO mail.kernel.org"
+        id S2393889AbgFSPcb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:32:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404895AbgFSPc1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:32:27 -0400
+        id S2392989AbgFSPca (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:32:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9AEE020734;
-        Fri, 19 Jun 2020 15:32:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6EFF020757;
+        Fri, 19 Jun 2020 15:32:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580747;
-        bh=HJoDVzrkL44EQCg2VFfktS8n1ozY/0dIdgpVx+gbS/U=;
+        s=default; t=1592580749;
+        bh=3DVZfoouxhWOLjo4607NGqYfDhv6wvbMfkHVsdTUhTc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BFxKEYpblkZg01TPV0yFNuSuxEyNXjPo7p9zY/umEuF646zrTcRnTNTp2SghPIU98
-         wKEnmlMeqdi+vzjDZkkVx7fSuCIn8XtJHk/nGjtxkyvHW7954gQOcsxb7nAoiHvycM
-         n6xxbLCKpVjqLwFz1CkGpJscriMqMzmPqJtb1sR4=
+        b=p4sC7Zt6wZYve2vlXXqCHd5B24Xd1kSKqaBikuE3t6pHioRxQjSGGTHmPGrDW1QI9
+         msot+wgGIykhLeJgqvQNyZzloJOGutXNAEDx7hmxcPWE5cBFioHXKMfUdPk+UzVCD7
+         ZR/1yZDpmsEWpqUnFL/6g7aHuqjmoaem1DhsRmzY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
         "H. Nikolaus Schaller" <hns@goldelico.com>
-Subject: [PATCH 5.7 367/376] w1: omap-hdq: cleanup to add missing newline for some dev_dbg
-Date:   Fri, 19 Jun 2020 16:34:45 +0200
-Message-Id: <20200619141727.677386338@linuxfoundation.org>
+Subject: [PATCH 5.7 368/376] w1: omap-hdq: fix return value to be -1 if there is a timeout
+Date:   Fri, 19 Jun 2020 16:34:46 +0200
+Message-Id: <20200619141727.724459819@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -45,67 +45,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: H. Nikolaus Schaller <hns@goldelico.com>
 
-commit 5e02f3b31704e24537697bce54f8156bdb72b7a6 upstream.
+commit 2d4100632fa1947bf3e8d7a091e94e2cf21923af upstream.
 
-Otherwise it will corrupt the console log during debugging.
+omap_w1_read_byte() should return -1 (or 0xff) in case of
+error (e.g. missing battery).
 
-Fixes: 7b5362a603a1 ("w1: omap_hdq: Fix some error/debug handling.")
-Cc: stable@vger.kernel.org
+The code accidentially overwrites the variable ret and not val,
+which is returned. So it will return the initial value 0 instead
+of -1.
+
+Fixes: 27d13da8782a ("w1: omap-hdq: Simplify driver with PM runtime autosuspend")
+Cc: stable@vger.kernel.org # v5.6+
 Acked-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
-Link: https://lore.kernel.org/r/cd0d55749a091214106575f6e1d363c6db56622f.1590255176.git.hns@goldelico.com
+Link: https://lore.kernel.org/r/b2c2192b461fbb9b8e9bea4ad514a49557a7210b.1590255176.git.hns@goldelico.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/w1/masters/omap_hdq.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/w1/masters/omap_hdq.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 --- a/drivers/w1/masters/omap_hdq.c
 +++ b/drivers/w1/masters/omap_hdq.c
-@@ -155,7 +155,7 @@ static int hdq_write_byte(struct hdq_dat
- 	/* check irqstatus */
- 	if (!(*status & OMAP_HDQ_INT_STATUS_TXCOMPLETE)) {
- 		dev_dbg(hdq_data->dev, "timeout waiting for"
--			" TXCOMPLETE/RXCOMPLETE, %x", *status);
-+			" TXCOMPLETE/RXCOMPLETE, %x\n", *status);
- 		ret = -ETIMEDOUT;
- 		goto out;
- 	}
-@@ -166,7 +166,7 @@ static int hdq_write_byte(struct hdq_dat
- 			OMAP_HDQ_FLAG_CLEAR, &tmp_status);
- 	if (ret) {
- 		dev_dbg(hdq_data->dev, "timeout waiting GO bit"
--			" return to zero, %x", tmp_status);
-+			" return to zero, %x\n", tmp_status);
- 	}
+@@ -464,7 +464,7 @@ static u8 omap_w1_read_byte(void *_hdq)
  
- out:
-@@ -183,7 +183,7 @@ static irqreturn_t hdq_isr(int irq, void
- 	spin_lock_irqsave(&hdq_data->hdq_spinlock, irqflags);
- 	hdq_data->hdq_irqstatus = hdq_reg_in(hdq_data, OMAP_HDQ_INT_STATUS);
- 	spin_unlock_irqrestore(&hdq_data->hdq_spinlock, irqflags);
--	dev_dbg(hdq_data->dev, "hdq_isr: %x", hdq_data->hdq_irqstatus);
-+	dev_dbg(hdq_data->dev, "hdq_isr: %x\n", hdq_data->hdq_irqstatus);
- 
- 	if (hdq_data->hdq_irqstatus &
- 		(OMAP_HDQ_INT_STATUS_TXCOMPLETE | OMAP_HDQ_INT_STATUS_RXCOMPLETE
-@@ -248,7 +248,7 @@ static int omap_hdq_break(struct hdq_dat
- 	tmp_status = hdq_data->hdq_irqstatus;
- 	/* check irqstatus */
- 	if (!(tmp_status & OMAP_HDQ_INT_STATUS_TIMEOUT)) {
--		dev_dbg(hdq_data->dev, "timeout waiting for TIMEOUT, %x",
-+		dev_dbg(hdq_data->dev, "timeout waiting for TIMEOUT, %x\n",
- 				tmp_status);
- 		ret = -ETIMEDOUT;
- 		goto out;
-@@ -275,7 +275,7 @@ static int omap_hdq_break(struct hdq_dat
- 			&tmp_status);
+ 	ret = hdq_read_byte(hdq_data, &val);
  	if (ret)
- 		dev_dbg(hdq_data->dev, "timeout waiting INIT&GO bits"
--			" return to zero, %x", tmp_status);
-+			" return to zero, %x\n", tmp_status);
+-		ret = -1;
++		val = -1;
  
- out:
- 	hdq_reset_irqstatus(hdq_data);
+ 	pm_runtime_mark_last_busy(hdq_data->dev);
+ 	pm_runtime_put_autosuspend(hdq_data->dev);
 
 
