@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66E78200C84
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:47:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68001200D70
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:57:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388896AbgFSOqz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:46:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38814 "EHLO mail.kernel.org"
+        id S2389907AbgFSO5s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:57:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388890AbgFSOqx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:46:53 -0400
+        id S2390290AbgFSO5r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:57:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D1B80217BA;
-        Fri, 19 Jun 2020 14:46:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D879821919;
+        Fri, 19 Jun 2020 14:57:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578013;
-        bh=zl0ACyDj7vFcEaBdi95zIaIux1rc3z6IveIFcj/66R8=;
+        s=default; t=1592578666;
+        bh=b6KQFxhpqokwjIfbaMiTMCL6QZY5s08BueXsXwADbsQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PH6+2/b1PrpfxJqjURlPxMzpDR+6eiQyQ/E7uy/6t1Bz8Biz3vSGwqraSyrQXJywK
-         IAPyhy28rLCDKIokpQPdX9YzIy/MLsDQM26S2Hj2R+SFoTGkttoPr0HlAU8db7Za3l
-         Pw7oVFLBIkLjHp/+I310T0hu/3atGW+hgR0FccFw=
+        b=ceqC3NRFxcOTqzf4Ao2uVyGzp+Wpy5o/m3MWkUnciXpHLuhSB9JzA2k+MnbKJ7n1q
+         wn3mElRrP8xTi2xzlovJz/sV3gB0LFjMZODB5kUtuF1tp9T1Bbcx29CCflaieVsJdk
+         kgmPnEeTDXn24xb332VRHbQg+WcLaxd07JF355c0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 048/190] spi: bcm2835: Fix controller unregister order
-Date:   Fri, 19 Jun 2020 16:31:33 +0200
-Message-Id: <20200619141635.987297376@linuxfoundation.org>
+Subject: [PATCH 4.19 109/267] kgdb: Prevent infinite recursive entries to the debugger
+Date:   Fri, 19 Jun 2020 16:31:34 +0200
+Message-Id: <20200619141654.086488923@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
-References: <20200619141633.446429600@linuxfoundation.org>
+In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
+References: <20200619141648.840376470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,64 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Douglas Anderson <dianders@chromium.org>
 
-[ Upstream commit 9dd277ff92d06f6aa95b39936ad83981d781f49b ]
+[ Upstream commit 3ca676e4ca60d1834bb77535dafe24169cadacef ]
 
-The BCM2835 SPI driver uses devm_spi_register_controller() on bind.
-As a consequence, on unbind, __device_release_driver() first invokes
-bcm2835_spi_remove() before unregistering the SPI controller via
-devres_release_all().
+If we detect that we recursively entered the debugger we should hack
+our I/O ops to NULL so that the panic() in the next line won't
+actually cause another recursion into the debugger.  The first line of
+kgdb_panic() will check this and return.
 
-This order is incorrect:  bcm2835_spi_remove() tears down the DMA
-channels and turns off the SPI controller, including its interrupts
-and clock.  The SPI controller is thus no longer usable.
-
-When the SPI controller is subsequently unregistered, it unbinds all
-its slave devices.  If their drivers need to access the SPI bus,
-e.g. to quiesce their interrupts, unbinding will fail.
-
-As a rule, devm_spi_register_controller() must not be used if the
-->remove() hook performs teardown steps which shall be performed
-after unbinding of slaves.
-
-Fix by using the non-devm variant spi_register_controller().  Note that
-the struct spi_controller as well as the driver-private data are not
-freed until after bcm2835_spi_remove() has finished, so accessing them
-is safe.
-
-Fixes: 247263dba208 ("spi: bcm2835: use devm_spi_register_master()")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: stable@vger.kernel.org # v3.13+
-Link: https://lore.kernel.org/r/2397dd70cdbe95e0bc4da2b9fca0f31cb94e5aed.1589557526.git.lukas@wunner.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
+Link: https://lore.kernel.org/r/20200507130644.v4.6.I89de39f68736c9de610e6f241e68d8dbc44bc266@changeid
+Signed-off-by: Daniel Thompson <daniel.thompson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-bcm2835.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ kernel/debug/debug_core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/spi/spi-bcm2835.c b/drivers/spi/spi-bcm2835.c
-index eab27d41ba83..df6abc75bc16 100644
---- a/drivers/spi/spi-bcm2835.c
-+++ b/drivers/spi/spi-bcm2835.c
-@@ -793,7 +793,7 @@ static int bcm2835_spi_probe(struct platform_device *pdev)
- 		goto out_clk_disable;
+diff --git a/kernel/debug/debug_core.c b/kernel/debug/debug_core.c
+index d2799767aab8..6a1dc2613bb9 100644
+--- a/kernel/debug/debug_core.c
++++ b/kernel/debug/debug_core.c
+@@ -444,6 +444,7 @@ static int kgdb_reenter_check(struct kgdb_state *ks)
+ 
+ 	if (exception_level > 1) {
+ 		dump_stack();
++		kgdb_io_module_registered = false;
+ 		panic("Recursive entry to debugger");
  	}
  
--	err = devm_spi_register_master(&pdev->dev, master);
-+	err = spi_register_master(master);
- 	if (err) {
- 		dev_err(&pdev->dev, "could not register SPI master: %d\n", err);
- 		goto out_clk_disable;
-@@ -813,6 +813,8 @@ static int bcm2835_spi_remove(struct platform_device *pdev)
- 	struct spi_master *master = platform_get_drvdata(pdev);
- 	struct bcm2835_spi *bs = spi_master_get_devdata(master);
- 
-+	spi_unregister_master(master);
-+
- 	/* Clear FIFOs, and disable the HW block */
- 	bcm2835_wr(bs, BCM2835_SPI_CS,
- 		   BCM2835_SPI_CS_CLEAR_RX | BCM2835_SPI_CS_CLEAR_TX);
 -- 
 2.25.1
 
