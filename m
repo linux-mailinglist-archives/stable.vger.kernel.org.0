@@ -2,47 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 986912016DC
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:45:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2ECD201793
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388715AbgFSOpe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:45:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37034 "EHLO mail.kernel.org"
+        id S2388990AbgFSQkb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:40:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387678AbgFSOp3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:45:29 -0400
+        id S2388682AbgFSOpd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:45:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D742E20DD4;
-        Fri, 19 Jun 2020 14:45:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB6DD20DD4;
+        Fri, 19 Jun 2020 14:45:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577928;
-        bh=33ESJF2kwlacdpC3hc9IN/bWL6ieRL7+CiuYIm/y/oI=;
+        s=default; t=1592577933;
+        bh=bJ5vHl2H8/BvNDVhsIs4pfBDlyCaMBFtm0KMc8o1C+U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JaUuJFKG8j1iHNJSEJdTQxeg66bgqkEkEtBVQmS7qot4hrfagYCvjEN7OyHClFRul
-         98bvMeT+97kn/AUQhQfhEhIGUgLYUIcWKBHt+P3XLszMBueDg/zYsBajkiLDs8m8i3
-         p/TE96m+vtqloRy68/szL1YH8dGWXmdDQ1vVOn38=
+        b=LVq0+ljMw04z6ayGMABrS869t8yVvY1NZ0T9gsGZ//du5HZ58EOuO2Cg07DVfEOMC
+         TdXWiqhHYHCKONrc2Koo1VkiRCIOy4+mjv8wqDhNh/mFpmjA3JlGt+pXHnhQ/908Ce
+         N0AjA/JtZOqaksr/m4hFU77HSxBOSaeGwThstwd4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Waiman Long <longman@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Eric Biggers <ebiggers@google.com>,
-        David Howells <dhowells@redhat.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Joe Perches <joe@perches.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        David Rientjes <rientjes@google.com>,
-        Uladzislau Rezki <urezki@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 017/190] mm: add kvfree_sensitive() for freeing sensitive data objects
-Date:   Fri, 19 Jun 2020 16:31:02 +0200
-Message-Id: <20200619141634.322504266@linuxfoundation.org>
+        stable@vger.kernel.org, Xiaochun Lee <lixc17@lenovo.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 4.14 019/190] x86/PCI: Mark Intel C620 MROMs as having non-compliant BARs
+Date:   Fri, 19 Jun 2020 16:31:04 +0200
+Message-Id: <20200619141634.432134989@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
 References: <20200619141633.446429600@linuxfoundation.org>
@@ -55,161 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Xiaochun Lee <lixc17@lenovo.com>
 
-[ Upstream commit d4eaa2837851db2bfed572898bfc17f9a9f9151e ]
+commit 1574051e52cb4b5b7f7509cfd729b76ca1117808 upstream.
 
-For kvmalloc'ed data object that contains sensitive information like
-cryptographic keys, we need to make sure that the buffer is always cleared
-before freeing it.  Using memset() alone for buffer clearing may not
-provide certainty as the compiler may compile it away.  To be sure, the
-special memzero_explicit() has to be used.
+The Intel C620 Platform Controller Hub has MROM functions that have non-PCI
+registers (undocumented in the public spec) where BAR 0 is supposed to be,
+which results in messages like this:
 
-This patch introduces a new kvfree_sensitive() for freeing those sensitive
-data objects allocated by kvmalloc().  The relevant places where
-kvfree_sensitive() can be used are modified to use it.
+  pci 0000:00:11.0: [Firmware Bug]: reg 0x30: invalid BAR (can't size)
 
-Fixes: 4f0882491a14 ("KEYS: Avoid false positive ENOMEM error on key read")
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Waiman Long <longman@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Acked-by: David Howells <dhowells@redhat.com>
-Cc: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Cc: James Morris <jmorris@namei.org>
-Cc: "Serge E. Hallyn" <serge@hallyn.com>
-Cc: Joe Perches <joe@perches.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Uladzislau Rezki <urezki@gmail.com>
-Link: http://lkml.kernel.org/r/20200407200318.11711-1-longman@redhat.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Mark these MROM functions as having non-compliant BARs so we don't try to
+probe any of them.  There are no other BARs on these devices.
+
+See the Intel C620 Series Chipset Platform Controller Hub Datasheet,
+May 2019, Document Number 336067-007US, sec 2.1, 35.5, 35.6.
+
+[bhelgaas: commit log, add 0xa26d]
+Link: https://lore.kernel.org/r/1589513467-17070-1-git-send-email-lixiaochun.2888@163.com
+Signed-off-by: Xiaochun Lee <lixc17@lenovo.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- include/linux/mm.h       |  1 +
- mm/util.c                | 18 ++++++++++++++++++
- security/keys/internal.h | 11 -----------
- security/keys/keyctl.c   | 16 +++++-----------
- 4 files changed, 24 insertions(+), 22 deletions(-)
+ arch/x86/pci/fixup.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 6f852d5fbada..156940758fc5 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -548,6 +548,7 @@ static inline void *kvmalloc_array(size_t n, size_t size, gfp_t flags)
- }
- 
- extern void kvfree(const void *addr);
-+extern void kvfree_sensitive(const void *addr, size_t len);
+--- a/arch/x86/pci/fixup.c
++++ b/arch/x86/pci/fixup.c
+@@ -572,6 +572,10 @@ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_IN
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x6f60, pci_invalid_bar);
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x6fa0, pci_invalid_bar);
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x6fc0, pci_invalid_bar);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0xa1ec, pci_invalid_bar);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0xa1ed, pci_invalid_bar);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0xa26c, pci_invalid_bar);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0xa26d, pci_invalid_bar);
  
  /*
-  * Mapcount of compound page as a whole, does not include mapped sub-pages.
-diff --git a/mm/util.c b/mm/util.c
-index 842ba5fb662e..f0d773c719a1 100644
---- a/mm/util.c
-+++ b/mm/util.c
-@@ -417,6 +417,24 @@ void kvfree(const void *addr)
- }
- EXPORT_SYMBOL(kvfree);
- 
-+/**
-+ * kvfree_sensitive - Free a data object containing sensitive information.
-+ * @addr: address of the data object to be freed.
-+ * @len: length of the data object.
-+ *
-+ * Use the special memzero_explicit() function to clear the content of a
-+ * kvmalloc'ed object containing sensitive data to make sure that the
-+ * compiler won't optimize out the data clearing.
-+ */
-+void kvfree_sensitive(const void *addr, size_t len)
-+{
-+	if (likely(!ZERO_OR_NULL_PTR(addr))) {
-+		memzero_explicit((void *)addr, len);
-+		kvfree(addr);
-+	}
-+}
-+EXPORT_SYMBOL(kvfree_sensitive);
-+
- static inline void *__page_rmapping(struct page *page)
- {
- 	unsigned long mapping;
-diff --git a/security/keys/internal.h b/security/keys/internal.h
-index 124273e500cf..d479ca71137e 100644
---- a/security/keys/internal.h
-+++ b/security/keys/internal.h
-@@ -306,15 +306,4 @@ static inline void key_check(const struct key *key)
- #define key_check(key) do {} while(0)
- 
- #endif
--
--/*
-- * Helper function to clear and free a kvmalloc'ed memory object.
-- */
--static inline void __kvzfree(const void *addr, size_t len)
--{
--	if (addr) {
--		memset((void *)addr, 0, len);
--		kvfree(addr);
--	}
--}
- #endif /* _INTERNAL_H */
-diff --git a/security/keys/keyctl.c b/security/keys/keyctl.c
-index c07c2e2b2478..9394d72a77e8 100644
---- a/security/keys/keyctl.c
-+++ b/security/keys/keyctl.c
-@@ -133,10 +133,7 @@ SYSCALL_DEFINE5(add_key, const char __user *, _type,
- 
- 	key_ref_put(keyring_ref);
-  error3:
--	if (payload) {
--		memzero_explicit(payload, plen);
--		kvfree(payload);
--	}
-+	kvfree_sensitive(payload, plen);
-  error2:
- 	kfree(description);
-  error:
-@@ -351,7 +348,7 @@ long keyctl_update_key(key_serial_t id,
- 
- 	key_ref_put(key_ref);
- error2:
--	__kvzfree(payload, plen);
-+	kvfree_sensitive(payload, plen);
- error:
- 	return ret;
- }
-@@ -859,7 +856,7 @@ long keyctl_read_key(key_serial_t keyid, char __user *buffer, size_t buflen)
- 		 */
- 		if (ret > key_data_len) {
- 			if (unlikely(key_data))
--				__kvzfree(key_data, key_data_len);
-+				kvfree_sensitive(key_data, key_data_len);
- 			key_data_len = ret;
- 			continue;	/* Allocate buffer */
- 		}
-@@ -868,7 +865,7 @@ long keyctl_read_key(key_serial_t keyid, char __user *buffer, size_t buflen)
- 			ret = -EFAULT;
- 		break;
- 	}
--	__kvzfree(key_data, key_data_len);
-+	kvfree_sensitive(key_data, key_data_len);
- 
- key_put_out:
- 	key_put(key);
-@@ -1170,10 +1167,7 @@ long keyctl_instantiate_key_common(key_serial_t id,
- 		keyctl_change_reqkey_auth(NULL);
- 
- error2:
--	if (payload) {
--		memzero_explicit(payload, plen);
--		kvfree(payload);
--	}
-+	kvfree_sensitive(payload, plen);
- error:
- 	return ret;
- }
--- 
-2.25.1
-
+  * Device [1022:7808]
 
 
