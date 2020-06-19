@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A081200A9D
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 15:48:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 455E4200A9C
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 15:48:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729134AbgFSNsx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 09:48:53 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:47219 "EHLO
+        id S1731581AbgFSNsu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 09:48:50 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:58633 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1732007AbgFSNsw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Jun 2020 09:48:52 -0400
+        by vger.kernel.org with ESMTP id S1729134AbgFSNsu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Jun 2020 09:48:50 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 357441945791;
-        Fri, 19 Jun 2020 09:48:51 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Fri, 19 Jun 2020 09:48:51 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id 6C79E1945783;
+        Fri, 19 Jun 2020 09:48:49 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Fri, 19 Jun 2020 09:48:49 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=X6FNlq
-        ue9bjn0HkULIcIuxChkb42q+sjlRZvyBvC4Lo=; b=s0k4E86hGmZHaWnx3wd362
-        5pcy9q6IP8DxY2kmcC8TwuyzQWpCl3vWhPXPfge5LwTTjG22lslahkpWvUvq+U5b
-        NCdiNfNm7pblnH9kuT1RKVzhI9MZ0ulSTO0VYbe/WFbxVwtfRyxmrZjaI6LCmSI/
-        upUUhZOKvKv8f5WLgDAgb3bsPuFUqQI+/175AWWoqenI62s2UIZkVnygOw/DDhG1
-        kYkEQWyeybFX874i1tyhb43JRD7tFH8Ni/IgJ17gFGT2ECqnn5yDNWoK6jgVtfCX
-        03UFmtojT8n1Lb/oMqYCPPjTQz6cB2SBxpNNpSlw8ZWW9I7LSYjIEkhMUOkjIPyA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=XFpD9C
+        zAP4IJ0vAmeSLnHo5WIGsYIrEOfbKiQI308QM=; b=S4DDJaM4zEPBHGGNfVtzlh
+        hEUj9IzD/jAg3VrHebtA+2sx1m/1xU7UVje41efAPWERkS2mtry/JpGHhq3SHMu9
+        qYzs3nWF3jAPunjMqbaL0cIbjSGv/k1wwhHp9uXDG4Lr6Wk+VBy+n3Ewg9c6sdh8
+        ZBnwZ1D5ywpRLD/h97R7nQyMnUCzjgfCRFrxetkH0ddpVtsA1Vk05wx7KqoMvUIq
+        olSUpGygJx/9FOrzXL17poSN16aG3WpJaqHLx771kPml1GK15amu30+vJyo3rSUf
+        wSwY0qi3Z+IhU3QrbqyBSWhZYneyZ4pMoo/itGEpspLbzc9N+7vD6Y6DagQ7BB4A
         ==
-X-ME-Sender: <xms:Q8LsXjbFoouWBJjkcqqH3SZ8I4H77WwSABZDnz19IcgACR-AYCwm1A>
+X-ME-Sender: <xms:QcLsXiTLgzDd-Gjb_7FzoU_tQns0QurTnZmUAO56ZjfpmZOOav4Elg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudejiedgjedtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -36,20 +36,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudejiedgjedtucetufdoteggod
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
     keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepjeenucfrrghrrghmpe
     hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:Q8LsXiaYOptbuQFFxSlrEIfsFxO5yBt1wbuZIEFJtWzTvdw8V4A4lw>
-    <xmx:Q8LsXl9EDeu1woxPmbTp_OWQNZoKX9iGFq2mKRERPe0rpTK4-Nd0iw>
-    <xmx:Q8LsXpriiq4K65RugdVky8aMN6ysYgzcqf8BSo1BmvNxqZNo_LarIA>
-    <xmx:Q8LsXlTuNJWyE0HMkvvspbsd-AuyoV7j7FI6tD6hFdgNAuo4nbaN6A>
+X-ME-Proxy: <xmx:QcLsXnzyxdVil3MoDD-u-uiiLchsO0ntCmST7D6-L5D5rv6WrIuS2A>
+    <xmx:QcLsXv3-0-b9aJ-kHBXHAyux1y0PRbUjcm88rsmCeq_JEhermfJTtQ>
+    <xmx:QcLsXuBLensnrTkpqYxfFJpa-vGCJircMEHCrl3B_2WCnDkya2aurQ>
+    <xmx:QcLsXrIekZJRziRFi0100VkPMn04jeyUYaqJfLXwkxl9cRWj-UV-cQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id A8DB3328005A;
-        Fri, 19 Jun 2020 09:48:50 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mtd: rawnand: ingenic: Fix the probe error path" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id E78FE3062499;
+        Fri, 19 Jun 2020 09:48:48 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] mtd: rawnand: ingenic: Fix the probe error path" failed to apply to 4.19-stable tree
 To:     miquel.raynal@bootlin.com, harveyhuntnexus@gmail.com,
         paul@crapouillou.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Fri, 19 Jun 2020 15:48:39 +0200
-Message-ID: <159257451912572@kroah.com>
+Message-ID: <159257451937234@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
