@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EFB3920108A
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:36:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F26E52010BF
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:36:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393822AbgFSPbY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:31:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35376 "EHLO mail.kernel.org"
+        id S2393704AbgFSPdN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:33:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393817AbgFSPbW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:31:22 -0400
+        id S2404939AbgFSPdI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:33:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A0D362193E;
-        Fri, 19 Jun 2020 15:31:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E3B582166E;
+        Fri, 19 Jun 2020 15:33:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580682;
-        bh=r2yHVLBRkViANlrNr1ctGy2yImraShqdjiFxyaql51U=;
+        s=default; t=1592580787;
+        bh=eDxLH4ouDqLNWQDr9hjpdo2YNXdlxYjycEeNZepbj/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oNWJivngs82eemhTvekDlFttaYZZ1diMB6IyWkGNiLdhgcheos1AKveHrwQQtbwFV
-         rX3j0+ynGLYKt0SUZLxRJQGfBCUtATA7TYb8HH3pM1KvjLZ9hMRL9y2CjTe5V6rNdP
-         QZ3J0huZrZFNrFBUNjp+HEFL4BPVFrTMhW4AO4jw=
+        b=qB1l/4nkd9ytutk2NFY6D40kEZSm7JhdmJ0ugO9N//SwrFFaOMnwBoh94W/0bmGK/
+         5AqaomU3oBpb3aWGwUBFJl8zSlHsS/P+4WLhlZ+k/+XXf84radF6n5UE73FfINnfwW
+         USdigQb6/2GxQ2xzDw7eUFOj54pBDMgtfayK7RkU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.7 341/376] powerpc/32: Disable KASAN with pages bigger than 16k
-Date:   Fri, 19 Jun 2020 16:34:19 +0200
-Message-Id: <20200619141726.474527078@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.7 342/376] powerpc/64s: Dont let DT CPU features set FSCR_DSCR
+Date:   Fri, 19 Jun 2020 16:34:20 +0200
+Message-Id: <20200619141726.521924280@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -44,46 +42,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit 888468ce725a4cd56d72dc7e5096078f7a9251a0 upstream.
+commit 993e3d96fd08c3ebf7566e43be9b8cd622063e6d upstream.
 
-Mapping of early shadow area is implemented by using a single static
-page table having all entries pointing to the same early shadow page.
-The shadow area must therefore occupy full PGD entries.
+The device tree CPU features binding includes FSCR bit numbers which
+Linux is instructed to set by firmware.
 
-The shadow area has a size of 128MB starting at 0xf8000000.
-With 4k pages, a PGD entry is 4MB
-With 16k pages, a PGD entry is 64MB
-With 64k pages, a PGD entry is 1GB which is too big.
+Whether that's a good idea or not, in the case of the DSCR the Linux
+implementation has a hard requirement that the FSCR_DSCR bit not be
+set by default. We use it to track when a process reads/writes to
+DSCR, so it must be clear to begin with.
 
-Until we rework the early shadow mapping, disable KASAN when the page
-size is too big.
+So if firmware tells us to set FSCR_DSCR we must ignore it.
 
-Fixes: 2edb16efc899 ("powerpc/32: Add KASAN support")
-Cc: stable@vger.kernel.org # v5.2+
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Currently this does not cause a bug in our DSCR handling because the
+value of FSCR that the device tree CPU features code establishes is
+only used by swapper. All other tasks use the value hard coded in
+init_task.thread.fscr.
+
+However we'd like to fix that in a future commit, at which point this
+will become necessary.
+
+Fixes: 5a61ef74f269 ("powerpc/64s: Support new device tree binding for discovering CPU features")
+Cc: stable@vger.kernel.org # v4.12+
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/7195fcde7314ccbf7a081b356084a69d421b10d4.1590660977.git.christophe.leroy@csgroup.eu
+Link: https://lore.kernel.org/r/20200527145843.2761782-2-mpe@ellerman.id.au
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/Kconfig |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/powerpc/kernel/dt_cpu_ftrs.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -170,8 +170,8 @@ config PPC
- 	select HAVE_ARCH_AUDITSYSCALL
- 	select HAVE_ARCH_HUGE_VMAP		if PPC_BOOK3S_64 && PPC_RADIX_MMU
- 	select HAVE_ARCH_JUMP_LABEL
--	select HAVE_ARCH_KASAN			if PPC32
--	select HAVE_ARCH_KASAN_VMALLOC		if PPC32
-+	select HAVE_ARCH_KASAN			if PPC32 && PPC_PAGE_SHIFT <= 14
-+	select HAVE_ARCH_KASAN_VMALLOC		if PPC32 && PPC_PAGE_SHIFT <= 14
- 	select HAVE_ARCH_KGDB
- 	select HAVE_ARCH_MMAP_RND_BITS
- 	select HAVE_ARCH_MMAP_RND_COMPAT_BITS	if COMPAT
+--- a/arch/powerpc/kernel/dt_cpu_ftrs.c
++++ b/arch/powerpc/kernel/dt_cpu_ftrs.c
+@@ -346,6 +346,14 @@ static int __init feat_enable_dscr(struc
+ {
+ 	u64 lpcr;
+ 
++	/*
++	 * Linux relies on FSCR[DSCR] being clear, so that we can take the
++	 * facility unavailable interrupt and track the task's usage of DSCR.
++	 * See facility_unavailable_exception().
++	 * Clear the bit here so that feat_enable() doesn't set it.
++	 */
++	f->fscr_bit_nr = -1;
++
+ 	feat_enable(f);
+ 
+ 	lpcr = mfspr(SPRN_LPCR);
 
 
