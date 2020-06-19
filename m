@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50F29201365
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:01:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 229112014DC
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:21:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392240AbgFSPNo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:13:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44258 "EHLO mail.kernel.org"
+        id S2390950AbgFSPDC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:03:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390715AbgFSPNn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:13:43 -0400
+        id S2390944AbgFSPDA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:03:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E1E520776;
-        Fri, 19 Jun 2020 15:13:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 51CEE206DB;
+        Fri, 19 Jun 2020 15:03:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579622;
-        bh=QpqFatomJNIZinxVMriLwhh76eQ5JXxDrrQ4EMDUW1s=;
+        s=default; t=1592578980;
+        bh=Wf+R+6KTe04nlGSoWtQvkQLfcRzDNkTHxtiNJQH0HDo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cpOjk/rbxQW+5GgGCW25+AK5jgAvtGzfnIGoU2qi4sjCke5ZKZoh4eaaw39JTYR/w
-         Txz5Cyic32HmcAnTwfrJOvcO1XaP51ZqOyPsQ+l0RtBEMJb2RlvB9VoW7FhdbTBPVt
-         O0jpoZwWlkkx5nEx5qE1Azedn7R1OLzP/C0QlOEM=
+        b=yCCJdd/noGjPPvErEk35KjSuD/FZHwUH/rzlIa4/n5eTomqQaVkDkTZ58AhGwvTtS
+         CPJ4EUd/FrvJ7kg5FahTUP3Xo8E3b1qE7Y9SigP+4iOPoNjv2g+P94+/IxCESWJt8A
+         k8Z7TLKFLK8V5/pQX1JMy+F1cBTvElHv4P8pKIxs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.4 205/261] b43_legacy: Fix connection problem with WPA3
+        stable@vger.kernel.org, Dave Jiang <dave.jiang@intel.com>,
+        Ashok Raj <ashok.raj@intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 4.19 231/267] PCI: Program MPS for RCiEP devices
 Date:   Fri, 19 Jun 2020 16:33:36 +0200
-Message-Id: <20200619141659.721526380@linuxfoundation.org>
+Message-Id: <20200619141659.800042789@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
-References: <20200619141649.878808811@linuxfoundation.org>
+In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
+References: <20200619141648.840376470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,42 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Larry Finger <Larry.Finger@lwfinger.net>
+From: Ashok Raj <ashok.raj@intel.com>
 
-commit 6a29d134c04a8acebb7a95251acea7ad7abba106 upstream.
+commit aa0ce96d72dd2e1b0dfd0fb868f82876e7790878 upstream.
 
-Since the driver was first introduced into the kernel, it has only
-handled the ciphers associated with WEP, WPA, and WPA2. It fails with
-WPA3 even though mac80211 can handle those additional ciphers in software,
-b43legacy did not report that it could handle them. By setting MFP_CAPABLE using
-ieee80211_set_hw(), the problem is fixed.
+Root Complex Integrated Endpoints (RCiEPs) do not have an upstream bridge,
+so pci_configure_mps() previously ignored them, which may result in reduced
+performance.
 
-With this change, b43legacy will handle the ciphers it knows in hardware,
-and let mac80211 handle the others in software. It is not necessary to
-use the module parameter NOHWCRYPT to turn hardware encryption off.
-Although this change essentially eliminates that module parameter,
-I am choosing to keep it for cases where the hardware is broken,
-and software encryption is required for all ciphers.
+Instead, program the Max_Payload_Size of RCiEPs to the maximum supported
+value (unless it is limited for the PCIE_BUS_PEER2PEER case).  This also
+affects the subsequent programming of Max_Read_Request_Size because Linux
+programs MRRS based on the MPS value.
 
-Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
-Cc: Stable <stable@vger.kernel.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200526155909.5807-3-Larry.Finger@lwfinger.net
+Fixes: 9dae3a97297f ("PCI: Move MPS configuration check to pci_configure_device()")
+Link: https://lore.kernel.org/r/1585343775-4019-1-git-send-email-ashok.raj@intel.com
+Tested-by: Dave Jiang <dave.jiang@intel.com>
+Signed-off-by: Ashok Raj <ashok.raj@intel.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/broadcom/b43legacy/main.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/pci/probe.c |   22 +++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
 
---- a/drivers/net/wireless/broadcom/b43legacy/main.c
-+++ b/drivers/net/wireless/broadcom/b43legacy/main.c
-@@ -3801,6 +3801,7 @@ static int b43legacy_wireless_init(struc
- 	/* fill hw info */
- 	ieee80211_hw_set(hw, RX_INCLUDES_FCS);
- 	ieee80211_hw_set(hw, SIGNAL_DBM);
-+	ieee80211_hw_set(hw, MFP_CAPABLE); /* Allow WPA3 in software */
+--- a/drivers/pci/probe.c
++++ b/drivers/pci/probe.c
+@@ -1748,13 +1748,33 @@ static void pci_configure_mps(struct pci
+ 	struct pci_dev *bridge = pci_upstream_bridge(dev);
+ 	int mps, mpss, p_mps, rc;
  
- 	hw->wiphy->interface_modes =
- 		BIT(NL80211_IFTYPE_AP) |
+-	if (!pci_is_pcie(dev) || !bridge || !pci_is_pcie(bridge))
++	if (!pci_is_pcie(dev))
+ 		return;
+ 
+ 	/* MPS and MRRS fields are of type 'RsvdP' for VFs, short-circuit out */
+ 	if (dev->is_virtfn)
+ 		return;
+ 
++	/*
++	 * For Root Complex Integrated Endpoints, program the maximum
++	 * supported value unless limited by the PCIE_BUS_PEER2PEER case.
++	 */
++	if (pci_pcie_type(dev) == PCI_EXP_TYPE_RC_END) {
++		if (pcie_bus_config == PCIE_BUS_PEER2PEER)
++			mps = 128;
++		else
++			mps = 128 << dev->pcie_mpss;
++		rc = pcie_set_mps(dev, mps);
++		if (rc) {
++			pci_warn(dev, "can't set Max Payload Size to %d; if necessary, use \"pci=pcie_bus_safe\" and report a bug\n",
++				 mps);
++		}
++		return;
++	}
++
++	if (!bridge || !pci_is_pcie(bridge))
++		return;
++
+ 	mps = pcie_get_mps(dev);
+ 	p_mps = pcie_get_mps(bridge);
+ 
 
 
