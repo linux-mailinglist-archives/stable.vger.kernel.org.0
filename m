@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FA93201740
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:46:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C0812017FF
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:48:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395261AbgFSQgP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:36:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41724 "EHLO mail.kernel.org"
+        id S2388851AbgFSQp5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:45:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389195AbgFSOtJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:49:09 -0400
+        id S2388265AbgFSOln (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:41:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 250352158C;
-        Fri, 19 Jun 2020 14:49:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 820D02070A;
+        Fri, 19 Jun 2020 14:41:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578149;
-        bh=gurwdtib4L861NscFcX0tABfxzET9woljcbtDY2AjP4=;
+        s=default; t=1592577703;
+        bh=iYcUc5HN59kMLG7HGWR4iAb5BV2kngmF0II5snlSSQE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BXkRcPsjjHZbg++neV+3vH/3QR0xVO7WBlE85XdZcMYCkt1AqByQmo34TshBGtPKg
-         xzxD35v4YkyxINMZJhq4/rIvH2uC1oqyfmkJtxKl/NVYKNLcrYCPFHymgdpzz76Sbd
-         nxutiVfIstmypNis4zav44xrKFhAgzkjZM7CvoQI=
+        b=KB+yJbb/6PoBuEZAvRXNLZf0+D2no1H2gTM0KXW66ZuSbq3caB1PsI/VDDXTJiw0C
+         d71J0hQbxaI2xTfrkYRzQ4w1OmDEHGBvPHu4Rauxos+Wy+Pg08WnzoeN5GZiNYJhDP
+         4K3qLzrMm5p45+6GiIjvlzDAlJFNAfuKliQoDIoY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 102/190] media: platform: fcp: Set appropriate DMA parameters
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Shuah Khan <shuahkh@osg.samsung.com>,
+        Mauro Carvalho Chehab <mchehab@s-opensource.com>,
+        Florian Fainelli <f.fainelli@gmail.com>
+Subject: [PATCH 4.9 053/128] media: dvb_frontend: ensure that inital front end status initialized
 Date:   Fri, 19 Jun 2020 16:32:27 +0200
-Message-Id: <20200619141638.677857052@linuxfoundation.org>
+Message-Id: <20200619141623.012586497@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
-References: <20200619141633.446429600@linuxfoundation.org>
+In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
+References: <20200619141620.148019466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,71 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit dd844fb8e50b12e65bbdc5746c9876c6735500df ]
+commit a9e4998073d49a762a154a6b48a332ec6cb8e6b1 upstream.
 
-Enabling CONFIG_DMA_API_DEBUG=y and CONFIG_DMA_API_DEBUG_SG=y will
-enable extra validation on DMA operations ensuring that the size
-restraints are met.
+The fe_status variable s is not initialized meaning it can have any
+random garbage status.  This could be problematic if fe->ops.tune is
+false as s is not updated by the call to fe->ops.tune() and a
+subsequent check on the change status will using a garbage value.
+Fix this by adding FE_NONE to the enum fe_status and initializing
+s to this.
 
-When using the FCP in conjunction with the VSP1/DU, and display frames,
-the size of the DMA operations is larger than the default maximum
-segment size reported by the DMA core (64K). With the DMA debug enabled,
-this produces a warning such as the following:
+Detected by CoverityScan, CID#112887 ("Uninitialized scalar variable")
 
-"DMA-API: rcar-fcp fea27000.fcp: mapping sg segment longer than device
-claims to support [len=3145728] [max=65536]"
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Reviewed-by: Shuah Khan <shuahkh@osg.samsung.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-We have no specific limitation on the segment size which isn't already
-handled by the VSP1/DU which actually handles the DMA allcoations and
-buffer management, so define a maximum segment size of up to 4GB (a 32
-bit mask).
-
-Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Fixes: 7b49235e83b2 ("[media] v4l: Add Renesas R-Car FCP driver")
-Signed-off-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/rcar-fcp.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/media/dvb-core/dvb_frontend.c |    2 +-
+ include/uapi/linux/dvb/frontend.h     |    1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/rcar-fcp.c b/drivers/media/platform/rcar-fcp.c
-index 2988031d285d..0047d144c932 100644
---- a/drivers/media/platform/rcar-fcp.c
-+++ b/drivers/media/platform/rcar-fcp.c
-@@ -12,6 +12,7 @@
+--- a/drivers/media/dvb-core/dvb_frontend.c
++++ b/drivers/media/dvb-core/dvb_frontend.c
+@@ -629,7 +629,7 @@ static int dvb_frontend_thread(void *dat
+ 	struct dvb_frontend *fe = data;
+ 	struct dtv_frontend_properties *c = &fe->dtv_property_cache;
+ 	struct dvb_frontend_private *fepriv = fe->frontend_priv;
+-	enum fe_status s;
++	enum fe_status s = FE_NONE;
+ 	enum dvbfe_algo algo;
+ 	bool re_tune = false;
+ 	bool semheld = false;
+--- a/include/uapi/linux/dvb/frontend.h
++++ b/include/uapi/linux/dvb/frontend.h
+@@ -127,6 +127,7 @@ enum fe_sec_mini_cmd {
+  *			to reset DiSEqC, tone and parameters
   */
- 
- #include <linux/device.h>
-+#include <linux/dma-mapping.h>
- #include <linux/list.h>
- #include <linux/module.h>
- #include <linux/mutex.h>
-@@ -24,6 +25,7 @@
- struct rcar_fcp_device {
- 	struct list_head list;
- 	struct device *dev;
-+	struct device_dma_parameters dma_parms;
- };
- 
- static LIST_HEAD(fcp_devices);
-@@ -139,6 +141,9 @@ static int rcar_fcp_probe(struct platform_device *pdev)
- 
- 	fcp->dev = &pdev->dev;
- 
-+	fcp->dev->dma_parms = &fcp->dma_parms;
-+	dma_set_max_seg_size(fcp->dev, DMA_BIT_MASK(32));
-+
- 	pm_runtime_enable(&pdev->dev);
- 
- 	mutex_lock(&fcp_lock);
--- 
-2.25.1
-
+ enum fe_status {
++	FE_NONE			= 0x00,
+ 	FE_HAS_SIGNAL		= 0x01,
+ 	FE_HAS_CARRIER		= 0x02,
+ 	FE_HAS_VITERBI		= 0x04,
 
 
