@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B443200C12
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:43:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05802200BAC
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:38:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388223AbgFSOlU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:41:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59770 "EHLO mail.kernel.org"
+        id S2387536AbgFSOg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:36:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388221AbgFSOlT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:41:19 -0400
+        id S2387529AbgFSOg0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:36:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 89A1221527;
-        Fri, 19 Jun 2020 14:41:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0946220CC7;
+        Fri, 19 Jun 2020 14:36:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577679;
-        bh=kq7xnAF9snUBez46/Ih5rjBI7O4wxsDS2jImrawFsYc=;
+        s=default; t=1592577385;
+        bh=AZXRnUQiR7NIYwkJcV2POYehmcsjZIUlWrylzvrWpH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yn5lyytj1cVATiFPD0cupf9E0KL75dtKW2BVygbIXgWPWVDH8en4hS7IPeGvew26U
-         Qu2JHcLTC7LcH6m1hT/hHAQ1BeaZPS9rJCxYEAwcayw+1uoMId/+VYsO0FrlIJ1cV/
-         Z+meDMlkmlqLbY+ikg40izWVJFJISduYlw76wLpw=
+        b=xsAd4P2Cy/RVIvq7GYAJHENlCM5aeSRohZ6FRUX93E7k8VyK9JPomH1NzBHm0G3nX
+         KuooS2umG8isxSSzUaWfC/WqX1cvImiNilcy6EtuknVa1Q45pBimNjls3KLHlzBj+t
+         nmMtqo0zXfsuvK11KVrTLe8heYyM4PXTnIBh9Wds=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiujun Huang <hqjagain@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        syzbot+b1c61e5f11be5782f192@syzkaller.appspotmail.com
-Subject: [PATCH 4.9 044/128] ath9k: Fix use-after-free Write in ath9k_htc_rx_msg
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 029/101] spi: Fix controller unregister order
 Date:   Fri, 19 Jun 2020 16:32:18 +0200
-Message-Id: <20200619141622.548236961@linuxfoundation.org>
+Message-Id: <20200619141615.616804814@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
-References: <20200619141620.148019466@linuxfoundation.org>
+In-Reply-To: <20200619141614.001544111@linuxfoundation.org>
+References: <20200619141614.001544111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiujun Huang <hqjagain@gmail.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit e4ff08a4d727146bb6717a39a8d399d834654345 upstream.
+[ Upstream commit 84855678add8aba927faf76bc2f130a40f94b6f7 ]
 
-Write out of slab bounds. We should check epid.
+When an SPI controller unregisters, it unbinds all its slave devices.
+For this, their drivers may need to access the SPI bus, e.g. to quiesce
+interrupts.
 
-The case reported by syzbot:
-https://lore.kernel.org/linux-usb/0000000000006ac55b05a1c05d72@google.com
-BUG: KASAN: use-after-free in htc_process_conn_rsp
-drivers/net/wireless/ath/ath9k/htc_hst.c:131 [inline]
-BUG: KASAN: use-after-free in ath9k_htc_rx_msg+0xa25/0xaf0
-drivers/net/wireless/ath/ath9k/htc_hst.c:443
-Write of size 2 at addr ffff8881cea291f0 by task swapper/1/0
+However since commit ffbbdd21329f ("spi: create a message queueing
+infrastructure"), spi_destroy_queue() is executed before unbinding the
+slaves.  It sets ctlr->running = false, thereby preventing SPI bus
+access and causing unbinding of slave devices to fail.
 
-Call Trace:
- htc_process_conn_rsp drivers/net/wireless/ath/ath9k/htc_hst.c:131
-[inline]
-ath9k_htc_rx_msg+0xa25/0xaf0
-drivers/net/wireless/ath/ath9k/htc_hst.c:443
-ath9k_hif_usb_reg_in_cb+0x1ba/0x630
-drivers/net/wireless/ath/ath9k/hif_usb.c:718
-__usb_hcd_giveback_urb+0x29a/0x550 drivers/usb/core/hcd.c:1650
-usb_hcd_giveback_urb+0x368/0x420 drivers/usb/core/hcd.c:1716
-dummy_timer+0x1258/0x32ae drivers/usb/gadget/udc/dummy_hcd.c:1966
-call_timer_fn+0x195/0x6f0 kernel/time/timer.c:1404
-expire_timers kernel/time/timer.c:1449 [inline]
-__run_timers kernel/time/timer.c:1773 [inline]
-__run_timers kernel/time/timer.c:1740 [inline]
-run_timer_softirq+0x5f9/0x1500 kernel/time/timer.c:1786
+Fix by unbinding slaves before calling spi_destroy_queue().
 
-Reported-and-tested-by: syzbot+b1c61e5f11be5782f192@syzkaller.appspotmail.com
-Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200404041838.10426-4-hqjagain@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: ffbbdd21329f ("spi: create a message queueing infrastructure")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: stable@vger.kernel.org # v3.4+
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/8aaf9d44c153fe233b17bc2dec4eb679898d7e7b.1589557526.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/htc_hst.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/spi/spi.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/wireless/ath/ath9k/htc_hst.c
-+++ b/drivers/net/wireless/ath/ath9k/htc_hst.c
-@@ -114,6 +114,9 @@ static void htc_process_conn_rsp(struct
+diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
+index e5460d84ed08..57001f8f727a 100644
+--- a/drivers/spi/spi.c
++++ b/drivers/spi/spi.c
+@@ -1922,11 +1922,12 @@ void spi_unregister_master(struct spi_master *master)
+ 			dev_err(&master->dev, "queue remove failed\n");
+ 	}
  
- 	if (svc_rspmsg->status == HTC_SERVICE_SUCCESS) {
- 		epid = svc_rspmsg->endpoint_id;
-+		if (epid < 0 || epid >= ENDPOINT_MAX)
-+			return;
++	device_for_each_child(&master->dev, NULL, __unregister);
 +
- 		service_id = be16_to_cpu(svc_rspmsg->service_id);
- 		max_msglen = be16_to_cpu(svc_rspmsg->max_msg_len);
- 		endpoint = &target->endpoint[epid];
+ 	mutex_lock(&board_lock);
+ 	list_del(&master->list);
+ 	mutex_unlock(&board_lock);
+ 
+-	device_for_each_child(&master->dev, NULL, __unregister);
+ 	device_unregister(&master->dev);
+ }
+ EXPORT_SYMBOL_GPL(spi_unregister_master);
+-- 
+2.25.1
+
 
 
