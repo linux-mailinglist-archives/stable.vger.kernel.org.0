@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68A3A200BFB
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:42:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 481AB200BB1
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:38:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388129AbgFSOkU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:40:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58142 "EHLO mail.kernel.org"
+        id S2387564AbgFSOgj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:36:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388099AbgFSOkS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:40:18 -0400
+        id S2387552AbgFSOgh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:36:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 370FF20773;
-        Fri, 19 Jun 2020 14:40:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3209F2158C;
+        Fri, 19 Jun 2020 14:36:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577617;
-        bh=MavuaE6RpHO1pjmAVmuBsMf1W73U+3iUQqhX42rPWaU=;
+        s=default; t=1592577397;
+        bh=StM8Mz4zDrwZucJ3FbQLllhtm41L09CDt96wvqoY6KU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=beKqaWlRG9UNvuOM7xuZYzgOech0BvaV3I2Zms2USAuShbB6MplnDX5E+/ufsH2zD
-         xt2ZhI8OJ0VCbfay8gYx/J1h4lXaS6EQxjOQepleUbUYCwUGhqCDrs3sKtjW1+vh91
-         S5YFf2VGnzK6oR7K0cftUDGiggK39owzEcAn6Ir8=
+        b=zF9CftVlLVOdafO3/It4tqYoSRhAjaN/nX/F3T8Kd/s85chn72JiPL6fliIxjXFnr
+         rywyECMdovSGcJJ7pS4V3P/4+R2kONW5tP9uZFKkDmXfPhsR+uwhJRg43XpSZgND1y
+         Uv0GLq9YXD3Q601ZqQ+xJLzJK0Yb6KxOpUxMHup8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Jan Kara <jack@suse.cz>, Tejun Heo <tj@kernel.org>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.9 020/128] cgroup, blkcg: Prepare some symbols for module and !CONFIG_CGROUP usages
-Date:   Fri, 19 Jun 2020 16:31:54 +0200
-Message-Id: <20200619141621.241491386@linuxfoundation.org>
+        stable@vger.kernel.org, Jarod Wilson <jarod@redhat.com>,
+        Alexander Duyck <aduyck@mirantis.com>,
+        Aaron Brown <aaron.f.brown@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        Jeff Chase <jnchase@google.com>
+Subject: [PATCH 4.4 006/101] igb: improve handling of disconnected adapters
+Date:   Fri, 19 Jun 2020 16:31:55 +0200
+Message-Id: <20200619141614.342127109@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
-References: <20200619141620.148019466@linuxfoundation.org>
+In-Reply-To: <20200619141614.001544111@linuxfoundation.org>
+References: <20200619141614.001544111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +46,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Jarod Wilson <jarod@redhat.com>
 
-commit 9b0eb69b75bccada2d341d7e7ca342f0cb1c9a6a upstream.
+commit 7b06a6909555ffb0140733cc4420222604140b27 upstream.
 
-btrfs is going to use css_put() and wbc helpers to improve cgroup
-writeback support.  Add dummy css_get() definition and export wbc
-helpers to prepare for module and !CONFIG_CGROUP builds.
+Clean up array_rd32 so that it uses igb_rd32 the same as rd32, per the
+suggestion of Alexander Duyck, and use io_addr in more places, so that
+we don't have the need to call E1000_REMOVED (which simply looks for a
+null hw_addr) nearly as much.
 
-[only backport the export of __inode_attach_wb for stable kernels - gregkh]
-
-Reported-by: kbuild test robot <lkp@intel.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Jarod Wilson <jarod@redhat.com>
+Acked-by: Alexander Duyck <aduyck@mirantis.com>
+Tested-by: Aaron Brown <aaron.f.brown@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Cc: Jeff Chase <jnchase@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/fs-writeback.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/intel/igb/e1000_regs.h |    3 +--
+ drivers/net/ethernet/intel/igb/igb_main.c   |    5 ++---
+ 2 files changed, 3 insertions(+), 5 deletions(-)
 
---- a/fs/fs-writeback.c
-+++ b/fs/fs-writeback.c
-@@ -269,6 +269,7 @@ void __inode_attach_wb(struct inode *ino
- 	if (unlikely(cmpxchg(&inode->i_wb, NULL, wb)))
- 		wb_put(wb);
- }
-+EXPORT_SYMBOL_GPL(__inode_attach_wb);
+--- a/drivers/net/ethernet/intel/igb/e1000_regs.h
++++ b/drivers/net/ethernet/intel/igb/e1000_regs.h
+@@ -386,8 +386,7 @@ do { \
+ #define array_wr32(reg, offset, value) \
+ 	wr32((reg) + ((offset) << 2), (value))
  
- /**
-  * locked_inode_to_wb_and_lock_list - determine a locked inode's wb and lock it
+-#define array_rd32(reg, offset) \
+-	(readl(hw->hw_addr + reg + ((offset) << 2)))
++#define array_rd32(reg, offset) (igb_rd32(hw, reg + ((offset) << 2)))
+ 
+ /* DMA Coalescing registers */
+ #define E1000_PCIEMISC	0x05BB8 /* PCIE misc config register */
+--- a/drivers/net/ethernet/intel/igb/igb_main.c
++++ b/drivers/net/ethernet/intel/igb/igb_main.c
+@@ -946,7 +946,6 @@ static void igb_configure_msix(struct ig
+ static int igb_request_msix(struct igb_adapter *adapter)
+ {
+ 	struct net_device *netdev = adapter->netdev;
+-	struct e1000_hw *hw = &adapter->hw;
+ 	int i, err = 0, vector = 0, free_vector = 0;
+ 
+ 	err = request_irq(adapter->msix_entries[vector].vector,
+@@ -959,7 +958,7 @@ static int igb_request_msix(struct igb_a
+ 
+ 		vector++;
+ 
+-		q_vector->itr_register = hw->hw_addr + E1000_EITR(vector);
++		q_vector->itr_register = adapter->io_addr + E1000_EITR(vector);
+ 
+ 		if (q_vector->rx.ring && q_vector->tx.ring)
+ 			sprintf(q_vector->name, "%s-TxRx-%u", netdev->name,
+@@ -1230,7 +1229,7 @@ static int igb_alloc_q_vector(struct igb
+ 	q_vector->tx.work_limit = adapter->tx_work_limit;
+ 
+ 	/* initialize ITR configuration */
+-	q_vector->itr_register = adapter->hw.hw_addr + E1000_EITR(0);
++	q_vector->itr_register = adapter->io_addr + E1000_EITR(0);
+ 	q_vector->itr_val = IGB_START_ITR;
+ 
+ 	/* initialize pointer to rings */
 
 
