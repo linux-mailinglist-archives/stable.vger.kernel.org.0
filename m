@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1FAB201077
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:31:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9727201079
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:31:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393754AbgFSPam (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:30:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34606 "EHLO mail.kernel.org"
+        id S2393755AbgFSPaq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:30:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393748AbgFSPal (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:30:41 -0400
+        id S2404800AbgFSPao (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:30:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B1E420786;
-        Fri, 19 Jun 2020 15:30:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE02B20757;
+        Fri, 19 Jun 2020 15:30:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580640;
-        bh=ZaHJFLKQqFrFhTbbH0RUXKHAiIAHLLdwQlqrveM/igg=;
+        s=default; t=1592580643;
+        bh=2HfZbLzoKHoujmOt1fTIJ6DdkGvS8uZOftDye/Emu7A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jvxcxVePZFtmB1fEuNpgB4QbPf3O23EMfND4pKWf7bNyPsPURv4NxaSWljIYzpuNF
-         hjfaV2yvpSAT6xtkZXhCcnTawQXMoiT59x7JK1J2cgN7kiEJQL26zmvb28YMcZaKyO
-         q2wQtFOqmSVDfl07RTdRI4Ul/SX8gqQi6cEILFmw=
+        b=XiZQ72YZlOwHnqzzk3Ok9sB9hxvk6vULL/in69HOHtNYSjaOoovhmGBThVvtG+uT8
+         +u9HgtXAkxy10S3xnW2xWp8H5orbZd5+L06XPofIlLjGgvMLoB5SQ4GRSdgv8+aTaP
+         H0UOHDvhxpVUbuQFZ94pxAnfR5934UndFGP1z454=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hari Bathini <hbathini@linux.ibm.com>,
         Mahesh Salgaonkar <mahesh@linux.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.7 327/376] powerpc/fadump: use static allocation for reserved memory ranges
-Date:   Fri, 19 Jun 2020 16:34:05 +0200
-Message-Id: <20200619141725.811693896@linuxfoundation.org>
+Subject: [PATCH 5.7 328/376] powerpc/fadump: consider reserved ranges while reserving memory
+Date:   Fri, 19 Jun 2020 16:34:06 +0200
+Message-Id: <20200619141725.860214679@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -46,189 +46,139 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hari Bathini <hbathini@linux.ibm.com>
 
-commit 02c04e374e176ae3a3f64a682f80702f8d2fb65d upstream.
+commit 140777a3d8dfdb3d3f20ea7707c0f1c0ce1b0aa5 upstream.
 
-At times, memory ranges have to be looked up during early boot, when
-kernel couldn't be initialized for dynamic memory allocation. In fact,
-reserved-ranges look up is needed during FADump memory reservation.
-Without accounting for reserved-ranges in reserving memory for FADump,
-MPIPL boot fails with memory corruption issues. So, extend memory
-ranges handling to support static allocation and populate reserved
-memory ranges during early boot.
+Commit 0962e8004e97 ("powerpc/prom: Scan reserved-ranges node for
+memory reservations") enabled support to parse reserved-ranges DT
+node and reserve kernel memory falling in these ranges for F/W
+purposes. Memory reserved for FADump should not overlap with these
+ranges as it could corrupt memory meant for F/W or crash'ed kernel
+memory to be exported as vmcore.
 
-Fixes: dda9dbfeeb7a ("powerpc/fadump: consider reserved ranges while releasing memory")
+But since commit 579ca1a27675 ("powerpc/fadump: make use of memblock's
+bottom up allocation mode"), memblock_find_in_range() is being used to
+find the appropriate area to reserve memory for FADump, which can't
+account for reserved-ranges as these ranges are reserved only after
+FADump memory reservation.
+
+With reserved-ranges now being populated during early boot, look out
+for these memory ranges while reserving memory for FADump. Without
+this change, MPIPL on PowerNV systems aborts with hostboot failure,
+when memory reserved for FADump is less than 4096MB.
+
+Fixes: 579ca1a27675 ("powerpc/fadump: make use of memblock's bottom up allocation mode")
 Cc: stable@vger.kernel.org
 Signed-off-by: Hari Bathini <hbathini@linux.ibm.com>
 Reviewed-by: Mahesh Salgaonkar <mahesh@linux.ibm.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/158737294432.26700.4830263187856221314.stgit@hbathini.in.ibm.com
+Link: https://lore.kernel.org/r/158737297693.26700.16193820746269425424.stgit@hbathini.in.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/include/asm/fadump-internal.h |    4 +
- arch/powerpc/kernel/fadump.c               |   77 ++++++++++++++++-------------
- 2 files changed, 48 insertions(+), 33 deletions(-)
+ arch/powerpc/kernel/fadump.c |   76 +++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 67 insertions(+), 9 deletions(-)
 
---- a/arch/powerpc/include/asm/fadump-internal.h
-+++ b/arch/powerpc/include/asm/fadump-internal.h
-@@ -64,12 +64,14 @@ struct fadump_memory_range {
- };
- 
- /* fadump memory ranges info */
-+#define RNG_NAME_SZ			16
- struct fadump_mrange_info {
--	char				name[16];
-+	char				name[RNG_NAME_SZ];
- 	struct fadump_memory_range	*mem_ranges;
- 	u32				mem_ranges_sz;
- 	u32				mem_range_cnt;
- 	u32				max_mem_ranges;
-+	bool				is_static;
- };
- 
- /* Platform specific callback functions */
 --- a/arch/powerpc/kernel/fadump.c
 +++ b/arch/powerpc/kernel/fadump.c
-@@ -40,8 +40,17 @@ struct kobject *fadump_kobj;
- 
- #ifndef CONFIG_PRESERVE_FA_DUMP
- static DEFINE_MUTEX(fadump_mutex);
--struct fadump_mrange_info crash_mrange_info = { "crash", NULL, 0, 0, 0 };
--struct fadump_mrange_info reserved_mrange_info = { "reserved", NULL, 0, 0, 0 };
-+struct fadump_mrange_info crash_mrange_info = { "crash", NULL, 0, 0, 0, false };
-+
-+#define RESERVED_RNGS_SZ	16384 /* 16K - 128 entries */
-+#define RESERVED_RNGS_CNT	(RESERVED_RNGS_SZ / \
-+				 sizeof(struct fadump_memory_range))
-+static struct fadump_memory_range rngs[RESERVED_RNGS_CNT];
-+struct fadump_mrange_info reserved_mrange_info = { "reserved", rngs,
-+						   RESERVED_RNGS_SZ, 0,
-+						   RESERVED_RNGS_CNT, true };
-+
-+static void __init early_init_dt_scan_reserved_ranges(unsigned long node);
- 
- #ifdef CONFIG_CMA
- static struct cma *fadump_cma;
-@@ -110,6 +119,11 @@ static int __init fadump_cma_init(void)
- int __init early_init_dt_scan_fw_dump(unsigned long node, const char *uname,
- 				      int depth, void *data)
- {
-+	if (depth == 0) {
-+		early_init_dt_scan_reserved_ranges(node);
-+		return 0;
-+	}
-+
- 	if (depth != 1)
- 		return 0;
- 
-@@ -728,10 +742,14 @@ void fadump_free_cpu_notes_buf(void)
- 
- static void fadump_free_mem_ranges(struct fadump_mrange_info *mrange_info)
- {
-+	if (mrange_info->is_static) {
-+		mrange_info->mem_range_cnt = 0;
-+		return;
-+	}
-+
- 	kfree(mrange_info->mem_ranges);
--	mrange_info->mem_ranges = NULL;
--	mrange_info->mem_ranges_sz = 0;
--	mrange_info->max_mem_ranges = 0;
-+	memset((void *)((u64)mrange_info + RNG_NAME_SZ), 0,
-+	       (sizeof(struct fadump_mrange_info) - RNG_NAME_SZ));
+@@ -445,10 +445,72 @@ static int __init fadump_get_boot_mem_re
+ 	return ret;
  }
  
- /*
-@@ -788,6 +806,12 @@ static inline int fadump_add_mem_range(s
- 		if (mrange_info->mem_range_cnt == mrange_info->max_mem_ranges) {
- 			int ret;
- 
-+			if (mrange_info->is_static) {
-+				pr_err("Reached array size limit for %s memory ranges\n",
-+				       mrange_info->name);
-+				return -ENOSPC;
++/*
++ * Returns true, if the given range overlaps with reserved memory ranges
++ * starting at idx. Also, updates idx to index of overlapping memory range
++ * with the given memory range.
++ * False, otherwise.
++ */
++static bool overlaps_reserved_ranges(u64 base, u64 end, int *idx)
++{
++	bool ret = false;
++	int i;
++
++	for (i = *idx; i < reserved_mrange_info.mem_range_cnt; i++) {
++		u64 rbase = reserved_mrange_info.mem_ranges[i].base;
++		u64 rend = rbase + reserved_mrange_info.mem_ranges[i].size;
++
++		if (end <= rbase)
++			break;
++
++		if ((end > rbase) &&  (base < rend)) {
++			*idx = i;
++			ret = true;
++			break;
++		}
++	}
++
++	return ret;
++}
++
++/*
++ * Locate a suitable memory area to reserve memory for FADump. While at it,
++ * lookup reserved-ranges & avoid overlap with them, as they are used by F/W.
++ */
++static u64 __init fadump_locate_reserve_mem(u64 base, u64 size)
++{
++	struct fadump_memory_range *mrngs;
++	phys_addr_t mstart, mend;
++	int idx = 0;
++	u64 i, ret = 0;
++
++	mrngs = reserved_mrange_info.mem_ranges;
++	for_each_free_mem_range(i, NUMA_NO_NODE, MEMBLOCK_NONE,
++				&mstart, &mend, NULL) {
++		pr_debug("%llu) mstart: %llx, mend: %llx, base: %llx\n",
++			 i, mstart, mend, base);
++
++		if (mstart > base)
++			base = PAGE_ALIGN(mstart);
++
++		while ((mend > base) && ((mend - base) >= size)) {
++			if (!overlaps_reserved_ranges(base, base+size, &idx)) {
++				ret = base;
++				goto out;
 +			}
 +
- 			ret = fadump_alloc_mem_ranges(mrange_info);
- 			if (ret)
- 				return ret;
-@@ -1204,20 +1228,19 @@ static void sort_and_merge_mem_ranges(st
-  * Scan reserved-ranges to consider them while reserving/releasing
-  * memory for FADump.
-  */
--static inline int fadump_scan_reserved_mem_ranges(void)
-+static void __init early_init_dt_scan_reserved_ranges(unsigned long node)
++			base = mrngs[idx].base + mrngs[idx].size;
++			base = PAGE_ALIGN(base);
++		}
++	}
++
++out:
++	return ret;
++}
++
+ int __init fadump_reserve_mem(void)
  {
--	struct device_node *root;
- 	const __be32 *prop;
- 	int len, ret = -1;
- 	unsigned long i;
+-	u64 base, size, mem_boundary, bootmem_min, align = PAGE_SIZE;
+-	bool is_memblock_bottom_up = memblock_bottom_up();
++	u64 base, size, mem_boundary, bootmem_min;
+ 	int ret = 1;
  
--	root = of_find_node_by_path("/");
--	if (!root)
--		return ret;
-+	/* reserved-ranges already scanned */
-+	if (reserved_mrange_info.mem_range_cnt != 0)
-+		return;
- 
--	prop = of_get_property(root, "reserved-ranges", &len);
-+	prop = of_get_flat_dt_prop(node, "reserved-ranges", &len);
- 	if (!prop)
--		return ret;
-+		return;
- 
- 	/*
- 	 * Each reserved range is an (address,size) pair, 2 cells each,
-@@ -1239,7 +1262,8 @@ static inline int fadump_scan_reserved_m
+ 	if (!fw_dump.fadump_enabled)
+@@ -469,9 +531,9 @@ int __init fadump_reserve_mem(void)
+ 			PAGE_ALIGN(fadump_calculate_reserve_size());
+ #ifdef CONFIG_CMA
+ 		if (!fw_dump.nocma) {
+-			align = FADUMP_CMA_ALIGNMENT;
+ 			fw_dump.boot_memory_size =
+-				ALIGN(fw_dump.boot_memory_size, align);
++				ALIGN(fw_dump.boot_memory_size,
++				      FADUMP_CMA_ALIGNMENT);
  		}
- 	}
+ #endif
  
--	return ret;
-+	/* Compact reserved ranges */
-+	sort_and_merge_mem_ranges(&reserved_mrange_info);
- }
- 
- /*
-@@ -1253,32 +1277,21 @@ static void fadump_release_memory(u64 be
- 	u64 ra_start, ra_end, tstart;
- 	int i, ret;
- 
--	fadump_scan_reserved_mem_ranges();
+@@ -539,11 +601,7 @@ int __init fadump_reserve_mem(void)
+ 		 * Reserve memory at an offset closer to bottom of the RAM to
+ 		 * minimize the impact of memory hot-remove operation.
+ 		 */
+-		memblock_set_bottom_up(true);
+-		base = memblock_find_in_range(base, mem_boundary, size, align);
 -
- 	ra_start = fw_dump.reserve_dump_area_start;
- 	ra_end = ra_start + fw_dump.reserve_dump_area_size;
+-		/* Restore the previous allocation mode */
+-		memblock_set_bottom_up(is_memblock_bottom_up);
++		base = fadump_locate_reserve_mem(base, size);
  
- 	/*
--	 * Add reserved dump area to reserved ranges list
--	 * and exclude all these ranges while releasing memory.
-+	 * If reserved ranges array limit is hit, overwrite the last reserved
-+	 * memory range with reserved dump area to ensure it is excluded from
-+	 * the memory being released (reused for next FADump registration).
- 	 */
--	ret = fadump_add_mem_range(&reserved_mrange_info, ra_start, ra_end);
--	if (ret != 0) {
--		/*
--		 * Not enough memory to setup reserved ranges but the system is
--		 * running shortage of memory. So, release all the memory except
--		 * Reserved dump area (reused for next fadump registration).
--		 */
--		if (begin < ra_end && end > ra_start) {
--			if (begin < ra_start)
--				fadump_release_reserved_area(begin, ra_start);
--			if (end > ra_end)
--				fadump_release_reserved_area(ra_end, end);
--		} else
--			fadump_release_reserved_area(begin, end);
-+	if (reserved_mrange_info.mem_range_cnt ==
-+	    reserved_mrange_info.max_mem_ranges)
-+		reserved_mrange_info.mem_range_cnt--;
- 
-+	ret = fadump_add_mem_range(&reserved_mrange_info, ra_start, ra_end);
-+	if (ret != 0)
- 		return;
--	}
- 
- 	/* Get the reserved ranges list in order first. */
- 	sort_and_merge_mem_ranges(&reserved_mrange_info);
+ 		if (!base) {
+ 			pr_err("Failed to find memory chunk for reservation!\n");
 
 
