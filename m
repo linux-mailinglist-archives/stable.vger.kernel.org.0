@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69BE8201296
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:56:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84F7D201294
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:56:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404129AbgFSPxc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:53:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53946 "EHLO mail.kernel.org"
+        id S2393036AbgFSPxY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:53:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388839AbgFSPWa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:22:30 -0400
+        id S2393026AbgFSPWh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:22:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3139821582;
-        Fri, 19 Jun 2020 15:22:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1721720B80;
+        Fri, 19 Jun 2020 15:22:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580148;
-        bh=pRLBDBQ9z6eh6B+AyGoduKroeDK6488kLgakcE/Mq3c=;
+        s=default; t=1592580156;
+        bh=gIPMWsm4ABPCize5QULWOmfap6esL9krjFHVmOk7eLw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ut8kNZI/keUu4wNmSYkFdELuwFpP9pgZIQkrchxd2bdKNoO/WVHhxh8mfJNanFnMP
-         w5QRs3IoA3KBJoMpuDoM87EKyAli1TSurYVgzWUIgNqPTnwnQTxkCTf5OC1hwbckD4
-         ufQcxpWUu9elwLdm5nWvClcKrlga5zKj6WHnOj3s=
+        b=05ayz8jT4vdfng7a/A/46tb3GgjNZTm3LcpJ+H2niPPkO87FJAe6VsvfaN9WZt++6
+         GihE5US4yjR6FiDOtq0qYRqwZ79m5DAabEA2aRLEKlGCmcAmA7lVPJkx4Pa10qEhWp
+         WMoN3/PDsVrbyoNMXlQsU650Bm2Vw0Plw3xf6zMU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 140/376] iocost_monitor: drop string wrap around numbers when outputting json
-Date:   Fri, 19 Jun 2020 16:30:58 +0200
-Message-Id: <20200619141716.961418697@linuxfoundation.org>
+        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 142/376] ice: Fix error return code in ice_add_prof()
+Date:   Fri, 19 Jun 2020 16:31:00 +0200
+Message-Id: <20200619141717.055532750@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -43,81 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit 21f3cfeab304fc07b90d93d98d4d2f62110fe6b2 ]
+[ Upstream commit f8d530ac29fe9248f5e58ca5bcf4c368f8393ccf ]
 
-Wrapping numbers in strings is used by some to work around bit-width issues in
-some enviroments. The problem isn't innate to json and the workaround seems to
-cause more integration problems than help. Let's drop the string wrapping.
+Fix to return a error code from the error handling case
+instead of 0, as done elsewhere in this function.
 
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 31ad4e4ee1e4 ("ice: Allocate flow profile")
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/cgroup/iocost_monitor.py | 42 +++++++++++++++++-----------------
- 1 file changed, 21 insertions(+), 21 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_flex_pipe.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/tools/cgroup/iocost_monitor.py b/tools/cgroup/iocost_monitor.py
-index 9d8e9613008a..103605f5be8c 100644
---- a/tools/cgroup/iocost_monitor.py
-+++ b/tools/cgroup/iocost_monitor.py
-@@ -112,14 +112,14 @@ class IocStat:
+diff --git a/drivers/net/ethernet/intel/ice/ice_flex_pipe.c b/drivers/net/ethernet/intel/ice/ice_flex_pipe.c
+index 42bac3ec5526..e7a2671222d2 100644
+--- a/drivers/net/ethernet/intel/ice/ice_flex_pipe.c
++++ b/drivers/net/ethernet/intel/ice/ice_flex_pipe.c
+@@ -2962,8 +2962,10 @@ ice_add_prof(struct ice_hw *hw, enum ice_block blk, u64 id, u8 ptypes[],
  
-     def dict(self, now):
-         return { 'device'               : devname,
--                 'timestamp'            : str(now),
--                 'enabled'              : str(int(self.enabled)),
--                 'running'              : str(int(self.running)),
--                 'period_ms'            : str(self.period_ms),
--                 'period_at'            : str(self.period_at),
--                 'period_vtime_at'      : str(self.vperiod_at),
--                 'busy_level'           : str(self.busy_level),
--                 'vrate_pct'            : str(self.vrate_pct), }
-+                 'timestamp'            : now,
-+                 'enabled'              : self.enabled,
-+                 'running'              : self.running,
-+                 'period_ms'            : self.period_ms,
-+                 'period_at'            : self.period_at,
-+                 'period_vtime_at'      : self.vperiod_at,
-+                 'busy_level'           : self.busy_level,
-+                 'vrate_pct'            : self.vrate_pct, }
+ 	/* add profile info */
+ 	prof = devm_kzalloc(ice_hw_to_dev(hw), sizeof(*prof), GFP_KERNEL);
+-	if (!prof)
++	if (!prof) {
++		status = ICE_ERR_NO_MEMORY;
+ 		goto err_ice_add_prof;
++	}
  
-     def table_preamble_str(self):
-         state = ('RUN' if self.running else 'IDLE') if self.enabled else 'OFF'
-@@ -179,19 +179,19 @@ class IocgStat:
- 
-     def dict(self, now, path):
-         out = { 'cgroup'                : path,
--                'timestamp'             : str(now),
--                'is_active'             : str(int(self.is_active)),
--                'weight'                : str(self.weight),
--                'weight_active'         : str(self.active),
--                'weight_inuse'          : str(self.inuse),
--                'hweight_active_pct'    : str(self.hwa_pct),
--                'hweight_inuse_pct'     : str(self.hwi_pct),
--                'inflight_pct'          : str(self.inflight_pct),
--                'debt_ms'               : str(self.debt_ms),
--                'use_delay'             : str(self.use_delay),
--                'delay_ms'              : str(self.delay_ms),
--                'usage_pct'             : str(self.usage),
--                'address'               : str(hex(self.address)) }
-+                'timestamp'             : now,
-+                'is_active'             : self.is_active,
-+                'weight'                : self.weight,
-+                'weight_active'         : self.active,
-+                'weight_inuse'          : self.inuse,
-+                'hweight_active_pct'    : self.hwa_pct,
-+                'hweight_inuse_pct'     : self.hwi_pct,
-+                'inflight_pct'          : self.inflight_pct,
-+                'debt_ms'               : self.debt_ms,
-+                'use_delay'             : self.use_delay,
-+                'delay_ms'              : self.delay_ms,
-+                'usage_pct'             : self.usage,
-+                'address'               : self.address }
-         for i in range(len(self.usages)):
-             out[f'usage_pct_{i}'] = str(self.usages[i])
-         return out
+ 	prof->profile_cookie = id;
+ 	prof->prof_id = prof_id;
 -- 
 2.25.1
 
