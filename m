@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D71A320128E
+	by mail.lfdr.de (Postfix) with ESMTP id 67BF420128D
 	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:56:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405381AbgFSPxI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2393235AbgFSPxI (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 19 Jun 2020 11:53:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54226 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:54248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393051AbgFSPWp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:22:45 -0400
+        id S2393060AbgFSPWr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:22:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D5FD420B80;
-        Fri, 19 Jun 2020 15:22:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5099521582;
+        Fri, 19 Jun 2020 15:22:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580164;
-        bh=LqIvZdy0rZViN+9Rw5CFoFIo9NiAxYZqFGNN6r9tn/o=;
+        s=default; t=1592580166;
+        bh=fe6JlMkedmaY+Fx6mlPmGF1n1tIJcCuXDwOukd/h1yw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A2ZezLABiEW8jKqJ5utLA/sOACf9GLdH4o6fMoCOaCGHOAOQ5KShtl18IH3322Qec
-         iRgbLIlQriiC5DhZQpAGxiko6KIVtuGiIm89bKDeFiXg6H8PNWOp5kCyaKkravRsO5
-         7zvglfnIelCgfa1Ep+PiHs0cfeegvw4UcF4GAQAU=
+        b=QTc5I4Om2noozQ3boEG8qJ0UWsmYL5G9sli9tLKSoY4po8tlHXlN4on86+7OWrNJ9
+         19MjHr5/NqcCPEmPxgEpGydNTKocUQv1vlRZTlXQhbtnAd4yAjdxnNLk/23QJkbRTS
+         8RyJXZw4Vbikih1vVtwB5fm/boSgdS4JyriKbb84=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 116/376] netfilter: nft_nat: return EOPNOTSUPP if type or flags are not supported
-Date:   Fri, 19 Jun 2020 16:30:34 +0200
-Message-Id: <20200619141715.837156202@linuxfoundation.org>
+Subject: [PATCH 5.7 117/376] ath11k: use GFP_ATOMIC under spin lock
+Date:   Fri, 19 Jun 2020 16:30:35 +0200
+Message-Id: <20200619141715.884913816@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -43,41 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit 0d7c83463fdf7841350f37960a7abadd3e650b41 ]
+[ Upstream commit 69c93f9674c97dc439cdc0527811f8ad104c2e35 ]
 
-Instead of EINVAL which should be used for malformed netlink messages.
+A spin lock is taken here so we should use GFP_ATOMIC.
 
-Fixes: eb31628e37a0 ("netfilter: nf_tables: Add support for IPv6 NAT")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: d5c65159f289 ("ath11k: driver for Qualcomm IEEE 802.11ax devices")
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200427092417.56236-1-weiyongjun1@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_nat.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ath/ath11k/dp_rx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nft_nat.c b/net/netfilter/nft_nat.c
-index 8b44a4de5329..bb49a217635e 100644
---- a/net/netfilter/nft_nat.c
-+++ b/net/netfilter/nft_nat.c
-@@ -129,7 +129,7 @@ static int nft_nat_init(const struct nft_ctx *ctx, const struct nft_expr *expr,
- 		priv->type = NF_NAT_MANIP_DST;
- 		break;
- 	default:
--		return -EINVAL;
-+		return -EOPNOTSUPP;
- 	}
+diff --git a/drivers/net/wireless/ath/ath11k/dp_rx.c b/drivers/net/wireless/ath/ath11k/dp_rx.c
+index f74a0e74bf3e..34b1e8e6a7fb 100644
+--- a/drivers/net/wireless/ath/ath11k/dp_rx.c
++++ b/drivers/net/wireless/ath/ath11k/dp_rx.c
+@@ -892,7 +892,7 @@ int ath11k_peer_rx_tid_setup(struct ath11k *ar, const u8 *peer_mac, int vdev_id,
+ 	else
+ 		hw_desc_sz = ath11k_hal_reo_qdesc_size(DP_BA_WIN_SZ_MAX, tid);
  
- 	if (tb[NFTA_NAT_FAMILY] == NULL)
-@@ -196,7 +196,7 @@ static int nft_nat_init(const struct nft_ctx *ctx, const struct nft_expr *expr,
- 	if (tb[NFTA_NAT_FLAGS]) {
- 		priv->flags = ntohl(nla_get_be32(tb[NFTA_NAT_FLAGS]));
- 		if (priv->flags & ~NF_NAT_RANGE_MASK)
--			return -EINVAL;
-+			return -EOPNOTSUPP;
- 	}
- 
- 	return nf_ct_netns_get(ctx->net, family);
+-	vaddr = kzalloc(hw_desc_sz + HAL_LINK_DESC_ALIGN - 1, GFP_KERNEL);
++	vaddr = kzalloc(hw_desc_sz + HAL_LINK_DESC_ALIGN - 1, GFP_ATOMIC);
+ 	if (!vaddr) {
+ 		spin_unlock_bh(&ab->base_lock);
+ 		return -ENOMEM;
 -- 
 2.25.1
 
