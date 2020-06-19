@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96682201629
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:32:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A81920178B
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394877AbgFSQ13 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:27:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50814 "EHLO mail.kernel.org"
+        id S2388798AbgFSQkA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:40:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390010AbgFSOzv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:55:51 -0400
+        id S2388796AbgFSOqF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:46:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 37893206F7;
-        Fri, 19 Jun 2020 14:55:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D80621582;
+        Fri, 19 Jun 2020 14:46:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578551;
-        bh=5O60frDLooh+Wxctq/Vho1DS6s2cYV6GIPhqgLOjqWA=;
+        s=default; t=1592577964;
+        bh=AfBtStXJXaYPmnT+dTRLZ/pe4//6x1OcubtVyz9z2Gg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YrfLjJ+qQ8JA3OJHJTYPTQviGYkr13G8fYeVZqVerypoSJOCixt6ecZGnvSFgsDVW
-         yoDnmtyDZEpdbdvPOv87HqsSKvJnqC2F6mMW53bBY5l+BmaxxSPHhc1v1nC4fD8G7Z
-         j1fN+y6tkFpXJGX8xWSIWv9PI9b/bIqkxYzKJ7c4=
+        b=qXBZhqEdTikibEfHj9mjf3naQGfuywZ01lKwxNz+r3gr00XX2txAdMG5rgDp/p08h
+         +5lh9Wdug2JF2eu8H9Dmg6G330TRm3EbuJvD0BYmNJr0pQuyRKKT82RvRvo21YdwVe
+         lPzXXxmutVXAK5GS6FvQ2v+3cK9ooEQ50xRpmuy8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gonglei <arei.gonglei@huawei.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        virtualization@lists.linux-foundation.org,
-        "Longpeng(Mike)" <longpeng2@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 066/267] crypto: virtio: Fix dest length calculation in __virtio_crypto_skcipher_do_req()
-Date:   Fri, 19 Jun 2020 16:30:51 +0200
-Message-Id: <20200619141652.052136865@linuxfoundation.org>
+        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Miles Chen <miles.chen@mediatek.com>
+Subject: [PATCH 4.14 007/190] lib: Reduce user_access_begin() boundaries in strncpy_from_user() and strnlen_user()
+Date:   Fri, 19 Jun 2020 16:30:52 +0200
+Message-Id: <20200619141633.835800444@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
-References: <20200619141648.840376470@linuxfoundation.org>
+In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
+References: <20200619141633.446429600@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,55 +44,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Longpeng(Mike) <longpeng2@huawei.com>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-[ Upstream commit d90ca42012db2863a9a30b564a2ace6016594bda ]
+commit ab10ae1c3bef56c29bac61e1201c752221b87b41 upstream.
 
-The src/dst length is not aligned with AES_BLOCK_SIZE(which is 16) in some
-testcases in tcrypto.ko.
+The range passed to user_access_begin() by strncpy_from_user() and
+strnlen_user() starts at 'src' and goes up to the limit of userspace
+although reads will be limited by the 'count' param.
 
-For example, the src/dst length of one of cts(cbc(aes))'s testcase is 17, the
-crypto_virtio driver will set @src_data_len=16 but @dst_data_len=17 in this
-case and get a wrong at then end.
+On 32 bits powerpc (book3s/32) access has to be granted for each
+256Mbytes segment and the cost increases with the number of segments to
+unlock.
 
-  SRC: pp pp pp pp pp pp pp pp pp pp pp pp pp pp pp pp pp (17 bytes)
-  EXP: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc pp (17 bytes)
-  DST: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc 00 (pollute the last bytes)
-  (pp: plaintext  cc:ciphertext)
+Limit the range with 'count' param.
 
-Fix this issue by limit the length of dest buffer.
-
-Fixes: dbaf0624ffa5 ("crypto: add virtio-crypto driver")
-Cc: Gonglei <arei.gonglei@huawei.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: virtualization@lists.linux-foundation.org
-Cc: linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org
-Signed-off-by: Longpeng(Mike) <longpeng2@huawei.com>
-Link: https://lore.kernel.org/r/20200602070501.2023-4-longpeng2@huawei.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 594cc251fdd0 ("make 'user_access_begin()' do 'access_ok()'")
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Miles Chen <miles.chen@mediatek.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/virtio/virtio_crypto_algs.c | 1 +
- 1 file changed, 1 insertion(+)
+ lib/strncpy_from_user.c |   14 +++++++-------
+ lib/strnlen_user.c      |   14 +++++++-------
+ 2 files changed, 14 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/crypto/virtio/virtio_crypto_algs.c b/drivers/crypto/virtio/virtio_crypto_algs.c
-index e9a8485c4929..ab4700e4b409 100644
---- a/drivers/crypto/virtio/virtio_crypto_algs.c
-+++ b/drivers/crypto/virtio/virtio_crypto_algs.c
-@@ -424,6 +424,7 @@ __virtio_crypto_ablkcipher_do_req(struct virtio_crypto_sym_request *vc_sym_req,
- 		goto free;
- 	}
+--- a/lib/strncpy_from_user.c
++++ b/lib/strncpy_from_user.c
+@@ -29,13 +29,6 @@ static inline long do_strncpy_from_user(
+ 	const struct word_at_a_time constants = WORD_AT_A_TIME_CONSTANTS;
+ 	unsigned long res = 0;
  
-+	dst_len = min_t(unsigned int, req->nbytes, dst_len);
- 	pr_debug("virtio_crypto: src_len: %u, dst_len: %llu\n",
- 			req->nbytes, dst_len);
+-	/*
+-	 * Truncate 'max' to the user-specified limit, so that
+-	 * we only have one limit we need to check in the loop
+-	 */
+-	if (max > count)
+-		max = count;
+-
+ 	if (IS_UNALIGNED(src, dst))
+ 		goto byte_at_a_time;
  
--- 
-2.25.1
-
+@@ -113,6 +106,13 @@ long strncpy_from_user(char *dst, const
+ 		unsigned long max = max_addr - src_addr;
+ 		long retval;
+ 
++		/*
++		 * Truncate 'max' to the user-specified limit, so that
++		 * we only have one limit we need to check in the loop
++		 */
++		if (max > count)
++			max = count;
++
+ 		kasan_check_write(dst, count);
+ 		check_object_size(dst, count, false);
+ 		if (user_access_begin(VERIFY_READ, src, max)) {
+--- a/lib/strnlen_user.c
++++ b/lib/strnlen_user.c
+@@ -32,13 +32,6 @@ static inline long do_strnlen_user(const
+ 	unsigned long c;
+ 
+ 	/*
+-	 * Truncate 'max' to the user-specified limit, so that
+-	 * we only have one limit we need to check in the loop
+-	 */
+-	if (max > count)
+-		max = count;
+-
+-	/*
+ 	 * Do everything aligned. But that means that we
+ 	 * need to also expand the maximum..
+ 	 */
+@@ -114,6 +107,13 @@ long strnlen_user(const char __user *str
+ 		unsigned long max = max_addr - src_addr;
+ 		long retval;
+ 
++		/*
++		 * Truncate 'max' to the user-specified limit, so that
++		 * we only have one limit we need to check in the loop
++		 */
++		if (max > count)
++			max = count;
++
+ 		if (user_access_begin(VERIFY_READ, str, max)) {
+ 			retval = do_strnlen_user(str, count, max);
+ 			user_access_end();
 
 
