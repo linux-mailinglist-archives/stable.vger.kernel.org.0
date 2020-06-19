@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF830200E8F
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:11:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 075E820101A
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:30:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391836AbgFSPI7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:08:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38544 "EHLO mail.kernel.org"
+        id S2393460AbgFSPZq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:25:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391825AbgFSPIz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:08:55 -0400
+        id S2393459AbgFSPZo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:25:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D473B21BE5;
-        Fri, 19 Jun 2020 15:08:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5DF1A20734;
+        Fri, 19 Jun 2020 15:25:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579335;
-        bh=GZYPLYE2TO3fT5PWQzRX0GmAaj6ck3IWKzJ3TDMR2rk=;
+        s=default; t=1592580343;
+        bh=mS6E5KdtOU9+7cFz8Yn3gX2S53udT9uaNWpGg0utQBc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uQbhF20m2lNxJOhUA3fPr96Q2dYOdGG+87ilcGq2MYVIT/EI81RzkfBTSP1vSBfHN
-         4QIFEM72Ljlu34TU/k5fc2+Xk5qcpmWLTxAxzCIsx5m5O/F279gxsDTNMeXBf3lqfG
-         m85nQVNpJ6yIRNtz/3Gf7PYZUCluNKi/7jVPxrBM=
+        b=zbyZWvVN9PbiT5EJUcHtxFOCGoAyhYxB4fLl1vS4n1/VhxvQelLOyaFqkeD1jEMPI
+         fVC1lhOFljEt8S8/MhJuC1G2RpSHyGRBaPModWzjC3Fdwz28d7JJUjdJ3+plLX1RZ+
+         d6i8xk9SUaWSkc6a+SSetlx07AJu1iBB2B07y6TY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunjian Wang <wangyunjian@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 089/261] net: allwinner: Fix use correct return type for ndo_start_xmit()
-Date:   Fri, 19 Jun 2020 16:31:40 +0200
-Message-Id: <20200619141654.150128975@linuxfoundation.org>
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 183/376] mt76: mt7615: fix mt7615_driver_own routine
+Date:   Fri, 19 Jun 2020 16:31:41 +0200
+Message-Id: <20200619141719.013730779@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
-References: <20200619141649.878808811@linuxfoundation.org>
+In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
+References: <20200619141710.350494719@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunjian Wang <wangyunjian@huawei.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit 09f6c44aaae0f1bdb8b983d7762676d5018c53bc ]
+[ Upstream commit 338061619185133f56ac17365deb1e75eaecc604 ]
 
-The method ndo_start_xmit() returns a value of type netdev_tx_t. Fix
-the ndo function to use the correct type. And emac_start_xmit() can
-leak one skb if 'channel' == 3.
+Introduce MT_PCIE_DOORBELL_PUSH register to fix mt7615_driver_own
+routine for mt7663e
 
-Signed-off-by: Yunjian Wang <wangyunjian@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: f40ac0f3d3c0 ("mt76: mt7615: introduce mt7663e support")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/allwinner/sun4i-emac.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt7615/mcu.c  | 6 +++++-
+ drivers/net/wireless/mediatek/mt76/mt7615/regs.h | 1 +
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/allwinner/sun4i-emac.c b/drivers/net/ethernet/allwinner/sun4i-emac.c
-index 0537df06a9b5..ff318472a3ee 100644
---- a/drivers/net/ethernet/allwinner/sun4i-emac.c
-+++ b/drivers/net/ethernet/allwinner/sun4i-emac.c
-@@ -432,7 +432,7 @@ static void emac_timeout(struct net_device *dev)
- /* Hardware start transmission.
-  * Send a packet to media from the upper layer.
-  */
--static int emac_start_xmit(struct sk_buff *skb, struct net_device *dev)
-+static netdev_tx_t emac_start_xmit(struct sk_buff *skb, struct net_device *dev)
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
+index 0d56e0834bde..29a7aaabb6da 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
+@@ -1526,16 +1526,20 @@ static void mt7622_trigger_hif_int(struct mt7615_dev *dev, bool en)
+ 
+ static int mt7615_driver_own(struct mt7615_dev *dev)
  {
- 	struct emac_board_info *db = netdev_priv(dev);
- 	unsigned long channel;
-@@ -440,7 +440,7 @@ static int emac_start_xmit(struct sk_buff *skb, struct net_device *dev)
++	struct mt76_dev *mdev = &dev->mt76;
+ 	u32 addr;
  
- 	channel = db->tx_fifo_stat & 3;
- 	if (channel == 3)
--		return 1;
-+		return NETDEV_TX_BUSY;
+-	addr = is_mt7663(&dev->mt76) ? MT_CONN_HIF_ON_LPCTL : MT_CFG_LPCR_HOST;
++	addr = is_mt7663(mdev) ? MT_PCIE_DOORBELL_PUSH : MT_CFG_LPCR_HOST;
+ 	mt76_wr(dev, addr, MT_CFG_LPCR_HOST_DRV_OWN);
  
- 	channel = (channel == 1 ? 1 : 0);
+ 	mt7622_trigger_hif_int(dev, true);
++
++	addr = is_mt7663(mdev) ? MT_CONN_HIF_ON_LPCTL : MT_CFG_LPCR_HOST;
+ 	if (!mt76_poll_msec(dev, addr, MT_CFG_LPCR_HOST_FW_OWN, 0, 3000)) {
+ 		dev_err(dev->mt76.dev, "Timeout for driver own\n");
+ 		return -EIO;
+ 	}
++
+ 	mt7622_trigger_hif_int(dev, false);
  
+ 	return 0;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/regs.h b/drivers/net/wireless/mediatek/mt76/mt7615/regs.h
+index f7c2a633841c..de0ef165c0ba 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/regs.h
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/regs.h
+@@ -65,6 +65,7 @@ enum mt7615_reg_base {
+ #define MT_HIF2_BASE			0xf0000
+ #define MT_HIF2(ofs)			(MT_HIF2_BASE + (ofs))
+ #define MT_PCIE_IRQ_ENABLE		MT_HIF2(0x188)
++#define MT_PCIE_DOORBELL_PUSH		MT_HIF2(0x1484)
+ 
+ #define MT_CFG_LPCR_HOST		MT_HIF(0x1f0)
+ #define MT_CFG_LPCR_HOST_FW_OWN		BIT(0)
 -- 
 2.25.1
 
