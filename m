@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A084A201692
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:33:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8ECF12017AD
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389534AbgFSQcQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:32:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46094 "EHLO mail.kernel.org"
+        id S2393630AbgFSQlx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:41:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389531AbgFSOwH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:52:07 -0400
+        id S2388603AbgFSOot (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:44:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7AD89217D8;
-        Fri, 19 Jun 2020 14:52:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9EBFA21582;
+        Fri, 19 Jun 2020 14:44:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578327;
-        bh=5csFN05D8iyGyID9ph1ijouRLxMwIBMQGSsB6XsnKf8=;
+        s=default; t=1592577889;
+        bh=e6c4mSOCtbZ9MZWAyitP7K/9L6JBR2Qu1rZ1L0ZHIIU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OrYrIaGgL0/CNGCZbiR8MmSZS7bbr9Sf02ga7u7rF/ScMcux+Tih0m6RUkk4bC5rV
-         JvzrC6xUKlZENox84z2fq+6iJawbenEFSeon+36vtQWuxs5e0yav24ObawX7EPjFKq
-         chNkgDmRkZsBBUAsF33LphSbW4vOAc2DxNVE7gLc=
+        b=xCm3ufTKY3M1K6m46D9C5xMCWBySHTPsmaYj6TKXq0b9+QKUFLpNnbA05Ff6qIx/N
+         H+egSHVVkRIJZssG9+QQM+CPm4kPSrkCMwM295nBQo+b1edaL8+X0+g4q6FyoEAA+P
+         sbiPCXeaHGQ3f/1gL3DXLx2xoeLp1c7pfiP7ZfHQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Duyck <alexander.duyck@gmail.com>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Aaron Brown <aaron.f.brown@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-Subject: [PATCH 4.14 171/190] igb: Report speed and duplex as unknown when device is runtime suspended
-Date:   Fri, 19 Jun 2020 16:33:36 +0200
-Message-Id: <20200619141642.321424724@linuxfoundation.org>
+        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
+        "J. Bruce Fields" <bfields@redhat.com>
+Subject: [PATCH 4.9 123/128] sunrpc: clean up properly in gss_mech_unregister()
+Date:   Fri, 19 Jun 2020 16:33:37 +0200
+Message-Id: <20200619141626.593039183@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
-References: <20200619141633.446429600@linuxfoundation.org>
+In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
+References: <20200619141620.148019466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,52 +43,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: NeilBrown <neilb@suse.de>
 
-commit 165ae7a8feb53dc47fb041357e4b253bfc927cf9 upstream.
+commit 24c5efe41c29ee3e55bcf5a1c9f61ca8709622e8 upstream.
 
-igb device gets runtime suspended when there's no link partner. We can't
-get correct speed under that state:
-$ cat /sys/class/net/enp3s0/speed
-1000
+gss_mech_register() calls svcauth_gss_register_pseudoflavor() for each
+flavour, but gss_mech_unregister() does not call auth_domain_put().
+This is unbalanced and makes it impossible to reload the module.
 
-In addition to that, an error can also be spotted in dmesg:
-[  385.991957] igb 0000:03:00.0 enp3s0: PCIe link lost
+Change svcauth_gss_register_pseudoflavor() to return the registered
+auth_domain, and save it for later release.
 
-Since device can only be runtime suspended when there's no link partner,
-we can skip reading register and let the following logic set speed and
-duplex with correct status.
-
-The more generic approach will be wrap get_link_ksettings() with begin()
-and complete() callbacks. However, for this particular issue, begin()
-calls igb_runtime_resume() , which tries to rtnl_lock() while the lock
-is already hold by upper ethtool layer.
-
-So let's take this approach until the igb_runtime_resume() no longer
-needs to hold rtnl_lock.
-
-CC: stable <stable@vger.kernel.org>
-Suggested-by: Alexander Duyck <alexander.duyck@gmail.com>
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Tested-by: Aaron Brown <aaron.f.brown@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Cc: stable@vger.kernel.org (v2.6.12+)
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=206651
+Signed-off-by: NeilBrown <neilb@suse.de>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/intel/igb/igb_ethtool.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/linux/sunrpc/gss_api.h        |    1 +
+ include/linux/sunrpc/svcauth_gss.h    |    3 ++-
+ net/sunrpc/auth_gss/gss_mech_switch.c |   12 +++++++++---
+ net/sunrpc/auth_gss/svcauth_gss.c     |   12 ++++++------
+ 4 files changed, 18 insertions(+), 10 deletions(-)
 
---- a/drivers/net/ethernet/intel/igb/igb_ethtool.c
-+++ b/drivers/net/ethernet/intel/igb/igb_ethtool.c
-@@ -163,7 +163,8 @@ static int igb_get_link_ksettings(struct
- 	u32 speed;
- 	u32 supported, advertising;
+--- a/include/linux/sunrpc/gss_api.h
++++ b/include/linux/sunrpc/gss_api.h
+@@ -82,6 +82,7 @@ struct pf_desc {
+ 	u32	service;
+ 	char	*name;
+ 	char	*auth_domain_name;
++	struct auth_domain *domain;
+ 	bool	datatouch;
+ };
  
--	status = rd32(E1000_STATUS);
-+	status = pm_runtime_suspended(&adapter->pdev->dev) ?
-+		 0 : rd32(E1000_STATUS);
- 	if (hw->phy.media_type == e1000_media_type_copper) {
+--- a/include/linux/sunrpc/svcauth_gss.h
++++ b/include/linux/sunrpc/svcauth_gss.h
+@@ -20,7 +20,8 @@ int gss_svc_init(void);
+ void gss_svc_shutdown(void);
+ int gss_svc_init_net(struct net *net);
+ void gss_svc_shutdown_net(struct net *net);
+-int svcauth_gss_register_pseudoflavor(u32 pseudoflavor, char * name);
++struct auth_domain *svcauth_gss_register_pseudoflavor(u32 pseudoflavor,
++						      char *name);
+ u32 svcauth_gss_flavor(struct auth_domain *dom);
  
- 		supported = (SUPPORTED_10baseT_Half |
+ #endif /* __KERNEL__ */
+--- a/net/sunrpc/auth_gss/gss_mech_switch.c
++++ b/net/sunrpc/auth_gss/gss_mech_switch.c
+@@ -61,6 +61,8 @@ gss_mech_free(struct gss_api_mech *gm)
+ 
+ 	for (i = 0; i < gm->gm_pf_num; i++) {
+ 		pf = &gm->gm_pfs[i];
++		if (pf->domain)
++			auth_domain_put(pf->domain);
+ 		kfree(pf->auth_domain_name);
+ 		pf->auth_domain_name = NULL;
+ 	}
+@@ -83,6 +85,7 @@ make_auth_domain_name(char *name)
+ static int
+ gss_mech_svc_setup(struct gss_api_mech *gm)
+ {
++	struct auth_domain *dom;
+ 	struct pf_desc *pf;
+ 	int i, status;
+ 
+@@ -92,10 +95,13 @@ gss_mech_svc_setup(struct gss_api_mech *
+ 		status = -ENOMEM;
+ 		if (pf->auth_domain_name == NULL)
+ 			goto out;
+-		status = svcauth_gss_register_pseudoflavor(pf->pseudoflavor,
+-							pf->auth_domain_name);
+-		if (status)
++		dom = svcauth_gss_register_pseudoflavor(
++			pf->pseudoflavor, pf->auth_domain_name);
++		if (IS_ERR(dom)) {
++			status = PTR_ERR(dom);
+ 			goto out;
++		}
++		pf->domain = dom;
+ 	}
+ 	return 0;
+ out:
+--- a/net/sunrpc/auth_gss/svcauth_gss.c
++++ b/net/sunrpc/auth_gss/svcauth_gss.c
+@@ -779,7 +779,7 @@ u32 svcauth_gss_flavor(struct auth_domai
+ 
+ EXPORT_SYMBOL_GPL(svcauth_gss_flavor);
+ 
+-int
++struct auth_domain *
+ svcauth_gss_register_pseudoflavor(u32 pseudoflavor, char * name)
+ {
+ 	struct gss_domain	*new;
+@@ -802,17 +802,17 @@ svcauth_gss_register_pseudoflavor(u32 ps
+ 			name);
+ 		stat = -EADDRINUSE;
+ 		auth_domain_put(test);
+-		kfree(new->h.name);
+-		goto out_free_dom;
++		goto out_free_name;
+ 	}
+-	return 0;
++	return test;
+ 
++out_free_name:
++	kfree(new->h.name);
+ out_free_dom:
+ 	kfree(new);
+ out:
+-	return stat;
++	return ERR_PTR(stat);
+ }
+-
+ EXPORT_SYMBOL_GPL(svcauth_gss_register_pseudoflavor);
+ 
+ static inline int
 
 
