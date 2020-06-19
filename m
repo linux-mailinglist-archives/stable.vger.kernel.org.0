@@ -2,46 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D00E8201707
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:46:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47FB5201708
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:46:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389285AbgFSOuT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:50:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43106 "EHLO mail.kernel.org"
+        id S2389308AbgFSOu0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:50:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389291AbgFSOuP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:50:15 -0400
+        id S2389301AbgFSOuX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:50:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 51C0E217D8;
-        Fri, 19 Jun 2020 14:50:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 27ACA20DD4;
+        Fri, 19 Jun 2020 14:50:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578214;
-        bh=sYvEZ3ie+tmaRMJshAXG4p97enIGKEhKVwoCNDYnywU=;
+        s=default; t=1592578222;
+        bh=REYmcY8cxaI9Sz3+PaxzgBVhHq/qpIHIa00Ix67ORNc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JjO3ZtjE28XSkHLxaDGwlFHkElSRwZqAzX/ehx86Dxw+2lV/URGDT5JAshe/fUy3p
-         VK/+n1cAaF6MlRq93Bo+dzr+UtmTOeYSoQVPL40Pg1lSYw1sB2LCzXjZCpsY7qoyGw
-         O5rIJ4PiNZDj5RAWSWJMeSjtFTr1HFoqDiquuZ0Y=
+        b=oOVjpNgKKwxxarverJJXvTHgLgF7dOX/cdG7tr/E7lEi4pzmpKmtZ21cyW3YXEGZe
+         QKObfRkLNKcd80krbT9U245JpYv/feupIzCOt/rJTWqwuR66c6RtxpmsWlMc+dPtE9
+         t8HduK2ls/zF+0IZh96UHOFWm8wMoloUzD+Y08U0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephane Eranian <eranian@google.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andrey Zhizhikin <andrey.z@gmail.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Petr Mladek <pmladek@suse.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, teroincn@gmail.com,
+        Richard Guy Briggs <rgb@redhat.com>,
+        Paul Moore <paul@paul-moore.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 097/190] tools api fs: Make xxx__mountpoint() more scalable
-Date:   Fri, 19 Jun 2020 16:32:22 +0200
-Message-Id: <20200619141638.445926932@linuxfoundation.org>
+Subject: [PATCH 4.14 100/190] audit: fix a net reference leak in audit_send_reply()
+Date:   Fri, 19 Jun 2020 16:32:25 +0200
+Message-Id: <20200619141638.582021944@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
 References: <20200619141633.446429600@linuxfoundation.org>
@@ -54,180 +45,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephane Eranian <eranian@google.com>
+From: Paul Moore <paul@paul-moore.com>
 
-[ Upstream commit c6fddb28bad26e5472cb7acf7b04cd5126f1a4ab ]
+[ Upstream commit a48b284b403a4a073d8beb72d2bb33e54df67fb6 ]
 
-The xxx_mountpoint() interface provided by fs.c finds mount points for
-common pseudo filesystems. The first time xxx_mountpoint() is invoked,
-it scans the mount table (/proc/mounts) looking for a match. If found,
-it is cached. The price to scan /proc/mounts is paid once if the mount
-is found.
+If audit_send_reply() fails when trying to create a new thread to
+send the reply it also fails to cleanup properly, leaking a reference
+to a net structure.  This patch fixes the error path and makes a
+handful of other cleanups that came up while fixing the code.
 
-When the mount point is not found, subsequent calls to xxx_mountpoint()
-scan /proc/mounts over and over again.  There is no caching.
-
-This causes a scaling issue in perf record with hugeltbfs__mountpoint().
-The function is called for each process found in
-synthesize__mmap_events().  If the machine has thousands of processes
-and if the /proc/mounts has many entries this could cause major overhead
-in perf record. We have observed multi-second slowdowns on some
-configurations.
-
-As an example on a laptop:
-
-Before:
-
-  $ sudo umount /dev/hugepages
-  $ strace -e trace=openat -o /tmp/tt perf record -a ls
-  $ fgrep mounts /tmp/tt
-  285
-
-After:
-
-  $ sudo umount /dev/hugepages
-  $ strace -e trace=openat -o /tmp/tt perf record -a ls
-  $ fgrep mounts /tmp/tt
-  1
-
-One could argue that the non-caching in case the moint point is not
-found is intentional. That way subsequent calls may discover a moint
-point if the sysadmin mounts the filesystem. But the same argument could
-be made against caching the mount point. It could be unmounted causing
-errors.  It all depends on the intent of the interface. This patch
-assumes it is expected to scan /proc/mounts once. The patch documents
-the caching behavior in the fs.h header file.
-
-An alternative would be to just fix perf record. But it would solve the
-problem with hugetlbs__mountpoint() but there could be similar issues
-(possibly down the line) with other xxx_mountpoint() calls in perf or
-other tools.
-
-Signed-off-by: Stephane Eranian <eranian@google.com>
-Reviewed-by: Ian Rogers <irogers@google.com>
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andrey Zhizhikin <andrey.z@gmail.com>
-Cc: Kan Liang <kan.liang@linux.intel.com>
-Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: http://lore.kernel.org/lkml/20200402154357.107873-3-irogers@google.com
-Signed-off-by: Ian Rogers <irogers@google.com>
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Reported-by: teroincn@gmail.com
+Reviewed-by: Richard Guy Briggs <rgb@redhat.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/api/fs/fs.c | 17 +++++++++++++++++
- tools/lib/api/fs/fs.h | 12 ++++++++++++
- 2 files changed, 29 insertions(+)
+ kernel/audit.c | 50 +++++++++++++++++++++++++++++---------------------
+ 1 file changed, 29 insertions(+), 21 deletions(-)
 
-diff --git a/tools/lib/api/fs/fs.c b/tools/lib/api/fs/fs.c
-index 45b50b89009a..c61841051a90 100644
---- a/tools/lib/api/fs/fs.c
-+++ b/tools/lib/api/fs/fs.c
-@@ -90,6 +90,7 @@ struct fs {
- 	const char * const	*mounts;
- 	char			 path[PATH_MAX];
- 	bool			 found;
-+	bool			 checked;
- 	long			 magic;
- };
- 
-@@ -111,31 +112,37 @@ static struct fs fs__entries[] = {
- 		.name	= "sysfs",
- 		.mounts	= sysfs__fs_known_mountpoints,
- 		.magic	= SYSFS_MAGIC,
-+		.checked = false,
- 	},
- 	[FS__PROCFS] = {
- 		.name	= "proc",
- 		.mounts	= procfs__known_mountpoints,
- 		.magic	= PROC_SUPER_MAGIC,
-+		.checked = false,
- 	},
- 	[FS__DEBUGFS] = {
- 		.name	= "debugfs",
- 		.mounts	= debugfs__known_mountpoints,
- 		.magic	= DEBUGFS_MAGIC,
-+		.checked = false,
- 	},
- 	[FS__TRACEFS] = {
- 		.name	= "tracefs",
- 		.mounts	= tracefs__known_mountpoints,
- 		.magic	= TRACEFS_MAGIC,
-+		.checked = false,
- 	},
- 	[FS__HUGETLBFS] = {
- 		.name	= "hugetlbfs",
- 		.mounts = hugetlbfs__known_mountpoints,
- 		.magic	= HUGETLBFS_MAGIC,
-+		.checked = false,
- 	},
- 	[FS__BPF_FS] = {
- 		.name	= "bpf",
- 		.mounts = bpf_fs__known_mountpoints,
- 		.magic	= BPF_FS_MAGIC,
-+		.checked = false,
- 	},
- };
- 
-@@ -158,6 +165,7 @@ static bool fs__read_mounts(struct fs *fs)
- 	}
- 
- 	fclose(fp);
-+	fs->checked = true;
- 	return fs->found = found;
+diff --git a/kernel/audit.c b/kernel/audit.c
+index aa6d5e39526b..53224f399038 100644
+--- a/kernel/audit.c
++++ b/kernel/audit.c
+@@ -897,19 +897,30 @@ out_kfree_skb:
+ 	return NULL;
  }
  
-@@ -220,6 +228,7 @@ static bool fs__env_override(struct fs *fs)
- 		return false;
- 
- 	fs->found = true;
-+	fs->checked = true;
- 	strncpy(fs->path, override_path, sizeof(fs->path) - 1);
- 	fs->path[sizeof(fs->path) - 1] = '\0';
- 	return true;
-@@ -246,6 +255,14 @@ static const char *fs__mountpoint(int idx)
- 	if (fs->found)
- 		return (const char *)fs->path;
- 
-+	/* the mount point was already checked for the mount point
-+	 * but and did not exist, so return NULL to avoid scanning again.
-+	 * This makes the found and not found paths cost equivalent
-+	 * in case of multiple calls.
-+	 */
-+	if (fs->checked)
-+		return NULL;
++static void audit_free_reply(struct audit_reply *reply)
++{
++	if (!reply)
++		return;
 +
- 	return fs__get_mountpoint(fs);
++	if (reply->skb)
++		kfree_skb(reply->skb);
++	if (reply->net)
++		put_net(reply->net);
++	kfree(reply);
++}
++
+ static int audit_send_reply_thread(void *arg)
+ {
+ 	struct audit_reply *reply = (struct audit_reply *)arg;
+-	struct sock *sk = audit_get_sk(reply->net);
+ 
+ 	mutex_lock(&audit_cmd_mutex);
+ 	mutex_unlock(&audit_cmd_mutex);
+ 
+ 	/* Ignore failure. It'll only happen if the sender goes away,
+ 	   because our timeout is set to infinite. */
+-	netlink_unicast(sk, reply->skb, reply->portid, 0);
+-	put_net(reply->net);
+-	kfree(reply);
++	netlink_unicast(audit_get_sk(reply->net), reply->skb, reply->portid, 0);
++	reply->skb = NULL;
++	audit_free_reply(reply);
+ 	return 0;
  }
  
-diff --git a/tools/lib/api/fs/fs.h b/tools/lib/api/fs/fs.h
-index dda49deefb52..57a3dc160b08 100644
---- a/tools/lib/api/fs/fs.h
-+++ b/tools/lib/api/fs/fs.h
-@@ -18,6 +18,18 @@
- 	const char *name##__mount(void);	\
- 	bool name##__configured(void);		\
+@@ -923,35 +934,32 @@ static int audit_send_reply_thread(void *arg)
+  * @payload: payload data
+  * @size: payload size
+  *
+- * Allocates an skb, builds the netlink message, and sends it to the port id.
+- * No failure notifications.
++ * Allocates a skb, builds the netlink message, and sends it to the port id.
+  */
+ static void audit_send_reply(struct sk_buff *request_skb, int seq, int type, int done,
+ 			     int multi, const void *payload, int size)
+ {
+-	struct net *net = sock_net(NETLINK_CB(request_skb).sk);
+-	struct sk_buff *skb;
+ 	struct task_struct *tsk;
+-	struct audit_reply *reply = kmalloc(sizeof(struct audit_reply),
+-					    GFP_KERNEL);
++	struct audit_reply *reply;
  
-+/*
-+ * The xxxx__mountpoint() entry points find the first match mount point for each
-+ * filesystems listed below, where xxxx is the filesystem type.
-+ *
-+ * The interface is as follows:
-+ *
-+ * - If a mount point is found on first call, it is cached and used for all
-+ *   subsequent calls.
-+ *
-+ * - If a mount point is not found, NULL is returned on first call and all
-+ *   subsequent calls.
-+ */
- FS(sysfs)
- FS(procfs)
- FS(debugfs)
++	reply = kzalloc(sizeof(*reply), GFP_KERNEL);
+ 	if (!reply)
+ 		return;
+ 
+-	skb = audit_make_reply(seq, type, done, multi, payload, size);
+-	if (!skb)
+-		goto out;
+-
+-	reply->net = get_net(net);
++	reply->skb = audit_make_reply(seq, type, done, multi, payload, size);
++	if (!reply->skb)
++		goto err;
++	reply->net = get_net(sock_net(NETLINK_CB(request_skb).sk));
+ 	reply->portid = NETLINK_CB(request_skb).portid;
+-	reply->skb = skb;
+ 
+ 	tsk = kthread_run(audit_send_reply_thread, reply, "audit_send_reply");
+-	if (!IS_ERR(tsk))
+-		return;
+-	kfree_skb(skb);
+-out:
+-	kfree(reply);
++	if (IS_ERR(tsk))
++		goto err;
++
++	return;
++
++err:
++	audit_free_reply(reply);
+ }
+ 
+ /*
 -- 
 2.25.1
 
