@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED52620168C
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:33:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6575F2016CC
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:45:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389584AbgFSOwb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:52:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46462 "EHLO mail.kernel.org"
+        id S2388497AbgFSOoC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:44:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389572AbgFSOwX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:52:23 -0400
+        id S2388531AbgFSOoA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:44:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D97CA21556;
-        Fri, 19 Jun 2020 14:52:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 77F6F2168B;
+        Fri, 19 Jun 2020 14:43:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578343;
-        bh=bBcmiQKw5gyq64+scVj1X9IAimDWGQZI6cKI+wHMt/M=;
+        s=default; t=1592577840;
+        bh=tQhxigQbmQOKnMbx5j51NiN66GZ0gOKoylnatGUazao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hNu7ITRDVFvy2YYHI3JZZjeeAhPdALo2eFoOqSVRsregcOMTFPUow5LPDzREo9YZP
-         JXFWw8AzX8FLryuzAJQyL7abGUPuRg2S+G22CP5q6uLX98FzIT4OindVOkSyr+xMQq
-         iwFV6gedLMp+A8dV0v1GZPw3TVS+a3YQa86+bHiM=
+        b=UNzGcQ2AP1NE7N7RyIog4lBTl3ylQBrK3TjOLanHgiwTT0GeZUK34GRBzOGfikn+7
+         lt/gxOdD19JvmeNWI6yR9kX4WXFveUhsgsY3sKo1kG3ZZHI5Fopc3O1hjaDbu4UaBU
+         KJtxuIei7zUXZGyP98q8CHiEFtlGlvGVpti9KPU8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Omar Sandoval <osandov@fb.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 159/190] btrfs: fix error handling when submitting direct I/O bio
+        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.9 110/128] b43legacy: Fix case where channel status is corrupted
 Date:   Fri, 19 Jun 2020 16:33:24 +0200
-Message-Id: <20200619141641.687665192@linuxfoundation.org>
+Message-Id: <20200619141625.965539385@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
-References: <20200619141633.446429600@linuxfoundation.org>
+In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
+References: <20200619141620.148019466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,67 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Omar Sandoval <osandov@fb.com>
+From: Larry Finger <Larry.Finger@lwfinger.net>
 
-[ Upstream commit 6d3113a193e3385c72240096fe397618ecab6e43 ]
+commit ec4d3e3a054578de34cd0b587ab8a1ac36f629d9 upstream.
 
-In btrfs_submit_direct_hook(), if a direct I/O write doesn't span a RAID
-stripe or chunk, we submit orig_bio without cloning it. In this case, we
-don't increment pending_bios. Then, if btrfs_submit_dio_bio() fails, we
-decrement pending_bios to -1, and we never complete orig_bio. Fix it by
-initializing pending_bios to 1 instead of incrementing later.
+This patch fixes commit 75388acd0cd8 ("add mac80211-based driver for
+legacy BCM43xx devices")
 
-Fixing this exposes another bug: we put orig_bio prematurely and then
-put it again from end_io. Fix it by not putting orig_bio.
+In https://bugzilla.kernel.org/show_bug.cgi?id=207093, a defect in
+b43legacy is reported. Upon testing, thus problem exists on PPC and
+X86 platforms, is present in the oldest kernel tested (3.2), and
+has been present in the driver since it was first added to the kernel.
 
-After this change, pending_bios is really more of a reference count, but
-I'll leave that cleanup separate to keep the fix small.
+The problem is a corrupted channel status received from the device.
+Both the internal card in a PowerBook G4 and the PCMCIA version
+(Broadcom BCM4306 with PCI ID 14e4:4320) have the problem. Only Rev, 2
+(revision 4 of the 802.11 core) of the chip has been tested. No other
+devices using b43legacy are available for testing.
 
-Fixes: e65e15355429 ("btrfs: fix panic caused by direct IO")
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: Omar Sandoval <osandov@fb.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Various sources of the problem were considered. Buffer overrun and
+other sources of corruption within the driver were rejected because
+the faulty channel status is always the same, not a random value.
+It was concluded that the faulty data is coming from the device, probably
+due to a firmware bug. As that source is not available, the driver
+must take appropriate action to recover.
+
+At present, the driver reports the error, and them continues to process
+the bad packet. This is believed that to be a mistake, and the correct
+action is to drop the correpted packet.
+
+Fixes: 75388acd0cd8 ("add mac80211-based driver for legacy BCM43xx devices")
+Cc: Stable <stable@vger.kernel.org>
+Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+Reported-and-tested by: F. Erhard <erhard_f@mailbox.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200407190043.1686-1-Larry.Finger@lwfinger.net
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/btrfs/inode.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/wireless/broadcom/b43legacy/xmit.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index 2a196bb134d9..3e65ac2d4869 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -8707,7 +8707,6 @@ static int btrfs_submit_direct_hook(struct btrfs_dio_private *dip)
+--- a/drivers/net/wireless/broadcom/b43legacy/xmit.c
++++ b/drivers/net/wireless/broadcom/b43legacy/xmit.c
+@@ -571,6 +571,7 @@ void b43legacy_rx(struct b43legacy_wldev
+ 	default:
+ 		b43legacywarn(dev->wl, "Unexpected value for chanstat (0x%X)\n",
+ 		       chanstat);
++		goto drop;
+ 	}
  
- 	/* bio split */
- 	ASSERT(map_length <= INT_MAX);
--	atomic_inc(&dip->pending_bios);
- 	do {
- 		clone_len = min_t(int, submit_len, map_length);
- 
-@@ -8758,7 +8757,8 @@ static int btrfs_submit_direct_hook(struct btrfs_dio_private *dip)
- 	if (!status)
- 		return 0;
- 
--	bio_put(bio);
-+	if (bio != orig_bio)
-+		bio_put(bio);
- out_err:
- 	dip->errors = 1;
- 	/*
-@@ -8798,7 +8798,7 @@ static void btrfs_submit_direct(struct bio *dio_bio, struct inode *inode,
- 	bio->bi_private = dip;
- 	dip->orig_bio = bio;
- 	dip->dio_bio = dio_bio;
--	atomic_set(&dip->pending_bios, 0);
-+	atomic_set(&dip->pending_bios, 1);
- 	io_bio = btrfs_io_bio(bio);
- 	io_bio->logical = file_offset;
- 
--- 
-2.25.1
-
+ 	memcpy(IEEE80211_SKB_RXCB(skb), &status, sizeof(status));
 
 
