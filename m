@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1428C201554
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:22:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E3192013BD
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:07:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390680AbgFSQVL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:21:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57378 "EHLO mail.kernel.org"
+        id S2405406AbgFSQDR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:03:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390332AbgFSPAx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:00:53 -0400
+        id S2392132AbgFSPLk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:11:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F98421582;
-        Fri, 19 Jun 2020 15:00:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D46120776;
+        Fri, 19 Jun 2020 15:11:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578853;
-        bh=kG9t7AnTnL9Y93YN+7mvClU3moEy9xDxPacmFdvK0/w=;
+        s=default; t=1592579499;
+        bh=qvMEqAuOf5Z/TluxxmrPx3SKltHINKkkkiAXGoLWkaA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HEG/HqgimmwUGs9+3NjZbqh91EDGLUSXQ6fABEPC+QLCMEkvQCH2cJ+R+PR203Wvq
-         GnGuj1WFgdVXPfxJMKh2nKVFNKd2MpuGplf6bM1oJdiAvImvZiuzT0UKNcJJvQH0BB
-         RKBfUphMnc9UAcnrg8X7wRE/ryqUuPb5aIR8AO6E=
+        b=GfQnHfD//U8ZfiWJOrqCMrD2cBdQpA+PdCUBQIgxoIC3sR1gPlxHgrMvtgA3OnUBf
+         JDYiSTwriXmlc3UGy8eyy8xX33JDpRGjj1nbRvH2i0KL6amz1gXhQL9YjYq98Pu7cI
+         tRy4aW6CCfQnKEXe+YlDMcDMNcKEVl+AJlJYzLoY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rakesh Pillai <pillair@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Jay Cornwall <Jay.Cornwall@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 154/267] ath10k: Remove msdu from idr when management pkt send fails
+Subject: [PATCH 5.4 128/261] drm/amdgpu: Sync with VM root BO when switching VM to CPU update mode
 Date:   Fri, 19 Jun 2020 16:32:19 +0200
-Message-Id: <20200619141656.212900201@linuxfoundation.org>
+Message-Id: <20200619141656.002097270@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
-References: <20200619141648.840376470@linuxfoundation.org>
+In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
+References: <20200619141649.878808811@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,120 +46,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rakesh Pillai <pillair@codeaurora.org>
+From: Felix Kuehling <Felix.Kuehling@amd.com>
 
-[ Upstream commit c730c477176ad4af86d9aae4d360a7ad840b073a ]
+[ Upstream commit 90ca78deb004abe75b5024968a199acb96bb70f9 ]
 
-Currently when the sending of any management pkt
-via wmi command fails, the packet is being unmapped
-freed in the error handling. But the idr entry added,
-which is used to track these packet is not getting removed.
+This fixes an intermittent bug where a root PD clear operation still in
+progress could overwrite a PDE update done by the CPU, resulting in a
+VM fault.
 
-Hence, during unload, in wmi cleanup, all the entries
-in IDR are removed and the corresponding buffer is
-attempted to be freed. This can cause a situation where
-one packet is attempted to be freed twice.
-
-Fix this error by rmeoving the msdu from the idr
-list when the sending of a management packet over
-wmi fails.
-
-Tested HW: WCN3990
-Tested FW: WLAN.HL.3.1-01040-QCAHLSWMTPLZ-1
-
-Fixes: 1807da49733e ("ath10k: wmi: add management tx by reference support over wmi")
-Signed-off-by: Rakesh Pillai <pillair@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/1588667015-25490-1-git-send-email-pillair@codeaurora.org
+Fixes: 108b4d928c03 ("drm/amd/amdgpu: Update VM function pointer")
+Reported-by: Jay Cornwall <Jay.Cornwall@amd.com>
+Tested-by: Jay Cornwall <Jay.Cornwall@amd.com>
+Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/mac.c     |  3 +++
- drivers/net/wireless/ath/ath10k/wmi-ops.h | 10 ++++++++++
- drivers/net/wireless/ath/ath10k/wmi-tlv.c | 15 +++++++++++++++
- 3 files changed, 28 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
-index a09d7a07e90a..81af403c19c2 100644
---- a/drivers/net/wireless/ath/ath10k/mac.c
-+++ b/drivers/net/wireless/ath/ath10k/mac.c
-@@ -3852,6 +3852,9 @@ void ath10k_mgmt_over_wmi_tx_work(struct work_struct *work)
- 			if (ret) {
- 				ath10k_warn(ar, "failed to transmit management frame by ref via WMI: %d\n",
- 					    ret);
-+				/* remove this msdu from idr tracking */
-+				ath10k_wmi_cleanup_mgmt_tx_send(ar, skb);
-+
- 				dma_unmap_single(ar->dev, paddr, skb->len,
- 						 DMA_TO_DEVICE);
- 				ieee80211_free_txskb(ar->hw, skb);
-diff --git a/drivers/net/wireless/ath/ath10k/wmi-ops.h b/drivers/net/wireless/ath/ath10k/wmi-ops.h
-index 7fd63bbf8e24..b6cd33fa79f8 100644
---- a/drivers/net/wireless/ath/ath10k/wmi-ops.h
-+++ b/drivers/net/wireless/ath/ath10k/wmi-ops.h
-@@ -139,6 +139,7 @@ struct wmi_ops {
- 	struct sk_buff *(*gen_mgmt_tx_send)(struct ath10k *ar,
- 					    struct sk_buff *skb,
- 					    dma_addr_t paddr);
-+	int (*cleanup_mgmt_tx_send)(struct ath10k *ar, struct sk_buff *msdu);
- 	struct sk_buff *(*gen_dbglog_cfg)(struct ath10k *ar, u64 module_enable,
- 					  u32 log_level);
- 	struct sk_buff *(*gen_pktlog_enable)(struct ath10k *ar, u32 filter);
-@@ -431,6 +432,15 @@ ath10k_wmi_get_txbf_conf_scheme(struct ath10k *ar)
- 	return ar->wmi.ops->get_txbf_conf_scheme(ar);
- }
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
+index c7514f743409..6335bd4ae374 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c
+@@ -2867,10 +2867,17 @@ int amdgpu_vm_make_compute(struct amdgpu_device *adev, struct amdgpu_vm *vm, uns
+ 	WARN_ONCE((vm->use_cpu_for_update && !amdgpu_gmc_vram_full_visible(&adev->gmc)),
+ 		  "CPU update of VM recommended only for large BAR system\n");
  
-+static inline int
-+ath10k_wmi_cleanup_mgmt_tx_send(struct ath10k *ar, struct sk_buff *msdu)
-+{
-+	if (!ar->wmi.ops->cleanup_mgmt_tx_send)
-+		return -EOPNOTSUPP;
+-	if (vm->use_cpu_for_update)
++	if (vm->use_cpu_for_update) {
++		/* Sync with last SDMA update/clear before switching to CPU */
++		r = amdgpu_bo_sync_wait(vm->root.base.bo,
++					AMDGPU_FENCE_OWNER_UNDEFINED, true);
++		if (r)
++			goto free_idr;
 +
-+	return ar->wmi.ops->cleanup_mgmt_tx_send(ar, msdu);
-+}
-+
- static inline int
- ath10k_wmi_mgmt_tx_send(struct ath10k *ar, struct sk_buff *msdu,
- 			dma_addr_t paddr)
-diff --git a/drivers/net/wireless/ath/ath10k/wmi-tlv.c b/drivers/net/wireless/ath/ath10k/wmi-tlv.c
-index 248decb494c2..7f435fa29f75 100644
---- a/drivers/net/wireless/ath/ath10k/wmi-tlv.c
-+++ b/drivers/net/wireless/ath/ath10k/wmi-tlv.c
-@@ -2638,6 +2638,18 @@ ath10k_wmi_tlv_op_gen_request_stats(struct ath10k *ar, u32 stats_mask)
- 	return skb;
- }
+ 		vm->update_funcs = &amdgpu_vm_cpu_funcs;
+-	else
++	} else {
+ 		vm->update_funcs = &amdgpu_vm_sdma_funcs;
++	}
+ 	dma_fence_put(vm->last_update);
+ 	vm->last_update = NULL;
  
-+static int
-+ath10k_wmi_tlv_op_cleanup_mgmt_tx_send(struct ath10k *ar,
-+				       struct sk_buff *msdu)
-+{
-+	struct ath10k_skb_cb *cb = ATH10K_SKB_CB(msdu);
-+	struct ath10k_wmi *wmi = &ar->wmi;
-+
-+	idr_remove(&wmi->mgmt_pending_tx, cb->msdu_id);
-+
-+	return 0;
-+}
-+
- static int
- ath10k_wmi_mgmt_tx_alloc_msdu_id(struct ath10k *ar, struct sk_buff *skb,
- 				 dma_addr_t paddr)
-@@ -2710,6 +2722,8 @@ ath10k_wmi_tlv_op_gen_mgmt_tx_send(struct ath10k *ar, struct sk_buff *msdu,
- 	if (desc_id < 0)
- 		goto err_free_skb;
- 
-+	cb->msdu_id = desc_id;
-+
- 	ptr = (void *)skb->data;
- 	tlv = ptr;
- 	tlv->tag = __cpu_to_le16(WMI_TLV_TAG_STRUCT_MGMT_TX_CMD);
-@@ -3949,6 +3963,7 @@ static const struct wmi_ops wmi_tlv_ops = {
- 	.gen_force_fw_hang = ath10k_wmi_tlv_op_gen_force_fw_hang,
- 	/* .gen_mgmt_tx = not implemented; HTT is used */
- 	.gen_mgmt_tx_send = ath10k_wmi_tlv_op_gen_mgmt_tx_send,
-+	.cleanup_mgmt_tx_send = ath10k_wmi_tlv_op_cleanup_mgmt_tx_send,
- 	.gen_dbglog_cfg = ath10k_wmi_tlv_op_gen_dbglog_cfg,
- 	.gen_pktlog_enable = ath10k_wmi_tlv_op_gen_pktlog_enable,
- 	.gen_pktlog_disable = ath10k_wmi_tlv_op_gen_pktlog_disable,
 -- 
 2.25.1
 
