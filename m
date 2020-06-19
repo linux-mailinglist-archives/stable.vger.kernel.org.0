@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD73B2011E4
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:47:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 816FF201183
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:47:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404320AbgFSPqy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:46:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58038 "EHLO mail.kernel.org"
+        id S2393486AbgFSP0X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:26:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393474AbgFSP0T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:26:19 -0400
+        id S2393479AbgFSP0W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:26:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0ABBD21582;
-        Fri, 19 Jun 2020 15:26:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B889121582;
+        Fri, 19 Jun 2020 15:26:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580378;
-        bh=cxtuvjAdp9f4Te01/+BlbAfNdOyNnBZ251CMnNbZcN4=;
+        s=default; t=1592580381;
+        bh=8ytuBy4b62zsfobpy3ImeP8JbnWVrWV3o5vABkvCtmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DTkuR2ZecXRG5LHRT82s/Bhfvt7C8i0FT6G0FycwCrrhW1SF8WV1AdBFkoi9xDRD+
-         Ej31rRAkSibISWkvSMz4vzlz+YOZ457N/DcHICrxsitV2nKLET+IqwdpwOPJwHdKIw
-         vMYOQOVCD16zimKS/YmpodOIw+Jpy6Csvgn+sHZI=
+        b=SUNd6rYsEtJLCh/3NjmQH/uP5Kz+4SdmcRn7sUcDRMDDNcjYVzb+d645xRWVqP/zu
+         6bGnB7aEHPyBrA5lf2bI8O2qlCOZuQGBvdHBqVU1xS20pETkFoCgnOBTm4ylvJHmUb
+         R8wTPkMBFanWQorcKkHk1mYz8gYJn9rvvg9Dojqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 227/376] bcache: fix refcount underflow in bcache_device_free()
-Date:   Fri, 19 Jun 2020 16:32:25 +0200
-Message-Id: <20200619141721.065966923@linuxfoundation.org>
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 228/376] mmc: mmci: Switch to mmc_regulator_set_vqmmc()
+Date:   Fri, 19 Jun 2020 16:32:26 +0200
+Message-Id: <20200619141721.113322798@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -43,90 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 86da9f736740eba602389908574dfbb0f517baa5 ]
+[ Upstream commit 3e09a81e166c0a5544832459be17561a6b231ac7 ]
 
-The problematic code piece in bcache_device_free() is,
+Instead of reimplementing the logic in mmc_regulator_set_vqmmc(), use the
+mmc code function directly.
 
- 785 static void bcache_device_free(struct bcache_device *d)
- 786 {
- 787     struct gendisk *disk = d->disk;
- [snipped]
- 799     if (disk) {
- 800             if (disk->flags & GENHD_FL_UP)
- 801                     del_gendisk(disk);
- 802
- 803             if (disk->queue)
- 804                     blk_cleanup_queue(disk->queue);
- 805
- 806             ida_simple_remove(&bcache_device_idx,
- 807                               first_minor_to_idx(disk->first_minor));
- 808             put_disk(disk);
- 809         }
- [snipped]
- 816 }
+This also allows us to fix a related issue on STM32MP1, when a voltage
+switch of 1.8V is done for the eMMC, but the current level is already set
+to 1.8V. More precisely, in this scenario the call to the
+->post_sig_volt_switch() hangs, indefinitely waiting for the voltage switch
+to complete. Fix this problem by checking if mmc_regulator_set_vqmmc()
+returned 1 and then skip invoking the callback.
 
-At line 808, put_disk(disk) may encounter kobject refcount of 'disk'
-being underflow.
-
-Here is how to reproduce the issue,
-- Attche the backing device to a cache device and do random write to
-  make the cache being dirty.
-- Stop the bcache device while the cache device has dirty data of the
-  backing device.
-- Only register the backing device back, NOT register cache device.
-- The bcache device node /dev/bcache0 won't show up, because backing
-  device waits for the cache device shows up for the missing dirty
-  data.
-- Now echo 1 into /sys/fs/bcache/pendings_cleanup, to stop the pending
-  backing device.
-- After the pending backing device stopped, use 'dmesg' to check kernel
-  message, a use-after-free warning from KASA reported the refcount of
-  kobject linked to the 'disk' is underflow.
-
-The dropping refcount at line 808 in the above code piece is added by
-add_disk(d->disk) in bch_cached_dev_run(). But in the above condition
-the cache device is not registered, bch_cached_dev_run() has no chance
-to be called and the refcount is not added. The put_disk() for a non-
-added refcount of gendisk kobject triggers a underflow warning.
-
-This patch checks whether GENHD_FL_UP is set in disk->flags, if it is
-not set then the bcache device was not added, don't call put_disk()
-and the the underflow issue can be avoided.
-
-Signed-off-by: Coly Li <colyli@suse.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Marek Vasut <marex@denx.de>
+Link: https://lore.kernel.org/r/20200416163649.336967-3-marex@denx.de
+[Ulf: Updated the commit message]
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/bcache/super.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/mmc/host/mmci.c | 30 ++++++++----------------------
+ 1 file changed, 8 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
-index d98354fa28e3..4d8bf731b118 100644
---- a/drivers/md/bcache/super.c
-+++ b/drivers/md/bcache/super.c
-@@ -797,7 +797,9 @@ static void bcache_device_free(struct bcache_device *d)
- 		bcache_device_detach(d);
+diff --git a/drivers/mmc/host/mmci.c b/drivers/mmc/host/mmci.c
+index 647567def612..a69d6a0c2e15 100644
+--- a/drivers/mmc/host/mmci.c
++++ b/drivers/mmc/host/mmci.c
+@@ -1861,31 +1861,17 @@ static int mmci_get_cd(struct mmc_host *mmc)
+ static int mmci_sig_volt_switch(struct mmc_host *mmc, struct mmc_ios *ios)
+ {
+ 	struct mmci_host *host = mmc_priv(mmc);
+-	int ret = 0;
+-
+-	if (!IS_ERR(mmc->supply.vqmmc)) {
++	int ret;
  
- 	if (disk) {
--		if (disk->flags & GENHD_FL_UP)
-+		bool disk_added = (disk->flags & GENHD_FL_UP) != 0;
-+
-+		if (disk_added)
- 			del_gendisk(disk);
+-		switch (ios->signal_voltage) {
+-		case MMC_SIGNAL_VOLTAGE_330:
+-			ret = regulator_set_voltage(mmc->supply.vqmmc,
+-						2700000, 3600000);
+-			break;
+-		case MMC_SIGNAL_VOLTAGE_180:
+-			ret = regulator_set_voltage(mmc->supply.vqmmc,
+-						1700000, 1950000);
+-			break;
+-		case MMC_SIGNAL_VOLTAGE_120:
+-			ret = regulator_set_voltage(mmc->supply.vqmmc,
+-						1100000, 1300000);
+-			break;
+-		}
++	ret = mmc_regulator_set_vqmmc(mmc, ios);
  
- 		if (disk->queue)
-@@ -805,7 +807,8 @@ static void bcache_device_free(struct bcache_device *d)
+-		if (!ret && host->ops && host->ops->post_sig_volt_switch)
+-			ret = host->ops->post_sig_volt_switch(host, ios);
++	if (!ret && host->ops && host->ops->post_sig_volt_switch)
++		ret = host->ops->post_sig_volt_switch(host, ios);
++	else if (ret)
++		ret = 0;
  
- 		ida_simple_remove(&bcache_device_idx,
- 				  first_minor_to_idx(disk->first_minor));
--		put_disk(disk);
-+		if (disk_added)
-+			put_disk(disk);
- 	}
+-		if (ret)
+-			dev_warn(mmc_dev(mmc), "Voltage switch failed\n");
+-	}
++	if (ret < 0)
++		dev_warn(mmc_dev(mmc), "Voltage switch failed\n");
  
- 	bioset_exit(&d->bio_split);
+ 	return ret;
+ }
 -- 
 2.25.1
 
