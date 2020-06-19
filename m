@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E93BF2015B8
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:31:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5A50201795
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390051AbgFSO4T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:56:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51276 "EHLO mail.kernel.org"
+        id S2395434AbgFSQkg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:40:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389392AbgFSO4S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:56:18 -0400
+        id S2388326AbgFSOp0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:45:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DBF802158C;
-        Fri, 19 Jun 2020 14:56:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 44C7720A8B;
+        Fri, 19 Jun 2020 14:45:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578578;
-        bh=NBVUODQbI1T1MtGAlUTn/rshWC+w1j++5qEaRVUjYSg=;
+        s=default; t=1592577925;
+        bh=2UiOKpwvFOU5Vo8N/enJfvVJn4GIF4DuO5f6nV7hmE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UinJH23+5k9vWTENHDz/2sb8okp0HErAMdsfi1OA0GN1sj+ddbTV8R/UBnpW5JFpn
-         QeoAouLY5Vp3Iln1CldhXtzOje2SOpzym0Re3M7F5KGbALA+e9do5GAsN5dZ5gjwlX
-         HU4u1Gc+uqE6VByq3IFtQX0c2i5Rs2Eg9IphoiNM=
+        b=W24456n3XmqRUHRiINpVyAPWpYyzQuyc/0JJlU8YQNzS+useZAZrwR61pxhr8QJa2
+         UyxDNZbyICPOZ3b8sZxANSOdPBc8pyIiW2J0evM1QsRxl2YgV/DWc4f31Ela6S/nsH
+         ZBvpwZY7Gmwu/PIHLfNlMvTqaEK5kDRRjmVbV39o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Xing Li <lixing@loongson.cn>, Huacai Chen <chenhc@lemote.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.19 075/267] KVM: MIPS: Fix VPN2_MASK definition for variable cpu_vmbits
-Date:   Fri, 19 Jun 2020 16:31:00 +0200
-Message-Id: <20200619141652.500182542@linuxfoundation.org>
+        stable@vger.kernel.org, Yuxuan Shui <yshuiv7@gmail.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 016/190] perf probe: Accept the instance number of kretprobe event
+Date:   Fri, 19 Jun 2020 16:31:01 +0200
+Message-Id: <20200619141634.273433018@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
-References: <20200619141648.840376470@linuxfoundation.org>
+In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
+References: <20200619141633.446429600@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,43 +47,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xing Li <lixing@loongson.cn>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-commit 5816c76dea116a458f1932eefe064e35403248eb upstream.
+[ Upstream commit c6aab66a728b6518772c74bd9dff66e1a1c652fd ]
 
-If a CPU support more than 32bit vmbits (which is true for 64bit CPUs),
-VPN2_MASK set to fixed 0xffffe000 will lead to a wrong EntryHi in some
-functions such as _kvm_mips_host_tlb_inv().
+Since the commit 6a13a0d7b4d1 ("ftrace/kprobe: Show the maxactive number
+on kprobe_events") introduced to show the instance number of kretprobe
+events, the length of the 1st format of the kprobe event will not 1, but
+it can be longer.  This caused a parser error in perf-probe.
 
-The cpu_vmbits definition of 32bit CPU in cpu-features.h is 31, so we
-still use the old definition.
+Skip the length check the 1st format of the kprobe event to accept this
+instance number.
 
-Cc: Stable <stable@vger.kernel.org>
-Reviewed-by: Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>
-Signed-off-by: Xing Li <lixing@loongson.cn>
-[Huacai: Improve commit messages]
-Signed-off-by: Huacai Chen <chenhc@lemote.com>
-Message-Id: <1590220602-3547-3-git-send-email-chenhc@lemote.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Without this fix:
 
+  # perf probe -a vfs_read%return
+  Added new event:
+    probe:vfs_read__return (on vfs_read%return)
+
+  You can now use it in all perf tools, such as:
+
+  	perf record -e probe:vfs_read__return -aR sleep 1
+
+  # perf probe -l
+  Semantic error :Failed to parse event name: r16:probe/vfs_read__return
+    Error: Failed to show event list.
+
+And with this fixes:
+
+  # perf probe -a vfs_read%return
+  ...
+  # perf probe -l
+    probe:vfs_read__return (on vfs_read%return)
+
+Fixes: 6a13a0d7b4d1 ("ftrace/kprobe: Show the maxactive number on kprobe_events")
+Reported-by: Yuxuan Shui <yshuiv7@gmail.com>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Tested-by: Yuxuan Shui <yshuiv7@gmail.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: stable@vger.kernel.org
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=207587
+Link: http://lore.kernel.org/lkml/158877535215.26469.1113127926699134067.stgit@devnote2
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/kvm_host.h |    4 ++++
- 1 file changed, 4 insertions(+)
+ tools/perf/util/probe-event.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/arch/mips/include/asm/kvm_host.h
-+++ b/arch/mips/include/asm/kvm_host.h
-@@ -274,7 +274,11 @@ enum emulation_result {
- #define MIPS3_PG_SHIFT		6
- #define MIPS3_PG_FRAME		0x3fffffc0
- 
-+#if defined(CONFIG_64BIT)
-+#define VPN2_MASK		GENMASK(cpu_vmbits - 1, 13)
-+#else
- #define VPN2_MASK		0xffffe000
-+#endif
- #define KVM_ENTRYHI_ASID	cpu_asid_mask(&boot_cpu_data)
- #define TLB_IS_GLOBAL(x)	((x).tlb_lo[0] & (x).tlb_lo[1] & ENTRYLO_G)
- #define TLB_VPN2(x)		((x).tlb_hi & VPN2_MASK)
+diff --git a/tools/perf/util/probe-event.c b/tools/perf/util/probe-event.c
+index 6670e12a2bb3..6062ae817ff7 100644
+--- a/tools/perf/util/probe-event.c
++++ b/tools/perf/util/probe-event.c
+@@ -1762,8 +1762,7 @@ int parse_probe_trace_command(const char *cmd, struct probe_trace_event *tev)
+ 	fmt1_str = strtok_r(argv0_str, ":", &fmt);
+ 	fmt2_str = strtok_r(NULL, "/", &fmt);
+ 	fmt3_str = strtok_r(NULL, " \t", &fmt);
+-	if (fmt1_str == NULL || strlen(fmt1_str) != 1 || fmt2_str == NULL
+-	    || fmt3_str == NULL) {
++	if (fmt1_str == NULL || fmt2_str == NULL || fmt3_str == NULL) {
+ 		semantic_error("Failed to parse event name: %s\n", argv[0]);
+ 		ret = -EINVAL;
+ 		goto out;
+-- 
+2.25.1
+
 
 
