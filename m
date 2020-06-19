@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 361A4201566
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:23:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 297102013C6
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:07:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389916AbgFSQVn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:21:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57164 "EHLO mail.kernel.org"
+        id S2392687AbgFSQDs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:03:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389261AbgFSPAk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:00:40 -0400
+        id S2391393AbgFSPLZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:11:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CDBBB20734;
-        Fri, 19 Jun 2020 15:00:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 81E4D21582;
+        Fri, 19 Jun 2020 15:11:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578840;
-        bh=FR0GBdXZRS3MESMaSu9Hju37YGFee3H+3/6KHSvEvTA=;
+        s=default; t=1592579484;
+        bh=95mQw3pyXUqcksGZvoa25uW50dFOr48wkL6V9bdfdcY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oruCbSepx7VGfO85K+jx2XOhZtcDMBs9txQuPRqnlP/ZuzUydKtP/iYuuVZx0AhE1
-         038d80hz8wJJCalMEZVCVXYF/A5Se+QtCNx2B2wH4gpBX16yrgYN96x5a5uNvfIPK2
-         6LqepaWFHeEG6no67fDR68MtIm3wnhRuC6f2pkmM=
+        b=JWAEr2wPeAU0F1JrCT2V7JIUGPxkiSYrm+liuO3EXfsMg4Drnpczy1jGI35WtmG4U
+         ZCcldDMuxdn2fMxQxOJ5P8dY+PfgoIw8kNOr1nuQjii48IY0nT2JC8d+6nyeY8sqqB
+         ZUljSnsVrHDX3TviZzEfuPnkBgGhwvfawnk8GRAU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 176/267] bcache: fix refcount underflow in bcache_device_free()
-Date:   Fri, 19 Jun 2020 16:32:41 +0200
-Message-Id: <20200619141657.236504914@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mario Limonciello <mario.limonciello@dell.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mario Limonciello <Mario.limonciello@dell.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 151/261] platform/x86: intel-vbtn: Only blacklist SW_TABLET_MODE on the 9 / "Laptop" chasis-type
+Date:   Fri, 19 Jun 2020 16:32:42 +0200
+Message-Id: <20200619141657.110792638@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
-References: <20200619141648.840376470@linuxfoundation.org>
+In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
+References: <20200619141649.878808811@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,90 +47,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 86da9f736740eba602389908574dfbb0f517baa5 ]
+[ Upstream commit cfae58ed681c5fe0185db843013ecc71cd265ebf ]
 
-The problematic code piece in bcache_device_free() is,
+The HP Stream x360 11-p000nd no longer report SW_TABLET_MODE state / events
+with recent kernels. This model reports a chassis-type of 10 / "Notebook"
+which is not on the recently introduced chassis-type whitelist
 
- 785 static void bcache_device_free(struct bcache_device *d)
- 786 {
- 787     struct gendisk *disk = d->disk;
- [snipped]
- 799     if (disk) {
- 800             if (disk->flags & GENHD_FL_UP)
- 801                     del_gendisk(disk);
- 802
- 803             if (disk->queue)
- 804                     blk_cleanup_queue(disk->queue);
- 805
- 806             ida_simple_remove(&bcache_device_idx,
- 807                               first_minor_to_idx(disk->first_minor));
- 808             put_disk(disk);
- 809         }
- [snipped]
- 816 }
+Commit de9647efeaa9 ("platform/x86: intel-vbtn: Only activate tablet mode
+switch on 2-in-1's") added a chassis-type whitelist and only listed 31 /
+"Convertible" as being capable of generating valid SW_TABLET_MOD events.
 
-At line 808, put_disk(disk) may encounter kobject refcount of 'disk'
-being underflow.
+Commit 1fac39fd0316 ("platform/x86: intel-vbtn: Also handle tablet-mode
+switch on "Detachable" and "Portable" chassis-types") extended the
+whitelist with chassis-types 8 / "Portable" and 32 / "Detachable".
 
-Here is how to reproduce the issue,
-- Attche the backing device to a cache device and do random write to
-  make the cache being dirty.
-- Stop the bcache device while the cache device has dirty data of the
-  backing device.
-- Only register the backing device back, NOT register cache device.
-- The bcache device node /dev/bcache0 won't show up, because backing
-  device waits for the cache device shows up for the missing dirty
-  data.
-- Now echo 1 into /sys/fs/bcache/pendings_cleanup, to stop the pending
-  backing device.
-- After the pending backing device stopped, use 'dmesg' to check kernel
-  message, a use-after-free warning from KASA reported the refcount of
-  kobject linked to the 'disk' is underflow.
+And now we need to exten the whitelist again with 10 / "Notebook"...
 
-The dropping refcount at line 808 in the above code piece is added by
-add_disk(d->disk) in bch_cached_dev_run(). But in the above condition
-the cache device is not registered, bch_cached_dev_run() has no chance
-to be called and the refcount is not added. The put_disk() for a non-
-added refcount of gendisk kobject triggers a underflow warning.
+The issue original fixed by the whitelist is really a ACPI DSDT bug on
+the Dell XPS 9360 where it has a VGBS which reports it is in tablet mode
+even though it is not a 2-in-1 at all, but a regular laptop.
 
-This patch checks whether GENHD_FL_UP is set in disk->flags, if it is
-not set then the bcache device was not added, don't call put_disk()
-and the the underflow issue can be avoided.
+So since this is a workaround for a DSDT issue on that specific model,
+instead of extending the whitelist over and over again, lets switch to
+a blacklist and only blacklist the chassis-type of the model for which
+the chassis-type check was added.
 
-Signed-off-by: Coly Li <colyli@suse.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Note this also fixes the current version of the code no longer checking
+if dmi_get_system_info(DMI_CHASSIS_TYPE) returns NULL.
+
+Fixes: 1fac39fd0316 ("platform/x86: intel-vbtn: Also handle tablet-mode switch on "Detachable" and "Portable" chassis-types")
+Cc: Mario Limonciello <mario.limonciello@dell.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Mario Limonciello <Mario.limonciello@dell.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/bcache/super.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/platform/x86/intel-vbtn.c | 19 ++++++++-----------
+ 1 file changed, 8 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
-index 5b5cbfadd003..68ebc2759c2e 100644
---- a/drivers/md/bcache/super.c
-+++ b/drivers/md/bcache/super.c
-@@ -775,7 +775,9 @@ static void bcache_device_free(struct bcache_device *d)
- 		bcache_device_detach(d);
+diff --git a/drivers/platform/x86/intel-vbtn.c b/drivers/platform/x86/intel-vbtn.c
+index 5acfa08b5dac..cb2a80fdd8f4 100644
+--- a/drivers/platform/x86/intel-vbtn.c
++++ b/drivers/platform/x86/intel-vbtn.c
+@@ -157,21 +157,18 @@ static void detect_tablet_mode(struct platform_device *device)
+ static bool intel_vbtn_has_switches(acpi_handle handle)
+ {
+ 	const char *chassis_type = dmi_get_system_info(DMI_CHASSIS_TYPE);
+-	unsigned long chassis_type_int;
+ 	unsigned long long vgbs;
+ 	acpi_status status;
  
- 	if (disk) {
--		if (disk->flags & GENHD_FL_UP)
-+		bool disk_added = (disk->flags & GENHD_FL_UP) != 0;
-+
-+		if (disk_added)
- 			del_gendisk(disk);
+-	if (kstrtoul(chassis_type, 10, &chassis_type_int))
+-		return false;
+-
+-	switch (chassis_type_int) {
+-	case  8: /* Portable */
+-	case 31: /* Convertible */
+-	case 32: /* Detachable */
+-		break;
+-	default:
++	/*
++	 * Some normal laptops have a VGBS method despite being non-convertible
++	 * and their VGBS method always returns 0, causing detect_tablet_mode()
++	 * to report SW_TABLET_MODE=1 to userspace, which causes issues.
++	 * These laptops have a DMI chassis_type of 9 ("Laptop"), do not report
++	 * switches on any devices with a DMI chassis_type of 9.
++	 */
++	if (chassis_type && strcmp(chassis_type, "9") == 0)
+ 		return false;
+-	}
  
- 		if (disk->queue)
-@@ -783,7 +785,8 @@ static void bcache_device_free(struct bcache_device *d)
- 
- 		ida_simple_remove(&bcache_device_idx,
- 				  first_minor_to_idx(disk->first_minor));
--		put_disk(disk);
-+		if (disk_added)
-+			put_disk(disk);
- 	}
- 
- 	bioset_exit(&d->bio_split);
+ 	status = acpi_evaluate_integer(handle, "VGBS", NULL, &vgbs);
+ 	return ACPI_SUCCESS(status);
 -- 
 2.25.1
 
