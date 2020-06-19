@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB7752016F5
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:46:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 840E72015DC
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:32:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389061AbgFSOsN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:48:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40340 "EHLO mail.kernel.org"
+        id S2389201AbgFSQXn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:23:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389058AbgFSOsI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:48:08 -0400
+        id S2390455AbgFSO7A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:59:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 048D02083B;
-        Fri, 19 Jun 2020 14:48:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 55C9821924;
+        Fri, 19 Jun 2020 14:59:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578088;
-        bh=2Q9Yr7e7ItrZAW0q4ARj2n/qHLvZhPdCDaCzDRgnIQQ=;
+        s=default; t=1592578740;
+        bh=oQoHniCdWbuIkY9elck1nIUM6K/E1dlJcbZqRgeQhHI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MF1KGPc08ag4+VlATIxf4OdWep0RyyrXes5r5Go2WKgeWgK0ql1jLnWR4L/Hr+/dk
-         Lj+KOGvsL2Xxaf7B3g0qWC2fU0YzUh15wRh3+vj88tMS+Xnlrqg7LcGHwNPC0QKw2G
-         s58yCnoJsQk/enCs3Yu2Puxvp0JmTWtjSs16uvZ0=
+        b=In8tmNc5cnBjRog76ulYeJmZ+xvKcDcsRf21BImZBVTtIIH74sc1xlS1h2cYEnkuV
+         CUDWWELq4x9YUqEasrzBcmfcjW28I4WCY8dnl3WqXK0QEF9jcIr1hz0bHJNaUoUn6Q
+         v6fxAFDKYWQZcXTvRPcNp3dW2R3TDBeuRqiMB594=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brad Love <brad@nextdimension.cc>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
+        Vladimir Zapolskiy <vz@mleia.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 078/190] media: si2157: Better check for running tuner in init
+Subject: [PATCH 4.19 138/267] net: lpc-enet: fix error return code in lpc_mii_init()
 Date:   Fri, 19 Jun 2020 16:32:03 +0200
-Message-Id: <20200619141637.487063922@linuxfoundation.org>
+Message-Id: <20200619141655.448321027@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
-References: <20200619141633.446429600@linuxfoundation.org>
+In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
+References: <20200619141648.840376470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,59 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brad Love <brad@nextdimension.cc>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit e955f959ac52e145f27ff2be9078b646d0352af0 ]
+[ Upstream commit 88ec7cb22ddde725ed4ce15991f0bd9dd817fd85 ]
 
-Getting the Xtal trim property to check if running is less error prone.
-Reset if_frequency if state is unknown.
+Fix to return a negative error code from the error handling
+case instead of 0, as done elsewhere in this function.
 
-Replaces the previous "garbage check".
-
-Signed-off-by: Brad Love <brad@nextdimension.cc>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: b7370112f519 ("lpc32xx: Added ethernet driver")
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Acked-by: Vladimir Zapolskiy <vz@mleia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/tuners/si2157.c | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/nxp/lpc_eth.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/tuners/si2157.c b/drivers/media/tuners/si2157.c
-index e35b1faf0ddc..c826997f5433 100644
---- a/drivers/media/tuners/si2157.c
-+++ b/drivers/media/tuners/si2157.c
-@@ -84,24 +84,23 @@ static int si2157_init(struct dvb_frontend *fe)
- 	struct si2157_cmd cmd;
- 	const struct firmware *fw;
- 	const char *fw_name;
--	unsigned int uitmp, chip_id;
-+	unsigned int chip_id, xtal_trim;
+diff --git a/drivers/net/ethernet/nxp/lpc_eth.c b/drivers/net/ethernet/nxp/lpc_eth.c
+index 41d30f55c946..6bd6c261f2ba 100644
+--- a/drivers/net/ethernet/nxp/lpc_eth.c
++++ b/drivers/net/ethernet/nxp/lpc_eth.c
+@@ -845,7 +845,8 @@ static int lpc_mii_init(struct netdata_local *pldat)
+ 	if (mdiobus_register(pldat->mii_bus))
+ 		goto err_out_unregister_bus;
  
- 	dev_dbg(&client->dev, "\n");
+-	if (lpc_mii_probe(pldat->ndev) != 0)
++	err = lpc_mii_probe(pldat->ndev);
++	if (err)
+ 		goto err_out_unregister_bus;
  
--	/* Returned IF frequency is garbage when firmware is not running */
--	memcpy(cmd.args, "\x15\x00\x06\x07", 4);
-+	/* Try to get Xtal trim property, to verify tuner still running */
-+	memcpy(cmd.args, "\x15\x00\x04\x02", 4);
- 	cmd.wlen = 4;
- 	cmd.rlen = 4;
- 	ret = si2157_cmd_execute(client, &cmd);
--	if (ret)
--		goto err;
- 
--	uitmp = cmd.args[2] << 0 | cmd.args[3] << 8;
--	dev_dbg(&client->dev, "if_frequency kHz=%u\n", uitmp);
-+	xtal_trim = cmd.args[2] | (cmd.args[3] << 8);
- 
--	if (uitmp == dev->if_frequency / 1000)
-+	if (ret == 0 && xtal_trim < 16)
- 		goto warm;
- 
-+	dev->if_frequency = 0; /* we no longer know current tuner state */
-+
- 	/* power up */
- 	if (dev->chiptype == SI2157_CHIPTYPE_SI2146) {
- 		memcpy(cmd.args, "\xc0\x05\x01\x00\x00\x0b\x00\x00\x01", 9);
+ 	return 0;
 -- 
 2.25.1
 
