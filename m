@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64FEA20167C
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:33:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5ECAB201673
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:33:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389637AbgFSQbd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:31:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47020 "EHLO mail.kernel.org"
+        id S2388286AbgFSQbE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:31:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389243AbgFSOwv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:52:51 -0400
+        id S2389666AbgFSOxE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:53:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CECD321556;
-        Fri, 19 Jun 2020 14:52:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0DCF4217D8;
+        Fri, 19 Jun 2020 14:53:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578371;
-        bh=4N8wtzWv9c/QUTi9qkJFY+daci7BxXq2OJdDmp6Ojjg=;
+        s=default; t=1592578384;
+        bh=krZvaaKbZupcbCVuMdkXCRkKX12CC/ankJb4E+BbGlU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PDMYyxNCbj/KncgDhiJAO3W8BTidkL6m9UTwvZ6WKpQgredVQJ4V2UDVsVlFYs1zZ
-         OhlFS2wtgey+In81+2o7wAL14GGL9dRWzvj7kBcXo8FU1aVQ29L8jZyq1NGQt3Fqy/
-         fW3VUglObvve7mq3KhWvcZNtoRJilJbdsQ9WEVDs=
+        b=HrSTWEmf1Ke8kGY2HGhFONcH1K879xvT/RPoBgKRobR10+rDKjm7HvkikVhxB3g5f
+         gTV6uzu2l1o/0m/+mLaNCuXEOxWH7A/DWsVbBXKuiX/FA6eacezDW3JAsxwKl1gz3r
+         6eVfamk2r8rZT1E2FUd2OwUcbb/6DT2iUj/ry+gE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Giuliano Procida <gprocida@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 160/190] btrfs: fix wrong file range cleanup after an error filling dealloc range
-Date:   Fri, 19 Jun 2020 16:33:25 +0200
-Message-Id: <20200619141641.747839926@linuxfoundation.org>
+Subject: [PATCH 4.14 161/190] blk-mq: move _blk_mq_update_nr_hw_queues synchronize_rcu call
+Date:   Fri, 19 Jun 2020 16:33:26 +0200
+Message-Id: <20200619141641.804697508@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
 References: <20200619141633.446429600@linuxfoundation.org>
@@ -44,43 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Giuliano Procida <gprocida@google.com>
 
-[ Upstream commit e2c8e92d1140754073ad3799eb6620c76bab2078 ]
+This fixes the
+4.14 backport commit 574eb136ec7f315c3ef2ca68fa9b3e16c56baa24
+which was
+upstream commit f5bbbbe4d63577026f908a809f22f5fd5a90ea1f.
 
-If an error happens while running dellaloc in COW mode for a range, we can
-end up calling extent_clear_unlock_delalloc() for a range that goes beyond
-our range's end offset by 1 byte, which affects 1 extra page. This results
-in clearing bits and doing page operations (such as a page unlock) outside
-our target range.
+The upstream commit added a call to synchronize_rcu to
+_blk_mq_update_nr_hw_queues, just after freezing queues.
 
-Fix that by calling extent_clear_unlock_delalloc() with an inclusive end
-offset, instead of an exclusive end offset, at cow_file_range().
+In the backport this landed just after unfreezeing queues.
 
-Fixes: a315e68f6e8b30 ("Btrfs: fix invalid attempt to free reserved space on failure to cow range")
-CC: stable@vger.kernel.org # 4.14+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+This commit moves the call to its intended place.
+
+Fixes: 574eb136ec7f ("blk-mq: sync the update nr_hw_queues with blk_mq_queue_tag_busy_iter")
+Signed-off-by: Giuliano Procida <gprocida@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/inode.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ block/blk-mq.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index 3e65ac2d4869..ad138f0b0ce1 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -1139,8 +1139,8 @@ static noinline int cow_file_range(struct inode *inode,
- 	 */
- 	if (extent_reserved) {
- 		extent_clear_unlock_delalloc(inode, start,
--					     start + cur_alloc_size,
--					     start + cur_alloc_size,
-+					     start + cur_alloc_size - 1,
-+					     start + cur_alloc_size - 1,
- 					     locked_page,
- 					     clear_bits,
- 					     page_ops);
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index 9d53f476c517..cf56bdad2e06 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -2738,6 +2738,10 @@ static void __blk_mq_update_nr_hw_queues(struct blk_mq_tag_set *set,
+ 
+ 	list_for_each_entry(q, &set->tag_list, tag_set_list)
+ 		blk_mq_freeze_queue(q);
++	/*
++	 * Sync with blk_mq_queue_tag_busy_iter.
++	 */
++	synchronize_rcu();
+ 
+ 	set->nr_hw_queues = nr_hw_queues;
+ 	blk_mq_update_queue_map(set);
+@@ -2748,10 +2752,6 @@ static void __blk_mq_update_nr_hw_queues(struct blk_mq_tag_set *set,
+ 
+ 	list_for_each_entry(q, &set->tag_list, tag_set_list)
+ 		blk_mq_unfreeze_queue(q);
+-	/*
+-	 * Sync with blk_mq_queue_tag_busy_iter.
+-	 */
+-	synchronize_rcu();
+ }
+ 
+ void blk_mq_update_nr_hw_queues(struct blk_mq_tag_set *set, int nr_hw_queues)
 -- 
 2.25.1
 
