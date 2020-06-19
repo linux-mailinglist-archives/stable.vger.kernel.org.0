@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A26D12015AA
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:31:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBDFE201639
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:32:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389910AbgFSOy6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:54:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49716 "EHLO mail.kernel.org"
+        id S2394823AbgFSQ2Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:28:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389906AbgFSOy5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:54:57 -0400
+        id S2389914AbgFSOzA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:55:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45E78218AC;
-        Fri, 19 Jun 2020 14:54:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED29021556;
+        Fri, 19 Jun 2020 14:54:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578496;
-        bh=4GDj40YMC236QJ/h4DC1Ce/InFlHhNvYDg8ll0+BQsg=;
+        s=default; t=1592578499;
+        bh=fuyKSyBHG60r/Gua4nx3314Yf7DDC7u+SL1aJLP5Sec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T9HGUIbeXVn+UpzVFUCfEWIFYmjARxa3kcdXnweuY1FY5+r02eurn0DoHTiTrtm1J
-         XB0ihP0PYzYIc+EvU5I4/qUivG7dgnKiKpHn/1UGn0jP++F93ovkYYorL+TS/w5kmN
-         l/aEgXUZpPJyP+gtINHRjaESQD5pd2UF+K6LD4S8=
+        b=OVUe8v5NSJZMxvs6ghbZN6C3MQi2Avsl281M/hwJaAoZksECxNonqT0y73hCMEX0m
+         83ofC8EL88eLfspLYEj1RbyLvcM1oxVsj7eBvVh0J6QAhtextAJbGx6T8Y/WgZOkmi
+         q12lG168n6fcgYUGUGw0c8JMmVO62uxf6LNjZaNY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Martin Sperl <kernel@martin.sperl.org>,
+        stable@vger.kernel.org, Justin Chen <justinpopo6@gmail.com>,
+        Kamal Dasu <kdasu.kdev@gmail.com>,
         Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.19 044/267] spi: bcm2835aux: Fix controller unregister order
-Date:   Fri, 19 Jun 2020 16:30:29 +0200
-Message-Id: <20200619141651.012339490@linuxfoundation.org>
+Subject: [PATCH 4.19 045/267] spi: bcm-qspi: when tx/rx buffer is NULL set to 0
+Date:   Fri, 19 Jun 2020 16:30:30 +0200
+Message-Id: <20200619141651.057496542@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
 References: <20200619141648.840376470@linuxfoundation.org>
@@ -44,62 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Justin Chen <justinpopo6@gmail.com>
 
-commit b9dd3f6d417258ad0beeb292a1bc74200149f15d upstream.
+commit 4df3bea7f9d2ddd9ac2c29ba945c7c4db2def29c upstream.
 
-The BCM2835aux SPI driver uses devm_spi_register_master() on bind.
-As a consequence, on unbind, __device_release_driver() first invokes
-bcm2835aux_spi_remove() before unregistering the SPI controller via
-devres_release_all().
+Currently we set the tx/rx buffer to 0xff when NULL. This causes
+problems with some spi slaves where 0xff is a valid command. Looking
+at other drivers, the tx/rx buffer is usually set to 0x00 when NULL.
+Following this convention solves the issue.
 
-This order is incorrect:  bcm2835aux_spi_remove() turns off the SPI
-controller, including its interrupts and clock.  The SPI controller
-is thus no longer usable.
-
-When the SPI controller is subsequently unregistered, it unbinds all
-its slave devices.  If their drivers need to access the SPI bus,
-e.g. to quiesce their interrupts, unbinding will fail.
-
-As a rule, devm_spi_register_master() must not be used if the
-->remove() hook performs teardown steps which shall be performed
-after unbinding of slaves.
-
-Fix by using the non-devm variant spi_register_master().  Note that the
-struct spi_master as well as the driver-private data are not freed until
-after bcm2835aux_spi_remove() has finished, so accessing them is safe.
-
-Fixes: 1ea29b39f4c8 ("spi: bcm2835aux: add bcm2835 auxiliary spi device driver")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: stable@vger.kernel.org # v4.4+
-Cc: Martin Sperl <kernel@martin.sperl.org>
-Link: https://lore.kernel.org/r/32f27f4d8242e4d75f9a53f7e8f1f77483b08669.1589557526.git.lukas@wunner.de
+Fixes: fa236a7ef240 ("spi: bcm-qspi: Add Broadcom MSPI driver")
+Signed-off-by: Justin Chen <justinpopo6@gmail.com>
+Signed-off-by: Kamal Dasu <kdasu.kdev@gmail.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20200420190853.45614-6-kdasu.kdev@gmail.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/spi/spi-bcm2835aux.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/spi/spi-bcm-qspi.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/spi/spi-bcm2835aux.c
-+++ b/drivers/spi/spi-bcm2835aux.c
-@@ -485,7 +485,7 @@ static int bcm2835aux_spi_probe(struct p
- 		goto out_clk_disable;
- 	}
+--- a/drivers/spi/spi-bcm-qspi.c
++++ b/drivers/spi/spi-bcm-qspi.c
+@@ -681,7 +681,7 @@ static void read_from_hw(struct bcm_qspi
+ 			if (buf)
+ 				buf[tp.byte] = read_rxram_slot_u8(qspi, slot);
+ 			dev_dbg(&qspi->pdev->dev, "RD %02x\n",
+-				buf ? buf[tp.byte] : 0xff);
++				buf ? buf[tp.byte] : 0x0);
+ 		} else {
+ 			u16 *buf = tp.trans->rx_buf;
  
--	err = devm_spi_register_master(&pdev->dev, master);
-+	err = spi_register_master(master);
- 	if (err) {
- 		dev_err(&pdev->dev, "could not register SPI master: %d\n", err);
- 		goto out_clk_disable;
-@@ -505,6 +505,8 @@ static int bcm2835aux_spi_remove(struct
- 	struct spi_master *master = platform_get_drvdata(pdev);
- 	struct bcm2835aux_spi *bs = spi_master_get_devdata(master);
+@@ -689,7 +689,7 @@ static void read_from_hw(struct bcm_qspi
+ 				buf[tp.byte / 2] = read_rxram_slot_u16(qspi,
+ 								      slot);
+ 			dev_dbg(&qspi->pdev->dev, "RD %04x\n",
+-				buf ? buf[tp.byte] : 0xffff);
++				buf ? buf[tp.byte / 2] : 0x0);
+ 		}
  
-+	spi_unregister_master(master);
-+
- 	bcm2835aux_spi_reset_hw(bs);
+ 		update_qspi_trans_byte_count(qspi, &tp,
+@@ -744,13 +744,13 @@ static int write_to_hw(struct bcm_qspi *
+ 	while (!tstatus && slot < MSPI_NUM_CDRAM) {
+ 		if (tp.trans->bits_per_word <= 8) {
+ 			const u8 *buf = tp.trans->tx_buf;
+-			u8 val = buf ? buf[tp.byte] : 0xff;
++			u8 val = buf ? buf[tp.byte] : 0x00;
  
- 	/* disable the HW block by releasing the clock */
+ 			write_txram_slot_u8(qspi, slot, val);
+ 			dev_dbg(&qspi->pdev->dev, "WR %02x\n", val);
+ 		} else {
+ 			const u16 *buf = tp.trans->tx_buf;
+-			u16 val = buf ? buf[tp.byte / 2] : 0xffff;
++			u16 val = buf ? buf[tp.byte / 2] : 0x0000;
+ 
+ 			write_txram_slot_u16(qspi, slot, val);
+ 			dev_dbg(&qspi->pdev->dev, "WR %04x\n", val);
 
 
