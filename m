@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D3E5201776
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB1E020183A
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:48:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395361AbgFSQiy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:38:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39146 "EHLO mail.kernel.org"
+        id S2388142AbgFSOk0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:40:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388918AbgFSOrI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:47:08 -0400
+        id S2388138AbgFSOkZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:40:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A12C20DD4;
-        Fri, 19 Jun 2020 14:47:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ABCED20A8B;
+        Fri, 19 Jun 2020 14:40:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578027;
-        bh=x7B5wod4MBfR1dx5pVObIqXplMbNsgaIgDDQQ7vpFEE=;
+        s=default; t=1592577625;
+        bh=9m+nedHFamROTEbfxZl0O8S6WBufhsoEggKhtJGuz4w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nIAxzxX5xpBLbv5hoCKsNmV0r/cm2zmmxyfnapu/hAwIg3iBrCAfmDUM00ELCjdjt
-         OKRvy9VibByANbxlD36aA2XuspT2YzIgP0GJGI6IbPy0Cy4RfFKECLwyOnNCfZDwsY
-         4ITDz8yrND5sF6+kI7XnlG6fSV5J2iK48HgQ6j18=
+        b=m7rgyq+ksGPWpZSyiQX4D5eT018Kl1i+12pkY3tmppHdAH74VbvpbdsO/XedhrsvO
+         tVvxKf1hpjsELW2wv2B2N1Web0+d9i0HYNZ9DChkvX1hbZKVAjlOBzmlnLWV4+UmHH
+         SUdda3FhEvSY6/WksAFdLpwOAyTdMRI5qt+vrDuM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yuxuan Shui <yshuiv7@gmail.com>,
-        Alexander Potapenko <glider@google.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 4.14 053/190] ovl: initialize error in ovl_copy_xattr
+        stable@vger.kernel.org, Su Kang Yin <cantona@cantona.net>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>
+Subject: [PATCH 4.9 004/128] crypto: talitos - fix ECB and CBC algs ivsize
 Date:   Fri, 19 Jun 2020 16:31:38 +0200
-Message-Id: <20200619141636.236038789@linuxfoundation.org>
+Message-Id: <20200619141620.369942370@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
-References: <20200619141633.446429600@linuxfoundation.org>
+In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
+References: <20200619141620.148019466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuxuan Shui <yshuiv7@gmail.com>
+From: Su Kang Yin <cantona@cantona.net>
 
-commit 520da69d265a91c6536c63851cbb8a53946974f0 upstream.
+commit e1de42fdfc6a ("crypto: talitos - fix ECB algs ivsize")
+wrongly modified CBC algs ivsize instead of ECB aggs ivsize.
 
-In ovl_copy_xattr, if all the xattrs to be copied are overlayfs private
-xattrs, the copy loop will terminate without assigning anything to the
-error variable, thus returning an uninitialized value.
+This restore the CBC algs original ivsize of removes ECB's ones.
 
-If ovl_copy_xattr is called from ovl_clear_empty, this uninitialized error
-value is put into a pointer by ERR_PTR(), causing potential invalid memory
-accesses down the line.
-
-This commit initialize error with 0. This is the correct value because when
-there's no xattr to copy, because all xattrs are private, ovl_copy_xattr
-should succeed.
-
-This bug is discovered with the help of INIT_STACK_ALL and clang.
-
-Signed-off-by: Yuxuan Shui <yshuiv7@gmail.com>
-Link: https://bugs.chromium.org/p/chromium/issues/detail?id=1050405
-Fixes: 0956254a2d5b ("ovl: don't copy up opaqueness")
-Cc: stable@vger.kernel.org # v4.8
-Signed-off-by: Alexander Potapenko <glider@google.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Fixes: e1de42fdfc6a ("crypto: talitos - fix ECB algs ivsize")
+Signed-off-by: Su Kang Yin <cantona@cantona.net>
+Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/overlayfs/copy_up.c |    2 +-
+ drivers/crypto/talitos.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/overlayfs/copy_up.c
-+++ b/fs/overlayfs/copy_up.c
-@@ -59,7 +59,7 @@ int ovl_copy_xattr(struct dentry *old, s
- {
- 	ssize_t list_size, size, value_size = 0;
- 	char *buf, *name, *value = NULL;
--	int uninitialized_var(error);
-+	int error = 0;
- 	size_t slen;
- 
- 	if (!(old->d_inode->i_opflags & IOP_XATTR) ||
+--- a/drivers/crypto/talitos.c
++++ b/drivers/crypto/talitos.c
+@@ -2636,7 +2636,6 @@ static struct talitos_alg_template drive
+ 			.cra_ablkcipher = {
+ 				.min_keysize = AES_MIN_KEY_SIZE,
+ 				.max_keysize = AES_MAX_KEY_SIZE,
+-				.ivsize = AES_BLOCK_SIZE,
+ 			}
+ 		},
+ 		.desc_hdr_template = DESC_HDR_TYPE_COMMON_NONSNOOP_NO_AFEU |
+@@ -2670,6 +2669,7 @@ static struct talitos_alg_template drive
+ 			.cra_ablkcipher = {
+ 				.min_keysize = AES_MIN_KEY_SIZE,
+ 				.max_keysize = AES_MAX_KEY_SIZE,
++				.ivsize = AES_BLOCK_SIZE,
+ 				.setkey = ablkcipher_aes_setkey,
+ 			}
+ 		},
 
 
