@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09D6020179A
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E93BF2015B8
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:31:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395447AbgFSQkq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:40:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36930 "EHLO mail.kernel.org"
+        id S2390051AbgFSO4T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:56:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388122AbgFSOpX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:45:23 -0400
+        id S2389392AbgFSO4S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:56:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 388FD2083B;
-        Fri, 19 Jun 2020 14:45:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DBF802158C;
+        Fri, 19 Jun 2020 14:56:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577922;
-        bh=QVcW8dTwS5z7Olepp+XqsyVQMXHXIDd8TyyxJ/ZDWoE=;
+        s=default; t=1592578578;
+        bh=NBVUODQbI1T1MtGAlUTn/rshWC+w1j++5qEaRVUjYSg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ldXQPvD26f6Ujl2CL6oSLKk8m2kN4ink5S+CyaOfIKmne2ikYlE1W549IX+/lNK+C
-         uHWaVGCyGaPl46iF0Ew8Rn0ireZWWcxim0WX5oersN0YkRKw5UwhGpVhIyGpgb7lDl
-         1CDEUHDgd0H5Q1C5p3r5agT6I+sO7SYhjBhSEWC0=
+        b=UinJH23+5k9vWTENHDz/2sb8okp0HErAMdsfi1OA0GN1sj+ddbTV8R/UBnpW5JFpn
+         QeoAouLY5Vp3Iln1CldhXtzOje2SOpzym0Re3M7F5KGbALA+e9do5GAsN5dZ5gjwlX
+         HU4u1Gc+uqE6VByq3IFtQX0c2i5Rs2Eg9IphoiNM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Denis <pro.denis@protonmail.com>,
-        Masashi Honma <masashi.honma@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 015/190] ath9k_htc: Silence undersized packet warnings
+        stable@vger.kernel.org,
+        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
+        Xing Li <lixing@loongson.cn>, Huacai Chen <chenhc@lemote.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.19 075/267] KVM: MIPS: Fix VPN2_MASK definition for variable cpu_vmbits
 Date:   Fri, 19 Jun 2020 16:31:00 +0200
-Message-Id: <20200619141634.229358027@linuxfoundation.org>
+Message-Id: <20200619141652.500182542@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
-References: <20200619141633.446429600@linuxfoundation.org>
+In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
+References: <20200619141648.840376470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,49 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masashi Honma <masashi.honma@gmail.com>
+From: Xing Li <lixing@loongson.cn>
 
-[ Upstream commit 450edd2805982d14ed79733a82927d2857b27cac ]
+commit 5816c76dea116a458f1932eefe064e35403248eb upstream.
 
-Some devices like TP-Link TL-WN722N produces this kind of messages
-frequently.
+If a CPU support more than 32bit vmbits (which is true for 64bit CPUs),
+VPN2_MASK set to fixed 0xffffe000 will lead to a wrong EntryHi in some
+functions such as _kvm_mips_host_tlb_inv().
 
-kernel: ath: phy0: Short RX data len, dropping (dlen: 4)
+The cpu_vmbits definition of 32bit CPU in cpu-features.h is 31, so we
+still use the old definition.
 
-This warning is useful for developers to recognize that the device
-(Wi-Fi dongle or USB hub etc) is noisy but not for general users. So
-this patch make this warning to debug message.
+Cc: Stable <stable@vger.kernel.org>
+Reviewed-by: Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>
+Signed-off-by: Xing Li <lixing@loongson.cn>
+[Huacai: Improve commit messages]
+Signed-off-by: Huacai Chen <chenhc@lemote.com>
+Message-Id: <1590220602-3547-3-git-send-email-chenhc@lemote.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Reported-By: Denis <pro.denis@protonmail.com>
-Ref: https://bugzilla.kernel.org/show_bug.cgi?id=207539
-Fixes: cd486e627e67 ("ath9k_htc: Discard undersized packets")
-Signed-off-by: Masashi Honma <masashi.honma@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200504214443.4485-1-masashi.honma@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/htc_drv_txrx.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/mips/include/asm/kvm_host.h |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
-index 4748f557c753..11d06021b5e4 100644
---- a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
-+++ b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
-@@ -999,9 +999,9 @@ static bool ath9k_rx_prepare(struct ath9k_htc_priv *priv,
- 	 * which are not PHY_ERROR (short radar pulses have a length of 3)
- 	 */
- 	if (unlikely(!rs_datalen || (rs_datalen < 10 && !is_phyerr))) {
--		ath_warn(common,
--			 "Short RX data len, dropping (dlen: %d)\n",
--			 rs_datalen);
-+		ath_dbg(common, ANY,
-+			"Short RX data len, dropping (dlen: %d)\n",
-+			rs_datalen);
- 		goto rx_next;
- 	}
+--- a/arch/mips/include/asm/kvm_host.h
++++ b/arch/mips/include/asm/kvm_host.h
+@@ -274,7 +274,11 @@ enum emulation_result {
+ #define MIPS3_PG_SHIFT		6
+ #define MIPS3_PG_FRAME		0x3fffffc0
  
--- 
-2.25.1
-
++#if defined(CONFIG_64BIT)
++#define VPN2_MASK		GENMASK(cpu_vmbits - 1, 13)
++#else
+ #define VPN2_MASK		0xffffe000
++#endif
+ #define KVM_ENTRYHI_ASID	cpu_asid_mask(&boot_cpu_data)
+ #define TLB_IS_GLOBAL(x)	((x).tlb_lo[0] & (x).tlb_lo[1] & ENTRYLO_G)
+ #define TLB_VPN2(x)		((x).tlb_hi & VPN2_MASK)
 
 
