@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2022B200CC0
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:52:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97BE7200C1C
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:43:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389202AbgFSOtU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:49:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41754 "EHLO mail.kernel.org"
+        id S2387939AbgFSOlq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:41:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388503AbgFSOtM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:49:12 -0400
+        id S2388285AbgFSOlp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:41:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 93A8E217A0;
-        Fri, 19 Jun 2020 14:49:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE42221527;
+        Fri, 19 Jun 2020 14:41:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578152;
-        bh=2qLyoYM5uT2rMeb6vdKw9v73BZGzqv06q+5YAIglqCc=;
+        s=default; t=1592577705;
+        bh=kZ2JT7pJzNcsSRPkYpNNMCMcIXuq+V0mJeRqmsklpBE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GbNaxdcGxUFqtZDrHID7QZvFqF4y86N+kjNbW5OlzLNfR5fBxB1VL09CYruGTdupY
-         jGqkCnuDD3gGz3am1nu/vZ+T2g131WipMapfMi3A61Mju25yN+arDz6K87po2+QY3j
-         ix89sKVXnA2PwhYh5XbJhIhWxtNgnynKdggZDoZ0=
+        b=dqub5D9qZEB4hjtAjYwlLPvR0UlCbJh2+Ux/fQC0HtmlIYBYpmpg3/ZnYduQhYOc3
+         5bpGJTDEoVORWTK/Lvb+tK/4l57BcVuDNOMPonbyq/JUrevg8Wri1wV1TSz9kjA+Qh
+         l6binWh8uY5q5OAbX6kepUkBT8k1cbYoLNHIgEj8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juxin Gao <gaojuxin@loongson.cn>,
-        Tiezhu Yang <yangtiezhu@loongson.cn>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 103/190] MIPS: Make sparse_init() using top-down allocation
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 4.9 054/128] ACPI: GED: use correct trigger type field in _Exx / _Lxx handling
 Date:   Fri, 19 Jun 2020 16:32:28 +0200
-Message-Id: <20200619141638.727271292@linuxfoundation.org>
+Message-Id: <20200619141623.060188065@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
-References: <20200619141633.446429600@linuxfoundation.org>
+In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
+References: <20200619141620.148019466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,98 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tiezhu Yang <yangtiezhu@loongson.cn>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit 269b3a9ac538c4ae87f84be640b9fa89914a2489 ]
+commit e5c399b0bd6490c12c0af2a9eaa9d7cd805d52c9 upstream.
 
-In the current code, if CONFIG_SWIOTLB is set, when failed to get IO TLB
-memory from the low pages by plat_swiotlb_setup(), it may lead to the boot
-process failed with kernel panic.
+Commit ea6f3af4c5e63f69 ("ACPI: GED: add support for _Exx / _Lxx handler
+methods") added a reference to the 'triggering' field of either the
+normal or the extended ACPI IRQ resource struct, but inadvertently used
+the wrong pointer in the latter case. Note that both pointers refer to the
+same union, and the 'triggering' field appears at the same offset in both
+struct types, so it currently happens to work by accident. But let's fix
+it nonetheless
 
-(1) On the Loongson and SiByte platform
-arch/mips/loongson64/dma.c
-arch/mips/sibyte/common/dma.c
-void __init plat_swiotlb_setup(void)
-{
-	swiotlb_init(1);
-}
+Fixes: ea6f3af4c5e63f69 ("ACPI: GED: add support for _Exx / _Lxx handler methods")
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-kernel/dma/swiotlb.c
-void  __init
-swiotlb_init(int verbose)
-{
-...
-	vstart = memblock_alloc_low(PAGE_ALIGN(bytes), PAGE_SIZE);
-	if (vstart && !swiotlb_init_with_tbl(vstart, io_tlb_nslabs, verbose))
-		return;
-...
-	pr_warn("Cannot allocate buffer");
-	no_iotlb_memory = true;
-}
-
-phys_addr_t swiotlb_tbl_map_single()
-{
-...
-	if (no_iotlb_memory)
-		panic("Can not allocate SWIOTLB buffer earlier ...");
-...
-}
-
-(2) On the Cavium OCTEON platform
-arch/mips/cavium-octeon/dma-octeon.c
-void __init plat_swiotlb_setup(void)
-{
-...
-	octeon_swiotlb = memblock_alloc_low(swiotlbsize, PAGE_SIZE);
-	if (!octeon_swiotlb)
-		panic("%s: Failed to allocate %zu bytes align=%lx\n",
-		      __func__, swiotlbsize, PAGE_SIZE);
-...
-}
-
-Because IO_TLB_DEFAULT_SIZE is 64M, if the rest size of low memory is less
-than 64M when call plat_swiotlb_setup(), we can easily reproduce the panic
-case.
-
-In order to reduce the possibility of kernel panic when failed to get IO
-TLB memory under CONFIG_SWIOTLB, it is better to allocate low memory as
-small as possible before plat_swiotlb_setup(), so make sparse_init() using
-top-down allocation.
-
-Reported-by: Juxin Gao <gaojuxin@loongson.cn>
-Co-developed-by: Juxin Gao <gaojuxin@loongson.cn>
-Signed-off-by: Juxin Gao <gaojuxin@loongson.cn>
-Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kernel/setup.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/acpi/evged.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/mips/kernel/setup.c b/arch/mips/kernel/setup.c
-index 05ed4ed411c7..abd7ee9e90ab 100644
---- a/arch/mips/kernel/setup.c
-+++ b/arch/mips/kernel/setup.c
-@@ -911,7 +911,17 @@ static void __init arch_mem_init(char **cmdline_p)
- 				BOOTMEM_DEFAULT);
- #endif
- 	device_tree_init();
-+
-+	/*
-+	 * In order to reduce the possibility of kernel panic when failed to
-+	 * get IO TLB memory under CONFIG_SWIOTLB, it is better to allocate
-+	 * low memory as small as possible before plat_swiotlb_setup(), so
-+	 * make sparse_init() using top-down allocation.
-+	 */
-+	memblock_set_bottom_up(false);
- 	sparse_init();
-+	memblock_set_bottom_up(true);
-+
- 	plat_swiotlb_setup();
+--- a/drivers/acpi/evged.c
++++ b/drivers/acpi/evged.c
+@@ -97,7 +97,7 @@ static acpi_status acpi_ged_request_inte
+ 		trigger = p->triggering;
+ 	} else {
+ 		gsi = pext->interrupts[0];
+-		trigger = p->triggering;
++		trigger = pext->triggering;
+ 	}
  
- 	dma_contiguous_reserve(PFN_PHYS(max_low_pfn));
--- 
-2.25.1
-
+ 	irq = r.start;
 
 
