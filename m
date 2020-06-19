@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBB6620177C
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F06D9201608
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:32:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388845AbgFSQjS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:39:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38460 "EHLO mail.kernel.org"
+        id S2388611AbgFSQZU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:25:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388852AbgFSOqh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:46:37 -0400
+        id S2390271AbgFSO5g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:57:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6226F21582;
-        Fri, 19 Jun 2020 14:46:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A1687217D8;
+        Fri, 19 Jun 2020 14:57:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577997;
-        bh=Jx0jLagCIaHqZMqMMys74nVCrn0cA/OsicxinUIhQiA=;
+        s=default; t=1592578656;
+        bh=N751oS8NC36Y0dt+fAPASAJvAAoD3/nSM5jly+El1lA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nrOW/dsqxcPvIWpOSH5sMAwXbo8VL4xDn5j47Qime3iJL75zLdPiZjA1yU47ANwhU
-         C0tnMAkNqPs8voB58rqSi8RKR1Fzu9Pc7yrEUPBdsCH/JiJCzRnis1diA3Fj7qWai5
-         Ccf7cl1VT0zDVnYpbFr3IIRYd9VQ7u0/ycGRungQ=
+        b=zbanjMaqEC8AZcyOLfzmeWF1D0IOXb5mP482Eizy/YDxDqiIBA9lLOBtPd9eN5id+
+         P3WqyZ68ui8kKpZrrsPoxyTN4m4e/NfKvoj0aOaVd1ID7rUvm2dkGqH5r9iAa3h86g
+         nD10A4FW1HVyimy995lZsAW/ixHW78M6uGfImSsk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Jesper Dangaard Brouer <brouer@redhat.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 043/190] spi: dw: fix possible race condition
-Date:   Fri, 19 Jun 2020 16:31:28 +0200
-Message-Id: <20200619141635.746314007@linuxfoundation.org>
+Subject: [PATCH 4.19 105/267] ixgbe: Fix XDP redirect on archs with PAGE_SIZE above 4K
+Date:   Fri, 19 Jun 2020 16:31:30 +0200
+Message-Id: <20200619141653.896871181@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
-References: <20200619141633.446429600@linuxfoundation.org>
+In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
+References: <20200619141648.840376470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,53 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 66b19d762378785d1568b5650935205edfeb0503 ]
+From: Jesper Dangaard Brouer <brouer@redhat.com>
 
-It is possible to get an interrupt as soon as it is requested.  dw_spi_irq
-does spi_controller_get_devdata(master) and expects it to be different than
-NULL. However, spi_controller_set_devdata() is called after request_irq(),
-resulting in the following crash:
+[ Upstream commit 88eb0ee17b2ece64fcf6689a4557a5c2e7a89c4b ]
 
-CPU 0 Unable to handle kernel paging request at virtual address 00000030, epc == 8058e09c, ra == 8018ff90
-[...]
-Call Trace:
-[<8058e09c>] dw_spi_irq+0x8/0x64
-[<8018ff90>] __handle_irq_event_percpu+0x70/0x1d4
-[<80190128>] handle_irq_event_percpu+0x34/0x8c
-[<801901c4>] handle_irq_event+0x44/0x80
-[<801951a8>] handle_level_irq+0xdc/0x194
-[<8018f580>] generic_handle_irq+0x38/0x50
-[<804c6924>] ocelot_irq_handler+0x104/0x1c0
+The ixgbe driver have another memory model when compiled on archs with
+PAGE_SIZE above 4096 bytes. In this mode it doesn't split the page in
+two halves, but instead increment rx_buffer->page_offset by truesize of
+packet (which include headroom and tailroom for skb_shared_info).
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This is done correctly in ixgbe_build_skb(), but in ixgbe_rx_buffer_flip
+which is currently only called on XDP_TX and XDP_REDIRECT, it forgets
+to add the tailroom for skb_shared_info. This breaks XDP_REDIRECT, for
+veth and cpumap.  Fix by adding size of skb_shared_info tailroom.
+
+Maintainers notice: This fix have been queued to Jeff.
+
+Fixes: 6453073987ba ("ixgbe: add initial support for xdp redirect")
+Signed-off-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Cc: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Link: https://lore.kernel.org/bpf/158945344946.97035.17031588499266605743.stgit@firesoul
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-dw.c | 3 ++-
+ drivers/net/ethernet/intel/ixgbe/ixgbe_main.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-dw.c b/drivers/spi/spi-dw.c
-index cbdad3c4930f..5c16f7b17029 100644
---- a/drivers/spi/spi-dw.c
-+++ b/drivers/spi/spi-dw.c
-@@ -499,6 +499,8 @@ int dw_spi_add_host(struct device *dev, struct dw_spi *dws)
- 	dws->dma_addr = (dma_addr_t)(dws->paddr + DW_SPI_DR);
- 	spin_lock_init(&dws->buf_lock);
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+index 8177276500f5..7d723b70fcf6 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+@@ -2258,7 +2258,8 @@ static void ixgbe_rx_buffer_flip(struct ixgbe_ring *rx_ring,
+ 	rx_buffer->page_offset ^= truesize;
+ #else
+ 	unsigned int truesize = ring_uses_build_skb(rx_ring) ?
+-				SKB_DATA_ALIGN(IXGBE_SKB_PAD + size) :
++				SKB_DATA_ALIGN(IXGBE_SKB_PAD + size) +
++				SKB_DATA_ALIGN(sizeof(struct skb_shared_info)) :
+ 				SKB_DATA_ALIGN(size);
  
-+	spi_master_set_devdata(master, dws);
-+
- 	ret = request_irq(dws->irq, dw_spi_irq, IRQF_SHARED, dev_name(dev),
- 			  master);
- 	if (ret < 0) {
-@@ -532,7 +534,6 @@ int dw_spi_add_host(struct device *dev, struct dw_spi *dws)
- 		}
- 	}
- 
--	spi_master_set_devdata(master, dws);
- 	ret = devm_spi_register_master(dev, master);
- 	if (ret) {
- 		dev_err(&master->dev, "problem registering spi master\n");
+ 	rx_buffer->page_offset += truesize;
 -- 
 2.25.1
 
