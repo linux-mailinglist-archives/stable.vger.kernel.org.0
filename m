@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A7F1200E03
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:06:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F449200EF7
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:16:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391097AbgFSPEH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:04:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60924 "EHLO mail.kernel.org"
+        id S2392202AbgFSPN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:13:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391075AbgFSPEE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:04:04 -0400
+        id S2392240AbgFSPNY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:13:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AFD5621BE5;
-        Fri, 19 Jun 2020 15:04:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9427520776;
+        Fri, 19 Jun 2020 15:13:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579044;
-        bh=cZPf0UtNWH0uESVxUsiQsfii7dgWe+ZEcCUAOQqq2TY=;
+        s=default; t=1592579604;
+        bh=4foPV+8cPuT6YTbH/rVC26dtPTN6m24T14Feff016z0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nWODFXpKDCi9roM4K9PX6ibb/jxNzIfPYbbcVvpMNFGBqcv1HWewCU2Z0IGYy+3Hb
-         WhDvzv8cOPudB+peY/bU6oSLkyZldlG1ieSCJPR3gBeE4wOmU/egE/9wGGBCVdvchN
-         O78o5ZQ6ay8ri9bukqgUSMIerA0bXWvaz3UMDw7Y=
+        b=uoeQ2W3vd8bhQnvt969CR64djw/Hfu+HUM3PNT+JvZx/zRGdmwszjA3HODZV7rKfi
+         D3YUMDnrR0f8v+OFrLhscDmL43y+w21cRORHmv7oI+Xf3rH+EswsdhT00V8mG3zfvX
+         qOLdRFjr8urGOARi0XKpHscbmIBB92k7YB6o5MAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 224/267] serial: 8250_pci: Move Pericom IDs to pci_ids.h
+        =?UTF-8?q?Frank=20Sch=C3=A4fer?= <fschaefer.oss@googlemail.com>,
+        Christian Lamparter <chunkeey@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.4 198/261] carl9170: remove P2P_GO support
 Date:   Fri, 19 Jun 2020 16:33:29 +0200
-Message-Id: <20200619141659.452856976@linuxfoundation.org>
+Message-Id: <20200619141659.386274793@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
-References: <20200619141648.840376470@linuxfoundation.org>
+In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
+References: <20200619141649.878808811@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,59 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Christian Lamparter <chunkeey@gmail.com>
 
-[ Upstream commit 62a7f3009a460001eb46984395280dd900bc4ef4 ]
+commit b14fba7ebd04082f7767a11daea7f12f3593de22 upstream.
 
-Move the IDs to pci_ids.h so it can be used by next patch.
+This patch follows up on a bug-report by Frank Schäfer that
+discovered P2P GO wasn't working with wpa_supplicant.
+This patch removes part of the broken P2P GO support but
+keeps the vif switchover code in place.
 
-Link: https://lore.kernel.org/r/20200508065343.32751-1-kai.heng.feng@canonical.com
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org>
+Link: <https://lkml.kernel.org/r/3a9d86b6-744f-e670-8792-9167257edef8@googlemail.com>
+Reported-by: Frank Schäfer <fschaefer.oss@googlemail.com>
+Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200425092811.9494-1-chunkeey@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/tty/serial/8250/8250_pci.c | 6 ------
- include/linux/pci_ids.h            | 6 ++++++
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ drivers/net/wireless/ath/carl9170/fw.c   |    4 +---
+ drivers/net/wireless/ath/carl9170/main.c |   21 ++++-----------------
+ 2 files changed, 5 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/tty/serial/8250/8250_pci.c b/drivers/tty/serial/8250/8250_pci.c
-index bbe5cba21522..02091782bc1e 100644
---- a/drivers/tty/serial/8250/8250_pci.c
-+++ b/drivers/tty/serial/8250/8250_pci.c
-@@ -1690,12 +1690,6 @@ pci_wch_ch38x_setup(struct serial_private *priv,
- #define PCIE_DEVICE_ID_WCH_CH384_4S	0x3470
- #define PCIE_DEVICE_ID_WCH_CH382_2S	0x3253
+--- a/drivers/net/wireless/ath/carl9170/fw.c
++++ b/drivers/net/wireless/ath/carl9170/fw.c
+@@ -338,9 +338,7 @@ static int carl9170_fw(struct ar9170 *ar
+ 		ar->hw->wiphy->interface_modes |= BIT(NL80211_IFTYPE_ADHOC);
  
--#define PCI_VENDOR_ID_PERICOM			0x12D8
--#define PCI_DEVICE_ID_PERICOM_PI7C9X7951	0x7951
--#define PCI_DEVICE_ID_PERICOM_PI7C9X7952	0x7952
--#define PCI_DEVICE_ID_PERICOM_PI7C9X7954	0x7954
--#define PCI_DEVICE_ID_PERICOM_PI7C9X7958	0x7958
+ 		if (SUPP(CARL9170FW_WLANTX_CAB)) {
+-			if_comb_types |=
+-				BIT(NL80211_IFTYPE_AP) |
+-				BIT(NL80211_IFTYPE_P2P_GO);
++			if_comb_types |= BIT(NL80211_IFTYPE_AP);
+ 
+ #ifdef CONFIG_MAC80211_MESH
+ 			if_comb_types |=
+--- a/drivers/net/wireless/ath/carl9170/main.c
++++ b/drivers/net/wireless/ath/carl9170/main.c
+@@ -582,11 +582,10 @@ static int carl9170_init_interface(struc
+ 	ar->disable_offload |= ((vif->type != NL80211_IFTYPE_STATION) &&
+ 	    (vif->type != NL80211_IFTYPE_AP));
+ 
+-	/* While the driver supports HW offload in a single
+-	 * P2P client configuration, it doesn't support HW
+-	 * offload in the favourit, concurrent P2P GO+CLIENT
+-	 * configuration. Hence, HW offload will always be
+-	 * disabled for P2P.
++	/* The driver used to have P2P GO+CLIENT support,
++	 * but since this was dropped and we don't know if
++	 * there are any gremlins lurking in the shadows,
++	 * so best we keep HW offload disabled for P2P.
+ 	 */
+ 	ar->disable_offload |= vif->p2p;
+ 
+@@ -639,18 +638,6 @@ static int carl9170_op_add_interface(str
+ 			if (vif->type == NL80211_IFTYPE_STATION)
+ 				break;
+ 
+-			/* P2P GO [master] use-case
+-			 * Because the P2P GO station is selected dynamically
+-			 * by all participating peers of a WIFI Direct network,
+-			 * the driver has be able to change the main interface
+-			 * operating mode on the fly.
+-			 */
+-			if (main_vif->p2p && vif->p2p &&
+-			    vif->type == NL80211_IFTYPE_AP) {
+-				old_main = main_vif;
+-				break;
+-			}
 -
- #define PCI_VENDOR_ID_ACCESIO			0x494f
- #define PCI_DEVICE_ID_ACCESIO_PCIE_COM_2SDB	0x1051
- #define PCI_DEVICE_ID_ACCESIO_MPCIE_COM_2S	0x1053
-diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
-index 14baae112a54..c0dd2f749d3f 100644
---- a/include/linux/pci_ids.h
-+++ b/include/linux/pci_ids.h
-@@ -1833,6 +1833,12 @@
- #define PCI_VENDOR_ID_NVIDIA_SGS	0x12d2
- #define PCI_DEVICE_ID_NVIDIA_SGS_RIVA128 0x0018
+ 			err = -EBUSY;
+ 			rcu_read_unlock();
  
-+#define PCI_VENDOR_ID_PERICOM			0x12D8
-+#define PCI_DEVICE_ID_PERICOM_PI7C9X7951	0x7951
-+#define PCI_DEVICE_ID_PERICOM_PI7C9X7952	0x7952
-+#define PCI_DEVICE_ID_PERICOM_PI7C9X7954	0x7954
-+#define PCI_DEVICE_ID_PERICOM_PI7C9X7958	0x7958
-+
- #define PCI_SUBVENDOR_ID_CHASE_PCIFAST		0x12E0
- #define PCI_SUBDEVICE_ID_CHASE_PCIFAST4		0x0031
- #define PCI_SUBDEVICE_ID_CHASE_PCIFAST8		0x0021
--- 
-2.25.1
-
 
 
