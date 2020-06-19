@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82B82200C1E
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:43:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79065200B9E
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:38:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388309AbgFSOl4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:41:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60656 "EHLO mail.kernel.org"
+        id S1733299AbgFSOfr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:35:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387511AbgFSOly (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:41:54 -0400
+        id S1733289AbgFSOfp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:35:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF9AB21548;
-        Fri, 19 Jun 2020 14:41:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6922D20DD4;
+        Fri, 19 Jun 2020 14:35:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577714;
-        bh=2UXKeaoTY9tEemee8pXYlcGGA6ln79psZMK4HAdfhLg=;
+        s=default; t=1592577344;
+        bh=wDH/5okJyIGslq/z6aOXJ/16hU1tvR3xkoeeS4hjMNs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C99W6Q9a0q3DkmtZZ1euNwM0Ry1PhTPg0viSBWQnfZeQh53BLgvXheEuqFYgtUG1h
-         fX2aE5jZupcBAf0One28hgiqGfpWGhGbLAPPt6cB/cMPkw7OVho3UvTfZyakvEF1Wz
-         QnEOSsNyP1KXfKvy3Y5V4DnjKGkfmKh1xHKcupoY=
+        b=cZy8cBw/W2/+gs5MeoVxg6dbS8d1i4YvJW5YgCz1MUZRr4fUdjjq3itDutwc//u4j
+         OD6oYfoLvF0oVh6iu7aJJ+EWmumwzqdv13MWkhNgi15j4HJWcAcYjK3Ku1abP6snKU
+         nD2CypXsqkV57B4BAr545tdJyVEVEo57ZLCs+3kU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 029/128] spi: dw: fix possible race condition
+        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.4 014/101] ALSA: es1688: Add the missed snd_card_free()
 Date:   Fri, 19 Jun 2020 16:32:03 +0200
-Message-Id: <20200619141621.706156204@linuxfoundation.org>
+Message-Id: <20200619141614.742554459@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
-References: <20200619141620.148019466@linuxfoundation.org>
+In-Reply-To: <20200619141614.001544111@linuxfoundation.org>
+References: <20200619141614.001544111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,55 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 66b19d762378785d1568b5650935205edfeb0503 ]
+From: Chuhong Yuan <hslester96@gmail.com>
 
-It is possible to get an interrupt as soon as it is requested.  dw_spi_irq
-does spi_controller_get_devdata(master) and expects it to be different than
-NULL. However, spi_controller_set_devdata() is called after request_irq(),
-resulting in the following crash:
+commit d9b8fbf15d05350b36081eddafcf7b15aa1add50 upstream.
 
-CPU 0 Unable to handle kernel paging request at virtual address 00000030, epc == 8058e09c, ra == 8018ff90
-[...]
-Call Trace:
-[<8058e09c>] dw_spi_irq+0x8/0x64
-[<8018ff90>] __handle_irq_event_percpu+0x70/0x1d4
-[<80190128>] handle_irq_event_percpu+0x34/0x8c
-[<801901c4>] handle_irq_event+0x44/0x80
-[<801951a8>] handle_level_irq+0xdc/0x194
-[<8018f580>] generic_handle_irq+0x38/0x50
-[<804c6924>] ocelot_irq_handler+0x104/0x1c0
+snd_es968_pnp_detect() misses a snd_card_free() in a failed path.
+Add the missed function call to fix it.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: a20971b201ac ("ALSA: Merge es1688 and es968 drivers")
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200603092459.1424093-1-hslester96@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/spi/spi-dw.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/isa/es1688/es1688.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-dw.c b/drivers/spi/spi-dw.c
-index babf0a337e96..be3ab4006313 100644
---- a/drivers/spi/spi-dw.c
-+++ b/drivers/spi/spi-dw.c
-@@ -500,6 +500,8 @@ int dw_spi_add_host(struct device *dev, struct dw_spi *dws)
- 	snprintf(dws->name, sizeof(dws->name), "dw_spi%d", dws->bus_num);
- 	spin_lock_init(&dws->buf_lock);
- 
-+	spi_master_set_devdata(master, dws);
-+
- 	ret = request_irq(dws->irq, dw_spi_irq, IRQF_SHARED, dws->name, master);
- 	if (ret < 0) {
- 		dev_err(dev, "can not get IRQ\n");
-@@ -531,7 +533,6 @@ int dw_spi_add_host(struct device *dev, struct dw_spi *dws)
- 		}
+--- a/sound/isa/es1688/es1688.c
++++ b/sound/isa/es1688/es1688.c
+@@ -284,8 +284,10 @@ static int snd_es968_pnp_detect(struct p
+ 		return error;
  	}
- 
--	spi_master_set_devdata(master, dws);
- 	ret = devm_spi_register_master(dev, master);
- 	if (ret) {
- 		dev_err(&master->dev, "problem registering spi master\n");
--- 
-2.25.1
-
+ 	error = snd_es1688_probe(card, dev);
+-	if (error < 0)
++	if (error < 0) {
++		snd_card_free(card);
+ 		return error;
++	}
+ 	pnp_set_card_drvdata(pcard, card);
+ 	snd_es968_pnp_is_probed = 1;
+ 	return 0;
 
 
