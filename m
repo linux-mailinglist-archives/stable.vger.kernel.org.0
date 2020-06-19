@@ -2,87 +2,158 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94FB5201146
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:42:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83549201163
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:42:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405185AbgFSPj2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:39:28 -0400
-Received: from nbd.name ([46.4.11.11]:41566 "EHLO nbd.name"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405058AbgFSPj0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:39:26 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=nbd.name;
-         s=20160729; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:
-        MIME-Version:Date:Message-ID:From:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=ZLaASyG1bJEXgQgjxKPmX/Bt2Syq4o0+QkutZUnfNQ4=; b=PKLNQl+9eYGgvffWNp/AB2jlaX
-        wR4IUVBVcaHgntEvbpPPyg/VAhM+3074Krp6clo7Bmw3oR1qZ9eaAyzpf75NXRki7ARvgVN8/iWr2
-        SOrBloi3i9vXo8SKEs6ko6RAeWN7BJzQ18OzkDbDYdOblX6mNTE4VepGMNm0QoQZfvxo=;
-Received: from p54ae948c.dip0.t-ipconnect.de ([84.174.148.140] helo=nf.local)
-        by ds12 with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.89)
-        (envelope-from <nbd@nbd.name>)
-        id 1jmJ6o-0000TV-Al; Fri, 19 Jun 2020 17:39:14 +0200
-Subject: Re: [PATCH 4.19 157/267] mt76: avoid rx reorder buffer overflow
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, Chih-Min Chen <chih-min.chen@mediatek.com>,
-        Ryder Lee <ryder.lee@mediatek.com>,
-        Sasha Levin <sashal@kernel.org>
-References: <20200619141648.840376470@linuxfoundation.org>
- <20200619141656.344416983@linuxfoundation.org>
-From:   Felix Fietkau <nbd@nbd.name>
-Autocrypt: addr=nbd@nbd.name; prefer-encrypt=mutual; keydata=
- xsDiBEah5CcRBADIY7pu4LIv3jBlyQ/2u87iIZGe6f0f8pyB4UjzfJNXhJb8JylYYRzIOSxh
- ExKsdLCnJqsG1PY1mqTtoG8sONpwsHr2oJ4itjcGHfn5NJSUGTbtbbxLro13tHkGFCoCr4Z5
- Pv+XRgiANSpYlIigiMbOkide6wbggQK32tC20QxUIwCg4k6dtV/4kwEeiOUfErq00TVqIiEE
- AKcUi4taOuh/PQWx/Ujjl/P1LfJXqLKRPa8PwD4j2yjoc9l+7LptSxJThL9KSu6gtXQjcoR2
- vCK0OeYJhgO4kYMI78h1TSaxmtImEAnjFPYJYVsxrhay92jisYc7z5R/76AaELfF6RCjjGeP
- wdalulG+erWju710Bif7E1yjYVWeA/9Wd1lsOmx6uwwYgNqoFtcAunDaMKi9xVQW18FsUusM
- TdRvTZLBpoUAy+MajAL+R73TwLq3LnKpIcCwftyQXK5pEDKq57OhxJVv1Q8XkA9Dn1SBOjNB
- l25vJDFAT9ntp9THeDD2fv15yk4EKpWhu4H00/YX8KkhFsrtUs69+vZQwc0cRmVsaXggRmll
- dGthdSA8bmJkQG5iZC5uYW1lPsJgBBMRAgAgBQJGoeQnAhsjBgsJCAcDAgQVAggDBBYCAwEC
- HgECF4AACgkQ130UHQKnbvXsvgCgjsAIIOsY7xZ8VcSm7NABpi91yTMAniMMmH7FRenEAYMa
- VrwYTIThkTlQzsFNBEah5FQQCACMIep/hTzgPZ9HbCTKm9xN4bZX0JjrqjFem1Nxf3MBM5vN
- CYGBn8F4sGIzPmLhl4xFeq3k5irVg/YvxSDbQN6NJv8o+tP6zsMeWX2JjtV0P4aDIN1pK2/w
- VxcicArw0VYdv2ZCarccFBgH2a6GjswqlCqVM3gNIMI8ikzenKcso8YErGGiKYeMEZLwHaxE
- Y7mTPuOTrWL8uWWRL5mVjhZEVvDez6em/OYvzBwbkhImrryF29e3Po2cfY2n7EKjjr3/141K
- DHBBdgXlPNfDwROnA5ugjjEBjwkwBQqPpDA7AYPvpHh5vLbZnVGu5CwG7NAsrb2isRmjYoqk
- wu++3117AAMFB/9S0Sj7qFFQcD4laADVsabTpNNpaV4wAgVTRHKV/kC9luItzwDnUcsZUPdQ
- f3MueRJ3jIHU0UmRBG3uQftqbZJj3ikhnfvyLmkCNe+/hXhPu9sGvXyi2D4vszICvc1KL4RD
- aLSrOsROx22eZ26KqcW4ny7+va2FnvjsZgI8h4sDmaLzKczVRIiLITiMpLFEU/VoSv0m1F4B
- FtRgoiyjFzigWG0MsTdAN6FJzGh4mWWGIlE7o5JraNhnTd+yTUIPtw3ym6l8P+gbvfoZida0
- TspgwBWLnXQvP5EDvlZnNaKa/3oBes6z0QdaSOwZCRA3QSLHBwtgUsrT6RxRSweLrcabwkkE
- GBECAAkFAkah5FQCGwwACgkQ130UHQKnbvW2GgCfTKx80VvCR/PvsUlrvdOLsIgeRGAAn1ee
- RjMaxwtSdaCKMw3j33ZbsWS4
-Message-ID: <f5d39fea-7691-c961-48c8-52f98b0033db@nbd.name>
-Date:   Fri, 19 Jun 2020 17:39:13 +0200
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:68.0)
- Gecko/20100101 Thunderbird/68.9.0
+        id S2393882AbgFSPlM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:41:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33750 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2392008AbgFSPlK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Jun 2020 11:41:10 -0400
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0E2DC06174E
+        for <stable@vger.kernel.org>; Fri, 19 Jun 2020 08:41:10 -0700 (PDT)
+Received: by mail-pj1-x1036.google.com with SMTP id h22so4440112pjf.1
+        for <stable@vger.kernel.org>; Fri, 19 Jun 2020 08:41:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=rT7EoBIOVlGmh4oZDro6rRwS6/fmZQmP+6KNi604dew=;
+        b=gNhIB41h36KJ7Eb1y6CaGJOSNh/eVr1W3tIIseYnjV9uCCTq9ePAj6JeNhpXAjssfu
+         aFzR7lBcE718JpjeykiXQ7FiBsrR3TEgYBNTWMCpQmnMaHCulvvC/EbRvP+tbHuyossP
+         esEWqP9VAzvhavmhuvHM4OlCaj4nylB8IjExMxWTZDHBoHfVoWeQ7kmTB2hIml9/pEl4
+         nY+Ev9IQvhTpG1PIgZqBmyUuz24lq8cvvLtrPhpf5Aojo1f6PjY1nhYJojmfhf6KqbLL
+         gyUUEkKHAaH2s6ef27zLi2wQlN2o9axAUQVHYcwcBo9jYZc+KNLMgb4JONbWkhMcDen4
+         I68Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=rT7EoBIOVlGmh4oZDro6rRwS6/fmZQmP+6KNi604dew=;
+        b=oEovK9MYSMyMduE4w7uCz3Mu10mRsr1KuocE37xpNZxeeE4qfqJOwfQD83rWVI1JSF
+         jVbnP353GnVjx2zTH1y2V3lAXa7IHZU6V1IG2JVOn8w3FJAs29Czil6iTQmwkowy0ff8
+         wWsBe35w9L4QOlNZbd44kvOZiH9OXE3FIVu7V8nFDkWA8UFgUDllMhE9qLT/yP837aqf
+         HjoVto4OtZ1WuTvd12KwOSMSM+uoUCcKT3nPCt0dswPA69HB1zgumLmspT2E16ZicZOs
+         H9aGOENS3kcbs9hfjpWOu6RSeqSWs9DrrifCuz6wFwomGXWF8EOKbxvEUhBSx0Vx4CDe
+         i4RA==
+X-Gm-Message-State: AOAM531VjLp24fFKyGf+71ZWrltWebRjpgRYo7q26l6chvGaqZFCBnPm
+        831qDHPmLMp/B60nat4AXed94TbxRfM=
+X-Google-Smtp-Source: ABdhPJw7KjHHL8gnufbQqIU44/BoJ7Lpr5uwDE6Ak2exrltXzsQgYGr2SjV3LxvVfSXW2ku27bqfyQ==
+X-Received: by 2002:a17:90a:cb8d:: with SMTP id a13mr4125104pju.175.1592581270164;
+        Fri, 19 Jun 2020 08:41:10 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id a5sm6304272pfi.41.2020.06.19.08.41.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 19 Jun 2020 08:41:09 -0700 (PDT)
+Message-ID: <5eecdc95.1c69fb81.89045.3d5a@mx.google.com>
+Date:   Fri, 19 Jun 2020 08:41:09 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20200619141656.344416983@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.4.226-127-ga9634103dba4
+Subject: stable-rc/linux-4.4.y baseline: 32 runs,
+ 2 regressions (v4.4.226-127-ga9634103dba4)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2020-06-19 16:32, Greg Kroah-Hartman wrote:
-> From: Ryder Lee <ryder.lee@mediatek.com>
-> 
-> [ Upstream commit 7c4f744d6703757be959f521a7a441bf34745d99 ]
-> 
-> Enlarge slot to support 11ax 256 BA (256 MPDUs in an AMPDU)
-> 
-> Signed-off-by: Chih-Min Chen <chih-min.chen@mediatek.com>
-> Signed-off-by: Ryder Lee <ryder.lee@mediatek.com>
-> Signed-off-by: Felix Fietkau <nbd@nbd.name>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-It does not make sense to backport this commit. It doesn't fix anything,
-it's just preparation work for the mt7915 driver.
+stable-rc/linux-4.4.y baseline: 32 runs, 2 regressions (v4.4.226-127-ga9634=
+103dba4)
 
-- Felix
+Regressions Summary
+-------------------
+
+platform        | arch   | lab          | compiler | defconfig          | r=
+esults
+----------------+--------+--------------+----------+--------------------+--=
+------
+omap3-beagle-xm | arm    | lab-baylibre | gcc-8    | multi_v7_defconfig | 0=
+/1    =
+
+qemu_x86_64     | x86_64 | lab-baylibre | gcc-8    | x86_64_defconfig   | 0=
+/1    =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.4.y/kern=
+el/v4.4.226-127-ga9634103dba4/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.4.y
+  Describe: v4.4.226-127-ga9634103dba4
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      a9634103dba4b9a7c6bcb6021a101e7ac803c870 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform        | arch   | lab          | compiler | defconfig          | r=
+esults
+----------------+--------+--------------+----------+--------------------+--=
+------
+omap3-beagle-xm | arm    | lab-baylibre | gcc-8    | multi_v7_defconfig | 0=
+/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5eeca854a61eaab77397bf33
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.226=
+-127-ga9634103dba4/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-omap3=
+-beagle-xm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.226=
+-127-ga9634103dba4/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-omap3=
+-beagle-xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2019=
+.02-11-g17e793fa4728/armel/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5eeca854a61eaab77397b=
+f34
+      new failure (last pass: v4.4.226-83-g43fb0f9d5b32) =
+
+
+
+platform        | arch   | lab          | compiler | defconfig          | r=
+esults
+----------------+--------+--------------+----------+--------------------+--=
+------
+qemu_x86_64     | x86_64 | lab-baylibre | gcc-8    | x86_64_defconfig   | 0=
+/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5eeca7eea61eaab77397bf15
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.226=
+-127-ga9634103dba4/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu=
+_x86_64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.226=
+-127-ga9634103dba4/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu=
+_x86_64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2019=
+.02-11-g17e793fa4728/x86/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5eeca7eea61eaab77397b=
+f16
+      failing since 9 days (last pass: v4.4.226-24-gd275a29aa983, first fai=
+l: v4.4.226-37-g61ef7e7aaf1d) =20
