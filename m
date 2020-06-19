@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A749D201491
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:14:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9132201307
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:00:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390728AbgFSQMq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:12:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33218 "EHLO mail.kernel.org"
+        id S2392624AbgFSPT4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:19:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390563AbgFSPEc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:04:32 -0400
+        id S2403877AbgFSPPU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:15:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B8FF721841;
-        Fri, 19 Jun 2020 15:04:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE92A206DB;
+        Fri, 19 Jun 2020 15:15:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579071;
-        bh=WCVFemPCvvEAHresKQipQbskeWxyB4CvxzJtpyrJpng=;
+        s=default; t=1592579719;
+        bh=0KyO+5mrWMuKtoyYwUv5HIPOy5RHKWqUa3tEeT5t9Q4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kwF/aqRLwQ0PhJwix0TWjMyDUBD1H2DFaHfw44sWzLBGAkff5bAyJYKBNeNPaGy61
-         MX9R9KOtIiGOznBbJYMQbDg8WyEalCcA6wTRJa/7g1pWWDuMpxjkxu1NYv8ZsIgGmZ
-         BA3+FLqbkgcQgfcgTui9TAcypSl+GSKfHsHxNAZ4=
+        b=UarD7/46nNEYucoKFi+4LUU4x8fYivAdKZjwIT8VLf9xAxh4G9CvY0g0/KhFiA+vJ
+         JaJrpYOvtYmYrWPJh35Y+psjaFk5tZpO+gNcrukUeGJRD6iL4K3Ds7zdxOmUHEhU/W
+         Wl2C1wKMFBE9xMTUgT/bxBfsRapFeTt2qsWbBkKg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>
-Subject: [PATCH 4.19 265/267] perf probe: Fix to check blacklist address correctly
-Date:   Fri, 19 Jun 2020 16:34:10 +0200
-Message-Id: <20200619141701.388317468@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Boris Brezillon <boris.brezillon@collabora.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 5.4 240/261] mtd: rawnand: Fix nand_gpio_waitrdy()
+Date:   Fri, 19 Jun 2020 16:34:11 +0200
+Message-Id: <20200619141701.384262685@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
-References: <20200619141648.840376470@linuxfoundation.org>
+In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
+References: <20200619141649.878808811@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,119 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Boris Brezillon <boris.brezillon@collabora.com>
 
-commit 80526491c2ca6abc028c0f0dbb0707a1f35fb18a upstream.
+commit e45a4b652dbd2f8b5a3b8e97e89f602a58cb28aa upstream.
 
-Fix to check kprobe blacklist address correctly with relocated address
-by adjusting debuginfo address.
+Mimic what's done in nand_soft_waitrdy() and add one to the jiffies
+timeout so we don't end up waiting less than actually required.
 
-Since the address in the debuginfo is same as objdump, it is different
-from relocated kernel address with KASLR.  Thus, 'perf probe' always
-misses to catch the blacklisted addresses.
-
-Without this patch, 'perf probe' can not detect the blacklist addresses
-on a KASLR enabled kernel.
-
-  # perf probe kprobe_dispatcher
-  Failed to write event: Invalid argument
-    Error: Failed to add events.
-  #
-
-With this patch, it correctly shows the error message.
-
-  # perf probe kprobe_dispatcher
-  kprobe_dispatcher is blacklisted function, skip it.
-  Probe point 'kprobe_dispatcher' not found.
-    Error: Failed to add events.
-  #
-
-Fixes: 9aaf5a5f479b ("perf probe: Check kprobes blacklist when adding new events")
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: stable@vger.kernel.org
-Link: http://lore.kernel.org/lkml/158763966411.30755.5882376357738273695.stgit@devnote2
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Reported-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Fixes: b0e137ad24b6c ("mtd: rawnand: Provide helper for polling GPIO R/B pin")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
+Reviewed-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20200518155237.297549-1-boris.brezillon@collabora.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/util/probe-event.c |   21 +++++++++++++++------
- 1 file changed, 15 insertions(+), 6 deletions(-)
+ drivers/mtd/nand/raw/nand_base.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/tools/perf/util/probe-event.c
-+++ b/tools/perf/util/probe-event.c
-@@ -111,7 +111,7 @@ void exit_probe_symbol_maps(void)
- 	symbol__exit();
- }
- 
--static struct ref_reloc_sym *kernel_get_ref_reloc_sym(void)
-+static struct ref_reloc_sym *kernel_get_ref_reloc_sym(struct map **pmap)
+--- a/drivers/mtd/nand/raw/nand_base.c
++++ b/drivers/mtd/nand/raw/nand_base.c
+@@ -731,8 +731,14 @@ EXPORT_SYMBOL_GPL(nand_soft_waitrdy);
+ int nand_gpio_waitrdy(struct nand_chip *chip, struct gpio_desc *gpiod,
+ 		      unsigned long timeout_ms)
  {
- 	/* kmap->ref_reloc_sym should be set if host_machine is initialized */
- 	struct kmap *kmap;
-@@ -123,6 +123,10 @@ static struct ref_reloc_sym *kernel_get_
- 	kmap = map__kmap(map);
- 	if (!kmap)
- 		return NULL;
+-	/* Wait until R/B pin indicates chip is ready or timeout occurs */
+-	timeout_ms = jiffies + msecs_to_jiffies(timeout_ms);
 +
-+	if (pmap)
-+		*pmap = map;
-+
- 	return kmap->ref_reloc_sym;
- }
- 
-@@ -134,7 +138,7 @@ static int kernel_get_symbol_address_by_
- 	struct map *map;
- 
- 	/* ref_reloc_sym is just a label. Need a special fix*/
--	reloc_sym = kernel_get_ref_reloc_sym();
-+	reloc_sym = kernel_get_ref_reloc_sym(NULL);
- 	if (reloc_sym && strcmp(name, reloc_sym->name) == 0)
- 		*addr = (reloc) ? reloc_sym->addr : reloc_sym->unrelocated_addr;
- 	else {
-@@ -751,6 +755,7 @@ post_process_kernel_probe_trace_events(s
- 				       int ntevs)
- {
- 	struct ref_reloc_sym *reloc_sym;
-+	struct map *map;
- 	char *tmp;
- 	int i, skipped = 0;
- 
-@@ -759,7 +764,7 @@ post_process_kernel_probe_trace_events(s
- 		return post_process_offline_probe_trace_events(tevs, ntevs,
- 						symbol_conf.vmlinux_name);
- 
--	reloc_sym = kernel_get_ref_reloc_sym();
-+	reloc_sym = kernel_get_ref_reloc_sym(&map);
- 	if (!reloc_sym) {
- 		pr_warning("Relocated base symbol is not found!\n");
- 		return -EINVAL;
-@@ -770,9 +775,13 @@ post_process_kernel_probe_trace_events(s
- 			continue;
- 		if (tevs[i].point.retprobe && !kretprobe_offset_is_supported())
- 			continue;
--		/* If we found a wrong one, mark it by NULL symbol */
-+		/*
-+		 * If we found a wrong one, mark it by NULL symbol.
-+		 * Since addresses in debuginfo is same as objdump, we need
-+		 * to convert it to addresses on memory.
-+		 */
- 		if (kprobe_warn_out_range(tevs[i].point.symbol,
--					  tevs[i].point.address)) {
-+			map__objdump_2mem(map, tevs[i].point.address))) {
- 			tmp = NULL;
- 			skipped++;
- 		} else {
-@@ -2887,7 +2896,7 @@ static int find_probe_trace_events_from_
- 	/* Note that the symbols in the kmodule are not relocated */
- 	if (!pev->uprobes && !pev->target &&
- 			(!pp->retprobe || kretprobe_offset_is_supported())) {
--		reloc_sym = kernel_get_ref_reloc_sym();
-+		reloc_sym = kernel_get_ref_reloc_sym(NULL);
- 		if (!reloc_sym) {
- 			pr_warning("Relocated base symbol is not found!\n");
- 			ret = -EINVAL;
++	/*
++	 * Wait until R/B pin indicates chip is ready or timeout occurs.
++	 * +1 below is necessary because if we are now in the last fraction
++	 * of jiffy and msecs_to_jiffies is 1 then we will wait only that
++	 * small jiffy fraction - possibly leading to false timeout.
++	 */
++	timeout_ms = jiffies + msecs_to_jiffies(timeout_ms) + 1;
+ 	do {
+ 		if (gpiod_get_value_cansleep(gpiod))
+ 			return 0;
 
 
