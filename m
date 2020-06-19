@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B9B52013FD
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:08:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A46BB201379
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:07:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403765AbgFSQHL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:07:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38672 "EHLO mail.kernel.org"
+        id S2391862AbgFSPJJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:09:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391844AbgFSPJD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:09:03 -0400
+        id S2391856AbgFSPJJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:09:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A423D21974;
-        Fri, 19 Jun 2020 15:09:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E120E21974;
+        Fri, 19 Jun 2020 15:09:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579343;
-        bh=B89FK8vACx+eNd7wzQx7lR+6NkbB8MD1A2RxKuGY980=;
+        s=default; t=1592579348;
+        bh=3u92HUvB5djMZFtYjTEdweV4YD2qNfDehCX6IHumBeo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VtNBeinP5TvCeDsB56h9zH+RHsp5IjXkgzxFahSsgWoiFwjUS+sgk5u7EhqNGm1FC
-         iHG7Wj0sQJkDwvkPENln2NCk05ygfr8deJJ5ubdYYdesluSbm/POdBuV+b6GKDvPmZ
-         UtKRbe7/JNp0gKBJXGF3hEyyP5kv0vFmM5ocYyb4=
+        b=nYAzQfIhRO+dT1UDHQecMpXHl1M1iYrcG4i8TKxdHLFRgn3V+a7UwFtk25yYZNLeR
+         VDoCJAQQIKaMCAPqnfwgnAZ2f8Mcxx32Lt24fLyP+UqxIPwBAnOePF4K388N1DNLbD
+         EVXGQKRZIPJLSpBoiw6+EfOIvf55STmrSZxkjo/c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Mario Limonciello <Mario.limonciello@dell.com>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 100/261] platform/x86: intel-vbtn: Split keymap into buttons and switches parts
-Date:   Fri, 19 Jun 2020 16:31:51 +0200
-Message-Id: <20200619141654.652759246@linuxfoundation.org>
+Subject: [PATCH 5.4 102/261] platform/x86: intel-vbtn: Also handle tablet-mode switch on "Detachable" and "Portable" chassis-types
+Date:   Fri, 19 Jun 2020 16:31:53 +0200
+Message-Id: <20200619141654.743022232@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
 References: <20200619141649.878808811@linuxfoundation.org>
@@ -46,80 +47,65 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit f6ba524970c4b73b234bf41ecd6628f5803b1559 ]
+[ Upstream commit 1fac39fd0316b19c3e57a182524332332d1643ce ]
 
-Split the sparse keymap into 2 separate keymaps, a buttons and a switches
-keymap and combine the 2 to a single map again in intel_vbtn_input_setup().
+Commit de9647efeaa9 ("platform/x86: intel-vbtn: Only activate tablet mode
+switch on 2-in-1's") added a DMI chassis-type check to avoid accidentally
+reporting SW_TABLET_MODE = 1 to userspace on laptops.
 
-This is a preparation patch for not telling userspace that we have switches
-when we do not have them (and for doing the same for the buttons).
+Some devices with a detachable keyboard and using the intel-vbnt (INT33D6)
+interface to report if they are in tablet mode (keyboard detached) or not,
+report 32 / "Detachable" as chassis-type, e.g. the HP Pavilion X2 series.
+
+Other devices with a detachable keyboard and using the intel-vbnt (INT33D6)
+interface to report SW_TABLET_MODE, report 8 / "Portable" as chassis-type.
+The Dell Venue 11 Pro 7130 is an example of this.
+
+Extend the DMI chassis-type check to also accept Portables and Detachables
+so that the intel-vbtn driver will report SW_TABLET_MODE on these devices.
+
+Note the chassis-type check was originally added to avoid a false-positive
+tablet-mode report on the Dell XPS 9360 laptop. To the best of my knowledge
+that laptop is using a chassis-type of 9 / "Laptop", so after this commit
+we still ignore the tablet-switch for that chassis-type.
 
 Fixes: de9647efeaa9 ("platform/x86: intel-vbtn: Only activate tablet mode switch on 2-in-1's")
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Mario Limonciello <Mario.limonciello@dell.com>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/intel-vbtn.c | 28 +++++++++++++++++++++++++---
- 1 file changed, 25 insertions(+), 3 deletions(-)
+ drivers/platform/x86/intel-vbtn.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/platform/x86/intel-vbtn.c b/drivers/platform/x86/intel-vbtn.c
-index 3b3789bb8ec5..2ab3dbd26b5e 100644
+index ab33349035b1..5acfa08b5dac 100644
 --- a/drivers/platform/x86/intel-vbtn.c
 +++ b/drivers/platform/x86/intel-vbtn.c
-@@ -39,14 +39,20 @@ static const struct key_entry intel_vbtn_keymap[] = {
- 	{ KE_IGNORE, 0xC7, { KEY_VOLUMEDOWN } },	/* volume-down key release */
- 	{ KE_KEY,    0xC8, { KEY_ROTATE_LOCK_TOGGLE } },	/* rotate-lock key press */
- 	{ KE_KEY,    0xC9, { KEY_ROTATE_LOCK_TOGGLE } },	/* rotate-lock key release */
-+};
-+
-+static const struct key_entry intel_vbtn_switchmap[] = {
- 	{ KE_SW,     0xCA, { .sw = { SW_DOCK, 1 } } },		/* Docked */
- 	{ KE_SW,     0xCB, { .sw = { SW_DOCK, 0 } } },		/* Undocked */
- 	{ KE_SW,     0xCC, { .sw = { SW_TABLET_MODE, 1 } } },	/* Tablet */
- 	{ KE_SW,     0xCD, { .sw = { SW_TABLET_MODE, 0 } } },	/* Laptop */
--	{ KE_END },
- };
- 
-+#define KEYMAP_LEN \
-+	(ARRAY_SIZE(intel_vbtn_keymap) + ARRAY_SIZE(intel_vbtn_switchmap) + 1)
-+
- struct intel_vbtn_priv {
-+	struct key_entry keymap[KEYMAP_LEN];
- 	struct input_dev *input_dev;
- 	bool wakeup_mode;
- };
-@@ -54,13 +60,29 @@ struct intel_vbtn_priv {
- static int intel_vbtn_input_setup(struct platform_device *device)
+@@ -157,12 +157,22 @@ static void detect_tablet_mode(struct platform_device *device)
+ static bool intel_vbtn_has_switches(acpi_handle handle)
  {
- 	struct intel_vbtn_priv *priv = dev_get_drvdata(&device->dev);
--	int ret;
-+	int ret, keymap_len = 0;
-+
-+	if (true) {
-+		memcpy(&priv->keymap[keymap_len], intel_vbtn_keymap,
-+		       ARRAY_SIZE(intel_vbtn_keymap) *
-+		       sizeof(struct key_entry));
-+		keymap_len += ARRAY_SIZE(intel_vbtn_keymap);
+ 	const char *chassis_type = dmi_get_system_info(DMI_CHASSIS_TYPE);
++	unsigned long chassis_type_int;
+ 	unsigned long long vgbs;
+ 	acpi_status status;
+ 
+-	if (!(chassis_type && strcmp(chassis_type, "31") == 0))
++	if (kstrtoul(chassis_type, 10, &chassis_type_int))
+ 		return false;
+ 
++	switch (chassis_type_int) {
++	case  8: /* Portable */
++	case 31: /* Convertible */
++	case 32: /* Detachable */
++		break;
++	default:
++		return false;
 +	}
 +
-+	if (true) {
-+		memcpy(&priv->keymap[keymap_len], intel_vbtn_switchmap,
-+		       ARRAY_SIZE(intel_vbtn_switchmap) *
-+		       sizeof(struct key_entry));
-+		keymap_len += ARRAY_SIZE(intel_vbtn_switchmap);
-+	}
-+
-+	priv->keymap[keymap_len].type = KE_END;
- 
- 	priv->input_dev = devm_input_allocate_device(&device->dev);
- 	if (!priv->input_dev)
- 		return -ENOMEM;
- 
--	ret = sparse_keymap_setup(priv->input_dev, intel_vbtn_keymap, NULL);
-+	ret = sparse_keymap_setup(priv->input_dev, priv->keymap, NULL);
- 	if (ret)
- 		return ret;
- 
+ 	status = acpi_evaluate_integer(handle, "VGBS", NULL, &vgbs);
+ 	return ACPI_SUCCESS(status);
+ }
 -- 
 2.25.1
 
