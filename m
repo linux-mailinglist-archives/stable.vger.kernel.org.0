@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F57020151C
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:22:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0C202013B1
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:07:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391039AbgFSQSX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:18:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58346 "EHLO mail.kernel.org"
+        id S2392603AbgFSQCg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:02:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390752AbgFSPBx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:01:53 -0400
+        id S2403910AbgFSPMd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:12:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26AF820734;
-        Fri, 19 Jun 2020 15:01:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E3A1621582;
+        Fri, 19 Jun 2020 15:12:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578913;
-        bh=FzJ2l1Zrk2ln+tDm9VxvPk4dg6XfhbBN6EMOdX273xw=;
+        s=default; t=1592579552;
+        bh=sulDz67FJjNrnX6M5vq5hVpDWr+e4I88mHC1O3LcTzc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GcQvQQPIrl9SgHwrs3T0IbbiwRvC2RKreINtYsrbCaoESIPm2d9r4EocgnbEyVwyi
-         HxmKiQpwZljc2YSlzgL6P2ToePrGk1ATo1Ivaz9Qh8bi9wvgLD2zBXCtfR+jAhyoCm
-         XB+/yfzZg9eNXHVxRm6KActm1UHlBJU7ysgyAsHY=
+        b=rhH14KSmmCfNS9VTHulcL4IMCqcNZIUTrRmJBpiM/FAmX5ruuNog0ktg1bHsrhE7T
+         lr0T4poWqsMDEipGVyUHUz5w/TmvlgGRS123yZDzzBgR2bbIFsGvzNpuwG0R9mklz9
+         kXEi67GU0dlnHOa7AWMipFKZ+NEChbWeh03zth3o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 204/267] PCI: Remove unused NFP32xx IDs
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        Mimi Zohar <zohar@linux.ibm.com>
+Subject: [PATCH 5.4 178/261] ima: Call ima_calc_boot_aggregate() in ima_eventdigest_init()
 Date:   Fri, 19 Jun 2020 16:33:09 +0200
-Message-Id: <20200619141658.523640739@linuxfoundation.org>
+Message-Id: <20200619141658.455340010@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
-References: <20200619141648.840376470@linuxfoundation.org>
+In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
+References: <20200619141649.878808811@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,34 +44,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <jakub.kicinski@netronome.com>
+From: Roberto Sassu <roberto.sassu@huawei.com>
 
-[ Upstream commit 1ccce46c5e8b8a0d2606fb8bb72bff069ffdc3ab ]
+commit 6cc7c266e5b47d3cd2b5bb7fd3aac4e6bb2dd1d2 upstream.
 
-Defines for NFP32xx are no longer used anywhere, remove them.
+If the template field 'd' is chosen and the digest to be added to the
+measurement entry was not calculated with SHA1 or MD5, it is
+recalculated with SHA1, by using the passed file descriptor. However, this
+cannot be done for boot_aggregate, because there is no file descriptor.
 
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch adds a call to ima_calc_boot_aggregate() in
+ima_eventdigest_init(), so that the digest can be recalculated also for the
+boot_aggregate entry.
+
+Cc: stable@vger.kernel.org # 3.13.x
+Fixes: 3ce1217d6cd5d ("ima: define template fields library and new helpers")
+Reported-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- include/linux/pci_ids.h | 2 --
- 1 file changed, 2 deletions(-)
+ security/integrity/ima/ima.h              |    3 ++-
+ security/integrity/ima/ima_crypto.c       |    6 +++---
+ security/integrity/ima/ima_init.c         |    2 +-
+ security/integrity/ima/ima_template_lib.c |   18 ++++++++++++++++++
+ 4 files changed, 24 insertions(+), 5 deletions(-)
 
-diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
-index d157983b84cf..f4e278493f5b 100644
---- a/include/linux/pci_ids.h
-+++ b/include/linux/pci_ids.h
-@@ -2539,8 +2539,6 @@
- #define PCI_VENDOR_ID_HUAWEI         	0x19e5
+--- a/security/integrity/ima/ima.h
++++ b/security/integrity/ima/ima.h
+@@ -52,6 +52,7 @@ extern int ima_policy_flag;
+ extern int ima_hash_algo;
+ extern int ima_appraise;
+ extern struct tpm_chip *ima_tpm_chip;
++extern const char boot_aggregate_name[];
  
- #define PCI_VENDOR_ID_NETRONOME		0x19ee
--#define PCI_DEVICE_ID_NETRONOME_NFP3200	0x3200
--#define PCI_DEVICE_ID_NETRONOME_NFP3240	0x3240
- #define PCI_DEVICE_ID_NETRONOME_NFP4000	0x4000
- #define PCI_DEVICE_ID_NETRONOME_NFP5000	0x5000
- #define PCI_DEVICE_ID_NETRONOME_NFP6000	0x6000
--- 
-2.25.1
-
+ /* IMA event related data */
+ struct ima_event_data {
+@@ -140,7 +141,7 @@ int ima_calc_buffer_hash(const void *buf
+ int ima_calc_field_array_hash(struct ima_field_data *field_data,
+ 			      struct ima_template_desc *desc, int num_fields,
+ 			      struct ima_digest_data *hash);
+-int __init ima_calc_boot_aggregate(struct ima_digest_data *hash);
++int ima_calc_boot_aggregate(struct ima_digest_data *hash);
+ void ima_add_violation(struct file *file, const unsigned char *filename,
+ 		       struct integrity_iint_cache *iint,
+ 		       const char *op, const char *cause);
+--- a/security/integrity/ima/ima_crypto.c
++++ b/security/integrity/ima/ima_crypto.c
+@@ -665,8 +665,8 @@ static void __init ima_pcrread(u32 idx,
+  * hash algorithm for reading the TPM PCRs as for calculating the boot
+  * aggregate digest as stored in the measurement list.
+  */
+-static int __init ima_calc_boot_aggregate_tfm(char *digest, u16 alg_id,
+-					      struct crypto_shash *tfm)
++static int ima_calc_boot_aggregate_tfm(char *digest, u16 alg_id,
++				       struct crypto_shash *tfm)
+ {
+ 	struct tpm_digest d = { .alg_id = alg_id, .digest = {0} };
+ 	int rc;
+@@ -694,7 +694,7 @@ static int __init ima_calc_boot_aggregat
+ 	return rc;
+ }
+ 
+-int __init ima_calc_boot_aggregate(struct ima_digest_data *hash)
++int ima_calc_boot_aggregate(struct ima_digest_data *hash)
+ {
+ 	struct crypto_shash *tfm;
+ 	u16 crypto_id, alg_id;
+--- a/security/integrity/ima/ima_init.c
++++ b/security/integrity/ima/ima_init.c
+@@ -21,7 +21,7 @@
+ #include "ima.h"
+ 
+ /* name for boot aggregate entry */
+-static const char boot_aggregate_name[] = "boot_aggregate";
++const char boot_aggregate_name[] = "boot_aggregate";
+ struct tpm_chip *ima_tpm_chip;
+ 
+ /* Add the boot aggregate to the IMA measurement list and extend
+--- a/security/integrity/ima/ima_template_lib.c
++++ b/security/integrity/ima/ima_template_lib.c
+@@ -288,6 +288,24 @@ int ima_eventdigest_init(struct ima_even
+ 		goto out;
+ 	}
+ 
++	if ((const char *)event_data->filename == boot_aggregate_name) {
++		if (ima_tpm_chip) {
++			hash.hdr.algo = HASH_ALGO_SHA1;
++			result = ima_calc_boot_aggregate(&hash.hdr);
++
++			/* algo can change depending on available PCR banks */
++			if (!result && hash.hdr.algo != HASH_ALGO_SHA1)
++				result = -EINVAL;
++
++			if (result < 0)
++				memset(&hash, 0, sizeof(hash));
++		}
++
++		cur_digest = hash.hdr.digest;
++		cur_digestsize = hash_digest_size[HASH_ALGO_SHA1];
++		goto out;
++	}
++
+ 	if (!event_data->file)	/* missing info to re-calculate the digest */
+ 		return -EINVAL;
+ 
 
 
