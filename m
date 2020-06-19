@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EF732017B3
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 596432017B1
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388577AbgFSQmV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:42:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35782 "EHLO mail.kernel.org"
+        id S2388294AbgFSQmN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:42:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388575AbgFSOob (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:44:31 -0400
+        id S2388577AbgFSOod (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:44:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1B99221582;
-        Fri, 19 Jun 2020 14:44:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5DD4221556;
+        Fri, 19 Jun 2020 14:44:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577871;
-        bh=YGuNbxnOFdGZn9xhW1g0YbhvMFNUM6o6VtQi5BCwJ9E=;
+        s=default; t=1592577873;
+        bh=w96C5JcmLJzPwAqpvSgNRFgF+RlRL5FkxBIIA1WKEbA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LSsDTDBET3liFYEMD199Nm3AKO5cSwOUJYmtQB8gp/rWAMRfpFM8gHzkClKYty+Da
-         ZXkKGgGbEZXB7H2vc6xJydCywYfC5PLk3y27THT/K5wZGh4GwGIwGgP7wJ9GWF9r7e
-         C2FX26xZgPoJhl0mJNfhCJXCwH7gkSuNaQLoS0RQ=
+        b=p5MquRJgJIREd7LFMq2QmasYlepbH4jnvKk7tvG887YTzWsVdn9hlVylfL8KtJJyw
+         5MpNWYdkiJorQNbAZa/7TVuWaav2pjx/lCy8OMp04Kj7DHXhwVIPo//TRymH3pvcN1
+         2fY8exzmZxvAoWZRgY4bduPINhYYucgyMjUVq8Yw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Xie XiuQi <xiexiuqi@huawei.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        stable@vger.kernel.org, Haibo Chen <haibo.chen@nxp.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 093/128] ixgbe: fix signed-integer-overflow warning
-Date:   Fri, 19 Jun 2020 16:33:07 +0200
-Message-Id: <20200619141625.060048318@linuxfoundation.org>
+Subject: [PATCH 4.9 094/128] mmc: sdhci-esdhc-imx: fix the mask for tuning start point
+Date:   Fri, 19 Jun 2020 16:33:08 +0200
+Message-Id: <20200619141625.109869957@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
 References: <20200619141620.148019466@linuxfoundation.org>
@@ -46,53 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie XiuQi <xiexiuqi@huawei.com>
+From: Haibo Chen <haibo.chen@nxp.com>
 
-[ Upstream commit 3b70683fc4d68f5d915d9dc7e5ba72c732c7315c ]
+[ Upstream commit 1194be8c949b8190b2882ad8335a5d98aa50c735 ]
 
-ubsan report this warning, fix it by adding a unsigned suffix.
+According the RM, the bit[6~0] of register ESDHC_TUNING_CTRL is
+TUNING_START_TAP, bit[7] of this register is to disable the command
+CRC check for standard tuning. So fix it here.
 
-UBSAN: signed-integer-overflow in
-drivers/net/ethernet/intel/ixgbe/ixgbe_common.c:2246:26
-65535 * 65537 cannot be represented in type 'int'
-CPU: 21 PID: 7 Comm: kworker/u256:0 Not tainted 5.7.0-rc3-debug+ #39
-Hardware name: Huawei TaiShan 2280 V2/BC82AMDC, BIOS 2280-V2 03/27/2020
-Workqueue: ixgbe ixgbe_service_task [ixgbe]
-Call trace:
- dump_backtrace+0x0/0x3f0
- show_stack+0x28/0x38
- dump_stack+0x154/0x1e4
- ubsan_epilogue+0x18/0x60
- handle_overflow+0xf8/0x148
- __ubsan_handle_mul_overflow+0x34/0x48
- ixgbe_fc_enable_generic+0x4d0/0x590 [ixgbe]
- ixgbe_service_task+0xc20/0x1f78 [ixgbe]
- process_one_work+0x8f0/0xf18
- worker_thread+0x430/0x6d0
- kthread+0x218/0x238
- ret_from_fork+0x10/0x18
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Xie XiuQi <xiexiuqi@huawei.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Fixes: d87fc9663688 ("mmc: sdhci-esdhc-imx: support setting tuning start point")
+Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
+Link: https://lore.kernel.org/r/1590488522-9292-1-git-send-email-haibo.chen@nxp.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ixgbe/ixgbe_common.c | 2 +-
+ drivers/mmc/host/sdhci-esdhc-imx.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_common.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_common.c
-index 0d2baec546e1..c17135b7fca7 100644
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_common.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_common.c
-@@ -2219,7 +2219,7 @@ s32 ixgbe_fc_enable_generic(struct ixgbe_hw *hw)
- 	}
- 
- 	/* Configure pause time (2 TCs per register) */
--	reg = hw->fc.pause_time * 0x00010001;
-+	reg = hw->fc.pause_time * 0x00010001U;
- 	for (i = 0; i < (MAX_TRAFFIC_CLASS / 2); i++)
- 		IXGBE_WRITE_REG(hw, IXGBE_FCTTV(i), reg);
+diff --git a/drivers/mmc/host/sdhci-esdhc-imx.c b/drivers/mmc/host/sdhci-esdhc-imx.c
+index 445fc47dc3e7..b4336534f628 100644
+--- a/drivers/mmc/host/sdhci-esdhc-imx.c
++++ b/drivers/mmc/host/sdhci-esdhc-imx.c
+@@ -79,7 +79,7 @@
+ #define ESDHC_STD_TUNING_EN		(1 << 24)
+ /* NOTE: the minimum valid tuning start tap for mx6sl is 1 */
+ #define ESDHC_TUNING_START_TAP_DEFAULT	0x1
+-#define ESDHC_TUNING_START_TAP_MASK	0xff
++#define ESDHC_TUNING_START_TAP_MASK	0x7f
+ #define ESDHC_TUNING_STEP_MASK		0x00070000
+ #define ESDHC_TUNING_STEP_SHIFT		16
  
 -- 
 2.25.1
