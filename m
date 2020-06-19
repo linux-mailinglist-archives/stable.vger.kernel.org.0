@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF74A201767
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:46:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FF2E2017F4
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:48:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389023AbgFSQiE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:38:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39968 "EHLO mail.kernel.org"
+        id S2388323AbgFSOmD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:42:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388988AbgFSOrs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:47:48 -0400
+        id S2388315AbgFSOmB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:42:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 222FE2083B;
-        Fri, 19 Jun 2020 14:47:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DED3220A8B;
+        Fri, 19 Jun 2020 14:42:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578067;
-        bh=VwSN0YU9Oj7OXqaDGPp3XR8cYu0IhWpaSJ1/3foAwJ4=;
+        s=default; t=1592577721;
+        bh=4GDj40YMC236QJ/h4DC1Ce/InFlHhNvYDg8ll0+BQsg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VT8ieQ3R+VfM+4b9P3xL42t7LQLtKK7BTmCBNi8kLV8J6DKvJXSCPQ3sQfpQ3B5l/
-         jaJtbwg4u93T24LhkUKdxjYw2UA1KN7uwpgFp2o2WYI1iwohQSIyuKXjLD0m4yYT2e
-         g8Jx8Xp0PxE4WH4gpLkid+77SEDmzYfauHGZen20=
+        b=E/pJjACZzjtE2pue+j0aMOz4oC2wu1EzwOD1a34OlApGPHzC6nPj5tX5WeidJnJNb
+         LwszwCWn0yIixpxGGk2CDmkqC8MKCodBWhvBrFUTa/RRHdFyt2TRhV/t9mWo0Sh4H9
+         KXxUuH7+pXfFc0ZcKCmDTe2SHhlq50FamotqzC6c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Andi Shyti <andi.shyti@intel.com>
-Subject: [PATCH 4.14 070/190] agp/intel: Reinforce the barrier after GTT updates
-Date:   Fri, 19 Jun 2020 16:31:55 +0200
-Message-Id: <20200619141637.076619086@linuxfoundation.org>
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Martin Sperl <kernel@martin.sperl.org>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.9 022/128] spi: bcm2835aux: Fix controller unregister order
+Date:   Fri, 19 Jun 2020 16:31:56 +0200
+Message-Id: <20200619141621.339552116@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
-References: <20200619141633.446429600@linuxfoundation.org>
+In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
+References: <20200619141620.148019466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,55 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit f30d3ced9fafa03e4855508929b5b6334907f45e upstream.
+commit b9dd3f6d417258ad0beeb292a1bc74200149f15d upstream.
 
-After changing the timing between GTT updates and execution on the GPU,
-we started seeing sporadic failures on Ironlake. These were narrowed
-down to being an insufficiently strong enough barrier/delay after
-updating the GTT and scheduling execution on the GPU. By forcing the
-uncached read, and adding the missing barrier for the singular
-insert_page (relocation paths), the sporadic failures go away.
+The BCM2835aux SPI driver uses devm_spi_register_master() on bind.
+As a consequence, on unbind, __device_release_driver() first invokes
+bcm2835aux_spi_remove() before unregistering the SPI controller via
+devres_release_all().
 
-Fixes: 983d308cb8f6 ("agp/intel: Serialise after GTT updates")
-Fixes: 3497971a71d8 ("agp/intel: Flush chipset writes after updating a single PTE")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Acked-by: Andi Shyti <andi.shyti@intel.com>
-Cc: stable@vger.kernel.org # v4.0+
-Link: https://patchwork.freedesktop.org/patch/msgid/20200410083535.25464-1-chris@chris-wilson.co.uk
+This order is incorrect:  bcm2835aux_spi_remove() turns off the SPI
+controller, including its interrupts and clock.  The SPI controller
+is thus no longer usable.
+
+When the SPI controller is subsequently unregistered, it unbinds all
+its slave devices.  If their drivers need to access the SPI bus,
+e.g. to quiesce their interrupts, unbinding will fail.
+
+As a rule, devm_spi_register_master() must not be used if the
+->remove() hook performs teardown steps which shall be performed
+after unbinding of slaves.
+
+Fix by using the non-devm variant spi_register_master().  Note that the
+struct spi_master as well as the driver-private data are not freed until
+after bcm2835aux_spi_remove() has finished, so accessing them is safe.
+
+Fixes: 1ea29b39f4c8 ("spi: bcm2835aux: add bcm2835 auxiliary spi device driver")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: stable@vger.kernel.org # v4.4+
+Cc: Martin Sperl <kernel@martin.sperl.org>
+Link: https://lore.kernel.org/r/32f27f4d8242e4d75f9a53f7e8f1f77483b08669.1589557526.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/char/agp/intel-gtt.c |    4 +++-
+ drivers/spi/spi-bcm2835aux.c |    4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/char/agp/intel-gtt.c
-+++ b/drivers/char/agp/intel-gtt.c
-@@ -846,6 +846,7 @@ void intel_gtt_insert_page(dma_addr_t ad
- 			   unsigned int flags)
- {
- 	intel_private.driver->write_entry(addr, pg, flags);
-+	readl(intel_private.gtt + pg);
- 	if (intel_private.driver->chipset_flush)
- 		intel_private.driver->chipset_flush();
- }
-@@ -871,7 +872,7 @@ void intel_gtt_insert_sg_entries(struct
- 			j++;
- 		}
+--- a/drivers/spi/spi-bcm2835aux.c
++++ b/drivers/spi/spi-bcm2835aux.c
+@@ -485,7 +485,7 @@ static int bcm2835aux_spi_probe(struct p
+ 		goto out_clk_disable;
  	}
--	wmb();
-+	readl(intel_private.gtt + j - 1);
- 	if (intel_private.driver->chipset_flush)
- 		intel_private.driver->chipset_flush();
- }
-@@ -1105,6 +1106,7 @@ static void i9xx_cleanup(void)
  
- static void i9xx_chipset_flush(void)
- {
-+	wmb();
- 	if (intel_private.i9xx_flush_page)
- 		writel(1, intel_private.i9xx_flush_page);
- }
+-	err = devm_spi_register_master(&pdev->dev, master);
++	err = spi_register_master(master);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "could not register SPI master: %d\n", err);
+ 		goto out_clk_disable;
+@@ -505,6 +505,8 @@ static int bcm2835aux_spi_remove(struct
+ 	struct spi_master *master = platform_get_drvdata(pdev);
+ 	struct bcm2835aux_spi *bs = spi_master_get_devdata(master);
+ 
++	spi_unregister_master(master);
++
+ 	bcm2835aux_spi_reset_hw(bs);
+ 
+ 	/* disable the HW block by releasing the clock */
 
 
