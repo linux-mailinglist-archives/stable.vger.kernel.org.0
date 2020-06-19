@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4E12201452
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:14:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 298E720144C
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:14:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391604AbgFSQIm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:08:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36916 "EHLO mail.kernel.org"
+        id S2391159AbgFSPHi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:07:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391593AbgFSPHd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:07:33 -0400
+        id S2391599AbgFSPHg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:07:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AFB9221852;
-        Fri, 19 Jun 2020 15:07:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 67BE921974;
+        Fri, 19 Jun 2020 15:07:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579253;
-        bh=CbDnseCi3WYnIk/nKUsBden8JvPliQjGqjORSKArbAI=;
+        s=default; t=1592579255;
+        bh=QT6Y433QeSJTKcosfqaA/2Ec3fVXskYpE1FqGxWDsiE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gosf0DMel8ixizgMQKNlGb1mWBMHJ+gme+F9Wl+vMlQxQ82/FljMou5rO89QwM6EA
-         VVg4mzoRsLQjfuKYJCvvRFSz6HTb6A8qGSfqgRi0eS2WoBMe+C3/520eFIX+22gcdo
-         6Tse9ylOEr6QuzUOqn9W04XZ4HyytkeGTW94W6iU=
+        b=mVoZZnnkd/5PsfQpw3WKWztQKkUXxeb/4xmoZbeI5Xu9JfEN7vTiy9AZN2i3dFHkT
+         V+YtiVK9i4T5Tao2lGYM/mmFkUxN0Yq6Ddq7mM/QGfxzWoCQ7fUKpRKUd1DVQqXLap
+         8nQkwuZ1Jw6ikIwU4F2M6ZXVuXXVa+tObHC9qZTk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jitao Shi <jitao.shi@mediatek.com>,
-        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
+        stable@vger.kernel.org, teroincn@gmail.com,
+        Richard Guy Briggs <rgb@redhat.com>,
+        Paul Moore <paul@paul-moore.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 066/261] drm/mediatek: set dpi pin mode to gpio low to avoid leakage current
-Date:   Fri, 19 Jun 2020 16:31:17 +0200
-Message-Id: <20200619141653.075978252@linuxfoundation.org>
+Subject: [PATCH 5.4 067/261] audit: fix a net reference leak in audit_send_reply()
+Date:   Fri, 19 Jun 2020 16:31:18 +0200
+Message-Id: <20200619141653.115006407@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
 References: <20200619141649.878808811@linuxfoundation.org>
@@ -44,91 +45,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jitao Shi <jitao.shi@mediatek.com>
+From: Paul Moore <paul@paul-moore.com>
 
-[ Upstream commit 6bd4763fd532cff43f9b15704f324c45a9806f53 ]
+[ Upstream commit a48b284b403a4a073d8beb72d2bb33e54df67fb6 ]
 
-Config dpi pins mode to output and pull low when dpi is disabled.
-Aovid leakage current from some dpi pins (Hsync Vsync DE ... ).
+If audit_send_reply() fails when trying to create a new thread to
+send the reply it also fails to cleanup properly, leaking a reference
+to a net structure.  This patch fixes the error path and makes a
+handful of other cleanups that came up while fixing the code.
 
-Signed-off-by: Jitao Shi <jitao.shi@mediatek.com>
-Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
+Reported-by: teroincn@gmail.com
+Reviewed-by: Richard Guy Briggs <rgb@redhat.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mediatek/mtk_dpi.c | 31 ++++++++++++++++++++++++++++++
- 1 file changed, 31 insertions(+)
+ kernel/audit.c | 50 +++++++++++++++++++++++++++++---------------------
+ 1 file changed, 29 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_dpi.c b/drivers/gpu/drm/mediatek/mtk_dpi.c
-index be6d95c5ff25..48de07e9059e 100644
---- a/drivers/gpu/drm/mediatek/mtk_dpi.c
-+++ b/drivers/gpu/drm/mediatek/mtk_dpi.c
-@@ -10,7 +10,9 @@
- #include <linux/kernel.h>
- #include <linux/of.h>
- #include <linux/of_device.h>
-+#include <linux/of_gpio.h>
- #include <linux/of_graph.h>
-+#include <linux/pinctrl/consumer.h>
- #include <linux/platform_device.h>
- #include <linux/types.h>
+diff --git a/kernel/audit.c b/kernel/audit.c
+index fcfbb3476ccd..a4eeece2eecd 100644
+--- a/kernel/audit.c
++++ b/kernel/audit.c
+@@ -923,19 +923,30 @@ out_kfree_skb:
+ 	return NULL;
+ }
  
-@@ -73,6 +75,9 @@ struct mtk_dpi {
- 	enum mtk_dpi_out_yc_map yc_map;
- 	enum mtk_dpi_out_bit_num bit_num;
- 	enum mtk_dpi_out_channel_swap channel_swap;
-+	struct pinctrl *pinctrl;
-+	struct pinctrl_state *pins_gpio;
-+	struct pinctrl_state *pins_dpi;
- 	int refcount;
- };
++static void audit_free_reply(struct audit_reply *reply)
++{
++	if (!reply)
++		return;
++
++	if (reply->skb)
++		kfree_skb(reply->skb);
++	if (reply->net)
++		put_net(reply->net);
++	kfree(reply);
++}
++
+ static int audit_send_reply_thread(void *arg)
+ {
+ 	struct audit_reply *reply = (struct audit_reply *)arg;
+-	struct sock *sk = audit_get_sk(reply->net);
  
-@@ -378,6 +383,9 @@ static void mtk_dpi_power_off(struct mtk_dpi *dpi)
- 	if (--dpi->refcount != 0)
+ 	audit_ctl_lock();
+ 	audit_ctl_unlock();
+ 
+ 	/* Ignore failure. It'll only happen if the sender goes away,
+ 	   because our timeout is set to infinite. */
+-	netlink_unicast(sk, reply->skb, reply->portid, 0);
+-	put_net(reply->net);
+-	kfree(reply);
++	netlink_unicast(audit_get_sk(reply->net), reply->skb, reply->portid, 0);
++	reply->skb = NULL;
++	audit_free_reply(reply);
+ 	return 0;
+ }
+ 
+@@ -949,35 +960,32 @@ static int audit_send_reply_thread(void *arg)
+  * @payload: payload data
+  * @size: payload size
+  *
+- * Allocates an skb, builds the netlink message, and sends it to the port id.
+- * No failure notifications.
++ * Allocates a skb, builds the netlink message, and sends it to the port id.
+  */
+ static void audit_send_reply(struct sk_buff *request_skb, int seq, int type, int done,
+ 			     int multi, const void *payload, int size)
+ {
+-	struct net *net = sock_net(NETLINK_CB(request_skb).sk);
+-	struct sk_buff *skb;
+ 	struct task_struct *tsk;
+-	struct audit_reply *reply = kmalloc(sizeof(struct audit_reply),
+-					    GFP_KERNEL);
++	struct audit_reply *reply;
+ 
++	reply = kzalloc(sizeof(*reply), GFP_KERNEL);
+ 	if (!reply)
  		return;
  
-+	if (dpi->pinctrl && dpi->pins_gpio)
-+		pinctrl_select_state(dpi->pinctrl, dpi->pins_gpio);
-+
- 	mtk_dpi_disable(dpi);
- 	clk_disable_unprepare(dpi->pixel_clk);
- 	clk_disable_unprepare(dpi->engine_clk);
-@@ -402,6 +410,9 @@ static int mtk_dpi_power_on(struct mtk_dpi *dpi)
- 		goto err_pixel;
- 	}
+-	skb = audit_make_reply(seq, type, done, multi, payload, size);
+-	if (!skb)
+-		goto out;
+-
+-	reply->net = get_net(net);
++	reply->skb = audit_make_reply(seq, type, done, multi, payload, size);
++	if (!reply->skb)
++		goto err;
++	reply->net = get_net(sock_net(NETLINK_CB(request_skb).sk));
+ 	reply->portid = NETLINK_CB(request_skb).portid;
+-	reply->skb = skb;
  
-+	if (dpi->pinctrl && dpi->pins_dpi)
-+		pinctrl_select_state(dpi->pinctrl, dpi->pins_dpi);
+ 	tsk = kthread_run(audit_send_reply_thread, reply, "audit_send_reply");
+-	if (!IS_ERR(tsk))
+-		return;
+-	kfree_skb(skb);
+-out:
+-	kfree(reply);
++	if (IS_ERR(tsk))
++		goto err;
 +
- 	mtk_dpi_enable(dpi);
- 	return 0;
- 
-@@ -689,6 +700,26 @@ static int mtk_dpi_probe(struct platform_device *pdev)
- 	dpi->dev = dev;
- 	dpi->conf = (struct mtk_dpi_conf *)of_device_get_match_data(dev);
- 
-+	dpi->pinctrl = devm_pinctrl_get(&pdev->dev);
-+	if (IS_ERR(dpi->pinctrl)) {
-+		dpi->pinctrl = NULL;
-+		dev_dbg(&pdev->dev, "Cannot find pinctrl!\n");
-+	}
-+	if (dpi->pinctrl) {
-+		dpi->pins_gpio = pinctrl_lookup_state(dpi->pinctrl, "sleep");
-+		if (IS_ERR(dpi->pins_gpio)) {
-+			dpi->pins_gpio = NULL;
-+			dev_dbg(&pdev->dev, "Cannot find pinctrl idle!\n");
-+		}
-+		if (dpi->pins_gpio)
-+			pinctrl_select_state(dpi->pinctrl, dpi->pins_gpio);
++	return;
 +
-+		dpi->pins_dpi = pinctrl_lookup_state(dpi->pinctrl, "default");
-+		if (IS_ERR(dpi->pins_dpi)) {
-+			dpi->pins_dpi = NULL;
-+			dev_dbg(&pdev->dev, "Cannot find pinctrl active!\n");
-+		}
-+	}
- 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	dpi->regs = devm_ioremap_resource(dev, mem);
- 	if (IS_ERR(dpi->regs)) {
++err:
++	audit_free_reply(reply);
+ }
+ 
+ /*
 -- 
 2.25.1
 
