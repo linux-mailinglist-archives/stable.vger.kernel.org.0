@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0FB820173D
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:46:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EA1E2017DE
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395257AbgFSQgI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:36:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41936 "EHLO mail.kernel.org"
+        id S2395233AbgFSQod (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:44:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732785AbgFSOtW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:49:22 -0400
+        id S2388437AbgFSOnF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:43:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6A9B217D8;
-        Fri, 19 Jun 2020 14:49:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 331B321582;
+        Fri, 19 Jun 2020 14:43:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578162;
-        bh=UsEG3iC+oiPsZweDeQ31oi9Cjb/xTjbfwlSd+iowqvs=;
+        s=default; t=1592577785;
+        bh=WY31jg+QTjwpvgTyqbJoQiR6KxR7XceZbkjxg2z4T+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FTTCufT6IeWXWVDdOSthWOhXiVa0Cq4gYmttL28mQ9sipm46Y7RKMWkGk8VHLr0Dv
-         heSrWtZipwxgeNOqlr1Qxl9NP+5ar/Xilo27V4d/lVrKaQ8UupqXNVAfIzS48uxvPJ
-         vMXNZx+VNIf61Jlmn8OitOMRP/BOPs8ihMCyVzes=
+        b=dT4eticNx+oWIRpW7KzqA+KPvdQJdnJZu5upPFHols80qpQ3J+lj8gGIWWby+lDhy
+         BNCVkKcPcWh+/GozV1cAsIAz54B6wZuyeP+xj8gFgEls6bcD7+4Kkr8M3Z6BNPmK9H
+         WGAxNqfLcGrmCb0EnpGTQ3ixqp8gUrYyoHypUmH0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Golovin <dima@golovin.in>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Hsin-Yu Chao <hychao@chromium.org>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 107/190] lib/mpi: Fix 64-bit MIPS build with Clang
-Date:   Fri, 19 Jun 2020 16:32:32 +0200
-Message-Id: <20200619141638.941623347@linuxfoundation.org>
+Subject: [PATCH 4.9 059/128] Bluetooth: Add SCO fallback for invalid LMP parameters error
+Date:   Fri, 19 Jun 2020 16:32:33 +0200
+Message-Id: <20200619141623.338855634@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
-References: <20200619141633.446429600@linuxfoundation.org>
+In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
+References: <20200619141620.148019466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,67 +44,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Hsin-Yu Chao <hychao@chromium.org>
 
-[ Upstream commit 18f1ca46858eac22437819937ae44aa9a8f9f2fa ]
+[ Upstream commit 56b5453a86203a44726f523b4133c1feca49ce7c ]
 
-When building 64r6_defconfig with CONFIG_MIPS32_O32 disabled and
-CONFIG_CRYPTO_RSA enabled:
+Bluetooth PTS test case HFP/AG/ACC/BI-12-I accepts SCO connection
+with invalid parameter at the first SCO request expecting AG to
+attempt another SCO request with the use of "safe settings" for
+given codec, base on section 5.7.1.2 of HFP 1.7 specification.
 
-lib/mpi/generic_mpih-mul1.c:37:24: error: invalid use of a cast in a
-inline asm context requiring an l-value: remove the cast
-or build with -fheinous-gnu-extensions
-                umul_ppmm(prod_high, prod_low, s1_ptr[j], s2_limb);
-                ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-lib/mpi/longlong.h:664:22: note: expanded from macro 'umul_ppmm'
-                 : "=d" ((UDItype)(w0))
-                         ~~~~~~~~~~^~~
-lib/mpi/generic_mpih-mul1.c:37:13: error: invalid use of a cast in a
-inline asm context requiring an l-value: remove the cast
-or build with -fheinous-gnu-extensions
-                umul_ppmm(prod_high, prod_low, s1_ptr[j], s2_limb);
-                ~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-lib/mpi/longlong.h:668:22: note: expanded from macro 'umul_ppmm'
-                 : "=d" ((UDItype)(w1))
-                         ~~~~~~~~~~^~~
-2 errors generated.
+This patch addresses it by adding "Invalid LMP Parameters" (0x1e)
+to the SCO fallback case. Verified with below log:
 
-This special case for umul_ppmm for MIPS64r6 was added in
-commit bbc25bee37d2b ("lib/mpi: Fix umul_ppmm() for MIPS64r6"), due to
-GCC being inefficient and emitting a __multi3 intrinsic.
+< HCI Command: Setup Synchronous Connection (0x01|0x0028) plen 17
+        Handle: 256
+        Transmit bandwidth: 8000
+        Receive bandwidth: 8000
+        Max latency: 13
+        Setting: 0x0003
+          Input Coding: Linear
+          Input Data Format: 1's complement
+          Input Sample Size: 8-bit
+          # of bits padding at MSB: 0
+          Air Coding Format: Transparent Data
+        Retransmission effort: Optimize for link quality (0x02)
+        Packet type: 0x0380
+          3-EV3 may not be used
+          2-EV5 may not be used
+          3-EV5 may not be used
+> HCI Event: Command Status (0x0f) plen 4
+      Setup Synchronous Connection (0x01|0x0028) ncmd 1
+        Status: Success (0x00)
+> HCI Event: Number of Completed Packets (0x13) plen 5
+        Num handles: 1
+        Handle: 256
+        Count: 1
+> HCI Event: Max Slots Change (0x1b) plen 3
+        Handle: 256
+        Max slots: 1
+> HCI Event: Synchronous Connect Complete (0x2c) plen 17
+        Status: Invalid LMP Parameters / Invalid LL Parameters (0x1e)
+        Handle: 0
+        Address: 00:1B:DC:F2:21:59 (OUI 00-1B-DC)
+        Link type: eSCO (0x02)
+        Transmission interval: 0x00
+        Retransmission window: 0x02
+        RX packet length: 0
+        TX packet length: 0
+        Air mode: Transparent (0x03)
+< HCI Command: Setup Synchronous Connection (0x01|0x0028) plen 17
+        Handle: 256
+        Transmit bandwidth: 8000
+        Receive bandwidth: 8000
+        Max latency: 8
+        Setting: 0x0003
+          Input Coding: Linear
+          Input Data Format: 1's complement
+          Input Sample Size: 8-bit
+          # of bits padding at MSB: 0
+          Air Coding Format: Transparent Data
+        Retransmission effort: Optimize for link quality (0x02)
+        Packet type: 0x03c8
+          EV3 may be used
+          2-EV3 may not be used
+          3-EV3 may not be used
+          2-EV5 may not be used
+          3-EV5 may not be used
+> HCI Event: Command Status (0x0f) plen 4
+      Setup Synchronous Connection (0x01|0x0028) ncmd 1
+        Status: Success (0x00)
+> HCI Event: Max Slots Change (0x1b) plen 3
+        Handle: 256
+        Max slots: 5
+> HCI Event: Max Slots Change (0x1b) plen 3
+        Handle: 256
+        Max slots: 1
+> HCI Event: Synchronous Connect Complete (0x2c) plen 17
+        Status: Success (0x00)
+        Handle: 257
+        Address: 00:1B:DC:F2:21:59 (OUI 00-1B-DC)
+        Link type: eSCO (0x02)
+        Transmission interval: 0x06
+        Retransmission window: 0x04
+        RX packet length: 30
+        TX packet length: 30
+        Air mode: Transparent (0x03)
 
-There is no such issue with clang; with this patch applied, I can build
-this configuration without any problems and there are no link errors
-like mentioned in the commit above (which I can still reproduce with
-GCC 9.3.0 when that commit is reverted). Only use this definition when
-GCC is being used.
-
-This really should have been caught by commit b0c091ae04f67 ("lib/mpi:
-Eliminate unused umul_ppmm definitions for MIPS") when I was messing
-around in this area but I was not testing 64-bit MIPS at the time.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/885
-Reported-by: Dmitry Golovin <dima@golovin.in>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Hsin-Yu Chao <hychao@chromium.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/mpi/longlong.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bluetooth/hci_event.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/lib/mpi/longlong.h b/lib/mpi/longlong.h
-index e01b705556aa..6c5229f98c9e 100644
---- a/lib/mpi/longlong.h
-+++ b/lib/mpi/longlong.h
-@@ -671,7 +671,7 @@ do {						\
- 	**************  MIPS/64  **************
- 	***************************************/
- #if (defined(__mips) && __mips >= 3) && W_TYPE_SIZE == 64
--#if defined(__mips_isa_rev) && __mips_isa_rev >= 6
-+#if defined(__mips_isa_rev) && __mips_isa_rev >= 6 && defined(CONFIG_CC_IS_GCC)
- /*
-  * GCC ends up emitting a __multi3 intrinsic call for MIPS64r6 with the plain C
-  * code below, so we special case MIPS64r6 until the compiler can do better.
+diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
+index 6f78489fdb13..a8aa3f29f2d6 100644
+--- a/net/bluetooth/hci_event.c
++++ b/net/bluetooth/hci_event.c
+@@ -3775,6 +3775,7 @@ static void hci_sync_conn_complete_evt(struct hci_dev *hdev,
+ 	case 0x11:	/* Unsupported Feature or Parameter Value */
+ 	case 0x1c:	/* SCO interval rejected */
+ 	case 0x1a:	/* Unsupported Remote Feature */
++	case 0x1e:	/* Invalid LMP Parameters */
+ 	case 0x1f:	/* Unspecified error */
+ 	case 0x20:	/* Unsupported LMP Parameter value */
+ 		if (conn->out) {
 -- 
 2.25.1
 
