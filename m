@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFB6B2017D2
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF1D1201722
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:46:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388118AbgFSQoG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:44:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34412 "EHLO mail.kernel.org"
+        id S2389355AbgFSQel (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:34:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388470AbgFSOnW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:43:22 -0400
+        id S2389346AbgFSOuo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:50:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A66321582;
-        Fri, 19 Jun 2020 14:43:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF45620776;
+        Fri, 19 Jun 2020 14:50:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577802;
-        bh=Z2mSk/qCvpI46ERhuMl3WEC01xeCmk5UXtIGeuXct2A=;
+        s=default; t=1592578243;
+        bh=53aYNnnLOlen577ZXwucOGJbWM+sEUTziXGRKAzbfxE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VOCc0js1NoB14lFiJGtQZr0/rOls/qNqwYVygOkEkax/7m9qb7UVzrTFJ6h57FqN+
-         W84o/4fk2k1MXcZk1Id5gZRk18Qn0VhEYiK4JRuLvLnk1bWjd34tPFjnmppiKaDlbR
-         cKImNtkk3NVMkIelC7KIp7qn8NJzyKapeENcud2A=
+        b=Nz1ednHjx7smIzdVE0kvDKifwmNqQKyiShufa7CVGqCH7v8LHXN0HIhIlCAX62B/n
+         jNFhkjr2YIkGh7aXqs0T9AnHiwSU7M72PgrM3jMItRA+RxowCkYgjaxs2RgIcRz2QV
+         jgkMPo2uMthvjXpXb/vwFIghzeVPMBmTxWL/tcko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Finn Thain <fthain@telegraphics.com.au>,
-        Joshua Thompson <funaho@jurai.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Stan Johnson <userm57@yahoo.com>
-Subject: [PATCH 4.9 088/128] m68k: mac: Dont call via_flush_cache() on Mac IIfx
-Date:   Fri, 19 Jun 2020 16:33:02 +0200
-Message-Id: <20200619141624.800587128@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Axtens <dja@axtens.net>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        David Gow <davidgow@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Daniel Micay <danielmicay@gmail.com>,
+        Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Alexander Potapenko <glider@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 139/190] string.h: fix incompatibility between FORTIFY_SOURCE and KASAN
+Date:   Fri, 19 Jun 2020 16:33:04 +0200
+Message-Id: <20200619141640.570157748@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
-References: <20200619141620.148019466@linuxfoundation.org>
+In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
+References: <20200619141633.446429600@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,171 +50,303 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Finn Thain <fthain@telegraphics.com.au>
+From: Daniel Axtens <dja@axtens.net>
 
-[ Upstream commit bcc44f6b74106b31f0b0408b70305a40360d63b7 ]
+[ Upstream commit 47227d27e2fcb01a9e8f5958d8997cf47a820afc ]
 
-There is no VIA2 chip on the Mac IIfx, so don't call via_flush_cache().
-This avoids a boot crash which appeared in v5.4.
+The memcmp KASAN self-test fails on a kernel with both KASAN and
+FORTIFY_SOURCE.
 
-printk: console [ttyS0] enabled
-printk: bootconsole [debug0] disabled
-printk: bootconsole [debug0] disabled
-Calibrating delay loop... 9.61 BogoMIPS (lpj=48064)
-pid_max: default: 32768 minimum: 301
-Mount-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
-Mountpoint-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
-devtmpfs: initialized
-random: get_random_u32 called from bucket_table_alloc.isra.27+0x68/0x194 with crng_init=0
-clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 19112604462750000 ns
-futex hash table entries: 256 (order: -1, 3072 bytes, linear)
-NET: Registered protocol family 16
-Data read fault at 0x00000000 in Super Data (pc=0x8a6a)
-BAD KERNEL BUSERR
-Oops: 00000000
-Modules linked in:
-PC: [<00008a6a>] via_flush_cache+0x12/0x2c
-SR: 2700  SP: 01c1fe3c  a2: 01c24000
-d0: 00001119    d1: 0000000c    d2: 00012000    d3: 0000000f
-d4: 01c06840    d5: 00033b92    a0: 00000000    a1: 00000000
-Process swapper (pid: 1, task=01c24000)
-Frame format=B ssw=0755 isc=0200 isb=fff7 daddr=00000000 dobuf=01c1fed0
-baddr=00008a6e dibuf=0000004e ver=f
-Stack from 01c1fec4:
-        01c1fed0 00007d7e 00010080 01c1fedc 0000792e 00000001 01c1fef4 00006b40
-        01c80000 00040000 00000006 00000003 01c1ff1c 004a545e 004ff200 00040000
-        00000000 00000003 01c06840 00033b92 004a5410 004b6c88 01c1ff84 000021e2
-        00000073 00000003 01c06840 00033b92 0038507a 004bb094 004b6ca8 004b6c88
-        004b6ca4 004b6c88 000021ae 00020002 00000000 01c0685d 00000000 01c1ffb4
-        0049f938 00409c85 01c06840 0045bd40 00000073 00000002 00000002 00000000
-Call Trace: [<00007d7e>] mac_cache_card_flush+0x12/0x1c
- [<00010080>] fix_dnrm+0x2/0x18
- [<0000792e>] cache_push+0x46/0x5a
- [<00006b40>] arch_dma_prep_coherent+0x60/0x6e
- [<00040000>] switched_to_dl+0x76/0xd0
- [<004a545e>] dma_atomic_pool_init+0x4e/0x188
- [<00040000>] switched_to_dl+0x76/0xd0
- [<00033b92>] parse_args+0x0/0x370
- [<004a5410>] dma_atomic_pool_init+0x0/0x188
- [<000021e2>] do_one_initcall+0x34/0x1be
- [<00033b92>] parse_args+0x0/0x370
- [<0038507a>] strcpy+0x0/0x1e
- [<000021ae>] do_one_initcall+0x0/0x1be
- [<00020002>] do_proc_dointvec_conv+0x54/0x74
- [<0049f938>] kernel_init_freeable+0x126/0x190
- [<0049f94c>] kernel_init_freeable+0x13a/0x190
- [<004a5410>] dma_atomic_pool_init+0x0/0x188
- [<00041798>] complete+0x0/0x3c
- [<000b9b0c>] kfree+0x0/0x20a
- [<0038df98>] schedule+0x0/0xd0
- [<0038d604>] kernel_init+0x0/0xda
- [<0038d610>] kernel_init+0xc/0xda
- [<0038d604>] kernel_init+0x0/0xda
- [<00002d38>] ret_from_kernel_thread+0xc/0x14
-Code: 0000 2079 0048 10da 2279 0048 10c8 d3c8 <1011> 0200 fff7 1280 d1f9 0048 10c8 1010 0000 0008 1080 4e5e 4e75 4e56 0000 2039
-Disabling lock debugging due to kernel taint
-Kernel panic - not syncing: Attempted to kill init! exitcode=0x0000000b
+When FORTIFY_SOURCE is on, a number of functions are replaced with
+fortified versions, which attempt to check the sizes of the operands.
+However, these functions often directly invoke __builtin_foo() once they
+have performed the fortify check.  Using __builtins may bypass KASAN
+checks if the compiler decides to inline it's own implementation as
+sequence of instructions, rather than emit a function call that goes out
+to a KASAN-instrumented implementation.
 
-Thanks to Stan Johnson for capturing the console log and running git
-bisect.
+Why is only memcmp affected?
+============================
 
-Git bisect said commit 8e3a68fb55e0 ("dma-mapping: make
-dma_atomic_pool_init self-contained") is the first "bad" commit. I don't
-know why. Perhaps mach_l2_flush first became reachable with that commit.
+Of the string and string-like functions that kasan_test tests, only memcmp
+is replaced by an inline sequence of instructions in my testing on x86
+with gcc version 9.2.1 20191008 (Ubuntu 9.2.1-9ubuntu2).
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-and-tested-by: Stan Johnson <userm57@yahoo.com>
-Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
-Cc: Joshua Thompson <funaho@jurai.org>
-Link: https://lore.kernel.org/r/b8bbeef197d6b3898e82ed0d231ad08f575a4b34.1589949122.git.fthain@telegraphics.com.au
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+I believe this is due to compiler heuristics.  For example, if I annotate
+kmalloc calls with the alloc_size annotation (and disable some fortify
+compile-time checking!), the compiler will replace every memset except the
+one in kmalloc_uaf_memset with inline instructions.  (I have some WIP
+patches to add this annotation.)
+
+Does this affect other functions in string.h?
+=============================================
+
+Yes. Anything that uses __builtin_* rather than __real_* could be
+affected. This looks like:
+
+ - strncpy
+ - strcat
+ - strlen
+ - strlcpy maybe, under some circumstances?
+ - strncat under some circumstances
+ - memset
+ - memcpy
+ - memmove
+ - memcmp (as noted)
+ - memchr
+ - strcpy
+
+Whether a function call is emitted always depends on the compiler.  Most
+bugs should get caught by FORTIFY_SOURCE, but the missed memcmp test shows
+that this is not always the case.
+
+Isn't FORTIFY_SOURCE disabled with KASAN?
+========================================-
+
+The string headers on all arches supporting KASAN disable fortify with
+kasan, but only when address sanitisation is _also_ disabled.  For example
+from x86:
+
+ #if defined(CONFIG_KASAN) && !defined(__SANITIZE_ADDRESS__)
+ /*
+  * For files that are not instrumented (e.g. mm/slub.c) we
+  * should use not instrumented version of mem* functions.
+  */
+ #define memcpy(dst, src, len) __memcpy(dst, src, len)
+ #define memmove(dst, src, len) __memmove(dst, src, len)
+ #define memset(s, c, n) __memset(s, c, n)
+
+ #ifndef __NO_FORTIFY
+ #define __NO_FORTIFY /* FORTIFY_SOURCE uses __builtin_memcpy, etc. */
+ #endif
+
+ #endif
+
+This comes from commit 6974f0c4555e ("include/linux/string.h: add the
+option of fortified string.h functions"), and doesn't work when KASAN is
+enabled and the file is supposed to be sanitised - as with test_kasan.c
+
+I'm pretty sure this is not wrong, but not as expansive it should be:
+
+ * we shouldn't use __builtin_memcpy etc in files where we don't have
+   instrumentation - it could devolve into a function call to memcpy,
+   which will be instrumented. Rather, we should use __memcpy which
+   by convention is not instrumented.
+
+ * we also shouldn't be using __builtin_memcpy when we have a KASAN
+   instrumented file, because it could be replaced with inline asm
+   that will not be instrumented.
+
+What is correct behaviour?
+==========================
+
+Firstly, there is some overlap between fortification and KASAN: both
+provide some level of _runtime_ checking. Only fortify provides
+compile-time checking.
+
+KASAN and fortify can pick up different things at runtime:
+
+ - Some fortify functions, notably the string functions, could easily be
+   modified to consider sub-object sizes (e.g. members within a struct),
+   and I have some WIP patches to do this. KASAN cannot detect these
+   because it cannot insert poision between members of a struct.
+
+ - KASAN can detect many over-reads/over-writes when the sizes of both
+   operands are unknown, which fortify cannot.
+
+So there are a couple of options:
+
+ 1) Flip the test: disable fortify in santised files and enable it in
+    unsanitised files. This at least stops us missing KASAN checking, but
+    we lose the fortify checking.
+
+ 2) Make the fortify code always call out to real versions. Do this only
+    for KASAN, for fear of losing the inlining opportunities we get from
+    __builtin_*.
+
+(We can't use kasan_check_{read,write}: because the fortify functions are
+_extern inline_, you can't include _static_ inline functions without a
+compiler warning. kasan_check_{read,write} are static inline so we can't
+use them even when they would otherwise be suitable.)
+
+Take approach 2 and call out to real versions when KASAN is enabled.
+
+Use __underlying_foo to distinguish from __real_foo: __real_foo always
+refers to the kernel's implementation of foo, __underlying_foo could be
+either the kernel implementation or the __builtin_foo implementation.
+
+This is sometimes enough to make the memcmp test succeed with
+FORTIFY_SOURCE enabled. It is at least enough to get the function call
+into the module. One more fix is needed to make it reliable: see the next
+patch.
+
+Fixes: 6974f0c4555e ("include/linux/string.h: add the option of fortified string.h functions")
+Signed-off-by: Daniel Axtens <dja@axtens.net>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Tested-by: David Gow <davidgow@google.com>
+Reviewed-by: Dmitry Vyukov <dvyukov@google.com>
+Cc: Daniel Micay <danielmicay@gmail.com>
+Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Cc: Alexander Potapenko <glider@google.com>
+Link: http://lkml.kernel.org/r/20200423154503.5103-3-dja@axtens.net
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/include/asm/mac_via.h |  1 +
- arch/m68k/mac/config.c          | 21 ++-------------------
- arch/m68k/mac/via.c             |  6 +++++-
- 3 files changed, 8 insertions(+), 20 deletions(-)
+ include/linux/string.h |   60 +++++++++++++++++++++++++++++++++++++++----------
+ 1 file changed, 48 insertions(+), 12 deletions(-)
 
-diff --git a/arch/m68k/include/asm/mac_via.h b/arch/m68k/include/asm/mac_via.h
-index 53c632c85b03..dff6db19ae4d 100644
---- a/arch/m68k/include/asm/mac_via.h
-+++ b/arch/m68k/include/asm/mac_via.h
-@@ -256,6 +256,7 @@ extern int rbv_present,via_alt_mapping;
+--- a/include/linux/string.h
++++ b/include/linux/string.h
+@@ -238,6 +238,31 @@ void __read_overflow3(void) __compiletim
+ void __write_overflow(void) __compiletime_error("detected write beyond size of object passed as 1st parameter");
  
- struct irq_desc;
- 
-+extern void via_l2_flush(int writeback);
- extern void via_register_interrupts(void);
- extern void via_irq_enable(int);
- extern void via_irq_disable(int);
-diff --git a/arch/m68k/mac/config.c b/arch/m68k/mac/config.c
-index e46895316eb0..dcf18e1ca0bb 100644
---- a/arch/m68k/mac/config.c
-+++ b/arch/m68k/mac/config.c
-@@ -61,7 +61,6 @@ extern void iop_preinit(void);
- extern void iop_init(void);
- extern void via_init(void);
- extern void via_init_clock(irq_handler_t func);
--extern void via_flush_cache(void);
- extern void oss_init(void);
- extern void psc_init(void);
- extern void baboon_init(void);
-@@ -132,21 +131,6 @@ int __init mac_parse_bootinfo(const struct bi_record *record)
- 	return unknown;
- }
- 
--/*
-- * Flip into 24bit mode for an instant - flushes the L2 cache card. We
-- * have to disable interrupts for this. Our IRQ handlers will crap
-- * themselves if they take an IRQ in 24bit mode!
-- */
--
--static void mac_cache_card_flush(int writeback)
--{
--	unsigned long flags;
--
--	local_irq_save(flags);
--	via_flush_cache();
--	local_irq_restore(flags);
--}
--
- void __init config_mac(void)
- {
- 	if (!MACH_IS_MAC)
-@@ -179,9 +163,8 @@ void __init config_mac(void)
- 	 * not.
- 	 */
- 
--	if (macintosh_config->ident == MAC_MODEL_IICI
--	    || macintosh_config->ident == MAC_MODEL_IIFX)
--		mach_l2_flush = mac_cache_card_flush;
-+	if (macintosh_config->ident == MAC_MODEL_IICI)
-+		mach_l2_flush = via_l2_flush;
- }
- 
- 
-diff --git a/arch/m68k/mac/via.c b/arch/m68k/mac/via.c
-index a435aced6e43..35382c1b563f 100644
---- a/arch/m68k/mac/via.c
-+++ b/arch/m68k/mac/via.c
-@@ -299,10 +299,14 @@ void via_debug_dump(void)
-  * the system into 24-bit mode for an instant.
-  */
- 
--void via_flush_cache(void)
-+void via_l2_flush(int writeback)
- {
-+	unsigned long flags;
+ #if !defined(__NO_FORTIFY) && defined(__OPTIMIZE__) && defined(CONFIG_FORTIFY_SOURCE)
 +
-+	local_irq_save(flags);
- 	via2[gBufB] &= ~VIA2B_vMode32;
- 	via2[gBufB] |= VIA2B_vMode32;
-+	local_irq_restore(flags);
++#ifdef CONFIG_KASAN
++extern void *__underlying_memchr(const void *p, int c, __kernel_size_t size) __RENAME(memchr);
++extern int __underlying_memcmp(const void *p, const void *q, __kernel_size_t size) __RENAME(memcmp);
++extern void *__underlying_memcpy(void *p, const void *q, __kernel_size_t size) __RENAME(memcpy);
++extern void *__underlying_memmove(void *p, const void *q, __kernel_size_t size) __RENAME(memmove);
++extern void *__underlying_memset(void *p, int c, __kernel_size_t size) __RENAME(memset);
++extern char *__underlying_strcat(char *p, const char *q) __RENAME(strcat);
++extern char *__underlying_strcpy(char *p, const char *q) __RENAME(strcpy);
++extern __kernel_size_t __underlying_strlen(const char *p) __RENAME(strlen);
++extern char *__underlying_strncat(char *p, const char *q, __kernel_size_t count) __RENAME(strncat);
++extern char *__underlying_strncpy(char *p, const char *q, __kernel_size_t size) __RENAME(strncpy);
++#else
++#define __underlying_memchr	__builtin_memchr
++#define __underlying_memcmp	__builtin_memcmp
++#define __underlying_memcpy	__builtin_memcpy
++#define __underlying_memmove	__builtin_memmove
++#define __underlying_memset	__builtin_memset
++#define __underlying_strcat	__builtin_strcat
++#define __underlying_strcpy	__builtin_strcpy
++#define __underlying_strlen	__builtin_strlen
++#define __underlying_strncat	__builtin_strncat
++#define __underlying_strncpy	__builtin_strncpy
++#endif
++
+ __FORTIFY_INLINE char *strncpy(char *p, const char *q, __kernel_size_t size)
+ {
+ 	size_t p_size = __builtin_object_size(p, 0);
+@@ -245,14 +270,14 @@ __FORTIFY_INLINE char *strncpy(char *p,
+ 		__write_overflow();
+ 	if (p_size < size)
+ 		fortify_panic(__func__);
+-	return __builtin_strncpy(p, q, size);
++	return __underlying_strncpy(p, q, size);
  }
  
- /*
--- 
-2.25.1
-
+ __FORTIFY_INLINE char *strcat(char *p, const char *q)
+ {
+ 	size_t p_size = __builtin_object_size(p, 0);
+ 	if (p_size == (size_t)-1)
+-		return __builtin_strcat(p, q);
++		return __underlying_strcat(p, q);
+ 	if (strlcat(p, q, p_size) >= p_size)
+ 		fortify_panic(__func__);
+ 	return p;
+@@ -266,7 +291,7 @@ __FORTIFY_INLINE __kernel_size_t strlen(
+ 	/* Work around gcc excess stack consumption issue */
+ 	if (p_size == (size_t)-1 ||
+ 	    (__builtin_constant_p(p[p_size - 1]) && p[p_size - 1] == '\0'))
+-		return __builtin_strlen(p);
++		return __underlying_strlen(p);
+ 	ret = strnlen(p, p_size);
+ 	if (p_size <= ret)
+ 		fortify_panic(__func__);
+@@ -299,7 +324,7 @@ __FORTIFY_INLINE size_t strlcpy(char *p,
+ 			__write_overflow();
+ 		if (len >= p_size)
+ 			fortify_panic(__func__);
+-		__builtin_memcpy(p, q, len);
++		__underlying_memcpy(p, q, len);
+ 		p[len] = '\0';
+ 	}
+ 	return ret;
+@@ -312,12 +337,12 @@ __FORTIFY_INLINE char *strncat(char *p,
+ 	size_t p_size = __builtin_object_size(p, 0);
+ 	size_t q_size = __builtin_object_size(q, 0);
+ 	if (p_size == (size_t)-1 && q_size == (size_t)-1)
+-		return __builtin_strncat(p, q, count);
++		return __underlying_strncat(p, q, count);
+ 	p_len = strlen(p);
+ 	copy_len = strnlen(q, count);
+ 	if (p_size < p_len + copy_len + 1)
+ 		fortify_panic(__func__);
+-	__builtin_memcpy(p + p_len, q, copy_len);
++	__underlying_memcpy(p + p_len, q, copy_len);
+ 	p[p_len + copy_len] = '\0';
+ 	return p;
+ }
+@@ -329,7 +354,7 @@ __FORTIFY_INLINE void *memset(void *p, i
+ 		__write_overflow();
+ 	if (p_size < size)
+ 		fortify_panic(__func__);
+-	return __builtin_memset(p, c, size);
++	return __underlying_memset(p, c, size);
+ }
+ 
+ __FORTIFY_INLINE void *memcpy(void *p, const void *q, __kernel_size_t size)
+@@ -344,7 +369,7 @@ __FORTIFY_INLINE void *memcpy(void *p, c
+ 	}
+ 	if (p_size < size || q_size < size)
+ 		fortify_panic(__func__);
+-	return __builtin_memcpy(p, q, size);
++	return __underlying_memcpy(p, q, size);
+ }
+ 
+ __FORTIFY_INLINE void *memmove(void *p, const void *q, __kernel_size_t size)
+@@ -359,7 +384,7 @@ __FORTIFY_INLINE void *memmove(void *p,
+ 	}
+ 	if (p_size < size || q_size < size)
+ 		fortify_panic(__func__);
+-	return __builtin_memmove(p, q, size);
++	return __underlying_memmove(p, q, size);
+ }
+ 
+ extern void *__real_memscan(void *, int, __kernel_size_t) __RENAME(memscan);
+@@ -385,7 +410,7 @@ __FORTIFY_INLINE int memcmp(const void *
+ 	}
+ 	if (p_size < size || q_size < size)
+ 		fortify_panic(__func__);
+-	return __builtin_memcmp(p, q, size);
++	return __underlying_memcmp(p, q, size);
+ }
+ 
+ __FORTIFY_INLINE void *memchr(const void *p, int c, __kernel_size_t size)
+@@ -395,7 +420,7 @@ __FORTIFY_INLINE void *memchr(const void
+ 		__read_overflow();
+ 	if (p_size < size)
+ 		fortify_panic(__func__);
+-	return __builtin_memchr(p, c, size);
++	return __underlying_memchr(p, c, size);
+ }
+ 
+ void *__real_memchr_inv(const void *s, int c, size_t n) __RENAME(memchr_inv);
+@@ -426,11 +451,22 @@ __FORTIFY_INLINE char *strcpy(char *p, c
+ 	size_t p_size = __builtin_object_size(p, 0);
+ 	size_t q_size = __builtin_object_size(q, 0);
+ 	if (p_size == (size_t)-1 && q_size == (size_t)-1)
+-		return __builtin_strcpy(p, q);
++		return __underlying_strcpy(p, q);
+ 	memcpy(p, q, strlen(q) + 1);
+ 	return p;
+ }
+ 
++/* Don't use these outside the FORITFY_SOURCE implementation */
++#undef __underlying_memchr
++#undef __underlying_memcmp
++#undef __underlying_memcpy
++#undef __underlying_memmove
++#undef __underlying_memset
++#undef __underlying_strcat
++#undef __underlying_strcpy
++#undef __underlying_strlen
++#undef __underlying_strncat
++#undef __underlying_strncpy
+ #endif
+ 
+ /**
 
 
