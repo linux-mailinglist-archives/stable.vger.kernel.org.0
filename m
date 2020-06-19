@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 44071200C95
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:48:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 676F9200D65
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:57:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388962AbgFSOri (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:47:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39684 "EHLO mail.kernel.org"
+        id S2390186AbgFSO5J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:57:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388979AbgFSOrd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:47:33 -0400
+        id S2389814AbgFSO5I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:57:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4AF0C217D8;
-        Fri, 19 Jun 2020 14:47:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0CB44217D8;
+        Fri, 19 Jun 2020 14:57:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578052;
-        bh=yT32MxckEoCJ03lf9pXB8Uu8+Zr53gU8igwKg772lgI=;
+        s=default; t=1592578627;
+        bh=yKkzUylOknIwecsv8r1l0CYmrdBOv5/1gOFSrHKSh6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wIjWPI9ogIHVZFd5x3BIJK0h8BKkG+W2Ai2+yTkecaWR2o99AfRpYuJMIW9QKXOFx
-         iCmUUKijawxaMH7n7SapXmXsiPTr+SuVNd4gTbOiowoDuJsx5kQZ3YG9S7i5k8xY9I
-         agu2PomcGoBrNb+kIRnlPgO6o9df5Z+zQ9V0C77g=
+        b=SID9elaY/sT1R3TMBFrFgtt7IVyWZAwuY/znCyMI/xgEkiZ/DxgEp8sLL/PMPehTU
+         tKDmUi+X37S5XPCI7m9WnETzJlNMmTx5EQUz4QCVO2Mg4/n70GrCQW5/EIyaepkImx
+         ZgdQqcGKr/04q063O/6P91E1TJxFJNcwI8Qlahxk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Justin Chen <justinpopo6@gmail.com>,
-        Kamal Dasu <kdasu.kdev@gmail.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.14 033/190] spi: bcm-qspi: when tx/rx buffer is NULL set to 0
-Date:   Fri, 19 Jun 2020 16:31:18 +0200
-Message-Id: <20200619141635.189848694@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 095/267] crypto: ccp -- dont "select" CONFIG_DMADEVICES
+Date:   Fri, 19 Jun 2020 16:31:20 +0200
+Message-Id: <20200619141653.427883679@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
-References: <20200619141633.446429600@linuxfoundation.org>
+In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
+References: <20200619141648.840376470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Justin Chen <justinpopo6@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 4df3bea7f9d2ddd9ac2c29ba945c7c4db2def29c upstream.
+[ Upstream commit eebac678556d6927f09a992872f4464cf3aecc76 ]
 
-Currently we set the tx/rx buffer to 0xff when NULL. This causes
-problems with some spi slaves where 0xff is a valid command. Looking
-at other drivers, the tx/rx buffer is usually set to 0x00 when NULL.
-Following this convention solves the issue.
+DMADEVICES is the top-level option for the slave DMA
+subsystem, and should not be selected by device drivers,
+as this can cause circular dependencies such as:
 
-Fixes: fa236a7ef240 ("spi: bcm-qspi: Add Broadcom MSPI driver")
-Signed-off-by: Justin Chen <justinpopo6@gmail.com>
-Signed-off-by: Kamal Dasu <kdasu.kdev@gmail.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200420190853.45614-6-kdasu.kdev@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+drivers/net/ethernet/freescale/Kconfig:6:error: recursive dependency detected!
+drivers/net/ethernet/freescale/Kconfig:6:	symbol NET_VENDOR_FREESCALE depends on PPC_BESTCOMM
+drivers/dma/bestcomm/Kconfig:6:	symbol PPC_BESTCOMM depends on DMADEVICES
+drivers/dma/Kconfig:6:	symbol DMADEVICES is selected by CRYPTO_DEV_SP_CCP
+drivers/crypto/ccp/Kconfig:10:	symbol CRYPTO_DEV_SP_CCP depends on CRYPTO
+crypto/Kconfig:16:	symbol CRYPTO is selected by LIBCRC32C
+lib/Kconfig:222:	symbol LIBCRC32C is selected by LIQUIDIO
+drivers/net/ethernet/cavium/Kconfig:65:	symbol LIQUIDIO depends on PTP_1588_CLOCK
+drivers/ptp/Kconfig:8:	symbol PTP_1588_CLOCK is implied by FEC
+drivers/net/ethernet/freescale/Kconfig:23:	symbol FEC depends on NET_VENDOR_FREESCALE
 
+The LIQUIDIO driver causing this problem is addressed in a
+separate patch, but this change is needed to prevent it from
+happening again.
+
+Using "depends on DMADEVICES" is what we do for all other
+implementations of slave DMA controllers as well.
+
+Fixes: b3c2fee5d66b ("crypto: ccp - Ensure all dependencies are specified")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-bcm-qspi.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/crypto/ccp/Kconfig | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/spi/spi-bcm-qspi.c
-+++ b/drivers/spi/spi-bcm-qspi.c
-@@ -683,7 +683,7 @@ static void read_from_hw(struct bcm_qspi
- 			if (buf)
- 				buf[tp.byte] = read_rxram_slot_u8(qspi, slot);
- 			dev_dbg(&qspi->pdev->dev, "RD %02x\n",
--				buf ? buf[tp.byte] : 0xff);
-+				buf ? buf[tp.byte] : 0x0);
- 		} else {
- 			u16 *buf = tp.trans->rx_buf;
- 
-@@ -691,7 +691,7 @@ static void read_from_hw(struct bcm_qspi
- 				buf[tp.byte / 2] = read_rxram_slot_u16(qspi,
- 								      slot);
- 			dev_dbg(&qspi->pdev->dev, "RD %04x\n",
--				buf ? buf[tp.byte] : 0xffff);
-+				buf ? buf[tp.byte / 2] : 0x0);
- 		}
- 
- 		update_qspi_trans_byte_count(qspi, &tp,
-@@ -746,13 +746,13 @@ static int write_to_hw(struct bcm_qspi *
- 	while (!tstatus && slot < MSPI_NUM_CDRAM) {
- 		if (tp.trans->bits_per_word <= 8) {
- 			const u8 *buf = tp.trans->tx_buf;
--			u8 val = buf ? buf[tp.byte] : 0xff;
-+			u8 val = buf ? buf[tp.byte] : 0x00;
- 
- 			write_txram_slot_u8(qspi, slot, val);
- 			dev_dbg(&qspi->pdev->dev, "WR %02x\n", val);
- 		} else {
- 			const u16 *buf = tp.trans->tx_buf;
--			u16 val = buf ? buf[tp.byte / 2] : 0xffff;
-+			u16 val = buf ? buf[tp.byte / 2] : 0x0000;
- 
- 			write_txram_slot_u16(qspi, slot, val);
- 			dev_dbg(&qspi->pdev->dev, "WR %04x\n", val);
+diff --git a/drivers/crypto/ccp/Kconfig b/drivers/crypto/ccp/Kconfig
+index b9dfae47aefd..7f5fc705503d 100644
+--- a/drivers/crypto/ccp/Kconfig
++++ b/drivers/crypto/ccp/Kconfig
+@@ -9,10 +9,9 @@ config CRYPTO_DEV_CCP_DD
+ config CRYPTO_DEV_SP_CCP
+ 	bool "Cryptographic Coprocessor device"
+ 	default y
+-	depends on CRYPTO_DEV_CCP_DD
++	depends on CRYPTO_DEV_CCP_DD && DMADEVICES
+ 	select HW_RANDOM
+ 	select DMA_ENGINE
+-	select DMADEVICES
+ 	select CRYPTO_SHA1
+ 	select CRYPTO_SHA256
+ 	help
+-- 
+2.25.1
+
 
 
