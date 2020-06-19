@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B3BD200C8F
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:47:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F820200C01
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:42:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388948AbgFSOrU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:47:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39366 "EHLO mail.kernel.org"
+        id S2388176AbgFSOki (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:40:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388938AbgFSOrS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:47:18 -0400
+        id S2388167AbgFSOke (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:40:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 299D120DD4;
-        Fri, 19 Jun 2020 14:47:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1D52E20773;
+        Fri, 19 Jun 2020 14:40:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578037;
-        bh=9KRMN8xz93PtBeGYVTA+HZ664yTVMD0/FoaLdXuIsIw=;
+        s=default; t=1592577634;
+        bh=J/+l/UZTLwjwA2JlavVjEHcDdD1pl6zF5wuk5/A+ZGY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J2mxQ2GpqqFC4eiJoMhDGzfT/s6WR5woETayFgqE/j/bczI1F8d/bm9WyWR2dGOQB
-         vs/tErFWk7Y6/R0fOddahR+LaeCj4X88bsbtw8Tcei5/YjogmFWYDMsXpY+ibvfYNk
-         7lZ1jPKiSSw8qB/C+NHy4KxcWTHY087fwYJ5W4Ks=
+        b=xl7Dr1HPHx5vs79vkjTzCpeaig0CxAeaHFdJ0IsUMVxSTJ8kzvkBCPmim0Su3lvny
+         exqBhxY8nLXSRplJgL3xzNE0UEKhpHeuCdIKcEE4Hdtm0KJv89nr518HCPN1piclrt
+         txkk3u1nu6XFNoJyl4CkySfIWmWKfcKdQHE/30o8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.14 056/190] KVM: nSVM: fix condition for filtering async PF
-Date:   Fri, 19 Jun 2020 16:31:41 +0200
-Message-Id: <20200619141636.375109932@linuxfoundation.org>
+        stable@vger.kernel.org, Denis <pro.denis@protonmail.com>,
+        Masashi Honma <masashi.honma@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 008/128] ath9k_htc: Silence undersized packet warnings
+Date:   Fri, 19 Jun 2020 16:31:42 +0200
+Message-Id: <20200619141620.580743109@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
-References: <20200619141633.446429600@linuxfoundation.org>
+In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
+References: <20200619141620.148019466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Masashi Honma <masashi.honma@gmail.com>
 
-commit a3535be731c2a343912578465021f50937f7b099 upstream.
+[ Upstream commit 450edd2805982d14ed79733a82927d2857b27cac ]
 
-Async page faults have to be trapped in the host (L1 in this case),
-since the APF reason was passed from L0 to L1 and stored in the L1 APF
-data page.  This was completely reversed: the page faults were passed
-to the guest, a L2 hypervisor.
+Some devices like TP-Link TL-WN722N produces this kind of messages
+frequently.
 
-Cc: stable@vger.kernel.org
-Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+kernel: ath: phy0: Short RX data len, dropping (dlen: 4)
 
+This warning is useful for developers to recognize that the device
+(Wi-Fi dongle or USB hub etc) is noisy but not for general users. So
+this patch make this warning to debug message.
+
+Reported-By: Denis <pro.denis@protonmail.com>
+Ref: https://bugzilla.kernel.org/show_bug.cgi?id=207539
+Fixes: cd486e627e67 ("ath9k_htc: Discard undersized packets")
+Signed-off-by: Masashi Honma <masashi.honma@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200504214443.4485-1-masashi.honma@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/svm.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ath/ath9k/htc_drv_txrx.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/arch/x86/kvm/svm.c
-+++ b/arch/x86/kvm/svm.c
-@@ -2757,8 +2757,8 @@ static int nested_svm_exit_special(struc
- 			return NESTED_EXIT_HOST;
- 		break;
- 	case SVM_EXIT_EXCP_BASE + PF_VECTOR:
--		/* When we're shadowing, trap PFs, but not async PF */
--		if (!npt_enabled && svm->vcpu.arch.apf.host_apf_reason == 0)
-+		/* Trap async PF even if not shadowing */
-+		if (!npt_enabled || svm->vcpu.arch.apf.host_apf_reason)
- 			return NESTED_EXIT_HOST;
- 		break;
- 	default:
+diff --git a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
+index 52b42ecee621..2eb169b204f8 100644
+--- a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
++++ b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
+@@ -998,9 +998,9 @@ static bool ath9k_rx_prepare(struct ath9k_htc_priv *priv,
+ 	 * which are not PHY_ERROR (short radar pulses have a length of 3)
+ 	 */
+ 	if (unlikely(!rs_datalen || (rs_datalen < 10 && !is_phyerr))) {
+-		ath_warn(common,
+-			 "Short RX data len, dropping (dlen: %d)\n",
+-			 rs_datalen);
++		ath_dbg(common, ANY,
++			"Short RX data len, dropping (dlen: %d)\n",
++			rs_datalen);
+ 		goto rx_next;
+ 	}
+ 
+-- 
+2.25.1
+
 
 
