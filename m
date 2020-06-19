@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64F3B201801
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:48:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FA93201740
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:46:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405011AbgFSQqI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:46:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60372 "EHLO mail.kernel.org"
+        id S2395261AbgFSQgP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:36:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387469AbgFSOlk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:41:40 -0400
+        id S2389195AbgFSOtJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:49:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 415E821527;
-        Fri, 19 Jun 2020 14:41:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 250352158C;
+        Fri, 19 Jun 2020 14:49:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577700;
-        bh=WBZd16pwTulkHYMylZodT11SrG1VWJ124t45szSRlhI=;
+        s=default; t=1592578149;
+        bh=gurwdtib4L861NscFcX0tABfxzET9woljcbtDY2AjP4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TOrtXKeT3VHRObuh9aQl9buAOb2VDx0WX2U3Ld2oxjD0Ehz+ao6mmNSZ/bcUK6byu
-         PoCn+BmugWXDqY0J/QrsNIGxtjXyeJzzU3cxDgdwCwHeiHIkYUa4lrU9ww7zuMApge
-         i87v1hqD+H3njlaEUW/Aghl5YMnTfJBi1sT15P8Y=
+        b=BXkRcPsjjHZbg++neV+3vH/3QR0xVO7WBlE85XdZcMYCkt1AqByQmo34TshBGtPKg
+         xzxD35v4YkyxINMZJhq4/rIvH2uC1oqyfmkJtxKl/NVYKNLcrYCPFHymgdpzz76Sbd
+         nxutiVfIstmypNis4zav44xrKFhAgzkjZM7CvoQI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Xiaolong Huang <butterflyhuangxx@gmail.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.9 052/128] can: kvaser_usb: kvaser_usb_leaf: Fix some info-leaks to USB devices
-Date:   Fri, 19 Jun 2020 16:32:26 +0200
-Message-Id: <20200619141622.946789972@linuxfoundation.org>
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 102/190] media: platform: fcp: Set appropriate DMA parameters
+Date:   Fri, 19 Jun 2020 16:32:27 +0200
+Message-Id: <20200619141638.677857052@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
-References: <20200619141620.148019466@linuxfoundation.org>
+In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
+References: <20200619141633.446429600@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,54 +47,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaolong Huang <butterflyhuangxx@gmail.com>
+From: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
 
-commit da2311a6385c3b499da2ed5d9be59ce331fa93e9 upstream.
+[ Upstream commit dd844fb8e50b12e65bbdc5746c9876c6735500df ]
 
-Uninitialized Kernel memory can leak to USB devices.
+Enabling CONFIG_DMA_API_DEBUG=y and CONFIG_DMA_API_DEBUG_SG=y will
+enable extra validation on DMA operations ensuring that the size
+restraints are met.
 
-Fix this by using kzalloc() instead of kmalloc().
+When using the FCP in conjunction with the VSP1/DU, and display frames,
+the size of the DMA operations is larger than the default maximum
+segment size reported by the DMA core (64K). With the DMA debug enabled,
+this produces a warning such as the following:
 
-Signed-off-by: Xiaolong Huang <butterflyhuangxx@gmail.com>
-Fixes: 7259124eac7d ("can: kvaser_usb: Split driver into kvaser_usb_core.c and kvaser_usb_leaf.c")
-Cc: linux-stable <stable@vger.kernel.org> # >= v4.19
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-[bwh: Backported to 4.9: adjust filename, context]
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+"DMA-API: rcar-fcp fea27000.fcp: mapping sg segment longer than device
+claims to support [len=3145728] [max=65536]"
 
+We have no specific limitation on the segment size which isn't already
+handled by the VSP1/DU which actually handles the DMA allcoations and
+buffer management, so define a maximum segment size of up to 4GB (a 32
+bit mask).
+
+Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Fixes: 7b49235e83b2 ("[media] v4l: Add Renesas R-Car FCP driver")
+Signed-off-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/kvaser_usb.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/media/platform/rcar-fcp.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/net/can/usb/kvaser_usb.c
-+++ b/drivers/net/can/usb/kvaser_usb.c
-@@ -791,7 +791,7 @@ static int kvaser_usb_simple_msg_async(s
- 	if (!urb)
- 		return -ENOMEM;
+diff --git a/drivers/media/platform/rcar-fcp.c b/drivers/media/platform/rcar-fcp.c
+index 2988031d285d..0047d144c932 100644
+--- a/drivers/media/platform/rcar-fcp.c
++++ b/drivers/media/platform/rcar-fcp.c
+@@ -12,6 +12,7 @@
+  */
  
--	buf = kmalloc(sizeof(struct kvaser_msg), GFP_ATOMIC);
-+	buf = kzalloc(sizeof(struct kvaser_msg), GFP_ATOMIC);
- 	if (!buf) {
- 		usb_free_urb(urb);
- 		return -ENOMEM;
-@@ -1459,7 +1459,7 @@ static int kvaser_usb_set_opt_mode(const
- 	struct kvaser_msg *msg;
- 	int rc;
+ #include <linux/device.h>
++#include <linux/dma-mapping.h>
+ #include <linux/list.h>
+ #include <linux/module.h>
+ #include <linux/mutex.h>
+@@ -24,6 +25,7 @@
+ struct rcar_fcp_device {
+ 	struct list_head list;
+ 	struct device *dev;
++	struct device_dma_parameters dma_parms;
+ };
  
--	msg = kmalloc(sizeof(*msg), GFP_KERNEL);
-+	msg = kzalloc(sizeof(*msg), GFP_KERNEL);
- 	if (!msg)
- 		return -ENOMEM;
+ static LIST_HEAD(fcp_devices);
+@@ -139,6 +141,9 @@ static int rcar_fcp_probe(struct platform_device *pdev)
  
-@@ -1592,7 +1592,7 @@ static int kvaser_usb_flush_queue(struct
- 	struct kvaser_msg *msg;
- 	int rc;
+ 	fcp->dev = &pdev->dev;
  
--	msg = kmalloc(sizeof(*msg), GFP_KERNEL);
-+	msg = kzalloc(sizeof(*msg), GFP_KERNEL);
- 	if (!msg)
- 		return -ENOMEM;
++	fcp->dev->dma_parms = &fcp->dma_parms;
++	dma_set_max_seg_size(fcp->dev, DMA_BIT_MASK(32));
++
+ 	pm_runtime_enable(&pdev->dev);
  
+ 	mutex_lock(&fcp_lock);
+-- 
+2.25.1
+
 
 
