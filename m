@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F449200EF7
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:16:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D10CB200E07
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:06:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392202AbgFSPN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:13:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43910 "EHLO mail.kernel.org"
+        id S2391095AbgFSPEQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:04:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392240AbgFSPNY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:13:24 -0400
+        id S2390621AbgFSPEI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:04:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9427520776;
-        Fri, 19 Jun 2020 15:13:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4373121D7D;
+        Fri, 19 Jun 2020 15:04:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579604;
-        bh=4foPV+8cPuT6YTbH/rVC26dtPTN6m24T14Feff016z0=;
+        s=default; t=1592579046;
+        bh=seEWA6TD6thz/bf8AymmfY2DgRiKDddkUcwLl6ycTeA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uoeQ2W3vd8bhQnvt969CR64djw/Hfu+HUM3PNT+JvZx/zRGdmwszjA3HODZV7rKfi
-         D3YUMDnrR0f8v+OFrLhscDmL43y+w21cRORHmv7oI+Xf3rH+EswsdhT00V8mG3zfvX
-         qOLdRFjr8urGOARi0XKpHscbmIBB92k7YB6o5MAY=
+        b=LIzintNEKSt0sq+v/WBbFM/+UTEJlXy9Cmz6oBsi8DvIzzfzTq8ZrFLb1yW2KpcHe
+         i897lWHzZLD3NJScqU/eCK5QxaqSnqv7Osp+BFQ1+peelQyY6gcdxJLjAsC8NMsFXY
+         0TI11hQ/nFh77b8cW/j1BlPO9BavOpLBFFgxqWKE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Frank=20Sch=C3=A4fer?= <fschaefer.oss@googlemail.com>,
-        Christian Lamparter <chunkeey@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.4 198/261] carl9170: remove P2P_GO support
-Date:   Fri, 19 Jun 2020 16:33:29 +0200
-Message-Id: <20200619141659.386274793@linuxfoundation.org>
+        stable@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
+        Logan Gunthorpe <logang@deltatee.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 225/267] PCI: Make ACS quirk implementations more uniform
+Date:   Fri, 19 Jun 2020 16:33:30 +0200
+Message-Id: <20200619141659.498894885@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
-References: <20200619141649.878808811@linuxfoundation.org>
+In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
+References: <20200619141648.840376470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,77 +45,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Lamparter <chunkeey@gmail.com>
+From: Bjorn Helgaas <bhelgaas@google.com>
 
-commit b14fba7ebd04082f7767a11daea7f12f3593de22 upstream.
+[ Upstream commit c8de8ed2dcaac82e5d76d467dc0b02e0ee79809b ]
 
-This patch follows up on a bug-report by Frank Schäfer that
-discovered P2P GO wasn't working with wpa_supplicant.
-This patch removes part of the broken P2P GO support but
-keeps the vif switchover code in place.
+The ACS quirks differ in needless ways, which makes them look more
+different than they really are.
 
-Cc: <stable@vger.kernel.org>
-Link: <https://lkml.kernel.org/r/3a9d86b6-744f-e670-8792-9167257edef8@googlemail.com>
-Reported-by: Frank Schäfer <fschaefer.oss@googlemail.com>
-Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200425092811.9494-1-chunkeey@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reorder the ACS flags in order of definitions in the spec:
 
+  PCI_ACS_SV   Source Validation
+  PCI_ACS_TB   Translation Blocking
+  PCI_ACS_RR   P2P Request Redirect
+  PCI_ACS_CR   P2P Completion Redirect
+  PCI_ACS_UF   Upstream Forwarding
+  PCI_ACS_EC   P2P Egress Control
+  PCI_ACS_DT   Direct Translated P2P
+
+(PCIe r5.0, sec 7.7.8.2) and use similar code structure in all.  No
+functional change intended.
+
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
+Reviewed-by: Alex Williamson <alex.williamson@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/carl9170/fw.c   |    4 +---
- drivers/net/wireless/ath/carl9170/main.c |   21 ++++-----------------
- 2 files changed, 5 insertions(+), 20 deletions(-)
+ drivers/pci/quirks.c | 41 +++++++++++++++++++----------------------
+ 1 file changed, 19 insertions(+), 22 deletions(-)
 
---- a/drivers/net/wireless/ath/carl9170/fw.c
-+++ b/drivers/net/wireless/ath/carl9170/fw.c
-@@ -338,9 +338,7 @@ static int carl9170_fw(struct ar9170 *ar
- 		ar->hw->wiphy->interface_modes |= BIT(NL80211_IFTYPE_ADHOC);
+diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+index 502dca568d6c..ae62c0b058dd 100644
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -4333,18 +4333,18 @@ static bool pci_quirk_cavium_acs_match(struct pci_dev *dev)
  
- 		if (SUPP(CARL9170FW_WLANTX_CAB)) {
--			if_comb_types |=
--				BIT(NL80211_IFTYPE_AP) |
--				BIT(NL80211_IFTYPE_P2P_GO);
-+			if_comb_types |= BIT(NL80211_IFTYPE_AP);
- 
- #ifdef CONFIG_MAC80211_MESH
- 			if_comb_types |=
---- a/drivers/net/wireless/ath/carl9170/main.c
-+++ b/drivers/net/wireless/ath/carl9170/main.c
-@@ -582,11 +582,10 @@ static int carl9170_init_interface(struc
- 	ar->disable_offload |= ((vif->type != NL80211_IFTYPE_STATION) &&
- 	    (vif->type != NL80211_IFTYPE_AP));
- 
--	/* While the driver supports HW offload in a single
--	 * P2P client configuration, it doesn't support HW
--	 * offload in the favourit, concurrent P2P GO+CLIENT
--	 * configuration. Hence, HW offload will always be
--	 * disabled for P2P.
-+	/* The driver used to have P2P GO+CLIENT support,
-+	 * but since this was dropped and we don't know if
-+	 * there are any gremlins lurking in the shadows,
-+	 * so best we keep HW offload disabled for P2P.
+ static int pci_quirk_cavium_acs(struct pci_dev *dev, u16 acs_flags)
+ {
++	if (!pci_quirk_cavium_acs_match(dev))
++		return -ENOTTY;
++
+ 	/*
+-	 * Cavium root ports don't advertise an ACS capability.  However,
++	 * Cavium Root Ports don't advertise an ACS capability.  However,
+ 	 * the RTL internally implements similar protection as if ACS had
+-	 * Request Redirection, Completion Redirection, Source Validation,
++	 * Source Validation, Request Redirection, Completion Redirection,
+ 	 * and Upstream Forwarding features enabled.  Assert that the
+ 	 * hardware implements and enables equivalent ACS functionality for
+ 	 * these flags.
  	 */
- 	ar->disable_offload |= vif->p2p;
- 
-@@ -639,18 +638,6 @@ static int carl9170_op_add_interface(str
- 			if (vif->type == NL80211_IFTYPE_STATION)
- 				break;
- 
--			/* P2P GO [master] use-case
--			 * Because the P2P GO station is selected dynamically
--			 * by all participating peers of a WIFI Direct network,
--			 * the driver has be able to change the main interface
--			 * operating mode on the fly.
--			 */
--			if (main_vif->p2p && vif->p2p &&
--			    vif->type == NL80211_IFTYPE_AP) {
--				old_main = main_vif;
--				break;
--			}
+-	acs_flags &= ~(PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_SV | PCI_ACS_UF);
 -
- 			err = -EBUSY;
- 			rcu_read_unlock();
+-	if (!pci_quirk_cavium_acs_match(dev))
+-		return -ENOTTY;
++	acs_flags &= ~(PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF);
  
+ 	return acs_flags ? 0 : 1;
+ }
+@@ -4362,7 +4362,7 @@ static int pci_quirk_xgene_acs(struct pci_dev *dev, u16 acs_flags)
+ }
+ 
+ /*
+- * Many Intel PCH root ports do provide ACS-like features to disable peer
++ * Many Intel PCH Root Ports do provide ACS-like features to disable peer
+  * transactions and validate bus numbers in requests, but do not provide an
+  * actual PCIe ACS capability.  This is the list of device IDs known to fall
+  * into that category as provided by Intel in Red Hat bugzilla 1037684.
+@@ -4410,37 +4410,34 @@ static bool pci_quirk_intel_pch_acs_match(struct pci_dev *dev)
+ 	return false;
+ }
+ 
+-#define INTEL_PCH_ACS_FLAGS (PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF | PCI_ACS_SV)
++#define INTEL_PCH_ACS_FLAGS (PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF)
+ 
+ static int pci_quirk_intel_pch_acs(struct pci_dev *dev, u16 acs_flags)
+ {
+-	u16 flags = dev->dev_flags & PCI_DEV_FLAGS_ACS_ENABLED_QUIRK ?
+-		    INTEL_PCH_ACS_FLAGS : 0;
+-
+ 	if (!pci_quirk_intel_pch_acs_match(dev))
+ 		return -ENOTTY;
+ 
+-	return acs_flags & ~flags ? 0 : 1;
++	if (dev->dev_flags & PCI_DEV_FLAGS_ACS_ENABLED_QUIRK)
++		acs_flags &= ~(INTEL_PCH_ACS_FLAGS);
++
++	return acs_flags ? 0 : 1;
+ }
+ 
+ /*
+- * These QCOM root ports do provide ACS-like features to disable peer
++ * These QCOM Root Ports do provide ACS-like features to disable peer
+  * transactions and validate bus numbers in requests, but do not provide an
+  * actual PCIe ACS capability.  Hardware supports source validation but it
+  * will report the issue as Completer Abort instead of ACS Violation.
+- * Hardware doesn't support peer-to-peer and each root port is a root
+- * complex with unique segment numbers.  It is not possible for one root
+- * port to pass traffic to another root port.  All PCIe transactions are
+- * terminated inside the root port.
++ * Hardware doesn't support peer-to-peer and each Root Port is a Root
++ * Complex with unique segment numbers.  It is not possible for one Root
++ * Port to pass traffic to another Root Port.  All PCIe transactions are
++ * terminated inside the Root Port.
+  */
+ static int pci_quirk_qcom_rp_acs(struct pci_dev *dev, u16 acs_flags)
+ {
+-	u16 flags = (PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF | PCI_ACS_SV);
+-	int ret = acs_flags & ~flags ? 0 : 1;
+-
+-	pci_info(dev, "Using QCOM ACS Quirk (%d)\n", ret);
++	acs_flags &= ~(PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF);
+ 
+-	return ret;
++	return acs_flags ? 0 : 1;
+ }
+ 
+ /*
+-- 
+2.25.1
+
 
 
