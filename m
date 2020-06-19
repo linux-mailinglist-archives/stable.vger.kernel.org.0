@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D18820118E
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:47:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BB2C2011D4
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:47:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392876AbgFSP04 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:26:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58654 "EHLO mail.kernel.org"
+        id S2405229AbgFSPpz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:45:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404378AbgFSP0y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:26:54 -0400
+        id S2393519AbgFSP1C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:27:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9CCFF20734;
-        Fri, 19 Jun 2020 15:26:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1A5D520734;
+        Fri, 19 Jun 2020 15:27:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580413;
-        bh=3RrjVjucjaQRqQ0XpzGPy0vis0dtQ3RxxAdXgJmrAC4=;
+        s=default; t=1592580421;
+        bh=sUAeO8rbA0N30Grcc1+ej5kBzyS6iBFuX9rKypyt0+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mXH6Y862lxGKG+/n2zF/uQMt0I4IElYrodYySFr+ZG7kjB56B3MC4V5rEzJk7T2hl
-         sLaLmcx2IddNlTKyjgFeSC0K5Rt3b1onpFIlcJPbmuYVA54PBmY+Dh7lMy3nWUK4DV
-         9yayEMattZm7nwndHcyGEgjGPxy0nwTGc+9lnZQg=
+        b=Kiioj7lSBKS1pJ1kVh3o+owwHqdEdn4G7X/ys0Ni2nLrv6ObH9fR0CqAR7GIwCfwD
+         JAU4j5AE+sS9SVrMwexzEhU+pdyClw23Q9fmEA+7zo0kHuVjHj3Ts+awsfUTPMSYEm
+         x/a72UnfxvySCx9RF8o/eTcSX0XurYXaQdVALWzg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 239/376] cpuidle: Fix three reference count leaks
-Date:   Fri, 19 Jun 2020 16:32:37 +0200
-Message-Id: <20200619141721.642832955@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 241/376] io_uring: fix overflowed reqs cancellation
+Date:   Fri, 19 Jun 2020 16:32:39 +0200
+Message-Id: <20200619141721.739474082@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -44,55 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit c343bf1ba5efcbf2266a1fe3baefec9cc82f867f ]
+[ Upstream commit 7b53d59859bc932b37895d2d37388e7fa29af7a5 ]
 
-kobject_init_and_add() takes reference even when it fails.
-If this function returns an error, kobject_put() must be called to
-properly clean up the memory associated with the object.
+Overflowed requests in io_uring_cancel_files() should be shed only of
+inflight and overflowed refs. All other left references are owned by
+someone else.
 
-Previous commit "b8eb718348b8" fixed a similar problem.
+If refcount_sub_and_test() fails, it will go further and put put extra
+ref, don't do that. Also, don't need to do io_wq_cancel_work()
+for overflowed reqs, they will be let go shortly anyway.
 
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-[ rjw: Subject ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpuidle/sysfs.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/io_uring.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/cpuidle/sysfs.c b/drivers/cpuidle/sysfs.c
-index cdeedbf02646..55107565b319 100644
---- a/drivers/cpuidle/sysfs.c
-+++ b/drivers/cpuidle/sysfs.c
-@@ -515,7 +515,7 @@ static int cpuidle_add_state_sysfs(struct cpuidle_device *device)
- 		ret = kobject_init_and_add(&kobj->kobj, &ktype_state_cpuidle,
- 					   &kdev->kobj, "state%d", i);
- 		if (ret) {
--			kfree(kobj);
-+			kobject_put(&kobj->kobj);
- 			goto error_state;
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 2d5f81a1bf9c..2698e9b08490 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -7477,10 +7477,11 @@ static void io_uring_cancel_files(struct io_ring_ctx *ctx,
+ 				finish_wait(&ctx->inflight_wait, &wait);
+ 				continue;
+ 			}
++		} else {
++			io_wq_cancel_work(ctx->io_wq, &cancel_req->work);
++			io_put_req(cancel_req);
  		}
- 		cpuidle_add_s2idle_attr_group(kobj);
-@@ -646,7 +646,7 @@ static int cpuidle_add_driver_sysfs(struct cpuidle_device *dev)
- 	ret = kobject_init_and_add(&kdrv->kobj, &ktype_driver_cpuidle,
- 				   &kdev->kobj, "driver");
- 	if (ret) {
--		kfree(kdrv);
-+		kobject_put(&kdrv->kobj);
- 		return ret;
- 	}
  
-@@ -740,7 +740,7 @@ int cpuidle_add_sysfs(struct cpuidle_device *dev)
- 	error = kobject_init_and_add(&kdev->kobj, &ktype_cpuidle, &cpu_dev->kobj,
- 				   "cpuidle");
- 	if (error) {
--		kfree(kdev);
-+		kobject_put(&kdev->kobj);
- 		return error;
+-		io_wq_cancel_work(ctx->io_wq, &cancel_req->work);
+-		io_put_req(cancel_req);
+ 		schedule();
+ 		finish_wait(&ctx->inflight_wait, &wait);
  	}
- 
 -- 
 2.25.1
 
