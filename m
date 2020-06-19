@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E418201467
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:14:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B5CC201464
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:14:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392643AbgFSQJ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:09:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36082 "EHLO mail.kernel.org"
+        id S2392042AbgFSQJr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:09:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391058AbgFSPGy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:06:54 -0400
+        id S2389548AbgFSPG5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:06:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0AE3B21835;
-        Fri, 19 Jun 2020 15:06:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 876D921835;
+        Fri, 19 Jun 2020 15:06:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579213;
-        bh=vRp6B92yGsvVsoLIK4jYcAB3SaiF9BPcAde1IxtLjbg=;
+        s=default; t=1592579216;
+        bh=7vHlbNH5y8voS2cDM4bKwMfkLZfQfTj4TTeCBy55ia8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VApTaeyPhCxpdDxVFy+u3LHgljx+7zH5wynE6t5uBwVcYvo/uSMTlZrAfCxiQmaBz
-         nNfUhLnzjRKoAlRDsC9tKwM1wXlrtejDhsgqwjtIz63Rok6iHvPZqQcSv0rME/Qvlh
-         4hw72bRjD/AXFs3yi6CeS+RsEeemuScqjQAWhRZI=
+        b=cG443gEvZE+uEvBhKVYquURTGjwPJbpLPOtRUhiplCOI+XjnnMmwXznjetJQBttgV
+         Y2gWma+URpOcuBbisLhzZAhofk3eamLlJBSmDZW2wZcr36gN0pxtCL9Q5+exXm+TXw
+         hciOauGWFiXQtnmm4Gp0Cudp7Lkw46JdtrE2sfqg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Surabhi Boob <surabhi.boob@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        stable@vger.kernel.org,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Tobias Baumann <017623705678@o2online.de>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 050/261] ice: Fix for memory leaks and modify ICE_FREE_CQ_BUFS
-Date:   Fri, 19 Jun 2020 16:31:01 +0200
-Message-Id: <20200619141652.329063051@linuxfoundation.org>
+Subject: [PATCH 5.4 051/261] mmc: meson-mx-sdio: trigger a soft reset after a timeout or CRC error
+Date:   Fri, 19 Jun 2020 16:31:02 +0200
+Message-Id: <20200619141652.375741763@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
 References: <20200619141649.878808811@linuxfoundation.org>
@@ -46,119 +46,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Surabhi Boob <surabhi.boob@intel.com>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-[ Upstream commit 68d270783742783f96e89ef92ac24ab3c7fb1d31 ]
+[ Upstream commit 91995b904ec2e44b5c159ac6a5d3f154345a4de7 ]
 
-Handle memory leaks during control queue initialization and
-buffer allocation failures. The macro ICE_FREE_CQ_BUFS is modified to
-re-use for this fix.
+The vendor driver (from the 3.10 kernel) triggers a soft reset every
+time before starting a new command. While this fixes a problem where
+SDIO cards are not detected at all (because all commands simply
+timed out) this hurts SD card read performance a bit (in my tests
+between 10% to 20%).
 
-Signed-off-by: Surabhi Boob <surabhi.boob@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Trigger a soft reset after we got a CRC error or if the previous command
+timed out (just like the vendor driver from the same 3.10 kernel for the
+newer SDHC controller IP does). This fixes detection of SDIO cards and
+doesn't hurt SD card read performance at the same time.
+
+With this patch the initialization of an RTL8723BS SDIO card looks like
+this:
+  req done (CMD52): -110: 00000000 00000000 00000000 00000000
+  clock 400000Hz busmode 2 powermode 2 cs 1 Vdd 21 width 1 timing 0
+  starting CMD0 arg 00000000 flags 000000c0
+  req done (CMD0): 0: 00000000 00000000 00000000 00000000
+  clock 400000Hz busmode 2 powermode 2 cs 0 Vdd 21 width 1 timing 0
+  starting CMD8 arg 000001aa flags 000002f5
+  req done (CMD8): -110: 00000000 00000000 00000000 00000000
+  starting CMD5 arg 00000000 flags 000002e1
+  req done (CMD5): 0: 90ff0000 00000000 00000000 00000000
+  starting CMD5 arg 00200000 flags 000002e1
+  req done (CMD5): 0: 90ff0000 00000000 00000000 00000000
+  starting CMD3 arg 00000000 flags 00000075
+  req done (CMD3): 0: 00010000 00000000 00000000 00000000
+  starting CMD7 arg 00010000 flags 00000015
+  req done (CMD7): 0: 00001e00 00000000 00000000 00000000
+  starting CMD52 arg 00000000 flags 00000195
+  req done (CMD52): 0: 00001032 00000000 00000000 00000000
+  [... more CMD52 omitted ...]
+  clock 400000Hz busmode 2 powermode 2 cs 0 Vdd 21 width 1 timing 2
+  clock 50000000Hz busmode 2 powermode 2 cs 0 Vdd 21 width 1 timing 2
+  starting CMD52 arg 00000e00 flags 00000195
+  req done (CMD52): 0: 00001000 00000000 00000000 00000000
+  starting CMD52 arg 80000e02 flags 00000195
+  req done (CMD52): 0: 00001002 00000000 00000000 00000000
+  clock 50000000Hz busmode 2 powermode 2 cs 0 Vdd 21 width 4 timing 2
+  starting CMD52 arg 00020000 flags 00000195
+  req done (CMD52): 0: 00001007 00000000 00000000 00000000
+  [... more CMD52 omitted ...]
+  new high speed SDIO card at address 0001
+
+Fixes: ed80a13bb4c4c9 ("mmc: meson-mx-sdio: Add a driver for the Amlogic Meson8 and Meson8b SoCs")
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Link: https://lore.kernel.org/r/20200503222805.2668941-1-martin.blumenstingl@googlemail.com
+Tested-by: Tobias Baumann <017623705678@o2online.de>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_controlq.c | 49 +++++++++++--------
- 1 file changed, 28 insertions(+), 21 deletions(-)
+ drivers/mmc/host/meson-mx-sdio.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_controlq.c b/drivers/net/ethernet/intel/ice/ice_controlq.c
-index c68709c7ef81..2e9c97bad3c3 100644
---- a/drivers/net/ethernet/intel/ice/ice_controlq.c
-+++ b/drivers/net/ethernet/intel/ice/ice_controlq.c
-@@ -199,7 +199,9 @@ unwind_alloc_rq_bufs:
- 		cq->rq.r.rq_bi[i].pa = 0;
- 		cq->rq.r.rq_bi[i].size = 0;
- 	}
-+	cq->rq.r.rq_bi = NULL;
- 	devm_kfree(ice_hw_to_dev(hw), cq->rq.dma_head);
-+	cq->rq.dma_head = NULL;
+diff --git a/drivers/mmc/host/meson-mx-sdio.c b/drivers/mmc/host/meson-mx-sdio.c
+index 999214e8cf2b..360d523132bd 100644
+--- a/drivers/mmc/host/meson-mx-sdio.c
++++ b/drivers/mmc/host/meson-mx-sdio.c
+@@ -246,6 +246,9 @@ static void meson_mx_mmc_request_done(struct meson_mx_mmc_host *host)
  
- 	return ICE_ERR_NO_MEMORY;
- }
-@@ -245,7 +247,9 @@ unwind_alloc_sq_bufs:
- 		cq->sq.r.sq_bi[i].pa = 0;
- 		cq->sq.r.sq_bi[i].size = 0;
- 	}
-+	cq->sq.r.sq_bi = NULL;
- 	devm_kfree(ice_hw_to_dev(hw), cq->sq.dma_head);
-+	cq->sq.dma_head = NULL;
+ 	mrq = host->mrq;
  
- 	return ICE_ERR_NO_MEMORY;
- }
-@@ -304,6 +308,28 @@ ice_cfg_rq_regs(struct ice_hw *hw, struct ice_ctl_q_info *cq)
- 	return 0;
- }
- 
-+#define ICE_FREE_CQ_BUFS(hw, qi, ring)					\
-+do {									\
-+	int i;								\
-+	/* free descriptors */						\
-+	if ((qi)->ring.r.ring##_bi)					\
-+		for (i = 0; i < (qi)->num_##ring##_entries; i++)	\
-+			if ((qi)->ring.r.ring##_bi[i].pa) {		\
-+				dmam_free_coherent(ice_hw_to_dev(hw),	\
-+					(qi)->ring.r.ring##_bi[i].size,	\
-+					(qi)->ring.r.ring##_bi[i].va,	\
-+					(qi)->ring.r.ring##_bi[i].pa);	\
-+					(qi)->ring.r.ring##_bi[i].va = NULL;\
-+					(qi)->ring.r.ring##_bi[i].pa = 0;\
-+					(qi)->ring.r.ring##_bi[i].size = 0;\
-+		}							\
-+	/* free the buffer info list */					\
-+	if ((qi)->ring.cmd_buf)						\
-+		devm_kfree(ice_hw_to_dev(hw), (qi)->ring.cmd_buf);	\
-+	/* free DMA head */						\
-+	devm_kfree(ice_hw_to_dev(hw), (qi)->ring.dma_head);		\
-+} while (0)
++	if (host->cmd->error)
++		meson_mx_mmc_soft_reset(host);
 +
- /**
-  * ice_init_sq - main initialization routine for Control ATQ
-  * @hw: pointer to the hardware structure
-@@ -357,6 +383,7 @@ static enum ice_status ice_init_sq(struct ice_hw *hw, struct ice_ctl_q_info *cq)
- 	goto init_ctrlq_exit;
+ 	host->mrq = NULL;
+ 	host->cmd = NULL;
  
- init_ctrlq_free_rings:
-+	ICE_FREE_CQ_BUFS(hw, cq, sq);
- 	ice_free_cq_ring(hw, &cq->sq);
- 
- init_ctrlq_exit:
-@@ -416,33 +443,13 @@ static enum ice_status ice_init_rq(struct ice_hw *hw, struct ice_ctl_q_info *cq)
- 	goto init_ctrlq_exit;
- 
- init_ctrlq_free_rings:
-+	ICE_FREE_CQ_BUFS(hw, cq, rq);
- 	ice_free_cq_ring(hw, &cq->rq);
- 
- init_ctrlq_exit:
- 	return ret_code;
- }
- 
--#define ICE_FREE_CQ_BUFS(hw, qi, ring)					\
--do {									\
--	int i;								\
--	/* free descriptors */						\
--	for (i = 0; i < (qi)->num_##ring##_entries; i++)		\
--		if ((qi)->ring.r.ring##_bi[i].pa) {			\
--			dmam_free_coherent(ice_hw_to_dev(hw),		\
--					   (qi)->ring.r.ring##_bi[i].size,\
--					   (qi)->ring.r.ring##_bi[i].va,\
--					   (qi)->ring.r.ring##_bi[i].pa);\
--			(qi)->ring.r.ring##_bi[i].va = NULL;		\
--			(qi)->ring.r.ring##_bi[i].pa = 0;		\
--			(qi)->ring.r.ring##_bi[i].size = 0;		\
--		}							\
--	/* free the buffer info list */					\
--	if ((qi)->ring.cmd_buf)						\
--		devm_kfree(ice_hw_to_dev(hw), (qi)->ring.cmd_buf);	\
--	/* free DMA head */						\
--	devm_kfree(ice_hw_to_dev(hw), (qi)->ring.dma_head);		\
--} while (0)
--
- /**
-  * ice_shutdown_sq - shutdown the Control ATQ
-  * @hw: pointer to the hardware structure
 -- 
 2.25.1
 
