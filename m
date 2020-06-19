@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DBB120150F
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:22:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDFB1201426
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:13:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404033AbgFSQRd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:17:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58966 "EHLO mail.kernel.org"
+        id S2391111AbgFSPEQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:04:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390483AbgFSPCY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:02:24 -0400
+        id S2391105AbgFSPEK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:04:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D890F20734;
-        Fri, 19 Jun 2020 15:02:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B9AC21BE5;
+        Fri, 19 Jun 2020 15:04:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578944;
-        bh=7w10rXu2sVvzKN7TaS3j1o+cBwIhXDiwMwU0dEUW7Jo=;
+        s=default; t=1592579049;
+        bh=dtp5uvGLbHw4Xfc/4V3mo3lxqduEex7T+w3FHSLK934=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UkjED8wHXhJUEXltBCR8V9K8d4j0SCMwfiR0/wvYugIPN2HOXMSwfLqsUvWOYN9Gs
-         qF+iH1l/qFkJ7a3oENl3+9EUWbJRr8vhdmB6u7XF10sB+8XV/uUSM3TYJYjzaJsOEo
-         JDGY60tHTRtPYKjkhIosKtO044ZAO8Y1/dLjeDLk=
+        b=CvhHEv0W1rbwEq0C+Kg1R3dPFYDZmj+PQyU+D+5pm4DpjBLghxN1n60GTtWGVagqn
+         PBHyVNgal/QWPGMPLRvpGqXlPPIAACEwBTlOPg4Bi+jln0B9S7GP75lqgmvWhCIlbg
+         o7ffc0GKzbMyuUeAZ/jdHREYgZnbckCrYChefzIA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Daniel Drake <drake@endlessm.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Aaron Plattner <aplattner@nvidia.com>,
-        Peter Wu <peter@lekensteyn.nl>,
-        Ilia Mirkin <imirkin@alum.mit.edu>,
-        Karol Herbst <kherbst@redhat.com>,
-        Maik Freudenberg <hhfeuer@gmx.de>,
+        stable@vger.kernel.org, Jianjun Wang <jianjun.wang@mediatek.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Andrew Murray <andrew.murray@arm.com>,
+        Ryder Lee <ryder.lee@mediatek.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 215/267] PCI: Enable NVIDIA HDA controllers
-Date:   Fri, 19 Jun 2020 16:33:20 +0200
-Message-Id: <20200619141659.038588653@linuxfoundation.org>
+Subject: [PATCH 4.19 216/267] PCI: mediatek: Add controller support for MT7629
+Date:   Fri, 19 Jun 2020 16:33:21 +0200
+Message-Id: <20200619141659.084933223@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
 References: <20200619141648.840376470@linuxfoundation.org>
@@ -50,103 +46,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Jianjun Wang <jianjun.wang@mediatek.com>
 
-[ Upstream commit b516ea586d717472178e6ef1c152e85608b0ce32 ]
+[ Upstream commit 0cccd42e6193e168cbecc271dae464e4a53fd7b3 ]
 
-Many NVIDIA GPUs can be configured as either a single-function video device
-or a multi-function device with video at function 0 and an HDA audio
-controller at function 1.  The HDA controller can be enabled or disabled by
-a bit in the function 0 config space.
+MT7629 is an ARM platform SoC which has the same PCIe IP as MT7622.
 
-Some BIOSes leave the HDA disabled, which means the HDMI connector from the
-NVIDIA GPU may not work.  Sometimes the BIOS enables the HDA if an HDMI
-cable is connected at boot time, but that doesn't handle hotplug cases.
+The HW default value of its PCI host controller Device ID is invalid,
+fix it to match the hardware implementation.
 
-Enable the HDA controller on device enumeration and resume and re-read the
-header type, which tells us whether the GPU is a multi-function device.
-
-This quirk is limited to NVIDIA PCI devices with the VGA Controller device
-class.  This is expected to correspond to product configurations where the
-NVIDIA GPU has connectors attached.  Other products where the device class
-is 3D Controller are expected to correspond to configurations where the
-NVIDIA GPU is dedicated (dGPU) and has no connectors.  See original post
-(URL below) for more details.
-
-This commit takes inspiration from an earlier patch by Daniel Drake.
-
-Link: https://lore.kernel.org/r/20190708051744.24039-1-drake@endlessm.com v2
-Link: https://lore.kernel.org/r/20190613063514.15317-1-drake@endlessm.com v1
-Link: https://devtalk.nvidia.com/default/topic/1024022
-Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=75985
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Signed-off-by: Daniel Drake <drake@endlessm.com>
-[bhelgaas: commit log, log message, return early if already enabled]
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Cc: Aaron Plattner <aplattner@nvidia.com>
-Cc: Peter Wu <peter@lekensteyn.nl>
-Cc: Ilia Mirkin <imirkin@alum.mit.edu>
-Cc: Karol Herbst <kherbst@redhat.com>
-Cc: Maik Freudenberg <hhfeuer@gmx.de>
+Signed-off-by: Jianjun Wang <jianjun.wang@mediatek.com>
+[lorenzo.pieralisi@arm.com: commit log/minor spelling update]
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Andrew Murray <andrew.murray@arm.com>
+Acked-by: Ryder Lee <ryder.lee@mediatek.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/quirks.c    | 30 ++++++++++++++++++++++++++++++
- include/linux/pci_ids.h |  1 +
- 2 files changed, 31 insertions(+)
+ drivers/pci/controller/pcie-mediatek.c | 18 ++++++++++++++++++
+ include/linux/pci_ids.h                |  1 +
+ 2 files changed, 19 insertions(+)
 
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index 8ac2d5a4a224..502dca568d6c 100644
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -5120,6 +5120,36 @@ DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_VENDOR_ID_NVIDIA, PCI_ANY_ID,
- 			      PCI_CLASS_SERIAL_UNKNOWN, 8,
- 			      quirk_gpu_usb_typec_ucsi);
+diff --git a/drivers/pci/controller/pcie-mediatek.c b/drivers/pci/controller/pcie-mediatek.c
+index 1bfbceb9f445..ca06d8bc01e7 100644
+--- a/drivers/pci/controller/pcie-mediatek.c
++++ b/drivers/pci/controller/pcie-mediatek.c
+@@ -72,6 +72,7 @@
+ #define PCIE_MSI_VECTOR		0x0c0
  
-+/*
-+ * Enable the NVIDIA GPU integrated HDA controller if the BIOS left it
-+ * disabled.  https://devtalk.nvidia.com/default/topic/1024022
-+ */
-+static void quirk_nvidia_hda(struct pci_dev *gpu)
-+{
-+	u8 hdr_type;
-+	u32 val;
+ #define PCIE_CONF_VEND_ID	0x100
++#define PCIE_CONF_DEVICE_ID	0x102
+ #define PCIE_CONF_CLASS_ID	0x106
+ 
+ #define PCIE_INT_MASK		0x420
+@@ -134,12 +135,16 @@ struct mtk_pcie_port;
+ /**
+  * struct mtk_pcie_soc - differentiate between host generations
+  * @need_fix_class_id: whether this host's class ID needed to be fixed or not
++ * @need_fix_device_id: whether this host's device ID needed to be fixed or not
++ * @device_id: device ID which this host need to be fixed
+  * @ops: pointer to configuration access functions
+  * @startup: pointer to controller setting functions
+  * @setup_irq: pointer to initialize IRQ functions
+  */
+ struct mtk_pcie_soc {
+ 	bool need_fix_class_id;
++	bool need_fix_device_id;
++	unsigned int device_id;
+ 	struct pci_ops *ops;
+ 	int (*startup)(struct mtk_pcie_port *port);
+ 	int (*setup_irq)(struct mtk_pcie_port *port, struct device_node *node);
+@@ -678,6 +683,9 @@ static int mtk_pcie_startup_port_v2(struct mtk_pcie_port *port)
+ 		writew(val, port->base + PCIE_CONF_CLASS_ID);
+ 	}
+ 
++	if (soc->need_fix_device_id)
++		writew(soc->device_id, port->base + PCIE_CONF_DEVICE_ID);
 +
-+	/* There was no integrated HDA controller before MCP89 */
-+	if (gpu->device < PCI_DEVICE_ID_NVIDIA_GEFORCE_320M)
-+		return;
+ 	/* 100ms timeout value should be enough for Gen1/2 training */
+ 	err = readl_poll_timeout(port->base + PCIE_LINK_STATUS_V2, val,
+ 				 !!(val & PCIE_PORT_LINKUP_V2), 20,
+@@ -1213,11 +1221,21 @@ static const struct mtk_pcie_soc mtk_pcie_soc_mt7622 = {
+ 	.setup_irq = mtk_pcie_setup_irq,
+ };
+ 
++static const struct mtk_pcie_soc mtk_pcie_soc_mt7629 = {
++	.need_fix_class_id = true,
++	.need_fix_device_id = true,
++	.device_id = PCI_DEVICE_ID_MEDIATEK_7629,
++	.ops = &mtk_pcie_ops_v2,
++	.startup = mtk_pcie_startup_port_v2,
++	.setup_irq = mtk_pcie_setup_irq,
++};
 +
-+	/* Bit 25 at offset 0x488 enables the HDA controller */
-+	pci_read_config_dword(gpu, 0x488, &val);
-+	if (val & BIT(25))
-+		return;
-+
-+	pci_info(gpu, "Enabling HDA controller\n");
-+	pci_write_config_dword(gpu, 0x488, val | BIT(25));
-+
-+	/* The GPU becomes a multi-function device when the HDA is enabled */
-+	pci_read_config_byte(gpu, PCI_HEADER_TYPE, &hdr_type);
-+	gpu->multifunction = !!(hdr_type & 0x80);
-+}
-+DECLARE_PCI_FIXUP_CLASS_HEADER(PCI_VENDOR_ID_NVIDIA, PCI_ANY_ID,
-+			       PCI_BASE_CLASS_DISPLAY, 16, quirk_nvidia_hda);
-+DECLARE_PCI_FIXUP_CLASS_RESUME_EARLY(PCI_VENDOR_ID_NVIDIA, PCI_ANY_ID,
-+			       PCI_BASE_CLASS_DISPLAY, 16, quirk_nvidia_hda);
-+
- /*
-  * Some IDT switches incorrectly flag an ACS Source Validation error on
-  * completions for config read requests even though PCIe r4.0, sec
+ static const struct of_device_id mtk_pcie_ids[] = {
+ 	{ .compatible = "mediatek,mt2701-pcie", .data = &mtk_pcie_soc_v1 },
+ 	{ .compatible = "mediatek,mt7623-pcie", .data = &mtk_pcie_soc_v1 },
+ 	{ .compatible = "mediatek,mt2712-pcie", .data = &mtk_pcie_soc_mt2712 },
+ 	{ .compatible = "mediatek,mt7622-pcie", .data = &mtk_pcie_soc_mt7622 },
++	{ .compatible = "mediatek,mt7629-pcie", .data = &mtk_pcie_soc_mt7629 },
+ 	{},
+ };
+ 
 diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
-index 47833d8f8928..b952f1557f5d 100644
+index b952f1557f5d..a7abaaa9bc27 100644
 --- a/include/linux/pci_ids.h
 +++ b/include/linux/pci_ids.h
-@@ -1336,6 +1336,7 @@
- #define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP78S_SMBUS    0x0752
- #define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP77_IDE       0x0759
- #define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP73_SMBUS     0x07D8
-+#define PCI_DEVICE_ID_NVIDIA_GEFORCE_320M           0x08A0
- #define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP79_SMBUS     0x0AA2
- #define PCI_DEVICE_ID_NVIDIA_NFORCE_MCP89_SATA	    0x0D85
+@@ -2132,6 +2132,7 @@
+ #define PCI_VENDOR_ID_MYRICOM		0x14c1
  
+ #define PCI_VENDOR_ID_MEDIATEK		0x14c3
++#define PCI_DEVICE_ID_MEDIATEK_7629	0x7629
+ 
+ #define PCI_VENDOR_ID_TITAN		0x14D2
+ #define PCI_DEVICE_ID_TITAN_010L	0x8001
 -- 
 2.25.1
 
