@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7B17200C0D
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:43:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B14AC200C0F
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:43:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728430AbgFSOlN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:41:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59326 "EHLO mail.kernel.org"
+        id S2387845AbgFSOlQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:41:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387524AbgFSOlD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:41:03 -0400
+        id S1726667AbgFSOlO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:41:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A7542070A;
-        Fri, 19 Jun 2020 14:41:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B4BD121527;
+        Fri, 19 Jun 2020 14:41:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577663;
-        bh=VsihRR3Y1zmxLKTxg56v6Z1yJ6j+QS1iZJgaK1mjsJs=;
+        s=default; t=1592577674;
+        bh=esNBolbgB0ugwipiM6dL76rs6BAcVuftApbVE65C3aA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fs/Hqc4k5yZAPiGkgq+yNHL0fnyuf70YbmwEKgWnZZMA/PrqwCfjllHKbzZ0IwkYe
-         B8YB/1OGcdcIMFsvGn2nCgsC08ohMyjSqvR80Uj0S4FlCb4mcKnbBiQrK/PeurwGar
-         IKHhH+4LP9Xm3wL+OU5I6/KGx/qBexGOhGXZ6e7I=
+        b=N2dSuKql/DXuGXWy7MvXdpbPMV4gNx5FWl3G4mMaIrSJ75IGoa/C4/WkECyWuRIBm
+         64fSgqXBNbLmbDbdcXhnOblSG6AeUxSDDqAdH8stT4YDDLTp4sxeJIv09WSvpeRHG1
+         a2+ksWPzk2lWUdtkOSfJYBH8QBoUkVQuxvKm6gV8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
-        Xiaoyao Li <xiaoyao.li@intel.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.9 039/128] KVM: nVMX: Consult only the "basic" exit reason when routing nested exit
-Date:   Fri, 19 Jun 2020 16:32:13 +0200
-Message-Id: <20200619141622.282898678@linuxfoundation.org>
+        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 4.9 042/128] KVM: arm64: Make vcpu_cp1x() work on Big Endian hosts
+Date:   Fri, 19 Jun 2020 16:32:16 +0200
+Message-Id: <20200619141622.443266315@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
 References: <20200619141620.148019466@linuxfoundation.org>
@@ -45,51 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Marc Zyngier <maz@kernel.org>
 
-commit 2ebac8bb3c2d35f5135466490fc8eeaf3f3e2d37 upstream.
+commit 3204be4109ad681523e3461ce64454c79278450a upstream.
 
-Consult only the basic exit reason, i.e. bits 15:0 of vmcs.EXIT_REASON,
-when determining whether a nested VM-Exit should be reflected into L1 or
-handled by KVM in L0.
+AArch32 CP1x registers are overlayed on their AArch64 counterparts
+in the vcpu struct. This leads to an interesting problem as they
+are stored in their CPU-local format, and thus a CP1x register
+doesn't "hit" the lower 32bit portion of the AArch64 register on
+a BE host.
 
-For better or worse, the switch statement in nested_vmx_exit_reflected()
-currently defaults to "true", i.e. reflects any nested VM-Exit without
-dedicated logic.  Because the case statements only contain the basic
-exit reason, any VM-Exit with modifier bits set will be reflected to L1,
-even if KVM intended to handle it in L0.
+To workaround this unfortunate situation, introduce a bias trick
+in the vcpu_cp1x() accessors which picks the correct half of the
+64bit register.
 
-Practically speaking, this only affects EXIT_REASON_MCE_DURING_VMENTRY,
-i.e. a #MC that occurs on nested VM-Enter would be incorrectly routed to
-L1, as "failed VM-Entry" is the only modifier that KVM can currently
-encounter.  The SMM modifiers will never be generated as KVM doesn't
-support/employ a SMI Transfer Monitor.  Ditto for "exit from enclave",
-as KVM doesn't yet support virtualizing SGX, i.e. it's impossible to
-enter an enclave in a KVM guest (L1 or L2).
-
-Fixes: 644d711aa0e1 ("KVM: nVMX: Deciding if L0 or L1 should handle an L2 exit")
-Cc: Jim Mattson <jmattson@google.com>
-Cc: Xiaoyao Li <xiaoyao.li@intel.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Message-Id: <20200227174430.26371-1-sean.j.christopherson@intel.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Reported-by: James Morse <james.morse@arm.com>
+Tested-by: James Morse <james.morse@arm.com>
+Acked-by: James Morse <james.morse@arm.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/vmx.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/include/asm/kvm_host.h |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kvm/vmx.c
-+++ b/arch/x86/kvm/vmx.c
-@@ -8207,7 +8207,7 @@ static bool nested_vmx_exit_handled(stru
- 		return true;
- 	}
+--- a/arch/arm64/include/asm/kvm_host.h
++++ b/arch/arm64/include/asm/kvm_host.h
+@@ -290,8 +290,10 @@ struct kvm_vcpu_arch {
+  * CP14 and CP15 live in the same array, as they are backed by the
+  * same system registers.
+  */
+-#define vcpu_cp14(v,r)		((v)->arch.ctxt.copro[(r)])
+-#define vcpu_cp15(v,r)		((v)->arch.ctxt.copro[(r)])
++#define CPx_BIAS		IS_ENABLED(CONFIG_CPU_BIG_ENDIAN)
++
++#define vcpu_cp14(v,r)		((v)->arch.ctxt.copro[(r) ^ CPx_BIAS])
++#define vcpu_cp15(v,r)		((v)->arch.ctxt.copro[(r) ^ CPx_BIAS])
  
--	switch (exit_reason) {
-+	switch ((u16)exit_reason) {
- 	case EXIT_REASON_EXCEPTION_NMI:
- 		if (is_nmi(intr_info))
- 			return false;
+ #ifdef CONFIG_CPU_BIG_ENDIAN
+ #define vcpu_cp15_64_high(v,r)	vcpu_cp15((v),(r))
 
 
