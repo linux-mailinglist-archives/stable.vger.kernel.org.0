@@ -2,42 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14680200DE1
+	by mail.lfdr.de (Postfix) with ESMTP id CC068200DE2
 	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:05:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390848AbgFSPCf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2390852AbgFSPCf (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 19 Jun 2020 11:02:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59030 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:59162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390843AbgFSPC2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:02:28 -0400
+        id S2390849AbgFSPCf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:02:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6B92820776;
-        Fri, 19 Jun 2020 15:02:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B1B7520776;
+        Fri, 19 Jun 2020 15:02:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578947;
-        bh=RgSo48ZEwEmi3EaoBhdPFQ+MDiUJUxltzgDQSYLgcDE=;
+        s=default; t=1592578955;
+        bh=dP1InMCGNeI/kuoSR71LipecR7uDIc8gA1I6IprzfXs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EdQtTpPKalWMeAJmXDvyC7CLINgrjZhnhWLcUxn+lr2hfIiHwpUo3eXT0m1CoqJIZ
-         mxbIp/LUCg91f5LfJr3z8A5lYvilrRaiygEKjm+tbJVK6C6s+XPDqWU4L7PKG7IXLd
-         xQEBl3NEAofMVL5pDKqEMjCPRDG1Y6zRiyaJgnrA=
+        b=iPmQL2eU5PyjNGsu5xx8ZA0Qop8voxUzG1OozdX2ptTg2edsV5hjOarVtonSpuxi3
+         KxCZNlk/gWsJp31lDdK+7P8wdnC0tui9WgSOt32vKLa/ZnNiK7tYwfi+8SqMzNZREl
+         aC4kr+SEK0Qa/GEp5WzpeZmZ3/AYO5AP2lEHzamM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Axtens <dja@axtens.net>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        David Gow <davidgow@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Daniel Micay <danielmicay@gmail.com>,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Alexander Potapenko <glider@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 187/267] string.h: fix incompatibility between FORTIFY_SOURCE and KASAN
-Date:   Fri, 19 Jun 2020 16:32:52 +0200
-Message-Id: <20200619141657.721093582@linuxfoundation.org>
+        stable@vger.kernel.org, Andrea Arcangeli <aarcange@redhat.com>,
+        Jann Horn <jannh@google.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 190/267] mm: thp: make the THP mapcount atomic against __split_huge_pmd_locked()
+Date:   Fri, 19 Jun 2020 16:32:55 +0200
+Message-Id: <20200619141657.855794321@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
 References: <20200619141648.840376470@linuxfoundation.org>
@@ -50,308 +45,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Axtens <dja@axtens.net>
+From: Andrea Arcangeli <aarcange@redhat.com>
 
-[ Upstream commit 47227d27e2fcb01a9e8f5958d8997cf47a820afc ]
+commit c444eb564fb16645c172d550359cb3d75fe8a040 upstream.
 
-The memcmp KASAN self-test fails on a kernel with both KASAN and
-FORTIFY_SOURCE.
+Write protect anon page faults require an accurate mapcount to decide
+if to break the COW or not. This is implemented in the THP path with
+reuse_swap_page() ->
+page_trans_huge_map_swapcount()/page_trans_huge_mapcount().
 
-When FORTIFY_SOURCE is on, a number of functions are replaced with
-fortified versions, which attempt to check the sizes of the operands.
-However, these functions often directly invoke __builtin_foo() once they
-have performed the fortify check.  Using __builtins may bypass KASAN
-checks if the compiler decides to inline it's own implementation as
-sequence of instructions, rather than emit a function call that goes out
-to a KASAN-instrumented implementation.
+If the COW triggers while the other processes sharing the page are
+under a huge pmd split, to do an accurate reading, we must ensure the
+mapcount isn't computed while it's being transferred from the head
+page to the tail pages.
 
-Why is only memcmp affected?
-============================
+reuse_swap_cache() already runs serialized by the page lock, so it's
+enough to add the page lock around __split_huge_pmd_locked too, in
+order to add the missing serialization.
 
-Of the string and string-like functions that kasan_test tests, only memcmp
-is replaced by an inline sequence of instructions in my testing on x86
-with gcc version 9.2.1 20191008 (Ubuntu 9.2.1-9ubuntu2).
+Note: the commit in "Fixes" is just to facilitate the backporting,
+because the code before such commit didn't try to do an accurate THP
+mapcount calculation and it instead used the page_count() to decide if
+to COW or not. Both the page_count and the pin_count are THP-wide
+refcounts, so they're inaccurate if used in
+reuse_swap_page(). Reverting such commit (besides the unrelated fix to
+the local anon_vma assignment) would have also opened the window for
+memory corruption side effects to certain workloads as documented in
+such commit header.
 
-I believe this is due to compiler heuristics.  For example, if I annotate
-kmalloc calls with the alloc_size annotation (and disable some fortify
-compile-time checking!), the compiler will replace every memset except the
-one in kmalloc_uaf_memset with inline instructions.  (I have some WIP
-patches to add this annotation.)
-
-Does this affect other functions in string.h?
-=============================================
-
-Yes. Anything that uses __builtin_* rather than __real_* could be
-affected. This looks like:
-
- - strncpy
- - strcat
- - strlen
- - strlcpy maybe, under some circumstances?
- - strncat under some circumstances
- - memset
- - memcpy
- - memmove
- - memcmp (as noted)
- - memchr
- - strcpy
-
-Whether a function call is emitted always depends on the compiler.  Most
-bugs should get caught by FORTIFY_SOURCE, but the missed memcmp test shows
-that this is not always the case.
-
-Isn't FORTIFY_SOURCE disabled with KASAN?
-========================================-
-
-The string headers on all arches supporting KASAN disable fortify with
-kasan, but only when address sanitisation is _also_ disabled.  For example
-from x86:
-
- #if defined(CONFIG_KASAN) && !defined(__SANITIZE_ADDRESS__)
- /*
-  * For files that are not instrumented (e.g. mm/slub.c) we
-  * should use not instrumented version of mem* functions.
-  */
- #define memcpy(dst, src, len) __memcpy(dst, src, len)
- #define memmove(dst, src, len) __memmove(dst, src, len)
- #define memset(s, c, n) __memset(s, c, n)
-
- #ifndef __NO_FORTIFY
- #define __NO_FORTIFY /* FORTIFY_SOURCE uses __builtin_memcpy, etc. */
- #endif
-
- #endif
-
-This comes from commit 6974f0c4555e ("include/linux/string.h: add the
-option of fortified string.h functions"), and doesn't work when KASAN is
-enabled and the file is supposed to be sanitised - as with test_kasan.c
-
-I'm pretty sure this is not wrong, but not as expansive it should be:
-
- * we shouldn't use __builtin_memcpy etc in files where we don't have
-   instrumentation - it could devolve into a function call to memcpy,
-   which will be instrumented. Rather, we should use __memcpy which
-   by convention is not instrumented.
-
- * we also shouldn't be using __builtin_memcpy when we have a KASAN
-   instrumented file, because it could be replaced with inline asm
-   that will not be instrumented.
-
-What is correct behaviour?
-==========================
-
-Firstly, there is some overlap between fortification and KASAN: both
-provide some level of _runtime_ checking. Only fortify provides
-compile-time checking.
-
-KASAN and fortify can pick up different things at runtime:
-
- - Some fortify functions, notably the string functions, could easily be
-   modified to consider sub-object sizes (e.g. members within a struct),
-   and I have some WIP patches to do this. KASAN cannot detect these
-   because it cannot insert poision between members of a struct.
-
- - KASAN can detect many over-reads/over-writes when the sizes of both
-   operands are unknown, which fortify cannot.
-
-So there are a couple of options:
-
- 1) Flip the test: disable fortify in santised files and enable it in
-    unsanitised files. This at least stops us missing KASAN checking, but
-    we lose the fortify checking.
-
- 2) Make the fortify code always call out to real versions. Do this only
-    for KASAN, for fear of losing the inlining opportunities we get from
-    __builtin_*.
-
-(We can't use kasan_check_{read,write}: because the fortify functions are
-_extern inline_, you can't include _static_ inline functions without a
-compiler warning. kasan_check_{read,write} are static inline so we can't
-use them even when they would otherwise be suitable.)
-
-Take approach 2 and call out to real versions when KASAN is enabled.
-
-Use __underlying_foo to distinguish from __real_foo: __real_foo always
-refers to the kernel's implementation of foo, __underlying_foo could be
-either the kernel implementation or the __builtin_foo implementation.
-
-This is sometimes enough to make the memcmp test succeed with
-FORTIFY_SOURCE enabled. It is at least enough to get the function call
-into the module. One more fix is needed to make it reliable: see the next
-patch.
-
-Fixes: 6974f0c4555e ("include/linux/string.h: add the option of fortified string.h functions")
-Signed-off-by: Daniel Axtens <dja@axtens.net>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Tested-by: David Gow <davidgow@google.com>
-Reviewed-by: Dmitry Vyukov <dvyukov@google.com>
-Cc: Daniel Micay <danielmicay@gmail.com>
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: Alexander Potapenko <glider@google.com>
-Link: http://lkml.kernel.org/r/20200423154503.5103-3-dja@axtens.net
+Signed-off-by: Andrea Arcangeli <aarcange@redhat.com>
+Suggested-by: Jann Horn <jannh@google.com>
+Reported-by: Jann Horn <jannh@google.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Fixes: 6d0a07edd17c ("mm: thp: calculate the mapcount correctly for THP pages during WP faults")
+Cc: stable@vger.kernel.org
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- include/linux/string.h | 60 +++++++++++++++++++++++++++++++++---------
- 1 file changed, 48 insertions(+), 12 deletions(-)
+ mm/huge_memory.c |   31 ++++++++++++++++++++++++++++---
+ 1 file changed, 28 insertions(+), 3 deletions(-)
 
-diff --git a/include/linux/string.h b/include/linux/string.h
-index f58e1ef76572..4db285b83f44 100644
---- a/include/linux/string.h
-+++ b/include/linux/string.h
-@@ -239,6 +239,31 @@ void __read_overflow3(void) __compiletime_error("detected read beyond size of ob
- void __write_overflow(void) __compiletime_error("detected write beyond size of object passed as 1st parameter");
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -2273,6 +2273,8 @@ void __split_huge_pmd(struct vm_area_str
+ 	spinlock_t *ptl;
+ 	struct mm_struct *mm = vma->vm_mm;
+ 	unsigned long haddr = address & HPAGE_PMD_MASK;
++	bool was_locked = false;
++	pmd_t _pmd;
  
- #if !defined(__NO_FORTIFY) && defined(__OPTIMIZE__) && defined(CONFIG_FORTIFY_SOURCE)
-+
-+#ifdef CONFIG_KASAN
-+extern void *__underlying_memchr(const void *p, int c, __kernel_size_t size) __RENAME(memchr);
-+extern int __underlying_memcmp(const void *p, const void *q, __kernel_size_t size) __RENAME(memcmp);
-+extern void *__underlying_memcpy(void *p, const void *q, __kernel_size_t size) __RENAME(memcpy);
-+extern void *__underlying_memmove(void *p, const void *q, __kernel_size_t size) __RENAME(memmove);
-+extern void *__underlying_memset(void *p, int c, __kernel_size_t size) __RENAME(memset);
-+extern char *__underlying_strcat(char *p, const char *q) __RENAME(strcat);
-+extern char *__underlying_strcpy(char *p, const char *q) __RENAME(strcpy);
-+extern __kernel_size_t __underlying_strlen(const char *p) __RENAME(strlen);
-+extern char *__underlying_strncat(char *p, const char *q, __kernel_size_t count) __RENAME(strncat);
-+extern char *__underlying_strncpy(char *p, const char *q, __kernel_size_t size) __RENAME(strncpy);
-+#else
-+#define __underlying_memchr	__builtin_memchr
-+#define __underlying_memcmp	__builtin_memcmp
-+#define __underlying_memcpy	__builtin_memcpy
-+#define __underlying_memmove	__builtin_memmove
-+#define __underlying_memset	__builtin_memset
-+#define __underlying_strcat	__builtin_strcat
-+#define __underlying_strcpy	__builtin_strcpy
-+#define __underlying_strlen	__builtin_strlen
-+#define __underlying_strncat	__builtin_strncat
-+#define __underlying_strncpy	__builtin_strncpy
-+#endif
-+
- __FORTIFY_INLINE char *strncpy(char *p, const char *q, __kernel_size_t size)
- {
- 	size_t p_size = __builtin_object_size(p, 0);
-@@ -246,14 +271,14 @@ __FORTIFY_INLINE char *strncpy(char *p, const char *q, __kernel_size_t size)
- 		__write_overflow();
- 	if (p_size < size)
- 		fortify_panic(__func__);
--	return __builtin_strncpy(p, q, size);
-+	return __underlying_strncpy(p, q, size);
- }
+ 	mmu_notifier_invalidate_range_start(mm, haddr, haddr + HPAGE_PMD_SIZE);
+ 	ptl = pmd_lock(mm, pmd);
+@@ -2282,11 +2284,32 @@ void __split_huge_pmd(struct vm_area_str
+ 	 * pmd against. Otherwise we can end up replacing wrong page.
+ 	 */
+ 	VM_BUG_ON(freeze && !page);
+-	if (page && page != pmd_page(*pmd))
+-	        goto out;
++	if (page) {
++		VM_WARN_ON_ONCE(!PageLocked(page));
++		was_locked = true;
++		if (page != pmd_page(*pmd))
++			goto out;
++	}
  
- __FORTIFY_INLINE char *strcat(char *p, const char *q)
- {
- 	size_t p_size = __builtin_object_size(p, 0);
- 	if (p_size == (size_t)-1)
--		return __builtin_strcat(p, q);
-+		return __underlying_strcat(p, q);
- 	if (strlcat(p, q, p_size) >= p_size)
- 		fortify_panic(__func__);
- 	return p;
-@@ -267,7 +292,7 @@ __FORTIFY_INLINE __kernel_size_t strlen(const char *p)
- 	/* Work around gcc excess stack consumption issue */
- 	if (p_size == (size_t)-1 ||
- 	    (__builtin_constant_p(p[p_size - 1]) && p[p_size - 1] == '\0'))
--		return __builtin_strlen(p);
-+		return __underlying_strlen(p);
- 	ret = strnlen(p, p_size);
- 	if (p_size <= ret)
- 		fortify_panic(__func__);
-@@ -300,7 +325,7 @@ __FORTIFY_INLINE size_t strlcpy(char *p, const char *q, size_t size)
- 			__write_overflow();
- 		if (len >= p_size)
- 			fortify_panic(__func__);
--		__builtin_memcpy(p, q, len);
-+		__underlying_memcpy(p, q, len);
- 		p[len] = '\0';
- 	}
- 	return ret;
-@@ -313,12 +338,12 @@ __FORTIFY_INLINE char *strncat(char *p, const char *q, __kernel_size_t count)
- 	size_t p_size = __builtin_object_size(p, 0);
- 	size_t q_size = __builtin_object_size(q, 0);
- 	if (p_size == (size_t)-1 && q_size == (size_t)-1)
--		return __builtin_strncat(p, q, count);
-+		return __underlying_strncat(p, q, count);
- 	p_len = strlen(p);
- 	copy_len = strnlen(q, count);
- 	if (p_size < p_len + copy_len + 1)
- 		fortify_panic(__func__);
--	__builtin_memcpy(p + p_len, q, copy_len);
-+	__underlying_memcpy(p + p_len, q, copy_len);
- 	p[p_len + copy_len] = '\0';
- 	return p;
- }
-@@ -330,7 +355,7 @@ __FORTIFY_INLINE void *memset(void *p, int c, __kernel_size_t size)
- 		__write_overflow();
- 	if (p_size < size)
- 		fortify_panic(__func__);
--	return __builtin_memset(p, c, size);
-+	return __underlying_memset(p, c, size);
- }
- 
- __FORTIFY_INLINE void *memcpy(void *p, const void *q, __kernel_size_t size)
-@@ -345,7 +370,7 @@ __FORTIFY_INLINE void *memcpy(void *p, const void *q, __kernel_size_t size)
- 	}
- 	if (p_size < size || q_size < size)
- 		fortify_panic(__func__);
--	return __builtin_memcpy(p, q, size);
-+	return __underlying_memcpy(p, q, size);
- }
- 
- __FORTIFY_INLINE void *memmove(void *p, const void *q, __kernel_size_t size)
-@@ -360,7 +385,7 @@ __FORTIFY_INLINE void *memmove(void *p, const void *q, __kernel_size_t size)
- 	}
- 	if (p_size < size || q_size < size)
- 		fortify_panic(__func__);
--	return __builtin_memmove(p, q, size);
-+	return __underlying_memmove(p, q, size);
- }
- 
- extern void *__real_memscan(void *, int, __kernel_size_t) __RENAME(memscan);
-@@ -386,7 +411,7 @@ __FORTIFY_INLINE int memcmp(const void *p, const void *q, __kernel_size_t size)
- 	}
- 	if (p_size < size || q_size < size)
- 		fortify_panic(__func__);
--	return __builtin_memcmp(p, q, size);
-+	return __underlying_memcmp(p, q, size);
- }
- 
- __FORTIFY_INLINE void *memchr(const void *p, int c, __kernel_size_t size)
-@@ -396,7 +421,7 @@ __FORTIFY_INLINE void *memchr(const void *p, int c, __kernel_size_t size)
- 		__read_overflow();
- 	if (p_size < size)
- 		fortify_panic(__func__);
--	return __builtin_memchr(p, c, size);
-+	return __underlying_memchr(p, c, size);
- }
- 
- void *__real_memchr_inv(const void *s, int c, size_t n) __RENAME(memchr_inv);
-@@ -427,11 +452,22 @@ __FORTIFY_INLINE char *strcpy(char *p, const char *q)
- 	size_t p_size = __builtin_object_size(p, 0);
- 	size_t q_size = __builtin_object_size(q, 0);
- 	if (p_size == (size_t)-1 && q_size == (size_t)-1)
--		return __builtin_strcpy(p, q);
-+		return __underlying_strcpy(p, q);
- 	memcpy(p, q, strlen(q) + 1);
- 	return p;
- }
- 
-+/* Don't use these outside the FORITFY_SOURCE implementation */
-+#undef __underlying_memchr
-+#undef __underlying_memcmp
-+#undef __underlying_memcpy
-+#undef __underlying_memmove
-+#undef __underlying_memset
-+#undef __underlying_strcat
-+#undef __underlying_strcpy
-+#undef __underlying_strlen
-+#undef __underlying_strncat
-+#undef __underlying_strncpy
- #endif
- 
- /**
--- 
-2.25.1
-
++repeat:
+ 	if (pmd_trans_huge(*pmd)) {
+-		page = pmd_page(*pmd);
++		if (!page) {
++			page = pmd_page(*pmd);
++			if (unlikely(!trylock_page(page))) {
++				get_page(page);
++				_pmd = *pmd;
++				spin_unlock(ptl);
++				lock_page(page);
++				spin_lock(ptl);
++				if (unlikely(!pmd_same(*pmd, _pmd))) {
++					unlock_page(page);
++					put_page(page);
++					page = NULL;
++					goto repeat;
++				}
++				put_page(page);
++			}
++		}
+ 		if (PageMlocked(page))
+ 			clear_page_mlock(page);
+ 	} else if (!(pmd_devmap(*pmd) || is_pmd_migration_entry(*pmd)))
+@@ -2294,6 +2317,8 @@ void __split_huge_pmd(struct vm_area_str
+ 	__split_huge_pmd_locked(vma, pmd, haddr, freeze);
+ out:
+ 	spin_unlock(ptl);
++	if (!was_locked && page)
++		unlock_page(page);
+ 	/*
+ 	 * No need to double call mmu_notifier->invalidate_range() callback.
+ 	 * They are 3 cases to consider inside __split_huge_pmd_locked():
 
 
