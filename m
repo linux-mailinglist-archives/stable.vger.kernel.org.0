@@ -2,49 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A7182015F8
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:32:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3DA420183C
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:48:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394803AbgFSQYu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:24:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53312 "EHLO mail.kernel.org"
+        id S2388296AbgFSQsd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:48:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389898AbgFSO5v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:57:51 -0400
+        id S2387825AbgFSOkW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:40:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A4F4521835;
-        Fri, 19 Jun 2020 14:57:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1770620773;
+        Fri, 19 Jun 2020 14:40:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578671;
-        bh=stJzp+0uDkiYIjALJsrQp9bsVu0wkK33koz/CtwL74o=;
+        s=default; t=1592577622;
+        bh=vufx0vyQjbhKY6H1Jy6DAqwq30Pr95FUeTOb5XINOxw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sTnmdRBDmcEeIKlOu9GEN6wlvhqqqT8Yrpe+hQMKhbZG9wG1ohhx01SfZ0hjiJYFc
-         8Zo4qMQMvl/WLbz6D4Md71uB++36WNES+w4Zcd/gG1E9mxTCFHYkMHPU/4DlYvUu1f
-         GXGocqQqgGiK34nZ3RwQZkzC2ZTptwXUcoPn9Fkk=
+        b=P/UyZlNJace8g7YuDpoz/zC/Ng8ZfZQMWWAKa2L9QpX+Md9egy5Y1SMUZSovg4uXD
+         J7IQopgadXQC4Jwyxwe97PMLiHxzPPrTYfOMr8OoFIG7XEnpyDaaiFfZ4jf8SRgYDA
+         wxPdoCmplUk79uGUOf2h3vpR/2bqKK+jbJgoIQAU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Paul Burton <paulburton@kernel.org>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Rob Herring <robh+dt@kernel.org>, linux-mips@vger.kernel.org,
-        linux-rtc@vger.kernel.org, devicetree@vger.kernel.org,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 111/267] clocksource: dw_apb_timer: Make CPU-affiliation being optional
-Date:   Fri, 19 Jun 2020 16:31:36 +0200
-Message-Id: <20200619141654.178893412@linuxfoundation.org>
+        stable@vger.kernel.org, Johannes Thumshirn <jthumshirn@suse.de>,
+        Christoph Hellwig <hch@lst.de>,
+        Hannes Reinecke <hare@suse.com>,
+        Bart Van Assche <bart.vanassche@sandisk.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Subject: [PATCH 4.9 003/128] scsi: return correct blkprep status code in case scsi_init_io() fails.
+Date:   Fri, 19 Jun 2020 16:31:37 +0200
+Message-Id: <20200619141620.323404815@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
-References: <20200619141648.840376470@linuxfoundation.org>
+In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
+References: <20200619141620.148019466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,77 +47,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: Johannes Thumshirn <jthumshirn@suse.de>
 
-[ Upstream commit cee43dbf2ee3f430434e2b66994eff8a1aeda889 ]
+commit e7661a8e5ce10b5321882d0bbaf3f81070903319 upstream.
 
-Currently the DW APB Timer driver binds each clockevent timers to a
-particular CPU. This isn't good for multiple reasons. First of all seeing
-the device is placed on APB bus (which makes it accessible from any CPU
-core), accessible over MMIO and having the DYNIRQ flag set we can be sure
-that manually binding the timer to any CPU just isn't correct. By doing
-so we just set an extra limitation on device usage. This also doesn't
-reflect the device actual capability, since by setting the IRQ affinity
-we can make it virtually local to any CPU. Secondly imagine if you had a
-real CPU-local timer with the same rating and the same CPU-affinity.
-In this case if DW APB timer was registered first, then due to the
-clockevent framework tick-timer selection procedure we'll end up with the
-real CPU-local timer being left unselected for clock-events tracking. But
-on most of the platforms (MIPS/ARM/etc) such timers are normally embedded
-into the CPU core and are accessible with much better performance then
-devices placed on APB. For instance in MIPS architectures there is
-r4k-timer, which is CPU-local, assigned with the same rating, and normally
-its clockevent device is registered after the platform-specific one.
+When instrumenting the SCSI layer to run into the
+!blk_rq_nr_phys_segments(rq) case the following warning emitted from the
+block layer:
 
-So in order to fix all of these issues let's make the DW APB Timer CPU
-affinity being optional and deactivated by passing a negative CPU id,
-which will effectively set the DW APB clockevent timer cpumask to
-'cpu_possible_mask'.
+blk_peek_request: bad return=-22
 
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Cc: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: Paul Burton <paulburton@kernel.org>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: linux-mips@vger.kernel.org
-Cc: linux-rtc@vger.kernel.org
-Cc: devicetree@vger.kernel.org
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20200521204818.25436-5-Sergey.Semin@baikalelectronics.ru
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This happens because since commit fd3fc0b4d730 ("scsi: don't BUG_ON()
+empty DMA transfers") we return the wrong error value from
+scsi_prep_fn() back to the block layer.
+
+[mkp: silenced checkpatch]
+
+Signed-off-by: Johannes Thumshirn <jthumshirn@suse.de>
+Fixes: fd3fc0b4d730 scsi: don't BUG_ON() empty DMA transfers
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Hannes Reinecke <hare@suse.com>
+Reviewed-by: Bart Van Assche <bart.vanassche@sandisk.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+[iwamatsu: - backport for 4.4.y and 4.9.y
+    - Use rq->nr_phys_segments instead of blk_rq_nr_phys_segments]
+Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clocksource/dw_apb_timer.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/scsi/scsi_lib.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clocksource/dw_apb_timer.c b/drivers/clocksource/dw_apb_timer.c
-index 1f5f734e4919..a018199575e3 100644
---- a/drivers/clocksource/dw_apb_timer.c
-+++ b/drivers/clocksource/dw_apb_timer.c
-@@ -225,7 +225,8 @@ static int apbt_next_event(unsigned long delta,
- /**
-  * dw_apb_clockevent_init() - use an APB timer as a clock_event_device
-  *
-- * @cpu:	The CPU the events will be targeted at.
-+ * @cpu:	The CPU the events will be targeted at or -1 if CPU affiliation
-+ *		isn't required.
-  * @name:	The name used for the timer and the IRQ for it.
-  * @rating:	The rating to give the timer.
-  * @base:	I/O base for the timer registers.
-@@ -260,7 +261,7 @@ dw_apb_clockevent_init(int cpu, const char *name, unsigned rating,
- 	dw_ced->ced.max_delta_ticks = 0x7fffffff;
- 	dw_ced->ced.min_delta_ns = clockevent_delta2ns(5000, &dw_ced->ced);
- 	dw_ced->ced.min_delta_ticks = 5000;
--	dw_ced->ced.cpumask = cpumask_of(cpu);
-+	dw_ced->ced.cpumask = cpu < 0 ? cpu_possible_mask : cpumask_of(cpu);
- 	dw_ced->ced.features = CLOCK_EVT_FEAT_PERIODIC |
- 				CLOCK_EVT_FEAT_ONESHOT | CLOCK_EVT_FEAT_DYNIRQ;
- 	dw_ced->ced.set_state_shutdown = apbt_shutdown;
--- 
-2.25.1
-
+--- a/drivers/scsi/scsi_lib.c
++++ b/drivers/scsi/scsi_lib.c
+@@ -1029,10 +1029,10 @@ int scsi_init_io(struct scsi_cmnd *cmd)
+ 	struct scsi_device *sdev = cmd->device;
+ 	struct request *rq = cmd->request;
+ 	bool is_mq = (rq->mq_ctx != NULL);
+-	int error;
++	int error = BLKPREP_KILL;
+ 
+ 	if (WARN_ON_ONCE(!rq->nr_phys_segments))
+-		return -EINVAL;
++		goto err_exit;
+ 
+ 	error = scsi_init_sgtable(rq, &cmd->sdb);
+ 	if (error)
 
 
