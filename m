@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1BC0200E82
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:11:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56E7A200E85
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:11:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389682AbgFSPI0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:08:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37942 "EHLO mail.kernel.org"
+        id S2391746AbgFSPIi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:08:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391731AbgFSPIZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:08:25 -0400
+        id S2391741AbgFSPIc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:08:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6657821852;
-        Fri, 19 Jun 2020 15:08:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9463820776;
+        Fri, 19 Jun 2020 15:08:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579304;
-        bh=W2i2BRZmni5PV4/rL1upFoQqytctqsQ9UEQOK5v5ZHM=;
+        s=default; t=1592579312;
+        bh=6pPFugxbQhag+Gcg3s4zYYrpngAtaHNVwPKm2oVb/40=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dlZq32jld0ZmZBiP9zkH7fQrcy+hhlEmJYabPR9JccijReOQDksRaa+TifoUlRXzP
-         AnvCn6xofxY2JVuW4gsWu4OWrjvlKrN4oUvBuc4TcjA66dOT2qVit6Y7kbBljJPWeA
-         RbC5L5sAbjp+i1P0M0omEtqb61aZ+82dNsz/wnIU=
+        b=DSUfyt27TJCgRzGmZbszrbUIa8cbm6w2KrOu0FX4wgqEa60MoPJMxtPz+X1JO2lJt
+         0/mRcxzpFWeBL46IKTTgfX7NPKL9SPPxZSBnkanJ8wXJXpevTHLrFB/AAKaUVQw8MZ
+         XSYZDCwtSwv3TEKBmMhOGpawrLqKep5W7bcBHifg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 084/261] iocost_monitor: drop string wrap around numbers when outputting json
-Date:   Fri, 19 Jun 2020 16:31:35 +0200
-Message-Id: <20200619141653.919464743@linuxfoundation.org>
+        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 086/261] selinux: fix error return code in policydb_read()
+Date:   Fri, 19 Jun 2020 16:31:37 +0200
+Message-Id: <20200619141654.009625482@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
 References: <20200619141649.878808811@linuxfoundation.org>
@@ -43,81 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit 21f3cfeab304fc07b90d93d98d4d2f62110fe6b2 ]
+[ Upstream commit 4c09f8b6913a779ca0c70ea8058bf21537eebb3b ]
 
-Wrapping numbers in strings is used by some to work around bit-width issues in
-some enviroments. The problem isn't innate to json and the workaround seems to
-cause more integration problems than help. Let's drop the string wrapping.
+Fix to return negative error code -ENOMEM from the kvcalloc() error
+handling case instead of 0, as done elsewhere in this function.
 
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: acdf52d97f82 ("selinux: convert to kvmalloc")
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/cgroup/iocost_monitor.py | 42 +++++++++++++++++-----------------
- 1 file changed, 21 insertions(+), 21 deletions(-)
+ security/selinux/ss/policydb.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/cgroup/iocost_monitor.py b/tools/cgroup/iocost_monitor.py
-index 7e344a78a627..b8c082c9fd7d 100644
---- a/tools/cgroup/iocost_monitor.py
-+++ b/tools/cgroup/iocost_monitor.py
-@@ -112,14 +112,14 @@ class IocStat:
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index 1260f5fb766e..dd7aabd94a92 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -2496,6 +2496,7 @@ int policydb_read(struct policydb *p, void *fp)
+ 	if (rc)
+ 		goto bad;
  
-     def dict(self, now):
-         return { 'device'               : devname,
--                 'timestamp'            : str(now),
--                 'enabled'              : str(int(self.enabled)),
--                 'running'              : str(int(self.running)),
--                 'period_ms'            : str(self.period_ms),
--                 'period_at'            : str(self.period_at),
--                 'period_vtime_at'      : str(self.vperiod_at),
--                 'busy_level'           : str(self.busy_level),
--                 'vrate_pct'            : str(self.vrate_pct), }
-+                 'timestamp'            : now,
-+                 'enabled'              : self.enabled,
-+                 'running'              : self.running,
-+                 'period_ms'            : self.period_ms,
-+                 'period_at'            : self.period_at,
-+                 'period_vtime_at'      : self.vperiod_at,
-+                 'busy_level'           : self.busy_level,
-+                 'vrate_pct'            : self.vrate_pct, }
- 
-     def table_preamble_str(self):
-         state = ('RUN' if self.running else 'IDLE') if self.enabled else 'OFF'
-@@ -179,19 +179,19 @@ class IocgStat:
- 
-     def dict(self, now, path):
-         out = { 'cgroup'                : path,
--                'timestamp'             : str(now),
--                'is_active'             : str(int(self.is_active)),
--                'weight'                : str(self.weight),
--                'weight_active'         : str(self.active),
--                'weight_inuse'          : str(self.inuse),
--                'hweight_active_pct'    : str(self.hwa_pct),
--                'hweight_inuse_pct'     : str(self.hwi_pct),
--                'inflight_pct'          : str(self.inflight_pct),
--                'debt_ms'               : str(self.debt_ms),
--                'use_delay'             : str(self.use_delay),
--                'delay_ms'              : str(self.delay_ms),
--                'usage_pct'             : str(self.usage),
--                'address'               : str(hex(self.address)) }
-+                'timestamp'             : now,
-+                'is_active'             : self.is_active,
-+                'weight'                : self.weight,
-+                'weight_active'         : self.active,
-+                'weight_inuse'          : self.inuse,
-+                'hweight_active_pct'    : self.hwa_pct,
-+                'hweight_inuse_pct'     : self.hwi_pct,
-+                'inflight_pct'          : self.inflight_pct,
-+                'debt_ms'               : self.debt_ms,
-+                'use_delay'             : self.use_delay,
-+                'delay_ms'              : self.delay_ms,
-+                'usage_pct'             : self.usage,
-+                'address'               : self.address }
-         for i in range(len(self.usages)):
-             out[f'usage_pct_{i}'] = str(self.usages[i])
-         return out
++	rc = -ENOMEM;
+ 	p->type_attr_map_array = kvcalloc(p->p_types.nprim,
+ 					  sizeof(*p->type_attr_map_array),
+ 					  GFP_KERNEL);
 -- 
 2.25.1
 
