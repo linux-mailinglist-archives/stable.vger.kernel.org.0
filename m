@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E1ED20150B
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:22:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF2AC2013BA
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:07:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391808AbgFSQRV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:17:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59068 "EHLO mail.kernel.org"
+        id S2403903AbgFSQDH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:03:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390481AbgFSPCb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:02:31 -0400
+        id S2403862AbgFSPLv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:11:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F958217BA;
-        Fri, 19 Jun 2020 15:02:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DCB5021582;
+        Fri, 19 Jun 2020 15:11:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578949;
-        bh=gmj+Br+HToX3ZlOMqeTRODhQcojaGCX6mxZXoLyYtyA=;
+        s=default; t=1592579510;
+        bh=uWfmU8P4UvHMt0yiTCGzu8jTK7nAwlBS5Twm3Rv9hKA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uA5K7SFCl8xpyfF7Omd5rHlSiTknw5m1slbqa1v37BXnQlKzimC0U2yq9GxRUbWkD
-         iyNT+2BnUhV0oxaC/Wc/6eLQBW5zSGTUgzQoPHjCDgbaBPIc9+hkobefZwe6YAkaXT
-         7GzIFj25++ffhFkTtSYQounXCUuwwH8iHann5ktY=
+        b=LJ82AAv18QTQLAzuxO4urzwKq6C5hzrTSj29sRnyxmg8l/iLybHjbaxEyo9FeCyJ5
+         mDqtbC7ST58nW+fIToxUEXSygwBf9bpoAYleSMSTSim9dUZ6ZwMnSETNsN/imsUcnt
+         YWfs9IEVDrKKqvfoLVgdON9y91MFWEY7I2qV6vO8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Anand Jain <anand.jain@oracle.com>,
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.19 188/267] btrfs: include non-missing as a qualifier for the latest_bdev
-Date:   Fri, 19 Jun 2020 16:32:53 +0200
-Message-Id: <20200619141657.767619929@linuxfoundation.org>
+Subject: [PATCH 5.4 163/261] btrfs: force chunk allocation if our global rsv is larger than metadata
+Date:   Fri, 19 Jun 2020 16:32:54 +0200
+Message-Id: <20200619141657.697361153@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
-References: <20200619141648.840376470@linuxfoundation.org>
+In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
+References: <20200619141649.878808811@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,77 +44,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand Jain <anand.jain@oracle.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 998a0671961f66e9fad4990ed75f80ba3088c2f1 upstream.
+commit 9c343784c4328781129bcf9e671645f69fe4b38a upstream.
 
-btrfs_free_extra_devids() updates fs_devices::latest_bdev to point to
-the bdev with greatest device::generation number.  For a typical-missing
-device the generation number is zero so fs_devices::latest_bdev will
-never point to it.
+Nikolay noticed a bunch of test failures with my global rsv steal
+patches.  At first he thought they were introduced by them, but they've
+been failing for a while with 64k nodes.
 
-But if the missing device is due to alienation [1], then
-device::generation is not zero and if it is greater or equal to the rest
-of device  generations in the list, then fs_devices::latest_bdev ends up
-pointing to the missing device and reports the error like [2].
+The problem is with 64k nodes we have a global reserve that calculates
+out to 13MiB on a freshly made file system, which only has 8MiB of
+metadata space.  Because of changes I previously made we no longer
+account for the global reserve in the overcommit logic, which means we
+correctly allow overcommit to happen even though we are already
+overcommitted.
 
-[1] We maintain devices of a fsid (as in fs_device::fsid) in the
-fs_devices::devices list, a device is considered as an alien device
-if its fsid does not match with the fs_device::fsid
+However in some corner cases, for example btrfs/170, we will allocate
+the entire file system up with data chunks before we have enough space
+pressure to allocate a metadata chunk.  Then once the fs is full we
+ENOSPC out because we cannot overcommit and the global reserve is taking
+up all of the available space.
 
-Consider a working filesystem with raid1:
+The most ideal way to deal with this is to change our space reservation
+stuff to take into account the height of the tree's that we're
+modifying, so that our global reserve calculation does not end up so
+obscenely large.
 
-  $ mkfs.btrfs -f -d raid1 -m raid1 /dev/sda /dev/sdb
-  $ mount /dev/sda /mnt-raid1
-  $ umount /mnt-raid1
+However that is a huge undertaking.  Instead fix this by forcing a chunk
+allocation if the global reserve is larger than the total metadata
+space.  This gives us essentially the same behavior that happened
+before, we get a chunk allocated and these tests can pass.
 
-While mnt-raid1 was unmounted the user force-adds one of its devices to
-another btrfs filesystem:
+This is meant to be a stop-gap measure until we can tackle the "tree
+height only" project.
 
-  $ mkfs.btrfs -f /dev/sdc
-  $ mount /dev/sdc /mnt-single
-  $ btrfs dev add -f /dev/sda /mnt-single
-
-Now the original mnt-raid1 fails to mount in degraded mode, because
-fs_devices::latest_bdev is pointing to the alien device.
-
-  $ mount -o degraded /dev/sdb /mnt-raid1
-
-[2]
-mount: wrong fs type, bad option, bad superblock on /dev/sdb,
-       missing codepage or helper program, or other error
-
-       In some cases useful info is found in syslog - try
-       dmesg | tail or so.
-
-  kernel: BTRFS warning (device sdb): devid 1 uuid 072a0192-675b-4d5a-8640-a5cf2b2c704d is missing
-  kernel: BTRFS error (device sdb): failed to read devices
-  kernel: BTRFS error (device sdb): open_ctree failed
-
-Fix the root cause by checking if the device is not missing before it
-can be considered for the fs_devices::latest_bdev.
-
-CC: stable@vger.kernel.org # 4.19+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Anand Jain <anand.jain@oracle.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
+Fixes: 0096420adb03 ("btrfs: do not account global reserve in can_overcommit")
+CC: stable@vger.kernel.org # 5.4+
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Tested-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/volumes.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/btrfs/block-rsv.c   |    3 +++
+ fs/btrfs/transaction.c |   18 ++++++++++++++++++
+ 2 files changed, 21 insertions(+)
 
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -951,6 +951,8 @@ again:
- 							&device->dev_state)) {
- 			if (!test_bit(BTRFS_DEV_STATE_REPLACE_TGT,
- 			     &device->dev_state) &&
-+			    !test_bit(BTRFS_DEV_STATE_MISSING,
-+				      &device->dev_state) &&
- 			     (!latest_dev ||
- 			      device->generation > latest_dev->generation)) {
- 				latest_dev = device;
+--- a/fs/btrfs/block-rsv.c
++++ b/fs/btrfs/block-rsv.c
+@@ -5,6 +5,7 @@
+ #include "block-rsv.h"
+ #include "space-info.h"
+ #include "transaction.h"
++#include "block-group.h"
+ 
+ static u64 block_rsv_release_bytes(struct btrfs_fs_info *fs_info,
+ 				    struct btrfs_block_rsv *block_rsv,
+@@ -313,6 +314,8 @@ void btrfs_update_global_block_rsv(struc
+ 	else
+ 		block_rsv->full = 0;
+ 
++	if (block_rsv->size >= sinfo->total_bytes)
++		sinfo->force_alloc = CHUNK_ALLOC_FORCE;
+ 	spin_unlock(&block_rsv->lock);
+ 	spin_unlock(&sinfo->lock);
+ }
+--- a/fs/btrfs/transaction.c
++++ b/fs/btrfs/transaction.c
+@@ -21,6 +21,7 @@
+ #include "dev-replace.h"
+ #include "qgroup.h"
+ #include "block-group.h"
++#include "space-info.h"
+ 
+ #define BTRFS_ROOT_TRANS_TAG 0
+ 
+@@ -451,6 +452,7 @@ start_transaction(struct btrfs_root *roo
+ 	u64 num_bytes = 0;
+ 	u64 qgroup_reserved = 0;
+ 	bool reloc_reserved = false;
++	bool do_chunk_alloc = false;
+ 	int ret;
+ 
+ 	/* Send isn't supposed to start transactions. */
+@@ -513,6 +515,9 @@ start_transaction(struct btrfs_root *roo
+ 							  delayed_refs_bytes);
+ 			num_bytes -= delayed_refs_bytes;
+ 		}
++
++		if (rsv->space_info->force_alloc)
++			do_chunk_alloc = true;
+ 	} else if (num_items == 0 && flush == BTRFS_RESERVE_FLUSH_ALL &&
+ 		   !delayed_refs_rsv->full) {
+ 		/*
+@@ -595,6 +600,19 @@ got_it:
+ 		current->journal_info = h;
+ 
+ 	/*
++	 * If the space_info is marked ALLOC_FORCE then we'll get upgraded to
++	 * ALLOC_FORCE the first run through, and then we won't allocate for
++	 * anybody else who races in later.  We don't care about the return
++	 * value here.
++	 */
++	if (do_chunk_alloc && num_bytes) {
++		u64 flags = h->block_rsv->space_info->flags;
++
++		btrfs_chunk_alloc(h, btrfs_get_alloc_profile(fs_info, flags),
++				  CHUNK_ALLOC_NO_FORCE);
++	}
++
++	/*
+ 	 * btrfs_record_root_in_trans() needs to alloc new extents, and may
+ 	 * call btrfs_join_transaction() while we're also starting a
+ 	 * transaction.
 
 
