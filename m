@@ -2,120 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69391201787
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A55E201797
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388787AbgFSQjm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:39:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42792 "EHLO
+        id S2395445AbgFSQkn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:40:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2395408AbgFSQjk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Jun 2020 12:39:40 -0400
-Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58ABDC06174E
-        for <stable@vger.kernel.org>; Fri, 19 Jun 2020 09:39:40 -0700 (PDT)
-Received: by mail-pg1-x52c.google.com with SMTP id h10so4701823pgq.10
-        for <stable@vger.kernel.org>; Fri, 19 Jun 2020 09:39:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=FddxAYToxXSoC81EgdJjKV86YJZe9gdiXwNHdupnl6s=;
-        b=Kb2tNL5sUXMnTMsY0/6VAhUiI0rX3vd6xRSx/ixFZ/dBZF1QLiO03xXCvf9OFo6Kyk
-         HJprILLNbOOpYpbP3wwnUKEjl7hvpSbIDCPmUZaqV3mdHbZKNfVk94RKd4aRs41jKud5
-         Fwm4ZPg4pUrrNh2brSzuKr8Gy/Ym+7OJk9tfOiBE7UUZKOeQncVrgMRNrYjWVO+7sqrF
-         T+mnZxrJ5WWuvaV5CMmPUDsKaOPJkIVkPaDbkapIUeuVVxhzyMKyelHW/hEwVzWZPYiU
-         nMqv+sC0HixRmMrvrivn9fPbRy1VRJTm1+slkmB24IKeRGr2dbWtlq5/j2ur55Gj5iA1
-         8ktw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=FddxAYToxXSoC81EgdJjKV86YJZe9gdiXwNHdupnl6s=;
-        b=luIyabaAzoKQzVkgtTSHdt1cSJ8cjN7Tr6/gKvYbuYBFp5Fg5mflUHLYlVmazQ8I54
-         vZ/P5JqZF/O2axA74w7D0DfKMZA8syNGD1YO2HY8Qmxm33kBeofiDPsFNBTnfIjatOY0
-         Knx6ZtESVjI4L3cegrRK8mzV2jDfJnJvVlB8Q/WpBAHovwMrB89qtfZBMm2nLbvi4fvN
-         mdM2pQtw7kO19GOdDZShiE76r3/jaiUg4qDygoxa6vzahnGI/60bnYmdYqUfns/v8Bye
-         2CCKv/bmp0AvVuYaINT6WCl2+be146REiaAypmVjRcJlFWcbB/hzuhMv3WstHx5Lnmto
-         R01g==
-X-Gm-Message-State: AOAM532rQHAfytnywyWOwZZ/dWEpUGcLmPMwRiQnl+xZ6PnkGdbAz1lj
-        ONgUzDVZimTbjnd5Bd8tzEYm39P6Lis=
-X-Google-Smtp-Source: ABdhPJxxwoK0Ec322u8hetxdioDa4toPdabGtHJL41/oYE7U5Nnb8+GY8YIKpnNDp/Z0w8lrMr7Ofg==
-X-Received: by 2002:a63:5a17:: with SMTP id o23mr3806626pgb.218.1592584778750;
-        Fri, 19 Jun 2020 09:39:38 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x18sm6324176pfr.106.2020.06.19.09.39.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 19 Jun 2020 09:39:37 -0700 (PDT)
-Message-ID: <5eecea49.1c69fb81.45d72.31d7@mx.google.com>
-Date:   Fri, 19 Jun 2020 09:39:37 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S2395444AbgFSQkk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Jun 2020 12:40:40 -0400
+Received: from Galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70A1EC06174E;
+        Fri, 19 Jun 2020 09:40:40 -0700 (PDT)
+Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tip-bot2@linutronix.de>)
+        id 1jmK4C-0003r7-LU; Fri, 19 Jun 2020 18:40:36 +0200
+Received: from [127.0.1.1] (localhost [IPv6:::1])
+        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id 0CC871C0085;
+        Fri, 19 Jun 2020 18:40:36 +0200 (CEST)
+Date:   Fri, 19 Jun 2020 16:40:35 -0000
+From:   "tip-bot2 for Matt Fleming" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/asm/64: Align start of __clear_user() loop to 16-bytes
+Cc:     Matt Fleming <matt@codeblueprint.co.uk>,
+        Borislav Petkov <bp@suse.de>, <stable@vger.kernel.org>,
+        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20200618102002.30034-1-matt@codeblueprint.co.uk>
+References: <20200618102002.30034-1-matt@codeblueprint.co.uk>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.4.44-415-ge106c2769e2a
-Subject: stable-rc/linux-5.4.y baseline: 60 runs,
- 1 regressions (v5.4.44-415-ge106c2769e2a)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Message-ID: <159258483578.16989.3987549539950250015.tip-bot2@tip-bot2>
+X-Mailer: tip-git-log-daemon
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Linutronix-Spam-Score: -1.0
+X-Linutronix-Spam-Level: -
+X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y baseline: 60 runs, 1 regressions (v5.4.44-415-ge106c2=
-769e2a)
+The following commit has been merged into the x86/urgent branch of tip:
 
-Regressions Summary
--------------------
+Commit-ID:     bb5570ad3b54e7930997aec76ab68256d5236d94
+Gitweb:        https://git.kernel.org/tip/bb5570ad3b54e7930997aec76ab68256d5236d94
+Author:        Matt Fleming <matt@codeblueprint.co.uk>
+AuthorDate:    Thu, 18 Jun 2020 11:20:02 +01:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Fri, 19 Jun 2020 18:32:11 +02:00
 
-platform        | arch  | lab          | compiler | defconfig | results
-----------------+-------+--------------+----------+-----------+--------
-bcm2837-rpi-3-b | arm64 | lab-baylibre | gcc-8    | defconfig | 4/5    =
+x86/asm/64: Align start of __clear_user() loop to 16-bytes
 
+x86 CPUs can suffer severe performance drops if a tight loop, such as
+the ones in __clear_user(), straddles a 16-byte instruction fetch
+window, or worse, a 64-byte cacheline. This issues was discovered in the
+SUSE kernel with the following commit,
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
-el/v5.4.44-415-ge106c2769e2a/plan/baseline/
+  1153933703d9 ("x86/asm/64: Micro-optimize __clear_user() - Use immediate constants")
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.4.y
-  Describe: v5.4.44-415-ge106c2769e2a
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      e106c2769e2ac5f2ac077812f281dbc5f9c3b03c =
+which increased the code object size from 10 bytes to 15 bytes and
+caused the 8-byte copy loop in __clear_user() to be split across a
+64-byte cacheline.
 
+Aligning the start of the loop to 16-bytes makes this fit neatly inside
+a single instruction fetch window again and restores the performance of
+__clear_user() which is used heavily when reading from /dev/zero.
 
+Here are some numbers from running libmicro's read_z* and pread_z*
+microbenchmarks which read from /dev/zero:
 
-Test Regressions
----------------- =
+  Zen 1 (Naples)
 
+  libmicro-file
+                                        5.7.0-rc6              5.7.0-rc6              5.7.0-rc6
+                                                    revert-1153933703d9+               align16+
+  Time mean95-pread_z100k       9.9195 (   0.00%)      5.9856 (  39.66%)      5.9938 (  39.58%)
+  Time mean95-pread_z10k        1.1378 (   0.00%)      0.7450 (  34.52%)      0.7467 (  34.38%)
+  Time mean95-pread_z1k         0.2623 (   0.00%)      0.2251 (  14.18%)      0.2252 (  14.15%)
+  Time mean95-pread_zw100k      9.9974 (   0.00%)      6.0648 (  39.34%)      6.0756 (  39.23%)
+  Time mean95-read_z100k        9.8940 (   0.00%)      5.9885 (  39.47%)      5.9994 (  39.36%)
+  Time mean95-read_z10k         1.1394 (   0.00%)      0.7483 (  34.33%)      0.7482 (  34.33%)
 
+Note that this doesn't affect Haswell or Broadwell microarchitectures
+which seem to avoid the alignment issue by executing the loop straight
+out of the Loop Stream Detector (verified using perf events).
 
-platform        | arch  | lab          | compiler | defconfig | results
-----------------+-------+--------------+----------+-----------+--------
-bcm2837-rpi-3-b | arm64 | lab-baylibre | gcc-8    | defconfig | 4/5    =
+Fixes: 1153933703d9 ("x86/asm/64: Micro-optimize __clear_user() - Use immediate constants")
+Signed-off-by: Matt Fleming <matt@codeblueprint.co.uk>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: <stable@vger.kernel.org> # v4.19+
+Link: https://lkml.kernel.org/r/20200618102002.30034-1-matt@codeblueprint.co.uk
+---
+ arch/x86/lib/usercopy_64.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-
-  Details:     https://kernelci.org/test/plan/id/5eecb54731594bee1097bf32
-
-  Results:     4 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.44-=
-415-ge106c2769e2a/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3=
--b.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.44-=
-415-ge106c2769e2a/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3=
--b.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2019=
-.02-11-g17e793fa4728/arm64/baseline/rootfs.cpio.gz =
-
-
-  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5eecb54731594bee=
-1097bf35
-      new failure (last pass: v5.4.44-206-ga7debb64f8b4)
-      2 lines =20
+diff --git a/arch/x86/lib/usercopy_64.c b/arch/x86/lib/usercopy_64.c
+index fff28c6..b0dfac3 100644
+--- a/arch/x86/lib/usercopy_64.c
++++ b/arch/x86/lib/usercopy_64.c
+@@ -24,6 +24,7 @@ unsigned long __clear_user(void __user *addr, unsigned long size)
+ 	asm volatile(
+ 		"	testq  %[size8],%[size8]\n"
+ 		"	jz     4f\n"
++		"	.align 16\n"
+ 		"0:	movq $0,(%[dst])\n"
+ 		"	addq   $8,%[dst]\n"
+ 		"	decl %%ecx ; jnz   0b\n"
