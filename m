@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7B6920171E
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:46:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EF732017B3
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395168AbgFSQe0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:34:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43994 "EHLO mail.kernel.org"
+        id S2388577AbgFSQmV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:42:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388565AbgFSOuw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:50:52 -0400
+        id S2388575AbgFSOob (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:44:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45C922166E;
-        Fri, 19 Jun 2020 14:50:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B99221582;
+        Fri, 19 Jun 2020 14:44:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578251;
-        bh=Di2MMUfV9E4W+mJymjb01swf4edgnWzTp3VZ5Zc+FhY=;
+        s=default; t=1592577871;
+        bh=YGuNbxnOFdGZn9xhW1g0YbhvMFNUM6o6VtQi5BCwJ9E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rIXAEZC8zfNC9xABERLxMl6JK1WaXZuKVWGz1E4p4A7slXQZ3VRHiUPvTTPrBssgw
-         Z03Bgs6y1Tb+XLCiQ12W8EH7xLs+eAVC8JyE9iDPXW6FyVokTUWfEbOmA6+9B/7qE9
-         I3bhjFEW2vhWOMapmIOuljBi14LaNADd1d9oxHwM=
+        b=LSsDTDBET3liFYEMD199Nm3AKO5cSwOUJYmtQB8gp/rWAMRfpFM8gHzkClKYty+Da
+         ZXkKGgGbEZXB7H2vc6xJydCywYfC5PLk3y27THT/K5wZGh4GwGIwGgP7wJ9GWF9r7e
+         C2FX26xZgPoJhl0mJNfhCJXCwH7gkSuNaQLoS0RQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
-        Krzysztof Struczynski <krzysztof.struczynski@huawei.com>,
-        David.Laight@aculab.com (big endian system concerns),
-        Mimi Zohar <zohar@linux.ibm.com>
-Subject: [PATCH 4.14 142/190] ima: Fix ima digest hash table key calculation
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Xie XiuQi <xiexiuqi@huawei.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 093/128] ixgbe: fix signed-integer-overflow warning
 Date:   Fri, 19 Jun 2020 16:33:07 +0200
-Message-Id: <20200619141640.753748779@linuxfoundation.org>
+Message-Id: <20200619141625.060048318@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
-References: <20200619141633.446429600@linuxfoundation.org>
+In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
+References: <20200619141620.148019466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,54 +46,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Struczynski <krzysztof.struczynski@huawei.com>
+From: Xie XiuQi <xiexiuqi@huawei.com>
 
-commit 1129d31b55d509f15e72dc68e4b5c3a4d7b4da8d upstream.
+[ Upstream commit 3b70683fc4d68f5d915d9dc7e5ba72c732c7315c ]
 
-Function hash_long() accepts unsigned long, while currently only one byte
-is passed from ima_hash_key(), which calculates a key for ima_htable.
+ubsan report this warning, fix it by adding a unsigned suffix.
 
-Given that hashing the digest does not give clear benefits compared to
-using the digest itself, remove hash_long() and return the modulus
-calculated on the first two bytes of the digest with the number of slots.
-Also reduce the depth of the hash table by doubling the number of slots.
+UBSAN: signed-integer-overflow in
+drivers/net/ethernet/intel/ixgbe/ixgbe_common.c:2246:26
+65535 * 65537 cannot be represented in type 'int'
+CPU: 21 PID: 7 Comm: kworker/u256:0 Not tainted 5.7.0-rc3-debug+ #39
+Hardware name: Huawei TaiShan 2280 V2/BC82AMDC, BIOS 2280-V2 03/27/2020
+Workqueue: ixgbe ixgbe_service_task [ixgbe]
+Call trace:
+ dump_backtrace+0x0/0x3f0
+ show_stack+0x28/0x38
+ dump_stack+0x154/0x1e4
+ ubsan_epilogue+0x18/0x60
+ handle_overflow+0xf8/0x148
+ __ubsan_handle_mul_overflow+0x34/0x48
+ ixgbe_fc_enable_generic+0x4d0/0x590 [ixgbe]
+ ixgbe_service_task+0xc20/0x1f78 [ixgbe]
+ process_one_work+0x8f0/0xf18
+ worker_thread+0x430/0x6d0
+ kthread+0x218/0x238
+ ret_from_fork+0x10/0x18
 
-Cc: stable@vger.kernel.org
-Fixes: 3323eec921ef ("integrity: IMA as an integrity service provider")
-Co-developed-by: Roberto Sassu <roberto.sassu@huawei.com>
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-Signed-off-by: Krzysztof Struczynski <krzysztof.struczynski@huawei.com>
-Acked-by: David.Laight@aculab.com (big endian system concerns)
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Xie XiuQi <xiexiuqi@huawei.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/ima/ima.h |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_common.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/security/integrity/ima/ima.h
-+++ b/security/integrity/ima/ima.h
-@@ -40,7 +40,7 @@ enum tpm_pcrs { TPM_PCR0 = 0, TPM_PCR8 =
- #define IMA_DIGEST_SIZE		SHA1_DIGEST_SIZE
- #define IMA_EVENT_NAME_LEN_MAX	255
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_common.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_common.c
+index 0d2baec546e1..c17135b7fca7 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_common.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_common.c
+@@ -2219,7 +2219,7 @@ s32 ixgbe_fc_enable_generic(struct ixgbe_hw *hw)
+ 	}
  
--#define IMA_HASH_BITS 9
-+#define IMA_HASH_BITS 10
- #define IMA_MEASURE_HTABLE_SIZE (1 << IMA_HASH_BITS)
+ 	/* Configure pause time (2 TCs per register) */
+-	reg = hw->fc.pause_time * 0x00010001;
++	reg = hw->fc.pause_time * 0x00010001U;
+ 	for (i = 0; i < (MAX_TRAFFIC_CLASS / 2); i++)
+ 		IXGBE_WRITE_REG(hw, IXGBE_FCTTV(i), reg);
  
- #define IMA_TEMPLATE_FIELD_ID_MAX_LEN	16
-@@ -167,9 +167,10 @@ struct ima_h_table {
- };
- extern struct ima_h_table ima_htable;
- 
--static inline unsigned long ima_hash_key(u8 *digest)
-+static inline unsigned int ima_hash_key(u8 *digest)
- {
--	return hash_long(*digest, IMA_HASH_BITS);
-+	/* there is no point in taking a hash of part of a digest */
-+	return (digest[0] | digest[1] << 8) % IMA_MEASURE_HTABLE_SIZE;
- }
- 
- #define __ima_hooks(hook)		\
+-- 
+2.25.1
+
 
 
