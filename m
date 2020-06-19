@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEA4D201720
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:46:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 526662017B4
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395176AbgFSQed (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:34:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43838 "EHLO mail.kernel.org"
+        id S2394080AbgFSQmV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:42:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389355AbgFSOuq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:50:46 -0400
+        id S2387441AbgFSOo3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:44:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D34EB21548;
-        Fri, 19 Jun 2020 14:50:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 986B620A8B;
+        Fri, 19 Jun 2020 14:44:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578246;
-        bh=yB+CeHnIPSyZlCxXbXk3Hv+9uGwkgy+TSE8LRHZV/QM=;
+        s=default; t=1592577869;
+        bh=zg1MY30pWLAJyYYeXVGxxC6IoKKFWbAWqtBif7+QwTA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UvDaAjxLiWanQBd8fR5I0loPpbBuJm7ooGUoB57hu/ZcDMinkRQ47U8a4OmD42BKZ
-         HPnenQ59RIrXSQPhtc+WhaZo0GHTJxzyQAU/9fSJbvr5Ug5XsKQfEPOuXjPFzX2ZpP
-         CxB9v7cPa4t/Z9/ro/Yyy08Uo4U7SNrsk27z44RI=
+        b=bSFkCABMwfMmvXqADKJcDM/tSxQSf/8i5ZBBQq0yb9NCvwgR2YJ5r8Hgi/mmvEzav
+         RRX08WaNFL/gt2IxY7A3BINIGXd+rTeesxCYQsjlJQiJcC1V/RghSQJnFCehyiWYpz
+         zrb3P4VY7ADGntWez0XvTnbsT5tQRFzYin3Sgby8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Marcos Paulo de Souza <mpdesouza@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.14 140/190] btrfs: send: emit file capabilities after chown
-Date:   Fri, 19 Jun 2020 16:33:05 +0200
-Message-Id: <20200619141640.620466683@linuxfoundation.org>
+        stable@vger.kernel.org, Rui Miguel Silva <rmfrfs@gmail.com>,
+        Johan Hovold <johan@kernel.org>, Alex Elder <elder@kernel.org>,
+        greybus-dev@lists.linaro.org, Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 092/128] staging: greybus: sdio: Respect the cmd->busy_timeout from the mmc core
+Date:   Fri, 19 Jun 2020 16:33:06 +0200
+Message-Id: <20200619141625.005365358@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
-References: <20200619141633.446429600@linuxfoundation.org>
+In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
+References: <20200619141620.148019466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,154 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcos Paulo de Souza <mpdesouza@suse.com>
+From: Ulf Hansson <ulf.hansson@linaro.org>
 
-commit 89efda52e6b6930f80f5adda9c3c9edfb1397191 upstream.
+[ Upstream commit a389087ee9f195fcf2f31cd771e9ec5f02c16650 ]
 
-Whenever a chown is executed, all capabilities of the file being touched
-are lost.  When doing incremental send with a file with capabilities,
-there is a situation where the capability can be lost on the receiving
-side. The sequence of actions bellow shows the problem:
+Using a fixed 1s timeout for all commands is a bit problematic.
 
-  $ mount /dev/sda fs1
-  $ mount /dev/sdb fs2
+For some commands it means waiting longer than needed for the timeout to
+expire, which may not a big issue, but still. For other commands, like for
+an erase (CMD38) that uses a R1B response, may require longer timeouts than
+1s. In these cases, we may end up treating the command as it failed, while
+it just needed some more time to complete successfully.
 
-  $ touch fs1/foo.bar
-  $ setcap cap_sys_nice+ep fs1/foo.bar
-  $ btrfs subvolume snapshot -r fs1 fs1/snap_init
-  $ btrfs send fs1/snap_init | btrfs receive fs2
+Fix the problem by respecting the cmd->busy_timeout, which is provided by
+the mmc core.
 
-  $ chgrp adm fs1/foo.bar
-  $ setcap cap_sys_nice+ep fs1/foo.bar
-
-  $ btrfs subvolume snapshot -r fs1 fs1/snap_complete
-  $ btrfs subvolume snapshot -r fs1 fs1/snap_incremental
-
-  $ btrfs send fs1/snap_complete | btrfs receive fs2
-  $ btrfs send -p fs1/snap_init fs1/snap_incremental | btrfs receive fs2
-
-At this point, only a chown was emitted by "btrfs send" since only the
-group was changed. This makes the cap_sys_nice capability to be dropped
-from fs2/snap_incremental/foo.bar
-
-To fix that, only emit capabilities after chown is emitted. The current
-code first checks for xattrs that are new/changed, emits them, and later
-emit the chown. Now, __process_new_xattr skips capabilities, letting
-only finish_inode_if_needed to emit them, if they exist, for the inode
-being processed.
-
-This behavior was being worked around in "btrfs receive" side by caching
-the capability and only applying it after chown. Now, xattrs are only
-emmited _after_ chown, making that workaround not needed anymore.
-
-Link: https://github.com/kdave/btrfs-progs/issues/202
-CC: stable@vger.kernel.org # 4.4+
-Suggested-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Marcos Paulo de Souza <mpdesouza@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Cc: Rui Miguel Silva <rmfrfs@gmail.com>
+Cc: Johan Hovold <johan@kernel.org>
+Cc: Alex Elder <elder@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: greybus-dev@lists.linaro.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Acked-by: Rui Miguel Silva <rmfrfs@gmail.com>
+Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20200414161413.3036-20-ulf.hansson@linaro.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/send.c |   67 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 67 insertions(+)
+ drivers/staging/greybus/sdio.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/fs/btrfs/send.c
-+++ b/fs/btrfs/send.c
-@@ -35,6 +35,7 @@
- #include "btrfs_inode.h"
- #include "transaction.h"
- #include "compression.h"
-+#include "xattr.h"
- 
- /*
-  * Maximum number of references an extent can have in order for us to attempt to
-@@ -4554,6 +4555,10 @@ static int __process_new_xattr(int num,
- 	struct fs_path *p;
- 	struct posix_acl_xattr_header dummy_acl;
- 
-+	/* Capabilities are emitted by finish_inode_if_needed */
-+	if (!strncmp(name, XATTR_NAME_CAPS, name_len))
-+		return 0;
-+
- 	p = fs_path_alloc();
- 	if (!p)
- 		return -ENOMEM;
-@@ -5096,6 +5101,64 @@ static int send_extent_data(struct send_
- 	return 0;
- }
- 
-+/*
-+ * Search for a capability xattr related to sctx->cur_ino. If the capability is
-+ * found, call send_set_xattr function to emit it.
-+ *
-+ * Return 0 if there isn't a capability, or when the capability was emitted
-+ * successfully, or < 0 if an error occurred.
-+ */
-+static int send_capabilities(struct send_ctx *sctx)
-+{
-+	struct fs_path *fspath = NULL;
-+	struct btrfs_path *path;
-+	struct btrfs_dir_item *di;
-+	struct extent_buffer *leaf;
-+	unsigned long data_ptr;
-+	char *buf = NULL;
-+	int buf_len;
-+	int ret = 0;
-+
-+	path = alloc_path_for_send();
-+	if (!path)
-+		return -ENOMEM;
-+
-+	di = btrfs_lookup_xattr(NULL, sctx->send_root, path, sctx->cur_ino,
-+				XATTR_NAME_CAPS, strlen(XATTR_NAME_CAPS), 0);
-+	if (!di) {
-+		/* There is no xattr for this inode */
-+		goto out;
-+	} else if (IS_ERR(di)) {
-+		ret = PTR_ERR(di);
-+		goto out;
-+	}
-+
-+	leaf = path->nodes[0];
-+	buf_len = btrfs_dir_data_len(leaf, di);
-+
-+	fspath = fs_path_alloc();
-+	buf = kmalloc(buf_len, GFP_KERNEL);
-+	if (!fspath || !buf) {
-+		ret = -ENOMEM;
-+		goto out;
-+	}
-+
-+	ret = get_cur_path(sctx, sctx->cur_ino, sctx->cur_inode_gen, fspath);
-+	if (ret < 0)
-+		goto out;
-+
-+	data_ptr = (unsigned long)(di + 1) + btrfs_dir_name_len(leaf, di);
-+	read_extent_buffer(leaf, buf, data_ptr, buf_len);
-+
-+	ret = send_set_xattr(sctx, fspath, XATTR_NAME_CAPS,
-+			strlen(XATTR_NAME_CAPS), buf, buf_len);
-+out:
-+	kfree(buf);
-+	fs_path_free(fspath);
-+	btrfs_free_path(path);
-+	return ret;
-+}
-+
- static int clone_range(struct send_ctx *sctx,
- 		       struct clone_root *clone_root,
- 		       const u64 disk_byte,
-@@ -5907,6 +5970,10 @@ static int finish_inode_if_needed(struct
- 			goto out;
+diff --git a/drivers/staging/greybus/sdio.c b/drivers/staging/greybus/sdio.c
+index 5649ef1e379d..82a1c2cf6687 100644
+--- a/drivers/staging/greybus/sdio.c
++++ b/drivers/staging/greybus/sdio.c
+@@ -413,6 +413,7 @@ static int gb_sdio_command(struct gb_sdio_host *host, struct mmc_command *cmd)
+ 	struct gb_sdio_command_request request = {0};
+ 	struct gb_sdio_command_response response;
+ 	struct mmc_data *data = host->mrq->data;
++	unsigned int timeout_ms;
+ 	u8 cmd_flags;
+ 	u8 cmd_type;
+ 	int i;
+@@ -471,9 +472,12 @@ static int gb_sdio_command(struct gb_sdio_host *host, struct mmc_command *cmd)
+ 		request.data_blksz = cpu_to_le16(data->blksz);
  	}
  
-+	ret = send_capabilities(sctx);
-+	if (ret < 0)
-+		goto out;
+-	ret = gb_operation_sync(host->connection, GB_SDIO_TYPE_COMMAND,
+-				&request, sizeof(request), &response,
+-				sizeof(response));
++	timeout_ms = cmd->busy_timeout ? cmd->busy_timeout :
++		GB_OPERATION_TIMEOUT_DEFAULT;
 +
- 	/*
- 	 * If other directory inodes depended on our current directory
- 	 * inode's move/rename, now do their move/rename operations.
++	ret = gb_operation_sync_timeout(host->connection, GB_SDIO_TYPE_COMMAND,
++					&request, sizeof(request), &response,
++					sizeof(response), timeout_ms);
+ 	if (ret < 0)
+ 		goto out;
+ 
+-- 
+2.25.1
+
 
 
