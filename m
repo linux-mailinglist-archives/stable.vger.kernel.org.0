@@ -2,61 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BCCE2017ED
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17B702016B7
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:45:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404673AbgFSQpV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:45:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32790 "EHLO mail.kernel.org"
+        id S2388340AbgFSOmQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:42:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387540AbgFSOmL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:42:11 -0400
+        id S2387999AbgFSOmN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:42:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6B8D22158C;
-        Fri, 19 Jun 2020 14:42:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1ED8820CC7;
+        Fri, 19 Jun 2020 14:42:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577731;
-        bh=qdhBTkWSruYERr5czNpZSvHSiCknLERt9978u8aW+uc=;
+        s=default; t=1592577733;
+        bh=5Je26gO6C3CocQCMRXvtb19WLm+OtkVowkKyukTrP44=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fjWiQWMVT/98Yz2XMPNrEWXY70b0pkHkNUaSaZ7r/mkYoiOLXUlFKn3WcUy0CVIh8
-         tTbBStiOnwtYWaccrXL4s9UCFA5DcLtMaW1fc3Ya0S4WP+24Ra0eWb3l9ZGzEKO9hE
-         Zi5I2tSQAQWYuQ7CYwElr9n/WF1D+VahhHVATJpA=
+        b=LbKxH4j8+CKOrDFdPRyNCtsqIy940NcejMo/ha9hlJLicCk5amNYQSYOQ9hbk7JyV
+         kOjMD2GXstEdniy/HnmviY7hbHtF+BQgDqj+ZrN/R1Lt+MsjZ8c+WMqiwcvPYj+2Ka
+         lAkY5wZxBz/kLmNNqvaKYZcO05owkj5f6m+xcsrQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Christophe Leroy <christophe.leroy@c-s.fr>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        David Airlie <airlied@linux.ie>, Gao Xiang <xiang@kernel.org>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Laura Abbott <labbott@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Nitin Gupta <ngupta@vflare.org>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Sumit Semwal <sumit.semwal@linaro.org>,
-        Wei Liu <wei.liu@kernel.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Paul Mackerras <paulus@ozlabs.org>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Will Deacon <will@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Aaron Brown <aaron.f.brown@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 067/128] staging: android: ion: use vmap instead of vm_map_ram
-Date:   Fri, 19 Jun 2020 16:32:41 +0200
-Message-Id: <20200619141623.749733608@linuxfoundation.org>
+Subject: [PATCH 4.9 068/128] e1000: Distribute switch variables for initialization
+Date:   Fri, 19 Jun 2020 16:32:42 +0200
+Message-Id: <20200619141623.808308755@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
 References: <20200619141620.148019466@linuxfoundation.org>
@@ -69,67 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 5bf9917452112694b2c774465ee4dbe441c84b77 ]
+[ Upstream commit a34c7f5156654ebaf7eaace102938be7ff7036cb ]
 
-vm_map_ram can keep mappings around after the vm_unmap_ram.  Using that
-with non-PAGE_KERNEL mappings can lead to all kinds of aliasing issues.
+Variables declared in a switch statement before any case statements
+cannot be automatically initialized with compiler instrumentation (as
+they are not part of any execution flow). With GCC's proposed automatic
+stack variable initialization feature, this triggers a warning (and they
+don't get initialized). Clang's automatic stack variable initialization
+(via CONFIG_INIT_STACK_ALL=y) doesn't throw a warning, but it also
+doesn't initialize such variables[1]. Note that these warnings (or silent
+skipping) happen before the dead-store elimination optimization phase,
+so even when the automatic initializations are later elided in favor of
+direct initializations, the warnings remain.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Christophe Leroy <christophe.leroy@c-s.fr>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: David Airlie <airlied@linux.ie>
-Cc: Gao Xiang <xiang@kernel.org>
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: Laura Abbott <labbott@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Michael Kelley <mikelley@microsoft.com>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Nitin Gupta <ngupta@vflare.org>
-Cc: Robin Murphy <robin.murphy@arm.com>
-Cc: Sakari Ailus <sakari.ailus@linux.intel.com>
-Cc: Stephen Hemminger <sthemmin@microsoft.com>
-Cc: Sumit Semwal <sumit.semwal@linaro.org>
-Cc: Wei Liu <wei.liu@kernel.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Paul Mackerras <paulus@ozlabs.org>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Will Deacon <will@kernel.org>
-Link: http://lkml.kernel.org/r/20200414131348.444715-4-hch@lst.de
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+To avoid these problems, move such variables into the "case" where
+they're used or lift them up into the main function body.
+
+drivers/net/ethernet/intel/e1000/e1000_main.c: In function ‘e1000_xmit_frame’:
+drivers/net/ethernet/intel/e1000/e1000_main.c:3143:18: warning: statement will never be executed [-Wswitch-unreachable]
+ 3143 |     unsigned int pull_size;
+      |                  ^~~~~~~~~
+
+[1] https://bugs.llvm.org/show_bug.cgi?id=44916
+
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Tested-by: Aaron Brown <aaron.f.brown@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/android/ion/ion_heap.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/e1000/e1000_main.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/staging/android/ion/ion_heap.c b/drivers/staging/android/ion/ion_heap.c
-index c2a7cb95725b..4fc5de13582d 100644
---- a/drivers/staging/android/ion/ion_heap.c
-+++ b/drivers/staging/android/ion/ion_heap.c
-@@ -105,12 +105,12 @@ int ion_heap_map_user(struct ion_heap *heap, struct ion_buffer *buffer,
- 
- static int ion_heap_clear_pages(struct page **pages, int num, pgprot_t pgprot)
- {
--	void *addr = vm_map_ram(pages, num, -1, pgprot);
-+	void *addr = vmap(pages, num, VM_MAP, pgprot);
- 
- 	if (!addr)
- 		return -ENOMEM;
- 	memset(addr, 0, PAGE_SIZE * num);
--	vm_unmap_ram(addr, num);
-+	vunmap(addr);
- 
- 	return 0;
- }
+diff --git a/drivers/net/ethernet/intel/e1000/e1000_main.c b/drivers/net/ethernet/intel/e1000/e1000_main.c
+index 39a09e18c1b7..3b16ee0de246 100644
+--- a/drivers/net/ethernet/intel/e1000/e1000_main.c
++++ b/drivers/net/ethernet/intel/e1000/e1000_main.c
+@@ -3167,8 +3167,9 @@ static netdev_tx_t e1000_xmit_frame(struct sk_buff *skb,
+ 		hdr_len = skb_transport_offset(skb) + tcp_hdrlen(skb);
+ 		if (skb->data_len && hdr_len == len) {
+ 			switch (hw->mac_type) {
++			case e1000_82544: {
+ 				unsigned int pull_size;
+-			case e1000_82544:
++
+ 				/* Make sure we have room to chop off 4 bytes,
+ 				 * and that the end alignment will work out to
+ 				 * this hardware's requirements
+@@ -3189,6 +3190,7 @@ static netdev_tx_t e1000_xmit_frame(struct sk_buff *skb,
+ 				}
+ 				len = skb_headlen(skb);
+ 				break;
++			}
+ 			default:
+ 				/* do nothing */
+ 				break;
 -- 
 2.25.1
 
