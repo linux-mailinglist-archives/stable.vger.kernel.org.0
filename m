@@ -2,56 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F915200447
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 10:46:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 446F4200449
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 10:47:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730924AbgFSIqW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 04:46:22 -0400
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:53311 "EHLO
+        id S1731369AbgFSIrF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 04:47:05 -0400
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:51533 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731364AbgFSIqU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Jun 2020 04:46:20 -0400
+        by vger.kernel.org with ESMTP id S1731364AbgFSIrB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Jun 2020 04:47:01 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 5C34A1944442;
-        Fri, 19 Jun 2020 04:46:16 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 3DF42194442C;
+        Fri, 19 Jun 2020 04:46:58 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Fri, 19 Jun 2020 04:46:16 -0400
+  by compute1.internal (MEProxy); Fri, 19 Jun 2020 04:46:58 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=drNI3m
-        qMX2DGk9eS1hJIcrcQwwmwXJh9KUqDNCcGbGU=; b=tb0/RuzQXYyDQfgGKUI5kT
-        5W2OrUU9qCe3gahsEMMWlGzXDnSVSQJMTatsqgxEbwdEwYWN2Z56Keh3BWPTWZ9A
-        Hdfl2GWM9hTWy+S/jBHyb4/2krg7TrRASOUPvfFTRlYO7hKjZHtYgPvRm2bu+EMl
-        fYj51kTK6BjBoMIZw18C9Bps7geID02j3OCUBJuE+0w846CEn4Z9iPd/+Dpk1kaZ
-        WtizzssISP6pKRw9hKzJnDBktZAGw4CaZp9ABIyoD8/yEUC5K6Z1RB51lMOs+m7S
-        P558JJio53b3713cwGukwiPCxzpX3ko1pDSj9J7z/5a07pLUw0ilqlF7LEuo6zZQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=Xstqrm
+        2C++ZsUTjRPnESL5GVrOzRnAGQkCezFTEME34=; b=i9bLHdESmdYsnJJRD4982w
+        9nhIURTfiMMrxeC1jgvj5ucD58sY6be2WTOKvOLuxd7EVeJAbDZAKvU94419O7K8
+        PVyT1d38AU7hTlSpm9vkybyC1W23noUkolJ1j6g3O/LL/Ast8ai5zqPLRVztrMD7
+        A+PODsNFnetvldkk1rLVTn0y37DO9s9yMmmGCnDnhWG1tCJx+AgQ5bXrkcFgoQkX
+        Rr7zz1MWG/gSSZqKcYlUAf/6ZNtnQCpI2xQPR39IMS12t7nVYCcm80WGsU/rbpca
+        zXeNab+gT0yGVf04zoAKbWkRU917UlZaOHKfx5PEVnQCMBDYBA06L1BzJoHkqu0g
         ==
-X-ME-Sender: <xms:WHvsXiEBKRImxg2bqywwtp_aneKA4bzhlYZFJrCHHrE-Z5kReAaPnw>
+X-ME-Sender: <xms:gXvsXknPZ3RVX_ebHDBT8kk-HKnE-XmGYrttcLCgLYClQwFxkVpb4Q>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudejiedgtdekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepfeenucfrrghrrghmpe
-    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:WHvsXjU924KnIlX3LObeY9nddIjqQmFtL4xvlZtavlj6L5imTBXoug>
-    <xmx:WHvsXsIFkwp-1krBou7TwNytWD9qNb37q5opOChUlT3CgzVxkQIXKQ>
-    <xmx:WHvsXsErgWerQeT0KLkZq4KCyHBe6ryZa2PxYW_6DXI66oDuFkdXtQ>
-    <xmx:WHvsXhdZ3ijqx38KT3etsU1hEs2ppByMfuzGB-CsgKzl6paHhg_Upw>
+    dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepheeggfeuvdehjeffieehheeuvdejfefhgeevgfegvd
+    euudefveegffeuvdetleeunecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
+    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:gXvsXj30sIF-oCqd4qaIGMQPPELdtqrPdmKqVXslfGORf0wCijAw1w>
+    <xmx:gXvsXiokYzkHdbg4BgtJtxk5ba8a_Vb0vHf1mPtPKzB26CrllSy7pg>
+    <xmx:gXvsXgmOT4k3OV1prOknPyKrwzjPUbi6hOkxpo67svvQPiY8TO_qvA>
+    <xmx:gnvsXriRFj8ZSqMA2oFy6UAUiS6zTV_x-X8KBg-17u-ye7UF2DJNiw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id F30703060FE7;
-        Fri, 19 Jun 2020 04:46:15 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] serial: 8250: Avoid error message on reprobe" failed to apply to 4.4-stable tree
-To:     lukas@wunner.de, andriy.shevchenko@linux.intel.com,
-        gregkh@linuxfoundation.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 83F9430618B7;
+        Fri, 19 Jun 2020 04:46:57 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] Bluetooth: hci_bcm: fix freeing not-requested IRQ" failed to apply to 4.14-stable tree
+To:     mirq-linux@rere.qmqm.pl, marcel@holtmann.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 19 Jun 2020 10:46:05 +0200
-Message-ID: <15925563656775@kroah.com>
+Date:   Fri, 19 Jun 2020 10:46:56 +0200
+Message-ID: <1592556416237233@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -59,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,86 +69,70 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From e0a851fe6b9b619527bd928aa93caaddd003f70c Mon Sep 17 00:00:00 2001
-From: Lukas Wunner <lukas@wunner.de>
-Date: Tue, 12 May 2020 14:40:01 +0200
-Subject: [PATCH] serial: 8250: Avoid error message on reprobe
+From 81bd5d0c62437c02caac6b3f942fcda874063cb0 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
+Date: Thu, 2 Apr 2020 14:55:20 +0200
+Subject: [PATCH] Bluetooth: hci_bcm: fix freeing not-requested IRQ
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-If the call to uart_add_one_port() in serial8250_register_8250_port()
-fails, a half-initialized entry in the serial_8250ports[] array is left
-behind.
+When BT module can't be initialized, but it has an IRQ, unloading
+the driver WARNs when trying to free not-yet-requested IRQ. Fix it by
+noting whether the IRQ was requested.
 
-A subsequent reprobe of the same serial port causes that entry to be
-reused.  Because uart->port.dev is set, uart_remove_one_port() is called
-for the half-initialized entry and bails out with an error message:
+WARNING: CPU: 2 PID: 214 at kernel/irq/devres.c:144 devm_free_irq+0x49/0x4ca
+[...]
+WARNING: CPU: 2 PID: 214 at kernel/irq/manage.c:1746 __free_irq+0x8b/0x27c
+Trying to free already-free IRQ 264
+Modules linked in: hci_uart(-) btbcm bluetooth ecdh_generic ecc libaes
+CPU: 2 PID: 214 Comm: rmmod Tainted: G        W         5.6.1mq-00044-ga5f9ea098318-dirty #928
+[...]
+[<b016aefb>] (devm_free_irq) from [<af8ba1ff>] (bcm_close+0x97/0x118 [hci_uart])
+[<af8ba1ff>] (bcm_close [hci_uart]) from [<af8b736f>] (hci_uart_unregister_device+0x33/0x3c [hci_uart])
+[<af8b736f>] (hci_uart_unregister_device [hci_uart]) from [<b035930b>] (serdev_drv_remove+0x13/0x20)
+[<b035930b>] (serdev_drv_remove) from [<b037093b>] (device_release_driver_internal+0x97/0x118)
+[<b037093b>] (device_release_driver_internal) from [<b0370a0b>] (driver_detach+0x2f/0x58)
+[<b0370a0b>] (driver_detach) from [<b036f855>] (bus_remove_driver+0x41/0x94)
+[<b036f855>] (bus_remove_driver) from [<af8ba8db>] (bcm_deinit+0x1b/0x740 [hci_uart])
+[<af8ba8db>] (bcm_deinit [hci_uart]) from [<af8ba86f>] (hci_uart_exit+0x13/0x30 [hci_uart])
+[<af8ba86f>] (hci_uart_exit [hci_uart]) from [<b01900bd>] (sys_delete_module+0x109/0x1d0)
+[<b01900bd>] (sys_delete_module) from [<b0101001>] (ret_fast_syscall+0x1/0x5a)
+[...]
 
-bcm2835-aux-uart 3f215040.serial: Removing wrong port: (null) != (ptrval)
+Cc: stable@vger.kernel.org
+Fixes: 6cc4396c8829 ("Bluetooth: hci_bcm: Add wake-up capability")
+Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 
-The same happens on failure of mctrl_gpio_init() since commit
-4a96895f74c9 ("tty/serial/8250: use mctrl_gpio helpers").
-
-Fix by zeroing the uart->port.dev pointer in the probe error path.
-
-The bug was introduced in v2.6.10 by historical commit befff6f5bf5f
-("[SERIAL] Add new port registration/unregistration functions."):
-https://git.kernel.org/tglx/history/c/befff6f5bf5f
-
-The commit added an unconditional call to uart_remove_one_port() in
-serial8250_register_port().  In v3.7, commit 835d844d1a28 ("8250_pnp:
-do pnp probe before legacy probe") made that call conditional on
-uart->port.dev which allows me to fix the issue by zeroing that pointer
-in the error path.  Thus, the present commit will fix the problem as far
-back as v3.7 whereas still older versions need to also cherry-pick
-835d844d1a28.
-
-Fixes: 835d844d1a28 ("8250_pnp: do pnp probe before legacy probe")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: stable@vger.kernel.org # v2.6.10
-Cc: stable@vger.kernel.org # v2.6.10: 835d844d1a28: 8250_pnp: do pnp probe before legacy
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/b4a072013ee1a1d13ee06b4325afb19bda57ca1b.1589285873.git.lukas@wunner.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-diff --git a/drivers/tty/serial/8250/8250_core.c b/drivers/tty/serial/8250/8250_core.c
-index 45d9117cab68..9548d3f8fc8e 100644
---- a/drivers/tty/serial/8250/8250_core.c
-+++ b/drivers/tty/serial/8250/8250_core.c
-@@ -1040,7 +1040,7 @@ int serial8250_register_8250_port(struct uart_8250_port *up)
- 			gpios = mctrl_gpio_init(&uart->port, 0);
- 			if (IS_ERR(gpios)) {
- 				ret = PTR_ERR(gpios);
--				goto out_unlock;
-+				goto err;
- 			} else {
- 				uart->gpios = gpios;
- 			}
-@@ -1089,8 +1089,10 @@ int serial8250_register_8250_port(struct uart_8250_port *up)
- 			serial8250_apply_quirks(uart);
- 			ret = uart_add_one_port(&serial8250_reg,
- 						&uart->port);
--			if (ret == 0)
--				ret = uart->port.line;
-+			if (ret)
-+				goto err;
-+
-+			ret = uart->port.line;
- 		} else {
- 			dev_info(uart->port.dev,
- 				"skipping CIR port at 0x%lx / 0x%llx, IRQ %d\n",
-@@ -1112,10 +1114,14 @@ int serial8250_register_8250_port(struct uart_8250_port *up)
- 		}
+diff --git a/drivers/bluetooth/hci_bcm.c b/drivers/bluetooth/hci_bcm.c
+index 36b7f0d00c4b..19e4587f366c 100644
+--- a/drivers/bluetooth/hci_bcm.c
++++ b/drivers/bluetooth/hci_bcm.c
+@@ -118,6 +118,7 @@ struct bcm_device {
+ 	u32			oper_speed;
+ 	int			irq;
+ 	bool			irq_active_low;
++	bool			irq_acquired;
+ 
+ #ifdef CONFIG_PM
+ 	struct hci_uart		*hu;
+@@ -333,6 +334,8 @@ static int bcm_request_irq(struct bcm_data *bcm)
+ 		goto unlock;
  	}
  
--out_unlock:
- 	mutex_unlock(&serial_mutex);
- 
- 	return ret;
++	bdev->irq_acquired = true;
 +
-+err:
-+	uart->port.dev = NULL;
-+	mutex_unlock(&serial_mutex);
-+	return ret;
- }
- EXPORT_SYMBOL(serial8250_register_8250_port);
+ 	device_init_wakeup(bdev->dev, true);
  
+ 	pm_runtime_set_autosuspend_delay(bdev->dev,
+@@ -514,7 +517,7 @@ static int bcm_close(struct hci_uart *hu)
+ 	}
+ 
+ 	if (bdev) {
+-		if (IS_ENABLED(CONFIG_PM) && bdev->irq > 0) {
++		if (IS_ENABLED(CONFIG_PM) && bdev->irq_acquired) {
+ 			devm_free_irq(bdev->dev, bdev->irq, bdev);
+ 			device_init_wakeup(bdev->dev, false);
+ 			pm_runtime_disable(bdev->dev);
 
