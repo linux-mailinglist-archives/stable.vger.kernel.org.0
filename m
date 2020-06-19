@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7538200FEE
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:23:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3516200E78
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:11:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393216AbgFSPXr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:23:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55350 "EHLO mail.kernel.org"
+        id S2391676AbgFSPIE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:08:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393212AbgFSPXr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:23:47 -0400
+        id S2391698AbgFSPIC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:08:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9368720B80;
-        Fri, 19 Jun 2020 15:23:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F29E920776;
+        Fri, 19 Jun 2020 15:08:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580226;
-        bh=NAWFmJaqPTO6s8ykfHcmdQDQDkRrYwzWBoRtKlQOBI4=;
+        s=default; t=1592579282;
+        bh=t5rn6fY5B4NyTjQ2KSeHHu3RSksnL7IFn/C9JbijWds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ADNobl9kIfhxkR+Lga0AMW8ug96WJ1nHxa8EbQXIqWjlH4WXC4Jt8Dxu4MT1wD+EV
-         B3927LkhIqIIQUfi2rzJb3FyPluKgcRexwRX5xU1xnLjQhnv0/V3gnEIdCQB0vpsCk
-         A0iAIAJqQ4HHt50Fho0s1mh5NPWUhEekKAy86TUA=
+        b=e8E6plr6iTw/UzueRuZIFHsTuGAKHRmbQoT9SR5UrcbeogO7MaJ+sK6sLgnfNEN5i
+         Q8Fcx7skoaPv1JFAIls7t/yxntbOXm65kCYUwEMqibY4islSozR3IWKsHz23NTWMgN
+         dzkgir1aJsO7vElUjbBtg6n4erI+jAYlp8/8S4sw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Keith Busch <kbusch@kernel.org>,
-        Sagi Grimberg <sagi@grimberg.me>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 169/376] nvme: refine the Qemu Identify CNS quirk
+Subject: [PATCH 5.4 076/261] netfilter: nft_nat: return EOPNOTSUPP if type or flags are not supported
 Date:   Fri, 19 Jun 2020 16:31:27 +0200
-Message-Id: <20200619141718.321098308@linuxfoundation.org>
+Message-Id: <20200619141653.533704133@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
-References: <20200619141710.350494719@linuxfoundation.org>
+In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
+References: <20200619141649.878808811@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,57 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit b9a5c3d4c34d8bd9fd75f7f28d18a57cb68da237 ]
+[ Upstream commit 0d7c83463fdf7841350f37960a7abadd3e650b41 ]
 
-Add a helper to check if we can use Identify CNS values > 1, and refine
-the Qemu quirk to not apply to reported versions larger than 1.1, as the
-Qemu implementation had been fixed by then.
+Instead of EINVAL which should be used for malformed netlink messages.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: eb31628e37a0 ("netfilter: nf_tables: Add support for IPv6 NAT")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ net/netfilter/nft_nat.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index f3c037f5a9ba..7b4cbe2c6954 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -1027,6 +1027,19 @@ void nvme_stop_keep_alive(struct nvme_ctrl *ctrl)
- }
- EXPORT_SYMBOL_GPL(nvme_stop_keep_alive);
- 
-+/*
-+ * In NVMe 1.0 the CNS field was just a binary controller or namespace
-+ * flag, thus sending any new CNS opcodes has a big chance of not working.
-+ * Qemu unfortunately had that bug after reporting a 1.1 version compliance
-+ * (but not for any later version).
-+ */
-+static bool nvme_ctrl_limited_cns(struct nvme_ctrl *ctrl)
-+{
-+	if (ctrl->quirks & NVME_QUIRK_IDENTIFY_CNS)
-+		return ctrl->vs < NVME_VS(1, 2, 0);
-+	return ctrl->vs < NVME_VS(1, 1, 0);
-+}
-+
- static int nvme_identify_ctrl(struct nvme_ctrl *dev, struct nvme_id_ctrl **id)
- {
- 	struct nvme_command c = { };
-@@ -3815,8 +3828,7 @@ static void nvme_scan_work(struct work_struct *work)
- 
- 	mutex_lock(&ctrl->scan_lock);
- 	nn = le32_to_cpu(id->nn);
--	if (ctrl->vs >= NVME_VS(1, 1, 0) &&
--	    !(ctrl->quirks & NVME_QUIRK_IDENTIFY_CNS)) {
-+	if (!nvme_ctrl_limited_cns(ctrl)) {
- 		if (!nvme_scan_ns_list(ctrl, nn))
- 			goto out_free_id;
+diff --git a/net/netfilter/nft_nat.c b/net/netfilter/nft_nat.c
+index c3c93e95b46e..243e8107f456 100644
+--- a/net/netfilter/nft_nat.c
++++ b/net/netfilter/nft_nat.c
+@@ -129,7 +129,7 @@ static int nft_nat_init(const struct nft_ctx *ctx, const struct nft_expr *expr,
+ 		priv->type = NF_NAT_MANIP_DST;
+ 		break;
+ 	default:
+-		return -EINVAL;
++		return -EOPNOTSUPP;
  	}
+ 
+ 	if (tb[NFTA_NAT_FAMILY] == NULL)
+@@ -196,7 +196,7 @@ static int nft_nat_init(const struct nft_ctx *ctx, const struct nft_expr *expr,
+ 	if (tb[NFTA_NAT_FLAGS]) {
+ 		priv->flags = ntohl(nla_get_be32(tb[NFTA_NAT_FLAGS]));
+ 		if (priv->flags & ~NF_NAT_RANGE_MASK)
+-			return -EINVAL;
++			return -EOPNOTSUPP;
+ 	}
+ 
+ 	return nf_ct_netns_get(ctx->net, family);
 -- 
 2.25.1
 
