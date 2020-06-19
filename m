@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CC662013DD
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:07:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22FE62013FF
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:08:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390083AbgFSQFE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:05:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39842 "EHLO mail.kernel.org"
+        id S2403877AbgFSQHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:07:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391516AbgFSPKB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:10:01 -0400
+        id S2391831AbgFSPI6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:08:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7FE8F21941;
-        Fri, 19 Jun 2020 15:10:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6362520776;
+        Fri, 19 Jun 2020 15:08:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579401;
-        bh=lEeeKBxplz5FgSvU1ng/boqItzocpThyosLQT7sUdYk=;
+        s=default; t=1592579338;
+        bh=FnRMOEIPw0Jmq2vCdbN2xV/1mRpWx72lg9XT0VL3xVM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GlJtrSdyEk+ZnmquKf6EghQgffh1k19EYSpesM+10lgYRjdoxNxVqEPy7exyvk+go
-         ja19XiOKXb8V2KpDqIig7qKURjb6FtzC1AzWjR5wOLmmCx83jvcZCZvRKYrK4r4amy
-         jgDRrNSuSj1qCrhWQS+dfZSKIgp7dRn2JKA6P83I=
+        b=lPStGUyAiPkN11UrSzWvUAnzTTRTROTrRuVRcPakjw8ZRkWsfLzRPhsU8M4tC0aXd
+         obHCHR89wD6enCq4dxWFfUrkehHw/4lpWn003L0UT4V+5zY42bTvrGIlcfYhSwFz/6
+         trP+gZFQ8mdRPBVakR48lkZwpjzRSZ9+TK0N/bwc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Brian Foster <bfoster@redhat.com>,
+        Dave Chinner <dchinner@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Allison Collins <allison.henderson@oracle.com>,
         "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 092/261] xfs: clean up the error handling in xfs_swap_extents
-Date:   Fri, 19 Jun 2020 16:31:43 +0200
-Message-Id: <20200619141654.289574697@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 098/261] xfs: fix duplicate verification from xfs_qm_dqflush()
+Date:   Fri, 19 Jun 2020 16:31:49 +0200
+Message-Id: <20200619141654.567282822@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
 References: <20200619141649.878808811@linuxfoundation.org>
@@ -44,34 +47,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Brian Foster <bfoster@redhat.com>
 
-[ Upstream commit 8bc3b5e4b70d28f8edcafc3c9e4de515998eea9e ]
+[ Upstream commit 629dcb38dc351947ed6a26a997d4b587f3bd5c7e ]
 
-Make sure we release resources properly if we cannot clean out the COW
-extents in preparation for an extent swap.
+The pre-flush dquot verification in xfs_qm_dqflush() duplicates the
+read verifier by checking the dquot in the on-disk buffer. Instead,
+verify the in-core variant before it is flushed to the buffer.
 
-Fixes: 96987eea537d6c ("xfs: cancel COW blocks before swapext")
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Fixes: 7224fa482a6d ("xfs: add full xfs_dqblk verifier")
+Signed-off-by: Brian Foster <bfoster@redhat.com>
+Reviewed-by: Dave Chinner <dchinner@redhat.com>
 Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Allison Collins <allison.henderson@oracle.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_bmap_util.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/xfs/xfs_dquot.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/fs/xfs/xfs_bmap_util.c b/fs/xfs/xfs_bmap_util.c
-index 4f443703065e..0c71acc1b831 100644
---- a/fs/xfs/xfs_bmap_util.c
-+++ b/fs/xfs/xfs_bmap_util.c
-@@ -1760,7 +1760,7 @@ xfs_swap_extents(
- 	if (xfs_inode_has_cow_data(tip)) {
- 		error = xfs_reflink_cancel_cow_range(tip, 0, NULLFILEOFF, true);
- 		if (error)
--			return error;
-+			goto out_unlock;
- 	}
+diff --git a/fs/xfs/xfs_dquot.c b/fs/xfs/xfs_dquot.c
+index aeb95e7391c1..3cbf248af51f 100644
+--- a/fs/xfs/xfs_dquot.c
++++ b/fs/xfs/xfs_dquot.c
+@@ -1116,13 +1116,12 @@ xfs_qm_dqflush(
+ 	dqb = bp->b_addr + dqp->q_bufoffset;
+ 	ddqp = &dqb->dd_diskdq;
  
- 	/*
+-	/*
+-	 * A simple sanity check in case we got a corrupted dquot.
+-	 */
+-	fa = xfs_dqblk_verify(mp, dqb, be32_to_cpu(ddqp->d_id), 0);
++	/* sanity check the in-core structure before we flush */
++	fa = xfs_dquot_verify(mp, &dqp->q_core, be32_to_cpu(dqp->q_core.d_id),
++			      0);
+ 	if (fa) {
+ 		xfs_alert(mp, "corrupt dquot ID 0x%x in memory at %pS",
+-				be32_to_cpu(ddqp->d_id), fa);
++				be32_to_cpu(dqp->q_core.d_id), fa);
+ 		xfs_buf_relse(bp);
+ 		xfs_dqfunlock(dqp);
+ 		xfs_force_shutdown(mp, SHUTDOWN_CORRUPT_INCORE);
 -- 
 2.25.1
 
