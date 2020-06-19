@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 349732016AB
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:33:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2943F20166C
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:33:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389478AbgFSQde (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:33:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45196 "EHLO mail.kernel.org"
+        id S2395023AbgFSQan (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:30:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389464AbgFSOve (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:51:34 -0400
+        id S2389685AbgFSOxU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:53:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 95BCC21556;
-        Fri, 19 Jun 2020 14:51:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A9B9421852;
+        Fri, 19 Jun 2020 14:53:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578293;
-        bh=inlU8lQh3M2VyGDzvoEfmJckWzXO3dz9Z7MvHujGYN0=;
+        s=default; t=1592578400;
+        bh=Wbwb0uAwC8Fd8ZuONJ/WdEG5V12dLGIN8gNRj3+Jb1k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XA/jwhHuKlEYGBYGIwYvYQTxKTW/yQLqGsb1FUXV2AHdAo/+73kPEelSOqZRQJyf9
-         xyvx8dHF06vZf1N9fzkOGrG7B+90lAG449yB2zARbL9gQUq31mlXmKPLKbU4OWht9s
-         RIFH4dOdlo+D3TsBzIyOBIBSkmuvw6kCtqHSFbwA=
+        b=esha5tSWKhxNTPRjI7vG6WwtWOgxZSsGOY9nB5kbq6JabOG+njPGBlgYp6KGp7ZMa
+         SFvkoYvVcGKD5m1kYpSQhBDLe2sOiirzL6GbL9QqvCnS47RItwJX3VdzX1L8wVTKk1
+         cTgRMABd1PEHjxrY9f9oeb1oi4yQ/xpIVLJDBC/E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abhishek Sahu <abhsahu@nvidia.com>,
+        stable@vger.kernel.org, Darrel Goeddel <dgoeddel@forcepoint.com>,
+        Ashok Raj <ashok.raj@intel.com>,
         Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 156/190] PCI: Generalize multi-function power dependency device links
-Date:   Fri, 19 Jun 2020 16:33:21 +0200
-Message-Id: <20200619141641.534071455@linuxfoundation.org>
+        Alex Williamson <alex.williamson@redhat.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Romil Sharma <rsharma@forcepoint.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Mark Scott <mscott@forcepoint.com>
+Subject: [PATCH 4.14 157/190] PCI: Add ACS quirk for Intel Root Complex Integrated Endpoints
+Date:   Fri, 19 Jun 2020 16:33:22 +0200
+Message-Id: <20200619141641.584929306@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
 References: <20200619141633.446429600@linuxfoundation.org>
@@ -44,107 +49,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Abhishek Sahu <abhsahu@nvidia.com>
+From: Ashok Raj <ashok.raj@intel.com>
 
-[ Upstream commit a17beb1a0882a544523dcb5d0da4801272dfd43a ]
+[ Upstream commit 3247bd10a4502a3075ce8e1c3c7d31ef76f193ce ]
 
-Although not allowed by the PCI specs, some multi-function devices have
-power dependencies between the functions.  For example, function 1 may not
-work unless function 0 is in the D0 power state.
+All Intel platforms guarantee that all root complex implementations must
+send transactions up to IOMMU for address translations. Hence for Intel
+RCiEP devices, we can assume some ACS-type isolation even without an ACS
+capability.
 
-The existing quirk_gpu_hda() adds a device link to express this dependency
-for GPU and HDA devices, but it really is not specific to those device
-types.
+>From the Intel VT-d spec, r3.1, sec 3.16 ("Root-Complex Peer to Peer
+Considerations"):
 
-Generalize it and rename it to pci_create_device_link() so we can create
-dependencies between any "consumer" and "producer" functions of a
-multi-function device, where the consumer is only functional if the
-producer is in D0.  This reorganization should not affect any
-functionality.
+  When DMA remapping is enabled, peer-to-peer requests through the
+  Root-Complex must be handled as follows:
 
-Link: https://lore.kernel.org/lkml/20190606092225.17960-2-abhsahu@nvidia.com
-Signed-off-by: Abhishek Sahu <abhsahu@nvidia.com>
-[bhelgaas: commit log, reword diagnostic]
+  - The input address in the request is translated (through first-level,
+    second-level or nested translation) to a host physical address (HPA).
+    The address decoding for peer addresses must be done only on the
+    translated HPA. Hardware implementations are free to further limit
+    peer-to-peer accesses to specific host physical address regions (or
+    to completely disallow peer-forwarding of translated requests).
+
+  - Since address translation changes the contents (address field) of
+    the PCI Express Transaction Layer Packet (TLP), for PCI Express
+    peer-to-peer requests with ECRC, the Root-Complex hardware must use
+    the new ECRC (re-computed with the translated address) if it
+    decides to forward the TLP as a peer request.
+
+  - Root-ports, and multi-function root-complex integrated endpoints, may
+    support additional peer-to-peer control features by supporting PCI
+    Express Access Control Services (ACS) capability. Refer to ACS
+    capability in PCI Express specifications for details.
+
+Since Linux didn't give special treatment to allow this exception, certain
+RCiEP MFD devices were grouped in a single IOMMU group. This doesn't permit
+a single device to be assigned to a guest for instance.
+
+In one vendor system: Device 14.x were grouped in a single IOMMU group.
+
+  /sys/kernel/iommu_groups/5/devices/0000:00:14.0
+  /sys/kernel/iommu_groups/5/devices/0000:00:14.2
+  /sys/kernel/iommu_groups/5/devices/0000:00:14.3
+
+After this patch:
+
+  /sys/kernel/iommu_groups/5/devices/0000:00:14.0
+  /sys/kernel/iommu_groups/5/devices/0000:00:14.2
+  /sys/kernel/iommu_groups/6/devices/0000:00:14.3 <<< new group
+
+14.0 and 14.2 are integrated devices, but legacy end points, whereas 14.3
+was a PCIe-compliant RCiEP.
+
+  00:14.3 Network controller: Intel Corporation Device 9df0 (rev 30)
+    Capabilities: [40] Express (v2) Root Complex Integrated Endpoint, MSI 00
+
+This permits assigning this device to a guest VM.
+
+[bhelgaas: drop "Fixes" tag since this doesn't fix a bug in that commit]
+Link: https://lore.kernel.org/r/1590699462-7131-1-git-send-email-ashok.raj@intel.com
+Tested-by: Darrel Goeddel <dgoeddel@forcepoint.com>
+Signed-off-by: Ashok Raj <ashok.raj@intel.com>
 Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Alex Williamson <alex.williamson@redhat.com>
+Cc: stable@vger.kernel.org
+Cc: Lu Baolu <baolu.lu@linux.intel.com>
+Cc: Mark Scott <mscott@forcepoint.com>,
+Cc: Romil Sharma <rsharma@forcepoint.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/quirks.c | 54 ++++++++++++++++++++++++++++----------------
- 1 file changed, 34 insertions(+), 20 deletions(-)
+ drivers/pci/quirks.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
 diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index 6af7fc0be21d..3e1a0a207734 100644
+index 3e1a0a207734..0472e69833c8 100644
 --- a/drivers/pci/quirks.c
 +++ b/drivers/pci/quirks.c
-@@ -4955,35 +4955,49 @@ static void quirk_fsl_no_msi(struct pci_dev *pdev)
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_FREESCALE, PCI_ANY_ID, quirk_fsl_no_msi);
- 
- /*
-- * GPUs with integrated HDA controller for streaming audio to attached displays
-- * need a device link from the HDA controller (consumer) to the GPU (supplier)
-- * so that the GPU is powered up whenever the HDA controller is accessed.
-- * The GPU and HDA controller are functions 0 and 1 of the same PCI device.
-- * The device link stays in place until shutdown (or removal of the PCI device
-- * if it's hotplugged).  Runtime PM is allowed by default on the HDA controller
-- * to prevent it from permanently keeping the GPU awake.
-+ * Although not allowed by the spec, some multi-function devices have
-+ * dependencies of one function (consumer) on another (supplier).  For the
-+ * consumer to work in D0, the supplier must also be in D0.  Create a
-+ * device link from the consumer to the supplier to enforce this
-+ * dependency.  Runtime PM is allowed by default on the consumer to prevent
-+ * it from permanently keeping the supplier awake.
-  */
--static void quirk_gpu_hda(struct pci_dev *hda)
-+static void pci_create_device_link(struct pci_dev *pdev, unsigned int consumer,
-+				   unsigned int supplier, unsigned int class,
-+				   unsigned int class_shift)
- {
--	struct pci_dev *gpu;
-+	struct pci_dev *supplier_pdev;
- 
--	if (PCI_FUNC(hda->devfn) != 1)
-+	if (PCI_FUNC(pdev->devfn) != consumer)
- 		return;
- 
--	gpu = pci_get_domain_bus_and_slot(pci_domain_nr(hda->bus),
--					  hda->bus->number,
--					  PCI_DEVFN(PCI_SLOT(hda->devfn), 0));
--	if (!gpu || (gpu->class >> 16) != PCI_BASE_CLASS_DISPLAY) {
--		pci_dev_put(gpu);
-+	supplier_pdev = pci_get_domain_bus_and_slot(pci_domain_nr(pdev->bus),
-+				pdev->bus->number,
-+				PCI_DEVFN(PCI_SLOT(pdev->devfn), supplier));
-+	if (!supplier_pdev || (supplier_pdev->class >> class_shift) != class) {
-+		pci_dev_put(supplier_pdev);
- 		return;
- 	}
- 
--	if (!device_link_add(&hda->dev, &gpu->dev,
--			     DL_FLAG_STATELESS | DL_FLAG_PM_RUNTIME))
--		pci_err(hda, "cannot link HDA to GPU %s\n", pci_name(gpu));
-+	if (device_link_add(&pdev->dev, &supplier_pdev->dev,
-+			    DL_FLAG_STATELESS | DL_FLAG_PM_RUNTIME))
-+		pci_info(pdev, "D0 power state depends on %s\n",
-+			 pci_name(supplier_pdev));
-+	else
-+		pci_err(pdev, "Cannot enforce power dependency on %s\n",
-+			pci_name(supplier_pdev));
-+
-+	pm_runtime_allow(&pdev->dev);
-+	pci_dev_put(supplier_pdev);
-+}
- 
--	pm_runtime_allow(&hda->dev);
--	pci_dev_put(gpu);
-+/*
-+ * Create device link for GPUs with integrated HDA controller for streaming
-+ * audio to attached displays.
-+ */
-+static void quirk_gpu_hda(struct pci_dev *hda)
-+{
-+	pci_create_device_link(hda, 1, 0, PCI_BASE_CLASS_DISPLAY, 16);
+@@ -4513,6 +4513,20 @@ static int pci_quirk_mf_endpoint_acs(struct pci_dev *dev, u16 acs_flags)
+ 	return acs_flags ? 0 : 1;
  }
- DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_VENDOR_ID_ATI, PCI_ANY_ID,
- 			      PCI_CLASS_MULTIMEDIA_HD_AUDIO, 8, quirk_gpu_hda);
+ 
++static int pci_quirk_rciep_acs(struct pci_dev *dev, u16 acs_flags)
++{
++	/*
++	 * Intel RCiEP's are required to allow p2p only on translated
++	 * addresses.  Refer to Intel VT-d specification, r3.1, sec 3.16,
++	 * "Root-Complex Peer to Peer Considerations".
++	 */
++	if (pci_pcie_type(dev) != PCI_EXP_TYPE_RC_END)
++		return -ENOTTY;
++
++	return pci_acs_ctrl_enabled(acs_flags,
++		PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF);
++}
++
+ static int pci_quirk_brcm_acs(struct pci_dev *dev, u16 acs_flags)
+ {
+ 	/*
+@@ -4596,6 +4610,7 @@ static const struct pci_dev_acs_enabled {
+ 	/* I219 */
+ 	{ PCI_VENDOR_ID_INTEL, 0x15b7, pci_quirk_mf_endpoint_acs },
+ 	{ PCI_VENDOR_ID_INTEL, 0x15b8, pci_quirk_mf_endpoint_acs },
++	{ PCI_VENDOR_ID_INTEL, PCI_ANY_ID, pci_quirk_rciep_acs },
+ 	/* QCOM QDF2xxx root ports */
+ 	{ 0x17cb, 0x400, pci_quirk_qcom_rp_acs },
+ 	{ 0x17cb, 0x401, pci_quirk_qcom_rp_acs },
 -- 
 2.25.1
 
