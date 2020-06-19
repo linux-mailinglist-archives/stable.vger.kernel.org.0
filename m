@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DBFE2010CC
+	by mail.lfdr.de (Postfix) with ESMTP id 8CAD92010CD
 	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:36:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404754AbgFSPeF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2404622AbgFSPeF (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 19 Jun 2020 11:34:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36968 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:37016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404675AbgFSPc5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:32:57 -0400
+        id S2404763AbgFSPdA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:33:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F6F121973;
-        Fri, 19 Jun 2020 15:32:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A817C20786;
+        Fri, 19 Jun 2020 15:32:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580776;
-        bh=bAf65E3ga0SJKOAJCczAPgrFCM/j3BGNsKF5UllZPlw=;
+        s=default; t=1592580779;
+        bh=52hVFjVhLh2OoAw3LAR/P2MpsdMw6E97K8yE7KBRUrg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fDccz0CFVYiflYSPlF2lfrea9LrsuEIR+PfIaHKjyGGPQzyedZfk9ji9P82/V3rpj
-         a73v81ePMpMzhlmH3JtuZv1O6y0V44Z97U3eN+R4eI7Ajrq9A2mqIlnwAnFWgv0ya/
-         awvhQMB6m8n4+xbmJeKSpl3BE+LMViPkX0uI79Jk=
+        b=O7cwfrHukGXiS+VpD0wZRwG1g+KlR3uxu44kAeKQF8rFpOf31qI0eitsG+yA1UV6v
+         1AHqy3t7Wpigngwh5hfVE/etWTZNBxUqpFbilYKeil8d9zFJUwgvflTFWV7wbEpurr
+         DKRR/AC4aPgI+DzEfR+LUtowMJdaR8XNyisYl1Lw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Ahmed S. Darwish" <a.darwish@linutronix.de>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.7 348/376] block: nr_sects_write(): Disable preemption on seqcount write
-Date:   Fri, 19 Jun 2020 16:34:26 +0200
-Message-Id: <20200619141726.799900818@linuxfoundation.org>
+        stable@vger.kernel.org, Anup Patel <anup.patel@wdc.com>,
+        Zong Li <zong.li@sifive.com>,
+        Atish Patra <atish.patra@wdc.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>
+Subject: [PATCH 5.7 349/376] RISC-V: Dont mark init section as non-executable
+Date:   Fri, 19 Jun 2020 16:34:27 +0200
+Message-Id: <20200619141726.847148265@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -45,44 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ahmed S. Darwish <a.darwish@linutronix.de>
+From: Anup Patel <anup.patel@wdc.com>
 
-commit 15b81ce5abdc4b502aa31dff2d415b79d2349d2f upstream.
+commit 4e0f9e3a6104261f25b16fcab02fc96f5666ba11 upstream.
 
-For optimized block readers not holding a mutex, the "number of sectors"
-64-bit value is protected from tearing on 32-bit architectures by a
-sequence counter.
+The head text section (i.e. _start, secondary_start_sbi, etc) and the
+init section fall under same page table level-1 mapping.
 
-Disable preemption before entering that sequence counter's write side
-critical section. Otherwise, the read side can preempt the write side
-section and spin for the entire scheduler tick. If the reader belongs to
-a real-time scheduling class, it can spin forever and the kernel will
-livelock.
+Currently, the runtime CPU hotplug is broken because we are marking
+init section as non-executable which in-turn marks head text section
+as non-executable.
 
-Fixes: c83f6bf98dc1 ("block: add partition resize function to blkpg ioctl")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Ahmed S. Darwish <a.darwish@linutronix.de>
-Reviewed-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Further investigating other architectures, it seems marking the init
+section as non-executable is redundant because the init section pages
+are anyway poisoned and freed.
+
+To fix broken runtime CPU hotplug, we simply remove the code marking
+the init section as non-executable.
+
+Fixes: d27c3c90817e ("riscv: add STRICT_KERNEL_RWX support")
+Cc: stable@vger.kernel.org
+Signed-off-by: Anup Patel <anup.patel@wdc.com>
+Reviewed-by: Zong Li <zong.li@sifive.com>
+Reviewed-by: Atish Patra <atish.patra@wdc.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- block/blk.h |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/riscv/mm/init.c |   11 -----------
+ 1 file changed, 11 deletions(-)
 
---- a/block/blk.h
-+++ b/block/blk.h
-@@ -470,9 +470,11 @@ static inline sector_t part_nr_sects_rea
- static inline void part_nr_sects_write(struct hd_struct *part, sector_t size)
+--- a/arch/riscv/mm/init.c
++++ b/arch/riscv/mm/init.c
+@@ -479,17 +479,6 @@ static void __init setup_vm_final(void)
+ 	csr_write(CSR_SATP, PFN_DOWN(__pa_symbol(swapper_pg_dir)) | SATP_MODE);
+ 	local_flush_tlb_all();
+ }
+-
+-void free_initmem(void)
+-{
+-	unsigned long init_begin = (unsigned long)__init_begin;
+-	unsigned long init_end = (unsigned long)__init_end;
+-
+-	/* Make the region as non-execuatble. */
+-	set_memory_nx(init_begin, (init_end - init_begin) >> PAGE_SHIFT);
+-	free_initmem_default(POISON_FREE_INITMEM);
+-}
+-
+ #else
+ asmlinkage void __init setup_vm(uintptr_t dtb_pa)
  {
- #if BITS_PER_LONG==32 && defined(CONFIG_SMP)
-+	preempt_disable();
- 	write_seqcount_begin(&part->nr_sects_seq);
- 	part->nr_sects = size;
- 	write_seqcount_end(&part->nr_sects_seq);
-+	preempt_enable();
- #elif BITS_PER_LONG==32 && defined(CONFIG_PREEMPTION)
- 	preempt_disable();
- 	part->nr_sects = size;
 
 
