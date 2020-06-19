@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F040B20103D
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:30:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C3102011C6
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:47:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404417AbgFSP1s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:27:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59524 "EHLO mail.kernel.org"
+        id S2404423AbgFSPov (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:44:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393594AbgFSP1o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:27:44 -0400
+        id S2404292AbgFSP1q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:27:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF1CA20734;
-        Fri, 19 Jun 2020 15:27:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A861218AC;
+        Fri, 19 Jun 2020 15:27:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580463;
-        bh=I+5PxFlAec6ZbIZDVLDUQQfmz13yYiWv4RHLnKQLQQc=;
+        s=default; t=1592580465;
+        bh=irzTMsY+KqXnyontaU8CT4smXOnZ+Pu+cz+OaDBR/XQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FxbDjr3N9SgUB3pZXErHrBrXTHz6ciEmvCsyua9Ief4ebTb2Xx8qnRP/4QGJjP7lp
-         jgmKJvM0TQzyYDJcjLh8qqvOEJkbfPjzmDGVhY16KrvvHrdS1wQtT1NpP8njsb/usN
-         uFSThNNyD9y9jw0aPOKvdiB6nZ9SUpuvyylHm3zU=
+        b=V5SeeummqLVirDHak4oqQSRaKF8O5zdasA/aSgZ5ZFa393DO+oh1a6z42M5lF/cUH
+         5VNNezS5Ikfcbf7L6EJfo5AbGUWzyg5t3xd1l7tFqFYJ9PXmO0IVOr7pX5AYwGN6cI
+         nFeeJTHglUcbZFlGh83CSUCDbaeYrO6H/FBHzOfo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Marcos Paulo de Souza <mpdesouza@suse.com>,
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.7 259/376] btrfs: send: emit file capabilities after chown
-Date:   Fri, 19 Jun 2020 16:32:57 +0200
-Message-Id: <20200619141722.586851130@linuxfoundation.org>
+Subject: [PATCH 5.7 260/376] btrfs: force chunk allocation if our global rsv is larger than metadata
+Date:   Fri, 19 Jun 2020 16:32:58 +0200
+Message-Id: <20200619141722.634574244@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -44,154 +44,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcos Paulo de Souza <mpdesouza@suse.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 89efda52e6b6930f80f5adda9c3c9edfb1397191 upstream.
+commit 9c343784c4328781129bcf9e671645f69fe4b38a upstream.
 
-Whenever a chown is executed, all capabilities of the file being touched
-are lost.  When doing incremental send with a file with capabilities,
-there is a situation where the capability can be lost on the receiving
-side. The sequence of actions bellow shows the problem:
+Nikolay noticed a bunch of test failures with my global rsv steal
+patches.  At first he thought they were introduced by them, but they've
+been failing for a while with 64k nodes.
 
-  $ mount /dev/sda fs1
-  $ mount /dev/sdb fs2
+The problem is with 64k nodes we have a global reserve that calculates
+out to 13MiB on a freshly made file system, which only has 8MiB of
+metadata space.  Because of changes I previously made we no longer
+account for the global reserve in the overcommit logic, which means we
+correctly allow overcommit to happen even though we are already
+overcommitted.
 
-  $ touch fs1/foo.bar
-  $ setcap cap_sys_nice+ep fs1/foo.bar
-  $ btrfs subvolume snapshot -r fs1 fs1/snap_init
-  $ btrfs send fs1/snap_init | btrfs receive fs2
+However in some corner cases, for example btrfs/170, we will allocate
+the entire file system up with data chunks before we have enough space
+pressure to allocate a metadata chunk.  Then once the fs is full we
+ENOSPC out because we cannot overcommit and the global reserve is taking
+up all of the available space.
 
-  $ chgrp adm fs1/foo.bar
-  $ setcap cap_sys_nice+ep fs1/foo.bar
+The most ideal way to deal with this is to change our space reservation
+stuff to take into account the height of the tree's that we're
+modifying, so that our global reserve calculation does not end up so
+obscenely large.
 
-  $ btrfs subvolume snapshot -r fs1 fs1/snap_complete
-  $ btrfs subvolume snapshot -r fs1 fs1/snap_incremental
+However that is a huge undertaking.  Instead fix this by forcing a chunk
+allocation if the global reserve is larger than the total metadata
+space.  This gives us essentially the same behavior that happened
+before, we get a chunk allocated and these tests can pass.
 
-  $ btrfs send fs1/snap_complete | btrfs receive fs2
-  $ btrfs send -p fs1/snap_init fs1/snap_incremental | btrfs receive fs2
+This is meant to be a stop-gap measure until we can tackle the "tree
+height only" project.
 
-At this point, only a chown was emitted by "btrfs send" since only the
-group was changed. This makes the cap_sys_nice capability to be dropped
-from fs2/snap_incremental/foo.bar
-
-To fix that, only emit capabilities after chown is emitted. The current
-code first checks for xattrs that are new/changed, emits them, and later
-emit the chown. Now, __process_new_xattr skips capabilities, letting
-only finish_inode_if_needed to emit them, if they exist, for the inode
-being processed.
-
-This behavior was being worked around in "btrfs receive" side by caching
-the capability and only applying it after chown. Now, xattrs are only
-emmited _after_ chown, making that workaround not needed anymore.
-
-Link: https://github.com/kdave/btrfs-progs/issues/202
-CC: stable@vger.kernel.org # 4.4+
-Suggested-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Marcos Paulo de Souza <mpdesouza@suse.com>
+Fixes: 0096420adb03 ("btrfs: do not account global reserve in can_overcommit")
+CC: stable@vger.kernel.org # 5.4+
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Tested-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/send.c |   67 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 67 insertions(+)
+ fs/btrfs/block-rsv.c   |    3 +++
+ fs/btrfs/transaction.c |   18 ++++++++++++++++++
+ 2 files changed, 21 insertions(+)
 
---- a/fs/btrfs/send.c
-+++ b/fs/btrfs/send.c
-@@ -23,6 +23,7 @@
- #include "btrfs_inode.h"
+--- a/fs/btrfs/block-rsv.c
++++ b/fs/btrfs/block-rsv.c
+@@ -5,6 +5,7 @@
+ #include "block-rsv.h"
+ #include "space-info.h"
  #include "transaction.h"
- #include "compression.h"
-+#include "xattr.h"
++#include "block-group.h"
  
  /*
-  * Maximum number of references an extent can have in order for us to attempt to
-@@ -4545,6 +4546,10 @@ static int __process_new_xattr(int num,
- 	struct fs_path *p;
- 	struct posix_acl_xattr_header dummy_acl;
+  * HOW DO BLOCK RESERVES WORK
+@@ -405,6 +406,8 @@ void btrfs_update_global_block_rsv(struc
+ 	else
+ 		block_rsv->full = 0;
  
-+	/* Capabilities are emitted by finish_inode_if_needed */
-+	if (!strncmp(name, XATTR_NAME_CAPS, name_len))
-+		return 0;
-+
- 	p = fs_path_alloc();
- 	if (!p)
- 		return -ENOMEM;
-@@ -5107,6 +5112,64 @@ static int send_extent_data(struct send_
- 	return 0;
++	if (block_rsv->size >= sinfo->total_bytes)
++		sinfo->force_alloc = CHUNK_ALLOC_FORCE;
+ 	spin_unlock(&block_rsv->lock);
+ 	spin_unlock(&sinfo->lock);
  }
+--- a/fs/btrfs/transaction.c
++++ b/fs/btrfs/transaction.c
+@@ -21,6 +21,7 @@
+ #include "dev-replace.h"
+ #include "qgroup.h"
+ #include "block-group.h"
++#include "space-info.h"
  
-+/*
-+ * Search for a capability xattr related to sctx->cur_ino. If the capability is
-+ * found, call send_set_xattr function to emit it.
-+ *
-+ * Return 0 if there isn't a capability, or when the capability was emitted
-+ * successfully, or < 0 if an error occurred.
-+ */
-+static int send_capabilities(struct send_ctx *sctx)
-+{
-+	struct fs_path *fspath = NULL;
-+	struct btrfs_path *path;
-+	struct btrfs_dir_item *di;
-+	struct extent_buffer *leaf;
-+	unsigned long data_ptr;
-+	char *buf = NULL;
-+	int buf_len;
-+	int ret = 0;
-+
-+	path = alloc_path_for_send();
-+	if (!path)
-+		return -ENOMEM;
-+
-+	di = btrfs_lookup_xattr(NULL, sctx->send_root, path, sctx->cur_ino,
-+				XATTR_NAME_CAPS, strlen(XATTR_NAME_CAPS), 0);
-+	if (!di) {
-+		/* There is no xattr for this inode */
-+		goto out;
-+	} else if (IS_ERR(di)) {
-+		ret = PTR_ERR(di);
-+		goto out;
-+	}
-+
-+	leaf = path->nodes[0];
-+	buf_len = btrfs_dir_data_len(leaf, di);
-+
-+	fspath = fs_path_alloc();
-+	buf = kmalloc(buf_len, GFP_KERNEL);
-+	if (!fspath || !buf) {
-+		ret = -ENOMEM;
-+		goto out;
-+	}
-+
-+	ret = get_cur_path(sctx, sctx->cur_ino, sctx->cur_inode_gen, fspath);
-+	if (ret < 0)
-+		goto out;
-+
-+	data_ptr = (unsigned long)(di + 1) + btrfs_dir_name_len(leaf, di);
-+	read_extent_buffer(leaf, buf, data_ptr, buf_len);
-+
-+	ret = send_set_xattr(sctx, fspath, XATTR_NAME_CAPS,
-+			strlen(XATTR_NAME_CAPS), buf, buf_len);
-+out:
-+	kfree(buf);
-+	fs_path_free(fspath);
-+	btrfs_free_path(path);
-+	return ret;
-+}
-+
- static int clone_range(struct send_ctx *sctx,
- 		       struct clone_root *clone_root,
- 		       const u64 disk_byte,
-@@ -5972,6 +6035,10 @@ static int finish_inode_if_needed(struct
- 			goto out;
- 	}
+ #define BTRFS_ROOT_TRANS_TAG 0
  
-+	ret = send_capabilities(sctx);
-+	if (ret < 0)
-+		goto out;
+@@ -523,6 +524,7 @@ start_transaction(struct btrfs_root *roo
+ 	u64 num_bytes = 0;
+ 	u64 qgroup_reserved = 0;
+ 	bool reloc_reserved = false;
++	bool do_chunk_alloc = false;
+ 	int ret;
+ 
+ 	/* Send isn't supposed to start transactions. */
+@@ -585,6 +587,9 @@ start_transaction(struct btrfs_root *roo
+ 							  delayed_refs_bytes);
+ 			num_bytes -= delayed_refs_bytes;
+ 		}
 +
++		if (rsv->space_info->force_alloc)
++			do_chunk_alloc = true;
+ 	} else if (num_items == 0 && flush == BTRFS_RESERVE_FLUSH_ALL &&
+ 		   !delayed_refs_rsv->full) {
+ 		/*
+@@ -667,6 +672,19 @@ got_it:
+ 		current->journal_info = h;
+ 
  	/*
- 	 * If other directory inodes depended on our current directory
- 	 * inode's move/rename, now do their move/rename operations.
++	 * If the space_info is marked ALLOC_FORCE then we'll get upgraded to
++	 * ALLOC_FORCE the first run through, and then we won't allocate for
++	 * anybody else who races in later.  We don't care about the return
++	 * value here.
++	 */
++	if (do_chunk_alloc && num_bytes) {
++		u64 flags = h->block_rsv->space_info->flags;
++
++		btrfs_chunk_alloc(h, btrfs_get_alloc_profile(fs_info, flags),
++				  CHUNK_ALLOC_NO_FORCE);
++	}
++
++	/*
+ 	 * btrfs_record_root_in_trans() needs to alloc new extents, and may
+ 	 * call btrfs_join_transaction() while we're also starting a
+ 	 * transaction.
 
 
