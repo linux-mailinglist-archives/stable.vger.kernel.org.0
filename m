@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04B86200E5B
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:11:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 773B0200FDE
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:23:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389984AbgFSPGx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:06:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36036 "EHLO mail.kernel.org"
+        id S2393142AbgFSPXC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:23:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390501AbgFSPGv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:06:51 -0400
+        id S2393112AbgFSPXB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:23:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6888421835;
-        Fri, 19 Jun 2020 15:06:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 911E720B80;
+        Fri, 19 Jun 2020 15:22:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579211;
-        bh=9lHRliieVBRuhWpIfnInKTM3rDQgHHFvUgGFx4dSJ7U=;
+        s=default; t=1592580180;
+        bh=Ua04pMjpye9PITZFvdpeHXmH7tJJFLNH+IV3ssmzsA0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CheFuMdrqWVHC8PaJ0Nkkmh7rcziAirBrWKcq8ccet2/IWQTXpopcnUEQXxqCTMlt
-         lA2HlSAst/CgwseipXwd17w4Tok8aRZe3nBwKuqRYqUMDyIKeQkp/hpDIOqg71R2yb
-         Exvd14R4qtPlhKKuJ3G4C6d1Kbdgnf/br0CxHqZo=
+        b=F6lJMD60ZNBpJiy4OhFj3+UjhzeZSmvkZq1mlmrLtVqJCmCh+6d/SSXTsYJyL+xIs
+         elWMNs9JF20DEIqf+Np43QU2x39ky42aE1Qy0WoN+ftD4PIziEJkXEw3conHbgZruw
+         T830o024pKz+P20dzFJahW8KSCu1JVdSNwUL83qg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Surabhi Boob <surabhi.boob@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 049/261] ice: Fix memory leak
-Date:   Fri, 19 Jun 2020 16:31:00 +0200
-Message-Id: <20200619141652.284664398@linuxfoundation.org>
+Subject: [PATCH 5.7 145/376] drivers: net: davinci_mdio: fix potential NULL dereference in davinci_mdio_probe()
+Date:   Fri, 19 Jun 2020 16:31:03 +0200
+Message-Id: <20200619141717.196501012@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
-References: <20200619141649.878808811@linuxfoundation.org>
+In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
+References: <20200619141710.350494719@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,47 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Surabhi Boob <surabhi.boob@intel.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit 1aaef2bc4e0a5ce9e4dd86359e6a0bf52c6aa64f ]
+[ Upstream commit e00edb4efbbc07425441a3be2aa87abaf5800d96 ]
 
-Handle memory leak on filter management initialization failure.
+platform_get_resource() may fail and return NULL, so we should
+better check it's return value to avoid a NULL pointer dereference
+since devm_ioremap() does not check input parameters for null.
 
-Signed-off-by: Surabhi Boob <surabhi.boob@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+This is detected by Coccinelle semantic patch.
+
+@@
+expression pdev, res, n, t, e, e1, e2;
+@@
+
+res = \(platform_get_resource\|platform_get_resource_byname\)(pdev, t, n);
++ if (!res)
++   return -EINVAL;
+... when != res == NULL
+e = devm_ioremap(e1, res->start, e2);
+
+Fixes: 03f66f067560 ("net: ethernet: ti: davinci_mdio: use devm_ioremap()")
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_common.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/ti/davinci_mdio.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_common.c b/drivers/net/ethernet/intel/ice/ice_common.c
-index 171f0b625407..d68b8aa31b19 100644
---- a/drivers/net/ethernet/intel/ice/ice_common.c
-+++ b/drivers/net/ethernet/intel/ice/ice_common.c
-@@ -436,6 +436,7 @@ static void ice_init_flex_flds(struct ice_hw *hw, enum ice_rxdid prof_id)
- static enum ice_status ice_init_fltr_mgmt_struct(struct ice_hw *hw)
- {
- 	struct ice_switch_info *sw;
-+	enum ice_status status;
+diff --git a/drivers/net/ethernet/ti/davinci_mdio.c b/drivers/net/ethernet/ti/davinci_mdio.c
+index 38b7f6d35759..702fdc393da0 100644
+--- a/drivers/net/ethernet/ti/davinci_mdio.c
++++ b/drivers/net/ethernet/ti/davinci_mdio.c
+@@ -397,6 +397,8 @@ static int davinci_mdio_probe(struct platform_device *pdev)
+ 	data->dev = dev;
  
- 	hw->switch_info = devm_kzalloc(ice_hw_to_dev(hw),
- 				       sizeof(*hw->switch_info), GFP_KERNEL);
-@@ -446,7 +447,12 @@ static enum ice_status ice_init_fltr_mgmt_struct(struct ice_hw *hw)
- 
- 	INIT_LIST_HEAD(&sw->vsi_list_map_head);
- 
--	return ice_init_def_sw_recp(hw);
-+	status = ice_init_def_sw_recp(hw);
-+	if (status) {
-+		devm_kfree(ice_hw_to_dev(hw), hw->switch_info);
-+		return status;
-+	}
-+	return 0;
- }
- 
- /**
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (!res)
++		return -EINVAL;
+ 	data->regs = devm_ioremap(dev, res->start, resource_size(res));
+ 	if (!data->regs)
+ 		return -ENOMEM;
 -- 
 2.25.1
 
