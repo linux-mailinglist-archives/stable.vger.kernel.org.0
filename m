@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08FF3201235
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:52:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C602E20122E
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:52:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393352AbgFSPuC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:50:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56634 "EHLO mail.kernel.org"
+        id S2392357AbgFSPtm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:49:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393340AbgFSPYy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:24:54 -0400
+        id S2404147AbgFSPZC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:25:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AAB9321548;
-        Fri, 19 Jun 2020 15:24:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 66EDC20B80;
+        Fri, 19 Jun 2020 15:25:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580293;
-        bh=/WXHUUPc1w97z44Y0YVUkz4p30wFHJ30MGCDQ+SgazA=;
+        s=default; t=1592580300;
+        bh=IAEmTo8r0QTBrTT1aCXKT7SMUHR0JX6FwVOf55EPqtY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tgRsmqGNTMjf2AqcNSpj8wyyIGaBecbYyDDmvxYtkVDTpKAfP/PzbtAVFBGZbY+4h
-         vy524RPNrtQS3SzEPWxvancgoGNclrT+Ky/Qk3LCB3wJmGWeadhXqKAXxiNqGNIJ6R
-         Yz3MlM0kV1Bun7pfRoMbf4QSoSF7ntUmh8+r75M4=
+        b=yYlxZx/Ck1sljtuBRfgkwyw/0/VUIIuc5RGDXWwWDnzGHH2kw19tNl57tw8MtmUk0
+         t5Q/j5JSV8S+UessU3S45iAjAalFWl2erRNzBuohsXC1uKlu0H23XZH9qSZL/P5pQB
+         QDBGYhGQohgkIVQdRMykkqflUFGRDzWFk96FjGpo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Ganapathi Bhat <ganapathi.bhat@nxp.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 195/376] net: ipa: do not clear interrupt in gsi_channel_start()
-Date:   Fri, 19 Jun 2020 16:31:53 +0200
-Message-Id: <20200619141719.575985108@linuxfoundation.org>
+Subject: [PATCH 5.7 197/376] mwifiex: Fix memory corruption in dump_station
+Date:   Fri, 19 Jun 2020 16:31:55 +0200
+Message-Id: <20200619141719.669207725@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -44,82 +46,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Elder <elder@linaro.org>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 195ef57f870070cb02f2f3b99a63d69e8e8f798e ]
+[ Upstream commit 3aa42bae9c4d1641aeb36f1a8585cd1d506cf471 ]
 
-In gsi_channel_start() there is harmless-looking comment "Clear the
-channel's event ring interrupt in case it's pending".  The intent
-was to avoid getting spurious interrupts when first bringing up a
-channel.
+The mwifiex_cfg80211_dump_station() uses static variable for iterating
+over a linked list of all associated stations (when the driver is in UAP
+role). This has a race condition if .dump_station is called in parallel
+for multiple interfaces. This corruption can be triggered by registering
+multiple SSIDs and calling, in parallel for multiple interfaces
+    iw dev <iface> station dump
 
-However we now use channel stop/start to implement suspend and
-resume, and an interrupt pending at the time we resume is actually
-something we don't want to ignore.
+[16750.719775] Unable to handle kernel paging request at virtual address dead000000000110
+...
+[16750.899173] Call trace:
+[16750.901696]  mwifiex_cfg80211_dump_station+0x94/0x100 [mwifiex]
+[16750.907824]  nl80211_dump_station+0xbc/0x278 [cfg80211]
+[16750.913160]  netlink_dump+0xe8/0x320
+[16750.916827]  netlink_recvmsg+0x1b4/0x338
+[16750.920861]  ____sys_recvmsg+0x7c/0x2b0
+[16750.924801]  ___sys_recvmsg+0x70/0x98
+[16750.928564]  __sys_recvmsg+0x58/0xa0
+[16750.932238]  __arm64_sys_recvmsg+0x28/0x30
+[16750.936453]  el0_svc_common.constprop.3+0x90/0x158
+[16750.941378]  do_el0_svc+0x74/0x90
+[16750.944784]  el0_sync_handler+0x12c/0x1a8
+[16750.948903]  el0_sync+0x114/0x140
+[16750.952312] Code: f9400003 f907f423 eb02007f 54fffd60 (b9401060)
+[16750.958583] ---[ end trace c8ad181c2f4b8576 ]---
 
-The very first time we bring up the channel we do not expect an
-interrupt to be pending, and even if it were, the effect would
-simply be to schedule NAPI on that channel, which would find nothing
-to do, which is not a problem.
+This patch drops the use of the static iterator, and instead every time
+the function is called iterates to the idx-th position of the
+linked-list.
 
-Stop clearing any pending IEOB interrupt in gsi_channel_start().
-That leaves one caller of the trivial function gsi_isr_ieob_clear().
-Get rid of that function and just open-code it in gsi_isr_ieob()
-instead.
+It would be better to convert the code not to use linked list for
+associated stations storage (since the chip has a limited number of
+associated stations anyway - it could just be an array). Such a change
+may be proposed in the future. In the meantime this patch can backported
+into stable kernels in this simple form.
 
-This fixes a problem where suspend/resume IPA v4.2 would get stuck
-when resuming after a suspend.
-
-Signed-off-by: Alex Elder <elder@linaro.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 8baca1a34d4c ("mwifiex: dump station support in uap mode")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Acked-by: Ganapathi Bhat <ganapathi.bhat@nxp.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200515075924.13841-1-pali@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ipa/gsi.c | 11 +----------
- 1 file changed, 1 insertion(+), 10 deletions(-)
+ drivers/net/wireless/marvell/mwifiex/cfg80211.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/ipa/gsi.c b/drivers/net/ipa/gsi.c
-index 8d9ca1c335e8..043a675e1be1 100644
---- a/drivers/net/ipa/gsi.c
-+++ b/drivers/net/ipa/gsi.c
-@@ -238,11 +238,6 @@ static void gsi_irq_ieob_enable(struct gsi *gsi, u32 evt_ring_id)
- 	iowrite32(val, gsi->virt + GSI_CNTXT_SRC_IEOB_IRQ_MSK_OFFSET);
- }
- 
--static void gsi_isr_ieob_clear(struct gsi *gsi, u32 mask)
--{
--	iowrite32(mask, gsi->virt + GSI_CNTXT_SRC_IEOB_IRQ_CLR_OFFSET);
--}
--
- static void gsi_irq_ieob_disable(struct gsi *gsi, u32 evt_ring_id)
+diff --git a/drivers/net/wireless/marvell/mwifiex/cfg80211.c b/drivers/net/wireless/marvell/mwifiex/cfg80211.c
+index 1566d2197906..12bfd653a405 100644
+--- a/drivers/net/wireless/marvell/mwifiex/cfg80211.c
++++ b/drivers/net/wireless/marvell/mwifiex/cfg80211.c
+@@ -1496,7 +1496,8 @@ mwifiex_cfg80211_dump_station(struct wiphy *wiphy, struct net_device *dev,
+ 			      int idx, u8 *mac, struct station_info *sinfo)
  {
- 	u32 val;
-@@ -756,7 +751,6 @@ static void gsi_channel_deprogram(struct gsi_channel *channel)
- int gsi_channel_start(struct gsi *gsi, u32 channel_id)
- {
- 	struct gsi_channel *channel = &gsi->channel[channel_id];
--	u32 evt_ring_id = channel->evt_ring_id;
- 	int ret;
+ 	struct mwifiex_private *priv = mwifiex_netdev_get_priv(dev);
+-	static struct mwifiex_sta_node *node;
++	struct mwifiex_sta_node *node;
++	int i;
  
- 	mutex_lock(&gsi->mutex);
-@@ -765,9 +759,6 @@ int gsi_channel_start(struct gsi *gsi, u32 channel_id)
+ 	if ((GET_BSS_ROLE(priv) == MWIFIEX_BSS_ROLE_STA) &&
+ 	    priv->media_connected && idx == 0) {
+@@ -1506,13 +1507,10 @@ mwifiex_cfg80211_dump_station(struct wiphy *wiphy, struct net_device *dev,
+ 		mwifiex_send_cmd(priv, HOST_CMD_APCMD_STA_LIST,
+ 				 HostCmd_ACT_GEN_GET, 0, NULL, true);
  
- 	mutex_unlock(&gsi->mutex);
- 
--	/* Clear the channel's event ring interrupt in case it's pending */
--	gsi_isr_ieob_clear(gsi, BIT(evt_ring_id));
+-		if (node && (&node->list == &priv->sta_list)) {
+-			node = NULL;
+-			return -ENOENT;
+-		}
 -
- 	gsi_channel_thaw(channel);
- 
- 	return ret;
-@@ -1071,7 +1062,7 @@ static void gsi_isr_ieob(struct gsi *gsi)
- 	u32 event_mask;
- 
- 	event_mask = ioread32(gsi->virt + GSI_CNTXT_SRC_IEOB_IRQ_OFFSET);
--	gsi_isr_ieob_clear(gsi, event_mask);
-+	iowrite32(event_mask, gsi->virt + GSI_CNTXT_SRC_IEOB_IRQ_CLR_OFFSET);
- 
- 	while (event_mask) {
- 		u32 evt_ring_id = __ffs(event_mask);
+-		node = list_prepare_entry(node, &priv->sta_list, list);
+-		list_for_each_entry_continue(node, &priv->sta_list, list) {
++		i = 0;
++		list_for_each_entry(node, &priv->sta_list, list) {
++			if (i++ != idx)
++				continue;
+ 			ether_addr_copy(mac, node->mac_addr);
+ 			return mwifiex_dump_station_info(priv, node, sinfo);
+ 		}
 -- 
 2.25.1
 
