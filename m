@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FC58200D03
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:53:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A78E8200D06
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:53:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388720AbgFSOwa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:52:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46550 "EHLO mail.kernel.org"
+        id S2389219AbgFSOwp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:52:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388965AbgFSOw2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:52:28 -0400
+        id S2388738AbgFSOwi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:52:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 352BA21556;
-        Fri, 19 Jun 2020 14:52:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 394D821556;
+        Fri, 19 Jun 2020 14:52:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578348;
-        bh=t2cAIxyNNnXqQOV78fiE2SdgXTcQRL5/mF0ku/VekEM=;
+        s=default; t=1592578358;
+        bh=yQxQpjtkHjofVTksYCvmMXdlPiITVMnCbSS367MJYxI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CzH/cBfHSpbgQ2vdGQqOqqaedAmRNP52fmAB4WTdNiRKA/6glgnKGXI3u6B5GaV4s
-         gP5s7o/P+5Kt4CBS1DWrex0hkcZxZUoCA85oAjFVbOtC//2lyjMAcXIt4mXJPdhkZQ
-         ymQCojXpZe0AVWXjX3YypyNSrYvbVSgxevSDo5JY=
+        b=bAzaOs842SGnqUrQClSyy5TdTcTsaxFk0xnipd8M+b2iivnVnNWYRVbU4cwodBff8
+         sYRFkTBnx6JCUr5+EwHMEMRT3DMMNNMEoZ8dArqFuRqUFDwufyaR+FWy6s0TFwhFl3
+         JPNEjVF9G5zwm+BOXpG/B+1o2GGqS1c9M1zezMGk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
-        Nicolas Chauvet <kwizart@gmail.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: [PATCH 4.14 178/190] ARM: tegra: Correct PL310 Auxiliary Control Register initialization
-Date:   Fri, 19 Jun 2020 16:33:43 +0200
-Message-Id: <20200619141642.682890929@linuxfoundation.org>
+        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>
+Subject: [PATCH 4.14 182/190] kbuild: force to build vmlinux if CONFIG_MODVERSION=y
+Date:   Fri, 19 Jun 2020 16:33:47 +0200
+Message-Id: <20200619141642.949498508@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
 References: <20200619141633.446429600@linuxfoundation.org>
@@ -44,42 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-commit 35509737c8f958944e059d501255a0bf18361ba0 upstream.
+commit 4b50c8c4eaf06a825d1c005c0b1b4a8307087b83 upstream.
 
-The PL310 Auxiliary Control Register shouldn't have the "Full line of
-zero" optimization bit being set before L2 cache is enabled. The L2X0
-driver takes care of enabling the optimization by itself.
+This code does not work as stated in the comment.
 
-This patch fixes a noisy error message on Tegra20 and Tegra30 telling
-that cache optimization is erroneously enabled without enabling it for
-the CPU:
+$(CONFIG_MODVERSIONS) is always empty because it is expanded before
+include/config/auto.conf is included. Hence, 'make modules' with
+CONFIG_MODVERSION=y cannot record the version CRCs.
 
-	L2C-310: enabling full line of zeros but not enabled in Cortex-A9
+This has been broken since 2003, commit ("kbuild: Enable modules to be
+build using the "make dir/" syntax"). [1]
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Tested-by: Nicolas Chauvet <kwizart@gmail.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+[1]: https://git.kernel.org/pub/scm/linux/kernel/git/history/history.git/commit/?id=15c6240cdc44bbeef3c4797ec860f9765ef4f1a7
+Cc: linux-stable <stable@vger.kernel.org> # v2.5.71+
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/mach-tegra/tegra.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ Makefile |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
---- a/arch/arm/mach-tegra/tegra.c
-+++ b/arch/arm/mach-tegra/tegra.c
-@@ -108,8 +108,8 @@ static const char * const tegra_dt_board
- };
+--- a/Makefile
++++ b/Makefile
+@@ -542,12 +542,8 @@ KBUILD_MODULES :=
+ KBUILD_BUILTIN := 1
  
- DT_MACHINE_START(TEGRA_DT, "NVIDIA Tegra SoC (Flattened Device Tree)")
--	.l2c_aux_val	= 0x3c400001,
--	.l2c_aux_mask	= 0xc20fc3fe,
-+	.l2c_aux_val	= 0x3c400000,
-+	.l2c_aux_mask	= 0xc20fc3ff,
- 	.smp		= smp_ops(tegra_smp_ops),
- 	.map_io		= tegra_map_common_io,
- 	.init_early	= tegra_init_early,
+ # If we have only "make modules", don't compile built-in objects.
+-# When we're building modules with modversions, we need to consider
+-# the built-in objects during the descend as well, in order to
+-# make sure the checksums are up to date before we record them.
+-
+ ifeq ($(MAKECMDGOALS),modules)
+-  KBUILD_BUILTIN := $(if $(CONFIG_MODVERSIONS),1)
++  KBUILD_BUILTIN :=
+ endif
+ 
+ # If we have "make <whatever> modules", compile modules
+@@ -1249,6 +1245,13 @@ ifdef CONFIG_MODULES
+ 
+ all: modules
+ 
++# When we're building modules with modversions, we need to consider
++# the built-in objects during the descend as well, in order to
++# make sure the checksums are up to date before we record them.
++ifdef CONFIG_MODVERSIONS
++  KBUILD_BUILTIN := 1
++endif
++
+ # Build modules
+ #
+ # A module can be listed more than once in obj-m resulting in
 
 
