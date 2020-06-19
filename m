@@ -2,124 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83A192012FA
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:00:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9011320136C
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:01:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404218AbgFSPTl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:19:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47162 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404091AbgFSPQe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:16:34 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2D9C72080C;
-        Fri, 19 Jun 2020 15:16:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579793;
-        bh=//CgPAApH+7PV0vYRuS2DZn+6GbntVH6DnvobXj342c=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YRCoIGq40c9FNVuBKABaCDicAUzXm/G+TIjjyRXmKzjhn242qiac6TjG5uydf20Ys
-         CQ0oaM/dMwTFsKrIUYu2VeVgOoMF/dDwddt/dIA60lmaeLC/+GAlaUVEhsrs4poYOF
-         lpRICclo8uPf08ldo4Qdjq8Bd7KEh1bzoelIevOA=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Jiri Olsa <jolsa@redhat.com>
-Subject: [PATCH 5.4 261/261] perf symbols: Fix kernel maps for kcore and eBPF
-Date:   Fri, 19 Jun 2020 16:34:32 +0200
-Message-Id: <20200619141702.397991491@linuxfoundation.org>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
+        id S2391893AbgFSQBX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:01:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36890 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2392782AbgFSQBU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Jun 2020 12:01:20 -0400
+Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E85EC06174E;
+        Fri, 19 Jun 2020 09:01:20 -0700 (PDT)
+Received: by mail-pl1-x642.google.com with SMTP id k1so4091787pls.2;
+        Fri, 19 Jun 2020 09:01:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=Al8lo1vohaR538nK8K73F1PSw58YXyOEBF1pYFlniR4=;
+        b=fftsKWXLIqPq+IZfmJ93m4f0LUAQDvvJhlKujnhkDr71z51FLg5MA4vyH6aR2nkajs
+         OCpQxv8QDtvbFFJ69EDvy/UCT02TiSPrV7QYfCyPkWP8wdtJ/QznPUiBNdJDB5CHk3GO
+         JwlMFYzjYYCN09eYFHJ6DNnnNv8sDQ/Dzwlmwwdd6VG+TTJjq8+655E8udUvXwu7vyF2
+         JV9V+0qhvIVw6w1qr1Msb9pzGBScyBEohHpGQw8lL2iWvReCKlodZJfHi57P33Y5uOou
+         FYYgHJAOjd2waOkh+owR396bXsWGI+I5Nw2MLXreSNgXG5ZdvB2pGmIiUSw3LenMkXP3
+         DC8g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=Al8lo1vohaR538nK8K73F1PSw58YXyOEBF1pYFlniR4=;
+        b=q7TR9sEnRI/hPSO2BYy2zacyN3pQJFxR0/YQ5v8cP/fTj2TsIUlbEj7QCSnSpoX6rB
+         7zxol7JwLxKj09J/y5efFky6kpAjS12WcBuveIb55VHOLAiTTN/eQLJUaPVfHLCEJht7
+         mq/t+KeZr90MQpkBPS5Y5aXwQcKh/J6fs5uAuo1ymOL9yd0t/vsa0+EReCqJ9F6CgJdm
+         JyBYSuAIsFnzJLWNyn7g3qqnUhofPC6yJpBOt3oY9yzgxkCSNvMqBwkJnKlcYmxpTje0
+         GfYkpe5OCDXpMGfvU0RBkfJ1/jv/NNIcbcRreaBdkeAY5i2elSydj6j1VoBCTXn0Utlu
+         2UMw==
+X-Gm-Message-State: AOAM531Zs1KsVPWL7q0deJYQt4unX4rMmhc6hXEl+n2JPOJAC+lgEsEo
+        IkJN4wPfvqYB7POPTUjCKQQ=
+X-Google-Smtp-Source: ABdhPJz9UVcZvtW383mrRKD0cV4j8Kv0RZmN5hMHiAJxZiNhHfbQ1q+ptp4COAn+YGx5pjx3ina7IQ==
+X-Received: by 2002:a17:90a:1ae6:: with SMTP id p93mr4065056pjp.182.1592582479643;
+        Fri, 19 Jun 2020 09:01:19 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id g21sm6204847pfh.134.2020.06.19.09.01.18
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Fri, 19 Jun 2020 09:01:19 -0700 (PDT)
+Date:   Fri, 19 Jun 2020 09:01:18 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 5.4 000/261] 5.4.48-rc1 review
+Message-ID: <20200619160118.GA105163@roeck-us.net>
 References: <20200619141649.878808811@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+On Fri, Jun 19, 2020 at 04:30:11PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.48 release.
+> There are 261 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun, 21 Jun 2020 14:15:50 +0000.
+> Anything received after that time might be too late.
+> 
 
-commit 0affd0e5262b6d40f5f63466d88933e99698e240 upstream.
+Building mips:defconfig ... failed
+--------------
+Error log:
+arch/mips/mm/dma-noncoherent.c: In function 'cpu_needs_post_dma_flush':
+arch/mips/mm/dma-noncoherent.c:36:7: error: 'CPU_LOONGSON2EF' undeclared
 
-Adjust 'map->pgoff' also when moving a map's start address.
+Also affects v4.19.y.queue, and causes almost all mips builds to fail.
 
-Example with v5.4.34 based kernel:
-
-  Before:
-
-    $ sudo tools/perf/perf record -a --kcore -e intel_pt//k sleep 1
-    [ perf record: Woken up 1 times to write data ]
-    [ perf record: Captured and wrote 1.958 MB perf.data ]
-    $ sudo tools/perf/perf script --itrace=e >/dev/null
-    Warning:
-    961 instruction trace errors
-
-  After:
-
-    $ sudo tools/perf/perf script --itrace=e >/dev/null
-    $
-
-Committer testing:
-
-  # uname -a
-  Linux seventh 5.6.10-100.fc30.x86_64 #1 SMP Mon May 4 15:36:44 UTC 2020 x86_64 x86_64 x86_64 GNU/Linux
-  #
-
-Before:
-
-  # perf record -a --kcore -e intel_pt//k sleep 1
-  [ perf record: Woken up 1 times to write data ]
-  [ perf record: Captured and wrote 0.923 MB perf.data ]
-  # perf script --itrace=e >/dev/null
-  Warning:
-  295 instruction trace errors
-  #
-
-After:
-
-  # perf record -a --kcore -e intel_pt//k sleep 1
-  [ perf record: Woken up 1 times to write data ]
-  [ perf record: Captured and wrote 0.919 MB perf.data ]
-  # perf script --itrace=e >/dev/null
-  #
-
-Fixes: fb5a88d4131a ("perf tools: Preserve eBPF maps when loading kcore")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: stable@vger.kernel.org
-Link: http://lore.kernel.org/lkml/20200602112505.1406-1-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
----
- tools/perf/util/symbol.c |    2 ++
- 1 file changed, 2 insertions(+)
-
---- a/tools/perf/util/symbol.c
-+++ b/tools/perf/util/symbol.c
-@@ -1221,6 +1221,7 @@ int map_groups__merge_in(struct map_grou
- 
- 				m->end = old_map->start;
- 				list_add_tail(&m->node, &merged);
-+				new_map->pgoff += old_map->end - new_map->start;
- 				new_map->start = old_map->end;
- 			}
- 		} else {
-@@ -1241,6 +1242,7 @@ int map_groups__merge_in(struct map_grou
- 				 *      |new......| ->         |new...|
- 				 * |old....|        -> |old....|
- 				 */
-+				new_map->pgoff += old_map->end - new_map->start;
- 				new_map->start = old_map->end;
- 			}
- 		}
-
-
+Guenter
