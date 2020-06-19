@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E56CE201371
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:01:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD12D2013A4
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:07:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391630AbgFSPNJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:13:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43600 "EHLO mail.kernel.org"
+        id S2392109AbgFSQBm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:01:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391971AbgFSPNI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:13:08 -0400
+        id S2389396AbgFSPNK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:13:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C44E0218AC;
-        Fri, 19 Jun 2020 15:13:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 64DFA21582;
+        Fri, 19 Jun 2020 15:13:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579587;
-        bh=xRG44M/nxXxzNVpGV9y7/mUYH/wmbZs1DNIosD6B1Q8=;
+        s=default; t=1592579589;
+        bh=s90weQLx3+eky0D7QCfbXXrH6aktND1Y69vgtQvMBVw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mI9zigY7BdjOMPPNcBCovac3/JFQbbtkrE6/pu/rotIw1MGVmSeXI9nH9UKbNaAfi
-         Ok305d6oZbhlooZa1v+DRl6OV/uzkBChuBxLn1a8ZiNaUstNFVSokeu4nD84QMs/Sy
-         I9RO7du/f1z1oAmcHIWjiLsr6ROoA2XBzYrocH0k=
+        b=Hgwr3Sh7YUR7uvx8W8NR3pMDms9dWHgZlKrUOK1RTCMrmr7afyQgTJ5zBDUgquTh+
+         7Fdy1OOy54f1XczL2uCtbIM1SmqnL/G/CaN6Bqs2ndfapbY7k9ZzbU6H8ti0qE3oDl
+         V2FxZ8KjTpiE/wxG+7Non194GehaRPxiP3SsnIRU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Anand Jain <anand.jain@oracle.com>,
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Marcos Paulo de Souza <mpdesouza@suse.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 161/261] btrfs: include non-missing as a qualifier for the latest_bdev
-Date:   Fri, 19 Jun 2020 16:32:52 +0200
-Message-Id: <20200619141657.605608876@linuxfoundation.org>
+Subject: [PATCH 5.4 162/261] btrfs: send: emit file capabilities after chown
+Date:   Fri, 19 Jun 2020 16:32:53 +0200
+Message-Id: <20200619141657.655619309@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
 References: <20200619141649.878808811@linuxfoundation.org>
@@ -44,77 +44,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand Jain <anand.jain@oracle.com>
+From: Marcos Paulo de Souza <mpdesouza@suse.com>
 
-commit 998a0671961f66e9fad4990ed75f80ba3088c2f1 upstream.
+commit 89efda52e6b6930f80f5adda9c3c9edfb1397191 upstream.
 
-btrfs_free_extra_devids() updates fs_devices::latest_bdev to point to
-the bdev with greatest device::generation number.  For a typical-missing
-device the generation number is zero so fs_devices::latest_bdev will
-never point to it.
+Whenever a chown is executed, all capabilities of the file being touched
+are lost.  When doing incremental send with a file with capabilities,
+there is a situation where the capability can be lost on the receiving
+side. The sequence of actions bellow shows the problem:
 
-But if the missing device is due to alienation [1], then
-device::generation is not zero and if it is greater or equal to the rest
-of device  generations in the list, then fs_devices::latest_bdev ends up
-pointing to the missing device and reports the error like [2].
+  $ mount /dev/sda fs1
+  $ mount /dev/sdb fs2
 
-[1] We maintain devices of a fsid (as in fs_device::fsid) in the
-fs_devices::devices list, a device is considered as an alien device
-if its fsid does not match with the fs_device::fsid
+  $ touch fs1/foo.bar
+  $ setcap cap_sys_nice+ep fs1/foo.bar
+  $ btrfs subvolume snapshot -r fs1 fs1/snap_init
+  $ btrfs send fs1/snap_init | btrfs receive fs2
 
-Consider a working filesystem with raid1:
+  $ chgrp adm fs1/foo.bar
+  $ setcap cap_sys_nice+ep fs1/foo.bar
 
-  $ mkfs.btrfs -f -d raid1 -m raid1 /dev/sda /dev/sdb
-  $ mount /dev/sda /mnt-raid1
-  $ umount /mnt-raid1
+  $ btrfs subvolume snapshot -r fs1 fs1/snap_complete
+  $ btrfs subvolume snapshot -r fs1 fs1/snap_incremental
 
-While mnt-raid1 was unmounted the user force-adds one of its devices to
-another btrfs filesystem:
+  $ btrfs send fs1/snap_complete | btrfs receive fs2
+  $ btrfs send -p fs1/snap_init fs1/snap_incremental | btrfs receive fs2
 
-  $ mkfs.btrfs -f /dev/sdc
-  $ mount /dev/sdc /mnt-single
-  $ btrfs dev add -f /dev/sda /mnt-single
+At this point, only a chown was emitted by "btrfs send" since only the
+group was changed. This makes the cap_sys_nice capability to be dropped
+from fs2/snap_incremental/foo.bar
 
-Now the original mnt-raid1 fails to mount in degraded mode, because
-fs_devices::latest_bdev is pointing to the alien device.
+To fix that, only emit capabilities after chown is emitted. The current
+code first checks for xattrs that are new/changed, emits them, and later
+emit the chown. Now, __process_new_xattr skips capabilities, letting
+only finish_inode_if_needed to emit them, if they exist, for the inode
+being processed.
 
-  $ mount -o degraded /dev/sdb /mnt-raid1
+This behavior was being worked around in "btrfs receive" side by caching
+the capability and only applying it after chown. Now, xattrs are only
+emmited _after_ chown, making that workaround not needed anymore.
 
-[2]
-mount: wrong fs type, bad option, bad superblock on /dev/sdb,
-       missing codepage or helper program, or other error
-
-       In some cases useful info is found in syslog - try
-       dmesg | tail or so.
-
-  kernel: BTRFS warning (device sdb): devid 1 uuid 072a0192-675b-4d5a-8640-a5cf2b2c704d is missing
-  kernel: BTRFS error (device sdb): failed to read devices
-  kernel: BTRFS error (device sdb): open_ctree failed
-
-Fix the root cause by checking if the device is not missing before it
-can be considered for the fs_devices::latest_bdev.
-
-CC: stable@vger.kernel.org # 4.19+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Anand Jain <anand.jain@oracle.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
+Link: https://github.com/kdave/btrfs-progs/issues/202
+CC: stable@vger.kernel.org # 4.4+
+Suggested-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Marcos Paulo de Souza <mpdesouza@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/volumes.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/btrfs/send.c |   67 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 67 insertions(+)
 
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -1223,6 +1223,8 @@ again:
- 							&device->dev_state)) {
- 			if (!test_bit(BTRFS_DEV_STATE_REPLACE_TGT,
- 			     &device->dev_state) &&
-+			    !test_bit(BTRFS_DEV_STATE_MISSING,
-+				      &device->dev_state) &&
- 			     (!latest_dev ||
- 			      device->generation > latest_dev->generation)) {
- 				latest_dev = device;
+--- a/fs/btrfs/send.c
++++ b/fs/btrfs/send.c
+@@ -23,6 +23,7 @@
+ #include "btrfs_inode.h"
+ #include "transaction.h"
+ #include "compression.h"
++#include "xattr.h"
+ 
+ /*
+  * Maximum number of references an extent can have in order for us to attempt to
+@@ -4536,6 +4537,10 @@ static int __process_new_xattr(int num,
+ 	struct fs_path *p;
+ 	struct posix_acl_xattr_header dummy_acl;
+ 
++	/* Capabilities are emitted by finish_inode_if_needed */
++	if (!strncmp(name, XATTR_NAME_CAPS, name_len))
++		return 0;
++
+ 	p = fs_path_alloc();
+ 	if (!p)
+ 		return -ENOMEM;
+@@ -5098,6 +5103,64 @@ static int send_extent_data(struct send_
+ 	return 0;
+ }
+ 
++/*
++ * Search for a capability xattr related to sctx->cur_ino. If the capability is
++ * found, call send_set_xattr function to emit it.
++ *
++ * Return 0 if there isn't a capability, or when the capability was emitted
++ * successfully, or < 0 if an error occurred.
++ */
++static int send_capabilities(struct send_ctx *sctx)
++{
++	struct fs_path *fspath = NULL;
++	struct btrfs_path *path;
++	struct btrfs_dir_item *di;
++	struct extent_buffer *leaf;
++	unsigned long data_ptr;
++	char *buf = NULL;
++	int buf_len;
++	int ret = 0;
++
++	path = alloc_path_for_send();
++	if (!path)
++		return -ENOMEM;
++
++	di = btrfs_lookup_xattr(NULL, sctx->send_root, path, sctx->cur_ino,
++				XATTR_NAME_CAPS, strlen(XATTR_NAME_CAPS), 0);
++	if (!di) {
++		/* There is no xattr for this inode */
++		goto out;
++	} else if (IS_ERR(di)) {
++		ret = PTR_ERR(di);
++		goto out;
++	}
++
++	leaf = path->nodes[0];
++	buf_len = btrfs_dir_data_len(leaf, di);
++
++	fspath = fs_path_alloc();
++	buf = kmalloc(buf_len, GFP_KERNEL);
++	if (!fspath || !buf) {
++		ret = -ENOMEM;
++		goto out;
++	}
++
++	ret = get_cur_path(sctx, sctx->cur_ino, sctx->cur_inode_gen, fspath);
++	if (ret < 0)
++		goto out;
++
++	data_ptr = (unsigned long)(di + 1) + btrfs_dir_name_len(leaf, di);
++	read_extent_buffer(leaf, buf, data_ptr, buf_len);
++
++	ret = send_set_xattr(sctx, fspath, XATTR_NAME_CAPS,
++			strlen(XATTR_NAME_CAPS), buf, buf_len);
++out:
++	kfree(buf);
++	fs_path_free(fspath);
++	btrfs_free_path(path);
++	return ret;
++}
++
+ static int clone_range(struct send_ctx *sctx,
+ 		       struct clone_root *clone_root,
+ 		       const u64 disk_byte,
+@@ -6001,6 +6064,10 @@ static int finish_inode_if_needed(struct
+ 			goto out;
+ 	}
+ 
++	ret = send_capabilities(sctx);
++	if (ret < 0)
++		goto out;
++
+ 	/*
+ 	 * If other directory inodes depended on our current directory
+ 	 * inode's move/rename, now do their move/rename operations.
 
 
