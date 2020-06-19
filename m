@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCDEC2010E9
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:36:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFB3920108A
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:36:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404842AbgFSPfy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:35:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35350 "EHLO mail.kernel.org"
+        id S2393822AbgFSPbY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:31:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393812AbgFSPbU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:31:20 -0400
+        id S2393817AbgFSPbW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:31:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 262E52166E;
-        Fri, 19 Jun 2020 15:31:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0D362193E;
+        Fri, 19 Jun 2020 15:31:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580679;
-        bh=THVtaWUnXGtkXiUpMl98ezwe7oGbMPmTprpCeiVDeSk=;
+        s=default; t=1592580682;
+        bh=r2yHVLBRkViANlrNr1ctGy2yImraShqdjiFxyaql51U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uBXco2l95FCrWMmx7GaN1Pa/qEwDZRYP+BKzV+VblnO5+B8sVxuEIwvxJjaIXJgN6
-         yeWtSC9v6ZzAYjuL7BwJzdnArp3vvt5UTdz33zwNeaPRMUzjk2wtUrqncibhSz5g//
-         uwWq5rEr3fjxRIpzt9x/+O9I38xvwl3LQqV7p4jU=
+        b=oNWJivngs82eemhTvekDlFttaYZZ1diMB6IyWkGNiLdhgcheos1AKveHrwQQtbwFV
+         rX3j0+ynGLYKt0SUZLxRJQGfBCUtATA7TYb8HH3pM1KvjLZ9hMRL9y2CjTe5V6rNdP
+         QZ3J0huZrZFNrFBUNjp+HEFL4BPVFrTMhW4AO4jw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
         Christophe Leroy <christophe.leroy@csgroup.eu>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.7 340/376] powerpc/kasan: Fix shadow pages allocation failure
-Date:   Fri, 19 Jun 2020 16:34:18 +0200
-Message-Id: <20200619141726.427515605@linuxfoundation.org>
+Subject: [PATCH 5.7 341/376] powerpc/32: Disable KASAN with pages bigger than 16k
+Date:   Fri, 19 Jun 2020 16:34:19 +0200
+Message-Id: <20200619141726.474527078@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -46,72 +46,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit d2a91cef9bbdeb87b7449fdab1a6be6000930210 upstream.
+commit 888468ce725a4cd56d72dc7e5096078f7a9251a0 upstream.
 
-Doing kasan pages allocation in MMU_init is too early, kernel doesn't
-have access yet to the entire memory space and memblock_alloc() fails
-when the kernel is a bit big.
+Mapping of early shadow area is implemented by using a single static
+page table having all entries pointing to the same early shadow page.
+The shadow area must therefore occupy full PGD entries.
 
-Do it from kasan_init() instead.
+The shadow area has a size of 128MB starting at 0xf8000000.
+With 4k pages, a PGD entry is 4MB
+With 16k pages, a PGD entry is 64MB
+With 64k pages, a PGD entry is 1GB which is too big.
+
+Until we rework the early shadow mapping, disable KASAN when the page
+size is too big.
 
 Fixes: 2edb16efc899 ("powerpc/32: Add KASAN support")
-Cc: stable@vger.kernel.org
+Cc: stable@vger.kernel.org # v5.2+
+Reported-by: kbuild test robot <lkp@intel.com>
 Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/c24163ee5d5f8cdf52fefa45055ceb35435b8f15.1589866984.git.christophe.leroy@csgroup.eu
+Link: https://lore.kernel.org/r/7195fcde7314ccbf7a081b356084a69d421b10d4.1590660977.git.christophe.leroy@csgroup.eu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/include/asm/kasan.h      |    2 --
- arch/powerpc/mm/init_32.c             |    2 --
- arch/powerpc/mm/kasan/kasan_init_32.c |    4 +++-
- 3 files changed, 3 insertions(+), 5 deletions(-)
+ arch/powerpc/Kconfig |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/include/asm/kasan.h
-+++ b/arch/powerpc/include/asm/kasan.h
-@@ -27,12 +27,10 @@
- 
- #ifdef CONFIG_KASAN
- void kasan_early_init(void);
--void kasan_mmu_init(void);
- void kasan_init(void);
- void kasan_late_init(void);
- #else
- static inline void kasan_init(void) { }
--static inline void kasan_mmu_init(void) { }
- static inline void kasan_late_init(void) { }
- #endif
- 
---- a/arch/powerpc/mm/init_32.c
-+++ b/arch/powerpc/mm/init_32.c
-@@ -170,8 +170,6 @@ void __init MMU_init(void)
- 	btext_unmap();
- #endif
- 
--	kasan_mmu_init();
--
- 	setup_kup();
- 
- 	/* Shortly after that, the entire linear mapping will be available */
---- a/arch/powerpc/mm/kasan/kasan_init_32.c
-+++ b/arch/powerpc/mm/kasan/kasan_init_32.c
-@@ -132,7 +132,7 @@ static void __init kasan_unmap_early_sha
- 	flush_tlb_kernel_range(k_start, k_end);
- }
- 
--void __init kasan_mmu_init(void)
-+static void __init kasan_mmu_init(void)
- {
- 	int ret;
- 	struct memblock_region *reg;
-@@ -160,6 +160,8 @@ void __init kasan_mmu_init(void)
- 
- void __init kasan_init(void)
- {
-+	kasan_mmu_init();
-+
- 	kasan_remap_early_shadow_ro();
- 
- 	clear_page(kasan_early_shadow_page);
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -170,8 +170,8 @@ config PPC
+ 	select HAVE_ARCH_AUDITSYSCALL
+ 	select HAVE_ARCH_HUGE_VMAP		if PPC_BOOK3S_64 && PPC_RADIX_MMU
+ 	select HAVE_ARCH_JUMP_LABEL
+-	select HAVE_ARCH_KASAN			if PPC32
+-	select HAVE_ARCH_KASAN_VMALLOC		if PPC32
++	select HAVE_ARCH_KASAN			if PPC32 && PPC_PAGE_SHIFT <= 14
++	select HAVE_ARCH_KASAN_VMALLOC		if PPC32 && PPC_PAGE_SHIFT <= 14
+ 	select HAVE_ARCH_KGDB
+ 	select HAVE_ARCH_MMAP_RND_BITS
+ 	select HAVE_ARCH_MMAP_RND_COMPAT_BITS	if COMPAT
 
 
