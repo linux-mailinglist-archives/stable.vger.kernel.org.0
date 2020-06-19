@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AFBF200FD5
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:23:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04B86200E5B
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:11:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393025AbgFSPWg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:22:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54010 "EHLO mail.kernel.org"
+        id S2389984AbgFSPGx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:06:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393019AbgFSPWf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:22:35 -0400
+        id S2390501AbgFSPGv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:06:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 83B312158C;
-        Fri, 19 Jun 2020 15:22:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6888421835;
+        Fri, 19 Jun 2020 15:06:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580154;
-        bh=hS28z6xSWw2sPqJgW7kXj7XRamTjmuW8YLgw81pClG0=;
+        s=default; t=1592579211;
+        bh=9lHRliieVBRuhWpIfnInKTM3rDQgHHFvUgGFx4dSJ7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S8Ez84T3dspR9oRkAJk2itAWVxEsWj+8/hf/brGZ14Z49Vj2nEiK3ZX0l4/2PGubD
-         DX7xU/UAZvEEIoVskIcb/KOFPRaL2f9LowgtgVmC4Nu+1m8a0K2RmATvhOGOIMxohn
-         b2TBGuZGLcruEy8dPAv96JjaUbs2x+ZQM0VHrkCk=
+        b=CheFuMdrqWVHC8PaJ0Nkkmh7rcziAirBrWKcq8ccet2/IWQTXpopcnUEQXxqCTMlt
+         lA2HlSAst/CgwseipXwd17w4Tok8aRZe3nBwKuqRYqUMDyIKeQkp/hpDIOqg71R2yb
+         Exvd14R4qtPlhKKuJ3G4C6d1Kbdgnf/br0CxHqZo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Surabhi Boob <surabhi.boob@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 141/376] octeontx2-pf: Fix error return code in otx2_probe()
-Date:   Fri, 19 Jun 2020 16:30:59 +0200
-Message-Id: <20200619141717.008834749@linuxfoundation.org>
+Subject: [PATCH 5.4 049/261] ice: Fix memory leak
+Date:   Fri, 19 Jun 2020 16:31:00 +0200
+Message-Id: <20200619141652.284664398@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
-References: <20200619141710.350494719@linuxfoundation.org>
+In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
+References: <20200619141649.878808811@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +46,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Surabhi Boob <surabhi.boob@intel.com>
 
-[ Upstream commit 654cad8b6a17dcb00077070b27bc65873951a568 ]
+[ Upstream commit 1aaef2bc4e0a5ce9e4dd86359e6a0bf52c6aa64f ]
 
-Fix to return negative error code -ENOMEM from the error handling
-case instead of 0, as done elsewhere in this function.
+Handle memory leak on filter management initialization failure.
 
-Fixes: 5a6d7c9daef3 ("octeontx2-pf: Mailbox communication with AF")
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Surabhi Boob <surabhi.boob@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/octeontx2/nic/otx2_pf.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_common.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_pf.c b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_pf.c
-index 411e5ea1031e..64786568af0d 100644
---- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_pf.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_pf.c
-@@ -1856,13 +1856,17 @@ static int otx2_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 	num_vec = pci_msix_vec_count(pdev);
- 	hw->irq_name = devm_kmalloc_array(&hw->pdev->dev, num_vec, NAME_SIZE,
- 					  GFP_KERNEL);
--	if (!hw->irq_name)
-+	if (!hw->irq_name) {
-+		err = -ENOMEM;
- 		goto err_free_netdev;
-+	}
+diff --git a/drivers/net/ethernet/intel/ice/ice_common.c b/drivers/net/ethernet/intel/ice/ice_common.c
+index 171f0b625407..d68b8aa31b19 100644
+--- a/drivers/net/ethernet/intel/ice/ice_common.c
++++ b/drivers/net/ethernet/intel/ice/ice_common.c
+@@ -436,6 +436,7 @@ static void ice_init_flex_flds(struct ice_hw *hw, enum ice_rxdid prof_id)
+ static enum ice_status ice_init_fltr_mgmt_struct(struct ice_hw *hw)
+ {
+ 	struct ice_switch_info *sw;
++	enum ice_status status;
  
- 	hw->affinity_mask = devm_kcalloc(&hw->pdev->dev, num_vec,
- 					 sizeof(cpumask_var_t), GFP_KERNEL);
--	if (!hw->affinity_mask)
-+	if (!hw->affinity_mask) {
-+		err = -ENOMEM;
- 		goto err_free_netdev;
-+	}
+ 	hw->switch_info = devm_kzalloc(ice_hw_to_dev(hw),
+ 				       sizeof(*hw->switch_info), GFP_KERNEL);
+@@ -446,7 +447,12 @@ static enum ice_status ice_init_fltr_mgmt_struct(struct ice_hw *hw)
  
- 	/* Map CSRs */
- 	pf->reg_base = pcim_iomap(pdev, PCI_CFG_REG_BAR_NUM, 0);
+ 	INIT_LIST_HEAD(&sw->vsi_list_map_head);
+ 
+-	return ice_init_def_sw_recp(hw);
++	status = ice_init_def_sw_recp(hw);
++	if (status) {
++		devm_kfree(ice_hw_to_dev(hw), hw->switch_info);
++		return status;
++	}
++	return 0;
+ }
+ 
+ /**
 -- 
 2.25.1
 
