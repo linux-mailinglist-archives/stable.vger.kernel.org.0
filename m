@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D8072016C8
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:45:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C31E20170F
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:46:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388172AbgFSOnm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:43:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34826 "EHLO mail.kernel.org"
+        id S2389444AbgFSOv1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:51:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388492AbgFSOnk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:43:40 -0400
+        id S2389440AbgFSOvX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:51:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9842220CC7;
-        Fri, 19 Jun 2020 14:43:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7422221527;
+        Fri, 19 Jun 2020 14:51:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577820;
-        bh=HR4gwka30yFDMqj/us9MNam3p8IddmIDqG+OvkbeWrI=;
+        s=default; t=1592578283;
+        bh=9q9FCR8Oo+rubBoJznCQ2ZmbuBcOa70GiIHcLshJxEY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Odk4GUmv7x6uy1L5J3wNl2GoygInETJtfUoibHBKqWQlb7CfmUJEQlVATG+LYhVH
-         1wsEj8zk+5M8n2BbnjF2FBWCFm7e3rG0whjg3YJiH4w1fR3ueTG48nlRI0FstJJMWE
-         z+wANBvzdhGgk/I99EfnB86YI0sCubF++8sycCcU=
+        b=VguCsqBcpYYU3F9vqfAbmuV/KHLTCKRimvYdewhlmztAMwD7SRLW9tYUCNT6/ENjG
+         QBYSKfZlp6ilUiiF3tnbISRarNSkdJy7MUJdSTSxA2XuN+rUxm2Ye/mm3BF3m7ADBg
+         zvyIfb7kSWksen29VDYt/obIg8h1/9ntGX920alE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.9 103/128] ext4: fix race between ext4_sync_parent() and rename()
-Date:   Fri, 19 Jun 2020 16:33:17 +0200
-Message-Id: <20200619141625.565865733@linuxfoundation.org>
+        stable@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
+        Logan Gunthorpe <logang@deltatee.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 153/190] PCI: Make ACS quirk implementations more uniform
+Date:   Fri, 19 Jun 2020 16:33:18 +0200
+Message-Id: <20200619141641.374762290@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
-References: <20200619141620.148019466@linuxfoundation.org>
+In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
+References: <20200619141633.446429600@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,109 +45,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Bjorn Helgaas <bhelgaas@google.com>
 
-commit 08adf452e628b0e2ce9a01048cfbec52353703d7 upstream.
+[ Upstream commit c8de8ed2dcaac82e5d76d467dc0b02e0ee79809b ]
 
-'igrab(d_inode(dentry->d_parent))' without holding dentry->d_lock is
-broken because without d_lock, d_parent can be concurrently changed due
-to a rename().  Then if the old directory is immediately deleted, old
-d_parent->inode can be NULL.  That causes a NULL dereference in igrab().
+The ACS quirks differ in needless ways, which makes them look more
+different than they really are.
 
-To fix this, use dget_parent() to safely grab a reference to the parent
-dentry, which pins the inode.  This also eliminates the need to use
-d_find_any_alias() other than for the initial inode, as we no longer
-throw away the dentry at each step.
+Reorder the ACS flags in order of definitions in the spec:
 
-This is an extremely hard race to hit, but it is possible.  Adding a
-udelay() in between the reads of ->d_parent and its ->d_inode makes it
-reproducible on a no-journal filesystem using the following program:
+  PCI_ACS_SV   Source Validation
+  PCI_ACS_TB   Translation Blocking
+  PCI_ACS_RR   P2P Request Redirect
+  PCI_ACS_CR   P2P Completion Redirect
+  PCI_ACS_UF   Upstream Forwarding
+  PCI_ACS_EC   P2P Egress Control
+  PCI_ACS_DT   Direct Translated P2P
 
-    #include <fcntl.h>
-    #include <unistd.h>
+(PCIe r5.0, sec 7.7.8.2) and use similar code structure in all.  No
+functional change intended.
 
-    int main()
-    {
-        if (fork()) {
-            for (;;) {
-                mkdir("dir1", 0700);
-                int fd = open("dir1/file", O_RDWR|O_CREAT|O_SYNC);
-                write(fd, "X", 1);
-                close(fd);
-            }
-        } else {
-            mkdir("dir2", 0700);
-            for (;;) {
-                rename("dir1/file", "dir2/file");
-                rmdir("dir1");
-            }
-        }
-    }
-
-Fixes: d59729f4e794 ("ext4: fix races in ext4_sync_parent()")
-Cc: stable@vger.kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Link: https://lore.kernel.org/r/20200506183140.541194-1-ebiggers@kernel.org
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
+Reviewed-by: Alex Williamson <alex.williamson@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/fsync.c |   28 +++++++++++++---------------
- 1 file changed, 13 insertions(+), 15 deletions(-)
+ drivers/pci/quirks.c | 41 +++++++++++++++++++----------------------
+ 1 file changed, 19 insertions(+), 22 deletions(-)
 
---- a/fs/ext4/fsync.c
-+++ b/fs/ext4/fsync.c
-@@ -43,30 +43,28 @@
-  */
- static int ext4_sync_parent(struct inode *inode)
- {
--	struct dentry *dentry = NULL;
--	struct inode *next;
-+	struct dentry *dentry, *next;
- 	int ret = 0;
+diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+index 81d76e34b0db..44be840dac0d 100644
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -4305,18 +4305,18 @@ static bool pci_quirk_cavium_acs_match(struct pci_dev *dev)
  
- 	if (!ext4_test_inode_state(inode, EXT4_STATE_NEWENTRY))
- 		return 0;
--	inode = igrab(inode);
-+	dentry = d_find_any_alias(inode);
-+	if (!dentry)
-+		return 0;
- 	while (ext4_test_inode_state(inode, EXT4_STATE_NEWENTRY)) {
- 		ext4_clear_inode_state(inode, EXT4_STATE_NEWENTRY);
--		dentry = d_find_any_alias(inode);
--		if (!dentry)
--			break;
--		next = igrab(d_inode(dentry->d_parent));
+ static int pci_quirk_cavium_acs(struct pci_dev *dev, u16 acs_flags)
+ {
++	if (!pci_quirk_cavium_acs_match(dev))
++		return -ENOTTY;
 +
-+		next = dget_parent(dentry);
- 		dput(dentry);
--		if (!next)
--			break;
--		iput(inode);
--		inode = next;
-+		dentry = next;
-+		inode = dentry->d_inode;
-+
- 		/*
- 		 * The directory inode may have gone through rmdir by now. But
- 		 * the inode itself and its blocks are still allocated (we hold
--		 * a reference to the inode so it didn't go through
--		 * ext4_evict_inode()) and so we are safe to flush metadata
--		 * blocks and the inode.
-+		 * a reference to the inode via its dentry), so it didn't go
-+		 * through ext4_evict_inode()) and so we are safe to flush
-+		 * metadata blocks and the inode.
- 		 */
- 		ret = sync_mapping_buffers(inode->i_mapping);
- 		if (ret)
-@@ -75,7 +73,7 @@ static int ext4_sync_parent(struct inode
- 		if (ret)
- 			break;
- 	}
--	iput(inode);
-+	dput(dentry);
- 	return ret;
+ 	/*
+-	 * Cavium root ports don't advertise an ACS capability.  However,
++	 * Cavium Root Ports don't advertise an ACS capability.  However,
+ 	 * the RTL internally implements similar protection as if ACS had
+-	 * Request Redirection, Completion Redirection, Source Validation,
++	 * Source Validation, Request Redirection, Completion Redirection,
+ 	 * and Upstream Forwarding features enabled.  Assert that the
+ 	 * hardware implements and enables equivalent ACS functionality for
+ 	 * these flags.
+ 	 */
+-	acs_flags &= ~(PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_SV | PCI_ACS_UF);
+-
+-	if (!pci_quirk_cavium_acs_match(dev))
+-		return -ENOTTY;
++	acs_flags &= ~(PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF);
+ 
+ 	return acs_flags ? 0 : 1;
+ }
+@@ -4334,7 +4334,7 @@ static int pci_quirk_xgene_acs(struct pci_dev *dev, u16 acs_flags)
  }
  
+ /*
+- * Many Intel PCH root ports do provide ACS-like features to disable peer
++ * Many Intel PCH Root Ports do provide ACS-like features to disable peer
+  * transactions and validate bus numbers in requests, but do not provide an
+  * actual PCIe ACS capability.  This is the list of device IDs known to fall
+  * into that category as provided by Intel in Red Hat bugzilla 1037684.
+@@ -4382,37 +4382,34 @@ static bool pci_quirk_intel_pch_acs_match(struct pci_dev *dev)
+ 	return false;
+ }
+ 
+-#define INTEL_PCH_ACS_FLAGS (PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF | PCI_ACS_SV)
++#define INTEL_PCH_ACS_FLAGS (PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF)
+ 
+ static int pci_quirk_intel_pch_acs(struct pci_dev *dev, u16 acs_flags)
+ {
+-	u16 flags = dev->dev_flags & PCI_DEV_FLAGS_ACS_ENABLED_QUIRK ?
+-		    INTEL_PCH_ACS_FLAGS : 0;
+-
+ 	if (!pci_quirk_intel_pch_acs_match(dev))
+ 		return -ENOTTY;
+ 
+-	return acs_flags & ~flags ? 0 : 1;
++	if (dev->dev_flags & PCI_DEV_FLAGS_ACS_ENABLED_QUIRK)
++		acs_flags &= ~(INTEL_PCH_ACS_FLAGS);
++
++	return acs_flags ? 0 : 1;
+ }
+ 
+ /*
+- * These QCOM root ports do provide ACS-like features to disable peer
++ * These QCOM Root Ports do provide ACS-like features to disable peer
+  * transactions and validate bus numbers in requests, but do not provide an
+  * actual PCIe ACS capability.  Hardware supports source validation but it
+  * will report the issue as Completer Abort instead of ACS Violation.
+- * Hardware doesn't support peer-to-peer and each root port is a root
+- * complex with unique segment numbers.  It is not possible for one root
+- * port to pass traffic to another root port.  All PCIe transactions are
+- * terminated inside the root port.
++ * Hardware doesn't support peer-to-peer and each Root Port is a Root
++ * Complex with unique segment numbers.  It is not possible for one Root
++ * Port to pass traffic to another Root Port.  All PCIe transactions are
++ * terminated inside the Root Port.
+  */
+ static int pci_quirk_qcom_rp_acs(struct pci_dev *dev, u16 acs_flags)
+ {
+-	u16 flags = (PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF | PCI_ACS_SV);
+-	int ret = acs_flags & ~flags ? 0 : 1;
+-
+-	dev_info(&dev->dev, "Using QCOM ACS Quirk (%d)\n", ret);
++	acs_flags &= ~(PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF);
+ 
+-	return ret;
++	return acs_flags ? 0 : 1;
+ }
+ 
+ /*
+-- 
+2.25.1
+
 
 
