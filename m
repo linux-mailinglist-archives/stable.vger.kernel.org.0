@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F9DF200C31
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:43:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62837200BE9
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:42:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387795AbgFSOnA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:43:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33856 "EHLO mail.kernel.org"
+        id S2387978AbgFSOj1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:39:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388419AbgFSOm5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:42:57 -0400
+        id S2387554AbgFSOjY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:39:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CF6A220A8B;
-        Fri, 19 Jun 2020 14:42:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0FE4A2166E;
+        Fri, 19 Jun 2020 14:39:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577776;
-        bh=e81fpO5jDYVmeHxjJRSlDWfy34xiiryjAtaKi+4WFKE=;
+        s=default; t=1592577561;
+        bh=79748xi6A0dufc+IBvJCYaYUwhLn7bNEoXTQLa3KQPw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mMgK7RpsZyIKNh9stB5Qj2/RcX4Vl/KV3oKtiNcYlL4avt0CzGR0JuTR8KurSBD+p
-         /xVPNQIHbBJQfmmVsb7/qy3S7XGvTYovmLVkVVzAL1Xsd260LMUsWwA39ysZ6oMpHw
-         M/8uNAmgo+pm4c6FqHVj7cBj6T73P08hX9WisHfs=
+        b=GjJVtk2wPHPs1nPuEyR4fZo4Ws+3Ec88ygMqKnXX9VOP/EjL7AEw0fG4+6skclqim
+         /dVz9O61cJO6joRDt+y7QUaFjYcWZNv3DoDhJDcKJMXvs/54tzMCe3Lu5m6wIe4/Kw
+         AL/yL4re6wQCWQUkaAswrmLqBMB6NbVvgdddCB+E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Ganapathi Bhat <ganapathi.bhat@nxp.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 084/128] mwifiex: Fix memory corruption in dump_station
+        stable@vger.kernel.org, Finn Thain <fthain@telegraphics.com.au>,
+        Joshua Thompson <funaho@jurai.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Stan Johnson <userm57@yahoo.com>
+Subject: [PATCH 4.4 069/101] m68k: mac: Dont call via_flush_cache() on Mac IIfx
 Date:   Fri, 19 Jun 2020 16:32:58 +0200
-Message-Id: <20200619141624.599712787@linuxfoundation.org>
+Message-Id: <20200619141617.659290738@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
-References: <20200619141620.148019466@linuxfoundation.org>
+In-Reply-To: <20200619141614.001544111@linuxfoundation.org>
+References: <20200619141614.001544111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,87 +46,169 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Finn Thain <fthain@telegraphics.com.au>
 
-[ Upstream commit 3aa42bae9c4d1641aeb36f1a8585cd1d506cf471 ]
+[ Upstream commit bcc44f6b74106b31f0b0408b70305a40360d63b7 ]
 
-The mwifiex_cfg80211_dump_station() uses static variable for iterating
-over a linked list of all associated stations (when the driver is in UAP
-role). This has a race condition if .dump_station is called in parallel
-for multiple interfaces. This corruption can be triggered by registering
-multiple SSIDs and calling, in parallel for multiple interfaces
-    iw dev <iface> station dump
+There is no VIA2 chip on the Mac IIfx, so don't call via_flush_cache().
+This avoids a boot crash which appeared in v5.4.
 
-[16750.719775] Unable to handle kernel paging request at virtual address dead000000000110
-...
-[16750.899173] Call trace:
-[16750.901696]  mwifiex_cfg80211_dump_station+0x94/0x100 [mwifiex]
-[16750.907824]  nl80211_dump_station+0xbc/0x278 [cfg80211]
-[16750.913160]  netlink_dump+0xe8/0x320
-[16750.916827]  netlink_recvmsg+0x1b4/0x338
-[16750.920861]  ____sys_recvmsg+0x7c/0x2b0
-[16750.924801]  ___sys_recvmsg+0x70/0x98
-[16750.928564]  __sys_recvmsg+0x58/0xa0
-[16750.932238]  __arm64_sys_recvmsg+0x28/0x30
-[16750.936453]  el0_svc_common.constprop.3+0x90/0x158
-[16750.941378]  do_el0_svc+0x74/0x90
-[16750.944784]  el0_sync_handler+0x12c/0x1a8
-[16750.948903]  el0_sync+0x114/0x140
-[16750.952312] Code: f9400003 f907f423 eb02007f 54fffd60 (b9401060)
-[16750.958583] ---[ end trace c8ad181c2f4b8576 ]---
+printk: console [ttyS0] enabled
+printk: bootconsole [debug0] disabled
+printk: bootconsole [debug0] disabled
+Calibrating delay loop... 9.61 BogoMIPS (lpj=48064)
+pid_max: default: 32768 minimum: 301
+Mount-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
+Mountpoint-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
+devtmpfs: initialized
+random: get_random_u32 called from bucket_table_alloc.isra.27+0x68/0x194 with crng_init=0
+clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 19112604462750000 ns
+futex hash table entries: 256 (order: -1, 3072 bytes, linear)
+NET: Registered protocol family 16
+Data read fault at 0x00000000 in Super Data (pc=0x8a6a)
+BAD KERNEL BUSERR
+Oops: 00000000
+Modules linked in:
+PC: [<00008a6a>] via_flush_cache+0x12/0x2c
+SR: 2700  SP: 01c1fe3c  a2: 01c24000
+d0: 00001119    d1: 0000000c    d2: 00012000    d3: 0000000f
+d4: 01c06840    d5: 00033b92    a0: 00000000    a1: 00000000
+Process swapper (pid: 1, task=01c24000)
+Frame format=B ssw=0755 isc=0200 isb=fff7 daddr=00000000 dobuf=01c1fed0
+baddr=00008a6e dibuf=0000004e ver=f
+Stack from 01c1fec4:
+        01c1fed0 00007d7e 00010080 01c1fedc 0000792e 00000001 01c1fef4 00006b40
+        01c80000 00040000 00000006 00000003 01c1ff1c 004a545e 004ff200 00040000
+        00000000 00000003 01c06840 00033b92 004a5410 004b6c88 01c1ff84 000021e2
+        00000073 00000003 01c06840 00033b92 0038507a 004bb094 004b6ca8 004b6c88
+        004b6ca4 004b6c88 000021ae 00020002 00000000 01c0685d 00000000 01c1ffb4
+        0049f938 00409c85 01c06840 0045bd40 00000073 00000002 00000002 00000000
+Call Trace: [<00007d7e>] mac_cache_card_flush+0x12/0x1c
+ [<00010080>] fix_dnrm+0x2/0x18
+ [<0000792e>] cache_push+0x46/0x5a
+ [<00006b40>] arch_dma_prep_coherent+0x60/0x6e
+ [<00040000>] switched_to_dl+0x76/0xd0
+ [<004a545e>] dma_atomic_pool_init+0x4e/0x188
+ [<00040000>] switched_to_dl+0x76/0xd0
+ [<00033b92>] parse_args+0x0/0x370
+ [<004a5410>] dma_atomic_pool_init+0x0/0x188
+ [<000021e2>] do_one_initcall+0x34/0x1be
+ [<00033b92>] parse_args+0x0/0x370
+ [<0038507a>] strcpy+0x0/0x1e
+ [<000021ae>] do_one_initcall+0x0/0x1be
+ [<00020002>] do_proc_dointvec_conv+0x54/0x74
+ [<0049f938>] kernel_init_freeable+0x126/0x190
+ [<0049f94c>] kernel_init_freeable+0x13a/0x190
+ [<004a5410>] dma_atomic_pool_init+0x0/0x188
+ [<00041798>] complete+0x0/0x3c
+ [<000b9b0c>] kfree+0x0/0x20a
+ [<0038df98>] schedule+0x0/0xd0
+ [<0038d604>] kernel_init+0x0/0xda
+ [<0038d610>] kernel_init+0xc/0xda
+ [<0038d604>] kernel_init+0x0/0xda
+ [<00002d38>] ret_from_kernel_thread+0xc/0x14
+Code: 0000 2079 0048 10da 2279 0048 10c8 d3c8 <1011> 0200 fff7 1280 d1f9 0048 10c8 1010 0000 0008 1080 4e5e 4e75 4e56 0000 2039
+Disabling lock debugging due to kernel taint
+Kernel panic - not syncing: Attempted to kill init! exitcode=0x0000000b
 
-This patch drops the use of the static iterator, and instead every time
-the function is called iterates to the idx-th position of the
-linked-list.
+Thanks to Stan Johnson for capturing the console log and running git
+bisect.
 
-It would be better to convert the code not to use linked list for
-associated stations storage (since the chip has a limited number of
-associated stations anyway - it could just be an array). Such a change
-may be proposed in the future. In the meantime this patch can backported
-into stable kernels in this simple form.
+Git bisect said commit 8e3a68fb55e0 ("dma-mapping: make
+dma_atomic_pool_init self-contained") is the first "bad" commit. I don't
+know why. Perhaps mach_l2_flush first became reachable with that commit.
 
-Fixes: 8baca1a34d4c ("mwifiex: dump station support in uap mode")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Acked-by: Ganapathi Bhat <ganapathi.bhat@nxp.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200515075924.13841-1-pali@kernel.org
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-and-tested-by: Stan Johnson <userm57@yahoo.com>
+Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
+Cc: Joshua Thompson <funaho@jurai.org>
+Link: https://lore.kernel.org/r/b8bbeef197d6b3898e82ed0d231ad08f575a4b34.1589949122.git.fthain@telegraphics.com.au
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwifiex/cfg80211.c | 14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ arch/m68k/include/asm/mac_via.h |  1 +
+ arch/m68k/mac/config.c          | 21 ++-------------------
+ arch/m68k/mac/via.c             |  6 +++++-
+ 3 files changed, 8 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/net/wireless/marvell/mwifiex/cfg80211.c b/drivers/net/wireless/marvell/mwifiex/cfg80211.c
-index 94901b0041ce..c597af69f48f 100644
---- a/drivers/net/wireless/marvell/mwifiex/cfg80211.c
-+++ b/drivers/net/wireless/marvell/mwifiex/cfg80211.c
-@@ -1446,7 +1446,8 @@ mwifiex_cfg80211_dump_station(struct wiphy *wiphy, struct net_device *dev,
- 			      int idx, u8 *mac, struct station_info *sinfo)
- {
- 	struct mwifiex_private *priv = mwifiex_netdev_get_priv(dev);
--	static struct mwifiex_sta_node *node;
-+	struct mwifiex_sta_node *node;
-+	int i;
+diff --git a/arch/m68k/include/asm/mac_via.h b/arch/m68k/include/asm/mac_via.h
+index 53c632c85b03..dff6db19ae4d 100644
+--- a/arch/m68k/include/asm/mac_via.h
++++ b/arch/m68k/include/asm/mac_via.h
+@@ -256,6 +256,7 @@ extern int rbv_present,via_alt_mapping;
  
- 	if ((GET_BSS_ROLE(priv) == MWIFIEX_BSS_ROLE_STA) &&
- 	    priv->media_connected && idx == 0) {
-@@ -1456,13 +1457,10 @@ mwifiex_cfg80211_dump_station(struct wiphy *wiphy, struct net_device *dev,
- 		mwifiex_send_cmd(priv, HOST_CMD_APCMD_STA_LIST,
- 				 HostCmd_ACT_GEN_GET, 0, NULL, true);
+ struct irq_desc;
  
--		if (node && (&node->list == &priv->sta_list)) {
--			node = NULL;
--			return -ENOENT;
--		}
++extern void via_l2_flush(int writeback);
+ extern void via_register_interrupts(void);
+ extern void via_irq_enable(int);
+ extern void via_irq_disable(int);
+diff --git a/arch/m68k/mac/config.c b/arch/m68k/mac/config.c
+index 689b47d292ac..c4be82cc07df 100644
+--- a/arch/m68k/mac/config.c
++++ b/arch/m68k/mac/config.c
+@@ -60,7 +60,6 @@ extern void iop_preinit(void);
+ extern void iop_init(void);
+ extern void via_init(void);
+ extern void via_init_clock(irq_handler_t func);
+-extern void via_flush_cache(void);
+ extern void oss_init(void);
+ extern void psc_init(void);
+ extern void baboon_init(void);
+@@ -131,21 +130,6 @@ int __init mac_parse_bootinfo(const struct bi_record *record)
+ 	return unknown;
+ }
+ 
+-/*
+- * Flip into 24bit mode for an instant - flushes the L2 cache card. We
+- * have to disable interrupts for this. Our IRQ handlers will crap
+- * themselves if they take an IRQ in 24bit mode!
+- */
 -
--		node = list_prepare_entry(node, &priv->sta_list, list);
--		list_for_each_entry_continue(node, &priv->sta_list, list) {
-+		i = 0;
-+		list_for_each_entry(node, &priv->sta_list, list) {
-+			if (i++ != idx)
-+				continue;
- 			ether_addr_copy(mac, node->mac_addr);
- 			return mwifiex_dump_station_info(priv, node, sinfo);
- 		}
+-static void mac_cache_card_flush(int writeback)
+-{
+-	unsigned long flags;
+-
+-	local_irq_save(flags);
+-	via_flush_cache();
+-	local_irq_restore(flags);
+-}
+-
+ void __init config_mac(void)
+ {
+ 	if (!MACH_IS_MAC)
+@@ -178,9 +162,8 @@ void __init config_mac(void)
+ 	 * not.
+ 	 */
+ 
+-	if (macintosh_config->ident == MAC_MODEL_IICI
+-	    || macintosh_config->ident == MAC_MODEL_IIFX)
+-		mach_l2_flush = mac_cache_card_flush;
++	if (macintosh_config->ident == MAC_MODEL_IICI)
++		mach_l2_flush = via_l2_flush;
+ }
+ 
+ 
+diff --git a/arch/m68k/mac/via.c b/arch/m68k/mac/via.c
+index 49f9fa4529a8..b4c40ed2099a 100644
+--- a/arch/m68k/mac/via.c
++++ b/arch/m68k/mac/via.c
+@@ -299,10 +299,14 @@ void via_debug_dump(void)
+  * the system into 24-bit mode for an instant.
+  */
+ 
+-void via_flush_cache(void)
++void via_l2_flush(int writeback)
+ {
++	unsigned long flags;
++
++	local_irq_save(flags);
+ 	via2[gBufB] &= ~VIA2B_vMode32;
+ 	via2[gBufB] |= VIA2B_vMode32;
++	local_irq_restore(flags);
+ }
+ 
+ /*
 -- 
 2.25.1
 
