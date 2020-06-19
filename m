@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF695200C4A
+	by mail.lfdr.de (Postfix) with ESMTP id 444E8200C49
 	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:47:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388180AbgFSOnt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2387523AbgFSOnt (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 19 Jun 2020 10:43:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34932 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:34972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388505AbgFSOnp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:43:45 -0400
+        id S2387946AbgFSOnr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:43:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C0A3521707;
-        Fri, 19 Jun 2020 14:43:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A5B121556;
+        Fri, 19 Jun 2020 14:43:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577825;
-        bh=FeCyewu7Db/5Xu+nwArUyTocoh2rNveCn+wmznFtYgw=;
+        s=default; t=1592577827;
+        bh=d9zKPQGRM6WNnUeRxiEl6bU9G95v89PXKZSFUxaLP+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ih41QiMEesPmK1iwXm2rdkyjvyAXokcQqXmgqhlccbfVwo9z6NVYcnLZxN4HCgVQG
-         GonSeOmUxL9658eAhc+65TgWexTRDynajSRd8SMCgLoLi/gnzMBquXtSLAVgklgw6G
-         EuIgttamJubvMJ4quODT4oTWHr25hzRbtIuY2qeE=
+        b=QB/pSwMu7EdYXbFT1YyZlghY3hPhgy/7V1nI4zdFHdY9D0IGiCa2xu/PIim0RLYq+
+         rqAavo4MLwM6Tkky7XJGzROaLVlszAh0456eHmny28+NyRj/qAubHk4eMUQ7P8B+jr
+         Yv0ssa95JHtUWMZiwEqOwqqnwUTx6ww0bTT/w+EM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Giuliano Procida <gprocida@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 105/128] blk-mq: move blk_mq_update_nr_hw_queues synchronize_rcu call
-Date:   Fri, 19 Jun 2020 16:33:19 +0200
-Message-Id: <20200619141625.689301820@linuxfoundation.org>
+        stable@vger.kernel.org, Dave Jiang <dave.jiang@intel.com>,
+        Ashok Raj <ashok.raj@intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 4.9 106/128] PCI: Program MPS for RCiEP devices
+Date:   Fri, 19 Jun 2020 16:33:20 +0200
+Message-Id: <20200619141625.752300209@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
 References: <20200619141620.148019466@linuxfoundation.org>
@@ -43,56 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giuliano Procida <gprocida@google.com>
+From: Ashok Raj <ashok.raj@intel.com>
 
-This fixes the
-4.9 backport commit f530afb974c2e82047bd6220303a2dbe30eff304
-which was
-upstream commit f5bbbbe4d63577026f908a809f22f5fd5a90ea1f.
+commit aa0ce96d72dd2e1b0dfd0fb868f82876e7790878 upstream.
 
-The upstream commit added a call to synchronize_rcu to
-_blk_mq_update_nr_hw_queues, just after freezing queues.
+Root Complex Integrated Endpoints (RCiEPs) do not have an upstream bridge,
+so pci_configure_mps() previously ignored them, which may result in reduced
+performance.
 
-In the backport this landed (in blk_mq_update_nr_hw_queues instead),
-just after unfreezeing queues.
+Instead, program the Max_Payload_Size of RCiEPs to the maximum supported
+value (unless it is limited for the PCIE_BUS_PEER2PEER case).  This also
+affects the subsequent programming of Max_Read_Request_Size because Linux
+programs MRRS based on the MPS value.
 
-This commit moves the call to its intended place.
+Fixes: 9dae3a97297f ("PCI: Move MPS configuration check to pci_configure_device()")
+Link: https://lore.kernel.org/r/1585343775-4019-1-git-send-email-ashok.raj@intel.com
+Tested-by: Dave Jiang <dave.jiang@intel.com>
+Signed-off-by: Ashok Raj <ashok.raj@intel.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: f530afb974c2 ("blk-mq: sync the update nr_hw_queues with blk_mq_queue_tag_busy_iter")
-Signed-off-by: Giuliano Procida <gprocida@google.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/pci/probe.c |   22 +++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
 
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index 58be2eaa5aaa..e0ed7317e98c 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -2331,6 +2331,10 @@ void blk_mq_update_nr_hw_queues(struct blk_mq_tag_set *set, int nr_hw_queues)
+--- a/drivers/pci/probe.c
++++ b/drivers/pci/probe.c
+@@ -1360,13 +1360,33 @@ static void pci_configure_mps(struct pci
+ 	struct pci_dev *bridge = pci_upstream_bridge(dev);
+ 	int mps, p_mps, rc;
  
- 	list_for_each_entry(q, &set->tag_list, tag_set_list)
- 		blk_mq_freeze_queue(q);
+-	if (!pci_is_pcie(dev) || !bridge || !pci_is_pcie(bridge))
++	if (!pci_is_pcie(dev))
+ 		return;
+ 
+ 	/* MPS and MRRS fields are of type 'RsvdP' for VFs, short-circuit out */
+ 	if (dev->is_virtfn)
+ 		return;
+ 
 +	/*
-+	 * Sync with blk_mq_queue_tag_busy_iter.
++	 * For Root Complex Integrated Endpoints, program the maximum
++	 * supported value unless limited by the PCIE_BUS_PEER2PEER case.
 +	 */
-+	synchronize_rcu();
++	if (pci_pcie_type(dev) == PCI_EXP_TYPE_RC_END) {
++		if (pcie_bus_config == PCIE_BUS_PEER2PEER)
++			mps = 128;
++		else
++			mps = 128 << dev->pcie_mpss;
++		rc = pcie_set_mps(dev, mps);
++		if (rc) {
++			pci_warn(dev, "can't set Max Payload Size to %d; if necessary, use \"pci=pcie_bus_safe\" and report a bug\n",
++				 mps);
++		}
++		return;
++	}
++
++	if (!bridge || !pci_is_pcie(bridge))
++		return;
++
+ 	mps = pcie_get_mps(dev);
+ 	p_mps = pcie_get_mps(bridge);
  
- 	set->nr_hw_queues = nr_hw_queues;
- 	list_for_each_entry(q, &set->tag_list, tag_set_list) {
-@@ -2346,10 +2350,6 @@ void blk_mq_update_nr_hw_queues(struct blk_mq_tag_set *set, int nr_hw_queues)
- 
- 	list_for_each_entry(q, &set->tag_list, tag_set_list)
- 		blk_mq_unfreeze_queue(q);
--	/*
--	 * Sync with blk_mq_queue_tag_busy_iter.
--	 */
--	synchronize_rcu();
- }
- EXPORT_SYMBOL_GPL(blk_mq_update_nr_hw_queues);
- 
--- 
-2.25.1
-
 
 
