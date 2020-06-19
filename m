@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34F7A2017A1
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CC7F2015B7
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:31:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387895AbgFSQlO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:41:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36702 "EHLO mail.kernel.org"
+        id S2389408AbgFSO4S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:56:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388665AbgFSOpN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:45:13 -0400
+        id S2389374AbgFSO4N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:56:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CAB7921556;
-        Fri, 19 Jun 2020 14:45:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7405F2158C;
+        Fri, 19 Jun 2020 14:56:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577912;
-        bh=ULzMJ230Is2k3ZU3EMjmixjq11fp4tjy5YfjuKNr1PU=;
+        s=default; t=1592578573;
+        bh=wA/z1Zo8HdXoPQpYnhLsBY8h2ygok12Fbcuw5q4Zky8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f0Tg1wKX2PTHMnt+F6sPd0eSr247+snjPs7U9jMQdj7ZoO9R0kcgZdd92K5Wp/H5e
-         0Or4Dhic90ftiqDYHJSWlAT02CaOcw4PVjs/uwp2DMi73lk46euUWMzau7HCtcc5nn
-         nHiQPzq3miP15QpdLxrVrt15ZkFaUfuPnL6Kj6vQ=
+        b=PyMl4UMK0ALnm7oHo3Tg7oJ+m5fepqHpSHihi3SdQ337t4mPR4Ce8TScUMbyf2ijA
+         ANQJqF/Flb2YJJTRS1XdCZPSPGzbS1NBeSy04CoPIbxCgUATuaK3sy0EJ072Pw1Yub
+         IVckkkdqsJkTQpuHKQND70JBbeuCKbP533ZY3f1g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>, Ingo Molnar <mingo@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 011/190] sched/fair: Dont NUMA balance for kthreads
-Date:   Fri, 19 Jun 2020 16:30:56 +0200
-Message-Id: <20200619141634.050109030@linuxfoundation.org>
+        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
+        Xiaoyao Li <xiaoyao.li@intel.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.19 073/267] KVM: nVMX: Consult only the "basic" exit reason when routing nested exit
+Date:   Fri, 19 Jun 2020 16:30:58 +0200
+Message-Id: <20200619141652.399461563@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
-References: <20200619141633.446429600@linuxfoundation.org>
+In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
+References: <20200619141648.840376470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,55 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-[ Upstream commit 18f855e574d9799a0e7489f8ae6fd8447d0dd74a ]
+commit 2ebac8bb3c2d35f5135466490fc8eeaf3f3e2d37 upstream.
 
-Stefano reported a crash with using SQPOLL with io_uring:
+Consult only the basic exit reason, i.e. bits 15:0 of vmcs.EXIT_REASON,
+when determining whether a nested VM-Exit should be reflected into L1 or
+handled by KVM in L0.
 
-  BUG: kernel NULL pointer dereference, address: 00000000000003b0
-  CPU: 2 PID: 1307 Comm: io_uring-sq Not tainted 5.7.0-rc7 #11
-  RIP: 0010:task_numa_work+0x4f/0x2c0
-  Call Trace:
-   task_work_run+0x68/0xa0
-   io_sq_thread+0x252/0x3d0
-   kthread+0xf9/0x130
-   ret_from_fork+0x35/0x40
+For better or worse, the switch statement in nested_vmx_exit_reflected()
+currently defaults to "true", i.e. reflects any nested VM-Exit without
+dedicated logic.  Because the case statements only contain the basic
+exit reason, any VM-Exit with modifier bits set will be reflected to L1,
+even if KVM intended to handle it in L0.
 
-which is task_numa_work() oopsing on current->mm being NULL.
+Practically speaking, this only affects EXIT_REASON_MCE_DURING_VMENTRY,
+i.e. a #MC that occurs on nested VM-Enter would be incorrectly routed to
+L1, as "failed VM-Entry" is the only modifier that KVM can currently
+encounter.  The SMM modifiers will never be generated as KVM doesn't
+support/employ a SMI Transfer Monitor.  Ditto for "exit from enclave",
+as KVM doesn't yet support virtualizing SGX, i.e. it's impossible to
+enter an enclave in a KVM guest (L1 or L2).
 
-The task work is queued by task_tick_numa(), which checks if current->mm is
-NULL at the time of the call. But this state isn't necessarily persistent,
-if the kthread is using use_mm() to temporarily adopt the mm of a task.
+Fixes: 644d711aa0e1 ("KVM: nVMX: Deciding if L0 or L1 should handle an L2 exit")
+Cc: Jim Mattson <jmattson@google.com>
+Cc: Xiaoyao Li <xiaoyao.li@intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Message-Id: <20200227174430.26371-1-sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Change the task_tick_numa() check to exclude kernel threads in general,
-as it doesn't make sense to attempt ot balance for kthreads anyway.
-
-Reported-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Acked-by: Peter Zijlstra <peterz@infradead.org>
-Link: https://lore.kernel.org/r/865de121-8190-5d30-ece5-3b097dc74431@kernel.dk
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 2 +-
+ arch/x86/kvm/vmx.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 0b4e997fea1a..4d8add44fffb 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -2643,7 +2643,7 @@ void task_tick_numa(struct rq *rq, struct task_struct *curr)
- 	/*
- 	 * We don't care about NUMA placement if we don't have memory.
- 	 */
--	if (!curr->mm || (curr->flags & PF_EXITING) || work->next != work)
-+	if ((curr->flags & (PF_EXITING | PF_KTHREAD)) || work->next != work)
- 		return;
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -9683,7 +9683,7 @@ static bool nested_vmx_exit_reflected(st
+ 				vmcs_read32(VM_EXIT_INTR_ERROR_CODE),
+ 				KVM_ISA_VMX);
  
- 	/*
--- 
-2.25.1
-
+-	switch (exit_reason) {
++	switch ((u16)exit_reason) {
+ 	case EXIT_REASON_EXCEPTION_NMI:
+ 		if (is_nmi(intr_info))
+ 			return false;
 
 
