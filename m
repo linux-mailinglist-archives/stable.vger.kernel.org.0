@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55E76200D8D
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:01:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E79BF201011
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:30:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390391AbgFSO6k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:58:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54530 "EHLO mail.kernel.org"
+        id S2392925AbgFSPZG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:25:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389985AbgFSO6j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:58:39 -0400
+        id S2393364AbgFSPZF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:25:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 203DD21852;
-        Fri, 19 Jun 2020 14:58:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E4C4121582;
+        Fri, 19 Jun 2020 15:25:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578719;
-        bh=HH+2Ue1hHzAGnSOteBzokmUmBX/varrvGqjlV79dhic=;
+        s=default; t=1592580303;
+        bh=11YNQfJ7vqagWuD8q52RubX+NJrVDLuos4X+rH7Zr/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sm93JB2lfEefY6DCoShUVlT0UYumahfr6uxnVHka1nCmh7ewvupU0VIbs/DT+121y
-         WUT4G4bWiMKqaPu5D8DRQ4P92bMKKCbcZk8cPrhH2kbT1l4c18AZmvQiMI+lR7IfQV
-         kZfunFESaoYvXjhXAGCEgJKIBftWNM/pJvHqegdM=
+        b=yqvn8piGWlkU6IDDKAm+rpAHqLLv0/shEpdSp7uGBXE6W54mXLBopgU6h1UtQVUyn
+         wSTJOXRRHZiQuM+3XxrboBFsXxGBp6WZe8psBh738QYe5oG2TV61NHjY3NnLJK7tp/
+         rVaeMVm0fTsQeQxQaZSdeDOIuoMoGm4EsXfiv0Bw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 131/267] netfilter: nft_nat: return EOPNOTSUPP if type or flags are not supported
+Subject: [PATCH 5.7 198/376] kgdboc: Use a platform device to handle tty drivers showing up late
 Date:   Fri, 19 Jun 2020 16:31:56 +0200
-Message-Id: <20200619141655.113877086@linuxfoundation.org>
+Message-Id: <20200619141719.717936834@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
-References: <20200619141648.840376470@linuxfoundation.org>
+In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
+References: <20200619141710.350494719@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +44,275 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Douglas Anderson <dianders@chromium.org>
 
-[ Upstream commit 0d7c83463fdf7841350f37960a7abadd3e650b41 ]
+[ Upstream commit 68e55f61c13842baf825958129698c5371db432c ]
 
-Instead of EINVAL which should be used for malformed netlink messages.
+If you build CONFIG_KGDB_SERIAL_CONSOLE into the kernel then you
+should be able to have KGDB init itself at bootup by specifying the
+"kgdboc=..." kernel command line parameter.  This has worked OK for me
+for many years, but on a new device I switched to it stopped working.
 
-Fixes: eb31628e37a0 ("netfilter: nf_tables: Add support for IPv6 NAT")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+The problem is that on this new device the serial driver gets its
+probe deferred.  Now when kgdb initializes it can't find the tty
+driver and when it gives up it never tries again.
+
+We could try to find ways to move up the initialization of the serial
+driver and such a thing might be worthwhile, but it's nice to be
+robust against serial drivers that load late.  We could move kgdb to
+init itself later but that penalizes our ability to debug early boot
+code on systems where the driver inits early.  We could roll our own
+system of detecting when new tty drivers get loaded and then use that
+to figure out when kgdb can init, but that's ugly.
+
+Instead, let's jump on the -EPROBE_DEFER bandwagon.  We'll create a
+singleton instance of a "kgdboc" platform device.  If we can't find
+our tty device when the singleton "kgdboc" probes we'll return
+-EPROBE_DEFER which means that the system will call us back later to
+try again when the tty device might be there.
+
+We won't fully transition all of the kgdboc to a platform device
+because early kgdb initialization (via the "ekgdboc" kernel command
+line parameter) still runs before the platform device has been
+created.  The kgdb platform device is merely used as a convenient way
+to hook into the system's normal probe deferral mechanisms.
+
+As part of this, we'll ever-so-slightly change how the "kgdboc=..."
+kernel command line parameter works.  Previously if you booted up and
+kgdb couldn't find the tty driver then later reading
+'/sys/module/kgdboc/parameters/kgdboc' would return a blank string.
+Now kgdb will keep track of the string that came as part of the
+command line and give it back to you.  It's expected that this should
+be an OK change.
+
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
+Link: https://lore.kernel.org/r/20200507130644.v4.3.I4a493cfb0f9f740ce8fd2ab58e62dc92d18fed30@changeid
+[daniel.thompson@linaro.org: Make config_mutex static]
+Signed-off-by: Daniel Thompson <daniel.thompson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_nat.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/tty/serial/kgdboc.c | 126 +++++++++++++++++++++++++++++-------
+ 1 file changed, 101 insertions(+), 25 deletions(-)
 
-diff --git a/net/netfilter/nft_nat.c b/net/netfilter/nft_nat.c
-index c15807d10b91..3e82a7d0df2a 100644
---- a/net/netfilter/nft_nat.c
-+++ b/net/netfilter/nft_nat.c
-@@ -135,7 +135,7 @@ static int nft_nat_init(const struct nft_ctx *ctx, const struct nft_expr *expr,
- 		priv->type = NF_NAT_MANIP_DST;
- 		break;
- 	default:
--		return -EINVAL;
-+		return -EOPNOTSUPP;
+diff --git a/drivers/tty/serial/kgdboc.c b/drivers/tty/serial/kgdboc.c
+index c9f94fa82be4..151256f70d37 100644
+--- a/drivers/tty/serial/kgdboc.c
++++ b/drivers/tty/serial/kgdboc.c
+@@ -20,6 +20,7 @@
+ #include <linux/vt_kern.h>
+ #include <linux/input.h>
+ #include <linux/module.h>
++#include <linux/platform_device.h>
+ 
+ #define MAX_CONFIG_LEN		40
+ 
+@@ -27,6 +28,7 @@ static struct kgdb_io		kgdboc_io_ops;
+ 
+ /* -1 = init not run yet, 0 = unconfigured, 1 = configured. */
+ static int configured		= -1;
++static DEFINE_MUTEX(config_mutex);
+ 
+ static char config[MAX_CONFIG_LEN];
+ static struct kparam_string kps = {
+@@ -38,6 +40,8 @@ static int kgdboc_use_kms;  /* 1 if we use kernel mode switching */
+ static struct tty_driver	*kgdb_tty_driver;
+ static int			kgdb_tty_line;
+ 
++static struct platform_device *kgdboc_pdev;
++
+ #ifdef CONFIG_KDB_KEYBOARD
+ static int kgdboc_reset_connect(struct input_handler *handler,
+ 				struct input_dev *dev,
+@@ -133,11 +137,13 @@ static void kgdboc_unregister_kbd(void)
+ 
+ static void cleanup_kgdboc(void)
+ {
++	if (configured != 1)
++		return;
++
+ 	if (kgdb_unregister_nmi_console())
+ 		return;
+ 	kgdboc_unregister_kbd();
+-	if (configured == 1)
+-		kgdb_unregister_io_module(&kgdboc_io_ops);
++	kgdb_unregister_io_module(&kgdboc_io_ops);
+ }
+ 
+ static int configure_kgdboc(void)
+@@ -198,20 +204,79 @@ nmi_con_failed:
+ 	kgdb_unregister_io_module(&kgdboc_io_ops);
+ noconfig:
+ 	kgdboc_unregister_kbd();
+-	config[0] = 0;
+ 	configured = 0;
+-	cleanup_kgdboc();
+ 
+ 	return err;
+ }
+ 
++static int kgdboc_probe(struct platform_device *pdev)
++{
++	int ret = 0;
++
++	mutex_lock(&config_mutex);
++	if (configured != 1) {
++		ret = configure_kgdboc();
++
++		/* Convert "no device" to "defer" so we'll keep trying */
++		if (ret == -ENODEV)
++			ret = -EPROBE_DEFER;
++	}
++	mutex_unlock(&config_mutex);
++
++	return ret;
++}
++
++static struct platform_driver kgdboc_platform_driver = {
++	.probe = kgdboc_probe,
++	.driver = {
++		.name = "kgdboc",
++		.suppress_bind_attrs = true,
++	},
++};
++
+ static int __init init_kgdboc(void)
+ {
+-	/* Already configured? */
+-	if (configured == 1)
++	int ret;
++
++	/*
++	 * kgdboc is a little bit of an odd "platform_driver".  It can be
++	 * up and running long before the platform_driver object is
++	 * created and thus doesn't actually store anything in it.  There's
++	 * only one instance of kgdb so anything is stored as global state.
++	 * The platform_driver is only created so that we can leverage the
++	 * kernel's mechanisms (like -EPROBE_DEFER) to call us when our
++	 * underlying tty is ready.  Here we init our platform driver and
++	 * then create the single kgdboc instance.
++	 */
++	ret = platform_driver_register(&kgdboc_platform_driver);
++	if (ret)
++		return ret;
++
++	kgdboc_pdev = platform_device_alloc("kgdboc", PLATFORM_DEVID_NONE);
++	if (!kgdboc_pdev) {
++		ret = -ENOMEM;
++		goto err_did_register;
++	}
++
++	ret = platform_device_add(kgdboc_pdev);
++	if (!ret)
+ 		return 0;
+ 
+-	return configure_kgdboc();
++	platform_device_put(kgdboc_pdev);
++
++err_did_register:
++	platform_driver_unregister(&kgdboc_platform_driver);
++	return ret;
++}
++
++static void exit_kgdboc(void)
++{
++	mutex_lock(&config_mutex);
++	cleanup_kgdboc();
++	mutex_unlock(&config_mutex);
++
++	platform_device_unregister(kgdboc_pdev);
++	platform_driver_unregister(&kgdboc_platform_driver);
+ }
+ 
+ static int kgdboc_get_char(void)
+@@ -234,24 +299,20 @@ static int param_set_kgdboc_var(const char *kmessage,
+ 				const struct kernel_param *kp)
+ {
+ 	size_t len = strlen(kmessage);
++	int ret = 0;
+ 
+ 	if (len >= MAX_CONFIG_LEN) {
+ 		pr_err("config string too long\n");
+ 		return -ENOSPC;
  	}
  
- 	if (tb[NFTA_NAT_FAMILY] == NULL)
-@@ -202,7 +202,7 @@ static int nft_nat_init(const struct nft_ctx *ctx, const struct nft_expr *expr,
- 	if (tb[NFTA_NAT_FLAGS]) {
- 		priv->flags = ntohl(nla_get_be32(tb[NFTA_NAT_FLAGS]));
- 		if (priv->flags & ~NF_NAT_RANGE_MASK)
--			return -EINVAL;
-+			return -EOPNOTSUPP;
+-	/* Only copy in the string if the init function has not run yet */
+-	if (configured < 0) {
+-		strcpy(config, kmessage);
+-		return 0;
+-	}
+-
+ 	if (kgdb_connected) {
+ 		pr_err("Cannot reconfigure while KGDB is connected.\n");
+-
+ 		return -EBUSY;
  	}
  
- 	return nf_ct_netns_get(ctx->net, family);
++	mutex_lock(&config_mutex);
++
+ 	strcpy(config, kmessage);
+ 	/* Chop out \n char as a result of echo */
+ 	if (len && config[len - 1] == '\n')
+@@ -260,8 +321,30 @@ static int param_set_kgdboc_var(const char *kmessage,
+ 	if (configured == 1)
+ 		cleanup_kgdboc();
+ 
+-	/* Go and configure with the new params. */
+-	return configure_kgdboc();
++	/*
++	 * Configure with the new params as long as init already ran.
++	 * Note that we can get called before init if someone loads us
++	 * with "modprobe kgdboc kgdboc=..." or if they happen to use the
++	 * the odd syntax of "kgdboc.kgdboc=..." on the kernel command.
++	 */
++	if (configured >= 0)
++		ret = configure_kgdboc();
++
++	/*
++	 * If we couldn't configure then clear out the config.  Note that
++	 * specifying an invalid config on the kernel command line vs.
++	 * through sysfs have slightly different behaviors.  If we fail
++	 * to configure what was specified on the kernel command line
++	 * we'll leave it in the 'config' and return -EPROBE_DEFER from
++	 * our probe.  When specified through sysfs userspace is
++	 * responsible for loading the tty driver before setting up.
++	 */
++	if (ret)
++		config[0] = '\0';
++
++	mutex_unlock(&config_mutex);
++
++	return ret;
+ }
+ 
+ static int dbg_restore_graphics;
+@@ -324,15 +407,8 @@ __setup("kgdboc=", kgdboc_option_setup);
+ /* This is only available if kgdboc is a built in for early debugging */
+ static int __init kgdboc_early_init(char *opt)
+ {
+-	/* save the first character of the config string because the
+-	 * init routine can destroy it.
+-	 */
+-	char save_ch;
+-
+ 	kgdboc_option_setup(opt);
+-	save_ch = config[0];
+-	init_kgdboc();
+-	config[0] = save_ch;
++	configure_kgdboc();
+ 	return 0;
+ }
+ 
+@@ -340,7 +416,7 @@ early_param("ekgdboc", kgdboc_early_init);
+ #endif /* CONFIG_KGDB_SERIAL_CONSOLE */
+ 
+ module_init(init_kgdboc);
+-module_exit(cleanup_kgdboc);
++module_exit(exit_kgdboc);
+ module_param_call(kgdboc, param_set_kgdboc_var, param_get_string, &kps, 0644);
+ MODULE_PARM_DESC(kgdboc, "<serial_device>[,baud]");
+ MODULE_DESCRIPTION("KGDB Console TTY Driver");
 -- 
 2.25.1
 
