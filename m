@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C83DC201395
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:07:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9A76201586
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:23:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403832AbgFSPLa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:11:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41892 "EHLO mail.kernel.org"
+        id S2389239AbgFSQXM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:23:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392109AbgFSPLa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:11:30 -0400
+        id S2390536AbgFSO7g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:59:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A9774206FA;
-        Fri, 19 Jun 2020 15:11:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9734321973;
+        Fri, 19 Jun 2020 14:59:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579489;
-        bh=Yt4ktiABSZjT7Qsxewvm7RIKat6MF4nc+GNMq05JEII=;
+        s=default; t=1592578775;
+        bh=duFMSxH9LLHFznCxFrz5SCLi4Onawnsd+0BCsQHec3E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L/zF6w5yKKnCsY9MP99E0AJbQ9zIkuzRD3bu/7SSRAb/bBlPDKg6O4MQIjaa8lXS4
-         nGVzSZIKtKo5DSHFoDw/nbvemgHRiFDyZyO5FLWZJUE8JZ6mmsZDXOSyRMLyAEPQs7
-         3JJHfqZRR9Ex9KDRfEJ3rEUlY6LcHven3NZWEbc4=
+        b=Yr9VCgojJYyIE9PKvZ8+U94baC3QDOOiWT0eaHKaoQbSw8RmEWDayAyFV9rfiGWtl
+         5sVNiPbqSywKlbCYSawXPm1NLBOzNytr7fBQxVfBvbPxZNs1vUzjfprJpRIkIdqaBu
+         SVrixKdf1cXobgOPE1IEUlJ99jJvq+9UKumvaoco=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Toromanoff <nicolas.toromanoff@st.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 124/261] crypto: stm32/crc32 - fix ext4 chksum BUG_ON()
+Subject: [PATCH 4.19 150/267] platform/x86: intel-vbtn: Split keymap into buttons and switches parts
 Date:   Fri, 19 Jun 2020 16:32:15 +0200
-Message-Id: <20200619141655.802068326@linuxfoundation.org>
+Message-Id: <20200619141656.025785903@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
-References: <20200619141649.878808811@linuxfoundation.org>
+In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
+References: <20200619141648.840376470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,180 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Toromanoff <nicolas.toromanoff@st.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 49c2c082e00e0bc4f5cbb7c21c7f0f873b35ab09 ]
+[ Upstream commit f6ba524970c4b73b234bf41ecd6628f5803b1559 ]
 
-Allow use of crc_update without prior call to crc_init.
-And change (and fix) driver to use CRC device even on unaligned buffers.
+Split the sparse keymap into 2 separate keymaps, a buttons and a switches
+keymap and combine the 2 to a single map again in intel_vbtn_input_setup().
 
-Fixes: b51dbe90912a ("crypto: stm32 - Support for STM32 CRC32 crypto module")
+This is a preparation patch for not telling userspace that we have switches
+when we do not have them (and for doing the same for the buttons).
 
-Signed-off-by: Nicolas Toromanoff <nicolas.toromanoff@st.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: de9647efeaa9 ("platform/x86: intel-vbtn: Only activate tablet mode switch on 2-in-1's")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/stm32/stm32-crc32.c | 98 +++++++++++++++---------------
- 1 file changed, 48 insertions(+), 50 deletions(-)
+ drivers/platform/x86/intel-vbtn.c | 28 +++++++++++++++++++++++++---
+ 1 file changed, 25 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/crypto/stm32/stm32-crc32.c b/drivers/crypto/stm32/stm32-crc32.c
-index 9e11c3480353..17b371eacd57 100644
---- a/drivers/crypto/stm32/stm32-crc32.c
-+++ b/drivers/crypto/stm32/stm32-crc32.c
-@@ -28,8 +28,10 @@
- 
- /* Registers values */
- #define CRC_CR_RESET            BIT(0)
--#define CRC_CR_REVERSE          (BIT(7) | BIT(6) | BIT(5))
- #define CRC_INIT_DEFAULT        0xFFFFFFFF
-+#define CRC_CR_REV_IN_WORD      (BIT(6) | BIT(5))
-+#define CRC_CR_REV_IN_BYTE      BIT(5)
-+#define CRC_CR_REV_OUT          BIT(7)
- 
- #define CRC_AUTOSUSPEND_DELAY	50
- 
-@@ -38,8 +40,6 @@ struct stm32_crc {
- 	struct device    *dev;
- 	void __iomem     *regs;
- 	struct clk       *clk;
--	u8               pending_data[sizeof(u32)];
--	size_t           nb_pending_bytes;
+diff --git a/drivers/platform/x86/intel-vbtn.c b/drivers/platform/x86/intel-vbtn.c
+index 0bcfa20dd614..e42203776727 100644
+--- a/drivers/platform/x86/intel-vbtn.c
++++ b/drivers/platform/x86/intel-vbtn.c
+@@ -39,14 +39,20 @@ static const struct key_entry intel_vbtn_keymap[] = {
+ 	{ KE_IGNORE, 0xC7, { KEY_VOLUMEDOWN } },	/* volume-down key release */
+ 	{ KE_KEY,    0xC8, { KEY_ROTATE_LOCK_TOGGLE } },	/* rotate-lock key press */
+ 	{ KE_KEY,    0xC9, { KEY_ROTATE_LOCK_TOGGLE } },	/* rotate-lock key release */
++};
++
++static const struct key_entry intel_vbtn_switchmap[] = {
+ 	{ KE_SW,     0xCA, { .sw = { SW_DOCK, 1 } } },		/* Docked */
+ 	{ KE_SW,     0xCB, { .sw = { SW_DOCK, 0 } } },		/* Undocked */
+ 	{ KE_SW,     0xCC, { .sw = { SW_TABLET_MODE, 1 } } },	/* Tablet */
+ 	{ KE_SW,     0xCD, { .sw = { SW_TABLET_MODE, 0 } } },	/* Laptop */
+-	{ KE_END },
  };
  
- struct stm32_crc_list {
-@@ -59,7 +59,6 @@ struct stm32_crc_ctx {
- 
- struct stm32_crc_desc_ctx {
- 	u32    partial; /* crc32c: partial in first 4 bytes of that struct */
--	struct stm32_crc *crc;
++#define KEYMAP_LEN \
++	(ARRAY_SIZE(intel_vbtn_keymap) + ARRAY_SIZE(intel_vbtn_switchmap) + 1)
++
+ struct intel_vbtn_priv {
++	struct key_entry keymap[KEYMAP_LEN];
+ 	struct input_dev *input_dev;
+ 	bool wakeup_mode;
  };
- 
- static int stm32_crc32_cra_init(struct crypto_tfm *tfm)
-@@ -101,25 +100,22 @@ static int stm32_crc_init(struct shash_desc *desc)
- 	struct stm32_crc *crc;
- 
- 	spin_lock_bh(&crc_list.lock);
--	list_for_each_entry(crc, &crc_list.dev_list, list) {
--		ctx->crc = crc;
--		break;
--	}
-+	crc = list_first_entry(&crc_list.dev_list, struct stm32_crc, list);
- 	spin_unlock_bh(&crc_list.lock);
- 
--	pm_runtime_get_sync(ctx->crc->dev);
-+	pm_runtime_get_sync(crc->dev);
- 
- 	/* Reset, set key, poly and configure in bit reverse mode */
--	writel_relaxed(bitrev32(mctx->key), ctx->crc->regs + CRC_INIT);
--	writel_relaxed(bitrev32(mctx->poly), ctx->crc->regs + CRC_POL);
--	writel_relaxed(CRC_CR_RESET | CRC_CR_REVERSE, ctx->crc->regs + CRC_CR);
-+	writel_relaxed(bitrev32(mctx->key), crc->regs + CRC_INIT);
-+	writel_relaxed(bitrev32(mctx->poly), crc->regs + CRC_POL);
-+	writel_relaxed(CRC_CR_RESET | CRC_CR_REV_IN_WORD | CRC_CR_REV_OUT,
-+		       crc->regs + CRC_CR);
- 
- 	/* Store partial result */
--	ctx->partial = readl_relaxed(ctx->crc->regs + CRC_DR);
--	ctx->crc->nb_pending_bytes = 0;
-+	ctx->partial = readl_relaxed(crc->regs + CRC_DR);
- 
--	pm_runtime_mark_last_busy(ctx->crc->dev);
--	pm_runtime_put_autosuspend(ctx->crc->dev);
-+	pm_runtime_mark_last_busy(crc->dev);
-+	pm_runtime_put_autosuspend(crc->dev);
- 
- 	return 0;
- }
-@@ -128,31 +124,49 @@ static int stm32_crc_update(struct shash_desc *desc, const u8 *d8,
- 			    unsigned int length)
+@@ -54,13 +60,29 @@ struct intel_vbtn_priv {
+ static int intel_vbtn_input_setup(struct platform_device *device)
  {
- 	struct stm32_crc_desc_ctx *ctx = shash_desc_ctx(desc);
--	struct stm32_crc *crc = ctx->crc;
--	u32 *d32;
--	unsigned int i;
-+	struct stm32_crc_ctx *mctx = crypto_shash_ctx(desc->tfm);
-+	struct stm32_crc *crc;
+ 	struct intel_vbtn_priv *priv = dev_get_drvdata(&device->dev);
+-	int ret;
++	int ret, keymap_len = 0;
 +
-+	spin_lock_bh(&crc_list.lock);
-+	crc = list_first_entry(&crc_list.dev_list, struct stm32_crc, list);
-+	spin_unlock_bh(&crc_list.lock);
- 
- 	pm_runtime_get_sync(crc->dev);
- 
--	if (unlikely(crc->nb_pending_bytes)) {
--		while (crc->nb_pending_bytes != sizeof(u32) && length) {
--			/* Fill in pending data */
--			crc->pending_data[crc->nb_pending_bytes++] = *(d8++);
-+	/*
-+	 * Restore previously calculated CRC for this context as init value
-+	 * Restore polynomial configuration
-+	 * Configure in register for word input data,
-+	 * Configure out register in reversed bit mode data.
-+	 */
-+	writel_relaxed(bitrev32(ctx->partial), crc->regs + CRC_INIT);
-+	writel_relaxed(bitrev32(mctx->poly), crc->regs + CRC_POL);
-+	writel_relaxed(CRC_CR_RESET | CRC_CR_REV_IN_WORD | CRC_CR_REV_OUT,
-+		       crc->regs + CRC_CR);
-+
-+	if (d8 != PTR_ALIGN(d8, sizeof(u32))) {
-+		/* Configure for byte data */
-+		writel_relaxed(CRC_CR_REV_IN_BYTE | CRC_CR_REV_OUT,
-+			       crc->regs + CRC_CR);
-+		while (d8 != PTR_ALIGN(d8, sizeof(u32)) && length) {
-+			writeb_relaxed(*d8++, crc->regs + CRC_DR);
- 			length--;
- 		}
--
--		if (crc->nb_pending_bytes == sizeof(u32)) {
--			/* Process completed pending data */
--			writel_relaxed(*(u32 *)crc->pending_data,
--				       crc->regs + CRC_DR);
--			crc->nb_pending_bytes = 0;
--		}
-+		/* Configure for word data */
-+		writel_relaxed(CRC_CR_REV_IN_WORD | CRC_CR_REV_OUT,
-+			       crc->regs + CRC_CR);
- 	}
- 
--	d32 = (u32 *)d8;
--	for (i = 0; i < length >> 2; i++)
--		/* Process 32 bits data */
--		writel_relaxed(*(d32++), crc->regs + CRC_DR);
-+	for (; length >= sizeof(u32); d8 += sizeof(u32), length -= sizeof(u32))
-+		writel_relaxed(*((u32 *)d8), crc->regs + CRC_DR);
-+
-+	if (length) {
-+		/* Configure for byte data */
-+		writel_relaxed(CRC_CR_REV_IN_BYTE | CRC_CR_REV_OUT,
-+			       crc->regs + CRC_CR);
-+		while (length--)
-+			writeb_relaxed(*d8++, crc->regs + CRC_DR);
++	if (true) {
++		memcpy(&priv->keymap[keymap_len], intel_vbtn_keymap,
++		       ARRAY_SIZE(intel_vbtn_keymap) *
++		       sizeof(struct key_entry));
++		keymap_len += ARRAY_SIZE(intel_vbtn_keymap);
 +	}
++
++	if (true) {
++		memcpy(&priv->keymap[keymap_len], intel_vbtn_switchmap,
++		       ARRAY_SIZE(intel_vbtn_switchmap) *
++		       sizeof(struct key_entry));
++		keymap_len += ARRAY_SIZE(intel_vbtn_switchmap);
++	}
++
++	priv->keymap[keymap_len].type = KE_END;
  
- 	/* Store partial result */
- 	ctx->partial = readl_relaxed(crc->regs + CRC_DR);
-@@ -160,22 +174,6 @@ static int stm32_crc_update(struct shash_desc *desc, const u8 *d8,
- 	pm_runtime_mark_last_busy(crc->dev);
- 	pm_runtime_put_autosuspend(crc->dev);
+ 	priv->input_dev = devm_input_allocate_device(&device->dev);
+ 	if (!priv->input_dev)
+ 		return -ENOMEM;
  
--	/* Check for pending data (non 32 bits) */
--	length &= 3;
--	if (likely(!length))
--		return 0;
--
--	if ((crc->nb_pending_bytes + length) >= sizeof(u32)) {
--		/* Shall not happen */
--		dev_err(crc->dev, "Pending data overflow\n");
--		return -EINVAL;
--	}
--
--	d8 = (const u8 *)d32;
--	for (i = 0; i < length; i++)
--		/* Store pending data */
--		crc->pending_data[crc->nb_pending_bytes++] = *(d8++);
--
- 	return 0;
- }
+-	ret = sparse_keymap_setup(priv->input_dev, intel_vbtn_keymap, NULL);
++	ret = sparse_keymap_setup(priv->input_dev, priv->keymap, NULL);
+ 	if (ret)
+ 		return ret;
  
 -- 
 2.25.1
