@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84649201694
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:33:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 736A82016D5
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:45:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389531AbgFSQcV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:32:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46000 "EHLO mail.kernel.org"
+        id S2388199AbgFSOop (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:44:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389523AbgFSOwE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:52:04 -0400
+        id S2387470AbgFSOoo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:44:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E7AFC21852;
-        Fri, 19 Jun 2020 14:52:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3493A21556;
+        Fri, 19 Jun 2020 14:44:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578324;
-        bh=73Xr/+48FOMIU+M4fpp9cEm0EyKviSfDsEVbWGtACQM=;
+        s=default; t=1592577883;
+        bh=bsL2vyOy8pegqBawPjnA9McV2ew99oX3Akpc3n5eyjc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PLbp9XFv1tFA64Bgn0DK59RJi21I+BRlK8aDg1/cBLYmWjdZmFy29V/wfwa1tS2S9
-         dVV4yGI185/fnQ9Lu+UoWIwXGh8wOJla6HciHApWsxVpFrVx3g+9atGVcqWkRjJy+K
-         BZKeW1RoKGLpfTLUol3Afy817v/tW4rJPZVlHKe8=
+        b=JgENVrfgLKT3MmvYz7hU8S8rGEMqYK8L/1UQxOiRAUqE3FfgC2hd/0YPxyayeLeru
+         t7lZTab88FB1IUgRa1jZDCX0qpopYc1Hmb0W/0LtPrmyyAn85VPvT2OWERTLaU3eao
+         kUeKKVC8t0+Nj3YIIYZ8UFpB3+I1egzTY20ejiZA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomi Valkeinen <tomi.valkeinen@ti.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Benoit Parrot <bparrot@ti.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.14 170/190] media: ov5640: fix use of destroyed mutex
+        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>
+Subject: [PATCH 4.9 121/128] kbuild: force to build vmlinux if CONFIG_MODVERSION=y
 Date:   Fri, 19 Jun 2020 16:33:35 +0200
-Message-Id: <20200619141642.263901370@linuxfoundation.org>
+Message-Id: <20200619141626.506133658@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
-References: <20200619141633.446429600@linuxfoundation.org>
+In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
+References: <20200619141620.148019466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,52 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomi Valkeinen <tomi.valkeinen@ti.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-commit bfcba38d95a0aed146a958a84a2177af1459eddc upstream.
+commit 4b50c8c4eaf06a825d1c005c0b1b4a8307087b83 upstream.
 
-v4l2_ctrl_handler_free() uses hdl->lock, which in ov5640 driver is set
-to sensor's own sensor->lock. In ov5640_remove(), the driver destroys the
-sensor->lock first, and then calls v4l2_ctrl_handler_free(), resulting
-in the use of the destroyed mutex.
+This code does not work as stated in the comment.
 
-Fix this by calling moving the mutex_destroy() to the end of the cleanup
-sequence, as there's no need to destroy the mutex as early as possible.
+$(CONFIG_MODVERSIONS) is always empty because it is expanded before
+include/config/auto.conf is included. Hence, 'make modules' with
+CONFIG_MODVERSION=y cannot record the version CRCs.
 
-Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc: stable@vger.kernel.org # v4.14+
-Reviewed-by: Benoit Parrot <bparrot@ti.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+This has been broken since 2003, commit ("kbuild: Enable modules to be
+build using the "make dir/" syntax"). [1]
+
+[1]: https://git.kernel.org/pub/scm/linux/kernel/git/history/history.git/commit/?id=15c6240cdc44bbeef3c4797ec860f9765ef4f1a7
+Cc: linux-stable <stable@vger.kernel.org> # v2.5.71+
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/i2c/ov5640.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ Makefile |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
---- a/drivers/media/i2c/ov5640.c
-+++ b/drivers/media/i2c/ov5640.c
-@@ -2298,8 +2298,8 @@ static int ov5640_probe(struct i2c_clien
- free_ctrls:
- 	v4l2_ctrl_handler_free(&sensor->ctrls.handler);
- entity_cleanup:
--	mutex_destroy(&sensor->lock);
- 	media_entity_cleanup(&sensor->sd.entity);
-+	mutex_destroy(&sensor->lock);
- 	return ret;
- }
+--- a/Makefile
++++ b/Makefile
+@@ -313,12 +313,8 @@ KBUILD_MODULES :=
+ KBUILD_BUILTIN := 1
  
-@@ -2309,9 +2309,9 @@ static int ov5640_remove(struct i2c_clie
- 	struct ov5640_dev *sensor = to_ov5640_dev(sd);
+ # If we have only "make modules", don't compile built-in objects.
+-# When we're building modules with modversions, we need to consider
+-# the built-in objects during the descend as well, in order to
+-# make sure the checksums are up to date before we record them.
+-
+ ifeq ($(MAKECMDGOALS),modules)
+-  KBUILD_BUILTIN := $(if $(CONFIG_MODVERSIONS),1)
++  KBUILD_BUILTIN :=
+ endif
  
- 	v4l2_async_unregister_subdev(&sensor->sd);
--	mutex_destroy(&sensor->lock);
- 	media_entity_cleanup(&sensor->sd.entity);
- 	v4l2_ctrl_handler_free(&sensor->ctrls.handler);
-+	mutex_destroy(&sensor->lock);
+ # If we have "make <whatever> modules", compile modules
+@@ -1237,6 +1233,13 @@ ifdef CONFIG_MODULES
  
- 	return 0;
- }
+ all: modules
+ 
++# When we're building modules with modversions, we need to consider
++# the built-in objects during the descend as well, in order to
++# make sure the checksums are up to date before we record them.
++ifdef CONFIG_MODVERSIONS
++  KBUILD_BUILTIN := 1
++endif
++
+ # Build modules
+ #
+ # A module can be listed more than once in obj-m resulting in
 
 
