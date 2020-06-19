@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9007A2015CF
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:31:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAC60201823
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:48:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390434AbgFSO6r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:58:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54590 "EHLO mail.kernel.org"
+        id S1732225AbgFSOlO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:41:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390003AbgFSO6m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:58:42 -0400
+        id S1728068AbgFSOlL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:41:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B86621919;
-        Fri, 19 Jun 2020 14:58:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2330720CC7;
+        Fri, 19 Jun 2020 14:41:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578722;
-        bh=uZ84vTGYlo4IboKjY879TBGBz6Hhr7Vq0yu0/6vxmZ8=;
+        s=default; t=1592577671;
+        bh=uL5DzlwHh/1AWGFJZh0Ag4fA0tSL7mQIfxjWVnjAN9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AoBrptv1aLqfFRCusBhKIO+8MPYuihKpIK7nwwAhzLp1wfXx3eME6V36k36ijblyL
-         BW+b542Xl4AtcxCnJNrg76L2EmIgoXNS5xDl5a8udPDWcxsr72GZK+L1faasj289t5
-         aVhUTfWvZrWEWsGLn4jypxtR9sYNkJhl1Pm1kMxo=
+        b=b4EcgS7uXYLxgugAe0bPgw/ns/8S3+rcQGl8czD8ORf/MZI9G6r38uSUaiaAr94MS
+         guhKm2qy3xNHMiFazf0xre68l1Hr4ip5lOnHfWK9UOKjcM6hiDXrmULxaoXlFzfdY+
+         kmmWIsG2BZ4/F4TGb0oLVyrSMJMC04NpoJ+ZXv7c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrii Nakryiko <andriin@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Song Liu <songliubraving@fb.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 132/267] selftests/bpf: Fix memory leak in extract_build_id()
-Date:   Fri, 19 Jun 2020 16:31:57 +0200
-Message-Id: <20200619141655.160330334@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 024/128] ALSA: pcm: disallow linking stream to itself
+Date:   Fri, 19 Jun 2020 16:31:58 +0200
+Message-Id: <20200619141621.457414340@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
-References: <20200619141648.840376470@linuxfoundation.org>
+In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
+References: <20200619141620.148019466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andriin@fb.com>
+From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 
-[ Upstream commit 9f56bb531a809ecaa7f0ddca61d2cf3adc1cb81a ]
+commit 951e2736f4b11b58dc44d41964fa17c3527d882a upstream.
 
-getline() allocates string, which has to be freed.
+Prevent SNDRV_PCM_IOCTL_LINK linking stream to itself - the code
+can't handle it. Fixed commit is not where bug was introduced, but
+changes the context significantly.
 
-Fixes: 81f77fd0deeb ("bpf: add selftest for stackmap with BPF_F_STACK_BUILD_ID")
-Signed-off-by: Andrii Nakryiko <andriin@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Cc: Song Liu <songliubraving@fb.com>
-Link: https://lore.kernel.org/bpf/20200429012111.277390-7-andriin@fb.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 0888c321de70 ("pcm_native: switch to fdget()/fdput()")
+Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Link: https://lore.kernel.org/r/89c4a2487609a0ed6af3ecf01cc972bdc59a7a2d.1591634956.git.mirq-linux@rere.qmqm.pl
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+
 ---
- tools/testing/selftests/bpf/test_progs.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/core/pcm_native.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/tools/testing/selftests/bpf/test_progs.c b/tools/testing/selftests/bpf/test_progs.c
-index 89f8b0dae7ef..bad3505d66e0 100644
---- a/tools/testing/selftests/bpf/test_progs.c
-+++ b/tools/testing/selftests/bpf/test_progs.c
-@@ -1118,6 +1118,7 @@ static int extract_build_id(char *build_id, size_t size)
- 		len = size;
- 	memcpy(build_id, line, len);
- 	build_id[len] = '\0';
-+	free(line);
- 	return 0;
- err:
- 	fclose(fp);
--- 
-2.25.1
-
+--- a/sound/core/pcm_native.c
++++ b/sound/core/pcm_native.c
+@@ -1836,6 +1836,11 @@ static int snd_pcm_link(struct snd_pcm_s
+ 	}
+ 	pcm_file = f.file->private_data;
+ 	substream1 = pcm_file->substream;
++	if (substream == substream1) {
++		res = -EINVAL;
++		goto _badf;
++	}
++
+ 	group = kmalloc(sizeof(*group), GFP_KERNEL);
+ 	if (!group) {
+ 		res = -ENOMEM;
 
 
