@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 298E720144C
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:14:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0287201450
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:14:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391159AbgFSPHi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:07:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36998 "EHLO mail.kernel.org"
+        id S2390386AbgFSQIe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:08:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391599AbgFSPHg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:07:36 -0400
+        id S2391616AbgFSPHl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:07:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 67BE921974;
-        Fri, 19 Jun 2020 15:07:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6BFAC21852;
+        Fri, 19 Jun 2020 15:07:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579255;
-        bh=QT6Y433QeSJTKcosfqaA/2Ec3fVXskYpE1FqGxWDsiE=;
+        s=default; t=1592579261;
+        bh=FmZBpMkmKEa+BWw2RykpSg1I5MeKBmsg8bPHuXEZEK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mVoZZnnkd/5PsfQpw3WKWztQKkUXxeb/4xmoZbeI5Xu9JfEN7vTiy9AZN2i3dFHkT
-         V+YtiVK9i4T5Tao2lGYM/mmFkUxN0Yq6Ddq7mM/QGfxzWoCQ7fUKpRKUd1DVQqXLap
-         8nQkwuZ1Jw6ikIwU4F2M6ZXVuXXVa+tObHC9qZTk=
+        b=KnmaGmTZ8/XqVcrrwJhF47OYdpWJKyDck0vDLlJLAFOiEOQ7iEZOb6lbwU47Qo9E+
+         Swmileh/G29yiUuZzUp3XBRcFNwfWFe3gXpUyaHu6UDxXM2JLYz7+nTpdt/3jbh2kB
+         R0fGM7UDz8ZXd0N0XJaeDhdFeezY+l5Oc2zZxap0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, teroincn@gmail.com,
-        Richard Guy Briggs <rgb@redhat.com>,
-        Paul Moore <paul@paul-moore.com>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 067/261] audit: fix a net reference leak in audit_send_reply()
-Date:   Fri, 19 Jun 2020 16:31:18 +0200
-Message-Id: <20200619141653.115006407@linuxfoundation.org>
+Subject: [PATCH 5.4 069/261] media: platform: fcp: Set appropriate DMA parameters
+Date:   Fri, 19 Jun 2020 16:31:20 +0200
+Message-Id: <20200619141653.208069018@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
 References: <20200619141649.878808811@linuxfoundation.org>
@@ -45,112 +47,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Moore <paul@paul-moore.com>
+From: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
 
-[ Upstream commit a48b284b403a4a073d8beb72d2bb33e54df67fb6 ]
+[ Upstream commit dd844fb8e50b12e65bbdc5746c9876c6735500df ]
 
-If audit_send_reply() fails when trying to create a new thread to
-send the reply it also fails to cleanup properly, leaking a reference
-to a net structure.  This patch fixes the error path and makes a
-handful of other cleanups that came up while fixing the code.
+Enabling CONFIG_DMA_API_DEBUG=y and CONFIG_DMA_API_DEBUG_SG=y will
+enable extra validation on DMA operations ensuring that the size
+restraints are met.
 
-Reported-by: teroincn@gmail.com
-Reviewed-by: Richard Guy Briggs <rgb@redhat.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+When using the FCP in conjunction with the VSP1/DU, and display frames,
+the size of the DMA operations is larger than the default maximum
+segment size reported by the DMA core (64K). With the DMA debug enabled,
+this produces a warning such as the following:
+
+"DMA-API: rcar-fcp fea27000.fcp: mapping sg segment longer than device
+claims to support [len=3145728] [max=65536]"
+
+We have no specific limitation on the segment size which isn't already
+handled by the VSP1/DU which actually handles the DMA allcoations and
+buffer management, so define a maximum segment size of up to 4GB (a 32
+bit mask).
+
+Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Fixes: 7b49235e83b2 ("[media] v4l: Add Renesas R-Car FCP driver")
+Signed-off-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/audit.c | 50 +++++++++++++++++++++++++++++---------------------
- 1 file changed, 29 insertions(+), 21 deletions(-)
+ drivers/media/platform/rcar-fcp.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/kernel/audit.c b/kernel/audit.c
-index fcfbb3476ccd..a4eeece2eecd 100644
---- a/kernel/audit.c
-+++ b/kernel/audit.c
-@@ -923,19 +923,30 @@ out_kfree_skb:
- 	return NULL;
- }
- 
-+static void audit_free_reply(struct audit_reply *reply)
-+{
-+	if (!reply)
-+		return;
-+
-+	if (reply->skb)
-+		kfree_skb(reply->skb);
-+	if (reply->net)
-+		put_net(reply->net);
-+	kfree(reply);
-+}
-+
- static int audit_send_reply_thread(void *arg)
- {
- 	struct audit_reply *reply = (struct audit_reply *)arg;
--	struct sock *sk = audit_get_sk(reply->net);
- 
- 	audit_ctl_lock();
- 	audit_ctl_unlock();
- 
- 	/* Ignore failure. It'll only happen if the sender goes away,
- 	   because our timeout is set to infinite. */
--	netlink_unicast(sk, reply->skb, reply->portid, 0);
--	put_net(reply->net);
--	kfree(reply);
-+	netlink_unicast(audit_get_sk(reply->net), reply->skb, reply->portid, 0);
-+	reply->skb = NULL;
-+	audit_free_reply(reply);
- 	return 0;
- }
- 
-@@ -949,35 +960,32 @@ static int audit_send_reply_thread(void *arg)
-  * @payload: payload data
-  * @size: payload size
-  *
-- * Allocates an skb, builds the netlink message, and sends it to the port id.
-- * No failure notifications.
-+ * Allocates a skb, builds the netlink message, and sends it to the port id.
+diff --git a/drivers/media/platform/rcar-fcp.c b/drivers/media/platform/rcar-fcp.c
+index 43c78620c9d8..5c6b00737fe7 100644
+--- a/drivers/media/platform/rcar-fcp.c
++++ b/drivers/media/platform/rcar-fcp.c
+@@ -8,6 +8,7 @@
   */
- static void audit_send_reply(struct sk_buff *request_skb, int seq, int type, int done,
- 			     int multi, const void *payload, int size)
- {
--	struct net *net = sock_net(NETLINK_CB(request_skb).sk);
--	struct sk_buff *skb;
- 	struct task_struct *tsk;
--	struct audit_reply *reply = kmalloc(sizeof(struct audit_reply),
--					    GFP_KERNEL);
-+	struct audit_reply *reply;
  
-+	reply = kzalloc(sizeof(*reply), GFP_KERNEL);
- 	if (!reply)
- 		return;
+ #include <linux/device.h>
++#include <linux/dma-mapping.h>
+ #include <linux/list.h>
+ #include <linux/module.h>
+ #include <linux/mod_devicetable.h>
+@@ -21,6 +22,7 @@
+ struct rcar_fcp_device {
+ 	struct list_head list;
+ 	struct device *dev;
++	struct device_dma_parameters dma_parms;
+ };
  
--	skb = audit_make_reply(seq, type, done, multi, payload, size);
--	if (!skb)
--		goto out;
--
--	reply->net = get_net(net);
-+	reply->skb = audit_make_reply(seq, type, done, multi, payload, size);
-+	if (!reply->skb)
-+		goto err;
-+	reply->net = get_net(sock_net(NETLINK_CB(request_skb).sk));
- 	reply->portid = NETLINK_CB(request_skb).portid;
--	reply->skb = skb;
+ static LIST_HEAD(fcp_devices);
+@@ -136,6 +138,9 @@ static int rcar_fcp_probe(struct platform_device *pdev)
  
- 	tsk = kthread_run(audit_send_reply_thread, reply, "audit_send_reply");
--	if (!IS_ERR(tsk))
--		return;
--	kfree_skb(skb);
--out:
--	kfree(reply);
-+	if (IS_ERR(tsk))
-+		goto err;
+ 	fcp->dev = &pdev->dev;
+ 
++	fcp->dev->dma_parms = &fcp->dma_parms;
++	dma_set_max_seg_size(fcp->dev, DMA_BIT_MASK(32));
 +
-+	return;
-+
-+err:
-+	audit_free_reply(reply);
- }
+ 	pm_runtime_enable(&pdev->dev);
  
- /*
+ 	mutex_lock(&fcp_lock);
 -- 
 2.25.1
 
