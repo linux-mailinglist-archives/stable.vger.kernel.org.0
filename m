@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 130AB2014DA
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:21:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5E582013A2
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:07:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390883AbgFSPCp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:02:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59350 "EHLO mail.kernel.org"
+        id S2389025AbgFSPNA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:13:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390876AbgFSPCn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:02:43 -0400
+        id S2392185AbgFSPM5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:12:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B50A21841;
-        Fri, 19 Jun 2020 15:02:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1831421582;
+        Fri, 19 Jun 2020 15:12:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578963;
-        bh=vLM00da0dcPE+XpMqn8kxehxh+b2qBbY1T82WW91wwQ=;
+        s=default; t=1592579576;
+        bh=iGDstssJZNRPmYGflzsJwE0HzniypEW0XvpWSC3yA2I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b0zoFdov4rbFAdP1zmzQrEiqpDIw70de+OGSeEvLhmpLU77OaqTlATPKAFWP9S0v4
-         NhoWxbGIKF/iCCX4lVA65uPtFVJ0fTTniA8HDSA6A9p+KjwFMH8LBzP8XQRtANIHR4
-         JhwBYW0YJyK7tKS+ShVHerx7GAJZ4ka+SyYHO8aQ=
+        b=dDGHYfQ4Z7dzBwLtZZ5McprNETbX8VRjjUvtt68yernBmkKcPIju7JbJihX6Ctc0J
+         JiYN6C1tUdftzPE2RSQSTr792jnRXercgY6Jo+aep1NOsudCmmBAXVWUpTElTIZfPU
+         r/6+Z2CSiv9lx+p/q2jGGso9Rjm2hGN7wfWdolQI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Jakub Sitnicki <jakub@cloudflare.com>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 183/267] cpuidle: Fix three reference count leaks
+Subject: [PATCH 5.4 157/261] selftests/bpf, flow_dissector: Close TAP device FD after the test
 Date:   Fri, 19 Jun 2020 16:32:48 +0200
-Message-Id: <20200619141657.547951085@linuxfoundation.org>
+Message-Id: <20200619141657.408451954@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
-References: <20200619141648.840376470@linuxfoundation.org>
+In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
+References: <20200619141649.878808811@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Jakub Sitnicki <jakub@cloudflare.com>
 
-[ Upstream commit c343bf1ba5efcbf2266a1fe3baefec9cc82f867f ]
+[ Upstream commit b8215dce7dfd817ca38807f55165bf502146cd68 ]
 
-kobject_init_and_add() takes reference even when it fails.
-If this function returns an error, kobject_put() must be called to
-properly clean up the memory associated with the object.
+test_flow_dissector leaves a TAP device after it's finished, potentially
+interfering with other tests that will run after it. Fix it by closing the
+TAP descriptor on cleanup.
 
-Previous commit "b8eb718348b8" fixed a similar problem.
-
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-[ rjw: Subject ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 0905beec9f52 ("selftests/bpf: run flow dissector tests in skb-less mode")
+Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20200531082846.2117903-11-jakub@cloudflare.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpuidle/sysfs.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ tools/testing/selftests/bpf/prog_tests/flow_dissector.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/cpuidle/sysfs.c b/drivers/cpuidle/sysfs.c
-index e754c7aae7f7..66979dc33680 100644
---- a/drivers/cpuidle/sysfs.c
-+++ b/drivers/cpuidle/sysfs.c
-@@ -467,7 +467,7 @@ static int cpuidle_add_state_sysfs(struct cpuidle_device *device)
- 		ret = kobject_init_and_add(&kobj->kobj, &ktype_state_cpuidle,
- 					   &kdev->kobj, "state%d", i);
- 		if (ret) {
--			kfree(kobj);
-+			kobject_put(&kobj->kobj);
- 			goto error_state;
- 		}
- 		cpuidle_add_s2idle_attr_group(kobj);
-@@ -598,7 +598,7 @@ static int cpuidle_add_driver_sysfs(struct cpuidle_device *dev)
- 	ret = kobject_init_and_add(&kdrv->kobj, &ktype_driver_cpuidle,
- 				   &kdev->kobj, "driver");
- 	if (ret) {
--		kfree(kdrv);
-+		kobject_put(&kdrv->kobj);
- 		return ret;
+diff --git a/tools/testing/selftests/bpf/prog_tests/flow_dissector.c b/tools/testing/selftests/bpf/prog_tests/flow_dissector.c
+index 92563898867c..9f3634c9971d 100644
+--- a/tools/testing/selftests/bpf/prog_tests/flow_dissector.c
++++ b/tools/testing/selftests/bpf/prog_tests/flow_dissector.c
+@@ -523,6 +523,7 @@ void test_flow_dissector(void)
+ 		CHECK_ATTR(err, tests[i].name, "bpf_map_delete_elem %d\n", err);
  	}
  
-@@ -692,7 +692,7 @@ int cpuidle_add_sysfs(struct cpuidle_device *dev)
- 	error = kobject_init_and_add(&kdev->kobj, &ktype_cpuidle, &cpu_dev->kobj,
- 				   "cpuidle");
- 	if (error) {
--		kfree(kdev);
-+		kobject_put(&kdev->kobj);
- 		return error;
- 	}
- 
++	close(tap_fd);
+ 	bpf_prog_detach(prog_fd, BPF_FLOW_DISSECTOR);
+ 	bpf_object__close(obj);
+ }
 -- 
 2.25.1
 
