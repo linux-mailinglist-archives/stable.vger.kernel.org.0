@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0880F2018B2
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 19:01:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B354A2018DC
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 19:02:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404256AbgFSQv1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:51:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55022 "EHLO mail.kernel.org"
+        id S2436528AbgFSQxp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:53:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387822AbgFSOiE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:38:04 -0400
+        id S2387568AbgFSOg6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:36:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BCE94208B8;
-        Fri, 19 Jun 2020 14:38:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8F62B21548;
+        Fri, 19 Jun 2020 14:36:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577483;
-        bh=kq7xnAF9snUBez46/Ih5rjBI7O4wxsDS2jImrawFsYc=;
+        s=default; t=1592577417;
+        bh=SrQEW/WNJmE1lNBh5dzWsckBlLxCIdTnJoWOJiwE1lY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iSbJE0MPP+gKFpl+sCud9gehkG+YFXuQFLIckb+OSzxgt+UGvkdWT2+QEKU8FfCke
-         ylYgqCnhrpFc+1034p37mPLl7YEAQbr11yzumk0RB96/gaXvVyiwL1ya6uDzvBhTcC
-         FCfdXoO3YjJnQFibb05SzrU1KobIRVIHzCCdQME4=
+        b=DmwP8pUerP3x68ZpJam7wdKBeTjw9d5dJH+gIl0E2a3OARwsv37IN6Fr/8eyovZ5A
+         vaj2ITdR6qFeZzqBDWI405Mx3OoJXPzc8d75+ya91daQKvBkXb85GZjiODqFDQgN3D
+         u5mXCI1uieX1ubLqs5y2xDW7bvYjUF+wsT0m0Fi8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiujun Huang <hqjagain@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        syzbot+b1c61e5f11be5782f192@syzkaller.appspotmail.com
-Subject: [PATCH 4.4 039/101] ath9k: Fix use-after-free Write in ath9k_htc_rx_msg
-Date:   Fri, 19 Jun 2020 16:32:28 +0200
-Message-Id: <20200619141616.165285038@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Hai <wanghai38@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Christoph Lameter <cl@linux.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 043/101] mm/slub: fix a memory leak in sysfs_slab_add()
+Date:   Fri, 19 Jun 2020 16:32:32 +0200
+Message-Id: <20200619141616.362871178@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141614.001544111@linuxfoundation.org>
 References: <20200619141614.001544111@linuxfoundation.org>
@@ -44,57 +49,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiujun Huang <hqjagain@gmail.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-commit e4ff08a4d727146bb6717a39a8d399d834654345 upstream.
+commit dde3c6b72a16c2db826f54b2d49bdea26c3534a2 upstream.
 
-Write out of slab bounds. We should check epid.
+syzkaller reports for memory leak when kobject_init_and_add() returns an
+error in the function sysfs_slab_add() [1]
 
-The case reported by syzbot:
-https://lore.kernel.org/linux-usb/0000000000006ac55b05a1c05d72@google.com
-BUG: KASAN: use-after-free in htc_process_conn_rsp
-drivers/net/wireless/ath/ath9k/htc_hst.c:131 [inline]
-BUG: KASAN: use-after-free in ath9k_htc_rx_msg+0xa25/0xaf0
-drivers/net/wireless/ath/ath9k/htc_hst.c:443
-Write of size 2 at addr ffff8881cea291f0 by task swapper/1/0
+When this happened, the function kobject_put() is not called for the
+corresponding kobject, which potentially leads to memory leak.
 
-Call Trace:
- htc_process_conn_rsp drivers/net/wireless/ath/ath9k/htc_hst.c:131
-[inline]
-ath9k_htc_rx_msg+0xa25/0xaf0
-drivers/net/wireless/ath/ath9k/htc_hst.c:443
-ath9k_hif_usb_reg_in_cb+0x1ba/0x630
-drivers/net/wireless/ath/ath9k/hif_usb.c:718
-__usb_hcd_giveback_urb+0x29a/0x550 drivers/usb/core/hcd.c:1650
-usb_hcd_giveback_urb+0x368/0x420 drivers/usb/core/hcd.c:1716
-dummy_timer+0x1258/0x32ae drivers/usb/gadget/udc/dummy_hcd.c:1966
-call_timer_fn+0x195/0x6f0 kernel/time/timer.c:1404
-expire_timers kernel/time/timer.c:1449 [inline]
-__run_timers kernel/time/timer.c:1773 [inline]
-__run_timers kernel/time/timer.c:1740 [inline]
-run_timer_softirq+0x5f9/0x1500 kernel/time/timer.c:1786
+This patch fixes the issue by calling kobject_put() even if
+kobject_init_and_add() fails.
 
-Reported-and-tested-by: syzbot+b1c61e5f11be5782f192@syzkaller.appspotmail.com
-Signed-off-by: Qiujun Huang <hqjagain@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200404041838.10426-4-hqjagain@gmail.com
+[1]
+  BUG: memory leak
+  unreferenced object 0xffff8880a6d4be88 (size 8):
+  comm "syz-executor.3", pid 946, jiffies 4295772514 (age 18.396s)
+  hex dump (first 8 bytes):
+    70 69 64 5f 33 00 ff ff                          pid_3...
+  backtrace:
+     kstrdup+0x35/0x70 mm/util.c:60
+     kstrdup_const+0x3d/0x50 mm/util.c:82
+     kvasprintf_const+0x112/0x170 lib/kasprintf.c:48
+     kobject_set_name_vargs+0x55/0x130 lib/kobject.c:289
+     kobject_add_varg lib/kobject.c:384 [inline]
+     kobject_init_and_add+0xd8/0x170 lib/kobject.c:473
+     sysfs_slab_add+0x1d8/0x290 mm/slub.c:5811
+     __kmem_cache_create+0x50a/0x570 mm/slub.c:4384
+     create_cache+0x113/0x1e0 mm/slab_common.c:407
+     kmem_cache_create_usercopy+0x1a1/0x260 mm/slab_common.c:505
+     kmem_cache_create+0xd/0x10 mm/slab_common.c:564
+     create_pid_cachep kernel/pid_namespace.c:54 [inline]
+     create_pid_namespace kernel/pid_namespace.c:96 [inline]
+     copy_pid_ns+0x77c/0x8f0 kernel/pid_namespace.c:148
+     create_new_namespaces+0x26b/0xa30 kernel/nsproxy.c:95
+     unshare_nsproxy_namespaces+0xa7/0x1e0 kernel/nsproxy.c:229
+     ksys_unshare+0x3d2/0x770 kernel/fork.c:2969
+     __do_sys_unshare kernel/fork.c:3037 [inline]
+     __se_sys_unshare kernel/fork.c:3035 [inline]
+     __x64_sys_unshare+0x2d/0x40 kernel/fork.c:3035
+     do_syscall_64+0xa1/0x530 arch/x86/entry/common.c:295
+
+Fixes: 80da026a8e5d ("mm/slub: fix slab double-free in case of duplicate sysfs filename")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Link: http://lkml.kernel.org/r/20200602115033.1054-1-wanghai38@huawei.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/ath/ath9k/htc_hst.c |    3 +++
- 1 file changed, 3 insertions(+)
+ mm/slub.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/wireless/ath/ath9k/htc_hst.c
-+++ b/drivers/net/wireless/ath/ath9k/htc_hst.c
-@@ -114,6 +114,9 @@ static void htc_process_conn_rsp(struct
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -5424,8 +5424,10 @@ static int sysfs_slab_add(struct kmem_ca
  
- 	if (svc_rspmsg->status == HTC_SERVICE_SUCCESS) {
- 		epid = svc_rspmsg->endpoint_id;
-+		if (epid < 0 || epid >= ENDPOINT_MAX)
-+			return;
-+
- 		service_id = be16_to_cpu(svc_rspmsg->service_id);
- 		max_msglen = be16_to_cpu(svc_rspmsg->max_msg_len);
- 		endpoint = &target->endpoint[epid];
+ 	s->kobj.kset = cache_kset(s);
+ 	err = kobject_init_and_add(&s->kobj, &slab_ktype, NULL, "%s", name);
+-	if (err)
++	if (err) {
++		kobject_put(&s->kobj);
+ 		goto out;
++	}
+ 
+ 	err = sysfs_create_group(&s->kobj, &slab_attr_group);
+ 	if (err)
 
 
