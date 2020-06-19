@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3CCF2018F4
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 19:02:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F04462018F2
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 19:02:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387464AbgFSQzA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:55:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52480 "EHLO mail.kernel.org"
+        id S2387438AbgFSQyv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:54:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387461AbgFSOgI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:36:08 -0400
+        id S2387473AbgFSOgL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:36:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A9F92070A;
-        Fri, 19 Jun 2020 14:36:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 687ED217A0;
+        Fri, 19 Jun 2020 14:36:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577367;
-        bh=5tm4Dg00/ubgsCOtNbBlHdNQPOrTqmqY8p/BQos8OGk=;
+        s=default; t=1592577369;
+        bh=xiBg2WTwfQOQ+7Q4GzvfvVwY6N552ZFQLu/7T3N1YIY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XqKnitEM7O65hyxmQI3wzjAwen1yElQ9VVeANrZbKiFk1mWvDKjayHzOUO1XqOkCX
-         14uwxcQzn1i/yp8svXl2elaXp8GlKLBSBnSAZC9OmWNAYuXUXz4LzqCJ7p1vaue957
-         NXmMpshhJMNcvIsamiCLwW8VPSRMX61zXRSbU0Ts=
+        b=VqDxA3+wWluHv7ImTo+bM2WskzAMiBkczxn8HCiqC1/6uCN9g+jA7VeD1Fdu9QEEK
+         da3hVtJDXQBv+Jo9zqnalpp1Sblqfh6ZzPAoiDvCNln6C9vb424VK8zxpWZ688C2Ee
+         1pnIZWihV3rA8AJ17+wiLpcHyuwvzPPnTjltYSBA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
-        Borislav Petkov <bp@suse.de>, "H. Peter Anvin" <hpa@zytor.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        David Woodhouse <dwmw@amazon.co.uk>,
-        Ingo Molnar <mingo@redhat.com>, Jiri Kosina <jkosina@suse.cz>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        KarimAllah Ahmed <karahmed@amazon.de>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        Peter Zijlstra <peterz@infradead.org>,
+        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Tim Chen <tim.c.chen@linux.intel.com>, x86-ml <x86@kernel.org>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Jiri Kosina <jkosina@suse.cz>, Borislav Petkov <bp@alien8.de>,
+        Tim Chen <tim.c.chen@linux.intel.com>,
+        David Woodhouse <dwmw@amazon.co.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 022/101] x86/speculation: Change misspelled STIPB to STIBP
-Date:   Fri, 19 Jun 2020 16:32:11 +0200
-Message-Id: <20200619141615.260874344@linuxfoundation.org>
+Subject: [PATCH 4.4 023/101] x86/speculation: Add support for STIBP always-on preferred mode
+Date:   Fri, 19 Jun 2020 16:32:12 +0200
+Message-Id: <20200619141615.309041516@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141614.001544111@linuxfoundation.org>
 References: <20200619141614.001544111@linuxfoundation.org>
@@ -53,79 +49,151 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Thomas Lendacky <Thomas.Lendacky@amd.com>
 
-[ Upstream commit aa77bfb354c495fc4361199e63fc5765b9e1e783 ]
+[ Upstream commit 20c3a2c33e9fdc82e9e8e8d2a6445b3256d20191 ]
 
-STIBP stands for Single Thread Indirect Branch Predictors. The acronym,
-however, can be easily mis-spelled as STIPB. It is perhaps due to the
-presence of another related term - IBPB (Indirect Branch Predictor
-Barrier).
+Different AMD processors may have different implementations of STIBP.
+When STIBP is conditionally enabled, some implementations would benefit
+from having STIBP always on instead of toggling the STIBP bit through MSR
+writes. This preference is advertised through a CPUID feature bit.
 
-Fix the mis-spelling in the code.
+When conditional STIBP support is requested at boot and the CPU advertises
+STIBP always-on mode as preferred, switch to STIBP "on" support. To show
+that this transition has occurred, create a new spectre_v2_user_mitigation
+value and a new spectre_v2_user_strings message. The new mitigation value
+is used in spectre_v2_user_select_mitigation() to print the new mitigation
+message as well as to return a new string from stibp_state().
 
-Signed-off-by: Waiman Long <longman@redhat.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: David Woodhouse <dwmw@amazon.co.uk>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jiri Kosina <jkosina@suse.cz>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: KarimAllah Ahmed <karahmed@amazon.de>
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
 Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Jiri Kosina <jkosina@suse.cz>
+Cc: Borislav Petkov <bp@alien8.de>
 Cc: Tim Chen <tim.c.chen@linux.intel.com>
-Cc: x86-ml <x86@kernel.org>
-Link: https://lkml.kernel.org/r/1544039368-9009-1-git-send-email-longman@redhat.com
+Cc: David Woodhouse <dwmw@amazon.co.uk>
+Link: https://lkml.kernel.org/r/20181213230352.6937.74943.stgit@tlendack-t1.amdoffice.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/bugs.c | 6 +++---
- arch/x86/kernel/process.h  | 2 +-
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ arch/x86/include/asm/cpufeatures.h   |  2 +-
+ arch/x86/include/asm/nospec-branch.h |  1 +
+ arch/x86/kernel/cpu/bugs.c           | 28 ++++++++++++++++++++++------
+ 3 files changed, 24 insertions(+), 7 deletions(-)
 
+diff --git a/arch/x86/include/asm/cpufeatures.h b/arch/x86/include/asm/cpufeatures.h
+index 492889d92146..7c7fc5006017 100644
+--- a/arch/x86/include/asm/cpufeatures.h
++++ b/arch/x86/include/asm/cpufeatures.h
+@@ -270,6 +270,7 @@
+ #define X86_FEATURE_AMD_IBPB	(13*32+12) /* "" Indirect Branch Prediction Barrier */
+ #define X86_FEATURE_AMD_IBRS	(13*32+14) /* "" Indirect Branch Restricted Speculation */
+ #define X86_FEATURE_AMD_STIBP	(13*32+15) /* "" Single Thread Indirect Branch Predictors */
++#define X86_FEATURE_AMD_STIBP_ALWAYS_ON	(13*32+17) /* "" Single Thread Indirect Branch Predictors always-on preferred */
+ #define X86_FEATURE_AMD_SSBD	(13*32+24) /* "" Speculative Store Bypass Disable */
+ #define X86_FEATURE_VIRT_SSBD	(13*32+25) /* Virtualized Speculative Store Bypass Disable */
+ #define X86_FEATURE_AMD_SSB_NO	(13*32+26) /* "" Speculative Store Bypass is fixed in hardware. */
+@@ -308,7 +309,6 @@
+ #define X86_FEATURE_SUCCOR	(17*32+1) /* Uncorrectable error containment and recovery */
+ #define X86_FEATURE_SMCA	(17*32+3) /* Scalable MCA */
+ 
+-
+ /* Intel-defined CPU features, CPUID level 0x00000007:0 (EDX), word 18 */
+ #define X86_FEATURE_AVX512_4VNNIW	(18*32+ 2) /* AVX-512 Neural Network Instructions */
+ #define X86_FEATURE_AVX512_4FMAPS	(18*32+ 3) /* AVX-512 Multiply Accumulation Single precision */
+diff --git a/arch/x86/include/asm/nospec-branch.h b/arch/x86/include/asm/nospec-branch.h
+index 783f0711895b..664e8505ccd6 100644
+--- a/arch/x86/include/asm/nospec-branch.h
++++ b/arch/x86/include/asm/nospec-branch.h
+@@ -178,6 +178,7 @@ enum spectre_v2_mitigation {
+ enum spectre_v2_user_mitigation {
+ 	SPECTRE_V2_USER_NONE,
+ 	SPECTRE_V2_USER_STRICT,
++	SPECTRE_V2_USER_STRICT_PREFERRED,
+ 	SPECTRE_V2_USER_PRCTL,
+ 	SPECTRE_V2_USER_SECCOMP,
+ };
 diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
-index 1a0ab4af93b7..9fddbdcc1874 100644
+index 9fddbdcc1874..6ee7d81fe339 100644
 --- a/arch/x86/kernel/cpu/bugs.c
 +++ b/arch/x86/kernel/cpu/bugs.c
-@@ -59,7 +59,7 @@ static u64 x86_spec_ctrl_mask = SPEC_CTRL_IBRS;
- u64 x86_amd_ls_cfg_base;
- u64 x86_amd_ls_cfg_ssbd_mask;
+@@ -609,10 +609,11 @@ enum spectre_v2_user_cmd {
+ };
  
--/* Control conditional STIPB in switch_to() */
-+/* Control conditional STIBP in switch_to() */
- DEFINE_STATIC_KEY_FALSE(switch_to_cond_stibp);
- /* Control conditional IBPB in switch_mm() */
- DEFINE_STATIC_KEY_FALSE(switch_mm_cond_ibpb);
-@@ -725,12 +725,12 @@ spectre_v2_user_select_mitigation(enum spectre_v2_mitigation_cmd v2_cmd)
- 			"always-on" : "conditional");
+ static const char * const spectre_v2_user_strings[] = {
+-	[SPECTRE_V2_USER_NONE]		= "User space: Vulnerable",
+-	[SPECTRE_V2_USER_STRICT]	= "User space: Mitigation: STIBP protection",
+-	[SPECTRE_V2_USER_PRCTL]		= "User space: Mitigation: STIBP via prctl",
+-	[SPECTRE_V2_USER_SECCOMP]	= "User space: Mitigation: STIBP via seccomp and prctl",
++	[SPECTRE_V2_USER_NONE]			= "User space: Vulnerable",
++	[SPECTRE_V2_USER_STRICT]		= "User space: Mitigation: STIBP protection",
++	[SPECTRE_V2_USER_STRICT_PREFERRED]	= "User space: Mitigation: STIBP always-on protection",
++	[SPECTRE_V2_USER_PRCTL]			= "User space: Mitigation: STIBP via prctl",
++	[SPECTRE_V2_USER_SECCOMP]		= "User space: Mitigation: STIBP via seccomp and prctl",
+ };
+ 
+ static const struct {
+@@ -701,6 +702,15 @@ spectre_v2_user_select_mitigation(enum spectre_v2_mitigation_cmd v2_cmd)
+ 		break;
  	}
  
--	/* If enhanced IBRS is enabled no STIPB required */
-+	/* If enhanced IBRS is enabled no STIBP required */
- 	if (spectre_v2_enabled == SPECTRE_V2_IBRS_ENHANCED)
- 		return;
- 
- 	/*
--	 * If SMT is not possible or STIBP is not available clear the STIPB
-+	 * If SMT is not possible or STIBP is not available clear the STIBP
- 	 * mode.
- 	 */
- 	if (!smt_possible || !boot_cpu_has(X86_FEATURE_STIBP))
-diff --git a/arch/x86/kernel/process.h b/arch/x86/kernel/process.h
-index 898e97cf6629..320ab978fb1f 100644
---- a/arch/x86/kernel/process.h
-+++ b/arch/x86/kernel/process.h
-@@ -19,7 +19,7 @@ static inline void switch_to_extra(struct task_struct *prev,
- 	if (IS_ENABLED(CONFIG_SMP)) {
- 		/*
- 		 * Avoid __switch_to_xtra() invocation when conditional
--		 * STIPB is disabled and the only different bit is
-+		 * STIBP is disabled and the only different bit is
- 		 * TIF_SPEC_IB. For CONFIG_SMP=n TIF_SPEC_IB is not
- 		 * in the TIF_WORK_CTXSW masks.
++	/*
++	 * At this point, an STIBP mode other than "off" has been set.
++	 * If STIBP support is not being forced, check if STIBP always-on
++	 * is preferred.
++	 */
++	if (mode != SPECTRE_V2_USER_STRICT &&
++	    boot_cpu_has(X86_FEATURE_AMD_STIBP_ALWAYS_ON))
++		mode = SPECTRE_V2_USER_STRICT_PREFERRED;
++
+ 	/* Initialize Indirect Branch Prediction Barrier */
+ 	if (boot_cpu_has(X86_FEATURE_IBPB)) {
+ 		setup_force_cpu_cap(X86_FEATURE_USE_IBPB);
+@@ -983,6 +993,7 @@ void arch_smt_update(void)
+ 	case SPECTRE_V2_USER_NONE:
+ 		break;
+ 	case SPECTRE_V2_USER_STRICT:
++	case SPECTRE_V2_USER_STRICT_PREFERRED:
+ 		update_stibp_strict();
+ 		break;
+ 	case SPECTRE_V2_USER_PRCTL:
+@@ -1217,7 +1228,8 @@ static int ib_prctl_set(struct task_struct *task, unsigned long ctrl)
+ 		 * Indirect branch speculation is always disabled in strict
+ 		 * mode.
  		 */
+-		if (spectre_v2_user == SPECTRE_V2_USER_STRICT)
++		if (spectre_v2_user == SPECTRE_V2_USER_STRICT ||
++		    spectre_v2_user == SPECTRE_V2_USER_STRICT_PREFERRED)
+ 			return -EPERM;
+ 		task_clear_spec_ib_disable(task);
+ 		task_update_spec_tif(task);
+@@ -1230,7 +1242,8 @@ static int ib_prctl_set(struct task_struct *task, unsigned long ctrl)
+ 		 */
+ 		if (spectre_v2_user == SPECTRE_V2_USER_NONE)
+ 			return -EPERM;
+-		if (spectre_v2_user == SPECTRE_V2_USER_STRICT)
++		if (spectre_v2_user == SPECTRE_V2_USER_STRICT ||
++		    spectre_v2_user == SPECTRE_V2_USER_STRICT_PREFERRED)
+ 			return 0;
+ 		task_set_spec_ib_disable(task);
+ 		if (ctrl == PR_SPEC_FORCE_DISABLE)
+@@ -1301,6 +1314,7 @@ static int ib_prctl_get(struct task_struct *task)
+ 			return PR_SPEC_PRCTL | PR_SPEC_DISABLE;
+ 		return PR_SPEC_PRCTL | PR_SPEC_ENABLE;
+ 	case SPECTRE_V2_USER_STRICT:
++	case SPECTRE_V2_USER_STRICT_PREFERRED:
+ 		return PR_SPEC_DISABLE;
+ 	default:
+ 		return PR_SPEC_NOT_AFFECTED;
+@@ -1450,6 +1464,8 @@ static char *stibp_state(void)
+ 		return ", STIBP: disabled";
+ 	case SPECTRE_V2_USER_STRICT:
+ 		return ", STIBP: forced";
++	case SPECTRE_V2_USER_STRICT_PREFERRED:
++		return ", STIBP: always-on";
+ 	case SPECTRE_V2_USER_PRCTL:
+ 	case SPECTRE_V2_USER_SECCOMP:
+ 		if (static_key_enabled(&switch_to_cond_stibp))
 -- 
 2.25.1
 
