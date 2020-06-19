@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34F4E20127C
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:56:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DAAA20129D
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:56:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392961AbgFSPWN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:22:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53554 "EHLO mail.kernel.org"
+        id S2405415AbgFSPxx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:53:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391036AbgFSPWL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:22:11 -0400
+        id S2392963AbgFSPWN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:22:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F040021548;
-        Fri, 19 Jun 2020 15:22:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 76D922158C;
+        Fri, 19 Jun 2020 15:22:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580130;
-        bh=shKfPmny0Xk+z6QTEuZIiryuf3ktSCpn4+P8VnIPKmM=;
+        s=default; t=1592580133;
+        bh=GyawCehqGpm2VcAuaYavesS82XTSN3Zi4tiNLnMQVpI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aDLSMywNEHW4YfOSYj+TMdGyb1knlJzi0JdY9rqlC64JO+6M2Oq5GdHx1i91Lgj5w
-         14DSB6sYfD1DLcmjNeQvfP9mM2xLL+SF3DMLKuM63sQC1cBfARmvgvKtU/hdfq40V4
-         PLNN9uQOFCd9BYymkigLDJJ/wO73hQyI+qgJd13M=
+        b=LcsjT9JZO6TEvOZLEMxnQLBJF/aA+8F+OzPmVdo4QN3cfxt7bEEiYq/eqsITjg/xb
+         0ESB8dnlcSRU2lobcxPoBk5YwCrO0S10A1JQL8yWNw+5qEq8kgyO9nSBgOrV4a4KHz
+         oYPWYaWdpBshJIuiC7drFzxsA6buBbjI1+bACxzs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Golovin <dima@golovin.in>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Roi Dayan <roid@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 133/376] lib/mpi: Fix 64-bit MIPS build with Clang
-Date:   Fri, 19 Jun 2020 16:30:51 +0200
-Message-Id: <20200619141716.631703861@linuxfoundation.org>
+Subject: [PATCH 5.7 134/376] net/mlx5e: CT: Avoid false warning about rule may be used uninitialized
+Date:   Fri, 19 Jun 2020 16:30:52 +0200
+Message-Id: <20200619141716.679086744@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -45,67 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Roi Dayan <roid@mellanox.com>
 
-[ Upstream commit 18f1ca46858eac22437819937ae44aa9a8f9f2fa ]
+[ Upstream commit 70a5698a5683cd504b03c6030ee622b1bec3f702 ]
 
-When building 64r6_defconfig with CONFIG_MIPS32_O32 disabled and
-CONFIG_CRYPTO_RSA enabled:
+Avoid gcc warning by preset rule to invalid ptr.
 
-lib/mpi/generic_mpih-mul1.c:37:24: error: invalid use of a cast in a
-inline asm context requiring an l-value: remove the cast
-or build with -fheinous-gnu-extensions
-                umul_ppmm(prod_high, prod_low, s1_ptr[j], s2_limb);
-                ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-lib/mpi/longlong.h:664:22: note: expanded from macro 'umul_ppmm'
-                 : "=d" ((UDItype)(w0))
-                         ~~~~~~~~~~^~~
-lib/mpi/generic_mpih-mul1.c:37:13: error: invalid use of a cast in a
-inline asm context requiring an l-value: remove the cast
-or build with -fheinous-gnu-extensions
-                umul_ppmm(prod_high, prod_low, s1_ptr[j], s2_limb);
-                ~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-lib/mpi/longlong.h:668:22: note: expanded from macro 'umul_ppmm'
-                 : "=d" ((UDItype)(w1))
-                         ~~~~~~~~~~^~~
-2 errors generated.
-
-This special case for umul_ppmm for MIPS64r6 was added in
-commit bbc25bee37d2b ("lib/mpi: Fix umul_ppmm() for MIPS64r6"), due to
-GCC being inefficient and emitting a __multi3 intrinsic.
-
-There is no such issue with clang; with this patch applied, I can build
-this configuration without any problems and there are no link errors
-like mentioned in the commit above (which I can still reproduce with
-GCC 9.3.0 when that commit is reverted). Only use this definition when
-GCC is being used.
-
-This really should have been caught by commit b0c091ae04f67 ("lib/mpi:
-Eliminate unused umul_ppmm definitions for MIPS") when I was messing
-around in this area but I was not testing 64-bit MIPS at the time.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/885
-Reported-by: Dmitry Golovin <dima@golovin.in>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 4c3844d9e97e ("net/mlx5e: CT: Introduce connection tracking")
+Signed-off-by: Roi Dayan <roid@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/mpi/longlong.h | 2 +-
+ drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/lib/mpi/longlong.h b/lib/mpi/longlong.h
-index 891e1c3549c4..afbd99987cf8 100644
---- a/lib/mpi/longlong.h
-+++ b/lib/mpi/longlong.h
-@@ -653,7 +653,7 @@ do {						\
- 	**************  MIPS/64  **************
- 	***************************************/
- #if (defined(__mips) && __mips >= 3) && W_TYPE_SIZE == 64
--#if defined(__mips_isa_rev) && __mips_isa_rev >= 6
-+#if defined(__mips_isa_rev) && __mips_isa_rev >= 6 && defined(CONFIG_CC_IS_GCC)
- /*
-  * GCC ends up emitting a __multi3 intrinsic call for MIPS64r6 with the plain C
-  * code below, so we special case MIPS64r6 until the compiler can do better.
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c
+index 153d6eb19d3c..470282daed19 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c
+@@ -1132,7 +1132,7 @@ mlx5_tc_ct_flow_offload(struct mlx5e_priv *priv,
+ {
+ 	bool clear_action = attr->ct_attr.ct_action & TCA_CT_ACT_CLEAR;
+ 	struct mlx5_tc_ct_priv *ct_priv = mlx5_tc_ct_get_ct_priv(priv);
+-	struct mlx5_flow_handle *rule;
++	struct mlx5_flow_handle *rule = ERR_PTR(-EINVAL);
+ 	int err;
+ 
+ 	if (!ct_priv)
 -- 
 2.25.1
 
