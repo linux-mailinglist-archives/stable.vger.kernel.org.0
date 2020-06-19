@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42188201257
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:52:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD770201254
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:52:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405277AbgFSPvx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:51:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55216 "EHLO mail.kernel.org"
+        id S2403899AbgFSPvs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:51:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393198AbgFSPXj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:23:39 -0400
+        id S2390114AbgFSPXl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:23:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B6E120B80;
-        Fri, 19 Jun 2020 15:23:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6C12321841;
+        Fri, 19 Jun 2020 15:23:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580218;
-        bh=SK1nZ2hTcSnnnyugJKyjqisJYC5D/yJd2Et368taQwc=;
+        s=default; t=1592580221;
+        bh=qViuOa0tFAuzGHOi+ZLjbhAYpuI3NFwXYEk9AAsSz0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xSP17StTTlF5PGr+RiXixpjRLzmA+Eq1vMMFWuwFhmDD45gtJvmcnVE7MlmOccwJk
-         2OltZ2/rf9GY/+Xeb6xoP7yW/JzWO9WhSBboKsqHTV3G5ZnLp+McnamDDAejBCdoZS
-         7dcCkAd0lruLU9H7E+4ljI+p101bsiv9N3DhCD0c=
+        b=i5RI3Ca10qwjb5emS0co++8qMSpun46VLSDEfU8c3pZUzbedfU35oszQh/3ZSW25X
+         uRWnkRIIyMV9RPWhdDIXjn2BEu7XYo8lfJuISgRZhpBaapM5/IFh64VlGr2uQ3yQGr
+         h5KDWCQSRJ0+qypzo7xpfpR/x/r/f4v5ABJDsJK4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Mario Limonciello <Mario.limonciello@dell.com>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 166/376] platform/x86: intel-vbtn: Do not advertise switches to userspace if they are not there
-Date:   Fri, 19 Jun 2020 16:31:24 +0200
-Message-Id: <20200619141718.182019036@linuxfoundation.org>
+Subject: [PATCH 5.7 167/376] platform/x86: intel-vbtn: Also handle tablet-mode switch on "Detachable" and "Portable" chassis-types
+Date:   Fri, 19 Jun 2020 16:31:25 +0200
+Message-Id: <20200619141718.227464841@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -46,103 +47,65 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 990fbb48067bf8cfa34b7d1e6e1674eaaef2f450 ]
+[ Upstream commit 1fac39fd0316b19c3e57a182524332332d1643ce ]
 
 Commit de9647efeaa9 ("platform/x86: intel-vbtn: Only activate tablet mode
 switch on 2-in-1's") added a DMI chassis-type check to avoid accidentally
-reporting SW_TABLET_MODE = 1 to userspace on laptops (specifically on the
-Dell XPS 9360), to avoid e.g. userspace ignoring touchpad events because
-userspace thought the device was in tablet-mode.
+reporting SW_TABLET_MODE = 1 to userspace on laptops.
 
-But if we are not getting the initial status of the switch because the
-device does not have a tablet mode, then we really should not advertise
-the presence of a tablet-mode switch to userspace at all, as userspace may
-use the mere presence of this switch for certain heuristics.
+Some devices with a detachable keyboard and using the intel-vbnt (INT33D6)
+interface to report if they are in tablet mode (keyboard detached) or not,
+report 32 / "Detachable" as chassis-type, e.g. the HP Pavilion X2 series.
+
+Other devices with a detachable keyboard and using the intel-vbnt (INT33D6)
+interface to report SW_TABLET_MODE, report 8 / "Portable" as chassis-type.
+The Dell Venue 11 Pro 7130 is an example of this.
+
+Extend the DMI chassis-type check to also accept Portables and Detachables
+so that the intel-vbtn driver will report SW_TABLET_MODE on these devices.
+
+Note the chassis-type check was originally added to avoid a false-positive
+tablet-mode report on the Dell XPS 9360 laptop. To the best of my knowledge
+that laptop is using a chassis-type of 9 / "Laptop", so after this commit
+we still ignore the tablet-switch for that chassis-type.
 
 Fixes: de9647efeaa9 ("platform/x86: intel-vbtn: Only activate tablet mode switch on 2-in-1's")
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Mario Limonciello <Mario.limonciello@dell.com>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/intel-vbtn.c | 25 +++++++++++++++++++------
- 1 file changed, 19 insertions(+), 6 deletions(-)
+ drivers/platform/x86/intel-vbtn.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/platform/x86/intel-vbtn.c b/drivers/platform/x86/intel-vbtn.c
-index 634096cef21a..500fae82e12c 100644
+index 500fae82e12c..4921fc15dc6c 100644
 --- a/drivers/platform/x86/intel-vbtn.c
 +++ b/drivers/platform/x86/intel-vbtn.c
-@@ -55,6 +55,7 @@ static const struct key_entry intel_vbtn_switchmap[] = {
- struct intel_vbtn_priv {
- 	struct key_entry keymap[KEYMAP_LEN];
- 	struct input_dev *input_dev;
-+	bool has_switches;
- 	bool wakeup_mode;
- };
- 
-@@ -70,7 +71,7 @@ static int intel_vbtn_input_setup(struct platform_device *device)
- 		keymap_len += ARRAY_SIZE(intel_vbtn_keymap);
- 	}
- 
--	if (true) {
-+	if (priv->has_switches) {
- 		memcpy(&priv->keymap[keymap_len], intel_vbtn_switchmap,
- 		       ARRAY_SIZE(intel_vbtn_switchmap) *
- 		       sizeof(struct key_entry));
-@@ -138,16 +139,12 @@ out_unknown:
- 
- static void detect_tablet_mode(struct platform_device *device)
+@@ -158,12 +158,22 @@ static void detect_tablet_mode(struct platform_device *device)
+ static bool intel_vbtn_has_switches(acpi_handle handle)
  {
--	const char *chassis_type = dmi_get_system_info(DMI_CHASSIS_TYPE);
- 	struct intel_vbtn_priv *priv = dev_get_drvdata(&device->dev);
- 	acpi_handle handle = ACPI_HANDLE(&device->dev);
+ 	const char *chassis_type = dmi_get_system_info(DMI_CHASSIS_TYPE);
++	unsigned long chassis_type_int;
  	unsigned long long vgbs;
  	acpi_status status;
- 	int m;
  
 -	if (!(chassis_type && strcmp(chassis_type, "31") == 0))
--		return;
--
- 	status = acpi_evaluate_integer(handle, "VGBS", NULL, &vgbs);
- 	if (ACPI_FAILURE(status))
- 		return;
-@@ -158,6 +155,19 @@ static void detect_tablet_mode(struct platform_device *device)
- 	input_report_switch(priv->input_dev, SW_DOCK, m);
- }
++	if (kstrtoul(chassis_type, 10, &chassis_type_int))
+ 		return false;
  
-+static bool intel_vbtn_has_switches(acpi_handle handle)
-+{
-+	const char *chassis_type = dmi_get_system_info(DMI_CHASSIS_TYPE);
-+	unsigned long long vgbs;
-+	acpi_status status;
-+
-+	if (!(chassis_type && strcmp(chassis_type, "31") == 0))
++	switch (chassis_type_int) {
++	case  8: /* Portable */
++	case 31: /* Convertible */
++	case 32: /* Detachable */
++		break;
++	default:
 +		return false;
++	}
 +
-+	status = acpi_evaluate_integer(handle, "VGBS", NULL, &vgbs);
-+	return ACPI_SUCCESS(status);
-+}
-+
- static int intel_vbtn_probe(struct platform_device *device)
- {
- 	acpi_handle handle = ACPI_HANDLE(&device->dev);
-@@ -176,13 +186,16 @@ static int intel_vbtn_probe(struct platform_device *device)
- 		return -ENOMEM;
- 	dev_set_drvdata(&device->dev, priv);
- 
-+	priv->has_switches = intel_vbtn_has_switches(handle);
-+
- 	err = intel_vbtn_input_setup(device);
- 	if (err) {
- 		pr_err("Failed to setup Intel Virtual Button\n");
- 		return err;
- 	}
- 
--	detect_tablet_mode(device);
-+	if (priv->has_switches)
-+		detect_tablet_mode(device);
- 
- 	status = acpi_install_notify_handler(handle,
- 					     ACPI_DEVICE_NOTIFY,
+ 	status = acpi_evaluate_integer(handle, "VGBS", NULL, &vgbs);
+ 	return ACPI_SUCCESS(status);
+ }
 -- 
 2.25.1
 
