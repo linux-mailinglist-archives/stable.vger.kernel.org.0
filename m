@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85BD9200DEA
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:05:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39EAA200EF9
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:16:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390895AbgFSPCt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:02:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59468 "EHLO mail.kernel.org"
+        id S2403952AbgFSPNf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:13:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389299AbgFSPCs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:02:48 -0400
+        id S2403765AbgFSPNd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:13:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6906F21841;
-        Fri, 19 Jun 2020 15:02:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 901762158C;
+        Fri, 19 Jun 2020 15:13:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578968;
-        bh=oB+AJf3d5fAPcGva4i/ZTOk916wtQtBgYYJ98zhh6Hw=;
+        s=default; t=1592579612;
+        bh=HksJI7PjEoFb8TwExX5xq5p1dKtBmw4Fh1I3joCNbYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lz2ULMNFBV2vbRX2DF13ODBjSHlo8qdyrG60Ds87lzZ97CJRXR23CMjibpFWVWxdo
-         WiwSDxLDiifqVNoqiQnVnStAvKOhr+5oqoyKwrbVINI8AeMcMIGtheaiAzc1dKDZfd
-         /fzcEDj1dLh1/VHz2admG9fAUxT9nxbHEi09ACuo=
+        b=meXIjIYmv8bJR+LStlXYMc/a4GnE6swdF7NKXEVpboO/AL3swO7CSp+SPEdbjR0Hr
+         dq1NMbDXMUGG4BUTetlpslOWgPVGRXPC4oPu3YTDGoqtKGzj+ok/7LoWE+MtRKskvG
+         j8uOiwAd6ayx3TBIEE/jXFl5aGG226c54g1ak8VU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>,
-        Logan Gunthorpe <logang@deltatee.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 226/267] PCI: Unify ACS quirk desired vs provided checking
-Date:   Fri, 19 Jun 2020 16:33:31 +0200
-Message-Id: <20200619141659.538098036@linuxfoundation.org>
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 5.4 201/261] serial: 8250: Avoid error message on reprobe
+Date:   Fri, 19 Jun 2020 16:33:32 +0200
+Message-Id: <20200619141659.525052911@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
-References: <20200619141648.840376470@linuxfoundation.org>
+In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
+References: <20200619141649.878808811@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,177 +43,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Helgaas <bhelgaas@google.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-[ Upstream commit 7cf2cba43f15c74bac46dc5f0326805d25ef514d ]
+commit e0a851fe6b9b619527bd928aa93caaddd003f70c upstream.
 
-Most of the ACS quirks have a similar pattern of:
+If the call to uart_add_one_port() in serial8250_register_8250_port()
+fails, a half-initialized entry in the serial_8250ports[] array is left
+behind.
 
-  acs_flags &= ~( <controls provided by this device> );
-  return acs_flags ? 0 : 1;
+A subsequent reprobe of the same serial port causes that entry to be
+reused.  Because uart->port.dev is set, uart_remove_one_port() is called
+for the half-initialized entry and bails out with an error message:
 
-Pull this out into a helper function to simplify the quirks slightly.  The
-helper function is also a convenient place for comments about what the list
-of ACS controls means.  No functional change intended.
+bcm2835-aux-uart 3f215040.serial: Removing wrong port: (null) != (ptrval)
 
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
-Reviewed-by: Alex Williamson <alex.williamson@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The same happens on failure of mctrl_gpio_init() since commit
+4a96895f74c9 ("tty/serial/8250: use mctrl_gpio helpers").
+
+Fix by zeroing the uart->port.dev pointer in the probe error path.
+
+The bug was introduced in v2.6.10 by historical commit befff6f5bf5f
+("[SERIAL] Add new port registration/unregistration functions."):
+https://git.kernel.org/tglx/history/c/befff6f5bf5f
+
+The commit added an unconditional call to uart_remove_one_port() in
+serial8250_register_port().  In v3.7, commit 835d844d1a28 ("8250_pnp:
+do pnp probe before legacy probe") made that call conditional on
+uart->port.dev which allows me to fix the issue by zeroing that pointer
+in the error path.  Thus, the present commit will fix the problem as far
+back as v3.7 whereas still older versions need to also cherry-pick
+835d844d1a28.
+
+Fixes: 835d844d1a28 ("8250_pnp: do pnp probe before legacy probe")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: stable@vger.kernel.org # v2.6.10
+Cc: stable@vger.kernel.org # v2.6.10: 835d844d1a28: 8250_pnp: do pnp probe before legacy
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/b4a072013ee1a1d13ee06b4325afb19bda57ca1b.1589285873.git.lukas@wunner.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/pci/quirks.c | 67 +++++++++++++++++++++++++++++---------------
- 1 file changed, 45 insertions(+), 22 deletions(-)
+ drivers/tty/serial/8250/8250_core.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index ae62c0b058dd..0704025a2160 100644
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -4263,6 +4263,24 @@ static void quirk_chelsio_T5_disable_root_port_attributes(struct pci_dev *pdev)
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_CHELSIO, PCI_ANY_ID,
- 			 quirk_chelsio_T5_disable_root_port_attributes);
- 
-+/*
-+ * pci_acs_ctrl_enabled - compare desired ACS controls with those provided
-+ *			  by a device
-+ * @acs_ctrl_req: Bitmask of desired ACS controls
-+ * @acs_ctrl_ena: Bitmask of ACS controls enabled or provided implicitly by
-+ *		  the hardware design
-+ *
-+ * Return 1 if all ACS controls in the @acs_ctrl_req bitmask are included
-+ * in @acs_ctrl_ena, i.e., the device provides all the access controls the
-+ * caller desires.  Return 0 otherwise.
-+ */
-+static int pci_acs_ctrl_enabled(u16 acs_ctrl_req, u16 acs_ctrl_ena)
-+{
-+	if ((acs_ctrl_req & acs_ctrl_ena) == acs_ctrl_req)
-+		return 1;
-+	return 0;
-+}
+--- a/drivers/tty/serial/8250/8250_core.c
++++ b/drivers/tty/serial/8250/8250_core.c
+@@ -1026,7 +1026,7 @@ int serial8250_register_8250_port(struct
+ 			gpios = mctrl_gpio_init(&uart->port, 0);
+ 			if (IS_ERR(gpios)) {
+ 				ret = PTR_ERR(gpios);
+-				goto out_unlock;
++				goto err;
+ 			} else {
+ 				uart->gpios = gpios;
+ 			}
+@@ -1075,8 +1075,10 @@ int serial8250_register_8250_port(struct
+ 			serial8250_apply_quirks(uart);
+ 			ret = uart_add_one_port(&serial8250_reg,
+ 						&uart->port);
+-			if (ret == 0)
+-				ret = uart->port.line;
++			if (ret)
++				goto err;
 +
- /*
-  * AMD has indicated that the devices below do not support peer-to-peer
-  * in any system where they are found in the southbridge with an AMD
-@@ -4306,7 +4324,7 @@ static int pci_quirk_amd_sb_acs(struct pci_dev *dev, u16 acs_flags)
- 	/* Filter out flags not applicable to multifunction */
- 	acs_flags &= (PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_EC | PCI_ACS_DT);
++			ret = uart->port.line;
+ 		} else {
+ 			dev_info(uart->port.dev,
+ 				"skipping CIR port at 0x%lx / 0x%llx, IRQ %d\n",
+@@ -1098,10 +1100,14 @@ int serial8250_register_8250_port(struct
+ 		}
+ 	}
  
--	return acs_flags & ~(PCI_ACS_RR | PCI_ACS_CR) ? 0 : 1;
-+	return pci_acs_ctrl_enabled(acs_flags, PCI_ACS_RR | PCI_ACS_CR);
- #else
- 	return -ENODEV;
- #endif
-@@ -4344,9 +4362,8 @@ static int pci_quirk_cavium_acs(struct pci_dev *dev, u16 acs_flags)
- 	 * hardware implements and enables equivalent ACS functionality for
- 	 * these flags.
- 	 */
--	acs_flags &= ~(PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF);
--
--	return acs_flags ? 0 : 1;
-+	return pci_acs_ctrl_enabled(acs_flags,
-+		PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF);
+-out_unlock:
+ 	mutex_unlock(&serial_mutex);
+ 
+ 	return ret;
++
++err:
++	uart->port.dev = NULL;
++	mutex_unlock(&serial_mutex);
++	return ret;
  }
+ EXPORT_SYMBOL(serial8250_register_8250_port);
  
- static int pci_quirk_xgene_acs(struct pci_dev *dev, u16 acs_flags)
-@@ -4356,9 +4373,8 @@ static int pci_quirk_xgene_acs(struct pci_dev *dev, u16 acs_flags)
- 	 * transactions with others, allowing masking out these bits as if they
- 	 * were unimplemented in the ACS capability.
- 	 */
--	acs_flags &= ~(PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF);
--
--	return acs_flags ? 0 : 1;
-+	return pci_acs_ctrl_enabled(acs_flags,
-+		PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF);
- }
- 
- /*
-@@ -4410,17 +4426,16 @@ static bool pci_quirk_intel_pch_acs_match(struct pci_dev *dev)
- 	return false;
- }
- 
--#define INTEL_PCH_ACS_FLAGS (PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF)
--
- static int pci_quirk_intel_pch_acs(struct pci_dev *dev, u16 acs_flags)
- {
- 	if (!pci_quirk_intel_pch_acs_match(dev))
- 		return -ENOTTY;
- 
- 	if (dev->dev_flags & PCI_DEV_FLAGS_ACS_ENABLED_QUIRK)
--		acs_flags &= ~(INTEL_PCH_ACS_FLAGS);
-+		return pci_acs_ctrl_enabled(acs_flags,
-+			PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF);
- 
--	return acs_flags ? 0 : 1;
-+	return pci_acs_ctrl_enabled(acs_flags, 0);
- }
- 
- /*
-@@ -4435,9 +4450,8 @@ static int pci_quirk_intel_pch_acs(struct pci_dev *dev, u16 acs_flags)
-  */
- static int pci_quirk_qcom_rp_acs(struct pci_dev *dev, u16 acs_flags)
- {
--	acs_flags &= ~(PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF);
--
--	return acs_flags ? 0 : 1;
-+	return pci_acs_ctrl_enabled(acs_flags,
-+		PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF);
- }
- 
- /*
-@@ -4520,7 +4534,7 @@ static int pci_quirk_intel_spt_pch_acs(struct pci_dev *dev, u16 acs_flags)
- 
- 	pci_read_config_dword(dev, pos + INTEL_SPT_ACS_CTRL, &ctrl);
- 
--	return acs_flags & ~ctrl ? 0 : 1;
-+	return pci_acs_ctrl_enabled(acs_flags, ctrl);
- }
- 
- static int pci_quirk_mf_endpoint_acs(struct pci_dev *dev, u16 acs_flags)
-@@ -4534,10 +4548,9 @@ static int pci_quirk_mf_endpoint_acs(struct pci_dev *dev, u16 acs_flags)
- 	 * perform peer-to-peer with other functions, allowing us to mask out
- 	 * these bits as if they were unimplemented in the ACS capability.
- 	 */
--	acs_flags &= ~(PCI_ACS_SV | PCI_ACS_TB | PCI_ACS_RR |
--		       PCI_ACS_CR | PCI_ACS_UF | PCI_ACS_DT);
--
--	return acs_flags ? 0 : 1;
-+	return pci_acs_ctrl_enabled(acs_flags,
-+		PCI_ACS_SV | PCI_ACS_TB | PCI_ACS_RR |
-+		PCI_ACS_CR | PCI_ACS_UF | PCI_ACS_DT);
- }
- 
- static int pci_quirk_rciep_acs(struct pci_dev *dev, u16 acs_flags)
-@@ -4562,9 +4575,8 @@ static int pci_quirk_brcm_acs(struct pci_dev *dev, u16 acs_flags)
- 	 * Allow each Root Port to be in a separate IOMMU group by masking
- 	 * SV/RR/CR/UF bits.
- 	 */
--	acs_flags &= ~(PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF);
--
--	return acs_flags ? 0 : 1;
-+	return pci_acs_ctrl_enabled(acs_flags,
-+		PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF);
- }
- 
- static const struct pci_dev_acs_enabled {
-@@ -4663,6 +4675,17 @@ static const struct pci_dev_acs_enabled {
- 	{ 0 }
- };
- 
-+/*
-+ * pci_dev_specific_acs_enabled - check whether device provides ACS controls
-+ * @dev:	PCI device
-+ * @acs_flags:	Bitmask of desired ACS controls
-+ *
-+ * Returns:
-+ *   -ENOTTY:	No quirk applies to this device; we can't tell whether the
-+ *		device provides the desired controls
-+ *   0:		Device does not provide all the desired controls
-+ *   >0:	Device provides all the controls in @acs_flags
-+ */
- int pci_dev_specific_acs_enabled(struct pci_dev *dev, u16 acs_flags)
- {
- 	const struct pci_dev_acs_enabled *i;
--- 
-2.25.1
-
 
 
