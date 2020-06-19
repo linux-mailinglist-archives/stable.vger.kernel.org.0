@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B1DA201697
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:33:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84649201694
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:33:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390377AbgFSQcd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:32:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45920 "EHLO mail.kernel.org"
+        id S2389531AbgFSQcV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:32:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388794AbgFSOwB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:52:01 -0400
+        id S2389523AbgFSOwE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:52:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4CAFC217D8;
-        Fri, 19 Jun 2020 14:52:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E7AFC21852;
+        Fri, 19 Jun 2020 14:52:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578321;
-        bh=GxwRv2tbHq5ZnBVPYPhzElcHE23j1SRyKV5iDO0mFho=;
+        s=default; t=1592578324;
+        bh=73Xr/+48FOMIU+M4fpp9cEm0EyKviSfDsEVbWGtACQM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qH5jQRcnpxkRPnwPMsfrKPS+vqHl6crV9Dd69vqgVjKPIYM6NRch6xpmBw41KnD8i
-         CkTuvM19OiExj4T9HYbnsjGjy+PGV6ZeT2LDisrOvpCFaJyJMsjXIZaRTtnkzQv03Z
-         fKOXcDChlcXJ9RPQ80HE8mRwAV1O1SD3otUdEzdY=
+        b=PLbp9XFv1tFA64Bgn0DK59RJi21I+BRlK8aDg1/cBLYmWjdZmFy29V/wfwa1tS2S9
+         dVV4yGI185/fnQ9Lu+UoWIwXGh8wOJla6HciHApWsxVpFrVx3g+9atGVcqWkRjJy+K
+         BZKeW1RoKGLpfTLUol3Afy817v/tW4rJPZVlHKe8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.14 169/190] b43_legacy: Fix connection problem with WPA3
-Date:   Fri, 19 Jun 2020 16:33:34 +0200
-Message-Id: <20200619141642.224351708@linuxfoundation.org>
+        stable@vger.kernel.org, Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Benoit Parrot <bparrot@ti.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 4.14 170/190] media: ov5640: fix use of destroyed mutex
+Date:   Fri, 19 Jun 2020 16:33:35 +0200
+Message-Id: <20200619141642.263901370@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
 References: <20200619141633.446429600@linuxfoundation.org>
@@ -43,42 +46,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Larry Finger <Larry.Finger@lwfinger.net>
+From: Tomi Valkeinen <tomi.valkeinen@ti.com>
 
-commit 6a29d134c04a8acebb7a95251acea7ad7abba106 upstream.
+commit bfcba38d95a0aed146a958a84a2177af1459eddc upstream.
 
-Since the driver was first introduced into the kernel, it has only
-handled the ciphers associated with WEP, WPA, and WPA2. It fails with
-WPA3 even though mac80211 can handle those additional ciphers in software,
-b43legacy did not report that it could handle them. By setting MFP_CAPABLE using
-ieee80211_set_hw(), the problem is fixed.
+v4l2_ctrl_handler_free() uses hdl->lock, which in ov5640 driver is set
+to sensor's own sensor->lock. In ov5640_remove(), the driver destroys the
+sensor->lock first, and then calls v4l2_ctrl_handler_free(), resulting
+in the use of the destroyed mutex.
 
-With this change, b43legacy will handle the ciphers it knows in hardware,
-and let mac80211 handle the others in software. It is not necessary to
-use the module parameter NOHWCRYPT to turn hardware encryption off.
-Although this change essentially eliminates that module parameter,
-I am choosing to keep it for cases where the hardware is broken,
-and software encryption is required for all ciphers.
+Fix this by calling moving the mutex_destroy() to the end of the cleanup
+sequence, as there's no need to destroy the mutex as early as possible.
 
-Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
-Cc: Stable <stable@vger.kernel.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200526155909.5807-3-Larry.Finger@lwfinger.net
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: stable@vger.kernel.org # v4.14+
+Reviewed-by: Benoit Parrot <bparrot@ti.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/broadcom/b43legacy/main.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/i2c/ov5640.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/wireless/broadcom/b43legacy/main.c
-+++ b/drivers/net/wireless/broadcom/b43legacy/main.c
-@@ -3835,6 +3835,7 @@ static int b43legacy_wireless_init(struc
- 	/* fill hw info */
- 	ieee80211_hw_set(hw, RX_INCLUDES_FCS);
- 	ieee80211_hw_set(hw, SIGNAL_DBM);
-+	ieee80211_hw_set(hw, MFP_CAPABLE); /* Allow WPA3 in software */
+--- a/drivers/media/i2c/ov5640.c
++++ b/drivers/media/i2c/ov5640.c
+@@ -2298,8 +2298,8 @@ static int ov5640_probe(struct i2c_clien
+ free_ctrls:
+ 	v4l2_ctrl_handler_free(&sensor->ctrls.handler);
+ entity_cleanup:
+-	mutex_destroy(&sensor->lock);
+ 	media_entity_cleanup(&sensor->sd.entity);
++	mutex_destroy(&sensor->lock);
+ 	return ret;
+ }
  
- 	hw->wiphy->interface_modes =
- 		BIT(NL80211_IFTYPE_AP) |
+@@ -2309,9 +2309,9 @@ static int ov5640_remove(struct i2c_clie
+ 	struct ov5640_dev *sensor = to_ov5640_dev(sd);
+ 
+ 	v4l2_async_unregister_subdev(&sensor->sd);
+-	mutex_destroy(&sensor->lock);
+ 	media_entity_cleanup(&sensor->sd.entity);
+ 	v4l2_ctrl_handler_free(&sensor->ctrls.handler);
++	mutex_destroy(&sensor->lock);
+ 
+ 	return 0;
+ }
 
 
