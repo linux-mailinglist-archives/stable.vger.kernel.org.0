@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E80EF2015EA
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:32:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9ABE2016EE
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:46:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394671AbgFSQYU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:24:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54252 "EHLO mail.kernel.org"
+        id S2388953AbgFSOro (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:47:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390389AbgFSO60 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:58:26 -0400
+        id S2388970AbgFSOrk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:47:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 242BC21919;
-        Fri, 19 Jun 2020 14:58:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA0C1217D8;
+        Fri, 19 Jun 2020 14:47:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578706;
-        bh=SrQIZo4/w6tvt/sn10MdGljp2fb7x+ziSKjuxf924D4=;
+        s=default; t=1592578060;
+        bh=CbJdjZrQhMBdYhchWNvBBlWo0jc+OqGxp0v9xYVc5DA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XMSh2ajAIng1b2yRRwkEI0uiqWiaYbTUqgSo2ywAw8Y4mvJjAJAXcL/nZW+347e7z
-         7Qy1MlsYRHFKWZ7e0tK9qNJ9eqgG4WyBGGK8YE5PFh9mkeqtLnPc+iIu5I3oJ/YnVi
-         pRyp1wEUI4K6Fu4j37lXdSWUIeVjXhoJWPTL9j3w=
+        b=mEbfvuukKmS9CidzKeSHHUyaa9wX68ks3JQaDlHiP2nDvM2vAkgPfGwlxVsD3esij
+         pkCB4WVk2MTrw2hZ8zycZbR9O6lK1jH1mP0/M/jsUFLf8ZHem6JD5+2J+aVEeuWgKo
+         qIoBFcr+CCin6BxKAyEl7f8LzHIa9RASDl+cRs+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+6f1624f937d9d6911e2d@syzkaller.appspotmail.com,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Marco Elver <elver@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 085/267] fat: dont allow to mount if the FAT length == 0
-Date:   Fri, 19 Jun 2020 16:31:10 +0200
-Message-Id: <20200619141652.962191910@linuxfoundation.org>
+        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 4.14 026/190] ACPI: sysfs: Fix reference count leak in acpi_sysfs_add_hotplug_profile()
+Date:   Fri, 19 Jun 2020 16:31:11 +0200
+Message-Id: <20200619141634.822452238@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
-References: <20200619141648.840376470@linuxfoundation.org>
+In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
+References: <20200619141633.446429600@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,42 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+From: Qiushi Wu <wu000273@umn.edu>
 
-commit b1b65750b8db67834482f758fc385bfa7560d228 upstream.
+commit 6e6c25283dff866308c87b49434c7dbad4774cc0 upstream.
 
-If FAT length == 0, the image doesn't have any data. And it can be the
-cause of overlapping the root dir and FAT entries.
+kobject_init_and_add() takes reference even when it fails.
+Thus, when kobject_init_and_add() returns an error,
+kobject_put() must be called to properly clean up the kobject.
 
-Also Windows treats it as invalid format.
-
-Reported-by: syzbot+6f1624f937d9d6911e2d@syzkaller.appspotmail.com
-Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Marco Elver <elver@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Link: http://lkml.kernel.org/r/87r1wz8mrd.fsf@mail.parknet.co.jp
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 3f8055c35836 ("ACPI / hotplug: Introduce user space interface for hotplug profiles")
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+Cc: 3.10+ <stable@vger.kernel.org> # 3.10+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/fat/inode.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/acpi/sysfs.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/fs/fat/inode.c
-+++ b/fs/fat/inode.c
-@@ -1519,6 +1519,12 @@ static int fat_read_bpb(struct super_blo
- 		goto out;
- 	}
+--- a/drivers/acpi/sysfs.c
++++ b/drivers/acpi/sysfs.c
+@@ -997,8 +997,10 @@ void acpi_sysfs_add_hotplug_profile(stru
  
-+	if (bpb->fat_fat_length == 0 && bpb->fat32_length == 0) {
-+		if (!silent)
-+			fat_msg(sb, KERN_ERR, "bogus number of FAT sectors");
-+		goto out;
+ 	error = kobject_init_and_add(&hotplug->kobj,
+ 		&acpi_hotplug_profile_ktype, hotplug_kobj, "%s", name);
+-	if (error)
++	if (error) {
++		kobject_put(&hotplug->kobj);
+ 		goto err_out;
 +	}
-+
- 	error = 0;
  
- out:
+ 	kobject_uevent(&hotplug->kobj, KOBJ_ADD);
+ 	return;
 
 
