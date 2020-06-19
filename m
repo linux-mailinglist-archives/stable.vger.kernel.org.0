@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 481AB200BB1
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:38:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FC1C200BB3
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:38:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387564AbgFSOgj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:36:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53150 "EHLO mail.kernel.org"
+        id S2387572AbgFSOgn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:36:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387552AbgFSOgh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:36:37 -0400
+        id S2387566AbgFSOgl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:36:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3209F2158C;
-        Fri, 19 Jun 2020 14:36:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8A9120CC7;
+        Fri, 19 Jun 2020 14:36:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577397;
-        bh=StM8Mz4zDrwZucJ3FbQLllhtm41L09CDt96wvqoY6KU=;
+        s=default; t=1592577400;
+        bh=sXl+Ns5JOxqJylekxpc8ie6/U3eKfS139lWdkI5jD24=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zF9CftVlLVOdafO3/It4tqYoSRhAjaN/nX/F3T8Kd/s85chn72JiPL6fliIxjXFnr
-         rywyECMdovSGcJJ7pS4V3P/4+R2kONW5tP9uZFKkDmXfPhsR+uwhJRg43XpSZgND1y
-         Uv0GLq9YXD3Q601ZqQ+xJLzJK0Yb6KxOpUxMHup8=
+        b=GW9O7RNOqKL7AxpAqszzrYDog6PD/bFFe3QJVI2noTnCePWJyD0PSX+D/SXOSOUSw
+         /KvOcZ/SmBgydOS5i98RnzVpGhoVpwTS93KVoWR7819hRKsLRMCL4x7akbXgjxMznn
+         Iv/fVaPPRllZ3M9dGOFp7RBOaLLYyihdLJqKa7Bg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jarod Wilson <jarod@redhat.com>,
-        Alexander Duyck <aduyck@mirantis.com>,
-        Aaron Brown <aaron.f.brown@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
-        Jeff Chase <jnchase@google.com>
-Subject: [PATCH 4.4 006/101] igb: improve handling of disconnected adapters
-Date:   Fri, 19 Jun 2020 16:31:55 +0200
-Message-Id: <20200619141614.342127109@linuxfoundation.org>
+        stable@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>,
+        Fredrik Strupe <fredrik@strupe.net>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 007/101] ARM: 8977/1: ptrace: Fix mask for thumb breakpoint hook
+Date:   Fri, 19 Jun 2020 16:31:56 +0200
+Message-Id: <20200619141614.398810825@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141614.001544111@linuxfoundation.org>
 References: <20200619141614.001544111@linuxfoundation.org>
@@ -46,66 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarod Wilson <jarod@redhat.com>
+From: Fredrik Strupe <fredrik@strupe.net>
 
-commit 7b06a6909555ffb0140733cc4420222604140b27 upstream.
+[ Upstream commit 3866f217aaa81bf7165c7f27362eee5d7919c496 ]
 
-Clean up array_rd32 so that it uses igb_rd32 the same as rd32, per the
-suggestion of Alexander Duyck, and use io_addr in more places, so that
-we don't have the need to call E1000_REMOVED (which simply looks for a
-null hw_addr) nearly as much.
+call_undef_hook() in traps.c applies the same instr_mask for both 16-bit
+and 32-bit thumb instructions. If instr_mask then is only 16 bits wide
+(0xffff as opposed to 0xffffffff), the first half-word of 32-bit thumb
+instructions will be masked out. This makes the function match 32-bit
+thumb instructions where the second half-word is equal to instr_val,
+regardless of the first half-word.
 
-Signed-off-by: Jarod Wilson <jarod@redhat.com>
-Acked-by: Alexander Duyck <aduyck@mirantis.com>
-Tested-by: Aaron Brown <aaron.f.brown@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-Cc: Jeff Chase <jnchase@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The result in this case is that all undefined 32-bit thumb instructions
+with the second half-word equal to 0xde01 (udf #1) work as breakpoints
+and will raise a SIGTRAP instead of a SIGILL, instead of just the one
+intended 16-bit instruction. An example of such an instruction is
+0xeaa0de01, which is unallocated according to Arm ARM and should raise a
+SIGILL, but instead raises a SIGTRAP.
 
+This patch fixes the issue by setting all the bits in instr_mask, which
+will still match the intended 16-bit thumb instruction (where the
+upper half is always 0), but not any 32-bit thumb instructions.
+
+Cc: Oleg Nesterov <oleg@redhat.com>
+Signed-off-by: Fredrik Strupe <fredrik@strupe.net>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igb/e1000_regs.h |    3 +--
- drivers/net/ethernet/intel/igb/igb_main.c   |    5 ++---
- 2 files changed, 3 insertions(+), 5 deletions(-)
+ arch/arm/kernel/ptrace.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/intel/igb/e1000_regs.h
-+++ b/drivers/net/ethernet/intel/igb/e1000_regs.h
-@@ -386,8 +386,7 @@ do { \
- #define array_wr32(reg, offset, value) \
- 	wr32((reg) + ((offset) << 2), (value))
+diff --git a/arch/arm/kernel/ptrace.c b/arch/arm/kernel/ptrace.c
+index d54c53b7ab63..711d854ea13a 100644
+--- a/arch/arm/kernel/ptrace.c
++++ b/arch/arm/kernel/ptrace.c
+@@ -227,8 +227,8 @@ static struct undef_hook arm_break_hook = {
+ };
  
--#define array_rd32(reg, offset) \
--	(readl(hw->hw_addr + reg + ((offset) << 2)))
-+#define array_rd32(reg, offset) (igb_rd32(hw, reg + ((offset) << 2)))
- 
- /* DMA Coalescing registers */
- #define E1000_PCIEMISC	0x05BB8 /* PCIE misc config register */
---- a/drivers/net/ethernet/intel/igb/igb_main.c
-+++ b/drivers/net/ethernet/intel/igb/igb_main.c
-@@ -946,7 +946,6 @@ static void igb_configure_msix(struct ig
- static int igb_request_msix(struct igb_adapter *adapter)
- {
- 	struct net_device *netdev = adapter->netdev;
--	struct e1000_hw *hw = &adapter->hw;
- 	int i, err = 0, vector = 0, free_vector = 0;
- 
- 	err = request_irq(adapter->msix_entries[vector].vector,
-@@ -959,7 +958,7 @@ static int igb_request_msix(struct igb_a
- 
- 		vector++;
- 
--		q_vector->itr_register = hw->hw_addr + E1000_EITR(vector);
-+		q_vector->itr_register = adapter->io_addr + E1000_EITR(vector);
- 
- 		if (q_vector->rx.ring && q_vector->tx.ring)
- 			sprintf(q_vector->name, "%s-TxRx-%u", netdev->name,
-@@ -1230,7 +1229,7 @@ static int igb_alloc_q_vector(struct igb
- 	q_vector->tx.work_limit = adapter->tx_work_limit;
- 
- 	/* initialize ITR configuration */
--	q_vector->itr_register = adapter->hw.hw_addr + E1000_EITR(0);
-+	q_vector->itr_register = adapter->io_addr + E1000_EITR(0);
- 	q_vector->itr_val = IGB_START_ITR;
- 
- 	/* initialize pointer to rings */
+ static struct undef_hook thumb_break_hook = {
+-	.instr_mask	= 0xffff,
+-	.instr_val	= 0xde01,
++	.instr_mask	= 0xffffffff,
++	.instr_val	= 0x0000de01,
+ 	.cpsr_mask	= PSR_T_BIT,
+ 	.cpsr_val	= PSR_T_BIT,
+ 	.fn		= break_trap,
+-- 
+2.25.1
+
 
 
