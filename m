@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B2712013E3
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:08:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 786EE201381
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:07:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391455AbgFSQFU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:05:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39534 "EHLO mail.kernel.org"
+        id S2391978AbgFSPJx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:09:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391959AbgFSPJq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:09:46 -0400
+        id S2391973AbgFSPJv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:09:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E9AAE21D7E;
-        Fri, 19 Jun 2020 15:09:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EEC8D21941;
+        Fri, 19 Jun 2020 15:09:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579385;
-        bh=DlI6oCseilzi6eilp8Gz7Ep8tm7QK7mbRC7ltwIV4Lc=;
+        s=default; t=1592579390;
+        bh=8DZyfMBj+GQYqoHgKvdO7+JnquptPSQNnrzE88QIKoc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KtykpfGuOlXevp4AJpO+R8cijSshbqpx0ax8PZltUnZRDHmxTR3lMdV9q7Gk9psmJ
-         VsikR1MT9HDlBZfepD4aaauYelRIyNEzyIeD3Wz9koryPBD7bd/PByTBRjwz3xVNXo
-         5O5epXfJuvmVGVDmkIsIGe8bDBQnGWvg9XeUUm2g=
+        b=NibE0LNvBhdulqksjjuITGrNtcTiBgJ2jEPOP1+c6GYHyuc8FHxiX94sZh2dP8hTH
+         GA5mttl5ddSSvZj9I6hXWIh0Qzu0YefXmiG4nq/IGw8JIU0ePT71XM535SOavwc0eB
+         xi1sywGDUJ8dj+zz3XHfdwnWQM1kgsDcrweNtSlM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mao Wenan <maowenan@huawei.com>,
-        Jesper Dangaard Brouer <brouer@redhat.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Toshiaki Makita <toshiaki.makita1@gmail.com>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 115/261] veth: Adjust hard_start offset on redirect XDP frames
-Date:   Fri, 19 Jun 2020 16:32:06 +0200
-Message-Id: <20200619141655.378836850@linuxfoundation.org>
+Subject: [PATCH 5.4 117/261] rtlwifi: Fix a double free in _rtl_usb_tx_urb_setup()
+Date:   Fri, 19 Jun 2020 16:32:08 +0200
+Message-Id: <20200619141655.480886333@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
 References: <20200619141649.878808811@linuxfoundation.org>
@@ -47,84 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jesper Dangaard Brouer <brouer@redhat.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 5c8572251fabc5bb49fd623c064e95a9daf6a3e3 ]
+[ Upstream commit beb12813bc75d4a23de43b85ad1c7cb28d27631e ]
 
-When native XDP redirect into a veth device, the frame arrives in the
-xdp_frame structure. It is then processed in veth_xdp_rcv_one(),
-which can run a new XDP bpf_prog on the packet. Doing so requires
-converting xdp_frame to xdp_buff, but the tricky part is that
-xdp_frame memory area is located in the top (data_hard_start) memory
-area that xdp_buff will point into.
+Seven years ago we tried to fix a leak but actually introduced a double
+free instead.  It was an understandable mistake because the code was a
+bit confusing and the free was done in the wrong place.  The "skb"
+pointer is freed in both _rtl_usb_tx_urb_setup() and _rtl_usb_transmit().
+The free belongs _rtl_usb_transmit() instead of _rtl_usb_tx_urb_setup()
+and I've cleaned the code up a bit to hopefully make it more clear.
 
-The current code tried to protect the xdp_frame area, by assigning
-xdp_buff.data_hard_start past this memory. This results in 32 bytes
-less headroom to expand into via BPF-helper bpf_xdp_adjust_head().
-
-This protect step is actually not needed, because BPF-helper
-bpf_xdp_adjust_head() already reserve this area, and don't allow
-BPF-prog to expand into it. Thus, it is safe to point data_hard_start
-directly at xdp_frame memory area.
-
-Fixes: 9fc8d518d9d5 ("veth: Handle xdp_frames in xdp napi ring")
-Reported-by: Mao Wenan <maowenan@huawei.com>
-Signed-off-by: Jesper Dangaard Brouer <brouer@redhat.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Toshiaki Makita <toshiaki.makita1@gmail.com>
-Acked-by: Toke Høiland-Jørgensen <toke@redhat.com>
-Link: https://lore.kernel.org/bpf/158945338331.97035.5923525383710752178.stgit@firesoul
+Fixes: 36ef0b473fbf ("rtlwifi: usb: add missing freeing of skbuff")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200513093951.GD347693@mwanda
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/veth.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/wireless/realtek/rtlwifi/usb.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/veth.c b/drivers/net/veth.c
-index 9f3c839f9e5f..88cfd63f08a6 100644
---- a/drivers/net/veth.c
-+++ b/drivers/net/veth.c
-@@ -510,13 +510,15 @@ static struct sk_buff *veth_xdp_rcv_one(struct veth_rq *rq,
- 					struct veth_xdp_tx_bq *bq)
- {
- 	void *hard_start = frame->data - frame->headroom;
--	void *head = hard_start - sizeof(struct xdp_frame);
- 	int len = frame->len, delta = 0;
- 	struct xdp_frame orig_frame;
- 	struct bpf_prog *xdp_prog;
- 	unsigned int headroom;
- 	struct sk_buff *skb;
+diff --git a/drivers/net/wireless/realtek/rtlwifi/usb.c b/drivers/net/wireless/realtek/rtlwifi/usb.c
+index 348b0072cdd6..c66c6dc00378 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/usb.c
++++ b/drivers/net/wireless/realtek/rtlwifi/usb.c
+@@ -881,10 +881,8 @@ static struct urb *_rtl_usb_tx_urb_setup(struct ieee80211_hw *hw,
  
-+	/* bpf_xdp_adjust_head() assures BPF cannot access xdp_frame area */
-+	hard_start -= sizeof(struct xdp_frame);
-+
- 	rcu_read_lock();
- 	xdp_prog = rcu_dereference(rq->xdp_prog);
- 	if (likely(xdp_prog)) {
-@@ -538,7 +540,6 @@ static struct sk_buff *veth_xdp_rcv_one(struct veth_rq *rq,
- 			break;
- 		case XDP_TX:
- 			orig_frame = *frame;
--			xdp.data_hard_start = head;
- 			xdp.rxq->mem = frame->mem;
- 			if (unlikely(veth_xdp_tx(rq->dev, &xdp, bq) < 0)) {
- 				trace_xdp_exception(rq->dev, xdp_prog, act);
-@@ -550,7 +551,6 @@ static struct sk_buff *veth_xdp_rcv_one(struct veth_rq *rq,
- 			goto xdp_xmit;
- 		case XDP_REDIRECT:
- 			orig_frame = *frame;
--			xdp.data_hard_start = head;
- 			xdp.rxq->mem = frame->mem;
- 			if (xdp_do_redirect(rq->dev, &xdp, xdp_prog)) {
- 				frame = &orig_frame;
-@@ -572,7 +572,7 @@ static struct sk_buff *veth_xdp_rcv_one(struct veth_rq *rq,
- 	rcu_read_unlock();
+ 	WARN_ON(NULL == skb);
+ 	_urb = usb_alloc_urb(0, GFP_ATOMIC);
+-	if (!_urb) {
+-		kfree_skb(skb);
++	if (!_urb)
+ 		return NULL;
+-	}
+ 	_rtl_install_trx_info(rtlusb, skb, ep_num);
+ 	usb_fill_bulk_urb(_urb, rtlusb->udev, usb_sndbulkpipe(rtlusb->udev,
+ 			  ep_num), skb->data, skb->len, _rtl_tx_complete, skb);
+@@ -898,7 +896,6 @@ static void _rtl_usb_transmit(struct ieee80211_hw *hw, struct sk_buff *skb,
+ 	struct rtl_usb *rtlusb = rtl_usbdev(rtl_usbpriv(hw));
+ 	u32 ep_num;
+ 	struct urb *_urb = NULL;
+-	struct sk_buff *_skb = NULL;
  
- 	headroom = sizeof(struct xdp_frame) + frame->headroom - delta;
--	skb = veth_build_skb(head, headroom, len, 0);
-+	skb = veth_build_skb(hard_start, headroom, len, 0);
- 	if (!skb) {
- 		xdp_return_frame(frame);
- 		goto err;
+ 	WARN_ON(NULL == rtlusb->usb_tx_aggregate_hdl);
+ 	if (unlikely(IS_USB_STOP(rtlusb))) {
+@@ -907,8 +904,7 @@ static void _rtl_usb_transmit(struct ieee80211_hw *hw, struct sk_buff *skb,
+ 		return;
+ 	}
+ 	ep_num = rtlusb->ep_map.ep_mapping[qnum];
+-	_skb = skb;
+-	_urb = _rtl_usb_tx_urb_setup(hw, _skb, ep_num);
++	_urb = _rtl_usb_tx_urb_setup(hw, skb, ep_num);
+ 	if (unlikely(!_urb)) {
+ 		pr_err("Can't allocate urb. Drop skb!\n");
+ 		kfree_skb(skb);
 -- 
 2.25.1
 
