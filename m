@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDC9E200CBB
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:52:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1F69200BF5
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:42:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389177AbgFSOtF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:49:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41552 "EHLO mail.kernel.org"
+        id S2388092AbgFSOj6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:39:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389158AbgFSOtB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:49:01 -0400
+        id S2388084AbgFSOjx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:39:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 41531217BA;
-        Fri, 19 Jun 2020 14:49:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 85FF82070A;
+        Fri, 19 Jun 2020 14:39:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578141;
-        bh=H74n6MAvvB1UwVfIs7kkoqmc7JsILcseQ+7gWMFrCa8=;
+        s=default; t=1592577593;
+        bh=nNHY3TDJxrW5Nn6O2Fu0pxeR21EVZDE2AQQiYnFW0UA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jas6y154a2hUTKH1K1SLFoVhKeWFJ02O70dOk8CmJdp6llcxzZs5pt4MpNQh3ycSf
-         PzjQGmDh4z5aB4UfT2zEgJRxtJrvT1O4Wl2HXmpBl7GwL6VvjmJBYvh6g79pOsmH5w
-         fAzo4qtmLkkKGRINhpvavV1ckBvSR5YIaWsbQp3w=
+        b=xf5vcEVfE5ie6uEzNj1DkVQReFC+Cts9id55SVZPnGQ6njHMYraIs3t8nJFIdsvxI
+         jY9ZwRkyQI3vt8GNKKNwhifPKvmZSx+fi9V6puHen4Dp2zoq1Zyu8BpjGhUxmpCSv6
+         8Rz+zPiKFyASJUfez3WZK30QRjZ9Pu5IzLNeZaz4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>,
-        Xing Li <lixing@loongson.cn>, Huacai Chen <chenhc@lemote.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.14 059/190] KVM: MIPS: Define KVM_ENTRYHI_ASID to cpu_asid_mask(&boot_cpu_data)
-Date:   Fri, 19 Jun 2020 16:31:44 +0200
-Message-Id: <20200619141636.525966091@linuxfoundation.org>
+        Anthony Steinhauser <asteinhauser@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 4.9 011/128] x86/speculation: Prevent rogue cross-process SSBD shutdown
+Date:   Fri, 19 Jun 2020 16:31:45 +0200
+Message-Id: <20200619141620.746865395@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
-References: <20200619141633.446429600@linuxfoundation.org>
+In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
+References: <20200619141620.148019466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,45 +44,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xing Li <lixing@loongson.cn>
+From: Anthony Steinhauser <asteinhauser@google.com>
 
-commit fe2b73dba47fb6d6922df1ad44e83b1754d5ed4d upstream.
+commit dbbe2ad02e9df26e372f38cc3e70dab9222c832e upstream.
 
-The code in decode_config4() of arch/mips/kernel/cpu-probe.c
+On context switch the change of TIF_SSBD and TIF_SPEC_IB are evaluated
+to adjust the mitigations accordingly. This is optimized to avoid the
+expensive MSR write if not needed.
 
-        asid_mask = MIPS_ENTRYHI_ASID;
-        if (config4 & MIPS_CONF4_AE)
-                asid_mask |= MIPS_ENTRYHI_ASIDX;
-        set_cpu_asid_mask(c, asid_mask);
+This optimization is buggy and allows an attacker to shutdown the SSBD
+protection of a victim process.
 
-set asid_mask to cpuinfo->asid_mask.
+The update logic reads the cached base value for the speculation control
+MSR which has neither the SSBD nor the STIBP bit set. It then OR's the
+SSBD bit only when TIF_SSBD is different and requests the MSR update.
 
-So in order to support variable ASID_MASK, KVM_ENTRYHI_ASID should also
-be changed to cpu_asid_mask(&boot_cpu_data).
+That means if TIF_SSBD of the previous and next task are the same, then
+the base value is not updated, even if TIF_SSBD is set. The MSR write is
+not requested.
 
-Cc: Stable <stable@vger.kernel.org>  #4.9+
-Reviewed-by: Aleksandar Markovic <aleksandar.qemu.devel@gmail.com>
-Signed-off-by: Xing Li <lixing@loongson.cn>
-[Huacai: Change current_cpu_data to boot_cpu_data for optimization]
-Signed-off-by: Huacai Chen <chenhc@lemote.com>
-Message-Id: <1590220602-3547-2-git-send-email-chenhc@lemote.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Subsequently if the TIF_STIBP bit differs then the STIBP bit is updated
+in the base value and the MSR is written with a wrong SSBD value.
+
+This was introduced when the per task/process conditional STIPB
+switching was added on top of the existing SSBD switching.
+
+It is exploitable if the attacker creates a process which enforces SSBD
+and has the contrary value of STIBP than the victim process (i.e. if the
+victim process enforces STIBP, the attacker process must not enforce it;
+if the victim process does not enforce STIBP, the attacker process must
+enforce it) and schedule it on the same core as the victim process. If
+the victim runs after the attacker the victim becomes vulnerable to
+Spectre V4.
+
+To fix this, update the MSR value independent of the TIF_SSBD difference
+and dependent on the SSBD mitigation method available. This ensures that
+a subsequent STIPB initiated MSR write has the correct state of SSBD.
+
+[ tglx: Handle X86_FEATURE_VIRT_SSBD & X86_FEATURE_VIRT_SSBD correctly
+        and massaged changelog ]
+
+Fixes: 5bfbe3ad5840 ("x86/speculation: Prepare for per task indirect branch speculation control")
+Signed-off-by: Anthony Steinhauser <asteinhauser@google.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/mips/include/asm/kvm_host.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/process.c |   28 ++++++++++------------------
+ 1 file changed, 10 insertions(+), 18 deletions(-)
 
---- a/arch/mips/include/asm/kvm_host.h
-+++ b/arch/mips/include/asm/kvm_host.h
-@@ -275,7 +275,7 @@ enum emulation_result {
- #define MIPS3_PG_FRAME		0x3fffffc0
+--- a/arch/x86/kernel/process.c
++++ b/arch/x86/kernel/process.c
+@@ -337,28 +337,20 @@ static __always_inline void __speculatio
+ 	u64 msr = x86_spec_ctrl_base;
+ 	bool updmsr = false;
  
- #define VPN2_MASK		0xffffe000
--#define KVM_ENTRYHI_ASID	MIPS_ENTRYHI_ASID
-+#define KVM_ENTRYHI_ASID	cpu_asid_mask(&boot_cpu_data)
- #define TLB_IS_GLOBAL(x)	((x).tlb_lo[0] & (x).tlb_lo[1] & ENTRYLO_G)
- #define TLB_VPN2(x)		((x).tlb_hi & VPN2_MASK)
- #define TLB_ASID(x)		((x).tlb_hi & KVM_ENTRYHI_ASID)
+-	/*
+-	 * If TIF_SSBD is different, select the proper mitigation
+-	 * method. Note that if SSBD mitigation is disabled or permanentely
+-	 * enabled this branch can't be taken because nothing can set
+-	 * TIF_SSBD.
+-	 */
+-	if (tif_diff & _TIF_SSBD) {
+-		if (static_cpu_has(X86_FEATURE_VIRT_SSBD)) {
++	/* Handle change of TIF_SSBD depending on the mitigation method. */
++	if (static_cpu_has(X86_FEATURE_VIRT_SSBD)) {
++		if (tif_diff & _TIF_SSBD)
+ 			amd_set_ssb_virt_state(tifn);
+-		} else if (static_cpu_has(X86_FEATURE_LS_CFG_SSBD)) {
++	} else if (static_cpu_has(X86_FEATURE_LS_CFG_SSBD)) {
++		if (tif_diff & _TIF_SSBD)
+ 			amd_set_core_ssb_state(tifn);
+-		} else if (static_cpu_has(X86_FEATURE_SPEC_CTRL_SSBD) ||
+-			   static_cpu_has(X86_FEATURE_AMD_SSBD)) {
+-			msr |= ssbd_tif_to_spec_ctrl(tifn);
+-			updmsr  = true;
+-		}
++	} else if (static_cpu_has(X86_FEATURE_SPEC_CTRL_SSBD) ||
++		   static_cpu_has(X86_FEATURE_AMD_SSBD)) {
++		updmsr |= !!(tif_diff & _TIF_SSBD);
++		msr |= ssbd_tif_to_spec_ctrl(tifn);
+ 	}
+ 
+-	/*
+-	 * Only evaluate TIF_SPEC_IB if conditional STIBP is enabled,
+-	 * otherwise avoid the MSR write.
+-	 */
++	/* Only evaluate TIF_SPEC_IB if conditional STIBP is enabled. */
+ 	if (IS_ENABLED(CONFIG_SMP) &&
+ 	    static_branch_unlikely(&switch_to_cond_stibp)) {
+ 		updmsr |= !!(tif_diff & _TIF_SPEC_IB);
 
 
