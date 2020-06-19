@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BC53201871
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 19:01:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9EC7201886
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 19:01:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388053AbgFSOji (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:39:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57136 "EHLO mail.kernel.org"
+        id S2405138AbgFSQtX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:49:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387581AbgFSOjg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:39:36 -0400
+        id S2388057AbgFSOjj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:39:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D125D21548;
-        Fri, 19 Jun 2020 14:39:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F281208B8;
+        Fri, 19 Jun 2020 14:39:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577576;
-        bh=E2+qFQc0fxp6+/flXYNw/Xp83uJjWhJOhPDGEgtNg7Y=;
+        s=default; t=1592577578;
+        bh=AhNpQWhHCxYM7lPY3Jn9sD12L0YCRe8EumL/sQ5wjjA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BDfQmmWQMoVmLQ7PpMupJTDxq2oDrizXZuqLyPOE9PikFrZw4dcBe8iazoLHtUT2R
-         ioprtenZXKlG/4nxFTOOkkCdm2IdknU+dsW1W3hxJ/V5O8bulyCn0chK7B0z39J88c
-         fq4EPhE6BF0b+m6TUle4PXFDCucT49RGuj6OKCeU=
+        b=Sx0CPriahUbVuiQ07iAvXh61lwRjoc34GXnh7k6iDQ6ITbS84LILCPbcHVupHKbTE
+         PoSF7GcXqMyV63EgvbisMsUIy28dKloGHOIALDl3BdxM1YeWHMTcf0h6Mbsycu2q3f
+         zV7umb+O/HBtmdIUIOd+8WkjzTw6xjinecrE3bjU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
-        "J. Bruce Fields" <bfields@redhat.com>
-Subject: [PATCH 4.4 098/101] sunrpc: clean up properly in gss_mech_unregister()
-Date:   Fri, 19 Jun 2020 16:33:27 +0200
-Message-Id: <20200619141619.108668839@linuxfoundation.org>
+        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
+        "H. Nikolaus Schaller" <hns@goldelico.com>
+Subject: [PATCH 4.4 099/101] w1: omap-hdq: cleanup to add missing newline for some dev_dbg
+Date:   Fri, 19 Jun 2020 16:33:28 +0200
+Message-Id: <20200619141619.161708893@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141614.001544111@linuxfoundation.org>
 References: <20200619141614.001544111@linuxfoundation.org>
@@ -43,121 +43,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: NeilBrown <neilb@suse.de>
+From: H. Nikolaus Schaller <hns@goldelico.com>
 
-commit 24c5efe41c29ee3e55bcf5a1c9f61ca8709622e8 upstream.
+commit 5e02f3b31704e24537697bce54f8156bdb72b7a6 upstream.
 
-gss_mech_register() calls svcauth_gss_register_pseudoflavor() for each
-flavour, but gss_mech_unregister() does not call auth_domain_put().
-This is unbalanced and makes it impossible to reload the module.
+Otherwise it will corrupt the console log during debugging.
 
-Change svcauth_gss_register_pseudoflavor() to return the registered
-auth_domain, and save it for later release.
-
-Cc: stable@vger.kernel.org (v2.6.12+)
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=206651
-Signed-off-by: NeilBrown <neilb@suse.de>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Fixes: 7b5362a603a1 ("w1: omap_hdq: Fix some error/debug handling.")
+Cc: stable@vger.kernel.org
+Acked-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
+Link: https://lore.kernel.org/r/cd0d55749a091214106575f6e1d363c6db56622f.1590255176.git.hns@goldelico.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/sunrpc/gss_api.h        |    1 +
- include/linux/sunrpc/svcauth_gss.h    |    3 ++-
- net/sunrpc/auth_gss/gss_mech_switch.c |   12 +++++++++---
- net/sunrpc/auth_gss/svcauth_gss.c     |   12 ++++++------
- 4 files changed, 18 insertions(+), 10 deletions(-)
+ drivers/w1/masters/omap_hdq.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/include/linux/sunrpc/gss_api.h
-+++ b/include/linux/sunrpc/gss_api.h
-@@ -81,6 +81,7 @@ struct pf_desc {
- 	u32	service;
- 	char	*name;
- 	char	*auth_domain_name;
-+	struct auth_domain *domain;
- };
- 
- /* Different mechanisms (e.g., krb5 or spkm3) may implement gss-api, and
---- a/include/linux/sunrpc/svcauth_gss.h
-+++ b/include/linux/sunrpc/svcauth_gss.h
-@@ -20,7 +20,8 @@ int gss_svc_init(void);
- void gss_svc_shutdown(void);
- int gss_svc_init_net(struct net *net);
- void gss_svc_shutdown_net(struct net *net);
--int svcauth_gss_register_pseudoflavor(u32 pseudoflavor, char * name);
-+struct auth_domain *svcauth_gss_register_pseudoflavor(u32 pseudoflavor,
-+						      char *name);
- u32 svcauth_gss_flavor(struct auth_domain *dom);
- 
- #endif /* __KERNEL__ */
---- a/net/sunrpc/auth_gss/gss_mech_switch.c
-+++ b/net/sunrpc/auth_gss/gss_mech_switch.c
-@@ -61,6 +61,8 @@ gss_mech_free(struct gss_api_mech *gm)
- 
- 	for (i = 0; i < gm->gm_pf_num; i++) {
- 		pf = &gm->gm_pfs[i];
-+		if (pf->domain)
-+			auth_domain_put(pf->domain);
- 		kfree(pf->auth_domain_name);
- 		pf->auth_domain_name = NULL;
+--- a/drivers/w1/masters/omap_hdq.c
++++ b/drivers/w1/masters/omap_hdq.c
+@@ -204,7 +204,7 @@ static int hdq_write_byte(struct hdq_dat
+ 	/* check irqstatus */
+ 	if (!(*status & OMAP_HDQ_INT_STATUS_TXCOMPLETE)) {
+ 		dev_dbg(hdq_data->dev, "timeout waiting for"
+-			" TXCOMPLETE/RXCOMPLETE, %x", *status);
++			" TXCOMPLETE/RXCOMPLETE, %x\n", *status);
+ 		ret = -ETIMEDOUT;
+ 		goto out;
  	}
-@@ -83,6 +85,7 @@ make_auth_domain_name(char *name)
- static int
- gss_mech_svc_setup(struct gss_api_mech *gm)
- {
-+	struct auth_domain *dom;
- 	struct pf_desc *pf;
- 	int i, status;
- 
-@@ -92,10 +95,13 @@ gss_mech_svc_setup(struct gss_api_mech *
- 		status = -ENOMEM;
- 		if (pf->auth_domain_name == NULL)
- 			goto out;
--		status = svcauth_gss_register_pseudoflavor(pf->pseudoflavor,
--							pf->auth_domain_name);
--		if (status)
-+		dom = svcauth_gss_register_pseudoflavor(
-+			pf->pseudoflavor, pf->auth_domain_name);
-+		if (IS_ERR(dom)) {
-+			status = PTR_ERR(dom);
- 			goto out;
-+		}
-+		pf->domain = dom;
+@@ -215,7 +215,7 @@ static int hdq_write_byte(struct hdq_dat
+ 			OMAP_HDQ_FLAG_CLEAR, &tmp_status);
+ 	if (ret) {
+ 		dev_dbg(hdq_data->dev, "timeout waiting GO bit"
+-			" return to zero, %x", tmp_status);
++			" return to zero, %x\n", tmp_status);
  	}
- 	return 0;
+ 
  out:
---- a/net/sunrpc/auth_gss/svcauth_gss.c
-+++ b/net/sunrpc/auth_gss/svcauth_gss.c
-@@ -772,7 +772,7 @@ u32 svcauth_gss_flavor(struct auth_domai
+@@ -231,7 +231,7 @@ static irqreturn_t hdq_isr(int irq, void
+ 	spin_lock_irqsave(&hdq_data->hdq_spinlock, irqflags);
+ 	hdq_data->hdq_irqstatus = hdq_reg_in(hdq_data, OMAP_HDQ_INT_STATUS);
+ 	spin_unlock_irqrestore(&hdq_data->hdq_spinlock, irqflags);
+-	dev_dbg(hdq_data->dev, "hdq_isr: %x", hdq_data->hdq_irqstatus);
++	dev_dbg(hdq_data->dev, "hdq_isr: %x\n", hdq_data->hdq_irqstatus);
  
- EXPORT_SYMBOL_GPL(svcauth_gss_flavor);
+ 	if (hdq_data->hdq_irqstatus &
+ 		(OMAP_HDQ_INT_STATUS_TXCOMPLETE | OMAP_HDQ_INT_STATUS_RXCOMPLETE
+@@ -339,7 +339,7 @@ static int omap_hdq_break(struct hdq_dat
+ 	tmp_status = hdq_data->hdq_irqstatus;
+ 	/* check irqstatus */
+ 	if (!(tmp_status & OMAP_HDQ_INT_STATUS_TIMEOUT)) {
+-		dev_dbg(hdq_data->dev, "timeout waiting for TIMEOUT, %x",
++		dev_dbg(hdq_data->dev, "timeout waiting for TIMEOUT, %x\n",
+ 				tmp_status);
+ 		ret = -ETIMEDOUT;
+ 		goto out;
+@@ -366,7 +366,7 @@ static int omap_hdq_break(struct hdq_dat
+ 			&tmp_status);
+ 	if (ret)
+ 		dev_dbg(hdq_data->dev, "timeout waiting INIT&GO bits"
+-			" return to zero, %x", tmp_status);
++			" return to zero, %x\n", tmp_status);
  
--int
-+struct auth_domain *
- svcauth_gss_register_pseudoflavor(u32 pseudoflavor, char * name)
- {
- 	struct gss_domain	*new;
-@@ -795,17 +795,17 @@ svcauth_gss_register_pseudoflavor(u32 ps
- 			name);
- 		stat = -EADDRINUSE;
- 		auth_domain_put(test);
--		kfree(new->h.name);
--		goto out_free_dom;
-+		goto out_free_name;
- 	}
--	return 0;
-+	return test;
- 
-+out_free_name:
-+	kfree(new->h.name);
- out_free_dom:
- 	kfree(new);
  out:
--	return stat;
-+	return ERR_PTR(stat);
- }
--
- EXPORT_SYMBOL_GPL(svcauth_gss_register_pseudoflavor);
- 
- static inline int
+ 	mutex_unlock(&hdq_data->hdq_mutex);
 
 
