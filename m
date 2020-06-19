@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1FED201577
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:23:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EF172013D2
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:07:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390867AbgFSQW2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:22:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56532 "EHLO mail.kernel.org"
+        id S2403800AbgFSQEX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:04:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390623AbgFSPAM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:00:12 -0400
+        id S2403803AbgFSPKz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:10:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8768521941;
-        Fri, 19 Jun 2020 15:00:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 17208206FA;
+        Fri, 19 Jun 2020 15:10:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578811;
-        bh=ZTU3zThxyPlECEFoIX7cZNwQcTmXBmQX+MGobFN3YjM=;
+        s=default; t=1592579454;
+        bh=iN4uu/SZtCI23lgelTAMXjz+AGc7s2h6+bTtogWffiQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1yRj0aoiQI4i3wPXJSLvHLntykIK19/3KFlmZHj7GpaaPaKdC9LQNugrDd1D2L/8c
-         DOTCzC+9g8eOyTXlF5/aMTl3m9YtwfB3BDOylK1zUIBVIhNFYWMZlZUrs83Yx6Uu0C
-         iEesJqYd5G3kGpFBnvzCxPqE2SUhKw6jcArHY2rI=
+        b=xMds3ooVj8w32Jg50YF0z57W+1hOs2UmDjNBnxgZ1PfFB8RNVzlmW0YxjNIKfAq3q
+         bx2h7tgeUGmXwutF9vDEGERdB6uiYxF42L917fqCu72b3RYYpwfXAzna8WC/7rwW/G
+         fU5X2F3EFZF43lvOU5Sq4WTe+NdqB70vgwRIlrLg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Toromanoff <nicolas.toromanoff@st.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Rui Miguel Silva <rmfrfs@gmail.com>,
+        Johan Hovold <johan@kernel.org>, Alex Elder <elder@kernel.org>,
+        greybus-dev@lists.linaro.org, Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 166/267] crypto: stm32/crc32 - fix ext4 chksum BUG_ON()
-Date:   Fri, 19 Jun 2020 16:32:31 +0200
-Message-Id: <20200619141656.772457231@linuxfoundation.org>
+Subject: [PATCH 5.4 141/261] staging: greybus: sdio: Respect the cmd->busy_timeout from the mmc core
+Date:   Fri, 19 Jun 2020 16:32:32 +0200
+Message-Id: <20200619141656.623784714@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
-References: <20200619141648.840376470@linuxfoundation.org>
+In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
+References: <20200619141649.878808811@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,180 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Toromanoff <nicolas.toromanoff@st.com>
+From: Ulf Hansson <ulf.hansson@linaro.org>
 
-[ Upstream commit 49c2c082e00e0bc4f5cbb7c21c7f0f873b35ab09 ]
+[ Upstream commit a389087ee9f195fcf2f31cd771e9ec5f02c16650 ]
 
-Allow use of crc_update without prior call to crc_init.
-And change (and fix) driver to use CRC device even on unaligned buffers.
+Using a fixed 1s timeout for all commands is a bit problematic.
 
-Fixes: b51dbe90912a ("crypto: stm32 - Support for STM32 CRC32 crypto module")
+For some commands it means waiting longer than needed for the timeout to
+expire, which may not a big issue, but still. For other commands, like for
+an erase (CMD38) that uses a R1B response, may require longer timeouts than
+1s. In these cases, we may end up treating the command as it failed, while
+it just needed some more time to complete successfully.
 
-Signed-off-by: Nicolas Toromanoff <nicolas.toromanoff@st.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fix the problem by respecting the cmd->busy_timeout, which is provided by
+the mmc core.
+
+Cc: Rui Miguel Silva <rmfrfs@gmail.com>
+Cc: Johan Hovold <johan@kernel.org>
+Cc: Alex Elder <elder@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: greybus-dev@lists.linaro.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Acked-by: Rui Miguel Silva <rmfrfs@gmail.com>
+Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20200414161413.3036-20-ulf.hansson@linaro.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/stm32/stm32_crc32.c | 98 +++++++++++++++---------------
- 1 file changed, 48 insertions(+), 50 deletions(-)
+ drivers/staging/greybus/sdio.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/crypto/stm32/stm32_crc32.c b/drivers/crypto/stm32/stm32_crc32.c
-index 29d2095d9dfd..749b51762b18 100644
---- a/drivers/crypto/stm32/stm32_crc32.c
-+++ b/drivers/crypto/stm32/stm32_crc32.c
-@@ -28,8 +28,10 @@
- 
- /* Registers values */
- #define CRC_CR_RESET            BIT(0)
--#define CRC_CR_REVERSE          (BIT(7) | BIT(6) | BIT(5))
- #define CRC_INIT_DEFAULT        0xFFFFFFFF
-+#define CRC_CR_REV_IN_WORD      (BIT(6) | BIT(5))
-+#define CRC_CR_REV_IN_BYTE      BIT(5)
-+#define CRC_CR_REV_OUT          BIT(7)
- 
- #define CRC_AUTOSUSPEND_DELAY	50
- 
-@@ -38,8 +40,6 @@ struct stm32_crc {
- 	struct device    *dev;
- 	void __iomem     *regs;
- 	struct clk       *clk;
--	u8               pending_data[sizeof(u32)];
--	size_t           nb_pending_bytes;
- };
- 
- struct stm32_crc_list {
-@@ -59,7 +59,6 @@ struct stm32_crc_ctx {
- 
- struct stm32_crc_desc_ctx {
- 	u32    partial; /* crc32c: partial in first 4 bytes of that struct */
--	struct stm32_crc *crc;
- };
- 
- static int stm32_crc32_cra_init(struct crypto_tfm *tfm)
-@@ -101,25 +100,22 @@ static int stm32_crc_init(struct shash_desc *desc)
- 	struct stm32_crc *crc;
- 
- 	spin_lock_bh(&crc_list.lock);
--	list_for_each_entry(crc, &crc_list.dev_list, list) {
--		ctx->crc = crc;
--		break;
--	}
-+	crc = list_first_entry(&crc_list.dev_list, struct stm32_crc, list);
- 	spin_unlock_bh(&crc_list.lock);
- 
--	pm_runtime_get_sync(ctx->crc->dev);
-+	pm_runtime_get_sync(crc->dev);
- 
- 	/* Reset, set key, poly and configure in bit reverse mode */
--	writel_relaxed(bitrev32(mctx->key), ctx->crc->regs + CRC_INIT);
--	writel_relaxed(bitrev32(mctx->poly), ctx->crc->regs + CRC_POL);
--	writel_relaxed(CRC_CR_RESET | CRC_CR_REVERSE, ctx->crc->regs + CRC_CR);
-+	writel_relaxed(bitrev32(mctx->key), crc->regs + CRC_INIT);
-+	writel_relaxed(bitrev32(mctx->poly), crc->regs + CRC_POL);
-+	writel_relaxed(CRC_CR_RESET | CRC_CR_REV_IN_WORD | CRC_CR_REV_OUT,
-+		       crc->regs + CRC_CR);
- 
- 	/* Store partial result */
--	ctx->partial = readl_relaxed(ctx->crc->regs + CRC_DR);
--	ctx->crc->nb_pending_bytes = 0;
-+	ctx->partial = readl_relaxed(crc->regs + CRC_DR);
- 
--	pm_runtime_mark_last_busy(ctx->crc->dev);
--	pm_runtime_put_autosuspend(ctx->crc->dev);
-+	pm_runtime_mark_last_busy(crc->dev);
-+	pm_runtime_put_autosuspend(crc->dev);
- 
- 	return 0;
- }
-@@ -128,31 +124,49 @@ static int stm32_crc_update(struct shash_desc *desc, const u8 *d8,
- 			    unsigned int length)
- {
- 	struct stm32_crc_desc_ctx *ctx = shash_desc_ctx(desc);
--	struct stm32_crc *crc = ctx->crc;
--	u32 *d32;
--	unsigned int i;
-+	struct stm32_crc_ctx *mctx = crypto_shash_ctx(desc->tfm);
-+	struct stm32_crc *crc;
-+
-+	spin_lock_bh(&crc_list.lock);
-+	crc = list_first_entry(&crc_list.dev_list, struct stm32_crc, list);
-+	spin_unlock_bh(&crc_list.lock);
- 
- 	pm_runtime_get_sync(crc->dev);
- 
--	if (unlikely(crc->nb_pending_bytes)) {
--		while (crc->nb_pending_bytes != sizeof(u32) && length) {
--			/* Fill in pending data */
--			crc->pending_data[crc->nb_pending_bytes++] = *(d8++);
-+	/*
-+	 * Restore previously calculated CRC for this context as init value
-+	 * Restore polynomial configuration
-+	 * Configure in register for word input data,
-+	 * Configure out register in reversed bit mode data.
-+	 */
-+	writel_relaxed(bitrev32(ctx->partial), crc->regs + CRC_INIT);
-+	writel_relaxed(bitrev32(mctx->poly), crc->regs + CRC_POL);
-+	writel_relaxed(CRC_CR_RESET | CRC_CR_REV_IN_WORD | CRC_CR_REV_OUT,
-+		       crc->regs + CRC_CR);
-+
-+	if (d8 != PTR_ALIGN(d8, sizeof(u32))) {
-+		/* Configure for byte data */
-+		writel_relaxed(CRC_CR_REV_IN_BYTE | CRC_CR_REV_OUT,
-+			       crc->regs + CRC_CR);
-+		while (d8 != PTR_ALIGN(d8, sizeof(u32)) && length) {
-+			writeb_relaxed(*d8++, crc->regs + CRC_DR);
- 			length--;
- 		}
--
--		if (crc->nb_pending_bytes == sizeof(u32)) {
--			/* Process completed pending data */
--			writel_relaxed(*(u32 *)crc->pending_data,
--				       crc->regs + CRC_DR);
--			crc->nb_pending_bytes = 0;
--		}
-+		/* Configure for word data */
-+		writel_relaxed(CRC_CR_REV_IN_WORD | CRC_CR_REV_OUT,
-+			       crc->regs + CRC_CR);
+diff --git a/drivers/staging/greybus/sdio.c b/drivers/staging/greybus/sdio.c
+index 68c5718be827..c4b16bb5c1a4 100644
+--- a/drivers/staging/greybus/sdio.c
++++ b/drivers/staging/greybus/sdio.c
+@@ -411,6 +411,7 @@ static int gb_sdio_command(struct gb_sdio_host *host, struct mmc_command *cmd)
+ 	struct gb_sdio_command_request request = {0};
+ 	struct gb_sdio_command_response response;
+ 	struct mmc_data *data = host->mrq->data;
++	unsigned int timeout_ms;
+ 	u8 cmd_flags;
+ 	u8 cmd_type;
+ 	int i;
+@@ -469,9 +470,12 @@ static int gb_sdio_command(struct gb_sdio_host *host, struct mmc_command *cmd)
+ 		request.data_blksz = cpu_to_le16(data->blksz);
  	}
  
--	d32 = (u32 *)d8;
--	for (i = 0; i < length >> 2; i++)
--		/* Process 32 bits data */
--		writel_relaxed(*(d32++), crc->regs + CRC_DR);
-+	for (; length >= sizeof(u32); d8 += sizeof(u32), length -= sizeof(u32))
-+		writel_relaxed(*((u32 *)d8), crc->regs + CRC_DR);
+-	ret = gb_operation_sync(host->connection, GB_SDIO_TYPE_COMMAND,
+-				&request, sizeof(request), &response,
+-				sizeof(response));
++	timeout_ms = cmd->busy_timeout ? cmd->busy_timeout :
++		GB_OPERATION_TIMEOUT_DEFAULT;
 +
-+	if (length) {
-+		/* Configure for byte data */
-+		writel_relaxed(CRC_CR_REV_IN_BYTE | CRC_CR_REV_OUT,
-+			       crc->regs + CRC_CR);
-+		while (length--)
-+			writeb_relaxed(*d8++, crc->regs + CRC_DR);
-+	}
- 
- 	/* Store partial result */
- 	ctx->partial = readl_relaxed(crc->regs + CRC_DR);
-@@ -160,22 +174,6 @@ static int stm32_crc_update(struct shash_desc *desc, const u8 *d8,
- 	pm_runtime_mark_last_busy(crc->dev);
- 	pm_runtime_put_autosuspend(crc->dev);
- 
--	/* Check for pending data (non 32 bits) */
--	length &= 3;
--	if (likely(!length))
--		return 0;
--
--	if ((crc->nb_pending_bytes + length) >= sizeof(u32)) {
--		/* Shall not happen */
--		dev_err(crc->dev, "Pending data overflow\n");
--		return -EINVAL;
--	}
--
--	d8 = (const u8 *)d32;
--	for (i = 0; i < length; i++)
--		/* Store pending data */
--		crc->pending_data[crc->nb_pending_bytes++] = *(d8++);
--
- 	return 0;
- }
++	ret = gb_operation_sync_timeout(host->connection, GB_SDIO_TYPE_COMMAND,
++					&request, sizeof(request), &response,
++					sizeof(response), timeout_ms);
+ 	if (ret < 0)
+ 		goto out;
  
 -- 
 2.25.1
