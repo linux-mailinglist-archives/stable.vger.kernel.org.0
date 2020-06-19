@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD219200BFE
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:42:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B3BD200C8F
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:47:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388159AbgFSOkc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:40:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58418 "EHLO mail.kernel.org"
+        id S2388948AbgFSOrU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:47:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388146AbgFSOk1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:40:27 -0400
+        id S2388938AbgFSOrS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:47:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E99302070A;
-        Fri, 19 Jun 2020 14:40:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 299D120DD4;
+        Fri, 19 Jun 2020 14:47:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577627;
-        bh=fJO8fHnBcnDtUp6PCEnbtaSTCLAD7BEUJgnPM31buks=;
+        s=default; t=1592578037;
+        bh=9KRMN8xz93PtBeGYVTA+HZ664yTVMD0/FoaLdXuIsIw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h/HxibU/Vx3iovKnXxJ7JxyP+Jwa3AX3ZmzK2QAA9HheOfGawVR/aaRs7emlrS8MO
-         elQUWaNSHYvqNcqaP+MCCqs08YrMwTiaUMM4s0Q2FtkuyyEbEtBkeb7++BIzp18MGA
-         IibhNONt720d7D15AD0ZbfsMCcEkMKGyDdP4Gop0=
+        b=J2mxQ2GpqqFC4eiJoMhDGzfT/s6WR5woETayFgqE/j/bczI1F8d/bm9WyWR2dGOQB
+         vs/tErFWk7Y6/R0fOddahR+LaeCj4X88bsbtw8Tcei5/YjogmFWYDMsXpY+ibvfYNk
+         7lZ1jPKiSSw8qB/C+NHy4KxcWTHY087fwYJ5W4Ks=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>,
-        Fredrik Strupe <fredrik@strupe.net>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 005/128] ARM: 8977/1: ptrace: Fix mask for thumb breakpoint hook
-Date:   Fri, 19 Jun 2020 16:31:39 +0200
-Message-Id: <20200619141620.422726711@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.14 056/190] KVM: nSVM: fix condition for filtering async PF
+Date:   Fri, 19 Jun 2020 16:31:41 +0200
+Message-Id: <20200619141636.375109932@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
-References: <20200619141620.148019466@linuxfoundation.org>
+In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
+References: <20200619141633.446429600@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,53 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fredrik Strupe <fredrik@strupe.net>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-[ Upstream commit 3866f217aaa81bf7165c7f27362eee5d7919c496 ]
+commit a3535be731c2a343912578465021f50937f7b099 upstream.
 
-call_undef_hook() in traps.c applies the same instr_mask for both 16-bit
-and 32-bit thumb instructions. If instr_mask then is only 16 bits wide
-(0xffff as opposed to 0xffffffff), the first half-word of 32-bit thumb
-instructions will be masked out. This makes the function match 32-bit
-thumb instructions where the second half-word is equal to instr_val,
-regardless of the first half-word.
+Async page faults have to be trapped in the host (L1 in this case),
+since the APF reason was passed from L0 to L1 and stored in the L1 APF
+data page.  This was completely reversed: the page faults were passed
+to the guest, a L2 hypervisor.
 
-The result in this case is that all undefined 32-bit thumb instructions
-with the second half-word equal to 0xde01 (udf #1) work as breakpoints
-and will raise a SIGTRAP instead of a SIGILL, instead of just the one
-intended 16-bit instruction. An example of such an instruction is
-0xeaa0de01, which is unallocated according to Arm ARM and should raise a
-SIGILL, but instead raises a SIGTRAP.
+Cc: stable@vger.kernel.org
+Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-This patch fixes the issue by setting all the bits in instr_mask, which
-will still match the intended 16-bit thumb instruction (where the
-upper half is always 0), but not any 32-bit thumb instructions.
-
-Cc: Oleg Nesterov <oleg@redhat.com>
-Signed-off-by: Fredrik Strupe <fredrik@strupe.net>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/kernel/ptrace.c | 4 ++--
+ arch/x86/kvm/svm.c |    4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/kernel/ptrace.c b/arch/arm/kernel/ptrace.c
-index ae738a6319f6..364985c96a92 100644
---- a/arch/arm/kernel/ptrace.c
-+++ b/arch/arm/kernel/ptrace.c
-@@ -227,8 +227,8 @@ static struct undef_hook arm_break_hook = {
- };
- 
- static struct undef_hook thumb_break_hook = {
--	.instr_mask	= 0xffff,
--	.instr_val	= 0xde01,
-+	.instr_mask	= 0xffffffff,
-+	.instr_val	= 0x0000de01,
- 	.cpsr_mask	= PSR_T_BIT,
- 	.cpsr_val	= PSR_T_BIT,
- 	.fn		= break_trap,
--- 
-2.25.1
-
+--- a/arch/x86/kvm/svm.c
++++ b/arch/x86/kvm/svm.c
+@@ -2757,8 +2757,8 @@ static int nested_svm_exit_special(struc
+ 			return NESTED_EXIT_HOST;
+ 		break;
+ 	case SVM_EXIT_EXCP_BASE + PF_VECTOR:
+-		/* When we're shadowing, trap PFs, but not async PF */
+-		if (!npt_enabled && svm->vcpu.arch.apf.host_apf_reason == 0)
++		/* Trap async PF even if not shadowing */
++		if (!npt_enabled || svm->vcpu.arch.apf.host_apf_reason)
+ 			return NESTED_EXIT_HOST;
+ 		break;
+ 	default:
 
 
