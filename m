@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46B2E2010DF
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:36:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEE282010DC
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:36:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391574AbgFSPfS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:35:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35862 "EHLO mail.kernel.org"
+        id S2390464AbgFSPfE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:35:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404878AbgFSPbt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:31:49 -0400
+        id S2404891AbgFSPbw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:31:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 215BD20734;
-        Fri, 19 Jun 2020 15:31:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B6D4020734;
+        Fri, 19 Jun 2020 15:31:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580708;
-        bh=KGIYyD5rD/ejMxLwxaiYeAQS/wlR+d0LwFY6X29p1oE=;
+        s=default; t=1592580711;
+        bh=9H0pb9nyF82D0RChfTgtrtnr37Clfu71gcae5tuzRuA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G1DxCpK/0/TCURlQj/9ixw9WaXpzGjEW8SwP7as/RV36/fh9TJBntlxf3ucAZ+b7x
-         eEYX7mb8YiPuZc/Mwm9lgOAWNH/CEM2U6ByTDu0YG6+HzkVtb8AyQNgsO/QQPKD+US
-         SjgO+Xe+HH4uEkcIcoggZ2WvF8DxInVJcurYEm3o=
+        b=Q+0+wFqgNo6RabiKl8Ki4wCQWeU7FZfycHS897vpndv65CFslHldv4Q2EwN8vMm13
+         j0xaWO3g9QzRyiqB5z7RtDQ+TGHKuSER+8s9eT6GMBeHt1YugOMp/qipVlQ2wl1Pdb
+         FTu6a3r4dUA3xEw22u/HKuw4MnQUiWw6sE3F+rZE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
-        Boris Brezillon <boris.brezillon@collabora.com>
-Subject: [PATCH 5.7 353/376] mtd: rawnand: onfi: Fix redundancy detection check
-Date:   Fri, 19 Jun 2020 16:34:31 +0200
-Message-Id: <20200619141727.029919949@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?=C3=81lvaro=20Fern=C3=A1ndez=20Rojas?= 
+        <noltari@gmail.com>, Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 5.7 354/376] mtd: rawnand: brcmnand: fix hamming oob layout
+Date:   Fri, 19 Jun 2020 16:34:32 +0200
+Message-Id: <20200619141727.077858707@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -43,42 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Álvaro Fernández Rojas <noltari@gmail.com>
 
-commit 1d5d08ee9b28cff907326b4ad5a2463fd2808be1 upstream.
+commit 130bbde4809b011faf64f99dddc14b4b01f440c3 upstream.
 
-During ONFI detection, the CRC derived from the parameter page and the
-CRC supposed to be at the end of the parameter page are compared. If
-they do not match, the second then the third copies of the page are
-tried.
+First 2 bytes are used in large-page nand.
 
-The current implementation compares the newly derived CRC with the CRC
-contained in the first page only. So if this particular CRC area has
-been corrupted, then the detection will fail for a wrong reason.
-
-Fix this issue by checking the derived CRC against the right one.
-
-Fixes: 39138c1f4a31 ("mtd: rawnand: use bit-wise majority to recover the ONFI param page")
+Fixes: ef5eeea6e911 ("mtd: nand: brcm: switch to mtd_ooblayout_ops")
 Cc: stable@vger.kernel.org
+Signed-off-by: Álvaro Fernández Rojas <noltari@gmail.com>
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
-Link: https://lore.kernel.org/linux-mtd/20200428094302.14624-4-miquel.raynal@bootlin.com
+Link: https://lore.kernel.org/linux-mtd/20200512075733.745374-2-noltari@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mtd/nand/raw/nand_onfi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mtd/nand/raw/brcmnand/brcmnand.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/drivers/mtd/nand/raw/nand_onfi.c
-+++ b/drivers/mtd/nand/raw/nand_onfi.c
-@@ -173,7 +173,7 @@ int nand_onfi_detect(struct nand_chip *c
+--- a/drivers/mtd/nand/raw/brcmnand/brcmnand.c
++++ b/drivers/mtd/nand/raw/brcmnand/brcmnand.c
+@@ -1116,11 +1116,14 @@ static int brcmnand_hamming_ooblayout_fr
+ 		if (!section) {
+ 			/*
+ 			 * Small-page NAND use byte 6 for BBI while large-page
+-			 * NAND use byte 0.
++			 * NAND use bytes 0 and 1.
+ 			 */
+-			if (cfg->page_size > 512)
+-				oobregion->offset++;
+-			oobregion->length--;
++			if (cfg->page_size > 512) {
++				oobregion->offset += 2;
++				oobregion->length -= 2;
++			} else {
++				oobregion->length--;
++			}
  		}
+ 	}
  
- 		if (onfi_crc16(ONFI_CRC_BASE, (u8 *)&p[i], 254) ==
--				le16_to_cpu(p->crc)) {
-+		    le16_to_cpu(p[i].crc)) {
- 			if (i)
- 				memcpy(p, &p[i], sizeof(*p));
- 			break;
 
 
