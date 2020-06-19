@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F4CA200DB5
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:02:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04BB020102C
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:30:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389886AbgFSPAX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:00:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56696 "EHLO mail.kernel.org"
+        id S2393516AbgFSP1B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:27:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58742 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389822AbgFSPAT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:00:19 -0400
+        id S2393371AbgFSP1A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:27:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 83FB7206DB;
-        Fri, 19 Jun 2020 15:00:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6CBD320734;
+        Fri, 19 Jun 2020 15:26:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578819;
-        bh=1oK27HoEFJF1QmKyJidF9LZ7dDibAQb3VONl+MODBtY=;
+        s=default; t=1592580419;
+        bh=T+jPFC0lA+eBgkxLgd3PN4lxPcbqGMXjwaRExUrc1pA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mb1SY0mtKeGc0MmFNdPz6U4PR7DYzVfBZjP4f7uP6VvzeqO7Gj6q4HuI5FoQHBeWO
-         oVU3xVU225sr/1sW9JMv8OBT1+R2sqc2WF8oQrzHK9L5gtDRMDXhvf7dUqwWKtYnJI
-         +fB7VpW+I/gu7bh1xRDbqW5B3GLlePU/F+8w0a90=
+        b=G0BqSmM9amzxL8kRl/jfwTfZCN2DtPofx9jKO32pBjjqgzoyaunklC772B+xrOZ51
+         cau8TwxAnUNqkL7klmJLHsok5lFpnQx3Wfx58oLZ+7wURAOjvPd6ltim5dE4fBE41g
+         BoSIpDqxPHzKQ+ryGIuYg25egUzjV1rrTYDzf2yc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
-        Borislav Petkov <bp@suse.de>,
-        Kees Cook <keescook@chromium.org>,
-        Dave Hansen <dave.hansen@intel.com>,
+        stable@vger.kernel.org,
+        Angelo Dureghello <angelo.dureghello@timesys.com>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 169/267] x86/mm: Stop printing BRK addresses
-Date:   Fri, 19 Jun 2020 16:32:34 +0200
-Message-Id: <20200619141656.905524362@linuxfoundation.org>
+Subject: [PATCH 5.7 240/376] spi: spi-fsl-dspi: fix native data copy
+Date:   Fri, 19 Jun 2020 16:32:38 +0200
+Message-Id: <20200619141721.690045233@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
-References: <20200619141648.840376470@linuxfoundation.org>
+In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
+References: <20200619141710.350494719@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,35 +46,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arvind Sankar <nivedita@alum.mit.edu>
+From: Angelo Dureghello <angelo.dureghello@timesys.com>
 
-[ Upstream commit 67d631b7c05eff955ccff4139327f0f92a5117e5 ]
+[ Upstream commit 263b81dc6c932c8bc550d5e7bfc178d2b3fc491e ]
 
-This currently leaks kernel physical addresses into userspace.
+ColdFire is a big-endian cpu with a big-endian dspi hw module,
+so, it uses native access, but memcpy breaks the endianness.
 
-Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Kees Cook <keescook@chromium.org>
-Acked-by: Dave Hansen <dave.hansen@intel.com>
-Link: https://lkml.kernel.org/r/20200229231120.1147527-1-nivedita@alum.mit.edu
+So, if i understand properly, by native copy we would mean
+be(cpu)->be(dspi) or le(cpu)->le(dspi) accesses, so my fix
+shouldn't break anything, but i couldn't test it on LS family,
+so every test is really appreciated.
+
+Fixes: 53fadb4d90c7 ("spi: spi-fsl-dspi: Simplify bytes_per_word gymnastics")
+Signed-off-by: Angelo Dureghello <angelo.dureghello@timesys.com>
+Tested-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Link: https://lore.kernel.org/r/20200529195756.184677-1-angelo.dureghello@timesys.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/mm/init.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/spi/spi-fsl-dspi.c | 24 ++++++++++++++++++++++--
+ 1 file changed, 22 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/mm/init.c b/arch/x86/mm/init.c
-index fb5f29c60019..b1dba0987565 100644
---- a/arch/x86/mm/init.c
-+++ b/arch/x86/mm/init.c
-@@ -120,8 +120,6 @@ __ref void *alloc_low_pages(unsigned int num)
- 	} else {
- 		pfn = pgt_buf_end;
- 		pgt_buf_end += num;
--		printk(KERN_DEBUG "BRK [%#010lx, %#010lx] PGTABLE\n",
--			pfn << PAGE_SHIFT, (pgt_buf_end << PAGE_SHIFT) - 1);
- 	}
+diff --git a/drivers/spi/spi-fsl-dspi.c b/drivers/spi/spi-fsl-dspi.c
+index 50e41f66a2d7..2e9f9adc5900 100644
+--- a/drivers/spi/spi-fsl-dspi.c
++++ b/drivers/spi/spi-fsl-dspi.c
+@@ -246,13 +246,33 @@ struct fsl_dspi {
  
- 	for (i = 0; i < num; i++) {
+ static void dspi_native_host_to_dev(struct fsl_dspi *dspi, u32 *txdata)
+ {
+-	memcpy(txdata, dspi->tx, dspi->oper_word_size);
++	switch (dspi->oper_word_size) {
++	case 1:
++		*txdata = *(u8 *)dspi->tx;
++		break;
++	case 2:
++		*txdata = *(u16 *)dspi->tx;
++		break;
++	case 4:
++		*txdata = *(u32 *)dspi->tx;
++		break;
++	}
+ 	dspi->tx += dspi->oper_word_size;
+ }
+ 
+ static void dspi_native_dev_to_host(struct fsl_dspi *dspi, u32 rxdata)
+ {
+-	memcpy(dspi->rx, &rxdata, dspi->oper_word_size);
++	switch (dspi->oper_word_size) {
++	case 1:
++		*(u8 *)dspi->rx = rxdata;
++		break;
++	case 2:
++		*(u16 *)dspi->rx = rxdata;
++		break;
++	case 4:
++		*(u32 *)dspi->rx = rxdata;
++		break;
++	}
+ 	dspi->rx += dspi->oper_word_size;
+ }
+ 
 -- 
 2.25.1
 
