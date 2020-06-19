@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00DB2200F86
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:23:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DEF0200F7E
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:22:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392613AbgFSPTZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:19:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48322 "EHLO mail.kernel.org"
+        id S2392336AbgFSPTR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:19:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392529AbgFSPRn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:17:43 -0400
+        id S2392582AbgFSPSN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:18:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F02D2080C;
-        Fri, 19 Jun 2020 15:17:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ABB5F21835;
+        Fri, 19 Jun 2020 15:18:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579863;
-        bh=3oEk9mUz7kFZ8N7UDTVPNCIcRQV9ynzwPxO6yqrMMG8=;
+        s=default; t=1592579892;
+        bh=zJyy96p/S5Lp67gqr1bh7mhGEJc1LIXF5relYqsc5RM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m2eRLeYDChRwGIGfXta1oweNzP3oAgaXbJb4gxV8+KshvB2gOlaqtAygu/wFIKciU
-         lw4v+xMcLWGMM4Nv4HHl4v7RibrgjQ9GYndcNb3ySCxmTuuyB01pa6gZFllUzTJMXB
-         Lbo3Nr66eknyYaoSISEYyQCDlzeDo/VUVTARCGUk=
+        b=dVXw0n/4+Z9CxRRNt315OR0fnKNpZU2ZZrtwdwfuLS+130+0FsOfQFn/4BBh0yANq
+         oFkS6FwyxKuVd0qT1OrSXCmbhJfi1YTzHb4+YNCJ25AOi6VWCJVRvJOkd+HvVpuuqK
+         R+fhjIsuSMfVYQF3kXLX8i1QpWM7nGURd3chltZA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
-        Eric Bernstein <Eric.Bernstein@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 015/376] drm/amd/display: fix virtual signal dsc setup
-Date:   Fri, 19 Jun 2020 16:28:53 +0200
-Message-Id: <20200619141711.088125888@linuxfoundation.org>
+Subject: [PATCH 5.7 016/376] spi: spi-mem: Fix Dual/Quad modes on Octal-capable devices
+Date:   Fri, 19 Jun 2020 16:28:54 +0200
+Message-Id: <20200619141711.137253615@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -47,34 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit d5bef51f084fccafa984b114ff74a01a64a0e2e3 ]
+[ Upstream commit 80300a7d5f2d7178335652f41d2e55ba898b4ec1 ]
 
-This prevents dpcd access on virtual links.
+Currently buswidths 2 and 4 are rejected for a device that advertises
+Octal capabilities.  Allow these buswidths, just like is done for
+buswidth 2 and Quad-capable devices.
 
-Signed-off-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
-Reviewed-by: Eric Bernstein <Eric.Bernstein@amd.com>
-Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: b12a084c8729ef42 ("spi: spi-mem: add support for octal mode I/O data transfer")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20200416101418.14379-1-geert+renesas@glider.be
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_link_hwss.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-mem.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_hwss.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_hwss.c
-index 51e0ee6e7695..6590f51caefa 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_link_hwss.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_hwss.c
-@@ -400,7 +400,7 @@ static bool dp_set_dsc_on_rx(struct pipe_ctx *pipe_ctx, bool enable)
- 	struct dc_stream_state *stream = pipe_ctx->stream;
- 	bool result = false;
+diff --git a/drivers/spi/spi-mem.c b/drivers/spi/spi-mem.c
+index adaa0c49f966..9a86cc27fcc0 100644
+--- a/drivers/spi/spi-mem.c
++++ b/drivers/spi/spi-mem.c
+@@ -108,15 +108,17 @@ static int spi_check_buswidth_req(struct spi_mem *mem, u8 buswidth, bool tx)
+ 		return 0;
  
--	if (IS_FPGA_MAXIMUS_DC(dc->ctx->dce_environment))
-+	if (dc_is_virtual_signal(stream->signal) || IS_FPGA_MAXIMUS_DC(dc->ctx->dce_environment))
- 		result = true;
- 	else
- 		result = dm_helpers_dp_write_dsc_enable(dc->ctx, stream, enable);
+ 	case 2:
+-		if ((tx && (mode & (SPI_TX_DUAL | SPI_TX_QUAD))) ||
+-		    (!tx && (mode & (SPI_RX_DUAL | SPI_RX_QUAD))))
++		if ((tx &&
++		     (mode & (SPI_TX_DUAL | SPI_TX_QUAD | SPI_TX_OCTAL))) ||
++		    (!tx &&
++		     (mode & (SPI_RX_DUAL | SPI_RX_QUAD | SPI_RX_OCTAL))))
+ 			return 0;
+ 
+ 		break;
+ 
+ 	case 4:
+-		if ((tx && (mode & SPI_TX_QUAD)) ||
+-		    (!tx && (mode & SPI_RX_QUAD)))
++		if ((tx && (mode & (SPI_TX_QUAD | SPI_TX_OCTAL))) ||
++		    (!tx && (mode & (SPI_RX_QUAD | SPI_RX_OCTAL))))
+ 			return 0;
+ 
+ 		break;
 -- 
 2.25.1
 
