@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0AA0201665
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:33:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B71222015A8
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:31:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388842AbgFSQaD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:30:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48586 "EHLO mail.kernel.org"
+        id S2389824AbgFSOyK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:54:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389812AbgFSOyE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:54:04 -0400
+        id S2389820AbgFSOyI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:54:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 36F4F21556;
-        Fri, 19 Jun 2020 14:54:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D13721556;
+        Fri, 19 Jun 2020 14:54:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578442;
-        bh=Epx5OhVRQEM0lV36SumRqZ0QqJ3GHqHRsZcJpEyUFLA=;
+        s=default; t=1592578448;
+        bh=uCNmxVWLAvd2UD6qMLaucpPVHNdoLiyvb7ceBA1576o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tBVgyRyq8HJUcNNqMmCMVpN70euxAi8Os9HDu09AHr6YXXsi/nqhDVMItBLjF7BXq
-         MAcW8Y1e2PiapV/Wddn4DNeB4YzXzNik3+p7aTbVsPSB8cfKE0kbny/m9Ggb2k2711
-         0MuqJs2fpb05hpTYEsiU83T9lQ2tz3CfY5EMl27A=
+        b=lKY5Hb/+KQ1Nl6wpiR7XZrx7ymy1EUd5K6Uy6vxk+UzuV2TiHV7sP3M28le+lv6OR
+         mUlLWaJTyvCa9EGOGyZKg1zpckfUyoSyMmCs8CRKVaLQ+/jSw0ApPA8BavEYM3QVvJ
+         2zJ8jIbPD0zyZqYmrd282g6rFQveKEU2vn8UTqOo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
         Linus Torvalds <torvalds@linux-foundation.org>,
+        Stafford Horne <shorne@gmail.com>,
         Miles Chen <miles.chen@mediatek.com>
-Subject: [PATCH 4.19 007/267] make user_access_begin() do access_ok()
-Date:   Fri, 19 Jun 2020 16:29:52 +0200
-Message-Id: <20200619141649.210759168@linuxfoundation.org>
+Subject: [PATCH 4.19 009/267] arch/openrisc: Fix issues with access_ok()
+Date:   Fri, 19 Jun 2020 16:29:54 +0200
+Message-Id: <20200619141649.312635166@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
 References: <20200619141648.840376470@linuxfoundation.org>
@@ -44,193 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Stafford Horne <shorne@gmail.com>
 
-commit 594cc251fdd0d231d342d88b2fdff4bc42fb0690 upstream.
+commit 9cb2feb4d21d97386eb25c7b67e2793efcc1e70a upstream.
 
-Originally, the rule used to be that you'd have to do access_ok()
-separately, and then user_access_begin() before actually doing the
-direct (optimized) user access.
+The commit 594cc251fdd0 ("make 'user_access_begin()' do 'access_ok()'")
+exposed incorrect implementations of access_ok() macro in several
+architectures.  This change fixes 2 issues found in OpenRISC.
 
-But experience has shown that people then decide not to do access_ok()
-at all, and instead rely on it being implied by other operations or
-similar.  Which makes it very hard to verify that the access has
-actually been range-checked.
+OpenRISC was not properly using parenthesis for arguments and also using
+arguments twice.  This patch fixes those 2 issues.
 
-If you use the unsafe direct user accesses, hardware features (either
-SMAP - Supervisor Mode Access Protection - on x86, or PAN - Privileged
-Access Never - on ARM) do force you to use user_access_begin().  But
-nothing really forces the range check.
+I test booted this patch with v5.0-rc1 on qemu and it's working fine.
 
-By putting the range check into user_access_begin(), we actually force
-people to do the right thing (tm), and the range check vill be visible
-near the actual accesses.  We have way too long a history of people
-trying to avoid them.
-
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Stafford Horne <shorne@gmail.com>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Miles Chen <miles.chen@mediatek.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/uaccess.h             |   12 +++++++++++-
- drivers/gpu/drm/i915/i915_gem_execbuffer.c |   16 ++++++++++++++--
- include/linux/uaccess.h                    |    2 +-
- kernel/compat.c                            |    6 ++----
- kernel/exit.c                              |    6 ++----
- lib/strncpy_from_user.c                    |    9 +++++----
- lib/strnlen_user.c                         |    9 +++++----
- 7 files changed, 40 insertions(+), 20 deletions(-)
+ arch/openrisc/include/asm/uaccess.h |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/arch/x86/include/asm/uaccess.h
-+++ b/arch/x86/include/asm/uaccess.h
-@@ -711,7 +711,17 @@ extern struct movsl_mask {
-  * checking before using them, but you have to surround them with the
-  * user_access_begin/end() pair.
-  */
--#define user_access_begin()	__uaccess_begin()
-+static __must_check inline bool user_access_begin(int type,
-+						  const void __user *ptr,
-+						  size_t len)
-+{
-+	if (unlikely(!access_ok(type, ptr, len)))
-+		return 0;
-+	__uaccess_begin();
-+	return 1;
-+}
-+
-+#define user_access_begin(a, b, c)	user_access_begin(a, b, c)
- #define user_access_end()	__uaccess_end()
+--- a/arch/openrisc/include/asm/uaccess.h
++++ b/arch/openrisc/include/asm/uaccess.h
+@@ -58,8 +58,12 @@
+ /* Ensure that addr is below task's addr_limit */
+ #define __addr_ok(addr) ((unsigned long) addr < get_fs())
  
- #define unsafe_put_user(x, ptr, err_label)					\
---- a/drivers/gpu/drm/i915/i915_gem_execbuffer.c
-+++ b/drivers/gpu/drm/i915/i915_gem_execbuffer.c
-@@ -1604,7 +1604,9 @@ static int eb_copy_relocations(const str
- 		 * happened we would make the mistake of assuming that the
- 		 * relocations were valid.
- 		 */
--		user_access_begin();
-+		if (!user_access_begin(VERIFY_WRITE, urelocs, size))
-+			goto end_user;
-+
- 		for (copied = 0; copied < nreloc; copied++)
- 			unsafe_put_user(-1,
- 					&urelocs[copied].presumed_offset,
-@@ -2649,7 +2651,17 @@ i915_gem_execbuffer2_ioctl(struct drm_de
- 		unsigned int i;
+-#define access_ok(type, addr, size) \
+-	__range_ok((unsigned long)addr, (unsigned long)size)
++#define access_ok(type, addr, size)						\
++({ 									\
++	unsigned long __ao_addr = (unsigned long)(addr);		\
++	unsigned long __ao_size = (unsigned long)(size);		\
++	__range_ok(__ao_addr, __ao_size);				\
++})
  
- 		/* Copy the new buffer offsets back to the user's exec list. */
--		user_access_begin();
-+		/*
-+		 * Note: count * sizeof(*user_exec_list) does not overflow,
-+		 * because we checked 'count' in check_buffer_count().
-+		 *
-+		 * And this range already got effectively checked earlier
-+		 * when we did the "copy_from_user()" above.
-+		 */
-+		if (!user_access_begin(VERIFY_WRITE, user_exec_list,
-+				       count * sizeof(*user_exec_list)))
-+			goto end_user;
-+
- 		for (i = 0; i < args->buffer_count; i++) {
- 			if (!(exec2_list[i].offset & UPDATE))
- 				continue;
---- a/include/linux/uaccess.h
-+++ b/include/linux/uaccess.h
-@@ -267,7 +267,7 @@ extern long strncpy_from_unsafe(char *ds
- 	probe_kernel_read(&retval, addr, sizeof(retval))
- 
- #ifndef user_access_begin
--#define user_access_begin() do { } while (0)
-+#define user_access_begin(type, ptr, len) access_ok(type, ptr, len)
- #define user_access_end() do { } while (0)
- #define unsafe_get_user(x, ptr, err) do { if (unlikely(__get_user(x, ptr))) goto err; } while (0)
- #define unsafe_put_user(x, ptr, err) do { if (unlikely(__put_user(x, ptr))) goto err; } while (0)
---- a/kernel/compat.c
-+++ b/kernel/compat.c
-@@ -354,10 +354,9 @@ long compat_get_bitmap(unsigned long *ma
- 	bitmap_size = ALIGN(bitmap_size, BITS_PER_COMPAT_LONG);
- 	nr_compat_longs = BITS_TO_COMPAT_LONGS(bitmap_size);
- 
--	if (!access_ok(VERIFY_READ, umask, bitmap_size / 8))
-+	if (!user_access_begin(VERIFY_READ, umask, bitmap_size / 8))
- 		return -EFAULT;
- 
--	user_access_begin();
- 	while (nr_compat_longs > 1) {
- 		compat_ulong_t l1, l2;
- 		unsafe_get_user(l1, umask++, Efault);
-@@ -384,10 +383,9 @@ long compat_put_bitmap(compat_ulong_t __
- 	bitmap_size = ALIGN(bitmap_size, BITS_PER_COMPAT_LONG);
- 	nr_compat_longs = BITS_TO_COMPAT_LONGS(bitmap_size);
- 
--	if (!access_ok(VERIFY_WRITE, umask, bitmap_size / 8))
-+	if (!user_access_begin(VERIFY_WRITE, umask, bitmap_size / 8))
- 		return -EFAULT;
- 
--	user_access_begin();
- 	while (nr_compat_longs > 1) {
- 		unsigned long m = *mask++;
- 		unsafe_put_user((compat_ulong_t)m, umask++, Efault);
---- a/kernel/exit.c
-+++ b/kernel/exit.c
-@@ -1617,10 +1617,9 @@ SYSCALL_DEFINE5(waitid, int, which, pid_
- 	if (!infop)
- 		return err;
- 
--	if (!access_ok(VERIFY_WRITE, infop, sizeof(*infop)))
-+	if (!user_access_begin(VERIFY_WRITE, infop, sizeof(*infop)))
- 		return -EFAULT;
- 
--	user_access_begin();
- 	unsafe_put_user(signo, &infop->si_signo, Efault);
- 	unsafe_put_user(0, &infop->si_errno, Efault);
- 	unsafe_put_user(info.cause, &infop->si_code, Efault);
-@@ -1745,10 +1744,9 @@ COMPAT_SYSCALL_DEFINE5(waitid,
- 	if (!infop)
- 		return err;
- 
--	if (!access_ok(VERIFY_WRITE, infop, sizeof(*infop)))
-+	if (!user_access_begin(VERIFY_WRITE, infop, sizeof(*infop)))
- 		return -EFAULT;
- 
--	user_access_begin();
- 	unsafe_put_user(signo, &infop->si_signo, Efault);
- 	unsafe_put_user(0, &infop->si_errno, Efault);
- 	unsafe_put_user(info.cause, &infop->si_code, Efault);
---- a/lib/strncpy_from_user.c
-+++ b/lib/strncpy_from_user.c
-@@ -115,10 +115,11 @@ long strncpy_from_user(char *dst, const
- 
- 		kasan_check_write(dst, count);
- 		check_object_size(dst, count, false);
--		user_access_begin();
--		retval = do_strncpy_from_user(dst, src, count, max);
--		user_access_end();
--		return retval;
-+		if (user_access_begin(VERIFY_READ, src, max)) {
-+			retval = do_strncpy_from_user(dst, src, count, max);
-+			user_access_end();
-+			return retval;
-+		}
- 	}
- 	return -EFAULT;
- }
---- a/lib/strnlen_user.c
-+++ b/lib/strnlen_user.c
-@@ -114,10 +114,11 @@ long strnlen_user(const char __user *str
- 		unsigned long max = max_addr - src_addr;
- 		long retval;
- 
--		user_access_begin();
--		retval = do_strnlen_user(str, count, max);
--		user_access_end();
--		return retval;
-+		if (user_access_begin(VERIFY_READ, str, max)) {
-+			retval = do_strnlen_user(str, count, max);
-+			user_access_end();
-+			return retval;
-+		}
- 	}
- 	return 0;
- }
+ /*
+  * These are the main single-value transfer routines.  They automatically
 
 
