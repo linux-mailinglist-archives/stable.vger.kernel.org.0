@@ -2,47 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5180E200D7E
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:01:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60F05200EA9
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:11:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390347AbgFSO6K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:58:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53746 "EHLO mail.kernel.org"
+        id S2391997AbgFSPKF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:10:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390349AbgFSO6J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:58:09 -0400
+        id S2389171AbgFSPKE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:10:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7CFE321941;
-        Fri, 19 Jun 2020 14:58:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E03420776;
+        Fri, 19 Jun 2020 15:10:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578688;
-        bh=b0upL9JkLpI43yNFRNa9oHcH4kXrrHkdJKVIVNeOG/k=;
+        s=default; t=1592579403;
+        bh=mH81tB9upTQuVHsacg+7F8lM3/Lh0sT2+FTlCBmknr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KayzA13sdnJHWsaZ7YriMkHn69in1Vm9XuZMq/M/tBZGldlrp8RQ65oYI9FYBC3J1
-         ZtkoRP07A1OoR4z46jSpC9s8mpXvz55mbIoyG8mxKur/u8BOcP1K9RSkkdM+feL2Wu
-         A9c6KxNAAwuYLpixHvCB/5hmBiS3c79VzqXghI78=
+        b=Eu7RfrJTy9Nqe7OJnevqM+Jidake8qR3//xj+WRQGY9mStMuOQCTOi5y1dMfYMozW
+         EIeIw9FEnCQ4fN4Wpx1Go3zWyz5a+aynPeUccbWRPms3NYela1MMeCbGRpbrYWtqZA
+         zxV0eYHz30n1YtZ1nykzSD13S26A9a/BBOoU0jdo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Georgy Vlasov <Georgy.Vlasov@baikalelectronics.ru>,
-        Ramil Zaripov <Ramil.Zaripov@baikalelectronics.ru>,
-        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Arnd Bergmann <arnd@arndb.de>, Feng Tang <feng.tang@intel.com>,
-        Rob Herring <robh+dt@kernel.org>, linux-mips@vger.kernel.org,
-        devicetree@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Ayush Sawal <ayush.sawal@chelsio.com>,
+        Devulapally Shiva Krishna <shiva@chelsio.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 117/267] spi: dw: Fix Rx-only DMA transfers
-Date:   Fri, 19 Jun 2020 16:31:42 +0200
-Message-Id: <20200619141654.452822528@linuxfoundation.org>
+Subject: [PATCH 5.4 093/261] Crypto/chcr: fix for ccm(aes) failed test
+Date:   Fri, 19 Jun 2020 16:31:44 +0200
+Message-Id: <20200619141654.336380916@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
-References: <20200619141648.840376470@linuxfoundation.org>
+In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
+References: <20200619141649.878808811@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,51 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: Devulapally Shiva Krishna <shiva@chelsio.com>
 
-[ Upstream commit 46164fde6b7890e7a3982d54549947c8394c0192 ]
+[ Upstream commit 10b0c75d7bc19606fa9a62c8ab9180e95c0e0385 ]
 
-Tx-only DMA transfers are working perfectly fine since in this case
-the code just ignores the Rx FIFO overflow interrupts. But it turns
-out the SPI Rx-only transfers are broken since nothing pushing any
-data to the shift registers, so the Rx FIFO is left empty and the
-SPI core subsystems just returns a timeout error. Since DW DMAC
-driver doesn't support something like cyclic write operations of
-a single byte to a device register, the only way to support the
-Rx-only SPI transfers is to fake it by using a dummy Tx-buffer.
-This is what we intend to fix in this commit by setting the
-SPI_CONTROLLER_MUST_TX flag for DMA-capable platform.
+The ccm(aes) test fails when req->assoclen > ~240bytes.
 
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Georgy Vlasov <Georgy.Vlasov@baikalelectronics.ru>
-Cc: Ramil Zaripov <Ramil.Zaripov@baikalelectronics.ru>
-Cc: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Feng Tang <feng.tang@intel.com>
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: linux-mips@vger.kernel.org
-Cc: devicetree@vger.kernel.org
-Link: https://lore.kernel.org/r/20200529131205.31838-9-Sergey.Semin@baikalelectronics.ru
-Signed-off-by: Mark Brown <broonie@kernel.org>
+The problem is the value assigned to auth_offset is wrong.
+As auth_offset is unsigned char, it can take max value as 255.
+So fix it by making it unsigned int.
+
+Signed-off-by: Ayush Sawal <ayush.sawal@chelsio.com>
+Signed-off-by: Devulapally Shiva Krishna <shiva@chelsio.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-dw.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/crypto/chelsio/chcr_algo.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-dw.c b/drivers/spi/spi-dw.c
-index ac888a3d03aa..3fbd6f01fb10 100644
---- a/drivers/spi/spi-dw.c
-+++ b/drivers/spi/spi-dw.c
-@@ -533,6 +533,7 @@ int dw_spi_add_host(struct device *dev, struct dw_spi *dws)
- 			dws->dma_inited = 0;
- 		} else {
- 			master->can_dma = dws->dma_ops->can_dma;
-+			master->flags |= SPI_CONTROLLER_MUST_TX;
- 		}
- 	}
+diff --git a/drivers/crypto/chelsio/chcr_algo.c b/drivers/crypto/chelsio/chcr_algo.c
+index 01dd418bdadc..fe2eadc0ce83 100644
+--- a/drivers/crypto/chelsio/chcr_algo.c
++++ b/drivers/crypto/chelsio/chcr_algo.c
+@@ -2818,7 +2818,7 @@ static void fill_sec_cpl_for_aead(struct cpl_tx_sec_pdu *sec_cpl,
+ 	unsigned int mac_mode = CHCR_SCMD_AUTH_MODE_CBCMAC;
+ 	unsigned int c_id = a_ctx(tfm)->tx_chan_id;
+ 	unsigned int ccm_xtra;
+-	unsigned char tag_offset = 0, auth_offset = 0;
++	unsigned int tag_offset = 0, auth_offset = 0;
+ 	unsigned int assoclen;
  
+ 	if (get_aead_subtype(tfm) == CRYPTO_ALG_SUB_TYPE_AEAD_RFC4309)
 -- 
 2.25.1
 
