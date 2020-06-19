@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 722DC201192
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:47:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE0162011D0
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:47:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404393AbgFSP1I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:27:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58856 "EHLO mail.kernel.org"
+        id S2403906AbgFSPpk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:45:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393253AbgFSP1H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:27:07 -0400
+        id S2404087AbgFSP1M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:27:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 43CB721582;
-        Fri, 19 Jun 2020 15:27:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3BAAB217D8;
+        Fri, 19 Jun 2020 15:27:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580426;
-        bh=2ZrENFyrpJ4qqx+rWjXIFHuZMijMO8WA+PdOMGj5aKA=;
+        s=default; t=1592580431;
+        bh=/747nDpUrA+HrhPyngwEof3PhSh74KiCISRw9/z8wE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pSxZD3vjLN7GTttZGqBe8znYcADVcCiLaHkt9YZmDlTGqGsrzKo1AciGQGCKB2iV6
-         YRr0QZG9x2BhpFUiWixBQtNWVsX4KX8Zj5IaImYpSkomFTUpNnCwP2UvurSnRmMJOx
-         z/rgP5xQ+9qJhxQfVgibBiIV2m7cxmwaW0mWZkC4=
+        b=rwZnKFjENYdHJhfrS5n26fM68FDY4WXOx4zK/8wZbG6Vm4t6LBim8GcsKNLC8HbBV
+         gghkX8NJP0hQZ68bu7St7ufR3lT7xh7fxRwyk8Bt1kZA9uJY+mjUx/KWvn6/G18aiJ
+         8noW8AwvUkd2fhcjHwDWm4hok0DSd2lStnIkN+d8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
-        Borislav Petkov <bp@suse.de>,
-        Kees Cook <keescook@chromium.org>,
-        Dave Hansen <dave.hansen@intel.com>,
+        stable@vger.kernel.org, Kaige Li <likaige@loongson.cn>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 214/376] x86/mm: Stop printing BRK addresses
-Date:   Fri, 19 Jun 2020 16:32:12 +0200
-Message-Id: <20200619141720.461660200@linuxfoundation.org>
+Subject: [PATCH 5.7 216/376] MIPS: tools: Fix resource leak in elf-entry.c
+Date:   Fri, 19 Jun 2020 16:32:14 +0200
+Message-Id: <20200619141720.552774693@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -46,35 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arvind Sankar <nivedita@alum.mit.edu>
+From: Kaige Li <likaige@loongson.cn>
 
-[ Upstream commit 67d631b7c05eff955ccff4139327f0f92a5117e5 ]
+[ Upstream commit f33a0b941017b9cb5a4e975af198b855b2f2b455 ]
 
-This currently leaks kernel physical addresses into userspace.
+There is a file descriptor resource leak in elf-entry.c, fix this
+by adding fclose() before return and die.
 
-Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Kees Cook <keescook@chromium.org>
-Acked-by: Dave Hansen <dave.hansen@intel.com>
-Link: https://lkml.kernel.org/r/20200229231120.1147527-1-nivedita@alum.mit.edu
+Signed-off-by: Kaige Li <likaige@loongson.cn>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/mm/init.c | 2 --
- 1 file changed, 2 deletions(-)
+ arch/mips/tools/elf-entry.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/mm/init.c b/arch/x86/mm/init.c
-index 1bba16c5742b..a573a3e63f02 100644
---- a/arch/x86/mm/init.c
-+++ b/arch/x86/mm/init.c
-@@ -121,8 +121,6 @@ __ref void *alloc_low_pages(unsigned int num)
- 	} else {
- 		pfn = pgt_buf_end;
- 		pgt_buf_end += num;
--		printk(KERN_DEBUG "BRK [%#010lx, %#010lx] PGTABLE\n",
--			pfn << PAGE_SHIFT, (pgt_buf_end << PAGE_SHIFT) - 1);
+diff --git a/arch/mips/tools/elf-entry.c b/arch/mips/tools/elf-entry.c
+index adde79ce7fc0..dbd14ff05b4c 100644
+--- a/arch/mips/tools/elf-entry.c
++++ b/arch/mips/tools/elf-entry.c
+@@ -51,11 +51,14 @@ int main(int argc, const char *argv[])
+ 	nread = fread(&hdr, 1, sizeof(hdr), file);
+ 	if (nread != sizeof(hdr)) {
+ 		perror("Unable to read input file");
++		fclose(file);
+ 		return EXIT_FAILURE;
  	}
  
- 	for (i = 0; i < num; i++) {
+-	if (memcmp(hdr.ehdr32.e_ident, ELFMAG, SELFMAG))
++	if (memcmp(hdr.ehdr32.e_ident, ELFMAG, SELFMAG)) {
++		fclose(file);
+ 		die("Input is not an ELF\n");
++	}
+ 
+ 	switch (hdr.ehdr32.e_ident[EI_CLASS]) {
+ 	case ELFCLASS32:
+@@ -67,6 +70,7 @@ int main(int argc, const char *argv[])
+ 			entry = be32toh(hdr.ehdr32.e_entry);
+ 			break;
+ 		default:
++			fclose(file);
+ 			die("Invalid ELF encoding\n");
+ 		}
+ 
+@@ -83,14 +87,17 @@ int main(int argc, const char *argv[])
+ 			entry = be64toh(hdr.ehdr64.e_entry);
+ 			break;
+ 		default:
++			fclose(file);
+ 			die("Invalid ELF encoding\n");
+ 		}
+ 		break;
+ 
+ 	default:
++		fclose(file);
+ 		die("Invalid ELF class\n");
+ 	}
+ 
+ 	printf("0x%016" PRIx64 "\n", entry);
++	fclose(file);
+ 	return EXIT_SUCCESS;
+ }
 -- 
 2.25.1
 
