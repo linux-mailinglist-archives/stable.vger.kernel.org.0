@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA8EC201216
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:52:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61D31201200
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:48:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405313AbgFSPr6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:47:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57456 "EHLO mail.kernel.org"
+        id S2405308AbgFSPrs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:47:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393450AbgFSPZl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:25:41 -0400
+        id S2393461AbgFSPZr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:25:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D31D20734;
-        Fri, 19 Jun 2020 15:25:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D877E20B80;
+        Fri, 19 Jun 2020 15:25:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580341;
-        bh=CvFeTCugHHRONHTP2eRlFRtgrbQbpBoVKDgXt7fTF8s=;
+        s=default; t=1592580346;
+        bh=ZI3l1S8gQpmiNJU5zPaXkISX8iBWee5MzLByTO5zS8k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eBxM4y2KReF3tPNe2+/UmdHqUHuCKUkUXLJYdH+hYGYNESg6BqrfXnYlq7jnP0p/T
-         ajpUxFDe0StkjC+qJvT5dtBYQRkyMk1J8pBNilgNb1Rj9CjeEj4PLKf5tbNADU3P17
-         u1ZzYKdRKUyFklFY/oo5P1JrbPdI0ED+gBr0KR/8=
+        b=2PoS7h3JElRRQt2zCJednmmexUcsrKhYyLaalM+3UFhpraMbczu95q+NyxuJYljSY
+         9lz8SqPf+wl+aPUbtbVaZBMV7cXHZTTjo8dn40/dgKV9FSX90in1ISh0Y9tMMluZys
+         FfSWAhzis06u3TGLxdHx2iyGoq3krF8MA9nzFhfo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        stable@vger.kernel.org, Chih-Min Chen <chih-min.chen@mediatek.com>,
+        Ryder Lee <ryder.lee@mediatek.com>,
         Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 182/376] mt76: mt7615: fix mt7615_firmware_own for mt7663e
-Date:   Fri, 19 Jun 2020 16:31:40 +0200
-Message-Id: <20200619141718.967086136@linuxfoundation.org>
+Subject: [PATCH 5.7 184/376] mt76: avoid rx reorder buffer overflow
+Date:   Fri, 19 Jun 2020 16:31:42 +0200
+Message-Id: <20200619141719.061058574@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -43,37 +44,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Ryder Lee <ryder.lee@mediatek.com>
 
-[ Upstream commit becdf0d5d7a46f5ed1f12405ffae4b04764fe27c ]
+[ Upstream commit 7c4f744d6703757be959f521a7a441bf34745d99 ]
 
-Check the firmware-own configuration has been applied polling
-MT_CONN_HIF_ON_LPCTL register
+Enlarge slot to support 11ax 256 BA (256 MPDUs in an AMPDU)
 
-Fixes: f40ac0f3d3c0 ("mt76: mt7615: introduce mt7663e support")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Chih-Min Chen <chih-min.chen@mediatek.com>
+Signed-off-by: Ryder Lee <ryder.lee@mediatek.com>
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7615/mcu.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/net/wireless/mediatek/mt76/agg-rx.c | 8 ++++----
+ drivers/net/wireless/mediatek/mt76/mt76.h   | 6 +++---
+ 2 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
-index a19fb0cb7794..0d56e0834bde 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
-@@ -1550,9 +1550,8 @@ static int mt7615_firmware_own(struct mt7615_dev *dev)
+diff --git a/drivers/net/wireless/mediatek/mt76/agg-rx.c b/drivers/net/wireless/mediatek/mt76/agg-rx.c
+index f77f03530259..acdbe6f8248d 100644
+--- a/drivers/net/wireless/mediatek/mt76/agg-rx.c
++++ b/drivers/net/wireless/mediatek/mt76/agg-rx.c
+@@ -152,8 +152,8 @@ void mt76_rx_aggr_reorder(struct sk_buff *skb, struct sk_buff_head *frames)
+ 	struct ieee80211_sta *sta;
+ 	struct mt76_rx_tid *tid;
+ 	bool sn_less;
+-	u16 seqno, head, size;
+-	u8 ackp, idx;
++	u16 seqno, head, size, idx;
++	u8 ackp;
  
- 	mt76_wr(dev, addr, MT_CFG_LPCR_HOST_FW_OWN);
+ 	__skb_queue_tail(frames, skb);
  
--	if (is_mt7622(&dev->mt76) &&
--	    !mt76_poll_msec(dev, MT_CFG_LPCR_HOST,
--			    MT_CFG_LPCR_HOST_FW_OWN,
-+	if (!is_mt7615(&dev->mt76) &&
-+	    !mt76_poll_msec(dev, addr, MT_CFG_LPCR_HOST_FW_OWN,
- 			    MT_CFG_LPCR_HOST_FW_OWN, 3000)) {
- 		dev_err(dev->mt76.dev, "Timeout for firmware own\n");
- 		return -EIO;
+@@ -239,7 +239,7 @@ out:
+ }
+ 
+ int mt76_rx_aggr_start(struct mt76_dev *dev, struct mt76_wcid *wcid, u8 tidno,
+-		       u16 ssn, u8 size)
++		       u16 ssn, u16 size)
+ {
+ 	struct mt76_rx_tid *tid;
+ 
+@@ -264,7 +264,7 @@ EXPORT_SYMBOL_GPL(mt76_rx_aggr_start);
+ 
+ static void mt76_rx_aggr_shutdown(struct mt76_dev *dev, struct mt76_rx_tid *tid)
+ {
+-	u8 size = tid->size;
++	u16 size = tid->size;
+ 	int i;
+ 
+ 	spin_lock_bh(&tid->lock);
+diff --git a/drivers/net/wireless/mediatek/mt76/mt76.h b/drivers/net/wireless/mediatek/mt76/mt76.h
+index 8e4759bc8f59..37641ad14d49 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt76.h
++++ b/drivers/net/wireless/mediatek/mt76/mt76.h
+@@ -241,8 +241,8 @@ struct mt76_rx_tid {
+ 	struct delayed_work reorder_work;
+ 
+ 	u16 head;
+-	u8 size;
+-	u8 nframes;
++	u16 size;
++	u16 nframes;
+ 
+ 	u8 num;
+ 
+@@ -788,7 +788,7 @@ int mt76_get_survey(struct ieee80211_hw *hw, int idx,
+ void mt76_set_stream_caps(struct mt76_dev *dev, bool vht);
+ 
+ int mt76_rx_aggr_start(struct mt76_dev *dev, struct mt76_wcid *wcid, u8 tid,
+-		       u16 ssn, u8 size);
++		       u16 ssn, u16 size);
+ void mt76_rx_aggr_stop(struct mt76_dev *dev, struct mt76_wcid *wcid, u8 tid);
+ 
+ void mt76_wcid_key_setup(struct mt76_dev *dev, struct mt76_wcid *wcid,
 -- 
 2.25.1
 
