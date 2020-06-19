@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61D31201200
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:48:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A8F02011FC
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:47:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405308AbgFSPrs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:47:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57530 "EHLO mail.kernel.org"
+        id S2393469AbgFSPZw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:25:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393461AbgFSPZr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:25:47 -0400
+        id S2393466AbgFSPZu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:25:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D877E20B80;
-        Fri, 19 Jun 2020 15:25:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 93F7120734;
+        Fri, 19 Jun 2020 15:25:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580346;
-        bh=ZI3l1S8gQpmiNJU5zPaXkISX8iBWee5MzLByTO5zS8k=;
+        s=default; t=1592580349;
+        bh=GgNbKupob62BqUCj27AYN8DGZuT/nucfLviwTiGLsBs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2PoS7h3JElRRQt2zCJednmmexUcsrKhYyLaalM+3UFhpraMbczu95q+NyxuJYljSY
-         9lz8SqPf+wl+aPUbtbVaZBMV7cXHZTTjo8dn40/dgKV9FSX90in1ISh0Y9tMMluZys
-         FfSWAhzis06u3TGLxdHx2iyGoq3krF8MA9nzFhfo=
+        b=g7z0Y696SYCKfq8wEMuwozsPfDVO+d+3887WzF/YTpRfmwWtD1lEhwSbxO35FHOWG
+         FwCWcrjc7XgwWMpCh2nJS0wxjb2L7TqRZbr8OMj0TXzLXsaBkKrUhVTnrdAqcLCJ/6
+         ButQPIrHxXYCwg5aRJgNpIz9OTVpHPmAShzzvJFg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chih-Min Chen <chih-min.chen@mediatek.com>,
-        Ryder Lee <ryder.lee@mediatek.com>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 184/376] mt76: avoid rx reorder buffer overflow
-Date:   Fri, 19 Jun 2020 16:31:42 +0200
-Message-Id: <20200619141719.061058574@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Yauheni Kaliuta <yauheni.kaliuta@redhat.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andriin@fb.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 185/376] selftests/bpf: Install generated test progs
+Date:   Fri, 19 Jun 2020 16:31:43 +0200
+Message-Id: <20200619141719.108539085@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -44,78 +46,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryder Lee <ryder.lee@mediatek.com>
+From: Yauheni Kaliuta <yauheni.kaliuta@redhat.com>
 
-[ Upstream commit 7c4f744d6703757be959f521a7a441bf34745d99 ]
+[ Upstream commit 309b81f0fdc4209d998bc63f0da52c2e96340d4e ]
 
-Enlarge slot to support 11ax 256 BA (256 MPDUs in an AMPDU)
+Before commit 74b5a5968fe8 ("selftests/bpf: Replace test_progs and
+test_maps w/ general rule") selftests/bpf used generic install
+target from selftests/lib.mk to install generated bpf test progs
+by mentioning them in TEST_GEN_FILES variable.
 
-Signed-off-by: Chih-Min Chen <chih-min.chen@mediatek.com>
-Signed-off-by: Ryder Lee <ryder.lee@mediatek.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Take that functionality back.
+
+Fixes: 74b5a5968fe8 ("selftests/bpf: Replace test_progs and test_maps w/ general rule")
+Signed-off-by: Yauheni Kaliuta <yauheni.kaliuta@redhat.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Andrii Nakryiko <andriin@fb.com>
+Link: https://lore.kernel.org/bpf/20200513021722.7787-1-yauheni.kaliuta@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/agg-rx.c | 8 ++++----
- drivers/net/wireless/mediatek/mt76/mt76.h   | 6 +++---
- 2 files changed, 7 insertions(+), 7 deletions(-)
+ tools/testing/selftests/bpf/Makefile | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/agg-rx.c b/drivers/net/wireless/mediatek/mt76/agg-rx.c
-index f77f03530259..acdbe6f8248d 100644
---- a/drivers/net/wireless/mediatek/mt76/agg-rx.c
-+++ b/drivers/net/wireless/mediatek/mt76/agg-rx.c
-@@ -152,8 +152,8 @@ void mt76_rx_aggr_reorder(struct sk_buff *skb, struct sk_buff_head *frames)
- 	struct ieee80211_sta *sta;
- 	struct mt76_rx_tid *tid;
- 	bool sn_less;
--	u16 seqno, head, size;
--	u8 ackp, idx;
-+	u16 seqno, head, size, idx;
-+	u8 ackp;
+diff --git a/tools/testing/selftests/bpf/Makefile b/tools/testing/selftests/bpf/Makefile
+index 01c95f8278c7..af139d0e2e0c 100644
+--- a/tools/testing/selftests/bpf/Makefile
++++ b/tools/testing/selftests/bpf/Makefile
+@@ -264,6 +264,7 @@ TRUNNER_BPF_OBJS := $$(patsubst %.c,$$(TRUNNER_OUTPUT)/%.o, $$(TRUNNER_BPF_SRCS)
+ TRUNNER_BPF_SKELS := $$(patsubst %.c,$$(TRUNNER_OUTPUT)/%.skel.h,	\
+ 				 $$(filter-out $(SKEL_BLACKLIST),	\
+ 					       $$(TRUNNER_BPF_SRCS)))
++TEST_GEN_FILES += $$(TRUNNER_BPF_OBJS)
  
- 	__skb_queue_tail(frames, skb);
- 
-@@ -239,7 +239,7 @@ out:
- }
- 
- int mt76_rx_aggr_start(struct mt76_dev *dev, struct mt76_wcid *wcid, u8 tidno,
--		       u16 ssn, u8 size)
-+		       u16 ssn, u16 size)
- {
- 	struct mt76_rx_tid *tid;
- 
-@@ -264,7 +264,7 @@ EXPORT_SYMBOL_GPL(mt76_rx_aggr_start);
- 
- static void mt76_rx_aggr_shutdown(struct mt76_dev *dev, struct mt76_rx_tid *tid)
- {
--	u8 size = tid->size;
-+	u16 size = tid->size;
- 	int i;
- 
- 	spin_lock_bh(&tid->lock);
-diff --git a/drivers/net/wireless/mediatek/mt76/mt76.h b/drivers/net/wireless/mediatek/mt76/mt76.h
-index 8e4759bc8f59..37641ad14d49 100644
---- a/drivers/net/wireless/mediatek/mt76/mt76.h
-+++ b/drivers/net/wireless/mediatek/mt76/mt76.h
-@@ -241,8 +241,8 @@ struct mt76_rx_tid {
- 	struct delayed_work reorder_work;
- 
- 	u16 head;
--	u8 size;
--	u8 nframes;
-+	u16 size;
-+	u16 nframes;
- 
- 	u8 num;
- 
-@@ -788,7 +788,7 @@ int mt76_get_survey(struct ieee80211_hw *hw, int idx,
- void mt76_set_stream_caps(struct mt76_dev *dev, bool vht);
- 
- int mt76_rx_aggr_start(struct mt76_dev *dev, struct mt76_wcid *wcid, u8 tid,
--		       u16 ssn, u8 size);
-+		       u16 ssn, u16 size);
- void mt76_rx_aggr_stop(struct mt76_dev *dev, struct mt76_wcid *wcid, u8 tid);
- 
- void mt76_wcid_key_setup(struct mt76_dev *dev, struct mt76_wcid *wcid,
+ # Evaluate rules now with extra TRUNNER_XXX variables above already defined
+ $$(eval $$(call DEFINE_TEST_RUNNER_RULES,$1,$2))
 -- 
 2.25.1
 
