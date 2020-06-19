@@ -2,39 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD16B201623
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:32:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 986912016DC
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:45:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390395AbgFSQ1K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:27:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51370 "EHLO mail.kernel.org"
+        id S2388715AbgFSOpe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:45:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390064AbgFSO4X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:56:23 -0400
+        id S2387678AbgFSOp3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:45:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1DD962184D;
-        Fri, 19 Jun 2020 14:56:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D742E20DD4;
+        Fri, 19 Jun 2020 14:45:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578583;
-        bh=8KQ6F9AGxL2T42f0+XH1LoTkGMUB/lUMpUpOwjWB4Ck=;
+        s=default; t=1592577928;
+        bh=33ESJF2kwlacdpC3hc9IN/bWL6ieRL7+CiuYIm/y/oI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jEh/Teq90J+1+QaGXJ3W4BjuB6MLzTavHoeJG/bcpjSJ+tz8kOEPzJ6hltIlq9pZ3
-         S2Z7qGmVnk6/TRkxcF6Y1Wy7t3k5HHVWfYoovk52iiL0mrdekGPrGqnoHjJBEf2BhR
-         ICGJSRh0Ao+MuAZ/fbEKrtrkGj1DUB99P+GSbU+s=
+        b=JaUuJFKG8j1iHNJSEJdTQxeg66bgqkEkEtBVQmS7qot4hrfagYCvjEN7OyHClFRul
+         98bvMeT+97kn/AUQhQfhEhIGUgLYUIcWKBHt+P3XLszMBueDg/zYsBajkiLDs8m8i3
+         p/TE96m+vtqloRy68/szL1YH8dGWXmdDQ1vVOn38=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sumit Saxena <sumit.saxena@broadcom.com>,
-        Chandrakanth Patil <chandrakanth.patil@broadcom.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.19 077/267] scsi: megaraid_sas: TM command refire leads to controller firmware crash
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Waiman Long <longman@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Eric Biggers <ebiggers@google.com>,
+        David Howells <dhowells@redhat.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Joe Perches <joe@perches.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        David Rientjes <rientjes@google.com>,
+        Uladzislau Rezki <urezki@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 017/190] mm: add kvfree_sensitive() for freeing sensitive data objects
 Date:   Fri, 19 Jun 2020 16:31:02 +0200
-Message-Id: <20200619141652.584476677@linuxfoundation.org>
+Message-Id: <20200619141634.322504266@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
-References: <20200619141648.840376470@linuxfoundation.org>
+In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
+References: <20200619141633.446429600@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +55,161 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sumit Saxena <sumit.saxena@broadcom.com>
+From: Waiman Long <longman@redhat.com>
 
-commit 6fd8525a70221c26823b1c7e912fb21f218fb0c5 upstream.
+[ Upstream commit d4eaa2837851db2bfed572898bfc17f9a9f9151e ]
 
-When TM command times out, driver invokes the controller reset. Post reset,
-driver re-fires pended TM commands which leads to firmware crash.
+For kvmalloc'ed data object that contains sensitive information like
+cryptographic keys, we need to make sure that the buffer is always cleared
+before freeing it.  Using memset() alone for buffer clearing may not
+provide certainty as the compiler may compile it away.  To be sure, the
+special memzero_explicit() has to be used.
 
-Post controller reset, return pended TM commands back to OS.
+This patch introduces a new kvfree_sensitive() for freeing those sensitive
+data objects allocated by kvmalloc().  The relevant places where
+kvfree_sensitive() can be used are modified to use it.
 
-Link: https://lore.kernel.org/r/20200508085242.23406-1-chandrakanth.patil@broadcom.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Sumit Saxena <sumit.saxena@broadcom.com>
-Signed-off-by: Chandrakanth Patil <chandrakanth.patil@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 4f0882491a14 ("KEYS: Avoid false positive ENOMEM error on key read")
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Waiman Long <longman@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Acked-by: David Howells <dhowells@redhat.com>
+Cc: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Cc: James Morris <jmorris@namei.org>
+Cc: "Serge E. Hallyn" <serge@hallyn.com>
+Cc: Joe Perches <joe@perches.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Uladzislau Rezki <urezki@gmail.com>
+Link: http://lkml.kernel.org/r/20200407200318.11711-1-longman@redhat.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/megaraid/megaraid_sas_fusion.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ include/linux/mm.h       |  1 +
+ mm/util.c                | 18 ++++++++++++++++++
+ security/keys/internal.h | 11 -----------
+ security/keys/keyctl.c   | 16 +++++-----------
+ 4 files changed, 24 insertions(+), 22 deletions(-)
 
---- a/drivers/scsi/megaraid/megaraid_sas_fusion.c
-+++ b/drivers/scsi/megaraid/megaraid_sas_fusion.c
-@@ -3940,6 +3940,7 @@ void megasas_refire_mgmt_cmd(struct mega
- 	struct fusion_context *fusion;
- 	struct megasas_cmd *cmd_mfi;
- 	union MEGASAS_REQUEST_DESCRIPTOR_UNION *req_desc;
-+	struct MPI2_RAID_SCSI_IO_REQUEST *scsi_io_req;
- 	u16 smid;
- 	bool refire_cmd = 0;
- 	u8 result;
-@@ -3990,6 +3991,11 @@ void megasas_refire_mgmt_cmd(struct mega
- 			break;
- 		}
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index 6f852d5fbada..156940758fc5 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -548,6 +548,7 @@ static inline void *kvmalloc_array(size_t n, size_t size, gfp_t flags)
+ }
  
-+		scsi_io_req = (struct MPI2_RAID_SCSI_IO_REQUEST *)
-+				cmd_fusion->io_request;
-+		if (scsi_io_req->Function == MPI2_FUNCTION_SCSI_TASK_MGMT)
-+			result = RETURN_CMD;
+ extern void kvfree(const void *addr);
++extern void kvfree_sensitive(const void *addr, size_t len);
+ 
+ /*
+  * Mapcount of compound page as a whole, does not include mapped sub-pages.
+diff --git a/mm/util.c b/mm/util.c
+index 842ba5fb662e..f0d773c719a1 100644
+--- a/mm/util.c
++++ b/mm/util.c
+@@ -417,6 +417,24 @@ void kvfree(const void *addr)
+ }
+ EXPORT_SYMBOL(kvfree);
+ 
++/**
++ * kvfree_sensitive - Free a data object containing sensitive information.
++ * @addr: address of the data object to be freed.
++ * @len: length of the data object.
++ *
++ * Use the special memzero_explicit() function to clear the content of a
++ * kvmalloc'ed object containing sensitive data to make sure that the
++ * compiler won't optimize out the data clearing.
++ */
++void kvfree_sensitive(const void *addr, size_t len)
++{
++	if (likely(!ZERO_OR_NULL_PTR(addr))) {
++		memzero_explicit((void *)addr, len);
++		kvfree(addr);
++	}
++}
++EXPORT_SYMBOL(kvfree_sensitive);
 +
- 		switch (result) {
- 		case REFIRE_CMD:
- 			megasas_fire_cmd_fusion(instance, req_desc);
-@@ -4187,7 +4193,6 @@ megasas_issue_tm(struct megasas_instance
- 	if (!timeleft) {
- 		dev_err(&instance->pdev->dev,
- 			"task mgmt type 0x%x timed out\n", type);
--		cmd_mfi->flags |= DRV_DCMD_SKIP_REFIRE;
- 		mutex_unlock(&instance->reset_mutex);
- 		rc = megasas_reset_fusion(instance->host, MFI_IO_TIMEOUT_OCR);
- 		mutex_lock(&instance->reset_mutex);
+ static inline void *__page_rmapping(struct page *page)
+ {
+ 	unsigned long mapping;
+diff --git a/security/keys/internal.h b/security/keys/internal.h
+index 124273e500cf..d479ca71137e 100644
+--- a/security/keys/internal.h
++++ b/security/keys/internal.h
+@@ -306,15 +306,4 @@ static inline void key_check(const struct key *key)
+ #define key_check(key) do {} while(0)
+ 
+ #endif
+-
+-/*
+- * Helper function to clear and free a kvmalloc'ed memory object.
+- */
+-static inline void __kvzfree(const void *addr, size_t len)
+-{
+-	if (addr) {
+-		memset((void *)addr, 0, len);
+-		kvfree(addr);
+-	}
+-}
+ #endif /* _INTERNAL_H */
+diff --git a/security/keys/keyctl.c b/security/keys/keyctl.c
+index c07c2e2b2478..9394d72a77e8 100644
+--- a/security/keys/keyctl.c
++++ b/security/keys/keyctl.c
+@@ -133,10 +133,7 @@ SYSCALL_DEFINE5(add_key, const char __user *, _type,
+ 
+ 	key_ref_put(keyring_ref);
+  error3:
+-	if (payload) {
+-		memzero_explicit(payload, plen);
+-		kvfree(payload);
+-	}
++	kvfree_sensitive(payload, plen);
+  error2:
+ 	kfree(description);
+  error:
+@@ -351,7 +348,7 @@ long keyctl_update_key(key_serial_t id,
+ 
+ 	key_ref_put(key_ref);
+ error2:
+-	__kvzfree(payload, plen);
++	kvfree_sensitive(payload, plen);
+ error:
+ 	return ret;
+ }
+@@ -859,7 +856,7 @@ long keyctl_read_key(key_serial_t keyid, char __user *buffer, size_t buflen)
+ 		 */
+ 		if (ret > key_data_len) {
+ 			if (unlikely(key_data))
+-				__kvzfree(key_data, key_data_len);
++				kvfree_sensitive(key_data, key_data_len);
+ 			key_data_len = ret;
+ 			continue;	/* Allocate buffer */
+ 		}
+@@ -868,7 +865,7 @@ long keyctl_read_key(key_serial_t keyid, char __user *buffer, size_t buflen)
+ 			ret = -EFAULT;
+ 		break;
+ 	}
+-	__kvzfree(key_data, key_data_len);
++	kvfree_sensitive(key_data, key_data_len);
+ 
+ key_put_out:
+ 	key_put(key);
+@@ -1170,10 +1167,7 @@ long keyctl_instantiate_key_common(key_serial_t id,
+ 		keyctl_change_reqkey_auth(NULL);
+ 
+ error2:
+-	if (payload) {
+-		memzero_explicit(payload, plen);
+-		kvfree(payload);
+-	}
++	kvfree_sensitive(payload, plen);
+ error:
+ 	return ret;
+ }
+-- 
+2.25.1
+
 
 
