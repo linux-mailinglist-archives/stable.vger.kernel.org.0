@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0341201477
+	by mail.lfdr.de (Postfix) with ESMTP id 83511201476
 	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:14:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391768AbgFSQKv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:10:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35396 "EHLO mail.kernel.org"
+        id S2391732AbgFSQKu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:10:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389518AbgFSPGV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:06:21 -0400
+        id S2391417AbgFSPGX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:06:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0DB1E21852;
-        Fri, 19 Jun 2020 15:06:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B209721835;
+        Fri, 19 Jun 2020 15:06:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579180;
-        bh=eVIpr8/ofo5takKWsPqMw/Pep/g6XXz7jFfvgEA1vCQ=;
+        s=default; t=1592579183;
+        bh=MR39vtB/C9XrQbTfXckuJXqd4TZpcXNPYMB/BQEKY5Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LK/03S2Zbyb50BttlLsH0JHjpGkZA2hQVW/p6X8qJGB/nFA2uDG/IjF9K7yFXgDW2
-         DIKaIKnn0/75mMDf/JtF9/TC+43Q1k2DOrVOuM5Ll2LlXhyuLamGQ4Dxcv+9oHp15D
-         TepqCf5AER0UIbNkkPuMFY7scZVOvQ9vq390vZkI=
+        b=O2IoPdVnJzdhyr90Hx9OibI1Bsy3bTCqYN4hM4YrBQppl0KDqNEKvrhcPRACe2tIE
+         SohjKpDwIP3IUQ7XhA9K7Xkmq64LOHnl0X5Xv9BQc5Ljprfrq+GToNAf+M+PQ4aye5
+         v5IZMZYnUkXLXCdq79waBeXC98iHl2K5H4XIhe58=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Jean-Philippe Brucker <jean-philippe@linaro.org>,
+        Tuan Phan <tuanphan@os.amperecomputing.com>,
+        Hanjun Guo <guoahanjun@huawei.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
         Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 038/261] pmu/smmuv3: Clear IRQ affinity hint on device removal
-Date:   Fri, 19 Jun 2020 16:30:49 +0200
-Message-Id: <20200619141651.744559142@linuxfoundation.org>
+Subject: [PATCH 5.4 039/261] ACPI/IORT: Fix PMCG node single ID mapping handling
+Date:   Fri, 19 Jun 2020 16:30:50 +0200
+Message-Id: <20200619141651.794880896@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
 References: <20200619141649.878808811@linuxfoundation.org>
@@ -44,75 +46,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+From: Tuan Phan <tuanphan@os.amperecomputing.com>
 
-[ Upstream commit 10f6cd2af21bb44faab31a50ec3361d7649e5a39 ]
+[ Upstream commit 50c8ab8d9fbf5b18d5162a797ca26568afc0af1a ]
 
-Currently when trying to remove the SMMUv3 PMU module we get a
-WARN_ON_ONCE from free_irq(), because the affinity hint set during probe
-hasn't been properly cleared.
+An IORT PMCG node can have no ID mapping if its overflow interrupt is
+wire based therefore the code that parses the PMCG node can not assume
+the node will always have a single mapping present at index 0.
 
-[  238.878383] WARNING: CPU: 0 PID: 175 at kernel/irq/manage.c:1744 free_irq+0x324/0x358
-...
-[  238.897263] Call trace:
-[  238.897998]  free_irq+0x324/0x358
-[  238.898792]  devm_irq_release+0x18/0x28
-[  238.899189]  release_nodes+0x1b0/0x228
-[  238.899984]  devres_release_all+0x38/0x60
-[  238.900779]  device_release_driver_internal+0x10c/0x1d0
-[  238.901574]  driver_detach+0x50/0xe0
-[  238.902368]  bus_remove_driver+0x5c/0xd8
-[  238.903448]  driver_unregister+0x30/0x60
-[  238.903958]  platform_driver_unregister+0x14/0x20
-[  238.905075]  arm_smmu_pmu_exit+0x1c/0xecc [arm_smmuv3_pmu]
-[  238.905547]  __arm64_sys_delete_module+0x14c/0x260
-[  238.906342]  el0_svc_common.constprop.0+0x74/0x178
-[  238.907355]  do_el0_svc+0x24/0x90
-[  238.907932]  el0_sync_handler+0x11c/0x198
-[  238.908979]  el0_sync+0x158/0x180
+Fix iort_get_id_mapping_index() by checking for an overflow interrupt
+and mapping count.
 
-Just like the other perf drivers, clear the affinity hint before
-releasing the device.
+Fixes: 24e516049360 ("ACPI/IORT: Add support for PMCG")
 
-Fixes: 7d839b4b9e00 ("perf/smmuv3: Add arm64 smmuv3 pmu driver")
-Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Link: https://lore.kernel.org/r/20200422084805.237738-1-jean-philippe@linaro.org
+Signed-off-by: Tuan Phan <tuanphan@os.amperecomputing.com>
+Reviewed-by: Hanjun Guo <guoahanjun@huawei.com>
+Acked-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Link: https://lore.kernel.org/r/1589994787-28637-1-git-send-email-tuanphan@os.amperecomputing.com
 Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/perf/arm_smmuv3_pmu.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/acpi/arm64/iort.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/perf/arm_smmuv3_pmu.c b/drivers/perf/arm_smmuv3_pmu.c
-index 2f8787276d9b..3269232ff570 100644
---- a/drivers/perf/arm_smmuv3_pmu.c
-+++ b/drivers/perf/arm_smmuv3_pmu.c
-@@ -815,7 +815,7 @@ static int smmu_pmu_probe(struct platform_device *pdev)
- 	if (err) {
- 		dev_err(dev, "Error %d registering hotplug, PMU @%pa\n",
- 			err, &res_0->start);
--		return err;
-+		goto out_clear_affinity;
- 	}
+diff --git a/drivers/acpi/arm64/iort.c b/drivers/acpi/arm64/iort.c
+index 5a7551d060f2..bc95a5eebd13 100644
+--- a/drivers/acpi/arm64/iort.c
++++ b/drivers/acpi/arm64/iort.c
+@@ -361,6 +361,7 @@ static struct acpi_iort_node *iort_node_get_id(struct acpi_iort_node *node,
+ static int iort_get_id_mapping_index(struct acpi_iort_node *node)
+ {
+ 	struct acpi_iort_smmu_v3 *smmu;
++	struct acpi_iort_pmcg *pmcg;
  
- 	err = perf_pmu_register(&smmu_pmu->pmu, name, -1);
-@@ -834,6 +834,8 @@ static int smmu_pmu_probe(struct platform_device *pdev)
+ 	switch (node->type) {
+ 	case ACPI_IORT_NODE_SMMU_V3:
+@@ -388,6 +389,10 @@ static int iort_get_id_mapping_index(struct acpi_iort_node *node)
  
- out_unregister:
- 	cpuhp_state_remove_instance_nocalls(cpuhp_state_num, &smmu_pmu->node);
-+out_clear_affinity:
-+	irq_set_affinity_hint(smmu_pmu->irq, NULL);
- 	return err;
- }
- 
-@@ -843,6 +845,7 @@ static int smmu_pmu_remove(struct platform_device *pdev)
- 
- 	perf_pmu_unregister(&smmu_pmu->pmu);
- 	cpuhp_state_remove_instance_nocalls(cpuhp_state_num, &smmu_pmu->node);
-+	irq_set_affinity_hint(smmu_pmu->irq, NULL);
- 
- 	return 0;
- }
+ 		return smmu->id_mapping_index;
+ 	case ACPI_IORT_NODE_PMCG:
++		pmcg = (struct acpi_iort_pmcg *)node->node_data;
++		if (pmcg->overflow_gsiv || node->mapping_count == 0)
++			return -EINVAL;
++
+ 		return 0;
+ 	default:
+ 		return -EINVAL;
 -- 
 2.25.1
 
