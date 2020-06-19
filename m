@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9098A201850
+	by mail.lfdr.de (Postfix) with ESMTP id 18A1D20184F
 	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 19:01:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387486AbgFSOgU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:36:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52664 "EHLO mail.kernel.org"
+        id S1733185AbgFSOgT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:36:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387489AbgFSOgS (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2387495AbgFSOgS (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 19 Jun 2020 10:36:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8305F208B8;
-        Fri, 19 Jun 2020 14:36:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3DE7D2070A;
+        Fri, 19 Jun 2020 14:36:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577375;
-        bh=1LmcsPC1zCe33YrGdpNY/3BxDcgXlzzZqRGqsdz1Bbg=;
+        s=default; t=1592577377;
+        bh=X5YvFNVOI6hYZ1Bglvz5amDRvtZvmATlUHRYfheIOys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U3BB0E8ldFzQeti2Ne3GnnO6sT0K51OMgDL6BHzvfBrPWDCuk8OB5M8b63fcMbJOG
-         /8yTUpHWLCztlaZMjIzIfL2+8AKHvBa00xP4gDSb+W7yrx2YIFgUuj2snJB6JYE3in
-         OBeJ23Leyu/BCJaIFpzb97HZ6JmD+gAOS36+Ht5U=
+        b=v76f7xS3WZ7CEDxqFkwVLSeme60eIkfhePGgxTLXt90u9ZcB+Vbrs4Vy5CmjoIfdB
+         mjHcRvxWD8FPeh1koUYsBiUNtplEF7HzPE0vTk+F2WeT92emI5vBOQ75gqZUf5VJ/3
+         rlcgRmWZckeBBnQZzYno0b89i+faR7EPujUS5Wa4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Anthony Steinhauser <asteinhauser@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 025/101] x86/speculation: PR_SPEC_FORCE_DISABLE enforcement for indirect branches.
-Date:   Fri, 19 Jun 2020 16:32:14 +0200
-Message-Id: <20200619141615.407629372@linuxfoundation.org>
+Subject: [PATCH 4.4 026/101] spi: dw: fix possible race condition
+Date:   Fri, 19 Jun 2020 16:32:15 +0200
+Message-Id: <20200619141615.451860508@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141614.001544111@linuxfoundation.org>
 References: <20200619141614.001544111@linuxfoundation.org>
@@ -45,51 +46,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anthony Steinhauser <asteinhauser@google.com>
+[ Upstream commit 66b19d762378785d1568b5650935205edfeb0503 ]
 
-[ Upstream commit 4d8df8cbb9156b0a0ab3f802b80cb5db57acc0bf ]
+It is possible to get an interrupt as soon as it is requested.  dw_spi_irq
+does spi_controller_get_devdata(master) and expects it to be different than
+NULL. However, spi_controller_set_devdata() is called after request_irq(),
+resulting in the following crash:
 
-Currently, it is possible to enable indirect branch speculation even after
-it was force-disabled using the PR_SPEC_FORCE_DISABLE option. Moreover, the
-PR_GET_SPECULATION_CTRL command gives afterwards an incorrect result
-(force-disabled when it is in fact enabled). This also is inconsistent
-vs. STIBP and the documention which cleary states that
-PR_SPEC_FORCE_DISABLE cannot be undone.
+CPU 0 Unable to handle kernel paging request at virtual address 00000030, epc == 8058e09c, ra == 8018ff90
+[...]
+Call Trace:
+[<8058e09c>] dw_spi_irq+0x8/0x64
+[<8018ff90>] __handle_irq_event_percpu+0x70/0x1d4
+[<80190128>] handle_irq_event_percpu+0x34/0x8c
+[<801901c4>] handle_irq_event+0x44/0x80
+[<801951a8>] handle_level_irq+0xdc/0x194
+[<8018f580>] generic_handle_irq+0x38/0x50
+[<804c6924>] ocelot_irq_handler+0x104/0x1c0
 
-Fix this by actually enforcing force-disabled indirect branch
-speculation. PR_SPEC_ENABLE called after PR_SPEC_FORCE_DISABLE now fails
-with -EPERM as described in the documentation.
-
-Fixes: 9137bb27e60e ("x86/speculation: Add prctl() control for indirect branch speculation")
-Signed-off-by: Anthony Steinhauser <asteinhauser@google.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/bugs.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/spi/spi-dw.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
-index 94e10898126a..2d2631f9a519 100644
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -1232,11 +1232,14 @@ static int ib_prctl_set(struct task_struct *task, unsigned long ctrl)
- 			return 0;
- 		/*
- 		 * Indirect branch speculation is always disabled in strict
--		 * mode.
-+		 * mode. It can neither be enabled if it was force-disabled
-+		 * by a  previous prctl call.
+diff --git a/drivers/spi/spi-dw.c b/drivers/spi/spi-dw.c
+index 5688591e9cd3..61a951549eba 100644
+--- a/drivers/spi/spi-dw.c
++++ b/drivers/spi/spi-dw.c
+@@ -501,6 +501,8 @@ int dw_spi_add_host(struct device *dev, struct dw_spi *dws)
+ 	snprintf(dws->name, sizeof(dws->name), "dw_spi%d", dws->bus_num);
+ 	spin_lock_init(&dws->buf_lock);
+ 
++	spi_master_set_devdata(master, dws);
 +
- 		 */
- 		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_STRICT ||
- 		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT ||
--		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED)
-+		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED ||
-+		    task_spec_ib_force_disable(task))
- 			return -EPERM;
- 		task_clear_spec_ib_disable(task);
- 		task_update_spec_tif(task);
+ 	ret = request_irq(dws->irq, dw_spi_irq, IRQF_SHARED, dws->name, master);
+ 	if (ret < 0) {
+ 		dev_err(dev, "can not get IRQ\n");
+@@ -532,7 +534,6 @@ int dw_spi_add_host(struct device *dev, struct dw_spi *dws)
+ 		}
+ 	}
+ 
+-	spi_master_set_devdata(master, dws);
+ 	ret = devm_spi_register_master(dev, master);
+ 	if (ret) {
+ 		dev_err(&master->dev, "problem registering spi master\n");
 -- 
 2.25.1
 
