@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 593E82013A1
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:07:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 130AB2014DA
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:21:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391756AbgFSPMs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:12:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43278 "EHLO mail.kernel.org"
+        id S2390883AbgFSPCp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:02:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403933AbgFSPMr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:12:47 -0400
+        id S2390876AbgFSPCn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:02:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5680920776;
-        Fri, 19 Jun 2020 15:12:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B50A21841;
+        Fri, 19 Jun 2020 15:02:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579565;
-        bh=o2gxWJBXPWPGQxWLqWkSnsINHs4N9EI7SU51pcZvNaY=;
+        s=default; t=1592578963;
+        bh=vLM00da0dcPE+XpMqn8kxehxh+b2qBbY1T82WW91wwQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E8y/uXJ0nhIuA4TauUc6Q+ZSN69kkxYw4SSPAG3uag+KIkAFB1XRytTiaUhebXzGx
-         qpdhSZkUvLqZo8UqyqyhjLYOneOVvs0HZnaIl49NNXfRQh+TNb4Xb/3PVFdHlHfs6d
-         emFUJyR/tScaAePYAeRF8SRbpuioMbWb6yYgx/Uk=
+        b=b0zoFdov4rbFAdP1zmzQrEiqpDIw70de+OGSeEvLhmpLU77OaqTlATPKAFWP9S0v4
+         NhoWxbGIKF/iCCX4lVA65uPtFVJ0fTTniA8HDSA6A9p+KjwFMH8LBzP8XQRtANIHR4
+         JhwBYW0YJyK7tKS+ShVHerx7GAJZ4ka+SyYHO8aQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 156/261] bpf: Fix running sk_skb program types with ktls
-Date:   Fri, 19 Jun 2020 16:32:47 +0200
-Message-Id: <20200619141657.348404087@linuxfoundation.org>
+Subject: [PATCH 4.19 183/267] cpuidle: Fix three reference count leaks
+Date:   Fri, 19 Jun 2020 16:32:48 +0200
+Message-Id: <20200619141657.547951085@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
-References: <20200619141649.878808811@linuxfoundation.org>
+In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
+References: <20200619141648.840376470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,225 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Fastabend <john.fastabend@gmail.com>
+From: Qiushi Wu <wu000273@umn.edu>
 
-[ Upstream commit e91de6afa81c10e9f855c5695eb9a53168d96b73 ]
+[ Upstream commit c343bf1ba5efcbf2266a1fe3baefec9cc82f867f ]
 
-KTLS uses a stream parser to collect TLS messages and send them to
-the upper layer tls receive handler. This ensures the tls receiver
-has a full TLS header to parse when it is run. However, when a
-socket has BPF_SK_SKB_STREAM_VERDICT program attached before KTLS
-is enabled we end up with two stream parsers running on the same
-socket.
+kobject_init_and_add() takes reference even when it fails.
+If this function returns an error, kobject_put() must be called to
+properly clean up the memory associated with the object.
 
-The result is both try to run on the same socket. First the KTLS
-stream parser runs and calls read_sock() which will tcp_read_sock
-which in turn calls tcp_rcv_skb(). This dequeues the skb from the
-sk_receive_queue. When this is done KTLS code then data_ready()
-callback which because we stacked KTLS on top of the bpf stream
-verdict program has been replaced with sk_psock_start_strp(). This
-will in turn kick the stream parser again and eventually do the
-same thing KTLS did above calling into tcp_rcv_skb() and dequeuing
-a skb from the sk_receive_queue.
+Previous commit "b8eb718348b8" fixed a similar problem.
 
-At this point the data stream is broke. Part of the stream was
-handled by the KTLS side some other bytes may have been handled
-by the BPF side. Generally this results in either missing data
-or more likely a "Bad Message" complaint from the kTLS receive
-handler as the BPF program steals some bytes meant to be in a
-TLS header and/or the TLS header length is no longer correct.
-
-We've already broke the idealized model where we can stack ULPs
-in any order with generic callbacks on the TX side to handle this.
-So in this patch we do the same thing but for RX side. We add
-a sk_psock_strp_enabled() helper so TLS can learn a BPF verdict
-program is running and add a tls_sw_has_ctx_rx() helper so BPF
-side can learn there is a TLS ULP on the socket.
-
-Then on BPF side we omit calling our stream parser to avoid
-breaking the data stream for the KTLS receiver. Then on the
-KTLS side we call BPF_SK_SKB_STREAM_VERDICT once the KTLS
-receiver is done with the packet but before it posts the
-msg to userspace. This gives us symmetry between the TX and
-RX halfs and IMO makes it usable again. On the TX side we
-process packets in this order BPF -> TLS -> TCP and on
-the receive side in the reverse order TCP -> TLS -> BPF.
-
-Discovered while testing OpenSSL 3.0 Alpha2.0 release.
-
-Fixes: d829e9c4112b5 ("tls: convert to generic sk_msg interface")
-Signed-off-by: John Fastabend <john.fastabend@gmail.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/159079361946.5745.605854335665044485.stgit@john-Precision-5820-Tower
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+[ rjw: Subject ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/skmsg.h |  8 ++++++++
- include/net/tls.h     |  9 +++++++++
- net/core/skmsg.c      | 43 ++++++++++++++++++++++++++++++++++++++++---
- net/tls/tls_sw.c      | 20 ++++++++++++++++++--
- 4 files changed, 75 insertions(+), 5 deletions(-)
+ drivers/cpuidle/sysfs.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/include/linux/skmsg.h b/include/linux/skmsg.h
-index a3adbe593505..4bdb5e4bbd6a 100644
---- a/include/linux/skmsg.h
-+++ b/include/linux/skmsg.h
-@@ -457,4 +457,12 @@ static inline void psock_progs_drop(struct sk_psock_progs *progs)
- 	psock_set_prog(&progs->skb_verdict, NULL);
- }
- 
-+int sk_psock_tls_strp_read(struct sk_psock *psock, struct sk_buff *skb);
-+
-+static inline bool sk_psock_strp_enabled(struct sk_psock *psock)
-+{
-+	if (!psock)
-+		return false;
-+	return psock->parser.enabled;
-+}
- #endif /* _LINUX_SKMSG_H */
-diff --git a/include/net/tls.h b/include/net/tls.h
-index db26e3ec918f..0a065bdffa39 100644
---- a/include/net/tls.h
-+++ b/include/net/tls.h
-@@ -590,6 +590,15 @@ static inline bool tls_sw_has_ctx_tx(const struct sock *sk)
- 	return !!tls_sw_ctx_tx(ctx);
- }
- 
-+static inline bool tls_sw_has_ctx_rx(const struct sock *sk)
-+{
-+	struct tls_context *ctx = tls_get_ctx(sk);
-+
-+	if (!ctx)
-+		return false;
-+	return !!tls_sw_ctx_rx(ctx);
-+}
-+
- void tls_sw_write_space(struct sock *sk, struct tls_context *ctx);
- void tls_device_write_space(struct sock *sk, struct tls_context *ctx);
- 
-diff --git a/net/core/skmsg.c b/net/core/skmsg.c
-index 8e538a28fe0d..0536ea9298e4 100644
---- a/net/core/skmsg.c
-+++ b/net/core/skmsg.c
-@@ -7,6 +7,7 @@
- 
- #include <net/sock.h>
- #include <net/tcp.h>
-+#include <net/tls.h>
- 
- static bool sk_msg_try_coalesce_ok(struct sk_msg *msg, int elem_first_coalesce)
- {
-@@ -718,6 +719,38 @@ static void sk_psock_skb_redirect(struct sk_psock *psock, struct sk_buff *skb)
+diff --git a/drivers/cpuidle/sysfs.c b/drivers/cpuidle/sysfs.c
+index e754c7aae7f7..66979dc33680 100644
+--- a/drivers/cpuidle/sysfs.c
++++ b/drivers/cpuidle/sysfs.c
+@@ -467,7 +467,7 @@ static int cpuidle_add_state_sysfs(struct cpuidle_device *device)
+ 		ret = kobject_init_and_add(&kobj->kobj, &ktype_state_cpuidle,
+ 					   &kdev->kobj, "state%d", i);
+ 		if (ret) {
+-			kfree(kobj);
++			kobject_put(&kobj->kobj);
+ 			goto error_state;
+ 		}
+ 		cpuidle_add_s2idle_attr_group(kobj);
+@@ -598,7 +598,7 @@ static int cpuidle_add_driver_sysfs(struct cpuidle_device *dev)
+ 	ret = kobject_init_and_add(&kdrv->kobj, &ktype_driver_cpuidle,
+ 				   &kdev->kobj, "driver");
+ 	if (ret) {
+-		kfree(kdrv);
++		kobject_put(&kdrv->kobj);
+ 		return ret;
  	}
- }
  
-+static void sk_psock_tls_verdict_apply(struct sk_psock *psock,
-+				       struct sk_buff *skb, int verdict)
-+{
-+	switch (verdict) {
-+	case __SK_REDIRECT:
-+		sk_psock_skb_redirect(psock, skb);
-+		break;
-+	case __SK_PASS:
-+	case __SK_DROP:
-+	default:
-+		break;
-+	}
-+}
-+
-+int sk_psock_tls_strp_read(struct sk_psock *psock, struct sk_buff *skb)
-+{
-+	struct bpf_prog *prog;
-+	int ret = __SK_PASS;
-+
-+	rcu_read_lock();
-+	prog = READ_ONCE(psock->progs.skb_verdict);
-+	if (likely(prog)) {
-+		tcp_skb_bpf_redirect_clear(skb);
-+		ret = sk_psock_bpf_run(psock, prog, skb);
-+		ret = sk_psock_map_verd(ret, tcp_skb_bpf_redirect_fetch(skb));
-+	}
-+	rcu_read_unlock();
-+	sk_psock_tls_verdict_apply(psock, skb, ret);
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(sk_psock_tls_strp_read);
-+
- static void sk_psock_verdict_apply(struct sk_psock *psock,
- 				   struct sk_buff *skb, int verdict)
- {
-@@ -796,9 +829,13 @@ static void sk_psock_strp_data_ready(struct sock *sk)
- 	rcu_read_lock();
- 	psock = sk_psock(sk);
- 	if (likely(psock)) {
--		write_lock_bh(&sk->sk_callback_lock);
--		strp_data_ready(&psock->parser.strp);
--		write_unlock_bh(&sk->sk_callback_lock);
-+		if (tls_sw_has_ctx_rx(sk)) {
-+			psock->parser.saved_data_ready(sk);
-+		} else {
-+			write_lock_bh(&sk->sk_callback_lock);
-+			strp_data_ready(&psock->parser.strp);
-+			write_unlock_bh(&sk->sk_callback_lock);
-+		}
+@@ -692,7 +692,7 @@ int cpuidle_add_sysfs(struct cpuidle_device *dev)
+ 	error = kobject_init_and_add(&kdev->kobj, &ktype_cpuidle, &cpu_dev->kobj,
+ 				   "cpuidle");
+ 	if (error) {
+-		kfree(kdev);
++		kobject_put(&kdev->kobj);
+ 		return error;
  	}
- 	rcu_read_unlock();
- }
-diff --git a/net/tls/tls_sw.c b/net/tls/tls_sw.c
-index fbf6a496ee8b..70b203e5d5fd 100644
---- a/net/tls/tls_sw.c
-+++ b/net/tls/tls_sw.c
-@@ -1737,6 +1737,7 @@ int tls_sw_recvmsg(struct sock *sk,
- 	long timeo;
- 	bool is_kvec = iov_iter_is_kvec(&msg->msg_iter);
- 	bool is_peek = flags & MSG_PEEK;
-+	bool bpf_strp_enabled;
- 	int num_async = 0;
- 	int pending;
  
-@@ -1747,6 +1748,7 @@ int tls_sw_recvmsg(struct sock *sk,
- 
- 	psock = sk_psock_get(sk);
- 	lock_sock(sk);
-+	bpf_strp_enabled = sk_psock_strp_enabled(psock);
- 
- 	/* Process pending decrypted records. It must be non-zero-copy */
- 	err = process_rx_list(ctx, msg, &control, &cmsg, 0, len, false,
-@@ -1800,11 +1802,12 @@ int tls_sw_recvmsg(struct sock *sk,
- 
- 		if (to_decrypt <= len && !is_kvec && !is_peek &&
- 		    ctx->control == TLS_RECORD_TYPE_DATA &&
--		    prot->version != TLS_1_3_VERSION)
-+		    prot->version != TLS_1_3_VERSION &&
-+		    !bpf_strp_enabled)
- 			zc = true;
- 
- 		/* Do not use async mode if record is non-data */
--		if (ctx->control == TLS_RECORD_TYPE_DATA)
-+		if (ctx->control == TLS_RECORD_TYPE_DATA && !bpf_strp_enabled)
- 			async_capable = ctx->async_capable;
- 		else
- 			async_capable = false;
-@@ -1854,6 +1857,19 @@ int tls_sw_recvmsg(struct sock *sk,
- 			goto pick_next_record;
- 
- 		if (!zc) {
-+			if (bpf_strp_enabled) {
-+				err = sk_psock_tls_strp_read(psock, skb);
-+				if (err != __SK_PASS) {
-+					rxm->offset = rxm->offset + rxm->full_len;
-+					rxm->full_len = 0;
-+					if (err == __SK_DROP)
-+						consume_skb(skb);
-+					ctx->recv_pkt = NULL;
-+					__strp_unpause(&ctx->strp);
-+					continue;
-+				}
-+			}
-+
- 			if (rxm->full_len > len) {
- 				retain_skb = true;
- 				chunk = len;
 -- 
 2.25.1
 
