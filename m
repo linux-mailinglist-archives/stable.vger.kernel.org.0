@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C84272010A9
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:36:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 409C22010AA
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:36:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404679AbgFSPc0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:32:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36382 "EHLO mail.kernel.org"
+        id S2404897AbgFSPc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:32:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404675AbgFSPcZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:32:25 -0400
+        id S2404895AbgFSPc1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:32:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E54220734;
-        Fri, 19 Jun 2020 15:32:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9AEE020734;
+        Fri, 19 Jun 2020 15:32:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580744;
-        bh=BUl86xW/ewJqWL8X0Gzx62jgAFsGACn6a8dbQ2QMsy0=;
+        s=default; t=1592580747;
+        bh=HJoDVzrkL44EQCg2VFfktS8n1ozY/0dIdgpVx+gbS/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rQ1TpP1+d0kfnZUQyNxJUVgOjSODaOHrL0wtU1qlHXg+yCH1qHEubUOenus0dxBbz
-         JJ+sWXbQb5hdfuJar1WDdsJ7U26uRXGGfF7qYZ2/8snPuG7aTi/TDohyeNK43UVAnm
-         G0iBgZQ+pnE4rSPvZHNhAzGAiY8Ml51n1WOi9FBA=
+        b=BFxKEYpblkZg01TPV0yFNuSuxEyNXjPo7p9zY/umEuF646zrTcRnTNTp2SghPIU98
+         wKEnmlMeqdi+vzjDZkkVx7fSuCIn8XtJHk/nGjtxkyvHW7954gQOcsxb7nAoiHvycM
+         n6xxbLCKpVjqLwFz1CkGpJscriMqMzmPqJtb1sR4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.7 366/376] mtd: rawnand: tmio: Fix the probe error path
-Date:   Fri, 19 Jun 2020 16:34:44 +0200
-Message-Id: <20200619141727.639185170@linuxfoundation.org>
+        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
+        "H. Nikolaus Schaller" <hns@goldelico.com>
+Subject: [PATCH 5.7 367/376] w1: omap-hdq: cleanup to add missing newline for some dev_dbg
+Date:   Fri, 19 Jun 2020 16:34:45 +0200
+Message-Id: <20200619141727.677386338@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -42,40 +43,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: H. Nikolaus Schaller <hns@goldelico.com>
 
-commit 75e9a330a9bd48f97a55a08000236084fe3dae56 upstream.
+commit 5e02f3b31704e24537697bce54f8156bdb72b7a6 upstream.
 
-nand_release() is supposed be called after MTD device registration.
-Here, only nand_scan() happened, so use nand_cleanup() instead.
+Otherwise it will corrupt the console log during debugging.
 
-There is no real Fixes tag applying here as the use of nand_release()
-in this driver predates by far the introduction of nand_cleanup() in
-commit d44154f969a4 ("mtd: nand: Provide nand_cleanup() function to free NAND related resources")
-which makes this change possible. However, pointing this commit as the
-culprit for backporting purposes makes sense even if this commit is not
-introducing any bug.
-
-Fixes: d44154f969a4 ("mtd: nand: Provide nand_cleanup() function to free NAND related resources")
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Fixes: 7b5362a603a1 ("w1: omap_hdq: Fix some error/debug handling.")
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/linux-mtd/20200519130035.1883-57-miquel.raynal@bootlin.com
+Acked-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
+Link: https://lore.kernel.org/r/cd0d55749a091214106575f6e1d363c6db56622f.1590255176.git.hns@goldelico.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mtd/nand/raw/tmio_nand.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/w1/masters/omap_hdq.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/drivers/mtd/nand/raw/tmio_nand.c
-+++ b/drivers/mtd/nand/raw/tmio_nand.c
-@@ -448,7 +448,7 @@ static int tmio_probe(struct platform_de
- 	if (!retval)
- 		return retval;
+--- a/drivers/w1/masters/omap_hdq.c
++++ b/drivers/w1/masters/omap_hdq.c
+@@ -155,7 +155,7 @@ static int hdq_write_byte(struct hdq_dat
+ 	/* check irqstatus */
+ 	if (!(*status & OMAP_HDQ_INT_STATUS_TXCOMPLETE)) {
+ 		dev_dbg(hdq_data->dev, "timeout waiting for"
+-			" TXCOMPLETE/RXCOMPLETE, %x", *status);
++			" TXCOMPLETE/RXCOMPLETE, %x\n", *status);
+ 		ret = -ETIMEDOUT;
+ 		goto out;
+ 	}
+@@ -166,7 +166,7 @@ static int hdq_write_byte(struct hdq_dat
+ 			OMAP_HDQ_FLAG_CLEAR, &tmp_status);
+ 	if (ret) {
+ 		dev_dbg(hdq_data->dev, "timeout waiting GO bit"
+-			" return to zero, %x", tmp_status);
++			" return to zero, %x\n", tmp_status);
+ 	}
  
--	nand_release(nand_chip);
-+	nand_cleanup(nand_chip);
+ out:
+@@ -183,7 +183,7 @@ static irqreturn_t hdq_isr(int irq, void
+ 	spin_lock_irqsave(&hdq_data->hdq_spinlock, irqflags);
+ 	hdq_data->hdq_irqstatus = hdq_reg_in(hdq_data, OMAP_HDQ_INT_STATUS);
+ 	spin_unlock_irqrestore(&hdq_data->hdq_spinlock, irqflags);
+-	dev_dbg(hdq_data->dev, "hdq_isr: %x", hdq_data->hdq_irqstatus);
++	dev_dbg(hdq_data->dev, "hdq_isr: %x\n", hdq_data->hdq_irqstatus);
  
- err_irq:
- 	tmio_hw_stop(dev, tmio);
+ 	if (hdq_data->hdq_irqstatus &
+ 		(OMAP_HDQ_INT_STATUS_TXCOMPLETE | OMAP_HDQ_INT_STATUS_RXCOMPLETE
+@@ -248,7 +248,7 @@ static int omap_hdq_break(struct hdq_dat
+ 	tmp_status = hdq_data->hdq_irqstatus;
+ 	/* check irqstatus */
+ 	if (!(tmp_status & OMAP_HDQ_INT_STATUS_TIMEOUT)) {
+-		dev_dbg(hdq_data->dev, "timeout waiting for TIMEOUT, %x",
++		dev_dbg(hdq_data->dev, "timeout waiting for TIMEOUT, %x\n",
+ 				tmp_status);
+ 		ret = -ETIMEDOUT;
+ 		goto out;
+@@ -275,7 +275,7 @@ static int omap_hdq_break(struct hdq_dat
+ 			&tmp_status);
+ 	if (ret)
+ 		dev_dbg(hdq_data->dev, "timeout waiting INIT&GO bits"
+-			" return to zero, %x", tmp_status);
++			" return to zero, %x\n", tmp_status);
+ 
+ out:
+ 	hdq_reset_irqstatus(hdq_data);
 
 
