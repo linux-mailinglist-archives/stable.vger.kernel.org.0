@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B77562018F6
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 19:02:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 345D320184D
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 19:01:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387414AbgFSQzG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:55:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52284 "EHLO mail.kernel.org"
+        id S2387465AbgFSOgI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:36:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387427AbgFSOf6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:35:58 -0400
+        id S2387446AbgFSOgC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:36:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A4F6E2070A;
-        Fri, 19 Jun 2020 14:35:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C1DB921548;
+        Fri, 19 Jun 2020 14:36:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577357;
-        bh=GpaoxSM7OEtx+hmL3101sa/SZl5PTqmk3Qk78BmE58w=;
+        s=default; t=1592577362;
+        bh=TJ37aGeRnF5SOqXAIKJ5XavM4oJ4fEAX1NdGoYH1k6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ak17SJAVkTAynxQd0VUeqaD/9KbaFIMuhm6JAisEShAcNBEJIRX3lxPYLwjxQOND/
-         5XW60GfBPpmv3fvuCTTDcFZHi1xq0Yta5wtfvsAdu3aDXfSuRdTBKT0l7RAZZGQjvv
-         cy8+Gd5rp1ecqo9dZC45VAIalKS9WtZL9lbFlQvQ=
+        b=Ffv+Xthkpr9+nrxoI7cQQIxcNIKulXWz6qpi+Td970EMJtxTFCq07lQ7Tj/fEOtTc
+         XANjTGCmUNRgFaidHyWDNmKiNm5P9oKR6mSMLagfVYQmA4OwMEiNY4oxfrXfSc7nEm
+         mWNQOaxJFKs0BEn/OzKyHIOeDHOYJ5PlYoctwtJA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Walton Hoops <me@waltonhoops.com>,
-        Tomas Hlavaty <tom@logand.com>,
-        ARAI Shun-ichi <hermes@ceres.dti.ne.jp>,
-        Hideki EIRAKU <hdk1983@gmail.com>,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 019/101] nilfs2: fix null pointer dereference at nilfs_segctor_do_construct()
-Date:   Fri, 19 Jun 2020 16:32:08 +0200
-Message-Id: <20200619141615.089198176@linuxfoundation.org>
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Martin Sperl <kernel@martin.sperl.org>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.4 020/101] spi: bcm2835aux: Fix controller unregister order
+Date:   Fri, 19 Jun 2020 16:32:09 +0200
+Message-Id: <20200619141615.143856517@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141614.001544111@linuxfoundation.org>
 References: <20200619141614.001544111@linuxfoundation.org>
@@ -48,67 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit 8301c719a2bd131436438e49130ee381d30933f5 upstream.
+commit b9dd3f6d417258ad0beeb292a1bc74200149f15d upstream.
 
-After commit c3aab9a0bd91 ("mm/filemap.c: don't initiate writeback if
-mapping has no dirty pages"), the following null pointer dereference has
-been reported on nilfs2:
+The BCM2835aux SPI driver uses devm_spi_register_master() on bind.
+As a consequence, on unbind, __device_release_driver() first invokes
+bcm2835aux_spi_remove() before unregistering the SPI controller via
+devres_release_all().
 
-  BUG: kernel NULL pointer dereference, address: 00000000000000a8
-  #PF: supervisor read access in kernel mode
-  #PF: error_code(0x0000) - not-present page
-  PGD 0 P4D 0
-  Oops: 0000 [#1] SMP PTI
-  ...
-  RIP: 0010:percpu_counter_add_batch+0xa/0x60
-  ...
-  Call Trace:
-    __test_set_page_writeback+0x2d3/0x330
-    nilfs_segctor_do_construct+0x10d3/0x2110 [nilfs2]
-    nilfs_segctor_construct+0x168/0x260 [nilfs2]
-    nilfs_segctor_thread+0x127/0x3b0 [nilfs2]
-    kthread+0xf8/0x130
-    ...
+This order is incorrect:  bcm2835aux_spi_remove() turns off the SPI
+controller, including its interrupts and clock.  The SPI controller
+is thus no longer usable.
 
-This crash turned out to be caused by set_page_writeback() call for
-segment summary buffers at nilfs_segctor_prepare_write().
+When the SPI controller is subsequently unregistered, it unbinds all
+its slave devices.  If their drivers need to access the SPI bus,
+e.g. to quiesce their interrupts, unbinding will fail.
 
-set_page_writeback() can call inc_wb_stat(inode_to_wb(inode),
-WB_WRITEBACK) where inode_to_wb(inode) is NULL if the inode of
-underlying block device does not have an associated wb.
+As a rule, devm_spi_register_master() must not be used if the
+->remove() hook performs teardown steps which shall be performed
+after unbinding of slaves.
 
-This fixes the issue by calling inode_attach_wb() in advance to ensure
-to associate the bdev inode with its wb.
+Fix by using the non-devm variant spi_register_master().  Note that the
+struct spi_master as well as the driver-private data are not freed until
+after bcm2835aux_spi_remove() has finished, so accessing them is safe.
 
-Fixes: c3aab9a0bd91 ("mm/filemap.c: don't initiate writeback if mapping has no dirty pages")
-Reported-by: Walton Hoops <me@waltonhoops.com>
-Reported-by: Tomas Hlavaty <tom@logand.com>
-Reported-by: ARAI Shun-ichi <hermes@ceres.dti.ne.jp>
-Reported-by: Hideki EIRAKU <hdk1983@gmail.com>
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Cc: <stable@vger.kernel.org>	[5.4+]
-Link: http://lkml.kernel.org/r/20200608.011819.1399059588922299158.konishi.ryusuke@gmail.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 1ea29b39f4c8 ("spi: bcm2835aux: add bcm2835 auxiliary spi device driver")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: stable@vger.kernel.org # v4.4+
+Cc: Martin Sperl <kernel@martin.sperl.org>
+Link: https://lore.kernel.org/r/32f27f4d8242e4d75f9a53f7e8f1f77483b08669.1589557526.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nilfs2/segment.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/spi/spi-bcm2835aux.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/fs/nilfs2/segment.c
-+++ b/fs/nilfs2/segment.c
-@@ -2781,6 +2781,8 @@ int nilfs_attach_log_writer(struct super
- 	if (!nilfs->ns_writer)
- 		return -ENOMEM;
+--- a/drivers/spi/spi-bcm2835aux.c
++++ b/drivers/spi/spi-bcm2835aux.c
+@@ -457,7 +457,7 @@ static int bcm2835aux_spi_probe(struct p
+ 		goto out_clk_disable;
+ 	}
  
-+	inode_attach_wb(nilfs->ns_bdev->bd_inode, NULL);
-+
- 	err = nilfs_segctor_start_thread(nilfs->ns_writer);
+-	err = devm_spi_register_master(&pdev->dev, master);
++	err = spi_register_master(master);
  	if (err) {
- 		kfree(nilfs->ns_writer);
+ 		dev_err(&pdev->dev, "could not register SPI master: %d\n", err);
+ 		goto out_clk_disable;
+@@ -477,6 +477,8 @@ static int bcm2835aux_spi_remove(struct
+ 	struct spi_master *master = platform_get_drvdata(pdev);
+ 	struct bcm2835aux_spi *bs = spi_master_get_devdata(master);
+ 
++	spi_unregister_master(master);
++
+ 	bcm2835aux_spi_reset_hw(bs);
+ 
+ 	/* disable the HW block by releasing the clock */
 
 
