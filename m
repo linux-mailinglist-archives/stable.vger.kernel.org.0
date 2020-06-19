@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 989D2201435
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:13:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00B9F201489
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:14:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391301AbgFSPF2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:05:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34316 "EHLO mail.kernel.org"
+        id S2391324AbgFSQL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:11:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391293AbgFSPFY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:05:24 -0400
+        id S2391299AbgFSPF1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:05:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B462D21D95;
-        Fri, 19 Jun 2020 15:05:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6BB0721974;
+        Fri, 19 Jun 2020 15:05:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579124;
-        bh=ersofygXme+/BkgbL4dcJ8IHAm2yRV7XhuVsKmB8d5E=;
+        s=default; t=1592579127;
+        bh=s4rkVUYjCfuB21bGlUbTs4ryKSA+p9BFofT562MSvhU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LeeXfhJ5e+yrc1hGtpQIeBMCOHRQM+Xg9Hkfv6vxiehyzDPitz/a/ppnG3JF8Qnrt
-         omAwzNvxEtHopj2+g2O2yn7RetOWIqx3yoRdkU5j6sameTKlQ21QgCqbvv2TmNl264
-         jSKJT1JMP9Fk/IrBlgW1FyzvmqlmJEk6+C06GDqE=
+        b=imcu0FZZRxoZnaN59RpFdhg0jywpzpE3DEF7Z1LRg4LbkFbcbgmkKbXFmlQv2Gngy
+         yjmLbx8LhS5ZLoic/4RinUXOe7fU2r6ZKGAJzxZ7+HWUkqDTWbcXaNf8GsF1bXIJv+
+         +LdoW6O6jJhNFumGjwJqxH4siLhsfAzenyXnD36Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Huaixin Chang <changhuaixin@linux.alibaba.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ben Segall <bsegall@google.com>, Phil Auld <pauld@redhat.com>,
+        Mark Starovoytov <mstarovoitov@marvell.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 017/261] sched/fair: Refill bandwidth before scaling
-Date:   Fri, 19 Jun 2020 16:30:28 +0200
-Message-Id: <20200619141650.693573754@linuxfoundation.org>
+Subject: [PATCH 5.4 018/261] net: atlantic: make hw_get_regs optional
+Date:   Fri, 19 Jun 2020 16:30:29 +0200
+Message-Id: <20200619141650.739339000@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
 References: <20200619141649.878808811@linuxfoundation.org>
@@ -46,52 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huaixin Chang <changhuaixin@linux.alibaba.com>
+From: Mark Starovoytov <mstarovoitov@marvell.com>
 
-[ Upstream commit 5a6d6a6ccb5f48ca8cf7c6d64ff83fd9c7999390 ]
+[ Upstream commit d0f23741c202c685447050713907f3be39a985ee ]
 
-In order to prevent possible hardlockup of sched_cfs_period_timer()
-loop, loop count is introduced to denote whether to scale quota and
-period or not. However, scale is done between forwarding period timer
-and refilling cfs bandwidth runtime, which means that period timer is
-forwarded with old "period" while runtime is refilled with scaled
-"quota".
+This patch fixes potential crash in case if hw_get_regs is NULL.
 
-Move do_sched_cfs_period_timer() before scaling to solve this.
-
-Fixes: 2e8e19226398 ("sched/fair: Limit sched_cfs_period_timer() loop to avoid hard lockup")
-Signed-off-by: Huaixin Chang <changhuaixin@linux.alibaba.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Ben Segall <bsegall@google.com>
-Reviewed-by: Phil Auld <pauld@redhat.com>
-Link: https://lkml.kernel.org/r/20200420024421.22442-3-changhuaixin@linux.alibaba.com
+Signed-off-by: Mark Starovoytov <mstarovoitov@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/aquantia/atlantic/aq_nic.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 8a0e6bdba50d..2f81e4ae844e 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -4942,6 +4942,8 @@ static enum hrtimer_restart sched_cfs_period_timer(struct hrtimer *timer)
- 		if (!overrun)
- 			break;
+diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_nic.c b/drivers/net/ethernet/aquantia/atlantic/aq_nic.c
+index 12949f1ec1ea..145334fb18f4 100644
+--- a/drivers/net/ethernet/aquantia/atlantic/aq_nic.c
++++ b/drivers/net/ethernet/aquantia/atlantic/aq_nic.c
+@@ -690,6 +690,9 @@ int aq_nic_get_regs(struct aq_nic_s *self, struct ethtool_regs *regs, void *p)
+ 	u32 *regs_buff = p;
+ 	int err = 0;
  
-+		idle = do_sched_cfs_period_timer(cfs_b, overrun, flags);
++	if (unlikely(!self->aq_hw_ops->hw_get_regs))
++		return -EOPNOTSUPP;
 +
- 		if (++count > 3) {
- 			u64 new, old = ktime_to_ns(cfs_b->period);
+ 	regs->version = 1;
  
-@@ -4971,8 +4973,6 @@ static enum hrtimer_restart sched_cfs_period_timer(struct hrtimer *timer)
- 			/* reset count so we don't come right back in here */
- 			count = 0;
- 		}
--
--		idle = do_sched_cfs_period_timer(cfs_b, overrun, flags);
- 	}
- 	if (idle)
- 		cfs_b->period_active = 0;
+ 	err = self->aq_hw_ops->hw_get_regs(self->aq_hw,
+@@ -704,6 +707,9 @@ err_exit:
+ 
+ int aq_nic_get_regs_count(struct aq_nic_s *self)
+ {
++	if (unlikely(!self->aq_hw_ops->hw_get_regs))
++		return 0;
++
+ 	return self->aq_nic_cfg.aq_hw_caps->mac_regs_count;
+ }
+ 
 -- 
 2.25.1
 
