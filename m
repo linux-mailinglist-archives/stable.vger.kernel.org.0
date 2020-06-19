@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17B702016B7
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:45:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 738C2201704
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:46:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388340AbgFSOmQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:42:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32852 "EHLO mail.kernel.org"
+        id S2388491AbgFSOtz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:49:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387999AbgFSOmN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:42:13 -0400
+        id S2389252AbgFSOtu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:49:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1ED8820CC7;
-        Fri, 19 Jun 2020 14:42:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6BDD22158C;
+        Fri, 19 Jun 2020 14:49:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577733;
-        bh=5Je26gO6C3CocQCMRXvtb19WLm+OtkVowkKyukTrP44=;
+        s=default; t=1592578189;
+        bh=NtesFIHCIvPh7eh6G+qjEWANchUZ00nFEMcDWC3jfZQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LbKxH4j8+CKOrDFdPRyNCtsqIy940NcejMo/ha9hlJLicCk5amNYQSYOQ9hbk7JyV
-         kOjMD2GXstEdniy/HnmviY7hbHtF+BQgDqj+ZrN/R1Lt+MsjZ8c+WMqiwcvPYj+2Ka
-         lAkY5wZxBz/kLmNNqvaKYZcO05owkj5f6m+xcsrQ=
+        b=RTM9rqUUrXhvv++/+YT3MCfMqW4NiqegiyC69TUDyh3g1mgqY3X4Tn7eopyMi4up+
+         byAoP5/L08WQQlOK6en6WzSqWPUivphMMstKSn7BNW3p911O/bwco4KT+uD9sU/3+H
+         HdFkiFH2KUDUBp4YRVmwiJ5js6Au1Iy1whngdF9s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Aaron Brown <aaron.f.brown@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Keith Busch <kbusch@kernel.org>,
+        Sagi Grimberg <sagi@grimberg.me>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 068/128] e1000: Distribute switch variables for initialization
+Subject: [PATCH 4.14 117/190] nvme: refine the Qemu Identify CNS quirk
 Date:   Fri, 19 Jun 2020 16:32:42 +0200
-Message-Id: <20200619141623.808308755@linuxfoundation.org>
+Message-Id: <20200619141639.482256340@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
-References: <20200619141620.148019466@linuxfoundation.org>
+In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
+References: <20200619141633.446429600@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,62 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit a34c7f5156654ebaf7eaace102938be7ff7036cb ]
+[ Upstream commit b9a5c3d4c34d8bd9fd75f7f28d18a57cb68da237 ]
 
-Variables declared in a switch statement before any case statements
-cannot be automatically initialized with compiler instrumentation (as
-they are not part of any execution flow). With GCC's proposed automatic
-stack variable initialization feature, this triggers a warning (and they
-don't get initialized). Clang's automatic stack variable initialization
-(via CONFIG_INIT_STACK_ALL=y) doesn't throw a warning, but it also
-doesn't initialize such variables[1]. Note that these warnings (or silent
-skipping) happen before the dead-store elimination optimization phase,
-so even when the automatic initializations are later elided in favor of
-direct initializations, the warnings remain.
+Add a helper to check if we can use Identify CNS values > 1, and refine
+the Qemu quirk to not apply to reported versions larger than 1.1, as the
+Qemu implementation had been fixed by then.
 
-To avoid these problems, move such variables into the "case" where
-they're used or lift them up into the main function body.
-
-drivers/net/ethernet/intel/e1000/e1000_main.c: In function ‘e1000_xmit_frame’:
-drivers/net/ethernet/intel/e1000/e1000_main.c:3143:18: warning: statement will never be executed [-Wswitch-unreachable]
- 3143 |     unsigned int pull_size;
-      |                  ^~~~~~~~~
-
-[1] https://bugs.llvm.org/show_bug.cgi?id=44916
-
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Tested-by: Aaron Brown <aaron.f.brown@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/e1000/e1000_main.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/nvme/host/core.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/e1000/e1000_main.c b/drivers/net/ethernet/intel/e1000/e1000_main.c
-index 39a09e18c1b7..3b16ee0de246 100644
---- a/drivers/net/ethernet/intel/e1000/e1000_main.c
-+++ b/drivers/net/ethernet/intel/e1000/e1000_main.c
-@@ -3167,8 +3167,9 @@ static netdev_tx_t e1000_xmit_frame(struct sk_buff *skb,
- 		hdr_len = skb_transport_offset(skb) + tcp_hdrlen(skb);
- 		if (skb->data_len && hdr_len == len) {
- 			switch (hw->mac_type) {
-+			case e1000_82544: {
- 				unsigned int pull_size;
--			case e1000_82544:
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index a760c449f4a9..2d95755092e3 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -758,6 +758,19 @@ void nvme_stop_keep_alive(struct nvme_ctrl *ctrl)
+ }
+ EXPORT_SYMBOL_GPL(nvme_stop_keep_alive);
+ 
++/*
++ * In NVMe 1.0 the CNS field was just a binary controller or namespace
++ * flag, thus sending any new CNS opcodes has a big chance of not working.
++ * Qemu unfortunately had that bug after reporting a 1.1 version compliance
++ * (but not for any later version).
++ */
++static bool nvme_ctrl_limited_cns(struct nvme_ctrl *ctrl)
++{
++	if (ctrl->quirks & NVME_QUIRK_IDENTIFY_CNS)
++		return ctrl->vs < NVME_VS(1, 2, 0);
++	return ctrl->vs < NVME_VS(1, 1, 0);
++}
 +
- 				/* Make sure we have room to chop off 4 bytes,
- 				 * and that the end alignment will work out to
- 				 * this hardware's requirements
-@@ -3189,6 +3190,7 @@ static netdev_tx_t e1000_xmit_frame(struct sk_buff *skb,
- 				}
- 				len = skb_headlen(skb);
- 				break;
-+			}
- 			default:
- 				/* do nothing */
- 				break;
+ static int nvme_identify_ctrl(struct nvme_ctrl *dev, struct nvme_id_ctrl **id)
+ {
+ 	struct nvme_command c = { };
+@@ -2538,8 +2551,7 @@ static void nvme_scan_work(struct work_struct *work)
+ 		return;
+ 
+ 	nn = le32_to_cpu(id->nn);
+-	if (ctrl->vs >= NVME_VS(1, 1, 0) &&
+-	    !(ctrl->quirks & NVME_QUIRK_IDENTIFY_CNS)) {
++	if (!nvme_ctrl_limited_cns(ctrl)) {
+ 		if (!nvme_scan_ns_list(ctrl, nn))
+ 			goto done;
+ 	}
 -- 
 2.25.1
 
