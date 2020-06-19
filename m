@@ -2,36 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E03182011B4
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:47:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C4082011B1
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:47:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394080AbgFSPnn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:43:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60046 "EHLO mail.kernel.org"
+        id S2392129AbgFSPn3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:43:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392996AbgFSP2P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:28:15 -0400
+        id S2393625AbgFSP2R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:28:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A19A320734;
-        Fri, 19 Jun 2020 15:28:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B01232186A;
+        Fri, 19 Jun 2020 15:28:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580494;
-        bh=BCMxLLUVL/GAQayZQJbT4GVwOVpnytU/QSFr1+km1qY=;
+        s=default; t=1592580496;
+        bh=6Y2Sf4KfwSJ0PZY+hF3AuAGRTWsd6ebeXMRKaNta7O8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=02QRRtCUjtq+fjvbdQj8CPoUfXYPrKlLMwUH/tM6sMelC+oA6WSxI7vrb9Z+f5elY
-         uNu/REOn336kvbpBd3h0D9Rx+PPjPSvCh+De/y+4uMeERtJOnYZ+4ZxmFLIPA2F7h0
-         xhAIEtVkIg37R13ECthzstBWGp4l+5Gtsv/MGNbc=
+        b=dS7MEq4x/w0vrvxbi1nhaMuX5kxC4y9mmN+2N2HBaDK0vGtGmtyYUuFmRMsKgspiF
+         2AR73WwZ58trV5jmAXMpvGVJ2d61uzBZGy7XAb6opWALogEvBpL/NZsvIz/JdWeyHW
+         PFqrZ+sw2HsYfk/HEs/iPAmq2wk90F8d9cULOmP4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lichao Liu <liulichao@loongson.cn>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: [PATCH 5.7 270/376] MIPS: CPU_LOONGSON2EF need software to maintain cache consistency
-Date:   Fri, 19 Jun 2020 16:33:08 +0200
-Message-Id: <20200619141723.109778191@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Jordan <daniel.m.jordan@oracle.com>,
+        Pavel Tatashin <pasha.tatashin@soleen.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        David Hildenbrand <david@redhat.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Shile Zhang <shile.zhang@linux.alibaba.com>,
+        Kirill Tkhai <ktkhai@virtuozzo.com>,
+        James Morris <jmorris@namei.org>,
+        Sasha Levin <sashal@kernel.org>, Yiqian Wei <yiwei@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.7 271/376] mm/pagealloc.c: call touch_nmi_watchdog() on max order boundaries in deferred init
+Date:   Fri, 19 Jun 2020 16:33:09 +0200
+Message-Id: <20200619141723.156969519@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -44,33 +53,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lichao Liu <liulichao@loongson.cn>
+From: Daniel Jordan <daniel.m.jordan@oracle.com>
 
-commit a202bf71f08b3ef15356db30535e30b03cf23aec upstream.
+commit 117003c32771df617acf66e140fbdbdeb0ac71f5 upstream.
 
-CPU_LOONGSON2EF need software to maintain cache consistency,
-so modify the 'cpu_needs_post_dma_flush' function to return true
-when the cpu type is CPU_LOONGSON2EF.
+Patch series "initialize deferred pages with interrupts enabled", v4.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Lichao Liu <liulichao@loongson.cn>
-Reviewed-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Keep interrupts enabled during deferred page initialization in order to
+make code more modular and allow jiffies to update.
+
+Original approach, and discussion can be found here:
+ http://lkml.kernel.org/r/20200311123848.118638-1-shile.zhang@linux.alibaba.com
+
+This patch (of 3):
+
+deferred_init_memmap() disables interrupts the entire time, so it calls
+touch_nmi_watchdog() periodically to avoid soft lockup splats.  Soon it
+will run with interrupts enabled, at which point cond_resched() should be
+used instead.
+
+deferred_grow_zone() makes the same watchdog calls through code shared
+with deferred init but will continue to run with interrupts disabled, so
+it can't call cond_resched().
+
+Pull the watchdog calls up to these two places to allow the first to be
+changed later, independently of the second.  The frequency reduces from
+twice per pageblock (init and free) to once per max order block.
+
+Fixes: 3a2d7fa8a3d5 ("mm: disable interrupts while initializing deferred pages")
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Signed-off-by: Pavel Tatashin <pasha.tatashin@soleen.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Shile Zhang <shile.zhang@linux.alibaba.com>
+Cc: Kirill Tkhai <ktkhai@virtuozzo.com>
+Cc: James Morris <jmorris@namei.org>
+Cc: Sasha Levin <sashal@kernel.org>
+Cc: Yiqian Wei <yiwei@redhat.com>
+Cc: <stable@vger.kernel.org>	[4.17+]
+Link: http://lkml.kernel.org/r/20200403140952.17177-2-pasha.tatashin@soleen.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/mips/mm/dma-noncoherent.c |    1 +
- 1 file changed, 1 insertion(+)
+ mm/page_alloc.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/arch/mips/mm/dma-noncoherent.c
-+++ b/arch/mips/mm/dma-noncoherent.c
-@@ -33,6 +33,7 @@ static inline bool cpu_needs_post_dma_fl
- 	case CPU_R10000:
- 	case CPU_R12000:
- 	case CPU_BMIPS5000:
-+	case CPU_LOONGSON2EF:
- 		return true;
- 	default:
- 		/*
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -1692,7 +1692,6 @@ static void __init deferred_free_pages(u
+ 		} else if (!(pfn & nr_pgmask)) {
+ 			deferred_free_range(pfn - nr_free, nr_free);
+ 			nr_free = 1;
+-			touch_nmi_watchdog();
+ 		} else {
+ 			nr_free++;
+ 		}
+@@ -1722,7 +1721,6 @@ static unsigned long  __init deferred_in
+ 			continue;
+ 		} else if (!page || !(pfn & nr_pgmask)) {
+ 			page = pfn_to_page(pfn);
+-			touch_nmi_watchdog();
+ 		} else {
+ 			page++;
+ 		}
+@@ -1869,8 +1867,10 @@ static int __init deferred_init_memmap(v
+ 	 * that we can avoid introducing any issues with the buddy
+ 	 * allocator.
+ 	 */
+-	while (spfn < epfn)
++	while (spfn < epfn) {
+ 		nr_pages += deferred_init_maxorder(&i, zone, &spfn, &epfn);
++		touch_nmi_watchdog();
++	}
+ zone_empty:
+ 	/* Sanity check that the next zone really is unpopulated */
+ 	WARN_ON(++zid < MAX_NR_ZONES && populated_zone(++zone));
+@@ -1941,6 +1941,7 @@ deferred_grow_zone(struct zone *zone, un
+ 		first_deferred_pfn = spfn;
+ 
+ 		nr_pages += deferred_init_maxorder(&i, zone, &spfn, &epfn);
++		touch_nmi_watchdog();
+ 
+ 		/* We should only stop along section boundaries */
+ 		if ((first_deferred_pfn ^ spfn) < PAGES_PER_SECTION)
 
 
