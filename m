@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CA8B200FA0
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:23:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EE77200FA3
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:23:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391662AbgFSPT4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:19:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49338 "EHLO mail.kernel.org"
+        id S2392647AbgFSPUA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:20:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403903AbgFSPTA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:19:00 -0400
+        id S2392406AbgFSPTd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:19:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E87472184D;
-        Fri, 19 Jun 2020 15:18:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0DC7F206DB;
+        Fri, 19 Jun 2020 15:19:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579939;
-        bh=P9JcKZNM/8l/scsQa6x9Ys0iK7XhzU3x66U2UwdZeQk=;
+        s=default; t=1592579971;
+        bh=PRuINvBRZW2mZwEv6yL9odErB1I7qLxkutEUY51xAFc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DPgWiUoB3A84rz2VvIf831tWXtZKyXyqbSF8lZFdSji5OMBZdDioic+2a6Ly7B6tx
-         nByrM41F8pKMYGoad1CHWleJhKQoJyv3Du5CzCtzSHaVDNUpd2KQIO15CqtCrMb8JC
-         m3QUtdsUpGoi/xzc198Z5KAa0LpY8JuuC661AtT4=
+        b=BosjqeSf1QikeWpeKes9xGoD5Ws0c3krhw6JKdIU+9RYMi//ZKEqSm/J7p/rYIkHY
+         RXSu20iDzvVxB9/ckuQL1i7i9oSJ4jjUIeL5z+UVHpqiIUxv07Mimi12i7mJxYCIU5
+         Jb+PuUCj67n3yFcT1s7vMBS8KCGUJEAhmAcdBHTo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 062/376] btrfs: account for trans_block_rsv in may_commit_transaction
-Date:   Fri, 19 Jun 2020 16:29:40 +0200
-Message-Id: <20200619141713.292497147@linuxfoundation.org>
+Subject: [PATCH 5.7 073/376] Bluetooth: btmtkuart: Improve exception handling in btmtuart_probe()
+Date:   Fri, 19 Jun 2020 16:29:51 +0200
+Message-Id: <20200619141713.807949518@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -45,53 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-[ Upstream commit bb4f58a747f0421b10645fbf75a6acc88da0de50 ]
+[ Upstream commit 4803c54ca24923a30664bea2a7772db6e7303c51 ]
 
-On ppc64le with 64k page size (respectively 64k block size) generic/320
-was failing and debug output showed we were getting a premature ENOSPC
-with a bunch of space in btrfs_fs_info::trans_block_rsv.
+Calls of the functions clk_disable_unprepare() and hci_free_dev()
+were missing for the exception handling.
+Thus add the missed function calls together with corresponding
+jump targets.
 
-This meant there were still open transaction handles holding space, yet
-the flusher didn't commit the transaction because it deemed the freed
-space won't be enough to satisfy the current reserve ticket. Fix this
-by accounting for space in trans_block_rsv when deciding whether the
-current transaction should be committed or not.
-
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Tested-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 055825614c6b ("Bluetooth: btmtkuart: add an implementation for clock osc property")
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/space-info.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/bluetooth/btmtkuart.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/fs/btrfs/space-info.c b/fs/btrfs/space-info.c
-index ff17a4420358..3c0e9999bfd7 100644
---- a/fs/btrfs/space-info.c
-+++ b/fs/btrfs/space-info.c
-@@ -626,6 +626,7 @@ static int may_commit_transaction(struct btrfs_fs_info *fs_info,
- 	struct reserve_ticket *ticket = NULL;
- 	struct btrfs_block_rsv *delayed_rsv = &fs_info->delayed_block_rsv;
- 	struct btrfs_block_rsv *delayed_refs_rsv = &fs_info->delayed_refs_rsv;
-+	struct btrfs_block_rsv *trans_rsv = &fs_info->trans_block_rsv;
- 	struct btrfs_trans_handle *trans;
- 	u64 bytes_needed;
- 	u64 reclaim_bytes = 0;
-@@ -688,6 +689,11 @@ static int may_commit_transaction(struct btrfs_fs_info *fs_info,
- 	spin_lock(&delayed_refs_rsv->lock);
- 	reclaim_bytes += delayed_refs_rsv->reserved;
- 	spin_unlock(&delayed_refs_rsv->lock);
-+
-+	spin_lock(&trans_rsv->lock);
-+	reclaim_bytes += trans_rsv->reserved;
-+	spin_unlock(&trans_rsv->lock);
-+
- 	if (reclaim_bytes >= bytes_needed)
- 		goto commit;
- 	bytes_needed -= reclaim_bytes;
+diff --git a/drivers/bluetooth/btmtkuart.c b/drivers/bluetooth/btmtkuart.c
+index e11169ad8247..8a81fbca5c9d 100644
+--- a/drivers/bluetooth/btmtkuart.c
++++ b/drivers/bluetooth/btmtkuart.c
+@@ -1015,7 +1015,7 @@ static int btmtkuart_probe(struct serdev_device *serdev)
+ 	if (btmtkuart_is_standalone(bdev)) {
+ 		err = clk_prepare_enable(bdev->osc);
+ 		if (err < 0)
+-			return err;
++			goto err_hci_free_dev;
+ 
+ 		if (bdev->boot) {
+ 			gpiod_set_value_cansleep(bdev->boot, 1);
+@@ -1028,10 +1028,8 @@ static int btmtkuart_probe(struct serdev_device *serdev)
+ 
+ 		/* Power on */
+ 		err = regulator_enable(bdev->vcc);
+-		if (err < 0) {
+-			clk_disable_unprepare(bdev->osc);
+-			return err;
+-		}
++		if (err < 0)
++			goto err_clk_disable_unprepare;
+ 
+ 		/* Reset if the reset-gpios is available otherwise the board
+ 		 * -level design should be guaranteed.
+@@ -1063,7 +1061,6 @@ static int btmtkuart_probe(struct serdev_device *serdev)
+ 	err = hci_register_dev(hdev);
+ 	if (err < 0) {
+ 		dev_err(&serdev->dev, "Can't register HCI device\n");
+-		hci_free_dev(hdev);
+ 		goto err_regulator_disable;
+ 	}
+ 
+@@ -1072,6 +1069,11 @@ static int btmtkuart_probe(struct serdev_device *serdev)
+ err_regulator_disable:
+ 	if (btmtkuart_is_standalone(bdev))
+ 		regulator_disable(bdev->vcc);
++err_clk_disable_unprepare:
++	if (btmtkuart_is_standalone(bdev))
++		clk_disable_unprepare(bdev->osc);
++err_hci_free_dev:
++	hci_free_dev(hdev);
+ 
+ 	return err;
+ }
 -- 
 2.25.1
 
