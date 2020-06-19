@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BD08200DCA
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:02:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24195200DC8
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:02:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390739AbgFSPBs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:01:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57982 "EHLO mail.kernel.org"
+        id S2390141AbgFSPBo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:01:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390723AbgFSPBf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:01:35 -0400
+        id S2390726AbgFSPBi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:01:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E4DC620734;
-        Fri, 19 Jun 2020 15:01:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9118321841;
+        Fri, 19 Jun 2020 15:01:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578895;
-        bh=biZxo7xIfF834z9nqNS71nzofZ7r6Uqho9xZzSIhqPU=;
+        s=default; t=1592578898;
+        bh=B+cmbHFOmMyhWcPA1RyCrjMSWpK7g2VM2sqPv92N5Bw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UThApr5Mt3VOW+rLLBuOdZQb1v1gbBaVmG2ReKGlIIyImLUw1OKvIZcfoLFQC0zVu
-         6lmly5UfgqiWw9iUB0SxwJGV5a7iRoVjPeIo/jfVpO0hWjimroffbnptU602Zs7yph
-         JqzCvx8DEE6AMTcaK8JAAbrEbvQrSHWrS0caLfwc=
+        b=cBMRFm/1jOvbWLxwmyinuUJxbZna4/eov5JbcK+5rl03KY84N/5e4j0EY0gFe1vvr
+         imIB+s33UVlkhDiafLndkMm4xyeJzeLeL/7hC+UjFChYzlufi33equ0+G5+exTLfIm
+         ikIkyCugqptIinKQdLPJA6cgaUQlhAsNe0ugzLvE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.19 198/267] ext4: fix race between ext4_sync_parent() and rename()
-Date:   Fri, 19 Jun 2020 16:33:03 +0200
-Message-Id: <20200619141658.249466430@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 199/267] PCI: Avoid Pericom USB controller OHCI/EHCI PME# defect
+Date:   Fri, 19 Jun 2020 16:33:04 +0200
+Message-Id: <20200619141658.289071610@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
 References: <20200619141648.840376470@linuxfoundation.org>
@@ -43,109 +45,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit 08adf452e628b0e2ce9a01048cfbec52353703d7 upstream.
+[ Upstream commit 68f5fc4ea9ddf9f77720d568144219c4e6452cde ]
 
-'igrab(d_inode(dentry->d_parent))' without holding dentry->d_lock is
-broken because without d_lock, d_parent can be concurrently changed due
-to a rename().  Then if the old directory is immediately deleted, old
-d_parent->inode can be NULL.  That causes a NULL dereference in igrab().
+Both Pericom OHCI and EHCI devices advertise PME# support from all power
+states:
 
-To fix this, use dget_parent() to safely grab a reference to the parent
-dentry, which pins the inode.  This also eliminates the need to use
-d_find_any_alias() other than for the initial inode, as we no longer
-throw away the dentry at each step.
+  06:00.0 USB controller [0c03]: Pericom Semiconductor PI7C9X442SL USB OHCI Controller [12d8:400e] (rev 01) (prog-if 10 [OHCI])
+    Subsystem: Pericom Semiconductor PI7C9X442SL USB OHCI Controller [12d8:400e]
+    Capabilities: [80] Power Management version 3
+      Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
 
-This is an extremely hard race to hit, but it is possible.  Adding a
-udelay() in between the reads of ->d_parent and its ->d_inode makes it
-reproducible on a no-journal filesystem using the following program:
+  06:00.2 USB controller [0c03]: Pericom Semiconductor PI7C9X442SL USB EHCI Controller [12d8:400f] (rev 01) (prog-if 20 [EHCI])
+    Subsystem: Pericom Semiconductor PI7C9X442SL USB EHCI Controller [12d8:400f]
+    Capabilities: [80] Power Management version 3
+      Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
 
-    #include <fcntl.h>
-    #include <unistd.h>
+But testing shows that it's unreliable: there is a 20% chance PME# won't be
+asserted when a USB device is plugged.
 
-    int main()
-    {
-        if (fork()) {
-            for (;;) {
-                mkdir("dir1", 0700);
-                int fd = open("dir1/file", O_RDWR|O_CREAT|O_SYNC);
-                write(fd, "X", 1);
-                close(fd);
-            }
-        } else {
-            mkdir("dir2", 0700);
-            for (;;) {
-                rename("dir1/file", "dir2/file");
-                rmdir("dir1");
-            }
-        }
-    }
+Remove PME support for both devices to make USB plugging work reliably.
 
-Fixes: d59729f4e794 ("ext4: fix races in ext4_sync_parent()")
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=205981
+Link: https://lore.kernel.org/r/20200508065343.32751-2-kai.heng.feng@canonical.com
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Link: https://lore.kernel.org/r/20200506183140.541194-1-ebiggers@kernel.org
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/fsync.c |   28 +++++++++++++---------------
- 1 file changed, 13 insertions(+), 15 deletions(-)
+ drivers/pci/quirks.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/fs/ext4/fsync.c
-+++ b/fs/ext4/fsync.c
-@@ -44,30 +44,28 @@
-  */
- static int ext4_sync_parent(struct inode *inode)
- {
--	struct dentry *dentry = NULL;
--	struct inode *next;
-+	struct dentry *dentry, *next;
- 	int ret = 0;
- 
- 	if (!ext4_test_inode_state(inode, EXT4_STATE_NEWENTRY))
- 		return 0;
--	inode = igrab(inode);
-+	dentry = d_find_any_alias(inode);
-+	if (!dentry)
-+		return 0;
- 	while (ext4_test_inode_state(inode, EXT4_STATE_NEWENTRY)) {
- 		ext4_clear_inode_state(inode, EXT4_STATE_NEWENTRY);
--		dentry = d_find_any_alias(inode);
--		if (!dentry)
--			break;
--		next = igrab(d_inode(dentry->d_parent));
-+
-+		next = dget_parent(dentry);
- 		dput(dentry);
--		if (!next)
--			break;
--		iput(inode);
--		inode = next;
-+		dentry = next;
-+		inode = dentry->d_inode;
-+
- 		/*
- 		 * The directory inode may have gone through rmdir by now. But
- 		 * the inode itself and its blocks are still allocated (we hold
--		 * a reference to the inode so it didn't go through
--		 * ext4_evict_inode()) and so we are safe to flush metadata
--		 * blocks and the inode.
-+		 * a reference to the inode via its dentry), so it didn't go
-+		 * through ext4_evict_inode()) and so we are safe to flush
-+		 * metadata blocks and the inode.
- 		 */
- 		ret = sync_mapping_buffers(inode->i_mapping);
- 		if (ret)
-@@ -76,7 +74,7 @@ static int ext4_sync_parent(struct inode
- 		if (ret)
- 			break;
- 	}
--	iput(inode);
-+	dput(dentry);
- 	return ret;
+diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+index ca41cff2e68c..fb061e1bc084 100644
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -5294,6 +5294,19 @@ static void pci_fixup_no_d0_pme(struct pci_dev *dev)
  }
+ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ASMEDIA, 0x2142, pci_fixup_no_d0_pme);
  
++/*
++ * Device [12d8:0x400e] and [12d8:0x400f]
++ * These devices advertise PME# support in all power states but don't
++ * reliably assert it.
++ */
++static void pci_fixup_no_pme(struct pci_dev *dev)
++{
++	pci_info(dev, "PME# is unreliable, disabling it\n");
++	dev->pme_support = 0;
++}
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_PERICOM, 0x400e, pci_fixup_no_pme);
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_PERICOM, 0x400f, pci_fixup_no_pme);
++
+ static void apex_pci_fixup_class(struct pci_dev *pdev)
+ {
+ 	pdev->class = (PCI_CLASS_SYSTEM_OTHER << 8) | pdev->class;
+-- 
+2.25.1
+
 
 
