@@ -2,48 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23718200DE7
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:05:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8FD6200F0E
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:16:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390888AbgFSPCq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:02:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59386 "EHLO mail.kernel.org"
+        id S2392114AbgFSPOf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:14:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390881AbgFSPCp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:02:45 -0400
+        id S2392305AbgFSPOc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:14:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EEFF021582;
-        Fri, 19 Jun 2020 15:02:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C7E9A21582;
+        Fri, 19 Jun 2020 15:14:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578965;
-        bh=efr4F5l8E5T54xKaxuUYJ3rAEcKcuyWv6c6byuZfwpg=;
+        s=default; t=1592579671;
+        bh=5RchVw+eNG7h+yLYvF3Y3uwdAqfzENIM9kZogelGLos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gQutwUwytduWBmuUqcw0UJhbJCRmfwGs9Xuyiw3cFUvc4BMEU3Q9kY0tneg5Xg9a9
-         pwnK9ZdrjK/zN8lmqwaP/3B/9s0EvAOcyBVZMMocSfg4Lmn0O5H7sG+95CKzdRHZjx
-         eM/eJfEXfpxh1cx892Q1N7+jnXrusAzWk2Oknb9U=
+        b=kkoXiwvR4465Af5WmnJ1EHd9I7h97wtVBwNYwu1vxEfmTjPNgftXhGOWPva+8bN2I
+         TqAIuzt9sEoiNAOD5CMlsWrWNDp4bCGqJSyvgwytV2pwE/SRtixXlnGbjbLul/bHus
+         naXiVt043vCcCU5ZFjnKh2+KjGHwgE2LbJpqwgqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vicki Pfau <vi@endrift.com>,
-        Marcel Bocu <marcel.p.bocu@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Brian Woods <brian.woods@amd.com>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org,
-        "Woods, Brian" <Brian.Woods@amd.com>,
-        Clemens Ladisch <clemens@ladisch.de>,
-        Jean Delvare <jdelvare@suse.com>,
+        stable@vger.kernel.org, Alexander Monakov <amonakov@ispras.ru>,
+        Borislav Petkov <bp@suse.de>,
+        Yazen Ghannam <yazen.ghannam@amd.com>,
         Guenter Roeck <linux@roeck-us.net>,
-        linux-hwmon@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 4.19 217/267] x86/amd_nb: Add PCI device IDs for family 17h, model 70h
-Date:   Fri, 19 Jun 2020 16:33:22 +0200
-Message-Id: <20200619141659.132768385@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 192/261] x86/amd_nb: Add AMD family 17h model 60h PCI IDs
+Date:   Fri, 19 Jun 2020 16:33:23 +0200
+Message-Id: <20200619141659.104001028@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
-References: <20200619141648.840376470@linuxfoundation.org>
+In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
+References: <20200619141649.878808811@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,95 +46,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcel Bocu <marcel.p.bocu@gmail.com>
+From: Alexander Monakov <amonakov@ispras.ru>
 
-[ Upstream commit af4e1c5eca95bed1192d8dc45c8ed63aea2209e8 ]
+[ Upstream commit a4e91825d7e1252f7cba005f1451e5464b23c15d ]
 
-The AMD Ryzen gen 3 processors came with a different PCI IDs for the
-function 3 & 4 which are used to access the SMN interface. The root
-PCI address however remained at the same address as the model 30h.
+Add PCI IDs for AMD Renoir (4000-series Ryzen CPUs). This is necessary
+to enable support for temperature sensors via the k10temp module.
 
-Adding the F3/F4 PCI IDs respectively to the misc and link ids appear
-to be sufficient for k10temp, so let's add them and follow up on the
-patch if other functions need more tweaking.
-
-Vicki Pfau sent an identical patch after I checked that no-one had
-written this patch. I would have been happy about dropping my patch but
-unlike for his patch series, I had already Cc:ed the x86 people and
-they already reviewed the changes. Since Vicki has not answered to
-any email after his initial series, let's assume she is on vacation
-and let's avoid duplication of reviews from the maintainers and merge
-my series. To acknowledge Vicki's anteriority, I added her S-o-b to
-the patch.
-
-v2, suggested by Guenter Roeck and Brian Woods:
- - rename from 71h to 70h
-
-Signed-off-by: Vicki Pfau <vi@endrift.com>
-Signed-off-by: Marcel Bocu <marcel.p.bocu@gmail.com>
-Tested-by: Marcel Bocu <marcel.p.bocu@gmail.com>
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Brian Woods <brian.woods@amd.com>
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>	# pci_ids.h
-
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: x86@kernel.org
-Cc: "Woods, Brian" <Brian.Woods@amd.com>
-Cc: Clemens Ladisch <clemens@ladisch.de>
-Cc: Jean Delvare <jdelvare@suse.com>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-hwmon@vger.kernel.org
-Link: https://lore.kernel.org/r/20190722174510.2179-1-marcel.p.bocu@gmail.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Alexander Monakov <amonakov@ispras.ru>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Yazen Ghannam <yazen.ghannam@amd.com>
+Acked-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lkml.kernel.org/r/20200510204842.2603-2-amonakov@ispras.ru
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/amd_nb.c | 3 +++
+ arch/x86/kernel/amd_nb.c | 5 +++++
  include/linux/pci_ids.h  | 1 +
- 2 files changed, 4 insertions(+)
+ 2 files changed, 6 insertions(+)
 
 diff --git a/arch/x86/kernel/amd_nb.c b/arch/x86/kernel/amd_nb.c
-index b95db8ce83bf..be1d15a27079 100644
+index 69aed0ebbdfc..c4bc01da820e 100644
 --- a/arch/x86/kernel/amd_nb.c
 +++ b/arch/x86/kernel/amd_nb.c
-@@ -20,6 +20,7 @@
+@@ -18,9 +18,11 @@
+ #define PCI_DEVICE_ID_AMD_17H_ROOT	0x1450
+ #define PCI_DEVICE_ID_AMD_17H_M10H_ROOT	0x15d0
+ #define PCI_DEVICE_ID_AMD_17H_M30H_ROOT	0x1480
++#define PCI_DEVICE_ID_AMD_17H_M60H_ROOT	0x1630
  #define PCI_DEVICE_ID_AMD_17H_DF_F4	0x1464
  #define PCI_DEVICE_ID_AMD_17H_M10H_DF_F4 0x15ec
  #define PCI_DEVICE_ID_AMD_17H_M30H_DF_F4 0x1494
-+#define PCI_DEVICE_ID_AMD_17H_M70H_DF_F4 0x1444
++#define PCI_DEVICE_ID_AMD_17H_M60H_DF_F4 0x144c
+ #define PCI_DEVICE_ID_AMD_17H_M70H_DF_F4 0x1444
+ #define PCI_DEVICE_ID_AMD_19H_DF_F4	0x1654
  
- /* Protect the PCI config register pairs used for SMN and DF indirect access. */
- static DEFINE_MUTEX(smn_mutex);
-@@ -49,6 +50,7 @@ const struct pci_device_id amd_nb_misc_ids[] = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_M10H_DF_F3) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_M30H_DF_F3) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_CNB17H_F3) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_M70H_DF_F3) },
+@@ -33,6 +35,7 @@ static const struct pci_device_id amd_root_ids[] = {
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_ROOT) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_M10H_ROOT) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_M30H_ROOT) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_M60H_ROOT) },
  	{}
  };
- EXPORT_SYMBOL_GPL(amd_nb_misc_ids);
-@@ -62,6 +64,7 @@ static const struct pci_device_id amd_nb_link_ids[] = {
+ 
+@@ -51,6 +54,7 @@ const struct pci_device_id amd_nb_misc_ids[] = {
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_DF_F3) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_M10H_DF_F3) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_M30H_DF_F3) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_M60H_DF_F3) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_CNB17H_F3) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_M70H_DF_F3) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_19H_DF_F3) },
+@@ -67,6 +71,7 @@ static const struct pci_device_id amd_nb_link_ids[] = {
  	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_DF_F4) },
  	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_M10H_DF_F4) },
  	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_M30H_DF_F4) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_M70H_DF_F4) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_M60H_DF_F4) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_17H_M70H_DF_F4) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_19H_DF_F4) },
  	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_CNB17H_F4) },
- 	{}
- };
 diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
-index a7abaaa9bc27..81ddbd891202 100644
+index 9a57e6717e5c..0ad57693f392 100644
 --- a/include/linux/pci_ids.h
 +++ b/include/linux/pci_ids.h
-@@ -548,6 +548,7 @@
+@@ -550,6 +550,7 @@
  #define PCI_DEVICE_ID_AMD_17H_DF_F3	0x1463
  #define PCI_DEVICE_ID_AMD_17H_M10H_DF_F3 0x15eb
  #define PCI_DEVICE_ID_AMD_17H_M30H_DF_F3 0x1493
-+#define PCI_DEVICE_ID_AMD_17H_M70H_DF_F3 0x1443
++#define PCI_DEVICE_ID_AMD_17H_M60H_DF_F3 0x144b
+ #define PCI_DEVICE_ID_AMD_17H_M70H_DF_F3 0x1443
+ #define PCI_DEVICE_ID_AMD_19H_DF_F3	0x1653
  #define PCI_DEVICE_ID_AMD_CNB17H_F3	0x1703
- #define PCI_DEVICE_ID_AMD_LANCE		0x2000
- #define PCI_DEVICE_ID_AMD_LANCE_HOME	0x2001
 -- 
 2.25.1
 
