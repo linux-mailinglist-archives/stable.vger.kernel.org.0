@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6D4C2016BF
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:45:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B98D72016AA
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:33:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388417AbgFSOmy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:42:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33698 "EHLO mail.kernel.org"
+        id S2389488AbgFSQd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:33:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388409AbgFSOmt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:42:49 -0400
+        id S2389485AbgFSOvk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:51:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A549721582;
-        Fri, 19 Jun 2020 14:42:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 475EF21556;
+        Fri, 19 Jun 2020 14:51:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577769;
-        bh=Uw9/vRLVgKmqGjw40c38O9e7lpuxn5NHt5DzieU+7Dk=;
+        s=default; t=1592578300;
+        bh=vzZF4AySYVeY6Way8T8nzCKiW/SGxkr27tSIpR7GqWg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MEoQryJWHkCjwLfv9TeQuuMenxQ6cdmLcK+2XzZI5SO8oXrUX40i1iJS9C14E1DmV
-         MP0cyUwumRuQNJoI8aaTUPOzuzy3Ych7BYnEmE5SESBu8EXltiU6/m8Rr8BB+VfQbO
-         Z6UX/iGdZw5S7Gy9wvo2VIlLA2QcWxJRobf9P9i4=
+        b=Oya08Cgrxoi/zALXvUMcCGmHKopcQafViWP6TP9eKU0+bo+pBdbb+5ozLuEUsIk2K
+         H1BjbOMEVHQC5TMD6iIeukY+YogSOEoAwnBROmYeBYBJ9isvpHfwBnZ/QO1bLN0exq
+         OKvsvBwAmjy65dTtmloMd6WcDJghpwyTjlWnn3wc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
+        stable@vger.kernel.org, YuanJunQing <yuanjunqing66@163.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 081/128] kgdb: Fix spurious true from in_dbg_master()
+Subject: [PATCH 4.14 130/190] MIPS: Fix IRQ tracing when call handle_fpe() and handle_msa_fpe()
 Date:   Fri, 19 Jun 2020 16:32:55 +0200
-Message-Id: <20200619141624.450359947@linuxfoundation.org>
+Message-Id: <20200619141640.125659657@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
-References: <20200619141620.148019466@linuxfoundation.org>
+In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
+References: <20200619141633.446429600@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,45 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Thompson <daniel.thompson@linaro.org>
+From: YuanJunQing <yuanjunqing66@163.com>
 
-[ Upstream commit 3fec4aecb311995189217e64d725cfe84a568de3 ]
+[ Upstream commit 31e1b3efa802f97a17628dde280006c4cee4ce5e ]
 
-Currently there is a small window where a badly timed migration could
-cause in_dbg_master() to spuriously return true. Specifically if we
-migrate to a new core after reading the processor id and the previous
-core takes a breakpoint then we will evaluate true if we read
-kgdb_active before we get the IPI to bring us to halt.
+Register "a1" is unsaved in this function,
+ when CONFIG_TRACE_IRQFLAGS is enabled,
+ the TRACE_IRQS_OFF macro will call trace_hardirqs_off(),
+ and this may change register "a1".
+ The changed register "a1" as argument will be send
+ to do_fpe() and do_msa_fpe().
 
-Fix this by checking irqs_disabled() first. Interrupts are always
-disabled when we are executing the kgdb trap so this is an acceptable
-prerequisite. This also allows us to replace raw_smp_processor_id()
-with smp_processor_id() since the short circuit logic will prevent
-warnings from PREEMPT_DEBUG.
-
-Fixes: dcc7871128e9 ("kgdb: core changes to support kdb")
-Suggested-by: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20200506164223.2875760-1-daniel.thompson@linaro.org
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Daniel Thompson <daniel.thompson@linaro.org>
+Signed-off-by: YuanJunQing <yuanjunqing66@163.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/kgdb.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/kernel/genex.S | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/include/linux/kgdb.h b/include/linux/kgdb.h
-index e465bb15912d..6be5545d3584 100644
---- a/include/linux/kgdb.h
-+++ b/include/linux/kgdb.h
-@@ -317,7 +317,7 @@ extern void gdbstub_exit(int status);
- extern int			kgdb_single_step;
- extern atomic_t			kgdb_active;
- #define in_dbg_master() \
--	(raw_smp_processor_id() == atomic_read(&kgdb_active))
-+	(irqs_disabled() && (smp_processor_id() == atomic_read(&kgdb_active)))
- extern bool dbg_is_early;
- extern void __init dbg_late_init(void);
- #else /* ! CONFIG_KGDB */
+diff --git a/arch/mips/kernel/genex.S b/arch/mips/kernel/genex.S
+index 37b9383eacd3..cf74a963839f 100644
+--- a/arch/mips/kernel/genex.S
++++ b/arch/mips/kernel/genex.S
+@@ -431,20 +431,20 @@ NESTED(nmi_handler, PT_SIZE, sp)
+ 	.endm
+ 
+ 	.macro	__build_clear_fpe
++	CLI
++	TRACE_IRQS_OFF
+ 	.set	push
+ 	/* gas fails to assemble cfc1 for some archs (octeon).*/ \
+ 	.set	mips1
+ 	SET_HARDFLOAT
+ 	cfc1	a1, fcr31
+ 	.set	pop
+-	CLI
+-	TRACE_IRQS_OFF
+ 	.endm
+ 
+ 	.macro	__build_clear_msa_fpe
+-	_cfcmsa	a1, MSA_CSR
+ 	CLI
+ 	TRACE_IRQS_OFF
++	_cfcmsa	a1, MSA_CSR
+ 	.endm
+ 
+ 	.macro	__build_clear_ade
 -- 
 2.25.1
 
