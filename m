@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77B12200BC5
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:38:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13E21200C28
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:43:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387460AbgFSOht (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:37:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54566 "EHLO mail.kernel.org"
+        id S2388353AbgFSOme (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:42:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387757AbgFSOhk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:37:40 -0400
+        id S2387827AbgFSOm3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:42:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 62501208B8;
-        Fri, 19 Jun 2020 14:37:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3744C20CC7;
+        Fri, 19 Jun 2020 14:42:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577459;
-        bh=Oe+ZdXhi98kSzbDOcm8/UbNuNAzaBhb9xZaekVWJw1A=;
+        s=default; t=1592577748;
+        bh=1sDm6efkE6nUzcgVIsySaFaYUqIUIjrhlE1ECDiwrtQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=enoQ2xhpEnC9if73KoIJpJcCx0CltlAFGDjRCvRreMRfYILPJN5gqZrBpj9U/WKM0
-         CvSLnHVyDTMZA2bz8JcRxrOwtJxZn38rfHfG76imUhSILBBduOgwggbqk1upFTAW3g
-         y+YXoEXfL44gViRSPJ5jldEMHzy3vFfH86xHABCw=
+        b=NL700PS6WZ2jkmnGwsVFQ7szjvTNL8dmtTLipAjxnTxcRusXy5AnA+upehLxpuVhW
+         MCT+HqSVhySOzaw0coaL5gPrODUizhQUP665UkhZCmNukKdHDoRPlMQ28pk+GmGkn8
+         uThszPYoAEKbn/lonWo66zTLVZgAZuIeFbBTe2ro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Nathan Chancellor <natechancellor@gmail.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 059/101] lib/mpi: Fix 64-bit MIPS build with Clang
+Subject: [PATCH 4.9 074/128] lib/mpi: Fix 64-bit MIPS build with Clang
 Date:   Fri, 19 Jun 2020 16:32:48 +0200
-Message-Id: <20200619141617.140559433@linuxfoundation.org>
+Message-Id: <20200619141624.103848907@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141614.001544111@linuxfoundation.org>
-References: <20200619141614.001544111@linuxfoundation.org>
+In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
+References: <20200619141620.148019466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -94,7 +94,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/lib/mpi/longlong.h b/lib/mpi/longlong.h
-index f1f31c754b3e..70f5cf8deab3 100644
+index 8f383cca6bb1..623440d3d365 100644
 --- a/lib/mpi/longlong.h
 +++ b/lib/mpi/longlong.h
 @@ -671,7 +671,7 @@ do {						\
