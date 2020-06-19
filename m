@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFA22201068
+	by mail.lfdr.de (Postfix) with ESMTP id 61A5E201067
 	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:31:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404774AbgFSPaI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:30:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33794 "EHLO mail.kernel.org"
+        id S2404771AbgFSPaH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:30:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404762AbgFSPaE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:30:04 -0400
+        id S2404408AbgFSPaH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:30:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D409121BE5;
-        Fri, 19 Jun 2020 15:30:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 87CC121D79;
+        Fri, 19 Jun 2020 15:30:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580603;
-        bh=n4yr+oL3bQYGT4plJWPKVz74+8ZJ5Ba2FvJjJkYzweI=;
+        s=default; t=1592580606;
+        bh=biZxo7xIfF834z9nqNS71nzofZ7r6Uqho9xZzSIhqPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zf7IN9NPA+zHjP4vKkYFXxTItqsd/jBmw5K0AMFZISHhp23TVA2jTWl3+dCPqJeBE
-         7oHzgADZPNEjgkcMOO0i1zuUqjvfHXfi1Z5ri8nAccvWBOpB854xuSRuP8koT5AEsE
-         +fHuIxGOdRHfJE1zBYX8ooWTwxRQ2JFbh48kOMLg=
+        b=T/M4uGwE4cFSiLPvH4M0BCwwOH0UDMR2e7KdhdMgxQda9UrkWO+baqRn7ue9+jVVs
+         3VdL20tpM5PQTGi89gLUpbY0UWJ+5nnlrJ6m03a0uHVrtqrJCLXa2+xHjlr+/02sIS
+         sorhIKrMGn9SaXdscFTSIbsflBqIf3bU3P9BX+9A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeffle Xu <jefflexu@linux.alibaba.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Ritesh Harjani <riteshh@linux.ibm.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org
-Subject: [PATCH 5.7 282/376] ext4: fix error pointer dereference
-Date:   Fri, 19 Jun 2020 16:33:20 +0200
-Message-Id: <20200619141723.684295715@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.7 283/376] ext4: fix race between ext4_sync_parent() and rename()
+Date:   Fri, 19 Jun 2020 16:33:21 +0200
+Message-Id: <20200619141723.728742706@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -46,65 +43,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeffle Xu <jefflexu@linux.alibaba.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 8418897f1bf87da0cb6936489d57a4320c32c0af upstream.
+commit 08adf452e628b0e2ce9a01048cfbec52353703d7 upstream.
 
-Don't pass error pointers to brelse().
+'igrab(d_inode(dentry->d_parent))' without holding dentry->d_lock is
+broken because without d_lock, d_parent can be concurrently changed due
+to a rename().  Then if the old directory is immediately deleted, old
+d_parent->inode can be NULL.  That causes a NULL dereference in igrab().
 
-commit 7159a986b420 ("ext4: fix some error pointer dereferences") has fixed
-some cases, fix the remaining one case.
+To fix this, use dget_parent() to safely grab a reference to the parent
+dentry, which pins the inode.  This also eliminates the need to use
+d_find_any_alias() other than for the initial inode, as we no longer
+throw away the dentry at each step.
 
-Once ext4_xattr_block_find()->ext4_sb_bread() failed, error pointer is
-stored in @bs->bh, which will be passed to brelse() in the cleanup
-routine of ext4_xattr_set_handle(). This will then cause a NULL panic
-crash in __brelse().
+This is an extremely hard race to hit, but it is possible.  Adding a
+udelay() in between the reads of ->d_parent and its ->d_inode makes it
+reproducible on a no-journal filesystem using the following program:
 
-BUG: unable to handle kernel NULL pointer dereference at 000000000000005b
-RIP: 0010:__brelse+0x1b/0x50
-Call Trace:
- ext4_xattr_set_handle+0x163/0x5d0
- ext4_xattr_set+0x95/0x110
- __vfs_setxattr+0x6b/0x80
- __vfs_setxattr_noperm+0x68/0x1b0
- vfs_setxattr+0xa0/0xb0
- setxattr+0x12c/0x1a0
- path_setxattr+0x8d/0xc0
- __x64_sys_setxattr+0x27/0x30
- do_syscall_64+0x60/0x250
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
+    #include <fcntl.h>
+    #include <unistd.h>
 
-In this case, @bs->bh stores '-EIO' actually.
+    int main()
+    {
+        if (fork()) {
+            for (;;) {
+                mkdir("dir1", 0700);
+                int fd = open("dir1/file", O_RDWR|O_CREAT|O_SYNC);
+                write(fd, "X", 1);
+                close(fd);
+            }
+        } else {
+            mkdir("dir2", 0700);
+            for (;;) {
+                rename("dir1/file", "dir2/file");
+                rmdir("dir1");
+            }
+        }
+    }
 
-Fixes: fb265c9cb49e ("ext4: add ext4_sb_bread() to disambiguate ENOMEM cases")
-Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: stable@kernel.org # 2.6.19
-Reviewed-by: Ritesh Harjani <riteshh@linux.ibm.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/1587628004-95123-1-git-send-email-jefflexu@linux.alibaba.com
+Fixes: d59729f4e794 ("ext4: fix races in ext4_sync_parent()")
+Cc: stable@vger.kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Link: https://lore.kernel.org/r/20200506183140.541194-1-ebiggers@kernel.org
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/xattr.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ fs/ext4/fsync.c |   28 +++++++++++++---------------
+ 1 file changed, 13 insertions(+), 15 deletions(-)
 
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -1800,8 +1800,11 @@ ext4_xattr_block_find(struct inode *inod
- 	if (EXT4_I(inode)->i_file_acl) {
- 		/* The inode already has an extended attribute block. */
- 		bs->bh = ext4_sb_bread(sb, EXT4_I(inode)->i_file_acl, REQ_PRIO);
--		if (IS_ERR(bs->bh))
--			return PTR_ERR(bs->bh);
-+		if (IS_ERR(bs->bh)) {
-+			error = PTR_ERR(bs->bh);
-+			bs->bh = NULL;
-+			return error;
-+		}
- 		ea_bdebug(bs->bh, "b_count=%d, refcount=%d",
- 			atomic_read(&(bs->bh->b_count)),
- 			le32_to_cpu(BHDR(bs->bh)->h_refcount));
+--- a/fs/ext4/fsync.c
++++ b/fs/ext4/fsync.c
+@@ -44,30 +44,28 @@
+  */
+ static int ext4_sync_parent(struct inode *inode)
+ {
+-	struct dentry *dentry = NULL;
+-	struct inode *next;
++	struct dentry *dentry, *next;
+ 	int ret = 0;
+ 
+ 	if (!ext4_test_inode_state(inode, EXT4_STATE_NEWENTRY))
+ 		return 0;
+-	inode = igrab(inode);
++	dentry = d_find_any_alias(inode);
++	if (!dentry)
++		return 0;
+ 	while (ext4_test_inode_state(inode, EXT4_STATE_NEWENTRY)) {
+ 		ext4_clear_inode_state(inode, EXT4_STATE_NEWENTRY);
+-		dentry = d_find_any_alias(inode);
+-		if (!dentry)
+-			break;
+-		next = igrab(d_inode(dentry->d_parent));
++
++		next = dget_parent(dentry);
+ 		dput(dentry);
+-		if (!next)
+-			break;
+-		iput(inode);
+-		inode = next;
++		dentry = next;
++		inode = dentry->d_inode;
++
+ 		/*
+ 		 * The directory inode may have gone through rmdir by now. But
+ 		 * the inode itself and its blocks are still allocated (we hold
+-		 * a reference to the inode so it didn't go through
+-		 * ext4_evict_inode()) and so we are safe to flush metadata
+-		 * blocks and the inode.
++		 * a reference to the inode via its dentry), so it didn't go
++		 * through ext4_evict_inode()) and so we are safe to flush
++		 * metadata blocks and the inode.
+ 		 */
+ 		ret = sync_mapping_buffers(inode->i_mapping);
+ 		if (ret)
+@@ -76,7 +74,7 @@ static int ext4_sync_parent(struct inode
+ 		if (ret)
+ 			break;
+ 	}
+-	iput(inode);
++	dput(dentry);
+ 	return ret;
+ }
+ 
 
 
