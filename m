@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2A732010F4
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:36:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 919E420107D
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:31:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391713AbgFSPgX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:36:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34856 "EHLO mail.kernel.org"
+        id S2393763AbgFSPa7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:30:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404826AbgFSPay (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:30:54 -0400
+        id S2393758AbgFSPa5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:30:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25A0821973;
-        Fri, 19 Jun 2020 15:30:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B7674206B7;
+        Fri, 19 Jun 2020 15:30:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580653;
-        bh=tdnXPkzzN60g0ORiSgP4WZO2FES1YL776lnidbC0W1c=;
+        s=default; t=1592580656;
+        bh=D4A67mbrWqK5bcyd2xtaSN2eqdhN9WQjyd9DakMMtOs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A5cptoJ1pZQnLsYIv1pu89PlMWN7IymBZS3mbBaOlqADPP/wZ1Xwkerqm9gE9by6a
-         jPoVMMGyFsvLisM9YFodXr2f9qxJyMPKTLe+uaiRY2BfWMWnWQLsoTd2wv4CM+nWfn
-         bYNpr7wfroBPTrCJSFemdgxKfyj0RSJ68j4jh1ZI=
+        b=bJjPvH3KhiPe6K0gDfT4SHgKtsbSqXcrAZX+c92fOV9ZYdcf0yngGYwO2wxoIJrEf
+         +ZM3tkEQh137DjjyugNs6AnwxF251VeU8r2PQFGm4RlT3aVako3vlFFfp7SUG06UuS
+         hSK14QyG7N2BF7uOoKpEU0ImWHDP8ZoyeoCUxB2M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
-        Nicolas Chauvet <kwizart@gmail.com>,
+        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
         Thierry Reding <treding@nvidia.com>
-Subject: [PATCH 5.7 331/376] ARM: tegra: Correct PL310 Auxiliary Control Register initialization
-Date:   Fri, 19 Jun 2020 16:34:09 +0200
-Message-Id: <20200619141726.000022172@linuxfoundation.org>
+Subject: [PATCH 5.7 332/376] soc/tegra: pmc: Select GENERIC_PINCONF
+Date:   Fri, 19 Jun 2020 16:34:10 +0200
+Message-Id: <20200619141726.047887372@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -44,42 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Corentin Labbe <clabbe@baylibre.com>
 
-commit 35509737c8f958944e059d501255a0bf18361ba0 upstream.
+commit 5098e2b95e8e6f56266c2d5c180c75917090082a upstream.
 
-The PL310 Auxiliary Control Register shouldn't have the "Full line of
-zero" optimization bit being set before L2 cache is enabled. The L2X0
-driver takes care of enabling the optimization by itself.
+I have hit the following build error:
+armv7a-hardfloat-linux-gnueabi-ld: drivers/soc/tegra/pmc.o: in function `pinconf_generic_dt_node_to_map_pin':
+pmc.c:(.text+0x500): undefined reference to `pinconf_generic_dt_node_to_map'
+armv7a-hardfloat-linux-gnueabi-ld: drivers/soc/tegra/pmc.o:(.rodata+0x1f88): undefined reference to `pinconf_generic_dt_free_map'
 
-This patch fixes a noisy error message on Tegra20 and Tegra30 telling
-that cache optimization is erroneously enabled without enabling it for
-the CPU:
+So SOC_TEGRA_PMC should select GENERIC_PINCONF.
 
-	L2C-310: enabling full line of zeros but not enabled in Cortex-A9
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Tested-by: Nicolas Chauvet <kwizart@gmail.com>
+Fixes: 4a37f11c8f57 ("soc/tegra: pmc: Implement pad configuration via pinctrl")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
 Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/mach-tegra/tegra.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/soc/tegra/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/arm/mach-tegra/tegra.c
-+++ b/arch/arm/mach-tegra/tegra.c
-@@ -107,8 +107,8 @@ static const char * const tegra_dt_board
- };
+--- a/drivers/soc/tegra/Kconfig
++++ b/drivers/soc/tegra/Kconfig
+@@ -133,6 +133,7 @@ config SOC_TEGRA_FLOWCTRL
  
- DT_MACHINE_START(TEGRA_DT, "NVIDIA Tegra SoC (Flattened Device Tree)")
--	.l2c_aux_val	= 0x3c400001,
--	.l2c_aux_mask	= 0xc20fc3fe,
-+	.l2c_aux_val	= 0x3c400000,
-+	.l2c_aux_mask	= 0xc20fc3ff,
- 	.smp		= smp_ops(tegra_smp_ops),
- 	.map_io		= tegra_map_common_io,
- 	.init_early	= tegra_init_early,
+ config SOC_TEGRA_PMC
+ 	bool
++	select GENERIC_PINCONF
+ 
+ config SOC_TEGRA_POWERGATE_BPMP
+ 	def_bool y
 
 
