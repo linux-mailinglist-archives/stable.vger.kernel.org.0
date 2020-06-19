@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31C9F201315
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:01:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 587F3201430
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:13:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392746AbgFSPUu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:20:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52046 "EHLO mail.kernel.org"
+        id S2390779AbgFSPFJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:05:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392745AbgFSPUq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:20:46 -0400
+        id S2391243AbgFSPFG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:05:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0AE7020706;
-        Fri, 19 Jun 2020 15:20:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A63A21852;
+        Fri, 19 Jun 2020 15:05:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580045;
-        bh=kaP/FO0bXL5pXYHZnRhTIm3f8R07p05FwcCbUeZnhno=;
+        s=default; t=1592579105;
+        bh=APWOxe5i+4mN0d7ABUNLsvxwK/Ip4U9lQs6A6LrDs1E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T4q4Lb73LymECuh64m7je0DobxsrzUKa/d23EAUxV0VBvbiNCNMdc753PISLFCx7p
-         UG3L3EjVlx/in+o/knbdAjMv9C+t6JRGzTjqkpFmIwMAf972y1gw8LEDLchnv488M6
-         C1lDXwIAudB9h9Ek4PVZvjRDbUFSEbkhf7Fr5cng=
+        b=Ae+sefvZgiD/9CmoWjzT7Kh7k+ir1xPVfthbHequo3h66+Qc5zZSqaZNljOK7/3aX
+         1uYwl/OK5Iqg1i+F3MneWPAdx1ulhrneQ35o1dyO3WCl6tn0CRl7ntd19HXMedX+Kw
+         Z3T//XbM2jgxbJSo4Xo70K9FWG8/VKyHcSLWif4g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Philipp Zabel <p.zabel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Steve Longerbeam <slongerbeam@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 101/376] media: imx: utils: fix and simplify pixel format enumeration
-Date:   Fri, 19 Jun 2020 16:30:19 +0200
-Message-Id: <20200619141715.127142502@linuxfoundation.org>
+        stable@vger.kernel.org, Julien Thierry <jthierry@redhat.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Miroslav Benes <mbenes@suse.cz>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 010/261] objtool: Ignore empty alternatives
+Date:   Fri, 19 Jun 2020 16:30:21 +0200
+Message-Id: <20200619141650.372901698@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
-References: <20200619141710.350494719@linuxfoundation.org>
+In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
+References: <20200619141649.878808811@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,347 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philipp Zabel <p.zabel@pengutronix.de>
+From: Julien Thierry <jthierry@redhat.com>
 
-[ Upstream commit f2267d7ed803add8820c7a6537c12a6d8732f570 ]
+[ Upstream commit 7170cf47d16f1ba29eca07fd818870b7af0a93a5 ]
 
-Merge yuv_formats and rgb_formats into a single array. Always loop over
-all entries, skipping those that do not match the requested search
-criteria. This simplifies the code, lets us get rid of the manual
-counting of array entries, and stops accidentally ignoring some non-mbus
-RGB formats.
+The .alternatives section can contain entries with no original
+instructions. Objtool will currently crash when handling such an entry.
 
-Before:
+Just skip that entry, but still give a warning to discourage useless
+entries.
 
-  $ v4l2-ctl -d /dev/video14 --list-formats-out
-  ioctl: VIDIOC_ENUM_FMT
-	Type: Video Output
-
-	[0]: 'UYVY' (UYVY 4:2:2)
-	[1]: 'YUYV' (YUYV 4:2:2)
-	[2]: 'YU12' (Planar YUV 4:2:0)
-	[3]: 'YV12' (Planar YVU 4:2:0)
-	[4]: '422P' (Planar YUV 4:2:2)
-	[5]: 'NV12' (Y/CbCr 4:2:0)
-	[6]: 'NV16' (Y/CbCr 4:2:2)
-	[7]: 'RGBP' (16-bit RGB 5-6-5)
-	[8]: 'RGB3' (24-bit RGB 8-8-8)
-	[9]: 'BX24' (32-bit XRGB 8-8-8-8)
-
-After:
-
-  $ v4l2-ctl -d /dev/video14 --list-formats-out
-  ioctl: VIDIOC_ENUM_FMT
-	Type: Video Output
-
-	[0]: 'UYVY' (UYVY 4:2:2)
-	[1]: 'YUYV' (YUYV 4:2:2)
-	[2]: 'YU12' (Planar YUV 4:2:0)
-	[3]: 'YV12' (Planar YVU 4:2:0)
-	[4]: '422P' (Planar YUV 4:2:2)
-	[5]: 'NV12' (Y/CbCr 4:2:0)
-	[6]: 'NV16' (Y/CbCr 4:2:2)
-	[7]: 'RGBP' (16-bit RGB 5-6-5)
-	[8]: 'RGB3' (24-bit RGB 8-8-8)
-	[9]: 'BGR3' (24-bit BGR 8-8-8)
-	[10]: 'BX24' (32-bit XRGB 8-8-8-8)
-	[11]: 'XR24' (32-bit BGRX 8-8-8-8)
-	[12]: 'RX24' (32-bit XBGR 8-8-8-8)
-	[13]: 'XB24' (32-bit RGBX 8-8-8-8)
-
-Tested on a imx6q-sabresd.
-
-[laurent.pinchart@ideasonboard.com: Make loop counters unsigned]
-[laurent.pinchart@ideasonboard.com: Decrement index instead of adding a counter]
-[laurent.pinchart@ideasonboard.com: Return directly from within loop instead of breaking]
-[slongerbeam@gmail.com: Fix colorspace comparison error]
-
-Fixes: e130291212df5 ("[media] media: Add i.MX media core driver")
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-Tested-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Steve Longerbeam <slongerbeam@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Julien Thierry <jthierry@redhat.com>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Miroslav Benes <mbenes@suse.cz>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/imx/imx-media-utils.c | 193 ++++++--------------
- 1 file changed, 59 insertions(+), 134 deletions(-)
+ tools/objtool/check.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/staging/media/imx/imx-media-utils.c b/drivers/staging/media/imx/imx-media-utils.c
-index fae981698c49..39469031e510 100644
---- a/drivers/staging/media/imx/imx-media-utils.c
-+++ b/drivers/staging/media/imx/imx-media-utils.c
-@@ -9,12 +9,9 @@
- 
- /*
-  * List of supported pixel formats for the subdevs.
-- *
-- * In all of these tables, the non-mbus formats (with no
-- * mbus codes) must all fall at the end of the table.
-  */
--
--static const struct imx_media_pixfmt yuv_formats[] = {
-+static const struct imx_media_pixfmt pixel_formats[] = {
-+	/*** YUV formats start here ***/
- 	{
- 		.fourcc	= V4L2_PIX_FMT_UYVY,
- 		.codes  = {
-@@ -31,12 +28,7 @@ static const struct imx_media_pixfmt yuv_formats[] = {
- 		},
- 		.cs     = IPUV3_COLORSPACE_YUV,
- 		.bpp    = 16,
--	},
--	/***
--	 * non-mbus YUV formats start here. NOTE! when adding non-mbus
--	 * formats, NUM_NON_MBUS_YUV_FORMATS must be updated below.
--	 ***/
--	{
-+	}, {
- 		.fourcc	= V4L2_PIX_FMT_YUV420,
- 		.cs     = IPUV3_COLORSPACE_YUV,
- 		.bpp    = 12,
-@@ -62,13 +54,7 @@ static const struct imx_media_pixfmt yuv_formats[] = {
- 		.bpp    = 16,
- 		.planar = true,
- 	},
--};
--
--#define NUM_NON_MBUS_YUV_FORMATS 5
--#define NUM_YUV_FORMATS ARRAY_SIZE(yuv_formats)
--#define NUM_MBUS_YUV_FORMATS (NUM_YUV_FORMATS - NUM_NON_MBUS_YUV_FORMATS)
--
--static const struct imx_media_pixfmt rgb_formats[] = {
-+	/*** RGB formats start here ***/
- 	{
- 		.fourcc	= V4L2_PIX_FMT_RGB565,
- 		.codes  = {MEDIA_BUS_FMT_RGB565_2X8_LE},
-@@ -83,12 +69,28 @@ static const struct imx_media_pixfmt rgb_formats[] = {
- 		},
- 		.cs     = IPUV3_COLORSPACE_RGB,
- 		.bpp    = 24,
-+	}, {
-+		.fourcc	= V4L2_PIX_FMT_BGR24,
-+		.cs     = IPUV3_COLORSPACE_RGB,
-+		.bpp    = 24,
- 	}, {
- 		.fourcc	= V4L2_PIX_FMT_XRGB32,
- 		.codes  = {MEDIA_BUS_FMT_ARGB8888_1X32},
- 		.cs     = IPUV3_COLORSPACE_RGB,
- 		.bpp    = 32,
- 		.ipufmt = true,
-+	}, {
-+		.fourcc	= V4L2_PIX_FMT_XBGR32,
-+		.cs     = IPUV3_COLORSPACE_RGB,
-+		.bpp    = 32,
-+	}, {
-+		.fourcc	= V4L2_PIX_FMT_BGRX32,
-+		.cs     = IPUV3_COLORSPACE_RGB,
-+		.bpp    = 32,
-+	}, {
-+		.fourcc	= V4L2_PIX_FMT_RGBX32,
-+		.cs     = IPUV3_COLORSPACE_RGB,
-+		.bpp    = 32,
- 	},
- 	/*** raw bayer and grayscale formats start here ***/
- 	{
-@@ -182,33 +184,8 @@ static const struct imx_media_pixfmt rgb_formats[] = {
- 		.bpp    = 16,
- 		.bayer  = true,
- 	},
--	/***
--	 * non-mbus RGB formats start here. NOTE! when adding non-mbus
--	 * formats, NUM_NON_MBUS_RGB_FORMATS must be updated below.
--	 ***/
--	{
--		.fourcc	= V4L2_PIX_FMT_BGR24,
--		.cs     = IPUV3_COLORSPACE_RGB,
--		.bpp    = 24,
--	}, {
--		.fourcc	= V4L2_PIX_FMT_XBGR32,
--		.cs     = IPUV3_COLORSPACE_RGB,
--		.bpp    = 32,
--	}, {
--		.fourcc	= V4L2_PIX_FMT_BGRX32,
--		.cs     = IPUV3_COLORSPACE_RGB,
--		.bpp    = 32,
--	}, {
--		.fourcc	= V4L2_PIX_FMT_RGBX32,
--		.cs     = IPUV3_COLORSPACE_RGB,
--		.bpp    = 32,
--	},
- };
- 
--#define NUM_NON_MBUS_RGB_FORMATS 2
--#define NUM_RGB_FORMATS ARRAY_SIZE(rgb_formats)
--#define NUM_MBUS_RGB_FORMATS (NUM_RGB_FORMATS - NUM_NON_MBUS_RGB_FORMATS)
--
- static const struct imx_media_pixfmt ipu_yuv_formats[] = {
- 	{
- 		.fourcc = V4L2_PIX_FMT_YUV32,
-@@ -246,21 +223,24 @@ static void init_mbus_colorimetry(struct v4l2_mbus_framefmt *mbus,
- 					      mbus->ycbcr_enc);
- }
- 
--static const
--struct imx_media_pixfmt *__find_format(u32 fourcc,
--				       u32 code,
--				       bool allow_non_mbus,
--				       bool allow_bayer,
--				       const struct imx_media_pixfmt *array,
--				       u32 array_size)
-+static const struct imx_media_pixfmt *find_format(u32 fourcc,
-+						  u32 code,
-+						  enum codespace_sel cs_sel,
-+						  bool allow_non_mbus,
-+						  bool allow_bayer)
- {
--	const struct imx_media_pixfmt *fmt;
--	int i, j;
-+	unsigned int i;
- 
--	for (i = 0; i < array_size; i++) {
--		fmt = &array[i];
-+	for (i = 0; i < ARRAY_SIZE(pixel_formats); i++) {
-+		const struct imx_media_pixfmt *fmt = &pixel_formats[i];
-+		enum codespace_sel fmt_cs_sel;
-+		unsigned int j;
- 
--		if ((!allow_non_mbus && !fmt->codes[0]) ||
-+		fmt_cs_sel = (fmt->cs == IPUV3_COLORSPACE_YUV) ?
-+			CS_SEL_YUV : CS_SEL_RGB;
-+
-+		if ((cs_sel != CS_SEL_ANY && fmt_cs_sel != cs_sel) ||
-+		    (!allow_non_mbus && !fmt->codes[0]) ||
- 		    (!allow_bayer && fmt->bayer))
- 			continue;
- 
-@@ -270,39 +250,13 @@ struct imx_media_pixfmt *__find_format(u32 fourcc,
- 		if (!code)
- 			continue;
- 
--		for (j = 0; fmt->codes[j]; j++) {
-+		for (j = 0; j < ARRAY_SIZE(fmt->codes) && fmt->codes[j]; j++) {
- 			if (code == fmt->codes[j])
- 				return fmt;
+diff --git a/tools/objtool/check.c b/tools/objtool/check.c
+index fcc6cd404f56..48b234d8f251 100644
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -865,6 +865,12 @@ static int add_special_section_alts(struct objtool_file *file)
  		}
- 	}
--	return NULL;
--}
  
--static const struct imx_media_pixfmt *find_format(u32 fourcc,
--						  u32 code,
--						  enum codespace_sel cs_sel,
--						  bool allow_non_mbus,
--						  bool allow_bayer)
--{
--	const struct imx_media_pixfmt *ret;
--
--	switch (cs_sel) {
--	case CS_SEL_YUV:
--		return __find_format(fourcc, code, allow_non_mbus, allow_bayer,
--				     yuv_formats, NUM_YUV_FORMATS);
--	case CS_SEL_RGB:
--		return __find_format(fourcc, code, allow_non_mbus, allow_bayer,
--				     rgb_formats, NUM_RGB_FORMATS);
--	case CS_SEL_ANY:
--		ret = __find_format(fourcc, code, allow_non_mbus, allow_bayer,
--				    yuv_formats, NUM_YUV_FORMATS);
--		if (ret)
--			return ret;
--		return __find_format(fourcc, code, allow_non_mbus, allow_bayer,
--				     rgb_formats, NUM_RGB_FORMATS);
--	default:
--		return NULL;
--	}
-+	return NULL;
- }
- 
- static int enum_format(u32 *fourcc, u32 *code, u32 index,
-@@ -310,61 +264,32 @@ static int enum_format(u32 *fourcc, u32 *code, u32 index,
- 		       bool allow_non_mbus,
- 		       bool allow_bayer)
- {
--	const struct imx_media_pixfmt *fmt;
--	u32 mbus_yuv_sz = NUM_MBUS_YUV_FORMATS;
--	u32 mbus_rgb_sz = NUM_MBUS_RGB_FORMATS;
--	u32 yuv_sz = NUM_YUV_FORMATS;
--	u32 rgb_sz = NUM_RGB_FORMATS;
-+	unsigned int i;
- 
--	switch (cs_sel) {
--	case CS_SEL_YUV:
--		if (index >= yuv_sz ||
--		    (!allow_non_mbus && index >= mbus_yuv_sz))
--			return -EINVAL;
--		fmt = &yuv_formats[index];
--		break;
--	case CS_SEL_RGB:
--		if (index >= rgb_sz ||
--		    (!allow_non_mbus && index >= mbus_rgb_sz))
--			return -EINVAL;
--		fmt = &rgb_formats[index];
--		if (!allow_bayer && fmt->bayer)
--			return -EINVAL;
--		break;
--	case CS_SEL_ANY:
--		if (!allow_non_mbus) {
--			if (index >= mbus_yuv_sz) {
--				index -= mbus_yuv_sz;
--				if (index >= mbus_rgb_sz)
--					return -EINVAL;
--				fmt = &rgb_formats[index];
--				if (!allow_bayer && fmt->bayer)
--					return -EINVAL;
--			} else {
--				fmt = &yuv_formats[index];
--			}
--		} else {
--			if (index >= yuv_sz + rgb_sz)
--				return -EINVAL;
--			if (index >= yuv_sz) {
--				fmt = &rgb_formats[index - yuv_sz];
--				if (!allow_bayer && fmt->bayer)
--					return -EINVAL;
--			} else {
--				fmt = &yuv_formats[index];
--			}
-+	for (i = 0; i < ARRAY_SIZE(pixel_formats); i++) {
-+		const struct imx_media_pixfmt *fmt = &pixel_formats[i];
-+		enum codespace_sel fmt_cs_sel;
+ 		if (special_alt->group) {
++			if (!special_alt->orig_len) {
++				WARN_FUNC("empty alternative entry",
++					  orig_insn->sec, orig_insn->offset);
++				continue;
++			}
 +
-+		fmt_cs_sel = (fmt->cs == IPUV3_COLORSPACE_YUV) ?
-+			CS_SEL_YUV : CS_SEL_RGB;
-+
-+		if ((cs_sel != CS_SEL_ANY && fmt_cs_sel != cs_sel) ||
-+		    (!allow_non_mbus && !fmt->codes[0]) ||
-+		    (!allow_bayer && fmt->bayer))
-+			continue;
-+
-+		if (index == 0) {
-+			if (fourcc)
-+				*fourcc = fmt->fourcc;
-+			if (code)
-+				*code = fmt->codes[0];
-+			return 0;
- 		}
--		break;
--	default:
--		return -EINVAL;
--	}
- 
--	if (fourcc)
--		*fourcc = fmt->fourcc;
--	if (code)
--		*code = fmt->codes[0];
-+		index--;
-+	}
- 
--	return 0;
-+	return -EINVAL;
- }
- 
- const struct imx_media_pixfmt *
+ 			ret = handle_group_alt(file, special_alt, orig_insn,
+ 					       &new_insn);
+ 			if (ret)
 -- 
 2.25.1
 
