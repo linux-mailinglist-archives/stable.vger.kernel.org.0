@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3D8F200C71
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:47:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59BF1200C93
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:47:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388757AbgFSOpu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:45:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37490 "EHLO mail.kernel.org"
+        id S2388956AbgFSOrc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:47:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388754AbgFSOps (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:45:48 -0400
+        id S2388962AbgFSOr2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:47:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2144820A8B;
-        Fri, 19 Jun 2020 14:45:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 644DD217BA;
+        Fri, 19 Jun 2020 14:47:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577948;
-        bh=Dm3vVq6N42rs5GkLgwPB892eCbsiIvZVjEjlu7Ozs2g=;
+        s=default; t=1592578047;
+        bh=MFpOrjCF94wGepghpM4UuUPvQdDz87aXC1c0VlTyMpA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PdQ77yEo0QF49DI4b6mipfQzP9Upud+Huz2OGCYLyikQE5HrzirALItsbFgSm9PXj
-         clP5Iz0pjP3H5yTUP946fzYNARjM3PJrY0LBtJAJKQJecdNpU+6rPtKO7X7HPAZjwj
-         hLnfPceyel1E+HZMbWJI/IgcaQ6WbHKnlTVBbn9c=
+        b=g5/i1B9WJKA6NLjsibRGluR6JKxX2NL4YZrDW6d75NpR2jO5fOGlnX1mYWlYHHfbK
+         AbOrbw1qxu9A/lUZtIslqeATyvh5Pzlo77jSYfEnWM7qKIF7AZbqtao8Ru/B+cq5OB
+         y9caR5eFp/9bPCI7ztCdl3VBeM2WjeXXiIbcMFss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 024/190] ALSA: hda/realtek - add a pintbl quirk for several Lenovo machines
-Date:   Fri, 19 Jun 2020 16:31:09 +0200
-Message-Id: <20200619141634.696500618@linuxfoundation.org>
+        stable@vger.kernel.org, Walton Hoops <me@waltonhoops.com>,
+        Tomas Hlavaty <tom@logand.com>,
+        ARAI Shun-ichi <hermes@ceres.dti.ne.jp>,
+        Hideki EIRAKU <hdk1983@gmail.com>,
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 031/190] nilfs2: fix null pointer dereference at nilfs_segctor_do_construct()
+Date:   Fri, 19 Jun 2020 16:31:16 +0200
+Message-Id: <20200619141635.090315554@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
 References: <20200619141633.446429600@linuxfoundation.org>
@@ -43,39 +48,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Wang <hui.wang@canonical.com>
+From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
 
-commit 573fcbfd319ccef26caa3700320242accea7fd5c upstream.
+commit 8301c719a2bd131436438e49130ee381d30933f5 upstream.
 
-A couple of Lenovo ThinkCentre machines all have 2 front mics and they
-use the same codec alc623 and have the same pin config, so add a
-pintbl entry for those machines to apply the fixup
-ALC283_FIXUP_HEADSET_MIC.
+After commit c3aab9a0bd91 ("mm/filemap.c: don't initiate writeback if
+mapping has no dirty pages"), the following null pointer dereference has
+been reported on nilfs2:
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
-Link: https://lore.kernel.org/r/20200608115541.9531-1-hui.wang@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+  BUG: kernel NULL pointer dereference, address: 00000000000000a8
+  #PF: supervisor read access in kernel mode
+  #PF: error_code(0x0000) - not-present page
+  PGD 0 P4D 0
+  Oops: 0000 [#1] SMP PTI
+  ...
+  RIP: 0010:percpu_counter_add_batch+0xa/0x60
+  ...
+  Call Trace:
+    __test_set_page_writeback+0x2d3/0x330
+    nilfs_segctor_do_construct+0x10d3/0x2110 [nilfs2]
+    nilfs_segctor_construct+0x168/0x260 [nilfs2]
+    nilfs_segctor_thread+0x127/0x3b0 [nilfs2]
+    kthread+0xf8/0x130
+    ...
+
+This crash turned out to be caused by set_page_writeback() call for
+segment summary buffers at nilfs_segctor_prepare_write().
+
+set_page_writeback() can call inc_wb_stat(inode_to_wb(inode),
+WB_WRITEBACK) where inode_to_wb(inode) is NULL if the inode of
+underlying block device does not have an associated wb.
+
+This fixes the issue by calling inode_attach_wb() in advance to ensure
+to associate the bdev inode with its wb.
+
+Fixes: c3aab9a0bd91 ("mm/filemap.c: don't initiate writeback if mapping has no dirty pages")
+Reported-by: Walton Hoops <me@waltonhoops.com>
+Reported-by: Tomas Hlavaty <tom@logand.com>
+Reported-by: ARAI Shun-ichi <hermes@ceres.dti.ne.jp>
+Reported-by: Hideki EIRAKU <hdk1983@gmail.com>
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Cc: <stable@vger.kernel.org>	[5.4+]
+Link: http://lkml.kernel.org/r/20200608.011819.1399059588922299158.konishi.ryusuke@gmail.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/nilfs2/segment.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -7131,6 +7131,12 @@ static const struct snd_hda_pin_quirk al
- 		ALC225_STANDARD_PINS,
- 		{0x12, 0xb7a60130},
- 		{0x17, 0x90170110}),
-+	SND_HDA_PIN_QUIRK(0x10ec0623, 0x17aa, "Lenovo", ALC283_FIXUP_HEADSET_MIC,
-+		{0x14, 0x01014010},
-+		{0x17, 0x90170120},
-+		{0x18, 0x02a11030},
-+		{0x19, 0x02a1103f},
-+		{0x21, 0x0221101f}),
- 	{}
- };
+--- a/fs/nilfs2/segment.c
++++ b/fs/nilfs2/segment.c
+@@ -2794,6 +2794,8 @@ int nilfs_attach_log_writer(struct super
+ 	if (!nilfs->ns_writer)
+ 		return -ENOMEM;
  
++	inode_attach_wb(nilfs->ns_bdev->bd_inode, NULL);
++
+ 	err = nilfs_segctor_start_thread(nilfs->ns_writer);
+ 	if (err) {
+ 		kfree(nilfs->ns_writer);
 
 
