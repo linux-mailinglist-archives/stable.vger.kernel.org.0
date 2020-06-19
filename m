@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 717BE200F88
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:23:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24026200F95
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:23:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392466AbgFSPTZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:19:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48848 "EHLO mail.kernel.org"
+        id S2404220AbgFSPTl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:19:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392585AbgFSPSV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:18:21 -0400
+        id S2392593AbgFSPSm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:18:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0983F206DB;
-        Fri, 19 Jun 2020 15:18:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F003721582;
+        Fri, 19 Jun 2020 15:18:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579900;
-        bh=fsEGIbz/4fPJrX1KDAkRizHiHWLMOJDJ+GaVZBcdVZg=;
+        s=default; t=1592579921;
+        bh=asHvb1M4yJnWpzR6XeynGk7s5pr0sNh85tnSYRIZyVE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MMMgoLNbxjhrYSh267L2qJd59ctCRoZ6W7P9DSUTePZ1FKtliVimUyTiw/+fueLfI
-         aOorYpo7yVloZS4f5SL1mbTAbgLgYYskXWlwIAE4soxkL7ABhdkBFqZxx9rbSxvV5d
-         WE5gK6NkrSyfeRLiLc7vWZ0UD2Z8SsH766rrsTpo=
+        b=l7pQa4Xo4GiZGsEH4sJpQDr3ieY1fMsVy7t813nVOcYg7cFElxDd94d34lrMMOlmy
+         MCq2rMwzJRwU4ZPbZCeqvp/sIHyFGi+UWaXwjE4BHaQfp7+zcsVwvmhHyXSAn7HcN+
+         t2Nt5DrcMSFS4pi0sVWpR4nUWa4PS4eNIUhD+w+4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Koba Ko <koba.ko@canonical.com>,
-        Mario Limonciello <Mario.limonciello@dell.com>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable@vger.kernel.org, Tiezhu Yang <yangtiezhu@loongson.cn>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 045/376] platform/x86: dell-laptop: dont register micmute LED if there is no token
-Date:   Fri, 19 Jun 2020 16:29:23 +0200
-Message-Id: <20200619141712.491164789@linuxfoundation.org>
+Subject: [PATCH 5.7 047/376] MIPS: Loongson: Build ATI Radeon GPU driver as module
+Date:   Fri, 19 Jun 2020 16:29:25 +0200
+Message-Id: <20200619141712.585040488@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -46,52 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Koba Ko <koba.ko@canonical.com>
+From: Tiezhu Yang <yangtiezhu@loongson.cn>
 
-[ Upstream commit 257e03a334ccb96e657bf5f6ab3b5693a22c2aa4 ]
+[ Upstream commit a44de7497f91834df0b8b6d459e259788ba66794 ]
 
-On Dell G3-3590, error message is issued during boot up,
-"platform::micmute: Setting an LED's brightness failed (-19)",
-but there's no micmute led on the machine.
+When ATI Radeon GPU driver has been compiled directly into the kernel
+instead of as a module, we should make sure the firmware for the model
+(check available ones in /lib/firmware/radeon) is built-in to the kernel
+as well, otherwise there exists the following fatal error during GPU init,
+change CONFIG_DRM_RADEON=y to CONFIG_DRM_RADEON=m to fix it.
 
-Get the related tokens of SMBIOS, GLOBAL_MIC_MUTE_DISABLE/ENABLE.
-If one of two tokens doesn't exist,
-don't call led_classdev_register() for platform::micmute.
-After that, you wouldn't see the platform::micmute in /sys/class/leds/,
-and the error message wouldn't see in dmesg.
+[    1.900997] [drm] Loading RS780 Microcode
+[    1.905077] radeon 0000:01:05.0: Direct firmware load for radeon/RS780_pfp.bin failed with error -2
+[    1.914140] r600_cp: Failed to load firmware "radeon/RS780_pfp.bin"
+[    1.920405] [drm:r600_init] *ERROR* Failed to load firmware!
+[    1.926069] radeon 0000:01:05.0: Fatal error during GPU init
+[    1.931729] [drm] radeon: finishing device.
 
-Fixes: d00fa46e0a2c6 ("platform/x86: dell-laptop: Add micmute LED trigger support")
-Signed-off-by: Koba Ko <koba.ko@canonical.com>
-Reviewed-by: Mario Limonciello <Mario.limonciello@dell.com>
-Reviewed-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Fixes: 024e6a8b5bb1 ("MIPS: Loongson: Add a Loongson-3 default config file")
+Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/dell-laptop.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ arch/mips/configs/loongson3_defconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/dell-laptop.c b/drivers/platform/x86/dell-laptop.c
-index f8d3e3bd1bb5..5e9c2296931c 100644
---- a/drivers/platform/x86/dell-laptop.c
-+++ b/drivers/platform/x86/dell-laptop.c
-@@ -2204,10 +2204,13 @@ static int __init dell_init(void)
- 
- 	dell_laptop_register_notifier(&dell_laptop_notifier);
- 
--	micmute_led_cdev.brightness = ledtrig_audio_get(LED_AUDIO_MICMUTE);
--	ret = led_classdev_register(&platform_device->dev, &micmute_led_cdev);
--	if (ret < 0)
--		goto fail_led;
-+	if (dell_smbios_find_token(GLOBAL_MIC_MUTE_DISABLE) &&
-+	    dell_smbios_find_token(GLOBAL_MIC_MUTE_ENABLE)) {
-+		micmute_led_cdev.brightness = ledtrig_audio_get(LED_AUDIO_MICMUTE);
-+		ret = led_classdev_register(&platform_device->dev, &micmute_led_cdev);
-+		if (ret < 0)
-+			goto fail_led;
-+	}
- 
- 	if (acpi_video_get_backlight_type() != acpi_backlight_vendor)
- 		return 0;
+diff --git a/arch/mips/configs/loongson3_defconfig b/arch/mips/configs/loongson3_defconfig
+index 51675f5000d6..b0c24bd292b2 100644
+--- a/arch/mips/configs/loongson3_defconfig
++++ b/arch/mips/configs/loongson3_defconfig
+@@ -229,7 +229,7 @@ CONFIG_MEDIA_CAMERA_SUPPORT=y
+ CONFIG_MEDIA_USB_SUPPORT=y
+ CONFIG_USB_VIDEO_CLASS=m
+ CONFIG_DRM=y
+-CONFIG_DRM_RADEON=y
++CONFIG_DRM_RADEON=m
+ CONFIG_FB_RADEON=y
+ CONFIG_LCD_CLASS_DEVICE=y
+ CONFIG_LCD_PLATFORM=m
 -- 
 2.25.1
 
