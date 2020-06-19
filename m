@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BAE6D2013DE
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:07:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42F2A201587
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:23:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392088AbgFSQFE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:05:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39778 "EHLO mail.kernel.org"
+        id S2390571AbgFSQXM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:23:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391400AbgFSPKA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:10:00 -0400
+        id S2389204AbgFSO7Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:59:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED6A720776;
-        Fri, 19 Jun 2020 15:09:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F07821919;
+        Fri, 19 Jun 2020 14:59:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579398;
-        bh=afQkS04FDa1/FTzOO89qS2cYeHbm8IU7MnswfIN0ukQ=;
+        s=default; t=1592578764;
+        bh=IU24YtlhCdcevlf6Cuee3hpgUBgk5huQL7F9ovzA37s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pRv0HT2QkgXo5Lyn3av9FNfhuoNddOkef+DiSvdSgDeZrUducl2Z71E1MBK6ce945
-         dre6a0Hg2MbbXZrJeol4wGo6QgySdowngdm7MoyevvPC+4f28lXUYsV+sjDB2sYJg0
-         HYkBzMsh+ON540elLF2yLqqN3NfOpB9EbGtqmy+E=
+        b=l4rvX1pGLlwcbkT2s4jde0P/UgpoSddrTg6izgupq3SPYkCqtAaKpthm3UirIFGmb
+         q1wM1VBOvzyLGxuxKQo/wSO8edQUu/zwVi//eYOhuJWDDVMW1N7WcQqnQry0ichSJm
+         GVXHWkUeGFAoXCis2D97ocFcvto8ZFgrERy3y4EM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
+        stable@vger.kernel.org, Brian Foster <bfoster@redhat.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Allison Collins <allison.henderson@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 119/261] kgdboc: Use a platform device to handle tty drivers showing up late
-Date:   Fri, 19 Jun 2020 16:32:10 +0200
-Message-Id: <20200619141655.576182376@linuxfoundation.org>
+Subject: [PATCH 4.19 147/267] xfs: reset buffer write failure state on successful completion
+Date:   Fri, 19 Jun 2020 16:32:12 +0200
+Message-Id: <20200619141655.886861807@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
-References: <20200619141649.878808811@linuxfoundation.org>
+In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
+References: <20200619141648.840376470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,275 +46,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Brian Foster <bfoster@redhat.com>
 
-[ Upstream commit 68e55f61c13842baf825958129698c5371db432c ]
+[ Upstream commit b6983e80b03bd4fd42de71993b3ac7403edac758 ]
 
-If you build CONFIG_KGDB_SERIAL_CONSOLE into the kernel then you
-should be able to have KGDB init itself at bootup by specifying the
-"kgdboc=..." kernel command line parameter.  This has worked OK for me
-for many years, but on a new device I switched to it stopped working.
+The buffer write failure flag is intended to control the internal
+write retry that XFS has historically implemented to help mitigate
+the severity of transient I/O errors. The flag is set when a buffer
+is resubmitted from the I/O completion path due to a previous
+failure. It is checked on subsequent I/O completions to skip the
+internal retry and fall through to the higher level configurable
+error handling mechanism. The flag is cleared in the synchronous and
+delwri submission paths and also checked in various places to log
+write failure messages.
 
-The problem is that on this new device the serial driver gets its
-probe deferred.  Now when kgdb initializes it can't find the tty
-driver and when it gives up it never tries again.
+There are a couple minor problems with the current usage of this
+flag. One is that we issue an internal retry after every submission
+from xfsaild due to how delwri submission clears the flag. This
+results in double the expected or configured number of write
+attempts when under sustained failures. Another more subtle issue is
+that the flag is never cleared on successful I/O completion. This
+can cause xfs_wait_buftarg() to suggest that dirty buffers are being
+thrown away due to the existence of the flag, when the reality is
+that the flag might still be set because the write succeeded on the
+retry.
 
-We could try to find ways to move up the initialization of the serial
-driver and such a thing might be worthwhile, but it's nice to be
-robust against serial drivers that load late.  We could move kgdb to
-init itself later but that penalizes our ability to debug early boot
-code on systems where the driver inits early.  We could roll our own
-system of detecting when new tty drivers get loaded and then use that
-to figure out when kgdb can init, but that's ugly.
+Clear the write failure flag on successful I/O completion to address
+both of these problems. This means that the internal retry attempt
+occurs once since the last time a buffer write failed and that
+various other contexts only see the flag set when the immediately
+previous write attempt has failed.
 
-Instead, let's jump on the -EPROBE_DEFER bandwagon.  We'll create a
-singleton instance of a "kgdboc" platform device.  If we can't find
-our tty device when the singleton "kgdboc" probes we'll return
--EPROBE_DEFER which means that the system will call us back later to
-try again when the tty device might be there.
-
-We won't fully transition all of the kgdboc to a platform device
-because early kgdb initialization (via the "ekgdboc" kernel command
-line parameter) still runs before the platform device has been
-created.  The kgdb platform device is merely used as a convenient way
-to hook into the system's normal probe deferral mechanisms.
-
-As part of this, we'll ever-so-slightly change how the "kgdboc=..."
-kernel command line parameter works.  Previously if you booted up and
-kgdb couldn't find the tty driver then later reading
-'/sys/module/kgdboc/parameters/kgdboc' would return a blank string.
-Now kgdb will keep track of the string that came as part of the
-command line and give it back to you.  It's expected that this should
-be an OK change.
-
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
-Link: https://lore.kernel.org/r/20200507130644.v4.3.I4a493cfb0f9f740ce8fd2ab58e62dc92d18fed30@changeid
-[daniel.thompson@linaro.org: Make config_mutex static]
-Signed-off-by: Daniel Thompson <daniel.thompson@linaro.org>
+Signed-off-by: Brian Foster <bfoster@redhat.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Allison Collins <allison.henderson@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/kgdboc.c | 126 +++++++++++++++++++++++++++++-------
- 1 file changed, 101 insertions(+), 25 deletions(-)
+ fs/xfs/xfs_buf.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/tty/serial/kgdboc.c b/drivers/tty/serial/kgdboc.c
-index c7d51b51898f..f5608ad68ae1 100644
---- a/drivers/tty/serial/kgdboc.c
-+++ b/drivers/tty/serial/kgdboc.c
-@@ -20,6 +20,7 @@
- #include <linux/vt_kern.h>
- #include <linux/input.h>
- #include <linux/module.h>
-+#include <linux/platform_device.h>
- 
- #define MAX_CONFIG_LEN		40
- 
-@@ -27,6 +28,7 @@ static struct kgdb_io		kgdboc_io_ops;
- 
- /* -1 = init not run yet, 0 = unconfigured, 1 = configured. */
- static int configured		= -1;
-+static DEFINE_MUTEX(config_mutex);
- 
- static char config[MAX_CONFIG_LEN];
- static struct kparam_string kps = {
-@@ -38,6 +40,8 @@ static int kgdboc_use_kms;  /* 1 if we use kernel mode switching */
- static struct tty_driver	*kgdb_tty_driver;
- static int			kgdb_tty_line;
- 
-+static struct platform_device *kgdboc_pdev;
-+
- #ifdef CONFIG_KDB_KEYBOARD
- static int kgdboc_reset_connect(struct input_handler *handler,
- 				struct input_dev *dev,
-@@ -133,11 +137,13 @@ static void kgdboc_unregister_kbd(void)
- 
- static void cleanup_kgdboc(void)
- {
-+	if (configured != 1)
-+		return;
-+
- 	if (kgdb_unregister_nmi_console())
- 		return;
- 	kgdboc_unregister_kbd();
--	if (configured == 1)
--		kgdb_unregister_io_module(&kgdboc_io_ops);
-+	kgdb_unregister_io_module(&kgdboc_io_ops);
- }
- 
- static int configure_kgdboc(void)
-@@ -200,20 +206,79 @@ nmi_con_failed:
- 	kgdb_unregister_io_module(&kgdboc_io_ops);
- noconfig:
- 	kgdboc_unregister_kbd();
--	config[0] = 0;
- 	configured = 0;
--	cleanup_kgdboc();
- 
- 	return err;
- }
- 
-+static int kgdboc_probe(struct platform_device *pdev)
-+{
-+	int ret = 0;
-+
-+	mutex_lock(&config_mutex);
-+	if (configured != 1) {
-+		ret = configure_kgdboc();
-+
-+		/* Convert "no device" to "defer" so we'll keep trying */
-+		if (ret == -ENODEV)
-+			ret = -EPROBE_DEFER;
-+	}
-+	mutex_unlock(&config_mutex);
-+
-+	return ret;
-+}
-+
-+static struct platform_driver kgdboc_platform_driver = {
-+	.probe = kgdboc_probe,
-+	.driver = {
-+		.name = "kgdboc",
-+		.suppress_bind_attrs = true,
-+	},
-+};
-+
- static int __init init_kgdboc(void)
- {
--	/* Already configured? */
--	if (configured == 1)
-+	int ret;
-+
-+	/*
-+	 * kgdboc is a little bit of an odd "platform_driver".  It can be
-+	 * up and running long before the platform_driver object is
-+	 * created and thus doesn't actually store anything in it.  There's
-+	 * only one instance of kgdb so anything is stored as global state.
-+	 * The platform_driver is only created so that we can leverage the
-+	 * kernel's mechanisms (like -EPROBE_DEFER) to call us when our
-+	 * underlying tty is ready.  Here we init our platform driver and
-+	 * then create the single kgdboc instance.
-+	 */
-+	ret = platform_driver_register(&kgdboc_platform_driver);
-+	if (ret)
-+		return ret;
-+
-+	kgdboc_pdev = platform_device_alloc("kgdboc", PLATFORM_DEVID_NONE);
-+	if (!kgdboc_pdev) {
-+		ret = -ENOMEM;
-+		goto err_did_register;
-+	}
-+
-+	ret = platform_device_add(kgdboc_pdev);
-+	if (!ret)
- 		return 0;
- 
--	return configure_kgdboc();
-+	platform_device_put(kgdboc_pdev);
-+
-+err_did_register:
-+	platform_driver_unregister(&kgdboc_platform_driver);
-+	return ret;
-+}
-+
-+static void exit_kgdboc(void)
-+{
-+	mutex_lock(&config_mutex);
-+	cleanup_kgdboc();
-+	mutex_unlock(&config_mutex);
-+
-+	platform_device_unregister(kgdboc_pdev);
-+	platform_driver_unregister(&kgdboc_platform_driver);
- }
- 
- static int kgdboc_get_char(void)
-@@ -236,24 +301,20 @@ static int param_set_kgdboc_var(const char *kmessage,
- 				const struct kernel_param *kp)
- {
- 	size_t len = strlen(kmessage);
-+	int ret = 0;
- 
- 	if (len >= MAX_CONFIG_LEN) {
- 		pr_err("config string too long\n");
- 		return -ENOSPC;
+diff --git a/fs/xfs/xfs_buf.c b/fs/xfs/xfs_buf.c
+index c1f7c0d5d608..b33a9cd4fe94 100644
+--- a/fs/xfs/xfs_buf.c
++++ b/fs/xfs/xfs_buf.c
+@@ -1202,8 +1202,10 @@ xfs_buf_ioend(
+ 		bp->b_ops->verify_read(bp);
  	}
  
--	/* Only copy in the string if the init function has not run yet */
--	if (configured < 0) {
--		strcpy(config, kmessage);
--		return 0;
--	}
--
- 	if (kgdb_connected) {
- 		pr_err("Cannot reconfigure while KGDB is connected.\n");
--
- 		return -EBUSY;
- 	}
+-	if (!bp->b_error)
++	if (!bp->b_error) {
++		bp->b_flags &= ~XBF_WRITE_FAIL;
+ 		bp->b_flags |= XBF_DONE;
++	}
  
-+	mutex_lock(&config_mutex);
-+
- 	strcpy(config, kmessage);
- 	/* Chop out \n char as a result of echo */
- 	if (len && config[len - 1] == '\n')
-@@ -262,8 +323,30 @@ static int param_set_kgdboc_var(const char *kmessage,
- 	if (configured == 1)
- 		cleanup_kgdboc();
+ 	if (bp->b_iodone)
+ 		(*(bp->b_iodone))(bp);
+@@ -1263,7 +1265,7 @@ xfs_bwrite(
  
--	/* Go and configure with the new params. */
--	return configure_kgdboc();
-+	/*
-+	 * Configure with the new params as long as init already ran.
-+	 * Note that we can get called before init if someone loads us
-+	 * with "modprobe kgdboc kgdboc=..." or if they happen to use the
-+	 * the odd syntax of "kgdboc.kgdboc=..." on the kernel command.
-+	 */
-+	if (configured >= 0)
-+		ret = configure_kgdboc();
-+
-+	/*
-+	 * If we couldn't configure then clear out the config.  Note that
-+	 * specifying an invalid config on the kernel command line vs.
-+	 * through sysfs have slightly different behaviors.  If we fail
-+	 * to configure what was specified on the kernel command line
-+	 * we'll leave it in the 'config' and return -EPROBE_DEFER from
-+	 * our probe.  When specified through sysfs userspace is
-+	 * responsible for loading the tty driver before setting up.
-+	 */
-+	if (ret)
-+		config[0] = '\0';
-+
-+	mutex_unlock(&config_mutex);
-+
-+	return ret;
- }
+ 	bp->b_flags |= XBF_WRITE;
+ 	bp->b_flags &= ~(XBF_ASYNC | XBF_READ | _XBF_DELWRI_Q |
+-			 XBF_WRITE_FAIL | XBF_DONE);
++			 XBF_DONE);
  
- static int dbg_restore_graphics;
-@@ -326,15 +409,8 @@ __setup("kgdboc=", kgdboc_option_setup);
- /* This is only available if kgdboc is a built in for early debugging */
- static int __init kgdboc_early_init(char *opt)
- {
--	/* save the first character of the config string because the
--	 * init routine can destroy it.
--	 */
--	char save_ch;
--
- 	kgdboc_option_setup(opt);
--	save_ch = config[0];
--	init_kgdboc();
--	config[0] = save_ch;
-+	configure_kgdboc();
- 	return 0;
- }
- 
-@@ -342,7 +418,7 @@ early_param("ekgdboc", kgdboc_early_init);
- #endif /* CONFIG_KGDB_SERIAL_CONSOLE */
- 
- module_init(init_kgdboc);
--module_exit(cleanup_kgdboc);
-+module_exit(exit_kgdboc);
- module_param_call(kgdboc, param_set_kgdboc_var, param_get_string, &kps, 0644);
- MODULE_PARM_DESC(kgdboc, "<serial_device>[,baud]");
- MODULE_DESCRIPTION("KGDB Console TTY Driver");
+ 	error = xfs_buf_submit(bp);
+ 	if (error) {
+@@ -2000,7 +2002,7 @@ xfs_buf_delwri_submit_buffers(
+ 		 * synchronously. Otherwise, drop the buffer from the delwri
+ 		 * queue and submit async.
+ 		 */
+-		bp->b_flags &= ~(_XBF_DELWRI_Q | XBF_WRITE_FAIL);
++		bp->b_flags &= ~_XBF_DELWRI_Q;
+ 		bp->b_flags |= XBF_WRITE;
+ 		if (wait_list) {
+ 			bp->b_flags &= ~XBF_ASYNC;
 -- 
 2.25.1
 
