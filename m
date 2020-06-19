@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8BFA200F32
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:17:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A030D200F34
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:17:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404063AbgFSPQa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:16:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47046 "EHLO mail.kernel.org"
+        id S2404093AbgFSPQf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:16:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404078AbgFSPQ3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:16:29 -0400
+        id S2404085AbgFSPQc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:16:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 10AC72080C;
-        Fri, 19 Jun 2020 15:16:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B36B2158C;
+        Fri, 19 Jun 2020 15:16:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579788;
-        bh=MqiTUwiN2/J/Fok+hBOgitTkj1dSroJsDa+XbOOl9Sk=;
+        s=default; t=1592579791;
+        bh=mqr9exFqAx+o9z9cMyeEzZd5rsb+pZimb4CE6tee+6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1ty4Eexs48iPROyrtN/7/KytkHxye2JMq33SRC4AqMt9KosV/D1lxhPnlPq60A0o4
-         2phxkOel/Yaumd91iBq3pwvpzueiEP07P34Miaazq9cE+8lduWWRG0h9vUAhpt65Te
-         e5l5Qy/F9U4R+V1SuUat48zR5SVah/k5ilI1eOZk=
+        b=Ft4R0eNT5quwIBqcTbhtk/88InDwx8werl7tIvekIUmfxz1SdXLAuKRJ6TewopwXi
+         KjoIB0tiNQe/Af1JPKzycmPIIB/nFWz3sYGvB5SKpRoDyY+6tK4HJKS0x8jDXc0u7I
+         NR0dScJw2llC/h/SkWSWr/WZMDDI26aYgFOHNu2M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>
-Subject: [PATCH 5.4 259/261] perf probe: Check address correctness by map instead of _etext
-Date:   Fri, 19 Jun 2020 16:34:30 +0200
-Message-Id: <20200619141702.289786110@linuxfoundation.org>
+        stable@vger.kernel.org, Travis Downs <travis.downs@gmail.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.4 260/261] perf symbols: Fix debuginfo search for Ubuntu
+Date:   Fri, 19 Jun 2020 16:34:31 +0200
+Message-Id: <20200619141702.337817556@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
 References: <20200619141649.878808811@linuxfoundation.org>
@@ -46,115 +45,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit 2ae5d0d7d8868df7c05c2013c0b9cddd4d40610e upstream.
+commit 85afd35575a3c1a3a905722dde5ee70b49282e70 upstream.
 
-Since commit 03db8b583d1c ("perf tools: Fix
-maps__find_symbol_by_name()") introduced map address range check in
-maps__find_symbol_by_name(), we can not get "_etext" from kernel map
-because _etext is placed on the edge of the kernel .text section (=
-kernel map in perf.)
+Reportedly, from 19.10 Ubuntu has begun mixing up the location of some
+debug symbol files, putting files expected to be in
+/usr/lib/debug/usr/lib into /usr/lib/debug/lib instead. Fix by adding
+another dso_binary_type.
 
-To fix this issue, this checks the address correctness by map address
-range information (map->start and map->end) instead of using _etext
-address.
+Example on Ubuntu 20.04
 
-This can cause an error if the target inlined function is embedded in
-both __init function and normal function.
+  Before:
 
-For exaample, request_resource() is a normal function but also embedded
-in __init reserve_setup(). In this case, the probe point in
-reserve_setup() must be skipped.
+    $ perf record -e intel_pt//u uname
+    Linux
+    [ perf record: Woken up 1 times to write data ]
+    [ perf record: Captured and wrote 0.030 MB perf.data ]
+    $ perf script --call-trace | head -5
+           uname 14003 [005] 15321.764958566:  cbr: 42 freq: 4219 MHz (156%)
+           uname 14003 [005] 15321.764958566: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )          7f1e71cc4100
+           uname 14003 [005] 15321.764961566: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )              7f1e71cc4df0
+           uname 14003 [005] 15321.764961900: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )              7f1e71cc4e18
+           uname 14003 [005] 15321.764963233: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )              7f1e71cc5128
 
-However, without this fix, it failes to setup all probe points:
+  After:
 
-  # ./perf probe -v request_resource
-  probe-definition(0): request_resource
-  symbol:request_resource file:(null) line:0 offset:0 return:0 lazy:(null)
-  0 arguments
-  Looking at the vmlinux_path (8 entries long)
-  Using /usr/lib/debug/lib/modules/5.5.17-200.fc31.x86_64/vmlinux for symbols
-  Open Debuginfo file: /usr/lib/debug/lib/modules/5.5.17-200.fc31.x86_64/vmlinux
-  Try to find probe point from debuginfo.
-  Matched function: request_resource [15e29ad]
-  found inline addr: 0xffffffff82fbf892
-  Probe point found: reserve_setup+204
-  found inline addr: 0xffffffff810e9790
-  Probe point found: request_resource+0
-  Found 2 probe_trace_events.
-  Opening /sys/kernel/debug/tracing//kprobe_events write=1
-  Opening /sys/kernel/debug/tracing//README write=0
-  Writing event: p:probe/request_resource _text+33290386
-  Failed to write event: Invalid argument
-    Error: Failed to add events. Reason: Invalid argument (Code: -22)
-  #
+    $ perf script --call-trace | head -5
+           uname 14003 [005] 15321.764958566:  cbr: 42 freq: 4219 MHz (156%)
+           uname 14003 [005] 15321.764958566: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )      _start
+           uname 14003 [005] 15321.764961566: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )          _dl_start
+           uname 14003 [005] 15321.764961900: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )          _dl_start
+           uname 14003 [005] 15321.764963233: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )          _dl_start
 
-With this fix,
-
-  # ./perf probe request_resource
-  reserve_setup is out of .text, skip it.
-  Added new events:
-    (null):(null)        (on request_resource)
-    probe:request_resource (on request_resource)
-
-  You can now use it in all perf tools, such as:
-
-  	perf record -e probe:request_resource -aR sleep 1
-
-  #
-
-Fixes: 03db8b583d1c ("perf tools: Fix maps__find_symbol_by_name()")
-Reported-by: Arnaldo Carvalho de Melo <acme@kernel.org>
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
+Reported-by: Travis Downs <travis.downs@gmail.com>
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
 Cc: stable@vger.kernel.org
-Link: http://lore.kernel.org/lkml/158763967332.30755.4922496724365529088.stgit@devnote2
+Link: http://lore.kernel.org/lkml/20200526155207.9172-1-adrian.hunter@intel.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/util/probe-event.c |   25 +++++++++++++------------
- 1 file changed, 13 insertions(+), 12 deletions(-)
+ tools/perf/util/dso.c          |   16 ++++++++++++++++
+ tools/perf/util/dso.h          |    1 +
+ tools/perf/util/probe-finder.c |    1 +
+ tools/perf/util/symbol.c       |    2 ++
+ 4 files changed, 20 insertions(+)
 
---- a/tools/perf/util/probe-event.c
-+++ b/tools/perf/util/probe-event.c
-@@ -236,21 +236,22 @@ static void clear_probe_trace_events(str
- static bool kprobe_blacklist__listed(unsigned long address);
- static bool kprobe_warn_out_range(const char *symbol, unsigned long address)
- {
--	u64 etext_addr = 0;
--	int ret;
-+	struct map *map;
-+	bool ret = false;
+--- a/tools/perf/util/dso.c
++++ b/tools/perf/util/dso.c
+@@ -47,6 +47,7 @@ char dso__symtab_origin(const struct dso
+ 		[DSO_BINARY_TYPE__BUILD_ID_CACHE_DEBUGINFO]	= 'D',
+ 		[DSO_BINARY_TYPE__FEDORA_DEBUGINFO]		= 'f',
+ 		[DSO_BINARY_TYPE__UBUNTU_DEBUGINFO]		= 'u',
++		[DSO_BINARY_TYPE__MIXEDUP_UBUNTU_DEBUGINFO]	= 'x',
+ 		[DSO_BINARY_TYPE__OPENEMBEDDED_DEBUGINFO]	= 'o',
+ 		[DSO_BINARY_TYPE__BUILDID_DEBUGINFO]		= 'b',
+ 		[DSO_BINARY_TYPE__SYSTEM_PATH_DSO]		= 'd',
+@@ -129,6 +130,21 @@ int dso__read_binary_type_filename(const
+ 		snprintf(filename + len, size - len, "%s", dso->long_name);
+ 		break;
  
--	/* Get the address of _etext for checking non-probable text symbol */
--	ret = kernel_get_symbol_address_by_name("_etext", &etext_addr,
--						false, false);
--
--	if (ret == 0 && etext_addr < address)
--		pr_warning("%s is out of .text, skip it.\n", symbol);
--	else if (kprobe_blacklist__listed(address))
-+	map = kernel_get_module_map(NULL);
-+	if (map) {
-+		ret = address <= map->start || map->end < address;
-+		if (ret)
-+			pr_warning("%s is out of .text, skip it.\n", symbol);
-+		map__put(map);
-+	}
-+	if (!ret && kprobe_blacklist__listed(address)) {
- 		pr_warning("%s is blacklisted function, skip it.\n", symbol);
--	else
--		return false;
-+		ret = true;
-+	}
++	case DSO_BINARY_TYPE__MIXEDUP_UBUNTU_DEBUGINFO:
++		/*
++		 * Ubuntu can mixup /usr/lib with /lib, putting debuginfo in
++		 * /usr/lib/debug/lib when it is expected to be in
++		 * /usr/lib/debug/usr/lib
++		 */
++		if (strlen(dso->long_name) < 9 ||
++		    strncmp(dso->long_name, "/usr/lib/", 9)) {
++			ret = -1;
++			break;
++		}
++		len = __symbol__join_symfs(filename, size, "/usr/lib/debug");
++		snprintf(filename + len, size - len, "%s", dso->long_name + 4);
++		break;
++
+ 	case DSO_BINARY_TYPE__OPENEMBEDDED_DEBUGINFO:
+ 	{
+ 		const char *last_slash;
+--- a/tools/perf/util/dso.h
++++ b/tools/perf/util/dso.h
+@@ -30,6 +30,7 @@ enum dso_binary_type {
+ 	DSO_BINARY_TYPE__BUILD_ID_CACHE_DEBUGINFO,
+ 	DSO_BINARY_TYPE__FEDORA_DEBUGINFO,
+ 	DSO_BINARY_TYPE__UBUNTU_DEBUGINFO,
++	DSO_BINARY_TYPE__MIXEDUP_UBUNTU_DEBUGINFO,
+ 	DSO_BINARY_TYPE__BUILDID_DEBUGINFO,
+ 	DSO_BINARY_TYPE__SYSTEM_PATH_DSO,
+ 	DSO_BINARY_TYPE__GUEST_KMODULE,
+--- a/tools/perf/util/probe-finder.c
++++ b/tools/perf/util/probe-finder.c
+@@ -101,6 +101,7 @@ enum dso_binary_type distro_dwarf_types[
+ 	DSO_BINARY_TYPE__UBUNTU_DEBUGINFO,
+ 	DSO_BINARY_TYPE__OPENEMBEDDED_DEBUGINFO,
+ 	DSO_BINARY_TYPE__BUILDID_DEBUGINFO,
++	DSO_BINARY_TYPE__MIXEDUP_UBUNTU_DEBUGINFO,
+ 	DSO_BINARY_TYPE__NOT_FOUND,
+ };
  
--	return true;
-+	return ret;
- }
+--- a/tools/perf/util/symbol.c
++++ b/tools/perf/util/symbol.c
+@@ -79,6 +79,7 @@ static enum dso_binary_type binary_type_
+ 	DSO_BINARY_TYPE__SYSTEM_PATH_KMODULE,
+ 	DSO_BINARY_TYPE__SYSTEM_PATH_KMODULE_COMP,
+ 	DSO_BINARY_TYPE__OPENEMBEDDED_DEBUGINFO,
++	DSO_BINARY_TYPE__MIXEDUP_UBUNTU_DEBUGINFO,
+ 	DSO_BINARY_TYPE__NOT_FOUND,
+ };
  
- /*
+@@ -1530,6 +1531,7 @@ static bool dso__is_compatible_symtab_ty
+ 	case DSO_BINARY_TYPE__SYSTEM_PATH_DSO:
+ 	case DSO_BINARY_TYPE__FEDORA_DEBUGINFO:
+ 	case DSO_BINARY_TYPE__UBUNTU_DEBUGINFO:
++	case DSO_BINARY_TYPE__MIXEDUP_UBUNTU_DEBUGINFO:
+ 	case DSO_BINARY_TYPE__BUILDID_DEBUGINFO:
+ 	case DSO_BINARY_TYPE__OPENEMBEDDED_DEBUGINFO:
+ 		return !kmod && dso->kernel == DSO_TYPE_USER;
 
 
