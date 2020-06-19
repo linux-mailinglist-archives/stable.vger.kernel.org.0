@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1C00200F9F
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:23:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3525200F1D
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:16:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391982AbgFSPTw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:19:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45942 "EHLO mail.kernel.org"
+        id S2392392AbgFSPP3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:15:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392412AbgFSPPZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:15:25 -0400
+        id S2404021AbgFSPP2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:15:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB4A4206DB;
-        Fri, 19 Jun 2020 15:15:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 960B1206DB;
+        Fri, 19 Jun 2020 15:15:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579724;
-        bh=PI6MDFFIcWCnzETZAKrPKSBq6YXasMhrToqFuqcZkQ8=;
+        s=default; t=1592579727;
+        bh=5iZkv0fqTgd+XreIbBWlXku76xfHX8tsVakDmB4R/f0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T4tCTNzQro3vdgJm9C3QowtzsfXGHYWT8ebfrwoj9cl42Kt2rv1O3RTl9frPYGWbQ
-         6Fqje3L4Dy0hFRvwS5YQ/IqH/4/CyYj8sYSPzVEWJ2XAUQvO41NP0lbhidIm2EDoxb
-         8DTDEz3Kav0g0VZGawB8MtYMWbUpLyXA13PYUQok=
+        b=t8068R8xccrSr4Euac28Gas6OSj6maW8KanY4McA01qBkHPzfw0Thd6jpHVR2mR+c
+         /iavQwtT1oCh0kYXZoIqR9R/eiQ+CAeDxyNxryub1yGtgNR5e35jSDbGu5+HSyca4q
+         TuIWZbxeJnQq3nRCO9QtTtG/cygZg/raN5GZ2Uys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?=C3=81lvaro=20Fern=C3=A1ndez=20Rojas?= 
-        <noltari@gmail.com>, Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.4 242/261] mtd: rawnand: brcmnand: fix hamming oob layout
-Date:   Fri, 19 Jun 2020 16:34:13 +0200
-Message-Id: <20200619141701.480701977@linuxfoundation.org>
+        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 5.4 243/261] mtd: rawnand: diskonchip: Fix the probe error path
+Date:   Fri, 19 Jun 2020 16:34:14 +0200
+Message-Id: <20200619141701.528026622@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
 References: <20200619141649.878808811@linuxfoundation.org>
@@ -44,42 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Álvaro Fernández Rojas <noltari@gmail.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-commit 130bbde4809b011faf64f99dddc14b4b01f440c3 upstream.
+commit c5be12e45940f1aa1b5dfa04db5d15ad24f7c896 upstream.
 
-First 2 bytes are used in large-page nand.
+Not sure nand_cleanup() is the right function to call here but in any
+case it is not nand_release(). Indeed, even a comment says that
+calling nand_release() is a bit of a hack as there is no MTD device to
+unregister. So switch to nand_cleanup() for now and drop this
+comment.
 
-Fixes: ef5eeea6e911 ("mtd: nand: brcm: switch to mtd_ooblayout_ops")
-Cc: stable@vger.kernel.org
-Signed-off-by: Álvaro Fernández Rojas <noltari@gmail.com>
+There is no Fixes tag applying here as the use of nand_release()
+in this driver predates by far the introduction of nand_cleanup() in
+commit d44154f969a4 ("mtd: nand: Provide nand_cleanup() function to free NAND related resources")
+which makes this change possible. However, pointing this commit as the
+culprit for backporting purposes makes sense even if it did not intruce
+any bug.
+
+Fixes: d44154f969a4 ("mtd: nand: Provide nand_cleanup() function to free NAND related resources")
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20200512075733.745374-2-noltari@gmail.com
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/linux-mtd/20200519130035.1883-13-miquel.raynal@bootlin.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mtd/nand/raw/brcmnand/brcmnand.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/mtd/nand/raw/diskonchip.c |    7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
---- a/drivers/mtd/nand/raw/brcmnand/brcmnand.c
-+++ b/drivers/mtd/nand/raw/brcmnand/brcmnand.c
-@@ -1019,11 +1019,14 @@ static int brcmnand_hamming_ooblayout_fr
- 		if (!section) {
- 			/*
- 			 * Small-page NAND use byte 6 for BBI while large-page
--			 * NAND use byte 0.
-+			 * NAND use bytes 0 and 1.
- 			 */
--			if (cfg->page_size > 512)
--				oobregion->offset++;
--			oobregion->length--;
-+			if (cfg->page_size > 512) {
-+				oobregion->offset += 2;
-+				oobregion->length -= 2;
-+			} else {
-+				oobregion->length--;
-+			}
- 		}
+--- a/drivers/mtd/nand/raw/diskonchip.c
++++ b/drivers/mtd/nand/raw/diskonchip.c
+@@ -1609,13 +1609,10 @@ static int __init doc_probe(unsigned lon
+ 		numchips = doc2001_init(mtd);
+ 
+ 	if ((ret = nand_scan(nand, numchips)) || (ret = doc->late_init(mtd))) {
+-		/* DBB note: i believe nand_release is necessary here, as
++		/* DBB note: i believe nand_cleanup is necessary here, as
+ 		   buffers may have been allocated in nand_base.  Check with
+ 		   Thomas. FIX ME! */
+-		/* nand_release will call mtd_device_unregister, but we
+-		   haven't yet added it.  This is handled without incident by
+-		   mtd_device_unregister, as far as I can tell. */
+-		nand_release(nand);
++		nand_cleanup(nand);
+ 		goto fail;
  	}
  
 
