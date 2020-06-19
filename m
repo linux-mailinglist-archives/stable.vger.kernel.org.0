@@ -2,166 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45CB2201675
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:33:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49119201647
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:32:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394834AbgFSQbF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:31:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47264 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389656AbgFSOxC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:53:02 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6B46F21852;
-        Fri, 19 Jun 2020 14:53:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578382;
-        bh=y5CMPgGrrUxMiEzQhLkoaT4ZoY1Wlxck2j2DTWfxkGI=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BBlGFyVsDOr05Ti9/NX9sfH8y+6ffnwbzC0Y7Uiq/5lHzfPEHIn4p4RkxP5XDM/wm
-         +2QTD0HAPPvP2WZwG+oTzpZCsoYmJKOtSECPdvS9XVpDbNxseAdYX1p4P5akojb/b1
-         WBe26ewXvn9NQ0N8Zo+FAczsR0ANutIZQfiyLzls=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Travis Downs <travis.downs@gmail.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 4.14 190/190] perf symbols: Fix debuginfo search for Ubuntu
-Date:   Fri, 19 Jun 2020 16:33:55 +0200
-Message-Id: <20200619141643.352490350@linuxfoundation.org>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
-References: <20200619141633.446429600@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S2394939AbgFSQ2u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:28:50 -0400
+Received: from lhrrgout.huawei.com ([185.176.76.210]:2345 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S2389951AbgFSQ22 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 12:28:28 -0400
+Received: from lhreml710-chm.china.huawei.com (unknown [172.18.7.106])
+        by Forcepoint Email with ESMTP id 562AE804842AEAABF565;
+        Fri, 19 Jun 2020 17:28:24 +0100 (IST)
+Received: from localhost (10.52.127.178) by lhreml710-chm.china.huawei.com
+ (10.201.108.61) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1913.5; Fri, 19 Jun
+ 2020 17:28:23 +0100
+Date:   Fri, 19 Jun 2020 17:27:33 +0100
+From:   Jonathan Cameron <Jonathan.Cameron@Huawei.com>
+To:     Sasha Levin <sashal@kernel.org>
+CC:     <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
+        "Lars-Peter Clausen" <lars@metafoo.de>,
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        <linux-iio@vger.kernel.org>
+Subject: Re: [PATCH AUTOSEL 4.4 23/60] iio: buffer: Don't allow buffers
+ without any channels enabled to be activated
+Message-ID: <20200619172733.00005d9d@Huawei.com>
+In-Reply-To: <20200618013004.610532-23-sashal@kernel.org>
+References: <20200618013004.610532-1-sashal@kernel.org>
+        <20200618013004.610532-23-sashal@kernel.org>
+Organization: Huawei Technologies Research and Development (UK) Ltd.
+X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; i686-w64-mingw32)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.52.127.178]
+X-ClientProxiedBy: lhreml725-chm.china.huawei.com (10.201.108.76) To
+ lhreml710-chm.china.huawei.com (10.201.108.61)
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+On Wed, 17 Jun 2020 21:29:27 -0400
+Sasha Levin <sashal@kernel.org> wrote:
 
-commit 85afd35575a3c1a3a905722dde5ee70b49282e70 upstream.
+> From: Lars-Peter Clausen <lars@metafoo.de>
+> 
+> [ Upstream commit b7329249ea5b08b2a1c2c3f24a2f4c495c4f14b8 ]
+> 
+> Before activating a buffer make sure that at least one channel is enabled.
+> Activating a buffer with 0 channels enabled doesn't make too much sense and
+> disallowing this case makes sure that individual driver don't have to add
+> special case code to handle it.
+> 
+> Currently, without this patch enabling a buffer is possible and no error is
+> produced. With this patch -EINVAL is returned.
+> 
+> An example of execution with this patch and some instrumented print-code:
+>    root@analog:~# cd /sys/bus/iio/devices/iio\:device3/buffer
+>    root@analog:/sys/bus/iio/devices/iio:device3/buffer# echo 1 > enable
+>    0: iio_verify_update 748 indio_dev->masklength 2 *insert_buffer->scan_mask 00000000
+>    1: iio_verify_update 753
+>    2:__iio_update_buffers 1115 ret -22
+>    3: iio_buffer_store_enable 1241 ret -22
+>    -bash: echo: write error: Invalid argument
+> 1, 2 & 3 are exit-error paths. 0 the first print in iio_verify_update()
+> rergardless of error path.
+> 
+> Without this patch (and same instrumented print-code):
+>    root@analog:~# cd /sys/bus/iio/devices/iio\:device3/buffer
+>    root@analog:/sys/bus/iio/devices/iio:device3/buffer# echo 1 > enable
+>    0: iio_verify_update 748 indio_dev->masklength 2 *insert_buffer->scan_mask 00000000
+>    root@analog:/sys/bus/iio/devices/iio:device3/buffer#
+> Buffer is enabled with no error.
+> 
+> Note from Jonathan: Probably not suitable for automatic application to stable.
+> This has been there from the very start.  It tidies up an odd corner
+> case but won't effect any 'real' users.
+> 
 
-Reportedly, from 19.10 Ubuntu has begun mixing up the location of some
-debug symbol files, putting files expected to be in
-/usr/lib/debug/usr/lib into /usr/lib/debug/lib instead. Fix by adding
-another dso_binary_type.
+As noted. I don't think it matters if we do apply this to stable.
+It closes an interface oddity rather than an actual known bug.
 
-Example on Ubuntu 20.04
-
-  Before:
-
-    $ perf record -e intel_pt//u uname
-    Linux
-    [ perf record: Woken up 1 times to write data ]
-    [ perf record: Captured and wrote 0.030 MB perf.data ]
-    $ perf script --call-trace | head -5
-           uname 14003 [005] 15321.764958566:  cbr: 42 freq: 4219 MHz (156%)
-           uname 14003 [005] 15321.764958566: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )          7f1e71cc4100
-           uname 14003 [005] 15321.764961566: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )              7f1e71cc4df0
-           uname 14003 [005] 15321.764961900: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )              7f1e71cc4e18
-           uname 14003 [005] 15321.764963233: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )              7f1e71cc5128
-
-  After:
-
-    $ perf script --call-trace | head -5
-           uname 14003 [005] 15321.764958566:  cbr: 42 freq: 4219 MHz (156%)
-           uname 14003 [005] 15321.764958566: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )      _start
-           uname 14003 [005] 15321.764961566: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )          _dl_start
-           uname 14003 [005] 15321.764961900: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )          _dl_start
-           uname 14003 [005] 15321.764963233: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )          _dl_start
-
-Reported-by: Travis Downs <travis.downs@gmail.com>
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: stable@vger.kernel.org
-Link: http://lore.kernel.org/lkml/20200526155207.9172-1-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
----
- tools/perf/util/dso.c          |   16 ++++++++++++++++
- tools/perf/util/dso.h          |    1 +
- tools/perf/util/probe-finder.c |    1 +
- tools/perf/util/symbol.c       |    2 ++
- 4 files changed, 20 insertions(+)
-
---- a/tools/perf/util/dso.c
-+++ b/tools/perf/util/dso.c
-@@ -36,6 +36,7 @@ char dso__symtab_origin(const struct dso
- 		[DSO_BINARY_TYPE__BUILD_ID_CACHE_DEBUGINFO]	= 'D',
- 		[DSO_BINARY_TYPE__FEDORA_DEBUGINFO]		= 'f',
- 		[DSO_BINARY_TYPE__UBUNTU_DEBUGINFO]		= 'u',
-+		[DSO_BINARY_TYPE__MIXEDUP_UBUNTU_DEBUGINFO]	= 'x',
- 		[DSO_BINARY_TYPE__OPENEMBEDDED_DEBUGINFO]	= 'o',
- 		[DSO_BINARY_TYPE__BUILDID_DEBUGINFO]		= 'b',
- 		[DSO_BINARY_TYPE__SYSTEM_PATH_DSO]		= 'd',
-@@ -118,6 +119,21 @@ int dso__read_binary_type_filename(const
- 		snprintf(filename + len, size - len, "%s", dso->long_name);
- 		break;
- 
-+	case DSO_BINARY_TYPE__MIXEDUP_UBUNTU_DEBUGINFO:
-+		/*
-+		 * Ubuntu can mixup /usr/lib with /lib, putting debuginfo in
-+		 * /usr/lib/debug/lib when it is expected to be in
-+		 * /usr/lib/debug/usr/lib
-+		 */
-+		if (strlen(dso->long_name) < 9 ||
-+		    strncmp(dso->long_name, "/usr/lib/", 9)) {
-+			ret = -1;
-+			break;
-+		}
-+		len = __symbol__join_symfs(filename, size, "/usr/lib/debug");
-+		snprintf(filename + len, size - len, "%s", dso->long_name + 4);
-+		break;
-+
- 	case DSO_BINARY_TYPE__OPENEMBEDDED_DEBUGINFO:
- 	{
- 		const char *last_slash;
---- a/tools/perf/util/dso.h
-+++ b/tools/perf/util/dso.h
-@@ -25,6 +25,7 @@ enum dso_binary_type {
- 	DSO_BINARY_TYPE__BUILD_ID_CACHE_DEBUGINFO,
- 	DSO_BINARY_TYPE__FEDORA_DEBUGINFO,
- 	DSO_BINARY_TYPE__UBUNTU_DEBUGINFO,
-+	DSO_BINARY_TYPE__MIXEDUP_UBUNTU_DEBUGINFO,
- 	DSO_BINARY_TYPE__BUILDID_DEBUGINFO,
- 	DSO_BINARY_TYPE__SYSTEM_PATH_DSO,
- 	DSO_BINARY_TYPE__GUEST_KMODULE,
---- a/tools/perf/util/probe-finder.c
-+++ b/tools/perf/util/probe-finder.c
-@@ -114,6 +114,7 @@ enum dso_binary_type distro_dwarf_types[
- 	DSO_BINARY_TYPE__UBUNTU_DEBUGINFO,
- 	DSO_BINARY_TYPE__OPENEMBEDDED_DEBUGINFO,
- 	DSO_BINARY_TYPE__BUILDID_DEBUGINFO,
-+	DSO_BINARY_TYPE__MIXEDUP_UBUNTU_DEBUGINFO,
- 	DSO_BINARY_TYPE__NOT_FOUND,
- };
- 
---- a/tools/perf/util/symbol.c
-+++ b/tools/perf/util/symbol.c
-@@ -64,6 +64,7 @@ static enum dso_binary_type binary_type_
- 	DSO_BINARY_TYPE__SYSTEM_PATH_KMODULE,
- 	DSO_BINARY_TYPE__SYSTEM_PATH_KMODULE_COMP,
- 	DSO_BINARY_TYPE__OPENEMBEDDED_DEBUGINFO,
-+	DSO_BINARY_TYPE__MIXEDUP_UBUNTU_DEBUGINFO,
- 	DSO_BINARY_TYPE__NOT_FOUND,
- };
- 
-@@ -1412,6 +1413,7 @@ static bool dso__is_compatible_symtab_ty
- 	case DSO_BINARY_TYPE__SYSTEM_PATH_DSO:
- 	case DSO_BINARY_TYPE__FEDORA_DEBUGINFO:
- 	case DSO_BINARY_TYPE__UBUNTU_DEBUGINFO:
-+	case DSO_BINARY_TYPE__MIXEDUP_UBUNTU_DEBUGINFO:
- 	case DSO_BINARY_TYPE__BUILDID_DEBUGINFO:
- 	case DSO_BINARY_TYPE__OPENEMBEDDED_DEBUGINFO:
- 		return !kmod && dso->kernel == DSO_TYPE_USER;
+> Fixes: 84b36ce5f79c0 ("staging:iio: Add support for multiple buffers")
+> Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+> Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+> Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  drivers/iio/industrialio-buffer.c | 7 +++++++
+>  1 file changed, 7 insertions(+)
+> 
+> diff --git a/drivers/iio/industrialio-buffer.c b/drivers/iio/industrialio-buffer.c
+> index 864a61b05665..fea41b328ab9 100644
+> --- a/drivers/iio/industrialio-buffer.c
+> +++ b/drivers/iio/industrialio-buffer.c
+> @@ -641,6 +641,13 @@ static int iio_verify_update(struct iio_dev *indio_dev,
+>  	bool scan_timestamp;
+>  	unsigned int modes;
+>  
+> +	if (insert_buffer &&
+> +	    bitmap_empty(insert_buffer->scan_mask, indio_dev->masklength)) {
+> +		dev_dbg(&indio_dev->dev,
+> +			"At least one scan element must be enabled first\n");
+> +		return -EINVAL;
+> +	}
+> +
+>  	memset(config, 0, sizeof(*config));
+>  
+>  	/*
 
 
