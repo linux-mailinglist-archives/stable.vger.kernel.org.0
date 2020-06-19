@@ -2,82 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ABC15200031
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 04:28:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F8452000FA
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 06:10:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729709AbgFSC2Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 18 Jun 2020 22:28:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53038 "EHLO mail.kernel.org"
+        id S1725766AbgFSEKu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 00:10:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728443AbgFSC2Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 18 Jun 2020 22:28:24 -0400
+        id S1725290AbgFSEKt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 00:10:49 -0400
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E19720773;
-        Fri, 19 Jun 2020 02:28:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 237632080D;
+        Fri, 19 Jun 2020 04:10:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592533703;
-        bh=mMJPY/Cz0rLgT2eFhf4t429DS1YMNMShb3wEVQQdNU8=;
+        s=default; t=1592539849;
+        bh=0xCIv9ldYJmcqYbLnwQm+aTw1nwjw6QXRudKFQENLZM=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=2ewx2L3HGHsPBD7pvRUzhsIsPDR5Y+e5DuajFYcsAtBPAo6Fbc8sWYtXlzAvzNyms
-         KzVWtJC50Jw8k3nLdz+6ON64E69g8SCBCTAXx0y8U58/WBJ4hze0EWkpDiTDUPodkA
-         S2pnVgCwtCwuXNb13rKtJ7VFtPVdcbklCKp7Hesc=
-Date:   Thu, 18 Jun 2020 22:28:22 -0400
+        b=jbta6Yd8auMbF+mVjPI/ZGZutS4VhNtzWq+N0bBw+5EmxKahszzM7tMwzMFLo/qY0
+         WWUSYKcfWkQvLX1rCWEP+dPnzONEt+TGyQ7ODkDErDA7kT0uIxZpnPW9cZMd5hLglc
+         Ov3bYxoT1F6hdrHTNbVtGT39mSs13jfClZf2yPxg=
+Date:   Fri, 19 Jun 2020 00:10:48 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     pasha.tatashin@soleen.com, akpm@linux-foundation.org,
-        dan.j.williams@intel.com, daniel.m.jordan@oracle.com,
-        david@redhat.com, jmorris@namei.org, ktkhai@virtuozzo.com,
-        mhocko@suse.com, pankaj.gupta.linux@gmail.com,
-        shile.zhang@linux.alibaba.com, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, vbabka@suse.cz, yiwei@redhat.com
-Subject: Re: FAILED: patch "[PATCH] mm: call cond_resched() from
- deferred_init_memmap()" failed to apply to 5.7-stable tree
-Message-ID: <20200619022822.GV1931@sasha-vm>
-References: <15924957437531@kroah.com>
- <20200618162649.GA250996@kroah.com>
+To:     Giuliano Procida <gprocida@google.com>
+Cc:     gregkh@linuxfoundation.org, stable@vger.kernel.org, axboe@kernel.dk
+Subject: Re: [PATCH] blk-mq: move blk_mq_update_nr_hw_queues synchronize_rcu
+ call
+Message-ID: <20200619041048.GW1931@sasha-vm>
+References: <20200618183022.212135-1-gprocida@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20200618162649.GA250996@kroah.com>
+In-Reply-To: <20200618183022.212135-1-gprocida@google.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 18, 2020 at 06:26:49PM +0200, Greg KH wrote:
->On Thu, Jun 18, 2020 at 05:55:43PM +0200, gregkh@linuxfoundation.org wrote:
->>
->> The patch below does not apply to the 5.7-stable tree.
->> If someone wants it applied there, or to any other stable or longterm
->> tree, then please email the backport, including the original git commit
->> id to <stable@vger.kernel.org>.
+On Thu, Jun 18, 2020 at 07:30:22PM +0100, Giuliano Procida wrote:
+>This fixes the
+>4.9 backport commit f530afb974c2e82047bd6220303a2dbe30eff304
+>which was
+>upstream commit f5bbbbe4d63577026f908a809f22f5fd5a90ea1f.
 >
->Oops, I applied things out of order, I've queued this and the 5.4
->version up, but 4.19 doesn't apply as the dependant patch does not
->apply.
+>The upstream commit added a call to synchronize_rcu to
+>_blk_mq_update_nr_hw_queues, just after freezing queues.
+>
+>In the backport this landed (in blk_mq_update_nr_hw_queues instead),
+>just after unfreezeing queues.
+>
+>This commit moves the call to its intended place.
+>
+>Fixes: f530afb974c2 ("blk-mq: sync the update nr_hw_queues with blk_mq_queue_tag_busy_iter")
+>Signed-off-by: Giuliano Procida <gprocida@google.com>
 
-Something like this should work?
-
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 7181dfe76440..b7905a075e79 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -1611,11 +1611,13 @@ static int __init deferred_init_memmap(void *data)
-		spfn = max_t(unsigned long, first_init_pfn, PFN_UP(spa));
-		epfn = min_t(unsigned long, zone_end_pfn(zone), PFN_DOWN(epa));
-		nr_pages += deferred_init_pages(nid, zid, spfn, epfn);
-+		cond_resched();
-	}
-	for_each_free_mem_range(i, nid, MEMBLOCK_NONE, &spa, &epa, NULL) {
-		spfn = max_t(unsigned long, first_init_pfn, PFN_UP(spa));
-		epfn = min_t(unsigned long, zone_end_pfn(zone), PFN_DOWN(epa));
-		deferred_free_pages(nid, zid, spfn, epfn);
-+		cond_resched();
-	}
-
-	/* Sanity check that the next zone really is unpopulated */
+Good catch! I've queued this and the 4.14 version.
 
 -- 
 Thanks,
