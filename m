@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69C4E20142E
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:13:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33D18201349
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:01:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391211AbgFSPE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:04:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33632 "EHLO mail.kernel.org"
+        id S2392339AbgFSP74 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:59:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391205AbgFSPEx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:04:53 -0400
+        id S2392334AbgFSPOx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:14:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D11221841;
-        Fri, 19 Jun 2020 15:04:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4E77B206FA;
+        Fri, 19 Jun 2020 15:14:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579092;
-        bh=eDxLH4ouDqLNWQDr9hjpdo2YNXdlxYjycEeNZepbj/8=;
+        s=default; t=1592579692;
+        bh=fesb+m6/8ZgvadMLW5u59Am+eMgAkVHAPFHdsmUzjg8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sqTndp/I4WkocbDSzB+YrYCCOYARRN1mFDKk4/wJUWjSBxYAi2NV8uN3ACsRQm59k
-         rt+UwIg1Z1MNGJb8/U302F9WI1GU3EXmCS3C8uA0QV6DvfkucS4C8ZpPwwm47rOrC5
-         gIs84eYaTraiIVsNcvKBhXbE54h0C7j0+FIFH854=
+        b=0Txbr1TYF30ie2oL5Ugyd5AMqcVMUYZZKr3nQdaCiBuec4UJzD7iSAM/S/8qsDBHf
+         GWiInXibNF6MNeD6QssetYFtU35+bMaLBQ1rxGXKwIzH7AoubShOr7rm4hs43NpjNK
+         AYDtsACSAlUvyuHyv6q3IJwYAZb1asLf5pL2XzUA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.19 256/267] powerpc/64s: Dont let DT CPU features set FSCR_DSCR
-Date:   Fri, 19 Jun 2020 16:34:01 +0200
-Message-Id: <20200619141700.942231187@linuxfoundation.org>
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.4 231/261] powerpc/32s: Fix another build failure with CONFIG_PPC_KUAP_DEBUG
+Date:   Fri, 19 Jun 2020 16:34:02 +0200
+Message-Id: <20200619141700.946086466@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
-References: <20200619141648.840376470@linuxfoundation.org>
+In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
+References: <20200619141649.878808811@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,54 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit 993e3d96fd08c3ebf7566e43be9b8cd622063e6d upstream.
+commit 74016701fe5f873ae23bf02835407227138d874d upstream.
 
-The device tree CPU features binding includes FSCR bit numbers which
-Linux is instructed to set by firmware.
+'thread' doesn't exist in kuap_check() macro.
 
-Whether that's a good idea or not, in the case of the DSCR the Linux
-implementation has a hard requirement that the FSCR_DSCR bit not be
-set by default. We use it to track when a process reads/writes to
-DSCR, so it must be clear to begin with.
+Use 'current' instead.
 
-So if firmware tells us to set FSCR_DSCR we must ignore it.
-
-Currently this does not cause a bug in our DSCR handling because the
-value of FSCR that the device tree CPU features code establishes is
-only used by swapper. All other tasks use the value hard coded in
-init_task.thread.fscr.
-
-However we'd like to fix that in a future commit, at which point this
-will become necessary.
-
-Fixes: 5a61ef74f269 ("powerpc/64s: Support new device tree binding for discovering CPU features")
-Cc: stable@vger.kernel.org # v4.12+
+Fixes: a68c31fc01ef ("powerpc/32s: Implement Kernel Userspace Access Protection")
+Cc: stable@vger.kernel.org
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200527145843.2761782-2-mpe@ellerman.id.au
+Link: https://lore.kernel.org/r/b459e1600b969047a74e34251a84a3d6fdf1f312.1590858925.git.christophe.leroy@csgroup.eu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/dt_cpu_ftrs.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/powerpc/include/asm/book3s/32/kup.h |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/powerpc/kernel/dt_cpu_ftrs.c
-+++ b/arch/powerpc/kernel/dt_cpu_ftrs.c
-@@ -346,6 +346,14 @@ static int __init feat_enable_dscr(struc
- {
- 	u64 lpcr;
+--- a/arch/powerpc/include/asm/book3s/32/kup.h
++++ b/arch/powerpc/include/asm/book3s/32/kup.h
+@@ -2,6 +2,7 @@
+ #ifndef _ASM_POWERPC_BOOK3S_32_KUP_H
+ #define _ASM_POWERPC_BOOK3S_32_KUP_H
  
-+	/*
-+	 * Linux relies on FSCR[DSCR] being clear, so that we can take the
-+	 * facility unavailable interrupt and track the task's usage of DSCR.
-+	 * See facility_unavailable_exception().
-+	 * Clear the bit here so that feat_enable() doesn't set it.
-+	 */
-+	f->fscr_bit_nr = -1;
-+
- 	feat_enable(f);
++#include <asm/bug.h>
+ #include <asm/book3s/32/mmu-hash.h>
  
- 	lpcr = mfspr(SPRN_LPCR);
+ #ifdef __ASSEMBLY__
+@@ -75,7 +76,7 @@
+ 
+ .macro kuap_check	current, gpr
+ #ifdef CONFIG_PPC_KUAP_DEBUG
+-	lwz	\gpr, KUAP(thread)
++	lwz	\gpr, THREAD + KUAP(\current)
+ 999:	twnei	\gpr, 0
+ 	EMIT_BUG_ENTRY 999b, __FILE__, __LINE__, (BUGFLAG_WARNING | BUGFLAG_ONCE)
+ #endif
 
 
