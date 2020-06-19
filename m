@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77BAA201361
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:01:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9320E2014DD
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:21:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392734AbgFSQA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:00:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44382 "EHLO mail.kernel.org"
+        id S2390964AbgFSPDO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:03:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392279AbgFSPNv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:13:51 -0400
+        id S2390962AbgFSPDN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:03:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D1BC020776;
-        Fri, 19 Jun 2020 15:13:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB76C21974;
+        Fri, 19 Jun 2020 15:03:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579630;
-        bh=Aau8Fz/kmFsQg6cbPI1I441hvSSkrvN3v8hY2af6fyk=;
+        s=default; t=1592578991;
+        bh=rtbIHQjDReviVKNyg33EFXRysUUCSl3GNJoN1aNxlRs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PTduBa1DUriGPtqRTJm8I5hMdFYRn/X7MNPJoJgy1xKaup8mckkDxR8OtP6SaiHXh
-         us564OGSGZ0y6gYSOThDm3sEtnrZVtFrlsnFLxz+H378hLsKpNcCmGzbZdY6vgIGLZ
-         9Xjf4LgjyiLp+6/I10RIEdYL5EbfQLSPazzGz3Sc=
+        b=vugKJQL3ub59VZ6SbnTbArbobvlPZ7cAJGF7DUdfambwurSXXwJ+GP5Q6gOCkZIu+
+         1mNEb17eGlS10q7GKj7vyCEoZmLNhbwV2uLwm/aB7R5At+npDTfZcBzkkC/CpvSjnB
+         KROvlv4jZMU56IHzWKpisb2ZIZF+upBvOtSEjLWs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Weiyi Lu <weiyi.lu@mediatek.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>
-Subject: [PATCH 5.4 207/261] clk: mediatek: assign the initial value to clk_init_data of mtk_mux
-Date:   Fri, 19 Jun 2020 16:33:38 +0200
-Message-Id: <20200619141659.823383120@linuxfoundation.org>
+        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Salvatore Bonaccorso <carnil@debian.org>
+Subject: [PATCH 4.19 235/267] media: go7007: fix a miss of snd_card_free
+Date:   Fri, 19 Jun 2020 16:33:40 +0200
+Message-Id: <20200619141659.979207377@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
-References: <20200619141649.878808811@linuxfoundation.org>
+In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
+References: <20200619141648.840376470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +45,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Weiyi Lu <weiyi.lu@mediatek.com>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-commit 571cfadcc628dd5591444f7289e27445ea732f4c upstream.
+commit 9453264ef58638ce8976121ac44c07a3ef375983 upstream.
 
-When some new clock supports are introduced, e.g. [1]
-it might lead to an error although it should be NULL because
-clk_init_data is on the stack and it might have random values
-if using without initialization.
-Add the missing initial value to clk_init_data.
+go7007_snd_init() misses a snd_card_free() in an error path.
+Add the missed call to fix it.
 
-[1] https://android-review.googlesource.com/c/kernel/common/+/1278046
-
-Fixes: a3ae549917f1 ("clk: mediatek: Add new clkmux register API")
-Signed-off-by: Weiyi Lu <weiyi.lu@mediatek.com>
-Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1590560749-29136-1-git-send-email-weiyi.lu@mediatek.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+[Salvatore Bonaccorso: Adjust context for backport to versions which do
+not contain c0decac19da3 ("media: use strscpy() instead of strlcpy()")
+and ba78170ef153 ("media: go7007: Fix misuse of strscpy")]
+Signed-off-by: Salvatore Bonaccorso <carnil@debian.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/clk/mediatek/clk-mux.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/usb/go7007/snd-go7007.c |   35 ++++++++++++++++------------------
+ 1 file changed, 17 insertions(+), 18 deletions(-)
 
---- a/drivers/clk/mediatek/clk-mux.c
-+++ b/drivers/clk/mediatek/clk-mux.c
-@@ -160,7 +160,7 @@ struct clk *mtk_clk_register_mux(const s
- 				 spinlock_t *lock)
- {
- 	struct mtk_clk_mux *clk_mux;
--	struct clk_init_data init;
-+	struct clk_init_data init = {};
- 	struct clk *clk;
+--- a/drivers/media/usb/go7007/snd-go7007.c
++++ b/drivers/media/usb/go7007/snd-go7007.c
+@@ -244,22 +244,18 @@ int go7007_snd_init(struct go7007 *go)
+ 	gosnd->capturing = 0;
+ 	ret = snd_card_new(go->dev, index[dev], id[dev], THIS_MODULE, 0,
+ 			   &gosnd->card);
+-	if (ret < 0) {
+-		kfree(gosnd);
+-		return ret;
+-	}
++	if (ret < 0)
++		goto free_snd;
++
+ 	ret = snd_device_new(gosnd->card, SNDRV_DEV_LOWLEVEL, go,
+ 			&go7007_snd_device_ops);
+-	if (ret < 0) {
+-		kfree(gosnd);
+-		return ret;
+-	}
++	if (ret < 0)
++		goto free_card;
++
+ 	ret = snd_pcm_new(gosnd->card, "go7007", 0, 0, 1, &gosnd->pcm);
+-	if (ret < 0) {
+-		snd_card_free(gosnd->card);
+-		kfree(gosnd);
+-		return ret;
+-	}
++	if (ret < 0)
++		goto free_card;
++
+ 	strlcpy(gosnd->card->driver, "go7007", sizeof(gosnd->card->driver));
+ 	strlcpy(gosnd->card->shortname, go->name, sizeof(gosnd->card->driver));
+ 	strlcpy(gosnd->card->longname, gosnd->card->shortname,
+@@ -270,11 +266,8 @@ int go7007_snd_init(struct go7007 *go)
+ 			&go7007_snd_capture_ops);
  
- 	clk_mux = kzalloc(sizeof(*clk_mux), GFP_KERNEL);
+ 	ret = snd_card_register(gosnd->card);
+-	if (ret < 0) {
+-		snd_card_free(gosnd->card);
+-		kfree(gosnd);
+-		return ret;
+-	}
++	if (ret < 0)
++		goto free_card;
+ 
+ 	gosnd->substream = NULL;
+ 	go->snd_context = gosnd;
+@@ -282,6 +275,12 @@ int go7007_snd_init(struct go7007 *go)
+ 	++dev;
+ 
+ 	return 0;
++
++free_card:
++	snd_card_free(gosnd->card);
++free_snd:
++	kfree(gosnd);
++	return ret;
+ }
+ EXPORT_SYMBOL(go7007_snd_init);
+ 
 
 
