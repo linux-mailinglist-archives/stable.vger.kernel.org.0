@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4588420165D
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:33:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3515A2015A9
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:31:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389839AbgFSQ3l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:29:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49046 "EHLO mail.kernel.org"
+        id S2389858AbgFSOyc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:54:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389843AbgFSOyX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:54:23 -0400
+        id S2389466AbgFSOy2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:54:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E53F21556;
-        Fri, 19 Jun 2020 14:54:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 512132184D;
+        Fri, 19 Jun 2020 14:54:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578463;
-        bh=NWMLcpyikfEyP3vhtWUk2KoId6XXFoE9zxGdE35jo0U=;
+        s=default; t=1592578468;
+        bh=Idw/pRZv3LUtwmT/aJOqjrXSywFnMB2VZltZY9YiTG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vicvIHstJcx5OzSc3ZYezBT9W/iF2OlaFeLyr7ZGpMPZwxyQ8MW7Zu4HxFjGvhei1
-         0J1F2me451N6Sb+AGKXzUTWHMZ2NEp4KdJ4ujRS78L6UkSkCHyVQmlPHDhpVevVgr4
-         i8XO7LTEIUFkFF3VJH0pxRhhqk6ymiG7pD2QTY4Q=
+        b=aBKRJHQz//sPsPvQ+zso+F18tclATpeaaUC+WlxJoc+yCQBB4N2aHB+9/WrCoaR/I
+         zunnzjuCdxPieW5Uf2zdS6hZWAqeojgNnkJmQ19eeqSVbHQf800umY/gnsynlrahe3
+         DXR/w25zZ5/P5RLMKnKWYEJ2HTmU+SvoOf+tqjIU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?=E4=BA=BF=E4=B8=80?= <teroincn@gmail.com>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 4.19 032/267] efi/efivars: Add missing kobject_put() in sysfs entry creation error path
-Date:   Fri, 19 Jun 2020 16:30:17 +0200
-Message-Id: <20200619141650.400313581@linuxfoundation.org>
+        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 034/267] ALSA: hda/realtek - add a pintbl quirk for several Lenovo machines
+Date:   Fri, 19 Jun 2020 16:30:19 +0200
+Message-Id: <20200619141650.487371732@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
 References: <20200619141648.840376470@linuxfoundation.org>
@@ -44,36 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Hui Wang <hui.wang@canonical.com>
 
-commit d8bd8c6e2cfab8b78b537715255be8d7557791c0 upstream.
+commit 573fcbfd319ccef26caa3700320242accea7fd5c upstream.
 
-The documentation provided by kobject_init_and_add() clearly spells out
-the need to call kobject_put() on the kobject if an error is returned.
-Add this missing call to the error path.
+A couple of Lenovo ThinkCentre machines all have 2 front mics and they
+use the same codec alc623 and have the same pin config, so add a
+pintbl entry for those machines to apply the fixup
+ALC283_FIXUP_HEADSET_MIC.
 
 Cc: <stable@vger.kernel.org>
-Reported-by: 亿一 <teroincn@gmail.com>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Link: https://lore.kernel.org/r/20200608115541.9531-1-hui.wang@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/firmware/efi/efivars.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/firmware/efi/efivars.c
-+++ b/drivers/firmware/efi/efivars.c
-@@ -586,8 +586,10 @@ efivar_create_sysfs_entry(struct efivar_
- 	ret = kobject_init_and_add(&new_var->kobj, &efivar_ktype,
- 				   NULL, "%s", short_name);
- 	kfree(short_name);
--	if (ret)
-+	if (ret) {
-+		kobject_put(&new_var->kobj);
- 		return ret;
-+	}
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -7694,6 +7694,12 @@ static const struct snd_hda_pin_quirk al
+ 		ALC225_STANDARD_PINS,
+ 		{0x12, 0xb7a60130},
+ 		{0x17, 0x90170110}),
++	SND_HDA_PIN_QUIRK(0x10ec0623, 0x17aa, "Lenovo", ALC283_FIXUP_HEADSET_MIC,
++		{0x14, 0x01014010},
++		{0x17, 0x90170120},
++		{0x18, 0x02a11030},
++		{0x19, 0x02a1103f},
++		{0x21, 0x0221101f}),
+ 	{}
+ };
  
- 	kobject_uevent(&new_var->kobj, KOBJ_ADD);
- 	if (efivar_entry_add(new_var, &efivar_sysfs_list)) {
 
 
