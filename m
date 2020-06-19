@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AF212017CA
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71A8B2017C6
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387894AbgFSQn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:43:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34664 "EHLO mail.kernel.org"
+        id S2403960AbgFSQnO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:43:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388478AbgFSOnc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:43:32 -0400
+        id S2388143AbgFSOne (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:43:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C4FD20A8B;
-        Fri, 19 Jun 2020 14:43:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 49DF720CC7;
+        Fri, 19 Jun 2020 14:43:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577812;
-        bh=zaO9tAorAEueD3byQsNqthVGo+qwXWV+vzo+3gr3NUM=;
+        s=default; t=1592577814;
+        bh=dKI2bBLdOxhTvg24W0G8MlZlOLhMnxcDkqMRMjlOq/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OAbrz6wgtI164aFZLrb5k6GVW8FZ2ZGPFJBAcuo+/rVATWTf5IPHrnszSzwClMuyT
-         I2EGXGFgITH+8PAvkKEki7wq20c0JQ1sC6rlrAnQCagk+QRWCPVzMlRzgcwbwH8F8/
-         3wqSMMOw4hYk/6+j1ZJ4M9uIK0n5M5Tc2BTkfarM=
+        b=loX73Dr5Lyc5nL6fAIKK/aOjdZ4qHbLOpE4LwpPHSvXpDndreTlmQPdCLVuMcpIHS
+         bNYeQvuWss6bVth8H+uUK2IpRINCNMkxibuKSA3myPBw/QglZ0Xd/hfLtQ27bTBlaY
+         hBgocONQfPPWGvYT+VZiyDOVvRHEQUdNAtOq9gxU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Roberto Sassu <roberto.sassu@huawei.com>,
+        stable@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
         Mimi Zohar <zohar@linux.ibm.com>
-Subject: [PATCH 4.9 100/128] ima: Directly assign the ima_default_policy pointer to ima_rules
-Date:   Fri, 19 Jun 2020 16:33:14 +0200
-Message-Id: <20200619141625.413913823@linuxfoundation.org>
+Subject: [PATCH 4.9 101/128] evm: Fix possible memory leak in evm_calc_hmac_or_hash()
+Date:   Fri, 19 Jun 2020 16:33:15 +0200
+Message-Id: <20200619141625.468965144@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
 References: <20200619141620.148019466@linuxfoundation.org>
@@ -46,60 +45,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Roberto Sassu <roberto.sassu@huawei.com>
 
-commit 067a436b1b0aafa593344fddd711a755a58afb3b upstream.
+commit 0c4395fb2aa77341269ea619c5419ea48171883f upstream.
 
-This patch prevents the following oops:
+Don't immediately return if the signature is portable and security.ima is
+not present. Just set error so that memory allocated is freed before
+returning from evm_calc_hmac_or_hash().
 
-[   10.771813] BUG: kernel NULL pointer dereference, address: 0000000000000
-[...]
-[   10.779790] RIP: 0010:ima_match_policy+0xf7/0xb80
-[...]
-[   10.798576] Call Trace:
-[   10.798993]  ? ima_lsm_policy_change+0x2b0/0x2b0
-[   10.799753]  ? inode_init_owner+0x1a0/0x1a0
-[   10.800484]  ? _raw_spin_lock+0x7a/0xd0
-[   10.801592]  ima_must_appraise.part.0+0xb6/0xf0
-[   10.802313]  ? ima_fix_xattr.isra.0+0xd0/0xd0
-[   10.803167]  ima_must_appraise+0x4f/0x70
-[   10.804004]  ima_post_path_mknod+0x2e/0x80
-[   10.804800]  do_mknodat+0x396/0x3c0
-
-It occurs when there is a failure during IMA initialization, and
-ima_init_policy() is not called. IMA hooks still call ima_match_policy()
-but ima_rules is NULL. This patch prevents the crash by directly assigning
-the ima_default_policy pointer to ima_rules when ima_rules is defined. This
-wouldn't alter the existing behavior, as ima_rules is always set at the end
-of ima_init_policy().
-
-Cc: stable@vger.kernel.org # 3.7.x
-Fixes: 07f6a79415d7d ("ima: add appraise action keywords and default rules")
-Reported-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 50b977481fce9 ("EVM: Add support for portable signature format")
 Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- security/integrity/ima/ima_policy.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ security/integrity/evm/evm_crypto.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/security/integrity/ima/ima_policy.c
-+++ b/security/integrity/ima/ima_policy.c
-@@ -150,7 +150,7 @@ static struct ima_rule_entry default_app
- static LIST_HEAD(ima_default_rules);
- static LIST_HEAD(ima_policy_rules);
- static LIST_HEAD(ima_temp_rules);
--static struct list_head *ima_rules;
-+static struct list_head *ima_rules = &ima_default_rules;
+--- a/security/integrity/evm/evm_crypto.c
++++ b/security/integrity/evm/evm_crypto.c
+@@ -240,7 +240,7 @@ static int evm_calc_hmac_or_hash(struct
  
- static int ima_policy __initdata;
- 
-@@ -429,7 +429,6 @@ void __init ima_init_policy(void)
- 			temp_ima_appraise |= IMA_APPRAISE_POLICY;
- 	}
- 
--	ima_rules = &ima_default_rules;
- 	ima_update_policy_flag();
- }
- 
+ 	/* Portable EVM signatures must include an IMA hash */
+ 	if (type == EVM_XATTR_PORTABLE_DIGSIG && !ima_present)
+-		return -EPERM;
++		error = -EPERM;
+ out:
+ 	kfree(xattr_value);
+ 	kfree(desc);
 
 
