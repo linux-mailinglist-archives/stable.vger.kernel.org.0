@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A9482018F8
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 19:02:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B77562018F6
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 19:02:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406008AbgFSQzO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:55:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52186 "EHLO mail.kernel.org"
+        id S2387414AbgFSQzG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:55:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387417AbgFSOfz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:35:55 -0400
+        id S2387427AbgFSOf6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:35:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 36A4D20DD4;
-        Fri, 19 Jun 2020 14:35:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A4F6E2070A;
+        Fri, 19 Jun 2020 14:35:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577354;
-        bh=MavuaE6RpHO1pjmAVmuBsMf1W73U+3iUQqhX42rPWaU=;
+        s=default; t=1592577357;
+        bh=GpaoxSM7OEtx+hmL3101sa/SZl5PTqmk3Qk78BmE58w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D7e0aufRa/IKcWTQzGtqBCx+K6fVwV4RoSwDOIpyuCcYwGz7A6KTcUt22BP+prCD4
-         WRsIFDU88A3NRNW7zdhcNTpY52Iz1tfQpkxTQZNEEo53Ip6tsC5vjECoFFhOL+WApD
-         bR6dzyhzd/Covt0BUdkhCaOjtjErMzq0wbIPESbg=
+        b=ak17SJAVkTAynxQd0VUeqaD/9KbaFIMuhm6JAisEShAcNBEJIRX3lxPYLwjxQOND/
+         5XW60GfBPpmv3fvuCTTDcFZHi1xq0Yta5wtfvsAdu3aDXfSuRdTBKT0l7RAZZGQjvv
+         cy8+Gd5rp1ecqo9dZC45VAIalKS9WtZL9lbFlQvQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Jan Kara <jack@suse.cz>, Tejun Heo <tj@kernel.org>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.4 018/101] cgroup, blkcg: Prepare some symbols for module and !CONFIG_CGROUP usages
-Date:   Fri, 19 Jun 2020 16:32:07 +0200
-Message-Id: <20200619141615.040850449@linuxfoundation.org>
+        stable@vger.kernel.org, Walton Hoops <me@waltonhoops.com>,
+        Tomas Hlavaty <tom@logand.com>,
+        ARAI Shun-ichi <hermes@ceres.dti.ne.jp>,
+        Hideki EIRAKU <hdk1983@gmail.com>,
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 019/101] nilfs2: fix null pointer dereference at nilfs_segctor_do_construct()
+Date:   Fri, 19 Jun 2020 16:32:08 +0200
+Message-Id: <20200619141615.089198176@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141614.001544111@linuxfoundation.org>
 References: <20200619141614.001544111@linuxfoundation.org>
@@ -44,35 +48,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
 
-commit 9b0eb69b75bccada2d341d7e7ca342f0cb1c9a6a upstream.
+commit 8301c719a2bd131436438e49130ee381d30933f5 upstream.
 
-btrfs is going to use css_put() and wbc helpers to improve cgroup
-writeback support.  Add dummy css_get() definition and export wbc
-helpers to prepare for module and !CONFIG_CGROUP builds.
+After commit c3aab9a0bd91 ("mm/filemap.c: don't initiate writeback if
+mapping has no dirty pages"), the following null pointer dereference has
+been reported on nilfs2:
 
-[only backport the export of __inode_attach_wb for stable kernels - gregkh]
+  BUG: kernel NULL pointer dereference, address: 00000000000000a8
+  #PF: supervisor read access in kernel mode
+  #PF: error_code(0x0000) - not-present page
+  PGD 0 P4D 0
+  Oops: 0000 [#1] SMP PTI
+  ...
+  RIP: 0010:percpu_counter_add_batch+0xa/0x60
+  ...
+  Call Trace:
+    __test_set_page_writeback+0x2d3/0x330
+    nilfs_segctor_do_construct+0x10d3/0x2110 [nilfs2]
+    nilfs_segctor_construct+0x168/0x260 [nilfs2]
+    nilfs_segctor_thread+0x127/0x3b0 [nilfs2]
+    kthread+0xf8/0x130
+    ...
 
-Reported-by: kbuild test robot <lkp@intel.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+This crash turned out to be caused by set_page_writeback() call for
+segment summary buffers at nilfs_segctor_prepare_write().
+
+set_page_writeback() can call inc_wb_stat(inode_to_wb(inode),
+WB_WRITEBACK) where inode_to_wb(inode) is NULL if the inode of
+underlying block device does not have an associated wb.
+
+This fixes the issue by calling inode_attach_wb() in advance to ensure
+to associate the bdev inode with its wb.
+
+Fixes: c3aab9a0bd91 ("mm/filemap.c: don't initiate writeback if mapping has no dirty pages")
+Reported-by: Walton Hoops <me@waltonhoops.com>
+Reported-by: Tomas Hlavaty <tom@logand.com>
+Reported-by: ARAI Shun-ichi <hermes@ceres.dti.ne.jp>
+Reported-by: Hideki EIRAKU <hdk1983@gmail.com>
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Cc: <stable@vger.kernel.org>	[5.4+]
+Link: http://lkml.kernel.org/r/20200608.011819.1399059588922299158.konishi.ryusuke@gmail.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/fs-writeback.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/nilfs2/segment.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/fs-writeback.c
-+++ b/fs/fs-writeback.c
-@@ -269,6 +269,7 @@ void __inode_attach_wb(struct inode *ino
- 	if (unlikely(cmpxchg(&inode->i_wb, NULL, wb)))
- 		wb_put(wb);
- }
-+EXPORT_SYMBOL_GPL(__inode_attach_wb);
+--- a/fs/nilfs2/segment.c
++++ b/fs/nilfs2/segment.c
+@@ -2781,6 +2781,8 @@ int nilfs_attach_log_writer(struct super
+ 	if (!nilfs->ns_writer)
+ 		return -ENOMEM;
  
- /**
-  * locked_inode_to_wb_and_lock_list - determine a locked inode's wb and lock it
++	inode_attach_wb(nilfs->ns_bdev->bd_inode, NULL);
++
+ 	err = nilfs_segctor_start_thread(nilfs->ns_writer);
+ 	if (err) {
+ 		kfree(nilfs->ns_writer);
 
 
