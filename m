@@ -2,104 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CBCE4200ABE
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 15:51:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1ED8200AE1
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:03:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732663AbgFSNvk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 09:51:40 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:51055 "EHLO
-        forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731794AbgFSNvk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Jun 2020 09:51:40 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 2E2DC19454DC;
-        Fri, 19 Jun 2020 09:51:38 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Fri, 19 Jun 2020 09:51:38 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=ORyn4b
-        BROaJcsnN3LvEC5oL1DzX0T6u0sWMqfZcDXEE=; b=NIfw1tJvHXPY0l3Fnzulg9
-        /+EUO1Ae4PwBnrV501GJos+jBnUJa9Yk+oJ8oO/Nz2ZvAXfTdA08WnOLq6BLaRD1
-        CDiK5qe4A4UVWacuGoEYpF6MzqPUK0H/3SZFXTm1As98PPskhqvyAU2JGbsVc/rR
-        dS5Wwy8I4uTNA0Db4THqCH1oOscIAEbj6n42Rq4kwvb6fpjH0ZANB5jLOUbZZpZy
-        Ou0CrlypyQoaxJs0btz4H0PVBeSE1FbwTQuKqGr34ZSAEshpo7DMTUWxZtqVNYFd
-        /ubSugKJREcSoU9vzggxvf8EUJrtUCzP16st0EKEUizcPOxnWc9wywwMZ3aqO9cQ
-        ==
-X-ME-Sender: <xms:6sLsXsIDc5yrrOqLhwEB3aCrpyTt6AeVRVJPtEbFfQbVnJPnsI4PYA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudejiedgjedtucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepfedunecurfgrrhgrmh
-    epmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:6sLsXsIBJ-1auiBuiyNABFXZgb6N3C7GLZsQz9N0B3lRa5Uz8eJcJQ>
-    <xmx:6sLsXstjaNdoX4VD_mm5pC-CqKkCuMo9XWhauspCqlFcyYKsdoKvOQ>
-    <xmx:6sLsXpZLIs9zTdpY0ZvPRXVl6Rgzf5rMxFllZC3qyHGe_yXYQ5N4Yw>
-    <xmx:6sLsXslkgy8XRd8HqhDLvEAlRdnF_s7yDCwU1hb1lotK36ikEPl3Yg>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C278C30618C1;
-        Fri, 19 Jun 2020 09:51:37 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mtd: rawnand: tmio: Fix the probe error path" failed to apply to 4.9-stable tree
-To:     miquel.raynal@bootlin.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 19 Jun 2020 15:51:32 +0200
-Message-ID: <159257469213168@kroah.com>
+        id S1732641AbgFSODY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:03:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46850 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730380AbgFSODY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Jun 2020 10:03:24 -0400
+Received: from mail-io1-xd44.google.com (mail-io1-xd44.google.com [IPv6:2607:f8b0:4864:20::d44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2422DC06174E
+        for <stable@vger.kernel.org>; Fri, 19 Jun 2020 07:03:24 -0700 (PDT)
+Received: by mail-io1-xd44.google.com with SMTP id u13so11304299iol.10
+        for <stable@vger.kernel.org>; Fri, 19 Jun 2020 07:03:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:reply-to:from:date:message-id
+         :subject:to:cc;
+        bh=OIIDlfcyhq8GpxZiSZ0N5GrBiYJCNWA0YqLByMwLUao=;
+        b=ThaZyjWeCYtJco9esLQ33oMp+5Ketkhn9b8NlUJFCl6IEr2ZtUCZBL/I/qb6xfJfAI
+         2iVLYZUjpCiNMq3r88yCZcfSnmJhu+aTLaYqiAi88pRrCMutl9XOOJVBhBspq3+T9NGS
+         yXa67HjrTXBx3fX2uWZekeqxsyjk6bx4FN6yg3UcW3qGzZq0C1BGZUjxqMUFEunQB52V
+         Z3HggJVLIT7Rs/QJMCQ1JQxJ5+LLxlHn4+mOBqo9Pv6VcLo/eMR0BFZ7ZUIloFB/kIIf
+         ZFNr3ZWmGPOB9ZZ9z4+tBKInim7Uxcy+yTLKxgRXKJDxxJX3q8W0i6hUieSeqvUMOTHz
+         BPBg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:reply-to
+         :from:date:message-id:subject:to:cc;
+        bh=OIIDlfcyhq8GpxZiSZ0N5GrBiYJCNWA0YqLByMwLUao=;
+        b=Gj3xyVtCVh3V59M5Oid1DxiZoRXrj9RTkgENarOag7FoPeE5CrcgsyPylQk7qShi1a
+         4FBvT6N4HpXjBLR2xhlCcdbKC4Wdsv+PtIYVz52NKdTbyE+d5Dom3lx/IBzMq2MK6gPe
+         VzAVKfGNTwVdmHJc+s5XMxKzasLgr4/JXX7JFBVOVZmc36rUd3UgWoDs2HKno7WIWzh5
+         ocg1VjevkDckivejsBJNOTo92hhOVhHGtyh3qWiwETSPrFk14vcMyzjJCVzGd9GRKctb
+         qOPb9rCmP5Q8j3AkbKF2RAmDBzXKJDyAp3KevP2ldkHBz//RagtXiyoX4zX35uzPOrCr
+         rnJg==
+X-Gm-Message-State: AOAM530+RRuJIF/i+E5zAQZ5wNZQbrv2F2IxlZ6ZqCbbItLASzvpI6n1
+        tb5k6b2LCKiSAjBaCu29RYGLCH0PZP0Xk0fNTvFzTzBk
+X-Google-Smtp-Source: ABdhPJwJ4g8ai+60UV93wL0APNZJ5h3gefETgGnkohCa9os78P4tXHVHiCmQOWfy9G15ExSXjXmKtHCFK7YDTnhTdAs=
+X-Received: by 2002:a5e:9309:: with SMTP id k9mr4442948iom.135.1592575402356;
+ Fri, 19 Jun 2020 07:03:22 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+References: <CA+icZUU8mXX23JHvEGjgBtTTp_zpm++wBkAgw_Rx0T-Rajz28w@mail.gmail.com>
+ <328409138.27353672.1592572038963.JavaMail.zimbra@redhat.com>
+In-Reply-To: <328409138.27353672.1592572038963.JavaMail.zimbra@redhat.com>
+Reply-To: sedat.dilek@gmail.com
+From:   Sedat Dilek <sedat.dilek@gmail.com>
+Date:   Fri, 19 Jun 2020 16:03:11 +0200
+Message-ID: <CA+icZUVcibK32G+9YUahD02n+yvk4DLxG9vJ6DFOJJXTYoMDQA@mail.gmail.com>
+Subject: Re: PASS: Test report for kernel 5.7.4-1d8b8c5.cki (stable-queue)
+To:     Veronika Kabatova <vkabatov@redhat.com>
+Cc:     Yi Chen <yiche@redhat.com>, Jianwen Ji <jiji@redhat.com>,
+        Hangbin Liu <haliu@redhat.com>,
+        Ondrej Moris <omoris@redhat.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        CKI Project <cki-project@redhat.com>,
+        Linux Stable maillist <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Jun 19, 2020 at 3:07 PM Veronika Kabatova <vkabatov@redhat.com> wrote:
+>
+>
+>
+> ----- Original Message -----
+> > From: "Sedat Dilek" <sedat.dilek@gmail.com>
+> > To: "Yi Chen" <yiche@redhat.com>, "Jianwen Ji" <jiji@redhat.com>, "Hangbin Liu" <haliu@redhat.com>, "Ondrej Moris"
+> > <omoris@redhat.com>, "Ondrej Mosnacek" <omosnace@redhat.com>
+> > Cc: "CKI Project" <cki-project@redhat.com>, "Linux Stable maillist" <stable@vger.kernel.org>
+> > Sent: Friday, June 19, 2020 1:48:51 PM
+> > Subject: Re: PASS: Test report for kernel 5.7.4-1d8b8c5.cki (stable-queue)
+> >
+> > Hi CKI maintainers,
+> >
+> > thanks for doing automated tests.
+> >
+> > I am interested in a report of currently released Linux v5.7.5-rc1
+> > before doing my testing with Clang's Integrated Assembly on
+> > Debian/testing AMD64.
+> >
+> > Is there a browsable URL you can give me where I can see if AMD64
+> > (x86-64) tests have passed OK?
+> >
+> > Or is it "Be patient and wait".
+> >
+>
+> Hi Sedat,
+>
+> thanks for the interest in our testing! The testing for v5.7.5-rc1 is
+> currently still running. The x86_64 tests that had the chance to run so
+> far all passed but you'll have to wait a few hours to get the complete
+> results.
+>
+> We're planning a public web dashboard so in the future you should be able
+> to follow the results there instead of having to wait for test run
+> completion, but it will take us a few more months to get that ready.
+>
+>
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Sounds like a melody to me.
 
-thanks,
+Thanks.
 
-greg k-h
+- Sedat -
 
------------------- original commit in Linus's tree ------------------
-
-From 75e9a330a9bd48f97a55a08000236084fe3dae56 Mon Sep 17 00:00:00 2001
-From: Miquel Raynal <miquel.raynal@bootlin.com>
-Date: Tue, 19 May 2020 15:00:29 +0200
-Subject: [PATCH] mtd: rawnand: tmio: Fix the probe error path
-
-nand_release() is supposed be called after MTD device registration.
-Here, only nand_scan() happened, so use nand_cleanup() instead.
-
-There is no real Fixes tag applying here as the use of nand_release()
-in this driver predates by far the introduction of nand_cleanup() in
-commit d44154f969a4 ("mtd: nand: Provide nand_cleanup() function to free NAND related resources")
-which makes this change possible. However, pointing this commit as the
-culprit for backporting purposes makes sense even if this commit is not
-introducing any bug.
-
-Fixes: d44154f969a4 ("mtd: nand: Provide nand_cleanup() function to free NAND related resources")
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/linux-mtd/20200519130035.1883-57-miquel.raynal@bootlin.com
-
-diff --git a/drivers/mtd/nand/raw/tmio_nand.c b/drivers/mtd/nand/raw/tmio_nand.c
-index db030f1701ee..4e9a6d94f6e8 100644
---- a/drivers/mtd/nand/raw/tmio_nand.c
-+++ b/drivers/mtd/nand/raw/tmio_nand.c
-@@ -448,7 +448,7 @@ static int tmio_probe(struct platform_device *dev)
- 	if (!retval)
- 		return retval;
- 
--	nand_release(nand_chip);
-+	nand_cleanup(nand_chip);
- 
- err_irq:
- 	tmio_hw_stop(dev, tmio);
-
+> Veronika
+>
+> > Thanks.
+> >
+> > Regards,
+> > - Sedat -
+> >
+> > [1]
+> > https://git.kernel.org/pub/scm/public-inbox/vger.kernel.org/stable/0.git/commit/?id=2009b13ce33bf5a474ccdda991559e39712862c8
+> >
+> >
+>
