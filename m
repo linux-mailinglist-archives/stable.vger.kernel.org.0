@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4F78200BAE
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:38:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68A3A200BFB
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:42:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726993AbgFSOge (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:36:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53064 "EHLO mail.kernel.org"
+        id S2388129AbgFSOkU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:40:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387548AbgFSOgd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:36:33 -0400
+        id S2388099AbgFSOkS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:40:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D8F221548;
-        Fri, 19 Jun 2020 14:36:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 370FF20773;
+        Fri, 19 Jun 2020 14:40:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577393;
-        bh=0Kk4exPKBCvNorayPAfo/KDmWOa7KJcKQRFDySXXI7c=;
+        s=default; t=1592577617;
+        bh=MavuaE6RpHO1pjmAVmuBsMf1W73U+3iUQqhX42rPWaU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wseALY8QG/DgesL6p/I0PpUhrEf3lv9L56RGOxjj3PSMWWCfp3oU+8lu9ROPWXdjW
-         cH/yESqbTxUU2sWWp07bMiAZFNIz21099/RZzkOD8rtrKHfo2m0jpB0cmF6O2b9ksK
-         tC1O3YO0RejG+LEORAwUCa/YPVLmlaiDGvgPUHVI=
+        b=beKqaWlRG9UNvuOM7xuZYzgOech0BvaV3I2Zms2USAuShbB6MplnDX5E+/ufsH2zD
+         xt2ZhI8OJ0VCbfay8gYx/J1h4lXaS6EQxjOQepleUbUYCwUGhqCDrs3sKtjW1+vh91
+         S5YFf2VGnzK6oR7K0cftUDGiggK39owzEcAn6Ir8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhao Qiang <qiang.zhao@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        "Nobuhiro Iwamatsu (CIP)" <nobuhiro1.iwamatsu@toshiba.co.jp>
-Subject: [PATCH 4.4 004/101] net: phy: marvell: Limit 88m1101 autoneg errata to 88E1145 as well.
-Date:   Fri, 19 Jun 2020 16:31:53 +0200
-Message-Id: <20200619141614.239459471@linuxfoundation.org>
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Jan Kara <jack@suse.cz>, Tejun Heo <tj@kernel.org>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.9 020/128] cgroup, blkcg: Prepare some symbols for module and !CONFIG_CGROUP usages
+Date:   Fri, 19 Jun 2020 16:31:54 +0200
+Message-Id: <20200619141621.241491386@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141614.001544111@linuxfoundation.org>
-References: <20200619141614.001544111@linuxfoundation.org>
+In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
+References: <20200619141620.148019466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,31 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhao Qiang <qiang.zhao@nxp.com>
+From: Tejun Heo <tj@kernel.org>
 
-commit c505873eaece2b4aefd07d339dc7e1400e0235ac upstream.
+commit 9b0eb69b75bccada2d341d7e7ca342f0cb1c9a6a upstream.
 
-88E1145 also need this autoneg errata.
+btrfs is going to use css_put() and wbc helpers to improve cgroup
+writeback support.  Add dummy css_get() definition and export wbc
+helpers to prepare for module and !CONFIG_CGROUP builds.
 
-Fixes: f2899788353c ("net: phy: marvell: Limit errata to 88m1101")
-Signed-off-by: Zhao Qiang <qiang.zhao@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
+[only backport the export of __inode_attach_wb for stable kernels - gregkh]
+
+Reported-by: kbuild test robot <lkp@intel.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/phy/marvell.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/phy/marvell.c
-+++ b/drivers/net/phy/marvell.c
-@@ -1091,7 +1091,7 @@ static struct phy_driver marvell_drivers
- 		.features = PHY_GBIT_FEATURES,
- 		.flags = PHY_HAS_INTERRUPT,
- 		.config_init = &m88e1145_config_init,
--		.config_aneg = &marvell_config_aneg,
-+		.config_aneg = &m88e1101_config_aneg,
- 		.read_status = &genphy_read_status,
- 		.ack_interrupt = &marvell_ack_interrupt,
- 		.config_intr = &marvell_config_intr,
+---
+ fs/fs-writeback.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/fs/fs-writeback.c
++++ b/fs/fs-writeback.c
+@@ -269,6 +269,7 @@ void __inode_attach_wb(struct inode *ino
+ 	if (unlikely(cmpxchg(&inode->i_wb, NULL, wb)))
+ 		wb_put(wb);
+ }
++EXPORT_SYMBOL_GPL(__inode_attach_wb);
+ 
+ /**
+  * locked_inode_to_wb_and_lock_list - determine a locked inode's wb and lock it
 
 
