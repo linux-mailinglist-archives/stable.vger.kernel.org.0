@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F26E52010BF
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:36:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9ABEA2010E2
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:36:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393704AbgFSPdN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:33:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37120 "EHLO mail.kernel.org"
+        id S2403767AbgFSPf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:35:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404939AbgFSPdI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:33:08 -0400
+        id S2404596AbgFSPbo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:31:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E3B582166E;
-        Fri, 19 Jun 2020 15:33:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF3D120734;
+        Fri, 19 Jun 2020 15:31:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580787;
-        bh=eDxLH4ouDqLNWQDr9hjpdo2YNXdlxYjycEeNZepbj/8=;
+        s=default; t=1592580703;
+        bh=tJeVrSk1Su6rLW8kR1sodkhPQpUas+QA2YDQF5pVEBQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qB1l/4nkd9ytutk2NFY6D40kEZSm7JhdmJ0ugO9N//SwrFFaOMnwBoh94W/0bmGK/
-         5AqaomU3oBpb3aWGwUBFJl8zSlHsS/P+4WLhlZ+k/+XXf84radF6n5UE73FfINnfwW
-         USdigQb6/2GxQ2xzDw7eUFOj54pBDMgtfayK7RkU=
+        b=FshqMaFVm1APfeajB11oOcaBXEzQxxkHAMxqkCqUitktBy1Bdy3UHI+e/fHv6WLq1
+         x6NNcylJu5GvWEQ3oH6KCwL9ZSVyS5X/xDyOuquUo5eIGyrAuAnV596QfGKPNafgxT
+         nClmxH70YOsQAQipZ3BkGCUCjtNPkkISi4b1IhPM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.7 342/376] powerpc/64s: Dont let DT CPU features set FSCR_DSCR
-Date:   Fri, 19 Jun 2020 16:34:20 +0200
-Message-Id: <20200619141726.521924280@linuxfoundation.org>
+Subject: [PATCH 5.7 343/376] powerpc/64s: Save FSCR to init_task.thread.fscr after feature init
+Date:   Fri, 19 Jun 2020 16:34:21 +0200
+Message-Id: <20200619141726.569869659@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -44,52 +44,79 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit 993e3d96fd08c3ebf7566e43be9b8cd622063e6d upstream.
+commit 912c0a7f2b5daa3cbb2bc10f303981e493de73bd upstream.
 
-The device tree CPU features binding includes FSCR bit numbers which
-Linux is instructed to set by firmware.
+At boot the FSCR is initialised via one of two paths. On most systems
+it's set to a hard coded value in __init_FSCR().
 
-Whether that's a good idea or not, in the case of the DSCR the Linux
-implementation has a hard requirement that the FSCR_DSCR bit not be
-set by default. We use it to track when a process reads/writes to
-DSCR, so it must be clear to begin with.
+On newer skiboot systems we use the device tree CPU features binding,
+where firmware can tell Linux what bits to set in FSCR (and HFSCR).
 
-So if firmware tells us to set FSCR_DSCR we must ignore it.
+In both cases the value that's configured at boot is not propagated
+into the init_task.thread.fscr value prior to the initial fork of init
+(pid 1), which means the value is not used by any processes other than
+swapper (the idle task).
 
-Currently this does not cause a bug in our DSCR handling because the
-value of FSCR that the device tree CPU features code establishes is
-only used by swapper. All other tasks use the value hard coded in
-init_task.thread.fscr.
+For the __init_FSCR() case this is OK, because the value in
+init_task.thread.fscr is initialised to something sensible. However it
+does mean that the value set in __init_FSCR() is not used other than
+for swapper, which is odd and confusing.
 
-However we'd like to fix that in a future commit, at which point this
-will become necessary.
+The bigger problem is for the device tree CPU features case it
+prevents firmware from setting (or clearing) FSCR bits for use by user
+space. This means all existing kernels can not have features
+enabled/disabled by firmware if those features require
+setting/clearing FSCR bits.
+
+We can handle both cases by saving the FSCR value into
+init_task.thread.fscr after we have initialised it at boot. This fixes
+the bug for device tree CPU features, and will allow us to simplify
+the initialisation for the __init_FSCR() case in a future patch.
 
 Fixes: 5a61ef74f269 ("powerpc/64s: Support new device tree binding for discovering CPU features")
 Cc: stable@vger.kernel.org # v4.12+
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200527145843.2761782-2-mpe@ellerman.id.au
+Link: https://lore.kernel.org/r/20200527145843.2761782-3-mpe@ellerman.id.au
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/dt_cpu_ftrs.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/powerpc/kernel/prom.c |   19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
---- a/arch/powerpc/kernel/dt_cpu_ftrs.c
-+++ b/arch/powerpc/kernel/dt_cpu_ftrs.c
-@@ -346,6 +346,14 @@ static int __init feat_enable_dscr(struc
- {
- 	u64 lpcr;
+--- a/arch/powerpc/kernel/prom.c
++++ b/arch/powerpc/kernel/prom.c
+@@ -685,6 +685,23 @@ static void __init tm_init(void)
+ static void tm_init(void) { }
+ #endif /* CONFIG_PPC_TRANSACTIONAL_MEM */
  
++#ifdef CONFIG_PPC64
++static void __init save_fscr_to_task(void)
++{
 +	/*
-+	 * Linux relies on FSCR[DSCR] being clear, so that we can take the
-+	 * facility unavailable interrupt and track the task's usage of DSCR.
-+	 * See facility_unavailable_exception().
-+	 * Clear the bit here so that feat_enable() doesn't set it.
++	 * Ensure the init_task (pid 0, aka swapper) uses the value of FSCR we
++	 * have configured via the device tree features or via __init_FSCR().
++	 * That value will then be propagated to pid 1 (init) and all future
++	 * processes.
 +	 */
-+	f->fscr_bit_nr = -1;
++	if (early_cpu_has_feature(CPU_FTR_ARCH_207S))
++		init_task.thread.fscr = mfspr(SPRN_FSCR);
++}
++#else
++static inline void save_fscr_to_task(void) {};
++#endif
 +
- 	feat_enable(f);
++
+ void __init early_init_devtree(void *params)
+ {
+ 	phys_addr_t limit;
+@@ -773,6 +790,8 @@ void __init early_init_devtree(void *par
+ 		BUG();
+ 	}
  
- 	lpcr = mfspr(SPRN_LPCR);
++	save_fscr_to_task();
++
+ #if defined(CONFIG_SMP) && defined(CONFIG_PPC64)
+ 	/* We'll later wait for secondaries to check in; there are
+ 	 * NCPUS-1 non-boot CPUs  :-)
 
 
