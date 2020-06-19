@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 39DA0200BE2
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:42:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37BB8200C4D
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:47:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387981AbgFSOjH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:39:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56340 "EHLO mail.kernel.org"
+        id S2388514AbgFSOny (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:43:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387968AbgFSOjE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:39:04 -0400
+        id S2388511AbgFSOnx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:43:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6C762070A;
-        Fri, 19 Jun 2020 14:39:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2493221556;
+        Fri, 19 Jun 2020 14:43:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577543;
-        bh=xgCu3WtvZsZ1pBuh68rAkgwUoDM9qwBDw56mAhtC16Q=;
+        s=default; t=1592577832;
+        bh=L3YK4HhwSLCxtVLyXo4PKwaZSioEb4283EpfEjbdwFs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OrL2umlirUYS3T8QPpdNDuAnBMv0b97lDdI/niQgQcYlTeV9g2+jsJFCk6yWCuBvn
-         kFDJuiGoJz8972P4t7H8bmh6YVkEDUVkuNh+Qq+OZXenIX0Ber2qoPwqw928/AMv5h
-         JtVEfBktCIOTVWiJofFnR88OfQuLd5cb9z6Fatpw=
+        b=xBoAoHQkc125SPDodIpYOd/OOJu0WbAECjoH4OuXgH2cQy/2OIrUkIsVUCwusg+RJ
+         0lL021LT+0mj7j14dJPmcbyCn/dzoNSkNb0kaTyFNdKTUKKHOTFBaSYfDP4M0zi5GB
+         40C9oAIiWaT3VcBZ1CZJTcVFq4g4a2DENN7hENh0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Al Viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH 4.4 092/101] sparc32: fix register window handling in genregs32_[gs]et()
+        stable@vger.kernel.org,
+        Punit Agrawal <punit1.agrawal@toshiba.co.jp>,
+        Alexander Duyck <alexander.h.duyck@linux.intel.com>,
+        Aaron Brown <aaron.f.brown@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Subject: [PATCH 4.9 107/128] e1000e: Relax condition to trigger reset for ME workaround
 Date:   Fri, 19 Jun 2020 16:33:21 +0200
-Message-Id: <20200619141618.786511043@linuxfoundation.org>
+Message-Id: <20200619141625.801951252@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141614.001544111@linuxfoundation.org>
-References: <20200619141614.001544111@linuxfoundation.org>
+In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
+References: <20200619141620.148019466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,290 +46,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Punit Agrawal <punit1.agrawal@toshiba.co.jp>
 
-commit cf51e129b96847f969bfb8af1ee1516a01a70b39 upstream.
+commit d601afcae2febc49665008e9a79e701248d56c50 upstream.
 
-It needs access_process_vm() if the traced process does not share
-mm with the caller.  Solution is similar to what sparc64 does.
-Note that genregs32_set() is only ever called with pos being 0
-or 32 * sizeof(u32) (the latter - as part of PTRACE_SETREGS
-handling).
+It's an error if the value of the RX/TX tail descriptor does not match
+what was written. The error condition is true regardless the duration
+of the interference from ME. But the driver only performs the reset if
+E1000_ICH_FWSM_PCIM2PCI_COUNT (2000) iterations of 50us delay have
+transpired. The extra condition can lead to inconsistency between the
+state of hardware as expected by the driver.
 
-Cc: stable@kernel.org
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Fix this by dropping the check for number of delay iterations.
+
+While at it, also make __ew32_prepare() static as it's not used
+anywhere else.
+
+CC: stable <stable@vger.kernel.org>
+Signed-off-by: Punit Agrawal <punit1.agrawal@toshiba.co.jp>
+Reviewed-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+Tested-by: Aaron Brown <aaron.f.brown@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/sparc/kernel/ptrace_32.c |  230 ++++++++++++++++++------------------------
- 1 file changed, 99 insertions(+), 131 deletions(-)
+ drivers/net/ethernet/intel/e1000e/e1000.h  |    1 -
+ drivers/net/ethernet/intel/e1000e/netdev.c |   12 +++++-------
+ 2 files changed, 5 insertions(+), 8 deletions(-)
 
---- a/arch/sparc/kernel/ptrace_32.c
-+++ b/arch/sparc/kernel/ptrace_32.c
-@@ -45,82 +45,79 @@ enum sparc_regset {
- 	REGSET_FP,
- };
+--- a/drivers/net/ethernet/intel/e1000e/e1000.h
++++ b/drivers/net/ethernet/intel/e1000e/e1000.h
+@@ -589,7 +589,6 @@ static inline u32 __er32(struct e1000_hw
  
-+static int regwindow32_get(struct task_struct *target,
-+			   const struct pt_regs *regs,
-+			   u32 *uregs)
-+{
-+	unsigned long reg_window = regs->u_regs[UREG_I6];
-+	int size = 16 * sizeof(u32);
-+
-+	if (target == current) {
-+		if (copy_from_user(uregs, (void __user *)reg_window, size))
-+			return -EFAULT;
-+	} else {
-+		if (access_process_vm(target, reg_window, uregs, size,
-+				      FOLL_FORCE) != size)
-+			return -EFAULT;
-+	}
-+	return 0;
-+}
-+
-+static int regwindow32_set(struct task_struct *target,
-+			   const struct pt_regs *regs,
-+			   u32 *uregs)
-+{
-+	unsigned long reg_window = regs->u_regs[UREG_I6];
-+	int size = 16 * sizeof(u32);
-+
-+	if (target == current) {
-+		if (copy_to_user((void __user *)reg_window, uregs, size))
-+			return -EFAULT;
-+	} else {
-+		if (access_process_vm(target, reg_window, uregs, size,
-+				      FOLL_FORCE | FOLL_WRITE) != size)
-+			return -EFAULT;
-+	}
-+	return 0;
-+}
-+
- static int genregs32_get(struct task_struct *target,
- 			 const struct user_regset *regset,
- 			 unsigned int pos, unsigned int count,
- 			 void *kbuf, void __user *ubuf)
+ #define er32(reg)	__er32(hw, E1000_##reg)
+ 
+-s32 __ew32_prepare(struct e1000_hw *hw);
+ void __ew32(struct e1000_hw *hw, unsigned long reg, u32 val);
+ 
+ #define ew32(reg, val)	__ew32(hw, E1000_##reg, (val))
+--- a/drivers/net/ethernet/intel/e1000e/netdev.c
++++ b/drivers/net/ethernet/intel/e1000e/netdev.c
+@@ -136,14 +136,12 @@ static const struct e1000_reg_info e1000
+  * has bit 24 set while ME is accessing MAC CSR registers, wait if it is set
+  * and try again a number of times.
+  **/
+-s32 __ew32_prepare(struct e1000_hw *hw)
++static void __ew32_prepare(struct e1000_hw *hw)
  {
- 	const struct pt_regs *regs = target->thread.kregs;
--	unsigned long __user *reg_window;
--	unsigned long *k = kbuf;
--	unsigned long __user *u = ubuf;
--	unsigned long reg;
-+	u32 uregs[16];
-+	int ret;
+ 	s32 i = E1000_ICH_FWSM_PCIM2PCI_COUNT;
  
- 	if (target == current)
- 		flush_user_windows();
- 
--	pos /= sizeof(reg);
--	count /= sizeof(reg);
-+	ret = user_regset_copyout(&pos, &count, &kbuf, &ubuf,
-+				  regs->u_regs,
-+				  0, 16 * sizeof(u32));
-+	if (ret || !count)
-+		return ret;
- 
--	if (kbuf) {
--		for (; count > 0 && pos < 16; count--)
--			*k++ = regs->u_regs[pos++];
+ 	while ((er32(FWSM) & E1000_ICH_FWSM_PCIM2PCI) && --i)
+ 		udelay(50);
 -
--		reg_window = (unsigned long __user *) regs->u_regs[UREG_I6];
--		reg_window -= 16;
--		for (; count > 0 && pos < 32; count--) {
--			if (get_user(*k++, &reg_window[pos++]))
--				return -EFAULT;
--		}
--	} else {
--		for (; count > 0 && pos < 16; count--) {
--			if (put_user(regs->u_regs[pos++], u++))
--				return -EFAULT;
--		}
--
--		reg_window = (unsigned long __user *) regs->u_regs[UREG_I6];
--		reg_window -= 16;
--		for (; count > 0 && pos < 32; count--) {
--			if (get_user(reg, &reg_window[pos++]) ||
--			    put_user(reg, u++))
--				return -EFAULT;
--		}
--	}
--	while (count > 0) {
--		switch (pos) {
--		case 32: /* PSR */
--			reg = regs->psr;
--			break;
--		case 33: /* PC */
--			reg = regs->pc;
--			break;
--		case 34: /* NPC */
--			reg = regs->npc;
--			break;
--		case 35: /* Y */
--			reg = regs->y;
--			break;
--		case 36: /* WIM */
--		case 37: /* TBR */
--			reg = 0;
--			break;
--		default:
--			goto finish;
--		}
--
--		if (kbuf)
--			*k++ = reg;
--		else if (put_user(reg, u++))
-+	if (pos < 32 * sizeof(u32)) {
-+		if (regwindow32_get(target, regs, uregs))
- 			return -EFAULT;
--		pos++;
--		count--;
-+		ret = user_regset_copyout(&pos, &count, &kbuf, &ubuf,
-+					  uregs,
-+					  16 * sizeof(u32), 32 * sizeof(u32));
-+		if (ret || !count)
-+			return ret;
- 	}
--finish:
--	pos *= sizeof(reg);
--	count *= sizeof(reg);
- 
--	return user_regset_copyout_zero(&pos, &count, &kbuf, &ubuf,
--					38 * sizeof(reg), -1);
-+	uregs[0] = regs->psr;
-+	uregs[1] = regs->pc;
-+	uregs[2] = regs->npc;
-+	uregs[3] = regs->y;
-+	uregs[4] = 0;	/* WIM */
-+	uregs[5] = 0;	/* TBR */
-+	return user_regset_copyout(&pos, &count, &kbuf, &ubuf,
-+				  uregs,
-+				  32 * sizeof(u32), 38 * sizeof(u32));
+-	return i;
  }
  
- static int genregs32_set(struct task_struct *target,
-@@ -129,82 +126,53 @@ static int genregs32_set(struct task_str
- 			 const void *kbuf, const void __user *ubuf)
+ void __ew32(struct e1000_hw *hw, unsigned long reg, u32 val)
+@@ -624,11 +622,11 @@ static void e1000e_update_rdt_wa(struct
  {
- 	struct pt_regs *regs = target->thread.kregs;
--	unsigned long __user *reg_window;
--	const unsigned long *k = kbuf;
--	const unsigned long __user *u = ubuf;
--	unsigned long reg;
-+	u32 uregs[16];
-+	u32 psr;
-+	int ret;
+ 	struct e1000_adapter *adapter = rx_ring->adapter;
+ 	struct e1000_hw *hw = &adapter->hw;
+-	s32 ret_val = __ew32_prepare(hw);
  
- 	if (target == current)
- 		flush_user_windows();
++	__ew32_prepare(hw);
+ 	writel(i, rx_ring->tail);
  
--	pos /= sizeof(reg);
--	count /= sizeof(reg);
--
--	if (kbuf) {
--		for (; count > 0 && pos < 16; count--)
--			regs->u_regs[pos++] = *k++;
--
--		reg_window = (unsigned long __user *) regs->u_regs[UREG_I6];
--		reg_window -= 16;
--		for (; count > 0 && pos < 32; count--) {
--			if (put_user(*k++, &reg_window[pos++]))
--				return -EFAULT;
--		}
--	} else {
--		for (; count > 0 && pos < 16; count--) {
--			if (get_user(reg, u++))
--				return -EFAULT;
--			regs->u_regs[pos++] = reg;
--		}
--
--		reg_window = (unsigned long __user *) regs->u_regs[UREG_I6];
--		reg_window -= 16;
--		for (; count > 0 && pos < 32; count--) {
--			if (get_user(reg, u++) ||
--			    put_user(reg, &reg_window[pos++]))
--				return -EFAULT;
--		}
--	}
--	while (count > 0) {
--		unsigned long psr;
--
--		if (kbuf)
--			reg = *k++;
--		else if (get_user(reg, u++))
--			return -EFAULT;
--
--		switch (pos) {
--		case 32: /* PSR */
--			psr = regs->psr;
--			psr &= ~(PSR_ICC | PSR_SYSCALL);
--			psr |= (reg & (PSR_ICC | PSR_SYSCALL));
--			regs->psr = psr;
--			break;
--		case 33: /* PC */
--			regs->pc = reg;
--			break;
--		case 34: /* NPC */
--			regs->npc = reg;
--			break;
--		case 35: /* Y */
--			regs->y = reg;
--			break;
--		case 36: /* WIM */
--		case 37: /* TBR */
--			break;
--		default:
--			goto finish;
--		}
-+	ret = user_regset_copyin(&pos, &count, &kbuf, &ubuf,
-+				 regs->u_regs,
-+				 0, 16 * sizeof(u32));
-+	if (ret || !count)
-+		return ret;
+-	if (unlikely(!ret_val && (i != readl(rx_ring->tail)))) {
++	if (unlikely(i != readl(rx_ring->tail))) {
+ 		u32 rctl = er32(RCTL);
  
--		pos++;
--		count--;
-+	if (pos < 32 * sizeof(u32)) {
-+		if (regwindow32_get(target, regs, uregs))
-+			return -EFAULT;
-+		ret = user_regset_copyin(&pos, &count, &kbuf, &ubuf,
-+					 uregs,
-+					 16 * sizeof(u32), 32 * sizeof(u32));
-+		if (ret)
-+			return ret;
-+		if (regwindow32_set(target, regs, uregs))
-+			return -EFAULT;
-+		if (!count)
-+			return 0;
- 	}
--finish:
--	pos *= sizeof(reg);
--	count *= sizeof(reg);
--
-+	ret = user_regset_copyin(&pos, &count, &kbuf, &ubuf,
-+				 &psr,
-+				 32 * sizeof(u32), 33 * sizeof(u32));
-+	if (ret)
-+		return ret;
-+	regs->psr = (regs->psr & ~(PSR_ICC | PSR_SYSCALL)) |
-+		    (psr & (PSR_ICC | PSR_SYSCALL));
-+	if (!count)
-+		return 0;
-+	ret = user_regset_copyin(&pos, &count, &kbuf, &ubuf,
-+				 &regs->pc,
-+				 33 * sizeof(u32), 34 * sizeof(u32));
-+	if (ret || !count)
-+		return ret;
-+	ret = user_regset_copyin(&pos, &count, &kbuf, &ubuf,
-+				 &regs->y,
-+				 34 * sizeof(u32), 35 * sizeof(u32));
-+	if (ret || !count)
-+		return ret;
- 	return user_regset_copyin_ignore(&pos, &count, &kbuf, &ubuf,
--					 38 * sizeof(reg), -1);
-+					 35 * sizeof(u32), 38 * sizeof(u32));
- }
+ 		ew32(RCTL, rctl & ~E1000_RCTL_EN);
+@@ -641,11 +639,11 @@ static void e1000e_update_tdt_wa(struct
+ {
+ 	struct e1000_adapter *adapter = tx_ring->adapter;
+ 	struct e1000_hw *hw = &adapter->hw;
+-	s32 ret_val = __ew32_prepare(hw);
  
- static int fpregs32_get(struct task_struct *target,
++	__ew32_prepare(hw);
+ 	writel(i, tx_ring->tail);
+ 
+-	if (unlikely(!ret_val && (i != readl(tx_ring->tail)))) {
++	if (unlikely(i != readl(tx_ring->tail))) {
+ 		u32 tctl = er32(TCTL);
+ 
+ 		ew32(TCTL, tctl & ~E1000_TCTL_EN);
 
 
