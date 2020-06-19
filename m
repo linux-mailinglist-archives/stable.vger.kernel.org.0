@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BF832018C2
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 19:01:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B49002018C1
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 19:01:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405955AbgFSQw3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:52:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54824 "EHLO mail.kernel.org"
+        id S2388028AbgFSQw2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:52:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726990AbgFSOhx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:37:53 -0400
+        id S2387794AbgFSOhz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:37:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4FA3D2158C;
-        Fri, 19 Jun 2020 14:37:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E6B552070A;
+        Fri, 19 Jun 2020 14:37:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577472;
-        bh=uzuLMGAdePRGslzSUmlWNQk/hLWre2Me6fiHtWNIbtw=;
+        s=default; t=1592577475;
+        bh=Cf1ff4lvR4cbk8BroWMnNI915TIWIO/x/wTftOXIzYc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=on4UhB3Ojcn7IjGIYgtpWgExnGkN9IWq7tOt+Dt7FZ35BfDzxPwC1VmSMN1+Pyn12
-         Q5NH0xA6gcxdn53nZSU7zo9pcudyGlieF0cV/mU/MYC25rJD5VBGCrWGFCO0bMUgrt
-         6cNXFGZFciKxeQlw/J9+b/7xq8CrAYq7Ig/+oN1E=
+        b=Ij2f54JR1gQPdusoRnEggndjq2H3RRQm246j3FtkEczUb0t4cv9QN9H5dHjC2Cz7n
+         s4/tT90Q5I0mq06Y+NwiE52SLrL45PpZ4/RS6iVDfYiccvRs5YAGWSW4IC/iWroxpA
+         q2sB4sh7sUgX31DfIxO+2ODdYgkJAoFTpilVFjb4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.4 035/101] KVM: nSVM: leave ASID aside in copy_vmcb_control_area
-Date:   Fri, 19 Jun 2020 16:32:24 +0200
-Message-Id: <20200619141615.953939874@linuxfoundation.org>
+        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
+        Xiaoyao Li <xiaoyao.li@intel.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.4 036/101] KVM: nVMX: Consult only the "basic" exit reason when routing nested exit
+Date:   Fri, 19 Jun 2020 16:32:25 +0200
+Message-Id: <20200619141616.011459438@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141614.001544111@linuxfoundation.org>
 References: <20200619141614.001544111@linuxfoundation.org>
@@ -42,32 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit 6c0238c4a62b3a0b1201aeb7e33a4636d552a436 upstream.
+commit 2ebac8bb3c2d35f5135466490fc8eeaf3f3e2d37 upstream.
 
-Restoring the ASID from the hsave area on VMEXIT is wrong, because its
-value depends on the handling of TLB flushes.  Just skipping the field in
-copy_vmcb_control_area will do.
+Consult only the basic exit reason, i.e. bits 15:0 of vmcs.EXIT_REASON,
+when determining whether a nested VM-Exit should be reflected into L1 or
+handled by KVM in L0.
 
+For better or worse, the switch statement in nested_vmx_exit_reflected()
+currently defaults to "true", i.e. reflects any nested VM-Exit without
+dedicated logic.  Because the case statements only contain the basic
+exit reason, any VM-Exit with modifier bits set will be reflected to L1,
+even if KVM intended to handle it in L0.
+
+Practically speaking, this only affects EXIT_REASON_MCE_DURING_VMENTRY,
+i.e. a #MC that occurs on nested VM-Enter would be incorrectly routed to
+L1, as "failed VM-Entry" is the only modifier that KVM can currently
+encounter.  The SMM modifiers will never be generated as KVM doesn't
+support/employ a SMI Transfer Monitor.  Ditto for "exit from enclave",
+as KVM doesn't yet support virtualizing SGX, i.e. it's impossible to
+enter an enclave in a KVM guest (L1 or L2).
+
+Fixes: 644d711aa0e1 ("KVM: nVMX: Deciding if L0 or L1 should handle an L2 exit")
+Cc: Jim Mattson <jmattson@google.com>
+Cc: Xiaoyao Li <xiaoyao.li@intel.com>
 Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Message-Id: <20200227174430.26371-1-sean.j.christopherson@intel.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/svm.c |    2 +-
+ arch/x86/kvm/vmx.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kvm/svm.c
-+++ b/arch/x86/kvm/svm.c
-@@ -2250,7 +2250,7 @@ static inline void copy_vmcb_control_are
- 	dst->iopm_base_pa         = from->iopm_base_pa;
- 	dst->msrpm_base_pa        = from->msrpm_base_pa;
- 	dst->tsc_offset           = from->tsc_offset;
--	dst->asid                 = from->asid;
-+	/* asid not copied, it is handled manually for svm->vmcb.  */
- 	dst->tlb_ctl              = from->tlb_ctl;
- 	dst->int_ctl              = from->int_ctl;
- 	dst->int_vector           = from->int_vector;
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -7844,7 +7844,7 @@ static bool nested_vmx_exit_handled(stru
+ 		return true;
+ 	}
+ 
+-	switch (exit_reason) {
++	switch ((u16)exit_reason) {
+ 	case EXIT_REASON_EXCEPTION_NMI:
+ 		if (is_nmi(intr_info))
+ 			return false;
 
 
