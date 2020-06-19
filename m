@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4306520172A
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:46:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 772F32016BA
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:45:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389544AbgFSQfO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:35:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42828 "EHLO mail.kernel.org"
+        id S2388360AbgFSOme (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:42:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389273AbgFSOuC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:50:02 -0400
+        id S2388012AbgFSOm0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:42:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 59F6D217BA;
-        Fri, 19 Jun 2020 14:50:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C200C21582;
+        Fri, 19 Jun 2020 14:42:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578201;
-        bh=Hf2alprBNfiUHQqF8h/J6O23B9wGzLZKgGZYPXTiCo0=;
+        s=default; t=1592577746;
+        bh=jIpaGaADp1jdndJkgz9vKiM+GEEYlPLQw7p7NrENuEM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C8dL5rM3FUQOzIgr6nLHz9x3WHEcyGkjp1hTsn4lbBtwG+uxyP41ocrLwKQD0iUnS
-         qzIvU29RSPlrTI9xczitHzUiCyztil45g45TznPExPRr0awgPP7vWY2qthuR9J1o87
-         4Kak1SRiJDJT57herC+Mt3wQ4LOnsCZ585L2YTmI=
+        b=uZTWb0SUro6qtsCV/FZ/F0QfRvNIfXnI+BXzFDjqZK/XyMFSSpocCLYdLGDlNlJfc
+         sqnmGeyX85Afzit871vGsjU+AIgrZjHQ+1ceq4/tLNyv57BdZIWO+lnUvwd17mjhTO
+         2v6zUSpP1i0tl4V9jGnEOx2DqhOE19NlJy3ytYsk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 121/190] rtlwifi: Fix a double free in _rtl_usb_tx_urb_setup()
-Date:   Fri, 19 Jun 2020 16:32:46 +0200
-Message-Id: <20200619141639.675062486@linuxfoundation.org>
+Subject: [PATCH 4.9 073/128] netfilter: nft_nat: return EOPNOTSUPP if type or flags are not supported
+Date:   Fri, 19 Jun 2020 16:32:47 +0200
+Message-Id: <20200619141624.052994655@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
-References: <20200619141633.446429600@linuxfoundation.org>
+In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
+References: <20200619141620.148019466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,60 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit beb12813bc75d4a23de43b85ad1c7cb28d27631e ]
+[ Upstream commit 0d7c83463fdf7841350f37960a7abadd3e650b41 ]
 
-Seven years ago we tried to fix a leak but actually introduced a double
-free instead.  It was an understandable mistake because the code was a
-bit confusing and the free was done in the wrong place.  The "skb"
-pointer is freed in both _rtl_usb_tx_urb_setup() and _rtl_usb_transmit().
-The free belongs _rtl_usb_transmit() instead of _rtl_usb_tx_urb_setup()
-and I've cleaned the code up a bit to hopefully make it more clear.
+Instead of EINVAL which should be used for malformed netlink messages.
 
-Fixes: 36ef0b473fbf ("rtlwifi: usb: add missing freeing of skbuff")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200513093951.GD347693@mwanda
+Fixes: eb31628e37a0 ("netfilter: nf_tables: Add support for IPv6 NAT")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtlwifi/usb.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ net/netfilter/nft_nat.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtlwifi/usb.c b/drivers/net/wireless/realtek/rtlwifi/usb.c
-index 93eda23f0123..7a050a75bdcb 100644
---- a/drivers/net/wireless/realtek/rtlwifi/usb.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/usb.c
-@@ -910,10 +910,8 @@ static struct urb *_rtl_usb_tx_urb_setup(struct ieee80211_hw *hw,
- 
- 	WARN_ON(NULL == skb);
- 	_urb = usb_alloc_urb(0, GFP_ATOMIC);
--	if (!_urb) {
--		kfree_skb(skb);
-+	if (!_urb)
- 		return NULL;
--	}
- 	_rtl_install_trx_info(rtlusb, skb, ep_num);
- 	usb_fill_bulk_urb(_urb, rtlusb->udev, usb_sndbulkpipe(rtlusb->udev,
- 			  ep_num), skb->data, skb->len, _rtl_tx_complete, skb);
-@@ -927,7 +925,6 @@ static void _rtl_usb_transmit(struct ieee80211_hw *hw, struct sk_buff *skb,
- 	struct rtl_usb *rtlusb = rtl_usbdev(rtl_usbpriv(hw));
- 	u32 ep_num;
- 	struct urb *_urb = NULL;
--	struct sk_buff *_skb = NULL;
- 
- 	WARN_ON(NULL == rtlusb->usb_tx_aggregate_hdl);
- 	if (unlikely(IS_USB_STOP(rtlusb))) {
-@@ -936,8 +933,7 @@ static void _rtl_usb_transmit(struct ieee80211_hw *hw, struct sk_buff *skb,
- 		return;
+diff --git a/net/netfilter/nft_nat.c b/net/netfilter/nft_nat.c
+index 4c48e9bb21e2..d2510e432c18 100644
+--- a/net/netfilter/nft_nat.c
++++ b/net/netfilter/nft_nat.c
+@@ -135,7 +135,7 @@ static int nft_nat_init(const struct nft_ctx *ctx, const struct nft_expr *expr,
+ 		priv->type = NF_NAT_MANIP_DST;
+ 		break;
+ 	default:
+-		return -EINVAL;
++		return -EOPNOTSUPP;
  	}
- 	ep_num = rtlusb->ep_map.ep_mapping[qnum];
--	_skb = skb;
--	_urb = _rtl_usb_tx_urb_setup(hw, _skb, ep_num);
-+	_urb = _rtl_usb_tx_urb_setup(hw, skb, ep_num);
- 	if (unlikely(!_urb)) {
- 		pr_err("Can't allocate urb. Drop skb!\n");
- 		kfree_skb(skb);
+ 
+ 	err = nft_nat_validate(ctx, expr, NULL);
+@@ -206,7 +206,7 @@ static int nft_nat_init(const struct nft_ctx *ctx, const struct nft_expr *expr,
+ 	if (tb[NFTA_NAT_FLAGS]) {
+ 		priv->flags = ntohl(nla_get_be32(tb[NFTA_NAT_FLAGS]));
+ 		if (priv->flags & ~NF_NAT_RANGE_MASK)
+-			return -EINVAL;
++			return -EOPNOTSUPP;
+ 	}
+ 
+ 	return 0;
 -- 
 2.25.1
 
