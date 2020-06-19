@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EF172013D2
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:07:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85022201574
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:23:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403800AbgFSQEX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:04:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41088 "EHLO mail.kernel.org"
+        id S2389845AbgFSQWX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:22:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403803AbgFSPKz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:10:55 -0400
+        id S2390625AbgFSPAN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:00:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 17208206FA;
-        Fri, 19 Jun 2020 15:10:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2738921974;
+        Fri, 19 Jun 2020 15:00:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579454;
-        bh=iN4uu/SZtCI23lgelTAMXjz+AGc7s2h6+bTtogWffiQ=;
+        s=default; t=1592578813;
+        bh=BrI+WuGkxm4WQ+ii/45L5i8ok4mIJVhc91mXai6/4ZQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xMds3ooVj8w32Jg50YF0z57W+1hOs2UmDjNBnxgZ1PfFB8RNVzlmW0YxjNIKfAq3q
-         bx2h7tgeUGmXwutF9vDEGERdB6uiYxF42L917fqCu72b3RYYpwfXAzna8WC/7rwW/G
-         fU5X2F3EFZF43lvOU5Sq4WTe+NdqB70vgwRIlrLg=
+        b=s4CoXYU8RXLCuv33wyPjh9Py/aVHEbCCo0+vk4I64z6XKy02h3ZRRfLbKJKzcApyT
+         +OPAsYQe8qIo9V9luKEkbMMrSAKypX/iQR9YVggIRKYJinxnswn6Tx8det5Pc1G2Jv
+         WdJRa1Rt0v1a5qu8ZsitLWrCjDzSZorbsG3b0Vn4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rui Miguel Silva <rmfrfs@gmail.com>,
-        Johan Hovold <johan@kernel.org>, Alex Elder <elder@kernel.org>,
-        greybus-dev@lists.linaro.org, Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org,
+        Nicolas Toromanoff <nicolas.toromanoff@st.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 141/261] staging: greybus: sdio: Respect the cmd->busy_timeout from the mmc core
+Subject: [PATCH 4.19 167/267] crypto: stm32/crc32 - fix run-time self test issue.
 Date:   Fri, 19 Jun 2020 16:32:32 +0200
-Message-Id: <20200619141656.623784714@linuxfoundation.org>
+Message-Id: <20200619141656.819659319@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
-References: <20200619141649.878808811@linuxfoundation.org>
+In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
+References: <20200619141648.840376470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,64 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ulf Hansson <ulf.hansson@linaro.org>
+From: Nicolas Toromanoff <nicolas.toromanoff@st.com>
 
-[ Upstream commit a389087ee9f195fcf2f31cd771e9ec5f02c16650 ]
+[ Upstream commit a8cc3128bf2c01c4d448fe17149e87132113b445 ]
 
-Using a fixed 1s timeout for all commands is a bit problematic.
+Fix wrong crc32 initialisation value:
+"alg: shash: stm32_crc32 test failed (wrong result) on test vector 0,
+cfg="init+update+final aligned buffer"
+cra_name="crc32c" expects an init value of 0XFFFFFFFF,
+cra_name="crc32" expects an init value of 0.
 
-For some commands it means waiting longer than needed for the timeout to
-expire, which may not a big issue, but still. For other commands, like for
-an erase (CMD38) that uses a R1B response, may require longer timeouts than
-1s. In these cases, we may end up treating the command as it failed, while
-it just needed some more time to complete successfully.
+Fixes: b51dbe90912a ("crypto: stm32 - Support for STM32 CRC32 crypto module")
 
-Fix the problem by respecting the cmd->busy_timeout, which is provided by
-the mmc core.
-
-Cc: Rui Miguel Silva <rmfrfs@gmail.com>
-Cc: Johan Hovold <johan@kernel.org>
-Cc: Alex Elder <elder@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: greybus-dev@lists.linaro.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Acked-by: Rui Miguel Silva <rmfrfs@gmail.com>
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20200414161413.3036-20-ulf.hansson@linaro.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Nicolas Toromanoff <nicolas.toromanoff@st.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/greybus/sdio.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/crypto/stm32/stm32_crc32.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/staging/greybus/sdio.c b/drivers/staging/greybus/sdio.c
-index 68c5718be827..c4b16bb5c1a4 100644
---- a/drivers/staging/greybus/sdio.c
-+++ b/drivers/staging/greybus/sdio.c
-@@ -411,6 +411,7 @@ static int gb_sdio_command(struct gb_sdio_host *host, struct mmc_command *cmd)
- 	struct gb_sdio_command_request request = {0};
- 	struct gb_sdio_command_response response;
- 	struct mmc_data *data = host->mrq->data;
-+	unsigned int timeout_ms;
- 	u8 cmd_flags;
- 	u8 cmd_type;
- 	int i;
-@@ -469,9 +470,12 @@ static int gb_sdio_command(struct gb_sdio_host *host, struct mmc_command *cmd)
- 		request.data_blksz = cpu_to_le16(data->blksz);
- 	}
+diff --git a/drivers/crypto/stm32/stm32_crc32.c b/drivers/crypto/stm32/stm32_crc32.c
+index 749b51762b18..c5ad83ad2f72 100644
+--- a/drivers/crypto/stm32/stm32_crc32.c
++++ b/drivers/crypto/stm32/stm32_crc32.c
+@@ -28,10 +28,10 @@
  
--	ret = gb_operation_sync(host->connection, GB_SDIO_TYPE_COMMAND,
--				&request, sizeof(request), &response,
--				sizeof(response));
-+	timeout_ms = cmd->busy_timeout ? cmd->busy_timeout :
-+		GB_OPERATION_TIMEOUT_DEFAULT;
-+
-+	ret = gb_operation_sync_timeout(host->connection, GB_SDIO_TYPE_COMMAND,
-+					&request, sizeof(request), &response,
-+					sizeof(response), timeout_ms);
- 	if (ret < 0)
- 		goto out;
+ /* Registers values */
+ #define CRC_CR_RESET            BIT(0)
+-#define CRC_INIT_DEFAULT        0xFFFFFFFF
+ #define CRC_CR_REV_IN_WORD      (BIT(6) | BIT(5))
+ #define CRC_CR_REV_IN_BYTE      BIT(5)
+ #define CRC_CR_REV_OUT          BIT(7)
++#define CRC32C_INIT_DEFAULT     0xFFFFFFFF
  
+ #define CRC_AUTOSUSPEND_DELAY	50
+ 
+@@ -65,7 +65,7 @@ static int stm32_crc32_cra_init(struct crypto_tfm *tfm)
+ {
+ 	struct stm32_crc_ctx *mctx = crypto_tfm_ctx(tfm);
+ 
+-	mctx->key = CRC_INIT_DEFAULT;
++	mctx->key = 0;
+ 	mctx->poly = CRC32_POLY_LE;
+ 	return 0;
+ }
+@@ -74,7 +74,7 @@ static int stm32_crc32c_cra_init(struct crypto_tfm *tfm)
+ {
+ 	struct stm32_crc_ctx *mctx = crypto_tfm_ctx(tfm);
+ 
+-	mctx->key = CRC_INIT_DEFAULT;
++	mctx->key = CRC32C_INIT_DEFAULT;
+ 	mctx->poly = CRC32C_POLY_LE;
+ 	return 0;
+ }
 -- 
 2.25.1
 
