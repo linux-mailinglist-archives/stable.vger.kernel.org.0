@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11FC62010C8
+	by mail.lfdr.de (Postfix) with ESMTP id 811F12010C9
 	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:36:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403876AbgFSPdy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2393557AbgFSPdy (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 19 Jun 2020 11:33:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37050 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:37100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404895AbgFSPdD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:33:03 -0400
+        id S2404915AbgFSPdF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:33:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A984B2166E;
-        Fri, 19 Jun 2020 15:33:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4EAE920786;
+        Fri, 19 Jun 2020 15:33:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580782;
-        bh=thQfZr/q8RAdyDUbyWCNv25/gg/BpfzE787BTka3u6c=;
+        s=default; t=1592580784;
+        bh=9bceEJ9pJZhQjQluZuGetqYQXAYC7KXWl/AlOJEesNk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=An3xlAUc7TfD/GJVt6wTHmoNH2wkRHeSgIKerGjpFXsS0TWMJlIbgtW4E9bJQ0hf9
-         YRfCChW2PEcQdSbn9e0pCG0rKskRPWx0EF+doKaFz39fwhJcMAuu5PaPS9eCCYq+04
-         oOO0n26YgoHFHh/vMtvibrN88GZDzFq1iRGzbCRo=
+        b=J1um2GMFMKAs7kOUqHyHkyaTaDaClE/iI7jyH6sHIyvzuo0b7zMFKlOp00MZFRRky
+         PH5iTi5dX6NFwloMt+pWM81/xf+c0HqgRHgdKLB1durV1kar4r/2hbGv3Zf+uhBzyu
+         GoC/hp2nw4mZxgQwheOYoA6NmH4PNP9qEs+jncqI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Paul Cercueil <paul@crapouillou.net>,
         Thierry Reding <thierry.reding@gmail.com>
-Subject: [PATCH 5.7 350/376] pwm: lpss: Fix get_state runtime-pm reference handling
-Date:   Fri, 19 Jun 2020 16:34:28 +0200
-Message-Id: <20200619141726.893185565@linuxfoundation.org>
+Subject: [PATCH 5.7 351/376] pwm: jz4740: Enhance precision in calculation of duty cycle
+Date:   Fri, 19 Jun 2020 16:34:29 +0200
+Message-Id: <20200619141726.940210748@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -44,101 +46,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Paul Cercueil <paul@crapouillou.net>
 
-commit 01aa905d4791da7d3630f6030ff99d58105cca00 upstream.
+commit 9017dc4fbd59c09463019ce494cfe36d654495a8 upstream.
 
-Before commit cfc4c189bc70 ("pwm: Read initial hardware state at request
-time"), a driver's get_state callback would get called once per PWM from
-pwmchip_add().
+Calculating the hardware value for the duty from the hardware value of
+the period resulted in a precision loss versus calculating it from the
+clock rate directly.
 
-pwm-lpss' runtime-pm code was relying on this, getting a runtime-pm ref for
-PWMs which are enabled at probe time from within its get_state callback,
-before enabling runtime-pm.
+(Also remove a cast that doesn't really need to be here)
 
-The change to calling get_state at request time causes a number of
-problems:
-
-1. PWMs enabled at probe time may get runtime suspended before they are
-requested, causing e.g. a LCD backlight controlled by the PWM to turn off.
-
-2. When the request happens when the PWM has been runtime suspended, the
-ctrl register will read all 1 / 0xffffffff, causing get_state to store
-bogus values in the pwm_state.
-
-3. get_state was using an async pm_runtime_get() call, because it assumed
-that runtime-pm has not been enabled yet. If shortly after the request an
-apply call is made, then the pwm_lpss_is_updating() check may trigger
-because the resume triggered by the pm_runtime_get() call is not complete
-yet, so the ctrl register still reads all 1 / 0xffffffff.
-
-This commit fixes these issues by moving the initial pm_runtime_get() call
-for PWMs which are enabled at probe time to the pwm_lpss_probe() function;
-and by making get_state take a runtime-pm ref before reading the ctrl reg.
-
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1828927
-Fixes: cfc4c189bc70 ("pwm: Read initial hardware state at request time")
-Cc: stable@vger.kernel.org
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Fixes: f6b8a5700057 ("pwm: Add Ingenic JZ4740 support")
+Cc: <stable@vger.kernel.org>
+Suggested-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pwm/pwm-lpss.c |   15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ drivers/pwm/pwm-jz4740.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/pwm/pwm-lpss.c
-+++ b/drivers/pwm/pwm-lpss.c
-@@ -158,7 +158,6 @@ static int pwm_lpss_apply(struct pwm_chi
- 	return 0;
- }
+--- a/drivers/pwm/pwm-jz4740.c
++++ b/drivers/pwm/pwm-jz4740.c
+@@ -158,11 +158,11 @@ static int jz4740_pwm_apply(struct pwm_c
+ 	/* Calculate period value */
+ 	tmp = (unsigned long long)rate * state->period;
+ 	do_div(tmp, NSEC_PER_SEC);
+-	period = (unsigned long)tmp;
++	period = tmp;
  
--/* This function gets called once from pwmchip_add to get the initial state */
- static void pwm_lpss_get_state(struct pwm_chip *chip, struct pwm_device *pwm,
- 			       struct pwm_state *state)
- {
-@@ -167,6 +166,8 @@ static void pwm_lpss_get_state(struct pw
- 	unsigned long long base_unit, freq, on_time_div;
- 	u32 ctrl;
+ 	/* Calculate duty value */
+-	tmp = (unsigned long long)period * state->duty_cycle;
+-	do_div(tmp, state->period);
++	tmp = (unsigned long long)rate * state->duty_cycle;
++	do_div(tmp, NSEC_PER_SEC);
+ 	duty = period - tmp;
  
-+	pm_runtime_get_sync(chip->dev);
-+
- 	base_unit_range = BIT(lpwm->info->base_unit_bits);
- 
- 	ctrl = pwm_lpss_read(pwm);
-@@ -187,8 +188,7 @@ static void pwm_lpss_get_state(struct pw
- 	state->polarity = PWM_POLARITY_NORMAL;
- 	state->enabled = !!(ctrl & PWM_ENABLE);
- 
--	if (state->enabled)
--		pm_runtime_get(chip->dev);
-+	pm_runtime_put(chip->dev);
- }
- 
- static const struct pwm_ops pwm_lpss_ops = {
-@@ -202,7 +202,8 @@ struct pwm_lpss_chip *pwm_lpss_probe(str
- {
- 	struct pwm_lpss_chip *lpwm;
- 	unsigned long c;
--	int ret;
-+	int i, ret;
-+	u32 ctrl;
- 
- 	if (WARN_ON(info->npwm > MAX_PWMS))
- 		return ERR_PTR(-ENODEV);
-@@ -232,6 +233,12 @@ struct pwm_lpss_chip *pwm_lpss_probe(str
- 		return ERR_PTR(ret);
- 	}
- 
-+	for (i = 0; i < lpwm->info->npwm; i++) {
-+		ctrl = pwm_lpss_read(&lpwm->chip.pwms[i]);
-+		if (ctrl & PWM_ENABLE)
-+			pm_runtime_get(dev);
-+	}
-+
- 	return lpwm;
- }
- EXPORT_SYMBOL_GPL(pwm_lpss_probe);
+ 	if (duty >= period)
 
 
