@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D2AD200A85
+	by mail.lfdr.de (Postfix) with ESMTP id 89902200A86
 	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 15:45:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731131AbgFSNpO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 09:45:14 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:36637 "EHLO
+        id S1732495AbgFSNpR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 09:45:17 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:56381 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1732007AbgFSNpN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Jun 2020 09:45:13 -0400
+        by vger.kernel.org with ESMTP id S1732007AbgFSNpQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Jun 2020 09:45:16 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id BEC4B194574D;
-        Fri, 19 Jun 2020 09:45:12 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Fri, 19 Jun 2020 09:45:12 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id 01E08194573D;
+        Fri, 19 Jun 2020 09:45:15 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Fri, 19 Jun 2020 09:45:15 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=2F4CES
-        shBUgBlbiBPyBkcslIR2f9CmB01sueMwPrlF8=; b=BwV5CEQLZZtv6HSzKRDt0r
-        RluH/uTCPJHGCoOY0Qcrzjbva8nFQlQUV8qbCzkce9BM5lgboGPN0R/urYOKkpyf
-        /MHthnjw3IuIx8Bz7q2audOw0gxf29YLZxcOQgsSbiMDXB3nIFoD//iivBFVJM+T
-        lEtb8DhjA7o9fSOs/Hl1/C2Oyk+pYZ2dtqDZppQbbGgOzqLtMwU+++UdGvpzGKyU
-        Ab5mcOmj0eXr82nUcrj2d8yquyfnczdU7IfyG2mRTwf8xYL2tj+0Ghz1DhVmvxSv
-        ezFmQnCMcvlPex/YZ0bZpbhvFTj5Zut/beIffDFoo8awJMQGHleLn6JUVols8G2A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=t1xJmT
+        1FWiT3WcVRy/k3w+eJ2y9QaeUubM6Pu7oVWJI=; b=EZ3H4BE/x5Y/qTBRShtmxa
+        TAdrPbliOIooK11qGH0gCOKEa3mqaXpwB4+sbw5gTOt9TZA/kmxbXa2UZSZWeN/t
+        rp00g83BhDQTdm8YON6nhyqypP8LyB1jDfs+fzyOzStCUtMAeC8rngOsQVBDQyHz
+        0TjDlpzwsglpWfiiAMqwQsG21FI2YfZRw4GpsOroPZ+PCdSsZPe13maLbbDZPxYc
+        CZ+vpcmNEQoQM/DegdDZ2YhZlkMu78EH0BGzR7EDDO486ZJowtZYSy19AtKLmQNO
+        Ydq9s7g/J3M/l0y3ZjWn2eTZ9ynmLfxzBmC572h6hPuAenfSsYr3jj8edv0ew4kQ
         ==
-X-ME-Sender: <xms:aMHsXjtro6ncEOkhUaO7TDW6BH6hyoRUb-f_sJqzuA8fIxJAb0ZvpA>
+X-ME-Sender: <xms:asHsXqxbdSb9s8dVCB4y_Fz2-5Tjr0n39DsT9RZ64-dIatJpbn5aRg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudejiedgieelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -36,20 +36,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudejiedgieelucetufdoteggod
     euudefveegffeuvdetleeunecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
     vghrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
     drtghomh
-X-ME-Proxy: <xmx:aMHsXkfGRVnVQhDAeEbybh_3I3UmO8pq_pYcj0nHuaLVRd_idemuUw>
-    <xmx:aMHsXmyOrQXY7oleQDWEty1zBlCPb0-P85mKNmzaSknXWH1APrBNJA>
-    <xmx:aMHsXiMYTpGNas4sglxKQMckKse7c2sxBzP9uLsrzeB_mxu9oS6Uiw>
-    <xmx:aMHsXgGNvVgZHAXaHOBOKnWR6MJoNn5OnpPIQ2FXMLkscHT0wJL9tA>
+X-ME-Proxy: <xmx:asHsXmSs2sL7KLBuqX4iHmnOBgH4GTziEj2y_1MUAbE5qF1VPRIF7g>
+    <xmx:asHsXsWWjQndfwggFTzbcpp7mJTJFAkrOohoVnuAn9KIkMDqWdnIYQ>
+    <xmx:asHsXgicPV_3Vc_QuuIbkY2DGm04aT_rRGqlFQ3Y004kq3e1BMrEyQ>
+    <xmx:a8HsXnrnqnlvhnRrxTAQcYKv3mZr-TWF6yg56qKa-qZd2apRFaJPew>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 41F61328005A;
-        Fri, 19 Jun 2020 09:45:12 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] pwm: jz4740: Enhance precision in calculation of duty cycle" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 1D5FC3061CCB;
+        Fri, 19 Jun 2020 09:45:13 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] pwm: jz4740: Enhance precision in calculation of duty cycle" failed to apply to 4.14-stable tree
 To:     paul@crapouillou.net, stable@vger.kernel.org,
         thierry.reding@gmail.com, u.kleine-koenig@pengutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 19 Jun 2020 15:45:08 +0200
-Message-ID: <1592574308152110@kroah.com>
+Date:   Fri, 19 Jun 2020 15:45:10 +0200
+Message-ID: <1592574310127192@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
