@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BB692017C1
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64FEA20167C
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:33:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387672AbgFSQm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:42:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35302 "EHLO mail.kernel.org"
+        id S2389637AbgFSQbd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:31:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388125AbgFSOoC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:44:02 -0400
+        id S2389243AbgFSOwv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:52:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E7BAA21556;
-        Fri, 19 Jun 2020 14:44:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CECD321556;
+        Fri, 19 Jun 2020 14:52:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577842;
-        bh=/9nBmvLwtWmlQVQtLPJkWEypThtx126eI/Y7IuF+/M0=;
+        s=default; t=1592578371;
+        bh=4N8wtzWv9c/QUTi9qkJFY+daci7BxXq2OJdDmp6Ojjg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KZVf+bBlGZZ0/VCpgTy+feixkRUIzZvm/RUPmHboaNME8FoGiG8KMbkCNy4Yl/Vid
-         hXALxtbu5cOt9HXx+OyDKRP8/oT/FT82nN4P9nuR7lFYEqKKuES4M2oC6XfmWfKU95
-         P1aNTQaI9NFxLErWLseKqFWyDvcGjwy5ldCdnLyU=
+        b=PDMYyxNCbj/KncgDhiJAO3W8BTidkL6m9UTwvZ6WKpQgredVQJ4V2UDVsVlFYs1zZ
+         OhlFS2wtgey+In81+2o7wAL14GGL9dRWzvj7kBcXo8FU1aVQ29L8jZyq1NGQt3Fqy/
+         fW3VUglObvve7mq3KhWvcZNtoRJilJbdsQ9WEVDs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Rui Salvaterra <rsalvaterra@gmail.com>
-Subject: [PATCH 4.9 111/128] b43: Fix connection problem with WPA3
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 160/190] btrfs: fix wrong file range cleanup after an error filling dealloc range
 Date:   Fri, 19 Jun 2020 16:33:25 +0200
-Message-Id: <20200619141626.006783310@linuxfoundation.org>
+Message-Id: <20200619141641.747839926@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
-References: <20200619141620.148019466@linuxfoundation.org>
+In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
+References: <20200619141633.446429600@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,44 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Larry Finger <Larry.Finger@lwfinger.net>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 75d057bda1fbca6ade21378aa45db712e5f7d962 upstream.
+[ Upstream commit e2c8e92d1140754073ad3799eb6620c76bab2078 ]
 
-Since the driver was first introduced into the kernel, it has only
-handled the ciphers associated with WEP, WPA, and WPA2. It fails with
-WPA3 even though mac80211 can handle those additional ciphers in software,
-b43 did not report that it could handle them. By setting MFP_CAPABLE using
-ieee80211_set_hw(), the problem is fixed.
+If an error happens while running dellaloc in COW mode for a range, we can
+end up calling extent_clear_unlock_delalloc() for a range that goes beyond
+our range's end offset by 1 byte, which affects 1 extra page. This results
+in clearing bits and doing page operations (such as a page unlock) outside
+our target range.
 
-With this change, b43 will handle the ciphers it knows in hardware,
-and let mac80211 handle the others in software. It is not necessary to
-use the module parameter NOHWCRYPT to turn hardware encryption off.
-Although this change essentially eliminates that module parameter,
-I am choosing to keep it for cases where the hardware is broken,
-and software encryption is required for all ciphers.
+Fix that by calling extent_clear_unlock_delalloc() with an inclusive end
+offset, instead of an exclusive end offset, at cow_file_range().
 
-Reported-and-tested-by: Rui Salvaterra <rsalvaterra@gmail.com>
-Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
-Cc: Stable <stable@vger.kernel.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20200526155909.5807-2-Larry.Finger@lwfinger.net
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: a315e68f6e8b30 ("Btrfs: fix invalid attempt to free reserved space on failure to cow range")
+CC: stable@vger.kernel.org # 4.14+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/b43/main.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/inode.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/wireless/broadcom/b43/main.c
-+++ b/drivers/net/wireless/broadcom/b43/main.c
-@@ -5596,7 +5596,7 @@ static struct b43_wl *b43_wireless_init(
- 	/* fill hw info */
- 	ieee80211_hw_set(hw, RX_INCLUDES_FCS);
- 	ieee80211_hw_set(hw, SIGNAL_DBM);
--
-+	ieee80211_hw_set(hw, MFP_CAPABLE);
- 	hw->wiphy->interface_modes =
- 		BIT(NL80211_IFTYPE_AP) |
- 		BIT(NL80211_IFTYPE_MESH_POINT) |
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index 3e65ac2d4869..ad138f0b0ce1 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -1139,8 +1139,8 @@ static noinline int cow_file_range(struct inode *inode,
+ 	 */
+ 	if (extent_reserved) {
+ 		extent_clear_unlock_delalloc(inode, start,
+-					     start + cur_alloc_size,
+-					     start + cur_alloc_size,
++					     start + cur_alloc_size - 1,
++					     start + cur_alloc_size - 1,
+ 					     locked_page,
+ 					     clear_bits,
+ 					     page_ops);
+-- 
+2.25.1
+
 
 
