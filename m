@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F36DB20160C
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:32:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44CC020177F
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390614AbgFSQZl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:25:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52810 "EHLO mail.kernel.org"
+        id S2395341AbgFSQjY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:39:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390236AbgFSO5Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:57:25 -0400
+        id S2388410AbgFSOqf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:46:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 569CA2158C;
-        Fri, 19 Jun 2020 14:57:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BD41E20DD4;
+        Fri, 19 Jun 2020 14:46:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578645;
-        bh=CY52Bl6hIbhNX7WaF6Vsas88tR+RJPp+8Q5PkrVQ+eg=;
+        s=default; t=1592577995;
+        bh=0vMi/bjA1Wl/ZBxz9u8m9VwMcTJ/3ow8errzm8Ae+Ds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZV5Vc2oc3j4dOmwnk/GDoA7pSOT3xTx+XCYZJ5f5//c7f2gwwf/VlDFolU3AueVAw
-         NskjQsuTp0n0YRoP+zc95P2u+0PcEBiSjGEmz5WHQ9c5auupUyaOzIK/Y+sZw8cj/Y
-         7aJicn9Hx3iyWXt5BQCx9BGUqEUEd+hEtpRXCMyM=
+        b=ttPKp1fkveQOrcwplHUXnAj/5QZb+YIdGN5Jart8rRYxxMNZUKUVH5thwLGhvyoi9
+         obxuqYrAXq83lX6pRaSNP4sBhbmR2srRav/neJruCGCoGUlX+EIBrTvW5SWOBNXo93
+         sKMGQrJ/UktuV3l3RLvAQUnydoStMX9OUBGFqqLE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 102/267] arm64: cacheflush: Fix KGDB trap detection
+        Anthony Steinhauser <asteinhauser@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 042/190] x86/speculation: PR_SPEC_FORCE_DISABLE enforcement for indirect branches.
 Date:   Fri, 19 Jun 2020 16:31:27 +0200
-Message-Id: <20200619141653.757619395@linuxfoundation.org>
+Message-Id: <20200619141635.695714428@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
-References: <20200619141648.840376470@linuxfoundation.org>
+In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
+References: <20200619141633.446429600@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,62 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Thompson <daniel.thompson@linaro.org>
+From: Anthony Steinhauser <asteinhauser@google.com>
 
-[ Upstream commit ab8ad279ceac4fc78ae4dcf1a26326e05695e537 ]
+[ Upstream commit 4d8df8cbb9156b0a0ab3f802b80cb5db57acc0bf ]
 
-flush_icache_range() contains a bodge to avoid issuing IPIs when the kgdb
-trap handler is running because issuing IPIs is unsafe (and not needed)
-in this execution context. However the current test, based on
-kgdb_connected is flawed: it both over-matches and under-matches.
+Currently, it is possible to enable indirect branch speculation even after
+it was force-disabled using the PR_SPEC_FORCE_DISABLE option. Moreover, the
+PR_GET_SPECULATION_CTRL command gives afterwards an incorrect result
+(force-disabled when it is in fact enabled). This also is inconsistent
+vs. STIBP and the documention which cleary states that
+PR_SPEC_FORCE_DISABLE cannot be undone.
 
-The over match occurs because kgdb_connected is set when gdb attaches
-to the stub and remains set during normal running. This is relatively
-harmelss because in almost all cases irq_disabled() will be false.
+Fix this by actually enforcing force-disabled indirect branch
+speculation. PR_SPEC_ENABLE called after PR_SPEC_FORCE_DISABLE now fails
+with -EPERM as described in the documentation.
 
-The under match is more serious. When kdb is used instead of kgdb to access
-the debugger then kgdb_connected is not set in all the places that the
-debug core updates sw breakpoints (and hence flushes the icache). This
-can lead to deadlock.
-
-Fix by replacing the ad-hoc check with the proper kgdb macro. This also
-allows us to drop the #ifdef wrapper.
-
-Fixes: 3b8c9f1cdfc5 ("arm64: IPI each CPU after invalidating the I-cache for kernel mappings")
-Signed-off-by: Daniel Thompson <daniel.thompson@linaro.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Link: https://lore.kernel.org/r/20200504170518.2959478-1-daniel.thompson@linaro.org
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: 9137bb27e60e ("x86/speculation: Add prctl() control for indirect branch speculation")
+Signed-off-by: Anthony Steinhauser <asteinhauser@google.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/cacheflush.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/x86/kernel/cpu/bugs.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/include/asm/cacheflush.h b/arch/arm64/include/asm/cacheflush.h
-index 19844211a4e6..a449a1c602d3 100644
---- a/arch/arm64/include/asm/cacheflush.h
-+++ b/arch/arm64/include/asm/cacheflush.h
-@@ -90,7 +90,7 @@ static inline void flush_icache_range(unsigned long start, unsigned long end)
- 	 * IPI all online CPUs so that they undergo a context synchronization
- 	 * event and are forced to refetch the new instructions.
- 	 */
--#ifdef CONFIG_KGDB
+diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
+index ffcf30ec0aae..245184152892 100644
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -1249,11 +1249,14 @@ static int ib_prctl_set(struct task_struct *task, unsigned long ctrl)
+ 			return 0;
+ 		/*
+ 		 * Indirect branch speculation is always disabled in strict
+-		 * mode.
++		 * mode. It can neither be enabled if it was force-disabled
++		 * by a  previous prctl call.
 +
- 	/*
- 	 * KGDB performs cache maintenance with interrupts disabled, so we
- 	 * will deadlock trying to IPI the secondary CPUs. In theory, we can
-@@ -100,9 +100,9 @@ static inline void flush_icache_range(unsigned long start, unsigned long end)
- 	 * the patching operation, so we don't need extra IPIs here anyway.
- 	 * In which case, add a KGDB-specific bodge and return early.
- 	 */
--	if (kgdb_connected && irqs_disabled())
-+	if (in_dbg_master())
- 		return;
--#endif
-+
- 	kick_all_cpus_sync();
- }
- 
+ 		 */
+ 		if (spectre_v2_user_ibpb == SPECTRE_V2_USER_STRICT ||
+ 		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT ||
+-		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED)
++		    spectre_v2_user_stibp == SPECTRE_V2_USER_STRICT_PREFERRED ||
++		    task_spec_ib_force_disable(task))
+ 			return -EPERM;
+ 		task_clear_spec_ib_disable(task);
+ 		task_update_spec_tif(task);
 -- 
 2.25.1
 
