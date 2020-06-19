@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47A412018DB
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 19:02:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 645F12018D9
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 19:02:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436526AbgFSQxo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:53:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53766 "EHLO mail.kernel.org"
+        id S2387663AbgFSQxk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:53:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387644AbgFSOhA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:37:00 -0400
+        id S2387623AbgFSOhC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:37:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 083D520CC7;
-        Fri, 19 Jun 2020 14:36:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C32F021582;
+        Fri, 19 Jun 2020 14:37:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577419;
-        bh=rGtfVHMuIXLp77viLsLkSkb8XC+fGEJceN3uMHfOGkM=;
+        s=default; t=1592577422;
+        bh=IWwugB8J0T2HwlfDvqTqvYRdo+b31C/P+vvrxhblFWk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mfoDeO5dAhorTSRsSfTyg5fWkqGrjYCtPXHYEYqSTE9YbHM5DMrBspGg9RSGOn/t8
-         GZHGkhFbJeqctyRdX5xfH+NuxDZefkQL4Vvfe/Gj7xOUVBx9pwGr6EGLAur0dpRzwW
-         r4Y/dv557QCPkwT/3TbHqIrgsmgUYIebj6vqYa8E=
+        b=fU4DzqB0vLuabe/Qz8mZb5nG3pfXSfkH7p1sT5QpB1mxBSfM8Dq+L7Rky5ZPprnmN
+         etQJ8ypvIkDg8ReVYRRtWsXZidCiSdStMMMHMnHc0x4AZUe5uZKgWkJMd37nPZSzF4
+         InnnjYVP5aQibMq91B4c3hGRNtyrAW+3CpsuJYr0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+6f1624f937d9d6911e2d@syzkaller.appspotmail.com,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Marco Elver <elver@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 044/101] fat: dont allow to mount if the FAT length == 0
-Date:   Fri, 19 Jun 2020 16:32:33 +0200
-Message-Id: <20200619141616.410416668@linuxfoundation.org>
+        Xiaolong Huang <butterflyhuangxx@gmail.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.4 045/101] can: kvaser_usb: kvaser_usb_leaf: Fix some info-leaks to USB devices
+Date:   Fri, 19 Jun 2020 16:32:34 +0200
+Message-Id: <20200619141616.459095266@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141614.001544111@linuxfoundation.org>
 References: <20200619141614.001544111@linuxfoundation.org>
@@ -48,42 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+From: Xiaolong Huang <butterflyhuangxx@gmail.com>
 
-commit b1b65750b8db67834482f758fc385bfa7560d228 upstream.
+commit da2311a6385c3b499da2ed5d9be59ce331fa93e9 upstream.
 
-If FAT length == 0, the image doesn't have any data. And it can be the
-cause of overlapping the root dir and FAT entries.
+Uninitialized Kernel memory can leak to USB devices.
 
-Also Windows treats it as invalid format.
+Fix this by using kzalloc() instead of kmalloc().
 
-Reported-by: syzbot+6f1624f937d9d6911e2d@syzkaller.appspotmail.com
-Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Marco Elver <elver@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Link: http://lkml.kernel.org/r/87r1wz8mrd.fsf@mail.parknet.co.jp
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Xiaolong Huang <butterflyhuangxx@gmail.com>
+Fixes: 7259124eac7d ("can: kvaser_usb: Split driver into kvaser_usb_core.c and kvaser_usb_leaf.c")
+Cc: linux-stable <stable@vger.kernel.org> # >= v4.19
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+[bwh: Backported to 4.9: adjust filename, context]
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/fat/inode.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/can/usb/kvaser_usb.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/fat/inode.c
-+++ b/fs/fat/inode.c
-@@ -1422,6 +1422,12 @@ static int fat_read_bpb(struct super_blo
- 		goto out;
+--- a/drivers/net/can/usb/kvaser_usb.c
++++ b/drivers/net/can/usb/kvaser_usb.c
+@@ -787,7 +787,7 @@ static int kvaser_usb_simple_msg_async(s
+ 		return -ENOMEM;
  	}
  
-+	if (bpb->fat_fat_length == 0 && bpb->fat32_length == 0) {
-+		if (!silent)
-+			fat_msg(sb, KERN_ERR, "bogus number of FAT sectors");
-+		goto out;
-+	}
-+
- 	error = 0;
+-	buf = kmalloc(sizeof(struct kvaser_msg), GFP_ATOMIC);
++	buf = kzalloc(sizeof(struct kvaser_msg), GFP_ATOMIC);
+ 	if (!buf) {
+ 		usb_free_urb(urb);
+ 		return -ENOMEM;
+@@ -1457,7 +1457,7 @@ static int kvaser_usb_set_opt_mode(const
+ 	struct kvaser_msg *msg;
+ 	int rc;
  
- out:
+-	msg = kmalloc(sizeof(*msg), GFP_KERNEL);
++	msg = kzalloc(sizeof(*msg), GFP_KERNEL);
+ 	if (!msg)
+ 		return -ENOMEM;
+ 
+@@ -1590,7 +1590,7 @@ static int kvaser_usb_flush_queue(struct
+ 	struct kvaser_msg *msg;
+ 	int rc;
+ 
+-	msg = kmalloc(sizeof(*msg), GFP_KERNEL);
++	msg = kzalloc(sizeof(*msg), GFP_KERNEL);
+ 	if (!msg)
+ 		return -ENOMEM;
+ 
 
 
