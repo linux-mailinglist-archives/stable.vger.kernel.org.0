@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFF6020112E
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:42:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFA22201068
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:31:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404954AbgFSPhf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:37:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33708 "EHLO mail.kernel.org"
+        id S2404774AbgFSPaI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:30:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404757AbgFSPaB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:30:01 -0400
+        id S2404762AbgFSPaE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:30:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3228920734;
-        Fri, 19 Jun 2020 15:29:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D409121BE5;
+        Fri, 19 Jun 2020 15:30:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580600;
-        bh=ODtiBtkmDmoeoNHrq7w+eQVE6/6veRoEj9SxNrZcqI0=;
+        s=default; t=1592580603;
+        bh=n4yr+oL3bQYGT4plJWPKVz74+8ZJ5Ba2FvJjJkYzweI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EDeHJFJSgqSYe2R2evQDAxNSaCm7Pj27A8KX0Up8wd95HwrQW2ypbDWs6FwjI3uTn
-         qHsD+tO6U5RAsuJ+w7T+uBg9293L8JiZ+8ko4ufMFsb80eCiTZ8L2pAHYPwxwYNNWe
-         MFqqvUFTe2+6OIfWliBCX77xlAsH+ZVPJuuuFq4Y=
+        b=Zf7IN9NPA+zHjP4vKkYFXxTItqsd/jBmw5K0AMFZISHhp23TVA2jTWl3+dCPqJeBE
+         7oHzgADZPNEjgkcMOO0i1zuUqjvfHXfi1Z5ri8nAccvWBOpB854xuSRuP8koT5AEsE
+         +fHuIxGOdRHfJE1zBYX8ooWTwxRQ2JFbh48kOMLg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>, stable@kernel.org,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.7 281/376] ext4: fix buffer_head refcnt leak when ext4_iget() fails
-Date:   Fri, 19 Jun 2020 16:33:19 +0200
-Message-Id: <20200619141723.638850700@linuxfoundation.org>
+        stable@vger.kernel.org, Jeffle Xu <jefflexu@linux.alibaba.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Ritesh Harjani <riteshh@linux.ibm.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
+        stable@kernel.org
+Subject: [PATCH 5.7 282/376] ext4: fix error pointer dereference
+Date:   Fri, 19 Jun 2020 16:33:20 +0200
+Message-Id: <20200619141723.684295715@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -44,44 +46,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+From: Jeffle Xu <jefflexu@linux.alibaba.com>
 
-commit 3bbd0ef26098d241dc59ee77ba14b7dab0df0786 upstream.
+commit 8418897f1bf87da0cb6936489d57a4320c32c0af upstream.
 
-ext4_orphan_get() invokes ext4_read_inode_bitmap(), which returns a
-reference of the specified buffer_head object to "bitmap_bh" with
-increased refcnt.
+Don't pass error pointers to brelse().
 
-When ext4_orphan_get() returns, local variable "bitmap_bh" becomes
-invalid, so the refcount should be decreased to keep refcount balanced.
+commit 7159a986b420 ("ext4: fix some error pointer dereferences") has fixed
+some cases, fix the remaining one case.
 
-The reference counting issue happens in one exception handling path of
-ext4_orphan_get(). When ext4_iget() fails, the function forgets to
-decrease the refcnt increased by ext4_read_inode_bitmap(), causing a
-refcnt leak.
+Once ext4_xattr_block_find()->ext4_sb_bread() failed, error pointer is
+stored in @bs->bh, which will be passed to brelse() in the cleanup
+routine of ext4_xattr_set_handle(). This will then cause a NULL panic
+crash in __brelse().
 
-Fix this issue by calling brelse() when ext4_iget() fails.
+BUG: unable to handle kernel NULL pointer dereference at 000000000000005b
+RIP: 0010:__brelse+0x1b/0x50
+Call Trace:
+ ext4_xattr_set_handle+0x163/0x5d0
+ ext4_xattr_set+0x95/0x110
+ __vfs_setxattr+0x6b/0x80
+ __vfs_setxattr_noperm+0x68/0x1b0
+ vfs_setxattr+0xa0/0xb0
+ setxattr+0x12c/0x1a0
+ path_setxattr+0x8d/0xc0
+ __x64_sys_setxattr+0x27/0x30
+ do_syscall_64+0x60/0x250
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Cc: stable@kernel.org
-Link: https://lore.kernel.org/r/1587618568-13418-1-git-send-email-xiyuyang19@fudan.edu.cn
+In this case, @bs->bh stores '-EIO' actually.
+
+Fixes: fb265c9cb49e ("ext4: add ext4_sb_bread() to disambiguate ENOMEM cases")
+Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: stable@kernel.org # 2.6.19
+Reviewed-by: Ritesh Harjani <riteshh@linux.ibm.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/1587628004-95123-1-git-send-email-jefflexu@linux.alibaba.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/ialloc.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/ext4/xattr.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/fs/ext4/ialloc.c
-+++ b/fs/ext4/ialloc.c
-@@ -1246,6 +1246,7 @@ struct inode *ext4_orphan_get(struct sup
- 		ext4_error_err(sb, -err,
- 			       "couldn't read orphan inode %lu (err %d)",
- 			       ino, err);
-+		brelse(bitmap_bh);
- 		return inode;
- 	}
- 
+--- a/fs/ext4/xattr.c
++++ b/fs/ext4/xattr.c
+@@ -1800,8 +1800,11 @@ ext4_xattr_block_find(struct inode *inod
+ 	if (EXT4_I(inode)->i_file_acl) {
+ 		/* The inode already has an extended attribute block. */
+ 		bs->bh = ext4_sb_bread(sb, EXT4_I(inode)->i_file_acl, REQ_PRIO);
+-		if (IS_ERR(bs->bh))
+-			return PTR_ERR(bs->bh);
++		if (IS_ERR(bs->bh)) {
++			error = PTR_ERR(bs->bh);
++			bs->bh = NULL;
++			return error;
++		}
+ 		ea_bdebug(bs->bh, "b_count=%d, refcount=%d",
+ 			atomic_read(&(bs->bh->b_count)),
+ 			le32_to_cpu(BHDR(bs->bh)->h_refcount));
 
 
