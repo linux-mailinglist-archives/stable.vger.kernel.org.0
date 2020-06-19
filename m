@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5AD620148D
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:14:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A4CC201347
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:01:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391217AbgFSQM2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:12:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33754 "EHLO mail.kernel.org"
+        id S2390793AbgFSP7u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:59:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390728AbgFSPE6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:04:58 -0400
+        id S2392339AbgFSPO4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:14:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7337721941;
-        Fri, 19 Jun 2020 15:04:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 158B8218AC;
+        Fri, 19 Jun 2020 15:14:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579098;
-        bh=G55nFWnpw32hiv2wW5Qw8jEXLGNHxJVBMoYUIUI9F18=;
+        s=default; t=1592579695;
+        bh=jPxXse+cQPfEmZrr9f0Q4FwlTl3ase3YR4MRbsFeDCg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a6hvhPqA0NPLu11xjNwfH/XnquQSrK+W5D4OBPIUCeRbLOeciH/U1EAdi1Igkdi2l
-         Ht2qNiYnPy3aScqn5LmqGyE02S04gfgwbjD2HPoDTctePAWy3YezczpB0PYCIbKQ/w
-         ZLeEegCQ9xGPcl2Ecx+4pK+QsNclM5SNHXezoTR8=
+        b=QLmxtxFOJRoY8yrQeoYYpuhsKNL4BaMneTfVeI4yAH93STCWOL3MJ0oGUmB1QX7gf
+         K3lVM0CHQIdXmg29atxR2MuVAFe5fcawdXUpfT1ExOkOSvWAUwr7J2F3et5N6aFXBN
+         lyrTOhR7Z6FRmq+Qgh/hnJ7oAKEKh0xDrk/mfEXU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>
-Subject: [PATCH 4.19 258/267] kbuild: force to build vmlinux if CONFIG_MODVERSION=y
+        stable@vger.kernel.org,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.4 232/261] powerpc/kasan: Fix issues by lowering KASAN_SHADOW_END
 Date:   Fri, 19 Jun 2020 16:34:03 +0200
-Message-Id: <20200619141701.041984692@linuxfoundation.org>
+Message-Id: <20200619141700.994873502@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
-References: <20200619141648.840376470@linuxfoundation.org>
+In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
+References: <20200619141649.878808811@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,57 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit 4b50c8c4eaf06a825d1c005c0b1b4a8307087b83 upstream.
+commit 3a66a24f6060e6775f8c02ac52329ea0152d7e58 upstream.
 
-This code does not work as stated in the comment.
+At the time being, KASAN_SHADOW_END is 0x100000000, which
+is 0 in 32 bits representation.
 
-$(CONFIG_MODVERSIONS) is always empty because it is expanded before
-include/config/auto.conf is included. Hence, 'make modules' with
-CONFIG_MODVERSION=y cannot record the version CRCs.
+This leads to a couple of issues:
+- kasan_remap_early_shadow_ro() does nothing because the comparison
+k_cur < k_end is always false.
+- In ptdump, address comparison for markers display fails and the
+marker's name is printed at the start of the KASAN area instead of
+being printed at the end.
 
-This has been broken since 2003, commit ("kbuild: Enable modules to be
-build using the "make dir/" syntax"). [1]
+However, there is no need to shadow the KASAN shadow area itself,
+so the KASAN shadow area can stop shadowing memory at the start
+of itself.
 
-[1]: https://git.kernel.org/pub/scm/linux/kernel/git/history/history.git/commit/?id=15c6240cdc44bbeef3c4797ec860f9765ef4f1a7
-Cc: linux-stable <stable@vger.kernel.org> # v2.5.71+
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+With a PAGE_OFFSET set to 0xc0000000, KASAN shadow area is then going
+from 0xf8000000 to 0xff000000.
+
+Fixes: cbd18991e24f ("powerpc/mm: Fix an Oops in kasan_mmu_init()")
+Cc: stable@vger.kernel.org
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/ae1a3c0d19a37410c209c3fc453634cfcc0ee318.1589866984.git.christophe.leroy@csgroup.eu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- Makefile |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ arch/powerpc/include/asm/kasan.h |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/Makefile
-+++ b/Makefile
-@@ -554,12 +554,8 @@ KBUILD_MODULES :=
- KBUILD_BUILTIN := 1
+--- a/arch/powerpc/include/asm/kasan.h
++++ b/arch/powerpc/include/asm/kasan.h
+@@ -23,9 +23,7 @@
  
- # If we have only "make modules", don't compile built-in objects.
--# When we're building modules with modversions, we need to consider
--# the built-in objects during the descend as well, in order to
--# make sure the checksums are up to date before we record them.
+ #define KASAN_SHADOW_OFFSET	ASM_CONST(CONFIG_KASAN_SHADOW_OFFSET)
+ 
+-#define KASAN_SHADOW_END	0UL
 -
- ifeq ($(MAKECMDGOALS),modules)
--  KBUILD_BUILTIN := $(if $(CONFIG_MODVERSIONS),1)
-+  KBUILD_BUILTIN :=
- endif
+-#define KASAN_SHADOW_SIZE	(KASAN_SHADOW_END - KASAN_SHADOW_START)
++#define KASAN_SHADOW_END	(-(-KASAN_SHADOW_START >> KASAN_SHADOW_SCALE_SHIFT))
  
- # If we have "make <whatever> modules", compile modules
-@@ -1229,6 +1225,13 @@ ifdef CONFIG_MODULES
- 
- all: modules
- 
-+# When we're building modules with modversions, we need to consider
-+# the built-in objects during the descend as well, in order to
-+# make sure the checksums are up to date before we record them.
-+ifdef CONFIG_MODVERSIONS
-+  KBUILD_BUILTIN := 1
-+endif
-+
- # Build modules
- #
- # A module can be listed more than once in obj-m resulting in
+ #ifdef CONFIG_KASAN
+ void kasan_early_init(void);
 
 
