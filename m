@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D53472014E2
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:21:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 611252012FE
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:00:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391302AbgFSQOz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:14:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60670 "EHLO mail.kernel.org"
+        id S2391800AbgFSPTr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:19:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391062AbgFSPDv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:03:51 -0400
+        id S2392419AbgFSPPy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:15:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 972B021974;
-        Fri, 19 Jun 2020 15:03:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 701E2206DB;
+        Fri, 19 Jun 2020 15:15:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579031;
-        bh=G/fWTg7WHrl/CDZ6nOfG1nn1s44r3LN8WBZ60RNAM8Y=;
+        s=default; t=1592579754;
+        bh=GjH5L22u8zmqFxwcOGD/ISwdqSLtKKlx0fQxJYOfG3I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0yVaROszHHKxidVLYKYTi2Axy+9oJ/3YpMbtF50u1JIUAmFs0D1FVplkZdr3ii/Ob
-         F3SA+LisMuPduVkzk7rv/uyg2OnkzyCO3LLSqahvCtlpVbvMwXSVhOUMW7WdhCV8G/
-         BB4ADzHpA8g1sLhwDUyXuLexNFPEbqImBe6OE6jU=
+        b=1bGpfqciStZR1Rl1b8r1mfx2qeFXl7XtdKZxRghFbti9v3oAf7raImtL/6mhf3nOo
+         +H+8znLf9ZcLEgS4Z8wjHH3xW/DihjaoAjAtqv+gZpL+dPalk1XJiH+fJ0zZK+HVRy
+         1McxaQGqc0SKpYaqsbV02QNwUnivX+G0ABuAySW4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.19 248/267] dm crypt: avoid truncating the logical block size
-Date:   Fri, 19 Jun 2020 16:33:53 +0200
-Message-Id: <20200619141700.590948854@linuxfoundation.org>
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Hari Bathini <hbathini@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.4 223/261] powerpc/fadump: Account for memory_limit while reserving memory
+Date:   Fri, 19 Jun 2020 16:33:54 +0200
+Message-Id: <20200619141700.556508567@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
-References: <20200619141648.840376470@linuxfoundation.org>
+In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
+References: <20200619141649.878808811@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Hari Bathini <hbathini@linux.ibm.com>
 
-commit 64611a15ca9da91ff532982429c44686f4593b5f upstream.
+commit 9a2921e5baca1d25eb8d21f21d1e90581a6d0f68 upstream.
 
-queue_limits::logical_block_size got changed from unsigned short to
-unsigned int, but it was forgotten to update crypt_io_hints() to use the
-new type.  Fix it.
+If the memory chunk found for reserving memory overshoots the memory
+limit imposed, do not proceed with reserving memory. Default behavior
+was this until commit 140777a3d8df ("powerpc/fadump: consider reserved
+ranges while reserving memory") changed it unwittingly.
 
-Fixes: ad6bf88a6c19 ("block: fix an integer overflow in logical block size")
+Fixes: 140777a3d8df ("powerpc/fadump: consider reserved ranges while reserving memory")
 Cc: stable@vger.kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Reviewed-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Hari Bathini <hbathini@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/159057266320.22331.6571453892066907320.stgit@hbathini.in.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-crypt.c |    2 +-
+ arch/powerpc/kernel/fadump.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/md/dm-crypt.c
-+++ b/drivers/md/dm-crypt.c
-@@ -3078,7 +3078,7 @@ static void crypt_io_hints(struct dm_tar
- 	limits->max_segment_size = PAGE_SIZE;
+--- a/arch/powerpc/kernel/fadump.c
++++ b/arch/powerpc/kernel/fadump.c
+@@ -601,7 +601,7 @@ int __init fadump_reserve_mem(void)
+ 		 */
+ 		base = fadump_locate_reserve_mem(base, size);
  
- 	limits->logical_block_size =
--		max_t(unsigned short, limits->logical_block_size, cc->sector_size);
-+		max_t(unsigned, limits->logical_block_size, cc->sector_size);
- 	limits->physical_block_size =
- 		max_t(unsigned, limits->physical_block_size, cc->sector_size);
- 	limits->io_min = max_t(unsigned, limits->io_min, cc->sector_size);
+-		if (!base) {
++		if (!base || (base + size > mem_boundary)) {
+ 			pr_err("Failed to find memory chunk for reservation!\n");
+ 			goto error_out;
+ 		}
 
 
