@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1707220111B
+	by mail.lfdr.de (Postfix) with ESMTP id 8451220111C
 	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:41:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404669AbgFSP3c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:29:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33088 "EHLO mail.kernel.org"
+        id S2404673AbgFSP3d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:29:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404660AbgFSP33 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:29:29 -0400
+        id S2404667AbgFSP3c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:29:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5771C21919;
-        Fri, 19 Jun 2020 15:29:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D682A21BE5;
+        Fri, 19 Jun 2020 15:29:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580568;
-        bh=kImEQXpoBvj021v/XvDW3o3pNA8HAb7guZPNEA6KIsE=;
+        s=default; t=1592580571;
+        bh=tH3Xht3LJp4Pj+XEDbZoLHPhR/pCQ8NSKBwMakmsDvQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=poggNzXKlA35FcmCCBry/NREO3JqTSEzENiN96W36ZRTu3SWljPB9EgNBHbV0ijyn
-         S4hnjrm/2MLSUcifzFb5Rs1Rx0iP+/geJtljnQbkVD03l3QkobV7QOP2cAa1W/7fU/
-         otNqBi0ukJIPUdaLuRJtsUFIgTBgukpjuWtuAwSA=
+        b=zg5YZ+iaItUKng1WxdGtjZD5b7+Y6PRqbiWlzfJff/g7ayNYP7g7nveqpp9O2Fm8m
+         3JsO/a/94CfA3nQFiO3PtrJ7KZp/UIMnW4IDzpa0mjNY4URJ7U6Pvkxu9/eGjM7nT6
+         UV9V/IMmRy6zjfGvMr0Y7RJqQELX1uiaRgZphJHc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>
-Subject: [PATCH 5.7 299/376] clocksource/drivers/timer-microchip-pit64b: Select CONFIG_TIMER_OF
-Date:   Fri, 19 Jun 2020 16:33:37 +0200
-Message-Id: <20200619141724.493797286@linuxfoundation.org>
+        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@siol.net>,
+        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Ezequiel Garcia <ezequiel@collabora.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.7 300/376] media: cedrus: Program output format during each run
+Date:   Fri, 19 Jun 2020 16:33:38 +0200
+Message-Id: <20200619141724.541035605@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -44,43 +47,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Samuel Holland <samuel@sholland.org>
 
-commit 25259f7a5de2de9d67793dc584b15c83a3134c93 upstream.
+commit a8876c22eab9a871834f85de83e98bbf7e6e264d upstream.
 
-This driver is an OF driver, it depends on OF, and uses
-TIMER_OF_DECLARE, so it should select CONFIG_TIMER_OF.
+Previously, the output format was programmed as part of the ioctl()
+handler. However, this has two problems:
 
-Without CONFIG_TIMER_OF enabled this can lead to warnings such as:
+  1) If there are multiple active streams with different output
+     formats, the hardware will use whichever format was set last
+     for both streams. Similarly, an ioctl() done in an inactive
+     context will wrongly affect other active contexts.
+  2) The registers are written while the device is not actively
+     streaming. To enable runtime PM tied to the streaming state,
+     all hardware access needs to be moved inside cedrus_device_run().
 
-  powerpc-linux-ld: warning: orphan section `__timer_of_table' from
-  `drivers/clocksource/timer-microchip-pit64b.o' being placed in
-  section `__timer_of_table'.
+The call to cedrus_dst_format_set() is now placed just before the
+codec-specific callback that programs the hardware.
 
-Because TIMER_OF_TABLES in vmlinux.lds.h doesn't emit anything into
-the linker script when CONFIG_TIMER_OF is not enabled.
-
-Fixes: 625022a5f160 ("clocksource/drivers/timer-microchip-pit64b: Add Microchip PIT64B support")
-Cc: stable@vger.kernel.org # v5.6+
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20200426124356.3929682-1-mpe@ellerman.id.au
+Cc: <stable@vger.kernel.org>
+Fixes: 50e761516f2b ("media: platform: Add Cedrus VPU decoder driver")
+Suggested-by: Jernej Skrabec <jernej.skrabec@siol.net>
+Suggested-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+Tested-by: Jernej Skrabec <jernej.skrabec@siol.net>
+Reviewed-by: Jernej Skrabec <jernej.skrabec@siol.net>
+Reviewed-by: Ezequiel Garcia <ezequiel@collabora.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/clocksource/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/staging/media/sunxi/cedrus/cedrus_dec.c   |    2 ++
+ drivers/staging/media/sunxi/cedrus/cedrus_video.c |    3 ---
+ 2 files changed, 2 insertions(+), 3 deletions(-)
 
---- a/drivers/clocksource/Kconfig
-+++ b/drivers/clocksource/Kconfig
-@@ -709,6 +709,7 @@ config MICROCHIP_PIT64B
- 	bool "Microchip PIT64B support"
- 	depends on OF || COMPILE_TEST
- 	select CLKSRC_MMIO
-+	select TIMER_OF
- 	help
- 	  This option enables Microchip PIT64B timer for Atmel
- 	  based system. It supports the oneshot, the periodic
+--- a/drivers/staging/media/sunxi/cedrus/cedrus_dec.c
++++ b/drivers/staging/media/sunxi/cedrus/cedrus_dec.c
+@@ -74,6 +74,8 @@ void cedrus_device_run(void *priv)
+ 
+ 	v4l2_m2m_buf_copy_metadata(run.src, run.dst, true);
+ 
++	cedrus_dst_format_set(dev, &ctx->dst_fmt);
++
+ 	dev->dec_ops[ctx->current_codec]->setup(ctx, &run);
+ 
+ 	/* Complete request(s) controls if needed. */
+--- a/drivers/staging/media/sunxi/cedrus/cedrus_video.c
++++ b/drivers/staging/media/sunxi/cedrus/cedrus_video.c
+@@ -273,7 +273,6 @@ static int cedrus_s_fmt_vid_cap(struct f
+ 				struct v4l2_format *f)
+ {
+ 	struct cedrus_ctx *ctx = cedrus_file2ctx(file);
+-	struct cedrus_dev *dev = ctx->dev;
+ 	struct vb2_queue *vq;
+ 	int ret;
+ 
+@@ -287,8 +286,6 @@ static int cedrus_s_fmt_vid_cap(struct f
+ 
+ 	ctx->dst_fmt = f->fmt.pix;
+ 
+-	cedrus_dst_format_set(dev, &ctx->dst_fmt);
+-
+ 	return 0;
+ }
+ 
 
 
