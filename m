@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01F46200DBA
+	by mail.lfdr.de (Postfix) with ESMTP id 798E4200DBB
 	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:02:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389627AbgFSPAj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2390648AbgFSPAj (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 19 Jun 2020 11:00:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57050 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:57080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390277AbgFSPAe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:00:34 -0400
+        id S2390634AbgFSPAh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:00:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7DC7C20776;
-        Fri, 19 Jun 2020 15:00:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2BB3721527;
+        Fri, 19 Jun 2020 15:00:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578835;
-        bh=6ZTilro9TUJ7Kc4+PNa3OIDDZnDEfHbZlo9JY75x6is=;
+        s=default; t=1592578837;
+        bh=LMSFAzpwIgroVpYfzbA+wI0NHZjv6JmhpGwIKtr8Ywk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DqikAN4be4pw8T2hsirdId30QjnDoSYpd+8NdDA0He3wd0qDOqS2ZqPMIg5r7DLti
-         O7v3VZB18IOvPQkBQQ0HDy8Z6ZUMjXWonO103ZuekU4O8iEKSVwihbWMeUXUSPP4eH
-         EWLcC9zXmcSMzfNGO4zuRtNa+/vUs4ZOmpRcwZFE=
+        b=Hc165DH9NTwwQNbrP5d/pYglCKGofa9wnCK8XJw8vEpcbF4uAHZ1mPRihj/2/cqBp
+         HUOXzd6nis7pAWyQplFVgEFCipoWwUPcYoUHPth07qYa6mgbvosqRFgANEil5UQ67z
+         7qRdQQoVBbW5haCYm85groku7T7ud59OG6CmnE1w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Bjorn Helgaas <helgaas@kernel.org>,
+        stable@vger.kernel.org, YuanJunQing <yuanjunqing66@163.com>,
         Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 174/267] PCI: Dont disable decoding when mmio_always_on is set
-Date:   Fri, 19 Jun 2020 16:32:39 +0200
-Message-Id: <20200619141657.136698762@linuxfoundation.org>
+Subject: [PATCH 4.19 175/267] MIPS: Fix IRQ tracing when call handle_fpe() and handle_msa_fpe()
+Date:   Fri, 19 Jun 2020 16:32:40 +0200
+Message-Id: <20200619141657.185191355@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
 References: <20200619141648.840376470@linuxfoundation.org>
@@ -45,37 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiaxun Yang <jiaxun.yang@flygoat.com>
+From: YuanJunQing <yuanjunqing66@163.com>
 
-[ Upstream commit b6caa1d8c80cb71b6162cb1f1ec13aa655026c9f ]
+[ Upstream commit 31e1b3efa802f97a17628dde280006c4cee4ce5e ]
 
-Don't disable MEM/IO decoding when a device have both non_compliant_bars
-and mmio_always_on.
+Register "a1" is unsaved in this function,
+ when CONFIG_TRACE_IRQFLAGS is enabled,
+ the TRACE_IRQS_OFF macro will call trace_hardirqs_off(),
+ and this may change register "a1".
+ The changed register "a1" as argument will be send
+ to do_fpe() and do_msa_fpe().
 
-That would allow us quirk devices with junk in BARs but can't disable
-their decoding.
-
-Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
-Acked-by: Bjorn Helgaas <helgaas@kernel.org>
+Signed-off-by: YuanJunQing <yuanjunqing66@163.com>
 Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/probe.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/kernel/genex.S | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
-index fa4c386c8cd8..a21c04d8a40b 100644
---- a/drivers/pci/probe.c
-+++ b/drivers/pci/probe.c
-@@ -1634,7 +1634,7 @@ int pci_setup_device(struct pci_dev *dev)
- 	/* Device class may be changed after fixup */
- 	class = dev->class >> 8;
+diff --git a/arch/mips/kernel/genex.S b/arch/mips/kernel/genex.S
+index 6c257b52f57f..7fad007fe025 100644
+--- a/arch/mips/kernel/genex.S
++++ b/arch/mips/kernel/genex.S
+@@ -477,20 +477,20 @@ NESTED(nmi_handler, PT_SIZE, sp)
+ 	.endm
  
--	if (dev->non_compliant_bars) {
-+	if (dev->non_compliant_bars && !dev->mmio_always_on) {
- 		pci_read_config_word(dev, PCI_COMMAND, &cmd);
- 		if (cmd & (PCI_COMMAND_IO | PCI_COMMAND_MEMORY)) {
- 			pci_info(dev, "device has non-compliant BARs; disabling IO/MEM decoding\n");
+ 	.macro	__build_clear_fpe
++	CLI
++	TRACE_IRQS_OFF
+ 	.set	push
+ 	/* gas fails to assemble cfc1 for some archs (octeon).*/ \
+ 	.set	mips1
+ 	SET_HARDFLOAT
+ 	cfc1	a1, fcr31
+ 	.set	pop
+-	CLI
+-	TRACE_IRQS_OFF
+ 	.endm
+ 
+ 	.macro	__build_clear_msa_fpe
+-	_cfcmsa	a1, MSA_CSR
+ 	CLI
+ 	TRACE_IRQS_OFF
++	_cfcmsa	a1, MSA_CSR
+ 	.endm
+ 
+ 	.macro	__build_clear_ade
 -- 
 2.25.1
 
