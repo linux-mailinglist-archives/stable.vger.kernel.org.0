@@ -2,99 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 597D320046B
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 10:53:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 806E720047E
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 10:59:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726382AbgFSIvv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 04:51:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36882 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731288AbgFSIvr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 04:51:47 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7FE9D214DB;
-        Fri, 19 Jun 2020 08:51:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592556706;
-        bh=+3EKnGY3tKJ041sxTHddGESHH8ydpd6WPq3jHXnYMis=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=lGY0Ar/9VLI0/0v6eWtEb38G0oeoyCfpnoivWqJLykbxMgYwhXBw+1pFaXBolu9n+
-         OkAZfhVRUlw9WatgcnUo95ln/lnSxgYMLBzujFb/mfZd8mz4XxtTkFMKwfAOMmx/AL
-         JaDME+xNf0ZJCxQFEdUdoXgk6+UzAPF+gZyXcS5o=
-Date:   Fri, 19 Jun 2020 10:51:43 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Macpaul Lin <macpaul.lin@mediatek.com>
-Cc:     Macpaul Lin <macpaul@gmail.com>, Bin Liu <b-liu@ti.com>,
-        linux-usb@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 4/6] usb: musb: mediatek: add reset FADDR to zero in
- reset interrupt handle
-Message-ID: <20200619085143.GA677266@kroah.com>
-References: <20200525025049.3400-1-b-liu@ti.com>
- <20200525025049.3400-5-b-liu@ti.com>
- <CACCg+XNfOaE7LE01NPeR6amvCTyrJaJ3sj3AF+Se49T0YFy_Uw@mail.gmail.com>
- <20200617085804.GA1736257@kroah.com>
- <1592386317.5395.2.camel@mtkswgap22>
+        id S1730893AbgFSI7g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 04:59:36 -0400
+Received: from winnie.ispras.ru ([83.149.199.91]:14572 "EHLO smtp.ispras.ru"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1728712AbgFSI7g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 04:59:36 -0400
+Received: from monopod.intra.ispras.ru (monopod.intra.ispras.ru [10.10.3.121])
+        by smtp.ispras.ru (Postfix) with ESMTP id C0A0C203C1;
+        Fri, 19 Jun 2020 11:59:34 +0300 (MSK)
+Date:   Fri, 19 Jun 2020 11:59:34 +0300 (MSK)
+From:   Alexander Monakov <amonakov@ispras.ru>
+To:     Greg KH <gregkh@linuxfoundation.org>
+cc:     Sasha Levin <sashal@kernel.org>, stable-commits@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: Patch "x86/amd_nb: Add AMD family 17h model 60h PCI IDs" has
+ been added to the 5.7-stable tree
+In-Reply-To: <20200619083502.GC473790@kroah.com>
+Message-ID: <alpine.LNX.2.20.13.2006191155380.21166@monopod.intra.ispras.ru>
+References: <20200618211421.CDE7820890@mail.kernel.org> <alpine.LNX.2.20.13.2006191051350.31660@monopod.intra.ispras.ru> <20200619083502.GC473790@kroah.com>
+User-Agent: Alpine 2.20.13 (LNX 116 2015-12-14)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1592386317.5395.2.camel@mtkswgap22>
+Content-Type: text/plain; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 17, 2020 at 05:31:57PM +0800, Macpaul Lin wrote:
-> On Wed, 2020-06-17 at 10:58 +0200, Greg Kroah-Hartman wrote:
-> > On Wed, Jun 17, 2020 at 04:17:07PM +0800, Macpaul Lin wrote:
-> > > Bin Liu <b-liu@ti.com> 於 2020年5月25日 週一 上午10:53寫道：
-> > > >
-> > > > From: Macpaul Lin <macpaul.lin@mediatek.com>
-> > > >
-> > > > When receiving reset interrupt, FADDR need to be reset to zero in
-> > > > peripheral mode. Otherwise ep0 cannot do enumeration when re-plugging USB
-> > > > cable.
-> > > >
-> > > > Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
-> > > > Acked-by: Min Guo <min.guo@mediatek.com>
-> > > > Signed-off-by: Bin Liu <b-liu@ti.com>
-> > > > ---
-> > > >  drivers/usb/musb/mediatek.c | 6 ++++++
-> > > >  1 file changed, 6 insertions(+)
-> > > >
-> > > > diff --git a/drivers/usb/musb/mediatek.c b/drivers/usb/musb/mediatek.c
-> > > > index 6196b0e8d77d..eebeadd26946 100644
-> > > > --- a/drivers/usb/musb/mediatek.c
-> > > > +++ b/drivers/usb/musb/mediatek.c
-> > > > @@ -208,6 +208,12 @@ static irqreturn_t generic_interrupt(int irq, void *__hci)
-> > > >         musb->int_rx = musb_clearw(musb->mregs, MUSB_INTRRX);
-> > > >         musb->int_tx = musb_clearw(musb->mregs, MUSB_INTRTX);
-> > > >
-> > > > +       if ((musb->int_usb & MUSB_INTR_RESET) && !is_host_active(musb)) {
-> > > > +               /* ep0 FADDR must be 0 when (re)entering peripheral mode */
-> > > > +               musb_ep_select(musb->mregs, 0);
-> > > > +               musb_writeb(musb->mregs, MUSB_FADDR, 0);
-> > > > +       }
-> > > > +
-> > > >         if (musb->int_usb || musb->int_tx || musb->int_rx)
-> > > >                 retval = musb_interrupt(musb);
-> > > >
-> > > > --
-> > > > 2.17.1
-> > > >
-> > > Could this bug fix also been applied to stable kernel?
+
+
+On Fri, 19 Jun 2020, Greg KH wrote:
+
+> On Fri, Jun 19, 2020 at 10:56:42AM +0300, Alexander Monakov wrote:
+> > On Thu, 18 Jun 2020, Sasha Levin wrote:
 > > 
-> > Sure, what is the git commit of it in Linus's tree?
+> > > This is a note to let you know that I've just added the patch titled
+> > > 
+> > >     x86/amd_nb: Add AMD family 17h model 60h PCI IDs
+> > > 
+> > > to the 5.7-stable tree which can be found at:
+> > >     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+> > > 
+> > > The filename of the patch is:
+> > >      x86-amd_nb-add-amd-family-17h-model-60h-pci-ids.patch
+> > > and it can be found in the queue-5.7 subdirectory.
+> > > 
+> > > If you, or anyone else, feels it should not be added to the stable tree,
+> > > please let <stable@vger.kernel.org> know about it.
 > > 
-> > thanks,
+> > It's not good to pick this patch alone into stable. Either all 3 patches
+> > from https://lore.kernel.org/lkml/20200510204842.2603-1-amonakov@ispras.ru/
+> > should be taken, or none of those.
 > > 
-> > greg k-h
+> > In particular, the edac module will warn on load without the third patch.
+> > 
+> > Likewise for 5.4-stable (should I send a separate mail for that?)
 > 
-> The commit id of this patch should be
-> 402bcac4b25b520c89ba60db85eb6316f36e797f
+> What are the git commit ids that should be applied that are not?
 
-Now queued up, thanks.
+279f0b3a4b8066 ("hwmon: (k10temp) Add AMD family 17h model 60h PCI match")
 
-greg k-h
+b6bea24d41519e ("EDAC/amd64: Add AMD family 17h model 60h PCI IDs")
+
+Alexander
