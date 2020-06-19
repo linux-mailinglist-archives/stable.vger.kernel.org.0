@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D292E2013CD
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:07:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E98632013CA
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:07:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392960AbgFSQEI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:04:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41260 "EHLO mail.kernel.org"
+        id S2391589AbgFSQED (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:04:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392050AbgFSPLE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:11:04 -0400
+        id S2403814AbgFSPLG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:11:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3823520776;
-        Fri, 19 Jun 2020 15:11:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC15A206FA;
+        Fri, 19 Jun 2020 15:11:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579462;
-        bh=87ai8exqIO0/5aKSt3LHjxMtckrsMxd+6M0b2LS5y40=;
+        s=default; t=1592579465;
+        bh=gt02xV2gTXAGJGD8SHqqXs6e/DU/oGfgASH0Dlqg5Pw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iMb4ipfEWj+Z8e2JOTAKMVWlegYYj5Cev8XXz3P9xsW4LjMpiZ0dO7FU44Xrim4pT
-         pjRKz0Whmoq4Bxkd4Jerqbf3irINA7gmLCi4Pne6K+JxXjQD1aIEMq7ZziIr+/vkvz
-         qzpIT3FfjKJQK4TV+sDnKS+OkepxYJoMJDW/wO9w=
+        b=tnzXoAeR07UBiLyseJxFYodbVhA4gAHXEZL/D6vKuvlfi5CiGrvocHdYZfOW7rcs3
+         dft7gYU+QWh1RyAd4tQquV7h2oKuE9YmZLs6uK6ZbMsxShxoBMOfhZrfyooWaELfVc
+         VpfFwrDr3sax2CZhZpbg3Rf3APJlWHQJ731RqJYQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Xie XiuQi <xiexiuqi@huawei.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        stable@vger.kernel.org, Sharon <sara.sharon@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 144/261] ixgbe: fix signed-integer-overflow warning
-Date:   Fri, 19 Jun 2020 16:32:35 +0200
-Message-Id: <20200619141656.779383367@linuxfoundation.org>
+Subject: [PATCH 5.4 145/261] iwlwifi: mvm: fix aux station leak
+Date:   Fri, 19 Jun 2020 16:32:36 +0200
+Message-Id: <20200619141656.825052015@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
 References: <20200619141649.878808811@linuxfoundation.org>
@@ -46,54 +44,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie XiuQi <xiexiuqi@huawei.com>
+From: Sharon <sara.sharon@intel.com>
 
-[ Upstream commit 3b70683fc4d68f5d915d9dc7e5ba72c732c7315c ]
+[ Upstream commit f327236df2afc8c3c711e7e070f122c26974f4da ]
 
-ubsan report this warning, fix it by adding a unsigned suffix.
+When mvm is initialized we alloc aux station with aux queue.
+We later free the station memory when driver is stopped, but we
+never free the queue's memory, which casues a leak.
 
-UBSAN: signed-integer-overflow in
-drivers/net/ethernet/intel/ixgbe/ixgbe_common.c:2246:26
-65535 * 65537 cannot be represented in type 'int'
-CPU: 21 PID: 7 Comm: kworker/u256:0 Not tainted 5.7.0-rc3-debug+ #39
-Hardware name: Huawei TaiShan 2280 V2/BC82AMDC, BIOS 2280-V2 03/27/2020
-Workqueue: ixgbe ixgbe_service_task [ixgbe]
-Call trace:
- dump_backtrace+0x0/0x3f0
- show_stack+0x28/0x38
- dump_stack+0x154/0x1e4
- ubsan_epilogue+0x18/0x60
- handle_overflow+0xf8/0x148
- __ubsan_handle_mul_overflow+0x34/0x48
- ixgbe_fc_enable_generic+0x4d0/0x590 [ixgbe]
- ixgbe_service_task+0xc20/0x1f78 [ixgbe]
- process_one_work+0x8f0/0xf18
- worker_thread+0x430/0x6d0
- kthread+0x218/0x238
- ret_from_fork+0x10/0x18
+Add a proper de-initialization of the station.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Xie XiuQi <xiexiuqi@huawei.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Signed-off-by: Sharon <sara.sharon@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20200529092401.0121c5be55e9.Id7516fbb3482131d0c9dfb51ff20b226617ddb49@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ixgbe/ixgbe_common.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../net/wireless/intel/iwlwifi/mvm/mac80211.c  |  5 ++---
+ drivers/net/wireless/intel/iwlwifi/mvm/sta.c   | 18 +++++++++++++-----
+ drivers/net/wireless/intel/iwlwifi/mvm/sta.h   |  6 +++---
+ 3 files changed, 18 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_common.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_common.c
-index 0bd1294ba517..39c5e6fdb72c 100644
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_common.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_common.c
-@@ -2243,7 +2243,7 @@ s32 ixgbe_fc_enable_generic(struct ixgbe_hw *hw)
- 	}
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+index 6ca087ffd163..ed92a8e8cd51 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+@@ -1193,14 +1193,13 @@ void __iwl_mvm_mac_stop(struct iwl_mvm *mvm)
+ 	 */
+ 	flush_work(&mvm->roc_done_wk);
  
- 	/* Configure pause time (2 TCs per register) */
--	reg = hw->fc.pause_time * 0x00010001;
-+	reg = hw->fc.pause_time * 0x00010001U;
- 	for (i = 0; i < (MAX_TRAFFIC_CLASS / 2); i++)
- 		IXGBE_WRITE_REG(hw, IXGBE_FCTTV(i), reg);
++	iwl_mvm_rm_aux_sta(mvm);
++
+ 	iwl_mvm_stop_device(mvm);
  
+ 	iwl_mvm_async_handlers_purge(mvm);
+ 	/* async_handlers_list is empty and will stay empty: HW is stopped */
+ 
+-	/* the fw is stopped, the aux sta is dead: clean up driver state */
+-	iwl_mvm_del_aux_sta(mvm);
+-
+ 	/*
+ 	 * Clear IN_HW_RESTART and HW_RESTART_REQUESTED flag when stopping the
+ 	 * hw (as restart_complete() won't be called in this case) and mac80211
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/sta.c b/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
+index 71d339e90a9e..41f62793a57c 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/sta.c
+@@ -2080,16 +2080,24 @@ int iwl_mvm_rm_snif_sta(struct iwl_mvm *mvm, struct ieee80211_vif *vif)
+ 	return ret;
+ }
+ 
+-void iwl_mvm_dealloc_snif_sta(struct iwl_mvm *mvm)
++int iwl_mvm_rm_aux_sta(struct iwl_mvm *mvm)
+ {
+-	iwl_mvm_dealloc_int_sta(mvm, &mvm->snif_sta);
+-}
++	int ret;
+ 
+-void iwl_mvm_del_aux_sta(struct iwl_mvm *mvm)
+-{
+ 	lockdep_assert_held(&mvm->mutex);
+ 
++	iwl_mvm_disable_txq(mvm, NULL, mvm->aux_queue, IWL_MAX_TID_COUNT, 0);
++	ret = iwl_mvm_rm_sta_common(mvm, mvm->aux_sta.sta_id);
++	if (ret)
++		IWL_WARN(mvm, "Failed sending remove station\n");
+ 	iwl_mvm_dealloc_int_sta(mvm, &mvm->aux_sta);
++
++	return ret;
++}
++
++void iwl_mvm_dealloc_snif_sta(struct iwl_mvm *mvm)
++{
++	iwl_mvm_dealloc_int_sta(mvm, &mvm->snif_sta);
+ }
+ 
+ /*
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/sta.h b/drivers/net/wireless/intel/iwlwifi/mvm/sta.h
+index 8d70093847cb..da2d1ac01229 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/sta.h
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/sta.h
+@@ -8,7 +8,7 @@
+  * Copyright(c) 2012 - 2014 Intel Corporation. All rights reserved.
+  * Copyright(c) 2013 - 2014 Intel Mobile Communications GmbH
+  * Copyright(c) 2015 - 2016 Intel Deutschland GmbH
+- * Copyright(c) 2018 - 2019 Intel Corporation
++ * Copyright(c) 2018 - 2020 Intel Corporation
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of version 2 of the GNU General Public License as
+@@ -31,7 +31,7 @@
+  * Copyright(c) 2012 - 2014 Intel Corporation. All rights reserved.
+  * Copyright(c) 2013 - 2014 Intel Mobile Communications GmbH
+  * Copyright(c) 2015 - 2016 Intel Deutschland GmbH
+- * Copyright(c) 2018 - 2019 Intel Corporation
++ * Copyright(c) 2018 - 2020 Intel Corporation
+  * All rights reserved.
+  *
+  * Redistribution and use in source and binary forms, with or without
+@@ -541,7 +541,7 @@ int iwl_mvm_sta_tx_agg(struct iwl_mvm *mvm, struct ieee80211_sta *sta,
+ 		       int tid, u8 queue, bool start);
+ 
+ int iwl_mvm_add_aux_sta(struct iwl_mvm *mvm);
+-void iwl_mvm_del_aux_sta(struct iwl_mvm *mvm);
++int iwl_mvm_rm_aux_sta(struct iwl_mvm *mvm);
+ 
+ int iwl_mvm_alloc_bcast_sta(struct iwl_mvm *mvm, struct ieee80211_vif *vif);
+ int iwl_mvm_send_add_bcast_sta(struct iwl_mvm *mvm, struct ieee80211_vif *vif);
 -- 
 2.25.1
 
