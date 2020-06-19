@@ -2,166 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DDDB8201884
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 19:01:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39B73201893
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 19:01:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387911AbgFSQtN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:49:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57302 "EHLO mail.kernel.org"
+        id S2405326AbgFSQtz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:49:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388073AbgFSOjo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:39:44 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        id S2387986AbgFSOjJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:39:09 -0400
+Received: from earth.universe (dyndsl-037-138-190-043.ewe-ip-backbone.de [37.138.190.43])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CEFD121548;
-        Fri, 19 Jun 2020 14:39:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 673B320DD4;
+        Fri, 19 Jun 2020 14:39:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577583;
-        bh=HJP2e/nn2YZnz09sd3zdBF6V+XvMe2EwKmmBhRJ+ga0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W4vTBoycK29kTdYhMwH+JZzcURj1SrVbyQIVc0vE8Ac8qT6W0z3PI77KPDXjDyk3o
-         Qp++mz7qq2wU3T3CgBQiSE9tYm1FPabc3uhg6BoD6w4Xzy4582j8Qyv203jB4+ECWX
-         9naxXxboJRxbHAQeBuAdGnw241C//7a8gv1yiNzA=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Travis Downs <travis.downs@gmail.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 4.4 101/101] perf symbols: Fix debuginfo search for Ubuntu
-Date:   Fri, 19 Jun 2020 16:33:30 +0200
-Message-Id: <20200619141619.267759140@linuxfoundation.org>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141614.001544111@linuxfoundation.org>
-References: <20200619141614.001544111@linuxfoundation.org>
-User-Agent: quilt/0.66
+        s=default; t=1592577548;
+        bh=GhmndpCx0NtSvR5PEsSvK9su8y7F9B9W/85J59fhrTc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=b6Q4n+E5Dk+L+BUYxW++OziNU6+ncxzIZSDlPwNkoW0CxkAggKh8nfcXgFXLzxuDx
+         EJ/7nNdgDgcw81Mjo+PHn4VfVxOsxOopZmTnRo56r2nc44BOoraHqojrIopiFOUiUt
+         vAjcvxaaljitJIN4Mfu9h37y+E93LduiyX1ThH3Q=
+Received: by earth.universe (Postfix, from userid 1000)
+        id C348B3C08CD; Fri, 19 Jun 2020 16:39:06 +0200 (CEST)
+Date:   Fri, 19 Jun 2020 16:39:06 +0200
+From:   Sebastian Reichel <sre@kernel.org>
+To:     Krzysztof Kozlowski <krzk@kernel.org>
+Cc:     Rob Herring <robh+dt@kernel.org>,
+        Laurentiu Palcu <laurentiu.palcu@intel.com>,
+        linux-pm@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 2/2] dt-bindings: power: supply: bq25890: Document
+ required interrupt
+Message-ID: <20200619143906.33twapu6mgyay4yr@earth.universe>
+References: <20200617102305.14241-1-krzk@kernel.org>
+ <20200617102305.14241-2-krzk@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="gyqjsa47ulgkpkl2"
+Content-Disposition: inline
+In-Reply-To: <20200617102305.14241-2-krzk@kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit 85afd35575a3c1a3a905722dde5ee70b49282e70 upstream.
+--gyqjsa47ulgkpkl2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Reportedly, from 19.10 Ubuntu has begun mixing up the location of some
-debug symbol files, putting files expected to be in
-/usr/lib/debug/usr/lib into /usr/lib/debug/lib instead. Fix by adding
-another dso_binary_type.
+Hi,
 
-Example on Ubuntu 20.04
+On Wed, Jun 17, 2020 at 12:23:05PM +0200, Krzysztof Kozlowski wrote:
+> The driver requires interrupts (fails probe if it is not provided) so
+> document this requirement in bindings.
+>=20
+> Fixes: 4aeae9cb0dad ("power_supply: Add support for TI BQ25890 charger ch=
+ip")
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+> ---
 
-  Before:
+Thanks, queued.
 
-    $ perf record -e intel_pt//u uname
-    Linux
-    [ perf record: Woken up 1 times to write data ]
-    [ perf record: Captured and wrote 0.030 MB perf.data ]
-    $ perf script --call-trace | head -5
-           uname 14003 [005] 15321.764958566:  cbr: 42 freq: 4219 MHz (156%)
-           uname 14003 [005] 15321.764958566: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )          7f1e71cc4100
-           uname 14003 [005] 15321.764961566: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )              7f1e71cc4df0
-           uname 14003 [005] 15321.764961900: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )              7f1e71cc4e18
-           uname 14003 [005] 15321.764963233: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )              7f1e71cc5128
+-- Sebastian
 
-  After:
+>  Documentation/devicetree/bindings/power/supply/bq25890.txt | 4 ++++
+>  1 file changed, 4 insertions(+)
+>=20
+> diff --git a/Documentation/devicetree/bindings/power/supply/bq25890.txt b=
+/Documentation/devicetree/bindings/power/supply/bq25890.txt
+> index 51ecc756521f..3b4c69a7fa70 100644
+> --- a/Documentation/devicetree/bindings/power/supply/bq25890.txt
+> +++ b/Documentation/devicetree/bindings/power/supply/bq25890.txt
+> @@ -10,6 +10,7 @@ Required properties:
+>      * "ti,bq25895"
+>      * "ti,bq25896"
+>  - reg: integer, i2c address of the device.
+> +- interrupts: interrupt line;
+>  - ti,battery-regulation-voltage: integer, maximum charging voltage (in u=
+V);
+>  - ti,charge-current: integer, maximum charging current (in uA);
+>  - ti,termination-current: integer, charge will be terminated when curren=
+t in
+> @@ -39,6 +40,9 @@ bq25890 {
+>  	compatible =3D "ti,bq25890";
+>  	reg =3D <0x6a>;
+> =20
+> +	interrupt-parent =3D <&gpio1>;
+> +	interrupts =3D <16 IRQ_TYPE_EDGE_FALLING>;
+> +
+>  	ti,battery-regulation-voltage =3D <4200000>;
+>  	ti,charge-current =3D <1000000>;
+>  	ti,termination-current =3D <50000>;
+> --=20
+> 2.17.1
+>=20
 
-    $ perf script --call-trace | head -5
-           uname 14003 [005] 15321.764958566:  cbr: 42 freq: 4219 MHz (156%)
-           uname 14003 [005] 15321.764958566: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )      _start
-           uname 14003 [005] 15321.764961566: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )          _dl_start
-           uname 14003 [005] 15321.764961900: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )          _dl_start
-           uname 14003 [005] 15321.764963233: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )          _dl_start
+--gyqjsa47ulgkpkl2
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Reported-by: Travis Downs <travis.downs@gmail.com>
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: stable@vger.kernel.org
-Link: http://lore.kernel.org/lkml/20200526155207.9172-1-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+-----BEGIN PGP SIGNATURE-----
 
----
- tools/perf/util/dso.c          |   16 ++++++++++++++++
- tools/perf/util/dso.h          |    1 +
- tools/perf/util/probe-finder.c |    1 +
- tools/perf/util/symbol.c       |    2 ++
- 4 files changed, 20 insertions(+)
+iQIzBAEBCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAl7szgoACgkQ2O7X88g7
++pobjw/8Cpw1OzyHiGjyxlvzVKNvp4LndLYSD4J8cdqGPeSNEAHae4sCqmae3G89
+ZCd2Zohd2LwXXire9sQtIXJb96o+1ocWQIzR3wMIypCO8dy83IZqqy+SfZW4ivGW
+K2KmQChB/8os3O74Jw9DSPc4UfK0ISy+7HR4Ot8kyfhg1Dvm9z4NVnId2dHohXoL
+EOn4KYAvjSrevUfXSRwIadCxLxLW7dA1IV1+AS13p0XHdjq4OGQ5dsxNoqYd/X1Q
+MyF3f01Dfic0PDQE3StBTYKW8sYaXI73IftAxZ3gPTcPjS7AzFj+3wpXVEKjfxqR
+e7G40IJYwKtXiyIBg0aQhXOvC3/32LQV4c7suPNmNez4tSn6BkrnFvBOPiVeNZRq
+PLrFNdtatoX3otvbuJEoULD7jLIgSg3Oi8Fkbxu3zmpeCO8yNDPGTmZdhHyxfk7s
+xxUTNlOr7f5rbxYGVe2q0Vz7o5H6s5ukgjSsiqCSMZrNkJd2DYfnvPsSL6Ymd+jP
+SCdfiauLIwrXOzoX/lJXHj/fGzmJGUnU7ogW7OWqclWIGoTxAjIuen+lEWXNIjOH
+L/sAxLp/Sp1gS4rTRFJSite5x8A6h4QGxmsCN1mxuiKgeu9Lyrw4JmKEo40hYa8S
+Ayr385VFbX//luhm435eFe27tMPikUC1GdQwu/tFJk+mkoq5XVs=
+=XIWY
+-----END PGP SIGNATURE-----
 
---- a/tools/perf/util/dso.c
-+++ b/tools/perf/util/dso.c
-@@ -18,6 +18,7 @@ char dso__symtab_origin(const struct dso
- 		[DSO_BINARY_TYPE__BUILD_ID_CACHE]		= 'B',
- 		[DSO_BINARY_TYPE__FEDORA_DEBUGINFO]		= 'f',
- 		[DSO_BINARY_TYPE__UBUNTU_DEBUGINFO]		= 'u',
-+		[DSO_BINARY_TYPE__MIXEDUP_UBUNTU_DEBUGINFO]	= 'x',
- 		[DSO_BINARY_TYPE__OPENEMBEDDED_DEBUGINFO]	= 'o',
- 		[DSO_BINARY_TYPE__BUILDID_DEBUGINFO]		= 'b',
- 		[DSO_BINARY_TYPE__SYSTEM_PATH_DSO]		= 'd',
-@@ -73,6 +74,21 @@ int dso__read_binary_type_filename(const
- 		snprintf(filename + len, size - len, "%s", dso->long_name);
- 		break;
- 
-+	case DSO_BINARY_TYPE__MIXEDUP_UBUNTU_DEBUGINFO:
-+		/*
-+		 * Ubuntu can mixup /usr/lib with /lib, putting debuginfo in
-+		 * /usr/lib/debug/lib when it is expected to be in
-+		 * /usr/lib/debug/usr/lib
-+		 */
-+		if (strlen(dso->long_name) < 9 ||
-+		    strncmp(dso->long_name, "/usr/lib/", 9)) {
-+			ret = -1;
-+			break;
-+		}
-+		len = __symbol__join_symfs(filename, size, "/usr/lib/debug");
-+		snprintf(filename + len, size - len, "%s", dso->long_name + 4);
-+		break;
-+
- 	case DSO_BINARY_TYPE__OPENEMBEDDED_DEBUGINFO:
- 	{
- 		const char *last_slash;
---- a/tools/perf/util/dso.h
-+++ b/tools/perf/util/dso.h
-@@ -21,6 +21,7 @@ enum dso_binary_type {
- 	DSO_BINARY_TYPE__BUILD_ID_CACHE,
- 	DSO_BINARY_TYPE__FEDORA_DEBUGINFO,
- 	DSO_BINARY_TYPE__UBUNTU_DEBUGINFO,
-+	DSO_BINARY_TYPE__MIXEDUP_UBUNTU_DEBUGINFO,
- 	DSO_BINARY_TYPE__BUILDID_DEBUGINFO,
- 	DSO_BINARY_TYPE__SYSTEM_PATH_DSO,
- 	DSO_BINARY_TYPE__GUEST_KMODULE,
---- a/tools/perf/util/probe-finder.c
-+++ b/tools/perf/util/probe-finder.c
-@@ -110,6 +110,7 @@ enum dso_binary_type distro_dwarf_types[
- 	DSO_BINARY_TYPE__UBUNTU_DEBUGINFO,
- 	DSO_BINARY_TYPE__OPENEMBEDDED_DEBUGINFO,
- 	DSO_BINARY_TYPE__BUILDID_DEBUGINFO,
-+	DSO_BINARY_TYPE__MIXEDUP_UBUNTU_DEBUGINFO,
- 	DSO_BINARY_TYPE__NOT_FOUND,
- };
- 
---- a/tools/perf/util/symbol.c
-+++ b/tools/perf/util/symbol.c
-@@ -56,6 +56,7 @@ static enum dso_binary_type binary_type_
- 	DSO_BINARY_TYPE__SYSTEM_PATH_KMODULE,
- 	DSO_BINARY_TYPE__SYSTEM_PATH_KMODULE_COMP,
- 	DSO_BINARY_TYPE__OPENEMBEDDED_DEBUGINFO,
-+	DSO_BINARY_TYPE__MIXEDUP_UBUNTU_DEBUGINFO,
- 	DSO_BINARY_TYPE__NOT_FOUND,
- };
- 
-@@ -1363,6 +1364,7 @@ static bool dso__is_compatible_symtab_ty
- 	case DSO_BINARY_TYPE__SYSTEM_PATH_DSO:
- 	case DSO_BINARY_TYPE__FEDORA_DEBUGINFO:
- 	case DSO_BINARY_TYPE__UBUNTU_DEBUGINFO:
-+	case DSO_BINARY_TYPE__MIXEDUP_UBUNTU_DEBUGINFO:
- 	case DSO_BINARY_TYPE__BUILDID_DEBUGINFO:
- 	case DSO_BINARY_TYPE__OPENEMBEDDED_DEBUGINFO:
- 		return !kmod && dso->kernel == DSO_TYPE_USER;
-
-
+--gyqjsa47ulgkpkl2--
