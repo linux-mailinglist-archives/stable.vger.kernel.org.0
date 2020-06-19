@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A6F1E200BDF
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:42:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF695200C4A
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:47:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387940AbgFSOi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:38:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56168 "EHLO mail.kernel.org"
+        id S2388180AbgFSOnt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:43:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387656AbgFSOiz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:38:55 -0400
+        id S2388505AbgFSOnp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:43:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E8B21208B8;
-        Fri, 19 Jun 2020 14:38:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C0A3521707;
+        Fri, 19 Jun 2020 14:43:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577535;
-        bh=7+X0hyeQZi+E5L9CQEftM+9/uRKUx6Trp8ntOOrkFOc=;
+        s=default; t=1592577825;
+        bh=FeCyewu7Db/5Xu+nwArUyTocoh2rNveCn+wmznFtYgw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2fZkzakCs6iorbDy+AyXiz+znZ6TKE+qv1/xz406od25rofIHWcILcOCjYEK9JK3o
-         k6K69nYF5+KaOZw5W0eHuf9tNN3V63IL5rbejwJj6/ahQxOwYqB4qiBm2TOqoLqsUX
-         kP6kwhnBqJNNiiP54EcyNsQriuzE/koKoKcoUIXY=
+        b=Ih41QiMEesPmK1iwXm2rdkyjvyAXokcQqXmgqhlccbfVwo9z6NVYcnLZxN4HCgVQG
+         GonSeOmUxL9658eAhc+65TgWexTRDynajSRd8SMCgLoLi/gnzMBquXtSLAVgklgw6G
+         EuIgttamJubvMJ4quODT4oTWHr25hzRbtIuY2qeE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Duyck <alexander.duyck@gmail.com>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Aaron Brown <aaron.f.brown@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-Subject: [PATCH 4.4 089/101] igb: Report speed and duplex as unknown when device is runtime suspended
-Date:   Fri, 19 Jun 2020 16:33:18 +0200
-Message-Id: <20200619141618.628608721@linuxfoundation.org>
+        stable@vger.kernel.org, Giuliano Procida <gprocida@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 105/128] blk-mq: move blk_mq_update_nr_hw_queues synchronize_rcu call
+Date:   Fri, 19 Jun 2020 16:33:19 +0200
+Message-Id: <20200619141625.689301820@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141614.001544111@linuxfoundation.org>
-References: <20200619141614.001544111@linuxfoundation.org>
+In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
+References: <20200619141620.148019466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,52 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Giuliano Procida <gprocida@google.com>
 
-commit 165ae7a8feb53dc47fb041357e4b253bfc927cf9 upstream.
+This fixes the
+4.9 backport commit f530afb974c2e82047bd6220303a2dbe30eff304
+which was
+upstream commit f5bbbbe4d63577026f908a809f22f5fd5a90ea1f.
 
-igb device gets runtime suspended when there's no link partner. We can't
-get correct speed under that state:
-$ cat /sys/class/net/enp3s0/speed
-1000
+The upstream commit added a call to synchronize_rcu to
+_blk_mq_update_nr_hw_queues, just after freezing queues.
 
-In addition to that, an error can also be spotted in dmesg:
-[  385.991957] igb 0000:03:00.0 enp3s0: PCIe link lost
+In the backport this landed (in blk_mq_update_nr_hw_queues instead),
+just after unfreezeing queues.
 
-Since device can only be runtime suspended when there's no link partner,
-we can skip reading register and let the following logic set speed and
-duplex with correct status.
+This commit moves the call to its intended place.
 
-The more generic approach will be wrap get_link_ksettings() with begin()
-and complete() callbacks. However, for this particular issue, begin()
-calls igb_runtime_resume() , which tries to rtnl_lock() while the lock
-is already hold by upper ethtool layer.
-
-So let's take this approach until the igb_runtime_resume() no longer
-needs to hold rtnl_lock.
-
-CC: stable <stable@vger.kernel.org>
-Suggested-by: Alexander Duyck <alexander.duyck@gmail.com>
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Tested-by: Aaron Brown <aaron.f.brown@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: f530afb974c2 ("blk-mq: sync the update nr_hw_queues with blk_mq_queue_tag_busy_iter")
+Signed-off-by: Giuliano Procida <gprocida@google.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igb/igb_ethtool.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ block/blk-mq.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/intel/igb/igb_ethtool.c
-+++ b/drivers/net/ethernet/intel/igb/igb_ethtool.c
-@@ -143,7 +143,8 @@ static int igb_get_settings(struct net_d
- 	u32 status;
- 	u32 speed;
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index 58be2eaa5aaa..e0ed7317e98c 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -2331,6 +2331,10 @@ void blk_mq_update_nr_hw_queues(struct blk_mq_tag_set *set, int nr_hw_queues)
  
--	status = rd32(E1000_STATUS);
-+	status = pm_runtime_suspended(&adapter->pdev->dev) ?
-+		 0 : rd32(E1000_STATUS);
- 	if (hw->phy.media_type == e1000_media_type_copper) {
+ 	list_for_each_entry(q, &set->tag_list, tag_set_list)
+ 		blk_mq_freeze_queue(q);
++	/*
++	 * Sync with blk_mq_queue_tag_busy_iter.
++	 */
++	synchronize_rcu();
  
- 		ecmd->supported = (SUPPORTED_10baseT_Half |
+ 	set->nr_hw_queues = nr_hw_queues;
+ 	list_for_each_entry(q, &set->tag_list, tag_set_list) {
+@@ -2346,10 +2350,6 @@ void blk_mq_update_nr_hw_queues(struct blk_mq_tag_set *set, int nr_hw_queues)
+ 
+ 	list_for_each_entry(q, &set->tag_list, tag_set_list)
+ 		blk_mq_unfreeze_queue(q);
+-	/*
+-	 * Sync with blk_mq_queue_tag_busy_iter.
+-	 */
+-	synchronize_rcu();
+ }
+ EXPORT_SYMBOL_GPL(blk_mq_update_nr_hw_queues);
+ 
+-- 
+2.25.1
+
 
 
