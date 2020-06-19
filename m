@@ -2,137 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B17E020044A
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 10:47:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 597D320046B
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 10:53:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731364AbgFSIrF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 04:47:05 -0400
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:53657 "EHLO
-        forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731371AbgFSIrD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Jun 2020 04:47:03 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 085031944487;
-        Fri, 19 Jun 2020 04:47:02 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Fri, 19 Jun 2020 04:47:02 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=CTEfWs
-        hYB/ipbypvIEsXi7Nr9cglRRapZsL+63uaa9I=; b=kb/E7gdMR06KhS7VoaKGiq
-        uunxXq2My3KakaiynJ0yXYEvFma6kaAQE1ARNZKZnONc5R9UXYP+SFJZsCuUrzM0
-        uInbhru53CCsftigPUDi+cwpmYGMuNbUySg4MhgcuMZNeW7tpekkBf3wOIQFAvTN
-        lx7gkofnUXfpfokH2fJlrXaa1Pt0BLqgtOxfA7nGKTJ29lDYJC4KCJW9blYR+yYG
-        3yjSWDFmlwNqcksdD3ypBTPClji66sJXNhqk79j1qIb4LyN6aLrZAC+e04t43lAi
-        zufJ8ogR7HV9yKAuuN9zxgm4UXfAcM/fe2Y1CBlWtDlCRoBwlsCYQg5246F2cVAQ
-        ==
-X-ME-Sender: <xms:hXvsXhvj49d2geezBOmvnjNjMFmbjsZAyhuMbYAalj4FeVOePwbinA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudejiedgtdekucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepheeggfeuvdehjeffieehheeuvdejfefhgeevgfegvd
-    euudefveegffeuvdetleeunecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
-    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:hXvsXqcQ7Ljdj_rHDbB9T50Td19SHFmH2Fc9mPqONB9KSHtv9t6MbQ>
-    <xmx:hXvsXkx5zfZe6arKJHqaYWr19kjmpau4eRCcpsVvrrFWkrs75DWvgQ>
-    <xmx:hXvsXoNZaq9lvjC4td7xR6DOWoYijTIo5dhdH-tVc77O2NDxaq_7dw>
-    <xmx:hnvsXmIRrQUtkYJ_1IkQwsZ9fJQqYZvRpJmnoi5_MVH7FX8O9N2D6g>
+        id S1726382AbgFSIvv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 04:51:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36882 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731288AbgFSIvr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 04:51:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 97DBA3280059;
-        Fri, 19 Jun 2020 04:47:01 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] Bluetooth: hci_bcm: fix freeing not-requested IRQ" failed to apply to 4.4-stable tree
-To:     mirq-linux@rere.qmqm.pl, marcel@holtmann.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 19 Jun 2020 10:46:58 +0200
-Message-ID: <1592556418176161@kroah.com>
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7FE9D214DB;
+        Fri, 19 Jun 2020 08:51:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1592556706;
+        bh=+3EKnGY3tKJ041sxTHddGESHH8ydpd6WPq3jHXnYMis=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=lGY0Ar/9VLI0/0v6eWtEb38G0oeoyCfpnoivWqJLykbxMgYwhXBw+1pFaXBolu9n+
+         OkAZfhVRUlw9WatgcnUo95ln/lnSxgYMLBzujFb/mfZd8mz4XxtTkFMKwfAOMmx/AL
+         JaDME+xNf0ZJCxQFEdUdoXgk6+UzAPF+gZyXcS5o=
+Date:   Fri, 19 Jun 2020 10:51:43 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Macpaul Lin <macpaul.lin@mediatek.com>
+Cc:     Macpaul Lin <macpaul@gmail.com>, Bin Liu <b-liu@ti.com>,
+        linux-usb@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 4/6] usb: musb: mediatek: add reset FADDR to zero in
+ reset interrupt handle
+Message-ID: <20200619085143.GA677266@kroah.com>
+References: <20200525025049.3400-1-b-liu@ti.com>
+ <20200525025049.3400-5-b-liu@ti.com>
+ <CACCg+XNfOaE7LE01NPeR6amvCTyrJaJ3sj3AF+Se49T0YFy_Uw@mail.gmail.com>
+ <20200617085804.GA1736257@kroah.com>
+ <1592386317.5395.2.camel@mtkswgap22>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <1592386317.5395.2.camel@mtkswgap22>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Jun 17, 2020 at 05:31:57PM +0800, Macpaul Lin wrote:
+> On Wed, 2020-06-17 at 10:58 +0200, Greg Kroah-Hartman wrote:
+> > On Wed, Jun 17, 2020 at 04:17:07PM +0800, Macpaul Lin wrote:
+> > > Bin Liu <b-liu@ti.com> 於 2020年5月25日 週一 上午10:53寫道：
+> > > >
+> > > > From: Macpaul Lin <macpaul.lin@mediatek.com>
+> > > >
+> > > > When receiving reset interrupt, FADDR need to be reset to zero in
+> > > > peripheral mode. Otherwise ep0 cannot do enumeration when re-plugging USB
+> > > > cable.
+> > > >
+> > > > Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
+> > > > Acked-by: Min Guo <min.guo@mediatek.com>
+> > > > Signed-off-by: Bin Liu <b-liu@ti.com>
+> > > > ---
+> > > >  drivers/usb/musb/mediatek.c | 6 ++++++
+> > > >  1 file changed, 6 insertions(+)
+> > > >
+> > > > diff --git a/drivers/usb/musb/mediatek.c b/drivers/usb/musb/mediatek.c
+> > > > index 6196b0e8d77d..eebeadd26946 100644
+> > > > --- a/drivers/usb/musb/mediatek.c
+> > > > +++ b/drivers/usb/musb/mediatek.c
+> > > > @@ -208,6 +208,12 @@ static irqreturn_t generic_interrupt(int irq, void *__hci)
+> > > >         musb->int_rx = musb_clearw(musb->mregs, MUSB_INTRRX);
+> > > >         musb->int_tx = musb_clearw(musb->mregs, MUSB_INTRTX);
+> > > >
+> > > > +       if ((musb->int_usb & MUSB_INTR_RESET) && !is_host_active(musb)) {
+> > > > +               /* ep0 FADDR must be 0 when (re)entering peripheral mode */
+> > > > +               musb_ep_select(musb->mregs, 0);
+> > > > +               musb_writeb(musb->mregs, MUSB_FADDR, 0);
+> > > > +       }
+> > > > +
+> > > >         if (musb->int_usb || musb->int_tx || musb->int_rx)
+> > > >                 retval = musb_interrupt(musb);
+> > > >
+> > > > --
+> > > > 2.17.1
+> > > >
+> > > Could this bug fix also been applied to stable kernel?
+> > 
+> > Sure, what is the git commit of it in Linus's tree?
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> 
+> The commit id of this patch should be
+> 402bcac4b25b520c89ba60db85eb6316f36e797f
 
-The patch below does not apply to the 4.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
+Now queued up, thanks.
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 81bd5d0c62437c02caac6b3f942fcda874063cb0 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
-Date: Thu, 2 Apr 2020 14:55:20 +0200
-Subject: [PATCH] Bluetooth: hci_bcm: fix freeing not-requested IRQ
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-When BT module can't be initialized, but it has an IRQ, unloading
-the driver WARNs when trying to free not-yet-requested IRQ. Fix it by
-noting whether the IRQ was requested.
-
-WARNING: CPU: 2 PID: 214 at kernel/irq/devres.c:144 devm_free_irq+0x49/0x4ca
-[...]
-WARNING: CPU: 2 PID: 214 at kernel/irq/manage.c:1746 __free_irq+0x8b/0x27c
-Trying to free already-free IRQ 264
-Modules linked in: hci_uart(-) btbcm bluetooth ecdh_generic ecc libaes
-CPU: 2 PID: 214 Comm: rmmod Tainted: G        W         5.6.1mq-00044-ga5f9ea098318-dirty #928
-[...]
-[<b016aefb>] (devm_free_irq) from [<af8ba1ff>] (bcm_close+0x97/0x118 [hci_uart])
-[<af8ba1ff>] (bcm_close [hci_uart]) from [<af8b736f>] (hci_uart_unregister_device+0x33/0x3c [hci_uart])
-[<af8b736f>] (hci_uart_unregister_device [hci_uart]) from [<b035930b>] (serdev_drv_remove+0x13/0x20)
-[<b035930b>] (serdev_drv_remove) from [<b037093b>] (device_release_driver_internal+0x97/0x118)
-[<b037093b>] (device_release_driver_internal) from [<b0370a0b>] (driver_detach+0x2f/0x58)
-[<b0370a0b>] (driver_detach) from [<b036f855>] (bus_remove_driver+0x41/0x94)
-[<b036f855>] (bus_remove_driver) from [<af8ba8db>] (bcm_deinit+0x1b/0x740 [hci_uart])
-[<af8ba8db>] (bcm_deinit [hci_uart]) from [<af8ba86f>] (hci_uart_exit+0x13/0x30 [hci_uart])
-[<af8ba86f>] (hci_uart_exit [hci_uart]) from [<b01900bd>] (sys_delete_module+0x109/0x1d0)
-[<b01900bd>] (sys_delete_module) from [<b0101001>] (ret_fast_syscall+0x1/0x5a)
-[...]
-
-Cc: stable@vger.kernel.org
-Fixes: 6cc4396c8829 ("Bluetooth: hci_bcm: Add wake-up capability")
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-
-diff --git a/drivers/bluetooth/hci_bcm.c b/drivers/bluetooth/hci_bcm.c
-index 36b7f0d00c4b..19e4587f366c 100644
---- a/drivers/bluetooth/hci_bcm.c
-+++ b/drivers/bluetooth/hci_bcm.c
-@@ -118,6 +118,7 @@ struct bcm_device {
- 	u32			oper_speed;
- 	int			irq;
- 	bool			irq_active_low;
-+	bool			irq_acquired;
- 
- #ifdef CONFIG_PM
- 	struct hci_uart		*hu;
-@@ -333,6 +334,8 @@ static int bcm_request_irq(struct bcm_data *bcm)
- 		goto unlock;
- 	}
- 
-+	bdev->irq_acquired = true;
-+
- 	device_init_wakeup(bdev->dev, true);
- 
- 	pm_runtime_set_autosuspend_delay(bdev->dev,
-@@ -514,7 +517,7 @@ static int bcm_close(struct hci_uart *hu)
- 	}
- 
- 	if (bdev) {
--		if (IS_ENABLED(CONFIG_PM) && bdev->irq > 0) {
-+		if (IS_ENABLED(CONFIG_PM) && bdev->irq_acquired) {
- 			devm_free_irq(bdev->dev, bdev->irq, bdev);
- 			device_init_wakeup(bdev->dev, false);
- 			pm_runtime_disable(bdev->dev);
-
