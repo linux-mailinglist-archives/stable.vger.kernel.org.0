@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 994AA2012B3
+	by mail.lfdr.de (Postfix) with ESMTP id 2C69F2012B2
 	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:56:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392862AbgFSPzR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:55:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52704 "EHLO mail.kernel.org"
+        id S2392510AbgFSPzQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:55:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392848AbgFSPV0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:21:26 -0400
+        id S2390633AbgFSPV2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:21:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 97D1321582;
-        Fri, 19 Jun 2020 15:21:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A91F20B80;
+        Fri, 19 Jun 2020 15:21:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580085;
-        bh=UgH8czb3Zqf99cuf6/cq5xSM1xd308oDJ5vXdkILL9g=;
+        s=default; t=1592580088;
+        bh=h1T8WN4lKVZU17Fkg6U+9UkbB+FzXtXp0Ckcu6/lPss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aYRsr6y89jsF1oA/X3Utv4ut4L6wOdTn3dkejmbI7cOlH1+q/oLwzfdDtzSZEdEB9
-         H33UiqN/WiVsd1MWm8lMUWmNGYJlSMDmQ2tAWiaBx3J8009FwPV7ke1Ry1un0lXjng
-         9ufEw5hmfusDQIqeuF6cO9Ui4GoG+D72DC9g4fkU=
+        b=Fzdc6GVr/+rR/3nVwnKWBZiM248AO/k3ZNZnkhsqB61i7duVhQzUBhVXO8Fz/6MZ/
+         ZkjjlE0+pkMDM6wCkVBsKdS9/rUOW4XmGsLD+/KPJ2vjBlRxxBOvcGFl8kxUmyjPll
+         k54zKHkwf2BNtUKOsFZKKlYuBs+xZrEQa8v4MzP0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Venkateswara Naralasetty <vnaralas@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Alvin Lee <alvin.lee2@amd.com>,
+        Yongqiang Sun <yongqiang.sun@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 086/376] ath10k: fix kernel null pointer dereference
-Date:   Fri, 19 Jun 2020 16:30:04 +0200
-Message-Id: <20200619141714.414954120@linuxfoundation.org>
+Subject: [PATCH 5.7 087/376] drm/amd/display: Revert to old formula in set_vtg_params
+Date:   Fri, 19 Jun 2020 16:30:05 +0200
+Message-Id: <20200619141714.460253808@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -45,66 +46,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Venkateswara Naralasetty <vnaralas@codeaurora.org>
+From: Alvin Lee <alvin.lee2@amd.com>
 
-[ Upstream commit acb31476adc9ff271140cdd4d3c707ff0c97f5a4 ]
+[ Upstream commit a1a0e61f3c43c610f0a3c109348c14ce930c1977 ]
 
-Currently sta airtime is updated without any lock in case of
-host based airtime calculation. Which may result in accessing the
-invalid sta pointer in case of continuous station connect/disconnect.
+[Why]
+New formula + cursor change causing underflow
+on certain configs
 
-This patch fix the kernel null pointer dereference by updating the
-station airtime with proper RCU lock in case of host based airtime
-calculation.
+[How]
+Rever to old formula
 
-Proceeding with the analysis of "ARM Kernel Panic".
-The APSS crash happened due to OOPS on CPU 0.
-Crash Signature : Unable to handle kernel NULL pointer dereference
-at virtual address 00000300
-During the crash,
-PC points to "ieee80211_sta_register_airtime+0x1c/0x448 [mac80211]"
-LR points to "ath10k_txrx_tx_unref+0x17c/0x364 [ath10k_core]".
-The Backtrace obtained is as follows:
-[<bf880238>] (ieee80211_sta_register_airtime [mac80211]) from
-[<bf945a38>] (ath10k_txrx_tx_unref+0x17c/0x364 [ath10k_core])
-[<bf945a38>] (ath10k_txrx_tx_unref [ath10k_core]) from
-[<bf9428e4>] (ath10k_htt_txrx_compl_task+0xa50/0xfc0 [ath10k_core])
-[<bf9428e4>] (ath10k_htt_txrx_compl_task [ath10k_core]) from
-[<bf9b9bc8>] (ath10k_pci_napi_poll+0x50/0xf8 [ath10k_pci])
-[<bf9b9bc8>] (ath10k_pci_napi_poll [ath10k_pci]) from
-[<c059e3b0>] (net_rx_action+0xac/0x160)
-[<c059e3b0>] (net_rx_action) from [<c02329a4>] (__do_softirq+0x104/0x294)
-[<c02329a4>] (__do_softirq) from [<c0232b64>] (run_ksoftirqd+0x30/0x90)
-[<c0232b64>] (run_ksoftirqd) from [<c024e358>] (smpboot_thread_fn+0x25c/0x274)
-[<c024e358>] (smpboot_thread_fn) from [<c02482fc>] (kthread+0xd8/0xec)
-
-Tested HW: QCA9888
-Tested FW: 10.4-3.10-00047
-
-Signed-off-by: Venkateswara Naralasetty <vnaralas@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/1585736290-17661-1-git-send-email-vnaralas@codeaurora.org
+Signed-off-by: Alvin Lee <alvin.lee2@amd.com>
+Reviewed-by: Yongqiang Sun <yongqiang.sun@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/txrx.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/amd/display/dc/dcn10/dcn10_optc.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/txrx.c b/drivers/net/wireless/ath/ath10k/txrx.c
-index 39abf8b12903..f46b9083bbf1 100644
---- a/drivers/net/wireless/ath/ath10k/txrx.c
-+++ b/drivers/net/wireless/ath/ath10k/txrx.c
-@@ -84,9 +84,11 @@ int ath10k_txrx_tx_unref(struct ath10k_htt *htt,
- 		wake_up(&htt->empty_tx_wq);
- 	spin_unlock_bh(&htt->tx_lock);
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_optc.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_optc.c
+index 17d96ec6acd8..ec0ab42becba 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_optc.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_optc.c
+@@ -299,6 +299,7 @@ void optc1_set_vtg_params(struct timing_generator *optc,
+ 	uint32_t asic_blank_end;
+ 	uint32_t v_init;
+ 	uint32_t v_fp2 = 0;
++	int32_t vertical_line_start;
  
-+	rcu_read_lock();
- 	if (txq && txq->sta && skb_cb->airtime_est)
- 		ieee80211_sta_register_airtime(txq->sta, txq->tid,
- 					       skb_cb->airtime_est, 0);
-+	rcu_read_unlock();
+ 	struct optc *optc1 = DCN10TG_FROM_TG(optc);
  
- 	if (ar->bus_param.dev_type != ATH10K_DEV_TYPE_HL)
- 		dma_unmap_single(dev, skb_cb->paddr, msdu->len, DMA_TO_DEVICE);
+@@ -315,8 +316,9 @@ void optc1_set_vtg_params(struct timing_generator *optc,
+ 			patched_crtc_timing.v_border_top;
+ 
+ 	/* if VSTARTUP is before VSYNC, FP2 is the offset, otherwise 0 */
+-	if (optc1->vstartup_start > asic_blank_end)
+-		v_fp2 = optc1->vstartup_start - asic_blank_end;
++	vertical_line_start = asic_blank_end - optc1->vstartup_start + 1;
++	if (vertical_line_start < 0)
++		v_fp2 = -vertical_line_start;
+ 
+ 	/* Interlace */
+ 	if (REG(OTG_INTERLACE_CONTROL)) {
 -- 
 2.25.1
 
