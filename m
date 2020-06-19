@@ -2,45 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19E4C2016A4
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:33:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 755AA2016BC
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:45:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389503AbgFSQdD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:33:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45712 "EHLO mail.kernel.org"
+        id S2388385AbgFSOmh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:42:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389502AbgFSOvv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:51:51 -0400
+        id S2388025AbgFSOmg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:42:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B2DA218AC;
-        Fri, 19 Jun 2020 14:51:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF7602158C;
+        Fri, 19 Jun 2020 14:42:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578311;
-        bh=GPwglkMMRGPvGth9jFBh/6oBrS8f6pyUQs+nbjvD0JA=;
+        s=default; t=1592577756;
+        bh=P3J1uhq5KaE5PWts86ExAV3RvdYcRyFqVg7BLWLL3Yg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=li6hydE4fynpNZpuodtm3ExaliJcRzaABInzEUJxvhFALSuFmrRM4e5RDLWFj6jJ7
-         AJ6KVUS8jY/RVVMmrcOhYeMjnwz9ljG/saZ7xL31d3fIhA6H7tts6Ju2JZkKJn4ELX
-         VHJ5g0JZ29yiCQo+uAYgKM9hKCylrW0n92q24zzQ=
+        b=MKQ4cNbQnhsS1i5VkdfXF4Nwefm9h4BKx/b5Rj3ulQM4WR0EAab7X16hKExQjteTe
+         719S87Qw3sfAcQ89GrHtc92U2ahkORhS80IVZcJHEBGU7HBdEhjTamOxMS1L8+tBj5
+         jt9sYAWaDBAc5TR4xQn1RTy9YTP0rrde5I1CuSTA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Paul Burton <paulburton@kernel.org>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
+        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
+        Vladimir Zapolskiy <vz@mleia.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 124/190] mips: MAAR: Use more precise address mask
-Date:   Fri, 19 Jun 2020 16:32:49 +0200
-Message-Id: <20200619141639.817516579@linuxfoundation.org>
+Subject: [PATCH 4.9 076/128] net: lpc-enet: fix error return code in lpc_mii_init()
+Date:   Fri, 19 Jun 2020 16:32:50 +0200
+Message-Id: <20200619141624.205385764@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
-References: <20200619141633.446429600@linuxfoundation.org>
+In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
+References: <20200619141620.148019466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,48 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit bbb5946eb545fab8ad8f46bce8a803e1c0c39d47 ]
+[ Upstream commit 88ec7cb22ddde725ed4ce15991f0bd9dd817fd85 ]
 
-Indeed according to the MIPS32 Privileged Resource Architecgture the MAAR
-pair register address field either takes [12:31] bits for non-XPA systems
-and [12:55] otherwise. In any case the current address mask is just
-wrong for 64-bit and 32-bits XPA chips. So lets extend it to 59-bits
-of physical address value. This shall cover the 64-bits architecture and
-systems with XPA enabled, and won't cause any problem for non-XPA 32-bit
-systems, since address values exceeding the architecture specific MAAR
-mask will be just truncated with setting zeros in the unsupported upper
-bits.
+Fix to return a negative error code from the error handling
+case instead of 0, as done elsewhere in this function.
 
-Co-developed-by: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
-Signed-off-by: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: Paul Burton <paulburton@kernel.org>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: devicetree@vger.kernel.org
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: b7370112f519 ("lpc32xx: Added ethernet driver")
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Acked-by: Vladimir Zapolskiy <vz@mleia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/mipsregs.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/nxp/lpc_eth.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/mips/include/asm/mipsregs.h b/arch/mips/include/asm/mipsregs.h
-index a6810923b3f0..a7f9acb42034 100644
---- a/arch/mips/include/asm/mipsregs.h
-+++ b/arch/mips/include/asm/mipsregs.h
-@@ -737,7 +737,7 @@
+diff --git a/drivers/net/ethernet/nxp/lpc_eth.c b/drivers/net/ethernet/nxp/lpc_eth.c
+index 9fcaf1910633..9b98ec3dcb82 100644
+--- a/drivers/net/ethernet/nxp/lpc_eth.c
++++ b/drivers/net/ethernet/nxp/lpc_eth.c
+@@ -845,7 +845,8 @@ static int lpc_mii_init(struct netdata_local *pldat)
+ 	if (mdiobus_register(pldat->mii_bus))
+ 		goto err_out_unregister_bus;
  
- /* MAAR bit definitions */
- #define MIPS_MAAR_VH		(_U64CAST_(1) << 63)
--#define MIPS_MAAR_ADDR		((BIT_ULL(BITS_PER_LONG - 12) - 1) << 12)
-+#define MIPS_MAAR_ADDR		GENMASK_ULL(55, 12)
- #define MIPS_MAAR_ADDR_SHIFT	12
- #define MIPS_MAAR_S		(_ULCAST_(1) << 1)
- #define MIPS_MAAR_VL		(_ULCAST_(1) << 0)
+-	if (lpc_mii_probe(pldat->ndev) != 0)
++	err = lpc_mii_probe(pldat->ndev);
++	if (err)
+ 		goto err_out_unregister_bus;
+ 
+ 	return 0;
 -- 
 2.25.1
 
