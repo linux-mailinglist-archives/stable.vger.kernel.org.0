@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18F1C2014FB
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:22:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77BAA201361
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:01:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393620AbgFSQQU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:16:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59906 "EHLO mail.kernel.org"
+        id S2392734AbgFSQA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:00:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390958AbgFSPDG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:03:06 -0400
+        id S2392279AbgFSPNv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:13:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 30E80206DB;
-        Fri, 19 Jun 2020 15:03:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D1BC020776;
+        Fri, 19 Jun 2020 15:13:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578985;
-        bh=YTXT8grH/sr/BUaAj3D5RuOd32qqzSywBujC0D38cBs=;
+        s=default; t=1592579630;
+        bh=Aau8Fz/kmFsQg6cbPI1I441hvSSkrvN3v8hY2af6fyk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eXyeRbNOChIFheUHs0JdvlBjthU16kY+m4pMaxYpBsxmBtLjKd4QFcLmGKCp4V4cP
-         Orgo+qpIYB9f7tt6DF6IVm0eMOcyESbFiGT6Ce/YIM7AKje6Y7e3FxXqhoi9RVf+JI
-         zHJXUPm874gPcz/qaZZ2NyKqqhHrwoywcqXs/8T0=
+        b=PTduBa1DUriGPtqRTJm8I5hMdFYRn/X7MNPJoJgy1xKaup8mckkDxR8OtP6SaiHXh
+         us564OGSGZ0y6gYSOThDm3sEtnrZVtFrlsnFLxz+H378hLsKpNcCmGzbZdY6vgIGLZ
+         9Xjf4LgjyiLp+6/I10RIEdYL5EbfQLSPazzGz3Sc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Punit Agrawal <punit1.agrawal@toshiba.co.jp>,
-        Alexander Duyck <alexander.h.duyck@linux.intel.com>,
-        Aaron Brown <aaron.f.brown@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-Subject: [PATCH 4.19 233/267] e1000e: Relax condition to trigger reset for ME workaround
+        stable@vger.kernel.org, Weiyi Lu <weiyi.lu@mediatek.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 5.4 207/261] clk: mediatek: assign the initial value to clk_init_data of mtk_mux
 Date:   Fri, 19 Jun 2020 16:33:38 +0200
-Message-Id: <20200619141659.894856054@linuxfoundation.org>
+Message-Id: <20200619141659.823383120@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
-References: <20200619141648.840376470@linuxfoundation.org>
+In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
+References: <20200619141649.878808811@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,89 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Punit Agrawal <punit1.agrawal@toshiba.co.jp>
+From: Weiyi Lu <weiyi.lu@mediatek.com>
 
-commit d601afcae2febc49665008e9a79e701248d56c50 upstream.
+commit 571cfadcc628dd5591444f7289e27445ea732f4c upstream.
 
-It's an error if the value of the RX/TX tail descriptor does not match
-what was written. The error condition is true regardless the duration
-of the interference from ME. But the driver only performs the reset if
-E1000_ICH_FWSM_PCIM2PCI_COUNT (2000) iterations of 50us delay have
-transpired. The extra condition can lead to inconsistency between the
-state of hardware as expected by the driver.
+When some new clock supports are introduced, e.g. [1]
+it might lead to an error although it should be NULL because
+clk_init_data is on the stack and it might have random values
+if using without initialization.
+Add the missing initial value to clk_init_data.
 
-Fix this by dropping the check for number of delay iterations.
+[1] https://android-review.googlesource.com/c/kernel/common/+/1278046
 
-While at it, also make __ew32_prepare() static as it's not used
-anywhere else.
-
-CC: stable <stable@vger.kernel.org>
-Signed-off-by: Punit Agrawal <punit1.agrawal@toshiba.co.jp>
-Reviewed-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
-Tested-by: Aaron Brown <aaron.f.brown@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Fixes: a3ae549917f1 ("clk: mediatek: Add new clkmux register API")
+Signed-off-by: Weiyi Lu <weiyi.lu@mediatek.com>
+Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1590560749-29136-1-git-send-email-weiyi.lu@mediatek.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/intel/e1000e/e1000.h  |    1 -
- drivers/net/ethernet/intel/e1000e/netdev.c |   12 +++++-------
- 2 files changed, 5 insertions(+), 8 deletions(-)
+ drivers/clk/mediatek/clk-mux.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/intel/e1000e/e1000.h
-+++ b/drivers/net/ethernet/intel/e1000e/e1000.h
-@@ -574,7 +574,6 @@ static inline u32 __er32(struct e1000_hw
- 
- #define er32(reg)	__er32(hw, E1000_##reg)
- 
--s32 __ew32_prepare(struct e1000_hw *hw);
- void __ew32(struct e1000_hw *hw, unsigned long reg, u32 val);
- 
- #define ew32(reg, val)	__ew32(hw, E1000_##reg, (val))
---- a/drivers/net/ethernet/intel/e1000e/netdev.c
-+++ b/drivers/net/ethernet/intel/e1000e/netdev.c
-@@ -119,14 +119,12 @@ static const struct e1000_reg_info e1000
-  * has bit 24 set while ME is accessing MAC CSR registers, wait if it is set
-  * and try again a number of times.
-  **/
--s32 __ew32_prepare(struct e1000_hw *hw)
-+static void __ew32_prepare(struct e1000_hw *hw)
+--- a/drivers/clk/mediatek/clk-mux.c
++++ b/drivers/clk/mediatek/clk-mux.c
+@@ -160,7 +160,7 @@ struct clk *mtk_clk_register_mux(const s
+ 				 spinlock_t *lock)
  {
- 	s32 i = E1000_ICH_FWSM_PCIM2PCI_COUNT;
+ 	struct mtk_clk_mux *clk_mux;
+-	struct clk_init_data init;
++	struct clk_init_data init = {};
+ 	struct clk *clk;
  
- 	while ((er32(FWSM) & E1000_ICH_FWSM_PCIM2PCI) && --i)
- 		udelay(50);
--
--	return i;
- }
- 
- void __ew32(struct e1000_hw *hw, unsigned long reg, u32 val)
-@@ -607,11 +605,11 @@ static void e1000e_update_rdt_wa(struct
- {
- 	struct e1000_adapter *adapter = rx_ring->adapter;
- 	struct e1000_hw *hw = &adapter->hw;
--	s32 ret_val = __ew32_prepare(hw);
- 
-+	__ew32_prepare(hw);
- 	writel(i, rx_ring->tail);
- 
--	if (unlikely(!ret_val && (i != readl(rx_ring->tail)))) {
-+	if (unlikely(i != readl(rx_ring->tail))) {
- 		u32 rctl = er32(RCTL);
- 
- 		ew32(RCTL, rctl & ~E1000_RCTL_EN);
-@@ -624,11 +622,11 @@ static void e1000e_update_tdt_wa(struct
- {
- 	struct e1000_adapter *adapter = tx_ring->adapter;
- 	struct e1000_hw *hw = &adapter->hw;
--	s32 ret_val = __ew32_prepare(hw);
- 
-+	__ew32_prepare(hw);
- 	writel(i, tx_ring->tail);
- 
--	if (unlikely(!ret_val && (i != readl(tx_ring->tail)))) {
-+	if (unlikely(i != readl(tx_ring->tail))) {
- 		u32 tctl = er32(TCTL);
- 
- 		ew32(TCTL, tctl & ~E1000_TCTL_EN);
+ 	clk_mux = kzalloc(sizeof(*clk_mux), GFP_KERNEL);
 
 
