@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6058C20149B
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:14:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBD3C20148F
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:14:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404356AbgFSQNO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:13:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32840 "EHLO mail.kernel.org"
+        id S2392782AbgFSQMi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:12:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388948AbgFSPEN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:04:13 -0400
+        id S2391181AbgFSPEp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:04:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE92821941;
-        Fri, 19 Jun 2020 15:04:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1A3B92193E;
+        Fri, 19 Jun 2020 15:04:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579052;
-        bh=IZYrfs19SgeWWLKJuBShuVZ/GQEjl9mIxuLz473p+Ek=;
+        s=default; t=1592579084;
+        bh=uv2kvTbckQQzxzS5LFDIVglVH5WrWYKtxASxfY7wk0g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d2ifCGOj1+bLUdIeoNUJJai7cEuB1ZhaEdKzg7F0b9n4Dzk/EiSRH+AuiFGIvw+t0
-         gdbnDSOqiUtXuys0MoApGW7//2qMF88u2Jhx0TEyYAX+/UY4kl510V5QFeBlcvd/99
-         9yrRB2ewChEcGTChxDvouY/hpSQfnbC+DZCMBS+A=
+        b=daK4elVxZArq9WO9Dwh5uRB+hig2b/wrxS13y2EDfa1DKZWCfNfxlv5c5Kfv6t6cu
+         rV2Yv7p2HKUBqJZJwfqGFlE28It3LxvG9ko4TDiEtsgcfeRrLsb5b4rHMii69KueTU
+         DZgMyIOGEOHbvBxotVPCLSXFN1nYof66bhhv3mNw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: [PATCH 4.19 250/267] kernel/cpu_pm: Fix uninitted local in cpu_pm
-Date:   Fri, 19 Jun 2020 16:33:55 +0200
-Message-Id: <20200619141700.670764597@linuxfoundation.org>
+        Ludovic Desroches <ludovic.desroches@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 4.19 253/267] ARM: dts: at91: sama5d2_ptc_ek: fix vbus pin
+Date:   Fri, 19 Jun 2020 16:33:58 +0200
+Message-Id: <20200619141700.808815896@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
 References: <20200619141648.840376470@linuxfoundation.org>
@@ -46,54 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Ludovic Desroches <ludovic.desroches@microchip.com>
 
-commit b5945214b76a1f22929481724ffd448000ede914 upstream.
+commit baa998aecb75c04d62be0a4ab6b724af6d73a0f9 upstream.
 
-cpu_pm_notify() is basically a wrapper of notifier_call_chain().
-notifier_call_chain() doesn't initialize *nr_calls to 0 before it
-starts incrementing it--presumably it's up to the callers to do this.
+The gpio property for the vbus pin doesn't match the pinctrl and is
+not correct.
 
-Unfortunately the callers of cpu_pm_notify() don't init *nr_calls.
-This potentially means you could get too many or two few calls to
-CPU_PM_ENTER_FAILED or CPU_CLUSTER_PM_ENTER_FAILED depending on the
-luck of the stack.
-
-Let's fix this.
-
-Fixes: ab10023e0088 ("cpu_pm: Add cpu power management notifiers")
-Cc: stable@vger.kernel.org
-Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Link: https://lore.kernel.org/r/20200504104917.v6.3.I2d44fc0053d019f239527a4e5829416714b7e299@changeid
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Ludovic Desroches <ludovic.desroches@microchip.com>
+Fixes: 42ed535595ec "ARM: dts: at91: introduce the sama5d2 ptc ek board"
+Cc: stable@vger.kernel.org # 4.19 and later
+Link: https://lore.kernel.org/r/20200401221947.41502-1-ludovic.desroches@microchip.com
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/cpu_pm.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/cpu_pm.c
-+++ b/kernel/cpu_pm.c
-@@ -89,7 +89,7 @@ EXPORT_SYMBOL_GPL(cpu_pm_unregister_noti
-  */
- int cpu_pm_enter(void)
- {
--	int nr_calls;
-+	int nr_calls = 0;
- 	int ret = 0;
+--- a/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts
++++ b/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts
+@@ -40,7 +40,7 @@
  
- 	ret = cpu_pm_notify(CPU_PM_ENTER, -1, &nr_calls);
-@@ -140,7 +140,7 @@ EXPORT_SYMBOL_GPL(cpu_pm_exit);
-  */
- int cpu_cluster_pm_enter(void)
- {
--	int nr_calls;
-+	int nr_calls = 0;
- 	int ret = 0;
- 
- 	ret = cpu_pm_notify(CPU_CLUSTER_PM_ENTER, -1, &nr_calls);
+ 	ahb {
+ 		usb0: gadget@300000 {
+-			atmel,vbus-gpio = <&pioA PIN_PA27 GPIO_ACTIVE_HIGH>;
++			atmel,vbus-gpio = <&pioA PIN_PB11 GPIO_ACTIVE_HIGH>;
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&pinctrl_usba_vbus>;
+ 			status = "okay";
 
 
