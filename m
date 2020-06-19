@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0B982015DA
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:32:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8EF7201833
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:48:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390753AbgFSQXd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:23:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55322 "EHLO mail.kernel.org"
+        id S2388196AbgFSQsC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:48:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389201AbgFSO7O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:59:14 -0400
+        id S2387803AbgFSOkv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:40:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AFD3F21919;
-        Fri, 19 Jun 2020 14:59:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2FFF620A8B;
+        Fri, 19 Jun 2020 14:40:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578754;
-        bh=WI3HQ8lMCRznQ3o12AJnapm9JrQWYpgFcNojPlKXQAQ=;
+        s=default; t=1592577650;
+        bh=zl0ACyDj7vFcEaBdi95zIaIux1rc3z6IveIFcj/66R8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FRLOxnE7HxK2xiIJMsjM6OGuN8Qc1V7YTBkb2MMjjQRzOS3RKG19TBmIDJsv+ubbl
-         xFjeyUQxTTxsdEtSfOzaChqbZdijIyD3YllfxdOfoalZJYuTbsIfpixKwgM6jnw7XL
-         GrPpGpMjC6E5hElyj15TaAXOMDtLfTIvKp52+Jk0=
+        b=LGznwckhDwgdHD8JLIuTwkYx+sJPbiVKFoAY06xV4xbOoNHqChEtfF4J+13L47P0b
+         QbDpaPtqyYtcJVN8J0cEqozUsWmKrr4oFSivZtKuadtjgMRHZRhSUD52qW+/FAxfxQ
+         UicuoPip1N3hyMD6/60gmCVIaHsN0C20W6uuqMFs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ayush Sawal <ayush.sawal@chelsio.com>,
-        Devulapally Shiva Krishna <shiva@chelsio.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 143/267] Crypto/chcr: fix for ccm(aes) failed test
+Subject: [PATCH 4.9 034/128] spi: bcm2835: Fix controller unregister order
 Date:   Fri, 19 Jun 2020 16:32:08 +0200
-Message-Id: <20200619141655.687313359@linuxfoundation.org>
+Message-Id: <20200619141621.988992893@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
-References: <20200619141648.840376470@linuxfoundation.org>
+In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
+References: <20200619141620.148019466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Devulapally Shiva Krishna <shiva@chelsio.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-[ Upstream commit 10b0c75d7bc19606fa9a62c8ab9180e95c0e0385 ]
+[ Upstream commit 9dd277ff92d06f6aa95b39936ad83981d781f49b ]
 
-The ccm(aes) test fails when req->assoclen > ~240bytes.
+The BCM2835 SPI driver uses devm_spi_register_controller() on bind.
+As a consequence, on unbind, __device_release_driver() first invokes
+bcm2835_spi_remove() before unregistering the SPI controller via
+devres_release_all().
 
-The problem is the value assigned to auth_offset is wrong.
-As auth_offset is unsigned char, it can take max value as 255.
-So fix it by making it unsigned int.
+This order is incorrect:  bcm2835_spi_remove() tears down the DMA
+channels and turns off the SPI controller, including its interrupts
+and clock.  The SPI controller is thus no longer usable.
 
-Signed-off-by: Ayush Sawal <ayush.sawal@chelsio.com>
-Signed-off-by: Devulapally Shiva Krishna <shiva@chelsio.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+When the SPI controller is subsequently unregistered, it unbinds all
+its slave devices.  If their drivers need to access the SPI bus,
+e.g. to quiesce their interrupts, unbinding will fail.
+
+As a rule, devm_spi_register_controller() must not be used if the
+->remove() hook performs teardown steps which shall be performed
+after unbinding of slaves.
+
+Fix by using the non-devm variant spi_register_controller().  Note that
+the struct spi_controller as well as the driver-private data are not
+freed until after bcm2835_spi_remove() has finished, so accessing them
+is safe.
+
+Fixes: 247263dba208 ("spi: bcm2835: use devm_spi_register_master()")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: stable@vger.kernel.org # v3.13+
+Link: https://lore.kernel.org/r/2397dd70cdbe95e0bc4da2b9fca0f31cb94e5aed.1589557526.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/chelsio/chcr_algo.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-bcm2835.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/chelsio/chcr_algo.c b/drivers/crypto/chelsio/chcr_algo.c
-index c435f89f34e3..9b3c259f081d 100644
---- a/drivers/crypto/chelsio/chcr_algo.c
-+++ b/drivers/crypto/chelsio/chcr_algo.c
-@@ -2764,7 +2764,7 @@ static void fill_sec_cpl_for_aead(struct cpl_tx_sec_pdu *sec_cpl,
- 	unsigned int mac_mode = CHCR_SCMD_AUTH_MODE_CBCMAC;
- 	unsigned int c_id = a_ctx(tfm)->dev->rx_channel_id;
- 	unsigned int ccm_xtra;
--	unsigned char tag_offset = 0, auth_offset = 0;
-+	unsigned int tag_offset = 0, auth_offset = 0;
- 	unsigned int assoclen;
+diff --git a/drivers/spi/spi-bcm2835.c b/drivers/spi/spi-bcm2835.c
+index eab27d41ba83..df6abc75bc16 100644
+--- a/drivers/spi/spi-bcm2835.c
++++ b/drivers/spi/spi-bcm2835.c
+@@ -793,7 +793,7 @@ static int bcm2835_spi_probe(struct platform_device *pdev)
+ 		goto out_clk_disable;
+ 	}
  
- 	if (get_aead_subtype(tfm) == CRYPTO_ALG_SUB_TYPE_AEAD_RFC4309)
+-	err = devm_spi_register_master(&pdev->dev, master);
++	err = spi_register_master(master);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "could not register SPI master: %d\n", err);
+ 		goto out_clk_disable;
+@@ -813,6 +813,8 @@ static int bcm2835_spi_remove(struct platform_device *pdev)
+ 	struct spi_master *master = platform_get_drvdata(pdev);
+ 	struct bcm2835_spi *bs = spi_master_get_devdata(master);
+ 
++	spi_unregister_master(master);
++
+ 	/* Clear FIFOs, and disable the HW block */
+ 	bcm2835_wr(bs, BCM2835_SPI_CS,
+ 		   BCM2835_SPI_CS_CLEAR_RX | BCM2835_SPI_CS_CLEAR_TX);
 -- 
 2.25.1
 
