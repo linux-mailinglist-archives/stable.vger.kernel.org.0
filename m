@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9851E201678
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:33:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45CB2201675
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:33:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389902AbgFSQbT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:31:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47234 "EHLO mail.kernel.org"
+        id S2394834AbgFSQbF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:31:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389652AbgFSOw7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:52:59 -0400
+        id S2389656AbgFSOxC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:53:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B358C21556;
-        Fri, 19 Jun 2020 14:52:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B46F21852;
+        Fri, 19 Jun 2020 14:53:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578379;
-        bh=0V3FvdG4nQLOOIOgNGR1n3/vSMQfS1its0pK4X/69+A=;
+        s=default; t=1592578382;
+        bh=y5CMPgGrrUxMiEzQhLkoaT4ZoY1Wlxck2j2DTWfxkGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JvcRZZX1Vafq4P0YunLn7xruq6cblM6+Ux6ZyseFW8o1Tg/yWXFc7R9sNuKs7+apc
-         uq5QppIdO167Z8J74lblSiFeN/iixWL0uzP61kAocCAV+m1uXR1vYrr/kRsNmCG3gq
-         D0RgKpuosFaUCqjTD1ThWbtlQ/uABIiHAWtthVBg=
+        b=BBlGFyVsDOr05Ti9/NX9sfH8y+6ffnwbzC0Y7Uiq/5lHzfPEHIn4p4RkxP5XDM/wm
+         +2QTD0HAPPvP2WZwG+oTzpZCsoYmJKOtSECPdvS9XVpDbNxseAdYX1p4P5akojb/b1
+         WBe26ewXvn9NQ0N8Zo+FAczsR0ANutIZQfiyLzls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>
-Subject: [PATCH 4.14 189/190] perf probe: Fix to check blacklist address correctly
-Date:   Fri, 19 Jun 2020 16:33:54 +0200
-Message-Id: <20200619141643.302307142@linuxfoundation.org>
+        stable@vger.kernel.org, Travis Downs <travis.downs@gmail.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 4.14 190/190] perf symbols: Fix debuginfo search for Ubuntu
+Date:   Fri, 19 Jun 2020 16:33:55 +0200
+Message-Id: <20200619141643.352490350@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
 References: <20200619141633.446429600@linuxfoundation.org>
@@ -45,119 +45,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit 80526491c2ca6abc028c0f0dbb0707a1f35fb18a upstream.
+commit 85afd35575a3c1a3a905722dde5ee70b49282e70 upstream.
 
-Fix to check kprobe blacklist address correctly with relocated address
-by adjusting debuginfo address.
+Reportedly, from 19.10 Ubuntu has begun mixing up the location of some
+debug symbol files, putting files expected to be in
+/usr/lib/debug/usr/lib into /usr/lib/debug/lib instead. Fix by adding
+another dso_binary_type.
 
-Since the address in the debuginfo is same as objdump, it is different
-from relocated kernel address with KASLR.  Thus, 'perf probe' always
-misses to catch the blacklisted addresses.
+Example on Ubuntu 20.04
 
-Without this patch, 'perf probe' can not detect the blacklist addresses
-on a KASLR enabled kernel.
+  Before:
 
-  # perf probe kprobe_dispatcher
-  Failed to write event: Invalid argument
-    Error: Failed to add events.
-  #
+    $ perf record -e intel_pt//u uname
+    Linux
+    [ perf record: Woken up 1 times to write data ]
+    [ perf record: Captured and wrote 0.030 MB perf.data ]
+    $ perf script --call-trace | head -5
+           uname 14003 [005] 15321.764958566:  cbr: 42 freq: 4219 MHz (156%)
+           uname 14003 [005] 15321.764958566: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )          7f1e71cc4100
+           uname 14003 [005] 15321.764961566: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )              7f1e71cc4df0
+           uname 14003 [005] 15321.764961900: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )              7f1e71cc4e18
+           uname 14003 [005] 15321.764963233: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )              7f1e71cc5128
 
-With this patch, it correctly shows the error message.
+  After:
 
-  # perf probe kprobe_dispatcher
-  kprobe_dispatcher is blacklisted function, skip it.
-  Probe point 'kprobe_dispatcher' not found.
-    Error: Failed to add events.
-  #
+    $ perf script --call-trace | head -5
+           uname 14003 [005] 15321.764958566:  cbr: 42 freq: 4219 MHz (156%)
+           uname 14003 [005] 15321.764958566: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )      _start
+           uname 14003 [005] 15321.764961566: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )          _dl_start
+           uname 14003 [005] 15321.764961900: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )          _dl_start
+           uname 14003 [005] 15321.764963233: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )          _dl_start
 
-Fixes: 9aaf5a5f479b ("perf probe: Check kprobes blacklist when adding new events")
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
+Reported-by: Travis Downs <travis.downs@gmail.com>
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
 Cc: stable@vger.kernel.org
-Link: http://lore.kernel.org/lkml/158763966411.30755.5882376357738273695.stgit@devnote2
+Link: http://lore.kernel.org/lkml/20200526155207.9172-1-adrian.hunter@intel.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/util/probe-event.c |   21 +++++++++++++++------
- 1 file changed, 15 insertions(+), 6 deletions(-)
+ tools/perf/util/dso.c          |   16 ++++++++++++++++
+ tools/perf/util/dso.h          |    1 +
+ tools/perf/util/probe-finder.c |    1 +
+ tools/perf/util/symbol.c       |    2 ++
+ 4 files changed, 20 insertions(+)
 
---- a/tools/perf/util/probe-event.c
-+++ b/tools/perf/util/probe-event.c
-@@ -122,7 +122,7 @@ static struct symbol *__find_kernel_func
- 	return machine__find_kernel_function(host_machine, addr, mapp);
- }
+--- a/tools/perf/util/dso.c
++++ b/tools/perf/util/dso.c
+@@ -36,6 +36,7 @@ char dso__symtab_origin(const struct dso
+ 		[DSO_BINARY_TYPE__BUILD_ID_CACHE_DEBUGINFO]	= 'D',
+ 		[DSO_BINARY_TYPE__FEDORA_DEBUGINFO]		= 'f',
+ 		[DSO_BINARY_TYPE__UBUNTU_DEBUGINFO]		= 'u',
++		[DSO_BINARY_TYPE__MIXEDUP_UBUNTU_DEBUGINFO]	= 'x',
+ 		[DSO_BINARY_TYPE__OPENEMBEDDED_DEBUGINFO]	= 'o',
+ 		[DSO_BINARY_TYPE__BUILDID_DEBUGINFO]		= 'b',
+ 		[DSO_BINARY_TYPE__SYSTEM_PATH_DSO]		= 'd',
+@@ -118,6 +119,21 @@ int dso__read_binary_type_filename(const
+ 		snprintf(filename + len, size - len, "%s", dso->long_name);
+ 		break;
  
--static struct ref_reloc_sym *kernel_get_ref_reloc_sym(void)
-+static struct ref_reloc_sym *kernel_get_ref_reloc_sym(struct map **pmap)
- {
- 	/* kmap->ref_reloc_sym should be set if host_machine is initialized */
- 	struct kmap *kmap;
-@@ -134,6 +134,10 @@ static struct ref_reloc_sym *kernel_get_
- 	kmap = map__kmap(map);
- 	if (!kmap)
- 		return NULL;
-+
-+	if (pmap)
-+		*pmap = map;
-+
- 	return kmap->ref_reloc_sym;
- }
- 
-@@ -145,7 +149,7 @@ static int kernel_get_symbol_address_by_
- 	struct map *map;
- 
- 	/* ref_reloc_sym is just a label. Need a special fix*/
--	reloc_sym = kernel_get_ref_reloc_sym();
-+	reloc_sym = kernel_get_ref_reloc_sym(NULL);
- 	if (reloc_sym && strcmp(name, reloc_sym->name) == 0)
- 		*addr = (reloc) ? reloc_sym->addr : reloc_sym->unrelocated_addr;
- 	else {
-@@ -764,6 +768,7 @@ post_process_kernel_probe_trace_events(s
- 				       int ntevs)
- {
- 	struct ref_reloc_sym *reloc_sym;
-+	struct map *map;
- 	char *tmp;
- 	int i, skipped = 0;
- 
-@@ -772,7 +777,7 @@ post_process_kernel_probe_trace_events(s
- 		return post_process_offline_probe_trace_events(tevs, ntevs,
- 						symbol_conf.vmlinux_name);
- 
--	reloc_sym = kernel_get_ref_reloc_sym();
-+	reloc_sym = kernel_get_ref_reloc_sym(&map);
- 	if (!reloc_sym) {
- 		pr_warning("Relocated base symbol is not found!\n");
- 		return -EINVAL;
-@@ -783,9 +788,13 @@ post_process_kernel_probe_trace_events(s
- 			continue;
- 		if (tevs[i].point.retprobe && !kretprobe_offset_is_supported())
- 			continue;
--		/* If we found a wrong one, mark it by NULL symbol */
++	case DSO_BINARY_TYPE__MIXEDUP_UBUNTU_DEBUGINFO:
 +		/*
-+		 * If we found a wrong one, mark it by NULL symbol.
-+		 * Since addresses in debuginfo is same as objdump, we need
-+		 * to convert it to addresses on memory.
++		 * Ubuntu can mixup /usr/lib with /lib, putting debuginfo in
++		 * /usr/lib/debug/lib when it is expected to be in
++		 * /usr/lib/debug/usr/lib
 +		 */
- 		if (kprobe_warn_out_range(tevs[i].point.symbol,
--					  tevs[i].point.address)) {
-+			map__objdump_2mem(map, tevs[i].point.address))) {
- 			tmp = NULL;
- 			skipped++;
- 		} else {
-@@ -2887,7 +2896,7 @@ static int find_probe_trace_events_from_
- 	/* Note that the symbols in the kmodule are not relocated */
- 	if (!pev->uprobes && !pev->target &&
- 			(!pp->retprobe || kretprobe_offset_is_supported())) {
--		reloc_sym = kernel_get_ref_reloc_sym();
-+		reloc_sym = kernel_get_ref_reloc_sym(NULL);
- 		if (!reloc_sym) {
- 			pr_warning("Relocated base symbol is not found!\n");
- 			ret = -EINVAL;
++		if (strlen(dso->long_name) < 9 ||
++		    strncmp(dso->long_name, "/usr/lib/", 9)) {
++			ret = -1;
++			break;
++		}
++		len = __symbol__join_symfs(filename, size, "/usr/lib/debug");
++		snprintf(filename + len, size - len, "%s", dso->long_name + 4);
++		break;
++
+ 	case DSO_BINARY_TYPE__OPENEMBEDDED_DEBUGINFO:
+ 	{
+ 		const char *last_slash;
+--- a/tools/perf/util/dso.h
++++ b/tools/perf/util/dso.h
+@@ -25,6 +25,7 @@ enum dso_binary_type {
+ 	DSO_BINARY_TYPE__BUILD_ID_CACHE_DEBUGINFO,
+ 	DSO_BINARY_TYPE__FEDORA_DEBUGINFO,
+ 	DSO_BINARY_TYPE__UBUNTU_DEBUGINFO,
++	DSO_BINARY_TYPE__MIXEDUP_UBUNTU_DEBUGINFO,
+ 	DSO_BINARY_TYPE__BUILDID_DEBUGINFO,
+ 	DSO_BINARY_TYPE__SYSTEM_PATH_DSO,
+ 	DSO_BINARY_TYPE__GUEST_KMODULE,
+--- a/tools/perf/util/probe-finder.c
++++ b/tools/perf/util/probe-finder.c
+@@ -114,6 +114,7 @@ enum dso_binary_type distro_dwarf_types[
+ 	DSO_BINARY_TYPE__UBUNTU_DEBUGINFO,
+ 	DSO_BINARY_TYPE__OPENEMBEDDED_DEBUGINFO,
+ 	DSO_BINARY_TYPE__BUILDID_DEBUGINFO,
++	DSO_BINARY_TYPE__MIXEDUP_UBUNTU_DEBUGINFO,
+ 	DSO_BINARY_TYPE__NOT_FOUND,
+ };
+ 
+--- a/tools/perf/util/symbol.c
++++ b/tools/perf/util/symbol.c
+@@ -64,6 +64,7 @@ static enum dso_binary_type binary_type_
+ 	DSO_BINARY_TYPE__SYSTEM_PATH_KMODULE,
+ 	DSO_BINARY_TYPE__SYSTEM_PATH_KMODULE_COMP,
+ 	DSO_BINARY_TYPE__OPENEMBEDDED_DEBUGINFO,
++	DSO_BINARY_TYPE__MIXEDUP_UBUNTU_DEBUGINFO,
+ 	DSO_BINARY_TYPE__NOT_FOUND,
+ };
+ 
+@@ -1412,6 +1413,7 @@ static bool dso__is_compatible_symtab_ty
+ 	case DSO_BINARY_TYPE__SYSTEM_PATH_DSO:
+ 	case DSO_BINARY_TYPE__FEDORA_DEBUGINFO:
+ 	case DSO_BINARY_TYPE__UBUNTU_DEBUGINFO:
++	case DSO_BINARY_TYPE__MIXEDUP_UBUNTU_DEBUGINFO:
+ 	case DSO_BINARY_TYPE__BUILDID_DEBUGINFO:
+ 	case DSO_BINARY_TYPE__OPENEMBEDDED_DEBUGINFO:
+ 		return !kmod && dso->kernel == DSO_TYPE_USER;
 
 
