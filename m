@@ -2,48 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 359982014C7
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:21:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 593E82013A1
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:07:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390676AbgFSPA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:00:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57378 "EHLO mail.kernel.org"
+        id S2391756AbgFSPMs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:12:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390671AbgFSPA6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:00:58 -0400
+        id S2403933AbgFSPMr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:12:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 84DE020734;
-        Fri, 19 Jun 2020 15:00:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5680920776;
+        Fri, 19 Jun 2020 15:12:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578858;
-        bh=Pg7o7hR6OuF3WqB28s1pOE/hk0d383YdOIRcUIRuGsg=;
+        s=default; t=1592579565;
+        bh=o2gxWJBXPWPGQxWLqWkSnsINHs4N9EI7SU51pcZvNaY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f2LVDoNa45YBAG9lbXrTibHbHAkGdI/umi2h6DPNOabQa3Lw2QibgDUI5Ptt6uteL
-         4kbUZ3cqzhtCQ9D/rFeK1b8SOxX61+jDjZkcDDtP0BIk8pyiNxEiwgQsnHH3bGJL7I
-         rZSQdmQTuglTjCzF6/yb6L8yzsUzJ2vvnhHwvteU=
+        b=E8y/uXJ0nhIuA4TauUc6Q+ZSN69kkxYw4SSPAG3uag+KIkAFB1XRytTiaUhebXzGx
+         qpdhSZkUvLqZo8UqyqyhjLYOneOVvs0HZnaIl49NNXfRQh+TNb4Xb/3PVFdHlHfs6d
+         emFUJyR/tScaAePYAeRF8SRbpuioMbWb6yYgx/Uk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Georgy Vlasov <Georgy.Vlasov@baikalelectronics.ru>,
-        Ramil Zaripov <Ramil.Zaripov@baikalelectronics.ru>,
-        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Feng Tang <feng.tang@intel.com>,
-        Rob Herring <robh+dt@kernel.org>, linux-mips@vger.kernel.org,
-        devicetree@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 182/267] spi: dw: Return any value retrieved from the dma_transfer callback
+Subject: [PATCH 5.4 156/261] bpf: Fix running sk_skb program types with ktls
 Date:   Fri, 19 Jun 2020 16:32:47 +0200
-Message-Id: <20200619141657.498868116@linuxfoundation.org>
+Message-Id: <20200619141657.348404087@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
-References: <20200619141648.840376470@linuxfoundation.org>
+In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
+References: <20200619141649.878808811@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,69 +44,225 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: John Fastabend <john.fastabend@gmail.com>
 
-[ Upstream commit f0410bbf7d0fb80149e3b17d11d31f5b5197873e ]
+[ Upstream commit e91de6afa81c10e9f855c5695eb9a53168d96b73 ]
 
-DW APB SSI DMA-part of the driver may need to perform the requested
-SPI-transfer synchronously. In that case the dma_transfer() callback
-will return 0 as a marker of the SPI transfer being finished so the
-SPI core doesn't need to wait and may proceed with the SPI message
-trasnfers pumping procedure. This will be needed to fix the problem
-when DMA transactions are finished, but there is still data left in
-the SPI Tx/Rx FIFOs being sent/received. But for now make dma_transfer
-to return 1 as the normal dw_spi_transfer_one() method.
+KTLS uses a stream parser to collect TLS messages and send them to
+the upper layer tls receive handler. This ensures the tls receiver
+has a full TLS header to parse when it is run. However, when a
+socket has BPF_SK_SKB_STREAM_VERDICT program attached before KTLS
+is enabled we end up with two stream parsers running on the same
+socket.
 
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Cc: Georgy Vlasov <Georgy.Vlasov@baikalelectronics.ru>
-Cc: Ramil Zaripov <Ramil.Zaripov@baikalelectronics.ru>
-Cc: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Feng Tang <feng.tang@intel.com>
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: linux-mips@vger.kernel.org
-Cc: devicetree@vger.kernel.org
-Link: https://lore.kernel.org/r/20200529131205.31838-3-Sergey.Semin@baikalelectronics.ru
-Signed-off-by: Mark Brown <broonie@kernel.org>
+The result is both try to run on the same socket. First the KTLS
+stream parser runs and calls read_sock() which will tcp_read_sock
+which in turn calls tcp_rcv_skb(). This dequeues the skb from the
+sk_receive_queue. When this is done KTLS code then data_ready()
+callback which because we stacked KTLS on top of the bpf stream
+verdict program has been replaced with sk_psock_start_strp(). This
+will in turn kick the stream parser again and eventually do the
+same thing KTLS did above calling into tcp_rcv_skb() and dequeuing
+a skb from the sk_receive_queue.
+
+At this point the data stream is broke. Part of the stream was
+handled by the KTLS side some other bytes may have been handled
+by the BPF side. Generally this results in either missing data
+or more likely a "Bad Message" complaint from the kTLS receive
+handler as the BPF program steals some bytes meant to be in a
+TLS header and/or the TLS header length is no longer correct.
+
+We've already broke the idealized model where we can stack ULPs
+in any order with generic callbacks on the TX side to handle this.
+So in this patch we do the same thing but for RX side. We add
+a sk_psock_strp_enabled() helper so TLS can learn a BPF verdict
+program is running and add a tls_sw_has_ctx_rx() helper so BPF
+side can learn there is a TLS ULP on the socket.
+
+Then on BPF side we omit calling our stream parser to avoid
+breaking the data stream for the KTLS receiver. Then on the
+KTLS side we call BPF_SK_SKB_STREAM_VERDICT once the KTLS
+receiver is done with the packet but before it posts the
+msg to userspace. This gives us symmetry between the TX and
+RX halfs and IMO makes it usable again. On the TX side we
+process packets in this order BPF -> TLS -> TCP and on
+the receive side in the reverse order TCP -> TLS -> BPF.
+
+Discovered while testing OpenSSL 3.0 Alpha2.0 release.
+
+Fixes: d829e9c4112b5 ("tls: convert to generic sk_msg interface")
+Signed-off-by: John Fastabend <john.fastabend@gmail.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/159079361946.5745.605854335665044485.stgit@john-Precision-5820-Tower
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-dw-mid.c | 2 +-
- drivers/spi/spi-dw.c     | 7 ++-----
- 2 files changed, 3 insertions(+), 6 deletions(-)
+ include/linux/skmsg.h |  8 ++++++++
+ include/net/tls.h     |  9 +++++++++
+ net/core/skmsg.c      | 43 ++++++++++++++++++++++++++++++++++++++++---
+ net/tls/tls_sw.c      | 20 ++++++++++++++++++--
+ 4 files changed, 75 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/spi/spi-dw-mid.c b/drivers/spi/spi-dw-mid.c
-index e1b34ef9a31c..10f328558d55 100644
---- a/drivers/spi/spi-dw-mid.c
-+++ b/drivers/spi/spi-dw-mid.c
-@@ -274,7 +274,7 @@ static int mid_spi_dma_transfer(struct dw_spi *dws, struct spi_transfer *xfer)
- 		dma_async_issue_pending(dws->txchan);
- 	}
- 
--	return 0;
-+	return 1;
+diff --git a/include/linux/skmsg.h b/include/linux/skmsg.h
+index a3adbe593505..4bdb5e4bbd6a 100644
+--- a/include/linux/skmsg.h
++++ b/include/linux/skmsg.h
+@@ -457,4 +457,12 @@ static inline void psock_progs_drop(struct sk_psock_progs *progs)
+ 	psock_set_prog(&progs->skb_verdict, NULL);
  }
  
- static void mid_spi_dma_stop(struct dw_spi *dws)
-diff --git a/drivers/spi/spi-dw.c b/drivers/spi/spi-dw.c
-index 3fbd6f01fb10..b1c137261d0f 100644
---- a/drivers/spi/spi-dw.c
-+++ b/drivers/spi/spi-dw.c
-@@ -383,11 +383,8 @@ static int dw_spi_transfer_one(struct spi_controller *master,
++int sk_psock_tls_strp_read(struct sk_psock *psock, struct sk_buff *skb);
++
++static inline bool sk_psock_strp_enabled(struct sk_psock *psock)
++{
++	if (!psock)
++		return false;
++	return psock->parser.enabled;
++}
+ #endif /* _LINUX_SKMSG_H */
+diff --git a/include/net/tls.h b/include/net/tls.h
+index db26e3ec918f..0a065bdffa39 100644
+--- a/include/net/tls.h
++++ b/include/net/tls.h
+@@ -590,6 +590,15 @@ static inline bool tls_sw_has_ctx_tx(const struct sock *sk)
+ 	return !!tls_sw_ctx_tx(ctx);
+ }
  
- 	spi_enable_chip(dws, 1);
++static inline bool tls_sw_has_ctx_rx(const struct sock *sk)
++{
++	struct tls_context *ctx = tls_get_ctx(sk);
++
++	if (!ctx)
++		return false;
++	return !!tls_sw_ctx_rx(ctx);
++}
++
+ void tls_sw_write_space(struct sock *sk, struct tls_context *ctx);
+ void tls_device_write_space(struct sock *sk, struct tls_context *ctx);
  
--	if (dws->dma_mapped) {
--		ret = dws->dma_ops->dma_transfer(dws, transfer);
--		if (ret < 0)
--			return ret;
--	}
-+	if (dws->dma_mapped)
-+		return dws->dma_ops->dma_transfer(dws, transfer);
+diff --git a/net/core/skmsg.c b/net/core/skmsg.c
+index 8e538a28fe0d..0536ea9298e4 100644
+--- a/net/core/skmsg.c
++++ b/net/core/skmsg.c
+@@ -7,6 +7,7 @@
  
- 	if (chip->poll_mode)
- 		return poll_transfer(dws);
+ #include <net/sock.h>
+ #include <net/tcp.h>
++#include <net/tls.h>
+ 
+ static bool sk_msg_try_coalesce_ok(struct sk_msg *msg, int elem_first_coalesce)
+ {
+@@ -718,6 +719,38 @@ static void sk_psock_skb_redirect(struct sk_psock *psock, struct sk_buff *skb)
+ 	}
+ }
+ 
++static void sk_psock_tls_verdict_apply(struct sk_psock *psock,
++				       struct sk_buff *skb, int verdict)
++{
++	switch (verdict) {
++	case __SK_REDIRECT:
++		sk_psock_skb_redirect(psock, skb);
++		break;
++	case __SK_PASS:
++	case __SK_DROP:
++	default:
++		break;
++	}
++}
++
++int sk_psock_tls_strp_read(struct sk_psock *psock, struct sk_buff *skb)
++{
++	struct bpf_prog *prog;
++	int ret = __SK_PASS;
++
++	rcu_read_lock();
++	prog = READ_ONCE(psock->progs.skb_verdict);
++	if (likely(prog)) {
++		tcp_skb_bpf_redirect_clear(skb);
++		ret = sk_psock_bpf_run(psock, prog, skb);
++		ret = sk_psock_map_verd(ret, tcp_skb_bpf_redirect_fetch(skb));
++	}
++	rcu_read_unlock();
++	sk_psock_tls_verdict_apply(psock, skb, ret);
++	return ret;
++}
++EXPORT_SYMBOL_GPL(sk_psock_tls_strp_read);
++
+ static void sk_psock_verdict_apply(struct sk_psock *psock,
+ 				   struct sk_buff *skb, int verdict)
+ {
+@@ -796,9 +829,13 @@ static void sk_psock_strp_data_ready(struct sock *sk)
+ 	rcu_read_lock();
+ 	psock = sk_psock(sk);
+ 	if (likely(psock)) {
+-		write_lock_bh(&sk->sk_callback_lock);
+-		strp_data_ready(&psock->parser.strp);
+-		write_unlock_bh(&sk->sk_callback_lock);
++		if (tls_sw_has_ctx_rx(sk)) {
++			psock->parser.saved_data_ready(sk);
++		} else {
++			write_lock_bh(&sk->sk_callback_lock);
++			strp_data_ready(&psock->parser.strp);
++			write_unlock_bh(&sk->sk_callback_lock);
++		}
+ 	}
+ 	rcu_read_unlock();
+ }
+diff --git a/net/tls/tls_sw.c b/net/tls/tls_sw.c
+index fbf6a496ee8b..70b203e5d5fd 100644
+--- a/net/tls/tls_sw.c
++++ b/net/tls/tls_sw.c
+@@ -1737,6 +1737,7 @@ int tls_sw_recvmsg(struct sock *sk,
+ 	long timeo;
+ 	bool is_kvec = iov_iter_is_kvec(&msg->msg_iter);
+ 	bool is_peek = flags & MSG_PEEK;
++	bool bpf_strp_enabled;
+ 	int num_async = 0;
+ 	int pending;
+ 
+@@ -1747,6 +1748,7 @@ int tls_sw_recvmsg(struct sock *sk,
+ 
+ 	psock = sk_psock_get(sk);
+ 	lock_sock(sk);
++	bpf_strp_enabled = sk_psock_strp_enabled(psock);
+ 
+ 	/* Process pending decrypted records. It must be non-zero-copy */
+ 	err = process_rx_list(ctx, msg, &control, &cmsg, 0, len, false,
+@@ -1800,11 +1802,12 @@ int tls_sw_recvmsg(struct sock *sk,
+ 
+ 		if (to_decrypt <= len && !is_kvec && !is_peek &&
+ 		    ctx->control == TLS_RECORD_TYPE_DATA &&
+-		    prot->version != TLS_1_3_VERSION)
++		    prot->version != TLS_1_3_VERSION &&
++		    !bpf_strp_enabled)
+ 			zc = true;
+ 
+ 		/* Do not use async mode if record is non-data */
+-		if (ctx->control == TLS_RECORD_TYPE_DATA)
++		if (ctx->control == TLS_RECORD_TYPE_DATA && !bpf_strp_enabled)
+ 			async_capable = ctx->async_capable;
+ 		else
+ 			async_capable = false;
+@@ -1854,6 +1857,19 @@ int tls_sw_recvmsg(struct sock *sk,
+ 			goto pick_next_record;
+ 
+ 		if (!zc) {
++			if (bpf_strp_enabled) {
++				err = sk_psock_tls_strp_read(psock, skb);
++				if (err != __SK_PASS) {
++					rxm->offset = rxm->offset + rxm->full_len;
++					rxm->full_len = 0;
++					if (err == __SK_DROP)
++						consume_skb(skb);
++					ctx->recv_pkt = NULL;
++					__strp_unpause(&ctx->strp);
++					continue;
++				}
++			}
++
+ 			if (rxm->full_len > len) {
+ 				retain_skb = true;
+ 				chunk = len;
 -- 
 2.25.1
 
