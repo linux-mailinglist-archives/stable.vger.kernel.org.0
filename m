@@ -2,45 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CFE32016D2
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:45:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A77792017CB
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388260AbgFSOoh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:44:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35896 "EHLO mail.kernel.org"
+        id S2395343AbgFSQn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:43:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388586AbgFSOog (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:44:36 -0400
+        id S2388118AbgFSOnZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:43:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C66921707;
-        Fri, 19 Jun 2020 14:44:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4246C2166E;
+        Fri, 19 Jun 2020 14:43:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577876;
-        bh=lvQ+bcB6cEpRPiSbA/wKi1GRebdzeNiwC254qZjqBME=;
+        s=default; t=1592577804;
+        bh=ZXajvuiMPy9Mi1OaldQr7gj7g5z4w1MmOTv9Xeh694I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PG4Dl7Jv7XF7Ku1vQEp1Byhm4RsCyYOLcS9hiZ95fd0hO4ZTqRqQvE3ykNXrUYruT
-         B2UVRFHgmw+1B3j1+/RuQ/3sZBFuuDDCPwG46Rz9WV2fEbzIgXQbmiXeuposI/g9Qg
-         DPT/fCeNDdpcoy7HFVtDZRfam1kWKXVUbnlcplgA=
+        b=OoWM4CLtzll+fbW/YGUWvRT017RGisfuRVEoeC+1OCe3MbjEhkiaUetuEfkGjX16K
+         rAUuGoNlazdpty9thDiUDEEVg9p4V+t85QS1sXPeCD59p+610hTROyCBjS6yrhq79w
+         zq6ElCcHIKn6MCt1VmY1gFuz8Il37bjvGU8yCEXg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Georgy Vlasov <Georgy.Vlasov@baikalelectronics.ru>,
-        Ramil Zaripov <Ramil.Zaripov@baikalelectronics.ru>,
-        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Feng Tang <feng.tang@intel.com>,
-        Rob Herring <robh+dt@kernel.org>, linux-mips@vger.kernel.org,
-        devicetree@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 095/128] spi: dw: Return any value retrieved from the dma_transfer callback
-Date:   Fri, 19 Jun 2020 16:33:09 +0200
-Message-Id: <20200619141625.159284957@linuxfoundation.org>
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Marcos Paulo de Souza <mpdesouza@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.9 097/128] btrfs: send: emit file capabilities after chown
+Date:   Fri, 19 Jun 2020 16:33:11 +0200
+Message-Id: <20200619141625.263782215@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
 References: <20200619141620.148019466@linuxfoundation.org>
@@ -53,71 +44,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: Marcos Paulo de Souza <mpdesouza@suse.com>
 
-[ Upstream commit f0410bbf7d0fb80149e3b17d11d31f5b5197873e ]
+commit 89efda52e6b6930f80f5adda9c3c9edfb1397191 upstream.
 
-DW APB SSI DMA-part of the driver may need to perform the requested
-SPI-transfer synchronously. In that case the dma_transfer() callback
-will return 0 as a marker of the SPI transfer being finished so the
-SPI core doesn't need to wait and may proceed with the SPI message
-trasnfers pumping procedure. This will be needed to fix the problem
-when DMA transactions are finished, but there is still data left in
-the SPI Tx/Rx FIFOs being sent/received. But for now make dma_transfer
-to return 1 as the normal dw_spi_transfer_one() method.
+Whenever a chown is executed, all capabilities of the file being touched
+are lost.  When doing incremental send with a file with capabilities,
+there is a situation where the capability can be lost on the receiving
+side. The sequence of actions bellow shows the problem:
 
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Cc: Georgy Vlasov <Georgy.Vlasov@baikalelectronics.ru>
-Cc: Ramil Zaripov <Ramil.Zaripov@baikalelectronics.ru>
-Cc: Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Feng Tang <feng.tang@intel.com>
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: linux-mips@vger.kernel.org
-Cc: devicetree@vger.kernel.org
-Link: https://lore.kernel.org/r/20200529131205.31838-3-Sergey.Semin@baikalelectronics.ru
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  $ mount /dev/sda fs1
+  $ mount /dev/sdb fs2
+
+  $ touch fs1/foo.bar
+  $ setcap cap_sys_nice+ep fs1/foo.bar
+  $ btrfs subvolume snapshot -r fs1 fs1/snap_init
+  $ btrfs send fs1/snap_init | btrfs receive fs2
+
+  $ chgrp adm fs1/foo.bar
+  $ setcap cap_sys_nice+ep fs1/foo.bar
+
+  $ btrfs subvolume snapshot -r fs1 fs1/snap_complete
+  $ btrfs subvolume snapshot -r fs1 fs1/snap_incremental
+
+  $ btrfs send fs1/snap_complete | btrfs receive fs2
+  $ btrfs send -p fs1/snap_init fs1/snap_incremental | btrfs receive fs2
+
+At this point, only a chown was emitted by "btrfs send" since only the
+group was changed. This makes the cap_sys_nice capability to be dropped
+from fs2/snap_incremental/foo.bar
+
+To fix that, only emit capabilities after chown is emitted. The current
+code first checks for xattrs that are new/changed, emits them, and later
+emit the chown. Now, __process_new_xattr skips capabilities, letting
+only finish_inode_if_needed to emit them, if they exist, for the inode
+being processed.
+
+This behavior was being worked around in "btrfs receive" side by caching
+the capability and only applying it after chown. Now, xattrs are only
+emmited _after_ chown, making that workaround not needed anymore.
+
+Link: https://github.com/kdave/btrfs-progs/issues/202
+CC: stable@vger.kernel.org # 4.4+
+Suggested-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Marcos Paulo de Souza <mpdesouza@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/spi/spi-dw-mid.c | 2 +-
- drivers/spi/spi-dw.c     | 7 ++-----
- 2 files changed, 3 insertions(+), 6 deletions(-)
+ fs/btrfs/send.c |   67 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 67 insertions(+)
 
-diff --git a/drivers/spi/spi-dw-mid.c b/drivers/spi/spi-dw-mid.c
-index fe0ca3848d35..c079ab36275f 100644
---- a/drivers/spi/spi-dw-mid.c
-+++ b/drivers/spi/spi-dw-mid.c
-@@ -274,7 +274,7 @@ static int mid_spi_dma_transfer(struct dw_spi *dws, struct spi_transfer *xfer)
- 		dma_async_issue_pending(dws->txchan);
- 	}
+--- a/fs/btrfs/send.c
++++ b/fs/btrfs/send.c
+@@ -35,6 +35,7 @@
+ #include "btrfs_inode.h"
+ #include "transaction.h"
+ #include "compression.h"
++#include "xattr.h"
  
--	return 0;
-+	return 1;
+ /*
+  * Maximum number of references an extent can have in order for us to attempt to
+@@ -4368,6 +4369,10 @@ static int __process_new_xattr(int num,
+ 	struct fs_path *p;
+ 	struct posix_acl_xattr_header dummy_acl;
+ 
++	/* Capabilities are emitted by finish_inode_if_needed */
++	if (!strncmp(name, XATTR_NAME_CAPS, name_len))
++		return 0;
++
+ 	p = fs_path_alloc();
+ 	if (!p)
+ 		return -ENOMEM;
+@@ -4904,6 +4909,64 @@ static int send_extent_data(struct send_
+ 	return 0;
  }
  
- static void mid_spi_dma_stop(struct dw_spi *dws)
-diff --git a/drivers/spi/spi-dw.c b/drivers/spi/spi-dw.c
-index c5a2f369941c..91f44e3e1930 100644
---- a/drivers/spi/spi-dw.c
-+++ b/drivers/spi/spi-dw.c
-@@ -384,11 +384,8 @@ static int dw_spi_transfer_one(struct spi_master *master,
++/*
++ * Search for a capability xattr related to sctx->cur_ino. If the capability is
++ * found, call send_set_xattr function to emit it.
++ *
++ * Return 0 if there isn't a capability, or when the capability was emitted
++ * successfully, or < 0 if an error occurred.
++ */
++static int send_capabilities(struct send_ctx *sctx)
++{
++	struct fs_path *fspath = NULL;
++	struct btrfs_path *path;
++	struct btrfs_dir_item *di;
++	struct extent_buffer *leaf;
++	unsigned long data_ptr;
++	char *buf = NULL;
++	int buf_len;
++	int ret = 0;
++
++	path = alloc_path_for_send();
++	if (!path)
++		return -ENOMEM;
++
++	di = btrfs_lookup_xattr(NULL, sctx->send_root, path, sctx->cur_ino,
++				XATTR_NAME_CAPS, strlen(XATTR_NAME_CAPS), 0);
++	if (!di) {
++		/* There is no xattr for this inode */
++		goto out;
++	} else if (IS_ERR(di)) {
++		ret = PTR_ERR(di);
++		goto out;
++	}
++
++	leaf = path->nodes[0];
++	buf_len = btrfs_dir_data_len(leaf, di);
++
++	fspath = fs_path_alloc();
++	buf = kmalloc(buf_len, GFP_KERNEL);
++	if (!fspath || !buf) {
++		ret = -ENOMEM;
++		goto out;
++	}
++
++	ret = get_cur_path(sctx, sctx->cur_ino, sctx->cur_inode_gen, fspath);
++	if (ret < 0)
++		goto out;
++
++	data_ptr = (unsigned long)(di + 1) + btrfs_dir_name_len(leaf, di);
++	read_extent_buffer(leaf, buf, data_ptr, buf_len);
++
++	ret = send_set_xattr(sctx, fspath, XATTR_NAME_CAPS,
++			strlen(XATTR_NAME_CAPS), buf, buf_len);
++out:
++	kfree(buf);
++	fs_path_free(fspath);
++	btrfs_free_path(path);
++	return ret;
++}
++
+ static int clone_range(struct send_ctx *sctx,
+ 		       struct clone_root *clone_root,
+ 		       const u64 disk_byte,
+@@ -5615,6 +5678,10 @@ static int finish_inode_if_needed(struct
+ 			goto out;
+ 	}
  
- 	spi_enable_chip(dws, 1);
- 
--	if (dws->dma_mapped) {
--		ret = dws->dma_ops->dma_transfer(dws, transfer);
--		if (ret < 0)
--			return ret;
--	}
-+	if (dws->dma_mapped)
-+		return dws->dma_ops->dma_transfer(dws, transfer);
- 
- 	if (chip->poll_mode)
- 		return poll_transfer(dws);
--- 
-2.25.1
-
++	ret = send_capabilities(sctx);
++	if (ret < 0)
++		goto out;
++
+ 	/*
+ 	 * If other directory inodes depended on our current directory
+ 	 * inode's move/rename, now do their move/rename operations.
 
 
