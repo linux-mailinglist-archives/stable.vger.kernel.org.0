@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0C7A200F6D
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:22:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69112200F8D
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:23:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392506AbgFSPRi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:17:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48022 "EHLO mail.kernel.org"
+        id S2392272AbgFSPTb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:19:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404185AbgFSPRZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:17:25 -0400
+        id S2390364AbgFSPR1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:17:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF2B22158C;
-        Fri, 19 Jun 2020 15:17:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 837F9206DB;
+        Fri, 19 Jun 2020 15:17:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579844;
-        bh=vxJxC9yvGvWy3BLrCCZpHsuyMgC36pPN9F4rCuq7UuU=;
+        s=default; t=1592579847;
+        bh=uyTL2Lu6aIQbzbN9xNngetGgXUNcmBdT+z3cenf8g70=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xAIKfajrGsQPjWowaJuLsLUjj2S3tvdgec1uqb/FHM+5zroKbQ4qk98YjDIrR37lX
-         pVABiF5NpKn/ZQzcXrMjN8PXqsVouhW4PsWUosUbQPgY/J7G35DMvPVjmyucnQpDZC
-         h5/ITQYublpFI60ZIR69mkdB3220fY0pT7sGJML4=
+        b=jPEznpxMl71i7LqyS/bK05iomjlk3hhmML8SPKLcUdkX5UgrwIqVngYXxDQ4Qhy4v
+         gkXV9vusDePI2BzaYDuc1Jtj/xDSPWXyeDWG3VSKAo/rkDx2YYbF9bVvACFAARQY2Y
+         UdM/0AFQEUhLkpNYkUEkDMIA3YdQK9Uil1iEgzT8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mark Starovoytov <mstarovoitov@marvell.com>,
+        stable@vger.kernel.org, Sameeh Jubran <sameehj@amazon.com>,
+        Arthur Kiyanovski <akiyano@amazon.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 026/376] net: atlantic: make hw_get_regs optional
-Date:   Fri, 19 Jun 2020 16:29:04 +0200
-Message-Id: <20200619141711.599901744@linuxfoundation.org>
+Subject: [PATCH 5.7 027/376] net: ena: fix error returning in ena_com_get_hash_function()
+Date:   Fri, 19 Jun 2020 16:29:05 +0200
+Message-Id: <20200619141711.648570465@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -45,43 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Starovoytov <mstarovoitov@marvell.com>
+From: Arthur Kiyanovski <akiyano@amazon.com>
 
-[ Upstream commit d0f23741c202c685447050713907f3be39a985ee ]
+[ Upstream commit e9a1de378dd46375f9abfd8de1e6f59ee114a793 ]
 
-This patch fixes potential crash in case if hw_get_regs is NULL.
+In case the "func" parameter is NULL we now return "-EINVAL".
+This shouldn't happen in general, but when it does happen, this is the
+proper way to handle it.
 
-Signed-off-by: Mark Starovoytov <mstarovoitov@marvell.com>
+We also check func for NULL in the beginning of the function, as there
+is no reason to do all the work and realize in the end of the function
+it was useless.
+
+Signed-off-by: Sameeh Jubran <sameehj@amazon.com>
+Signed-off-by: Arthur Kiyanovski <akiyano@amazon.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/aquantia/atlantic/aq_nic.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/ethernet/amazon/ena/ena_com.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_nic.c b/drivers/net/ethernet/aquantia/atlantic/aq_nic.c
-index a369705a786a..e5391e0b84f8 100644
---- a/drivers/net/ethernet/aquantia/atlantic/aq_nic.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_nic.c
-@@ -764,6 +764,9 @@ int aq_nic_get_regs(struct aq_nic_s *self, struct ethtool_regs *regs, void *p)
- 	u32 *regs_buff = p;
- 	int err = 0;
+diff --git a/drivers/net/ethernet/amazon/ena/ena_com.c b/drivers/net/ethernet/amazon/ena/ena_com.c
+index a250046b8e18..07b0f396d3c2 100644
+--- a/drivers/net/ethernet/amazon/ena/ena_com.c
++++ b/drivers/net/ethernet/amazon/ena/ena_com.c
+@@ -2345,6 +2345,9 @@ int ena_com_get_hash_function(struct ena_com_dev *ena_dev,
+ 		rss->hash_key;
+ 	int rc;
  
-+	if (unlikely(!self->aq_hw_ops->hw_get_regs))
-+		return -EOPNOTSUPP;
++	if (unlikely(!func))
++		return -EINVAL;
 +
- 	regs->version = 1;
+ 	rc = ena_com_get_feature_ex(ena_dev, &get_resp,
+ 				    ENA_ADMIN_RSS_HASH_FUNCTION,
+ 				    rss->hash_key_dma_addr,
+@@ -2357,8 +2360,7 @@ int ena_com_get_hash_function(struct ena_com_dev *ena_dev,
+ 	if (rss->hash_func)
+ 		rss->hash_func--;
  
- 	err = self->aq_hw_ops->hw_get_regs(self->aq_hw,
-@@ -778,6 +781,9 @@ err_exit:
+-	if (func)
+-		*func = rss->hash_func;
++	*func = rss->hash_func;
  
- int aq_nic_get_regs_count(struct aq_nic_s *self)
- {
-+	if (unlikely(!self->aq_hw_ops->hw_get_regs))
-+		return 0;
-+
- 	return self->aq_nic_cfg.aq_hw_caps->mac_regs_count;
- }
- 
+ 	if (key)
+ 		memcpy(key, hash_key->key, (size_t)(hash_key->keys_num) << 2);
 -- 
 2.25.1
 
