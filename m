@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8ED2F201318
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:01:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80366201437
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:13:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404104AbgFSP44 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:56:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51838 "EHLO mail.kernel.org"
+        id S2390840AbgFSPFt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:05:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392721AbgFSPUi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:20:38 -0400
+        id S2390855AbgFSPFs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:05:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 00AA120706;
-        Fri, 19 Jun 2020 15:20:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3CA4021941;
+        Fri, 19 Jun 2020 15:05:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580037;
-        bh=jMmbglSJ9HsqY9/TfgPULYPabzVlojJgWVf48BoOzOY=;
+        s=default; t=1592579147;
+        bh=Z16FR46Wfib9ObRljsI1+fcv3Z7krEYvl7iFsM+AQ1E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uuz9Cjt/Oe4HBabGoaSCoIJ99fjDCTrFVRorsvhAESm5eDVPoPnafM/4MWcVTIJbX
-         6nE166uuHOtT6aqs/TXqo3vioSy+OLdKKsJGDHBJnRRCcVcbPXa841yFh1kUp0QSIC
-         Hnc+MjjkelhiZILUQSIB4GlVEuPaeamgQw7kD7Yw=
+        b=eY3fch+CpF56DAPp/ZGiQcFpnBjsXEMhXYOvSYVRNW20jmmKRmW1F+eJo/I8KaLlQ
+         ELy5xitj6BfW3uEwxzOJErA0bcwF0ZAZEODUmNQQv9vBizHKRCFXiLnTZlPAT2cjZp
+         HZIVY0NlI72B3HFr5A7VGeUH4TS3bEnHqE++roWQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jitao Shi <jitao.shi@mediatek.com>,
-        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
+        stable@vger.kernel.org, Bingbu Cao <bingbu.cao@intel.com>,
+        Tomasz Figa <tfiga@chromium.org>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 098/376] drm/mediatek: set dpi pin mode to gpio low to avoid leakage current
+Subject: [PATCH 5.4 005/261] media: staging: imgu: do not hold spinlock during freeing mmu page table
 Date:   Fri, 19 Jun 2020 16:30:16 +0200
-Message-Id: <20200619141714.986755155@linuxfoundation.org>
+Message-Id: <20200619141650.151003073@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
-References: <20200619141710.350494719@linuxfoundation.org>
+In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
+References: <20200619141649.878808811@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,91 +46,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jitao Shi <jitao.shi@mediatek.com>
+From: Bingbu Cao <bingbu.cao@intel.com>
 
-[ Upstream commit 6bd4763fd532cff43f9b15704f324c45a9806f53 ]
+[ Upstream commit e1ebe9f9c88e5a78fcc4670a9063c9b3cd87dda4 ]
 
-Config dpi pins mode to output and pull low when dpi is disabled.
-Aovid leakage current from some dpi pins (Hsync Vsync DE ... ).
+ImgU need set the mmu page table in memory as uncached, and set back
+to write-back when free the page table by set_memory_wb(),
+set_memory_wb() can not do flushing without interrupt, so the spinlock
+should not be hold during ImgU page alloc and free, the interrupt
+should be enabled during memory cache flush.
 
-Signed-off-by: Jitao Shi <jitao.shi@mediatek.com>
-Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
+This patch release spinlock before freeing pages table.
+
+Signed-off-by: Bingbu Cao <bingbu.cao@intel.com>
+Reviewed-by: Tomasz Figa <tfiga@chromium.org>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mediatek/mtk_dpi.c | 31 ++++++++++++++++++++++++++++++
- 1 file changed, 31 insertions(+)
+ drivers/staging/media/ipu3/ipu3-mmu.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_dpi.c b/drivers/gpu/drm/mediatek/mtk_dpi.c
-index 4f0ce4cd5b8c..2994c63ea279 100644
---- a/drivers/gpu/drm/mediatek/mtk_dpi.c
-+++ b/drivers/gpu/drm/mediatek/mtk_dpi.c
-@@ -10,7 +10,9 @@
- #include <linux/kernel.h>
- #include <linux/of.h>
- #include <linux/of_device.h>
-+#include <linux/of_gpio.h>
- #include <linux/of_graph.h>
-+#include <linux/pinctrl/consumer.h>
- #include <linux/platform_device.h>
- #include <linux/types.h>
+diff --git a/drivers/staging/media/ipu3/ipu3-mmu.c b/drivers/staging/media/ipu3/ipu3-mmu.c
+index 3d969b0522ab..abcf1f3e5f63 100644
+--- a/drivers/staging/media/ipu3/ipu3-mmu.c
++++ b/drivers/staging/media/ipu3/ipu3-mmu.c
+@@ -174,8 +174,10 @@ static u32 *imgu_mmu_get_l2pt(struct imgu_mmu *mmu, u32 l1pt_idx)
+ 	spin_lock_irqsave(&mmu->lock, flags);
  
-@@ -74,6 +76,9 @@ struct mtk_dpi {
- 	enum mtk_dpi_out_yc_map yc_map;
- 	enum mtk_dpi_out_bit_num bit_num;
- 	enum mtk_dpi_out_channel_swap channel_swap;
-+	struct pinctrl *pinctrl;
-+	struct pinctrl_state *pins_gpio;
-+	struct pinctrl_state *pins_dpi;
- 	int refcount;
- };
+ 	l2pt = mmu->l2pts[l1pt_idx];
+-	if (l2pt)
+-		goto done;
++	if (l2pt) {
++		spin_unlock_irqrestore(&mmu->lock, flags);
++		return l2pt;
++	}
  
-@@ -379,6 +384,9 @@ static void mtk_dpi_power_off(struct mtk_dpi *dpi)
- 	if (--dpi->refcount != 0)
- 		return;
+ 	spin_unlock_irqrestore(&mmu->lock, flags);
  
-+	if (dpi->pinctrl && dpi->pins_gpio)
-+		pinctrl_select_state(dpi->pinctrl, dpi->pins_gpio);
-+
- 	mtk_dpi_disable(dpi);
- 	clk_disable_unprepare(dpi->pixel_clk);
- 	clk_disable_unprepare(dpi->engine_clk);
-@@ -403,6 +411,9 @@ static int mtk_dpi_power_on(struct mtk_dpi *dpi)
- 		goto err_pixel;
+@@ -190,8 +192,9 @@ static u32 *imgu_mmu_get_l2pt(struct imgu_mmu *mmu, u32 l1pt_idx)
+ 
+ 	l2pt = mmu->l2pts[l1pt_idx];
+ 	if (l2pt) {
++		spin_unlock_irqrestore(&mmu->lock, flags);
+ 		imgu_mmu_free_page_table(new_l2pt);
+-		goto done;
++		return l2pt;
  	}
  
-+	if (dpi->pinctrl && dpi->pins_dpi)
-+		pinctrl_select_state(dpi->pinctrl, dpi->pins_dpi);
-+
- 	mtk_dpi_enable(dpi);
- 	return 0;
+ 	l2pt = new_l2pt;
+@@ -200,7 +203,6 @@ static u32 *imgu_mmu_get_l2pt(struct imgu_mmu *mmu, u32 l1pt_idx)
+ 	pteval = IPU3_ADDR2PTE(virt_to_phys(new_l2pt));
+ 	mmu->l1pt[l1pt_idx] = pteval;
  
-@@ -705,6 +716,26 @@ static int mtk_dpi_probe(struct platform_device *pdev)
- 	dpi->dev = dev;
- 	dpi->conf = (struct mtk_dpi_conf *)of_device_get_match_data(dev);
- 
-+	dpi->pinctrl = devm_pinctrl_get(&pdev->dev);
-+	if (IS_ERR(dpi->pinctrl)) {
-+		dpi->pinctrl = NULL;
-+		dev_dbg(&pdev->dev, "Cannot find pinctrl!\n");
-+	}
-+	if (dpi->pinctrl) {
-+		dpi->pins_gpio = pinctrl_lookup_state(dpi->pinctrl, "sleep");
-+		if (IS_ERR(dpi->pins_gpio)) {
-+			dpi->pins_gpio = NULL;
-+			dev_dbg(&pdev->dev, "Cannot find pinctrl idle!\n");
-+		}
-+		if (dpi->pins_gpio)
-+			pinctrl_select_state(dpi->pinctrl, dpi->pins_gpio);
-+
-+		dpi->pins_dpi = pinctrl_lookup_state(dpi->pinctrl, "default");
-+		if (IS_ERR(dpi->pins_dpi)) {
-+			dpi->pins_dpi = NULL;
-+			dev_dbg(&pdev->dev, "Cannot find pinctrl active!\n");
-+		}
-+	}
- 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	dpi->regs = devm_ioremap_resource(dev, mem);
- 	if (IS_ERR(dpi->regs)) {
+-done:
+ 	spin_unlock_irqrestore(&mmu->lock, flags);
+ 	return l2pt;
+ }
 -- 
 2.25.1
 
