@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EBCD200C8B
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:47:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD219200BFE
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:42:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388919AbgFSOrH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:47:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39104 "EHLO mail.kernel.org"
+        id S2388159AbgFSOkc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:40:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388915AbgFSOrF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:47:05 -0400
+        id S2388146AbgFSOk1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:40:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C7439217BA;
-        Fri, 19 Jun 2020 14:47:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E99302070A;
+        Fri, 19 Jun 2020 14:40:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578024;
-        bh=3Gy/92jLZF+v7FYdCtBsRReY/y1P8gmS+TEu783FoGw=;
+        s=default; t=1592577627;
+        bh=fJO8fHnBcnDtUp6PCEnbtaSTCLAD7BEUJgnPM31buks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t9tos96goJJO3JMzKyIbDbM8BeHKpmw9riWQuKzB93CO3RGda0eh7sHzpQB24jL85
-         gdYZieNq7Kb4bAEBswqP1KF2/4ZVmC4zO9nRyNPiDLgsL/GiBSk14ntQq/HWLS+JOP
-         FxWSdKqwijqZfV6pmJQgHEuClO76V4OKkoKm1qhs=
+        b=h/HxibU/Vx3iovKnXxJ7JxyP+Jwa3AX3ZmzK2QAA9HheOfGawVR/aaRs7emlrS8MO
+         elQUWaNSHYvqNcqaP+MCCqs08YrMwTiaUMM4s0Q2FtkuyyEbEtBkeb7++BIzp18MGA
+         IibhNONt720d7D15AD0ZbfsMCcEkMKGyDdP4Gop0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tanner Love <tannerlove@google.com>,
-        Willem de Bruijn <willemb@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 052/190] selftests/net: in rxtimestamp getopt_long needs terminating null entry
-Date:   Fri, 19 Jun 2020 16:31:37 +0200
-Message-Id: <20200619141636.187659962@linuxfoundation.org>
+        stable@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>,
+        Fredrik Strupe <fredrik@strupe.net>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 005/128] ARM: 8977/1: ptrace: Fix mask for thumb breakpoint hook
+Date:   Fri, 19 Jun 2020 16:31:39 +0200
+Message-Id: <20200619141620.422726711@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
-References: <20200619141633.446429600@linuxfoundation.org>
+In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
+References: <20200619141620.148019466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,31 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: tannerlove <tannerlove@google.com>
+From: Fredrik Strupe <fredrik@strupe.net>
 
-[ Upstream commit 865a6cbb2288f8af7f9dc3b153c61b7014fdcf1e ]
+[ Upstream commit 3866f217aaa81bf7165c7f27362eee5d7919c496 ]
 
-getopt_long requires the last element to be filled with zeros.
-Otherwise, passing an unrecognized option can cause a segfault.
+call_undef_hook() in traps.c applies the same instr_mask for both 16-bit
+and 32-bit thumb instructions. If instr_mask then is only 16 bits wide
+(0xffff as opposed to 0xffffffff), the first half-word of 32-bit thumb
+instructions will be masked out. This makes the function match 32-bit
+thumb instructions where the second half-word is equal to instr_val,
+regardless of the first half-word.
 
-Fixes: 16e781224198 ("selftests/net: Add a test to validate behavior of rx timestamps")
-Signed-off-by: Tanner Love <tannerlove@google.com>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The result in this case is that all undefined 32-bit thumb instructions
+with the second half-word equal to 0xde01 (udf #1) work as breakpoints
+and will raise a SIGTRAP instead of a SIGILL, instead of just the one
+intended 16-bit instruction. An example of such an instruction is
+0xeaa0de01, which is unallocated according to Arm ARM and should raise a
+SIGILL, but instead raises a SIGTRAP.
+
+This patch fixes the issue by setting all the bits in instr_mask, which
+will still match the intended 16-bit thumb instruction (where the
+upper half is always 0), but not any 32-bit thumb instructions.
+
+Cc: Oleg Nesterov <oleg@redhat.com>
+Signed-off-by: Fredrik Strupe <fredrik@strupe.net>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/networking/timestamping/rxtimestamp.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/kernel/ptrace.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/tools/testing/selftests/networking/timestamping/rxtimestamp.c
-+++ b/tools/testing/selftests/networking/timestamping/rxtimestamp.c
-@@ -114,6 +114,7 @@ static struct option long_options[] = {
- 	{ "tcp", no_argument, 0, 't' },
- 	{ "udp", no_argument, 0, 'u' },
- 	{ "ip", no_argument, 0, 'i' },
-+	{ NULL, 0, NULL, 0 },
+diff --git a/arch/arm/kernel/ptrace.c b/arch/arm/kernel/ptrace.c
+index ae738a6319f6..364985c96a92 100644
+--- a/arch/arm/kernel/ptrace.c
++++ b/arch/arm/kernel/ptrace.c
+@@ -227,8 +227,8 @@ static struct undef_hook arm_break_hook = {
  };
  
- static int next_port = 19999;
+ static struct undef_hook thumb_break_hook = {
+-	.instr_mask	= 0xffff,
+-	.instr_val	= 0xde01,
++	.instr_mask	= 0xffffffff,
++	.instr_val	= 0x0000de01,
+ 	.cpsr_mask	= PSR_T_BIT,
+ 	.cpsr_val	= PSR_T_BIT,
+ 	.fn		= break_trap,
+-- 
+2.25.1
+
 
 
