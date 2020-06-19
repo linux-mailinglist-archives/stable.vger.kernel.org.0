@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65A34201268
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:52:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 420D9201262
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:52:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393148AbgFSPXM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:23:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54722 "EHLO mail.kernel.org"
+        id S2393157AbgFSPXT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:23:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393131AbgFSPXL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:23:11 -0400
+        id S2393154AbgFSPXR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:23:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 48C882158C;
-        Fri, 19 Jun 2020 15:23:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 979D62158C;
+        Fri, 19 Jun 2020 15:23:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580190;
-        bh=WbypKLIbtcVOwzPyhZ4KFwIQhQ7w3yZw6d1nuMf9yqk=;
+        s=default; t=1592580196;
+        bh=OnMZ5vdf2YOk5hWtwLFzh1/pxKKBakX8EVWv9pl+oRw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c6ilzuTfkf2AfTX2QFgCIHoYuEKg5y/tz6ZYWrgTERAYfE14zJgL84MLHcP6YYNDc
-         QskIWtwZV8LRn0K2WwNT03g70rjV6eiulpKXPUAgrm41J/pvphrXBvBCbADLkl1PdR
-         Xc+o/BZ3VThp8LfWwTn7hJmPclv1NozA9ad1+rQc=
+        b=YhnUcrjfHpBDnN63yOzX2ew05qiJHS4lgbkLAHO9LA9EMco3rwqTjLDyufcaofz7N
+         M3/w1NkFc2AZq/VZrAcUt1xEygQC3HGbXytF3z5tlOC5NOxggvH3Wotndvh9GdtWJ6
+         TeAt9YsSw3tWCiK46OG+QQxPfy2xWFdvMEswTI68=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ayush Sawal <ayush.sawal@chelsio.com>,
-        Devulapally Shiva Krishna <shiva@chelsio.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Fangrui Song <maskray@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        "Maciej W. Rozycki" <macro@linux-mips.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 157/376] Crypto/chcr: fix for ccm(aes) failed test
-Date:   Fri, 19 Jun 2020 16:31:15 +0200
-Message-Id: <20200619141717.754197512@linuxfoundation.org>
+Subject: [PATCH 5.7 159/376] MIPS: Truncate link address into 32bit for 32bit kernel
+Date:   Fri, 19 Jun 2020 16:31:17 +0200
+Message-Id: <20200619141717.847551466@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -45,37 +49,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Devulapally Shiva Krishna <shiva@chelsio.com>
+From: Jiaxun Yang <jiaxun.yang@flygoat.com>
 
-[ Upstream commit 10b0c75d7bc19606fa9a62c8ab9180e95c0e0385 ]
+[ Upstream commit ff487d41036035376e47972c7c522490b839ab37 ]
 
-The ccm(aes) test fails when req->assoclen > ~240bytes.
+LLD failed to link vmlinux with 64bit load address for 32bit ELF
+while bfd will strip 64bit address into 32bit silently.
+To fix LLD build, we should truncate load address provided by platform
+into 32bit for 32bit kernel.
 
-The problem is the value assigned to auth_offset is wrong.
-As auth_offset is unsigned char, it can take max value as 255.
-So fix it by making it unsigned int.
-
-Signed-off-by: Ayush Sawal <ayush.sawal@chelsio.com>
-Signed-off-by: Devulapally Shiva Krishna <shiva@chelsio.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/786
+Link: https://sourceware.org/bugzilla/show_bug.cgi?id=25784
+Reviewed-by: Fangrui Song <maskray@google.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Tested-by: Nathan Chancellor <natechancellor@gmail.com>
+Cc: Maciej W. Rozycki <macro@linux-mips.org>
+Tested-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/chelsio/chcr_algo.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/Makefile                 | 13 ++++++++++++-
+ arch/mips/boot/compressed/Makefile |  2 +-
+ arch/mips/kernel/vmlinux.lds.S     |  2 +-
+ 3 files changed, 14 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/crypto/chelsio/chcr_algo.c b/drivers/crypto/chelsio/chcr_algo.c
-index 446fb896ee6d..6c2cd36048ea 100644
---- a/drivers/crypto/chelsio/chcr_algo.c
-+++ b/drivers/crypto/chelsio/chcr_algo.c
-@@ -2925,7 +2925,7 @@ static void fill_sec_cpl_for_aead(struct cpl_tx_sec_pdu *sec_cpl,
- 	unsigned int mac_mode = CHCR_SCMD_AUTH_MODE_CBCMAC;
- 	unsigned int rx_channel_id = reqctx->rxqidx / ctx->rxq_perchan;
- 	unsigned int ccm_xtra;
--	unsigned char tag_offset = 0, auth_offset = 0;
-+	unsigned int tag_offset = 0, auth_offset = 0;
- 	unsigned int assoclen;
+diff --git a/arch/mips/Makefile b/arch/mips/Makefile
+index e1c44aed8156..b6ee29e4565a 100644
+--- a/arch/mips/Makefile
++++ b/arch/mips/Makefile
+@@ -288,12 +288,23 @@ ifdef CONFIG_64BIT
+   endif
+ endif
  
- 	if (get_aead_subtype(tfm) == CRYPTO_ALG_SUB_TYPE_AEAD_RFC4309)
++# When linking a 32-bit executable the LLVM linker cannot cope with a
++# 32-bit load address that has been sign-extended to 64 bits.  Simply
++# remove the upper 32 bits then, as it is safe to do so with other
++# linkers.
++ifdef CONFIG_64BIT
++	load-ld			= $(load-y)
++else
++	load-ld			= $(subst 0xffffffff,0x,$(load-y))
++endif
++
+ KBUILD_AFLAGS	+= $(cflags-y)
+ KBUILD_CFLAGS	+= $(cflags-y)
+-KBUILD_CPPFLAGS += -DVMLINUX_LOAD_ADDRESS=$(load-y)
++KBUILD_CPPFLAGS += -DVMLINUX_LOAD_ADDRESS=$(load-y) -DLINKER_LOAD_ADDRESS=$(load-ld)
+ KBUILD_CPPFLAGS += -DDATAOFFSET=$(if $(dataoffset-y),$(dataoffset-y),0)
+ 
+ bootvars-y	= VMLINUX_LOAD_ADDRESS=$(load-y) \
++		  LINKER_LOAD_ADDRESS=$(load-ld) \
+ 		  VMLINUX_ENTRY_ADDRESS=$(entry-y) \
+ 		  PLATFORM="$(platform-y)" \
+ 		  ITS_INPUTS="$(its-y)"
+diff --git a/arch/mips/boot/compressed/Makefile b/arch/mips/boot/compressed/Makefile
+index 0df0ee8a298d..6e56caef69f0 100644
+--- a/arch/mips/boot/compressed/Makefile
++++ b/arch/mips/boot/compressed/Makefile
+@@ -90,7 +90,7 @@ ifneq ($(zload-y),)
+ VMLINUZ_LOAD_ADDRESS := $(zload-y)
+ else
+ VMLINUZ_LOAD_ADDRESS = $(shell $(obj)/calc_vmlinuz_load_addr \
+-		$(obj)/vmlinux.bin $(VMLINUX_LOAD_ADDRESS))
++		$(obj)/vmlinux.bin $(LINKER_LOAD_ADDRESS))
+ endif
+ UIMAGE_LOADADDR = $(VMLINUZ_LOAD_ADDRESS)
+ 
+diff --git a/arch/mips/kernel/vmlinux.lds.S b/arch/mips/kernel/vmlinux.lds.S
+index a5f00ec73ea6..f185a85a27c1 100644
+--- a/arch/mips/kernel/vmlinux.lds.S
++++ b/arch/mips/kernel/vmlinux.lds.S
+@@ -55,7 +55,7 @@ SECTIONS
+ 	/* . = 0xa800000000300000; */
+ 	. = 0xffffffff80300000;
+ #endif
+-	. = VMLINUX_LOAD_ADDRESS;
++	. = LINKER_LOAD_ADDRESS;
+ 	/* read-only */
+ 	_text = .;	/* Text and read-only data */
+ 	.text : {
 -- 
 2.25.1
 
