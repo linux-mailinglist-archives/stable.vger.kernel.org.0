@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED3122016BB
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:45:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5922320173E
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:46:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388376AbgFSOmf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:42:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33230 "EHLO mail.kernel.org"
+        id S2395259AbgFSQgJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:36:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387708AbgFSOmc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:42:32 -0400
+        id S2389184AbgFSOtT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:49:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF6132158C;
-        Fri, 19 Jun 2020 14:42:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2DBBA2158C;
+        Fri, 19 Jun 2020 14:49:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577751;
-        bh=Sy0U6npbpL4YrxpNb8BSlUzN3C5FuEgDLXmWVdd9Ia4=;
+        s=default; t=1592578159;
+        bh=pYNQcSSA8JE5e7nUhFvhxl8tYDixqAuawiEefCQhtHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UYVRzhvsQJN6uPjKwiGR+RoePdzCAlbeVbqOWPGk80iwo8lAkQcl0verhEx4AHnjo
-         l934oUTkhbdgSIz/i7QyyDA+5CxBQvwa5Q603XHrR1lGn1qrpHysv26qoMxt2YWOUv
-         NSRh/LkNA4g2nxzbCH31PLUUCc7WowW4rYr+1obM=
+        b=q2LWXevVaPLWvn0Gnyp20dbgiURiwdV+Evp4UOlQT5hf9TPZnyWrLRnkK9TLaqHDT
+         5qU0TO8/iKzg3NZXRWutKp5nVww9ki29ai2GgHxuGsmOThOPsksIBoLjOvVTrU/0b0
+         gyYdBvoGz2Ck+9CMVa2/AMhlfoKiDuETIBzFwITs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sameeh Jubran <sameehj@amazon.com>,
-        Arthur Kiyanovski <akiyano@amazon.com>,
+        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 057/128] net: ena: fix error returning in ena_com_get_hash_function()
+Subject: [PATCH 4.14 106/190] net: bcmgenet: set Rx mode before starting netif
 Date:   Fri, 19 Jun 2020 16:32:31 +0200
-Message-Id: <20200619141623.209016168@linuxfoundation.org>
+Message-Id: <20200619141638.888122406@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
-References: <20200619141620.148019466@linuxfoundation.org>
+In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
+References: <20200619141633.446429600@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arthur Kiyanovski <akiyano@amazon.com>
+From: Doug Berger <opendmb@gmail.com>
 
-[ Upstream commit e9a1de378dd46375f9abfd8de1e6f59ee114a793 ]
+[ Upstream commit 72f96347628e73dbb61b307f18dd19293cc6792a ]
 
-In case the "func" parameter is NULL we now return "-EINVAL".
-This shouldn't happen in general, but when it does happen, this is the
-proper way to handle it.
+This commit explicitly calls the bcmgenet_set_rx_mode() function when
+the network interface is started. This function is normally called by
+ndo_set_rx_mode when the flags are changed, but apparently not when
+the driver is suspended and resumed.
 
-We also check func for NULL in the beginning of the function, as there
-is no reason to do all the work and realize in the end of the function
-it was useless.
+This change ensures that address filtering or promiscuous mode are
+properly restored by the driver after the MAC may have been reset.
 
-Signed-off-by: Sameeh Jubran <sameehj@amazon.com>
-Signed-off-by: Arthur Kiyanovski <akiyano@amazon.com>
+Fixes: b6e978e50444 ("net: bcmgenet: add suspend/resume callbacks")
+Signed-off-by: Doug Berger <opendmb@gmail.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amazon/ena/ena_com.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/broadcom/genet/bcmgenet.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/ethernet/amazon/ena/ena_com.c b/drivers/net/ethernet/amazon/ena/ena_com.c
-index 905911f78693..e95f19e573a7 100644
---- a/drivers/net/ethernet/amazon/ena/ena_com.c
-+++ b/drivers/net/ethernet/amazon/ena/ena_com.c
-@@ -2096,6 +2096,9 @@ int ena_com_get_hash_function(struct ena_com_dev *ena_dev,
- 		rss->hash_key;
- 	int rc;
+diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet.c b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
+index 38391230ca86..7d3cbbd88a00 100644
+--- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
++++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
+@@ -72,6 +72,9 @@
+ #define GENET_RDMA_REG_OFF	(priv->hw_params->rdma_offset + \
+ 				TOTAL_DESC * DMA_DESC_SIZE)
  
-+	if (unlikely(!func))
-+		return -EINVAL;
++/* Forward declarations */
++static void bcmgenet_set_rx_mode(struct net_device *dev);
 +
- 	rc = ena_com_get_feature_ex(ena_dev, &get_resp,
- 				    ENA_ADMIN_RSS_HASH_FUNCTION,
- 				    rss->hash_key_dma_addr,
-@@ -2108,8 +2111,7 @@ int ena_com_get_hash_function(struct ena_com_dev *ena_dev,
- 	if (rss->hash_func)
- 		rss->hash_func--;
+ static inline void bcmgenet_writel(u32 value, void __iomem *offset)
+ {
+ 	/* MIPS chips strapped for BE will automagically configure the
+@@ -2858,6 +2861,7 @@ static void bcmgenet_netif_start(struct net_device *dev)
+ 	struct bcmgenet_priv *priv = netdev_priv(dev);
  
--	if (func)
--		*func = rss->hash_func;
-+	*func = rss->hash_func;
+ 	/* Start the network engine */
++	bcmgenet_set_rx_mode(dev);
+ 	bcmgenet_enable_rx_napi(priv);
+ 	bcmgenet_enable_tx_napi(priv);
  
- 	if (key)
- 		memcpy(key, hash_key->key, (size_t)(hash_key->keys_num) << 2);
 -- 
 2.25.1
 
