@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 779E8200ECD
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:11:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A0A2200EB3
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:11:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403846AbgFSPLr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:11:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42164 "EHLO mail.kernel.org"
+        id S2392012AbgFSPKX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:10:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403842AbgFSPLp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:11:45 -0400
+        id S2388839AbgFSPKU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:10:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 33C3721582;
-        Fri, 19 Jun 2020 15:11:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 35B9A20734;
+        Fri, 19 Jun 2020 15:10:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579504;
-        bh=xJDsdbdyq7liIv4sqCE7RI5+x+OictqjM4VIOWGkLNU=;
+        s=default; t=1592579419;
+        bh=3J//wm36//AEStju1ppLMr4exvv9fdRyG83XN1eX8ck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZTKUsqJ+cxVD0/FDdRLtyx/cEYRL9Qr9Op7FlK0p6/qK2ElH1Lgx5WetTns3yirIp
-         zRe6DDUJ7oX7EQnQB8vTSom8eao5E5Q8HiPzUu3jQJuk/ucaokXJfp/ZiaepK51RaF
-         8eKHdij33fNrkr538BZ4Ggb8L1buv7y/PGfpv2U0=
+        b=Kok5cJU0/ZzmRC9/h/LgyF5td8OxZNRNiCZBCUYhPd5BA2rxDOVIN/YDAq85bhGZZ
+         Xgjt+Y7VHh4gLvslQkFD7L6ga83UQAjydZv6NO4LyOEyK0IAGHuFbpgacWBLzIYnyt
+         JHD9xe0gleE3YV7zP892s/LgMGiadofUwVXFGINo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 120/261] x86/boot: Correct relocation destination on old linkers
-Date:   Fri, 19 Jun 2020 16:32:11 +0200
-Message-Id: <20200619141655.623200980@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Huaixin Chang <changhuaixin@linux.alibaba.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ben Segall <bsegall@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 121/261] sched: Defend cfs and rt bandwidth quota against overflow
+Date:   Fri, 19 Jun 2020 16:32:12 +0200
+Message-Id: <20200619141655.669305317@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
 References: <20200619141649.878808811@linuxfoundation.org>
@@ -43,112 +46,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arvind Sankar <nivedita@alum.mit.edu>
+From: Huaixin Chang <changhuaixin@linux.alibaba.com>
 
-[ Upstream commit 5214028dd89e49ba27007c3ee475279e584261f0 ]
+[ Upstream commit d505b8af58912ae1e1a211fabc9995b19bd40828 ]
 
-For the 32-bit kernel, as described in
+When users write some huge number into cpu.cfs_quota_us or
+cpu.rt_runtime_us, overflow might happen during to_ratio() shifts of
+schedulable checks.
 
-  6d92bc9d483a ("x86/build: Build compressed x86 kernels as PIE"),
+to_ratio() could be altered to avoid unnecessary internal overflow, but
+min_cfs_quota_period is less than 1 << BW_SHIFT, so a cutoff would still
+be needed. Set a cap MAX_BW for cfs_quota_us and rt_runtime_us to
+prevent overflow.
 
-pre-2.26 binutils generates R_386_32 relocations in PIE mode. Since the
-startup code does not perform relocation, any reloc entry with R_386_32
-will remain as 0 in the executing code.
-
-Commit
-
-  974f221c84b0 ("x86/boot: Move compressed kernel to the end of the
-                 decompression buffer")
-
-added a new symbol _end but did not mark it hidden, which doesn't give
-the correct offset on older linkers. This causes the compressed kernel
-to be copied beyond the end of the decompression buffer, rather than
-flush against it. This region of memory may be reserved or already
-allocated for other purposes by the bootloader.
-
-Mark _end as hidden to fix. This changes the relocation from R_386_32 to
-R_386_RELATIVE even on the pre-2.26 binutils.
-
-For 64-bit, this is not strictly necessary, as the 64-bit kernel is only
-built as PIE if the linker supports -z noreloc-overflow, which implies
-binutils-2.27+, but for consistency, mark _end as hidden here too.
-
-The below illustrates the before/after impact of the patch using
-binutils-2.25 and gcc-4.6.4 (locally compiled from source) and QEMU.
-
-  Disassembly before patch:
-    48:   8b 86 60 02 00 00       mov    0x260(%esi),%eax
-    4e:   2d 00 00 00 00          sub    $0x0,%eax
-                          4f: R_386_32    _end
-  Disassembly after patch:
-    48:   8b 86 60 02 00 00       mov    0x260(%esi),%eax
-    4e:   2d 00 f0 76 00          sub    $0x76f000,%eax
-                          4f: R_386_RELATIVE      *ABS*
-
-Dump from extract_kernel before patch:
-	early console in extract_kernel
-	input_data: 0x0207c098 <--- this is at output + init_size
-	input_len: 0x0074fef1
-	output: 0x01000000
-	output_len: 0x00fa63d0
-	kernel_total_size: 0x0107c000
-	needed_size: 0x0107c000
-
-Dump from extract_kernel after patch:
-	early console in extract_kernel
-	input_data: 0x0190d098 <--- this is at output + init_size - _end
-	input_len: 0x0074fef1
-	output: 0x01000000
-	output_len: 0x00fa63d0
-	kernel_total_size: 0x0107c000
-	needed_size: 0x0107c000
-
-Fixes: 974f221c84b0 ("x86/boot: Move compressed kernel to the end of the decompression buffer")
-Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20200207214926.3564079-1-nivedita@alum.mit.edu
+Signed-off-by: Huaixin Chang <changhuaixin@linux.alibaba.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Ben Segall <bsegall@google.com>
+Link: https://lkml.kernel.org/r/20200425105248.60093-1-changhuaixin@linux.alibaba.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/boot/compressed/head_32.S | 5 +++--
- arch/x86/boot/compressed/head_64.S | 1 +
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ kernel/sched/core.c  |  8 ++++++++
+ kernel/sched/rt.c    | 12 +++++++++++-
+ kernel/sched/sched.h |  2 ++
+ 3 files changed, 21 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/boot/compressed/head_32.S b/arch/x86/boot/compressed/head_32.S
-index 70ffce98c568..d7c0fcc1dbf9 100644
---- a/arch/x86/boot/compressed/head_32.S
-+++ b/arch/x86/boot/compressed/head_32.S
-@@ -49,16 +49,17 @@
-  * Position Independent Executable (PIE) so that linker won't optimize
-  * R_386_GOT32X relocation to its fixed symbol address.  Older
-  * linkers generate R_386_32 relocations against locally defined symbols,
-- * _bss, _ebss, _got and _egot, in PIE.  It isn't wrong, just less
-+ * _bss, _ebss, _got, _egot and _end, in PIE.  It isn't wrong, just less
-  * optimal than R_386_RELATIVE.  But the x86 kernel fails to properly handle
-  * R_386_32 relocations when relocating the kernel.  To generate
-- * R_386_RELATIVE relocations, we mark _bss, _ebss, _got and _egot as
-+ * R_386_RELATIVE relocations, we mark _bss, _ebss, _got, _egot and _end as
-  * hidden:
-  */
- 	.hidden _bss
- 	.hidden _ebss
- 	.hidden _got
- 	.hidden _egot
-+	.hidden _end
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 4874e1468279..361cbc2dc966 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -7374,6 +7374,8 @@ static DEFINE_MUTEX(cfs_constraints_mutex);
  
- 	__HEAD
- ENTRY(startup_32)
-diff --git a/arch/x86/boot/compressed/head_64.S b/arch/x86/boot/compressed/head_64.S
-index 07d2002da642..50c9eeb36f0d 100644
---- a/arch/x86/boot/compressed/head_64.S
-+++ b/arch/x86/boot/compressed/head_64.S
-@@ -42,6 +42,7 @@
- 	.hidden _ebss
- 	.hidden _got
- 	.hidden _egot
-+	.hidden _end
+ const u64 max_cfs_quota_period = 1 * NSEC_PER_SEC; /* 1s */
+ static const u64 min_cfs_quota_period = 1 * NSEC_PER_MSEC; /* 1ms */
++/* More than 203 days if BW_SHIFT equals 20. */
++static const u64 max_cfs_runtime = MAX_BW * NSEC_PER_USEC;
  
- 	__HEAD
- 	.code32
+ static int __cfs_schedulable(struct task_group *tg, u64 period, u64 runtime);
+ 
+@@ -7401,6 +7403,12 @@ static int tg_set_cfs_bandwidth(struct task_group *tg, u64 period, u64 quota)
+ 	if (period > max_cfs_quota_period)
+ 		return -EINVAL;
+ 
++	/*
++	 * Bound quota to defend quota against overflow during bandwidth shift.
++	 */
++	if (quota != RUNTIME_INF && quota > max_cfs_runtime)
++		return -EINVAL;
++
+ 	/*
+ 	 * Prevent race between setting of cfs_rq->runtime_enabled and
+ 	 * unthrottle_offline_cfs_rqs().
+diff --git a/kernel/sched/rt.c b/kernel/sched/rt.c
+index 7bf917e4d63a..5b04bba4500d 100644
+--- a/kernel/sched/rt.c
++++ b/kernel/sched/rt.c
+@@ -9,6 +9,8 @@
+ 
+ int sched_rr_timeslice = RR_TIMESLICE;
+ int sysctl_sched_rr_timeslice = (MSEC_PER_SEC / HZ) * RR_TIMESLICE;
++/* More than 4 hours if BW_SHIFT equals 20. */
++static const u64 max_rt_runtime = MAX_BW;
+ 
+ static int do_sched_rt_period_timer(struct rt_bandwidth *rt_b, int overrun);
+ 
+@@ -2513,6 +2515,12 @@ static int tg_set_rt_bandwidth(struct task_group *tg,
+ 	if (rt_period == 0)
+ 		return -EINVAL;
+ 
++	/*
++	 * Bound quota to defend quota against overflow during bandwidth shift.
++	 */
++	if (rt_runtime != RUNTIME_INF && rt_runtime > max_rt_runtime)
++		return -EINVAL;
++
+ 	mutex_lock(&rt_constraints_mutex);
+ 	read_lock(&tasklist_lock);
+ 	err = __rt_schedulable(tg, rt_period, rt_runtime);
+@@ -2634,7 +2642,9 @@ static int sched_rt_global_validate(void)
+ 		return -EINVAL;
+ 
+ 	if ((sysctl_sched_rt_runtime != RUNTIME_INF) &&
+-		(sysctl_sched_rt_runtime > sysctl_sched_rt_period))
++		((sysctl_sched_rt_runtime > sysctl_sched_rt_period) ||
++		 ((u64)sysctl_sched_rt_runtime *
++			NSEC_PER_USEC > max_rt_runtime)))
+ 		return -EINVAL;
+ 
+ 	return 0;
+diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
+index c7e7481968bf..570659f1c6e2 100644
+--- a/kernel/sched/sched.h
++++ b/kernel/sched/sched.h
+@@ -1889,6 +1889,8 @@ extern void init_dl_rq_bw_ratio(struct dl_rq *dl_rq);
+ #define BW_SHIFT		20
+ #define BW_UNIT			(1 << BW_SHIFT)
+ #define RATIO_SHIFT		8
++#define MAX_BW_BITS		(64 - BW_SHIFT)
++#define MAX_BW			((1ULL << MAX_BW_BITS) - 1)
+ unsigned long to_ratio(u64 period, u64 runtime);
+ 
+ extern void init_entity_runnable_average(struct sched_entity *se);
 -- 
 2.25.1
 
