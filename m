@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DD8E200DAB
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:02:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCBD8200E93
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:11:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390560AbgFSO7q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:59:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56000 "EHLO mail.kernel.org"
+        id S2391852AbgFSPJI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:09:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390553AbgFSO7p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:59:45 -0400
+        id S2391842AbgFSPJG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:09:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8FB0121BE5;
-        Fri, 19 Jun 2020 14:59:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 45DCD21941;
+        Fri, 19 Jun 2020 15:09:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578785;
-        bh=svkCY4kcX35RFxdXiTu9EV5sl1nHP7BzH9zbGc10ERc=;
+        s=default; t=1592579345;
+        bh=IAEpftuEgs7V9lricUgp8vMtOl5jcTrUca3ypizERdI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E1scWhiLwFlKIkYnBfzvVrWblKgaadkftRv5HNanvWZNjGMAIIptXZmiL9j9x5CWX
-         Yr25jZRSavLEx8DMTVFAqCUfuynltzjPYi7QKM5d90h7rWGP9aHgRbUQbgpn3TccLt
-         XmBGNA48GUwATMfjgdiTYTlgleGiMras1nw/e4/o=
+        b=J/VCwXehOxvxW9FCrAWhDpCLUHtIVWSat8Cq65qfqIyItbJPorjoDemzs0ZMJu8vK
+         hB9LLkbcOfNmsmPbmk/d9f3z1xeIIOBwd9BpnY+A2P+k7yYxDFWRJU1gyN7SyoTFVo
+         xkDZehI/IC4o0GjNjP8g9jMg2dwal+w3VrgZ31Kg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, teroincn@gmail.com,
-        Richard Guy Briggs <rgb@redhat.com>,
-        Paul Moore <paul@paul-moore.com>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 125/267] audit: fix a net reference leak in audit_send_reply()
-Date:   Fri, 19 Jun 2020 16:31:50 +0200
-Message-Id: <20200619141654.831201283@linuxfoundation.org>
+Subject: [PATCH 5.4 101/261] platform/x86: intel-vbtn: Do not advertise switches to userspace if they are not there
+Date:   Fri, 19 Jun 2020 16:31:52 +0200
+Message-Id: <20200619141654.695220610@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
-References: <20200619141648.840376470@linuxfoundation.org>
+In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
+References: <20200619141649.878808811@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,112 +44,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Moore <paul@paul-moore.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit a48b284b403a4a073d8beb72d2bb33e54df67fb6 ]
+[ Upstream commit 990fbb48067bf8cfa34b7d1e6e1674eaaef2f450 ]
 
-If audit_send_reply() fails when trying to create a new thread to
-send the reply it also fails to cleanup properly, leaking a reference
-to a net structure.  This patch fixes the error path and makes a
-handful of other cleanups that came up while fixing the code.
+Commit de9647efeaa9 ("platform/x86: intel-vbtn: Only activate tablet mode
+switch on 2-in-1's") added a DMI chassis-type check to avoid accidentally
+reporting SW_TABLET_MODE = 1 to userspace on laptops (specifically on the
+Dell XPS 9360), to avoid e.g. userspace ignoring touchpad events because
+userspace thought the device was in tablet-mode.
 
-Reported-by: teroincn@gmail.com
-Reviewed-by: Richard Guy Briggs <rgb@redhat.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+But if we are not getting the initial status of the switch because the
+device does not have a tablet mode, then we really should not advertise
+the presence of a tablet-mode switch to userspace at all, as userspace may
+use the mere presence of this switch for certain heuristics.
+
+Fixes: de9647efeaa9 ("platform/x86: intel-vbtn: Only activate tablet mode switch on 2-in-1's")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/audit.c | 50 +++++++++++++++++++++++++++++---------------------
- 1 file changed, 29 insertions(+), 21 deletions(-)
+ drivers/platform/x86/intel-vbtn.c | 25 +++++++++++++++++++------
+ 1 file changed, 19 insertions(+), 6 deletions(-)
 
-diff --git a/kernel/audit.c b/kernel/audit.c
-index 7afec5f43c63..20c78480d632 100644
---- a/kernel/audit.c
-+++ b/kernel/audit.c
-@@ -937,19 +937,30 @@ out_kfree_skb:
- 	return NULL;
+diff --git a/drivers/platform/x86/intel-vbtn.c b/drivers/platform/x86/intel-vbtn.c
+index 2ab3dbd26b5e..ab33349035b1 100644
+--- a/drivers/platform/x86/intel-vbtn.c
++++ b/drivers/platform/x86/intel-vbtn.c
+@@ -54,6 +54,7 @@ static const struct key_entry intel_vbtn_switchmap[] = {
+ struct intel_vbtn_priv {
+ 	struct key_entry keymap[KEYMAP_LEN];
+ 	struct input_dev *input_dev;
++	bool has_switches;
+ 	bool wakeup_mode;
+ };
+ 
+@@ -69,7 +70,7 @@ static int intel_vbtn_input_setup(struct platform_device *device)
+ 		keymap_len += ARRAY_SIZE(intel_vbtn_keymap);
+ 	}
+ 
+-	if (true) {
++	if (priv->has_switches) {
+ 		memcpy(&priv->keymap[keymap_len], intel_vbtn_switchmap,
+ 		       ARRAY_SIZE(intel_vbtn_switchmap) *
+ 		       sizeof(struct key_entry));
+@@ -137,16 +138,12 @@ out_unknown:
+ 
+ static void detect_tablet_mode(struct platform_device *device)
+ {
+-	const char *chassis_type = dmi_get_system_info(DMI_CHASSIS_TYPE);
+ 	struct intel_vbtn_priv *priv = dev_get_drvdata(&device->dev);
+ 	acpi_handle handle = ACPI_HANDLE(&device->dev);
+ 	unsigned long long vgbs;
+ 	acpi_status status;
+ 	int m;
+ 
+-	if (!(chassis_type && strcmp(chassis_type, "31") == 0))
+-		return;
+-
+ 	status = acpi_evaluate_integer(handle, "VGBS", NULL, &vgbs);
+ 	if (ACPI_FAILURE(status))
+ 		return;
+@@ -157,6 +154,19 @@ static void detect_tablet_mode(struct platform_device *device)
+ 	input_report_switch(priv->input_dev, SW_DOCK, m);
  }
  
-+static void audit_free_reply(struct audit_reply *reply)
++static bool intel_vbtn_has_switches(acpi_handle handle)
 +{
-+	if (!reply)
-+		return;
++	const char *chassis_type = dmi_get_system_info(DMI_CHASSIS_TYPE);
++	unsigned long long vgbs;
++	acpi_status status;
 +
-+	if (reply->skb)
-+		kfree_skb(reply->skb);
-+	if (reply->net)
-+		put_net(reply->net);
-+	kfree(reply);
++	if (!(chassis_type && strcmp(chassis_type, "31") == 0))
++		return false;
++
++	status = acpi_evaluate_integer(handle, "VGBS", NULL, &vgbs);
++	return ACPI_SUCCESS(status);
 +}
 +
- static int audit_send_reply_thread(void *arg)
+ static int intel_vbtn_probe(struct platform_device *device)
  {
- 	struct audit_reply *reply = (struct audit_reply *)arg;
--	struct sock *sk = audit_get_sk(reply->net);
+ 	acpi_handle handle = ACPI_HANDLE(&device->dev);
+@@ -175,13 +185,16 @@ static int intel_vbtn_probe(struct platform_device *device)
+ 		return -ENOMEM;
+ 	dev_set_drvdata(&device->dev, priv);
  
- 	audit_ctl_lock();
- 	audit_ctl_unlock();
- 
- 	/* Ignore failure. It'll only happen if the sender goes away,
- 	   because our timeout is set to infinite. */
--	netlink_unicast(sk, reply->skb, reply->portid, 0);
--	put_net(reply->net);
--	kfree(reply);
-+	netlink_unicast(audit_get_sk(reply->net), reply->skb, reply->portid, 0);
-+	reply->skb = NULL;
-+	audit_free_reply(reply);
- 	return 0;
- }
- 
-@@ -963,35 +974,32 @@ static int audit_send_reply_thread(void *arg)
-  * @payload: payload data
-  * @size: payload size
-  *
-- * Allocates an skb, builds the netlink message, and sends it to the port id.
-- * No failure notifications.
-+ * Allocates a skb, builds the netlink message, and sends it to the port id.
-  */
- static void audit_send_reply(struct sk_buff *request_skb, int seq, int type, int done,
- 			     int multi, const void *payload, int size)
- {
--	struct net *net = sock_net(NETLINK_CB(request_skb).sk);
--	struct sk_buff *skb;
- 	struct task_struct *tsk;
--	struct audit_reply *reply = kmalloc(sizeof(struct audit_reply),
--					    GFP_KERNEL);
-+	struct audit_reply *reply;
- 
-+	reply = kzalloc(sizeof(*reply), GFP_KERNEL);
- 	if (!reply)
- 		return;
- 
--	skb = audit_make_reply(seq, type, done, multi, payload, size);
--	if (!skb)
--		goto out;
--
--	reply->net = get_net(net);
-+	reply->skb = audit_make_reply(seq, type, done, multi, payload, size);
-+	if (!reply->skb)
-+		goto err;
-+	reply->net = get_net(sock_net(NETLINK_CB(request_skb).sk));
- 	reply->portid = NETLINK_CB(request_skb).portid;
--	reply->skb = skb;
- 
- 	tsk = kthread_run(audit_send_reply_thread, reply, "audit_send_reply");
--	if (!IS_ERR(tsk))
--		return;
--	kfree_skb(skb);
--out:
--	kfree(reply);
-+	if (IS_ERR(tsk))
-+		goto err;
++	priv->has_switches = intel_vbtn_has_switches(handle);
 +
-+	return;
-+
-+err:
-+	audit_free_reply(reply);
- }
+ 	err = intel_vbtn_input_setup(device);
+ 	if (err) {
+ 		pr_err("Failed to setup Intel Virtual Button\n");
+ 		return err;
+ 	}
  
- /*
+-	detect_tablet_mode(device);
++	if (priv->has_switches)
++		detect_tablet_mode(device);
+ 
+ 	status = acpi_install_notify_handler(handle,
+ 					     ACPI_DEVICE_NOTIFY,
 -- 
 2.25.1
 
