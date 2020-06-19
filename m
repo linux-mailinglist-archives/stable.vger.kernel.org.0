@@ -2,36 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE384200D4A
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:57:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39E91200D4D
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:57:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389974AbgFSOzb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:55:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50180 "EHLO mail.kernel.org"
+        id S2389981AbgFSOzl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:55:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388909AbgFSOzV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:55:21 -0400
+        id S2389980AbgFSOzd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:55:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 708262168B;
-        Fri, 19 Jun 2020 14:55:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B58A2168B;
+        Fri, 19 Jun 2020 14:55:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578521;
-        bh=BS4vnzAaUT4xzsYKuDAQsvC3CguCsCQrniL6bIM7OmA=;
+        s=default; t=1592578533;
+        bh=0LPRvlOzOJYx0mRMBYwrVXRaubxfHLyg54HkbdgNwuA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YtQrh2UPzvZYZAjEFlWMjMtDVZvy0ZC3krOitVd8uTBW7VTUvB+VKRnT8JZJImmq1
-         p/Jb+Dfqiezm1GnNYRdCC8SDqtK17d3sP/OrM5nhJXtgsCHnUekoKLadCtWT0nmSiq
-         xTCoHsy42OFeJWy9/8cpBeAQbA4++49O9I12OX7I=
+        b=a7Srot1s56a6R6bEQx7McAIa6UrZxMET2sUdQFP4Li/mQrzygQs0ACx4wbnt+hEQc
+         c+ctKzeEy8DcQ/2H/8nN5tAZm1fJ4+NpxyUFQQKjXC41uqS5HCk3OGEZpcqQFHg4gG
+         jb5HsC3u/q5akCM5du+Ja3q2yBrSRnA+b5ZgVeys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Cooper <andrew.cooper3@citrix.com>,
-        Kim Phillips <kim.phillips@amd.com>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 023/267] x86/cpu/amd: Make erratum #1054 a legacy erratum
-Date:   Fri, 19 Jun 2020 16:30:08 +0200
-Message-Id: <20200619141649.984307863@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Alistair Delva <adelva@google.com>,
+        Fangrui Song <maskray@google.com>,
+        Bob Haarman <inglorion@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Andi Kleen <ak@linux.intel.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Sedat Dilek <sedat.dilek@gmail.com>
+Subject: [PATCH 4.19 028/267] x86_64: Fix jiffies ODR violation
+Date:   Fri, 19 Jun 2020 16:30:13 +0200
+Message-Id: <20200619141650.214615536@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
 References: <20200619141648.840376470@linuxfoundation.org>
@@ -44,55 +52,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kim Phillips <kim.phillips@amd.com>
+From: Bob Haarman <inglorion@google.com>
 
-[ Upstream commit e2abfc0448a46d8a137505aa180caf14070ec535 ]
+commit d8ad6d39c35d2b44b3d48b787df7f3359381dcbf upstream.
 
-Commit
+'jiffies' and 'jiffies_64' are meant to alias (two different symbols that
+share the same address).  Most architectures make the symbols alias to the
+same address via a linker script assignment in their
+arch/<arch>/kernel/vmlinux.lds.S:
 
-  21b5ee59ef18 ("x86/cpu/amd: Enable the fixed Instructions Retired
-		 counter IRPERF")
+jiffies = jiffies_64;
 
-mistakenly added erratum #1054 as an OS Visible Workaround (OSVW) ID 0.
-Erratum #1054 is not OSVW ID 0 [1], so make it a legacy erratum.
+which is effectively a definition of jiffies.
 
-There would never have been a false positive on older hardware that
-has OSVW bit 0 set, since the IRPERF feature was not available.
+jiffies and jiffies_64 are both forward declared for all architectures in
+include/linux/jiffies.h. jiffies_64 is defined in kernel/time/timer.c.
 
-However, save a couple of RDMSR executions per thread, on modern
-system configurations that correctly set non-zero values in their
-OSVW_ID_Length MSRs.
+x86_64 was peculiar in that it wasn't doing the above linker script
+assignment, but rather was:
+1. defining jiffies in arch/x86/kernel/time.c instead via the linker script.
+2. overriding the symbol jiffies_64 from kernel/time/timer.c in
+arch/x86/kernel/vmlinux.lds.s via 'jiffies_64 = jiffies;'.
 
-[1] Revision Guide for AMD Family 17h Models 00h-0Fh Processors. The
-revision guide is available from the bugzilla link below.
+As Fangrui notes:
 
-Fixes: 21b5ee59ef18 ("x86/cpu/amd: Enable the fixed Instructions Retired counter IRPERF")
-Reported-by: Andrew Cooper <andrew.cooper3@citrix.com>
-Signed-off-by: Kim Phillips <kim.phillips@amd.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20200417143356.26054-1-kim.phillips@amd.com
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=206537
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  In LLD, symbol assignments in linker scripts override definitions in
+  object files. GNU ld appears to have the same behavior. It would
+  probably make sense for LLD to error "duplicate symbol" but GNU ld
+  is unlikely to adopt for compatibility reasons.
+
+This results in an ODR violation (UB), which seems to have survived
+thus far. Where it becomes harmful is when;
+
+1. -fno-semantic-interposition is used:
+
+As Fangrui notes:
+
+  Clang after LLVM commit 5b22bcc2b70d
+  ("[X86][ELF] Prefer to lower MC_GlobalAddress operands to .Lfoo$local")
+  defaults to -fno-semantic-interposition similar semantics which help
+  -fpic/-fPIC code avoid GOT/PLT when the referenced symbol is defined
+  within the same translation unit. Unlike GCC
+  -fno-semantic-interposition, Clang emits such relocations referencing
+  local symbols for non-pic code as well.
+
+This causes references to jiffies to refer to '.Ljiffies$local' when
+jiffies is defined in the same translation unit. Likewise, references to
+jiffies_64 become references to '.Ljiffies_64$local' in translation units
+that define jiffies_64.  Because these differ from the names used in the
+linker script, they will not be rewritten to alias one another.
+
+2. Full LTO
+
+Full LTO effectively treats all source files as one translation
+unit, causing these local references to be produced everywhere.  When
+the linker processes the linker script, there are no longer any
+references to jiffies_64' anywhere to replace with 'jiffies'.  And
+thus '.Ljiffies$local' and '.Ljiffies_64$local' no longer alias
+at all.
+
+In the process of porting patches enabling Full LTO from arm64 to x86_64,
+spooky bugs have been observed where the kernel appeared to boot, but init
+doesn't get scheduled.
+
+Avoid the ODR violation by matching other architectures and define jiffies
+only by linker script.  For -fno-semantic-interposition + Full LTO, there
+is no longer a global definition of jiffies for the compiler to produce a
+local symbol which the linker script won't ensure aliases to jiffies_64.
+
+Fixes: 40747ffa5aa8 ("asmlinkage: Make jiffies visible")
+Reported-by: Nathan Chancellor <natechancellor@gmail.com>
+Reported-by: Alistair Delva <adelva@google.com>
+Debugged-by: Nick Desaulniers <ndesaulniers@google.com>
+Debugged-by: Sami Tolvanen <samitolvanen@google.com>
+Suggested-by: Fangrui Song <maskray@google.com>
+Signed-off-by: Bob Haarman <inglorion@google.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Sedat Dilek <sedat.dilek@gmail.com> # build+boot on
+Reviewed-by: Andi Kleen <ak@linux.intel.com>
+Reviewed-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: stable@vger.kernel.org
+Link: https://github.com/ClangBuiltLinux/linux/issues/852
+Link: https://lkml.kernel.org/r/20200602193100.229287-1-inglorion@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/x86/kernel/cpu/amd.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/x86/kernel/time.c        |    4 ----
+ arch/x86/kernel/vmlinux.lds.S |    4 ++--
+ 2 files changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/amd.c b/arch/x86/kernel/cpu/amd.c
-index 120769955687..de69090ca142 100644
---- a/arch/x86/kernel/cpu/amd.c
-+++ b/arch/x86/kernel/cpu/amd.c
-@@ -1122,8 +1122,7 @@ static const int amd_erratum_383[] =
+--- a/arch/x86/kernel/time.c
++++ b/arch/x86/kernel/time.c
+@@ -24,10 +24,6 @@
+ #include <asm/hpet.h>
+ #include <asm/time.h>
  
- /* #1054: Instructions Retired Performance Counter May Be Inaccurate */
- static const int amd_erratum_1054[] =
--	AMD_OSVW_ERRATUM(0, AMD_MODEL_RANGE(0x17, 0, 0, 0x2f, 0xf));
+-#ifdef CONFIG_X86_64
+-__visible volatile unsigned long jiffies __cacheline_aligned_in_smp = INITIAL_JIFFIES;
+-#endif
 -
-+	AMD_LEGACY_ERRATUM(AMD_MODEL_RANGE(0x17, 0, 0, 0x2f, 0xf));
- 
- static bool cpu_has_amd_erratum(struct cpuinfo_x86 *cpu, const int *erratum)
+ unsigned long profile_pc(struct pt_regs *regs)
  {
--- 
-2.25.1
-
+ 	unsigned long pc = instruction_pointer(regs);
+--- a/arch/x86/kernel/vmlinux.lds.S
++++ b/arch/x86/kernel/vmlinux.lds.S
+@@ -36,13 +36,13 @@ OUTPUT_FORMAT(CONFIG_OUTPUT_FORMAT, CONF
+ #ifdef CONFIG_X86_32
+ OUTPUT_ARCH(i386)
+ ENTRY(phys_startup_32)
+-jiffies = jiffies_64;
+ #else
+ OUTPUT_ARCH(i386:x86-64)
+ ENTRY(phys_startup_64)
+-jiffies_64 = jiffies;
+ #endif
+ 
++jiffies = jiffies_64;
++
+ #if defined(CONFIG_X86_64)
+ /*
+  * On 64-bit, align RODATA to 2MB so we retain large page mappings for
 
 
