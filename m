@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 075E820101A
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:30:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7D86200D7D
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:01:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393460AbgFSPZq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:25:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57480 "EHLO mail.kernel.org"
+        id S2390325AbgFSO6K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:58:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393459AbgFSPZo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:25:44 -0400
+        id S2390321AbgFSO6G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:58:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5DF1A20734;
-        Fri, 19 Jun 2020 15:25:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2ED4A21919;
+        Fri, 19 Jun 2020 14:58:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580343;
-        bh=mS6E5KdtOU9+7cFz8Yn3gX2S53udT9uaNWpGg0utQBc=;
+        s=default; t=1592578686;
+        bh=jYmhetrVkNgZTNo37SbeiWGjdac6A+k42aQczdxV2LA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zbyZWvVN9PbiT5EJUcHtxFOCGoAyhYxB4fLl1vS4n1/VhxvQelLOyaFqkeD1jEMPI
-         fVC1lhOFljEt8S8/MhJuC1G2RpSHyGRBaPModWzjC3Fdwz28d7JJUjdJ3+plLX1RZ+
-         d6i8xk9SUaWSkc6a+SSetlx07AJu1iBB2B07y6TY=
+        b=aoYwnO35gd6pd+0BhF+JrxIkft1D+QyATeUrxVrur7aK+S2nIRShIdAynLL9+cGle
+         MYo9U+p42EPm+q/xUJMSfBHDOswTUhLuMFzMw4L7+4xeYdXoDOBzGmK9l8uzyZtGos
+         O42zFJ71lBguHHIXXnuOfrjI77v3g8lwSbtzJ7O0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 183/376] mt76: mt7615: fix mt7615_driver_own routine
+        stable@vger.kernel.org,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Tobias Baumann <017623705678@o2online.de>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 116/267] mmc: meson-mx-sdio: trigger a soft reset after a timeout or CRC error
 Date:   Fri, 19 Jun 2020 16:31:41 +0200
-Message-Id: <20200619141719.013730779@linuxfoundation.org>
+Message-Id: <20200619141654.404095240@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
-References: <20200619141710.350494719@linuxfoundation.org>
+In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
+References: <20200619141648.840376470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,60 +46,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-[ Upstream commit 338061619185133f56ac17365deb1e75eaecc604 ]
+[ Upstream commit 91995b904ec2e44b5c159ac6a5d3f154345a4de7 ]
 
-Introduce MT_PCIE_DOORBELL_PUSH register to fix mt7615_driver_own
-routine for mt7663e
+The vendor driver (from the 3.10 kernel) triggers a soft reset every
+time before starting a new command. While this fixes a problem where
+SDIO cards are not detected at all (because all commands simply
+timed out) this hurts SD card read performance a bit (in my tests
+between 10% to 20%).
 
-Fixes: f40ac0f3d3c0 ("mt76: mt7615: introduce mt7663e support")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Trigger a soft reset after we got a CRC error or if the previous command
+timed out (just like the vendor driver from the same 3.10 kernel for the
+newer SDHC controller IP does). This fixes detection of SDIO cards and
+doesn't hurt SD card read performance at the same time.
+
+With this patch the initialization of an RTL8723BS SDIO card looks like
+this:
+  req done (CMD52): -110: 00000000 00000000 00000000 00000000
+  clock 400000Hz busmode 2 powermode 2 cs 1 Vdd 21 width 1 timing 0
+  starting CMD0 arg 00000000 flags 000000c0
+  req done (CMD0): 0: 00000000 00000000 00000000 00000000
+  clock 400000Hz busmode 2 powermode 2 cs 0 Vdd 21 width 1 timing 0
+  starting CMD8 arg 000001aa flags 000002f5
+  req done (CMD8): -110: 00000000 00000000 00000000 00000000
+  starting CMD5 arg 00000000 flags 000002e1
+  req done (CMD5): 0: 90ff0000 00000000 00000000 00000000
+  starting CMD5 arg 00200000 flags 000002e1
+  req done (CMD5): 0: 90ff0000 00000000 00000000 00000000
+  starting CMD3 arg 00000000 flags 00000075
+  req done (CMD3): 0: 00010000 00000000 00000000 00000000
+  starting CMD7 arg 00010000 flags 00000015
+  req done (CMD7): 0: 00001e00 00000000 00000000 00000000
+  starting CMD52 arg 00000000 flags 00000195
+  req done (CMD52): 0: 00001032 00000000 00000000 00000000
+  [... more CMD52 omitted ...]
+  clock 400000Hz busmode 2 powermode 2 cs 0 Vdd 21 width 1 timing 2
+  clock 50000000Hz busmode 2 powermode 2 cs 0 Vdd 21 width 1 timing 2
+  starting CMD52 arg 00000e00 flags 00000195
+  req done (CMD52): 0: 00001000 00000000 00000000 00000000
+  starting CMD52 arg 80000e02 flags 00000195
+  req done (CMD52): 0: 00001002 00000000 00000000 00000000
+  clock 50000000Hz busmode 2 powermode 2 cs 0 Vdd 21 width 4 timing 2
+  starting CMD52 arg 00020000 flags 00000195
+  req done (CMD52): 0: 00001007 00000000 00000000 00000000
+  [... more CMD52 omitted ...]
+  new high speed SDIO card at address 0001
+
+Fixes: ed80a13bb4c4c9 ("mmc: meson-mx-sdio: Add a driver for the Amlogic Meson8 and Meson8b SoCs")
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Link: https://lore.kernel.org/r/20200503222805.2668941-1-martin.blumenstingl@googlemail.com
+Tested-by: Tobias Baumann <017623705678@o2online.de>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7615/mcu.c  | 6 +++++-
- drivers/net/wireless/mediatek/mt76/mt7615/regs.h | 1 +
- 2 files changed, 6 insertions(+), 1 deletion(-)
+ drivers/mmc/host/meson-mx-sdio.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
-index 0d56e0834bde..29a7aaabb6da 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
-@@ -1526,16 +1526,20 @@ static void mt7622_trigger_hif_int(struct mt7615_dev *dev, bool en)
+diff --git a/drivers/mmc/host/meson-mx-sdio.c b/drivers/mmc/host/meson-mx-sdio.c
+index 1c062473b1c2..27837a794e7b 100644
+--- a/drivers/mmc/host/meson-mx-sdio.c
++++ b/drivers/mmc/host/meson-mx-sdio.c
+@@ -249,6 +249,9 @@ static void meson_mx_mmc_request_done(struct meson_mx_mmc_host *host)
  
- static int mt7615_driver_own(struct mt7615_dev *dev)
- {
-+	struct mt76_dev *mdev = &dev->mt76;
- 	u32 addr;
+ 	mrq = host->mrq;
  
--	addr = is_mt7663(&dev->mt76) ? MT_CONN_HIF_ON_LPCTL : MT_CFG_LPCR_HOST;
-+	addr = is_mt7663(mdev) ? MT_PCIE_DOORBELL_PUSH : MT_CFG_LPCR_HOST;
- 	mt76_wr(dev, addr, MT_CFG_LPCR_HOST_DRV_OWN);
- 
- 	mt7622_trigger_hif_int(dev, true);
++	if (host->cmd->error)
++		meson_mx_mmc_soft_reset(host);
 +
-+	addr = is_mt7663(mdev) ? MT_CONN_HIF_ON_LPCTL : MT_CFG_LPCR_HOST;
- 	if (!mt76_poll_msec(dev, addr, MT_CFG_LPCR_HOST_FW_OWN, 0, 3000)) {
- 		dev_err(dev->mt76.dev, "Timeout for driver own\n");
- 		return -EIO;
- 	}
-+
- 	mt7622_trigger_hif_int(dev, false);
+ 	host->mrq = NULL;
+ 	host->cmd = NULL;
  
- 	return 0;
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/regs.h b/drivers/net/wireless/mediatek/mt76/mt7615/regs.h
-index f7c2a633841c..de0ef165c0ba 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7615/regs.h
-+++ b/drivers/net/wireless/mediatek/mt76/mt7615/regs.h
-@@ -65,6 +65,7 @@ enum mt7615_reg_base {
- #define MT_HIF2_BASE			0xf0000
- #define MT_HIF2(ofs)			(MT_HIF2_BASE + (ofs))
- #define MT_PCIE_IRQ_ENABLE		MT_HIF2(0x188)
-+#define MT_PCIE_DOORBELL_PUSH		MT_HIF2(0x1484)
- 
- #define MT_CFG_LPCR_HOST		MT_HIF(0x1f0)
- #define MT_CFG_LPCR_HOST_FW_OWN		BIT(0)
 -- 
 2.25.1
 
