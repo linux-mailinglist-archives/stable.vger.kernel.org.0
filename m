@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AB68200A32
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 15:32:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDEF2200A38
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 15:33:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731687AbgFSNcA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 09:32:00 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:38321 "EHLO
+        id S1732035AbgFSNdg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 09:33:36 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:54405 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726124AbgFSNb7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Jun 2020 09:31:59 -0400
+        by vger.kernel.org with ESMTP id S1729134AbgFSNdf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Jun 2020 09:33:35 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 53C3B194424D;
-        Fri, 19 Jun 2020 09:31:58 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 8B66419455A0;
+        Fri, 19 Jun 2020 09:33:34 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Fri, 19 Jun 2020 09:31:58 -0400
+  by compute1.internal (MEProxy); Fri, 19 Jun 2020 09:33:34 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=n91Hyy
-        w8MXuU6nfb0yiiES9uAw2dzirnUPxUn9hHwDg=; b=TC0m/vaQ7lqgdiIHbG7+7p
-        fSCKl7gJWxKhuKQqFNbbLv7h42EQ0ql1LzLgr6bUT5jCEi6sAo51904XLfqndqNl
-        fDcvVh8VP0YL/1Bw6hVZPyMkB6ij3V7De/nSmlp7E5d7W4eel5JAv68SU82UrvoK
-        SR88B97ngWxLJPj6V5pWisqo2zzhtviAmS15R4Et9Zo/y1pVGGM2aZr8SCn8NQjF
-        tGfhJlZs3VVJleAnTotnuNxMu6GO1jlrYcPftIUp4IjdgcrfpH6OOhQstimY+ZEb
-        bB0ca5//D3AWCMTSy1lNuiKkfZm0A3rgYr86++F130DzuVleVexwAu36M7MxOdzg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=YR4GgX
+        6R94nSZii7hVShSZLxh4eLaAPd/DTLvPR8BuU=; b=uSjVpCcbJiaUVt6ocZH0gj
+        +Phe5flefgoXXJFoWyCXbTN0wRXv1E77H5mkB80F7UzyLUtjK0okDCcbHMWZ7DZx
+        MzulOofSosBgppuBxOTZYT5jKKsGdzyR8pdS8+KEZVbx3lUaEKrPMDdQbjf8+C1l
+        CINrRQXCmineL8qMuh4El1sLQjSjIw3M6leUvJNzXIX9965C+SXfwbER3p1eRSW2
+        OxkszUo4N6dhxKtW5QapCgnrPYRwLDIPCd4C3IMGTaNuoJrPnhY7rbAKRqzJrbdU
+        me4wmMV62Nf13Dy1pwy2xs6AEBJQ0scmigySweN4rQ1tq62HUitnD5dSm551AB9A
         ==
-X-ME-Sender: <xms:Tr7sXmRuLvzK2FVfv2GpQui37QDsPyHlr4F9hMQQp8mKg7jihSJBtw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudejiedgieehucetufdoteggodetrfdotf
+X-ME-Sender: <xms:rr7sXpa_derqPPWe6Vk9_1N5-yXyOOy5VEmCvBWfUjFNSZCZpX8v6g>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudejiedgieejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
@@ -36,19 +36,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudejiedgieehucetufdoteggod
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
     vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
     drtghomh
-X-ME-Proxy: <xmx:Tr7sXrz0GNv4LNRo7_VL3QVRPCRHsCZMQyOMD_XKd5YJLw_QEw1DgQ>
-    <xmx:Tr7sXj10MVIwWt1oFEu8eRdWSeC3FvA7n4JUfBQtxygZTvO11Dqfzg>
-    <xmx:Tr7sXiC4nMC7RTN85Q2wUgn59zQQoJSq0FtVmE0g9l-6Kq7MKz_b4w>
-    <xmx:Tr7sXqvBUPWNFRHbERi0RPjujk_MIw8i_G0Y_jPg7q9b8_3FS5uzfA>
+X-ME-Proxy: <xmx:rr7sXgZzgZjXMfZE0kGnpxPLOGF6jCnacLlE4OKe1o35OCKE6TU8hg>
+    <xmx:rr7sXr-1XXEIH_-FYitSWMqY0sKAgPODodHz9hcQk83I46Tbt4lLkg>
+    <xmx:rr7sXnpoJ-ncBu-5UODPBzUff4VzOO-KuRaKUX7HxtmVKP2pEe8_1Q>
+    <xmx:rr7sXrQr3t4vPzF_wgeTUPfmtqZSzUBymoiJ3RW8-ncu2JOvMlzcgg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id B928F3280063;
-        Fri, 19 Jun 2020 09:31:57 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] sparc64: fix misuses of access_process_vm() in" failed to apply to 4.4-stable tree
-To:     viro@zeniv.linux.org.uk
+        by mail.messagingengine.com (Postfix) with ESMTPA id DC52A3280065;
+        Fri, 19 Jun 2020 09:33:33 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] dm crypt: avoid truncating the logical block size" failed to apply to 4.4-stable tree
+To:     ebiggers@google.com, mpatocka@redhat.com, snitzer@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 19 Jun 2020 15:31:53 +0200
-Message-ID: <159257351314396@kroah.com>
+Date:   Fri, 19 Jun 2020 15:33:31 +0200
+Message-ID: <159257361122324@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -69,59 +69,32 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 142cd25293f6a7ecbdff4fb0af17de6438d46433 Mon Sep 17 00:00:00 2001
-From: Al Viro <viro@zeniv.linux.org.uk>
-Date: Sun, 17 May 2020 15:37:50 -0400
-Subject: [PATCH] sparc64: fix misuses of access_process_vm() in
- genregs32_[sg]et()
+From 64611a15ca9da91ff532982429c44686f4593b5f Mon Sep 17 00:00:00 2001
+From: Eric Biggers <ebiggers@google.com>
+Date: Thu, 4 Jun 2020 12:01:26 -0700
+Subject: [PATCH] dm crypt: avoid truncating the logical block size
 
-We do need access_process_vm() to access the target's reg_window.
-However, access to caller's memory (storing the result in
-genregs32_get(), fetching the new values in case of genregs32_set())
-should be done by normal uaccess primitives.
+queue_limits::logical_block_size got changed from unsigned short to
+unsigned int, but it was forgotten to update crypt_io_hints() to use the
+new type.  Fix it.
 
-Fixes: ad4f95764040 ([SPARC64]: Fix user accesses in regset code.)
-Cc: stable@kernel.org
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Fixes: ad6bf88a6c19 ("block: fix an integer overflow in logical block size")
+Cc: stable@vger.kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Reviewed-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 
-diff --git a/arch/sparc/kernel/ptrace_64.c b/arch/sparc/kernel/ptrace_64.c
-index c9d41a96468f..3f5930bfab06 100644
---- a/arch/sparc/kernel/ptrace_64.c
-+++ b/arch/sparc/kernel/ptrace_64.c
-@@ -572,19 +572,13 @@ static int genregs32_get(struct task_struct *target,
- 			for (; count > 0 && pos < 32; count--) {
- 				if (access_process_vm(target,
- 						      (unsigned long)
--						      &reg_window[pos],
-+						      &reg_window[pos++],
- 						      &reg, sizeof(reg),
- 						      FOLL_FORCE)
- 				    != sizeof(reg))
- 					return -EFAULT;
--				if (access_process_vm(target,
--						      (unsigned long) u,
--						      &reg, sizeof(reg),
--						      FOLL_FORCE | FOLL_WRITE)
--				    != sizeof(reg))
-+				if (put_user(reg, u++))
- 					return -EFAULT;
--				pos++;
--				u++;
- 			}
- 		}
- 	}
-@@ -684,12 +678,7 @@ static int genregs32_set(struct task_struct *target,
- 			}
- 		} else {
- 			for (; count > 0 && pos < 32; count--) {
--				if (access_process_vm(target,
--						      (unsigned long)
--						      u,
--						      &reg, sizeof(reg),
--						      FOLL_FORCE)
--				    != sizeof(reg))
-+				if (get_user(reg, u++))
- 					return -EFAULT;
- 				if (access_process_vm(target,
- 						      (unsigned long)
+diff --git a/drivers/md/dm-crypt.c b/drivers/md/dm-crypt.c
+index 71c651465bdd..000ddfab5ba0 100644
+--- a/drivers/md/dm-crypt.c
++++ b/drivers/md/dm-crypt.c
+@@ -3312,7 +3312,7 @@ static void crypt_io_hints(struct dm_target *ti, struct queue_limits *limits)
+ 	limits->max_segment_size = PAGE_SIZE;
+ 
+ 	limits->logical_block_size =
+-		max_t(unsigned short, limits->logical_block_size, cc->sector_size);
++		max_t(unsigned, limits->logical_block_size, cc->sector_size);
+ 	limits->physical_block_size =
+ 		max_t(unsigned, limits->physical_block_size, cc->sector_size);
+ 	limits->io_min = max_t(unsigned, limits->io_min, cc->sector_size);
 
