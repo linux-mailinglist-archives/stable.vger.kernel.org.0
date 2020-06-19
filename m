@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 39CAB2017B8
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDFD62017B7
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395359AbgFSQmc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:42:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35596 "EHLO mail.kernel.org"
+        id S2389091AbgFSQmb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:42:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388551AbgFSOoT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:44:19 -0400
+        id S1733212AbgFSOoW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:44:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF89E21707;
-        Fri, 19 Jun 2020 14:44:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9544120A8B;
+        Fri, 19 Jun 2020 14:44:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577859;
-        bh=YGB3RjlvoFqQ6Gp0s5xKy1Vy0GNUVzaHRZx854z92ug=;
+        s=default; t=1592577862;
+        bh=/yiwJt2Ym0/+aaH/zOczKqsSnUNtR8CrvV3jupuKf0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ot+PvC/Az55ACdKwqXvRI1XthgWSDTCLlqiVYLeg9BWiL4vYPYu/RXHMLeaKGyAl9
-         q3NA5hzCnNOa/AMGMngvKQYOfaJK4m+GIgzIa5Ri5UGBeSnCZTEESjgcISWtF9nA3j
-         4XryfGLz6LtgjcX/Jr9LzdZ0NXUO6glvkOTB97cY=
+        b=U1695W3wWcYP6vRJzQ5gVwjSwHg0NDLTe6Ime42o1mDCHbNJ65Szzima0rCwGoz0P
+         xfda4pFJTnX9Y6p6bGRVsV0DZ6i0t1XH8IadyXnG597GExAHEl9WrxcmSWwUxQoiu1
+         KFe3UWZBMV0asynegMa4y06QPYydgeLi6X0idkL0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Al Viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH 4.9 117/128] sparc64: fix misuses of access_process_vm() in genregs32_[sg]et()
-Date:   Fri, 19 Jun 2020 16:33:31 +0200
-Message-Id: <20200619141626.312794435@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: [PATCH 4.9 118/128] kernel/cpu_pm: Fix uninitted local in cpu_pm
+Date:   Fri, 19 Jun 2020 16:33:32 +0200
+Message-Id: <20200619141626.365372981@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
 References: <20200619141620.148019466@linuxfoundation.org>
@@ -43,61 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Douglas Anderson <dianders@chromium.org>
 
-commit 142cd25293f6a7ecbdff4fb0af17de6438d46433 upstream.
+commit b5945214b76a1f22929481724ffd448000ede914 upstream.
 
-We do need access_process_vm() to access the target's reg_window.
-However, access to caller's memory (storing the result in
-genregs32_get(), fetching the new values in case of genregs32_set())
-should be done by normal uaccess primitives.
+cpu_pm_notify() is basically a wrapper of notifier_call_chain().
+notifier_call_chain() doesn't initialize *nr_calls to 0 before it
+starts incrementing it--presumably it's up to the callers to do this.
 
-Fixes: ad4f95764040 ([SPARC64]: Fix user accesses in regset code.)
-Cc: stable@kernel.org
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Unfortunately the callers of cpu_pm_notify() don't init *nr_calls.
+This potentially means you could get too many or two few calls to
+CPU_PM_ENTER_FAILED or CPU_CLUSTER_PM_ENTER_FAILED depending on the
+luck of the stack.
+
+Let's fix this.
+
+Fixes: ab10023e0088 ("cpu_pm: Add cpu power management notifiers")
+Cc: stable@vger.kernel.org
+Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Link: https://lore.kernel.org/r/20200504104917.v6.3.I2d44fc0053d019f239527a4e5829416714b7e299@changeid
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/sparc/kernel/ptrace_64.c |   17 +++--------------
- 1 file changed, 3 insertions(+), 14 deletions(-)
+ kernel/cpu_pm.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/sparc/kernel/ptrace_64.c
-+++ b/arch/sparc/kernel/ptrace_64.c
-@@ -533,19 +533,13 @@ static int genregs32_get(struct task_str
- 			for (; count > 0 && pos < 32; count--) {
- 				if (access_process_vm(target,
- 						      (unsigned long)
--						      &reg_window[pos],
-+						      &reg_window[pos++],
- 						      &reg, sizeof(reg),
- 						      FOLL_FORCE)
- 				    != sizeof(reg))
- 					return -EFAULT;
--				if (access_process_vm(target,
--						      (unsigned long) u,
--						      &reg, sizeof(reg),
--						      FOLL_FORCE | FOLL_WRITE)
--				    != sizeof(reg))
-+				if (put_user(reg, u++))
- 					return -EFAULT;
--				pos++;
--				u++;
- 			}
- 		}
- 	}
-@@ -645,12 +639,7 @@ static int genregs32_set(struct task_str
- 			}
- 		} else {
- 			for (; count > 0 && pos < 32; count--) {
--				if (access_process_vm(target,
--						      (unsigned long)
--						      u,
--						      &reg, sizeof(reg),
--						      FOLL_FORCE)
--				    != sizeof(reg))
-+				if (get_user(reg, u++))
- 					return -EFAULT;
- 				if (access_process_vm(target,
- 						      (unsigned long)
+--- a/kernel/cpu_pm.c
++++ b/kernel/cpu_pm.c
+@@ -97,7 +97,7 @@ EXPORT_SYMBOL_GPL(cpu_pm_unregister_noti
+  */
+ int cpu_pm_enter(void)
+ {
+-	int nr_calls;
++	int nr_calls = 0;
+ 	int ret = 0;
+ 
+ 	read_lock(&cpu_pm_notifier_lock);
+@@ -156,7 +156,7 @@ EXPORT_SYMBOL_GPL(cpu_pm_exit);
+  */
+ int cpu_cluster_pm_enter(void)
+ {
+-	int nr_calls;
++	int nr_calls = 0;
+ 	int ret = 0;
+ 
+ 	read_lock(&cpu_pm_notifier_lock);
 
 
