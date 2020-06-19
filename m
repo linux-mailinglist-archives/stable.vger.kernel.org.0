@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9019E2017CD
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AF212017CA
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388750AbgFSQn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2387894AbgFSQn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 19 Jun 2020 12:43:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34412 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:34664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387899AbgFSOna (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:43:30 -0400
+        id S2388478AbgFSOnc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:43:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2BCFC21556;
-        Fri, 19 Jun 2020 14:43:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9C4FD20A8B;
+        Fri, 19 Jun 2020 14:43:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577809;
-        bh=r2ROIZwUqadhDJcWqs6JlrkoQibYz2+c8Uco5Az4U7w=;
+        s=default; t=1592577812;
+        bh=zaO9tAorAEueD3byQsNqthVGo+qwXWV+vzo+3gr3NUM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vBQnrQ8/DequWvtPllRLInpDAAm/nPcuRcaJaqphqyFF837DNKC02CF503lZkr7JO
-         qDcrKWpd3nL3hy9Gp6jooOcDtmMeRjsTYUtu59vbJkisjYaeBhcVauibrkFijqupxG
-         LaJWc/90RxaNV3zz3f5jOPL/Aa7PyjmNzcCQJsBk=
+        b=OAbrz6wgtI164aFZLrb5k6GVW8FZ2ZGPFJBAcuo+/rVATWTf5IPHrnszSzwClMuyT
+         I2EGXGFgITH+8PAvkKEki7wq20c0JQ1sC6rlrAnQCagk+QRWCPVzMlRzgcwbwH8F8/
+         3wqSMMOw4hYk/6+j1ZJ4M9uIK0n5M5Tc2BTkfarM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
-        Krzysztof Struczynski <krzysztof.struczynski@huawei.com>,
-        David.Laight@aculab.com (big endian system concerns),
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Roberto Sassu <roberto.sassu@huawei.com>,
         Mimi Zohar <zohar@linux.ibm.com>
-Subject: [PATCH 4.9 099/128] ima: Fix ima digest hash table key calculation
-Date:   Fri, 19 Jun 2020 16:33:13 +0200
-Message-Id: <20200619141625.362961745@linuxfoundation.org>
+Subject: [PATCH 4.9 100/128] ima: Directly assign the ima_default_policy pointer to ima_rules
+Date:   Fri, 19 Jun 2020 16:33:14 +0200
+Message-Id: <20200619141625.413913823@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
 References: <20200619141620.148019466@linuxfoundation.org>
@@ -45,54 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Struczynski <krzysztof.struczynski@huawei.com>
+From: Roberto Sassu <roberto.sassu@huawei.com>
 
-commit 1129d31b55d509f15e72dc68e4b5c3a4d7b4da8d upstream.
+commit 067a436b1b0aafa593344fddd711a755a58afb3b upstream.
 
-Function hash_long() accepts unsigned long, while currently only one byte
-is passed from ima_hash_key(), which calculates a key for ima_htable.
+This patch prevents the following oops:
 
-Given that hashing the digest does not give clear benefits compared to
-using the digest itself, remove hash_long() and return the modulus
-calculated on the first two bytes of the digest with the number of slots.
-Also reduce the depth of the hash table by doubling the number of slots.
+[   10.771813] BUG: kernel NULL pointer dereference, address: 0000000000000
+[...]
+[   10.779790] RIP: 0010:ima_match_policy+0xf7/0xb80
+[...]
+[   10.798576] Call Trace:
+[   10.798993]  ? ima_lsm_policy_change+0x2b0/0x2b0
+[   10.799753]  ? inode_init_owner+0x1a0/0x1a0
+[   10.800484]  ? _raw_spin_lock+0x7a/0xd0
+[   10.801592]  ima_must_appraise.part.0+0xb6/0xf0
+[   10.802313]  ? ima_fix_xattr.isra.0+0xd0/0xd0
+[   10.803167]  ima_must_appraise+0x4f/0x70
+[   10.804004]  ima_post_path_mknod+0x2e/0x80
+[   10.804800]  do_mknodat+0x396/0x3c0
 
-Cc: stable@vger.kernel.org
-Fixes: 3323eec921ef ("integrity: IMA as an integrity service provider")
-Co-developed-by: Roberto Sassu <roberto.sassu@huawei.com>
+It occurs when there is a failure during IMA initialization, and
+ima_init_policy() is not called. IMA hooks still call ima_match_policy()
+but ima_rules is NULL. This patch prevents the crash by directly assigning
+the ima_default_policy pointer to ima_rules when ima_rules is defined. This
+wouldn't alter the existing behavior, as ima_rules is always set at the end
+of ima_init_policy().
+
+Cc: stable@vger.kernel.org # 3.7.x
+Fixes: 07f6a79415d7d ("ima: add appraise action keywords and default rules")
+Reported-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-Signed-off-by: Krzysztof Struczynski <krzysztof.struczynski@huawei.com>
-Acked-by: David.Laight@aculab.com (big endian system concerns)
 Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- security/integrity/ima/ima.h |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ security/integrity/ima/ima_policy.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/security/integrity/ima/ima.h
-+++ b/security/integrity/ima/ima.h
-@@ -36,7 +36,7 @@ enum tpm_pcrs { TPM_PCR0 = 0, TPM_PCR8 =
- #define IMA_DIGEST_SIZE		SHA1_DIGEST_SIZE
- #define IMA_EVENT_NAME_LEN_MAX	255
+--- a/security/integrity/ima/ima_policy.c
++++ b/security/integrity/ima/ima_policy.c
+@@ -150,7 +150,7 @@ static struct ima_rule_entry default_app
+ static LIST_HEAD(ima_default_rules);
+ static LIST_HEAD(ima_policy_rules);
+ static LIST_HEAD(ima_temp_rules);
+-static struct list_head *ima_rules;
++static struct list_head *ima_rules = &ima_default_rules;
  
--#define IMA_HASH_BITS 9
-+#define IMA_HASH_BITS 10
- #define IMA_MEASURE_HTABLE_SIZE (1 << IMA_HASH_BITS)
+ static int ima_policy __initdata;
  
- #define IMA_TEMPLATE_FIELD_ID_MAX_LEN	16
-@@ -136,9 +136,10 @@ struct ima_h_table {
- };
- extern struct ima_h_table ima_htable;
+@@ -429,7 +429,6 @@ void __init ima_init_policy(void)
+ 			temp_ima_appraise |= IMA_APPRAISE_POLICY;
+ 	}
  
--static inline unsigned long ima_hash_key(u8 *digest)
-+static inline unsigned int ima_hash_key(u8 *digest)
- {
--	return hash_long(*digest, IMA_HASH_BITS);
-+	/* there is no point in taking a hash of part of a digest */
-+	return (digest[0] | digest[1] << 8) % IMA_MEASURE_HTABLE_SIZE;
+-	ima_rules = &ima_default_rules;
+ 	ima_update_policy_flag();
  }
  
- enum ima_hooks {
 
 
