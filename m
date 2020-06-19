@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC6E0200C1A
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:43:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34B58200CBE
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:52:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387867AbgFSOlk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:41:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60154 "EHLO mail.kernel.org"
+        id S2388671AbgFSOtO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:49:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388244AbgFSOle (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:41:34 -0400
+        id S2389184AbgFSOtG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:49:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0DEB921582;
-        Fri, 19 Jun 2020 14:41:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E4F320DD4;
+        Fri, 19 Jun 2020 14:49:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577693;
-        bh=lhdD1PiLme7UhYUKgbRViewWMsE28bVNHQ/k6U2U2AA=;
+        s=default; t=1592578146;
+        bh=Q1MnH9RZEWmo/MLTr/txxuhrn1OC1QQbfLP0JeFzoCs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bsb3rqaMILGuDgfGCCBhKsj0X4SQZIQbXGpX1HU89GCfzCFR2aRwUx0rIJJqzBP3q
-         POnw+RNljsmQ6PC3yQc2Ng9ui1y7++wdB10m0DEfu5VbiwLhMtF4sJxQZR3kUggKI/
-         V+QAPq3ofECoDvTjVYblD/gSLyIzYKEY6cqkP588=
+        b=yazjZmAdjeYr4+27YrGRSrHx7S5uBxRN7fCSs4ceoU4HNL95IFea8uADQV5vvrBGd
+         GpZEnZcExdKVgsDERpATu2Crc1fGSPPfivmguWjkRyZkGV0FaaucOVRJeuez2DxVpC
+         aYUC+RjHVo53OPoNNwOls5brBsWeL3hjfrioLzbw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+bb4935a5c09b5ff79940@syzkaller.appspotmail.com,
-        Barret Rhoden <brho@google.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 4.9 050/128] perf: Add cond_resched() to task_function_call()
-Date:   Fri, 19 Jun 2020 16:32:24 +0200
-Message-Id: <20200619141622.847720330@linuxfoundation.org>
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 101/190] media: dvb: return -EREMOTEIO on i2c transfer failure.
+Date:   Fri, 19 Jun 2020 16:32:26 +0200
+Message-Id: <20200619141638.628883701@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
-References: <20200619141620.148019466@linuxfoundation.org>
+In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
+References: <20200619141633.446429600@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,68 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Barret Rhoden <brho@google.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-commit 2ed6edd33a214bca02bd2b45e3fc3038a059436b upstream.
+[ Upstream commit 96f3a9392799dd0f6472648a7366622ffd0989f3 ]
 
-Under rare circumstances, task_function_call() can repeatedly fail and
-cause a soft lockup.
+Currently when i2c transfers fail the error return -EREMOTEIO
+is assigned to err but then later overwritten when the tuner
+attach call is made.  Fix this by returning early with the
+error return code -EREMOTEIO on i2c transfer failure errors.
 
-There is a slight race where the process is no longer running on the cpu
-we targeted by the time remote_function() runs.  The code will simply
-try again.  If we are very unlucky, this will continue to fail, until a
-watchdog fires.  This can happen in a heavily loaded, multi-core virtual
-machine.
+If the transfer fails, an uninitialized value will be read from b2.
 
-Reported-by: syzbot+bb4935a5c09b5ff79940@syzkaller.appspotmail.com
-Signed-off-by: Barret Rhoden <brho@google.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20200414222920.121401-1-brho@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Addresses-Coverity: ("Unused value")
 
+Fixes: fbfee8684ff2 ("V4L/DVB (5651): Dibusb-mb: convert pll handling to properly use dvb-pll")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/core.c |   23 ++++++++++++++---------
- 1 file changed, 14 insertions(+), 9 deletions(-)
+ drivers/media/usb/dvb-usb/dibusb-mb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -90,11 +90,11 @@ static void remote_function(void *data)
-  * @info:	the function call argument
-  *
-  * Calls the function @func when the task is currently running. This might
-- * be on the current CPU, which just calls the function directly
-+ * be on the current CPU, which just calls the function directly.  This will
-+ * retry due to any failures in smp_call_function_single(), such as if the
-+ * task_cpu() goes offline concurrently.
-  *
-- * returns: @func return value, or
-- *	    -ESRCH  - when the process isn't running
-- *	    -EAGAIN - when the process moved away
-+ * returns @func return value or -ESRCH when the process isn't running
-  */
- static int
- task_function_call(struct task_struct *p, remote_function_f func, void *info)
-@@ -107,11 +107,16 @@ task_function_call(struct task_struct *p
- 	};
- 	int ret;
+diff --git a/drivers/media/usb/dvb-usb/dibusb-mb.c b/drivers/media/usb/dvb-usb/dibusb-mb.c
+index a0057641cc86..c55180912c3a 100644
+--- a/drivers/media/usb/dvb-usb/dibusb-mb.c
++++ b/drivers/media/usb/dvb-usb/dibusb-mb.c
+@@ -84,7 +84,7 @@ static int dibusb_tuner_probe_and_attach(struct dvb_usb_adapter *adap)
  
--	do {
--		ret = smp_call_function_single(task_cpu(p), remote_function, &data, 1);
--		if (!ret)
--			ret = data.ret;
--	} while (ret == -EAGAIN);
-+	for (;;) {
-+		ret = smp_call_function_single(task_cpu(p), remote_function,
-+					       &data, 1);
-+		ret = !ret ? data.ret : -EAGAIN;
-+
-+		if (ret != -EAGAIN)
-+			break;
-+
-+		cond_resched();
-+	}
+ 	if (i2c_transfer(&adap->dev->i2c_adap, msg, 2) != 2) {
+ 		err("tuner i2c write failed.");
+-		ret = -EREMOTEIO;
++		return -EREMOTEIO;
+ 	}
  
- 	return ret;
- }
+ 	if (adap->fe_adap[0].fe->ops.i2c_gate_ctrl)
+-- 
+2.25.1
+
 
 
