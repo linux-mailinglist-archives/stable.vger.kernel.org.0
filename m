@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8429200E86
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:11:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48DC4200E87
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:11:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391750AbgFSPIj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:08:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38156 "EHLO mail.kernel.org"
+        id S2391764AbgFSPIl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:08:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390914AbgFSPIi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:08:38 -0400
+        id S2391738AbgFSPIk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:08:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5174421974;
-        Fri, 19 Jun 2020 15:08:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C25E721852;
+        Fri, 19 Jun 2020 15:08:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579317;
-        bh=yWzuLIfLozYcOoBM8fQyerjEmRLb21DzZp64pt8yd9U=;
+        s=default; t=1592579320;
+        bh=Tzw3Gzlm+3BA/nlhX9g2BWNAa7mep+kD4+xGWxixxX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H1baSBv52JrcrV/LiugS+yuS4Q08/x/mGCvmiSCJDjbgvSZ5F3j7iVx3Yb8r51MvS
-         DwBbZgtNd1AKw9ioU0Ac0Fh8oMPEwvJ/hYWzysyUbe8BmiwlJe2CfSMwmylrkLlUfh
-         bP8EXNhBErUdAa7SBWEU+7AjzSIgxP6b/yl12oOE=
+        b=Jo+UPMt3saxLmx94h+O1C6IC2zHcWUQ4AwPzvA+Q8GYeNKHASPEIzZmonAeH7gAIv
+         BbHjImV2Fe81ZP5xnmwLlKt7jmW369T52eO3ks0hST4Wgkkp/OKAFI6Lsow0gEKXTl
+         49ACEI33k8eW+evfwZUKMzKb1k2g3PZPq7M6wGhA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Jaehoon Chung <jh80.chung@samsung.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 060/261] spi: Respect DataBitLength field of SpiSerialBusV2() ACPI resource
-Date:   Fri, 19 Jun 2020 16:31:11 +0200
-Message-Id: <20200619141652.795737704@linuxfoundation.org>
+Subject: [PATCH 5.4 061/261] brcmfmac: fix wrong location to get firmware feature
+Date:   Fri, 19 Jun 2020 16:31:12 +0200
+Message-Id: <20200619141652.842535783@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
 References: <20200619141649.878808811@linuxfoundation.org>
@@ -45,38 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Jaehoon Chung <jh80.chung@samsung.com>
 
-[ Upstream commit 0dadde344d965566589cd82797893d5aa06557a3 ]
+[ Upstream commit c57673852062428cdeabdd6501ac8b8e4c302067 ]
 
-By unknown reason the commit 64bee4d28c9e
-  ("spi / ACPI: add ACPI enumeration support")
-missed the DataBitLength property to encounter when parse SPI slave
-device data from ACPI.
+sup_wpa feature is getting after setting feature_disable flag.
+If firmware is supported sup_wpa feature,  it's always enabled
+regardless of feature_disable flag.
 
-Fill the gap here.
-
-Fixes: 64bee4d28c9e ("spi / ACPI: add ACPI enumeration support")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20200413180406.1826-1-andriy.shevchenko@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: b8a64f0e96c2 ("brcmfmac: support 4-way handshake offloading for WPA/WPA2-PSK")
+Signed-off-by: Jaehoon Chung <jh80.chung@samsung.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200330052528.10503-1-jh80.chung@samsung.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/feature.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
-index 6bfbf0cfcf63..c6242f0a307f 100644
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -1950,6 +1950,7 @@ static int acpi_spi_add_resource(struct acpi_resource *ares, void *data)
- 			}
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/feature.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/feature.c
+index 2c3526aeca6f..545015610cf8 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/feature.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/feature.c
+@@ -283,13 +283,14 @@ void brcmf_feat_attach(struct brcmf_pub *drvr)
+ 	if (!err)
+ 		ifp->drvr->feat_flags |= BIT(BRCMF_FEAT_SCAN_RANDOM_MAC);
  
- 			lookup->max_speed_hz = sb->connection_speed;
-+			lookup->bits_per_word = sb->data_bit_length;
++	brcmf_feat_iovar_int_get(ifp, BRCMF_FEAT_FWSUP, "sup_wpa");
++
+ 	if (drvr->settings->feature_disable) {
+ 		brcmf_dbg(INFO, "Features: 0x%02x, disable: 0x%02x\n",
+ 			  ifp->drvr->feat_flags,
+ 			  drvr->settings->feature_disable);
+ 		ifp->drvr->feat_flags &= ~drvr->settings->feature_disable;
+ 	}
+-	brcmf_feat_iovar_int_get(ifp, BRCMF_FEAT_FWSUP, "sup_wpa");
  
- 			if (sb->clock_phase == ACPI_SPI_SECOND_PHASE)
- 				lookup->mode |= SPI_CPHA;
+ 	brcmf_feat_firmware_overrides(drvr);
+ 
 -- 
 2.25.1
 
