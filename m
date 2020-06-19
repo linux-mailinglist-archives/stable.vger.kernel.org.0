@@ -2,136 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB1C22004C5
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 11:15:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1F172004E2
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 11:21:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725290AbgFSJPB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 05:15:01 -0400
-Received: from sci-ig2.spreadtrum.com ([222.66.158.135]:24341 "EHLO
-        SHSQR01.spreadtrum.com" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1730810AbgFSJPA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Jun 2020 05:15:00 -0400
-X-Greylist: delayed 776 seconds by postgrey-1.27 at vger.kernel.org; Fri, 19 Jun 2020 05:14:53 EDT
-Received: from ig2.spreadtrum.com (bjmbx01.spreadtrum.com [10.0.64.7])
-        by SHSQR01.spreadtrum.com with ESMTPS id 05J9Dcfx045854
-        (version=TLSv1 cipher=AES256-SHA bits=256 verify=NO);
-        Fri, 19 Jun 2020 17:13:39 +0800 (CST)
-        (envelope-from hongyu.jin@unisoc.com)
-Received: from BJMBX01.spreadtrum.com (10.0.64.7) by BJMBX01.spreadtrum.com
- (10.0.64.7) with Microsoft SMTP Server (TLS) id 15.0.847.32; Fri, 19 Jun 2020
- 17:13:21 +0800
-Received: from BJMBX01.spreadtrum.com ([fe80::54e:9a:129d:fac7]) by
- BJMBX01.spreadtrum.com ([fe80::54e:9a:129d:fac7%16]) with mapi id
- 15.00.0847.030; Fri, 19 Jun 2020 17:13:08 +0800
-From:   =?gb2312?B?vfC67NPuIChIb25neXUgSmluKQ==?= <hongyu.jin@unisoc.com>
-To:     Gao Xiang <hsiangkao@aol.com>,
-        "linux-erofs@lists.ozlabs.org" <linux-erofs@lists.ozlabs.org>,
-        Chao Yu <yuchao0@huawei.com>
-CC:     Chao Yu <chao@kernel.org>, Li Guifu <bluce.liguifu@huawei.com>,
-        Fang Wei <fangwei1@huawei.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Gao Xiang <hsiangkao@redhat.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH v2] erofs: fix partially uninitialized misuse in
- z_erofs_onlinepage_fixup
-Thread-Topic: [PATCH v2] erofs: fix partially uninitialized misuse in
- z_erofs_onlinepage_fixup
-Thread-Index: AQHWRcphTFCNsOawuk2LQqgGLvVLoajfp6hw
-Date:   Fri, 19 Jun 2020 09:13:08 +0000
-Message-ID: <206e5c58a4df4136b488eb4bd2958cab@BJMBX01.spreadtrum.com>
-References: <20200618111936.19845-1-hsiangkao@aol.com>
- <20200618234349.22553-1-hsiangkao@aol.com>
-In-Reply-To: <20200618234349.22553-1-hsiangkao@aol.com>
-Accept-Language: zh-CN, en-US
-Content-Language: zh-CN
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.0.126.169]
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: base64
+        id S1728430AbgFSJVm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 05:21:42 -0400
+Received: from mail-ej1-f67.google.com ([209.85.218.67]:44113 "EHLO
+        mail-ej1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725290AbgFSJVl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Jun 2020 05:21:41 -0400
+Received: by mail-ej1-f67.google.com with SMTP id gl26so9431450ejb.11
+        for <stable@vger.kernel.org>; Fri, 19 Jun 2020 02:21:40 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=KL+ndhO0kfyOLwFeHwdQcM1iXptREPKRwxWtQPH/dYg=;
+        b=Y7/WxoJuLE5NK1+L3HxsOjhs4WGkky9ZubiukAxAEVM+6NqKPbmLGq2qwWYCmfeF74
+         290gHGF8owDO90VrGVxMQYS/xmxq6elWqPpJXYLXySBEuWGucl+rqpLAtvJBdvgTUTpz
+         LrRU4l56Sx5Z8SVzAD+k/hOY6m2GxHYBTgG+2vCLt4zeKM3+MUnYmp4ChxUTbC/kOVNO
+         y80XDGWMjxANncg3Xd6MLrerbfa1BHKNwVlJnCQ+todjLFK+PEagKUyiv45OF7iNth+/
+         3DoT2Get/T+i72T0L2fJHGsemh3WKGIEHP1w3XlxtLZYznna48KV+N/nYBV892M6Cetv
+         kjxA==
+X-Gm-Message-State: AOAM530FpWeWX/RA/HqrrA96jQkgqkoR35f7m0AkLfDylxlb6lXvTmiJ
+        kN74q2vZv24DNhu7C7qq4MU=
+X-Google-Smtp-Source: ABdhPJx6jrC598uJ4b8zRkO+dOTU+oOUUC+9WGz4iq5QgBoUBhF8FzczV1RyamoCf6wPb9R9QJQmag==
+X-Received: by 2002:a17:907:4096:: with SMTP id nm6mr2776415ejb.4.1592558499399;
+        Fri, 19 Jun 2020 02:21:39 -0700 (PDT)
+Received: from localhost (ip-37-188-189-34.eurotel.cz. [37.188.189.34])
+        by smtp.gmail.com with ESMTPSA id k2sm4385926ejc.20.2020.06.19.02.21.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 19 Jun 2020 02:21:38 -0700 (PDT)
+Date:   Fri, 19 Jun 2020 11:21:37 +0200
+From:   Michal Hocko <mhocko@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Greg KH <gregkh@linuxfoundation.org>, pasha.tatashin@soleen.com,
+        akpm@linux-foundation.org, dan.j.williams@intel.com,
+        daniel.m.jordan@oracle.com, david@redhat.com, jmorris@namei.org,
+        ktkhai@virtuozzo.com, pankaj.gupta.linux@gmail.com,
+        shile.zhang@linux.alibaba.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, vbabka@suse.cz, yiwei@redhat.com
+Subject: Re: FAILED: patch "[PATCH] mm: call cond_resched() from
+ deferred_init_memmap()" failed to apply to 5.7-stable tree
+Message-ID: <20200619092137.GB12177@dhcp22.suse.cz>
+References: <15924957437531@kroah.com>
+ <20200618162649.GA250996@kroah.com>
+ <20200619022822.GV1931@sasha-vm>
 MIME-Version: 1.0
-X-MAIL: SHSQR01.spreadtrum.com 05J9Dcfx045854
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200619022822.GV1931@sasha-vm>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-SGkgeGlhbmc6DQoNCkhvbmd5dSByZXBvcnRlZCAiaWQgIT0gaW5kZXgiIGluIHpfZXJvZnNfb25s
-aW5lcGFnZV9maXh1cCgpIHdpdGggc3BlY2lmaWMgYWFyY2g2NCBlbnZpcm9ubWVudCBlYXNpbHks
-IHdoaWNoIHdhc24ndCBzaG93biBiZWZvcmUuDQoNCkFmdGVyIGRpZ2dpbmcgaW50byB0aGF0LCBJ
-IGZvdW5kIHRoYXQgaGlnaCAzMiBiaXRzIG9mIHBhZ2UtPnByaXZhdGUgd2FzIHNldCB0byAweGFh
-YWFhYWFhIHJhdGhlciB0aGFuIDAgKGR1ZSB0byB6X2Vyb2ZzX29ubGluZXBhZ2VfaW5pdCBiZWhh
-dmlvciB3aXRoIHNwZWNpZmljIGNvbXBpbGVyIG9wdGlvbnMpLiBBY3R1YWxseSB3ZSBvbmx5IHVz
-ZSBsb3cNCjMyIGJpdHMgdG8ga2VlcCB0aGUgcGFnZSBpbmZvcm1hdGlvbiBzaW5jZSBwYWdlLT5w
-cml2YXRlIGlzIG9ubHkgNCBieXRlcyBvbiBtb3N0IDMyLWJpdCBwbGF0Zm9ybXMuIEhvd2V2ZXIg
-el9lcm9mc19vbmxpbmVwYWdlX2ZpeHVwKCkgdXNlcyB0aGUgdXBwZXIgMzIgYml0cyBieSBtaXN0
-YWtlLg0KDQpUZXN0ZWQtYnk6IGhvbmd5dS5qaW5AdW5pc29jLmNvbQ0KDQpJdCdzIG9rLg0KDQot
-LS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogR2FvIFhpYW5nIFttYWlsdG86aHNpYW5n
-a2FvQGFvbC5jb21dDQpTZW50OiBGcmlkYXksIEp1bmUgMTksIDIwMjAgNzo0NCBBTQ0KVG86IGxp
-bnV4LWVyb2ZzQGxpc3RzLm96bGFicy5vcmc7IENoYW8gWXUgPHl1Y2hhbzBAaHVhd2VpLmNvbT4N
-CkNjOiBDaGFvIFl1IDxjaGFvQGtlcm5lbC5vcmc+OyBMaSBHdWlmdSA8Ymx1Y2UubGlndWlmdUBo
-dWF3ZWkuY29tPjsgRmFuZyBXZWkgPGZhbmd3ZWkxQGh1YXdlaS5jb20+OyBMS01MIDxsaW51eC1r
-ZXJuZWxAdmdlci5rZXJuZWwub3JnPjsgR2FvIFhpYW5nIDxoc2lhbmdrYW9AcmVkaGF0LmNvbT47
-IL3wuuzT7iAoSG9uZ3l1IEppbikgPGhvbmd5dS5qaW5AdW5pc29jLmNvbT47IHN0YWJsZUB2Z2Vy
-Lmtlcm5lbC5vcmcNClN1YmplY3Q6IFtQQVRDSCB2Ml0gZXJvZnM6IGZpeCBwYXJ0aWFsbHkgdW5p
-bml0aWFsaXplZCBtaXN1c2UgaW4gel9lcm9mc19vbmxpbmVwYWdlX2ZpeHVwDQoNCkZyb206IEdh
-byBYaWFuZyA8aHNpYW5na2FvQHJlZGhhdC5jb20+DQoNCkhvbmd5dSByZXBvcnRlZCAiaWQgIT0g
-aW5kZXgiIGluIHpfZXJvZnNfb25saW5lcGFnZV9maXh1cCgpIHdpdGggc3BlY2lmaWMgYWFyY2g2
-NCBlbnZpcm9ubWVudCBlYXNpbHksIHdoaWNoIHdhc24ndCBzaG93biBiZWZvcmUuDQoNCkFmdGVy
-IGRpZ2dpbmcgaW50byB0aGF0LCBJIGZvdW5kIHRoYXQgaGlnaCAzMiBiaXRzIG9mIHBhZ2UtPnBy
-aXZhdGUgd2FzIHNldCB0byAweGFhYWFhYWFhIHJhdGhlciB0aGFuIDAgKGR1ZSB0byB6X2Vyb2Zz
-X29ubGluZXBhZ2VfaW5pdCBiZWhhdmlvciB3aXRoIHNwZWNpZmljIGNvbXBpbGVyIG9wdGlvbnMp
-LiBBY3R1YWxseSB3ZSBvbmx5IHVzZSBsb3cNCjMyIGJpdHMgdG8ga2VlcCB0aGUgcGFnZSBpbmZv
-cm1hdGlvbiBzaW5jZSBwYWdlLT5wcml2YXRlIGlzIG9ubHkgNCBieXRlcyBvbiBtb3N0IDMyLWJp
-dCBwbGF0Zm9ybXMuIEhvd2V2ZXIgel9lcm9mc19vbmxpbmVwYWdlX2ZpeHVwKCkgdXNlcyB0aGUg
-dXBwZXIgMzIgYml0cyBieSBtaXN0YWtlLg0KDQpMZXQncyBmaXggaXQgbm93Lg0KDQpSZXBvcnRl
-ZC1ieTogSG9uZ3l1IEppbiA8aG9uZ3l1LmppbkB1bmlzb2MuY29tPg0KRml4ZXM6IDM4ODNhNzlh
-YmQwMiAoInN0YWdpbmc6IGVyb2ZzOiBpbnRyb2R1Y2UgVkxFIGRlY29tcHJlc3Npb24gc3VwcG9y
-dCIpDQpDYzogPHN0YWJsZUB2Z2VyLmtlcm5lbC5vcmc+ICMgNC4xOSsNClNpZ25lZC1vZmYtYnk6
-IEdhbyBYaWFuZyA8aHNpYW5na2FvQHJlZGhhdC5jb20+DQotLS0NCmNoYW5nZSBzaW5jZSB2MToN
-CiBtb3ZlIC52IGFzc2lnbm1lbnQgb3V0IHNpbmNlIGl0IGRvZXNuJ3QgbmVlZCBmb3IgZXZlcnkg
-bG9vcDsNCg0KIGZzL2Vyb2ZzL3pkYXRhLmggfCAyMCArKysrKysrKysrLS0tLS0tLS0tLQ0KIDEg
-ZmlsZSBjaGFuZ2VkLCAxMCBpbnNlcnRpb25zKCspLCAxMCBkZWxldGlvbnMoLSkNCg0KZGlmZiAt
-LWdpdCBhL2ZzL2Vyb2ZzL3pkYXRhLmggYi9mcy9lcm9mcy96ZGF0YS5oIGluZGV4IDc4MjRmNTU2
-M2E1NS4uOWI2NmMyOGIzYWU5IDEwMDY0NA0KLS0tIGEvZnMvZXJvZnMvemRhdGEuaA0KKysrIGIv
-ZnMvZXJvZnMvemRhdGEuaA0KQEAgLTE0NCwyMiArMTQ0LDIyIEBAIHN0YXRpYyBpbmxpbmUgdm9p
-ZCB6X2Vyb2ZzX29ubGluZXBhZ2VfaW5pdChzdHJ1Y3QgcGFnZSAqcGFnZSkgIHN0YXRpYyBpbmxp
-bmUgdm9pZCB6X2Vyb2ZzX29ubGluZXBhZ2VfZml4dXAoc3RydWN0IHBhZ2UgKnBhZ2UsDQogdWlu
-dHB0cl90IGluZGV4LCBib29sIGRvd24pDQogew0KLXVuc2lnbmVkIGxvbmcgKnAsIG8sIHYsIGlk
-Ow0KLXJlcGVhdDoNCi1wID0gJnBhZ2VfcHJpdmF0ZShwYWdlKTsNCi1vID0gUkVBRF9PTkNFKCpw
-KTsNCit1bmlvbiB6X2Vyb2ZzX29ubGluZXBhZ2VfY29udmVydGVyIHUgPSB7IC52ID0gJnBhZ2Vf
-cHJpdmF0ZShwYWdlKSB9Ow0KK2ludCBvcmlnLCBvcmlnX2luZGV4LCB2YWw7DQoNCi1pZCA9IG8g
-Pj4gWl9FUk9GU19PTkxJTkVQQUdFX0lOREVYX1NISUZUOw0KLWlmIChpZCkgew0KK3JlcGVhdDoN
-CitvcmlnID0gYXRvbWljX3JlYWQodS5vKTsNCitvcmlnX2luZGV4ID0gb3JpZyA+PiBaX0VST0ZT
-X09OTElORVBBR0VfSU5ERVhfU0hJRlQ7DQoraWYgKG9yaWdfaW5kZXgpIHsNCiBpZiAoIWluZGV4
-KQ0KIHJldHVybjsNCg0KLURCR19CVUdPTihpZCAhPSBpbmRleCk7DQorREJHX0JVR09OKG9yaWdf
-aW5kZXggIT0gaW5kZXgpOw0KIH0NCg0KLXYgPSAoaW5kZXggPDwgWl9FUk9GU19PTkxJTkVQQUdF
-X0lOREVYX1NISUZUKSB8DQotKChvICYgWl9FUk9GU19PTkxJTkVQQUdFX0NPVU5UX01BU0spICsg
-KHVuc2lnbmVkIGludClkb3duKTsNCi1pZiAoY21weGNoZyhwLCBvLCB2KSAhPSBvKQ0KK3ZhbCA9
-IChpbmRleCA8PCBaX0VST0ZTX09OTElORVBBR0VfSU5ERVhfU0hJRlQpIHwNCisoKG9yaWcgJiBa
-X0VST0ZTX09OTElORVBBR0VfQ09VTlRfTUFTSykgKyAodW5zaWduZWQgaW50KWRvd24pOw0KK2lm
-IChhdG9taWNfY21weGNoZyh1Lm8sIG9yaWcsIHZhbCkgIT0gb3JpZykNCiBnb3RvIHJlcGVhdDsN
-CiB9DQoNCi0tDQoyLjI0LjANCg0KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18NCiBU
-aGlzIGVtYWlsIChpbmNsdWRpbmcgaXRzIGF0dGFjaG1lbnRzKSBpcyBpbnRlbmRlZCBvbmx5IGZv
-ciB0aGUgcGVyc29uIG9yIGVudGl0eSB0byB3aGljaCBpdCBpcyBhZGRyZXNzZWQgYW5kIG1heSBj
-b250YWluIGluZm9ybWF0aW9uIHRoYXQgaXMgcHJpdmlsZWdlZCwgY29uZmlkZW50aWFsIG9yIG90
-aGVyd2lzZSBwcm90ZWN0ZWQgZnJvbSBkaXNjbG9zdXJlLiBVbmF1dGhvcml6ZWQgdXNlLCBkaXNz
-ZW1pbmF0aW9uLCBkaXN0cmlidXRpb24gb3IgY29weWluZyBvZiB0aGlzIGVtYWlsIG9yIHRoZSBp
-bmZvcm1hdGlvbiBoZXJlaW4gb3IgdGFraW5nIGFueSBhY3Rpb24gaW4gcmVsaWFuY2Ugb24gdGhl
-IGNvbnRlbnRzIG9mIHRoaXMgZW1haWwgb3IgdGhlIGluZm9ybWF0aW9uIGhlcmVpbiwgYnkgYW55
-b25lIG90aGVyIHRoYW4gdGhlIGludGVuZGVkIHJlY2lwaWVudCwgb3IgYW4gZW1wbG95ZWUgb3Ig
-YWdlbnQgcmVzcG9uc2libGUgZm9yIGRlbGl2ZXJpbmcgdGhlIG1lc3NhZ2UgdG8gdGhlIGludGVu
-ZGVkIHJlY2lwaWVudCwgaXMgc3RyaWN0bHkgcHJvaGliaXRlZC4gSWYgeW91IGFyZSBub3QgdGhl
-IGludGVuZGVkIHJlY2lwaWVudCwgcGxlYXNlIGRvIG5vdCByZWFkLCBjb3B5LCB1c2Ugb3IgZGlz
-Y2xvc2UgYW55IHBhcnQgb2YgdGhpcyBlLW1haWwgdG8gb3RoZXJzLiBQbGVhc2Ugbm90aWZ5IHRo
-ZSBzZW5kZXIgaW1tZWRpYXRlbHkgYW5kIHBlcm1hbmVudGx5IGRlbGV0ZSB0aGlzIGUtbWFpbCBh
-bmQgYW55IGF0dGFjaG1lbnRzIGlmIHlvdSByZWNlaXZlZCBpdCBpbiBlcnJvci4gSW50ZXJuZXQg
-Y29tbXVuaWNhdGlvbnMgY2Fubm90IGJlIGd1YXJhbnRlZWQgdG8gYmUgdGltZWx5LCBzZWN1cmUs
-IGVycm9yLWZyZWUgb3IgdmlydXMtZnJlZS4gVGhlIHNlbmRlciBkb2VzIG5vdCBhY2NlcHQgbGlh
-YmlsaXR5IGZvciBhbnkgZXJyb3JzIG9yIG9taXNzaW9ucy4NCrG+08q8/rywxuS4vbz+vt/T0LGj
-w9zQ1NbKo6zK3Leowsmxo7uksru1w9C5wrajrL32t6LLzbj4sb7Tyrz+y/nWuMzYtqjK1bz+yMuh
-o9HPvfu3x76tytrIqMq508OhotD7tKuhoreisry78ri01saxvtPKvP678sbkxNrI3aGjyPS3x7jD
-zNi2qMrVvP7Iy6Osx+vO8NTEtsGhori01sahoiDKudPDu/LF+8K2sb7Tyrz+tcTIzrrOxNrI3aGj
-yPTO88rVsb7Tyrz+o6zH67TTz7XNs9bQ08C+w9DUyb6z/bG+08q8/rywy/nT0Li9vP6jrLKi0tS7
-2Li008q8/rXEt73Kvby0v8y45taqt6K8/sjLoaPO3reosaPWpLulwarN+M2o0MW8sMqxoaKwssir
-oaLO3s7zu/K3wLa+oaO3orz+yMu21MjOus607cKpvvmyu7PQtaPU8MjOoaMNCg==
+On Thu 18-06-20 22:28:22, Sasha Levin wrote:
+> On Thu, Jun 18, 2020 at 06:26:49PM +0200, Greg KH wrote:
+> > On Thu, Jun 18, 2020 at 05:55:43PM +0200, gregkh@linuxfoundation.org wrote:
+> > > 
+> > > The patch below does not apply to the 5.7-stable tree.
+> > > If someone wants it applied there, or to any other stable or longterm
+> > > tree, then please email the backport, including the original git commit
+> > > id to <stable@vger.kernel.org>.
+> > 
+> > Oops, I applied things out of order, I've queued this and the 5.4
+> > version up, but 4.19 doesn't apply as the dependant patch does not
+> > apply.
+> 
+> Something like this should work?
+
+Nope. Unless I am misreading the old code you are udner
+pgdat_resize_lock. Or is there any other change queued before this
+backport to remove the lock? (I didn't get to check more closely but it
+would be 3d060856adfc5 IIRC).
+
+> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+> index 7181dfe76440..b7905a075e79 100644
+> --- a/mm/page_alloc.c
+> +++ b/mm/page_alloc.c
+> @@ -1611,11 +1611,13 @@ static int __init deferred_init_memmap(void *data)
+> 		spfn = max_t(unsigned long, first_init_pfn, PFN_UP(spa));
+> 		epfn = min_t(unsigned long, zone_end_pfn(zone), PFN_DOWN(epa));
+> 		nr_pages += deferred_init_pages(nid, zid, spfn, epfn);
+> +		cond_resched();
+> 	}
+> 	for_each_free_mem_range(i, nid, MEMBLOCK_NONE, &spa, &epa, NULL) {
+> 		spfn = max_t(unsigned long, first_init_pfn, PFN_UP(spa));
+> 		epfn = min_t(unsigned long, zone_end_pfn(zone), PFN_DOWN(epa));
+> 		deferred_free_pages(nid, zid, spfn, epfn);
+> +		cond_resched();
+> 	}
+> 
+> 	/* Sanity check that the next zone really is unpopulated */
+> 
+> -- 
+> Thanks,
+> Sasha
+
+-- 
+Michal Hocko
+SUSE Labs
