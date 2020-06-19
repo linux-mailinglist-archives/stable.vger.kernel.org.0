@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFF95201788
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71A262016E9
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:45:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394011AbgFSQjp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:39:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37958 "EHLO mail.kernel.org"
+        id S2388155AbgFSOqr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:46:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388820AbgFSOqP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:46:15 -0400
+        id S2388863AbgFSOqp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:46:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A15C20A8B;
-        Fri, 19 Jun 2020 14:46:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E46120DD4;
+        Fri, 19 Jun 2020 14:46:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577975;
-        bh=0OKIr2uFeL+aPj9HYYJ5A7Jy8u310+7d7c2yOooviI0=;
+        s=default; t=1592578005;
+        bh=hfapDkEfZmE1hECKHBeJP8PA9TACADmdyv6ViXtOqws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nhFkWvMuRfolml6aARdQWCDXVJIhHio+BAsbv1YVRj9QpLkj4jQW7kQdOrD6VOzvN
-         48hHZXK+zenthOPORC/iTiwBBBQf8DvVLKkVvwUjKc7N2l2ZS2mPR0D3VcQ8gPDK1/
-         Cokx4P2r6J8cupaXe2jHnwwCJ+w6Ew2OC5qCpe0I=
+        b=UcZ3/mCH65oUfyNUt3MjJXhfRXnxTTtV1w9r3SJpaPucHiBW2OIrUvBFAS0k6CA1G
+         H5hLxHa+n2KocL6tUxMRmaiIRtdp+Wo9gO4ZXtQgYVvv5kPV7wzSDhxnKmwQvfpJGP
+         ZVSIccNqIymtW17c+YorNMgffyjumxm4nkmMle9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 4.14 027/190] ACPI: CPPC: Fix reference count leak in acpi_cppc_processor_probe()
-Date:   Fri, 19 Jun 2020 16:31:12 +0200
-Message-Id: <20200619141634.882070177@linuxfoundation.org>
+Subject: [PATCH 4.14 028/190] ACPI: GED: add support for _Exx / _Lxx handler methods
+Date:   Fri, 19 Jun 2020 16:31:13 +0200
+Message-Id: <20200619141634.938811682@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
 References: <20200619141633.446429600@linuxfoundation.org>
@@ -43,34 +43,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit 4d8be4bc94f74bb7d096e1c2e44457b530d5a170 upstream.
+commit ea6f3af4c5e63f6981c0b0ab8ebec438e2d5ef40 upstream.
 
-kobject_init_and_add() takes reference even when it fails.
-If this function returns an error, kobject_put() must be called to
-properly clean up the memory associated with the object. Previous
-commit "b8eb718348b8" fixed a similar problem.
+Per the ACPI spec, interrupts in the range [0, 255] may be handled
+in AML using individual methods whose naming is based on the format
+_Exx or _Lxx, where xx is the hex representation of the interrupt
+index.
 
-Fixes: 158c998ea44b ("ACPI / CPPC: add sysfs support to compute delivered performance")
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-Cc: 4.10+ <stable@vger.kernel.org> # 4.10+
+Add support for this missing feature to our ACPI GED driver.
+
+Cc: v4.9+ <stable@vger.kernel.org> # v4.9+
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/acpi/cppc_acpi.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/acpi/evged.c |   22 +++++++++++++++++++---
+ 1 file changed, 19 insertions(+), 3 deletions(-)
 
---- a/drivers/acpi/cppc_acpi.c
-+++ b/drivers/acpi/cppc_acpi.c
-@@ -800,6 +800,7 @@ int acpi_cppc_processor_probe(struct acp
- 			"acpi_cppc");
- 	if (ret) {
- 		per_cpu(cpc_desc_ptr, pr->id) = NULL;
-+		kobject_put(&cpc_ptr->kobj);
- 		goto out_free;
- 	}
+--- a/drivers/acpi/evged.c
++++ b/drivers/acpi/evged.c
+@@ -82,6 +82,8 @@ static acpi_status acpi_ged_request_inte
+ 	struct resource r;
+ 	struct acpi_resource_irq *p = &ares->data.irq;
+ 	struct acpi_resource_extended_irq *pext = &ares->data.extended_irq;
++	char ev_name[5];
++	u8 trigger;
  
+ 	if (ares->type == ACPI_RESOURCE_TYPE_END_TAG)
+ 		return AE_OK;
+@@ -90,14 +92,28 @@ static acpi_status acpi_ged_request_inte
+ 		dev_err(dev, "unable to parse IRQ resource\n");
+ 		return AE_ERROR;
+ 	}
+-	if (ares->type == ACPI_RESOURCE_TYPE_IRQ)
++	if (ares->type == ACPI_RESOURCE_TYPE_IRQ) {
+ 		gsi = p->interrupts[0];
+-	else
++		trigger = p->triggering;
++	} else {
+ 		gsi = pext->interrupts[0];
++		trigger = p->triggering;
++	}
+ 
+ 	irq = r.start;
+ 
+-	if (ACPI_FAILURE(acpi_get_handle(handle, "_EVT", &evt_handle))) {
++	switch (gsi) {
++	case 0 ... 255:
++		sprintf(ev_name, "_%c%02hhX",
++			trigger == ACPI_EDGE_SENSITIVE ? 'E' : 'L', gsi);
++
++		if (ACPI_SUCCESS(acpi_get_handle(handle, ev_name, &evt_handle)))
++			break;
++		/* fall through */
++	default:
++		if (ACPI_SUCCESS(acpi_get_handle(handle, "_EVT", &evt_handle)))
++			break;
++
+ 		dev_err(dev, "cannot locate _EVT method\n");
+ 		return AE_ERROR;
+ 	}
 
 
