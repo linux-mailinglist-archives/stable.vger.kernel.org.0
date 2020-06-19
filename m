@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 553A920183B
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:48:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 308812015E4
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:32:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388133AbgFSOkX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:40:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58214 "EHLO mail.kernel.org"
+        id S2388025AbgFSQYB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:24:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388128AbgFSOkU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:40:20 -0400
+        id S2389148AbgFSO6g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:58:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B5752070A;
-        Fri, 19 Jun 2020 14:40:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6DACA21919;
+        Fri, 19 Jun 2020 14:58:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577620;
-        bh=HOu4Gn8K9MHQZc8vYDtyl4CcO9omcFg0sI5OpI2TVvM=;
+        s=default; t=1592578717;
+        bh=vtLCcP2wjcsqi53fYNurHfRxCuRQBP/7urNmQOg6zkY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tvSU7PpYYHTW81KyORa+xePCntht1+5p7gEow0bXwMAulZWf3UiGOVRiC6tc2gNW5
-         Wi5FGZahRp/TSBPJsLlBtxigI/3pSAijUycEoIjMADhCqjhBqtBBY3/6VzjtlwJSmF
-         uU4gt/Hjgk8LjAKEYIyIPocnIinYKWp0SKhPnPKI=
+        b=2JbIz82IQPG3Te1ZVaSLLVbFx5Y+7WuNjSihwAxo5QlZkUNEpvYS5GG7ODGN29XEY
+         wAJTvqsTf9pMqNeSkZvrYCi+XpLhcUxr88Q5s8Z+8sy81TzM5kivAN2gjQ8XGL2Zq9
+         wwudVMCp4yUcsxoMzVzQnrgPMPMUUKLHQg1fFDi4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Walton Hoops <me@waltonhoops.com>,
-        Tomas Hlavaty <tom@logand.com>,
-        ARAI Shun-ichi <hermes@ceres.dti.ne.jp>,
-        Hideki EIRAKU <hdk1983@gmail.com>,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 021/128] nilfs2: fix null pointer dereference at nilfs_segctor_do_construct()
+        stable@vger.kernel.org, teroincn@gmail.com,
+        Richard Guy Briggs <rgb@redhat.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 130/267] audit: fix a net reference leak in audit_list_rules_send()
 Date:   Fri, 19 Jun 2020 16:31:55 +0200
-Message-Id: <20200619141621.289395226@linuxfoundation.org>
+Message-Id: <20200619141655.066772896@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
-References: <20200619141620.148019466@linuxfoundation.org>
+In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
+References: <20200619141648.840376470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,67 +45,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+From: Paul Moore <paul@paul-moore.com>
 
-commit 8301c719a2bd131436438e49130ee381d30933f5 upstream.
+[ Upstream commit 3054d06719079388a543de6adb812638675ad8f5 ]
 
-After commit c3aab9a0bd91 ("mm/filemap.c: don't initiate writeback if
-mapping has no dirty pages"), the following null pointer dereference has
-been reported on nilfs2:
+If audit_list_rules_send() fails when trying to create a new thread
+to send the rules it also fails to cleanup properly, leaking a
+reference to a net structure.  This patch fixes the error patch and
+renames audit_send_list() to audit_send_list_thread() to better
+match its cousin, audit_send_reply_thread().
 
-  BUG: kernel NULL pointer dereference, address: 00000000000000a8
-  #PF: supervisor read access in kernel mode
-  #PF: error_code(0x0000) - not-present page
-  PGD 0 P4D 0
-  Oops: 0000 [#1] SMP PTI
-  ...
-  RIP: 0010:percpu_counter_add_batch+0xa/0x60
-  ...
-  Call Trace:
-    __test_set_page_writeback+0x2d3/0x330
-    nilfs_segctor_do_construct+0x10d3/0x2110 [nilfs2]
-    nilfs_segctor_construct+0x168/0x260 [nilfs2]
-    nilfs_segctor_thread+0x127/0x3b0 [nilfs2]
-    kthread+0xf8/0x130
-    ...
-
-This crash turned out to be caused by set_page_writeback() call for
-segment summary buffers at nilfs_segctor_prepare_write().
-
-set_page_writeback() can call inc_wb_stat(inode_to_wb(inode),
-WB_WRITEBACK) where inode_to_wb(inode) is NULL if the inode of
-underlying block device does not have an associated wb.
-
-This fixes the issue by calling inode_attach_wb() in advance to ensure
-to associate the bdev inode with its wb.
-
-Fixes: c3aab9a0bd91 ("mm/filemap.c: don't initiate writeback if mapping has no dirty pages")
-Reported-by: Walton Hoops <me@waltonhoops.com>
-Reported-by: Tomas Hlavaty <tom@logand.com>
-Reported-by: ARAI Shun-ichi <hermes@ceres.dti.ne.jp>
-Reported-by: Hideki EIRAKU <hdk1983@gmail.com>
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Cc: <stable@vger.kernel.org>	[5.4+]
-Link: http://lkml.kernel.org/r/20200608.011819.1399059588922299158.konishi.ryusuke@gmail.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: teroincn@gmail.com
+Reviewed-by: Richard Guy Briggs <rgb@redhat.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nilfs2/segment.c |    2 ++
- 1 file changed, 2 insertions(+)
+ kernel/audit.c       |  2 +-
+ kernel/audit.h       |  2 +-
+ kernel/auditfilter.c | 16 +++++++---------
+ 3 files changed, 9 insertions(+), 11 deletions(-)
 
---- a/fs/nilfs2/segment.c
-+++ b/fs/nilfs2/segment.c
-@@ -2793,6 +2793,8 @@ int nilfs_attach_log_writer(struct super
- 	if (!nilfs->ns_writer)
- 		return -ENOMEM;
+diff --git a/kernel/audit.c b/kernel/audit.c
+index 20c78480d632..45741c3c48a4 100644
+--- a/kernel/audit.c
++++ b/kernel/audit.c
+@@ -893,7 +893,7 @@ main_queue:
+ 	return 0;
+ }
  
-+	inode_attach_wb(nilfs->ns_bdev->bd_inode, NULL);
-+
- 	err = nilfs_segctor_start_thread(nilfs->ns_writer);
- 	if (err) {
- 		kfree(nilfs->ns_writer);
+-int audit_send_list(void *_dest)
++int audit_send_list_thread(void *_dest)
+ {
+ 	struct audit_netlink_list *dest = _dest;
+ 	struct sk_buff *skb;
+diff --git a/kernel/audit.h b/kernel/audit.h
+index 214e14948370..99badd7ba56f 100644
+--- a/kernel/audit.h
++++ b/kernel/audit.h
+@@ -248,7 +248,7 @@ struct audit_netlink_list {
+ 	struct sk_buff_head q;
+ };
+ 
+-int audit_send_list(void *_dest);
++int audit_send_list_thread(void *_dest);
+ 
+ extern int selinux_audit_rule_update(void);
+ 
+diff --git a/kernel/auditfilter.c b/kernel/auditfilter.c
+index 1c8a48abda80..b2cc63ca0068 100644
+--- a/kernel/auditfilter.c
++++ b/kernel/auditfilter.c
+@@ -1157,11 +1157,8 @@ int audit_rule_change(int type, int seq, void *data, size_t datasz)
+  */
+ int audit_list_rules_send(struct sk_buff *request_skb, int seq)
+ {
+-	u32 portid = NETLINK_CB(request_skb).portid;
+-	struct net *net = sock_net(NETLINK_CB(request_skb).sk);
+ 	struct task_struct *tsk;
+ 	struct audit_netlink_list *dest;
+-	int err = 0;
+ 
+ 	/* We can't just spew out the rules here because we might fill
+ 	 * the available socket buffer space and deadlock waiting for
+@@ -1169,25 +1166,26 @@ int audit_list_rules_send(struct sk_buff *request_skb, int seq)
+ 	 * happen if we're actually running in the context of auditctl
+ 	 * trying to _send_ the stuff */
+ 
+-	dest = kmalloc(sizeof(struct audit_netlink_list), GFP_KERNEL);
++	dest = kmalloc(sizeof(*dest), GFP_KERNEL);
+ 	if (!dest)
+ 		return -ENOMEM;
+-	dest->net = get_net(net);
+-	dest->portid = portid;
++	dest->net = get_net(sock_net(NETLINK_CB(request_skb).sk));
++	dest->portid = NETLINK_CB(request_skb).portid;
+ 	skb_queue_head_init(&dest->q);
+ 
+ 	mutex_lock(&audit_filter_mutex);
+ 	audit_list_rules(seq, &dest->q);
+ 	mutex_unlock(&audit_filter_mutex);
+ 
+-	tsk = kthread_run(audit_send_list, dest, "audit_send_list");
++	tsk = kthread_run(audit_send_list_thread, dest, "audit_send_list");
+ 	if (IS_ERR(tsk)) {
+ 		skb_queue_purge(&dest->q);
++		put_net(dest->net);
+ 		kfree(dest);
+-		err = PTR_ERR(tsk);
++		return PTR_ERR(tsk);
+ 	}
+ 
+-	return err;
++	return 0;
+ }
+ 
+ int audit_comparator(u32 left, u32 op, u32 right)
+-- 
+2.25.1
+
 
 
