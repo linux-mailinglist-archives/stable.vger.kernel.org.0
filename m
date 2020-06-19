@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4A7220102E
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:30:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31FB6200DA5
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:01:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404052AbgFSP1L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:27:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58884 "EHLO mail.kernel.org"
+        id S2390533AbgFSO7f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:59:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404401AbgFSP1K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:27:10 -0400
+        id S2390523AbgFSO7d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:59:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6EDC21582;
-        Fri, 19 Jun 2020 15:27:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DDE32218AC;
+        Fri, 19 Jun 2020 14:59:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580429;
-        bh=V3MnRuuz7AkVJDRxqE0QST2YbXIz7es6hOmB/PD7LhA=;
+        s=default; t=1592578772;
+        bh=twAD9/480OimOKhD5kT8bjO05961osbe1gNSuQvw97U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lZAJOpoiW44K4uHF8cZImncUnr8RMENbdtLb4bmsiA7UOiTrskiEm+9Pedu77lLLA
-         UlDoBpZ1ID2xZufBJLnmGo/YidgmoI0YYDkU1ptBwJEq8Fcuh2VThN5jk1vxCTiG4e
-         +3YWBGInK9wwdjyIycs8kkhDRSNtKr4Y+3svj2io=
+        b=vsxv2C1bnWYOhhY9pb6ewu3wWOqcnNoa/ZaSsKsGuKpMwiFBzcCifYrBW+QUqcy81
+         lrw/NsIUCjbZHuoESllCPn/QxZdHD4MGx98wFcIlzHR+3HLrzrxYNJLvAP5z7nokf5
+         A3buzAbsCIJklZ3Tfx1dR7Z+KQ9GBaPxGtqbrJz8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Hutchings <ben@decadent.org.uk>,
-        YunQiang Su <syq@debian.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 215/376] MIPS: Fix exception handler memcpy()
-Date:   Fri, 19 Jun 2020 16:32:13 +0200
-Message-Id: <20200619141720.509212248@linuxfoundation.org>
+Subject: [PATCH 4.19 149/267] platform/x86: intel-vbtn: Use acpi_evaluate_integer()
+Date:   Fri, 19 Jun 2020 16:32:14 +0200
+Message-Id: <20200619141655.979203028@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
-References: <20200619141710.350494719@linuxfoundation.org>
+In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
+References: <20200619141648.840376470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,137 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Hutchings <ben@decadent.org.uk>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit f39293fd37fff74c531b7a52d0459cc77db85e7f ]
+[ Upstream commit 18937875a231d831c309716d6d8fc358f8381881 ]
 
-The exception handler subroutines are declared as a single char, but
-when copied to the required addresses the copy length is 0x80.
+Use acpi_evaluate_integer() instead of open-coding it.
 
-When range checks are enabled for memcpy() this results in a build
-failure, with error messages such as:
+This is a preparation patch for adding a intel_vbtn_has_switches()
+helper function.
 
-In file included from arch/mips/mti-malta/malta-init.c:15:
-In function 'memcpy',
-    inlined from 'mips_nmi_setup' at arch/mips/mti-malta/malta-init.c:98:2:
-include/linux/string.h:376:4: error: call to '__read_overflow2' declared with attribute error: detected read beyond size of object passed as 2nd parameter
-  376 |    __read_overflow2();
-      |    ^~~~~~~~~~~~~~~~~~
-
-Change the declarations to use type char[].
-
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: YunQiang Su <syq@debian.org>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: de9647efeaa9 ("platform/x86: intel-vbtn: Only activate tablet mode switch on 2-in-1's")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/loongson2ef/common/init.c | 4 ++--
- arch/mips/loongson64/init.c         | 4 ++--
- arch/mips/mti-malta/malta-init.c    | 8 ++++----
- arch/mips/pistachio/init.c          | 8 ++++----
- 4 files changed, 12 insertions(+), 12 deletions(-)
+ drivers/platform/x86/intel-vbtn.c | 19 ++++++-------------
+ 1 file changed, 6 insertions(+), 13 deletions(-)
 
-diff --git a/arch/mips/loongson2ef/common/init.c b/arch/mips/loongson2ef/common/init.c
-index 45512178be77..ce3f02f75e2a 100644
---- a/arch/mips/loongson2ef/common/init.c
-+++ b/arch/mips/loongson2ef/common/init.c
-@@ -19,10 +19,10 @@ unsigned long __maybe_unused _loongson_addrwincfg_base;
- static void __init mips_nmi_setup(void)
- {
- 	void *base;
--	extern char except_vec_nmi;
-+	extern char except_vec_nmi[];
+diff --git a/drivers/platform/x86/intel-vbtn.c b/drivers/platform/x86/intel-vbtn.c
+index a0d0cecff55f..0bcfa20dd614 100644
+--- a/drivers/platform/x86/intel-vbtn.c
++++ b/drivers/platform/x86/intel-vbtn.c
+@@ -118,28 +118,21 @@ static void detect_tablet_mode(struct platform_device *device)
+ 	const char *chassis_type = dmi_get_system_info(DMI_CHASSIS_TYPE);
+ 	struct intel_vbtn_priv *priv = dev_get_drvdata(&device->dev);
+ 	acpi_handle handle = ACPI_HANDLE(&device->dev);
+-	struct acpi_buffer vgbs_output = { ACPI_ALLOCATE_BUFFER, NULL };
+-	union acpi_object *obj;
++	unsigned long long vgbs;
+ 	acpi_status status;
+ 	int m;
  
- 	base = (void *)(CAC_BASE + 0x380);
--	memcpy(base, &except_vec_nmi, 0x80);
-+	memcpy(base, except_vec_nmi, 0x80);
- 	flush_icache_range((unsigned long)base, (unsigned long)base + 0x80);
+ 	if (!(chassis_type && strcmp(chassis_type, "31") == 0))
+-		goto out;
++		return;
+ 
+-	status = acpi_evaluate_object(handle, "VGBS", NULL, &vgbs_output);
++	status = acpi_evaluate_integer(handle, "VGBS", NULL, &vgbs);
+ 	if (ACPI_FAILURE(status))
+-		goto out;
+-
+-	obj = vgbs_output.pointer;
+-	if (!(obj && obj->type == ACPI_TYPE_INTEGER))
+-		goto out;
++		return;
+ 
+-	m = !(obj->integer.value & TABLET_MODE_FLAG);
++	m = !(vgbs & TABLET_MODE_FLAG);
+ 	input_report_switch(priv->input_dev, SW_TABLET_MODE, m);
+-	m = (obj->integer.value & DOCK_MODE_FLAG) ? 1 : 0;
++	m = (vgbs & DOCK_MODE_FLAG) ? 1 : 0;
+ 	input_report_switch(priv->input_dev, SW_DOCK, m);
+-out:
+-	kfree(vgbs_output.pointer);
  }
  
-diff --git a/arch/mips/loongson64/init.c b/arch/mips/loongson64/init.c
-index da38944471f4..86c5e93258ce 100644
---- a/arch/mips/loongson64/init.c
-+++ b/arch/mips/loongson64/init.c
-@@ -17,10 +17,10 @@
- static void __init mips_nmi_setup(void)
- {
- 	void *base;
--	extern char except_vec_nmi;
-+	extern char except_vec_nmi[];
- 
- 	base = (void *)(CAC_BASE + 0x380);
--	memcpy(base, &except_vec_nmi, 0x80);
-+	memcpy(base, except_vec_nmi, 0x80);
- 	flush_icache_range((unsigned long)base, (unsigned long)base + 0x80);
- }
- 
-diff --git a/arch/mips/mti-malta/malta-init.c b/arch/mips/mti-malta/malta-init.c
-index ff2c1d809538..893af377aacc 100644
---- a/arch/mips/mti-malta/malta-init.c
-+++ b/arch/mips/mti-malta/malta-init.c
-@@ -90,24 +90,24 @@ static void __init console_config(void)
- static void __init mips_nmi_setup(void)
- {
- 	void *base;
--	extern char except_vec_nmi;
-+	extern char except_vec_nmi[];
- 
- 	base = cpu_has_veic ?
- 		(void *)(CAC_BASE + 0xa80) :
- 		(void *)(CAC_BASE + 0x380);
--	memcpy(base, &except_vec_nmi, 0x80);
-+	memcpy(base, except_vec_nmi, 0x80);
- 	flush_icache_range((unsigned long)base, (unsigned long)base + 0x80);
- }
- 
- static void __init mips_ejtag_setup(void)
- {
- 	void *base;
--	extern char except_vec_ejtag_debug;
-+	extern char except_vec_ejtag_debug[];
- 
- 	base = cpu_has_veic ?
- 		(void *)(CAC_BASE + 0xa00) :
- 		(void *)(CAC_BASE + 0x300);
--	memcpy(base, &except_vec_ejtag_debug, 0x80);
-+	memcpy(base, except_vec_ejtag_debug, 0x80);
- 	flush_icache_range((unsigned long)base, (unsigned long)base + 0x80);
- }
- 
-diff --git a/arch/mips/pistachio/init.c b/arch/mips/pistachio/init.c
-index a09a5da38e6b..558995ed6fe8 100644
---- a/arch/mips/pistachio/init.c
-+++ b/arch/mips/pistachio/init.c
-@@ -83,12 +83,12 @@ phys_addr_t mips_cdmm_phys_base(void)
- static void __init mips_nmi_setup(void)
- {
- 	void *base;
--	extern char except_vec_nmi;
-+	extern char except_vec_nmi[];
- 
- 	base = cpu_has_veic ?
- 		(void *)(CAC_BASE + 0xa80) :
- 		(void *)(CAC_BASE + 0x380);
--	memcpy(base, &except_vec_nmi, 0x80);
-+	memcpy(base, except_vec_nmi, 0x80);
- 	flush_icache_range((unsigned long)base,
- 			   (unsigned long)base + 0x80);
- }
-@@ -96,12 +96,12 @@ static void __init mips_nmi_setup(void)
- static void __init mips_ejtag_setup(void)
- {
- 	void *base;
--	extern char except_vec_ejtag_debug;
-+	extern char except_vec_ejtag_debug[];
- 
- 	base = cpu_has_veic ?
- 		(void *)(CAC_BASE + 0xa00) :
- 		(void *)(CAC_BASE + 0x300);
--	memcpy(base, &except_vec_ejtag_debug, 0x80);
-+	memcpy(base, except_vec_ejtag_debug, 0x80);
- 	flush_icache_range((unsigned long)base,
- 			   (unsigned long)base + 0x80);
- }
+ static int intel_vbtn_probe(struct platform_device *device)
 -- 
 2.25.1
 
