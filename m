@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78FC4200CE4
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:52:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CBC3200C58
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:47:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389381AbgFSOuz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:50:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44054 "EHLO mail.kernel.org"
+        id S2387688AbgFSOoo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:44:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389378AbgFSOuy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:50:54 -0400
+        id S2388597AbgFSOoj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:44:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B36DB206DB;
-        Fri, 19 Jun 2020 14:50:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4914E21556;
+        Fri, 19 Jun 2020 14:44:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578254;
-        bh=sm8euXclJ2m5nLyWIPbkkEmWMOOlBNEoz3YBzD4yL7o=;
+        s=default; t=1592577878;
+        bh=ePq/fBYgkru+4gDc00SaMaz/zDT+26mobWEOghmA9Bc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EuekWtJ0KNGBIWy+qTwY6JdnPOvo8xhljWkC1SjEVF8ik/vnbKFYNqkAdVgcM2Vqg
-         JE8UouTLR+VFuwkiRRl0tVHYIyTeErmhT4gMb0xZbdyrJFrY32xvJJ/R6/qOYcsPJt
-         s+CpOAB3FqEjUAankz366lkInPochneYCrnNdawY=
+        b=pUP9QsdH+ykKmQvkvkHdqtZt/X4rNH4E9GJo5mXpt8Is4OFxokvpWt3sdx10Hgoe8
+         mGdvcXs94u62QFoE4nt5IZ3kniOzuabU2T0BdpOm3ddePhEg5thzRis6cQxoaHlPDG
+         KWFYPk6gF1FXxU83jL5zIQkjVyPCBt+ZIretcK/A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Roberto Sassu <roberto.sassu@huawei.com>,
-        Mimi Zohar <zohar@linux.ibm.com>
-Subject: [PATCH 4.14 143/190] ima: Directly assign the ima_default_policy pointer to ima_rules
-Date:   Fri, 19 Jun 2020 16:33:08 +0200
-Message-Id: <20200619141640.805513637@linuxfoundation.org>
+        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 096/128] cpuidle: Fix three reference count leaks
+Date:   Fri, 19 Jun 2020 16:33:10 +0200
+Message-Id: <20200619141625.211081982@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
-References: <20200619141633.446429600@linuxfoundation.org>
+In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
+References: <20200619141620.148019466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roberto Sassu <roberto.sassu@huawei.com>
+From: Qiushi Wu <wu000273@umn.edu>
 
-commit 067a436b1b0aafa593344fddd711a755a58afb3b upstream.
+[ Upstream commit c343bf1ba5efcbf2266a1fe3baefec9cc82f867f ]
 
-This patch prevents the following oops:
+kobject_init_and_add() takes reference even when it fails.
+If this function returns an error, kobject_put() must be called to
+properly clean up the memory associated with the object.
 
-[   10.771813] BUG: kernel NULL pointer dereference, address: 0000000000000
-[...]
-[   10.779790] RIP: 0010:ima_match_policy+0xf7/0xb80
-[...]
-[   10.798576] Call Trace:
-[   10.798993]  ? ima_lsm_policy_change+0x2b0/0x2b0
-[   10.799753]  ? inode_init_owner+0x1a0/0x1a0
-[   10.800484]  ? _raw_spin_lock+0x7a/0xd0
-[   10.801592]  ima_must_appraise.part.0+0xb6/0xf0
-[   10.802313]  ? ima_fix_xattr.isra.0+0xd0/0xd0
-[   10.803167]  ima_must_appraise+0x4f/0x70
-[   10.804004]  ima_post_path_mknod+0x2e/0x80
-[   10.804800]  do_mknodat+0x396/0x3c0
+Previous commit "b8eb718348b8" fixed a similar problem.
 
-It occurs when there is a failure during IMA initialization, and
-ima_init_policy() is not called. IMA hooks still call ima_match_policy()
-but ima_rules is NULL. This patch prevents the crash by directly assigning
-the ima_default_policy pointer to ima_rules when ima_rules is defined. This
-wouldn't alter the existing behavior, as ima_rules is always set at the end
-of ima_init_policy().
-
-Cc: stable@vger.kernel.org # 3.7.x
-Fixes: 07f6a79415d7d ("ima: add appraise action keywords and default rules")
-Reported-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+[ rjw: Subject ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/ima/ima_policy.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/cpuidle/sysfs.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/security/integrity/ima/ima_policy.c
-+++ b/security/integrity/ima/ima_policy.c
-@@ -170,7 +170,7 @@ static struct ima_rule_entry secure_boot
- static LIST_HEAD(ima_default_rules);
- static LIST_HEAD(ima_policy_rules);
- static LIST_HEAD(ima_temp_rules);
--static struct list_head *ima_rules;
-+static struct list_head *ima_rules = &ima_default_rules;
- 
- static int ima_policy __initdata;
- 
-@@ -468,7 +468,6 @@ void __init ima_init_policy(void)
- 			temp_ima_appraise |= IMA_APPRAISE_POLICY;
+diff --git a/drivers/cpuidle/sysfs.c b/drivers/cpuidle/sysfs.c
+index 9e98a5fbbc1d..e7e92ed34f0c 100644
+--- a/drivers/cpuidle/sysfs.c
++++ b/drivers/cpuidle/sysfs.c
+@@ -412,7 +412,7 @@ static int cpuidle_add_state_sysfs(struct cpuidle_device *device)
+ 		ret = kobject_init_and_add(&kobj->kobj, &ktype_state_cpuidle,
+ 					   &kdev->kobj, "state%d", i);
+ 		if (ret) {
+-			kfree(kobj);
++			kobject_put(&kobj->kobj);
+ 			goto error_state;
+ 		}
+ 		kobject_uevent(&kobj->kobj, KOBJ_ADD);
+@@ -542,7 +542,7 @@ static int cpuidle_add_driver_sysfs(struct cpuidle_device *dev)
+ 	ret = kobject_init_and_add(&kdrv->kobj, &ktype_driver_cpuidle,
+ 				   &kdev->kobj, "driver");
+ 	if (ret) {
+-		kfree(kdrv);
++		kobject_put(&kdrv->kobj);
+ 		return ret;
  	}
  
--	ima_rules = &ima_default_rules;
- 	ima_update_policy_flag();
- }
+@@ -636,7 +636,7 @@ int cpuidle_add_sysfs(struct cpuidle_device *dev)
+ 	error = kobject_init_and_add(&kdev->kobj, &ktype_cpuidle, &cpu_dev->kobj,
+ 				   "cpuidle");
+ 	if (error) {
+-		kfree(kdev);
++		kobject_put(&kdev->kobj);
+ 		return error;
+ 	}
  
+-- 
+2.25.1
+
 
 
