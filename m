@@ -2,110 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51BAA20180C
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:48:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DC60201881
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 19:01:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405233AbgFSQqd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:46:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43802 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388812AbgFSQqI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Jun 2020 12:46:08 -0400
-Received: from Galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 686BAC061796;
-        Fri, 19 Jun 2020 09:46:03 -0700 (PDT)
-Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tip-bot2@linutronix.de>)
-        id 1jmK9P-00043S-Dz; Fri, 19 Jun 2020 18:45:59 +0200
-Received: from [127.0.1.1] (localhost [IPv6:::1])
-        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id 14B161C0085;
-        Fri, 19 Jun 2020 18:45:59 +0200 (CEST)
-Date:   Fri, 19 Jun 2020 16:45:58 -0000
-From:   "tip-bot2 for Peter Jones" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: efi/urgent] efi: Make it possible to disable efivar_ssdt entirely
-Cc:     <stable@vger.kernel.org>, Peter Jones <pjones@redhat.com>,
-        Ard Biesheuvel <ardb@kernel.org>, x86 <x86@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20200615202408.2242614-1-pjones@redhat.com>
-References: <20200615202408.2242614-1-pjones@redhat.com>
+        id S2404185AbgFSQtF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:49:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57450 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2388080AbgFSOjs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:39:48 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6D5B4208B8;
+        Fri, 19 Jun 2020 14:39:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1592577587;
+        bh=ygtLnoiUpOgaLKcoOxtcS9NrtUZR0kTHoYbA9bgfytU=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=ZLXm9GevYiUE83l16MclWqjL9fVYx8o2DkwLmDI1qq5d+7yRL0DiMnTJB/Ra/llWy
+         ooYYqvCU05ae9K5VMT66KpRkJLuh4mGISZf8QBSiiyupjewMIK2Xthuh7QGsotOckz
+         gAvADAK96FqEoLS4EJbRhCmoeYhwcRtUWqSDa7Ik=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 001/128] ipv6: fix IPV6_ADDRFORM operation logic
+Date:   Fri, 19 Jun 2020 16:31:35 +0200
+Message-Id: <20200619141620.218012110@linuxfoundation.org>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
+References: <20200619141620.148019466@linuxfoundation.org>
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
-Message-ID: <159258515877.16989.5930030344514684706.tip-bot2@tip-bot2>
-X-Mailer: tip-git-log-daemon
-Robot-ID: <tip-bot2.linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the efi/urgent branch of tip:
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-Commit-ID:     435d1a471598752446a72ad1201b3c980526d869
-Gitweb:        https://git.kernel.org/tip/435d1a471598752446a72ad1201b3c980526d869
-Author:        Peter Jones <pjones@redhat.com>
-AuthorDate:    Mon, 15 Jun 2020 16:24:08 -04:00
-Committer:     Ard Biesheuvel <ardb@kernel.org>
-CommitterDate: Tue, 16 Jun 2020 11:01:07 +02:00
+[ Upstream commit 79a1f0ccdbb4ad700590f61b00525b390cb53905 ]
 
-efi: Make it possible to disable efivar_ssdt entirely
+Socket option IPV6_ADDRFORM supports UDP/UDPLITE and TCP at present.
+Previously the checking logic looks like:
+if (sk->sk_protocol == IPPROTO_UDP || sk->sk_protocol == IPPROTO_UDPLITE)
+	do_some_check;
+else if (sk->sk_protocol != IPPROTO_TCP)
+	break;
 
-In most cases, such as CONFIG_ACPI_CUSTOM_DSDT and
-CONFIG_ACPI_TABLE_UPGRADE, boot-time modifications to firmware tables
-are tied to specific Kconfig options.  Currently this is not the case
-for modifying the ACPI SSDT via the efivar_ssdt kernel command line
-option and associated EFI variable.
+After commit b6f6118901d1 ("ipv6: restrict IPV6_ADDRFORM operation"), TCP
+was blocked as the logic changed to:
+if (sk->sk_protocol == IPPROTO_UDP || sk->sk_protocol == IPPROTO_UDPLITE)
+	do_some_check;
+else if (sk->sk_protocol == IPPROTO_TCP)
+	do_some_check;
+	break;
+else
+	break;
 
-This patch adds CONFIG_EFI_CUSTOM_SSDT_OVERLAYS, which defaults
-disabled, in order to allow enabling or disabling that feature during
-the build.
+Then after commit 82c9ae440857 ("ipv6: fix restrict IPV6_ADDRFORM operation")
+UDP/UDPLITE were blocked as the logic changed to:
+if (sk->sk_protocol == IPPROTO_UDP || sk->sk_protocol == IPPROTO_UDPLITE)
+	do_some_check;
+if (sk->sk_protocol == IPPROTO_TCP)
+	do_some_check;
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Peter Jones <pjones@redhat.com>
-Link: https://lore.kernel.org/r/20200615202408.2242614-1-pjones@redhat.com
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+if (sk->sk_protocol != IPPROTO_TCP)
+	break;
+
+Fix it by using Eric's code and simply remove the break in TCP check, which
+looks like:
+if (sk->sk_protocol == IPPROTO_UDP || sk->sk_protocol == IPPROTO_UDPLITE)
+	do_some_check;
+else if (sk->sk_protocol == IPPROTO_TCP)
+	do_some_check;
+else
+	break;
+
+Fixes: 82c9ae440857 ("ipv6: fix restrict IPV6_ADDRFORM operation")
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/efi/Kconfig | 11 +++++++++++
- drivers/firmware/efi/efi.c   |  2 +-
- 2 files changed, 12 insertions(+), 1 deletion(-)
+ net/ipv6/ipv6_sockglue.c |   13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/firmware/efi/Kconfig b/drivers/firmware/efi/Kconfig
-index e6fc022..3939699 100644
---- a/drivers/firmware/efi/Kconfig
-+++ b/drivers/firmware/efi/Kconfig
-@@ -278,3 +278,14 @@ config EFI_EARLYCON
- 	depends on SERIAL_EARLYCON && !ARM && !IA64
- 	select FONT_SUPPORT
- 	select ARCH_USE_MEMREMAP_PROT
+--- a/net/ipv6/ipv6_sockglue.c
++++ b/net/ipv6/ipv6_sockglue.c
+@@ -184,14 +184,15 @@ static int do_ipv6_setsockopt(struct soc
+ 					retv = -EBUSY;
+ 					break;
+ 				}
+-			}
+-			if (sk->sk_protocol == IPPROTO_TCP &&
+-			    sk->sk_prot != &tcpv6_prot) {
+-				retv = -EBUSY;
++			} else if (sk->sk_protocol == IPPROTO_TCP) {
++				if (sk->sk_prot != &tcpv6_prot) {
++					retv = -EBUSY;
++					break;
++				}
++			} else {
+ 				break;
+ 			}
+-			if (sk->sk_protocol != IPPROTO_TCP)
+-				break;
 +
-+config EFI_CUSTOM_SSDT_OVERLAYS
-+	bool "Load custom ACPI SSDT overlay from an EFI variable"
-+	depends on EFI_VARS && ACPI
-+	default ACPI_TABLE_UPGRADE
-+	help
-+	  Allow loading of an ACPI SSDT overlay from an EFI variable specified
-+	  by a kernel command line option.
-+
-+	  See Documentation/admin-guide/acpi/ssdt-overlays.rst for more
-+	  information.
-diff --git a/drivers/firmware/efi/efi.c b/drivers/firmware/efi/efi.c
-index edc5d36..5114cae 100644
---- a/drivers/firmware/efi/efi.c
-+++ b/drivers/firmware/efi/efi.c
-@@ -189,7 +189,7 @@ static void generic_ops_unregister(void)
- 	efivars_unregister(&generic_efivars);
- }
- 
--#if IS_ENABLED(CONFIG_ACPI)
-+#ifdef CONFIG_EFI_CUSTOM_SSDT_OVERLAYS
- #define EFIVAR_SSDT_NAME_MAX	16
- static char efivar_ssdt[EFIVAR_SSDT_NAME_MAX] __initdata;
- static int __init efivar_ssdt_setup(char *str)
+ 			if (sk->sk_state != TCP_ESTABLISHED) {
+ 				retv = -ENOTCONN;
+ 				break;
+
+
