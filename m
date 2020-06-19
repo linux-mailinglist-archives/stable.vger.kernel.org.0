@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6587620153B
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:22:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC6FE20153A
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:22:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394605AbgFSQTs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2390938AbgFSQTs (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 19 Jun 2020 12:19:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58128 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:58168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390737AbgFSPBo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:01:44 -0400
+        id S2389657AbgFSPBp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:01:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB58F21841;
-        Fri, 19 Jun 2020 15:01:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A60920734;
+        Fri, 19 Jun 2020 15:01:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578903;
-        bh=qrid19kxZaqA3ldtv5abpdqcKtq/ehLJHOG8ghrjLDY=;
+        s=default; t=1592578905;
+        bh=Bavk9QbyY+cBR5Q37haU6BSR4Badx9cgk1Oa4nFKzzI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uC8TlDVJS6Kel7Oo98SA+h2P5TYftE/IzKiQFZIwsIIHeaL5dzodlM0dMz4hh4vxc
-         taYaDZvjA7J1HZ30r86zHdsrG1yvhlZUd6zd1mX93vvA5exaIm/clDnkW6f/slfgwR
-         92ltFgRbEkY7xoRfJ7jBAsBbtS6lmEIaRX5bYl70=
+        b=rKjFqojThTZMkGaJ7VH3CnOgSN6weQMU8a72zKzvs8vzpzPuEZBr9CzpP6Z5vj9Tp
+         M/NCLtYXLYCOLBMb9Vac/uIbsgoiOPv4IXn1cbUBdZocSwCPaSvw56RM5qbgJRJ02m
+         DqzGyG3PeRGK7JcVYZ4lQBYi/GP0K2fxfCoAmpM4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kevin Buettner <kevinb@redhat.com>,
+        stable@vger.kernel.org, Abhinav Ratna <abhinav.ratna@broadcom.com>,
+        Srinath Mannam <srinath.mannam@broadcom.com>,
         Bjorn Helgaas <bhelgaas@google.com>,
+        Scott Branden <scott.branden@broadcom.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 201/267] PCI: Avoid FLR for AMD Starship USB 3.0
-Date:   Fri, 19 Jun 2020 16:33:06 +0200
-Message-Id: <20200619141658.388542382@linuxfoundation.org>
+Subject: [PATCH 4.19 202/267] PCI: Add ACS quirk for iProc PAXB
+Date:   Fri, 19 Jun 2020 16:33:07 +0200
+Message-Id: <20200619141658.429157336@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
 References: <20200619141648.840376470@linuxfoundation.org>
@@ -44,67 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kevin Buettner <kevinb@redhat.com>
+From: Abhinav Ratna <abhinav.ratna@broadcom.com>
 
-[ Upstream commit 5727043c73fdfe04597971b5f3f4850d879c1f4f ]
+[ Upstream commit 46b2c32df7a462d0e64b68c513e5c4c1b2a399a7 ]
 
-The AMD Starship USB 3.0 host controller advertises Function Level Reset
-support, but it apparently doesn't work.  Add a quirk to prevent use of FLR
-on this device.
+iProc PAXB Root Ports don't advertise an ACS capability, but they do not
+allow peer-to-peer transactions between Root Ports.  Add an ACS quirk so
+each Root Port can be in a separate IOMMU group.
 
-Without this quirk, when attempting to assign (pass through) an AMD
-Starship USB 3.0 host controller to a guest OS, the system becomes
-increasingly unresponsive over the course of several minutes, eventually
-requiring a hard reset.  Shortly after attempting to start the guest, I see
-these messages:
-
-  vfio-pci 0000:05:00.3: not ready 1023ms after FLR; waiting
-  vfio-pci 0000:05:00.3: not ready 2047ms after FLR; waiting
-  vfio-pci 0000:05:00.3: not ready 4095ms after FLR; waiting
-  vfio-pci 0000:05:00.3: not ready 8191ms after FLR; waiting
-
-And then eventually:
-
-  vfio-pci 0000:05:00.3: not ready 65535ms after FLR; giving up
-  INFO: NMI handler (perf_event_nmi_handler) took too long to run: 0.000 msecs
-  perf: interrupt took too long (642744 > 2500), lowering kernel.perf_event_max_sample_rate to 1000
-  INFO: NMI handler (perf_event_nmi_handler) took too long to run: 82.270 msecs
-  INFO: NMI handler (perf_event_nmi_handler) took too long to run: 680.608 msecs
-  INFO: NMI handler (perf_event_nmi_handler) took too long to run: 100.952 msecs
-  ...
-  watchdog: BUG: soft lockup - CPU#3 stuck for 22s! [qemu-system-x86:7487]
-
-Tested on a Micro-Star International Co., Ltd. MS-7C59/Creator TRX40
-motherboard with an AMD Ryzen Threadripper 3970X.
-
-Link: https://lore.kernel.org/r/20200524003529.598434ff@f31-4.lan
-Signed-off-by: Kevin Buettner <kevinb@redhat.com>
+[bhelgaas: commit log, comment, use common implementation style]
+Link: https://lore.kernel.org/r/1566275985-25670-1-git-send-email-srinath.mannam@broadcom.com
+Signed-off-by: Abhinav Ratna <abhinav.ratna@broadcom.com>
+Signed-off-by: Srinath Mannam <srinath.mannam@broadcom.com>
 Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Acked-by: Scott Branden <scott.branden@broadcom.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/quirks.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/pci/quirks.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
 diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index 7a835c49409e..92892b1c35fa 100644
+index 92892b1c35fa..013b84880e1d 100644
 --- a/drivers/pci/quirks.c
 +++ b/drivers/pci/quirks.c
-@@ -4960,6 +4960,7 @@ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x443, quirk_intel_qat_vf_cap);
-  * FLR may cause the following to devices to hang:
-  *
-  * AMD Starship/Matisse HD Audio Controller 0x1487
-+ * AMD Starship USB 3.0 Host Controller 0x148c
-  * AMD Matisse USB 3.0 Host Controller 0x149c
-  * Intel 82579LM Gigabit Ethernet Controller 0x1502
-  * Intel 82579V Gigabit Ethernet Controller 0x1503
-@@ -4970,6 +4971,7 @@ static void quirk_no_flr(struct pci_dev *dev)
- 	dev->dev_flags |= PCI_DEV_FLAGS_NO_FLR_RESET;
+@@ -4543,6 +4543,19 @@ static int pci_quirk_mf_endpoint_acs(struct pci_dev *dev, u16 acs_flags)
+ 	return acs_flags ? 0 : 1;
  }
- DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_AMD, 0x1487, quirk_no_flr);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_AMD, 0x148c, quirk_no_flr);
- DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_AMD, 0x149c, quirk_no_flr);
- DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x1502, quirk_no_flr);
- DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x1503, quirk_no_flr);
+ 
++static int pci_quirk_brcm_acs(struct pci_dev *dev, u16 acs_flags)
++{
++	/*
++	 * iProc PAXB Root Ports don't advertise an ACS capability, but
++	 * they do not allow peer-to-peer transactions between Root Ports.
++	 * Allow each Root Port to be in a separate IOMMU group by masking
++	 * SV/RR/CR/UF bits.
++	 */
++	acs_flags &= ~(PCI_ACS_SV | PCI_ACS_RR | PCI_ACS_CR | PCI_ACS_UF);
++
++	return acs_flags ? 0 : 1;
++}
++
+ static const struct pci_dev_acs_enabled {
+ 	u16 vendor;
+ 	u16 device;
+@@ -4634,6 +4647,7 @@ static const struct pci_dev_acs_enabled {
+ 	{ PCI_VENDOR_ID_AMPERE, 0xE00A, pci_quirk_xgene_acs },
+ 	{ PCI_VENDOR_ID_AMPERE, 0xE00B, pci_quirk_xgene_acs },
+ 	{ PCI_VENDOR_ID_AMPERE, 0xE00C, pci_quirk_xgene_acs },
++	{ PCI_VENDOR_ID_BROADCOM, 0xD714, pci_quirk_brcm_acs },
+ 	{ 0 }
+ };
+ 
 -- 
 2.25.1
 
