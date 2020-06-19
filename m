@@ -2,55 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDC6E200AE5
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:06:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E49B200AE7
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:07:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726275AbgFSOGg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:06:36 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:55861 "EHLO
+        id S1726642AbgFSOHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:07:09 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:32919 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726008AbgFSOGf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Jun 2020 10:06:35 -0400
+        by vger.kernel.org with ESMTP id S1726008AbgFSOHI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Jun 2020 10:07:08 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 0EC4C194587B;
-        Fri, 19 Jun 2020 10:06:35 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Fri, 19 Jun 2020 10:06:35 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id B371D1945880;
+        Fri, 19 Jun 2020 10:07:06 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Fri, 19 Jun 2020 10:07:06 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=f+ynzx
-        u7HR09JXKRjrDTXQrQgAE1QyQQuMCa6Da7Xa8=; b=YTe1LVc2LquSFrIx+mUB86
-        ZyG52UiaAjiqHaB8qSV7DgEi6Yg+bXS7EgSYWPaEl/u27T0KKKkAYvT0O/p8bI+s
-        UZZhMnjuZBc0A3A56d5Sn0SFNdjyub9FNKwj5dBcgo4tEQiAFrf1EOXh1oucdPKq
-        ZweIiWYeOqoExZcuhklLUzM/zv7TqepLN8JqgquU63ReEkAWDP5HE08HMA64AZmL
-        dTNKF7FMqPANEeBJUbNIIuJksU9rF6DA9VdKOGhuEMejGYPwkEDbKtO+gvcEnU2Z
-        d8xVdb/njqJU4Arox8y3cnB8oco13EfbJnLXn/Fgtf6j9+GhAHGV+NWVYY7rs9sQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=dSFLLZ
+        YVPT3wMwiTs92YeLxaoBHhFdhoy+WypZnA7YA=; b=aOVe1v96HqXT/pBNzhS4pB
+        22TQLFcG7RGkTV3kt4qH7cFH3V5KdeiEEQwnQAYn0rpSr29Tn+WN7OFfrf4f/kYb
+        UZZ9Um1xU3AIfrlblYsDtJ4wZsyvECzo8Il03tjjQ9ae4an6hpzhc7lxrG6wkG9m
+        OVf2a09pGrGwEnSzLEvlsWMckmGivmOdgTn9R04+9d2iuOHICQIMtu5ZJS2M2cl0
+        g2CghSmjCIZB702D+Kc2I0ysRCayT7a8ow62qBImwtPOWjicCXakRTczKbxuGWuo
+        LnCfUQQcQh7Q7lFww3R2JhTQUZdDOykhM00atNhp9FAL+QVJ0DHgmYrmznnh7W3w
         ==
-X-ME-Sender: <xms:asbsXgDnLI9f12x8lPeBWt5M_mykR7ssMtoRUibey0aqN5kKt5E9Sg>
+X-ME-Sender: <xms:isbsXl4GAddgLxArpAsxaDQgBTjI2_lV5QG5meXUOENrg2QZe1AfpQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudejiedgjedvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
-    vghrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:asbsXih3nolAFOma0qUuI0GmVJMdSBInaoNt9Kv9dJs8CpCmxIcmCw>
-    <xmx:asbsXjkEx3cxyu6Ic2gsqNluJs-0XqQ8jHqYTA3hEhj_PaNCOmOp4w>
-    <xmx:asbsXmxu92TjwYaCySAlwBLMHzpwNcvR_ExNIV9bwIoFLexMxJ2lyA>
-    <xmx:a8bsXnfaSd_XJixeTqZsASeA8Upigrv6nvFNlE5IBvwERBmqQ4AKjQ>
+    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
+    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
+    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
+    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:isbsXi5GxiHH3s7h9vXQj9-Fxy6GS1S92zY5U8IaQDS_kwG6RvdvrA>
+    <xmx:isbsXseNQRLHqklRBNH0-CoJKd522WoYNDlDtbPe7PQKjgAffue0qw>
+    <xmx:isbsXuKToTVTdrHI37CyAeqv38aYLRzgBr4SeMdMEvid3rr5IoEcyg>
+    <xmx:isbsXnh5rh3cNkN2j_klYJusZ4DQ0ivqzP2oDMkZyFkF3dRKLVJqaQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 80B51328005D;
-        Fri, 19 Jun 2020 10:06:34 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] f2fs: avoid utf8_strncasecmp() with unstable name" failed to apply to 5.4-stable tree
-To:     ebiggers@google.com, drosen@google.com, jaegeuk@kernel.org,
-        krisman@collabora.co.uk, stable@vger.kernel.org,
-        viro@zeniv.linux.org.uk, yuchao0@huawei.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id EB3B430614FA;
+        Fri, 19 Jun 2020 10:07:05 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] perf probe: Fix to check blacklist address correctly" failed to apply to 4.4-stable tree
+To:     mhiramat@kernel.org, acme@redhat.com, jolsa@kernel.org,
+        namhyung@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 19 Jun 2020 16:06:24 +0200
-Message-ID: <159257558413355@kroah.com>
+Date:   Fri, 19 Jun 2020 16:07:04 +0200
+Message-ID: <159257562420321@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,59 +70,116 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From fc3bb095ab02b9e7d89a069ade2cead15c64c504 Mon Sep 17 00:00:00 2001
-From: Eric Biggers <ebiggers@google.com>
-Date: Mon, 1 Jun 2020 13:08:05 -0700
-Subject: [PATCH] f2fs: avoid utf8_strncasecmp() with unstable name
+From 80526491c2ca6abc028c0f0dbb0707a1f35fb18a Mon Sep 17 00:00:00 2001
+From: Masami Hiramatsu <mhiramat@kernel.org>
+Date: Thu, 23 Apr 2020 20:01:04 +0900
+Subject: [PATCH] perf probe: Fix to check blacklist address correctly
 
-If the dentry name passed to ->d_compare() fits in dentry::d_iname, then
-it may be concurrently modified by a rename.  This can cause undefined
-behavior (possibly out-of-bounds memory accesses or crashes) in
-utf8_strncasecmp(), since fs/unicode/ isn't written to handle strings
-that may be concurrently modified.
+Fix to check kprobe blacklist address correctly with relocated address
+by adjusting debuginfo address.
 
-Fix this by first copying the filename to a stack buffer if needed.
-This way we get a stable snapshot of the filename.
+Since the address in the debuginfo is same as objdump, it is different
+from relocated kernel address with KASLR.  Thus, 'perf probe' always
+misses to catch the blacklisted addresses.
 
-Fixes: 2c2eb7a300cd ("f2fs: Support case-insensitive file name lookups")
-Cc: <stable@vger.kernel.org> # v5.4+
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Daniel Rosenberg <drosen@google.com>
-Cc: Gabriel Krisman Bertazi <krisman@collabora.co.uk>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Without this patch, 'perf probe' can not detect the blacklist addresses
+on a KASLR enabled kernel.
 
-diff --git a/fs/f2fs/dir.c b/fs/f2fs/dir.c
-index 29f70f2295cc..d35976785e8c 100644
---- a/fs/f2fs/dir.c
-+++ b/fs/f2fs/dir.c
-@@ -1114,11 +1114,27 @@ static int f2fs_d_compare(const struct dentry *dentry, unsigned int len,
- 	const struct inode *dir = READ_ONCE(parent->d_inode);
- 	const struct f2fs_sb_info *sbi = F2FS_SB(dentry->d_sb);
- 	struct qstr entry = QSTR_INIT(str, len);
-+	char strbuf[DNAME_INLINE_LEN];
- 	int res;
+  # perf probe kprobe_dispatcher
+  Failed to write event: Invalid argument
+    Error: Failed to add events.
+  #
+
+With this patch, it correctly shows the error message.
+
+  # perf probe kprobe_dispatcher
+  kprobe_dispatcher is blacklisted function, skip it.
+  Probe point 'kprobe_dispatcher' not found.
+    Error: Failed to add events.
+  #
+
+Fixes: 9aaf5a5f479b ("perf probe: Check kprobes blacklist when adding new events")
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: stable@vger.kernel.org
+Link: http://lore.kernel.org/lkml/158763966411.30755.5882376357738273695.stgit@devnote2
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+
+diff --git a/tools/perf/util/probe-event.c b/tools/perf/util/probe-event.c
+index c6bcf5709564..63d936f6e993 100644
+--- a/tools/perf/util/probe-event.c
++++ b/tools/perf/util/probe-event.c
+@@ -102,7 +102,7 @@ void exit_probe_symbol_maps(void)
+ 	symbol__exit();
+ }
  
- 	if (!dir || !IS_CASEFOLDED(dir))
- 		goto fallback;
- 
-+	/*
-+	 * If the dentry name is stored in-line, then it may be concurrently
-+	 * modified by a rename.  If this happens, the VFS will eventually retry
-+	 * the lookup, so it doesn't matter what ->d_compare() returns.
-+	 * However, it's unsafe to call utf8_strncasecmp() with an unstable
-+	 * string.  Therefore, we have to copy the name into a temporary buffer.
-+	 */
-+	if (len <= DNAME_INLINE_LEN - 1) {
-+		memcpy(strbuf, str, len);
-+		strbuf[len] = 0;
-+		entry.name = strbuf;
-+		/* prevent compiler from optimizing out the temporary buffer */
-+		barrier();
-+	}
+-static struct ref_reloc_sym *kernel_get_ref_reloc_sym(void)
++static struct ref_reloc_sym *kernel_get_ref_reloc_sym(struct map **pmap)
+ {
+ 	/* kmap->ref_reloc_sym should be set if host_machine is initialized */
+ 	struct kmap *kmap;
+@@ -114,6 +114,10 @@ static struct ref_reloc_sym *kernel_get_ref_reloc_sym(void)
+ 	kmap = map__kmap(map);
+ 	if (!kmap)
+ 		return NULL;
 +
- 	res = utf8_strncasecmp(sbi->s_encoding, name, &entry);
- 	if (res >= 0)
- 		return res;
++	if (pmap)
++		*pmap = map;
++
+ 	return kmap->ref_reloc_sym;
+ }
+ 
+@@ -125,7 +129,7 @@ static int kernel_get_symbol_address_by_name(const char *name, u64 *addr,
+ 	struct map *map;
+ 
+ 	/* ref_reloc_sym is just a label. Need a special fix*/
+-	reloc_sym = kernel_get_ref_reloc_sym();
++	reloc_sym = kernel_get_ref_reloc_sym(NULL);
+ 	if (reloc_sym && strcmp(name, reloc_sym->name) == 0)
+ 		*addr = (reloc) ? reloc_sym->addr : reloc_sym->unrelocated_addr;
+ 	else {
+@@ -745,6 +749,7 @@ post_process_kernel_probe_trace_events(struct probe_trace_event *tevs,
+ 				       int ntevs)
+ {
+ 	struct ref_reloc_sym *reloc_sym;
++	struct map *map;
+ 	char *tmp;
+ 	int i, skipped = 0;
+ 
+@@ -753,7 +758,7 @@ post_process_kernel_probe_trace_events(struct probe_trace_event *tevs,
+ 		return post_process_offline_probe_trace_events(tevs, ntevs,
+ 						symbol_conf.vmlinux_name);
+ 
+-	reloc_sym = kernel_get_ref_reloc_sym();
++	reloc_sym = kernel_get_ref_reloc_sym(&map);
+ 	if (!reloc_sym) {
+ 		pr_warning("Relocated base symbol is not found!\n");
+ 		return -EINVAL;
+@@ -764,9 +769,13 @@ post_process_kernel_probe_trace_events(struct probe_trace_event *tevs,
+ 			continue;
+ 		if (tevs[i].point.retprobe && !kretprobe_offset_is_supported())
+ 			continue;
+-		/* If we found a wrong one, mark it by NULL symbol */
++		/*
++		 * If we found a wrong one, mark it by NULL symbol.
++		 * Since addresses in debuginfo is same as objdump, we need
++		 * to convert it to addresses on memory.
++		 */
+ 		if (kprobe_warn_out_range(tevs[i].point.symbol,
+-					  tevs[i].point.address)) {
++			map__objdump_2mem(map, tevs[i].point.address))) {
+ 			tmp = NULL;
+ 			skipped++;
+ 		} else {
+@@ -2935,7 +2944,7 @@ static int find_probe_trace_events_from_map(struct perf_probe_event *pev,
+ 	/* Note that the symbols in the kmodule are not relocated */
+ 	if (!pev->uprobes && !pev->target &&
+ 			(!pp->retprobe || kretprobe_offset_is_supported())) {
+-		reloc_sym = kernel_get_ref_reloc_sym();
++		reloc_sym = kernel_get_ref_reloc_sym(NULL);
+ 		if (!reloc_sym) {
+ 			pr_warning("Relocated base symbol is not found!\n");
+ 			ret = -EINVAL;
 
