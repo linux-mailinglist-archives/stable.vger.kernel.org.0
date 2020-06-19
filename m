@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B7F5200C76
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:47:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68E33200D52
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:57:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388793AbgFSOqD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:46:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37722 "EHLO mail.kernel.org"
+        id S2389980AbgFSO4E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:56:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388787AbgFSOqC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:46:02 -0400
+        id S2390021AbgFSO4C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:56:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 924F92083B;
-        Fri, 19 Jun 2020 14:46:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CCA8B206F7;
+        Fri, 19 Jun 2020 14:56:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577962;
-        bh=97KhVImh3fMbPEhCdHz6ESrRxmRllU7uaOXxayOKOV8=;
+        s=default; t=1592578562;
+        bh=2XIXSXOLf1PgbSfEZzyX74dHJNMxOrXjFNQAdwEwl90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lzp+XAKHH39Jp+HmviDVl8J2GtQEmQDk1bkQsmrcnkPc7hPTdP+VlZECbEaFF/49C
-         lCPWtvMSiM27Ap+CRziGUJyFxBe9NmrwMFYyejw7tDj11lJtEbtc70yOv3ymMSsobr
-         DXeaA5pw8Ralx3CWdkbnU6KTn48dPFF/TUYqVkOI=
+        b=nMkocnPXtpiiogABbbkdrpBGvM15caHd/6vuiBmhDJuVufJmZkPccaRxmcXabf91m
+         lZQYH+eQmH/j+64nXwe9hDFp2ECdyhgTBRsrmhJI5APe6ejYCOSZQXizEsetZYU+se
+         ZXi1UwJGQVIRualA+LmBtarp9s7Pt0Y2lUTK9+yo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julien Thierry <julien.thierry@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Miles Chen <miles.chen@mediatek.com>
-Subject: [PATCH 4.14 006/190] x86: uaccess: Inhibit speculation past access_ok() in user_access_begin()
-Date:   Fri, 19 Jun 2020 16:30:51 +0200
-Message-Id: <20200619141633.788051361@linuxfoundation.org>
+        stable@vger.kernel.org, Richard Purdie <rpurdie@rpsys.net>,
+        Antonino Daplas <adaplas@pol.net>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Sam Ravnborg <sam@ravnborg.org>
+Subject: [PATCH 4.19 070/267] video: fbdev: w100fb: Fix a potential double free.
+Date:   Fri, 19 Jun 2020 16:30:55 +0200
+Message-Id: <20200619141652.255904241@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
-References: <20200619141633.446429600@linuxfoundation.org>
+In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
+References: <20200619141648.840376470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +46,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will.deacon@arm.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 6e693b3ffecb0b478c7050b44a4842854154f715 upstream.
+commit 18722d48a6bb9c2e8d046214c0a5fd19d0a7c9f6 upstream.
 
-Commit 594cc251fdd0 ("make 'user_access_begin()' do 'access_ok()'")
-makes the access_ok() check part of the user_access_begin() preceding a
-series of 'unsafe' accesses.  This has the desirable effect of ensuring
-that all 'unsafe' accesses have been range-checked, without having to
-pick through all of the callsites to verify whether the appropriate
-checking has been made.
+Some memory is vmalloc'ed in the 'w100fb_save_vidmem' function and freed in
+the 'w100fb_restore_vidmem' function. (these functions are called
+respectively from the 'suspend' and the 'resume' functions)
 
-However, the consolidated range check does not inhibit speculation, so
-it is still up to the caller to ensure that they are not susceptible to
-any speculative side-channel attacks for user addresses that ultimately
-fail the access_ok() check.
+However, it is also freed in the 'remove' function.
 
-This is an oversight, so use __uaccess_begin_nospec() to ensure that
-speculation is inhibited until the access_ok() check has passed.
+In order to avoid a potential double free, set the corresponding pointer
+to NULL once freed in the 'w100fb_restore_vidmem' function.
 
-Reported-by: Julien Thierry <julien.thierry@arm.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Miles Chen <miles.chen@mediatek.com>
+Fixes: aac51f09d96a ("[PATCH] w100fb: Rewrite for platform independence")
+Cc: Richard Purdie <rpurdie@rpsys.net>
+Cc: Antonino Daplas <adaplas@pol.net>
+Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Cc: <stable@vger.kernel.org> # v2.6.14+
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200506181902.193290-1-christophe.jaillet@wanadoo.fr
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/include/asm/uaccess.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/video/fbdev/w100fb.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/x86/include/asm/uaccess.h
-+++ b/arch/x86/include/asm/uaccess.h
-@@ -717,7 +717,7 @@ static __must_check inline bool user_acc
- {
- 	if (unlikely(!access_ok(type, ptr, len)))
- 		return 0;
--	__uaccess_begin();
-+	__uaccess_begin_nospec();
- 	return 1;
+--- a/drivers/video/fbdev/w100fb.c
++++ b/drivers/video/fbdev/w100fb.c
+@@ -583,6 +583,7 @@ static void w100fb_restore_vidmem(struct
+ 		memsize=par->mach->mem->size;
+ 		memcpy_toio(remapped_fbuf + (W100_FB_BASE-MEM_WINDOW_BASE), par->saved_extmem, memsize);
+ 		vfree(par->saved_extmem);
++		par->saved_extmem = NULL;
+ 	}
+ 	if (par->saved_intmem) {
+ 		memsize=MEM_INT_SIZE;
+@@ -591,6 +592,7 @@ static void w100fb_restore_vidmem(struct
+ 		else
+ 			memcpy_toio(remapped_fbuf + (W100_FB_BASE-MEM_WINDOW_BASE), par->saved_intmem, memsize);
+ 		vfree(par->saved_intmem);
++		par->saved_intmem = NULL;
+ 	}
  }
  
 
