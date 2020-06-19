@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBA25200F50
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:22:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 170B4200E10
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:06:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392364AbgFSPPS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:15:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45822 "EHLO mail.kernel.org"
+        id S2391172AbgFSPEi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:04:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392392AbgFSPPR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:15:17 -0400
+        id S2390706AbgFSPEh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:04:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 39115206DB;
-        Fri, 19 Jun 2020 15:15:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 366F821841;
+        Fri, 19 Jun 2020 15:04:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579716;
-        bh=h9AjYWLpPnVQ3hx1NqBpTvvDPiSZ8rjO6cwPYuw0aBk=;
+        s=default; t=1592579076;
+        bh=qkh8x50DtSsGOIs+mAzF4Ft84em9T1CXLn7vNnHAcJs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dDs7cInESYNRnyx+5d/KK3b7xO2A+6sQIpPONUyKAOQ9tbPzY786ATtB4z9zEXKGo
-         S+e9xi7aOSWEdd3eEgqyepo7abzaVpBJnDqjzORZHhaDqFlmOFlNP7Nx1vVlxxpHuP
-         k7s3xHe0iyUZQnWmZd0dhDlUP5YBIm10JrJJuuUg=
+        b=cqjgheSAMnaBXprLL+RbvjvGsTMZhJpswuQ5GyNeVBxDo/Js5BMN8THBJB6fnd7SC
+         YNs2tat8Qb0BmhqNIYYshREK0jUYkoIGb4VJri9p46IhaGKXnZbn1BD9rGzBGpwaZt
+         NkXqa+2cuzKSP1kNIxN/v/ZBR+QaLDRQtLh7VLZA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
-        "J. Bruce Fields" <bfields@redhat.com>
-Subject: [PATCH 5.4 239/261] sunrpc: clean up properly in gss_mech_unregister()
-Date:   Fri, 19 Jun 2020 16:34:10 +0200
-Message-Id: <20200619141701.345250460@linuxfoundation.org>
+        stable@vger.kernel.org, Travis Downs <travis.downs@gmail.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 4.19 267/267] perf symbols: Fix debuginfo search for Ubuntu
+Date:   Fri, 19 Jun 2020 16:34:12 +0200
+Message-Id: <20200619141701.489097695@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
-References: <20200619141649.878808811@linuxfoundation.org>
+In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
+References: <20200619141648.840376470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,121 +45,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: NeilBrown <neilb@suse.de>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit 24c5efe41c29ee3e55bcf5a1c9f61ca8709622e8 upstream.
+commit 85afd35575a3c1a3a905722dde5ee70b49282e70 upstream.
 
-gss_mech_register() calls svcauth_gss_register_pseudoflavor() for each
-flavour, but gss_mech_unregister() does not call auth_domain_put().
-This is unbalanced and makes it impossible to reload the module.
+Reportedly, from 19.10 Ubuntu has begun mixing up the location of some
+debug symbol files, putting files expected to be in
+/usr/lib/debug/usr/lib into /usr/lib/debug/lib instead. Fix by adding
+another dso_binary_type.
 
-Change svcauth_gss_register_pseudoflavor() to return the registered
-auth_domain, and save it for later release.
+Example on Ubuntu 20.04
 
-Cc: stable@vger.kernel.org (v2.6.12+)
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=206651
-Signed-off-by: NeilBrown <neilb@suse.de>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+  Before:
+
+    $ perf record -e intel_pt//u uname
+    Linux
+    [ perf record: Woken up 1 times to write data ]
+    [ perf record: Captured and wrote 0.030 MB perf.data ]
+    $ perf script --call-trace | head -5
+           uname 14003 [005] 15321.764958566:  cbr: 42 freq: 4219 MHz (156%)
+           uname 14003 [005] 15321.764958566: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )          7f1e71cc4100
+           uname 14003 [005] 15321.764961566: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )              7f1e71cc4df0
+           uname 14003 [005] 15321.764961900: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )              7f1e71cc4e18
+           uname 14003 [005] 15321.764963233: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )              7f1e71cc5128
+
+  After:
+
+    $ perf script --call-trace | head -5
+           uname 14003 [005] 15321.764958566:  cbr: 42 freq: 4219 MHz (156%)
+           uname 14003 [005] 15321.764958566: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )      _start
+           uname 14003 [005] 15321.764961566: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )          _dl_start
+           uname 14003 [005] 15321.764961900: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )          _dl_start
+           uname 14003 [005] 15321.764963233: (/usr/lib/x86_64-linux-gnu/ld-2.31.so              )          _dl_start
+
+Reported-by: Travis Downs <travis.downs@gmail.com>
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: stable@vger.kernel.org
+Link: http://lore.kernel.org/lkml/20200526155207.9172-1-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/sunrpc/gss_api.h        |    1 +
- include/linux/sunrpc/svcauth_gss.h    |    3 ++-
- net/sunrpc/auth_gss/gss_mech_switch.c |   12 +++++++++---
- net/sunrpc/auth_gss/svcauth_gss.c     |   12 ++++++------
- 4 files changed, 18 insertions(+), 10 deletions(-)
+ tools/perf/util/dso.c          |   16 ++++++++++++++++
+ tools/perf/util/dso.h          |    1 +
+ tools/perf/util/probe-finder.c |    1 +
+ tools/perf/util/symbol.c       |    2 ++
+ 4 files changed, 20 insertions(+)
 
---- a/include/linux/sunrpc/gss_api.h
-+++ b/include/linux/sunrpc/gss_api.h
-@@ -85,6 +85,7 @@ struct pf_desc {
- 	u32	service;
- 	char	*name;
- 	char	*auth_domain_name;
-+	struct auth_domain *domain;
- 	bool	datatouch;
+--- a/tools/perf/util/dso.c
++++ b/tools/perf/util/dso.c
+@@ -38,6 +38,7 @@ char dso__symtab_origin(const struct dso
+ 		[DSO_BINARY_TYPE__BUILD_ID_CACHE_DEBUGINFO]	= 'D',
+ 		[DSO_BINARY_TYPE__FEDORA_DEBUGINFO]		= 'f',
+ 		[DSO_BINARY_TYPE__UBUNTU_DEBUGINFO]		= 'u',
++		[DSO_BINARY_TYPE__MIXEDUP_UBUNTU_DEBUGINFO]	= 'x',
+ 		[DSO_BINARY_TYPE__OPENEMBEDDED_DEBUGINFO]	= 'o',
+ 		[DSO_BINARY_TYPE__BUILDID_DEBUGINFO]		= 'b',
+ 		[DSO_BINARY_TYPE__SYSTEM_PATH_DSO]		= 'd',
+@@ -120,6 +121,21 @@ int dso__read_binary_type_filename(const
+ 		snprintf(filename + len, size - len, "%s", dso->long_name);
+ 		break;
+ 
++	case DSO_BINARY_TYPE__MIXEDUP_UBUNTU_DEBUGINFO:
++		/*
++		 * Ubuntu can mixup /usr/lib with /lib, putting debuginfo in
++		 * /usr/lib/debug/lib when it is expected to be in
++		 * /usr/lib/debug/usr/lib
++		 */
++		if (strlen(dso->long_name) < 9 ||
++		    strncmp(dso->long_name, "/usr/lib/", 9)) {
++			ret = -1;
++			break;
++		}
++		len = __symbol__join_symfs(filename, size, "/usr/lib/debug");
++		snprintf(filename + len, size - len, "%s", dso->long_name + 4);
++		break;
++
+ 	case DSO_BINARY_TYPE__OPENEMBEDDED_DEBUGINFO:
+ 	{
+ 		const char *last_slash;
+--- a/tools/perf/util/dso.h
++++ b/tools/perf/util/dso.h
+@@ -25,6 +25,7 @@ enum dso_binary_type {
+ 	DSO_BINARY_TYPE__BUILD_ID_CACHE_DEBUGINFO,
+ 	DSO_BINARY_TYPE__FEDORA_DEBUGINFO,
+ 	DSO_BINARY_TYPE__UBUNTU_DEBUGINFO,
++	DSO_BINARY_TYPE__MIXEDUP_UBUNTU_DEBUGINFO,
+ 	DSO_BINARY_TYPE__BUILDID_DEBUGINFO,
+ 	DSO_BINARY_TYPE__SYSTEM_PATH_DSO,
+ 	DSO_BINARY_TYPE__GUEST_KMODULE,
+--- a/tools/perf/util/probe-finder.c
++++ b/tools/perf/util/probe-finder.c
+@@ -114,6 +114,7 @@ enum dso_binary_type distro_dwarf_types[
+ 	DSO_BINARY_TYPE__UBUNTU_DEBUGINFO,
+ 	DSO_BINARY_TYPE__OPENEMBEDDED_DEBUGINFO,
+ 	DSO_BINARY_TYPE__BUILDID_DEBUGINFO,
++	DSO_BINARY_TYPE__MIXEDUP_UBUNTU_DEBUGINFO,
+ 	DSO_BINARY_TYPE__NOT_FOUND,
  };
  
---- a/include/linux/sunrpc/svcauth_gss.h
-+++ b/include/linux/sunrpc/svcauth_gss.h
-@@ -21,7 +21,8 @@ int gss_svc_init(void);
- void gss_svc_shutdown(void);
- int gss_svc_init_net(struct net *net);
- void gss_svc_shutdown_net(struct net *net);
--int svcauth_gss_register_pseudoflavor(u32 pseudoflavor, char * name);
-+struct auth_domain *svcauth_gss_register_pseudoflavor(u32 pseudoflavor,
-+						      char *name);
- u32 svcauth_gss_flavor(struct auth_domain *dom);
+--- a/tools/perf/util/symbol.c
++++ b/tools/perf/util/symbol.c
+@@ -65,6 +65,7 @@ static enum dso_binary_type binary_type_
+ 	DSO_BINARY_TYPE__SYSTEM_PATH_KMODULE,
+ 	DSO_BINARY_TYPE__SYSTEM_PATH_KMODULE_COMP,
+ 	DSO_BINARY_TYPE__OPENEMBEDDED_DEBUGINFO,
++	DSO_BINARY_TYPE__MIXEDUP_UBUNTU_DEBUGINFO,
+ 	DSO_BINARY_TYPE__NOT_FOUND,
+ };
  
- #endif /* __KERNEL__ */
---- a/net/sunrpc/auth_gss/gss_mech_switch.c
-+++ b/net/sunrpc/auth_gss/gss_mech_switch.c
-@@ -36,6 +36,8 @@ gss_mech_free(struct gss_api_mech *gm)
- 
- 	for (i = 0; i < gm->gm_pf_num; i++) {
- 		pf = &gm->gm_pfs[i];
-+		if (pf->domain)
-+			auth_domain_put(pf->domain);
- 		kfree(pf->auth_domain_name);
- 		pf->auth_domain_name = NULL;
- 	}
-@@ -58,6 +60,7 @@ make_auth_domain_name(char *name)
- static int
- gss_mech_svc_setup(struct gss_api_mech *gm)
- {
-+	struct auth_domain *dom;
- 	struct pf_desc *pf;
- 	int i, status;
- 
-@@ -67,10 +70,13 @@ gss_mech_svc_setup(struct gss_api_mech *
- 		status = -ENOMEM;
- 		if (pf->auth_domain_name == NULL)
- 			goto out;
--		status = svcauth_gss_register_pseudoflavor(pf->pseudoflavor,
--							pf->auth_domain_name);
--		if (status)
-+		dom = svcauth_gss_register_pseudoflavor(
-+			pf->pseudoflavor, pf->auth_domain_name);
-+		if (IS_ERR(dom)) {
-+			status = PTR_ERR(dom);
- 			goto out;
-+		}
-+		pf->domain = dom;
- 	}
- 	return 0;
- out:
---- a/net/sunrpc/auth_gss/svcauth_gss.c
-+++ b/net/sunrpc/auth_gss/svcauth_gss.c
-@@ -800,7 +800,7 @@ u32 svcauth_gss_flavor(struct auth_domai
- 
- EXPORT_SYMBOL_GPL(svcauth_gss_flavor);
- 
--int
-+struct auth_domain *
- svcauth_gss_register_pseudoflavor(u32 pseudoflavor, char * name)
- {
- 	struct gss_domain	*new;
-@@ -823,17 +823,17 @@ svcauth_gss_register_pseudoflavor(u32 ps
- 			name);
- 		stat = -EADDRINUSE;
- 		auth_domain_put(test);
--		kfree(new->h.name);
--		goto out_free_dom;
-+		goto out_free_name;
- 	}
--	return 0;
-+	return test;
- 
-+out_free_name:
-+	kfree(new->h.name);
- out_free_dom:
- 	kfree(new);
- out:
--	return stat;
-+	return ERR_PTR(stat);
- }
--
- EXPORT_SYMBOL_GPL(svcauth_gss_register_pseudoflavor);
- 
- static inline int
+@@ -1419,6 +1420,7 @@ static bool dso__is_compatible_symtab_ty
+ 	case DSO_BINARY_TYPE__SYSTEM_PATH_DSO:
+ 	case DSO_BINARY_TYPE__FEDORA_DEBUGINFO:
+ 	case DSO_BINARY_TYPE__UBUNTU_DEBUGINFO:
++	case DSO_BINARY_TYPE__MIXEDUP_UBUNTU_DEBUGINFO:
+ 	case DSO_BINARY_TYPE__BUILDID_DEBUGINFO:
+ 	case DSO_BINARY_TYPE__OPENEMBEDDED_DEBUGINFO:
+ 		return !kmod && dso->kernel == DSO_TYPE_USER;
 
 
