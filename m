@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01E74201206
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:51:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0111C201252
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:52:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391773AbgFSPXp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:23:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55318 "EHLO mail.kernel.org"
+        id S2392480AbgFSPvl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:51:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392316AbgFSPXo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:23:44 -0400
+        id S2392683AbgFSPX6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:23:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DFA61218AC;
-        Fri, 19 Jun 2020 15:23:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 80616217A0;
+        Fri, 19 Jun 2020 15:23:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580223;
-        bh=MjLl3ug6sbtCBvmLTLKqCIvNlrMQAeBsiE98mZv6j0Q=;
+        s=default; t=1592580237;
+        bh=3fRy+M5MKsobW1DMkCE6aT8AuhzEA6KfX/ybdilXmPA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B3Ul5h1OZUq5zjNzYrQrUCy7Snv+yUP+lv09fw5mGIVVQhwyLvZ399afpWC0+yrNP
-         /6BxJ9u8euhXvxBbUEJTbosSBR94BgSM0TYXL30h6Mc8oFf8CzfVWBAKlsdfFqSuCB
-         omfY5lqYNb6c1hm5+sJobAUmES17mdE38nb8Q1Ng=
+        b=fiBuOxjwWI78AmHtQDiOy/8ukzkEOVN5BvI9bjCUdYiLkXppQI1A/2DEQaXDBa2GL
+         5KuCSMCFVbxNyjK3nCJap7Ufq58+l/ktusGUotFaZcFG7hC/Upi6W5MBcLE7jHdUB/
+         66Ms6TdnShvfX8oO4uNbyyncxEDAf83oknTOl1uA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mordechay Goodstein <mordechay.goodstein@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
+        stable@vger.kernel.org, Rakesh Pillai <pillair@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 168/376] iwlwifi: avoid debug max amsdu config overwriting itself
-Date:   Fri, 19 Jun 2020 16:31:26 +0200
-Message-Id: <20200619141718.275884757@linuxfoundation.org>
+Subject: [PATCH 5.7 173/376] ath10k: Skip handling del_server during driver exit
+Date:   Fri, 19 Jun 2020 16:31:31 +0200
+Message-Id: <20200619141718.519617653@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -45,94 +44,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mordechay Goodstein <mordechay.goodstein@intel.com>
+From: Rakesh Pillai <pillair@codeaurora.org>
 
-[ Upstream commit a65a5824298b06049dbaceb8a9bd19709dc9507c ]
+[ Upstream commit 7c6d67b136ceb0aebc7a3153b300e925ed915daf ]
 
-If we set amsdu_len one after another the second one overwrites
-the orig_amsdu_len so allow only moving from debug to non debug state.
+The qmi infrastructure sends the client a del_server
+event when the client releases its qmi handle. This
+is not the msg indicating the actual qmi server exiting.
+In such cases the del_server msg should not be processed,
+since the wifi firmware does not reset its qmi state.
 
-Also the TLC update check was wrong: it was checking that also the orig
-is smaller then the new updated size, which is not the case in debug
-amsdu mode.
+Hence skip the processing of del_server event when the
+driver is unloading.
 
-Signed-off-by: Mordechay Goodstein <mordechay.goodstein@intel.com>
-Fixes: af2984e9e625 ("iwlwifi: mvm: add a debugfs entry to set a fixed size AMSDU for all TX packets")
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20200424182644.e565446a4fce.I9729d8c520d8b8bb4de9a5cdc62e01eb85168aac@changeid
+Tested HW: WCN3990
+Tested FW: WLAN.HL.3.1-01040-QCAHLSWMTPLZ-1
+
+Fixes: ba94c753ccb4 ("ath10k: add QMI message handshake for wcn3990 client")
+Signed-off-by: Rakesh Pillai <pillair@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1588663061-12138-1-git-send-email-pillair@codeaurora.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/debugfs.c | 11 +++++++----
- drivers/net/wireless/intel/iwlwifi/mvm/rs-fw.c   | 15 ++++++++-------
- 2 files changed, 15 insertions(+), 11 deletions(-)
+ drivers/net/wireless/ath/ath10k/qmi.c | 13 ++++++++++++-
+ drivers/net/wireless/ath/ath10k/qmi.h |  6 ++++++
+ 2 files changed, 18 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/debugfs.c b/drivers/net/wireless/intel/iwlwifi/mvm/debugfs.c
-index 3beef8d077b8..8fae7e707374 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/debugfs.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/debugfs.c
-@@ -5,10 +5,9 @@
-  *
-  * GPL LICENSE SUMMARY
-  *
-- * Copyright(c) 2012 - 2014 Intel Corporation. All rights reserved.
-  * Copyright(c) 2013 - 2015 Intel Mobile Communications GmbH
-  * Copyright(c) 2016 - 2017 Intel Deutschland GmbH
-- * Copyright(c) 2018 - 2019 Intel Corporation
-+ * Copyright(c) 2012 - 2014, 2018 - 2020 Intel Corporation
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of version 2 of the GNU General Public License as
-@@ -28,10 +27,9 @@
-  *
-  * BSD LICENSE
-  *
-- * Copyright(c) 2012 - 2014 Intel Corporation. All rights reserved.
-  * Copyright(c) 2013 - 2015 Intel Mobile Communications GmbH
-  * Copyright(c) 2016 - 2017 Intel Deutschland GmbH
-- * Copyright(c) 2018 - 2019 Intel Corporation
-+ * Copyright(c) 2012 - 2014, 2018 - 2020 Intel Corporation
-  * All rights reserved.
-  *
-  * Redistribution and use in source and binary forms, with or without
-@@ -481,6 +479,11 @@ static ssize_t iwl_dbgfs_amsdu_len_write(struct ieee80211_sta *sta,
- 	if (kstrtou16(buf, 0, &amsdu_len))
- 		return -EINVAL;
+diff --git a/drivers/net/wireless/ath/ath10k/qmi.c b/drivers/net/wireless/ath/ath10k/qmi.c
+index 85dce43c5439..7abdef8d6b9b 100644
+--- a/drivers/net/wireless/ath/ath10k/qmi.c
++++ b/drivers/net/wireless/ath/ath10k/qmi.c
+@@ -961,7 +961,16 @@ static void ath10k_qmi_del_server(struct qmi_handle *qmi_hdl,
+ 		container_of(qmi_hdl, struct ath10k_qmi, qmi_hdl);
  
-+	/* only change from debug set <-> debug unset */
-+	if ((amsdu_len && mvmsta->orig_amsdu_len) ||
-+	    (!!amsdu_len && mvmsta->orig_amsdu_len))
-+		return -EBUSY;
+ 	qmi->fw_ready = false;
+-	ath10k_qmi_driver_event_post(qmi, ATH10K_QMI_EVENT_SERVER_EXIT, NULL);
 +
- 	if (amsdu_len) {
- 		mvmsta->orig_amsdu_len = sta->max_amsdu_len;
- 		sta->max_amsdu_len = amsdu_len;
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/rs-fw.c b/drivers/net/wireless/intel/iwlwifi/mvm/rs-fw.c
-index 15d11fb72aca..6f4d241d47e9 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/rs-fw.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/rs-fw.c
-@@ -369,14 +369,15 @@ void iwl_mvm_tlc_update_notif(struct iwl_mvm *mvm,
- 		u16 size = le32_to_cpu(notif->amsdu_size);
- 		int i;
++	/*
++	 * The del_server event is to be processed only if coming from
++	 * the qmi server. The qmi infrastructure sends del_server, when
++	 * any client releases the qmi handle. In this case do not process
++	 * this del_server event.
++	 */
++	if (qmi->state == ATH10K_QMI_STATE_INIT_DONE)
++		ath10k_qmi_driver_event_post(qmi, ATH10K_QMI_EVENT_SERVER_EXIT,
++					     NULL);
+ }
  
--		/*
--		 * In debug sta->max_amsdu_len < size
--		 * so also check with orig_amsdu_len which holds the original
--		 * data before debugfs changed the value
--		 */
--		if (WARN_ON(sta->max_amsdu_len < size &&
--			    mvmsta->orig_amsdu_len < size))
-+		if (sta->max_amsdu_len < size) {
-+			/*
-+			 * In debug sta->max_amsdu_len < size
-+			 * so also check with orig_amsdu_len which holds the
-+			 * original data before debugfs changed the value
-+			 */
-+			WARN_ON(mvmsta->orig_amsdu_len < size);
- 			goto out;
-+		}
+ static struct qmi_ops ath10k_qmi_ops = {
+@@ -1091,6 +1100,7 @@ int ath10k_qmi_init(struct ath10k *ar, u32 msa_size)
+ 	if (ret)
+ 		goto err_qmi_lookup;
  
- 		mvmsta->amsdu_enabled = le32_to_cpu(notif->amsdu_enabled);
- 		mvmsta->max_amsdu_len = size;
++	qmi->state = ATH10K_QMI_STATE_INIT_DONE;
+ 	return 0;
+ 
+ err_qmi_lookup:
+@@ -1109,6 +1119,7 @@ int ath10k_qmi_deinit(struct ath10k *ar)
+ 	struct ath10k_snoc *ar_snoc = ath10k_snoc_priv(ar);
+ 	struct ath10k_qmi *qmi = ar_snoc->qmi;
+ 
++	qmi->state = ATH10K_QMI_STATE_DEINIT;
+ 	qmi_handle_release(&qmi->qmi_hdl);
+ 	cancel_work_sync(&qmi->event_work);
+ 	destroy_workqueue(qmi->event_wq);
+diff --git a/drivers/net/wireless/ath/ath10k/qmi.h b/drivers/net/wireless/ath/ath10k/qmi.h
+index dc257375f161..b59720524224 100644
+--- a/drivers/net/wireless/ath/ath10k/qmi.h
++++ b/drivers/net/wireless/ath/ath10k/qmi.h
+@@ -83,6 +83,11 @@ struct ath10k_qmi_driver_event {
+ 	void *data;
+ };
+ 
++enum ath10k_qmi_state {
++	ATH10K_QMI_STATE_INIT_DONE,
++	ATH10K_QMI_STATE_DEINIT,
++};
++
+ struct ath10k_qmi {
+ 	struct ath10k *ar;
+ 	struct qmi_handle qmi_hdl;
+@@ -105,6 +110,7 @@ struct ath10k_qmi {
+ 	char fw_build_timestamp[MAX_TIMESTAMP_LEN + 1];
+ 	struct ath10k_qmi_cal_data cal_data[MAX_NUM_CAL_V01];
+ 	bool msa_fixed_perm;
++	enum ath10k_qmi_state state;
+ };
+ 
+ int ath10k_qmi_wlan_enable(struct ath10k *ar,
 -- 
 2.25.1
 
