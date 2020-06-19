@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A77792017CB
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34ADB201719
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:46:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395343AbgFSQn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:43:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34484 "EHLO mail.kernel.org"
+        id S2388633AbgFSQeQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:34:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388118AbgFSOnZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:43:25 -0400
+        id S2389032AbgFSOvE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:51:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4246C2166E;
-        Fri, 19 Jun 2020 14:43:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2379F206DB;
+        Fri, 19 Jun 2020 14:51:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577804;
-        bh=ZXajvuiMPy9Mi1OaldQr7gj7g5z4w1MmOTv9Xeh694I=;
+        s=default; t=1592578264;
+        bh=TcGHcLnHLGz7sGNPgaP4VkVQZqw9UyLcABa8s7T6V/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OoWM4CLtzll+fbW/YGUWvRT017RGisfuRVEoeC+1OCe3MbjEhkiaUetuEfkGjX16K
-         rAUuGoNlazdpty9thDiUDEEVg9p4V+t85QS1sXPeCD59p+610hTROyCBjS6yrhq79w
-         zq6ElCcHIKn6MCt1VmY1gFuz8Il37bjvGU8yCEXg=
+        b=XXizpK7eYJ/lV+2Uff50uQMWZQNsl8Ocwjp7CZNIFf/oWnTF2jcUk4Sqp2NwmHods
+         39vPOoKhtGvIXKatj/156FuT9k/+8cTRhBRJ5HwyDIoPttrSfnNrxu0FHu7MsiffZt
+         e4PEkINQHwmiU8f0oV/nW5u8mdBuE9VpqOhn/SQk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Marcos Paulo de Souza <mpdesouza@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.9 097/128] btrfs: send: emit file capabilities after chown
+        stable@vger.kernel.org, Jeffle Xu <jefflexu@linux.alibaba.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Ritesh Harjani <riteshh@linux.ibm.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
+        stable@kernel.org
+Subject: [PATCH 4.14 146/190] ext4: fix error pointer dereference
 Date:   Fri, 19 Jun 2020 16:33:11 +0200
-Message-Id: <20200619141625.263782215@linuxfoundation.org>
+Message-Id: <20200619141640.995132268@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
-References: <20200619141620.148019466@linuxfoundation.org>
+In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
+References: <20200619141633.446429600@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,154 +46,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcos Paulo de Souza <mpdesouza@suse.com>
+From: Jeffle Xu <jefflexu@linux.alibaba.com>
 
-commit 89efda52e6b6930f80f5adda9c3c9edfb1397191 upstream.
+commit 8418897f1bf87da0cb6936489d57a4320c32c0af upstream.
 
-Whenever a chown is executed, all capabilities of the file being touched
-are lost.  When doing incremental send with a file with capabilities,
-there is a situation where the capability can be lost on the receiving
-side. The sequence of actions bellow shows the problem:
+Don't pass error pointers to brelse().
 
-  $ mount /dev/sda fs1
-  $ mount /dev/sdb fs2
+commit 7159a986b420 ("ext4: fix some error pointer dereferences") has fixed
+some cases, fix the remaining one case.
 
-  $ touch fs1/foo.bar
-  $ setcap cap_sys_nice+ep fs1/foo.bar
-  $ btrfs subvolume snapshot -r fs1 fs1/snap_init
-  $ btrfs send fs1/snap_init | btrfs receive fs2
+Once ext4_xattr_block_find()->ext4_sb_bread() failed, error pointer is
+stored in @bs->bh, which will be passed to brelse() in the cleanup
+routine of ext4_xattr_set_handle(). This will then cause a NULL panic
+crash in __brelse().
 
-  $ chgrp adm fs1/foo.bar
-  $ setcap cap_sys_nice+ep fs1/foo.bar
+BUG: unable to handle kernel NULL pointer dereference at 000000000000005b
+RIP: 0010:__brelse+0x1b/0x50
+Call Trace:
+ ext4_xattr_set_handle+0x163/0x5d0
+ ext4_xattr_set+0x95/0x110
+ __vfs_setxattr+0x6b/0x80
+ __vfs_setxattr_noperm+0x68/0x1b0
+ vfs_setxattr+0xa0/0xb0
+ setxattr+0x12c/0x1a0
+ path_setxattr+0x8d/0xc0
+ __x64_sys_setxattr+0x27/0x30
+ do_syscall_64+0x60/0x250
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-  $ btrfs subvolume snapshot -r fs1 fs1/snap_complete
-  $ btrfs subvolume snapshot -r fs1 fs1/snap_incremental
+In this case, @bs->bh stores '-EIO' actually.
 
-  $ btrfs send fs1/snap_complete | btrfs receive fs2
-  $ btrfs send -p fs1/snap_init fs1/snap_incremental | btrfs receive fs2
-
-At this point, only a chown was emitted by "btrfs send" since only the
-group was changed. This makes the cap_sys_nice capability to be dropped
-from fs2/snap_incremental/foo.bar
-
-To fix that, only emit capabilities after chown is emitted. The current
-code first checks for xattrs that are new/changed, emits them, and later
-emit the chown. Now, __process_new_xattr skips capabilities, letting
-only finish_inode_if_needed to emit them, if they exist, for the inode
-being processed.
-
-This behavior was being worked around in "btrfs receive" side by caching
-the capability and only applying it after chown. Now, xattrs are only
-emmited _after_ chown, making that workaround not needed anymore.
-
-Link: https://github.com/kdave/btrfs-progs/issues/202
-CC: stable@vger.kernel.org # 4.4+
-Suggested-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Marcos Paulo de Souza <mpdesouza@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: fb265c9cb49e ("ext4: add ext4_sb_bread() to disambiguate ENOMEM cases")
+Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: stable@kernel.org # 2.6.19
+Reviewed-by: Ritesh Harjani <riteshh@linux.ibm.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/1587628004-95123-1-git-send-email-jefflexu@linux.alibaba.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/send.c |   67 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 67 insertions(+)
+ fs/ext4/xattr.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/fs/btrfs/send.c
-+++ b/fs/btrfs/send.c
-@@ -35,6 +35,7 @@
- #include "btrfs_inode.h"
- #include "transaction.h"
- #include "compression.h"
-+#include "xattr.h"
- 
- /*
-  * Maximum number of references an extent can have in order for us to attempt to
-@@ -4368,6 +4369,10 @@ static int __process_new_xattr(int num,
- 	struct fs_path *p;
- 	struct posix_acl_xattr_header dummy_acl;
- 
-+	/* Capabilities are emitted by finish_inode_if_needed */
-+	if (!strncmp(name, XATTR_NAME_CAPS, name_len))
-+		return 0;
-+
- 	p = fs_path_alloc();
- 	if (!p)
- 		return -ENOMEM;
-@@ -4904,6 +4909,64 @@ static int send_extent_data(struct send_
- 	return 0;
- }
- 
-+/*
-+ * Search for a capability xattr related to sctx->cur_ino. If the capability is
-+ * found, call send_set_xattr function to emit it.
-+ *
-+ * Return 0 if there isn't a capability, or when the capability was emitted
-+ * successfully, or < 0 if an error occurred.
-+ */
-+static int send_capabilities(struct send_ctx *sctx)
-+{
-+	struct fs_path *fspath = NULL;
-+	struct btrfs_path *path;
-+	struct btrfs_dir_item *di;
-+	struct extent_buffer *leaf;
-+	unsigned long data_ptr;
-+	char *buf = NULL;
-+	int buf_len;
-+	int ret = 0;
-+
-+	path = alloc_path_for_send();
-+	if (!path)
-+		return -ENOMEM;
-+
-+	di = btrfs_lookup_xattr(NULL, sctx->send_root, path, sctx->cur_ino,
-+				XATTR_NAME_CAPS, strlen(XATTR_NAME_CAPS), 0);
-+	if (!di) {
-+		/* There is no xattr for this inode */
-+		goto out;
-+	} else if (IS_ERR(di)) {
-+		ret = PTR_ERR(di);
-+		goto out;
-+	}
-+
-+	leaf = path->nodes[0];
-+	buf_len = btrfs_dir_data_len(leaf, di);
-+
-+	fspath = fs_path_alloc();
-+	buf = kmalloc(buf_len, GFP_KERNEL);
-+	if (!fspath || !buf) {
-+		ret = -ENOMEM;
-+		goto out;
-+	}
-+
-+	ret = get_cur_path(sctx, sctx->cur_ino, sctx->cur_inode_gen, fspath);
-+	if (ret < 0)
-+		goto out;
-+
-+	data_ptr = (unsigned long)(di + 1) + btrfs_dir_name_len(leaf, di);
-+	read_extent_buffer(leaf, buf, data_ptr, buf_len);
-+
-+	ret = send_set_xattr(sctx, fspath, XATTR_NAME_CAPS,
-+			strlen(XATTR_NAME_CAPS), buf, buf_len);
-+out:
-+	kfree(buf);
-+	fs_path_free(fspath);
-+	btrfs_free_path(path);
-+	return ret;
-+}
-+
- static int clone_range(struct send_ctx *sctx,
- 		       struct clone_root *clone_root,
- 		       const u64 disk_byte,
-@@ -5615,6 +5678,10 @@ static int finish_inode_if_needed(struct
- 			goto out;
- 	}
- 
-+	ret = send_capabilities(sctx);
-+	if (ret < 0)
-+		goto out;
-+
- 	/*
- 	 * If other directory inodes depended on our current directory
- 	 * inode's move/rename, now do their move/rename operations.
+--- a/fs/ext4/xattr.c
++++ b/fs/ext4/xattr.c
+@@ -1823,8 +1823,11 @@ ext4_xattr_block_find(struct inode *inod
+ 	if (EXT4_I(inode)->i_file_acl) {
+ 		/* The inode already has an extended attribute block. */
+ 		bs->bh = ext4_sb_bread(sb, EXT4_I(inode)->i_file_acl, REQ_PRIO);
+-		if (IS_ERR(bs->bh))
+-			return PTR_ERR(bs->bh);
++		if (IS_ERR(bs->bh)) {
++			error = PTR_ERR(bs->bh);
++			bs->bh = NULL;
++			return error;
++		}
+ 		ea_bdebug(bs->bh, "b_count=%d, refcount=%d",
+ 			atomic_read(&(bs->bh->b_count)),
+ 			le32_to_cpu(BHDR(bs->bh)->h_refcount));
 
 
