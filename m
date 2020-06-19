@@ -2,37 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 466EB20119F
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:47:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43D892011B7
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:47:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393611AbgFSP2L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:28:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59980 "EHLO mail.kernel.org"
+        id S2394082AbgFSPnx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:43:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393602AbgFSP2K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:28:10 -0400
+        id S2393614AbgFSP2M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:28:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F39FC2186A;
-        Fri, 19 Jun 2020 15:28:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6FAE5218AC;
+        Fri, 19 Jun 2020 15:28:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580489;
-        bh=xRo2ZLoH5JAv7L1brsNsPNMbLmdnOh1xt5+ys199Xq0=;
+        s=default; t=1592580491;
+        bh=h07Z37vc4lsb8abLGkmrAV4a9DYuCzNCEUwO+VeYHxU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cTK96I4yy5M2g6GBAZVxQwkBuhw2Pc0Ft84wuFeWW7LmI55l422fnJ0GVo8MSAOuW
-         D11hvqXxvmtRDoIY56hSHOmbqsp3r0UFCSOqfgx4X0s7Xs2pHbbRdrUVKHCRyK96nW
-         mg8BodYxVJe7aprc+rWTMPBVML1J8t9suoqp4Hpg=
+        b=z8Kt5FS+05D1WHOnADW6MahbuFqt8/OBJ6+R5ZU8EjgHJsmrIRmCLcKmJWILXgpbQ
+         wYDiDhxT/UsNTbm9O1DuCTn9AY65D9518hWrqnXklB2gvZ3zWLYDtJDJJSlaS9Nl7n
+         FML33pRyXDI5erBg3LMWWqVdXUiH7sLG0fP+kB2M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrea Arcangeli <aarcange@redhat.com>,
-        Jann Horn <jannh@google.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        stable@vger.kernel.org,
+        Shile Zhang <shile.zhang@linux.alibaba.com>,
+        Pavel Tatashin <pasha.tatashin@soleen.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Daniel Jordan <daniel.m.jordan@oracle.com>,
+        David Hildenbrand <david@redhat.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Dan Williams <dan.j.williams@intel.com>,
+        James Morris <jmorris@namei.org>,
+        Kirill Tkhai <ktkhai@virtuozzo.com>,
+        Sasha Levin <sashal@kernel.org>, Yiqian Wei <yiwei@redhat.com>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.7 268/376] mm: thp: make the THP mapcount atomic against __split_huge_pmd_locked()
-Date:   Fri, 19 Jun 2020 16:33:06 +0200
-Message-Id: <20200619141723.019178344@linuxfoundation.org>
+Subject: [PATCH 5.7 269/376] mm: initialize deferred pages with interrupts enabled
+Date:   Fri, 19 Jun 2020 16:33:07 +0200
+Message-Id: <20200619141723.062076316@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -45,102 +54,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Arcangeli <aarcange@redhat.com>
+From: Pavel Tatashin <pasha.tatashin@soleen.com>
 
-commit c444eb564fb16645c172d550359cb3d75fe8a040 upstream.
+commit 3d060856adfc59afb9d029c233141334cfaba418 upstream.
 
-Write protect anon page faults require an accurate mapcount to decide
-if to break the COW or not. This is implemented in the THP path with
-reuse_swap_page() ->
-page_trans_huge_map_swapcount()/page_trans_huge_mapcount().
+Initializing struct pages is a long task and keeping interrupts disabled
+for the duration of this operation introduces a number of problems.
 
-If the COW triggers while the other processes sharing the page are
-under a huge pmd split, to do an accurate reading, we must ensure the
-mapcount isn't computed while it's being transferred from the head
-page to the tail pages.
+1. jiffies are not updated for long period of time, and thus incorrect time
+   is reported. See proposed solution and discussion here:
+   lkml/20200311123848.118638-1-shile.zhang@linux.alibaba.com
+2. It prevents farther improving deferred page initialization by allowing
+   intra-node multi-threading.
 
-reuse_swap_cache() already runs serialized by the page lock, so it's
-enough to add the page lock around __split_huge_pmd_locked too, in
-order to add the missing serialization.
+We are keeping interrupts disabled to solve a rather theoretical problem
+that was never observed in real world (See 3a2d7fa8a3d5).
 
-Note: the commit in "Fixes" is just to facilitate the backporting,
-because the code before such commit didn't try to do an accurate THP
-mapcount calculation and it instead used the page_count() to decide if
-to COW or not. Both the page_count and the pin_count are THP-wide
-refcounts, so they're inaccurate if used in
-reuse_swap_page(). Reverting such commit (besides the unrelated fix to
-the local anon_vma assignment) would have also opened the window for
-memory corruption side effects to certain workloads as documented in
-such commit header.
+Let's keep interrupts enabled. In case we ever encounter a scenario where
+an interrupt thread wants to allocate large amount of memory this early in
+boot we can deal with that by growing zone (see deferred_grow_zone()) by
+the needed amount before starting deferred_init_memmap() threads.
 
-Signed-off-by: Andrea Arcangeli <aarcange@redhat.com>
-Suggested-by: Jann Horn <jannh@google.com>
-Reported-by: Jann Horn <jannh@google.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Fixes: 6d0a07edd17c ("mm: thp: calculate the mapcount correctly for THP pages during WP faults")
-Cc: stable@vger.kernel.org
+Before:
+[    1.232459] node 0 initialised, 12058412 pages in 1ms
+
+After:
+[    1.632580] node 0 initialised, 12051227 pages in 436ms
+
+Fixes: 3a2d7fa8a3d5 ("mm: disable interrupts while initializing deferred pages")
+Reported-by: Shile Zhang <shile.zhang@linux.alibaba.com>
+Signed-off-by: Pavel Tatashin <pasha.tatashin@soleen.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: James Morris <jmorris@namei.org>
+Cc: Kirill Tkhai <ktkhai@virtuozzo.com>
+Cc: Sasha Levin <sashal@kernel.org>
+Cc: Yiqian Wei <yiwei@redhat.com>
+Cc: <stable@vger.kernel.org>	[4.17+]
+Link: http://lkml.kernel.org/r/20200403140952.17177-3-pasha.tatashin@soleen.com
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/huge_memory.c |   31 ++++++++++++++++++++++++++++---
- 1 file changed, 28 insertions(+), 3 deletions(-)
+ include/linux/mmzone.h |    2 ++
+ mm/page_alloc.c        |   20 +++++++-------------
+ 2 files changed, 9 insertions(+), 13 deletions(-)
 
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -2385,6 +2385,8 @@ void __split_huge_pmd(struct vm_area_str
- {
- 	spinlock_t *ptl;
- 	struct mmu_notifier_range range;
-+	bool was_locked = false;
-+	pmd_t _pmd;
- 
- 	mmu_notifier_range_init(&range, MMU_NOTIFY_CLEAR, 0, vma, vma->vm_mm,
- 				address & HPAGE_PMD_MASK,
-@@ -2397,11 +2399,32 @@ void __split_huge_pmd(struct vm_area_str
- 	 * pmd against. Otherwise we can end up replacing wrong page.
- 	 */
- 	VM_BUG_ON(freeze && !page);
--	if (page && page != pmd_page(*pmd))
--	        goto out;
-+	if (page) {
-+		VM_WARN_ON_ONCE(!PageLocked(page));
-+		was_locked = true;
-+		if (page != pmd_page(*pmd))
-+			goto out;
-+	}
- 
-+repeat:
- 	if (pmd_trans_huge(*pmd)) {
--		page = pmd_page(*pmd);
-+		if (!page) {
-+			page = pmd_page(*pmd);
-+			if (unlikely(!trylock_page(page))) {
-+				get_page(page);
-+				_pmd = *pmd;
-+				spin_unlock(ptl);
-+				lock_page(page);
-+				spin_lock(ptl);
-+				if (unlikely(!pmd_same(*pmd, _pmd))) {
-+					unlock_page(page);
-+					put_page(page);
-+					page = NULL;
-+					goto repeat;
-+				}
-+				put_page(page);
-+			}
-+		}
- 		if (PageMlocked(page))
- 			clear_page_mlock(page);
- 	} else if (!(pmd_devmap(*pmd) || is_pmd_migration_entry(*pmd)))
-@@ -2409,6 +2432,8 @@ void __split_huge_pmd(struct vm_area_str
- 	__split_huge_pmd_locked(vma, pmd, range.start, freeze);
- out:
- 	spin_unlock(ptl);
-+	if (!was_locked && page)
-+		unlock_page(page);
+--- a/include/linux/mmzone.h
++++ b/include/linux/mmzone.h
+@@ -678,6 +678,8 @@ typedef struct pglist_data {
  	/*
- 	 * No need to double call mmu_notifier->invalidate_range() callback.
- 	 * They are 3 cases to consider inside __split_huge_pmd_locked():
+ 	 * Must be held any time you expect node_start_pfn,
+ 	 * node_present_pages, node_spanned_pages or nr_zones to stay constant.
++	 * Also synchronizes pgdat->first_deferred_pfn during deferred page
++	 * init.
+ 	 *
+ 	 * pgdat_resize_lock() and pgdat_resize_unlock() are provided to
+ 	 * manipulate node_size_lock without checking for CONFIG_MEMORY_HOTPLUG
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -1845,6 +1845,13 @@ static int __init deferred_init_memmap(v
+ 	BUG_ON(pgdat->first_deferred_pfn > pgdat_end_pfn(pgdat));
+ 	pgdat->first_deferred_pfn = ULONG_MAX;
+ 
++	/*
++	 * Once we unlock here, the zone cannot be grown anymore, thus if an
++	 * interrupt thread must allocate this early in boot, zone must be
++	 * pre-grown prior to start of deferred page initialization.
++	 */
++	pgdat_resize_unlock(pgdat, &flags);
++
+ 	/* Only the highest zone is deferred so find it */
+ 	for (zid = 0; zid < MAX_NR_ZONES; zid++) {
+ 		zone = pgdat->node_zones + zid;
+@@ -1865,8 +1872,6 @@ static int __init deferred_init_memmap(v
+ 	while (spfn < epfn)
+ 		nr_pages += deferred_init_maxorder(&i, zone, &spfn, &epfn);
+ zone_empty:
+-	pgdat_resize_unlock(pgdat, &flags);
+-
+ 	/* Sanity check that the next zone really is unpopulated */
+ 	WARN_ON(++zid < MAX_NR_ZONES && populated_zone(++zone));
+ 
+@@ -1909,17 +1914,6 @@ deferred_grow_zone(struct zone *zone, un
+ 	pgdat_resize_lock(pgdat, &flags);
+ 
+ 	/*
+-	 * If deferred pages have been initialized while we were waiting for
+-	 * the lock, return true, as the zone was grown.  The caller will retry
+-	 * this zone.  We won't return to this function since the caller also
+-	 * has this static branch.
+-	 */
+-	if (!static_branch_unlikely(&deferred_pages)) {
+-		pgdat_resize_unlock(pgdat, &flags);
+-		return true;
+-	}
+-
+-	/*
+ 	 * If someone grew this zone while we were waiting for spinlock, return
+ 	 * true, as there might be enough pages already.
+ 	 */
 
 
