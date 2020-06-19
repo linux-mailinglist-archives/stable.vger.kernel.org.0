@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74C102013C0
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:07:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1428C201554
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:22:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405475AbgFSQDY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:03:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42014 "EHLO mail.kernel.org"
+        id S2390680AbgFSQVL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:21:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392126AbgFSPLi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:11:38 -0400
+        id S2390332AbgFSPAx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:00:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B9AD2158C;
-        Fri, 19 Jun 2020 15:11:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F98421582;
+        Fri, 19 Jun 2020 15:00:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579497;
-        bh=tL/acNf1vHtTAwCq0RaBlHXUprEJKc6+sPNDpB+oLs4=;
+        s=default; t=1592578853;
+        bh=kG9t7AnTnL9Y93YN+7mvClU3moEy9xDxPacmFdvK0/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zz7XaRSHjMxiT7UL5ZPjZ5oXcjgIckyMFtQKS0TFPO7Zw4l/U5V/OS9NQbwsHdFZt
-         lxLQL+op3ptUK15W/Ki+CjwyDnbRM0by3AqJt1x+jpsBvNpmemnFgPM1CiO3FxsrDn
-         j9E1RAMFWGJJTd7vv6i/qSponX8PdzZTByOsl9HQ=
+        b=HEG/HqgimmwUGs9+3NjZbqh91EDGLUSXQ6fABEPC+QLCMEkvQCH2cJ+R+PR203Wvq
+         GnGuj1WFgdVXPfxJMKh2nKVFNKd2MpuGplf6bM1oJdiAvImvZiuzT0UKNcJJvQH0BB
+         RKBfUphMnc9UAcnrg8X7wRE/ryqUuPb5aIR8AO6E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, chen gong <curry.gong@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Rakesh Pillai <pillair@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 127/261] drm/amd/powerpay: Disable gfxoff when setting manual mode on picasso and raven
-Date:   Fri, 19 Jun 2020 16:32:18 +0200
-Message-Id: <20200619141655.957372377@linuxfoundation.org>
+Subject: [PATCH 4.19 154/267] ath10k: Remove msdu from idr when management pkt send fails
+Date:   Fri, 19 Jun 2020 16:32:19 +0200
+Message-Id: <20200619141656.212900201@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
-References: <20200619141649.878808811@linuxfoundation.org>
+In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
+References: <20200619141648.840376470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,96 +44,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: chen gong <curry.gong@amd.com>
+From: Rakesh Pillai <pillair@codeaurora.org>
 
-[ Upstream commit cbd2d08c7463e78d625a69e9db27ad3004cbbd99 ]
+[ Upstream commit c730c477176ad4af86d9aae4d360a7ad840b073a ]
 
-[Problem description]
-1. Boot up picasso platform, launches desktop, Don't do anything (APU enter into "gfxoff" state)
-2. Remote login to platform using SSH, then type the command line:
-	sudo su -c "echo manual > /sys/class/drm/card0/device/power_dpm_force_performance_level"
-	sudo su -c "echo 2 > /sys/class/drm/card0/device/pp_dpm_sclk" (fix SCLK to 1400MHz)
-3. Move the mouse around in Window
-4. Phenomenon :  The screen frozen
+Currently when the sending of any management pkt
+via wmi command fails, the packet is being unmapped
+freed in the error handling. But the idr entry added,
+which is used to track these packet is not getting removed.
 
-Tester will switch sclk level during glmark2 run time.
-APU will enter "gfxoff" state intermittently during glmark2 run time.
-The system got hanged if fix GFXCLK to 1400MHz when APU is in "gfxoff"
-state.
+Hence, during unload, in wmi cleanup, all the entries
+in IDR are removed and the corresponding buffer is
+attempted to be freed. This can cause a situation where
+one packet is attempted to be freed twice.
 
-[Debug]
-1. Fix SCLK to X MHz
-	1400: screen frozen, screen black, then OS will reboot.
-	1300: screen frozen.
-	1200: screen frozen, screen black.
-	1100: screen frozen, screen black, then OS will reboot.
-	1000: screen frozen, screen black.
-	900:  screen frozen, screen black, then OS will reboot.
-	800:  Situation Nomal, issue disappear.
-	700:  Situation Nomal, issue disappear.
-2. SBIOS setting: AMD CBS --> SMU Debug Options -->SMU Debug --> "GFX DLDO Psm Margin Control":
-	50 : Situation Nomal, issue disappear.
-	45 : Situation Nomal, issue disappear.
-	40 : Situation Nomal, issue disappear.
-	35 : Situation Nomal, issue disappear.
-	30 : screen black.
-	25 : screen frozen, then blurred screen.
-	20 : screen frozen.
-	15 : screen black.
-	10 : screen frozen.
-	5  : screen frozen, then blurred screen.
-3. Disable GFXOFF feature
-	Situation Nomal, issue disappear.
+Fix this error by rmeoving the msdu from the idr
+list when the sending of a management packet over
+wmi fails.
 
-[Why]
-Through a period of time debugging with Sys Eng team and SMU team, Sys
-Eng team said this is voltage/frequency marginal issue not a F/W or H/W
-bug. This experiment proves that default targetPsm [for f=1400MHz] is
-not sufficient when GFXOFF is enabled on Picasso.
+Tested HW: WCN3990
+Tested FW: WLAN.HL.3.1-01040-QCAHLSWMTPLZ-1
 
-SMU team think it is an odd test conditions to force sclk="1400MHz" when
-GPU is in "gfxoff" state，then wake up the GFX. SCLK should be in the
-"lowest frequency" when gfxoff.
-
-[How]
-Disable gfxoff when setting manual mode.
-Enable gfxoff when setting other mode(exiting manual mode) again.
-
-By the way, from the user point of view, now that user switch to manual
-mode and force SCLK Frequency, he don't want SCLK be controlled by
-workload.It becomes meaningless to "switch to manual mode" if APU enter "gfxoff"
-due to lack of workload at this point.
-
-Tips: Same issue observed on Raven.
-
-Signed-off-by: chen gong <curry.gong@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 1807da49733e ("ath10k: wmi: add management tx by reference support over wmi")
+Signed-off-by: Rakesh Pillai <pillair@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1588667015-25490-1-git-send-email-pillair@codeaurora.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/net/wireless/ath/ath10k/mac.c     |  3 +++
+ drivers/net/wireless/ath/ath10k/wmi-ops.h | 10 ++++++++++
+ drivers/net/wireless/ath/ath10k/wmi-tlv.c | 15 +++++++++++++++
+ 3 files changed, 28 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c
-index c8008b956363..d1d2372ab7ca 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c
-@@ -370,6 +370,15 @@ static ssize_t amdgpu_set_dpm_forced_performance_level(struct device *dev,
- 	if (current_level == level)
- 		return count;
- 
-+	if (adev->asic_type == CHIP_RAVEN) {
-+		if (adev->rev_id < 8) {
-+			if (current_level != AMD_DPM_FORCED_LEVEL_MANUAL && level == AMD_DPM_FORCED_LEVEL_MANUAL)
-+				amdgpu_gfx_off_ctrl(adev, false);
-+			else if (current_level == AMD_DPM_FORCED_LEVEL_MANUAL && level != AMD_DPM_FORCED_LEVEL_MANUAL)
-+				amdgpu_gfx_off_ctrl(adev, true);
-+		}
-+	}
+diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
+index a09d7a07e90a..81af403c19c2 100644
+--- a/drivers/net/wireless/ath/ath10k/mac.c
++++ b/drivers/net/wireless/ath/ath10k/mac.c
+@@ -3852,6 +3852,9 @@ void ath10k_mgmt_over_wmi_tx_work(struct work_struct *work)
+ 			if (ret) {
+ 				ath10k_warn(ar, "failed to transmit management frame by ref via WMI: %d\n",
+ 					    ret);
++				/* remove this msdu from idr tracking */
++				ath10k_wmi_cleanup_mgmt_tx_send(ar, skb);
 +
- 	/* profile_exit setting is valid only when current mode is in profile mode */
- 	if (!(current_level & (AMD_DPM_FORCED_LEVEL_PROFILE_STANDARD |
- 	    AMD_DPM_FORCED_LEVEL_PROFILE_MIN_SCLK |
+ 				dma_unmap_single(ar->dev, paddr, skb->len,
+ 						 DMA_TO_DEVICE);
+ 				ieee80211_free_txskb(ar->hw, skb);
+diff --git a/drivers/net/wireless/ath/ath10k/wmi-ops.h b/drivers/net/wireless/ath/ath10k/wmi-ops.h
+index 7fd63bbf8e24..b6cd33fa79f8 100644
+--- a/drivers/net/wireless/ath/ath10k/wmi-ops.h
++++ b/drivers/net/wireless/ath/ath10k/wmi-ops.h
+@@ -139,6 +139,7 @@ struct wmi_ops {
+ 	struct sk_buff *(*gen_mgmt_tx_send)(struct ath10k *ar,
+ 					    struct sk_buff *skb,
+ 					    dma_addr_t paddr);
++	int (*cleanup_mgmt_tx_send)(struct ath10k *ar, struct sk_buff *msdu);
+ 	struct sk_buff *(*gen_dbglog_cfg)(struct ath10k *ar, u64 module_enable,
+ 					  u32 log_level);
+ 	struct sk_buff *(*gen_pktlog_enable)(struct ath10k *ar, u32 filter);
+@@ -431,6 +432,15 @@ ath10k_wmi_get_txbf_conf_scheme(struct ath10k *ar)
+ 	return ar->wmi.ops->get_txbf_conf_scheme(ar);
+ }
+ 
++static inline int
++ath10k_wmi_cleanup_mgmt_tx_send(struct ath10k *ar, struct sk_buff *msdu)
++{
++	if (!ar->wmi.ops->cleanup_mgmt_tx_send)
++		return -EOPNOTSUPP;
++
++	return ar->wmi.ops->cleanup_mgmt_tx_send(ar, msdu);
++}
++
+ static inline int
+ ath10k_wmi_mgmt_tx_send(struct ath10k *ar, struct sk_buff *msdu,
+ 			dma_addr_t paddr)
+diff --git a/drivers/net/wireless/ath/ath10k/wmi-tlv.c b/drivers/net/wireless/ath/ath10k/wmi-tlv.c
+index 248decb494c2..7f435fa29f75 100644
+--- a/drivers/net/wireless/ath/ath10k/wmi-tlv.c
++++ b/drivers/net/wireless/ath/ath10k/wmi-tlv.c
+@@ -2638,6 +2638,18 @@ ath10k_wmi_tlv_op_gen_request_stats(struct ath10k *ar, u32 stats_mask)
+ 	return skb;
+ }
+ 
++static int
++ath10k_wmi_tlv_op_cleanup_mgmt_tx_send(struct ath10k *ar,
++				       struct sk_buff *msdu)
++{
++	struct ath10k_skb_cb *cb = ATH10K_SKB_CB(msdu);
++	struct ath10k_wmi *wmi = &ar->wmi;
++
++	idr_remove(&wmi->mgmt_pending_tx, cb->msdu_id);
++
++	return 0;
++}
++
+ static int
+ ath10k_wmi_mgmt_tx_alloc_msdu_id(struct ath10k *ar, struct sk_buff *skb,
+ 				 dma_addr_t paddr)
+@@ -2710,6 +2722,8 @@ ath10k_wmi_tlv_op_gen_mgmt_tx_send(struct ath10k *ar, struct sk_buff *msdu,
+ 	if (desc_id < 0)
+ 		goto err_free_skb;
+ 
++	cb->msdu_id = desc_id;
++
+ 	ptr = (void *)skb->data;
+ 	tlv = ptr;
+ 	tlv->tag = __cpu_to_le16(WMI_TLV_TAG_STRUCT_MGMT_TX_CMD);
+@@ -3949,6 +3963,7 @@ static const struct wmi_ops wmi_tlv_ops = {
+ 	.gen_force_fw_hang = ath10k_wmi_tlv_op_gen_force_fw_hang,
+ 	/* .gen_mgmt_tx = not implemented; HTT is used */
+ 	.gen_mgmt_tx_send = ath10k_wmi_tlv_op_gen_mgmt_tx_send,
++	.cleanup_mgmt_tx_send = ath10k_wmi_tlv_op_cleanup_mgmt_tx_send,
+ 	.gen_dbglog_cfg = ath10k_wmi_tlv_op_gen_dbglog_cfg,
+ 	.gen_pktlog_enable = ath10k_wmi_tlv_op_gen_pktlog_enable,
+ 	.gen_pktlog_disable = ath10k_wmi_tlv_op_gen_pktlog_disable,
 -- 
 2.25.1
 
