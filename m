@@ -2,123 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1ED8200AE1
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:03:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87F64200AE4
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:06:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732641AbgFSODY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:03:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46850 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730380AbgFSODY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Jun 2020 10:03:24 -0400
-Received: from mail-io1-xd44.google.com (mail-io1-xd44.google.com [IPv6:2607:f8b0:4864:20::d44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2422DC06174E
-        for <stable@vger.kernel.org>; Fri, 19 Jun 2020 07:03:24 -0700 (PDT)
-Received: by mail-io1-xd44.google.com with SMTP id u13so11304299iol.10
-        for <stable@vger.kernel.org>; Fri, 19 Jun 2020 07:03:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:reply-to:from:date:message-id
-         :subject:to:cc;
-        bh=OIIDlfcyhq8GpxZiSZ0N5GrBiYJCNWA0YqLByMwLUao=;
-        b=ThaZyjWeCYtJco9esLQ33oMp+5Ketkhn9b8NlUJFCl6IEr2ZtUCZBL/I/qb6xfJfAI
-         2iVLYZUjpCiNMq3r88yCZcfSnmJhu+aTLaYqiAi88pRrCMutl9XOOJVBhBspq3+T9NGS
-         yXa67HjrTXBx3fX2uWZekeqxsyjk6bx4FN6yg3UcW3qGzZq0C1BGZUjxqMUFEunQB52V
-         Z3HggJVLIT7Rs/QJMCQ1JQxJ5+LLxlHn4+mOBqo9Pv6VcLo/eMR0BFZ7ZUIloFB/kIIf
-         ZFNr3ZWmGPOB9ZZ9z4+tBKInim7Uxcy+yTLKxgRXKJDxxJX3q8W0i6hUieSeqvUMOTHz
-         BPBg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:reply-to
-         :from:date:message-id:subject:to:cc;
-        bh=OIIDlfcyhq8GpxZiSZ0N5GrBiYJCNWA0YqLByMwLUao=;
-        b=Gj3xyVtCVh3V59M5Oid1DxiZoRXrj9RTkgENarOag7FoPeE5CrcgsyPylQk7qShi1a
-         4FBvT6N4HpXjBLR2xhlCcdbKC4Wdsv+PtIYVz52NKdTbyE+d5Dom3lx/IBzMq2MK6gPe
-         VzAVKfGNTwVdmHJc+s5XMxKzasLgr4/JXX7JFBVOVZmc36rUd3UgWoDs2HKno7WIWzh5
-         ocg1VjevkDckivejsBJNOTo92hhOVhHGtyh3qWiwETSPrFk14vcMyzjJCVzGd9GRKctb
-         qOPb9rCmP5Q8j3AkbKF2RAmDBzXKJDyAp3KevP2ldkHBz//RagtXiyoX4zX35uzPOrCr
-         rnJg==
-X-Gm-Message-State: AOAM530+RRuJIF/i+E5zAQZ5wNZQbrv2F2IxlZ6ZqCbbItLASzvpI6n1
-        tb5k6b2LCKiSAjBaCu29RYGLCH0PZP0Xk0fNTvFzTzBk
-X-Google-Smtp-Source: ABdhPJwJ4g8ai+60UV93wL0APNZJ5h3gefETgGnkohCa9os78P4tXHVHiCmQOWfy9G15ExSXjXmKtHCFK7YDTnhTdAs=
-X-Received: by 2002:a5e:9309:: with SMTP id k9mr4442948iom.135.1592575402356;
- Fri, 19 Jun 2020 07:03:22 -0700 (PDT)
+        id S1726124AbgFSOGc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:06:32 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:56789 "EHLO
+        forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726008AbgFSOGb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Jun 2020 10:06:31 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 8F946194586F;
+        Fri, 19 Jun 2020 10:06:30 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Fri, 19 Jun 2020 10:06:30 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=odGO7X
+        ZbqToTIBwH7J0w+uy8z4j56XulKgGEipH4AoI=; b=gWq8e7cBjUriR1JF/H+LG2
+        DHw02F15FjVq6FPbGGyxmLIiD/gqB6WR+7EhyX9PuloLpYVubQhyi3yYB2BPO3nG
+        IIAQHa6+F2B+2t94OJWHSUrXWSp+X1mPzG/cukjpQiBysQhtMfl+Bn838FhBLTxq
+        /gkNLou32/7o2Sa6Nuv48zTMmYgr0+hgl48yT+DcPbBdMfL2abkbzclda13WVPsr
+        l38vgtEjUHAPt3fLOks0nA0TQuVnmXO3XmDPJX9Wv3v1dT4MI3VX2TdnESZwitJz
+        3oebg/Gep8KySYZXg8PodLOQufB2SeM1kembfSu+miKjPyA6fY+DJ5mVUE5i2InQ
+        ==
+X-ME-Sender: <xms:YsbsXm1i6_c-vyJbtDczQ9PxnH0eqpuqHgk8n6lkrM8x2Dyk0inRmw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudejiedgjedvucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
+    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:YsbsXpHyGJRrk4RvYq5GaZQytM_CNpbyamH8IJ8zFn1SFeNQZC1N6g>
+    <xmx:YsbsXu7lmcvSqZ2HGA_6DPI6aGWIaXaWGHJuYMATKYWvSJEUlQxu7A>
+    <xmx:YsbsXn0mZpXB8x9CvXkhLbgkRUl4F0hJ5aqV7DjVnpfWeGJwv8EVdw>
+    <xmx:ZsbsXpDJ-FuU4zBXvXCd0ym36ywPSlZtiwc3XQD6ijr4AX4Ey-fSHw>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id C9B103060FE7;
+        Fri, 19 Jun 2020 10:06:25 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] f2fs: avoid utf8_strncasecmp() with unstable name" failed to apply to 5.7-stable tree
+To:     ebiggers@google.com, drosen@google.com, jaegeuk@kernel.org,
+        krisman@collabora.co.uk, stable@vger.kernel.org,
+        viro@zeniv.linux.org.uk, yuchao0@huawei.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 19 Jun 2020 16:06:23 +0200
+Message-ID: <1592575583131183@kroah.com>
 MIME-Version: 1.0
-References: <CA+icZUU8mXX23JHvEGjgBtTTp_zpm++wBkAgw_Rx0T-Rajz28w@mail.gmail.com>
- <328409138.27353672.1592572038963.JavaMail.zimbra@redhat.com>
-In-Reply-To: <328409138.27353672.1592572038963.JavaMail.zimbra@redhat.com>
-Reply-To: sedat.dilek@gmail.com
-From:   Sedat Dilek <sedat.dilek@gmail.com>
-Date:   Fri, 19 Jun 2020 16:03:11 +0200
-Message-ID: <CA+icZUVcibK32G+9YUahD02n+yvk4DLxG9vJ6DFOJJXTYoMDQA@mail.gmail.com>
-Subject: Re: PASS: Test report for kernel 5.7.4-1d8b8c5.cki (stable-queue)
-To:     Veronika Kabatova <vkabatov@redhat.com>
-Cc:     Yi Chen <yiche@redhat.com>, Jianwen Ji <jiji@redhat.com>,
-        Hangbin Liu <haliu@redhat.com>,
-        Ondrej Moris <omoris@redhat.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        CKI Project <cki-project@redhat.com>,
-        Linux Stable maillist <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jun 19, 2020 at 3:07 PM Veronika Kabatova <vkabatov@redhat.com> wrote:
->
->
->
-> ----- Original Message -----
-> > From: "Sedat Dilek" <sedat.dilek@gmail.com>
-> > To: "Yi Chen" <yiche@redhat.com>, "Jianwen Ji" <jiji@redhat.com>, "Hangbin Liu" <haliu@redhat.com>, "Ondrej Moris"
-> > <omoris@redhat.com>, "Ondrej Mosnacek" <omosnace@redhat.com>
-> > Cc: "CKI Project" <cki-project@redhat.com>, "Linux Stable maillist" <stable@vger.kernel.org>
-> > Sent: Friday, June 19, 2020 1:48:51 PM
-> > Subject: Re: PASS: Test report for kernel 5.7.4-1d8b8c5.cki (stable-queue)
-> >
-> > Hi CKI maintainers,
-> >
-> > thanks for doing automated tests.
-> >
-> > I am interested in a report of currently released Linux v5.7.5-rc1
-> > before doing my testing with Clang's Integrated Assembly on
-> > Debian/testing AMD64.
-> >
-> > Is there a browsable URL you can give me where I can see if AMD64
-> > (x86-64) tests have passed OK?
-> >
-> > Or is it "Be patient and wait".
-> >
->
-> Hi Sedat,
->
-> thanks for the interest in our testing! The testing for v5.7.5-rc1 is
-> currently still running. The x86_64 tests that had the chance to run so
-> far all passed but you'll have to wait a few hours to get the complete
-> results.
->
-> We're planning a public web dashboard so in the future you should be able
-> to follow the results there instead of having to wait for test run
-> completion, but it will take us a few more months to get that ready.
->
->
 
-Sounds like a melody to me.
+The patch below does not apply to the 5.7-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Thanks.
+thanks,
 
-- Sedat -
+greg k-h
 
-> Veronika
->
-> > Thanks.
-> >
-> > Regards,
-> > - Sedat -
-> >
-> > [1]
-> > https://git.kernel.org/pub/scm/public-inbox/vger.kernel.org/stable/0.git/commit/?id=2009b13ce33bf5a474ccdda991559e39712862c8
-> >
-> >
->
+------------------ original commit in Linus's tree ------------------
+
+From fc3bb095ab02b9e7d89a069ade2cead15c64c504 Mon Sep 17 00:00:00 2001
+From: Eric Biggers <ebiggers@google.com>
+Date: Mon, 1 Jun 2020 13:08:05 -0700
+Subject: [PATCH] f2fs: avoid utf8_strncasecmp() with unstable name
+
+If the dentry name passed to ->d_compare() fits in dentry::d_iname, then
+it may be concurrently modified by a rename.  This can cause undefined
+behavior (possibly out-of-bounds memory accesses or crashes) in
+utf8_strncasecmp(), since fs/unicode/ isn't written to handle strings
+that may be concurrently modified.
+
+Fix this by first copying the filename to a stack buffer if needed.
+This way we get a stable snapshot of the filename.
+
+Fixes: 2c2eb7a300cd ("f2fs: Support case-insensitive file name lookups")
+Cc: <stable@vger.kernel.org> # v5.4+
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Daniel Rosenberg <drosen@google.com>
+Cc: Gabriel Krisman Bertazi <krisman@collabora.co.uk>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+
+diff --git a/fs/f2fs/dir.c b/fs/f2fs/dir.c
+index 29f70f2295cc..d35976785e8c 100644
+--- a/fs/f2fs/dir.c
++++ b/fs/f2fs/dir.c
+@@ -1114,11 +1114,27 @@ static int f2fs_d_compare(const struct dentry *dentry, unsigned int len,
+ 	const struct inode *dir = READ_ONCE(parent->d_inode);
+ 	const struct f2fs_sb_info *sbi = F2FS_SB(dentry->d_sb);
+ 	struct qstr entry = QSTR_INIT(str, len);
++	char strbuf[DNAME_INLINE_LEN];
+ 	int res;
+ 
+ 	if (!dir || !IS_CASEFOLDED(dir))
+ 		goto fallback;
+ 
++	/*
++	 * If the dentry name is stored in-line, then it may be concurrently
++	 * modified by a rename.  If this happens, the VFS will eventually retry
++	 * the lookup, so it doesn't matter what ->d_compare() returns.
++	 * However, it's unsafe to call utf8_strncasecmp() with an unstable
++	 * string.  Therefore, we have to copy the name into a temporary buffer.
++	 */
++	if (len <= DNAME_INLINE_LEN - 1) {
++		memcpy(strbuf, str, len);
++		strbuf[len] = 0;
++		entry.name = strbuf;
++		/* prevent compiler from optimizing out the temporary buffer */
++		barrier();
++	}
++
+ 	res = utf8_strncasecmp(sbi->s_encoding, name, &entry);
+ 	if (res >= 0)
+ 		return res;
+
