@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EA1E2017DE
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D11A201738
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:46:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395233AbgFSQod (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:44:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34060 "EHLO mail.kernel.org"
+        id S2395209AbgFSQfu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:35:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388437AbgFSOnF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:43:05 -0400
+        id S2388845AbgFSOtZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:49:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 331B321582;
-        Fri, 19 Jun 2020 14:43:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3CD842184D;
+        Fri, 19 Jun 2020 14:49:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577785;
-        bh=WY31jg+QTjwpvgTyqbJoQiR6KxR7XceZbkjxg2z4T+k=;
+        s=default; t=1592578164;
+        bh=SQ3sTs2BoHpYlVXw6ii8lfJ2g13g+h6uUiHhxIHY18I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dT4eticNx+oWIRpW7KzqA+KPvdQJdnJZu5upPFHols80qpQ3J+lj8gGIWWby+lDhy
-         BNCVkKcPcWh+/GozV1cAsIAz54B6wZuyeP+xj8gFgEls6bcD7+4Kkr8M3Z6BNPmK9H
-         WGAxNqfLcGrmCb0EnpGTQ3ixqp8gUrYyoHypUmH0=
+        b=Ws1QROOCBKmpc8NUOIaI/z+YfbZZeRqimZDdYACt5tAacIfJOfInrIp5Bj73hlo4K
+         wzrJT90rbitFMUK3TAngK7Ha1xyV8MhVBjBWn+KCzKm+USeOVCJkFvBCfs8mDM9+0I
+         iCPk27c6AEg73u3U7fF9fso2USmTImQj4OFn49rc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hsin-Yu Chao <hychao@chromium.org>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 059/128] Bluetooth: Add SCO fallback for invalid LMP parameters error
+Subject: [PATCH 4.14 108/190] exit: Move preemption fixup up, move blocking operations down
 Date:   Fri, 19 Jun 2020 16:32:33 +0200
-Message-Id: <20200619141623.338855634@linuxfoundation.org>
+Message-Id: <20200619141638.991924093@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
-References: <20200619141620.148019466@linuxfoundation.org>
+In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
+References: <20200619141633.446429600@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,111 +44,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hsin-Yu Chao <hychao@chromium.org>
+From: Jann Horn <jannh@google.com>
 
-[ Upstream commit 56b5453a86203a44726f523b4133c1feca49ce7c ]
+[ Upstream commit 586b58cac8b4683eb58a1446fbc399de18974e40 ]
 
-Bluetooth PTS test case HFP/AG/ACC/BI-12-I accepts SCO connection
-with invalid parameter at the first SCO request expecting AG to
-attempt another SCO request with the use of "safe settings" for
-given codec, base on section 5.7.1.2 of HFP 1.7 specification.
+With CONFIG_DEBUG_ATOMIC_SLEEP=y and CONFIG_CGROUPS=y, kernel oopses in
+non-preemptible context look untidy; after the main oops, the kernel prints
+a "sleeping function called from invalid context" report because
+exit_signals() -> cgroup_threadgroup_change_begin() -> percpu_down_read()
+can sleep, and that happens before the preempt_count_set(PREEMPT_ENABLED)
+fixup.
 
-This patch addresses it by adding "Invalid LMP Parameters" (0x1e)
-to the SCO fallback case. Verified with below log:
+It looks like the same thing applies to profile_task_exit() and
+kcov_task_exit().
 
-< HCI Command: Setup Synchronous Connection (0x01|0x0028) plen 17
-        Handle: 256
-        Transmit bandwidth: 8000
-        Receive bandwidth: 8000
-        Max latency: 13
-        Setting: 0x0003
-          Input Coding: Linear
-          Input Data Format: 1's complement
-          Input Sample Size: 8-bit
-          # of bits padding at MSB: 0
-          Air Coding Format: Transparent Data
-        Retransmission effort: Optimize for link quality (0x02)
-        Packet type: 0x0380
-          3-EV3 may not be used
-          2-EV5 may not be used
-          3-EV5 may not be used
-> HCI Event: Command Status (0x0f) plen 4
-      Setup Synchronous Connection (0x01|0x0028) ncmd 1
-        Status: Success (0x00)
-> HCI Event: Number of Completed Packets (0x13) plen 5
-        Num handles: 1
-        Handle: 256
-        Count: 1
-> HCI Event: Max Slots Change (0x1b) plen 3
-        Handle: 256
-        Max slots: 1
-> HCI Event: Synchronous Connect Complete (0x2c) plen 17
-        Status: Invalid LMP Parameters / Invalid LL Parameters (0x1e)
-        Handle: 0
-        Address: 00:1B:DC:F2:21:59 (OUI 00-1B-DC)
-        Link type: eSCO (0x02)
-        Transmission interval: 0x00
-        Retransmission window: 0x02
-        RX packet length: 0
-        TX packet length: 0
-        Air mode: Transparent (0x03)
-< HCI Command: Setup Synchronous Connection (0x01|0x0028) plen 17
-        Handle: 256
-        Transmit bandwidth: 8000
-        Receive bandwidth: 8000
-        Max latency: 8
-        Setting: 0x0003
-          Input Coding: Linear
-          Input Data Format: 1's complement
-          Input Sample Size: 8-bit
-          # of bits padding at MSB: 0
-          Air Coding Format: Transparent Data
-        Retransmission effort: Optimize for link quality (0x02)
-        Packet type: 0x03c8
-          EV3 may be used
-          2-EV3 may not be used
-          3-EV3 may not be used
-          2-EV5 may not be used
-          3-EV5 may not be used
-> HCI Event: Command Status (0x0f) plen 4
-      Setup Synchronous Connection (0x01|0x0028) ncmd 1
-        Status: Success (0x00)
-> HCI Event: Max Slots Change (0x1b) plen 3
-        Handle: 256
-        Max slots: 5
-> HCI Event: Max Slots Change (0x1b) plen 3
-        Handle: 256
-        Max slots: 1
-> HCI Event: Synchronous Connect Complete (0x2c) plen 17
-        Status: Success (0x00)
-        Handle: 257
-        Address: 00:1B:DC:F2:21:59 (OUI 00-1B-DC)
-        Link type: eSCO (0x02)
-        Transmission interval: 0x06
-        Retransmission window: 0x04
-        RX packet length: 30
-        TX packet length: 30
-        Air mode: Transparent (0x03)
+Fix it by moving the preemption fixup up and the calls to
+profile_task_exit() and kcov_task_exit() down.
 
-Signed-off-by: Hsin-Yu Chao <hychao@chromium.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fixes: 1dc0fffc48af ("sched/core: Robustify preemption leak checks")
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20200305220657.46800-1-jannh@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_event.c | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/exit.c | 25 ++++++++++++++++---------
+ 1 file changed, 16 insertions(+), 9 deletions(-)
 
-diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
-index 6f78489fdb13..a8aa3f29f2d6 100644
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -3775,6 +3775,7 @@ static void hci_sync_conn_complete_evt(struct hci_dev *hdev,
- 	case 0x11:	/* Unsupported Feature or Parameter Value */
- 	case 0x1c:	/* SCO interval rejected */
- 	case 0x1a:	/* Unsupported Remote Feature */
-+	case 0x1e:	/* Invalid LMP Parameters */
- 	case 0x1f:	/* Unspecified error */
- 	case 0x20:	/* Unsupported LMP Parameter value */
- 		if (conn->out) {
+diff --git a/kernel/exit.c b/kernel/exit.c
+index 7bee1dd596fa..7a7984d7a4d8 100644
+--- a/kernel/exit.c
++++ b/kernel/exit.c
+@@ -770,8 +770,12 @@ void __noreturn do_exit(long code)
+ 	struct task_struct *tsk = current;
+ 	int group_dead;
+ 
+-	profile_task_exit(tsk);
+-	kcov_task_exit(tsk);
++	/*
++	 * We can get here from a kernel oops, sometimes with preemption off.
++	 * Start by checking for critical errors.
++	 * Then fix up important state like USER_DS and preemption.
++	 * Then do everything else.
++	 */
+ 
+ 	WARN_ON(blk_needs_flush_plug(tsk));
+ 
+@@ -789,6 +793,16 @@ void __noreturn do_exit(long code)
+ 	 */
+ 	set_fs(USER_DS);
+ 
++	if (unlikely(in_atomic())) {
++		pr_info("note: %s[%d] exited with preempt_count %d\n",
++			current->comm, task_pid_nr(current),
++			preempt_count());
++		preempt_count_set(PREEMPT_ENABLED);
++	}
++
++	profile_task_exit(tsk);
++	kcov_task_exit(tsk);
++
+ 	ptrace_event(PTRACE_EVENT_EXIT, code);
+ 
+ 	validate_creds_for_do_exit(tsk);
+@@ -806,13 +820,6 @@ void __noreturn do_exit(long code)
+ 
+ 	exit_signals(tsk);  /* sets PF_EXITING */
+ 
+-	if (unlikely(in_atomic())) {
+-		pr_info("note: %s[%d] exited with preempt_count %d\n",
+-			current->comm, task_pid_nr(current),
+-			preempt_count());
+-		preempt_count_set(PREEMPT_ENABLED);
+-	}
+-
+ 	/* sync mm's RSS info before statistics gathering */
+ 	if (tsk->mm)
+ 		sync_mm_rss(tsk->mm);
 -- 
 2.25.1
 
