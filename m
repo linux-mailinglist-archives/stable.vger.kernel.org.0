@@ -2,91 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D213820179E
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51BAA20180C
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:48:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395456AbgFSQlB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:41:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42996 "EHLO
+        id S2405233AbgFSQqd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:46:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2395247AbgFSQk6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Jun 2020 12:40:58 -0400
-Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 942A1C0613EE;
-        Fri, 19 Jun 2020 09:40:57 -0700 (PDT)
-Received: by mail-pf1-x442.google.com with SMTP id a127so4634207pfa.12;
-        Fri, 19 Jun 2020 09:40:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to
-         :user-agent;
-        bh=tK9/l5H5I2sTPevnihsYJcZkrv1LSOpcELI/uX/XwnM=;
-        b=Gn+Wk7/5sTWAqofkCiPolMYZnBQZifwoKtcHe2UC2scyMeIXm+YWmMrqpUDBDqFPM1
-         xzDt9IcRE5lQfW84J6ulLB6TnyTbp9FHJRDgjuI6cl9W0t74Am6zQ7XTf6tzjqqi2rS8
-         ytyZs2EtA43939hhnhXKpHIwJncgqaJj6SkSStuc5ZtH9Cy53zmC9bK6RhTR/AovJwO9
-         sAS7o8M5GjlFyfCF5LKrY2qcAVEAlaDR8HJlDcNfJyiGjfTi3oBBXXup5VQEUeEpo5NW
-         wK8buIXjjdx5Bi6caSg8kIZ2oUVRRM67qJ22fS7pB+zSXXTTBzr0MV73/G3PG0k3SM5j
-         i1Yg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition
-         :content-transfer-encoding:in-reply-to:user-agent;
-        bh=tK9/l5H5I2sTPevnihsYJcZkrv1LSOpcELI/uX/XwnM=;
-        b=luRDzdKr2GrEx4vPKHNLJk6USn0Z505pTa3ZHUXsLzGoKS6uUIi/Gu9p7k8oP0CJCK
-         c0o83rNtqkMFKSYlE4b8P9FH5vIOCbNdxOORsugB/39n7O7TtJyrlo+kbpQgTG9cPszA
-         XdtjxeuxuHJ81EcHnYM0c6wZR7OcSFcmXDhh2RGnlfLMX8goYDyuuvMTxm20+f66BYau
-         Ce8MIuJXpMyTHPjDpe5SsqkIyTGVmaVulL5B2RFzfCAWa5Y2M8lakAHvHkDnJQYuqPyd
-         IaeDuQklqtGC5tTD4KybMUkt/OqzP7iiGYIydPnjUJU2MFmOHZdcXtwKtlKkQoZ+76ZD
-         SQkA==
-X-Gm-Message-State: AOAM5307Cgetu5WJNm0+MJlRljBBTXiBD9suXYp/sw4O0nfoTUKXJ0SB
-        IimR/GlZ+dvvi09IeKiKDfo=
-X-Google-Smtp-Source: ABdhPJySYS6ppZ6SN/Log6IuGG9g198ColUeqelRPBwAVsrus3az7JAO+uah0Pq1wfGMMLSMb0P8fw==
-X-Received: by 2002:a63:d40c:: with SMTP id a12mr3767238pgh.124.1592584857179;
-        Fri, 19 Jun 2020 09:40:57 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id d9sm5568325pgg.74.2020.06.19.09.40.56
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 19 Jun 2020 09:40:56 -0700 (PDT)
-Date:   Fri, 19 Jun 2020 09:40:55 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 4.4 000/101] 4.4.228-rc1 review
-Message-ID: <20200619164055.GA258515@roeck-us.net>
-References: <20200619141614.001544111@linuxfoundation.org>
+        with ESMTP id S2388812AbgFSQqI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Jun 2020 12:46:08 -0400
+Received: from Galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 686BAC061796;
+        Fri, 19 Jun 2020 09:46:03 -0700 (PDT)
+Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tip-bot2@linutronix.de>)
+        id 1jmK9P-00043S-Dz; Fri, 19 Jun 2020 18:45:59 +0200
+Received: from [127.0.1.1] (localhost [IPv6:::1])
+        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id 14B161C0085;
+        Fri, 19 Jun 2020 18:45:59 +0200 (CEST)
+Date:   Fri, 19 Jun 2020 16:45:58 -0000
+From:   "tip-bot2 for Peter Jones" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: efi/urgent] efi: Make it possible to disable efivar_ssdt entirely
+Cc:     <stable@vger.kernel.org>, Peter Jones <pjones@redhat.com>,
+        Ard Biesheuvel <ardb@kernel.org>, x86 <x86@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20200615202408.2242614-1-pjones@redhat.com>
+References: <20200615202408.2242614-1-pjones@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20200619141614.001544111@linuxfoundation.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Message-ID: <159258515877.16989.5930030344514684706.tip-bot2@tip-bot2>
+X-Mailer: tip-git-log-daemon
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Linutronix-Spam-Score: -1.0
+X-Linutronix-Spam-Level: -
+X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jun 19, 2020 at 04:31:49PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.4.228 release.
-> There are 101 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sun, 21 Jun 2020 14:15:50 +0000.
-> Anything received after that time might be too late.
-> 
+The following commit has been merged into the efi/urgent branch of tip:
 
-Building powerpc:defconfig ... failed
---------------
-Error log:
+Commit-ID:     435d1a471598752446a72ad1201b3c980526d869
+Gitweb:        https://git.kernel.org/tip/435d1a471598752446a72ad1201b3c980526d869
+Author:        Peter Jones <pjones@redhat.com>
+AuthorDate:    Mon, 15 Jun 2020 16:24:08 -04:00
+Committer:     Ard Biesheuvel <ardb@kernel.org>
+CommitterDate: Tue, 16 Jun 2020 11:01:07 +02:00
 
-drivers/macintosh/windfarm_pm112.c: In function ‘create_cpu_loop’:
-drivers/macintosh/windfarm_pm112.c:148:2: error: implicit declaration of function ‘kfree’
+efi: Make it possible to disable efivar_ssdt entirely
 
-Affects v4.4.y.queue and v4.9.y.queue.
+In most cases, such as CONFIG_ACPI_CUSTOM_DSDT and
+CONFIG_ACPI_TABLE_UPGRADE, boot-time modifications to firmware tables
+are tied to specific Kconfig options.  Currently this is not the case
+for modifying the ACPI SSDT via the efivar_ssdt kernel command line
+option and associated EFI variable.
 
-Guenter
+This patch adds CONFIG_EFI_CUSTOM_SSDT_OVERLAYS, which defaults
+disabled, in order to allow enabling or disabling that feature during
+the build.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Peter Jones <pjones@redhat.com>
+Link: https://lore.kernel.org/r/20200615202408.2242614-1-pjones@redhat.com
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+---
+ drivers/firmware/efi/Kconfig | 11 +++++++++++
+ drivers/firmware/efi/efi.c   |  2 +-
+ 2 files changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/firmware/efi/Kconfig b/drivers/firmware/efi/Kconfig
+index e6fc022..3939699 100644
+--- a/drivers/firmware/efi/Kconfig
++++ b/drivers/firmware/efi/Kconfig
+@@ -278,3 +278,14 @@ config EFI_EARLYCON
+ 	depends on SERIAL_EARLYCON && !ARM && !IA64
+ 	select FONT_SUPPORT
+ 	select ARCH_USE_MEMREMAP_PROT
++
++config EFI_CUSTOM_SSDT_OVERLAYS
++	bool "Load custom ACPI SSDT overlay from an EFI variable"
++	depends on EFI_VARS && ACPI
++	default ACPI_TABLE_UPGRADE
++	help
++	  Allow loading of an ACPI SSDT overlay from an EFI variable specified
++	  by a kernel command line option.
++
++	  See Documentation/admin-guide/acpi/ssdt-overlays.rst for more
++	  information.
+diff --git a/drivers/firmware/efi/efi.c b/drivers/firmware/efi/efi.c
+index edc5d36..5114cae 100644
+--- a/drivers/firmware/efi/efi.c
++++ b/drivers/firmware/efi/efi.c
+@@ -189,7 +189,7 @@ static void generic_ops_unregister(void)
+ 	efivars_unregister(&generic_efivars);
+ }
+ 
+-#if IS_ENABLED(CONFIG_ACPI)
++#ifdef CONFIG_EFI_CUSTOM_SSDT_OVERLAYS
+ #define EFIVAR_SSDT_NAME_MAX	16
+ static char efivar_ssdt[EFIVAR_SSDT_NAME_MAX] __initdata;
+ static int __init efivar_ssdt_setup(char *str)
