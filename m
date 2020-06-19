@@ -2,87 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5589F202000
-	for <lists+stable@lfdr.de>; Sat, 20 Jun 2020 05:03:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74A0320210A
+	for <lists+stable@lfdr.de>; Sat, 20 Jun 2020 05:39:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732255AbgFTDC6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 23:02:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53988 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732074AbgFTDC6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 19 Jun 2020 23:02:58 -0400
-Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E53F2C06174E
-        for <stable@vger.kernel.org>; Fri, 19 Jun 2020 20:02:57 -0700 (PDT)
-Received: by mail-ej1-x641.google.com with SMTP id w6so988677ejq.6
-        for <stable@vger.kernel.org>; Fri, 19 Jun 2020 20:02:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=Z7qZkCC78niGrQpOK/h//rZ5fVXVPMkzzzEIQT+ASg4=;
-        b=aRSjxXW5H6TYO2PGm1OffUMkjXjQd3JAoPjrWRPIPXVYX3rKX8QjgQxitBc0Klfijk
-         vdJCs/Ot+MnkhyO5UUxuA1N9Dc8aygN1zNv6XcRdCrxWRIvNYL5eG+9XeyNpOUWDmH8q
-         0xywdA++u/h6Nadho/PsnNIYNKdU08g/Y5iUBXGJxDKJAf3FNdmFUfzCZpHS6INC0MQu
-         +Jgmzg5+ujxYwaHnc7oDNJEO2mBfBe6XxKpDnFmq+SFNXbCNtIPxsELJ2/2CI4KmNaNJ
-         yS2aU5+LdM1iKicCm8HH3KMFXMFAF8cfoIpzV1U+0PREYMv6lVBFPpSaN4RRqzOA8lUq
-         7MyQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=Z7qZkCC78niGrQpOK/h//rZ5fVXVPMkzzzEIQT+ASg4=;
-        b=V1u/s+8lkmaUcSL7tdYaE+slj9NzaKM5nng3fozfv08iA/cfHCeGcGTLh+C24nKpGZ
-         K5FCSc2tIq9xr4/QVXwvhlnLJa4sCTNBCNmDdcelhUnTlmGM1M/8vICwi17uwINemsj2
-         CLfff5gLGLEvmt2Hz1Ig1mUeOLGOtHyG/HOPlfKsiisTjiDPY4qCO56QakAu2HNSxSqM
-         XrTc/c0FNm6GdAwd6fkuoqYIV/u/54gg1vOqH5ZZVnOzJtexsHSAGmkZacURI3YEarhN
-         RUtR9XCnBp2Q6ud5nyyvEa3IDnn6bdKmY6MV+YGNhIoP/CdcDXWhGgMLlkV8QQKKReAa
-         nmNw==
-X-Gm-Message-State: AOAM5305fLx0L4Fv5LuG03W8mEVkxoDCteVavSY+fCaoQIQ+N+DzvoXe
-        27wsc0UNJzllbmdAYiMUMgIiF6b3fMZcVqSNSEU=
-X-Google-Smtp-Source: ABdhPJwWDwP99MVc8dJZFepwgzWB2JS5CgQFsUfd8MGip8ixE1g5+WhtZjQRPv0dHsXzV5yCzR/Ag7QZV9jjFvVbPks=
-X-Received: by 2002:a17:906:7b54:: with SMTP id n20mr6323991ejo.144.1592622176522;
- Fri, 19 Jun 2020 20:02:56 -0700 (PDT)
+        id S2387493AbgFTDjF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 23:39:05 -0400
+Received: from dyslmr.btconnect.com ([193.113.5.105]:42104 "EHLO
+        mail.btconnect.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1732778AbgFTDjE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 19 Jun 2020 23:39:04 -0400
+X-Greylist: delayed 9263 seconds by postgrey-1.27 at vger.kernel.org; Fri, 19 Jun 2020 23:39:04 EDT
+Received: from mail.btconnect.com (dy11780omr11.iuser.iroot.adidom.com [10.35.83.172])
+        by dy11780slr11.dci.bt.com (MOS 4.4.8-GA)
+        with ESMTP id AZC58474;
+        Fri, 19 Jun 2020 22:09:35 +0100
+Received: (from localhost [127.0.0.1])
+        by dy11780omr11.dci.bt.com (MOS 4.4.8-GA)
+        id SQX57721;
+        Fri, 19 Jun 2020 22:09:34 +0100 (BST)
+Received: from 156.96.58.242 (EHLO User) ([156.96.58.242])
+        by dy11780omr11.dci.bt.com
+        with ESMTP id SQX57341 (AUTH IAN.ACFGROUP);
+        Fri, 19 Jun 2020 22:09:29 +0100 (BST)
+Reply-To: <mariaforlife2@gmail.com>
+From:   "Mrs Maria Talley" <IAN.ACFGROUP@btconnect.com>
+Subject: May the Peace of the Lord be with you
+Date:   Fri, 19 Jun 2020 17:09:27 -0400
 MIME-Version: 1.0
-Received: by 2002:a50:ab14:0:0:0:0:0 with HTTP; Fri, 19 Jun 2020 20:02:56
- -0700 (PDT)
-Reply-To: tofilbaman@gmail.com
-From:   Tofil Bama <aliftomarn1@gmail.com>
-Date:   Fri, 19 Jun 2020 20:02:56 -0700
-Message-ID: <CAFnjMYvXYPo6YU7vX-p7+p0Tc4rzYf1VrWJzsjubVx4N6XvZiA@mail.gmail.com>
-Subject: KINDEST MESSAGE.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain;
+        charset="Windows-1251"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Message-Id: <202006192109.SQX57341@dy11780omr11.dci.bt.com>
+X-Mirapoint-IP-Reputation: reputation=Bad-1,
+        source=Queried,
+        refid=tid=0001.0A782F92.5EED28BC.0037,
+        actions=TAG
+X-Junkmail: UCE(52)
+X-Junkmail-Status: score=52/50, host=dy11780omr11.dci.bt.com
+X-Junkmail-Signature-Raw: score=bulk(2),
+        refid=str=0001.0A782F1E.5EECEF25.005A,ss=3,sh,re=0.000,recu=0.000,reip=0.000,cl=3,cld=1,fgs=16,
+        ip=156.96.58.242,
+        so=2016-11-06 16:00:04,
+        dmn=2013-03-21 17:37:32,
+        mode=multiengine
+X-Junkmail-IWF: false
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear,
+May the Peace of the Lord be with you!
 
-My name is Mr Alif Tomar, I am the Bill and Exchange (assistant)
-Manager of Bank of Africa Ouagadougou, Burkina Faso. In my department
-I discovered an abandoned sum of eighteen million three hundred
-thousand United State of American dollars (18.3MILLION USA DOLLARS) in
-an account that belongs to one of our foreign customer who died in
-airline that crashed on 4th October 2001.
+Please this is an urgent solicitation for assistance, I'm Mrs Maria Talley from United States of America, but I lived in London for many years. I am 54 years old. I was diagnosed of cancer for about 2 years ago. This letter comes from a devastated, sorrowful and emotional laden soul that needs compassion from a kind and conscience driven person. I need someone who has a sincere compassionate heart of international humanitarian charity. There is some properties left by my late husband, which I sold, because the doctor had diagnosed me that I am in my last days, that I can not live anymore longer, so I have to sale all those properties that was left by my late husband.
 
-Since I got information about his death I have been expecting his next
-of kin to come over and claim his money because we can not release it
-unless somebody applies for it as the next of kin or relation to the
-deceased as indicated in our banking guidelines, but unfortunately we
-learnt that all his supposed next of kin or relation died alongside
-with him in the plane crash leaving nobody behind for the claim. It is
-therefore upon this discovery that I decided to make this business
-proposal to you and release the money to you as next of kin or
-relation to the deceased for safety and subsequent disbursement since
-nobody is coming for it and I don't want the money to go into the bank
-treasury as unclaimed bill.
+I have deposited the sum of $9.5 Million in a Bank in United States of America, which I sold from my properties and deposited it in New York City Bank in America. I want you to help me use this funds to help the less privilege, the motherless baby homes and hospitals in your country before I die. I want you to take 40 percent of the total money for your personal use, while 60% of the money will go to charity. I will appreciate your utmost confidentiality and trust in this matter to accomplish my heart desire, as I don't want anything that will jeopardize my last wish. If you are a good and honest person write back to me for more.
 
-You will be entitled with 40% of the total sum while 60% will be for
-me after which I will visit your Country to invest my own share when
-the fund is successfully transferred into your account, Please I would
-like you to keep this transaction confidential and as a top secret as
-you may wish to know that I am a bank official.
-
-Yours sincerely,
-Mr Alif Tomar.
+Thanks and God bless you,
+Mrs Maria Talley
