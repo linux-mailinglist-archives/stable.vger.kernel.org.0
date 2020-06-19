@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DDF42200FC1
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:23:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 201EA200E68
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:11:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392886AbgFSPVn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:21:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52952 "EHLO mail.kernel.org"
+        id S2391569AbgFSPHV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:07:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392881AbgFSPVm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:21:42 -0400
+        id S2391568AbgFSPHU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:07:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DDAD020706;
-        Fri, 19 Jun 2020 15:21:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5502B21852;
+        Fri, 19 Jun 2020 15:07:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580101;
-        bh=tHgLy2WBJHYxlwWYiAqfHC5kG4VoDvhBZLkmec1G7tk=;
+        s=default; t=1592579239;
+        bh=vqpwzmqgPum7xJcl5MJ2NPLpxEZEaPhP2tB5CEtYRks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gucWA3cDeT1GVmvR18pIyh+C+pLId3YurzIGn4RFoft+B3qcl1+GC0NPdpfKqbvFK
-         0cXjm9izDgYY2uOJdnb+PNt+btSCrMaXXrpGCBUE85j7tLGO9KHn8dp1JSHOCewFe0
-         Lh2xioBm2SxTVwu5LNTF7eJ2CQLs0k7tktQ1KmIg=
+        b=l8TNzrjbMaWqigsHg47Z5cFmeyEwue9i/GIl3KHkNJiRtiSdEJtAP8jsiBrGrrp1E
+         W577vesSiFZIEgjHElqIAADz1xYa/7x7H4zbTfubsE9sAeO9wGxjfoEBLoAR19ma1E
+         7RXyHMw8P8sow0JjX+VrANc947I5/LoppImyZfDQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrii Nakryiko <andriin@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Song Liu <songliubraving@fb.com>,
+        stable@vger.kernel.org,
+        Yoshihito Ogawa <yoshihito.ogawa.kc@renesas.com>,
+        Koji Matsuoka <koji.matsuoka.xm@renesas.com>,
+        Tomohito Esaki <etom@igel.co.jp>,
+        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
+        Daniel Stone <daniels@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 123/376] selftests/bpf: Fix memory leak in extract_build_id()
+Subject: [PATCH 5.4 030/261] drm: rcar-du: Set primary plane zpos immutably at initializing
 Date:   Fri, 19 Jun 2020 16:30:41 +0200
-Message-Id: <20200619141716.159347958@linuxfoundation.org>
+Message-Id: <20200619141651.356834624@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
-References: <20200619141710.350494719@linuxfoundation.org>
+In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
+References: <20200619141649.878808811@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,34 +48,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andriin@fb.com>
+From: Tomohito Esaki <etom@igel.co.jp>
 
-[ Upstream commit 9f56bb531a809ecaa7f0ddca61d2cf3adc1cb81a ]
+[ Upstream commit 7982471d01aac33994276bf567c8f1f3a137648a ]
 
-getline() allocates string, which has to be freed.
+According to drm_plane_create_zpos_property() function documentation,
+all planes zpos range should be set if zpos property is supported.
+However, the rcar-du driver didn't set primary plane zpos range. Since
+the primary plane's zpos is fixed, set it immutably.
 
-Fixes: 81f77fd0deeb ("bpf: add selftest for stackmap with BPF_F_STACK_BUILD_ID")
-Signed-off-by: Andrii Nakryiko <andriin@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Cc: Song Liu <songliubraving@fb.com>
-Link: https://lore.kernel.org/bpf/20200429012111.277390-7-andriin@fb.com
+Reported-by: Yoshihito Ogawa <yoshihito.ogawa.kc@renesas.com>
+Reported-by: Koji Matsuoka <koji.matsuoka.xm@renesas.com>
+Signed-off-by: Tomohito Esaki <etom@igel.co.jp>
+Reviewed-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+Reviewed-by: Daniel Stone <daniels@collabora.com>
+[Turn continue into if ... else ...]
+Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/test_progs.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/rcar-du/rcar_du_plane.c | 16 +++++++++-------
+ drivers/gpu/drm/rcar-du/rcar_du_vsp.c   | 14 ++++++++------
+ 2 files changed, 17 insertions(+), 13 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/test_progs.c b/tools/testing/selftests/bpf/test_progs.c
-index 86d0020c9eec..93970ec1c9e9 100644
---- a/tools/testing/selftests/bpf/test_progs.c
-+++ b/tools/testing/selftests/bpf/test_progs.c
-@@ -351,6 +351,7 @@ int extract_build_id(char *build_id, size_t size)
- 		len = size;
- 	memcpy(build_id, line, len);
- 	build_id[len] = '\0';
-+	free(line);
+diff --git a/drivers/gpu/drm/rcar-du/rcar_du_plane.c b/drivers/gpu/drm/rcar-du/rcar_du_plane.c
+index c6430027169f..a0021fc25b27 100644
+--- a/drivers/gpu/drm/rcar-du/rcar_du_plane.c
++++ b/drivers/gpu/drm/rcar-du/rcar_du_plane.c
+@@ -785,13 +785,15 @@ int rcar_du_planes_init(struct rcar_du_group *rgrp)
+ 
+ 		drm_plane_create_alpha_property(&plane->plane);
+ 
+-		if (type == DRM_PLANE_TYPE_PRIMARY)
+-			continue;
+-
+-		drm_object_attach_property(&plane->plane.base,
+-					   rcdu->props.colorkey,
+-					   RCAR_DU_COLORKEY_NONE);
+-		drm_plane_create_zpos_property(&plane->plane, 1, 1, 7);
++		if (type == DRM_PLANE_TYPE_PRIMARY) {
++			drm_plane_create_zpos_immutable_property(&plane->plane,
++								 0);
++		} else {
++			drm_object_attach_property(&plane->plane.base,
++						   rcdu->props.colorkey,
++						   RCAR_DU_COLORKEY_NONE);
++			drm_plane_create_zpos_property(&plane->plane, 1, 1, 7);
++		}
+ 	}
+ 
  	return 0;
- err:
- 	fclose(fp);
+diff --git a/drivers/gpu/drm/rcar-du/rcar_du_vsp.c b/drivers/gpu/drm/rcar-du/rcar_du_vsp.c
+index 5e4faf258c31..f1a81c9b184d 100644
+--- a/drivers/gpu/drm/rcar-du/rcar_du_vsp.c
++++ b/drivers/gpu/drm/rcar-du/rcar_du_vsp.c
+@@ -392,12 +392,14 @@ int rcar_du_vsp_init(struct rcar_du_vsp *vsp, struct device_node *np,
+ 		drm_plane_helper_add(&plane->plane,
+ 				     &rcar_du_vsp_plane_helper_funcs);
+ 
+-		if (type == DRM_PLANE_TYPE_PRIMARY)
+-			continue;
+-
+-		drm_plane_create_alpha_property(&plane->plane);
+-		drm_plane_create_zpos_property(&plane->plane, 1, 1,
+-					       vsp->num_planes - 1);
++		if (type == DRM_PLANE_TYPE_PRIMARY) {
++			drm_plane_create_zpos_immutable_property(&plane->plane,
++								 0);
++		} else {
++			drm_plane_create_alpha_property(&plane->plane);
++			drm_plane_create_zpos_property(&plane->plane, 1, 1,
++						       vsp->num_planes - 1);
++		}
+ 	}
+ 
+ 	return 0;
 -- 
 2.25.1
 
