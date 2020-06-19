@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73BFF2011CB
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:47:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11939201037
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:30:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391223AbgFSPpJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:45:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59250 "EHLO mail.kernel.org"
+        id S2393562AbgFSP1f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:27:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391072AbgFSP1b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:27:31 -0400
+        id S2391073AbgFSP1e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:27:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 95B0421919;
-        Fri, 19 Jun 2020 15:27:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2EEB4218AC;
+        Fri, 19 Jun 2020 15:27:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580450;
-        bh=zS6gAEk0HKpJiDZ/kTr717G1d4Hq+xCpiqZybYupiOA=;
+        s=default; t=1592580452;
+        bh=0JLWASTL5xGUzP3q7YptMaYlpjr+ZGwM8leBvaxzYx4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZHBUKdMzw8/NXXtnl028yYtoKcdN/tS/mCsol5V/Z2dRyCaCAzvsSBmD1BN1wRjl3
-         nBsUZkas7i2Jos02CzUdVF5TZgS8hiz0rpib5d2CnkjhfCsPTErtY8etpNbnIAZDXU
-         Y8SLIkzA3sLNjQfG51hhoaQjb16aB6cwmQY3WfgQ=
+        b=nwlRr35M36os+TmVAH1Qln7SgJPXajC/G1VrJ7TU5cCahEQWj7ScG7RcahTAiPsgG
+         ZIaeF+O847TOpQHPvuryj8dw0aiZR384Q+KvDrx/5blkJ8gyTSVCWdOM2bDjqtp8NG
+         ddhpLrII80F/opVue0avNQkAqPD/Ertaz8AzSm4U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Alexander Potapenko <glider@google.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 254/376] kasan: stop tests being eliminated as dead code with FORTIFY_SOURCE
-Date:   Fri, 19 Jun 2020 16:32:52 +0200
-Message-Id: <20200619141722.348253156@linuxfoundation.org>
+Subject: [PATCH 5.7 255/376] string.h: fix incompatibility between FORTIFY_SOURCE and KASAN
+Date:   Fri, 19 Jun 2020 16:32:53 +0200
+Message-Id: <20200619141722.397206689@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -52,80 +52,135 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Daniel Axtens <dja@axtens.net>
 
-[ Upstream commit adb72ae1915db28f934e9e02c18bfcea2f3ed3b7 ]
+[ Upstream commit 47227d27e2fcb01a9e8f5958d8997cf47a820afc ]
 
-Patch series "Fix some incompatibilites between KASAN and FORTIFY_SOURCE", v4.
-
-3 KASAN self-tests fail on a kernel with both KASAN and FORTIFY_SOURCE:
-memchr, memcmp and strlen.
+The memcmp KASAN self-test fails on a kernel with both KASAN and
+FORTIFY_SOURCE.
 
 When FORTIFY_SOURCE is on, a number of functions are replaced with
 fortified versions, which attempt to check the sizes of the operands.
 However, these functions often directly invoke __builtin_foo() once they
-have performed the fortify check.  The compiler can detect that the
-results of these functions are not used, and knows that they have no other
-side effects, and so can eliminate them as dead code.
+have performed the fortify check.  Using __builtins may bypass KASAN
+checks if the compiler decides to inline it's own implementation as
+sequence of instructions, rather than emit a function call that goes out
+to a KASAN-instrumented implementation.
 
-Why are only memchr, memcmp and strlen affected?
-================================================
+Why is only memcmp affected?
+============================
 
-Of string and string-like functions, kasan_test tests:
+Of the string and string-like functions that kasan_test tests, only memcmp
+is replaced by an inline sequence of instructions in my testing on x86
+with gcc version 9.2.1 20191008 (Ubuntu 9.2.1-9ubuntu2).
 
- * strchr  ->  not affected, no fortified version
- * strrchr ->  likewise
- * strcmp  ->  likewise
- * strncmp ->  likewise
+I believe this is due to compiler heuristics.  For example, if I annotate
+kmalloc calls with the alloc_size annotation (and disable some fortify
+compile-time checking!), the compiler will replace every memset except the
+one in kmalloc_uaf_memset with inline instructions.  (I have some WIP
+patches to add this annotation.)
 
- * strnlen ->  not affected, the fortify source implementation calls the
-               underlying strnlen implementation which is instrumented, not
-               a builtin
+Does this affect other functions in string.h?
+=============================================
 
- * strlen  ->  affected, the fortify souce implementation calls a __builtin
-               version which the compiler can determine is dead.
+Yes. Anything that uses __builtin_* rather than __real_* could be
+affected. This looks like:
 
- * memchr  ->  likewise
- * memcmp  ->  likewise
+ - strncpy
+ - strcat
+ - strlen
+ - strlcpy maybe, under some circumstances?
+ - strncat under some circumstances
+ - memset
+ - memcpy
+ - memmove
+ - memcmp (as noted)
+ - memchr
+ - strcpy
 
- * memset ->   not affected, the compiler knows that memset writes to its
-	       first argument and therefore is not dead.
+Whether a function call is emitted always depends on the compiler.  Most
+bugs should get caught by FORTIFY_SOURCE, but the missed memcmp test shows
+that this is not always the case.
 
-Why does this not affect the functions normally?
-================================================
+Isn't FORTIFY_SOURCE disabled with KASAN?
+========================================-
 
-In string.h, these functions are not marked as __pure, so the compiler
-cannot know that they do not have side effects.  If relevant functions are
-marked as __pure in string.h, we see the following warnings and the
-functions are elided:
+The string headers on all arches supporting KASAN disable fortify with
+kasan, but only when address sanitisation is _also_ disabled.  For example
+from x86:
 
-lib/test_kasan.c: In function `kasan_memchr':
-lib/test_kasan.c:606:2: warning: statement with no effect [-Wunused-value]
-  memchr(ptr, '1', size + 1);
-  ^~~~~~~~~~~~~~~~~~~~~~~~~~
-lib/test_kasan.c: In function `kasan_memcmp':
-lib/test_kasan.c:622:2: warning: statement with no effect [-Wunused-value]
-  memcmp(ptr, arr, size+1);
-  ^~~~~~~~~~~~~~~~~~~~~~~~
-lib/test_kasan.c: In function `kasan_strings':
-lib/test_kasan.c:645:2: warning: statement with no effect [-Wunused-value]
-  strchr(ptr, '1');
-  ^~~~~~~~~~~~~~~~
-...
+ #if defined(CONFIG_KASAN) && !defined(__SANITIZE_ADDRESS__)
+ /*
+  * For files that are not instrumented (e.g. mm/slub.c) we
+  * should use not instrumented version of mem* functions.
+  */
+ #define memcpy(dst, src, len) __memcpy(dst, src, len)
+ #define memmove(dst, src, len) __memmove(dst, src, len)
+ #define memset(s, c, n) __memset(s, c, n)
 
-This annotation would make sense to add and could be added at any point,
-so the behaviour of test_kasan.c should change.
+ #ifndef __NO_FORTIFY
+ #define __NO_FORTIFY /* FORTIFY_SOURCE uses __builtin_memcpy, etc. */
+ #endif
 
-The fix
-=======
+ #endif
 
-Make all the functions that are pure write their results to a global,
-which makes them live.  The strlen and memchr tests now pass.
+This comes from commit 6974f0c4555e ("include/linux/string.h: add the
+option of fortified string.h functions"), and doesn't work when KASAN is
+enabled and the file is supposed to be sanitised - as with test_kasan.c
 
-The memcmp test still fails to trigger, which is addressed in the next
+I'm pretty sure this is not wrong, but not as expansive it should be:
+
+ * we shouldn't use __builtin_memcpy etc in files where we don't have
+   instrumentation - it could devolve into a function call to memcpy,
+   which will be instrumented. Rather, we should use __memcpy which
+   by convention is not instrumented.
+
+ * we also shouldn't be using __builtin_memcpy when we have a KASAN
+   instrumented file, because it could be replaced with inline asm
+   that will not be instrumented.
+
+What is correct behaviour?
+==========================
+
+Firstly, there is some overlap between fortification and KASAN: both
+provide some level of _runtime_ checking. Only fortify provides
+compile-time checking.
+
+KASAN and fortify can pick up different things at runtime:
+
+ - Some fortify functions, notably the string functions, could easily be
+   modified to consider sub-object sizes (e.g. members within a struct),
+   and I have some WIP patches to do this. KASAN cannot detect these
+   because it cannot insert poision between members of a struct.
+
+ - KASAN can detect many over-reads/over-writes when the sizes of both
+   operands are unknown, which fortify cannot.
+
+So there are a couple of options:
+
+ 1) Flip the test: disable fortify in santised files and enable it in
+    unsanitised files. This at least stops us missing KASAN checking, but
+    we lose the fortify checking.
+
+ 2) Make the fortify code always call out to real versions. Do this only
+    for KASAN, for fear of losing the inlining opportunities we get from
+    __builtin_*.
+
+(We can't use kasan_check_{read,write}: because the fortify functions are
+_extern inline_, you can't include _static_ inline functions without a
+compiler warning. kasan_check_{read,write} are static inline so we can't
+use them even when they would otherwise be suitable.)
+
+Take approach 2 and call out to real versions when KASAN is enabled.
+
+Use __underlying_foo to distinguish from __real_foo: __real_foo always
+refers to the kernel's implementation of foo, __underlying_foo could be
+either the kernel implementation or the __builtin_foo implementation.
+
+This is sometimes enough to make the memcmp test succeed with
+FORTIFY_SOURCE enabled. It is at least enough to get the function call
+into the module. One more fix is needed to make it reliable: see the next
 patch.
 
-[dja@axtens.net: drop patch 3]
-  Link: http://lkml.kernel.org/r/20200424145521.8203-2-dja@axtens.net
-Fixes: 0c96350a2d2f ("lib/test_kasan.c: add tests for several string/memory API functions")
+Fixes: 6974f0c4555e ("include/linux/string.h: add the option of fortified string.h functions")
 Signed-off-by: Daniel Axtens <dja@axtens.net>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Tested-by: David Gow <davidgow@google.com>
@@ -133,95 +188,168 @@ Reviewed-by: Dmitry Vyukov <dvyukov@google.com>
 Cc: Daniel Micay <danielmicay@gmail.com>
 Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
 Cc: Alexander Potapenko <glider@google.com>
-Link: http://lkml.kernel.org/r/20200423154503.5103-1-dja@axtens.net
-Link: http://lkml.kernel.org/r/20200423154503.5103-2-dja@axtens.net
+Link: http://lkml.kernel.org/r/20200423154503.5103-3-dja@axtens.net
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/test_kasan.c | 29 +++++++++++++++++++----------
- 1 file changed, 19 insertions(+), 10 deletions(-)
+ include/linux/string.h | 60 +++++++++++++++++++++++++++++++++---------
+ 1 file changed, 48 insertions(+), 12 deletions(-)
 
-diff --git a/lib/test_kasan.c b/lib/test_kasan.c
-index e3087d90e00d..dc2c6a51d11a 100644
---- a/lib/test_kasan.c
-+++ b/lib/test_kasan.c
-@@ -23,6 +23,14 @@
+diff --git a/include/linux/string.h b/include/linux/string.h
+index 6dfbb2efa815..9b7a0632e87a 100644
+--- a/include/linux/string.h
++++ b/include/linux/string.h
+@@ -272,6 +272,31 @@ void __read_overflow3(void) __compiletime_error("detected read beyond size of ob
+ void __write_overflow(void) __compiletime_error("detected write beyond size of object passed as 1st parameter");
  
- #include <asm/page.h>
- 
-+/*
-+ * We assign some test results to these globals to make sure the tests
-+ * are not eliminated as dead code.
-+ */
+ #if !defined(__NO_FORTIFY) && defined(__OPTIMIZE__) && defined(CONFIG_FORTIFY_SOURCE)
 +
-+int kasan_int_result;
-+void *kasan_ptr_result;
++#ifdef CONFIG_KASAN
++extern void *__underlying_memchr(const void *p, int c, __kernel_size_t size) __RENAME(memchr);
++extern int __underlying_memcmp(const void *p, const void *q, __kernel_size_t size) __RENAME(memcmp);
++extern void *__underlying_memcpy(void *p, const void *q, __kernel_size_t size) __RENAME(memcpy);
++extern void *__underlying_memmove(void *p, const void *q, __kernel_size_t size) __RENAME(memmove);
++extern void *__underlying_memset(void *p, int c, __kernel_size_t size) __RENAME(memset);
++extern char *__underlying_strcat(char *p, const char *q) __RENAME(strcat);
++extern char *__underlying_strcpy(char *p, const char *q) __RENAME(strcpy);
++extern __kernel_size_t __underlying_strlen(const char *p) __RENAME(strlen);
++extern char *__underlying_strncat(char *p, const char *q, __kernel_size_t count) __RENAME(strncat);
++extern char *__underlying_strncpy(char *p, const char *q, __kernel_size_t size) __RENAME(strncpy);
++#else
++#define __underlying_memchr	__builtin_memchr
++#define __underlying_memcmp	__builtin_memcmp
++#define __underlying_memcpy	__builtin_memcpy
++#define __underlying_memmove	__builtin_memmove
++#define __underlying_memset	__builtin_memset
++#define __underlying_strcat	__builtin_strcat
++#define __underlying_strcpy	__builtin_strcpy
++#define __underlying_strlen	__builtin_strlen
++#define __underlying_strncat	__builtin_strncat
++#define __underlying_strncpy	__builtin_strncpy
++#endif
 +
- /*
-  * Note: test functions are marked noinline so that their names appear in
-  * reports.
-@@ -622,7 +630,7 @@ static noinline void __init kasan_memchr(void)
- 	if (!ptr)
- 		return;
- 
--	memchr(ptr, '1', size + 1);
-+	kasan_ptr_result = memchr(ptr, '1', size + 1);
- 	kfree(ptr);
+ __FORTIFY_INLINE char *strncpy(char *p, const char *q, __kernel_size_t size)
+ {
+ 	size_t p_size = __builtin_object_size(p, 0);
+@@ -279,14 +304,14 @@ __FORTIFY_INLINE char *strncpy(char *p, const char *q, __kernel_size_t size)
+ 		__write_overflow();
+ 	if (p_size < size)
+ 		fortify_panic(__func__);
+-	return __builtin_strncpy(p, q, size);
++	return __underlying_strncpy(p, q, size);
  }
  
-@@ -638,7 +646,7 @@ static noinline void __init kasan_memcmp(void)
- 		return;
- 
- 	memset(arr, 0, sizeof(arr));
--	memcmp(ptr, arr, size+1);
-+	kasan_int_result = memcmp(ptr, arr, size + 1);
- 	kfree(ptr);
+ __FORTIFY_INLINE char *strcat(char *p, const char *q)
+ {
+ 	size_t p_size = __builtin_object_size(p, 0);
+ 	if (p_size == (size_t)-1)
+-		return __builtin_strcat(p, q);
++		return __underlying_strcat(p, q);
+ 	if (strlcat(p, q, p_size) >= p_size)
+ 		fortify_panic(__func__);
+ 	return p;
+@@ -300,7 +325,7 @@ __FORTIFY_INLINE __kernel_size_t strlen(const char *p)
+ 	/* Work around gcc excess stack consumption issue */
+ 	if (p_size == (size_t)-1 ||
+ 	    (__builtin_constant_p(p[p_size - 1]) && p[p_size - 1] == '\0'))
+-		return __builtin_strlen(p);
++		return __underlying_strlen(p);
+ 	ret = strnlen(p, p_size);
+ 	if (p_size <= ret)
+ 		fortify_panic(__func__);
+@@ -333,7 +358,7 @@ __FORTIFY_INLINE size_t strlcpy(char *p, const char *q, size_t size)
+ 			__write_overflow();
+ 		if (len >= p_size)
+ 			fortify_panic(__func__);
+-		__builtin_memcpy(p, q, len);
++		__underlying_memcpy(p, q, len);
+ 		p[len] = '\0';
+ 	}
+ 	return ret;
+@@ -346,12 +371,12 @@ __FORTIFY_INLINE char *strncat(char *p, const char *q, __kernel_size_t count)
+ 	size_t p_size = __builtin_object_size(p, 0);
+ 	size_t q_size = __builtin_object_size(q, 0);
+ 	if (p_size == (size_t)-1 && q_size == (size_t)-1)
+-		return __builtin_strncat(p, q, count);
++		return __underlying_strncat(p, q, count);
+ 	p_len = strlen(p);
+ 	copy_len = strnlen(q, count);
+ 	if (p_size < p_len + copy_len + 1)
+ 		fortify_panic(__func__);
+-	__builtin_memcpy(p + p_len, q, copy_len);
++	__underlying_memcpy(p + p_len, q, copy_len);
+ 	p[p_len + copy_len] = '\0';
+ 	return p;
+ }
+@@ -363,7 +388,7 @@ __FORTIFY_INLINE void *memset(void *p, int c, __kernel_size_t size)
+ 		__write_overflow();
+ 	if (p_size < size)
+ 		fortify_panic(__func__);
+-	return __builtin_memset(p, c, size);
++	return __underlying_memset(p, c, size);
  }
  
-@@ -661,22 +669,22 @@ static noinline void __init kasan_strings(void)
- 	 * will likely point to zeroed byte.
- 	 */
- 	ptr += 16;
--	strchr(ptr, '1');
-+	kasan_ptr_result = strchr(ptr, '1');
- 
- 	pr_info("use-after-free in strrchr\n");
--	strrchr(ptr, '1');
-+	kasan_ptr_result = strrchr(ptr, '1');
- 
- 	pr_info("use-after-free in strcmp\n");
--	strcmp(ptr, "2");
-+	kasan_int_result = strcmp(ptr, "2");
- 
- 	pr_info("use-after-free in strncmp\n");
--	strncmp(ptr, "2", 1);
-+	kasan_int_result = strncmp(ptr, "2", 1);
- 
- 	pr_info("use-after-free in strlen\n");
--	strlen(ptr);
-+	kasan_int_result = strlen(ptr);
- 
- 	pr_info("use-after-free in strnlen\n");
--	strnlen(ptr, 1);
-+	kasan_int_result = strnlen(ptr, 1);
+ __FORTIFY_INLINE void *memcpy(void *p, const void *q, __kernel_size_t size)
+@@ -378,7 +403,7 @@ __FORTIFY_INLINE void *memcpy(void *p, const void *q, __kernel_size_t size)
+ 	}
+ 	if (p_size < size || q_size < size)
+ 		fortify_panic(__func__);
+-	return __builtin_memcpy(p, q, size);
++	return __underlying_memcpy(p, q, size);
  }
  
- static noinline void __init kasan_bitops(void)
-@@ -743,11 +751,12 @@ static noinline void __init kasan_bitops(void)
- 	__test_and_change_bit(BITS_PER_LONG + BITS_PER_BYTE, bits);
+ __FORTIFY_INLINE void *memmove(void *p, const void *q, __kernel_size_t size)
+@@ -393,7 +418,7 @@ __FORTIFY_INLINE void *memmove(void *p, const void *q, __kernel_size_t size)
+ 	}
+ 	if (p_size < size || q_size < size)
+ 		fortify_panic(__func__);
+-	return __builtin_memmove(p, q, size);
++	return __underlying_memmove(p, q, size);
+ }
  
- 	pr_info("out-of-bounds in test_bit\n");
--	(void)test_bit(BITS_PER_LONG + BITS_PER_BYTE, bits);
-+	kasan_int_result = test_bit(BITS_PER_LONG + BITS_PER_BYTE, bits);
+ extern void *__real_memscan(void *, int, __kernel_size_t) __RENAME(memscan);
+@@ -419,7 +444,7 @@ __FORTIFY_INLINE int memcmp(const void *p, const void *q, __kernel_size_t size)
+ 	}
+ 	if (p_size < size || q_size < size)
+ 		fortify_panic(__func__);
+-	return __builtin_memcmp(p, q, size);
++	return __underlying_memcmp(p, q, size);
+ }
  
- #if defined(clear_bit_unlock_is_negative_byte)
- 	pr_info("out-of-bounds in clear_bit_unlock_is_negative_byte\n");
--	clear_bit_unlock_is_negative_byte(BITS_PER_LONG + BITS_PER_BYTE, bits);
-+	kasan_int_result = clear_bit_unlock_is_negative_byte(BITS_PER_LONG +
-+		BITS_PER_BYTE, bits);
+ __FORTIFY_INLINE void *memchr(const void *p, int c, __kernel_size_t size)
+@@ -429,7 +454,7 @@ __FORTIFY_INLINE void *memchr(const void *p, int c, __kernel_size_t size)
+ 		__read_overflow();
+ 	if (p_size < size)
+ 		fortify_panic(__func__);
+-	return __builtin_memchr(p, c, size);
++	return __underlying_memchr(p, c, size);
+ }
+ 
+ void *__real_memchr_inv(const void *s, int c, size_t n) __RENAME(memchr_inv);
+@@ -460,11 +485,22 @@ __FORTIFY_INLINE char *strcpy(char *p, const char *q)
+ 	size_t p_size = __builtin_object_size(p, 0);
+ 	size_t q_size = __builtin_object_size(q, 0);
+ 	if (p_size == (size_t)-1 && q_size == (size_t)-1)
+-		return __builtin_strcpy(p, q);
++		return __underlying_strcpy(p, q);
+ 	memcpy(p, q, strlen(q) + 1);
+ 	return p;
+ }
+ 
++/* Don't use these outside the FORITFY_SOURCE implementation */
++#undef __underlying_memchr
++#undef __underlying_memcmp
++#undef __underlying_memcpy
++#undef __underlying_memmove
++#undef __underlying_memset
++#undef __underlying_strcat
++#undef __underlying_strcpy
++#undef __underlying_strlen
++#undef __underlying_strncat
++#undef __underlying_strncpy
  #endif
- 	kfree(bits);
- }
+ 
+ /**
 -- 
 2.25.1
 
