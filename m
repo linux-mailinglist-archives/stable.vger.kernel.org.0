@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FCE2201862
+	by mail.lfdr.de (Postfix) with ESMTP id CBC11201863
 	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 19:01:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733289AbgFSOiY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:38:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55350 "EHLO mail.kernel.org"
+        id S2387865AbgFSOiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:38:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387850AbgFSOiT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:38:19 -0400
+        id S2387863AbgFSOiV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:38:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 675D920DD4;
-        Fri, 19 Jun 2020 14:38:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A766B21527;
+        Fri, 19 Jun 2020 14:38:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577498;
-        bh=QwZlJF/+R4YdAmj1GKRzB0FndTtKAoGvvrxX8c0MfLQ=;
+        s=default; t=1592577501;
+        bh=SOZVP6U+P1pcTgKXAWFsdPaMTyQq9HXmm1GkAlSLfN0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zD3ohIFT+E3ig8MuPO9Kdtr2THXAWWrUgoJgtybVgG7YstXS6bPhN+2mmF2uC1zoY
-         pxfWmABQZU36ro3+ZXQpezfJFRNrVdieJAlvCGhUbb8zMItnscw1X1Sno/VWguIi2Z
-         Kp8jQTfQkZd4tOaaU9nwXabtMKGyujgLJvaW7M5M=
+        b=eI/OMaiaRRPjOMkhhrB6O2Wmb5m1CrriC6MIoPHSWXml6nsztRp3lhVodyzSdf1v/
+         ptXq4VZgmnNYobTrIx5gQtu3/NoXiTVfnvDE/2NgCF+AeLJBbd+oL2snPFLguVpdqo
+         E89a7dAE0LTNo1v31d6tB5U2a4ovnzxcQYfuawqM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 075/101] cpuidle: Fix three reference count leaks
-Date:   Fri, 19 Jun 2020 16:33:04 +0200
-Message-Id: <20200619141617.938289499@linuxfoundation.org>
+        stable@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
+        Krzysztof Struczynski <krzysztof.struczynski@huawei.com>,
+        David.Laight@aculab.com (big endian system concerns),
+        Mimi Zohar <zohar@linux.ibm.com>
+Subject: [PATCH 4.4 076/101] ima: Fix ima digest hash table key calculation
+Date:   Fri, 19 Jun 2020 16:33:05 +0200
+Message-Id: <20200619141617.986580358@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141614.001544111@linuxfoundation.org>
 References: <20200619141614.001544111@linuxfoundation.org>
@@ -44,52 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Krzysztof Struczynski <krzysztof.struczynski@huawei.com>
 
-[ Upstream commit c343bf1ba5efcbf2266a1fe3baefec9cc82f867f ]
+commit 1129d31b55d509f15e72dc68e4b5c3a4d7b4da8d upstream.
 
-kobject_init_and_add() takes reference even when it fails.
-If this function returns an error, kobject_put() must be called to
-properly clean up the memory associated with the object.
+Function hash_long() accepts unsigned long, while currently only one byte
+is passed from ima_hash_key(), which calculates a key for ima_htable.
 
-Previous commit "b8eb718348b8" fixed a similar problem.
+Given that hashing the digest does not give clear benefits compared to
+using the digest itself, remove hash_long() and return the modulus
+calculated on the first two bytes of the digest with the number of slots.
+Also reduce the depth of the hash table by doubling the number of slots.
 
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-[ rjw: Subject ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 3323eec921ef ("integrity: IMA as an integrity service provider")
+Co-developed-by: Roberto Sassu <roberto.sassu@huawei.com>
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+Signed-off-by: Krzysztof Struczynski <krzysztof.struczynski@huawei.com>
+Acked-by: David.Laight@aculab.com (big endian system concerns)
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/cpuidle/sysfs.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ security/integrity/ima/ima.h |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/cpuidle/sysfs.c
-+++ b/drivers/cpuidle/sysfs.c
-@@ -412,7 +412,7 @@ static int cpuidle_add_state_sysfs(struc
- 		ret = kobject_init_and_add(&kobj->kobj, &ktype_state_cpuidle,
- 					   &kdev->kobj, "state%d", i);
- 		if (ret) {
--			kfree(kobj);
-+			kobject_put(&kobj->kobj);
- 			goto error_state;
- 		}
- 		kobject_uevent(&kobj->kobj, KOBJ_ADD);
-@@ -542,7 +542,7 @@ static int cpuidle_add_driver_sysfs(stru
- 	ret = kobject_init_and_add(&kdrv->kobj, &ktype_driver_cpuidle,
- 				   &kdev->kobj, "driver");
- 	if (ret) {
--		kfree(kdrv);
-+		kobject_put(&kdrv->kobj);
- 		return ret;
- 	}
+--- a/security/integrity/ima/ima.h
++++ b/security/integrity/ima/ima.h
+@@ -34,7 +34,7 @@ enum tpm_pcrs { TPM_PCR0 = 0, TPM_PCR8 =
+ #define IMA_DIGEST_SIZE		SHA1_DIGEST_SIZE
+ #define IMA_EVENT_NAME_LEN_MAX	255
  
-@@ -636,7 +636,7 @@ int cpuidle_add_sysfs(struct cpuidle_dev
- 	error = kobject_init_and_add(&kdev->kobj, &ktype_cpuidle, &cpu_dev->kobj,
- 				   "cpuidle");
- 	if (error) {
--		kfree(kdev);
-+		kobject_put(&kdev->kobj);
- 		return error;
- 	}
+-#define IMA_HASH_BITS 9
++#define IMA_HASH_BITS 10
+ #define IMA_MEASURE_HTABLE_SIZE (1 << IMA_HASH_BITS)
  
+ #define IMA_TEMPLATE_FIELD_ID_MAX_LEN	16
+@@ -131,9 +131,10 @@ struct ima_h_table {
+ };
+ extern struct ima_h_table ima_htable;
+ 
+-static inline unsigned long ima_hash_key(u8 *digest)
++static inline unsigned int ima_hash_key(u8 *digest)
+ {
+-	return hash_long(*digest, IMA_HASH_BITS);
++	/* there is no point in taking a hash of part of a digest */
++	return (digest[0] | digest[1] << 8) % IMA_MEASURE_HTABLE_SIZE;
+ }
+ 
+ /* LIM API function definitions */
 
 
