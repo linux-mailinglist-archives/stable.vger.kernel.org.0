@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 97FB3200CF0
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:52:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C8CD200BDA
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 16:42:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389448AbgFSOv1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:51:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45006 "EHLO mail.kernel.org"
+        id S2387894AbgFSOin (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:38:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389441AbgFSOv0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:51:26 -0400
+        id S1733193AbgFSOij (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:38:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2566A2166E;
-        Fri, 19 Jun 2020 14:51:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E8F6F21556;
+        Fri, 19 Jun 2020 14:38:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578285;
-        bh=qSU5bk/zdU503FulCoQ5cGikvBLDwT/dO8p24RY/tnY=;
+        s=default; t=1592577518;
+        bh=0Vp2LJtlSoEL3sF9zwbuRjicAB8CUEe7ntKtbbih9qc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=acWVY12nNW95VnxvwFXH5+9SdH2ew6bJ1Ck+EUeG7AGuNsRscqEtEflRZ+eDY59s0
-         bJvMr4bNtRgODcJmtUuDHEl4fDdncTDPv/pnp8cXg1TgFc8Pem7vCireKzdx+rZWZq
-         TJevdog8vNmxs1x+K3uT45xHfV6Jm3SVL14jixF0=
+        b=aDDJUmEvuqqPvmFCEmruYUiPdiOleiwWBOSk/KPG0vn8k2wXU3KEMBQHunMyxTBXw
+         B+iicNsQN+ALjV3NNmAGiha8wkT91Fww5nfkBTGaMeMbsVFiRAgbxkL0DXEkDhaxAa
+         ko1xqShVkfpgeTf04kpy5MmHKgXtJDL8FSrGrijg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Finn Thain <fthain@telegraphics.com.au>,
-        Joshua Thompson <funaho@jurai.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Stan Johnson <userm57@yahoo.com>
-Subject: [PATCH 4.14 127/190] m68k: mac: Dont call via_flush_cache() on Mac IIfx
-Date:   Fri, 19 Jun 2020 16:32:52 +0200
-Message-Id: <20200619141639.971829716@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Guoqing Jiang <guoqing.jiang@cloud.ionos.com>,
+        Song Liu <songliubraving@fb.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 065/101] md: dont flush workqueue unconditionally in md_open
+Date:   Fri, 19 Jun 2020 16:32:54 +0200
+Message-Id: <20200619141617.473828116@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
-References: <20200619141633.446429600@linuxfoundation.org>
+In-Reply-To: <20200619141614.001544111@linuxfoundation.org>
+References: <20200619141614.001544111@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,169 +45,161 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Finn Thain <fthain@telegraphics.com.au>
+From: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
 
-[ Upstream commit bcc44f6b74106b31f0b0408b70305a40360d63b7 ]
+[ Upstream commit f6766ff6afff70e2aaf39e1511e16d471de7c3ae ]
 
-There is no VIA2 chip on the Mac IIfx, so don't call via_flush_cache().
-This avoids a boot crash which appeared in v5.4.
+We need to check mddev->del_work before flush workqueu since the purpose
+of flush is to ensure the previous md is disappeared. Otherwise the similar
+deadlock appeared if LOCKDEP is enabled, it is due to md_open holds the
+bdev->bd_mutex before flush workqueue.
 
-printk: console [ttyS0] enabled
-printk: bootconsole [debug0] disabled
-printk: bootconsole [debug0] disabled
-Calibrating delay loop... 9.61 BogoMIPS (lpj=48064)
-pid_max: default: 32768 minimum: 301
-Mount-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
-Mountpoint-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
-devtmpfs: initialized
-random: get_random_u32 called from bucket_table_alloc.isra.27+0x68/0x194 with crng_init=0
-clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 19112604462750000 ns
-futex hash table entries: 256 (order: -1, 3072 bytes, linear)
-NET: Registered protocol family 16
-Data read fault at 0x00000000 in Super Data (pc=0x8a6a)
-BAD KERNEL BUSERR
-Oops: 00000000
-Modules linked in:
-PC: [<00008a6a>] via_flush_cache+0x12/0x2c
-SR: 2700  SP: 01c1fe3c  a2: 01c24000
-d0: 00001119    d1: 0000000c    d2: 00012000    d3: 0000000f
-d4: 01c06840    d5: 00033b92    a0: 00000000    a1: 00000000
-Process swapper (pid: 1, task=01c24000)
-Frame format=B ssw=0755 isc=0200 isb=fff7 daddr=00000000 dobuf=01c1fed0
-baddr=00008a6e dibuf=0000004e ver=f
-Stack from 01c1fec4:
-        01c1fed0 00007d7e 00010080 01c1fedc 0000792e 00000001 01c1fef4 00006b40
-        01c80000 00040000 00000006 00000003 01c1ff1c 004a545e 004ff200 00040000
-        00000000 00000003 01c06840 00033b92 004a5410 004b6c88 01c1ff84 000021e2
-        00000073 00000003 01c06840 00033b92 0038507a 004bb094 004b6ca8 004b6c88
-        004b6ca4 004b6c88 000021ae 00020002 00000000 01c0685d 00000000 01c1ffb4
-        0049f938 00409c85 01c06840 0045bd40 00000073 00000002 00000002 00000000
-Call Trace: [<00007d7e>] mac_cache_card_flush+0x12/0x1c
- [<00010080>] fix_dnrm+0x2/0x18
- [<0000792e>] cache_push+0x46/0x5a
- [<00006b40>] arch_dma_prep_coherent+0x60/0x6e
- [<00040000>] switched_to_dl+0x76/0xd0
- [<004a545e>] dma_atomic_pool_init+0x4e/0x188
- [<00040000>] switched_to_dl+0x76/0xd0
- [<00033b92>] parse_args+0x0/0x370
- [<004a5410>] dma_atomic_pool_init+0x0/0x188
- [<000021e2>] do_one_initcall+0x34/0x1be
- [<00033b92>] parse_args+0x0/0x370
- [<0038507a>] strcpy+0x0/0x1e
- [<000021ae>] do_one_initcall+0x0/0x1be
- [<00020002>] do_proc_dointvec_conv+0x54/0x74
- [<0049f938>] kernel_init_freeable+0x126/0x190
- [<0049f94c>] kernel_init_freeable+0x13a/0x190
- [<004a5410>] dma_atomic_pool_init+0x0/0x188
- [<00041798>] complete+0x0/0x3c
- [<000b9b0c>] kfree+0x0/0x20a
- [<0038df98>] schedule+0x0/0xd0
- [<0038d604>] kernel_init+0x0/0xda
- [<0038d610>] kernel_init+0xc/0xda
- [<0038d604>] kernel_init+0x0/0xda
- [<00002d38>] ret_from_kernel_thread+0xc/0x14
-Code: 0000 2079 0048 10da 2279 0048 10c8 d3c8 <1011> 0200 fff7 1280 d1f9 0048 10c8 1010 0000 0008 1080 4e5e 4e75 4e56 0000 2039
-Disabling lock debugging due to kernel taint
-Kernel panic - not syncing: Attempted to kill init! exitcode=0x0000000b
+kernel: [  154.522645] ======================================================
+kernel: [  154.522647] WARNING: possible circular locking dependency detected
+kernel: [  154.522650] 5.6.0-rc7-lp151.27-default #25 Tainted: G           O
+kernel: [  154.522651] ------------------------------------------------------
+kernel: [  154.522653] mdadm/2482 is trying to acquire lock:
+kernel: [  154.522655] ffff888078529128 ((wq_completion)md_misc){+.+.}, at: flush_workqueue+0x84/0x4b0
+kernel: [  154.522673]
+kernel: [  154.522673] but task is already holding lock:
+kernel: [  154.522675] ffff88804efa9338 (&bdev->bd_mutex){+.+.}, at: __blkdev_get+0x79/0x590
+kernel: [  154.522691]
+kernel: [  154.522691] which lock already depends on the new lock.
+kernel: [  154.522691]
+kernel: [  154.522694]
+kernel: [  154.522694] the existing dependency chain (in reverse order) is:
+kernel: [  154.522696]
+kernel: [  154.522696] -> #4 (&bdev->bd_mutex){+.+.}:
+kernel: [  154.522704]        __mutex_lock+0x87/0x950
+kernel: [  154.522706]        __blkdev_get+0x79/0x590
+kernel: [  154.522708]        blkdev_get+0x65/0x140
+kernel: [  154.522709]        blkdev_get_by_dev+0x2f/0x40
+kernel: [  154.522716]        lock_rdev+0x3d/0x90 [md_mod]
+kernel: [  154.522719]        md_import_device+0xd6/0x1b0 [md_mod]
+kernel: [  154.522723]        new_dev_store+0x15e/0x210 [md_mod]
+kernel: [  154.522728]        md_attr_store+0x7a/0xc0 [md_mod]
+kernel: [  154.522732]        kernfs_fop_write+0x117/0x1b0
+kernel: [  154.522735]        vfs_write+0xad/0x1a0
+kernel: [  154.522737]        ksys_write+0xa4/0xe0
+kernel: [  154.522745]        do_syscall_64+0x64/0x2b0
+kernel: [  154.522748]        entry_SYSCALL_64_after_hwframe+0x49/0xbe
+kernel: [  154.522749]
+kernel: [  154.522749] -> #3 (&mddev->reconfig_mutex){+.+.}:
+kernel: [  154.522752]        __mutex_lock+0x87/0x950
+kernel: [  154.522756]        new_dev_store+0xc9/0x210 [md_mod]
+kernel: [  154.522759]        md_attr_store+0x7a/0xc0 [md_mod]
+kernel: [  154.522761]        kernfs_fop_write+0x117/0x1b0
+kernel: [  154.522763]        vfs_write+0xad/0x1a0
+kernel: [  154.522765]        ksys_write+0xa4/0xe0
+kernel: [  154.522767]        do_syscall_64+0x64/0x2b0
+kernel: [  154.522769]        entry_SYSCALL_64_after_hwframe+0x49/0xbe
+kernel: [  154.522770]
+kernel: [  154.522770] -> #2 (kn->count#253){++++}:
+kernel: [  154.522775]        __kernfs_remove+0x253/0x2c0
+kernel: [  154.522778]        kernfs_remove+0x1f/0x30
+kernel: [  154.522780]        kobject_del+0x28/0x60
+kernel: [  154.522783]        mddev_delayed_delete+0x24/0x30 [md_mod]
+kernel: [  154.522786]        process_one_work+0x2a7/0x5f0
+kernel: [  154.522788]        worker_thread+0x2d/0x3d0
+kernel: [  154.522793]        kthread+0x117/0x130
+kernel: [  154.522795]        ret_from_fork+0x3a/0x50
+kernel: [  154.522796]
+kernel: [  154.522796] -> #1 ((work_completion)(&mddev->del_work)){+.+.}:
+kernel: [  154.522800]        process_one_work+0x27e/0x5f0
+kernel: [  154.522802]        worker_thread+0x2d/0x3d0
+kernel: [  154.522804]        kthread+0x117/0x130
+kernel: [  154.522806]        ret_from_fork+0x3a/0x50
+kernel: [  154.522807]
+kernel: [  154.522807] -> #0 ((wq_completion)md_misc){+.+.}:
+kernel: [  154.522813]        __lock_acquire+0x1392/0x1690
+kernel: [  154.522816]        lock_acquire+0xb4/0x1a0
+kernel: [  154.522818]        flush_workqueue+0xab/0x4b0
+kernel: [  154.522821]        md_open+0xb6/0xc0 [md_mod]
+kernel: [  154.522823]        __blkdev_get+0xea/0x590
+kernel: [  154.522825]        blkdev_get+0x65/0x140
+kernel: [  154.522828]        do_dentry_open+0x1d1/0x380
+kernel: [  154.522831]        path_openat+0x567/0xcc0
+kernel: [  154.522834]        do_filp_open+0x9b/0x110
+kernel: [  154.522836]        do_sys_openat2+0x201/0x2a0
+kernel: [  154.522838]        do_sys_open+0x57/0x80
+kernel: [  154.522840]        do_syscall_64+0x64/0x2b0
+kernel: [  154.522842]        entry_SYSCALL_64_after_hwframe+0x49/0xbe
+kernel: [  154.522844]
+kernel: [  154.522844] other info that might help us debug this:
+kernel: [  154.522844]
+kernel: [  154.522846] Chain exists of:
+kernel: [  154.522846]   (wq_completion)md_misc --> &mddev->reconfig_mutex --> &bdev->bd_mutex
+kernel: [  154.522846]
+kernel: [  154.522850]  Possible unsafe locking scenario:
+kernel: [  154.522850]
+kernel: [  154.522852]        CPU0                    CPU1
+kernel: [  154.522853]        ----                    ----
+kernel: [  154.522854]   lock(&bdev->bd_mutex);
+kernel: [  154.522856]                                lock(&mddev->reconfig_mutex);
+kernel: [  154.522858]                                lock(&bdev->bd_mutex);
+kernel: [  154.522860]   lock((wq_completion)md_misc);
+kernel: [  154.522861]
+kernel: [  154.522861]  *** DEADLOCK ***
+kernel: [  154.522861]
+kernel: [  154.522864] 1 lock held by mdadm/2482:
+kernel: [  154.522865]  #0: ffff88804efa9338 (&bdev->bd_mutex){+.+.}, at: __blkdev_get+0x79/0x590
+kernel: [  154.522868]
+kernel: [  154.522868] stack backtrace:
+kernel: [  154.522873] CPU: 1 PID: 2482 Comm: mdadm Tainted: G           O      5.6.0-rc7-lp151.27-default #25
+kernel: [  154.522875] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
+kernel: [  154.522878] Call Trace:
+kernel: [  154.522881]  dump_stack+0x8f/0xcb
+kernel: [  154.522884]  check_noncircular+0x194/0x1b0
+kernel: [  154.522888]  ? __lock_acquire+0x1392/0x1690
+kernel: [  154.522890]  __lock_acquire+0x1392/0x1690
+kernel: [  154.522893]  lock_acquire+0xb4/0x1a0
+kernel: [  154.522895]  ? flush_workqueue+0x84/0x4b0
+kernel: [  154.522898]  flush_workqueue+0xab/0x4b0
+kernel: [  154.522900]  ? flush_workqueue+0x84/0x4b0
+kernel: [  154.522905]  ? md_open+0xb6/0xc0 [md_mod]
+kernel: [  154.522908]  md_open+0xb6/0xc0 [md_mod]
+kernel: [  154.522910]  __blkdev_get+0xea/0x590
+kernel: [  154.522912]  ? bd_acquire+0xc0/0xc0
+kernel: [  154.522914]  blkdev_get+0x65/0x140
+kernel: [  154.522916]  ? bd_acquire+0xc0/0xc0
+kernel: [  154.522918]  do_dentry_open+0x1d1/0x380
+kernel: [  154.522921]  path_openat+0x567/0xcc0
+kernel: [  154.522923]  ? __lock_acquire+0x380/0x1690
+kernel: [  154.522926]  do_filp_open+0x9b/0x110
+kernel: [  154.522929]  ? __alloc_fd+0xe5/0x1f0
+kernel: [  154.522935]  ? kmem_cache_alloc+0x28c/0x630
+kernel: [  154.522939]  ? do_sys_openat2+0x201/0x2a0
+kernel: [  154.522941]  do_sys_openat2+0x201/0x2a0
+kernel: [  154.522944]  do_sys_open+0x57/0x80
+kernel: [  154.522946]  do_syscall_64+0x64/0x2b0
+kernel: [  154.522948]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+kernel: [  154.522951] RIP: 0033:0x7f98d279d9ae
 
-Thanks to Stan Johnson for capturing the console log and running git
-bisect.
+And md_alloc also flushed the same workqueue, but the thing is different
+here. Because all the paths call md_alloc don't hold bdev->bd_mutex, and
+the flush is necessary to avoid race condition, so leave it as it is.
 
-Git bisect said commit 8e3a68fb55e0 ("dma-mapping: make
-dma_atomic_pool_init self-contained") is the first "bad" commit. I don't
-know why. Perhaps mach_l2_flush first became reachable with that commit.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-and-tested-by: Stan Johnson <userm57@yahoo.com>
-Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
-Cc: Joshua Thompson <funaho@jurai.org>
-Link: https://lore.kernel.org/r/b8bbeef197d6b3898e82ed0d231ad08f575a4b34.1589949122.git.fthain@telegraphics.com.au
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/include/asm/mac_via.h |  1 +
- arch/m68k/mac/config.c          | 21 ++-------------------
- arch/m68k/mac/via.c             |  6 +++++-
- 3 files changed, 8 insertions(+), 20 deletions(-)
+ drivers/md/md.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/m68k/include/asm/mac_via.h b/arch/m68k/include/asm/mac_via.h
-index de1470c4d829..1149251ea58d 100644
---- a/arch/m68k/include/asm/mac_via.h
-+++ b/arch/m68k/include/asm/mac_via.h
-@@ -257,6 +257,7 @@ extern int rbv_present,via_alt_mapping;
- 
- struct irq_desc;
- 
-+extern void via_l2_flush(int writeback);
- extern void via_register_interrupts(void);
- extern void via_irq_enable(int);
- extern void via_irq_disable(int);
-diff --git a/arch/m68k/mac/config.c b/arch/m68k/mac/config.c
-index 2004b3f72d80..3ea7450c51f2 100644
---- a/arch/m68k/mac/config.c
-+++ b/arch/m68k/mac/config.c
-@@ -61,7 +61,6 @@ extern void iop_preinit(void);
- extern void iop_init(void);
- extern void via_init(void);
- extern void via_init_clock(irq_handler_t func);
--extern void via_flush_cache(void);
- extern void oss_init(void);
- extern void psc_init(void);
- extern void baboon_init(void);
-@@ -132,21 +131,6 @@ int __init mac_parse_bootinfo(const struct bi_record *record)
- 	return unknown;
- }
- 
--/*
-- * Flip into 24bit mode for an instant - flushes the L2 cache card. We
-- * have to disable interrupts for this. Our IRQ handlers will crap
-- * themselves if they take an IRQ in 24bit mode!
-- */
--
--static void mac_cache_card_flush(int writeback)
--{
--	unsigned long flags;
--
--	local_irq_save(flags);
--	via_flush_cache();
--	local_irq_restore(flags);
--}
--
- void __init config_mac(void)
- {
- 	if (!MACH_IS_MAC)
-@@ -179,9 +163,8 @@ void __init config_mac(void)
- 	 * not.
- 	 */
- 
--	if (macintosh_config->ident == MAC_MODEL_IICI
--	    || macintosh_config->ident == MAC_MODEL_IIFX)
--		mach_l2_flush = mac_cache_card_flush;
-+	if (macintosh_config->ident == MAC_MODEL_IICI)
-+		mach_l2_flush = via_l2_flush;
- }
- 
- 
-diff --git a/arch/m68k/mac/via.c b/arch/m68k/mac/via.c
-index 863806e6775a..6ab6a1d54b37 100644
---- a/arch/m68k/mac/via.c
-+++ b/arch/m68k/mac/via.c
-@@ -300,10 +300,14 @@ void via_debug_dump(void)
-  * the system into 24-bit mode for an instant.
-  */
- 
--void via_flush_cache(void)
-+void via_l2_flush(int writeback)
- {
-+	unsigned long flags;
-+
-+	local_irq_save(flags);
- 	via2[gBufB] &= ~VIA2B_vMode32;
- 	via2[gBufB] |= VIA2B_vMode32;
-+	local_irq_restore(flags);
- }
- 
- /*
+diff --git a/drivers/md/md.c b/drivers/md/md.c
+index d59d79b77fd6..60161690e226 100644
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -7038,7 +7038,8 @@ static int md_open(struct block_device *bdev, fmode_t mode)
+ 		 */
+ 		mddev_put(mddev);
+ 		/* Wait until bdev->bd_disk is definitely gone */
+-		flush_workqueue(md_misc_wq);
++		if (work_pending(&mddev->del_work))
++			flush_workqueue(md_misc_wq);
+ 		/* Then retry the open from the top */
+ 		return -ERESTARTSYS;
+ 	}
 -- 
 2.25.1
 
