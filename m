@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C578D2015A4
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:31:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 476CA2015A5
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:31:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389758AbgFSOxp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:53:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48148 "EHLO mail.kernel.org"
+        id S2389765AbgFSOxs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 10:53:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389751AbgFSOxo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:53:44 -0400
+        id S2389764AbgFSOxr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:53:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B301F21556;
-        Fri, 19 Jun 2020 14:53:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 48341217D8;
+        Fri, 19 Jun 2020 14:53:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578424;
-        bh=EX0j6+M/+UdwY/4QdsFpQQKwXC4s7i5x/rj9KTC31EI=;
+        s=default; t=1592578426;
+        bh=x7c/AxKWn05LnkjEH4TGTp18ZTJFYDtquGB/20661eo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DoDxa1rxC1VwXpToKxME5XTbpfjUk8dYElaYkkePqTuTWk6LWFXSn12lYuQ5r9Xtb
-         hTeCHh6OJEtbAyPKXRGWh7hmZ87ascUqhg6zGv2C0nx35RzFZl6HKWQCe8olgzq28E
-         aKukLswyY/zv2NUgg02+LxGnYmG3B2hCegFTbaHY=
+        b=1Ovp2dM60Nl/7oO2/XwQuPQEIUf/ggvcPpr7o2k6HQh6ZOIF/X4hs6EUWUiNmfXLf
+         rOvcbZM3xi4+Zlbb9E+InoAq/0/KredIwX4QSajIwu0oGvM6dctQYFcvxeQlkVrJbx
+         8gNYKiZgGWLtpf6BSgi2IBYyrgAJzjwzC1zadaSY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>, Ingo Molnar <mingo@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
+        stable@vger.kernel.org, Dennis Kadioglu <denk@eclipso.email>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 017/267] sched/fair: Dont NUMA balance for kthreads
-Date:   Fri, 19 Jun 2020 16:30:02 +0200
-Message-Id: <20200619141649.697544229@linuxfoundation.org>
+Subject: [PATCH 4.19 018/267] Input: synaptics - add a second working PNP_ID for Lenovo T470s
+Date:   Fri, 19 Jun 2020 16:30:03 +0200
+Message-Id: <20200619141649.744948831@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
 References: <20200619141648.840376470@linuxfoundation.org>
@@ -45,53 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Dennis Kadioglu <denk@eclipso.email>
 
-[ Upstream commit 18f855e574d9799a0e7489f8ae6fd8447d0dd74a ]
+[ Upstream commit 642aa86eaf8f1e6fe894f20fd7f12f0db52ee03c ]
 
-Stefano reported a crash with using SQPOLL with io_uring:
+The Lenovo Thinkpad T470s I own has a different touchpad with "LEN007a"
+instead of the already included PNP ID "LEN006c". However, my touchpad
+seems to work well without any problems using RMI. So this patch adds the
+other PNP ID.
 
-  BUG: kernel NULL pointer dereference, address: 00000000000003b0
-  CPU: 2 PID: 1307 Comm: io_uring-sq Not tainted 5.7.0-rc7 #11
-  RIP: 0010:task_numa_work+0x4f/0x2c0
-  Call Trace:
-   task_work_run+0x68/0xa0
-   io_sq_thread+0x252/0x3d0
-   kthread+0xf9/0x130
-   ret_from_fork+0x35/0x40
-
-which is task_numa_work() oopsing on current->mm being NULL.
-
-The task work is queued by task_tick_numa(), which checks if current->mm is
-NULL at the time of the call. But this state isn't necessarily persistent,
-if the kthread is using use_mm() to temporarily adopt the mm of a task.
-
-Change the task_tick_numa() check to exclude kernel threads in general,
-as it doesn't make sense to attempt ot balance for kthreads anyway.
-
-Reported-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Acked-by: Peter Zijlstra <peterz@infradead.org>
-Link: https://lore.kernel.org/r/865de121-8190-5d30-ece5-3b097dc74431@kernel.dk
+Signed-off-by: Dennis Kadioglu <denk@eclipso.email>
+Link: https://lore.kernel.org/r/ff770543cd53ae818363c0fe86477965@mail.eclipso.de
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/mouse/synaptics.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 86ccaaf0c1bf..92b1e71f13c8 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -2697,7 +2697,7 @@ void task_tick_numa(struct rq *rq, struct task_struct *curr)
- 	/*
- 	 * We don't care about NUMA placement if we don't have memory.
- 	 */
--	if (!curr->mm || (curr->flags & PF_EXITING) || work->next != work)
-+	if ((curr->flags & (PF_EXITING | PF_KTHREAD)) || work->next != work)
- 		return;
- 
- 	/*
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index d9042d0566ab..671e018eb363 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -173,6 +173,7 @@ static const char * const smbus_pnp_ids[] = {
+ 	"LEN005b", /* P50 */
+ 	"LEN005e", /* T560 */
+ 	"LEN006c", /* T470s */
++	"LEN007a", /* T470s */
+ 	"LEN0071", /* T480 */
+ 	"LEN0072", /* X1 Carbon Gen 5 (2017) - Elan/ALPS trackpoint */
+ 	"LEN0073", /* X1 Carbon G5 (Elantech) */
 -- 
 2.25.1
 
