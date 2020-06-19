@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE3862015C9
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:31:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBB6620177C
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389834AbgFSO5b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:57:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52840 "EHLO mail.kernel.org"
+        id S2388845AbgFSQjS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:39:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390237AbgFSO52 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:57:28 -0400
+        id S2388852AbgFSOqh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:46:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6750217D8;
-        Fri, 19 Jun 2020 14:57:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6226F21582;
+        Fri, 19 Jun 2020 14:46:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578648;
-        bh=T3peY554NwlALNIfveCqi8a67Cv2Pt7s4h5T++96M/A=;
+        s=default; t=1592577997;
+        bh=Jx0jLagCIaHqZMqMMys74nVCrn0cA/OsicxinUIhQiA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jLwCwLLgcSVLQhngVeLuBEtkg6sr6FBlvWFS/2M8RZNy5z0EM1lE84UvIXwgP+GsI
-         kgbDzfbfpEBsGyBhpRygudgljoEMk4lthKP2wVi4OKmz+6U92s0rIERkCP9glPXY8f
-         2Z5UvuB4l4kA+LHK0JK6FuDrSrmVyp+OG8VWuW/c=
+        b=nrOW/dsqxcPvIWpOSH5sMAwXbo8VL4xDn5j47Qime3iJL75zLdPiZjA1yU47ANwhU
+         C0tnMAkNqPs8voB58rqSi8RKR1Fzu9Pc7yrEUPBdsCH/JiJCzRnis1diA3Fj7qWai5
+         Ccf7cl1VT0zDVnYpbFr3IIRYd9VQ7u0/ycGRungQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Feng Tang <feng.tang@intel.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 103/267] spi: dw: Zero DMA Tx and Rx configurations on stack
+Subject: [PATCH 4.14 043/190] spi: dw: fix possible race condition
 Date:   Fri, 19 Jun 2020 16:31:28 +0200
-Message-Id: <20200619141653.798594279@linuxfoundation.org>
+Message-Id: <20200619141635.746314007@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
-References: <20200619141648.840376470@linuxfoundation.org>
+In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
+References: <20200619141633.446429600@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,46 +46,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+[ Upstream commit 66b19d762378785d1568b5650935205edfeb0503 ]
 
-[ Upstream commit 3cb97e223d277f84171cc4ccecab31e08b2ee7b5 ]
+It is possible to get an interrupt as soon as it is requested.  dw_spi_irq
+does spi_controller_get_devdata(master) and expects it to be different than
+NULL. However, spi_controller_set_devdata() is called after request_irq(),
+resulting in the following crash:
 
-Some DMA controller drivers do not tolerate non-zero values in
-the DMA configuration structures. Zero them to avoid issues with
-such DMA controller drivers. Even despite above this is a good
-practice per se.
+CPU 0 Unable to handle kernel paging request at virtual address 00000030, epc == 8058e09c, ra == 8018ff90
+[...]
+Call Trace:
+[<8058e09c>] dw_spi_irq+0x8/0x64
+[<8018ff90>] __handle_irq_event_percpu+0x70/0x1d4
+[<80190128>] handle_irq_event_percpu+0x34/0x8c
+[<801901c4>] handle_irq_event+0x44/0x80
+[<801951a8>] handle_level_irq+0xdc/0x194
+[<8018f580>] generic_handle_irq+0x38/0x50
+[<804c6924>] ocelot_irq_handler+0x104/0x1c0
 
-Fixes: 7063c0d942a1 ("spi/dw_spi: add DMA support")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Feng Tang <feng.tang@intel.com>
-Cc: Feng Tang <feng.tang@intel.com>
-Link: https://lore.kernel.org/r/20200506153025.21441-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-dw-mid.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/spi/spi-dw.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-dw-mid.c b/drivers/spi/spi-dw-mid.c
-index 3db905f5f345..f7ec8b98e6db 100644
---- a/drivers/spi/spi-dw-mid.c
-+++ b/drivers/spi/spi-dw-mid.c
-@@ -155,6 +155,7 @@ static struct dma_async_tx_descriptor *dw_spi_dma_prepare_tx(struct dw_spi *dws,
- 	if (!xfer->tx_buf)
- 		return NULL;
+diff --git a/drivers/spi/spi-dw.c b/drivers/spi/spi-dw.c
+index cbdad3c4930f..5c16f7b17029 100644
+--- a/drivers/spi/spi-dw.c
++++ b/drivers/spi/spi-dw.c
+@@ -499,6 +499,8 @@ int dw_spi_add_host(struct device *dev, struct dw_spi *dws)
+ 	dws->dma_addr = (dma_addr_t)(dws->paddr + DW_SPI_DR);
+ 	spin_lock_init(&dws->buf_lock);
  
-+	memset(&txconf, 0, sizeof(txconf));
- 	txconf.direction = DMA_MEM_TO_DEV;
- 	txconf.dst_addr = dws->dma_addr;
- 	txconf.dst_maxburst = 16;
-@@ -201,6 +202,7 @@ static struct dma_async_tx_descriptor *dw_spi_dma_prepare_rx(struct dw_spi *dws,
- 	if (!xfer->rx_buf)
- 		return NULL;
++	spi_master_set_devdata(master, dws);
++
+ 	ret = request_irq(dws->irq, dw_spi_irq, IRQF_SHARED, dev_name(dev),
+ 			  master);
+ 	if (ret < 0) {
+@@ -532,7 +534,6 @@ int dw_spi_add_host(struct device *dev, struct dw_spi *dws)
+ 		}
+ 	}
  
-+	memset(&rxconf, 0, sizeof(rxconf));
- 	rxconf.direction = DMA_DEV_TO_MEM;
- 	rxconf.src_addr = dws->dma_addr;
- 	rxconf.src_maxburst = 16;
+-	spi_master_set_devdata(master, dws);
+ 	ret = devm_spi_register_master(dev, master);
+ 	if (ret) {
+ 		dev_err(&master->dev, "problem registering spi master\n");
 -- 
 2.25.1
 
