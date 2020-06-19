@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5E742012FD
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:00:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6058C20149B
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:14:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392617AbgFSPTr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:19:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46468 "EHLO mail.kernel.org"
+        id S2404356AbgFSQNO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:13:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392443AbgFSPP5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:15:57 -0400
+        id S2388948AbgFSPEN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:04:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 03DC521835;
-        Fri, 19 Jun 2020 15:15:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE92821941;
+        Fri, 19 Jun 2020 15:04:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579756;
-        bh=7LFZjE6VzhV8QzbPwumbo7+c/KPcY+V7r3MsGoHhnmA=;
+        s=default; t=1592579052;
+        bh=IZYrfs19SgeWWLKJuBShuVZ/GQEjl9mIxuLz473p+Ek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0djIqWalBiOeps9vf9BEPhVUoZEg6HkpL5jooWTNEEm2n9wC+HCY+bOxx96aw9xI2
-         IiEDY2ANQtYgpKnTGAAolrHhUgkVnWouspUF6ltarWMtJ2UXHtlENjywx3F8HtKAv3
-         IY/XAgbz64LFq4up8KChKqpXhMPksLatMGFJAyXM=
+        b=d2ifCGOj1+bLUdIeoNUJJai7cEuB1ZhaEdKzg7F0b9n4Dzk/EiSRH+AuiFGIvw+t0
+         gdbnDSOqiUtXuys0MoApGW7//2qMF88u2Jhx0TEyYAX+/UY4kl510V5QFeBlcvd/99
+         9yrRB2ewChEcGTChxDvouY/hpSQfnbC+DZCMBS+A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,12 +31,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Stephen Boyd <swboyd@chromium.org>,
         Douglas Anderson <dianders@chromium.org>,
         Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: [PATCH 5.4 224/261] kernel/cpu_pm: Fix uninitted local in cpu_pm
+Subject: [PATCH 4.19 250/267] kernel/cpu_pm: Fix uninitted local in cpu_pm
 Date:   Fri, 19 Jun 2020 16:33:55 +0200
-Message-Id: <20200619141700.602158226@linuxfoundation.org>
+Message-Id: <20200619141700.670764597@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
-References: <20200619141649.878808811@linuxfoundation.org>
+In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
+References: <20200619141648.840376470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -77,7 +77,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/kernel/cpu_pm.c
 +++ b/kernel/cpu_pm.c
-@@ -80,7 +80,7 @@ EXPORT_SYMBOL_GPL(cpu_pm_unregister_noti
+@@ -89,7 +89,7 @@ EXPORT_SYMBOL_GPL(cpu_pm_unregister_noti
   */
  int cpu_pm_enter(void)
  {
@@ -86,7 +86,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	int ret = 0;
  
  	ret = cpu_pm_notify(CPU_PM_ENTER, -1, &nr_calls);
-@@ -131,7 +131,7 @@ EXPORT_SYMBOL_GPL(cpu_pm_exit);
+@@ -140,7 +140,7 @@ EXPORT_SYMBOL_GPL(cpu_pm_exit);
   */
  int cpu_cluster_pm_enter(void)
  {
