@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1DDC201032
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:30:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9AC4201195
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:47:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393534AbgFSP1T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:27:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59022 "EHLO mail.kernel.org"
+        id S2393537AbgFSP1Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:27:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390810AbgFSP1S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:27:18 -0400
+        id S2393536AbgFSP1U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:27:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8768C2186A;
-        Fri, 19 Jun 2020 15:27:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2132A218AC;
+        Fri, 19 Jun 2020 15:27:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580437;
-        bh=UYYNl0Yb/dq/K1p1LK/ZDi5h3/DWZcAP6Qa7A1d8NYA=;
+        s=default; t=1592580439;
+        bh=D5B3I4QanqLAhfpP8hGr+kfAiOpGXsdGgNYIrPcUAac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z2TYBrP1KT+Aj+cvHK58xdlZEeBu+YTHwPgi5N3+zeDP6b0SLUdg+46fUC0u6yWQo
-         X66YEg0oxtZ4A82kKNNcZZRmneC+A6t297WQvdcuaVxTbJYFoc8rX/m0oP5ZVFVQZ8
-         RKNg/IePPcRXC275zVq2yH7bv/Em4T2EaUC9zc4c=
+        b=Tvs+aW/psEo0fAVd2c89e7GYBuf2RUgcP6izm05C86GzQTKX5CAoZK8921kl66erE
+         GmkAd9phSKMv/qnhYyvcFwq4zmZA3pUSs11Xdw7UmNUx/GDLdzifzN9J1p7hq//H0U
+         1erhYBuZrdHLxhLcnOvAGeKOmxJ5kv+bSnxXUpiI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 218/376] btrfs: improve global reserve stealing logic
-Date:   Fri, 19 Jun 2020 16:32:16 +0200
-Message-Id: <20200619141720.647795004@linuxfoundation.org>
+Subject: [PATCH 5.7 219/376] btrfs: qgroup: mark qgroup inconsistent if were inherting snapshot to a new qgroup
+Date:   Fri, 19 Jun 2020 16:32:17 +0200
+Message-Id: <20200619141720.694732569@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -45,238 +44,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit 7f9fe614407692f670601a634621138233ac00d7 ]
+[ Upstream commit cbab8ade585a18c4334b085564d9d046e01a3f70 ]
 
-For unlink transactions and block group removal
-btrfs_start_transaction_fallback_global_rsv will first try to start an
-ordinary transaction and if it fails it will fall back to reserving the
-required amount by stealing from the global reserve. This is problematic
-because of all the same reasons we had with previous iterations of the
-ENOSPC handling, thundering herd.  We get a bunch of failures all at
-once, everybody tries to allocate from the global reserve, some win and
-some lose, we get an ENSOPC.
+[BUG]
+For the following operation, qgroup is guaranteed to be screwed up due
+to snapshot adding to a new qgroup:
 
-Fix this behavior by introducing BTRFS_RESERVE_FLUSH_ALL_STEAL. It's
-used to mark unlink reservation. To fix this we need to integrate this
-logic into the normal ENOSPC infrastructure.  We still go through all of
-the normal flushing work, and at the moment we begin to fail all the
-tickets we try to satisfy any tickets that are allowed to steal by
-stealing from the global reserve.  If this works we start the flushing
-system over again just like we would with a normal ticket satisfaction.
-This serializes our global reserve stealing, so we don't have the
-thundering herd problem.
+  # mkfs.btrfs -f $dev
+  # mount $dev $mnt
+  # btrfs qgroup en $mnt
+  # btrfs subv create $mnt/src
+  # xfs_io -f -c "pwrite 0 1m" $mnt/src/file
+  # sync
+  # btrfs qgroup create 1/0 $mnt/src
+  # btrfs subv snapshot -i 1/0 $mnt/src $mnt/snapshot
+  # btrfs qgroup show -prce $mnt/src
+  qgroupid         rfer         excl     max_rfer     max_excl parent  child
+  --------         ----         ----     --------     -------- ------  -----
+  0/5          16.00KiB     16.00KiB         none         none ---     ---
+  0/257         1.02MiB     16.00KiB         none         none ---     ---
+  0/258         1.02MiB     16.00KiB         none         none 1/0     ---
+  1/0             0.00B        0.00B         none         none ---     0/258
+	        ^^^^^^^^^^^^^^^^^^^^
 
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Tested-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+[CAUSE]
+The problem is in btrfs_qgroup_inherit(), we don't have good enough
+check to determine if the new relation would break the existing
+accounting.
+
+Unlike btrfs_add_qgroup_relation(), which has proper check to determine
+if we can do quick update without a rescan, in btrfs_qgroup_inherit() we
+can even assign a snapshot to multiple qgroups.
+
+[FIX]
+Fix it by manually marking qgroup inconsistent for snapshot inheritance.
+
+For subvolume creation, since all its extents are exclusively owned, we
+don't need to rescan.
+
+In theory, we should call relation check like quick_update_accounting()
+when doing qgroup inheritance and inform user about qgroup accounting
+inconsistency.
+
+But we don't have good mechanism to relay that back to the user in the
+snapshot creation context, thus we can only silently mark the qgroup
+inconsistent.
+
+Anyway, user shouldn't use qgroup inheritance during snapshot creation,
+and should add qgroup relationship after snapshot creation by 'btrfs
+qgroup assign', which has a much better UI to inform user about qgroup
+inconsistent and kick in rescan automatically.
+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/block-group.c |  2 +-
- fs/btrfs/ctree.h       |  1 +
- fs/btrfs/inode.c       |  2 +-
- fs/btrfs/space-info.c  | 37 ++++++++++++++++++++++++++++++++++++-
- fs/btrfs/space-info.h  |  1 +
- fs/btrfs/transaction.c | 42 +++++-------------------------------------
- fs/btrfs/transaction.h |  3 +--
- 7 files changed, 46 insertions(+), 42 deletions(-)
+ fs/btrfs/qgroup.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/fs/btrfs/block-group.c b/fs/btrfs/block-group.c
-index 696f47103cfc..233c5663f233 100644
---- a/fs/btrfs/block-group.c
-+++ b/fs/btrfs/block-group.c
-@@ -1175,7 +1175,7 @@ struct btrfs_trans_handle *btrfs_start_trans_remove_block_group(
- 	free_extent_map(em);
+diff --git a/fs/btrfs/qgroup.c b/fs/btrfs/qgroup.c
+index c3888fb367e7..5bd4089ad0e1 100644
+--- a/fs/btrfs/qgroup.c
++++ b/fs/btrfs/qgroup.c
+@@ -2622,6 +2622,7 @@ int btrfs_qgroup_inherit(struct btrfs_trans_handle *trans, u64 srcid,
+ 	struct btrfs_root *quota_root;
+ 	struct btrfs_qgroup *srcgroup;
+ 	struct btrfs_qgroup *dstgroup;
++	bool need_rescan = false;
+ 	u32 level_size = 0;
+ 	u64 nums;
  
- 	return btrfs_start_transaction_fallback_global_rsv(fs_info->extent_root,
--							   num_items, 1);
-+							   num_items);
- }
- 
- /*
-diff --git a/fs/btrfs/ctree.h b/fs/btrfs/ctree.h
-index 8aa7b9dac405..3510e33706c1 100644
---- a/fs/btrfs/ctree.h
-+++ b/fs/btrfs/ctree.h
-@@ -2512,6 +2512,7 @@ enum btrfs_reserve_flush_enum {
- 	BTRFS_RESERVE_FLUSH_LIMIT,
- 	BTRFS_RESERVE_FLUSH_EVICT,
- 	BTRFS_RESERVE_FLUSH_ALL,
-+	BTRFS_RESERVE_FLUSH_ALL_STEAL,
- };
- 
- enum btrfs_flush_state {
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index 320d1062068d..259239b33370 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -3618,7 +3618,7 @@ static struct btrfs_trans_handle *__unlink_start_trans(struct inode *dir)
- 	 * 1 for the inode ref
- 	 * 1 for the inode
- 	 */
--	return btrfs_start_transaction_fallback_global_rsv(root, 5, 5);
-+	return btrfs_start_transaction_fallback_global_rsv(root, 5);
- }
- 
- static int btrfs_unlink(struct inode *dir, struct dentry *dentry)
-diff --git a/fs/btrfs/space-info.c b/fs/btrfs/space-info.c
-index 3c0e9999bfd7..eee6748c49e4 100644
---- a/fs/btrfs/space-info.c
-+++ b/fs/btrfs/space-info.c
-@@ -862,6 +862,34 @@ static inline int need_do_async_reclaim(struct btrfs_fs_info *fs_info,
- 		!test_bit(BTRFS_FS_STATE_REMOUNTING, &fs_info->fs_state));
- }
- 
-+static bool steal_from_global_rsv(struct btrfs_fs_info *fs_info,
-+				  struct btrfs_space_info *space_info,
-+				  struct reserve_ticket *ticket)
-+{
-+	struct btrfs_block_rsv *global_rsv = &fs_info->global_block_rsv;
-+	u64 min_bytes;
-+
-+	if (global_rsv->space_info != space_info)
-+		return false;
-+
-+	spin_lock(&global_rsv->lock);
-+	min_bytes = div_factor(global_rsv->size, 5);
-+	if (global_rsv->reserved < min_bytes + ticket->bytes) {
-+		spin_unlock(&global_rsv->lock);
-+		return false;
-+	}
-+	global_rsv->reserved -= ticket->bytes;
-+	ticket->bytes = 0;
-+	list_del_init(&ticket->list);
-+	wake_up(&ticket->wait);
-+	space_info->tickets_id++;
-+	if (global_rsv->reserved < global_rsv->size)
-+		global_rsv->full = 0;
-+	spin_unlock(&global_rsv->lock);
-+
-+	return true;
-+}
-+
- /*
-  * maybe_fail_all_tickets - we've exhausted our flushing, start failing tickets
-  * @fs_info - fs_info for this fs
-@@ -894,6 +922,10 @@ static bool maybe_fail_all_tickets(struct btrfs_fs_info *fs_info,
- 		ticket = list_first_entry(&space_info->tickets,
- 					  struct reserve_ticket, list);
- 
-+		if (ticket->steal &&
-+		    steal_from_global_rsv(fs_info, space_info, ticket))
-+			return true;
-+
- 		/*
- 		 * may_commit_transaction will avoid committing the transaction
- 		 * if it doesn't feel like the space reclaimed by the commit
-@@ -1110,6 +1142,7 @@ static int handle_reserve_ticket(struct btrfs_fs_info *fs_info,
- 
- 	switch (flush) {
- 	case BTRFS_RESERVE_FLUSH_ALL:
-+	case BTRFS_RESERVE_FLUSH_ALL_STEAL:
- 		wait_reserve_ticket(fs_info, space_info, ticket);
- 		break;
- 	case BTRFS_RESERVE_FLUSH_LIMIT:
-@@ -1209,7 +1242,9 @@ static int __reserve_metadata_bytes(struct btrfs_fs_info *fs_info,
- 		ticket.error = 0;
- 		space_info->reclaim_size += ticket.bytes;
- 		init_waitqueue_head(&ticket.wait);
--		if (flush == BTRFS_RESERVE_FLUSH_ALL) {
-+		ticket.steal = (flush == BTRFS_RESERVE_FLUSH_ALL_STEAL);
-+		if (flush == BTRFS_RESERVE_FLUSH_ALL ||
-+		    flush == BTRFS_RESERVE_FLUSH_ALL_STEAL) {
- 			list_add_tail(&ticket.list, &space_info->tickets);
- 			if (!space_info->flush) {
- 				space_info->flush = 1;
-diff --git a/fs/btrfs/space-info.h b/fs/btrfs/space-info.h
-index 0a5001ef1481..c3c64019950a 100644
---- a/fs/btrfs/space-info.h
-+++ b/fs/btrfs/space-info.h
-@@ -78,6 +78,7 @@ struct btrfs_space_info {
- struct reserve_ticket {
- 	u64 bytes;
- 	int error;
-+	bool steal;
- 	struct list_head list;
- 	wait_queue_head_t wait;
- };
-diff --git a/fs/btrfs/transaction.c b/fs/btrfs/transaction.c
-index 2d5498136e5e..b5da5d8342dc 100644
---- a/fs/btrfs/transaction.c
-+++ b/fs/btrfs/transaction.c
-@@ -563,7 +563,8 @@ start_transaction(struct btrfs_root *root, unsigned int num_items,
- 		 * refill that amount for whatever is missing in the reserve.
- 		 */
- 		num_bytes = btrfs_calc_insert_metadata_size(fs_info, num_items);
--		if (delayed_refs_rsv->full == 0) {
-+		if (flush == BTRFS_RESERVE_FLUSH_ALL &&
-+		    delayed_refs_rsv->full == 0) {
- 			delayed_refs_bytes = num_bytes;
- 			num_bytes <<= 1;
+@@ -2765,6 +2766,13 @@ int btrfs_qgroup_inherit(struct btrfs_trans_handle *trans, u64 srcid,
+ 				goto unlock;
  		}
-@@ -699,43 +700,10 @@ struct btrfs_trans_handle *btrfs_start_transaction(struct btrfs_root *root,
+ 		++i_qgroups;
++
++		/*
++		 * If we're doing a snapshot, and adding the snapshot to a new
++		 * qgroup, the numbers are guaranteed to be incorrect.
++		 */
++		if (srcid)
++			need_rescan = true;
+ 	}
  
- struct btrfs_trans_handle *btrfs_start_transaction_fallback_global_rsv(
- 					struct btrfs_root *root,
--					unsigned int num_items,
--					int min_factor)
-+					unsigned int num_items)
- {
--	struct btrfs_fs_info *fs_info = root->fs_info;
--	struct btrfs_trans_handle *trans;
--	u64 num_bytes;
--	int ret;
--
--	/*
--	 * We have two callers: unlink and block group removal.  The
--	 * former should succeed even if we will temporarily exceed
--	 * quota and the latter operates on the extent root so
--	 * qgroup enforcement is ignored anyway.
--	 */
--	trans = start_transaction(root, num_items, TRANS_START,
--				  BTRFS_RESERVE_FLUSH_ALL, false);
--	if (!IS_ERR(trans) || PTR_ERR(trans) != -ENOSPC)
--		return trans;
--
--	trans = btrfs_start_transaction(root, 0);
--	if (IS_ERR(trans))
--		return trans;
--
--	num_bytes = btrfs_calc_insert_metadata_size(fs_info, num_items);
--	ret = btrfs_cond_migrate_bytes(fs_info, &fs_info->trans_block_rsv,
--				       num_bytes, min_factor);
--	if (ret) {
--		btrfs_end_transaction(trans);
--		return ERR_PTR(ret);
--	}
--
--	trans->block_rsv = &fs_info->trans_block_rsv;
--	trans->bytes_reserved = num_bytes;
--	trace_btrfs_space_reservation(fs_info, "transaction",
--				      trans->transid, num_bytes, 1);
--
--	return trans;
-+	return start_transaction(root, num_items, TRANS_START,
-+				 BTRFS_RESERVE_FLUSH_ALL_STEAL, false);
+ 	for (i = 0; i <  inherit->num_ref_copies; ++i, i_qgroups += 2) {
+@@ -2784,6 +2792,9 @@ int btrfs_qgroup_inherit(struct btrfs_trans_handle *trans, u64 srcid,
+ 
+ 		dst->rfer = src->rfer - level_size;
+ 		dst->rfer_cmpr = src->rfer_cmpr - level_size;
++
++		/* Manually tweaking numbers certainly needs a rescan */
++		need_rescan = true;
+ 	}
+ 	for (i = 0; i <  inherit->num_excl_copies; ++i, i_qgroups += 2) {
+ 		struct btrfs_qgroup *src;
+@@ -2802,6 +2813,7 @@ int btrfs_qgroup_inherit(struct btrfs_trans_handle *trans, u64 srcid,
+ 
+ 		dst->excl = src->excl + level_size;
+ 		dst->excl_cmpr = src->excl_cmpr + level_size;
++		need_rescan = true;
+ 	}
+ 
+ unlock:
+@@ -2809,6 +2821,8 @@ unlock:
+ out:
+ 	if (!committing)
+ 		mutex_unlock(&fs_info->qgroup_ioctl_lock);
++	if (need_rescan)
++		fs_info->qgroup_flags |= BTRFS_QGROUP_STATUS_FLAG_INCONSISTENT;
+ 	return ret;
  }
  
- struct btrfs_trans_handle *btrfs_join_transaction(struct btrfs_root *root)
-diff --git a/fs/btrfs/transaction.h b/fs/btrfs/transaction.h
-index 31ae8d273065..bf102e64bfb2 100644
---- a/fs/btrfs/transaction.h
-+++ b/fs/btrfs/transaction.h
-@@ -193,8 +193,7 @@ struct btrfs_trans_handle *btrfs_start_transaction(struct btrfs_root *root,
- 						   unsigned int num_items);
- struct btrfs_trans_handle *btrfs_start_transaction_fallback_global_rsv(
- 					struct btrfs_root *root,
--					unsigned int num_items,
--					int min_factor);
-+					unsigned int num_items);
- struct btrfs_trans_handle *btrfs_join_transaction(struct btrfs_root *root);
- struct btrfs_trans_handle *btrfs_join_transaction_spacecache(struct btrfs_root *root);
- struct btrfs_trans_handle *btrfs_join_transaction_nostart(struct btrfs_root *root);
 -- 
 2.25.1
 
