@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF4F52015EE
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:32:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CD6E201839
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:48:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389806AbgFSQYf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:24:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53652 "EHLO mail.kernel.org"
+        id S2393776AbgFSQsX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:48:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390345AbgFSO6E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:58:04 -0400
+        id S2388152AbgFSOka (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:40:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8CAE6217D8;
-        Fri, 19 Jun 2020 14:58:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2989720773;
+        Fri, 19 Jun 2020 14:40:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592578684;
-        bh=/rsiNZmJKMU7ImUM+XD8KQ6xKLVf5BpHcUfc7DiIKDY=;
+        s=default; t=1592577629;
+        bh=M5fd0eDw+8QWXAEFGd3bGemif6hc4uE35x4W0JpWdsM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HCfAYTOH5Y9CFJP9kQxTgrXy+5YD1UyHIVYWJBKAC7E/AHxvOTq6oYApqgB51WtK/
-         4LkQR154SMCxAP4UrhJIFIHnNmFTTaTTcFka0bB7Jehg5zaroPNxe6S57rr+HKEA9k
-         PB3+Axf0/+LwJRsUUC77Gepcq2YHPA6XIAsO5Ub4=
+        b=VAOQdzMSSR19pvuUxVz2KWXVWBVVFbbvedHfbruZvpJ3imrT63pFews5PSnwXwLPz
+         XR5de4ZhRPa+o+1LfrUaU1R6kGZCgRjvEBzQa8H4nNxSsNdTB6WrAicUEBbCFKw3fT
+         vxUukKWIq5ZvwR+z+haAYdkLmo2PzBQaJ2ZGT87c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Matthias Schiffer <mschiffer@universe-factory.net>,
-        Sven Eckelmann <sven@narfation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>,
+        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
+        Jens Axboe <axboe@kernel.dk>, Ingo Molnar <mingo@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 115/267] batman-adv: Revert "disable ethtool link speed detection when auto negotiation off"
+Subject: [PATCH 4.9 006/128] sched/fair: Dont NUMA balance for kthreads
 Date:   Fri, 19 Jun 2020 16:31:40 +0200
-Message-Id: <20200619141654.359638959@linuxfoundation.org>
+Message-Id: <20200619141620.471245074@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
-References: <20200619141648.840376470@linuxfoundation.org>
+In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
+References: <20200619141620.148019466@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,65 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit 9ad346c90509ebd983f60da7d082f261ad329507 ]
+[ Upstream commit 18f855e574d9799a0e7489f8ae6fd8447d0dd74a ]
 
-The commit 8c46fcd78308 ("batman-adv: disable ethtool link speed detection
-when auto negotiation off") disabled the usage of ethtool's link_ksetting
-when auto negotation was enabled due to invalid values when used with
-tun/tap virtual net_devices. According to the patch, automatic measurements
-should be used for these kind of interfaces.
+Stefano reported a crash with using SQPOLL with io_uring:
 
-But there are major flaws with this argumentation:
+  BUG: kernel NULL pointer dereference, address: 00000000000003b0
+  CPU: 2 PID: 1307 Comm: io_uring-sq Not tainted 5.7.0-rc7 #11
+  RIP: 0010:task_numa_work+0x4f/0x2c0
+  Call Trace:
+   task_work_run+0x68/0xa0
+   io_sq_thread+0x252/0x3d0
+   kthread+0xf9/0x130
+   ret_from_fork+0x35/0x40
 
-* automatic measurements are not implemented
-* auto negotiation has nothing to do with the validity of the retrieved
-  values
+which is task_numa_work() oopsing on current->mm being NULL.
 
-The first point has to be fixed by a longer patch series. The "validity"
-part of the second point must be addressed in the same patch series by
-dropping the usage of ethtool's link_ksetting (thus always doing automatic
-measurements over ethernet).
+The task work is queued by task_tick_numa(), which checks if current->mm is
+NULL at the time of the call. But this state isn't necessarily persistent,
+if the kthread is using use_mm() to temporarily adopt the mm of a task.
 
-Drop the patch again to have more default values for various net_device
-types/configurations. The user can still overwrite them using the
-batadv_hardif's BATADV_ATTR_THROUGHPUT_OVERRIDE.
+Change the task_tick_numa() check to exclude kernel threads in general,
+as it doesn't make sense to attempt ot balance for kthreads anyway.
 
-Reported-by: Matthias Schiffer <mschiffer@universe-factory.net>
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+Reported-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Acked-by: Peter Zijlstra <peterz@infradead.org>
+Link: https://lore.kernel.org/r/865de121-8190-5d30-ece5-3b097dc74431@kernel.dk
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/bat_v_elp.c | 15 +--------------
- 1 file changed, 1 insertion(+), 14 deletions(-)
+ kernel/sched/fair.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/batman-adv/bat_v_elp.c b/net/batman-adv/bat_v_elp.c
-index 5da183b2f4c9..af3da6cdfc79 100644
---- a/net/batman-adv/bat_v_elp.c
-+++ b/net/batman-adv/bat_v_elp.c
-@@ -132,20 +132,7 @@ static u32 batadv_v_elp_get_throughput(struct batadv_hardif_neigh_node *neigh)
- 	rtnl_lock();
- 	ret = __ethtool_get_link_ksettings(hard_iface->net_dev, &link_settings);
- 	rtnl_unlock();
--
--	/* Virtual interface drivers such as tun / tap interfaces, VLAN, etc
--	 * tend to initialize the interface throughput with some value for the
--	 * sake of having a throughput number to export via ethtool. This
--	 * exported throughput leaves batman-adv to conclude the interface
--	 * throughput is genuine (reflecting reality), thus no measurements
--	 * are necessary.
--	 *
--	 * Based on the observation that those interface types also tend to set
--	 * the link auto-negotiation to 'off', batman-adv shall check this
--	 * setting to differentiate between genuine link throughput information
--	 * and placeholders installed by virtual interfaces.
--	 */
--	if (ret == 0 && link_settings.base.autoneg == AUTONEG_ENABLE) {
-+	if (ret == 0) {
- 		/* link characteristics might change over time */
- 		if (link_settings.base.duplex == DUPLEX_FULL)
- 			hard_iface->bat_v.flags |= BATADV_FULL_DUPLEX;
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 5e65c7eea872..8233032a2f01 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -2542,7 +2542,7 @@ void task_tick_numa(struct rq *rq, struct task_struct *curr)
+ 	/*
+ 	 * We don't care about NUMA placement if we don't have memory.
+ 	 */
+-	if (!curr->mm || (curr->flags & PF_EXITING) || work->next != work)
++	if ((curr->flags & (PF_EXITING | PF_KTHREAD)) || work->next != work)
+ 		return;
+ 
+ 	/*
 -- 
 2.25.1
 
