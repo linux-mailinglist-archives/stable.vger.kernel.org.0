@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C98CD2016D8
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:45:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B1DA201697
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:33:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388647AbgFSOpF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 10:45:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36448 "EHLO mail.kernel.org"
+        id S2390377AbgFSQcd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:32:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388640AbgFSOpE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:45:04 -0400
+        id S2388794AbgFSOwB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:52:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 014A921556;
-        Fri, 19 Jun 2020 14:45:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4CAFC217D8;
+        Fri, 19 Jun 2020 14:52:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577904;
-        bh=lC9ferR9X4gmT4FMRJp5dYkyPXSIP4zs76hVyxo4wis=;
+        s=default; t=1592578321;
+        bh=GxwRv2tbHq5ZnBVPYPhzElcHE23j1SRyKV5iDO0mFho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qwqOXi/gqljt8ACnt+7yKmHtRcZvLvoM1yET358bNuZx3HMdeEvvvugiHE7Nf7arT
-         U3gLW0XAvQdts8j3JU11WE7LJc9GZaTC3PGB4elgppZ670kAS5eeospzP8Y6K/D6Od
-         VSucUzDn15btMSMjXhyUMF/KFjCsALHUkmZjnXok=
+        b=qH5jQRcnpxkRPnwPMsfrKPS+vqHl6crV9Dd69vqgVjKPIYM6NRch6xpmBw41KnD8i
+         CkTuvM19OiExj4T9HYbnsjGjy+PGV6ZeT2LDisrOvpCFaJyJMsjXIZaRTtnkzQv03Z
+         fKOXcDChlcXJ9RPQ80HE8mRwAV1O1SD3otUdEzdY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Erhard F." <erhard_f@mailbox.org>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.9 120/128] drivers/macintosh: Fix memleak in windfarm_pm112 driver
+        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.14 169/190] b43_legacy: Fix connection problem with WPA3
 Date:   Fri, 19 Jun 2020 16:33:34 +0200
-Message-Id: <20200619141626.462641831@linuxfoundation.org>
+Message-Id: <20200619141642.224351708@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141620.148019466@linuxfoundation.org>
-References: <20200619141620.148019466@linuxfoundation.org>
+In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
+References: <20200619141633.446429600@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,100 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Larry Finger <Larry.Finger@lwfinger.net>
 
-commit 93900337b9ac2f4eca427eff6d187be2dc3b5551 upstream.
+commit 6a29d134c04a8acebb7a95251acea7ad7abba106 upstream.
 
-create_cpu_loop() calls smu_sat_get_sdb_partition() which does
-kmalloc() and returns the allocated buffer. In fact it's called twice,
-and neither buffer is freed.
+Since the driver was first introduced into the kernel, it has only
+handled the ciphers associated with WEP, WPA, and WPA2. It fails with
+WPA3 even though mac80211 can handle those additional ciphers in software,
+b43legacy did not report that it could handle them. By setting MFP_CAPABLE using
+ieee80211_set_hw(), the problem is fixed.
 
-This results in a memory leak as reported by Erhard:
-  unreferenced object 0xc00000047081f840 (size 32):
-    comm "kwindfarm", pid 203, jiffies 4294880630 (age 5552.877s)
-    hex dump (first 32 bytes):
-      c8 06 02 7f ff 02 ff 01 fb bf 00 41 00 20 00 00  ...........A. ..
-      00 07 89 37 00 a0 00 00 00 00 00 00 00 00 00 00  ...7............
-    backtrace:
-      [<0000000083f0a65c>] .smu_sat_get_sdb_partition+0xc4/0x2d0 [windfarm_smu_sat]
-      [<000000003010fcb7>] .pm112_wf_notify+0x104c/0x13bc [windfarm_pm112]
-      [<00000000b958b2dd>] .notifier_call_chain+0xa8/0x180
-      [<0000000070490868>] .blocking_notifier_call_chain+0x64/0x90
-      [<00000000131d8149>] .wf_thread_func+0x114/0x1a0
-      [<000000000d54838d>] .kthread+0x13c/0x190
-      [<00000000669b72bc>] .ret_from_kernel_thread+0x58/0x64
-  unreferenced object 0xc0000004737089f0 (size 16):
-    comm "kwindfarm", pid 203, jiffies 4294880879 (age 5552.050s)
-    hex dump (first 16 bytes):
-      c4 04 01 7f 22 11 e0 e6 ff 55 7b 12 ec 11 00 00  ...."....U{.....
-    backtrace:
-      [<0000000083f0a65c>] .smu_sat_get_sdb_partition+0xc4/0x2d0 [windfarm_smu_sat]
-      [<00000000b94ef7e1>] .pm112_wf_notify+0x1294/0x13bc [windfarm_pm112]
-      [<00000000b958b2dd>] .notifier_call_chain+0xa8/0x180
-      [<0000000070490868>] .blocking_notifier_call_chain+0x64/0x90
-      [<00000000131d8149>] .wf_thread_func+0x114/0x1a0
-      [<000000000d54838d>] .kthread+0x13c/0x190
-      [<00000000669b72bc>] .ret_from_kernel_thread+0x58/0x64
+With this change, b43legacy will handle the ciphers it knows in hardware,
+and let mac80211 handle the others in software. It is not necessary to
+use the module parameter NOHWCRYPT to turn hardware encryption off.
+Although this change essentially eliminates that module parameter,
+I am choosing to keep it for cases where the hardware is broken,
+and software encryption is required for all ciphers.
 
-Fix it by rearranging the logic so we deal with each buffer
-separately, which then makes it easy to free the buffer once we're
-done with it.
-
-Fixes: ac171c46667c ("[PATCH] powerpc: Thermal control for dual core G5s")
-Cc: stable@vger.kernel.org # v2.6.16+
-Reported-by: Erhard F. <erhard_f@mailbox.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Tested-by: Erhard F. <erhard_f@mailbox.org>
-Link: https://lore.kernel.org/r/20200423060038.3308530-1-mpe@ellerman.id.au
+Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+Cc: Stable <stable@vger.kernel.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20200526155909.5807-3-Larry.Finger@lwfinger.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/macintosh/windfarm_pm112.c |   21 +++++++++++++--------
- 1 file changed, 13 insertions(+), 8 deletions(-)
+ drivers/net/wireless/broadcom/b43legacy/main.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/macintosh/windfarm_pm112.c
-+++ b/drivers/macintosh/windfarm_pm112.c
-@@ -133,14 +133,6 @@ static int create_cpu_loop(int cpu)
- 	s32 tmax;
- 	int fmin;
+--- a/drivers/net/wireless/broadcom/b43legacy/main.c
++++ b/drivers/net/wireless/broadcom/b43legacy/main.c
+@@ -3835,6 +3835,7 @@ static int b43legacy_wireless_init(struc
+ 	/* fill hw info */
+ 	ieee80211_hw_set(hw, RX_INCLUDES_FCS);
+ 	ieee80211_hw_set(hw, SIGNAL_DBM);
++	ieee80211_hw_set(hw, MFP_CAPABLE); /* Allow WPA3 in software */
  
--	/* Get PID params from the appropriate SAT */
--	hdr = smu_sat_get_sdb_partition(chip, 0xC8 + core, NULL);
--	if (hdr == NULL) {
--		printk(KERN_WARNING"windfarm: can't get CPU PID fan config\n");
--		return -EINVAL;
--	}
--	piddata = (struct smu_sdbp_cpupiddata *)&hdr[1];
--
- 	/* Get FVT params to get Tmax; if not found, assume default */
- 	hdr = smu_sat_get_sdb_partition(chip, 0xC4 + core, NULL);
- 	if (hdr) {
-@@ -153,6 +145,16 @@ static int create_cpu_loop(int cpu)
- 	if (tmax < cpu_all_tmax)
- 		cpu_all_tmax = tmax;
- 
-+	kfree(hdr);
-+
-+	/* Get PID params from the appropriate SAT */
-+	hdr = smu_sat_get_sdb_partition(chip, 0xC8 + core, NULL);
-+	if (hdr == NULL) {
-+		printk(KERN_WARNING"windfarm: can't get CPU PID fan config\n");
-+		return -EINVAL;
-+	}
-+	piddata = (struct smu_sdbp_cpupiddata *)&hdr[1];
-+
- 	/*
- 	 * Darwin has a minimum fan speed of 1000 rpm for the 4-way and
- 	 * 515 for the 2-way.  That appears to be overkill, so for now,
-@@ -175,6 +177,9 @@ static int create_cpu_loop(int cpu)
- 		pid.min = fmin;
- 
- 	wf_cpu_pid_init(&cpu_pid[cpu], &pid);
-+
-+	kfree(hdr);
-+
- 	return 0;
- }
- 
+ 	hw->wiphy->interface_modes =
+ 		BIT(NL80211_IFTYPE_AP) |
 
 
