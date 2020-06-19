@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 178B0201783
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:47:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0744E201619
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 18:32:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395273AbgFSQjf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 12:39:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37996 "EHLO mail.kernel.org"
+        id S2389509AbgFSQ01 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 12:26:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388787AbgFSOqT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 10:46:19 -0400
+        id S2390187AbgFSO5K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 10:57:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E4EF821582;
-        Fri, 19 Jun 2020 14:46:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 959792158C;
+        Fri, 19 Jun 2020 14:57:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592577978;
-        bh=BsnLptUzAexabiXsgtMyl4unJekRSGrj0UkHPF3FvuA=;
+        s=default; t=1592578630;
+        bh=exxlbFL3ah7u9FldBxgwESWLtDWZgTnmtFalUav9Rco=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uJ8+wvnFori5/BFebLyc01XxKqI5t10vWZVATBw8Nt6jE8u7M2ODk/w56o3ImTvp0
-         HztxyxO4YOlufUfmzX3bulEHbeRV60afbsaMIFGX/gMvjS+tATc4IdbgMSjDrLDKZR
-         xQ96ebp4GU3zvZ7xKJ3TNS/jGPCE2x+WFj0xMeq8=
+        b=hVRIReHSJvqFtgirrUYcJWHTSGTegb8YU67yY0IkEhyenr6bTYw3DQ6fWl+j+hngJ
+         5qxzqn8t5U8J7nIXeAxYLiHAacG3u/2I1qm4X/+a1HPiSUBSUPFkJPxMRt8pEKMsY+
+         VhkZq4xYwa2LIHWO7Lm1d+Etw/4XGGYjOL82PggY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Kai Huang <kai.huang@linux.intel.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Brad Love <brad@nextdimension.cc>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 036/190] kvm: x86: Fix L1TF mitigation for shadow MMU
+Subject: [PATCH 4.19 096/267] media: si2157: Better check for running tuner in init
 Date:   Fri, 19 Jun 2020 16:31:21 +0200
-Message-Id: <20200619141635.381009325@linuxfoundation.org>
+Message-Id: <20200619141653.469897935@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
-References: <20200619141633.446429600@linuxfoundation.org>
+In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
+References: <20200619141648.840376470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,72 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Huang <kai.huang@linux.intel.com>
+From: Brad Love <brad@nextdimension.cc>
 
-[ Upstream commit 61455bf26236e7f3d72705382a6437fdfd1bd0af ]
+[ Upstream commit e955f959ac52e145f27ff2be9078b646d0352af0 ]
 
-Currently KVM sets 5 most significant bits of physical address bits
-reported by CPUID (boot_cpu_data.x86_phys_bits) for nonpresent or
-reserved bits SPTE to mitigate L1TF attack from guest when using shadow
-MMU. However for some particular Intel CPUs the physical address bits
-of internal cache is greater than physical address bits reported by
-CPUID.
+Getting the Xtal trim property to check if running is less error prone.
+Reset if_frequency if state is unknown.
 
-Use the kernel's existing boot_cpu_data.x86_cache_bits to determine the
-five most significant bits. Doing so improves KVM's L1TF mitigation in
-the unlikely scenario that system RAM overlaps the high order bits of
-the "real" physical address space as reported by CPUID. This aligns with
-the kernel's warnings regarding L1TF mitigation, e.g. in the above
-scenario the kernel won't warn the user about lack of L1TF mitigation
-if x86_cache_bits is greater than x86_phys_bits.
+Replaces the previous "garbage check".
 
-Also initialize shadow_nonpresent_or_rsvd_mask explicitly to make it
-consistent with other 'shadow_{xxx}_mask', and opportunistically add a
-WARN once if KVM's L1TF mitigation cannot be applied on a system that
-is marked as being susceptible to L1TF.
-
-Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Signed-off-by: Kai Huang <kai.huang@linux.intel.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Brad Love <brad@nextdimension.cc>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/mmu.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ drivers/media/tuners/si2157.c | 15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
 
-diff --git a/arch/x86/kvm/mmu.c b/arch/x86/kvm/mmu.c
-index e5af08b58132..2e558c814883 100644
---- a/arch/x86/kvm/mmu.c
-+++ b/arch/x86/kvm/mmu.c
-@@ -460,16 +460,24 @@ static void kvm_mmu_reset_all_pte_masks(void)
- 	 * If the CPU has 46 or less physical address bits, then set an
- 	 * appropriate mask to guard against L1TF attacks. Otherwise, it is
- 	 * assumed that the CPU is not vulnerable to L1TF.
-+	 *
-+	 * Some Intel CPUs address the L1 cache using more PA bits than are
-+	 * reported by CPUID. Use the PA width of the L1 cache when possible
-+	 * to achieve more effective mitigation, e.g. if system RAM overlaps
-+	 * the most significant bits of legal physical address space.
- 	 */
--	low_phys_bits = boot_cpu_data.x86_phys_bits;
--	if (boot_cpu_data.x86_phys_bits <
-+	shadow_nonpresent_or_rsvd_mask = 0;
-+	low_phys_bits = boot_cpu_data.x86_cache_bits;
-+	if (boot_cpu_data.x86_cache_bits <
- 	    52 - shadow_nonpresent_or_rsvd_mask_len) {
- 		shadow_nonpresent_or_rsvd_mask =
--			rsvd_bits(boot_cpu_data.x86_phys_bits -
-+			rsvd_bits(boot_cpu_data.x86_cache_bits -
- 				  shadow_nonpresent_or_rsvd_mask_len,
--				  boot_cpu_data.x86_phys_bits - 1);
-+				  boot_cpu_data.x86_cache_bits - 1);
- 		low_phys_bits -= shadow_nonpresent_or_rsvd_mask_len;
--	}
-+	} else
-+		WARN_ON_ONCE(boot_cpu_has_bug(X86_BUG_L1TF));
+diff --git a/drivers/media/tuners/si2157.c b/drivers/media/tuners/si2157.c
+index a08d8fe2bb1b..13770b038048 100644
+--- a/drivers/media/tuners/si2157.c
++++ b/drivers/media/tuners/si2157.c
+@@ -84,24 +84,23 @@ static int si2157_init(struct dvb_frontend *fe)
+ 	struct si2157_cmd cmd;
+ 	const struct firmware *fw;
+ 	const char *fw_name;
+-	unsigned int uitmp, chip_id;
++	unsigned int chip_id, xtal_trim;
+ 
+ 	dev_dbg(&client->dev, "\n");
+ 
+-	/* Returned IF frequency is garbage when firmware is not running */
+-	memcpy(cmd.args, "\x15\x00\x06\x07", 4);
++	/* Try to get Xtal trim property, to verify tuner still running */
++	memcpy(cmd.args, "\x15\x00\x04\x02", 4);
+ 	cmd.wlen = 4;
+ 	cmd.rlen = 4;
+ 	ret = si2157_cmd_execute(client, &cmd);
+-	if (ret)
+-		goto err;
+ 
+-	uitmp = cmd.args[2] << 0 | cmd.args[3] << 8;
+-	dev_dbg(&client->dev, "if_frequency kHz=%u\n", uitmp);
++	xtal_trim = cmd.args[2] | (cmd.args[3] << 8);
+ 
+-	if (uitmp == dev->if_frequency / 1000)
++	if (ret == 0 && xtal_trim < 16)
+ 		goto warm;
+ 
++	dev->if_frequency = 0; /* we no longer know current tuner state */
 +
- 	shadow_nonpresent_or_rsvd_lower_gfn_mask =
- 		GENMASK_ULL(low_phys_bits - 1, PAGE_SHIFT);
- }
+ 	/* power up */
+ 	if (dev->chiptype == SI2157_CHIPTYPE_SI2146) {
+ 		memcpy(cmd.args, "\xc0\x05\x01\x00\x00\x0b\x00\x00\x01", 9);
 -- 
 2.25.1
 
