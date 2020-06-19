@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52CF2201069
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:31:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A6AC20112B
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:42:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391257AbgFSPaL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:30:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33914 "EHLO mail.kernel.org"
+        id S2404621AbgFSPhX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:37:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404775AbgFSPaJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:30:09 -0400
+        id S2393149AbgFSPaM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:30:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 536922186A;
-        Fri, 19 Jun 2020 15:30:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D0EDD2193E;
+        Fri, 19 Jun 2020 15:30:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592580608;
-        bh=mRprGrgwdsJrDNlMaCGk8jPiTdDXpQReQLUWRumm3ck=;
+        s=default; t=1592580611;
+        bh=H0Cr8s7qPm9bdoHFRUYwPfpzfeVz+yr8kTajovyiCZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dKKVEgpUCL1/PiKU+SuXVpDD0QCn178nMtQ5krDq7vPY3+Vu0uepwq95tFhm4H1cz
-         7S+2/6PIqfyRO05y29zRhD+HyFejL1UL2Bpn7jPKRPabL7EiMSR7Ghz/+k4DYecysU
-         6zbp3xUKQi7YsQcI/R98XWZJP9i6YYf1QXNfqB9s=
+        b=AOiGqMN1+4bb6oSlTKRa25gWVHo9VKiXcOCIjw2L1C7JYnkvU3PLr/a/8gBuuLVEp
+         eyi7gFvXKK/wFf84k5Hqe+U4klwf0EfSnq6eqaUs52K2lbTljdDMk0TdNjRTKfEerd
+         t8nxbURPGqVNSD6/8EVdf5v3WRkCJiimPiTI/2MY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        stable@vger.kernel.org, Marcos Scriven <marcos@scriven.org>,
         Bjorn Helgaas <bhelgaas@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 284/376] PCI: Avoid Pericom USB controller OHCI/EHCI PME# defect
-Date:   Fri, 19 Jun 2020 16:33:22 +0200
-Message-Id: <20200619141723.776433881@linuxfoundation.org>
+Subject: [PATCH 5.7 285/376] PCI: Avoid FLR for AMD Matisse HD Audio & USB 3.0
+Date:   Fri, 19 Jun 2020 16:33:23 +0200
+Message-Id: <20200619141723.823523643@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200619141710.350494719@linuxfoundation.org>
 References: <20200619141710.350494719@linuxfoundation.org>
@@ -45,62 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Marcos Scriven <marcos@scriven.org>
 
-[ Upstream commit 68f5fc4ea9ddf9f77720d568144219c4e6452cde ]
+[ Upstream commit 0d14f06cd6657ba3446a5eb780672da487b068e7 ]
 
-Both Pericom OHCI and EHCI devices advertise PME# support from all power
-states:
+The AMD Matisse HD Audio & USB 3.0 devices advertise Function Level Reset
+support, but hang when an FLR is triggered.
 
-  06:00.0 USB controller [0c03]: Pericom Semiconductor PI7C9X442SL USB OHCI Controller [12d8:400e] (rev 01) (prog-if 10 [OHCI])
-    Subsystem: Pericom Semiconductor PI7C9X442SL USB OHCI Controller [12d8:400e]
-    Capabilities: [80] Power Management version 3
-      Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
+To reproduce the problem, attach the device to a VM, then detach and try to
+attach again.
 
-  06:00.2 USB controller [0c03]: Pericom Semiconductor PI7C9X442SL USB EHCI Controller [12d8:400f] (rev 01) (prog-if 20 [EHCI])
-    Subsystem: Pericom Semiconductor PI7C9X442SL USB EHCI Controller [12d8:400f]
-    Capabilities: [80] Power Management version 3
-      Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
+Rename the existing quirk_intel_no_flr(), which was not Intel-specific, to
+quirk_no_flr(), and apply it to prevent the use of FLR on these AMD
+devices.
 
-But testing shows that it's unreliable: there is a 20% chance PME# won't be
-asserted when a USB device is plugged.
-
-Remove PME support for both devices to make USB plugging work reliably.
-
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=205981
-Link: https://lore.kernel.org/r/20200508065343.32751-2-kai.heng.feng@canonical.com
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Link: https://lore.kernel.org/r/CAAri2DpkcuQZYbT6XsALhx2e6vRqPHwtbjHYeiH7MNp4zmt1RA@mail.gmail.com
+Signed-off-by: Marcos Scriven <marcos@scriven.org>
 Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Cc: stable@vger.kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/quirks.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/pci/quirks.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index ca9ed5774eb1..268f74d43a73 100644
+index 268f74d43a73..9d00ecb1f5b5 100644
 --- a/drivers/pci/quirks.c
 +++ b/drivers/pci/quirks.c
-@@ -5568,6 +5568,19 @@ static void pci_fixup_no_d0_pme(struct pci_dev *dev)
+@@ -5129,13 +5129,23 @@ static void quirk_intel_qat_vf_cap(struct pci_dev *pdev)
  }
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ASMEDIA, 0x2142, pci_fixup_no_d0_pme);
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x443, quirk_intel_qat_vf_cap);
  
+-/* FLR may cause some 82579 devices to hang */
+-static void quirk_intel_no_flr(struct pci_dev *dev)
 +/*
-+ * Device [12d8:0x400e] and [12d8:0x400f]
-+ * These devices advertise PME# support in all power states but don't
-+ * reliably assert it.
++ * FLR may cause the following to devices to hang:
++ *
++ * AMD Starship/Matisse HD Audio Controller 0x1487
++ * AMD Matisse USB 3.0 Host Controller 0x149c
++ * Intel 82579LM Gigabit Ethernet Controller 0x1502
++ * Intel 82579V Gigabit Ethernet Controller 0x1503
++ *
 + */
-+static void pci_fixup_no_pme(struct pci_dev *dev)
-+{
-+	pci_info(dev, "PME# is unreliable, disabling it\n");
-+	dev->pme_support = 0;
-+}
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_PERICOM, 0x400e, pci_fixup_no_pme);
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_PERICOM, 0x400f, pci_fixup_no_pme);
-+
- static void apex_pci_fixup_class(struct pci_dev *pdev)
++static void quirk_no_flr(struct pci_dev *dev)
  {
- 	pdev->class = (PCI_CLASS_SYSTEM_OTHER << 8) | pdev->class;
+ 	dev->dev_flags |= PCI_DEV_FLAGS_NO_FLR_RESET;
+ }
+-DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x1502, quirk_intel_no_flr);
+-DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x1503, quirk_intel_no_flr);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_AMD, 0x1487, quirk_no_flr);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_AMD, 0x149c, quirk_no_flr);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x1502, quirk_no_flr);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x1503, quirk_no_flr);
+ 
+ static void quirk_no_ext_tags(struct pci_dev *pdev)
+ {
 -- 
 2.25.1
 
