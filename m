@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15CF3200EEE
-	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:16:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14680200DE1
+	for <lists+stable@lfdr.de>; Fri, 19 Jun 2020 17:05:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392223AbgFSPNH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 19 Jun 2020 11:13:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43516 "EHLO mail.kernel.org"
+        id S2390848AbgFSPCf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 19 Jun 2020 11:02:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392216AbgFSPND (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 19 Jun 2020 11:13:03 -0400
+        id S2390843AbgFSPC2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 19 Jun 2020 11:02:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C64721582;
-        Fri, 19 Jun 2020 15:13:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B92820776;
+        Fri, 19 Jun 2020 15:02:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592579581;
-        bh=rHK6ecMusKRT07rLh2WdYDHPsBpgyNUL1DSb6z2C5QM=;
+        s=default; t=1592578947;
+        bh=RgSo48ZEwEmi3EaoBhdPFQ+MDiUJUxltzgDQSYLgcDE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ud3tiFHFOvAn7dPnImpqOFzIlKBjua/1p5vz28g0SBcoKnxxmGFaUFpBZo1rYcK2H
-         RYwFv1PZctOjUjLCOnzK3eKdrcDRYbwJjO3ijoCq6DiCYsmAE2gB0t595tWn2DEeMm
-         1reBBkmlKnqFE3eshxl77q5ZliX+HMtC+Zmy9isU=
+        b=EdQtTpPKalWMeAJmXDvyC7CLINgrjZhnhWLcUxn+lr2hfIiHwpUo3eXT0m1CoqJIZ
+         mxbIp/LUCg91f5LfJr3z8A5lYvilrRaiygEKjm+tbJVK6C6s+XPDqWU4L7PKG7IXLd
+         xQEBl3NEAofMVL5pDKqEMjCPRDG1Y6zRiyaJgnrA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,12 +35,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Alexander Potapenko <glider@google.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 159/261] string.h: fix incompatibility between FORTIFY_SOURCE and KASAN
-Date:   Fri, 19 Jun 2020 16:32:50 +0200
-Message-Id: <20200619141657.505576689@linuxfoundation.org>
+Subject: [PATCH 4.19 187/267] string.h: fix incompatibility between FORTIFY_SOURCE and KASAN
+Date:   Fri, 19 Jun 2020 16:32:52 +0200
+Message-Id: <20200619141657.721093582@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200619141649.878808811@linuxfoundation.org>
-References: <20200619141649.878808811@linuxfoundation.org>
+In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
+References: <20200619141648.840376470@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -196,10 +196,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 48 insertions(+), 12 deletions(-)
 
 diff --git a/include/linux/string.h b/include/linux/string.h
-index b6ccdc2c7f02..b2264355272d 100644
+index f58e1ef76572..4db285b83f44 100644
 --- a/include/linux/string.h
 +++ b/include/linux/string.h
-@@ -269,6 +269,31 @@ void __read_overflow3(void) __compiletime_error("detected read beyond size of ob
+@@ -239,6 +239,31 @@ void __read_overflow3(void) __compiletime_error("detected read beyond size of ob
  void __write_overflow(void) __compiletime_error("detected write beyond size of object passed as 1st parameter");
  
  #if !defined(__NO_FORTIFY) && defined(__OPTIMIZE__) && defined(CONFIG_FORTIFY_SOURCE)
@@ -231,7 +231,7 @@ index b6ccdc2c7f02..b2264355272d 100644
  __FORTIFY_INLINE char *strncpy(char *p, const char *q, __kernel_size_t size)
  {
  	size_t p_size = __builtin_object_size(p, 0);
-@@ -276,14 +301,14 @@ __FORTIFY_INLINE char *strncpy(char *p, const char *q, __kernel_size_t size)
+@@ -246,14 +271,14 @@ __FORTIFY_INLINE char *strncpy(char *p, const char *q, __kernel_size_t size)
  		__write_overflow();
  	if (p_size < size)
  		fortify_panic(__func__);
@@ -248,7 +248,7 @@ index b6ccdc2c7f02..b2264355272d 100644
  	if (strlcat(p, q, p_size) >= p_size)
  		fortify_panic(__func__);
  	return p;
-@@ -297,7 +322,7 @@ __FORTIFY_INLINE __kernel_size_t strlen(const char *p)
+@@ -267,7 +292,7 @@ __FORTIFY_INLINE __kernel_size_t strlen(const char *p)
  	/* Work around gcc excess stack consumption issue */
  	if (p_size == (size_t)-1 ||
  	    (__builtin_constant_p(p[p_size - 1]) && p[p_size - 1] == '\0'))
@@ -257,7 +257,7 @@ index b6ccdc2c7f02..b2264355272d 100644
  	ret = strnlen(p, p_size);
  	if (p_size <= ret)
  		fortify_panic(__func__);
-@@ -330,7 +355,7 @@ __FORTIFY_INLINE size_t strlcpy(char *p, const char *q, size_t size)
+@@ -300,7 +325,7 @@ __FORTIFY_INLINE size_t strlcpy(char *p, const char *q, size_t size)
  			__write_overflow();
  		if (len >= p_size)
  			fortify_panic(__func__);
@@ -266,7 +266,7 @@ index b6ccdc2c7f02..b2264355272d 100644
  		p[len] = '\0';
  	}
  	return ret;
-@@ -343,12 +368,12 @@ __FORTIFY_INLINE char *strncat(char *p, const char *q, __kernel_size_t count)
+@@ -313,12 +338,12 @@ __FORTIFY_INLINE char *strncat(char *p, const char *q, __kernel_size_t count)
  	size_t p_size = __builtin_object_size(p, 0);
  	size_t q_size = __builtin_object_size(q, 0);
  	if (p_size == (size_t)-1 && q_size == (size_t)-1)
@@ -281,7 +281,7 @@ index b6ccdc2c7f02..b2264355272d 100644
  	p[p_len + copy_len] = '\0';
  	return p;
  }
-@@ -360,7 +385,7 @@ __FORTIFY_INLINE void *memset(void *p, int c, __kernel_size_t size)
+@@ -330,7 +355,7 @@ __FORTIFY_INLINE void *memset(void *p, int c, __kernel_size_t size)
  		__write_overflow();
  	if (p_size < size)
  		fortify_panic(__func__);
@@ -290,7 +290,7 @@ index b6ccdc2c7f02..b2264355272d 100644
  }
  
  __FORTIFY_INLINE void *memcpy(void *p, const void *q, __kernel_size_t size)
-@@ -375,7 +400,7 @@ __FORTIFY_INLINE void *memcpy(void *p, const void *q, __kernel_size_t size)
+@@ -345,7 +370,7 @@ __FORTIFY_INLINE void *memcpy(void *p, const void *q, __kernel_size_t size)
  	}
  	if (p_size < size || q_size < size)
  		fortify_panic(__func__);
@@ -299,7 +299,7 @@ index b6ccdc2c7f02..b2264355272d 100644
  }
  
  __FORTIFY_INLINE void *memmove(void *p, const void *q, __kernel_size_t size)
-@@ -390,7 +415,7 @@ __FORTIFY_INLINE void *memmove(void *p, const void *q, __kernel_size_t size)
+@@ -360,7 +385,7 @@ __FORTIFY_INLINE void *memmove(void *p, const void *q, __kernel_size_t size)
  	}
  	if (p_size < size || q_size < size)
  		fortify_panic(__func__);
@@ -308,7 +308,7 @@ index b6ccdc2c7f02..b2264355272d 100644
  }
  
  extern void *__real_memscan(void *, int, __kernel_size_t) __RENAME(memscan);
-@@ -416,7 +441,7 @@ __FORTIFY_INLINE int memcmp(const void *p, const void *q, __kernel_size_t size)
+@@ -386,7 +411,7 @@ __FORTIFY_INLINE int memcmp(const void *p, const void *q, __kernel_size_t size)
  	}
  	if (p_size < size || q_size < size)
  		fortify_panic(__func__);
@@ -317,7 +317,7 @@ index b6ccdc2c7f02..b2264355272d 100644
  }
  
  __FORTIFY_INLINE void *memchr(const void *p, int c, __kernel_size_t size)
-@@ -426,7 +451,7 @@ __FORTIFY_INLINE void *memchr(const void *p, int c, __kernel_size_t size)
+@@ -396,7 +421,7 @@ __FORTIFY_INLINE void *memchr(const void *p, int c, __kernel_size_t size)
  		__read_overflow();
  	if (p_size < size)
  		fortify_panic(__func__);
@@ -326,7 +326,7 @@ index b6ccdc2c7f02..b2264355272d 100644
  }
  
  void *__real_memchr_inv(const void *s, int c, size_t n) __RENAME(memchr_inv);
-@@ -457,11 +482,22 @@ __FORTIFY_INLINE char *strcpy(char *p, const char *q)
+@@ -427,11 +452,22 @@ __FORTIFY_INLINE char *strcpy(char *p, const char *q)
  	size_t p_size = __builtin_object_size(p, 0);
  	size_t q_size = __builtin_object_size(q, 0);
  	if (p_size == (size_t)-1 && q_size == (size_t)-1)
