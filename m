@@ -2,67 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8B0B202133
-	for <lists+stable@lfdr.de>; Sat, 20 Jun 2020 06:09:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BF63202137
+	for <lists+stable@lfdr.de>; Sat, 20 Jun 2020 06:10:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725958AbgFTEJM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 20 Jun 2020 00:09:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36006 "EHLO
+        id S1725811AbgFTEKy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 20 Jun 2020 00:10:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725290AbgFTEJL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 20 Jun 2020 00:09:11 -0400
-Received: from mail-ot1-x344.google.com (mail-ot1-x344.google.com [IPv6:2607:f8b0:4864:20::344])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD835C0613EE
-        for <stable@vger.kernel.org>; Fri, 19 Jun 2020 21:09:11 -0700 (PDT)
-Received: by mail-ot1-x344.google.com with SMTP id u23so8884896otq.10
-        for <stable@vger.kernel.org>; Fri, 19 Jun 2020 21:09:11 -0700 (PDT)
+        with ESMTP id S1725957AbgFTEKv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 20 Jun 2020 00:10:51 -0400
+Received: from mail-ot1-x343.google.com (mail-ot1-x343.google.com [IPv6:2607:f8b0:4864:20::343])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BC26C0613EE
+        for <stable@vger.kernel.org>; Fri, 19 Jun 2020 21:10:51 -0700 (PDT)
+Received: by mail-ot1-x343.google.com with SMTP id n5so8922253otj.1
+        for <stable@vger.kernel.org>; Fri, 19 Jun 2020 21:10:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=subject:to:cc:references:from:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=l9K8ae+lidtyP5UW9uUxlzFHevmMqcLSZnLDpYLMTFE=;
-        b=WLLHIkUcEj/EblWurrwwuMxHT6siwfMLCeM/oAufRIUTFaBrC2nwASuaTS/GC2TR3x
-         0zhi4vnqVKnSXzsKitGHhoqlYnwgIG5f46bRznMTMjhbPcCE2ZLV04ahlZPe8leBIbWo
-         lknb+3Ui8/LWH+oUNeODjwr4twwQfldfD+QzlC/aUBkcEFCB0BKwBLOaS5QJHjlULOAM
-         hc39aCZFpevSO+GabqG7OZLtQaxfOvlCNm0mSQ/UPDseq74GjswhkSnFw3DZHumSsU0+
-         qS7ZUgLPuBqOYm0jJVyzzzIeUZP/dYb6NtoeF0j18V44XERwoL9hLUIw+TAryEmeOHen
-         xTQw==
+        bh=IQ5IeDM9msEJF+0vVLvnULhlkra1wu615tqY7kXkaOI=;
+        b=XVuY9mFSpNQDJXF7POeh2bS7eU6xp4W7GRiJL/zAFkvy1ROHSe4xBIudU3exoKWzuP
+         wMyRUIbV87d6yE1epBO9y+84PYkdNpjCNJIZik1HYLBHBHcWqyU3Ukgb5hCPmbqR2+JP
+         i1Vuy7lXFb5QxyKFN0I4dwn0YlJHdejJbi68alsKrPr7TjrlyiSxO4olK+lpp2Yrp0GS
+         WOf96mWpua4OoT2ZPoHOsJTlGE98hB4elkacilohQWYId/hSU9FSKDYO6/HFv4RZmzJ4
+         /s8I36/ZU5+n9mes7RHXFCSXgVpPea9cFIFSOPiguWtg/lwnERe79bPHingbC1qq+PSN
+         AAVw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:to:cc:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=l9K8ae+lidtyP5UW9uUxlzFHevmMqcLSZnLDpYLMTFE=;
-        b=Z86Eef3gp42woXDreYAKNmC8rKpHZ8KZ1lPnh66yxEKU5tdlmrgaDBWblXVarV79Rx
-         2Vxb6CegoS0KE7/7NroHE1Yud7OFca1K6cNocKmdfnmls7aqK50qumglEIfD4j3OI7cj
-         5+Y2KLf9FYkDHZ4G5YRlfvITZAzr/nRlIT9CKb+UsmYl6iuzTaKfRFFj7MhNUZqU1NMT
-         BG5DoaFoY8gVxbjB/0b5DF3vbCryKB2Ag8p5W8d/QnHWmVOyJSS7r5WWVY/CSiza59oQ
-         ScJMjT4qgYHSbTY9UYhmnZRL6uqoR6nDidj1J1hj3a3nt9kW6mcafkMfBPRq13edbi5P
-         UPqA==
-X-Gm-Message-State: AOAM533c/ZnvhMcFIS/c1egPcEeA9+cP2ZU0XybO7Iyove5QhD+pajU5
-        uWIBiXaEaofropew2Q393sZLBNk3z5AaolBI
-X-Google-Smtp-Source: ABdhPJxNyiOETnxWNWj6BhThnhrjVRFWpY+PAc4gJDUsVoJ+NpVn31fvhb8Ea69z65L06x9/lUsgUg==
-X-Received: by 2002:a9d:1445:: with SMTP id h63mr5495105oth.32.1592626150749;
-        Fri, 19 Jun 2020 21:09:10 -0700 (PDT)
+        bh=IQ5IeDM9msEJF+0vVLvnULhlkra1wu615tqY7kXkaOI=;
+        b=QxxoCyeRDR+He7AI1U3WiTDqdGBc+7F1m9Pr7l4+sk0EE2mIxrc0Y8Gaw69emgV53W
+         mZnbM5SWMDFHmVvvo3MlPJ5ZoEEDbjYupBObOm5DzKUxDrT1LBgPVVWOFip1E4lS+8kb
+         4vDe/dZq+NNnh8i1Nqw/xB+SeX2iT/Q1R1jc36Sphh+PKoMo2fHLO+njl8ubjwfq5lYe
+         YILPuFVqt0ovBdr7933VuKCezKaQsRBK9E4SR7FM/NbenNy7R/YAmTQ3n1UTC9g0L3vQ
+         Ao7e7LnS7k4YEciRL0qRM/eXhjEMzMF2DZoYjvSL/EC/IBVZPZLD8oXlaTpEssj1hgs5
+         j11A==
+X-Gm-Message-State: AOAM53241y5oCEoQ1Y9Ek5+kmXE3r52hrOcFP/dn8/xkpQ37OgUnfcHv
+        d/Qw1gVCo4Kl2loPFBj1XOXcBa4/I9aF0xlJ
+X-Google-Smtp-Source: ABdhPJxkvhUOeuMZ+pAawsq1wwn3iK6HYjdqJ/tPCHFJl3FnDQFyGVN0CNqkOshS9RNVg8o1+aGNPg==
+X-Received: by 2002:a05:6830:120a:: with SMTP id r10mr5368048otp.169.1592626250237;
+        Fri, 19 Jun 2020 21:10:50 -0700 (PDT)
 Received: from [192.168.17.59] (CableLink-189-219-73-211.Hosts.InterCable.net. [189.219.73.211])
-        by smtp.gmail.com with ESMTPSA id v132sm1702345oif.6.2020.06.19.21.09.09
+        by smtp.gmail.com with ESMTPSA id l65sm1735663oig.27.2020.06.19.21.10.48
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 19 Jun 2020 21:09:09 -0700 (PDT)
-Subject: Re: [PATCH 4.19 000/267] 4.19.129-rc1 review
+        Fri, 19 Jun 2020 21:10:49 -0700 (PDT)
+Subject: Re: [PATCH 4.14 000/190] 4.14.185-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-kernel@vger.kernel.org
 Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
         linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
         ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
         stable@vger.kernel.org
-References: <20200619141648.840376470@linuxfoundation.org>
+References: <20200619141633.446429600@linuxfoundation.org>
 From:   =?UTF-8?Q?Daniel_D=c3=adaz?= <daniel.diaz@linaro.org>
-Message-ID: <ec4b0b96-5d1f-448d-5f3c-da58ea07368a@linaro.org>
-Date:   Fri, 19 Jun 2020 23:09:08 -0500
+Message-ID: <4fcfa7d2-70c9-064f-ace2-593e737cb48c@linaro.org>
+Date:   Fri, 19 Jun 2020 23:10:48 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.8.0
 MIME-Version: 1.0
-In-Reply-To: <20200619141648.840376470@linuxfoundation.org>
+In-Reply-To: <20200619141633.446429600@linuxfoundation.org>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 8bit
@@ -73,9 +73,9 @@ X-Mailing-List: stable@vger.kernel.org
 
 Hello!
 
-On 6/19/20 9:29 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.129 release.
-> There are 267 patches in this series, all will be posted as a response
+On 6/19/20 9:30 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.14.185 release.
+> There are 190 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
@@ -83,9 +83,9 @@ On 6/19/20 9:29 AM, Greg Kroah-Hartman wrote:
 > Anything received after that time might be too late.
 > 
 > The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.129-rc1.gz
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.185-rc1.gz
 > or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
 > and the diffstat can be found below.
 > 
 > thanks,
@@ -98,18 +98,18 @@ No regressions on arm64, arm, x86_64, and i386.
 Summary
 ------------------------------------------------------------------------
 
-kernel: 4.19.129-rc1
+kernel: 4.14.185-rc1
 git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-git branch: linux-4.19.y
-git commit: a00c59b6375644f707a3554536d03d4ecaf17c05
-git describe: v4.19.128-268-ga00c59b63756
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.19-oe/build/v4.19.128-268-ga00c59b63756
+git branch: linux-4.14.y
+git commit: e26bcff6a5af4b6e19e350a39e88637307e07eb8
+git describe: v4.14.184-191-ge26bcff6a5af
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.14-oe/build/v4.14.184-191-ge26bcff6a5af
 
-No regressions (compared to build v4.19.128)
+No regressions (compared to build v4.14.184)
 
-No fixes (compared to build v4.19.128)
+No fixes (compared to build v4.14.184)
 
-Ran 34131 total tests in the following environments and test suites.
+Ran 34182 total tests in the following environments and test suites.
 
 Environments
 --------------
@@ -119,7 +119,6 @@ Environments
 - juno-r2 - arm64
 - juno-r2-compat
 - juno-r2-kasan
-- nxp-ls2088
 - qemu_arm
 - qemu_arm64
 - qemu_i386
