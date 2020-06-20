@@ -2,31 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D3F020240E
+	by mail.lfdr.de (Postfix) with ESMTP id C96A120240F
 	for <lists+stable@lfdr.de>; Sat, 20 Jun 2020 15:58:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728149AbgFTN6D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728086AbgFTN6D (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 20 Jun 2020 09:58:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40892 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728086AbgFTN6A (ORCPT
+        with ESMTP id S1728148AbgFTN6A (ORCPT
         <rfc822;stable@vger.kernel.org>); Sat, 20 Jun 2020 09:58:00 -0400
+X-Greylist: delayed 401 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sat, 20 Jun 2020 06:57:59 PDT
 Received: from mail.marcansoft.com (marcansoft.com [IPv6:2a01:298:fe:f::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D84B0C0613EE
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3B24C06174E
         for <stable@vger.kernel.org>; Sat, 20 Jun 2020 06:57:59 -0700 (PDT)
 Received: from [127.0.0.1] (localhost [127.0.0.1])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
         (No client certificate requested)
         (Authenticated sender: hector@marcansoft.com)
-        by mail.marcansoft.com (Postfix) with ESMTPSA id A1F26426E0;
-        Sat, 20 Jun 2020 13:51:10 +0000 (UTC)
+        by mail.marcansoft.com (Postfix) with ESMTPSA id 57FF1426E5;
+        Sat, 20 Jun 2020 13:52:11 +0000 (UTC)
 From:   Hector Martin <marcan@marcan.st>
-To:     marcan@marcan.st
-Cc:     stable@vger.kernel.org
+To:     perex@perex.cz
+Cc:     alsa-devel@alsa-project.org, Hector Martin <marcan@marcan.st>,
+        stable@vger.kernel.org
 Subject: [PATCH] snd-usb-audio: add quirk for MacroSilicon MS2109
-Date:   Sat, 20 Jun 2020 22:51:07 +0900
-Message-Id: <20200620135107.213344-1-marcan@marcan.st>
+Date:   Sat, 20 Jun 2020 22:52:02 +0900
+Message-Id: <20200620135202.213447-1-marcan@marcan.st>
 X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
