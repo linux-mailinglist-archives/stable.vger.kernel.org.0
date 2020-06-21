@@ -2,106 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6F43202AE3
-	for <lists+stable@lfdr.de>; Sun, 21 Jun 2020 15:55:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13F7B202B03
+	for <lists+stable@lfdr.de>; Sun, 21 Jun 2020 16:26:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730133AbgFUNzW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 21 Jun 2020 09:55:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52728 "EHLO mail.kernel.org"
+        id S1730129AbgFUO0B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 21 Jun 2020 10:26:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729796AbgFUNzV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 21 Jun 2020 09:55:21 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        id S1730120AbgFUO0B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 21 Jun 2020 10:26:01 -0400
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6DF842071A;
-        Sun, 21 Jun 2020 13:55:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 02ECD2083E;
+        Sun, 21 Jun 2020 14:26:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592747721;
-        bh=ZZHztxDAvUBWuMvdfrcMUVbI7dlbbdJrnJbEn9ncTcQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=CnvGcKKYqASIrnBi927D+3Gf4q0itS0b5YI1jhAUJ01RL5xXG+5GZHjBQ4IO8CUWF
-         adq2/GLpToLZEYF9BAoi0jepN6/ZCyS1nc8j61TU9mPM9WSfZxWEZfqgIeC+1QlTKg
-         kfJKJCHGUQ4aaz+LwZ4TUX7TDH/JMCVkh9RXxFg0=
-Date:   Sun, 21 Jun 2020 15:55:16 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Markus Elfring <Markus.Elfring@web.de>
-Cc:     Tuomas Tynkkynen <tuomas.tynkkynen@iki.fi>,
-        linux-media@vger.kernel.org, kernel-janitors@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        syzbot+6bed2d543cf7e48b822b@syzkaller.appspotmail.com,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>
-Subject: Re: [PATCH] media: media-request: Fix crash according to a failed
- memory allocation
-Message-ID: <20200621135516.GA125094@kroah.com>
-References: <b39653f6-9587-4027-35ed-53d341845cb2@web.de>
+        s=default; t=1592749561;
+        bh=W0GxbCl0T6tlIURC2FrWHy0pl7O2r2pLvdotzPz142k=;
+        h=From:To:Cc:Subject:Date:From;
+        b=niQc58EJh7aqd2Rg73A6I9LirIVVVZpJv5bB7kacWxGD6weZMCUkjN5OQImAXUaRu
+         7AFFXZEL9t9bAGVG+sLBSSfSq/YsixTIdoiK/R4Xookn0JIdT6QiaUkiPv61wSm7JY
+         SeOgaGnPdd6SsMA057+6q5cQ3sdo8GEkSXK0WF6Q=
+Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=hot-poop.lan)
+        by disco-boy.misterjones.org with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <maz@kernel.org>)
+        id 1jn0v1-0056g4-EX; Sun, 21 Jun 2020 15:25:59 +0100
+From:   Marc Zyngier <maz@kernel.org>
+To:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Jason Cooper <jason@lakedaemon.net>, stable@vger.kernel.org
+Subject: [PATCH] irqchip/gic: Atomically update affinity
+Date:   Sun, 21 Jun 2020 15:25:37 +0100
+Message-Id: <20200621142537.784191-1-maz@kernel.org>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <b39653f6-9587-4027-35ed-53d341845cb2@web.de>
+X-SA-Exim-Connect-IP: 62.31.163.78
+X-SA-Exim-Rcpt-To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, tglx@linutronix.de, jason@lakedaemon.net, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Jun 21, 2020 at 02:45:10PM +0200, Markus Elfring wrote:
-> > …, reorder media_request_alloc() such that …
-> 
-> Wording adjustments:
-> …, reorder statements in the implementation of the function “media_request_alloc” so that …
-> 
-> 
-> > … the last step thus
-> 
-> … the last step.
-> Thus media_request_close() …
-> 
-> 
-> Would you like to add the tag “Fixes” to the commit message?
-> 
-> 
-> …
-> > +++ b/drivers/media/mc/mc-request.c
-> > @@ -296,9 +296,18 @@ int media_request_alloc(struct media_device *mdev, int *alloc_fd)
-> >  	if (WARN_ON(!mdev->ops->req_alloc ^ !mdev->ops->req_free))
-> >  		return -ENOMEM;
-> >
-> > +	if (mdev->ops->req_alloc)
-> > +		req = mdev->ops->req_alloc(mdev);
-> > +	else
-> > +		req = kzalloc(sizeof(*req), GFP_KERNEL);
-> 
-> How do you think about to use a conditional operator?
-> 
-> +	req = (mdev->ops->req_alloc
-> 	       ? mdev->ops->req_alloc(mdev)
-> 	       : kzalloc(sizeof(*req), GFP_KERNEL));
-> 
-> 
-> Regards,
-> Markus
+The GIC driver uses a RMW sequence to update the affinity, and
+relies on the gic_lock_irqsave/gic_unlock_irqrestore sequences
+to update it atomically.
 
+But these sequences only expand into anything meaningful if
+the BL_SWITCHER option is selected, which almost never happens.
 
-Hi,
+It also turns out that using a RMW and locks is just as silly,
+as the GIC distributor supports byte accesses for the GICD_TARGETRn
+registers, which when used make the update atomic by definition.
 
-This is the semi-friendly patch-bot of Greg Kroah-Hartman.
+Drop the terminally broken code and replace it by a byte write.
 
-Markus, you seem to have sent a nonsensical or otherwise pointless
-review comment to a patch submission on a Linux kernel developer mailing
-list.  I strongly suggest that you not do this anymore.  Please do not
-bother developers who are actively working to produce patches and
-features with comments that, in the end, are a waste of time.
+Fixes: 04c8b0f82c7d ("irqchip/gic: Make locking a BL_SWITCHER only feature")
+Cc: stable@vger.kernel.org
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+---
+ drivers/irqchip/irq-gic.c | 14 +++-----------
+ 1 file changed, 3 insertions(+), 11 deletions(-)
 
-Patch submitter, please ignore Markus's suggestion; you do not need to
-follow it at all.  The person/bot/AI that sent it is being ignored by
-almost all Linux kernel maintainers for having a persistent pattern of
-behavior of producing distracting and pointless commentary, and
-inability to adapt to feedback.  Please feel free to also ignore emails
-from them.
+diff --git a/drivers/irqchip/irq-gic.c b/drivers/irqchip/irq-gic.c
+index 00de05abd3c3..c17fabd6741e 100644
+--- a/drivers/irqchip/irq-gic.c
++++ b/drivers/irqchip/irq-gic.c
+@@ -329,10 +329,8 @@ static int gic_irq_set_vcpu_affinity(struct irq_data *d, void *vcpu)
+ static int gic_set_affinity(struct irq_data *d, const struct cpumask *mask_val,
+ 			    bool force)
+ {
+-	void __iomem *reg = gic_dist_base(d) + GIC_DIST_TARGET + (gic_irq(d) & ~3);
+-	unsigned int cpu, shift = (gic_irq(d) % 4) * 8;
+-	u32 val, mask, bit;
+-	unsigned long flags;
++	void __iomem *reg = gic_dist_base(d) + GIC_DIST_TARGET + gic_irq(d);
++	unsigned int cpu;
+ 
+ 	if (!force)
+ 		cpu = cpumask_any_and(mask_val, cpu_online_mask);
+@@ -342,13 +340,7 @@ static int gic_set_affinity(struct irq_data *d, const struct cpumask *mask_val,
+ 	if (cpu >= NR_GIC_CPU_IF || cpu >= nr_cpu_ids)
+ 		return -EINVAL;
+ 
+-	gic_lock_irqsave(flags);
+-	mask = 0xff << shift;
+-	bit = gic_cpu_map[cpu] << shift;
+-	val = readl_relaxed(reg) & ~mask;
+-	writel_relaxed(val | bit, reg);
+-	gic_unlock_irqrestore(flags);
+-
++	writeb_relaxed(gic_cpu_map[cpu], reg);
+ 	irq_data_update_effective_affinity(d, cpumask_of(cpu));
+ 
+ 	return IRQ_SET_MASK_OK_DONE;
+-- 
+2.26.2
 
-thanks,
-
-greg k-h's patch email bot
