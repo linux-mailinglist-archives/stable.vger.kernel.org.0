@@ -2,106 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7751B2028CE
-	for <lists+stable@lfdr.de>; Sun, 21 Jun 2020 07:08:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16C2920291C
+	for <lists+stable@lfdr.de>; Sun, 21 Jun 2020 08:22:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725992AbgFUFII (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 21 Jun 2020 01:08:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60502 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725807AbgFUFIH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 21 Jun 2020 01:08:07 -0400
-Received: from mail-vs1-xe41.google.com (mail-vs1-xe41.google.com [IPv6:2607:f8b0:4864:20::e41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19D32C061794
-        for <stable@vger.kernel.org>; Sat, 20 Jun 2020 22:08:06 -0700 (PDT)
-Received: by mail-vs1-xe41.google.com with SMTP id u17so7852974vsu.7
-        for <stable@vger.kernel.org>; Sat, 20 Jun 2020 22:08:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=8P15B7yVg5zuP9hnNQBrVV9U1ImrShnajp0OKHJjOZY=;
-        b=l6A7glcC3GvBsbwujfmahuMLzho6YWjVWkqmsy+vTKVeWY9RWC8ikIN1OLM1zbhwPZ
-         +BOcZs+kMIOFvPWNOEwLqYJgyNeMm29I/xQAnhriQs1mk+q7rIPvWPgZuULhasEUswVb
-         Tos7JF9H9xRSiP2vk6O1VkpLPuQmOpjC90IT640VC0f0EMg2guRqLJrsL9bt0mGZBNb1
-         l0whP1A9LW4G+CP9nNmCSnzyUgB+IFXQzbb3g/JPCDFP73SoNxHUK3EJaAAIAj9ickiH
-         BNXrEX53SqaNbj575oTvd+HjIf1kTrob1P51IfQrIgFU5Dvevb3idgoLscF5GdiDfmMm
-         ax2A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=8P15B7yVg5zuP9hnNQBrVV9U1ImrShnajp0OKHJjOZY=;
-        b=PC3AbWoVx03rqyI/p/bQlzGRaWc4OGmld1MQ8Qvja3KwCCKM3NLh7o9blDHScI7xD2
-         R+y6rVk40rhUnj/q0ctQr2K5dZT8TdLpTselTBIVun3uqrk0z/F3VJSeOJwdVmW0joTG
-         aOqRchayLZ7jb+/LMKKNdQCcLbSYMqsgikOZKaNPBqcBDqsB5mXj70TBvc+SH39KtjkF
-         uJfVxnU870VTtSumDZHyj2kIC+7hVHFFFvITtjARM1zV9KBGhCu5p6UO6OWF1DB/S3GN
-         hpP1FDuoM0l84e7m0kv59kr81JtWfQ151q8mBd/LsrFXEcr2FoFvHz9CIws4sG/7QfB3
-         Rblg==
-X-Gm-Message-State: AOAM533eGtWwkuB+OduatcMahNwVsVZEdF0j1p5Ez8d6Yip3yHbDwQF1
-        SS6Z4fk2PCBBQ0PjPV4feXUOnGz2H3XZ8G1B4MU=
-X-Google-Smtp-Source: ABdhPJw4nn7teaXw1xigPsebGrzgY1dKD3jRQONtnquGxigNY90h8w6lrj1wqUoJI3H/ZDYEQOlYwOWB0XpYVRiABMo=
-X-Received: by 2002:a67:d612:: with SMTP id n18mr12989353vsj.67.1592716084749;
- Sat, 20 Jun 2020 22:08:04 -0700 (PDT)
+        id S1729342AbgFUGW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 21 Jun 2020 02:22:26 -0400
+Received: from asavdk3.altibox.net ([109.247.116.14]:48998 "EHLO
+        asavdk3.altibox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729296AbgFUGWZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 21 Jun 2020 02:22:25 -0400
+Received: from ravnborg.org (unknown [188.228.123.71])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by asavdk3.altibox.net (Postfix) with ESMTPS id 1188B20024;
+        Sun, 21 Jun 2020 08:22:21 +0200 (CEST)
+Date:   Sun, 21 Jun 2020 08:22:19 +0200
+From:   Sam Ravnborg <sam@ravnborg.org>
+To:     Adam Ford <aford173@gmail.com>
+Cc:     Fabio Estevam <festevam@gmail.com>,
+        David Airlie <airlied@linux.ie>,
+        Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        Adam Ford-BE <aford@beaconembedded.com>,
+        stable <stable@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        DRI mailing list <dri-devel@lists.freedesktop.org>
+Subject: Re: [PATCH] drm/panel-simple: fix connector type for LogicPD Type28
+ Display
+Message-ID: <20200621062219.GE74146@ravnborg.org>
+References: <20200615131934.12440-1-aford173@gmail.com>
+ <CAOMZO5Bw5qSDirAKBTRcu4_nDafDcfDGpuNRDyuLZs9Zc=HsQA@mail.gmail.com>
+ <CAHCN7x+=xjFTy6J4Ej61U2jXTez2rLrt=KtEOzbvV7Tzq6XoPQ@mail.gmail.com>
 MIME-Version: 1.0
-Received: by 2002:ab0:2443:0:0:0:0:0 with HTTP; Sat, 20 Jun 2020 22:08:04
- -0700 (PDT)
-Reply-To: mstheresaaheidi@yahoo.com
-From:   Ms Theresa Heidi <theresamrswinly@gmail.com>
-Date:   Sun, 21 Jun 2020 00:08:04 -0500
-Message-ID: <CAMXrzk+azkwMcpyou85UN_MeMi+tpTWP94DEgJuXaU6EO0OgzQ@mail.gmail.com>
-Subject: =?UTF-8?B?57eK5oCl44Gu5Yqp44GR44GM5b+F6KaB44Gn44GZ77yB?=
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHCN7x+=xjFTy6J4Ej61U2jXTez2rLrt=KtEOzbvV7Tzq6XoPQ@mail.gmail.com>
+X-CMAE-Score: 0
+X-CMAE-Analysis: v=2.3 cv=edQTgYMH c=1 sm=1 tr=0
+        a=S6zTFyMACwkrwXSdXUNehg==:117 a=S6zTFyMACwkrwXSdXUNehg==:17
+        a=kj9zAlcOel0A:10 a=pGLkceISAAAA:8 a=Vt2AcnKqAAAA:8 a=e5mUnYsNAAAA:8
+        a=7gkXJVJtAAAA:8 a=VwQbUJbxAAAA:8 a=s3IO3C7y_afzQisZ5X4A:9
+        a=CjuIK1q_8ugA:10 a=v10HlyRyNeVhbzM4Lqgd:22 a=Vxmtnl_E_bksehYqCbjh:22
+        a=E9Po1WZjFZOl8hwRPBS3:22 a=AjGcO6oz07-iQ99wixmX:22
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Beloved One,
+Hi Adam.
 
-CHARITY DONATION Please read carefully, I know it is true that this
-letter may come to you as a surprise. nevertheless,i humbly ask you to
-give me your attention and hear me, i am writing this mail to you with
-heavy sorrow in my heart,i have chose to reach you through Internet
-because it still remains the fastest medium of communication, after
-going through your profile in search of an honest person.
+On Mon, Jun 15, 2020 at 09:53:45AM -0500, Adam Ford wrote:
+> On Mon, Jun 15, 2020 at 9:46 AM Fabio Estevam <festevam@gmail.com> wrote:
+> >
+> > On Mon, Jun 15, 2020 at 10:19 AM Adam Ford <aford173@gmail.com> wrote:
+> > >
+> > > The LogicPD Type28 display used by several Logic PD products has not
+> > > worked since v5.5.
+> >
+> > Maybe you could tell which commit exactly and then put a Fixes tag?
+> 
+> I honestly don't know.  I reached out to the omap mailing list,
+> because I noted this issue. Tomi V from TI responded with a link that
+> he posted which fixes this for another display.
+> 
+> https://www.mail-archive.com/dri-devel@lists.freedesktop.org/msg312208.html
+> 
+> I tested that patch and it worked for a different LCD, so I did the
+> same thing to the Logic PD Type 28 display as well.
+> 
+> My patch and commit message were modeled after his, and his commit
+> CC's stable with a note about being required for v5.5+
+> 
+> I added him to the CC list, so maybe he knows which hash needs to be
+> referenced from a fixes tag.  I was hoping to not have to go back and
+> bisect if it's not required, but I will if necessary.
 
-My name is Mrs Theresa Heidi i am native France currently hospitalized
-in a private hospital here in Israel as a result of lungs cancer I am
-62 years old and I was diagnosed of lungs cancer for about 4 years
-ago, immediately after the death of my husband, who has left me
-everything he worked for. I'm with my laptop in a hospital here in
-where I have been undergoing treatment for cancer of the lungs
+git blame is your friend - the panel was added here:
+0d35408afbeb6 (Adam Ford               2019-10-16 08:51:45 -0500 2469) static const struct panel_desc logicpd_type_28 = {
+0d35408afbeb6 (Adam Ford               2019-10-16 08:51:45 -0500 2470)  .modes = &logicpd_type_28_mode,
+0d35408afbeb6 (Adam Ford               2019-10-16 08:51:45 -0500 2471)  .num_modes = 1,
+0d35408afbeb6 (Adam Ford               2019-10-16 08:51:45 -0500 2472)  .bpc = 8,
+0d35408afbeb6 (Adam Ford               2019-10-16 08:51:45 -0500 2473)  .size = {
+0d35408afbeb6 (Adam Ford               2019-10-16 08:51:45 -0500 2474)          .width = 105,
+0d35408afbeb6 (Adam Ford               2019-10-16 08:51:45 -0500 2475)          .height = 67,
+0d35408afbeb6 (Adam Ford               2019-10-16 08:51:45 -0500 2476)  },
 
-Now that is clear that I=E2=80=99m approaching the last-days of my life and=
- i
-don't even need the money again for any thing and because my doctor
-told me that i would not last for the period of one year due to Lungs
-cancer problem.I have some funds inherited from my late husband, the
-sum of $15 Million United State Dollars ( US$15,000,000,00 ),
+So this gives us fllowing fixes info:
+Fixes: 0d35408afbeb ("drm/panel: simple: Add Logic PD Type 28 display support")
+Cc: Adam Ford <aford173@gmail.com>
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Cc: Thierry Reding <thierry.reding@gmail.com>
+Cc: dri-devel@lists.freedesktop.org
+Cc: <stable@vger.kernel.org> # v5.6+
 
-This money is still with the foreign bank and the management just
-wrote me as the true owner to come forward to receive the money for
-keeping it so long or rather issue a letter of authorization to
-somebody to receive it on my behalf since I can't come over because of
-my illness or they may get it confiscated.
+I have adjusted the changelog to say 5.6 and applied to drm-misc-fixes
 
-I decided to contact you if you may be willing and interested to
-handle these trust funds in good faith before anything happens to
-me.This is not a stolen money and there are no dangers involved,is
-100% risk free with full legal proof.
-
-I want you to help me withdraw this money from the foreign bank then
-use the funds for Charity works/assistance to less privileged people
-in the society.It is my last wish to see that this money is invested
-to any organization of your choice.
-
-I want you to take 45% of the total money for your personal use while
-55% of the money will go to charity. I will appreciate your utmost
-confidentiality and trust in this matter to accomplish my heart
-desire, as I don't want anything that will jeopardize my last wish.
-
-Yours Beloved Sister.
-Mrs Theresa Heidi
+	Sam
