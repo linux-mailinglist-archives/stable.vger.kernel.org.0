@@ -2,81 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7500020296F
-	for <lists+stable@lfdr.de>; Sun, 21 Jun 2020 09:58:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31D912029CB
+	for <lists+stable@lfdr.de>; Sun, 21 Jun 2020 11:24:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729447AbgFUH57 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 21 Jun 2020 03:57:59 -0400
-Received: from asavdk3.altibox.net ([109.247.116.14]:55548 "EHLO
-        asavdk3.altibox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729443AbgFUH57 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 21 Jun 2020 03:57:59 -0400
-Received: from ravnborg.org (unknown [188.228.123.71])
+        id S1729563AbgFUJYj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 21 Jun 2020 05:24:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54072 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727917AbgFUJYj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 21 Jun 2020 05:24:39 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by asavdk3.altibox.net (Postfix) with ESMTPS id E6A3E20024;
-        Sun, 21 Jun 2020 09:57:56 +0200 (CEST)
-Date:   Sun, 21 Jun 2020 09:57:55 +0200
-From:   Sam Ravnborg <sam@ravnborg.org>
-To:     Tomi Valkeinen <tomi.valkeinen@ti.com>
-Cc:     dri-devel@lists.freedesktop.org,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Tony Lindgren <tony@atomide.com>, stable@vger.kernel.org
-Subject: Re: [PATCH] drm/panel-simple: fix connector type for
- newhaven_nhd_43_480272ef_atxl
-Message-ID: <20200621075755.GG74146@ravnborg.org>
-References: <20200609102809.753203-1-tomi.valkeinen@ti.com>
+        by mail.kernel.org (Postfix) with ESMTPSA id 464412488D;
+        Sun, 21 Jun 2020 09:24:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1592731478;
+        bh=w2g+r6zQVomgDt7m/xNcoLp98F2ry0jU+Bnz8mFuFYk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Ibnwb4x0EIlemjCb4h71oy3MRbMC9w6haqzS8g0HIzgG8EiwQi1fK/AdWnJcc1WrN
+         yxFf1GVtL4jr9U0XWAx4EBBdtnizHSrynsbTuTm5YGOPMhvJv0H9kGkKEFTN0zmZSW
+         wEiFYqKYJEHnTCM9wpucJYJ0Bde7FQjule9c6SVY=
+Date:   Sun, 21 Jun 2020 11:24:36 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Jon Hunter <jonathanh@nvidia.com>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org,
+        linux-tegra <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 5.7 000/376] 5.7.5-rc1 review
+Message-ID: <20200621092436.GA97925@kroah.com>
+References: <20200619141710.350494719@linuxfoundation.org>
+ <8d7dd6fa-3018-5da3-0736-0d58fad8fd68@nvidia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200609102809.753203-1-tomi.valkeinen@ti.com>
-X-CMAE-Score: 0
-X-CMAE-Analysis: v=2.3 cv=edQTgYMH c=1 sm=1 tr=0
-        a=S6zTFyMACwkrwXSdXUNehg==:117 a=S6zTFyMACwkrwXSdXUNehg==:17
-        a=kj9zAlcOel0A:10 a=sozttTNsAAAA:8 a=VwQbUJbxAAAA:8 a=e5mUnYsNAAAA:8
-        a=ACxb6AsmS7fQEqgjs6EA:9 a=CjuIK1q_8ugA:10 a=aeg5Gbbo78KNqacMgKqU:22
-        a=AjGcO6oz07-iQ99wixmX:22 a=Vxmtnl_E_bksehYqCbjh:22
+In-Reply-To: <8d7dd6fa-3018-5da3-0736-0d58fad8fd68@nvidia.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Tomi
-On Tue, Jun 09, 2020 at 01:28:09PM +0300, Tomi Valkeinen wrote:
-> Add connector type for newhaven_nhd_43_480272ef_atxl, as
-> drm_panel_bridge_add() requires connector type to be set.
+On Sat, Jun 20, 2020 at 10:52:19AM +0100, Jon Hunter wrote:
 > 
-> Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-> Cc: stable@vger.kernel.org # v5.5+
-
-Applied to drm-misc-fixes.
-I looked at adding a Fixes: tag for the original commit introducing
-newhaven_nhd_43_480272ef_atxl, but we did not have connector_type back
-then.
-
-	Sam
-
-> ---
->  drivers/gpu/drm/panel/panel-simple.c | 1 +
->  1 file changed, 1 insertion(+)
+> On 19/06/2020 15:28, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.7.5 release.
+> > There are 376 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Sun, 21 Jun 2020 14:15:50 +0000.
+> > Anything received after that time might be too late.
+> > 
+> > The whole patch series can be found in one patch at:
+> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.7.5-rc1.gz
+> > or in the git tree and branch at:
+> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.7.y
+> > and the diffstat can be found below.
+> > 
+> > thanks,
+> > 
+> > greg k-h
 > 
-> diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-simple.c
-> index 3ad828eaefe1..00c1a8dc4ce8 100644
-> --- a/drivers/gpu/drm/panel/panel-simple.c
-> +++ b/drivers/gpu/drm/panel/panel-simple.c
-> @@ -2465,6 +2465,7 @@ static const struct panel_desc newhaven_nhd_43_480272ef_atxl = {
->  	.bus_format = MEDIA_BUS_FMT_RGB888_1X24,
->  	.bus_flags = DRM_BUS_FLAG_DE_HIGH | DRM_BUS_FLAG_PIXDATA_DRIVE_POSEDGE |
->  		     DRM_BUS_FLAG_SYNC_DRIVE_POSEDGE,
-> +	.connector_type = DRM_MODE_CONNECTOR_DPI,
->  };
->  
->  static const struct display_timing nlt_nl192108ac18_02d_timing = {
-> -- 
-> Texas Instruments Finland Oy, Porkkalankatu 22, 00180 Helsinki.
-> Y-tunnus/Business ID: 0615521-4. Kotipaikka/Domicile: Helsinki
+> All tests are passing for Tegra ...
 > 
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+> Test results for stable-v5.7:
+>     11 builds:	11 pass, 0 fail
+>     26 boots:	26 pass, 0 fail
+>     56 tests:	56 pass, 0 fail
+> 
+> Linux version:	5.7.5-rc1-g19411dc6b061
+> Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+>                 tegra194-p2972-0000, tegra20-ventana,
+>                 tegra210-p2371-2180, tegra210-p3450-0000,
+>                 tegra30-cardhu-a04
+
+Thanks for testing all of these and letting me know.
+
+greg k-h
