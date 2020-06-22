@@ -2,94 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43611203595
-	for <lists+stable@lfdr.de>; Mon, 22 Jun 2020 13:24:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BDCC203592
+	for <lists+stable@lfdr.de>; Mon, 22 Jun 2020 13:23:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728937AbgFVLYT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Jun 2020 07:24:19 -0400
-Received: from stargate.chelsio.com ([12.32.117.8]:29822 "EHLO
-        stargate.chelsio.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729438AbgFVLYQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Jun 2020 07:24:16 -0400
-Received: from localhost (moto.blr.asicdesigners.com [10.193.184.79] (may be forged))
-        by stargate.chelsio.com (8.13.8/8.13.8) with ESMTP id 05MBLnGV015086;
-        Mon, 22 Jun 2020 04:21:50 -0700
-Date:   Mon, 22 Jun 2020 16:51:44 +0530
-From:   Dakshaja Uppalapati <dakshaja@chelsio.com>
-To:     Keith Busch <kbusch@kernel.org>
-Cc:     linux-nvme@lists.infradead.org, eduard@hasenleithner.at,
-        sagi@grimberg.me, hch@lst.de, stable@vger.kernel.org,
-        Nirranjan Kirubaharan <nirranjan@chelsio.com>,
-        Potnuri Bharat Teja <bharat@chelsio.com>
-Subject: Re: [PATCH for-stable nvmet 0/6] nvme: Fix for blk_update_request IO
- error.
-Message-ID: <20200622112143.GA25601@chelsio.com>
-References: <20200611155339.9429-1-dakshaja@chelsio.com>
- <20200617141541.GA712019@dhcp-10-100-145-180.wdl.wdc.com>
+        id S1729955AbgFVLXg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Jun 2020 07:23:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42904 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729892AbgFVLXe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Jun 2020 07:23:34 -0400
+Received: from localhost (fw-tnat.cambridge.arm.com [217.140.96.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 992FE20716;
+        Mon, 22 Jun 2020 11:23:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1592825004;
+        bh=lKPO9e624hVOJb9ys3y9YhyfWRz6FABHB2gyDaZqj2U=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=rMxttB7FzTiHJEa3tbN3WPIxJHrnt0u8SEYPYobsr7cEH3VUpxi+DC7EAYV+F1X4l
+         8QFmz85HHyuh+539leKlpPpSOYSEf3r8Spfs8V/djIJZCuNccky7F0Xl0iBTosnKqA
+         kGowYb1JP0oSedLkJKguEaO6QduxXMYsGqSEVmGM=
+Date:   Mon, 22 Jun 2020 12:23:21 +0100
+From:   Mark Brown <broonie@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Dmitry Osipenko <digetx@gmail.com>,
+        alsa-devel@alsa-project.org, linux-tegra@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.7 004/388] ASoC: tegra: tegra_wm8903: Support
+ nvidia, headset property
+Message-ID: <20200622112321.GB4560@sirena.org.uk>
+References: <20200618010805.600873-1-sashal@kernel.org>
+ <20200618010805.600873-4-sashal@kernel.org>
+ <20200618110023.GB5789@sirena.org.uk>
+ <20200618143046.GT1931@sasha-vm>
+ <20200618143930.GI5789@sirena.org.uk>
+ <20200621233352.GA1931@sasha-vm>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="cvVnyQ+4j833TQvp"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20200617141541.GA712019@dhcp-10-100-145-180.wdl.wdc.com>
+In-Reply-To: <20200621233352.GA1931@sasha-vm>
+X-Cookie: laser, n.:
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wednesday, June 06/17/20, 2020 at 07:15:41 -0700, Keith Busch wrote:
-> On Thu, Jun 11, 2020 at 09:23:33PM +0530, Dakshaja Uppalapati wrote:
-> > The below error is seen in dmesg, while formatting the disks discovered on host.
-> > 
-> > dmesg:
-> >         [  636.733374] blk_update_request: I/O error, dev nvme4n1, sector 0 op 0x3:(DISCARD) flags 0x800 phys_seg 1 prio class 0
-> > 
-> > Patch 6 fixes it and there are 5 other dependent patches that also need to be 
-> > pulled from upstream to stable, 5.4 and 4.19 branches.
-> > 
-> > Patch 1 dependent patch
-> > 
-> > Patch 2 dependent patch
-> > 
-> > Patch 3 dependent patch
-> > 
-> > Patch 4 dependent patch
-> > 
-> > Patch 5 dependent patch
-> > 
-> > Patch 6 fix patch
-> 
-> 1. You need to copy the linux-nvme mainling list for linux nvme kernel patches.
-> 
-> 2. If you're sending someone else's patch, the patch is supposed to have
-> the From: tag so the author is appropriately identified.
-> 
-> 3. Stable patches must referece the upstream commit ID.
-> 
-> As for this particular issue, while stable patches are required to
-> reference an upstream commit, you don't need to bring in dependent
-> patches. You are allowed to write an equivalent fix specific to the
-> stable branch so that stable doesn't need to take a bunch of unrelated
-> changes. For example, it looks like this particular isssue can be fixed
-> with the following simple stable patch:
->
 
-Hi keith,
+--cvVnyQ+4j833TQvp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Thanks for the review.
+On Sun, Jun 21, 2020 at 07:33:52PM -0400, Sasha Levin wrote:
+> On Thu, Jun 18, 2020 at 03:39:30PM +0100, Mark Brown wrote:
+> > On Thu, Jun 18, 2020 at 10:30:46AM -0400, Sasha Levin wrote:
+> > > On Thu, Jun 18, 2020 at 12:00:23PM +0100, Mark Brown wrote:
 
-I initially tried pushing only the fix + required portion of the dependent 
-patches(https://www.spinics.net/lists/stable/msg387744.html) but as that 
-approach is discouraged in stable tree, I submitted all the patches as it is.
+> > > > This is a new feature not a bugfix.
 
-Here are the ways to fix the issue in stable tree:
+> > > I saw this patch more as a hardware quirk.
 
-•  push fix + all dependent patches
-•  push fix + custom patch of dependent patches
-•  revert the culprit patch.
+> > Pretty much any DT property is a hardware quirk :(
 
-Please let me know how this issue can be resolved in stable tree.
+> Which is why we're taking most of them :)
 
-Thanks,
-Dakshaja
+That's concerning - please don't do this.  It's not what stable is
+expected to be and there's no guarantee that you're getting all the
+changes required to actually make things work.
 
+--cvVnyQ+4j833TQvp
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl7wlKgACgkQJNaLcl1U
+h9DxBQf9GXl9yCwJEINWq/Z/dhvqydIs7W9lZH5AwwYXFPMJqBw8hFXOc0py8n1n
+KyNasLuU3f6KllPb0/5OVx13fx8zGxkO3R+oGlO3Efu7Hy8PGBKDUCvSN3ot0Y/D
+G63LKSioz3J8TW/YESn7D1sIHgBeomqhnaXeqeXv3CvcOzSwNrxo7XEFdFezSfby
+QMKNjitxBVEiU5JiuuhpWhQ3A9f0bsNONgYLXX/j2nUFF2GTaoVqqAeuVHJsRtvY
+AxfBsxyFqe85oe6t6oelQ5DoiQTkEJYKTGpApxIby0uOXAoo2PgF4slrPeEqa+ZS
+tp+7ng+EvDqFhLMnHiZq1WTtbV02bw==
+=kpI5
+-----END PGP SIGNATURE-----
+
+--cvVnyQ+4j833TQvp--
