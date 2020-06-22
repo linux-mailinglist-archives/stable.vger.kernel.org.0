@@ -2,79 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F0852042C4
-	for <lists+stable@lfdr.de>; Mon, 22 Jun 2020 23:36:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7451E2042D5
+	for <lists+stable@lfdr.de>; Mon, 22 Jun 2020 23:46:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727015AbgFVVgE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Jun 2020 17:36:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58926 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727006AbgFVVgE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Jun 2020 17:36:04 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B327A2075A;
-        Mon, 22 Jun 2020 21:36:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592861764;
-        bh=xJuJTCcvLk7qfBU+5o6QQjD4r67q59Mp4wTQ0KmFO4E=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=OhPUi4a/eJHPzvHyHATRraW2xMtf467FxoBrgAXaCDzuxHtsf/bnJrF5jVagzsozu
-         /j8brfW4+IgGaf6gXutZMaSR+lX0fk6R8v/BoP1AGyUJOYzMW/Hk5mDkkyyyXsYRfp
-         kkiMnd/B2OlAajRIx+B7WdwYEtiXWVx0iHR49kI0=
-Date:   Mon, 22 Jun 2020 17:36:02 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     alexander.deucher@amd.com, nicholas.kazlauskas@amd.com,
-        stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] drm/amdgpu/display: use blanked rather
- than plane state for" failed to apply to 5.4-stable tree
-Message-ID: <20200622213602.GL1931@sasha-vm>
-References: <15928491981887@kroah.com>
+        id S1730527AbgFVVqS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Jun 2020 17:46:18 -0400
+Received: from outils.crapouillou.net ([89.234.176.41]:34164 "EHLO
+        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730494AbgFVVqR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Jun 2020 17:46:17 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
+        s=mail; t=1592862375; h=from:from:sender:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:in-reply-to:
+         references; bh=XVivtfrUoedverxihZDUvQXhbwIsW+Ph7W4Zuj41NTM=;
+        b=CxR0MCFl6PJNUHCHUUF4NaLFrzu7naZvhIfn6Lm6JwoZcjditrouo7ZpcUL1rCeRFGEFjr
+        kCaU21cgk8HIekGNqYAqaicVFFoGCrQgxI39HwYbNOvWv4es2JOe/xbqlEX3ayGZSJxFRM
+        khfX6DY8rWyRg/gN9IxIumrcgjcGbsI=
+From:   Paul Cercueil <paul@crapouillou.net>
+To:     Linus Walleij <linus.walleij@linaro.org>
+Cc:     od@zcrc.me, linux-gpio@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jo=C3=A3o=20Henrique?= <johnnyonflame@hotmail.com>
+Subject: [PATCH 1/2] pinctrl: ingenic: Enhance support for IRQ_TYPE_EDGE_BOTH
+Date:   Mon, 22 Jun 2020 23:45:47 +0200
+Message-Id: <20200622214548.265417-1-paul@crapouillou.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <15928491981887@kroah.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 22, 2020 at 08:06:38PM +0200, gregkh@linuxfoundation.org wrote:
->
->The patch below does not apply to the 5.4-stable tree.
->If someone wants it applied there, or to any other stable or longterm
->tree, then please email the backport, including the original git commit
->id to <stable@vger.kernel.org>.
->
->thanks,
->
->greg k-h
->
->------------------ original commit in Linus's tree ------------------
->
->From b7f839d292948142eaab77cedd031aad0bfec872 Mon Sep 17 00:00:00 2001
->From: Alex Deucher <alexander.deucher@amd.com>
->Date: Tue, 2 Jun 2020 17:22:48 -0400
->Subject: [PATCH] drm/amdgpu/display: use blanked rather than plane state for
-> sync groups
->
->We may end up with no planes set yet, depending on the ordering, but we
->should have the proper blanking state which is either handled by either
->DPG or TG depending on the hardware generation.  Check both to determine
->the proper blanked state.
->
->Bug: https://gitlab.freedesktop.org/drm/amd/issues/781
->Fixes: 5fc0cbfad45648 ("drm/amd/display: determine if a pipe is synced by plane state")
->Cc: nicholas.kazlauskas@amd.com
->Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
->Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
->Cc: stable@vger.kernel.org
+Ingenic SoCs don't natively support registering an interrupt for both
+rising and falling edges. This has to be emulated in software.
 
-I've grabbed 34b86b75dfc9 ("drm/amd/display: Use swap() where appropriate") as
-a dependency and queued both for 5.4.
+Until now, this was emulated by switching back and forth between
+IRQ_TYPE_EDGE_RISING and IRQ_TYPE_EDGE_FALLING according to the level of
+the GPIO. While this worked most of the time, when used with GPIOs that
+need debouncing, some events would be lost. For instance, between the
+time a falling-edge interrupt happens and the interrupt handler
+configures the hardware for rising-edge, the level of the pin may have
+already risen, and the rising-edge event is lost.
 
+To address that issue, instead of switching back and forth between
+IRQ_TYPE_EDGE_RISING and IRQ_TYPE_EDGE_FALLING, we now switch back and
+forth between IRQ_TYPE_LEVEL_LOW and IRQ_TYPE_LEVEL_HIGH. Since we
+always switch in the interrupt handler, they actually permit to detect
+level changes. In the example above, if the pin level rises before
+switching the IRQ type from IRQ_TYPE_LEVEL_LOW to IRQ_TYPE_LEVEL_HIGH,
+a new interrupt will raise as soon as the handler exits, and the
+rising-edge event will be properly detected.
+
+Cc: stable@vger.kernel.org
+Fixes: e72394e2ea19 ("pinctrl: ingenic: Merge GPIO functionality")
+Reported-by: João Henrique <johnnyonflame@hotmail.com>
+Tested-by: João Henrique <johnnyonflame@hotmail.com>
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+---
+ drivers/pinctrl/pinctrl-ingenic.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/pinctrl/pinctrl-ingenic.c b/drivers/pinctrl/pinctrl-ingenic.c
+index fc0d10411aa9..241e563d5814 100644
+--- a/drivers/pinctrl/pinctrl-ingenic.c
++++ b/drivers/pinctrl/pinctrl-ingenic.c
+@@ -1813,9 +1813,9 @@ static void ingenic_gpio_irq_ack(struct irq_data *irqd)
+ 		 */
+ 		high = ingenic_gpio_get_value(jzgc, irq);
+ 		if (high)
+-			irq_set_type(jzgc, irq, IRQ_TYPE_EDGE_FALLING);
++			irq_set_type(jzgc, irq, IRQ_TYPE_LEVEL_LOW);
+ 		else
+-			irq_set_type(jzgc, irq, IRQ_TYPE_EDGE_RISING);
++			irq_set_type(jzgc, irq, IRQ_TYPE_LEVEL_HIGH);
+ 	}
+ 
+ 	if (jzgc->jzpc->info->version >= ID_JZ4760)
+@@ -1851,7 +1851,7 @@ static int ingenic_gpio_irq_set_type(struct irq_data *irqd, unsigned int type)
+ 		 */
+ 		bool high = ingenic_gpio_get_value(jzgc, irqd->hwirq);
+ 
+-		type = high ? IRQ_TYPE_EDGE_FALLING : IRQ_TYPE_EDGE_RISING;
++		type = high ? IRQ_TYPE_LEVEL_LOW : IRQ_TYPE_LEVEL_HIGH;
+ 	}
+ 
+ 	irq_set_type(jzgc, irqd->hwirq, type);
 -- 
-Thanks,
-Sasha
+2.27.0
+
