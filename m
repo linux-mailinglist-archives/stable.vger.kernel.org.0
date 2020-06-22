@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 39D61203E54
-	for <lists+stable@lfdr.de>; Mon, 22 Jun 2020 19:49:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15995203E55
+	for <lists+stable@lfdr.de>; Mon, 22 Jun 2020 19:49:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730134AbgFVRtC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Jun 2020 13:49:02 -0400
-Received: from wforward5-smtp.messagingengine.com ([64.147.123.35]:43111 "EHLO
+        id S1730046AbgFVRtQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Jun 2020 13:49:16 -0400
+Received: from wforward5-smtp.messagingengine.com ([64.147.123.35]:49495 "EHLO
         wforward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729886AbgFVRtC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Jun 2020 13:49:02 -0400
+        by vger.kernel.org with ESMTP id S1729886AbgFVRtQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Jun 2020 13:49:16 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 3796A118A;
-        Mon, 22 Jun 2020 13:49:01 -0400 (EDT)
+        by mailforward.west.internal (Postfix) with ESMTP id BB323300;
+        Mon, 22 Jun 2020 13:49:15 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 22 Jun 2020 13:49:01 -0400
+  by compute1.internal (MEProxy); Mon, 22 Jun 2020 13:49:15 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=EOTXI3
-        x27LWnRrqcbIGaCXTft7gF3Zi4gFuQ3d1vd2c=; b=kIot7NjuzdOEiF6w6ur6qm
-        oflvz3U3NkuLbGo1O1YB/XA0yE0jTuu+2TK8k+AiCbUYYUOkIrUK3tBtGBH2s2ZV
-        wDG2CD397PqOoBNGZFd0j5GCGzuR+c/igOEfZMGI2Bdmt9KObGc4SLWlGu+AovXN
-        kgYmi0WALA87RKV9QbXrJfo7uju1obCl0itt9hLixih/HlfDSliJBgZyZUc54ajR
-        sEh0RHijpX8pKp8OeTLK/sdpN7s3WBdvKUZQAChJJ4imVTk1X77Zhlr56a/uYdy3
-        0ZYmzu1oqHUg37iL6RvBMfrvZkFsCkpNNV0vRE9MZ1rv8mU7thZKVE8GCK3oT1gA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=o6Ico9
+        F2rhW2izwHdO9695b/wdtofhNBnZuWka4DnZ8=; b=dSa+gTObDIlTl7wMfDAy66
+        38QvcwnDcpa7aE34ESpA8HIHOAMIu0cboplHtkL0l5cJx5rWXQbngnztIeRN4Hb+
+        0msDKIXztL6AM3TNro8Rpl5gGbkycyxiHry++8NX47U24/Z9oeJLuO3SzJPAdDnX
+        4XXXl6H75iRYA3opkjYGmINAAliO5SLA/miGy0QHeXvm3+A3GTtaIYGy0fPnFwWK
+        6F05jtCWaeKkdpIElQGDkgaUhe3fYojNp+Xp/B7v7nscjBVwCXksk4+aJFQCXo7D
+        nD3Qa0KHhdDVUTXWuaSejaM/Jw2lu1WBsiZT3N0GChkYrQH6nEp28++7IvFmNd7A
         ==
-X-ME-Sender: <xms:DO_wXpjuuJ9-dyo7gJ6QFBxlFsZmfuOR2EWLyL4yxadeagwCT0FAGw>
+X-ME-Sender: <xms:G-_wXqiCTWkxb6APHuMoj8pZ2u9DSgKfuUnY-VDOOkQNgzzSgc2bOA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudekvddguddulecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
     rhhgqeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehje
     duteevueevledujeejgfetheenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhs
-    thgvrhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
+    thgvrhfuihiivgepvdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
     hhrdgtohhm
-X-ME-Proxy: <xmx:DO_wXuBCMDQMfuPIRgegseTfW_5f8N_w8ENkFEZW11GgZYDuLzHtRQ>
-    <xmx:DO_wXpERgnKsxHJJru6EXBULYFPmK7lmLJbuHvTVCf3bX17bWyi0hw>
-    <xmx:DO_wXuQsudEgef-bOUlPxtkvQFPpbwNmYDwWLjTaj5zTWl0SvsZdeg>
-    <xmx:DO_wXl-UT-Nx3b1GcCkwaM01bY6YyyFjwaBYdjyur1AG-egU-etthN-p1kw>
+X-ME-Proxy: <xmx:G-_wXrCtOeRlPc_3AtMu5oAr0KUr0PqYKqMjZaL1jvHapcYaSWzU8g>
+    <xmx:G-_wXiFsO7RWYcSWGij1tQ8ezjRNnh4s11YAuWgXxv9K6a0g33QUoA>
+    <xmx:G-_wXjQcwrGqPlYkwCTVyDwplSObB4f2N8BQiifGqN_MD5TBZSOf5Q>
+    <xmx:G-_wXm-avH03WvaesDVRC0OT4h9q87DSvDbvq1DEJakObM1gVGa23kCg_tk>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 72CA63280067;
-        Mon, 22 Jun 2020 13:49:00 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] io_uring: acquire 'mm' for task_work for SQPOLL" failed to apply to 5.7-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 054E33280065;
+        Mon, 22 Jun 2020 13:49:14 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] io_uring: reap poll completions while waiting for refs to" failed to apply to 5.7-stable tree
 To:     axboe@kernel.dk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Jun 2020 19:48:55 +0200
-Message-ID: <159284813596252@kroah.com>
+Date:   Mon, 22 Jun 2020 19:49:10 +0200
+Message-ID: <1592848150115103@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -69,100 +69,46 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 9d8426a09195e2dcf2aa249de2aaadd792d491c7 Mon Sep 17 00:00:00 2001
+From 56952e91acc93ed624fe9da840900defb75f1323 Mon Sep 17 00:00:00 2001
 From: Jens Axboe <axboe@kernel.dk>
-Date: Tue, 16 Jun 2020 18:42:49 -0600
-Subject: [PATCH] io_uring: acquire 'mm' for task_work for SQPOLL
+Date: Wed, 17 Jun 2020 15:00:04 -0600
+Subject: [PATCH] io_uring: reap poll completions while waiting for refs to
+ drop on exit
 
-If we're unlucky with timing, we could be running task_work after
-having dropped the memory context in the sq thread. Since dropping
-the context requires a runnable task state, we cannot reliably drop
-it as part of our check-for-work loop in io_sq_thread(). Instead,
-abstract out the mm acquire for the sq thread into a helper, and call
-it from the async task work handler.
+If we're doing polled IO and end up having requests being submitted
+async, then completions can come in while we're waiting for refs to
+drop. We need to reap these manually, as nobody else will be looking
+for them.
 
-Cc: stable@vger.kernel.org # v5.7
+Break the wait into 1/20th of a second time waits, and check for done
+poll completions if we time out. Otherwise we can have done poll
+completions sitting in ctx->poll_list, which needs us to reap them but
+we're just waiting for them.
+
+Cc: stable@vger.kernel.org
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 9d2ae9aa8b45..98c83fbf4f88 100644
+index 98c83fbf4f88..2038d52c5450 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -4256,6 +4256,28 @@ static void io_async_queue_proc(struct file *file, struct wait_queue_head *head,
- 	__io_queue_proc(&pt->req->apoll->poll, pt, head);
+@@ -7363,7 +7363,17 @@ static void io_ring_exit_work(struct work_struct *work)
+ 	if (ctx->rings)
+ 		io_cqring_overflow_flush(ctx, true);
+ 
+-	wait_for_completion(&ctx->ref_comp);
++	/*
++	 * If we're doing polled IO and end up having requests being
++	 * submitted async (out-of-line), then completions can come in while
++	 * we're waiting for refs to drop. We need to reap these manually,
++	 * as nobody else will be looking for them.
++	 */
++	while (!wait_for_completion_timeout(&ctx->ref_comp, HZ/20)) {
++		io_iopoll_reap_events(ctx);
++		if (ctx->rings)
++			io_cqring_overflow_flush(ctx, true);
++	}
+ 	io_ring_ctx_free(ctx);
  }
  
-+static void io_sq_thread_drop_mm(struct io_ring_ctx *ctx)
-+{
-+	struct mm_struct *mm = current->mm;
-+
-+	if (mm) {
-+		kthread_unuse_mm(mm);
-+		mmput(mm);
-+	}
-+}
-+
-+static int io_sq_thread_acquire_mm(struct io_ring_ctx *ctx,
-+				   struct io_kiocb *req)
-+{
-+	if (io_op_defs[req->opcode].needs_mm && !current->mm) {
-+		if (unlikely(!mmget_not_zero(ctx->sqo_mm)))
-+			return -EFAULT;
-+		kthread_use_mm(ctx->sqo_mm);
-+	}
-+
-+	return 0;
-+}
-+
- static void io_async_task_func(struct callback_head *cb)
- {
- 	struct io_kiocb *req = container_of(cb, struct io_kiocb, task_work);
-@@ -4290,11 +4312,16 @@ static void io_async_task_func(struct callback_head *cb)
- 
- 	if (!canceled) {
- 		__set_current_state(TASK_RUNNING);
-+		if (io_sq_thread_acquire_mm(ctx, req)) {
-+			io_cqring_add_event(req, -EFAULT);
-+			goto end_req;
-+		}
- 		mutex_lock(&ctx->uring_lock);
- 		__io_queue_sqe(req, NULL);
- 		mutex_unlock(&ctx->uring_lock);
- 	} else {
- 		io_cqring_ev_posted(ctx);
-+end_req:
- 		req_set_fail_links(req);
- 		io_double_put_req(req);
- 	}
-@@ -5841,11 +5868,8 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
- 	if (unlikely(req->opcode >= IORING_OP_LAST))
- 		return -EINVAL;
- 
--	if (io_op_defs[req->opcode].needs_mm && !current->mm) {
--		if (unlikely(!mmget_not_zero(ctx->sqo_mm)))
--			return -EFAULT;
--		kthread_use_mm(ctx->sqo_mm);
--	}
-+	if (unlikely(io_sq_thread_acquire_mm(ctx, req)))
-+		return -EFAULT;
- 
- 	sqe_flags = READ_ONCE(sqe->flags);
- 	/* enforce forwards compatibility on users */
-@@ -5954,16 +5978,6 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
- 	return submitted;
- }
- 
--static inline void io_sq_thread_drop_mm(struct io_ring_ctx *ctx)
--{
--	struct mm_struct *mm = current->mm;
--
--	if (mm) {
--		kthread_unuse_mm(mm);
--		mmput(mm);
--	}
--}
--
- static int io_sq_thread(void *data)
- {
- 	struct io_ring_ctx *ctx = data;
 
