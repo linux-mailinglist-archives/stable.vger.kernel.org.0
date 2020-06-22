@@ -2,68 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10DA2203F04
-	for <lists+stable@lfdr.de>; Mon, 22 Jun 2020 20:19:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 563BE203FD0
+	for <lists+stable@lfdr.de>; Mon, 22 Jun 2020 21:01:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730214AbgFVSTf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Jun 2020 14:19:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35196 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730161AbgFVSTe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Jun 2020 14:19:34 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 942EB20656;
-        Mon, 22 Jun 2020 18:19:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592849974;
-        bh=7Psp9fxYpFv4P8cVvB1by8C7RV68/8VRMZGsxQbNaZQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=P1J8yYj/0n1MOSroafo3e1OTyfgBSaLZgvwkndjK85xFqBc9FnpaH3v1sWPN4+Z9o
-         wWHOIcVyCm3BNGpdagharP/K0AQAQv3PqNL8QCULFRntNQ3P05VCrTgeUjrtsij1rC
-         DKAB8dVavnPfss3HQzk2yNaa+HTezjtrvvNnd5/Y=
-Date:   Mon, 22 Jun 2020 20:19:28 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     xiaoguang.wang@linux.alibaba.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] io_uring: add memory barrier to
- synchronize io_kiocb's result" failed to apply to 5.7-stable tree
-Message-ID: <20200622181928.GA2099850@kroah.com>
-References: <15928481127127@kroah.com>
- <436198de-3cba-5587-2f0f-a92185d9ee6f@kernel.dk>
- <20200622180926.GA2083145@kroah.com>
- <68388f8d-f427-91ac-f503-6857ed47a75d@kernel.dk>
+        id S1730121AbgFVTBe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Jun 2020 15:01:34 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:22622 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730020AbgFVTBe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Jun 2020 15:01:34 -0400
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 05MIWJxZ122180;
+        Mon, 22 Jun 2020 15:01:32 -0400
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 31tyvucp16-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 22 Jun 2020 15:01:32 -0400
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 05MIWe11122980;
+        Mon, 22 Jun 2020 15:01:32 -0400
+Received: from ppma05wdc.us.ibm.com (1b.90.2fa9.ip4.static.sl-reverse.com [169.47.144.27])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 31tyvucp0s-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 22 Jun 2020 15:01:32 -0400
+Received: from pps.filterd (ppma05wdc.us.ibm.com [127.0.0.1])
+        by ppma05wdc.us.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 05MJ046U020167;
+        Mon, 22 Jun 2020 19:01:31 GMT
+Received: from b03cxnp08026.gho.boulder.ibm.com (b03cxnp08026.gho.boulder.ibm.com [9.17.130.18])
+        by ppma05wdc.us.ibm.com with ESMTP id 31sa38htam-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 22 Jun 2020 19:01:31 +0000
+Received: from b03ledav005.gho.boulder.ibm.com (b03ledav005.gho.boulder.ibm.com [9.17.130.236])
+        by b03cxnp08026.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 05MJ1SlX18350440
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 22 Jun 2020 19:01:28 GMT
+Received: from b03ledav005.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 396A1BE054;
+        Mon, 22 Jun 2020 19:01:30 +0000 (GMT)
+Received: from b03ledav005.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A52DBBE053;
+        Mon, 22 Jun 2020 19:01:28 +0000 (GMT)
+Received: from swastik.ibm.com (unknown [9.160.110.135])
+        by b03ledav005.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Mon, 22 Jun 2020 19:01:28 +0000 (GMT)
+Subject: Re: [PATCH v2] ima: move APPRAISE_BOOTPARAM dependency on ARCH_POLICY
+ to runtime
+To:     Bruno Meneguele <bmeneg@redhat.com>
+Cc:     linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org,
+        zohar@linux.ibm.com, erichte@linux.ibm.com, nayna@linux.ibm.com,
+        stable@vger.kernel.org
+References: <20200622172754.10763-1-bmeneg@redhat.com>
+From:   Nayna <nayna@linux.vnet.ibm.com>
+Message-ID: <043e52d4-6835-c2c4-bc9d-d36ddb3db0e9@linux.vnet.ibm.com>
+Date:   Mon, 22 Jun 2020 15:01:27 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <68388f8d-f427-91ac-f503-6857ed47a75d@kernel.dk>
+In-Reply-To: <20200622172754.10763-1-bmeneg@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.216,18.0.687
+ definitions=2020-06-22_10:2020-06-22,2020-06-22 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 cotscore=-2147483648
+ clxscore=1011 mlxlogscore=999 spamscore=0 mlxscore=0 malwarescore=0
+ adultscore=0 bulkscore=0 phishscore=0 lowpriorityscore=0
+ priorityscore=1501 suspectscore=0 impostorscore=0 classifier=spam adjust=0
+ reason=mlx scancount=1 engine=8.12.0-2004280000
+ definitions=main-2006220122
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 22, 2020 at 12:12:50PM -0600, Jens Axboe wrote:
-> On 6/22/20 12:09 PM, Greg KH wrote:
-> > On Mon, Jun 22, 2020 at 12:02:26PM -0600, Jens Axboe wrote:
-> >> On 6/22/20 11:48 AM, gregkh@linuxfoundation.org wrote:
-> >>>
-> >>> The patch below does not apply to the 5.7-stable tree.
-> >>> If someone wants it applied there, or to any other stable or longterm
-> >>> tree, then please email the backport, including the original git commit
-> >>> id to <stable@vger.kernel.org>.
-> >>
-> >> I took a look at the queue, and here's this one and the next two you
-> >> reported that didn't apply.
-> >>
-> >> There's also a few more, I grabbed them as well. So could you just
-> >> queue up these 6 for the next 5.7-stable? Thanks!
-> > 
-> > I will be glad to, thanks, but what is the git commit ids of them in
-> > Linus's tree?  I need to put that in the changelog body...
-> 
-> Here they are again with that added.
 
-That worked great, thanks, all now queued up!
+On 6/22/20 1:27 PM, Bruno Meneguele wrote:
+> IMA_APPRAISE_BOOTPARAM has been marked as dependent on !IMA_ARCH_POLICY in
+> compile time, enforcing the appraisal whenever the kernel had the arch
+> policy option enabled.
+>
+> However it breaks systems where the option is actually set but the system
+> wasn't booted in a "secure boot" platform. In this scenario, anytime the
+> an appraisal policy (i.e. ima_policy=appraisal_tcb) is used it will be
+> forced, giving no chance to the user set the 'fix' state (ima_appraise=fix)
+> to actually measure system's files.
+>
+> This patch remove this compile time dependency and move it to a runtime
+> decision, based on the arch policy loading failure/success.
 
-greg k-h
+Thanks for looking at this.
+
+For arch specific policies, kernel signature verification is enabled 
+based on the secure boot state of the system. Perhaps, enforce the 
+appraisal as well based on if secure boot is enabled.
+
+Thanks & Regards,
+
+     - Nayna
+
