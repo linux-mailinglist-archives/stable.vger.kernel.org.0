@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB6C1203EB2
-	for <lists+stable@lfdr.de>; Mon, 22 Jun 2020 20:05:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BA1A203EB3
+	for <lists+stable@lfdr.de>; Mon, 22 Jun 2020 20:05:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730361AbgFVSFm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Jun 2020 14:05:42 -0400
-Received: from wforward5-smtp.messagingengine.com ([64.147.123.35]:42991 "EHLO
+        id S1730118AbgFVSFn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Jun 2020 14:05:43 -0400
+Received: from wforward5-smtp.messagingengine.com ([64.147.123.35]:59227 "EHLO
         wforward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730118AbgFVSFm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Jun 2020 14:05:42 -0400
+        by vger.kernel.org with ESMTP id S1730356AbgFVSFn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Jun 2020 14:05:43 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id A87461295;
-        Mon, 22 Jun 2020 14:05:40 -0400 (EDT)
+        by mailforward.west.internal (Postfix) with ESMTP id 12B8DFA1;
+        Mon, 22 Jun 2020 14:05:42 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 22 Jun 2020 14:05:40 -0400
+  by compute1.internal (MEProxy); Mon, 22 Jun 2020 14:05:42 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=C9Wg/L
-        NsrYhMiok1UDlqcxIhOR6ZF0fy7fV4tA/C1iQ=; b=XBxnM4LWdq2Hi9l4PnClCI
-        WbjXTIPj4Il80SipgbtJeL4DeJqhziFAAUaTnl3KqRuN0MHWE2qN8WM3rSW68tyb
-        +CQYogPXTTixMzMwaGV+p9EFXBuJttjXOpCF+OL0pPlq5PZMXFcgBSC3q81bmKy1
-        kif6hBCcsEE6iU+rzNkv9sq8H32PCSclPXgtcZz6gIgyt1+MODUOyMoeHlBgECDz
-        2WI6kC62ljmIHHqFoLzPHhCW2GHqLBXqOjpcVvvFNtzKZ7RfgXaIZ0EQMTXHqZ9x
-        lqsVFpEUIkaYkWFXVpOOYRKgV3aJNUmn9sP+TvMAsKLI5Pb9MvXlZevKEZwcS61w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=nuTwRH
+        sq1d0pkP2Ff9/ipT/lBQj/A0sT1ZTDdq6ny2w=; b=ueiZwDqPu6veLMYbfr8mUJ
+        tbn95CKQoY/wtj6sOMCa7Z2kX9YtjRkjIEWOyjR9u0GSlOSTzhtOJbzjIk9TVeIz
+        jRHy61ymgRpDh0QbFwCDDEmkyRsNwvwLjYnej2zpToU2YosXGI7Qn+29yHYXE2OU
+        cUj3tZnDhpxfot0F+fhOL/hXQZZtWF+rdrp9AJM/Hcc/rRqYpvhv9GGg5WzwPIxQ
+        Q8IvK6UaoGjjY/8I5Q2agC8Cuo3YYFZKtSyHkprnMhONp6h2aoLhis+64IVj4Fss
+        N07jLgiFmUwdI9UwvYBKNXrZPfPmdrLzejVNSh1kunFD0YqFTrENjIF5b5yFnUlA
         ==
-X-ME-Sender: <xms:9PLwXnkZ9nv1OP1_yWxaBNyFUNGrugM8TZCbatH-FHool7H_3moHWg>
+X-ME-Sender: <xms:9fLwXrE9mGx_dtOvEkwoPHDy6h5mqLgHi3kmYe3Pdy83utZg_aiJwQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudekvddguddvvdcutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
@@ -36,19 +36,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudekvddguddvvdcutefuodetgg
     efgeevhffhvedvfeeuheekleenucffohhmrghinhepfhhrvggvuggvshhkthhophdrohhr
     ghenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenuc
     frrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:9PLwXq2qLZROawV6Dku49UtyJT7JTQ8ACaknn-bDdZx7uW8nV51SOA>
-    <xmx:9PLwXtpxpXOD7v0hjsYFoXslIwtzUDbIdoORAg7GsizWO_Fj9JyrAQ>
-    <xmx:9PLwXvnBlie_NpAiS4BpF9rJ3zArjXARmShHu8i3ryZFAg1Vz8Mzyg>
-    <xmx:9PLwXiimqQTHoDPoH_KwWN3ihGdOiHk8v4s6w2v5U6AjT6jYyCFtgI-Ji3Y>
+X-ME-Proxy: <xmx:9fLwXoVmYamQommHsJ6TBjdU9ZgzVQfGHzTDgYjnNOOMfVXOo1ca1w>
+    <xmx:9fLwXtJ8kHCng6eNIlpum-yQJ1d7Y97n74Yb7XyK7NXT2cdSMpggeQ>
+    <xmx:9fLwXpE9JTCJuAFmjRckb7FISpGZgyt1JCQh-uZzb6un5I88FmH44A>
+    <xmx:9fLwXgAFODDSwiQsubsJjXDkP_DNsqCWATo9s4o9wxBwTESERxTKvLHCLMo>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C3E4830673CE;
-        Mon, 22 Jun 2020 14:05:39 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/dp_mst: Increase ACT retry timeout to 3s" failed to apply to 5.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 453C830673CE;
+        Mon, 22 Jun 2020 14:05:41 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drm/dp_mst: Increase ACT retry timeout to 3s" failed to apply to 4.19-stable tree
 To:     lyude@redhat.com, sean@poorly.run, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Jun 2020 20:05:31 +0200
-Message-ID: <15928491317149@kroah.com>
+Date:   Mon, 22 Jun 2020 20:05:33 +0200
+Message-ID: <1592849133210239@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
