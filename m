@@ -2,81 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7996C20421D
-	for <lists+stable@lfdr.de>; Mon, 22 Jun 2020 22:45:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51B45204226
+	for <lists+stable@lfdr.de>; Mon, 22 Jun 2020 22:49:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728553AbgFVUp4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Jun 2020 16:45:56 -0400
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:41695 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728490AbgFVUp4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Jun 2020 16:45:56 -0400
-Received: by mail-lj1-f196.google.com with SMTP id 9so20939820ljc.8;
-        Mon, 22 Jun 2020 13:45:54 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=vLDSApuJ0v81hqVWKGC7U58iC5Y/D0ks2PXVy/bBVsQ=;
-        b=FiYtyG5untV4L2JXWPRu6KC0XcsQkGXsgN0+mJrmDW1FxdFAv0PKHylmeCL/D3bnqv
-         OEIODFq7l3xIq/4Lppb94Qa0mUchDq3RVFUCtEL3x1obpntPHVPkKvW1VXY0zsnbpXn5
-         Q2sJz8ySSRnM5iD5IlS4SkB/bXIq2E4NI2Vx1idcfDfMsyeTRMwhKp4KF3KljL42XJ70
-         VBW/riOUPO20fZ9CSPil3YYisGuWCwVff4wuNgLcKPZfQ/0WOQcvE/Vuw7TbxFMvAeEk
-         4omYbj8CRWw+HpdOr/WHct7oojzspZN16u6xFfbUp/AHjZrQ+kItA+SvYnpZS/W35G61
-         U3xg==
-X-Gm-Message-State: AOAM531qZSZQSJkDpm414j2SpCBfvKNW8s7F4SKRpDjhLrr9Js9QmzSi
-        +/L6OEEAvRMqRxSmHbOdJDA=
-X-Google-Smtp-Source: ABdhPJwzB6UHwxJ1YrbwAUcm9GmVOZcbiVSJ0aSHpBEom2b+5l+RnXEAmCW0zZ8jMyLXZ9LGfBSzcA==
-X-Received: by 2002:a2e:96cd:: with SMTP id d13mr9076836ljj.251.1592858753330;
-        Mon, 22 Jun 2020 13:45:53 -0700 (PDT)
-Received: from localhost.localdomain (broadband-37-110-38-130.ip.moscow.rt.ru. [37.110.38.130])
-        by smtp.googlemail.com with ESMTPSA id j18sm3691359lfj.68.2020.06.22.13.45.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Jun 2020 13:45:52 -0700 (PDT)
-From:   Denis Efremov <efremov@linux.com>
-To:     Alan Cox <alan@linux.intel.com>,
-        Patrik Jakobsson <patrik.r.jakobsson@gmail.com>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>
-Cc:     Denis Efremov <efremov@linux.com>, dri-devel@lists.freedesktop.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH] drm/gma500: Fix direction check in psb_accel_2d_copy()
-Date:   Mon, 22 Jun 2020 23:45:37 +0300
-Message-Id: <20200622204537.26792-1-efremov@linux.com>
-X-Mailer: git-send-email 2.26.2
+        id S1728582AbgFVUt1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Jun 2020 16:49:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43534 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728512AbgFVUt1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Jun 2020 16:49:27 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0FFCF2075A;
+        Mon, 22 Jun 2020 20:49:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1592858966;
+        bh=cJdwCLff7uoBvQqvEwe258p8eBytD64Va2IPg//oGio=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=KGkWeJoqNOdSoW7p+pofhsgGgQsGyw812R40OCYMyvFOigo9twTk8TMnsoy/Kj1xr
+         fp/kUXycm2D2vado7MwnoGKoja/KMpQaZ5YcKdtC2WHc+e9VDLY/k9RusaWwKxyGXa
+         xGJobsV1t94pwFXA4quXiZAo9lCqZQ3n+hMO8jcY=
+Date:   Mon, 22 Jun 2020 16:49:25 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     tytso@mit.edu, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] ext4: avoid race conditions when
+ remounting with options that" failed to apply to 5.7-stable tree
+Message-ID: <20200622204925.GJ1931@sasha-vm>
+References: <1592848256147238@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <1592848256147238@kroah.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-psb_accel_2d_copy() checks direction PSB_2D_COPYORDER_BR2TL twice.
-Based on psb_accel_2d_copy_direction() results, PSB_2D_COPYORDER_TL2BR
-should be checked instead in the second direction check.
+On Mon, Jun 22, 2020 at 07:50:56PM +0200, gregkh@linuxfoundation.org wrote:
+>From 829b37b8cddb1db75c1b7905505b90e593b15db1 Mon Sep 17 00:00:00 2001
+>From: Theodore Ts'o <tytso@mit.edu>
+>Date: Wed, 10 Jun 2020 11:16:37 -0400
+>Subject: [PATCH] ext4: avoid race conditions when remounting with options that
+> change dax
+>
+>Trying to change dax mount options when remounting could allow mount
+>options to be enabled for a small amount of time, and then the mount
+>option change would be reverted.
+>
+>In the case of "mount -o remount,dax", this can cause a race where
+>files would temporarily treated as DAX --- and then not.
+>
+>Cc: stable@kernel.org
+>Reported-by: syzbot+bca9799bf129256190da@syzkaller.appspotmail.com
+>Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 
-Fixes: 4d8d096e9ae8 ("gma500: introduce the framebuffer support code")
-Cc: stable@vger.kernel.org
-Signed-off-by: Denis Efremov <efremov@linux.com>
----
- drivers/gpu/drm/gma500/accel_2d.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+We didn't have the conversion of the DAX mount option to a tri-state back in
+5.7 and older:
 
-diff --git a/drivers/gpu/drm/gma500/accel_2d.c b/drivers/gpu/drm/gma500/accel_2d.c
-index adc0507545bf..8dc86aac54d2 100644
---- a/drivers/gpu/drm/gma500/accel_2d.c
-+++ b/drivers/gpu/drm/gma500/accel_2d.c
-@@ -179,8 +179,8 @@ static int psb_accel_2d_copy(struct drm_psb_private *dev_priv,
- 		src_x += size_x - 1;
- 		dst_x += size_x - 1;
- 	}
--	if (direction == PSB_2D_COPYORDER_BR2TL ||
--	    direction == PSB_2D_COPYORDER_BL2TR) {
-+	if (direction == PSB_2D_COPYORDER_BL2TR ||
-+	    direction == PSB_2D_COPYORDER_TL2BR) {
- 		src_y += size_y - 1;
- 		dst_y += size_y - 1;
- 	}
+	9cb20f94afcd ("fs/ext4: Make DAX mount option a tri-state")
+	a8ab6d3885ef ("fs/ext4: Update ext4_should_use_dax()")
+	fc626fe322f1 ("fs/ext4: Change EXT4_MOUNT_DAX to EXT4_MOUNT_DAX_ALWAYS")
+
+I think that something like this (untested) patch should work:
+
+diff --git a/fs/ext4/super.c b/fs/ext4/super.c
+index d23afd6c909de..7318ca71b69eb 100644
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -2080,6 +2080,16 @@ static int handle_mount_opt(struct super_block *sb, char *opt, int token,
+  #endif
+         } else if (token == Opt_dax) {
+  #ifdef CONFIG_FS_DAX
++               if (is_remount && test_opt(sb, DAX)) {
++                       ext4_msg(sb, KERN_ERR, "can't mount with "
++                               "both data=journal and dax");
++                       return -1;
++               }
++               if (is_remount && !(sbi->s_mount_opt & EXT4_MOUNT_DAX)) {
++                       ext4_msg(sb, KERN_ERR, "can't change "
++                                       "dax mount option while remounting");
++                       return -1;
++               }
+                 ext4_msg(sb, KERN_WARNING,
+                 "DAX enabled. Warning: EXPERIMENTAL, use at your own risk");
+                 sbi->s_mount_opt |= m->mount_opt;
+@@ -5407,12 +5417,6 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
+                         err = -EINVAL;
+                         goto restore_opts;
+                 }
+-               if (test_opt(sb, DAX)) {
+-                       ext4_msg(sb, KERN_ERR, "can't mount with "
+-                                "both data=journal and dax");
+-                       err = -EINVAL;
+-                       goto restore_opts;
+-               }
+         } else if (test_opt(sb, DATA_FLAGS) == EXT4_MOUNT_ORDERED_DATA) {
+                 if (test_opt(sb, JOURNAL_ASYNC_COMMIT)) {
+                         ext4_msg(sb, KERN_ERR, "can't mount with "
+@@ -5428,12 +5432,6 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
+                 goto restore_opts;
+         }
+  
+-       if ((sbi->s_mount_opt ^ old_opts.s_mount_opt) & EXT4_MOUNT_DAX) {
+-               ext4_msg(sb, KERN_WARNING, "warning: refusing change of "
+-                       "dax flag with busy inodes while remounting");
+-               sbi->s_mount_opt ^= EXT4_MOUNT_DAX;
+-       }
+-
+         if (sbi->s_mount_flags & EXT4_MF_FS_ABORTED)
+                 ext4_abort(sb, EXT4_ERR_ESHUTDOWN, "Abort forced by user");
 -- 
-2.26.2
-
+Thanks,
+Sasha
