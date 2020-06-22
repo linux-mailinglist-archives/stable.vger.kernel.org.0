@@ -2,83 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E8AF203A27
-	for <lists+stable@lfdr.de>; Mon, 22 Jun 2020 16:59:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C66A203A43
+	for <lists+stable@lfdr.de>; Mon, 22 Jun 2020 17:06:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728431AbgFVO74 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Jun 2020 10:59:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51526 "EHLO mail.kernel.org"
+        id S1729231AbgFVPGL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Jun 2020 11:06:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729333AbgFVO7z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Jun 2020 10:59:55 -0400
-Received: from localhost (fw-tnat.cambridge.arm.com [217.140.96.140])
+        id S1729210AbgFVPGL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Jun 2020 11:06:11 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C48ED20739;
-        Mon, 22 Jun 2020 14:59:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E33C20716;
+        Mon, 22 Jun 2020 15:06:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592837995;
-        bh=Wuy/dhoWTkQKY+x3mNmqCgJv2Yjz1aRkbR8ZJbLfngs=;
-        h=Date:From:To:Cc:In-Reply-To:References:Subject:From;
-        b=QrAtUr2XMX85mkEWwXRcDzb8eU1cmXepVk8hxeZXcLutDiwXjOkEC3dMaglG8EZIU
-         vYKg0LZ3UEjHfGsmrlkxP2rcqD2UmVwrEm6Rgu0/ofDgBmX1+rAecXVI0iU8LfBqeb
-         yiOLPEeabBpHekQ/fx/dMGA88K5QuNaLH433oDd0=
-Date:   Mon, 22 Jun 2020 15:59:53 +0100
-From:   Mark Brown <broonie@kernel.org>
-To:     Krzysztof Kozlowski <krzk@kernel.org>,
-        linux-kernel@vger.kernel.org, Peng Ma <peng.ma@nxp.com>,
-        linux-spi@vger.kernel.org
-Cc:     stable@vger.kernel.org, Wolfram Sang <wsa@kernel.org>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>
-In-Reply-To: <20200622110543.5035-1-krzk@kernel.org>
-References: <20200622110543.5035-1-krzk@kernel.org>
-Subject: Re: [PATCH v4 1/4] spi: spi-fsl-dspi: Fix lockup if device is removed during SPI transfer
-Message-Id: <159283798285.27744.12351054225935649582.b4-ty@kernel.org>
+        s=default; t=1592838370;
+        bh=Y4CpcF3aADqh+pQXARrCx9IJmnrlUGPWQkgvA0aXDAs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=CCKP6Iy/aswRA9wgZNXlyp1WDg4SxZykY40qDUqdWQ4gzZq2As5ych8GHMpMYeVRn
+         vp8p82C2iMFPP/Nsj5p36r9VTQiYvjYk0bySbR85IDLrIXhgCEiIH/HtvN590bOGl6
+         b+MoH2N2jQ5ovfnlZZ908qs7t34AhELPRyWPTkTY=
+Date:   Mon, 22 Jun 2020 17:06:05 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Shuah Khan <skhan@linuxfoundation.org>
+Cc:     Matthias Maennich <maennich@google.com>,
+        Julia Lawall <julia.lawall@inria.fr>,
+        linux-kernel@vger.kernel.org, kernel-team@android.com,
+        YueHaibing <yuehaibing@huawei.com>, jeyu@kernel.org,
+        cocci@systeme.lip6.fr, stable@vger.kernel.org
+Subject: Re: [PATCH] scripts: add dummy report mode to add_namespace.cocci
+Message-ID: <20200622150605.GA3828014@kroah.com>
+References: <20200604164145.173925-1-maennich@google.com>
+ <alpine.DEB.2.21.2006042130080.2577@hadrien>
+ <bf757b9d-6a67-598b-ed6e-7ee24464abfa@linuxfoundation.org>
+ <20200622080345.GD260206@google.com>
+ <0eda607e-4083-46d2-acb8-63cfa2697a71@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0eda607e-4083-46d2-acb8-63cfa2697a71@linuxfoundation.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 22 Jun 2020 13:05:40 +0200, Krzysztof Kozlowski wrote:
-> During device removal, the driver should unregister the SPI controller
-> and stop the hardware.  Otherwise the dspi_transfer_one_message() could
-> wait on completion infinitely.
+On Mon, Jun 22, 2020 at 08:46:18AM -0600, Shuah Khan wrote:
+> On 6/22/20 2:03 AM, Matthias Maennich wrote:
+> > On Thu, Jun 04, 2020 at 02:39:18PM -0600, Shuah Khan wrote:
+> > > On 6/4/20 1:31 PM, Julia Lawall wrote:
+> > > > 
+> > > > 
+> > > > On Thu, 4 Jun 2020, Matthias Maennich wrote:
+> > > > 
+> > > > > When running `make coccicheck` in report mode using the
+> > > > > add_namespace.cocci file, it will fail for files that contain
+> > > > > MODULE_LICENSE. Those match the replacement precondition, but spatch
+> > > > > errors out as virtual.ns is not set.
+> > > > > 
+> > > > > In order to fix that, add the virtual rule nsdeps and only
+> > > > > do search and
+> > > > > replace if that rule has been explicitly requested.
+> > > > > 
+> > > > > In order to make spatch happy in report mode, we also need a
+> > > > > dummy rule,
+> > > > > as otherwise it errors out with "No rules apply". Using a script:python
+> > > > > rule appears unrelated and odd, but this is the shortest I
+> > > > > could come up
+> > > > > with.
+> > > > > 
+> > > > > Adjust scripts/nsdeps accordingly to set the nsdeps rule
+> > > > > when run trough
+> > > > > `make nsdeps`.
+> > > > > 
+> > > > > Suggested-by: Julia Lawall <julia.lawall@inria.fr>
+> > > > > Fixes: c7c4e29fb5a4 ("scripts: add_namespace: Fix coccicheck failed")
+> > > > > Cc: YueHaibing <yuehaibing@huawei.com>
+> > > > > Cc: jeyu@kernel.org
+> > > > > Cc: cocci@systeme.lip6.fr
+> > > > > Cc: stable@vger.kernel.org
+> > > > > Signed-off-by: Matthias Maennich <maennich@google.com>
+> > > > 
+> > > > Acked-by: Julia Lawall <julia.lawall@inria.fr>
+> > > > 
+> > > > Shuah reported the problem to me, so you could add
+> > > > 
+> > > > Reported-by: Shuah Khan <skhan@linuxfoundation.org>
+> > > > 
+> > > 
+> > > Very cool. No errors with this patch. Thanks for fixing it
+> > > quickly.
+> > 
+> > I am happy I could fix that and thanks for confirming. I assume your
+> > Tested-by could be added?
 > 
-> Additionally, calling spi_unregister_controller() first in device
-> removal reverse-matches the probe function, where SPI controller is
-> registered at the end.
+> Yes
+> 
+> Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+> > 
+> > Is somebody willing to take this patch through their tree?
+> > 
+> 
+> My guess is that these go through kbuild git??
 
-Applied to
+If you want to take this, that's fine with me.  But as I had the
+original file come through my tree, I can take it too.  It's up to you,
+either is ok with me.
 
-   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/spi.git for-next
+thanks
 
-Thanks!
-
-[1/4] spi: spi-fsl-dspi: Fix lockup if device is removed during SPI transfer
-      commit: 7684580d45bd3d84ed9b453a4cadf7a9a5605a3f
-[2/4] spi: spi-fsl-dspi: Fix lockup if device is shutdown during SPI transfer
-      commit: 3c525b69e8c1a9a6944e976603c7a1a713e728f9
-[3/4] spi: spi-fsl-dspi: Fix external abort on interrupt in resume or exit paths
-      commit: 3d87b613d6a3c6f0980e877ab0895785a2dde581
-[4/4] spi: spi-fsl-dspi: Initialize completion before possible interrupt
-      commit: f148915f91fccd8c3df1b0bff7d1c8458cad3be5
-
-All being well this means that it will be integrated into the linux-next
-tree (usually sometime in the next 24 hours) and sent to Linus during
-the next merge window (or sooner if it is a bug fix), however if
-problems are discovered then the patch may be dropped or reverted.
-
-You may get further e-mails resulting from automated or manual testing
-and review of the tree, please engage with people reporting problems and
-send followup patches addressing any issues that are reported if needed.
-
-If any updates are required or you are submitting further changes they
-should be sent as incremental updates against current git, existing
-patches will not be replaced.
-
-Please add any relevant lists and maintainers to the CCs when replying
-to this mail.
-
-Thanks,
-Mark
+greg k-h
