@@ -2,102 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D2A52034FD
-	for <lists+stable@lfdr.de>; Mon, 22 Jun 2020 12:41:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28707203545
+	for <lists+stable@lfdr.de>; Mon, 22 Jun 2020 13:05:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726919AbgFVKlc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Jun 2020 06:41:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50086 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726710AbgFVKlb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Jun 2020 06:41:31 -0400
-Received: from mail-ed1-x543.google.com (mail-ed1-x543.google.com [IPv6:2a00:1450:4864:20::543])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98ADDC061794;
-        Mon, 22 Jun 2020 03:41:31 -0700 (PDT)
-Received: by mail-ed1-x543.google.com with SMTP id m21so13200592eds.13;
-        Mon, 22 Jun 2020 03:41:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=at/r+Ih6r6041Lo7roIJWIdBavgd7AgczNOOvJzY2AM=;
-        b=sMPRDl6qJ1RjUnRYOYB5CF7jALpIeH6ZmV9um3WLYR3zJK/AdG86RmmrwD3Uzfxu1r
-         37tA5TjO9up/mT9zylXXLOl5p0IYNLX8DPLctLZUJ8Q0hhzcPxrOl0ZlYYC0g+4mlcsK
-         ylboPAe/qPiLdxwSS2DydET4TyeflQ8agZ36xUUywGu9PGhGxlKxkhm5fvTAacbbmdA+
-         qW3GFT/+eKCTOv9De8k8YsASGec4KqWStZYGarw7YZ63lM20h7V7lRVOVwu6+LPPGSWg
-         BCBgB6Ddedw+CqOuO0o9DdflD0R4m8BMaH9lP4w+whSSz/KwXB8bpc3p3gfENBkhOQtN
-         SdZA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=at/r+Ih6r6041Lo7roIJWIdBavgd7AgczNOOvJzY2AM=;
-        b=WhG4JFCI9V71wa2ORgR6Y+3MVMOyTAscsPzBoANjYL3JWuTs71O5gzWvIoWTj76oZZ
-         D5ZjyEXYfQnZaHMMVA7nNh5kiz3kMQhfMNXVZlpfRx6EDY936NYr+CRwuWl85mKKp8pr
-         Ixq7ziRJb5OMG1jUIB2N/B5VezTf8Sadf7ihIeFVUJ+kcRyj4SmAl9BXyoJwBFXjNKqV
-         fjkeKOTliv/00lPRZgP/EyREyrNRiFrel/gsMntSLJIhb6vxtNRyfgT65P1F+nSAy2+j
-         rlWYZXtJnjjTn265epX50ZupqiJyzFxzGpTrH0hPSbFbvCJTzORz9bFS0ekRGJD0dpGy
-         r9uQ==
-X-Gm-Message-State: AOAM531OrQ8rAZVVDEYya52RQ8/YFAeKaRjhdzD0omuqxnwg9PkQnGGS
-        m6g8y2Z/dSIgeKcIjrctf/Z97bsX
-X-Google-Smtp-Source: ABdhPJxopCQl67U/hFUEMcMtku7eR8/uoDIn6bz30QSfq5oEeEoKY75jCezPewbKzZyzNeAsQDjBjQ==
-X-Received: by 2002:a50:fb01:: with SMTP id d1mr16207046edq.94.1592822490228;
-        Mon, 22 Jun 2020 03:41:30 -0700 (PDT)
-Received: from localhost.localdomain ([188.26.56.128])
-        by smtp.gmail.com with ESMTPSA id t3sm11367507ejr.119.2020.06.22.03.41.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Jun 2020 03:41:29 -0700 (PDT)
-From:   Vladimir Oltean <olteanv@gmail.com>
-To:     stable@vger.kernel.org, gregkh@linuxfoundation.org,
-        netdev@vger.kernel.org
-Cc:     madalin.bucur@oss.nxp.com, joakim.tjernlund@infinera.com,
-        fido_max@inbox.ru, linux-kernel@vger.kernel.org
-Subject: [PATCH stable-4.19.y] Revert "dpaa_eth: fix usage as DSA master, try 3"
-Date:   Mon, 22 Jun 2020 13:40:41 +0300
-Message-Id: <20200622104041.436940-1-olteanv@gmail.com>
-X-Mailer: git-send-email 2.25.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S1727827AbgFVLFw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Jun 2020 07:05:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60614 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727022AbgFVLFw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Jun 2020 07:05:52 -0400
+Received: from kozik-lap.mshome.net (unknown [194.230.155.235])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id C045820738;
+        Mon, 22 Jun 2020 11:05:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1592823951;
+        bh=hhV13ohOHbP68epAhZTfZpOMEse5XOCpdTxhwKMk8nU=;
+        h=From:To:Cc:Subject:Date:From;
+        b=qBAy+YwdUrlFfbPpD1Jo/MceAHC9AJNyEKwyZ/dIP/b7k7Yq12+5dI6/KCAfbyQbB
+         WcoBrHazRY0CcVZTT5itt2ILWdbfXNcwINo0OcTnV3HrBIVzYeBn0ke27uynDqGDey
+         DrKHYLyK/3F0ZMp5BIiFYHrFyU1G3/e15S8v79IU=
+From:   Krzysztof Kozlowski <krzk@kernel.org>
+To:     Mark Brown <broonie@kernel.org>, Peng Ma <peng.ma@nxp.com>,
+        linux-spi@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Wolfram Sang <wsa@kernel.org>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Krzysztof Kozlowski <krzk@kernel.org>, stable@vger.kernel.org
+Subject: [PATCH v4 1/4] spi: spi-fsl-dspi: Fix lockup if device is removed during SPI transfer
+Date:   Mon, 22 Jun 2020 13:05:40 +0200
+Message-Id: <20200622110543.5035-1-krzk@kernel.org>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+During device removal, the driver should unregister the SPI controller
+and stop the hardware.  Otherwise the dspi_transfer_one_message() could
+wait on completion infinitely.
 
-This reverts commit b145710b69388aa4034d32b4a937f18f66b5538e.
+Additionally, calling spi_unregister_controller() first in device
+removal reverse-matches the probe function, where SPI controller is
+registered at the end.
 
-The patch is not wrong, but the Fixes: tag is. It should have been:
+Fixes: 05209f457069 ("spi: fsl-dspi: add missing clk_disable_unprepare() in dspi_remove()")
+Cc: <stable@vger.kernel.org>
+Reported-by: Vladimir Oltean <olteanv@gmail.com>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 
-	Fixes: 060ad66f9795 ("dpaa_eth: change DMA device")
-
-which means that it's fixing a commit which was introduced in:
-
-git describe --tags 060ad66f97954
-v5.4-rc3-783-g060ad66f9795
-
-which then means it should have not been backported to linux-4.19.y,
-where things _were_ working and now they're not.
-
-Reported-by: Joakim Tjernlund <joakim.tjernlund@infinera.com>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 ---
- drivers/net/ethernet/freescale/dpaa/dpaa_eth.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c b/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
-index 6683409fbd4a..4b21ae27a9fd 100644
---- a/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
-+++ b/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
-@@ -2796,7 +2796,7 @@ static int dpaa_eth_probe(struct platform_device *pdev)
- 	}
+Changes since v3:
+1. New patch.
+---
+ drivers/spi/spi-fsl-dspi.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/spi/spi-fsl-dspi.c b/drivers/spi/spi-fsl-dspi.c
+index 58190c94561f..ec0fd0d366eb 100644
+--- a/drivers/spi/spi-fsl-dspi.c
++++ b/drivers/spi/spi-fsl-dspi.c
+@@ -1434,9 +1434,18 @@ static int dspi_remove(struct platform_device *pdev)
+ 	struct fsl_dspi *dspi = spi_controller_get_devdata(ctlr);
  
- 	/* Do this here, so we can be verbose early */
--	SET_NETDEV_DEV(net_dev, dev->parent);
-+	SET_NETDEV_DEV(net_dev, dev);
- 	dev_set_drvdata(dev, net_dev);
+ 	/* Disconnect from the SPI framework */
++	spi_unregister_controller(dspi->ctlr);
++
++	/* Disable RX and TX */
++	regmap_update_bits(dspi->regmap, SPI_MCR,
++			   SPI_MCR_DIS_TXF | SPI_MCR_DIS_RXF,
++			   SPI_MCR_DIS_TXF | SPI_MCR_DIS_RXF);
++
++	/* Stop Running */
++	regmap_update_bits(dspi->regmap, SPI_MCR, SPI_MCR_HALT, SPI_MCR_HALT);
++
+ 	dspi_release_dma(dspi);
+ 	clk_disable_unprepare(dspi->clk);
+-	spi_unregister_controller(dspi->ctlr);
  
- 	priv = netdev_priv(net_dev);
+ 	return 0;
+ }
 -- 
-2.25.1
+2.17.1
 
