@@ -2,153 +2,209 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7338820404F
-	for <lists+stable@lfdr.de>; Mon, 22 Jun 2020 21:28:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC7522040BD
+	for <lists+stable@lfdr.de>; Mon, 22 Jun 2020 21:58:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728137AbgFVT2W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Jun 2020 15:28:22 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:9776 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728068AbgFVT2W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Jun 2020 15:28:22 -0400
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 05MJ3Xte040410;
-        Mon, 22 Jun 2020 15:28:21 -0400
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 31t02gcctq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 22 Jun 2020 15:28:20 -0400
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 05MJ3dEj040633;
-        Mon, 22 Jun 2020 15:28:20 -0400
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 31t02gcctb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 22 Jun 2020 15:28:20 -0400
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 05MJKTEs032724;
-        Mon, 22 Jun 2020 19:28:18 GMT
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
-        by ppma04ams.nl.ibm.com with ESMTP id 31sa37uv0r-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 22 Jun 2020 19:28:18 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 05MJSFg865863762
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 22 Jun 2020 19:28:15 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8626211C05C;
-        Mon, 22 Jun 2020 19:28:15 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3C21511C058;
-        Mon, 22 Jun 2020 19:28:14 +0000 (GMT)
-Received: from localhost.localdomain (unknown [9.80.202.125])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 22 Jun 2020 19:28:14 +0000 (GMT)
-Message-ID: <1592854093.4987.15.camel@linux.ibm.com>
-Subject: Re: [PATCH v2] ima: move APPRAISE_BOOTPARAM dependency on
- ARCH_POLICY to runtime
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Bruno Meneguele <bmeneg@redhat.com>,
-        linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     erichte@linux.ibm.com, nayna@linux.ibm.com, stable@vger.kernel.org
-Date:   Mon, 22 Jun 2020 15:28:13 -0400
-In-Reply-To: <20200622172754.10763-1-bmeneg@redhat.com>
-References: <20200622172754.10763-1-bmeneg@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.20.5 (3.20.5-1.fc24) 
-Mime-Version: 1.0
+        id S1728378AbgFVT5Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Jun 2020 15:57:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51704 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728050AbgFVT5P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Jun 2020 15:57:15 -0400
+Received: from mail-ot1-x341.google.com (mail-ot1-x341.google.com [IPv6:2607:f8b0:4864:20::341])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FFACC0617BB
+        for <stable@vger.kernel.org>; Mon, 22 Jun 2020 12:57:15 -0700 (PDT)
+Received: by mail-ot1-x341.google.com with SMTP id u23so14169945otq.10
+        for <stable@vger.kernel.org>; Mon, 22 Jun 2020 12:57:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=qafrzlyjQqkYVb549WmrCToGRQSD43SzPHaqq1cYeDQ=;
+        b=UDNbUG+oR2XRF/ayYYmqngVWjA/wjtVVnZ2I6zoq4kOvRIw52h0jBDHrOxE9ZWftWl
+         8HUOtlhL3wjjf575mqxupZMoO75tOveuN5R9GfIsFL9pQTA1EGY0+R8VUyKTQHtEFOO7
+         Lr4icMUpILpDzzuV5AQqrxZvZ+Dv646m7+80vunswF99dP9/XCJbHjiw2vlufCNhhLTl
+         aKTTDShcXgLtR1RqfSAdNWPkHlw+Y5DPgjgq6eCS1VfdRKpdbrtoDAVO+jQBkOZJ2kkm
+         EuvhOPp0OWWKTv+SanWINe8rvDDJnysmtuloHwYJOtnKZ5O1ytkuJKP4XKbCd4BjjY6e
+         wEdw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=qafrzlyjQqkYVb549WmrCToGRQSD43SzPHaqq1cYeDQ=;
+        b=SoOZOO/Czm9GyU9rzqUYNOaJEfNZsfQIIjKvcp/l0UKH3/KL7unSxfGVM00hU7IXeB
+         KfGNTbeUP8lB3R7RfO+h6Z1kMlMLSojAUl+Vl4YGqm+ETfAO5MKZVifRVC91K6H4siKs
+         7kZGjx0/dgV5HxYS18c5kYjJHj9hrMEiD56FaDlZzbClpQcJWfPAAR8kKNWSnbDljIrz
+         64iiyj3Bygx8znNdQ6qqxyMrh30woru7drBEaP5jCSHJ9grG90vzNJHtUT8DIIbniEq7
+         fDR0C86buZkPlas4o9vJv1QMqvsXw9zslRA6V6rpulRUx7kC1x0HKhHQsX+jQ1goKs4f
+         1Gng==
+X-Gm-Message-State: AOAM533Lo+RhNK6khtJMFGzGZaZlKVZwfErHTLUA4fSQZIPI8FHBCjB9
+        9NWM63oPhlBz+K74pE9i3Xw=
+X-Google-Smtp-Source: ABdhPJwDdiRi97jvSi78wahfXEUEAtL2k4TwDTHN23czzEvU+jjhVmnVe2Fx7Ur8iBnyj7GfeQhpAA==
+X-Received: by 2002:a9d:6201:: with SMTP id g1mr14741618otj.181.1592855834657;
+        Mon, 22 Jun 2020 12:57:14 -0700 (PDT)
+Received: from localhost.localdomain ([2604:1380:4111:8b00::7])
+        by smtp.gmail.com with ESMTPSA id p207sm3462673oic.22.2020.06.22.12.57.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 22 Jun 2020 12:57:13 -0700 (PDT)
+From:   Nathan Chancellor <natechancellor@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     stable@vger.kernel.org, clang-built-linux@googlegroups.com,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Nathan Chancellor <natechancellor@gmail.com>
+Subject: [PATCH 5.4] x86/boot/compressed: Relax sed symbol type regex for LLVM ld.lld
+Date:   Mon, 22 Jun 2020 19:56:39 +0000
+Message-Id: <20200622195639.2670308-1-natechancellor@gmail.com>
+X-Mailer: git-send-email 2.27.0
+MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.216,18.0.687
- definitions=2020-06-22_11:2020-06-22,2020-06-22 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 spamscore=0
- phishscore=0 adultscore=0 clxscore=1011 cotscore=-2147483648 mlxscore=0
- bulkscore=0 mlxlogscore=999 suspectscore=0 lowpriorityscore=0
- priorityscore=1501 impostorscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2004280000 definitions=main-2006220123
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 2020-06-22 at 14:27 -0300, Bruno Meneguele wrote:
-> IMA_APPRAISE_BOOTPARAM has been marked as dependent on !IMA_ARCH_POLICY in
-> compile time, enforcing the appraisal whenever the kernel had the arch
-> policy option enabled.
-> 
-> However it breaks systems where the option is actually set but the system
-> wasn't booted in a "secure boot" platform. In this scenario, anytime the
-> an appraisal policy (i.e. ima_policy=appraisal_tcb) is used it will be
-> forced, giving no chance to the user set the 'fix' state (ima_appraise=fix)
-> to actually measure system's files.
-> 
-> This patch remove this compile time dependency and move it to a runtime
-> decision, based on the arch policy loading failure/success.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: d958083a8f64 ("x86/ima: define arch_get_ima_policy() for x86")
-> Signed-off-by: Bruno Meneguele <bmeneg@redhat.com>
-> ---
-> changes from v1:
-> 	- removed "ima:" prefix from pr_info() message
-> 
->  security/integrity/ima/Kconfig      | 2 +-
->  security/integrity/ima/ima_policy.c | 8 ++++++--
->  2 files changed, 7 insertions(+), 3 deletions(-)
-> 
-> diff --git a/security/integrity/ima/Kconfig b/security/integrity/ima/Kconfig
-> index edde88dbe576..62dc11a5af01 100644
-> --- a/security/integrity/ima/Kconfig
-> +++ b/security/integrity/ima/Kconfig
-> @@ -232,7 +232,7 @@ config IMA_APPRAISE_REQUIRE_POLICY_SIGS
->  
->  config IMA_APPRAISE_BOOTPARAM
->  	bool "ima_appraise boot parameter"
-> -	depends on IMA_APPRAISE && !IMA_ARCH_POLICY
-> +	depends on IMA_APPRAISE
->  	default y
->  	help
->  	  This option enables the different "ima_appraise=" modes
-> diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
-> index e493063a3c34..c876617d4210 100644
-> --- a/security/integrity/ima/ima_policy.c
-> +++ b/security/integrity/ima/ima_policy.c
-> @@ -733,11 +733,15 @@ void __init ima_init_policy(void)
->  	 * (Highest priority)
->  	 */
->  	arch_entries = ima_init_arch_policy();
-> -	if (!arch_entries)
-> +	if (!arch_entries) {
->  		pr_info("No architecture policies found\n");
-> -	else
-> +	} else {
-> +		/* Force appraisal, preventing runtime xattr changes */
-> +		pr_info("setting IMA appraisal to enforced\n");
-> +		ima_appraise = IMA_APPRAISE_ENFORCE;
->  		add_rules(arch_policy_entry, arch_entries,
->  			  IMA_DEFAULT_POLICY | IMA_CUSTOM_POLICY);
-> +	}
->  
->  	/*
->  	 * Insert the builtin "secure_boot" policy rules requiring file
+From: Ard Biesheuvel <ardb@kernel.org>
 
-CONFIG_IMA_APPRAISE_BOOTPARAM controls the "ima_appraise" mode bits.  
-The mode bits are or'ed with the MODULES, FIRMWARE, POLICY, and KEXEC
-bits, which have already been set in ima_init_arch_policy().
+commit bc310baf2ba381c648983c7f4748327f17324562 upstream.
 
-From ima.h:
-/* Appraise integrity measurements */
-#define IMA_APPRAISE_ENFORCE    0x01
-#define IMA_APPRAISE_FIX        0x02
-#define IMA_APPRAISE_LOG        0x04
-#define IMA_APPRAISE_MODULES    0x08
-#define IMA_APPRAISE_FIRMWARE   0x10
-#define IMA_APPRAISE_POLICY     0x20
-#define IMA_APPRAISE_KEXEC      0x40
+The final build stage of the x86 kernel captures some symbol
+addresses from the decompressor binary and copies them into zoffset.h.
+It uses sed with a regular expression that matches the address, symbol
+type and symbol name, and mangles the captured addresses and the names
+of symbols of interest into #define directives that are added to
+zoffset.h
 
-As Nayna pointed out, only when an architecture specific "secure boot"
-policy is loaded, is this applicable. 
+The symbol type is indicated by a single letter, which we match
+strictly: only letters in the set 'ABCDGRSTVW' are matched, even
+though the actual symbol type is relevant and therefore ignored.
 
-Mimi
+Commit bc7c9d620 ("efi/libstub/x86: Force 'hidden' visibility for
+extern declarations") made a change to the way external symbol
+references are classified, resulting in 'startup_32' now being
+emitted as a hidden symbol. This prevents the use of GOT entries to
+refer to this symbol via its absolute address, which recent toolchains
+(including Clang based ones) already avoid by default, making this
+change a no-op in the majority of cases.
+
+However, as it turns out, the LLVM linker classifies such hidden
+symbols as symbols with static linkage in fully linked ELF binaries,
+causing tools such as NM to output a lowercase 't' rather than an upper
+case 'T' for the type of such symbols. Since our sed expression only
+matches upper case letters for the symbol type, the line describing
+startup_32 is disregarded, resulting in a build error like the following
+
+  arch/x86/boot/header.S:568:18: error: symbol 'ZO_startup_32' can not be
+                                        undefined in a subtraction expression
+  init_size: .long (0x00000000008fd000 - ZO_startup_32 +
+                    (((0x0000000001f6361c + ((0x0000000001f6361c >> 8) + 65536)
+                     - 0x00000000008c32e5) + 4095) & ~4095)) # kernel initialization size
+
+Given that we are only interested in the value of the symbol, let's match
+any character in the set 'a-zA-Z' instead.
+
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Tested-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+---
+
+Hi all,
+
+Please apply this patch to 5.4 (and older releases if you feel it
+necessary), as it fixes a build error that I see when linking with
+ld.lld on certain distribution configurations after upstream commit
+5214028dd89e ("x86/boot: Correct relocation destination on old linkers")
+was applied in 5.4.48.
+
+$ make -skj"$(nproc)" CC=clang LD=ld.lld O=out/x86_64 olddefconfig bzImage
+...
+ld.lld: error: undefined symbol: ZO__end
+>>> referenced by arch/x86/boot/header.o:(.header+0x71)
+...
+
+While the commit message references bc7c9d620 as the first problematic
+commit, I see the same behavior of capital versus lowercase letters from
+nm here too. I assume this is not seen in mainline because this commit
+was already in the tree when 5214028dd89e was applied.
+
+v5.4.47:
+
+$ nm -S out/x86_64/arch/x86/boot/compressed/vmlinux | grep " _end"
+000000000094b000 B _end
+
+$ cat out/x86_64/arch/x86/boot/zoffset.h
+#define ZO__ehead 0x00000000000003b1
+#define ZO__end 0x000000000094b000
+#define ZO__text 0x000000000090ce50
+#define ZO_efi32_stub_entry 0x0000000000000190
+#define ZO_efi64_stub_entry 0x0000000000000390
+#define ZO_efi_pe_entry 0x00000000000002f0
+#define ZO_input_data 0x00000000000003b1
+#define ZO_startup_32 0x0000000000000000
+#define ZO_startup_64 0x0000000000000200
+#define ZO_z_input_len 0x000000000090ca9e
+#define ZO_z_output_len 0x0000000002eeb42c
+
+v5.4.48:
+
+$ nm -S out/x86_64/arch/x86/boot/compressed/vmlinux | grep " _end"
+000000000094b000 b _end
+
+$ cat out/x86_64/arch/x86/boot/zoffset.h
+#define ZO__ehead 0x00000000000003b1
+#define ZO__text 0x000000000090ccf0
+#define ZO_efi32_stub_entry 0x0000000000000190
+#define ZO_efi64_stub_entry 0x0000000000000390
+#define ZO_efi_pe_entry 0x00000000000002f0
+#define ZO_input_data 0x00000000000003b1
+#define ZO_startup_32 0x0000000000000000
+#define ZO_startup_64 0x0000000000000200
+#define ZO_z_input_len 0x000000000090c93b
+#define ZO_z_output_len 0x0000000002eeb4c8
+
+v5.4.48 with this patch:
+
+$ nm -S out/x86_64/arch/x86/boot/compressed/vmlinux | grep " _end"
+000000000094b000 b _end
+
+$ cat out/x86_64/arch/x86/boot/zoffset.h
+#define ZO__ehead 0x00000000000003b1
+#define ZO__end 0x000000000094b000
+#define ZO__text 0x000000000090cd60
+#define ZO_efi32_stub_entry 0x0000000000000190
+#define ZO_efi64_stub_entry 0x0000000000000390
+#define ZO_efi_pe_entry 0x00000000000002f0
+#define ZO_input_data 0x00000000000003b1
+#define ZO_startup_32 0x0000000000000000
+#define ZO_startup_64 0x0000000000000200
+#define ZO_z_input_len 0x000000000090c9af
+#define ZO_z_output_len 0x0000000002eeb4c8
+
+Hopefully this clears things up.
+
+Cheers,
+Nathan
+
+ arch/x86/boot/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/x86/boot/Makefile b/arch/x86/boot/Makefile
+index e2839b5c246c..6539c50fb9aa 100644
+--- a/arch/x86/boot/Makefile
++++ b/arch/x86/boot/Makefile
+@@ -87,7 +87,7 @@ $(obj)/vmlinux.bin: $(obj)/compressed/vmlinux FORCE
+ 
+ SETUP_OBJS = $(addprefix $(obj)/,$(setup-y))
+ 
+-sed-zoffset := -e 's/^\([0-9a-fA-F]*\) [ABCDGRSTVW] \(startup_32\|startup_64\|efi32_stub_entry\|efi64_stub_entry\|efi_pe_entry\|input_data\|_end\|_ehead\|_text\|z_.*\)$$/\#define ZO_\2 0x\1/p'
++sed-zoffset := -e 's/^\([0-9a-fA-F]*\) [a-zA-Z] \(startup_32\|startup_64\|efi32_stub_entry\|efi64_stub_entry\|efi_pe_entry\|input_data\|_end\|_ehead\|_text\|z_.*\)$$/\#define ZO_\2 0x\1/p'
+ 
+ quiet_cmd_zoffset = ZOFFSET $@
+       cmd_zoffset = $(NM) $< | sed -n $(sed-zoffset) > $@
+
+base-commit: 67cb016870e2fa9ffc8d34cf20db5331e6f2cf4d
+-- 
+2.27.0
 
