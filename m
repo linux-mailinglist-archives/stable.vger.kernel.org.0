@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A08662038C4
-	for <lists+stable@lfdr.de>; Mon, 22 Jun 2020 16:06:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72B452038D9
+	for <lists+stable@lfdr.de>; Mon, 22 Jun 2020 16:12:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728769AbgFVOGf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Jun 2020 10:06:35 -0400
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:22206 "EHLO
+        id S1729069AbgFVOMR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Jun 2020 10:12:17 -0400
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:44828 "EHLO
         us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728977AbgFVOGc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Jun 2020 10:06:32 -0400
+        by vger.kernel.org with ESMTP id S1728769AbgFVOMQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Jun 2020 10:12:16 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1592834789;
+        s=mimecast20190719; t=1592835134;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-        bh=bkuQUt54c4HERTLkyfVzhD95WU+1lwkvTOymJRRDpIg=;
-        b=SH+rkZvobAJ8Z6kbcoE3G0jkW5N4hLHns+mWTCal4PYx7OL14WtSasVX9yL3HbMwQ+62hB
-        X+ARnkP9/7pJUvIy23WIdSttnMmLNSUw3tX3eoii7eiyNnlVTea0tQIaol/TcaaekRndbs
-        BiNPk3W2+MdDTG3e5lMcOa08nfNxpHA=
+        bh=XzaIiqtyzeH6xdyYCmO6Xb0gAjzqwiSwdYKPc2hzlCA=;
+        b=NIUhc/KvjvfJoNneekBj4w9IxaBP2sgTkfsVyfItY16bdqPPBj4u6O2xyxZCzfFTZsd1F5
+        ycB8ybqEJtooe/zoUwXCwNvyyOZtq7d7Mp4S8gmT3a8LMllPw/1v7MyzHjGh3kNbNIZsJ4
+        Y1jaloAsRSICLGpta4yFm/0iH7lmtJo=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-442-L6PAQ7nsNbq6AW2eaN7o-w-1; Mon, 22 Jun 2020 10:06:25 -0400
-X-MC-Unique: L6PAQ7nsNbq6AW2eaN7o-w-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+ us-mta-188-PhNvIBVRM1a0F2SVErre5w-1; Mon, 22 Jun 2020 10:12:10 -0400
+X-MC-Unique: PhNvIBVRM1a0F2SVErre5w-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id AB0C6107ACCD;
-        Mon, 22 Jun 2020 14:06:22 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9E7EA100CCC5;
+        Mon, 22 Jun 2020 14:12:08 +0000 (UTC)
 Received: from [10.36.113.213] (ovpn-113-213.ams2.redhat.com [10.36.113.213])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id E559A5C1BD;
-        Mon, 22 Jun 2020 14:06:16 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 763D360C47;
+        Mon, 22 Jun 2020 14:12:01 +0000 (UTC)
 Subject: Re: [PATCH v2 1/3] mm/shuffle: don't move pages between zones and
  don't read garbage memmaps
 To:     Wei Yang <richard.weiyang@linux.alibaba.com>
@@ -49,8 +49,6 @@ References: <20200619125923.22602-1-david@redhat.com>
  <20200622082635.GA93552@L-31X9LVDL-1304.local>
  <2185539f-b210-5d3f-5da2-a497b354eebb@redhat.com>
  <20200622092221.GA96699@L-31X9LVDL-1304.local>
- <34f36733-805e-cc61-38da-2ee578ae096c@redhat.com>
- <20200622131003.GA98415@L-31X9LVDL-1304.local>
 From:   David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; prefer-encrypt=mutual; keydata=
  mQINBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -96,149 +94,98 @@ Autocrypt: addr=david@redhat.com; prefer-encrypt=mutual; keydata=
  njnuI31KBiLUks+paRkHQlFcgS2N3gkRBzH7xSZ+t7Re3jvXdXEzKBbQ+dC3lpJB0wPnyMcX
  FOTT3aZT7IgePkt5iC/BKBk3hqKteTnJFeVIT7EC+a6YUFg=
 Organization: Red Hat GmbH
-Message-ID: <0f4edc1f-1ce2-95b4-5866-5c4888db7c65@redhat.com>
-Date:   Mon, 22 Jun 2020 16:06:15 +0200
+Message-ID: <b2c82aca-a132-95fd-4081-d94c1d658eee@redhat.com>
+Date:   Mon, 22 Jun 2020 16:11:59 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.8.0
 MIME-Version: 1.0
-In-Reply-To: <20200622131003.GA98415@L-31X9LVDL-1304.local>
+In-Reply-To: <20200622092221.GA96699@L-31X9LVDL-1304.local>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 22.06.20 15:10, Wei Yang wrote:
-> On Mon, Jun 22, 2020 at 11:51:34AM +0200, David Hildenbrand wrote:
->> On 22.06.20 11:22, Wei Yang wrote:
->>> On Mon, Jun 22, 2020 at 10:43:11AM +0200, David Hildenbrand wrote:
->>>> On 22.06.20 10:26, Wei Yang wrote:
->>>>> On Fri, Jun 19, 2020 at 02:59:20PM +0200, David Hildenbrand wrote:
->>>>>> Especially with memory hotplug, we can have offline sections (with a
->>>>>> garbage memmap) and overlapping zones. We have to make sure to only
->>>>>> touch initialized memmaps (online sections managed by the buddy) and that
->>>>>> the zone matches, to not move pages between zones.
->>>>>>
->>>>>> To test if this can actually happen, I added a simple
->>>>>> 	BUG_ON(page_zone(page_i) != page_zone(page_j));
->>>>>> right before the swap. When hotplugging a 256M DIMM to a 4G x86-64 VM and
->>>>>> onlining the first memory block "online_movable" and the second memory
->>>>>> block "online_kernel", it will trigger the BUG, as both zones (NORMAL
->>>>>> and MOVABLE) overlap.
->>>>>>
->>>>>> This might result in all kinds of weird situations (e.g., double
->>>>>> allocations, list corruptions, unmovable allocations ending up in the
->>>>>> movable zone).
->>>>>>
->>>>>> Fixes: e900a918b098 ("mm: shuffle initial free memory to improve memory-side-cache utilization")
->>>>>> Acked-by: Michal Hocko <mhocko@suse.com>
->>>>>> Cc: stable@vger.kernel.org # v5.2+
->>>>>> Cc: Andrew Morton <akpm@linux-foundation.org>
->>>>>> Cc: Johannes Weiner <hannes@cmpxchg.org>
->>>>>> Cc: Michal Hocko <mhocko@suse.com>
->>>>>> Cc: Minchan Kim <minchan@kernel.org>
->>>>>> Cc: Huang Ying <ying.huang@intel.com>
->>>>>> Cc: Wei Yang <richard.weiyang@gmail.com>
->>>>>> Cc: Mel Gorman <mgorman@techsingularity.net>
->>>>>> Signed-off-by: David Hildenbrand <david@redhat.com>
->>>>>> ---
->>>>>> mm/shuffle.c | 18 +++++++++---------
->>>>>> 1 file changed, 9 insertions(+), 9 deletions(-)
->>>>>>
->>>>>> diff --git a/mm/shuffle.c b/mm/shuffle.c
->>>>>> index 44406d9977c77..dd13ab851b3ee 100644
->>>>>> --- a/mm/shuffle.c
->>>>>> +++ b/mm/shuffle.c
->>>>>> @@ -58,25 +58,25 @@ module_param_call(shuffle, shuffle_store, shuffle_show, &shuffle_param, 0400);
->>>>>>  * For two pages to be swapped in the shuffle, they must be free (on a
->>>>>>  * 'free_area' lru), have the same order, and have the same migratetype.
->>>>>>  */
->>>>>> -static struct page * __meminit shuffle_valid_page(unsigned long pfn, int order)
->>>>>> +static struct page * __meminit shuffle_valid_page(struct zone *zone,
->>>>>> +						  unsigned long pfn, int order)
->>>>>> {
->>>>>> -	struct page *page;
->>>>>> +	struct page *page = pfn_to_online_page(pfn);
->>>>>
->>>>> Hi, David and Dan,
->>>>>
->>>>> One thing I want to confirm here is we won't have partially online section,
->>>>> right? We can add a sub-section to system, but we won't manage it by buddy.
+On 22.06.20 11:22, Wei Yang wrote:
+> On Mon, Jun 22, 2020 at 10:43:11AM +0200, David Hildenbrand wrote:
+>> On 22.06.20 10:26, Wei Yang wrote:
+>>> On Fri, Jun 19, 2020 at 02:59:20PM +0200, David Hildenbrand wrote:
+>>>> Especially with memory hotplug, we can have offline sections (with a
+>>>> garbage memmap) and overlapping zones. We have to make sure to only
+>>>> touch initialized memmaps (online sections managed by the buddy) and that
+>>>> the zone matches, to not move pages between zones.
 >>>>
->>>> Hi,
+>>>> To test if this can actually happen, I added a simple
+>>>> 	BUG_ON(page_zone(page_i) != page_zone(page_j));
+>>>> right before the swap. When hotplugging a 256M DIMM to a 4G x86-64 VM and
+>>>> onlining the first memory block "online_movable" and the second memory
+>>>> block "online_kernel", it will trigger the BUG, as both zones (NORMAL
+>>>> and MOVABLE) overlap.
 >>>>
->>>> there is still a BUG with sub-section hot-add (devmem), which broke
->>>> pfn_to_online_page() in corner cases (especially, see the description in
->>>> include/linux/mmzone.h). We can have a boot-memory section partially
->>>> populated and marked online. Then, we can hot-add devmem, marking the
->>>> remaining pfns valid - and as the section is maked online, also as online.
+>>>> This might result in all kinds of weird situations (e.g., double
+>>>> allocations, list corruptions, unmovable allocations ending up in the
+>>>> movable zone).
+>>>>
+>>>> Fixes: e900a918b098 ("mm: shuffle initial free memory to improve memory-side-cache utilization")
+>>>> Acked-by: Michal Hocko <mhocko@suse.com>
+>>>> Cc: stable@vger.kernel.org # v5.2+
+>>>> Cc: Andrew Morton <akpm@linux-foundation.org>
+>>>> Cc: Johannes Weiner <hannes@cmpxchg.org>
+>>>> Cc: Michal Hocko <mhocko@suse.com>
+>>>> Cc: Minchan Kim <minchan@kernel.org>
+>>>> Cc: Huang Ying <ying.huang@intel.com>
+>>>> Cc: Wei Yang <richard.weiyang@gmail.com>
+>>>> Cc: Mel Gorman <mgorman@techsingularity.net>
+>>>> Signed-off-by: David Hildenbrand <david@redhat.com>
+>>>> ---
+>>>> mm/shuffle.c | 18 +++++++++---------
+>>>> 1 file changed, 9 insertions(+), 9 deletions(-)
+>>>>
+>>>> diff --git a/mm/shuffle.c b/mm/shuffle.c
+>>>> index 44406d9977c77..dd13ab851b3ee 100644
+>>>> --- a/mm/shuffle.c
+>>>> +++ b/mm/shuffle.c
+>>>> @@ -58,25 +58,25 @@ module_param_call(shuffle, shuffle_store, shuffle_show, &shuffle_param, 0400);
+>>>>  * For two pages to be swapped in the shuffle, they must be free (on a
+>>>>  * 'free_area' lru), have the same order, and have the same migratetype.
+>>>>  */
+>>>> -static struct page * __meminit shuffle_valid_page(unsigned long pfn, int order)
+>>>> +static struct page * __meminit shuffle_valid_page(struct zone *zone,
+>>>> +						  unsigned long pfn, int order)
+>>>> {
+>>>> -	struct page *page;
+>>>> +	struct page *page = pfn_to_online_page(pfn);
 >>>
->>> Oh, yes, I see this description.
+>>> Hi, David and Dan,
 >>>
->>> This means we could have section marked as online, but with a sub-section even
->>> not added.
->>>
->>> While the good news is even the sub-section is not added, but its memmap is
->>> populated for an early section. So the page returned from pfn_to_online_page()
->>> is a valid one.
->>>
->>> But what would happen, if the sub-section is removed after added? Would
->>> section_deactivate() release related memmap to this "struct page"?
+>>> One thing I want to confirm here is we won't have partially online section,
+>>> right? We can add a sub-section to system, but we won't manage it by buddy.
 >>
->> If devmem is removed, the memmap will be freed and the sub-sections are
->> marked as non-present. So this works as expected.
+>> Hi,
 >>
+>> there is still a BUG with sub-section hot-add (devmem), which broke
+>> pfn_to_online_page() in corner cases (especially, see the description in
+>> include/linux/mmzone.h). We can have a boot-memory section partially
+>> populated and marked online. Then, we can hot-add devmem, marking the
+>> remaining pfns valid - and as the section is maked online, also as online.
 > 
-> Sorry, I may not catch your point. If my understanding is correct, the
-> above behavior happens in function section_deactivate().
+> Oh, yes, I see this description.
 > 
-> Let me draw my understanding of function section_deactivate():
+> This means we could have section marked as online, but with a sub-section even
+> not added.
 > 
->     section_deactivate(pfn, nr_pages)
->         clear_subsection_map(pfn, nr_pages)
-> 	depopulate_section_memmap(pfn, nr_pages)
+> While the good news is even the sub-section is not added, but its memmap is
+> populated for an early section. So the page returned from pfn_to_online_page()
+> is a valid one.
 > 
-> Since we just remove a sub-section, I skipped some un-related codes. These two
-> functions would:
-> 
->   * clear bitmap in ms->usage->subsection_map
->   * free memmap for the sub-section
-> 
-> While since the section is not empty, ms->section_mem_map is not set no null.
+> But what would happen, if the sub-section is removed after added? Would
+> section_deactivate() release related memmap to this "struct page"?
 
-Let me clarify, sub-section hotremove works differently when overlying
-with (online) boot memory within a section.
-
-Early sections (IOW, boot memory) are never partially removed. See
-mm/sparse.c:section_deactivate(). We only free a early memmap when the
-section is completely empty. Also see how
-include/linux/mmzone.h:pfn_valid() handles early sections.
-
-So when we have a partially present section with boot memory, we
-a) marked the whole section present and online (there is only a single
-   bit)
-b) allocated the memmap for the whole section
-c) Only exposed the relevant pages to the buddy. The memmap of non-
-   present parts in a section were initialized and are reserved.
-
-pfn_valid() will return for all non-present pfns valid, because there is
-a memmap. pfn_to_online_page() will return for all pfns "true", because
-we only have a single bit for the whole section. This has been the case
-before sub-section hotplug and is still the case. It simply looks like
-just another memory hole for which we have a memmap.
-
-Now, with devmem it is possible to suddenly change these sub-section
-holes (memmaps) to become ZONE_DEVICE memory. pfn_to_online_page() would
-have to detect that and report a "false". Possible fixes were already
-discussed (e.g., sub-section online map instead of a single bit).
-
-Again, the zone check safes us from the worst, just as in the case of
-all other pfn walkers that use (as documented) pfn_to_online_page(). It
-still needs a fix as dicussed, but it seems to work reasonably fine like
-that for now.
+Just to clarify now that I get your point: No it would not, as it is an
+early section, and the early section is not completely empty.
 
 -- 
 Thanks,
