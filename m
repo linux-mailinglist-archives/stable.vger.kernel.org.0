@@ -2,22 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99A3720320C
-	for <lists+stable@lfdr.de>; Mon, 22 Jun 2020 10:26:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86BF820324D
+	for <lists+stable@lfdr.de>; Mon, 22 Jun 2020 10:43:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726596AbgFVI0m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Jun 2020 04:26:42 -0400
-Received: from out30-133.freemail.mail.aliyun.com ([115.124.30.133]:38437 "EHLO
-        out30-133.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725957AbgFVI0m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Jun 2020 04:26:42 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=richard.weiyang@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0U0KirUE_1592814395;
-Received: from localhost(mailfrom:richard.weiyang@linux.alibaba.com fp:SMTPD_---0U0KirUE_1592814395)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Mon, 22 Jun 2020 16:26:36 +0800
-Date:   Mon, 22 Jun 2020 16:26:35 +0800
-From:   Wei Yang <richard.weiyang@linux.alibaba.com>
-To:     David Hildenbrand <david@redhat.com>
+        id S1726110AbgFVIn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Jun 2020 04:43:27 -0400
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:55085 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725907AbgFVIn1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Jun 2020 04:43:27 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1592815404;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+        bh=OFqVaQmvCwenpdUsTgSlQoszzuHdCc3bwJ1ZR3jTm/s=;
+        b=WQ3dc5AH0zhgaYFjpIAFws7/qPkLtUmA4NqWW1sKssZhKTGX5F/TaCY6MFwbbBq6CM2vyw
+        OxZj9/ahnMS20r/qd9B5YPwapDxkI0zOxegm94VjTEhV2TnnMeDyQ7YTWPAIgMkqzUEMoR
+        l+LPBzztC9td0FASwQtDCFQt7oPdRZM=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-195-IYEsLOnOMuCXNbdsJ1I1dg-1; Mon, 22 Jun 2020 04:43:21 -0400
+X-MC-Unique: IYEsLOnOMuCXNbdsJ1I1dg-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 32388835B40;
+        Mon, 22 Jun 2020 08:43:19 +0000 (UTC)
+Received: from [10.36.113.213] (ovpn-113-213.ams2.redhat.com [10.36.113.213])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 5B42C5C221;
+        Mon, 22 Jun 2020 08:43:13 +0000 (UTC)
+Subject: Re: [PATCH v2 1/3] mm/shuffle: don't move pages between zones and
+ don't read garbage memmaps
+To:     Wei Yang <richard.weiyang@linux.alibaba.com>
 Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
         Michal Hocko <mhocko@suse.com>, stable@vger.kernel.org,
         Andrew Morton <akpm@linux-foundation.org>,
@@ -26,121 +44,138 @@ Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
         Huang Ying <ying.huang@intel.com>,
         Wei Yang <richard.weiyang@gmail.com>,
         Mel Gorman <mgorman@techsingularity.net>
-Subject: Re: [PATCH v2 1/3] mm/shuffle: don't move pages between zones and
- don't read garbage memmaps
-Message-ID: <20200622082635.GA93552@L-31X9LVDL-1304.local>
-Reply-To: Wei Yang <richard.weiyang@linux.alibaba.com>
 References: <20200619125923.22602-1-david@redhat.com>
  <20200619125923.22602-2-david@redhat.com>
+ <20200622082635.GA93552@L-31X9LVDL-1304.local>
+From:   David Hildenbrand <david@redhat.com>
+Autocrypt: addr=david@redhat.com; prefer-encrypt=mutual; keydata=
+ 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
+Organization: Red Hat GmbH
+Message-ID: <2185539f-b210-5d3f-5da2-a497b354eebb@redhat.com>
+Date:   Mon, 22 Jun 2020 10:43:11 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200619125923.22602-2-david@redhat.com>
+In-Reply-To: <20200622082635.GA93552@L-31X9LVDL-1304.local>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jun 19, 2020 at 02:59:20PM +0200, David Hildenbrand wrote:
->Especially with memory hotplug, we can have offline sections (with a
->garbage memmap) and overlapping zones. We have to make sure to only
->touch initialized memmaps (online sections managed by the buddy) and that
->the zone matches, to not move pages between zones.
->
->To test if this can actually happen, I added a simple
->	BUG_ON(page_zone(page_i) != page_zone(page_j));
->right before the swap. When hotplugging a 256M DIMM to a 4G x86-64 VM and
->onlining the first memory block "online_movable" and the second memory
->block "online_kernel", it will trigger the BUG, as both zones (NORMAL
->and MOVABLE) overlap.
->
->This might result in all kinds of weird situations (e.g., double
->allocations, list corruptions, unmovable allocations ending up in the
->movable zone).
->
->Fixes: e900a918b098 ("mm: shuffle initial free memory to improve memory-side-cache utilization")
->Acked-by: Michal Hocko <mhocko@suse.com>
->Cc: stable@vger.kernel.org # v5.2+
->Cc: Andrew Morton <akpm@linux-foundation.org>
->Cc: Johannes Weiner <hannes@cmpxchg.org>
->Cc: Michal Hocko <mhocko@suse.com>
->Cc: Minchan Kim <minchan@kernel.org>
->Cc: Huang Ying <ying.huang@intel.com>
->Cc: Wei Yang <richard.weiyang@gmail.com>
->Cc: Mel Gorman <mgorman@techsingularity.net>
->Signed-off-by: David Hildenbrand <david@redhat.com>
->---
-> mm/shuffle.c | 18 +++++++++---------
-> 1 file changed, 9 insertions(+), 9 deletions(-)
->
->diff --git a/mm/shuffle.c b/mm/shuffle.c
->index 44406d9977c77..dd13ab851b3ee 100644
->--- a/mm/shuffle.c
->+++ b/mm/shuffle.c
->@@ -58,25 +58,25 @@ module_param_call(shuffle, shuffle_store, shuffle_show, &shuffle_param, 0400);
->  * For two pages to be swapped in the shuffle, they must be free (on a
->  * 'free_area' lru), have the same order, and have the same migratetype.
->  */
->-static struct page * __meminit shuffle_valid_page(unsigned long pfn, int order)
->+static struct page * __meminit shuffle_valid_page(struct zone *zone,
->+						  unsigned long pfn, int order)
-> {
->-	struct page *page;
->+	struct page *page = pfn_to_online_page(pfn);
+On 22.06.20 10:26, Wei Yang wrote:
+> On Fri, Jun 19, 2020 at 02:59:20PM +0200, David Hildenbrand wrote:
+>> Especially with memory hotplug, we can have offline sections (with a
+>> garbage memmap) and overlapping zones. We have to make sure to only
+>> touch initialized memmaps (online sections managed by the buddy) and that
+>> the zone matches, to not move pages between zones.
+>>
+>> To test if this can actually happen, I added a simple
+>> 	BUG_ON(page_zone(page_i) != page_zone(page_j));
+>> right before the swap. When hotplugging a 256M DIMM to a 4G x86-64 VM and
+>> onlining the first memory block "online_movable" and the second memory
+>> block "online_kernel", it will trigger the BUG, as both zones (NORMAL
+>> and MOVABLE) overlap.
+>>
+>> This might result in all kinds of weird situations (e.g., double
+>> allocations, list corruptions, unmovable allocations ending up in the
+>> movable zone).
+>>
+>> Fixes: e900a918b098 ("mm: shuffle initial free memory to improve memory-side-cache utilization")
+>> Acked-by: Michal Hocko <mhocko@suse.com>
+>> Cc: stable@vger.kernel.org # v5.2+
+>> Cc: Andrew Morton <akpm@linux-foundation.org>
+>> Cc: Johannes Weiner <hannes@cmpxchg.org>
+>> Cc: Michal Hocko <mhocko@suse.com>
+>> Cc: Minchan Kim <minchan@kernel.org>
+>> Cc: Huang Ying <ying.huang@intel.com>
+>> Cc: Wei Yang <richard.weiyang@gmail.com>
+>> Cc: Mel Gorman <mgorman@techsingularity.net>
+>> Signed-off-by: David Hildenbrand <david@redhat.com>
+>> ---
+>> mm/shuffle.c | 18 +++++++++---------
+>> 1 file changed, 9 insertions(+), 9 deletions(-)
+>>
+>> diff --git a/mm/shuffle.c b/mm/shuffle.c
+>> index 44406d9977c77..dd13ab851b3ee 100644
+>> --- a/mm/shuffle.c
+>> +++ b/mm/shuffle.c
+>> @@ -58,25 +58,25 @@ module_param_call(shuffle, shuffle_store, shuffle_show, &shuffle_param, 0400);
+>>  * For two pages to be swapped in the shuffle, they must be free (on a
+>>  * 'free_area' lru), have the same order, and have the same migratetype.
+>>  */
+>> -static struct page * __meminit shuffle_valid_page(unsigned long pfn, int order)
+>> +static struct page * __meminit shuffle_valid_page(struct zone *zone,
+>> +						  unsigned long pfn, int order)
+>> {
+>> -	struct page *page;
+>> +	struct page *page = pfn_to_online_page(pfn);
+> 
+> Hi, David and Dan,
+> 
+> One thing I want to confirm here is we won't have partially online section,
+> right? We can add a sub-section to system, but we won't manage it by buddy.
 
-Hi, David and Dan,
+Hi,
 
-One thing I want to confirm here is we won't have partially online section,
-right? We can add a sub-section to system, but we won't manage it by buddy.
+there is still a BUG with sub-section hot-add (devmem), which broke
+pfn_to_online_page() in corner cases (especially, see the description in
+include/linux/mmzone.h). We can have a boot-memory section partially
+populated and marked online. Then, we can hot-add devmem, marking the
+remaining pfns valid - and as the section is maked online, also as online.
 
-With this confirmed:
+This is, however, a different problem to solve and affects most other
+pfn walkers as well. The "if (page_zone(page) != zone)" checks guards us
+from most harm, as the devmem zone won't match.
 
-Reviewed-by: Wei Yang <richard.weiyang@linux.alibaba.com>
-
-> 
-> 	/*
-> 	 * Given we're dealing with randomly selected pfns in a zone we
-> 	 * need to ask questions like...
-> 	 */
-> 
->-	/* ...is the pfn even in the memmap? */
->-	if (!pfn_valid_within(pfn))
->+	/* ... is the page managed by the buddy? */
->+	if (!page)
-> 		return NULL;
-> 
->-	/* ...is the pfn in a present section or a hole? */
->-	if (!pfn_in_present_section(pfn))
->+	/* ... is the page assigned to the same zone? */
->+	if (page_zone(page) != zone)
-> 		return NULL;
-> 
-> 	/* ...is the page free and currently on a free_area list? */
->-	page = pfn_to_page(pfn);
-> 	if (!PageBuddy(page))
-> 		return NULL;
-> 
->@@ -123,7 +123,7 @@ void __meminit __shuffle_zone(struct zone *z)
-> 		 * page_j randomly selected in the span @zone_start_pfn to
-> 		 * @spanned_pages.
-> 		 */
->-		page_i = shuffle_valid_page(i, order);
->+		page_i = shuffle_valid_page(z, i, order);
-> 		if (!page_i)
-> 			continue;
-> 
->@@ -137,7 +137,7 @@ void __meminit __shuffle_zone(struct zone *z)
-> 			j = z->zone_start_pfn +
-> 				ALIGN_DOWN(get_random_long() % z->spanned_pages,
-> 						order_pages);
->-			page_j = shuffle_valid_page(j, order);
->+			page_j = shuffle_valid_page(z, j, order);
-> 			if (page_j && page_j != page_i)
-> 				break;
-> 		}
->-- 
->2.26.2
+Thanks!
 
 -- 
-Wei Yang
-Help you, Help me
+Thanks,
+
+David / dhildenb
+
