@@ -2,114 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0B302042FF
-	for <lists+stable@lfdr.de>; Mon, 22 Jun 2020 23:51:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E89B9204306
+	for <lists+stable@lfdr.de>; Mon, 22 Jun 2020 23:55:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727049AbgFVVvx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Jun 2020 17:51:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42834 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727006AbgFVVvw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Jun 2020 17:51:52 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 77B482073E;
-        Mon, 22 Jun 2020 21:51:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592862711;
-        bh=j2fwXXFNXxd0O2/Te+mvzzRijkWCgZELdMQ9j30NiIs=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=uu67yW6QPeVYpg2If0pVdOQDjfOtqU4klqohMCxm3mju/hwahvOj/7Go857+yeddv
-         FKSgZiURXGrYgW5jwldGckTlVJU4SJmIxJlb18ADUWZtpYECDF9SRRhtJ9be4l+EtM
-         EJx+zIthynrKYKjMV20LB0NwZUN5y+pPVwe4yzBA=
-Date:   Mon, 22 Jun 2020 17:51:50 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Nathan Chancellor <natechancellor@gmail.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, clang-built-linux@googlegroups.com,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: Re: [PATCH 5.4] x86/boot/compressed: Relax sed symbol type regex for
- LLVM ld.lld
-Message-ID: <20200622215150.GM1931@sasha-vm>
-References: <20200622195639.2670308-1-natechancellor@gmail.com>
+        id S1727049AbgFVVzA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Jun 2020 17:55:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41852 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727006AbgFVVy7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Jun 2020 17:54:59 -0400
+Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 252AEC061573
+        for <stable@vger.kernel.org>; Mon, 22 Jun 2020 14:54:58 -0700 (PDT)
+Received: by mail-ej1-x643.google.com with SMTP id ga4so5987193ejb.11
+        for <stable@vger.kernel.org>; Mon, 22 Jun 2020 14:54:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=x3yIPSgNJi3lZrfPxbxMrQmBueBikKwWrRM04RzFSiQ=;
+        b=EwjU4zcs0DrSUd5BDlLviGmpYQwtw6mL7hPbyc7YmziZEUSxgb/dVVNZhY2/vbH3aj
+         8ZHQlDx6ixeZOIde0GG2uOkKcJOYVgQtk1VvXyda5UExFV4LlqxCLAtT4DFQpirvx+oM
+         l9ApXHj+Vku6e6H368CzSFL4LPXNnOFlQomvW1bJ80PEhzfyPy4KY1rfbLGLoNagf/h7
+         Vr3L5liYiPH0x4ExCZQLHOSMMgKaylLwGurhmUH3FFa3x2TNqOEk44wVx9D3S7Q4P6GG
+         PIKUoNno5aKnVAr21jrWOym8hbBYaNSZE839WKRwPG7GsKKR9NlV5wLJEkUUacQTFzVo
+         chdw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=x3yIPSgNJi3lZrfPxbxMrQmBueBikKwWrRM04RzFSiQ=;
+        b=Uw+sLw1bUYpHj943siAnfw8QRZFBM/csJIL9zPNh25fe3O2/WXj8FEOSsNF5+Uo7zm
+         V5fyz1syPi9+xbsgwiIb8ZGfA3ZdnmahDSrzCazLMVS7wXkp9lM7nFqeOZUKRUXAjv6l
+         FZcqvemReekX/fXMLweHpUNgEwNKxu85pKXCM5Cjs13jjaylN4Xg0/K/ACERmRCvhKK0
+         je0aafjEB4IbrfMB3DFa0W+/51zELEf6F49yN7uMrgktk927tR8bFzrFPFCyB+g0uD+4
+         TKDLNFg383zha3HRA21GGTbB2TO3mI/BIZMfCTzUzgdxQxvjXcxlc1yGiMbx8Xycgj/T
+         VZ2A==
+X-Gm-Message-State: AOAM531GMrZHVv2lxCQiCVYN6IwV1WoaJLalxIcdjw7qvx/gOmwhtost
+        Pao7e8thCEfjxsdcOyt5NcyBZ84YR7+frMU1r2hLjuKl
+X-Google-Smtp-Source: ABdhPJztID0yyxUaOy17bGEaVldHTgqjp5YdDr3/DDoK3WHRXB4Wvwbd1WZwPtjGvEE1jnuCCmiBNkJdsRHYCa547Yg=
+X-Received: by 2002:a17:906:dbe5:: with SMTP id yd5mr3436180ejb.328.1592862896682;
+ Mon, 22 Jun 2020 14:54:56 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20200622195639.2670308-1-natechancellor@gmail.com>
+References: <20200622125212.03B9220732@mail.kernel.org>
+In-Reply-To: <20200622125212.03B9220732@mail.kernel.org>
+From:   Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Date:   Mon, 22 Jun 2020 23:54:45 +0200
+Message-ID: <CAFBinCC6uK233uKOXYnGis=M8ms=EjH3=yoGLe7c3J_PNMv2LQ@mail.gmail.com>
+Subject: Re: Patch "ARM: dts: meson: Switch existing boards with RGMII PHY to
+ "rgmii-id"" has been added to the 5.7-stable tree
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 22, 2020 at 07:56:39PM +0000, Nathan Chancellor wrote:
->From: Ard Biesheuvel <ardb@kernel.org>
->
->commit bc310baf2ba381c648983c7f4748327f17324562 upstream.
->
->The final build stage of the x86 kernel captures some symbol
->addresses from the decompressor binary and copies them into zoffset.h.
->It uses sed with a regular expression that matches the address, symbol
->type and symbol name, and mangles the captured addresses and the names
->of symbols of interest into #define directives that are added to
->zoffset.h
->
->The symbol type is indicated by a single letter, which we match
->strictly: only letters in the set 'ABCDGRSTVW' are matched, even
->though the actual symbol type is relevant and therefore ignored.
->
->Commit bc7c9d620 ("efi/libstub/x86: Force 'hidden' visibility for
->extern declarations") made a change to the way external symbol
->references are classified, resulting in 'startup_32' now being
->emitted as a hidden symbol. This prevents the use of GOT entries to
->refer to this symbol via its absolute address, which recent toolchains
->(including Clang based ones) already avoid by default, making this
->change a no-op in the majority of cases.
->
->However, as it turns out, the LLVM linker classifies such hidden
->symbols as symbols with static linkage in fully linked ELF binaries,
->causing tools such as NM to output a lowercase 't' rather than an upper
->case 'T' for the type of such symbols. Since our sed expression only
->matches upper case letters for the symbol type, the line describing
->startup_32 is disregarded, resulting in a build error like the following
->
->  arch/x86/boot/header.S:568:18: error: symbol 'ZO_startup_32' can not be
->                                        undefined in a subtraction expression
->  init_size: .long (0x00000000008fd000 - ZO_startup_32 +
->                    (((0x0000000001f6361c + ((0x0000000001f6361c >> 8) + 65536)
->                     - 0x00000000008c32e5) + 4095) & ~4095)) # kernel initialization size
->
->Given that we are only interested in the value of the symbol, let's match
->any character in the set 'a-zA-Z' instead.
->
->Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
->Signed-off-by: Ingo Molnar <mingo@kernel.org>
->Tested-by: Nathan Chancellor <natechancellor@gmail.com>
->Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
->---
->
->Hi all,
->
->Please apply this patch to 5.4 (and older releases if you feel it
->necessary), as it fixes a build error that I see when linking with
->ld.lld on certain distribution configurations after upstream commit
->5214028dd89e ("x86/boot: Correct relocation destination on old linkers")
->was applied in 5.4.48.
->
->$ make -skj"$(nproc)" CC=clang LD=ld.lld O=out/x86_64 olddefconfig bzImage
->...
->ld.lld: error: undefined symbol: ZO__end
->>>> referenced by arch/x86/boot/header.o:(.header+0x71)
->...
->
->While the commit message references bc7c9d620 as the first problematic
->commit, I see the same behavior of capital versus lowercase letters from
->nm here too. I assume this is not seen in mainline because this commit
->was already in the tree when 5214028dd89e was applied.
+Hi Sasha,
 
-I've queued this for 5.4-4.9, thanks!
+On Mon, Jun 22, 2020 at 2:52 PM Sasha Levin <sashal@kernel.org> wrote:
+>
+> This is a note to let you know that I've just added the patch titled
+>
+>     ARM: dts: meson: Switch existing boards with RGMII PHY to "rgmii-id"
+>
+> to the 5.7-stable tree which can be found at:
+>     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+>
+> The filename of the patch is:
+>      arm-dts-meson-switch-existing-boards-with-rgmii-phy-.patch
+> and it can be found in the queue-5.7 subdirectory.
+>
+> If you, or anyone else, feels it should not be added to the stable tree,
+> please let <stable@vger.kernel.org> know about it.
+this patch has another dependency on upstream commit 9308c47640d515
+("net: stmmac: dwmac-meson8b: add support for the RX delay
+configuration") which itself depends on a few other commits
+unless you are also planning to backport more changes (I would have to
+make a detailed list and also reserve some time for testing) I suggest
+to drop this patch from 5.7, 5.4 and 4.19
 
--- 
-Thanks,
-Sasha
+some more information below.
+
+[...]
+>     Previously we did not know that these boards used an RX delay. We
+>     assumed that setting the TX delay on the MAC side It turns out that
+>     these boards also require an RX delay of 2ns (verified on Odroid-C1,
+>     but the u-boot code uses the same setup on both boards). Ethernet only
+>     worked because u-boot added this RX delay on the MAC side.
+configuring the RX delay on the MAC side is only supported since 5.8-rc1
+prior to that we relied on the bootloader to do "the right thing"
+
+>     The 4ns TX delay was also wrong and the result of using an unsupported
+>     RGMII TX clock divider setting. This has been fixed in the driver with
+>     commit bd6f48546b9cb7 ("net: stmmac: dwmac-meson8b: Fix the RGMII TX
+>     delay on Meson8b/8m2 SoCs").
+changing the TX delay could be done in a separate patch, but it still
+wouldn't fully fix Ethernet without the RX delay configuration (see
+above)
+
+
+Thank you!
+Martin
