@@ -2,89 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BDCC203592
-	for <lists+stable@lfdr.de>; Mon, 22 Jun 2020 13:23:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41FFE203688
+	for <lists+stable@lfdr.de>; Mon, 22 Jun 2020 14:16:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729955AbgFVLXg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Jun 2020 07:23:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42904 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729892AbgFVLXe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Jun 2020 07:23:34 -0400
-Received: from localhost (fw-tnat.cambridge.arm.com [217.140.96.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 992FE20716;
-        Mon, 22 Jun 2020 11:23:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592825004;
-        bh=lKPO9e624hVOJb9ys3y9YhyfWRz6FABHB2gyDaZqj2U=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=rMxttB7FzTiHJEa3tbN3WPIxJHrnt0u8SEYPYobsr7cEH3VUpxi+DC7EAYV+F1X4l
-         8QFmz85HHyuh+539leKlpPpSOYSEf3r8Spfs8V/djIJZCuNccky7F0Xl0iBTosnKqA
-         kGowYb1JP0oSedLkJKguEaO6QduxXMYsGqSEVmGM=
-Date:   Mon, 22 Jun 2020 12:23:21 +0100
-From:   Mark Brown <broonie@kernel.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Dmitry Osipenko <digetx@gmail.com>,
-        alsa-devel@alsa-project.org, linux-tegra@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.7 004/388] ASoC: tegra: tegra_wm8903: Support
- nvidia, headset property
-Message-ID: <20200622112321.GB4560@sirena.org.uk>
-References: <20200618010805.600873-1-sashal@kernel.org>
- <20200618010805.600873-4-sashal@kernel.org>
- <20200618110023.GB5789@sirena.org.uk>
- <20200618143046.GT1931@sasha-vm>
- <20200618143930.GI5789@sirena.org.uk>
- <20200621233352.GA1931@sasha-vm>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="cvVnyQ+4j833TQvp"
-Content-Disposition: inline
-In-Reply-To: <20200621233352.GA1931@sasha-vm>
-X-Cookie: laser, n.:
-User-Agent: Mutt/1.10.1 (2018-07-13)
+        id S1728086AbgFVMQI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Jun 2020 08:16:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36470 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728080AbgFVMQH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Jun 2020 08:16:07 -0400
+Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88B09C061796
+        for <stable@vger.kernel.org>; Mon, 22 Jun 2020 05:16:07 -0700 (PDT)
+Received: by mail-ej1-x643.google.com with SMTP id dp18so17765576ejc.8
+        for <stable@vger.kernel.org>; Mon, 22 Jun 2020 05:16:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id;
+        bh=o/ro2YmLKE6FM1LgS90pHWONDXbjsAavRPCkFKtA03s=;
+        b=NP4UNvpq7Uxbc5NBFE80rgGELfOHDtsI0Xk2SNh+FKY3LF7EZoPKpWNh9Q8lkQNQVi
+         RnaVYrG+H6Xf1MUvNOKHyMVU4SiS4b1Jj1GMUQW4TmZefePwEBMrbNrrYzKorvpfCUsi
+         r241VlNH+JLY9T+RqnGrwF4LdTvZVZh6vi+nvvg/ffBUxY0hSndxnTFcVzhh0PaC2dm7
+         Ts6Q8yXGInXa0wQR6gD21WbiHZm2HuYecRRq3yPD425fZURj6FU8OI8CA9wBBE0OQ13S
+         9thLoTAEVAQXx0FBf/vuDImJktf+5evv/EoXqqxsLzy72BuiDta4GRtDs1lhATCjgkiZ
+         xjvA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=o/ro2YmLKE6FM1LgS90pHWONDXbjsAavRPCkFKtA03s=;
+        b=KIjDQi8fL7oEZEcq+GXoXCJ7AMetl/VNvZMLUtFeL5Wek/+3GreGdEicXq7IVWFhEP
+         apqkZItJbf4crz2iRM2OAq/E8dUAl2b89FcVDkAKKPyW/IANyhi5oFsN38fYgvmsj4KS
+         IoLg7/fIbnub25Fk0AVRLOwhKxnJdSO6xXroLLmwT0Wyn+Y9MyOLp6ZsTAVoyBpoK4F8
+         VQqxvSzJg9XqOxJtWcqK43d6nNZ1PUvqv8xDhAE9ePR9edHtlqwPm5ppW3w4+pFm6eNR
+         biBKmUpujKi1gSmKEq0OOyacvoAtaKOGr0LQmK3wlYbyioif2UlqgUwkhw/iHPJRnUTL
+         M7aA==
+X-Gm-Message-State: AOAM5302Rwd71hkb5Gyfp3PJMURZ/9k10kj1yuuuF7dFAPoNIv+zxMkO
+        ztG7uAn90b9uovt8TtUKkCDa7A==
+X-Google-Smtp-Source: ABdhPJxt8NMIIKopS3nj+aVADQxXOK9EER2n4UrtIrDoBU2g6DLdTa7cqzPgBvQcCBoTW72bgrkmCQ==
+X-Received: by 2002:a17:907:209b:: with SMTP id pv27mr9071317ejb.501.1592828166101;
+        Mon, 22 Jun 2020 05:16:06 -0700 (PDT)
+Received: from localhost.localdomain (212-5-158-237.ip.btc-net.bg. [212.5.158.237])
+        by smtp.gmail.com with ESMTPSA id q21sm11228417ejd.30.2020.06.22.05.16.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 22 Jun 2020 05:16:05 -0700 (PDT)
+From:   Stanimir Varbanov <stanimir.varbanov@linaro.org>
+To:     linux-media@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc:     dianders@chromium.org, mansur@codeaurora.org,
+        stable@vger.kernel.org,
+        Stanimir Varbanov <stanimir.varbanov@linaro.org>
+Subject: [PATCH v3] venus: fix multiple encoder crash
+Date:   Mon, 22 Jun 2020 15:15:48 +0300
+Message-Id: <20200622121548.27882-1-stanimir.varbanov@linaro.org>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Mansur Alisha Shaik <mansur@codeaurora.org>
 
---cvVnyQ+4j833TQvp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Currently we are considering the instances which are available
+in core->inst list for load calculation in min_loaded_core()
+function, but this is incorrect because by the time we call
+decide_core() for second instance, the third instance not
+filled yet codec_freq_data pointer.
 
-On Sun, Jun 21, 2020 at 07:33:52PM -0400, Sasha Levin wrote:
-> On Thu, Jun 18, 2020 at 03:39:30PM +0100, Mark Brown wrote:
-> > On Thu, Jun 18, 2020 at 10:30:46AM -0400, Sasha Levin wrote:
-> > > On Thu, Jun 18, 2020 at 12:00:23PM +0100, Mark Brown wrote:
+Solve this by considering the instances whose session has started.
 
-> > > > This is a new feature not a bugfix.
+Cc: stable@vger.kernel.org # v5.7+
+Fixes: 4ebf969375bc ("media: venus: introduce core selection")
+Signed-off-by: Mansur Alisha Shaik <mansur@codeaurora.org>
+Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
+---
 
-> > > I saw this patch more as a hardware quirk.
+v3: Cc stable and add Fixes tag.
 
-> > Pretty much any DT property is a hardware quirk :(
+ drivers/media/platform/qcom/venus/pm_helpers.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-> Which is why we're taking most of them :)
+diff --git a/drivers/media/platform/qcom/venus/pm_helpers.c b/drivers/media/platform/qcom/venus/pm_helpers.c
+index abf93158857b..531e7a41658f 100644
+--- a/drivers/media/platform/qcom/venus/pm_helpers.c
++++ b/drivers/media/platform/qcom/venus/pm_helpers.c
+@@ -496,6 +496,10 @@ min_loaded_core(struct venus_inst *inst, u32 *min_coreid, u32 *min_load)
+ 	list_for_each_entry(inst_pos, &core->instances, list) {
+ 		if (inst_pos == inst)
+ 			continue;
++
++		if (inst_pos->state != INST_START)
++			continue;
++
+ 		vpp_freq = inst_pos->clk_data.codec_freq_data->vpp_freq;
+ 		coreid = inst_pos->clk_data.core_id;
+ 
+-- 
+2.17.1
 
-That's concerning - please don't do this.  It's not what stable is
-expected to be and there's no guarantee that you're getting all the
-changes required to actually make things work.
-
---cvVnyQ+4j833TQvp
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl7wlKgACgkQJNaLcl1U
-h9DxBQf9GXl9yCwJEINWq/Z/dhvqydIs7W9lZH5AwwYXFPMJqBw8hFXOc0py8n1n
-KyNasLuU3f6KllPb0/5OVx13fx8zGxkO3R+oGlO3Efu7Hy8PGBKDUCvSN3ot0Y/D
-G63LKSioz3J8TW/YESn7D1sIHgBeomqhnaXeqeXv3CvcOzSwNrxo7XEFdFezSfby
-QMKNjitxBVEiU5JiuuhpWhQ3A9f0bsNONgYLXX/j2nUFF2GTaoVqqAeuVHJsRtvY
-AxfBsxyFqe85oe6t6oelQ5DoiQTkEJYKTGpApxIby0uOXAoo2PgF4slrPeEqa+ZS
-tp+7ng+EvDqFhLMnHiZq1WTtbV02bw==
-=kpI5
------END PGP SIGNATURE-----
-
---cvVnyQ+4j833TQvp--
