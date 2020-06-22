@@ -2,165 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 28E60203E6A
-	for <lists+stable@lfdr.de>; Mon, 22 Jun 2020 19:51:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FD4A203E95
+	for <lists+stable@lfdr.de>; Mon, 22 Jun 2020 19:57:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730118AbgFVRvG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Jun 2020 13:51:06 -0400
-Received: from wforward5-smtp.messagingengine.com ([64.147.123.35]:55517 "EHLO
-        wforward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730099AbgFVRvG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Jun 2020 13:51:06 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 8405A11FC;
-        Mon, 22 Jun 2020 13:51:05 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 22 Jun 2020 13:51:05 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=S0tm8c
-        tq2kdWIk0zY5WaDylbtPYxgoADz+yDthd9nD0=; b=gqryWox22tbJyVK/R2cN1u
-        YekvrwTI5pzQy/sdauRig77y0wADvSB4v70fKufvFPitOrr4tlTWt1U8FUrgspYw
-        jjDBfKR/4Vg89p5h6EZfXU6IV3k0Akj4Rt0V7lG3A/nKEsXIrZr4vOntq1tXLotG
-        1KS5Snec0KYkR1HQ/jHx9GjfkvMTzmQrwzjCaaek/+im52MfSqFOJNN735BxoT/B
-        RlrFSU3is2JeHQobU6cdOOwNSqEI616qQHEDaW6k1xBZaX5IlZ0TPG49XtUWb4aM
-        jyCBlwbtbkf8GLXEPEDfkufbT9cl793VoEW28g94rS50DwoyNLGzOOInMAjH/SEQ
-        ==
-X-ME-Sender: <xms:ie_wXg04vhVWDKNwI9XnL-KW0xpfzmkKFAWDqj1bNbu70FUBmcoIKg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudekvddguddulecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
-    dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
-    rhhgqeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehje
-    duteevueevledujeejgfetheenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhs
-    thgvrhfuihiivgepfeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
-    hhrdgtohhm
-X-ME-Proxy: <xmx:ie_wXrGnS2J0jRkmd1tjWEC9V3L-P6hOywnTYb9NeVJX5doZGUlZJw>
-    <xmx:ie_wXo7Ea9_0IgHFAxstTSsaOIft7Txr6CXmzJHdD7zNUEHcVz-v8A>
-    <xmx:ie_wXp2wRY_rR62h6zzlYzcSns0JVHK6RoVMwe0VbARyThH3HrD6mw>
-    <xmx:ie_wXnS3hqssWRRvuRjzcqZ-dbtkSliRz9u29Z8YLnDWAbhRFnSKFeWptqw>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id BEFD030673B7;
-        Mon, 22 Jun 2020 13:51:04 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] ext4: avoid race conditions when remounting with options that" failed to apply to 4.19-stable tree
-To:     tytso@mit.edu
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Jun 2020 19:50:57 +0200
-Message-ID: <159284825795161@kroah.com>
+        id S1730242AbgFVR5a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Jun 2020 13:57:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55752 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730241AbgFVR5a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Jun 2020 13:57:30 -0400
+Received: from localhost (fw-tnat.cambridge.arm.com [217.140.96.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id F0D7D2075A;
+        Mon, 22 Jun 2020 17:57:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1592848649;
+        bh=Lt1P6AdsHmbhP2XV63ccQ6jG8uBCvmShpdyEWEYmjI8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=wYyb/N05uI8WHgJV1KE7C0JnHCvn8PQh/8jSeAnsF3wIXS0NFdG+HIvSMbEQntwyc
+         m0VTgK20TYgLFCjQGJvgv1fwj38lNGON955q7nVUEKiyWYTE/VT/FjL2ToS69m/h0v
+         KhEzV90KgXeSAL2ZgjrVRwu5NVwWO4/x27gjwhV0=
+Date:   Mon, 22 Jun 2020 18:57:27 +0100
+From:   Mark Brown <broonie@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Dmitry Osipenko <digetx@gmail.com>,
+        alsa-devel@alsa-project.org, linux-tegra@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.7 004/388] ASoC: tegra: tegra_wm8903: Support
+ nvidia, headset property
+Message-ID: <20200622175727.GP4560@sirena.org.uk>
+References: <20200618010805.600873-1-sashal@kernel.org>
+ <20200618010805.600873-4-sashal@kernel.org>
+ <20200618110023.GB5789@sirena.org.uk>
+ <20200618143046.GT1931@sasha-vm>
+ <20200618143930.GI5789@sirena.org.uk>
+ <20200621233352.GA1931@sasha-vm>
+ <20200622112321.GB4560@sirena.org.uk>
+ <20200622123118.GF1931@sasha-vm>
+ <20200622132757.GG4560@sirena.org.uk>
+ <20200622144402.GH1931@sasha-vm>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="WOTjKnJ88wpJKlWH"
+Content-Disposition: inline
+In-Reply-To: <20200622144402.GH1931@sasha-vm>
+X-Cookie: laser, n.:
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+--WOTjKnJ88wpJKlWH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-thanks,
+On Mon, Jun 22, 2020 at 10:44:02AM -0400, Sasha Levin wrote:
+> On Mon, Jun 22, 2020 at 02:27:57PM +0100, Mark Brown wrote:
+> > On Mon, Jun 22, 2020 at 08:31:18AM -0400, Sasha Levin wrote:
 
-greg k-h
+> > > How come? This is one of the things stable rules explicitly call for:
+> > > "New device IDs and quirks are also accepted".
 
------------------- original commit in Linus's tree ------------------
+> > I would expect that to be data only additions, I would not expect that
+> > to be adding new code.
 
-From 829b37b8cddb1db75c1b7905505b90e593b15db1 Mon Sep 17 00:00:00 2001
-From: Theodore Ts'o <tytso@mit.edu>
-Date: Wed, 10 Jun 2020 11:16:37 -0400
-Subject: [PATCH] ext4: avoid race conditions when remounting with options that
- change dax
+> These come hand in hand. Take a look at the more complex cases such as
+> sound/pci/hda/patch_*
 
-Trying to change dax mount options when remounting could allow mount
-options to be enabled for a small amount of time, and then the mount
-option change would be reverted.
+There are more complex cases, I'm just not sure how good an idea
+backporting them.
 
-In the case of "mount -o remount,dax", this can cause a race where
-files would temporarily treated as DAX --- and then not.
+> > It would be much better to not have to watch stable constantly like we
+> > currently do - we're seeing people report breakage often enough to be a
+> > concern as things are, we don't need to be trying to pile extra stuff in
+> > there because there's some keywords in a changelog or whatever.  The
+> > testing coverage for drivers is weak, increasing the change rate puts
+> > more stress on that.
 
-Cc: stable@kernel.org
-Reported-by: syzbot+bca9799bf129256190da@syzkaller.appspotmail.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+> Shouldn't we instead improve testing here? nvidia for example already
+> provides Tegra testing for stable releases, if the coverage isn't
+> sufficient then let's work on making it better.
 
-diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index a22d67c5bc00..edf06c1bee9d 100644
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -2104,16 +2104,40 @@ static int handle_mount_opt(struct super_block *sb, char *opt, int token,
- 		switch (token) {
- 		case Opt_dax:
- 		case Opt_dax_always:
-+			if (is_remount &&
-+			    (!(sbi->s_mount_opt & EXT4_MOUNT_DAX_ALWAYS) ||
-+			     (sbi->s_mount_opt2 & EXT4_MOUNT2_DAX_NEVER))) {
-+			fail_dax_change_remount:
-+				ext4_msg(sb, KERN_ERR, "can't change "
-+					 "dax mount option while remounting");
-+				return -1;
-+			}
-+			if (is_remount &&
-+			    (test_opt(sb, DATA_FLAGS) ==
-+			     EXT4_MOUNT_JOURNAL_DATA)) {
-+				    ext4_msg(sb, KERN_ERR, "can't mount with "
-+					     "both data=journal and dax");
-+				    return -1;
-+			}
- 			ext4_msg(sb, KERN_WARNING,
- 				"DAX enabled. Warning: EXPERIMENTAL, use at your own risk");
- 			sbi->s_mount_opt |= EXT4_MOUNT_DAX_ALWAYS;
- 			sbi->s_mount_opt2 &= ~EXT4_MOUNT2_DAX_NEVER;
- 			break;
- 		case Opt_dax_never:
-+			if (is_remount &&
-+			    (!(sbi->s_mount_opt2 & EXT4_MOUNT2_DAX_NEVER) ||
-+			     (sbi->s_mount_opt & EXT4_MOUNT_DAX_ALWAYS)))
-+				goto fail_dax_change_remount;
- 			sbi->s_mount_opt2 |= EXT4_MOUNT2_DAX_NEVER;
- 			sbi->s_mount_opt &= ~EXT4_MOUNT_DAX_ALWAYS;
- 			break;
- 		case Opt_dax_inode:
-+			if (is_remount &&
-+			    ((sbi->s_mount_opt & EXT4_MOUNT_DAX_ALWAYS) ||
-+			     (sbi->s_mount_opt2 & EXT4_MOUNT2_DAX_NEVER) ||
-+			     !(sbi->s_mount_opt2 & EXT4_MOUNT2_DAX_INODE)))
-+				goto fail_dax_change_remount;
- 			sbi->s_mount_opt &= ~EXT4_MOUNT_DAX_ALWAYS;
- 			sbi->s_mount_opt2 &= ~EXT4_MOUNT2_DAX_NEVER;
- 			/* Strictly for printing options */
-@@ -5454,12 +5478,6 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
- 			err = -EINVAL;
- 			goto restore_opts;
- 		}
--		if (test_opt(sb, DAX_ALWAYS)) {
--			ext4_msg(sb, KERN_ERR, "can't mount with "
--				 "both data=journal and dax");
--			err = -EINVAL;
--			goto restore_opts;
--		}
- 	} else if (test_opt(sb, DATA_FLAGS) == EXT4_MOUNT_ORDERED_DATA) {
- 		if (test_opt(sb, JOURNAL_ASYNC_COMMIT)) {
- 			ext4_msg(sb, KERN_ERR, "can't mount with "
-@@ -5475,18 +5493,6 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
- 		goto restore_opts;
- 	}
- 
--	if ((sbi->s_mount_opt ^ old_opts.s_mount_opt) & EXT4_MOUNT_DAX_ALWAYS ||
--	    (sbi->s_mount_opt2 ^ old_opts.s_mount_opt2) & EXT4_MOUNT2_DAX_NEVER ||
--	    (sbi->s_mount_opt2 ^ old_opts.s_mount_opt2) & EXT4_MOUNT2_DAX_INODE) {
--		ext4_msg(sb, KERN_WARNING, "warning: refusing change of "
--			"dax mount option with busy inodes while remounting");
--		sbi->s_mount_opt &= ~EXT4_MOUNT_DAX_ALWAYS;
--		sbi->s_mount_opt |= old_opts.s_mount_opt & EXT4_MOUNT_DAX_ALWAYS;
--		sbi->s_mount_opt2 &= ~(EXT4_MOUNT2_DAX_NEVER | EXT4_MOUNT2_DAX_INODE);
--		sbi->s_mount_opt2 |= old_opts.s_mount_opt2 &
--				     (EXT4_MOUNT2_DAX_NEVER | EXT4_MOUNT2_DAX_INODE);
--	}
--
- 	if (sbi->s_mount_flags & EXT4_MF_FS_ABORTED)
- 		ext4_abort(sb, EXT4_ERR_ESHUTDOWN, "Abort forced by user");
- 
+Obviously it'd be good to improve the test coverage, but I think that's
+something that needs doing before backporting loads of stuff rather than
+after.  For this automated stuff I'd much rather see positive
+confirmation that the change had been tested on relevant systems (not
+just something with a similar SoC), especially on the edges where we're
+getting to board specific things.
 
+--WOTjKnJ88wpJKlWH
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl7w8QYACgkQJNaLcl1U
+h9DC6wf/TsaPFLd+NPMuG4vVND70Z7iQQxL5/z/PyV7fUPbBpUUTkNGsq2Zuue1U
+aWOE4ExbeVUHmEoMtMCfYzkuigz2/cIm2zXvQC82I8EoUMLj2aG4vBhXhxNVv3Fi
+l4aBCgJTHyK3+mbu1lvaGykxUFLe3tjWj1I45GNV6mVX2jwNeyNRtwIgYtvvFw2J
+S9RzsRjKgm8GW9/JzJsY18MwkcxalIZIpsmzBkuQw/79/XjtbzC0aI3fbt2KCkha
+Cfu8PWJdRx276cbDQbGrCMJUZP36TA3Bve09TUx6OdB2nvxiODjAp0xn7VstW/xn
+m52d3uSB3K57NZFW0BuFGabvwFrHmw==
+=8po3
+-----END PGP SIGNATURE-----
+
+--WOTjKnJ88wpJKlWH--
