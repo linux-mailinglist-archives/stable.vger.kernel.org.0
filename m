@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50278203E51
-	for <lists+stable@lfdr.de>; Mon, 22 Jun 2020 19:48:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39D61203E54
+	for <lists+stable@lfdr.de>; Mon, 22 Jun 2020 19:49:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730017AbgFVRsk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Jun 2020 13:48:40 -0400
-Received: from wforward5-smtp.messagingengine.com ([64.147.123.35]:58465 "EHLO
+        id S1730134AbgFVRtC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Jun 2020 13:49:02 -0400
+Received: from wforward5-smtp.messagingengine.com ([64.147.123.35]:43111 "EHLO
         wforward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729886AbgFVRsk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Jun 2020 13:48:40 -0400
+        by vger.kernel.org with ESMTP id S1729886AbgFVRtC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Jun 2020 13:49:02 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 3A3CE10EA;
-        Mon, 22 Jun 2020 13:48:39 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 22 Jun 2020 13:48:39 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id 3796A118A;
+        Mon, 22 Jun 2020 13:49:01 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 22 Jun 2020 13:49:01 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=C0tnAO
-        3KZwW7NU33U2szZMjsrBfY3iMDBDSwmP5JRfo=; b=XY+37nDr1S4tW8qQdo8A40
-        48mGldf5IK1wvAfjuDWoClgwWIzILlUkC/IGohs+OFzkYrvIl8jwGTO2k9BnfnGw
-        d5bK8dcOvX9P03BJlIIEbpi9Uwoitc0ZGqj6G2VypFxu2u/nStBiRdHH9HVXoKYa
-        ZrG+YN2IvMSaJGbcZAPRLhTuoGnQqJAgfOYLwusTfHPvEWUc29zZ2JzgVsvQE32P
-        UukDHs7xRl3FCewjeeGHVGGpvGXWIDSnusnmM1ctqtvbtVZ5/fkZh2/0yBupuWFq
-        mAV9FaPpaZT1LiusHBsA2H/Veh/nNo06mieYzdPhfnMU++HXScfS/CodnnIs3rqg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=EOTXI3
+        x27LWnRrqcbIGaCXTft7gF3Zi4gFuQ3d1vd2c=; b=kIot7NjuzdOEiF6w6ur6qm
+        oflvz3U3NkuLbGo1O1YB/XA0yE0jTuu+2TK8k+AiCbUYYUOkIrUK3tBtGBH2s2ZV
+        wDG2CD397PqOoBNGZFd0j5GCGzuR+c/igOEfZMGI2Bdmt9KObGc4SLWlGu+AovXN
+        kgYmi0WALA87RKV9QbXrJfo7uju1obCl0itt9hLixih/HlfDSliJBgZyZUc54ajR
+        sEh0RHijpX8pKp8OeTLK/sdpN7s3WBdvKUZQAChJJ4imVTk1X77Zhlr56a/uYdy3
+        0ZYmzu1oqHUg37iL6RvBMfrvZkFsCkpNNV0vRE9MZ1rv8mU7thZKVE8GCK3oT1gA
         ==
-X-ME-Sender: <xms:9u7wXgi7w6gyKq8k82LsV5RofNv84R_Vp95wFJwsdVYyZ1uZFvQgGA>
+X-ME-Sender: <xms:DO_wXpjuuJ9-dyo7gJ6QFBxlFsZmfuOR2EWLyL4yxadeagwCT0FAGw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudekvddguddulecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
     rhhgqeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehje
     duteevueevledujeejgfetheenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhs
-    thgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
+    thgvrhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
     hhrdgtohhm
-X-ME-Proxy: <xmx:9u7wXpDutVgv03wcaLt4D8IBkfG2YjRf-6In2DFOO30KTUWoC4bpPA>
-    <xmx:9u7wXoFL7P1KWBCRWm6C8JA8jeAh8-QgZPqtWGUnqnFpr6MUNb7ehQ>
-    <xmx:9u7wXhR4QSfVOwSYZ6p-Jb8XlRKSOe1sRY_d9xt6LOSqNbZ02Arfwg>
-    <xmx:9u7wXmtjM8lHd-GyASz8CaYO2zcl1XtuiCh3XHHN3_SWQ1ioRhd2LSNyxBY>
+X-ME-Proxy: <xmx:DO_wXuBCMDQMfuPIRgegseTfW_5f8N_w8ENkFEZW11GgZYDuLzHtRQ>
+    <xmx:DO_wXpERgnKsxHJJru6EXBULYFPmK7lmLJbuHvTVCf3bX17bWyi0hw>
+    <xmx:DO_wXuQsudEgef-bOUlPxtkvQFPpbwNmYDwWLjTaj5zTWl0SvsZdeg>
+    <xmx:DO_wXl-UT-Nx3b1GcCkwaM01bY6YyyFjwaBYdjyur1AG-egU-etthN-p1kw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 0287C30673C9;
-        Mon, 22 Jun 2020 13:48:37 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] io_uring: add memory barrier to synchronize io_kiocb's result" failed to apply to 5.7-stable tree
-To:     xiaoguang.wang@linux.alibaba.com, axboe@kernel.dk
+        by mail.messagingengine.com (Postfix) with ESMTPA id 72CA63280067;
+        Mon, 22 Jun 2020 13:49:00 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] io_uring: acquire 'mm' for task_work for SQPOLL" failed to apply to 5.7-stable tree
+To:     axboe@kernel.dk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 22 Jun 2020 19:48:32 +0200
-Message-ID: <15928481127127@kroah.com>
+Date:   Mon, 22 Jun 2020 19:48:55 +0200
+Message-ID: <159284813596252@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -69,139 +69,100 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From bbde017a32b32d2fa8d5fddca25fade20132abf8 Mon Sep 17 00:00:00 2001
-From: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
-Date: Tue, 16 Jun 2020 02:06:38 +0800
-Subject: [PATCH] io_uring: add memory barrier to synchronize io_kiocb's result
- and iopoll_completed
+From 9d8426a09195e2dcf2aa249de2aaadd792d491c7 Mon Sep 17 00:00:00 2001
+From: Jens Axboe <axboe@kernel.dk>
+Date: Tue, 16 Jun 2020 18:42:49 -0600
+Subject: [PATCH] io_uring: acquire 'mm' for task_work for SQPOLL
 
-In io_complete_rw_iopoll(), stores to io_kiocb's result and iopoll
-completed are two independent store operations, to ensure that once
-iopoll_completed is ture and then req->result must been perceived by
-the cpu executing io_do_iopoll(), proper memory barrier should be used.
+If we're unlucky with timing, we could be running task_work after
+having dropped the memory context in the sq thread. Since dropping
+the context requires a runnable task state, we cannot reliably drop
+it as part of our check-for-work loop in io_sq_thread(). Instead,
+abstract out the mm acquire for the sq thread into a helper, and call
+it from the async task work handler.
 
-And in io_do_iopoll(), we check whether req->result is EAGAIN, if it is,
-we'll need to issue this io request using io-wq again. In order to just
-issue a single smp_rmb() on the completion side, move the re-submit work
-to io_iopoll_complete().
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
-[axboe: don't set ->iopoll_completed for -EAGAIN retry]
+Cc: stable@vger.kernel.org # v5.7
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index eb3797714539..9d2ae9aa8b45 100644
+index 9d2ae9aa8b45..98c83fbf4f88 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -1742,6 +1742,18 @@ static int io_put_kbuf(struct io_kiocb *req)
- 	return cflags;
+@@ -4256,6 +4256,28 @@ static void io_async_queue_proc(struct file *file, struct wait_queue_head *head,
+ 	__io_queue_proc(&pt->req->apoll->poll, pt, head);
  }
  
-+static void io_iopoll_queue(struct list_head *again)
++static void io_sq_thread_drop_mm(struct io_ring_ctx *ctx)
 +{
-+	struct io_kiocb *req;
++	struct mm_struct *mm = current->mm;
 +
-+	do {
-+		req = list_first_entry(again, struct io_kiocb, list);
-+		list_del(&req->list);
-+		refcount_inc(&req->refs);
-+		io_queue_async_work(req);
-+	} while (!list_empty(again));
++	if (mm) {
++		kthread_unuse_mm(mm);
++		mmput(mm);
++	}
 +}
 +
- /*
-  * Find and free completed poll iocbs
-  */
-@@ -1750,12 +1762,21 @@ static void io_iopoll_complete(struct io_ring_ctx *ctx, unsigned int *nr_events,
- {
- 	struct req_batch rb;
- 	struct io_kiocb *req;
-+	LIST_HEAD(again);
++static int io_sq_thread_acquire_mm(struct io_ring_ctx *ctx,
++				   struct io_kiocb *req)
++{
++	if (io_op_defs[req->opcode].needs_mm && !current->mm) {
++		if (unlikely(!mmget_not_zero(ctx->sqo_mm)))
++			return -EFAULT;
++		kthread_use_mm(ctx->sqo_mm);
++	}
 +
-+	/* order with ->result store in io_complete_rw_iopoll() */
-+	smp_rmb();
++	return 0;
++}
++
+ static void io_async_task_func(struct callback_head *cb)
+ {
+ 	struct io_kiocb *req = container_of(cb, struct io_kiocb, task_work);
+@@ -4290,11 +4312,16 @@ static void io_async_task_func(struct callback_head *cb)
  
- 	rb.to_free = rb.need_iter = 0;
- 	while (!list_empty(done)) {
- 		int cflags = 0;
- 
- 		req = list_first_entry(done, struct io_kiocb, list);
-+		if (READ_ONCE(req->result) == -EAGAIN) {
-+			req->iopoll_completed = 0;
-+			list_move_tail(&req->list, &again);
-+			continue;
+ 	if (!canceled) {
+ 		__set_current_state(TASK_RUNNING);
++		if (io_sq_thread_acquire_mm(ctx, req)) {
++			io_cqring_add_event(req, -EFAULT);
++			goto end_req;
 +		}
- 		list_del(&req->list);
- 
- 		if (req->flags & REQ_F_BUFFER_SELECTED)
-@@ -1773,18 +1794,9 @@ static void io_iopoll_complete(struct io_ring_ctx *ctx, unsigned int *nr_events,
- 	if (ctx->flags & IORING_SETUP_SQPOLL)
+ 		mutex_lock(&ctx->uring_lock);
+ 		__io_queue_sqe(req, NULL);
+ 		mutex_unlock(&ctx->uring_lock);
+ 	} else {
  		io_cqring_ev_posted(ctx);
- 	io_free_req_many(ctx, &rb);
++end_req:
+ 		req_set_fail_links(req);
+ 		io_double_put_req(req);
+ 	}
+@@ -5841,11 +5868,8 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ 	if (unlikely(req->opcode >= IORING_OP_LAST))
+ 		return -EINVAL;
+ 
+-	if (io_op_defs[req->opcode].needs_mm && !current->mm) {
+-		if (unlikely(!mmget_not_zero(ctx->sqo_mm)))
+-			return -EFAULT;
+-		kthread_use_mm(ctx->sqo_mm);
+-	}
++	if (unlikely(io_sq_thread_acquire_mm(ctx, req)))
++		return -EFAULT;
+ 
+ 	sqe_flags = READ_ONCE(sqe->flags);
+ 	/* enforce forwards compatibility on users */
+@@ -5954,16 +5978,6 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
+ 	return submitted;
+ }
+ 
+-static inline void io_sq_thread_drop_mm(struct io_ring_ctx *ctx)
+-{
+-	struct mm_struct *mm = current->mm;
+-
+-	if (mm) {
+-		kthread_unuse_mm(mm);
+-		mmput(mm);
+-	}
 -}
 -
--static void io_iopoll_queue(struct list_head *again)
--{
--	struct io_kiocb *req;
- 
--	do {
--		req = list_first_entry(again, struct io_kiocb, list);
--		list_del(&req->list);
--		refcount_inc(&req->refs);
--		io_queue_async_work(req);
--	} while (!list_empty(again));
-+	if (!list_empty(&again))
-+		io_iopoll_queue(&again);
- }
- 
- static int io_do_iopoll(struct io_ring_ctx *ctx, unsigned int *nr_events,
-@@ -1792,7 +1804,6 @@ static int io_do_iopoll(struct io_ring_ctx *ctx, unsigned int *nr_events,
+ static int io_sq_thread(void *data)
  {
- 	struct io_kiocb *req, *tmp;
- 	LIST_HEAD(done);
--	LIST_HEAD(again);
- 	bool spin;
- 	int ret;
- 
-@@ -1818,13 +1829,6 @@ static int io_do_iopoll(struct io_ring_ctx *ctx, unsigned int *nr_events,
- 		if (!list_empty(&done))
- 			break;
- 
--		if (req->result == -EAGAIN) {
--			list_move_tail(&req->list, &again);
--			continue;
--		}
--		if (!list_empty(&again))
--			break;
--
- 		ret = kiocb->ki_filp->f_op->iopoll(kiocb, spin);
- 		if (ret < 0)
- 			break;
-@@ -1837,9 +1841,6 @@ static int io_do_iopoll(struct io_ring_ctx *ctx, unsigned int *nr_events,
- 	if (!list_empty(&done))
- 		io_iopoll_complete(ctx, nr_events, &done);
- 
--	if (!list_empty(&again))
--		io_iopoll_queue(&again);
--
- 	return ret;
- }
- 
-@@ -1990,9 +1991,13 @@ static void io_complete_rw_iopoll(struct kiocb *kiocb, long res, long res2)
- 
- 	if (res != -EAGAIN && res != req->result)
- 		req_set_fail_links(req);
--	req->result = res;
--	if (res != -EAGAIN)
-+
-+	WRITE_ONCE(req->result, res);
-+	/* order with io_poll_complete() checking ->result */
-+	if (res != -EAGAIN) {
-+		smp_wmb();
- 		WRITE_ONCE(req->iopoll_completed, 1);
-+	}
- }
- 
- /*
+ 	struct io_ring_ctx *ctx = data;
 
