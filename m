@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07519206202
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:08:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E175206232
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:09:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390860AbgFWUxl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:53:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44300 "EHLO mail.kernel.org"
+        id S2388451AbgFWU5I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:57:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392841AbgFWUqZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:46:25 -0400
+        id S2392469AbgFWUm7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:42:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9BD842098B;
-        Tue, 23 Jun 2020 20:46:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5471C218AC;
+        Tue, 23 Jun 2020 20:42:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592945186;
-        bh=msSZplCUBx1WweaibaP2xSwJxAtw/Tx1BtL/09+5HVo=;
+        s=default; t=1592944979;
+        bh=eCIISwX8b9C15X9TqAuD6sELfLxLdfmbumORZ1Z8M3g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h0KcKio3ZPHVCmWg5BQxsjQZnVIN5cskz6I53y7ClhmmczL2X1Bl+mqW7sYM/nZ89
-         fSrCHrkChhiAymbt2yQGsVObljnzW4MAgT0DZnyRIF9P7x0YFEaZiMtYBUHjfjhnJQ
-         SYsptIUdw72+QM3R48KoVr6WrOHILCiuSdGb/eiY=
+        b=biNzA4/5iNKtLq/mTrEcIqrrBezllO1QUHhcu82qp6j0beJzrotfzbbOnkNjEXVeU
+         5a1SnF/DJ1x2FsdwofTWFQ7XexiMkvkh1bwTiWyorbQg4lESNEPi+piUsUe8siZUSf
+         mIXti0z4BPt9Dzs3v/tiKnqAHIXIRumOa3qZpOtE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Logan Gunthorpe <logang@deltatee.com>,
-        Allen Hubbe <allenbh@gmail.com>,
-        Alexander Fomichev <fomichev.ru@gmail.com>,
-        Jon Mason <jdmason@kudzu.us>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 031/136] NTB: Fix the default port and peer numbers for legacy drivers
+        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 159/206] x86/idt: Keep spurious entries unset in system_vectors
 Date:   Tue, 23 Jun 2020 21:58:07 +0200
-Message-Id: <20200623195305.217698881@linuxfoundation.org>
+Message-Id: <20200623195324.811460432@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195303.601828702@linuxfoundation.org>
-References: <20200623195303.601828702@linuxfoundation.org>
+In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
+References: <20200623195316.864547658@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,67 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Logan Gunthorpe <logang@deltatee.com>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-[ Upstream commit fc8b086d9dbd57458d136c4fa70ee26f832c3a2e ]
+[ Upstream commit 1f1fbc70c10e81f70e9fbe2102d439c883269811 ]
 
-When the commit adding ntb_default_port_number() and
-ntb_default_peer_port_number()  entered the kernel there was no
-users of it so it was impossible to tell what the API needed.
+With commit dc20b2d52653 ("x86/idt: Move interrupt gate initialization to
+IDT code") non assigned system vectors are also marked as used in
+'used_vectors' (now 'system_vectors') bitmap. This makes checks in
+arch_show_interrupts() whether a particular system vector is allocated to
+always pass and e.g. 'Hyper-V reenlightenment interrupts' entry always
+shows up in /proc/interrupts.
 
-When a user finally landed a year later (ntb_pingpong) there were
-more NTB topologies were created and no consideration was considered
-to how other drivers had changed.
+Another side effect of having all unassigned system vectors marked as used
+is that irq_matrix_debug_show() will wrongly count them among 'System'
+vectors.
 
-Now that there is a user it can be fixed to provide a sensible default
-for the legacy drivers that do not implement ntb_{peer_}port_number().
-Seeing ntb_pingpong doesn't check error codes returning EINVAL was also
-not sensible.
+As it is now ensured that alloc_intr_gate() is not called after init, it is
+possible to leave unused entries in 'system_vectors' unset to fix these
+issues.
 
-Patches for ntb_pingpong and ntb_perf follow (which are broken
-otherwise) to support hardware that doesn't have port numbers. This is
-important not only to not break support with existing drivers but for
-the cross link topology which, due to its perfect symmetry, cannot
-assign unique port numbers to each side.
-
-Fixes: 1e5301196a88 ("NTB: Add indexed ports NTB API")
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
-Acked-by: Allen Hubbe <allenbh@gmail.com>
-Tested-by: Alexander Fomichev <fomichev.ru@gmail.com>
-Signed-off-by: Jon Mason <jdmason@kudzu.us>
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20200428093824.1451532-4-vkuznets@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ntb/ntb.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ arch/x86/kernel/idt.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/ntb/ntb.c b/drivers/ntb/ntb.c
-index 03b80d89b9800..b75ec229b39a5 100644
---- a/drivers/ntb/ntb.c
-+++ b/drivers/ntb/ntb.c
-@@ -216,10 +216,8 @@ int ntb_default_port_number(struct ntb_dev *ntb)
- 	case NTB_TOPO_B2B_DSD:
- 		return NTB_PORT_SEC_DSD;
- 	default:
--		break;
-+		return 0;
- 	}
--
--	return -EINVAL;
- }
- EXPORT_SYMBOL(ntb_default_port_number);
+diff --git a/arch/x86/kernel/idt.c b/arch/x86/kernel/idt.c
+index a7e0e975043fd..e1f9355307b81 100644
+--- a/arch/x86/kernel/idt.c
++++ b/arch/x86/kernel/idt.c
+@@ -320,7 +320,11 @@ void __init idt_setup_apic_and_irq_gates(void)
  
-@@ -242,10 +240,8 @@ int ntb_default_peer_port_number(struct ntb_dev *ntb, int pidx)
- 	case NTB_TOPO_B2B_DSD:
- 		return NTB_PORT_PRI_USD;
- 	default:
--		break;
-+		return 0;
+ #ifdef CONFIG_X86_LOCAL_APIC
+ 	for_each_clear_bit_from(i, system_vectors, NR_VECTORS) {
+-		set_bit(i, system_vectors);
++		/*
++		 * Don't set the non assigned system vectors in the
++		 * system_vectors bitmap. Otherwise they show up in
++		 * /proc/interrupts.
++		 */
+ 		entry = spurious_entries_start + 8 * (i - FIRST_SYSTEM_VECTOR);
+ 		set_intr_gate(i, entry);
  	}
--
--	return -EINVAL;
- }
- EXPORT_SYMBOL(ntb_default_peer_port_number);
- 
 -- 
 2.25.1
 
