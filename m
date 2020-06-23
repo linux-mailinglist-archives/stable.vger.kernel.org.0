@@ -2,93 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93EB72046AF
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 03:24:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC5B22046B2
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 03:27:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731747AbgFWBYZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Jun 2020 21:24:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46168 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731690AbgFWBYZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Jun 2020 21:24:25 -0400
-Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5BB5C061573
-        for <stable@vger.kernel.org>; Mon, 22 Jun 2020 18:24:24 -0700 (PDT)
-Received: by mail-pf1-x442.google.com with SMTP id j12so7073702pfn.10
-        for <stable@vger.kernel.org>; Mon, 22 Jun 2020 18:24:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=sifive.com; s=google;
-        h=from:to:cc:subject:date:message-id;
-        bh=l4NYx667LG9q9NFGHrK23fyoECCOJjNd1dq7cs066Xg=;
-        b=lpSJRyVpMEsSOlvl7kLzvql8UnqNahJULDPUbsSP9RGfZaLp48G3K1rApZj570TLQh
-         J9l3L3GPMNLQMHApW9po/sCNvQu26odVE7IO0mib9L0YnQPfJXtdmGg2zZV8x+Zm9jOf
-         KDvmFz603RZlvsXdmKd9WxJjGjx0sE0B/74Wq3uniXhl872k7M/OMWbVK7/zyk+K/EeN
-         AWt+BcjhD5asn9AItFyDrvFn5gaLgKy4KbxdDY0Uf3HtUBfNgEV7npiE5TETWWWWYy69
-         EdZy+sju6ZHoeyRQk9Kclcu5EbF6SqptmiMvr8RV5T404erEUtPJfNa9hA6AaYqh3VZT
-         W7Vg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=l4NYx667LG9q9NFGHrK23fyoECCOJjNd1dq7cs066Xg=;
-        b=heNcoduH3/6GZzLwr4mEJ1VmGHtZJRzNH3qCJPEMM+ns4nDYJ8tgqibD6kFVY7ZDSE
-         /pviebueawX5W0hhepVRck2o/NpQyDDEWJyPPTbTDTKWdN8hKmAgHpzsXPBk/YWEfNY+
-         0WetAOmm4bbSK7YS19dpMN1yPQCr3aIwubOBA2oao7MtZNWuKm6P6PmkH55yFuhuPKRu
-         YgN3iW+hs7apY7h4YIjzOWh78r9ouC2lIpis9EDnoCerVBZGcquBLaERDMJbrupExbm8
-         0wOMJbTEHWu7Uy8X56Y+rw0EXf8zGqPC7XmtuGkv7VFkds0swH72rvHwBTaJvDwkgaQ9
-         JJgA==
-X-Gm-Message-State: AOAM530OFvWH+HdgYlMlwFpZMm/TJpdKzdUCKyEfe+496hnrFGNCBgi3
-        xjp3qU/7xSgrBzdqWY6c1PPHog==
-X-Google-Smtp-Source: ABdhPJzNNvEHle0i/TVzP9UjYgijBZ+zV1srWvoidpPMJMlcQw0Uv7YxUnPSWC3OfZ7GW2JuzhcV/Q==
-X-Received: by 2002:a63:8949:: with SMTP id v70mr15020402pgd.256.1592875463979;
-        Mon, 22 Jun 2020 18:24:23 -0700 (PDT)
-Received: from VincentChen-ThinkPad-T480s.internal.sifive.com (114-34-229-221.HINET-IP.hinet.net. [114.34.229.221])
-        by smtp.gmail.com with ESMTPSA id l61sm656741pjb.10.2020.06.22.18.24.22
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 22 Jun 2020 18:24:23 -0700 (PDT)
-From:   Vincent Chen <vincent.chen@sifive.com>
-To:     mturquette@baylibre.com, sboyd@kernel.org,
-        paul.walmsley@sifive.com, palmer@dabbelt.com
-Cc:     linux-riscv@lists.infradead.org, schwab@suse.de,
-        Vincent Chen <vincent.chen@sifive.com>, stable@vger.kernel.org
-Subject: [PATCH] clk: sifive: allocate sufficient memory for struct __prci_data
-Date:   Tue, 23 Jun 2020 09:24:17 +0800
-Message-Id: <1592875458-5887-1-git-send-email-vincent.chen@sifive.com>
-X-Mailer: git-send-email 2.7.4
+        id S1731747AbgFWB1f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Jun 2020 21:27:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57786 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731572AbgFWB1f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Jun 2020 21:27:35 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F5EB20720;
+        Tue, 23 Jun 2020 01:27:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1592875654;
+        bh=m5rKXmfyC1BPFj7LEaU2zplEgB0BdXJJTHgOA2tfhcI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=oX/P+QrmDzg0TnkjRZs70GT8BmnAv709AKSZEYpxXyPRT+F/c/g2L1EoGnu+s69qj
+         3TkOz6YqB2pcKaBgDasJavNMSjhHKQfk4aoeyyu08NNgBG17nNsC2dp3WiOhvpd78N
+         bU7wFORNq3hBIFpygzTrNEEb+vwhOcpQL2oggB2A=
+Date:   Mon, 22 Jun 2020 21:27:33 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     miquel.raynal@bootlin.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] mtd: rawnand: diskonchip: Fix the probe
+ error path" failed to apply to 4.19-stable tree
+Message-ID: <20200623012733.GT1931@sasha-vm>
+References: <159257446611107@kroah.com>
+ <20200623004853.GS1931@sasha-vm>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20200623004853.GS1931@sasha-vm>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The (struct __prci_data).hw_clks.hws is an array with dynamic elements.
-Using struct_size(pd, hw_clks.hws, ARRAY_SIZE(__prci_init_clocks))
-instead of sizeof(*pd) to get the correct memory size of
-struct __prci_data for sifive/fu540-prci. After applying this
-modifications, the kernel runs smoothly with CONFIG_SLAB_FREELIST_RANDOM
-enabled on the HiFive unleashed board.
+On Mon, Jun 22, 2020 at 08:48:53PM -0400, Sasha Levin wrote:
+>On Fri, Jun 19, 2020 at 03:47:46PM +0200, gregkh@linuxfoundation.org wrote:
+>>
+>>The patch below does not apply to the 4.19-stable tree.
+>>If someone wants it applied there, or to any other stable or longterm
+>>tree, then please email the backport, including the original git commit
+>>id to <stable@vger.kernel.org>.
+>>
+>>thanks,
+>>
+>>greg k-h
+>>
+>>------------------ original commit in Linus's tree ------------------
+>>
+>>From c5be12e45940f1aa1b5dfa04db5d15ad24f7c896 Mon Sep 17 00:00:00 2001
+>>From: Miquel Raynal <miquel.raynal@bootlin.com>
+>>Date: Tue, 19 May 2020 14:59:45 +0200
+>>Subject: [PATCH] mtd: rawnand: diskonchip: Fix the probe error path
+>>
+>>Not sure nand_cleanup() is the right function to call here but in any
+>>case it is not nand_release(). Indeed, even a comment says that
+>>calling nand_release() is a bit of a hack as there is no MTD device to
+>>unregister. So switch to nand_cleanup() for now and drop this
+>>comment.
+>>
+>>There is no Fixes tag applying here as the use of nand_release()
+>>in this driver predates by far the introduction of nand_cleanup() in
+>>commit d44154f969a4 ("mtd: nand: Provide nand_cleanup() function to free NAND related resources")
+>>which makes this change possible. However, pointing this commit as the
+>>culprit for backporting purposes makes sense even if it did not intruce
+>>any bug.
+>>
+>>Fixes: d44154f969a4 ("mtd: nand: Provide nand_cleanup() function to free NAND related resources")
+>>Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+>>Cc: stable@vger.kernel.org
+>>Link: https://lore.kernel.org/linux-mtd/20200519130035.1883-13-miquel.raynal@bootlin.com
+>
+>Some code refactoring:
+>
+>59ac276f2227 ("mtd: rawnand: Pass a nand_chip object to nand_release()")
+>00ad378f304a ("mtd: rawnand: Pass a nand_chip object to nand_scan()")
+>
+>And movement (drivers/mtd/nand/diskonchip.c ->
+>drivers/mtd/nand/raw/diskonchip.c) in older branches. I've fixed it up
+>and queued for 4.19-4.9.
 
-Fixes: 30b8e27e3b58 ("clk: sifive: add a driver for the SiFive FU540 PRCI IP block")
-Cc: stable@vger.kernel.org
-Signed-off-by: Vincent Chen <vincent.chen@sifive.com>
----
- drivers/clk/sifive/fu540-prci.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+I've changed my mind and grabbed both:
 
-diff --git a/drivers/clk/sifive/fu540-prci.c b/drivers/clk/sifive/fu540-prci.c
-index 6282ee2f361c..a8901f90a61a 100644
---- a/drivers/clk/sifive/fu540-prci.c
-+++ b/drivers/clk/sifive/fu540-prci.c
-@@ -586,7 +586,10 @@ static int sifive_fu540_prci_probe(struct platform_device *pdev)
- 	struct __prci_data *pd;
- 	int r;
- 
--	pd = devm_kzalloc(dev, sizeof(*pd), GFP_KERNEL);
-+	pd = devm_kzalloc(dev,
-+			  struct_size(pd, hw_clks.hws,
-+				      ARRAY_SIZE(__prci_init_clocks)),
-+			  GFP_KERNEL);
- 	if (!pd)
- 		return -ENOMEM;
- 
+59ac276f2227 ("mtd: rawnand: Pass a nand_chip object to nand_release()")
+00ad378f304a ("mtd: rawnand: Pass a nand_chip object to nand_scan()")
+
+Which allowed my to (relatively) easily grabbed all the other failed mtd
+patches into 4.19-4.9.
+
 -- 
-2.7.4
-
+Thanks,
+Sasha
