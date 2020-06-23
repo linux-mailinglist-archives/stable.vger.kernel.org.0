@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66585206377
+	by mail.lfdr.de (Postfix) with ESMTP id DC00F206378
 	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:29:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390270AbgFWUZb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:25:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44490 "EHLO mail.kernel.org"
+        id S2390567AbgFWUZj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:25:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390292AbgFWUZa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:25:30 -0400
+        id S2390562AbgFWUZf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:25:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D8DD2064B;
-        Tue, 23 Jun 2020 20:25:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D305C206EB;
+        Tue, 23 Jun 2020 20:25:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943930;
-        bh=sVoTlAa8EyOpcnGZDZ8ZZxRpsUTP4rbwEg9bzbnDZsk=;
+        s=default; t=1592943935;
+        bh=T+rGk9RKgviyHEvJnT1d21Zz2X+wqeEWgR9AJEDewr0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U8hnZI0ajDSV3Wc9lWFb0CfZIB4TgRQKVUpOBoN8pTZLBRSGG/CABs3a2Wn0YAq6r
-         Gu8BeB/ktjgcXb0+L8JgNwSdglkY8UbAAIrq4BogweCjTBjdEbsEc5CJQCJPDIc8d6
-         Wa8W/U2H/qrZsJt4erjUkbQXuyya7Em7Bwa+jwIU=
+        b=zaokRwhe8843Te0db9SYRmsU1CXuqK3T/XL2QRlePYW8SkdbZfAF9eAK2sd6y1d/j
+         skcAgCk6g7YjThch43wgyvxIsVqCa6muZimfetlPrgWUMk+kNE61jsOuGEv4tfvcym
+         TqAcHmlaRJg5VwMA19pSul6yjyTXasiDsLBmkDsU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Amit Kucheria <amit.kucheria@linaro.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 107/314] clk: meson: meson8b: Fix the vclk_div{1, 2, 4, 6, 12}_en gate bits
-Date:   Tue, 23 Jun 2020 21:55:02 +0200
-Message-Id: <20200623195343.963082163@linuxfoundation.org>
+Subject: [PATCH 5.4 109/314] thermal/drivers/ti-soc-thermal: Avoid dereferencing ERR_PTR
+Date:   Tue, 23 Jun 2020 21:55:04 +0200
+Message-Id: <20200623195344.066310160@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
 References: <20200623195338.770401005@linuxfoundation.org>
@@ -45,79 +46,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 
-[ Upstream commit 8bb629cfb28f4dad9d47f69249366e50ae5edc25 ]
+[ Upstream commit 7440f518dad9d861d76c64956641eeddd3586f75 ]
 
-The DIV{1,2,4,6,12}_EN bits are actually located in HHI_VID_CLK_CNTL
-register:
-- HHI_VID_CLK_CNTL[0] = DIV1_EN
-- HHI_VID_CLK_CNTL[1] = DIV2_EN
-- HHI_VID_CLK_CNTL[2] = DIV4_EN
-- HHI_VID_CLK_CNTL[3] = DIV6_EN
-- HHI_VID_CLK_CNTL[4] = DIV12_EN
+On error the function ti_bandgap_get_sensor_data() returns the error
+code in ERR_PTR() but we only checked if the return value is NULL or
+not. And, so we can dereference an error code inside ERR_PTR.
+While at it, convert a check to IS_ERR_OR_NULL.
 
-Update the bits accordingly so we will enable the bits in the correct
-register once we switch these clocks to be mutable.
-
-Fixes: 6cb57c678bb70e ("clk: meson: meson8b: add the read-only video clock trees")
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
-Link: https://lore.kernel.org/r/20200417184127.1319871-4-martin.blumenstingl@googlemail.com
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Reviewed-by: Amit Kucheria <amit.kucheria@linaro.org>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20200424161944.6044-1-sudipm.mukherjee@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/meson/meson8b.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/thermal/ti-soc-thermal/ti-thermal-common.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/clk/meson/meson8b.c b/drivers/clk/meson/meson8b.c
-index 52337a100a90d..4f9b79ed79d7d 100644
---- a/drivers/clk/meson/meson8b.c
-+++ b/drivers/clk/meson/meson8b.c
-@@ -1207,7 +1207,7 @@ static struct clk_regmap meson8b_vclk_in_en = {
+diff --git a/drivers/thermal/ti-soc-thermal/ti-thermal-common.c b/drivers/thermal/ti-soc-thermal/ti-thermal-common.c
+index d3e959d01606c..85776db4bf346 100644
+--- a/drivers/thermal/ti-soc-thermal/ti-thermal-common.c
++++ b/drivers/thermal/ti-soc-thermal/ti-thermal-common.c
+@@ -169,7 +169,7 @@ int ti_thermal_expose_sensor(struct ti_bandgap *bgp, int id,
  
- static struct clk_regmap meson8b_vclk_div1_gate = {
- 	.data = &(struct clk_regmap_gate_data){
--		.offset = HHI_VID_CLK_DIV,
-+		.offset = HHI_VID_CLK_CNTL,
- 		.bit_idx = 0,
- 	},
- 	.hw.init = &(struct clk_init_data){
-@@ -1237,7 +1237,7 @@ static struct clk_fixed_factor meson8b_vclk_div2_div = {
+ 	data = ti_bandgap_get_sensor_data(bgp, id);
  
- static struct clk_regmap meson8b_vclk_div2_div_gate = {
- 	.data = &(struct clk_regmap_gate_data){
--		.offset = HHI_VID_CLK_DIV,
-+		.offset = HHI_VID_CLK_CNTL,
- 		.bit_idx = 1,
- 	},
- 	.hw.init = &(struct clk_init_data){
-@@ -1267,7 +1267,7 @@ static struct clk_fixed_factor meson8b_vclk_div4_div = {
+-	if (!data || IS_ERR(data))
++	if (!IS_ERR_OR_NULL(data))
+ 		data = ti_thermal_build_data(bgp, id);
  
- static struct clk_regmap meson8b_vclk_div4_div_gate = {
- 	.data = &(struct clk_regmap_gate_data){
--		.offset = HHI_VID_CLK_DIV,
-+		.offset = HHI_VID_CLK_CNTL,
- 		.bit_idx = 2,
- 	},
- 	.hw.init = &(struct clk_init_data){
-@@ -1297,7 +1297,7 @@ static struct clk_fixed_factor meson8b_vclk_div6_div = {
+ 	if (!data)
+@@ -196,7 +196,7 @@ int ti_thermal_remove_sensor(struct ti_bandgap *bgp, int id)
  
- static struct clk_regmap meson8b_vclk_div6_div_gate = {
- 	.data = &(struct clk_regmap_gate_data){
--		.offset = HHI_VID_CLK_DIV,
-+		.offset = HHI_VID_CLK_CNTL,
- 		.bit_idx = 3,
- 	},
- 	.hw.init = &(struct clk_init_data){
-@@ -1327,7 +1327,7 @@ static struct clk_fixed_factor meson8b_vclk_div12_div = {
+ 	data = ti_bandgap_get_sensor_data(bgp, id);
  
- static struct clk_regmap meson8b_vclk_div12_div_gate = {
- 	.data = &(struct clk_regmap_gate_data){
--		.offset = HHI_VID_CLK_DIV,
-+		.offset = HHI_VID_CLK_CNTL,
- 		.bit_idx = 4,
- 	},
- 	.hw.init = &(struct clk_init_data){
+-	if (data && data->ti_thermal) {
++	if (!IS_ERR_OR_NULL(data) && data->ti_thermal) {
+ 		if (data->our_zone)
+ 			thermal_zone_device_unregister(data->ti_thermal);
+ 	}
+@@ -262,7 +262,7 @@ int ti_thermal_unregister_cpu_cooling(struct ti_bandgap *bgp, int id)
+ 
+ 	data = ti_bandgap_get_sensor_data(bgp, id);
+ 
+-	if (data) {
++	if (!IS_ERR_OR_NULL(data)) {
+ 		cpufreq_cooling_unregister(data->cool_dev);
+ 		if (data->policy)
+ 			cpufreq_cpu_put(data->policy);
 -- 
 2.25.1
 
