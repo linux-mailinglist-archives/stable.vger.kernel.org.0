@@ -2,57 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E638205170
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 13:57:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D742D205171
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 13:57:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732396AbgFWL5l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 07:57:41 -0400
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:38389 "EHLO
+        id S1732448AbgFWL54 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 07:57:56 -0400
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:47101 "EHLO
         wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1732333AbgFWL5l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Jun 2020 07:57:41 -0400
+        by vger.kernel.org with ESMTP id S1732439AbgFWL5z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Jun 2020 07:57:55 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id E9F6FA08;
-        Tue, 23 Jun 2020 07:57:39 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Tue, 23 Jun 2020 07:57:40 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id D0AD2A13;
+        Tue, 23 Jun 2020 07:57:53 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Tue, 23 Jun 2020 07:57:54 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=dDuH1H
-        0V9u3pMDq/z1Hm52809nnWdTdnI8bDYbMEDbU=; b=E9m1LwdVCto9vmco86+7t/
-        2nYyThnclYkTh6WSodjDmzTo+axhYm6kOyNZQpIz9pQQtbpLZkBgeT2f6HDBM2Vl
-        0yvP3Sev5q2viSWZ051w03tqbKMAW1EnmahNoZwHVwXi+7MNzfHMLJ6vpYY5q7/b
-        /Z0s22PYjQ7G+NEv/1b1k3jskxUWwm1fDrhN+mdNkDLu8l52KsfC/qzpaCVQ0tfd
-        yXm0CozmPPElrmnIWxZE3ZLBp0iL1AlUKJG3h9Y5y67al2/DA1KSUEa8FadfsV52
-        DgzjTeTige1hvcA3hD0EGleMqzils865SyhMK7e4JeP49qaWYrFxP97XWiV6I3uA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=ehWFES
+        bEeS7Q61qmZ5Nkss2KBifzUOF+SSsfWMFgYLA=; b=Lg4sxlEfOtBb9c4iA7JIS/
+        8JWCXNKA7V8k/VADHbzq4F9+QTQqjZwVLo4DJsaUe9Tml0rLMZ7k7uLyQ/jhjMrN
+        jbtNZUfRTGGL2P8pGLqKhi/Fj6tnA6+2WzARPhQIZEh84rNgxFHqkjFlxounyWsu
+        75HfegSKj1Qjxu7NOC80gZJ0qa/qcE2g47wi0alQgN94iU0vv2xtfHrdxJmaJ/aN
+        yeb9VqRr5sz5BM62w85wiFfl9qlEOgG1N75JuGEZYDhlX2y/+cIhPpvFzkJOSL0z
+        Gt2AnOhmBq65d8C3nhrLkbbvhKWkcu4B6QUvdAGiCtmfuaPXls59nvxr9zFwgVNg
         ==
-X-ME-Sender: <xms:M-7xXsCsxqODS0tO9yqI4653hfAhFXZStPiM-vmu2R69J4tsPFanDg>
+X-ME-Sender: <xms:Qe7xXh98yJON34JIQtLPmYNICyyYr1LFPeZyrjXEIOblMGlqzCysJg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudekhedgudelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
+    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpe
     hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:M-7xXugpwkNxuMQRtLk8HJvTaE9_LgjXkmHeqNxdqwfQFAPxeQ0Kaw>
-    <xmx:M-7xXvmfkhRj3fE2GgBmANmPXsJoMD10whs4ddnkciOYjsVwj4deJA>
-    <xmx:M-7xXiw_lyrSZqS5qbyVbF2v7UNqyG4rXMkViwSDS9jzmZSR9LKEQQ>
-    <xmx:M-7xXsF4_XKWqqhwcuRmFKYyOmNPSKSnecz_QfWuqwUHEBrQbg_Z7-OdygXLYWE0>
+X-ME-Proxy: <xmx:Qe7xXlvPaqIQDT49ZmW5P1VsjxrdT7M3K6oEcIoKYUI03-kNQc2o6Q>
+    <xmx:Qe7xXvBjCidbTaDEQ908SzJc-_YMPmGE7BT_IBQq-hKoAS7_xqxU2g>
+    <xmx:Qe7xXleZWXt9OlnN_XcL58E8s2eJOhGPn54o5bqzn27yDO_O_f0MEg>
+    <xmx:Qe7xXnGpo-mXM4slVzM8n85Ra4MEMMNpe7lRC7t1Sr0fV1AtWOEl_L-Ejv447_3W>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 21077328005D;
-        Tue, 23 Jun 2020 07:57:39 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] kprobes: Fix to protect kick_kprobe_optimizer() by" failed to apply to 4.9-stable tree
-To:     mhiramat@kernel.org, anders.roxell@linaro.org,
+        by mail.messagingengine.com (Postfix) with ESMTPA id 0215E30674C8;
+        Tue, 23 Jun 2020 07:57:52 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] kretprobe: Prevent triggering kretprobe from within" failed to apply to 4.4-stable tree
+To:     jolsa@redhat.com, anders.roxell@linaro.org,
         anil.s.keshavamurthy@intel.com, davem@davemloft.net,
-        gustavoars@kernel.org, mingo@elte.hu, mingo@kernel.org,
-        naveen.n.rao@linux.ibm.com, peterz@infradead.org,
-        rostedt@goodmis.org, zsun@redhat.com
+        gustavoars@kernel.org, jolsa@kernel.org, mhiramat@kernel.org,
+        mingo@elte.hu, mingo@kernel.org, naveen.n.rao@linux.ibm.com,
+        peterz@infradead.org, rostedt@goodmis.org, zsun@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 23 Jun 2020 13:57:26 +0200
-Message-ID: <159291344624382@kroah.com>
+Date:   Tue, 23 Jun 2020 13:57:46 +0200
+Message-ID: <15929134661813@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -62,7 +62,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -73,22 +73,104 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 1a0aa991a6274161c95a844c58cfb801d681eb59 Mon Sep 17 00:00:00 2001
-From: Masami Hiramatsu <mhiramat@kernel.org>
-Date: Tue, 12 May 2020 17:02:56 +0900
-Subject: [PATCH] kprobes: Fix to protect kick_kprobe_optimizer() by
- kprobe_mutex
+From 9b38cc704e844e41d9cf74e647bff1d249512cb3 Mon Sep 17 00:00:00 2001
+From: Jiri Olsa <jolsa@redhat.com>
+Date: Tue, 12 May 2020 17:03:18 +0900
+Subject: [PATCH] kretprobe: Prevent triggering kretprobe from within
+ kprobe_flush_task
 
-In kprobe_optimizer() kick_kprobe_optimizer() is called
-without kprobe_mutex, but this can race with other caller
-which is protected by kprobe_mutex.
+Ziqian reported lockup when adding retprobe on _raw_spin_lock_irqsave.
+My test was also able to trigger lockdep output:
 
-To fix that, expand kprobe_mutex protected area to protect
-kick_kprobe_optimizer() call.
+ ============================================
+ WARNING: possible recursive locking detected
+ 5.6.0-rc6+ #6 Not tainted
+ --------------------------------------------
+ sched-messaging/2767 is trying to acquire lock:
+ ffffffff9a492798 (&(kretprobe_table_locks[i].lock)){-.-.}, at: kretprobe_hash_lock+0x52/0xa0
 
-Link: http://lkml.kernel.org/r/158927057586.27680.5036330063955940456.stgit@devnote2
+ but task is already holding lock:
+ ffffffff9a491a18 (&(kretprobe_table_locks[i].lock)){-.-.}, at: kretprobe_trampoline+0x0/0x50
 
-Fixes: cd7ebe2298ff ("kprobes: Use text_poke_smp_batch for optimizing")
+ other info that might help us debug this:
+  Possible unsafe locking scenario:
+
+        CPU0
+        ----
+   lock(&(kretprobe_table_locks[i].lock));
+   lock(&(kretprobe_table_locks[i].lock));
+
+  *** DEADLOCK ***
+
+  May be due to missing lock nesting notation
+
+ 1 lock held by sched-messaging/2767:
+  #0: ffffffff9a491a18 (&(kretprobe_table_locks[i].lock)){-.-.}, at: kretprobe_trampoline+0x0/0x50
+
+ stack backtrace:
+ CPU: 3 PID: 2767 Comm: sched-messaging Not tainted 5.6.0-rc6+ #6
+ Call Trace:
+  dump_stack+0x96/0xe0
+  __lock_acquire.cold.57+0x173/0x2b7
+  ? native_queued_spin_lock_slowpath+0x42b/0x9e0
+  ? lockdep_hardirqs_on+0x590/0x590
+  ? __lock_acquire+0xf63/0x4030
+  lock_acquire+0x15a/0x3d0
+  ? kretprobe_hash_lock+0x52/0xa0
+  _raw_spin_lock_irqsave+0x36/0x70
+  ? kretprobe_hash_lock+0x52/0xa0
+  kretprobe_hash_lock+0x52/0xa0
+  trampoline_handler+0xf8/0x940
+  ? kprobe_fault_handler+0x380/0x380
+  ? find_held_lock+0x3a/0x1c0
+  kretprobe_trampoline+0x25/0x50
+  ? lock_acquired+0x392/0xbc0
+  ? _raw_spin_lock_irqsave+0x50/0x70
+  ? __get_valid_kprobe+0x1f0/0x1f0
+  ? _raw_spin_unlock_irqrestore+0x3b/0x40
+  ? finish_task_switch+0x4b9/0x6d0
+  ? __switch_to_asm+0x34/0x70
+  ? __switch_to_asm+0x40/0x70
+
+The code within the kretprobe handler checks for probe reentrancy,
+so we won't trigger any _raw_spin_lock_irqsave probe in there.
+
+The problem is in outside kprobe_flush_task, where we call:
+
+  kprobe_flush_task
+    kretprobe_table_lock
+      raw_spin_lock_irqsave
+        _raw_spin_lock_irqsave
+
+where _raw_spin_lock_irqsave triggers the kretprobe and installs
+kretprobe_trampoline handler on _raw_spin_lock_irqsave return.
+
+The kretprobe_trampoline handler is then executed with already
+locked kretprobe_table_locks, and first thing it does is to
+lock kretprobe_table_locks ;-) the whole lockup path like:
+
+  kprobe_flush_task
+    kretprobe_table_lock
+      raw_spin_lock_irqsave
+        _raw_spin_lock_irqsave ---> probe triggered, kretprobe_trampoline installed
+
+        ---> kretprobe_table_locks locked
+
+        kretprobe_trampoline
+          trampoline_handler
+            kretprobe_hash_lock(current, &head, &flags);  <--- deadlock
+
+Adding kprobe_busy_begin/end helpers that mark code with fake
+probe installed to prevent triggering of another kprobe within
+this code.
+
+Using these helpers in kprobe_flush_task, so the probe recursion
+protection check is hit and the probe is never set to prevent
+above lockup.
+
+Link: http://lkml.kernel.org/r/158927059835.27680.7011202830041561604.stgit@devnote2
+
+Fixes: ef53d9c5e4da ("kprobes: improve kretprobe scalability with hashed locking")
 Cc: Ingo Molnar <mingo@kernel.org>
 Cc: "Gustavo A . R . Silva" <gustavoars@kernel.org>
 Cc: Anders Roxell <anders.roxell@linaro.org>
@@ -97,27 +179,132 @@ Cc: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
 Cc: David Miller <davem@davemloft.net>
 Cc: Ingo Molnar <mingo@elte.hu>
 Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Ziqian SUN <zsun@redhat.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Reported-by: "Ziqian SUN (Zamir)" <zsun@redhat.com>
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
 Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-diff --git a/kernel/kprobes.c b/kernel/kprobes.c
-index ceb0e273bd69..0e185763578b 100644
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -592,11 +592,12 @@ static void kprobe_optimizer(struct work_struct *work)
- 	mutex_unlock(&module_mutex);
- 	mutex_unlock(&text_mutex);
- 	cpus_read_unlock();
--	mutex_unlock(&kprobe_mutex);
+diff --git a/arch/x86/kernel/kprobes/core.c b/arch/x86/kernel/kprobes/core.c
+index 3bafe1bd4dc7..8a5ec10e95dc 100644
+--- a/arch/x86/kernel/kprobes/core.c
++++ b/arch/x86/kernel/kprobes/core.c
+@@ -753,16 +753,11 @@ asm(
+ NOKPROBE_SYMBOL(kretprobe_trampoline);
+ STACK_FRAME_NON_STANDARD(kretprobe_trampoline);
  
- 	/* Step 5: Kick optimizer again if needed */
- 	if (!list_empty(&optimizing_list) || !list_empty(&unoptimizing_list))
- 		kick_kprobe_optimizer();
-+
-+	mutex_unlock(&kprobe_mutex);
+-static struct kprobe kretprobe_kprobe = {
+-	.addr = (void *)kretprobe_trampoline,
+-};
+-
+ /*
+  * Called from kretprobe_trampoline
+  */
+ __used __visible void *trampoline_handler(struct pt_regs *regs)
+ {
+-	struct kprobe_ctlblk *kcb;
+ 	struct kretprobe_instance *ri = NULL;
+ 	struct hlist_head *head, empty_rp;
+ 	struct hlist_node *tmp;
+@@ -772,16 +767,12 @@ __used __visible void *trampoline_handler(struct pt_regs *regs)
+ 	void *frame_pointer;
+ 	bool skipped = false;
+ 
+-	preempt_disable();
+-
+ 	/*
+ 	 * Set a dummy kprobe for avoiding kretprobe recursion.
+ 	 * Since kretprobe never run in kprobe handler, kprobe must not
+ 	 * be running at this point.
+ 	 */
+-	kcb = get_kprobe_ctlblk();
+-	__this_cpu_write(current_kprobe, &kretprobe_kprobe);
+-	kcb->kprobe_status = KPROBE_HIT_ACTIVE;
++	kprobe_busy_begin();
+ 
+ 	INIT_HLIST_HEAD(&empty_rp);
+ 	kretprobe_hash_lock(current, &head, &flags);
+@@ -857,7 +848,7 @@ __used __visible void *trampoline_handler(struct pt_regs *regs)
+ 			__this_cpu_write(current_kprobe, &ri->rp->kp);
+ 			ri->ret_addr = correct_ret_addr;
+ 			ri->rp->handler(ri, regs);
+-			__this_cpu_write(current_kprobe, &kretprobe_kprobe);
++			__this_cpu_write(current_kprobe, &kprobe_busy);
+ 		}
+ 
+ 		recycle_rp_inst(ri, &empty_rp);
+@@ -873,8 +864,7 @@ __used __visible void *trampoline_handler(struct pt_regs *regs)
+ 
+ 	kretprobe_hash_unlock(current, &flags);
+ 
+-	__this_cpu_write(current_kprobe, NULL);
+-	preempt_enable();
++	kprobe_busy_end();
+ 
+ 	hlist_for_each_entry_safe(ri, tmp, &empty_rp, hlist) {
+ 		hlist_del(&ri->hlist);
+diff --git a/include/linux/kprobes.h b/include/linux/kprobes.h
+index 594265bfd390..05ed663e6c7b 100644
+--- a/include/linux/kprobes.h
++++ b/include/linux/kprobes.h
+@@ -350,6 +350,10 @@ static inline struct kprobe_ctlblk *get_kprobe_ctlblk(void)
+ 	return this_cpu_ptr(&kprobe_ctlblk);
  }
  
- /* Wait for completing optimization and unoptimization */
++extern struct kprobe kprobe_busy;
++void kprobe_busy_begin(void);
++void kprobe_busy_end(void);
++
+ kprobe_opcode_t *kprobe_lookup_name(const char *name, unsigned int offset);
+ int register_kprobe(struct kprobe *p);
+ void unregister_kprobe(struct kprobe *p);
+diff --git a/kernel/kprobes.c b/kernel/kprobes.c
+index 5cb7791c16b3..4a904cc56d68 100644
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -1241,6 +1241,26 @@ __releases(hlist_lock)
+ }
+ NOKPROBE_SYMBOL(kretprobe_table_unlock);
+ 
++struct kprobe kprobe_busy = {
++	.addr = (void *) get_kprobe,
++};
++
++void kprobe_busy_begin(void)
++{
++	struct kprobe_ctlblk *kcb;
++
++	preempt_disable();
++	__this_cpu_write(current_kprobe, &kprobe_busy);
++	kcb = get_kprobe_ctlblk();
++	kcb->kprobe_status = KPROBE_HIT_ACTIVE;
++}
++
++void kprobe_busy_end(void)
++{
++	__this_cpu_write(current_kprobe, NULL);
++	preempt_enable();
++}
++
+ /*
+  * This function is called from finish_task_switch when task tk becomes dead,
+  * so that we can recycle any function-return probe instances associated
+@@ -1258,6 +1278,8 @@ void kprobe_flush_task(struct task_struct *tk)
+ 		/* Early boot.  kretprobe_table_locks not yet initialized. */
+ 		return;
+ 
++	kprobe_busy_begin();
++
+ 	INIT_HLIST_HEAD(&empty_rp);
+ 	hash = hash_ptr(tk, KPROBE_HASH_BITS);
+ 	head = &kretprobe_inst_table[hash];
+@@ -1271,6 +1293,8 @@ void kprobe_flush_task(struct task_struct *tk)
+ 		hlist_del(&ri->hlist);
+ 		kfree(ri);
+ 	}
++
++	kprobe_busy_end();
+ }
+ NOKPROBE_SYMBOL(kprobe_flush_task);
+ 
 
