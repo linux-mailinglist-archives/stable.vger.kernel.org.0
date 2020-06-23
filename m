@@ -2,74 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 927C92047FE
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 05:40:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 276ED2048E5
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 06:58:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730427AbgFWDkm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Jun 2020 23:40:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39266 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728526AbgFWDkm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Jun 2020 23:40:42 -0400
-Received: from dragon (80.251.214.228.16clouds.com [80.251.214.228])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B03DB206C1;
-        Tue, 23 Jun 2020 03:40:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592883641;
-        bh=YnFKD2SuD44mKD4MHh/11/4JdpjARNP9QmTVMDETsFw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=dwQ/rjW3rD29ihmU/ZiivDNFUn9sMGLMqcGoVW6l03+BONg1fSJkoaNzzCQ7oWIau
-         hPLFxOsjW6gfmOnOoNHHiE0woEMl5Zh8kCC8q0FBMyKkPFpax7OhnB8ib/mhBy3TTP
-         +BYdTj/gzPOj6REQ0BM3Ac/2n6teqZqE8PEUdg1k=
-Date:   Tue, 23 Jun 2020 11:40:34 +0800
-From:   Shawn Guo <shawnguo@kernel.org>
-To:     Schrempf Frieder <frieder.schrempf@kontron.de>
-Cc:     Fabio Estevam <festevam@gmail.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Rob Herring <robh+dt@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH 2/2] ARM: dts: Change WDOG_ANY signal from push-pull to
- open-drain
-Message-ID: <20200623034033.GJ30139@dragon>
-References: <20200528144312.25980-1-frieder.schrempf@kontron.de>
- <20200528144312.25980-2-frieder.schrempf@kontron.de>
+        id S1728669AbgFWE5v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 00:57:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50662 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728155AbgFWE5v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Jun 2020 00:57:51 -0400
+Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AAC1C061573
+        for <stable@vger.kernel.org>; Mon, 22 Jun 2020 21:57:51 -0700 (PDT)
+Received: by mail-pl1-x62c.google.com with SMTP id d12so2619124ply.1
+        for <stable@vger.kernel.org>; Mon, 22 Jun 2020 21:57:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=1GoJ/xuwfK1wEFq8HieIUsxeHvAqgcuD+UkJ9JeSgYw=;
+        b=QJv6nEmnpygnbJ3oZxfEXCzdX8085FPqMWUv7a34mjENaTxyNjmFkHaJ/DgxORzJ2Z
+         wphaE0eoZwqBykBBQavSwezFhvDxAbgpRpsEdtgz1z9rCargdaGVH/XLFRTT8GlWhmvM
+         46jEczoKTdwmHpwGicssUz5Xd/dBaXpJQNFZAoHpQvWhmOrJlvriVPz6aZZ05tnzYrXG
+         KKwG4dZ5GOlm7VlmC9FX9mgygU319oiID9WSCjCvEdbtTf1e30W4voFdbD0A2M7VHEAV
+         fiuK79IAJ20CVmCH6Xl4h/r+FEG5hf+ioz8s23WmV+bcDwe0OAmQphTOlPZeKBFdsjkC
+         13qA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=1GoJ/xuwfK1wEFq8HieIUsxeHvAqgcuD+UkJ9JeSgYw=;
+        b=JZKh3GVersZuSc/nmN5oniDvKo94ciiURe6qQZ20b4tyblfQwqIqCLa90nj1FTpXwI
+         fzndTkgADzy4LDquZEEFXrsVjEPUOasfnjolqebGJeaxxW215ayAA3SouaDHCbTStcgV
+         jVt5kJlFLqGK+9rRU/HMCKmJ1RbwjEUfnYHDOy/nkSku6YNgsGQBIUsqCYiGKogHeQ4f
+         hxLqfLyP9b/BvkfIe73gDY5agyWv9P1JnUiGX4btqt8weVFtiP58+AKSSTO2wpJohAqr
+         SFp1rFpwF3TB4608XH9vAUF0rZg2oX3mmlelX5Ez/iEb1wpP99xscHCD4s7U8aHOsoE+
+         Ohxg==
+X-Gm-Message-State: AOAM531BpyXqJFL1B3dGuM+FVFr9WTRyjqlHuKkk33Rhc1bwaq6UxH4J
+        iaurJD3YTeY1ptMTvVLT6lznni7xMoU=
+X-Google-Smtp-Source: ABdhPJxJBabmnMvgkfv/wm1//GR/8Bf/3XgTPwwEeMFUkig7YE5gPPrGIhiOQSqoEIz5vmPr8baBBA==
+X-Received: by 2002:a17:902:b411:: with SMTP id x17mr21468061plr.272.1592888270618;
+        Mon, 22 Jun 2020 21:57:50 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id d9sm12596736pgg.74.2020.06.22.21.57.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 22 Jun 2020 21:57:49 -0700 (PDT)
+Message-ID: <5ef18bcd.1c69fb81.ca14d.6648@mx.google.com>
+Date:   Mon, 22 Jun 2020 21:57:49 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200528144312.25980-2-frieder.schrempf@kontron.de>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.4.226-205-g47365a65ad5f
+Subject: stable-rc/linux-4.4.y baseline: 47 runs,
+ 2 regressions (v4.4.226-205-g47365a65ad5f)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 28, 2020 at 02:43:43PM +0000, Schrempf Frieder wrote:
-> From: Frieder Schrempf <frieder.schrempf@kontron.de>
-> 
-> The WDOG_ANY signal is connected to the RESET_IN signal of the SoM
-> and baseboard. It is currently configured as push-pull, which means
-> that if some external device like a programmer wants to assert the
-> RESET_IN signal by pulling it to ground, it drives against the high
-> level WDOG_ANY output of the SoC.
-> 
-> To fix this we set the WDOG_ANY signal to open-drain configuration.
-> That way we make sure that the RESET_IN can be asserted by the
-> watchdog as well as by external devices.
-> 
-> Fixes: 1ea4b76cdfde ("ARM: dts: imx6ul-kontron-n6310: Add Kontron i.MX6UL N6310 SoM and boards")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
+stable-rc/linux-4.4.y baseline: 47 runs, 2 regressions (v4.4.226-205-g47365=
+a65ad5f)
 
-Added 'imx6ul-kontron:' to subject and applied both patches.
+Regressions Summary
+-------------------
 
-Shawn
+platform        | arch | lab          | compiler | defconfig           | re=
+sults
+----------------+------+--------------+----------+---------------------+---=
+-----
+omap3-beagle-xm | arm  | lab-baylibre | gcc-8    | omap2plus_defconfig | 2/=
+5    =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.4.y/kern=
+el/v4.4.226-205-g47365a65ad5f/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.4.y
+  Describe: v4.4.226-205-g47365a65ad5f
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      47365a65ad5f836ddf0ef75701b34fa76f2d91e0 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform        | arch | lab          | compiler | defconfig           | re=
+sults
+----------------+------+--------------+----------+---------------------+---=
+-----
+omap3-beagle-xm | arm  | lab-baylibre | gcc-8    | omap2plus_defconfig | 2/=
+5    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ef1558bd6c6dd782997bf0c
+
+  Results:     2 PASS, 2 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.226=
+-205-g47365a65ad5f/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-omap=
+3-beagle-xm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.226=
+-205-g47365a65ad5f/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-omap=
+3-beagle-xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2019=
+.02-11-g17e793fa4728/armel/baseline/rootfs.cpio.gz =
+
+
+  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5ef1558bd6c6dd78=
+2997bf0f
+      new failure (last pass: v4.4.226-127-ga9634103dba4)
+      1 lines* baseline.dmesg.emerg: https://kernelci.org/test/case/id/5ef1=
+558bd6c6dd782997bf11
+      new failure (last pass: v4.4.226-127-ga9634103dba4)
+      28 lines =20
