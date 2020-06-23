@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4569F20656F
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:50:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F39A20668A
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:52:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387966AbgFWUDE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:03:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40472 "EHLO mail.kernel.org"
+        id S2387956AbgFWVn4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 17:43:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387964AbgFWUDC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:03:02 -0400
+        id S2387946AbgFWUDF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:03:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0539A2078A;
-        Tue, 23 Jun 2020 20:03:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B88CF20CC7;
+        Tue, 23 Jun 2020 20:03:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592942581;
-        bh=9/LBg4O0E12RfutimPzYdGkz066z0xWK9cekAAQRx5c=;
+        s=default; t=1592942584;
+        bh=faQ2xIVk690MSeeQfpEwtt0ZcYLaKjRjSL1FqlHm7zo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2gsnxsBV4tQv2JTzEV0g60/Ge44pZAcmEbGSPdnt9ty5zdkfAKu6qmUkI0qqeQ80+
-         OopOv0DsgoIqw492zgpeCQFL7p3hCJrchvMZkt8bHEa8s0kCtOsLClWWpiMvPsOUUO
-         yd3DCRlSb7B/ACobjsP5VbZUh50n3s6Lm9uMaVdE=
+        b=pTKJMb0bVddfjMw1ZWPTafNpUSf2gE6KMsqvD8NiyAy2IpMMmcxz2wldDk7eYCapC
+         HcUBhLyNEDHgv5/BQ5CW8b6EZExVxwz/Fmt5JlukF+aEmioJ2n2z3vGqWDa05X956x
+         Y2VmLSHjBf5gq1bI0OwKTFbdBtrYXGOSqp2pR5t0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Baluta <daniel.baluta@nxp.com>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Andre Przywara <andre.przywara@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 054/477] ASoC: SOF: Do nothing when DSP PM callbacks are not set
-Date:   Tue, 23 Jun 2020 21:50:51 +0200
-Message-Id: <20200623195410.161234058@linuxfoundation.org>
+Subject: [PATCH 5.7 055/477] arm64: dts: fvp: Fix GIC child nodes
+Date:   Tue, 23 Jun 2020 21:50:52 +0200
+Message-Id: <20200623195410.211494889@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -47,58 +44,169 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Baluta <daniel.baluta@nxp.com>
+From: Andre Przywara <andre.przywara@arm.com>
 
-[ Upstream commit c26fde3b15ed41f5f452f1da727795f787833287 ]
+[ Upstream commit 78631aecc52c4b2adcf611769df2ff9c67ac16d0 ]
 
-This provides a better separation between runtime and PM sleep
-callbacks.
+The GIC DT nodes for the fastmodels were not fully compliant with the
+DT binding, which has certain expectations about child nodes and their
+size and address cells values.
 
-Only do nothing if given runtime flag is set and calback is not set.
+Use smaller #address-cells and #size-cells values, as the binding
+requests, and adjust the reg properties accordingly.
+This requires adjusting the interrupt nexus nodes as well, as one
+field of the interrupt-map property depends on the GIC's address-size.
 
-With the current implementation, if PM sleep callback is set but runtime
-callback is not set then at runtime resume we reload the firmware even
-if we do not support runtime resume callback.
+Since the .dts files share interrupt nexus nodes across different
+interrupt controllers (GICv2 vs. GICv3), we need to use the only
+commonly allowed #address-size value of <1> for both.
 
-Signed-off-by: Daniel Baluta <daniel.baluta@nxp.com>
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Link: https://lore.kernel.org/r/20200515135958.17511-2-kai.vehmanen@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20200513103016.130417-11-andre.przywara@arm.com
+Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/pm.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ .../boot/dts/arm/foundation-v8-gicv2.dtsi     |  2 +-
+ .../boot/dts/arm/foundation-v8-gicv3.dtsi     |  8 +-
+ arch/arm64/boot/dts/arm/foundation-v8.dtsi    | 86 +++++++++----------
+ 3 files changed, 48 insertions(+), 48 deletions(-)
 
-diff --git a/sound/soc/sof/pm.c b/sound/soc/sof/pm.c
-index c410822d9920d..01d83ddc16bac 100644
---- a/sound/soc/sof/pm.c
-+++ b/sound/soc/sof/pm.c
-@@ -90,7 +90,10 @@ static int sof_resume(struct device *dev, bool runtime_resume)
- 	int ret;
+diff --git a/arch/arm64/boot/dts/arm/foundation-v8-gicv2.dtsi b/arch/arm64/boot/dts/arm/foundation-v8-gicv2.dtsi
+index 15fe81738e94d..dfb23dfc0b0fb 100644
+--- a/arch/arm64/boot/dts/arm/foundation-v8-gicv2.dtsi
++++ b/arch/arm64/boot/dts/arm/foundation-v8-gicv2.dtsi
+@@ -8,7 +8,7 @@
+ 	gic: interrupt-controller@2c001000 {
+ 		compatible = "arm,cortex-a15-gic", "arm,cortex-a9-gic";
+ 		#interrupt-cells = <3>;
+-		#address-cells = <2>;
++		#address-cells = <1>;
+ 		interrupt-controller;
+ 		reg = <0x0 0x2c001000 0 0x1000>,
+ 		      <0x0 0x2c002000 0 0x2000>,
+diff --git a/arch/arm64/boot/dts/arm/foundation-v8-gicv3.dtsi b/arch/arm64/boot/dts/arm/foundation-v8-gicv3.dtsi
+index f2c75c756039c..906f51935b362 100644
+--- a/arch/arm64/boot/dts/arm/foundation-v8-gicv3.dtsi
++++ b/arch/arm64/boot/dts/arm/foundation-v8-gicv3.dtsi
+@@ -8,9 +8,9 @@
+ 	gic: interrupt-controller@2f000000 {
+ 		compatible = "arm,gic-v3";
+ 		#interrupt-cells = <3>;
+-		#address-cells = <2>;
+-		#size-cells = <2>;
+-		ranges;
++		#address-cells = <1>;
++		#size-cells = <1>;
++		ranges = <0x0 0x0 0x2f000000 0x100000>;
+ 		interrupt-controller;
+ 		reg =	<0x0 0x2f000000 0x0 0x10000>,
+ 			<0x0 0x2f100000 0x0 0x200000>,
+@@ -22,7 +22,7 @@
+ 		its: its@2f020000 {
+ 			compatible = "arm,gic-v3-its";
+ 			msi-controller;
+-			reg = <0x0 0x2f020000 0x0 0x20000>;
++			reg = <0x20000 0x20000>;
+ 		};
+ 	};
+ };
+diff --git a/arch/arm64/boot/dts/arm/foundation-v8.dtsi b/arch/arm64/boot/dts/arm/foundation-v8.dtsi
+index 12f039fa3dada..60ec37d6c9d3c 100644
+--- a/arch/arm64/boot/dts/arm/foundation-v8.dtsi
++++ b/arch/arm64/boot/dts/arm/foundation-v8.dtsi
+@@ -107,49 +107,49 @@
  
- 	/* do nothing if dsp resume callbacks are not set */
--	if (!sof_ops(sdev)->resume || !sof_ops(sdev)->runtime_resume)
-+	if (!runtime_resume && !sof_ops(sdev)->resume)
-+		return 0;
-+
-+	if (runtime_resume && !sof_ops(sdev)->runtime_resume)
- 		return 0;
+ 		#interrupt-cells = <1>;
+ 		interrupt-map-mask = <0 0 63>;
+-		interrupt-map = <0 0  0 &gic 0 0 GIC_SPI  0 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0  1 &gic 0 0 GIC_SPI  1 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0  2 &gic 0 0 GIC_SPI  2 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0  3 &gic 0 0 GIC_SPI  3 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0  4 &gic 0 0 GIC_SPI  4 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0  5 &gic 0 0 GIC_SPI  5 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0  6 &gic 0 0 GIC_SPI  6 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0  7 &gic 0 0 GIC_SPI  7 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0  8 &gic 0 0 GIC_SPI  8 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0  9 &gic 0 0 GIC_SPI  9 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0 10 &gic 0 0 GIC_SPI 10 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0 11 &gic 0 0 GIC_SPI 11 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0 12 &gic 0 0 GIC_SPI 12 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0 13 &gic 0 0 GIC_SPI 13 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0 14 &gic 0 0 GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0 15 &gic 0 0 GIC_SPI 15 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0 16 &gic 0 0 GIC_SPI 16 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0 17 &gic 0 0 GIC_SPI 17 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0 18 &gic 0 0 GIC_SPI 18 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0 19 &gic 0 0 GIC_SPI 19 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0 20 &gic 0 0 GIC_SPI 20 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0 21 &gic 0 0 GIC_SPI 21 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0 22 &gic 0 0 GIC_SPI 22 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0 23 &gic 0 0 GIC_SPI 23 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0 24 &gic 0 0 GIC_SPI 24 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0 25 &gic 0 0 GIC_SPI 25 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0 26 &gic 0 0 GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0 27 &gic 0 0 GIC_SPI 27 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0 28 &gic 0 0 GIC_SPI 28 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0 29 &gic 0 0 GIC_SPI 29 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0 30 &gic 0 0 GIC_SPI 30 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0 31 &gic 0 0 GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0 32 &gic 0 0 GIC_SPI 32 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0 33 &gic 0 0 GIC_SPI 33 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0 34 &gic 0 0 GIC_SPI 34 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0 35 &gic 0 0 GIC_SPI 35 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0 36 &gic 0 0 GIC_SPI 36 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0 37 &gic 0 0 GIC_SPI 37 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0 38 &gic 0 0 GIC_SPI 38 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0 39 &gic 0 0 GIC_SPI 39 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0 40 &gic 0 0 GIC_SPI 40 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0 41 &gic 0 0 GIC_SPI 41 IRQ_TYPE_LEVEL_HIGH>,
+-				<0 0 42 &gic 0 0 GIC_SPI 42 IRQ_TYPE_LEVEL_HIGH>;
++		interrupt-map = <0 0  0 &gic 0 GIC_SPI  0 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0  1 &gic 0 GIC_SPI  1 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0  2 &gic 0 GIC_SPI  2 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0  3 &gic 0 GIC_SPI  3 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0  4 &gic 0 GIC_SPI  4 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0  5 &gic 0 GIC_SPI  5 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0  6 &gic 0 GIC_SPI  6 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0  7 &gic 0 GIC_SPI  7 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0  8 &gic 0 GIC_SPI  8 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0  9 &gic 0 GIC_SPI  9 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0 10 &gic 0 GIC_SPI 10 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0 11 &gic 0 GIC_SPI 11 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0 12 &gic 0 GIC_SPI 12 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0 13 &gic 0 GIC_SPI 13 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0 14 &gic 0 GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0 15 &gic 0 GIC_SPI 15 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0 16 &gic 0 GIC_SPI 16 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0 17 &gic 0 GIC_SPI 17 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0 18 &gic 0 GIC_SPI 18 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0 19 &gic 0 GIC_SPI 19 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0 20 &gic 0 GIC_SPI 20 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0 21 &gic 0 GIC_SPI 21 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0 22 &gic 0 GIC_SPI 22 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0 23 &gic 0 GIC_SPI 23 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0 24 &gic 0 GIC_SPI 24 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0 25 &gic 0 GIC_SPI 25 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0 26 &gic 0 GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0 27 &gic 0 GIC_SPI 27 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0 28 &gic 0 GIC_SPI 28 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0 29 &gic 0 GIC_SPI 29 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0 30 &gic 0 GIC_SPI 30 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0 31 &gic 0 GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0 32 &gic 0 GIC_SPI 32 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0 33 &gic 0 GIC_SPI 33 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0 34 &gic 0 GIC_SPI 34 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0 35 &gic 0 GIC_SPI 35 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0 36 &gic 0 GIC_SPI 36 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0 37 &gic 0 GIC_SPI 37 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0 38 &gic 0 GIC_SPI 38 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0 39 &gic 0 GIC_SPI 39 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0 40 &gic 0 GIC_SPI 40 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0 41 &gic 0 GIC_SPI 41 IRQ_TYPE_LEVEL_HIGH>,
++				<0 0 42 &gic 0 GIC_SPI 42 IRQ_TYPE_LEVEL_HIGH>;
  
- 	/* DSP was never successfully started, nothing to resume */
-@@ -175,7 +178,10 @@ static int sof_suspend(struct device *dev, bool runtime_suspend)
- 	int ret;
- 
- 	/* do nothing if dsp suspend callback is not set */
--	if (!sof_ops(sdev)->suspend)
-+	if (!runtime_suspend && !sof_ops(sdev)->suspend)
-+		return 0;
-+
-+	if (runtime_suspend && !sof_ops(sdev)->runtime_suspend)
- 		return 0;
- 
- 	if (sdev->fw_state != SOF_FW_BOOT_COMPLETE)
+ 		ethernet@2,02000000 {
+ 			compatible = "smsc,lan91c111";
 -- 
 2.25.1
 
