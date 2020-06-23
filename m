@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F40F205F18
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:32:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD081205FE2
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:47:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390742AbgFWU3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:29:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49350 "EHLO mail.kernel.org"
+        id S2391305AbgFWUhR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:37:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390968AbgFWU3V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:29:21 -0400
+        id S2389912AbgFWUhI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:37:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C541A206C3;
-        Tue, 23 Jun 2020 20:29:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D84C521527;
+        Tue, 23 Jun 2020 20:37:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944161;
-        bh=Lla2QzJHafDNwWtTdQCrScCxhDZhO0dkV+9Bo6qCOCk=;
+        s=default; t=1592944629;
+        bh=sT37YWow0t5mIiWVqfyMQfWKC52B0/401pg1mNSwlzs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xxcQU01oCpr2A3RcMEvCkgZCyNqH+k1fK2+IMaWBlUF2o5VEFSi9b5516k2sNeBMX
-         VJhefI+UnGzqoeaA72PFEEMkZGfIBJx4CygxMLCWtx1h5XCYL807QXN/qt92xiZ780
-         aGjG9XMRo2Hz5p42LtniLJ4jdhhvTeZ5Lqliw9io=
+        b=t4JfH2J0qLHUW7JtBZaHRn5x/1c/FqpGCjAuTFKiNpm5y/wtQjSRNSDcQeDCUzBwg
+         HWe+O9FZ+qBNIQZQVUFQaqcrU9Bc3ymqK726OnkowwyI28p2l8SEh6ywgGkYAw0i6y
+         H/a+5EYqtxrjCbqMIHj2LaIH2J4ea07r6sz/rsik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>,
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        "J. Bruce Fields" <bfields@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 166/314] arm64: tegra: Fix ethernet phy-mode for Jetson Xavier
+Subject: [PATCH 4.19 033/206] nfsd: Fix svc_xprt refcnt leak when setup callback client failed
 Date:   Tue, 23 Jun 2020 21:56:01 +0200
-Message-Id: <20200623195346.801150538@linuxfoundation.org>
+Message-Id: <20200623195318.610731014@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
-References: <20200623195338.770401005@linuxfoundation.org>
+In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
+References: <20200623195316.864547658@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Hunter <jonathanh@nvidia.com>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-[ Upstream commit bba25915b172c72f6fa635f091624d799e3c9cae ]
+[ Upstream commit a4abc6b12eb1f7a533c2e7484cfa555454ff0977 ]
 
-The 'phy-mode' property is currently defined as 'rgmii' for Jetson
-Xavier. This indicates that the RGMII RX and TX delays are set by the
-MAC and the internal delays set by the PHY are not used.
+nfsd4_process_cb_update() invokes svc_xprt_get(), which increases the
+refcount of the "c->cn_xprt".
 
-If the Marvell PHY driver is enabled, such that it is used and not the
-generic PHY, ethernet failures are seen (DHCP is failing to obtain an
-IP address) and this is caused because the Marvell PHY driver is
-disabling the internal RX and TX delays. For Jetson Xavier the internal
-PHY RX and TX delay should be used and so fix this by setting the
-'phy-mode' to 'rgmii-id' and not 'rgmii'.
+The reference counting issue happens in one exception handling path of
+nfsd4_process_cb_update(). When setup callback client failed, the
+function forgets to decrease the refcnt increased by svc_xprt_get(),
+causing a refcnt leak.
 
-Fixes: f89b58ce71a9 ("arm64: tegra: Add ethernet controller on Tegra194")
-Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Fix this issue by calling svc_xprt_put() when setup callback client
+failed.
+
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/nvidia/tegra194-p2888.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfsd/nfs4callback.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/nvidia/tegra194-p2888.dtsi b/arch/arm64/boot/dts/nvidia/tegra194-p2888.dtsi
-index 02909a48dfcd9..7899759a12f80 100644
---- a/arch/arm64/boot/dts/nvidia/tegra194-p2888.dtsi
-+++ b/arch/arm64/boot/dts/nvidia/tegra194-p2888.dtsi
-@@ -32,7 +32,7 @@
- 
- 			phy-reset-gpios = <&gpio TEGRA194_MAIN_GPIO(G, 5) GPIO_ACTIVE_LOW>;
- 			phy-handle = <&phy>;
--			phy-mode = "rgmii";
-+			phy-mode = "rgmii-id";
- 
- 			mdio {
- 				#address-cells = <1>;
+diff --git a/fs/nfsd/nfs4callback.c b/fs/nfsd/nfs4callback.c
+index ebbb0285addb0..7ee417b685e98 100644
+--- a/fs/nfsd/nfs4callback.c
++++ b/fs/nfsd/nfs4callback.c
+@@ -1149,6 +1149,8 @@ static void nfsd4_process_cb_update(struct nfsd4_callback *cb)
+ 	err = setup_callback_client(clp, &conn, ses);
+ 	if (err) {
+ 		nfsd4_mark_cb_down(clp, err);
++		if (c)
++			svc_xprt_put(c->cn_xprt);
+ 		return;
+ 	}
+ }
 -- 
 2.25.1
 
