@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C08B204960
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 07:56:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BC8120495F
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 07:56:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730419AbgFWF4V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 01:56:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55408 "EHLO mail.kernel.org"
+        id S1730406AbgFWF4L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 01:56:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728800AbgFWF4U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 01:56:20 -0400
+        id S1730081AbgFWF4K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 01:56:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C10D20771;
-        Tue, 23 Jun 2020 05:56:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6F38720771;
+        Tue, 23 Jun 2020 05:56:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592891778;
-        bh=AIARezm8EVtSPLjcyWLTGtpkxEkqQpnhVZ/txQTHjho=;
+        s=default; t=1592891770;
+        bh=p/NOqy6tQny5pDQDzHpTYYLMa38Zhl8+225K4tFgGEk=;
         h=Subject:To:From:Date:From;
-        b=M9NpQS8CWJE6Z7qVCueLqMb7cyJZ+6GVF7R2BytMjiL4uwTpstAHhdpX5b1qRCICk
-         wf69gXN1VYPquUbSCKjM/+Ae95lCIwgqi/Cvx6efGFOAt/7OoOqoMzBnLn1k0jQbxX
-         etQs3CBpDlHw3o4dWSjdK5oodX5X19rFrmyUS6fE=
-Subject: patch "mei: me: disable mei interface on Mehlow server platforms" added to char-misc-linus
-To:     tomas.winkler@intel.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
+        b=fRdAmYAkWt/mlKiOZhPt2oxpe5iafcdMwzG1BXmOvOvQEnw7UwwKEAsKU6Qx3OxmJ
+         CHL/XMOxcyoMJ1oDrBrc8phNif6YF/5bylqV1SXcHGqCl3LcSNa3n7ymSbYoZOAPRT
+         pwZVTq31/v5qQhkDl0kwogEilEPMa9h9wGraIQ04=
+Subject: patch "binder: fix null deref of proc->context" added to char-misc-linus
+To:     tkjos@google.com, christian.brauner@ubuntu.com,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Tue, 23 Jun 2020 07:56:04 +0200
-Message-ID: <1592891764250240@kroah.com>
+Message-ID: <159289176465144@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    mei: me: disable mei interface on Mehlow server platforms
+    binder: fix null deref of proc->context
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -55,227 +55,93 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From f76d77f50b343bc7f7d01e4c2771d43fb074f617 Mon Sep 17 00:00:00 2001
-From: Tomas Winkler <tomas.winkler@intel.com>
-Date: Fri, 19 Jun 2020 19:51:15 +0300
-Subject: mei: me: disable mei interface on Mehlow server platforms
+From d35d3660e065b69fdb8bf512f3d899f350afce52 Mon Sep 17 00:00:00 2001
+From: Todd Kjos <tkjos@google.com>
+Date: Mon, 22 Jun 2020 13:07:15 -0700
+Subject: binder: fix null deref of proc->context
 
-For SPS firmware versions 5.0 and newer the way detection has changed.
-The detection is done now via PCI_CFG_HFS_3 register.
-To prevent conflict the previous method will get sps_4 suffix
-Disable both CNP_H and CNP_H_3 interfaces. CNP_H_3 requires
-a separate configuration as it doesn't support DMA.
+The binder driver makes the assumption proc->context pointer is invariant after
+initialization (as documented in the kerneldoc header for struct proc).
+However, in commit f0fe2c0f050d ("binder: prevent UAF for binderfs devices II")
+proc->context is set to NULL during binder_deferred_release().
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20200619165121.2145330-1-tomas.winkler@intel.com
+Another proc was in the middle of setting up a transaction to the dying
+process and crashed on a NULL pointer deref on "context" which is a local
+set to &proc->context:
+
+    new_ref->data.desc = (node == context->binder_context_mgr_node) ? 0 : 1;
+
+Here's the stack:
+
+[ 5237.855435] Call trace:
+[ 5237.855441] binder_get_ref_for_node_olocked+0x100/0x2ec
+[ 5237.855446] binder_inc_ref_for_node+0x140/0x280
+[ 5237.855451] binder_translate_binder+0x1d0/0x388
+[ 5237.855456] binder_transaction+0x2228/0x3730
+[ 5237.855461] binder_thread_write+0x640/0x25bc
+[ 5237.855466] binder_ioctl_write_read+0xb0/0x464
+[ 5237.855471] binder_ioctl+0x30c/0x96c
+[ 5237.855477] do_vfs_ioctl+0x3e0/0x700
+[ 5237.855482] __arm64_sys_ioctl+0x78/0xa4
+[ 5237.855488] el0_svc_common+0xb4/0x194
+[ 5237.855493] el0_svc_handler+0x74/0x98
+[ 5237.855497] el0_svc+0x8/0xc
+
+The fix is to move the kfree of the binder_device to binder_free_proc()
+so the binder_device is freed when we know there are no references
+remaining on the binder_proc.
+
+Fixes: f0fe2c0f050d ("binder: prevent UAF for binderfs devices II")
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Signed-off-by: Todd Kjos <tkjos@google.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200622200715.114382-1-tkjos@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/mei/hw-me-regs.h |  2 ++
- drivers/misc/mei/hw-me.c      | 60 +++++++++++++++++++++++++++++++----
- drivers/misc/mei/hw-me.h      | 13 +++++---
- drivers/misc/mei/pci-me.c     | 16 +++++-----
- 4 files changed, 73 insertions(+), 18 deletions(-)
+ drivers/android/binder.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/misc/mei/hw-me-regs.h b/drivers/misc/mei/hw-me-regs.h
-index 9392934e3a06..01b1bf74f262 100644
---- a/drivers/misc/mei/hw-me-regs.h
-+++ b/drivers/misc/mei/hw-me-regs.h
-@@ -107,6 +107,8 @@
- #  define PCI_CFG_HFS_1_D0I3_MSK     0x80000000
- #define PCI_CFG_HFS_2         0x48
- #define PCI_CFG_HFS_3         0x60
-+#  define PCI_CFG_HFS_3_FW_SKU_MSK   0x00000070
-+#  define PCI_CFG_HFS_3_FW_SKU_SPS   0x00000060
- #define PCI_CFG_HFS_4         0x64
- #define PCI_CFG_HFS_5         0x68
- #define PCI_CFG_HFS_6         0x6C
-diff --git a/drivers/misc/mei/hw-me.c b/drivers/misc/mei/hw-me.c
-index f620442addf5..f8155c1e811d 100644
---- a/drivers/misc/mei/hw-me.c
-+++ b/drivers/misc/mei/hw-me.c
-@@ -1366,7 +1366,7 @@ static bool mei_me_fw_type_nm(struct pci_dev *pdev)
- #define MEI_CFG_FW_NM                           \
- 	.quirk_probe = mei_me_fw_type_nm
+diff --git a/drivers/android/binder.c b/drivers/android/binder.c
+index e47c8a4c83db..f50c5f182bb5 100644
+--- a/drivers/android/binder.c
++++ b/drivers/android/binder.c
+@@ -4686,8 +4686,15 @@ static struct binder_thread *binder_get_thread(struct binder_proc *proc)
  
--static bool mei_me_fw_type_sps(struct pci_dev *pdev)
-+static bool mei_me_fw_type_sps_4(struct pci_dev *pdev)
+ static void binder_free_proc(struct binder_proc *proc)
  {
- 	u32 reg;
- 	unsigned int devfn;
-@@ -1382,7 +1382,36 @@ static bool mei_me_fw_type_sps(struct pci_dev *pdev)
- 	return (reg & 0xf0000) == 0xf0000;
- }
- 
--#define MEI_CFG_FW_SPS                           \
-+#define MEI_CFG_FW_SPS_4                          \
-+	.quirk_probe = mei_me_fw_type_sps_4
++	struct binder_device *device;
 +
-+/**
-+ * mei_me_fw_sku_sps() - check for sps sku
-+ *
-+ * Read ME FW Status register to check for SPS Firmware.
-+ * The SPS FW is only signaled in pci function 0
-+ *
-+ * @pdev: pci device
-+ *
-+ * Return: true in case of SPS firmware
-+ */
-+static bool mei_me_fw_type_sps(struct pci_dev *pdev)
-+{
-+	u32 reg;
-+	u32 fw_type;
-+	unsigned int devfn;
-+
-+	devfn = PCI_DEVFN(PCI_SLOT(pdev->devfn), 0);
-+	pci_bus_read_config_dword(pdev->bus, devfn, PCI_CFG_HFS_3, &reg);
-+	trace_mei_pci_cfg_read(&pdev->dev, "PCI_CFG_HFS_3", PCI_CFG_HFS_3, reg);
-+	fw_type = (reg & PCI_CFG_HFS_3_FW_SKU_MSK);
-+
-+	dev_dbg(&pdev->dev, "fw type is %d\n", fw_type);
-+
-+	return fw_type == PCI_CFG_HFS_3_FW_SKU_SPS;
-+}
-+
-+#define MEI_CFG_FW_SPS                          \
- 	.quirk_probe = mei_me_fw_type_sps
+ 	BUG_ON(!list_empty(&proc->todo));
+ 	BUG_ON(!list_empty(&proc->delivered_death));
++	device = container_of(proc->context, struct binder_device, context);
++	if (refcount_dec_and_test(&device->ref)) {
++		kfree(proc->context->name);
++		kfree(device);
++	}
+ 	binder_alloc_deferred_release(&proc->alloc);
+ 	put_task_struct(proc->tsk);
+ 	binder_stats_deleted(BINDER_STAT_PROC);
+@@ -5406,7 +5413,6 @@ static int binder_node_release(struct binder_node *node, int refs)
+ static void binder_deferred_release(struct binder_proc *proc)
+ {
+ 	struct binder_context *context = proc->context;
+-	struct binder_device *device;
+ 	struct rb_node *n;
+ 	int threads, nodes, incoming_refs, outgoing_refs, active_transactions;
  
- #define MEI_CFG_FW_VER_SUPP                     \
-@@ -1452,10 +1481,17 @@ static const struct mei_cfg mei_me_pch8_cfg = {
- };
- 
- /* PCH8 Lynx Point with quirk for SPS Firmware exclusion */
--static const struct mei_cfg mei_me_pch8_sps_cfg = {
-+static const struct mei_cfg mei_me_pch8_sps_4_cfg = {
- 	MEI_CFG_PCH8_HFS,
- 	MEI_CFG_FW_VER_SUPP,
--	MEI_CFG_FW_SPS,
-+	MEI_CFG_FW_SPS_4,
-+};
-+
-+/* LBG with quirk for SPS (4.0) Firmware exclusion */
-+static const struct mei_cfg mei_me_pch12_sps_4_cfg = {
-+	MEI_CFG_PCH8_HFS,
-+	MEI_CFG_FW_VER_SUPP,
-+	MEI_CFG_FW_SPS_4,
- };
- 
- /* Cannon Lake and newer devices */
-@@ -1465,8 +1501,18 @@ static const struct mei_cfg mei_me_pch12_cfg = {
- 	MEI_CFG_DMA_128,
- };
- 
--/* LBG with quirk for SPS Firmware exclusion */
-+/* Cannon Lake with quirk for SPS 5.0 and newer Firmware exclusion */
- static const struct mei_cfg mei_me_pch12_sps_cfg = {
-+	MEI_CFG_PCH8_HFS,
-+	MEI_CFG_FW_VER_SUPP,
-+	MEI_CFG_DMA_128,
-+	MEI_CFG_FW_SPS,
-+};
-+
-+/* Cannon Lake with quirk for SPS 5.0 and newer Firmware exclusion
-+ * w/o DMA support
-+ */
-+static const struct mei_cfg mei_me_pch12_nodma_sps_cfg = {
- 	MEI_CFG_PCH8_HFS,
- 	MEI_CFG_FW_VER_SUPP,
- 	MEI_CFG_FW_SPS,
-@@ -1492,9 +1538,11 @@ static const struct mei_cfg *const mei_cfg_list[] = {
- 	[MEI_ME_PCH7_CFG] = &mei_me_pch7_cfg,
- 	[MEI_ME_PCH_CPT_PBG_CFG] = &mei_me_pch_cpt_pbg_cfg,
- 	[MEI_ME_PCH8_CFG] = &mei_me_pch8_cfg,
--	[MEI_ME_PCH8_SPS_CFG] = &mei_me_pch8_sps_cfg,
-+	[MEI_ME_PCH8_SPS_4_CFG] = &mei_me_pch8_sps_4_cfg,
- 	[MEI_ME_PCH12_CFG] = &mei_me_pch12_cfg,
-+	[MEI_ME_PCH12_SPS_4_CFG] = &mei_me_pch12_sps_4_cfg,
- 	[MEI_ME_PCH12_SPS_CFG] = &mei_me_pch12_sps_cfg,
-+	[MEI_ME_PCH12_SPS_NODMA_CFG] = &mei_me_pch12_nodma_sps_cfg,
- 	[MEI_ME_PCH15_CFG] = &mei_me_pch15_cfg,
- };
- 
-diff --git a/drivers/misc/mei/hw-me.h b/drivers/misc/mei/hw-me.h
-index b6b94e211464..52e0c6d578f2 100644
---- a/drivers/misc/mei/hw-me.h
-+++ b/drivers/misc/mei/hw-me.h
-@@ -1,6 +1,6 @@
- /* SPDX-License-Identifier: GPL-2.0 */
- /*
-- * Copyright (c) 2012-2019, Intel Corporation. All rights reserved.
-+ * Copyright (c) 2012-2020, Intel Corporation. All rights reserved.
-  * Intel Management Engine Interface (Intel MEI) Linux driver
-  */
- 
-@@ -76,11 +76,14 @@ struct mei_me_hw {
-  *                         with quirk for Node Manager exclusion.
-  * @MEI_ME_PCH8_CFG:       Platform Controller Hub Gen8 and newer
-  *                         client platforms.
-- * @MEI_ME_PCH8_SPS_CFG:   Platform Controller Hub Gen8 and newer
-+ * @MEI_ME_PCH8_SPS_4_CFG: Platform Controller Hub Gen8 and newer
-  *                         servers platforms with quirk for
-  *                         SPS firmware exclusion.
-  * @MEI_ME_PCH12_CFG:      Platform Controller Hub Gen12 and newer
-- * @MEI_ME_PCH12_SPS_CFG:  Platform Controller Hub Gen12 and newer
-+ * @MEI_ME_PCH12_SPS_4_CFG:Platform Controller Hub Gen12 up to 4.0
-+ *                         servers platforms with quirk for
-+ *                         SPS firmware exclusion.
-+ * @MEI_ME_PCH12_SPS_CFG:  Platform Controller Hub Gen12 5.0 and newer
-  *                         servers platforms with quirk for
-  *                         SPS firmware exclusion.
-  * @MEI_ME_PCH15_CFG:      Platform Controller Hub Gen15 and newer
-@@ -94,9 +97,11 @@ enum mei_cfg_idx {
- 	MEI_ME_PCH7_CFG,
- 	MEI_ME_PCH_CPT_PBG_CFG,
- 	MEI_ME_PCH8_CFG,
--	MEI_ME_PCH8_SPS_CFG,
-+	MEI_ME_PCH8_SPS_4_CFG,
- 	MEI_ME_PCH12_CFG,
-+	MEI_ME_PCH12_SPS_4_CFG,
- 	MEI_ME_PCH12_SPS_CFG,
-+	MEI_ME_PCH12_SPS_NODMA_CFG,
- 	MEI_ME_PCH15_CFG,
- 	MEI_ME_NUM_CFG,
- };
-diff --git a/drivers/misc/mei/pci-me.c b/drivers/misc/mei/pci-me.c
-index 71f795b510ce..1bcc724a18aa 100644
---- a/drivers/misc/mei/pci-me.c
-+++ b/drivers/misc/mei/pci-me.c
-@@ -59,18 +59,18 @@ static const struct pci_device_id mei_me_pci_tbl[] = {
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_PPT_1, MEI_ME_PCH7_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_PPT_2, MEI_ME_PCH7_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_PPT_3, MEI_ME_PCH7_CFG)},
--	{MEI_PCI_DEVICE(MEI_DEV_ID_LPT_H, MEI_ME_PCH8_SPS_CFG)},
--	{MEI_PCI_DEVICE(MEI_DEV_ID_LPT_W, MEI_ME_PCH8_SPS_CFG)},
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_LPT_H, MEI_ME_PCH8_SPS_4_CFG)},
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_LPT_W, MEI_ME_PCH8_SPS_4_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_LPT_LP, MEI_ME_PCH8_CFG)},
--	{MEI_PCI_DEVICE(MEI_DEV_ID_LPT_HR, MEI_ME_PCH8_SPS_CFG)},
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_LPT_HR, MEI_ME_PCH8_SPS_4_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_WPT_LP, MEI_ME_PCH8_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_WPT_LP_2, MEI_ME_PCH8_CFG)},
- 
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_SPT, MEI_ME_PCH8_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_SPT_2, MEI_ME_PCH8_CFG)},
--	{MEI_PCI_DEVICE(MEI_DEV_ID_SPT_H, MEI_ME_PCH8_SPS_CFG)},
--	{MEI_PCI_DEVICE(MEI_DEV_ID_SPT_H_2, MEI_ME_PCH8_SPS_CFG)},
--	{MEI_PCI_DEVICE(MEI_DEV_ID_LBG, MEI_ME_PCH12_SPS_CFG)},
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_SPT_H, MEI_ME_PCH8_SPS_4_CFG)},
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_SPT_H_2, MEI_ME_PCH8_SPS_4_CFG)},
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_LBG, MEI_ME_PCH12_SPS_4_CFG)},
- 
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_BXT_M, MEI_ME_PCH8_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_APL_I, MEI_ME_PCH8_CFG)},
-@@ -84,8 +84,8 @@ static const struct pci_device_id mei_me_pci_tbl[] = {
- 
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_CNP_LP, MEI_ME_PCH12_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_CNP_LP_3, MEI_ME_PCH8_CFG)},
--	{MEI_PCI_DEVICE(MEI_DEV_ID_CNP_H, MEI_ME_PCH12_CFG)},
--	{MEI_PCI_DEVICE(MEI_DEV_ID_CNP_H_3, MEI_ME_PCH8_CFG)},
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_CNP_H, MEI_ME_PCH12_SPS_CFG)},
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_CNP_H_3, MEI_ME_PCH12_SPS_NODMA_CFG)},
- 
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_LP, MEI_ME_PCH12_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_LP_3, MEI_ME_PCH8_CFG)},
+@@ -5423,12 +5429,6 @@ static void binder_deferred_release(struct binder_proc *proc)
+ 		context->binder_context_mgr_node = NULL;
+ 	}
+ 	mutex_unlock(&context->context_mgr_node_lock);
+-	device = container_of(proc->context, struct binder_device, context);
+-	if (refcount_dec_and_test(&device->ref)) {
+-		kfree(context->name);
+-		kfree(device);
+-	}
+-	proc->context = NULL;
+ 	binder_inner_proc_lock(proc);
+ 	/*
+ 	 * Make sure proc stays alive after we
 -- 
 2.27.0
 
