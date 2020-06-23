@@ -2,89 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10FEF204625
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 02:48:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22A2120462B
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 02:51:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731602AbgFWAsz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Jun 2020 20:48:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43944 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731526AbgFWAsy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 22 Jun 2020 20:48:54 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4BC4D206C1;
-        Tue, 23 Jun 2020 00:48:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592873334;
-        bh=ph4PMaBl8tMeek/bwdtR76Ll60XIShWbHWHgdgAuhjg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=VFY8p01AqHq1zh6wx4XcwunxiePP8MrqTmsjo0TZZcc02twrD8MLnDKq6r36v7NVz
-         laWTg2bmicxKAqyT+KVQ00U/6ugsOwAWYZ54Agr0IMIsEBgDdHcY2/Kwa/V7lUqhyY
-         etA09Ps8WxopKnL6qXZSAyjFFBazLWGWRedRFwm4=
-Date:   Mon, 22 Jun 2020 20:48:53 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     miquel.raynal@bootlin.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] mtd: rawnand: diskonchip: Fix the probe
- error path" failed to apply to 4.19-stable tree
-Message-ID: <20200623004853.GS1931@sasha-vm>
-References: <159257446611107@kroah.com>
+        id S1732124AbgFWAvH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Jun 2020 20:51:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41024 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732150AbgFWAvG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 22 Jun 2020 20:51:06 -0400
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C50FDC061573
+        for <stable@vger.kernel.org>; Mon, 22 Jun 2020 17:51:06 -0700 (PDT)
+Received: by mail-pj1-x1036.google.com with SMTP id a45so475643pje.1
+        for <stable@vger.kernel.org>; Mon, 22 Jun 2020 17:51:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Umve0ZLjjSu1XfhhASd43rdAytF5YaDo9E3+IbQWG6U=;
+        b=qEy3/Ia4yLm7hBo/GrPFEBKZaEppxI5zwnzNWZBqpB8zkyKpeaQsYjbUog+7F7+EnO
+         NpAan3W3ZDjDbbDKkJ0vczxx43jXHxglxdJkBZFM4EhBLZWqE1/r+DCvfegjgDU0+2Bt
+         WR/MMKGfzJbP2J512MY79LGU74cmNBPHE7hPnSEvwxzCVHhPfIVA/6pIR4UsNlOfOuDh
+         7EBZwgKfxyrq2DzoyM9iNhv2Eox+wNwm4KHlHFoUtvepQAIL8HrSfsPVvAV0g5Xn+1+f
+         nY6Ja6Uje0Q4OXItz7gAkpbEl9u1TdoVxYqwmvyoTEt02IKWJjHTnkqTMo9NoMTgoKgI
+         nd9Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Umve0ZLjjSu1XfhhASd43rdAytF5YaDo9E3+IbQWG6U=;
+        b=a63nNhmkfn4yckhBzUSH7x184teRVM+LHjycaY/uM9M+0cvjw22ybMSAsW3C8FmR0W
+         atyi5UsLzPImUE0siHTJ9Mfn4OjfDm7kq/zglTcs4kwlJfzDvYXXB5dBiVb2iQ4BYgGM
+         w87JdJHu7m/JwEIjSjAquK7Q0vJXIa3ihmpxB4GJQr+t9OvAyVcXP26BAhaz3tmTILRG
+         SznHRFuSKoM0ORlUWJpVPSmsDafW1HWuxkJwh0W7WgV4EumXJdcaoh6PkVaZG2gfb1hq
+         EOAJxKWD2tofLdgiS8/kov8vOwt+wZiiG6Bi1fMFIHnWcm0oX7WcffVpq08e55wPr4ZK
+         5pNA==
+X-Gm-Message-State: AOAM532f9Ay5+Ug1jMFyTeBdS4EffAwi6eJvl5iu2xZ4D0+4Pdy7sh2b
+        UiLfYTsaA4a0KLCs1kcxkdwpHnJizxs=
+X-Google-Smtp-Source: ABdhPJz6P7Uwa+5PqKWQtgThbfut8mh5/dh7OyFKprtiFSMPy0H+EgTh/1pO5etmN/KdBkzCeFjmIA==
+X-Received: by 2002:a17:90a:ad87:: with SMTP id s7mr21904066pjq.225.1592873465973;
+        Mon, 22 Jun 2020 17:51:05 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id 191sm15495236pfz.30.2020.06.22.17.51.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 22 Jun 2020 17:51:05 -0700 (PDT)
+Message-ID: <5ef151f9.1c69fb81.6608b.f113@mx.google.com>
+Date:   Mon, 22 Jun 2020 17:51:05 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <159257446611107@kroah.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.14.183-352-g94c75fd4ce50
+Subject: stable-rc/linux-4.14.y baseline: 72 runs,
+ 1 regressions (v4.14.183-352-g94c75fd4ce50)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jun 19, 2020 at 03:47:46PM +0200, gregkh@linuxfoundation.org wrote:
->
->The patch below does not apply to the 4.19-stable tree.
->If someone wants it applied there, or to any other stable or longterm
->tree, then please email the backport, including the original git commit
->id to <stable@vger.kernel.org>.
->
->thanks,
->
->greg k-h
->
->------------------ original commit in Linus's tree ------------------
->
->From c5be12e45940f1aa1b5dfa04db5d15ad24f7c896 Mon Sep 17 00:00:00 2001
->From: Miquel Raynal <miquel.raynal@bootlin.com>
->Date: Tue, 19 May 2020 14:59:45 +0200
->Subject: [PATCH] mtd: rawnand: diskonchip: Fix the probe error path
->
->Not sure nand_cleanup() is the right function to call here but in any
->case it is not nand_release(). Indeed, even a comment says that
->calling nand_release() is a bit of a hack as there is no MTD device to
->unregister. So switch to nand_cleanup() for now and drop this
->comment.
->
->There is no Fixes tag applying here as the use of nand_release()
->in this driver predates by far the introduction of nand_cleanup() in
->commit d44154f969a4 ("mtd: nand: Provide nand_cleanup() function to free NAND related resources")
->which makes this change possible. However, pointing this commit as the
->culprit for backporting purposes makes sense even if it did not intruce
->any bug.
->
->Fixes: d44154f969a4 ("mtd: nand: Provide nand_cleanup() function to free NAND related resources")
->Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
->Cc: stable@vger.kernel.org
->Link: https://lore.kernel.org/linux-mtd/20200519130035.1883-13-miquel.raynal@bootlin.com
+stable-rc/linux-4.14.y baseline: 72 runs, 1 regressions (v4.14.183-352-g94c=
+75fd4ce50)
 
-Some code refactoring:
+Regressions Summary
+-------------------
 
-59ac276f2227 ("mtd: rawnand: Pass a nand_chip object to nand_release()")
-00ad378f304a ("mtd: rawnand: Pass a nand_chip object to nand_scan()")
+platform        | arch  | lab          | compiler | defconfig | results
+----------------+-------+--------------+----------+-----------+--------
+meson-gxbb-p200 | arm64 | lab-baylibre | gcc-8    | defconfig | 0/1    =
 
-And movement (drivers/mtd/nand/diskonchip.c ->
-drivers/mtd/nand/raw/diskonchip.c) in older branches. I've fixed it up
-and queued for 4.19-4.9.
 
--- 
-Thanks,
-Sasha
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
+nel/v4.14.183-352-g94c75fd4ce50/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.14.y
+  Describe: v4.14.183-352-g94c75fd4ce50
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      94c75fd4ce5001a81d9febfccb9556e2340a1f6b =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform        | arch  | lab          | compiler | defconfig | results
+----------------+-------+--------------+----------+-----------+--------
+meson-gxbb-p200 | arm64 | lab-baylibre | gcc-8    | defconfig | 0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ef120e488fb87bc7597bf54
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
+83-352-g94c75fd4ce50/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb=
+-p200.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.1=
+83-352-g94c75fd4ce50/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb=
+-p200.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2019=
+.02-11-g17e793fa4728/arm64/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ef120e488fb87bc7597b=
+f55
+      failing since 83 days (last pass: v4.14.172-114-g734382e2d26e, first =
+fail: v4.14.174-131-g234ce78cac23) =20
