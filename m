@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73F81206087
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:48:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC9C2205F63
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:32:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392550AbgFWUnq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:43:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40626 "EHLO mail.kernel.org"
+        id S2391320AbgFWUc3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:32:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391165AbgFWUnl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:43:41 -0400
+        id S2391315AbgFWUc2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:32:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5B7CC21883;
-        Tue, 23 Jun 2020 20:43:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C1DEC206C3;
+        Tue, 23 Jun 2020 20:32:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592945022;
-        bh=zuyFOLfjBDUAFjgIoH6EE1ckwzF34RmgrnmGWuFjSZw=;
+        s=default; t=1592944348;
+        bh=bv9Z9bRkVEK1uJdMpJsnfzvM9UksgRkyNNheuFYz8ek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KUloqVXl2uIvcCYu9TVfb7BjvA0CvjLj0AphlwTezBEgSySCuKHcoCq8MNwEGU5qP
-         1TQqTd5AMVaDhxFyVNCvypA08PAaOhYV/cAWZbgnBiw3BJLOM5wmIOSGJqHz2KtNdI
-         vk0eXFCmEgAFGLaKiNrHQKtAl36QG/nOW3QsWS7A=
+        b=ov9yU7drT8YikDcS7B+HQ2lxs7yFUW8trwH4AlVdi99sycVFwdaULLAs5WrHTeCYz
+         Yc2fYUGb8qsQtIrmPI9Al85QgeTe89XraIJDxgRf9aVL7ppO7k4AyAi5egfR38I8nY
+         2D6QWEWZzscQqt9cPWdLkmMoCGBxm2geVL/7fCb8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Elvira Khabirova <lineprinter@altlinux.org>,
-        "Dmitry V. Levin" <ldv@altlinux.org>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 4.14 001/136] s390: fix syscall_get_error for compat processes
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Qais Yousef <qais.yousef@arm.com>,
+        Tony Prisk <linux@prisktech.co.nz>,
+        Mathias Nyman <mathias.nyman@intel.com>,
+        Oliver Neukum <oneukum@suse.de>,
+        linux-arm-kernel@lists.infradead.org, linux-usb@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 262/314] usb/ehci-platform: Set PM runtime as active on resume
 Date:   Tue, 23 Jun 2020 21:57:37 +0200
-Message-Id: <20200623195303.686043119@linuxfoundation.org>
+Message-Id: <20200623195351.470372689@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195303.601828702@linuxfoundation.org>
-References: <20200623195303.601828702@linuxfoundation.org>
+In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
+References: <20200623195338.770401005@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,56 +48,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry V. Levin <ldv@altlinux.org>
+From: Qais Yousef <qais.yousef@arm.com>
 
-commit b3583fca5fb654af2cfc1c08259abb9728272538 upstream.
+[ Upstream commit 16bdc04cc98ab0c74392ceef2475ecc5e73fcf49 ]
 
-If both the tracer and the tracee are compat processes, and gprs[2]
-is assigned a value by __poke_user_compat, then the higher 32 bits
-of gprs[2] are cleared, IS_ERR_VALUE() always returns false, and
-syscall_get_error() always returns 0.
+Follow suit of ohci-platform.c and perform pm_runtime_set_active() on
+resume.
 
-Fix the implementation by sign-extending the value for compat processes
-the same way as x86 implementation does.
+ohci-platform.c had a warning reported due to the missing
+pm_runtime_set_active() [1].
 
-The bug was exposed to user space by commit 201766a20e30f ("ptrace: add
-PTRACE_GET_SYSCALL_INFO request") and detected by strace test suite.
+[1] https://lore.kernel.org/lkml/20200323143857.db5zphxhq4hz3hmd@e107158-lin.cambridge.arm.com/
 
-This change fixes strace syscall tampering on s390.
-
-Link: https://lkml.kernel.org/r/20200602180051.GA2427@altlinux.org
-Fixes: 753c4dd6a2fa2 ("[S390] ptrace changes")
-Cc: Elvira Khabirova <lineprinter@altlinux.org>
-Cc: stable@vger.kernel.org # v2.6.28+
-Signed-off-by: Dmitry V. Levin <ldv@altlinux.org>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Qais Yousef <qais.yousef@arm.com>
+CC: Tony Prisk <linux@prisktech.co.nz>
+CC: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC: Mathias Nyman <mathias.nyman@intel.com>
+CC: Oliver Neukum <oneukum@suse.de>
+CC: linux-arm-kernel@lists.infradead.org
+CC: linux-usb@vger.kernel.org
+CC: linux-kernel@vger.kernel.org
+Link: https://lore.kernel.org/r/20200518154931.6144-3-qais.yousef@arm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/syscall.h |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/usb/host/ehci-platform.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/arch/s390/include/asm/syscall.h
-+++ b/arch/s390/include/asm/syscall.h
-@@ -41,7 +41,17 @@ static inline void syscall_rollback(stru
- static inline long syscall_get_error(struct task_struct *task,
- 				     struct pt_regs *regs)
- {
--	return IS_ERR_VALUE(regs->gprs[2]) ? regs->gprs[2] : 0;
-+	unsigned long error = regs->gprs[2];
-+#ifdef CONFIG_COMPAT
-+	if (test_tsk_thread_flag(task, TIF_31BIT)) {
-+		/*
-+		 * Sign-extend the value so (int)-EFOO becomes (long)-EFOO
-+		 * and will match correctly in comparisons.
-+		 */
-+		error = (long)(int)error;
-+	}
-+#endif
-+	return IS_ERR_VALUE(error) ? error : 0;
- }
+diff --git a/drivers/usb/host/ehci-platform.c b/drivers/usb/host/ehci-platform.c
+index e4fc3f66d43bf..e9a49007cce4a 100644
+--- a/drivers/usb/host/ehci-platform.c
++++ b/drivers/usb/host/ehci-platform.c
+@@ -455,6 +455,10 @@ static int ehci_platform_resume(struct device *dev)
  
- static inline long syscall_get_return_value(struct task_struct *task,
+ 	ehci_resume(hcd, priv->reset_on_resume);
+ 
++	pm_runtime_disable(dev);
++	pm_runtime_set_active(dev);
++	pm_runtime_enable(dev);
++
+ 	if (priv->quirk_poll)
+ 		quirk_poll_init(priv);
+ 
+-- 
+2.25.1
+
 
 
