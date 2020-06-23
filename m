@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 929C82062A5
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:09:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F9D1206397
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:29:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389496AbgFWVGD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 17:06:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59490 "EHLO mail.kernel.org"
+        id S2390897AbgFWU2m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:28:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391278AbgFWUgZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:36:25 -0400
+        id S2390879AbgFWU2l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:28:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 580BE20781;
-        Tue, 23 Jun 2020 20:36:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 261AF2064B;
+        Tue, 23 Jun 2020 20:28:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944585;
-        bh=JW5oZEcVIjKvNl5OWuJjJdw+UlXjXTk3oylQaUFQl1U=;
+        s=default; t=1592944120;
+        bh=+73I7vWXVrTetzQ0y7R5LJJ6FtiHa/xYfWMACVzJKdU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y29wscPCn8jRZgGtLtkqpsy//+z1NKiZLMlG1Tyusu82A/hNdjUC/Ya/8NaC+UcHI
-         YlIZR8SJaz/eZFGPnpFoFDdTm5K5wtYUAAB574TwASaDTuxvXdudlp9Ow20pfKsMeC
-         etRuPaqztVuW+DJeQ+MpWzbiuns9meknYEq7g3Ak=
+        b=iNu5F2LunOUwTevaij/qdEAz+Y54M49GlivB9yBb5LJmrCAB6+6LpqtZCFKa8n/uD
+         FMl7tU6AnyA2lV7ZUNSBxVl2zOjyORVoFuxkUiZ3pY2ZevCRAj7LUOOGcuRgi4o2lZ
+         cjOuag0HGkZNCyKBUs97jZ6Km6ekNxG99IRAIwMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Lee Jones <lee.jones@linaro.org>,
+        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
+        Dong Aisheng <aisheng.dong@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 029/206] mfd: wm8994: Fix driver operation if loaded as modules
-Date:   Tue, 23 Jun 2020 21:55:57 +0200
-Message-Id: <20200623195318.411590800@linuxfoundation.org>
+Subject: [PATCH 5.4 163/314] firmware: imx: scu: Fix possible memory leak in imx_scu_probe()
+Date:   Tue, 23 Jun 2020 21:55:58 +0200
+Message-Id: <20200623195346.645463110@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
-References: <20200623195316.864547658@linuxfoundation.org>
+In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
+References: <20200623195338.770401005@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,36 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit d4f9b5428b53dd67f49ee8deed8d4366ed6b1933 ]
+[ Upstream commit 89f12d6509bff004852c51cb713a439a86816b24 ]
 
-WM8994 chip has built-in regulators, which might be used for chip
-operation. They are controlled by a separate wm8994-regulator driver,
-which should be loaded before this driver calls regulator_get(), because
-that driver also provides consumer-supply mapping for the them. If that
-driver is not yet loaded, regulator core substitute them with dummy
-regulator, what breaks chip operation, because the built-in regulators are
-never enabled. Fix this by annotating this driver with MODULE_SOFTDEP()
-"pre" dependency to "wm8994_regulator" module.
+'chan_name' is malloced in imx_scu_probe() and should be freed
+before leaving from the error handling cases, otherwise it will
+cause memory leak.
 
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Fixes: edbee095fafb ("firmware: imx: add SCU firmware driver support")
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/wm8994-core.c | 1 +
+ drivers/firmware/imx/imx-scu.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/mfd/wm8994-core.c b/drivers/mfd/wm8994-core.c
-index 22bd6525e09cf..933a50049d729 100644
---- a/drivers/mfd/wm8994-core.c
-+++ b/drivers/mfd/wm8994-core.c
-@@ -704,3 +704,4 @@ module_i2c_driver(wm8994_i2c_driver);
- MODULE_DESCRIPTION("Core support for the WM8994 audio CODEC");
- MODULE_LICENSE("GPL");
- MODULE_AUTHOR("Mark Brown <broonie@opensource.wolfsonmicro.com>");
-+MODULE_SOFTDEP("pre: wm8994_regulator");
+diff --git a/drivers/firmware/imx/imx-scu.c b/drivers/firmware/imx/imx-scu.c
+index e48d971ffb617..a3b11bc71dcb8 100644
+--- a/drivers/firmware/imx/imx-scu.c
++++ b/drivers/firmware/imx/imx-scu.c
+@@ -300,6 +300,7 @@ static int imx_scu_probe(struct platform_device *pdev)
+ 			if (ret != -EPROBE_DEFER)
+ 				dev_err(dev, "Failed to request mbox chan %s ret %d\n",
+ 					chan_name, ret);
++			kfree(chan_name);
+ 			return ret;
+ 		}
+ 
 -- 
 2.25.1
 
