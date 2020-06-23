@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29AED20617F
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:07:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFFCC20619F
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:07:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390295AbgFWUnh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:43:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40544 "EHLO mail.kernel.org"
+        id S2392849AbgFWUqc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:46:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392537AbgFWUng (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:43:36 -0400
+        id S2392846AbgFWUqb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:46:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4BE9621883;
-        Tue, 23 Jun 2020 20:43:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B7A832098B;
+        Tue, 23 Jun 2020 20:46:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592945016;
-        bh=aVQvAqoDRPXw5wPyTnBE2z3xocTyKQd+x9V86cnGcwc=;
+        s=default; t=1592945191;
+        bh=rClpISPMZhnIl0/qOv6tB1pK0gn1EcyvuwAj/samRec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oea1dc6GL7BfdxBe7DoMww25/9mDb6yY2tHIXcO5YyLjNJjeqeLjS4dzJq4Cos1Bg
-         v9JXkz9YqA/Fm7j2b/whHbrocErOmwIL5M/APMB5Molg9in7C3xo6rk932qGRhfjov
-         GtYnhnIPj7YHBICD/fhNcbVa4lUtT7p6CdxEaxBE=
+        b=Wvp/TlT6cOpNxH8oVQRpCkY1guTjcCQYUvJuIh29hDMYXfl6ZRqLv2ULdjr6rk9gu
+         CWboTkHLMHrVRDSEkToNI8GpwqCUI5QDoIIabD1eFaRmOpmyUozWJCY7oHYufaP5RS
+         1mtsEPVJUT7pTU4LewT5dU71n+hiKrwNOy8nRLWI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Stable@vger.kernel.org, Chen Yu <yu.c.chen@intel.com>,
-        Aaron Brown <aaron.f.brown@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-Subject: [PATCH 4.19 201/206] e1000e: Do not wake up the system via WOL if device wakeup is disabled
-Date:   Tue, 23 Jun 2020 21:58:49 +0200
-Message-Id: <20200623195326.928100772@linuxfoundation.org>
+        stable@vger.kernel.org, Jayshri Pawar <jpawar@cadence.com>,
+        Pawel Laszczak <pawell@cadence.com>,
+        Felipe Balbi <balbi@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 075/136] usb: gadget: Fix issue with config_ep_by_speed function
+Date:   Tue, 23 Jun 2020 21:58:51 +0200
+Message-Id: <20200623195307.452868059@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
-References: <20200623195316.864547658@linuxfoundation.org>
+In-Reply-To: <20200623195303.601828702@linuxfoundation.org>
+References: <20200623195303.601828702@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,65 +45,226 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Yu <yu.c.chen@intel.com>
+From: Pawel Laszczak <pawell@cadence.com>
 
-commit 6bf6be1127f7e6d4bf39f84d56854e944d045d74 upstream.
+[ Upstream commit 5d363120aa548ba52d58907a295eee25f8207ed2 ]
 
-Currently the system will be woken up via WOL(Wake On LAN) even if the
-device wakeup ability has been disabled via sysfs:
- cat /sys/devices/pci0000:00/0000:00:1f.6/power/wakeup
- disabled
+This patch adds new config_ep_by_speed_and_alt function which
+extends the config_ep_by_speed about alt parameter.
+This additional parameter allows to find proper usb_ss_ep_comp_descriptor.
 
-The system should not be woken up if the user has explicitly
-disabled the wake up ability for this device.
+Problem has appeared during testing f_tcm (BOT/UAS) driver function.
 
-This patch clears the WOL ability of this network device if the
-user has disabled the wake up ability in sysfs.
+f_tcm function for SS use array of headers for both  BOT/UAS alternate
+setting:
 
-Fixes: bc7f75fa9788 ("[E1000E]: New pci-express e1000 driver")
-Reported-by: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Chen Yu <yu.c.chen@intel.com>
-Tested-by: Aaron Brown <aaron.f.brown@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+static struct usb_descriptor_header *uasp_ss_function_desc[] = {
+        (struct usb_descriptor_header *) &bot_intf_desc,
+        (struct usb_descriptor_header *) &uasp_ss_bi_desc,
+        (struct usb_descriptor_header *) &bot_bi_ep_comp_desc,
+        (struct usb_descriptor_header *) &uasp_ss_bo_desc,
+        (struct usb_descriptor_header *) &bot_bo_ep_comp_desc,
 
+        (struct usb_descriptor_header *) &uasp_intf_desc,
+        (struct usb_descriptor_header *) &uasp_ss_bi_desc,
+        (struct usb_descriptor_header *) &uasp_bi_ep_comp_desc,
+        (struct usb_descriptor_header *) &uasp_bi_pipe_desc,
+        (struct usb_descriptor_header *) &uasp_ss_bo_desc,
+        (struct usb_descriptor_header *) &uasp_bo_ep_comp_desc,
+        (struct usb_descriptor_header *) &uasp_bo_pipe_desc,
+        (struct usb_descriptor_header *) &uasp_ss_status_desc,
+        (struct usb_descriptor_header *) &uasp_status_in_ep_comp_desc,
+        (struct usb_descriptor_header *) &uasp_status_pipe_desc,
+        (struct usb_descriptor_header *) &uasp_ss_cmd_desc,
+        (struct usb_descriptor_header *) &uasp_cmd_comp_desc,
+        (struct usb_descriptor_header *) &uasp_cmd_pipe_desc,
+        NULL,
+};
+
+The first 5 descriptors are associated with BOT alternate setting,
+and others are associated with UAS.
+
+During handling UAS alternate setting f_tcm driver invokes
+config_ep_by_speed and this function sets incorrect companion endpoint
+descriptor in usb_ep object.
+
+Instead setting ep->comp_desc to uasp_bi_ep_comp_desc function in this
+case set ep->comp_desc to uasp_ss_bi_desc.
+
+This is due to the fact that it searches endpoint based on endpoint
+address:
+
+        for_each_ep_desc(speed_desc, d_spd) {
+                chosen_desc = (struct usb_endpoint_descriptor *)*d_spd;
+                if (chosen_desc->bEndpoitAddress == _ep->address)
+                        goto ep_found;
+        }
+
+And in result it uses the descriptor from BOT alternate setting
+instead UAS.
+
+Finally, it causes that controller driver during enabling endpoints
+detect that just enabled endpoint for bot.
+
+Signed-off-by: Jayshri Pawar <jpawar@cadence.com>
+Signed-off-by: Pawel Laszczak <pawell@cadence.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/e1000e/netdev.c |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ drivers/usb/gadget/composite.c | 78 ++++++++++++++++++++++++++--------
+ include/linux/usb/composite.h  |  3 ++
+ 2 files changed, 64 insertions(+), 17 deletions(-)
 
---- a/drivers/net/ethernet/intel/e1000e/netdev.c
-+++ b/drivers/net/ethernet/intel/e1000e/netdev.c
-@@ -6308,11 +6308,17 @@ static int __e1000_shutdown(struct pci_d
- 	struct net_device *netdev = pci_get_drvdata(pdev);
- 	struct e1000_adapter *adapter = netdev_priv(netdev);
- 	struct e1000_hw *hw = &adapter->hw;
--	u32 ctrl, ctrl_ext, rctl, status;
--	/* Runtime suspend should only enable wakeup for link changes */
--	u32 wufc = runtime ? E1000_WUFC_LNKC : adapter->wol;
-+	u32 ctrl, ctrl_ext, rctl, status, wufc;
- 	int retval = 0;
+diff --git a/drivers/usb/gadget/composite.c b/drivers/usb/gadget/composite.c
+index c1f037af97027..7d2715e899bb8 100644
+--- a/drivers/usb/gadget/composite.c
++++ b/drivers/usb/gadget/composite.c
+@@ -100,40 +100,43 @@ function_descriptors(struct usb_function *f,
+ }
  
-+	/* Runtime suspend should only enable wakeup for link changes */
-+	if (runtime)
-+		wufc = E1000_WUFC_LNKC;
-+	else if (device_may_wakeup(&pdev->dev))
-+		wufc = adapter->wol;
-+	else
-+		wufc = 0;
+ /**
+- * next_ep_desc() - advance to the next EP descriptor
++ * next_desc() - advance to the next desc_type descriptor
+  * @t: currect pointer within descriptor array
++ * @desc_type: descriptor type
+  *
+- * Return: next EP descriptor or NULL
++ * Return: next desc_type descriptor or NULL
+  *
+- * Iterate over @t until either EP descriptor found or
++ * Iterate over @t until either desc_type descriptor found or
+  * NULL (that indicates end of list) encountered
+  */
+ static struct usb_descriptor_header**
+-next_ep_desc(struct usb_descriptor_header **t)
++next_desc(struct usb_descriptor_header **t, u8 desc_type)
+ {
+ 	for (; *t; t++) {
+-		if ((*t)->bDescriptorType == USB_DT_ENDPOINT)
++		if ((*t)->bDescriptorType == desc_type)
+ 			return t;
+ 	}
+ 	return NULL;
+ }
+ 
+ /*
+- * for_each_ep_desc()- iterate over endpoint descriptors in the
+- *		descriptors list
+- * @start:	pointer within descriptor array.
+- * @ep_desc:	endpoint descriptor to use as the loop cursor
++ * for_each_desc() - iterate over desc_type descriptors in the
++ * descriptors list
++ * @start: pointer within descriptor array.
++ * @iter_desc: desc_type descriptor to use as the loop cursor
++ * @desc_type: wanted descriptr type
+  */
+-#define for_each_ep_desc(start, ep_desc) \
+-	for (ep_desc = next_ep_desc(start); \
+-	      ep_desc; ep_desc = next_ep_desc(ep_desc+1))
++#define for_each_desc(start, iter_desc, desc_type) \
++	for (iter_desc = next_desc(start, desc_type); \
++	     iter_desc; iter_desc = next_desc(iter_desc + 1, desc_type))
+ 
+ /**
+- * config_ep_by_speed() - configures the given endpoint
++ * config_ep_by_speed_and_alt() - configures the given endpoint
+  * according to gadget speed.
+  * @g: pointer to the gadget
+  * @f: usb function
+  * @_ep: the endpoint to configure
++ * @alt: alternate setting number
+  *
+  * Return: error code, 0 on success
+  *
+@@ -146,11 +149,13 @@ next_ep_desc(struct usb_descriptor_header **t)
+  * Note: the supplied function should hold all the descriptors
+  * for supported speeds
+  */
+-int config_ep_by_speed(struct usb_gadget *g,
+-			struct usb_function *f,
+-			struct usb_ep *_ep)
++int config_ep_by_speed_and_alt(struct usb_gadget *g,
++				struct usb_function *f,
++				struct usb_ep *_ep,
++				u8 alt)
+ {
+ 	struct usb_endpoint_descriptor *chosen_desc = NULL;
++	struct usb_interface_descriptor *int_desc = NULL;
+ 	struct usb_descriptor_header **speed_desc = NULL;
+ 
+ 	struct usb_ss_ep_comp_descriptor *comp_desc = NULL;
+@@ -186,8 +191,21 @@ int config_ep_by_speed(struct usb_gadget *g,
+ 	default:
+ 		speed_desc = f->fs_descriptors;
+ 	}
 +
- 	status = er32(STATUS);
- 	if (status & E1000_STATUS_LU)
- 		wufc &= ~E1000_WUFC_LNKC;
-@@ -6369,7 +6375,7 @@ static int __e1000_shutdown(struct pci_d
- 	if (adapter->hw.phy.type == e1000_phy_igp_3) {
- 		e1000e_igp3_phy_powerdown_workaround_ich8lan(&adapter->hw);
- 	} else if (hw->mac.type >= e1000_pch_lpt) {
--		if (!(wufc & (E1000_WUFC_EX | E1000_WUFC_MC | E1000_WUFC_BC)))
-+		if (wufc && !(wufc & (E1000_WUFC_EX | E1000_WUFC_MC | E1000_WUFC_BC)))
- 			/* ULP does not support wake from unicast, multicast
- 			 * or broadcast.
- 			 */
++	/* find correct alternate setting descriptor */
++	for_each_desc(speed_desc, d_spd, USB_DT_INTERFACE) {
++		int_desc = (struct usb_interface_descriptor *)*d_spd;
++
++		if (int_desc->bAlternateSetting == alt) {
++			speed_desc = d_spd;
++			goto intf_found;
++		}
++	}
++	return -EIO;
++
++intf_found:
+ 	/* find descriptors */
+-	for_each_ep_desc(speed_desc, d_spd) {
++	for_each_desc(speed_desc, d_spd, USB_DT_ENDPOINT) {
+ 		chosen_desc = (struct usb_endpoint_descriptor *)*d_spd;
+ 		if (chosen_desc->bEndpointAddress == _ep->address)
+ 			goto ep_found;
+@@ -240,6 +258,32 @@ ep_found:
+ 	}
+ 	return 0;
+ }
++EXPORT_SYMBOL_GPL(config_ep_by_speed_and_alt);
++
++/**
++ * config_ep_by_speed() - configures the given endpoint
++ * according to gadget speed.
++ * @g: pointer to the gadget
++ * @f: usb function
++ * @_ep: the endpoint to configure
++ *
++ * Return: error code, 0 on success
++ *
++ * This function chooses the right descriptors for a given
++ * endpoint according to gadget speed and saves it in the
++ * endpoint desc field. If the endpoint already has a descriptor
++ * assigned to it - overwrites it with currently corresponding
++ * descriptor. The endpoint maxpacket field is updated according
++ * to the chosen descriptor.
++ * Note: the supplied function should hold all the descriptors
++ * for supported speeds
++ */
++int config_ep_by_speed(struct usb_gadget *g,
++			struct usb_function *f,
++			struct usb_ep *_ep)
++{
++	return config_ep_by_speed_and_alt(g, f, _ep, 0);
++}
+ EXPORT_SYMBOL_GPL(config_ep_by_speed);
+ 
+ /**
+diff --git a/include/linux/usb/composite.h b/include/linux/usb/composite.h
+index 590d313b5f39f..a865698361c13 100644
+--- a/include/linux/usb/composite.h
++++ b/include/linux/usb/composite.h
+@@ -248,6 +248,9 @@ int usb_function_activate(struct usb_function *);
+ 
+ int usb_interface_id(struct usb_configuration *, struct usb_function *);
+ 
++int config_ep_by_speed_and_alt(struct usb_gadget *g, struct usb_function *f,
++				struct usb_ep *_ep, u8 alt);
++
+ int config_ep_by_speed(struct usb_gadget *g, struct usb_function *f,
+ 			struct usb_ep *_ep);
+ 
+-- 
+2.25.1
+
 
 
