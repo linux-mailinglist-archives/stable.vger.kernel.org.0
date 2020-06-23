@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15187206302
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:10:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7B4E206166
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:07:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391386AbgFWUdF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:33:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54202 "EHLO mail.kernel.org"
+        id S2403854AbgFWUk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:40:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391380AbgFWUdE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:33:04 -0400
+        id S2392293AbgFWUkw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:40:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B3D5820702;
-        Tue, 23 Jun 2020 20:33:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8190A20675;
+        Tue, 23 Jun 2020 20:40:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944384;
-        bh=R8g0zEbyqFw6D+ciYXIPii4CJ0lk9q9fkxWVCc92rdE=;
+        s=default; t=1592944853;
+        bh=N3ZWL4UiTTyYZz4LzXGUi9NbMV0Ja4Bw/xleC7UnU5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SPJ/NOMI9gd5XNcDhPtyZPCjBQhW8+AvCow8W1rKxHuM4wXGuYwC5CuY/NlK0ftRI
-         DtL1IUWKDQzwIq94tcqiP6MGNi9v0ScSJTC3GZfdhmETbVD1KwyKVTugjhOud4TuSN
-         wEyD9eJKOTHIbGU7btXh9ilS/3nJb72uZxN5zaYg=
+        b=b8dhxV6InezACFXZuwqD5R3Wgw8Xh+E8QKZkirXwKAk2bXbNn6039EHagfsjAlXF6
+         lGbrTWJuiwnnbCUWIB7Y5GbEqDDbSyAbRjuNrukETt4DK7AXyddjRchxae2gOwBwHW
+         f8Um97qXjH/ZyiG/k2tWEfjj1tiwawVtSY+wkqMM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
-        Sean Paul <sean@poorly.run>
-Subject: [PATCH 5.4 283/314] drm/dp_mst: Reformat drm_dp_check_act_status() a bit
+        stable@vger.kernel.org, Logan Gunthorpe <logang@deltatee.com>,
+        Allen Hubbe <allenbh@gmail.com>,
+        Alexander Fomichev <fomichev.ru@gmail.com>,
+        Jon Mason <jdmason@kudzu.us>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 150/206] NTB: ntb_test: Fix bug when counting remote files
 Date:   Tue, 23 Jun 2020 21:57:58 +0200
-Message-Id: <20200623195352.480467724@linuxfoundation.org>
+Message-Id: <20200623195324.376329532@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
-References: <20200623195338.770401005@linuxfoundation.org>
+In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
+References: <20200623195316.864547658@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,72 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lyude Paul <lyude@redhat.com>
+From: Logan Gunthorpe <logang@deltatee.com>
 
-commit a5cb5fa6c3a5c2cf492db667b8670ee7b044b79f upstream.
+[ Upstream commit 2130c0ba69d69bb21f5c52787f2587db00d13d8a ]
 
-Just add a bit more line wrapping, get rid of some extraneous
-whitespace, remove an unneeded goto label, and move around some variable
-declarations. No functional changes here.
+When remote files are counted in get_files_count, without using SSH,
+the code returns 0 because there is a colon prepended to $LOC. $VPATH
+should have been used instead of $LOC.
 
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-[this isn't a fix, but it's needed for the fix that comes after this]
-Fixes: ad7f8a1f9ced ("drm/helper: add Displayport multi-stream helper (v0.6)")
-Cc: Sean Paul <sean@poorly.run>
-Cc: <stable@vger.kernel.org> # v3.17+
-Reviewed-by: Sean Paul <sean@poorly.run>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200406221253.1307209-3-lyude@redhat.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 06bd0407d06c ("NTB: ntb_test: Update ntb_tool Scratchpad tests")
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Acked-by: Allen Hubbe <allenbh@gmail.com>
+Tested-by: Alexander Fomichev <fomichev.ru@gmail.com>
+Signed-off-by: Jon Mason <jdmason@kudzu.us>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_dp_mst_topology.c |   22 ++++++++++------------
- 1 file changed, 10 insertions(+), 12 deletions(-)
+ tools/testing/selftests/ntb/ntb_test.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/drm_dp_mst_topology.c
-+++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-@@ -3507,33 +3507,31 @@ fail:
-  */
- int drm_dp_check_act_status(struct drm_dp_mst_topology_mgr *mgr)
- {
-+	int count = 0, ret;
- 	u8 status;
--	int ret;
--	int count = 0;
+diff --git a/tools/testing/selftests/ntb/ntb_test.sh b/tools/testing/selftests/ntb/ntb_test.sh
+index 08cbfbbc70291..17ca36403d04c 100755
+--- a/tools/testing/selftests/ntb/ntb_test.sh
++++ b/tools/testing/selftests/ntb/ntb_test.sh
+@@ -250,7 +250,7 @@ function get_files_count()
+ 	split_remote $LOC
  
- 	do {
--		ret = drm_dp_dpcd_readb(mgr->aux, DP_PAYLOAD_TABLE_UPDATE_STATUS, &status);
--
-+		ret = drm_dp_dpcd_readb(mgr->aux,
-+					DP_PAYLOAD_TABLE_UPDATE_STATUS,
-+					&status);
- 		if (ret < 0) {
--			DRM_DEBUG_KMS("failed to read payload table status %d\n", ret);
--			goto fail;
-+			DRM_DEBUG_KMS("failed to read payload table status %d\n",
-+				      ret);
-+			return ret;
- 		}
- 
- 		if (status & DP_PAYLOAD_ACT_HANDLED)
- 			break;
- 		count++;
- 		udelay(100);
--
- 	} while (count < 30);
- 
- 	if (!(status & DP_PAYLOAD_ACT_HANDLED)) {
--		DRM_DEBUG_KMS("failed to get ACT bit %d after %d retries\n", status, count);
--		ret = -EINVAL;
--		goto fail;
-+		DRM_DEBUG_KMS("failed to get ACT bit %d after %d retries\n",
-+			      status, count);
-+		return -EINVAL;
- 	}
- 	return 0;
--fail:
--	return ret;
- }
- EXPORT_SYMBOL(drm_dp_check_act_status);
- 
+ 	if [[ "$REMOTE" == "" ]]; then
+-		echo $(ls -1 "$LOC"/${NAME}* 2>/dev/null | wc -l)
++		echo $(ls -1 "$VPATH"/${NAME}* 2>/dev/null | wc -l)
+ 	else
+ 		echo $(ssh "$REMOTE" "ls -1 \"$VPATH\"/${NAME}* | \
+ 		       wc -l" 2> /dev/null)
+-- 
+2.25.1
+
 
 
