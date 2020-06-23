@@ -2,154 +2,221 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF5C5204B62
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 09:39:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17532204B7A
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 09:46:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731169AbgFWHjf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 03:39:35 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:28791 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1731588AbgFWHjc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Jun 2020 03:39:32 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1592897970;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-        bh=sMaGabO4+NYFc02JWhJtOKWw7H3PmrRvbU+qVPfuyb0=;
-        b=JjDP00xD/IKytKUX2lhb6Sh4TJGMbdepUJw38Q154LbYdc7ts/dERNYKyzSCcoDWWozZJY
-        6L0iDlQDNSWYI96T1PIbj3MwgL+e4OfLr2HfqiMWdKc/qHaJNXusgnV3ff8fqBTxS21PwK
-        y8aLS8QfJgh2DmXHak3ZszJYjUvlbV0=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-371-G51EiyraNAuWDm6P4jTkpA-1; Tue, 23 Jun 2020 03:39:26 -0400
-X-MC-Unique: G51EiyraNAuWDm6P4jTkpA-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 7BB508031D3;
-        Tue, 23 Jun 2020 07:39:24 +0000 (UTC)
-Received: from [10.36.113.187] (ovpn-113-187.ams2.redhat.com [10.36.113.187])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id E2C9B5C1D4;
-        Tue, 23 Jun 2020 07:39:20 +0000 (UTC)
-Subject: Re: [PATCH v2 1/3] mm/shuffle: don't move pages between zones and
- don't read garbage memmaps
-To:     Wei Yang <richard.weiyang@gmail.com>
-Cc:     Wei Yang <richard.weiyang@linux.alibaba.com>,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        Michal Hocko <mhocko@suse.com>, stable@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Minchan Kim <minchan@kernel.org>,
-        Huang Ying <ying.huang@intel.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Dan Williams <dan.j.williams@intel.com>
-References: <20200619125923.22602-1-david@redhat.com>
- <20200619125923.22602-2-david@redhat.com>
- <20200622082635.GA93552@L-31X9LVDL-1304.local>
- <2185539f-b210-5d3f-5da2-a497b354eebb@redhat.com>
- <20200622092221.GA96699@L-31X9LVDL-1304.local>
- <34f36733-805e-cc61-38da-2ee578ae096c@redhat.com>
- <20200622131003.GA98415@L-31X9LVDL-1304.local>
- <0f4edc1f-1ce2-95b4-5866-5c4888db7c65@redhat.com>
- <20200622215520.wa6gjr2hplurwy57@master>
-From:   David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; prefer-encrypt=mutual; keydata=
- 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
-Organization: Red Hat GmbH
-Message-ID: <4b7ee49c-9bee-a905-3497-e3addd8896b8@redhat.com>
-Date:   Tue, 23 Jun 2020 09:39:19 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
+        id S1731158AbgFWHql (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 03:46:41 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:57643 "EHLO
+        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1731041AbgFWHql (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Jun 2020 03:46:41 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.west.internal (Postfix) with ESMTP id 91127CB3;
+        Tue, 23 Jun 2020 03:46:40 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Tue, 23 Jun 2020 03:46:40 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=9sFcf3
+        +wNOSTpxWqfL4cz6XyXCtCSRUPyDb24g5zwh0=; b=YCQ8DLWPA2zqQrWPTuB9Ch
+        MrFwvs7319A11v36rn4rZMMct4XP9vPIqy/P9LU6aT0McLU2rKIBKCfzPRlwZCdv
+        coZGHHgfLmPIeqgN4X/xM9NzTstl+F7n7m+bUQvc3DCJC//cVvh4qf784AQ6QnnC
+        xVhAouYxrGyeVImrxdOB0QhG48ocabT++QkOAgF4V9NcqA2q4esYwO1/9WJGaWCI
+        LZLmeglP3dxu/2/AbWVkgSVvLJbHXq7AVYYEs8jOPN9oFWV+zCDXg92AYDBn03F6
+        wD9Ua5al4/VUPwvjhlwSYChLkQTi17r1Hg/4hbyTF7xQLSEgsTFAyq74AEQhW44Q
+        ==
+X-ME-Sender: <xms:X7PxXqxAKnifC2JRboCTG7mubAkWOONch2ifGGomv5WJ3jxJaAvEig>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudekfedguddvhecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
+    dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
+    rhhgqeenucggtffrrghtthgvrhhnpeekhffhfefgfeehfeefudeguedvvdevgffgffdtud
+    eujefhhffgveeutddvtdejgfenucffohhmrghinhepfhhrvggvuggvshhkthhophdrohhr
+    ghenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenuc
+    frrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:X7PxXmQtni6oH3OEhjwfhOrXIV8I9Rd72ja6e7MI9EFJi9K_BlQpcQ>
+    <xmx:X7PxXsWDsX3_WAFp-X5rN_Zitbt9jRes6fc4w_UhuP4tvZ8FFw-yew>
+    <xmx:X7PxXgiFd5VJ7uWcJiZ90hVOZ_PbiY_czNCks8QpsrTFv8sbb505XQ>
+    <xmx:YLPxXr8ozVuztShh1V9xsXifDPY_qXi36c74E1dCzIqTpppg4AYVinpyLxQ>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 137983067491;
+        Tue, 23 Jun 2020 03:46:38 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drm/i915/execlists: Track inflight CCID" failed to apply to 5.7-stable tree
+To:     chris@chris-wilson.co.uk, mika.kuoppala@linux.intel.com,
+        stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 23 Jun 2020 09:46:30 +0200
+Message-ID: <15928983908104@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <20200622215520.wa6gjr2hplurwy57@master>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> Hmm.. I thought this is the behavior for early section, while it looks current
-> code doesn't work like this:
-> 
->        if (section_is_early && memmap)
->                free_map_bootmem(memmap);
->        else
-> 	       depopulate_section_memmap(pfn, nr_pages, altmap);
-> 
-> section_is_early is always "true" for early section, while memmap is not-NULL
-> only when sub-section map is empty.
-> 
-> If my understanding is correct, when we remove a sub-section in early section,
-> the code would call depopulate_section_memmap(), which in turn free related
-> memmap. By removing the memmap, the return value from pfn_to_online_page() is
-> not a valid one.
 
-I think you're right, and pfn_valid() would also return true, as it is
-an early section. This looks broken.
+The patch below does not apply to the 5.7-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-> 
-> Maybe we want to write the code like this:
-> 
->        if (section_is_early)
->                if (memmap)
->                        free_map_bootmem(memmap);
->        else
-> 	       depopulate_section_memmap(pfn, nr_pages, altmap);
-> 
+thanks,
 
-I guess that should be the way to go
+greg k-h
 
-@Dan, I think what Wei proposes here is correct, right? Or how does it
-work in the VMEMMAP case with early sections?
+------------------ original commit in Linus's tree ------------------
 
--- 
-Thanks,
+From 5c4a53e3b1cbc38d0906e382f1037290658759bb Mon Sep 17 00:00:00 2001
+From: Chris Wilson <chris@chris-wilson.co.uk>
+Date: Tue, 28 Apr 2020 19:47:50 +0100
+Subject: [PATCH] drm/i915/execlists: Track inflight CCID
 
-David / dhildenb
+The presumption is that by using a circular counter that is twice as
+large as the maximum ELSP submission, we would never reuse the same CCID
+for two inflight contexts.
+
+However, if we continually preempt an active context such that it always
+remains inflight, it can be resubmitted with an arbitrary number of
+paired contexts. As each of its paired contexts will use a new CCID,
+eventually it will wrap and submit two ELSP with the same CCID.
+
+Rather than use a simple circular counter, switch over to a small bitmap
+of inflight ids so we can avoid reusing one that is still potentially
+active.
+
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/1796
+Fixes: 2935ed5339c4 ("drm/i915: Remove logical HW ID")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Cc: <stable@vger.kernel.org> # v5.5+
+Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200428184751.11257-2-chris@chris-wilson.co.uk
+
+diff --git a/drivers/gpu/drm/i915/gt/intel_engine_types.h b/drivers/gpu/drm/i915/gt/intel_engine_types.h
+index 470bdc73220a..cfe4feaee982 100644
+--- a/drivers/gpu/drm/i915/gt/intel_engine_types.h
++++ b/drivers/gpu/drm/i915/gt/intel_engine_types.h
+@@ -309,8 +309,7 @@ struct intel_engine_cs {
+ 	u32 context_size;
+ 	u32 mmio_base;
+ 
+-	unsigned int context_tag;
+-#define NUM_CONTEXT_TAG roundup_pow_of_two(2 * EXECLIST_MAX_PORTS)
++	unsigned long context_tag;
+ 
+ 	struct rb_node uabi_node;
+ 
+diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
+index 7d56207276d5..05e2bb483db3 100644
+--- a/drivers/gpu/drm/i915/gt/intel_lrc.c
++++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
+@@ -1389,13 +1389,17 @@ __execlists_schedule_in(struct i915_request *rq)
+ 
+ 	if (ce->tag) {
+ 		/* Use a fixed tag for OA and friends */
++		GEM_BUG_ON(ce->tag <= BITS_PER_LONG);
+ 		ce->lrc.ccid = ce->tag;
+ 	} else {
+ 		/* We don't need a strict matching tag, just different values */
+-		ce->lrc.ccid =
+-			(++engine->context_tag % NUM_CONTEXT_TAG) <<
+-			(GEN11_SW_CTX_ID_SHIFT - 32);
+-		BUILD_BUG_ON(NUM_CONTEXT_TAG > GEN12_MAX_CONTEXT_HW_ID);
++		unsigned int tag = ffs(engine->context_tag);
++
++		GEM_BUG_ON(tag == 0 || tag >= BITS_PER_LONG);
++		clear_bit(tag - 1, &engine->context_tag);
++		ce->lrc.ccid = tag << (GEN11_SW_CTX_ID_SHIFT - 32);
++
++		BUILD_BUG_ON(BITS_PER_LONG > GEN12_MAX_CONTEXT_HW_ID);
+ 	}
+ 
+ 	ce->lrc.ccid |= engine->execlists.ccid;
+@@ -1439,7 +1443,8 @@ static void kick_siblings(struct i915_request *rq, struct intel_context *ce)
+ 
+ static inline void
+ __execlists_schedule_out(struct i915_request *rq,
+-			 struct intel_engine_cs * const engine)
++			 struct intel_engine_cs * const engine,
++			 unsigned int ccid)
+ {
+ 	struct intel_context * const ce = rq->context;
+ 
+@@ -1457,6 +1462,14 @@ __execlists_schedule_out(struct i915_request *rq,
+ 	    i915_request_completed(rq))
+ 		intel_engine_add_retire(engine, ce->timeline);
+ 
++	ccid >>= GEN11_SW_CTX_ID_SHIFT - 32;
++	ccid &= GEN12_MAX_CONTEXT_HW_ID;
++	if (ccid < BITS_PER_LONG) {
++		GEM_BUG_ON(ccid == 0);
++		GEM_BUG_ON(test_bit(ccid - 1, &engine->context_tag));
++		set_bit(ccid - 1, &engine->context_tag);
++	}
++
+ 	intel_context_update_runtime(ce);
+ 	intel_engine_context_out(engine);
+ 	execlists_context_status_change(rq, INTEL_CONTEXT_SCHEDULE_OUT);
+@@ -1482,15 +1495,17 @@ execlists_schedule_out(struct i915_request *rq)
+ {
+ 	struct intel_context * const ce = rq->context;
+ 	struct intel_engine_cs *cur, *old;
++	u32 ccid;
+ 
+ 	trace_i915_request_out(rq);
+ 
++	ccid = rq->context->lrc.ccid;
+ 	old = READ_ONCE(ce->inflight);
+ 	do
+ 		cur = ptr_unmask_bits(old, 2) ? ptr_dec(old) : NULL;
+ 	while (!try_cmpxchg(&ce->inflight, &old, cur));
+ 	if (!cur)
+-		__execlists_schedule_out(rq, old);
++		__execlists_schedule_out(rq, old, ccid);
+ 
+ 	i915_request_put(rq);
+ }
+@@ -3990,7 +4005,7 @@ static void enable_execlists(struct intel_engine_cs *engine)
+ 
+ 	enable_error_interrupt(engine);
+ 
+-	engine->context_tag = 0;
++	engine->context_tag = GENMASK(BITS_PER_LONG - 2, 0);
+ }
+ 
+ static bool unexpected_starting_state(struct intel_engine_cs *engine)
+diff --git a/drivers/gpu/drm/i915/i915_perf.c b/drivers/gpu/drm/i915/i915_perf.c
+index 04ad21960688..c533f569dd42 100644
+--- a/drivers/gpu/drm/i915/i915_perf.c
++++ b/drivers/gpu/drm/i915/i915_perf.c
+@@ -1280,11 +1280,10 @@ static int oa_get_render_ctx_id(struct i915_perf_stream *stream)
+ 			((1U << GEN11_SW_CTX_ID_WIDTH) - 1) << (GEN11_SW_CTX_ID_SHIFT - 32);
+ 		/*
+ 		 * Pick an unused context id
+-		 * 0 - (NUM_CONTEXT_TAG - 1) are used by other contexts
++		 * 0 - BITS_PER_LONG are used by other contexts
+ 		 * GEN12_MAX_CONTEXT_HW_ID (0x7ff) is used by idle context
+ 		 */
+ 		stream->specific_ctx_id = (GEN12_MAX_CONTEXT_HW_ID - 1) << (GEN11_SW_CTX_ID_SHIFT - 32);
+-		BUILD_BUG_ON((GEN12_MAX_CONTEXT_HW_ID - 1) < NUM_CONTEXT_TAG);
+ 		break;
+ 	}
+ 
+diff --git a/drivers/gpu/drm/i915/selftests/i915_vma.c b/drivers/gpu/drm/i915/selftests/i915_vma.c
+index 58b5f40a07dd..af89c7fc8f59 100644
+--- a/drivers/gpu/drm/i915/selftests/i915_vma.c
++++ b/drivers/gpu/drm/i915/selftests/i915_vma.c
+@@ -173,7 +173,7 @@ static int igt_vma_create(void *arg)
+ 		}
+ 
+ 		nc = 0;
+-		for_each_prime_number(num_ctx, 2 * NUM_CONTEXT_TAG) {
++		for_each_prime_number(num_ctx, 2 * BITS_PER_LONG) {
+ 			for (; nc < num_ctx; nc++) {
+ 				ctx = mock_context(i915, "mock");
+ 				if (!ctx)
 
