@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F557205FD7
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:47:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2E9F205F10
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:32:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391811AbgFWUgs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:36:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59954 "EHLO mail.kernel.org"
+        id S2390940AbgFWU3D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:29:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391809AbgFWUgq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:36:46 -0400
+        id S2390221AbgFWU3D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:29:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E78182080C;
-        Tue, 23 Jun 2020 20:36:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D9247206C3;
+        Tue, 23 Jun 2020 20:29:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944606;
-        bh=/E0LccPgvAARi++hXpD8grtUa0dNF7VKqENG0qF0+6Y=;
+        s=default; t=1592944143;
+        bh=giVs8lzCvKSJtFFHoU4pzvCNBJJN2SkZUT7eSNvlx/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mc3wVHakSyKysbJCf6t0Dsf22sYX99a/YzLwHuhwSE20EDEFhOMAB6wsTejABsEgP
-         28GUAIvwLpgQSADGNisT/Owcy9F2Rcxt1ldif2Tf1gDcG9TaWk7bEWUApNxW4jMS2+
-         7rm2DhBZPwh5Wkocm4d0qiuaXZO04h/I7KcQ1ToU=
+        b=tvU9rxoeriom1K877hg+GU0ulPQ9+SEN9v1Fw36S7HlpxrKnwwNfSVDQUMAvVr2Fz
+         VH8NJxRU+jJORM+0saDRzK5T1tU7iIge81QhdBoC9StUy6PIB1krE0P8h35i4ORutI
+         /mV/mu0r3ScMp+4eNAqaYaU+uuuFztcXG4yopZyg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chad Dupuis <cdupuis@marvell.com>,
-        Saurav Kashyap <skashyap@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 054/206] scsi: qedf: Fix crash when MFW calls for protocol stats while function is still probing
-Date:   Tue, 23 Jun 2020 21:56:22 +0200
-Message-Id: <20200623195319.635724517@linuxfoundation.org>
+Subject: [PATCH 5.4 189/314] clk: bcm2835: Fix return type of bcm2835_register_gate
+Date:   Tue, 23 Jun 2020 21:56:24 +0200
+Message-Id: <20200623195347.933432071@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
-References: <20200623195316.864547658@linuxfoundation.org>
+In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
+References: <20200623195338.770401005@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,128 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chad Dupuis <cdupuis@marvell.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit ad40f5256095c68dc17c991eb976261d5ea2daaa ]
+[ Upstream commit f376c43bec4f8ee8d1ba5c5c4cfbd6e84fb279cb ]
 
-The MFW may make a call to qed and then to qedf for protocol statistics
-while the function is still probing.  If this happens it's possible that
-some members of the struct qedf_ctx may not be fully initialized which can
-result in a NULL pointer dereference or general protection fault.
+bcm2835_register_gate is used as a callback for the clk_register member
+of bcm2835_clk_desc, which expects a struct clk_hw * return type but
+bcm2835_register_gate returns a struct clk *.
 
-To prevent this, add a new flag call QEDF_PROBING and set it when the
-__qedf_probe() function is active. Then in the qedf_get_protocol_tlv_data()
-function we can check if the function is still probing and return
-immediantely before any uninitialized structures can be touched.
+This discrepancy is hidden by the fact that bcm2835_register_gate is
+cast to the typedef bcm2835_clk_register by the _REGISTER macro. This
+turns out to be a control flow integrity violation, which is how this
+was noticed.
 
-Link: https://lore.kernel.org/r/20200416084314.18851-9-skashyap@marvell.com
-Signed-off-by: Chad Dupuis <cdupuis@marvell.com>
-Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Change the return type of bcm2835_register_gate to be struct clk_hw *
+and use clk_hw_register_gate to do so. This should be a non-functional
+change as clk_register_gate calls clk_hw_register_gate anyways but this
+is needed to avoid issues with further changes.
+
+Fixes: b19f009d4510 ("clk: bcm2835: Migrate to clk_hw based registration and OF APIs")
+Link: https://github.com/ClangBuiltLinux/linux/issues/1028
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Link: https://lkml.kernel.org/r/20200516080806.1459784-1-natechancellor@gmail.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qedf/qedf.h      |  1 +
- drivers/scsi/qedf/qedf_main.c | 35 +++++++++++++++++++++++++++++++----
- 2 files changed, 32 insertions(+), 4 deletions(-)
+ drivers/clk/bcm/clk-bcm2835.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/scsi/qedf/qedf.h b/drivers/scsi/qedf/qedf.h
-index 2c78d8fb9122b..fc06be4fd10cd 100644
---- a/drivers/scsi/qedf/qedf.h
-+++ b/drivers/scsi/qedf/qedf.h
-@@ -335,6 +335,7 @@ struct qedf_ctx {
- #define QEDF_GRCDUMP_CAPTURE		4
- #define QEDF_IN_RECOVERY		5
- #define QEDF_DBG_STOP_IO		6
-+#define QEDF_PROBING			8
- 	unsigned long flags; /* Miscellaneous state flags */
- 	int fipvlan_retries;
- 	u8 num_queues;
-diff --git a/drivers/scsi/qedf/qedf_main.c b/drivers/scsi/qedf/qedf_main.c
-index cd61905ca2f55..b253523217b8b 100644
---- a/drivers/scsi/qedf/qedf_main.c
-+++ b/drivers/scsi/qedf/qedf_main.c
-@@ -2961,7 +2961,7 @@ static int __qedf_probe(struct pci_dev *pdev, int mode)
- {
- 	int rc = -EINVAL;
- 	struct fc_lport *lport;
--	struct qedf_ctx *qedf;
-+	struct qedf_ctx *qedf = NULL;
- 	struct Scsi_Host *host;
- 	bool is_vf = false;
- 	struct qed_ll2_params params;
-@@ -2989,6 +2989,7 @@ static int __qedf_probe(struct pci_dev *pdev, int mode)
- 
- 		/* Initialize qedf_ctx */
- 		qedf = lport_priv(lport);
-+		set_bit(QEDF_PROBING, &qedf->flags);
- 		qedf->lport = lport;
- 		qedf->ctlr.lp = lport;
- 		qedf->pdev = pdev;
-@@ -3011,9 +3012,12 @@ static int __qedf_probe(struct pci_dev *pdev, int mode)
- 	} else {
- 		/* Init pointers during recovery */
- 		qedf = pci_get_drvdata(pdev);
-+		set_bit(QEDF_PROBING, &qedf->flags);
- 		lport = qedf->lport;
- 	}
- 
-+	QEDF_INFO(&qedf->dbg_ctx, QEDF_LOG_DISC, "Probe started.\n");
-+
- 	host = lport->host;
- 
- 	/* Allocate mempool for qedf_io_work structs */
-@@ -3312,6 +3316,10 @@ static int __qedf_probe(struct pci_dev *pdev, int mode)
- 	else
- 		fc_fabric_login(lport);
- 
-+	QEDF_INFO(&qedf->dbg_ctx, QEDF_LOG_DISC, "Probe done.\n");
-+
-+	clear_bit(QEDF_PROBING, &qedf->flags);
-+
- 	/* All good */
- 	return 0;
- 
-@@ -3337,6 +3345,11 @@ err2:
- err1:
- 	scsi_host_put(lport->host);
- err0:
-+	if (qedf) {
-+		QEDF_INFO(&qedf->dbg_ctx, QEDF_LOG_DISC, "Probe done.\n");
-+
-+		clear_bit(QEDF_PROBING, &qedf->flags);
-+	}
- 	return rc;
+diff --git a/drivers/clk/bcm/clk-bcm2835.c b/drivers/clk/bcm/clk-bcm2835.c
+index 802e488fd3c3d..6e5d635f030f4 100644
+--- a/drivers/clk/bcm/clk-bcm2835.c
++++ b/drivers/clk/bcm/clk-bcm2835.c
+@@ -1448,13 +1448,13 @@ static struct clk_hw *bcm2835_register_clock(struct bcm2835_cprman *cprman,
+ 	return &clock->hw;
  }
  
-@@ -3484,11 +3497,25 @@ void qedf_get_protocol_tlv_data(void *dev, void *data)
+-static struct clk *bcm2835_register_gate(struct bcm2835_cprman *cprman,
++static struct clk_hw *bcm2835_register_gate(struct bcm2835_cprman *cprman,
+ 					 const struct bcm2835_gate_data *data)
  {
- 	struct qedf_ctx *qedf = dev;
- 	struct qed_mfw_tlv_fcoe *fcoe = data;
--	struct fc_lport *lport = qedf->lport;
--	struct Scsi_Host *host = lport->host;
--	struct fc_host_attrs *fc_host = shost_to_fc_host(host);
-+	struct fc_lport *lport;
-+	struct Scsi_Host *host;
-+	struct fc_host_attrs *fc_host;
- 	struct fc_host_statistics *hst;
+-	return clk_register_gate(cprman->dev, data->name, data->parent,
+-				 CLK_IGNORE_UNUSED | CLK_SET_RATE_GATE,
+-				 cprman->regs + data->ctl_reg,
+-				 CM_GATE_BIT, 0, &cprman->regs_lock);
++	return clk_hw_register_gate(cprman->dev, data->name, data->parent,
++				    CLK_IGNORE_UNUSED | CLK_SET_RATE_GATE,
++				    cprman->regs + data->ctl_reg,
++				    CM_GATE_BIT, 0, &cprman->regs_lock);
+ }
  
-+	if (!qedf) {
-+		QEDF_ERR(NULL, "qedf is null.\n");
-+		return;
-+	}
-+
-+	if (test_bit(QEDF_PROBING, &qedf->flags)) {
-+		QEDF_ERR(&qedf->dbg_ctx, "Function is still probing.\n");
-+		return;
-+	}
-+
-+	lport = qedf->lport;
-+	host = lport->host;
-+	fc_host = shost_to_fc_host(host);
-+
- 	/* Force a refresh of the fc_host stats including offload stats */
- 	hst = qedf_fc_get_host_stats(host);
- 
+ typedef struct clk_hw *(*bcm2835_clk_register)(struct bcm2835_cprman *cprman,
 -- 
 2.25.1
 
