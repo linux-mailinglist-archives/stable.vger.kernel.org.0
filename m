@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCF74206393
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:29:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2656D2062B0
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:10:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390534AbgFWU2H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:28:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47846 "EHLO mail.kernel.org"
+        id S2390515AbgFWVGw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 17:06:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390842AbgFWU2H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:28:07 -0400
+        id S2391712AbgFWUfk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:35:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC167206EB;
-        Tue, 23 Jun 2020 20:28:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E36432080C;
+        Tue, 23 Jun 2020 20:35:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944087;
-        bh=H6VJ9obbYArUMYvO6qBOQtEXRyWgkm6Xs/Q/wVa/QvI=;
+        s=default; t=1592944540;
+        bh=17iBJXuEnv6kEsGnmpxWe6TY+fF70lsoW9dgIU2mc+M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GYYkUD1VZdPGxxL9/VaRq0icDWH+X+s2KtIikIqLPvU/ltqqGsRhHGLFYqmWQNmcO
-         R5lzQoU57UKJPNBxRDTlZKNOWP2bKWXN6vAIFSvAmDKhxpFFLYm9K+9iUwo+sPtkGp
-         R1Y+QwOhJW9pSr4QOYKNT/QHBk4KL+ss+1/+FKiI=
+        b=H/ApqYkvbLkJRxrhiDEiMIAQgQpkQvrqSMxHG7c/PvCcaZM9yvq5KIGzcCt6v0Qw+
+         8J/q2a05Cy0nZovi+38dHnHXVZlptApube1wBHz01Dyq1UEZo3Rck7ZvSBR0gCFij1
+         jMWzXrvku3C8dqmD5+GNSe9XqI2cvFmYqntwhZs0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
-        Alan Stern <stern@rowland.harvard.edu>,
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 137/314] USB: ohci-sm501: fix error return code in ohci_hcd_sm501_drv_probe()
-Date:   Tue, 23 Jun 2020 21:55:32 +0200
-Message-Id: <20200623195345.404071620@linuxfoundation.org>
+Subject: [PATCH 4.19 005/206] iio: pressure: bmp280: Tolerate IRQ before registering
+Date:   Tue, 23 Jun 2020 21:55:33 +0200
+Message-Id: <20200623195317.193035574@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
-References: <20200623195338.770401005@linuxfoundation.org>
+In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
+References: <20200623195316.864547658@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +46,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit b919e077cccfbb77beb98809568b2fb0b4d113ec ]
+[ Upstream commit 97b31a6f5fb95b1ec6575b78a7240baddba34384 ]
 
-Fix to return a negative error code from the error handling
-case instead of 0, as done elsewhere in this function.
+With DEBUG_SHIRQ enabled we have a kernel crash
 
-Fixes: 7d9e6f5aebe8 ("usb: host: ohci-sm501: init genalloc for local memory")
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/20200506135625.106910-1-weiyongjun1@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[  116.482696] BUG: kernel NULL pointer dereference, address: 0000000000000000
+
+...
+
+[  116.606571] Call Trace:
+[  116.609023]  <IRQ>
+[  116.611047]  complete+0x34/0x50
+[  116.614206]  bmp085_eoc_irq+0x9/0x10 [bmp280]
+
+because DEBUG_SHIRQ mechanism fires an IRQ before registration and drivers
+ought to be able to handle an interrupt happening before request_irq() returns.
+
+Fixes: aae953949651 ("iio: pressure: bmp280: add support for BMP085 EOC interrupt")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/ohci-sm501.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/iio/pressure/bmp280-core.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/host/ohci-sm501.c b/drivers/usb/host/ohci-sm501.c
-index c158cda9e4b9b..cff9652403270 100644
---- a/drivers/usb/host/ohci-sm501.c
-+++ b/drivers/usb/host/ohci-sm501.c
-@@ -157,9 +157,10 @@ static int ohci_hcd_sm501_drv_probe(struct platform_device *pdev)
- 	 * the call to usb_hcd_setup_local_mem() below does just that.
- 	 */
+diff --git a/drivers/iio/pressure/bmp280-core.c b/drivers/iio/pressure/bmp280-core.c
+index fe87d27779d96..d47922a1d0f37 100644
+--- a/drivers/iio/pressure/bmp280-core.c
++++ b/drivers/iio/pressure/bmp280-core.c
+@@ -703,7 +703,7 @@ static int bmp180_measure(struct bmp280_data *data, u8 ctrl_meas)
+ 	unsigned int ctrl;
  
--	if (usb_hcd_setup_local_mem(hcd, mem->start,
--				    mem->start - mem->parent->start,
--				    resource_size(mem)) < 0)
-+	retval = usb_hcd_setup_local_mem(hcd, mem->start,
-+					 mem->start - mem->parent->start,
-+					 resource_size(mem));
-+	if (retval < 0)
- 		goto err5;
- 	retval = usb_add_hcd(hcd, irq, IRQF_SHARED);
- 	if (retval)
+ 	if (data->use_eoc)
+-		init_completion(&data->done);
++		reinit_completion(&data->done);
+ 
+ 	ret = regmap_write(data->regmap, BMP280_REG_CTRL_MEAS, ctrl_meas);
+ 	if (ret)
+@@ -959,6 +959,9 @@ static int bmp085_fetch_eoc_irq(struct device *dev,
+ 			"trying to enforce it\n");
+ 		irq_trig = IRQF_TRIGGER_RISING;
+ 	}
++
++	init_completion(&data->done);
++
+ 	ret = devm_request_threaded_irq(dev,
+ 			irq,
+ 			bmp085_eoc_irq,
 -- 
 2.25.1
 
