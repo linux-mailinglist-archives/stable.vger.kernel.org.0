@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8ADCE206513
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:32:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 689B5206437
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:31:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393529AbgFWVav (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 17:30:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56796 "EHLO mail.kernel.org"
+        id S2388245AbgFWVR5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 17:17:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389202AbgFWUO0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:14:26 -0400
+        id S2390643AbgFWU0Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:26:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 34BF0206C3;
-        Tue, 23 Jun 2020 20:14:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5FB9A20702;
+        Tue, 23 Jun 2020 20:26:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943265;
-        bh=btPfLcs8y4gcEDSelOKoolX2l+jHZ0EikdJP1VWtmgE=;
+        s=default; t=1592943983;
+        bh=VcSOQ2qH2sWUKv+iNrqztCThkyL2PjPjllnVeVeguF8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AV4Nto66bG49A5ELGgyoazBB8E2j8mApi8v1mo9fsfZ8OwnOob0A3wGUknR3jbnMJ
-         8/0sG+WC66nNWIRPDYgBC6BiWf8hqOMJYoQ3yOIFVUyxZN9o/oo01PUUfigfSktfpy
-         1PEHmCMRJqMJ7KT8BAnwws8IgFPE+FEFxid3cYho=
+        b=Mh7maM3vEDBQAsH8kD/Fv2dLUf3U9qnwsUiBdox44YtF9fGH+yQT1A6BuOgZFX953
+         xnwZynk14XNIK8H5fa5v/JNRc9Ty1yOPA5ir/nTmyGE1n9hCBwEr4NXwFLS8W0k1/P
+         5zCUELEvbUgdK62xJJkPDAJ+eBrhBarRbnLGFdyA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tero Kristo <t-kristo@ti.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 324/477] crypto: omap-sham - add proper load balancing support for multicore
+Subject: [PATCH 5.4 126/314] power: supply: lp8788: Fix an error handling path in lp8788_charger_probe()
 Date:   Tue, 23 Jun 2020 21:55:21 +0200
-Message-Id: <20200623195422.848834034@linuxfoundation.org>
+Message-Id: <20200623195344.882354120@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
-References: <20200623195407.572062007@linuxfoundation.org>
+In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
+References: <20200623195338.770401005@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,167 +45,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tero Kristo <t-kristo@ti.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 281c377872ff5d15d80df25fc4df02d2676c7cde ]
+[ Upstream commit 934ed3847a4ebc75b655659c4d2349ba4337941c ]
 
-The current implementation of the multiple accelerator core support for
-OMAP SHA does not work properly. It always picks up the first probed
-accelerator core if this is available, and rest of the book keeping also
-gets confused if there are two cores available. Add proper load
-balancing support for SHA, and also fix any bugs related to the
-multicore support while doing it.
+In the probe function, in case of error, resources allocated in
+'lp8788_setup_adc_channel()' must be released.
 
-Signed-off-by: Tero Kristo <t-kristo@ti.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+This can be achieved easily by using the devm_ variant of
+'iio_channel_get()'.
+This has the extra benefit to simplify the remove function and to axe the
+'lp8788_release_adc_channel()' function which is now useless.
+
+Fixes: 98a276649358 ("power_supply: Add new lp8788 charger driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/omap-sham.c | 64 ++++++++++++++++++--------------------
- 1 file changed, 31 insertions(+), 33 deletions(-)
+ drivers/power/supply/lp8788-charger.c | 18 ++----------------
+ 1 file changed, 2 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/crypto/omap-sham.c b/drivers/crypto/omap-sham.c
-index 0cbf9c932a0f0..a82a3596dca34 100644
---- a/drivers/crypto/omap-sham.c
-+++ b/drivers/crypto/omap-sham.c
-@@ -169,8 +169,6 @@ struct omap_sham_hmac_ctx {
- };
+diff --git a/drivers/power/supply/lp8788-charger.c b/drivers/power/supply/lp8788-charger.c
+index 84a206f42a8e9..e7931ffb7151d 100644
+--- a/drivers/power/supply/lp8788-charger.c
++++ b/drivers/power/supply/lp8788-charger.c
+@@ -572,27 +572,14 @@ static void lp8788_setup_adc_channel(struct device *dev,
+ 		return;
  
- struct omap_sham_ctx {
--	struct omap_sham_dev	*dd;
--
- 	unsigned long		flags;
+ 	/* ADC channel for battery voltage */
+-	chan = iio_channel_get(dev, pdata->adc_vbatt);
++	chan = devm_iio_channel_get(dev, pdata->adc_vbatt);
+ 	pchg->chan[LP8788_VBATT] = IS_ERR(chan) ? NULL : chan;
  
- 	/* fallback stuff */
-@@ -933,27 +931,35 @@ static int omap_sham_update_dma_stop(struct omap_sham_dev *dd)
- 	return 0;
+ 	/* ADC channel for battery temperature */
+-	chan = iio_channel_get(dev, pdata->adc_batt_temp);
++	chan = devm_iio_channel_get(dev, pdata->adc_batt_temp);
+ 	pchg->chan[LP8788_BATT_TEMP] = IS_ERR(chan) ? NULL : chan;
  }
  
-+struct omap_sham_dev *omap_sham_find_dev(struct omap_sham_reqctx *ctx)
-+{
-+	struct omap_sham_dev *dd;
-+
-+	if (ctx->dd)
-+		return ctx->dd;
-+
-+	spin_lock_bh(&sham.lock);
-+	dd = list_first_entry(&sham.dev_list, struct omap_sham_dev, list);
-+	list_move_tail(&dd->list, &sham.dev_list);
-+	ctx->dd = dd;
-+	spin_unlock_bh(&sham.lock);
-+
-+	return dd;
-+}
-+
- static int omap_sham_init(struct ahash_request *req)
- {
- 	struct crypto_ahash *tfm = crypto_ahash_reqtfm(req);
- 	struct omap_sham_ctx *tctx = crypto_ahash_ctx(tfm);
- 	struct omap_sham_reqctx *ctx = ahash_request_ctx(req);
--	struct omap_sham_dev *dd = NULL, *tmp;
-+	struct omap_sham_dev *dd;
- 	int bs = 0;
- 
--	spin_lock_bh(&sham.lock);
--	if (!tctx->dd) {
--		list_for_each_entry(tmp, &sham.dev_list, list) {
--			dd = tmp;
--			break;
--		}
--		tctx->dd = dd;
--	} else {
--		dd = tctx->dd;
--	}
--	spin_unlock_bh(&sham.lock);
-+	ctx->dd = NULL;
- 
--	ctx->dd = dd;
-+	dd = omap_sham_find_dev(ctx);
-+	if (!dd)
-+		return -ENODEV;
- 
- 	ctx->flags = 0;
- 
-@@ -1223,8 +1229,7 @@ err1:
- static int omap_sham_enqueue(struct ahash_request *req, unsigned int op)
- {
- 	struct omap_sham_reqctx *ctx = ahash_request_ctx(req);
--	struct omap_sham_ctx *tctx = crypto_tfm_ctx(req->base.tfm);
--	struct omap_sham_dev *dd = tctx->dd;
-+	struct omap_sham_dev *dd = ctx->dd;
- 
- 	ctx->op = op;
- 
-@@ -1234,7 +1239,7 @@ static int omap_sham_enqueue(struct ahash_request *req, unsigned int op)
- static int omap_sham_update(struct ahash_request *req)
- {
- 	struct omap_sham_reqctx *ctx = ahash_request_ctx(req);
--	struct omap_sham_dev *dd = ctx->dd;
-+	struct omap_sham_dev *dd = omap_sham_find_dev(ctx);
- 
- 	if (!req->nbytes)
- 		return 0;
-@@ -1338,21 +1343,8 @@ static int omap_sham_setkey(struct crypto_ahash *tfm, const u8 *key,
- 	struct omap_sham_hmac_ctx *bctx = tctx->base;
- 	int bs = crypto_shash_blocksize(bctx->shash);
- 	int ds = crypto_shash_digestsize(bctx->shash);
--	struct omap_sham_dev *dd = NULL, *tmp;
- 	int err, i;
- 
--	spin_lock_bh(&sham.lock);
--	if (!tctx->dd) {
--		list_for_each_entry(tmp, &sham.dev_list, list) {
--			dd = tmp;
--			break;
--		}
--		tctx->dd = dd;
--	} else {
--		dd = tctx->dd;
--	}
--	spin_unlock_bh(&sham.lock);
+-static void lp8788_release_adc_channel(struct lp8788_charger *pchg)
+-{
+-	int i;
 -
- 	err = crypto_shash_setkey(tctx->fallback, key, keylen);
- 	if (err)
- 		return err;
-@@ -1370,7 +1362,7 @@ static int omap_sham_setkey(struct crypto_ahash *tfm, const u8 *key,
+-	for (i = 0; i < LP8788_NUM_CHG_ADC; i++) {
+-		if (!pchg->chan[i])
+-			continue;
+-
+-		iio_channel_release(pchg->chan[i]);
+-		pchg->chan[i] = NULL;
+-	}
+-}
+-
+ static ssize_t lp8788_show_charger_status(struct device *dev,
+ 				struct device_attribute *attr, char *buf)
+ {
+@@ -735,7 +722,6 @@ static int lp8788_charger_remove(struct platform_device *pdev)
+ 	flush_work(&pchg->charger_work);
+ 	lp8788_irq_unregister(pdev, pchg);
+ 	lp8788_psy_unregister(pchg);
+-	lp8788_release_adc_channel(pchg);
  
- 	memset(bctx->ipad + keylen, 0, bs - keylen);
- 
--	if (!test_bit(FLAGS_AUTO_XOR, &dd->flags)) {
-+	if (!test_bit(FLAGS_AUTO_XOR, &sham.flags)) {
- 		memcpy(bctx->opad, bctx->ipad, bs);
- 
- 		for (i = 0; i < bs; i++) {
-@@ -2174,6 +2166,7 @@ static int omap_sham_probe(struct platform_device *pdev)
- 	}
- 
- 	dd->flags |= dd->pdata->flags;
-+	sham.flags |= dd->pdata->flags;
- 
- 	pm_runtime_use_autosuspend(dev);
- 	pm_runtime_set_autosuspend_delay(dev, DEFAULT_AUTOSUSPEND_DELAY);
-@@ -2201,6 +2194,9 @@ static int omap_sham_probe(struct platform_device *pdev)
- 	spin_unlock(&sham.lock);
- 
- 	for (i = 0; i < dd->pdata->algs_info_size; i++) {
-+		if (dd->pdata->algs_info[i].registered)
-+			break;
-+
- 		for (j = 0; j < dd->pdata->algs_info[i].size; j++) {
- 			struct ahash_alg *alg;
- 
-@@ -2252,9 +2248,11 @@ static int omap_sham_remove(struct platform_device *pdev)
- 	list_del(&dd->list);
- 	spin_unlock(&sham.lock);
- 	for (i = dd->pdata->algs_info_size - 1; i >= 0; i--)
--		for (j = dd->pdata->algs_info[i].registered - 1; j >= 0; j--)
-+		for (j = dd->pdata->algs_info[i].registered - 1; j >= 0; j--) {
- 			crypto_unregister_ahash(
- 					&dd->pdata->algs_info[i].algs_list[j]);
-+			dd->pdata->algs_info[i].registered--;
-+		}
- 	tasklet_kill(&dd->done_task);
- 	pm_runtime_disable(&pdev->dev);
- 
+ 	return 0;
+ }
 -- 
 2.25.1
 
