@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 204FB205FB0
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:46:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 561D9205EE8
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:32:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391181AbgFWUfD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:35:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57216 "EHLO mail.kernel.org"
+        id S2390754AbgFWU1T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:27:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391646AbgFWUfB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:35:01 -0400
+        id S2390262AbgFWU1S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:27:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F18022064B;
-        Tue, 23 Jun 2020 20:35:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 97B052070E;
+        Tue, 23 Jun 2020 20:27:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944501;
-        bh=gPir7cVlit9oDdAMTgtjb8KjP1YxKP2r1NX1QeiqrBE=;
+        s=default; t=1592944038;
+        bh=iENsBIYNue1BIF4oRSfL2w2oEHOVH2Bds6D3/bWxBek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=myFNoL7eg4x+ccOv/tIizVJteRMmjcIJw8n9LaTyjoAH8TS/S3N5lRavVQnF7/wFX
-         XKEQevD8Xe4rPWu6u9tVzE3Y5DZd8RVS6tkuj8pKrwRJGkB9v8AgWj4/yBYFfYBkVP
-         m5+WvTG2u0722OO+dj1FAEGvEKtSNZ4lqM8qs68w=
+        b=kvYoJYn11/JLhfIvmAsHSaIIxWAzWR23aBiSVyam6udcYEcLDXd0526uxkrFqkMzs
+         rY+e5MZlxfMzEWyNSTqmqPSvrQWNeAOtbPG+z2/zH/kjpWGONd73I2waTe3LQRoMZs
+         S7oEk44GyFlOG3AuaXvKVnetONVV14T8TXjVaTvs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roman Bolshakov <r.bolshakov@yadro.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Viacheslav Dubeyko <v.dubeiko@yadro.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 015/206] scsi: qla2xxx: Fix issue with adapters stopping state
+Subject: [PATCH 5.4 148/314] powerpc/64s/exception: Fix machine check no-loss idle wakeup
 Date:   Tue, 23 Jun 2020 21:55:43 +0200
-Message-Id: <20200623195317.711875148@linuxfoundation.org>
+Message-Id: <20200623195345.918201663@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
-References: <20200623195316.864547658@linuxfoundation.org>
+In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
+References: <20200623195338.770401005@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,89 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Viacheslav Dubeyko <v.dubeiko@yadro.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit 803e45550b11c8e43d89812356fe6f105adebdf9 ]
+[ Upstream commit 8a5054d8cbbe03c68dcb0957c291c942132e4101 ]
 
-The goal of the following command sequence is to restart the adapter.
-However, the tgt_stop flag remains set, indicating that the adapter is
-still in stopping state even after re-enabling it.
+The architecture allows for machine check exceptions to cause idle
+wakeups which resume at the 0x200 address which has to return via
+the idle wakeup code, but the early machine check handler is run
+first.
 
-echo 0x7fffffff > /sys/module/qla2xxx/parameters/logging
-modprobe target_core_mod
-modprobe tcm_qla2xxx
-mkdir /sys/kernel/config/target/qla2xxx
-mkdir /sys/kernel/config/target/qla2xxx/<port-name>
-mkdir /sys/kernel/config/target/qla2xxx/<port-name>/tpgt_1
-echo 1 > /sys/kernel/config/target/qla2xxx/<port-name>/tpgt_1/enable
-echo 0 > /sys/kernel/config/target/qla2xxx/<port-name>/tpgt_1/enable
-echo 1 > /sys/kernel/config/target/qla2xxx/<port-name>/tpgt_1/enable
+The case of a no state-loss sleep is broken because the early
+handler uses non-volatile register r1 , which is needed for the wakeup
+protocol, but it is not restored.
 
-kernel: PID 1396:qla_target.c:1555 qlt_stop_phase1(): tgt_stop 0x0, tgt_stopped 0x0
-kernel: qla2xxx [0001:00:02.0]-e803:1: PID 1396:qla_target.c:1567: Stopping target for host 1(c0000000033557e8)
-kernel: PID 1396:qla_target.c:1579 qlt_stop_phase1(): tgt_stop 0x1, tgt_stopped 0x0
-kernel: PID 1396:qla_target.c:1266 qlt_schedule_sess_for_deletion(): tgt_stop 0x1, tgt_stopped 0x0
-kernel: qla2xxx [0001:00:02.0]-e801:1: PID 1396:qla_target.c:1316: Scheduling sess c00000002d5cd800 for deletion 21:00:00:24:ff:7f:35:c7
-<skipped>
-kernel: qla2xxx [0001:00:02.0]-290a:1: PID 340:qla_target.c:1187: qlt_unreg_sess sess c00000002d5cd800 for deletion 21:00:00:24:ff:7f:35:c7
-<skipped>
-kernel: qla2xxx [0001:00:02.0]-f801:1: PID 340:qla_target.c:1145: Unregistration of sess c00000002d5cd800 21:00:00:24:ff:7f:35:c7 finished fcp_cnt 0
-kernel: PID 340:qla_target.c:1155 qlt_free_session_done(): tgt_stop 0x1, tgt_stopped 0x0
-kernel: qla2xxx [0001:00:02.0]-4807:1: PID 346:qla_os.c:6329: ISP abort scheduled.
-<skipped>
-kernel: qla2xxx [0001:00:02.0]-28f1:1: PID 346:qla_os.c:3956: Mark all dev lost
-kernel: PID 346:qla_target.c:1266 qlt_schedule_sess_for_deletion(): tgt_stop 0x1, tgt_stopped 0x0
-kernel: qla2xxx [0001:00:02.0]-4808:1: PID 346:qla_os.c:6338: ISP abort end.
-<skipped>
-kernel: PID 1396:qla_target.c:6812 qlt_enable_vha(): tgt_stop 0x1, tgt_stopped 0x0
-<skipped>
-kernel: qla2xxx [0001:00:02.0]-4807:1: PID 346:qla_os.c:6329: ISP abort scheduled.
-<skipped>
-kernel: qla2xxx [0001:00:02.0]-4808:1: PID 346:qla_os.c:6338: ISP abort end.
+Fix this by loading r1 from the MCE exception frame before returning
+to the idle wakeup code. Also update the comment which has become
+stale since the idle rewrite in C.
 
-qlt_handle_cmd_for_atio() rejects the request to send commands because the
-adapter is in the stopping state:
+This crash was found and fix confirmed with a machine check injection
+test in qemu powernv model (which is not upstream in qemu yet).
 
-kernel: PID 0:qla_target.c:4442 qlt_handle_cmd_for_atio(): tgt_stop 0x1, tgt_stopped 0x0
-kernel: qla2xxx [0001:00:02.0]-3861:1: PID 0:qla_target.c:4447: New command while device c000000005314600 is shutting down
-kernel: qla2xxx [0001:00:02.0]-e85f:1: PID 0:qla_target.c:5728: qla_target: Unable to send command to target
-
-This patch calls qla_stop_phase2() in addition to qlt_stop_phase1() in
-tcm_qla2xxx_tpg_enable_store() and tcm_qla2xxx_npiv_tpg_enable_store(). The
-qlt_stop_phase1() marks adapter as stopping (tgt_stop == 0x1, tgt_stopped
-== 0x0) but qlt_stop_phase2() marks adapter as stopped (tgt_stop == 0x0,
-tgt_stopped == 0x1).
-
-Link: https://lore.kernel.org/r/52be1e8a3537f6c5407eae3edd4c8e08a9545ea5.camel@yadro.com
-Reviewed-by: Roman Bolshakov <r.bolshakov@yadro.com>
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Viacheslav Dubeyko <v.dubeiko@yadro.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 10d91611f426d ("powerpc/64s: Reimplement book3s idle code in C")
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200508043408.886394-2-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/tcm_qla2xxx.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/powerpc/kernel/exceptions-64s.S | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/tcm_qla2xxx.c b/drivers/scsi/qla2xxx/tcm_qla2xxx.c
-index 654e1af7f542c..b51dba35bcf75 100644
---- a/drivers/scsi/qla2xxx/tcm_qla2xxx.c
-+++ b/drivers/scsi/qla2xxx/tcm_qla2xxx.c
-@@ -960,6 +960,7 @@ static ssize_t tcm_qla2xxx_tpg_enable_store(struct config_item *item,
+diff --git a/arch/powerpc/kernel/exceptions-64s.S b/arch/powerpc/kernel/exceptions-64s.S
+index d0018dd17e0a6..70ac8a6ba0c18 100644
+--- a/arch/powerpc/kernel/exceptions-64s.S
++++ b/arch/powerpc/kernel/exceptions-64s.S
+@@ -1090,17 +1090,19 @@ EXC_COMMON_BEGIN(machine_check_idle_common)
+ 	bl	machine_check_queue_event
  
- 		atomic_set(&tpg->lport_tpg_enabled, 0);
- 		qlt_stop_phase1(vha->vha_tgt.qla_tgt);
-+		qlt_stop_phase2(vha->vha_tgt.qla_tgt);
- 	}
+ 	/*
+-	 * We have not used any non-volatile GPRs here, and as a rule
+-	 * most exception code including machine check does not.
+-	 * Therefore PACA_NAPSTATELOST does not need to be set. Idle
+-	 * wakeup will restore volatile registers.
++	 * GPR-loss wakeups are relatively straightforward, because the
++	 * idle sleep code has saved all non-volatile registers on its
++	 * own stack, and r1 in PACAR1.
+ 	 *
+-	 * Load the original SRR1 into r3 for pnv_powersave_wakeup_mce.
++	 * For no-loss wakeups the r1 and lr registers used by the
++	 * early machine check handler have to be restored first. r2 is
++	 * the kernel TOC, so no need to restore it.
+ 	 *
+ 	 * Then decrement MCE nesting after finishing with the stack.
+ 	 */
+ 	ld	r3,_MSR(r1)
+ 	ld	r4,_LINK(r1)
++	ld	r1,GPR1(r1)
  
- 	return count;
-@@ -1122,6 +1123,7 @@ static ssize_t tcm_qla2xxx_npiv_tpg_enable_store(struct config_item *item,
+ 	lhz	r11,PACA_IN_MCE(r13)
+ 	subi	r11,r11,1
+@@ -1109,7 +1111,7 @@ EXC_COMMON_BEGIN(machine_check_idle_common)
+ 	mtlr	r4
+ 	rlwinm	r10,r3,47-31,30,31
+ 	cmpwi	cr1,r10,2
+-	bltlr	cr1	/* no state loss, return to idle caller */
++	bltlr	cr1	/* no state loss, return to idle caller with r3=SRR1 */
+ 	b	idle_return_gpr_loss
+ #endif
  
- 		atomic_set(&tpg->lport_tpg_enabled, 0);
- 		qlt_stop_phase1(vha->vha_tgt.qla_tgt);
-+		qlt_stop_phase2(vha->vha_tgt.qla_tgt);
- 	}
- 
- 	return count;
 -- 
 2.25.1
 
