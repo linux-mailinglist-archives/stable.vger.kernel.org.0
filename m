@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52C9E205D18
+	by mail.lfdr.de (Postfix) with ESMTP id C92B5205D19
 	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:09:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387765AbgFWUJE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2387884AbgFWUJE (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 23 Jun 2020 16:09:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49964 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:50028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388285AbgFWUI4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:08:56 -0400
+        id S2388300AbgFWUJB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:09:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1362920E65;
-        Tue, 23 Jun 2020 20:08:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 08B072064B;
+        Tue, 23 Jun 2020 20:08:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592942935;
-        bh=1H4i9incKA8JrKVHqNH+Avto6Sk4RJGCA2gTwPD6aUo=;
+        s=default; t=1592942940;
+        bh=soDd+QyUzhwN2rtXSi47bYrnlf+mZDpo7wt+h1PlRxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k6d44NmJYzyb2cWdY1j/sjFGxGJI024xE8IsgdEUgik/TuRXV5T/3drGTYY+wX22q
-         oXrvp/wftk8ficTq/c1FPU4OcPqhFdG619U+L9heKHIn1zfEthQ3OVpLidEE83AEQl
-         GIO6GhrKxjfXhnITkFyE8EfOCQ7+5DQjAvwlk6hg=
+        b=wpzorop1QMSnlGYszKL8LrMr32jK7Ek1NgK/CComSn8oAjiM2/3HitfNve6LSw1vo
+         5erDP2pbgyAMQJ4EzIa4exo3ITjjQbOmyWsXzMu0oTvKkzuT5Effa0KZSATkaHX804
+         r4HrJHEakG6Sm3J7W424kJo8izdf8UjqMvirGjgw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dafna Hirschfeld <dafna.hirschfeld@collabora.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
+        clang-built-linux@googlegroups.com, Arnd Bergmann <arnd@arndb.de>,
+        David Teigland <teigland@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 193/477] pinctrl: rockchip: fix memleak in rockchip_dt_node_to_map
-Date:   Tue, 23 Jun 2020 21:53:10 +0200
-Message-Id: <20200623195416.711160211@linuxfoundation.org>
+Subject: [PATCH 5.7 195/477] dlm: remove BUG() before panic()
+Date:   Tue, 23 Jun 2020 21:53:12 +0200
+Message-Id: <20200623195416.806348964@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -46,62 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit d7faa8ffb6be57bf8233a4b5a636d76b83c51ce7 ]
+[ Upstream commit fe204591cc9480347af7d2d6029b24a62e449486 ]
 
-In function rockchip_dt_node_to_map, a new_map variable is
-allocated by:
+Building a kernel with clang sometimes fails with an objtool error in dlm:
 
-new_map = devm_kcalloc(pctldev->dev, map_num, sizeof(*new_map),
-		       GFP_KERNEL);
+fs/dlm/lock.o: warning: objtool: revert_lock_pc()+0xbd: can't find jump dest instruction at .text+0xd7fc
 
-This uses devres and attaches new_map to the pinctrl driver.
-This cause a leak since new_map is not released when the probed
-driver is removed. Fix it by using kcalloc to allocate new_map
-and free it in `rockchip_dt_free_map`
+The problem is that BUG() never returns and the compiler knows
+that anything after it is unreachable, however the panic still
+emits some code that does not get fully eliminated.
 
-Signed-off-by: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
-Reviewed-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://lore.kernel.org/r/20200506100903.15420-1-dafna.hirschfeld@collabora.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Having both BUG() and panic() is really pointless as the BUG()
+kills the current process and the subsequent panic() never hits.
+In most cases, we probably don't really want either and should
+replace the DLM_ASSERT() statements with WARN_ON(), as has
+been done for some of them.
+
+Remove the BUG() here so the user at least sees the panic message
+and we can reliably build randconfig kernels.
+
+Fixes: e7fd41792fc0 ("[DLM] The core of the DLM for GFS2/CLVM")
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: clang-built-linux@googlegroups.com
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-rockchip.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ fs/dlm/dlm_internal.h | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/pinctrl/pinctrl-rockchip.c b/drivers/pinctrl/pinctrl-rockchip.c
-index 0989513463393..d7869b636889e 100644
---- a/drivers/pinctrl/pinctrl-rockchip.c
-+++ b/drivers/pinctrl/pinctrl-rockchip.c
-@@ -508,8 +508,8 @@ static int rockchip_dt_node_to_map(struct pinctrl_dev *pctldev,
- 	}
- 
- 	map_num += grp->npins;
--	new_map = devm_kcalloc(pctldev->dev, map_num, sizeof(*new_map),
--								GFP_KERNEL);
-+
-+	new_map = kcalloc(map_num, sizeof(*new_map), GFP_KERNEL);
- 	if (!new_map)
- 		return -ENOMEM;
- 
-@@ -519,7 +519,7 @@ static int rockchip_dt_node_to_map(struct pinctrl_dev *pctldev,
- 	/* create mux map */
- 	parent = of_get_parent(np);
- 	if (!parent) {
--		devm_kfree(pctldev->dev, new_map);
-+		kfree(new_map);
- 		return -EINVAL;
- 	}
- 	new_map[0].type = PIN_MAP_TYPE_MUX_GROUP;
-@@ -546,6 +546,7 @@ static int rockchip_dt_node_to_map(struct pinctrl_dev *pctldev,
- static void rockchip_dt_free_map(struct pinctrl_dev *pctldev,
- 				    struct pinctrl_map *map, unsigned num_maps)
- {
-+	kfree(map);
+diff --git a/fs/dlm/dlm_internal.h b/fs/dlm/dlm_internal.h
+index 416d9de356791..4311d01b02a8b 100644
+--- a/fs/dlm/dlm_internal.h
++++ b/fs/dlm/dlm_internal.h
+@@ -97,7 +97,6 @@ do { \
+                __LINE__, __FILE__, #x, jiffies); \
+     {do} \
+     printk("\n"); \
+-    BUG(); \
+     panic("DLM:  Record message above and reboot.\n"); \
+   } \
  }
- 
- static const struct pinctrl_ops rockchip_pctrl_ops = {
 -- 
 2.25.1
 
