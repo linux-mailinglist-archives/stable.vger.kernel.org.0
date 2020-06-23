@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27F41206032
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:47:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B514206035
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:47:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392230AbgFWUk2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:40:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36490 "EHLO mail.kernel.org"
+        id S2392247AbgFWUkf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:40:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392229AbgFWUk0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:40:26 -0400
+        id S2392245AbgFWUke (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:40:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 87DD52070E;
-        Tue, 23 Jun 2020 20:40:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 514C42053B;
+        Tue, 23 Jun 2020 20:40:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944827;
-        bh=zL1tgBndNvcMMpigpZ68nQ3q4OHIHr57WZJs4hdzZ2U=;
+        s=default; t=1592944834;
+        bh=zPDNeBECLrh3RvUqPj3lAFT9v3gO2ihq874csq4WAT4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y/T0zzAeE9V2G1wHBC7oDONa9Prn0Ar9lqYYKKzklzfuismLp3Skir7Y3xVh6SFjc
-         Ix6RNftMb066LFTgpnTVSBG33iT8zspKb968ch+iVMTCtkwYOHPswgDOLLIVFoR3J3
-         UlY/lF4er1Oz+GCAORy+Jn6bP0oV2iVy1RpPpzpo=
+        b=OqVZx48h7SunZ1w9+p91FTI0xQuCvVksSQ+Hxh/WmOvjEKh2MKuk3H3Cr0LR0bsbK
+         SQU2xY0nEnqeppRv5QMzGkMwby+Y4h/ahwu9kMI6XAWwAp4T/EAoPd0WLAs3Aj9d/B
+         vmfA8Ua+4kauxS7uI1i/MW//UjZ3jrFFe5G4VF/0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 141/206] blktrace: fix endianness for blk_log_remap()
-Date:   Tue, 23 Jun 2020 21:57:49 +0200
-Message-Id: <20200623195323.919991421@linuxfoundation.org>
+        stable@vger.kernel.org, Sanjay R Mehta <sanju.mehta@amd.com>,
+        Arindam Nath <arindam.nath@amd.com>,
+        Jon Mason <jdmason@kudzu.us>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 144/206] ntb_tool: pass correct struct device to dma_alloc_coherent
+Date:   Tue, 23 Jun 2020 21:57:52 +0200
+Message-Id: <20200623195324.064908726@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
 References: <20200623195316.864547658@linuxfoundation.org>
@@ -44,62 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+From: Sanjay R Mehta <sanju.mehta@amd.com>
 
-[ Upstream commit 5aec598c456fe3c1b71a1202cbb42bdc2a643277 ]
+[ Upstream commit 433efe720674efd9fdbcef78be75793393cf05db ]
 
-The function blk_log_remap() can be simplified by removing the
-call to get_pdu_remap() that copies the values into extra variable to
-print the data, which also fixes the endiannness warning reported by
-sparse.
+Currently, ntb->dev is passed to dma_alloc_coherent
+and dma_free_coherent calls. The returned dma_addr_t
+is the CPU physical address. This works fine as long
+as IOMMU is disabled. But when IOMMU is enabled, we
+need to make sure that IOVA is returned for dma_addr_t.
+So the correct way to achieve this is by changing the
+first parameter of dma_alloc_coherent() as ntb->pdev->dev
+instead.
 
-Signed-off-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 5648e56d03fa ("NTB: ntb_perf: Add full multi-port NTB API support")
+Signed-off-by: Sanjay R Mehta <sanju.mehta@amd.com>
+Signed-off-by: Arindam Nath <arindam.nath@amd.com>
+Signed-off-by: Jon Mason <jdmason@kudzu.us>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/blktrace.c | 19 ++++---------------
- 1 file changed, 4 insertions(+), 15 deletions(-)
+ drivers/ntb/test/ntb_tool.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/trace/blktrace.c b/kernel/trace/blktrace.c
-index 42027cf4ea91e..b7e1e09a0bef5 100644
---- a/kernel/trace/blktrace.c
-+++ b/kernel/trace/blktrace.c
-@@ -1271,17 +1271,6 @@ static __u64 get_pdu_int(const struct trace_entry *ent, bool has_cg)
- 	return be64_to_cpu(*val);
- }
+diff --git a/drivers/ntb/test/ntb_tool.c b/drivers/ntb/test/ntb_tool.c
+index d592c0ffbd198..025747c1568ea 100644
+--- a/drivers/ntb/test/ntb_tool.c
++++ b/drivers/ntb/test/ntb_tool.c
+@@ -590,7 +590,7 @@ static int tool_setup_mw(struct tool_ctx *tc, int pidx, int widx,
+ 	inmw->size = min_t(resource_size_t, req_size, size);
+ 	inmw->size = round_up(inmw->size, addr_align);
+ 	inmw->size = round_up(inmw->size, size_align);
+-	inmw->mm_base = dma_alloc_coherent(&tc->ntb->dev, inmw->size,
++	inmw->mm_base = dma_alloc_coherent(&tc->ntb->pdev->dev, inmw->size,
+ 					   &inmw->dma_base, GFP_KERNEL);
+ 	if (!inmw->mm_base)
+ 		return -ENOMEM;
+@@ -612,7 +612,7 @@ static int tool_setup_mw(struct tool_ctx *tc, int pidx, int widx,
+ 	return 0;
  
--static void get_pdu_remap(const struct trace_entry *ent,
--			  struct blk_io_trace_remap *r, bool has_cg)
--{
--	const struct blk_io_trace_remap *__r = pdu_start(ent, has_cg);
--	__u64 sector_from = __r->sector_from;
--
--	r->device_from = be32_to_cpu(__r->device_from);
--	r->device_to   = be32_to_cpu(__r->device_to);
--	r->sector_from = be64_to_cpu(sector_from);
--}
--
- typedef void (blk_log_action_t) (struct trace_iterator *iter, const char *act,
- 	bool has_cg);
+ err_free_dma:
+-	dma_free_coherent(&tc->ntb->dev, inmw->size, inmw->mm_base,
++	dma_free_coherent(&tc->ntb->pdev->dev, inmw->size, inmw->mm_base,
+ 			  inmw->dma_base);
+ 	inmw->mm_base = NULL;
+ 	inmw->dma_base = 0;
+@@ -629,7 +629,7 @@ static void tool_free_mw(struct tool_ctx *tc, int pidx, int widx)
  
-@@ -1407,13 +1396,13 @@ static void blk_log_with_error(struct trace_seq *s,
+ 	if (inmw->mm_base != NULL) {
+ 		ntb_mw_clear_trans(tc->ntb, pidx, widx);
+-		dma_free_coherent(&tc->ntb->dev, inmw->size,
++		dma_free_coherent(&tc->ntb->pdev->dev, inmw->size,
+ 				  inmw->mm_base, inmw->dma_base);
+ 	}
  
- static void blk_log_remap(struct trace_seq *s, const struct trace_entry *ent, bool has_cg)
- {
--	struct blk_io_trace_remap r = { .device_from = 0, };
-+	const struct blk_io_trace_remap *__r = pdu_start(ent, has_cg);
- 
--	get_pdu_remap(ent, &r, has_cg);
- 	trace_seq_printf(s, "%llu + %u <- (%d,%d) %llu\n",
- 			 t_sector(ent), t_sec(ent),
--			 MAJOR(r.device_from), MINOR(r.device_from),
--			 (unsigned long long)r.sector_from);
-+			 MAJOR(be32_to_cpu(__r->device_from)),
-+			 MINOR(be32_to_cpu(__r->device_from)),
-+			 be64_to_cpu(__r->sector_from));
- }
- 
- static void blk_log_plug(struct trace_seq *s, const struct trace_entry *ent, bool has_cg)
 -- 
 2.25.1
 
