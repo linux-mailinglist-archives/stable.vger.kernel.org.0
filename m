@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0E2A2058D5
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 19:36:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D991205994
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 19:42:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387438AbgFWRgA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 13:36:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60884 "EHLO mail.kernel.org"
+        id S2387450AbgFWRgC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 13:36:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387431AbgFWRf6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 13:35:58 -0400
+        id S2387443AbgFWRgB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 13:36:01 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7AC762083E;
-        Tue, 23 Jun 2020 17:35:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 989C420780;
+        Tue, 23 Jun 2020 17:36:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592933758;
-        bh=KGTxbpDBwea5FTUqlV3d9WT6LzTHKFm5813Edct4Qfg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HGQM2DdH/8r5JOLq90+/oRMGD75jYYqlXeNwOQrTtAULRSg1KgxHmL+qO3yim+rkN
-         /hYrhXicPvPgz0EmSuD6/+b+ETEdF0Pzavyp2T8uPPAlR5QmaNrkqod3tBRNITWPmH
-         8MAvLzv6U/hbvOaEv0w4nyIBl0BIDgERBkXzUwwQ=
+        s=default; t=1592933761;
+        bh=nEt41+L6I/iykkT5L7QHCFrEli9hUrXRjbuM6cER2BY=;
+        h=From:To:Cc:Subject:Date:From;
+        b=vXY2LqE1m5QSo0+lIpBrzJobQB6O1LZ818P2HByFAxoCm2X22xhAch9qWpzCuNYtI
+         CHJdvTgfz8GUHSMi37WsbGi56lOH2kJk59u2T1Ip+8ZKilnMYC8N63Gp/WANIdDZ/a
+         SsPAWoKOqJL8sbRtfFeQePQ1K4K5SHs7qP3xNPJg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yash Shah <yash.shah@sifive.com>,
-        David Abdurachmanov <david.abdurachmanov@gmail.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-riscv@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.7 28/28] RISC-V: Don't allow write+exec only page mapping request in mmap
-Date:   Tue, 23 Jun 2020 13:35:23 -0400
-Message-Id: <20200623173523.1355411-28-sashal@kernel.org>
+Cc:     Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-ide@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 01/24] sata_rcar: handle pm_runtime_get_sync failure cases
+Date:   Tue, 23 Jun 2020 13:35:36 -0400
+Message-Id: <20200623173559.1355728-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200623173523.1355411-1-sashal@kernel.org>
-References: <20200623173523.1355411-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -45,61 +41,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yash Shah <yash.shah@sifive.com>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit e0d17c842c0f824fd4df9f4688709fc6907201e1 ]
+[ Upstream commit eea1238867205b9e48a67c1a63219529a73c46fd ]
 
-As per the table 4.4 of version "20190608-Priv-MSU-Ratified" of the
-RISC-V instruction set manual[0], the PTE permission bit combination of
-"write+exec only" is reserved for future use. Hence, don't allow such
-mapping request in mmap call.
+Calling pm_runtime_get_sync increments the counter even in case of
+failure, causing incorrect ref count. Call pm_runtime_put if
+pm_runtime_get_sync fails.
 
-An issue is been reported by David Abdurachmanov, that while running
-stress-ng with "sysbadaddr" argument, RCU stalls are observed on RISC-V
-specific kernel.
-
-This issue arises when the stress-sysbadaddr request for pages with
-"write+exec only" permission bits and then passes the address obtain
-from this mmap call to various system call. For the riscv kernel, the
-mmap call should fail for this particular combination of permission bits
-since it's not valid.
-
-[0]: http://dabbelt.com/~palmer/keep/riscv-isa-manual/riscv-privileged-20190608-1.pdf
-
-Signed-off-by: Yash Shah <yash.shah@sifive.com>
-Reported-by: David Abdurachmanov <david.abdurachmanov@gmail.com>
-[Palmer: Refer to the latest ISA specification at the only link I could
-find, and update the terminology.]
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/sys_riscv.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/ata/sata_rcar.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/arch/riscv/kernel/sys_riscv.c b/arch/riscv/kernel/sys_riscv.c
-index f3619f59d85cc..12f8a7fce78b1 100644
---- a/arch/riscv/kernel/sys_riscv.c
-+++ b/arch/riscv/kernel/sys_riscv.c
-@@ -8,6 +8,7 @@
- #include <linux/syscalls.h>
- #include <asm/unistd.h>
- #include <asm/cacheflush.h>
-+#include <asm-generic/mman-common.h>
+diff --git a/drivers/ata/sata_rcar.c b/drivers/ata/sata_rcar.c
+index 3495e1733a8e6..c35b7b993133e 100644
+--- a/drivers/ata/sata_rcar.c
++++ b/drivers/ata/sata_rcar.c
+@@ -905,7 +905,7 @@ static int sata_rcar_probe(struct platform_device *pdev)
+ 	pm_runtime_enable(dev);
+ 	ret = pm_runtime_get_sync(dev);
+ 	if (ret < 0)
+-		goto err_pm_disable;
++		goto err_pm_put;
  
- static long riscv_sys_mmap(unsigned long addr, unsigned long len,
- 			   unsigned long prot, unsigned long flags,
-@@ -16,6 +17,11 @@ static long riscv_sys_mmap(unsigned long addr, unsigned long len,
- {
- 	if (unlikely(offset & (~PAGE_MASK >> page_shift_offset)))
- 		return -EINVAL;
-+
-+	if ((prot & PROT_WRITE) && (prot & PROT_EXEC))
-+		if (unlikely(!(prot & PROT_READ)))
-+			return -EINVAL;
-+
- 	return ksys_mmap_pgoff(addr, len, prot, flags, fd,
- 			       offset >> (PAGE_SHIFT - page_shift_offset));
+ 	host = ata_host_alloc(dev, 1);
+ 	if (!host) {
+@@ -935,7 +935,6 @@ static int sata_rcar_probe(struct platform_device *pdev)
+ 
+ err_pm_put:
+ 	pm_runtime_put(dev);
+-err_pm_disable:
+ 	pm_runtime_disable(dev);
+ 	return ret;
  }
+@@ -989,8 +988,10 @@ static int sata_rcar_resume(struct device *dev)
+ 	int ret;
+ 
+ 	ret = pm_runtime_get_sync(dev);
+-	if (ret < 0)
++	if (ret < 0) {
++		pm_runtime_put(dev);
+ 		return ret;
++	}
+ 
+ 	if (priv->type == RCAR_GEN3_SATA) {
+ 		sata_rcar_init_module(priv);
+@@ -1015,8 +1016,10 @@ static int sata_rcar_restore(struct device *dev)
+ 	int ret;
+ 
+ 	ret = pm_runtime_get_sync(dev);
+-	if (ret < 0)
++	if (ret < 0) {
++		pm_runtime_put(dev);
+ 		return ret;
++	}
+ 
+ 	sata_rcar_setup_port(host);
+ 
 -- 
 2.25.1
 
