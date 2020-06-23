@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E272F206150
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:07:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89F0E2063E2
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:30:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392034AbgFWUjP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:39:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34842 "EHLO mail.kernel.org"
+        id S2391572AbgFWVMg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 17:12:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389762AbgFWUjN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:39:13 -0400
+        id S2390622AbgFWUb1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:31:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF9BF2080C;
-        Tue, 23 Jun 2020 20:39:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A44512064B;
+        Tue, 23 Jun 2020 20:31:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944753;
-        bh=P8a4WFjZpL3Kvdj6tkFAa9TA2uxS7qZYDNT4HyyeK+U=;
+        s=default; t=1592944287;
+        bh=t+zJLeSaHfnRj5yqJ/CtzKosmB9kT4tsuVOEK1J6zpw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tghslh8udw7HgA4OQ4tMOrT8VmYDQyqdXtXIoK1gh/PvfAM0Y6mT2LQzMKvJu/EWE
-         cpIeH1BC9PeDPDLBBwl6qEKQvb+4zHKn0dNigj1I/J3eOwIHJy9GQ4GVwx37LzqESH
-         oLUSfXmrBiRv9LJ0gh9DXeSDBXdVFwCkF/W/3Q/M=
+        b=vWjRukbK6Zvv4vqx1i87oEL4LFGKhqzYW2G8n9mz6V9Y7PpGPq25hHtdntNyO4F9D
+         jWSspE46mm9k3q1eYQkWxIFIPIItuSfzXCG+pZfS6kQXERJldOvWy6FbqcfzdmBdXC
+         hDN0MCzp8NwryWqbDy674/8rHa1YETLRRPPHM8Tc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 112/206] x86/apic: Make TSC deadline timer detection message visible
-Date:   Tue, 23 Jun 2020 21:57:20 +0200
-Message-Id: <20200623195322.450511624@linuxfoundation.org>
+Subject: [PATCH 5.4 246/314] ASoC: rt5645: Add platform-data for Asus T101HA
+Date:   Tue, 23 Jun 2020 21:57:21 +0200
+Message-Id: <20200623195350.680578900@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
-References: <20200623195316.864547658@linuxfoundation.org>
+In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
+References: <20200623195338.770401005@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit de308d1815c9e8fe602a958c5c76142ff6501d75 ]
+[ Upstream commit 79d4f823a06796656289f97b922493da5690e46c ]
 
-The commit
+The Asus T101HA uses the default jack-detect mode 3, but instead of
+using an analog microphone it is using a DMIC on dmic-data-pin 1,
+like the Asus T100HA. Note unlike the T100HA its jack-detect is not
+inverted.
 
-  c84cb3735fd5 ("x86/apic: Move TSC deadline timer debug printk")
+Add a DMI quirk with the correct settings for this model.
 
-removed the message which said that the deadline timer was enabled.
-It added a pr_debug() message which is issued when deadline timer
-validation succeeds.
-
-Well, issued only when CONFIG_DYNAMIC_DEBUG is enabled - otherwise
-pr_debug() calls get optimized away if DEBUG is not defined in the
-compilation unit.
-
-Therefore, make the above message pr_info() so that it is visible in
-dmesg.
-
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20200525104218.27018-1-bp@alien8.de
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20200608204634.93407-2-hdegoede@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/apic/apic.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/rt5645.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
-index 53dc8492f02ff..e9456a2eef585 100644
---- a/arch/x86/kernel/apic/apic.c
-+++ b/arch/x86/kernel/apic/apic.c
-@@ -2024,7 +2024,7 @@ void __init init_apic_mappings(void)
- 	unsigned int new_apicid;
+diff --git a/sound/soc/codecs/rt5645.c b/sound/soc/codecs/rt5645.c
+index 19662ee330d6b..c83f7f5da96b7 100644
+--- a/sound/soc/codecs/rt5645.c
++++ b/sound/soc/codecs/rt5645.c
+@@ -3625,6 +3625,12 @@ static const struct rt5645_platform_data asus_t100ha_platform_data = {
+ 	.inv_jd1_1 = true,
+ };
  
- 	if (apic_validate_deadline_timer())
--		pr_debug("TSC deadline timer available\n");
-+		pr_info("TSC deadline timer available\n");
- 
- 	if (x2apic_mode) {
- 		boot_cpu_physical_apicid = read_apic_id();
++static const struct rt5645_platform_data asus_t101ha_platform_data = {
++	.dmic1_data_pin = RT5645_DMIC_DATA_IN2N,
++	.dmic2_data_pin = RT5645_DMIC2_DISABLE,
++	.jd_mode = 3,
++};
++
+ static const struct rt5645_platform_data lenovo_ideapad_miix_310_pdata = {
+ 	.jd_mode = 3,
+ 	.in2_diff = true,
+@@ -3702,6 +3708,14 @@ static const struct dmi_system_id dmi_platform_data[] = {
+ 		},
+ 		.driver_data = (void *)&asus_t100ha_platform_data,
+ 	},
++	{
++		.ident = "ASUS T101HA",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "T101HA"),
++		},
++		.driver_data = (void *)&asus_t101ha_platform_data,
++	},
+ 	{
+ 		.ident = "MINIX Z83-4",
+ 		.matches = {
 -- 
 2.25.1
 
