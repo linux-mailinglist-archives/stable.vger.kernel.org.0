@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A32C20590B
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 19:37:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C9C1205901
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 19:37:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733054AbgFWRhi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 13:37:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34944 "EHLO mail.kernel.org"
+        id S2387760AbgFWRhN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 13:37:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387746AbgFWRhJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 13:37:09 -0400
+        id S2387751AbgFWRhK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 13:37:10 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F197420780;
-        Tue, 23 Jun 2020 17:37:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 20F8920781;
+        Tue, 23 Jun 2020 17:37:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592933828;
-        bh=cyEEX7langD+kxupY1vGoQ4pXWIJ4cY38zwZzOrtK4k=;
-        h=From:To:Cc:Subject:Date:From;
-        b=rHy4CDM2zj1f2XJg1wvKlJSQw+SYbLgDY6Iqn/LKBShpufQIP9RQ0Xdst++eUVVu+
-         3nEtMHMP/tA1rTLnTfyOPmuMgi2+pF6FSsV+YYBy6wd6XqUm0y6vZFiSqNyM98mbPZ
-         ekWk1ijOmXQ3by6qo4vf7Mp6Ty7XiE1pO2SX0h5k=
+        s=default; t=1592933829;
+        bh=4d8E+xxY6HjJP5yT1ceEnqlab49ZVk3WLYdMr1sR3qI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=XHKGn/nlF6xLfbftxAxfsxGz4ZrCuiH0Pb8Vr11BOh6IqVi5hIlzSYZhiES2Qq4GT
+         yjUg9ONj6Jzg/VIFMGlNLqpTiYHKuJitbWOkJWWJh7dSS8NgA0Dj62Pjb0W0s3laDG
+         c/qgn7kOsihGzU8hcV+NM2h/lY8KZVaySL7Gd0Sg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zekun Shen <bruceshenzk@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 1/3] net: alx: fix race condition in alx_remove
-Date:   Tue, 23 Jun 2020 13:37:04 -0400
-Message-Id: <20200623173706.1356340-1-sashal@kernel.org>
+Cc:     Masahiro Yamada <masahiroy@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-kbuild@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 2/3] kbuild: improve cc-option to clean up all temporary files
+Date:   Tue, 23 Jun 2020 13:37:05 -0400
+Message-Id: <20200623173706.1356340-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20200623173706.1356340-1-sashal@kernel.org>
+References: <20200623173706.1356340-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -41,57 +42,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zekun Shen <bruceshenzk@gmail.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit e89df5c4322c1bf495f62d74745895b5fd2a4393 ]
+[ Upstream commit f2f02ebd8f3833626642688b2d2c6a7b3c141fa9 ]
 
-There is a race condition exist during termination. The path is
-alx_stop and then alx_remove. An alx_schedule_link_check could be called
-before alx_stop by interrupt handler and invoke alx_link_check later.
-Alx_stop frees the napis, and alx_remove cancels any pending works.
-If any of the work is scheduled before termination and invoked before
-alx_remove, a null-ptr-deref occurs because both expect alx->napis[i].
+When cc-option and friends evaluate compiler flags, the temporary file
+$$TMP is created as an output object, and automatically cleaned up.
+The actual file path of $$TMP is .<pid>.tmp, here <pid> is the process
+ID of $(shell ...) invoked from cc-option. (Please note $$$$ is the
+escape sequence of $$).
 
-This patch fix the race condition by moving cancel_work_sync functions
-before alx_free_napis inside alx_stop. Because interrupt handler can call
-alx_schedule_link_check again, alx_free_irq is moved before
-cancel_work_sync calls too.
+Such garbage files are cleaned up in most cases, but some compiler flags
+create additional output files.
 
-Signed-off-by: Zekun Shen <bruceshenzk@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+For example, -gsplit-dwarf creates a .dwo file.
+
+When CONFIG_DEBUG_INFO_SPLIT=y, you will see a bunch of .<pid>.dwo files
+left in the top of build directories. You may not notice them unless you
+do 'ls -a', but the garbage files will increase every time you run 'make'.
+
+This commit changes the temporary object path to .tmp_<pid>/tmp, and
+removes .tmp_<pid> directory when exiting. Separate build artifacts such
+as *.dwo will be cleaned up all together because their file paths are
+usually determined based on the base name of the object.
+
+Another example is -ftest-coverage, which outputs the coverage data into
+<base-name-of-object>.gcno
+
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/atheros/alx/main.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ scripts/Kbuild.include | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/atheros/alx/main.c b/drivers/net/ethernet/atheros/alx/main.c
-index df54475d163bf..43bcc19c90680 100644
---- a/drivers/net/ethernet/atheros/alx/main.c
-+++ b/drivers/net/ethernet/atheros/alx/main.c
-@@ -872,8 +872,12 @@ static int __alx_open(struct alx_priv *alx, bool resume)
+diff --git a/scripts/Kbuild.include b/scripts/Kbuild.include
+index e61a5c29b08c5..b6f055157b89a 100644
+--- a/scripts/Kbuild.include
++++ b/scripts/Kbuild.include
+@@ -81,20 +81,21 @@ cc-cross-prefix =  \
+ 		fi)))
  
- static void __alx_stop(struct alx_priv *alx)
- {
--	alx_halt(alx);
- 	alx_free_irq(alx);
-+
-+	cancel_work_sync(&alx->link_check_wk);
-+	cancel_work_sync(&alx->reset_wk);
-+
-+	alx_halt(alx);
- 	alx_free_rings(alx);
- }
+ # output directory for tests below
+-TMPOUT := $(if $(KBUILD_EXTMOD),$(firstword $(KBUILD_EXTMOD))/)
++TMPOUT = $(if $(KBUILD_EXTMOD),$(firstword $(KBUILD_EXTMOD))/).tmp_$$$$
  
-@@ -1406,9 +1410,6 @@ static void alx_remove(struct pci_dev *pdev)
- 	struct alx_priv *alx = pci_get_drvdata(pdev);
- 	struct alx_hw *hw = &alx->hw;
+ # try-run
+ # Usage: option = $(call try-run, $(CC)...-o "$$TMP",option-ok,otherwise)
+ # Exit code chooses option. "$$TMP" is can be used as temporary file and
+ # is automatically cleaned up.
+ try-run = $(shell set -e;		\
+-	TMP="$(TMPOUT).$$$$.tmp";	\
+-	TMPO="$(TMPOUT).$$$$.o";	\
++	TMP=$(TMPOUT)/tmp;		\
++	TMPO=$(TMPOUT)/tmp.o;		\
++	mkdir -p $(TMPOUT);		\
++	trap "rm -rf $(TMPOUT)" EXIT;	\
+ 	if ($(1)) >/dev/null 2>&1;	\
+ 	then echo "$(2)";		\
+ 	else echo "$(3)";		\
+-	fi;				\
+-	rm -f "$$TMP" "$$TMPO")
++	fi)
  
--	cancel_work_sync(&alx->link_check_wk);
--	cancel_work_sync(&alx->reset_wk);
--
- 	/* restore permanent mac address */
- 	alx_set_macaddr(hw, hw->perm_addr);
- 
+ # as-option
+ # Usage: cflags-y += $(call as-option,-Wa$(comma)-isa=foo,)
 -- 
 2.25.1
 
