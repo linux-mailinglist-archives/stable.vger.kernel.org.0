@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3420A205FBD
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:47:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93D22205FC0
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:47:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391723AbgFWUfn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:35:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58378 "EHLO mail.kernel.org"
+        id S2391738AbgFWUfw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:35:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391722AbgFWUfn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:35:43 -0400
+        id S2391255AbgFWUfu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:35:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B9AF720836;
-        Tue, 23 Jun 2020 20:35:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7725D2100A;
+        Tue, 23 Jun 2020 20:35:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944543;
-        bh=cqXo4sFFq3eyBc3yOBsOF0tDKrormseqsHL1lsfYwnQ=;
+        s=default; t=1592944550;
+        bh=yufBh9n1g6XdIH7woUsF7qADsGEisJUELN/kXY+bExc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HLBcPj1Bed+C497nCF8kuKh43fos1HssNFsythEj3iYAUOtKlrtLydEgNQojby2Bw
-         JTQhM+dYagKqX92PXprdok+N/7RcA7RA4ByakWfz7Z+SWRpOCp6s1OxGbB9YHUfLHc
-         Jaxh0zO3D+NQ+t1CMsd3iAzo5mlNkVjYz6kECdfw=
+        b=XlPOkZDe+KNO8sC8v0X8lN1wIhwYMhaL1W+MaCVzLhahlO0dk1bnhOYeJuSdHaVVX
+         i6IgtTwtobOE4E/BQaJorFjiG6Dweiri71xtdeDHly8K36az1l6xeShnLg+ssqPXnh
+         t6GeV4QDB+7GbO0MT1gFCP/M2NraQ++oewPrbq/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Suman Anna <s-anna@ti.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 006/206] remoteproc: Fix IDR initialisation in rproc_alloc()
-Date:   Tue, 23 Jun 2020 21:55:34 +0200
-Message-Id: <20200623195317.244434695@linuxfoundation.org>
+Subject: [PATCH 4.19 009/206] ASoC: davinci-mcasp: Fix dma_chan refcnt leak when getting dma type
+Date:   Tue, 23 Jun 2020 21:55:37 +0200
+Message-Id: <20200623195317.398790851@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
 References: <20200623195316.864547658@linuxfoundation.org>
@@ -46,58 +46,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Elder <elder@linaro.org>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-[ Upstream commit 6442df49400b466431979e7634849a464a5f1861 ]
+[ Upstream commit a697ae6ea56e23397341b027098c1b11d9ab13da ]
 
-If ida_simple_get() returns an error when called in rproc_alloc(),
-put_device() is called to clean things up.  By this time the rproc
-device type has been assigned, with rproc_type_release() as the
-release function.
+davinci_mcasp_get_dma_type() invokes dma_request_chan(), which returns a
+reference of the specified dma_chan object to "chan" with increased
+refcnt.
 
-The first thing rproc_type_release() does is call:
-    idr_destroy(&rproc->notifyids);
+When davinci_mcasp_get_dma_type() returns, local variable "chan" becomes
+invalid, so the refcount should be decreased to keep refcount balanced.
 
-But at the time the ida_simple_get() call is made, the notifyids
-field in the remoteproc structure has not been initialized.
+The reference counting issue happens in one exception handling path of
+davinci_mcasp_get_dma_type(). When chan device is NULL, the function
+forgets to decrease the refcnt increased by dma_request_chan(), causing
+a refcnt leak.
 
-I'm not actually sure this case causes an observable problem, but
-it's incorrect.  Fix this by initializing the notifyids field before
-calling ida_simple_get() in rproc_alloc().
+Fix this issue by calling dma_release_channel() when chan device is
+NULL.
 
-Fixes: b5ab5e24e960 ("remoteproc: maintain a generic child device for each rproc")
-Signed-off-by: Alex Elder <elder@linaro.org>
-Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Reviewed-by: Suman Anna <s-anna@ti.com>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20200415204858.2448-2-mathieu.poirier@linaro.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Acked-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Link: https://lore.kernel.org/r/1587818916-38730-1-git-send-email-xiyuyang19@fudan.edu.cn
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/remoteproc/remoteproc_core.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ sound/soc/davinci/davinci-mcasp.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/remoteproc/remoteproc_core.c b/drivers/remoteproc/remoteproc_core.c
-index d5ff272fde343..e48069db17033 100644
---- a/drivers/remoteproc/remoteproc_core.c
-+++ b/drivers/remoteproc/remoteproc_core.c
-@@ -1598,6 +1598,7 @@ struct rproc *rproc_alloc(struct device *dev, const char *name,
- 	rproc->dev.type = &rproc_type;
- 	rproc->dev.class = &rproc_class;
- 	rproc->dev.driver_data = rproc;
-+	idr_init(&rproc->notifyids);
+diff --git a/sound/soc/davinci/davinci-mcasp.c b/sound/soc/davinci/davinci-mcasp.c
+index 14ab16e1369f8..1203de8aab990 100644
+--- a/sound/soc/davinci/davinci-mcasp.c
++++ b/sound/soc/davinci/davinci-mcasp.c
+@@ -1758,8 +1758,10 @@ static int davinci_mcasp_get_dma_type(struct davinci_mcasp *mcasp)
+ 				PTR_ERR(chan));
+ 		return PTR_ERR(chan);
+ 	}
+-	if (WARN_ON(!chan->device || !chan->device->dev))
++	if (WARN_ON(!chan->device || !chan->device->dev)) {
++		dma_release_channel(chan);
+ 		return -EINVAL;
++	}
  
- 	/* Assign a unique device index and name */
- 	rproc->index = ida_simple_get(&rproc_dev_index, 0, 0, GFP_KERNEL);
-@@ -1622,8 +1623,6 @@ struct rproc *rproc_alloc(struct device *dev, const char *name,
- 
- 	mutex_init(&rproc->lock);
- 
--	idr_init(&rproc->notifyids);
--
- 	INIT_LIST_HEAD(&rproc->carveouts);
- 	INIT_LIST_HEAD(&rproc->mappings);
- 	INIT_LIST_HEAD(&rproc->traces);
+ 	if (chan->device->dev->of_node)
+ 		ret = of_property_read_string(chan->device->dev->of_node,
 -- 
 2.25.1
 
