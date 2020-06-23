@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8DDF206132
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:07:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCF74206393
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:29:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391707AbgFWUfi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:35:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58178 "EHLO mail.kernel.org"
+        id S2390534AbgFWU2H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:28:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391679AbgFWUfh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:35:37 -0400
+        id S2390842AbgFWU2H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:28:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1FE392080C;
-        Tue, 23 Jun 2020 20:35:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC167206EB;
+        Tue, 23 Jun 2020 20:28:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944537;
-        bh=oKwisQrOKqgE7pSpQuySDnL7StNHuLim4ULxZuK618M=;
+        s=default; t=1592944087;
+        bh=H6VJ9obbYArUMYvO6qBOQtEXRyWgkm6Xs/Q/wVa/QvI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xfcPSsK+y0Uo+dZl2ex8VW2E7osyV+xXu7qdowTUqwVsPZnEib6TfzzH+WvkQgZY8
-         P0YvtG2gM8zQJOVxHMqEyykmrxRutxdouBqBi8PWaw3S9iXLCFIBlQu1xFxKUkA05E
-         QHX9hwwP0Zh+H6sulMdfhkjz3j27SkVnFoyg4FTM=
+        b=GYYkUD1VZdPGxxL9/VaRq0icDWH+X+s2KtIikIqLPvU/ltqqGsRhHGLFYqmWQNmcO
+         R5lzQoU57UKJPNBxRDTlZKNOWP2bKWXN6vAIFSvAmDKhxpFFLYm9K+9iUwo+sPtkGp
+         R1Y+QwOhJW9pSr4QOYKNT/QHBk4KL+ss+1/+FKiI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adam Honse <calcprogrammer1@gmail.com>,
-        Jean Delvare <jdelvare@suse.de>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
+        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 004/206] i2c: piix4: Detect secondary SMBus controller on AMD AM4 chipsets
+Subject: [PATCH 5.4 137/314] USB: ohci-sm501: fix error return code in ohci_hcd_sm501_drv_probe()
 Date:   Tue, 23 Jun 2020 21:55:32 +0200
-Message-Id: <20200623195317.141905443@linuxfoundation.org>
+Message-Id: <20200623195345.404071620@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
-References: <20200623195316.864547658@linuxfoundation.org>
+In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
+References: <20200623195338.770401005@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,49 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adam Honse <calcprogrammer1@gmail.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit f27237c174fd9653033330e4e532cd9d153ce824 ]
+[ Upstream commit b919e077cccfbb77beb98809568b2fb0b4d113ec ]
 
-The AMD X370 and other AM4 chipsets (A/B/X 3/4/5 parts) and Threadripper
-equivalents have a secondary SMBus controller at I/O port address
-0x0B20.  This bus is used by several manufacturers to control
-motherboard RGB lighting via embedded controllers.  I have been using
-this bus in my OpenRGB project to control the Aura RGB on many
-motherboards and ASRock also uses this bus for their Polychrome RGB
-controller.
+Fix to return a negative error code from the error handling
+case instead of 0, as done elsewhere in this function.
 
-I am not aware of any CZ-compatible platforms which do not have the
-second SMBus channel.  All of AMD's AM4- and Threadripper- series
-chipsets that OpenRGB users have tested appear to have this secondary
-bus.  I also noticed this secondary bus is present on older AMD
-platforms including my FM1 home server.
-
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=202587
-Signed-off-by: Adam Honse <calcprogrammer1@gmail.com>
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
-Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Tested-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Fixes: 7d9e6f5aebe8 ("usb: host: ohci-sm501: init genalloc for local memory")
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20200506135625.106910-1-weiyongjun1@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-piix4.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/host/ohci-sm501.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-index 9ff3371ec385d..f1c79f9b3919b 100644
---- a/drivers/i2c/busses/i2c-piix4.c
-+++ b/drivers/i2c/busses/i2c-piix4.c
-@@ -958,7 +958,8 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 	}
+diff --git a/drivers/usb/host/ohci-sm501.c b/drivers/usb/host/ohci-sm501.c
+index c158cda9e4b9b..cff9652403270 100644
+--- a/drivers/usb/host/ohci-sm501.c
++++ b/drivers/usb/host/ohci-sm501.c
+@@ -157,9 +157,10 @@ static int ohci_hcd_sm501_drv_probe(struct platform_device *pdev)
+ 	 * the call to usb_hcd_setup_local_mem() below does just that.
+ 	 */
  
- 	if (dev->vendor == PCI_VENDOR_ID_AMD &&
--	    dev->device == PCI_DEVICE_ID_AMD_HUDSON2_SMBUS) {
-+	    (dev->device == PCI_DEVICE_ID_AMD_HUDSON2_SMBUS ||
-+	     dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS)) {
- 		retval = piix4_setup_sb800(dev, id, 1);
- 	}
- 
+-	if (usb_hcd_setup_local_mem(hcd, mem->start,
+-				    mem->start - mem->parent->start,
+-				    resource_size(mem)) < 0)
++	retval = usb_hcd_setup_local_mem(hcd, mem->start,
++					 mem->start - mem->parent->start,
++					 resource_size(mem));
++	if (retval < 0)
+ 		goto err5;
+ 	retval = usb_add_hcd(hcd, irq, IRQF_SHARED);
+ 	if (retval)
 -- 
 2.25.1
 
