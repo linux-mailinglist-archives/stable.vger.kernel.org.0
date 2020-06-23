@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64C00205F83
+	by mail.lfdr.de (Postfix) with ESMTP id D4951205F84
 	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:46:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391128AbgFWUdP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:33:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54448 "EHLO mail.kernel.org"
+        id S2391399AbgFWUdS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:33:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390947AbgFWUdO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:33:14 -0400
+        id S2391396AbgFWUdQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:33:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E209A2072E;
-        Tue, 23 Jun 2020 20:33:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 433362064B;
+        Tue, 23 Jun 2020 20:33:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944394;
-        bh=MuWM5QvN4G9sI/MjLrwS3kH0SgnCo+ApbKr26ix7qGU=;
+        s=default; t=1592944396;
+        bh=2Ps/VK5Jxkta2/UYXjHu0YChiGmfbbEkbtfuZChj7bM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=avqnvc6i2jG7vJ1WMFevMpzby53T+raROAL5jqV/ELPZLz0qRsrJsMvgB3Ou9EazH
-         qRS0MlXf/qEx7U2woeiS2VQeyJF5hegp9gsnr0dDf7L1r6JTMq5822RH9KryAk4o7S
-         GjKpyh0S/ueyqGl+8RHXUYWujBCsexWC1m14/OTk=
+        b=dKM7pUUoJN5GFrGM1ByZjJbUxsVLgiW6N/8ETqYRM0zjfMP7lkE0cobRSfnv0MliS
+         97MS2oqBI+UO1Uw8ZhK3aFRKfDCmKBeOHaNa8lUhS9wF+wdUJrE9X3uGfoiGHZce4v
+         4lvC7U6yNmp0jP9RN4eYPjGI+EydxlNkjz8O8MFw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "zhangyi (F)" <yi.zhang@huawei.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 287/314] jbd2: clean __jbd2_journal_abort_hard() and __journal_abort_soft()
-Date:   Tue, 23 Jun 2020 21:58:02 +0200
-Message-Id: <20200623195352.675603121@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        syzbot+bca9799bf129256190da@syzkaller.appspotmail.com,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 288/314] ext4: avoid race conditions when remounting with options that change dax
+Date:   Tue, 23 Jun 2020 21:58:03 +0200
+Message-Id: <20200623195352.713564142@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
 References: <20200623195338.770401005@linuxfoundation.org>
@@ -44,171 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhangyi (F) <yi.zhang@huawei.com>
+From: Theodore Ts'o <tytso@mit.edu>
 
-[ Upstream commit 7f6225e446cc8dfa4c3c7959a4de3dd03ec277bf ]
+[ Upstream commit 829b37b8cddb1db75c1b7905505b90e593b15db1 ]
 
-__jbd2_journal_abort_hard() is no longer used, so now we can merge
-__jbd2_journal_abort_hard() and __journal_abort_soft() these two
-functions into jbd2_journal_abort() and remove them.
+Trying to change dax mount options when remounting could allow mount
+options to be enabled for a small amount of time, and then the mount
+option change would be reverted.
 
-Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20191204124614.45424-5-yi.zhang@huawei.com
+In the case of "mount -o remount,dax", this can cause a race where
+files would temporarily treated as DAX --- and then not.
+
+Cc: stable@kernel.org
+Reported-by: syzbot+bca9799bf129256190da@syzkaller.appspotmail.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jbd2/journal.c    | 103 ++++++++++++++++++-------------------------
- include/linux/jbd2.h |   1 -
- 2 files changed, 42 insertions(+), 62 deletions(-)
+ fs/ext4/super.c | 22 ++++++++++------------
+ 1 file changed, 10 insertions(+), 12 deletions(-)
 
-diff --git a/fs/jbd2/journal.c b/fs/jbd2/journal.c
-index c1ce2805c5639..fa58835668a62 100644
---- a/fs/jbd2/journal.c
-+++ b/fs/jbd2/journal.c
-@@ -96,7 +96,6 @@ EXPORT_SYMBOL(jbd2_journal_release_jbd_inode);
- EXPORT_SYMBOL(jbd2_journal_begin_ordered_truncate);
- EXPORT_SYMBOL(jbd2_inode_cache);
- 
--static void __journal_abort_soft (journal_t *journal, int errno);
- static int jbd2_journal_create_slab(size_t slab_size);
- 
- #ifdef CONFIG_JBD2_DEBUG
-@@ -805,7 +804,7 @@ int jbd2_journal_bmap(journal_t *journal, unsigned long blocknr,
- 					"at offset %lu on %s\n",
- 			       __func__, blocknr, journal->j_devname);
- 			err = -EIO;
--			__journal_abort_soft(journal, err);
-+			jbd2_journal_abort(journal, err);
- 		}
- 	} else {
- 		*retp = blocknr; /* +journal->j_blk_offset */
-@@ -2070,64 +2069,6 @@ int jbd2_journal_wipe(journal_t *journal, int write)
- 	return err;
- }
- 
--/*
-- * Journal abort has very specific semantics, which we describe
-- * for journal abort.
-- *
-- * Two internal functions, which provide abort to the jbd layer
-- * itself are here.
-- */
--
--/*
-- * Quick version for internal journal use (doesn't lock the journal).
-- * Aborts hard --- we mark the abort as occurred, but do _nothing_ else,
-- * and don't attempt to make any other journal updates.
-- */
--void __jbd2_journal_abort_hard(journal_t *journal)
--{
--	transaction_t *transaction;
--
--	if (journal->j_flags & JBD2_ABORT)
--		return;
--
--	printk(KERN_ERR "Aborting journal on device %s.\n",
--	       journal->j_devname);
--
--	write_lock(&journal->j_state_lock);
--	journal->j_flags |= JBD2_ABORT;
--	transaction = journal->j_running_transaction;
--	if (transaction)
--		__jbd2_log_start_commit(journal, transaction->t_tid);
--	write_unlock(&journal->j_state_lock);
--}
--
--/* Soft abort: record the abort error status in the journal superblock,
-- * but don't do any other IO. */
--static void __journal_abort_soft (journal_t *journal, int errno)
--{
--	int old_errno;
--
--	write_lock(&journal->j_state_lock);
--	old_errno = journal->j_errno;
--	if (!journal->j_errno || errno == -ESHUTDOWN)
--		journal->j_errno = errno;
--
--	if (journal->j_flags & JBD2_ABORT) {
--		write_unlock(&journal->j_state_lock);
--		if (old_errno != -ESHUTDOWN && errno == -ESHUTDOWN)
--			jbd2_journal_update_sb_errno(journal);
--		return;
--	}
--	write_unlock(&journal->j_state_lock);
--
--	__jbd2_journal_abort_hard(journal);
--
--	jbd2_journal_update_sb_errno(journal);
--	write_lock(&journal->j_state_lock);
--	journal->j_flags |= JBD2_REC_ERR;
--	write_unlock(&journal->j_state_lock);
--}
--
- /**
-  * void jbd2_journal_abort () - Shutdown the journal immediately.
-  * @journal: the journal to shutdown.
-@@ -2171,7 +2112,47 @@ static void __journal_abort_soft (journal_t *journal, int errno)
- 
- void jbd2_journal_abort(journal_t *journal, int errno)
- {
--	__journal_abort_soft(journal, errno);
-+	transaction_t *transaction;
-+
-+	/*
-+	 * ESHUTDOWN always takes precedence because a file system check
-+	 * caused by any other journal abort error is not required after
-+	 * a shutdown triggered.
-+	 */
-+	write_lock(&journal->j_state_lock);
-+	if (journal->j_flags & JBD2_ABORT) {
-+		int old_errno = journal->j_errno;
-+
-+		write_unlock(&journal->j_state_lock);
-+		if (old_errno != -ESHUTDOWN && errno == -ESHUTDOWN) {
-+			journal->j_errno = errno;
-+			jbd2_journal_update_sb_errno(journal);
+diff --git a/fs/ext4/super.c b/fs/ext4/super.c
+index 830160ad07a63..f7c20bb20da37 100644
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -2034,6 +2034,16 @@ static int handle_mount_opt(struct super_block *sb, char *opt, int token,
+ #endif
+ 	} else if (token == Opt_dax) {
+ #ifdef CONFIG_FS_DAX
++		if (is_remount && test_opt(sb, DAX)) {
++			ext4_msg(sb, KERN_ERR, "can't mount with "
++				"both data=journal and dax");
++			return -1;
 +		}
-+		return;
-+	}
-+
-+	/*
-+	 * Mark the abort as occurred and start current running transaction
-+	 * to release all journaled buffer.
-+	 */
-+	pr_err("Aborting journal on device %s.\n", journal->j_devname);
-+
-+	journal->j_flags |= JBD2_ABORT;
-+	journal->j_errno = errno;
-+	transaction = journal->j_running_transaction;
-+	if (transaction)
-+		__jbd2_log_start_commit(journal, transaction->t_tid);
-+	write_unlock(&journal->j_state_lock);
-+
-+	/*
-+	 * Record errno to the journal super block, so that fsck and jbd2
-+	 * layer could realise that a filesystem check is needed.
-+	 */
-+	jbd2_journal_update_sb_errno(journal);
-+
-+	write_lock(&journal->j_state_lock);
-+	journal->j_flags |= JBD2_REC_ERR;
-+	write_unlock(&journal->j_state_lock);
- }
++		if (is_remount && !(sbi->s_mount_opt & EXT4_MOUNT_DAX)) {
++			ext4_msg(sb, KERN_ERR, "can't change "
++					"dax mount option while remounting");
++			return -1;
++		}
+ 		ext4_msg(sb, KERN_WARNING,
+ 		"DAX enabled. Warning: EXPERIMENTAL, use at your own risk");
+ 		sbi->s_mount_opt |= m->mount_opt;
+@@ -5367,12 +5377,6 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
+ 			err = -EINVAL;
+ 			goto restore_opts;
+ 		}
+-		if (test_opt(sb, DAX)) {
+-			ext4_msg(sb, KERN_ERR, "can't mount with "
+-				 "both data=journal and dax");
+-			err = -EINVAL;
+-			goto restore_opts;
+-		}
+ 	} else if (test_opt(sb, DATA_FLAGS) == EXT4_MOUNT_ORDERED_DATA) {
+ 		if (test_opt(sb, JOURNAL_ASYNC_COMMIT)) {
+ 			ext4_msg(sb, KERN_ERR, "can't mount with "
+@@ -5388,12 +5392,6 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
+ 		goto restore_opts;
+ 	}
  
- /**
-diff --git a/include/linux/jbd2.h b/include/linux/jbd2.h
-index 10e6049c0ba91..b0e97e5de8ca4 100644
---- a/include/linux/jbd2.h
-+++ b/include/linux/jbd2.h
-@@ -1402,7 +1402,6 @@ extern int	   jbd2_journal_skip_recovery	(journal_t *);
- extern void	   jbd2_journal_update_sb_errno(journal_t *);
- extern int	   jbd2_journal_update_sb_log_tail	(journal_t *, tid_t,
- 				unsigned long, int);
--extern void	   __jbd2_journal_abort_hard	(journal_t *);
- extern void	   jbd2_journal_abort      (journal_t *, int);
- extern int	   jbd2_journal_errno      (journal_t *);
- extern void	   jbd2_journal_ack_err    (journal_t *);
+-	if ((sbi->s_mount_opt ^ old_opts.s_mount_opt) & EXT4_MOUNT_DAX) {
+-		ext4_msg(sb, KERN_WARNING, "warning: refusing change of "
+-			"dax flag with busy inodes while remounting");
+-		sbi->s_mount_opt ^= EXT4_MOUNT_DAX;
+-	}
+-
+ 	if (sbi->s_mount_flags & EXT4_MF_FS_ABORTED)
+ 		ext4_abort(sb, "Abort forced by user");
+ 
 -- 
 2.25.1
 
