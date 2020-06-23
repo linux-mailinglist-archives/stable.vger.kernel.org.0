@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5134720634B
+	by mail.lfdr.de (Postfix) with ESMTP id BE47A20634C
 	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:29:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390047AbgFWUVd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:21:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39200 "EHLO mail.kernel.org"
+        id S2389693AbgFWUVh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:21:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390042AbgFWUVb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:21:31 -0400
+        id S2390054AbgFWUVg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:21:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B28942070E;
-        Tue, 23 Jun 2020 20:21:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9DF522070E;
+        Tue, 23 Jun 2020 20:21:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943691;
-        bh=Su3a4FMJKqxjEDGcxDd9SXYLpEOQqK4yUuCllM+3hWg=;
+        s=default; t=1592943696;
+        bh=0Fb7EP+pKmYTFIeqqOxu3NP+meod2WPdfsqrmM6rM1I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JqM+8rhv644yXnOB1pNJVx+RtBuKcg3FUWQaRfYsMUHtSeaXajAptCHI8jvkAbzDn
-         PPIo9zYO9nD0EdDjxp38qNAFfClv1MsjrdnSD00oc4kBSNUthnf/4BdRfmp7iB4w07
-         jJb0fkSe3FMTRJTUTBZ3Wc19Hgz3HP/faOJCS2pk=
+        b=pHAULZK8f/JiwTocEjq0dyiztbCO3a0Y3loIsXIeFzO4s1Wdjh9435Pz0au/K1jbm
+         WJrCA8XQn9Qm41xGVlWvQ2u1OYc7X5uUW7m08mofLZtJS1XKTWR7TGAGwG4i0XVByf
+         ui42R7DTxAbNclJg80cFIdH90dNoLwFQG2qzFe2w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Daniel Wagner <dwagner@suse.de>,
+        Hannes Reinecke <hare@suse.de>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 013/314] ARM: integrator: Add some Kconfig selections
-Date:   Tue, 23 Jun 2020 21:53:28 +0200
-Message-Id: <20200623195339.420762343@linuxfoundation.org>
+Subject: [PATCH 5.4 015/314] scsi: core: free sgtables in case command setup fails
+Date:   Tue, 23 Jun 2020 21:53:30 +0200
+Message-Id: <20200623195339.513491985@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
 References: <20200623195338.770401005@linuxfoundation.org>
@@ -43,59 +47,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 
-[ Upstream commit d2854bbe5f5c4b4bec8061caf4f2e603d8819446 ]
+[ Upstream commit 20a66f2bf280277ab5bb22e27445153b4eb0ac88 ]
 
-The CMA and DMA_CMA Kconfig options need to be selected
-by the Integrator in order to produce boot console on some
-Integrator systems.
+In case scsi_setup_fs_cmnd() fails we're not freeing the sgtables allocated
+by scsi_init_io(), thus we leak the allocated memory.
 
-The REGULATOR and REGULATOR_FIXED_VOLTAGE need to be
-selected in order to boot the system from an external
-MMC card when using MMCI/PL181 from the device tree
-probe path.
+Free the sgtables allocated by scsi_init_io() in case scsi_setup_fs_cmnd()
+fails.
 
-Select these things directly from the Kconfig so we are
-sure to be able to bring the systems up with console
-from any device tree.
+Technically scsi_setup_scsi_cmnd() does not suffer from this problem as it
+can only fail if scsi_init_io() fails, so it does not have sgtables
+allocated. But to maintain symmetry and as a measure of defensive
+programming, free the sgtables on scsi_setup_scsi_cmnd() failure as well.
+scsi_mq_free_sgtables() has safeguards against double-freeing of memory so
+this is safe to do.
 
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+While we're at it, rename scsi_mq_free_sgtables() to scsi_free_sgtables().
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=205595
+Link: https://lore.kernel.org/r/20200428104605.8143-2-johannes.thumshirn@wdc.com
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Daniel Wagner <dwagner@suse.de>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-integrator/Kconfig | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/scsi/scsi_lib.c | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/mach-integrator/Kconfig b/arch/arm/mach-integrator/Kconfig
-index 982eabc361635..2406cab73835a 100644
---- a/arch/arm/mach-integrator/Kconfig
-+++ b/arch/arm/mach-integrator/Kconfig
-@@ -4,6 +4,8 @@ menuconfig ARCH_INTEGRATOR
- 	depends on ARCH_MULTI_V4T || ARCH_MULTI_V5 || ARCH_MULTI_V6
- 	select ARM_AMBA
- 	select COMMON_CLK_VERSATILE
-+	select CMA
-+	select DMA_CMA
- 	select HAVE_TCM
- 	select ICST
- 	select MFD_SYSCON
-@@ -35,14 +37,13 @@ config INTEGRATOR_IMPD1
- 	select ARM_VIC
- 	select GPIO_PL061
- 	select GPIOLIB
-+	select REGULATOR
-+	select REGULATOR_FIXED_VOLTAGE
- 	help
- 	  The IM-PD1 is an add-on logic module for the Integrator which
- 	  allows ARM(R) Ltd PrimeCells to be developed and evaluated.
- 	  The IM-PD1 can be found on the Integrator/PP2 platform.
+diff --git a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
+index 91c007d26c1ef..206c9f53e9e7a 100644
+--- a/drivers/scsi/scsi_lib.c
++++ b/drivers/scsi/scsi_lib.c
+@@ -551,7 +551,7 @@ static void scsi_uninit_cmd(struct scsi_cmnd *cmd)
+ 	}
+ }
  
--	  To compile this driver as a module, choose M here: the
--	  module will be called impd1.
--
- config INTEGRATOR_CM7TDMI
- 	bool "Integrator/CM7TDMI core module"
- 	depends on ARCH_INTEGRATOR_AP
+-static void scsi_mq_free_sgtables(struct scsi_cmnd *cmd)
++static void scsi_free_sgtables(struct scsi_cmnd *cmd)
+ {
+ 	if (cmd->sdb.table.nents)
+ 		sg_free_table_chained(&cmd->sdb.table,
+@@ -563,7 +563,7 @@ static void scsi_mq_free_sgtables(struct scsi_cmnd *cmd)
+ 
+ static void scsi_mq_uninit_cmd(struct scsi_cmnd *cmd)
+ {
+-	scsi_mq_free_sgtables(cmd);
++	scsi_free_sgtables(cmd);
+ 	scsi_uninit_cmd(cmd);
+ 	scsi_del_cmd_from_list(cmd);
+ }
+@@ -1063,7 +1063,7 @@ blk_status_t scsi_init_io(struct scsi_cmnd *cmd)
+ 
+ 	return BLK_STS_OK;
+ out_free_sgtables:
+-	scsi_mq_free_sgtables(cmd);
++	scsi_free_sgtables(cmd);
+ 	return ret;
+ }
+ EXPORT_SYMBOL(scsi_init_io);
+@@ -1214,6 +1214,7 @@ static blk_status_t scsi_setup_cmnd(struct scsi_device *sdev,
+ 		struct request *req)
+ {
+ 	struct scsi_cmnd *cmd = blk_mq_rq_to_pdu(req);
++	blk_status_t ret;
+ 
+ 	if (!blk_rq_bytes(req))
+ 		cmd->sc_data_direction = DMA_NONE;
+@@ -1223,9 +1224,14 @@ static blk_status_t scsi_setup_cmnd(struct scsi_device *sdev,
+ 		cmd->sc_data_direction = DMA_FROM_DEVICE;
+ 
+ 	if (blk_rq_is_scsi(req))
+-		return scsi_setup_scsi_cmnd(sdev, req);
++		ret = scsi_setup_scsi_cmnd(sdev, req);
+ 	else
+-		return scsi_setup_fs_cmnd(sdev, req);
++		ret = scsi_setup_fs_cmnd(sdev, req);
++
++	if (ret != BLK_STS_OK)
++		scsi_free_sgtables(cmd);
++
++	return ret;
+ }
+ 
+ static blk_status_t
 -- 
 2.25.1
 
