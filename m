@@ -2,249 +2,198 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01EEA205663
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 17:55:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CAB75205682
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 17:59:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733061AbgFWPzG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 11:55:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39590 "EHLO
+        id S1732978AbgFWP7R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 11:59:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1733027AbgFWPzF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Jun 2020 11:55:05 -0400
-Received: from mail-wm1-x341.google.com (mail-wm1-x341.google.com [IPv6:2a00:1450:4864:20::341])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3345CC061573
-        for <stable@vger.kernel.org>; Tue, 23 Jun 2020 08:55:04 -0700 (PDT)
-Received: by mail-wm1-x341.google.com with SMTP id 17so3800616wmo.1
-        for <stable@vger.kernel.org>; Tue, 23 Jun 2020 08:55:04 -0700 (PDT)
+        with ESMTP id S1731616AbgFWP7R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Jun 2020 11:59:17 -0400
+Received: from mail-qt1-x844.google.com (mail-qt1-x844.google.com [IPv6:2607:f8b0:4864:20::844])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1AECC061573
+        for <stable@vger.kernel.org>; Tue, 23 Jun 2020 08:59:16 -0700 (PDT)
+Received: by mail-qt1-x844.google.com with SMTP id h23so8649180qtr.0
+        for <stable@vger.kernel.org>; Tue, 23 Jun 2020 08:59:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=ZoyI/iMwge7M/KLt2w2TyNI2FunQuCwFzoYPdndf8Xc=;
-        b=S7K2FPNI/VoZ9IPZ5IvUKWZ1Llw1Ai5zmiyVMtp6cajQ55iWcouXy3c/hYFdA6Xt8K
-         sYs7ydPOXn2yDn4xiIr25KP14JN6gVGoZhcX81bOoifUqTr4p5zEt21pWcbH77FRnz+Z
-         c3X4Wt66MaouB4D76U9Ck9uAy6amrrgEfCBk0=
+        d=poorly.run; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=kJ120ZleeYGTsN7eiqCpwfA4QDn1pZXHzj86kixHG3s=;
+        b=WUfnEQy+z9Ih4toq/e7ASl1hJ/8deunM3zEaJ91UBXg78HTHkc/03VvwwuzbAX/Qim
+         YUeujnlD+mOqOKchNPXJzYK52Jual04OHGG6Ebnh0irRrHWBOhPZhNsA59Ne5w6wkYrN
+         dzJ/JPSRJf2AdwsH2Xob2M6N0KE0qpj3jk+R1QIwkHI8EnqMLPknn7HTxSPEwro9pgJT
+         O2PgttFyjw2fFybI4ujp73cFZLGyJAo0dGxGL1xrkPLGI5F5iOKWqn3CsgNhWE4oUK+E
+         4V2XWH+WQ0BJV8oplFLLd5HR7Y6y8892eyrssrjpA7TzyXpkIOi0FLPnis8orn6oB/Gl
+         7hCw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=ZoyI/iMwge7M/KLt2w2TyNI2FunQuCwFzoYPdndf8Xc=;
-        b=BSMQBcFhdttrVPhuNZlEZEA4chkzmMxTo0sVHG4e9/yoBoW0sJh1+x/rAil4+8Y75Y
-         8azGPNnqnpygvRclpcEfXFrUrJykNGK5T2h/OtoxEf+G69Lm2l/cQPqaSB72FZNZgORa
-         zdhC5p3n+RiS0ApAdVBMAcEKwOyirTir7ZT7+xN43sn91VmPM2QkXDQ7aKTXQvpAbqYk
-         t3698TJpMs0+5vwN3664D3/R8j5Buy3hD2bXvj1jhf2f7iGGda7PMzd+mWthiulp0h/t
-         uN8/IrRzj8RHOo81P7Oy6ODOTyGofr78XB/Yi9QWeTyUbPHe5wRQtNH3czSFC5qZLOy9
-         wGZA==
-X-Gm-Message-State: AOAM532ld8+diiaAbgb6Wdgjqzm6bEwQC8D1L9ZA/J99vdt8IroV4DjZ
-        U8Azukfaimz+P0lBIIVqMZ/Ecg==
-X-Google-Smtp-Source: ABdhPJzNsflmFOr5IE2trkknEUFP0A5zaic2z/q2MR962kkjK6Z38y3TNGOhS8Nns0JpViK1+fwX+g==
-X-Received: by 2002:a1c:a7ca:: with SMTP id q193mr25286732wme.69.1592927702909;
-        Tue, 23 Jun 2020 08:55:02 -0700 (PDT)
-Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
-        by smtp.gmail.com with ESMTPSA id f186sm4202652wmf.29.2020.06.23.08.55.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 23 Jun 2020 08:55:02 -0700 (PDT)
-From:   Daniel Vetter <daniel.vetter@ffwll.ch>
-To:     DRI Development <dri-devel@lists.freedesktop.org>
-Cc:     Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>, shlomo@fastmail.com,
-        =?UTF-8?q?Michel=20D=C3=A4nzer?= <michel@daenzer.net>,
-        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Daniel Vetter <daniel.vetter@intel.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>, stable@vger.kernel.org
-Subject: [PATCH] drm/fb-helper: Fix vt restore
-Date:   Tue, 23 Jun 2020 17:54:56 +0200
-Message-Id: <20200623155456.3092836-1-daniel.vetter@ffwll.ch>
-X-Mailer: git-send-email 2.27.0
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references;
+        bh=kJ120ZleeYGTsN7eiqCpwfA4QDn1pZXHzj86kixHG3s=;
+        b=uUY0U+Mr/ZiHCZf+Z5EUFyxOFiFMjB5ydXSeLa0jXlxfN4U0cctu+2XlnT8CqMZ6Of
+         HinazLZJY4kAMxk1f34BqEAK3fW+Bz21CFO+1I4G3Yop29/3hnnhyDCn6I7YozNHjjTK
+         25li6g6kgIL31aTewG4Yv1eEKJL1zFJuMlRa37Ag8toaRqXig8CYrPChmsooVKpdpfIV
+         765XRIMlV7sFy8qNlgEjNcTk+TGJu2iL88HI/LEbfz5qKZvEtQodlvr/mDphB2uVZ6Zw
+         83ZJ5Mxrmt9x2e2rJMhWw7LF7fZ2dqRqX5I9u+TPVNPdiyKaHDIy8S8DXrf/aA7N+9Ed
+         8TkA==
+X-Gm-Message-State: AOAM530y8nu9aD2niYhp+OjUfrWHSJcEO9un6m+ADatem0KCYqRelVTV
+        YKO3HJUna1sbAm/2V1kk8zb2nw==
+X-Google-Smtp-Source: ABdhPJxV4N7qihFKaXEaTJZyEc6mCcdXkxOIB2BpDlH89faOMH/E9ThSB98xx6bqYb35MlRUSAq8vg==
+X-Received: by 2002:ac8:4d4c:: with SMTP id x12mr22935035qtv.39.1592927955952;
+        Tue, 23 Jun 2020 08:59:15 -0700 (PDT)
+Received: from localhost ([166.137.96.174])
+        by smtp.gmail.com with ESMTPSA id a15sm876450qkl.20.2020.06.23.08.59.15
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 23 Jun 2020 08:59:15 -0700 (PDT)
+From:   Sean Paul <sean@poorly.run>
+To:     dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org
+Cc:     juston.li@intel.com, ramalingam.c@intel.com,
+        ville.syrjala@linux.intel.com, jani.nikula@linux.intel.com,
+        joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com,
+        daniel.vetter@ffwll.ch, Sean Paul <seanpaul@chromium.org>,
+        Chris Wilson <chris@chris-wilson.co.uk>, stable@vger.kernel.org
+Subject: [PATCH v7 01/17] drm/i915: Fix sha_text population code
+Date:   Tue, 23 Jun 2020 11:58:51 -0400
+Message-Id: <20200623155907.22961-2-sean@poorly.run>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200623155907.22961-1-sean@poorly.run>
+References: <20200623155907.22961-1-sean@poorly.run>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In the past we had a pile of hacks to orchestrate access between fbdev
-emulation and native kms clients. We've tried to streamline this, by
-always preferring the kms side above fbdev calls when a drm master
-exists, because drm master controls access to the display resources.
+From: Sean Paul <seanpaul@chromium.org>
 
-Unfortunately this breaks existing userspace, specifically Xorg. When
-exiting Xorg first restores the console to text mode using the KDSET
-ioctl on the vt. This does nothing, because a drm master is still
-around. Then it drops the drm master status, which again does nothing,
-because logind is keeping additional drm fd open to be able to
-orchestrate vt switches. In the past this is the point where fbdev was
-restored, as part of the ->lastclose hook on the drm side.
+This patch fixes a few bugs:
 
-Now to fix this regression we don't want to go back to letting fbdev
-restore things whenever it feels like, or to the pile of hacks we've
-had before. Instead try and go with a minimal exception to make the
-KDSET case work again, and nothing else.
+1- We weren't taking into account sha_leftovers when adding multiple
+   ksvs to sha_text. As such, we were or'ing the end of ksv[j - 1] with
+   the beginning of ksv[j]
 
-This means that if userspace does a KDSET call when switching between
-graphical compositors, there will be some flickering with fbcon
-showing up for a bit. But a) that's not a regression and b) userspace
-can fix it by improving the vt switching dance - logind should have
-all the information it needs.
+2- In the sha_leftovers == 2 and sha_leftovers == 3 case, bstatus was
+   being placed on the wrong half of sha_text, overlapping the leftover
+   ksv value
 
-While pondering all this I'm also wondering wheter we should have a
-SWITCH_MASTER ioctl to allow race-free master status handover. But
-that's for another day.
+3- In the sha_leftovers == 2 case, we need to manually terminate the
+   byte stream with 0x80 since the hardware doesn't have enough room to
+   add it after writing M0
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=208179
-Cc: shlomo@fastmail.com
-Reported-and-Tested-by: shlomo@fastmail.com
-Cc: Michel Dänzer <michel@daenzer.net>
-Fixes: 64914da24ea9 ("drm/fbdev-helper: don't force restores")
-Cc: Noralf Trønnes <noralf@tronnes.org>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc: Maxime Ripard <mripard@kernel.org>
-Cc: David Airlie <airlied@linux.ie>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: dri-devel@lists.freedesktop.org
-Cc: <stable@vger.kernel.org> # v5.7+
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+The upside is that all of the HDCP supported HDMI repeaters I could
+find on Amazon just strip HDCP anyways, so it turns out to be _really_
+hard to hit any of these cases without an MST hub, which is not (yet)
+supported. Oh, and the sha_leftovers == 1 case works perfectly!
+
+Fixes: ee5e5e7a5e0f (drm/i915: Add HDCP framework + base implementation)
+Cc: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Ramalingam C <ramalingam.c@intel.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Sean Paul <seanpaul@chromium.org>
+Cc: Jani Nikula <jani.nikula@linux.intel.com>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc: intel-gfx@lists.freedesktop.org
+Cc: <stable@vger.kernel.org> # v4.17+
+Reviewed-by: Ramalingam C <ramalingam.c@intel.com>
+Signed-off-by: Sean Paul <seanpaul@chromium.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191203173638.94919-2-sean@poorly.run #v1
+Link: https://patchwork.freedesktop.org/patch/msgid/20191212190230.188505-2-sean@poorly.run #v2
+Link: https://patchwork.freedesktop.org/patch/msgid/20200117193103.156821-2-sean@poorly.run #v3
+Link: https://patchwork.freedesktop.org/patch/msgid/20200218220242.107265-2-sean@poorly.run #v4
+Link: https://patchwork.freedesktop.org/patch/msgid/20200305201236.152307-2-sean@poorly.run #v5
+Link: https://patchwork.freedesktop.org/patch/msgid/20200429195502.39919-2-sean@poorly.run #v6
+
+Changes in v2:
+-None
+Changes in v3:
+-None
+Changes in v4:
+-Rebased on intel_de_write changes
+Changes in v5:
+-None
+Changes in v6:
+-None
+Changes in v7:
+-None
 ---
- drivers/gpu/drm/drm_fb_helper.c  | 63 +++++++++++++++++++++++++-------
- drivers/video/fbdev/core/fbcon.c |  3 +-
- include/uapi/linux/fb.h          |  1 +
- 3 files changed, 52 insertions(+), 15 deletions(-)
+ drivers/gpu/drm/i915/display/intel_hdcp.c | 26 +++++++++++++++++------
+ include/drm/drm_hdcp.h                    |  3 +++
+ 2 files changed, 23 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_fb_helper.c b/drivers/gpu/drm/drm_fb_helper.c
-index 170aa7689110..ae69bf8e9bcc 100644
---- a/drivers/gpu/drm/drm_fb_helper.c
-+++ b/drivers/gpu/drm/drm_fb_helper.c
-@@ -227,18 +227,9 @@ int drm_fb_helper_debug_leave(struct fb_info *info)
- }
- EXPORT_SYMBOL(drm_fb_helper_debug_leave);
+diff --git a/drivers/gpu/drm/i915/display/intel_hdcp.c b/drivers/gpu/drm/i915/display/intel_hdcp.c
+index 815b054bb167..f26fee3b4624 100644
+--- a/drivers/gpu/drm/i915/display/intel_hdcp.c
++++ b/drivers/gpu/drm/i915/display/intel_hdcp.c
+@@ -336,8 +336,10 @@ int intel_hdcp_validate_v_prime(struct intel_connector *connector,
  
--/**
-- * drm_fb_helper_restore_fbdev_mode_unlocked - restore fbdev configuration
-- * @fb_helper: driver-allocated fbdev helper, can be NULL
-- *
-- * This should be called from driver's drm &drm_driver.lastclose callback
-- * when implementing an fbcon on top of kms using this helper. This ensures that
-- * the user isn't greeted with a black screen when e.g. X dies.
-- *
-- * RETURNS:
-- * Zero if everything went ok, negative error code otherwise.
-- */
--int drm_fb_helper_restore_fbdev_mode_unlocked(struct drm_fb_helper *fb_helper)
-+static int
-+__drm_fb_helper_restore_fbdev_mode_unlocked(struct drm_fb_helper *fb_helper,
-+					    bool force)
- {
- 	bool do_delayed;
- 	int ret;
-@@ -250,7 +241,16 @@ int drm_fb_helper_restore_fbdev_mode_unlocked(struct drm_fb_helper *fb_helper)
- 		return 0;
+ 		/* Fill up the empty slots in sha_text and write it out */
+ 		sha_empty = sizeof(sha_text) - sha_leftovers;
+-		for (j = 0; j < sha_empty; j++)
+-			sha_text |= ksv[j] << ((sizeof(sha_text) - j - 1) * 8);
++		for (j = 0; j < sha_empty; j++) {
++			u8 off = ((sizeof(sha_text) - j - 1 - sha_leftovers) * 8);
++			sha_text |= ksv[j] << off;
++		}
  
- 	mutex_lock(&fb_helper->lock);
--	ret = drm_client_modeset_commit(&fb_helper->client);
-+	if (force) {
+ 		ret = intel_write_sha_text(dev_priv, sha_text);
+ 		if (ret < 0)
+@@ -435,7 +437,7 @@ int intel_hdcp_validate_v_prime(struct intel_connector *connector,
+ 		/* Write 32 bits of text */
+ 		intel_de_write(dev_priv, HDCP_REP_CTL,
+ 			       rep_ctl | HDCP_SHA1_TEXT_32);
+-		sha_text |= bstatus[0] << 24 | bstatus[1] << 16;
++		sha_text |= bstatus[0] << 8 | bstatus[1];
+ 		ret = intel_write_sha_text(dev_priv, sha_text);
+ 		if (ret < 0)
+ 			return ret;
+@@ -450,17 +452,29 @@ int intel_hdcp_validate_v_prime(struct intel_connector *connector,
+ 				return ret;
+ 			sha_idx += sizeof(sha_text);
+ 		}
++
 +		/*
-+		 * Yes this is the _locked version which expects the master lock
-+		 * to be held. But for forced restores we're intentionally
-+		 * racing here, see drm_fb_helper_set_par().
++		 * Terminate the SHA-1 stream by hand. For the other leftover
++		 * cases this is appended by the hardware.
 +		 */
-+		ret = drm_client_modeset_commit_locked(&fb_helper->client);
-+	} else {
-+		ret = drm_client_modeset_commit(&fb_helper->client);
-+	}
++		intel_de_write(dev_priv, HDCP_REP_CTL,
++			       rep_ctl | HDCP_SHA1_TEXT_32);
++		sha_text = DRM_HDCP_SHA1_TERMINATOR << 24;
++		ret = intel_write_sha_text(dev_priv, sha_text);
++		if (ret < 0)
++			return ret;
++		sha_idx += sizeof(sha_text);
+ 	} else if (sha_leftovers == 3) {
+-		/* Write 32 bits of text */
++		/* Write 32 bits of text (filled from LSB) */
+ 		intel_de_write(dev_priv, HDCP_REP_CTL,
+ 			       rep_ctl | HDCP_SHA1_TEXT_32);
+-		sha_text |= bstatus[0] << 24;
++		sha_text |= bstatus[0];
+ 		ret = intel_write_sha_text(dev_priv, sha_text);
+ 		if (ret < 0)
+ 			return ret;
+ 		sha_idx += sizeof(sha_text);
  
- 	do_delayed = fb_helper->delayed_hotplug;
- 	if (do_delayed)
-@@ -262,6 +262,22 @@ int drm_fb_helper_restore_fbdev_mode_unlocked(struct drm_fb_helper *fb_helper)
+-		/* Write 8 bits of text, 24 bits of M0 */
++		/* Write 8 bits of text (filled from LSB), 24 bits of M0 */
+ 		intel_de_write(dev_priv, HDCP_REP_CTL,
+ 			       rep_ctl | HDCP_SHA1_TEXT_8);
+ 		ret = intel_write_sha_text(dev_priv, bstatus[1]);
+diff --git a/include/drm/drm_hdcp.h b/include/drm/drm_hdcp.h
+index c6bab4986a65..fe58dbb46962 100644
+--- a/include/drm/drm_hdcp.h
++++ b/include/drm/drm_hdcp.h
+@@ -29,6 +29,9 @@
+ /* Slave address for the HDCP registers in the receiver */
+ #define DRM_HDCP_DDC_ADDR			0x3A
  
- 	return ret;
- }
++/* Value to use at the end of the SHA-1 bytestream used for repeaters */
++#define DRM_HDCP_SHA1_TERMINATOR		0x80
 +
-+/**
-+ * drm_fb_helper_restore_fbdev_mode_unlocked - restore fbdev configuration
-+ * @fb_helper: driver-allocated fbdev helper, can be NULL
-+ *
-+ * This should be called from driver's drm &drm_driver.lastclose callback
-+ * when implementing an fbcon on top of kms using this helper. This ensures that
-+ * the user isn't greeted with a black screen when e.g. X dies.
-+ *
-+ * RETURNS:
-+ * Zero if everything went ok, negative error code otherwise.
-+ */
-+int drm_fb_helper_restore_fbdev_mode_unlocked(struct drm_fb_helper *fb_helper)
-+{
-+	return __drm_fb_helper_restore_fbdev_mode_unlocked(fb_helper, false);
-+}
- EXPORT_SYMBOL(drm_fb_helper_restore_fbdev_mode_unlocked);
- 
- #ifdef CONFIG_MAGIC_SYSRQ
-@@ -1318,6 +1334,7 @@ int drm_fb_helper_set_par(struct fb_info *info)
- {
- 	struct drm_fb_helper *fb_helper = info->par;
- 	struct fb_var_screeninfo *var = &info->var;
-+	bool force;
- 
- 	if (oops_in_progress)
- 		return -EBUSY;
-@@ -1327,7 +1344,25 @@ int drm_fb_helper_set_par(struct fb_info *info)
- 		return -EINVAL;
- 	}
- 
--	drm_fb_helper_restore_fbdev_mode_unlocked(fb_helper);
-+	/*
-+	 * Normally we want to make sure that a kms master takes
-+	 * precedence over fbdev, to avoid fbdev flickering and
-+	 * occasionally stealing the display status. But Xorg first sets
-+	 * the vt back to text mode using the KDSET IOCTL with KD_TEXT,
-+	 * and only after that drops the master status when exiting.
-+	 *
-+	 * In the past this was caught by drm_fb_helper_lastclose(), but
-+	 * on modern systems where logind always keeps a drm fd open to
-+	 * orchestrate the vt switching, this doesn't work.
-+	 *
-+	 * To no break the userspace ABI we have this special case here,
-+	 * which is only used for the above case. Everything else uses
-+	 * the normal commit function, which ensures that we never steal
-+	 * the display from an active drm master.
-+	 */
-+	force = var->activate & FB_ACTIVATE_KD_TEXT;
-+
-+	__drm_fb_helper_restore_fbdev_mode_unlocked(fb_helper, force);
- 
- 	return 0;
- }
-diff --git a/drivers/video/fbdev/core/fbcon.c b/drivers/video/fbdev/core/fbcon.c
-index 9d28a8e3328f..e2a490c5ae08 100644
---- a/drivers/video/fbdev/core/fbcon.c
-+++ b/drivers/video/fbdev/core/fbcon.c
-@@ -2402,7 +2402,8 @@ static int fbcon_blank(struct vc_data *vc, int blank, int mode_switch)
- 		ops->graphics = 1;
- 
- 		if (!blank) {
--			var.activate = FB_ACTIVATE_NOW | FB_ACTIVATE_FORCE;
-+			var.activate = FB_ACTIVATE_NOW | FB_ACTIVATE_FORCE |
-+				FB_ACTIVATE_KD_TEXT;
- 			fb_set_var(info, &var);
- 			ops->graphics = 0;
- 			ops->var = info->var;
-diff --git a/include/uapi/linux/fb.h b/include/uapi/linux/fb.h
-index b6aac7ee1f67..4c14e8be7267 100644
---- a/include/uapi/linux/fb.h
-+++ b/include/uapi/linux/fb.h
-@@ -205,6 +205,7 @@ struct fb_bitfield {
- #define FB_ACTIVATE_ALL	       64	/* change all VCs on this fb	*/
- #define FB_ACTIVATE_FORCE     128	/* force apply even when no change*/
- #define FB_ACTIVATE_INV_MODE  256       /* invalidate videomode */
-+#define FB_ACTIVATE_KD_TEXT   512       /* for KDSET vt ioctl */
- 
- #define FB_ACCELF_TEXT		1	/* (OBSOLETE) see fb_info.flags and vc_mode */
- 
+ /* HDCP register offsets for HDMI/DVI devices */
+ #define DRM_HDCP_DDC_BKSV			0x00
+ #define DRM_HDCP_DDC_RI_PRIME			0x08
 -- 
-2.27.0
+Sean Paul, Software Engineer, Google / Chromium OS
 
