@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 637B8206615
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:52:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A893206611
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:52:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389024AbgFWVhT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 17:37:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50086 "EHLO mail.kernel.org"
+        id S2393665AbgFWVhG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 17:37:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388313AbgFWUJG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:09:06 -0400
+        id S2388375AbgFWUJQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:09:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26BF12078A;
-        Tue, 23 Jun 2020 20:09:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A8042078A;
+        Tue, 23 Jun 2020 20:09:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592942945;
-        bh=Mw51d3OEt5kkBfny47cYy/2XE7Pta6yDkMVysN4k4qk=;
+        s=default; t=1592942955;
+        bh=oBazYu09aB3tqGIxo5bEWHnnBU3hUjJG3fpmeQrJgQ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LD7HW+SaTgkH9I6s3hHbzA9mZihUA63fUKGK8GJ6itmIUbBCmkvDI8nc/PPVPry9H
-         kY6LI9IX9NE273QQ99bpTWsSQbR4Q1M+HRE6x8hbl+KsmD+emxtqF7oVY6thxAtRjc
-         6xA+UH00+Wnza6Smz2FjvWIHLDHy9gYST9q5Gs4I=
+        b=kBypUGIP8NvxB9b5T59t7N/eEdLw1/VvtLbdNKYU2gEslqgX+EP5GN7XJFNcupMM8
+         MGqYqMDKHoDbBmnYfLnAaLtQnnQorq1KgjC/3Gmcd6Bgkddui+U3Mg7W72SeO4qsZ1
+         NEkXSB2+xs8OS0eJ5toL33BqqvErpBvJTxqB5CKk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 170/477] PCI: v3-semi: Fix a memory leak in v3_pci_probe() error handling paths
-Date:   Tue, 23 Jun 2020 21:52:47 +0200
-Message-Id: <20200623195415.621550190@linuxfoundation.org>
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 171/477] i2c: pxa: fix i2c_pxa_scream_blue_murder() debug output
+Date:   Tue, 23 Jun 2020 21:52:48 +0200
+Message-Id: <20200623195415.669195436@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -46,39 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit bca718988b9008d0d5f504e2d318178fc84958c1 ]
+[ Upstream commit 88b73ee7ca4c90baf136ed5a8377fc5a9b73ac08 ]
 
-If we fails somewhere in 'v3_pci_probe()', we need to free 'host'.
+The IRQ log output is supposed to appear on a single line.  However,
+commit 3a2dc1677b60 ("i2c: pxa: Update debug function to dump more info
+on error") resulted in it being printed one-entry-per-line, which is
+excessively long.
 
-Use the managed version of 'pci_alloc_host_bridge()' to do that easily.
-The use of managed resources is already widely used in this driver.
+Fixing this is not a trivial matter; using pr_cont() doesn't work as
+the previous dev_dbg() may not have been compiled in, or may be
+dynamic.
 
-Link: https://lore.kernel.org/r/20200418081637.1585-1-christophe.jaillet@wanadoo.fr
-Fixes: 68a15eb7bd0c ("PCI: v3-semi: Add V3 Semiconductor PCI host driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-[lorenzo.pieralisi@arm.com: commit log]
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Since the rest of this function output is at error level, and is also
+debug output, promote this to error level as well to avoid this
+problem.
+
+Reduce the number of always zero prefix digits to save screen real-
+estate.
+
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-v3-semi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-pxa.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/pci/controller/pci-v3-semi.c b/drivers/pci/controller/pci-v3-semi.c
-index bd05221f5a22f..ddcb4571a79b3 100644
---- a/drivers/pci/controller/pci-v3-semi.c
-+++ b/drivers/pci/controller/pci-v3-semi.c
-@@ -720,7 +720,7 @@ static int v3_pci_probe(struct platform_device *pdev)
- 	int irq;
- 	int ret;
+diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+index 30a6e07212a42..f537a37ac1d52 100644
+--- a/drivers/i2c/busses/i2c-pxa.c
++++ b/drivers/i2c/busses/i2c-pxa.c
+@@ -311,11 +311,10 @@ static void i2c_pxa_scream_blue_murder(struct pxa_i2c *i2c, const char *why)
+ 	dev_err(dev, "IBMR: %08x IDBR: %08x ICR: %08x ISR: %08x\n",
+ 		readl(_IBMR(i2c)), readl(_IDBR(i2c)), readl(_ICR(i2c)),
+ 		readl(_ISR(i2c)));
+-	dev_dbg(dev, "log: ");
++	dev_err(dev, "log:");
+ 	for (i = 0; i < i2c->irqlogidx; i++)
+-		pr_debug("[%08x:%08x] ", i2c->isrlog[i], i2c->icrlog[i]);
+-
+-	pr_debug("\n");
++		pr_cont(" [%03x:%05x]", i2c->isrlog[i], i2c->icrlog[i]);
++	pr_cont("\n");
+ }
  
--	host = pci_alloc_host_bridge(sizeof(*v3));
-+	host = devm_pci_alloc_host_bridge(dev, sizeof(*v3));
- 	if (!host)
- 		return -ENOMEM;
- 
+ #else /* ifdef DEBUG */
 -- 
 2.25.1
 
