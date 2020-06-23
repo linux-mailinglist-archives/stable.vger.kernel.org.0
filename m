@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22E112060DE
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:49:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4A3420607F
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:48:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404061AbgFWUrf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:47:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46068 "EHLO mail.kernel.org"
+        id S2392529AbgFWUn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:43:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404057AbgFWUre (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:47:34 -0400
+        id S2392521AbgFWUn0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:43:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A036820781;
-        Tue, 23 Jun 2020 20:47:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB4312070E;
+        Tue, 23 Jun 2020 20:43:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592945255;
-        bh=8fU3l5yIMm0+QfOPOLk1KC+nutzhw3BIfXEgK1zhcjA=;
+        s=default; t=1592945006;
+        bh=CJ083IVgLP9GqjBfSwURkEeG+mnOiHoUbB+DadhHC68=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cEXeKNNpxU4LUZTbnxj1fBrV7sq/+yN4IEnywdX5XhP5xPJ5/Kbsylh+eoffUoKW5
-         8TVCEETaHDNwuxFym1qjcYAGP5QLww6lnaTWCTT+4R6mkmXXM0YedEucnihmhtiHQ2
-         aDbOjh9xo4pJQURdzgtfb43YM1xvpto/pjP8Htj0=
+        b=fpFtYUd9T4XXEG5CuxQDI7TEL9eDbUJzR4GfLLT/tDpSUjPMkqeI77fnunmh7/uc2
+         jl4kUdWt8R2ypQvnWP01J81JrSOGoYn412oUCdeC3k0e/Kk60TVevtwJODNVoAWZtK
+         OOEAWE2CGCXMH7vzuTzk+qfJh9BWRfNBEUdIPhHE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maor Gottlieb <maorg@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 069/136] IB/cma: Fix ports memory leak in cma_configfs
+        stable@vger.kernel.org, Kunal Joshi <kunal1.joshi@intel.com>,
+        Imre Deak <imre.deak@intel.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Subject: [PATCH 4.19 197/206] drm/i915/icl+: Fix hotplug interrupt disabling after storm detection
 Date:   Tue, 23 Jun 2020 21:58:45 +0200
-Message-Id: <20200623195307.152650592@linuxfoundation.org>
+Message-Id: <20200623195326.725268150@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195303.601828702@linuxfoundation.org>
-References: <20200623195303.601828702@linuxfoundation.org>
+In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
+References: <20200623195316.864547658@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,54 +46,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maor Gottlieb <maorg@mellanox.com>
+From: Imre Deak <imre.deak@intel.com>
 
-[ Upstream commit 63a3345c2d42a9b29e1ce2d3a4043689b3995cea ]
+commit a3005c2edf7e8c3478880db1ca84028a2b6819bb upstream.
 
-The allocated ports structure in never freed. The free function should be
-called by release_cma_ports_group, but the group is never released since
-we don't remove its default group.
+Atm, hotplug interrupts on TypeC ports are left enabled after detecting
+an interrupt storm, fix this.
 
-Remove default groups when device group is deleted.
+Reported-by: Kunal Joshi <kunal1.joshi@intel.com>
+Bugzilla: https://gitlab.freedesktop.org/drm/intel/-/issues/1964
+Cc: Kunal Joshi <kunal1.joshi@intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Imre Deak <imre.deak@intel.com>
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200612121731.19596-1-imre.deak@intel.com
+(cherry picked from commit 587a87b9d7e94927edcdea018565bc1939381eb1)
+Signed-off-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: 045959db65c6 ("IB/cma: Add configfs for rdma_cm")
-Link: https://lore.kernel.org/r/20200521072650.567908-1-leon@kernel.org
-Signed-off-by: Maor Gottlieb <maorg@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/cma_configfs.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/gpu/drm/i915/i915_irq.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/infiniband/core/cma_configfs.c b/drivers/infiniband/core/cma_configfs.c
-index 54076a3e80076..ac47e8a1dfbf4 100644
---- a/drivers/infiniband/core/cma_configfs.c
-+++ b/drivers/infiniband/core/cma_configfs.c
-@@ -319,8 +319,21 @@ fail:
- 	return ERR_PTR(err);
- }
+--- a/drivers/gpu/drm/i915/i915_irq.c
++++ b/drivers/gpu/drm/i915/i915_irq.c
+@@ -3821,6 +3821,7 @@ static void gen11_hpd_irq_setup(struct d
  
-+static void drop_cma_dev(struct config_group *cgroup, struct config_item *item)
-+{
-+	struct config_group *group =
-+		container_of(item, struct config_group, cg_item);
-+	struct cma_dev_group *cma_dev_group =
-+		container_of(group, struct cma_dev_group, device_group);
-+
-+	configfs_remove_default_groups(&cma_dev_group->ports_group);
-+	configfs_remove_default_groups(&cma_dev_group->device_group);
-+	config_item_put(item);
-+}
-+
- static struct configfs_group_operations cma_subsys_group_ops = {
- 	.make_group	= make_cma_dev,
-+	.drop_item	= drop_cma_dev,
- };
+ 	val = I915_READ(GEN11_DE_HPD_IMR);
+ 	val &= ~hotplug_irqs;
++	val |= ~enabled_irqs & hotplug_irqs;
+ 	I915_WRITE(GEN11_DE_HPD_IMR, val);
+ 	POSTING_READ(GEN11_DE_HPD_IMR);
  
- static struct config_item_type cma_subsys_type = {
--- 
-2.25.1
-
 
 
