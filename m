@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECB2A206204
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:08:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 781992062E0
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:10:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388054AbgFWUxs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:53:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44138 "EHLO mail.kernel.org"
+        id S2391885AbgFWVIy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 17:08:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392826AbgFWUqS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:46:18 -0400
+        id S2391508AbgFWUea (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:34:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 82502214DB;
-        Tue, 23 Jun 2020 20:46:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA0B62064B;
+        Tue, 23 Jun 2020 20:34:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592945178;
-        bh=0lbsi93fqU9sOYim/RDKRcWtLNFlzaEICVDW7C5dSDg=;
+        s=default; t=1592944470;
+        bh=lVgjihfpqJXf5zAVwEVqRRYd2aypVWrRBu+KUG+YTIQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I4tDdRxK8r0kbXeCYha+5f9L5oDs6wstYl54F1VoZghI9/mu8GJg7G0Of9MZpQEpX
-         j9n7uSNFpdlr8QElQnqbme2VTTWooMfUQhMqm5qNjgT5aW7d7zY6pNtkBq3bDkhi9e
-         yupPiGkCR2ETGJDS9m+qa7sNz4z1nOaL4cM55EvE=
+        b=N50N9j7eKcvsVCre7zMownFnTFGRE0j4xY1AUmzqvknC5KI6pyGalrpRzCLezZ0e8
+         ZzZto6jxeflmsilrUcHS5+sfI5l/553yn2zeOIEBABQNKvqKL+VmkQ3uWe4hfk1h3J
+         xsG5iov4JnGvf3Y958nOwhMsSY0UttTWDuGx6qHk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        Manish Rangankar <mrangankar@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 038/136] scsi: qedi: Do not flush offload work if ARP not resolved
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Matthew Auld <matthew.auld@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        Maciej Patelczyk <maciej.patelczyk@intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Subject: [PATCH 5.4 299/314] drm/i915/gem: Avoid iterating an empty list
 Date:   Tue, 23 Jun 2020 21:58:14 +0200
-Message-Id: <20200623195305.561538897@linuxfoundation.org>
+Message-Id: <20200623195353.256372059@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195303.601828702@linuxfoundation.org>
-References: <20200623195303.601828702@linuxfoundation.org>
+In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
+References: <20200623195338.770401005@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,97 +46,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nilesh Javali <njavali@marvell.com>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-[ Upstream commit 927527aea0e2a9c1d336c7d33f77f1911481d008 ]
+commit 757a9395f33c51c4e6eff2c7c0fbd50226a58224 upstream.
 
-For an unreachable target, offload_work is not initialized and the endpoint
-state is set to OFLDCONN_NONE. This results in a WARN_ON due to the check
-of the work function field being set to zero.
+Our __sgt_iter assumes that the scattergather list has at least one
+element. But during construction we may fail in allocating the first
+page, and so mark the first element as the terminator. This is
+unexpected!
 
-------------[ cut here ]------------
-WARNING: CPU: 24 PID: 18587 at ../kernel/workqueue.c:3037 __flush_work+0x1c1/0x1d0
-:
-Hardware name: HPE ProLiant DL380 Gen10/ProLiant DL380 Gen10, BIOS U30 02/01/2020
-RIP: 0010:__flush_work+0x1c1/0x1d0
-Code: ba 6d 00 03 80 c9 f0 eb b6 48 c7 c7 20 ee 6c a4 e8 52 d3 04 00 0f 0b 31 c0 e9 d1 fe ff
-ff 48 c7 c7 20 ee 6c a4 e8 3d d3 04 00 <0f> 0b 31 c0 e9 bc fe ff ff e8 11 f3 f
- 00 31 f6
-RSP: 0018:ffffac5a8cd47a80 EFLAGS: 00010282
-RAX: 0000000000000024 RBX: ffff98d68c1fcaf0 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: ffff98ce9fd99898 RDI: ffff98ce9fd99898
-RBP: ffff98d68c1fcbc0 R08: 00000000000006fa R09: 0000000000000001
-R10: ffffac5a8cd47b50 R11: 0000000000000001 R12: 0000000000000000
-R13: 000000000000489b R14: ffff98d68c1fc800 R15: ffff98d692132c00
-FS:  00007f65f7f62280(0000) GS:ffff98ce9fd80000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007ffd2435e880 CR3: 0000000809334003 CR4: 00000000007606e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-PKRU: 55555554
-Call Trace:
- ? class_create_release+0x40/0x40
- ? klist_put+0x2c/0x80
- qedi_ep_disconnect+0xdd/0x400 [qedi]
- iscsi_if_ep_disconnect.isra.20+0x59/0x70 [scsi_transport_iscsi]
- iscsi_if_rx+0x129b/0x1670 [scsi_transport_iscsi]
- ? __netlink_lookup+0xe7/0x160
- netlink_unicast+0x21d/0x300
- netlink_sendmsg+0x30f/0x430
- sock_sendmsg+0x5b/0x60
- ____sys_sendmsg+0x1e2/0x240
- ? copy_msghdr_from_user+0xd9/0x160
- ___sys_sendmsg+0x88/0xd0
- ? ___sys_recvmsg+0xa2/0xe0
- ? hrtimer_try_to_cancel+0x25/0x100
- ? do_nanosleep+0x9c/0x170
- ? __sys_sendmsg+0x5e/0xa0
- __sys_sendmsg+0x5e/0xa0
- do_syscall_64+0x60/0x1f0
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x7f65f6f16107
-Code: 64 89 02 48 c7 c0 ff ff ff ff eb b9 0f 1f 80 00 00 00 00 8b 05 aa d2 2b 00 48 63 d2 48
-63 ff 85 c0 75 18 b8 2e 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 59 f3 c3 0f 1f 8
-    0 00 00 00 00 53 48 89 f3 48
- RSP: 002b:00007ffd24367ca8 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
- RAX: ffffffffffffffda RBX: 000055a7aeaaf110 RCX: 00007f65f6f16107
- RDX: 0000000000000000 RSI: 00007ffd24367cc0 RDI: 0000000000000003
- RBP: 0000000000000070 R08: 0000000000000000 R09: 0000000000000000
- R10: 000000000000075c R11: 0000000000000246 R12: 00007ffd24367cc0
- R13: 000055a7ae560008 R14: 00007ffd24367db0 R15: 0000000000000000
- ---[ end trace 54f499c05d41f8bb ]---
+[22555.524752] RIP: 0010:shmem_get_pages+0x506/0x710 [i915]
+[22555.524759] Code: 49 8b 2c 24 31 c0 66 89 44 24 40 48 85 ed 0f 84 62 01 00 00 4c 8b 75 00 8b 5d 08 44 8b 7d 0c 48 8b 0d 7e 34 07 e2 49 83 e6 fc <49> 8b 16 41 01 df 48 89 cf 48 89 d0 48 c1 e8 2d 48 85 c9 0f 84 c8
+[22555.524765] RSP: 0018:ffffc9000053f9d0 EFLAGS: 00010246
+[22555.524770] RAX: 0000000000000000 RBX: 0000000000000000 RCX: ffff8881ffffa000
+[22555.524774] RDX: fffffffffffffff4 RSI: ffffffffffffffff RDI: ffffffff821efe00
+[22555.524778] RBP: ffff8881b099ab00 R08: 0000000000000000 R09: 00000000fffffff4
+[22555.524782] R10: 0000000000000002 R11: 00000000ffec0a02 R12: ffff8881cd3c8d60
+[22555.524786] R13: 00000000fffffff4 R14: 0000000000000000 R15: 0000000000000000
+[22555.524790] FS:  00007f4fbeb9b9c0(0000) GS:ffff8881f8580000(0000) knlGS:0000000000000000
+[22555.524795] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[22555.524799] CR2: 0000000000000000 CR3: 00000001ec7f0004 CR4: 00000000001606e0
+[22555.524803] Call Trace:
+[22555.524919]  __i915_gem_object_get_pages+0x4f/0x60 [i915]
 
-Only flush if the connection endpoint state if different from
-OFLDCONN_NONE.
+Fixes: 85d1225ec066 ("drm/i915: Introduce & use new lightweight SGL iterators")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Matthew Auld <matthew.auld@intel.com>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Cc: <stable@vger.kernel.org> # v4.8+
+Reviewed-by: Matthew Auld <matthew.auld@intel.com>
+Reviewed-by: Maciej Patelczyk <maciej.patelczyk@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200522132706.5133-1-chris@chris-wilson.co.uk
+(cherry picked from commit 957ad9a02be6faa87594c58ac09460cd3d190d0e)
+Signed-off-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[mkp: clarified commit desc]
-
-Link: https://lore.kernel.org/r/20200408064332.19377-5-mrangankar@marvell.com
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Manish Rangankar <mrangankar@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qedi/qedi_iscsi.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/i915/gem/i915_gem_shmem.c |   15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/scsi/qedi/qedi_iscsi.c b/drivers/scsi/qedi/qedi_iscsi.c
-index 1effac1111d5e..fb6439bc1d9a9 100644
---- a/drivers/scsi/qedi/qedi_iscsi.c
-+++ b/drivers/scsi/qedi/qedi_iscsi.c
-@@ -1007,7 +1007,8 @@ static void qedi_ep_disconnect(struct iscsi_endpoint *ep)
- 	if (qedi_ep->state == EP_STATE_OFLDCONN_START)
- 		goto ep_exit_recover;
+--- a/drivers/gpu/drm/i915/gem/i915_gem_shmem.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_shmem.c
+@@ -36,7 +36,6 @@ static int shmem_get_pages(struct drm_i9
+ 	unsigned long last_pfn = 0;	/* suppress gcc warning */
+ 	unsigned int max_segment = i915_sg_segment_size();
+ 	unsigned int sg_page_sizes;
+-	struct pagevec pvec;
+ 	gfp_t noreclaim;
+ 	int ret;
  
--	flush_work(&qedi_ep->offload_work);
-+	if (qedi_ep->state != EP_STATE_OFLDCONN_NONE)
-+		flush_work(&qedi_ep->offload_work);
+@@ -188,13 +187,17 @@ err_sg:
+ 	sg_mark_end(sg);
+ err_pages:
+ 	mapping_clear_unevictable(mapping);
+-	pagevec_init(&pvec);
+-	for_each_sgt_page(page, sgt_iter, st) {
+-		if (!pagevec_add(&pvec, page))
++	if (sg != st->sgl) {
++		struct pagevec pvec;
++
++		pagevec_init(&pvec);
++		for_each_sgt_page(page, sgt_iter, st) {
++			if (!pagevec_add(&pvec, page))
++				check_release_pagevec(&pvec);
++		}
++		if (pagevec_count(&pvec))
+ 			check_release_pagevec(&pvec);
+ 	}
+-	if (pagevec_count(&pvec))
+-		check_release_pagevec(&pvec);
+ 	sg_free_table(st);
+ 	kfree(st);
  
- 	if (qedi_ep->conn) {
- 		qedi_conn = qedi_ep->conn;
--- 
-2.25.1
-
 
 
