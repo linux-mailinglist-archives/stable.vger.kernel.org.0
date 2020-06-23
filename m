@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62DEA2062E2
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:10:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECB2A206204
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:08:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391508AbgFWVJB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 17:09:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56378 "EHLO mail.kernel.org"
+        id S2388054AbgFWUxs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:53:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391533AbgFWUeZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:34:25 -0400
+        id S2392826AbgFWUqS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:46:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A4930206C3;
-        Tue, 23 Jun 2020 20:34:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 82502214DB;
+        Tue, 23 Jun 2020 20:46:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944465;
-        bh=y6ffQj4qH7Omef1MmsNgOQ0VBr1XnTxBNwn3tmYwFh8=;
+        s=default; t=1592945178;
+        bh=0lbsi93fqU9sOYim/RDKRcWtLNFlzaEICVDW7C5dSDg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jJzK+EoRfBTiRO7VSSjqOq6/NuD9hIdCuW/N7rQlGWJHuE7cW4rA1LMTGloyxgCIX
-         vNcbuthMEisublOtpNnteTp4H+r5yOzqMCud7JdckpQ7Ud2lAWK3APPTP6aavsGwf4
-         e6gXm5CUZYc+SHDgZNgAxvWyd+3GgQYE+p4P8iPs=
+        b=I4tDdRxK8r0kbXeCYha+5f9L5oDs6wstYl54F1VoZghI9/mu8GJg7G0Of9MZpQEpX
+         j9n7uSNFpdlr8QElQnqbme2VTTWooMfUQhMqm5qNjgT5aW7d7zY6pNtkBq3bDkhi9e
+         yupPiGkCR2ETGJDS9m+qa7sNz4z1nOaL4cM55EvE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Imre Deak <imre.deak@intel.com>,
-        =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Subject: [PATCH 5.4 297/314] drm/i915: Fix AUX power domain toggling across TypeC mode resets
-Date:   Tue, 23 Jun 2020 21:58:12 +0200
-Message-Id: <20200623195353.162475199@linuxfoundation.org>
+        stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        Manish Rangankar <mrangankar@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 038/136] scsi: qedi: Do not flush offload work if ARP not resolved
+Date:   Tue, 23 Jun 2020 21:58:14 +0200
+Message-Id: <20200623195305.561538897@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
-References: <20200623195338.770401005@linuxfoundation.org>
+In-Reply-To: <20200623195303.601828702@linuxfoundation.org>
+References: <20200623195303.601828702@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +46,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Imre Deak <imre.deak@intel.com>
+From: Nilesh Javali <njavali@marvell.com>
 
-commit d96536f0fe699729a0974eb5b65eb0d87cc747e1 upstream.
+[ Upstream commit 927527aea0e2a9c1d336c7d33f77f1911481d008 ]
 
-Make sure to select the port's AUX power domain while holding the TC
-port lock. The domain depends on the port's current TC mode, which may
-get changed under us if we're not holding the lock.
+For an unreachable target, offload_work is not initialized and the endpoint
+state is set to OFLDCONN_NONE. This results in a WARN_ON due to the check
+of the work function field being set to zero.
 
-This was left out from
-commit 8c10e2262663 ("drm/i915: Keep the TypeC port mode fixed for detect/AUX transfers")
+------------[ cut here ]------------
+WARNING: CPU: 24 PID: 18587 at ../kernel/workqueue.c:3037 __flush_work+0x1c1/0x1d0
+:
+Hardware name: HPE ProLiant DL380 Gen10/ProLiant DL380 Gen10, BIOS U30 02/01/2020
+RIP: 0010:__flush_work+0x1c1/0x1d0
+Code: ba 6d 00 03 80 c9 f0 eb b6 48 c7 c7 20 ee 6c a4 e8 52 d3 04 00 0f 0b 31 c0 e9 d1 fe ff
+ff 48 c7 c7 20 ee 6c a4 e8 3d d3 04 00 <0f> 0b 31 c0 e9 bc fe ff ff e8 11 f3 f
+ 00 31 f6
+RSP: 0018:ffffac5a8cd47a80 EFLAGS: 00010282
+RAX: 0000000000000024 RBX: ffff98d68c1fcaf0 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: ffff98ce9fd99898 RDI: ffff98ce9fd99898
+RBP: ffff98d68c1fcbc0 R08: 00000000000006fa R09: 0000000000000001
+R10: ffffac5a8cd47b50 R11: 0000000000000001 R12: 0000000000000000
+R13: 000000000000489b R14: ffff98d68c1fc800 R15: ffff98d692132c00
+FS:  00007f65f7f62280(0000) GS:ffff98ce9fd80000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007ffd2435e880 CR3: 0000000809334003 CR4: 00000000007606e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+PKRU: 55555554
+Call Trace:
+ ? class_create_release+0x40/0x40
+ ? klist_put+0x2c/0x80
+ qedi_ep_disconnect+0xdd/0x400 [qedi]
+ iscsi_if_ep_disconnect.isra.20+0x59/0x70 [scsi_transport_iscsi]
+ iscsi_if_rx+0x129b/0x1670 [scsi_transport_iscsi]
+ ? __netlink_lookup+0xe7/0x160
+ netlink_unicast+0x21d/0x300
+ netlink_sendmsg+0x30f/0x430
+ sock_sendmsg+0x5b/0x60
+ ____sys_sendmsg+0x1e2/0x240
+ ? copy_msghdr_from_user+0xd9/0x160
+ ___sys_sendmsg+0x88/0xd0
+ ? ___sys_recvmsg+0xa2/0xe0
+ ? hrtimer_try_to_cancel+0x25/0x100
+ ? do_nanosleep+0x9c/0x170
+ ? __sys_sendmsg+0x5e/0xa0
+ __sys_sendmsg+0x5e/0xa0
+ do_syscall_64+0x60/0x1f0
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x7f65f6f16107
+Code: 64 89 02 48 c7 c0 ff ff ff ff eb b9 0f 1f 80 00 00 00 00 8b 05 aa d2 2b 00 48 63 d2 48
+63 ff 85 c0 75 18 b8 2e 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 59 f3 c3 0f 1f 8
+    0 00 00 00 00 53 48 89 f3 48
+ RSP: 002b:00007ffd24367ca8 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+ RAX: ffffffffffffffda RBX: 000055a7aeaaf110 RCX: 00007f65f6f16107
+ RDX: 0000000000000000 RSI: 00007ffd24367cc0 RDI: 0000000000000003
+ RBP: 0000000000000070 R08: 0000000000000000 R09: 0000000000000000
+ R10: 000000000000075c R11: 0000000000000246 R12: 00007ffd24367cc0
+ R13: 000055a7ae560008 R14: 00007ffd24367db0 R15: 0000000000000000
+ ---[ end trace 54f499c05d41f8bb ]---
 
-Cc: <stable@vger.kernel.org> # v5.4+
-Signed-off-by: Imre Deak <imre.deak@intel.com>
-Reviewed-by: José Roberto de Souza <jose.souza@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200514204553.27193-1-imre.deak@intel.com
-(cherry picked from commit ae9b6cfe1352da25931bce3ea4acfd4dc1ac8a85)
-Signed-off-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Only flush if the connection endpoint state if different from
+OFLDCONN_NONE.
 
+[mkp: clarified commit desc]
+
+Link: https://lore.kernel.org/r/20200408064332.19377-5-mrangankar@marvell.com
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Manish Rangankar <mrangankar@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/display/intel_dp.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/scsi/qedi/qedi_iscsi.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/i915/display/intel_dp.c
-+++ b/drivers/gpu/drm/i915/display/intel_dp.c
-@@ -1292,8 +1292,7 @@ intel_dp_aux_xfer(struct intel_dp *intel
- 	bool is_tc_port = intel_phy_is_tc(i915, phy);
- 	i915_reg_t ch_ctl, ch_data[5];
- 	u32 aux_clock_divider;
--	enum intel_display_power_domain aux_domain =
--		intel_aux_power_domain(intel_dig_port);
-+	enum intel_display_power_domain aux_domain;
- 	intel_wakeref_t aux_wakeref;
- 	intel_wakeref_t pps_wakeref;
- 	int i, ret, recv_bytes;
-@@ -1308,6 +1307,8 @@ intel_dp_aux_xfer(struct intel_dp *intel
- 	if (is_tc_port)
- 		intel_tc_port_lock(intel_dig_port);
+diff --git a/drivers/scsi/qedi/qedi_iscsi.c b/drivers/scsi/qedi/qedi_iscsi.c
+index 1effac1111d5e..fb6439bc1d9a9 100644
+--- a/drivers/scsi/qedi/qedi_iscsi.c
++++ b/drivers/scsi/qedi/qedi_iscsi.c
+@@ -1007,7 +1007,8 @@ static void qedi_ep_disconnect(struct iscsi_endpoint *ep)
+ 	if (qedi_ep->state == EP_STATE_OFLDCONN_START)
+ 		goto ep_exit_recover;
  
-+	aux_domain = intel_aux_power_domain(intel_dig_port);
-+
- 	aux_wakeref = intel_display_power_get(i915, aux_domain);
- 	pps_wakeref = pps_lock(intel_dp);
+-	flush_work(&qedi_ep->offload_work);
++	if (qedi_ep->state != EP_STATE_OFLDCONN_NONE)
++		flush_work(&qedi_ep->offload_work);
  
+ 	if (qedi_ep->conn) {
+ 		qedi_conn = qedi_ep->conn;
+-- 
+2.25.1
+
 
 
