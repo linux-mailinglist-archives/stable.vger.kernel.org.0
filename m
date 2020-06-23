@@ -2,57 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47E38205174
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 13:58:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3296620517D
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 13:58:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732421AbgFWL6D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 07:58:03 -0400
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:49075 "EHLO
+        id S1732601AbgFWL6k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 07:58:40 -0400
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:44947 "EHLO
         wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1732364AbgFWL6D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Jun 2020 07:58:03 -0400
+        by vger.kernel.org with ESMTP id S1732595AbgFWL6h (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Tue, 23 Jun 2020 07:58:37 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 886CFA27;
-        Tue, 23 Jun 2020 07:58:01 -0400 (EDT)
+        by mailforward.west.internal (Postfix) with ESMTP id EFF3AA0D;
+        Tue, 23 Jun 2020 07:58:35 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Tue, 23 Jun 2020 07:58:02 -0400
+  by compute1.internal (MEProxy); Tue, 23 Jun 2020 07:58:36 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=w556AP
-        RAn+iAkpffdSU6YZ8+PFTmJ5sT2FhMfuLYHAs=; b=rGUj0QLfTcwQJTueMNs/hM
-        KzkU9l4P58Bn6vupd9GQc1Ea/qEWJYPJP0aQwp+H6/N3FwNojaHorq32byc4GoTG
-        l5ciPcz4eA9ULRhbIprnkzkulWDcOuxR9QaFnL7rxhaf4Yob8AV3Yx1yozbcTA9p
-        XMv+0FvC5G+BqC1t6IVENgfNjzj4TmbCP2j2a8OsZ0KnIYWHWb+Bj5hGm0IikLcu
-        uTNTdRu8FmLXwoJ+riTyi2VpmaqWSwP5G32twlelRT327g7Nnp0SdYDrxeI5Heeg
-        V9F5QoVj7hJa9sQ0LwNHkzL6WSsZXTvHOB6ljfVowdAcTBv100tRtuckSnC+rT8g
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=G02PRL
+        M7N1TD6elpgzopDkav++Iq30dIY2h1DKWb9KQ=; b=B6MHt8++1d8ZovbgQT7ZzL
+        bg81GJscP/MUf14kYEmfL2nuOQtGpEMF1s7WMCJu3G5f5aKveMziLUKdTLmV/ht2
+        n3Aa4vnqgBUaF+eSpBX3tOFq0rAt3Yb6KkOhpAttg80el7kRNjq3ix2PntGO//qC
+        Ca2R/5/uQsWGoe1RS0px19RSzaVKn1KzYBY2QqqTzIF745vgwULKYHV8uyQtNy53
+        dg7Omb0/aGUiN7heJr8OIp7Bsr+t3gV+VGv7yGX4tw6r3vWg+Cr0GCWVoCQRnsmQ
+        dd9CCVDvV5szEC5MNjtvi8AuPxeYeq4cedWf6zUriW6Sdf6t2m/nRCK+w3mXKCJw
         ==
-X-ME-Sender: <xms:Se7xXkP_-9MAo9Z8gMDec0PvuA__r6QuFjsuCa5fo7xlZ4mquvGPOg>
+X-ME-Sender: <xms:a-7xXvlb7Q7q2nrOLIxpNIqXhYcbrgN0r9RPGwCsoo7hpFePn_XUiQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudekhedgudelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepfeenucfrrghrrghmpe
-    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:Se7xXq_9W121rqVhAFspvemwwzWoancf51jc_l6k0Yi4l0xEvflxUQ>
-    <xmx:Se7xXrSVyvytulVNDm1MqVw7M8TKbcR-1Tsb6DG7lgb56eCcV4I7_w>
-    <xmx:Se7xXsvhlAPxXv-oobjsgM1PYa2yaDJZQt2pQoqD-w6oX4oZ82YAew>
-    <xmx:Se7xXtXb4E9tgRahrU5XAYOtNnPX9Y7wkkvlIvgPCrnwdtasX8o-JVPZFSvPiA1e>
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
+    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:a-7xXi37M5u8v8yHU02dWU8rp1xYawCll00uaQEt3F-3rSPH0NqwUw>
+    <xmx:a-7xXlq4qFO9hbPjB-r4tJFUzRhgf8LpopvIHKbXtARb_9NJI9o0Aw>
+    <xmx:a-7xXnnGUngvaUIKkpj9yPZCKgmEdtYVqrQQkzrGuMKsNvd3C8ZMAg>
+    <xmx:a-7xXrDHaIx65qsGe4fohBDrCGYZcU0MOpSjenoDz4T5JevLgibbWyeVHtE>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C562930674C8;
-        Tue, 23 Jun 2020 07:58:00 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] kretprobe: Prevent triggering kretprobe from within" failed to apply to 4.19-stable tree
-To:     jolsa@redhat.com, anders.roxell@linaro.org,
-        anil.s.keshavamurthy@intel.com, davem@davemloft.net,
-        gustavoars@kernel.org, jolsa@kernel.org, mhiramat@kernel.org,
-        mingo@elte.hu, mingo@kernel.org, naveen.n.rao@linux.ibm.com,
-        peterz@infradead.org, rostedt@goodmis.org, zsun@redhat.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 2564B306749B;
+        Tue, 23 Jun 2020 07:58:35 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] e1000e: Do not wake up the system via WOL if device wakeup is" failed to apply to 4.9-stable tree
+To:     yu.c.chen@intel.com, Stable@vger.kernel.org,
+        aaron.f.brown@intel.com, andriy.shevchenko@linux.intel.com,
+        jeffrey.t.kirsher@intel.com, rafael.j.wysocki@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 23 Jun 2020 13:57:56 +0200
-Message-ID: <1592913476106162@kroah.com>
+Date:   Tue, 23 Jun 2020 13:58:29 +0200
+Message-ID: <15929135091516@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -62,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -73,238 +71,63 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 9b38cc704e844e41d9cf74e647bff1d249512cb3 Mon Sep 17 00:00:00 2001
-From: Jiri Olsa <jolsa@redhat.com>
-Date: Tue, 12 May 2020 17:03:18 +0900
-Subject: [PATCH] kretprobe: Prevent triggering kretprobe from within
- kprobe_flush_task
+From 6bf6be1127f7e6d4bf39f84d56854e944d045d74 Mon Sep 17 00:00:00 2001
+From: Chen Yu <yu.c.chen@intel.com>
+Date: Fri, 22 May 2020 01:59:00 +0800
+Subject: [PATCH] e1000e: Do not wake up the system via WOL if device wakeup is
+ disabled
 
-Ziqian reported lockup when adding retprobe on _raw_spin_lock_irqsave.
-My test was also able to trigger lockdep output:
+Currently the system will be woken up via WOL(Wake On LAN) even if the
+device wakeup ability has been disabled via sysfs:
+ cat /sys/devices/pci0000:00/0000:00:1f.6/power/wakeup
+ disabled
 
- ============================================
- WARNING: possible recursive locking detected
- 5.6.0-rc6+ #6 Not tainted
- --------------------------------------------
- sched-messaging/2767 is trying to acquire lock:
- ffffffff9a492798 (&(kretprobe_table_locks[i].lock)){-.-.}, at: kretprobe_hash_lock+0x52/0xa0
+The system should not be woken up if the user has explicitly
+disabled the wake up ability for this device.
 
- but task is already holding lock:
- ffffffff9a491a18 (&(kretprobe_table_locks[i].lock)){-.-.}, at: kretprobe_trampoline+0x0/0x50
+This patch clears the WOL ability of this network device if the
+user has disabled the wake up ability in sysfs.
 
- other info that might help us debug this:
-  Possible unsafe locking scenario:
+Fixes: bc7f75fa9788 ("[E1000E]: New pci-express e1000 driver")
+Reported-by: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Chen Yu <yu.c.chen@intel.com>
+Tested-by: Aaron Brown <aaron.f.brown@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 
-        CPU0
-        ----
-   lock(&(kretprobe_table_locks[i].lock));
-   lock(&(kretprobe_table_locks[i].lock));
-
-  *** DEADLOCK ***
-
-  May be due to missing lock nesting notation
-
- 1 lock held by sched-messaging/2767:
-  #0: ffffffff9a491a18 (&(kretprobe_table_locks[i].lock)){-.-.}, at: kretprobe_trampoline+0x0/0x50
-
- stack backtrace:
- CPU: 3 PID: 2767 Comm: sched-messaging Not tainted 5.6.0-rc6+ #6
- Call Trace:
-  dump_stack+0x96/0xe0
-  __lock_acquire.cold.57+0x173/0x2b7
-  ? native_queued_spin_lock_slowpath+0x42b/0x9e0
-  ? lockdep_hardirqs_on+0x590/0x590
-  ? __lock_acquire+0xf63/0x4030
-  lock_acquire+0x15a/0x3d0
-  ? kretprobe_hash_lock+0x52/0xa0
-  _raw_spin_lock_irqsave+0x36/0x70
-  ? kretprobe_hash_lock+0x52/0xa0
-  kretprobe_hash_lock+0x52/0xa0
-  trampoline_handler+0xf8/0x940
-  ? kprobe_fault_handler+0x380/0x380
-  ? find_held_lock+0x3a/0x1c0
-  kretprobe_trampoline+0x25/0x50
-  ? lock_acquired+0x392/0xbc0
-  ? _raw_spin_lock_irqsave+0x50/0x70
-  ? __get_valid_kprobe+0x1f0/0x1f0
-  ? _raw_spin_unlock_irqrestore+0x3b/0x40
-  ? finish_task_switch+0x4b9/0x6d0
-  ? __switch_to_asm+0x34/0x70
-  ? __switch_to_asm+0x40/0x70
-
-The code within the kretprobe handler checks for probe reentrancy,
-so we won't trigger any _raw_spin_lock_irqsave probe in there.
-
-The problem is in outside kprobe_flush_task, where we call:
-
-  kprobe_flush_task
-    kretprobe_table_lock
-      raw_spin_lock_irqsave
-        _raw_spin_lock_irqsave
-
-where _raw_spin_lock_irqsave triggers the kretprobe and installs
-kretprobe_trampoline handler on _raw_spin_lock_irqsave return.
-
-The kretprobe_trampoline handler is then executed with already
-locked kretprobe_table_locks, and first thing it does is to
-lock kretprobe_table_locks ;-) the whole lockup path like:
-
-  kprobe_flush_task
-    kretprobe_table_lock
-      raw_spin_lock_irqsave
-        _raw_spin_lock_irqsave ---> probe triggered, kretprobe_trampoline installed
-
-        ---> kretprobe_table_locks locked
-
-        kretprobe_trampoline
-          trampoline_handler
-            kretprobe_hash_lock(current, &head, &flags);  <--- deadlock
-
-Adding kprobe_busy_begin/end helpers that mark code with fake
-probe installed to prevent triggering of another kprobe within
-this code.
-
-Using these helpers in kprobe_flush_task, so the probe recursion
-protection check is hit and the probe is never set to prevent
-above lockup.
-
-Link: http://lkml.kernel.org/r/158927059835.27680.7011202830041561604.stgit@devnote2
-
-Fixes: ef53d9c5e4da ("kprobes: improve kretprobe scalability with hashed locking")
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: "Gustavo A . R . Silva" <gustavoars@kernel.org>
-Cc: Anders Roxell <anders.roxell@linaro.org>
-Cc: "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>
-Cc: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-Cc: David Miller <davem@davemloft.net>
-Cc: Ingo Molnar <mingo@elte.hu>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: stable@vger.kernel.org
-Reported-by: "Ziqian SUN (Zamir)" <zsun@redhat.com>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Jiri Olsa <jolsa@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-
-diff --git a/arch/x86/kernel/kprobes/core.c b/arch/x86/kernel/kprobes/core.c
-index 3bafe1bd4dc7..8a5ec10e95dc 100644
---- a/arch/x86/kernel/kprobes/core.c
-+++ b/arch/x86/kernel/kprobes/core.c
-@@ -753,16 +753,11 @@ asm(
- NOKPROBE_SYMBOL(kretprobe_trampoline);
- STACK_FRAME_NON_STANDARD(kretprobe_trampoline);
+diff --git a/drivers/net/ethernet/intel/e1000e/netdev.c b/drivers/net/ethernet/intel/e1000e/netdev.c
+index a279f4fa9962..e2ad3f38c75c 100644
+--- a/drivers/net/ethernet/intel/e1000e/netdev.c
++++ b/drivers/net/ethernet/intel/e1000e/netdev.c
+@@ -6611,11 +6611,17 @@ static int __e1000_shutdown(struct pci_dev *pdev, bool runtime)
+ 	struct net_device *netdev = pci_get_drvdata(pdev);
+ 	struct e1000_adapter *adapter = netdev_priv(netdev);
+ 	struct e1000_hw *hw = &adapter->hw;
+-	u32 ctrl, ctrl_ext, rctl, status;
+-	/* Runtime suspend should only enable wakeup for link changes */
+-	u32 wufc = runtime ? E1000_WUFC_LNKC : adapter->wol;
++	u32 ctrl, ctrl_ext, rctl, status, wufc;
+ 	int retval = 0;
  
--static struct kprobe kretprobe_kprobe = {
--	.addr = (void *)kretprobe_trampoline,
--};
--
- /*
-  * Called from kretprobe_trampoline
-  */
- __used __visible void *trampoline_handler(struct pt_regs *regs)
- {
--	struct kprobe_ctlblk *kcb;
- 	struct kretprobe_instance *ri = NULL;
- 	struct hlist_head *head, empty_rp;
- 	struct hlist_node *tmp;
-@@ -772,16 +767,12 @@ __used __visible void *trampoline_handler(struct pt_regs *regs)
- 	void *frame_pointer;
- 	bool skipped = false;
- 
--	preempt_disable();
--
- 	/*
- 	 * Set a dummy kprobe for avoiding kretprobe recursion.
- 	 * Since kretprobe never run in kprobe handler, kprobe must not
- 	 * be running at this point.
- 	 */
--	kcb = get_kprobe_ctlblk();
--	__this_cpu_write(current_kprobe, &kretprobe_kprobe);
--	kcb->kprobe_status = KPROBE_HIT_ACTIVE;
-+	kprobe_busy_begin();
- 
- 	INIT_HLIST_HEAD(&empty_rp);
- 	kretprobe_hash_lock(current, &head, &flags);
-@@ -857,7 +848,7 @@ __used __visible void *trampoline_handler(struct pt_regs *regs)
- 			__this_cpu_write(current_kprobe, &ri->rp->kp);
- 			ri->ret_addr = correct_ret_addr;
- 			ri->rp->handler(ri, regs);
--			__this_cpu_write(current_kprobe, &kretprobe_kprobe);
-+			__this_cpu_write(current_kprobe, &kprobe_busy);
- 		}
- 
- 		recycle_rp_inst(ri, &empty_rp);
-@@ -873,8 +864,7 @@ __used __visible void *trampoline_handler(struct pt_regs *regs)
- 
- 	kretprobe_hash_unlock(current, &flags);
- 
--	__this_cpu_write(current_kprobe, NULL);
--	preempt_enable();
-+	kprobe_busy_end();
- 
- 	hlist_for_each_entry_safe(ri, tmp, &empty_rp, hlist) {
- 		hlist_del(&ri->hlist);
-diff --git a/include/linux/kprobes.h b/include/linux/kprobes.h
-index 594265bfd390..05ed663e6c7b 100644
---- a/include/linux/kprobes.h
-+++ b/include/linux/kprobes.h
-@@ -350,6 +350,10 @@ static inline struct kprobe_ctlblk *get_kprobe_ctlblk(void)
- 	return this_cpu_ptr(&kprobe_ctlblk);
- }
- 
-+extern struct kprobe kprobe_busy;
-+void kprobe_busy_begin(void);
-+void kprobe_busy_end(void);
++	/* Runtime suspend should only enable wakeup for link changes */
++	if (runtime)
++		wufc = E1000_WUFC_LNKC;
++	else if (device_may_wakeup(&pdev->dev))
++		wufc = adapter->wol;
++	else
++		wufc = 0;
 +
- kprobe_opcode_t *kprobe_lookup_name(const char *name, unsigned int offset);
- int register_kprobe(struct kprobe *p);
- void unregister_kprobe(struct kprobe *p);
-diff --git a/kernel/kprobes.c b/kernel/kprobes.c
-index 5cb7791c16b3..4a904cc56d68 100644
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -1241,6 +1241,26 @@ __releases(hlist_lock)
- }
- NOKPROBE_SYMBOL(kretprobe_table_unlock);
- 
-+struct kprobe kprobe_busy = {
-+	.addr = (void *) get_kprobe,
-+};
-+
-+void kprobe_busy_begin(void)
-+{
-+	struct kprobe_ctlblk *kcb;
-+
-+	preempt_disable();
-+	__this_cpu_write(current_kprobe, &kprobe_busy);
-+	kcb = get_kprobe_ctlblk();
-+	kcb->kprobe_status = KPROBE_HIT_ACTIVE;
-+}
-+
-+void kprobe_busy_end(void)
-+{
-+	__this_cpu_write(current_kprobe, NULL);
-+	preempt_enable();
-+}
-+
- /*
-  * This function is called from finish_task_switch when task tk becomes dead,
-  * so that we can recycle any function-return probe instances associated
-@@ -1258,6 +1278,8 @@ void kprobe_flush_task(struct task_struct *tk)
- 		/* Early boot.  kretprobe_table_locks not yet initialized. */
- 		return;
- 
-+	kprobe_busy_begin();
-+
- 	INIT_HLIST_HEAD(&empty_rp);
- 	hash = hash_ptr(tk, KPROBE_HASH_BITS);
- 	head = &kretprobe_inst_table[hash];
-@@ -1271,6 +1293,8 @@ void kprobe_flush_task(struct task_struct *tk)
- 		hlist_del(&ri->hlist);
- 		kfree(ri);
- 	}
-+
-+	kprobe_busy_end();
- }
- NOKPROBE_SYMBOL(kprobe_flush_task);
- 
+ 	status = er32(STATUS);
+ 	if (status & E1000_STATUS_LU)
+ 		wufc &= ~E1000_WUFC_LNKC;
+@@ -6672,7 +6678,7 @@ static int __e1000_shutdown(struct pci_dev *pdev, bool runtime)
+ 	if (adapter->hw.phy.type == e1000_phy_igp_3) {
+ 		e1000e_igp3_phy_powerdown_workaround_ich8lan(&adapter->hw);
+ 	} else if (hw->mac.type >= e1000_pch_lpt) {
+-		if (!(wufc & (E1000_WUFC_EX | E1000_WUFC_MC | E1000_WUFC_BC)))
++		if (wufc && !(wufc & (E1000_WUFC_EX | E1000_WUFC_MC | E1000_WUFC_BC)))
+ 			/* ULP does not support wake from unicast, multicast
+ 			 * or broadcast.
+ 			 */
 
