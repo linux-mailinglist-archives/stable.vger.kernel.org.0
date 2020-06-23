@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C6632205E93
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:31:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2394D205E96
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:31:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389681AbgFWUYD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:24:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42328 "EHLO mail.kernel.org"
+        id S2390114AbgFWUYK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:24:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390355AbgFWUYA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:24:00 -0400
+        id S2390377AbgFWUYF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:24:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 74D052064B;
-        Tue, 23 Jun 2020 20:23:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB20D20780;
+        Tue, 23 Jun 2020 20:24:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943840;
-        bh=Cp+rbRk77EwlK+FHOkTWRcXf/2JtelDx0wdAb4NwYu4=;
+        s=default; t=1592943845;
+        bh=J6BtOatp0H0xxIehNq/YeWWaCUMLlsM3bkSFCVQqYCQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tm7h2ttEkNIrwj9CNL8/W8Fwry6onzS9DSMxTu7Hf+EuvNWWyAqcCV/T6cqdXCu5p
-         rkUUN6TFF7qa+N/PERZ6MnDRvAOtX+34TVRIs1N0VQUjnxEmN7Onn+9HJ2pFPwB0eg
-         RmcJFuT668KYovpGDC78OFF3d+uTOwDsYieW5HZ0=
+        b=XEtxpMTbOs9IsZ83CFMnguRUZHSIs34/abtasUBs5KvCkMkz/wjilaXVwq9QeT/e4
+         lyoGzLIFcXA3KlOpvTAKmL1xyA3SYWxlZ/C/WbgMtJwKmYIEuAntShfrspM7JXUY5h
+         GoRwciaNam+RiuqA73t1YaQlKzE2bZRIPja796P0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Logan Gunthorpe <logang@deltatee.com>,
-        Allen Hubbe <allenbh@gmail.com>,
-        Alexander Fomichev <fomichev.ru@gmail.com>,
-        Jon Mason <jdmason@kudzu.us>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 072/314] NTB: Fix the default port and peer numbers for legacy drivers
-Date:   Tue, 23 Jun 2020 21:54:27 +0200
-Message-Id: <20200623195342.271706806@linuxfoundation.org>
+        stable@vger.kernel.org,
+        John Johansen <john.johansen@canonical.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 074/314] apparmor: fix introspection of of task mode for unconfined tasks
+Date:   Tue, 23 Jun 2020 21:54:29 +0200
+Message-Id: <20200623195342.375946096@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
 References: <20200623195338.770401005@linuxfoundation.org>
@@ -45,67 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Logan Gunthorpe <logang@deltatee.com>
+From: John Johansen <john.johansen@canonical.com>
 
-[ Upstream commit fc8b086d9dbd57458d136c4fa70ee26f832c3a2e ]
+[ Upstream commit dd2569fbb053719f7df7ef8fdbb45cf47156a701 ]
 
-When the commit adding ntb_default_port_number() and
-ntb_default_peer_port_number()  entered the kernel there was no
-users of it so it was impossible to tell what the API needed.
+Fix two issues with introspecting the task mode.
 
-When a user finally landed a year later (ntb_pingpong) there were
-more NTB topologies were created and no consideration was considered
-to how other drivers had changed.
+1. If a task is attached to a unconfined profile that is not the
+   ns->unconfined profile then. Mode the mode is always reported
+   as -
 
-Now that there is a user it can be fixed to provide a sensible default
-for the legacy drivers that do not implement ntb_{peer_}port_number().
-Seeing ntb_pingpong doesn't check error codes returning EINVAL was also
-not sensible.
+      $ ps -Z
+      LABEL                               PID TTY          TIME CMD
+      unconfined                         1287 pts/0    00:00:01 bash
+      test (-)                           1892 pts/0    00:00:00 ps
 
-Patches for ntb_pingpong and ntb_perf follow (which are broken
-otherwise) to support hardware that doesn't have port numbers. This is
-important not only to not break support with existing drivers but for
-the cross link topology which, due to its perfect symmetry, cannot
-assign unique port numbers to each side.
+   instead of the correct value of (unconfined) as shown below
 
-Fixes: 1e5301196a88 ("NTB: Add indexed ports NTB API")
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
-Acked-by: Allen Hubbe <allenbh@gmail.com>
-Tested-by: Alexander Fomichev <fomichev.ru@gmail.com>
-Signed-off-by: Jon Mason <jdmason@kudzu.us>
+      $ ps -Z
+      LABEL                               PID TTY          TIME CMD
+      unconfined                         2483 pts/0    00:00:01 bash
+      test (unconfined)                  3591 pts/0    00:00:00 ps
+
+2. if a task is confined by a stack of profiles that are unconfined
+   the output of label mode is again the incorrect value of (-) like
+   above, instead of (unconfined). This is because the visibile
+   profile count increment is skipped by the special casing of
+   unconfined.
+
+Fixes: f1bd904175e8 ("apparmor: add the base fns() for domain labels")
+Signed-off-by: John Johansen <john.johansen@canonical.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ntb/core.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ security/apparmor/label.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/ntb/core.c b/drivers/ntb/core.c
-index 2581ab724c347..c9a0912b175fa 100644
---- a/drivers/ntb/core.c
-+++ b/drivers/ntb/core.c
-@@ -214,10 +214,8 @@ int ntb_default_port_number(struct ntb_dev *ntb)
- 	case NTB_TOPO_B2B_DSD:
- 		return NTB_PORT_SEC_DSD;
- 	default:
--		break;
-+		return 0;
- 	}
--
--	return -EINVAL;
- }
- EXPORT_SYMBOL(ntb_default_port_number);
+diff --git a/security/apparmor/label.c b/security/apparmor/label.c
+index 470693239e64f..6c3acae701efd 100644
+--- a/security/apparmor/label.c
++++ b/security/apparmor/label.c
+@@ -1531,13 +1531,13 @@ static const char *label_modename(struct aa_ns *ns, struct aa_label *label,
  
-@@ -240,10 +238,8 @@ int ntb_default_peer_port_number(struct ntb_dev *ntb, int pidx)
- 	case NTB_TOPO_B2B_DSD:
- 		return NTB_PORT_PRI_USD;
- 	default:
--		break;
-+		return 0;
- 	}
--
--	return -EINVAL;
- }
- EXPORT_SYMBOL(ntb_default_peer_port_number);
- 
+ 	label_for_each(i, label, profile) {
+ 		if (aa_ns_visible(ns, profile->ns, flags & FLAG_VIEW_SUBNS)) {
+-			if (profile->mode == APPARMOR_UNCONFINED)
++			count++;
++			if (profile == profile->ns->unconfined)
+ 				/* special case unconfined so stacks with
+ 				 * unconfined don't report as mixed. ie.
+ 				 * profile_foo//&:ns1:unconfined (mixed)
+ 				 */
+ 				continue;
+-			count++;
+ 			if (mode == -1)
+ 				mode = profile->mode;
+ 			else if (mode != profile->mode)
 -- 
 2.25.1
 
