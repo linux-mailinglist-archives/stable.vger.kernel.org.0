@@ -2,108 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDDEF204DF1
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 11:30:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FF1E204DF8
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 11:30:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732105AbgFWJaY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 05:30:24 -0400
-Received: from out30-132.freemail.mail.aliyun.com ([115.124.30.132]:46772 "EHLO
-        out30-132.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731968AbgFWJaY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Jun 2020 05:30:24 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=richard.weiyang@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0U0V8lOr_1592904618;
-Received: from localhost(mailfrom:richard.weiyang@linux.alibaba.com fp:SMTPD_---0U0V8lOr_1592904618)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Tue, 23 Jun 2020 17:30:18 +0800
-Date:   Tue, 23 Jun 2020 17:30:18 +0800
-From:   Wei Yang <richard.weiyang@linux.alibaba.com>
-To:     David Hildenbrand <david@redhat.com>
-Cc:     Wei Yang <richard.weiyang@gmail.com>,
-        Wei Yang <richard.weiyang@linux.alibaba.com>,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        Michal Hocko <mhocko@suse.com>, stable@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Minchan Kim <minchan@kernel.org>,
-        Huang Ying <ying.huang@intel.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Dan Williams <dan.j.williams@intel.com>
-Subject: Re: [PATCH v2 1/3] mm/shuffle: don't move pages between zones and
- don't read garbage memmaps
-Message-ID: <20200623093018.GA6069@L-31X9LVDL-1304.local>
-Reply-To: Wei Yang <richard.weiyang@linux.alibaba.com>
-References: <20200619125923.22602-2-david@redhat.com>
- <20200622082635.GA93552@L-31X9LVDL-1304.local>
- <2185539f-b210-5d3f-5da2-a497b354eebb@redhat.com>
- <20200622092221.GA96699@L-31X9LVDL-1304.local>
- <34f36733-805e-cc61-38da-2ee578ae096c@redhat.com>
- <20200622131003.GA98415@L-31X9LVDL-1304.local>
- <0f4edc1f-1ce2-95b4-5866-5c4888db7c65@redhat.com>
- <20200622215520.wa6gjr2hplurwy57@master>
- <4b7ee49c-9bee-a905-3497-e3addd8896b8@redhat.com>
- <c0b62330-11d3-e628-a811-b54789d8f182@redhat.com>
+        id S1731952AbgFWJan (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 05:30:43 -0400
+Received: from sonic309-20.consmr.mail.ne1.yahoo.com ([66.163.184.146]:34048
+        "EHLO sonic309-20.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1731968AbgFWJam (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Jun 2020 05:30:42 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1592904641; bh=8uXuLyXrvwFLTF7nJAnTzjY1iQF+Irk2qJ9oEwp+KRA=; h=Date:From:Reply-To:Subject:References:From:Subject; b=qXxUePoOY5Vtm0n3qNJFxuhr/mXmXiOWUIw2AEFr9hn9hyrjRi109tpfPCRFuVT0eazbA9KB4WhWfbh1R1MMjLikv13+T68dg6v+NEMMRFskvrSba8AMab22zPdeBL0hWvFilG7gVG+g6PwAdsPRzCo0K7E1e5OiLHkUX9Ha/HXBAlCu6u89yAcpLYN914cp6T/ZA7JUSjrsaNDyBrCcGFdVE6akj9SkpnaHHpgnQ0C5CF5zEhX5xKAMDNeCP1Lmapcq2ymBJLXfxowa9alSJRcZZxl5GrpwkxDmAv/pT2RBZ0o9D3DSyHdlnCoG31ZGFtS462NzgMp+w1NrCT3fnw==
+X-YMail-OSG: h_DPZEIVM1nko3R65wPJ.TcHztAr.jNcYmSUNtRI5p2K4WyfZnLtugnzlqbq_2I
+ 4u0BRAhtE1.iE50g.2Mt79WzFGXjd_ZfPOJhjPStSE21mn0hTBZKlKMPNPD.p9Y25UCqvZSWWXhs
+ ZDDfA2mtDjZ8ZvGD4dt7gq.a1czcruaN2Z4ou8nL1RF3oTKKFBAEjWI1I2rNDu_cURRRIJ5BOjh0
+ 3wnbtqjNm2RzzLrsUgpwQpn_KO_FBd6gq5lVOS8Hx0Tqke.IBH6Z34VNzxCBRiaxNKT9ywlOkTnt
+ Irp0kWHWxWxzavh_CVWeqQUt9aKIH_zGgz1ag75PqMOYjQyqLOXgN4rAa88YjbVJH9VawiRegxtk
+ ywsqcDvp3rFp_rqnm.QAn9wE3CUST_Bix752plr9pPIGX3kCshGuJn5yy06K0pEU6_h7qOhM3oSC
+ .Sx5GEI8cJNNI9xHXUUm00U5Uyui6gwGQfvzECRrEkA1MH.TqMPeldwggHAj8bEHU5X8JlwEc31T
+ mxQwrG1_d_5tPaUzAOK6yeaI7oPpLxJQq3yASc4nTnfmSkCdx0_ngT.ypgf2cb7nwyAhmbL6YzkA
+ 9u8rCt82dAwxewushOhDFFkXi6_6vvI.0CaNd.5.NcI_VDOu3j_f.4K.53Xg47_.9GdTUAypuHWn
+ NLvl9B2mjFENxlY28r19h6ynBPmow2fbnRlWQZ26NzEB655eb3vHpZwCWsXJ8GG.1_8tJc5d3YEp
+ b8KYefbyGO3FvVTwKLEIN8wypUN325PfnWbI.MLYMo2Wd2tjaT0mKea7zC_Dh0KQ1vXE3FYRR9lW
+ VpPI0CKd9CKkZv7HNlpq7mGPzKK5UTq4LJ8hGi0MlSQDotLEthv_Zw8CpNI0aqpNlmCSBaQceBdk
+ eo1bLW_rDk3abrfiAPpii0gP.wYhl9CBPrgwsoIaU2mBkkp_ocyoZvsSpkbFM5a0jyz0LShxxpl_
+ RUkq7EUkttU9EOygpRU2eKO7Fim2BgKS0ifFpbnQ0EpeHdtgAtJB6UflAAVOQzfa5mpjgHbEQ1wC
+ JarMZFPjcu2.aMkE4WMYh1eFyEFIABFI0xLpJTz.0mYo9XxrOb0DSOHStrKTp4q6QHHGHdm9UQaR
+ HB92f..tIHMCR2UKcsATzcL1rCXg7adERExVGaSQAbYprXTkNdgDJlRU1akEniaSi9gdfrOjONmV
+ ZXLNpP9UAM7Y7hTVnRjY4xDnOP_dWbT18nP5pnaqmJ.AjXdxIQ06JScRygUnk0bz9CxKlJLW25qg
+ tIGw9z9QJSVNHsHNR5Xe6lu2LoPOS1vDz8o1zxHxV1F02svXlNXKdQgiVPjoTiYbo8lHkDkbM
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.ne1.yahoo.com with HTTP; Tue, 23 Jun 2020 09:30:41 +0000
+Date:   Tue, 23 Jun 2020 09:30:38 +0000 (UTC)
+From:   Siaka Philippe <phisiaka01@gmail.com>
+Reply-To: phisiaka1@gmail.com
+Message-ID: <808023475.2296976.1592904638477@mail.yahoo.com>
+Subject: From Dr. Philippe,
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c0b62330-11d3-e628-a811-b54789d8f182@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+References: <808023475.2296976.1592904638477.ref@mail.yahoo.com>
+X-Mailer: WebService/1.1.16138 YMailNodin Mozilla/5.0 (Windows NT 10.0; ) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.106 Safari/537.36
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 23, 2020 at 09:55:43AM +0200, David Hildenbrand wrote:
->On 23.06.20 09:39, David Hildenbrand wrote:
->>> Hmm.. I thought this is the behavior for early section, while it looks current
->>> code doesn't work like this:
->>>
->>>        if (section_is_early && memmap)
->>>                free_map_bootmem(memmap);
->>>        else
->>> 	       depopulate_section_memmap(pfn, nr_pages, altmap);
->>>
->>> section_is_early is always "true" for early section, while memmap is not-NULL
->>> only when sub-section map is empty.
->>>
->>> If my understanding is correct, when we remove a sub-section in early section,
->>> the code would call depopulate_section_memmap(), which in turn free related
->>> memmap. By removing the memmap, the return value from pfn_to_online_page() is
->>> not a valid one.
->> 
->> I think you're right, and pfn_valid() would also return true, as it is
->> an early section. This looks broken.
->> 
->>>
->>> Maybe we want to write the code like this:
->>>
->>>        if (section_is_early)
->>>                if (memmap)
->>>                        free_map_bootmem(memmap);
->>>        else
->>> 	       depopulate_section_memmap(pfn, nr_pages, altmap);
->>>
->> 
->> I guess that should be the way to go
->> 
->> @Dan, I think what Wei proposes here is correct, right? Or how does it
->> work in the VMEMMAP case with early sections?
->> 
->
->Especially, if you would re-hot-add, section_activate() would assume
->there is a memmap, it must not be removed.
->
+Attention: Friend,
 
-You are right here. I didn't notice it.
+How are you, I am Dr. Philippe Don Siaka, a medical doctor working with Gab=
+riel Toure Hospital Bamako Mali, please don't be upset by the way i am send=
+ing this message to you without knowing you before, i  only trying to rende=
+r help that is needed from me by someone who is no more with us in this wor=
+ld,
 
->@Wei, can you send a patch?
->
+A woman who had an accident with her car was brought to our Hospital some w=
+eeks ago and i was her doctor for some hours before she died, well may her =
+soul rest in peace Amen, her names are Ms. Young-shin Kim, From South Korea=
+ Nationality,
 
-Sure, let me prepare for it.
+Now why i need you is because of her last words to me before she dies, she =
+told me about a deposit she made with Islamic Development Bank of Turkey, T=
+he sum of (=E2=82=AC2,500,000) Two Million Five Hundred Thousand Euros, acc=
+ording to her she deposited the money without any next of kin because she d=
+on't have any child or relatives,
 
->-- 
->Thanks,
->
->David / dhildenb
+according to her she was an orphan, All this was a top secret from her and =
+she asked me to look for someone from Asia Nationality if possible or anywh=
+ere out of Africa continent who will contact the Islamic Development Bank o=
+f Turkey so that the fund can be transfer to the person, she gave me some v=
+ital information about the bank and the money which i will give to you when=
+ i get your update. her words about the fund according to her she wants the=
+ money to be used for charity purposes to help some less privileged in our =
+society 70% of the money will be for charity work and 30% will be for the p=
+erson who will do the work. I am waiting for your update on this matter, Ma=
+y her soul rest in peace Amen.=20
 
--- 
-Wei Yang
-Help you, Help me
+Thanks & Best Regards,
+Dr. Philippe Don Siaka,    =09
