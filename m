@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 758FC2065BD
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:51:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D410206459
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:31:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388811AbgFWUKj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:10:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51644 "EHLO mail.kernel.org"
+        id S2390424AbgFWVUO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 17:20:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388801AbgFWUK3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:10:29 -0400
+        id S2390324AbgFWUXj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:23:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A412A206C3;
-        Tue, 23 Jun 2020 20:10:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1845920780;
+        Tue, 23 Jun 2020 20:23:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943029;
-        bh=JDSh+1V572z9jZUQRWMKQO0oJiV9fKv2CkxQ59qd/bk=;
+        s=default; t=1592943819;
+        bh=Q0uGvxYBaSzETHk8r24Ts7/Bpe5C/cVPyFEOiuYfPts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CVQ9jo0N2G/D0xOUQG6XCV9Wmyz7bLnqZ85RJXomYjN6BEANBoJP2yu9u9BXwOXji
-         3SBFN/iJmDajq3TMGnBoaIsBqLXMqMgjzHNu7+sTqgJiLZXqLYhwGJ9l6r35y8J6FK
-         NJ5iky8kXhk1Eiq2SrE5/gbL3hGW+gBcFfZFcKdM=
+        b=XMsxcJ4v0dSLgJFvS0pm3g/GAmNjh2uGuH/VLDE7pSnYeT5dcZrLNyNrftYZsroL9
+         MH2luBFUJgZ+4AndNng8g0842TeR6dX/bk6AJvYr7aahrxoHfKLIeqdYHHWISMTaSA
+         V4DB5aP73WZRiduAvszgEa5UGaMoKeuYueQVtvD8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Zhang Shengju <zhangshengju@cmss.chinamobile.com>,
-        Tang Bin <tangbin@cmss.chinamobile.com>,
-        Peter Chen <peter.chen@nxp.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 230/477] USB: host: ehci-mxc: Add error handling in ehci_mxc_drv_probe()
-Date:   Tue, 23 Jun 2020 21:53:47 +0200
-Message-Id: <20200623195418.452277467@linuxfoundation.org>
+Subject: [PATCH 5.4 033/314] misc: fastrpc: fix potential fastrpc_invoke_ctx leak
+Date:   Tue, 23 Jun 2020 21:53:48 +0200
+Message-Id: <20200623195340.401181080@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
-References: <20200623195407.572062007@linuxfoundation.org>
+In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
+References: <20200623195338.770401005@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,37 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tang Bin <tangbin@cmss.chinamobile.com>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit d49292025f79693d3348f8e2029a8b4703be0f0a ]
+[ Upstream commit 74003385cf716f1b88cc7753ca282f5493f204a2 ]
 
-The function ehci_mxc_drv_probe() does not perform sufficient error
-checking after executing platform_get_irq(), thus fix it.
+fastrpc_invoke_ctx can have refcount of 2 in error path where
+rpmsg_send() fails to send invoke message. decrement the refcount
+properly in the error path to fix this leak.
 
-Fixes: 7e8d5cd93fac ("USB: Add EHCI support for MX27 and MX31 based boards")
-Signed-off-by: Zhang Shengju <zhangshengju@cmss.chinamobile.com>
-Signed-off-by: Tang Bin <tangbin@cmss.chinamobile.com>
-Reviewed-by: Peter Chen <peter.chen@nxp.com>
-Link: https://lore.kernel.org/r/20200513132647.5456-1-tangbin@cmss.chinamobile.com
+This also fixes below static checker warning:
+
+drivers/misc/fastrpc.c:990 fastrpc_internal_invoke()
+warn: 'ctx->refcount.refcount.ref.counter' not decremented on lines: 990.
+
+Fixes: c68cfb718c8f ("misc: fastrpc: Add support for context")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20200512110930.2550-1-srinivas.kandagatla@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/ehci-mxc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/misc/fastrpc.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/host/ehci-mxc.c b/drivers/usb/host/ehci-mxc.c
-index c9f91e6c72b6a..7f65c86047ddd 100644
---- a/drivers/usb/host/ehci-mxc.c
-+++ b/drivers/usb/host/ehci-mxc.c
-@@ -50,6 +50,8 @@ static int ehci_mxc_drv_probe(struct platform_device *pdev)
- 	}
+diff --git a/drivers/misc/fastrpc.c b/drivers/misc/fastrpc.c
+index ee3291f7e6156..3a5d2890fe2aa 100644
+--- a/drivers/misc/fastrpc.c
++++ b/drivers/misc/fastrpc.c
+@@ -886,6 +886,7 @@ static int fastrpc_invoke_send(struct fastrpc_session_ctx *sctx,
+ 	struct fastrpc_channel_ctx *cctx;
+ 	struct fastrpc_user *fl = ctx->fl;
+ 	struct fastrpc_msg *msg = &ctx->msg;
++	int ret;
  
- 	irq = platform_get_irq(pdev, 0);
-+	if (irq < 0)
-+		return irq;
+ 	cctx = fl->cctx;
+ 	msg->pid = fl->tgid;
+@@ -901,7 +902,13 @@ static int fastrpc_invoke_send(struct fastrpc_session_ctx *sctx,
+ 	msg->size = roundup(ctx->msg_sz, PAGE_SIZE);
+ 	fastrpc_context_get(ctx);
  
- 	hcd = usb_create_hcd(&ehci_mxc_hc_driver, dev, dev_name(dev));
- 	if (!hcd)
+-	return rpmsg_send(cctx->rpdev->ept, (void *)msg, sizeof(*msg));
++	ret = rpmsg_send(cctx->rpdev->ept, (void *)msg, sizeof(*msg));
++
++	if (ret)
++		fastrpc_context_put(ctx);
++
++	return ret;
++
+ }
+ 
+ static int fastrpc_internal_invoke(struct fastrpc_user *fl,  u32 kernel,
 -- 
 2.25.1
 
