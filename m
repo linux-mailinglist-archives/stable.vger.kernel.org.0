@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75E1B20646A
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:31:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FE752065F0
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:51:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393441AbgFWVVV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 17:21:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41040 "EHLO mail.kernel.org"
+        id S2389349AbgFWVfb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 17:35:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390233AbgFWUW7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:22:59 -0400
+        id S2388264AbgFWUKX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:10:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E90092064B;
-        Tue, 23 Jun 2020 20:22:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B952C20CC7;
+        Tue, 23 Jun 2020 20:10:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943779;
-        bh=/2CYLF6f8t7m6yhxykhDd6BFoqe6kUko8+ah4vtC1uk=;
+        s=default; t=1592943022;
+        bh=c5PBEyrq6Isn5nYvsMxu0Ja/Wt4szMFeEaEcyPF8RIw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R1uKH1m66DCNE2+fOMZjsYlE2o7LbTk3+tPNoorfjFJtaw/Tw0guvta1fuzNnwdm8
-         +fvFDG/dBikTG1eKHhheydXANAAJszJ4Ecu7oqDsSXWuZT+HxgBN6IA4zSpxOGh2bn
-         KYPJSaCJJMSXurFJ8fAoqGtAs8VaMRtFN6Tt7szU=
+        b=FlypjatDnmT4e0jB5ERSRX7JFuun/zTMEoNHeDM9DV9XQL8tnIzPuHUSjie63vSZ5
+         C1ZA3KLBrDmdzng3sm5QNh0P4IhrXGnZHnRb4qZUEpVCe0G8ol+yZ7Okw/PzIhcDdV
+         IBJOMioc6eNe4VSC2jKL64lkoXDeEB3a0nUqwDlo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
-        syzbot+be5b5f86a162a6c281e6@syzkaller.appspotmail.com,
+        stable@vger.kernel.org, Roy Spliet <nouveau@spliet.org>,
+        Abhinav Kumar <abhinavk@codeaurora.org>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 030/314] usblp: poison URBs upon disconnect
+Subject: [PATCH 5.7 228/477] drm/msm/mdp5: Fix mdp5_init error path for failed mdp5_kms allocation
 Date:   Tue, 23 Jun 2020 21:53:45 +0200
-Message-Id: <20200623195340.245958345@linuxfoundation.org>
+Message-Id: <20200623195418.358352979@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
-References: <20200623195338.770401005@linuxfoundation.org>
+In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
+References: <20200623195407.572062007@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +45,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Roy Spliet <nouveau@spliet.org>
 
-[ Upstream commit 296a193b06120aa6ae7cf5c0d7b5e5b55968026e ]
+[ Upstream commit e4337877c5d578722c0716f131fb774522013cf5 ]
 
-syzkaller reported an URB that should have been killed to be active.
-We do not understand it, but this should fix the issue if it is real.
+When allocation for mdp5_kms fails, calling mdp5_destroy() leads to undefined
+behaviour, likely a nullptr exception or use-after-free troubles.
 
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Reported-by: syzbot+be5b5f86a162a6c281e6@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/20200507085806.5793-1-oneukum@suse.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Roy Spliet <nouveau@spliet.org>
+Reviewed-by: Abhinav Kumar <abhinavk@codeaurora.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/class/usblp.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/class/usblp.c b/drivers/usb/class/usblp.c
-index 0d8e3f3804a3f..084c48c5848fc 100644
---- a/drivers/usb/class/usblp.c
-+++ b/drivers/usb/class/usblp.c
-@@ -468,7 +468,8 @@ static int usblp_release(struct inode *inode, struct file *file)
- 	usb_autopm_put_interface(usblp->intf);
+diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c
+index 47b989834af16..c23a2fa13fb97 100644
+--- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c
++++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c
+@@ -943,7 +943,8 @@ static int mdp5_init(struct platform_device *pdev, struct drm_device *dev)
  
- 	if (!usblp->present)		/* finish cleanup from disconnect */
--		usblp_cleanup(usblp);
-+		usblp_cleanup(usblp);	/* any URBs must be dead */
-+
- 	mutex_unlock(&usblp_mutex);
  	return 0;
- }
-@@ -1375,9 +1376,11 @@ static void usblp_disconnect(struct usb_interface *intf)
- 
- 	usblp_unlink_urbs(usblp);
- 	mutex_unlock(&usblp->mut);
-+	usb_poison_anchored_urbs(&usblp->urbs);
- 
- 	if (!usblp->used)
- 		usblp_cleanup(usblp);
-+
- 	mutex_unlock(&usblp_mutex);
+ fail:
+-	mdp5_destroy(pdev);
++	if (mdp5_kms)
++		mdp5_destroy(pdev);
+ 	return ret;
  }
  
 -- 
