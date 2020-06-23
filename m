@@ -2,80 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FF1E204DF8
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 11:30:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B1CD204FFB
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 13:06:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731952AbgFWJan (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 05:30:43 -0400
-Received: from sonic309-20.consmr.mail.ne1.yahoo.com ([66.163.184.146]:34048
-        "EHLO sonic309-20.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731968AbgFWJam (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Jun 2020 05:30:42 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1592904641; bh=8uXuLyXrvwFLTF7nJAnTzjY1iQF+Irk2qJ9oEwp+KRA=; h=Date:From:Reply-To:Subject:References:From:Subject; b=qXxUePoOY5Vtm0n3qNJFxuhr/mXmXiOWUIw2AEFr9hn9hyrjRi109tpfPCRFuVT0eazbA9KB4WhWfbh1R1MMjLikv13+T68dg6v+NEMMRFskvrSba8AMab22zPdeBL0hWvFilG7gVG+g6PwAdsPRzCo0K7E1e5OiLHkUX9Ha/HXBAlCu6u89yAcpLYN914cp6T/ZA7JUSjrsaNDyBrCcGFdVE6akj9SkpnaHHpgnQ0C5CF5zEhX5xKAMDNeCP1Lmapcq2ymBJLXfxowa9alSJRcZZxl5GrpwkxDmAv/pT2RBZ0o9D3DSyHdlnCoG31ZGFtS462NzgMp+w1NrCT3fnw==
-X-YMail-OSG: h_DPZEIVM1nko3R65wPJ.TcHztAr.jNcYmSUNtRI5p2K4WyfZnLtugnzlqbq_2I
- 4u0BRAhtE1.iE50g.2Mt79WzFGXjd_ZfPOJhjPStSE21mn0hTBZKlKMPNPD.p9Y25UCqvZSWWXhs
- ZDDfA2mtDjZ8ZvGD4dt7gq.a1czcruaN2Z4ou8nL1RF3oTKKFBAEjWI1I2rNDu_cURRRIJ5BOjh0
- 3wnbtqjNm2RzzLrsUgpwQpn_KO_FBd6gq5lVOS8Hx0Tqke.IBH6Z34VNzxCBRiaxNKT9ywlOkTnt
- Irp0kWHWxWxzavh_CVWeqQUt9aKIH_zGgz1ag75PqMOYjQyqLOXgN4rAa88YjbVJH9VawiRegxtk
- ywsqcDvp3rFp_rqnm.QAn9wE3CUST_Bix752plr9pPIGX3kCshGuJn5yy06K0pEU6_h7qOhM3oSC
- .Sx5GEI8cJNNI9xHXUUm00U5Uyui6gwGQfvzECRrEkA1MH.TqMPeldwggHAj8bEHU5X8JlwEc31T
- mxQwrG1_d_5tPaUzAOK6yeaI7oPpLxJQq3yASc4nTnfmSkCdx0_ngT.ypgf2cb7nwyAhmbL6YzkA
- 9u8rCt82dAwxewushOhDFFkXi6_6vvI.0CaNd.5.NcI_VDOu3j_f.4K.53Xg47_.9GdTUAypuHWn
- NLvl9B2mjFENxlY28r19h6ynBPmow2fbnRlWQZ26NzEB655eb3vHpZwCWsXJ8GG.1_8tJc5d3YEp
- b8KYefbyGO3FvVTwKLEIN8wypUN325PfnWbI.MLYMo2Wd2tjaT0mKea7zC_Dh0KQ1vXE3FYRR9lW
- VpPI0CKd9CKkZv7HNlpq7mGPzKK5UTq4LJ8hGi0MlSQDotLEthv_Zw8CpNI0aqpNlmCSBaQceBdk
- eo1bLW_rDk3abrfiAPpii0gP.wYhl9CBPrgwsoIaU2mBkkp_ocyoZvsSpkbFM5a0jyz0LShxxpl_
- RUkq7EUkttU9EOygpRU2eKO7Fim2BgKS0ifFpbnQ0EpeHdtgAtJB6UflAAVOQzfa5mpjgHbEQ1wC
- JarMZFPjcu2.aMkE4WMYh1eFyEFIABFI0xLpJTz.0mYo9XxrOb0DSOHStrKTp4q6QHHGHdm9UQaR
- HB92f..tIHMCR2UKcsATzcL1rCXg7adERExVGaSQAbYprXTkNdgDJlRU1akEniaSi9gdfrOjONmV
- ZXLNpP9UAM7Y7hTVnRjY4xDnOP_dWbT18nP5pnaqmJ.AjXdxIQ06JScRygUnk0bz9CxKlJLW25qg
- tIGw9z9QJSVNHsHNR5Xe6lu2LoPOS1vDz8o1zxHxV1F02svXlNXKdQgiVPjoTiYbo8lHkDkbM
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.ne1.yahoo.com with HTTP; Tue, 23 Jun 2020 09:30:41 +0000
-Date:   Tue, 23 Jun 2020 09:30:38 +0000 (UTC)
-From:   Siaka Philippe <phisiaka01@gmail.com>
-Reply-To: phisiaka1@gmail.com
-Message-ID: <808023475.2296976.1592904638477@mail.yahoo.com>
-Subject: From Dr. Philippe,
+        id S1732233AbgFWLGD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 07:06:03 -0400
+Received: from mailgw02.mediatek.com ([210.61.82.184]:58894 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1732227AbgFWLGC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Jun 2020 07:06:02 -0400
+X-UUID: 1746d2d9aaf84717a1868fe194cb0ea4-20200623
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Transfer-Encoding:Content-Type:MIME-Version:Message-ID:Date:Subject:CC:To:From; bh=CcaM225zZP7WnZ1PC960F675Ck0YgebshhPK0DXhRCI=;
+        b=WbyJeYa1YmwygxexZSRYMyPs+OMDQevvaC4W3kSL4FPHWPL7grOxDWN6fl7h0S2so88lZd9WHzAJLLq3fJQgV6Y6I4dbQW1w3rdfAecDj0pKbHfKiBlRDbTKa0iYVGGggX04cR05a73V+Luxu65JHBkh2+ZVB2B2EvxvPlT8Mis=;
+X-UUID: 1746d2d9aaf84717a1868fe194cb0ea4-20200623
+Received: from mtkexhb01.mediatek.inc [(172.21.101.102)] by mailgw02.mediatek.com
+        (envelope-from <macpaul.lin@mediatek.com>)
+        (Cellopoint E-mail Firewall v4.1.10 Build 0809 with TLS)
+        with ESMTP id 1849796380; Tue, 23 Jun 2020 19:05:59 +0800
+Received: from MTKCAS06.mediatek.inc (172.21.101.30) by
+ mtkmbs01n2.mediatek.inc (172.21.101.79) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Tue, 23 Jun 2020 19:03:25 +0800
+Received: from mtkswgap22.mediatek.inc (172.21.77.33) by MTKCAS06.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Tue, 23 Jun 2020 19:03:19 +0800
+From:   Macpaul Lin <macpaul.lin@mediatek.com>
+To:     Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Alexander Tsoy <alexander@tsoy.me>,
+        Jussi Laako <jussi@sonarnerd.net>,
+        Nick Kossifidis <mickflemm@gmail.com>,
+        Dmitry Panchenko <dmitry@d-systems.ee>,
+        Chris Wulff <crwulff@gmail.com>,
+        Jesus Ramos <jesus-ramos@live.com>,
+        <alsa-devel@alsa-project.org>, <linux-kernel@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>
+CC:     Mediatek WSD Upstream <wsd_upstream@mediatek.com>,
+        Macpaul Lin <macpaul.lin@mediatek.com>,
+        Macpaul Lin <macpaul.lin@gmail.com>,
+        <linux-usb@vger.kernel.org>,
+        Chihhao Chen <chihhao.chen@mediatek.com>,
+        <stable@vger.kernel.org>
+Subject: [PATCH] sound: usb: quirks: add quirk for Samsung USBC Headset (AKG)
+Date:   Tue, 23 Jun 2020 19:03:23 +0800
+Message-ID: <1592910203-24035-1-git-send-email-macpaul.lin@mediatek.com>
+X-Mailer: git-send-email 1.7.9.5
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-References: <808023475.2296976.1592904638477.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.16138 YMailNodin Mozilla/5.0 (Windows NT 10.0; ) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.106 Safari/537.36
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain
+X-TM-SNTS-SMTP: 0C8C2E45E79FA20259A2A0BA8BD54FE967742A430CC67CFC5A05F99C5875173C2000:8
+X-MTK:  N
+Content-Transfer-Encoding: base64
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Attention: Friend,
+V2UndmUgZm91bmQgU2Ftc3VuZyBVU0JDIEhlYWRzZXQgKEFLRykgKFZJRDogMHgwNGU4LCBQSUQ6
+IDB4YTA1MSkNCm5lZWQgYSB0aW55IGRlbGF5IGFmdGVyIGVhY2ggY2xhc3MgY29tcGxpYW50IHJl
+cXVlc3QuDQpPdGhlcndpc2UgdGhlIGRldmljZSBtaWdodCBub3QgYmUgYWJsZSB0byBiZSByZWNv
+Z25pemVkIGVhY2ggdGltZXMuDQoNClNpZ25lZC1vZmYtYnk6IENoaWhoYW8gQ2hlbiA8Y2hpaGhh
+by5jaGVuQG1lZGlhdGVrLmNvbT4NClNpZ25lZC1vZmYtYnk6IE1hY3BhdWwgTGluIDxtYWNwYXVs
+LmxpbkBtZWRpYXRlay5jb20+DQpDYzogc3RhYmxlQHZnZXIua2VybmVsLm9yZw0KLS0tDQogc291
+bmQvdXNiL3F1aXJrcy5jIHwgICAgOCArKysrKysrKw0KIDEgZmlsZSBjaGFuZ2VkLCA4IGluc2Vy
+dGlvbnMoKykNCg0KZGlmZiAtLWdpdCBhL3NvdW5kL3VzYi9xdWlya3MuYyBiL3NvdW5kL3VzYi9x
+dWlya3MuYw0KaW5kZXggYmNhMDE3OS4uZWJiYTI5YSAxMDA2NDQNCi0tLSBhL3NvdW5kL3VzYi9x
+dWlya3MuYw0KKysrIGIvc291bmQvdXNiL3F1aXJrcy5jDQpAQCAtMTY3Myw2ICsxNjczLDE0IEBA
+IHZvaWQgc25kX3VzYl9jdGxfbXNnX3F1aXJrKHN0cnVjdCB1c2JfZGV2aWNlICpkZXYsIHVuc2ln
+bmVkIGludCBwaXBlLA0KIAkgICAgIGNoaXAtPnVzYl9pZCA9PSBVU0JfSUQoMHgwOTUxLCAweDE2
+YWQpKSAmJg0KIAkgICAgKHJlcXVlc3R0eXBlICYgVVNCX1RZUEVfTUFTSykgPT0gVVNCX1RZUEVf
+Q0xBU1MpDQogCQl1c2xlZXBfcmFuZ2UoMTAwMCwgMjAwMCk7DQorDQorCS8qDQorCSAqIFNhbXN1
+bmcgVVNCQyBIZWFkc2V0IChBS0cpIG5lZWQgYSB0aW55IGRlbGF5IGFmdGVyIGVhY2gNCisJICog
+Y2xhc3MgY29tcGxpYW50IHJlcXVlc3QuIChNb2RlbCBudW1iZXI6IEFBTTYyNVIgb3IgQUFNNjI3
+UikNCisJICovDQorCWlmIChjaGlwLT51c2JfaWQgPT0gVVNCX0lEKDB4MDRlOCwgMHhhMDUxKSAm
+Jg0KKwkgICAgKHJlcXVlc3R0eXBlICYgVVNCX1RZUEVfTUFTSykgPT0gVVNCX1RZUEVfQ0xBU1Mp
+DQorCQl1c2xlZXBfcmFuZ2UoNTAwMCwgNjAwMCk7DQogfQ0KIA0KIC8qDQotLSANCjEuNy45LjUN
+Cg==
 
-How are you, I am Dr. Philippe Don Siaka, a medical doctor working with Gab=
-riel Toure Hospital Bamako Mali, please don't be upset by the way i am send=
-ing this message to you without knowing you before, i  only trying to rende=
-r help that is needed from me by someone who is no more with us in this wor=
-ld,
-
-A woman who had an accident with her car was brought to our Hospital some w=
-eeks ago and i was her doctor for some hours before she died, well may her =
-soul rest in peace Amen, her names are Ms. Young-shin Kim, From South Korea=
- Nationality,
-
-Now why i need you is because of her last words to me before she dies, she =
-told me about a deposit she made with Islamic Development Bank of Turkey, T=
-he sum of (=E2=82=AC2,500,000) Two Million Five Hundred Thousand Euros, acc=
-ording to her she deposited the money without any next of kin because she d=
-on't have any child or relatives,
-
-according to her she was an orphan, All this was a top secret from her and =
-she asked me to look for someone from Asia Nationality if possible or anywh=
-ere out of Africa continent who will contact the Islamic Development Bank o=
-f Turkey so that the fund can be transfer to the person, she gave me some v=
-ital information about the bank and the money which i will give to you when=
- i get your update. her words about the fund according to her she wants the=
- money to be used for charity purposes to help some less privileged in our =
-society 70% of the money will be for charity work and 30% will be for the p=
-erson who will do the work. I am waiting for your update on this matter, Ma=
-y her soul rest in peace Amen.=20
-
-Thanks & Best Regards,
-Dr. Philippe Don Siaka,    =09
