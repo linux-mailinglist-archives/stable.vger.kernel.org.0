@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B74A205F47
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:32:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9042F20600E
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:47:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388253AbgFWUbS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:31:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51762 "EHLO mail.kernel.org"
+        id S2391454AbgFWUjI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:39:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388282AbgFWUbR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:31:17 -0400
+        id S2403844AbgFWUjF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:39:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 592A52064B;
-        Tue, 23 Jun 2020 20:31:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3E8502080C;
+        Tue, 23 Jun 2020 20:39:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944276;
-        bh=YWIkgcKh2plRVdX2ypmWeVogabRplaPzmujWVysBTBU=;
+        s=default; t=1592944745;
+        bh=SHAhC7DmFtppXWs7b0Kn01bV/vNSQiVgCjFt4xW8ddQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L7bWXoLhHKJE8sMNJHUQdR6wcD1xRUp4pwtJNgyT/jW4yd3QoUJC1SsJCpf9UXQjT
-         NJjxxgXD6TvbHeEFr9vD/ZVE+OPqBG49QnMtE8PuQ8fc4FC/NQKMmxiqY7rClJdu2R
-         qd44JtHuaLzrbYjB4/WAWbLDLGx6tIhhv01S3d4U=
+        b=gMxF6jZ+HE6SJEdPTvDc1rLKv9t8jryDyzhlscmcXWoNH+/2V4EdJFUHCF7Uy7vo9
+         GDLALBoQPCV/mgkoKUCGfzMRH+UQle63BU5i3faH3S/voDgPJkJCVc1I19VRzZP/3J
+         9lAVvlRGbPzc0w/GTW4oStXlumUqAPTKLe/lEtxc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        David Howells <dhowells@redhat.com>,
+        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
+        Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 242/314] afs: Fix memory leak in afs_put_sysnames()
+Subject: [PATCH 4.19 109/206] usb: gadget: fix potential double-free in m66592_probe.
 Date:   Tue, 23 Jun 2020 21:57:17 +0200
-Message-Id: <20200623195350.505331560@linuxfoundation.org>
+Message-Id: <20200623195322.306819485@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
-References: <20200623195338.770401005@linuxfoundation.org>
+In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
+References: <20200623195316.864547658@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Qiushi Wu <wu000273@umn.edu>
 
-[ Upstream commit 2ca068be09bf8e285036603823696140026dcbe7 ]
+[ Upstream commit 44734a594196bf1d474212f38fe3a0d37a73278b ]
 
-Fix afs_put_sysnames() to actually free the specified afs_sysnames
-object after its reference count has been decreased to zero and
-its contents have been released.
+m66592_free_request() is called under label "err_add_udc"
+and "clean_up", and m66592->ep0_req is not set to NULL after
+first free, leading to a double-free. Fix this issue by
+setting m66592->ep0_req to NULL after the first free.
 
-Fixes: 6f8880d8e681557 ("afs: Implement @sys substitution handling")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
+Fixes: 0f91349b89f3 ("usb: gadget: convert all users to the new udc infrastructure")
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/proc.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/gadget/udc/m66592-udc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/afs/proc.c b/fs/afs/proc.c
-index fba2ec3a3a9c9..106b27011f6d5 100644
---- a/fs/afs/proc.c
-+++ b/fs/afs/proc.c
-@@ -562,6 +562,7 @@ void afs_put_sysnames(struct afs_sysnames *sysnames)
- 			if (sysnames->subs[i] != afs_init_sysname &&
- 			    sysnames->subs[i] != sysnames->blank)
- 				kfree(sysnames->subs[i]);
-+		kfree(sysnames);
- 	}
- }
+diff --git a/drivers/usb/gadget/udc/m66592-udc.c b/drivers/usb/gadget/udc/m66592-udc.c
+index a8288df6aadf0..ea59b56e54023 100644
+--- a/drivers/usb/gadget/udc/m66592-udc.c
++++ b/drivers/usb/gadget/udc/m66592-udc.c
+@@ -1667,7 +1667,7 @@ static int m66592_probe(struct platform_device *pdev)
  
+ err_add_udc:
+ 	m66592_free_request(&m66592->ep[0].ep, m66592->ep0_req);
+-
++	m66592->ep0_req = NULL;
+ clean_up3:
+ 	if (m66592->pdata->on_chip) {
+ 		clk_disable(m66592->clk);
 -- 
 2.25.1
 
