@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C56820519A
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 14:00:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 114B720519B
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 14:00:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732493AbgFWMAY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 08:00:24 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:44677 "EHLO
+        id S1732527AbgFWMA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 08:00:26 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:44371 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1732439AbgFWMAY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Jun 2020 08:00:24 -0400
+        by vger.kernel.org with ESMTP id S1732439AbgFWMA0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Jun 2020 08:00:26 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 5A52A1940966;
-        Tue, 23 Jun 2020 08:00:23 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id CE4F7194094D;
+        Tue, 23 Jun 2020 08:00:24 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Tue, 23 Jun 2020 08:00:23 -0400
+  by compute1.internal (MEProxy); Tue, 23 Jun 2020 08:00:24 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=N8luHR
-        WvXMRF9ZHPxPfPot0A/x4frPLbGWzzGT8sQ5Q=; b=ULYMHutXYCoK5DBDud662a
-        0ra9VxKaM/PiWB0Idz4ob18tOWvR9NunsfbhCvKMWmUFVF65GzWTTLZRQpo08PK0
-        gw5Vf6dEAuzgVrg8VXJurGZUw/xVxgzTNQ/Rq7+s9qd7OuCq3YKWPXrwJFTf8eNS
-        IyviPYq07TclikA8Dq77/oucnsgQdg5pQoHUBtux64/pM9KYNLMyA9Mcig8w4Gdg
-        iLSLGbseBFcHCf2fUhwJrw+d4M9TTSm+ejq+6FsqlwVvGRRnrBzsju2kcxIuSBXr
-        X81KyCRnw3AHaqennVqB7AOYU7KNGiLrOI9+iE4iOLcB/yaEevR/EVk7+oseLL+w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=y6pbDn
+        eGMa7XIdDLrJrGm6+YUH+YfqRuqTmDuIdTbtI=; b=Cr8JwpZCdZdRxBiBKSF0w8
+        Ly7HHEKiPnXHX9YEDB424Cq33tRf+t3++rau2TYErRrw62wckX8efdwbqrwelf28
+        udjDa3ljKL8V9Wn6cUW+vr+zY2UgblymvnB4BLU9ANccjVQGRkFRD9KE3EVdZiJA
+        I/hcgldnvKewAX6fYa8Krw7JZLYF9ZuxOUdGCIrXxwu2sIXy6ogIdt+U7H2TkqRC
+        hn0ipnh6TijkR6vkr9twk2bHL/4tKJ/pmECWrkuqloODXnNQH6taK22SO+wGoop7
+        e8f4S4o7tYnAr23hU+7TUDDhEvrdisdS6Z92ID0n7C0akIJZnLPCLqxTvH0OGqkQ
         ==
-X-ME-Sender: <xms:1-7xXrNbaQrLSXTwE3v7rD2UvMFRPb77Z6FZWaONYIWvLlyZy14MMA>
+X-ME-Sender: <xms:2O7xXoq2QilwDqBxW6z1dx5DLz_l3P7EQq58dWQbKXUYtX3QjgnmIg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudekhedgudelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -36,21 +36,21 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudekhedgudelucetufdoteggod
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
     vghrufhiiigvpeehnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
     drtghomh
-X-ME-Proxy: <xmx:1-7xXl_5OCJ7sb2rSMZoG7Gw8v-q_5LD6fqezgEG_8q7zjdyFbqRFg>
-    <xmx:1-7xXqTfQf8VxWG4imIqqA6AkREvfV21Ro0npeGl7V9bSzpGUGhjCw>
-    <xmx:1-7xXvv8DIY9xgMPb_41nt1LZnm1Lh8Ze9fP5PAe9k8emfLeT3SoJg>
-    <xmx:1-7xXkramw-hv32txftX7l6BIzPxo4X-HdSc4DVQ9rpbwdMB5_4TbA>
+X-ME-Proxy: <xmx:2O7xXurQlbzkC8zE_GIIbxrn0oSCSrzTH7b0EBM5UCe8oUdoaocK5Q>
+    <xmx:2O7xXtOHlGCMt5WU1LrKUvkGf5vq0HoUM1xg0pPDwgSojRwP8GsuuA>
+    <xmx:2O7xXv7SrAbyep1JnxaeikO8YKWM35tpM98llQN-D4QL9reXfDFz3A>
+    <xmx:2O7xXnHtDHjjCN-Y43XA_ZV1WzLhurPzsFt4FvS5c8hbk6D-1eOZww>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id EE2563280067;
-        Tue, 23 Jun 2020 08:00:22 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] net: core: device_rename: Use rwsem instead of a seqcount" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 5B8593280065;
+        Tue, 23 Jun 2020 08:00:24 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] net: core: device_rename: Use rwsem instead of a seqcount" failed to apply to 5.4-stable tree
 To:     a.darwish@linutronix.de, bigeasy@linutronix.de,
         dan.carpenter@oracle.com, davem@davemloft.net, lkp@intel.com,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 23 Jun 2020 14:00:12 +0200
-Message-ID: <15929136123110@kroah.com>
+Date:   Tue, 23 Jun 2020 14:00:14 +0200
+Message-ID: <159291361435200@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
