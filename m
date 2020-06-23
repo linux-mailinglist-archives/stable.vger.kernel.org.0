@@ -2,45 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BD2120631A
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:28:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0118720639A
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:29:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389482AbgFWUQ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:16:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60800 "EHLO mail.kernel.org"
+        id S2390932AbgFWU27 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:28:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388879AbgFWUQz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:16:55 -0400
+        id S2390461AbgFWU24 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:28:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D9522064B;
-        Tue, 23 Jun 2020 20:16:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 331D3206C3;
+        Tue, 23 Jun 2020 20:28:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943414;
-        bh=GUTD5yk7Qpbx+rnv/WXVP0Uer1021qxyNmVETtm6AxU=;
+        s=default; t=1592944135;
+        bh=i3jueepplDkNuk9wE4egerL1INGsMUlzWA2rMOMR2J0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zTpa4VO2WkqS4l7b1jwe79buLks+/+M0/XPji44tnzOOhXTOPjT7R7ioKsFlWAdiR
-         JN8qVbm/iQmtxKszrUYLokTrg4+kRy0VLmWSHBtFMgxP6ZDGJTuD6Yu/IojD75YZqM
-         0NW+KR0CNUpmsFCWkyYDvCkqg5sOxHfam7qLVtRY=
+        b=MHOnciaO2F1Os8xgH1bt3frlqdvdQUGt+g82k8+x8pA8tcI5zDfhX6tSrhap0TvIt
+         Gv1dxF0H1YJ+H3Bgs5pkpr4mVY8W4WiMFaojobPfNlT+ZyJXi1U21ypSQYGTO4xwyo
+         Fp8pGGpxxla0CA4ZHFormbFXK0aB3Vssl+7dNT4Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
-        Kan Liang <kan.liang@intel.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Gaurav Singh <gaurav1086@gmail.com>,
+        stable@vger.kernel.org,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 383/477] perf report: Fix NULL pointer dereference in hists__fprintf_nr_sample_events()
-Date:   Tue, 23 Jun 2020 21:56:20 +0200
-Message-Id: <20200623195425.631083056@linuxfoundation.org>
+Subject: [PATCH 5.4 186/314] powerpc/32s: Dont warn when mapping RO data ROX.
+Date:   Tue, 23 Jun 2020 21:56:21 +0200
+Message-Id: <20200623195347.776815416@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
-References: <20200623195407.572062007@linuxfoundation.org>
+In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
+References: <20200623195338.770401005@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,43 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaurav Singh <gaurav1086@gmail.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit 11b6e5482e178055ec1f2444b55f2518713809d1 ]
+[ Upstream commit 4b19f96a81bceaf0bcf44d79c0855c61158065ec ]
 
-The 'evname' variable can be NULL, as it is checked a few lines back,
-check it before using.
+Mapping RO data as ROX is not an issue since that data
+cannot be modified to introduce an exploit.
 
-Fixes: 9e207ddfa207 ("perf report: Show call graph from reference events")
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Kan Liang <kan.liang@intel.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/
-Signed-off-by: Gaurav Singh <gaurav1086@gmail.com>
+PPC64 accepts to have RO data mapped ROX, as a trade off
+between kernel size and strictness of protection.
+
+On PPC32, kernel size is even more critical as amount of
+memory is usually small.
+
+Depending on the number of available IBATs, the last IBATs
+might overflow the end of text. Only warn if it crosses
+the end of RO data.
+
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/6499f8eeb2a36330e5c9fc1cee9a79374875bd54.1589866984.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-report.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/powerpc/mm/book3s32/mmu.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/tools/perf/builtin-report.c b/tools/perf/builtin-report.c
-index 26d8fc27e427e..fc7855262162d 100644
---- a/tools/perf/builtin-report.c
-+++ b/tools/perf/builtin-report.c
-@@ -476,8 +476,7 @@ static size_t hists__fprintf_nr_sample_events(struct hists *hists, struct report
- 	if (rep->time_str)
- 		ret += fprintf(fp, " (time slices: %s)", rep->time_str);
+diff --git a/arch/powerpc/mm/book3s32/mmu.c b/arch/powerpc/mm/book3s32/mmu.c
+index 84d5fab94f8f8..1424a120710e4 100644
+--- a/arch/powerpc/mm/book3s32/mmu.c
++++ b/arch/powerpc/mm/book3s32/mmu.c
+@@ -187,6 +187,7 @@ void mmu_mark_initmem_nx(void)
+ 	int i;
+ 	unsigned long base = (unsigned long)_stext - PAGE_OFFSET;
+ 	unsigned long top = (unsigned long)_etext - PAGE_OFFSET;
++	unsigned long border = (unsigned long)__init_begin - PAGE_OFFSET;
+ 	unsigned long size;
  
--	if (symbol_conf.show_ref_callgraph &&
--	    strstr(evname, "call-graph=no")) {
-+	if (symbol_conf.show_ref_callgraph && evname && strstr(evname, "call-graph=no")) {
- 		ret += fprintf(fp, ", show reference callgraph");
- 	}
- 
+ 	if (IS_ENABLED(CONFIG_PPC_BOOK3S_601))
+@@ -201,9 +202,10 @@ void mmu_mark_initmem_nx(void)
+ 		size = block_size(base, top);
+ 		size = max(size, 128UL << 10);
+ 		if ((top - base) > size) {
+-			if (strict_kernel_rwx_enabled())
+-				pr_warn("Kernel _etext not properly aligned\n");
+ 			size <<= 1;
++			if (strict_kernel_rwx_enabled() && base + size > border)
++				pr_warn("Some RW data is getting mapped X. "
++					"Adjust CONFIG_DATA_SHIFT to avoid that.\n");
+ 		}
+ 		setibat(i++, PAGE_OFFSET + base, base, size, PAGE_KERNEL_TEXT);
+ 		base += size;
 -- 
 2.25.1
 
