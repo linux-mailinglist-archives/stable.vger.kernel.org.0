@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D558A206355
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:29:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6308206357
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:29:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390153AbgFWUWQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:22:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40080 "EHLO mail.kernel.org"
+        id S2390162AbgFWUWX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:22:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390142AbgFWUWP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:22:15 -0400
+        id S2390140AbgFWUWR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:22:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 57E912070E;
-        Tue, 23 Jun 2020 20:22:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF4CA2064B;
+        Tue, 23 Jun 2020 20:22:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943734;
-        bh=uZ+O2Z40BpNbkIs+vtioTqTlWWQ43HVCiMmzWj9uNx8=;
+        s=default; t=1592943737;
+        bh=y7rN6xPn3IrYjM8zQzP7wSXSU9juKi2XesxHLYHex9I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WmAkMzf+nEMnLpvKBftvRPYKr+PwchVk565n/QG0J0F+U5DMZcTFZdvxGVsNn6RYK
-         t/cnrfqgNEZ/95Lz9HF59ud6T8jlbx++Ne7GDtDFfLfdWAvNoGmk9jwrK1tK1cQVfO
-         mO0LDxE9bwZbvyUxFKtC4jegdAWuL6QwIpDxFGFE=
+        b=LoXmkTSkxSoHmyCJzrzTRibvJQGlVsIkelk3sYB0b4cC+BtYpIFso5p3PsY4EIe2W
+         OO/jDyDjbFo4OLPNu/7XjNZJ+DZwvG+t9K82KK0Y8TZ59kV37H4mQuSNqAETuIz9Id
+         vC9OSdKlEB+zHuZpUhI70/+8LM57A8rbd4lCgMNE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adam Honse <calcprogrammer1@gmail.com>,
-        Jean Delvare <jdelvare@suse.de>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Daniel Baluta <daniel.baluta@nxp.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 004/314] i2c: piix4: Detect secondary SMBus controller on AMD AM4 chipsets
-Date:   Tue, 23 Jun 2020 21:53:19 +0200
-Message-Id: <20200623195338.990355364@linuxfoundation.org>
+Subject: [PATCH 5.4 005/314] ASoC: SOF: imx8: Fix randbuild error
+Date:   Tue, 23 Jun 2020 21:53:20 +0200
+Message-Id: <20200623195339.038060117@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
 References: <20200623195338.770401005@linuxfoundation.org>
@@ -46,49 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adam Honse <calcprogrammer1@gmail.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit f27237c174fd9653033330e4e532cd9d153ce824 ]
+[ Upstream commit fe17e6cdc0fefca96ba9659be4b2b07487cbf0c5 ]
 
-The AMD X370 and other AM4 chipsets (A/B/X 3/4/5 parts) and Threadripper
-equivalents have a secondary SMBus controller at I/O port address
-0x0B20.  This bus is used by several manufacturers to control
-motherboard RGB lighting via embedded controllers.  I have been using
-this bus in my OpenRGB project to control the Aura RGB on many
-motherboards and ASRock also uses this bus for their Polychrome RGB
-controller.
+when do randconfig like this:
+CONFIG_SND_SOC_SOF_IMX8_SUPPORT=y
+CONFIG_SND_SOC_SOF_IMX8=y
+CONFIG_SND_SOC_SOF_OF=y
+CONFIG_IMX_DSP=m
+CONFIG_IMX_SCU=y
 
-I am not aware of any CZ-compatible platforms which do not have the
-second SMBus channel.  All of AMD's AM4- and Threadripper- series
-chipsets that OpenRGB users have tested appear to have this secondary
-bus.  I also noticed this secondary bus is present on older AMD
-platforms including my FM1 home server.
+there is a link error:
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=202587
-Signed-off-by: Adam Honse <calcprogrammer1@gmail.com>
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
-Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Tested-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+sound/soc/sof/imx/imx8.o: In function 'imx8_send_msg':
+imx8.c:(.text+0x380): undefined reference to 'imx_dsp_ring_doorbell'
+
+Select IMX_DSP in SND_SOC_SOF_IMX8_SUPPORT to fix this
+
+Fixes: f9ad75468453 ("ASoC: SOF: imx: fix reverse CONFIG_SND_SOC_SOF_OF dependency")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Daniel Baluta <daniel.baluta@nxp.com>
+Link: https://lore.kernel.org/r/20200409071832.2039-2-daniel.baluta@oss.nxp.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-piix4.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/soc/sof/imx/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-index 30ded6422e7b2..69740a4ff1db2 100644
---- a/drivers/i2c/busses/i2c-piix4.c
-+++ b/drivers/i2c/busses/i2c-piix4.c
-@@ -977,7 +977,8 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 	}
- 
- 	if (dev->vendor == PCI_VENDOR_ID_AMD &&
--	    dev->device == PCI_DEVICE_ID_AMD_HUDSON2_SMBUS) {
-+	    (dev->device == PCI_DEVICE_ID_AMD_HUDSON2_SMBUS ||
-+	     dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS)) {
- 		retval = piix4_setup_sb800(dev, id, 1);
- 	}
- 
+diff --git a/sound/soc/sof/imx/Kconfig b/sound/soc/sof/imx/Kconfig
+index 71f318bc2c74f..b4f0426685c42 100644
+--- a/sound/soc/sof/imx/Kconfig
++++ b/sound/soc/sof/imx/Kconfig
+@@ -14,7 +14,7 @@ if SND_SOC_SOF_IMX_TOPLEVEL
+ config SND_SOC_SOF_IMX8_SUPPORT
+ 	bool "SOF support for i.MX8"
+ 	depends on IMX_SCU
+-	depends on IMX_DSP
++	select IMX_DSP
+ 	help
+           This adds support for Sound Open Firmware for NXP i.MX8 platforms
+           Say Y if you have such a device.
 -- 
 2.25.1
 
