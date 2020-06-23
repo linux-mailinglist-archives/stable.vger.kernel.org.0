@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C6308206357
+	by mail.lfdr.de (Postfix) with ESMTP id 5143C206356
 	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:29:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390162AbgFWUWX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:22:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40158 "EHLO mail.kernel.org"
+        id S2390142AbgFWUWW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:22:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390140AbgFWUWR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:22:17 -0400
+        id S2389379AbgFWUWV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:22:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF4CA2064B;
-        Tue, 23 Jun 2020 20:22:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6AA9720780;
+        Tue, 23 Jun 2020 20:22:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943737;
-        bh=y7rN6xPn3IrYjM8zQzP7wSXSU9juKi2XesxHLYHex9I=;
+        s=default; t=1592943740;
+        bh=XdGr7wo88QC1X3JLceRhGU8zIUMPJFkCeqfIKIEWxec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LoXmkTSkxSoHmyCJzrzTRibvJQGlVsIkelk3sYB0b4cC+BtYpIFso5p3PsY4EIe2W
-         OO/jDyDjbFo4OLPNu/7XjNZJ+DZwvG+t9K82KK0Y8TZ59kV37H4mQuSNqAETuIz9Id
-         vC9OSdKlEB+zHuZpUhI70/+8LM57A8rbd4lCgMNE=
+        b=BnVFvYX0MHhinOAMMB5jKdIWuuXAPGX+WOB18OZxZE2FaassNIr3GaLcr3+Sihd9t
+         OvkmpnHHtfA0FHBJRTlhHnpSsCpGKJHuQm7sBLFsH59qV3rMLUKYav1kwjZxv6xc16
+         CO4oG8TMk3fjegWXxhbGISpuluzQ5Gea0tM7XvOY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Daniel Baluta <daniel.baluta@nxp.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 005/314] ASoC: SOF: imx8: Fix randbuild error
-Date:   Tue, 23 Jun 2020 21:53:20 +0200
-Message-Id: <20200623195339.038060117@linuxfoundation.org>
+Subject: [PATCH 5.4 006/314] iio: pressure: bmp280: Tolerate IRQ before registering
+Date:   Tue, 23 Jun 2020 21:53:21 +0200
+Message-Id: <20200623195339.086909780@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
 References: <20200623195338.770401005@linuxfoundation.org>
@@ -46,48 +46,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit fe17e6cdc0fefca96ba9659be4b2b07487cbf0c5 ]
+[ Upstream commit 97b31a6f5fb95b1ec6575b78a7240baddba34384 ]
 
-when do randconfig like this:
-CONFIG_SND_SOC_SOF_IMX8_SUPPORT=y
-CONFIG_SND_SOC_SOF_IMX8=y
-CONFIG_SND_SOC_SOF_OF=y
-CONFIG_IMX_DSP=m
-CONFIG_IMX_SCU=y
+With DEBUG_SHIRQ enabled we have a kernel crash
 
-there is a link error:
+[  116.482696] BUG: kernel NULL pointer dereference, address: 0000000000000000
 
-sound/soc/sof/imx/imx8.o: In function 'imx8_send_msg':
-imx8.c:(.text+0x380): undefined reference to 'imx_dsp_ring_doorbell'
+...
 
-Select IMX_DSP in SND_SOC_SOF_IMX8_SUPPORT to fix this
+[  116.606571] Call Trace:
+[  116.609023]  <IRQ>
+[  116.611047]  complete+0x34/0x50
+[  116.614206]  bmp085_eoc_irq+0x9/0x10 [bmp280]
 
-Fixes: f9ad75468453 ("ASoC: SOF: imx: fix reverse CONFIG_SND_SOC_SOF_OF dependency")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: Daniel Baluta <daniel.baluta@nxp.com>
-Link: https://lore.kernel.org/r/20200409071832.2039-2-daniel.baluta@oss.nxp.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+because DEBUG_SHIRQ mechanism fires an IRQ before registration and drivers
+ought to be able to handle an interrupt happening before request_irq() returns.
+
+Fixes: aae953949651 ("iio: pressure: bmp280: add support for BMP085 EOC interrupt")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/imx/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/pressure/bmp280-core.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/sof/imx/Kconfig b/sound/soc/sof/imx/Kconfig
-index 71f318bc2c74f..b4f0426685c42 100644
---- a/sound/soc/sof/imx/Kconfig
-+++ b/sound/soc/sof/imx/Kconfig
-@@ -14,7 +14,7 @@ if SND_SOC_SOF_IMX_TOPLEVEL
- config SND_SOC_SOF_IMX8_SUPPORT
- 	bool "SOF support for i.MX8"
- 	depends on IMX_SCU
--	depends on IMX_DSP
-+	select IMX_DSP
- 	help
-           This adds support for Sound Open Firmware for NXP i.MX8 platforms
-           Say Y if you have such a device.
+diff --git a/drivers/iio/pressure/bmp280-core.c b/drivers/iio/pressure/bmp280-core.c
+index 8d0f15f27dc55..084a1d56cc2f0 100644
+--- a/drivers/iio/pressure/bmp280-core.c
++++ b/drivers/iio/pressure/bmp280-core.c
+@@ -706,7 +706,7 @@ static int bmp180_measure(struct bmp280_data *data, u8 ctrl_meas)
+ 	unsigned int ctrl;
+ 
+ 	if (data->use_eoc)
+-		init_completion(&data->done);
++		reinit_completion(&data->done);
+ 
+ 	ret = regmap_write(data->regmap, BMP280_REG_CTRL_MEAS, ctrl_meas);
+ 	if (ret)
+@@ -962,6 +962,9 @@ static int bmp085_fetch_eoc_irq(struct device *dev,
+ 			"trying to enforce it\n");
+ 		irq_trig = IRQF_TRIGGER_RISING;
+ 	}
++
++	init_completion(&data->done);
++
+ 	ret = devm_request_threaded_irq(dev,
+ 			irq,
+ 			bmp085_eoc_irq,
 -- 
 2.25.1
 
