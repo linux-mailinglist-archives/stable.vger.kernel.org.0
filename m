@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6762205DCA
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:20:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6CED205DA8
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:20:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388632AbgFWUQk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:16:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60162 "EHLO mail.kernel.org"
+        id S2389273AbgFWUPR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:15:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389434AbgFWUQe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:16:34 -0400
+        id S2389265AbgFWUPL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:15:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 66D8720702;
-        Tue, 23 Jun 2020 20:16:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 80CCB2073E;
+        Tue, 23 Jun 2020 20:15:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943394;
-        bh=qO2w1WAQY0W9g78yumPqSmR/mtWdlrTUoYZHbi4d/Rc=;
+        s=default; t=1592943311;
+        bh=OXoq7U7vrOFSjjoT5wdL3Gv4N5mXgeMwFrsSNSlyM4M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fj+4v35jNaure/ghmjDanBlNgI9Oz7hXP4+K5nC1O0b0WSeaWLjR4aXEYV8plRnHm
-         naQAYLlq6wWDWUvGfniV7H6t4pZV11KmSwBUneQmcpYakLG6pHbdcVaBG/Eff5qgT2
-         hQW0z3jIWuKYCR7vfcD0rwHzcBrEkIz9znTwhbwk=
+        b=ZBCVJ1yHWdVhcWzNttEJrd+mMsTN3OaIflHoycztBI3L0SJduA8Pa5nO0q2BoK7Qk
+         5kt4/N8StKznGS1kVQ9k7OiM0p/z9FLu3KGjIlOeAY/UTaTmGnFRlaNWwFeSztXXN8
+         ii7k0j+6iY7VIsC5YS60rGznCYQt6C+H1+9uKo3o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marcelo Bandeira Condotta <mcondotta@redhat.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 334/477] KVM: selftests: Fix build with "make ARCH=x86_64"
-Date:   Tue, 23 Jun 2020 21:55:31 +0200
-Message-Id: <20200623195423.325563135@linuxfoundation.org>
+Subject: [PATCH 5.7 335/477] gfs2: fix use-after-free on transaction ail lists
+Date:   Tue, 23 Jun 2020 21:55:32 +0200
+Message-Id: <20200623195423.375999221@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -46,57 +44,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: Bob Peterson <rpeterso@redhat.com>
 
-[ Upstream commit b80db73dc8be7022adae1b4414a1bebce50fe915 ]
+[ Upstream commit 83d060ca8d90fa1e3feac227f995c013100862d3 ]
 
-Marcelo reports that kvm selftests fail to build with
-"make ARCH=x86_64":
+Before this patch, transactions could be merged into the system
+transaction by function gfs2_merge_trans(), but the transaction ail
+lists were never merged. Because the ail flushing mechanism can run
+separately, bd elements can be attached to the transaction's buffer
+list during the transaction (trans_add_meta, etc) but quickly moved
+to its ail lists. Later, in function gfs2_trans_end, the transaction
+can be freed (by gfs2_trans_end) while it still has bd elements
+queued to its ail lists, which can cause it to either lose track of
+the bd elements altogether (memory leak) or worse, reference the bd
+elements after the parent transaction has been freed.
 
-gcc -Wall -Wstrict-prototypes -Wuninitialized -O2 -g -std=gnu99
- -fno-stack-protector -fno-PIE -I../../../../tools/include
- -I../../../../tools/arch/x86_64/include  -I../../../../usr/include/
- -Iinclude -Ilib -Iinclude/x86_64 -I.. -c lib/kvm_util.c
- -o /var/tmp/20200604202744-bin/lib/kvm_util.o
+Although I've not seen any serious consequences, the problem becomes
+apparent with the previous patch's addition of:
 
-In file included from lib/kvm_util.c:11:
-include/x86_64/processor.h:14:10: fatal error: asm/msr-index.h: No such
- file or directory
+	gfs2_assert_warn(sdp, list_empty(&tr->tr_ail1_list));
 
- #include <asm/msr-index.h>
-          ^~~~~~~~~~~~~~~~~
-compilation terminated.
+to function gfs2_trans_free().
 
-"make ARCH=x86", however, works. The problem is that arch specific headers
-for x86_64 live in 'tools/arch/x86/include', not in
-'tools/arch/x86_64/include'.
+This patch adds logic into gfs2_merge_trans() to move the merged
+transaction's ail lists to the sdp transaction. This prevents the
+use-after-free. To do this properly, we need to hold the ail lock,
+so we pass sdp into the function instead of the transaction itself.
 
-Fixes: 66d69e081b52 ("selftests: fix kvm relocatable native/cross builds and installs")
-Reported-by: Marcelo Bandeira Condotta <mcondotta@redhat.com>
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Message-Id: <20200605142028.550068-1-vkuznets@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/kvm/Makefile | 4 ++++
- 1 file changed, 4 insertions(+)
+ fs/gfs2/log.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/kvm/Makefile b/tools/testing/selftests/kvm/Makefile
-index 42f4f49f2a488..2c85b9dd86f58 100644
---- a/tools/testing/selftests/kvm/Makefile
-+++ b/tools/testing/selftests/kvm/Makefile
-@@ -80,7 +80,11 @@ LIBKVM += $(LIBKVM_$(UNAME_M))
- INSTALL_HDR_PATH = $(top_srcdir)/usr
- LINUX_HDR_PATH = $(INSTALL_HDR_PATH)/include/
- LINUX_TOOL_INCLUDE = $(top_srcdir)/tools/include
-+ifeq ($(ARCH),x86_64)
-+LINUX_TOOL_ARCH_INCLUDE = $(top_srcdir)/tools/arch/x86/include
-+else
- LINUX_TOOL_ARCH_INCLUDE = $(top_srcdir)/tools/arch/$(ARCH)/include
-+endif
- CFLAGS += -Wall -Wstrict-prototypes -Wuninitialized -O2 -g -std=gnu99 \
- 	-fno-stack-protector -fno-PIE -I$(LINUX_TOOL_INCLUDE) \
- 	-I$(LINUX_TOOL_ARCH_INCLUDE) -I$(LINUX_HDR_PATH) -Iinclude \
+diff --git a/fs/gfs2/log.c b/fs/gfs2/log.c
+index 0644e58c6191b..b7a5221bea7d5 100644
+--- a/fs/gfs2/log.c
++++ b/fs/gfs2/log.c
+@@ -1003,8 +1003,10 @@ out:
+  * @new: New transaction to be merged
+  */
+ 
+-static void gfs2_merge_trans(struct gfs2_trans *old, struct gfs2_trans *new)
++static void gfs2_merge_trans(struct gfs2_sbd *sdp, struct gfs2_trans *new)
+ {
++	struct gfs2_trans *old = sdp->sd_log_tr;
++
+ 	WARN_ON_ONCE(!test_bit(TR_ATTACHED, &old->tr_flags));
+ 
+ 	old->tr_num_buf_new	+= new->tr_num_buf_new;
+@@ -1016,6 +1018,11 @@ static void gfs2_merge_trans(struct gfs2_trans *old, struct gfs2_trans *new)
+ 
+ 	list_splice_tail_init(&new->tr_databuf, &old->tr_databuf);
+ 	list_splice_tail_init(&new->tr_buf, &old->tr_buf);
++
++	spin_lock(&sdp->sd_ail_lock);
++	list_splice_tail_init(&new->tr_ail1_list, &old->tr_ail1_list);
++	list_splice_tail_init(&new->tr_ail2_list, &old->tr_ail2_list);
++	spin_unlock(&sdp->sd_ail_lock);
+ }
+ 
+ static void log_refund(struct gfs2_sbd *sdp, struct gfs2_trans *tr)
+@@ -1027,7 +1034,7 @@ static void log_refund(struct gfs2_sbd *sdp, struct gfs2_trans *tr)
+ 	gfs2_log_lock(sdp);
+ 
+ 	if (sdp->sd_log_tr) {
+-		gfs2_merge_trans(sdp->sd_log_tr, tr);
++		gfs2_merge_trans(sdp, tr);
+ 	} else if (tr->tr_num_buf_new || tr->tr_num_databuf_new) {
+ 		gfs2_assert_withdraw(sdp, test_bit(TR_ALLOCED, &tr->tr_flags));
+ 		sdp->sd_log_tr = tr;
 -- 
 2.25.1
 
