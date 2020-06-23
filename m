@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2ECFC20633F
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:29:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C025C20616A
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:07:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389565AbgFWUUH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:20:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37334 "EHLO mail.kernel.org"
+        id S2392347AbgFWUlf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:41:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389599AbgFWUUG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:20:06 -0400
+        id S2392342AbgFWUle (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:41:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 60CAB2080C;
-        Tue, 23 Jun 2020 20:20:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 91DEA2053B;
+        Tue, 23 Jun 2020 20:41:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943605;
-        bh=oo51x5EQhWJuseftlFJxl0FZBh3KHWrE2vskUof0qkg=;
+        s=default; t=1592944895;
+        bh=x2wbzz4CLa6clGyCMHuTUZGSWVbameuz+cruEF/5Ah0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=APFEEcVLC0c3XcB9rlkOu6H+5INaPHSF/0x87fyndXm+gs6VTne+xAy3RUp3nzXDi
-         CFzbFrBf16k50BvEGBXOFRQQ3OA6hM5+qtPwvlg0v+6VutE+5aO46jySb4gs+HEao6
-         mR4FxMFs1HZShW9jJyYjqE3fPFKccSyqxmzdaG1I=
+        b=lsbeF4LzRf3wc8Po4FpQf2Qk/rz3Kz8A4cALhzbibUXlBeUgrLrDyuI3x+Dhges8B
+         tae3WZqXNhlKnejVs9AI4Tfy/SvX59+ZjODkjqCt+CfbhbcbqfUXktGnBe4yIoar28
+         cYuHCP8SAEp2LyYUVJ8kdHAai6ujj8EyjZmIpxEc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Subject: [PATCH 5.7 457/477] drm/i915/gt: Move gen4 GT workarounds from init_clock_gating to workarounds
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 126/206] rxrpc: Adjust /proc/net/rxrpc/calls to display call->debug_id not user_ID
 Date:   Tue, 23 Jun 2020 21:57:34 +0200
-Message-Id: <20200623195429.152286516@linuxfoundation.org>
+Message-Id: <20200623195323.166323850@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
-References: <20200623195407.572062007@linuxfoundation.org>
+In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
+References: <20200623195316.864547658@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,111 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: David Howells <dhowells@redhat.com>
 
-commit 27582a9c917940bc71c0df0b8e022cbde8d735d2 upstream.
+[ Upstream commit 32f71aa497cfb23d37149c2ef16ad71fce2e45e2 ]
 
-Rescue the GT workarounds from being buried inside init_clock_gating so
-that we remember to apply them after a GT reset, and that they are
-included in our verification that the workarounds are applied.
+The user ID value isn't actually much use - and leaks a kernel pointer or a
+userspace value - so replace it with the call debug ID, which appears in trace
+points.
 
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-Cc: stable@vger.kernel.org
-Link: https://patchwork.freedesktop.org/patch/msgid/20200611080140.30228-6-chris@chris-wilson.co.uk
-(cherry picked from commit 2bcefd0d263ab4a72f0d61921ae6b0dc81606551)
-Signed-off-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gt/intel_workarounds.c |   27 ++++++++++++++++++++++-----
- drivers/gpu/drm/i915/intel_pm.c             |   15 ---------------
- 2 files changed, 22 insertions(+), 20 deletions(-)
+ net/rxrpc/proc.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/i915/gt/intel_workarounds.c
-+++ b/drivers/gpu/drm/i915/gt/intel_workarounds.c
-@@ -704,15 +704,28 @@ int intel_engine_emit_ctx_wa(struct i915
- }
+diff --git a/net/rxrpc/proc.c b/net/rxrpc/proc.c
+index 9805e3b85c361..81a765dd8c9be 100644
+--- a/net/rxrpc/proc.c
++++ b/net/rxrpc/proc.c
+@@ -72,7 +72,7 @@ static int rxrpc_call_seq_show(struct seq_file *seq, void *v)
+ 			 "Proto Local                                          "
+ 			 " Remote                                         "
+ 			 " SvID ConnID   CallID   End Use State    Abort   "
+-			 " UserID           TxSeq    TW RxSeq    RW RxSerial RxTimo\n");
++			 " DebugId  TxSeq    TW RxSeq    RW RxSerial RxTimo\n");
+ 		return 0;
+ 	}
  
- static void
--ilk_gt_workarounds_init(struct drm_i915_private *i915, struct i915_wa_list *wal)
-+gen4_gt_workarounds_init(struct drm_i915_private *i915,
-+			 struct i915_wa_list *wal)
- {
--	wa_masked_en(wal, _3D_CHICKEN2, _3D_CHICKEN2_WM_READ_PIPELINED);
-+	/* WaDisable_RenderCache_OperationalFlush:gen4,ilk */
-+	wa_masked_dis(wal, CACHE_MODE_0, RC_OP_FLUSH_ENABLE);
-+}
-+
-+static void
-+g4x_gt_workarounds_init(struct drm_i915_private *i915, struct i915_wa_list *wal)
-+{
-+	gen4_gt_workarounds_init(i915, wal);
- 
--	/* WaDisableRenderCachePipelinedFlush:ilk */
-+	/* WaDisableRenderCachePipelinedFlush:g4x,ilk */
- 	wa_masked_en(wal, CACHE_MODE_0, CM0_PIPELINED_RENDER_FLUSH_DISABLE);
-+}
- 
--	/* WaDisable_RenderCache_OperationalFlush:ilk */
--	wa_masked_dis(wal, CACHE_MODE_0, RC_OP_FLUSH_ENABLE);
-+static void
-+ilk_gt_workarounds_init(struct drm_i915_private *i915, struct i915_wa_list *wal)
-+{
-+	g4x_gt_workarounds_init(i915, wal);
-+
-+	wa_masked_en(wal, _3D_CHICKEN2, _3D_CHICKEN2_WM_READ_PIPELINED);
- }
- 
- static void
-@@ -1198,6 +1211,10 @@ gt_init_workarounds(struct drm_i915_priv
- 		snb_gt_workarounds_init(i915, wal);
- 	else if (IS_GEN(i915, 5))
- 		ilk_gt_workarounds_init(i915, wal);
-+	else if (IS_G4X(i915))
-+		g4x_gt_workarounds_init(i915, wal);
-+	else if (IS_GEN(i915, 4))
-+		gen4_gt_workarounds_init(i915, wal);
- 	else if (INTEL_GEN(i915) <= 8)
- 		return;
- 	else
---- a/drivers/gpu/drm/i915/intel_pm.c
-+++ b/drivers/gpu/drm/i915/intel_pm.c
-@@ -7070,13 +7070,6 @@ static void g4x_init_clock_gating(struct
- 		dspclk_gate |= DSSUNIT_CLOCK_GATE_DISABLE;
- 	I915_WRITE(DSPCLK_GATE_D, dspclk_gate);
- 
--	/* WaDisableRenderCachePipelinedFlush */
--	I915_WRITE(CACHE_MODE_0,
--		   _MASKED_BIT_ENABLE(CM0_PIPELINED_RENDER_FLUSH_DISABLE));
--
--	/* WaDisable_RenderCache_OperationalFlush:g4x */
--	I915_WRITE(CACHE_MODE_0, _MASKED_BIT_DISABLE(RC_OP_FLUSH_ENABLE));
--
- 	g4x_disable_trickle_feed(dev_priv);
- }
- 
-@@ -7092,11 +7085,6 @@ static void i965gm_init_clock_gating(str
- 	intel_uncore_write(uncore,
- 			   MI_ARB_STATE,
- 			   _MASKED_BIT_ENABLE(MI_ARB_DISPLAY_TRICKLE_FEED_DISABLE));
--
--	/* WaDisable_RenderCache_OperationalFlush:gen4 */
--	intel_uncore_write(uncore,
--			   CACHE_MODE_0,
--			   _MASKED_BIT_DISABLE(RC_OP_FLUSH_ENABLE));
- }
- 
- static void i965g_init_clock_gating(struct drm_i915_private *dev_priv)
-@@ -7109,9 +7097,6 @@ static void i965g_init_clock_gating(stru
- 	I915_WRITE(RENCLK_GATE_D2, 0);
- 	I915_WRITE(MI_ARB_STATE,
- 		   _MASKED_BIT_ENABLE(MI_ARB_DISPLAY_TRICKLE_FEED_DISABLE));
--
--	/* WaDisable_RenderCache_OperationalFlush:gen4 */
--	I915_WRITE(CACHE_MODE_0, _MASKED_BIT_DISABLE(RC_OP_FLUSH_ENABLE));
- }
- 
- static void gen3_init_clock_gating(struct drm_i915_private *dev_priv)
+@@ -104,7 +104,7 @@ static int rxrpc_call_seq_show(struct seq_file *seq, void *v)
+ 	rx_hard_ack = READ_ONCE(call->rx_hard_ack);
+ 	seq_printf(seq,
+ 		   "UDP   %-47.47s %-47.47s %4x %08x %08x %s %3u"
+-		   " %-8.8s %08x %lx %08x %02x %08x %02x %08x %06lx\n",
++		   " %-8.8s %08x %08x %08x %02x %08x %02x %08x %06lx\n",
+ 		   lbuff,
+ 		   rbuff,
+ 		   call->service_id,
+@@ -114,7 +114,7 @@ static int rxrpc_call_seq_show(struct seq_file *seq, void *v)
+ 		   atomic_read(&call->usage),
+ 		   rxrpc_call_states[call->state],
+ 		   call->abort_code,
+-		   call->user_call_ID,
++		   call->debug_id,
+ 		   tx_hard_ack, READ_ONCE(call->tx_top) - tx_hard_ack,
+ 		   rx_hard_ack, READ_ONCE(call->rx_top) - rx_hard_ack,
+ 		   call->rx_serial,
+-- 
+2.25.1
+
 
 
