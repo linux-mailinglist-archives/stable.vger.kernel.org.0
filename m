@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF3F02062DA
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:10:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1959920621A
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:08:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387767AbgFWVId (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 17:08:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56766 "EHLO mail.kernel.org"
+        id S2390739AbgFWUzW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:55:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403781AbgFWUek (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:34:40 -0400
+        id S2392715AbgFWUpF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:45:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 955B42064B;
-        Tue, 23 Jun 2020 20:34:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB7CB21BE5;
+        Tue, 23 Jun 2020 20:45:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944481;
-        bh=1OvDeqrNdnLngoQvs8UegGnHsWT0Edkwhrm/k31VQEU=;
+        s=default; t=1592945105;
+        bh=UZAS9JmDAz7kGwfXP+WflYdOOxq7xdo2yFVAB6HGzOE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IsHbDZQI6yZlqtsSAhuWGBI8NPftbGf75t4B+d4NOyp0fZQUvtlqsqIKTwh+vDxzR
-         +YCWbx7qB3dw3A2FrJTOB7vvd8KEGaj8fYChZu1rEBPDc6kpGgSp1h4J0Rz5zdvHt9
-         hrXMKR8TW9MZUhU56Iu8G5cdcMxHm2uJo+Jr2Riw=
+        b=Fvpa7NygYG5M18+a5BVJQ4BtDGDnn74X4kf9p0p4ISOf08DhrbxidD1ZDVPYlEXNo
+         eIs9NXoV/fs+7NyA3Jjg9Oi7Lpr2v7DJ19RHzyEzSxlx+SDDG+tZQmbS8mx5hpUXLR
+         NGWCWJNw9zfncNGXbLPNsewBG7Kaqu+y2S4eJdLg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kunal Joshi <kunal1.joshi@intel.com>,
-        Imre Deak <imre.deak@intel.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Subject: [PATCH 5.4 303/314] drm/i915/icl+: Fix hotplug interrupt disabling after storm detection
+        stable@vger.kernel.org,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Amit Kucheria <amit.kucheria@linaro.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 042/136] thermal/drivers/ti-soc-thermal: Avoid dereferencing ERR_PTR
 Date:   Tue, 23 Jun 2020 21:58:18 +0200
-Message-Id: <20200623195353.449491429@linuxfoundation.org>
+Message-Id: <20200623195305.762445318@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
-References: <20200623195338.770401005@linuxfoundation.org>
+In-Reply-To: <20200623195303.601828702@linuxfoundation.org>
+References: <20200623195303.601828702@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,37 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Imre Deak <imre.deak@intel.com>
+From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 
-commit a3005c2edf7e8c3478880db1ca84028a2b6819bb upstream.
+[ Upstream commit 7440f518dad9d861d76c64956641eeddd3586f75 ]
 
-Atm, hotplug interrupts on TypeC ports are left enabled after detecting
-an interrupt storm, fix this.
+On error the function ti_bandgap_get_sensor_data() returns the error
+code in ERR_PTR() but we only checked if the return value is NULL or
+not. And, so we can dereference an error code inside ERR_PTR.
+While at it, convert a check to IS_ERR_OR_NULL.
 
-Reported-by: Kunal Joshi <kunal1.joshi@intel.com>
-Bugzilla: https://gitlab.freedesktop.org/drm/intel/-/issues/1964
-Cc: Kunal Joshi <kunal1.joshi@intel.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Imre Deak <imre.deak@intel.com>
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200612121731.19596-1-imre.deak@intel.com
-(cherry picked from commit 587a87b9d7e94927edcdea018565bc1939381eb1)
-Signed-off-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Reviewed-by: Amit Kucheria <amit.kucheria@linaro.org>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20200424161944.6044-1-sudipm.mukherjee@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/i915_irq.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/thermal/ti-soc-thermal/ti-thermal-common.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/i915/i915_irq.c
-+++ b/drivers/gpu/drm/i915/i915_irq.c
-@@ -3500,6 +3500,7 @@ static void gen11_hpd_irq_setup(struct d
+diff --git a/drivers/thermal/ti-soc-thermal/ti-thermal-common.c b/drivers/thermal/ti-soc-thermal/ti-thermal-common.c
+index c211a8e4a2105..fa98c398d70f3 100644
+--- a/drivers/thermal/ti-soc-thermal/ti-thermal-common.c
++++ b/drivers/thermal/ti-soc-thermal/ti-thermal-common.c
+@@ -183,7 +183,7 @@ int ti_thermal_expose_sensor(struct ti_bandgap *bgp, int id,
  
- 	val = I915_READ(GEN11_DE_HPD_IMR);
- 	val &= ~hotplug_irqs;
-+	val |= ~enabled_irqs & hotplug_irqs;
- 	I915_WRITE(GEN11_DE_HPD_IMR, val);
- 	POSTING_READ(GEN11_DE_HPD_IMR);
+ 	data = ti_bandgap_get_sensor_data(bgp, id);
  
+-	if (!data || IS_ERR(data))
++	if (!IS_ERR_OR_NULL(data))
+ 		data = ti_thermal_build_data(bgp, id);
+ 
+ 	if (!data)
+@@ -210,7 +210,7 @@ int ti_thermal_remove_sensor(struct ti_bandgap *bgp, int id)
+ 
+ 	data = ti_bandgap_get_sensor_data(bgp, id);
+ 
+-	if (data && data->ti_thermal) {
++	if (!IS_ERR_OR_NULL(data) && data->ti_thermal) {
+ 		if (data->our_zone)
+ 			thermal_zone_device_unregister(data->ti_thermal);
+ 	}
+@@ -276,7 +276,7 @@ int ti_thermal_unregister_cpu_cooling(struct ti_bandgap *bgp, int id)
+ 
+ 	data = ti_bandgap_get_sensor_data(bgp, id);
+ 
+-	if (data) {
++	if (!IS_ERR_OR_NULL(data)) {
+ 		cpufreq_cooling_unregister(data->cool_dev);
+ 		cpufreq_cpu_put(data->policy);
+ 	}
+-- 
+2.25.1
+
 
 
