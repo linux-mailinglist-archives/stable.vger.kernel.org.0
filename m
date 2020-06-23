@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CEAD6206362
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:29:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4351B206365
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:29:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390294AbgFWUX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:23:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41530 "EHLO mail.kernel.org"
+        id S2390306AbgFWUXa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:23:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390291AbgFWUXY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:23:24 -0400
+        id S2390302AbgFWUX3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:23:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E38E20723;
-        Tue, 23 Jun 2020 20:23:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E9AD42070E;
+        Tue, 23 Jun 2020 20:23:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943804;
-        bh=Gh4L15gDSzmHrlzpSp+S0YmYDCZZarcflVvMYIjTvVA=;
+        s=default; t=1592943809;
+        bh=9kuNbOGof6XP3kbieERRm18pvp6cKSOGT10k0/ORLUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1+SMqIasX+pF7otm7YGH6mUwXhpxltetY45pV86gQKt7gVJonzqhFAfrgoLUGd8QY
-         P5pK1E5CRCJPlqP8Q3ea9wDzz3gXXPedzwF+PCiuhYtSv3SExrPZg9K1WK2CeIEgTz
-         4E3b1r7qh6aQ3UJlrBp1BRl+LvUsgi1FuHIBtw+E=
+        b=dn6eRc0fgNneUr6WjpUyXtdn8cGV53EjZfH/UYdnwocjcVX8WD3dfWclSdK5AAO8m
+         PPiekkB4RRMaN78ObwLFP09ZJDuJH7vT92KDRmeLKTs7jkARdRyJYriE7XlWzgNgfn
+         1WxF96pSn9Zjz9j7CUWMacazymG11YpcwTUp/IfU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Wagner <dwagner@suse.de>,
-        James Smart <james.smart@broadcom.com>,
-        Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
+        stable@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Stefan Hajnoczi <stefanha@redhat.com>,
+        Mike Christie <mchristi@redhat.com>,
+        Sudhakar Panneerselvam <sudhakar.panneerselvam@oracle.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 057/314] scsi: lpfc: Fix lpfc_nodelist leak when processing unsolicited event
-Date:   Tue, 23 Jun 2020 21:54:12 +0200
-Message-Id: <20200623195341.538635329@linuxfoundation.org>
+Subject: [PATCH 5.4 058/314] scsi: vhost: Notify TCM about the maximum sg entries supported per command
+Date:   Tue, 23 Jun 2020 21:54:13 +0200
+Message-Id: <20200623195341.586644001@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
 References: <20200623195338.770401005@linuxfoundation.org>
@@ -47,49 +49,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+From: Sudhakar Panneerselvam <sudhakar.panneerselvam@oracle.com>
 
-[ Upstream commit 7217e6e694da3aae6d17db8a7f7460c8d4817ebf ]
+[ Upstream commit 5ae6a6a915033bfee79e76e0c374d4f927909edc ]
 
-In order to create or activate a new node, lpfc_els_unsol_buffer() invokes
-lpfc_nlp_init() or lpfc_enable_node() or lpfc_nlp_get(), all of them will
-return a reference of the specified lpfc_nodelist object to "ndlp" with
-increased refcnt.
+vhost-scsi pre-allocates the maximum sg entries per command and if a
+command requires more than VHOST_SCSI_PREALLOC_SGLS entries, then that
+command is failed by it. This patch lets vhost communicate the max sg limit
+when it registers vhost_scsi_ops with TCM. With this change, TCM would
+report the max sg entries through "Block Limits" VPD page which will be
+typically queried by the SCSI initiator during device discovery. By knowing
+this limit, the initiator could ensure the maximum transfer length is less
+than or equal to what is reported by vhost-scsi.
 
-When lpfc_els_unsol_buffer() returns, local variable "ndlp" becomes
-invalid, so the refcount should be decreased to keep refcount balanced.
-
-The reference counting issue happens in one exception handling path of
-lpfc_els_unsol_buffer(). When "ndlp" in DEV_LOSS, the function forgets to
-decrease the refcnt increased by lpfc_nlp_init() or lpfc_enable_node() or
-lpfc_nlp_get(), causing a refcnt leak.
-
-Fix this issue by calling lpfc_nlp_put() when "ndlp" in DEV_LOSS.
-
-Link: https://lore.kernel.org/r/1590416184-52592-1-git-send-email-xiyuyang19@fudan.edu.cn
-Reviewed-by: Daniel Wagner <dwagner@suse.de>
-Reviewed-by: James Smart <james.smart@broadcom.com>
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Link: https://lore.kernel.org/r/1590166317-953-1-git-send-email-sudhakar.panneerselvam@oracle.com
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>
+Reviewed-by: Mike Christie <mchristi@redhat.com>
+Signed-off-by: Sudhakar Panneerselvam <sudhakar.panneerselvam@oracle.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_els.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/vhost/scsi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/scsi/lpfc/lpfc_els.c b/drivers/scsi/lpfc/lpfc_els.c
-index 66f8867dd8377..94d8f28341009 100644
---- a/drivers/scsi/lpfc/lpfc_els.c
-+++ b/drivers/scsi/lpfc/lpfc_els.c
-@@ -8394,6 +8394,8 @@ lpfc_els_unsol_buffer(struct lpfc_hba *phba, struct lpfc_sli_ring *pring,
- 	spin_lock_irq(shost->host_lock);
- 	if (ndlp->nlp_flag & NLP_IN_DEV_LOSS) {
- 		spin_unlock_irq(shost->host_lock);
-+		if (newnode)
-+			lpfc_nlp_put(ndlp);
- 		goto dropit;
- 	}
- 	spin_unlock_irq(shost->host_lock);
+diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+index a9caf1bc3c3ef..88ce114790d75 100644
+--- a/drivers/vhost/scsi.c
++++ b/drivers/vhost/scsi.c
+@@ -2290,6 +2290,7 @@ static struct configfs_attribute *vhost_scsi_wwn_attrs[] = {
+ static const struct target_core_fabric_ops vhost_scsi_ops = {
+ 	.module				= THIS_MODULE,
+ 	.fabric_name			= "vhost",
++	.max_data_sg_nents		= VHOST_SCSI_PREALLOC_SGLS,
+ 	.tpg_get_wwn			= vhost_scsi_get_fabric_wwn,
+ 	.tpg_get_tag			= vhost_scsi_get_tpgt,
+ 	.tpg_check_demo_mode		= vhost_scsi_check_true,
 -- 
 2.25.1
 
