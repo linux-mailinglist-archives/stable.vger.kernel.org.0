@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA86E206591
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:51:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC754206665
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:52:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387848AbgFWUGA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:06:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45854 "EHLO mail.kernel.org"
+        id S2393984AbgFWVlR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 17:41:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388419AbgFWUGA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:06:00 -0400
+        id S2387548AbgFWUGN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:06:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 70A7C2082F;
-        Tue, 23 Jun 2020 20:05:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8043720E65;
+        Tue, 23 Jun 2020 20:06:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592942760;
-        bh=Y5W6WtOKiVdllrx5aiUQASZLic6kNnH3WL3EuUWr5/k=;
+        s=default; t=1592942773;
+        bh=Sc3xsrDQ7Hm+hoonV8rReQsxTqyTTdnoEeJMQvSQLhw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZcBLMJ/xZhz2KmLX7ZEAqO+09gahkPlhCkhqGiDGfQL9U00BnOB+uZpbFSJSIhUHe
-         ZqhZQ9T2MIzXXjYhX17rODtuwkpQwypYstUpA+5hEKPEvZCdvTp26n5zq69UHr+ZU2
-         qZKrsnovALQkfl3o8P1wp1qOaGAj3Fsnf5VJa6pg=
+        b=D5eYZ7E5TBKQg6jeeXrzy573qXKUCCAm7Z9LJNtYmlTTvn6yjVBQYi4KRVUW42YzY
+         zZ6A5W7yJqNE/AYqItiGjv/6Fox8d9px87SR7aJiyIeKb+GDVTlZvhdU3jn3WPpzXK
+         dlHAPx7EqVqeMQy3wcHFqhlbtm+ZzOj8MAqwmPiw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Serge Semin <fancer.lancer@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        Miklos Szeredi <mszeredi@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 124/477] gpio: dwapb: Append MODULE_ALIAS for platform driver
-Date:   Tue, 23 Jun 2020 21:52:01 +0200
-Message-Id: <20200623195413.469381332@linuxfoundation.org>
+Subject: [PATCH 5.7 129/477] fuse: BUG_ON correction in fuse_dev_splice_write()
+Date:   Tue, 23 Jun 2020 21:52:06 +0200
+Message-Id: <20200623195413.705890948@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -46,75 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-[ Upstream commit c58220cba2e03618659fa7d5dfae31f5ad4ae9d0 ]
+[ Upstream commit 0e9fb6f17ad5b386b75451328975a07d7d953c6d ]
 
-The commit 3d2613c4289f
-  ("GPIO: gpio-dwapb: Enable platform driver binding to MFD driver")
-introduced a use of the platform driver but missed to add the following line
-to it:
-  MODULE_ALIAS("platform:gpio-dwapb");
+commit 963545357202 ("fuse: reduce allocation size for splice_write")
+changed size of bufs array, so BUG_ON which checks the index of the array
+shold also be fixed.
 
-Add this to get driver loaded automatically if platform device is registered.
+[SzM: turn BUG_ON into WARN_ON]
 
-Fixes: 3d2613c4289f ("GPIO: gpio-dwapb: Enable platform driver binding to MFD driver")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Tested-by: Serge Semin <fancer.lancer@gmail.com>
-Reviewed-by: Serge Semin <fancer.lancer@gmail.com>
-Link: https://lore.kernel.org/r/20200415141534.31240-2-andriy.shevchenko@linux.intel.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 963545357202 ("fuse: reduce allocation size for splice_write")
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-dwapb.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ fs/fuse/dev.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpio/gpio-dwapb.c b/drivers/gpio/gpio-dwapb.c
-index 02cf4c43a4c4c..ed6061b5cca14 100644
---- a/drivers/gpio/gpio-dwapb.c
-+++ b/drivers/gpio/gpio-dwapb.c
-@@ -49,7 +49,9 @@
- #define GPIO_EXT_PORTC		0x58
- #define GPIO_EXT_PORTD		0x5c
+diff --git a/fs/fuse/dev.c b/fs/fuse/dev.c
+index 97eec7522bf20..5c155437a455d 100644
+--- a/fs/fuse/dev.c
++++ b/fs/fuse/dev.c
+@@ -1977,8 +1977,9 @@ static ssize_t fuse_dev_splice_write(struct pipe_inode_info *pipe,
+ 		struct pipe_buffer *ibuf;
+ 		struct pipe_buffer *obuf;
  
-+#define DWAPB_DRIVER_NAME	"gpio-dwapb"
- #define DWAPB_MAX_PORTS		4
+-		BUG_ON(nbuf >= pipe->ring_size);
+-		BUG_ON(tail == head);
++		if (WARN_ON(nbuf >= count || tail == head))
++			goto out_free;
 +
- #define GPIO_EXT_PORT_STRIDE	0x04 /* register stride 32 bits */
- #define GPIO_SWPORT_DR_STRIDE	0x0c /* register stride 3*32 bits */
- #define GPIO_SWPORT_DDR_STRIDE	0x0c /* register stride 3*32 bits */
-@@ -398,7 +400,7 @@ static void dwapb_configure_irqs(struct dwapb_gpio *gpio,
- 		return;
+ 		ibuf = &pipe->bufs[tail & mask];
+ 		obuf = &bufs[nbuf];
  
- 	err = irq_alloc_domain_generic_chips(gpio->domain, ngpio, 2,
--					     "gpio-dwapb", handle_level_irq,
-+					     DWAPB_DRIVER_NAME, handle_level_irq,
- 					     IRQ_NOREQUEST, 0,
- 					     IRQ_GC_INIT_NESTED_LOCK);
- 	if (err) {
-@@ -455,7 +457,7 @@ static void dwapb_configure_irqs(struct dwapb_gpio *gpio,
- 		 */
- 		err = devm_request_irq(gpio->dev, pp->irq[0],
- 				       dwapb_irq_handler_mfd,
--				       IRQF_SHARED, "gpio-dwapb-mfd", gpio);
-+				       IRQF_SHARED, DWAPB_DRIVER_NAME, gpio);
- 		if (err) {
- 			dev_err(gpio->dev, "error requesting IRQ\n");
- 			irq_domain_remove(gpio->domain);
-@@ -843,7 +845,7 @@ static SIMPLE_DEV_PM_OPS(dwapb_gpio_pm_ops, dwapb_gpio_suspend,
- 
- static struct platform_driver dwapb_gpio_driver = {
- 	.driver		= {
--		.name	= "gpio-dwapb",
-+		.name	= DWAPB_DRIVER_NAME,
- 		.pm	= &dwapb_gpio_pm_ops,
- 		.of_match_table = of_match_ptr(dwapb_of_match),
- 		.acpi_match_table = ACPI_PTR(dwapb_acpi_match),
-@@ -857,3 +859,4 @@ module_platform_driver(dwapb_gpio_driver);
- MODULE_LICENSE("GPL");
- MODULE_AUTHOR("Jamie Iles");
- MODULE_DESCRIPTION("Synopsys DesignWare APB GPIO driver");
-+MODULE_ALIAS("platform:" DWAPB_DRIVER_NAME);
 -- 
 2.25.1
 
