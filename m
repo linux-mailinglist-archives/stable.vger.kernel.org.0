@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68185206597
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:51:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4408206670
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:52:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388505AbgFWUGj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:06:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46836 "EHLO mail.kernel.org"
+        id S2388840AbgFWVmC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 17:42:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44718 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388502AbgFWUGi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:06:38 -0400
+        id S2388329AbgFWUFV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:05:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 28C892080C;
-        Tue, 23 Jun 2020 20:06:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D10DF2078A;
+        Tue, 23 Jun 2020 20:05:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592942798;
-        bh=jIvTCGL4XEw5WgE1iqVdhjouxOo7pSFIppgNKX/ico4=;
+        s=default; t=1592942721;
+        bh=jYH2ofygeD+0zmgRGpm0zRKztlE5jlZuot/MKcHt1YY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1zDC8Ftvt8pZEBdtBLhb5hvwmF5GMYFTax9YPx787qduF4O5vZnRP1pPSErE/SKWu
-         j6sSlCUOL3XLkWo1SSX9JQeBQuqMJHkTr90W72OGOGnvBYLk+UhDgJXzqlUI4kx9Bp
-         QlpNFDOVxqMzdLcRgT7aQKYTN+2GJGapBxF5KGG0=
+        b=t/CcdlIn4dDIkMXlFKfLkFG299ILJrbxa2nK97bJQ7HBJupPaEaSj15TWU5OU3zkA
+         MMkMWk9P2NWCbsVX2Gs/tqwPiqj8ou2Gn1H8gks36nHv7ZBI6MFpEVLFNzNaa2rFbX
+         5hfjUW4XAsC+ryxLY4SZsndZalgQ4fyGADPDUKic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Falcon <tlfalcon@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Sabrina Dubroca <sd@queasysnail.net>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 109/477] ibmvnic: Flush existing work items before device removal
-Date:   Tue, 23 Jun 2020 21:51:46 +0200
-Message-Id: <20200623195412.748119661@linuxfoundation.org>
+Subject: [PATCH 5.7 110/477] bpf: tcp: Recv() should return 0 when the peer socket is closed
+Date:   Tue, 23 Jun 2020 21:51:47 +0200
+Message-Id: <20200623195412.789436573@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -44,35 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Falcon <tlfalcon@linux.ibm.com>
+From: Sabrina Dubroca <sd@queasysnail.net>
 
-[ Upstream commit 6954a9e4192b86d778fb52b525fd7b62d51b1147 ]
+[ Upstream commit 2c7269b231194aae23fb90ab65842573a91acbc9 ]
 
-Ensure that all scheduled work items have completed before continuing
-with device removal and after further event scheduling has been
-halted. This patch fixes a bug where a scheduled driver reset event
-is processed following device removal.
+If the peer is closed, we will never get more data, so
+tcp_bpf_wait_data will get stuck forever. In case we passed
+MSG_DONTWAIT to recv(), we get EAGAIN but we should actually get
+0.
 
-Signed-off-by: Thomas Falcon <tlfalcon@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+>From man 2 recv:
+
+    RETURN VALUE
+
+    When a stream socket peer has performed an orderly shutdown, the
+    return value will be 0 (the traditional "end-of-file" return).
+
+This patch makes tcp_bpf_wait_data always return 1 when the peer
+socket has been shutdown. Either we have data available, and it would
+have returned 1 anyway, or there isn't, in which case we'll call
+tcp_recvmsg which does the right thing in this situation.
+
+Fixes: 604326b41a6f ("bpf, sockmap: convert to generic sk_msg interface")
+Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Jakub Sitnicki <jakub@cloudflare.com>
+Link: https://lore.kernel.org/bpf/26038a28c21fea5d04d4bd4744c5686d3f2e5504.1591784177.git.sd@queasysnail.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c | 3 +++
+ net/ipv4/tcp_bpf.c | 3 +++
  1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index 197dc5b2c0905..1b4d04e4474bb 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -5184,6 +5184,9 @@ static int ibmvnic_remove(struct vio_dev *dev)
- 	adapter->state = VNIC_REMOVING;
- 	spin_unlock_irqrestore(&adapter->state_lock, flags);
+diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
+index 629aaa9a1eb99..9c5540887fbe5 100644
+--- a/net/ipv4/tcp_bpf.c
++++ b/net/ipv4/tcp_bpf.c
+@@ -242,6 +242,9 @@ static int tcp_bpf_wait_data(struct sock *sk, struct sk_psock *psock,
+ 	DEFINE_WAIT_FUNC(wait, woken_wake_function);
+ 	int ret = 0;
  
-+	flush_work(&adapter->ibmvnic_reset);
-+	flush_delayed_work(&adapter->ibmvnic_delayed_reset);
++	if (sk->sk_shutdown & RCV_SHUTDOWN)
++		return 1;
 +
- 	rtnl_lock();
- 	unregister_netdevice(netdev);
+ 	if (!timeo)
+ 		return ret;
  
 -- 
 2.25.1
