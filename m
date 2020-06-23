@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 663F5204A1E
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 08:45:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8695204A22
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 08:46:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730776AbgFWGpv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 02:45:51 -0400
-Received: from mx0a-0014ca01.pphosted.com ([208.84.65.235]:27342 "EHLO
-        mx0a-0014ca01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730635AbgFWGpu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Jun 2020 02:45:50 -0400
-Received: from pps.filterd (m0042385.ppops.net [127.0.0.1])
-        by mx0a-0014ca01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 05N6gS3K006627;
-        Mon, 22 Jun 2020 23:45:42 -0700
+        id S1730703AbgFWGqW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 02:46:22 -0400
+Received: from mx0b-0014ca01.pphosted.com ([208.86.201.193]:33690 "EHLO
+        mx0a-0014ca01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1730489AbgFWGqW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Jun 2020 02:46:22 -0400
+Received: from pps.filterd (m0042333.ppops.net [127.0.0.1])
+        by mx0b-0014ca01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 05N6iH4v010006;
+        Mon, 22 Jun 2020 23:46:15 -0700
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cadence.com; h=from : to : cc :
  subject : date : message-id : references : in-reply-to : content-type :
  content-transfer-encoding : mime-version; s=proofpoint;
- bh=f/XR0H3+QLR5jc7BvWIXhmurvlXZGfrA26HOdMcCz44=;
- b=bAYpjXFHlEt9eqPxjPMDNjoKnIGNrg0awewLKsFSqbjKvk097XLbvlg7YiKD9vvaUwLM
- ufkvw5DPiSmAgmtZattfSlZ+Fo7qsapd9/2dmKdaGD/Tq/BqMnwoCJulUNbyflcU5nC3
- EEJNBMq8hscROmRoCFpNHoPspyxRu8OeZkgjgGgV09JDJEkk9pHMHs8C5aL1VA4BUl60
- WE706S/MX72y/kCs1bZ5qklc/0PsIu6JbJFCjtWMhp1iCD8+X8Pz5f08H5DsYbd4q+A6
- z0VvW1rYOBQk9CJ77e+ot2ohC3hhElyH/jxN3NxJswUK92ErFBMYIXUScTouf4Nj/pZh zA== 
-Received: from nam10-bn7-obe.outbound.protection.outlook.com (mail-bn7nam10lp2101.outbound.protection.outlook.com [104.47.70.101])
-        by mx0a-0014ca01.pphosted.com with ESMTP id 31sf0y8ayd-1
+ bh=fkBwROS9fo/fJQQkdXbkk+3ZcGmIMMYyQAkXvsNp7c0=;
+ b=PTqqt/sByfHCI6TPdYtltuP8SC+8LUToxc9HO2ZqSfbrAbf718VL3Y5DRK3MqArjIZXD
+ SLyQ60p04hK9wsSrOkPwX6T2ApZXmcv07HkXhzfN0Y1ImniXfpGQ6W0kswGZ2+UPL60W
+ ahdkno9hWreSwkgVBdUjLuJZlPySzhx4cO2AvKAduOxybGQu4WPmixcsDkWZnwIAqvuF
+ i6wCGuH1KSuiiuC+ovu9NNNVfKqp1cDkGDHGzDXyiuGuAP+ksS4icGMKvTJgDC27JvDv
+ nV51motJo8Et9NC2m6cqyeB4qZ+yUobBUL782xy0cZt5RzXqx7BhlYJS1mE24P0mrT9e AA== 
+Received: from nam12-mw2-obe.outbound.protection.outlook.com (mail-mw2nam12lp2047.outbound.protection.outlook.com [104.47.66.47])
+        by mx0b-0014ca01.pphosted.com with ESMTP id 31tbucna1p-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 22 Jun 2020 23:45:41 -0700
+        Mon, 22 Jun 2020 23:46:12 -0700
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=OSHFdqVonFVZGBKcCCR+NWF5/VbAesEvGsF2zdht4rUGVEXREucbVs5Nt2NRCFZv0ezI1tC2l6dLTzGf9ZFtCIz+OfNCEenvpRLvUYIJyWTg0QHTSmebOiTIzBPLgkoR4Y5wLVLslouicGMLR1FGWLJUPhpbeTzl4P0KsTCErCJAPiNvp48sN9QFs6jPIdwvs3sz1i5yqCeGl6u4M6Wp2ufeqq5KE9RTti77eOnvhOHfciFB1ohc+7ljufw9wHjKruLxrBvRURliRaxxnQA7Gd4wZbkffY9+0ns4QGFNkL4GNMEfcCvVuxaiWDTxiVGMdpFO5zbduRYq1o3RSUwEZA==
+ b=T+NUA+nkWpCT/GGTOi0Ef4nz3H7ZaqYIxO4S3FdQk4Wy3rerRhRogguk3PLqR5MY0yiMgYmDZyby234V7EWU+XpTnpfTOM3peNImO852utH9NbtDpuG/TpY8DHkdMk3rORImGcDdNew45GYddNnSWE9BNJzGCzCC+sXbfFB9gSbCEWAeo3I4XbPIfjUp67MRlCNvNH6aolhyRwoZtyqDfpkFKu4OZAr17U0S46gPxZNu0QFkfKnz8+2uhJ1eDaUALQ/T6BZfuG0+So7NQob/C8+I14zmigDaMvHi4i4qR854B2SVgg0wkiVYZ79wOWwwC2Xt5kTb2qJSL180ZMQMHQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=f/XR0H3+QLR5jc7BvWIXhmurvlXZGfrA26HOdMcCz44=;
- b=hr+clXvG2eR+ARHpME9sT/5FsayPpPHiIq5gdi4bUkRVbXvs/LRu9aMAgamf5CNpUmjdD8vG5aaHJaYDSbv58btsth3w2bmALMc/NCdc+GKvOdnb8AoBqvIU1Ehq8/2BV4nBG6WGFCJJbboWnTXIAitWRGt6qtWmYak7lJMZI6fxq4ZPawEqlmGhV9GKEEmQZnMjJ6DkpHmh1rafdLhnrPO842bIpxifAvT40xKPVvGqONU+A7ezBAY5jIWU4zDqYa72swUjtOgfNfHGU8+hKeXIixzwpLPbBXXd9A/m6IVIXP5jcmmzbw+9UCJIpm4EzXrff3dtyozu7T7lkGvLEQ==
+ bh=fkBwROS9fo/fJQQkdXbkk+3ZcGmIMMYyQAkXvsNp7c0=;
+ b=Q+ghTb6UC95Gz+OKNLmakePKpb1jhSsVo4KT0VU8Fy73v+AY3VVWZyKeEzqTv07MVkGN32UgwkqiNv9NEvUVD0coRiRC2A1Iy8yy2NP/Ir/VCwrqUu41zn/IIYUaxdTzNpQpV2yNqa8xlvKJWVZqlylXiTeU7YAOx+3PYV8qGmjDq7xCTu/Q1pQeAUMb9eOsct8lwJmQGclNjm4hyRONnMn72ASjWHziHcrQpII3l9s1j423xeD8LovgCZW23cVAOMRDsgqlT1wh/rAtNMYtbF3sZ2Ma3xc2/XIgbdyeGO1lsgBH3PW5I/JuyFq52FTwamiaMOtwuoP6feRE/y7kdw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=cadence.com; dmarc=pass action=none header.from=cadence.com;
  dkim=pass header.d=cadence.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cadence.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=f/XR0H3+QLR5jc7BvWIXhmurvlXZGfrA26HOdMcCz44=;
- b=kqkjZtn72zyTkgKDqTkYXMQ/X8eWdv2SXUXSKXLgwNSXiKqvglLJBceYiWUad9W90xIVFLsYTzwI8IGFhe+R+iWuRE652A1m+y+IpTv3TJxdm6Nn7WOTD7s/uR1qyhkAlsZgQueSX8O4MHtqVamcEA/PMvPlh+eYIxytLZOWEIE=
+ bh=fkBwROS9fo/fJQQkdXbkk+3ZcGmIMMYyQAkXvsNp7c0=;
+ b=v7SA8ydQQEBR5UMab25JiZhDZz5iFDAWd0lB69/lF4Hax/pbsTpz4NgDGg0CyWm0mrZylRpPZbaexY+FaTT675eMpUe2dYG8f/QKn2QtO7XtctZ+lLmN/irbVIROlFtMkHYKJmE8d0ljY6Xkc6he0H1YgNfQP1lom3QUVAZJUc4=
 Received: from DM6PR07MB5529.namprd07.prod.outlook.com (2603:10b6:5:7a::30) by
  DM5PR07MB4037.namprd07.prod.outlook.com (2603:10b6:4:b2::38) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.3109.22; Tue, 23 Jun 2020 06:45:38 +0000
+ 15.20.3109.22; Tue, 23 Jun 2020 06:46:07 +0000
 Received: from DM6PR07MB5529.namprd07.prod.outlook.com
  ([fe80::f447:6767:a746:9699]) by DM6PR07MB5529.namprd07.prod.outlook.com
  ([fe80::f447:6767:a746:9699%7]) with mapi id 15.20.3109.027; Tue, 23 Jun 2020
- 06:45:38 +0000
+ 06:46:07 +0000
 From:   Pawel Laszczak <pawell@cadence.com>
 To:     Peter Chen <peter.chen@nxp.com>,
         "balbi@kernel.org" <balbi@kernel.org>,
@@ -58,94 +58,94 @@ CC:     "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
         "linux-imx@nxp.com" <linux-imx@nxp.com>,
         "rogerq@ti.com" <rogerq@ti.com>, "jun.li@nxp.com" <jun.li@nxp.com>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH 1/3] usb: cdns3: ep0: fix the test mode set incorrectly
-Thread-Topic: [PATCH 1/3] usb: cdns3: ep0: fix the test mode set incorrectly
-Thread-Index: AQHWSQus3TAr3rsOJEqrbqQsH2/av6jlwJnA
-Date:   Tue, 23 Jun 2020 06:45:38 +0000
-Message-ID: <DM6PR07MB55299792641156038575FC4DDD940@DM6PR07MB5529.namprd07.prod.outlook.com>
+Subject: RE: [PATCH 2/3] usb: cdns3: trace: using correct dir value
+Thread-Topic: [PATCH 2/3] usb: cdns3: trace: using correct dir value
+Thread-Index: AQHWSQuvDLdzRvDYyUmwvTVangc7Yajlwbqw
+Date:   Tue, 23 Jun 2020 06:46:07 +0000
+Message-ID: <DM6PR07MB55295C4AC293AEC65EFFE7D6DD940@DM6PR07MB5529.namprd07.prod.outlook.com>
 References: <20200623030918.8409-1-peter.chen@nxp.com>
- <20200623030918.8409-2-peter.chen@nxp.com>
-In-Reply-To: <20200623030918.8409-2-peter.chen@nxp.com>
+ <20200623030918.8409-3-peter.chen@nxp.com>
+In-Reply-To: <20200623030918.8409-3-peter.chen@nxp.com>
 Accept-Language: en-US
 Content-Language: en-US
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
-x-dg-ref: PG1ldGE+PGF0IG5tPSJib2R5LnR4dCIgcD0iYzpcdXNlcnNccGF3ZWxsXGFwcGRhdGFccm9hbWluZ1wwOWQ4NDliNi0zMmQzLTRhNDAtODVlZS02Yjg0YmEyOWUzNWJcbXNnc1xtc2ctMjM2ZjI4YzctYjUxZC0xMWVhLTg3NjctMWM0ZDcwMWRmYmE0XGFtZS10ZXN0XDIzNmYyOGM5LWI1MWQtMTFlYS04NzY3LTFjNGQ3MDFkZmJhNGJvZHkudHh0IiBzej0iMTA1OSIgdD0iMTMyMzczNjgzMzUxNTQ3MjQxIiBoPSJhT0V5V2tUbDlXNDJlZWFZMHBPL3NYeGZYV2M9IiBpZD0iIiBibD0iMCIgYm89IjEiLz48L21ldGE+
+x-dg-ref: PG1ldGE+PGF0IG5tPSJib2R5LnR4dCIgcD0iYzpcdXNlcnNccGF3ZWxsXGFwcGRhdGFccm9hbWluZ1wwOWQ4NDliNi0zMmQzLTRhNDAtODVlZS02Yjg0YmEyOWUzNWJcbXNnc1xtc2ctMzU3Y2UwYjAtYjUxZC0xMWVhLTg3NjctMWM0ZDcwMWRmYmE0XGFtZS10ZXN0XDM1N2NlMGIyLWI1MWQtMTFlYS04NzY3LTFjNGQ3MDFkZmJhNGJvZHkudHh0IiBzej0iMTMzNyIgdD0iMTMyMzczNjgzNjU0NDY0MTExIiBoPSI2RThHajB1OXlHd0FvS3dPSGpyVC8vRnVOZUE9IiBpZD0iIiBibD0iMCIgYm89IjEiLz48L21ldGE+
 x-dg-rorf: true
 authentication-results: nxp.com; dkim=none (message not signed)
  header.d=none;nxp.com; dmarc=none action=none header.from=cadence.com;
 x-originating-ip: [185.217.253.59]
 x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 9575269c-e127-469a-6f8f-08d817410a23
+x-ms-office365-filtering-correlation-id: 37a659db-9562-4550-bb2d-08d817411b47
 x-ms-traffictypediagnostic: DM5PR07MB4037:
-x-microsoft-antispam-prvs: <DM5PR07MB4037A87207BA86A974146A2ADD940@DM5PR07MB4037.namprd07.prod.outlook.com>
+x-microsoft-antispam-prvs: <DM5PR07MB4037052ED8F6EF7C33231096DD940@DM5PR07MB4037.namprd07.prod.outlook.com>
 x-ms-oob-tlc-oobclassifiers: OLM:6108;
 x-forefront-prvs: 04433051BF
 x-ms-exchange-senderadcheck: 1
 x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: 0JgGnQHCXX4YeWOhlsTjNPevg6DeAQGtUqmNGBWI/cAro3domGclonPprrdX0/8t5ZQKOGwNupsKQrDmnDGWagGsO1VBTE1KmKFY7A1l3C4nd4Wpztmc492eSzX4vXHSscroGqPqj0IhZ5M/Y6zuqoEKg/cq9nzF51/vzMVmG+8wwKJQ8JtDsxLVcj9pL6+QvyTFOwJ4H4gxKrfwBN33M8vV0sFqZp1V6ebfOOYKPTHBbV0EqDH2JcqQKY2AOJq+1vhFxthqXp2vPiYuP/s7sHhucSnnodoUv5+OCC3EzkE+okAgGC+shk5igbXrktekKAz4/ls3nvtYqYI49ndSXwSzRXpC00+H2zPeDaj4jN8hvD792ZVm6JEXdNKp8JHk
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR07MB5529.namprd07.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(4636009)(396003)(136003)(376002)(366004)(39860400002)(346002)(36092001)(6506007)(9686003)(52536014)(26005)(4744005)(8936002)(5660300002)(55016002)(8676002)(2906002)(86362001)(76116006)(186003)(66946007)(66556008)(66446008)(66476007)(64756008)(4326008)(71200400001)(83380400001)(54906003)(478600001)(7696005)(110136005)(316002)(33656002);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata: zlJ/nSvHAKaQIQzPs5UGNbPaZkdjJxPqJLojUlQvUPWaNp2FAWimgvcXSXVMG0rpvMj/Ydx9JA6oaud6J7cpLry+BCvCu5YH132iSRdrlRrCnTb5Px4GXUwKdi6O3C3Nz8wETjOoY8dTBD+F8XxNqbwOD6IbU75IeBaWS3EnxNo6m5cteDpY62P793ipPCsWFXYZEsG/+f0EDy4yJTGaA3s45h3woRV2JeoIGpPYkSZCAhNE0Rybr2a82Vg6XoOGenKvnjW5IIuSXK4jDZ4jGzC4YAl9V4pRm9loUB4i+pLeva4arnRjql7Y9hdTush2pbwA6jCibVg1JwUl/pX5rwHe/SOh0rFJFNHw9KMy66f57w3et/hkqJ0wTweSglhI9mCvZoM2k1C7kXb0HH2LiqdyIi7SAGvkq/UhILwEDRfsEe+8joe6g8gOoNRIxkcbe1Xv8d2ns7OBbZY43oWXSrlT5OQX2iJSm1uF84sPyJ7JFNG1G5A5SqMf0UiAyzI2
+x-microsoft-antispam-message-info: r36d/ydxr6POEyUM53ovL+c0zhDZcsikTZw2sgcEK5ETNs1jDZJMsBaUsv9luf61YkmxlCo/u40ruNVBJRKgJNW/aCZXcdJapWuJVArlSVAOKdYzOuj5151LfzbdbQFsLY00o0TJFKFGn5glpgiKHWKR6MjBz+z6U2C9Z7EoJ84FYe2ih7/IUbblvlNGL5fVt4tNDA8VX52TRWhs75zZHVgaZdKI58XecnrKAQF7Uu01bk+/Us3zisYXtmj58JWvfJcKTfmjoVUHcK3CRUw4dzYsRrl5x94rCc5VDeGKlNu2E9gpeOtskH6mKyNF8HrkpR46eYCz2YTQcRzixnViphyK/6qsZ/G2w+V2imY5G/fSWditk2vlsNUXErHO+cPA
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR07MB5529.namprd07.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(4636009)(396003)(136003)(376002)(366004)(39860400002)(346002)(36092001)(6506007)(9686003)(52536014)(26005)(8936002)(5660300002)(55016002)(8676002)(2906002)(86362001)(76116006)(186003)(66946007)(66556008)(66446008)(66476007)(64756008)(4326008)(71200400001)(83380400001)(54906003)(478600001)(7696005)(110136005)(316002)(33656002);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata: 8S/chqSvcdQI13bQkZQZCMMn/WKr6RXPvBHU9W9+cWcQZ+SwA3dXBprYyTu8I8TRlRb2yrLgO1wOkUysq+x+u/MCVZf7bVRBRZfoxzwPduRVXTnfZh2pDogz73wngWBflbRb6aDq3LRuoUCw2Hb4H9a34nAfniT0k6FYvYOClENidoi4rgZgo/uQZzPRTAfB3al0ArFWz/pNyDQQ/JFuTa3SgtOYc568TfgwVbUyIdEhFaCkbjHvrduOhV6dYEnyj7dNs+lB0BZ6+LGublSL6RjRNp+OpoDgcN4Iepq4JIFhIhVAcabthQq88ybkjeafkD+lVVI24sED6WQLIYhsXXqhGkuigcNiBfDkZTLcJWBQEMmhLSQ1pS0UlfrmcPRKNpNrEbkJUNExy4G7GUTSJePsWnsnJaESRl/zd+ZZI/Pyxl+QH38HPEBbvxd1KxTRy0Sq++7tNKIP3ahCg+P5xsxvv0nClQ0Srt7nNspabT84ryDZ76xvIlDjRWgqgv1q
 x-ms-exchange-transport-forked: True
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 X-OriginatorOrg: cadence.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 9575269c-e127-469a-6f8f-08d817410a23
-X-MS-Exchange-CrossTenant-originalarrivaltime: 23 Jun 2020 06:45:38.2972
+X-MS-Exchange-CrossTenant-Network-Message-Id: 37a659db-9562-4550-bb2d-08d817411b47
+X-MS-Exchange-CrossTenant-originalarrivaltime: 23 Jun 2020 06:46:07.0244
  (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
 X-MS-Exchange-CrossTenant-id: d36035c5-6ce6-4662-a3dc-e762e61ae4c9
 X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: NWhY+8cA7USdoIIfd7t7be6eZ+5EXZHfzDXOi6tLdVw6COy0AZoDxtWPR6eGxTQF1Aebl6jkI8yymt28sWxNYTbKIFBj4Ix5JL9mvGTOqVc=
+X-MS-Exchange-CrossTenant-userprincipalname: avRBJOze5+cDFIEq4HHkoHTrP0/Zb6Ny1G2DPSwpyUvRpVwi7NrQ4JjMFXhhV92sKFY/xrhS1yDJDGkOwWZ0E/FFzgr4Z52D4JXqJP8ELtA=
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR07MB4037
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.216,18.0.687
  definitions=2020-06-23_04:2020-06-22,2020-06-23 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_check_notspam policy=outbound_check score=0 adultscore=0
- spamscore=0 phishscore=0 impostorscore=0 clxscore=1011
- cotscore=-2147483648 suspectscore=0 malwarescore=0 lowpriorityscore=0
- bulkscore=0 mlxscore=0 priorityscore=1501 mlxlogscore=800 classifier=spam
- adjust=0 reason=mlx scancount=1 engine=8.12.0-2004280000
+X-Proofpoint-Spam-Details: rule=outbound_check_notspam policy=outbound_check score=0 mlxscore=0
+ lowpriorityscore=0 adultscore=0 cotscore=-2147483648 impostorscore=0
+ malwarescore=0 mlxlogscore=671 bulkscore=0 priorityscore=1501 spamscore=0
+ phishscore=0 suspectscore=0 clxscore=1015 classifier=spam adjust=0
+ reason=mlx scancount=1 engine=8.12.0-2004280000
  definitions=main-2006230052
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
 
-Reviewed-by: Pawel Laszczak <pawell@cadence.com>
 >
+>It should use the correct direction value from register, not depends
+>on previous software setting. It fixed the EP number wrong issue at
+>trace when the TRBERR interrupt occurs for EP0IN.
 >
->The 'tmode' is ctrl->wIndex, changing it as the real test
->mode value for register assignment.
+>When the EP0IN IOC has finished, software prepares the setup packet
+>request, the expected direction is OUT, but at that time, the TRBERR
+>for EP0IN may occur since it is DMULT mode, the DMA does not stop
+>until TRBERR has met.
 >
 >Cc: <stable@vger.kernel.org>
 >Fixes: 7733f6c32e36 ("usb: cdns3: Add Cadence USB3 DRD Driver")
->Reviewed-by: Jun Li <jun.li@nxp.com>
 >Signed-off-by: Peter Chen <peter.chen@nxp.com>
+
+Reviewed-by: Pawel Laszczak <pawell@cadence.com>
+
 >---
-> drivers/usb/cdns3/ep0.c | 3 ++-
-> 1 file changed, 2 insertions(+), 1 deletion(-)
+> drivers/usb/cdns3/trace.h | 2 +-
+> 1 file changed, 1 insertion(+), 1 deletion(-)
 >
->diff --git a/drivers/usb/cdns3/ep0.c b/drivers/usb/cdns3/ep0.c
->index 2465a84e8fee..74a1ff5000ba 100644
->--- a/drivers/usb/cdns3/ep0.c
->+++ b/drivers/usb/cdns3/ep0.c
->@@ -327,7 +327,8 @@ static int cdns3_ep0_feature_handle_device(struct cdns=
-3_device *priv_dev,
-> 		if (!set || (tmode & 0xff) !=3D 0)
-> 			return -EINVAL;
->
->-		switch (tmode >> 8) {
->+		tmode >>=3D 8;
->+		switch (tmode) {
-
-For me it's looks the same, but it's ok.=20
-
-> 		case TEST_J:
-> 		case TEST_K:
-> 		case TEST_SE0_NAK:
+>diff --git a/drivers/usb/cdns3/trace.h b/drivers/usb/cdns3/trace.h
+>index de2c34d5bfc5..0a2a3269bfac 100644
+>--- a/drivers/usb/cdns3/trace.h
+>+++ b/drivers/usb/cdns3/trace.h
+>@@ -156,7 +156,7 @@ DECLARE_EVENT_CLASS(cdns3_log_ep0_irq,
+> 		__dynamic_array(char, str, CDNS3_MSG_MAX)
+> 	),
+> 	TP_fast_assign(
+>-		__entry->ep_dir =3D priv_dev->ep0_data_dir;
+>+		__entry->ep_dir =3D priv_dev->selected_ep;
+> 		__entry->ep_sts =3D ep_sts;
+> 	),
+> 	TP_printk("%s", cdns3_decode_ep0_irq(__get_str(str),
 >--
 >2.17.1
 
