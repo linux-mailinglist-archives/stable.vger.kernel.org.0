@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE47F206567
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:50:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 265CA206568
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:50:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387879AbgFWUCj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:02:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40008 "EHLO mail.kernel.org"
+        id S2387891AbgFWUCm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:02:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387876AbgFWUCj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:02:39 -0400
+        id S2387888AbgFWUCl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:02:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2239420E65;
-        Tue, 23 Jun 2020 20:02:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 868C120CC7;
+        Tue, 23 Jun 2020 20:02:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592942558;
-        bh=qJYJkShsnvR4KtKFGTedAs7fvn/b6fwW/iDBGFYdcbk=;
+        s=default; t=1592942561;
+        bh=7giNc4RL+tyolJNpeqfAlCZa1bACIvCrMJf5vTXKKPM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DLfRbtNqmkQdkX7esxttE8phdfyERtVH77I+apt0ZSr0vSyWJU42ITuJLEOL5tS8l
-         jNcOWFKTDcf74PiLbJL9tI16c11i4EBD2LPVAPGH74gEVlM7FcYkdJJUB4A/wjXbQ5
-         MnIdzfdNNqospVDEdgE5l/xevAcZ3vxTJTJtXwKA=
+        b=LpuS64RHKtjp/d8iAoVLbCWLZVHaE0lf0sqzGva1y0R2ZJN3OqfHGH01qvUEkrExR
+         6j5dWzx1P2K/l01WhjSUspUHid/Toq2g3h5kl4GunmMTQCjax96b8tAgjGKER8weLm
+         OX4c7ErJ+N9rt6yfgRA2T8+sgg4msTewRe4TV2O4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Wilck <mwilck@suse.com>,
-        Hannes Reinecke <hare@suse.de>,
-        Mike Snitzer <snitzer@redhat.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <marek.behun@nic.cz>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 046/477] dm mpath: switch paths in dm_blk_ioctl() code path
-Date:   Tue, 23 Jun 2020 21:50:43 +0200
-Message-Id: <20200623195409.784174830@linuxfoundation.org>
+Subject: [PATCH 5.7 047/477] arm64: dts: armada-3720-turris-mox: forbid SDR104 on SDIO for FCC purposes
+Date:   Tue, 23 Jun 2020 21:50:44 +0200
+Message-Id: <20200623195409.833314572@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -45,47 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Wilck <mwilck@suse.com>
+From: Marek Behún <marek.behun@nic.cz>
 
-[ Upstream commit 2361ae595352dec015d14292f1b539242d8446d6 ]
+[ Upstream commit 7a2c36b039d2343cc29fec6102da839477b8dc60 ]
 
-SCSI LUN passthrough code such as qemu's "scsi-block" device model
-pass every IO to the host via SG_IO ioctls. Currently, dm-multipath
-calls choose_pgpath() only in the block IO code path, not in the ioctl
-code path (unless current_pgpath is NULL). This has the effect that no
-path switching and thus no load balancing is done for SCSI-passthrough
-IO, unless the active path fails.
+Use sdhci-caps-mask to forbid SDR104 mode on the SDIO capable SDHCI
+controller. Without this the device cannot pass electromagnetic
+interference certifications.
 
-Fix this by using the same logic in multipath_prepare_ioctl() as in
-multipath_clone_and_map().
-
-Note: The allegedly best path selection algorithm, service-time,
-still wouldn't work perfectly, because the io size of the current
-request is always set to 0. Changing that for the IO passthrough
-case would require the ioctl cmd and arg to be passed to dm's
-prepare_ioctl() method.
-
-Signed-off-by: Martin Wilck <mwilck@suse.com>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Fixes: 7109d817db2e ("arm64: dts: marvell: add DTS for Turris Mox")
+Signed-off-by: Marek Behún <marek.behun@nic.cz>
+Cc: Gregory CLEMENT <gregory.clement@bootlin.com>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-mpath.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/md/dm-mpath.c b/drivers/md/dm-mpath.c
-index 3e500098132f1..e0c800cf87a9b 100644
---- a/drivers/md/dm-mpath.c
-+++ b/drivers/md/dm-mpath.c
-@@ -1918,7 +1918,7 @@ static int multipath_prepare_ioctl(struct dm_target *ti,
- 	int r;
+diff --git a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
+index bb42d1e6a4e92..47fee66c70cbc 100644
+--- a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
++++ b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
+@@ -179,6 +179,8 @@
+ 	marvell,pad-type = "sd";
+ 	vqmmc-supply = <&vsdio_reg>;
+ 	mmc-pwrseq = <&sdhci1_pwrseq>;
++	/* forbid SDR104 for FCC purposes */
++	sdhci-caps-mask = <0x2 0x0>;
+ 	status = "okay";
+ };
  
- 	current_pgpath = READ_ONCE(m->current_pgpath);
--	if (!current_pgpath)
-+	if (!current_pgpath || !test_bit(MPATHF_QUEUE_IO, &m->flags))
- 		current_pgpath = choose_pgpath(m, 0);
- 
- 	if (current_pgpath) {
 -- 
 2.25.1
 
