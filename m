@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41CA6205E31
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:21:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFFB9205E18
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:21:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389974AbgFWUUs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:20:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36932 "EHLO mail.kernel.org"
+        id S2389583AbgFWUTw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:19:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387633AbgFWUTt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:19:49 -0400
+        id S2388689AbgFWUTv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:19:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9696C2080C;
-        Tue, 23 Jun 2020 20:19:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2DE5920E65;
+        Tue, 23 Jun 2020 20:19:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943588;
-        bh=z6ZSfJNGv0zsXQltdo2Yq48Zm5h2C1D7SrqFRVHK39s=;
+        s=default; t=1592943590;
+        bh=psH7cci59HLuz1YQJzScwCcn+DVBDzMbDRTwUpov0P8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1XoDFwll4geY+HWkVz0LHlUII+WcVoAbgPNP1U9gib9hJwoiiG8OHFClnLYAOdvaD
-         ntOjp2HFJ9D0SNWmjaIzvKdD6KX1K57SQsP/88iRO4OJZfu8w1L2Yit7/UKCgIiyUh
-         TpHUeU0yTJVr79SubmQnM+sNwMnSizfBHQJrwVs0=
+        b=qM3nYXnKjISA8Zra+kg0FG2i4CLvWz2q+vN9OzoMpOzZi/hXlfTRu6U6KWY7ehVM4
+         c8XkUsO/2t/d4X4KbEZFq34OBpwv9sEpz/+TztgaGy8Z4WqJd2+cKYni0PtyS8mF4z
+         ZqMe8r0h5RYchbIuY0Mj+gGkDB5nkuZRfKhmDaks=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
         Mika Kuoppala <mika.kuoppala@linux.intel.com>,
-        Bruce Chang <yu.bruce.chang@intel.com>,
         Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Subject: [PATCH 5.7 451/477] drm/i915/gt: Incrementally check for rewinding
-Date:   Tue, 23 Jun 2020 21:57:28 +0200
-Message-Id: <20200623195428.857477626@linuxfoundation.org>
+Subject: [PATCH 5.7 452/477] drm/i915/gt: Move hsw GT workarounds from init_clock_gating to workarounds
+Date:   Tue, 23 Jun 2020 21:57:29 +0200
+Message-Id: <20200623195428.906522840@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -47,295 +46,150 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chris Wilson <chris@chris-wilson.co.uk>
 
-commit 8ab3a3812aa90e488813e719308ffd807b865624 upstream.
+commit ef50fa9bd17d13d0611e39e13b37bbd3e1ea50bf upstream.
 
-In commit 5ba32c7be81e ("drm/i915/execlists: Always force a context
-reload when rewinding RING_TAIL"), we placed the check for rewinding a
-context on actually submitting the next request in that context. This
-was so that we only had to check once, and could do so with precision
-avoiding as many forced restores as possible. For example, to ensure
-that we can resubmit the same request a couple of times, we include a
-small wa_tail such that on the next submission, the ring->tail will
-appear to move forwards when resubmitting the same request. This is very
-common as it will happen for every lite-restore to fill the second port
-after a context switch.
+Rescue the GT workarounds from being buried inside init_clock_gating so
+that we remember to apply them after a GT reset, and that they are
+included in our verification that the workarounds are applied.
 
-However, intel_ring_direction() is limited in precision to movements of
-upto half the ring size. The consequence being that if we tried to
-unwind many requests, we could exceed half the ring and flip the sense
-of the direction, so missing a force restore. As no request can be
-greater than half the ring (i.e. 2048 bytes in the smallest case), we
-can check for rollback incrementally. As we check against the tail that
-would be submitted, we do not lose any sensitivity and allow lite
-restores for the simple case. We still need to double check upon
-submitting the context, to allow for multiple preemptions and
-resubmissions.
+v2: Leave HSW_SCRATCH to set an explicit value, not or in our disable
+bit.
 
-Fixes: 5ba32c7be81e ("drm/i915/execlists: Always force a context reload when rewinding RING_TAIL")
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2011
 Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
 Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-Cc: <stable@vger.kernel.org> # v5.4+
-Reviewed-by: Bruce Chang <yu.bruce.chang@intel.com>
 Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200609151723.12971-1-chris@chris-wilson.co.uk
-(cherry picked from commit e36ba817fa966f81fb1c8d16f3721b5a644b2fa9)
+Cc: stable@vger.kernel.org
+Link: https://patchwork.freedesktop.org/patch/msgid/20200611093015.11370-1-chris@chris-wilson.co.uk
+(cherry picked from commit f93ec5fb563779bda4501890b1854526de58e0f1)
 Signed-off-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/gt/intel_engine_cs.c            |    4 
- drivers/gpu/drm/i915/gt/intel_lrc.c                  |   21 +++
- drivers/gpu/drm/i915/gt/intel_ring.c                 |    4 
- drivers/gpu/drm/i915/gt/selftest_mocs.c              |   18 ++-
- drivers/gpu/drm/i915/gt/selftest_ring.c              |  110 +++++++++++++++++++
- drivers/gpu/drm/i915/selftests/i915_mock_selftests.h |    1 
- 6 files changed, 154 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/i915/gt/intel_workarounds.c |   48 ++++++++++++++++++++++++++++
+ drivers/gpu/drm/i915/intel_pm.c             |   39 +---------------------
+ 2 files changed, 50 insertions(+), 37 deletions(-)
 
---- a/drivers/gpu/drm/i915/gt/intel_engine_cs.c
-+++ b/drivers/gpu/drm/i915/gt/intel_engine_cs.c
-@@ -639,7 +639,7 @@ static int engine_setup_common(struct in
- struct measure_breadcrumb {
- 	struct i915_request rq;
- 	struct intel_ring ring;
--	u32 cs[1024];
-+	u32 cs[2048];
- };
- 
- static int measure_breadcrumb_dw(struct intel_context *ce)
-@@ -661,6 +661,8 @@ static int measure_breadcrumb_dw(struct
- 
- 	frame->ring.vaddr = frame->cs;
- 	frame->ring.size = sizeof(frame->cs);
-+	frame->ring.wrap =
-+		BITS_PER_TYPE(frame->ring.size) - ilog2(frame->ring.size);
- 	frame->ring.effective_size = frame->ring.size;
- 	intel_ring_update_space(&frame->ring);
- 	frame->rq.ring = &frame->ring;
---- a/drivers/gpu/drm/i915/gt/intel_lrc.c
-+++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
-@@ -972,6 +972,13 @@ __unwind_incomplete_requests(struct inte
- 			list_move(&rq->sched.link, pl);
- 			set_bit(I915_FENCE_FLAG_PQUEUE, &rq->fence.flags);
- 
-+			/* Check in case we rollback so far we wrap [size/2] */
-+			if (intel_ring_direction(rq->ring,
-+						 intel_ring_wrap(rq->ring,
-+								 rq->tail),
-+						 rq->ring->tail) > 0)
-+				rq->context->lrc.desc |= CTX_DESC_FORCE_RESTORE;
-+
- 			active = rq;
- 		} else {
- 			struct intel_engine_cs *owner = rq->context->engine;
-@@ -1383,8 +1390,9 @@ static u64 execlists_update_context(stru
- 	 * HW has a tendency to ignore us rewinding the TAIL to the end of
- 	 * an earlier request.
- 	 */
-+	GEM_BUG_ON(ce->lrc_reg_state[CTX_RING_TAIL] != rq->ring->tail);
-+	prev = rq->ring->tail;
- 	tail = intel_ring_set_tail(rq->ring, rq->tail);
--	prev = ce->lrc_reg_state[CTX_RING_TAIL];
- 	if (unlikely(intel_ring_direction(rq->ring, tail, prev) <= 0))
- 		desc |= CTX_DESC_FORCE_RESTORE;
- 	ce->lrc_reg_state[CTX_RING_TAIL] = tail;
-@@ -4213,6 +4221,14 @@ static int gen12_emit_flush_render(struc
- 	return 0;
+--- a/drivers/gpu/drm/i915/gt/intel_workarounds.c
++++ b/drivers/gpu/drm/i915/gt/intel_workarounds.c
+@@ -179,6 +179,12 @@ wa_write_or(struct i915_wa_list *wal, i9
  }
  
-+static void assert_request_valid(struct i915_request *rq)
+ static void
++wa_write_clr(struct i915_wa_list *wal, i915_reg_t reg, u32 clr)
 +{
-+	struct intel_ring *ring __maybe_unused = rq->ring;
-+
-+	/* Can we unwind this request without appearing to go forwards? */
-+	GEM_BUG_ON(intel_ring_direction(ring, rq->wa_tail, rq->head) <= 0);
++	wa_write_masked_or(wal, reg, clr, 0);
 +}
 +
- /*
-  * Reserve space for 2 NOOPs at the end of each request to be
-  * used as a workaround for not being allowed to do lite
-@@ -4225,6 +4241,9 @@ static u32 *gen8_emit_wa_tail(struct i91
- 	*cs++ = MI_NOOP;
- 	request->wa_tail = intel_ring_offset(request, cs);
- 
-+	/* Check that entire request is less than half the ring */
-+	assert_request_valid(request);
-+
- 	return cs;
- }
- 
---- a/drivers/gpu/drm/i915/gt/intel_ring.c
-+++ b/drivers/gpu/drm/i915/gt/intel_ring.c
-@@ -315,3 +315,7 @@ int intel_ring_cacheline_align(struct i9
- 	GEM_BUG_ON(rq->ring->emit & (CACHELINE_BYTES - 1));
- 	return 0;
- }
-+
-+#if IS_ENABLED(CONFIG_DRM_I915_SELFTEST)
-+#include "selftest_ring.c"
-+#endif
---- a/drivers/gpu/drm/i915/gt/selftest_mocs.c
-+++ b/drivers/gpu/drm/i915/gt/selftest_mocs.c
-@@ -18,6 +18,20 @@ struct live_mocs {
- 	void *vaddr;
- };
- 
-+static struct intel_context *mocs_context_create(struct intel_engine_cs *engine)
-+{
-+	struct intel_context *ce;
-+
-+	ce = intel_context_create(engine);
-+	if (IS_ERR(ce))
-+		return ce;
-+
-+	/* We build large requests to read the registers from the ring */
-+	ce->ring = __intel_context_ring_size(SZ_16K);
-+
-+	return ce;
-+}
-+
- static int request_add_sync(struct i915_request *rq, int err)
++static void
+ wa_masked_en(struct i915_wa_list *wal, i915_reg_t reg, u32 val)
  {
- 	i915_request_get(rq);
-@@ -301,7 +315,7 @@ static int live_mocs_clean(void *arg)
- 	for_each_engine(engine, gt, id) {
- 		struct intel_context *ce;
+ 	wa_add(wal, reg, 0, _MASKED_BIT_ENABLE(val), val);
+@@ -698,6 +704,46 @@ int intel_engine_emit_ctx_wa(struct i915
+ }
  
--		ce = intel_context_create(engine);
-+		ce = mocs_context_create(engine);
- 		if (IS_ERR(ce)) {
- 			err = PTR_ERR(ce);
- 			break;
-@@ -395,7 +409,7 @@ static int live_mocs_reset(void *arg)
- 	for_each_engine(engine, gt, id) {
- 		struct intel_context *ce;
+ static void
++hsw_gt_workarounds_init(struct drm_i915_private *i915, struct i915_wa_list *wal)
++{
++	/* L3 caching of data atomics doesn't work -- disable it. */
++	wa_write(wal, HSW_SCRATCH1, HSW_SCRATCH1_L3_DATA_ATOMICS_DISABLE);
++
++	wa_add(wal,
++	       HSW_ROW_CHICKEN3, 0,
++	       _MASKED_BIT_ENABLE(HSW_ROW_CHICKEN3_L3_GLOBAL_ATOMICS_DISABLE),
++		0 /* XXX does this reg exist? */);
++
++	/* WaVSRefCountFullforceMissDisable:hsw */
++	wa_write_clr(wal, GEN7_FF_THREAD_MODE, GEN7_FF_VS_REF_CNT_FFME);
++
++	wa_masked_dis(wal,
++		      CACHE_MODE_0_GEN7,
++		      /* WaDisable_RenderCache_OperationalFlush:hsw */
++		      RC_OP_FLUSH_ENABLE |
++		      /* enable HiZ Raw Stall Optimization */
++		      HIZ_RAW_STALL_OPT_DISABLE);
++
++	/* WaDisable4x2SubspanOptimization:hsw */
++	wa_masked_en(wal, CACHE_MODE_1, PIXEL_SUBSPAN_COLLECT_OPT_DISABLE);
++
++	/*
++	 * BSpec recommends 8x4 when MSAA is used,
++	 * however in practice 16x4 seems fastest.
++	 *
++	 * Note that PS/WM thread counts depend on the WIZ hashing
++	 * disable bit, which we don't touch here, but it's good
++	 * to keep in mind (see 3DSTATE_PS and 3DSTATE_WM).
++	 */
++	wa_add(wal, GEN7_GT_MODE, 0,
++	       _MASKED_FIELD(GEN6_WIZ_HASHING_MASK, GEN6_WIZ_HASHING_16x4),
++	       GEN6_WIZ_HASHING_16x4);
++
++	/* WaSampleCChickenBitEnable:hsw */
++	wa_masked_en(wal, HALF_SLICE_CHICKEN3, HSW_SAMPLE_C_PERFORMANCE);
++}
++
++static void
+ gen9_gt_workarounds_init(struct drm_i915_private *i915, struct i915_wa_list *wal)
+ {
+ 	/* WaDisableKillLogic:bxt,skl,kbl */
+@@ -974,6 +1020,8 @@ gt_init_workarounds(struct drm_i915_priv
+ 		bxt_gt_workarounds_init(i915, wal);
+ 	else if (IS_SKYLAKE(i915))
+ 		skl_gt_workarounds_init(i915, wal);
++	else if (IS_HASWELL(i915))
++		hsw_gt_workarounds_init(i915, wal);
+ 	else if (INTEL_GEN(i915) <= 8)
+ 		return;
+ 	else
+--- a/drivers/gpu/drm/i915/intel_pm.c
++++ b/drivers/gpu/drm/i915/intel_pm.c
+@@ -6992,45 +6992,10 @@ static void bdw_init_clock_gating(struct
  
--		ce = intel_context_create(engine);
-+		ce = mocs_context_create(engine);
- 		if (IS_ERR(ce)) {
- 			err = PTR_ERR(ce);
- 			break;
---- /dev/null
-+++ b/drivers/gpu/drm/i915/gt/selftest_ring.c
-@@ -0,0 +1,110 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Copyright © 2020 Intel Corporation
-+ */
-+
-+static struct intel_ring *mock_ring(unsigned long sz)
-+{
-+	struct intel_ring *ring;
-+
-+	ring = kzalloc(sizeof(*ring) + sz, GFP_KERNEL);
-+	if (!ring)
-+		return NULL;
-+
-+	kref_init(&ring->ref);
-+	ring->size = sz;
-+	ring->wrap = BITS_PER_TYPE(ring->size) - ilog2(sz);
-+	ring->effective_size = sz;
-+	ring->vaddr = (void *)(ring + 1);
-+	atomic_set(&ring->pin_count, 1);
-+
-+	intel_ring_update_space(ring);
-+
-+	return ring;
-+}
-+
-+static void mock_ring_free(struct intel_ring *ring)
-+{
-+	kfree(ring);
-+}
-+
-+static int check_ring_direction(struct intel_ring *ring,
-+				u32 next, u32 prev,
-+				int expected)
-+{
-+	int result;
-+
-+	result = intel_ring_direction(ring, next, prev);
-+	if (result < 0)
-+		result = -1;
-+	else if (result > 0)
-+		result = 1;
-+
-+	if (result != expected) {
-+		pr_err("intel_ring_direction(%u, %u):%d != %d\n",
-+		       next, prev, result, expected);
-+		return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+
-+static int check_ring_step(struct intel_ring *ring, u32 x, u32 step)
-+{
-+	u32 prev = x, next = intel_ring_wrap(ring, x + step);
-+	int err = 0;
-+
-+	err |= check_ring_direction(ring, next, next,  0);
-+	err |= check_ring_direction(ring, prev, prev,  0);
-+	err |= check_ring_direction(ring, next, prev,  1);
-+	err |= check_ring_direction(ring, prev, next, -1);
-+
-+	return err;
-+}
-+
-+static int check_ring_offset(struct intel_ring *ring, u32 x, u32 step)
-+{
-+	int err = 0;
-+
-+	err |= check_ring_step(ring, x, step);
-+	err |= check_ring_step(ring, intel_ring_wrap(ring, x + 1), step);
-+	err |= check_ring_step(ring, intel_ring_wrap(ring, x - 1), step);
-+
-+	return err;
-+}
-+
-+static int igt_ring_direction(void *dummy)
-+{
-+	struct intel_ring *ring;
-+	unsigned int half = 2048;
-+	int step, err = 0;
-+
-+	ring = mock_ring(2 * half);
-+	if (!ring)
-+		return -ENOMEM;
-+
-+	GEM_BUG_ON(ring->size != 2 * half);
-+
-+	/* Precision of wrap detection is limited to ring->size / 2 */
-+	for (step = 1; step < half; step <<= 1) {
-+		err |= check_ring_offset(ring, 0, step);
-+		err |= check_ring_offset(ring, half, step);
-+	}
-+	err |= check_ring_step(ring, 0, half - 64);
-+
-+	/* And check unwrapped handling for good measure */
-+	err |= check_ring_offset(ring, 0, 2 * half + 64);
-+	err |= check_ring_offset(ring, 3 * half, 1);
-+
-+	mock_ring_free(ring);
-+	return err;
-+}
-+
-+int intel_ring_mock_selftests(void)
-+{
-+	static const struct i915_subtest tests[] = {
-+		SUBTEST(igt_ring_direction),
-+	};
-+
-+	return i915_subtests(tests, NULL);
-+}
---- a/drivers/gpu/drm/i915/selftests/i915_mock_selftests.h
-+++ b/drivers/gpu/drm/i915/selftests/i915_mock_selftests.h
-@@ -20,6 +20,7 @@ selftest(fence, i915_sw_fence_mock_selft
- selftest(scatterlist, scatterlist_mock_selftests)
- selftest(syncmap, i915_syncmap_mock_selftests)
- selftest(uncore, intel_uncore_mock_selftests)
-+selftest(ring, intel_ring_mock_selftests)
- selftest(engine, intel_engine_cs_mock_selftests)
- selftest(timelines, intel_timeline_mock_selftests)
- selftest(requests, i915_request_mock_selftests)
+ static void hsw_init_clock_gating(struct drm_i915_private *dev_priv)
+ {
+-	/* L3 caching of data atomics doesn't work -- disable it. */
+-	I915_WRITE(HSW_SCRATCH1, HSW_SCRATCH1_L3_DATA_ATOMICS_DISABLE);
+-	I915_WRITE(HSW_ROW_CHICKEN3,
+-		   _MASKED_BIT_ENABLE(HSW_ROW_CHICKEN3_L3_GLOBAL_ATOMICS_DISABLE));
+-
+ 	/* This is required by WaCatErrorRejectionIssue:hsw */
+ 	I915_WRITE(GEN7_SQ_CHICKEN_MBCUNIT_CONFIG,
+-			I915_READ(GEN7_SQ_CHICKEN_MBCUNIT_CONFIG) |
+-			GEN7_SQ_CHICKEN_MBCUNIT_SQINTMOB);
+-
+-	/* WaVSRefCountFullforceMissDisable:hsw */
+-	I915_WRITE(GEN7_FF_THREAD_MODE,
+-		   I915_READ(GEN7_FF_THREAD_MODE) & ~GEN7_FF_VS_REF_CNT_FFME);
+-
+-	/* WaDisable_RenderCache_OperationalFlush:hsw */
+-	I915_WRITE(CACHE_MODE_0_GEN7, _MASKED_BIT_DISABLE(RC_OP_FLUSH_ENABLE));
+-
+-	/* enable HiZ Raw Stall Optimization */
+-	I915_WRITE(CACHE_MODE_0_GEN7,
+-		   _MASKED_BIT_DISABLE(HIZ_RAW_STALL_OPT_DISABLE));
+-
+-	/* WaDisable4x2SubspanOptimization:hsw */
+-	I915_WRITE(CACHE_MODE_1,
+-		   _MASKED_BIT_ENABLE(PIXEL_SUBSPAN_COLLECT_OPT_DISABLE));
+-
+-	/*
+-	 * BSpec recommends 8x4 when MSAA is used,
+-	 * however in practice 16x4 seems fastest.
+-	 *
+-	 * Note that PS/WM thread counts depend on the WIZ hashing
+-	 * disable bit, which we don't touch here, but it's good
+-	 * to keep in mind (see 3DSTATE_PS and 3DSTATE_WM).
+-	 */
+-	I915_WRITE(GEN7_GT_MODE,
+-		   _MASKED_FIELD(GEN6_WIZ_HASHING_MASK, GEN6_WIZ_HASHING_16x4));
+-
+-	/* WaSampleCChickenBitEnable:hsw */
+-	I915_WRITE(HALF_SLICE_CHICKEN3,
+-		   _MASKED_BIT_ENABLE(HSW_SAMPLE_C_PERFORMANCE));
++		   I915_READ(GEN7_SQ_CHICKEN_MBCUNIT_CONFIG) |
++		   GEN7_SQ_CHICKEN_MBCUNIT_SQINTMOB);
+ 
+ 	/* WaSwitchSolVfFArbitrationPriority:hsw */
+ 	I915_WRITE(GAM_ECOCHK, I915_READ(GAM_ECOCHK) | HSW_ECOCHK_ARB_PRIO_SOL);
 
 
