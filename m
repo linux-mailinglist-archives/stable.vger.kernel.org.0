@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6439D205EF5
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:32:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F70E205F1F
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:32:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390788AbgFWU1u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:27:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47474 "EHLO mail.kernel.org"
+        id S2390999AbgFWU3f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:29:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390797AbgFWU1t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:27:49 -0400
+        id S2390994AbgFWU3e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:29:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4BB79206EB;
-        Tue, 23 Jun 2020 20:27:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A09D2064B;
+        Tue, 23 Jun 2020 20:29:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944069;
-        bh=fzeiN6tsY2DADDxWEE9Al9nLMAgTcZwQITGuYd9DniQ=;
+        s=default; t=1592944173;
+        bh=GrohkfbmeiXd0QzpT86snwSvZYnUkRryWc+YAvRBiq0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jLB2Rm6pYv2vqbiBV04bNluoM3pke1wFUq/c3G+w6Ws5zdHfUpfmIMNJ2BVmAQxXw
-         kor8shVQTqHqqVzuB/WpPPEjiZIdgYnIACHQ0+VMMWG/reB6mpbJLjCQrbKVeN72H4
-         iwDfuhMpQJkTECT8RK7vPjK6YcUtkrVMUJ8xIhWw=
+        b=2MRKcZOiXtyABzj9imWDA3Nin3+esOIxNHk9qxkt3yAMX86+eOYi+XsRoeUuYC5b9
+         5wRDBEl4cYXP+jbT69UgkCPMEqBS5t8mWDAkslvJCcrn+VyF8AmUf2L3hnliBaEvHF
+         3PzJ2pvbXRJs9LUqtj5+ReDLuebRhxrA5Jg8WXo8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        stable@vger.kernel.org, Lang Cheng <chenglang@huawei.com>,
+        Weihang Li <liweihang@huawei.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 159/314] clk: samsung: exynos5433: Add IGNORE_UNUSED flag to sclk_i2s1
-Date:   Tue, 23 Jun 2020 21:55:54 +0200
-Message-Id: <20200623195346.443015904@linuxfoundation.org>
+Subject: [PATCH 5.4 161/314] RDMA/hns: Fix cmdq parameter of querying pf timer resource
+Date:   Tue, 23 Jun 2020 21:55:56 +0200
+Message-Id: <20200623195346.550128141@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
 References: <20200623195338.770401005@linuxfoundation.org>
@@ -45,66 +45,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Lang Cheng <chenglang@huawei.com>
 
-[ Upstream commit 25bdae0f1c6609ceaf55fe6700654f0be2253d8e ]
+[ Upstream commit 441c88d5b3ff80108ff536c6cf80591187015403 ]
 
-Mark the SCLK clock for Exynos5433 I2S1 device with IGNORE_UNUSED flag to
-match its behaviour with SCLK clock for AUD_I2S (I2S0) device until
-a proper fix for Exynos I2S driver is ready.
+The firmware has reduced the number of descriptions of command
+HNS_ROCE_OPC_QUERY_PF_TIMER_RES to 1. The driver needs to adapt, otherwise
+the hardware will report error 4(CMD_NEXT_ERR).
 
-This fixes the following synchronous abort issue revealed by the probe
-order change caused by the commit 93d2e4322aa7 ("of: platform: Batch
-fwnode parsing when adding all top level devices")
-
-Internal error: synchronous external abort: 96000210 [#1] PREEMPT SMP
-Modules linked in:
-CPU: 0 PID: 50 Comm: kworker/0:1 Not tainted 5.7.0-rc5+ #701
-Hardware name: Samsung TM2E board (DT)
-Workqueue: events deferred_probe_work_func
-pstate: 60000005 (nZCv daif -PAN -UAO)
-pc : samsung_i2s_probe+0x768/0x8f0
-lr : samsung_i2s_probe+0x688/0x8f0
-...
-Call trace:
- samsung_i2s_probe+0x768/0x8f0
- platform_drv_probe+0x50/0xa8
- really_probe+0x108/0x370
- driver_probe_device+0x54/0xb8
- __device_attach_driver+0x90/0xc0
- bus_for_each_drv+0x70/0xc8
- __device_attach+0xdc/0x140
- device_initial_probe+0x10/0x18
- bus_probe_device+0x94/0xa0
- deferred_probe_work_func+0x70/0xa8
- process_one_work+0x2a8/0x718
- worker_thread+0x48/0x470
- kthread+0x134/0x160
- ret_from_fork+0x10/0x1c
-Code: 17ffffaf d503201f f94086c0 91003000 (88dffc00)
----[ end trace ccf721c9400ddbd6 ]---
-
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
+Fixes: 0e40dc2f70cd ("RDMA/hns: Add timer allocation support for hip08")
+Link: https://lore.kernel.org/r/1588931159-56875-3-git-send-email-liweihang@huawei.com
+Signed-off-by: Lang Cheng <chenglang@huawei.com>
+Signed-off-by: Weihang Li <liweihang@huawei.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/samsung/clk-exynos5433.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 32 ++++++++--------------
+ 1 file changed, 12 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/clk/samsung/clk-exynos5433.c b/drivers/clk/samsung/clk-exynos5433.c
-index 4b1aa9382ad28..6f29ecd0442e1 100644
---- a/drivers/clk/samsung/clk-exynos5433.c
-+++ b/drivers/clk/samsung/clk-exynos5433.c
-@@ -1706,7 +1706,8 @@ static const struct samsung_gate_clock peric_gate_clks[] __initconst = {
- 	GATE(CLK_SCLK_PCM1, "sclk_pcm1", "sclk_pcm1_peric",
- 			ENABLE_SCLK_PERIC, 7, CLK_SET_RATE_PARENT, 0),
- 	GATE(CLK_SCLK_I2S1, "sclk_i2s1", "sclk_i2s1_peric",
--			ENABLE_SCLK_PERIC, 6, CLK_SET_RATE_PARENT, 0),
-+			ENABLE_SCLK_PERIC, 6,
-+			CLK_SET_RATE_PARENT | CLK_IGNORE_UNUSED, 0),
- 	GATE(CLK_SCLK_SPI2, "sclk_spi2", "sclk_spi2_peric", ENABLE_SCLK_PERIC,
- 			5, CLK_SET_RATE_PARENT, 0),
- 	GATE(CLK_SCLK_SPI1, "sclk_spi1", "sclk_spi1_peric", ENABLE_SCLK_PERIC,
+diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+index 9a8053bd01e22..0502c90c83edd 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
++++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+@@ -1349,34 +1349,26 @@ static int hns_roce_query_pf_resource(struct hns_roce_dev *hr_dev)
+ static int hns_roce_query_pf_timer_resource(struct hns_roce_dev *hr_dev)
+ {
+ 	struct hns_roce_pf_timer_res_a *req_a;
+-	struct hns_roce_cmq_desc desc[2];
+-	int ret, i;
++	struct hns_roce_cmq_desc desc;
++	int ret;
+ 
+-	for (i = 0; i < 2; i++) {
+-		hns_roce_cmq_setup_basic_desc(&desc[i],
+-					      HNS_ROCE_OPC_QUERY_PF_TIMER_RES,
+-					      true);
++	hns_roce_cmq_setup_basic_desc(&desc, HNS_ROCE_OPC_QUERY_PF_TIMER_RES,
++				      true);
+ 
+-		if (i == 0)
+-			desc[i].flag |= cpu_to_le16(HNS_ROCE_CMD_FLAG_NEXT);
+-		else
+-			desc[i].flag &= ~cpu_to_le16(HNS_ROCE_CMD_FLAG_NEXT);
+-	}
+-
+-	ret = hns_roce_cmq_send(hr_dev, desc, 2);
++	ret = hns_roce_cmq_send(hr_dev, &desc, 1);
+ 	if (ret)
+ 		return ret;
+ 
+-	req_a = (struct hns_roce_pf_timer_res_a *)desc[0].data;
++	req_a = (struct hns_roce_pf_timer_res_a *)desc.data;
+ 
+ 	hr_dev->caps.qpc_timer_bt_num =
+-				roce_get_field(req_a->qpc_timer_bt_idx_num,
+-					PF_RES_DATA_1_PF_QPC_TIMER_BT_NUM_M,
+-					PF_RES_DATA_1_PF_QPC_TIMER_BT_NUM_S);
++		roce_get_field(req_a->qpc_timer_bt_idx_num,
++			       PF_RES_DATA_1_PF_QPC_TIMER_BT_NUM_M,
++			       PF_RES_DATA_1_PF_QPC_TIMER_BT_NUM_S);
+ 	hr_dev->caps.cqc_timer_bt_num =
+-				roce_get_field(req_a->cqc_timer_bt_idx_num,
+-					PF_RES_DATA_2_PF_CQC_TIMER_BT_NUM_M,
+-					PF_RES_DATA_2_PF_CQC_TIMER_BT_NUM_S);
++		roce_get_field(req_a->cqc_timer_bt_idx_num,
++			       PF_RES_DATA_2_PF_CQC_TIMER_BT_NUM_M,
++			       PF_RES_DATA_2_PF_CQC_TIMER_BT_NUM_S);
+ 
+ 	return 0;
+ }
 -- 
 2.25.1
 
