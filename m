@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58FA4205E2F
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:21:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CFD8205E14
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:21:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389868AbgFWUUn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:20:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38108 "EHLO mail.kernel.org"
+        id S2389844AbgFWUTn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:19:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389674AbgFWUUm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:20:42 -0400
+        id S2389833AbgFWUTn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:19:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F1622078A;
-        Tue, 23 Jun 2020 20:20:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 618FF20EDD;
+        Tue, 23 Jun 2020 20:19:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943641;
-        bh=Y/euwcTHW76+GV8HNgM6r8X11HguTT8I2SsQJLqj9/w=;
+        s=default; t=1592943583;
+        bh=h1PD7x36mnaDW/l1YHYv9hW4HSlW4BimCrjOOY0poIk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xXfPpFU0TZv9PWvVa85/oOA+dnBaJako+VpDtKVXcuqS0qzCWKMlwkapzCObfcawW
-         0+JPTDAdbiWXZLE6GU8aHbqnlqOkWEHaRQtUCugeUMGLXn6C5KPi7ihxyN43p8vlie
-         vRjC7S1Ko0dI4vgaSS0PWYb8WCgGleB631kY2Z/I=
+        b=kk6WlWL+jKs9h433YyiwTYb2fHNiMPQ75gIiIb3DnXOC3mcdce6eT10U8A/dVrXDH
+         CNItFhTGZjWA6//hjAtBmam9l/UmRTvnMyIeDgfOXmiaVeSw/Ut7AmxI3FYReDCM/B
+         YWaoSds/8jU1RbN8F7dwT8PNvqG5fmalKJuH3mtM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Daniel Rosenberg <drosen@google.com>,
-        Gabriel Krisman Bertazi <krisman@collabora.co.uk>,
-        Eric Biggers <ebiggers@google.com>,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 440/477] f2fs: avoid utf8_strncasecmp() with unstable name
-Date:   Tue, 23 Jun 2020 21:57:17 +0200
-Message-Id: <20200623195428.330571320@linuxfoundation.org>
+        stable@vger.kernel.org, Kunal Joshi <kunal1.joshi@intel.com>,
+        Imre Deak <imre.deak@intel.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Subject: [PATCH 5.7 449/477] drm/i915/icl+: Fix hotplug interrupt disabling after storm detection
+Date:   Tue, 23 Jun 2020 21:57:26 +0200
+Message-Id: <20200623195428.759539500@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -47,66 +46,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Imre Deak <imre.deak@intel.com>
 
-[ Upstream commit fc3bb095ab02b9e7d89a069ade2cead15c64c504 ]
+commit a3005c2edf7e8c3478880db1ca84028a2b6819bb upstream.
 
-If the dentry name passed to ->d_compare() fits in dentry::d_iname, then
-it may be concurrently modified by a rename.  This can cause undefined
-behavior (possibly out-of-bounds memory accesses or crashes) in
-utf8_strncasecmp(), since fs/unicode/ isn't written to handle strings
-that may be concurrently modified.
+Atm, hotplug interrupts on TypeC ports are left enabled after detecting
+an interrupt storm, fix this.
 
-Fix this by first copying the filename to a stack buffer if needed.
-This way we get a stable snapshot of the filename.
+Reported-by: Kunal Joshi <kunal1.joshi@intel.com>
+Bugzilla: https://gitlab.freedesktop.org/drm/intel/-/issues/1964
+Cc: Kunal Joshi <kunal1.joshi@intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Imre Deak <imre.deak@intel.com>
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200612121731.19596-1-imre.deak@intel.com
+(cherry picked from commit 587a87b9d7e94927edcdea018565bc1939381eb1)
+Signed-off-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: 2c2eb7a300cd ("f2fs: Support case-insensitive file name lookups")
-Cc: <stable@vger.kernel.org> # v5.4+
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Daniel Rosenberg <drosen@google.com>
-Cc: Gabriel Krisman Bertazi <krisman@collabora.co.uk>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/dir.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/gpu/drm/i915/i915_irq.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/f2fs/dir.c b/fs/f2fs/dir.c
-index 44eb12a00cd0e..54e90dbb09e78 100644
---- a/fs/f2fs/dir.c
-+++ b/fs/f2fs/dir.c
-@@ -1076,11 +1076,27 @@ static int f2fs_d_compare(const struct dentry *dentry, unsigned int len,
- 	const struct inode *dir = READ_ONCE(parent->d_inode);
- 	const struct f2fs_sb_info *sbi = F2FS_SB(dentry->d_sb);
- 	struct qstr entry = QSTR_INIT(str, len);
-+	char strbuf[DNAME_INLINE_LEN];
- 	int res;
+--- a/drivers/gpu/drm/i915/i915_irq.c
++++ b/drivers/gpu/drm/i915/i915_irq.c
+@@ -3092,6 +3092,7 @@ static void gen11_hpd_irq_setup(struct d
  
- 	if (!dir || !IS_CASEFOLDED(dir))
- 		goto fallback;
+ 	val = I915_READ(GEN11_DE_HPD_IMR);
+ 	val &= ~hotplug_irqs;
++	val |= ~enabled_irqs & hotplug_irqs;
+ 	I915_WRITE(GEN11_DE_HPD_IMR, val);
+ 	POSTING_READ(GEN11_DE_HPD_IMR);
  
-+	/*
-+	 * If the dentry name is stored in-line, then it may be concurrently
-+	 * modified by a rename.  If this happens, the VFS will eventually retry
-+	 * the lookup, so it doesn't matter what ->d_compare() returns.
-+	 * However, it's unsafe to call utf8_strncasecmp() with an unstable
-+	 * string.  Therefore, we have to copy the name into a temporary buffer.
-+	 */
-+	if (len <= DNAME_INLINE_LEN - 1) {
-+		memcpy(strbuf, str, len);
-+		strbuf[len] = 0;
-+		entry.name = strbuf;
-+		/* prevent compiler from optimizing out the temporary buffer */
-+		barrier();
-+	}
-+
- 	res = utf8_strncasecmp(sbi->s_encoding, name, &entry);
- 	if (res >= 0)
- 		return res;
--- 
-2.25.1
-
 
 
