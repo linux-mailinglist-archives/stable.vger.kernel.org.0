@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 28756205D55
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:14:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DB82205D5C
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:14:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388912AbgFWUMF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:12:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53590 "EHLO mail.kernel.org"
+        id S2388766AbgFWUMW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:12:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388924AbgFWUMC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:12:02 -0400
+        id S2388960AbgFWUMV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:12:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 67CC4206C3;
-        Tue, 23 Jun 2020 20:12:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B6B63206C3;
+        Tue, 23 Jun 2020 20:12:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943120;
-        bh=G5GnVQz8QaMHJqYu9A89J1iR3ueOD57gBZUxL7V3hS4=;
+        s=default; t=1592943141;
+        bh=eekO+Wa0nSOaHOaRCZTNxrB1Nwmp0yUa9pR4dNhvShs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fajHanvb0xTLtHU2AYXOmrPAW49sB4BHnNOQXCfGXLjl0hH6L1fMuKGVI8QUMWBvL
-         sc9TenLnwIvIkuq6+DJem6wBO+0bnP28RcuxCvl++x6lzAw1r7K256jtBul3VnVa5Z
-         z+HnlvU5FcArj2vYwBcD2rXDOauZgG/nHD4lZIno=
+        b=qBBUAtnhfFWmfaFrObBXSENTFauyzndMpdrasBo3NpmV0UeKljRRNIMgaQ6TQkrSm
+         gLQtmu8R5wwf7bwmqYbSkYQHwMXgT9WZESdDSl+FJeqXmqI8qVuLZ1mdkj9p0cFv9i
+         +zPKC075rt8DMorBECq7269pRl85rSs1jstvplqc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Siddharth Gupta <sidgup@codeaurora.org>,
-        Masahiro Yamada <masahiroy@kernel.org>,
+        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 266/477] scripts: headers_install: Exit with error on config leak
-Date:   Tue, 23 Jun 2020 21:54:23 +0200
-Message-Id: <20200623195420.144091889@linuxfoundation.org>
+Subject: [PATCH 5.7 268/477] x86/apic: Make TSC deadline timer detection message visible
+Date:   Tue, 23 Jun 2020 21:54:25 +0200
+Message-Id: <20200623195420.241984846@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -44,59 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Siddharth Gupta <sidgup@codeaurora.org>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit 5967577231f9b19acd5a59485e9075964065bbe3 ]
+[ Upstream commit de308d1815c9e8fe602a958c5c76142ff6501d75 ]
 
-Misuse of CONFIG_* in UAPI headers should result in an error. These config
-options can be set in userspace by the user application which includes
-these headers to control the APIs and structures being used in a kernel
-which supports multiple targets.
+The commit
 
-Signed-off-by: Siddharth Gupta <sidgup@codeaurora.org>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+  c84cb3735fd5 ("x86/apic: Move TSC deadline timer debug printk")
+
+removed the message which said that the deadline timer was enabled.
+It added a pr_debug() message which is issued when deadline timer
+validation succeeds.
+
+Well, issued only when CONFIG_DYNAMIC_DEBUG is enabled - otherwise
+pr_debug() calls get optimized away if DEBUG is not defined in the
+compilation unit.
+
+Therefore, make the above message pr_info() so that it is visible in
+dmesg.
+
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20200525104218.27018-1-bp@alien8.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/headers_install.sh | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ arch/x86/kernel/apic/apic.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/scripts/headers_install.sh b/scripts/headers_install.sh
-index a07668a5c36b1..94a833597a884 100755
---- a/scripts/headers_install.sh
-+++ b/scripts/headers_install.sh
-@@ -64,7 +64,7 @@ configs=$(sed -e '
- 	d
- ' $OUTFILE)
+diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
+index e53dda210cd73..21d2f1de10578 100644
+--- a/arch/x86/kernel/apic/apic.c
++++ b/arch/x86/kernel/apic/apic.c
+@@ -2093,7 +2093,7 @@ void __init init_apic_mappings(void)
+ 	unsigned int new_apicid;
  
--# The entries in the following list are not warned.
-+# The entries in the following list do not result in an error.
- # Please do not add a new entry. This list is only for existing ones.
- # The list will be reduced gradually, and deleted eventually. (hopefully)
- #
-@@ -98,18 +98,19 @@ include/uapi/linux/raw.h:CONFIG_MAX_RAW_DEVS
+ 	if (apic_validate_deadline_timer())
+-		pr_debug("TSC deadline timer available\n");
++		pr_info("TSC deadline timer available\n");
  
- for c in $configs
- do
--	warn=1
-+	leak_error=1
- 
- 	for ignore in $config_leak_ignores
- 	do
- 		if echo "$INFILE:$c" | grep -q "$ignore$"; then
--			warn=
-+			leak_error=
- 			break
- 		fi
- 	done
- 
--	if [ "$warn" = 1 ]; then
--		echo "warning: $INFILE: leak $c to user-space" >&2
-+	if [ "$leak_error" = 1 ]; then
-+		echo "error: $INFILE: leak $c to user-space" >&2
-+		exit 1
- 	fi
- done
- 
+ 	if (x2apic_mode) {
+ 		boot_cpu_physical_apicid = read_apic_id();
 -- 
 2.25.1
 
