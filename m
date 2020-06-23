@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFA88205D79
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:14:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F9C8205D8E
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:14:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389123AbgFWUNq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:13:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55966 "EHLO mail.kernel.org"
+        id S2389221AbgFWUOm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:14:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388699AbgFWUNp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:13:45 -0400
+        id S2389217AbgFWUOk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:14:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 895A62078A;
-        Tue, 23 Jun 2020 20:13:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5C6E121473;
+        Tue, 23 Jun 2020 20:14:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943225;
-        bh=S3vdvrdQjZQyRMTQXQMaUocGwPJiZTZYDBCR1H5Zs0o=;
+        s=default; t=1592943280;
+        bh=v/vu0Mt0t8AGEPAQQro23PRx3LUfvzfkNaHAULRUE+I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RzB3hCFio7Qm9OvkhNd/lOL5XnU0iIYH5+QkXwJAFyIiUYwj1k01VIC3LihkUOLL3
-         RcEsC2vJi0lvMtX2pIDCP4mE7b0D/McM1yz4WL/fagN5eps9knne5Bprc2col4A08Y
-         Jtvc6JGMIT9QXjMiszN8FCXnvl+5+EUjD7q2sc90=
+        b=JeURaZPnWlV5BrvlDmm1BMZN6rSY+iydPBbWocDIsR6HYJnW7ZyGg3yyrdCL3FHur
+         5Nw80iCVQ4xjYESXj1cYrU/qxFYEvfaZhhcqX0OIDTPl3kl/5Swex0zq5NdVUgW4Ha
+         0H+41QD2gFU+iAT/g9GOEHDC+xIGXvmm9LVSN3eU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Kirti Wankhede <kwankhede@nvidia.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Jassi Brar <jaswinder.singh@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 301/477] vfio/mdev: Fix reference count leak in add_mdev_supported_type
-Date:   Tue, 23 Jun 2020 21:54:58 +0200
-Message-Id: <20200623195421.777993112@linuxfoundation.org>
+Subject: [PATCH 5.7 303/477] mailbox: imx: Fix return in imx_mu_scu_xlate()
+Date:   Tue, 23 Jun 2020 21:55:00 +0200
+Message-Id: <20200623195421.869765709@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -46,39 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit aa8ba13cae3134b8ef1c1b6879f66372531da738 ]
+[ Upstream commit 1b3a347b7d56aa637157da1b7df225071af1421f ]
 
-kobject_init_and_add() takes reference even when it fails.
-If this function returns an error, kobject_put() must be called to
-properly clean up the memory associated with the object. Thus,
-replace kfree() by kobject_put() to fix this issue. Previous
-commit "b8eb718348b8" fixed a similar problem.
+This called from mbox_request_channel().  The caller is  expecting error
+pointers and not NULL so this "return NULL;" will lead to an Oops.
 
-Fixes: 7b96953bc640 ("vfio: Mediated device Core driver")
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Kirti Wankhede <kwankhede@nvidia.com>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Fixes: 0a67003b1985 ("mailbox: imx: add SCU MU support")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/mdev/mdev_sysfs.c | 2 +-
+ drivers/mailbox/imx-mailbox.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/vfio/mdev/mdev_sysfs.c b/drivers/vfio/mdev/mdev_sysfs.c
-index 8ad14e5c02bf8..917fd84c1c6f2 100644
---- a/drivers/vfio/mdev/mdev_sysfs.c
-+++ b/drivers/vfio/mdev/mdev_sysfs.c
-@@ -110,7 +110,7 @@ static struct mdev_type *add_mdev_supported_type(struct mdev_parent *parent,
- 				   "%s-%s", dev_driver_string(parent->dev),
- 				   group->name);
- 	if (ret) {
--		kfree(type);
-+		kobject_put(&type->kobj);
- 		return ERR_PTR(ret);
+diff --git a/drivers/mailbox/imx-mailbox.c b/drivers/mailbox/imx-mailbox.c
+index 7906624a731c1..9d6f0217077b2 100644
+--- a/drivers/mailbox/imx-mailbox.c
++++ b/drivers/mailbox/imx-mailbox.c
+@@ -374,7 +374,7 @@ static struct mbox_chan *imx_mu_scu_xlate(struct mbox_controller *mbox,
+ 		break;
+ 	default:
+ 		dev_err(mbox->dev, "Invalid chan type: %d\n", type);
+-		return NULL;
++		return ERR_PTR(-EINVAL);
  	}
  
+ 	if (chan >= mbox->num_chans) {
 -- 
 2.25.1
 
