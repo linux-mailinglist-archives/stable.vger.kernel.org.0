@@ -2,37 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA343205E39
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:21:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C08A3205E3B
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:21:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389996AbgFWUVB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:21:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38522 "EHLO mail.kernel.org"
+        id S2389391AbgFWUVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:21:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387771AbgFWUVA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:21:00 -0400
+        id S2390001AbgFWUVF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:21:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB9F32078A;
-        Tue, 23 Jun 2020 20:20:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 748492070E;
+        Tue, 23 Jun 2020 20:21:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943660;
-        bh=FFIwdkID5nEpYDIK4ojF2yfn/U7fRgASJqynNgkUK9E=;
+        s=default; t=1592943665;
+        bh=iLEag8aHkg0cJlHKHSI6ztrOnRxk9mkROfPEddwrW3k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pk1OqJ4eLTdoKSleaxWPEQFKlgH3MDJjTKVR8h6J+0RSnMEVQbD/DOcLkQ48+Ycq9
-         tFSWwZAIr/PT4zQvFvY+30w5WSi695NyBKn46p4Hx8/nCsE/3LwerHOGTIU9FWec9L
-         2ZEfPxSQFZKN7/yATFsWwEJJRvMIt4qmtf7EQNR0=
+        b=IE87z8c+i66ruAweRNxPKHmTgMIlcifgLo87WQCmYc7VVjBO1hWk+lclmrXFjZ0WL
+         /2S5txPB3RsI36EM02L9uHP4I+X3V+TKlGdcldt+Czfya/7937IsNmOTiUYVChotqD
+         /DdFe8a2w49kCsRhWntE1xtbMpMS+uiW7+jSAIRw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Stefano Brivio <sbrivio@redhat.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Florian Westphal <fw@strlen.de>
-Subject: [PATCH 5.7 470/477] netfilter: nft_set_pipapo: Disable preemption before getting per-CPU pointer
-Date:   Tue, 23 Jun 2020 21:57:47 +0200
-Message-Id: <20200623195429.762711253@linuxfoundation.org>
+        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
+        "Gustavo A . R . Silva" <gustavoars@kernel.org>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>,
+        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+        David Miller <davem@davemloft.net>,
+        Ingo Molnar <mingo@elte.hu>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Ziqian SUN (Zamir)" <zsun@redhat.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Jiri Olsa <jolsa@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.7 472/477] kretprobe: Prevent triggering kretprobe from within kprobe_flush_task
+Date:   Tue, 23 Jun 2020 21:57:49 +0200
+Message-Id: <20200623195429.858340151@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -45,99 +53,238 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefano Brivio <sbrivio@redhat.com>
+From: Jiri Olsa <jolsa@redhat.com>
 
-commit c3829285b2e6a0d5461078d7f6cbb2c2b4bf8c4e upstream.
+commit 9b38cc704e844e41d9cf74e647bff1d249512cb3 upstream.
 
-The lkp kernel test robot reports, with CONFIG_DEBUG_PREEMPT enabled:
+Ziqian reported lockup when adding retprobe on _raw_spin_lock_irqsave.
+My test was also able to trigger lockdep output:
 
-  [  165.316525] BUG: using smp_processor_id() in preemptible [00000000] code: nft/6247
-  [  165.319547] caller is nft_pipapo_insert+0x464/0x610 [nf_tables]
-  [  165.321846] CPU: 1 PID: 6247 Comm: nft Not tainted 5.6.0-rc5-01595-ge32a4dc6512ce3 #1
-  [  165.332128] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-1 04/01/2014
-  [  165.334892] Call Trace:
-  [  165.336435]  dump_stack+0x8f/0xcb
-  [  165.338128]  debug_smp_processor_id+0xb2/0xc0
-  [  165.340117]  nft_pipapo_insert+0x464/0x610 [nf_tables]
-  [  165.342290]  ? nft_trans_alloc_gfp+0x1c/0x60 [nf_tables]
-  [  165.344420]  ? rcu_read_lock_sched_held+0x52/0x80
-  [  165.346460]  ? nft_trans_alloc_gfp+0x1c/0x60 [nf_tables]
-  [  165.348543]  ? __mmu_interval_notifier_insert+0xa0/0xf0
-  [  165.350629]  nft_add_set_elem+0x5ff/0xa90 [nf_tables]
-  [  165.352699]  ? __lock_acquire+0x241/0x1400
-  [  165.354573]  ? __lock_acquire+0x241/0x1400
-  [  165.356399]  ? reacquire_held_locks+0x12f/0x200
-  [  165.358384]  ? nf_tables_valid_genid+0x1f/0x40 [nf_tables]
-  [  165.360502]  ? nla_strcmp+0x10/0x50
-  [  165.362199]  ? nft_table_lookup+0x4f/0xa0 [nf_tables]
-  [  165.364217]  ? nla_strcmp+0x10/0x50
-  [  165.365891]  ? nf_tables_newsetelem+0xd5/0x150 [nf_tables]
-  [  165.367997]  nf_tables_newsetelem+0xd5/0x150 [nf_tables]
-  [  165.370083]  nfnetlink_rcv_batch+0x4fd/0x790 [nfnetlink]
-  [  165.372205]  ? __lock_acquire+0x241/0x1400
-  [  165.374058]  ? __nla_validate_parse+0x57/0x8a0
-  [  165.375989]  ? cap_inode_getsecurity+0x230/0x230
-  [  165.377954]  ? security_capable+0x38/0x50
-  [  165.379795]  nfnetlink_rcv+0x11d/0x140 [nfnetlink]
-  [  165.381779]  netlink_unicast+0x1b2/0x280
-  [  165.383612]  netlink_sendmsg+0x351/0x470
-  [  165.385439]  sock_sendmsg+0x5b/0x60
-  [  165.387133]  ____sys_sendmsg+0x200/0x280
-  [  165.388871]  ? copy_msghdr_from_user+0xd9/0x160
-  [  165.390805]  ___sys_sendmsg+0x88/0xd0
-  [  165.392524]  ? __might_fault+0x3e/0x90
-  [  165.394273]  ? sock_getsockopt+0x3d5/0xbb0
-  [  165.396021]  ? __handle_mm_fault+0x545/0x6a0
-  [  165.397822]  ? find_held_lock+0x2d/0x90
-  [  165.399593]  ? __sys_sendmsg+0x5e/0xa0
-  [  165.401338]  __sys_sendmsg+0x5e/0xa0
-  [  165.402979]  do_syscall_64+0x60/0x280
-  [  165.404680]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-  [  165.406621] RIP: 0033:0x7ff1fa46e783
-  [  165.408299] Code: c7 c0 ff ff ff ff eb bb 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 64 8b 04 25 18 00 00 00 85 c0 75 14 b8 2e 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 55 c3 0f 1f 40 00 48 83 ec 28 89 54 24 1c 48
-  [  165.414163] RSP: 002b:00007ffedf59ea78 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
-  [  165.416804] RAX: ffffffffffffffda RBX: 00007ffedf59fc60 RCX: 00007ff1fa46e783
-  [  165.419419] RDX: 0000000000000000 RSI: 00007ffedf59fb10 RDI: 0000000000000005
-  [  165.421886] RBP: 00007ffedf59fc10 R08: 00007ffedf59ea54 R09: 0000000000000001
-  [  165.424445] R10: 00007ff1fa630c6c R11: 0000000000000246 R12: 0000000000020000
-  [  165.426954] R13: 0000000000000280 R14: 0000000000000005 R15: 00007ffedf59ea90
+ ============================================
+ WARNING: possible recursive locking detected
+ 5.6.0-rc6+ #6 Not tainted
+ --------------------------------------------
+ sched-messaging/2767 is trying to acquire lock:
+ ffffffff9a492798 (&(kretprobe_table_locks[i].lock)){-.-.}, at: kretprobe_hash_lock+0x52/0xa0
 
-Disable preemption before accessing the lookup scratch area in
-nft_pipapo_insert().
+ but task is already holding lock:
+ ffffffff9a491a18 (&(kretprobe_table_locks[i].lock)){-.-.}, at: kretprobe_trampoline+0x0/0x50
 
-Reported-by: kernel test robot <lkp@intel.com>
-Analysed-by: Florian Westphal <fw@strlen.de>
-Cc: <stable@vger.kernel.org> # 5.6.x
-Fixes: 3c4287f62044 ("nf_tables: Add set type for arbitrary concatenation of ranges")
-Signed-off-by: Stefano Brivio <sbrivio@redhat.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+ other info that might help us debug this:
+  Possible unsafe locking scenario:
+
+        CPU0
+        ----
+   lock(&(kretprobe_table_locks[i].lock));
+   lock(&(kretprobe_table_locks[i].lock));
+
+  *** DEADLOCK ***
+
+  May be due to missing lock nesting notation
+
+ 1 lock held by sched-messaging/2767:
+  #0: ffffffff9a491a18 (&(kretprobe_table_locks[i].lock)){-.-.}, at: kretprobe_trampoline+0x0/0x50
+
+ stack backtrace:
+ CPU: 3 PID: 2767 Comm: sched-messaging Not tainted 5.6.0-rc6+ #6
+ Call Trace:
+  dump_stack+0x96/0xe0
+  __lock_acquire.cold.57+0x173/0x2b7
+  ? native_queued_spin_lock_slowpath+0x42b/0x9e0
+  ? lockdep_hardirqs_on+0x590/0x590
+  ? __lock_acquire+0xf63/0x4030
+  lock_acquire+0x15a/0x3d0
+  ? kretprobe_hash_lock+0x52/0xa0
+  _raw_spin_lock_irqsave+0x36/0x70
+  ? kretprobe_hash_lock+0x52/0xa0
+  kretprobe_hash_lock+0x52/0xa0
+  trampoline_handler+0xf8/0x940
+  ? kprobe_fault_handler+0x380/0x380
+  ? find_held_lock+0x3a/0x1c0
+  kretprobe_trampoline+0x25/0x50
+  ? lock_acquired+0x392/0xbc0
+  ? _raw_spin_lock_irqsave+0x50/0x70
+  ? __get_valid_kprobe+0x1f0/0x1f0
+  ? _raw_spin_unlock_irqrestore+0x3b/0x40
+  ? finish_task_switch+0x4b9/0x6d0
+  ? __switch_to_asm+0x34/0x70
+  ? __switch_to_asm+0x40/0x70
+
+The code within the kretprobe handler checks for probe reentrancy,
+so we won't trigger any _raw_spin_lock_irqsave probe in there.
+
+The problem is in outside kprobe_flush_task, where we call:
+
+  kprobe_flush_task
+    kretprobe_table_lock
+      raw_spin_lock_irqsave
+        _raw_spin_lock_irqsave
+
+where _raw_spin_lock_irqsave triggers the kretprobe and installs
+kretprobe_trampoline handler on _raw_spin_lock_irqsave return.
+
+The kretprobe_trampoline handler is then executed with already
+locked kretprobe_table_locks, and first thing it does is to
+lock kretprobe_table_locks ;-) the whole lockup path like:
+
+  kprobe_flush_task
+    kretprobe_table_lock
+      raw_spin_lock_irqsave
+        _raw_spin_lock_irqsave ---> probe triggered, kretprobe_trampoline installed
+
+        ---> kretprobe_table_locks locked
+
+        kretprobe_trampoline
+          trampoline_handler
+            kretprobe_hash_lock(current, &head, &flags);  <--- deadlock
+
+Adding kprobe_busy_begin/end helpers that mark code with fake
+probe installed to prevent triggering of another kprobe within
+this code.
+
+Using these helpers in kprobe_flush_task, so the probe recursion
+protection check is hit and the probe is never set to prevent
+above lockup.
+
+Link: http://lkml.kernel.org/r/158927059835.27680.7011202830041561604.stgit@devnote2
+
+Fixes: ef53d9c5e4da ("kprobes: improve kretprobe scalability with hashed locking")
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: "Gustavo A . R . Silva" <gustavoars@kernel.org>
+Cc: Anders Roxell <anders.roxell@linaro.org>
+Cc: "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>
+Cc: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
+Cc: David Miller <davem@davemloft.net>
+Cc: Ingo Molnar <mingo@elte.hu>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Reported-by: "Ziqian SUN (Zamir)" <zsun@redhat.com>
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/netfilter/nft_set_pipapo.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/x86/kernel/kprobes/core.c |   16 +++-------------
+ include/linux/kprobes.h        |    4 ++++
+ kernel/kprobes.c               |   24 ++++++++++++++++++++++++
+ 3 files changed, 31 insertions(+), 13 deletions(-)
 
---- a/net/netfilter/nft_set_pipapo.c
-+++ b/net/netfilter/nft_set_pipapo.c
-@@ -1242,7 +1242,9 @@ static int nft_pipapo_insert(const struc
- 		end += NFT_PIPAPO_GROUPS_PADDED_SIZE(f);
- 	}
+--- a/arch/x86/kernel/kprobes/core.c
++++ b/arch/x86/kernel/kprobes/core.c
+@@ -753,16 +753,11 @@ asm(
+ NOKPROBE_SYMBOL(kretprobe_trampoline);
+ STACK_FRAME_NON_STANDARD(kretprobe_trampoline);
  
--	if (!*this_cpu_ptr(m->scratch) || bsize_max > m->bsize_max) {
-+	if (!*get_cpu_ptr(m->scratch) || bsize_max > m->bsize_max) {
-+		put_cpu_ptr(m->scratch);
+-static struct kprobe kretprobe_kprobe = {
+-	.addr = (void *)kretprobe_trampoline,
+-};
+-
+ /*
+  * Called from kretprobe_trampoline
+  */
+ __used __visible void *trampoline_handler(struct pt_regs *regs)
+ {
+-	struct kprobe_ctlblk *kcb;
+ 	struct kretprobe_instance *ri = NULL;
+ 	struct hlist_head *head, empty_rp;
+ 	struct hlist_node *tmp;
+@@ -772,16 +767,12 @@ __used __visible void *trampoline_handle
+ 	void *frame_pointer;
+ 	bool skipped = false;
+ 
+-	preempt_disable();
+-
+ 	/*
+ 	 * Set a dummy kprobe for avoiding kretprobe recursion.
+ 	 * Since kretprobe never run in kprobe handler, kprobe must not
+ 	 * be running at this point.
+ 	 */
+-	kcb = get_kprobe_ctlblk();
+-	__this_cpu_write(current_kprobe, &kretprobe_kprobe);
+-	kcb->kprobe_status = KPROBE_HIT_ACTIVE;
++	kprobe_busy_begin();
+ 
+ 	INIT_HLIST_HEAD(&empty_rp);
+ 	kretprobe_hash_lock(current, &head, &flags);
+@@ -857,7 +848,7 @@ __used __visible void *trampoline_handle
+ 			__this_cpu_write(current_kprobe, &ri->rp->kp);
+ 			ri->ret_addr = correct_ret_addr;
+ 			ri->rp->handler(ri, regs);
+-			__this_cpu_write(current_kprobe, &kretprobe_kprobe);
++			__this_cpu_write(current_kprobe, &kprobe_busy);
+ 		}
+ 
+ 		recycle_rp_inst(ri, &empty_rp);
+@@ -873,8 +864,7 @@ __used __visible void *trampoline_handle
+ 
+ 	kretprobe_hash_unlock(current, &flags);
+ 
+-	__this_cpu_write(current_kprobe, NULL);
+-	preempt_enable();
++	kprobe_busy_end();
+ 
+ 	hlist_for_each_entry_safe(ri, tmp, &empty_rp, hlist) {
+ 		hlist_del(&ri->hlist);
+--- a/include/linux/kprobes.h
++++ b/include/linux/kprobes.h
+@@ -350,6 +350,10 @@ static inline struct kprobe_ctlblk *get_
+ 	return this_cpu_ptr(&kprobe_ctlblk);
+ }
+ 
++extern struct kprobe kprobe_busy;
++void kprobe_busy_begin(void);
++void kprobe_busy_end(void);
 +
- 		err = pipapo_realloc_scratch(m, bsize_max);
- 		if (err)
- 			return err;
-@@ -1250,6 +1252,8 @@ static int nft_pipapo_insert(const struc
- 		this_cpu_write(nft_pipapo_scratch_index, false);
+ kprobe_opcode_t *kprobe_lookup_name(const char *name, unsigned int offset);
+ int register_kprobe(struct kprobe *p);
+ void unregister_kprobe(struct kprobe *p);
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -1237,6 +1237,26 @@ __releases(hlist_lock)
+ }
+ NOKPROBE_SYMBOL(kretprobe_table_unlock);
  
- 		m->bsize_max = bsize_max;
-+	} else {
-+		put_cpu_ptr(m->scratch);
++struct kprobe kprobe_busy = {
++	.addr = (void *) get_kprobe,
++};
++
++void kprobe_busy_begin(void)
++{
++	struct kprobe_ctlblk *kcb;
++
++	preempt_disable();
++	__this_cpu_write(current_kprobe, &kprobe_busy);
++	kcb = get_kprobe_ctlblk();
++	kcb->kprobe_status = KPROBE_HIT_ACTIVE;
++}
++
++void kprobe_busy_end(void)
++{
++	__this_cpu_write(current_kprobe, NULL);
++	preempt_enable();
++}
++
+ /*
+  * This function is called from finish_task_switch when task tk becomes dead,
+  * so that we can recycle any function-return probe instances associated
+@@ -1254,6 +1274,8 @@ void kprobe_flush_task(struct task_struc
+ 		/* Early boot.  kretprobe_table_locks not yet initialized. */
+ 		return;
+ 
++	kprobe_busy_begin();
++
+ 	INIT_HLIST_HEAD(&empty_rp);
+ 	hash = hash_ptr(tk, KPROBE_HASH_BITS);
+ 	head = &kretprobe_inst_table[hash];
+@@ -1267,6 +1289,8 @@ void kprobe_flush_task(struct task_struc
+ 		hlist_del(&ri->hlist);
+ 		kfree(ri);
  	}
++
++	kprobe_busy_end();
+ }
+ NOKPROBE_SYMBOL(kprobe_flush_task);
  
- 	*ext2 = &e->ext;
 
 
