@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F306205EB8
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:31:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C386205ECA
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:31:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390523AbgFWUZX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:25:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44282 "EHLO mail.kernel.org"
+        id S2389245AbgFWU0R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:26:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390270AbgFWUZT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:25:19 -0400
+        id S2390633AbgFWU0Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:26:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B46E20702;
-        Tue, 23 Jun 2020 20:25:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D6A1720702;
+        Tue, 23 Jun 2020 20:26:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943919;
-        bh=NUV7KWqtjBx+rwaxIhAbNyWL2HuwPznETRhWqAOl53E=;
+        s=default; t=1592943976;
+        bh=xlGFGp69053SdoDQvg0jjtckRZObmKizq7MUoMM0yy8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WZ4TPiSyiWVD5QzTAzBNRsXpqpYl4DvmO3BIsjkWh+kUQ+OrbsHNy/hbuEpVteqq5
-         WRnTaJV0ChiHhTZc3wHH9xoJr73/zcXZK46MfvtHmjKXJfvbZRtHIxJrsCtDrvXNlT
-         3aul2K6PpZQlk4tt8OE/o+ClQ8Fo+b/TPh5F9Bdc=
+        b=hRz5+ED2FEe6hjo/UE0lJMXFumvyer58MksQMoFuvX0BUtSihUbV9skQqF+bTCrfB
+         /liLoBH/jpP91tUFffEjzCzLRyELD4sbci69iqe9fAIKdQMH9Ks6VVZndfAuuSj6VG
+         gZ15mNfizGar32fiQzx7pY9nBkVLkSQsPRYH7I+w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Jonathan Marek <jonathan@marek.ca>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 095/314] arm64: dts: qcom: fix pm8150 gpio interrupts
-Date:   Tue, 23 Jun 2020 21:54:50 +0200
-Message-Id: <20200623195343.387896656@linuxfoundation.org>
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 097/314] staging: gasket: Fix mapping refcnt leak when put attribute fails
+Date:   Tue, 23 Jun 2020 21:54:52 +0200
+Message-Id: <20200623195343.485555282@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
 References: <20200623195338.770401005@linuxfoundation.org>
@@ -45,104 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Marek <jonathan@marek.ca>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-[ Upstream commit 61d2ca503d0b55d2849fd656ce51d8e1e9ba0b6c ]
+[ Upstream commit 57a66838e1494cd881b7f4e110ec685736e8e3ca ]
 
-This was mistakenly copied from the downstream dts, however the upstream
-driver works differently.
+gasket_sysfs_put_attr() invokes get_mapping(), which returns a reference
+of the specified gasket_sysfs_mapping object to "mapping" with increased
+refcnt.
 
-I only tested this with the pm8150_gpios node (used with volume button),
-but the 2 others should be the same.
+When gasket_sysfs_put_attr() returns, local variable "mapping" becomes
+invalid, so the refcount should be decreased to keep refcount balanced.
 
-Fixes: e92b61c8e775 ("arm64: dts: qcom: pm8150l: Add base dts file")
-Fixes: 229d5bcad0d0 ("arm64: dts: qcom: pm8150b: Add base dts file")
-Fixes: 5101f22a5c37 ("arm64: dts: qcom: pm8150: Add base dts file")
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Jonathan Marek <jonathan@marek.ca>
-Link: https://lore.kernel.org/r/20200420153543.14512-1-jonathan@marek.ca
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+The reference counting issue happens in one path of
+gasket_sysfs_put_attr(). When mapping attribute is unknown, the function
+forgets to decrease the refcnt increased by get_mapping(), causing a
+refcnt leak.
+
+Fix this issue by calling put_mapping() when put attribute fails due to
+unknown attribute.
+
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Link: https://lore.kernel.org/r/1587618895-13660-1-git-send-email-xiyuyang19@fudan.edu.cn
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/pm8150.dtsi  | 14 ++------------
- arch/arm64/boot/dts/qcom/pm8150b.dtsi | 14 ++------------
- arch/arm64/boot/dts/qcom/pm8150l.dtsi | 14 ++------------
- 3 files changed, 6 insertions(+), 36 deletions(-)
+ drivers/staging/gasket/gasket_sysfs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm64/boot/dts/qcom/pm8150.dtsi b/arch/arm64/boot/dts/qcom/pm8150.dtsi
-index b6e304748a576..c0b197458665d 100644
---- a/arch/arm64/boot/dts/qcom/pm8150.dtsi
-+++ b/arch/arm64/boot/dts/qcom/pm8150.dtsi
-@@ -73,18 +73,8 @@
- 			reg = <0xc000>;
- 			gpio-controller;
- 			#gpio-cells = <2>;
--			interrupts = <0x0 0xc0 0x0 IRQ_TYPE_NONE>,
--				     <0x0 0xc1 0x0 IRQ_TYPE_NONE>,
--				     <0x0 0xc2 0x0 IRQ_TYPE_NONE>,
--				     <0x0 0xc3 0x0 IRQ_TYPE_NONE>,
--				     <0x0 0xc4 0x0 IRQ_TYPE_NONE>,
--				     <0x0 0xc5 0x0 IRQ_TYPE_NONE>,
--				     <0x0 0xc6 0x0 IRQ_TYPE_NONE>,
--				     <0x0 0xc7 0x0 IRQ_TYPE_NONE>,
--				     <0x0 0xc8 0x0 IRQ_TYPE_NONE>,
--				     <0x0 0xc9 0x0 IRQ_TYPE_NONE>,
--				     <0x0 0xca 0x0 IRQ_TYPE_NONE>,
--				     <0x0 0xcb 0x0 IRQ_TYPE_NONE>;
-+			interrupt-controller;
-+			#interrupt-cells = <2>;
- 		};
- 	};
+diff --git a/drivers/staging/gasket/gasket_sysfs.c b/drivers/staging/gasket/gasket_sysfs.c
+index 5f0e089573a29..ad852ea1d4a92 100644
+--- a/drivers/staging/gasket/gasket_sysfs.c
++++ b/drivers/staging/gasket/gasket_sysfs.c
+@@ -339,6 +339,7 @@ void gasket_sysfs_put_attr(struct device *device,
  
-diff --git a/arch/arm64/boot/dts/qcom/pm8150b.dtsi b/arch/arm64/boot/dts/qcom/pm8150b.dtsi
-index 322379d5c31f9..40b5d75a4a1dc 100644
---- a/arch/arm64/boot/dts/qcom/pm8150b.dtsi
-+++ b/arch/arm64/boot/dts/qcom/pm8150b.dtsi
-@@ -62,18 +62,8 @@
- 			reg = <0xc000>;
- 			gpio-controller;
- 			#gpio-cells = <2>;
--			interrupts = <0x2 0xc0 0x0 IRQ_TYPE_NONE>,
--				     <0x2 0xc1 0x0 IRQ_TYPE_NONE>,
--				     <0x2 0xc2 0x0 IRQ_TYPE_NONE>,
--				     <0x2 0xc3 0x0 IRQ_TYPE_NONE>,
--				     <0x2 0xc4 0x0 IRQ_TYPE_NONE>,
--				     <0x2 0xc5 0x0 IRQ_TYPE_NONE>,
--				     <0x2 0xc6 0x0 IRQ_TYPE_NONE>,
--				     <0x2 0xc7 0x0 IRQ_TYPE_NONE>,
--				     <0x2 0xc8 0x0 IRQ_TYPE_NONE>,
--				     <0x2 0xc9 0x0 IRQ_TYPE_NONE>,
--				     <0x2 0xca 0x0 IRQ_TYPE_NONE>,
--				     <0x2 0xcb 0x0 IRQ_TYPE_NONE>;
-+			interrupt-controller;
-+			#interrupt-cells = <2>;
- 		};
- 	};
- 
-diff --git a/arch/arm64/boot/dts/qcom/pm8150l.dtsi b/arch/arm64/boot/dts/qcom/pm8150l.dtsi
-index eb0e9a090e420..cf05e0685d101 100644
---- a/arch/arm64/boot/dts/qcom/pm8150l.dtsi
-+++ b/arch/arm64/boot/dts/qcom/pm8150l.dtsi
-@@ -56,18 +56,8 @@
- 			reg = <0xc000>;
- 			gpio-controller;
- 			#gpio-cells = <2>;
--			interrupts = <0x4 0xc0 0x0 IRQ_TYPE_NONE>,
--				     <0x4 0xc1 0x0 IRQ_TYPE_NONE>,
--				     <0x4 0xc2 0x0 IRQ_TYPE_NONE>,
--				     <0x4 0xc3 0x0 IRQ_TYPE_NONE>,
--				     <0x4 0xc4 0x0 IRQ_TYPE_NONE>,
--				     <0x4 0xc5 0x0 IRQ_TYPE_NONE>,
--				     <0x4 0xc6 0x0 IRQ_TYPE_NONE>,
--				     <0x4 0xc7 0x0 IRQ_TYPE_NONE>,
--				     <0x4 0xc8 0x0 IRQ_TYPE_NONE>,
--				     <0x4 0xc9 0x0 IRQ_TYPE_NONE>,
--				     <0x4 0xca 0x0 IRQ_TYPE_NONE>,
--				     <0x4 0xcb 0x0 IRQ_TYPE_NONE>;
-+			interrupt-controller;
-+			#interrupt-cells = <2>;
- 		};
- 	};
+ 	dev_err(device, "Unable to put unknown attribute: %s\n",
+ 		attr->attr.attr.name);
++	put_mapping(mapping);
+ }
+ EXPORT_SYMBOL(gasket_sysfs_put_attr);
  
 -- 
 2.25.1
