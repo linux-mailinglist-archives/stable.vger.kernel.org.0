@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68E63205F81
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:46:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0468206095
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:48:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390928AbgFWUdL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:33:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54320 "EHLO mail.kernel.org"
+        id S2392582AbgFWUoZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:44:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391390AbgFWUdJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:33:09 -0400
+        id S2392578AbgFWUoY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:44:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 011552072E;
-        Tue, 23 Jun 2020 20:33:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 847F421BE5;
+        Tue, 23 Jun 2020 20:44:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944389;
-        bh=WVZRPf304XDTXTsxZtHmCIrnuF/WwjdfFiKYz5fD9Jk=;
+        s=default; t=1592945065;
+        bh=VEpwOoNAXrf0lY/sHuClb/G3dQizK8OAInVuRvISK4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VncUxsEFqHePjn7f5dUKXLu2PLwUlSMsudJc2ZmEMMG8/XVrguEb1U28cV3R3oBP/
-         Ti+IhZpI/jf36JhltpGQmJUYH4iphHDNLRz1iHzvgpgGPhSquBNmSdjdYKtb1ERd3+
-         b5vDG+l1dZgYSYP+mUII6JsksCvSX8mnULQN5c0Q=
+        b=TWaAj8xi4bIYlS4D9NrsytCvowjXD0N3uE4jCzuLyp+6I6bP5KYr+CCDhwaFdpWg3
+         HL6zNjcyJ/qxC1rbKylLw+59ck4ICOy2LVIaOe++puhhTfpyAiktHH5G/rQo0Kn6U9
+         g6ciAkfjHcIENu2XxWPlEVIZ+vDdGz0goSLTOyEw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sandeep Raghuraman <sandy.8925@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.4 285/314] drm/amdgpu: Replace invalid device ID with a valid device ID
-Date:   Tue, 23 Jun 2020 21:58:00 +0200
-Message-Id: <20200623195352.576945071@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Wagner <dwagner@suse.de>,
+        James Smart <james.smart@broadcom.com>,
+        Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 025/136] scsi: lpfc: Fix lpfc_nodelist leak when processing unsolicited event
+Date:   Tue, 23 Jun 2020 21:58:01 +0200
+Message-Id: <20200623195304.907307648@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
-References: <20200623195338.770401005@linuxfoundation.org>
+In-Reply-To: <20200623195303.601828702@linuxfoundation.org>
+References: <20200623195303.601828702@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +47,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sandeep Raghuraman <sandy.8925@gmail.com>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-commit 790243d3bf78f9830a3b2ffbca1ed0f528295d48 upstream.
+[ Upstream commit 7217e6e694da3aae6d17db8a7f7460c8d4817ebf ]
 
-Initializes Powertune data for a specific Hawaii card by fixing what
-looks like a typo in the code. The device ID 66B1 is not a supported
-device ID for this driver, and is not mentioned elsewhere. 67B1 is a
-valid device ID, and is a Hawaii Pro GPU.
+In order to create or activate a new node, lpfc_els_unsol_buffer() invokes
+lpfc_nlp_init() or lpfc_enable_node() or lpfc_nlp_get(), all of them will
+return a reference of the specified lpfc_nodelist object to "ndlp" with
+increased refcnt.
 
-I have tested on my R9 390 which has device ID 67B1, and it works
-fine without problems.
+When lpfc_els_unsol_buffer() returns, local variable "ndlp" becomes
+invalid, so the refcount should be decreased to keep refcount balanced.
 
-Signed-off-by: Sandeep Raghuraman <sandy.8925@gmail.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The reference counting issue happens in one exception handling path of
+lpfc_els_unsol_buffer(). When "ndlp" in DEV_LOSS, the function forgets to
+decrease the refcnt increased by lpfc_nlp_init() or lpfc_enable_node() or
+lpfc_nlp_get(), causing a refcnt leak.
 
+Fix this issue by calling lpfc_nlp_put() when "ndlp" in DEV_LOSS.
+
+Link: https://lore.kernel.org/r/1590416184-52592-1-git-send-email-xiyuyang19@fudan.edu.cn
+Reviewed-by: Daniel Wagner <dwagner@suse.de>
+Reviewed-by: James Smart <james.smart@broadcom.com>
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/lpfc/lpfc_els.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c
-+++ b/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c
-@@ -239,7 +239,7 @@ static void ci_initialize_power_tune_def
- 
- 	switch (dev_id) {
- 	case 0x67BA:
--	case 0x66B1:
-+	case 0x67B1:
- 		smu_data->power_tune_defaults = &defaults_hawaii_pro;
- 		break;
- 	case 0x67B8:
+diff --git a/drivers/scsi/lpfc/lpfc_els.c b/drivers/scsi/lpfc/lpfc_els.c
+index 4c84c2ae1112d..db1111f7e85ae 100644
+--- a/drivers/scsi/lpfc/lpfc_els.c
++++ b/drivers/scsi/lpfc/lpfc_els.c
+@@ -7913,6 +7913,8 @@ lpfc_els_unsol_buffer(struct lpfc_hba *phba, struct lpfc_sli_ring *pring,
+ 	spin_lock_irq(shost->host_lock);
+ 	if (ndlp->nlp_flag & NLP_IN_DEV_LOSS) {
+ 		spin_unlock_irq(shost->host_lock);
++		if (newnode)
++			lpfc_nlp_put(ndlp);
+ 		goto dropit;
+ 	}
+ 	spin_unlock_irq(shost->host_lock);
+-- 
+2.25.1
+
 
 
