@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 270C920635A
+	by mail.lfdr.de (Postfix) with ESMTP id 992DC20635B
 	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:29:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388123AbgFWUWh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:22:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40572 "EHLO mail.kernel.org"
+        id S2390234AbgFWUW7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:22:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390192AbgFWUWh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:22:37 -0400
+        id S2390196AbgFWUW4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:22:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3766A2064B;
-        Tue, 23 Jun 2020 20:22:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6CB512070E;
+        Tue, 23 Jun 2020 20:22:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943756;
-        bh=nuG4agFF5FN6Puy7el4y3Wt2Mg2W723vSmWFTVBwvks=;
+        s=default; t=1592943776;
+        bh=a/lHXKCVrLSIa+JZAQDjfBCBrAxsRAXKYhxhhT2WEWI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R8aHQikb9fkbKd/0bV/Vf8fQdGUyNoy4Jceep/EWBVUp5vFV/BX6AEAHmFKuhuWUF
-         3I7Ptqfn+fMaYZSeguiEljFjWVHr2UEGhQ9wqQUU65aXuVHqyFjknm7A7jhuOxK4z5
-         8N0S3h1YngnNukE7vy2HcsK9YY/hKIiFFesqw9tI=
+        b=01mvzEwrYS+WHwuFNvcWgj1bKSEFIEnbJWq4sGGeBJDfQIgxD2CpVrjvRLust5Yr4
+         e4M0oOmTuHUbi6KDRx3bRdtDCx9nhAh376fglr0DnZkOlyCQpFr0ODClclwCQ6ibwH
+         GthSt3tH3oDUs85rt6Cx8goK4SAYBP92e/2vzIlU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+        stable@vger.kernel.org, Aharon Landau <aharonl@mellanox.com>,
+        Maor Gottlieb <maorg@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 039/314] clk: renesas: cpg-mssr: Fix STBCR suspend/resume handling
-Date:   Tue, 23 Jun 2020 21:53:54 +0200
-Message-Id: <20200623195340.674764011@linuxfoundation.org>
+Subject: [PATCH 5.4 047/314] RDMA/mlx5: Add init2init as a modify command
+Date:   Tue, 23 Jun 2020 21:54:02 +0200
+Message-Id: <20200623195341.055550965@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
 References: <20200623195338.770401005@linuxfoundation.org>
@@ -44,58 +46,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Aharon Landau <aharonl@mellanox.com>
 
-[ Upstream commit ace342097768e35fd41934285604fa97da1e235a ]
+[ Upstream commit 819f7427bafd494ef7ca4942ec6322db20722d7b ]
 
-On SoCs with Standby Control Registers (STBCRs) instead of Module Stop
-Control Registers (MSTPCRs), the suspend handler saves the wrong
-registers, and the resume handler prints the wrong register in an error
-message.
+Missing INIT2INIT entry in the list of modify commands caused DEVX
+applications to be unable to modify_qp for this transition state. Add the
+MLX5_CMD_OP_INIT2INIT_QP opcode to the list of allowed DEVX opcodes.
 
-Fortunately this cannot happen yet, as the suspend/resume code is used
-on PSCI systems only, and systems with STBCRs (RZ/A1 and RZ/A2) do not
-use PSCI.  Still, it is better to fix this, to avoid this becoming a
-problem in the future.
-
-Distinguish between STBCRs and MSTPCRs where needed.  Replace the
-useless printing of the virtual register address in the resume error
-message by printing the register index.
-
-Fixes: fde35c9c7db5732c ("clk: renesas: cpg-mssr: Add R7S9210 support")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20200507074713.30113-1-geert+renesas@glider.be
+Fixes: e662e14d801b ("IB/mlx5: Add DEVX support for modify and query commands")
+Link: https://lore.kernel.org/r/20200513095550.211345-1-leon@kernel.org
+Signed-off-by: Aharon Landau <aharonl@mellanox.com>
+Reviewed-by: Maor Gottlieb <maorg@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/renesas/renesas-cpg-mssr.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/infiniband/hw/mlx5/devx.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/clk/renesas/renesas-cpg-mssr.c b/drivers/clk/renesas/renesas-cpg-mssr.c
-index 132cc96895e3a..6f9612c169afe 100644
---- a/drivers/clk/renesas/renesas-cpg-mssr.c
-+++ b/drivers/clk/renesas/renesas-cpg-mssr.c
-@@ -800,7 +800,8 @@ static int cpg_mssr_suspend_noirq(struct device *dev)
- 	/* Save module registers with bits under our control */
- 	for (reg = 0; reg < ARRAY_SIZE(priv->smstpcr_saved); reg++) {
- 		if (priv->smstpcr_saved[reg].mask)
--			priv->smstpcr_saved[reg].val =
-+			priv->smstpcr_saved[reg].val = priv->stbyctrl ?
-+				readb(priv->base + STBCR(reg)) :
- 				readl(priv->base + SMSTPCR(reg));
- 	}
- 
-@@ -860,8 +861,9 @@ static int cpg_mssr_resume_noirq(struct device *dev)
- 		}
- 
- 		if (!i)
--			dev_warn(dev, "Failed to enable SMSTP %p[0x%x]\n",
--				 priv->base + SMSTPCR(reg), oldval & mask);
-+			dev_warn(dev, "Failed to enable %s%u[0x%x]\n",
-+				 priv->stbyctrl ? "STB" : "SMSTP", reg,
-+				 oldval & mask);
- 	}
- 
- 	return 0;
+diff --git a/drivers/infiniband/hw/mlx5/devx.c b/drivers/infiniband/hw/mlx5/devx.c
+index d609f4659afb7..bba7ab0784305 100644
+--- a/drivers/infiniband/hw/mlx5/devx.c
++++ b/drivers/infiniband/hw/mlx5/devx.c
+@@ -814,6 +814,7 @@ static bool devx_is_obj_modify_cmd(const void *in)
+ 	case MLX5_CMD_OP_SET_L2_TABLE_ENTRY:
+ 	case MLX5_CMD_OP_RST2INIT_QP:
+ 	case MLX5_CMD_OP_INIT2RTR_QP:
++	case MLX5_CMD_OP_INIT2INIT_QP:
+ 	case MLX5_CMD_OP_RTR2RTS_QP:
+ 	case MLX5_CMD_OP_RTS2RTS_QP:
+ 	case MLX5_CMD_OP_SQERR2RTS_QP:
 -- 
 2.25.1
 
