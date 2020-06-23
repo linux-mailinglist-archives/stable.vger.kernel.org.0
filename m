@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 590C9206455
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:31:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 526FF20654A
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:33:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390503AbgFWVUC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 17:20:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42198 "EHLO mail.kernel.org"
+        id S2389802AbgFWVdB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 17:33:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390348AbgFWUXy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:23:54 -0400
+        id S2388117AbgFWULn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:11:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7AD702064B;
-        Tue, 23 Jun 2020 20:23:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6C2F2206C3;
+        Tue, 23 Jun 2020 20:11:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943834;
-        bh=x52YH5A12U1s0BZMnkC2ea7ZFIj87Gj1lcrGA1eHNlg=;
+        s=default; t=1592943102;
+        bh=IkigOz1Hb1Q6Z2AtgnD62DTq1A2IIBRiT/4AIBhfr8c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZBJIAfLTHDYVbYzjVh22Jd9mSFZNTurfv/Ii+rscWNuMYpO/RCeLHSG/4u9fmSR65
-         GAkKHPvSrthGcyTCfGWlSEWylWFWWVeqWO+2Z7BO1NbNunTgN0Hs1faRXdydzLO7aM
-         Gigoek1r+KU6xEVs67p7BEhW3lQDTHUIHZsRJ/G8=
+        b=scUcYO+Frn4F7ggjJhEfiq+KK7k6hZxUoCcPA+D7tfgqHVXistj3mV4IFNarz4Y5x
+         Ss1iICHnbft/NHBBfyn4ar6VvXnMgakFEuzVd+4ldnUd1u2Ccn7MANCuIVMByFmXZ5
+         UfLht209hVJgpL4kLMLlBx8IMNwnx1gMvWzKHBe8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        "J. Bruce Fields" <bfields@redhat.com>,
+        stable@vger.kernel.org, Minas Harutyunyan <hminas@synopsys.com>,
+        Fabrice Gasnier <fabrice.gasnier@st.com>,
+        Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 062/314] nfsd: Fix svc_xprt refcnt leak when setup callback client failed
+Subject: [PATCH 5.7 260/477] usb: dwc2: gadget: move gadget resume after the core is in L0 state
 Date:   Tue, 23 Jun 2020 21:54:17 +0200
-Message-Id: <20200623195341.783878353@linuxfoundation.org>
+Message-Id: <20200623195419.856775411@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
-References: <20200623195338.770401005@linuxfoundation.org>
+In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
+References: <20200623195407.572062007@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+From: Fabrice Gasnier <fabrice.gasnier@st.com>
 
-[ Upstream commit a4abc6b12eb1f7a533c2e7484cfa555454ff0977 ]
+[ Upstream commit 8c935deacebb8fac8f41378701eb79d12f3c2e2d ]
 
-nfsd4_process_cb_update() invokes svc_xprt_get(), which increases the
-refcount of the "c->cn_xprt".
+When the remote wakeup interrupt is triggered, lx_state is resumed from L2
+to L0 state. But when the gadget resume is called, lx_state is still L2.
+This prevents the resume callback to queue any request. Any attempt
+to queue a request from resume callback will result in:
+- "submit request only in active state" debug message to be issued
+- dwc2_hsotg_ep_queue() returns -EAGAIN
 
-The reference counting issue happens in one exception handling path of
-nfsd4_process_cb_update(). When setup callback client failed, the
-function forgets to decrease the refcnt increased by svc_xprt_get(),
-causing a refcnt leak.
+Call the gadget resume routine after the core is in L0 state.
 
-Fix this issue by calling svc_xprt_put() when setup callback client
-failed.
+Fixes: f81f46e1f530 ("usb: dwc2: implement hibernation during bus suspend/resume")
 
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Acked-by: Minas Harutyunyan <hminas@synopsys.com>
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4callback.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/dwc2/core_intr.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfsd/nfs4callback.c b/fs/nfsd/nfs4callback.c
-index afca3287184b9..efe55d101b0ed 100644
---- a/fs/nfsd/nfs4callback.c
-+++ b/fs/nfsd/nfs4callback.c
-@@ -1230,6 +1230,8 @@ static void nfsd4_process_cb_update(struct nfsd4_callback *cb)
- 	err = setup_callback_client(clp, &conn, ses);
- 	if (err) {
- 		nfsd4_mark_cb_down(clp, err);
-+		if (c)
-+			svc_xprt_put(c->cn_xprt);
- 		return;
- 	}
- }
+diff --git a/drivers/usb/dwc2/core_intr.c b/drivers/usb/dwc2/core_intr.c
+index 876ff31261d56..55f1d14fc4148 100644
+--- a/drivers/usb/dwc2/core_intr.c
++++ b/drivers/usb/dwc2/core_intr.c
+@@ -416,10 +416,13 @@ static void dwc2_handle_wakeup_detected_intr(struct dwc2_hsotg *hsotg)
+ 			if (ret && (ret != -ENOTSUPP))
+ 				dev_err(hsotg->dev, "exit power_down failed\n");
+ 
++			/* Change to L0 state */
++			hsotg->lx_state = DWC2_L0;
+ 			call_gadget(hsotg, resume);
++		} else {
++			/* Change to L0 state */
++			hsotg->lx_state = DWC2_L0;
+ 		}
+-		/* Change to L0 state */
+-		hsotg->lx_state = DWC2_L0;
+ 	} else {
+ 		if (hsotg->params.power_down)
+ 			return;
 -- 
 2.25.1
 
