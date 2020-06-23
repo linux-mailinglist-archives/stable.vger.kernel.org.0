@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21397205964
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 19:40:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7219720595D
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 19:40:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387606AbgFWRkF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 13:40:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33302 "EHLO mail.kernel.org"
+        id S1733285AbgFWRjw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 13:39:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387530AbgFWRgQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 13:36:16 -0400
+        id S2387532AbgFWRgR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 13:36:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B454D207E8;
-        Tue, 23 Jun 2020 17:36:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 112B220774;
+        Tue, 23 Jun 2020 17:36:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592933775;
-        bh=JQCWNfOt0DHc1emiaikqQlj/f/EBGVEXcXNGQXArUyw=;
+        s=default; t=1592933776;
+        bh=yjNpRv8q3GfXREcKPByLoH2E7axhZx/JhrTgyTbmn9k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tCXyHwcMgGwr6qBHAEUUlWBHGyuzvSWYoKetF00raGsezvKEP152OyQjSmyo3yFJY
-         mFB7bK5jcEPIA2fxOacdINK+U2nnZe9TIM4ZUngBYllcSJmHWzp2LoO2o9Twyh4i6g
-         Xw+H0lEnXZ+ZHKT72UZM8wfSV8jorTAELr6alsTg=
+        b=QWFA8Hqp+0FLPhAG1DBELN+UW2kZcs1FbVJr5OcrQy/g4CRZCQKmQdPGSLVUVytIE
+         6pfeUT9oyC1Eny2dhei9JjtXZwvgo7249FPXjsG0/5+j5G7MTKtDcRtu614s6PlxJH
+         JfOBjTLrL43nHx+pyzjzSt6ytCUW55G/DO8+dK1c=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vidya Sagar <vidyas@nvidia.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org,
-        linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 13/24] pinctrl: tegra: Use noirq suspend/resume callbacks
-Date:   Tue, 23 Jun 2020 13:35:48 -0400
-Message-Id: <20200623173559.1355728-13-sashal@kernel.org>
+Cc:     Sven Schnelle <svens@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 14/24] s390/ptrace: pass invalid syscall numbers to tracing
+Date:   Tue, 23 Jun 2020 13:35:49 -0400
+Message-Id: <20200623173559.1355728-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200623173559.1355728-1-sashal@kernel.org>
 References: <20200623173559.1355728-1-sashal@kernel.org>
@@ -45,38 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vidya Sagar <vidyas@nvidia.com>
+From: Sven Schnelle <svens@linux.ibm.com>
 
-[ Upstream commit 782b6b69847f34dda330530493ea62b7de3fd06a ]
+[ Upstream commit 00332c16b1604242a56289ff2b26e283dbad0812 ]
 
-Use noirq suspend/resume callbacks as other drivers which implement
-noirq suspend/resume callbacks (Ex:- PCIe) depend on pinctrl driver to
-configure the signals used by their respective devices in the noirq phase.
+tracing expects to see invalid syscalls, so pass it through.
+The syscall path in entry.S checks the syscall number before
+looking up the handler, so it is still safe.
 
-Signed-off-by: Vidya Sagar <vidyas@nvidia.com>
-Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
-Link: https://lore.kernel.org/r/20200604174935.26560-1-vidyas@nvidia.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/tegra/pinctrl-tegra.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/s390/kernel/entry.S  | 2 +-
+ arch/s390/kernel/ptrace.c | 6 ++----
+ 2 files changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/pinctrl/tegra/pinctrl-tegra.c b/drivers/pinctrl/tegra/pinctrl-tegra.c
-index e9a7cbb9aa336..01bcef2c01bcf 100644
---- a/drivers/pinctrl/tegra/pinctrl-tegra.c
-+++ b/drivers/pinctrl/tegra/pinctrl-tegra.c
-@@ -685,8 +685,8 @@ static int tegra_pinctrl_resume(struct device *dev)
- }
- 
- const struct dev_pm_ops tegra_pinctrl_pm = {
--	.suspend = &tegra_pinctrl_suspend,
--	.resume = &tegra_pinctrl_resume
-+	.suspend_noirq = &tegra_pinctrl_suspend,
-+	.resume_noirq = &tegra_pinctrl_resume
- };
- 
- static bool gpio_node_has_range(const char *compatible)
+diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
+index bc85987727f09..c544b7a11ebb3 100644
+--- a/arch/s390/kernel/entry.S
++++ b/arch/s390/kernel/entry.S
+@@ -368,9 +368,9 @@ ENTRY(system_call)
+ 	jnz	.Lsysc_nr_ok
+ 	# svc 0: system call number in %r1
+ 	llgfr	%r1,%r1				# clear high word in r1
++	sth	%r1,__PT_INT_CODE+2(%r11)
+ 	cghi	%r1,NR_syscalls
+ 	jnl	.Lsysc_nr_ok
+-	sth	%r1,__PT_INT_CODE+2(%r11)
+ 	slag	%r8,%r1,3
+ .Lsysc_nr_ok:
+ 	xc	__SF_BACKCHAIN(8,%r15),__SF_BACKCHAIN(%r15)
+diff --git a/arch/s390/kernel/ptrace.c b/arch/s390/kernel/ptrace.c
+index ad71132374f0c..5a2b1501d9983 100644
+--- a/arch/s390/kernel/ptrace.c
++++ b/arch/s390/kernel/ptrace.c
+@@ -844,11 +844,9 @@ asmlinkage long do_syscall_trace_enter(struct pt_regs *regs)
+ 	 * call number to gprs[2].
+ 	 */
+ 	if (test_thread_flag(TIF_SYSCALL_TRACE) &&
+-	    (tracehook_report_syscall_entry(regs) ||
+-	     regs->gprs[2] >= NR_syscalls)) {
++	    tracehook_report_syscall_entry(regs)) {
+ 		/*
+-		 * Tracing decided this syscall should not happen or the
+-		 * debugger stored an invalid system call number. Skip
++		 * Tracing decided this syscall should not happen. Skip
+ 		 * the system call and the system call restart handling.
+ 		 */
+ 		clear_pt_regs_flag(regs, PIF_SYSCALL);
 -- 
 2.25.1
 
