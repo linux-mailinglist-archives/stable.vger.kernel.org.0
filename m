@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A09E620618B
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:07:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56D6F206307
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:10:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403981AbgFWUoN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:44:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41278 "EHLO mail.kernel.org"
+        id S2391519AbgFWVKj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 17:10:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403978AbgFWUoM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:44:12 -0400
+        id S2391361AbgFWUc7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:32:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B22F321BE5;
-        Tue, 23 Jun 2020 20:44:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ACB732064B;
+        Tue, 23 Jun 2020 20:32:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592945052;
-        bh=nfBpttPTgdjEcAGwZzBdAE0VsG6wpa3cWqoOnuqOev0=;
+        s=default; t=1592944379;
+        bh=fK6PtbeWsgXIsW7xnqrqqNI2QCT/MrlaXeICgV6rKrs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yk94XXjJB7cXcPV0Qruw3PHzj4R6y3u5yrAqPtt74QxPopGbB9adgQ0StaXedCZe3
-         nxwjCn74HGy1apvEWL6niLHEdStnYmbO9D065LUEcX5I6p66CVWlqBtWdHzdPzxExe
-         LwUcoHoREoGJhGX06J9053OxvKioLVHt7JN0WNXo=
+        b=c4gY15pv/B8Rzm+IwZSB292RveXleL3HYnleEJsY/2futF28ZW/rLY0jpK7s8+eBV
+         TXaGKjzjxQWta0Z2uOgbIFxo39/fqKDnBMe0NAfcogEIzT+Pr9A/b97nr17KI6FfBg
+         Mv0AfIg470Sp2csEVI31HqjMLaOV1hXmx+S0MaxA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomasz Maciej Nowak <tmn505@gmail.com>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Rob Herring <robh@kernel.org>,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 020/136] PCI: aardvark: Dont blindly enable ASPM L0s and dont write to read-only register
+        stable@vger.kernel.org, Jeffle Xu <jefflexu@linux.alibaba.com>,
+        Eric Whitney <enwlinux@gmail.com>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 5.4 281/314] ext4: fix partial cluster initialization when splitting extent
 Date:   Tue, 23 Jun 2020 21:57:56 +0200
-Message-Id: <20200623195304.629278646@linuxfoundation.org>
+Message-Id: <20200623195352.380927246@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195303.601828702@linuxfoundation.org>
-References: <20200623195303.601828702@linuxfoundation.org>
+In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
+References: <20200623195338.770401005@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,65 +44,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Jeffle Xu <jefflexu@linux.alibaba.com>
 
-[ Upstream commit 90c6cb4a355e7befcb557d217d1d8b8bd5875a05 ]
+commit cfb3c85a600c6aa25a2581b3c1c4db3460f14e46 upstream.
 
-Trying to change Link Status register does not have any effect as this
-is a read-only register. Trying to overwrite bits for Negotiated Link
-Width does not make sense.
+Fix the bug when calculating the physical block number of the first
+block in the split extent.
 
-In future proper change of link width can be done via Lane Count Select
-bits in PCIe Control 0 register.
+This bug will cause xfstests shared/298 failure on ext4 with bigalloc
+enabled occasionally. Ext4 error messages indicate that previously freed
+blocks are being freed again, and the following fsck will fail due to
+the inconsistency of block bitmap and bg descriptor.
 
-Trying to unconditionally enable ASPM L0s via ASPM Control bits in Link
-Control register is wrong. There should be at least some detection if
-endpoint supports L0s as isn't mandatory.
+The following is an example case:
 
-Moreover ASPM Control bits in Link Control register are controlled by
-pcie/aspm.c code which sets it according to system ASPM settings,
-immediately after aardvark driver probes. So setting these bits by
-aardvark driver has no long running effect.
+1. First, Initialize a ext4 filesystem with cluster size '16K', block size
+'4K', in which case, one cluster contains four blocks.
 
-Remove code which touches ASPM L0s bits from this driver and let
-kernel's ASPM implementation to set ASPM state properly.
+2. Create one file (e.g., xxx.img) on this ext4 filesystem. Now the extent
+tree of this file is like:
 
-Some users are reporting issues that this code is problematic for some
-Intel wifi cards and removing it fixes them, see e.g.:
-https://bugzilla.kernel.org/show_bug.cgi?id=196339
+...
+36864:[0]4:220160
+36868:[0]14332:145408
+51200:[0]2:231424
+...
 
-If problems with Intel wifi cards occur even after this commit, then
-pcie/aspm.c code could be modified / hooked to not enable ASPM L0s state
-for affected problematic cards.
+3. Then execute PUNCH_HOLE fallocate on this file. The hole range is
+like:
 
-Link: https://lore.kernel.org/r/20200430080625.26070-3-pali@kernel.org
-Tested-by: Tomasz Maciej Nowak <tmn505@gmail.com>
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Acked-by: Rob Herring <robh@kernel.org>
-Acked-by: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+..
+ext4_ext_remove_space: dev 254,16 ino 12 since 49506 end 49506 depth 1
+ext4_ext_remove_space: dev 254,16 ino 12 since 49544 end 49546 depth 1
+ext4_ext_remove_space: dev 254,16 ino 12 since 49605 end 49607 depth 1
+...
+
+4. Then the extent tree of this file after punching is like
+
+...
+49507:[0]37:158047
+49547:[0]58:158087
+...
+
+5. Detailed procedure of punching hole [49544, 49546]
+
+5.1. The block address space:
+```
+lblk        ~49505  49506   49507~49543     49544~49546    49547~
+	  ---------+------+-------------+----------------+--------
+	    extent | hole |   extent	|	hole	 | extent
+	  ---------+------+-------------+----------------+--------
+pblk       ~158045  158046  158047~158083  158084~158086   158087~
+```
+
+5.2. The detailed layout of cluster 39521:
+```
+		cluster 39521
+	<------------------------------->
+
+		hole		  extent
+	<----------------------><--------
+
+lblk      49544   49545   49546   49547
+	+-------+-------+-------+-------+
+	|	|	|	|	|
+	+-------+-------+-------+-------+
+pblk     158084  1580845  158086  158087
+```
+
+5.3. The ftrace output when punching hole [49544, 49546]:
+- ext4_ext_remove_space (start 49544, end 49546)
+  - ext4_ext_rm_leaf (start 49544, end 49546, last_extent [49507(158047), 40], partial [pclu 39522 lblk 0 state 2])
+    - ext4_remove_blocks (extent [49507(158047), 40], from 49544 to 49546, partial [pclu 39522 lblk 0 state 2]
+      - ext4_free_blocks: (block 158084 count 4)
+        - ext4_mballoc_free (extent 1/6753/1)
+
+5.4. Ext4 error message in dmesg:
+EXT4-fs error (device vdb): mb_free_blocks:1457: group 1, block 158084:freeing already freed block (bit 6753); block bitmap corrupt.
+EXT4-fs error (device vdb): ext4_mb_generate_buddy:747: group 1, block bitmap and bg descriptor inconsistent: 19550 vs 19551 free clusters
+
+In this case, the whole cluster 39521 is freed mistakenly when freeing
+pblock 158084~158086 (i.e., the first three blocks of this cluster),
+although pblock 158087 (the last remaining block of this cluster) has
+not been freed yet.
+
+The root cause of this isuue is that, the pclu of the partial cluster is
+calculated mistakenly in ext4_ext_remove_space(). The correct
+partial_cluster.pclu (i.e., the cluster number of the first block in the
+next extent, that is, lblock 49597 (pblock 158086)) should be 39521 rather
+than 39522.
+
+Fixes: f4226d9ea400 ("ext4: fix partial cluster initialization")
+Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
+Reviewed-by: Eric Whitney <enwlinux@gmail.com>
+Cc: stable@kernel.org # v3.19+
+Link: https://lore.kernel.org/r/1590121124-37096-1-git-send-email-jefflexu@linux.alibaba.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/pci/host/pci-aardvark.c | 4 ----
- 1 file changed, 4 deletions(-)
+ fs/ext4/extents.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pci/host/pci-aardvark.c b/drivers/pci/host/pci-aardvark.c
-index 5f3048e75becb..c1db09fbbe041 100644
---- a/drivers/pci/host/pci-aardvark.c
-+++ b/drivers/pci/host/pci-aardvark.c
-@@ -365,10 +365,6 @@ static void advk_pcie_setup_hw(struct advk_pcie *pcie)
- 
- 	advk_pcie_wait_for_link(pcie);
- 
--	reg = PCIE_CORE_LINK_L0S_ENTRY |
--		(1 << PCIE_CORE_LINK_WIDTH_SHIFT);
--	advk_writel(pcie, reg, PCIE_CORE_LINK_CTRL_STAT_REG);
--
- 	reg = advk_readl(pcie, PCIE_CORE_CMD_STATUS_REG);
- 	reg |= PCIE_CORE_CMD_MEM_ACCESS_EN |
- 		PCIE_CORE_CMD_IO_ACCESS_EN |
--- 
-2.25.1
-
+--- a/fs/ext4/extents.c
++++ b/fs/ext4/extents.c
+@@ -3010,7 +3010,7 @@ again:
+ 			 * in use to avoid freeing it when removing blocks.
+ 			 */
+ 			if (sbi->s_cluster_ratio > 1) {
+-				pblk = ext4_ext_pblock(ex) + end - ee_block + 2;
++				pblk = ext4_ext_pblock(ex) + end - ee_block + 1;
+ 				partial.pclu = EXT4_B2C(sbi, pblk);
+ 				partial.state = nofree;
+ 			}
 
 
