@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E87712064BB
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:32:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C803720640D
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:30:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391064AbgFWV0f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 17:26:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34202 "EHLO mail.kernel.org"
+        id S2391408AbgFWVPX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 17:15:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389592AbgFWURr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:17:47 -0400
+        id S2389264AbgFWU2Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:28:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF1E32137B;
-        Tue, 23 Jun 2020 20:17:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 991542064B;
+        Tue, 23 Jun 2020 20:28:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943467;
-        bh=aOUdI9uRoCxAKootm2RDpqEy5nNznUOHDF9tGkse2iQ=;
+        s=default; t=1592944105;
+        bh=3G8GM4vO3Vdlqv9ViR3h8GbCYKBiWpfhwADZ7dBz5Jk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cIOJS2o/btazfsd6IMzkDz4jPs256F3SRvg1/rRsKCpenM4SdEXF7P3P2dkiFnI62
-         Zw3y7qpyrZboX2hU0Rsp1cjVVS4UEnZUbQosdf+i8qmO2s+lYBa3MXYyHT2MMMy2RQ
-         rXVRnFMGBR+74Iuf/gnEAJakOJdHcyjDC8T6YlEI=
+        b=tU4RzAJ0B1Lylh3TcANmMi9i7jiQ5ktFITVf4s28wDf2U1by7ZChv+G1Ew9jHnw4l
+         gt+sBep0On8LEsRlN7mGfabH8HxxBuKeTDDWg0k8LVkW1QTjXm+PXObvaHXDEdtuDZ
+         vY51ljatIVehvxj6KOUoFgsgJ/Uywyk/XasYYbn4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        stable@vger.kernel.org, Minas Harutyunyan <hminas@synopsys.com>,
+        Fabrice Gasnier <fabrice.gasnier@st.com>,
+        Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 373/477] NFS: Fix direct WRITE throughput regression
+Subject: [PATCH 5.4 175/314] usb: dwc2: gadget: move gadget resume after the core is in L0 state
 Date:   Tue, 23 Jun 2020 21:56:10 +0200
-Message-Id: <20200623195425.160972368@linuxfoundation.org>
+Message-Id: <20200623195347.229231631@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
-References: <20200623195407.572062007@linuxfoundation.org>
+In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
+References: <20200623195338.770401005@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Fabrice Gasnier <fabrice.gasnier@st.com>
 
-[ Upstream commit ba838a75e73f55a780f1ee896b8e3ecb032dba0f ]
+[ Upstream commit 8c935deacebb8fac8f41378701eb79d12f3c2e2d ]
 
-I measured a 50% throughput regression for large direct writes.
+When the remote wakeup interrupt is triggered, lx_state is resumed from L2
+to L0 state. But when the gadget resume is called, lx_state is still L2.
+This prevents the resume callback to queue any request. Any attempt
+to queue a request from resume callback will result in:
+- "submit request only in active state" debug message to be issued
+- dwc2_hsotg_ep_queue() returns -EAGAIN
 
-The observed on-the-wire behavior is that the client sends every
-NFS WRITE twice: once as an UNSTABLE WRITE plus a COMMIT, and once
-as a FILE_SYNC WRITE.
+Call the gadget resume routine after the core is in L0 state.
 
-This is because the nfs_write_match_verf() check in
-nfs_direct_commit_complete() fails for every WRITE.
+Fixes: f81f46e1f530 ("usb: dwc2: implement hibernation during bus suspend/resume")
 
-Buffered writes use nfs_write_completion(), which sets req->wb_verf
-correctly. Direct writes use nfs_direct_write_completion(), which
-does not set req->wb_verf at all. This leaves req->wb_verf set to
-all zeroes for every direct WRITE, and thus
-nfs_direct_commit_completion() always sets NFS_ODIRECT_RESCHED_WRITES.
-
-This fix appears to restore nearly all of the lost performance.
-
-Fixes: 1f28476dcb98 ("NFS: Fix O_DIRECT commit verifier handling")
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Acked-by: Minas Harutyunyan <hminas@synopsys.com>
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/direct.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/dwc2/core_intr.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfs/direct.c b/fs/nfs/direct.c
-index a57e7c72c7f47..d49b1d1979084 100644
---- a/fs/nfs/direct.c
-+++ b/fs/nfs/direct.c
-@@ -731,6 +731,8 @@ static void nfs_direct_write_completion(struct nfs_pgio_header *hdr)
- 		nfs_list_remove_request(req);
- 		if (request_commit) {
- 			kref_get(&req->wb_kref);
-+			memcpy(&req->wb_verf, &hdr->verf.verifier,
-+			       sizeof(req->wb_verf));
- 			nfs_mark_request_commit(req, hdr->lseg, &cinfo,
- 				hdr->ds_commit_idx);
+diff --git a/drivers/usb/dwc2/core_intr.c b/drivers/usb/dwc2/core_intr.c
+index 6af6add3d4c0b..6272b4ae4740f 100644
+--- a/drivers/usb/dwc2/core_intr.c
++++ b/drivers/usb/dwc2/core_intr.c
+@@ -421,10 +421,13 @@ static void dwc2_handle_wakeup_detected_intr(struct dwc2_hsotg *hsotg)
+ 			if (ret && (ret != -ENOTSUPP))
+ 				dev_err(hsotg->dev, "exit power_down failed\n");
+ 
++			/* Change to L0 state */
++			hsotg->lx_state = DWC2_L0;
+ 			call_gadget(hsotg, resume);
++		} else {
++			/* Change to L0 state */
++			hsotg->lx_state = DWC2_L0;
  		}
+-		/* Change to L0 state */
+-		hsotg->lx_state = DWC2_L0;
+ 	} else {
+ 		if (hsotg->params.power_down)
+ 			return;
 -- 
 2.25.1
 
