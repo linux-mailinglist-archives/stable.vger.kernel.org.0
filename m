@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62156205F6E
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:33:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05C0A206036
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:47:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390224AbgFWUcq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:32:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53778 "EHLO mail.kernel.org"
+        id S2392252AbgFWUkh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:40:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391353AbgFWUcq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:32:46 -0400
+        id S2392248AbgFWUkh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:40:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A613206C3;
-        Tue, 23 Jun 2020 20:32:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB8DE2053B;
+        Tue, 23 Jun 2020 20:40:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944366;
-        bh=BuHtDyIL+/1LfFaZxMMQgvnNoWYsGzWxgoMN6OTKQ2E=;
+        s=default; t=1592944837;
+        bh=hG/hd2J4dHLGSRu02sYKuZfaGjpfA6fauxrCVBm5Y5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KcHnIsaJpeNy1KxC35DNwmYijRBuqYvJVd3mOrZpDkrE1x5ntS65P5HKdC3XVoS0B
-         elqXglKuVNlqBheQAh5ogu6iCK4RNF9wWPXS4xFzcW66sLDqgWwAKda3T8VOQJFARa
-         Egkz9gBPoypk52A//fY0ain/J98F15p261byx7Yw=
+        b=Oi3h1OrqkEa0BBw2JU7sdkxafPJkMqEKyU0A+fxTNsl7k1wxAohiXIKL+3bbmMm5m
+         wr4Xxat0iLmtY/mk/EtMpixaZPUKspoIMtrxLRgLHRYfuiJfQDjK7MgT/7aG2WR2Yn
+         PbIpFOQgz9tA6PkJENa5S637g0R47NtcvYnGcXJM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Auhagen <sven.auhagen@voleatech.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 277/314] mvpp2: remove module bugfix
-Date:   Tue, 23 Jun 2020 21:57:52 +0200
-Message-Id: <20200623195352.197436951@linuxfoundation.org>
+        stable@vger.kernel.org, Logan Gunthorpe <logang@deltatee.com>,
+        Allen Hubbe <allenbh@gmail.com>,
+        Alexander Fomichev <fomichev.ru@gmail.com>,
+        Jon Mason <jdmason@kudzu.us>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 145/206] NTB: ntb_tool: reading the link file should not end in a NULL byte
+Date:   Tue, 23 Jun 2020 21:57:53 +0200
+Message-Id: <20200623195324.111692731@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
-References: <20200623195338.770401005@linuxfoundation.org>
+In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
+References: <20200623195316.864547658@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,56 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Auhagen <sven.auhagen@voleatech.de>
+From: Logan Gunthorpe <logang@deltatee.com>
 
-[ Upstream commit 807eaf99688ce162a98a7501477644782d4af098 ]
+[ Upstream commit 912e12813dd03c602e4922fc34709ec4d4380cf0 ]
 
-The remove function does not destroy all
-BM Pools when per cpu pool is active.
+When running ntb_test this warning is issued:
 
-When reloading the mvpp2 as a module the BM Pools
-are still active in hardware and due to the bug
-have twice the size now old + new.
+./ntb_test.sh: line 200: warning: command substitution: ignored null
+byte in input
 
-This eventually leads to a kernel crash.
+This is caused by the kernel returning one more byte than is necessary
+when reading the link file.
 
-v2:
-* add Fixes tag
+Reduce the number of bytes read back to 2 as it was before the
+commit that regressed this.
 
-Fixes: 7d04b0b13b11 ("mvpp2: percpu buffers")
-Signed-off-by: Sven Auhagen <sven.auhagen@voleatech.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 7f46c8b3a552 ("NTB: ntb_tool: Add full multi-port NTB API support")
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Acked-by: Allen Hubbe <allenbh@gmail.com>
+Tested-by: Alexander Fomichev <fomichev.ru@gmail.com>
+Signed-off-by: Jon Mason <jdmason@kudzu.us>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/ntb/test/ntb_tool.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-index 373b8c8328501..cf5d447af7db2 100644
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-@@ -5925,8 +5925,8 @@ static int mvpp2_remove(struct platform_device *pdev)
- {
- 	struct mvpp2 *priv = platform_get_drvdata(pdev);
- 	struct fwnode_handle *fwnode = pdev->dev.fwnode;
-+	int i = 0, poolnum = MVPP2_BM_POOLS_NUM;
- 	struct fwnode_handle *port_fwnode;
--	int i = 0;
+diff --git a/drivers/ntb/test/ntb_tool.c b/drivers/ntb/test/ntb_tool.c
+index 025747c1568ea..311d6ab8d0160 100644
+--- a/drivers/ntb/test/ntb_tool.c
++++ b/drivers/ntb/test/ntb_tool.c
+@@ -504,7 +504,7 @@ static ssize_t tool_peer_link_read(struct file *filep, char __user *ubuf,
+ 	buf[1] = '\n';
+ 	buf[2] = '\0';
  
- 	mvpp2_dbgfs_cleanup(priv);
+-	return simple_read_from_buffer(ubuf, size, offp, buf, 3);
++	return simple_read_from_buffer(ubuf, size, offp, buf, 2);
+ }
  
-@@ -5940,7 +5940,10 @@ static int mvpp2_remove(struct platform_device *pdev)
- 
- 	destroy_workqueue(priv->stats_queue);
- 
--	for (i = 0; i < MVPP2_BM_POOLS_NUM; i++) {
-+	if (priv->percpu_pools)
-+		poolnum = mvpp2_get_nrxqs(priv) * 2;
-+
-+	for (i = 0; i < poolnum; i++) {
- 		struct mvpp2_bm_pool *bm_pool = &priv->bm_pools[i];
- 
- 		mvpp2_bm_pool_destroy(&pdev->dev, priv, bm_pool);
+ static TOOL_FOPS_RDWR(tool_peer_link_fops,
+@@ -1690,4 +1690,3 @@ static void __exit tool_exit(void)
+ 	debugfs_remove_recursive(tool_dbgfs_topdir);
+ }
+ module_exit(tool_exit);
+-
 -- 
 2.25.1
 
