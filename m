@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9EE7205C87
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:03:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5B6D205C8B
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:03:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387934AbgFWUCw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:02:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40280 "EHLO mail.kernel.org"
+        id S2387968AbgFWUDE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:03:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387929AbgFWUCv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:02:51 -0400
+        id S2387956AbgFWUDA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:03:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 816552078A;
-        Tue, 23 Jun 2020 20:02:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 702402080C;
+        Tue, 23 Jun 2020 20:02:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592942571;
-        bh=lqyzhP1PQiVBIkYus2B1GyE3WsU8Zw/YfbY68zxjvR8=;
+        s=default; t=1592942578;
+        bh=krHgMfCn8WZvzHVDZ4TckLPbXuEfsPCvYgWThdNfNgI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DD9XhX9spv1rPCy1IDW7HxlHKhSUcOtHoEk25sXPdF7hvSNLtPSarqwIxGKMg9o5I
-         RFVpaT5PW6krgXm+b+sspcdG1pJonXpioSkpoG1Yblk/qCCzOuojuwng5Agg3C4Cgu
-         +ZvOqkriSilbfFikMEgc0gDrEY3WjLfmDGH60Dvg=
+        b=F7ohRaPbiJmaoPirI6lFM/QrccMIJx8okv8Z7pr4LmLjCINx3FzyBHY5/xV0CQO1n
+         wYqTHOFqgIAJdN3JiwKjJQ6DXmS9FtEy0YhwR/NzaT2d3e/VcSl8FTOfehKdAMp6wT
+         US864nFRXdT+bqV4fjKiTjrvVhU7Exw8cAZ9kuNk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kamal Heib <kamalheib1@gmail.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 051/477] RDMA/srpt: Fix disabling device management
-Date:   Tue, 23 Jun 2020 21:50:48 +0200
-Message-Id: <20200623195410.019319167@linuxfoundation.org>
+Subject: [PATCH 5.7 053/477] clk: renesas: cpg-mssr: Fix STBCR suspend/resume handling
+Date:   Tue, 23 Jun 2020 21:50:50 +0200
+Message-Id: <20200623195410.113611492@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -45,53 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kamal Heib <kamalheib1@gmail.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 23bbd5818e2b0d265aa1835e66f5055f63a8fa4c ]
+[ Upstream commit ace342097768e35fd41934285604fa97da1e235a ]
 
-Avoid disabling device management for devices that don't support
-Management datagrams (MADs) by checking if the "mad_agent" pointer is
-initialized before calling ib_modify_port, also fix the error flow in
-srpt_refresh_port() to disable device management if
-ib_register_mad_agent() fail.
+On SoCs with Standby Control Registers (STBCRs) instead of Module Stop
+Control Registers (MSTPCRs), the suspend handler saves the wrong
+registers, and the resume handler prints the wrong register in an error
+message.
 
-Fixes: 09f8a1486dca ("RDMA/srpt: Fix handling of SR-IOV and iWARP ports")
-Link: https://lore.kernel.org/r/20200514114720.141139-1-kamalheib1@gmail.com
-Signed-off-by: Kamal Heib <kamalheib1@gmail.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fortunately this cannot happen yet, as the suspend/resume code is used
+on PSCI systems only, and systems with STBCRs (RZ/A1 and RZ/A2) do not
+use PSCI.  Still, it is better to fix this, to avoid this becoming a
+problem in the future.
+
+Distinguish between STBCRs and MSTPCRs where needed.  Replace the
+useless printing of the virtual register address in the resume error
+message by printing the register index.
+
+Fixes: fde35c9c7db5732c ("clk: renesas: cpg-mssr: Add R7S9210 support")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20200507074713.30113-1-geert+renesas@glider.be
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/srpt/ib_srpt.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/clk/renesas/renesas-cpg-mssr.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/infiniband/ulp/srpt/ib_srpt.c b/drivers/infiniband/ulp/srpt/ib_srpt.c
-index 98552749d71cb..fcf982c60db6a 100644
---- a/drivers/infiniband/ulp/srpt/ib_srpt.c
-+++ b/drivers/infiniband/ulp/srpt/ib_srpt.c
-@@ -610,6 +610,11 @@ static int srpt_refresh_port(struct srpt_port *sport)
- 			       dev_name(&sport->sdev->device->dev), sport->port,
- 			       PTR_ERR(sport->mad_agent));
- 			sport->mad_agent = NULL;
-+			memset(&port_modify, 0, sizeof(port_modify));
-+			port_modify.clr_port_cap_mask = IB_PORT_DEVICE_MGMT_SUP;
-+			ib_modify_port(sport->sdev->device, sport->port, 0,
-+				       &port_modify);
-+
- 		}
+diff --git a/drivers/clk/renesas/renesas-cpg-mssr.c b/drivers/clk/renesas/renesas-cpg-mssr.c
+index a2663fbbd7a51..d6a53c99b114a 100644
+--- a/drivers/clk/renesas/renesas-cpg-mssr.c
++++ b/drivers/clk/renesas/renesas-cpg-mssr.c
+@@ -812,7 +812,8 @@ static int cpg_mssr_suspend_noirq(struct device *dev)
+ 	/* Save module registers with bits under our control */
+ 	for (reg = 0; reg < ARRAY_SIZE(priv->smstpcr_saved); reg++) {
+ 		if (priv->smstpcr_saved[reg].mask)
+-			priv->smstpcr_saved[reg].val =
++			priv->smstpcr_saved[reg].val = priv->stbyctrl ?
++				readb(priv->base + STBCR(reg)) :
+ 				readl(priv->base + SMSTPCR(reg));
  	}
  
-@@ -633,9 +638,8 @@ static void srpt_unregister_mad_agent(struct srpt_device *sdev)
- 	for (i = 1; i <= sdev->device->phys_port_cnt; i++) {
- 		sport = &sdev->port[i - 1];
- 		WARN_ON(sport->port != i);
--		if (ib_modify_port(sdev->device, i, 0, &port_modify) < 0)
--			pr_err("disabling MAD processing failed.\n");
- 		if (sport->mad_agent) {
-+			ib_modify_port(sdev->device, i, 0, &port_modify);
- 			ib_unregister_mad_agent(sport->mad_agent);
- 			sport->mad_agent = NULL;
+@@ -872,8 +873,9 @@ static int cpg_mssr_resume_noirq(struct device *dev)
  		}
+ 
+ 		if (!i)
+-			dev_warn(dev, "Failed to enable SMSTP %p[0x%x]\n",
+-				 priv->base + SMSTPCR(reg), oldval & mask);
++			dev_warn(dev, "Failed to enable %s%u[0x%x]\n",
++				 priv->stbyctrl ? "STB" : "SMSTP", reg,
++				 oldval & mask);
+ 	}
+ 
+ 	return 0;
 -- 
 2.25.1
 
