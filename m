@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 247FB205F8D
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:46:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F133D206054
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:48:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391403AbgFWUdc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:33:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54910 "EHLO mail.kernel.org"
+        id S2388708AbgFWUlj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:41:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391426AbgFWUdb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:33:31 -0400
+        id S2391913AbgFWUlh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:41:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7FA042080C;
-        Tue, 23 Jun 2020 20:33:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B7D52053B;
+        Tue, 23 Jun 2020 20:41:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944412;
-        bh=selabKS2AlkwqO/qOA7DWHVc5iEPhiIKHTp4r33ZNP0=;
+        s=default; t=1592944897;
+        bh=TMiyGgn59z1wPXiit7wOGB9KEZd/5dwFmdSTrlJu4DE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SqCh9daaKXKcSvT2ho67osIT6FdsexOL7EN5GYxHT6NkRPvUz/pUpiAQ7eDZTc4k2
-         C7g7yY+azDCvao2NZxaspj6O/5hyIjKG4iLip0XKbsobiBgb3nANtErEYN41DWPtz7
-         Pllhi9qUGO7lLUsJYMUw/sQRPytKdNxtCRuxu7+U=
+        b=EPoHpwyYYB8MCJCvWF6kM4Fn9vZMDC0jm6GXwvN7DYnRHCioPBG45NnLhLRMom419
+         M2un7XuGaGdOnPr2drqiVLaYr8pfyIOyr51R8WKEqa0eZLNjIWvVRNx1XXrFUD0Owb
+         DYKmh4lLvVXSIo+OZrZ1h4cAzgg3I8LX/pu/4Atg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Denis Efremov <efremov@linux.com>,
-        Saeed Mahameed <saeedm@mellanox.com>,
+        stable@vger.kernel.org, YiFei Zhu <zhuyifei@google.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Stanislav Fomichev <sdf@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 293/314] net/mlx5: DR, Fix freeing in dr_create_rc_qp()
+Subject: [PATCH 4.19 160/206] net/filter: Permit reading NET in load_bytes_relative when MAC not set
 Date:   Tue, 23 Jun 2020 21:58:08 +0200
-Message-Id: <20200623195352.943802344@linuxfoundation.org>
+Message-Id: <20200623195324.870879506@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
-References: <20200623195338.770401005@linuxfoundation.org>
+In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
+References: <20200623195316.864547658@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +45,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Denis Efremov <efremov@linux.com>
+From: YiFei Zhu <zhuyifei1999@gmail.com>
 
-[ Upstream commit 47a357de2b6b706af3c9471d5042f9ba8907031e ]
+[ Upstream commit 0f5d82f187e1beda3fe7295dfc500af266a5bd80 ]
 
-Variable "in" in dr_create_rc_qp() is allocated with kvzalloc() and
-should be freed with kvfree().
+Added a check in the switch case on start_header that checks for
+the existence of the header, and in the case that MAC is not set
+and the caller requests for MAC, -EFAULT. If the caller requests
+for NET then MAC's existence is completely ignored.
 
-Fixes: 297cccebdc5a ("net/mlx5: DR, Expose an internal API to issue RDMA operations")
-Cc: stable@vger.kernel.org
-Signed-off-by: Denis Efremov <efremov@linux.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+There is no function to check NET header's existence and as far
+as cgroup_skb/egress is concerned it should always be set.
+
+Removed for ptr >= the start of header, considering offset is
+bounded unsigned and should always be true. len <= end - mac is
+redundant to ptr + len <= end.
+
+Fixes: 3eee1f75f2b9 ("bpf: fix bpf_skb_load_bytes_relative pkt length check")
+Signed-off-by: YiFei Zhu <zhuyifei@google.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: Stanislav Fomichev <sdf@google.com>
+Link: https://lore.kernel.org/bpf/76bb820ddb6a95f59a772ecbd8c8a336f646b362.1591812755.git.zhuyifei@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/steering/dr_send.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/core/filter.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_send.c b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_send.c
-index 7c77378accf04..f012aac83b10e 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_send.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_send.c
-@@ -181,7 +181,7 @@ static struct mlx5dr_qp *dr_create_rc_qp(struct mlx5_core_dev *mdev,
- 							 in, pas));
+diff --git a/net/core/filter.c b/net/core/filter.c
+index 40b3af05c883c..b5521b60a2d4f 100644
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -1730,25 +1730,27 @@ BPF_CALL_5(bpf_skb_load_bytes_relative, const struct sk_buff *, skb,
+ 	   u32, offset, void *, to, u32, len, u32, start_header)
+ {
+ 	u8 *end = skb_tail_pointer(skb);
+-	u8 *net = skb_network_header(skb);
+-	u8 *mac = skb_mac_header(skb);
+-	u8 *ptr;
++	u8 *start, *ptr;
  
- 	err = mlx5_core_create_qp(mdev, &dr_qp->mqp, in, inlen);
--	kfree(in);
-+	kvfree(in);
+-	if (unlikely(offset > 0xffff || len > (end - mac)))
++	if (unlikely(offset > 0xffff))
+ 		goto err_clear;
  
- 	if (err) {
- 		mlx5_core_warn(mdev, " Can't create QP\n");
+ 	switch (start_header) {
+ 	case BPF_HDR_START_MAC:
+-		ptr = mac + offset;
++		if (unlikely(!skb_mac_header_was_set(skb)))
++			goto err_clear;
++		start = skb_mac_header(skb);
+ 		break;
+ 	case BPF_HDR_START_NET:
+-		ptr = net + offset;
++		start = skb_network_header(skb);
+ 		break;
+ 	default:
+ 		goto err_clear;
+ 	}
+ 
+-	if (likely(ptr >= mac && ptr + len <= end)) {
++	ptr = start + offset;
++
++	if (likely(ptr + len <= end)) {
+ 		memcpy(to, ptr, len);
+ 		return 0;
+ 	}
 -- 
 2.25.1
 
