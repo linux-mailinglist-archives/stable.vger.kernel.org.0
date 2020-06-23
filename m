@@ -2,38 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5846A20623F
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:09:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7751120619C
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:07:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388231AbgFWU5s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:57:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38992 "EHLO mail.kernel.org"
+        id S2391201AbgFWUqB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:46:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390228AbgFWUm3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:42:29 -0400
+        id S2392131AbgFWUqA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:46:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F0D022078A;
-        Tue, 23 Jun 2020 20:42:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7F40C20656;
+        Tue, 23 Jun 2020 20:45:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944949;
-        bh=AouxK48LHagOxXDW5ZoWJtQ+wZKdrPbBpORtCah5Wq8=;
+        s=default; t=1592945160;
+        bh=VDpoRRqnG5j5UuTahOZVlHdffJFEYj7+m59b2DsLsac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mRt8HgJ4JG26PACKxSSz6JftzZkxgwFiGJnqsvNG25DB1L39e/tXLRK81r97Pms6Z
-         cYGmdyZATf9P8HeGjmrWjbycexXYnsxqS3F5hyH4i7qIhmkgq3EWu8R61jk0sMYgj7
-         a/BLXO+D2BqMGEnCKPdmT3Yp2TB6ycjkEf0dYGts=
+        b=aqOxi/lBJkDBDicwgxHPukm54h2IH3kiKv/xzz+kc60eZ3gdf0vEngRJeqOlQRw7P
+         jJwR0mZcvdgp1zy6yWalDlCgNEJQg8QCSCVvV5wbiNOIZ70grk/vrfxyclgogThP41
+         ASOe6MX/Nri8FEPEBEdfGKKRo89po69qwqEO44gc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Qais Yousef <qais.yousef@arm.com>,
+        Tony Prisk <linux@prisktech.co.nz>,
+        Mathias Nyman <mathias.nyman@intel.com>,
+        Oliver Neukum <oneukum@suse.de>,
+        linux-arm-kernel@lists.infradead.org, linux-usb@vger.kernel.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 187/206] mtd: rawnand: xway: Fix the probe error path
-Date:   Tue, 23 Jun 2020 21:58:35 +0200
-Message-Id: <20200623195326.235589162@linuxfoundation.org>
+Subject: [PATCH 4.14 061/136] usb/ohci-platform: Fix a warning when hibernating
+Date:   Tue, 23 Jun 2020 21:58:37 +0200
+Message-Id: <20200623195306.759097665@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
-References: <20200623195316.864547658@linuxfoundation.org>
+In-Reply-To: <20200623195303.601828702@linuxfoundation.org>
+References: <20200623195303.601828702@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,42 +48,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Qais Yousef <qais.yousef@arm.com>
 
-[ Upstream commit 34531be5e804a8e1abf314a6c3a19fe342e4a154 ]
+[ Upstream commit 1cb3b0095c3d0bb96912bfbbce4fc006d41f367c ]
 
-nand_release() is supposed be called after MTD device registration.
-Here, only nand_scan() happened, so use nand_cleanup() instead.
+The following warning was observed when attempting to suspend to disk
+using a USB flash as a swap device.
 
-There is no real Fixes tag applying here as the use of nand_release()
-in this driver predates the introduction of nand_cleanup() in
-commit d44154f969a4 ("mtd: nand: Provide nand_cleanup() function to free NAND related resources")
-which makes this change possible. However, pointing this commit as the
-culprit for backporting purposes makes sense even if this commit is not
-introducing any bug.
+[  111.779649] ------------[ cut here ]------------
+[  111.788382] URB (____ptrval____) submitted while active
+[  111.796646] WARNING: CPU: 3 PID: 365 at drivers/usb/core/urb.c:363 usb_submit_urb+0x3d8/0x590
+[  111.805417] Modules linked in:
+[  111.808584] CPU: 3 PID: 365 Comm: kworker/3:2 Not tainted 5.6.0-rc6-00002-gdfd1731f9a3e-dirty #545
+[  111.817796] Hardware name: ARM Juno development board (r2) (DT)
+[  111.823896] Workqueue: usb_hub_wq hub_event
+[  111.828217] pstate: 60000005 (nZCv daif -PAN -UAO)
+[  111.833156] pc : usb_submit_urb+0x3d8/0x590
+[  111.837471] lr : usb_submit_urb+0x3d8/0x590
+[  111.841783] sp : ffff800018de38b0
+[  111.845205] x29: ffff800018de38b0 x28: 0000000000000003
+[  111.850682] x27: ffff000970530b20 x26: ffff8000133fd000
+[  111.856159] x25: ffff8000133fd000 x24: ffff800018de3b38
+[  111.861635] x23: 0000000000000004 x22: 0000000000000c00
+[  111.867112] x21: 0000000000000000 x20: 00000000fffffff0
+[  111.872589] x19: ffff0009704e7a00 x18: ffffffffffffffff
+[  111.878065] x17: 00000000a7c8f4bc x16: 000000002af33de8
+[  111.883542] x15: ffff8000133fda88 x14: 0720072007200720
+[  111.889019] x13: 0720072007200720 x12: 0720072007200720
+[  111.894496] x11: 0000000000000000 x10: 00000000a5286134
+[  111.899973] x9 : 0000000000000002 x8 : ffff000970c837a0
+[  111.905449] x7 : 0000000000000000 x6 : ffff800018de3570
+[  111.910926] x5 : 0000000000000001 x4 : 0000000000000003
+[  111.916401] x3 : 0000000000000000 x2 : ffff800013427118
+[  111.921879] x1 : 9d4e965b4b7d7c00 x0 : 0000000000000000
+[  111.927356] Call trace:
+[  111.929892]  usb_submit_urb+0x3d8/0x590
+[  111.933852]  hub_activate+0x108/0x7f0
+[  111.937633]  hub_resume+0xac/0x148
+[  111.941149]  usb_resume_interface.isra.10+0x60/0x138
+[  111.946265]  usb_resume_both+0xe4/0x140
+[  111.950225]  usb_runtime_resume+0x24/0x30
+[  111.954365]  __rpm_callback+0xdc/0x138
+[  111.958236]  rpm_callback+0x34/0x98
+[  111.961841]  rpm_resume+0x4a8/0x720
+[  111.965445]  rpm_resume+0x50c/0x720
+[  111.969049]  __pm_runtime_resume+0x4c/0xb8
+[  111.973276]  usb_autopm_get_interface+0x28/0x60
+[  111.977948]  hub_event+0x80/0x16d8
+[  111.981466]  process_one_work+0x2a4/0x748
+[  111.985604]  worker_thread+0x48/0x498
+[  111.989387]  kthread+0x13c/0x140
+[  111.992725]  ret_from_fork+0x10/0x18
+[  111.996415] irq event stamp: 354
+[  111.999756] hardirqs last  enabled at (353): [<ffff80001019ea1c>] console_unlock+0x504/0x5b8
+[  112.008441] hardirqs last disabled at (354): [<ffff8000100a95d0>] do_debug_exception+0x1a8/0x258
+[  112.017479] softirqs last  enabled at (350): [<ffff8000100818a4>] __do_softirq+0x4bc/0x568
+[  112.025984] softirqs last disabled at (343): [<ffff8000101145a4>] irq_exit+0x144/0x150
+[  112.034129] ---[ end trace dc96030b9cf6c8a3 ]---
 
-Fixes: d44154f969a4 ("mtd: nand: Provide nand_cleanup() function to free NAND related resources")
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/linux-mtd/20200519130035.1883-61-miquel.raynal@bootlin.com
+The problem was tracked down to a missing call to
+pm_runtime_set_active() on resume in ohci-platform.
+
+Link: https://lore.kernel.org/lkml/20200323143857.db5zphxhq4hz3hmd@e107158-lin.cambridge.arm.com/
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Qais Yousef <qais.yousef@arm.com>
+CC: Tony Prisk <linux@prisktech.co.nz>
+CC: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC: Mathias Nyman <mathias.nyman@intel.com>
+CC: Oliver Neukum <oneukum@suse.de>
+CC: linux-arm-kernel@lists.infradead.org
+CC: linux-usb@vger.kernel.org
+CC: linux-kernel@vger.kernel.org
+Link: https://lore.kernel.org/r/20200518154931.6144-1-qais.yousef@arm.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/raw/xway_nand.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/host/ohci-platform.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/mtd/nand/raw/xway_nand.c b/drivers/mtd/nand/raw/xway_nand.c
-index 1adb41acebfc3..bfa43fdc3c541 100644
---- a/drivers/mtd/nand/raw/xway_nand.c
-+++ b/drivers/mtd/nand/raw/xway_nand.c
-@@ -211,7 +211,7 @@ static int xway_nand_probe(struct platform_device *pdev)
+diff --git a/drivers/usb/host/ohci-platform.c b/drivers/usb/host/ohci-platform.c
+index 61fe2b985070f..742cefa22c2b5 100644
+--- a/drivers/usb/host/ohci-platform.c
++++ b/drivers/usb/host/ohci-platform.c
+@@ -355,6 +355,11 @@ static int ohci_platform_resume(struct device *dev)
+ 	}
  
- 	err = mtd_device_register(mtd, NULL, 0);
- 	if (err)
--		nand_release(&data->chip);
-+		nand_cleanup(&data->chip);
- 
- 	return err;
+ 	ohci_resume(hcd, false);
++
++	pm_runtime_disable(dev);
++	pm_runtime_set_active(dev);
++	pm_runtime_enable(dev);
++
+ 	return 0;
  }
+ #endif /* CONFIG_PM_SLEEP */
 -- 
 2.25.1
 
