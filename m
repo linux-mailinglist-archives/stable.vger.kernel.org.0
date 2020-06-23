@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1167205911
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 19:37:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6928B20590E
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 19:37:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733165AbgFWRht (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 13:37:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34760 "EHLO mail.kernel.org"
+        id S2387731AbgFWRhF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 13:37:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387719AbgFWRhC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 13:37:02 -0400
+        id S2387723AbgFWRhE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 13:37:04 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D0AD6207D0;
-        Tue, 23 Jun 2020 17:37:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2D8620706;
+        Tue, 23 Jun 2020 17:37:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592933822;
-        bh=qvqP4soC5gZ2anWBJAEP+JMKWxsurLUH0d5vSfNG5GY=;
+        s=default; t=1592933823;
+        bh=Pmc4Qk3SkNxp1+Xft8iK3sugnTpwsjtIyHgR0m1BHxU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O92kSKOGj0dG1DsRuLzo2lyig1+S1vIbMEWQQzYGxtqbLE/c5Q1g28K3GYJYkeEdu
-         VvIBgUmNzbPAYbO4wFv8MDnaYt86Ti/seT873wd08tPoIxY95ZMhWpbzBtWTw61SNQ
-         /33Vdk5jO468G2bx/PqaEmx/YF/nkNsbZZnY1dgU=
+        b=FVYYFLg01Ir5y4JICdRrz9VOZ8kNXUkEH0N8KtktFTY98ocOJjnadXsjmnGQVP3sO
+         nYA9M+wGKL1H4IR80Qm+2drsJuVKrCvpsxZJtnGW2WUfGugmwtUXHSA2Wv0MgSt8Iu
+         2S+f6IafHhA7K5xu2UJH0RXYrexGvK3PPS/DQLp0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Aditya Pakki <pakki001@umn.edu>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 3/6] rocker: fix incorrect error handling in dma_rings_init
-Date:   Tue, 23 Jun 2020 13:36:55 -0400
-Message-Id: <20200623173658.1356241-3-sashal@kernel.org>
+Cc:     Sven Schnelle <svens@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 4/6] s390/ptrace: fix setting syscall number
+Date:   Tue, 23 Jun 2020 13:36:56 -0400
+Message-Id: <20200623173658.1356241-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200623173658.1356241-1-sashal@kernel.org>
 References: <20200623173658.1356241-1-sashal@kernel.org>
@@ -43,39 +43,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aditya Pakki <pakki001@umn.edu>
+From: Sven Schnelle <svens@linux.ibm.com>
 
-[ Upstream commit 58d0c864e1a759a15c9df78f50ea5a5c32b3989e ]
+[ Upstream commit 873e5a763d604c32988c4a78913a8dab3862d2f9 ]
 
-In rocker_dma_rings_init, the goto blocks in case of errors
-caused by the functions rocker_dma_cmd_ring_waits_alloc() and
-rocker_dma_ring_create() are incorrect. The patch fixes the
-order consistent with cleanup in rocker_dma_rings_fini().
+When strace wants to update the syscall number, it sets GPR2
+to the desired number and updates the GPR via PTRACE_SETREGSET.
+It doesn't update regs->int_code which would cause the old syscall
+executed on syscall restart. As we cannot change the ptrace ABI and
+don't have a field for the interruption code, check whether the tracee
+is in a syscall and the last instruction was svc. In that case assume
+that the tracer wants to update the syscall number and copy the GPR2
+value to regs->int_code.
 
-Signed-off-by: Aditya Pakki <pakki001@umn.edu>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/rocker/rocker_main.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/s390/kernel/ptrace.c | 31 ++++++++++++++++++++++++++++++-
+ 1 file changed, 30 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/rocker/rocker_main.c b/drivers/net/ethernet/rocker/rocker_main.c
-index 24b746406bc7a..4640e6c4aecf3 100644
---- a/drivers/net/ethernet/rocker/rocker_main.c
-+++ b/drivers/net/ethernet/rocker/rocker_main.c
-@@ -648,10 +648,10 @@ static int rocker_dma_rings_init(struct rocker *rocker)
- err_dma_event_ring_bufs_alloc:
- 	rocker_dma_ring_destroy(rocker, &rocker->event_ring);
- err_dma_event_ring_create:
-+	rocker_dma_cmd_ring_waits_free(rocker);
-+err_dma_cmd_ring_waits_alloc:
- 	rocker_dma_ring_bufs_free(rocker, &rocker->cmd_ring,
- 				  PCI_DMA_BIDIRECTIONAL);
--err_dma_cmd_ring_waits_alloc:
--	rocker_dma_cmd_ring_waits_free(rocker);
- err_dma_cmd_ring_bufs_alloc:
- 	rocker_dma_ring_destroy(rocker, &rocker->cmd_ring);
- 	return err;
+diff --git a/arch/s390/kernel/ptrace.c b/arch/s390/kernel/ptrace.c
+index fc2974b929c37..ee757d6f585e6 100644
+--- a/arch/s390/kernel/ptrace.c
++++ b/arch/s390/kernel/ptrace.c
+@@ -308,6 +308,25 @@ static inline void __poke_user_per(struct task_struct *child,
+ 		child->thread.per_user.end = data;
+ }
+ 
++static void fixup_int_code(struct task_struct *child, addr_t data)
++{
++	struct pt_regs *regs = task_pt_regs(child);
++	int ilc = regs->int_code >> 16;
++	u16 insn;
++
++	if (ilc > 6)
++		return;
++
++	if (ptrace_access_vm(child, regs->psw.addr - (regs->int_code >> 16),
++			&insn, sizeof(insn), FOLL_FORCE) != sizeof(insn))
++		return;
++
++	/* double check that tracee stopped on svc instruction */
++	if ((insn >> 8) != 0xa)
++		return;
++
++	regs->int_code = 0x20000 | (data & 0xffff);
++}
+ /*
+  * Write a word to the user area of a process at location addr. This
+  * operation does have an additional problem compared to peek_user.
+@@ -319,7 +338,9 @@ static int __poke_user(struct task_struct *child, addr_t addr, addr_t data)
+ 	struct user *dummy = NULL;
+ 	addr_t offset;
+ 
++
+ 	if (addr < (addr_t) &dummy->regs.acrs) {
++		struct pt_regs *regs = task_pt_regs(child);
+ 		/*
+ 		 * psw and gprs are stored on the stack
+ 		 */
+@@ -337,7 +358,11 @@ static int __poke_user(struct task_struct *child, addr_t addr, addr_t data)
+ 				/* Invalid addressing mode bits */
+ 				return -EINVAL;
+ 		}
+-		*(addr_t *)((addr_t) &task_pt_regs(child)->psw + addr) = data;
++
++		if (test_pt_regs_flag(regs, PIF_SYSCALL) &&
++			addr == offsetof(struct user, regs.gprs[2]))
++			fixup_int_code(child, data);
++		*(addr_t *)((addr_t) &regs->psw + addr) = data;
+ 
+ 	} else if (addr < (addr_t) (&dummy->regs.orig_gpr2)) {
+ 		/*
+@@ -703,6 +728,10 @@ static int __poke_user_compat(struct task_struct *child,
+ 			regs->psw.mask = (regs->psw.mask & ~PSW_MASK_BA) |
+ 				(__u64)(tmp & PSW32_ADDR_AMODE);
+ 		} else {
++
++			if (test_pt_regs_flag(regs, PIF_SYSCALL) &&
++				addr == offsetof(struct compat_user, regs.gprs[2]))
++				fixup_int_code(child, data);
+ 			/* gpr 0-15 */
+ 			*(__u32*)((addr_t) &regs->psw + addr*2 + 4) = tmp;
+ 		}
 -- 
 2.25.1
 
