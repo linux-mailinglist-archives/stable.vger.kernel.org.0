@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8419206605
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:51:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60788206606
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:51:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389266AbgFWVgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2388291AbgFWVgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 23 Jun 2020 17:36:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51048 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:51104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388430AbgFWUJx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:09:53 -0400
+        id S2388768AbgFWUJ4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:09:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 67E112082F;
-        Tue, 23 Jun 2020 20:09:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF0772078A;
+        Tue, 23 Jun 2020 20:09:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592942993;
-        bh=EHaTjvHX7cveCes1GIEDu70R+KTHtORbW9TF6z7OUOM=;
+        s=default; t=1592942995;
+        bh=5gGEF0Ydk+b3Y5uVUciFyjnL6r/+t7Vq/dqnuzJO1J4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S+TCQWet+c1W34ViTT7px70xk8HtsOKL1KXzvIuk1jD5twxzATZVh9kv2jBBFanxt
-         idiwgWdGk4PwyVPc8RsnoBoE+E2I1C3rcyBlJOiEBUEcxhqW/SX8D+8ippoefqEl0J
-         rG2/szkC4Ec2ITAv9wcv6ywWsBBIpYUsUPP50BxA=
+        b=p81Qy+6HflgmhAOdXU8kVIYiBI/EGk2ELdNZycLNXS018E2AbGq4PdhRnSwMwuQTS
+         seFu4EpsTpHEOwsIzjkGRE3fXFdBDtsczMsG/ld2fidmylzQjKXW27lgfUCIua9puf
+         exgwl6IhI0ASiExR45l0av75GuxHY23ZcJeVqj/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Mahesh Salgaonkar <mahesh@linux.ibm.com>,
+        stable@vger.kernel.org, Tomasz Maciej Nowak <tmn505@gmail.com>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Rob Herring <robh@kernel.org>,
+        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 217/477] powerpc/pseries/ras: Fix FWNMI_VALID off by one
-Date:   Tue, 23 Jun 2020 21:53:34 +0200
-Message-Id: <20200623195417.843037898@linuxfoundation.org>
+Subject: [PATCH 5.7 218/477] PCI: aardvark: Train link immediately after enabling training
+Date:   Tue, 23 Jun 2020 21:53:35 +0200
+Message-Id: <20200623195417.891038691@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -45,44 +47,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit deb70f7a35a22dffa55b2c3aac71bc6fb0f486ce ]
+[ Upstream commit 6964494582f56a3882c2c53b0edbfe99eb32b2e1 ]
 
-This was discovered developing qemu fwnmi sreset support. This
-off-by-one bug means the last 16 bytes of the rtas area can not
-be used for a 16 byte save area.
+Adding even 100ms (PCI_PM_D3COLD_WAIT) delay between enabling link
+training and starting link training causes detection issues with some
+buggy cards (such as Compex WLE900VX).
 
-It's not a serious bug, and QEMU implementation has to retain a
-workaround for old kernels, but it's good to tighten it.
+Move the code which enables link training immediately before the one
+which starts link traning.
 
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Acked-by: Mahesh Salgaonkar <mahesh@linux.ibm.com>
-Link: https://lore.kernel.org/r/20200508043408.886394-7-npiggin@gmail.com
+This fixes detection issues of Compex WLE900VX card on Turris MOX after
+cold boot.
+
+Link: https://lore.kernel.org/r/20200430080625.26070-2-pali@kernel.org
+Fixes: f4c7d053d7f7 ("PCI: aardvark: Wait for endpoint to be ready...")
+Tested-by: Tomasz Maciej Nowak <tmn505@gmail.com>
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Acked-by: Rob Herring <robh@kernel.org>
+Acked-by: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/ras.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/pci/controller/pci-aardvark.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/arch/powerpc/platforms/pseries/ras.c b/arch/powerpc/platforms/pseries/ras.c
-index 1d1da639b8b7e..16ba5c542e55c 100644
---- a/arch/powerpc/platforms/pseries/ras.c
-+++ b/arch/powerpc/platforms/pseries/ras.c
-@@ -395,10 +395,11 @@ static irqreturn_t ras_error_interrupt(int irq, void *dev_id)
- /*
-  * Some versions of FWNMI place the buffer inside the 4kB page starting at
-  * 0x7000. Other versions place it inside the rtas buffer. We check both.
-+ * Minimum size of the buffer is 16 bytes.
-  */
- #define VALID_FWNMI_BUFFER(A) \
--	((((A) >= 0x7000) && ((A) < 0x7ff0)) || \
--	(((A) >= rtas.base) && ((A) < (rtas.base + rtas.size - 16))))
-+	((((A) >= 0x7000) && ((A) <= 0x8000 - 16)) || \
-+	(((A) >= rtas.base) && ((A) <= (rtas.base + rtas.size - 16))))
+diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
+index 3a6d07dc0a385..74b90940a9d46 100644
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -300,11 +300,6 @@ static void advk_pcie_setup_hw(struct advk_pcie *pcie)
+ 	reg |= LANE_COUNT_1;
+ 	advk_writel(pcie, reg, PCIE_CORE_CTRL0_REG);
  
- static inline struct rtas_error_log *fwnmi_get_errlog(void)
- {
+-	/* Enable link training */
+-	reg = advk_readl(pcie, PCIE_CORE_CTRL0_REG);
+-	reg |= LINK_TRAINING_EN;
+-	advk_writel(pcie, reg, PCIE_CORE_CTRL0_REG);
+-
+ 	/* Enable MSI */
+ 	reg = advk_readl(pcie, PCIE_CORE_CTRL2_REG);
+ 	reg |= PCIE_CORE_CTRL2_MSI_ENABLE;
+@@ -346,7 +341,15 @@ static void advk_pcie_setup_hw(struct advk_pcie *pcie)
+ 	 */
+ 	msleep(PCI_PM_D3COLD_WAIT);
+ 
+-	/* Start link training */
++	/* Enable link training */
++	reg = advk_readl(pcie, PCIE_CORE_CTRL0_REG);
++	reg |= LINK_TRAINING_EN;
++	advk_writel(pcie, reg, PCIE_CORE_CTRL0_REG);
++
++	/*
++	 * Start link training immediately after enabling it.
++	 * This solves problems for some buggy cards.
++	 */
+ 	reg = advk_readl(pcie, PCIE_CORE_LINK_CTRL_STAT_REG);
+ 	reg |= PCIE_CORE_LINK_TRAINING;
+ 	advk_writel(pcie, reg, PCIE_CORE_LINK_CTRL_STAT_REG);
 -- 
 2.25.1
 
