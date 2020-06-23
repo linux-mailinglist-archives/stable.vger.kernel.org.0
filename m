@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3F1D20604B
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:48:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B265F205F88
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:46:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392308AbgFWUlU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:41:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37606 "EHLO mail.kernel.org"
+        id S2390947AbgFWUdW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:33:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392173AbgFWUlO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:41:14 -0400
+        id S2391409AbgFWUdV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:33:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E8E320675;
-        Tue, 23 Jun 2020 20:41:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 23218206C3;
+        Tue, 23 Jun 2020 20:33:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944874;
-        bh=R2yDVzq7zJ6XMt70V3QRr7jjIJrA7VZsncxDTAAQA58=;
+        s=default; t=1592944401;
+        bh=0isMCShVUmt0PgznSHcfZZBMuds+0OqhFhci1HPEPVk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=axqRB3o0tTim1jp/OcwfjYM29QDQp3gwyvngot0I892GS0f8xPocDEiqnPgEUWxTW
-         Ebn3qpxT28zHQ+LN0V3KxwvYqR+GSdkitKW6g/Rt07QF8IpwEzZyxsJBvbT2wEHyl6
-         /PtbnUSqxD24xMPDb1VqdbF/0Xhf8GkUpO1mreDk=
+        b=18Raxs/PuzJ1x5hQggaGQuCzppFkNmSpHl1FAIReb1L8XTCA1ctpcvrpEw39c1U7n
+         gw1/ZZZxrllt7VSCu2HYGJPacovQaqxfBJH3w5ah+1jWXe4FWLHxzdgNiIlfvx10zA
+         CoWRF2drNVYKS2lJ6R0jfffMmnx96PVVJJ9CJIWg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@siol.net>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 157/206] drm/sun4i: hdmi ddc clk: Fix size of m divider
+        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
+        Leo Li <sunpeng.li@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        "David (ChunMing) Zhou" <David1.Zhou@amd.com>,
+        amd-gfx@lists.freedesktop.org,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 290/314] drm/amd/display: Use swap() where appropriate
 Date:   Tue, 23 Jun 2020 21:58:05 +0200
-Message-Id: <20200623195324.715353790@linuxfoundation.org>
+Message-Id: <20200623195352.809162782@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
-References: <20200623195316.864547658@linuxfoundation.org>
+In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
+References: <20200623195338.770401005@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,49 +50,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jernej Skrabec <jernej.skrabec@siol.net>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-[ Upstream commit 54e1e06bcf1cf6e7ac3f86daa5f7454add24b494 ]
+[ Upstream commit 34b86b75dfc90ab3d996c224314ce51772a3b351 ]
 
-m divider in DDC clock register is 4 bits wide. Fix that.
+Mostly a cocci-job, but it flat out refused to remove the
+declaration in drivers/gpu/drm/amd/display/dc/core/dc.c so
+had to do that part manually.
 
-Fixes: 9c5681011a0c ("drm/sun4i: Add HDMI support")
-Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
-Reviewed-by: Chen-Yu Tsai <wens@csie.org>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200413095457.1176754-1-jernej.skrabec@siol.net
+@swap@
+identifier TEMP;
+expression A,B;
+@@
+- TEMP = A;
+- A = B;
+- B = TEMP;
++ swap(A, B);
+
+@@
+type T;
+identifier swap.TEMP;
+@@
+(
+- T TEMP;
+|
+- T TEMP = {...};
+)
+... when != TEMP
+
+Cc: Harry Wentland <harry.wentland@amd.com>
+Cc: Leo Li <sunpeng.li@amd.com>
+Cc: Alex Deucher <alexander.deucher@amd.com>
+Cc: "Christian König" <christian.koenig@amd.com>
+Cc: "David (ChunMing) Zhou" <David1.Zhou@amd.com>
+Cc: amd-gfx@lists.freedesktop.org
+Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/sun4i/sun4i_hdmi.h         | 2 +-
- drivers/gpu/drm/sun4i/sun4i_hdmi_ddc_clk.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/display/dc/bios/bios_parser.c  | 7 ++-----
+ drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c | 8 ++------
+ drivers/gpu/drm/amd/display/dc/core/dc.c           | 6 +-----
+ 3 files changed, 5 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/gpu/drm/sun4i/sun4i_hdmi.h b/drivers/gpu/drm/sun4i/sun4i_hdmi.h
-index b685ee11623d1..a13e14dd7746a 100644
---- a/drivers/gpu/drm/sun4i/sun4i_hdmi.h
-+++ b/drivers/gpu/drm/sun4i/sun4i_hdmi.h
-@@ -152,7 +152,7 @@
- #define SUN4I_HDMI_DDC_CMD_IMPLICIT_WRITE	3
+diff --git a/drivers/gpu/drm/amd/display/dc/bios/bios_parser.c b/drivers/gpu/drm/amd/display/dc/bios/bios_parser.c
+index 221e0f56389f3..823843cd26133 100644
+--- a/drivers/gpu/drm/amd/display/dc/bios/bios_parser.c
++++ b/drivers/gpu/drm/amd/display/dc/bios/bios_parser.c
+@@ -2543,7 +2543,6 @@ static enum bp_result construct_integrated_info(
  
- #define SUN4I_HDMI_DDC_CLK_REG		0x528
--#define SUN4I_HDMI_DDC_CLK_M(m)			(((m) & 0x7) << 3)
-+#define SUN4I_HDMI_DDC_CLK_M(m)			(((m) & 0xf) << 3)
- #define SUN4I_HDMI_DDC_CLK_N(n)			((n) & 0x7)
+ 	/* Sort voltage table from low to high*/
+ 	if (result == BP_RESULT_OK) {
+-		struct clock_voltage_caps temp = {0, 0};
+ 		uint32_t i;
+ 		uint32_t j;
  
- #define SUN4I_HDMI_DDC_LINE_CTRL_REG	0x540
-diff --git a/drivers/gpu/drm/sun4i/sun4i_hdmi_ddc_clk.c b/drivers/gpu/drm/sun4i/sun4i_hdmi_ddc_clk.c
-index e826da34e9191..14b6762567fbf 100644
---- a/drivers/gpu/drm/sun4i/sun4i_hdmi_ddc_clk.c
-+++ b/drivers/gpu/drm/sun4i/sun4i_hdmi_ddc_clk.c
-@@ -37,7 +37,7 @@ static unsigned long sun4i_ddc_calc_divider(unsigned long rate,
- 	unsigned long best_rate = 0;
- 	u8 best_m = 0, best_n = 0, _m, _n;
+@@ -2553,10 +2552,8 @@ static enum bp_result construct_integrated_info(
+ 						info->disp_clk_voltage[j].max_supported_clk <
+ 						info->disp_clk_voltage[j-1].max_supported_clk) {
+ 					/* swap j and j - 1*/
+-					temp = info->disp_clk_voltage[j-1];
+-					info->disp_clk_voltage[j-1] =
+-							info->disp_clk_voltage[j];
+-					info->disp_clk_voltage[j] = temp;
++					swap(info->disp_clk_voltage[j - 1],
++					     info->disp_clk_voltage[j]);
+ 				}
+ 			}
+ 		}
+diff --git a/drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c b/drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c
+index dff65c0fe82f8..7873abea4112b 100644
+--- a/drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c
++++ b/drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c
+@@ -1613,8 +1613,6 @@ static enum bp_result construct_integrated_info(
  
--	for (_m = 0; _m < 8; _m++) {
-+	for (_m = 0; _m < 16; _m++) {
- 		for (_n = 0; _n < 8; _n++) {
- 			unsigned long tmp_rate;
+ 	struct atom_common_table_header *header;
+ 	struct atom_data_revision revision;
+-
+-	struct clock_voltage_caps temp = {0, 0};
+ 	uint32_t i;
+ 	uint32_t j;
  
+@@ -1644,10 +1642,8 @@ static enum bp_result construct_integrated_info(
+ 				info->disp_clk_voltage[j-1].max_supported_clk
+ 				) {
+ 				/* swap j and j - 1*/
+-				temp = info->disp_clk_voltage[j-1];
+-				info->disp_clk_voltage[j-1] =
+-					info->disp_clk_voltage[j];
+-				info->disp_clk_voltage[j] = temp;
++				swap(info->disp_clk_voltage[j - 1],
++				     info->disp_clk_voltage[j]);
+ 			}
+ 		}
+ 	}
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
+index b95a58aa82d91..47e7d11ca0c9c 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
+@@ -907,15 +907,11 @@ static void program_timing_sync(
+ 
+ 		/* set first pipe with plane as master */
+ 		for (j = 0; j < group_size; j++) {
+-			struct pipe_ctx *temp;
+-
+ 			if (pipe_set[j]->plane_state) {
+ 				if (j == 0)
+ 					break;
+ 
+-				temp = pipe_set[0];
+-				pipe_set[0] = pipe_set[j];
+-				pipe_set[j] = temp;
++				swap(pipe_set[0], pipe_set[j]);
+ 				break;
+ 			}
+ 		}
 -- 
 2.25.1
 
