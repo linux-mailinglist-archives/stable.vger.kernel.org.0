@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56161205ECC
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:31:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20041205EFB
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:32:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390639AbgFWU0U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:26:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45462 "EHLO mail.kernel.org"
+        id S2390848AbgFWU2L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:28:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390099AbgFWU0T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:26:19 -0400
+        id S2390846AbgFWU2K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:28:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D1492064B;
-        Tue, 23 Jun 2020 20:26:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7696F2064B;
+        Tue, 23 Jun 2020 20:28:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943978;
-        bh=MMYqecFEsBibL4+SJA6ABQzEI54UvUx3QZA301rjt3Q=;
+        s=default; t=1592944089;
+        bh=kE7AXXRyM6+rLDBiuSuo6TNEZVzbhrd1WcqgebLczrA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wh2wBbBwsbFXrGSOa3rZe/ezYc71bMHLQKtC1B4LGop3jLRo0wmTcL1vWLzN3OWuY
-         21Z0nNYwzyacBhIMgQupFO62MKYFlpBlGv///5Lk4jVsA/qNamIMunjH8hEEJ+xG5p
-         fTvR/38fPMeyptXG23AooAIyxT6ejw8EbsNONcJY=
+        b=0xCy1zPnfmSsSGK20XsmBOHe8HDEpIXUX4ZakGc2vXyg0jmDYghLDwSd2tSXeknn1
+         B5YpqUfa3sQr7D98F1V1WkzhuCD440eK//nWxmlhs8DrSCP5/nWKjFwrAzJ0w9/9Z6
+         3Xc4C9l4umkPP2NFv7bQuBtt87whwJOJbEcrIgVo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roman Bolshakov <r.bolshakov@yadro.com>,
-        Viacheslav Dubeyko <v.dubeiko@yadro.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 124/314] scsi: qla2xxx: Fix warning after FC target reset
-Date:   Tue, 23 Jun 2020 21:55:19 +0200
-Message-Id: <20200623195344.788708110@linuxfoundation.org>
+Subject: [PATCH 5.4 128/314] ASoC: SOF: core: fix error return code in sof_probe_continue()
+Date:   Tue, 23 Jun 2020 21:55:23 +0200
+Message-Id: <20200623195344.977173646@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
 References: <20200623195338.770401005@linuxfoundation.org>
@@ -45,106 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Viacheslav Dubeyko <v.dubeiko@yadro.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit f839544ccff60cbe534282aac68858fc3fb278ca ]
+[ Upstream commit 7d8785bc7adbb4dc5ba8ee06994107637848ded8 ]
 
-Currently, FC target reset finishes with the warning message:
+Fix to return negative error code -ENOMEM from the IPC init error
+handling case instead of 0, as done elsewhere in this function.
 
-[84010.596893] ------------[ cut here ]------------
-[84010.596917] WARNING: CPU: 238 PID: 279973 at ../drivers/scsi/qla2xxx/qla_target.c:6644 qlt_enable_vha+0x1d0/0x260 [qla2xxx]
-[84010.596918] Modules linked in: vrf af_packet 8021q garp mrp stp llc netlink_diag target_tatlin_tblock(OEX) dm_ec(OEX) ttln_rdma(OEX) dm_frontend(OEX) nvme_rdma nvmet tcm_qla2xxx iscsi_target_mod target_core_mod at24 nvmem_core pnv_php ipmi_watchdog ipmi_ssif vmx_crypto gf128mul crct10dif_vpmsum qla2xxx rpcrdma nvme_fc powernv_flash(X) nvme_fabrics uio_pdrv_genirq mtd rtc_opal(X) ibmpowernv(X) opal_prd(X) uio scsi_transport_fc i2c_opal(X) ses enclosure ipmi_poweroff ast i2c_algo_bit ttm bmc_mcu(OEX) drm_kms_helper syscopyarea sysfillrect sysimgblt fb_sys_fops drm drm_panel_orientation_quirks agpgart nfsd auth_rpcgss nfs_acl ipmi_powernv(X) lockd ipmi_devintf ipmi_msghandler grace dummy ext4 crc16 jbd2 mbcache sd_mod rdma_ucm ib_iser rdma_cm ib_umad iw_cm ib_ipoib libiscsi scsi_transport_iscsi ib_cm
-[84010.596975]  configfs mlx5_ib ib_uverbs ib_core mlx5_core crc32c_vpmsum xhci_pci xhci_hcd mpt3sas(OEX) tg3 usbcore mlxfw tls raid_class libphy scsi_transport_sas devlink ptp pps_core nvme nvme_core sunrpc dm_mirror dm_region_hash dm_log sg dm_multipath dm_mod scsi_dh_rdac scsi_dh_emc scsi_dh_alua scsi_mod autofs4
-[84010.597001] Supported: Yes, External
-[84010.597004] CPU: 238 PID: 279973 Comm: bash Tainted: G           OE      4.12.14-197.29-default #1 SLE15-SP1
-[84010.597006] task: c000000a104c0000 task.stack: c000000b52188000
-[84010.597007] NIP: d00000001ffd7f78 LR: d00000001ffd7f6c CTR: c0000000001676c0
-[84010.597008] REGS: c000000b5218b910 TRAP: 0700   Tainted: G           OE       (4.12.14-197.29-default)
-[84010.597008] MSR: 900000010282b033 <SF,HV,VEC,VSX,EE,FP,ME,IR,DR,RI,LE,TM[E]>
-[84010.597015]   CR: 48242424  XER: 00000000
-[84010.597016] CFAR: d00000001ff45d08 SOFTE: 1
-               GPR00: d00000001ffd7f6c c000000b5218bb90 d00000002001b228 0000000000000102
-               GPR04: 0000000000000001 0000000000000001 00013d91ed0a5e2d 0000000000000000
-               GPR08: c000000007793300 0000000000000000 0000000000000000 c000000a086e7818
-               GPR12: 0000000000002200 c000000007793300 0000000000000000 000000012bc937c0
-               GPR16: 000000012bbf7ed0 0000000000000000 000000012bc3dd10 0000000000000000
-               GPR20: 000000012bc4db28 0000010036442810 000000012bc97828 000000012bc96c70
-               GPR24: 00000100365b1550 0000000000000000 00000100363f3d80 c000000be20d3080
-               GPR28: c000000bda7eae00 c000000be20db7e8 c000000be20d3778 c000000be20db7e8
-[84010.597042] NIP [d00000001ffd7f78] qlt_enable_vha+0x1d0/0x260 [qla2xxx]
-[84010.597051] LR [d00000001ffd7f6c] qlt_enable_vha+0x1c4/0x260 [qla2xxx]
-[84010.597051] Call Trace:
-[84010.597061] [c000000b5218bb90] [d00000001ffd7f6c] qlt_enable_vha+0x1c4/0x260 [qla2xxx] (unreliable)
-[84010.597064] [c000000b5218bc20] [d000000009820b6c] tcm_qla2xxx_tpg_enable_store+0xc4/0x130 [tcm_qla2xxx]
-[84010.597067] [c000000b5218bcb0] [d0000000185d0e68] configfs_write_file+0xd0/0x190 [configfs]
-[84010.597072] [c000000b5218bd00] [c0000000003d0edc] __vfs_write+0x3c/0x1e0
-[84010.597074] [c000000b5218bd90] [c0000000003d2ea8] vfs_write+0xd8/0x220
-[84010.597076] [c000000b5218bde0] [c0000000003d4ddc] SyS_write+0x6c/0x110
-[84010.597079] [c000000b5218be30] [c00000000000b188] system_call+0x3c/0x130
-[84010.597080] Instruction dump:
-[84010.597082] 7d0050a8 7d084b78 7d0051ad 40c2fff4 7fa3eb78 4bf73965 60000000 7fa3eb78
-[84010.597086] 4bf6dcd9 60000000 2fa30000 419eff40 <0fe00000> 4bffff38 e95f0058 a12a0180
-[84010.597090] ---[ end trace e32abaf6e6fee826 ]---
-
-To reproduce:
-
-echo 0x7fffffff > /sys/module/qla2xxx/parameters/logging
-modprobe target_core_mod
-modprobe tcm_qla2xxx
-mkdir /sys/kernel/config/target/qla2xxx
-mkdir /sys/kernel/config/target/qla2xxx/<port-name>
-mkdir /sys/kernel/config/target/qla2xxx/<port-name>/tpgt_1
-echo 1 > /sys/kernel/config/target/qla2xxx/<port-name>/tpgt_1/enable
-echo 0 > /sys/kernel/config/target/qla2xxx/<port-name>/tpgt_1/enable
-echo 1 > /sys/kernel/config/target/qla2xxx/<port-name>/tpgt_1/enable
-
-SYSTEM START
-kernel: pid 327:drivers/scsi/qla2xxx/qla_init.c:2174 qla2x00_initialize_adapter(): vha->flags.online 0x0
-<...>
-kernel: pid 327:drivers/scsi/qla2xxx/qla_os.c:3444 qla2x00_probe_one(): vha->flags.online 0x1
-
-echo 1 > /sys/kernel/config/target/qla2xxx/21:00:00:24:ff:86:a6:2a/tpgt_1/enable
-kernel: pid 348:drivers/scsi/qla2xxx/qla_init.c:6641 qla2x00_abort_isp_cleanup(): vha->flags.online 0x0, ISP_ABORT_NEEDED 0x0
-<...>
-kernel: pid 348:drivers/scsi/qla2xxx/qla_init.c:6998 qla2x00_restart_isp(): vha->flags.online 0x0
-
-echo 0 > /sys/kernel/config/target/qla2xxx/21:00:00:24:ff:86:a6:2a/tpgt_1/enable
-kernel: pid 348:drivers/scsi/qla2xxx/qla_init.c:6641 qla2x00_abort_isp_cleanup(): vha->flags.online 0x0, ISP_ABORT_NEEDED 0x0
-<...>
-kernel: pid 1404:drivers/scsi/qla2xxx/qla_os.c:1107 qla2x00_wait_for_hba_online(): base_vha->flags.online 0x0
-
-echo 1 > /sys/kernel/config/target/qla2xxx/21:00:00:24:ff:86:a6:2a/tpgt_1/enable
-kernel: pid 1404:drivers/scsi/qla2xxx/qla_os.c:1107 qla2x00_wait_for_hba_online(): base_vha->flags.online 0x0
-kernel: -----------[ cut here ]-----------
-kernel: WARNING: CPU: 1 PID: 1404 at drivers/scsi/qla2xxx/qla_target.c:6654 qlt_enable_vha+0x1e0/0x280 [qla2xxx]
-
-The issue happens because no real ISP reset is executed.  The
-qla2x00_abort_isp(scsi_qla_host_t *vha) function expects that
-vha->flags.online will be not zero for ISP reset procedure.  This patch
-sets vha->flags.online to 1 before calling ->abort_isp() for starting the
-ISP reset.
-
-Link: https://lore.kernel.org/r/1d7b21bf9f7676643239eb3d60eaca7cfa505cf0.camel@yadro.com
-Reviewed-by: Roman Bolshakov <r.bolshakov@yadro.com>
-Signed-off-by: Viacheslav Dubeyko <v.dubeiko@yadro.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: c16211d6226d ("ASoC: SOF: Add Sound Open Firmware driver core")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Link: https://lore.kernel.org/r/20200509093337.78897-1-weiyongjun1@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_os.c | 1 +
+ sound/soc/sof/core.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
-index 03d272a09e26d..d7ec4083a0911 100644
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -6295,6 +6295,7 @@ qla2x00_do_dpc(void *data)
- 
- 			if (do_reset && !(test_and_set_bit(ABORT_ISP_ACTIVE,
- 			    &base_vha->dpc_flags))) {
-+				base_vha->flags.online = 1;
- 				ql_dbg(ql_dbg_dpc, base_vha, 0x4007,
- 				    "ISP abort scheduled.\n");
- 				if (ha->isp_ops->abort_isp(base_vha)) {
+diff --git a/sound/soc/sof/core.c b/sound/soc/sof/core.c
+index 12aec140819a2..2a6b84d2781ee 100644
+--- a/sound/soc/sof/core.c
++++ b/sound/soc/sof/core.c
+@@ -372,6 +372,7 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
+ 	/* init the IPC */
+ 	sdev->ipc = snd_sof_ipc_init(sdev);
+ 	if (!sdev->ipc) {
++		ret = -ENOMEM;
+ 		dev_err(sdev->dev, "error: failed to init DSP IPC %d\n", ret);
+ 		goto ipc_err;
+ 	}
 -- 
 2.25.1
 
