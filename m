@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A168120615D
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:07:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D5D0206337
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:29:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392141AbgFWUkI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:40:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35992 "EHLO mail.kernel.org"
+        id S2389494AbgFWUTZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:19:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392145AbgFWUkH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:40:07 -0400
+        id S2389502AbgFWUTY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:19:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E98721582;
-        Tue, 23 Jun 2020 20:40:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F8102064B;
+        Tue, 23 Jun 2020 20:19:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944807;
-        bh=41H/wvNFxvhfOqdL+8lXTBqmmzwHHM+hgN6cXXnzqzA=;
+        s=default; t=1592943564;
+        bh=I6luucVQ/RvWKJMjcf6wsO+IqM0rK3XV7Z18eyF1nDE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wim1OH8zSdFxJYP4tHeGNyoWKSjoL4Azm3LXBUGa42PzIFkaIyeH+iLxGF1eQDcr0
-         OBlGqxbVQA3dVGOijQs9KeApZngRweTGrPiYMQ32hAEZQAhJ1hynGy9XGZbPBdDIxp
-         AlCOFSE6R784H5naZi6xkuChy1KVFccrwm33HwUM=
+        b=nrBKps+Q8H5nQdgOu4UuPSnosqEDN9b/wKhGHTmIWbqaYohhgOiOa8dx6s6U6PtKl
+         CMtAttyZpzVIoxe+Buu5XUP0UjLd7gPUz32x3M+aK6hwpmSG/BI9tQ8hHvh5NgnRyf
+         6Yhl1z2gGq0GHCwjBkonD0JHUYi0WnRZSxu+txaU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Aditya Paluri <Venkata.AdityaPaluri@synopsys.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 102/206] PCI/PTM: Inherit Switch Downstream Port PTM settings from Upstream Port
-Date:   Tue, 23 Jun 2020 21:57:10 +0200
-Message-Id: <20200623195321.957572724@linuxfoundation.org>
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.7 434/477] io_uring: reap poll completions while waiting for refs to drop on exit
+Date:   Tue, 23 Jun 2020 21:57:11 +0200
+Message-Id: <20200623195428.044800115@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
-References: <20200623195316.864547658@linuxfoundation.org>
+In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
+References: <20200623195407.572062007@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,77 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Helgaas <bhelgaas@google.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit 7b38fd9760f51cc83d80eed2cfbde8b5ead9e93a ]
+[ Upstream commit 56952e91acc93ed624fe9da840900defb75f1323 ]
 
-Except for Endpoints, we enable PTM at enumeration-time.  Previously we did
-not account for the fact that Switch Downstream Ports are not permitted to
-have a PTM capability; their PTM behavior is controlled by the Upstream
-Port (PCIe r5.0, sec 7.9.16).  Since Downstream Ports don't have a PTM
-capability, we did not mark them as "ptm_enabled", which meant that
-pci_enable_ptm() on an Endpoint failed because there was no PTM path to it.
+If we're doing polled IO and end up having requests being submitted
+async, then completions can come in while we're waiting for refs to
+drop. We need to reap these manually, as nobody else will be looking
+for them.
 
-Mark Downstream Ports as "ptm_enabled" if their Upstream Port has PTM
-enabled.
+Break the wait into 1/20th of a second time waits, and check for done
+poll completions if we time out. Otherwise we can have done poll
+completions sitting in ctx->poll_list, which needs us to reap them but
+we're just waiting for them.
 
-Fixes: eec097d43100 ("PCI: Add pci_enable_ptm() for drivers to enable PTM on endpoints")
-Reported-by: Aditya Paluri <Venkata.AdityaPaluri@synopsys.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/pcie/ptm.c | 22 +++++++++++++++++-----
- 1 file changed, 17 insertions(+), 5 deletions(-)
+ fs/io_uring.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pci/pcie/ptm.c b/drivers/pci/pcie/ptm.c
-index 9361f3aa26ab8..357a454cafa07 100644
---- a/drivers/pci/pcie/ptm.c
-+++ b/drivers/pci/pcie/ptm.c
-@@ -39,10 +39,6 @@ void pci_ptm_init(struct pci_dev *dev)
- 	if (!pci_is_pcie(dev))
- 		return;
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -7404,7 +7404,17 @@ static void io_ring_exit_work(struct wor
+ 	if (ctx->rings)
+ 		io_cqring_overflow_flush(ctx, true);
  
--	pos = pci_find_ext_capability(dev, PCI_EXT_CAP_ID_PTM);
--	if (!pos)
--		return;
--
- 	/*
- 	 * Enable PTM only on interior devices (root ports, switch ports,
- 	 * etc.) on the assumption that it causes no link traffic until an
-@@ -52,6 +48,23 @@ void pci_ptm_init(struct pci_dev *dev)
- 	     pci_pcie_type(dev) == PCI_EXP_TYPE_RC_END))
- 		return;
- 
+-	wait_for_completion(&ctx->completions[0]);
 +	/*
-+	 * Switch Downstream Ports are not permitted to have a PTM
-+	 * capability; their PTM behavior is controlled by the Upstream
-+	 * Port (PCIe r5.0, sec 7.9.16).
++	 * If we're doing polled IO and end up having requests being
++	 * submitted async (out-of-line), then completions can come in while
++	 * we're waiting for refs to drop. We need to reap these manually,
++	 * as nobody else will be looking for them.
 +	 */
-+	ups = pci_upstream_bridge(dev);
-+	if (pci_pcie_type(dev) == PCI_EXP_TYPE_DOWNSTREAM &&
-+	    ups && ups->ptm_enabled) {
-+		dev->ptm_granularity = ups->ptm_granularity;
-+		dev->ptm_enabled = 1;
-+		return;
++	while (!wait_for_completion_timeout(&ctx->completions[0], HZ/20)) {
++		io_iopoll_reap_events(ctx);
++		if (ctx->rings)
++			io_cqring_overflow_flush(ctx, true);
 +	}
-+
-+	pos = pci_find_ext_capability(dev, PCI_EXT_CAP_ID_PTM);
-+	if (!pos)
-+		return;
-+
- 	pci_read_config_dword(dev, pos + PCI_PTM_CAP, &cap);
- 	local_clock = (cap & PCI_PTM_GRANULARITY_MASK) >> 8;
+ 	io_ring_ctx_free(ctx);
+ }
  
-@@ -61,7 +74,6 @@ void pci_ptm_init(struct pci_dev *dev)
- 	 * the spec recommendation (PCIe r3.1, sec 7.32.3), select the
- 	 * furthest upstream Time Source as the PTM Root.
- 	 */
--	ups = pci_upstream_bridge(dev);
- 	if (ups && ups->ptm_enabled) {
- 		ctrl = PCI_PTM_CTRL_ENABLE;
- 		if (ups->ptm_granularity == 0)
--- 
-2.25.1
-
 
 
