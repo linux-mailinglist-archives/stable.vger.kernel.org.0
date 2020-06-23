@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5825B2059A9
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 19:43:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C877D2059AC
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 19:43:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733298AbgFWRfs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 13:35:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60480 "EHLO mail.kernel.org"
+        id S1733304AbgFWRfu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 13:35:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733287AbgFWRfs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 13:35:48 -0400
+        id S1733297AbgFWRft (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 13:35:49 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0334620706;
-        Tue, 23 Jun 2020 17:35:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8938E20781;
+        Tue, 23 Jun 2020 17:35:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592933747;
-        bh=/yIniaPFKZ11CTcjGIIKnnQplSH1xgEGXA3jO9oQshA=;
+        s=default; t=1592933748;
+        bh=a0w75ceKG5xADy+1ICAIaqk8AtJh5EnmkqIiOCZj7NY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BCLGyQzulP+rba8iBPtCzR8hBnaW4BT8iFTyZ8R4xxZypeAzGPKweLD4LhnrLjx0o
-         c3wRE171kX5YMr1+n2D0j2FxDx+leggM8BL1z5q3msOpm3fez4gwcgwSN60ITzAfy8
-         Xypu6YI7zoa2qT2wnsg55AlsUu/P25CzaKAeR90s=
+        b=c8XeEf89O33yP/22RvLxllLWCI7dGOKZ8wGykYK8LWbm/h1DfvHSMm6PYMQFWsLVJ
+         L3UIpmqtSMoaQPwamcsiKdJOPjYuzFJXR67zOdlmdMvWK8c/iPUpk566tlvuoLh41V
+         mPwtkK4s1bGvGo9QP8UDPnNT8w7m8NjOAe96/++w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
+Cc:     Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
         Heiko Carstens <heiko.carstens@de.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 5.7 19/28] s390/vdso: Use $(LD) instead of $(CC) to link vDSO
-Date:   Tue, 23 Jun 2020 13:35:14 -0400
-Message-Id: <20200623173523.1355411-19-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 20/28] s390/vdso: fix vDSO clock_getres()
+Date:   Tue, 23 Jun 2020 13:35:15 -0400
+Message-Id: <20200623173523.1355411-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200623173523.1355411-1-sashal@kernel.org>
 References: <20200623173523.1355411-1-sashal@kernel.org>
@@ -46,90 +45,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Vincenzo Frascino <vincenzo.frascino@arm.com>
 
-[ Upstream commit 2b2a25845d534ac6d55086e35c033961fdd83a26 ]
+[ Upstream commit 478237a595120a18e9b52fd2c57a6e8b7a01e411 ]
 
-Currently, the VDSO is being linked through $(CC). This does not match
-how the rest of the kernel links objects, which is through the $(LD)
-variable.
+clock_getres in the vDSO library has to preserve the same behaviour
+of posix_get_hrtimer_res().
 
-When clang is built in a default configuration, it first attempts to use
-the target triple's default linker, which is just ld. However, the user
-can override this through the CLANG_DEFAULT_LINKER cmake define so that
-clang uses another linker by default, such as LLVM's own linker, ld.lld.
-This can be useful to get more optimized links across various different
-projects.
+In particular, posix_get_hrtimer_res() does:
+    sec = 0;
+    ns = hrtimer_resolution;
+and hrtimer_resolution depends on the enablement of the high
+resolution timers that can happen either at compile or at run time.
 
-However, this is problematic for the s390 vDSO because ld.lld does not
-have any s390 emulatiom support:
+Fix the s390 vdso implementation of clock_getres keeping a copy of
+hrtimer_resolution in vdso data and using that directly.
 
-https://github.com/llvm/llvm-project/blob/llvmorg-10.0.1-rc1/lld/ELF/Driver.cpp#L132-L150
-
-Thus, if a user is using a toolchain with ld.lld as the default, they
-will see an error, even if they have specified ld.bfd through the LD
-make variable:
-
-$ make -j"$(nproc)" -s ARCH=s390 CROSS_COMPILE=s390x-linux-gnu- LLVM=1 \
-                       LD=s390x-linux-gnu-ld \
-                       defconfig arch/s390/kernel/vdso64/
-ld.lld: error: unknown emulation: elf64_s390
-clang-11: error: linker command failed with exit code 1 (use -v to see invocation)
-
-Normally, '-fuse-ld=bfd' could be used to get around this; however, this
-can be fragile, depending on paths and variable naming. The cleaner
-solution for the kernel is to take advantage of the fact that $(LD) can
-be invoked directly, which bypasses the heuristics of $(CC) and respects
-the user's choice. Similar changes have been done for ARM, ARM64, and
-MIPS.
-
-Link: https://lkml.kernel.org/r/20200602192523.32758-1-natechancellor@gmail.com
-Link: https://github.com/ClangBuiltLinux/linux/issues/1041
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-[heiko.carstens@de.ibm.com: add --build-id flag]
+Link: https://lkml.kernel.org/r/20200324121027.21665-1-vincenzo.frascino@arm.com
+Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+[heiko.carstens@de.ibm.com: use llgf for proper zero extension]
 Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/vdso64/Makefile | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ arch/s390/include/asm/vdso.h           |  1 +
+ arch/s390/kernel/asm-offsets.c         |  2 +-
+ arch/s390/kernel/time.c                |  1 +
+ arch/s390/kernel/vdso64/clock_getres.S | 10 +++++-----
+ 4 files changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/arch/s390/kernel/vdso64/Makefile b/arch/s390/kernel/vdso64/Makefile
-index bec19e7e6e1cf..4a66a1cb919b1 100644
---- a/arch/s390/kernel/vdso64/Makefile
-+++ b/arch/s390/kernel/vdso64/Makefile
-@@ -18,8 +18,8 @@ KBUILD_AFLAGS_64 += -m64 -s
+diff --git a/arch/s390/include/asm/vdso.h b/arch/s390/include/asm/vdso.h
+index 3bcfdeb013951..0cd085cdeb4f2 100644
+--- a/arch/s390/include/asm/vdso.h
++++ b/arch/s390/include/asm/vdso.h
+@@ -36,6 +36,7 @@ struct vdso_data {
+ 	__u32 tk_shift;			/* Shift used for xtime_nsec	0x60 */
+ 	__u32 ts_dir;			/* TOD steering direction	0x64 */
+ 	__u64 ts_end;			/* TOD steering end		0x68 */
++	__u32 hrtimer_res;		/* hrtimer resolution		0x70 */
+ };
  
- KBUILD_CFLAGS_64 := $(filter-out -m64,$(KBUILD_CFLAGS))
- KBUILD_CFLAGS_64 += -m64 -fPIC -shared -fno-common -fno-builtin
--KBUILD_CFLAGS_64 += -nostdlib -Wl,-soname=linux-vdso64.so.1 \
--		    -Wl,--hash-style=both
-+ldflags-y := -fPIC -shared -nostdlib -soname=linux-vdso64.so.1 \
-+	     --hash-style=both --build-id -T
+ struct vdso_per_cpu_data {
+diff --git a/arch/s390/kernel/asm-offsets.c b/arch/s390/kernel/asm-offsets.c
+index e80f0e6f59722..46f84cb0d5528 100644
+--- a/arch/s390/kernel/asm-offsets.c
++++ b/arch/s390/kernel/asm-offsets.c
+@@ -76,6 +76,7 @@ int main(void)
+ 	OFFSET(__VDSO_TK_SHIFT, vdso_data, tk_shift);
+ 	OFFSET(__VDSO_TS_DIR, vdso_data, ts_dir);
+ 	OFFSET(__VDSO_TS_END, vdso_data, ts_end);
++	OFFSET(__VDSO_CLOCK_REALTIME_RES, vdso_data, hrtimer_res);
+ 	OFFSET(__VDSO_ECTG_BASE, vdso_per_cpu_data, ectg_timer_base);
+ 	OFFSET(__VDSO_ECTG_USER, vdso_per_cpu_data, ectg_user_time);
+ 	OFFSET(__VDSO_GETCPU_VAL, vdso_per_cpu_data, getcpu_val);
+@@ -86,7 +87,6 @@ int main(void)
+ 	DEFINE(__CLOCK_REALTIME_COARSE, CLOCK_REALTIME_COARSE);
+ 	DEFINE(__CLOCK_MONOTONIC_COARSE, CLOCK_MONOTONIC_COARSE);
+ 	DEFINE(__CLOCK_THREAD_CPUTIME_ID, CLOCK_THREAD_CPUTIME_ID);
+-	DEFINE(__CLOCK_REALTIME_RES, MONOTONIC_RES_NSEC);
+ 	DEFINE(__CLOCK_COARSE_RES, LOW_RES_NSEC);
+ 	BLANK();
+ 	/* idle data offsets */
+diff --git a/arch/s390/kernel/time.c b/arch/s390/kernel/time.c
+index f9d070d016e35..b1113b5194325 100644
+--- a/arch/s390/kernel/time.c
++++ b/arch/s390/kernel/time.c
+@@ -301,6 +301,7 @@ void update_vsyscall(struct timekeeper *tk)
  
- $(targets:%=$(obj)/%.dbg): KBUILD_CFLAGS = $(KBUILD_CFLAGS_64)
- $(targets:%=$(obj)/%.dbg): KBUILD_AFLAGS = $(KBUILD_AFLAGS_64)
-@@ -37,8 +37,8 @@ KASAN_SANITIZE := n
- $(obj)/vdso64_wrapper.o : $(obj)/vdso64.so
- 
- # link rule for the .so file, .lds has to be first
--$(obj)/vdso64.so.dbg: $(src)/vdso64.lds $(obj-vdso64) FORCE
--	$(call if_changed,vdso64ld)
-+$(obj)/vdso64.so.dbg: $(obj)/vdso64.lds $(obj-vdso64) FORCE
-+	$(call if_changed,ld)
- 
- # strip rule for the .so file
- $(obj)/%.so: OBJCOPYFLAGS := -S
-@@ -50,8 +50,6 @@ $(obj-vdso64): %.o: %.S FORCE
- 	$(call if_changed_dep,vdso64as)
- 
- # actual build commands
--quiet_cmd_vdso64ld = VDSO64L $@
--      cmd_vdso64ld = $(CC) $(c_flags) -Wl,-T $(filter %.lds %.o,$^) -o $@
- quiet_cmd_vdso64as = VDSO64A $@
-       cmd_vdso64as = $(CC) $(a_flags) -c -o $@ $<
- 
+ 	vdso_data->tk_mult = tk->tkr_mono.mult;
+ 	vdso_data->tk_shift = tk->tkr_mono.shift;
++	vdso_data->hrtimer_res = hrtimer_resolution;
+ 	smp_wmb();
+ 	++vdso_data->tb_update_count;
+ }
+diff --git a/arch/s390/kernel/vdso64/clock_getres.S b/arch/s390/kernel/vdso64/clock_getres.S
+index 081435398e0a1..0c79caa32b592 100644
+--- a/arch/s390/kernel/vdso64/clock_getres.S
++++ b/arch/s390/kernel/vdso64/clock_getres.S
+@@ -17,12 +17,14 @@
+ 	.type  __kernel_clock_getres,@function
+ __kernel_clock_getres:
+ 	CFI_STARTPROC
+-	larl	%r1,4f
++	larl	%r1,3f
++	lg	%r0,0(%r1)
+ 	cghi	%r2,__CLOCK_REALTIME_COARSE
+ 	je	0f
+ 	cghi	%r2,__CLOCK_MONOTONIC_COARSE
+ 	je	0f
+-	larl	%r1,3f
++	larl	%r1,_vdso_data
++	llgf	%r0,__VDSO_CLOCK_REALTIME_RES(%r1)
+ 	cghi	%r2,__CLOCK_REALTIME
+ 	je	0f
+ 	cghi	%r2,__CLOCK_MONOTONIC
+@@ -36,7 +38,6 @@ __kernel_clock_getres:
+ 	jz	2f
+ 0:	ltgr	%r3,%r3
+ 	jz	1f				/* res == NULL */
+-	lg	%r0,0(%r1)
+ 	xc	0(8,%r3),0(%r3)			/* set tp->tv_sec to zero */
+ 	stg	%r0,8(%r3)			/* store tp->tv_usec */
+ 1:	lghi	%r2,0
+@@ -45,6 +46,5 @@ __kernel_clock_getres:
+ 	svc	0
+ 	br	%r14
+ 	CFI_ENDPROC
+-3:	.quad	__CLOCK_REALTIME_RES
+-4:	.quad	__CLOCK_COARSE_RES
++3:	.quad	__CLOCK_COARSE_RES
+ 	.size	__kernel_clock_getres,.-__kernel_clock_getres
 -- 
 2.25.1
 
