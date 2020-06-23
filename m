@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17532204B7A
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 09:46:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15C26204B7E
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 09:46:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731158AbgFWHql (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 03:46:41 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:57643 "EHLO
+        id S1731041AbgFWHqs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 03:46:48 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:56793 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731041AbgFWHql (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Jun 2020 03:46:41 -0400
+        by vger.kernel.org with ESMTP id S1731245AbgFWHqs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Jun 2020 03:46:48 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 91127CB3;
-        Tue, 23 Jun 2020 03:46:40 -0400 (EDT)
+        by mailforward.west.internal (Postfix) with ESMTP id DCE44E24;
+        Tue, 23 Jun 2020 03:46:46 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Tue, 23 Jun 2020 03:46:40 -0400
+  by compute1.internal (MEProxy); Tue, 23 Jun 2020 03:46:47 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=9sFcf3
-        +wNOSTpxWqfL4cz6XyXCtCSRUPyDb24g5zwh0=; b=YCQ8DLWPA2zqQrWPTuB9Ch
-        MrFwvs7319A11v36rn4rZMMct4XP9vPIqy/P9LU6aT0McLU2rKIBKCfzPRlwZCdv
-        coZGHHgfLmPIeqgN4X/xM9NzTstl+F7n7m+bUQvc3DCJC//cVvh4qf784AQ6QnnC
-        xVhAouYxrGyeVImrxdOB0QhG48ocabT++QkOAgF4V9NcqA2q4esYwO1/9WJGaWCI
-        LZLmeglP3dxu/2/AbWVkgSVvLJbHXq7AVYYEs8jOPN9oFWV+zCDXg92AYDBn03F6
-        wD9Ua5al4/VUPwvjhlwSYChLkQTi17r1Hg/4hbyTF7xQLSEgsTFAyq74AEQhW44Q
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=q9Xk0H
+        omIvaJ/RuKdzirpQZHdRpHROArv4vQpq8k3wo=; b=ZUL9s0jYet5IsiTffIiZx2
+        OdV6tmkrfhmoLeRk5wnIHNRRq/9/Lb4ziqksq1oyl9s5f29pbuF0nMhgRxzZMZSk
+        bG9pXVv+0b3i1D1tPaHQUsdfQN33ug/J+HKYOy61v2gYTmPJbie9SnKPWCRSS5Tg
+        eZ3eYzLycOIS+yuRG8bZM2yBcbRG+cq5KKXQrvI3j7iapHllVkOkpTCyVoG9oAk+
+        /+h+a1djZYM3Vj5/qryjR2Aefn3Bk3GjzLZCqoZONxeS5TMMUQWzIN5tUNNwMJw5
+        8kTkEFIeuOqtfsFuoG5djpTudTA7qDD61b04jQBP9ktfe/iH7MB50BdJ8JolBquQ
         ==
-X-ME-Sender: <xms:X7PxXqxAKnifC2JRboCTG7mubAkWOONch2ifGGomv5WJ3jxJaAvEig>
+X-ME-Sender: <xms:ZrPxXpryQQugFJoEYd6Uha3jO4-ZAg-lIzcO3BsxV1imrKvi1OkYzg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudekfedguddvhecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
     rhhgqeenucggtffrrghtthgvrhhnpeekhffhfefgfeehfeefudeguedvvdevgffgffdtud
     eujefhhffgveeutddvtdejgfenucffohhmrghinhepfhhrvggvuggvshhkthhophdrohhr
-    ghenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenuc
+    ghenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepudenuc
     frrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:X7PxXmQtni6oH3OEhjwfhOrXIV8I9Rd72ja6e7MI9EFJi9K_BlQpcQ>
-    <xmx:X7PxXsWDsX3_WAFp-X5rN_Zitbt9jRes6fc4w_UhuP4tvZ8FFw-yew>
-    <xmx:X7PxXgiFd5VJ7uWcJiZ90hVOZ_PbiY_czNCks8QpsrTFv8sbb505XQ>
-    <xmx:YLPxXr8ozVuztShh1V9xsXifDPY_qXi36c74E1dCzIqTpppg4AYVinpyLxQ>
+X-ME-Proxy: <xmx:ZrPxXrrD-ISLKmMfzJ2XItYAgoa-w6o1JyN9PCa6htiVc2UrfGJdGg>
+    <xmx:ZrPxXmPKnNB-Uj4-eKoRwOrV9dyY8QWZYJdvHjWeGB5z5edKBjBW7w>
+    <xmx:ZrPxXk6KvmJGYAg94RbGm9kRdpzpDkRlnVWypPsE9lrNhFawGoZExg>
+    <xmx:ZrPxXtXzR-VQX1hWJgGfMnD24o-tFRCE54h69XXPwhin22ol4HUleLQHu5M>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 137983067491;
-        Tue, 23 Jun 2020 03:46:38 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/i915/execlists: Track inflight CCID" failed to apply to 5.7-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 0AD6430674A3;
+        Tue, 23 Jun 2020 03:46:45 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drm/i915/execlists: Avoid reusing the same logical CCID" failed to apply to 5.7-stable tree
 To:     chris@chris-wilson.co.uk, mika.kuoppala@linux.intel.com,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 23 Jun 2020 09:46:30 +0200
-Message-ID: <15928983908104@kroah.com>
+Date:   Tue, 23 Jun 2020 09:46:41 +0200
+Message-ID: <15928984018374@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -70,23 +70,23 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 5c4a53e3b1cbc38d0906e382f1037290658759bb Mon Sep 17 00:00:00 2001
+From 2632f174a2e1a5fd40a70404fa8ccfd0b1f79ebd Mon Sep 17 00:00:00 2001
 From: Chris Wilson <chris@chris-wilson.co.uk>
-Date: Tue, 28 Apr 2020 19:47:50 +0100
-Subject: [PATCH] drm/i915/execlists: Track inflight CCID
+Date: Tue, 28 Apr 2020 19:47:49 +0100
+Subject: [PATCH] drm/i915/execlists: Avoid reusing the same logical CCID
 
-The presumption is that by using a circular counter that is twice as
-large as the maximum ELSP submission, we would never reuse the same CCID
-for two inflight contexts.
+The bspec is confusing on the nature of the upper 32bits of the LRC
+descriptor. Once upon a time, it said that it uses the upper 32b to
+decide if it should perform a lite-restore, and so we must ensure that
+each unique context submitted to HW is given a unique CCID [for the
+duration of it being on the HW]. Currently, this is achieved by using
+a small circular tag, and assigning every context submitted to HW a
+new id. However, this tag is being cleared on repinning an inflight
+context such that we end up re-using the 0 tag for multiple contexts.
 
-However, if we continually preempt an active context such that it always
-remains inflight, it can be resubmitted with an arbitrary number of
-paired contexts. As each of its paired contexts will use a new CCID,
-eventually it will wrap and submit two ELSP with the same CCID.
-
-Rather than use a simple circular counter, switch over to a small bitmap
-of inflight ids so we can avoid reusing one that is still potentially
-active.
+To avoid accidentally clearing the CCID in the upper 32bits of the LRC
+descriptor, split the descriptor into two dwords so we can update the
+GGTT address separately from the CCID.
 
 Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/1796
 Fixes: 2935ed5339c4 ("drm/i915: Remove logical HW ID")
@@ -94,129 +94,281 @@ Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
 Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
 Cc: <stable@vger.kernel.org> # v5.5+
 Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200428184751.11257-2-chris@chris-wilson.co.uk
+Link: https://patchwork.freedesktop.org/patch/msgid/20200428184751.11257-1-chris@chris-wilson.co.uk
 
+diff --git a/drivers/gpu/drm/i915/gt/intel_context_types.h b/drivers/gpu/drm/i915/gt/intel_context_types.h
+index e0da7bdcbf01..4954b0df4864 100644
+--- a/drivers/gpu/drm/i915/gt/intel_context_types.h
++++ b/drivers/gpu/drm/i915/gt/intel_context_types.h
+@@ -69,7 +69,13 @@ struct intel_context {
+ #define CONTEXT_NOPREEMPT		7
+ 
+ 	u32 *lrc_reg_state;
+-	u64 lrc_desc;
++	union {
++		struct {
++			u32 lrca;
++			u32 ccid;
++		};
++		u64 desc;
++	} lrc;
+ 	u32 tag; /* cookie passed to HW to track this context on submission */
+ 
+ 	/* Time on GPU as tracked by the hw. */
+diff --git a/drivers/gpu/drm/i915/gt/intel_engine_cs.c b/drivers/gpu/drm/i915/gt/intel_engine_cs.c
+index b1f8527f02c8..7c3cb5aedfdf 100644
+--- a/drivers/gpu/drm/i915/gt/intel_engine_cs.c
++++ b/drivers/gpu/drm/i915/gt/intel_engine_cs.c
+@@ -1425,7 +1425,7 @@ static void intel_engine_print_registers(struct intel_engine_cs *engine,
+ 			len = scnprintf(hdr, sizeof(hdr),
+ 					"\t\tActive[%d]:  ccid:%08x, ",
+ 					(int)(port - execlists->active),
+-					upper_32_bits(rq->context->lrc_desc));
++					rq->context->lrc.ccid);
+ 			len += print_ring(hdr + len, sizeof(hdr) - len, rq);
+ 			scnprintf(hdr + len, sizeof(hdr) - len, "rq: ");
+ 			print_request(m, rq, hdr);
+@@ -1437,7 +1437,7 @@ static void intel_engine_print_registers(struct intel_engine_cs *engine,
+ 			len = scnprintf(hdr, sizeof(hdr),
+ 					"\t\tPending[%d]: ccid:%08x, ",
+ 					(int)(port - execlists->pending),
+-					upper_32_bits(rq->context->lrc_desc));
++					rq->context->lrc.ccid);
+ 			len += print_ring(hdr + len, sizeof(hdr) - len, rq);
+ 			scnprintf(hdr + len, sizeof(hdr) - len, "rq: ");
+ 			print_request(m, rq, hdr);
 diff --git a/drivers/gpu/drm/i915/gt/intel_engine_types.h b/drivers/gpu/drm/i915/gt/intel_engine_types.h
-index 470bdc73220a..cfe4feaee982 100644
+index bf395227c99f..470bdc73220a 100644
 --- a/drivers/gpu/drm/i915/gt/intel_engine_types.h
 +++ b/drivers/gpu/drm/i915/gt/intel_engine_types.h
-@@ -309,8 +309,7 @@ struct intel_engine_cs {
- 	u32 context_size;
- 	u32 mmio_base;
+@@ -156,6 +156,11 @@ struct intel_engine_execlists {
+ 	 */
+ 	struct i915_priolist default_priolist;
  
--	unsigned int context_tag;
--#define NUM_CONTEXT_TAG roundup_pow_of_two(2 * EXECLIST_MAX_PORTS)
-+	unsigned long context_tag;
- 
- 	struct rb_node uabi_node;
- 
++	/**
++	 * @ccid: identifier for contexts submitted to this engine
++	 */
++	u32 ccid;
++
+ 	/**
+ 	 * @yield: CCID at the time of the last semaphore-wait interrupt.
+ 	 *
 diff --git a/drivers/gpu/drm/i915/gt/intel_lrc.c b/drivers/gpu/drm/i915/gt/intel_lrc.c
-index 7d56207276d5..05e2bb483db3 100644
+index 93a1b73ad96b..7d56207276d5 100644
 --- a/drivers/gpu/drm/i915/gt/intel_lrc.c
 +++ b/drivers/gpu/drm/i915/gt/intel_lrc.c
-@@ -1389,13 +1389,17 @@ __execlists_schedule_in(struct i915_request *rq)
+@@ -573,10 +573,10 @@ assert_priority_queue(const struct i915_request *prev,
+  * engine info, SW context ID and SW counter need to form a unique number
+  * (Context ID) per lrc.
+  */
+-static u64
++static u32
+ lrc_descriptor(struct intel_context *ce, struct intel_engine_cs *engine)
+ {
+-	u64 desc;
++	u32 desc;
  
+ 	desc = INTEL_LEGACY_32B_CONTEXT;
+ 	if (i915_vm_is_4lvl(ce->vm))
+@@ -587,21 +587,7 @@ lrc_descriptor(struct intel_context *ce, struct intel_engine_cs *engine)
+ 	if (IS_GEN(engine->i915, 8))
+ 		desc |= GEN8_CTX_L3LLC_COHERENT;
+ 
+-	desc |= i915_ggtt_offset(ce->state); /* bits 12-31 */
+-	/*
+-	 * The following 32bits are copied into the OA reports (dword 2).
+-	 * Consider updating oa_get_render_ctx_id in i915_perf.c when changing
+-	 * anything below.
+-	 */
+-	if (INTEL_GEN(engine->i915) >= 11) {
+-		desc |= (u64)engine->instance << GEN11_ENGINE_INSTANCE_SHIFT;
+-								/* bits 48-53 */
+-
+-		desc |= (u64)engine->class << GEN11_ENGINE_CLASS_SHIFT;
+-								/* bits 61-63 */
+-	}
+-
+-	return desc;
++	return i915_ggtt_offset(ce->state) | desc;
+ }
+ 
+ static inline unsigned int dword_in_page(void *addr)
+@@ -1353,7 +1339,7 @@ static void reset_active(struct i915_request *rq,
+ 	__execlists_update_reg_state(ce, engine, head);
+ 
+ 	/* We've switched away, so this should be a no-op, but intent matters */
+-	ce->lrc_desc |= CTX_DESC_FORCE_RESTORE;
++	ce->lrc.desc |= CTX_DESC_FORCE_RESTORE;
+ }
+ 
+ static void st_update_runtime_underflow(struct intel_context *ce, s32 dt)
+@@ -1401,18 +1387,19 @@ __execlists_schedule_in(struct i915_request *rq)
+ 	if (IS_ENABLED(CONFIG_DRM_I915_DEBUG_GEM))
+ 		execlists_check_context(ce, engine);
+ 
+-	ce->lrc_desc &= ~GENMASK_ULL(47, 37);
  	if (ce->tag) {
  		/* Use a fixed tag for OA and friends */
-+		GEM_BUG_ON(ce->tag <= BITS_PER_LONG);
- 		ce->lrc.ccid = ce->tag;
+-		ce->lrc_desc |= (u64)ce->tag << 32;
++		ce->lrc.ccid = ce->tag;
  	} else {
  		/* We don't need a strict matching tag, just different values */
--		ce->lrc.ccid =
--			(++engine->context_tag % NUM_CONTEXT_TAG) <<
--			(GEN11_SW_CTX_ID_SHIFT - 32);
--		BUILD_BUG_ON(NUM_CONTEXT_TAG > GEN12_MAX_CONTEXT_HW_ID);
-+		unsigned int tag = ffs(engine->context_tag);
-+
-+		GEM_BUG_ON(tag == 0 || tag >= BITS_PER_LONG);
-+		clear_bit(tag - 1, &engine->context_tag);
-+		ce->lrc.ccid = tag << (GEN11_SW_CTX_ID_SHIFT - 32);
-+
-+		BUILD_BUG_ON(BITS_PER_LONG > GEN12_MAX_CONTEXT_HW_ID);
+-		ce->lrc_desc |=
+-			(u64)(++engine->context_tag % NUM_CONTEXT_TAG) <<
+-			GEN11_SW_CTX_ID_SHIFT;
++		ce->lrc.ccid =
++			(++engine->context_tag % NUM_CONTEXT_TAG) <<
++			(GEN11_SW_CTX_ID_SHIFT - 32);
+ 		BUILD_BUG_ON(NUM_CONTEXT_TAG > GEN12_MAX_CONTEXT_HW_ID);
  	}
  
- 	ce->lrc.ccid |= engine->execlists.ccid;
-@@ -1439,7 +1443,8 @@ static void kick_siblings(struct i915_request *rq, struct intel_context *ce)
- 
- static inline void
- __execlists_schedule_out(struct i915_request *rq,
--			 struct intel_engine_cs * const engine)
-+			 struct intel_engine_cs * const engine,
-+			 unsigned int ccid)
++	ce->lrc.ccid |= engine->execlists.ccid;
++
+ 	__intel_gt_pm_get(engine->gt);
+ 	execlists_context_status_change(rq, INTEL_CONTEXT_SCHEDULE_IN);
+ 	intel_engine_context_in(engine);
+@@ -1511,7 +1498,7 @@ execlists_schedule_out(struct i915_request *rq)
+ static u64 execlists_update_context(struct i915_request *rq)
  {
- 	struct intel_context * const ce = rq->context;
+ 	struct intel_context *ce = rq->context;
+-	u64 desc = ce->lrc_desc;
++	u64 desc = ce->lrc.desc;
+ 	u32 tail, prev;
  
-@@ -1457,6 +1462,14 @@ __execlists_schedule_out(struct i915_request *rq,
- 	    i915_request_completed(rq))
- 		intel_engine_add_retire(engine, ce->timeline);
+ 	/*
+@@ -1550,7 +1537,7 @@ static u64 execlists_update_context(struct i915_request *rq)
+ 	 */
+ 	wmb();
  
-+	ccid >>= GEN11_SW_CTX_ID_SHIFT - 32;
-+	ccid &= GEN12_MAX_CONTEXT_HW_ID;
-+	if (ccid < BITS_PER_LONG) {
-+		GEM_BUG_ON(ccid == 0);
-+		GEM_BUG_ON(test_bit(ccid - 1, &engine->context_tag));
-+		set_bit(ccid - 1, &engine->context_tag);
+-	ce->lrc_desc &= ~CTX_DESC_FORCE_RESTORE;
++	ce->lrc.desc &= ~CTX_DESC_FORCE_RESTORE;
+ 	return desc;
+ }
+ 
+@@ -1571,8 +1558,9 @@ dump_port(char *buf, int buflen, const char *prefix, struct i915_request *rq)
+ 	if (!rq)
+ 		return "";
+ 
+-	snprintf(buf, buflen, "%s%llx:%lld%s prio %d",
++	snprintf(buf, buflen, "%sccid:%x %llx:%lld%s prio %d",
+ 		 prefix,
++		 rq->context->lrc.ccid,
+ 		 rq->fence.context, rq->fence.seqno,
+ 		 i915_request_completed(rq) ? "!" :
+ 		 i915_request_started(rq) ? "*" :
+@@ -1948,7 +1936,7 @@ timeslice_yield(const struct intel_engine_execlists *el,
+ 	 * safe, yield if it might be stuck -- it will be given a fresh
+ 	 * timeslice in the near future.
+ 	 */
+-	return upper_32_bits(rq->context->lrc_desc) == READ_ONCE(el->yield);
++	return rq->context->lrc.ccid == READ_ONCE(el->yield);
+ }
+ 
+ static bool
+@@ -2975,7 +2963,7 @@ active_context(struct intel_engine_cs *engine, u32 ccid)
+ 	 */
+ 
+ 	for (port = el->active; (rq = *port); port++) {
+-		if (upper_32_bits(rq->context->lrc_desc) == ccid) {
++		if (rq->context->lrc.ccid == ccid) {
+ 			ENGINE_TRACE(engine,
+ 				     "ccid found at active:%zd\n",
+ 				     port - el->active);
+@@ -2984,7 +2972,7 @@ active_context(struct intel_engine_cs *engine, u32 ccid)
+ 	}
+ 
+ 	for (port = el->pending; (rq = *port); port++) {
+-		if (upper_32_bits(rq->context->lrc_desc) == ccid) {
++		if (rq->context->lrc.ccid == ccid) {
+ 			ENGINE_TRACE(engine,
+ 				     "ccid found at pending:%zd\n",
+ 				     port - el->pending);
+@@ -3444,7 +3432,7 @@ __execlists_context_pin(struct intel_context *ce,
+ 	if (IS_ERR(vaddr))
+ 		return PTR_ERR(vaddr);
+ 
+-	ce->lrc_desc = lrc_descriptor(ce, engine) | CTX_DESC_FORCE_RESTORE;
++	ce->lrc.lrca = lrc_descriptor(ce, engine) | CTX_DESC_FORCE_RESTORE;
+ 	ce->lrc_reg_state = vaddr + LRC_STATE_OFFSET;
+ 	__execlists_update_reg_state(ce, engine, ce->ring->tail);
+ 
+@@ -3473,7 +3461,7 @@ static void execlists_context_reset(struct intel_context *ce)
+ 				 ce, ce->engine, ce->ring, true);
+ 	__execlists_update_reg_state(ce, ce->engine, ce->ring->tail);
+ 
+-	ce->lrc_desc |= CTX_DESC_FORCE_RESTORE;
++	ce->lrc.desc |= CTX_DESC_FORCE_RESTORE;
+ }
+ 
+ static const struct intel_context_ops execlists_context_ops = {
+@@ -4184,7 +4172,7 @@ static void __execlists_reset(struct intel_engine_cs *engine, bool stalled)
+ 		     head, ce->ring->tail);
+ 	__execlists_reset_reg_state(ce, engine);
+ 	__execlists_update_reg_state(ce, engine, head);
+-	ce->lrc_desc |= CTX_DESC_FORCE_RESTORE; /* paranoid: GPU was reset! */
++	ce->lrc.desc |= CTX_DESC_FORCE_RESTORE; /* paranoid: GPU was reset! */
+ 
+ unwind:
+ 	/* Push back any incomplete requests for replay after the reset. */
+@@ -4950,6 +4938,11 @@ int intel_execlists_submission_setup(struct intel_engine_cs *engine)
+ 	else
+ 		execlists->csb_size = GEN11_CSB_ENTRIES;
+ 
++	if (INTEL_GEN(engine->i915) >= 11) {
++		execlists->ccid |= engine->instance << (GEN11_ENGINE_INSTANCE_SHIFT - 32);
++		execlists->ccid |= engine->class << (GEN11_ENGINE_CLASS_SHIFT - 32);
 +	}
 +
- 	intel_context_update_runtime(ce);
- 	intel_engine_context_out(engine);
- 	execlists_context_status_change(rq, INTEL_CONTEXT_SCHEDULE_OUT);
-@@ -1482,15 +1495,17 @@ execlists_schedule_out(struct i915_request *rq)
+ 	/* Finally, take ownership and responsibility for cleanup! */
+ 	engine->sanitize = execlists_sanitize;
+ 	engine->release = execlists_release;
+diff --git a/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c b/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
+index fe7778c28d2d..aa6d56e25a10 100644
+--- a/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
++++ b/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
+@@ -217,7 +217,7 @@ static void guc_wq_item_append(struct intel_guc *guc,
+ static void guc_add_request(struct intel_guc *guc, struct i915_request *rq)
  {
- 	struct intel_context * const ce = rq->context;
- 	struct intel_engine_cs *cur, *old;
-+	u32 ccid;
+ 	struct intel_engine_cs *engine = rq->engine;
+-	u32 ctx_desc = lower_32_bits(rq->context->lrc_desc);
++	u32 ctx_desc = rq->context->lrc.ccid;
+ 	u32 ring_tail = intel_ring_set_tail(rq->ring, rq->tail) / sizeof(u64);
  
- 	trace_i915_request_out(rq);
+ 	guc_wq_item_append(guc, engine->guc_id, ctx_desc,
+diff --git a/drivers/gpu/drm/i915/gvt/scheduler.c b/drivers/gpu/drm/i915/gvt/scheduler.c
+index 2f5c59111821..38234073e0fc 100644
+--- a/drivers/gpu/drm/i915/gvt/scheduler.c
++++ b/drivers/gpu/drm/i915/gvt/scheduler.c
+@@ -290,7 +290,7 @@ static void
+ shadow_context_descriptor_update(struct intel_context *ce,
+ 				 struct intel_vgpu_workload *workload)
+ {
+-	u64 desc = ce->lrc_desc;
++	u64 desc = ce->lrc.desc;
  
-+	ccid = rq->context->lrc.ccid;
- 	old = READ_ONCE(ce->inflight);
- 	do
- 		cur = ptr_unmask_bits(old, 2) ? ptr_dec(old) : NULL;
- 	while (!try_cmpxchg(&ce->inflight, &old, cur));
- 	if (!cur)
--		__execlists_schedule_out(rq, old);
-+		__execlists_schedule_out(rq, old, ccid);
+ 	/*
+ 	 * Update bits 0-11 of the context descriptor which includes flags
+@@ -300,7 +300,7 @@ shadow_context_descriptor_update(struct intel_context *ce,
+ 	desc |= (u64)workload->ctx_desc.addressing_mode <<
+ 		GEN8_CTX_ADDRESSING_MODE_SHIFT;
  
- 	i915_request_put(rq);
+-	ce->lrc_desc = desc;
++	ce->lrc.desc = desc;
  }
-@@ -3990,7 +4005,7 @@ static void enable_execlists(struct intel_engine_cs *engine)
  
- 	enable_error_interrupt(engine);
- 
--	engine->context_tag = 0;
-+	engine->context_tag = GENMASK(BITS_PER_LONG - 2, 0);
- }
- 
- static bool unexpected_starting_state(struct intel_engine_cs *engine)
+ static int copy_workload_to_ring_buffer(struct intel_vgpu_workload *workload)
 diff --git a/drivers/gpu/drm/i915/i915_perf.c b/drivers/gpu/drm/i915/i915_perf.c
-index 04ad21960688..c533f569dd42 100644
+index dec1b33e4da8..04ad21960688 100644
 --- a/drivers/gpu/drm/i915/i915_perf.c
 +++ b/drivers/gpu/drm/i915/i915_perf.c
-@@ -1280,11 +1280,10 @@ static int oa_get_render_ctx_id(struct i915_perf_stream *stream)
- 			((1U << GEN11_SW_CTX_ID_WIDTH) - 1) << (GEN11_SW_CTX_ID_SHIFT - 32);
- 		/*
- 		 * Pick an unused context id
--		 * 0 - (NUM_CONTEXT_TAG - 1) are used by other contexts
-+		 * 0 - BITS_PER_LONG are used by other contexts
- 		 * GEN12_MAX_CONTEXT_HW_ID (0x7ff) is used by idle context
- 		 */
- 		stream->specific_ctx_id = (GEN12_MAX_CONTEXT_HW_ID - 1) << (GEN11_SW_CTX_ID_SHIFT - 32);
--		BUILD_BUG_ON((GEN12_MAX_CONTEXT_HW_ID - 1) < NUM_CONTEXT_TAG);
- 		break;
- 	}
+@@ -1263,8 +1263,7 @@ static int oa_get_render_ctx_id(struct i915_perf_stream *stream)
+ 			 * dropped by GuC. They won't be part of the context
+ 			 * ID in the OA reports, so squash those lower bits.
+ 			 */
+-			stream->specific_ctx_id =
+-				lower_32_bits(ce->lrc_desc) >> 12;
++			stream->specific_ctx_id = ce->lrc.lrca >> 12;
  
-diff --git a/drivers/gpu/drm/i915/selftests/i915_vma.c b/drivers/gpu/drm/i915/selftests/i915_vma.c
-index 58b5f40a07dd..af89c7fc8f59 100644
---- a/drivers/gpu/drm/i915/selftests/i915_vma.c
-+++ b/drivers/gpu/drm/i915/selftests/i915_vma.c
-@@ -173,7 +173,7 @@ static int igt_vma_create(void *arg)
- 		}
- 
- 		nc = 0;
--		for_each_prime_number(num_ctx, 2 * NUM_CONTEXT_TAG) {
-+		for_each_prime_number(num_ctx, 2 * BITS_PER_LONG) {
- 			for (; nc < num_ctx; nc++) {
- 				ctx = mock_context(i915, "mock");
- 				if (!ctx)
+ 			/*
+ 			 * GuC uses the top bit to signal proxy submission, so
 
