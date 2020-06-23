@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B5EF2065D5
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:51:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDEF92065D2
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:51:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389164AbgFWVeA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 17:34:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52526 "EHLO mail.kernel.org"
+        id S2388753AbgFWVdv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 17:33:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387959AbgFWULO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:11:14 -0400
+        id S2387789AbgFWULR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:11:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 67522206C3;
-        Tue, 23 Jun 2020 20:11:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF0E120707;
+        Tue, 23 Jun 2020 20:11:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943074;
-        bh=6fgwNHIPBD3Hm7mVgFrD5Kbkh58GId9eslARor0a9SY=;
+        s=default; t=1592943076;
+        bh=41H/wvNFxvhfOqdL+8lXTBqmmzwHHM+hgN6cXXnzqzA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XTAnwwSHNPSVT2u3EiKoOweKbM5uo9ciGKpagF5bJzD/YV539lD6PwBbJ3+NWuUdq
-         BiuFJSGGquIGj+J4MYUVkwazLHNv4Xw7orDIx626M4sedHmokWkOTHXtRApGXmCLaG
-         ioxkGZvPsmEwbWAyHenNnygARqv8TNxmSzp85Htk=
+        b=RAGEkbpTESt9hVGyblvctYYXEgJrwRJw4yIkQN1V8rkXcCGtsu3bfaiQSm+T+/hlM
+         dvm9IxDOJSo6zmfB8h5EJVjajNN60qVmcCIlYYFOprXXMHX4WDF/xOgm+E7nFfT1EY
+         Xj/FfIzQrWakKIAMmq+oOczrGXau3WnbjXFl0rwU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Juergen Gross <jgross@suse.com>,
+        Aditya Paluri <Venkata.AdityaPaluri@synopsys.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 250/477] xen/cpuhotplug: Fix initial CPU offlining for PV(H) guests
-Date:   Tue, 23 Jun 2020 21:54:07 +0200
-Message-Id: <20200623195419.386921653@linuxfoundation.org>
+Subject: [PATCH 5.7 251/477] PCI/PTM: Inherit Switch Downstream Port PTM settings from Upstream Port
+Date:   Tue, 23 Jun 2020 21:54:08 +0200
+Message-Id: <20200623195419.434361116@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -45,57 +45,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+From: Bjorn Helgaas <bhelgaas@google.com>
 
-[ Upstream commit c54b071c192dfe8061336f650ceaf358e6386e0b ]
+[ Upstream commit 7b38fd9760f51cc83d80eed2cfbde8b5ead9e93a ]
 
-Commit a926f81d2f6c ("xen/cpuhotplug: Replace cpu_up/down() with
-device_online/offline()") replaced cpu_down() with device_offline()
-call which requires that the CPU has been registered before. This
-registration, however, happens later from topology_init() which
-is called as subsys_initcall(). setup_vcpu_hotplug_event(), on the
-other hand, is invoked earlier, during arch_initcall().
+Except for Endpoints, we enable PTM at enumeration-time.  Previously we did
+not account for the fact that Switch Downstream Ports are not permitted to
+have a PTM capability; their PTM behavior is controlled by the Upstream
+Port (PCIe r5.0, sec 7.9.16).  Since Downstream Ports don't have a PTM
+capability, we did not mark them as "ptm_enabled", which meant that
+pci_enable_ptm() on an Endpoint failed because there was no PTM path to it.
 
-As result, booting a PV(H) guest with vcpus < maxvcpus causes a crash.
+Mark Downstream Ports as "ptm_enabled" if their Upstream Port has PTM
+enabled.
 
-Move setup_vcpu_hotplug_event() (and therefore setup_cpu_watcher()) to
-late_initcall(). In addition, instead of performing all offlining steps
-in setup_cpu_watcher() simply call disable_hotplug_cpu().
-
-Fixes: a926f81d2f6c (xen/cpuhotplug: Replace cpu_up/down() with device_online/offline()"
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Link: https://lore.kernel.org/r/1588976923-3667-1-git-send-email-boris.ostrovsky@oracle.com
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Fixes: eec097d43100 ("PCI: Add pci_enable_ptm() for drivers to enable PTM on endpoints")
+Reported-by: Aditya Paluri <Venkata.AdityaPaluri@synopsys.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/cpu_hotplug.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/pci/pcie/ptm.c | 22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/xen/cpu_hotplug.c b/drivers/xen/cpu_hotplug.c
-index ec975decb5def..b96b11e2b571d 100644
---- a/drivers/xen/cpu_hotplug.c
-+++ b/drivers/xen/cpu_hotplug.c
-@@ -93,10 +93,8 @@ static int setup_cpu_watcher(struct notifier_block *notifier,
- 	(void)register_xenbus_watch(&cpu_watch);
+diff --git a/drivers/pci/pcie/ptm.c b/drivers/pci/pcie/ptm.c
+index 9361f3aa26ab8..357a454cafa07 100644
+--- a/drivers/pci/pcie/ptm.c
++++ b/drivers/pci/pcie/ptm.c
+@@ -39,10 +39,6 @@ void pci_ptm_init(struct pci_dev *dev)
+ 	if (!pci_is_pcie(dev))
+ 		return;
  
- 	for_each_possible_cpu(cpu) {
--		if (vcpu_online(cpu) == 0) {
--			device_offline(get_cpu_device(cpu));
--			set_cpu_present(cpu, false);
--		}
-+		if (vcpu_online(cpu) == 0)
-+			disable_hotplug_cpu(cpu);
- 	}
+-	pos = pci_find_ext_capability(dev, PCI_EXT_CAP_ID_PTM);
+-	if (!pos)
+-		return;
+-
+ 	/*
+ 	 * Enable PTM only on interior devices (root ports, switch ports,
+ 	 * etc.) on the assumption that it causes no link traffic until an
+@@ -52,6 +48,23 @@ void pci_ptm_init(struct pci_dev *dev)
+ 	     pci_pcie_type(dev) == PCI_EXP_TYPE_RC_END))
+ 		return;
  
- 	return NOTIFY_DONE;
-@@ -119,5 +117,5 @@ static int __init setup_vcpu_hotplug_event(void)
- 	return 0;
- }
++	/*
++	 * Switch Downstream Ports are not permitted to have a PTM
++	 * capability; their PTM behavior is controlled by the Upstream
++	 * Port (PCIe r5.0, sec 7.9.16).
++	 */
++	ups = pci_upstream_bridge(dev);
++	if (pci_pcie_type(dev) == PCI_EXP_TYPE_DOWNSTREAM &&
++	    ups && ups->ptm_enabled) {
++		dev->ptm_granularity = ups->ptm_granularity;
++		dev->ptm_enabled = 1;
++		return;
++	}
++
++	pos = pci_find_ext_capability(dev, PCI_EXT_CAP_ID_PTM);
++	if (!pos)
++		return;
++
+ 	pci_read_config_dword(dev, pos + PCI_PTM_CAP, &cap);
+ 	local_clock = (cap & PCI_PTM_GRANULARITY_MASK) >> 8;
  
--arch_initcall(setup_vcpu_hotplug_event);
-+late_initcall(setup_vcpu_hotplug_event);
- 
+@@ -61,7 +74,6 @@ void pci_ptm_init(struct pci_dev *dev)
+ 	 * the spec recommendation (PCIe r3.1, sec 7.32.3), select the
+ 	 * furthest upstream Time Source as the PTM Root.
+ 	 */
+-	ups = pci_upstream_bridge(dev);
+ 	if (ups && ups->ptm_enabled) {
+ 		ctrl = PCI_PTM_CTRL_ENABLE;
+ 		if (ups->ptm_granularity == 0)
 -- 
 2.25.1
 
