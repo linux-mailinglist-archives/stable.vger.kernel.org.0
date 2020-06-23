@@ -2,45 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C029420602C
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:47:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D78EA205F93
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:46:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392204AbgFWUkQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:40:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36164 "EHLO mail.kernel.org"
+        id S2391449AbgFWUds (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:33:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390938AbgFWUkP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:40:15 -0400
+        id S2390930AbgFWUdr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:33:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E16C021883;
-        Tue, 23 Jun 2020 20:40:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 432CE21473;
+        Tue, 23 Jun 2020 20:33:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944814;
-        bh=ANj6Jzi3abtazOkw7RqmxVYzGVqP7AJKyywwP4JH8rs=;
+        s=default; t=1592944426;
+        bh=b1LMwzWgnToHNsHu4GCbq7IDfPyY3D1u3I1WSG/sckg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BRg3SiyEJJx6DCdfvBPXNyz/359LJf/ajTT6XqoDz6BD8i5mJ+WDA6P7SlcE2TKBG
-         0DZt6c2Yp4aaHpGSgzqLLelAIfcxJn+hP+/PJUq4auWytXZEdB4n0XfzAKg6Rhi0Uh
-         VRz2xSfkq15rPt/XShVSSgPTR5h+TPNt5cfDvfyk=
+        b=CgFwfHHrkQPWiygesQTV/fXI+NXtl339iU4zmM6Wod+qed+qVMd27Ggd9voM8r1ip
+         7pwjWvuyUrqdU2qhJth2GyNq+xGLVqygtQ/6Z9cmKS6x6oMHHFJkw3QSXyVwO2xBVz
+         O6rrS5o668ix01Bk1YOjjDFvkojJgEDToBjg3Gko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 136/206] include/linux/bitops.h: avoid clang shift-count-overflow warnings
-Date:   Tue, 23 Jun 2020 21:57:44 +0200
-Message-Id: <20200623195323.676418958@linuxfoundation.org>
+Subject: [PATCH 5.4 270/314] afs: Fix EOF corruption
+Date:   Tue, 23 Jun 2020 21:57:45 +0200
+Message-Id: <20200623195351.865288807@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
-References: <20200623195316.864547658@linuxfoundation.org>
+In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
+References: <20200623195338.770401005@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,63 +43,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit bd93f003b7462ae39a43c531abca37fe7073b866 ]
+[ Upstream commit 3f4aa981816368fe6b1d13c2bfbe76df9687e787 ]
 
-Clang normally does not warn about certain issues in inline functions when
-it only happens in an eliminated code path. However if something else
-goes wrong, it does tend to complain about the definition of hweight_long()
-on 32-bit targets:
+When doing a partial writeback, afs_write_back_from_locked_page() may
+generate an FS.StoreData RPC request that writes out part of a file when a
+file has been constructed from pieces by doing seek, write, seek, write,
+... as is done by ld.
 
-  include/linux/bitops.h:75:41: error: shift count >= width of type [-Werror,-Wshift-count-overflow]
-          return sizeof(w) == 4 ? hweight32(w) : hweight64(w);
-                                                 ^~~~~~~~~~~~
-  include/asm-generic/bitops/const_hweight.h:29:49: note: expanded from macro 'hweight64'
-   define hweight64(w) (__builtin_constant_p(w) ? __const_hweight64(w) : __arch_hweight64(w))
-                                                  ^~~~~~~~~~~~~~~~~~~~
-  include/asm-generic/bitops/const_hweight.h:21:76: note: expanded from macro '__const_hweight64'
-   define __const_hweight64(w) (__const_hweight32(w) + __const_hweight32((w) >> 32))
-                                                                             ^  ~~
-  include/asm-generic/bitops/const_hweight.h:20:49: note: expanded from macro '__const_hweight32'
-   define __const_hweight32(w) (__const_hweight16(w) + __const_hweight16((w) >> 16))
-                                                  ^
-  include/asm-generic/bitops/const_hweight.h:19:72: note: expanded from macro '__const_hweight16'
-   define __const_hweight16(w) (__const_hweight8(w)  + __const_hweight8((w)  >> 8 ))
-                                                                         ^
-  include/asm-generic/bitops/const_hweight.h:12:9: note: expanded from macro '__const_hweight8'
-            (!!((w) & (1ULL << 2))) +     \
+The FS.StoreData RPC is given the current i_size as the file length, but
+the server basically ignores it unless the data length is 0 (in which case
+it's just a truncate operation).  The revised file length returned in the
+result of the RPC may then not reflect what we suggested - and this leads
+to i_size getting moved backwards - which causes issues later.
 
-Adding an explicit cast to __u64 avoids that warning and makes it easier
-to read other output.
+Fix the client to take account of this by ignoring the returned file size
+unless the data version number jumped unexpectedly - in which case we're
+going to have to clear the pagecache and reload anyway.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Link: http://lkml.kernel.org/r/20200505135513.65265-1-arnd@arndb.de
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+This can be observed when doing a kernel build on an AFS mount.  The
+following pair of commands produce the issue:
+
+  ld -m elf_x86_64 -z max-page-size=0x200000 --emit-relocs \
+      -T arch/x86/realmode/rm/realmode.lds \
+      arch/x86/realmode/rm/header.o \
+      arch/x86/realmode/rm/trampoline_64.o \
+      arch/x86/realmode/rm/stack.o \
+      arch/x86/realmode/rm/reboot.o \
+      -o arch/x86/realmode/rm/realmode.elf
+  arch/x86/tools/relocs --realmode \
+      arch/x86/realmode/rm/realmode.elf \
+      >arch/x86/realmode/rm/realmode.relocs
+
+This results in the latter giving:
+
+	Cannot read ELF section headers 0/18: Success
+
+as the realmode.elf file got corrupted.
+
+The sequence of events can also be driven with:
+
+	xfs_io -t -f \
+		-c "pwrite -S 0x58 0 0x58" \
+		-c "pwrite -S 0x59 10000 1000" \
+		-c "close" \
+		/afs/example.com/scratch/a
+
+Fixes: 31143d5d515e ("AFS: implement basic file write support")
+Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/bitops.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/afs/inode.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/bitops.h b/include/linux/bitops.h
-index e02cbca3cfaf0..5c1522ed2d7c7 100644
---- a/include/linux/bitops.h
-+++ b/include/linux/bitops.h
-@@ -50,7 +50,7 @@ static inline int get_bitmask_order(unsigned int count)
+diff --git a/fs/afs/inode.c b/fs/afs/inode.c
+index 46d2d7cb461da..a74e8e209454b 100644
+--- a/fs/afs/inode.c
++++ b/fs/afs/inode.c
+@@ -171,6 +171,7 @@ static void afs_apply_status(struct afs_fs_cursor *fc,
+ 	struct timespec64 t;
+ 	umode_t mode;
+ 	bool data_changed = false;
++	bool change_size = false;
  
- static __always_inline unsigned long hweight_long(unsigned long w)
- {
--	return sizeof(w) == 4 ? hweight32(w) : hweight64(w);
-+	return sizeof(w) == 4 ? hweight32(w) : hweight64((__u64)w);
+ 	BUG_ON(test_bit(AFS_VNODE_UNSET, &vnode->flags));
+ 
+@@ -226,6 +227,7 @@ static void afs_apply_status(struct afs_fs_cursor *fc,
+ 		} else {
+ 			set_bit(AFS_VNODE_ZAP_DATA, &vnode->flags);
+ 		}
++		change_size = true;
+ 	} else if (vnode->status.type == AFS_FTYPE_DIR) {
+ 		/* Expected directory change is handled elsewhere so
+ 		 * that we can locally edit the directory and save on a
+@@ -233,11 +235,19 @@ static void afs_apply_status(struct afs_fs_cursor *fc,
+ 		 */
+ 		if (test_bit(AFS_VNODE_DIR_VALID, &vnode->flags))
+ 			data_changed = false;
++		change_size = true;
+ 	}
+ 
+ 	if (data_changed) {
+ 		inode_set_iversion_raw(&vnode->vfs_inode, status->data_version);
+-		afs_set_i_size(vnode, status->size);
++
++		/* Only update the size if the data version jumped.  If the
++		 * file is being modified locally, then we might have our own
++		 * idea of what the size should be that's not the same as
++		 * what's on the server.
++		 */
++		if (change_size)
++			afs_set_i_size(vnode, status->size);
+ 	}
  }
  
- /**
 -- 
 2.25.1
 
