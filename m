@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80C13205C66
+	by mail.lfdr.de (Postfix) with ESMTP id F2561205C67
 	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:01:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387694AbgFWUBq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:01:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38518 "EHLO mail.kernel.org"
+        id S2387702AbgFWUBs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:01:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387689AbgFWUBp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:01:45 -0400
+        id S2387695AbgFWUBr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:01:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D4E0F20706;
-        Tue, 23 Jun 2020 20:01:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 599F72078A;
+        Tue, 23 Jun 2020 20:01:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592942504;
-        bh=z0xnm/mGI/9nPX8dNxlZnhwvvxB80jZK220cQQQMK2E=;
+        s=default; t=1592942506;
+        bh=AI/q5m10ZNR6F+ELrFPRFlW2+Pra5zR6fMJh0xqgZmY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lWw+jxAX8af3br7mchUjlu8c1K1YnO20yJ0J/c1EOL4yGzrqKD8Am3hpCu6rH7OFJ
-         Uis5geojhEOm1q4bq8vEZrZJt6lI+6PY92shuhSRaTV2HBkEAtjH+KG+r6wiZfg4Np
-         w8/Jy9QcnVKfJuG6K5T7YifxFWdkAn9BIRIgjdlg=
+        b=lZjFZPsJKtug2wGe8JHetFK1KqvlAWQvRWonLjovxEuK5Dqo3m5UVL+jPUPpevss+
+         3pHetjnmlATquHs9POfsI0XkItP5KumiENLGRmO6iuTt2a8a+uK6VXc8Wley1AqRNG
+         9iF6ZDGlnl0D/yxrmoy2VW9l58yGgPbE/iWv003w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
         Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 024/477] ALSA: hda/realtek - Introduce polarity for micmute LED GPIO
-Date:   Tue, 23 Jun 2020 21:50:21 +0200
-Message-Id: <20200623195408.748696963@linuxfoundation.org>
+Subject: [PATCH 5.7 025/477] ALSA: isa/wavefront: prevent out of bounds write in ioctl
+Date:   Tue, 23 Jun 2020 21:50:22 +0200
+Message-Id: <20200623195408.794606210@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -44,77 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit dbd13179780555ecd3c992dea1222ca31920e892 ]
+[ Upstream commit 7f0d5053c5a9d23fe5c2d337495a9d79038d267b ]
 
-Currently mute LED and micmute LED share the same GPIO polarity.
+The "header->number" comes from the ioctl and it needs to be clamped to
+prevent out of bounds writes.
 
-So split the polarity for mute and micmute, in case they have different
-polarities.
-
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Link: https://lore.kernel.org/r/20200430083255.5093-1-kai.heng.feng@canonical.com
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20200501094011.GA960082@mwanda
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ sound/isa/wavefront/wavefront_synth.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index 2c45759094417..e057ecb5a9045 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -81,6 +81,7 @@ struct alc_spec {
+diff --git a/sound/isa/wavefront/wavefront_synth.c b/sound/isa/wavefront/wavefront_synth.c
+index c5b1d5900eed2..d6420d224d097 100644
+--- a/sound/isa/wavefront/wavefront_synth.c
++++ b/sound/isa/wavefront/wavefront_synth.c
+@@ -1171,7 +1171,10 @@ wavefront_send_alias (snd_wavefront_t *dev, wavefront_patch_info *header)
+ 				      "alias for %d\n",
+ 				      header->number,
+ 				      header->hdr.a.OriginalSample);
+-    
++
++	if (header->number >= WF_MAX_SAMPLE)
++		return -EINVAL;
++
+ 	munge_int32 (header->number, &alias_hdr[0], 2);
+ 	munge_int32 (header->hdr.a.OriginalSample, &alias_hdr[2], 2);
+ 	munge_int32 (*((unsigned int *)&header->hdr.a.sampleStartOffset),
+@@ -1202,6 +1205,9 @@ wavefront_send_multisample (snd_wavefront_t *dev, wavefront_patch_info *header)
+ 	int num_samples;
+ 	unsigned char *msample_hdr;
  
- 	/* mute LED for HP laptops, see alc269_fixup_mic_mute_hook() */
- 	int mute_led_polarity;
-+	int micmute_led_polarity;
- 	hda_nid_t mute_led_nid;
- 	hda_nid_t cap_mute_led_nid;
- 
-@@ -4080,11 +4081,9 @@ static void alc269_fixup_hp_mute_led_mic3(struct hda_codec *codec,
- 
- /* update LED status via GPIO */
- static void alc_update_gpio_led(struct hda_codec *codec, unsigned int mask,
--				bool enabled)
-+				int polarity, bool enabled)
- {
--	struct alc_spec *spec = codec->spec;
--
--	if (spec->mute_led_polarity)
-+	if (polarity)
- 		enabled = !enabled;
- 	alc_update_gpio_data(codec, mask, !enabled); /* muted -> LED on */
- }
-@@ -4095,7 +4094,8 @@ static void alc_fixup_gpio_mute_hook(void *private_data, int enabled)
- 	struct hda_codec *codec = private_data;
- 	struct alc_spec *spec = codec->spec;
- 
--	alc_update_gpio_led(codec, spec->gpio_mute_led_mask, enabled);
-+	alc_update_gpio_led(codec, spec->gpio_mute_led_mask,
-+			    spec->mute_led_polarity, enabled);
- }
- 
- /* turn on/off mic-mute LED via GPIO per capture hook */
-@@ -4104,6 +4104,7 @@ static void alc_gpio_micmute_update(struct hda_codec *codec)
- 	struct alc_spec *spec = codec->spec;
- 
- 	alc_update_gpio_led(codec, spec->gpio_mic_led_mask,
-+			    spec->micmute_led_polarity,
- 			    spec->gen.micmute_led.led_value);
- }
- 
-@@ -5808,7 +5809,8 @@ static void alc280_hp_gpio4_automute_hook(struct hda_codec *codec,
- 
- 	snd_hda_gen_hp_automute(codec, jack);
- 	/* mute_led_polarity is set to 0, so we pass inverted value here */
--	alc_update_gpio_led(codec, 0x10, !spec->gen.hp_jack_present);
-+	alc_update_gpio_led(codec, 0x10, spec->mute_led_polarity,
-+			    !spec->gen.hp_jack_present);
- }
- 
- /* Manage GPIOs for HP EliteBook Folio 9480m.
++	if (header->number >= WF_MAX_SAMPLE)
++		return -EINVAL;
++
+ 	msample_hdr = kmalloc(WF_MSAMPLE_BYTES, GFP_KERNEL);
+ 	if (! msample_hdr)
+ 		return -ENOMEM;
 -- 
 2.25.1
 
