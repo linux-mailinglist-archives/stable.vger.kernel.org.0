@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06C75206338
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:29:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E272F206150
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:07:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389495AbgFWUT3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:19:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36586 "EHLO mail.kernel.org"
+        id S2392034AbgFWUjP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:39:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389802AbgFWUT2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:19:28 -0400
+        id S2389762AbgFWUjN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:39:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE7A22073E;
-        Tue, 23 Jun 2020 20:19:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF9BF2080C;
+        Tue, 23 Jun 2020 20:39:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943567;
-        bh=DJgswhjFLTFWVvJcmkwzjg9gcQuv0t0BJtnkWFGLVdg=;
+        s=default; t=1592944753;
+        bh=P8a4WFjZpL3Kvdj6tkFAa9TA2uxS7qZYDNT4HyyeK+U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=chZNn2mXP4/QzR++axRrlVyU5l/IerRak20m0IQrQuh807zMDboCCAmAwDL2CMsCW
-         xi+9jwC6KWb+TaW3rrFNRy9217yfu676nmuu0ZX5De3Sl4grpHNbnAmsuc8ggDDuvS
-         emIpDsjFVhRT5oBJh+vISvWxLR56zCSblu2X4/m4=
+        b=Tghslh8udw7HgA4OQ4tMOrT8VmYDQyqdXtXIoK1gh/PvfAM0Y6mT2LQzMKvJu/EWE
+         cpIeH1BC9PeDPDLBBwl6qEKQvb+4zHKn0dNigj1I/J3eOwIHJy9GQ4GVwx37LzqESH
+         oLUSfXmrBiRv9LJ0gh9DXeSDBXdVFwCkF/W/3Q/M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Anholt <eric@anholt.net>,
-        Jordan Crouse <jcrouse@codeaurora.org>,
-        Rob Clark <robdclark@chromium.org>
-Subject: [PATCH 5.7 443/477] drm/msm: Check for powered down HW in the devfreq callbacks
+        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 112/206] x86/apic: Make TSC deadline timer detection message visible
 Date:   Tue, 23 Jun 2020 21:57:20 +0200
-Message-Id: <20200623195428.471669391@linuxfoundation.org>
+Message-Id: <20200623195322.450511624@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
-References: <20200623195407.572062007@linuxfoundation.org>
+In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
+References: <20200623195316.864547658@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,108 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jordan Crouse <jcrouse@codeaurora.org>
+From: Borislav Petkov <bp@suse.de>
 
-commit eadf79286a4badebc95af7061530bdb50a7e6f38 upstream.
+[ Upstream commit de308d1815c9e8fe602a958c5c76142ff6501d75 ]
 
-Writing to the devfreq sysfs nodes while the GPU is powered down can
-result in a system crash (on a5xx) or a nasty GMU error (on a6xx):
+The commit
 
- $ /sys/class/devfreq/5000000.gpu# echo 500000000 > min_freq
-  [  104.841625] platform 506a000.gmu: [drm:a6xx_gmu_set_oob]
-	*ERROR* Timeout waiting for GMU OOB set GPU_DCVS: 0x0
+  c84cb3735fd5 ("x86/apic: Move TSC deadline timer debug printk")
 
-Despite the fact that we carefully try to suspend the devfreq device when
-the hardware is powered down there are lots of holes in the governors that
-don't check for the suspend state and blindly call into the devfreq
-callbacks that end up triggering hardware reads in the GPU driver.
+removed the message which said that the deadline timer was enabled.
+It added a pr_debug() message which is issued when deadline timer
+validation succeeds.
 
-Call pm_runtime_get_if_in_use() in the gpu_busy() and gpu_set_freq()
-callbacks to skip the hardware access if it isn't active.
+Well, issued only when CONFIG_DYNAMIC_DEBUG is enabled - otherwise
+pr_debug() calls get optimized away if DEBUG is not defined in the
+compilation unit.
 
-v3: Only check pm_runtime_get_if_in_use() for == 0 per Eric Anholt
-v2: Use pm_runtime_get_if_in_use() per Eric Anholt
+Therefore, make the above message pr_info() so that it is visible in
+dmesg.
 
-Cc: stable@vger.kernel.org
-Reviewed-by: Eric Anholt <eric@anholt.net>
-Signed-off-by: Jordan Crouse <jcrouse@codeaurora.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20200525104218.27018-1-bp@alien8.de
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/adreno/a5xx_gpu.c |    6 ++++++
- drivers/gpu/drm/msm/adreno/a6xx_gmu.c |    8 ++++++++
- drivers/gpu/drm/msm/adreno/a6xx_gpu.c |    7 +++++++
- 3 files changed, 21 insertions(+)
+ arch/x86/kernel/apic/apic.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
-+++ b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
-@@ -1404,6 +1404,10 @@ static unsigned long a5xx_gpu_busy(struc
- {
- 	u64 busy_cycles, busy_time;
+diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
+index 53dc8492f02ff..e9456a2eef585 100644
+--- a/arch/x86/kernel/apic/apic.c
++++ b/arch/x86/kernel/apic/apic.c
+@@ -2024,7 +2024,7 @@ void __init init_apic_mappings(void)
+ 	unsigned int new_apicid;
  
-+	/* Only read the gpu busy if the hardware is already active */
-+	if (pm_runtime_get_if_in_use(&gpu->pdev->dev) == 0)
-+		return 0;
-+
- 	busy_cycles = gpu_read64(gpu, REG_A5XX_RBBM_PERFCTR_RBBM_0_LO,
- 			REG_A5XX_RBBM_PERFCTR_RBBM_0_HI);
+ 	if (apic_validate_deadline_timer())
+-		pr_debug("TSC deadline timer available\n");
++		pr_info("TSC deadline timer available\n");
  
-@@ -1412,6 +1416,8 @@ static unsigned long a5xx_gpu_busy(struc
- 
- 	gpu->devfreq.busy_cycles = busy_cycles;
- 
-+	pm_runtime_put(&gpu->pdev->dev);
-+
- 	if (WARN_ON(busy_time > ~0LU))
- 		return ~0LU;
- 
---- a/drivers/gpu/drm/msm/adreno/a6xx_gmu.c
-+++ b/drivers/gpu/drm/msm/adreno/a6xx_gmu.c
-@@ -108,6 +108,13 @@ static void __a6xx_gmu_set_freq(struct a
- 	struct msm_gpu *gpu = &adreno_gpu->base;
- 	int ret;
- 
-+	/*
-+	 * This can get called from devfreq while the hardware is idle. Don't
-+	 * bring up the power if it isn't already active
-+	 */
-+	if (pm_runtime_get_if_in_use(gmu->dev) == 0)
-+		return;
-+
- 	gmu_write(gmu, REG_A6XX_GMU_DCVS_ACK_OPTION, 0);
- 
- 	gmu_write(gmu, REG_A6XX_GMU_DCVS_PERF_SETTING,
-@@ -134,6 +141,7 @@ static void __a6xx_gmu_set_freq(struct a
- 	 * for now leave it at max so that the performance is nominal.
- 	 */
- 	icc_set_bw(gpu->icc_path, 0, MBps_to_icc(7216));
-+	pm_runtime_put(gmu->dev);
- }
- 
- void a6xx_gmu_set_freq(struct msm_gpu *gpu, unsigned long freq)
---- a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-+++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-@@ -810,6 +810,11 @@ static unsigned long a6xx_gpu_busy(struc
- 	struct a6xx_gpu *a6xx_gpu = to_a6xx_gpu(adreno_gpu);
- 	u64 busy_cycles, busy_time;
- 
-+
-+	/* Only read the gpu busy if the hardware is already active */
-+	if (pm_runtime_get_if_in_use(a6xx_gpu->gmu.dev) == 0)
-+		return 0;
-+
- 	busy_cycles = gmu_read64(&a6xx_gpu->gmu,
- 			REG_A6XX_GMU_CX_GMU_POWER_COUNTER_XOCLK_0_L,
- 			REG_A6XX_GMU_CX_GMU_POWER_COUNTER_XOCLK_0_H);
-@@ -819,6 +824,8 @@ static unsigned long a6xx_gpu_busy(struc
- 
- 	gpu->devfreq.busy_cycles = busy_cycles;
- 
-+	pm_runtime_put(a6xx_gpu->gmu.dev);
-+
- 	if (WARN_ON(busy_time > ~0LU))
- 		return ~0LU;
- 
+ 	if (x2apic_mode) {
+ 		boot_cpu_physical_apicid = read_apic_id();
+-- 
+2.25.1
+
 
 
