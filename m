@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B38422050E3
+	by mail.lfdr.de (Postfix) with ESMTP id 408D52050E2
 	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 13:37:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732539AbgFWLgr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1732525AbgFWLgr (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 23 Jun 2020 07:36:47 -0400
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:40373 "EHLO
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:55391 "EHLO
         wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1732525AbgFWLgc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Jun 2020 07:36:32 -0400
+        by vger.kernel.org with ESMTP id S1732432AbgFWLgq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Jun 2020 07:36:46 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 44D8EA47;
-        Tue, 23 Jun 2020 07:36:28 -0400 (EDT)
+        by mailforward.west.internal (Postfix) with ESMTP id 0D8A6A38;
+        Tue, 23 Jun 2020 07:36:29 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Tue, 23 Jun 2020 07:36:28 -0400
+  by compute1.internal (MEProxy); Tue, 23 Jun 2020 07:36:30 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=noNk+V
-        zn1HZgVb/9khCBHge+Ug0p99u7Jy8yWYJgeJw=; b=QTsJWC2Jf8idnV2qaQSkTQ
-        w36/g42VlyhtkxvFPoWJ/b6VxYVnLgtH8M1gK8B1q2woOiK/520ld4aZOeTfPl52
-        fMB6GkJRBulOL6KpkpObykqLpCUSZEwPnaVHb1/o8YgyfzxR49DvZ1Ua6Kwfg2ac
-        y59TMW05k+Qgo/fEivufXhmz3Hphup23ehJ7kgX+dmmSQsfDulNy0DzbAPLvJ5Yb
-        53/+Sa7OYxbNboyp88J/UqEGAwab6ZKbrJvVFyV8egnUCT31TnjkeuzZ9vIJMWox
-        jZh8bgBfMIO2TxNFDopmHO2xz+utkuJ0grk4eEGY+bLPMgFlDpEH0xh1NRfZSEvg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=hkB6sA
+        3CCynzTRoExHTgHrd/oayFvxxkiZ3ruiNyJyo=; b=S7fWhHCW33dHlsZJkSFXgS
+        XcSPOMTbxJNayNJJl5N9np/l6zYE4HQU1FX5g3Zv6gLr0vVeVnVqokalor9hTrvt
+        nbYg+PT48b+IfduYkkKTnKPYJhOPmbAltMFThnVg7+y4l5yQclolxpKfukeV/ipY
+        pU9vRtQanIfABA9xV4ju/vl537/M0WdqEhdGRXfYO9yydOAtusBqBnOhoWqj5O/p
+        hWqNJ+PXuVz4zmuVZ2JsikJ75ai/tmtQMzVH/66Lj+4kCp4PtxbIz9HvyfSvmAgI
+        iGix/qi8LrJjvhroyx1eeJ4PnkXpuU1ahbAYo638PYm0YVBGqARbVSKVu10T/Aaw
         ==
-X-ME-Sender: <xms:O-nxXnLwVmp4TJlyb3TDQFLbGf0-m6mC5u5UM2b7Kpsi4BF0UbuZ_A>
+X-ME-Sender: <xms:PenxXshWMqsxOLuIesq3W7ydKLPi8kFFSk4g3Io5eKkBNs7kfCT5aA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudekhedgudegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -36,20 +36,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudekhedgudegucetufdoteggod
     ejhffhgfevuedtvddtjefgnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhg
     necukfhppeekfedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedunecurf
     grrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:O-nxXrLoGDCyry13PPZCj6QDkq5e0HJGjoOyMjlrtWp90qGDw1d-3w>
-    <xmx:O-nxXvtXI7Mu3IUuzbUeGZSV0Do33JMaUeu3Z2yGv-7wmHS4ZafYgA>
-    <xmx:O-nxXgZkXxEHDU7TjCtO2OLC00i15RLPrS46I6Q84VYD-0_H3ZBX6g>
-    <xmx:O-nxXnBZx88QXhRrlL-NlBO7VtqfWKlwc4yq0sV3FNkZPaw08g-CqfX28ZM>
+X-ME-Proxy: <xmx:PenxXlC_vNYb5nMiacMmNWelpy1eqfT536oj8VuPPXYIbXW9Q0C5jg>
+    <xmx:PenxXkGtX7e283HE_eNYKRUTELY2DcajLZedzjwlsA1jGEzBZCd0mw>
+    <xmx:PenxXtSWNGTSJrQISqtPBx05JtUvvDj0GTuzSqj-lT0wn67AE_u2Jw>
+    <xmx:PenxXnbRoqF8v4en32Im6hVkghFQrUfcplg7knbhNlQkiSMjPPqPafdznuA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 8327330674D2;
-        Tue, 23 Jun 2020 07:36:27 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/i915/gt: Move hsw GT workarounds from init_clock_gating" failed to apply to 5.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 1045E30674BE;
+        Tue, 23 Jun 2020 07:36:28 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drm/i915/gt: Move ivb GT workarounds from init_clock_gating" failed to apply to 5.4-stable tree
 To:     chris@chris-wilson.co.uk, joonas.lahtinen@linux.intel.com,
         mika.kuoppala@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 23 Jun 2020 13:36:20 +0200
-Message-ID: <1592912180113204@kroah.com>
+Date:   Tue, 23 Jun 2020 13:36:21 +0200
+Message-ID: <159291218114698@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -70,71 +70,76 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From ef50fa9bd17d13d0611e39e13b37bbd3e1ea50bf Mon Sep 17 00:00:00 2001
+From 7237b190add0794bd95979018a23eda698f2705d Mon Sep 17 00:00:00 2001
 From: Chris Wilson <chris@chris-wilson.co.uk>
-Date: Thu, 11 Jun 2020 10:30:15 +0100
-Subject: [PATCH] drm/i915/gt: Move hsw GT workarounds from init_clock_gating
+Date: Thu, 11 Jun 2020 09:01:36 +0100
+Subject: [PATCH] drm/i915/gt: Move ivb GT workarounds from init_clock_gating
  to workarounds
 
 Rescue the GT workarounds from being buried inside init_clock_gating so
 that we remember to apply them after a GT reset, and that they are
 included in our verification that the workarounds are applied.
 
-v2: Leave HSW_SCRATCH to set an explicit value, not or in our disable
-bit.
-
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/2011
 Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
 Reviewed-by: Mika Kuoppala <mika.kuoppala@linux.intel.com>
 Cc: stable@vger.kernel.org
-Link: https://patchwork.freedesktop.org/patch/msgid/20200611093015.11370-1-chris@chris-wilson.co.uk
-(cherry picked from commit f93ec5fb563779bda4501890b1854526de58e0f1)
+Link: https://patchwork.freedesktop.org/patch/msgid/20200611080140.30228-2-chris@chris-wilson.co.uk
+(cherry picked from commit 19f1f627b33385a2f0855cbc7d33d86d7f4a1e78)
 Signed-off-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
 
 diff --git a/drivers/gpu/drm/i915/gt/intel_workarounds.c b/drivers/gpu/drm/i915/gt/intel_workarounds.c
-index 90a2b9e399b0..b5d0fbe3b211 100644
+index b5d0fbe3b211..d9b72679ca82 100644
 --- a/drivers/gpu/drm/i915/gt/intel_workarounds.c
 +++ b/drivers/gpu/drm/i915/gt/intel_workarounds.c
-@@ -178,6 +178,12 @@ wa_write_or(struct i915_wa_list *wal, i915_reg_t reg, u32 set)
- 	wa_write_masked_or(wal, reg, set, set);
- }
- 
-+static void
-+wa_write_clr(struct i915_wa_list *wal, i915_reg_t reg, u32 clr)
-+{
-+	wa_write_masked_or(wal, reg, clr, 0);
-+}
-+
- static void
- wa_masked_en(struct i915_wa_list *wal, i915_reg_t reg, u32 val)
- {
-@@ -686,6 +692,46 @@ int intel_engine_emit_ctx_wa(struct i915_request *rq)
+@@ -692,6 +692,66 @@ int intel_engine_emit_ctx_wa(struct i915_request *rq)
  	return 0;
  }
  
 +static void
-+hsw_gt_workarounds_init(struct drm_i915_private *i915, struct i915_wa_list *wal)
++ivb_gt_workarounds_init(struct drm_i915_private *i915, struct i915_wa_list *wal)
 +{
-+	/* L3 caching of data atomics doesn't work -- disable it. */
-+	wa_write(wal, HSW_SCRATCH1, HSW_SCRATCH1_L3_DATA_ATOMICS_DISABLE);
++	/* WaDisableEarlyCull:ivb */
++	wa_masked_en(wal, _3D_CHICKEN3, _3D_CHICKEN_SF_DISABLE_OBJEND_CULL);
 +
-+	wa_add(wal,
-+	       HSW_ROW_CHICKEN3, 0,
-+	       _MASKED_BIT_ENABLE(HSW_ROW_CHICKEN3_L3_GLOBAL_ATOMICS_DISABLE),
-+		0 /* XXX does this reg exist? */);
++	/* WaDisablePSDDualDispatchEnable:ivb */
++	if (IS_IVB_GT1(i915))
++		wa_masked_en(wal,
++			     GEN7_HALF_SLICE_CHICKEN1,
++			     GEN7_PSD_SINGLE_PORT_DISPATCH_ENABLE);
 +
-+	/* WaVSRefCountFullforceMissDisable:hsw */
-+	wa_write_clr(wal, GEN7_FF_THREAD_MODE, GEN7_FF_VS_REF_CNT_FFME);
++	/* WaDisable_RenderCache_OperationalFlush:ivb */
++	wa_masked_dis(wal, CACHE_MODE_0_GEN7, RC_OP_FLUSH_ENABLE);
 +
++	/* Apply the WaDisableRHWOOptimizationForRenderHang:ivb workaround. */
 +	wa_masked_dis(wal,
-+		      CACHE_MODE_0_GEN7,
-+		      /* WaDisable_RenderCache_OperationalFlush:hsw */
-+		      RC_OP_FLUSH_ENABLE |
-+		      /* enable HiZ Raw Stall Optimization */
-+		      HIZ_RAW_STALL_OPT_DISABLE);
++		      GEN7_COMMON_SLICE_CHICKEN1,
++		      GEN7_CSC1_RHWO_OPT_DISABLE_IN_RCC);
 +
-+	/* WaDisable4x2SubspanOptimization:hsw */
++	/* WaApplyL3ControlAndL3ChickenMode:ivb */
++	wa_write(wal, GEN7_L3CNTLREG1, GEN7_WA_FOR_GEN7_L3_CONTROL);
++	wa_write(wal, GEN7_L3_CHICKEN_MODE_REGISTER, GEN7_WA_L3_CHICKEN_MODE);
++
++	/* WaForceL3Serialization:ivb */
++	wa_write_clr(wal, GEN7_L3SQCREG4, L3SQ_URB_READ_CAM_MATCH_DISABLE);
++
++	/*
++	 * WaVSThreadDispatchOverride:ivb,vlv
++	 *
++	 * This actually overrides the dispatch
++	 * mode for all thread types.
++	 */
++	wa_write_masked_or(wal, GEN7_FF_THREAD_MODE,
++			   GEN7_FF_SCHED_MASK,
++			   GEN7_FF_TS_SCHED_HW |
++			   GEN7_FF_VS_SCHED_HW |
++			   GEN7_FF_DS_SCHED_HW);
++
++	if (0) { /* causes HiZ corruption on ivb:gt1 */
++		/* enable HiZ Raw Stall Optimization */
++		wa_masked_dis(wal, CACHE_MODE_0_GEN7, HIZ_RAW_STALL_OPT_DISABLE);
++	}
++
++	/* WaDisable4x2SubspanOptimization:ivb */
 +	wa_masked_en(wal, CACHE_MODE_1, PIXEL_SUBSPAN_COLLECT_OPT_DISABLE);
 +
 +	/*
@@ -148,53 +153,94 @@ index 90a2b9e399b0..b5d0fbe3b211 100644
 +	wa_add(wal, GEN7_GT_MODE, 0,
 +	       _MASKED_FIELD(GEN6_WIZ_HASHING_MASK, GEN6_WIZ_HASHING_16x4),
 +	       GEN6_WIZ_HASHING_16x4);
-+
-+	/* WaSampleCChickenBitEnable:hsw */
-+	wa_masked_en(wal, HALF_SLICE_CHICKEN3, HSW_SAMPLE_C_PERFORMANCE);
 +}
 +
  static void
- gen9_gt_workarounds_init(struct drm_i915_private *i915, struct i915_wa_list *wal)
+ hsw_gt_workarounds_init(struct drm_i915_private *i915, struct i915_wa_list *wal)
  {
-@@ -963,6 +1009,8 @@ gt_init_workarounds(struct drm_i915_private *i915, struct i915_wa_list *wal)
- 		bxt_gt_workarounds_init(i915, wal);
- 	else if (IS_SKYLAKE(i915))
+@@ -1011,6 +1071,8 @@ gt_init_workarounds(struct drm_i915_private *i915, struct i915_wa_list *wal)
  		skl_gt_workarounds_init(i915, wal);
-+	else if (IS_HASWELL(i915))
-+		hsw_gt_workarounds_init(i915, wal);
+ 	else if (IS_HASWELL(i915))
+ 		hsw_gt_workarounds_init(i915, wal);
++	else if (IS_IVYBRIDGE(i915))
++		ivb_gt_workarounds_init(i915, wal);
  	else if (INTEL_GEN(i915) <= 8)
  		return;
  	else
+diff --git a/drivers/gpu/drm/i915/i915_reg.h b/drivers/gpu/drm/i915/i915_reg.h
+index 7717581350bd..06cd1d28a176 100644
+--- a/drivers/gpu/drm/i915/i915_reg.h
++++ b/drivers/gpu/drm/i915/i915_reg.h
+@@ -7896,7 +7896,7 @@ enum {
+ 
+ /* GEN7 chicken */
+ #define GEN7_COMMON_SLICE_CHICKEN1		_MMIO(0x7010)
+-  #define GEN7_CSC1_RHWO_OPT_DISABLE_IN_RCC	((1 << 10) | (1 << 26))
++  #define GEN7_CSC1_RHWO_OPT_DISABLE_IN_RCC	(1 << 10)
+   #define GEN9_RHWO_OPTIMIZATION_DISABLE	(1 << 14)
+ 
+ #define COMMON_SLICE_CHICKEN2					_MMIO(0x7014)
 diff --git a/drivers/gpu/drm/i915/intel_pm.c b/drivers/gpu/drm/i915/intel_pm.c
-index 696491d71a1d..0b7a4c5f179d 100644
+index 0b7a4c5f179d..7236644af40b 100644
 --- a/drivers/gpu/drm/i915/intel_pm.c
 +++ b/drivers/gpu/drm/i915/intel_pm.c
-@@ -7230,45 +7230,10 @@ static void bdw_init_clock_gating(struct drm_i915_private *dev_priv)
+@@ -7247,32 +7247,11 @@ static void ivb_init_clock_gating(struct drm_i915_private *dev_priv)
  
- static void hsw_init_clock_gating(struct drm_i915_private *dev_priv)
- {
--	/* L3 caching of data atomics doesn't work -- disable it. */
--	I915_WRITE(HSW_SCRATCH1, HSW_SCRATCH1_L3_DATA_ATOMICS_DISABLE);
--	I915_WRITE(HSW_ROW_CHICKEN3,
--		   _MASKED_BIT_ENABLE(HSW_ROW_CHICKEN3_L3_GLOBAL_ATOMICS_DISABLE));
+ 	I915_WRITE(ILK_DSPCLK_GATE_D, ILK_VRHUNIT_CLOCK_GATE_DISABLE);
+ 
+-	/* WaDisableEarlyCull:ivb */
+-	I915_WRITE(_3D_CHICKEN3,
+-		   _MASKED_BIT_ENABLE(_3D_CHICKEN_SF_DISABLE_OBJEND_CULL));
 -
- 	/* This is required by WaCatErrorRejectionIssue:hsw */
- 	I915_WRITE(GEN7_SQ_CHICKEN_MBCUNIT_CONFIG,
--			I915_READ(GEN7_SQ_CHICKEN_MBCUNIT_CONFIG) |
--			GEN7_SQ_CHICKEN_MBCUNIT_SQINTMOB);
+ 	/* WaDisableBackToBackFlipFix:ivb */
+ 	I915_WRITE(IVB_CHICKEN3,
+ 		   CHICKEN3_DGMG_REQ_OUT_FIX_DISABLE |
+ 		   CHICKEN3_DGMG_DONE_FIX_DISABLE);
+ 
+-	/* WaDisablePSDDualDispatchEnable:ivb */
+-	if (IS_IVB_GT1(dev_priv))
+-		I915_WRITE(GEN7_HALF_SLICE_CHICKEN1,
+-			   _MASKED_BIT_ENABLE(GEN7_PSD_SINGLE_PORT_DISPATCH_ENABLE));
 -
--	/* WaVSRefCountFullforceMissDisable:hsw */
--	I915_WRITE(GEN7_FF_THREAD_MODE,
--		   I915_READ(GEN7_FF_THREAD_MODE) & ~GEN7_FF_VS_REF_CNT_FFME);
--
--	/* WaDisable_RenderCache_OperationalFlush:hsw */
+-	/* WaDisable_RenderCache_OperationalFlush:ivb */
 -	I915_WRITE(CACHE_MODE_0_GEN7, _MASKED_BIT_DISABLE(RC_OP_FLUSH_ENABLE));
 -
--	/* enable HiZ Raw Stall Optimization */
--	I915_WRITE(CACHE_MODE_0_GEN7,
--		   _MASKED_BIT_DISABLE(HIZ_RAW_STALL_OPT_DISABLE));
+-	/* Apply the WaDisableRHWOOptimizationForRenderHang:ivb workaround. */
+-	I915_WRITE(GEN7_COMMON_SLICE_CHICKEN1,
+-		   GEN7_CSC1_RHWO_OPT_DISABLE_IN_RCC);
 -
--	/* WaDisable4x2SubspanOptimization:hsw */
+-	/* WaApplyL3ControlAndL3ChickenMode:ivb */
+-	I915_WRITE(GEN7_L3CNTLREG1,
+-			GEN7_WA_FOR_GEN7_L3_CONTROL);
+-	I915_WRITE(GEN7_L3_CHICKEN_MODE_REGISTER,
+-		   GEN7_WA_L3_CHICKEN_MODE);
+ 	if (IS_IVB_GT1(dev_priv))
+ 		I915_WRITE(GEN7_ROW_CHICKEN2,
+ 			   _MASKED_BIT_ENABLE(DOP_CLOCK_GATING_DISABLE));
+@@ -7284,10 +7263,6 @@ static void ivb_init_clock_gating(struct drm_i915_private *dev_priv)
+ 			   _MASKED_BIT_ENABLE(DOP_CLOCK_GATING_DISABLE));
+ 	}
+ 
+-	/* WaForceL3Serialization:ivb */
+-	I915_WRITE(GEN7_L3SQCREG4, I915_READ(GEN7_L3SQCREG4) &
+-		   ~L3SQ_URB_READ_CAM_MATCH_DISABLE);
+-
+ 	/*
+ 	 * According to the spec, bit 13 (RCZUNIT) must be set on IVB.
+ 	 * This implements the WaDisableRCZUnitClockGating:ivb workaround.
+@@ -7302,29 +7277,6 @@ static void ivb_init_clock_gating(struct drm_i915_private *dev_priv)
+ 
+ 	g4x_disable_trickle_feed(dev_priv);
+ 
+-	gen7_setup_fixed_func_scheduler(dev_priv);
+-
+-	if (0) { /* causes HiZ corruption on ivb:gt1 */
+-		/* enable HiZ Raw Stall Optimization */
+-		I915_WRITE(CACHE_MODE_0_GEN7,
+-			   _MASKED_BIT_DISABLE(HIZ_RAW_STALL_OPT_DISABLE));
+-	}
+-
+-	/* WaDisable4x2SubspanOptimization:ivb */
 -	I915_WRITE(CACHE_MODE_1,
 -		   _MASKED_BIT_ENABLE(PIXEL_SUBSPAN_COLLECT_OPT_DISABLE));
 -
@@ -209,12 +255,7 @@ index 696491d71a1d..0b7a4c5f179d 100644
 -	I915_WRITE(GEN7_GT_MODE,
 -		   _MASKED_FIELD(GEN6_WIZ_HASHING_MASK, GEN6_WIZ_HASHING_16x4));
 -
--	/* WaSampleCChickenBitEnable:hsw */
--	I915_WRITE(HALF_SLICE_CHICKEN3,
--		   _MASKED_BIT_ENABLE(HSW_SAMPLE_C_PERFORMANCE));
-+		   I915_READ(GEN7_SQ_CHICKEN_MBCUNIT_CONFIG) |
-+		   GEN7_SQ_CHICKEN_MBCUNIT_SQINTMOB);
- 
- 	/* WaSwitchSolVfFArbitrationPriority:hsw */
- 	I915_WRITE(GAM_ECOCHK, I915_READ(GAM_ECOCHK) | HSW_ECOCHK_ARB_PRIO_SOL);
+ 	snpcr = I915_READ(GEN6_MBCUNIT_SNPCR);
+ 	snpcr &= ~GEN6_MBC_SNPCR_MASK;
+ 	snpcr |= GEN6_MBC_SNPCR_MED;
 
