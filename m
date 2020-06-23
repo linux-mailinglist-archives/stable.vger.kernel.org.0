@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CCE920637B
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:29:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3379020637D
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:29:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390580AbgFWUZq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:25:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44784 "EHLO mail.kernel.org"
+        id S2390341AbgFWUZy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:25:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390329AbgFWUZp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:25:45 -0400
+        id S2390593AbgFWUZx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:25:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CFC8F206EB;
-        Tue, 23 Jun 2020 20:25:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 80E52206EB;
+        Tue, 23 Jun 2020 20:25:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943945;
-        bh=9IyFQ1LxdVrwBZSwUEShij5X2ILrV9XEJsqS8gNrNjQ=;
+        s=default; t=1592943953;
+        bh=z/cgP0g4i+HM84nfFPLzItHc2FCwdQJIeKFhlM0bRTE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TXdQuyuDe1SFgvItjpqkDdvWM3fVkNSD/eR6PFyXsntrX7BO0OCX534kvTAfWXsLi
-         OLgykoAPB+FLFnz+1JF8686YTJvJZReqaWZPpzMjywZpFj9kkPJJLv6obPhGWSNB5n
-         ZcRDWxrby0c7/yk2rADB1dTGISufLl7EEbJ6jNyo=
+        b=eFSsZ5+TkwcD1pKKnRgdGJsBEmYjqtJjh5VgQnCKQ/+RRZOp4r3rmZ4YfNSSzCEFR
+         cQFrNZMxz5iG1MFqyIkvxGH9pDBt+OdA85qYPjPIZ4mVyGMAyYksg7BWYirol2oesK
+         HhayX9Ff/9WicN66+/2DBuKLKlKzd230Cf9gffBY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 113/314] HID: intel-ish-hid: avoid bogus uninitialized-variable warning
-Date:   Tue, 23 Jun 2020 21:55:08 +0200
-Message-Id: <20200623195344.257639843@linuxfoundation.org>
+        stable@vger.kernel.org, Thinh Nguyen <thinhn@synopsys.com>,
+        Felipe Balbi <balbi@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 115/314] usb: dwc3: gadget: Properly handle failed kick_transfer
+Date:   Tue, 23 Jun 2020 21:55:10 +0200
+Message-Id: <20200623195344.355331408@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
 References: <20200623195338.770401005@linuxfoundation.org>
@@ -44,52 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-[ Upstream commit 0b66fb3e6b7a53688f8e20945ac78cd3d832c65f ]
+[ Upstream commit 8d99087c2db863c5fa3a4a1f3cb82b3a493705ca ]
 
-Older compilers like gcc-4.8 don't see that the variable is
-initialized when it is used:
+If dwc3 fails to issue START_TRANSFER/UPDATE_TRANSFER command, then we
+should properly end an active transfer and give back all the started
+requests. However if it's for an isoc endpoint, the failure maybe due to
+bus-expiry status. In this case, don't give back the requests and wait
+for the next retry.
 
-In file included from include/linux/compiler_types.h:68:0,
-                 from <command-line>:0:
-drivers/hid/intel-ish-hid/ishtp-fw-loader.c: In function 'load_fw_from_host':
-include/linux/compiler-gcc.h:75:45: warning: 'fw_info.ldr_capability.max_dma_buf_size' may be used uninitialized in this function [-Wmaybe-uninitialized]
- #define __UNIQUE_ID(prefix) __PASTE(__PASTE(__UNIQUE_ID_, prefix), __COUNTER__)
-                                             ^
-drivers/hid/intel-ish-hid/ishtp-fw-loader.c:770:22: note: 'fw_info.ldr_capability.max_dma_buf_size' was declared here
-  struct shim_fw_info fw_info;
-                      ^
-
-Make sure to initialize it before returning an error from ish_query_loader_prop().
-
-Fixes: 91b228107da3 ("HID: intel-ish-hid: ISH firmware loader client driver")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: 72246da40f37 ("usb: Introduce DesignWare USB3 DRD Driver")
+Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/intel-ish-hid/ishtp-fw-loader.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/dwc3/gadget.c | 24 ++++++++++++++++--------
+ 1 file changed, 16 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/hid/intel-ish-hid/ishtp-fw-loader.c b/drivers/hid/intel-ish-hid/ishtp-fw-loader.c
-index aa2dbed30fc36..6cf59fd26ad78 100644
---- a/drivers/hid/intel-ish-hid/ishtp-fw-loader.c
-+++ b/drivers/hid/intel-ish-hid/ishtp-fw-loader.c
-@@ -480,6 +480,7 @@ static int ish_query_loader_prop(struct ishtp_cl_data *client_data,
- 			    sizeof(ldr_xfer_query_resp));
- 	if (rv < 0) {
- 		client_data->flag_retry = true;
-+		*fw_info = (struct shim_fw_info){};
- 		return rv;
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index 05180a09e70d4..17340864a5408 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -1217,6 +1217,8 @@ static void dwc3_prepare_trbs(struct dwc3_ep *dep)
  	}
+ }
  
-@@ -489,6 +490,7 @@ static int ish_query_loader_prop(struct ishtp_cl_data *client_data,
- 			"data size %d is not equal to size of loader_xfer_query_response %zu\n",
- 			rv, sizeof(struct loader_xfer_query_response));
- 		client_data->flag_retry = true;
-+		*fw_info = (struct shim_fw_info){};
- 		return -EMSGSIZE;
++static void dwc3_gadget_ep_cleanup_cancelled_requests(struct dwc3_ep *dep);
++
+ static int __dwc3_gadget_kick_transfer(struct dwc3_ep *dep)
+ {
+ 	struct dwc3_gadget_ep_cmd_params params;
+@@ -1256,14 +1258,20 @@ static int __dwc3_gadget_kick_transfer(struct dwc3_ep *dep)
+ 
+ 	ret = dwc3_send_gadget_ep_cmd(dep, cmd, &params);
+ 	if (ret < 0) {
+-		/*
+-		 * FIXME we need to iterate over the list of requests
+-		 * here and stop, unmap, free and del each of the linked
+-		 * requests instead of what we do now.
+-		 */
+-		if (req->trb)
+-			memset(req->trb, 0, sizeof(struct dwc3_trb));
+-		dwc3_gadget_del_and_unmap_request(dep, req, ret);
++		struct dwc3_request *tmp;
++
++		if (ret == -EAGAIN)
++			return ret;
++
++		dwc3_stop_active_transfer(dep, true, true);
++
++		list_for_each_entry_safe(req, tmp, &dep->started_list, list)
++			dwc3_gadget_move_cancelled_request(req);
++
++		/* If ep isn't started, then there's no end transfer pending */
++		if (!(dep->flags & DWC3_EP_END_TRANSFER_PENDING))
++			dwc3_gadget_ep_cleanup_cancelled_requests(dep);
++
+ 		return ret;
  	}
  
 -- 
