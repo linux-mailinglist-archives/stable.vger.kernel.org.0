@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA340205FF7
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:47:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C44FA205FF9
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:47:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391919AbgFWUiH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:38:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33484 "EHLO mail.kernel.org"
+        id S2391926AbgFWUiK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:38:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391915AbgFWUiG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:38:06 -0400
+        id S2391897AbgFWUiI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:38:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2FE721556;
-        Tue, 23 Jun 2020 20:38:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D1BD215A4;
+        Tue, 23 Jun 2020 20:38:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944686;
-        bh=Jo0DEzc7e3bYZynA5ivPw4/ynVbfmur1H1zbgxYG1xI=;
+        s=default; t=1592944688;
+        bh=6zmgSBPRJjP6/PYn9+bTeZQekbj1yRvibHp8mS6u4KQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vFDwwC9JV3YUifDMHgCYy5bCdUfI0BkSDY8ZeHLw2JTpxUTPP3yuU/yF9TO54UHLY
-         Ko19oRG9dXuKcoV25HQ/mQAjOPw2FQMzfURq9SHLKOojTod/fWuIS3/EfhZMd4nZqE
-         UzqKJjnZCWVXFWYvJc7PQlfvNJdIs+INIHlUPNJ0=
+        b=MvRoV/+YrIqBx6DEPVZ2hg6DPdVvC30DkdeU339e8hQMenTzfK8ayx3GgnmK9slAd
+         qxEgpvfwLKEgoA9kDkJ6+9NN1s07ENeycAQCY8iwOfcysPsZ2YCcGlDKVKGuFTDwtW
+         5WJSD2fP6x0sC3Zkc06ibdiKIbnS74NnXuukGEWo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 085/206] tty: n_gsm: Fix waking up upper tty layer when room available
-Date:   Tue, 23 Jun 2020 21:56:53 +0200
-Message-Id: <20200623195321.127276344@linuxfoundation.org>
+        Cristian Klein <cristian.klein@elastisys.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 086/206] HID: Add quirks for Trust Panora Graphic Tablet
+Date:   Tue, 23 Jun 2020 21:56:54 +0200
+Message-Id: <20200623195321.180821348@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
 References: <20200623195316.864547658@linuxfoundation.org>
@@ -44,88 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gregory CLEMENT <gregory.clement@bootlin.com>
+From: Cristian Klein <cristian.klein@elastisys.com>
 
-[ Upstream commit 01dbb362f0a114fbce19c8abe4cd6f4710e934d5 ]
+[ Upstream commit fb68ada81e65d593b51544fa43c284322107a742 ]
 
-Warn the upper layer when n_gms is ready to receive data
-again. Without this the associated virtual tty remains blocked
-indefinitely.
+The Trust Panora Graphic Tablet has two interfaces. Interface zero reports pen
+movement, pen pressure and pen buttons. Interface one reports tablet buttons
+and tablet scroll. Both use the mouse protocol.
 
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
-Link: https://lore.kernel.org/r/20200512115323.1447922-4-gregory.clement@bootlin.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Without these quirks, libinput gets confused about what device it talks to.
+
+For completeness, here is the usbhid-dump:
+
+```
+$ sudo usbhid-dump -d 145f:0212
+003:013:001:DESCRIPTOR         1588949402.559961
+ 05 0D 09 01 A1 01 85 07 A1 02 09 00 75 08 95 07
+ 81 02 C0 C0 09 0E A1 01 85 05 09 23 A1 02 09 52
+ 09 53 25 0A 75 08 95 02 B1 02 C0 C0 05 0C 09 36
+ A1 00 85 06 05 09 19 01 29 20 15 00 25 01 95 20
+ 75 01 81 02 C0
+
+003:013:000:DESCRIPTOR         1588949402.563942
+ 05 01 09 02 A1 01 85 08 09 01 A1 00 05 09 19 01
+ 29 03 15 00 25 01 95 03 75 01 81 02 95 05 81 01
+ 05 01 09 30 09 31 09 38 09 00 15 81 25 7F 75 08
+ 95 04 81 06 C0 C0 05 01 09 02 A1 01 85 09 09 01
+ A1 00 05 09 19 01 29 03 15 00 25 01 95 03 75 01
+ 81 02 95 05 81 01 05 01 09 30 09 31 26 FF 7F 95
+ 02 75 10 81 02 05 0D 09 30 26 FF 03 95 01 75 10
+ 81 02 C0 C0 05 01 09 00 A1 01 85 04 A1 00 26 FF
+ 00 09 00 75 08 95 07 B1 02 C0 C0
+```
+
+Signed-off-by: Cristian Klein <cristian.klein@elastisys.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_gsm.c | 26 ++++++++++++++++++++++----
- 1 file changed, 22 insertions(+), 4 deletions(-)
+ drivers/hid/hid-ids.h    | 3 +++
+ drivers/hid/hid-quirks.c | 1 +
+ 2 files changed, 4 insertions(+)
 
-diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
-index 8d8229dd27961..166052002b79d 100644
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -665,7 +665,7 @@ static struct gsm_msg *gsm_data_alloc(struct gsm_mux *gsm, u8 addr, int len,
-  *	FIXME: lock against link layer control transmissions
-  */
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index c1fed1aaecdf8..f8026c71e2e41 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -1121,6 +1121,9 @@
+ #define USB_DEVICE_ID_TPV_OPTICAL_TOUCHSCREEN_8882	0x8882
+ #define USB_DEVICE_ID_TPV_OPTICAL_TOUCHSCREEN_8883	0x8883
  
--static void gsm_data_kick(struct gsm_mux *gsm)
-+static void gsm_data_kick(struct gsm_mux *gsm, struct gsm_dlci *dlci)
- {
- 	struct gsm_msg *msg, *nmsg;
- 	int len;
-@@ -697,6 +697,24 @@ static void gsm_data_kick(struct gsm_mux *gsm)
- 
- 		list_del(&msg->list);
- 		kfree(msg);
++#define USB_VENDOR_ID_TRUST             0x145f
++#define USB_DEVICE_ID_TRUST_PANORA_TABLET   0x0212
 +
-+		if (dlci) {
-+			tty_port_tty_wakeup(&dlci->port);
-+		} else {
-+			int i = 0;
-+
-+			for (i = 0; i < NUM_DLCI; i++) {
-+				struct gsm_dlci *dlci;
-+
-+				dlci = gsm->dlci[i];
-+				if (dlci == NULL) {
-+					i++;
-+					continue;
-+				}
-+
-+				tty_port_tty_wakeup(&dlci->port);
-+			}
-+		}
- 	}
- }
- 
-@@ -748,7 +766,7 @@ static void __gsm_data_queue(struct gsm_dlci *dlci, struct gsm_msg *msg)
- 	/* Add to the actual output queue */
- 	list_add_tail(&msg->list, &gsm->tx_list);
- 	gsm->tx_bytes += msg->len;
--	gsm_data_kick(gsm);
-+	gsm_data_kick(gsm, dlci);
- }
- 
- /**
-@@ -1209,7 +1227,7 @@ static void gsm_control_message(struct gsm_mux *gsm, unsigned int command,
- 		gsm_control_reply(gsm, CMD_FCON, NULL, 0);
- 		/* Kick the link in case it is idling */
- 		spin_lock_irqsave(&gsm->tx_lock, flags);
--		gsm_data_kick(gsm);
-+		gsm_data_kick(gsm, NULL);
- 		spin_unlock_irqrestore(&gsm->tx_lock, flags);
- 		break;
- 	case CMD_FCOFF:
-@@ -2406,7 +2424,7 @@ static void gsmld_write_wakeup(struct tty_struct *tty)
- 	/* Queue poll */
- 	clear_bit(TTY_DO_WRITE_WAKEUP, &tty->flags);
- 	spin_lock_irqsave(&gsm->tx_lock, flags);
--	gsm_data_kick(gsm);
-+	gsm_data_kick(gsm, NULL);
- 	if (gsm->tx_bytes < TX_THRESH_LO) {
- 		gsm_dlci_data_sweep(gsm);
- 	}
+ #define USB_VENDOR_ID_TURBOX		0x062a
+ #define USB_DEVICE_ID_TURBOX_KEYBOARD	0x0201
+ #define USB_DEVICE_ID_ASUS_MD_5110	0x5110
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index e5beee3e8582a..f4bab7004aff7 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -168,6 +168,7 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_TOUCHPACK, USB_DEVICE_ID_TOUCHPACK_RTS), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_TPV, USB_DEVICE_ID_TPV_OPTICAL_TOUCHSCREEN_8882), HID_QUIRK_NOGET },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_TPV, USB_DEVICE_ID_TPV_OPTICAL_TOUCHSCREEN_8883), HID_QUIRK_NOGET },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_TRUST, USB_DEVICE_ID_TRUST_PANORA_TABLET), HID_QUIRK_MULTI_INPUT | HID_QUIRK_HIDINPUT_FORCE },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_TURBOX_KEYBOARD), HID_QUIRK_NOGET },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_KNA5), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_TWA60), HID_QUIRK_MULTI_INPUT },
 -- 
 2.25.1
 
