@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A9DB2063CF
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:30:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B3B5206334
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:28:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391280AbgFWVLj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 17:11:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53032 "EHLO mail.kernel.org"
+        id S2389752AbgFWUTF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:19:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391281AbgFWUcM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:32:12 -0400
+        id S2389750AbgFWUTE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:19:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 37357206C3;
-        Tue, 23 Jun 2020 20:32:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C7E42064B;
+        Tue, 23 Jun 2020 20:19:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944332;
-        bh=Z5+iae7O1IBaXzbp31Bv+xjUPxPHGzZmO/+WtcNA0ZU=;
+        s=default; t=1592943544;
+        bh=87Y+p+s1ikRtX3kRd0XJX39foUwqZUy7+rOdz91WDnM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yqxh9A1vCG6Nj2bU8JbtZIwXRWRA82DM7hP0VZtDaFabHFXO16l8z9AgY94g9nNUL
-         y3Kkk0MFUDvL3MdNy8Cr+4fJRcqN83WUpiLEIz9SLorOh9EamZy6H5pWPI+lM8o5ME
-         i+Nq46UHrPcX3V27n7pQoMe09qv+vF9jARvIVzSo=
+        b=wF65P1l8W3gVt3KXPpASzzBXuRieSl+OVxXrtoJFKr14VepRt0+B8YcqTxiEfwsEQ
+         gbOYZPkuYU1Ac+ZZ0eZuJaSiX6QqJIlumuXKGzbrWzSZO+R9B++00YCImI29e+9VJP
+         2Sx4z8sUAPqIPH4hQeOOAXhbGP1WiHeDtbarWk6k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Logan Gunthorpe <logang@deltatee.com>,
-        Alexander Fomichev <fomichev.ru@gmail.com>,
-        Jon Mason <jdmason@kudzu.us>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 233/314] NTB: Revert the change to use the NTB device dev for DMA allocations
-Date:   Tue, 23 Jun 2020 21:57:08 +0200
-Message-Id: <20200623195350.066387227@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.7 432/477] io_uring: add memory barrier to synchronize io_kiocbs result and iopoll_completed
+Date:   Tue, 23 Jun 2020 21:57:09 +0200
+Message-Id: <20200623195427.951230674@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
-References: <20200623195338.770401005@linuxfoundation.org>
+In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
+References: <20200623195407.572062007@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,44 +44,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Logan Gunthorpe <logang@deltatee.com>
+From: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
 
-[ Upstream commit 40da7d9a93c8941737ef4a1208d32c13ce017fe1 ]
+[ Upstream commit bbde017a32b32d2fa8d5fddca25fade20132abf8 ]
 
-Commit 417cf39cfea9 ("NTB: Set dma mask and dma coherent mask to NTB
-devices") started using the NTB device for DMA allocations which was
-turns out was wrong. If the IOMMU is enabled, such alloctanions will
-always fail with messages such as:
+In io_complete_rw_iopoll(), stores to io_kiocb's result and iopoll
+completed are two independent store operations, to ensure that once
+iopoll_completed is ture and then req->result must been perceived by
+the cpu executing io_do_iopoll(), proper memory barrier should be used.
 
-  DMAR: Allocating domain for 0000:02:00.1 failed
+And in io_do_iopoll(), we check whether req->result is EAGAIN, if it is,
+we'll need to issue this io request using io-wq again. In order to just
+issue a single smp_rmb() on the completion side, move the re-submit work
+to io_iopoll_complete().
 
-This is because the IOMMU has not setup the device for such use.
-
-Change the tools back to using the PCI device for allocations seeing
-it doesn't make sense to add an IOMMU group for the non-physical NTB
-device. Also remove the code that sets the DMA mask as it no longer
-makes sense to do this.
-
-Fixes: 7f46c8b3a552 ("NTB: ntb_tool: Add full multi-port NTB API support")
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
-Tested-by: Alexander Fomichev <fomichev.ru@gmail.com>
-Signed-off-by: Jon Mason <jdmason@kudzu.us>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
+[axboe: don't set ->iopoll_completed for -EAGAIN retry]
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ntb/core.c | 1 -
- 1 file changed, 1 deletion(-)
+ fs/io_uring.c |   53 +++++++++++++++++++++++++++++------------------------
+ 1 file changed, 29 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/ntb/core.c b/drivers/ntb/core.c
-index c9a0912b175fa..f8f75a504a581 100644
---- a/drivers/ntb/core.c
-+++ b/drivers/ntb/core.c
-@@ -311,4 +311,3 @@ static void __exit ntb_driver_exit(void)
- 	bus_unregister(&ntb_bus);
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -1690,6 +1690,18 @@ static int io_put_kbuf(struct io_kiocb *
+ 	return cflags;
  }
- module_exit(ntb_driver_exit);
+ 
++static void io_iopoll_queue(struct list_head *again)
++{
++	struct io_kiocb *req;
++
++	do {
++		req = list_first_entry(again, struct io_kiocb, list);
++		list_del(&req->list);
++		refcount_inc(&req->refs);
++		io_queue_async_work(req);
++	} while (!list_empty(again));
++}
++
+ /*
+  * Find and free completed poll iocbs
+  */
+@@ -1698,12 +1710,21 @@ static void io_iopoll_complete(struct io
+ {
+ 	struct req_batch rb;
+ 	struct io_kiocb *req;
++	LIST_HEAD(again);
++
++	/* order with ->result store in io_complete_rw_iopoll() */
++	smp_rmb();
+ 
+ 	rb.to_free = rb.need_iter = 0;
+ 	while (!list_empty(done)) {
+ 		int cflags = 0;
+ 
+ 		req = list_first_entry(done, struct io_kiocb, list);
++		if (READ_ONCE(req->result) == -EAGAIN) {
++			req->iopoll_completed = 0;
++			list_move_tail(&req->list, &again);
++			continue;
++		}
+ 		list_del(&req->list);
+ 
+ 		if (req->flags & REQ_F_BUFFER_SELECTED)
+@@ -1721,18 +1742,9 @@ static void io_iopoll_complete(struct io
+ 	if (ctx->flags & IORING_SETUP_SQPOLL)
+ 		io_cqring_ev_posted(ctx);
+ 	io_free_req_many(ctx, &rb);
+-}
+ 
+-static void io_iopoll_queue(struct list_head *again)
+-{
+-	struct io_kiocb *req;
 -
--- 
-2.25.1
-
+-	do {
+-		req = list_first_entry(again, struct io_kiocb, list);
+-		list_del(&req->list);
+-		refcount_inc(&req->refs);
+-		io_queue_async_work(req);
+-	} while (!list_empty(again));
++	if (!list_empty(&again))
++		io_iopoll_queue(&again);
+ }
+ 
+ static int io_do_iopoll(struct io_ring_ctx *ctx, unsigned int *nr_events,
+@@ -1740,7 +1752,6 @@ static int io_do_iopoll(struct io_ring_c
+ {
+ 	struct io_kiocb *req, *tmp;
+ 	LIST_HEAD(done);
+-	LIST_HEAD(again);
+ 	bool spin;
+ 	int ret;
+ 
+@@ -1766,13 +1777,6 @@ static int io_do_iopoll(struct io_ring_c
+ 		if (!list_empty(&done))
+ 			break;
+ 
+-		if (req->result == -EAGAIN) {
+-			list_move_tail(&req->list, &again);
+-			continue;
+-		}
+-		if (!list_empty(&again))
+-			break;
+-
+ 		ret = kiocb->ki_filp->f_op->iopoll(kiocb, spin);
+ 		if (ret < 0)
+ 			break;
+@@ -1785,9 +1789,6 @@ static int io_do_iopoll(struct io_ring_c
+ 	if (!list_empty(&done))
+ 		io_iopoll_complete(ctx, nr_events, &done);
+ 
+-	if (!list_empty(&again))
+-		io_iopoll_queue(&again);
+-
+ 	return ret;
+ }
+ 
+@@ -1938,9 +1939,13 @@ static void io_complete_rw_iopoll(struct
+ 
+ 	if (res != -EAGAIN && res != req->result)
+ 		req_set_fail_links(req);
+-	req->result = res;
+-	if (res != -EAGAIN)
++
++	WRITE_ONCE(req->result, res);
++	/* order with io_poll_complete() checking ->result */
++	if (res != -EAGAIN) {
++		smp_wmb();
+ 		WRITE_ONCE(req->iopoll_completed, 1);
++	}
+ }
+ 
+ /*
 
 
