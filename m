@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E05BE205E2E
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:21:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58FA4205E2F
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:21:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388912AbgFWUUm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:20:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38042 "EHLO mail.kernel.org"
+        id S2389868AbgFWUUn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:20:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389431AbgFWUUj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:20:39 -0400
+        id S2389674AbgFWUUm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:20:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2A82206C3;
-        Tue, 23 Jun 2020 20:20:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F1622078A;
+        Tue, 23 Jun 2020 20:20:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943639;
-        bh=qtfhiFe0v18fNHPyxnSffZu9lTeMjDJR23OVn4vBBGQ=;
+        s=default; t=1592943641;
+        bh=Y/euwcTHW76+GV8HNgM6r8X11HguTT8I2SsQJLqj9/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k5AucaT5Nqe5NN7ywni5k53t3jW4lpg70pnzRfbE+ksmhT8eF4HTdTMMejMf0TvSQ
-         NFY8I3FFQ0ad+/DD8iyGssXHcIFieuNAyy2ZA1N5Z8ukoUWQvJ2SGq4OhOSDbgsAtB
-         zAz5huuHBCyGhteRBh20rtx2Hg2l9E1KSmTCOwCI=
+        b=xXfPpFU0TZv9PWvVa85/oOA+dnBaJako+VpDtKVXcuqS0qzCWKMlwkapzCObfcawW
+         0+JPTDAdbiWXZLE6GU8aHbqnlqOkWEHaRQtUCugeUMGLXn6C5KPi7ihxyN43p8vlie
+         vRjC7S1Ko0dI4vgaSS0PWYb8WCgGleB631kY2Z/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Daniel Rosenberg <drosen@google.com>,
+        Gabriel Krisman Bertazi <krisman@collabora.co.uk>,
+        Eric Biggers <ebiggers@google.com>,
         Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 439/477] f2fs: split f2fs_d_compare() from f2fs_match_name()
-Date:   Tue, 23 Jun 2020 21:57:16 +0200
-Message-Id: <20200623195428.282330586@linuxfoundation.org>
+Subject: [PATCH 5.7 440/477] f2fs: avoid utf8_strncasecmp() with unstable name
+Date:   Tue, 23 Jun 2020 21:57:17 +0200
+Message-Id: <20200623195428.330571320@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -46,148 +49,62 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit f874fa1c7c7905c1744a2037a11516558ed00a81 ]
+[ Upstream commit fc3bb095ab02b9e7d89a069ade2cead15c64c504 ]
 
-Sharing f2fs_ci_compare() between comparing cached dentries
-(f2fs_d_compare()) and comparing on-disk dentries (f2fs_match_name())
-doesn't work as well as intended, as these actions fundamentally differ
-in several ways (e.g. whether the task may sleep, whether the directory
-is stable, whether the casefolded name was precomputed, whether the
-dentry will need to be decrypted once we allow casefold+encrypt, etc.)
+If the dentry name passed to ->d_compare() fits in dentry::d_iname, then
+it may be concurrently modified by a rename.  This can cause undefined
+behavior (possibly out-of-bounds memory accesses or crashes) in
+utf8_strncasecmp(), since fs/unicode/ isn't written to handle strings
+that may be concurrently modified.
 
-Just make f2fs_d_compare() implement what it needs directly, and rework
-f2fs_ci_compare() to be specialized for f2fs_match_name().
+Fix this by first copying the filename to a stack buffer if needed.
+This way we get a stable snapshot of the filename.
 
+Fixes: 2c2eb7a300cd ("f2fs: Support case-insensitive file name lookups")
+Cc: <stable@vger.kernel.org> # v5.4+
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Daniel Rosenberg <drosen@google.com>
+Cc: Gabriel Krisman Bertazi <krisman@collabora.co.uk>
 Signed-off-by: Eric Biggers <ebiggers@google.com>
 Reviewed-by: Chao Yu <yuchao0@huawei.com>
 Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/dir.c  | 70 +++++++++++++++++++++++++-------------------------
- fs/f2fs/f2fs.h |  5 ----
- 2 files changed, 35 insertions(+), 40 deletions(-)
+ fs/f2fs/dir.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
 diff --git a/fs/f2fs/dir.c b/fs/f2fs/dir.c
-index 44bfc464df787..44eb12a00cd0e 100644
+index 44eb12a00cd0e..54e90dbb09e78 100644
 --- a/fs/f2fs/dir.c
 +++ b/fs/f2fs/dir.c
-@@ -107,36 +107,28 @@ static struct f2fs_dir_entry *find_in_block(struct inode *dir,
- /*
-  * Test whether a case-insensitive directory entry matches the filename
-  * being searched for.
-- *
-- * Returns: 0 if the directory entry matches, more than 0 if it
-- * doesn't match or less than zero on error.
-  */
--int f2fs_ci_compare(const struct inode *parent, const struct qstr *name,
--				const struct qstr *entry, bool quick)
-+static bool f2fs_match_ci_name(const struct inode *dir, const struct qstr *name,
-+			       const struct qstr *entry, bool quick)
- {
--	const struct f2fs_sb_info *sbi = F2FS_SB(parent->i_sb);
-+	const struct f2fs_sb_info *sbi = F2FS_SB(dir->i_sb);
- 	const struct unicode_map *um = sbi->s_encoding;
--	int ret;
-+	int res;
+@@ -1076,11 +1076,27 @@ static int f2fs_d_compare(const struct dentry *dentry, unsigned int len,
+ 	const struct inode *dir = READ_ONCE(parent->d_inode);
+ 	const struct f2fs_sb_info *sbi = F2FS_SB(dentry->d_sb);
+ 	struct qstr entry = QSTR_INIT(str, len);
++	char strbuf[DNAME_INLINE_LEN];
+ 	int res;
  
- 	if (quick)
--		ret = utf8_strncasecmp_folded(um, name, entry);
-+		res = utf8_strncasecmp_folded(um, name, entry);
- 	else
--		ret = utf8_strncasecmp(um, name, entry);
--
--	if (ret < 0) {
--		/* Handle invalid character sequence as either an error
--		 * or as an opaque byte sequence.
-+		res = utf8_strncasecmp(um, name, entry);
-+	if (res < 0) {
-+		/*
-+		 * In strict mode, ignore invalid names.  In non-strict mode,
-+		 * fall back to treating them as opaque byte sequences.
- 		 */
--		if (f2fs_has_strict_mode(sbi))
--			return -EINVAL;
--
--		if (name->len != entry->len)
--			return 1;
--
--		return !!memcmp(name->name, entry->name, name->len);
-+		if (f2fs_has_strict_mode(sbi) || name->len != entry->len)
-+			return false;
-+		return !memcmp(name->name, entry->name, name->len);
- 	}
--
--	return ret;
-+	return res == 0;
- }
+ 	if (!dir || !IS_CASEFOLDED(dir))
+ 		goto fallback;
  
- static void f2fs_fname_setup_ci_filename(struct inode *dir,
-@@ -188,10 +180,10 @@ static inline bool f2fs_match_name(struct f2fs_dentry_ptr *d,
- 		if (cf_str->name) {
- 			struct qstr cf = {.name = cf_str->name,
- 					  .len = cf_str->len};
--			return !f2fs_ci_compare(parent, &cf, &entry, true);
-+			return f2fs_match_ci_name(parent, &cf, &entry, true);
- 		}
--		return !f2fs_ci_compare(parent, fname->usr_fname, &entry,
--					false);
-+		return f2fs_match_ci_name(parent, fname->usr_fname, &entry,
-+					  false);
- 	}
- #endif
- 	if (fscrypt_match_name(fname, d->filename[bit_pos],
-@@ -1080,17 +1072,25 @@ const struct file_operations f2fs_dir_operations = {
- static int f2fs_d_compare(const struct dentry *dentry, unsigned int len,
- 			  const char *str, const struct qstr *name)
- {
--	struct qstr qstr = {.name = str, .len = len };
- 	const struct dentry *parent = READ_ONCE(dentry->d_parent);
--	const struct inode *inode = READ_ONCE(parent->d_inode);
--
--	if (!inode || !IS_CASEFOLDED(inode)) {
--		if (len != name->len)
--			return -1;
--		return memcmp(str, name->name, len);
--	}
--
--	return f2fs_ci_compare(inode, name, &qstr, false);
-+	const struct inode *dir = READ_ONCE(parent->d_inode);
-+	const struct f2fs_sb_info *sbi = F2FS_SB(dentry->d_sb);
-+	struct qstr entry = QSTR_INIT(str, len);
-+	int res;
++	/*
++	 * If the dentry name is stored in-line, then it may be concurrently
++	 * modified by a rename.  If this happens, the VFS will eventually retry
++	 * the lookup, so it doesn't matter what ->d_compare() returns.
++	 * However, it's unsafe to call utf8_strncasecmp() with an unstable
++	 * string.  Therefore, we have to copy the name into a temporary buffer.
++	 */
++	if (len <= DNAME_INLINE_LEN - 1) {
++		memcpy(strbuf, str, len);
++		strbuf[len] = 0;
++		entry.name = strbuf;
++		/* prevent compiler from optimizing out the temporary buffer */
++		barrier();
++	}
 +
-+	if (!dir || !IS_CASEFOLDED(dir))
-+		goto fallback;
-+
-+	res = utf8_strncasecmp(sbi->s_encoding, name, &entry);
-+	if (res >= 0)
-+		return res;
-+
-+	if (f2fs_has_strict_mode(sbi))
-+		return -EINVAL;
-+fallback:
-+	if (len != name->len)
-+		return 1;
-+	return !!memcmp(str, name->name, len);
- }
- 
- static int f2fs_d_hash(const struct dentry *dentry, struct qstr *str)
-diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-index 555c84953ea81..5a0f95dfbac2b 100644
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -3101,11 +3101,6 @@ int f2fs_update_extension_list(struct f2fs_sb_info *sbi, const char *name,
- 							bool hot, bool set);
- struct dentry *f2fs_get_parent(struct dentry *child);
- 
--extern int f2fs_ci_compare(const struct inode *parent,
--			   const struct qstr *name,
--			   const struct qstr *entry,
--			   bool quick);
--
- /*
-  * dir.c
-  */
+ 	res = utf8_strncasecmp(sbi->s_encoding, name, &entry);
+ 	if (res >= 0)
+ 		return res;
 -- 
 2.25.1
 
