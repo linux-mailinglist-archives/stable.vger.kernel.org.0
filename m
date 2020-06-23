@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDA6F206220
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:08:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07519206202
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:08:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387816AbgFWUzo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:55:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41748 "EHLO mail.kernel.org"
+        id S2390860AbgFWUxl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:53:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392578AbgFWUoc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:44:32 -0400
+        id S2392841AbgFWUqZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:46:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0690D218AC;
-        Tue, 23 Jun 2020 20:44:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9BD842098B;
+        Tue, 23 Jun 2020 20:46:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592945072;
-        bh=oLIKfJGCNx2bGod8RcZC+tmCFiA6XqLaQHeOA42g2oM=;
+        s=default; t=1592945186;
+        bh=msSZplCUBx1WweaibaP2xSwJxAtw/Tx1BtL/09+5HVo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ymEGM3e8G3n2sbT90AcdMJYVwcWVSesHvYNFStSy1F5W6cjRVv9Mwx07Ys4L4RMje
-         4yF3Ked0aGWJJ78HxVfOxitXX31YJ1AKgSAHqvLZAxojaei9XY1ueY9MhzDuhpwdVg
-         k7b7GMUHhM72nEfWhRvuO+QdTVTFG8cQhF59kRhc=
+        b=h0KcKio3ZPHVCmWg5BQxsjQZnVIN5cskz6I53y7ClhmmczL2X1Bl+mqW7sYM/nZ89
+         fSrCHrkChhiAymbt2yQGsVObljnzW4MAgT0DZnyRIF9P7x0YFEaZiMtYBUHjfjhnJQ
+         SYsptIUdw72+QM3R48KoVr6WrOHILCiuSdGb/eiY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        "J. Bruce Fields" <bfields@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 028/136] nfsd: Fix svc_xprt refcnt leak when setup callback client failed
-Date:   Tue, 23 Jun 2020 21:58:04 +0200
-Message-Id: <20200623195305.070996150@linuxfoundation.org>
+        stable@vger.kernel.org, Logan Gunthorpe <logang@deltatee.com>,
+        Allen Hubbe <allenbh@gmail.com>,
+        Alexander Fomichev <fomichev.ru@gmail.com>,
+        Jon Mason <jdmason@kudzu.us>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 031/136] NTB: Fix the default port and peer numbers for legacy drivers
+Date:   Tue, 23 Jun 2020 21:58:07 +0200
+Message-Id: <20200623195305.217698881@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195303.601828702@linuxfoundation.org>
 References: <20200623195303.601828702@linuxfoundation.org>
@@ -45,42 +45,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+From: Logan Gunthorpe <logang@deltatee.com>
 
-[ Upstream commit a4abc6b12eb1f7a533c2e7484cfa555454ff0977 ]
+[ Upstream commit fc8b086d9dbd57458d136c4fa70ee26f832c3a2e ]
 
-nfsd4_process_cb_update() invokes svc_xprt_get(), which increases the
-refcount of the "c->cn_xprt".
+When the commit adding ntb_default_port_number() and
+ntb_default_peer_port_number()  entered the kernel there was no
+users of it so it was impossible to tell what the API needed.
 
-The reference counting issue happens in one exception handling path of
-nfsd4_process_cb_update(). When setup callback client failed, the
-function forgets to decrease the refcnt increased by svc_xprt_get(),
-causing a refcnt leak.
+When a user finally landed a year later (ntb_pingpong) there were
+more NTB topologies were created and no consideration was considered
+to how other drivers had changed.
 
-Fix this issue by calling svc_xprt_put() when setup callback client
-failed.
+Now that there is a user it can be fixed to provide a sensible default
+for the legacy drivers that do not implement ntb_{peer_}port_number().
+Seeing ntb_pingpong doesn't check error codes returning EINVAL was also
+not sensible.
 
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Patches for ntb_pingpong and ntb_perf follow (which are broken
+otherwise) to support hardware that doesn't have port numbers. This is
+important not only to not break support with existing drivers but for
+the cross link topology which, due to its perfect symmetry, cannot
+assign unique port numbers to each side.
+
+Fixes: 1e5301196a88 ("NTB: Add indexed ports NTB API")
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Acked-by: Allen Hubbe <allenbh@gmail.com>
+Tested-by: Alexander Fomichev <fomichev.ru@gmail.com>
+Signed-off-by: Jon Mason <jdmason@kudzu.us>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4callback.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/ntb/ntb.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/fs/nfsd/nfs4callback.c b/fs/nfsd/nfs4callback.c
-index 80aeb19b176b2..22b784e7ef50b 100644
---- a/fs/nfsd/nfs4callback.c
-+++ b/fs/nfsd/nfs4callback.c
-@@ -1161,6 +1161,8 @@ static void nfsd4_process_cb_update(struct nfsd4_callback *cb)
- 	err = setup_callback_client(clp, &conn, ses);
- 	if (err) {
- 		nfsd4_mark_cb_down(clp, err);
-+		if (c)
-+			svc_xprt_put(c->cn_xprt);
- 		return;
+diff --git a/drivers/ntb/ntb.c b/drivers/ntb/ntb.c
+index 03b80d89b9800..b75ec229b39a5 100644
+--- a/drivers/ntb/ntb.c
++++ b/drivers/ntb/ntb.c
+@@ -216,10 +216,8 @@ int ntb_default_port_number(struct ntb_dev *ntb)
+ 	case NTB_TOPO_B2B_DSD:
+ 		return NTB_PORT_SEC_DSD;
+ 	default:
+-		break;
++		return 0;
  	}
+-
+-	return -EINVAL;
  }
+ EXPORT_SYMBOL(ntb_default_port_number);
+ 
+@@ -242,10 +240,8 @@ int ntb_default_peer_port_number(struct ntb_dev *ntb, int pidx)
+ 	case NTB_TOPO_B2B_DSD:
+ 		return NTB_PORT_PRI_USD;
+ 	default:
+-		break;
++		return 0;
+ 	}
+-
+-	return -EINVAL;
+ }
+ EXPORT_SYMBOL(ntb_default_peer_port_number);
+ 
 -- 
 2.25.1
 
