@@ -2,65 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BABB2205224
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 14:13:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB91F205249
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 14:21:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732476AbgFWMNp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 08:13:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33510 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729583AbgFWMNo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Jun 2020 08:13:44 -0400
-Received: from mail-qv1-xf44.google.com (mail-qv1-xf44.google.com [IPv6:2607:f8b0:4864:20::f44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5763DC061573
-        for <stable@vger.kernel.org>; Tue, 23 Jun 2020 05:13:44 -0700 (PDT)
-Received: by mail-qv1-xf44.google.com with SMTP id g11so9518825qvs.2
-        for <stable@vger.kernel.org>; Tue, 23 Jun 2020 05:13:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=7fNnQnFssZCc2Jtw2cUlJB4v7zrpRiQS682aXMZO9+Q=;
-        b=hAd+PDa35KH754V9J/YUvlqH/Gb2jdF6FDkPgSmYL3x2QV9b03zgeVKtx2OwENeApH
-         67KBEiR6kMFaMeZXA+C96VjynVsZKXbpglYqkmQo3qBlGIw6LYHlensi6+BCpdXet3Wk
-         XxjRC3jKyuPRq45L20lpIXdNb7+nlYEPiN/LZHUBg2UT1qZUY7XkwVhc2jKbsxb7dZh8
-         +ZsX/UfXFqnqHDT2yQfqon0TzIYxDDlBObPPt+RCgC/znHcFVNviFIRsAYQIqZDQZUYE
-         bu71AdBFPQvoElIMRg7D3fKzC5/wTMVshnn4vclPZgTd0VzUf6ZjuyGjIaNl4+Zrs7eU
-         uv+A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=7fNnQnFssZCc2Jtw2cUlJB4v7zrpRiQS682aXMZO9+Q=;
-        b=npw4f4WqHtyrDnHRaY35fFIYxcjx9mzUM9J2C0Hvf0oG38mWK86P93Bojg1EQNipPI
-         a3vEcrtgpwiwdvb6uKwM15quaKYoG4Ckvp/SQ1Y/iIvcn3+LITES+1+B1Dyxy4Z/xQyW
-         4BQOCQ92AiftJOcs0xJe9evp0nWG+F6t5D9ALfbw+24w/NukrnVDQ/p01JpraGhXjFR1
-         7gGhLYCp1sL9i2TkiE+2dQY4foScsOUf6yp3rr4RN8PVN6d/tVCO0CsnmOEKPM7zxZR9
-         sq7f4QuRzSmNusrLowzyvWbesDupw5FGCscZ8kaDy4CKcpGQOZPX1Q6TtZ4WmgEteXsQ
-         DLrg==
-X-Gm-Message-State: AOAM531e1tJLoS2eC6dP92rwMh44Odv5PGasXkxPM7pFCCQaX7ovXFwI
-        BIVpY5c1JrsMwf5/8fcZFN2YvsXbihc9b/92lYI=
-X-Google-Smtp-Source: ABdhPJwzLyCqIqgLB65NPjB3Ioq2cPVG+jZsL6YIWiQM8gfHMX95+cL2Td09g9dUJGO5X4aydoVgMg+CVjCKuk6mlPc=
-X-Received: by 2002:ad4:4671:: with SMTP id z17mr26410745qvv.86.1592914423723;
- Tue, 23 Jun 2020 05:13:43 -0700 (PDT)
+        id S1729611AbgFWMVR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 08:21:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33004 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727913AbgFWMVR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 08:21:17 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2DDA020724;
+        Tue, 23 Jun 2020 12:21:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1592914876;
+        bh=YYp3JubUqdWQPjC+CAvg39kVMSQhyok0576NIomUHF0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=hLt3v5w0V6/8jaopjj/3okLHjPn0PzrL3LzE+Re5/3cvCI8WVlpvxyloqTdQbBRNh
+         ykTKxCQVKrev6Fd+StHDFR7wymXQAvhCkLOEhm+VB5hKx5wqL94vTDc3lY8+p6NNBj
+         LDkY0IqidJlTgF7nNBvHuFMQQKbCUmxYDKAVxc+U=
+Date:   Tue, 23 Jun 2020 14:21:10 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+Cc:     Sasha Levin <sashal@kernel.org>, paul@crapouillou.net,
+        stable@vger.kernel.org, thierry.reding@gmail.com
+Subject: Re: FAILED: patch "[PATCH] pwm: jz4740: Enhance precision in
+ calculation of duty cycle" failed to apply to 5.4-stable tree
+Message-ID: <20200623122110.GA2332056@kroah.com>
+References: <1592574307840@kroah.com>
+ <20200623003943.GQ1931@sasha-vm>
+ <20200623072534.pw4t4bi3klz57wce@taurus.defre.kleine-koenig.org>
 MIME-Version: 1.0
-Received: by 2002:ac8:47c2:0:0:0:0:0 with HTTP; Tue, 23 Jun 2020 05:13:43
- -0700 (PDT)
-Reply-To: bektery@outlook.com
-From:   YAVUZ BEKTER <bakert.jg@gmail.com>
-Date:   Tue, 23 Jun 2020 05:13:43 -0700
-Message-ID: <CAAUSuTWS3fHAeQahuLLrj56eUa_o0qetuthbweOs3BAA+G=6Bw@mail.gmail.com>
-Subject: Hello.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200623072534.pw4t4bi3klz57wce@taurus.defre.kleine-koenig.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I am the foreign operations director of Bank of Turkey.
-My name is Mr, Yavuz. I have a sensitive investment project to discuss
-with you, please reply now.
-________________________
-Ik ben de directeur buitenlandse activiteiten van de Bank of Turkey.
-Mijn naam is meneer Yavuz. Ik moet een gevoelig investeringsproject bespreken
-met u, antwoord dan nu.
+On Tue, Jun 23, 2020 at 09:25:34AM +0200, Uwe Kleine-König wrote:
+> On Mon, Jun 22, 2020 at 08:39:43PM -0400, Sasha Levin wrote:
+> > On Fri, Jun 19, 2020 at 03:45:07PM +0200, gregkh@linuxfoundation.org wrote:
+> > > 
+> > > The patch below does not apply to the 5.4-stable tree.
+> > > If someone wants it applied there, or to any other stable or longterm
+> > > tree, then please email the backport, including the original git commit
+> > > id to <stable@vger.kernel.org>.
+> 
+> See below for a backport.
+> 
+> > > thanks,
+> > > 
+> > > greg k-h
+> > > 
+> > > ------------------ original commit in Linus's tree ------------------
+> > > 
+> > > From 9017dc4fbd59c09463019ce494cfe36d654495a8 Mon Sep 17 00:00:00 2001
+> > > From: Paul Cercueil <paul@crapouillou.net>
+> > > Date: Wed, 27 May 2020 13:52:23 +0200
+> > > Subject: [PATCH] pwm: jz4740: Enhance precision in calculation of duty cycle
+> > > MIME-Version: 1.0
+> > > Content-Type: text/plain; charset=UTF-8
+> > > Content-Transfer-Encoding: 8bit
+> > > 
+> > > Calculating the hardware value for the duty from the hardware value of
+> > > the period resulted in a precision loss versus calculating it from the
+> > > clock rate directly.
+> > > 
+> > > (Also remove a cast that doesn't really need to be here)
+> > > 
+> > > Fixes: f6b8a5700057 ("pwm: Add Ingenic JZ4740 support")
+> > > Cc: <stable@vger.kernel.org>
+> > > Suggested-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+> > > Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+> > > Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+> > > Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+> > 
+> > I suspect that the fixes tag should have been pointing to ce1f9cece057
+> > ("pwm: jz4740: Use clocks from TCU driver") instead.
+> 
+> No, f6b8a5700057 is right. The cast that was dropped isn't there, but
+> the suboptimal calculation is.
+> 
+> The backport on top of 5.4.y looks as follows:
+> 
+> From b39d3d4c6ba4b7ba8b97a0f7e650924920e4d95c Mon Sep 17 00:00:00 2001
+> From: Paul Cercueil <paul@crapouillou.net>
+> Date: Wed, 27 May 2020 13:52:23 +0200
+> Subject: [PATCH] pwm: jz4740: Enhance precision in calculation of duty cycle
+> MIME-Version: 1.0
+> Content-Type: text/plain; charset=UTF-8
+> Content-Transfer-Encoding: 8bit
+> 
+> commit 9017dc4fbd59c09463019ce494cfe36d654495a8 upstream.
+> 
+> Calculating the hardware value for the duty from the hardware value of
+> the period resulted in a precision loss versus calculating it from the
+> clock rate directly.
+> 
+> Fixes: f6b8a5700057 ("pwm: Add Ingenic JZ4740 support")
+> Cc: <stable@vger.kernel.org>
+> Suggested-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+> Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+> Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+> [ukl: backport to v5.4.y and adapt commit log accordingly]
+> Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+> ---
+>  drivers/pwm/pwm-jz4740.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/pwm/pwm-jz4740.c b/drivers/pwm/pwm-jz4740.c
+> index 9d78cc21cb12..d0f5c69930d0 100644
+> --- a/drivers/pwm/pwm-jz4740.c
+> +++ b/drivers/pwm/pwm-jz4740.c
+> @@ -108,8 +108,8 @@ static int jz4740_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+>  	if (prescaler == 6)
+>  		return -EINVAL;
+>  
+> -	tmp = (unsigned long long)period * state->duty_cycle;
+> -	do_div(tmp, state->period);
+> +	tmp = (unsigned long long)rate * state->duty_cycle;
+> +	do_div(tmp, NSEC_PER_SEC);
+>  	duty = period - tmp;
+>  
+>  	if (duty >= period)
+> 
+
+Thanks, now queued up.
+
+greg k-h
