@@ -2,35 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E81F6205C5F
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:01:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6BC3205C61
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:01:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387638AbgFWUBW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:01:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37880 "EHLO mail.kernel.org"
+        id S2387653AbgFWUB1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:01:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387634AbgFWUBV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:01:21 -0400
+        id S2387634AbgFWUBY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:01:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BEB93206C3;
-        Tue, 23 Jun 2020 20:01:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 45A1A206C3;
+        Tue, 23 Jun 2020 20:01:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592942481;
-        bh=Su3a4FMJKqxjEDGcxDd9SXYLpEOQqK4yUuCllM+3hWg=;
+        s=default; t=1592942483;
+        bh=4E57143XZa7/6DgY2WIedkbwpyMH6w0CIGlhoqORTvg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YTZO8Xt50i9MojyMQ018YVPtucup6q06yjCSTFNuRFKUwJe3bzLngIlcb+7thSFme
-         1MwmN6VkWCS+U8UhiGqtkzjNtGy7PqjJvpmqP7GhtKg1naFaKsMPF3etCokTmTwD7J
-         CYe6wmxS28/6f1OGkZn45cCIxi7VstYXKv63w394=
+        b=W/m1xqzULL9TGiUlSv9+x/reby4FNIcrrv9WwRNtKCf8k6H8F8SFaf33Gt2N6XV67
+         VfiHvgj7GeEJamMxl5xz3lHqmuyrfLRJZEcfcjPQcB5GkPm3Oc0IgZ+UKnxPMbyPFx
+         MASrfQzdaCENf/BAus7GOuflqeLNJkLqJFP2XNTI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Marek Vasut <marex@denx.de>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Patrice Chotard <patrice.chotard@st.com>,
+        Patrick Delaunay <patrick.delaunay@st.com>,
+        linux-stm32@st-md-mailman.stormreply.com,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 016/477] ARM: integrator: Add some Kconfig selections
-Date:   Tue, 23 Jun 2020 21:50:13 +0200
-Message-Id: <20200623195408.368449340@linuxfoundation.org>
+Subject: [PATCH 5.7 017/477] ARM: dts: stm32: Add missing ethernet PHY reset on AV96
+Date:   Tue, 23 Jun 2020 21:50:14 +0200
+Message-Id: <20200623195408.416046837@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -43,59 +50,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit d2854bbe5f5c4b4bec8061caf4f2e603d8819446 ]
+[ Upstream commit 010ca9fe500bfe365860b50220ff80541c18f0e1 ]
 
-The CMA and DMA_CMA Kconfig options need to be selected
-by the Integrator in order to produce boot console on some
-Integrator systems.
+Add PHY reset GPIO on AV96 ethernet PHY.
 
-The REGULATOR and REGULATOR_FIXED_VOLTAGE need to be
-selected in order to boot the system from an external
-MMC card when using MMCI/PL181 from the device tree
-probe path.
-
-Select these things directly from the Kconfig so we are
-sure to be able to bring the systems up with console
-from any device tree.
-
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Alexandre Torgue <alexandre.torgue@st.com>
+Cc: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
+Cc: Patrice Chotard <patrice.chotard@st.com>
+Cc: Patrick Delaunay <patrick.delaunay@st.com>
+Cc: linux-stm32@st-md-mailman.stormreply.com
+To: linux-arm-kernel@lists.infradead.org
+Signed-off-by: Alexandre Torgue <alexandre.torgue@st.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-integrator/Kconfig | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/stm32mp157a-avenger96.dts | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/arm/mach-integrator/Kconfig b/arch/arm/mach-integrator/Kconfig
-index 982eabc361635..2406cab73835a 100644
---- a/arch/arm/mach-integrator/Kconfig
-+++ b/arch/arm/mach-integrator/Kconfig
-@@ -4,6 +4,8 @@ menuconfig ARCH_INTEGRATOR
- 	depends on ARCH_MULTI_V4T || ARCH_MULTI_V5 || ARCH_MULTI_V6
- 	select ARM_AMBA
- 	select COMMON_CLK_VERSATILE
-+	select CMA
-+	select DMA_CMA
- 	select HAVE_TCM
- 	select ICST
- 	select MFD_SYSCON
-@@ -35,14 +37,13 @@ config INTEGRATOR_IMPD1
- 	select ARM_VIC
- 	select GPIO_PL061
- 	select GPIOLIB
-+	select REGULATOR
-+	select REGULATOR_FIXED_VOLTAGE
- 	help
- 	  The IM-PD1 is an add-on logic module for the Integrator which
- 	  allows ARM(R) Ltd PrimeCells to be developed and evaluated.
- 	  The IM-PD1 can be found on the Integrator/PP2 platform.
- 
--	  To compile this driver as a module, choose M here: the
--	  module will be called impd1.
--
- config INTEGRATOR_CM7TDMI
- 	bool "Integrator/CM7TDMI core module"
- 	depends on ARCH_INTEGRATOR_AP
+diff --git a/arch/arm/boot/dts/stm32mp157a-avenger96.dts b/arch/arm/boot/dts/stm32mp157a-avenger96.dts
+index 425175f7d83c3..081037b510bcb 100644
+--- a/arch/arm/boot/dts/stm32mp157a-avenger96.dts
++++ b/arch/arm/boot/dts/stm32mp157a-avenger96.dts
+@@ -92,6 +92,9 @@
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+ 		compatible = "snps,dwmac-mdio";
++		reset-gpios = <&gpioz 2 GPIO_ACTIVE_LOW>;
++		reset-delay-us = <1000>;
++
+ 		phy0: ethernet-phy@7 {
+ 			reg = <7>;
+ 		};
 -- 
 2.25.1
 
