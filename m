@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C98782062EE
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:10:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4B77206217
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:08:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391502AbgFWUeK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:34:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55948 "EHLO mail.kernel.org"
+        id S2390742AbgFWUzE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:55:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391492AbgFWUeJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:34:09 -0400
+        id S2392734AbgFWUp0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:45:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 429E72098B;
-        Tue, 23 Jun 2020 20:34:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 371C020781;
+        Tue, 23 Jun 2020 20:45:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944449;
-        bh=uAYbPVwswo7qjSRoPvdY9qbZvoBnXvTSjRYcJUn/bUM=;
+        s=default; t=1592945126;
+        bh=ZIL0HgmfwPJtXldmiev5Ked/x3oNohzoKFZIzXOlS4w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I300iysZDFFD3V7DFGb0jyuAFgs3AHpfhHDi9PFjNTc0uWVIXQ1gysVpA0kajpYX0
-         OLrIC4Aa9Hq3eSuS9YHVIIF+uQw4JG6zkAq4dEJ1G/uhnd5gyde0tph7FjrD/HbB3B
-         GbwbuuF8AvIrNJB/4NmfH7WUMal3jV7GzIR8PPvw=
+        b=U37RUq7rLUkOBnvWKgOd7qLt1H05KuCMM3rcLEsgmHERKCTK2IALUxpuKLeR8oyEk
+         z0PtoypGMCKGrOOyevW7caoh/zo6usEQvwOWLELZr/h5kFkiohB/qLcKtzhASW11eN
+         IXlv016vxF/vIVYG5D573vJE4Jsxxpe+OFA43OUk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Stable@vger.kernel.org, Chen Yu <yu.c.chen@intel.com>,
-        Aaron Brown <aaron.f.brown@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-Subject: [PATCH 5.4 310/314] e1000e: Do not wake up the system via WOL if device wakeup is disabled
-Date:   Tue, 23 Jun 2020 21:58:25 +0200
-Message-Id: <20200623195353.786820458@linuxfoundation.org>
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 050/136] power: supply: lp8788: Fix an error handling path in lp8788_charger_probe()
+Date:   Tue, 23 Jun 2020 21:58:26 +0200
+Message-Id: <20200623195306.185238759@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
-References: <20200623195338.770401005@linuxfoundation.org>
+In-Reply-To: <20200623195303.601828702@linuxfoundation.org>
+References: <20200623195303.601828702@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,65 +45,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Yu <yu.c.chen@intel.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 6bf6be1127f7e6d4bf39f84d56854e944d045d74 upstream.
+[ Upstream commit 934ed3847a4ebc75b655659c4d2349ba4337941c ]
 
-Currently the system will be woken up via WOL(Wake On LAN) even if the
-device wakeup ability has been disabled via sysfs:
- cat /sys/devices/pci0000:00/0000:00:1f.6/power/wakeup
- disabled
+In the probe function, in case of error, resources allocated in
+'lp8788_setup_adc_channel()' must be released.
 
-The system should not be woken up if the user has explicitly
-disabled the wake up ability for this device.
+This can be achieved easily by using the devm_ variant of
+'iio_channel_get()'.
+This has the extra benefit to simplify the remove function and to axe the
+'lp8788_release_adc_channel()' function which is now useless.
 
-This patch clears the WOL ability of this network device if the
-user has disabled the wake up ability in sysfs.
-
-Fixes: bc7f75fa9788 ("[E1000E]: New pci-express e1000 driver")
-Reported-by: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Chen Yu <yu.c.chen@intel.com>
-Tested-by: Aaron Brown <aaron.f.brown@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 98a276649358 ("power_supply: Add new lp8788 charger driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/e1000e/netdev.c |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ drivers/power/supply/lp8788-charger.c | 18 ++----------------
+ 1 file changed, 2 insertions(+), 16 deletions(-)
 
---- a/drivers/net/ethernet/intel/e1000e/netdev.c
-+++ b/drivers/net/ethernet/intel/e1000e/netdev.c
-@@ -6345,11 +6345,17 @@ static int __e1000_shutdown(struct pci_d
- 	struct net_device *netdev = pci_get_drvdata(pdev);
- 	struct e1000_adapter *adapter = netdev_priv(netdev);
- 	struct e1000_hw *hw = &adapter->hw;
--	u32 ctrl, ctrl_ext, rctl, status;
--	/* Runtime suspend should only enable wakeup for link changes */
--	u32 wufc = runtime ? E1000_WUFC_LNKC : adapter->wol;
-+	u32 ctrl, ctrl_ext, rctl, status, wufc;
- 	int retval = 0;
+diff --git a/drivers/power/supply/lp8788-charger.c b/drivers/power/supply/lp8788-charger.c
+index 0f3432795f3c2..b8f7dac7ac3fe 100644
+--- a/drivers/power/supply/lp8788-charger.c
++++ b/drivers/power/supply/lp8788-charger.c
+@@ -600,27 +600,14 @@ static void lp8788_setup_adc_channel(struct device *dev,
+ 		return;
  
-+	/* Runtime suspend should only enable wakeup for link changes */
-+	if (runtime)
-+		wufc = E1000_WUFC_LNKC;
-+	else if (device_may_wakeup(&pdev->dev))
-+		wufc = adapter->wol;
-+	else
-+		wufc = 0;
-+
- 	status = er32(STATUS);
- 	if (status & E1000_STATUS_LU)
- 		wufc &= ~E1000_WUFC_LNKC;
-@@ -6406,7 +6412,7 @@ static int __e1000_shutdown(struct pci_d
- 	if (adapter->hw.phy.type == e1000_phy_igp_3) {
- 		e1000e_igp3_phy_powerdown_workaround_ich8lan(&adapter->hw);
- 	} else if (hw->mac.type >= e1000_pch_lpt) {
--		if (!(wufc & (E1000_WUFC_EX | E1000_WUFC_MC | E1000_WUFC_BC)))
-+		if (wufc && !(wufc & (E1000_WUFC_EX | E1000_WUFC_MC | E1000_WUFC_BC)))
- 			/* ULP does not support wake from unicast, multicast
- 			 * or broadcast.
- 			 */
+ 	/* ADC channel for battery voltage */
+-	chan = iio_channel_get(dev, pdata->adc_vbatt);
++	chan = devm_iio_channel_get(dev, pdata->adc_vbatt);
+ 	pchg->chan[LP8788_VBATT] = IS_ERR(chan) ? NULL : chan;
+ 
+ 	/* ADC channel for battery temperature */
+-	chan = iio_channel_get(dev, pdata->adc_batt_temp);
++	chan = devm_iio_channel_get(dev, pdata->adc_batt_temp);
+ 	pchg->chan[LP8788_BATT_TEMP] = IS_ERR(chan) ? NULL : chan;
+ }
+ 
+-static void lp8788_release_adc_channel(struct lp8788_charger *pchg)
+-{
+-	int i;
+-
+-	for (i = 0; i < LP8788_NUM_CHG_ADC; i++) {
+-		if (!pchg->chan[i])
+-			continue;
+-
+-		iio_channel_release(pchg->chan[i]);
+-		pchg->chan[i] = NULL;
+-	}
+-}
+-
+ static ssize_t lp8788_show_charger_status(struct device *dev,
+ 				struct device_attribute *attr, char *buf)
+ {
+@@ -747,7 +734,6 @@ static int lp8788_charger_remove(struct platform_device *pdev)
+ 	lp8788_irq_unregister(pdev, pchg);
+ 	sysfs_remove_group(&pdev->dev.kobj, &lp8788_attr_group);
+ 	lp8788_psy_unregister(pchg);
+-	lp8788_release_adc_channel(pchg);
+ 
+ 	return 0;
+ }
+-- 
+2.25.1
+
 
 
