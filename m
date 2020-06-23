@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4029920639F
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:29:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09A7A206285
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:09:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391005AbgFWU3h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:29:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49680 "EHLO mail.kernel.org"
+        id S2388912AbgFWVDt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 17:03:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391002AbgFWU3g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:29:36 -0400
+        id S2391941AbgFWUiS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:38:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB91B206C3;
-        Tue, 23 Jun 2020 20:29:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8881D2085B;
+        Tue, 23 Jun 2020 20:38:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944176;
-        bh=0PBbNoMLgT/OjPeh5DapmIdaNhEuA8/SPN2ldUn2pTo=;
+        s=default; t=1592944699;
+        bh=by/WlVmm+/tWieZc2nJ1fD/zD3sn1BSD5NO82MfLjhg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0FbmZVfbouu+tHvTidLWoUCHDn6W9hMzkBlB8YvX4etHJLa0NVKguohks0mc2+ARU
-         AlUP5Wjq60CZRRCaWV0AWuORDC/aphx1AeoUtdGQN64UA7r/GXHqbIdv8H7zkRbxmJ
-         JXtaUXk+11ToamAa2kK7kw0vMO89US5y1xRlXK4Y=
+        b=ChV+7UGHJI7GXJ/kPL+KxaIL6Pk+xZIscxeH+xGqalc7YXuNRV8+koVbFaMg9LfHY
+         Y5BawhqTe+TJhOWuR9GZcBaKKbD8+Qvv8yhpywGUmf3a2t6xI1UWSqg8exMxLktR8I
+         /sbDRMyzuhOwYZb+JO2Abnc5Aj+KI02EcrkFE9nI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Derek Kiernan <derek.kiernan@xilinx.com>,
-        Dragan Cvetic <dragan.cvetic@xilinx.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Michal Simek <michal.simek@xilinx.com>,
-        linux-arm-kernel@lists.infradead.org,
-        John Hubbard <jhubbard@nvidia.com>,
+        stable@vger.kernel.org,
+        Raghavendra Rao Ananta <rananta@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 195/314] misc: xilinx-sdfec: improve get_user_pages_fast() error handling
-Date:   Tue, 23 Jun 2020 21:56:30 +0200
-Message-Id: <20200623195348.226110468@linuxfoundation.org>
+Subject: [PATCH 4.19 063/206] tty: hvc: Fix data abort due to race in hvc_open
+Date:   Tue, 23 Jun 2020 21:56:31 +0200
+Message-Id: <20200623195320.062485366@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
-References: <20200623195338.770401005@linuxfoundation.org>
+In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
+References: <20200623195316.864547658@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,95 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Hubbard <jhubbard@nvidia.com>
+From: Raghavendra Rao Ananta <rananta@codeaurora.org>
 
-[ Upstream commit 57343d51613227373759f5b0f2eede257fd4b82e ]
+[ Upstream commit e2bd1dcbe1aa34ff5570b3427c530e4332ecf0fe ]
 
-This fixes the case of get_user_pages_fast() returning a -errno.
-The result needs to be stored in a signed integer. And for safe
-signed/unsigned comparisons, it's best to keep everything signed.
-And get_user_pages_fast() also expects a signed value for number
-of pages to pin.
+Potentially, hvc_open() can be called in parallel when two tasks calls
+open() on /dev/hvcX. In such a scenario, if the hp->ops->notifier_add()
+callback in the function fails, where it sets the tty->driver_data to
+NULL, the parallel hvc_open() can see this NULL and cause a memory abort.
+Hence, serialize hvc_open and check if tty->private_data is NULL before
+proceeding ahead.
 
-Therefore, change most relevant variables, from u32 to int. Leave
-"n" unsigned, for convenience in checking for overflow. And provide
-a WARN_ON_ONCE() and early return, if overflow occurs.
+The issue can be easily reproduced by launching two tasks simultaneously
+that does nothing but open() and close() on /dev/hvcX.
+For example:
+$ ./simple_open_close /dev/hvc0 & ./simple_open_close /dev/hvc0 &
 
-Also, as long as we're tidying up: rename the page array from page,
-to pages, in order to match the conventions used in most other call
-sites.
-
-Fixes: 20ec628e8007e ("misc: xilinx_sdfec: Add ability to configure LDPC")
-Cc: Derek Kiernan <derek.kiernan@xilinx.com>
-Cc: Dragan Cvetic <dragan.cvetic@xilinx.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Michal Simek <michal.simek@xilinx.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Signed-off-by: John Hubbard <jhubbard@nvidia.com>
-Link: https://lore.kernel.org/r/20200527012628.1100649-2-jhubbard@nvidia.com
+Signed-off-by: Raghavendra Rao Ananta <rananta@codeaurora.org>
+Link: https://lore.kernel.org/r/20200428032601.22127-1-rananta@codeaurora.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/xilinx_sdfec.c | 27 +++++++++++++++++----------
- 1 file changed, 17 insertions(+), 10 deletions(-)
+ drivers/tty/hvc/hvc_console.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/misc/xilinx_sdfec.c b/drivers/misc/xilinx_sdfec.c
-index 48ba7e02bed72..d4c14b617201e 100644
---- a/drivers/misc/xilinx_sdfec.c
-+++ b/drivers/misc/xilinx_sdfec.c
-@@ -602,10 +602,10 @@ static int xsdfec_table_write(struct xsdfec_dev *xsdfec, u32 offset,
- 			      const u32 depth)
+diff --git a/drivers/tty/hvc/hvc_console.c b/drivers/tty/hvc/hvc_console.c
+index cdcc64ea2554f..f8e43a6faea9b 100644
+--- a/drivers/tty/hvc/hvc_console.c
++++ b/drivers/tty/hvc/hvc_console.c
+@@ -75,6 +75,8 @@ static LIST_HEAD(hvc_structs);
+  */
+ static DEFINE_MUTEX(hvc_structs_mutex);
+ 
++/* Mutex to serialize hvc_open */
++static DEFINE_MUTEX(hvc_open_mutex);
+ /*
+  * This value is used to assign a tty->index value to a hvc_struct based
+  * upon order of exposure via hvc_probe(), when we can not match it to
+@@ -346,16 +348,24 @@ static int hvc_install(struct tty_driver *driver, struct tty_struct *tty)
+  */
+ static int hvc_open(struct tty_struct *tty, struct file * filp)
  {
- 	u32 reg = 0;
--	u32 res;
--	u32 n, i;
-+	int res, i, nr_pages;
-+	u32 n;
- 	u32 *addr = NULL;
--	struct page *page[MAX_NUM_PAGES];
-+	struct page *pages[MAX_NUM_PAGES];
+-	struct hvc_struct *hp = tty->driver_data;
++	struct hvc_struct *hp;
+ 	unsigned long flags;
+ 	int rc = 0;
  
- 	/*
- 	 * Writes that go beyond the length of
-@@ -622,15 +622,22 @@ static int xsdfec_table_write(struct xsdfec_dev *xsdfec, u32 offset,
- 	if ((len * XSDFEC_REG_WIDTH_JUMP) % PAGE_SIZE)
- 		n += 1;
- 
--	res = get_user_pages_fast((unsigned long)src_ptr, n, 0, page);
--	if (res < n) {
--		for (i = 0; i < res; i++)
--			put_page(page[i]);
-+	if (WARN_ON_ONCE(n > INT_MAX))
-+		return -EINVAL;
++	mutex_lock(&hvc_open_mutex);
 +
-+	nr_pages = n;
++	hp = tty->driver_data;
++	if (!hp) {
++		rc = -EIO;
++		goto out;
++	}
 +
-+	res = get_user_pages_fast((unsigned long)src_ptr, nr_pages, 0, pages);
-+	if (res < nr_pages) {
-+		if (res > 0) {
-+			for (i = 0; i < res; i++)
-+				put_page(pages[i]);
-+		}
- 		return -EINVAL;
- 	}
+ 	spin_lock_irqsave(&hp->port.lock, flags);
+ 	/* Check and then increment for fast path open. */
+ 	if (hp->port.count++ > 0) {
+ 		spin_unlock_irqrestore(&hp->port.lock, flags);
+ 		hvc_kick();
+-		return 0;
++		goto out;
+ 	} /* else count == 0 */
+ 	spin_unlock_irqrestore(&hp->port.lock, flags);
  
--	for (i = 0; i < n; i++) {
--		addr = kmap(page[i]);
-+	for (i = 0; i < nr_pages; i++) {
-+		addr = kmap(pages[i]);
- 		do {
- 			xsdfec_regwrite(xsdfec,
- 					base_addr + ((offset + reg) *
-@@ -639,7 +646,7 @@ static int xsdfec_table_write(struct xsdfec_dev *xsdfec, u32 offset,
- 			reg++;
- 		} while ((reg < len) &&
- 			 ((reg * XSDFEC_REG_WIDTH_JUMP) % PAGE_SIZE));
--		put_page(page[i]);
-+		put_page(pages[i]);
- 	}
- 	return reg;
+@@ -383,6 +393,8 @@ static int hvc_open(struct tty_struct *tty, struct file * filp)
+ 	/* Force wakeup of the polling thread */
+ 	hvc_kick();
+ 
++out:
++	mutex_unlock(&hvc_open_mutex);
+ 	return rc;
  }
+ 
 -- 
 2.25.1
 
