@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 836BA206408
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:30:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2ED0A2064C8
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:32:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390926AbgFWVO5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 17:14:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48682 "EHLO mail.kernel.org"
+        id S2393542AbgFWV1b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 17:27:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388823AbgFWU2r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:28:47 -0400
+        id S2389225AbgFWUQw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:16:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A43ED2064B;
-        Tue, 23 Jun 2020 20:28:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC7E12080C;
+        Tue, 23 Jun 2020 20:16:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944128;
-        bh=L15Vj8OeudxmTag2zQVdk1b8JpwbIF3FlYGHITujZPQ=;
+        s=default; t=1592943412;
+        bh=bv9Z9bRkVEK1uJdMpJsnfzvM9UksgRkyNNheuFYz8ek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hSFBf0Tq7Ln17EWeG8g7BWMIQOowy3QbmRTmDIiPco5uplW/pzemOLe4r8M3jp++w
-         bn0N1XRYLwAcLi4aYl7P3/v6Rt4sGsH86sqyPcRe2QhULWAunyh4dXPxRBJ6B1UjPc
-         481pRJKNPI/TQeQ5bRyVu72p3hdKZIGG4v6ScF/g=
+        b=HQiQFTJzM0DOVH39KFSUNT4R4VkXFTQ16uMNgMFJHSQUMyLV/TdVxbffv1GAkhyTZ
+         Fh2bU5AUCroK2LKimgtjdO0YGJxjuCHe/+Pd/b/IL23/KMk3EV/pvHutppxUTAnOwe
+         FWjf1mBY/DsgP5FWmxEZ0vL8kdlwqtnJqQ04LEJM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amelie Delaunay <amelie.delaunay@st.com>,
-        Lee Jones <lee.jones@linaro.org>,
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Qais Yousef <qais.yousef@arm.com>,
+        Tony Prisk <linux@prisktech.co.nz>,
+        Mathias Nyman <mathias.nyman@intel.com>,
+        Oliver Neukum <oneukum@suse.de>,
+        linux-arm-kernel@lists.infradead.org, linux-usb@vger.kernel.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 183/314] mfd: stmfx: Reset chip on resume as supply was disabled
-Date:   Tue, 23 Jun 2020 21:56:18 +0200
-Message-Id: <20200623195347.619762466@linuxfoundation.org>
+Subject: [PATCH 5.7 382/477] usb/ehci-platform: Set PM runtime as active on resume
+Date:   Tue, 23 Jun 2020 21:56:19 +0200
+Message-Id: <20200623195425.583047605@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
-References: <20200623195338.770401005@linuxfoundation.org>
+In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
+References: <20200623195407.572062007@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +48,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amelie Delaunay <amelie.delaunay@st.com>
+From: Qais Yousef <qais.yousef@arm.com>
 
-[ Upstream commit e583649d87ec090444aa5347af0927cd6e8581ae ]
+[ Upstream commit 16bdc04cc98ab0c74392ceef2475ecc5e73fcf49 ]
 
-STMFX supply is disabled during suspend. To avoid a too early access to
-the STMFX firmware on resume, reset the chip and wait for its firmware to
-be loaded.
+Follow suit of ohci-platform.c and perform pm_runtime_set_active() on
+resume.
 
-Fixes: 06252ade9156 ("mfd: Add ST Multi-Function eXpander (STMFX) core driver")
-Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+ohci-platform.c had a warning reported due to the missing
+pm_runtime_set_active() [1].
+
+[1] https://lore.kernel.org/lkml/20200323143857.db5zphxhq4hz3hmd@e107158-lin.cambridge.arm.com/
+
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Qais Yousef <qais.yousef@arm.com>
+CC: Tony Prisk <linux@prisktech.co.nz>
+CC: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC: Mathias Nyman <mathias.nyman@intel.com>
+CC: Oliver Neukum <oneukum@suse.de>
+CC: linux-arm-kernel@lists.infradead.org
+CC: linux-usb@vger.kernel.org
+CC: linux-kernel@vger.kernel.org
+Link: https://lore.kernel.org/r/20200518154931.6144-3-qais.yousef@arm.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/stmfx.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/usb/host/ehci-platform.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/mfd/stmfx.c b/drivers/mfd/stmfx.c
-index 857991cb3cbb8..fde6541e347c8 100644
---- a/drivers/mfd/stmfx.c
-+++ b/drivers/mfd/stmfx.c
-@@ -501,6 +501,13 @@ static int stmfx_resume(struct device *dev)
- 		}
- 	}
+diff --git a/drivers/usb/host/ehci-platform.c b/drivers/usb/host/ehci-platform.c
+index e4fc3f66d43bf..e9a49007cce4a 100644
+--- a/drivers/usb/host/ehci-platform.c
++++ b/drivers/usb/host/ehci-platform.c
+@@ -455,6 +455,10 @@ static int ehci_platform_resume(struct device *dev)
  
-+	/* Reset STMFX - supply has been stopped during suspend */
-+	ret = stmfx_chip_reset(stmfx);
-+	if (ret) {
-+		dev_err(stmfx->dev, "Failed to reset chip: %d\n", ret);
-+		return ret;
-+	}
+ 	ehci_resume(hcd, priv->reset_on_resume);
+ 
++	pm_runtime_disable(dev);
++	pm_runtime_set_active(dev);
++	pm_runtime_enable(dev);
 +
- 	ret = regmap_raw_write(stmfx->map, STMFX_REG_SYS_CTRL,
- 			       &stmfx->bkp_sysctrl, sizeof(stmfx->bkp_sysctrl));
- 	if (ret)
+ 	if (priv->quirk_poll)
+ 		quirk_poll_init(priv);
+ 
 -- 
 2.25.1
 
