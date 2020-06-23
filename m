@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D223A206294
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:09:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55D65206142
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:07:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393290AbgFWVFB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 17:05:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60958 "EHLO mail.kernel.org"
+        id S2389629AbgFWUhc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:37:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391854AbgFWUha (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:37:30 -0400
+        id S2391863AbgFWUhb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:37:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25E3521531;
-        Tue, 23 Jun 2020 20:37:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A47BD20781;
+        Tue, 23 Jun 2020 20:37:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944649;
-        bh=dXTFG5khJBhiGNK4rQl3wOm13SR/QgqgpGnN2+yILl0=;
+        s=default; t=1592944652;
+        bh=Y7FAiX8CURS11zx9KBYS3lzd3Tvh+mY6DZ2CwCmsM7Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cOi6jXHwZFpzozva3KUS2Sc4OI58PbyD+YNA3ObGr/ZgNHVBywiRVFg7MBfSJ8MLL
-         uMkGCy+DcmLiOhfp40pOyMqw9m0UR4zos9CYG4jyT1/aCtbwP8tjS4u6Q2BHgOqktM
-         ogTQxMJALyl1cJm37SJQNbRbykEuGMA/X79yasZU=
+        b=aCob0pbZemgeqJxDcqE1cCUJ37dGUTC1QsCiZ5W6yYUktFQ5g1s81YIcwQ15bBmjl
+         1wZt0Z+h97CLLioaIjP+8MGNhJIp6Qm2VGLFyh9Ho6WTviR8nAVl6kfVdQmqv7ign9
+         6cpixtTkpicl3/Qu25w/xxKtW/RvAsR459L8IXx0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Kuppuswamy Sathyanarayanan 
-        <sathyanarayanan.kuppuswamy@linux.intel.com>,
+        Marek Vasut <marek.vasut+renesas@gmail.com>,
+        Andrew Murray <andrew.murray@arm.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 072/206] drivers: base: Fix NULL pointer exception in __platform_driver_probe() if a driver developer is foolish
-Date:   Tue, 23 Jun 2020 21:56:40 +0200
-Message-Id: <20200623195320.506198568@linuxfoundation.org>
+Subject: [PATCH 4.19 073/206] PCI: rcar: Fix incorrect programming of OB windows
+Date:   Tue, 23 Jun 2020 21:56:41 +0200
+Message-Id: <20200623195320.547670274@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
 References: <20200623195316.864547658@linuxfoundation.org>
@@ -45,82 +46,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+From: Andrew Murray <andrew.murray@arm.com>
 
-[ Upstream commit 388bcc6ecc609fca1b4920de7dc3806c98ec535e ]
+[ Upstream commit 2b9f217433e31d125fb697ca7974d3de3ecc3e92 ]
 
-If platform bus driver registration is failed then, accessing
-platform bus spin lock (&drv->driver.bus->p->klist_drivers.k_lock)
-in __platform_driver_probe() without verifying the return value
-__platform_driver_register() can lead to NULL pointer exception.
+The outbound windows (PCIEPAUR(x), PCIEPALR(x)) describe a mapping between
+a CPU address (which is determined by the window number 'x') and a
+programmed PCI address - Thus allowing the controller to translate CPU
+accesses into PCI accesses.
 
-So check the return value before attempting the spin lock.
+However the existing code incorrectly writes the CPU address - lets fix
+this by writing the PCI address instead.
 
-One such example is below:
+For memory transactions, existing DT users describe a 1:1 identity mapping
+and thus this change should have no effect. However the same isn't true for
+I/O.
 
-For a custom usecase, I have intentionally failed the platform bus
-registration and I expected all the platform device/driver
-registrations to fail gracefully. But I came across this panic
-issue.
-
-[    1.331067] BUG: kernel NULL pointer dereference, address: 00000000000000c8
-[    1.331118] #PF: supervisor write access in kernel mode
-[    1.331163] #PF: error_code(0x0002) - not-present page
-[    1.331208] PGD 0 P4D 0
-[    1.331233] Oops: 0002 [#1] PREEMPT SMP
-[    1.331268] CPU: 3 PID: 1 Comm: swapper/0 Tainted: G        W         5.6.0-00049-g670d35fb0144 #165
-[    1.331341] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
-[    1.331406] RIP: 0010:_raw_spin_lock+0x15/0x30
-[    1.331588] RSP: 0000:ffffc9000001be70 EFLAGS: 00010246
-[    1.331632] RAX: 0000000000000000 RBX: 00000000000000c8 RCX: 0000000000000001
-[    1.331696] RDX: 0000000000000001 RSI: 0000000000000092 RDI: 0000000000000000
-[    1.331754] RBP: 00000000ffffffed R08: 0000000000000501 R09: 0000000000000001
-[    1.331817] R10: ffff88817abcc520 R11: 0000000000000670 R12: 00000000ffffffed
-[    1.331881] R13: ffffffff82dbc268 R14: ffffffff832f070a R15: 0000000000000000
-[    1.331945] FS:  0000000000000000(0000) GS:ffff88817bd80000(0000) knlGS:0000000000000000
-[    1.332008] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    1.332062] CR2: 00000000000000c8 CR3: 000000000681e001 CR4: 00000000003606e0
-[    1.332126] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[    1.332189] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[    1.332252] Call Trace:
-[    1.332281]  __platform_driver_probe+0x92/0xee
-[    1.332323]  ? rtc_dev_init+0x2b/0x2b
-[    1.332358]  cmos_init+0x37/0x67
-[    1.332396]  do_one_initcall+0x7d/0x168
-[    1.332428]  kernel_init_freeable+0x16c/0x1c9
-[    1.332473]  ? rest_init+0xc0/0xc0
-[    1.332508]  kernel_init+0x5/0x100
-[    1.332543]  ret_from_fork+0x1f/0x30
-[    1.332579] CR2: 00000000000000c8
-[    1.332616] ---[ end trace 3bd87f12e9010b87 ]---
-[    1.333549] note: swapper/0[1] exited with preempt_count 1
-[    1.333592] Kernel panic - not syncing: Attempted to kill init! exitcode=0x00000009
-[    1.333736] Kernel Offset: disabled
-
-Note, this can only be triggered if a driver errors out from this call,
-which should never happen.  If it does, the driver needs to be fixed.
-
-Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-Link: https://lore.kernel.org/r/20200408214003.3356-1-sathyanarayanan.kuppuswamy@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20191004132941.6660-1-andrew.murray@arm.com
+Fixes: c25da4778803 ("PCI: rcar: Add Renesas R-Car PCIe driver")
+Tested-by: Marek Vasut <marek.vasut+renesas@gmail.com>
+Signed-off-by: Andrew Murray <andrew.murray@arm.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Marek Vasut <marek.vasut+renesas@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/platform.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/pci/controller/pcie-rcar.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/base/platform.c b/drivers/base/platform.c
-index d1f901b58f755..349c2754eed78 100644
---- a/drivers/base/platform.c
-+++ b/drivers/base/platform.c
-@@ -700,6 +700,8 @@ int __init_or_module __platform_driver_probe(struct platform_driver *drv,
- 	/* temporary section violation during probe() */
- 	drv->probe = probe;
- 	retval = code = __platform_driver_register(drv, module);
-+	if (retval)
-+		return retval;
+diff --git a/drivers/pci/controller/pcie-rcar.c b/drivers/pci/controller/pcie-rcar.c
+index 333ab6092f174..00296c5eacb9c 100644
+--- a/drivers/pci/controller/pcie-rcar.c
++++ b/drivers/pci/controller/pcie-rcar.c
+@@ -335,11 +335,12 @@ static struct pci_ops rcar_pcie_ops = {
+ };
  
- 	/*
- 	 * Fixup that section violation, being paranoid about code scanning
+ static void rcar_pcie_setup_window(int win, struct rcar_pcie *pcie,
+-				   struct resource *res)
++				   struct resource_entry *window)
+ {
+ 	/* Setup PCIe address space mappings for each resource */
+ 	resource_size_t size;
+ 	resource_size_t res_start;
++	struct resource *res = window->res;
+ 	u32 mask;
+ 
+ 	rcar_pci_write_reg(pcie, 0x00000000, PCIEPTCTLR(win));
+@@ -353,9 +354,9 @@ static void rcar_pcie_setup_window(int win, struct rcar_pcie *pcie,
+ 	rcar_pci_write_reg(pcie, mask << 7, PCIEPAMR(win));
+ 
+ 	if (res->flags & IORESOURCE_IO)
+-		res_start = pci_pio_to_address(res->start);
++		res_start = pci_pio_to_address(res->start) - window->offset;
+ 	else
+-		res_start = res->start;
++		res_start = res->start - window->offset;
+ 
+ 	rcar_pci_write_reg(pcie, upper_32_bits(res_start), PCIEPAUR(win));
+ 	rcar_pci_write_reg(pcie, lower_32_bits(res_start) & ~0x7F,
+@@ -384,7 +385,7 @@ static int rcar_pcie_setup(struct list_head *resource, struct rcar_pcie *pci)
+ 		switch (resource_type(res)) {
+ 		case IORESOURCE_IO:
+ 		case IORESOURCE_MEM:
+-			rcar_pcie_setup_window(i, pci, res);
++			rcar_pcie_setup_window(i, pci, win);
+ 			i++;
+ 			break;
+ 		case IORESOURCE_BUS:
 -- 
 2.25.1
 
