@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B585D205F32
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:32:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 208CD205FFE
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:47:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391125AbgFWUa2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:30:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50674 "EHLO mail.kernel.org"
+        id S2403829AbgFWUiX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:38:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391028AbgFWUaZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:30:25 -0400
+        id S2403775AbgFWUiV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:38:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2053F20702;
-        Tue, 23 Jun 2020 20:30:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 186B62085B;
+        Tue, 23 Jun 2020 20:38:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944225;
-        bh=3JZycwmYEh6E4GkwnIaC0KJqEwKZrnETseBCGmzX2sE=;
+        s=default; t=1592944701;
+        bh=wicaoCAJNuk7XntjN2HU1xs0spmHSn5Q2EMQqELHpJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xOZxE+7Z3C/NFo6PPyOvdbbeBuwnAwowYJGJeI4AN7AqM6xoxHLzUeHqIrYJOMnYw
-         s4NZ1stlspxePmsPSt1sqOGrKFc1OVRKPTda/mRkWbypzYBCbepQvQm/dEtvSGG+xg
-         KCsD9P0QRnD++y//r2I53xbOsN5uWkvNklZPC//s=
+        b=1xYurlp41lKdSM6kqfbODjr/d3O33mjFQsm/8N8LRdx+eVOeS0s/fjuOJ9Z7FNVo4
+         H0Gb76hKZDL8tVwlM5qdwLcJ4TcOZkt8TbEgZqDBXnyw1J2iR/+OqoBgenSmJJ+3oG
+         /evBgVnCiyuCasihI7j9aH0DjRhVI7hPLNjYsGO0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Benc <jbenc@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 221/314] geneve: change from tx_error to tx_dropped on missing metadata
-Date:   Tue, 23 Jun 2020 21:56:56 +0200
-Message-Id: <20200623195349.479075714@linuxfoundation.org>
+Subject: [PATCH 4.19 090/206] vfio-pci: Mask cap zero
+Date:   Tue, 23 Jun 2020 21:56:58 +0200
+Message-Id: <20200623195321.376480316@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
-References: <20200623195338.770401005@linuxfoundation.org>
+In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
+References: <20200623195316.864547658@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Benc <jbenc@redhat.com>
+From: Alex Williamson <alex.williamson@redhat.com>
 
-[ Upstream commit 9d149045b3c0e44c049cdbce8a64e19415290017 ]
+[ Upstream commit bc138db1b96264b9c1779cf18d5a3b186aa90066 ]
 
-If the geneve interface is in collect_md (external) mode, it can't send any
-packets submitted directly to its net interface, as such packets won't have
-metadata attached. This is expected.
+The PCI Code and ID Assignment Specification changed capability ID 0
+from reserved to a NULL capability in the v1.1 revision.  The NULL
+capability is defined to include only the 16-bit capability header,
+ie. only the ID and next pointer.  Unfortunately vfio-pci creates a
+map of config space, where ID 0 is used to reserve the standard type
+0 header.  Finding an actual capability with this ID therefore results
+in a bogus range marked in that map and conflicts with subsequent
+capabilities.  As this seems to be a dummy capability anyway and we
+already support dropping capabilities, let's hide this one rather than
+delving into the potentially subtle dependencies within our map.
 
-However, the kernel itself sends some packets to the interface, most
-notably, IPv6 DAD, IPv6 multicast listener reports, etc. This is not wrong,
-as tunnel metadata can be specified in routing table (although technically,
-that has never worked for IPv6, but hopefully will be fixed eventually) and
-then the interface must correctly participate in IPv6 housekeeping.
+Seen on an NVIDIA Tesla T4.
 
-The problem is that any such attempt increases the tx_error counter. Just
-bringing up a geneve interface with IPv6 enabled is enough to see a number
-of tx_errors. That causes confusion among users, prompting them to find
-a network error where there is none.
-
-Change the counter used to tx_dropped. That better conveys the meaning
-(there's nothing wrong going on, just some packets are getting dropped) and
-hopefully will make admins panic less.
-
-Signed-off-by: Jiri Benc <jbenc@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/geneve.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/vfio/pci/vfio_pci_config.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/geneve.c b/drivers/net/geneve.c
-index aa101f72d4055..cac75c7d1d018 100644
---- a/drivers/net/geneve.c
-+++ b/drivers/net/geneve.c
-@@ -987,9 +987,10 @@ static netdev_tx_t geneve_xmit(struct sk_buff *skb, struct net_device *dev)
- 	if (geneve->collect_md) {
- 		info = skb_tunnel_info(skb);
- 		if (unlikely(!info || !(info->mode & IP_TUNNEL_INFO_TX))) {
--			err = -EINVAL;
- 			netdev_dbg(dev, "no tunnel metadata\n");
--			goto tx_error;
-+			dev_kfree_skb(skb);
-+			dev->stats.tx_dropped++;
-+			return NETDEV_TX_OK;
- 		}
- 	} else {
- 		info = &geneve->info;
-@@ -1006,7 +1007,7 @@ static netdev_tx_t geneve_xmit(struct sk_buff *skb, struct net_device *dev)
+diff --git a/drivers/vfio/pci/vfio_pci_config.c b/drivers/vfio/pci/vfio_pci_config.c
+index c2d300bc37f64..36bc8f104e42e 100644
+--- a/drivers/vfio/pci/vfio_pci_config.c
++++ b/drivers/vfio/pci/vfio_pci_config.c
+@@ -1464,7 +1464,12 @@ static int vfio_cap_init(struct vfio_pci_device *vdev)
+ 		if (ret)
+ 			return ret;
  
- 	if (likely(!err))
- 		return NETDEV_TX_OK;
--tx_error:
-+
- 	dev_kfree_skb(skb);
- 
- 	if (err == -ELOOP)
+-		if (cap <= PCI_CAP_ID_MAX) {
++		/*
++		 * ID 0 is a NULL capability, conflicting with our fake
++		 * PCI_CAP_ID_BASIC.  As it has no content, consider it
++		 * hidden for now.
++		 */
++		if (cap && cap <= PCI_CAP_ID_MAX) {
+ 			len = pci_cap_length[cap];
+ 			if (len == 0xFF) { /* Variable length */
+ 				len = vfio_cap_len(vdev, cap, pos);
 -- 
 2.25.1
 
