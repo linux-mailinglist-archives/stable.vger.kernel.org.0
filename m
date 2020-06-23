@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73E772062EB
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:10:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6274206215
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:08:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391513AbgFWUeQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:34:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56076 "EHLO mail.kernel.org"
+        id S2389245AbgFWUyy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:54:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391508AbgFWUeO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:34:14 -0400
+        id S2392694AbgFWUpe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:45:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4661A206C3;
-        Tue, 23 Jun 2020 20:34:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF0F120781;
+        Tue, 23 Jun 2020 20:45:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944454;
-        bh=XtFeMb8kGk3fuqPFWEzobBSlX/FA3bh16zbM1mW+u2U=;
+        s=default; t=1592945134;
+        bh=6m3wXgaVYOYeOzH2NXttvoEuW9DYuUgob8tBzPyiZ/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lon8or8hv8Gdn3auoQvG3lYDdhknOWiBzkn2V8qqetY0F9xT6Sz0/MnacXjBrCArd
-         1ksWmwuQbyH3+TozvKdoj127B46rM7cVpHYa9SVoflbaCckX3Eb/g/BUICmRqQLVYt
-         XlbzMBGGwkFnZ7rrVHxgH+Nelp3+y7nLQx6WXbE8=
+        b=YUaeN5X4xYBFYe5KB0MFIv0/aQXq2dBhMPjMOov12KCGVMUgpwfLKBRBeEjYLoiuA
+         UcojCSwVtLiOuOIl3s0uoe9YM1nTqmWiabbyGLF9spfX8etJ8VbmtqJaffqhawuaSc
+         oAjGGa55EszeGDJU1eIYELZ7mExMb+6iFWZzhkgc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Paul Cercueil <paul@crapouillou.net>,
-        Thierry Reding <thierry.reding@gmail.com>
-Subject: [PATCH 5.4 312/314] pwm: jz4740: Enhance precision in calculation of duty cycle
-Date:   Tue, 23 Jun 2020 21:58:27 +0200
-Message-Id: <20200623195353.884541761@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Suganath Prabu S <suganath-prabu.subramani@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 052/136] scsi: mpt3sas: Fix double free warnings
+Date:   Tue, 23 Jun 2020 21:58:28 +0200
+Message-Id: <20200623195306.296095733@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
-References: <20200623195338.770401005@linuxfoundation.org>
+In-Reply-To: <20200623195303.601828702@linuxfoundation.org>
+References: <20200623195303.601828702@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,42 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Suganath Prabu S <suganath-prabu.subramani@broadcom.com>
 
-commit 9017dc4fbd59c09463019ce494cfe36d654495a8 upstream.
+[ Upstream commit cbbfdb2a2416c9f0cde913cf09670097ac281282 ]
 
-Calculating the hardware value for the duty from the hardware value of
-the period resulted in a precision loss versus calculating it from the
-clock rate directly.
+Fix following warning from Smatch static analyser:
 
-(Also remove a cast that doesn't really need to be here)
+drivers/scsi/mpt3sas/mpt3sas_base.c:5256 _base_allocate_memory_pools()
+warn: 'ioc->hpr_lookup' double freed
 
-Fixes: f6b8a5700057 ("pwm: Add Ingenic JZ4740 support")
-Cc: <stable@vger.kernel.org>
-Suggested-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
-[ukl: backport to v5.4.y and adapt commit log accordingly]
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+drivers/scsi/mpt3sas/mpt3sas_base.c:5256 _base_allocate_memory_pools()
+warn: 'ioc->internal_lookup' double freed
 
+Link: https://lore.kernel.org/r/20200508110738.30732-1-suganath-prabu.subramani@broadcom.com
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Suganath Prabu S <suganath-prabu.subramani@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-jz4740.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/mpt3sas/mpt3sas_base.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/pwm/pwm-jz4740.c
-+++ b/drivers/pwm/pwm-jz4740.c
-@@ -108,8 +108,8 @@ static int jz4740_pwm_apply(struct pwm_c
- 	if (prescaler == 6)
- 		return -EINVAL;
- 
--	tmp = (unsigned long long)period * state->duty_cycle;
--	do_div(tmp, state->period);
-+	tmp = (unsigned long long)rate * state->duty_cycle;
-+	do_div(tmp, NSEC_PER_SEC);
- 	duty = period - tmp;
- 
- 	if (duty >= period)
+diff --git a/drivers/scsi/mpt3sas/mpt3sas_base.c b/drivers/scsi/mpt3sas/mpt3sas_base.c
+index 817a7963a038b..556971c5f0b0e 100644
+--- a/drivers/scsi/mpt3sas/mpt3sas_base.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_base.c
+@@ -3263,7 +3263,9 @@ _base_release_memory_pools(struct MPT3SAS_ADAPTER *ioc)
+ 		ioc->scsi_lookup = NULL;
+ 	}
+ 	kfree(ioc->hpr_lookup);
++	ioc->hpr_lookup = NULL;
+ 	kfree(ioc->internal_lookup);
++	ioc->internal_lookup = NULL;
+ 	if (ioc->chain_lookup) {
+ 		for (i = 0; i < ioc->chain_depth; i++) {
+ 			if (ioc->chain_lookup[i].chain_buffer)
+-- 
+2.25.1
+
 
 
