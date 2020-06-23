@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F28C2065FD
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:51:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 788FC2065FB
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:51:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393776AbgFWVgB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 17:36:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51258 "EHLO mail.kernel.org"
+        id S2393769AbgFWVf4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 17:35:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388320AbgFWUKF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:10:05 -0400
+        id S2388785AbgFWUKH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:10:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A5182078A;
-        Tue, 23 Jun 2020 20:10:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BC6D12082F;
+        Tue, 23 Jun 2020 20:10:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943005;
-        bh=k3tlRRhC1fTflnib/pAr4fMixtp8WBqHsMHjw6kq2BM=;
+        s=default; t=1592943007;
+        bh=o15EEKsDrIs/d1yTZqhyj0lnIaRHrjdGmY7nWh2Qw6I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KEFlUqydHQWVdOgD6Tj0gm4tpg5CR+KLKCe6NfIRcGWtGWJj2REnkNaiQbaQxZtCh
-         erA5ZaaxN10INX4dUDYtXZ/DGZxjJukYj+JJOLyutu43fg0BLQJzWedcD8/vMUyZjq
-         NXy8aYkD6ZkX9PdhgVMVwO9D5jS2XIgijmX7VICk=
+        b=b5BakaTAnhABTGjL4H4Ys20fstIJgXTK+6Uq6M8ux9UZ1b7J77WPg53sSmhfSz6EL
+         QHzIeSo8ecmz3N4n1tZPEarfmyex+j+fkbSm2/b0IVRNFk9+zipSLoC/S9E8cCTDJf
+         ZZkLdUd3SNw4WZos2IM3P9hsUMKEBVnT+4BRPzsg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bharat Gooty <bharat.gooty@broadcom.com>,
-        Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>,
+        stable@vger.kernel.org, Sanket Parmar <sparmar@cadence.com>,
+        Roger Quadros <rogerq@ti.com>,
         Kishon Vijay Abraham I <kishon@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 221/477] drivers: phy: sr-usb: do not use internal fsm for USB2 phy init
-Date:   Tue, 23 Jun 2020 21:53:38 +0200
-Message-Id: <20200623195418.030120423@linuxfoundation.org>
+Subject: [PATCH 5.7 222/477] phy: cadence: sierra: Fix for USB3 U1/U2 state
+Date:   Tue, 23 Jun 2020 21:53:39 +0200
+Message-Id: <20200623195418.076546963@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -45,148 +45,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bharat Gooty <bharat.gooty@broadcom.com>
+From: Sanket Parmar <sparmar@cadence.com>
 
-[ Upstream commit 6f0577d1411337a0d97d545abe4a784e9e611516 ]
+[ Upstream commit 2bcf14ca1a2f3202954f812f380c7fa8127fbd7f ]
 
-During different reboot cycles, USB PHY PLL may not always lock
-during initialization and therefore can cause USB to be not usable.
+Updated values of USB3 related Sierra PHY registers.
+This change fixes USB3 device disconnect issue observed
+while enternig U1/U2 state.
 
-Hence do not use internal FSM programming sequence for the USB
-PHY initialization.
-
-Fixes: 4dcddbb38b64 ("phy: sr-usb: Add Stingray USB PHY driver")
-Signed-off-by: Bharat Gooty <bharat.gooty@broadcom.com>
-Signed-off-by: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
-Link: https://lore.kernel.org/r/20200513173947.10919-1-rayagonda.kokatanur@broadcom.com
+Signed-off-by: Sanket Parmar <sparmar@cadence.com>
+Link: https://lore.kernel.org/r/1589804053-14302-1-git-send-email-sparmar@cadence.com
+Reviewed-by: Roger Quadros <rogerq@ti.com>
 Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/broadcom/phy-bcm-sr-usb.c | 55 +--------------------------
- 1 file changed, 2 insertions(+), 53 deletions(-)
+ drivers/phy/cadence/phy-cadence-sierra.c | 27 ++++++++++++------------
+ 1 file changed, 14 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/phy/broadcom/phy-bcm-sr-usb.c b/drivers/phy/broadcom/phy-bcm-sr-usb.c
-index fe6c58910e4cb..7c7862b4f41f0 100644
---- a/drivers/phy/broadcom/phy-bcm-sr-usb.c
-+++ b/drivers/phy/broadcom/phy-bcm-sr-usb.c
-@@ -16,8 +16,6 @@ enum bcm_usb_phy_version {
- };
- 
- enum bcm_usb_phy_reg {
--	PLL_NDIV_FRAC,
--	PLL_NDIV_INT,
- 	PLL_CTRL,
- 	PHY_CTRL,
- 	PHY_PLL_CTRL,
-@@ -31,18 +29,11 @@ static const u8 bcm_usb_combo_phy_ss[] = {
- };
- 
- static const u8 bcm_usb_combo_phy_hs[] = {
--	[PLL_NDIV_FRAC]	= 0x04,
--	[PLL_NDIV_INT]	= 0x08,
- 	[PLL_CTRL]	= 0x0c,
- 	[PHY_CTRL]	= 0x10,
- };
- 
--#define HSPLL_NDIV_INT_VAL	0x13
--#define HSPLL_NDIV_FRAC_VAL	0x1005
--
- static const u8 bcm_usb_hs_phy[] = {
--	[PLL_NDIV_FRAC]	= 0x0,
--	[PLL_NDIV_INT]	= 0x4,
- 	[PLL_CTRL]	= 0x8,
- 	[PHY_CTRL]	= 0xc,
- };
-@@ -52,7 +43,6 @@ enum pll_ctrl_bits {
- 	SSPLL_SUSPEND_EN,
- 	PLL_SEQ_START,
- 	PLL_LOCK,
--	PLL_PDIV,
- };
- 
- static const u8 u3pll_ctrl[] = {
-@@ -66,29 +56,17 @@ static const u8 u3pll_ctrl[] = {
- #define HSPLL_PDIV_VAL		0x1
- 
- static const u8 u2pll_ctrl[] = {
--	[PLL_PDIV]	= 1,
- 	[PLL_RESETB]	= 5,
- 	[PLL_LOCK]	= 6,
- };
- 
- enum bcm_usb_phy_ctrl_bits {
- 	CORERDY,
--	AFE_LDO_PWRDWNB,
--	AFE_PLL_PWRDWNB,
--	AFE_BG_PWRDWNB,
--	PHY_ISO,
- 	PHY_RESETB,
- 	PHY_PCTL,
- };
- 
- #define PHY_PCTL_MASK	0xffff
--/*
-- * 0x0806 of PCTL_VAL has below bits set
-- * BIT-8 : refclk divider 1
-- * BIT-3:2: device mode; mode is not effect
-- * BIT-1: soft reset active low
-- */
--#define HSPHY_PCTL_VAL	0x0806
- #define SSPHY_PCTL_VAL	0x0006
- 
- static const u8 u3phy_ctrl[] = {
-@@ -98,10 +76,6 @@ static const u8 u3phy_ctrl[] = {
- 
- static const u8 u2phy_ctrl[] = {
- 	[CORERDY]		= 0,
--	[AFE_LDO_PWRDWNB]	= 1,
--	[AFE_PLL_PWRDWNB]	= 2,
--	[AFE_BG_PWRDWNB]	= 3,
--	[PHY_ISO]		= 4,
- 	[PHY_RESETB]		= 5,
- 	[PHY_PCTL]		= 6,
- };
-@@ -186,38 +160,13 @@ static int bcm_usb_hs_phy_init(struct bcm_usb_phy_cfg *phy_cfg)
- 	int ret = 0;
- 	void __iomem *regs = phy_cfg->regs;
- 	const u8 *offset;
--	u32 rd_data;
- 
- 	offset = phy_cfg->offset;
- 
--	writel(HSPLL_NDIV_INT_VAL, regs + offset[PLL_NDIV_INT]);
--	writel(HSPLL_NDIV_FRAC_VAL, regs + offset[PLL_NDIV_FRAC]);
--
--	rd_data = readl(regs + offset[PLL_CTRL]);
--	rd_data &= ~(HSPLL_PDIV_MASK << u2pll_ctrl[PLL_PDIV]);
--	rd_data |= (HSPLL_PDIV_VAL << u2pll_ctrl[PLL_PDIV]);
--	writel(rd_data, regs + offset[PLL_CTRL]);
--
--	/* Set Core Ready high */
--	bcm_usb_reg32_setbits(regs + offset[PHY_CTRL],
--			      BIT(u2phy_ctrl[CORERDY]));
--
--	/* Maximum timeout for Core Ready done */
--	msleep(30);
--
-+	bcm_usb_reg32_clrbits(regs + offset[PLL_CTRL],
-+			      BIT(u2pll_ctrl[PLL_RESETB]));
- 	bcm_usb_reg32_setbits(regs + offset[PLL_CTRL],
- 			      BIT(u2pll_ctrl[PLL_RESETB]));
--	bcm_usb_reg32_setbits(regs + offset[PHY_CTRL],
--			      BIT(u2phy_ctrl[PHY_RESETB]));
--
--
--	rd_data = readl(regs + offset[PHY_CTRL]);
--	rd_data &= ~(PHY_PCTL_MASK << u2phy_ctrl[PHY_PCTL]);
--	rd_data |= (HSPHY_PCTL_VAL << u2phy_ctrl[PHY_PCTL]);
--	writel(rd_data, regs + offset[PHY_CTRL]);
--
--	/* Maximum timeout for PLL reset done */
--	msleep(30);
- 
- 	ret = bcm_usb_pll_lock_check(regs + offset[PLL_CTRL],
- 				     BIT(u2pll_ctrl[PLL_LOCK]));
+diff --git a/drivers/phy/cadence/phy-cadence-sierra.c b/drivers/phy/cadence/phy-cadence-sierra.c
+index a5c08e5bd2bf7..faed652b73f79 100644
+--- a/drivers/phy/cadence/phy-cadence-sierra.c
++++ b/drivers/phy/cadence/phy-cadence-sierra.c
+@@ -685,10 +685,10 @@ static struct cdns_reg_pairs cdns_usb_cmn_regs_ext_ssc[] = {
+ static struct cdns_reg_pairs cdns_usb_ln_regs_ext_ssc[] = {
+ 	{0xFE0A, SIERRA_DET_STANDEC_A_PREG},
+ 	{0x000F, SIERRA_DET_STANDEC_B_PREG},
+-	{0x00A5, SIERRA_DET_STANDEC_C_PREG},
++	{0x55A5, SIERRA_DET_STANDEC_C_PREG},
+ 	{0x69ad, SIERRA_DET_STANDEC_D_PREG},
+ 	{0x0241, SIERRA_DET_STANDEC_E_PREG},
+-	{0x0010, SIERRA_PSM_LANECAL_DLY_A1_RESETS_PREG},
++	{0x0110, SIERRA_PSM_LANECAL_DLY_A1_RESETS_PREG},
+ 	{0x0014, SIERRA_PSM_A0IN_TMR_PREG},
+ 	{0xCF00, SIERRA_PSM_DIAG_PREG},
+ 	{0x001F, SIERRA_PSC_TX_A0_PREG},
+@@ -696,7 +696,7 @@ static struct cdns_reg_pairs cdns_usb_ln_regs_ext_ssc[] = {
+ 	{0x0003, SIERRA_PSC_TX_A2_PREG},
+ 	{0x0003, SIERRA_PSC_TX_A3_PREG},
+ 	{0x0FFF, SIERRA_PSC_RX_A0_PREG},
+-	{0x0619, SIERRA_PSC_RX_A1_PREG},
++	{0x0003, SIERRA_PSC_RX_A1_PREG},
+ 	{0x0003, SIERRA_PSC_RX_A2_PREG},
+ 	{0x0001, SIERRA_PSC_RX_A3_PREG},
+ 	{0x0001, SIERRA_PLLCTRL_SUBRATE_PREG},
+@@ -705,19 +705,19 @@ static struct cdns_reg_pairs cdns_usb_ln_regs_ext_ssc[] = {
+ 	{0x00CA, SIERRA_CLKPATH_BIASTRIM_PREG},
+ 	{0x2512, SIERRA_DFE_BIASTRIM_PREG},
+ 	{0x0000, SIERRA_DRVCTRL_ATTEN_PREG},
+-	{0x873E, SIERRA_CLKPATHCTRL_TMR_PREG},
+-	{0x03CF, SIERRA_RX_CREQ_FLTR_A_MODE1_PREG},
+-	{0x01CE, SIERRA_RX_CREQ_FLTR_A_MODE0_PREG},
++	{0x823E, SIERRA_CLKPATHCTRL_TMR_PREG},
++	{0x078F, SIERRA_RX_CREQ_FLTR_A_MODE1_PREG},
++	{0x078F, SIERRA_RX_CREQ_FLTR_A_MODE0_PREG},
+ 	{0x7B3C, SIERRA_CREQ_CCLKDET_MODE01_PREG},
+-	{0x033F, SIERRA_RX_CTLE_MAINTENANCE_PREG},
++	{0x023C, SIERRA_RX_CTLE_MAINTENANCE_PREG},
+ 	{0x3232, SIERRA_CREQ_FSMCLK_SEL_PREG},
+ 	{0x0000, SIERRA_CREQ_EQ_CTRL_PREG},
+-	{0x8000, SIERRA_CREQ_SPARE_PREG},
++	{0x0000, SIERRA_CREQ_SPARE_PREG},
+ 	{0xCC44, SIERRA_CREQ_EQ_OPEN_EYE_THRESH_PREG},
+-	{0x8453, SIERRA_CTLELUT_CTRL_PREG},
+-	{0x4110, SIERRA_DFE_ECMP_RATESEL_PREG},
+-	{0x4110, SIERRA_DFE_SMP_RATESEL_PREG},
+-	{0x0002, SIERRA_DEQ_PHALIGN_CTRL},
++	{0x8452, SIERRA_CTLELUT_CTRL_PREG},
++	{0x4121, SIERRA_DFE_ECMP_RATESEL_PREG},
++	{0x4121, SIERRA_DFE_SMP_RATESEL_PREG},
++	{0x0003, SIERRA_DEQ_PHALIGN_CTRL},
+ 	{0x3200, SIERRA_DEQ_CONCUR_CTRL1_PREG},
+ 	{0x5064, SIERRA_DEQ_CONCUR_CTRL2_PREG},
+ 	{0x0030, SIERRA_DEQ_EPIPWR_CTRL2_PREG},
+@@ -725,7 +725,7 @@ static struct cdns_reg_pairs cdns_usb_ln_regs_ext_ssc[] = {
+ 	{0x5A5A, SIERRA_DEQ_ERRCMP_CTRL_PREG},
+ 	{0x02F5, SIERRA_DEQ_OFFSET_CTRL_PREG},
+ 	{0x02F5, SIERRA_DEQ_GAIN_CTRL_PREG},
+-	{0x9A8A, SIERRA_DEQ_VGATUNE_CTRL_PREG},
++	{0x9999, SIERRA_DEQ_VGATUNE_CTRL_PREG},
+ 	{0x0014, SIERRA_DEQ_GLUT0},
+ 	{0x0014, SIERRA_DEQ_GLUT1},
+ 	{0x0014, SIERRA_DEQ_GLUT2},
+@@ -772,6 +772,7 @@ static struct cdns_reg_pairs cdns_usb_ln_regs_ext_ssc[] = {
+ 	{0x000F, SIERRA_LFPSFILT_NS_PREG},
+ 	{0x0009, SIERRA_LFPSFILT_RD_PREG},
+ 	{0x0001, SIERRA_LFPSFILT_MP_PREG},
++	{0x6013, SIERRA_SIGDET_SUPPORT_PREG},
+ 	{0x8013, SIERRA_SDFILT_H2L_A_PREG},
+ 	{0x8009, SIERRA_SDFILT_L2H_PREG},
+ 	{0x0024, SIERRA_RXBUFFER_CTLECTRL_PREG},
 -- 
 2.25.1
 
