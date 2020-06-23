@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51275205F02
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:32:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFDDE205FCD
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:47:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390882AbgFWU2d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:28:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48328 "EHLO mail.kernel.org"
+        id S2390690AbgFWUgV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:36:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390879AbgFWU2c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:28:32 -0400
+        id S2389901AbgFWUgU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:36:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B87B12064B;
-        Tue, 23 Jun 2020 20:28:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DFC4620781;
+        Tue, 23 Jun 2020 20:36:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944112;
-        bh=SHAhC7DmFtppXWs7b0Kn01bV/vNSQiVgCjFt4xW8ddQ=;
+        s=default; t=1592944580;
+        bh=TDz7quR5F3qn09FfwEnfxZjI4AkGeZm/NEXZUi5KpxE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TWMjWShE2b44ffTzepxRz5CzQFKiDPor0appv47qVozgrwtbq0o1Q4aGh62S34Exb
-         fDKV9MIAtlXgCpBUptTJ/bCn4R7KVZIIqj8GNdJiCBYjX5TZNBLjiy1JsrtcDH32+f
-         V0DU2yvQj8hWz3Gt+bf9xP+hYRB7kW8kDrVYePh0=
+        b=yv6ORJxjNE1GvoMKkRuNYOPK+Xk64R0GgiZN+qmRCHpl3mjTYCMrLhp0o1lIEEM1f
+         nsLrL7lGRalPRmXfH8EJx8NB9hCh2IlueTJqo2Dc5XvLXYVL11ALI1Tdl8+c2cGmip
+         /NqiK3/8G92Hu3DUXVbd2snRD2+dQfKPGx7TKcdw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
-        Felipe Balbi <balbi@kernel.org>,
+        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 178/314] usb: gadget: fix potential double-free in m66592_probe.
+Subject: [PATCH 4.19 045/206] scsi: ibmvscsi: Dont send host info in adapter info MAD after LPM
 Date:   Tue, 23 Jun 2020 21:56:13 +0200
-Message-Id: <20200623195347.380962831@linuxfoundation.org>
+Message-Id: <20200623195319.198816531@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
-References: <20200623195338.770401005@linuxfoundation.org>
+In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
+References: <20200623195316.864547658@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Tyrel Datwyler <tyreld@linux.ibm.com>
 
-[ Upstream commit 44734a594196bf1d474212f38fe3a0d37a73278b ]
+[ Upstream commit 4919b33b63c8b69d8dcf2b867431d0e3b6dc6d28 ]
 
-m66592_free_request() is called under label "err_add_udc"
-and "clean_up", and m66592->ep0_req is not set to NULL after
-first free, leading to a double-free. Fix this issue by
-setting m66592->ep0_req to NULL after the first free.
+The adapter info MAD is used to send the client info and receive the host
+info as a response. A persistent buffer is used and as such the client info
+is overwritten after the response. During the course of a normal adapter
+reset the client info is refreshed in the buffer in preparation for sending
+the adapter info MAD.
 
-Fixes: 0f91349b89f3 ("usb: gadget: convert all users to the new udc infrastructure")
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+However, in the special case of LPM where we reenable the CRQ instead of a
+full CRQ teardown and reset we fail to refresh the client info in the
+adapter info buffer. As a result, after Live Partition Migration (LPM) we
+erroneously report the host's info as our own.
+
+[mkp: typos]
+
+Link: https://lore.kernel.org/r/20200603203632.18426-1-tyreld@linux.ibm.com
+Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/m66592-udc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/ibmvscsi/ibmvscsi.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/usb/gadget/udc/m66592-udc.c b/drivers/usb/gadget/udc/m66592-udc.c
-index a8288df6aadf0..ea59b56e54023 100644
---- a/drivers/usb/gadget/udc/m66592-udc.c
-+++ b/drivers/usb/gadget/udc/m66592-udc.c
-@@ -1667,7 +1667,7 @@ static int m66592_probe(struct platform_device *pdev)
+diff --git a/drivers/scsi/ibmvscsi/ibmvscsi.c b/drivers/scsi/ibmvscsi/ibmvscsi.c
+index b99ded6b9e0bb..036508a4bd5a8 100644
+--- a/drivers/scsi/ibmvscsi/ibmvscsi.c
++++ b/drivers/scsi/ibmvscsi/ibmvscsi.c
+@@ -429,6 +429,8 @@ static int ibmvscsi_reenable_crq_queue(struct crq_queue *queue,
+ 	int rc = 0;
+ 	struct vio_dev *vdev = to_vio_dev(hostdata->dev);
  
- err_add_udc:
- 	m66592_free_request(&m66592->ep[0].ep, m66592->ep0_req);
--
-+	m66592->ep0_req = NULL;
- clean_up3:
- 	if (m66592->pdata->on_chip) {
- 		clk_disable(m66592->clk);
++	set_adapter_info(hostdata);
++
+ 	/* Re-enable the CRQ */
+ 	do {
+ 		if (rc)
 -- 
 2.25.1
 
