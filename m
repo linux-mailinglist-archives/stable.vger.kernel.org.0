@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E14E8205F73
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:33:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 895F4206092
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:48:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391376AbgFWUdC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:33:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54156 "EHLO mail.kernel.org"
+        id S2391991AbgFWUoT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:44:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391370AbgFWUdB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:33:01 -0400
+        id S2391966AbgFWUoO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:44:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1957E206C3;
-        Tue, 23 Jun 2020 20:33:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5CC5521BE5;
+        Tue, 23 Jun 2020 20:44:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944381;
-        bh=378uOhPw4trf/EYBvinGEcHsXnmJkRgo2SeAskqxB0c=;
+        s=default; t=1592945055;
+        bh=VTgECtsmnew3I+DG8yH1+oCtTQklwgoqBZ4yrtOuAGA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z40so3pc4HWYzB2CVLjVepYaKOaoQnjpKzqzU5BXUVrTT+V8sJb9Anu6DI3d0Tm29
-         lbJQzCMY0LAigDq3FGwRteiKEVpzByC2Z1s2MnyJ5KMHj2QRYnp13McYifCttH+TQk
-         KJh3AMwrJwaUfMQmHyXRuEhZyY70iC1udqwvlkFc=
+        b=hgLX4Dq2KSFTm+TNq09h/Zj/Tx2fGxeAGaCKl71BpdCetNX/+ScYYXF6JAb+nHvST
+         5m3vFKnszePIuiFe8oep6Yw1eVd6cjQnkKAL3hXt04LTBcxd0im4HCWMiZzmF2RAtH
+         uUGYZVT3r9qe8I5J6yzHtH3l8RdpkYcCgcIAWbQg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Daniel Rosenberg <drosen@google.com>,
-        Gabriel Krisman Bertazi <krisman@collabora.co.uk>,
-        Eric Biggers <ebiggers@google.com>,
-        Andreas Dilger <adilger@dilger.ca>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.4 282/314] ext4: avoid utf8_strncasecmp() with unstable name
+        stable@vger.kernel.org,
+        Emmanuel Nicolet <emmanuel.nicolet@gmail.com>,
+        Geoff Levand <geoff@infradead.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 021/136] ps3disk: use the default segment boundary
 Date:   Tue, 23 Jun 2020 21:57:57 +0200
-Message-Id: <20200623195352.429875944@linuxfoundation.org>
+Message-Id: <20200623195304.697752787@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
-References: <20200623195338.770401005@linuxfoundation.org>
+In-Reply-To: <20200623195303.601828702@linuxfoundation.org>
+References: <20200623195303.601828702@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,65 +46,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Emmanuel Nicolet <emmanuel.nicolet@gmail.com>
 
-commit 2ce3ee931a097e9720310db3f09c01c825a4580c upstream.
+[ Upstream commit 720bc316690bd27dea9d71510b50f0cd698ffc32 ]
 
-If the dentry name passed to ->d_compare() fits in dentry::d_iname, then
-it may be concurrently modified by a rename.  This can cause undefined
-behavior (possibly out-of-bounds memory accesses or crashes) in
-utf8_strncasecmp(), since fs/unicode/ isn't written to handle strings
-that may be concurrently modified.
+Since commit dcebd755926b ("block: use bio_for_each_bvec() to compute
+multi-page bvec count"), the kernel will bug_on on the PS3 because
+bio_split() is called with sectors == 0:
 
-Fix this by first copying the filename to a stack buffer if needed.
-This way we get a stable snapshot of the filename.
+  kernel BUG at block/bio.c:1853!
+  Oops: Exception in kernel mode, sig: 5 [#1]
+  BE PAGE_SIZE=4K MMU=Hash PREEMPT SMP NR_CPUS=8 NUMA PS3
+  Modules linked in: firewire_sbp2 rtc_ps3(+) soundcore ps3_gelic(+) \
+  ps3rom(+) firewire_core ps3vram(+) usb_common crc_itu_t
+  CPU: 0 PID: 97 Comm: blkid Not tainted 5.3.0-rc4 #1
+  NIP:  c00000000027d0d0 LR: c00000000027d0b0 CTR: 0000000000000000
+  REGS: c00000000135ae90 TRAP: 0700   Not tainted  (5.3.0-rc4)
+  MSR:  8000000000028032 <SF,EE,IR,DR,RI>  CR: 44008240  XER: 20000000
+  IRQMASK: 0
+  GPR00: c000000000289368 c00000000135b120 c00000000084a500 c000000004ff8300
+  GPR04: 0000000000000c00 c000000004c905e0 c000000004c905e0 000000000000ffff
+  GPR08: 0000000000000000 0000000000000001 0000000000000000 000000000000ffff
+  GPR12: 0000000000000000 c0000000008ef000 000000000000003e 0000000000080001
+  GPR16: 0000000000000100 000000000000ffff 0000000000000000 0000000000000004
+  GPR20: c00000000062fd7e 0000000000000001 000000000000ffff 0000000000000080
+  GPR24: c000000000781788 c00000000135b350 0000000000000080 c000000004c905e0
+  GPR28: c00000000135b348 c000000004ff8300 0000000000000000 c000000004c90000
+  NIP [c00000000027d0d0] .bio_split+0x28/0xac
+  LR [c00000000027d0b0] .bio_split+0x8/0xac
+  Call Trace:
+  [c00000000135b120] [c00000000027d130] .bio_split+0x88/0xac (unreliable)
+  [c00000000135b1b0] [c000000000289368] .__blk_queue_split+0x11c/0x53c
+  [c00000000135b2d0] [c00000000028f614] .blk_mq_make_request+0x80/0x7d4
+  [c00000000135b3d0] [c000000000283a8c] .generic_make_request+0x118/0x294
+  [c00000000135b4b0] [c000000000283d34] .submit_bio+0x12c/0x174
+  [c00000000135b580] [c000000000205a44] .mpage_bio_submit+0x3c/0x4c
+  [c00000000135b600] [c000000000206184] .mpage_readpages+0xa4/0x184
+  [c00000000135b750] [c0000000001ff8fc] .blkdev_readpages+0x24/0x38
+  [c00000000135b7c0] [c0000000001589f0] .read_pages+0x6c/0x1a8
+  [c00000000135b8b0] [c000000000158c74] .__do_page_cache_readahead+0x118/0x184
+  [c00000000135b9b0] [c0000000001591a8] .force_page_cache_readahead+0xe4/0xe8
+  [c00000000135ba50] [c00000000014fc24] .generic_file_read_iter+0x1d8/0x830
+  [c00000000135bb50] [c0000000001ffadc] .blkdev_read_iter+0x40/0x5c
+  [c00000000135bbc0] [c0000000001b9e00] .new_sync_read+0x144/0x1a0
+  [c00000000135bcd0] [c0000000001bc454] .vfs_read+0xa0/0x124
+  [c00000000135bd70] [c0000000001bc7a4] .ksys_read+0x70/0xd8
+  [c00000000135be20] [c00000000000a524] system_call+0x5c/0x70
+  Instruction dump:
+  7fe3fb78 482e30dc 7c0802a6 482e3085 7c9e2378 f821ff71 7ca42b78 7d3e00d0
+  7c7d1b78 79290fe0 7cc53378 69290001 <0b090000> 81230028 7bca0020 7929ba62
+  [ end trace 313fec760f30aa1f ]---
 
-Fixes: b886ee3e778e ("ext4: Support case-insensitive file name lookups")
-Cc: <stable@vger.kernel.org> # v5.2+
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Daniel Rosenberg <drosen@google.com>
-Cc: Gabriel Krisman Bertazi <krisman@collabora.co.uk>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Reviewed-by: Andreas Dilger <adilger@dilger.ca>
-Link: https://lore.kernel.org/r/20200601200543.59417-1-ebiggers@kernel.org
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The problem originates from setting the segment boundary of the
+request queue to -1UL. This makes get_max_segment_size() return zero
+when offset is zero, whatever the max segment size. The test with
+BLK_SEG_BOUNDARY_MASK fails and 'mask - (mask & offset) + 1' overflows
+to zero in the return statement.
 
+Not setting the segment boundary and using the default
+value (BLK_SEG_BOUNDARY_MASK) fixes the problem.
+
+Signed-off-by: Emmanuel Nicolet <emmanuel.nicolet@gmail.com>
+Signed-off-by: Geoff Levand <geoff@infradead.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/060a416c43138f45105c0540eff1a45539f7e2fc.1589049250.git.geoff@infradead.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/dir.c |   16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/block/ps3disk.c | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/fs/ext4/dir.c
-+++ b/fs/ext4/dir.c
-@@ -677,6 +677,7 @@ static int ext4_d_compare(const struct d
- 	struct qstr qstr = {.name = str, .len = len };
- 	const struct dentry *parent = READ_ONCE(dentry->d_parent);
- 	const struct inode *inode = READ_ONCE(parent->d_inode);
-+	char strbuf[DNAME_INLINE_LEN];
+diff --git a/drivers/block/ps3disk.c b/drivers/block/ps3disk.c
+index 075662f2cf466..d20f66d578040 100644
+--- a/drivers/block/ps3disk.c
++++ b/drivers/block/ps3disk.c
+@@ -468,7 +468,6 @@ static int ps3disk_probe(struct ps3_system_bus_device *_dev)
+ 	blk_queue_bounce_limit(queue, BLK_BOUNCE_HIGH);
  
- 	if (!inode || !IS_CASEFOLDED(inode) ||
- 	    !EXT4_SB(inode->i_sb)->s_encoding) {
-@@ -685,6 +686,21 @@ static int ext4_d_compare(const struct d
- 		return memcmp(str, name->name, len);
- 	}
+ 	blk_queue_max_hw_sectors(queue, dev->bounce_size >> 9);
+-	blk_queue_segment_boundary(queue, -1UL);
+ 	blk_queue_dma_alignment(queue, dev->blk_size-1);
+ 	blk_queue_logical_block_size(queue, dev->blk_size);
  
-+	/*
-+	 * If the dentry name is stored in-line, then it may be concurrently
-+	 * modified by a rename.  If this happens, the VFS will eventually retry
-+	 * the lookup, so it doesn't matter what ->d_compare() returns.
-+	 * However, it's unsafe to call utf8_strncasecmp() with an unstable
-+	 * string.  Therefore, we have to copy the name into a temporary buffer.
-+	 */
-+	if (len <= DNAME_INLINE_LEN - 1) {
-+		memcpy(strbuf, str, len);
-+		strbuf[len] = 0;
-+		qstr.name = strbuf;
-+		/* prevent compiler from optimizing out the temporary buffer */
-+		barrier();
-+	}
-+
- 	return ext4_ci_compare(inode, name, &qstr, false);
- }
- 
+-- 
+2.25.1
+
 
 
