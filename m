@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A669420652B
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:33:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40B78206528
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:33:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389819AbgFWVbu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 17:31:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54574 "EHLO mail.kernel.org"
+        id S2389188AbgFWVbn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 17:31:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387764AbgFWUMr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:12:47 -0400
+        id S2389013AbgFWUMw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:12:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 84DB120707;
-        Tue, 23 Jun 2020 20:12:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 99599206C3;
+        Tue, 23 Jun 2020 20:12:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943167;
-        bh=V1SPoplEmZ/3LzfyNCzLGqwymNW+A/LBYDY/0GhcAA4=;
+        s=default; t=1592943172;
+        bh=ASgfV1lHJgH4N3WUQ89zDY7Hb3Futsl0SfI9sb94r/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YEVGF/X/zPFBVR3ycBiFqSy8syLBTDUkcG2DGNVtpXt9oKJtCDlHNQJj0ZRXCjaDM
-         Y8deEwa1d6ZsY366raApw74Nv4mxE4WYTJ55RB925cxxE9GXiHylt94n4IE+KDMDBb
-         HeWHupdZdRgnH6MxtTqVLdiNS893QlOwhosCfDek=
+        b=ArNZl1rwt1dqyU6jSgXf7UST2VOdFWMbZENigY/xoDzeJ2z3gTXTJmdY/plnKV+gi
+         h4eN6iqIIK9V2tQQUo8T+VkJTdk/ngHBFd8OMPMybJKgR9KbMleRwcoaSqqjbWbyHP
+         aDms8X2ia9A0xgdJRBZKjyYe0OXqJXK9pVgrcC3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eddie James <eajames@linux.ibm.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Derek Kiernan <derek.kiernan@xilinx.com>,
+        Dragan Cvetic <dragan.cvetic@xilinx.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Michal Simek <michal.simek@xilinx.com>,
+        linux-arm-kernel@lists.infradead.org,
+        John Hubbard <jhubbard@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 286/477] clk: ast2600: Fix AHB clock divider for A1
-Date:   Tue, 23 Jun 2020 21:54:43 +0200
-Message-Id: <20200623195421.090400246@linuxfoundation.org>
+Subject: [PATCH 5.7 287/477] misc: xilinx-sdfec: improve get_user_pages_fast() error handling
+Date:   Tue, 23 Jun 2020 21:54:44 +0200
+Message-Id: <20200623195421.135774193@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -44,79 +48,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eddie James <eajames@linux.ibm.com>
+From: John Hubbard <jhubbard@nvidia.com>
 
-[ Upstream commit 2d491066ccd4286538450c227fc5094ceb04b494 ]
+[ Upstream commit 57343d51613227373759f5b0f2eede257fd4b82e ]
 
-The latest specs for the AST2600 A1 chip include some different bit
-definitions for calculating the AHB clock divider. Implement these in
-order to get the correct AHB clock value in Linux.
+This fixes the case of get_user_pages_fast() returning a -errno.
+The result needs to be stored in a signed integer. And for safe
+signed/unsigned comparisons, it's best to keep everything signed.
+And get_user_pages_fast() also expects a signed value for number
+of pages to pin.
 
-Signed-off-by: Eddie James <eajames@linux.ibm.com>
-Link: https://lkml.kernel.org/r/20200408203616.4031-1-eajames@linux.ibm.com
-Fixes: d3d04f6c330a ("clk: Add support for AST2600 SoC")
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Therefore, change most relevant variables, from u32 to int. Leave
+"n" unsigned, for convenience in checking for overflow. And provide
+a WARN_ON_ONCE() and early return, if overflow occurs.
+
+Also, as long as we're tidying up: rename the page array from page,
+to pages, in order to match the conventions used in most other call
+sites.
+
+Fixes: 20ec628e8007e ("misc: xilinx_sdfec: Add ability to configure LDPC")
+Cc: Derek Kiernan <derek.kiernan@xilinx.com>
+Cc: Dragan Cvetic <dragan.cvetic@xilinx.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Michal Simek <michal.simek@xilinx.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Signed-off-by: John Hubbard <jhubbard@nvidia.com>
+Link: https://lore.kernel.org/r/20200527012628.1100649-2-jhubbard@nvidia.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-ast2600.c | 31 +++++++++++++++++++++++++------
- 1 file changed, 25 insertions(+), 6 deletions(-)
+ drivers/misc/xilinx_sdfec.c | 27 +++++++++++++++++----------
+ 1 file changed, 17 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/clk/clk-ast2600.c b/drivers/clk/clk-ast2600.c
-index 392d01705b97b..99afc949925f0 100644
---- a/drivers/clk/clk-ast2600.c
-+++ b/drivers/clk/clk-ast2600.c
-@@ -642,14 +642,22 @@ static const u32 ast2600_a0_axi_ahb_div_table[] = {
- 	2, 2, 3, 5,
- };
- 
--static const u32 ast2600_a1_axi_ahb_div_table[] = {
--	4, 6, 2, 4,
-+static const u32 ast2600_a1_axi_ahb_div0_tbl[] = {
-+	3, 2, 3, 4,
-+};
-+
-+static const u32 ast2600_a1_axi_ahb_div1_tbl[] = {
-+	3, 4, 6, 8,
-+};
-+
-+static const u32 ast2600_a1_axi_ahb200_tbl[] = {
-+	3, 4, 3, 4, 2, 2, 2, 2,
- };
- 
- static void __init aspeed_g6_cc(struct regmap *map)
+diff --git a/drivers/misc/xilinx_sdfec.c b/drivers/misc/xilinx_sdfec.c
+index 71bbaa56bdb5b..e2766aad9e142 100644
+--- a/drivers/misc/xilinx_sdfec.c
++++ b/drivers/misc/xilinx_sdfec.c
+@@ -602,10 +602,10 @@ static int xsdfec_table_write(struct xsdfec_dev *xsdfec, u32 offset,
+ 			      const u32 depth)
  {
- 	struct clk_hw *hw;
--	u32 val, div, chip_id, axi_div, ahb_div;
-+	u32 val, div, divbits, chip_id, axi_div, ahb_div;
+ 	u32 reg = 0;
+-	u32 res;
+-	u32 n, i;
++	int res, i, nr_pages;
++	u32 n;
+ 	u32 *addr = NULL;
+-	struct page *page[MAX_NUM_PAGES];
++	struct page *pages[MAX_NUM_PAGES];
  
- 	clk_hw_register_fixed_rate(NULL, "clkin", NULL, 0, 25000000);
+ 	/*
+ 	 * Writes that go beyond the length of
+@@ -622,15 +622,22 @@ static int xsdfec_table_write(struct xsdfec_dev *xsdfec, u32 offset,
+ 	if ((len * XSDFEC_REG_WIDTH_JUMP) % PAGE_SIZE)
+ 		n += 1;
  
-@@ -679,11 +687,22 @@ static void __init aspeed_g6_cc(struct regmap *map)
- 	else
- 		axi_div = 2;
- 
-+	divbits = (val >> 11) & 0x3;
- 	regmap_read(map, ASPEED_G6_SILICON_REV, &chip_id);
--	if (chip_id & BIT(16))
--		ahb_div = ast2600_a1_axi_ahb_div_table[(val >> 11) & 0x3];
--	else
-+	if (chip_id & BIT(16)) {
-+		if (!divbits) {
-+			ahb_div = ast2600_a1_axi_ahb200_tbl[(val >> 8) & 0x3];
-+			if (val & BIT(16))
-+				ahb_div *= 2;
-+		} else {
-+			if (val & BIT(16))
-+				ahb_div = ast2600_a1_axi_ahb_div1_tbl[divbits];
-+			else
-+				ahb_div = ast2600_a1_axi_ahb_div0_tbl[divbits];
+-	res = get_user_pages_fast((unsigned long)src_ptr, n, 0, page);
+-	if (res < n) {
+-		for (i = 0; i < res; i++)
+-			put_page(page[i]);
++	if (WARN_ON_ONCE(n > INT_MAX))
++		return -EINVAL;
++
++	nr_pages = n;
++
++	res = get_user_pages_fast((unsigned long)src_ptr, nr_pages, 0, pages);
++	if (res < nr_pages) {
++		if (res > 0) {
++			for (i = 0; i < res; i++)
++				put_page(pages[i]);
 +		}
-+	} else {
- 		ahb_div = ast2600_a0_axi_ahb_div_table[(val >> 11) & 0x3];
-+	}
+ 		return -EINVAL;
+ 	}
  
- 	hw = clk_hw_register_fixed_factor(NULL, "ahb", "hpll", 0, 1, axi_div * ahb_div);
- 	aspeed_g6_clk_data->hws[ASPEED_CLK_AHB] = hw;
+-	for (i = 0; i < n; i++) {
+-		addr = kmap(page[i]);
++	for (i = 0; i < nr_pages; i++) {
++		addr = kmap(pages[i]);
+ 		do {
+ 			xsdfec_regwrite(xsdfec,
+ 					base_addr + ((offset + reg) *
+@@ -639,7 +646,7 @@ static int xsdfec_table_write(struct xsdfec_dev *xsdfec, u32 offset,
+ 			reg++;
+ 		} while ((reg < len) &&
+ 			 ((reg * XSDFEC_REG_WIDTH_JUMP) % PAGE_SIZE));
+-		put_page(page[i]);
++		put_page(pages[i]);
+ 	}
+ 	return reg;
+ }
 -- 
 2.25.1
 
