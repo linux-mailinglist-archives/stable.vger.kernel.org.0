@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4336A205DF9
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:21:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3B9E205DFC
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:21:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389429AbgFWUSi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:18:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35550 "EHLO mail.kernel.org"
+        id S2388128AbgFWUSo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:18:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389699AbgFWUSg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:18:36 -0400
+        id S2388699AbgFWUSn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:18:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98CCD217BA;
-        Tue, 23 Jun 2020 20:18:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 198EC20E65;
+        Tue, 23 Jun 2020 20:18:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943516;
-        bh=H8ChMdSFM7SU/DPLNdY3ctr4rkkLmWRC1G4umLjAEsg=;
+        s=default; t=1592943523;
+        bh=WVZRPf304XDTXTsxZtHmCIrnuF/WwjdfFiKYz5fD9Jk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h2Z14DaZd1HPEynv1xUQbEIJKDpfrQxLyLdlwtPkkcbcq5fcaT9g8rOfpTzxmxD6N
-         gZ/OdNc20gfB7j19GO4R8UXh8FTlgzj5aXoOzZwUMXdUtS1qqyV+ymCnajzCwGJTq/
-         h6fyCwB5Kvkx6Amvej03cz5hM8exdUyUy5/8yWjM=
+        b=JbZqp2vNm+A9qokdd2zHrF/B4c8TCRIOXoVHtC9xwrOthTWe43/eMmfRF6lQErZIu
+         VniUMeUwK5895arF/yGLNCTSbTHwh/ln/uu0252PXrJOj4Hqub8ZM1pUNqFRaaNV43
+         Pm9azQ7FEGjQgMJAwDB9cF56kwxRyA2b3ZgX5EnI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
-        Sean Paul <sean@poorly.run>
-Subject: [PATCH 5.7 422/477] drm/dp_mst: Reformat drm_dp_check_act_status() a bit
-Date:   Tue, 23 Jun 2020 21:56:59 +0200
-Message-Id: <20200623195427.477442658@linuxfoundation.org>
+        stable@vger.kernel.org, Sandeep Raghuraman <sandy.8925@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.7 425/477] drm/amdgpu: Replace invalid device ID with a valid device ID
+Date:   Tue, 23 Jun 2020 21:57:02 +0200
+Message-Id: <20200623195427.620083004@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -43,72 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lyude Paul <lyude@redhat.com>
+From: Sandeep Raghuraman <sandy.8925@gmail.com>
 
-commit a5cb5fa6c3a5c2cf492db667b8670ee7b044b79f upstream.
+commit 790243d3bf78f9830a3b2ffbca1ed0f528295d48 upstream.
 
-Just add a bit more line wrapping, get rid of some extraneous
-whitespace, remove an unneeded goto label, and move around some variable
-declarations. No functional changes here.
+Initializes Powertune data for a specific Hawaii card by fixing what
+looks like a typo in the code. The device ID 66B1 is not a supported
+device ID for this driver, and is not mentioned elsewhere. 67B1 is a
+valid device ID, and is a Hawaii Pro GPU.
 
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-[this isn't a fix, but it's needed for the fix that comes after this]
-Fixes: ad7f8a1f9ced ("drm/helper: add Displayport multi-stream helper (v0.6)")
-Cc: Sean Paul <sean@poorly.run>
-Cc: <stable@vger.kernel.org> # v3.17+
-Reviewed-by: Sean Paul <sean@poorly.run>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200406221253.1307209-3-lyude@redhat.com
+I have tested on my R9 390 which has device ID 67B1, and it works
+fine without problems.
+
+Signed-off-by: Sandeep Raghuraman <sandy.8925@gmail.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/drm_dp_mst_topology.c |   22 ++++++++++------------
- 1 file changed, 10 insertions(+), 12 deletions(-)
+ drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/drm_dp_mst_topology.c
-+++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-@@ -4457,33 +4457,31 @@ fail:
-  */
- int drm_dp_check_act_status(struct drm_dp_mst_topology_mgr *mgr)
- {
-+	int count = 0, ret;
- 	u8 status;
--	int ret;
--	int count = 0;
+--- a/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c
++++ b/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c
+@@ -239,7 +239,7 @@ static void ci_initialize_power_tune_def
  
- 	do {
--		ret = drm_dp_dpcd_readb(mgr->aux, DP_PAYLOAD_TABLE_UPDATE_STATUS, &status);
--
-+		ret = drm_dp_dpcd_readb(mgr->aux,
-+					DP_PAYLOAD_TABLE_UPDATE_STATUS,
-+					&status);
- 		if (ret < 0) {
--			DRM_DEBUG_KMS("failed to read payload table status %d\n", ret);
--			goto fail;
-+			DRM_DEBUG_KMS("failed to read payload table status %d\n",
-+				      ret);
-+			return ret;
- 		}
- 
- 		if (status & DP_PAYLOAD_ACT_HANDLED)
- 			break;
- 		count++;
- 		udelay(100);
--
- 	} while (count < 30);
- 
- 	if (!(status & DP_PAYLOAD_ACT_HANDLED)) {
--		DRM_DEBUG_KMS("failed to get ACT bit %d after %d retries\n", status, count);
--		ret = -EINVAL;
--		goto fail;
-+		DRM_DEBUG_KMS("failed to get ACT bit %d after %d retries\n",
-+			      status, count);
-+		return -EINVAL;
- 	}
- 	return 0;
--fail:
--	return ret;
- }
- EXPORT_SYMBOL(drm_dp_check_act_status);
- 
+ 	switch (dev_id) {
+ 	case 0x67BA:
+-	case 0x66B1:
++	case 0x67B1:
+ 		smu_data->power_tune_defaults = &defaults_hawaii_pro;
+ 		break;
+ 	case 0x67B8:
 
 
