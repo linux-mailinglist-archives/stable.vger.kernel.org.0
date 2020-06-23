@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC877205D59
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:14:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DF0D205D43
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:14:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388743AbgFWUMR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:12:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53850 "EHLO mail.kernel.org"
+        id S2388868AbgFWULF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:11:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388954AbgFWUMR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:12:17 -0400
+        id S2388866AbgFWULE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:11:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6183206C3;
-        Tue, 23 Jun 2020 20:12:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EDE1F20E65;
+        Tue, 23 Jun 2020 20:11:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943136;
-        bh=6sWUVoqWNMdXtKbnrFgLVh0L9gwYssjMgBa1SK+wyxk=;
+        s=default; t=1592943063;
+        bh=6V4vzz0oIJXUMrbIGyFCbHZDXo0+skirALQNnZJy6BQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H1LIpXyADrwPpWP8BXKN55hi93t76gub37IIqGcnwIDp7g8OqJZ7TMYt3p/yEBW4y
-         3eG7ogISjFTfuRqUqIeXVMs5HpucdLy2cCbbCLiAvVFgK5MMsYzdx3Ia+a7lO0CZfv
-         cghacDigHGk37H7ah7OAkMiojkcRf5RtqAA5bLco=
+        b=NYd+aHGxj8hvaPD0GbSOTogaYr0TmuA85BgypiCI8nOYPbjxtISbNHuZ2dnhP5+CI
+         Hv3boJ/aEFczBAFnsYteYIBnfKYFMjOZ+9/cUg8ZC2CwdUAZRTUgJPwm9lA5ajrlPb
+         TxISqiIqtv4aQCqk5MAMd01jRMhNcap5fdAsAh3k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>,
+        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
+        Qian Cai <cai@lca.pw>, Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 243/477] arm64: tegra: Fix ethernet phy-mode for Jetson Xavier
-Date:   Tue, 23 Jun 2020 21:54:00 +0200
-Message-Id: <20200623195419.058779424@linuxfoundation.org>
+Subject: [PATCH 5.7 246/477] powerpc/64s/pgtable: fix an undefined behaviour
+Date:   Tue, 23 Jun 2020 21:54:03 +0200
+Message-Id: <20200623195419.198161828@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -44,42 +44,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Hunter <jonathanh@nvidia.com>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit bba25915b172c72f6fa635f091624d799e3c9cae ]
+[ Upstream commit c2e929b18cea6cbf71364f22d742d9aad7f4677a ]
 
-The 'phy-mode' property is currently defined as 'rgmii' for Jetson
-Xavier. This indicates that the RGMII RX and TX delays are set by the
-MAC and the internal delays set by the PHY are not used.
+Booting a power9 server with hash MMU could trigger an undefined
+behaviour because pud_offset(p4d, 0) will do,
 
-If the Marvell PHY driver is enabled, such that it is used and not the
-generic PHY, ethernet failures are seen (DHCP is failing to obtain an
-IP address) and this is caused because the Marvell PHY driver is
-disabling the internal RX and TX delays. For Jetson Xavier the internal
-PHY RX and TX delay should be used and so fix this by setting the
-'phy-mode' to 'rgmii-id' and not 'rgmii'.
+0 >> (PAGE_SHIFT:16 + PTE_INDEX_SIZE:8 + H_PMD_INDEX_SIZE:10)
 
-Fixes: f89b58ce71a9 ("arm64: tegra: Add ethernet controller on Tegra194")
-Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Fix it by converting pud_index() and friends to static inline
+functions.
+
+UBSAN: shift-out-of-bounds in arch/powerpc/mm/ptdump/ptdump.c:282:15
+shift exponent 34 is too large for 32-bit type 'int'
+CPU: 6 PID: 1 Comm: swapper/0 Not tainted 5.6.0-rc4-next-20200303+ #13
+Call Trace:
+dump_stack+0xf4/0x164 (unreliable)
+ubsan_epilogue+0x18/0x78
+__ubsan_handle_shift_out_of_bounds+0x160/0x21c
+walk_pagetables+0x2cc/0x700
+walk_pud at arch/powerpc/mm/ptdump/ptdump.c:282
+(inlined by) walk_pagetables at arch/powerpc/mm/ptdump/ptdump.c:311
+ptdump_check_wx+0x8c/0xf0
+mark_rodata_ro+0x48/0x80
+kernel_init+0x74/0x194
+ret_from_kernel_thread+0x5c/0x74
+
+Suggested-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Signed-off-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Reviewed-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Link: https://lore.kernel.org/r/20200306044852.3236-1-cai@lca.pw
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/nvidia/tegra194-p2888.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/include/asm/book3s/64/pgtable.h | 23 ++++++++++++++++----
+ 1 file changed, 19 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/nvidia/tegra194-p2888.dtsi b/arch/arm64/boot/dts/nvidia/tegra194-p2888.dtsi
-index 623f7d7d216b7..8e3136dfdd624 100644
---- a/arch/arm64/boot/dts/nvidia/tegra194-p2888.dtsi
-+++ b/arch/arm64/boot/dts/nvidia/tegra194-p2888.dtsi
-@@ -33,7 +33,7 @@
+diff --git a/arch/powerpc/include/asm/book3s/64/pgtable.h b/arch/powerpc/include/asm/book3s/64/pgtable.h
+index 368b136517e04..2838b98bc6df2 100644
+--- a/arch/powerpc/include/asm/book3s/64/pgtable.h
++++ b/arch/powerpc/include/asm/book3s/64/pgtable.h
+@@ -998,10 +998,25 @@ extern struct page *pgd_page(pgd_t pgd);
+ #define pud_page_vaddr(pud)	__va(pud_val(pud) & ~PUD_MASKED_BITS)
+ #define pgd_page_vaddr(pgd)	__va(pgd_val(pgd) & ~PGD_MASKED_BITS)
  
- 			phy-reset-gpios = <&gpio TEGRA194_MAIN_GPIO(G, 5) GPIO_ACTIVE_LOW>;
- 			phy-handle = <&phy>;
--			phy-mode = "rgmii";
-+			phy-mode = "rgmii-id";
+-#define pgd_index(address) (((address) >> (PGDIR_SHIFT)) & (PTRS_PER_PGD - 1))
+-#define pud_index(address) (((address) >> (PUD_SHIFT)) & (PTRS_PER_PUD - 1))
+-#define pmd_index(address) (((address) >> (PMD_SHIFT)) & (PTRS_PER_PMD - 1))
+-#define pte_index(address) (((address) >> (PAGE_SHIFT)) & (PTRS_PER_PTE - 1))
++static inline unsigned long pgd_index(unsigned long address)
++{
++	return (address >> PGDIR_SHIFT) & (PTRS_PER_PGD - 1);
++}
++
++static inline unsigned long pud_index(unsigned long address)
++{
++	return (address >> PUD_SHIFT) & (PTRS_PER_PUD - 1);
++}
++
++static inline unsigned long pmd_index(unsigned long address)
++{
++	return (address >> PMD_SHIFT) & (PTRS_PER_PMD - 1);
++}
++
++static inline unsigned long pte_index(unsigned long address)
++{
++	return (address >> PAGE_SHIFT) & (PTRS_PER_PTE - 1);
++}
  
- 			mdio {
- 				#address-cells = <1>;
+ /*
+  * Find an entry in a page-table-directory.  We combine the address region
 -- 
 2.25.1
 
