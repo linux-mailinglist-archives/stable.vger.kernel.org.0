@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DA66206009
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:47:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0366205F43
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:32:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392004AbgFWUix (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:38:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34436 "EHLO mail.kernel.org"
+        id S2391189AbgFWUbI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:31:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391998AbgFWUiw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:38:52 -0400
+        id S2391187AbgFWUbG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:31:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DAE2821531;
-        Tue, 23 Jun 2020 20:38:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2BC94206C3;
+        Tue, 23 Jun 2020 20:31:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944732;
-        bh=tpk1lI+xUhmj9x8UVeBpdgPE5A7IUMhonMn75/qTPS8=;
+        s=default; t=1592944266;
+        bh=zRJLePaQ3ENRoQlS1Yj61UK3T4FdMPdUtgqv3iygGH8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cn1cnE4zTOct53AK9/TBOBb5siCrlRNffFQhNYkzlHP+RxbV1e6UwhUR9dfRIQ1+V
-         +lptd5dggB/AeelYkVX9vbLLmCrzgsZoDD1ycHrPfBoijOwtju8kwwgbybK1uovwHo
-         Ur84Jo4xYRdeWQDOg8pJq6lrm3LAgpMcvmnjTe+Y=
+        b=ybGjK/xw879PfaoNQaUrf+jGpF+9tLA+ZqemMbQ3So9yw3qLl+BCjMUwxQXVl5nAK
+         ruHM5yTbTLEQ7+u0czUIipJQheQ3GDvoowQbMxuzmvTKc5Og8TkfdRVrxkCJ3+7wqb
+         zwDCaUxBtLf70L5bL+5TirFbKuoQTPWKRrDGR6K8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maor Gottlieb <maorg@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Max Staudt <max@enpas.org>, Wolfram Sang <wsa@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 104/206] IB/cma: Fix ports memory leak in cma_configfs
-Date:   Tue, 23 Jun 2020 21:57:12 +0200
-Message-Id: <20200623195322.059007984@linuxfoundation.org>
+Subject: [PATCH 5.4 238/314] i2c: icy: Fix build with CONFIG_AMIGA_PCMCIA=n
+Date:   Tue, 23 Jun 2020 21:57:13 +0200
+Message-Id: <20200623195350.312495911@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
-References: <20200623195316.864547658@linuxfoundation.org>
+In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
+References: <20200623195338.770401005@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,52 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maor Gottlieb <maorg@mellanox.com>
+From: Max Staudt <max@enpas.org>
 
-[ Upstream commit 63a3345c2d42a9b29e1ce2d3a4043689b3995cea ]
+[ Upstream commit cdb555397f438592bab00599037c347b700cf397 ]
 
-The allocated ports structure in never freed. The free function should be
-called by release_cma_ports_group, but the group is never released since
-we don't remove its default group.
+This has been found by the Kernel Test Robot:
+http://lkml.iu.edu/hypermail/linux/kernel/2006.0/06862.html
 
-Remove default groups when device group is deleted.
+With CONFIG_AMIGA_PCMCIA=n, io_mm.h does not pull in amigahw.h and
+ZTWO_VADDR is undefined. Add forgotten include to i2c-icy.c
 
-Fixes: 045959db65c6 ("IB/cma: Add configfs for rdma_cm")
-Link: https://lore.kernel.org/r/20200521072650.567908-1-leon@kernel.org
-Signed-off-by: Maor Gottlieb <maorg@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: 4768e90ecaec ("i2c: Add i2c-icy for I2C on m68k/Amiga")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Max Staudt <max@enpas.org>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/cma_configfs.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/i2c/busses/i2c-icy.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/infiniband/core/cma_configfs.c b/drivers/infiniband/core/cma_configfs.c
-index eee38b40be990..ce183d0547852 100644
---- a/drivers/infiniband/core/cma_configfs.c
-+++ b/drivers/infiniband/core/cma_configfs.c
-@@ -319,8 +319,21 @@ fail:
- 	return ERR_PTR(err);
- }
+diff --git a/drivers/i2c/busses/i2c-icy.c b/drivers/i2c/busses/i2c-icy.c
+index 8382eb64b4241..d6c17506dba4a 100644
+--- a/drivers/i2c/busses/i2c-icy.c
++++ b/drivers/i2c/busses/i2c-icy.c
+@@ -43,6 +43,7 @@
+ #include <linux/i2c.h>
+ #include <linux/i2c-algo-pcf.h>
  
-+static void drop_cma_dev(struct config_group *cgroup, struct config_item *item)
-+{
-+	struct config_group *group =
-+		container_of(item, struct config_group, cg_item);
-+	struct cma_dev_group *cma_dev_group =
-+		container_of(group, struct cma_dev_group, device_group);
-+
-+	configfs_remove_default_groups(&cma_dev_group->ports_group);
-+	configfs_remove_default_groups(&cma_dev_group->device_group);
-+	config_item_put(item);
-+}
-+
- static struct configfs_group_operations cma_subsys_group_ops = {
- 	.make_group	= make_cma_dev,
-+	.drop_item	= drop_cma_dev,
- };
++#include <asm/amigahw.h>
+ #include <asm/amigaints.h>
+ #include <linux/zorro.h>
  
- static const struct config_item_type cma_subsys_type = {
 -- 
 2.25.1
 
