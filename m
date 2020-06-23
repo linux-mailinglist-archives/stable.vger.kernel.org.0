@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 602BC2063CD
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:30:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A168120615D
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:07:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391324AbgFWVLc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 17:11:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53088 "EHLO mail.kernel.org"
+        id S2392141AbgFWUkI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:40:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391280AbgFWUcR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:32:17 -0400
+        id S2392145AbgFWUkH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:40:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 55705206C3;
-        Tue, 23 Jun 2020 20:32:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E98721582;
+        Tue, 23 Jun 2020 20:40:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944337;
-        bh=4K2oslslAIDQv5nVV6CPCAVRiMSvAAk0VC5A2fKExuM=;
+        s=default; t=1592944807;
+        bh=41H/wvNFxvhfOqdL+8lXTBqmmzwHHM+hgN6cXXnzqzA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2lCZIo5krgsRfw6FrfgLmCeMbmF7q0q7AYCDKz8hmTIFE5RfbE+DZkiyYDkV0e5+K
-         m8GaHIroyAx/VCybcKKmBC5m5SB6tgELNupReK5OhZ9UZtCHEtP4zCJyKs9feJXabj
-         HC35dy9AToYou7OfHCRhcmKS1yDDPS4GptJ5yyPE=
+        b=wim1OH8zSdFxJYP4tHeGNyoWKSjoL4Azm3LXBUGa42PzIFkaIyeH+iLxGF1eQDcr0
+         OBlGqxbVQA3dVGOijQs9KeApZngRweTGrPiYMQ32hAEZQAhJ1hynGy9XGZbPBdDIxp
+         AlCOFSE6R784H5naZi6xkuChy1KVFccrwm33HwUM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Logan Gunthorpe <logang@deltatee.com>,
-        Allen Hubbe <allenbh@gmail.com>,
-        Alexander Fomichev <fomichev.ru@gmail.com>,
-        Jon Mason <jdmason@kudzu.us>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 235/314] NTB: perf: Fix support for hardware that doesnt have port numbers
+        stable@vger.kernel.org,
+        Aditya Paluri <Venkata.AdityaPaluri@synopsys.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 102/206] PCI/PTM: Inherit Switch Downstream Port PTM settings from Upstream Port
 Date:   Tue, 23 Jun 2020 21:57:10 +0200
-Message-Id: <20200623195350.163098077@linuxfoundation.org>
+Message-Id: <20200623195321.957572724@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
-References: <20200623195338.770401005@linuxfoundation.org>
+In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
+References: <20200623195316.864547658@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +45,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Logan Gunthorpe <logang@deltatee.com>
+From: Bjorn Helgaas <bhelgaas@google.com>
 
-[ Upstream commit b54369a248c2e033bfcf5d6917e08cf9d73d54a6 ]
+[ Upstream commit 7b38fd9760f51cc83d80eed2cfbde8b5ead9e93a ]
 
-Legacy drivers do not have port numbers (but is reliably only two ports)
-and was broken by the recent commit that added mult-port support to
-ntb_perf. This is especially important to support the cross link
-topology which is perfectly symmetric and cannot assign unique port
-numbers easily.
+Except for Endpoints, we enable PTM at enumeration-time.  Previously we did
+not account for the fact that Switch Downstream Ports are not permitted to
+have a PTM capability; their PTM behavior is controlled by the Upstream
+Port (PCIe r5.0, sec 7.9.16).  Since Downstream Ports don't have a PTM
+capability, we did not mark them as "ptm_enabled", which meant that
+pci_enable_ptm() on an Endpoint failed because there was no PTM path to it.
 
-Hardware that returns zero for both the local port and the peer should
-just always use gidx=0 for the only peer.
+Mark Downstream Ports as "ptm_enabled" if their Upstream Port has PTM
+enabled.
 
-Fixes: 5648e56d03fa ("NTB: ntb_perf: Add full multi-port NTB API support")
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
-Acked-by: Allen Hubbe <allenbh@gmail.com>
-Tested-by: Alexander Fomichev <fomichev.ru@gmail.com>
-Signed-off-by: Jon Mason <jdmason@kudzu.us>
+Fixes: eec097d43100 ("PCI: Add pci_enable_ptm() for drivers to enable PTM on endpoints")
+Reported-by: Aditya Paluri <Venkata.AdityaPaluri@synopsys.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ntb/test/ntb_perf.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/pci/pcie/ptm.c | 22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/ntb/test/ntb_perf.c b/drivers/ntb/test/ntb_perf.c
-index 3817eadab2cf9..281170887ad06 100644
---- a/drivers/ntb/test/ntb_perf.c
-+++ b/drivers/ntb/test/ntb_perf.c
-@@ -1423,6 +1423,16 @@ static int perf_init_peers(struct perf_ctx *perf)
- 	if (perf->gidx == -1)
- 		perf->gidx = pidx;
+diff --git a/drivers/pci/pcie/ptm.c b/drivers/pci/pcie/ptm.c
+index 9361f3aa26ab8..357a454cafa07 100644
+--- a/drivers/pci/pcie/ptm.c
++++ b/drivers/pci/pcie/ptm.c
+@@ -39,10 +39,6 @@ void pci_ptm_init(struct pci_dev *dev)
+ 	if (!pci_is_pcie(dev))
+ 		return;
+ 
+-	pos = pci_find_ext_capability(dev, PCI_EXT_CAP_ID_PTM);
+-	if (!pos)
+-		return;
+-
+ 	/*
+ 	 * Enable PTM only on interior devices (root ports, switch ports,
+ 	 * etc.) on the assumption that it causes no link traffic until an
+@@ -52,6 +48,23 @@ void pci_ptm_init(struct pci_dev *dev)
+ 	     pci_pcie_type(dev) == PCI_EXP_TYPE_RC_END))
+ 		return;
  
 +	/*
-+	 * Hardware with only two ports may not have unique port
-+	 * numbers. In this case, the gidxs should all be zero.
++	 * Switch Downstream Ports are not permitted to have a PTM
++	 * capability; their PTM behavior is controlled by the Upstream
++	 * Port (PCIe r5.0, sec 7.9.16).
 +	 */
-+	if (perf->pcnt == 1 &&  ntb_port_number(perf->ntb) == 0 &&
-+	    ntb_peer_port_number(perf->ntb, 0) == 0) {
-+		perf->gidx = 0;
-+		perf->peers[0].gidx = 0;
++	ups = pci_upstream_bridge(dev);
++	if (pci_pcie_type(dev) == PCI_EXP_TYPE_DOWNSTREAM &&
++	    ups && ups->ptm_enabled) {
++		dev->ptm_granularity = ups->ptm_granularity;
++		dev->ptm_enabled = 1;
++		return;
 +	}
 +
- 	for (pidx = 0; pidx < perf->pcnt; pidx++) {
- 		ret = perf_setup_peer_mw(&perf->peers[pidx]);
- 		if (ret)
++	pos = pci_find_ext_capability(dev, PCI_EXT_CAP_ID_PTM);
++	if (!pos)
++		return;
++
+ 	pci_read_config_dword(dev, pos + PCI_PTM_CAP, &cap);
+ 	local_clock = (cap & PCI_PTM_GRANULARITY_MASK) >> 8;
+ 
+@@ -61,7 +74,6 @@ void pci_ptm_init(struct pci_dev *dev)
+ 	 * the spec recommendation (PCIe r3.1, sec 7.32.3), select the
+ 	 * furthest upstream Time Source as the PTM Root.
+ 	 */
+-	ups = pci_upstream_bridge(dev);
+ 	if (ups && ups->ptm_enabled) {
+ 		ctrl = PCI_PTM_CTRL_ENABLE;
+ 		if (ups->ptm_granularity == 0)
 -- 
 2.25.1
 
