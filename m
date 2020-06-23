@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2656D2062B0
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:10:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6392206311
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:28:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390515AbgFWVGw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 17:06:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58286 "EHLO mail.kernel.org"
+        id S2388901AbgFWUQI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:16:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391712AbgFWUfk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:35:40 -0400
+        id S2388390AbgFWUQH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:16:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E36432080C;
-        Tue, 23 Jun 2020 20:35:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C25B020EDD;
+        Tue, 23 Jun 2020 20:16:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944540;
-        bh=17iBJXuEnv6kEsGnmpxWe6TY+fF70lsoW9dgIU2mc+M=;
+        s=default; t=1592943367;
+        bh=6RzejahLlQrgdvaRPrW8GQkygqnCDz26sEXC25Ezzs0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H/ApqYkvbLkJRxrhiDEiMIAQgQpkQvrqSMxHG7c/PvCcaZM9yvq5KIGzcCt6v0Qw+
-         8J/q2a05Cy0nZovi+38dHnHXVZlptApube1wBHz01Dyq1UEZo3Rck7ZvSBR0gCFij1
-         jMWzXrvku3C8dqmD5+GNSe9XqI2cvFmYqntwhZs0=
+        b=H/37c8F5XuQFjnAx3KJXEAQapH5rZCGZ/fDdkk2lPSb67z8maDPoMO/tmsdzLI69c
+         sTtjf/5+O8PIQ8uNQPt8MdCssABxOX6qYR1+S+1a0dLxMnQcmvsGjk964J5CR0lNxf
+         G4XRLMlz0r3udOPJ0zjr16SzlM3LqywCEw77Zh6I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org, Dan Murphy <dmurphy@ti.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 005/206] iio: pressure: bmp280: Tolerate IRQ before registering
-Date:   Tue, 23 Jun 2020 21:55:33 +0200
-Message-Id: <20200623195317.193035574@linuxfoundation.org>
+Subject: [PATCH 5.7 337/477] net: marvell: Fix OF_MDIO config check
+Date:   Tue, 23 Jun 2020 21:55:34 +0200
+Message-Id: <20200623195423.470746470@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
-References: <20200623195316.864547658@linuxfoundation.org>
+In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
+References: <20200623195407.572062007@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,56 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Dan Murphy <dmurphy@ti.com>
 
-[ Upstream commit 97b31a6f5fb95b1ec6575b78a7240baddba34384 ]
+[ Upstream commit 5cd119d9a05f1c1a08778a7305b4ca0f16bc1e20 ]
 
-With DEBUG_SHIRQ enabled we have a kernel crash
+When CONFIG_OF_MDIO is set to be a module the code block is not
+compiled. Use the IS_ENABLED macro that checks for both built in as
+well as module.
 
-[  116.482696] BUG: kernel NULL pointer dereference, address: 0000000000000000
-
-...
-
-[  116.606571] Call Trace:
-[  116.609023]  <IRQ>
-[  116.611047]  complete+0x34/0x50
-[  116.614206]  bmp085_eoc_irq+0x9/0x10 [bmp280]
-
-because DEBUG_SHIRQ mechanism fires an IRQ before registration and drivers
-ought to be able to handle an interrupt happening before request_irq() returns.
-
-Fixes: aae953949651 ("iio: pressure: bmp280: add support for BMP085 EOC interrupt")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: cf41a51db8985 ("of/phylib: Use device tree properties to initialize Marvell PHYs.")
+Signed-off-by: Dan Murphy <dmurphy@ti.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/pressure/bmp280-core.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/phy/marvell.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iio/pressure/bmp280-core.c b/drivers/iio/pressure/bmp280-core.c
-index fe87d27779d96..d47922a1d0f37 100644
---- a/drivers/iio/pressure/bmp280-core.c
-+++ b/drivers/iio/pressure/bmp280-core.c
-@@ -703,7 +703,7 @@ static int bmp180_measure(struct bmp280_data *data, u8 ctrl_meas)
- 	unsigned int ctrl;
+diff --git a/drivers/net/phy/marvell.c b/drivers/net/phy/marvell.c
+index 7fc8e10c5f337..a435f7352cfb0 100644
+--- a/drivers/net/phy/marvell.c
++++ b/drivers/net/phy/marvell.c
+@@ -337,7 +337,7 @@ static int m88e1101_config_aneg(struct phy_device *phydev)
+ 	return marvell_config_aneg(phydev);
+ }
  
- 	if (data->use_eoc)
--		init_completion(&data->done);
-+		reinit_completion(&data->done);
- 
- 	ret = regmap_write(data->regmap, BMP280_REG_CTRL_MEAS, ctrl_meas);
- 	if (ret)
-@@ -959,6 +959,9 @@ static int bmp085_fetch_eoc_irq(struct device *dev,
- 			"trying to enforce it\n");
- 		irq_trig = IRQF_TRIGGER_RISING;
- 	}
-+
-+	init_completion(&data->done);
-+
- 	ret = devm_request_threaded_irq(dev,
- 			irq,
- 			bmp085_eoc_irq,
+-#ifdef CONFIG_OF_MDIO
++#if IS_ENABLED(CONFIG_OF_MDIO)
+ /* Set and/or override some configuration registers based on the
+  * marvell,reg-init property stored in the of_node for the phydev.
+  *
 -- 
 2.25.1
 
