@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E175206232
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:09:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED548206190
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:07:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388451AbgFWU5I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:57:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39720 "EHLO mail.kernel.org"
+        id S2392341AbgFWUpB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:45:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392469AbgFWUm7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:42:59 -0400
+        id S2389681AbgFWUo7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:44:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5471C218AC;
-        Tue, 23 Jun 2020 20:42:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DEB2421BE5;
+        Tue, 23 Jun 2020 20:44:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944979;
-        bh=eCIISwX8b9C15X9TqAuD6sELfLxLdfmbumORZ1Z8M3g=;
+        s=default; t=1592945100;
+        bh=0ITsDM3fOKZh+tWWm63frmHczA2dJQnz3x74cD9OrLA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=biNzA4/5iNKtLq/mTrEcIqrrBezllO1QUHhcu82qp6j0beJzrotfzbbOnkNjEXVeU
-         5a1SnF/DJ1x2FsdwofTWFQ7XexiMkvkh1bwTiWyorbQg4lESNEPi+piUsUe8siZUSf
-         mIXti0z4BPt9Dzs3v/tiKnqAHIXIRumOa3qZpOtE=
+        b=cFdI+rrKPkpFIKKto9/J4AfXX4I5T/8zcJx8aq7ccEmSp6Sl3A6tNJqwHdxgFFVXc
+         CiTF29umMVTKsm5Ac6Mal5sIjU76o2yvDcAcz7S2YxHNz0mGilaxm1/BezHJ1qajk/
+         Ink+UYTnljUZmDYplGdiv/9hebaDLi8fWJ1JBU5Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        stable@vger.kernel.org, ashimida <ashimida@linux.alibaba.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 159/206] x86/idt: Keep spurious entries unset in system_vectors
-Date:   Tue, 23 Jun 2020 21:58:07 +0200
-Message-Id: <20200623195324.811460432@linuxfoundation.org>
+Subject: [PATCH 4.14 032/136] mksysmap: Fix the mismatch of .L symbols in System.map
+Date:   Tue, 23 Jun 2020 21:58:08 +0200
+Message-Id: <20200623195305.267444170@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
-References: <20200623195316.864547658@linuxfoundation.org>
+In-Reply-To: <20200623195303.601828702@linuxfoundation.org>
+References: <20200623195303.601828702@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+From: ashimida <ashimida@linux.alibaba.com>
 
-[ Upstream commit 1f1fbc70c10e81f70e9fbe2102d439c883269811 ]
+[ Upstream commit 72d24accf02add25e08733f0ecc93cf10fcbd88c ]
 
-With commit dc20b2d52653 ("x86/idt: Move interrupt gate initialization to
-IDT code") non assigned system vectors are also marked as used in
-'used_vectors' (now 'system_vectors') bitmap. This makes checks in
-arch_show_interrupts() whether a particular system vector is allocated to
-always pass and e.g. 'Hyper-V reenlightenment interrupts' entry always
-shows up in /proc/interrupts.
+When System.map was generated, the kernel used mksysmap to
+filter the kernel symbols, but all the symbols with the
+second letter 'L' in the kernel were filtered out, not just
+the symbols starting with 'dot + L'.
 
-Another side effect of having all unassigned system vectors marked as used
-is that irq_matrix_debug_show() will wrongly count them among 'System'
-vectors.
+For example:
+ashimida@ubuntu:~/linux$ cat System.map |grep ' .L'
+ashimida@ubuntu:~/linux$ nm -n vmlinux |grep ' .L'
+ffff0000088028e0 t bLength_show
+......
+ffff0000092e0408 b PLLP_OUTC_lock
+ffff0000092e0410 b PLLP_OUTA_lock
 
-As it is now ensured that alloc_intr_gate() is not called after init, it is
-possible to leave unused entries in 'system_vectors' unset to fix these
-issues.
+The original intent should be to filter out all local symbols
+starting with '.L', so the dot should be escaped.
 
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20200428093824.1451532-4-vkuznets@redhat.com
+Fixes: 00902e984732 ("mksysmap: Add h8300 local symbol pattern")
+Signed-off-by: ashimida <ashimida@linux.alibaba.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/idt.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ scripts/mksysmap | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/idt.c b/arch/x86/kernel/idt.c
-index a7e0e975043fd..e1f9355307b81 100644
---- a/arch/x86/kernel/idt.c
-+++ b/arch/x86/kernel/idt.c
-@@ -320,7 +320,11 @@ void __init idt_setup_apic_and_irq_gates(void)
+diff --git a/scripts/mksysmap b/scripts/mksysmap
+index a35acc0d0b827..9aa23d15862a0 100755
+--- a/scripts/mksysmap
++++ b/scripts/mksysmap
+@@ -41,4 +41,4 @@
+ # so we just ignore them to let readprofile continue to work.
+ # (At least sparc64 has __crc_ in the middle).
  
- #ifdef CONFIG_X86_LOCAL_APIC
- 	for_each_clear_bit_from(i, system_vectors, NR_VECTORS) {
--		set_bit(i, system_vectors);
-+		/*
-+		 * Don't set the non assigned system vectors in the
-+		 * system_vectors bitmap. Otherwise they show up in
-+		 * /proc/interrupts.
-+		 */
- 		entry = spurious_entries_start + 8 * (i - FIRST_SYSTEM_VECTOR);
- 		set_intr_gate(i, entry);
- 	}
+-$NM -n $1 | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( .L\)' > $2
++$NM -n $1 | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( \.L\)' > $2
 -- 
 2.25.1
 
