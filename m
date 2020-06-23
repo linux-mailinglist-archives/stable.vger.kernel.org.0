@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99C2020624E
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:09:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8E4D2062F9
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:10:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391279AbgFWU6z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:58:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37844 "EHLO mail.kernel.org"
+        id S2393375AbgFWVKE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 17:10:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388315AbgFWUlY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:41:24 -0400
+        id S2391440AbgFWUdj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:33:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4154420675;
-        Tue, 23 Jun 2020 20:41:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA90D2098B;
+        Tue, 23 Jun 2020 20:33:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944884;
-        bh=DdeM3ZpabKSxL178gInYFG9o/1ytqfpbP4udhnBgMxM=;
+        s=default; t=1592944419;
+        bh=oInHpdmlWN717wx6ubP5AP8bxJAce1oMzk4419RoyAM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w7LqLGyzlFqDrcnwjdaLvPgxeMyIksngv9FKQEt2lFM6Rp9qpqpfbHezPLITpvVFi
-         KsWbzivLhOiyRM6SrAj6zuqUcbUuxCcdd1hMH8HRsUjL8x2ylXYkVfV1ybcyXW1MYX
-         DGIjeQYRY7J52AGwGVgycjtBI2DbzQbXUS5SSU0Y=
+        b=F1fOQqy0S3bhaxwHeiGczTHvfzmnO2HVJyREOU68q7McqU0XZVP7d+ipKAjdE90Zg
+         NqDrFibMTZjAA5LPbdmPkPA9RPbXKN2IU3GRheoW2ahyx2/muRUxeZZDeLoVT+LnP4
+         yRCGjwKbgOFoAFdM+8X6kj8dyDDe254gLA1va+VA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Dong Aisheng <aisheng.dong@nxp.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 132/206] pinctrl: freescale: imx: Fix an error handling path in imx_pinctrl_probe()
-Date:   Tue, 23 Jun 2020 21:57:40 +0200
-Message-Id: <20200623195323.477086110@linuxfoundation.org>
+Subject: [PATCH 5.4 267/314] powerpc: Fix kernel crash in show_instructions() w/DEBUG_VIRTUAL
+Date:   Tue, 23 Jun 2020 21:57:42 +0200
+Message-Id: <20200623195351.711020987@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
-References: <20200623195316.864547658@linuxfoundation.org>
+In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
+References: <20200623195338.770401005@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,71 +45,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
 
-[ Upstream commit 11d8da5cabf7c6c3263ba2cd9c00260395867048 ]
+[ Upstream commit a6e2c226c3d51fd93636320e47cabc8a8f0824c5 ]
 
-'pinctrl_unregister()' should not be called to undo
-'devm_pinctrl_register_and_init()', it is already handled by the framework.
+With CONFIG_DEBUG_VIRTUAL=y, we can hit a BUG() if we take a hard
+lockup watchdog interrupt when in OPAL mode.
 
-This simplifies the error handling paths of the probe function.
-The 'imx_free_resources()' can be removed as well.
+This happens in show_instructions() if the kernel takes the watchdog
+NMI IPI, or any other interrupt, with MSR_IR == 0. show_instructions()
+updates the variable pc in the loop and the second iteration will
+result in BUG().
 
-Fixes: a51c158bf0f7 ("pinctrl: imx: use radix trees for groups and functions")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
-Link: https://lore.kernel.org/r/20200530204955.588962-1-christophe.jaillet@wanadoo.fr
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+We hit the BUG_ON due the below check in  __va()
+
+  #define __va(x)
+  ({
+  	VIRTUAL_BUG_ON((unsigned long)(x) >= PAGE_OFFSET);
+  	(void *)(unsigned long)((phys_addr_t)(x) | PAGE_OFFSET);
+  })
+
+Fix it by moving the check out of the loop. Also update nip so that
+the nip == pc check still matches.
+
+Fixes: 4dd7554a6456 ("powerpc/64: Add VIRTUAL_BUG_ON checks for __va and __pa addresses")
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+[mpe: Use IS_ENABLED(), massage change log]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200524093822.423487-1-aneesh.kumar@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/freescale/pinctrl-imx.c | 19 ++-----------------
- 1 file changed, 2 insertions(+), 17 deletions(-)
+ arch/powerpc/kernel/process.c | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/pinctrl/freescale/pinctrl-imx.c b/drivers/pinctrl/freescale/pinctrl-imx.c
-index b04edc22dad76..90d414dd792cb 100644
---- a/drivers/pinctrl/freescale/pinctrl-imx.c
-+++ b/drivers/pinctrl/freescale/pinctrl-imx.c
-@@ -662,16 +662,6 @@ static int imx_pinctrl_probe_dt(struct platform_device *pdev,
- 	return 0;
- }
- 
--/*
-- * imx_free_resources() - free memory used by this driver
-- * @info: info driver instance
-- */
--static void imx_free_resources(struct imx_pinctrl *ipctl)
--{
--	if (ipctl->pctl)
--		pinctrl_unregister(ipctl->pctl);
--}
--
- int imx_pinctrl_probe(struct platform_device *pdev,
- 		      const struct imx_pinctrl_soc_info *info)
+diff --git a/arch/powerpc/kernel/process.c b/arch/powerpc/kernel/process.c
+index 639ceae7da9d8..bd0c258a1d5dd 100644
+--- a/arch/powerpc/kernel/process.c
++++ b/arch/powerpc/kernel/process.c
+@@ -1218,29 +1218,31 @@ struct task_struct *__switch_to(struct task_struct *prev,
+ static void show_instructions(struct pt_regs *regs)
  {
-@@ -762,21 +752,16 @@ int imx_pinctrl_probe(struct platform_device *pdev,
- 					     &ipctl->pctl);
- 	if (ret) {
- 		dev_err(&pdev->dev, "could not register IMX pinctrl driver\n");
--		goto free;
-+		return ret;
- 	}
+ 	int i;
++	unsigned long nip = regs->nip;
+ 	unsigned long pc = regs->nip - (NR_INSN_TO_PRINT * 3 / 4 * sizeof(int));
  
- 	ret = imx_pinctrl_probe_dt(pdev, ipctl);
- 	if (ret) {
- 		dev_err(&pdev->dev, "fail to probe dt properties\n");
--		goto free;
-+		return ret;
- 	}
+ 	printk("Instruction dump:");
  
- 	dev_info(&pdev->dev, "initialized IMX pinctrl driver\n");
++	/*
++	 * If we were executing with the MMU off for instructions, adjust pc
++	 * rather than printing XXXXXXXX.
++	 */
++	if (!IS_ENABLED(CONFIG_BOOKE) && !(regs->msr & MSR_IR)) {
++		pc = (unsigned long)phys_to_virt(pc);
++		nip = (unsigned long)phys_to_virt(regs->nip);
++	}
++
+ 	for (i = 0; i < NR_INSN_TO_PRINT; i++) {
+ 		int instr;
  
- 	return pinctrl_enable(ipctl->pctl);
+ 		if (!(i % 8))
+ 			pr_cont("\n");
+ 
+-#if !defined(CONFIG_BOOKE)
+-		/* If executing with the IMMU off, adjust pc rather
+-		 * than print XXXXXXXX.
+-		 */
+-		if (!(regs->msr & MSR_IR))
+-			pc = (unsigned long)phys_to_virt(pc);
+-#endif
 -
--free:
--	imx_free_resources(ipctl);
--
--	return ret;
- }
+ 		if (!__kernel_text_address(pc) ||
+ 		    probe_kernel_address((const void *)pc, instr)) {
+ 			pr_cont("XXXXXXXX ");
+ 		} else {
+-			if (regs->nip == pc)
++			if (nip == pc)
+ 				pr_cont("<%08x> ", instr);
+ 			else
+ 				pr_cont("%08x ", instr);
 -- 
 2.25.1
 
