@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B3B5206334
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:28:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 323B520615C
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:07:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389752AbgFWUTF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:19:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36102 "EHLO mail.kernel.org"
+        id S2392117AbgFWUkF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:40:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389750AbgFWUTE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:19:04 -0400
+        id S2392119AbgFWUkE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:40:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C7E42064B;
-        Tue, 23 Jun 2020 20:19:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2EA4921883;
+        Tue, 23 Jun 2020 20:40:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943544;
-        bh=87Y+p+s1ikRtX3kRd0XJX39foUwqZUy7+rOdz91WDnM=;
+        s=default; t=1592944804;
+        bh=fBNwQNF9HrDUmnmWR+flBOEs6oIlGvxrXjx/t5+Qz24=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wF65P1l8W3gVt3KXPpASzzBXuRieSl+OVxXrtoJFKr14VepRt0+B8YcqTxiEfwsEQ
-         gbOYZPkuYU1Ac+ZZ0eZuJaSiX6QqJIlumuXKGzbrWzSZO+R9B++00YCImI29e+9VJP
-         2Sx4z8sUAPqIPH4hQeOOAXhbGP1WiHeDtbarWk6k=
+        b=uwpRW+zYsY7qSUDjiK8sLrxQ3XiGKiQKJ+gxTDExc/yXat9eq8xQhaesMSDQxoMk4
+         EgayMcTGwpT2d4/ee4h1l2VWpzEWcAKQXBaF+DShUcXih3Taud7gFNEf3xxIKIee2H
+         13ZrN4PlLo68VBwQSSGAv6gfAMWcbqoWJTMkTo+c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.7 432/477] io_uring: add memory barrier to synchronize io_kiocbs result and iopoll_completed
+        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
+        Damien Le Moal <damien.lemoal@wdc.com>,
+        Mike Snitzer <snitzer@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 101/206] dm zoned: return NULL if dmz_get_zone_for_reclaim() fails to find a zone
 Date:   Tue, 23 Jun 2020 21:57:09 +0200
-Message-Id: <20200623195427.951230674@linuxfoundation.org>
+Message-Id: <20200623195321.909239872@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
-References: <20200623195407.572062007@linuxfoundation.org>
+In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
+References: <20200623195316.864547658@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,140 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
+From: Hannes Reinecke <hare@suse.de>
 
-[ Upstream commit bbde017a32b32d2fa8d5fddca25fade20132abf8 ]
+[ Upstream commit 489dc0f06a5837f87482c0ce61d830d24e17082e ]
 
-In io_complete_rw_iopoll(), stores to io_kiocb's result and iopoll
-completed are two independent store operations, to ensure that once
-iopoll_completed is ture and then req->result must been perceived by
-the cpu executing io_do_iopoll(), proper memory barrier should be used.
+The only case where dmz_get_zone_for_reclaim() cannot return a zone is
+if the respective lists are empty. So we should just return a simple
+NULL value here as we really don't have an error code which would make
+sense.
 
-And in io_do_iopoll(), we check whether req->result is EAGAIN, if it is,
-we'll need to issue this io request using io-wq again. In order to just
-issue a single smp_rmb() on the completion side, move the re-submit work
-to io_iopoll_complete().
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
-[axboe: don't set ->iopoll_completed for -EAGAIN retry]
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Hannes Reinecke <hare@suse.de>
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c |   53 +++++++++++++++++++++++++++++------------------------
- 1 file changed, 29 insertions(+), 24 deletions(-)
+ drivers/md/dm-zoned-metadata.c | 4 ++--
+ drivers/md/dm-zoned-reclaim.c  | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -1690,6 +1690,18 @@ static int io_put_kbuf(struct io_kiocb *
- 	return cflags;
- }
+diff --git a/drivers/md/dm-zoned-metadata.c b/drivers/md/dm-zoned-metadata.c
+index 53eb21343b11f..5c2bbdf67f25d 100644
+--- a/drivers/md/dm-zoned-metadata.c
++++ b/drivers/md/dm-zoned-metadata.c
+@@ -1580,7 +1580,7 @@ static struct dm_zone *dmz_get_rnd_zone_for_reclaim(struct dmz_metadata *zmd)
+ 			return dzone;
+ 	}
  
-+static void io_iopoll_queue(struct list_head *again)
-+{
-+	struct io_kiocb *req;
-+
-+	do {
-+		req = list_first_entry(again, struct io_kiocb, list);
-+		list_del(&req->list);
-+		refcount_inc(&req->refs);
-+		io_queue_async_work(req);
-+	} while (!list_empty(again));
-+}
-+
- /*
-  * Find and free completed poll iocbs
-  */
-@@ -1698,12 +1710,21 @@ static void io_iopoll_complete(struct io
- {
- 	struct req_batch rb;
- 	struct io_kiocb *req;
-+	LIST_HEAD(again);
-+
-+	/* order with ->result store in io_complete_rw_iopoll() */
-+	smp_rmb();
- 
- 	rb.to_free = rb.need_iter = 0;
- 	while (!list_empty(done)) {
- 		int cflags = 0;
- 
- 		req = list_first_entry(done, struct io_kiocb, list);
-+		if (READ_ONCE(req->result) == -EAGAIN) {
-+			req->iopoll_completed = 0;
-+			list_move_tail(&req->list, &again);
-+			continue;
-+		}
- 		list_del(&req->list);
- 
- 		if (req->flags & REQ_F_BUFFER_SELECTED)
-@@ -1721,18 +1742,9 @@ static void io_iopoll_complete(struct io
- 	if (ctx->flags & IORING_SETUP_SQPOLL)
- 		io_cqring_ev_posted(ctx);
- 	io_free_req_many(ctx, &rb);
--}
- 
--static void io_iopoll_queue(struct list_head *again)
--{
--	struct io_kiocb *req;
--
--	do {
--		req = list_first_entry(again, struct io_kiocb, list);
--		list_del(&req->list);
--		refcount_inc(&req->refs);
--		io_queue_async_work(req);
--	} while (!list_empty(again));
-+	if (!list_empty(&again))
-+		io_iopoll_queue(&again);
- }
- 
- static int io_do_iopoll(struct io_ring_ctx *ctx, unsigned int *nr_events,
-@@ -1740,7 +1752,6 @@ static int io_do_iopoll(struct io_ring_c
- {
- 	struct io_kiocb *req, *tmp;
- 	LIST_HEAD(done);
--	LIST_HEAD(again);
- 	bool spin;
- 	int ret;
- 
-@@ -1766,13 +1777,6 @@ static int io_do_iopoll(struct io_ring_c
- 		if (!list_empty(&done))
- 			break;
- 
--		if (req->result == -EAGAIN) {
--			list_move_tail(&req->list, &again);
--			continue;
--		}
--		if (!list_empty(&again))
--			break;
--
- 		ret = kiocb->ki_filp->f_op->iopoll(kiocb, spin);
- 		if (ret < 0)
- 			break;
-@@ -1785,9 +1789,6 @@ static int io_do_iopoll(struct io_ring_c
- 	if (!list_empty(&done))
- 		io_iopoll_complete(ctx, nr_events, &done);
- 
--	if (!list_empty(&again))
--		io_iopoll_queue(&again);
--
- 	return ret;
- }
- 
-@@ -1938,9 +1939,13 @@ static void io_complete_rw_iopoll(struct
- 
- 	if (res != -EAGAIN && res != req->result)
- 		req_set_fail_links(req);
--	req->result = res;
--	if (res != -EAGAIN)
-+
-+	WRITE_ONCE(req->result, res);
-+	/* order with io_poll_complete() checking ->result */
-+	if (res != -EAGAIN) {
-+		smp_wmb();
- 		WRITE_ONCE(req->iopoll_completed, 1);
-+	}
+-	return ERR_PTR(-EBUSY);
++	return NULL;
  }
  
  /*
+@@ -1600,7 +1600,7 @@ static struct dm_zone *dmz_get_seq_zone_for_reclaim(struct dmz_metadata *zmd)
+ 			return zone;
+ 	}
+ 
+-	return ERR_PTR(-EBUSY);
++	return NULL;
+ }
+ 
+ /*
+diff --git a/drivers/md/dm-zoned-reclaim.c b/drivers/md/dm-zoned-reclaim.c
+index 84ac671acd2e1..879848aad97a7 100644
+--- a/drivers/md/dm-zoned-reclaim.c
++++ b/drivers/md/dm-zoned-reclaim.c
+@@ -348,8 +348,8 @@ static int dmz_do_reclaim(struct dmz_reclaim *zrc)
+ 
+ 	/* Get a data zone */
+ 	dzone = dmz_get_zone_for_reclaim(zmd);
+-	if (IS_ERR(dzone))
+-		return PTR_ERR(dzone);
++	if (!dzone)
++		return -EBUSY;
+ 
+ 	start = jiffies;
+ 
+-- 
+2.25.1
+
 
 
