@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0817205F4C
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:32:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1CBE206016
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:47:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390490AbgFWUba (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:31:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52078 "EHLO mail.kernel.org"
+        id S2391112AbgFWUjX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:39:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391204AbgFWUb3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:31:29 -0400
+        id S2392052AbgFWUjX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:39:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 358EF2070E;
-        Tue, 23 Jun 2020 20:31:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE38821531;
+        Tue, 23 Jun 2020 20:39:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944289;
-        bh=VtCfLABy9jFIpwB0CiuNGNBuZRK0+oBQP1HeBXvQ2ps=;
+        s=default; t=1592944763;
+        bh=yGrHHcCypfFHgnq0HVtFGtN17pmOtTr2PTfIXymxVTI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yvYaoQyBy/S8txccoQ0a9n7aOTZodDfqeRVUFtXS5mYcPpRZz5dEqW5RtkffI2pe5
-         05hwTca/3gNy45ZVvTmLDtxRENp4QIMU2DjGt27+aplibW7jUwPH0Yh5o0aKt7c8Vc
-         9Z4ucA2jTez13UEpqKdynNwTaxZxfYfj2NGaVI+Y=
+        b=oQoK/XmzEbWCoIY0XL+E5eAvI4Q+r7wLOYsS18gVm2/g5MXgVsAedZAR/wd/BR1Nx
+         5Sl2upHYuYQsZHjOQ2CxIr8ZuO2aq2U8cYBSMpBaH+dhNjGj8A9s5UIe67Vy4cFa8E
+         OtErh35T7B+G8Q35pdRAREyk4UFGp2ipPfja8T+4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, dihu <anny.hu@linux.alibaba.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 247/314] bpf/sockmap: Fix kernel panic at __tcp_bpf_recvmsg
-Date:   Tue, 23 Jun 2020 21:57:22 +0200
-Message-Id: <20200623195350.731188809@linuxfoundation.org>
+Subject: [PATCH 4.19 115/206] clk: bcm2835: Fix return type of bcm2835_register_gate
+Date:   Tue, 23 Jun 2020 21:57:23 +0200
+Message-Id: <20200623195322.607726709@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
-References: <20200623195338.770401005@linuxfoundation.org>
+In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
+References: <20200623195316.864547658@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,61 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: dihu <anny.hu@linux.alibaba.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 487082fb7bd2a32b66927d2b22e3a81b072b44f0 ]
+[ Upstream commit f376c43bec4f8ee8d1ba5c5c4cfbd6e84fb279cb ]
 
-When user application calls read() with MSG_PEEK flag to read data
-of bpf sockmap socket, kernel panic happens at
-__tcp_bpf_recvmsg+0x12c/0x350. sk_msg is not removed from ingress_msg
-queue after read out under MSG_PEEK flag is set. Because it's not
-judged whether sk_msg is the last msg of ingress_msg queue, the next
-sk_msg may be the head of ingress_msg queue, whose memory address of
-sg page is invalid. So it's necessary to add check codes to prevent
-this problem.
+bcm2835_register_gate is used as a callback for the clk_register member
+of bcm2835_clk_desc, which expects a struct clk_hw * return type but
+bcm2835_register_gate returns a struct clk *.
 
-[20759.125457] BUG: kernel NULL pointer dereference, address:
-0000000000000008
-[20759.132118] CPU: 53 PID: 51378 Comm: envoy Tainted: G            E
-5.4.32 #1
-[20759.140890] Hardware name: Inspur SA5212M4/YZMB-00370-109, BIOS
-4.1.12 06/18/2017
-[20759.149734] RIP: 0010:copy_page_to_iter+0xad/0x300
-[20759.270877] __tcp_bpf_recvmsg+0x12c/0x350
-[20759.276099] tcp_bpf_recvmsg+0x113/0x370
-[20759.281137] inet_recvmsg+0x55/0xc0
-[20759.285734] __sys_recvfrom+0xc8/0x130
-[20759.290566] ? __audit_syscall_entry+0x103/0x130
-[20759.296227] ? syscall_trace_enter+0x1d2/0x2d0
-[20759.301700] ? __audit_syscall_exit+0x1e4/0x290
-[20759.307235] __x64_sys_recvfrom+0x24/0x30
-[20759.312226] do_syscall_64+0x55/0x1b0
-[20759.316852] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+This discrepancy is hidden by the fact that bcm2835_register_gate is
+cast to the typedef bcm2835_clk_register by the _REGISTER macro. This
+turns out to be a control flow integrity violation, which is how this
+was noticed.
 
-Signed-off-by: dihu <anny.hu@linux.alibaba.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Acked-by: Jakub Sitnicki <jakub@cloudflare.com>
-Link: https://lore.kernel.org/bpf/20200605084625.9783-1-anny.hu@linux.alibaba.com
+Change the return type of bcm2835_register_gate to be struct clk_hw *
+and use clk_hw_register_gate to do so. This should be a non-functional
+change as clk_register_gate calls clk_hw_register_gate anyways but this
+is needed to avoid issues with further changes.
+
+Fixes: b19f009d4510 ("clk: bcm2835: Migrate to clk_hw based registration and OF APIs")
+Link: https://github.com/ClangBuiltLinux/linux/issues/1028
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Link: https://lkml.kernel.org/r/20200516080806.1459784-1-natechancellor@gmail.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_bpf.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/clk/bcm/clk-bcm2835.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
-index 69b0254083904..ad9f382027311 100644
---- a/net/ipv4/tcp_bpf.c
-+++ b/net/ipv4/tcp_bpf.c
-@@ -96,6 +96,9 @@ int __tcp_bpf_recvmsg(struct sock *sk, struct sk_psock *psock,
- 		} while (i != msg_rx->sg.end);
+diff --git a/drivers/clk/bcm/clk-bcm2835.c b/drivers/clk/bcm/clk-bcm2835.c
+index 7bef0666ae7e7..1c093fb35ebee 100644
+--- a/drivers/clk/bcm/clk-bcm2835.c
++++ b/drivers/clk/bcm/clk-bcm2835.c
+@@ -1447,13 +1447,13 @@ static struct clk_hw *bcm2835_register_clock(struct bcm2835_cprman *cprman,
+ 	return &clock->hw;
+ }
  
- 		if (unlikely(peek)) {
-+			if (msg_rx == list_last_entry(&psock->ingress_msg,
-+						      struct sk_msg, list))
-+				break;
- 			msg_rx = list_next_entry(msg_rx, list);
- 			continue;
- 		}
+-static struct clk *bcm2835_register_gate(struct bcm2835_cprman *cprman,
++static struct clk_hw *bcm2835_register_gate(struct bcm2835_cprman *cprman,
+ 					 const struct bcm2835_gate_data *data)
+ {
+-	return clk_register_gate(cprman->dev, data->name, data->parent,
+-				 CLK_IGNORE_UNUSED | CLK_SET_RATE_GATE,
+-				 cprman->regs + data->ctl_reg,
+-				 CM_GATE_BIT, 0, &cprman->regs_lock);
++	return clk_hw_register_gate(cprman->dev, data->name, data->parent,
++				    CLK_IGNORE_UNUSED | CLK_SET_RATE_GATE,
++				    cprman->regs + data->ctl_reg,
++				    CM_GATE_BIT, 0, &cprman->regs_lock);
+ }
+ 
+ typedef struct clk_hw *(*bcm2835_clk_register)(struct bcm2835_cprman *cprman,
 -- 
 2.25.1
 
