@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E75A9206348
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:29:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65D41206354
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:29:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390024AbgFWUVW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:21:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38988 "EHLO mail.kernel.org"
+        id S2390144AbgFWUWN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:22:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389693AbgFWUVU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:21:20 -0400
+        id S2390140AbgFWUWM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:22:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5481520780;
-        Tue, 23 Jun 2020 20:21:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B8532070E;
+        Tue, 23 Jun 2020 20:22:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943680;
-        bh=zBrIn/MzAW3cwxarvXWOuOO3A/8UoIoNEtHfB09phO0=;
+        s=default; t=1592943732;
+        bh=dyq/5I+pwZb6njWJWE9yQqqdAT2mPaplMPROOlNuX/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DAfQqrMvbI9txyzRYooMziN6+F2IFgPfpNbT1g5RtjKyeOxx8+mk3bQ/Bw8Nv1qNE
-         m9ONJ15YL4Z5Kn1WUMq/az31Xlr55abRqVaQZ3F8hbbW65aEaYFrOfTutn/q7Fs1/I
-         /rcZ4W6Wa+cGxwGEjMqrnLTkTu7kDbrMhR4Qu00U=
+        b=Ua60HozJKOhKYFlTPM8DUZJ7e3zA8mUheM/2vuNJcVtL1ywSm4r6OGJxt+pOGufKK
+         lhpGn/O9dRbvwdKlN14H4ltxH9sW3d1fKW9ACEwiXbidKQHvS7MMvkIQRyTcc/V2Rs
+         HxLLysC6hOW/oIwWdhw0B0JLAt5DfwHJ5nsmnj4M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 001/314] power: supply: bq24257_charger: Replace depends on REGMAP_I2C with select
-Date:   Tue, 23 Jun 2020 21:53:16 +0200
-Message-Id: <20200623195338.848250499@linuxfoundation.org>
+Subject: [PATCH 5.4 003/314] ASoC: tegra: tegra_wm8903: Support nvidia, headset property
+Date:   Tue, 23 Jun 2020 21:53:18 +0200
+Message-Id: <20200623195338.936712533@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
 References: <20200623195338.770401005@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,36 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-[ Upstream commit 87c3d579c8ed0eaea6b1567d529a8daa85a2bc6c ]
+[ Upstream commit 3ef9d5073b552d56bd6daf2af1e89b7e8d4df183 ]
 
-regmap is a library function that gets selected by drivers that need
-it. No driver modules should depend on it. Depending on REGMAP_I2C makes
-this driver only build if another driver already selected REGMAP_I2C,
-as the symbol can't be selected through the menu kernel configuration.
+The microphone-jack state needs to be masked in a case of a 4-pin jack
+when microphone and ground pins are shorted. Presence of nvidia,headset
+tells that WM8903 CODEC driver should mask microphone's status if short
+circuit is detected, i.e headphones are inserted.
 
-Fixes: 2219a935963e ("power_supply: Add TI BQ24257 charger driver")
-Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Link: https://lore.kernel.org/r/20200330204011.18465-3-digetx@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/tegra/tegra_wm8903.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/power/supply/Kconfig b/drivers/power/supply/Kconfig
-index c84a7b1caeb68..d6fdc10c29f0b 100644
---- a/drivers/power/supply/Kconfig
-+++ b/drivers/power/supply/Kconfig
-@@ -577,7 +577,7 @@ config CHARGER_BQ24257
- 	tristate "TI BQ24250/24251/24257 battery charger driver"
- 	depends on I2C
- 	depends on GPIOLIB || COMPILE_TEST
--	depends on REGMAP_I2C
-+	select REGMAP_I2C
- 	help
- 	  Say Y to enable support for the TI BQ24250, BQ24251, and BQ24257 battery
- 	  chargers.
+diff --git a/sound/soc/tegra/tegra_wm8903.c b/sound/soc/tegra/tegra_wm8903.c
+index 6211dfda21957..0fa01cacfec9a 100644
+--- a/sound/soc/tegra/tegra_wm8903.c
++++ b/sound/soc/tegra/tegra_wm8903.c
+@@ -159,6 +159,7 @@ static int tegra_wm8903_init(struct snd_soc_pcm_runtime *rtd)
+ 	struct snd_soc_component *component = codec_dai->component;
+ 	struct snd_soc_card *card = rtd->card;
+ 	struct tegra_wm8903 *machine = snd_soc_card_get_drvdata(card);
++	int shrt = 0;
+ 
+ 	if (gpio_is_valid(machine->gpio_hp_det)) {
+ 		tegra_wm8903_hp_jack_gpio.gpio = machine->gpio_hp_det;
+@@ -171,12 +172,15 @@ static int tegra_wm8903_init(struct snd_soc_pcm_runtime *rtd)
+ 					&tegra_wm8903_hp_jack_gpio);
+ 	}
+ 
++	if (of_property_read_bool(card->dev->of_node, "nvidia,headset"))
++		shrt = SND_JACK_MICROPHONE;
++
+ 	snd_soc_card_jack_new(rtd->card, "Mic Jack", SND_JACK_MICROPHONE,
+ 			      &tegra_wm8903_mic_jack,
+ 			      tegra_wm8903_mic_jack_pins,
+ 			      ARRAY_SIZE(tegra_wm8903_mic_jack_pins));
+ 	wm8903_mic_detect(component, &tegra_wm8903_mic_jack, SND_JACK_MICROPHONE,
+-				0);
++				shrt);
+ 
+ 	snd_soc_dapm_force_enable_pin(&card->dapm, "MICBIAS");
+ 
 -- 
 2.25.1
 
