@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 633F0205F16
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:32:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F40F205F18
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:32:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390720AbgFWU3T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:29:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49296 "EHLO mail.kernel.org"
+        id S2390742AbgFWU3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:29:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390965AbgFWU3S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:29:18 -0400
+        id S2390968AbgFWU3V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:29:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5884B2064B;
-        Tue, 23 Jun 2020 20:29:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C541A206C3;
+        Tue, 23 Jun 2020 20:29:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944158;
-        bh=eZCFo0gw7hJnJC+MEy9HTeVPYeK2idf5vStqJc60s20=;
+        s=default; t=1592944161;
+        bh=Lla2QzJHafDNwWtTdQCrScCxhDZhO0dkV+9Bo6qCOCk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dV9kkcasbuj0LJbNc4VioLSANwXHFQzWQQW7mWswhC+rTOJDRXbNRpV5C8EjF9blf
-         JiivgY29iLrOjRGAz7GS8MrQforxYUcn/b3xzINLnsPisCgQRQjUcqvYFo1xCnUKay
-         Aze5Dwy6f275Qkz4wkomGDouwItoQWjuT2mxR10k=
+        b=xxcQU01oCpr2A3RcMEvCkgZCyNqH+k1fK2+IMaWBlUF2o5VEFSi9b5516k2sNeBMX
+         VJhefI+UnGzqoeaA72PFEEMkZGfIBJx4CygxMLCWtx1h5XCYL807QXN/qt92xiZ780
+         aGjG9XMRo2Hz5p42LtniLJ4jdhhvTeZ5Lqliw9io=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>,
+        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
+        Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 165/314] fuse: copy_file_range should truncate cache
-Date:   Tue, 23 Jun 2020 21:56:00 +0200
-Message-Id: <20200623195346.754920742@linuxfoundation.org>
+Subject: [PATCH 5.4 166/314] arm64: tegra: Fix ethernet phy-mode for Jetson Xavier
+Date:   Tue, 23 Jun 2020 21:56:01 +0200
+Message-Id: <20200623195346.801150538@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
 References: <20200623195338.770401005@linuxfoundation.org>
@@ -43,64 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Jon Hunter <jonathanh@nvidia.com>
 
-[ Upstream commit 9b46418c40fe910e6537618f9932a8be78a3dd6c ]
+[ Upstream commit bba25915b172c72f6fa635f091624d799e3c9cae ]
 
-After the copy operation completes the cache is not up-to-date.  Truncate
-all pages in the interval that has successfully been copied.
+The 'phy-mode' property is currently defined as 'rgmii' for Jetson
+Xavier. This indicates that the RGMII RX and TX delays are set by the
+MAC and the internal delays set by the PHY are not used.
 
-Truncating completely copied dirty pages is okay, since the data has been
-overwritten anyway.  Truncating partially copied dirty pages is not okay;
-add a comment for now.
+If the Marvell PHY driver is enabled, such that it is used and not the
+generic PHY, ethernet failures are seen (DHCP is failing to obtain an
+IP address) and this is caused because the Marvell PHY driver is
+disabling the internal RX and TX delays. For Jetson Xavier the internal
+PHY RX and TX delay should be used and so fix this by setting the
+'phy-mode' to 'rgmii-id' and not 'rgmii'.
 
-Fixes: 88bc7d5097a1 ("fuse: add support for copy_file_range()")
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Fixes: f89b58ce71a9 ("arm64: tegra: Add ethernet controller on Tegra194")
+Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fuse/file.c | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+ arch/arm64/boot/dts/nvidia/tegra194-p2888.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/fuse/file.c b/fs/fuse/file.c
-index e730e3d8ad996..66214707a9456 100644
---- a/fs/fuse/file.c
-+++ b/fs/fuse/file.c
-@@ -3292,6 +3292,24 @@ static ssize_t __fuse_copy_file_range(struct file *file_in, loff_t pos_in,
- 	if (err)
- 		goto out;
+diff --git a/arch/arm64/boot/dts/nvidia/tegra194-p2888.dtsi b/arch/arm64/boot/dts/nvidia/tegra194-p2888.dtsi
+index 02909a48dfcd9..7899759a12f80 100644
+--- a/arch/arm64/boot/dts/nvidia/tegra194-p2888.dtsi
++++ b/arch/arm64/boot/dts/nvidia/tegra194-p2888.dtsi
+@@ -32,7 +32,7 @@
  
-+	/*
-+	 * Write out dirty pages in the destination file before sending the COPY
-+	 * request to userspace.  After the request is completed, truncate off
-+	 * pages (including partial ones) from the cache that have been copied,
-+	 * since these contain stale data at that point.
-+	 *
-+	 * This should be mostly correct, but if the COPY writes to partial
-+	 * pages (at the start or end) and the parts not covered by the COPY are
-+	 * written through a memory map after calling fuse_writeback_range(),
-+	 * then these partial page modifications will be lost on truncation.
-+	 *
-+	 * It is unlikely that someone would rely on such mixed style
-+	 * modifications.  Yet this does give less guarantees than if the
-+	 * copying was performed with write(2).
-+	 *
-+	 * To fix this a i_mmap_sem style lock could be used to prevent new
-+	 * faults while the copy is ongoing.
-+	 */
- 	err = fuse_writeback_range(inode_out, pos_out, pos_out + len - 1);
- 	if (err)
- 		goto out;
-@@ -3315,6 +3333,10 @@ static ssize_t __fuse_copy_file_range(struct file *file_in, loff_t pos_in,
- 	if (err)
- 		goto out;
+ 			phy-reset-gpios = <&gpio TEGRA194_MAIN_GPIO(G, 5) GPIO_ACTIVE_LOW>;
+ 			phy-handle = <&phy>;
+-			phy-mode = "rgmii";
++			phy-mode = "rgmii-id";
  
-+	truncate_inode_pages_range(inode_out->i_mapping,
-+				   ALIGN_DOWN(pos_out, PAGE_SIZE),
-+				   ALIGN(pos_out + outarg.size, PAGE_SIZE) - 1);
-+
- 	if (fc->writeback_cache) {
- 		fuse_write_update_size(inode_out, pos_out + outarg.size);
- 		file_update_time(file_out);
+ 			mdio {
+ 				#address-cells = <1>;
 -- 
 2.25.1
 
