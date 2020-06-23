@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AB88206517
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:32:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EEAB2064F6
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:32:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393593AbgFWVax (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 17:30:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56654 "EHLO mail.kernel.org"
+        id S2388922AbgFWUOY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:14:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389188AbgFWUOS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:14:18 -0400
+        id S2388911AbgFWUOX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:14:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6984F20E65;
-        Tue, 23 Jun 2020 20:14:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9FAB52073E;
+        Tue, 23 Jun 2020 20:14:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943257;
-        bh=iEny6mrRqtcOg3jHBhUFOqhX0wJAG3lvG7YpYwL63H4=;
+        s=default; t=1592943263;
+        bh=/0jXKY3TJ2pVhw3ClEqAeO1O7QusWNrVVyNMLtWUTJ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qVmhhk0eIgO9gW0mioaTGcYayt3LiTQar6Cv8RdQ9Keid8Zn5r9VMbBnEzKc+e4MW
-         OhjSKOtgnbA6WFbDRYTF+DcacmnXET7KwrzTncMeLULFAZQdsIxx3mQJ7HGKl41S8M
-         Sw+SLF7YbbrcL5Xx0HtOp/NtnZwPG0ufexjrE48M=
+        b=ydqIet8HtrqF5I6ZM2OTMkxSqg2+IQxrsiy6/NKNUztKxV6uGAGERXaXaO3t9OhUJ
+         CcKfsFiGoSqbpb+guBj0+oyz2ZWuQ+fmpTkGUolrCSJZR2g2h7ZANooaPFKb8JBEjn
+         UPR43IWLCasM0IcQTghTDwZetJeJErbP1U4BvfEc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Hersen Wu <hersenxs.wu@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 321/477] drm/amd/display: Revalidate bandwidth before commiting DC updates
-Date:   Tue, 23 Jun 2020 21:55:18 +0200
-Message-Id: <20200623195422.707100245@linuxfoundation.org>
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 323/477] ext4: dont block for O_DIRECT if IOCB_NOWAIT is set
+Date:   Tue, 23 Jun 2020 21:55:20 +0200
+Message-Id: <20200623195422.801381152@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -46,59 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit a24eaa5c51255b344d5a321f1eeb3205f2775498 ]
+[ Upstream commit 6e014c621e7271649f0d51e54dbe1db4c10486c8 ]
 
-[Why]
-Whenever we switch between tiled formats without also switching pixel
-formats or doing anything else that recreates the DC plane state we
-can run into underflow or hangs since we're not updating the
-DML parameters before committing to the hardware.
+Running with some debug patches to detect illegal blocking triggered the
+extend/unaligned condition in ext4. If ext4 needs to extend the file (and
+hence go to buffered IO), or if the app is doing unaligned IO, then ext4
+asks the iomap code to wait for IO completion. If the caller asked for
+no-wait semantics by setting IOCB_NOWAIT, then ext4 should return -EAGAIN
+instead.
 
-[How]
-If the update type is FULL then call validate_bandwidth again to update
-the DML parmeters before committing the state.
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
-This is basically just a workaround and protective measure against
-update types being added DC where we could run into this issue in
-the future.
-
-We can only fully validate the state in advance before applying it to
-the hardware if we recreate all the plane and stream states since
-we can't modify what's currently in use.
-
-The next step is to update DM to ensure that we're creating the plane
-and stream states for whatever could potentially be a full update in
-DC to pre-emptively recreate the state for DC global validation.
-
-The workaround can stay until this has been fixed in DM.
-
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Reviewed-by: Hersen Wu <hersenxs.wu@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Link: https://lore.kernel.org/r/76152096-2bbb-7682-8fce-4cb498bcd909@kernel.dk
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc.c | 6 ++++++
+ fs/ext4/file.c | 6 ++++++
  1 file changed, 6 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
-index 47431ca6986db..4a619328101ce 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
-@@ -2517,6 +2517,12 @@ void dc_commit_updates_for_stream(struct dc *dc,
+diff --git a/fs/ext4/file.c b/fs/ext4/file.c
+index b8e69f9e38587..2a01e31a032c4 100644
+--- a/fs/ext4/file.c
++++ b/fs/ext4/file.c
+@@ -502,6 +502,12 @@ static ssize_t ext4_dio_write_iter(struct kiocb *iocb, struct iov_iter *from)
+ 	if (ret <= 0)
+ 		return ret;
  
- 	copy_stream_update_to_stream(dc, context, stream, stream_update);
- 
-+	if (!dc->res_pool->funcs->validate_bandwidth(dc, context, false)) {
-+		DC_ERROR("Mode validation failed for stream update!\n");
-+		dc_release_state(context);
-+		return;
++	/* if we're going to block and IOCB_NOWAIT is set, return -EAGAIN */
++	if ((iocb->ki_flags & IOCB_NOWAIT) && (unaligned_io || extend)) {
++		ret = -EAGAIN;
++		goto out;
 +	}
 +
- 	commit_planes_for_stream(
- 				dc,
- 				srf_updates,
+ 	offset = iocb->ki_pos;
+ 	count = ret;
+ 
 -- 
 2.25.1
 
