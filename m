@@ -2,45 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77ECD20606F
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:48:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79D302060C2
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:49:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392448AbgFWUmv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:42:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39476 "EHLO mail.kernel.org"
+        id S2392827AbgFWUqR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:46:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390256AbgFWUmu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:42:50 -0400
+        id S2392824AbgFWUqP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:46:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0EF3B20767;
-        Tue, 23 Jun 2020 20:42:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F0EB320656;
+        Tue, 23 Jun 2020 20:46:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944969;
-        bh=kORmj3Jqmaq1UgJjqWnJ6xS+gE+avf9nMSLRJyuvJwQ=;
+        s=default; t=1592945175;
+        bh=S9fjgN8jzrVvI3RGXDztUnJdH8QxV4shq08x4hdQ3VQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kd/i6UmmFlEZ7nsZGBoIwiSlG5x2rra/WpWwyMA2p4X3xBsfoHhED+BIDfdQXpk6y
-         IpKyILA3IGbwPItnXm5BQJgFXuLCQ2/dU9Y9osBhjjprqIUza5GCgX7NCk/7bZ54Pa
-         vXzNKt12XuaYrvC9ohztkUR6VRufiZ4J8XqeWjRg=
+        b=Lvxuu3JPVOPUFyW91a3WheBY6dVyTOH5Ohmvo+CWBUCcWzgROJO8iAXjEwh3wv/25
+         xvnNiKczacWSZf+2zF+cfly5o+zSBulg8Koz7BPjPAY2nmeOEgs5GiKF2TK0He2vJy
+         wwzd9ZsO2BqKgknAnWgN7TS97qlgEl9VFcgB+vMA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
-        Kan Liang <kan.liang@intel.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Gaurav Singh <gaurav1086@gmail.com>,
+        stable@vger.kernel.org, Aiman Najjar <aiman.najjar@hurranet.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 165/206] perf report: Fix NULL pointer dereference in hists__fprintf_nr_sample_events()
+Subject: [PATCH 4.14 037/136] staging: rtl8712: fix multiline derefernce warnings
 Date:   Tue, 23 Jun 2020 21:58:13 +0200
-Message-Id: <20200623195325.114676312@linuxfoundation.org>
+Message-Id: <20200623195305.503170326@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
-References: <20200623195316.864547658@linuxfoundation.org>
+In-Reply-To: <20200623195303.601828702@linuxfoundation.org>
+References: <20200623195303.601828702@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,43 +44,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaurav Singh <gaurav1086@gmail.com>
+From: Aiman Najjar <aiman.najjar@hurranet.com>
 
-[ Upstream commit 11b6e5482e178055ec1f2444b55f2518713809d1 ]
+[ Upstream commit 269da10b1477c31c660288633c8d613e421b131f ]
 
-The 'evname' variable can be NULL, as it is checked a few lines back,
-check it before using.
+This patch fixes remaining checkpatch warnings
+in rtl871x_xmit.c:
 
-Fixes: 9e207ddfa207 ("perf report: Show call graph from reference events")
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Kan Liang <kan.liang@intel.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/
-Signed-off-by: Gaurav Singh <gaurav1086@gmail.com>
+WARNING: Avoid multiple line dereference - prefer 'psecuritypriv->PrivacyKeyIndex'
+636: FILE: drivers/staging//rtl8712/rtl871x_xmit.c:636:
++					      (u8)psecuritypriv->
++					      PrivacyKeyIndex);
+
+WARNING: Avoid multiple line dereference - prefer 'psecuritypriv->XGrpKeyid'
+643: FILE: drivers/staging//rtl8712/rtl871x_xmit.c:643:
++						   (u8)psecuritypriv->
++						   XGrpKeyid);
+
+WARNING: Avoid multiple line dereference - prefer 'psecuritypriv->XGrpKeyid'
+652: FILE: drivers/staging//rtl8712/rtl871x_xmit.c:652:
++						   (u8)psecuritypriv->
++						   XGrpKeyid);
+
+Signed-off-by: Aiman Najjar <aiman.najjar@hurranet.com>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/98805a72b92e9bbf933e05b827d27944663b7bc1.1585508171.git.aiman.najjar@hurranet.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-report.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/staging/rtl8712/rtl871x_xmit.c | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
-diff --git a/tools/perf/builtin-report.c b/tools/perf/builtin-report.c
-index 5312c761a5dba..05eae94d09cb8 100644
---- a/tools/perf/builtin-report.c
-+++ b/tools/perf/builtin-report.c
-@@ -447,8 +447,7 @@ static size_t hists__fprintf_nr_sample_events(struct hists *hists, struct report
- 	if (rep->time_str)
- 		ret += fprintf(fp, " (time slices: %s)", rep->time_str);
- 
--	if (symbol_conf.show_ref_callgraph &&
--	    strstr(evname, "call-graph=no")) {
-+	if (symbol_conf.show_ref_callgraph && evname && strstr(evname, "call-graph=no")) {
- 		ret += fprintf(fp, ", show reference callgraph");
- 	}
- 
+diff --git a/drivers/staging/rtl8712/rtl871x_xmit.c b/drivers/staging/rtl8712/rtl871x_xmit.c
+index eda2aee02ff89..06e2377092fe0 100644
+--- a/drivers/staging/rtl8712/rtl871x_xmit.c
++++ b/drivers/staging/rtl8712/rtl871x_xmit.c
+@@ -601,7 +601,7 @@ sint r8712_xmitframe_coalesce(struct _adapter *padapter, _pkt *pkt,
+ 	addr_t addr;
+ 	u8 *pframe, *mem_start, *ptxdesc;
+ 	struct sta_info		*psta;
+-	struct security_priv	*psecuritypriv = &padapter->securitypriv;
++	struct security_priv	*psecpriv = &padapter->securitypriv;
+ 	struct mlme_priv	*pmlmepriv = &padapter->mlmepriv;
+ 	struct xmit_priv	*pxmitpriv = &padapter->xmitpriv;
+ 	struct pkt_attrib	*pattrib = &pxmitframe->attrib;
+@@ -644,15 +644,13 @@ sint r8712_xmitframe_coalesce(struct _adapter *padapter, _pkt *pkt,
+ 				case _WEP40_:
+ 				case _WEP104_:
+ 					WEP_IV(pattrib->iv, psta->txpn,
+-					       (u8)psecuritypriv->
+-					       PrivacyKeyIndex);
++					       (u8)psecpriv->PrivacyKeyIndex);
+ 					break;
+ 				case _TKIP_:
+ 					if (bmcst)
+ 						TKIP_IV(pattrib->iv,
+ 						    psta->txpn,
+-						    (u8)psecuritypriv->
+-						    XGrpKeyid);
++						    (u8)psecpriv->XGrpKeyid);
+ 					else
+ 						TKIP_IV(pattrib->iv, psta->txpn,
+ 							0);
+@@ -660,8 +658,7 @@ sint r8712_xmitframe_coalesce(struct _adapter *padapter, _pkt *pkt,
+ 				case _AES_:
+ 					if (bmcst)
+ 						AES_IV(pattrib->iv, psta->txpn,
+-						    (u8)psecuritypriv->
+-						    XGrpKeyid);
++						    (u8)psecpriv->XGrpKeyid);
+ 					else
+ 						AES_IV(pattrib->iv, psta->txpn,
+ 						       0);
 -- 
 2.25.1
 
