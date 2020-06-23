@@ -2,107 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58B2F205BC0
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 21:24:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35261205BB3
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 21:22:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387454AbgFWTYl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 15:24:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43692 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387440AbgFWTYk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Jun 2020 15:24:40 -0400
-Received: from mail-io1-xd42.google.com (mail-io1-xd42.google.com [IPv6:2607:f8b0:4864:20::d42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AED92C061573;
-        Tue, 23 Jun 2020 12:24:39 -0700 (PDT)
-Received: by mail-io1-xd42.google.com with SMTP id c4so11572311iot.4;
-        Tue, 23 Jun 2020 12:24:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=mf9Js1eSrEzYPANfjsLFha86P4LGEC3rg5oEXl/xm9w=;
-        b=HGr+xeOyIK71FoE7YCb/kzmOKUUhCDLYJthrKC3aiUZDFT5wx/bap624uYK89XKRRm
-         9GlMD8VT5jJNR6Xdgma1ORw39L3H+a5OQAqtEH8rLBgkJAGceey6c9WFhE7XARBYQF5T
-         ChUObGe0+rFZ3bRIXTZ8ydv8w9jC/1q2+MrW0RewOthJ1wfubrYQRDrriGh0dZA9rHlp
-         zH3MLtad1JCG2ETcnCyk6w1dUDv2WuU5ay0VHEg0aOTYceyUVqDLOM3NAtx8WgBbfhy7
-         wxA1o+E6HHRArd82AlkOCyCknPnU7iBgRIQci1awjbxzTdcDWXWTbXuOoXMJwNdLB4QL
-         qk8Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=mf9Js1eSrEzYPANfjsLFha86P4LGEC3rg5oEXl/xm9w=;
-        b=o1BzoWnS6ZRRgBUrpsWfLPrqMxkrw7dlu3bwAsW3Xn8r9DFbfe5D01rZwn2Jdjemqx
-         9iv0FBCkpKnJY3bcAJfKI+joL4qYGXADE5fB+PoKbFMNFWBNkPDR0H2vXgUFQabx0Vmp
-         f9mky717mg440volZPLF5ZaPqIUja3vOsAObBOi12mWxMCJCG/rlxkZoypEA/ojdAaYf
-         bjdG/TagTNmEXRe3cfKXZzbi85QE4Tu7XTnSLjIy+g0E4zNxQQqi8U3nrFtYVqJOXVa/
-         RNEW2sjrEgiggf/sFXZMJQPdJ6fNZ7wsV4SpzbQkAbQSFWBxEAMBMHZbaM353mT1zRms
-         l4/w==
-X-Gm-Message-State: AOAM530OmAX+xOmbO0yVPN3Dv6qIIHEGMkstIgsX7+HrfyhKHT8Z//Sh
-        lAHDVVlQ91vmD2Cuk6ClHLbz3P4KB84=
-X-Google-Smtp-Source: ABdhPJyjDqi9F8LfgEW43E9XiO7T/3m70HaxQ8gyJDkhV98i5ZmfexmCwBAFjBTnl0ZqTfezCAhebA==
-X-Received: by 2002:a6b:1ce:: with SMTP id 197mr14735915iob.76.1592940278940;
-        Tue, 23 Jun 2020 12:24:38 -0700 (PDT)
-Received: from james-x399.localdomain (71-218-100-23.hlrn.qwest.net. [71.218.100.23])
-        by smtp.gmail.com with ESMTPSA id b21sm3901503ioc.36.2020.06.23.12.24.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 23 Jun 2020 12:24:38 -0700 (PDT)
-From:   James Hilliard <james.hilliard1@gmail.com>
-To:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-usb@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Johan Hovold <johan@kernel.org>,
-        James Hilliard <james.hilliard1@gmail.com>,
-        stable <stable@vger.kernel.org>
-Subject: [PATCH] HID: quirks: Ignore Simply Automated UPB PIM
-Date:   Tue, 23 Jun 2020 13:24:15 -0600
-Message-Id: <20200623192415.2024242-1-james.hilliard1@gmail.com>
-X-Mailer: git-send-email 2.25.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S1733248AbgFWTWE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 15:22:04 -0400
+Received: from mga09.intel.com ([134.134.136.24]:34347 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1733220AbgFWTWE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 15:22:04 -0400
+IronPort-SDR: kJQ0tppP9lr8wjJoKMUDSgrbtaHdnCmpYlS3A5HXZ/IluBEGOsrO73XjymSQdT4pHkMAceOmwn
+ I0St15xsZn/g==
+X-IronPort-AV: E=McAfee;i="6000,8403,9661"; a="145686254"
+X-IronPort-AV: E=Sophos;i="5.75,272,1589266800"; 
+   d="scan'208";a="145686254"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Jun 2020 12:22:03 -0700
+IronPort-SDR: lCuLdn9rA7mtIMiJxDIHnwvTXqypMEzT5bGyPlv9cNPGKBsilxrZ9hg9Pv5jqkWVQP3WFw816S
+ 7h1RTmeFuhyw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.75,272,1589266800"; 
+   d="scan'208";a="423123618"
+Received: from unknown (HELO skalakox.lm.intel.com) ([10.232.116.60])
+  by orsmga004.jf.intel.com with ESMTP; 23 Jun 2020 12:22:01 -0700
+From:   Sushma Kalakota <sushmax.kalakota@intel.com>
+To:     stable@vger.kernel.org
+Cc:     Jon Derrick <jonathan.derrick@intel.com>,
+        Bjorn Helgaas <helgaas@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Sushma Kalakota <sushmax.kalakota@intel.com>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH] iommu/vt-d: Remove real DMA lookup in find_domain
+Date:   Tue, 23 Jun 2020 13:27:33 -0600
+Message-Id: <20200623192733.2560-1-sushmax.kalakota@intel.com>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-As this is a cypress HID->COM RS232 style device that is handled
-by the cypress_M8 driver we also need to add it to the ignore list
-in hid-quirks.
+From: Jon Derrick <jonathan.derrick@intel.com>
 
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: James Hilliard <james.hilliard1@gmail.com>
+commit 	bba9cc2cf82840bd3c9b3f4f7edac2dc8329ci241 upstream
+
+By removing the real DMA indirection in find_domain(), we can allow
+sub-devices of a real DMA device to have their own valid
+device_domain_info. The dmar lookup and context entry removal paths have
+been fixed to account for sub-devices.
+
+Fixes: 2b0140c69637 ("iommu/vt-d: Use pci_real_dma_dev() for mapping")
+Signed-off-by: Jon Derrick <jonathan.derrick@intel.com>
+Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
+Link: https://lore.kernel.org/r/20200527165617.297470-4-jonathan.derrick@intel.com
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=207575
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Sushma Kalakota <sushmax.kalakota@intel.com>
 ---
- drivers/hid/hid-ids.h    | 2 ++
- drivers/hid/hid-quirks.c | 1 +
- 2 files changed, 3 insertions(+)
+Hi,
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 1c71a1aa76b2..3261de0b6bde 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -1005,6 +1005,8 @@
- #define USB_DEVICE_ID_ROCCAT_RYOS_MK_PRO	0x3232
- #define USB_DEVICE_ID_ROCCAT_SAVU	0x2d5a
+Please apply this patch to 5.7 (and 5.6 if it's still being maintained).
+This patch is part 3 of a 3-patch series, of which [1][2] have been
+applied to 5.7. This patch is necessary to prevent kernel panics in
+specific configurations.
+
+[1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=8038bdb8553313ad53bfcffcf8294dd0ab44618f
+[2] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=4fda230ecddc2573ed88632e98b69b0b9b68c0ad
+
+ drivers/iommu/intel-iommu.c | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
+index 11ed871dd255..fde7aba49b74 100644
+--- a/drivers/iommu/intel-iommu.c
++++ b/drivers/iommu/intel-iommu.c
+@@ -2518,9 +2518,6 @@ struct dmar_domain *find_domain(struct device *dev)
+ 	if (unlikely(attach_deferred(dev) || iommu_dummy(dev)))
+ 		return NULL;
  
-+#define USB_VENDOR_ID_SAI		0x17dd
-+
- #define USB_VENDOR_ID_SAITEK		0x06a3
- #define USB_DEVICE_ID_SAITEK_RUMBLEPAD	0xff17
- #define USB_DEVICE_ID_SAITEK_PS1000	0x0621
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index e4cb543de0cd..b54fe18f1ed0 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -831,6 +831,7 @@ static const struct hid_device_id hid_ignore_list[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PETZL, USB_DEVICE_ID_PETZL_HEADLAMP) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PHILIPS, USB_DEVICE_ID_PHILIPS_IEEE802154_DONGLE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_POWERCOM, USB_DEVICE_ID_POWERCOM_UPS) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SAI, USB_DEVICE_ID_CYPRESS_HIDCOM) },
- #if IS_ENABLED(CONFIG_MOUSE_SYNAPTICS_USB)
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_TP) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_INT_TP) },
+-	if (dev_is_pci(dev))
+-		dev = &pci_real_dma_dev(to_pci_dev(dev))->dev;
+-
+ 	/* No lock here, assumes no domain exit in normal case */
+ 	info = dev->archdata.iommu;
+ 	if (likely(info))
 -- 
-2.25.1
+2.17.1
 
