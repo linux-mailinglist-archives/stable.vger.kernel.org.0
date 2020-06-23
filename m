@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41DE020627F
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:09:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5643020639D
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:29:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404296AbgFWVDP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 17:03:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34256 "EHLO mail.kernel.org"
+        id S2390500AbgFWU3R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:29:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391978AbgFWUio (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:38:44 -0400
+        id S2389433AbgFWU3Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:29:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E06512085B;
-        Tue, 23 Jun 2020 20:38:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CD5E0206EB;
+        Tue, 23 Jun 2020 20:29:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944724;
-        bh=cEZ8sz7+sb3ad7uTTqXR6PsY7tAHH2fLQBrtuQCGpK0=;
+        s=default; t=1592944156;
+        bh=gq5ObQNE4e1Wgot0BPPIi7/5Q016PqRJyq9xK54erqw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P31YHzW6qR3Sz9kDfKuBkbgLijQcMIzoAKcx0AqZS9IasA1Gus1GJlk2aS8TxMnzr
-         Zlgx5JdaOdvujKLW60+7M6BGBexmR5Kk8keg28xxBuH8QRnOZDeP0LTFyi5tbJx885
-         ua54sjnkdN0q5Z6R2oKWHec/YBsIDdow5FLX/cQk=
+        b=aRvl96XaAbsCz7+gVdHjq4Pg+gbLyA3wPGfDiOGw/r1Y41pdk71/eFwdQGQzNg0Ce
+         TIgqOW4qHxJeuijUiTB6Jte5Q37cz9Q023omVubnuVyiOPLFxGbpjclc6CQswvZ6DC
+         ThDzajdN8fKlevDXhJrrAxhfvCOhMC+qjfdwHdxk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org, Chunyan Zhang <chunyan.zhang@unisoc.com>,
+        Baolin Wang <baolin.wang7@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 060/206] ALSA: usb-audio: Fix racy list management in output queue
+Subject: [PATCH 5.4 193/314] clk: sprd: return correct type of value for _sprd_pll_recalc_rate
 Date:   Tue, 23 Jun 2020 21:56:28 +0200
-Message-Id: <20200623195319.919537541@linuxfoundation.org>
+Message-Id: <20200623195348.121336008@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
-References: <20200623195316.864547658@linuxfoundation.org>
+In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
+References: <20200623195338.770401005@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Chunyan Zhang <chunyan.zhang@unisoc.com>
 
-[ Upstream commit 5b6cc38f3f3f37109ce72b60bda215a5f6892c0b ]
+[ Upstream commit c2f30986d418f26abefc2eec90ebf06716c970d2 ]
 
-The linked list entry from FIFO is peeked at
-queue_pending_output_urbs() but the actual element pop-out is
-performed outside the spinlock, and it's potentially racy.
+The function _sprd_pll_recalc_rate() defines return value to unsigned
+long, but it would return a negative value when malloc fail, changing
+to return its parent_rate makes more sense, since if the callback
+.recalc_rate() is not set, the framework returns the parent_rate as
+well.
 
-Do delete the link at the right place inside the spinlock.
-
-Fixes: 8fdff6a319e7 ("ALSA: snd-usb: implement new endpoint streaming model")
-Link: https://lore.kernel.org/r/20200424074016.14301-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 3e37b005580b ("clk: sprd: add adjustable pll support")
+Signed-off-by: Chunyan Zhang <chunyan.zhang@unisoc.com>
+Link: https://lkml.kernel.org/r/20200519030036.1785-2-zhang.lyra@gmail.com
+Reviewed-by: Baolin Wang <baolin.wang7@gmail.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/endpoint.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/clk/sprd/pll.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/usb/endpoint.c b/sound/usb/endpoint.c
-index 36e255d889372..48611849b79b6 100644
---- a/sound/usb/endpoint.c
-+++ b/sound/usb/endpoint.c
-@@ -359,17 +359,17 @@ static void queue_pending_output_urbs(struct snd_usb_endpoint *ep)
- 			ep->next_packet_read_pos %= MAX_URBS;
+diff --git a/drivers/clk/sprd/pll.c b/drivers/clk/sprd/pll.c
+index 640270f51aa56..eb8862752c2b2 100644
+--- a/drivers/clk/sprd/pll.c
++++ b/drivers/clk/sprd/pll.c
+@@ -105,7 +105,7 @@ static unsigned long _sprd_pll_recalc_rate(const struct sprd_pll *pll,
  
- 			/* take URB out of FIFO */
--			if (!list_empty(&ep->ready_playback_urbs))
-+			if (!list_empty(&ep->ready_playback_urbs)) {
- 				ctx = list_first_entry(&ep->ready_playback_urbs,
- 					       struct snd_urb_ctx, ready_list);
-+				list_del_init(&ctx->ready_list);
-+			}
- 		}
- 		spin_unlock_irqrestore(&ep->lock, flags);
+ 	cfg = kcalloc(regs_num, sizeof(*cfg), GFP_KERNEL);
+ 	if (!cfg)
+-		return -ENOMEM;
++		return parent_rate;
  
- 		if (ctx == NULL)
- 			return;
- 
--		list_del_init(&ctx->ready_list);
--
- 		/* copy over the length information */
- 		for (i = 0; i < packet->packets; i++)
- 			ctx->packet_size[i] = packet->packet_size[i];
+ 	for (i = 0; i < regs_num; i++)
+ 		cfg[i] = sprd_pll_read(pll, i);
 -- 
 2.25.1
 
