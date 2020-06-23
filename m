@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F138620630F
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:28:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45965206394
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:29:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388135AbgFWUP6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:15:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59070 "EHLO mail.kernel.org"
+        id S2390847AbgFWU2N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:28:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388441AbgFWUPy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:15:54 -0400
+        id S2389221AbgFWU2M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:28:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B329E2064B;
-        Tue, 23 Jun 2020 20:15:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EEEAF20702;
+        Tue, 23 Jun 2020 20:28:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943354;
-        bh=iIu7yHtK80ljItvjvrWJOIhey9o7CF3Lqvyv/NYgzCU=;
+        s=default; t=1592944092;
+        bh=wFTrL+OdhIZggnQPfejCqsqqMp6dxIshMdGUg/hLzlw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KJc1nKDsLh4pp6BOfCpcPeA0iYDmzdQQL+5uCyNqf9eLDzribE+3gyovCT/s5K7Hp
-         gVZuMt9Z3JiiIy60nMwe07TO3gYYKYX+zFh7rZfT5QA/ORZuArdw5JYznf66FRCjcd
-         KA9f4F2GCq/LlWjY+6jf0aeWqpXt+YCnyXeZVVV8=
+        b=evkIUD/xcUcpgsnnOT4EsJzFnxkD52QtRk7jVUTi3vhICNYkBlDqffmO0k6op+9Db
+         G4F90lbtYIXlOGAkJfE+nyozlCAv5FNYpVSVyw1dr48VwMdEkCDd//CacG/yFCYxHM
+         3OJjZ3d/Ws9+6E4kzIFWHaM2Iv6GWq9zo2tORDms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, dihu <anny.hu@linux.alibaba.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
+        stable@vger.kernel.org, Mike Christie <mchristi@redhat.com>,
+        Bodo Stroesser <bstroesser@ts.fujitsu.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 359/477] bpf/sockmap: Fix kernel panic at __tcp_bpf_recvmsg
-Date:   Tue, 23 Jun 2020 21:55:56 +0200
-Message-Id: <20200623195424.505239623@linuxfoundation.org>
+Subject: [PATCH 5.4 162/314] scsi: target: tcmu: Userspace must not complete queued commands
+Date:   Tue, 23 Jun 2020 21:55:57 +0200
+Message-Id: <20200623195346.597643300@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
-References: <20200623195407.572062007@linuxfoundation.org>
+In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
+References: <20200623195338.770401005@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,61 +45,335 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: dihu <anny.hu@linux.alibaba.com>
+From: Bodo Stroesser <bstroesser@ts.fujitsu.com>
 
-[ Upstream commit 487082fb7bd2a32b66927d2b22e3a81b072b44f0 ]
+[ Upstream commit 61fb2482216679b9e1e797440c148bb143a5040a ]
 
-When user application calls read() with MSG_PEEK flag to read data
-of bpf sockmap socket, kernel panic happens at
-__tcp_bpf_recvmsg+0x12c/0x350. sk_msg is not removed from ingress_msg
-queue after read out under MSG_PEEK flag is set. Because it's not
-judged whether sk_msg is the last msg of ingress_msg queue, the next
-sk_msg may be the head of ingress_msg queue, whose memory address of
-sg page is invalid. So it's necessary to add check codes to prevent
-this problem.
+When tcmu queues a new command - no matter whether in command ring or in
+qfull_queue - a cmd_id from IDR udev->commands is assigned to the command.
 
-[20759.125457] BUG: kernel NULL pointer dereference, address:
-0000000000000008
-[20759.132118] CPU: 53 PID: 51378 Comm: envoy Tainted: G            E
-5.4.32 #1
-[20759.140890] Hardware name: Inspur SA5212M4/YZMB-00370-109, BIOS
-4.1.12 06/18/2017
-[20759.149734] RIP: 0010:copy_page_to_iter+0xad/0x300
-[20759.270877] __tcp_bpf_recvmsg+0x12c/0x350
-[20759.276099] tcp_bpf_recvmsg+0x113/0x370
-[20759.281137] inet_recvmsg+0x55/0xc0
-[20759.285734] __sys_recvfrom+0xc8/0x130
-[20759.290566] ? __audit_syscall_entry+0x103/0x130
-[20759.296227] ? syscall_trace_enter+0x1d2/0x2d0
-[20759.301700] ? __audit_syscall_exit+0x1e4/0x290
-[20759.307235] __x64_sys_recvfrom+0x24/0x30
-[20759.312226] do_syscall_64+0x55/0x1b0
-[20759.316852] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+If userspace sends a wrong command completion containing the cmd_id of a
+command on the qfull_queue, tcmu_handle_completions() finds the command in
+the IDR and calls tcmu_handle_completion() for it. This might do some nasty
+things because commands in qfull_queue do not have a valid dbi list.
 
-Signed-off-by: dihu <anny.hu@linux.alibaba.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Acked-by: Jakub Sitnicki <jakub@cloudflare.com>
-Link: https://lore.kernel.org/bpf/20200605084625.9783-1-anny.hu@linux.alibaba.com
+To fix this bug, we no longer add queued commands to the idr.  Instead the
+cmd_id is assign when a command is written to the command ring.
+
+Due to this change I had to adapt the source code at several places where
+up to now an idr_for_each had been done.
+
+[mkp: fix checkpatch warnings]
+
+Link: https://lore.kernel.org/r/20200518164833.12775-1-bstroesser@ts.fujitsu.com
+Acked-by: Mike Christie <mchristi@redhat.com>
+Signed-off-by: Bodo Stroesser <bstroesser@ts.fujitsu.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_bpf.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/target/target_core_user.c | 154 ++++++++++++++----------------
+ 1 file changed, 71 insertions(+), 83 deletions(-)
 
-diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
-index 9c5540887fbe5..7aa68f4aae6c3 100644
---- a/net/ipv4/tcp_bpf.c
-+++ b/net/ipv4/tcp_bpf.c
-@@ -64,6 +64,9 @@ int __tcp_bpf_recvmsg(struct sock *sk, struct sk_psock *psock,
- 		} while (i != msg_rx->sg.end);
+diff --git a/drivers/target/target_core_user.c b/drivers/target/target_core_user.c
+index 9425354aef99c..70c64e69a1d29 100644
+--- a/drivers/target/target_core_user.c
++++ b/drivers/target/target_core_user.c
+@@ -882,41 +882,24 @@ static inline size_t tcmu_cmd_get_cmd_size(struct tcmu_cmd *tcmu_cmd,
+ 	return command_size;
+ }
  
- 		if (unlikely(peek)) {
-+			if (msg_rx == list_last_entry(&psock->ingress_msg,
-+						      struct sk_msg, list))
-+				break;
- 			msg_rx = list_next_entry(msg_rx, list);
- 			continue;
+-static int tcmu_setup_cmd_timer(struct tcmu_cmd *tcmu_cmd, unsigned int tmo,
+-				struct timer_list *timer)
++static void tcmu_setup_cmd_timer(struct tcmu_cmd *tcmu_cmd, unsigned int tmo,
++				 struct timer_list *timer)
+ {
+-	struct tcmu_dev *udev = tcmu_cmd->tcmu_dev;
+-	int cmd_id;
+-
+-	if (tcmu_cmd->cmd_id)
+-		goto setup_timer;
+-
+-	cmd_id = idr_alloc(&udev->commands, tcmu_cmd, 1, USHRT_MAX, GFP_NOWAIT);
+-	if (cmd_id < 0) {
+-		pr_err("tcmu: Could not allocate cmd id.\n");
+-		return cmd_id;
+-	}
+-	tcmu_cmd->cmd_id = cmd_id;
+-
+-	pr_debug("allocated cmd %u for dev %s tmo %lu\n", tcmu_cmd->cmd_id,
+-		 udev->name, tmo / MSEC_PER_SEC);
+-
+-setup_timer:
+ 	if (!tmo)
+-		return 0;
++		return;
+ 
+ 	tcmu_cmd->deadline = round_jiffies_up(jiffies + msecs_to_jiffies(tmo));
+ 	if (!timer_pending(timer))
+ 		mod_timer(timer, tcmu_cmd->deadline);
+ 
+-	return 0;
++	pr_debug("Timeout set up for cmd %p, dev = %s, tmo = %lu\n", tcmu_cmd,
++		 tcmu_cmd->tcmu_dev->name, tmo / MSEC_PER_SEC);
+ }
+ 
+ static int add_to_qfull_queue(struct tcmu_cmd *tcmu_cmd)
+ {
+ 	struct tcmu_dev *udev = tcmu_cmd->tcmu_dev;
+ 	unsigned int tmo;
+-	int ret;
+ 
+ 	/*
+ 	 * For backwards compat if qfull_time_out is not set use
+@@ -931,13 +914,11 @@ static int add_to_qfull_queue(struct tcmu_cmd *tcmu_cmd)
+ 	else
+ 		tmo = TCMU_TIME_OUT;
+ 
+-	ret = tcmu_setup_cmd_timer(tcmu_cmd, tmo, &udev->qfull_timer);
+-	if (ret)
+-		return ret;
++	tcmu_setup_cmd_timer(tcmu_cmd, tmo, &udev->qfull_timer);
+ 
+ 	list_add_tail(&tcmu_cmd->queue_entry, &udev->qfull_queue);
+-	pr_debug("adding cmd %u on dev %s to ring space wait queue\n",
+-		 tcmu_cmd->cmd_id, udev->name);
++	pr_debug("adding cmd %p on dev %s to ring space wait queue\n",
++		 tcmu_cmd, udev->name);
+ 	return 0;
+ }
+ 
+@@ -959,7 +940,7 @@ static int queue_cmd_ring(struct tcmu_cmd *tcmu_cmd, sense_reason_t *scsi_err)
+ 	struct tcmu_mailbox *mb;
+ 	struct tcmu_cmd_entry *entry;
+ 	struct iovec *iov;
+-	int iov_cnt, ret;
++	int iov_cnt, cmd_id;
+ 	uint32_t cmd_head;
+ 	uint64_t cdb_off;
+ 	bool copy_to_data_area;
+@@ -1060,14 +1041,21 @@ static int queue_cmd_ring(struct tcmu_cmd *tcmu_cmd, sense_reason_t *scsi_err)
+ 	}
+ 	entry->req.iov_bidi_cnt = iov_cnt;
+ 
+-	ret = tcmu_setup_cmd_timer(tcmu_cmd, udev->cmd_time_out,
+-				   &udev->cmd_timer);
+-	if (ret) {
+-		tcmu_cmd_free_data(tcmu_cmd, tcmu_cmd->dbi_cnt);
++	cmd_id = idr_alloc(&udev->commands, tcmu_cmd, 1, USHRT_MAX, GFP_NOWAIT);
++	if (cmd_id < 0) {
++		pr_err("tcmu: Could not allocate cmd id.\n");
+ 
++		tcmu_cmd_free_data(tcmu_cmd, tcmu_cmd->dbi_cnt);
+ 		*scsi_err = TCM_OUT_OF_RESOURCES;
+ 		return -1;
+ 	}
++	tcmu_cmd->cmd_id = cmd_id;
++
++	pr_debug("allocated cmd id %u for cmd %p dev %s\n", tcmu_cmd->cmd_id,
++		 tcmu_cmd, udev->name);
++
++	tcmu_setup_cmd_timer(tcmu_cmd, udev->cmd_time_out, &udev->cmd_timer);
++
+ 	entry->hdr.cmd_id = tcmu_cmd->cmd_id;
+ 
+ 	/*
+@@ -1279,50 +1267,39 @@ static unsigned int tcmu_handle_completions(struct tcmu_dev *udev)
+ 	return handled;
+ }
+ 
+-static int tcmu_check_expired_cmd(int id, void *p, void *data)
++static void tcmu_check_expired_ring_cmd(struct tcmu_cmd *cmd)
+ {
+-	struct tcmu_cmd *cmd = p;
+-	struct tcmu_dev *udev = cmd->tcmu_dev;
+-	u8 scsi_status;
+ 	struct se_cmd *se_cmd;
+-	bool is_running;
+-
+-	if (test_bit(TCMU_CMD_BIT_EXPIRED, &cmd->flags))
+-		return 0;
+ 
+ 	if (!time_after(jiffies, cmd->deadline))
+-		return 0;
++		return;
+ 
+-	is_running = test_bit(TCMU_CMD_BIT_INFLIGHT, &cmd->flags);
++	set_bit(TCMU_CMD_BIT_EXPIRED, &cmd->flags);
++	list_del_init(&cmd->queue_entry);
+ 	se_cmd = cmd->se_cmd;
++	cmd->se_cmd = NULL;
+ 
+-	if (is_running) {
+-		/*
+-		 * If cmd_time_out is disabled but qfull is set deadline
+-		 * will only reflect the qfull timeout. Ignore it.
+-		 */
+-		if (!udev->cmd_time_out)
+-			return 0;
++	pr_debug("Timing out inflight cmd %u on dev %s.\n",
++		 cmd->cmd_id, cmd->tcmu_dev->name);
+ 
+-		set_bit(TCMU_CMD_BIT_EXPIRED, &cmd->flags);
+-		/*
+-		 * target_complete_cmd will translate this to LUN COMM FAILURE
+-		 */
+-		scsi_status = SAM_STAT_CHECK_CONDITION;
+-		list_del_init(&cmd->queue_entry);
+-		cmd->se_cmd = NULL;
+-	} else {
+-		list_del_init(&cmd->queue_entry);
+-		idr_remove(&udev->commands, id);
+-		tcmu_free_cmd(cmd);
+-		scsi_status = SAM_STAT_TASK_SET_FULL;
+-	}
++	target_complete_cmd(se_cmd, SAM_STAT_CHECK_CONDITION);
++}
+ 
+-	pr_debug("Timing out cmd %u on dev %s that is %s.\n",
+-		 id, udev->name, is_running ? "inflight" : "queued");
++static void tcmu_check_expired_queue_cmd(struct tcmu_cmd *cmd)
++{
++	struct se_cmd *se_cmd;
+ 
+-	target_complete_cmd(se_cmd, scsi_status);
+-	return 0;
++	if (!time_after(jiffies, cmd->deadline))
++		return;
++
++	list_del_init(&cmd->queue_entry);
++	se_cmd = cmd->se_cmd;
++	tcmu_free_cmd(cmd);
++
++	pr_debug("Timing out queued cmd %p on dev %s.\n",
++		  cmd, cmd->tcmu_dev->name);
++
++	target_complete_cmd(se_cmd, SAM_STAT_TASK_SET_FULL);
+ }
+ 
+ static void tcmu_device_timedout(struct tcmu_dev *udev)
+@@ -1407,16 +1384,15 @@ static struct se_device *tcmu_alloc_device(struct se_hba *hba, const char *name)
+ 	return &udev->se_dev;
+ }
+ 
+-static bool run_qfull_queue(struct tcmu_dev *udev, bool fail)
++static void run_qfull_queue(struct tcmu_dev *udev, bool fail)
+ {
+ 	struct tcmu_cmd *tcmu_cmd, *tmp_cmd;
+ 	LIST_HEAD(cmds);
+-	bool drained = true;
+ 	sense_reason_t scsi_ret;
+ 	int ret;
+ 
+ 	if (list_empty(&udev->qfull_queue))
+-		return true;
++		return;
+ 
+ 	pr_debug("running %s's cmdr queue forcefail %d\n", udev->name, fail);
+ 
+@@ -1425,11 +1401,10 @@ static bool run_qfull_queue(struct tcmu_dev *udev, bool fail)
+ 	list_for_each_entry_safe(tcmu_cmd, tmp_cmd, &cmds, queue_entry) {
+ 		list_del_init(&tcmu_cmd->queue_entry);
+ 
+-	        pr_debug("removing cmd %u on dev %s from queue\n",
+-		         tcmu_cmd->cmd_id, udev->name);
++		pr_debug("removing cmd %p on dev %s from queue\n",
++			 tcmu_cmd, udev->name);
+ 
+ 		if (fail) {
+-			idr_remove(&udev->commands, tcmu_cmd->cmd_id);
+ 			/*
+ 			 * We were not able to even start the command, so
+ 			 * fail with busy to allow a retry in case runner
+@@ -1444,10 +1419,8 @@ static bool run_qfull_queue(struct tcmu_dev *udev, bool fail)
+ 
+ 		ret = queue_cmd_ring(tcmu_cmd, &scsi_ret);
+ 		if (ret < 0) {
+-		        pr_debug("cmd %u on dev %s failed with %u\n",
+-			         tcmu_cmd->cmd_id, udev->name, scsi_ret);
+-
+-			idr_remove(&udev->commands, tcmu_cmd->cmd_id);
++			pr_debug("cmd %p on dev %s failed with %u\n",
++				 tcmu_cmd, udev->name, scsi_ret);
+ 			/*
+ 			 * Ignore scsi_ret for now. target_complete_cmd
+ 			 * drops it.
+@@ -1462,13 +1435,11 @@ static bool run_qfull_queue(struct tcmu_dev *udev, bool fail)
+ 			 * the queue
+ 			 */
+ 			list_splice_tail(&cmds, &udev->qfull_queue);
+-			drained = false;
+ 			break;
  		}
+ 	}
+ 
+ 	tcmu_set_next_deadline(&udev->qfull_queue, &udev->qfull_timer);
+-	return drained;
+ }
+ 
+ static int tcmu_irqcontrol(struct uio_info *info, s32 irq_on)
+@@ -1652,6 +1623,8 @@ static void tcmu_dev_kref_release(struct kref *kref)
+ 		if (tcmu_check_and_free_pending_cmd(cmd) != 0)
+ 			all_expired = false;
+ 	}
++	if (!list_empty(&udev->qfull_queue))
++		all_expired = false;
+ 	idr_destroy(&udev->commands);
+ 	WARN_ON(!all_expired);
+ 
+@@ -2037,9 +2010,6 @@ static void tcmu_reset_ring(struct tcmu_dev *udev, u8 err_level)
+ 	mutex_lock(&udev->cmdr_lock);
+ 
+ 	idr_for_each_entry(&udev->commands, cmd, i) {
+-		if (!test_bit(TCMU_CMD_BIT_INFLIGHT, &cmd->flags))
+-			continue;
+-
+ 		pr_debug("removing cmd %u on dev %s from ring (is expired %d)\n",
+ 			  cmd->cmd_id, udev->name,
+ 			  test_bit(TCMU_CMD_BIT_EXPIRED, &cmd->flags));
+@@ -2077,6 +2047,8 @@ static void tcmu_reset_ring(struct tcmu_dev *udev, u8 err_level)
+ 
+ 	del_timer(&udev->cmd_timer);
+ 
++	run_qfull_queue(udev, false);
++
+ 	mutex_unlock(&udev->cmdr_lock);
+ }
+ 
+@@ -2698,6 +2670,7 @@ static void find_free_blocks(void)
+ static void check_timedout_devices(void)
+ {
+ 	struct tcmu_dev *udev, *tmp_dev;
++	struct tcmu_cmd *cmd, *tmp_cmd;
+ 	LIST_HEAD(devs);
+ 
+ 	spin_lock_bh(&timed_out_udevs_lock);
+@@ -2708,9 +2681,24 @@ static void check_timedout_devices(void)
+ 		spin_unlock_bh(&timed_out_udevs_lock);
+ 
+ 		mutex_lock(&udev->cmdr_lock);
+-		idr_for_each(&udev->commands, tcmu_check_expired_cmd, NULL);
+ 
+-		tcmu_set_next_deadline(&udev->inflight_queue, &udev->cmd_timer);
++		/*
++		 * If cmd_time_out is disabled but qfull is set deadline
++		 * will only reflect the qfull timeout. Ignore it.
++		 */
++		if (udev->cmd_time_out) {
++			list_for_each_entry_safe(cmd, tmp_cmd,
++						 &udev->inflight_queue,
++						 queue_entry) {
++				tcmu_check_expired_ring_cmd(cmd);
++			}
++			tcmu_set_next_deadline(&udev->inflight_queue,
++					       &udev->cmd_timer);
++		}
++		list_for_each_entry_safe(cmd, tmp_cmd, &udev->qfull_queue,
++					 queue_entry) {
++			tcmu_check_expired_queue_cmd(cmd);
++		}
+ 		tcmu_set_next_deadline(&udev->qfull_queue, &udev->qfull_timer);
+ 
+ 		mutex_unlock(&udev->cmdr_lock);
 -- 
 2.25.1
 
