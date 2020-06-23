@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17ED5206580
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:50:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 574C3206676
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:52:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388191AbgFWUEV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:04:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42760 "EHLO mail.kernel.org"
+        id S2388437AbgFWVmY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 17:42:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388150AbgFWUEU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:04:20 -0400
+        id S2388259AbgFWUEt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:04:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BEF1220FC3;
-        Tue, 23 Jun 2020 20:04:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 09EF3206C3;
+        Tue, 23 Jun 2020 20:04:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592942660;
-        bh=HPm53k8FD/4n/cpDgK8Tp6aZZf85ELf3u1yD4iOjm+s=;
+        s=default; t=1592942688;
+        bh=YV+1VJ5JYSwSaat+J4HxS7eC7ksTiEVi8F1kPqLe/3s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O29LtnL5VpAeOmTO3w2sRFb3e0c/lx0wskCmmWniq8Vad7bKTfHi670wU8KfRt0eD
-         k+Oj4I8sRg0Sx2UelmX8toUMEOse+18PAotUFcbx5R6AFy8iQciEf1LysZ8XCu78Ql
-         4G5Nturi0G6uZfPHcx/Xlg24Gm8OWfFQe+Bp253g=
+        b=qNBZVexHKF2XctSstGs4GJC7QPgOBBD1zd6a3BWCfdP1HXGv0yQrOZtYobSKx7KNM
+         y0p7fEZUnnnDk7BiWDey/F7treYNtwC0aB4dSIa5L7NEj/9ZhX9w6Pmnzm/NVbasfj
+         SMQtXZytrcIWePlAcmXILDbjCv7jjCPWMkb7meII=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Chen <peter.chen@nxp.com>,
-        Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Felipe Balbi <balbi@kernel.org>,
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Serge Semin <fancer.lancer@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 068/477] usb: cdns3: Fix runtime PM imbalance on error
-Date:   Tue, 23 Jun 2020 21:51:05 +0200
-Message-Id: <20200623195410.836686698@linuxfoundation.org>
+Subject: [PATCH 5.7 069/477] gpio: dwapb: Call acpi_gpiochip_free_interrupts() on GPIO chip de-registration
+Date:   Tue, 23 Jun 2020 21:51:06 +0200
+Message-Id: <20200623195410.882326905@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -45,43 +46,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit e5b913496099527abe46e175e5e2c844367bded0 ]
+[ Upstream commit 494a94e38dcf62543a32a4424d646ff80b4b28bd ]
 
-pm_runtime_get_sync() increments the runtime PM usage counter even
-when it returns an error code. Thus a pairing decrement is needed on
-the error handling path to keep the counter balanced.
+Add missed acpi_gpiochip_free_interrupts() call when unregistering ports.
 
-Reviewed-by: Peter Chen <peter.chen@nxp.com>
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+While at it, drop extra check to call acpi_gpiochip_request_interrupts().
+There is no need to have an additional check to call
+acpi_gpiochip_request_interrupts(). Even without any interrupts available
+the registered ACPI Event handlers can be useful for debugging purposes.
+
+Fixes: e6cb3486f5a1 ("gpio: dwapb: add gpio-signaled acpi event support")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Tested-by: Serge Semin <fancer.lancer@gmail.com>
+Acked-by: Serge Semin <fancer.lancer@gmail.com>
+Link: https://lore.kernel.org/r/20200519131233.59032-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/cdns3/cdns3-ti.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/gpio/gpio-dwapb.c | 25 ++++++++++++++++---------
+ 1 file changed, 16 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/usb/cdns3/cdns3-ti.c b/drivers/usb/cdns3/cdns3-ti.c
-index 5685ba11480bd..e701ab56b0a76 100644
---- a/drivers/usb/cdns3/cdns3-ti.c
-+++ b/drivers/usb/cdns3/cdns3-ti.c
-@@ -138,7 +138,7 @@ static int cdns_ti_probe(struct platform_device *pdev)
- 	error = pm_runtime_get_sync(dev);
- 	if (error < 0) {
- 		dev_err(dev, "pm_runtime_get_sync failed: %d\n", error);
--		goto err_get;
-+		goto err;
- 	}
+diff --git a/drivers/gpio/gpio-dwapb.c b/drivers/gpio/gpio-dwapb.c
+index 92e127e748134..02cf4c43a4c4c 100644
+--- a/drivers/gpio/gpio-dwapb.c
++++ b/drivers/gpio/gpio-dwapb.c
+@@ -533,26 +533,33 @@ static int dwapb_gpio_add_port(struct dwapb_gpio *gpio,
+ 		dwapb_configure_irqs(gpio, port, pp);
  
- 	/* assert RESET */
-@@ -185,7 +185,6 @@ static int cdns_ti_probe(struct platform_device *pdev)
+ 	err = gpiochip_add_data(&port->gc, port);
+-	if (err)
++	if (err) {
+ 		dev_err(gpio->dev, "failed to register gpiochip for port%d\n",
+ 			port->idx);
+-	else
+-		port->is_registered = true;
++		return err;
++	}
  
- err:
- 	pm_runtime_put_sync(data->dev);
--err_get:
- 	pm_runtime_disable(data->dev);
+ 	/* Add GPIO-signaled ACPI event support */
+-	if (pp->has_irq)
+-		acpi_gpiochip_request_interrupts(&port->gc);
++	acpi_gpiochip_request_interrupts(&port->gc);
  
- 	return error;
+-	return err;
++	port->is_registered = true;
++
++	return 0;
+ }
+ 
+ static void dwapb_gpio_unregister(struct dwapb_gpio *gpio)
+ {
+ 	unsigned int m;
+ 
+-	for (m = 0; m < gpio->nr_ports; ++m)
+-		if (gpio->ports[m].is_registered)
+-			gpiochip_remove(&gpio->ports[m].gc);
++	for (m = 0; m < gpio->nr_ports; ++m) {
++		struct dwapb_gpio_port *port = &gpio->ports[m];
++
++		if (!port->is_registered)
++			continue;
++
++		acpi_gpiochip_free_interrupts(&port->gc);
++		gpiochip_remove(&port->gc);
++	}
+ }
+ 
+ static struct dwapb_platform_data *
 -- 
 2.25.1
 
