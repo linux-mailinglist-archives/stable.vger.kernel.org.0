@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B683206451
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:31:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A669420652B
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:33:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390528AbgFWVTg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 17:19:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43442 "EHLO mail.kernel.org"
+        id S2389819AbgFWVbu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 17:31:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390454AbgFWUYm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:24:42 -0400
+        id S2387764AbgFWUMr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:12:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 320FF206C3;
-        Tue, 23 Jun 2020 20:24:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 84DB120707;
+        Tue, 23 Jun 2020 20:12:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943881;
-        bh=68Ym+y1+gLnemj0N+S31ojaZseghsrnEg25EKYH3tZs=;
+        s=default; t=1592943167;
+        bh=V1SPoplEmZ/3LzfyNCzLGqwymNW+A/LBYDY/0GhcAA4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kPvO5rjDNn2AgrB4AsM1E0XdFYe9yvZPEagefzf2tAb1StOFM8HQXJmeXwVOcZs9h
-         hg+NHuxLjEsKukV/xmsEb2kCmbz7o9Ae2f/nvq/fLxDS4WO1skF3dRCU6AGZ1WXQPL
-         6RW4Ql+wdV08/3dqrXmMwUSElMwZ51tPPr9ARhZ4=
+        b=YEVGF/X/zPFBVR3ycBiFqSy8syLBTDUkcG2DGNVtpXt9oKJtCDlHNQJj0ZRXCjaDM
+         Y8deEwa1d6ZsY366raApw74Nv4mxE4WYTJ55RB925cxxE9GXiHylt94n4IE+KDMDBb
+         HeWHupdZdRgnH6MxtTqVLdiNS893QlOwhosCfDek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        Manish Rangankar <mrangankar@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Eddie James <eajames@linux.ibm.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 087/314] scsi: qedi: Do not flush offload work if ARP not resolved
-Date:   Tue, 23 Jun 2020 21:54:42 +0200
-Message-Id: <20200623195343.026414161@linuxfoundation.org>
+Subject: [PATCH 5.7 286/477] clk: ast2600: Fix AHB clock divider for A1
+Date:   Tue, 23 Jun 2020 21:54:43 +0200
+Message-Id: <20200623195421.090400246@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
-References: <20200623195338.770401005@linuxfoundation.org>
+In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
+References: <20200623195407.572062007@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,95 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nilesh Javali <njavali@marvell.com>
+From: Eddie James <eajames@linux.ibm.com>
 
-[ Upstream commit 927527aea0e2a9c1d336c7d33f77f1911481d008 ]
+[ Upstream commit 2d491066ccd4286538450c227fc5094ceb04b494 ]
 
-For an unreachable target, offload_work is not initialized and the endpoint
-state is set to OFLDCONN_NONE. This results in a WARN_ON due to the check
-of the work function field being set to zero.
+The latest specs for the AST2600 A1 chip include some different bit
+definitions for calculating the AHB clock divider. Implement these in
+order to get the correct AHB clock value in Linux.
 
-------------[ cut here ]------------
-WARNING: CPU: 24 PID: 18587 at ../kernel/workqueue.c:3037 __flush_work+0x1c1/0x1d0
-:
-Hardware name: HPE ProLiant DL380 Gen10/ProLiant DL380 Gen10, BIOS U30 02/01/2020
-RIP: 0010:__flush_work+0x1c1/0x1d0
-Code: ba 6d 00 03 80 c9 f0 eb b6 48 c7 c7 20 ee 6c a4 e8 52 d3 04 00 0f 0b 31 c0 e9 d1 fe ff
-ff 48 c7 c7 20 ee 6c a4 e8 3d d3 04 00 <0f> 0b 31 c0 e9 bc fe ff ff e8 11 f3 f
- 00 31 f6
-RSP: 0018:ffffac5a8cd47a80 EFLAGS: 00010282
-RAX: 0000000000000024 RBX: ffff98d68c1fcaf0 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: ffff98ce9fd99898 RDI: ffff98ce9fd99898
-RBP: ffff98d68c1fcbc0 R08: 00000000000006fa R09: 0000000000000001
-R10: ffffac5a8cd47b50 R11: 0000000000000001 R12: 0000000000000000
-R13: 000000000000489b R14: ffff98d68c1fc800 R15: ffff98d692132c00
-FS:  00007f65f7f62280(0000) GS:ffff98ce9fd80000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007ffd2435e880 CR3: 0000000809334003 CR4: 00000000007606e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-PKRU: 55555554
-Call Trace:
- ? class_create_release+0x40/0x40
- ? klist_put+0x2c/0x80
- qedi_ep_disconnect+0xdd/0x400 [qedi]
- iscsi_if_ep_disconnect.isra.20+0x59/0x70 [scsi_transport_iscsi]
- iscsi_if_rx+0x129b/0x1670 [scsi_transport_iscsi]
- ? __netlink_lookup+0xe7/0x160
- netlink_unicast+0x21d/0x300
- netlink_sendmsg+0x30f/0x430
- sock_sendmsg+0x5b/0x60
- ____sys_sendmsg+0x1e2/0x240
- ? copy_msghdr_from_user+0xd9/0x160
- ___sys_sendmsg+0x88/0xd0
- ? ___sys_recvmsg+0xa2/0xe0
- ? hrtimer_try_to_cancel+0x25/0x100
- ? do_nanosleep+0x9c/0x170
- ? __sys_sendmsg+0x5e/0xa0
- __sys_sendmsg+0x5e/0xa0
- do_syscall_64+0x60/0x1f0
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x7f65f6f16107
-Code: 64 89 02 48 c7 c0 ff ff ff ff eb b9 0f 1f 80 00 00 00 00 8b 05 aa d2 2b 00 48 63 d2 48
-63 ff 85 c0 75 18 b8 2e 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 59 f3 c3 0f 1f 8
-    0 00 00 00 00 53 48 89 f3 48
- RSP: 002b:00007ffd24367ca8 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
- RAX: ffffffffffffffda RBX: 000055a7aeaaf110 RCX: 00007f65f6f16107
- RDX: 0000000000000000 RSI: 00007ffd24367cc0 RDI: 0000000000000003
- RBP: 0000000000000070 R08: 0000000000000000 R09: 0000000000000000
- R10: 000000000000075c R11: 0000000000000246 R12: 00007ffd24367cc0
- R13: 000055a7ae560008 R14: 00007ffd24367db0 R15: 0000000000000000
- ---[ end trace 54f499c05d41f8bb ]---
-
-Only flush if the connection endpoint state if different from
-OFLDCONN_NONE.
-
-[mkp: clarified commit desc]
-
-Link: https://lore.kernel.org/r/20200408064332.19377-5-mrangankar@marvell.com
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Manish Rangankar <mrangankar@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Eddie James <eajames@linux.ibm.com>
+Link: https://lkml.kernel.org/r/20200408203616.4031-1-eajames@linux.ibm.com
+Fixes: d3d04f6c330a ("clk: Add support for AST2600 SoC")
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qedi/qedi_iscsi.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/clk/clk-ast2600.c | 31 +++++++++++++++++++++++++------
+ 1 file changed, 25 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/scsi/qedi/qedi_iscsi.c b/drivers/scsi/qedi/qedi_iscsi.c
-index 84a639698343c..0f57c80734061 100644
---- a/drivers/scsi/qedi/qedi_iscsi.c
-+++ b/drivers/scsi/qedi/qedi_iscsi.c
-@@ -997,7 +997,8 @@ static void qedi_ep_disconnect(struct iscsi_endpoint *ep)
- 	if (qedi_ep->state == EP_STATE_OFLDCONN_START)
- 		goto ep_exit_recover;
+diff --git a/drivers/clk/clk-ast2600.c b/drivers/clk/clk-ast2600.c
+index 392d01705b97b..99afc949925f0 100644
+--- a/drivers/clk/clk-ast2600.c
++++ b/drivers/clk/clk-ast2600.c
+@@ -642,14 +642,22 @@ static const u32 ast2600_a0_axi_ahb_div_table[] = {
+ 	2, 2, 3, 5,
+ };
  
--	flush_work(&qedi_ep->offload_work);
-+	if (qedi_ep->state != EP_STATE_OFLDCONN_NONE)
-+		flush_work(&qedi_ep->offload_work);
+-static const u32 ast2600_a1_axi_ahb_div_table[] = {
+-	4, 6, 2, 4,
++static const u32 ast2600_a1_axi_ahb_div0_tbl[] = {
++	3, 2, 3, 4,
++};
++
++static const u32 ast2600_a1_axi_ahb_div1_tbl[] = {
++	3, 4, 6, 8,
++};
++
++static const u32 ast2600_a1_axi_ahb200_tbl[] = {
++	3, 4, 3, 4, 2, 2, 2, 2,
+ };
  
- 	if (qedi_ep->conn) {
- 		qedi_conn = qedi_ep->conn;
+ static void __init aspeed_g6_cc(struct regmap *map)
+ {
+ 	struct clk_hw *hw;
+-	u32 val, div, chip_id, axi_div, ahb_div;
++	u32 val, div, divbits, chip_id, axi_div, ahb_div;
+ 
+ 	clk_hw_register_fixed_rate(NULL, "clkin", NULL, 0, 25000000);
+ 
+@@ -679,11 +687,22 @@ static void __init aspeed_g6_cc(struct regmap *map)
+ 	else
+ 		axi_div = 2;
+ 
++	divbits = (val >> 11) & 0x3;
+ 	regmap_read(map, ASPEED_G6_SILICON_REV, &chip_id);
+-	if (chip_id & BIT(16))
+-		ahb_div = ast2600_a1_axi_ahb_div_table[(val >> 11) & 0x3];
+-	else
++	if (chip_id & BIT(16)) {
++		if (!divbits) {
++			ahb_div = ast2600_a1_axi_ahb200_tbl[(val >> 8) & 0x3];
++			if (val & BIT(16))
++				ahb_div *= 2;
++		} else {
++			if (val & BIT(16))
++				ahb_div = ast2600_a1_axi_ahb_div1_tbl[divbits];
++			else
++				ahb_div = ast2600_a1_axi_ahb_div0_tbl[divbits];
++		}
++	} else {
+ 		ahb_div = ast2600_a0_axi_ahb_div_table[(val >> 11) & 0x3];
++	}
+ 
+ 	hw = clk_hw_register_fixed_factor(NULL, "ahb", "hpll", 0, 1, axi_div * ahb_div);
+ 	aspeed_g6_clk_data->hws[ASPEED_CLK_AHB] = hw;
 -- 
 2.25.1
 
