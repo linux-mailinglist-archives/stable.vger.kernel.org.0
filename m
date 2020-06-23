@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC00F206378
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:29:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 573D0206379
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:29:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390567AbgFWUZj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:25:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44588 "EHLO mail.kernel.org"
+        id S2390576AbgFWUZl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:25:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390562AbgFWUZf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:25:35 -0400
+        id S2390572AbgFWUZk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:25:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D305C206EB;
-        Tue, 23 Jun 2020 20:25:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E4A03206EB;
+        Tue, 23 Jun 2020 20:25:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943935;
-        bh=T+rGk9RKgviyHEvJnT1d21Zz2X+wqeEWgR9AJEDewr0=;
+        s=default; t=1592943940;
+        bh=CaUoCBxYI9U26p0mgol98Ovh0DIucD7EMkmPGdlCuew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zaokRwhe8843Te0db9SYRmsU1CXuqK3T/XL2QRlePYW8SkdbZfAF9eAK2sd6y1d/j
-         skcAgCk6g7YjThch43wgyvxIsVqCa6muZimfetlPrgWUMk+kNE61jsOuGEv4tfvcym
-         TqAcHmlaRJg5VwMA19pSul6yjyTXasiDsLBmkDsU=
+        b=pplINrmF/33mFDgcRqsrLbofSe9fO8i2kqOjQaoNdk4LaTcEei4hdZp03Df+4ra9F
+         Y+Cs+n5dYSU4p9+kPRvGGiAVYAo7ff6d/zyYK1N8zXEI0kyLhfoUQueqkUUOoF6/qR
+         PeaTjIoUiGAdjKhCd136JaE4mMVSDgjCp5EpZkNc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Amit Kucheria <amit.kucheria@linaro.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        stable@vger.kernel.org, Yong Zhi <yong.zhi@intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 109/314] thermal/drivers/ti-soc-thermal: Avoid dereferencing ERR_PTR
-Date:   Tue, 23 Jun 2020 21:55:04 +0200
-Message-Id: <20200623195344.066310160@linuxfoundation.org>
+Subject: [PATCH 5.4 111/314] ASoC: max98373: reorder max98373_reset() in resume
+Date:   Tue, 23 Jun 2020 21:55:06 +0200
+Message-Id: <20200623195344.161814193@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
 References: <20200623195338.770401005@linuxfoundation.org>
@@ -46,55 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+From: Yong Zhi <yong.zhi@intel.com>
 
-[ Upstream commit 7440f518dad9d861d76c64956641eeddd3586f75 ]
+[ Upstream commit 1a446873d7dd3a450f685928ce7f1907bde4583d ]
 
-On error the function ti_bandgap_get_sensor_data() returns the error
-code in ERR_PTR() but we only checked if the return value is NULL or
-not. And, so we can dereference an error code inside ERR_PTR.
-While at it, convert a check to IS_ERR_OR_NULL.
+During S3 test, the following error was observed:
 
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Reviewed-by: Amit Kucheria <amit.kucheria@linaro.org>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20200424161944.6044-1-sudipm.mukherjee@gmail.com
+[ 726.174237] i2c_designware i2c_designware.0: platform_pm_resume+0x0/0x3d returned 0 after 0 usecs
+[ 726.184187] max98373 i2c-MX98373:00: calling max98373_resume+0x0/0x30 [snd_soc_max98373] @ 12698, parent: i2c-11
+[ 726.195589] max98373 i2c-MX98373:00: Reset command failed. (ret:-16)
+
+When calling regmap_update_bits(), since map->reg_update_bits is NULL,
+_regmap_read() is entered with the following logic:
+
+	if (!map->cache_bypass) {
+		ret = regcache_read(map, reg, val);
+		if (ret == 0)
+			return 0;
+	}
+
+	if (map->cache_only)
+		return -EBUSY;
+
+regcache_read() hits -EINVAL because MAX98373_R2000_SW_RESET is volatile,
+as map->cache_only is set by codec suspend, thus -EBUSY is returned.
+Fix by moving max98373_reset() after cache_only set to false in max98373_resume().
+
+Signed-off-by: Yong Zhi <yong.zhi@intel.com>
+Link: https://lore.kernel.org/r/1588376661-29799-1-git-send-email-yong.zhi@intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/ti-soc-thermal/ti-thermal-common.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ sound/soc/codecs/max98373.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/thermal/ti-soc-thermal/ti-thermal-common.c b/drivers/thermal/ti-soc-thermal/ti-thermal-common.c
-index d3e959d01606c..85776db4bf346 100644
---- a/drivers/thermal/ti-soc-thermal/ti-thermal-common.c
-+++ b/drivers/thermal/ti-soc-thermal/ti-thermal-common.c
-@@ -169,7 +169,7 @@ int ti_thermal_expose_sensor(struct ti_bandgap *bgp, int id,
+diff --git a/sound/soc/codecs/max98373.c b/sound/soc/codecs/max98373.c
+index cae1def8902dd..96718e3a1ad0e 100644
+--- a/sound/soc/codecs/max98373.c
++++ b/sound/soc/codecs/max98373.c
+@@ -850,8 +850,8 @@ static int max98373_resume(struct device *dev)
+ {
+ 	struct max98373_priv *max98373 = dev_get_drvdata(dev);
  
- 	data = ti_bandgap_get_sensor_data(bgp, id);
- 
--	if (!data || IS_ERR(data))
-+	if (!IS_ERR_OR_NULL(data))
- 		data = ti_thermal_build_data(bgp, id);
- 
- 	if (!data)
-@@ -196,7 +196,7 @@ int ti_thermal_remove_sensor(struct ti_bandgap *bgp, int id)
- 
- 	data = ti_bandgap_get_sensor_data(bgp, id);
- 
--	if (data && data->ti_thermal) {
-+	if (!IS_ERR_OR_NULL(data) && data->ti_thermal) {
- 		if (data->our_zone)
- 			thermal_zone_device_unregister(data->ti_thermal);
- 	}
-@@ -262,7 +262,7 @@ int ti_thermal_unregister_cpu_cooling(struct ti_bandgap *bgp, int id)
- 
- 	data = ti_bandgap_get_sensor_data(bgp, id);
- 
--	if (data) {
-+	if (!IS_ERR_OR_NULL(data)) {
- 		cpufreq_cooling_unregister(data->cool_dev);
- 		if (data->policy)
- 			cpufreq_cpu_put(data->policy);
+-	max98373_reset(max98373, dev);
+ 	regcache_cache_only(max98373->regmap, false);
++	max98373_reset(max98373, dev);
+ 	regcache_sync(max98373->regmap);
+ 	return 0;
+ }
 -- 
 2.25.1
 
