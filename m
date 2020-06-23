@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14D63205C63
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:01:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80C13205C66
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:01:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387576AbgFWUBg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:01:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38212 "EHLO mail.kernel.org"
+        id S2387694AbgFWUBq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:01:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387668AbgFWUBe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:01:34 -0400
+        id S2387689AbgFWUBp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:01:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB643206C3;
-        Tue, 23 Jun 2020 20:01:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4E0F20706;
+        Tue, 23 Jun 2020 20:01:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592942494;
-        bh=+Xs/HUlxg1DyVqM6VD+587PpPAcfdfjAHJ3jTcdWD3U=;
+        s=default; t=1592942504;
+        bh=z0xnm/mGI/9nPX8dNxlZnhwvvxB80jZK220cQQQMK2E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mXC2PPo4sf1m60ExFqbguCUKzmL608ccs1Uc5qJRFnIs4nsKR8AJMeKwoXsWnUAui
-         e29Vf1GbTY9bAEBC+Y9jzFK+P5YuhJOa1DVu9JDS8cNpHGKSJ+mHwC/7+wruPQ+gPR
-         e9vtsaMdalwuVoENxKzAku5hfX0EIHYgk2OsS09o=
+        b=lWw+jxAX8af3br7mchUjlu8c1K1YnO20yJ0J/c1EOL4yGzrqKD8Am3hpCu6rH7OFJ
+         Uis5geojhEOm1q4bq8vEZrZJt6lI+6PY92shuhSRaTV2HBkEAtjH+KG+r6wiZfg4Np
+         w8/Jy9QcnVKfJuG6K5T7YifxFWdkAn9BIRIgjdlg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Neil Armstrong <narmstrong@baylibre.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 020/477] arm64: dts: meson-gxbb-kii-pro: fix board compatible
-Date:   Tue, 23 Jun 2020 21:50:17 +0200
-Message-Id: <20200623195408.562273004@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 024/477] ALSA: hda/realtek - Introduce polarity for micmute LED GPIO
+Date:   Tue, 23 Jun 2020 21:50:21 +0200
+Message-Id: <20200623195408.748696963@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -44,36 +44,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neil Armstrong <narmstrong@baylibre.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit d120b5f98031eefc22164ae8c6ea3711e7a04c19 ]
+[ Upstream commit dbd13179780555ecd3c992dea1222ca31920e892 ]
 
-Remove the uneeded "amlogic,p201", "amlogic,s905" in the board compatible list.
+Currently mute LED and micmute LED share the same GPIO polarity.
 
-It fixes:
-meson-gxbb-kii-pro.dt.yaml: /: compatible: ['videostrong,kii-pro', 'amlogic,p201', 'amlogic,s905', 'amlogic,meson-gxbb'] is not valid under any of the given schemas
+So split the polarity for mute and micmute, in case they have different
+polarities.
 
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Kevin Hilman <khilman@baylibre.com>
-Link: https://lore.kernel.org/r/20200326165958.19274-5-narmstrong@baylibre.com
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Link: https://lore.kernel.org/r/20200430083255.5093-1-kai.heng.feng@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-gxbb-kii-pro.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-gxbb-kii-pro.dts b/arch/arm64/boot/dts/amlogic/meson-gxbb-kii-pro.dts
-index 6c9cc45fb417e..e8394a8269ee1 100644
---- a/arch/arm64/boot/dts/amlogic/meson-gxbb-kii-pro.dts
-+++ b/arch/arm64/boot/dts/amlogic/meson-gxbb-kii-pro.dts
-@@ -11,7 +11,7 @@
- #include <dt-bindings/input/input.h>
- #include <dt-bindings/leds/common.h>
- / {
--	compatible = "videostrong,kii-pro", "amlogic,p201", "amlogic,s905", "amlogic,meson-gxbb";
-+	compatible = "videostrong,kii-pro", "amlogic,meson-gxbb";
- 	model = "Videostrong KII Pro";
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index 2c45759094417..e057ecb5a9045 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -81,6 +81,7 @@ struct alc_spec {
  
- 	leds {
+ 	/* mute LED for HP laptops, see alc269_fixup_mic_mute_hook() */
+ 	int mute_led_polarity;
++	int micmute_led_polarity;
+ 	hda_nid_t mute_led_nid;
+ 	hda_nid_t cap_mute_led_nid;
+ 
+@@ -4080,11 +4081,9 @@ static void alc269_fixup_hp_mute_led_mic3(struct hda_codec *codec,
+ 
+ /* update LED status via GPIO */
+ static void alc_update_gpio_led(struct hda_codec *codec, unsigned int mask,
+-				bool enabled)
++				int polarity, bool enabled)
+ {
+-	struct alc_spec *spec = codec->spec;
+-
+-	if (spec->mute_led_polarity)
++	if (polarity)
+ 		enabled = !enabled;
+ 	alc_update_gpio_data(codec, mask, !enabled); /* muted -> LED on */
+ }
+@@ -4095,7 +4094,8 @@ static void alc_fixup_gpio_mute_hook(void *private_data, int enabled)
+ 	struct hda_codec *codec = private_data;
+ 	struct alc_spec *spec = codec->spec;
+ 
+-	alc_update_gpio_led(codec, spec->gpio_mute_led_mask, enabled);
++	alc_update_gpio_led(codec, spec->gpio_mute_led_mask,
++			    spec->mute_led_polarity, enabled);
+ }
+ 
+ /* turn on/off mic-mute LED via GPIO per capture hook */
+@@ -4104,6 +4104,7 @@ static void alc_gpio_micmute_update(struct hda_codec *codec)
+ 	struct alc_spec *spec = codec->spec;
+ 
+ 	alc_update_gpio_led(codec, spec->gpio_mic_led_mask,
++			    spec->micmute_led_polarity,
+ 			    spec->gen.micmute_led.led_value);
+ }
+ 
+@@ -5808,7 +5809,8 @@ static void alc280_hp_gpio4_automute_hook(struct hda_codec *codec,
+ 
+ 	snd_hda_gen_hp_automute(codec, jack);
+ 	/* mute_led_polarity is set to 0, so we pass inverted value here */
+-	alc_update_gpio_led(codec, 0x10, !spec->gen.hp_jack_present);
++	alc_update_gpio_led(codec, 0x10, spec->mute_led_polarity,
++			    !spec->gen.hp_jack_present);
+ }
+ 
+ /* Manage GPIOs for HP EliteBook Folio 9480m.
 -- 
 2.25.1
 
