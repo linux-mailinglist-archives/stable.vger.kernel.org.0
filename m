@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04F2F206061
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:48:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 725642060B3
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:48:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392400AbgFWUmP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:42:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38736 "EHLO mail.kernel.org"
+        id S2392747AbgFWUph (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:45:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392392AbgFWUmL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:42:11 -0400
+        id S2390937AbgFWUpg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:45:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 92CC82070E;
-        Tue, 23 Jun 2020 20:42:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B21520836;
+        Tue, 23 Jun 2020 20:45:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944931;
-        bh=z35iJVWZkC2NAMYRYw/X+fGLQhQF2nEGbNhYXl4tEGc=;
+        s=default; t=1592945136;
+        bh=DRFsV92GDkJasMMkP1EiCsfu8ldMUDEVDgx+9jRJSq0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x+pyBYvcfl975TG+6gslMgbztNa0nysFh8RLAIhAu8gPtKsMPpnh0gctCniFGzWj1
-         UAjcyfGSKnoP8vtQQqRTntqAEO+eDbV4k6Or4gefsADCn/nEyfktHRzMB6KWZbmdYi
-         8ClLblYTozK/LzBCGjkAn8wpgObP+VmjJ6t7o7qk=
+        b=vAk4yWbubVfYRMObBPE7pvSJHHSmh2+hfvLdX4jYWmLfsSd9bY7S4+ZuBN5RP1rqK
+         gEfjF3R5YHlMMjMJ9gFf4UrCtGZcNF5yGCAZZkc9gHVeQa3eqmUmhFoV1hUOQmUu5t
+         5l15eaA8bfJGLYP2dvkJbfh+Z8lXDtZ6fccjOVr4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
-        Sean Paul <sean@poorly.run>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 180/206] drm/dp_mst: Increase ACT retry timeout to 3s
-Date:   Tue, 23 Jun 2020 21:58:28 +0200
-Message-Id: <20200623195325.892939232@linuxfoundation.org>
+        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
+        clang-built-linux@googlegroups.com, Arnd Bergmann <arnd@arndb.de>,
+        David Teigland <teigland@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 053/136] dlm: remove BUG() before panic()
+Date:   Tue, 23 Jun 2020 21:58:29 +0200
+Message-Id: <20200623195306.347715455@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
-References: <20200623195316.864547658@linuxfoundation.org>
+In-Reply-To: <20200623195303.601828702@linuxfoundation.org>
+References: <20200623195303.601828702@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,130 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lyude Paul <lyude@redhat.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 873a95e0d59ac06901ae261dda0b7165ffd002b8 ]
+[ Upstream commit fe204591cc9480347af7d2d6029b24a62e449486 ]
 
-Currently we only poll for an ACT up to 30 times, with a busy-wait delay
-of 100µs between each attempt - giving us a timeout of 2900µs. While
-this might seem sensible, it would appear that in certain scenarios it
-can take dramatically longer then that for us to receive an ACT. On one
-of the EVGA MST hubs that I have available, I observed said hub
-sometimes taking longer then a second before signalling the ACT. These
-delays mostly seem to occur when previous sideband messages we've sent
-are NAKd by the hub, however it wouldn't be particularly surprising if
-it's possible to reproduce times like this simply by introducing branch
-devices with large LCTs since payload allocations have to take effect on
-every downstream device up to the payload's target.
+Building a kernel with clang sometimes fails with an objtool error in dlm:
 
-So, instead of just retrying 30 times we poll for the ACT for up to 3ms,
-and additionally use usleep_range() to avoid a very long and rude
-busy-wait. Note that the previous retry count of 30 appears to have been
-arbitrarily chosen, as I can't find any mention of a recommended timeout
-or retry count for ACTs in the DisplayPort 2.0 specification. This also
-goes for the range we were previously using for udelay(), although I
-suspect that was just copied from the recommended delay for link
-training on SST devices.
+fs/dlm/lock.o: warning: objtool: revert_lock_pc()+0xbd: can't find jump dest instruction at .text+0xd7fc
 
-Changes since v1:
-* Use readx_poll_timeout() instead of open-coding timeout loop - Sean
-  Paul
-Changes since v2:
-* Increase poll interval to 200us - Sean Paul
-* Print status in hex when we timeout waiting for ACT - Sean Paul
+The problem is that BUG() never returns and the compiler knows
+that anything after it is unreachable, however the panic still
+emits some code that does not get fully eliminated.
 
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Fixes: ad7f8a1f9ced ("drm/helper: add Displayport multi-stream helper (v0.6)")
-Cc: Sean Paul <sean@poorly.run>
-Cc: <stable@vger.kernel.org> # v3.17+
-Reviewed-by: Sean Paul <sean@poorly.run>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200406221253.1307209-4-lyude@redhat.com
+Having both BUG() and panic() is really pointless as the BUG()
+kills the current process and the subsequent panic() never hits.
+In most cases, we probably don't really want either and should
+replace the DLM_ASSERT() statements with WARN_ON(), as has
+been done for some of them.
+
+Remove the BUG() here so the user at least sees the panic message
+and we can reliably build randconfig kernels.
+
+Fixes: e7fd41792fc0 ("[DLM] The core of the DLM for GFS2/CLVM")
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: clang-built-linux@googlegroups.com
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_dp_mst_topology.c | 54 ++++++++++++++++-----------
- 1 file changed, 32 insertions(+), 22 deletions(-)
+ fs/dlm/dlm_internal.h | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c b/drivers/gpu/drm/drm_dp_mst_topology.c
-index 70bffedfdcf5b..a0aafd9a37e60 100644
---- a/drivers/gpu/drm/drm_dp_mst_topology.c
-+++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-@@ -29,6 +29,7 @@
- #include <linux/i2c.h>
- #include <drm/drm_dp_mst_helper.h>
- #include <drm/drmP.h>
-+#include <linux/iopoll.h>
- 
- #include <drm/drm_fixed.h>
- #include <drm/drm_atomic.h>
-@@ -2828,6 +2829,17 @@ static int drm_dp_dpcd_write_payload(struct drm_dp_mst_topology_mgr *mgr,
- 	return ret;
+diff --git a/fs/dlm/dlm_internal.h b/fs/dlm/dlm_internal.h
+index 748e8d59e6111..cb287df13a7aa 100644
+--- a/fs/dlm/dlm_internal.h
++++ b/fs/dlm/dlm_internal.h
+@@ -99,7 +99,6 @@ do { \
+                __LINE__, __FILE__, #x, jiffies); \
+     {do} \
+     printk("\n"); \
+-    BUG(); \
+     panic("DLM:  Record message above and reboot.\n"); \
+   } \
  }
- 
-+static int do_get_act_status(struct drm_dp_aux *aux)
-+{
-+	int ret;
-+	u8 status;
-+
-+	ret = drm_dp_dpcd_readb(aux, DP_PAYLOAD_TABLE_UPDATE_STATUS, &status);
-+	if (ret < 0)
-+		return ret;
-+
-+	return status;
-+}
- 
- /**
-  * drm_dp_check_act_status() - Check ACT handled status.
-@@ -2837,30 +2849,28 @@ static int drm_dp_dpcd_write_payload(struct drm_dp_mst_topology_mgr *mgr,
-  */
- int drm_dp_check_act_status(struct drm_dp_mst_topology_mgr *mgr)
- {
--	int count = 0, ret;
--	u8 status;
--
--	do {
--		ret = drm_dp_dpcd_readb(mgr->aux,
--					DP_PAYLOAD_TABLE_UPDATE_STATUS,
--					&status);
--		if (ret < 0) {
--			DRM_DEBUG_KMS("failed to read payload table status %d\n",
--				      ret);
--			return ret;
--		}
--
--		if (status & DP_PAYLOAD_ACT_HANDLED)
--			break;
--		count++;
--		udelay(100);
--	} while (count < 30);
--
--	if (!(status & DP_PAYLOAD_ACT_HANDLED)) {
--		DRM_DEBUG_KMS("failed to get ACT bit %d after %d retries\n",
--			      status, count);
-+	/*
-+	 * There doesn't seem to be any recommended retry count or timeout in
-+	 * the MST specification. Since some hubs have been observed to take
-+	 * over 1 second to update their payload allocations under certain
-+	 * conditions, we use a rather large timeout value.
-+	 */
-+	const int timeout_ms = 3000;
-+	int ret, status;
-+
-+	ret = readx_poll_timeout(do_get_act_status, mgr->aux, status,
-+				 status & DP_PAYLOAD_ACT_HANDLED || status < 0,
-+				 200, timeout_ms * USEC_PER_MSEC);
-+	if (ret < 0 && status >= 0) {
-+		DRM_DEBUG_KMS("Failed to get ACT after %dms, last status: %02x\n",
-+			      timeout_ms, status);
- 		return -EINVAL;
-+	} else if (status < 0) {
-+		DRM_DEBUG_KMS("Failed to read payload table status: %d\n",
-+			      status);
-+		return status;
- 	}
-+
- 	return 0;
- }
- EXPORT_SYMBOL(drm_dp_check_act_status);
 -- 
 2.25.1
 
