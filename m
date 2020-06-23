@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 020D62064CC
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:32:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12FDE206414
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:30:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389149AbgFWV1k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 17:27:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60234 "EHLO mail.kernel.org"
+        id S2392223AbgFWVPt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 17:15:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389427AbgFWUQg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:16:36 -0400
+        id S2390857AbgFWU2R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:28:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 13AC12064B;
-        Tue, 23 Jun 2020 20:16:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 13C4220702;
+        Tue, 23 Jun 2020 20:28:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943396;
-        bh=J1y0PlpjtGbI1bMorl5yk/bck39RF0IYqy2Pt3TZCPE=;
+        s=default; t=1592944097;
+        bh=4Xyvuee6hmLEbgdfaRccXExj/AfzcY7UERLYDnt/UC0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I520ViryXwk46aQLFiYrkXN/S0x0BsTD57Zg482kZ6cHj93mrTuwlgiWRQ3Z1G46C
-         ulIAFrsC25JABdqMDmcOmh6xFSENGLkYqIqhbTAHUyixievyRDSfFZWaY7v/QM1ONz
-         vImMuloGgmxVO6VGo2W10qsFxtjYljB2iP6aNZ+A=
+        b=gWwdinvGv3dfmYOqNzpq9CutkKelGMsk1EY6TH/buDBZAxqqz9XYGxybCzRA2caOo
+         0pqeY7ncI8pbwZgX3f3reoy+2F/pKTv9YsI8RvHPC1SaFWPoHaXOx8qUcXFoixWzSS
+         kmDun9GJ0g1PgusaSv5CMRAJ3HjLQmpic1WuEfwg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YiFei Zhu <zhuyifei@google.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Stanislav Fomichev <sdf@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 368/477] net/filter: Permit reading NET in load_bytes_relative when MAC not set
-Date:   Tue, 23 Jun 2020 21:56:05 +0200
-Message-Id: <20200623195424.924919665@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 172/314] PCI: amlogic: meson: Dont use FAST_LINK_MODE to set up link
+Date:   Tue, 23 Jun 2020 21:56:07 +0200
+Message-Id: <20200623195347.087750573@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
-References: <20200623195407.572062007@linuxfoundation.org>
+In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
+References: <20200623195338.770401005@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,71 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YiFei Zhu <zhuyifei1999@gmail.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit 0f5d82f187e1beda3fe7295dfc500af266a5bd80 ]
+[ Upstream commit 87dccf09323fc363bd0d072fcc12b96622ab8c69 ]
 
-Added a check in the switch case on start_header that checks for
-the existence of the header, and in the case that MAC is not set
-and the caller requests for MAC, -EFAULT. If the caller requests
-for NET then MAC's existence is completely ignored.
+The vim3l board does not work with a standard PCIe switch (ASM1184e),
+spitting all kind of errors - hinting at HW misconfiguration (no link,
+port enumeration issues, etc).
 
-There is no function to check NET header's existence and as far
-as cgroup_skb/egress is concerned it should always be set.
+According to the the Synopsys DWC PCIe Reference Manual, in the section
+dedicated to the PLCR register, bit 7 is described (FAST_LINK_MODE) as:
 
-Removed for ptr >= the start of header, considering offset is
-bounded unsigned and should always be true. len <= end - mac is
-redundant to ptr + len <= end.
+"Sets all internal timers to fast mode for simulation purposes."
 
-Fixes: 3eee1f75f2b9 ("bpf: fix bpf_skb_load_bytes_relative pkt length check")
-Signed-off-by: YiFei Zhu <zhuyifei@google.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: Stanislav Fomichev <sdf@google.com>
-Link: https://lore.kernel.org/bpf/76bb820ddb6a95f59a772ecbd8c8a336f646b362.1591812755.git.zhuyifei@google.com
+it is sound to set this bit from a simulation perspective, but on actual
+silicon, which expects timers to have a nominal value, it is not.
+
+Make sure the FAST_LINK_MODE bit is cleared when configuring the RC
+to solve this problem.
+
+Link: https://lore.kernel.org/r/20200429164230.309922-1-maz@kernel.org
+Fixes: 9c0ef6d34fdb ("PCI: amlogic: Add the Amlogic Meson PCIe controller driver")
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+[lorenzo.pieralisi@arm.com: commit log]
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
+Acked-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/filter.c | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ drivers/pci/controller/dwc/pci-meson.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/core/filter.c b/net/core/filter.c
-index 11b97c31bca58..9512a9772d691 100644
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -1766,25 +1766,27 @@ BPF_CALL_5(bpf_skb_load_bytes_relative, const struct sk_buff *, skb,
- 	   u32, offset, void *, to, u32, len, u32, start_header)
- {
- 	u8 *end = skb_tail_pointer(skb);
--	u8 *net = skb_network_header(skb);
--	u8 *mac = skb_mac_header(skb);
--	u8 *ptr;
-+	u8 *start, *ptr;
+diff --git a/drivers/pci/controller/dwc/pci-meson.c b/drivers/pci/controller/dwc/pci-meson.c
+index b927a92e3463e..8c9f887048746 100644
+--- a/drivers/pci/controller/dwc/pci-meson.c
++++ b/drivers/pci/controller/dwc/pci-meson.c
+@@ -301,11 +301,11 @@ static void meson_pcie_init_dw(struct meson_pcie *mp)
+ 	meson_cfg_writel(mp, val, PCIE_CFG0);
  
--	if (unlikely(offset > 0xffff || len > (end - mac)))
-+	if (unlikely(offset > 0xffff))
- 		goto err_clear;
+ 	val = meson_elb_readl(mp, PCIE_PORT_LINK_CTRL_OFF);
+-	val &= ~LINK_CAPABLE_MASK;
++	val &= ~(LINK_CAPABLE_MASK | FAST_LINK_MODE);
+ 	meson_elb_writel(mp, val, PCIE_PORT_LINK_CTRL_OFF);
  
- 	switch (start_header) {
- 	case BPF_HDR_START_MAC:
--		ptr = mac + offset;
-+		if (unlikely(!skb_mac_header_was_set(skb)))
-+			goto err_clear;
-+		start = skb_mac_header(skb);
- 		break;
- 	case BPF_HDR_START_NET:
--		ptr = net + offset;
-+		start = skb_network_header(skb);
- 		break;
- 	default:
- 		goto err_clear;
- 	}
+ 	val = meson_elb_readl(mp, PCIE_PORT_LINK_CTRL_OFF);
+-	val |= LINK_CAPABLE_X1 | FAST_LINK_MODE;
++	val |= LINK_CAPABLE_X1;
+ 	meson_elb_writel(mp, val, PCIE_PORT_LINK_CTRL_OFF);
  
--	if (likely(ptr >= mac && ptr + len <= end)) {
-+	ptr = start + offset;
-+
-+	if (likely(ptr + len <= end)) {
- 		memcpy(to, ptr, len);
- 		return 0;
- 	}
+ 	val = meson_elb_readl(mp, PCIE_GEN2_CTRL_OFF);
 -- 
 2.25.1
 
