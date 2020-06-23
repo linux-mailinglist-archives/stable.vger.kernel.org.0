@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 30D81206396
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:29:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FEF9206137
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:07:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390648AbgFWU22 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:28:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48264 "EHLO mail.kernel.org"
+        id S2387845AbgFWUgR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:36:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390640AbgFWU21 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:28:27 -0400
+        id S2387963AbgFWUgR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:36:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2C80206EB;
-        Tue, 23 Jun 2020 20:28:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 290D120836;
+        Tue, 23 Jun 2020 20:36:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944107;
-        bh=6rFypo36zQbJOjlg5yZZsV07PWigvCeFy0lzw65LXGM=;
+        s=default; t=1592944577;
+        bh=fDPxEN2laKuOofyfZvjWh8lcMNwzEztQA23LMtZmpKM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RmwV4LGPl/kL0o45DJRdBClqNTMFfvi4jilrvthbuCysBKnnZYxgoSAwXrddwwOcw
-         ChU066beXydpfTuzULGkixAtojSqVFjLyzlCZT9CHrM6QVs2t9SZsXHCxY3FusCZ1+
-         GN6jRvXTAnp9TIpNX2BzDNYGcFNXP+qius70bzaY=
+        b=GbfwZduyh1B9H198hDRI0PsPqj+vnUCJOy//nSOaRMjvHCAycVmYPo8Zw6pfvYKdZ
+         r5fGFL5400Sz3h17slq/6d3ZKrP9fgBZZhlAaqWkUwfRO9kcKWEzJLr2RgyCs+LPgs
+         G/A0oGJXtg6z6CM30N8ZjDUyXFgkZf7NgZP0Inik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        kbuild test robot <lkp@intel.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Felipe Balbi <balbi@kernel.org>,
+        stable@vger.kernel.org, Simon Arlott <simon@octiron.net>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 176/314] USB: gadget: udc: s3c2410_udc: Remove pointless NULL check in s3c2410_udc_nuke
-Date:   Tue, 23 Jun 2020 21:56:11 +0200
-Message-Id: <20200623195347.285923911@linuxfoundation.org>
+Subject: [PATCH 4.19 044/206] scsi: sr: Fix sr_probe() missing deallocate of device minor
+Date:   Tue, 23 Jun 2020 21:56:12 +0200
+Message-Id: <20200623195319.146408766@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
-References: <20200623195338.770401005@linuxfoundation.org>
+In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
+References: <20200623195316.864547658@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,54 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Simon Arlott <simon@octiron.net>
 
-[ Upstream commit 7a0fbcf7c308920bc6116b3a5fb21c8cc5fec128 ]
+[ Upstream commit 6555781b3fdec5e94e6914511496144241df7dee ]
 
-Clang warns:
+If the cdrom fails to be registered then the device minor should be
+deallocated.
 
-drivers/usb/gadget/udc/s3c2410_udc.c:255:11: warning: comparison of
-address of 'ep->queue' equal to a null pointer is always false
-[-Wtautological-pointer-compare]
-        if (&ep->queue == NULL)
-             ~~~~^~~~~    ~~~~
-1 warning generated.
-
-It is not wrong, queue is not a pointer so if ep is not NULL, the
-address of queue cannot be NULL. No other driver does a check like this
-and this check has been around since the driver was first introduced,
-presumably with no issues so it does not seem like this check should be
-something else. Just remove it.
-
-Commit afe956c577b2d ("kbuild: Enable -Wtautological-compare") exposed
-this but it is not the root cause of the warning.
-
-Fixes: 3fc154b6b8134 ("USB Gadget driver for Samsung s3c2410 ARM SoC")
-Link: https://github.com/ClangBuiltLinux/linux/issues/1004
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Link: https://lore.kernel.org/r/072dac4b-8402-4de8-36bd-47e7588969cd@0882a8b5-c6c3-11e9-b005-00805fc181fe
+Signed-off-by: Simon Arlott <simon@octiron.net>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/s3c2410_udc.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/scsi/sr.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/udc/s3c2410_udc.c b/drivers/usb/gadget/udc/s3c2410_udc.c
-index f82208fbc2495..5dcc0692b95c7 100644
---- a/drivers/usb/gadget/udc/s3c2410_udc.c
-+++ b/drivers/usb/gadget/udc/s3c2410_udc.c
-@@ -251,10 +251,6 @@ static void s3c2410_udc_done(struct s3c2410_ep *ep,
- static void s3c2410_udc_nuke(struct s3c2410_udc *udc,
- 		struct s3c2410_ep *ep, int status)
- {
--	/* Sanity check */
--	if (&ep->queue == NULL)
--		return;
--
- 	while (!list_empty(&ep->queue)) {
- 		struct s3c2410_request *req;
- 		req = list_entry(ep->queue.next, struct s3c2410_request,
+diff --git a/drivers/scsi/sr.c b/drivers/scsi/sr.c
+index d0389b20574d0..5be3d6b7991b4 100644
+--- a/drivers/scsi/sr.c
++++ b/drivers/scsi/sr.c
+@@ -748,7 +748,7 @@ static int sr_probe(struct device *dev)
+ 	cd->cdi.disk = disk;
+ 
+ 	if (register_cdrom(&cd->cdi))
+-		goto fail_put;
++		goto fail_minor;
+ 
+ 	/*
+ 	 * Initialize block layer runtime PM stuffs before the
+@@ -766,6 +766,10 @@ static int sr_probe(struct device *dev)
+ 
+ 	return 0;
+ 
++fail_minor:
++	spin_lock(&sr_index_lock);
++	clear_bit(minor, sr_index_bits);
++	spin_unlock(&sr_index_lock);
+ fail_put:
+ 	put_disk(disk);
+ fail_free:
 -- 
 2.25.1
 
