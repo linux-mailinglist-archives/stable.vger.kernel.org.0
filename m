@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7991205EDA
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:31:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3420A205FBD
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:47:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390717AbgFWU0x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:26:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46172 "EHLO mail.kernel.org"
+        id S2391723AbgFWUfn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:35:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389512AbgFWU0w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:26:52 -0400
+        id S2391722AbgFWUfn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:35:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B4683206C3;
-        Tue, 23 Jun 2020 20:26:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B9AF720836;
+        Tue, 23 Jun 2020 20:35:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944012;
-        bh=DV9HBnnggnuXJR8WVIySzNUQiSadqv442HEQBtx5BcU=;
+        s=default; t=1592944543;
+        bh=cqXo4sFFq3eyBc3yOBsOF0tDKrormseqsHL1lsfYwnQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qBoZtrgElz0yUOWQO8liXLMt+p8eV6Xjt5Ukee6Ml15kUi4MdsDKWKXPcMXyaq1Nm
-         3SFq1wuMmBXc3IbtFsmSxgNSUfoUquXjXKylQqyytfqvsQ4kbWFssH7EgB2VxYIyi9
-         auOUVwlf/wZnArjf0luc3CfKZYjd4LV9qDAcVfcU=
+        b=HLBcPj1Bed+C497nCF8kuKh43fos1HssNFsythEj3iYAUOtKlrtLydEgNQojby2Bw
+         JTQhM+dYagKqX92PXprdok+N/7RcA7RA4ByakWfz7Z+SWRpOCp6s1OxGbB9YHUfLHc
+         Jaxh0zO3D+NQ+t1CMsd3iAzo5mlNkVjYz6kECdfw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 139/314] PCI: Fix pci_register_host_bridge() device_register() error handling
+        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Suman Anna <s-anna@ti.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 006/206] remoteproc: Fix IDR initialisation in rproc_alloc()
 Date:   Tue, 23 Jun 2020 21:55:34 +0200
-Message-Id: <20200623195345.491600428@linuxfoundation.org>
+Message-Id: <20200623195317.244434695@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
-References: <20200623195338.770401005@linuxfoundation.org>
+In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
+References: <20200623195316.864547658@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +46,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Herring <robh@kernel.org>
+From: Alex Elder <elder@linaro.org>
 
-[ Upstream commit 1b54ae8327a4d630111c8d88ba7906483ec6010b ]
+[ Upstream commit 6442df49400b466431979e7634849a464a5f1861 ]
 
-If device_register() has an error, we should bail out of
-pci_register_host_bridge() rather than continuing on.
+If ida_simple_get() returns an error when called in rproc_alloc(),
+put_device() is called to clean things up.  By this time the rproc
+device type has been assigned, with rproc_type_release() as the
+release function.
 
-Fixes: 37d6a0a6f470 ("PCI: Add pci_register_host_bridge() interface")
-Link: https://lore.kernel.org/r/20200513223859.11295-1-robh@kernel.org
-Signed-off-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+The first thing rproc_type_release() does is call:
+    idr_destroy(&rproc->notifyids);
+
+But at the time the ida_simple_get() call is made, the notifyids
+field in the remoteproc structure has not been initialized.
+
+I'm not actually sure this case causes an observable problem, but
+it's incorrect.  Fix this by initializing the notifyids field before
+calling ida_simple_get() in rproc_alloc().
+
+Fixes: b5ab5e24e960 ("remoteproc: maintain a generic child device for each rproc")
+Signed-off-by: Alex Elder <elder@linaro.org>
+Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Reviewed-by: Suman Anna <s-anna@ti.com>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20200415204858.2448-2-mathieu.poirier@linaro.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/probe.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/remoteproc/remoteproc_core.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
-index 83d909abc61d1..8fa13486f2f15 100644
---- a/drivers/pci/probe.c
-+++ b/drivers/pci/probe.c
-@@ -867,9 +867,10 @@ static int pci_register_host_bridge(struct pci_host_bridge *bridge)
- 		goto free;
+diff --git a/drivers/remoteproc/remoteproc_core.c b/drivers/remoteproc/remoteproc_core.c
+index d5ff272fde343..e48069db17033 100644
+--- a/drivers/remoteproc/remoteproc_core.c
++++ b/drivers/remoteproc/remoteproc_core.c
+@@ -1598,6 +1598,7 @@ struct rproc *rproc_alloc(struct device *dev, const char *name,
+ 	rproc->dev.type = &rproc_type;
+ 	rproc->dev.class = &rproc_class;
+ 	rproc->dev.driver_data = rproc;
++	idr_init(&rproc->notifyids);
  
- 	err = device_register(&bridge->dev);
--	if (err)
-+	if (err) {
- 		put_device(&bridge->dev);
+ 	/* Assign a unique device index and name */
+ 	rproc->index = ida_simple_get(&rproc_dev_index, 0, 0, GFP_KERNEL);
+@@ -1622,8 +1623,6 @@ struct rproc *rproc_alloc(struct device *dev, const char *name,
+ 
+ 	mutex_init(&rproc->lock);
+ 
+-	idr_init(&rproc->notifyids);
 -
-+		goto free;
-+	}
- 	bus->bridge = get_device(&bridge->dev);
- 	device_enable_async_suspend(bus->bridge);
- 	pci_set_bus_of_node(bus);
+ 	INIT_LIST_HEAD(&rproc->carveouts);
+ 	INIT_LIST_HEAD(&rproc->mappings);
+ 	INIT_LIST_HEAD(&rproc->traces);
 -- 
 2.25.1
 
