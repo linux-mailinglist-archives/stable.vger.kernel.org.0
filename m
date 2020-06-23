@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D91D2062F3
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:10:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0931B20616F
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:07:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391484AbgFWVJh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 17:09:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55722 "EHLO mail.kernel.org"
+        id S2392368AbgFWUly (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:41:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391483AbgFWUeB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:34:01 -0400
+        id S2391951AbgFWUlw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:41:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6DF52064B;
-        Tue, 23 Jun 2020 20:34:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8160121531;
+        Tue, 23 Jun 2020 20:41:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944442;
-        bh=ZGdBxKQkCpdkOwGotuNsaRRU1i75i+LyQ6mnSPfgiF8=;
+        s=default; t=1592944913;
+        bh=RmSu6XXD+IBvpCB9zN9SurpmHVEngIjc+XGj9sgt19g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v8I+tKsQazPixrE3Rp3jP8AdwTPKPTLk561VdeXhmel5508Na0uJ878IwTrkrJCOO
-         8naQmf1OoU15ybJAXKr62LygUzlgP84Ks40IY/1XmL2zKkJF20vNFteovXDHNcsUEw
-         vntGh+x55BFZDTvGOU4hs4hZFmWwJLDac8YJFfuA=
+        b=ni7WQnapttaLN7j2e8KyKZETl+rEpcexN8losBPth8244k3O/pX2SAihotAWIUYqc
+         V9oeqYZ56DRP4ZjTDvDIANlkcQL6IThUKZqg3eOyU+M6gEKS0Bdj/fClwr4rTOcx4P
+         opm3qF70J3wE3MDuFiVzZ01NQJ4RLRDuUFVlTF7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.4 307/314] tracing/probe: Fix memleak in fetch_op_data operations
+        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
+        Sean Paul <sean@poorly.run>
+Subject: [PATCH 4.19 174/206] drm/dp_mst: Reformat drm_dp_check_act_status() a bit
 Date:   Tue, 23 Jun 2020 21:58:22 +0200
-Message-Id: <20200623195353.645232575@linuxfoundation.org>
+Message-Id: <20200623195325.589459183@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
-References: <20200623195338.770401005@linuxfoundation.org>
+In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
+References: <20200623195316.864547658@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
+From: Lyude Paul <lyude@redhat.com>
 
-commit 3aa8fdc37d16735e8891035becf25b3857d3efe0 upstream.
+commit a5cb5fa6c3a5c2cf492db667b8670ee7b044b79f upstream.
 
-kmemleak report:
-    [<57dcc2ca>] __kmalloc_track_caller+0x139/0x2b0
-    [<f1c45d0f>] kstrndup+0x37/0x80
-    [<f9761eb0>] parse_probe_arg.isra.7+0x3cc/0x630
-    [<055bf2ba>] traceprobe_parse_probe_arg+0x2f5/0x810
-    [<655a7766>] trace_kprobe_create+0x2ca/0x950
-    [<4fc6a02a>] create_or_delete_trace_kprobe+0xf/0x30
-    [<6d1c8a52>] trace_run_command+0x67/0x80
-    [<be812cc0>] trace_parse_run_command+0xa7/0x140
-    [<aecfe401>] probes_write+0x10/0x20
-    [<2027641c>] __vfs_write+0x30/0x1e0
-    [<6a4aeee1>] vfs_write+0x96/0x1b0
-    [<3517fb7d>] ksys_write+0x53/0xc0
-    [<dad91db7>] __ia32_sys_write+0x15/0x20
-    [<da347f64>] do_syscall_32_irqs_on+0x3d/0x260
-    [<fd0b7e7d>] do_fast_syscall_32+0x39/0xb0
-    [<ea5ae810>] entry_SYSENTER_32+0xaf/0x102
+Just add a bit more line wrapping, get rid of some extraneous
+whitespace, remove an unneeded goto label, and move around some variable
+declarations. No functional changes here.
 
-Post parse_probe_arg(), the FETCH_OP_DATA operation type is overwritten
-to FETCH_OP_ST_STRING, as a result memory is never freed since
-traceprobe_free_probe_arg() iterates only over SYMBOL and DATA op types
-
-Setup fetch string operation correctly after fetch_op_data operation.
-
-Link: https://lkml.kernel.org/r/20200615143034.GA1734@cosmos
-
-Cc: stable@vger.kernel.org
-Fixes: a42e3c4de964 ("tracing/probe: Add immediate string parameter support")
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+[this isn't a fix, but it's needed for the fix that comes after this]
+Fixes: ad7f8a1f9ced ("drm/helper: add Displayport multi-stream helper (v0.6)")
+Cc: Sean Paul <sean@poorly.run>
+Cc: <stable@vger.kernel.org> # v3.17+
+Reviewed-by: Sean Paul <sean@poorly.run>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200406221253.1307209-3-lyude@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/trace/trace_probe.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/drm_dp_mst_topology.c |   22 ++++++++++------------
+ 1 file changed, 10 insertions(+), 12 deletions(-)
 
---- a/kernel/trace/trace_probe.c
-+++ b/kernel/trace/trace_probe.c
-@@ -639,8 +639,8 @@ static int traceprobe_parse_probe_arg_bo
- 			ret = -EINVAL;
- 			goto fail;
+--- a/drivers/gpu/drm/drm_dp_mst_topology.c
++++ b/drivers/gpu/drm/drm_dp_mst_topology.c
+@@ -2837,33 +2837,31 @@ fail:
+  */
+ int drm_dp_check_act_status(struct drm_dp_mst_topology_mgr *mgr)
+ {
++	int count = 0, ret;
+ 	u8 status;
+-	int ret;
+-	int count = 0;
+ 
+ 	do {
+-		ret = drm_dp_dpcd_readb(mgr->aux, DP_PAYLOAD_TABLE_UPDATE_STATUS, &status);
+-
++		ret = drm_dp_dpcd_readb(mgr->aux,
++					DP_PAYLOAD_TABLE_UPDATE_STATUS,
++					&status);
+ 		if (ret < 0) {
+-			DRM_DEBUG_KMS("failed to read payload table status %d\n", ret);
+-			goto fail;
++			DRM_DEBUG_KMS("failed to read payload table status %d\n",
++				      ret);
++			return ret;
  		}
--		if ((code->op == FETCH_OP_IMM || code->op == FETCH_OP_COMM) ||
--		     parg->count) {
-+		if ((code->op == FETCH_OP_IMM || code->op == FETCH_OP_COMM ||
-+		     code->op == FETCH_OP_DATA) || parg->count) {
- 			/*
- 			 * IMM, DATA and COMM is pointing actual address, those
- 			 * must be kept, and if parg->count != 0, this is an
+ 
+ 		if (status & DP_PAYLOAD_ACT_HANDLED)
+ 			break;
+ 		count++;
+ 		udelay(100);
+-
+ 	} while (count < 30);
+ 
+ 	if (!(status & DP_PAYLOAD_ACT_HANDLED)) {
+-		DRM_DEBUG_KMS("failed to get ACT bit %d after %d retries\n", status, count);
+-		ret = -EINVAL;
+-		goto fail;
++		DRM_DEBUG_KMS("failed to get ACT bit %d after %d retries\n",
++			      status, count);
++		return -EINVAL;
+ 	}
+ 	return 0;
+-fail:
+-	return ret;
+ }
+ EXPORT_SYMBOL(drm_dp_check_act_status);
+ 
 
 
