@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD32120603C
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:48:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E14E8205F73
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:33:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392289AbgFWUkv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:40:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37048 "EHLO mail.kernel.org"
+        id S2391376AbgFWUdC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:33:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392284AbgFWUku (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:40:50 -0400
+        id S2391370AbgFWUdB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:33:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EC7AF2053B;
-        Tue, 23 Jun 2020 20:40:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1957E206C3;
+        Tue, 23 Jun 2020 20:33:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944850;
-        bh=G3nU8AixLE4jNYwCN0X7dD/0JVi9bsk+miXHHpZ0o1A=;
+        s=default; t=1592944381;
+        bh=378uOhPw4trf/EYBvinGEcHsXnmJkRgo2SeAskqxB0c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OAgtXlNhio1KXk0EUAFjTthbQESgqzY3eDeZ+t1GMFLOE1CpflFqPmw2D6jy20PaS
-         13qatklfvUapKPqzuyZw6OrUq16Tobi2eyI70d1yz/L+2oQLOoxNWHBebcrdNPBctb
-         VHQDnN8/JEFaDh8F+K86mcE3Xh93er0Yrd9CYzRg=
+        b=z40so3pc4HWYzB2CVLjVepYaKOaoQnjpKzqzU5BXUVrTT+V8sJb9Anu6DI3d0Tm29
+         lbJQzCMY0LAigDq3FGwRteiKEVpzByC2Z1s2MnyJ5KMHj2QRYnp13McYifCttH+TQk
+         KJh3AMwrJwaUfMQmHyXRuEhZyY70iC1udqwvlkFc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Logan Gunthorpe <logang@deltatee.com>,
-        Allen Hubbe <allenbh@gmail.com>,
-        Alexander Fomichev <fomichev.ru@gmail.com>,
-        Jon Mason <jdmason@kudzu.us>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 149/206] NTB: perf: Fix race condition when run with ntb_test
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Daniel Rosenberg <drosen@google.com>,
+        Gabriel Krisman Bertazi <krisman@collabora.co.uk>,
+        Eric Biggers <ebiggers@google.com>,
+        Andreas Dilger <adilger@dilger.ca>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.4 282/314] ext4: avoid utf8_strncasecmp() with unstable name
 Date:   Tue, 23 Jun 2020 21:57:57 +0200
-Message-Id: <20200623195324.335773703@linuxfoundation.org>
+Message-Id: <20200623195352.429875944@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
-References: <20200623195316.864547658@linuxfoundation.org>
+In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
+References: <20200623195338.770401005@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,81 +47,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Logan Gunthorpe <logang@deltatee.com>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit 34d8673a01b053b6231a995a4eec9341163d63be ]
+commit 2ce3ee931a097e9720310db3f09c01c825a4580c upstream.
 
-When running ntb_test, the script tries to run the ntb_perf test
-immediately after probing the modules. Since adding multi-port support,
-this fails seeing the new initialization procedure in ntb_perf
-can not complete instantly.
+If the dentry name passed to ->d_compare() fits in dentry::d_iname, then
+it may be concurrently modified by a rename.  This can cause undefined
+behavior (possibly out-of-bounds memory accesses or crashes) in
+utf8_strncasecmp(), since fs/unicode/ isn't written to handle strings
+that may be concurrently modified.
 
-To fix this we add a completion which is waited on when a test is
-started. In this way, run can be written any time after the module is
-loaded and it will wait for the initialization to complete instead of
-sending an error.
+Fix this by first copying the filename to a stack buffer if needed.
+This way we get a stable snapshot of the filename.
 
-Fixes: 5648e56d03fa ("NTB: ntb_perf: Add full multi-port NTB API support")
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
-Acked-by: Allen Hubbe <allenbh@gmail.com>
-Tested-by: Alexander Fomichev <fomichev.ru@gmail.com>
-Signed-off-by: Jon Mason <jdmason@kudzu.us>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: b886ee3e778e ("ext4: Support case-insensitive file name lookups")
+Cc: <stable@vger.kernel.org> # v5.2+
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Daniel Rosenberg <drosen@google.com>
+Cc: Gabriel Krisman Bertazi <krisman@collabora.co.uk>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Reviewed-by: Andreas Dilger <adilger@dilger.ca>
+Link: https://lore.kernel.org/r/20200601200543.59417-1-ebiggers@kernel.org
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/ntb/test/ntb_perf.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ fs/ext4/dir.c |   16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/drivers/ntb/test/ntb_perf.c b/drivers/ntb/test/ntb_perf.c
-index 62a9a1d44f9f6..ad5d3919435c9 100644
---- a/drivers/ntb/test/ntb_perf.c
-+++ b/drivers/ntb/test/ntb_perf.c
-@@ -158,6 +158,8 @@ struct perf_peer {
- 	/* NTB connection setup service */
- 	struct work_struct	service;
- 	unsigned long		sts;
-+
-+	struct completion init_comp;
- };
- #define to_peer_service(__work) \
- 	container_of(__work, struct perf_peer, service)
-@@ -549,6 +551,7 @@ static int perf_setup_outbuf(struct perf_peer *peer)
+--- a/fs/ext4/dir.c
++++ b/fs/ext4/dir.c
+@@ -677,6 +677,7 @@ static int ext4_d_compare(const struct d
+ 	struct qstr qstr = {.name = str, .len = len };
+ 	const struct dentry *parent = READ_ONCE(dentry->d_parent);
+ 	const struct inode *inode = READ_ONCE(parent->d_inode);
++	char strbuf[DNAME_INLINE_LEN];
  
- 	/* Initialization is finally done */
- 	set_bit(PERF_STS_DONE, &peer->sts);
-+	complete_all(&peer->init_comp);
- 
- 	return 0;
- }
-@@ -640,6 +643,7 @@ static void perf_service_work(struct work_struct *work)
- 		perf_setup_outbuf(peer);
- 
- 	if (test_and_clear_bit(PERF_CMD_CLEAR, &peer->sts)) {
-+		init_completion(&peer->init_comp);
- 		clear_bit(PERF_STS_DONE, &peer->sts);
- 		if (test_bit(0, &peer->perf->busy_flag) &&
- 		    peer == peer->perf->test_peer) {
-@@ -1047,8 +1051,9 @@ static int perf_submit_test(struct perf_peer *peer)
- 	struct perf_thread *pthr;
- 	int tidx, ret;
- 
--	if (!test_bit(PERF_STS_DONE, &peer->sts))
--		return -ENOLINK;
-+	ret = wait_for_completion_interruptible(&peer->init_comp);
-+	if (ret < 0)
-+		return ret;
- 
- 	if (test_and_set_bit_lock(0, &perf->busy_flag))
- 		return -EBUSY;
-@@ -1414,6 +1419,7 @@ static int perf_init_peers(struct perf_ctx *perf)
- 			peer->gidx = pidx;
- 		}
- 		INIT_WORK(&peer->service, perf_service_work);
-+		init_completion(&peer->init_comp);
+ 	if (!inode || !IS_CASEFOLDED(inode) ||
+ 	    !EXT4_SB(inode->i_sb)->s_encoding) {
+@@ -685,6 +686,21 @@ static int ext4_d_compare(const struct d
+ 		return memcmp(str, name->name, len);
  	}
- 	if (perf->gidx == -1)
- 		perf->gidx = pidx;
--- 
-2.25.1
-
+ 
++	/*
++	 * If the dentry name is stored in-line, then it may be concurrently
++	 * modified by a rename.  If this happens, the VFS will eventually retry
++	 * the lookup, so it doesn't matter what ->d_compare() returns.
++	 * However, it's unsafe to call utf8_strncasecmp() with an unstable
++	 * string.  Therefore, we have to copy the name into a temporary buffer.
++	 */
++	if (len <= DNAME_INLINE_LEN - 1) {
++		memcpy(strbuf, str, len);
++		strbuf[len] = 0;
++		qstr.name = strbuf;
++		/* prevent compiler from optimizing out the temporary buffer */
++		barrier();
++	}
++
+ 	return ext4_ci_compare(inode, name, &qstr, false);
+ }
+ 
 
 
