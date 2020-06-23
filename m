@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3215E20603F
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:48:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68E63205F81
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:46:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391848AbgFWUk5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:40:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37190 "EHLO mail.kernel.org"
+        id S2390928AbgFWUdL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:33:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392284AbgFWUkz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:40:55 -0400
+        id S2391390AbgFWUdJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:33:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 14D5F2053B;
-        Tue, 23 Jun 2020 20:40:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 011552072E;
+        Tue, 23 Jun 2020 20:33:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944855;
-        bh=rzvja3UF3NYTTw7BxVOgNjPDOe6GvHtvLbfBgJcCI2o=;
+        s=default; t=1592944389;
+        bh=WVZRPf304XDTXTsxZtHmCIrnuF/WwjdfFiKYz5fD9Jk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xE4EK4jm6dyppYMzJ/qm7nTkF07LwsjBL9KZvAZzrGpLTWRZR0doH0ZSEGxB5wswu
-         rLgdjqWI8T/OG2Ye4WEo4exTVM6EzySEQiSMJoIoIbSvlKelStFsNCMtqhB0BcfUYx
-         4ZkE1trKEUmp9sVn6vClUJuOlMq6Rv5h9c3GGORs=
+        b=VncUxsEFqHePjn7f5dUKXLu2PLwUlSMsudJc2ZmEMMG8/XVrguEb1U28cV3R3oBP/
+         Ti+IhZpI/jf36JhltpGQmJUYH4iphHDNLRz1iHzvgpgGPhSquBNmSdjdYKtb1ERd3+
+         b5vDG+l1dZgYSYP+mUII6JsksCvSX8mnULQN5c0Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shaokun Zhang <zhangshaokun@hisilicon.com>,
-        Will Deacon <will@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 151/206] drivers/perf: hisi: Fix wrong value for all counters enable
-Date:   Tue, 23 Jun 2020 21:57:59 +0200
-Message-Id: <20200623195324.417084094@linuxfoundation.org>
+        stable@vger.kernel.org, Sandeep Raghuraman <sandy.8925@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.4 285/314] drm/amdgpu: Replace invalid device ID with a valid device ID
+Date:   Tue, 23 Jun 2020 21:58:00 +0200
+Message-Id: <20200623195352.576945071@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
-References: <20200623195316.864547658@linuxfoundation.org>
+In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
+References: <20200623195338.770401005@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shaokun Zhang <zhangshaokun@hisilicon.com>
+From: Sandeep Raghuraman <sandy.8925@gmail.com>
 
-[ Upstream commit 961abd78adcb4c72c343fcd9f9dc5e2ebbe9b448 ]
+commit 790243d3bf78f9830a3b2ffbca1ed0f528295d48 upstream.
 
-In L3C uncore PMU drivers, bit16 is used to control all counters enable &
-disable. Wrong value is given in the driver and its default value is 1'b1,
-it can work because each PMU counter has its own control bits too.
-Let's fix the wrong value.
+Initializes Powertune data for a specific Hawaii card by fixing what
+looks like a typo in the code. The device ID 66B1 is not a supported
+device ID for this driver, and is not mentioned elsewhere. 67B1 is a
+valid device ID, and is a Hawaii Pro GPU.
 
-Fixes: 2940bc433370 ("perf: hisi: Add support for HiSilicon SoC L3C PMU driver")
-Signed-off-by: Shaokun Zhang <zhangshaokun@hisilicon.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Link: https://lore.kernel.org/r/1591350221-32275-1-git-send-email-zhangshaokun@hisilicon.com
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+I have tested on my R9 390 which has device ID 67B1, and it works
+fine without problems.
+
+Signed-off-by: Sandeep Raghuraman <sandy.8925@gmail.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c | 2 +-
+ drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c b/drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c
-index 0bde5d919b2eb..4aff69cbb9032 100644
---- a/drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c
-+++ b/drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c
-@@ -38,7 +38,7 @@
- /* L3C has 8-counters */
- #define L3C_NR_COUNTERS		0x8
+--- a/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c
++++ b/drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c
+@@ -239,7 +239,7 @@ static void ci_initialize_power_tune_def
  
--#define L3C_PERF_CTRL_EN	0x20000
-+#define L3C_PERF_CTRL_EN	0x10000
- #define L3C_EVTYPE_NONE		0xff
- 
- /*
--- 
-2.25.1
-
+ 	switch (dev_id) {
+ 	case 0x67BA:
+-	case 0x66B1:
++	case 0x67B1:
+ 		smu_data->power_tune_defaults = &defaults_hawaii_pro;
+ 		break;
+ 	case 0x67B8:
 
 
