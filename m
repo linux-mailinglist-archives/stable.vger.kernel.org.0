@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D037F20636D
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:29:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD5CF20636F
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:29:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390438AbgFWUYc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:24:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43194 "EHLO mail.kernel.org"
+        id S2389256AbgFWUYw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:24:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390432AbgFWUYb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:24:31 -0400
+        id S2390484AbgFWUYt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:24:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DAF22158C;
-        Tue, 23 Jun 2020 20:24:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A5F022073E;
+        Tue, 23 Jun 2020 20:24:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943871;
-        bh=4bFTiyTI+21Z9p8NR5i0JtG0TLkhfG+w1D0qOnIinuU=;
+        s=default; t=1592943889;
+        bh=OSaB9pXS2XWzakEkR3smI6qRaC3vylNE9B80p2xakac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lu8pEeTwwBMUgrNnFdkJu0jznhLP4KUaUFI3XBla+OB/KU+ukuIO63lyyRhRgH11l
-         F36VbHEg7UE5yal51RLAEb6D9I5sSZS9MylacYJD4srzELUrPPbUsEiJSb3jeQ6MVp
-         5tluh2BhYiVfZfQyQOJp3+z6yRiU/NohdhIlSb7M=
+        b=cUG3iHxmb52UxKZk4vdylLkdqiaSfHVWcI+4USWJyGrehb9VaHNvNF68qm0gjprHa
+         Ie1Qeyo9a7d6PgJ80cECdVBNPBNXMpjL6WiTXNDL6LDQZ/n+pjGn0m2vqHNFJotj9c
+         rslZDfN+G3hFjwEIOr3X99STPG7JKv+kt8RF3zLw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 083/314] x86/purgatory: Disable various profiling and sanitizing options
-Date:   Tue, 23 Jun 2020 21:54:38 +0200
-Message-Id: <20200623195342.828949467@linuxfoundation.org>
+        stable@vger.kernel.org, Yishai Hadas <yishaih@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 090/314] RDMA/mlx5: Fix udata response upon SRQ creation
+Date:   Tue, 23 Jun 2020 21:54:45 +0200
+Message-Id: <20200623195343.162400675@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
 References: <20200623195338.770401005@linuxfoundation.org>
@@ -43,60 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Yishai Hadas <yishaih@mellanox.com>
 
-[ Upstream commit e2ac07c06058ae2d58b45bbf2a2a352771d76fcb ]
+[ Upstream commit cf26deff9036cd3270af562dbec545239e5c7f07 ]
 
-Since the purgatory is a special stand-alone binary, various profiling
-and sanitizing options must be disabled. Having these options enabled
-typically will cause dependencies on various special symbols exported by
-special libs / stubs used by these frameworks. Since the purgatory is
-special, it is not linked against these stubs causing missing symbols in
-the purgatory if these options are not disabled.
+Fix udata response upon SRQ creation to use the UAPI structure (i.e.
+mlx5_ib_create_srq_resp). It did not zero the reserved field in userspace.
 
-Sync the set of disabled profiling and sanitizing options with that from
-drivers/firmware/efi/libstub/Makefile, adding
--DDISABLE_BRANCH_PROFILING to the CFLAGS and setting:
-
-  GCOV_PROFILE                    := n
-  UBSAN_SANITIZE                  := n
-
-This fixes broken references to ftrace_likely_update() when
-CONFIG_TRACE_BRANCH_PROFILING is enabled and to __gcov_init() and
-__gcov_exit() when CONFIG_GCOV_KERNEL is enabled.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20200317130841.290418-1-hdegoede@redhat.com
+Fixes: e126ba97dba9 ("mlx5: Add driver for Mellanox Connect-IB adapters")
+Link: https://lore.kernel.org/r/20200406173540.1466477-1-leon@kernel.org
+Signed-off-by: Yishai Hadas <yishaih@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/purgatory/Makefile | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/infiniband/hw/mlx5/srq.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/purgatory/Makefile b/arch/x86/purgatory/Makefile
-index fb4ee54443799..9733d1cc791dd 100644
---- a/arch/x86/purgatory/Makefile
-+++ b/arch/x86/purgatory/Makefile
-@@ -17,7 +17,10 @@ CFLAGS_sha256.o := -D__DISABLE_EXPORTS
- LDFLAGS_purgatory.ro := -e purgatory_start -r --no-undefined -nostdlib -z nodefaultlib
- targets += purgatory.ro
+diff --git a/drivers/infiniband/hw/mlx5/srq.c b/drivers/infiniband/hw/mlx5/srq.c
+index 4e7fde86c96b3..c29c1f7da4a14 100644
+--- a/drivers/infiniband/hw/mlx5/srq.c
++++ b/drivers/infiniband/hw/mlx5/srq.c
+@@ -310,12 +310,18 @@ int mlx5_ib_create_srq(struct ib_srq *ib_srq,
+ 	srq->msrq.event = mlx5_ib_srq_event;
+ 	srq->ibsrq.ext.xrc.srq_num = srq->msrq.srqn;
  
-+# Sanitizer, etc. runtimes are unavailable and cannot be linked here.
-+GCOV_PROFILE	:= n
- KASAN_SANITIZE	:= n
-+UBSAN_SANITIZE	:= n
- KCOV_INSTRUMENT := n
+-	if (udata)
+-		if (ib_copy_to_udata(udata, &srq->msrq.srqn, sizeof(__u32))) {
++	if (udata) {
++		struct mlx5_ib_create_srq_resp resp = {
++			.srqn = srq->msrq.srqn,
++		};
++
++		if (ib_copy_to_udata(udata, &resp, min(udata->outlen,
++				     sizeof(resp)))) {
+ 			mlx5_ib_dbg(dev, "copy to user failed\n");
+ 			err = -EFAULT;
+ 			goto err_core;
+ 		}
++	}
  
- # These are adjustments to the compiler flags used for objects that
-@@ -25,7 +28,7 @@ KCOV_INSTRUMENT := n
+ 	init_attr->attr.max_wr = srq->msrq.max - 1;
  
- PURGATORY_CFLAGS_REMOVE := -mcmodel=kernel
- PURGATORY_CFLAGS := -mcmodel=large -ffreestanding -fno-zero-initialized-in-bss
--PURGATORY_CFLAGS += $(DISABLE_STACKLEAK_PLUGIN)
-+PURGATORY_CFLAGS += $(DISABLE_STACKLEAK_PLUGIN) -DDISABLE_BRANCH_PROFILING
- 
- # Default KBUILD_CFLAGS can have -pg option set when FTRACE is enabled. That
- # in turn leaves some undefined symbols like __fentry__ in purgatory and not
 -- 
 2.25.1
 
