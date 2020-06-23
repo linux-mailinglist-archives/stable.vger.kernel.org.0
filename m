@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC0C22062A3
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:09:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 182AA206398
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:29:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390645AbgFWVF4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 17:05:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59670 "EHLO mail.kernel.org"
+        id S2390907AbgFWU2q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:28:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391210AbgFWUgd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:36:33 -0400
+        id S2390688AbgFWU2p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:28:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 179292080C;
-        Tue, 23 Jun 2020 20:36:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EEF1E2064B;
+        Tue, 23 Jun 2020 20:28:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944593;
-        bh=Qvlw56MwjfLB848T1Yzrneo0d2gAuNq4q3/OILJjhDQ=;
+        s=default; t=1592944125;
+        bh=Zsy+g4e5SzT1SXRcyIrX2ICpAp8suagf0Xy5icjSuG8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fBQXN4kftDXnLw3vd5mjeV2cpeqZ2AzDqX5DgT2XgAC7QBr+BjuerUR66fzQ2eRcw
-         txa7F+z5xuFKOS6++R9AuuAWOcMjKxLAg1qlR4SqctIRp0jG8QtYi76nRo3Icmc2IN
-         5jruQV1gmMnzDdm5TEJKiY+Q6q35sajT975GATjY=
+        b=g6GGguy+PGSeOt8xWKjw1U2QqtYiKKqJkiT6P8fyXuFEzKSRyUxVKpsDe6/VzwGKR
+         Q2/mOIGoe1t+EJjQVul0rI1MDY/4bt3txOcEue+YC0XPJTMpMug5I1U1RoLLi9R4D5
+         HAf77oomGvgpO4XbEkj/hKtIH/HT/eGzYVUFnewo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aiman Najjar <aiman.najjar@hurranet.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 049/206] staging: rtl8712: fix multiline derefernce warnings
+Subject: [PATCH 5.4 182/314] x86/apic: Make TSC deadline timer detection message visible
 Date:   Tue, 23 Jun 2020 21:56:17 +0200
-Message-Id: <20200623195319.392375544@linuxfoundation.org>
+Message-Id: <20200623195347.569101369@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
-References: <20200623195316.864547658@linuxfoundation.org>
+In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
+References: <20200623195338.770401005@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,78 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aiman Najjar <aiman.najjar@hurranet.com>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit 269da10b1477c31c660288633c8d613e421b131f ]
+[ Upstream commit de308d1815c9e8fe602a958c5c76142ff6501d75 ]
 
-This patch fixes remaining checkpatch warnings
-in rtl871x_xmit.c:
+The commit
 
-WARNING: Avoid multiple line dereference - prefer 'psecuritypriv->PrivacyKeyIndex'
-636: FILE: drivers/staging//rtl8712/rtl871x_xmit.c:636:
-+					      (u8)psecuritypriv->
-+					      PrivacyKeyIndex);
+  c84cb3735fd5 ("x86/apic: Move TSC deadline timer debug printk")
 
-WARNING: Avoid multiple line dereference - prefer 'psecuritypriv->XGrpKeyid'
-643: FILE: drivers/staging//rtl8712/rtl871x_xmit.c:643:
-+						   (u8)psecuritypriv->
-+						   XGrpKeyid);
+removed the message which said that the deadline timer was enabled.
+It added a pr_debug() message which is issued when deadline timer
+validation succeeds.
 
-WARNING: Avoid multiple line dereference - prefer 'psecuritypriv->XGrpKeyid'
-652: FILE: drivers/staging//rtl8712/rtl871x_xmit.c:652:
-+						   (u8)psecuritypriv->
-+						   XGrpKeyid);
+Well, issued only when CONFIG_DYNAMIC_DEBUG is enabled - otherwise
+pr_debug() calls get optimized away if DEBUG is not defined in the
+compilation unit.
 
-Signed-off-by: Aiman Najjar <aiman.najjar@hurranet.com>
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/98805a72b92e9bbf933e05b827d27944663b7bc1.1585508171.git.aiman.najjar@hurranet.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Therefore, make the above message pr_info() so that it is visible in
+dmesg.
+
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20200525104218.27018-1-bp@alien8.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8712/rtl871x_xmit.c | 11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+ arch/x86/kernel/apic/apic.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/staging/rtl8712/rtl871x_xmit.c b/drivers/staging/rtl8712/rtl871x_xmit.c
-index a8ae14ce66139..95d5c050a8947 100644
---- a/drivers/staging/rtl8712/rtl871x_xmit.c
-+++ b/drivers/staging/rtl8712/rtl871x_xmit.c
-@@ -601,7 +601,7 @@ sint r8712_xmitframe_coalesce(struct _adapter *padapter, _pkt *pkt,
- 	addr_t addr;
- 	u8 *pframe, *mem_start, *ptxdesc;
- 	struct sta_info		*psta;
--	struct security_priv	*psecuritypriv = &padapter->securitypriv;
-+	struct security_priv	*psecpriv = &padapter->securitypriv;
- 	struct mlme_priv	*pmlmepriv = &padapter->mlmepriv;
- 	struct xmit_priv	*pxmitpriv = &padapter->xmitpriv;
- 	struct pkt_attrib	*pattrib = &pxmitframe->attrib;
-@@ -644,15 +644,13 @@ sint r8712_xmitframe_coalesce(struct _adapter *padapter, _pkt *pkt,
- 				case _WEP40_:
- 				case _WEP104_:
- 					WEP_IV(pattrib->iv, psta->txpn,
--					       (u8)psecuritypriv->
--					       PrivacyKeyIndex);
-+					       (u8)psecpriv->PrivacyKeyIndex);
- 					break;
- 				case _TKIP_:
- 					if (bmcst)
- 						TKIP_IV(pattrib->iv,
- 						    psta->txpn,
--						    (u8)psecuritypriv->
--						    XGrpKeyid);
-+						    (u8)psecpriv->XGrpKeyid);
- 					else
- 						TKIP_IV(pattrib->iv, psta->txpn,
- 							0);
-@@ -660,8 +658,7 @@ sint r8712_xmitframe_coalesce(struct _adapter *padapter, _pkt *pkt,
- 				case _AES_:
- 					if (bmcst)
- 						AES_IV(pattrib->iv, psta->txpn,
--						    (u8)psecuritypriv->
--						    XGrpKeyid);
-+						    (u8)psecpriv->XGrpKeyid);
- 					else
- 						AES_IV(pattrib->iv, psta->txpn,
- 						       0);
+diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
+index 25b8c45467fcd..fce94c799f015 100644
+--- a/arch/x86/kernel/apic/apic.c
++++ b/arch/x86/kernel/apic/apic.c
+@@ -2099,7 +2099,7 @@ void __init init_apic_mappings(void)
+ 	unsigned int new_apicid;
+ 
+ 	if (apic_validate_deadline_timer())
+-		pr_debug("TSC deadline timer available\n");
++		pr_info("TSC deadline timer available\n");
+ 
+ 	if (x2apic_mode) {
+ 		boot_cpu_physical_apicid = read_apic_id();
 -- 
 2.25.1
 
