@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B764D205C71
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:02:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D15D205C78
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:02:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387753AbgFWUCA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:02:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39008 "EHLO mail.kernel.org"
+        id S2387759AbgFWUCQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:02:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387750AbgFWUCA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:02:00 -0400
+        id S2387798AbgFWUCQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:02:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 395D120CC7;
-        Tue, 23 Jun 2020 20:01:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF8642078A;
+        Tue, 23 Jun 2020 20:02:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592942519;
-        bh=Ty64d1vuBGkU61eNxazHWsARkzaUJEpcTE9bxj8RU1k=;
+        s=default; t=1592942535;
+        bh=uZ+O2Z40BpNbkIs+vtioTqTlWWQ43HVCiMmzWj9uNx8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XyyHr0NFO5lvFdrQF9UF5qcSePl8Bv04gnmRmnVwEzui+1IzVtxiJX4dhkfKCXwrq
-         9wSTddBSpcFYRs29XnvBqClGlmGV6b85sg/tToEBoFoTuUpudHjjhS2teOKerNtU02
-         X+oAT3lEHFdLk+8XYVFknNrJXaiH94Suvtirwclw=
+        b=RWVU6A/hOcJdQgxEdS+xCcZJuvMPnlHPDCkuVl2+5gGmrHExklYbb8C5htjVGOFqn
+         1qRGgjoRrTVRemqbGlEtU1L9mY8qf75E9hqWG6jSNAXaW30xuNaXo6OOEKOX4UwtDx
+         hmmsisp4QssV/tQgdeKnP3PIPF/hNc2VZClqQPjc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rikard Falkeborn <rikard.falkeborn@gmail.com>,
-        Maxime Ripard <maxime@cerno.tech>,
+        stable@vger.kernel.org, Adam Honse <calcprogrammer1@gmail.com>,
+        Jean Delvare <jdelvare@suse.de>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Wolfram Sang <wsa@the-dreams.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 003/477] clk: sunxi: Fix incorrect usage of round_down()
-Date:   Tue, 23 Jun 2020 21:50:00 +0200
-Message-Id: <20200623195407.747714412@linuxfoundation.org>
+Subject: [PATCH 5.7 006/477] i2c: piix4: Detect secondary SMBus controller on AMD AM4 chipsets
+Date:   Tue, 23 Jun 2020 21:50:03 +0200
+Message-Id: <20200623195407.891817356@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -45,37 +46,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rikard Falkeborn <rikard.falkeborn@gmail.com>
+From: Adam Honse <calcprogrammer1@gmail.com>
 
-[ Upstream commit ee25d9742dabed3fd18158b518f846abeb70f319 ]
+[ Upstream commit f27237c174fd9653033330e4e532cd9d153ce824 ]
 
-round_down() can only round to powers of 2. If round_down() is asked
-to round to something that is not a power of 2, incorrect results are
-produced. The incorrect results can be both too large and too small.
+The AMD X370 and other AM4 chipsets (A/B/X 3/4/5 parts) and Threadripper
+equivalents have a secondary SMBus controller at I/O port address
+0x0B20.  This bus is used by several manufacturers to control
+motherboard RGB lighting via embedded controllers.  I have been using
+this bus in my OpenRGB project to control the Aura RGB on many
+motherboards and ASRock also uses this bus for their Polychrome RGB
+controller.
 
-Instead, use rounddown() which can round to any number.
+I am not aware of any CZ-compatible platforms which do not have the
+second SMBus channel.  All of AMD's AM4- and Threadripper- series
+chipsets that OpenRGB users have tested appear to have this secondary
+bus.  I also noticed this secondary bus is present on older AMD
+platforms including my FM1 home server.
 
-Fixes: 6a721db180a2 ("clk: sunxi: Add A31 clocks support")
-Signed-off-by: Rikard Falkeborn <rikard.falkeborn@gmail.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=202587
+Signed-off-by: Adam Honse <calcprogrammer1@gmail.com>
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
+Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Tested-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/sunxi/clk-sunxi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-piix4.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/sunxi/clk-sunxi.c b/drivers/clk/sunxi/clk-sunxi.c
-index 27201fd26e442..e1aa1fbac48a0 100644
---- a/drivers/clk/sunxi/clk-sunxi.c
-+++ b/drivers/clk/sunxi/clk-sunxi.c
-@@ -90,7 +90,7 @@ static void sun6i_a31_get_pll1_factors(struct factors_request *req)
- 	 * Round down the frequency to the closest multiple of either
- 	 * 6 or 16
- 	 */
--	u32 round_freq_6 = round_down(freq_mhz, 6);
-+	u32 round_freq_6 = rounddown(freq_mhz, 6);
- 	u32 round_freq_16 = round_down(freq_mhz, 16);
+diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+index 30ded6422e7b2..69740a4ff1db2 100644
+--- a/drivers/i2c/busses/i2c-piix4.c
++++ b/drivers/i2c/busses/i2c-piix4.c
+@@ -977,7 +977,8 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 	}
  
- 	if (round_freq_6 > round_freq_16)
+ 	if (dev->vendor == PCI_VENDOR_ID_AMD &&
+-	    dev->device == PCI_DEVICE_ID_AMD_HUDSON2_SMBUS) {
++	    (dev->device == PCI_DEVICE_ID_AMD_HUDSON2_SMBUS ||
++	     dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS)) {
+ 		retval = piix4_setup_sb800(dev, id, 1);
+ 	}
+ 
 -- 
 2.25.1
 
