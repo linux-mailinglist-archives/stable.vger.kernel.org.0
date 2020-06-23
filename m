@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AEAB7205D8B
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:14:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7B60205D90
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:14:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388644AbgFWUOf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:14:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56934 "EHLO mail.kernel.org"
+        id S2388146AbgFWUOr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:14:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389203AbgFWUOa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:14:30 -0400
+        id S2388946AbgFWUOq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:14:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4C50920E65;
-        Tue, 23 Jun 2020 20:14:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 00C5920E65;
+        Tue, 23 Jun 2020 20:14:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943270;
-        bh=R4gC8Std6+0cBF63AiYHIBg/fdvklqlY1l8m+PkvrKs=;
+        s=default; t=1592943285;
+        bh=8YYy4IJZKQXxkpqZmR/qPfJb8IQWnmR6BkrYt1kPC/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a4eP0hMjY3ussb3pK3hmAKOENkUIyBdu2I/pjpnPE0Xyp6BX6+GVxViHYkvN8Teev
-         www2LMei4kC51j0HJD5b3WpVZuGysl070+y1MeOQj8B6OgxGEY6PC459ajXjJrjQDJ
-         Eq5dKLlfm7+F2unJUS1BeiwWEMH+gE25xxZMJNMk=
+        b=LVpiAf+Z6TzpxTurWWt8F/dh4d4patupxl3JuKwik3d7Ke9m4Yh4RoPcjlW18LAld
+         Ir+1mGLMNGWb6Djvm/KWvVDhA9/WFroTPf+NdYvOHlE/SjiStY659rNCpag8ex2aOD
+         B2mfWBgpp/irgq12uenSoEVADocezMe6FNub82P0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Song Liu <songliubraving@fb.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 326/477] bpf: Fix an error code in check_btf_func()
-Date:   Tue, 23 Jun 2020 21:55:23 +0200
-Message-Id: <20200623195422.945688879@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 331/477] blktrace: use errno instead of bi_status
+Date:   Tue, 23 Jun 2020 21:55:28 +0200
+Message-Id: <20200623195423.188125683@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -45,36 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
 
-[ Upstream commit e7ed83d6fa1a00d0f2ad0327e73d3ea9e7ea8de1 ]
+[ Upstream commit 48bc3cd3e07a1486f45d9971c75d6090976c3b1b ]
 
-This code returns success if the "info_aux" allocation fails but it
-should return -ENOMEM.
+In blk_add_trace_spliti() blk_add_trace_bio_remap() use
+blk_status_to_errno() to pass the error instead of pasing the bi_status.
+This fixes the sparse warning.
 
-Fixes: 8c1b6e69dcc1 ("bpf: Compare BTF types of functions arguments with actual types")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Song Liu <songliubraving@fb.com>
-Link: https://lore.kernel.org/bpf/20200604085436.GA943001@mwanda
+Signed-off-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/trace/blktrace.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index efe14cf24bc65..739d9ba3ba6b7 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -7366,7 +7366,7 @@ static int check_btf_func(struct bpf_verifier_env *env,
- 	const struct btf *btf;
- 	void __user *urecord;
- 	u32 prev_offset = 0;
--	int ret = 0;
-+	int ret = -ENOMEM;
+diff --git a/kernel/trace/blktrace.c b/kernel/trace/blktrace.c
+index ca39dc3230cb3..c6d59a457f50c 100644
+--- a/kernel/trace/blktrace.c
++++ b/kernel/trace/blktrace.c
+@@ -995,8 +995,10 @@ static void blk_add_trace_split(void *ignore,
  
- 	nfuncs = attr->func_info_cnt;
- 	if (!nfuncs)
+ 		__blk_add_trace(bt, bio->bi_iter.bi_sector,
+ 				bio->bi_iter.bi_size, bio_op(bio), bio->bi_opf,
+-				BLK_TA_SPLIT, bio->bi_status, sizeof(rpdu),
+-				&rpdu, blk_trace_bio_get_cgid(q, bio));
++				BLK_TA_SPLIT,
++				blk_status_to_errno(bio->bi_status),
++				sizeof(rpdu), &rpdu,
++				blk_trace_bio_get_cgid(q, bio));
+ 	}
+ 	rcu_read_unlock();
+ }
+@@ -1033,7 +1035,8 @@ static void blk_add_trace_bio_remap(void *ignore,
+ 	r.sector_from = cpu_to_be64(from);
+ 
+ 	__blk_add_trace(bt, bio->bi_iter.bi_sector, bio->bi_iter.bi_size,
+-			bio_op(bio), bio->bi_opf, BLK_TA_REMAP, bio->bi_status,
++			bio_op(bio), bio->bi_opf, BLK_TA_REMAP,
++			blk_status_to_errno(bio->bi_status),
+ 			sizeof(r), &r, blk_trace_bio_get_cgid(q, bio));
+ 	rcu_read_unlock();
+ }
 -- 
 2.25.1
 
