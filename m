@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 119392063F2
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:30:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00CF920632B
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:28:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391579AbgFWVNe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 17:13:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50648 "EHLO mail.kernel.org"
+        id S2389664AbgFWUSY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:18:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391046AbgFWUaX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:30:23 -0400
+        id S2389660AbgFWUSX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:18:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6FBCE20723;
-        Tue, 23 Jun 2020 20:30:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 039CB21473;
+        Tue, 23 Jun 2020 20:18:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944223;
-        bh=2IEhvV234mgYwvvVcpd5TxgmWQrA20V4DKx3TS/EJXU=;
+        s=default; t=1592943503;
+        bh=PoNil7jr+30iVCj+zJ8Urou9pPiuYD7sNpCe1oXReJU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BYOIh6QDj1yiKXYe6HWqzb7KNH1Ne0CdZxA5Qh43WdmZpmNIhsN5i7QowvhKR3u+2
-         tqB7aV0749tRKNRPyKQ+Yw1zmUn6CBzwCiHTDm6Tj4FA38vYCbkFTQi+ZZxG4kgpTa
-         Tvjp+KB+V3vORjxyafOrtjSuOrJ1Hq5s0hb5THMM=
+        b=dMR+Cfqk4albqgFmcuo9+Fpbkg6y5RO8VPq+lWHnirkSWMYfHL4ldKsxTcj95GZP/
+         EuVD7qOf7K8u34v4a60aaDGjVRrZ6pLHyPveMD6bRfMJOKaldwBw2hHnT4EVqzYvfE
+         SqGEkQTzkm+dpvA1frAEDP/Nt342ngGiPkzDrEVM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tero Kristo <t-kristo@ti.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 220/314] crypto: omap-sham - add proper load balancing support for multicore
+        stable@vger.kernel.org,
+        =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>
+Subject: [PATCH 5.7 418/477] arm64: dts: realtek: rtd129x: Use reserved-memory for RPC regions
 Date:   Tue, 23 Jun 2020 21:56:55 +0200
-Message-Id: <20200623195349.431608792@linuxfoundation.org>
+Message-Id: <20200623195427.287074940@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
-References: <20200623195338.770401005@linuxfoundation.org>
+In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
+References: <20200623195407.572062007@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,169 +43,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tero Kristo <t-kristo@ti.com>
+From: Andreas Färber <afaerber@suse.de>
 
-[ Upstream commit 281c377872ff5d15d80df25fc4df02d2676c7cde ]
+commit 690677c22d5fa5dfdaa609a1739b75fdfb1c4a24 upstream.
 
-The current implementation of the multiple accelerator core support for
-OMAP SHA does not work properly. It always picks up the first probed
-accelerator core if this is available, and rest of the book keeping also
-gets confused if there are two cores available. Add proper load
-balancing support for SHA, and also fix any bugs related to the
-multicore support while doing it.
+Move /reserved-memory node from RTD1295 to RTD129x DT.
+Convert RPC /memreserve/s into /reserved-memory nodes.
 
-Signed-off-by: Tero Kristo <t-kristo@ti.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 72a7786c0a0d ("ARM64: dts: Add Realtek RTD1295 and Zidoo X9S")
+Fixes: f8b3436dad5c ("arm64: dts: realtek: Factor out common RTD129x parts")
+Signed-off-by: Andreas Färber <afaerber@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/crypto/omap-sham.c | 64 ++++++++++++++++++--------------------
- 1 file changed, 31 insertions(+), 33 deletions(-)
+ arch/arm64/boot/dts/realtek/rtd1295.dtsi |   13 +------------
+ arch/arm64/boot/dts/realtek/rtd129x.dtsi |   23 ++++++++++++++++++++---
+ 2 files changed, 21 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/crypto/omap-sham.c b/drivers/crypto/omap-sham.c
-index ac80bc6af0930..aba5db3c0588f 100644
---- a/drivers/crypto/omap-sham.c
-+++ b/drivers/crypto/omap-sham.c
-@@ -165,8 +165,6 @@ struct omap_sham_hmac_ctx {
- };
+--- a/arch/arm64/boot/dts/realtek/rtd1295.dtsi
++++ b/arch/arm64/boot/dts/realtek/rtd1295.dtsi
+@@ -2,7 +2,7 @@
+ /*
+  * Realtek RTD1295 SoC
+  *
+- * Copyright (c) 2016-2017 Andreas Färber
++ * Copyright (c) 2016-2019 Andreas Färber
+  */
  
- struct omap_sham_ctx {
--	struct omap_sham_dev	*dd;
+ #include "rtd129x.dtsi"
+@@ -47,17 +47,6 @@
+ 		};
+ 	};
+ 
+-	reserved-memory {
+-		#address-cells = <1>;
+-		#size-cells = <1>;
+-		ranges;
 -
- 	unsigned long		flags;
- 
- 	/* fallback stuff */
-@@ -918,27 +916,35 @@ static int omap_sham_update_dma_stop(struct omap_sham_dev *dd)
- 	return 0;
- }
- 
-+struct omap_sham_dev *omap_sham_find_dev(struct omap_sham_reqctx *ctx)
-+{
-+	struct omap_sham_dev *dd;
-+
-+	if (ctx->dd)
-+		return ctx->dd;
-+
-+	spin_lock_bh(&sham.lock);
-+	dd = list_first_entry(&sham.dev_list, struct omap_sham_dev, list);
-+	list_move_tail(&dd->list, &sham.dev_list);
-+	ctx->dd = dd;
-+	spin_unlock_bh(&sham.lock);
-+
-+	return dd;
-+}
-+
- static int omap_sham_init(struct ahash_request *req)
- {
- 	struct crypto_ahash *tfm = crypto_ahash_reqtfm(req);
- 	struct omap_sham_ctx *tctx = crypto_ahash_ctx(tfm);
- 	struct omap_sham_reqctx *ctx = ahash_request_ctx(req);
--	struct omap_sham_dev *dd = NULL, *tmp;
-+	struct omap_sham_dev *dd;
- 	int bs = 0;
- 
--	spin_lock_bh(&sham.lock);
--	if (!tctx->dd) {
--		list_for_each_entry(tmp, &sham.dev_list, list) {
--			dd = tmp;
--			break;
--		}
--		tctx->dd = dd;
--	} else {
--		dd = tctx->dd;
--	}
--	spin_unlock_bh(&sham.lock);
-+	ctx->dd = NULL;
- 
--	ctx->dd = dd;
-+	dd = omap_sham_find_dev(ctx);
-+	if (!dd)
-+		return -ENODEV;
- 
- 	ctx->flags = 0;
- 
-@@ -1187,8 +1193,7 @@ err1:
- static int omap_sham_enqueue(struct ahash_request *req, unsigned int op)
- {
- 	struct omap_sham_reqctx *ctx = ahash_request_ctx(req);
--	struct omap_sham_ctx *tctx = crypto_tfm_ctx(req->base.tfm);
--	struct omap_sham_dev *dd = tctx->dd;
-+	struct omap_sham_dev *dd = ctx->dd;
- 
- 	ctx->op = op;
- 
-@@ -1198,7 +1203,7 @@ static int omap_sham_enqueue(struct ahash_request *req, unsigned int op)
- static int omap_sham_update(struct ahash_request *req)
- {
- 	struct omap_sham_reqctx *ctx = ahash_request_ctx(req);
--	struct omap_sham_dev *dd = ctx->dd;
-+	struct omap_sham_dev *dd = omap_sham_find_dev(ctx);
- 
- 	if (!req->nbytes)
- 		return 0;
-@@ -1302,21 +1307,8 @@ static int omap_sham_setkey(struct crypto_ahash *tfm, const u8 *key,
- 	struct omap_sham_hmac_ctx *bctx = tctx->base;
- 	int bs = crypto_shash_blocksize(bctx->shash);
- 	int ds = crypto_shash_digestsize(bctx->shash);
--	struct omap_sham_dev *dd = NULL, *tmp;
- 	int err, i;
- 
--	spin_lock_bh(&sham.lock);
--	if (!tctx->dd) {
--		list_for_each_entry(tmp, &sham.dev_list, list) {
--			dd = tmp;
--			break;
--		}
--		tctx->dd = dd;
--	} else {
--		dd = tctx->dd;
--	}
--	spin_unlock_bh(&sham.lock);
+-		tee@10100000 {
+-			reg = <0x10100000 0xf00000>;
+-			no-map;
+-		};
+-	};
 -
- 	err = crypto_shash_setkey(tctx->fallback, key, keylen);
- 	if (err)
- 		return err;
-@@ -1334,7 +1326,7 @@ static int omap_sham_setkey(struct crypto_ahash *tfm, const u8 *key,
+ 	timer {
+ 		compatible = "arm,armv8-timer";
+ 		interrupts = <GIC_PPI 13
+--- a/arch/arm64/boot/dts/realtek/rtd129x.dtsi
++++ b/arch/arm64/boot/dts/realtek/rtd129x.dtsi
+@@ -2,14 +2,12 @@
+ /*
+  * Realtek RTD1293/RTD1295/RTD1296 SoC
+  *
+- * Copyright (c) 2016-2017 Andreas Färber
++ * Copyright (c) 2016-2019 Andreas Färber
+  */
  
- 	memset(bctx->ipad + keylen, 0, bs - keylen);
+ /memreserve/	0x0000000000000000 0x0000000000030000;
+-/memreserve/	0x000000000001f000 0x0000000000001000;
+ /memreserve/	0x0000000000030000 0x00000000000d0000;
+ /memreserve/	0x0000000001b00000 0x00000000004be000;
+-/memreserve/	0x0000000001ffe000 0x0000000000004000;
  
--	if (!test_bit(FLAGS_AUTO_XOR, &dd->flags)) {
-+	if (!test_bit(FLAGS_AUTO_XOR, &sham.flags)) {
- 		memcpy(bctx->opad, bctx->ipad, bs);
+ #include <dt-bindings/interrupt-controller/arm-gic.h>
+ #include <dt-bindings/reset/realtek,rtd1295.h>
+@@ -19,6 +17,25 @@
+ 	#address-cells = <1>;
+ 	#size-cells = <1>;
  
- 		for (i = 0; i < bs; i++) {
-@@ -2136,6 +2128,7 @@ static int omap_sham_probe(struct platform_device *pdev)
- 	}
- 
- 	dd->flags |= dd->pdata->flags;
-+	sham.flags |= dd->pdata->flags;
- 
- 	pm_runtime_use_autosuspend(dev);
- 	pm_runtime_set_autosuspend_delay(dev, DEFAULT_AUTOSUSPEND_DELAY);
-@@ -2163,6 +2156,9 @@ static int omap_sham_probe(struct platform_device *pdev)
- 	spin_unlock(&sham.lock);
- 
- 	for (i = 0; i < dd->pdata->algs_info_size; i++) {
-+		if (dd->pdata->algs_info[i].registered)
-+			break;
++	reserved-memory {
++		#address-cells = <1>;
++		#size-cells = <1>;
++		ranges;
 +
- 		for (j = 0; j < dd->pdata->algs_info[i].size; j++) {
- 			struct ahash_alg *alg;
- 
-@@ -2214,9 +2210,11 @@ static int omap_sham_remove(struct platform_device *pdev)
- 	list_del(&dd->list);
- 	spin_unlock(&sham.lock);
- 	for (i = dd->pdata->algs_info_size - 1; i >= 0; i--)
--		for (j = dd->pdata->algs_info[i].registered - 1; j >= 0; j--)
-+		for (j = dd->pdata->algs_info[i].registered - 1; j >= 0; j--) {
- 			crypto_unregister_ahash(
- 					&dd->pdata->algs_info[i].algs_list[j]);
-+			dd->pdata->algs_info[i].registered--;
-+		}
- 	tasklet_kill(&dd->done_task);
- 	pm_runtime_disable(&pdev->dev);
- 
--- 
-2.25.1
-
++		rpc_comm: rpc@1f000 {
++			reg = <0x1f000 0x1000>;
++		};
++
++		rpc_ringbuf: rpc@1ffe000 {
++			reg = <0x1ffe000 0x4000>;
++		};
++
++		tee: tee@10100000 {
++			reg = <0x10100000 0xf00000>;
++			no-map;
++		};
++	};
++
+ 	arm_pmu: arm-pmu {
+ 		compatible = "arm,cortex-a53-pmu";
+ 		interrupts = <GIC_SPI 48 IRQ_TYPE_LEVEL_HIGH>;
 
 
