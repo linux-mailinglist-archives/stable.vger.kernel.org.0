@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA7112064FA
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:32:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CF7E206448
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:31:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389177AbgFWUOO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:14:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56576 "EHLO mail.kernel.org"
+        id S2392204AbgFWVTF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 17:19:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389173AbgFWUON (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:14:13 -0400
+        id S2390004AbgFWUZW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:25:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E7B0206C3;
-        Tue, 23 Jun 2020 20:14:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C50EB2064B;
+        Tue, 23 Jun 2020 20:25:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943253;
-        bh=CI/oGavi/bq5wi1BOBYdG88726vRh1bRqOK1/ZmRX0s=;
+        s=default; t=1592943922;
+        bh=M86fOLiCQkK9k6YYz0e5I3FGzgfHy4XRhEqm5QpA51c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N4/C/pJrt2p8MRBxiQr7aZhvNI8vKBJFOkrF4mYEQUUL4WCy6cnEERRkjKPgN4yti
-         IBR/oTg0PeZ7lChitK7epvJ6O7Ljf7vQ91kgH4wYTiXsvzbToaLxZSEkVbxF6MVCtF
-         C22+t8pAQvUX75VBc+890eZwZGGJmCBk22nSrDSU=
+        b=Q/5sb38dIN4mFnikJ2EFpNmnHLZyYT6kG2Ryqlp6q00FGybvPO7cew9UYeQDAOaeI
+         VIjPQjvxmDGl3fgen/aresLv2z79JCoXN16Tvv9Avmg8kBCuoroNZ8QOr5KGdZy4LA
+         hrRiqZjkjYrCd185s+xkLuYqknY2XoCXf4DTxFNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 302/477] rtc: rv3028: Add missed check for devm_regmap_init_i2c()
+Subject: [PATCH 5.4 104/314] slimbus: ngd: get drvdata from correct device
 Date:   Tue, 23 Jun 2020 21:54:59 +0200
-Message-Id: <20200623195421.824837236@linuxfoundation.org>
+Message-Id: <20200623195343.812290910@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
-References: <20200623195407.572062007@linuxfoundation.org>
+In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
+References: <20200623195338.770401005@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit c3b29bf6f166f6ed5f04f9c125477358e0e25df8 ]
+[ Upstream commit b58c663059b484f7ff547d076a34cf6d7a302e56 ]
 
-rv3028_probe() misses a check for devm_regmap_init_i2c().
-Add the missed check to fix it.
+Get drvdata directly from parent instead of ngd dev, as ngd
+dev can probe defer and previously set drvdata will become null.
 
-Fixes: e6e7376cfd7b ("rtc: rv3028: add new driver")
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20200528103950.912353-1-hslester96@gmail.com
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20200417093618.7929-1-srinivas.kandagatla@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-rv3028.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/slimbus/qcom-ngd-ctrl.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/rtc-rv3028.c b/drivers/rtc/rtc-rv3028.c
-index a0ddc86c975a4..ec84db0b3d7ab 100644
---- a/drivers/rtc/rtc-rv3028.c
-+++ b/drivers/rtc/rtc-rv3028.c
-@@ -755,6 +755,8 @@ static int rv3028_probe(struct i2c_client *client)
- 		return -ENOMEM;
+diff --git a/drivers/slimbus/qcom-ngd-ctrl.c b/drivers/slimbus/qcom-ngd-ctrl.c
+index 29fbab55c3b38..01a17d84b6064 100644
+--- a/drivers/slimbus/qcom-ngd-ctrl.c
++++ b/drivers/slimbus/qcom-ngd-ctrl.c
+@@ -1354,7 +1354,6 @@ static int of_qcom_slim_ngd_register(struct device *parent,
+ 		ngd->pdev->driver_override = QCOM_SLIM_NGD_DRV_NAME;
+ 		ngd->pdev->dev.of_node = node;
+ 		ctrl->ngd = ngd;
+-		platform_set_drvdata(ngd->pdev, ctrl);
  
- 	rv3028->regmap = devm_regmap_init_i2c(client, &regmap_config);
-+	if (IS_ERR(rv3028->regmap))
-+		return PTR_ERR(rv3028->regmap);
+ 		platform_device_add(ngd->pdev);
+ 		ngd->base = ctrl->base + ngd->id * data->offset +
+@@ -1369,12 +1368,13 @@ static int of_qcom_slim_ngd_register(struct device *parent,
  
- 	i2c_set_clientdata(client, rv3028);
+ static int qcom_slim_ngd_probe(struct platform_device *pdev)
+ {
+-	struct qcom_slim_ngd_ctrl *ctrl = platform_get_drvdata(pdev);
+ 	struct device *dev = &pdev->dev;
++	struct qcom_slim_ngd_ctrl *ctrl = dev_get_drvdata(dev->parent);
+ 	int ret;
  
+ 	ctrl->ctrl.dev = dev;
+ 
++	platform_set_drvdata(pdev, ctrl);
+ 	pm_runtime_use_autosuspend(dev);
+ 	pm_runtime_set_autosuspend_delay(dev, QCOM_SLIM_NGD_AUTOSUSPEND);
+ 	pm_runtime_set_suspended(dev);
 -- 
 2.25.1
 
