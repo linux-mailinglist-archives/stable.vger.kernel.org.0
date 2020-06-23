@@ -2,145 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B984C204B86
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 09:48:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F6D2204B8F
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 09:49:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731521AbgFWHsV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 03:48:21 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:50757 "EHLO
-        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731245AbgFWHsU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 23 Jun 2020 03:48:20 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 5E2A1E26;
-        Tue, 23 Jun 2020 03:48:20 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Tue, 23 Jun 2020 03:48:20 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=fJD4N6
-        1S9yR3kKYfXgOnmBDsUr2oZXD7FDllbI3CixU=; b=i/GvRLIyTzb1oy0crd6uoK
-        9aD9DkbLjOgRZkVrut5IwQx2TuzEky4AjY4tF33sCjBjqXJ93WP/cO4qAQxS4HTG
-        x/+EhN4AMqkruHs9NtkpEKYBy6genQds6oIoIDYuzRGUNhHTTx0+BFgr8akD5QF0
-        uswcBa+i1lD6LDbOA4cDDdI023ZHSwSl5uIYB5v/daKyUJVcPCu5UywppSDyVfdl
-        jak6QnnBq4bujYegjGl4rdIOA0Qsytg4Hc+nRRf5Vy15jtc8+9MsrfCr9wXIgsJi
-        fJYpLYUhK0J3F/lESL5RdQF+jFxwQAWFWV/kyT/BPhvhomnztxnQrwtGrJFx+HSA
-        ==
-X-ME-Sender: <xms:w7PxXq6apANRoktuibgPaW8vVYd6QdqFF4dSdRi2J-ZTmFvS6TAkoA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudekfedguddvhecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
-    dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
-    rhhgqeenucggtffrrghtthgvrhhnpeekhffhfefgfeehfeefudeguedvvdevgffgffdtud
-    eujefhhffgveeutddvtdejgfenucffohhmrghinhepfhhrvggvuggvshhkthhophdrohhr
-    ghenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepgeenuc
-    frrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:w7PxXj5MbDQhdvMeIDkIbUQSZFE52F2-SMJyh5scDd6mF95uIk-ckw>
-    <xmx:w7PxXpeCJKMJDum3_1WGgDlU-NvwwkNigJyU7FJDI88ly6pJeVO7xg>
-    <xmx:w7PxXnKw9t2prYqQwYiq42aCmDgIWCIG5Zl2ak27gshxSQSd4Girjw>
-    <xmx:xLPxXoy78IUHmkGRmmYFraC0i1iwQfffh2D1VDLoUIO0F2zKg1pSqeo0cqM>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 85DBC328005A;
-        Tue, 23 Jun 2020 03:48:19 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/i915/gt: Do not schedule normal requests immediately" failed to apply to 5.4-stable tree
-To:     chris@chris-wilson.co.uk, joonas.lahtinen@linux.intel.com,
-        stable@vger.kernel.org, tvrtko.ursulin@intel.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 23 Jun 2020 09:48:04 +0200
-Message-ID: <159289848420245@kroah.com>
+        id S1731584AbgFWHsm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 03:48:42 -0400
+Received: from mx2.suse.de ([195.135.220.15]:53644 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731522AbgFWHsl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 03:48:41 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id AA422AD12;
+        Tue, 23 Jun 2020 07:48:39 +0000 (UTC)
+Date:   Tue, 23 Jun 2020 09:48:39 +0200
+From:   Daniel Wagner <dwagner@suse.de>
+To:     Roman Bolshakov <r.bolshakov@yadro.com>
+Cc:     linux-scsi@vger.kernel.org, GR-QLogic-Storage-Upstream@marvell.com,
+        target-devel@vger.kernel.org, linux@yadro.com,
+        Quinn Tran <qutran@marvell.com>, Arun Easi <aeasi@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Martin Wilck <mwilck@suse.com>, stable@vger.kernel.org
+Subject: Re: [PATCH v2] scsi: qla2xxx: Keep initiator ports after RSCN
+Message-ID: <20200623074839.jllbs54psrdlfkvs@beryllium.lan>
+References: <20200605144435.27023-1-r.bolshakov@yadro.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200605144435.27023-1-r.bolshakov@yadro.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Jun 05, 2020 at 05:44:37PM +0300, Roman Bolshakov wrote:
+> The driver performs SCR (state change registration) in all modes
+> including pure target mode.
+> 
+> For each RSCN, scan_needed flag is set in qla2x00_handle_rscn() for the
+> port mentioned in the RSCN and fabric rescan is scheduled. During the
+> rescan, GNN_FT handler, qla24xx_async_gnnft_done() deletes session of
+> the port that caused the RSCN.
+> 
+> In target mode, the session deletion has an impact on ATIO handler,
+> qlt_24xx_atio_pkt(). Target responds with SAM STATUS BUSY to I/O
+> incoming from the deleted session. qlt_handle_cmd_for_atio() and
+> qlt_handle_task_mgmt() return -EFAULT if they are not able to find
+> session of the command/TMF, and that results in invocation of
+> qlt_send_busy():
+> 
+>   qlt_24xx_atio_pkt_all_vps: qla_target(0): type 6 ox_id 0014
+>   qla_target(0): Unable to send command to target, sending BUSY status
+> 
+> Such response causes command timeout on the initiator. Error handler
+> thread on the initiator will be spawned to abort the commands:
+> 
+>   scsi 23:0:0:0: tag#0 abort scheduled
+>   scsi 23:0:0:0: tag#0 aborting command
+>   qla2xxx [0000:af:00.0]-188c:23: Entered qla24xx_abort_command.
+>   qla2xxx [0000:af:00.0]-801c:23: Abort command issued nexus=23:0:0 -- 0 2003.
+> 
+> Command abort is rejected by target and fails (2003), error handler then
+> tries to perform DEVICE RESET and TARGET RESET but they're also doomed
+> to fail because TMFs are ignored for the deleted sessions.
+> 
+> Then initiator makes BUS RESET that resets the link via
+> qla2x00_full_login_lip(). BUS RESET succeeds and brings initiator port
+> up, SAN switch detects that and sends RSCN to the target port and it
+> fails again the same way as described above. It never goes out of the
+> loop.
+> 
+> The change breaks the RSCN loop by keeping initiator sessions mentioned
+> in RSCN payload in all modes, including dual and pure target mode.
+> 
+> Fixes: 2037ce49d30a ("scsi: qla2xxx: Fix stale session")
+> Cc: Quinn Tran <qutran@marvell.com>
+> Cc: Arun Easi <aeasi@marvell.com>
+> Cc: Nilesh Javali <njavali@marvell.com>
+> Cc: Bart Van Assche <bvanassche@acm.org>
+> Cc: Daniel Wagner <dwagner@suse.de>
+> Cc: Himanshu Madhani <himanshu.madhani@oracle.com>
+> Cc: Martin Wilck <mwilck@suse.com>
+> Cc: stable@vger.kernel.org # v5.4+
+> Signed-off-by: Roman Bolshakov <r.bolshakov@yadro.com>
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+I tried to follow the code paths as descriped in the commit message and also
+tried to match it with the detailed response on Martin's question if
+this would leak sessions. As far I can tell, this looks good but I am still a
+noob when it comes to FC :)
 
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 631a6582b75ffac82bee76a65217caa856fafb5e Mon Sep 17 00:00:00 2001
-From: Chris Wilson <chris@chris-wilson.co.uk>
-Date: Tue, 26 May 2020 10:07:53 +0100
-Subject: [PATCH] drm/i915/gt: Do not schedule normal requests immediately
- along virtual
-
-When we push a virtual request onto the HW, we update the rq->engine to
-point to the physical engine. A request that is then submitted by the
-user that waits upon the virtual engine, but along the physical engine
-in use, will then see that it is due to be submitted to the same engine
-and take a shortcut (and be queued without waiting for the completion
-fence). However, the virtual request may be preempted (either by higher
-priority users, or by timeslicing) and removed from the physical engine
-to be migrated over to one of its siblings. The dependent normal request
-however is oblivious to the removal of the virtual request and remains
-queued to execute on HW, believing that once it reaches the head of its
-queue all of its predecessors will have completed executing!
-
-v2: Beware restriction of signal->execution_mask prior to submission.
-
-Fixes: 6d06779e8672 ("drm/i915: Load balancing across a virtual engine")
-Testcase: igt/gem_exec_balancer/sliced
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: <stable@vger.kernel.org> # v5.3+
-Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200526090753.11329-2-chris@chris-wilson.co.uk
-(cherry picked from commit 511b6d9aed417739b6aa49d0b6b4354ad21020f1)
-Signed-off-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-
-diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
-index 33bbad623e02..0b07ccc7e9bc 100644
---- a/drivers/gpu/drm/i915/i915_request.c
-+++ b/drivers/gpu/drm/i915/i915_request.c
-@@ -1237,6 +1237,25 @@ i915_request_await_execution(struct i915_request *rq,
- 	return 0;
- }
- 
-+static int
-+await_request_submit(struct i915_request *to, struct i915_request *from)
-+{
-+	/*
-+	 * If we are waiting on a virtual engine, then it may be
-+	 * constrained to execute on a single engine *prior* to submission.
-+	 * When it is submitted, it will be first submitted to the virtual
-+	 * engine and then passed to the physical engine. We cannot allow
-+	 * the waiter to be submitted immediately to the physical engine
-+	 * as it may then bypass the virtual request.
-+	 */
-+	if (to->engine == READ_ONCE(from->engine))
-+		return i915_sw_fence_await_sw_fence_gfp(&to->submit,
-+							&from->submit,
-+							I915_FENCE_GFP);
-+	else
-+		return __i915_request_await_execution(to, from, NULL);
-+}
-+
- static int
- i915_request_await_request(struct i915_request *to, struct i915_request *from)
- {
-@@ -1258,10 +1277,8 @@ i915_request_await_request(struct i915_request *to, struct i915_request *from)
- 			return ret;
- 	}
- 
--	if (to->engine == READ_ONCE(from->engine))
--		ret = i915_sw_fence_await_sw_fence_gfp(&to->submit,
--						       &from->submit,
--						       I915_FENCE_GFP);
-+	if (is_power_of_2(to->execution_mask | READ_ONCE(from->execution_mask)))
-+		ret = await_request_submit(to, from);
- 	else
- 		ret = emit_semaphore_wait(to, from, I915_FENCE_GFP);
- 	if (ret < 0)
-
+Reviewed-by: Daniel Wagner <dwagner@suse.de>
