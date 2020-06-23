@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE2D1205CC3
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:05:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCE9C205CA6
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:04:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388320AbgFWUFK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:05:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44336 "EHLO mail.kernel.org"
+        id S2387816AbgFWUD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:03:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388256AbgFWUFJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:05:09 -0400
+        id S2388134AbgFWUD6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:03:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 439F420E65;
-        Tue, 23 Jun 2020 20:05:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 52DDE20FC3;
+        Tue, 23 Jun 2020 20:03:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592942708;
-        bh=BW4hUOlgDi92v/7VDicIK2kFtHix7gDg68Er10dW5JA=;
+        s=default; t=1592942637;
+        bh=2MC5q5RSqVKgcx5B9gE5+mDpo3ta5TgsrmT7263qL1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RwVwb6kuQSC8v2kzluQ1/KeRULT9DvN31oFed4F5VfvDgZfwcwbpvg/nBcyh0IvkU
-         UIKeds1zKHg0WFJBoduiCxtEjk7XWUOJTedHkKswROzUWz2K91miZtAjIEA6zm7qFx
-         qtExB2tHyq76QyCiduxFn4ddkg96OcclZEBvPfJE=
+        b=Uod8DlG2ZDepmaVZ0uF/QkN4tc4xqoF9Ur/RmGNWN6EMPObqlVPgO77dmp3+ExBsr
+         Vquiy5wEgbRYfL6yDSxSumVYFXLrxhLAkDAuQ1kor/98gaYxYyEAXoqaV24AZJbqmS
+         vmESyNSIugtcK8J8LMUDJZAzie2UdLRVF+mIElsM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Alain Volmat <avolmat@me.com>,
+        Patrice Chotard <patrice.chotard@st.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 073/477] scsi: cxgb3i: Fix some leaks in init_act_open()
-Date:   Tue, 23 Jun 2020 21:51:10 +0200
-Message-Id: <20200623195411.071472437@linuxfoundation.org>
+Subject: [PATCH 5.7 077/477] clk: clk-flexgen: fix clock-critical handling
+Date:   Tue, 23 Jun 2020 21:51:14 +0200
+Message-Id: <20200623195411.261073802@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -44,71 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Alain Volmat <avolmat@me.com>
 
-[ Upstream commit b6170a49c59c27a10efed26c5a2969403e69aaba ]
+[ Upstream commit a403bbab1a73d798728d76931cab3ff0399b9560 ]
 
-There wasn't any clean up done if cxgb3_alloc_atid() failed and also the
-original code didn't release "csk->l2t".
+Fixes an issue leading to having all clocks following a critical
+clocks marked as well as criticals.
 
-Link: https://lore.kernel.org/r/20200521121221.GA247492@mwanda
-Fixes: 6f7efaabefeb ("[SCSI] cxgb3i: change cxgb3i to use libcxgbi")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: fa6415affe20 ("clk: st: clk-flexgen: Detect critical clocks")
+Signed-off-by: Alain Volmat <avolmat@me.com>
+Link: https://lkml.kernel.org/r/20200322140740.3970-1-avolmat@me.com
+Reviewed-by: Patrice Chotard <patrice.chotard@st.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/cxgbi/cxgb3i/cxgb3i.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ drivers/clk/st/clk-flexgen.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/scsi/cxgbi/cxgb3i/cxgb3i.c b/drivers/scsi/cxgbi/cxgb3i/cxgb3i.c
-index 524cdbcd29aa4..ec7d01f6e2d58 100644
---- a/drivers/scsi/cxgbi/cxgb3i/cxgb3i.c
-+++ b/drivers/scsi/cxgbi/cxgb3i/cxgb3i.c
-@@ -959,6 +959,7 @@ static int init_act_open(struct cxgbi_sock *csk)
- 	struct net_device *ndev = cdev->ports[csk->port_id];
- 	struct cxgbi_hba *chba = cdev->hbas[csk->port_id];
- 	struct sk_buff *skb = NULL;
-+	int ret;
+diff --git a/drivers/clk/st/clk-flexgen.c b/drivers/clk/st/clk-flexgen.c
+index 4413b6e04a8ec..55873d4b76032 100644
+--- a/drivers/clk/st/clk-flexgen.c
++++ b/drivers/clk/st/clk-flexgen.c
+@@ -375,6 +375,7 @@ static void __init st_of_flexgen_setup(struct device_node *np)
+ 			break;
+ 		}
  
- 	log_debug(1 << CXGBI_DBG_TOE | 1 << CXGBI_DBG_SOCK,
- 		"csk 0x%p,%u,0x%lx.\n", csk, csk->state, csk->flags);
-@@ -979,16 +980,16 @@ static int init_act_open(struct cxgbi_sock *csk)
- 	csk->atid = cxgb3_alloc_atid(t3dev, &t3_client, csk);
- 	if (csk->atid < 0) {
- 		pr_err("NO atid available.\n");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto put_sock;
- 	}
- 	cxgbi_sock_set_flag(csk, CTPF_HAS_ATID);
- 	cxgbi_sock_get(csk);
++		flex_flags &= ~CLK_IS_CRITICAL;
+ 		of_clk_detect_critical(np, i, &flex_flags);
  
- 	skb = alloc_wr(sizeof(struct cpl_act_open_req), 0, GFP_KERNEL);
- 	if (!skb) {
--		cxgb3_free_atid(t3dev, csk->atid);
--		cxgbi_sock_put(csk);
--		return -ENOMEM;
-+		ret = -ENOMEM;
-+		goto free_atid;
- 	}
- 	skb->sk = (struct sock *)csk;
- 	set_arp_failure_handler(skb, act_open_arp_failure);
-@@ -1010,6 +1011,15 @@ static int init_act_open(struct cxgbi_sock *csk)
- 	cxgbi_sock_set_state(csk, CTP_ACTIVE_OPEN);
- 	send_act_open_req(csk, skb, csk->l2t);
- 	return 0;
-+
-+free_atid:
-+	cxgb3_free_atid(t3dev, csk->atid);
-+put_sock:
-+	cxgbi_sock_put(csk);
-+	l2t_release(t3dev, csk->l2t);
-+	csk->l2t = NULL;
-+
-+	return ret;
- }
- 
- cxgb3_cpl_handler_func cxgb3i_cpl_handlers[NUM_CPL_CMDS] = {
+ 		/*
 -- 
 2.25.1
 
