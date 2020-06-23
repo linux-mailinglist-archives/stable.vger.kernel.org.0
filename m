@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA9E9205F9D
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:46:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 879D02060B1
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:48:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391507AbgFWUeN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:34:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56028 "EHLO mail.kernel.org"
+        id S2392630AbgFWUpc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:45:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403773AbgFWUeM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:34:12 -0400
+        id S2392286AbgFWUpb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:45:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BDE0A2098B;
-        Tue, 23 Jun 2020 20:34:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 284F320836;
+        Tue, 23 Jun 2020 20:45:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944452;
-        bh=TQ4RRLMwABj/h2pa92vRnNrTUg18wAIi0ZH1SJOFJI0=;
+        s=default; t=1592945131;
+        bh=Yi0rkYte0Ul8/AyWWV2kwBrjlTBSzJEKQoFAOQiac0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SkRXNt7pZ3KeiWfiSIO0tafAKJE8dyFPDFJ95JzwZVY9Rtqf02Zaqx5zTYQzWHBxB
-         tWjYa9aBQMu7TzxF2uIcS4Nu9876lFQVS48UIF0VTd7ai3CmxX0T/TWiQT6S/JWvna
-         irEBxvr45J1IpFETRdG7RdV5Coiun7O6gYjrS0M4=
+        b=F2MvZg5Fub9ZVPWKd/owkSBDIwJPn+XNOpSCKj7fn2HItt3+wSvJHIrbzwm0R5Cjq
+         YguxtcUasYHCj0D88M1vMEwUpv9Cje/IYrzk+sKUS7GMJ87Emx41gol7my09lyHB4o
+         IUeCiP9Q8JAWNWPqfyjWRp1AB3oMnj7x2RcFy094=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 311/314] net: octeon: mgmt: Repair filling of RX ring
-Date:   Tue, 23 Jun 2020 21:58:26 +0200
-Message-Id: <20200623195353.836500091@linuxfoundation.org>
+        stable@vger.kernel.org, David Heidelberg <david@ixit.cz>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 051/136] power: supply: smb347-charger: IRQSTAT_D is volatile
+Date:   Tue, 23 Jun 2020 21:58:27 +0200
+Message-Id: <20200623195306.244298966@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
-References: <20200623195338.770401005@linuxfoundation.org>
+In-Reply-To: <20200623195303.601828702@linuxfoundation.org>
+References: <20200623195303.601828702@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-commit 0c34bb598c510e070160029f34efeeb217000f8d upstream.
+[ Upstream commit c32ea07a30630ace950e07ffe7a18bdcc25898e1 ]
 
-The removal of mips_swiotlb_ops exposed a problem in octeon_mgmt Ethernet
-driver. mips_swiotlb_ops had an mb() after most of the operations and the
-removal of the ops had broken the receive functionality of the driver.
-My code inspection has shown no other places except
-octeon_mgmt_rx_fill_ring() where an explicit barrier would be obviously
-missing. The latter function however has to make sure that "ringing the
-bell" doesn't happen before RX ring entry is really written.
+Fix failure when USB cable is connected:
+smb347 2-006a: reading IRQSTAT_D failed
 
-The patch has been successfully tested on Octeon II.
+Fixes: 1502cfe19bac ("smb347-charger: Fix battery status reporting logic for charger faults")
 
-Fixes: a999933db9ed ("MIPS: remove mips_swiotlb_ops")
-Cc: stable@vger.kernel.org
-Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Tested-by: David Heidelberg <david@ixit.cz>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: David Heidelberg <david@ixit.cz>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cavium/octeon/octeon_mgmt.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/power/supply/smb347-charger.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/ethernet/cavium/octeon/octeon_mgmt.c
-+++ b/drivers/net/ethernet/cavium/octeon/octeon_mgmt.c
-@@ -235,6 +235,11 @@ static void octeon_mgmt_rx_fill_ring(str
- 
- 		/* Put it in the ring.  */
- 		p->rx_ring[p->rx_next_fill] = re.d64;
-+		/* Make sure there is no reorder of filling the ring and ringing
-+		 * the bell
-+		 */
-+		wmb();
-+
- 		dma_sync_single_for_device(p->dev, p->rx_ring_handle,
- 					   ring_size_to_bytes(OCTEON_MGMT_RX_RING_SIZE),
- 					   DMA_BIDIRECTIONAL);
+diff --git a/drivers/power/supply/smb347-charger.c b/drivers/power/supply/smb347-charger.c
+index 072c5189bd6d1..0655dbdc7000d 100644
+--- a/drivers/power/supply/smb347-charger.c
++++ b/drivers/power/supply/smb347-charger.c
+@@ -1141,6 +1141,7 @@ static bool smb347_volatile_reg(struct device *dev, unsigned int reg)
+ 	switch (reg) {
+ 	case IRQSTAT_A:
+ 	case IRQSTAT_C:
++	case IRQSTAT_D:
+ 	case IRQSTAT_E:
+ 	case IRQSTAT_F:
+ 	case STAT_A:
+-- 
+2.25.1
+
 
 
