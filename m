@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 031752065DB
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:51:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87150206468
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:31:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388873AbgFWVeS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 17:34:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52292 "EHLO mail.kernel.org"
+        id S2390649AbgFWVVN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 17:21:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388374AbgFWULB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:11:01 -0400
+        id S2390241AbgFWUXC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:23:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7ED2A20707;
-        Tue, 23 Jun 2020 20:11:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7FDD1206C3;
+        Tue, 23 Jun 2020 20:23:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943061;
-        bh=SaQqvQFMNTh+YxDu89iw6n8Oqci79i/uH0NDjdrZvCY=;
+        s=default; t=1592943782;
+        bh=ZiVDA+heyAvjd0m/ijADPql322o5KqOe18+1OoZa2zw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V+X7svdXPSwPRP+i6eIEuYxi9iM0WYYXsL1IImrhPOUWEc88W/viIDR8NtwRKTVYq
-         Fppw2MxHKASPfgnJIgLMazbeg+3Ut4L0HTesCvXLu3Xva1hjYW+5yOHjt29DYY5zv3
-         Ndzwzyk0ZxMxZWi8wiA0g6kl6pKtRdoyRvZ9m6Hw=
+        b=jxykgAaqvqRDcKUaA/qfVgroFTRpolmQ3hWekMqAjNtLwIOElylXrW2maY4UrkrPz
+         XXXLq59+eEctQnPavkyw/W1xJOsJ1TJfpk51robPItOKkHYtMmizqcPGDheQRvpr49
+         h4flqWWnmRVxIZDipNynwKkM59VqX5c6+wDxPPHw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen Zhou <chenzhou10@huawei.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Luo Jiaxing <luojiaxing@huawei.com>,
+        John Garry <john.garry@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 245/477] powerpc/powernv: add NULL check after kzalloc
-Date:   Tue, 23 Jun 2020 21:54:02 +0200
-Message-Id: <20200623195419.151216738@linuxfoundation.org>
+Subject: [PATCH 5.4 048/314] scsi: hisi_sas: Do not reset phy timer to wait for stray phy up
+Date:   Tue, 23 Jun 2020 21:54:03 +0200
+Message-Id: <20200623195341.114574673@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
-References: <20200623195407.572062007@linuxfoundation.org>
+In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
+References: <20200623195338.770401005@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhou <chenzhou10@huawei.com>
+From: Luo Jiaxing <luojiaxing@huawei.com>
 
-[ Upstream commit ceffa63acce7165c442395b7d64a11ab8b5c5dca ]
+[ Upstream commit e16b9ed61e078d836a0f24a82080cf29d7539c7e ]
 
-Fixes coccicheck warning:
+We found out that after phy up, the hardware reports another oob interrupt
+but did not follow a phy up interrupt:
 
-./arch/powerpc/platforms/powernv/opal.c:813:1-5:
-	alloc with no test, possible model on line 814
+oob ready -> phy up -> DEV found -> oob read -> wait phy up -> timeout
 
-Add NULL check after kzalloc.
+We run link reset when wait phy up timeout, and it send a normal disk into
+reset processing. So we made some circumvention action in the code, so that
+this abnormal oob interrupt will not start the timer to wait for phy up.
 
-Signed-off-by: Chen Zhou <chenzhou10@huawei.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200509020838.121660-1-chenzhou10@huawei.com
+Link: https://lore.kernel.org/r/1589552025-165012-2-git-send-email-john.garry@huawei.com
+Signed-off-by: Luo Jiaxing <luojiaxing@huawei.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/powernv/opal.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/scsi/hisi_sas/hisi_sas_main.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/platforms/powernv/opal.c b/arch/powerpc/platforms/powernv/opal.c
-index 2b3dfd0b6cdd8..d95954ad4c0af 100644
---- a/arch/powerpc/platforms/powernv/opal.c
-+++ b/arch/powerpc/platforms/powernv/opal.c
-@@ -811,6 +811,10 @@ static int opal_add_one_export(struct kobject *parent, const char *export_name,
- 		goto out;
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
+index 6f4692f0d7143..031aa4043c5ea 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_main.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
+@@ -904,8 +904,11 @@ void hisi_sas_phy_oob_ready(struct hisi_hba *hisi_hba, int phy_no)
+ 	struct hisi_sas_phy *phy = &hisi_hba->phy[phy_no];
+ 	struct device *dev = hisi_hba->dev;
  
- 	attr = kzalloc(sizeof(*attr), GFP_KERNEL);
-+	if (!attr) {
-+		rc = -ENOMEM;
-+		goto out;
-+	}
- 	name = kstrdup(export_name, GFP_KERNEL);
- 	if (!name) {
- 		rc = -ENOMEM;
++	dev_dbg(dev, "phy%d OOB ready\n", phy_no);
++	if (phy->phy_attached)
++		return;
++
+ 	if (!timer_pending(&phy->timer)) {
+-		dev_dbg(dev, "phy%d OOB ready\n", phy_no);
+ 		phy->timer.expires = jiffies + HISI_SAS_WAIT_PHYUP_TIMEOUT * HZ;
+ 		add_timer(&phy->timer);
+ 	}
 -- 
 2.25.1
 
