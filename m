@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E7202059CA
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 19:44:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83C662059D3
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 19:44:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733176AbgFWRf2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 13:35:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60014 "EHLO mail.kernel.org"
+        id S1733059AbgFWRoO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 13:44:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733171AbgFWRf2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 13:35:28 -0400
+        id S1733181AbgFWRf3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 13:35:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC6692078C;
-        Tue, 23 Jun 2020 17:35:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 10F7C20774;
+        Tue, 23 Jun 2020 17:35:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592933727;
-        bh=TQJveAd4iuxp3Js2y6oHTz1x2bBFGQmlIDZnSYRqzkY=;
+        s=default; t=1592933728;
+        bh=jCXcHNF4ffgYfk2J1Ar2eqA5w3GtOFqVWiURn6wkmOQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C0lI0p2XA29CQ56pN07g4a2zueNXHRH/zt2F6GxCpmELLASHHp3j1Fc/vcFk6ez9n
-         zHY2fw+FyyyiIHaWxWVsSFq16h0WB7QF+u6lFiV+jOt4T0ngP8tsMDmxr+ukrMXuTp
-         EdOYPfWj1PQlSdWMZUUXGUGXm2yXqbFVEL9HESAk=
+        b=e1bbPmF9jCP7O4qlSZXCPFjlR3po77suMPhhKijPzPfPyVMxDJ0ljrfUt9HR0zidZ
+         c+Khko/cuwHs0aGyzyZ0LgaGkH87bpto8Qf5T100riFt0iGyE5MJrzsQOV04RphvWO
+         M4kTpCIdXdA76q4UPj6jod3P0iL/X2JGuNl+nMws=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Denis Efremov <efremov@linux.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.7 03/28] drm/amd/display: Use kfree() to free rgb_user in calculate_user_regamma_ramp()
-Date:   Tue, 23 Jun 2020 13:34:58 -0400
-Message-Id: <20200623173523.1355411-3-sashal@kernel.org>
+Cc:     Nathan Huckleberry <nhuck@google.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-riscv@lists.infradead.org, clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 5.7 04/28] riscv/atomic: Fix sign extension for RV64I
+Date:   Tue, 23 Jun 2020 13:34:59 -0400
+Message-Id: <20200623173523.1355411-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200623173523.1355411-1-sashal@kernel.org>
 References: <20200623173523.1355411-1-sashal@kernel.org>
@@ -44,34 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Denis Efremov <efremov@linux.com>
+From: Nathan Huckleberry <nhuck@google.com>
 
-[ Upstream commit 43a562774fceba867e8eebba977d7d42f8a2eac7 ]
+[ Upstream commit 6c58f25e6938c073198af8b1e1832f83f8f0df33 ]
 
-Use kfree() instead of kvfree() to free rgb_user in
-calculate_user_regamma_ramp() because the memory is allocated with
-kcalloc().
+The argument passed to cmpxchg is not guaranteed to be sign
+extended, but lr.w sign extends on RV64I. This makes cmpxchg
+fail on clang built kernels when __old is negative.
 
-Signed-off-by: Denis Efremov <efremov@linux.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+To fix this, we just cast __old to long which sign extends on
+RV64I. With this fix, clang built RISC-V kernels now boot.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/867
+Signed-off-by: Nathan Huckleberry <nhuck@google.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/modules/color/color_gamma.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/riscv/include/asm/cmpxchg.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/modules/color/color_gamma.c b/drivers/gpu/drm/amd/display/modules/color/color_gamma.c
-index cac09d500fda9..2c2caa7d335c8 100644
---- a/drivers/gpu/drm/amd/display/modules/color/color_gamma.c
-+++ b/drivers/gpu/drm/amd/display/modules/color/color_gamma.c
-@@ -1777,7 +1777,7 @@ bool calculate_user_regamma_ramp(struct dc_transfer_func *output_tf,
- 
- 	kfree(rgb_regamma);
- rgb_regamma_alloc_fail:
--	kvfree(rgb_user);
-+	kfree(rgb_user);
- rgb_user_alloc_fail:
- 	return ret;
- }
+diff --git a/arch/riscv/include/asm/cmpxchg.h b/arch/riscv/include/asm/cmpxchg.h
+index d969bab4a26b5..262e5bbb27760 100644
+--- a/arch/riscv/include/asm/cmpxchg.h
++++ b/arch/riscv/include/asm/cmpxchg.h
+@@ -179,7 +179,7 @@
+ 			"	bnez %1, 0b\n"				\
+ 			"1:\n"						\
+ 			: "=&r" (__ret), "=&r" (__rc), "+A" (*__ptr)	\
+-			: "rJ" (__old), "rJ" (__new)			\
++			: "rJ" ((long)__old), "rJ" (__new)		\
+ 			: "memory");					\
+ 		break;							\
+ 	case 8:								\
+@@ -224,7 +224,7 @@
+ 			RISCV_ACQUIRE_BARRIER				\
+ 			"1:\n"						\
+ 			: "=&r" (__ret), "=&r" (__rc), "+A" (*__ptr)	\
+-			: "rJ" (__old), "rJ" (__new)			\
++			: "rJ" ((long)__old), "rJ" (__new)		\
+ 			: "memory");					\
+ 		break;							\
+ 	case 8:								\
+@@ -270,7 +270,7 @@
+ 			"	bnez %1, 0b\n"				\
+ 			"1:\n"						\
+ 			: "=&r" (__ret), "=&r" (__rc), "+A" (*__ptr)	\
+-			: "rJ" (__old), "rJ" (__new)			\
++			: "rJ" ((long)__old), "rJ" (__new)		\
+ 			: "memory");					\
+ 		break;							\
+ 	case 8:								\
+@@ -316,7 +316,7 @@
+ 			"	fence rw, rw\n"				\
+ 			"1:\n"						\
+ 			: "=&r" (__ret), "=&r" (__rc), "+A" (*__ptr)	\
+-			: "rJ" (__old), "rJ" (__new)			\
++			: "rJ" ((long)__old), "rJ" (__new)		\
+ 			: "memory");					\
+ 		break;							\
+ 	case 8:								\
 -- 
 2.25.1
 
