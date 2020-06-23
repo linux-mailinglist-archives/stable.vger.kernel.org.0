@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7472A2062F6
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:10:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BBE72062ED
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:10:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391430AbgFWUdy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:33:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55438 "EHLO mail.kernel.org"
+        id S2393239AbgFWVJY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 17:09:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387641AbgFWUdv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:33:51 -0400
+        id S2391518AbgFWUeT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:34:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6059320836;
-        Tue, 23 Jun 2020 20:33:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 88E55206C3;
+        Tue, 23 Jun 2020 20:34:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944431;
-        bh=XwauqFNRoODA/WZXCoHKKjOuoIsjFMp1p3aBUa8Ss2o=;
+        s=default; t=1592944460;
+        bh=SKI79dOQN90epLvsQ6Zdyat8W6mxPWJpwwX8b1e1pRQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c7F01gtIngVthzuYlq3kijI+xvbz0XtpmHWHh+4HK0gSZd+Z/WCL8Tzkj6o/gPEX+
-         5mGuFD58xzcTgmGB833G5feEBI23mxh0haspPrSrjkyNTVfvN6zlrN+S8SL/1wr6f6
-         hM0qvrNYCEWyXVmbbo5tPQ4I2pGxnOFAz1OBj+/Q=
+        b=x5wLWGGubtyoc81dFC7Bs3AauRKVDiEsRKESueu87GjQ/26iAk/HBx6T/9cMWhv15
+         PMeVEagfcCsW5+6JN+Ljr9wg1WBnmLRfgxq0ufGgrDeudULHqsPahtDE7dsh1U7YOV
+         B4+hy9jrY0bua/H4dHRizqZvUQ0UOiiXP7Y35KCk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Daniel Rosenberg <drosen@google.com>,
-        Gabriel Krisman Bertazi <krisman@collabora.co.uk>,
-        Eric Biggers <ebiggers@google.com>,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 295/314] f2fs: avoid utf8_strncasecmp() with unstable name
-Date:   Tue, 23 Jun 2020 21:58:10 +0200
-Message-Id: <20200623195353.041110423@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Elvira Khabirova <lineprinter@altlinux.org>,
+        "Dmitry V. Levin" <ldv@altlinux.org>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.4 296/314] s390: fix syscall_get_error for compat processes
+Date:   Tue, 23 Jun 2020 21:58:11 +0200
+Message-Id: <20200623195353.104272712@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
 References: <20200623195338.770401005@linuxfoundation.org>
@@ -47,66 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Dmitry V. Levin <ldv@altlinux.org>
 
-[ Upstream commit fc3bb095ab02b9e7d89a069ade2cead15c64c504 ]
+commit b3583fca5fb654af2cfc1c08259abb9728272538 upstream.
 
-If the dentry name passed to ->d_compare() fits in dentry::d_iname, then
-it may be concurrently modified by a rename.  This can cause undefined
-behavior (possibly out-of-bounds memory accesses or crashes) in
-utf8_strncasecmp(), since fs/unicode/ isn't written to handle strings
-that may be concurrently modified.
+If both the tracer and the tracee are compat processes, and gprs[2]
+is assigned a value by __poke_user_compat, then the higher 32 bits
+of gprs[2] are cleared, IS_ERR_VALUE() always returns false, and
+syscall_get_error() always returns 0.
 
-Fix this by first copying the filename to a stack buffer if needed.
-This way we get a stable snapshot of the filename.
+Fix the implementation by sign-extending the value for compat processes
+the same way as x86 implementation does.
 
-Fixes: 2c2eb7a300cd ("f2fs: Support case-insensitive file name lookups")
-Cc: <stable@vger.kernel.org> # v5.4+
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Daniel Rosenberg <drosen@google.com>
-Cc: Gabriel Krisman Bertazi <krisman@collabora.co.uk>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- fs/f2fs/dir.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+The bug was exposed to user space by commit 201766a20e30f ("ptrace: add
+PTRACE_GET_SYSCALL_INFO request") and detected by strace test suite.
 
-diff --git a/fs/f2fs/dir.c b/fs/f2fs/dir.c
-index 594c9ad774d23..e9af46dc06f72 100644
---- a/fs/f2fs/dir.c
-+++ b/fs/f2fs/dir.c
-@@ -1063,11 +1063,27 @@ static int f2fs_d_compare(const struct dentry *dentry, unsigned int len,
- 	const struct inode *dir = READ_ONCE(parent->d_inode);
- 	const struct f2fs_sb_info *sbi = F2FS_SB(dentry->d_sb);
- 	struct qstr entry = QSTR_INIT(str, len);
-+	char strbuf[DNAME_INLINE_LEN];
- 	int res;
- 
- 	if (!dir || !IS_CASEFOLDED(dir))
- 		goto fallback;
- 
-+	/*
-+	 * If the dentry name is stored in-line, then it may be concurrently
-+	 * modified by a rename.  If this happens, the VFS will eventually retry
-+	 * the lookup, so it doesn't matter what ->d_compare() returns.
-+	 * However, it's unsafe to call utf8_strncasecmp() with an unstable
-+	 * string.  Therefore, we have to copy the name into a temporary buffer.
-+	 */
-+	if (len <= DNAME_INLINE_LEN - 1) {
-+		memcpy(strbuf, str, len);
-+		strbuf[len] = 0;
-+		entry.name = strbuf;
-+		/* prevent compiler from optimizing out the temporary buffer */
-+		barrier();
+This change fixes strace syscall tampering on s390.
+
+Link: https://lkml.kernel.org/r/20200602180051.GA2427@altlinux.org
+Fixes: 753c4dd6a2fa2 ("[S390] ptrace changes")
+Cc: Elvira Khabirova <lineprinter@altlinux.org>
+Cc: stable@vger.kernel.org # v2.6.28+
+Signed-off-by: Dmitry V. Levin <ldv@altlinux.org>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+diff --git a/arch/s390/include/asm/syscall.h b/arch/s390/include/asm/syscall.h
+index f073292e9fdb..d9d5de0f67ff 100644
+--- a/arch/s390/include/asm/syscall.h
++++ b/arch/s390/include/asm/syscall.h
+@@ -33,7 +33,17 @@ static inline void syscall_rollback(struct task_struct *task,
+ static inline long syscall_get_error(struct task_struct *task,
+ 				     struct pt_regs *regs)
+ {
+-	return IS_ERR_VALUE(regs->gprs[2]) ? regs->gprs[2] : 0;
++	unsigned long error = regs->gprs[2];
++#ifdef CONFIG_COMPAT
++	if (test_tsk_thread_flag(task, TIF_31BIT)) {
++		/*
++		 * Sign-extend the value so (int)-EFOO becomes (long)-EFOO
++		 * and will match correctly in comparisons.
++		 */
++		error = (long)(int)error;
 +	}
-+
- 	res = utf8_strncasecmp(sbi->s_encoding, name, &entry);
- 	if (res >= 0)
- 		return res;
--- 
-2.25.1
-
++#endif
++	return IS_ERR_VALUE(error) ? error : 0;
+ }
+ 
+ static inline long syscall_get_return_value(struct task_struct *task,
 
 
