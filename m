@@ -2,159 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 968A72046DB
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 03:49:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BBDC2047CC
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 05:09:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731434AbgFWBtY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 22 Jun 2020 21:49:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49980 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730322AbgFWBtX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 22 Jun 2020 21:49:23 -0400
-Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97ED9C061573
-        for <stable@vger.kernel.org>; Mon, 22 Jun 2020 18:49:22 -0700 (PDT)
-Received: by mail-pl1-x62a.google.com with SMTP id x11so8427955plo.7
-        for <stable@vger.kernel.org>; Mon, 22 Jun 2020 18:49:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=ySzJB1tXiZLDs7qv0SArRhlE+fEt1l9lTDwtNJOfZVY=;
-        b=Fhxu9UG5fljAQA0wz47n1pGPotqYiVy9DuVPnwzc+PilNK6poJDUxc/lU6mZawCinh
-         xddrsrPWDzUStqGSdk+iqiYdCnZkvsL+D042LV4DNVqWdY4rdSJBdCjNQzi3sk0TT0RG
-         XbWdM2Bz25RsHBBZ8mlCz+ffA0qVC36DmNchTLi7IaAdBd+O9t/+o29N+CxY+c5HhzdY
-         EGgmcSO/ipC4H78ny8QbqLTbyN9P+9ZBfPRQbrXTvMwUOKSjzHehE6AwlPFeMkIMgJpb
-         oDMWz86djzYIWsbi02NXyA/53WskBncdmf6iRt90rn3mLkzXKRb2EKqr8Wiwl8ekXzDI
-         MSPQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=ySzJB1tXiZLDs7qv0SArRhlE+fEt1l9lTDwtNJOfZVY=;
-        b=iKnrIvKj3KoY1Jl/xTuKAeB727c6k4XB5YsEIcmyO+uRorVcNfwb4FzVGUOwaG5eef
-         qmWj6Jg9LtTsezgro46jNAhnaNPaJOvJHqcbXbylNg8n+UYDNTm1Id9r2g6uxSj+FWaQ
-         cWU8RokjJndONodjlM+RZ4E19Z26cDwxpZ43z/HnoqJhfZM3BbiaaByVfNFHICzAfaZV
-         TMwO4eHjIc1rh+l2NOZUSAmcteahosCykMejolYyDMg88mQfes9tgahr7nCUVezFK73y
-         XwqRI39wrwGMqIqH83DU2Zb+zxjU2qJoUw8alFHyRBrrULodPlBXdxoRvP0kDzUwnLSu
-         dmRA==
-X-Gm-Message-State: AOAM531oErEtvtGfne7X/vPjsyV9M4F3+Ud62rVMqw8fZ54K6lHPdz89
-        x+HOl2yrk5woFCJTG8Xf08UlnOal+7A=
-X-Google-Smtp-Source: ABdhPJzmxj4WpQ19NOP0ojxHyND9zVBxg6vgaHHJQ5+5QNRin6DGSlye/m7GwQOmaLvCHh8uXXuHxw==
-X-Received: by 2002:a17:902:8304:: with SMTP id bd4mr21552385plb.8.1592876961081;
-        Mon, 22 Jun 2020 18:49:21 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id y7sm694444pjy.21.2020.06.22.18.49.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Jun 2020 18:49:20 -0700 (PDT)
-Message-ID: <5ef15fa0.1c69fb81.4dd71.33e4@mx.google.com>
-Date:   Mon, 22 Jun 2020 18:49:20 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1731905AbgFWDJN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 22 Jun 2020 23:09:13 -0400
+Received: from mail-am6eur05on2060.outbound.protection.outlook.com ([40.107.22.60]:38126
+        "EHLO EUR05-AM6-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1731690AbgFWDJM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 22 Jun 2020 23:09:12 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=QoQVHOcgY+CjtHt8xNpa04vLLJYZxgjcM0X5sGsAv4ZxifIKjGKvcZZFbTnGgASQmBJVS9mxBB5J9IhY61rkgUf9mXsLw7d8txcDFKhq0etK0ZHb9j9BzzGYdrdSxYQqWTPpFTYRa28a21MexiR0awogcdK4HOdZCbeLBCzd9Gc1GS4lN2T0j9bd5m4JNT/7OLZHXDAus+JeVgk8sVt2Om0wPRn8xjNdyMfk0F9QBGKmexkZy6DHBfJl02VrgRbfb0WMoSLCVEqRt0O8j+QK2fBIlkOeF2rkwZ4jH3w4S5iUV3jK3HyZGDqw81iQhxGihjtd09vblbcNY7GLwxIsNw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=R60Q3zQXyLF0pY1ylTobYrl09+PDICmnewOEQkS1a7U=;
+ b=NJfnbycg71HVv/5X27hlnY6mYIP9wGEL/4HuoVGEWUy4Hei1xnsLOcil8dTdspaiqd1aTzyZfCDaw2eEvEttOIte1LefeSgWuz1ukeFUL7kh51TVWLoN8+PhSuuNax5IOa4y4OOxzF6DUXAkAuI4nE5Yfbkc45IsdnxDIxP1wjzR9PoPr2TPucUVf+3UBxDjIpaWlfnQRSzcDnGxrqdv6k29HXeOwTPaHGo/UpARjuar1cuhy73bX3AoVlxJIrbrQ2XWkbH6KVSQuCqzZRS4CDvII6AQrI/8NeGwEYrijMw+5nASJ5QHI8iPgvT6Ab0OT9Izjm+iDJpntsawSZcuQQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
+ header.d=nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=R60Q3zQXyLF0pY1ylTobYrl09+PDICmnewOEQkS1a7U=;
+ b=TSjw+W8TzRYVm+nGxbV/rj9LxCydK8FXnr4f85EGl0ht3vc9HcGZ/hJsiqLk8HX0iEt5xnDvHLVtb0uDg46j17tQVltqh9wzjvcsqhZm36hoh+8sU45I2PsS7CQXrj1ri4j5cONCaZca+j+TmRQPJNsWD1ZJuxMYNWZSvFHYf/8=
+Authentication-Results: kernel.org; dkim=none (message not signed)
+ header.d=none;kernel.org; dmarc=none action=none header.from=nxp.com;
+Received: from AM7PR04MB7157.eurprd04.prod.outlook.com (2603:10a6:20b:118::20)
+ by AM7PR04MB6854.eurprd04.prod.outlook.com (2603:10a6:20b:10c::9) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3109.22; Tue, 23 Jun
+ 2020 03:09:09 +0000
+Received: from AM7PR04MB7157.eurprd04.prod.outlook.com
+ ([fe80::1101:adaa:ee89:af2a]) by AM7PR04MB7157.eurprd04.prod.outlook.com
+ ([fe80::1101:adaa:ee89:af2a%3]) with mapi id 15.20.3109.027; Tue, 23 Jun 2020
+ 03:09:09 +0000
+From:   Peter Chen <peter.chen@nxp.com>
+To:     balbi@kernel.org, gregkh@linuxfoundation.org
+Cc:     linux-usb@vger.kernel.org, linux-imx@nxp.com, pawell@cadence.com,
+        rogerq@ti.com, jun.li@nxp.com, Peter Chen <peter.chen@nxp.com>,
+        stable@vger.kernel.org
+Subject: [PATCH 1/3] usb: cdns3: ep0: fix the test mode set incorrectly
+Date:   Tue, 23 Jun 2020 11:09:16 +0800
+Message-Id: <20200623030918.8409-2-peter.chen@nxp.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200623030918.8409-1-peter.chen@nxp.com>
+References: <20200623030918.8409-1-peter.chen@nxp.com>
+Content-Type: text/plain
+X-ClientProxiedBy: SG2PR06CA0189.apcprd06.prod.outlook.com (2603:1096:4:1::21)
+ To AM7PR04MB7157.eurprd04.prod.outlook.com (2603:10a6:20b:118::20)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.4.44-755-g1d94fa9fbd5f
-Subject: stable-rc/linux-5.4.y baseline: 60 runs,
- 2 regressions (v5.4.44-755-g1d94fa9fbd5f)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from b29397-desktop.ap.freescale.net (119.31.174.67) by SG2PR06CA0189.apcprd06.prod.outlook.com (2603:1096:4:1::21) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3109.21 via Frontend Transport; Tue, 23 Jun 2020 03:09:06 +0000
+X-Mailer: git-send-email 2.17.1
+X-Originating-IP: [119.31.174.67]
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-HT: Tenant
+X-MS-Office365-Filtering-Correlation-Id: 43390d82-8b61-4aeb-90e5-08d81722cc07
+X-MS-TrafficTypeDiagnostic: AM7PR04MB6854:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <AM7PR04MB68540E2ABACD41CA6F07F8B68B940@AM7PR04MB6854.eurprd04.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:4303;
+X-Forefront-PRVS: 04433051BF
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: P+dp7F0jVJj2cHjEL99ilC64yWrFW8RwXtTI9q6ZNZAf8gjI4QthWMb1kwqG2cmJiFPI5fRXOwqB45fr9biZ2yQKQtcqSb06cLvLI6qnlJe4HFrNbCC8KsWIDKKqEw26Z8jyMi5KBCyp8NwuPi3bAIA6cpen3N69NzwlZtFpUIDzBEuz0cmaKvnEmrDmbv04EYaoLybIMIN37+GOdjNQ82zyP5xsEmenGTaYYhPyybz2gPIgFNhnHRLyvRgnSB0tr29fDN9UMcqw5/FVHiR6THe8XtCVlzf8LzH+lqp+6Vss6d1Js8BRWIWwGOO82sMEqyWMSfkfdwPRapVClT7ZoA==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM7PR04MB7157.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(4636009)(396003)(376002)(346002)(39860400002)(366004)(136003)(86362001)(6512007)(1076003)(4744005)(316002)(2906002)(66476007)(66556008)(66946007)(6486002)(44832011)(956004)(5660300002)(2616005)(478600001)(6666004)(26005)(16526019)(186003)(6506007)(8936002)(8676002)(52116002)(4326008)(83380400001)(36756003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData: GK+IOJyPlAnYBGHkjJTEKpfi5diCbSsMp+j7WYRkG5ZjO3+QzTy8svECC+MYDqFkrvzdkt8mneRdZfOjEZ4UOCe1GccqjvHKcsV2f6DggW2D24tf/96nt1cUBMh0P84U0cZx3Xeb5GkXStOnutV0ueZrQr3lUgKmD7iNs25TcFh7KrIeqN7REnEuFKpipK4370EelJhXPluHktBbem3e18ibq37rHg9E5Pax02lkxQy2QWnuzThT7njGxqOcHQ0WLuyW+Wb+DJZkaBMrH21aIp4UFZvvWmlo5NnH1t0WQk2+HzWUvrmaQD3q7vA8yF6cDT2IofKnNMs0u5eru/t01L5vb8FrI8JrJsfKXo/HZWP8N1mizXBz5nm1ZtM7eOi2OfgleiiTSCxBDKgTevrwGg2IKy/Atkq0feltzeeGdQ/u021VCcxvdJWvHWGqJL4PlChfI1qfL3qmB6Ps2sJpUTmBBJ/FPi2/4hzhMHIEtQJZEL58MAYOTEMg1zJMX58A
+X-OriginatorOrg: nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 43390d82-8b61-4aeb-90e5-08d81722cc07
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Jun 2020 03:09:09.5286
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: OGihjTupdFqzRierGxhByqF4xCSzAQ+H1vbAy+M1V3101z4Xj+/Uks3bSYrOovN6HP1pDEMBfT0/+DhPhjYqUQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM7PR04MB6854
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y baseline: 60 runs, 2 regressions (v5.4.44-755-g1d94fa=
-9fbd5f)
+The 'tmode' is ctrl->wIndex, changing it as the real test
+mode value for register assignment.
 
-Regressions Summary
--------------------
+Cc: <stable@vger.kernel.org>
+Fixes: 7733f6c32e36 ("usb: cdns3: Add Cadence USB3 DRD Driver")
+Reviewed-by: Jun Li <jun.li@nxp.com>
+Signed-off-by: Peter Chen <peter.chen@nxp.com>
+---
+ drivers/usb/cdns3/ep0.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-platform                     | arch  | lab          | compiler | defconfig =
-      | results
------------------------------+-------+--------------+----------+-----------=
-------+--------
-at91-sama5d4_xplained        | arm   | lab-baylibre | gcc-8    | sama5_defc=
-onfig | 0/1    =
+diff --git a/drivers/usb/cdns3/ep0.c b/drivers/usb/cdns3/ep0.c
+index 2465a84e8fee..74a1ff5000ba 100644
+--- a/drivers/usb/cdns3/ep0.c
++++ b/drivers/usb/cdns3/ep0.c
+@@ -327,7 +327,8 @@ static int cdns3_ep0_feature_handle_device(struct cdns3_device *priv_dev,
+ 		if (!set || (tmode & 0xff) != 0)
+ 			return -EINVAL;
+ 
+-		switch (tmode >> 8) {
++		tmode >>= 8;
++		switch (tmode) {
+ 		case TEST_J:
+ 		case TEST_K:
+ 		case TEST_SE0_NAK:
+-- 
+2.17.1
 
-meson-gxl-s805x-libretech-ac | arm64 | lab-baylibre | gcc-8    | defconfig =
-      | 4/5    =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
-el/v5.4.44-755-g1d94fa9fbd5f/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.4.y
-  Describe: v5.4.44-755-g1d94fa9fbd5f
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      1d94fa9fbd5f0a775217d4180270dae8cede3f92 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                     | arch  | lab          | compiler | defconfig =
-      | results
------------------------------+-------+--------------+----------+-----------=
-------+--------
-at91-sama5d4_xplained        | arm   | lab-baylibre | gcc-8    | sama5_defc=
-onfig | 0/1    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ef12d5276f6f88edb97bf2d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sama5_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.44-=
-755-g1d94fa9fbd5f/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama=
-5d4_xplained.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.44-=
-755-g1d94fa9fbd5f/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-sama=
-5d4_xplained.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2019=
-.02-11-g17e793fa4728/armel/baseline/rootfs.cpio.gz =
-
-
-  * baseline.login: https://kernelci.org/test/case/id/5ef12d5276f6f88edb97b=
-f2e
-      failing since 72 days (last pass: v5.4.30-54-g6f04e8ca5355, first fai=
-l: v5.4.30-81-gf163418797b9) =
-
-
-
-platform                     | arch  | lab          | compiler | defconfig =
-      | results
------------------------------+-------+--------------+----------+-----------=
-------+--------
-meson-gxl-s805x-libretech-ac | arm64 | lab-baylibre | gcc-8    | defconfig =
-      | 4/5    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ef12b49203e16980997bf15
-
-  Results:     4 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.44-=
-755-g1d94fa9fbd5f/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxl-s80=
-5x-libretech-ac.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.44-=
-755-g1d94fa9fbd5f/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxl-s80=
-5x-libretech-ac.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2019=
-.02-11-g17e793fa4728/arm64/baseline/rootfs.cpio.gz =
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/5ef12b49203e169=
-80997bf1a
-      new failure (last pass: v5.4.44-466-ga9a8b229b188)
-      2 lines =20
