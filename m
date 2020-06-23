@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD081205FE2
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:47:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38067205FE3
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:47:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391305AbgFWUhR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:37:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60548 "EHLO mail.kernel.org"
+        id S2391603AbgFWUhS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:37:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389912AbgFWUhI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:37:08 -0400
+        id S2391601AbgFWUhO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:37:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D84C521527;
-        Tue, 23 Jun 2020 20:37:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B82821527;
+        Tue, 23 Jun 2020 20:37:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944629;
-        bh=sT37YWow0t5mIiWVqfyMQfWKC52B0/401pg1mNSwlzs=;
+        s=default; t=1592944634;
+        bh=8Xf1yytOJlVd3+phAsaxvB4fXVXo4QF7cq5hZe7TsNk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t4JfH2J0qLHUW7JtBZaHRn5x/1c/FqpGCjAuTFKiNpm5y/wtQjSRNSDcQeDCUzBwg
-         HWe+O9FZ+qBNIQZQVUFQaqcrU9Bc3ymqK726OnkowwyI28p2l8SEh6ywgGkYAw0i6y
-         H/a+5EYqtxrjCbqMIHj2LaIH2J4ea07r6sz/rsik=
+        b=oo3SimyY27OwCsS9guNweVVAce9uWesGoDCCohJQtifcBhE3DDP8T/vkR3bUzBodl
+         oS5IpLbMjg826y8E1yCc38JCFu+3cv3mB8/k8ocHXYVyvSOHy2zPGSw/Gk+6bNojJY
+         +ovNdqDtLjSoz2TO32FFtzj2UHNXJbvLLBXgmm3k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        "J. Bruce Fields" <bfields@redhat.com>,
+        stable@vger.kernel.org, Pingfan Liu <kernelfans@gmail.com>,
+        Hari Bathini <hbathini@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 033/206] nfsd: Fix svc_xprt refcnt leak when setup callback client failed
-Date:   Tue, 23 Jun 2020 21:56:01 +0200
-Message-Id: <20200623195318.610731014@linuxfoundation.org>
+Subject: [PATCH 4.19 035/206] powerpc/crashkernel: Take "mem=" option into account
+Date:   Tue, 23 Jun 2020 21:56:03 +0200
+Message-Id: <20200623195318.709307907@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
 References: <20200623195316.864547658@linuxfoundation.org>
@@ -45,42 +45,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+From: Pingfan Liu <kernelfans@gmail.com>
 
-[ Upstream commit a4abc6b12eb1f7a533c2e7484cfa555454ff0977 ]
+[ Upstream commit be5470e0c285a68dc3afdea965032f5ddc8269d7 ]
 
-nfsd4_process_cb_update() invokes svc_xprt_get(), which increases the
-refcount of the "c->cn_xprt".
+'mem=" option is an easy way to put high pressure on memory during
+some test. Hence after applying the memory limit, instead of total
+mem, the actual usable memory should be considered when reserving mem
+for crashkernel. Otherwise the boot up may experience OOM issue.
 
-The reference counting issue happens in one exception handling path of
-nfsd4_process_cb_update(). When setup callback client failed, the
-function forgets to decrease the refcnt increased by svc_xprt_get(),
-causing a refcnt leak.
+E.g. it would reserve 4G prior to the change and 512M afterward, if
+passing
+crashkernel="2G-4G:384M,4G-16G:512M,16G-64G:1G,64G-128G:2G,128G-:4G",
+and mem=5G on a 256G machine.
 
-Fix this issue by calling svc_xprt_put() when setup callback client
-failed.
+This issue is powerpc specific because it puts higher priority on
+fadump and kdump reservation than on "mem=". Referring the following
+code:
+    if (fadump_reserve_mem() == 0)
+            reserve_crashkernel();
+    ...
+    /* Ensure that total memory size is page-aligned. */
+    limit = ALIGN(memory_limit ?: memblock_phys_mem_size(), PAGE_SIZE);
+    memblock_enforce_memory_limit(limit);
 
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+While on other arches, the effect of "mem=" takes a higher priority
+and pass through memblock_phys_mem_size() before calling
+reserve_crashkernel().
+
+Signed-off-by: Pingfan Liu <kernelfans@gmail.com>
+Reviewed-by: Hari Bathini <hbathini@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/1585749644-4148-1-git-send-email-kernelfans@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4callback.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/powerpc/kernel/machine_kexec.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/fs/nfsd/nfs4callback.c b/fs/nfsd/nfs4callback.c
-index ebbb0285addb0..7ee417b685e98 100644
---- a/fs/nfsd/nfs4callback.c
-+++ b/fs/nfsd/nfs4callback.c
-@@ -1149,6 +1149,8 @@ static void nfsd4_process_cb_update(struct nfsd4_callback *cb)
- 	err = setup_callback_client(clp, &conn, ses);
- 	if (err) {
- 		nfsd4_mark_cb_down(clp, err);
-+		if (c)
-+			svc_xprt_put(c->cn_xprt);
- 		return;
+diff --git a/arch/powerpc/kernel/machine_kexec.c b/arch/powerpc/kernel/machine_kexec.c
+index 63f5a9311a294..094c37fb07a96 100644
+--- a/arch/powerpc/kernel/machine_kexec.c
++++ b/arch/powerpc/kernel/machine_kexec.c
+@@ -116,11 +116,12 @@ void machine_kexec(struct kimage *image)
+ 
+ void __init reserve_crashkernel(void)
+ {
+-	unsigned long long crash_size, crash_base;
++	unsigned long long crash_size, crash_base, total_mem_sz;
+ 	int ret;
+ 
++	total_mem_sz = memory_limit ? memory_limit : memblock_phys_mem_size();
+ 	/* use common parsing */
+-	ret = parse_crashkernel(boot_command_line, memblock_phys_mem_size(),
++	ret = parse_crashkernel(boot_command_line, total_mem_sz,
+ 			&crash_size, &crash_base);
+ 	if (ret == 0 && crash_size > 0) {
+ 		crashk_res.start = crash_base;
+@@ -179,6 +180,7 @@ void __init reserve_crashkernel(void)
+ 	/* Crash kernel trumps memory limit */
+ 	if (memory_limit && memory_limit <= crashk_res.end) {
+ 		memory_limit = crashk_res.end + 1;
++		total_mem_sz = memory_limit;
+ 		printk("Adjusted memory limit for crashkernel, now 0x%llx\n",
+ 		       memory_limit);
  	}
- }
+@@ -187,7 +189,7 @@ void __init reserve_crashkernel(void)
+ 			"for crashkernel (System RAM: %ldMB)\n",
+ 			(unsigned long)(crash_size >> 20),
+ 			(unsigned long)(crashk_res.start >> 20),
+-			(unsigned long)(memblock_phys_mem_size() >> 20));
++			(unsigned long)(total_mem_sz >> 20));
+ 
+ 	if (!memblock_is_region_memory(crashk_res.start, crash_size) ||
+ 	    memblock_reserve(crashk_res.start, crash_size)) {
 -- 
 2.25.1
 
