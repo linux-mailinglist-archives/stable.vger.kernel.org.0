@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0806B2065F1
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:51:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75E1B20646A
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:31:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393816AbgFWVfc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 17:35:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51514 "EHLO mail.kernel.org"
+        id S2393441AbgFWVVV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 17:21:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388252AbgFWUKU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:10:20 -0400
+        id S2390233AbgFWUW7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:22:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C26B32073E;
-        Tue, 23 Jun 2020 20:10:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E90092064B;
+        Tue, 23 Jun 2020 20:22:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943019;
-        bh=JHWuGWGgG+yTFPUz5997dxPk+ppnHwY8nNNDkJLxbRE=;
+        s=default; t=1592943779;
+        bh=/2CYLF6f8t7m6yhxykhDd6BFoqe6kUko8+ah4vtC1uk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zPN6H2YCyyPSEAv+l64DgQojT1mE3FsXiFO1fxL/TNYBRo3vucpLuftGtV+MXnnP0
-         MKbWw2ORhh/+Ze45+0WAHrep27h3KgB6ZcMx3FtxYP9oK4OK+h+gWboqzJem9heBxB
-         ejB9tFhFz3FqvOWDDOOIk7YvWVoPy4tkRsJlhpWM=
+        b=R1uKH1m66DCNE2+fOMZjsYlE2o7LbTk3+tPNoorfjFJtaw/Tw0guvta1fuzNnwdm8
+         +fvFDG/dBikTG1eKHhheydXANAAJszJ4Ecu7oqDsSXWuZT+HxgBN6IA4zSpxOGh2bn
+         KYPJSaCJJMSXurFJ8fAoqGtAs8VaMRtFN6Tt7szU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Rob Clark <robdclark@gmail.com>,
-        Rob Clark <robdclark@chromium.org>,
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        syzbot+be5b5f86a162a6c281e6@syzkaller.appspotmail.com,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 227/477] drm/msm: Fix undefined "rd_full" link error
-Date:   Tue, 23 Jun 2020 21:53:44 +0200
-Message-Id: <20200623195418.310621346@linuxfoundation.org>
+Subject: [PATCH 5.4 030/314] usblp: poison URBs upon disconnect
+Date:   Tue, 23 Jun 2020 21:53:45 +0200
+Message-Id: <20200623195340.245958345@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
-References: <20200623195407.572062007@linuxfoundation.org>
+In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
+References: <20200623195338.770401005@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,45 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
+From: Oliver Neukum <oneukum@suse.com>
 
-[ Upstream commit 20aebe83698feb107d5a66b6cfd1d54459ccdfcf ]
+[ Upstream commit 296a193b06120aa6ae7cf5c0d7b5e5b55968026e ]
 
-rd_full should be defined outside the CONFIG_DEBUG_FS region, in order
-to be able to link the msm driver even when CONFIG_DEBUG_FS is disabled.
+syzkaller reported an URB that should have been killed to be active.
+We do not understand it, but this should fix the issue if it is real.
 
-Fixes: e515af8d4a6f ("drm/msm: devcoredump should dump MSM_SUBMIT_BO_DUMP buffers")
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Reviewed-by: Rob Clark <robdclark@gmail.com>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Reported-by: syzbot+be5b5f86a162a6c281e6@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/20200507085806.5793-1-oneukum@suse.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/msm_rd.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/class/usblp.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/msm_rd.c b/drivers/gpu/drm/msm/msm_rd.c
-index 732f65df5c4f4..fea30e7aa9e83 100644
---- a/drivers/gpu/drm/msm/msm_rd.c
-+++ b/drivers/gpu/drm/msm/msm_rd.c
-@@ -29,8 +29,6 @@
-  * or shader programs (if not emitted inline in cmdstream).
-  */
+diff --git a/drivers/usb/class/usblp.c b/drivers/usb/class/usblp.c
+index 0d8e3f3804a3f..084c48c5848fc 100644
+--- a/drivers/usb/class/usblp.c
++++ b/drivers/usb/class/usblp.c
+@@ -468,7 +468,8 @@ static int usblp_release(struct inode *inode, struct file *file)
+ 	usb_autopm_put_interface(usblp->intf);
  
--#ifdef CONFIG_DEBUG_FS
--
- #include <linux/circ_buf.h>
- #include <linux/debugfs.h>
- #include <linux/kfifo.h>
-@@ -47,6 +45,8 @@ bool rd_full = false;
- MODULE_PARM_DESC(rd_full, "If true, $debugfs/.../rd will snapshot all buffer contents");
- module_param_named(rd_full, rd_full, bool, 0600);
- 
-+#ifdef CONFIG_DEBUG_FS
+ 	if (!usblp->present)		/* finish cleanup from disconnect */
+-		usblp_cleanup(usblp);
++		usblp_cleanup(usblp);	/* any URBs must be dead */
 +
- enum rd_sect_type {
- 	RD_NONE,
- 	RD_TEST,       /* ascii text */
+ 	mutex_unlock(&usblp_mutex);
+ 	return 0;
+ }
+@@ -1375,9 +1376,11 @@ static void usblp_disconnect(struct usb_interface *intf)
+ 
+ 	usblp_unlink_urbs(usblp);
+ 	mutex_unlock(&usblp->mut);
++	usb_poison_anchored_urbs(&usblp->urbs);
+ 
+ 	if (!usblp->used)
+ 		usblp_cleanup(usblp);
++
+ 	mutex_unlock(&usblp_mutex);
+ }
+ 
 -- 
 2.25.1
 
