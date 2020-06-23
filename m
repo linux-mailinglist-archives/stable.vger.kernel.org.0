@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48CF8205D95
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:15:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42906205D97
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:15:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389247AbgFWUOy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:14:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57532 "EHLO mail.kernel.org"
+        id S2389282AbgFWUPA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:15:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389222AbgFWUOx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:14:53 -0400
+        id S2388673AbgFWUO4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:14:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BAE8020EDD;
-        Tue, 23 Jun 2020 20:14:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2797D2137B;
+        Tue, 23 Jun 2020 20:14:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943293;
-        bh=/jeMIeMAvV5mVKmzcCa+7ivUMMjbE+45PxVQ2In6AYM=;
+        s=default; t=1592943295;
+        bh=VfL9CLyZVLIp2zfGthrYY2e/74QZ38cKLsJZHIQkQwc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uw808fRq4T0jyyic/HlOHHgg0im/BMTXgl2P2pKz4zZbuxMXSWnCZT01Zw6CqD7t7
-         8QKu+AJG+YaPyqdBXOMJkjc4terXVxDowuY6mb3CJC5PT9FgUJy91bkZlsEp7HszAQ
-         EhJlmWAZNcekqDrhm5pe/jEajkqmfuLJq88vh+Ss=
+        b=z9ksRvgaHO24OYPq/QRQMwpnSVn2SX5yKtyYFcDV/8tbETs6lI8UEpOWV9Py1Hz4z
+         0pxV7z8yjsi/59CS4x5PPwyBbxj8wj8rlWkFuq70VUYjB17qvSxqQkdtrDUoR1vBOz
+         CtSx0E2gX0kHoiKsOT+dazaZfaWDAEBzYxNTG8/w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
-        Jassi Brar <jaswinder.singh@linaro.org>,
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 304/477] mailbox: zynqmp-ipi: Fix NULL vs IS_ERR() check in zynqmp_ipi_mbox_probe()
-Date:   Tue, 23 Jun 2020 21:55:01 +0200
-Message-Id: <20200623195421.917862928@linuxfoundation.org>
+Subject: [PATCH 5.7 305/477] rxrpc: Adjust /proc/net/rxrpc/calls to display call->debug_id not user_ID
+Date:   Tue, 23 Jun 2020 21:55:02 +0200
+Message-Id: <20200623195421.964479469@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -44,78 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 445aeeb569f8d7904f8cf80b7c6826bb651ef80e ]
+[ Upstream commit 32f71aa497cfb23d37149c2ef16ad71fce2e45e2 ]
 
-In case of error, the function devm_ioremap() returns NULL pointer not
-ERR_PTR(). So we should check whether the return value of devm_ioremap()
-is NULL instead of IS_ERR.
+The user ID value isn't actually much use - and leaks a kernel pointer or a
+userspace value - so replace it with the call debug ID, which appears in trace
+points.
 
-Fixes: 4981b82ba2ff ("mailbox: ZynqMP IPI mailbox controller")
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
+Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mailbox/zynqmp-ipi-mailbox.c | 20 ++++++++------------
- 1 file changed, 8 insertions(+), 12 deletions(-)
+ net/rxrpc/proc.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mailbox/zynqmp-ipi-mailbox.c b/drivers/mailbox/zynqmp-ipi-mailbox.c
-index 86887c9a349a0..f9cc674ba9b76 100644
---- a/drivers/mailbox/zynqmp-ipi-mailbox.c
-+++ b/drivers/mailbox/zynqmp-ipi-mailbox.c
-@@ -504,10 +504,9 @@ static int zynqmp_ipi_mbox_probe(struct zynqmp_ipi_mbox *ipi_mbox,
- 		mchan->req_buf_size = resource_size(&res);
- 		mchan->req_buf = devm_ioremap(mdev, res.start,
- 					      mchan->req_buf_size);
--		if (IS_ERR(mchan->req_buf)) {
-+		if (!mchan->req_buf) {
- 			dev_err(mdev, "Unable to map IPI buffer I/O memory\n");
--			ret = PTR_ERR(mchan->req_buf);
--			return ret;
-+			return -ENOMEM;
- 		}
- 	} else if (ret != -ENODEV) {
- 		dev_err(mdev, "Unmatched resource %s, %d.\n", name, ret);
-@@ -520,10 +519,9 @@ static int zynqmp_ipi_mbox_probe(struct zynqmp_ipi_mbox *ipi_mbox,
- 		mchan->resp_buf_size = resource_size(&res);
- 		mchan->resp_buf = devm_ioremap(mdev, res.start,
- 					       mchan->resp_buf_size);
--		if (IS_ERR(mchan->resp_buf)) {
-+		if (!mchan->resp_buf) {
- 			dev_err(mdev, "Unable to map IPI buffer I/O memory\n");
--			ret = PTR_ERR(mchan->resp_buf);
--			return ret;
-+			return -ENOMEM;
- 		}
- 	} else if (ret != -ENODEV) {
- 		dev_err(mdev, "Unmatched resource %s.\n", name);
-@@ -543,10 +541,9 @@ static int zynqmp_ipi_mbox_probe(struct zynqmp_ipi_mbox *ipi_mbox,
- 		mchan->req_buf_size = resource_size(&res);
- 		mchan->req_buf = devm_ioremap(mdev, res.start,
- 					      mchan->req_buf_size);
--		if (IS_ERR(mchan->req_buf)) {
-+		if (!mchan->req_buf) {
- 			dev_err(mdev, "Unable to map IPI buffer I/O memory\n");
--			ret = PTR_ERR(mchan->req_buf);
--			return ret;
-+			return -ENOMEM;
- 		}
- 	} else if (ret != -ENODEV) {
- 		dev_err(mdev, "Unmatched resource %s.\n", name);
-@@ -559,10 +556,9 @@ static int zynqmp_ipi_mbox_probe(struct zynqmp_ipi_mbox *ipi_mbox,
- 		mchan->resp_buf_size = resource_size(&res);
- 		mchan->resp_buf = devm_ioremap(mdev, res.start,
- 					       mchan->resp_buf_size);
--		if (IS_ERR(mchan->resp_buf)) {
-+		if (!mchan->resp_buf) {
- 			dev_err(mdev, "Unable to map IPI buffer I/O memory\n");
--			ret = PTR_ERR(mchan->resp_buf);
--			return ret;
-+			return -ENOMEM;
- 		}
- 	} else if (ret != -ENODEV) {
- 		dev_err(mdev, "Unmatched resource %s.\n", name);
+diff --git a/net/rxrpc/proc.c b/net/rxrpc/proc.c
+index 8b179e3c802a1..543afd9bd6642 100644
+--- a/net/rxrpc/proc.c
++++ b/net/rxrpc/proc.c
+@@ -68,7 +68,7 @@ static int rxrpc_call_seq_show(struct seq_file *seq, void *v)
+ 			 "Proto Local                                          "
+ 			 " Remote                                         "
+ 			 " SvID ConnID   CallID   End Use State    Abort   "
+-			 " UserID           TxSeq    TW RxSeq    RW RxSerial RxTimo\n");
++			 " DebugId  TxSeq    TW RxSeq    RW RxSerial RxTimo\n");
+ 		return 0;
+ 	}
+ 
+@@ -100,7 +100,7 @@ static int rxrpc_call_seq_show(struct seq_file *seq, void *v)
+ 	rx_hard_ack = READ_ONCE(call->rx_hard_ack);
+ 	seq_printf(seq,
+ 		   "UDP   %-47.47s %-47.47s %4x %08x %08x %s %3u"
+-		   " %-8.8s %08x %lx %08x %02x %08x %02x %08x %06lx\n",
++		   " %-8.8s %08x %08x %08x %02x %08x %02x %08x %06lx\n",
+ 		   lbuff,
+ 		   rbuff,
+ 		   call->service_id,
+@@ -110,7 +110,7 @@ static int rxrpc_call_seq_show(struct seq_file *seq, void *v)
+ 		   atomic_read(&call->usage),
+ 		   rxrpc_call_states[call->state],
+ 		   call->abort_code,
+-		   call->user_call_ID,
++		   call->debug_id,
+ 		   tx_hard_ack, READ_ONCE(call->tx_top) - tx_hard_ack,
+ 		   rx_hard_ack, READ_ONCE(call->rx_top) - rx_hard_ack,
+ 		   call->rx_serial,
 -- 
 2.25.1
 
