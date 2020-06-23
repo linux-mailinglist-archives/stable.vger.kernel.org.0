@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4351B206365
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:29:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A058206375
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:29:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390306AbgFWUXa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:23:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41636 "EHLO mail.kernel.org"
+        id S2390505AbgFWUZT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:25:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390302AbgFWUX3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:23:29 -0400
+        id S2390501AbgFWUZR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:25:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E9AD42070E;
-        Tue, 23 Jun 2020 20:23:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C190F206EB;
+        Tue, 23 Jun 2020 20:25:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943809;
-        bh=9kuNbOGof6XP3kbieERRm18pvp6cKSOGT10k0/ORLUg=;
+        s=default; t=1592943917;
+        bh=Ydou3JAf9zArP0VfSPlqKoiKSwL2uJ7zPPbMfdmwPWc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dn6eRc0fgNneUr6WjpUyXtdn8cGV53EjZfH/UYdnwocjcVX8WD3dfWclSdK5AAO8m
-         PPiekkB4RRMaN78ObwLFP09ZJDuJH7vT92KDRmeLKTs7jkARdRyJYriE7XlWzgNgfn
-         1WxF96pSn9Zjz9j7CUWMacazymG11YpcwTUp/IfU=
+        b=aQUrW+x0oHkt9hzgUTH6vlfwLabaTY8KBkSdviGYJS57nvTf1SVwONGFYCcbgjR3o
+         kTg8IXUGzjoGd1Tl5OUwbPhApSw8+e6x3CeonHlMpch9OQ0WHp9PycD+euyzDoFiGi
+         oINdPHrfBxuGzAqo32Crfx+e5S4QamKUFyO+ry7Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>,
-        Mike Christie <mchristi@redhat.com>,
-        Sudhakar Panneerselvam <sudhakar.panneerselvam@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Sukadev Bhattiprolu <sukadev@linux.vnet.ibm.com>,
+        Kajol Jain <kjain@linux.ibm.com>,
+        Madhavan Srinivasan <maddy@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 058/314] scsi: vhost: Notify TCM about the maximum sg entries supported per command
-Date:   Tue, 23 Jun 2020 21:54:13 +0200
-Message-Id: <20200623195341.586644001@linuxfoundation.org>
+Subject: [PATCH 5.4 061/314] powerpc/perf/hv-24x7: Fix inconsistent output values incase multiple hv-24x7 events run
+Date:   Tue, 23 Jun 2020 21:54:16 +0200
+Message-Id: <20200623195341.736465570@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
 References: <20200623195338.770401005@linuxfoundation.org>
@@ -49,44 +47,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudhakar Panneerselvam <sudhakar.panneerselvam@oracle.com>
+From: Kajol Jain <kjain@linux.ibm.com>
 
-[ Upstream commit 5ae6a6a915033bfee79e76e0c374d4f927909edc ]
+[ Upstream commit b4ac18eead28611ff470d0f47a35c4e0ac080d9c ]
 
-vhost-scsi pre-allocates the maximum sg entries per command and if a
-command requires more than VHOST_SCSI_PREALLOC_SGLS entries, then that
-command is failed by it. This patch lets vhost communicate the max sg limit
-when it registers vhost_scsi_ops with TCM. With this change, TCM would
-report the max sg entries through "Block Limits" VPD page which will be
-typically queried by the SCSI initiator during device discovery. By knowing
-this limit, the initiator could ensure the maximum transfer length is less
-than or equal to what is reported by vhost-scsi.
+Commit 2b206ee6b0df ("powerpc/perf/hv-24x7: Display change in counter
+values")' added to print _change_ in the counter value rather then raw
+value for 24x7 counters. Incase of transactions, the event count
+is set to 0 at the beginning of the transaction. It also sets
+the event's prev_count to the raw value at the time of initialization.
+Because of setting event count to 0, we are seeing some weird behaviour,
+whenever we run multiple 24x7 events at a time.
 
-Link: https://lore.kernel.org/r/1590166317-953-1-git-send-email-sudhakar.panneerselvam@oracle.com
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Stefan Hajnoczi <stefanha@redhat.com>
-Reviewed-by: Mike Christie <mchristi@redhat.com>
-Signed-off-by: Sudhakar Panneerselvam <sudhakar.panneerselvam@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+For example:
+
+command#: ./perf stat -e "{hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=0/,
+			   hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=1/}"
+	  		   -C 0 -I 1000 sleep 100
+
+     1.000121704                120 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=0/
+     1.000121704                  5 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=1/
+     2.000357733                  8 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=0/
+     2.000357733                 10 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=1/
+     3.000495215 18,446,744,073,709,551,616 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=0/
+     3.000495215 18,446,744,073,709,551,616 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=1/
+     4.000641884                 56 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=0/
+     4.000641884 18,446,744,073,709,551,616 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=1/
+     5.000791887 18,446,744,073,709,551,616 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=0/
+
+Getting these large values in case we do -I.
+
+As we are setting event_count to 0, for interval case, overall event_count is not
+coming in incremental order. As we may can get new delta lesser then previous count.
+Because of which when we print intervals, we are getting negative value which create
+these large values.
+
+This patch removes part where we set event_count to 0 in function
+'h_24x7_event_read'. There won't be much impact as we do set event->hw.prev_count
+to the raw value at the time of initialization to print change value.
+
+With this patch
+In power9 platform
+
+command#: ./perf stat -e "{hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=0/,
+		           hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=1/}"
+			   -C 0 -I 1000 sleep 100
+
+     1.000117685                 93 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=0/
+     1.000117685                  1 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=1/
+     2.000349331                 98 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=0/
+     2.000349331                  2 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=1/
+     3.000495900                131 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=0/
+     3.000495900                  4 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=1/
+     4.000645920                204 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=0/
+     4.000645920                 61 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=1/
+     4.284169997                 22 hv_24x7/PM_MCS01_128B_RD_DISP_PORT01,chip=0/
+
+Suggested-by: Sukadev Bhattiprolu <sukadev@linux.vnet.ibm.com>
+Signed-off-by: Kajol Jain <kjain@linux.ibm.com>
+Tested-by: Madhavan Srinivasan <maddy@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200525104308.9814-2-kjain@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vhost/scsi.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/perf/hv-24x7.c | 10 ----------
+ 1 file changed, 10 deletions(-)
 
-diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-index a9caf1bc3c3ef..88ce114790d75 100644
---- a/drivers/vhost/scsi.c
-+++ b/drivers/vhost/scsi.c
-@@ -2290,6 +2290,7 @@ static struct configfs_attribute *vhost_scsi_wwn_attrs[] = {
- static const struct target_core_fabric_ops vhost_scsi_ops = {
- 	.module				= THIS_MODULE,
- 	.fabric_name			= "vhost",
-+	.max_data_sg_nents		= VHOST_SCSI_PREALLOC_SGLS,
- 	.tpg_get_wwn			= vhost_scsi_get_fabric_wwn,
- 	.tpg_get_tag			= vhost_scsi_get_tpgt,
- 	.tpg_check_demo_mode		= vhost_scsi_check_true,
+diff --git a/arch/powerpc/perf/hv-24x7.c b/arch/powerpc/perf/hv-24x7.c
+index 573e0b309c0ca..48e8f4b17b91b 100644
+--- a/arch/powerpc/perf/hv-24x7.c
++++ b/arch/powerpc/perf/hv-24x7.c
+@@ -1400,16 +1400,6 @@ static void h_24x7_event_read(struct perf_event *event)
+ 			h24x7hw = &get_cpu_var(hv_24x7_hw);
+ 			h24x7hw->events[i] = event;
+ 			put_cpu_var(h24x7hw);
+-			/*
+-			 * Clear the event count so we can compute the _change_
+-			 * in the 24x7 raw counter value at the end of the txn.
+-			 *
+-			 * Note that we could alternatively read the 24x7 value
+-			 * now and save its value in event->hw.prev_count. But
+-			 * that would require issuing a hcall, which would then
+-			 * defeat the purpose of using the txn interface.
+-			 */
+-			local64_set(&event->count, 0);
+ 		}
+ 
+ 		put_cpu_var(hv_24x7_reqb);
 -- 
 2.25.1
 
