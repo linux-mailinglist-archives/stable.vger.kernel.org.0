@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 021C32061DD
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:08:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29AED20617F
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:07:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393036AbgFWUvl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:51:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46332 "EHLO mail.kernel.org"
+        id S2390295AbgFWUnh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:43:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404071AbgFWUro (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:47:44 -0400
+        id S2392537AbgFWUng (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:43:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E79C21582;
-        Tue, 23 Jun 2020 20:47:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4BE9621883;
+        Tue, 23 Jun 2020 20:43:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592945265;
-        bh=yrvwbRjTMFsARZOs8NEqcI4fmeFNsMp7D37A1Kxzhng=;
+        s=default; t=1592945016;
+        bh=aVQvAqoDRPXw5wPyTnBE2z3xocTyKQd+x9V86cnGcwc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DtI+25/ZoO+2R1uucGSzkOjc0R3OKWMm6TbV21VWQz+2xTpy4dDWTXgloFYTGSjNa
-         aO/RL3+D2IbLMMtHsNyWzu/b1ZdIa8sBi1wnqrs+Wdjh0xLgrY8HMleXpGU7+GfzfM
-         V7qLG2aWVUNjNnuXmRGlcIYVYPQqHgkyEInkS2hI=
+        b=oea1dc6GL7BfdxBe7DoMww25/9mDb6yY2tHIXcO5YyLjNJjeqeLjS4dzJq4Cos1Bg
+         v9JXkz9YqA/Fm7j2b/whHbrocErOmwIL5M/APMB5Molg9in7C3xo6rk932qGRhfjov
+         GtYnhnIPj7YHBICD/fhNcbVa4lUtT7p6CdxEaxBE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 073/136] usb: gadget: lpc32xx_udc: dont dereference ep pointer before null check
+        stable@vger.kernel.org,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Stable@vger.kernel.org, Chen Yu <yu.c.chen@intel.com>,
+        Aaron Brown <aaron.f.brown@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Subject: [PATCH 4.19 201/206] e1000e: Do not wake up the system via WOL if device wakeup is disabled
 Date:   Tue, 23 Jun 2020 21:58:49 +0200
-Message-Id: <20200623195307.352041507@linuxfoundation.org>
+Message-Id: <20200623195326.928100772@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195303.601828702@linuxfoundation.org>
-References: <20200623195303.601828702@linuxfoundation.org>
+In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
+References: <20200623195316.864547658@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,70 +47,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Chen Yu <yu.c.chen@intel.com>
 
-[ Upstream commit eafa80041645cd7604c4357b1a0cd4a3c81f2227 ]
+commit 6bf6be1127f7e6d4bf39f84d56854e944d045d74 upstream.
 
-Currently pointer ep is being dereferenced before it is null checked
-leading to a null pointer dereference issue.  Fix this by only assigning
-pointer udc once ep is known to be not null.  Also remove a debug
-message that requires a valid udc which may not be possible at that
-point.
+Currently the system will be woken up via WOL(Wake On LAN) even if the
+device wakeup ability has been disabled via sysfs:
+ cat /sys/devices/pci0000:00/0000:00:1f.6/power/wakeup
+ disabled
 
-Addresses-Coverity: ("Dereference before null check")
-Fixes: 24a28e428351 ("USB: gadget driver for LPC32xx")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The system should not be woken up if the user has explicitly
+disabled the wake up ability for this device.
+
+This patch clears the WOL ability of this network device if the
+user has disabled the wake up ability in sysfs.
+
+Fixes: bc7f75fa9788 ("[E1000E]: New pci-express e1000 driver")
+Reported-by: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Chen Yu <yu.c.chen@intel.com>
+Tested-by: Aaron Brown <aaron.f.brown@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/usb/gadget/udc/lpc32xx_udc.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/intel/e1000e/netdev.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/usb/gadget/udc/lpc32xx_udc.c b/drivers/usb/gadget/udc/lpc32xx_udc.c
-index ac2aa04ca6573..7107931617953 100644
---- a/drivers/usb/gadget/udc/lpc32xx_udc.c
-+++ b/drivers/usb/gadget/udc/lpc32xx_udc.c
-@@ -1615,17 +1615,17 @@ static int lpc32xx_ep_enable(struct usb_ep *_ep,
- 			     const struct usb_endpoint_descriptor *desc)
- {
- 	struct lpc32xx_ep *ep = container_of(_ep, struct lpc32xx_ep, ep);
--	struct lpc32xx_udc *udc = ep->udc;
-+	struct lpc32xx_udc *udc;
- 	u16 maxpacket;
- 	u32 tmp;
- 	unsigned long flags;
+--- a/drivers/net/ethernet/intel/e1000e/netdev.c
++++ b/drivers/net/ethernet/intel/e1000e/netdev.c
+@@ -6308,11 +6308,17 @@ static int __e1000_shutdown(struct pci_d
+ 	struct net_device *netdev = pci_get_drvdata(pdev);
+ 	struct e1000_adapter *adapter = netdev_priv(netdev);
+ 	struct e1000_hw *hw = &adapter->hw;
+-	u32 ctrl, ctrl_ext, rctl, status;
+-	/* Runtime suspend should only enable wakeup for link changes */
+-	u32 wufc = runtime ? E1000_WUFC_LNKC : adapter->wol;
++	u32 ctrl, ctrl_ext, rctl, status, wufc;
+ 	int retval = 0;
  
- 	/* Verify EP data */
- 	if ((!_ep) || (!ep) || (!desc) ||
--	    (desc->bDescriptorType != USB_DT_ENDPOINT)) {
--		dev_dbg(udc->dev, "bad ep or descriptor\n");
-+	    (desc->bDescriptorType != USB_DT_ENDPOINT))
- 		return -EINVAL;
--	}
++	/* Runtime suspend should only enable wakeup for link changes */
++	if (runtime)
++		wufc = E1000_WUFC_LNKC;
++	else if (device_may_wakeup(&pdev->dev))
++		wufc = adapter->wol;
++	else
++		wufc = 0;
 +
-+	udc = ep->udc;
- 	maxpacket = usb_endpoint_maxp(desc);
- 	if ((maxpacket == 0) || (maxpacket > ep->maxpacket)) {
- 		dev_dbg(udc->dev, "bad ep descriptor's packet size\n");
-@@ -1873,7 +1873,7 @@ static int lpc32xx_ep_dequeue(struct usb_ep *_ep, struct usb_request *_req)
- static int lpc32xx_ep_set_halt(struct usb_ep *_ep, int value)
- {
- 	struct lpc32xx_ep *ep = container_of(_ep, struct lpc32xx_ep, ep);
--	struct lpc32xx_udc *udc = ep->udc;
-+	struct lpc32xx_udc *udc;
- 	unsigned long flags;
- 
- 	if ((!ep) || (ep->hwep_num <= 1))
-@@ -1883,6 +1883,7 @@ static int lpc32xx_ep_set_halt(struct usb_ep *_ep, int value)
- 	if (ep->is_in)
- 		return -EAGAIN;
- 
-+	udc = ep->udc;
- 	spin_lock_irqsave(&udc->lock, flags);
- 
- 	if (value == 1) {
--- 
-2.25.1
-
+ 	status = er32(STATUS);
+ 	if (status & E1000_STATUS_LU)
+ 		wufc &= ~E1000_WUFC_LNKC;
+@@ -6369,7 +6375,7 @@ static int __e1000_shutdown(struct pci_d
+ 	if (adapter->hw.phy.type == e1000_phy_igp_3) {
+ 		e1000e_igp3_phy_powerdown_workaround_ich8lan(&adapter->hw);
+ 	} else if (hw->mac.type >= e1000_pch_lpt) {
+-		if (!(wufc & (E1000_WUFC_EX | E1000_WUFC_MC | E1000_WUFC_BC)))
++		if (wufc && !(wufc & (E1000_WUFC_EX | E1000_WUFC_MC | E1000_WUFC_BC)))
+ 			/* ULP does not support wake from unicast, multicast
+ 			 * or broadcast.
+ 			 */
 
 
