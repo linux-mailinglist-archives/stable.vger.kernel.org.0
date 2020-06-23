@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4FD2206134
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:07:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD1DA206389
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:29:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391722AbgFWUfu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:35:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58430 "EHLO mail.kernel.org"
+        id S2390718AbgFWU04 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:26:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391727AbgFWUfq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:35:46 -0400
+        id S2390720AbgFWU0z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:26:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F4B02080C;
-        Tue, 23 Jun 2020 20:35:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 43570206EB;
+        Tue, 23 Jun 2020 20:26:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944545;
-        bh=sl5BXybxDS5lTWvZ3D+/uLhE3C2iZ/h6L+tlzhb7JM4=;
+        s=default; t=1592944014;
+        bh=hojepft5tBOLl+Q/bWXTc0+4zKjTMyiuD0LlVZCL+Kg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TopRIiYwKulYH7oUYkCmgABo2JmzLTGp6zx+CrRGB+5xj7Nn3ANI1Zi4H9kF0jjOW
-         EVCti4Ug+0ZjfEuEoeaZyOsf4+YKhbGRsg6gZ3tiGC8WtyfqsnlDsChaJ7362IqggL
-         GeRMXYgoUKys32MZ4AZJ9x2rGSJd3Mh4FDGmlA6Q=
+        b=UFMPgBs1sQfS4VBG7digDic2+QkbmcW3X1fvPXG32o4iX1yr9OLuA9rG+1TWCsRB2
+         duG3DEBPba79nrm05+RNfWa1UBgM/ojLqWB1SfAZgqnfoauJAeAM5W1/FjJqkLkx2Z
+         7HDrck6Ike+GRO97oBaYW33cTaQu62McgJchjR5I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Georgi Djakov <georgi.djakov@linaro.org>,
-        Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
+        stable@vger.kernel.org,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 007/206] clk: qcom: msm8916: Fix the address location of pll->config_reg
+Subject: [PATCH 5.4 140/314] powerpc/64: Dont initialise init_task->thread.regs
 Date:   Tue, 23 Jun 2020 21:55:35 +0200
-Message-Id: <20200623195317.295118941@linuxfoundation.org>
+Message-Id: <20200623195345.539602841@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
-References: <20200623195316.864547658@linuxfoundation.org>
+In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
+References: <20200623195338.770401005@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,92 +45,180 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit f47ab3c2f5338828a67e89d5f688d2cef9605245 ]
+[ Upstream commit 7ffa8b7dc11752827329e4e84a574ea6aaf24716 ]
 
-During the process of debugging a processor derived from the msm8916 which
-we found the new processor was not starting one of its PLLs.
+Aneesh increased the size of struct pt_regs by 16 bytes and started
+seeing this WARN_ON:
 
-After tracing the addresses and writes that downstream was doing and
-comparing to upstream it became obvious that we were writing to a different
-register location than downstream when trying to configure the PLL.
+  smp: Bringing up secondary CPUs ...
+  ------------[ cut here ]------------
+  WARNING: CPU: 0 PID: 0 at arch/powerpc/kernel/process.c:455 giveup_all+0xb4/0x110
+  Modules linked in:
+  CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.7.0-rc2-gcc-8.2.0-1.g8f6a41f-default+ #318
+  NIP:  c00000000001a2b4 LR: c00000000001a29c CTR: c0000000031d0000
+  REGS: c0000000026d3980 TRAP: 0700   Not tainted  (5.7.0-rc2-gcc-8.2.0-1.g8f6a41f-default+)
+  MSR:  800000000282b033 <SF,VEC,VSX,EE,FP,ME,IR,DR,RI,LE>  CR: 48048224  XER: 00000000
+  CFAR: c000000000019cc8 IRQMASK: 1
+  GPR00: c00000000001a264 c0000000026d3c20 c0000000026d7200 800000000280b033
+  GPR04: 0000000000000001 0000000000000000 0000000000000077 30206d7372203164
+  GPR08: 0000000000002000 0000000002002000 800000000280b033 3230303030303030
+  GPR12: 0000000000008800 c0000000031d0000 0000000000800050 0000000002000066
+  GPR16: 000000000309a1a0 000000000309a4b0 000000000309a2d8 000000000309a890
+  GPR20: 00000000030d0098 c00000000264da40 00000000fd620000 c0000000ff798080
+  GPR24: c00000000264edf0 c0000001007469f0 00000000fd620000 c0000000020e5e90
+  GPR28: c00000000264edf0 c00000000264d200 000000001db60000 c00000000264d200
+  NIP [c00000000001a2b4] giveup_all+0xb4/0x110
+  LR [c00000000001a29c] giveup_all+0x9c/0x110
+  Call Trace:
+  [c0000000026d3c20] [c00000000001a264] giveup_all+0x64/0x110 (unreliable)
+  [c0000000026d3c90] [c00000000001ae34] __switch_to+0x104/0x480
+  [c0000000026d3cf0] [c000000000e0b8a0] __schedule+0x320/0x970
+  [c0000000026d3dd0] [c000000000e0c518] schedule_idle+0x38/0x70
+  [c0000000026d3df0] [c00000000019c7c8] do_idle+0x248/0x3f0
+  [c0000000026d3e70] [c00000000019cbb8] cpu_startup_entry+0x38/0x40
+  [c0000000026d3ea0] [c000000000011bb0] rest_init+0xe0/0xf8
+  [c0000000026d3ed0] [c000000002004820] start_kernel+0x990/0x9e0
+  [c0000000026d3f90] [c00000000000c49c] start_here_common+0x1c/0x400
 
-This error is also present in upstream msm8916.
+Which was unexpected. The warning is checking the thread.regs->msr
+value of the task we are switching from:
 
-As an example clk-pll.c::clk_pll_recalc_rate wants to write to
-pll->config_reg updating the bit-field POST_DIV_RATIO. That bit-field is
-defined in PLL_USER_CTL not in PLL_CONFIG_CTL. Taking the BIMC PLL as an
-example
+  usermsr = tsk->thread.regs->msr;
+  ...
+  WARN_ON((usermsr & MSR_VSX) && !((usermsr & MSR_FP) && (usermsr & MSR_VEC)));
 
-lm80-p0436-13_c_qc_snapdragon_410_processor_hrd.pdf
+ie. if MSR_VSX is set then both of MSR_FP and MSR_VEC are also set.
 
-0x01823010 GCC_BIMC_PLL_USER_CTL
-0x01823014 GCC_BIMC_PLL_CONFIG_CTL
+Dumping tsk->thread.regs->msr we see that it's: 0x1db60000
 
-This pattern is repeated for gpll0, gpll1, gpll2 and bimc_pll.
+Which is not a normal looking MSR, in fact the only valid bit is
+MSR_VSX, all the other bits are reserved in the current definition of
+the MSR.
 
-This error is likely not apparent since the bootloader will already have
-initialized these PLLs.
+We can see from the oops that it was swapper/0 that we were switching
+from when we hit the warning, ie. init_task. So its thread.regs points
+to the base (high addresses) in init_stack.
 
-This patch corrects the location of config_reg from PLL_CONFIG_CTL to
-PLL_USER_CTL for all relevant PLLs on msm8916.
+Dumping the content of init_task->thread.regs, with the members of
+pt_regs annotated (the 16 bytes larger version), we see:
 
-Fixes commit 3966fab8b6ab ("clk: qcom: Add MSM8916 Global Clock Controller support")
+  0000000000000000 c000000002780080    gpr[0]     gpr[1]
+  0000000000000000 c000000002666008    gpr[2]     gpr[3]
+  c0000000026d3ed0 0000000000000078    gpr[4]     gpr[5]
+  c000000000011b68 c000000002780080    gpr[6]     gpr[7]
+  0000000000000000 0000000000000000    gpr[8]     gpr[9]
+  c0000000026d3f90 0000800000002200    gpr[10]    gpr[11]
+  c000000002004820 c0000000026d7200    gpr[12]    gpr[13]
+  000000001db60000 c0000000010aabe8    gpr[14]    gpr[15]
+  c0000000010aabe8 c0000000010aabe8    gpr[16]    gpr[17]
+  c00000000294d598 0000000000000000    gpr[18]    gpr[19]
+  0000000000000000 0000000000001ff8    gpr[20]    gpr[21]
+  0000000000000000 c00000000206d608    gpr[22]    gpr[23]
+  c00000000278e0cc 0000000000000000    gpr[24]    gpr[25]
+  000000002fff0000 c000000000000000    gpr[26]    gpr[27]
+  0000000002000000 0000000000000028    gpr[28]    gpr[29]
+  000000001db60000 0000000004750000    gpr[30]    gpr[31]
+  0000000002000000 000000001db60000    nip        msr
+  0000000000000000 0000000000000000    orig_r3    ctr
+  c00000000000c49c 0000000000000000    link       xer
+  0000000000000000 0000000000000000    ccr        softe
+  0000000000000000 0000000000000000    trap       dar
+  0000000000000000 0000000000000000    dsisr      result
+  0000000000000000 0000000000000000    ppr        kuap
+  0000000000000000 0000000000000000    pad[2]     pad[3]
 
-Cc: Georgi Djakov <georgi.djakov@linaro.org>
-Cc: Andy Gross <agross@kernel.org>
-Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: Michael Turquette <mturquette@baylibre.com>
-Cc: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Link: https://lkml.kernel.org/r/20200329124116.4185447-1-bryan.odonoghue@linaro.org
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+This looks suspiciously like stack frames, not a pt_regs. If we look
+closely we can see return addresses from the stack trace above,
+c000000002004820 (start_kernel) and c00000000000c49c (start_here_common).
+
+init_task->thread.regs is setup at build time in processor.h:
+
+  #define INIT_THREAD  { \
+  	.ksp = INIT_SP, \
+  	.regs = (struct pt_regs *)INIT_SP - 1, /* XXX bogus, I think */ \
+
+The early boot code where we setup the initial stack is:
+
+  LOAD_REG_ADDR(r3,init_thread_union)
+
+  /* set up a stack pointer */
+  LOAD_REG_IMMEDIATE(r1,THREAD_SIZE)
+  add	r1,r3,r1
+  li	r0,0
+  stdu	r0,-STACK_FRAME_OVERHEAD(r1)
+
+Which creates a stack frame of size 112 bytes (STACK_FRAME_OVERHEAD).
+Which is far too small to contain a pt_regs.
+
+So the result is init_task->thread.regs is pointing at some stack
+frames on the init stack, not at a pt_regs.
+
+We have gotten away with this for so long because with pt_regs at its
+current size the MSR happens to point into the first frame, at a
+location that is not written to by the early asm. With the 16 byte
+expansion the MSR falls into the second frame, which is used by the
+compiler, and collides with a saved register that tends to be
+non-zero.
+
+As far as I can see this has been wrong since the original merge of
+64-bit ppc support, back in 2002.
+
+Conceptually swapper should have no regs, it never entered from
+userspace, and in fact that's what we do on 32-bit. It's also
+presumably what the "bogus" comment is referring to.
+
+So I think the right fix is to just not-initialise regs at all. I'm
+slightly worried this will break some code that isn't prepared for a
+NULL regs, but we'll have to see.
+
+Remove the comment in head_64.S which refers to us setting up the
+regs (even though we never did), and is otherwise not really accurate
+any more.
+
+Reported-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200428123130.73078-1-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/gcc-msm8916.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/powerpc/include/asm/processor.h | 1 -
+ arch/powerpc/kernel/head_64.S        | 9 +--------
+ 2 files changed, 1 insertion(+), 9 deletions(-)
 
-diff --git a/drivers/clk/qcom/gcc-msm8916.c b/drivers/clk/qcom/gcc-msm8916.c
-index ac2b0aa1e8b5d..03e0ade7a6f32 100644
---- a/drivers/clk/qcom/gcc-msm8916.c
-+++ b/drivers/clk/qcom/gcc-msm8916.c
-@@ -268,7 +268,7 @@ static struct clk_pll gpll0 = {
- 	.l_reg = 0x21004,
- 	.m_reg = 0x21008,
- 	.n_reg = 0x2100c,
--	.config_reg = 0x21014,
-+	.config_reg = 0x21010,
- 	.mode_reg = 0x21000,
- 	.status_reg = 0x2101c,
- 	.status_bit = 17,
-@@ -295,7 +295,7 @@ static struct clk_pll gpll1 = {
- 	.l_reg = 0x20004,
- 	.m_reg = 0x20008,
- 	.n_reg = 0x2000c,
--	.config_reg = 0x20014,
-+	.config_reg = 0x20010,
- 	.mode_reg = 0x20000,
- 	.status_reg = 0x2001c,
- 	.status_bit = 17,
-@@ -322,7 +322,7 @@ static struct clk_pll gpll2 = {
- 	.l_reg = 0x4a004,
- 	.m_reg = 0x4a008,
- 	.n_reg = 0x4a00c,
--	.config_reg = 0x4a014,
-+	.config_reg = 0x4a010,
- 	.mode_reg = 0x4a000,
- 	.status_reg = 0x4a01c,
- 	.status_bit = 17,
-@@ -349,7 +349,7 @@ static struct clk_pll bimc_pll = {
- 	.l_reg = 0x23004,
- 	.m_reg = 0x23008,
- 	.n_reg = 0x2300c,
--	.config_reg = 0x23014,
-+	.config_reg = 0x23010,
- 	.mode_reg = 0x23000,
- 	.status_reg = 0x2301c,
- 	.status_bit = 17,
+diff --git a/arch/powerpc/include/asm/processor.h b/arch/powerpc/include/asm/processor.h
+index a9993e7a443bc..64b998db9d3e9 100644
+--- a/arch/powerpc/include/asm/processor.h
++++ b/arch/powerpc/include/asm/processor.h
+@@ -291,7 +291,6 @@ struct thread_struct {
+ #else
+ #define INIT_THREAD  { \
+ 	.ksp = INIT_SP, \
+-	.regs = (struct pt_regs *)INIT_SP - 1, /* XXX bogus, I think */ \
+ 	.addr_limit = KERNEL_DS, \
+ 	.fpexc_mode = 0, \
+ 	.fscr = FSCR_TAR | FSCR_EBB \
+diff --git a/arch/powerpc/kernel/head_64.S b/arch/powerpc/kernel/head_64.S
+index ad79fddb974de..780f527eabd2c 100644
+--- a/arch/powerpc/kernel/head_64.S
++++ b/arch/powerpc/kernel/head_64.S
+@@ -945,15 +945,8 @@ start_here_multiplatform:
+ 	std	r0,0(r4)
+ #endif
+ 
+-	/* The following gets the stack set up with the regs */
+-	/* pointing to the real addr of the kernel stack.  This is   */
+-	/* all done to support the C function call below which sets  */
+-	/* up the htab.  This is done because we have relocated the  */
+-	/* kernel but are still running in real mode. */
+-
+-	LOAD_REG_ADDR(r3,init_thread_union)
+-
+ 	/* set up a stack pointer */
++	LOAD_REG_ADDR(r3,init_thread_union)
+ 	LOAD_REG_IMMEDIATE(r1,THREAD_SIZE)
+ 	add	r1,r3,r1
+ 	li	r0,0
 -- 
 2.25.1
 
