@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9EB320634E
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:29:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 231D020634F
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:29:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390091AbgFWUVv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:21:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39498 "EHLO mail.kernel.org"
+        id S2389821AbgFWUWE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:22:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39868 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390075AbgFWUVr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:21:47 -0400
+        id S2390117AbgFWUWC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:22:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2545D2064B;
-        Tue, 23 Jun 2020 20:21:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 64C992070E;
+        Tue, 23 Jun 2020 20:22:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943706;
-        bh=AI/q5m10ZNR6F+ELrFPRFlW2+Pra5zR6fMJh0xqgZmY=;
+        s=default; t=1592943721;
+        bh=YsAd++K2D9kAS2XJZYVl1Ca7YxKlSgM03ysJztGuk6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o6QLIKZIDxiRtnmOH6OpZwjnJUDnCoIkT3IhTookE4+X30ypRXOQTThMmIttM0NG+
-         fqg4Ty6M5pQLMEYtkGIYt61BjwE9Ml/WqUwRhb37mfGlwYrAt1PAexyE9pFyYGcWmy
-         nF4KTf1o0GE24HuFPuhyZHbIhNTH97Rjg5Urtb4w=
+        b=vyxEeB7YWVBrcWSF294Gtp8GGgJMWIaoOISRQPUQfrQmVuT0PwngcSNpnUL9Jim6C
+         4UuEZ6D+KelyHLnaKoMTODkEl71ZDbOs69lNlNW01SFBT0+EiIEV0o4rhxVqv8DqXE
+         DgTAB1hj4+NHXdhKFEvVtrQYAjOHDVU02rh6Kdb0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 019/314] ALSA: isa/wavefront: prevent out of bounds write in ioctl
-Date:   Tue, 23 Jun 2020 21:53:34 +0200
-Message-Id: <20200623195339.699963262@linuxfoundation.org>
+        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 024/314] rtc: mc13xxx: fix a double-unlock issue
+Date:   Tue, 23 Jun 2020 21:53:39 +0200
+Message-Id: <20200623195339.952495096@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
 References: <20200623195338.770401005@linuxfoundation.org>
@@ -43,47 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Qiushi Wu <wu000273@umn.edu>
 
-[ Upstream commit 7f0d5053c5a9d23fe5c2d337495a9d79038d267b ]
+[ Upstream commit 8816cd726a4fee197af2d851cbe25991ae19ea14 ]
 
-The "header->number" comes from the ioctl and it needs to be clamped to
-prevent out of bounds writes.
+In function mc13xxx_rtc_probe, the mc13xxx_unlock() is called
+before rtc_register_device(). But in the error path of
+rtc_register_device(), the mc13xxx_unlock() is called again,
+which causes a double-unlock problem. Thus add a call of the
+function “mc13xxx_lock” in an if branch for the completion
+of the exception handling.
 
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20200501094011.GA960082@mwanda
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: e4ae7023e182a ("rtc: mc13xxx: set range")
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+Link: https://lore.kernel.org/r/20200503182235.1652-1-wu000273@umn.edu
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/isa/wavefront/wavefront_synth.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/rtc/rtc-mc13xxx.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/sound/isa/wavefront/wavefront_synth.c b/sound/isa/wavefront/wavefront_synth.c
-index c5b1d5900eed2..d6420d224d097 100644
---- a/sound/isa/wavefront/wavefront_synth.c
-+++ b/sound/isa/wavefront/wavefront_synth.c
-@@ -1171,7 +1171,10 @@ wavefront_send_alias (snd_wavefront_t *dev, wavefront_patch_info *header)
- 				      "alias for %d\n",
- 				      header->number,
- 				      header->hdr.a.OriginalSample);
--    
-+
-+	if (header->number >= WF_MAX_SAMPLE)
-+		return -EINVAL;
-+
- 	munge_int32 (header->number, &alias_hdr[0], 2);
- 	munge_int32 (header->hdr.a.OriginalSample, &alias_hdr[2], 2);
- 	munge_int32 (*((unsigned int *)&header->hdr.a.sampleStartOffset),
-@@ -1202,6 +1205,9 @@ wavefront_send_multisample (snd_wavefront_t *dev, wavefront_patch_info *header)
- 	int num_samples;
- 	unsigned char *msample_hdr;
+diff --git a/drivers/rtc/rtc-mc13xxx.c b/drivers/rtc/rtc-mc13xxx.c
+index afce2c0b4bd67..d6802e6191cbe 100644
+--- a/drivers/rtc/rtc-mc13xxx.c
++++ b/drivers/rtc/rtc-mc13xxx.c
+@@ -308,8 +308,10 @@ static int __init mc13xxx_rtc_probe(struct platform_device *pdev)
+ 	mc13xxx_unlock(mc13xxx);
  
-+	if (header->number >= WF_MAX_SAMPLE)
-+		return -EINVAL;
-+
- 	msample_hdr = kmalloc(WF_MSAMPLE_BYTES, GFP_KERNEL);
- 	if (! msample_hdr)
- 		return -ENOMEM;
+ 	ret = rtc_register_device(priv->rtc);
+-	if (ret)
++	if (ret) {
++		mc13xxx_lock(mc13xxx);
+ 		goto err_irq_request;
++	}
+ 
+ 	return 0;
+ 
 -- 
 2.25.1
 
