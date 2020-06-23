@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA1EA205EA7
+	by mail.lfdr.de (Postfix) with ESMTP id 7468A205EA6
 	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:31:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390179AbgFWUYk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2389613AbgFWUYk (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 23 Jun 2020 16:24:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43310 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:43376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390180AbgFWUYg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:24:36 -0400
+        id S2388915AbgFWUYj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:24:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B175D206C3;
-        Tue, 23 Jun 2020 20:24:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 789B0206C3;
+        Tue, 23 Jun 2020 20:24:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943876;
-        bh=P4si8H1SED+EKjaI6lFpz3kNayMuEC68QWo0fi1aWMA=;
+        s=default; t=1592943879;
+        bh=UgbZ9Qw2gQpzHL3rf3ShAbFztRYC6a/dlE0iWmMaPzk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qLi4/2QMsRP4SoN4rpmSLHDWA+F1oyB1kEBNs0EHL5U5XcB7Nk9WZI0KuBTdRGQku
-         tX0AYdG9LR9KthOpgngR85kkHITQr5VVsOHed0xur1EXyfwcpTlKRXqxJxu324z8jW
-         /RfBN+ZIAVEsjv0lb66YSIsTo0IrPwGrTn9Y4K+E=
+        b=mVHmHOESK4IU82bsfrsqjzO9wzK0s3dUo/Su0dvQFpEluIeWwvSnH2xf+2qxU0wb0
+         xKqMfH/nBx8/i67Pem1MDOO+C8j/hDD18Zpp5gaRnOn37KItO64Frtx5zfc11KGVwx
+         XsLPjzmUGmMLU7DIy+pUSN9m2KswOSEWA8juYvqs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aiman Najjar <aiman.najjar@hurranet.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Hsin-Yi Wang <hsinyi@chromium.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 085/314] staging: rtl8712: fix multiline derefernce warnings
-Date:   Tue, 23 Jun 2020 21:54:40 +0200
-Message-Id: <20200623195342.928743926@linuxfoundation.org>
+Subject: [PATCH 5.4 086/314] arm64: dts: mt8173: fix unit name warnings
+Date:   Tue, 23 Jun 2020 21:54:41 +0200
+Message-Id: <20200623195342.975920438@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
 References: <20200623195338.770401005@linuxfoundation.org>
@@ -44,78 +44,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aiman Najjar <aiman.najjar@hurranet.com>
+From: Hsin-Yi Wang <hsinyi@chromium.org>
 
-[ Upstream commit 269da10b1477c31c660288633c8d613e421b131f ]
+[ Upstream commit 72b29215aced394d01ca25e432963b619daa0098 ]
 
-This patch fixes remaining checkpatch warnings
-in rtl871x_xmit.c:
+Fixing several unit name warnings:
 
-WARNING: Avoid multiple line dereference - prefer 'psecuritypriv->PrivacyKeyIndex'
-636: FILE: drivers/staging//rtl8712/rtl871x_xmit.c:636:
-+					      (u8)psecuritypriv->
-+					      PrivacyKeyIndex);
+Warning (unit_address_vs_reg): /oscillator@0: node has a unit name, but no reg property
+Warning (unit_address_vs_reg): /oscillator@1: node has a unit name, but no reg property
+Warning (unit_address_vs_reg): /oscillator@2: node has a unit name, but no reg property
+Warning (unit_address_vs_reg): /thermal-zones/cpu_thermal/trips/trip-point@0: node has a unit name, but no reg property
+Warning (unit_address_vs_reg): /thermal-zones/cpu_thermal/trips/trip-point@1: node has a unit name, but no reg property
+Warning (unit_address_vs_reg): /thermal-zones/cpu_thermal/trips/cpu_crit@0: node has a unit name, but no reg property
+Warning (unit_address_vs_reg): /thermal-zones/cpu_thermal/cooling-maps/map@0: node has a unit name, but no reg property
+Warning (unit_address_vs_reg): /thermal-zones/cpu_thermal/cooling-maps/map@1: node has a unit name, but no reg property
+Warning (unit_address_vs_reg): /reserved-memory/vpu_dma_mem_region: node has a reg or ranges property, but no unit name
+Warning (simple_bus_reg): /soc/pinctrl@10005000: simple-bus unit address format error, expected "1000b000"
+Warning (simple_bus_reg): /soc/interrupt-controller@10220000: simple-bus unit address format error, expected "10221000"
 
-WARNING: Avoid multiple line dereference - prefer 'psecuritypriv->XGrpKeyid'
-643: FILE: drivers/staging//rtl8712/rtl871x_xmit.c:643:
-+						   (u8)psecuritypriv->
-+						   XGrpKeyid);
-
-WARNING: Avoid multiple line dereference - prefer 'psecuritypriv->XGrpKeyid'
-652: FILE: drivers/staging//rtl8712/rtl871x_xmit.c:652:
-+						   (u8)psecuritypriv->
-+						   XGrpKeyid);
-
-Signed-off-by: Aiman Najjar <aiman.najjar@hurranet.com>
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/98805a72b92e9bbf933e05b827d27944663b7bc1.1585508171.git.aiman.najjar@hurranet.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
+Link: https://lore.kernel.org/r/20200210063523.133333-4-hsinyi@chromium.org
+[mb: drop fixes for '_' in property name]
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8712/rtl871x_xmit.c | 11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+ arch/arm64/boot/dts/mediatek/mt8173.dtsi | 22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/staging/rtl8712/rtl871x_xmit.c b/drivers/staging/rtl8712/rtl871x_xmit.c
-index cc5809e49e356..7a821921c0da1 100644
---- a/drivers/staging/rtl8712/rtl871x_xmit.c
-+++ b/drivers/staging/rtl8712/rtl871x_xmit.c
-@@ -590,7 +590,7 @@ sint r8712_xmitframe_coalesce(struct _adapter *padapter, _pkt *pkt,
- 	addr_t addr;
- 	u8 *pframe, *mem_start, *ptxdesc;
- 	struct sta_info		*psta;
--	struct security_priv	*psecuritypriv = &padapter->securitypriv;
-+	struct security_priv	*psecpriv = &padapter->securitypriv;
- 	struct mlme_priv	*pmlmepriv = &padapter->mlmepriv;
- 	struct xmit_priv	*pxmitpriv = &padapter->xmitpriv;
- 	struct pkt_attrib	*pattrib = &pxmitframe->attrib;
-@@ -633,15 +633,13 @@ sint r8712_xmitframe_coalesce(struct _adapter *padapter, _pkt *pkt,
- 				case _WEP40_:
- 				case _WEP104_:
- 					WEP_IV(pattrib->iv, psta->txpn,
--					       (u8)psecuritypriv->
--					       PrivacyKeyIndex);
-+					       (u8)psecpriv->PrivacyKeyIndex);
- 					break;
- 				case _TKIP_:
- 					if (bmcst)
- 						TKIP_IV(pattrib->iv,
- 						    psta->txpn,
--						    (u8)psecuritypriv->
--						    XGrpKeyid);
-+						    (u8)psecpriv->XGrpKeyid);
- 					else
- 						TKIP_IV(pattrib->iv, psta->txpn,
- 							0);
-@@ -649,8 +647,7 @@ sint r8712_xmitframe_coalesce(struct _adapter *padapter, _pkt *pkt,
- 				case _AES_:
- 					if (bmcst)
- 						AES_IV(pattrib->iv, psta->txpn,
--						    (u8)psecuritypriv->
--						    XGrpKeyid);
-+						    (u8)psecpriv->XGrpKeyid);
- 					else
- 						AES_IV(pattrib->iv, psta->txpn,
- 						       0);
+diff --git a/arch/arm64/boot/dts/mediatek/mt8173.dtsi b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
+index 5891b71514328..dec5e4113ce4c 100644
+--- a/arch/arm64/boot/dts/mediatek/mt8173.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
+@@ -238,21 +238,21 @@
+ 		cpu_on	      = <0x84000003>;
+ 	};
+ 
+-	clk26m: oscillator@0 {
++	clk26m: oscillator0 {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <26000000>;
+ 		clock-output-names = "clk26m";
+ 	};
+ 
+-	clk32k: oscillator@1 {
++	clk32k: oscillator1 {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <32000>;
+ 		clock-output-names = "clk32k";
+ 	};
+ 
+-	cpum_ck: oscillator@2 {
++	cpum_ck: oscillator2 {
+ 		compatible = "fixed-clock";
+ 		#clock-cells = <0>;
+ 		clock-frequency = <0>;
+@@ -268,19 +268,19 @@
+ 			sustainable-power = <1500>; /* milliwatts */
+ 
+ 			trips {
+-				threshold: trip-point@0 {
++				threshold: trip-point0 {
+ 					temperature = <68000>;
+ 					hysteresis = <2000>;
+ 					type = "passive";
+ 				};
+ 
+-				target: trip-point@1 {
++				target: trip-point1 {
+ 					temperature = <85000>;
+ 					hysteresis = <2000>;
+ 					type = "passive";
+ 				};
+ 
+-				cpu_crit: cpu_crit@0 {
++				cpu_crit: cpu_crit0 {
+ 					temperature = <115000>;
+ 					hysteresis = <2000>;
+ 					type = "critical";
+@@ -288,13 +288,13 @@
+ 			};
+ 
+ 			cooling-maps {
+-				map@0 {
++				map0 {
+ 					trip = <&target>;
+ 					cooling-device = <&cpu0 0 0>,
+ 							 <&cpu1 0 0>;
+ 					contribution = <3072>;
+ 				};
+-				map@1 {
++				map1 {
+ 					trip = <&target>;
+ 					cooling-device = <&cpu2 0 0>,
+ 							 <&cpu3 0 0>;
+@@ -308,7 +308,7 @@
+ 		#address-cells = <2>;
+ 		#size-cells = <2>;
+ 		ranges;
+-		vpu_dma_reserved: vpu_dma_mem_region {
++		vpu_dma_reserved: vpu_dma_mem_region@b7000000 {
+ 			compatible = "shared-dma-pool";
+ 			reg = <0 0xb7000000 0 0x500000>;
+ 			alignment = <0x1000>;
+@@ -360,7 +360,7 @@
+ 			reg = <0 0x10005000 0 0x1000>;
+ 		};
+ 
+-		pio: pinctrl@10005000 {
++		pio: pinctrl@1000b000 {
+ 			compatible = "mediatek,mt8173-pinctrl";
+ 			reg = <0 0x1000b000 0 0x1000>;
+ 			mediatek,pctl-regmap = <&syscfg_pctl_a>;
+@@ -567,7 +567,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		gic: interrupt-controller@10220000 {
++		gic: interrupt-controller@10221000 {
+ 			compatible = "arm,gic-400";
+ 			#interrupt-cells = <3>;
+ 			interrupt-parent = <&gic>;
 -- 
 2.25.1
 
