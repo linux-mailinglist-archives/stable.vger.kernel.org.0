@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 731CE206453
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:31:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C78AB206532
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:33:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390513AbgFWVTl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 17:19:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43258 "EHLO mail.kernel.org"
+        id S2391118AbgFWVcK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 17:32:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389874AbgFWUYd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:24:33 -0400
+        id S2388486AbgFWUMi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:12:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 295962073E;
-        Tue, 23 Jun 2020 20:24:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A4263206C3;
+        Tue, 23 Jun 2020 20:12:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943873;
-        bh=7e30EfUiSxO/sFuvj8K/fgjGMIOHz30SAJcVZVXkjhQ=;
+        s=default; t=1592943157;
+        bh=PG+TUyNYYfqZu3IIU4lPjTC8VRqZMGf/AGQSmiHIdpw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0X/cT2CLA9JWlyufgjrcU6ZK5EeTWj2Zr1tgez5B5FCSJOou00WWnCzyV6w7KQrhM
-         hQR0aW+8xKbqlzTWa7hQVnNLDvbfbbHcD8rf9jeHzOXxh7Gflj11xT0MB3ArZiO49w
-         IEkL42e9P8RWUsGIuFMG6f9D23xuy9zZJ/+sYm04=
+        b=ktnx/W5SEZq1N6b9ucKy7Jmcrt/F9t4/cu5PEEPO15nwWPi3+SYmMUtky1AUyz83V
+         au6TTu8llfqnFwbERHbTUb9XDxAPoUZem1L/i1p7K8yuCQYztP74Z0z9XgUK0Rvbwe
+         HByOs8oXOfEr9aQttyg1jX/IC3Y5Y/NMZ3cABzPo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen Zhou <chenzhou10@huawei.com>,
-        Rui Miguel Silva <rmfrfs@gmail.com>,
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Paul Mackerras <paulus@ozlabs.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 084/314] staging: greybus: fix a missing-check bug in gb_lights_light_config()
+Subject: [PATCH 5.7 282/477] KVM: PPC: Book3S HV: Ignore kmemleak false positives
 Date:   Tue, 23 Jun 2020 21:54:39 +0200
-Message-Id: <20200623195342.876247014@linuxfoundation.org>
+Message-Id: <20200623195420.901258515@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
-References: <20200623195338.770401005@linuxfoundation.org>
+In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
+References: <20200623195407.572062007@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +44,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhou <chenzhou10@huawei.com>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit 9bb086e5ba9495ac150fbbcc5c8c2bccc06261dd ]
+[ Upstream commit 0aca8a5575544bd21b3363058afb8f1e81505150 ]
 
-In gb_lights_light_config(), 'light->name' is allocated by kstrndup().
-It returns NULL when fails, add check for it.
+kvmppc_pmd_alloc() and kvmppc_pte_alloc() allocate some memory but then
+pud_populate() and pmd_populate() will use __pa() to reference the newly
+allocated memory.
 
-Signed-off-by: Chen Zhou <chenzhou10@huawei.com>
-Acked-by: Rui Miguel Silva <rmfrfs@gmail.com>
-Link: https://lore.kernel.org/r/20200401030017.100274-1-chenzhou10@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Since kmemleak is unable to track the physical memory resulting in false
+positives, silence those by using kmemleak_ignore().
+
+unreferenced object 0xc000201c382a1000 (size 4096):
+ comm "qemu-kvm", pid 124828, jiffies 4295733767 (age 341.250s)
+ hex dump (first 32 bytes):
+   c0 00 20 09 f4 60 03 87 c0 00 20 10 72 a0 03 87  .. ..`.... .r...
+   c0 00 20 0e 13 a0 03 87 c0 00 20 1b dc c0 03 87  .. ....... .....
+ backtrace:
+   [<000000004cc2790f>] kvmppc_create_pte+0x838/0xd20 [kvm_hv]
+   kvmppc_pmd_alloc at arch/powerpc/kvm/book3s_64_mmu_radix.c:366
+   (inlined by) kvmppc_create_pte at arch/powerpc/kvm/book3s_64_mmu_radix.c:590
+   [<00000000d123c49a>] kvmppc_book3s_instantiate_page+0x2e0/0x8c0 [kvm_hv]
+   [<00000000bb549087>] kvmppc_book3s_radix_page_fault+0x1b4/0x2b0 [kvm_hv]
+   [<0000000086dddc0e>] kvmppc_book3s_hv_page_fault+0x214/0x12a0 [kvm_hv]
+   [<000000005ae9ccc2>] kvmppc_vcpu_run_hv+0xc5c/0x15f0 [kvm_hv]
+   [<00000000d22162ff>] kvmppc_vcpu_run+0x34/0x48 [kvm]
+   [<00000000d6953bc4>] kvm_arch_vcpu_ioctl_run+0x314/0x420 [kvm]
+   [<000000002543dd54>] kvm_vcpu_ioctl+0x33c/0x950 [kvm]
+   [<0000000048155cd6>] ksys_ioctl+0xd8/0x130
+   [<0000000041ffeaa7>] sys_ioctl+0x28/0x40
+   [<000000004afc4310>] system_call_exception+0x114/0x1e0
+   [<00000000fb70a873>] system_call_common+0xf0/0x278
+unreferenced object 0xc0002001f0c03900 (size 256):
+ comm "qemu-kvm", pid 124830, jiffies 4295735235 (age 326.570s)
+ hex dump (first 32 bytes):
+   c0 00 20 10 fa a0 03 87 c0 00 20 10 fa a1 03 87  .. ....... .....
+   c0 00 20 10 fa a2 03 87 c0 00 20 10 fa a3 03 87  .. ....... .....
+ backtrace:
+   [<0000000023f675b8>] kvmppc_create_pte+0x854/0xd20 [kvm_hv]
+   kvmppc_pte_alloc at arch/powerpc/kvm/book3s_64_mmu_radix.c:356
+   (inlined by) kvmppc_create_pte at arch/powerpc/kvm/book3s_64_mmu_radix.c:593
+   [<00000000d123c49a>] kvmppc_book3s_instantiate_page+0x2e0/0x8c0 [kvm_hv]
+   [<00000000bb549087>] kvmppc_book3s_radix_page_fault+0x1b4/0x2b0 [kvm_hv]
+   [<0000000086dddc0e>] kvmppc_book3s_hv_page_fault+0x214/0x12a0 [kvm_hv]
+   [<000000005ae9ccc2>] kvmppc_vcpu_run_hv+0xc5c/0x15f0 [kvm_hv]
+   [<00000000d22162ff>] kvmppc_vcpu_run+0x34/0x48 [kvm]
+   [<00000000d6953bc4>] kvm_arch_vcpu_ioctl_run+0x314/0x420 [kvm]
+   [<000000002543dd54>] kvm_vcpu_ioctl+0x33c/0x950 [kvm]
+   [<0000000048155cd6>] ksys_ioctl+0xd8/0x130
+   [<0000000041ffeaa7>] sys_ioctl+0x28/0x40
+   [<000000004afc4310>] system_call_exception+0x114/0x1e0
+   [<00000000fb70a873>] system_call_common+0xf0/0x278
+
+Signed-off-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/greybus/light.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/powerpc/kvm/book3s_64_mmu_radix.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/greybus/light.c b/drivers/staging/greybus/light.c
-index d6ba25f21d807..d2672b65c3f49 100644
---- a/drivers/staging/greybus/light.c
-+++ b/drivers/staging/greybus/light.c
-@@ -1026,7 +1026,8 @@ static int gb_lights_light_config(struct gb_lights *glights, u8 id)
+diff --git a/arch/powerpc/kvm/book3s_64_mmu_radix.c b/arch/powerpc/kvm/book3s_64_mmu_radix.c
+index aa12cd4078b32..bc6c1aa3d0e92 100644
+--- a/arch/powerpc/kvm/book3s_64_mmu_radix.c
++++ b/arch/powerpc/kvm/book3s_64_mmu_radix.c
+@@ -353,7 +353,13 @@ static struct kmem_cache *kvm_pmd_cache;
  
- 	light->channels_count = conf.channel_count;
- 	light->name = kstrndup(conf.name, NAMES_MAX, GFP_KERNEL);
--
-+	if (!light->name)
-+		return -ENOMEM;
- 	light->channels = kcalloc(light->channels_count,
- 				  sizeof(struct gb_channel), GFP_KERNEL);
- 	if (!light->channels)
+ static pte_t *kvmppc_pte_alloc(void)
+ {
+-	return kmem_cache_alloc(kvm_pte_cache, GFP_KERNEL);
++	pte_t *pte;
++
++	pte = kmem_cache_alloc(kvm_pte_cache, GFP_KERNEL);
++	/* pmd_populate() will only reference _pa(pte). */
++	kmemleak_ignore(pte);
++
++	return pte;
+ }
+ 
+ static void kvmppc_pte_free(pte_t *ptep)
+@@ -363,7 +369,13 @@ static void kvmppc_pte_free(pte_t *ptep)
+ 
+ static pmd_t *kvmppc_pmd_alloc(void)
+ {
+-	return kmem_cache_alloc(kvm_pmd_cache, GFP_KERNEL);
++	pmd_t *pmd;
++
++	pmd = kmem_cache_alloc(kvm_pmd_cache, GFP_KERNEL);
++	/* pud_populate() will only reference _pa(pmd). */
++	kmemleak_ignore(pmd);
++
++	return pmd;
+ }
+ 
+ static void kvmppc_pmd_free(pmd_t *pmdp)
 -- 
 2.25.1
 
