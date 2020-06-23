@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 105482061C2
+	by mail.lfdr.de (Postfix) with ESMTP id 8012E2061C3
 	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:08:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404195AbgFWUuF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2404193AbgFWUuF (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 23 Jun 2020 16:50:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47996 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:48258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403925AbgFWUss (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:48:48 -0400
+        id S2404136AbgFWUs7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:48:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 806C421548;
-        Tue, 23 Jun 2020 20:48:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 619BD21548;
+        Tue, 23 Jun 2020 20:48:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592945329;
-        bh=+tp58noZXQoEUGiIglKdWJQNuoOipzmLxZuJLK3D7ss=;
+        s=default; t=1592945339;
+        bh=R8poT/WfSWU1GfxheMUoZ/FdITa3vE/XmE9Ej5fNV9g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QmTvbjEX3xJKwPnGGKpEmylIbFYOSXRDuIXbZd89yeSejbjOYwwJsvcOzA6wFDaRz
-         Gs4VT5eCBXmK9VN/WeMMAoAGpJ0odC71O/TPGblscjK1uh7wJiqRiuEfAz/SV2AgSq
-         Y+glTGQdFB+EGIbiX39+Qxe1c6CZPIa1qFN0tKOU=
+        b=ywRC/CddO5ou3iWBurckDGe7kjztbihH3+ZKUv0S6nghY9VIfx5fUK4D1kRpw1JyT
+         ldxVJcI67eD4gSekuGsQgUzf4BWnDix/MMngXbenyqlFwXMSYZ/PbOCqu2awL+Tokh
+         HC0/o2S7o54VBgdCrND3TgVuMk4P4JYncucBZfXU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tanner Love <tannerlove@google.com>,
-        Willem de Bruijn <willemb@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 101/136] selftests/net: in timestamping, strncpy needs to preserve null byte
-Date:   Tue, 23 Jun 2020 21:59:17 +0200
-Message-Id: <20200623195308.752003832@linuxfoundation.org>
+Subject: [PATCH 4.14 103/136] scsi: acornscsi: Fix an error handling path in acornscsi_probe()
+Date:   Tue, 23 Jun 2020 21:59:19 +0200
+Message-Id: <20200623195308.856634438@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195303.601828702@linuxfoundation.org>
 References: <20200623195303.601828702@linuxfoundation.org>
@@ -45,63 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: tannerlove <tannerlove@google.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 8027bc0307ce59759b90679fa5d8b22949586d20 ]
+[ Upstream commit 42c76c9848e13dbe0538d7ae0147a269dfa859cb ]
 
-If user passed an interface option longer than 15 characters, then
-device.ifr_name and hwtstamp.ifr_name became non-null-terminated
-strings. The compiler warned about this:
+'ret' is known to be 0 at this point.  Explicitly return -ENOMEM if one of
+the 'ecardm_iomap()' calls fail.
 
-timestamping.c:353:2: warning: ‘strncpy’ specified bound 16 equals \
-destination size [-Wstringop-truncation]
-  353 |  strncpy(device.ifr_name, interface, sizeof(device.ifr_name));
-
-Fixes: cb9eff097831 ("net: new user space API for time stamping of incoming and outgoing packets")
-Signed-off-by: Tanner Love <tannerlove@google.com>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20200530081622.577888-1-christophe.jaillet@wanadoo.fr
+Fixes: e95a1b656a98 ("[ARM] rpc: acornscsi: update to new style ecard driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/networking/timestamping/timestamping.c   | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/scsi/arm/acornscsi.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/networking/timestamping/timestamping.c b/tools/testing/selftests/networking/timestamping/timestamping.c
-index 5cdfd743447b7..900ed4b478996 100644
---- a/tools/testing/selftests/networking/timestamping/timestamping.c
-+++ b/tools/testing/selftests/networking/timestamping/timestamping.c
-@@ -332,10 +332,16 @@ int main(int argc, char **argv)
- 	int val;
- 	socklen_t len;
- 	struct timeval next;
-+	size_t if_len;
+diff --git a/drivers/scsi/arm/acornscsi.c b/drivers/scsi/arm/acornscsi.c
+index 421fe869a11ef..ef9d907f2df5c 100644
+--- a/drivers/scsi/arm/acornscsi.c
++++ b/drivers/scsi/arm/acornscsi.c
+@@ -2914,8 +2914,10 @@ static int acornscsi_probe(struct expansion_card *ec, const struct ecard_id *id)
  
- 	if (argc < 2)
- 		usage(0);
- 	interface = argv[1];
-+	if_len = strlen(interface);
-+	if (if_len >= IFNAMSIZ) {
-+		printf("interface name exceeds IFNAMSIZ\n");
-+		exit(1);
+ 	ashost->base = ecardm_iomap(ec, ECARD_RES_MEMC, 0, 0);
+ 	ashost->fast = ecardm_iomap(ec, ECARD_RES_IOCFAST, 0, 0);
+-	if (!ashost->base || !ashost->fast)
++	if (!ashost->base || !ashost->fast) {
++		ret = -ENOMEM;
+ 		goto out_put;
 +	}
  
- 	for (i = 2; i < argc; i++) {
- 		if (!strcasecmp(argv[i], "SO_TIMESTAMP"))
-@@ -369,12 +375,12 @@ int main(int argc, char **argv)
- 		bail("socket");
- 
- 	memset(&device, 0, sizeof(device));
--	strncpy(device.ifr_name, interface, sizeof(device.ifr_name));
-+	memcpy(device.ifr_name, interface, if_len + 1);
- 	if (ioctl(sock, SIOCGIFADDR, &device) < 0)
- 		bail("getting interface IP address");
- 
- 	memset(&hwtstamp, 0, sizeof(hwtstamp));
--	strncpy(hwtstamp.ifr_name, interface, sizeof(hwtstamp.ifr_name));
-+	memcpy(hwtstamp.ifr_name, interface, if_len + 1);
- 	hwtstamp.ifr_data = (void *)&hwconfig;
- 	memset(&hwconfig, 0, sizeof(hwconfig));
- 	hwconfig.tx_type =
+ 	host->irq = ec->irq;
+ 	ashost->host = host;
 -- 
 2.25.1
 
