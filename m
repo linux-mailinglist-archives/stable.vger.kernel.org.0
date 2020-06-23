@@ -2,45 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B265F205F88
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:46:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35F6720609A
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:48:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390947AbgFWUdW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:33:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54646 "EHLO mail.kernel.org"
+        id S2403988AbgFWUof (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:44:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391409AbgFWUdV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:33:21 -0400
+        id S2403849AbgFWUoe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:44:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23218206C3;
-        Tue, 23 Jun 2020 20:33:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 59FE921BE5;
+        Tue, 23 Jun 2020 20:44:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944401;
-        bh=0isMCShVUmt0PgznSHcfZZBMuds+0OqhFhci1HPEPVk=;
+        s=default; t=1592945074;
+        bh=J38Dy0/4rkAgW0VBoEWSxJgsCohC7R8TO4UdK0nob/0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=18Raxs/PuzJ1x5hQggaGQuCzppFkNmSpHl1FAIReb1L8XTCA1ctpcvrpEw39c1U7n
-         gw1/ZZZxrllt7VSCu2HYGJPacovQaqxfBJH3w5ah+1jWXe4FWLHxzdgNiIlfvx10zA
-         CoWRF2drNVYKS2lJ6R0jfffMmnx96PVVJJ9CJIWg=
+        b=LQQN6niNUB0zXYmG2FUOl1qJ2Go4rg3xTLa7lZEsqx9a4OLyom8X5aDz8+Utf2Hp9
+         zhMpUz4wPXneTqtreliKx2m7fVmFoN+A5fgbUhVUpwff3xMgVrfFFjZkEubiBz27mE
+         IgeBUdDdyPdGWA2CRZgx6J9LOEmtOB+iB9bPQT0w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
-        Leo Li <sunpeng.li@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        "David (ChunMing) Zhou" <David1.Zhou@amd.com>,
-        amd-gfx@lists.freedesktop.org,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 290/314] drm/amd/display: Use swap() where appropriate
+        stable@vger.kernel.org, Pingfan Liu <kernelfans@gmail.com>,
+        Hari Bathini <hbathini@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 029/136] powerpc/crashkernel: Take "mem=" option into account
 Date:   Tue, 23 Jun 2020 21:58:05 +0200
-Message-Id: <20200623195352.809162782@linuxfoundation.org>
+Message-Id: <20200623195305.118266659@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
-References: <20200623195338.770401005@linuxfoundation.org>
+In-Reply-To: <20200623195303.601828702@linuxfoundation.org>
+References: <20200623195303.601828702@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,122 +45,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Pingfan Liu <kernelfans@gmail.com>
 
-[ Upstream commit 34b86b75dfc90ab3d996c224314ce51772a3b351 ]
+[ Upstream commit be5470e0c285a68dc3afdea965032f5ddc8269d7 ]
 
-Mostly a cocci-job, but it flat out refused to remove the
-declaration in drivers/gpu/drm/amd/display/dc/core/dc.c so
-had to do that part manually.
+'mem=" option is an easy way to put high pressure on memory during
+some test. Hence after applying the memory limit, instead of total
+mem, the actual usable memory should be considered when reserving mem
+for crashkernel. Otherwise the boot up may experience OOM issue.
 
-@swap@
-identifier TEMP;
-expression A,B;
-@@
-- TEMP = A;
-- A = B;
-- B = TEMP;
-+ swap(A, B);
+E.g. it would reserve 4G prior to the change and 512M afterward, if
+passing
+crashkernel="2G-4G:384M,4G-16G:512M,16G-64G:1G,64G-128G:2G,128G-:4G",
+and mem=5G on a 256G machine.
 
-@@
-type T;
-identifier swap.TEMP;
-@@
-(
-- T TEMP;
-|
-- T TEMP = {...};
-)
-... when != TEMP
+This issue is powerpc specific because it puts higher priority on
+fadump and kdump reservation than on "mem=". Referring the following
+code:
+    if (fadump_reserve_mem() == 0)
+            reserve_crashkernel();
+    ...
+    /* Ensure that total memory size is page-aligned. */
+    limit = ALIGN(memory_limit ?: memblock_phys_mem_size(), PAGE_SIZE);
+    memblock_enforce_memory_limit(limit);
 
-Cc: Harry Wentland <harry.wentland@amd.com>
-Cc: Leo Li <sunpeng.li@amd.com>
-Cc: Alex Deucher <alexander.deucher@amd.com>
-Cc: "Christian König" <christian.koenig@amd.com>
-Cc: "David (ChunMing) Zhou" <David1.Zhou@amd.com>
-Cc: amd-gfx@lists.freedesktop.org
-Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+While on other arches, the effect of "mem=" takes a higher priority
+and pass through memblock_phys_mem_size() before calling
+reserve_crashkernel().
+
+Signed-off-by: Pingfan Liu <kernelfans@gmail.com>
+Reviewed-by: Hari Bathini <hbathini@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/1585749644-4148-1-git-send-email-kernelfans@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/bios/bios_parser.c  | 7 ++-----
- drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c | 8 ++------
- drivers/gpu/drm/amd/display/dc/core/dc.c           | 6 +-----
- 3 files changed, 5 insertions(+), 16 deletions(-)
+ arch/powerpc/kernel/machine_kexec.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/bios/bios_parser.c b/drivers/gpu/drm/amd/display/dc/bios/bios_parser.c
-index 221e0f56389f3..823843cd26133 100644
---- a/drivers/gpu/drm/amd/display/dc/bios/bios_parser.c
-+++ b/drivers/gpu/drm/amd/display/dc/bios/bios_parser.c
-@@ -2543,7 +2543,6 @@ static enum bp_result construct_integrated_info(
+diff --git a/arch/powerpc/kernel/machine_kexec.c b/arch/powerpc/kernel/machine_kexec.c
+index 9dafd7af39b8f..cb4d6cd949fc4 100644
+--- a/arch/powerpc/kernel/machine_kexec.c
++++ b/arch/powerpc/kernel/machine_kexec.c
+@@ -113,11 +113,12 @@ void machine_kexec(struct kimage *image)
  
- 	/* Sort voltage table from low to high*/
- 	if (result == BP_RESULT_OK) {
--		struct clock_voltage_caps temp = {0, 0};
- 		uint32_t i;
- 		uint32_t j;
+ void __init reserve_crashkernel(void)
+ {
+-	unsigned long long crash_size, crash_base;
++	unsigned long long crash_size, crash_base, total_mem_sz;
+ 	int ret;
  
-@@ -2553,10 +2552,8 @@ static enum bp_result construct_integrated_info(
- 						info->disp_clk_voltage[j].max_supported_clk <
- 						info->disp_clk_voltage[j-1].max_supported_clk) {
- 					/* swap j and j - 1*/
--					temp = info->disp_clk_voltage[j-1];
--					info->disp_clk_voltage[j-1] =
--							info->disp_clk_voltage[j];
--					info->disp_clk_voltage[j] = temp;
-+					swap(info->disp_clk_voltage[j - 1],
-+					     info->disp_clk_voltage[j]);
- 				}
- 			}
- 		}
-diff --git a/drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c b/drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c
-index dff65c0fe82f8..7873abea4112b 100644
---- a/drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c
-+++ b/drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c
-@@ -1613,8 +1613,6 @@ static enum bp_result construct_integrated_info(
- 
- 	struct atom_common_table_header *header;
- 	struct atom_data_revision revision;
--
--	struct clock_voltage_caps temp = {0, 0};
- 	uint32_t i;
- 	uint32_t j;
- 
-@@ -1644,10 +1642,8 @@ static enum bp_result construct_integrated_info(
- 				info->disp_clk_voltage[j-1].max_supported_clk
- 				) {
- 				/* swap j and j - 1*/
--				temp = info->disp_clk_voltage[j-1];
--				info->disp_clk_voltage[j-1] =
--					info->disp_clk_voltage[j];
--				info->disp_clk_voltage[j] = temp;
-+				swap(info->disp_clk_voltage[j - 1],
-+				     info->disp_clk_voltage[j]);
- 			}
- 		}
++	total_mem_sz = memory_limit ? memory_limit : memblock_phys_mem_size();
+ 	/* use common parsing */
+-	ret = parse_crashkernel(boot_command_line, memblock_phys_mem_size(),
++	ret = parse_crashkernel(boot_command_line, total_mem_sz,
+ 			&crash_size, &crash_base);
+ 	if (ret == 0 && crash_size > 0) {
+ 		crashk_res.start = crash_base;
+@@ -176,6 +177,7 @@ void __init reserve_crashkernel(void)
+ 	/* Crash kernel trumps memory limit */
+ 	if (memory_limit && memory_limit <= crashk_res.end) {
+ 		memory_limit = crashk_res.end + 1;
++		total_mem_sz = memory_limit;
+ 		printk("Adjusted memory limit for crashkernel, now 0x%llx\n",
+ 		       memory_limit);
  	}
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
-index b95a58aa82d91..47e7d11ca0c9c 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
-@@ -907,15 +907,11 @@ static void program_timing_sync(
+@@ -184,7 +186,7 @@ void __init reserve_crashkernel(void)
+ 			"for crashkernel (System RAM: %ldMB)\n",
+ 			(unsigned long)(crash_size >> 20),
+ 			(unsigned long)(crashk_res.start >> 20),
+-			(unsigned long)(memblock_phys_mem_size() >> 20));
++			(unsigned long)(total_mem_sz >> 20));
  
- 		/* set first pipe with plane as master */
- 		for (j = 0; j < group_size; j++) {
--			struct pipe_ctx *temp;
--
- 			if (pipe_set[j]->plane_state) {
- 				if (j == 0)
- 					break;
- 
--				temp = pipe_set[0];
--				pipe_set[0] = pipe_set[j];
--				pipe_set[j] = temp;
-+				swap(pipe_set[0], pipe_set[j]);
- 				break;
- 			}
- 		}
+ 	if (!memblock_is_region_memory(crashk_res.start, crash_size) ||
+ 	    memblock_reserve(crashk_res.start, crash_size)) {
 -- 
 2.25.1
 
