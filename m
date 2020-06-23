@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E8F42065A6
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:51:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDEE62065AB
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:51:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388671AbgFWUHx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:07:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48590 "EHLO mail.kernel.org"
+        id S2387643AbgFWUIX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:08:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388098AbgFWUHu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:07:50 -0400
+        id S2387878AbgFWUIK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:08:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 765F32064B;
-        Tue, 23 Jun 2020 20:07:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1836B20E65;
+        Tue, 23 Jun 2020 20:08:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592942869;
-        bh=4j1JP4plDK8RFUqLRz601YOa8jIR0m3WIxNF4zfQGLg=;
+        s=default; t=1592942889;
+        bh=/CPyaLLZRU4Fh2P4fIpFjAZgAOMq5TubLnUNK5hB58U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aSpZY0Xiab8SeTlqQMFVHjuSHCr8XzOgSjxJYpWkLr8aPZCaIiRj7ApOK1azZVk0I
-         YShvd7jXTJ24isiVx0shdfzTQPociy6JlQvKjTv+ujUFI2HCD7JprToitktOYf8B+9
-         hp7tUbJ0a7o5OVwFzrhRn5RzWf0GF7+Xd7ThG0xo=
+        b=MtrV1Mf5FfummDYTrM7EmhqBQ2xcetaUmE9u2/X6G7qHE2xMTwnUlg+2s/m1Z5BCq
+         cL5tFnz6e2+f5k7fc+Htm0JvZcdfilL8abdppgjYPnsI7C4KTFXroc25HFJbhdFgpy
+         8tDOru7TaXWGDhaX9R9AFzl7ZWbg5q7k9+g78fxw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thinh Nguyen <thinhn@synopsys.com>,
-        Felipe Balbi <balbi@kernel.org>,
+        stable@vger.kernel.org, Matej Dujava <mdujava@kocurkovo.cz>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 166/477] usb: dwc3: gadget: Properly handle failed kick_transfer
-Date:   Tue, 23 Jun 2020 21:52:43 +0200
-Message-Id: <20200623195415.432186897@linuxfoundation.org>
+Subject: [PATCH 5.7 168/477] staging: sm750fb: add missing case while setting FB_VISUAL
+Date:   Tue, 23 Jun 2020 21:52:45 +0200
+Message-Id: <20200623195415.526484292@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -44,66 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Matej Dujava <mdujava@kocurkovo.cz>
 
-[ Upstream commit 8d99087c2db863c5fa3a4a1f3cb82b3a493705ca ]
+[ Upstream commit fa90133377f4a7f15a937df6ad55133bb57c5665 ]
 
-If dwc3 fails to issue START_TRANSFER/UPDATE_TRANSFER command, then we
-should properly end an active transfer and give back all the started
-requests. However if it's for an isoc endpoint, the failure maybe due to
-bus-expiry status. In this case, don't give back the requests and wait
-for the next retry.
+Switch statement does not contain all cases: 8, 16, 24, 32.
+This patch will add missing one (24)
 
-Fixes: 72246da40f37 ("usb: Introduce DesignWare USB3 DRD Driver")
-Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Fixes: 81dee67e215b ("staging: sm750fb: add sm750 to staging")
+Signed-off-by: Matej Dujava <mdujava@kocurkovo.cz>
+Link: https://lore.kernel.org/r/1588277366-19354-2-git-send-email-mdujava@kocurkovo.cz
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/gadget.c | 24 ++++++++++++++++--------
- 1 file changed, 16 insertions(+), 8 deletions(-)
+ drivers/staging/sm750fb/sm750.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index ab6562c5b9279..de3b92680935a 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -1220,6 +1220,8 @@ static void dwc3_prepare_trbs(struct dwc3_ep *dep)
- 	}
- }
- 
-+static void dwc3_gadget_ep_cleanup_cancelled_requests(struct dwc3_ep *dep);
-+
- static int __dwc3_gadget_kick_transfer(struct dwc3_ep *dep)
- {
- 	struct dwc3_gadget_ep_cmd_params params;
-@@ -1259,14 +1261,20 @@ static int __dwc3_gadget_kick_transfer(struct dwc3_ep *dep)
- 
- 	ret = dwc3_send_gadget_ep_cmd(dep, cmd, &params);
- 	if (ret < 0) {
--		/*
--		 * FIXME we need to iterate over the list of requests
--		 * here and stop, unmap, free and del each of the linked
--		 * requests instead of what we do now.
--		 */
--		if (req->trb)
--			memset(req->trb, 0, sizeof(struct dwc3_trb));
--		dwc3_gadget_del_and_unmap_request(dep, req, ret);
-+		struct dwc3_request *tmp;
-+
-+		if (ret == -EAGAIN)
-+			return ret;
-+
-+		dwc3_stop_active_transfer(dep, true, true);
-+
-+		list_for_each_entry_safe(req, tmp, &dep->started_list, list)
-+			dwc3_gadget_move_cancelled_request(req);
-+
-+		/* If ep isn't started, then there's no end transfer pending */
-+		if (!(dep->flags & DWC3_EP_END_TRANSFER_PENDING))
-+			dwc3_gadget_ep_cleanup_cancelled_requests(dep);
-+
- 		return ret;
- 	}
- 
+diff --git a/drivers/staging/sm750fb/sm750.c b/drivers/staging/sm750fb/sm750.c
+index 59568d18ce230..5b72aa81d94c1 100644
+--- a/drivers/staging/sm750fb/sm750.c
++++ b/drivers/staging/sm750fb/sm750.c
+@@ -898,6 +898,7 @@ static int lynxfb_set_fbinfo(struct fb_info *info, int index)
+ 		fix->visual = FB_VISUAL_PSEUDOCOLOR;
+ 		break;
+ 	case 16:
++	case 24:
+ 	case 32:
+ 		fix->visual = FB_VISUAL_TRUECOLOR;
+ 		break;
 -- 
 2.25.1
 
