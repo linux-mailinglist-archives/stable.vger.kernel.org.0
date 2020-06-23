@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC754206665
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:52:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F37EF206661
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:52:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393984AbgFWVlR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 17:41:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46206 "EHLO mail.kernel.org"
+        id S2388488AbgFWVlE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 17:41:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387548AbgFWUGN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:06:13 -0400
+        id S2388457AbgFWUGV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:06:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8043720E65;
-        Tue, 23 Jun 2020 20:06:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E7F82064B;
+        Tue, 23 Jun 2020 20:06:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592942773;
-        bh=Sc3xsrDQ7Hm+hoonV8rReQsxTqyTTdnoEeJMQvSQLhw=;
+        s=default; t=1592942780;
+        bh=lmLHg0cGesE3FgSe7bSUX6bN99oLY+825ZeXT/FLT/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D5eYZ7E5TBKQg6jeeXrzy573qXKUCCAm7Z9LJNtYmlTTvn6yjVBQYi4KRVUW42YzY
-         zZ6A5W7yJqNE/AYqItiGjv/6Fox8d9px87SR7aJiyIeKb+GDVTlZvhdU3jn3WPpzXK
-         dlHAPx7EqVqeMQy3wcHFqhlbtm+ZzOj8MAqwmPiw=
+        b=bQ1+om0psmO0/6ksc4GxYxXXQSWngI8nbdmsF/BmSrDNKkgBXed2+QOnqtYLLfSfT
+         6Ad4crKMJ6lAqKL7TZPg9uzL1vI4mB3TnBJTEF5Muru9XoR/rW+ji01TVqJ/4VysPY
+         EAXFkIun4KK+XqfNI0frxhS/jGa8LgvA/fVYZstk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        Miklos Szeredi <mszeredi@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 129/477] fuse: BUG_ON correction in fuse_dev_splice_write()
-Date:   Tue, 23 Jun 2020 21:52:06 +0200
-Message-Id: <20200623195413.705890948@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 131/477] firmware: qcom_scm: fix bogous abuse of dma-direct internals
+Date:   Tue, 23 Jun 2020 21:52:08 +0200
+Message-Id: <20200623195413.798055671@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -44,40 +44,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 0e9fb6f17ad5b386b75451328975a07d7d953c6d ]
+[ Upstream commit 459b1f86f1cba7de813fbc335df476c111feec22 ]
 
-commit 963545357202 ("fuse: reduce allocation size for splice_write")
-changed size of bufs array, so BUG_ON which checks the index of the array
-shold also be fixed.
+As far as the device is concerned the dma address is the physical
+address.  There is no need to convert it to a physical address,
+especially not using dma-direct internals that are not available
+to drivers and which will interact badly with IOMMUs.  Last but not
+least the commit introducing it claimed to just fix a type issue,
+but actually changed behavior.
 
-[SzM: turn BUG_ON into WARN_ON]
-
-Fixes: 963545357202 ("fuse: reduce allocation size for splice_write")
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Fixes: 6e37ccf78a532 ("firmware: qcom_scm: Use proper types for dma mappings")
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20200414123136.441454-1-hch@lst.de
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fuse/dev.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/firmware/qcom_scm.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/fs/fuse/dev.c b/fs/fuse/dev.c
-index 97eec7522bf20..5c155437a455d 100644
---- a/fs/fuse/dev.c
-+++ b/fs/fuse/dev.c
-@@ -1977,8 +1977,9 @@ static ssize_t fuse_dev_splice_write(struct pipe_inode_info *pipe,
- 		struct pipe_buffer *ibuf;
- 		struct pipe_buffer *obuf;
+diff --git a/drivers/firmware/qcom_scm.c b/drivers/firmware/qcom_scm.c
+index 059bb0fbae9e5..4701487573f7b 100644
+--- a/drivers/firmware/qcom_scm.c
++++ b/drivers/firmware/qcom_scm.c
+@@ -6,7 +6,6 @@
+ #include <linux/init.h>
+ #include <linux/cpumask.h>
+ #include <linux/export.h>
+-#include <linux/dma-direct.h>
+ #include <linux/dma-mapping.h>
+ #include <linux/module.h>
+ #include <linux/types.h>
+@@ -806,8 +805,7 @@ int qcom_scm_assign_mem(phys_addr_t mem_addr, size_t mem_sz,
+ 	struct qcom_scm_mem_map_info *mem_to_map;
+ 	phys_addr_t mem_to_map_phys;
+ 	phys_addr_t dest_phys;
+-	phys_addr_t ptr_phys;
+-	dma_addr_t ptr_dma;
++	dma_addr_t ptr_phys;
+ 	size_t mem_to_map_sz;
+ 	size_t dest_sz;
+ 	size_t src_sz;
+@@ -824,10 +822,9 @@ int qcom_scm_assign_mem(phys_addr_t mem_addr, size_t mem_sz,
+ 	ptr_sz = ALIGN(src_sz, SZ_64) + ALIGN(mem_to_map_sz, SZ_64) +
+ 			ALIGN(dest_sz, SZ_64);
  
--		BUG_ON(nbuf >= pipe->ring_size);
--		BUG_ON(tail == head);
-+		if (WARN_ON(nbuf >= count || tail == head))
-+			goto out_free;
-+
- 		ibuf = &pipe->bufs[tail & mask];
- 		obuf = &bufs[nbuf];
+-	ptr = dma_alloc_coherent(__scm->dev, ptr_sz, &ptr_dma, GFP_KERNEL);
++	ptr = dma_alloc_coherent(__scm->dev, ptr_sz, &ptr_phys, GFP_KERNEL);
+ 	if (!ptr)
+ 		return -ENOMEM;
+-	ptr_phys = dma_to_phys(__scm->dev, ptr_dma);
  
+ 	/* Fill source vmid detail */
+ 	src = ptr;
+@@ -855,7 +852,7 @@ int qcom_scm_assign_mem(phys_addr_t mem_addr, size_t mem_sz,
+ 
+ 	ret = __qcom_scm_assign_mem(__scm->dev, mem_to_map_phys, mem_to_map_sz,
+ 				    ptr_phys, src_sz, dest_phys, dest_sz);
+-	dma_free_coherent(__scm->dev, ptr_sz, ptr, ptr_dma);
++	dma_free_coherent(__scm->dev, ptr_sz, ptr, ptr_phys);
+ 	if (ret) {
+ 		dev_err(__scm->dev,
+ 			"Assign memory protection call failed %d\n", ret);
 -- 
 2.25.1
 
