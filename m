@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FAB1205F96
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:46:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92AB72060A9
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:48:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391467AbgFWUdz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:33:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55492 "EHLO mail.kernel.org"
+        id S2391959AbgFWUpO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:45:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391463AbgFWUdy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:33:54 -0400
+        id S2392620AbgFWUpN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:45:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE9D22085B;
-        Tue, 23 Jun 2020 20:33:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 07BDE21BE5;
+        Tue, 23 Jun 2020 20:45:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944434;
-        bh=Ciqu/rlqehBtA7qIB5psFoxsNKKg8C99s+mKMZmV3fc=;
+        s=default; t=1592945113;
+        bh=hLENz0suJG+fP0XfCenJkihwb8wuW0zFKxhgde01oWI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=irb9ZntR6f3p7emFFCExg4JFCfiQeQEnfoMd9LpHORXBoMeJ3y9wMonLN4+mP2Zkl
-         CiLjLiCdxI2+bd6mxOBLtW9Kz/t+DiTk+cg2h3JSSt0nRoDEXHq1at411kcdz/8/c5
-         Ws300Iv5QvgYUFT7vRt7mE+M2YHRO5LrGVcoxFPA=
+        b=JBND5h1Q+tm4ufnjzh5pH4xkIAXQNAZCLXPLSdl1qAEYActsf/j5KTyVrl7T2Y2Fc
+         6OMY58ELdjmfrR8PaWjCVksObFQm0/msM02ttbhCybDGg4icsvIUJv4qqqnZiMbsc5
+         NlDJBEDO76M2v/2fWLnnjewsdlxgeCfwYkWx3cNc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Monakov <amonakov@ispras.ru>,
-        Hersen Wu <hersenxs.wu@amd.com>,
-        Anthony Koo <Anthony.Koo@amd.com>,
-        Michael Chiu <Michael.Chiu@amd.com>,
-        Harry Wentland <harry.wentland@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Subject: [PATCH 5.4 304/314] Revert "drm/amd/display: disable dcn20 abm feature for bring up"
-Date:   Tue, 23 Jun 2020 21:58:19 +0200
-Message-Id: <20200623195353.497652206@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Jiri Slaby <jslaby@suse.com>, linux-serial@vger.kernel.org,
+        Valentin Schneider <valentin.schneider@arm.com>,
+        John Stultz <john.stultz@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 045/136] serial: amba-pl011: Make sure we initialize the port.lock spinlock
+Date:   Tue, 23 Jun 2020 21:58:21 +0200
+Message-Id: <20200623195305.911893950@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
-References: <20200623195338.770401005@linuxfoundation.org>
+In-Reply-To: <20200623195303.601828702@linuxfoundation.org>
+References: <20200623195303.601828702@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,59 +48,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harry Wentland <harry.wentland@amd.com>
+From: John Stultz <john.stultz@linaro.org>
 
-commit 14ed1c908a7a623cc0cbf0203f8201d1b7d31d16 upstream.
+[ Upstream commit 8508f4cba308f785b2fd4b8c38849c117b407297 ]
 
-This reverts commit 96cb7cf13d8530099c256c053648ad576588c387.
+Valentine reported seeing:
 
-This change was used for DCN2 bringup and is no longer desired.
-In fact it breaks backlight on DCN2 systems.
+[    3.626638] INFO: trying to register non-static key.
+[    3.626639] the code is fine but needs lockdep annotation.
+[    3.626640] turning off the locking correctness validator.
+[    3.626644] CPU: 7 PID: 51 Comm: kworker/7:1 Not tainted 5.7.0-rc2-00115-g8c2e9790f196 #116
+[    3.626646] Hardware name: HiKey960 (DT)
+[    3.626656] Workqueue: events deferred_probe_work_func
+[    3.632476] sd 0:0:0:0: [sda] Optimal transfer size 8192 bytes not a multiple of physical block size (16384 bytes)
+[    3.640220] Call trace:
+[    3.640225]  dump_backtrace+0x0/0x1b8
+[    3.640227]  show_stack+0x20/0x30
+[    3.640230]  dump_stack+0xec/0x158
+[    3.640234]  register_lock_class+0x598/0x5c0
+[    3.640235]  __lock_acquire+0x80/0x16c0
+[    3.640236]  lock_acquire+0xf4/0x4a0
+[    3.640241]  _raw_spin_lock_irqsave+0x70/0xa8
+[    3.640245]  uart_add_one_port+0x388/0x4b8
+[    3.640248]  pl011_register_port+0x70/0xf0
+[    3.640250]  pl011_probe+0x184/0x1b8
+[    3.640254]  amba_probe+0xdc/0x180
+[    3.640256]  really_probe+0xe0/0x338
+[    3.640257]  driver_probe_device+0x60/0xf8
+[    3.640259]  __device_attach_driver+0x8c/0xd0
+[    3.640260]  bus_for_each_drv+0x84/0xd8
+[    3.640261]  __device_attach+0xe4/0x140
+[    3.640263]  device_initial_probe+0x1c/0x28
+[    3.640265]  bus_probe_device+0xa4/0xb0
+[    3.640266]  deferred_probe_work_func+0x7c/0xb8
+[    3.640269]  process_one_work+0x2c0/0x768
+[    3.640271]  worker_thread+0x4c/0x498
+[    3.640272]  kthread+0x14c/0x158
+[    3.640275]  ret_from_fork+0x10/0x1c
 
-Cc: Alexander Monakov <amonakov@ispras.ru>
-Cc: Hersen Wu <hersenxs.wu@amd.com>
-Cc: Anthony Koo <Anthony.Koo@amd.com>
-Cc: Michael Chiu <Michael.Chiu@amd.com>
-Signed-off-by: Harry Wentland <harry.wentland@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Reported-and-tested-by: Alexander Monakov <amonakov@ispras.ru>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Which seems to be due to the fact that after allocating the uap
+structure, nothing initializes the spinlock.
+
+Its a little confusing, as uart_port_spin_lock_init() is one
+place where the lock is supposed to be initialized, but it has
+an exception for the case where the port is a console.
+
+This makes it seem like a deeper fix is needed to properly
+register the console, but I'm not sure what that entails, and
+Andy suggested that this approach is less invasive.
+
+Thus, this patch resolves the issue by initializing the spinlock
+in the driver, and resolves the resulting warning.
+
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Jiri Slaby <jslaby@suse.com>
+Cc: linux-serial@vger.kernel.org
+Reported-by: Valentin Schneider <valentin.schneider@arm.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: John Stultz <john.stultz@linaro.org>
+Reviewed-and-tested-by: Valentin Schneider <valentin.schneider@arm.com>
+Link: https://lore.kernel.org/r/20200428184050.6501-1-john.stultz@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |   13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+ drivers/tty/serial/amba-pl011.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -929,7 +929,7 @@ static int dm_late_init(void *handle)
- 	unsigned int linear_lut[16];
- 	int i;
- 	struct dmcu *dmcu = adev->dm.dc->res_pool->dmcu;
--	bool ret = false;
-+	bool ret;
+diff --git a/drivers/tty/serial/amba-pl011.c b/drivers/tty/serial/amba-pl011.c
+index 637f72fb6427f..e55b556337214 100644
+--- a/drivers/tty/serial/amba-pl011.c
++++ b/drivers/tty/serial/amba-pl011.c
+@@ -2605,6 +2605,7 @@ static int pl011_setup_port(struct device *dev, struct uart_amba_port *uap,
+ 	uap->port.fifosize = uap->fifosize;
+ 	uap->port.flags = UPF_BOOT_AUTOCONF;
+ 	uap->port.line = index;
++	spin_lock_init(&uap->port.lock);
  
- 	for (i = 0; i < 16; i++)
- 		linear_lut[i] = 0xFFFF * i / 15;
-@@ -945,13 +945,10 @@ static int dm_late_init(void *handle)
- 	 */
- 	params.min_abm_backlight = 0x28F;
+ 	amba_ports[index] = uap;
  
--	/* todo will enable for navi10 */
--	if (adev->asic_type <= CHIP_RAVEN) {
--		ret = dmcu_load_iram(dmcu, params);
--
--		if (!ret)
--			return -EINVAL;
--	}
-+	ret = dmcu_load_iram(dmcu, params);
-+
-+	if (!ret)
-+		return -EINVAL;
- 
- 	return detect_mst_link_for_all_connectors(adev->ddev);
- }
+-- 
+2.25.1
+
 
 
