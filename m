@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E43620657C
+	by mail.lfdr.de (Postfix) with ESMTP id BACF520657D
 	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:50:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388149AbgFWUEM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:04:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42458 "EHLO mail.kernel.org"
+        id S2388167AbgFWUEO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:04:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387537AbgFWUEK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:04:10 -0400
+        id S2388150AbgFWUEN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:04:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A34E2080C;
-        Tue, 23 Jun 2020 20:04:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2338C2082F;
+        Tue, 23 Jun 2020 20:04:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592942650;
-        bh=C8plsjTbzTGDw+qKFpBKTXxSb7qke20Cwx5EshaE9fM=;
+        s=default; t=1592942652;
+        bh=H3qIbqGd1WjyK0/fZVWrc7oncYZArdjABl6fgpBU420=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cjg4Ml0ZilD0LOCR8epBZEmQfVc3QmX2plX5gahBrF7DGL26AvmJFHvhUTNAaVDFS
-         a8HworjoyhhVR83EslGAe45YhdLKzLnubuaxxG83yLCPm+4QRNNf6Kd3IwdmXRuKZx
-         fw9emPlZFzzFhPYVSBE6R48orJoxVWzR4Z+obYWc=
+        b=Iv4AQlARc/cOab1bpR+in/1eCpuqi1hUrfkYXeg2Z5MuF5I06UaMrtJtCixov2676
+         diyCmH+9foNzfl1BOlUNJAEOCbG45Qa5VAUNf3sB1XlEwChu5+zAlB8fCeeGfxo/Sp
+         g8KawAcsaiL5YUh3Ab0A08ekrl8pjrxCtKFbys0I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+        stable@vger.kernel.org, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Aurelien Aptel <aaptel@suse.com>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 082/477] RDMA/core: Fix several reference count leaks.
-Date:   Tue, 23 Jun 2020 21:51:19 +0200
-Message-Id: <20200623195411.486545454@linuxfoundation.org>
+Subject: [PATCH 5.7 083/477] cifs: set up next DFS target before generic_ip_connect()
+Date:   Tue, 23 Jun 2020 21:51:20 +0200
+Message-Id: <20200623195411.529694650@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -44,61 +45,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Paulo Alcantara <pc@cjr.nz>
 
-[ Upstream commit 0b8e125e213204508e1b3c4bdfe69713280b7abd ]
+[ Upstream commit aaa3aef34d3ab9499a5c7633823429f7a24e6dff ]
 
-kobject_init_and_add() takes reference even when it fails.  If this
-function returns an error, kobject_put() must be called to properly clean
-up the memory associated with the object. Previous
-commit b8eb718348b8 ("net-sysfs: Fix reference count leak in
-rx|netdev_queue_add_kobject") fixed a similar problem.
+If we mount a very specific DFS link
 
-Link: https://lore.kernel.org/r/20200528030231.9082-1-wu000273@umn.edu
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+    \\FS0.FOO.COM\dfs\link -> \FS0\share1, \FS1\share2
+
+where its target list contains NB names ("FS0" & "FS1") rather than
+FQDN ones ("FS0.FOO.COM" & "FS1.FOO.COM"), we end up connecting to
+\FOO\share1 but server->hostname will have "FOO.COM".  The reason is
+because both "FS0" and "FS0.FOO.COM" resolve to same IP address and
+they share same TCP server connection, but "FS0.FOO.COM" was the first
+hostname set -- which is OK.
+
+However, if the echo thread timeouts and we still have a good
+connection to "FS0", in cifs_reconnect()
+
+    rc = generic_ip_connect(server) -> success
+    if (rc) {
+            ...
+            reconn_inval_dfs_target(server, cifs_sb, &tgt_list,
+	                            &tgt_it);
+            ...
+     }
+     ...
+
+it successfully reconnects to "FS0" server but does not set up next
+DFS target - which should be the same target server "\FS0\share1" -
+and server->hostname remains set to "FS0.FOO.COM" rather than "FS0",
+as reconn_inval_dfs_target() would have it set to "FS0" if called
+earlier.
+
+Finally, in __smb2_reconnect(), the reconnect of tcons would fail
+because tcon->ses->server->hostname (FS0.FOO.COM) does not match DFS
+target's hostname (FS0).
+
+Fix that by calling reconn_inval_dfs_target() before
+generic_ip_connect() so server->hostname will get updated correctly
+prior to reconnecting its tcons in __smb2_reconnect().
+
+With "cifs: handle hostnames that resolve to same ip in failover"
+patch
+
+    - The above problem would not occur.
+    - We could save an DNS query to find out that they both resolve to
+      the same ip address.
+
+Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Reviewed-by: Aurelien Aptel <aaptel@suse.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/sysfs.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ fs/cifs/connect.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/infiniband/core/sysfs.c b/drivers/infiniband/core/sysfs.c
-index 087682e6969e5..defe9cd4c5eeb 100644
---- a/drivers/infiniband/core/sysfs.c
-+++ b/drivers/infiniband/core/sysfs.c
-@@ -1058,8 +1058,7 @@ static int add_port(struct ib_core_device *coredev, int port_num)
- 				   coredev->ports_kobj,
- 				   "%d", port_num);
- 	if (ret) {
--		kfree(p);
--		return ret;
-+		goto err_put;
- 	}
+diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
+index 28268ed461b82..47b9fbb70bf5e 100644
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -572,26 +572,26 @@ cifs_reconnect(struct TCP_Server_Info *server)
+ 		try_to_freeze();
  
- 	p->gid_attr_group = kzalloc(sizeof(*p->gid_attr_group), GFP_KERNEL);
-@@ -1072,8 +1071,7 @@ static int add_port(struct ib_core_device *coredev, int port_num)
- 	ret = kobject_init_and_add(&p->gid_attr_group->kobj, &gid_attr_type,
- 				   &p->kobj, "gid_attrs");
- 	if (ret) {
--		kfree(p->gid_attr_group);
--		goto err_put;
-+		goto err_put_gid_attrs;
- 	}
- 
- 	if (device->ops.process_mad && is_full_dev) {
-@@ -1404,8 +1402,10 @@ int ib_port_register_module_stat(struct ib_device *device, u8 port_num,
- 
- 		ret = kobject_init_and_add(kobj, ktype, &port->kobj, "%s",
- 					   name);
--		if (ret)
-+		if (ret) {
-+			kobject_put(kobj);
- 			return ret;
+ 		mutex_lock(&server->srv_mutex);
++#ifdef CONFIG_CIFS_DFS_UPCALL
+ 		/*
+ 		 * Set up next DFS target server (if any) for reconnect. If DFS
+ 		 * feature is disabled, then we will retry last server we
+ 		 * connected to before.
+ 		 */
++		reconn_inval_dfs_target(server, cifs_sb, &tgt_list, &tgt_it);
++#endif
++		rc = reconn_set_ipaddr(server);
++		if (rc) {
++			cifs_dbg(FYI, "%s: failed to resolve hostname: %d\n",
++				 __func__, rc);
 +		}
- 	}
- 
- 	return 0;
++
+ 		if (cifs_rdma_enabled(server))
+ 			rc = smbd_reconnect(server);
+ 		else
+ 			rc = generic_ip_connect(server);
+ 		if (rc) {
+ 			cifs_dbg(FYI, "reconnect error %d\n", rc);
+-#ifdef CONFIG_CIFS_DFS_UPCALL
+-			reconn_inval_dfs_target(server, cifs_sb, &tgt_list,
+-						&tgt_it);
+-#endif
+-			rc = reconn_set_ipaddr(server);
+-			if (rc) {
+-				cifs_dbg(FYI, "%s: failed to resolve hostname: %d\n",
+-					 __func__, rc);
+-			}
+ 			mutex_unlock(&server->srv_mutex);
+ 			msleep(3000);
+ 		} else {
 -- 
 2.25.1
 
