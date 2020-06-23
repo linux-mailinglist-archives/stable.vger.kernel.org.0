@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1819F205EC7
+	by mail.lfdr.de (Postfix) with ESMTP id F368F205EC9
 	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:31:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390621AbgFWU0K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:26:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45250 "EHLO mail.kernel.org"
+        id S2389240AbgFWU0P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:26:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390617AbgFWU0J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:26:09 -0400
+        id S2389707AbgFWU0O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:26:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F473206EB;
-        Tue, 23 Jun 2020 20:26:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7E4932064B;
+        Tue, 23 Jun 2020 20:26:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943968;
-        bh=rZ3gVjyl0q9k6+5KuneBHr88hjhSjb8oON7VpteEGaE=;
+        s=default; t=1592943974;
+        bh=hAz4jq2t0EMuhW7aFZUM5ibPTOJW8HzUsRUw+saWNkg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DIHdcYk911JKnsqNVmeXQvw2zzb0MwDBKmWgEGUQhWEcLIskd685ptaseugjixoVV
-         ulnrllQ2NFS0A8Ir/P73q7CqU43TMdIFh3wCtmeD3mCRYoHyhWdC3uvz1xX1fABdiK
-         cTZDnOnOFfdCMzs/I1LGjgViueuufcl6BXLpqex4=
+        b=h4XeN5cMEtOo1ydT0CYRGkGzzo808GJDrttfRD11rhAqY/RhdsMmS4unpGs00VyuD
+         ryM7OsLt+nbG2dzJG9VAhviCk4avw9laosBUANxfFuhiFBnNeoXmmL5mcS9gEs8SDZ
+         X3FY0kPLmJxtgH+VUFzoyxIftCbkC2zCuGleKpYs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Kuppuswamy Sathyanarayanan 
-        <sathyanarayanan.kuppuswamy@linux.intel.com>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 121/314] drivers: base: Fix NULL pointer exception in __platform_driver_probe() if a driver developer is foolish
-Date:   Tue, 23 Jun 2020 21:55:16 +0200
-Message-Id: <20200623195344.644574888@linuxfoundation.org>
+Subject: [PATCH 5.4 123/314] PCI/ASPM: Allow ASPM on links to PCIe-to-PCI/PCI-X Bridges
+Date:   Tue, 23 Jun 2020 21:55:18 +0200
+Message-Id: <20200623195344.740642080@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
 References: <20200623195338.770401005@linuxfoundation.org>
@@ -45,82 +46,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit 388bcc6ecc609fca1b4920de7dc3806c98ec535e ]
+[ Upstream commit 66ff14e59e8a30690755b08bc3042359703fb07a ]
 
-If platform bus driver registration is failed then, accessing
-platform bus spin lock (&drv->driver.bus->p->klist_drivers.k_lock)
-in __platform_driver_probe() without verifying the return value
-__platform_driver_register() can lead to NULL pointer exception.
+7d715a6c1ae5 ("PCI: add PCI Express ASPM support") added the ability for
+Linux to enable ASPM, but for some undocumented reason, it didn't enable
+ASPM on links where the downstream component is a PCIe-to-PCI/PCI-X Bridge.
 
-So check the return value before attempting the spin lock.
+Remove this exclusion so we can enable ASPM on these links.
 
-One such example is below:
+The Dell OptiPlex 7080 mentioned in the bugzilla has a TI XIO2001
+PCIe-to-PCI Bridge.  Enabling ASPM on the link leading to it allows the
+Intel SoC to enter deeper Package C-states, which is a significant power
+savings.
 
-For a custom usecase, I have intentionally failed the platform bus
-registration and I expected all the platform device/driver
-registrations to fail gracefully. But I came across this panic
-issue.
-
-[    1.331067] BUG: kernel NULL pointer dereference, address: 00000000000000c8
-[    1.331118] #PF: supervisor write access in kernel mode
-[    1.331163] #PF: error_code(0x0002) - not-present page
-[    1.331208] PGD 0 P4D 0
-[    1.331233] Oops: 0002 [#1] PREEMPT SMP
-[    1.331268] CPU: 3 PID: 1 Comm: swapper/0 Tainted: G        W         5.6.0-00049-g670d35fb0144 #165
-[    1.331341] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
-[    1.331406] RIP: 0010:_raw_spin_lock+0x15/0x30
-[    1.331588] RSP: 0000:ffffc9000001be70 EFLAGS: 00010246
-[    1.331632] RAX: 0000000000000000 RBX: 00000000000000c8 RCX: 0000000000000001
-[    1.331696] RDX: 0000000000000001 RSI: 0000000000000092 RDI: 0000000000000000
-[    1.331754] RBP: 00000000ffffffed R08: 0000000000000501 R09: 0000000000000001
-[    1.331817] R10: ffff88817abcc520 R11: 0000000000000670 R12: 00000000ffffffed
-[    1.331881] R13: ffffffff82dbc268 R14: ffffffff832f070a R15: 0000000000000000
-[    1.331945] FS:  0000000000000000(0000) GS:ffff88817bd80000(0000) knlGS:0000000000000000
-[    1.332008] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    1.332062] CR2: 00000000000000c8 CR3: 000000000681e001 CR4: 00000000003606e0
-[    1.332126] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[    1.332189] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[    1.332252] Call Trace:
-[    1.332281]  __platform_driver_probe+0x92/0xee
-[    1.332323]  ? rtc_dev_init+0x2b/0x2b
-[    1.332358]  cmos_init+0x37/0x67
-[    1.332396]  do_one_initcall+0x7d/0x168
-[    1.332428]  kernel_init_freeable+0x16c/0x1c9
-[    1.332473]  ? rest_init+0xc0/0xc0
-[    1.332508]  kernel_init+0x5/0x100
-[    1.332543]  ret_from_fork+0x1f/0x30
-[    1.332579] CR2: 00000000000000c8
-[    1.332616] ---[ end trace 3bd87f12e9010b87 ]---
-[    1.333549] note: swapper/0[1] exited with preempt_count 1
-[    1.333592] Kernel panic - not syncing: Attempted to kill init! exitcode=0x00000009
-[    1.333736] Kernel Offset: disabled
-
-Note, this can only be triggered if a driver errors out from this call,
-which should never happen.  If it does, the driver needs to be fixed.
-
-Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-Link: https://lore.kernel.org/r/20200408214003.3356-1-sathyanarayanan.kuppuswamy@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[bhelgaas: commit log]
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=207571
+Link: https://lore.kernel.org/r/20200505173423.26968-1-kai.heng.feng@canonical.com
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/platform.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/pci/pcie/aspm.c | 10 ----------
+ 1 file changed, 10 deletions(-)
 
-diff --git a/drivers/base/platform.c b/drivers/base/platform.c
-index 604a461848c98..0b67d41bab8ff 100644
---- a/drivers/base/platform.c
-+++ b/drivers/base/platform.c
-@@ -802,6 +802,8 @@ int __init_or_module __platform_driver_probe(struct platform_driver *drv,
- 	/* temporary section violation during probe() */
- 	drv->probe = probe;
- 	retval = code = __platform_driver_register(drv, module);
-+	if (retval)
-+		return retval;
+diff --git a/drivers/pci/pcie/aspm.c b/drivers/pci/pcie/aspm.c
+index 5a1bbf2cb7e98..4a0ec34062d60 100644
+--- a/drivers/pci/pcie/aspm.c
++++ b/drivers/pci/pcie/aspm.c
+@@ -628,16 +628,6 @@ static void pcie_aspm_cap_init(struct pcie_link_state *link, int blacklist)
  
- 	/*
- 	 * Fixup that section violation, being paranoid about code scanning
+ 	/* Setup initial capable state. Will be updated later */
+ 	link->aspm_capable = link->aspm_support;
+-	/*
+-	 * If the downstream component has pci bridge function, don't
+-	 * do ASPM for now.
+-	 */
+-	list_for_each_entry(child, &linkbus->devices, bus_list) {
+-		if (pci_pcie_type(child) == PCI_EXP_TYPE_PCI_BRIDGE) {
+-			link->aspm_disable = ASPM_STATE_ALL;
+-			break;
+-		}
+-	}
+ 
+ 	/* Get and check endpoint acceptable latencies */
+ 	list_for_each_entry(child, &linkbus->devices, bus_list) {
 -- 
 2.25.1
 
