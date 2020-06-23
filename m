@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EC552060ED
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:49:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB2D32060F1
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:49:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392658AbgFWUsQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:48:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47214 "EHLO mail.kernel.org"
+        id S2392943AbgFWUsY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:48:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392640AbgFWUsQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:48:16 -0400
+        id S2392913AbgFWUsS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:48:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7944221548;
-        Tue, 23 Jun 2020 20:48:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2F2F21582;
+        Tue, 23 Jun 2020 20:48:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592945296;
-        bh=yKwDromzh+5kxVNfUQzkvziM7JwRsWVesvwqkeHcJcU=;
+        s=default; t=1592945298;
+        bh=Cdjy+yn64BFMht6Zz/VIpSAsycphMZ2trnMFdAXoZi4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vfcjkfeWAunHCUqZD5sRboL7rm9jqAkJpg0sznNnMcDGIcfJiiMNf50C4zV3kRgy1
-         MZ0l1JQn6bOyxL1sBng9iD2xda5hWxuC7PE1Z8YvNJXr7biZ9Hm39EeAngJtCbkA3z
-         Kn2gLtjuLItiQB6gkcnv1YM6BojtRuAInIm8r4vs=
+        b=mA0vqGyAnZrytC3NC3YiFSxiGTBPmRR7vADiy9GtEFQB0LNLVpOA8apZ/nyQ7lqzH
+         IKdyVzWMdl2v3CILDtBd6vf6Z/nrZVx0HHWoB6oAXVyVQnsD93CRSCDfx7l2v6FtO3
+         qVWwlgHNQ9ELBFRi8Z0eoHMgUg7TSzoQploCZxaE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
-        Sean Paul <sean@poorly.run>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 116/136] drm/dp_mst: Increase ACT retry timeout to 3s
-Date:   Tue, 23 Jun 2020 21:59:32 +0200
-Message-Id: <20200623195309.528055212@linuxfoundation.org>
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 117/136] x86/boot/compressed: Relax sed symbol type regex for LLVM ld.lld
+Date:   Tue, 23 Jun 2020 21:59:33 +0200
+Message-Id: <20200623195309.604760517@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195303.601828702@linuxfoundation.org>
 References: <20200623195303.601828702@linuxfoundation.org>
@@ -43,130 +45,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lyude Paul <lyude@redhat.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit 873a95e0d59ac06901ae261dda0b7165ffd002b8 ]
+commit bc310baf2ba381c648983c7f4748327f17324562 upstream.
 
-Currently we only poll for an ACT up to 30 times, with a busy-wait delay
-of 100µs between each attempt - giving us a timeout of 2900µs. While
-this might seem sensible, it would appear that in certain scenarios it
-can take dramatically longer then that for us to receive an ACT. On one
-of the EVGA MST hubs that I have available, I observed said hub
-sometimes taking longer then a second before signalling the ACT. These
-delays mostly seem to occur when previous sideband messages we've sent
-are NAKd by the hub, however it wouldn't be particularly surprising if
-it's possible to reproduce times like this simply by introducing branch
-devices with large LCTs since payload allocations have to take effect on
-every downstream device up to the payload's target.
+The final build stage of the x86 kernel captures some symbol
+addresses from the decompressor binary and copies them into zoffset.h.
+It uses sed with a regular expression that matches the address, symbol
+type and symbol name, and mangles the captured addresses and the names
+of symbols of interest into #define directives that are added to
+zoffset.h
 
-So, instead of just retrying 30 times we poll for the ACT for up to 3ms,
-and additionally use usleep_range() to avoid a very long and rude
-busy-wait. Note that the previous retry count of 30 appears to have been
-arbitrarily chosen, as I can't find any mention of a recommended timeout
-or retry count for ACTs in the DisplayPort 2.0 specification. This also
-goes for the range we were previously using for udelay(), although I
-suspect that was just copied from the recommended delay for link
-training on SST devices.
+The symbol type is indicated by a single letter, which we match
+strictly: only letters in the set 'ABCDGRSTVW' are matched, even
+though the actual symbol type is relevant and therefore ignored.
 
-Changes since v1:
-* Use readx_poll_timeout() instead of open-coding timeout loop - Sean
-  Paul
-Changes since v2:
-* Increase poll interval to 200us - Sean Paul
-* Print status in hex when we timeout waiting for ACT - Sean Paul
+Commit bc7c9d620 ("efi/libstub/x86: Force 'hidden' visibility for
+extern declarations") made a change to the way external symbol
+references are classified, resulting in 'startup_32' now being
+emitted as a hidden symbol. This prevents the use of GOT entries to
+refer to this symbol via its absolute address, which recent toolchains
+(including Clang based ones) already avoid by default, making this
+change a no-op in the majority of cases.
 
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Fixes: ad7f8a1f9ced ("drm/helper: add Displayport multi-stream helper (v0.6)")
-Cc: Sean Paul <sean@poorly.run>
-Cc: <stable@vger.kernel.org> # v3.17+
-Reviewed-by: Sean Paul <sean@poorly.run>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200406221253.1307209-4-lyude@redhat.com
+However, as it turns out, the LLVM linker classifies such hidden
+symbols as symbols with static linkage in fully linked ELF binaries,
+causing tools such as NM to output a lowercase 't' rather than an upper
+case 'T' for the type of such symbols. Since our sed expression only
+matches upper case letters for the symbol type, the line describing
+startup_32 is disregarded, resulting in a build error like the following
+
+  arch/x86/boot/header.S:568:18: error: symbol 'ZO_startup_32' can not be
+                                        undefined in a subtraction expression
+  init_size: .long (0x00000000008fd000 - ZO_startup_32 +
+                    (((0x0000000001f6361c + ((0x0000000001f6361c >> 8) + 65536)
+                     - 0x00000000008c32e5) + 4095) & ~4095)) # kernel initialization size
+
+Given that we are only interested in the value of the symbol, let's match
+any character in the set 'a-zA-Z' instead.
+
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Tested-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_dp_mst_topology.c | 54 ++++++++++++++++-----------
- 1 file changed, 32 insertions(+), 22 deletions(-)
+ arch/x86/boot/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c b/drivers/gpu/drm/drm_dp_mst_topology.c
-index df5d853f96eed..e52381c9d04ee 100644
---- a/drivers/gpu/drm/drm_dp_mst_topology.c
-+++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-@@ -29,6 +29,7 @@
- #include <linux/i2c.h>
- #include <drm/drm_dp_mst_helper.h>
- #include <drm/drmP.h>
-+#include <linux/iopoll.h>
+diff --git a/arch/x86/boot/Makefile b/arch/x86/boot/Makefile
+index 1c060748c813e..f38ffcc610d20 100644
+--- a/arch/x86/boot/Makefile
++++ b/arch/x86/boot/Makefile
+@@ -87,7 +87,7 @@ $(obj)/vmlinux.bin: $(obj)/compressed/vmlinux FORCE
  
- #include <drm/drm_fixed.h>
- #include <drm/drm_atomic.h>
-@@ -2751,6 +2752,17 @@ static int drm_dp_dpcd_write_payload(struct drm_dp_mst_topology_mgr *mgr,
- 	return ret;
- }
+ SETUP_OBJS = $(addprefix $(obj)/,$(setup-y))
  
-+static int do_get_act_status(struct drm_dp_aux *aux)
-+{
-+	int ret;
-+	u8 status;
-+
-+	ret = drm_dp_dpcd_readb(aux, DP_PAYLOAD_TABLE_UPDATE_STATUS, &status);
-+	if (ret < 0)
-+		return ret;
-+
-+	return status;
-+}
+-sed-zoffset := -e 's/^\([0-9a-fA-F]*\) [ABCDGRSTVW] \(startup_32\|startup_64\|efi32_stub_entry\|efi64_stub_entry\|efi_pe_entry\|input_data\|_end\|_ehead\|_text\|z_.*\)$$/\#define ZO_\2 0x\1/p'
++sed-zoffset := -e 's/^\([0-9a-fA-F]*\) [a-zA-Z] \(startup_32\|startup_64\|efi32_stub_entry\|efi64_stub_entry\|efi_pe_entry\|input_data\|_end\|_ehead\|_text\|z_.*\)$$/\#define ZO_\2 0x\1/p'
  
- /**
-  * drm_dp_check_act_status() - Check ACT handled status.
-@@ -2760,30 +2772,28 @@ static int drm_dp_dpcd_write_payload(struct drm_dp_mst_topology_mgr *mgr,
-  */
- int drm_dp_check_act_status(struct drm_dp_mst_topology_mgr *mgr)
- {
--	int count = 0, ret;
--	u8 status;
--
--	do {
--		ret = drm_dp_dpcd_readb(mgr->aux,
--					DP_PAYLOAD_TABLE_UPDATE_STATUS,
--					&status);
--		if (ret < 0) {
--			DRM_DEBUG_KMS("failed to read payload table status %d\n",
--				      ret);
--			return ret;
--		}
--
--		if (status & DP_PAYLOAD_ACT_HANDLED)
--			break;
--		count++;
--		udelay(100);
--	} while (count < 30);
--
--	if (!(status & DP_PAYLOAD_ACT_HANDLED)) {
--		DRM_DEBUG_KMS("failed to get ACT bit %d after %d retries\n",
--			      status, count);
-+	/*
-+	 * There doesn't seem to be any recommended retry count or timeout in
-+	 * the MST specification. Since some hubs have been observed to take
-+	 * over 1 second to update their payload allocations under certain
-+	 * conditions, we use a rather large timeout value.
-+	 */
-+	const int timeout_ms = 3000;
-+	int ret, status;
-+
-+	ret = readx_poll_timeout(do_get_act_status, mgr->aux, status,
-+				 status & DP_PAYLOAD_ACT_HANDLED || status < 0,
-+				 200, timeout_ms * USEC_PER_MSEC);
-+	if (ret < 0 && status >= 0) {
-+		DRM_DEBUG_KMS("Failed to get ACT after %dms, last status: %02x\n",
-+			      timeout_ms, status);
- 		return -EINVAL;
-+	} else if (status < 0) {
-+		DRM_DEBUG_KMS("Failed to read payload table status: %d\n",
-+			      status);
-+		return status;
- 	}
-+
- 	return 0;
- }
- EXPORT_SYMBOL(drm_dp_check_act_status);
+ quiet_cmd_zoffset = ZOFFSET $@
+       cmd_zoffset = $(NM) $< | sed -n $(sed-zoffset) > $@
 -- 
 2.25.1
 
