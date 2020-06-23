@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2CA420667E
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:52:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F072B206582
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:50:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388110AbgFWVm6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 17:42:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42696 "EHLO mail.kernel.org"
+        id S2388215AbgFWUEb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:04:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388180AbgFWUES (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:04:18 -0400
+        id S2388212AbgFWUE3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:04:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4151020EDD;
-        Tue, 23 Jun 2020 20:04:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7C1062100A;
+        Tue, 23 Jun 2020 20:04:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592942657;
-        bh=ft4SnJwcqPOlJpRwqsAwojz+qCuyHdM9F/BLQDkeFUU=;
+        s=default; t=1592942668;
+        bh=77Tl72WMtI3IpF05TktpihT66X2/HwQy1kbxN2Bfq/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PlyonCtY7msQYiP1TR9Y/PzW7Xvl/HsTfpRMDMQ8nrwbI9sWqoXK/14rgjfo45t/8
-         eevnldV/DlgRZrnk60heGzQJAnW16HrruDz7atXGsQOiwmuQ5oYt4Fr6JNRpOJe8Kb
-         Igtb9ki6EQ43L8XuzvD0Db/whBU9rLYUt9ZdrxRU=
+        b=aPS/pUn12t6nMT1x0/MS1pbZaPK8UPIqmTG2BlZLsBSVekfRXr+qczR4zkNnHz5Em
+         QpdTKPJFCI135GHP293iaCQ+lxboxDhxhw5x24zKA7yrhO/MfO60FoIlvLxgrWxc2g
+         ybhC0XcHa3fTNoYD3B6MIMqR6fwgClOlV1ZCcxWc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pingfan Liu <kernelfans@gmail.com>,
-        Hari Bathini <hbathini@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 085/477] powerpc/crashkernel: Take "mem=" option into account
-Date:   Tue, 23 Jun 2020 21:51:22 +0200
-Message-Id: <20200623195411.627554669@linuxfoundation.org>
+        stable@vger.kernel.org, Chunyan Zhang <chunyan.zhang@unisoc.com>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 088/477] clk: sprd: fix compile-testing
+Date:   Tue, 23 Jun 2020 21:51:25 +0200
+Message-Id: <20200623195411.771820647@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -45,79 +43,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pingfan Liu <kernelfans@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit be5470e0c285a68dc3afdea965032f5ddc8269d7 ]
+[ Upstream commit b5f73d47f34b238221ac771b5fe4907df621d7cb ]
 
-'mem=" option is an easy way to put high pressure on memory during
-some test. Hence after applying the memory limit, instead of total
-mem, the actual usable memory should be considered when reserving mem
-for crashkernel. Otherwise the boot up may experience OOM issue.
+I got a build failure with CONFIG_ARCH_SPRD=m when the
+main portion of the clock driver failed to get linked into
+the kernel:
 
-E.g. it would reserve 4G prior to the change and 512M afterward, if
-passing
-crashkernel="2G-4G:384M,4G-16G:512M,16G-64G:1G,64G-128G:2G,128G-:4G",
-and mem=5G on a 256G machine.
+ERROR: modpost: "sprd_pll_sc_gate_ops" [drivers/clk/sprd/sc9863a-clk.ko] undefined!
+ERROR: modpost: "sprd_pll_ops" [drivers/clk/sprd/sc9863a-clk.ko] undefined!
+ERROR: modpost: "sprd_div_ops" [drivers/clk/sprd/sc9863a-clk.ko] undefined!
+ERROR: modpost: "sprd_comp_ops" [drivers/clk/sprd/sc9863a-clk.ko] undefined!
+ERROR: modpost: "sprd_mux_ops" [drivers/clk/sprd/sc9863a-clk.ko] undefined!
+ERROR: modpost: "sprd_gate_ops" [drivers/clk/sprd/sc9863a-clk.ko] undefined!
+ERROR: modpost: "sprd_sc_gate_ops" [drivers/clk/sprd/sc9863a-clk.ko] undefined!
+ERROR: modpost: "sprd_clk_probe" [drivers/clk/sprd/sc9863a-clk.ko] undefined!
+ERROR: modpost: "sprd_clk_regmap_init" [drivers/clk/sprd/sc9863a-clk.ko] undefined!
+ERROR: modpost: "sprd_pll_ops" [drivers/clk/sprd/sc9860-clk.ko] undefined!
+ERROR: modpost: "sprd_div_ops" [drivers/clk/sprd/sc9860-clk.ko] undefined!
+ERROR: modpost: "sprd_mux_ops" [drivers/clk/sprd/sc9860-clk.ko] undefined!
 
-This issue is powerpc specific because it puts higher priority on
-fadump and kdump reservation than on "mem=". Referring the following
-code:
-    if (fadump_reserve_mem() == 0)
-            reserve_crashkernel();
-    ...
-    /* Ensure that total memory size is page-aligned. */
-    limit = ALIGN(memory_limit ?: memblock_phys_mem_size(), PAGE_SIZE);
-    memblock_enforce_memory_limit(limit);
+This is a combination of two trivial bugs:
 
-While on other arches, the effect of "mem=" takes a higher priority
-and pass through memblock_phys_mem_size() before calling
-reserve_crashkernel().
+- A platform should not be 'tristate', it should be a 'bool' symbol
+  like the other platforms, if only for consistency, and to avoid
+  surprises like this one.
 
-Signed-off-by: Pingfan Liu <kernelfans@gmail.com>
-Reviewed-by: Hari Bathini <hbathini@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1585749644-4148-1-git-send-email-kernelfans@gmail.com
+- The clk Makefile does not traverse into the sprd subdirectory
+  if the platform is disabled but the drivers are enabled for
+  compile-testing.
+
+Fixing either of the two would be sufficient to address the link failure,
+but for correctness, both need to be changed.
+
+Fixes: 2b1b799d7630 ("arm64: change ARCH_SPRD Kconfig to tristate")
+Fixes: d41f59fd92f2 ("clk: sprd: Add common infrastructure")
+Acked-by: Chunyan Zhang <chunyan.zhang@unisoc.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kexec/core.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ arch/arm64/Kconfig.platforms | 2 +-
+ drivers/clk/Makefile         | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/kexec/core.c b/arch/powerpc/kexec/core.c
-index 078fe3d76feb6..56da5eb2b923a 100644
---- a/arch/powerpc/kexec/core.c
-+++ b/arch/powerpc/kexec/core.c
-@@ -115,11 +115,12 @@ void machine_kexec(struct kimage *image)
+diff --git a/arch/arm64/Kconfig.platforms b/arch/arm64/Kconfig.platforms
+index 55d70cfe0f9e1..3c7e310fd8bfa 100644
+--- a/arch/arm64/Kconfig.platforms
++++ b/arch/arm64/Kconfig.platforms
+@@ -248,7 +248,7 @@ config ARCH_TEGRA
+ 	  This enables support for the NVIDIA Tegra SoC family.
  
- void __init reserve_crashkernel(void)
- {
--	unsigned long long crash_size, crash_base;
-+	unsigned long long crash_size, crash_base, total_mem_sz;
- 	int ret;
+ config ARCH_SPRD
+-	tristate "Spreadtrum SoC platform"
++	bool "Spreadtrum SoC platform"
+ 	help
+ 	  Support for Spreadtrum ARM based SoCs
  
-+	total_mem_sz = memory_limit ? memory_limit : memblock_phys_mem_size();
- 	/* use common parsing */
--	ret = parse_crashkernel(boot_command_line, memblock_phys_mem_size(),
-+	ret = parse_crashkernel(boot_command_line, total_mem_sz,
- 			&crash_size, &crash_base);
- 	if (ret == 0 && crash_size > 0) {
- 		crashk_res.start = crash_base;
-@@ -178,6 +179,7 @@ void __init reserve_crashkernel(void)
- 	/* Crash kernel trumps memory limit */
- 	if (memory_limit && memory_limit <= crashk_res.end) {
- 		memory_limit = crashk_res.end + 1;
-+		total_mem_sz = memory_limit;
- 		printk("Adjusted memory limit for crashkernel, now 0x%llx\n",
- 		       memory_limit);
- 	}
-@@ -186,7 +188,7 @@ void __init reserve_crashkernel(void)
- 			"for crashkernel (System RAM: %ldMB)\n",
- 			(unsigned long)(crash_size >> 20),
- 			(unsigned long)(crashk_res.start >> 20),
--			(unsigned long)(memblock_phys_mem_size() >> 20));
-+			(unsigned long)(total_mem_sz >> 20));
- 
- 	if (!memblock_is_region_memory(crashk_res.start, crash_size) ||
- 	    memblock_reserve(crashk_res.start, crash_size)) {
+diff --git a/drivers/clk/Makefile b/drivers/clk/Makefile
+index f4169cc2fd318..60e811d3f226d 100644
+--- a/drivers/clk/Makefile
++++ b/drivers/clk/Makefile
+@@ -105,7 +105,7 @@ obj-$(CONFIG_CLK_SIFIVE)		+= sifive/
+ obj-$(CONFIG_ARCH_SIRF)			+= sirf/
+ obj-$(CONFIG_ARCH_SOCFPGA)		+= socfpga/
+ obj-$(CONFIG_PLAT_SPEAR)		+= spear/
+-obj-$(CONFIG_ARCH_SPRD)			+= sprd/
++obj-y					+= sprd/
+ obj-$(CONFIG_ARCH_STI)			+= st/
+ obj-$(CONFIG_ARCH_STRATIX10)		+= socfpga/
+ obj-$(CONFIG_ARCH_SUNXI)		+= sunxi/
 -- 
 2.25.1
 
