@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 747472060FB
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:49:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4390F20610A
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:49:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404130AbgFWUsz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:48:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48120 "EHLO mail.kernel.org"
+        id S2392979AbgFWUtb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:49:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404127AbgFWUsy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:48:54 -0400
+        id S2392973AbgFWUta (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:49:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7978B2098B;
-        Tue, 23 Jun 2020 20:48:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2082A2158C;
+        Tue, 23 Jun 2020 20:49:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592945334;
-        bh=KBuvIhyZm/BBg+Kcj7ctVvYIWsJYksyAeju6FUxkpnI=;
+        s=default; t=1592945369;
+        bh=/iR03Dl/Adbmu/nEqRDn7NV49c0rSvP9aV6p5m/kFXw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UHIGWtapR1qMdctt5UuEKesetjy347Ovrircn/uY5+rsRQLXv2GRo13w3XfGJVI6l
-         sh+OOG51doJT3o6DWgTM5+1Zb2poYPaXyX+PlbdWzI/IDLPr4WYYV4rIWf8KOUp2XI
-         5h4zX3a6JxoI6tPGx88iorC6N8XCKRA5/rLiTji8=
+        b=ZarsbhIGVHS1Jo17bOEVhEyRE92NMv80EABDp5oNGC6+Sk3+Tt1TH6vKYJdd+TgMh
+         3ZJal9Lw3Ci1DPqQtcLerJpZRjgesMQ/MhiYYxQ8OBfD3A31lAdxK0CeCgT3t40ZK7
+         0OifRKPrcUWxoSA25XQDjC9tIKbB1XlL16jKB+jc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 129/136] mtd: rawnand: tmio: Fix the probe error path
-Date:   Tue, 23 Jun 2020 21:59:45 +0200
-Message-Id: <20200623195310.293718504@linuxfoundation.org>
+        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
+        Stephan Mueller <smueller@chronox.de>
+Subject: [PATCH 4.14 130/136] crypto: algif_skcipher - Cap recv SG list at ctx->used
+Date:   Tue, 23 Jun 2020 21:59:46 +0200
+Message-Id: <20200623195310.339500306@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195303.601828702@linuxfoundation.org>
 References: <20200623195303.601828702@linuxfoundation.org>
@@ -43,44 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-[ Upstream commit 75e9a330a9bd48f97a55a08000236084fe3dae56 ]
+commit 7cf81954705b7e5b057f7dc39a7ded54422ab6e1 upstream.
 
-nand_release() is supposed be called after MTD device registration.
-Here, only nand_scan() happened, so use nand_cleanup() instead.
+Somewhere along the line the cap on the SG list length for receive
+was lost.  This patch restores it and removes the subsequent test
+which is now redundant.
 
-There is no real Fixes tag applying here as the use of nand_release()
-in this driver predates by far the introduction of nand_cleanup() in
-commit d44154f969a4 ("mtd: nand: Provide nand_cleanup() function to free NAND related resources")
-which makes this change possible. However, pointing this commit as the
-culprit for backporting purposes makes sense even if this commit is not
-introducing any bug.
+Fixes: 2d97591ef43d ("crypto: af_alg - consolidation of...")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Reviewed-by: Stephan Mueller <smueller@chronox.de>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: d44154f969a4 ("mtd: nand: Provide nand_cleanup() function to free NAND related resources")
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/linux-mtd/20200519130035.1883-57-miquel.raynal@bootlin.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/tmio_nand.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ crypto/algif_skcipher.c |    6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/drivers/mtd/nand/tmio_nand.c b/drivers/mtd/nand/tmio_nand.c
-index 5a082d9432f96..51f12b9f90ba1 100644
---- a/drivers/mtd/nand/tmio_nand.c
-+++ b/drivers/mtd/nand/tmio_nand.c
-@@ -448,7 +448,7 @@ static int tmio_probe(struct platform_device *dev)
- 	if (!retval)
- 		return retval;
+--- a/crypto/algif_skcipher.c
++++ b/crypto/algif_skcipher.c
+@@ -85,14 +85,10 @@ static int _skcipher_recvmsg(struct sock
+ 		return PTR_ERR(areq);
  
--	nand_release(nand_chip);
-+	nand_cleanup(nand_chip);
+ 	/* convert iovecs of output buffers into RX SGL */
+-	err = af_alg_get_rsgl(sk, msg, flags, areq, -1, &len);
++	err = af_alg_get_rsgl(sk, msg, flags, areq, ctx->used, &len);
+ 	if (err)
+ 		goto free;
  
- err_irq:
- 	tmio_hw_stop(dev, tmio);
--- 
-2.25.1
-
+-	/* Process only as much RX buffers for which we have TX data */
+-	if (len > ctx->used)
+-		len = ctx->used;
+-
+ 	/*
+ 	 * If more buffers are to be expected to be processed, process only
+ 	 * full block size buffers.
 
 
