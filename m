@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CA9E205F27
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:32:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48AB8205FEE
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:47:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389459AbgFWU36 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:29:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50044 "EHLO mail.kernel.org"
+        id S2391883AbgFWUhr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:37:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389797AbgFWU3y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:29:54 -0400
+        id S2391881AbgFWUho (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:37:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E31E7206EB;
-        Tue, 23 Jun 2020 20:29:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A21EE20781;
+        Tue, 23 Jun 2020 20:37:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944194;
-        bh=J8gLyxuh7i1Ph5mKliRbbrUkmLcIN1tXAi/qcBYfNoE=;
+        s=default; t=1592944665;
+        bh=RMqzzt01BOikjN8ADoywgLVHGqM1ozO+nzBrEdGYpv4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OeFn1JZRMdnVNcFHEn2ZE0xEpY36WkulAII9ougbCA1s5UkBF/nD8zquDmyAswOqI
-         X/xmt88m0oTTPt2QOYzJyA+U87tqTsQMbSp+blIvpSpURK2lwlHSdLJUEs/v9z42f6
-         +fWVoyA3VoAl7Okf2PWoLMHhT9gEAxed4SLVsbQE=
+        b=LFEJsMbvsfnrxkLjTH2VS1LXnhenSQSZ04oO0x+8vOqGHBBE7DyJgYbFFho/bgO+S
+         0MCZ0SDxu6VbanQdXT9EoG87YkanPewl2MkLWFq6Yp05stNNzmA74LIVBzMBCzfM0n
+         j0ns7B4LD7jr//GX1e0yN63RqAbCE1+OH73d/JOA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luis Henriques <lhenriques@suse.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Amir Goldstein <amir73il@gmail.com>,
-        Ilya Dryomov <idryomov@gmail.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Suganath Prabu S <suganath-prabu.subramani@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 210/314] ceph: dont return -ESTALE if theres still an open file
-Date:   Tue, 23 Jun 2020 21:56:45 +0200
-Message-Id: <20200623195348.934335976@linuxfoundation.org>
+Subject: [PATCH 4.19 078/206] scsi: mpt3sas: Fix double free warnings
+Date:   Tue, 23 Jun 2020 21:56:46 +0200
+Message-Id: <20200623195320.784649884@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
-References: <20200623195338.770401005@linuxfoundation.org>
+In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
+References: <20200623195316.864547658@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,59 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luis Henriques <lhenriques@suse.com>
+From: Suganath Prabu S <suganath-prabu.subramani@broadcom.com>
 
-[ Upstream commit 878dabb64117406abd40977b87544d05bb3031fc ]
+[ Upstream commit cbbfdb2a2416c9f0cde913cf09670097ac281282 ]
 
-Similarly to commit 03f219041fdb ("ceph: check i_nlink while converting
-a file handle to dentry"), this fixes another corner case with
-name_to_handle_at/open_by_handle_at.  The issue has been detected by
-xfstest generic/467, when doing:
+Fix following warning from Smatch static analyser:
 
- - name_to_handle_at("/cephfs/myfile")
- - open("/cephfs/myfile")
- - unlink("/cephfs/myfile")
- - sync; sync;
- - drop caches
- - open_by_handle_at()
+drivers/scsi/mpt3sas/mpt3sas_base.c:5256 _base_allocate_memory_pools()
+warn: 'ioc->hpr_lookup' double freed
 
-The call to open_by_handle_at should not fail because the file hasn't been
-deleted yet (only unlinked) and we do have a valid handle to it.  -ESTALE
-shall be returned only if i_nlink is 0 *and* i_count is 1.
+drivers/scsi/mpt3sas/mpt3sas_base.c:5256 _base_allocate_memory_pools()
+warn: 'ioc->internal_lookup' double freed
 
-This patch also makes sure we have LINK caps before checking i_nlink.
-
-Signed-off-by: Luis Henriques <lhenriques@suse.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Acked-by: Amir Goldstein <amir73il@gmail.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Link: https://lore.kernel.org/r/20200508110738.30732-1-suganath-prabu.subramani@broadcom.com
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Suganath Prabu S <suganath-prabu.subramani@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/export.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/scsi/mpt3sas/mpt3sas_base.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/ceph/export.c b/fs/ceph/export.c
-index 79dc06881e78e..e088843a7734c 100644
---- a/fs/ceph/export.c
-+++ b/fs/ceph/export.c
-@@ -172,9 +172,16 @@ struct inode *ceph_lookup_inode(struct super_block *sb, u64 ino)
- static struct dentry *__fh_to_dentry(struct super_block *sb, u64 ino)
- {
- 	struct inode *inode = __lookup_inode(sb, ino);
-+	int err;
-+
- 	if (IS_ERR(inode))
- 		return ERR_CAST(inode);
--	if (inode->i_nlink == 0) {
-+	/* We need LINK caps to reliably check i_nlink */
-+	err = ceph_do_getattr(inode, CEPH_CAP_LINK_SHARED, false);
-+	if (err)
-+		return ERR_PTR(err);
-+	/* -ESTALE if inode as been unlinked and no file is open */
-+	if ((inode->i_nlink == 0) && (atomic_read(&inode->i_count) == 1)) {
- 		iput(inode);
- 		return ERR_PTR(-ESTALE);
+diff --git a/drivers/scsi/mpt3sas/mpt3sas_base.c b/drivers/scsi/mpt3sas/mpt3sas_base.c
+index 2c556c7fcf0dc..9fbe20e38ad07 100644
+--- a/drivers/scsi/mpt3sas/mpt3sas_base.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_base.c
+@@ -4284,7 +4284,9 @@ _base_release_memory_pools(struct MPT3SAS_ADAPTER *ioc)
  	}
+ 
+ 	kfree(ioc->hpr_lookup);
++	ioc->hpr_lookup = NULL;
+ 	kfree(ioc->internal_lookup);
++	ioc->internal_lookup = NULL;
+ 	if (ioc->chain_lookup) {
+ 		for (i = 0; i < ioc->scsiio_depth; i++) {
+ 			for (j = ioc->chains_per_prp_buffer;
 -- 
 2.25.1
 
