@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A026E2060AF
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:48:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B08B920605A
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:48:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392666AbgFWUpZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:45:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42856 "EHLO mail.kernel.org"
+        id S2391801AbgFWUmC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:42:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392733AbgFWUpY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:45:24 -0400
+        id S2403900AbgFWUmA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:42:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 825D220781;
-        Tue, 23 Jun 2020 20:45:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D3192053B;
+        Tue, 23 Jun 2020 20:41:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592945124;
-        bh=WlGhnDgONwQeKBenUO4z+D5CXw/KblHRXeLlcHDUUMA=;
+        s=default; t=1592944920;
+        bh=Wn50G7UV7hw+PsejYjxC4ngZXtE2dq+bWcMqBvPE7yY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RGfNHswfuwi/5bqvUqrstGyqVQ5AjkGDhF6gf8bwfDGiSUrBZnNkCy6P5NLC9zBBl
-         cHyXrMhCyu8LCAvDcuyvcyFS7FuuXnxZIU5EQDdtUi9pZDJysqb9s1FJAsaLb1815N
-         t8ITAkzlK4hQ4xpKSnfyynXaxkOjGCsmdkwhpCu8=
+        b=SSXHgqtygc2tnac2OAugIYC0h3/or/47oc/prQ89maLMo0ZzV1u+ap6rHafeHID4+
+         B7Sp+D7ClbWzzCN9DfDkNSbYccqMx11tnbCaZ9qZoIkclCpB4kGVEY9o284/TwJRmT
+         gYUkOp/fkcgxxeaTo8W0+jxfeytPMc/t3Atk+aqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roman Bolshakov <r.bolshakov@yadro.com>,
-        Viacheslav Dubeyko <v.dubeiko@yadro.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 049/136] scsi: qla2xxx: Fix warning after FC target reset
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 4.19 177/206] selinux: fix double free
 Date:   Tue, 23 Jun 2020 21:58:25 +0200
-Message-Id: <20200623195306.123248958@linuxfoundation.org>
+Message-Id: <20200623195325.745737040@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195303.601828702@linuxfoundation.org>
-References: <20200623195303.601828702@linuxfoundation.org>
+In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
+References: <20200623195316.864547658@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,108 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Viacheslav Dubeyko <v.dubeiko@yadro.com>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit f839544ccff60cbe534282aac68858fc3fb278ca ]
+commit 65de50969a77509452ae590e9449b70a22b923bb upstream.
 
-Currently, FC target reset finishes with the warning message:
+Clang's static analysis tool reports these double free memory errors.
 
-[84010.596893] ------------[ cut here ]------------
-[84010.596917] WARNING: CPU: 238 PID: 279973 at ../drivers/scsi/qla2xxx/qla_target.c:6644 qlt_enable_vha+0x1d0/0x260 [qla2xxx]
-[84010.596918] Modules linked in: vrf af_packet 8021q garp mrp stp llc netlink_diag target_tatlin_tblock(OEX) dm_ec(OEX) ttln_rdma(OEX) dm_frontend(OEX) nvme_rdma nvmet tcm_qla2xxx iscsi_target_mod target_core_mod at24 nvmem_core pnv_php ipmi_watchdog ipmi_ssif vmx_crypto gf128mul crct10dif_vpmsum qla2xxx rpcrdma nvme_fc powernv_flash(X) nvme_fabrics uio_pdrv_genirq mtd rtc_opal(X) ibmpowernv(X) opal_prd(X) uio scsi_transport_fc i2c_opal(X) ses enclosure ipmi_poweroff ast i2c_algo_bit ttm bmc_mcu(OEX) drm_kms_helper syscopyarea sysfillrect sysimgblt fb_sys_fops drm drm_panel_orientation_quirks agpgart nfsd auth_rpcgss nfs_acl ipmi_powernv(X) lockd ipmi_devintf ipmi_msghandler grace dummy ext4 crc16 jbd2 mbcache sd_mod rdma_ucm ib_iser rdma_cm ib_umad iw_cm ib_ipoib libiscsi scsi_transport_iscsi ib_cm
-[84010.596975]  configfs mlx5_ib ib_uverbs ib_core mlx5_core crc32c_vpmsum xhci_pci xhci_hcd mpt3sas(OEX) tg3 usbcore mlxfw tls raid_class libphy scsi_transport_sas devlink ptp pps_core nvme nvme_core sunrpc dm_mirror dm_region_hash dm_log sg dm_multipath dm_mod scsi_dh_rdac scsi_dh_emc scsi_dh_alua scsi_mod autofs4
-[84010.597001] Supported: Yes, External
-[84010.597004] CPU: 238 PID: 279973 Comm: bash Tainted: G           OE      4.12.14-197.29-default #1 SLE15-SP1
-[84010.597006] task: c000000a104c0000 task.stack: c000000b52188000
-[84010.597007] NIP: d00000001ffd7f78 LR: d00000001ffd7f6c CTR: c0000000001676c0
-[84010.597008] REGS: c000000b5218b910 TRAP: 0700   Tainted: G           OE       (4.12.14-197.29-default)
-[84010.597008] MSR: 900000010282b033 <SF,HV,VEC,VSX,EE,FP,ME,IR,DR,RI,LE,TM[E]>
-[84010.597015]   CR: 48242424  XER: 00000000
-[84010.597016] CFAR: d00000001ff45d08 SOFTE: 1
-               GPR00: d00000001ffd7f6c c000000b5218bb90 d00000002001b228 0000000000000102
-               GPR04: 0000000000000001 0000000000000001 00013d91ed0a5e2d 0000000000000000
-               GPR08: c000000007793300 0000000000000000 0000000000000000 c000000a086e7818
-               GPR12: 0000000000002200 c000000007793300 0000000000000000 000000012bc937c0
-               GPR16: 000000012bbf7ed0 0000000000000000 000000012bc3dd10 0000000000000000
-               GPR20: 000000012bc4db28 0000010036442810 000000012bc97828 000000012bc96c70
-               GPR24: 00000100365b1550 0000000000000000 00000100363f3d80 c000000be20d3080
-               GPR28: c000000bda7eae00 c000000be20db7e8 c000000be20d3778 c000000be20db7e8
-[84010.597042] NIP [d00000001ffd7f78] qlt_enable_vha+0x1d0/0x260 [qla2xxx]
-[84010.597051] LR [d00000001ffd7f6c] qlt_enable_vha+0x1c4/0x260 [qla2xxx]
-[84010.597051] Call Trace:
-[84010.597061] [c000000b5218bb90] [d00000001ffd7f6c] qlt_enable_vha+0x1c4/0x260 [qla2xxx] (unreliable)
-[84010.597064] [c000000b5218bc20] [d000000009820b6c] tcm_qla2xxx_tpg_enable_store+0xc4/0x130 [tcm_qla2xxx]
-[84010.597067] [c000000b5218bcb0] [d0000000185d0e68] configfs_write_file+0xd0/0x190 [configfs]
-[84010.597072] [c000000b5218bd00] [c0000000003d0edc] __vfs_write+0x3c/0x1e0
-[84010.597074] [c000000b5218bd90] [c0000000003d2ea8] vfs_write+0xd8/0x220
-[84010.597076] [c000000b5218bde0] [c0000000003d4ddc] SyS_write+0x6c/0x110
-[84010.597079] [c000000b5218be30] [c00000000000b188] system_call+0x3c/0x130
-[84010.597080] Instruction dump:
-[84010.597082] 7d0050a8 7d084b78 7d0051ad 40c2fff4 7fa3eb78 4bf73965 60000000 7fa3eb78
-[84010.597086] 4bf6dcd9 60000000 2fa30000 419eff40 <0fe00000> 4bffff38 e95f0058 a12a0180
-[84010.597090] ---[ end trace e32abaf6e6fee826 ]---
+security/selinux/ss/services.c:2987:4: warning: Attempt to free released memory [unix.Malloc]
+                        kfree(bnames[i]);
+                        ^~~~~~~~~~~~~~~~
+security/selinux/ss/services.c:2990:2: warning: Attempt to free released memory [unix.Malloc]
+        kfree(bvalues);
+        ^~~~~~~~~~~~~~
 
-To reproduce:
+So improve the security_get_bools error handling by freeing these variables
+and setting their return pointers to NULL and the return len to 0
 
-echo 0x7fffffff > /sys/module/qla2xxx/parameters/logging
-modprobe target_core_mod
-modprobe tcm_qla2xxx
-mkdir /sys/kernel/config/target/qla2xxx
-mkdir /sys/kernel/config/target/qla2xxx/<port-name>
-mkdir /sys/kernel/config/target/qla2xxx/<port-name>/tpgt_1
-echo 1 > /sys/kernel/config/target/qla2xxx/<port-name>/tpgt_1/enable
-echo 0 > /sys/kernel/config/target/qla2xxx/<port-name>/tpgt_1/enable
-echo 1 > /sys/kernel/config/target/qla2xxx/<port-name>/tpgt_1/enable
+Cc: stable@vger.kernel.org
+Signed-off-by: Tom Rix <trix@redhat.com>
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-SYSTEM START
-kernel: pid 327:drivers/scsi/qla2xxx/qla_init.c:2174 qla2x00_initialize_adapter(): vha->flags.online 0x0
-<...>
-kernel: pid 327:drivers/scsi/qla2xxx/qla_os.c:3444 qla2x00_probe_one(): vha->flags.online 0x1
-
-echo 1 > /sys/kernel/config/target/qla2xxx/21:00:00:24:ff:86:a6:2a/tpgt_1/enable
-kernel: pid 348:drivers/scsi/qla2xxx/qla_init.c:6641 qla2x00_abort_isp_cleanup(): vha->flags.online 0x0, ISP_ABORT_NEEDED 0x0
-<...>
-kernel: pid 348:drivers/scsi/qla2xxx/qla_init.c:6998 qla2x00_restart_isp(): vha->flags.online 0x0
-
-echo 0 > /sys/kernel/config/target/qla2xxx/21:00:00:24:ff:86:a6:2a/tpgt_1/enable
-kernel: pid 348:drivers/scsi/qla2xxx/qla_init.c:6641 qla2x00_abort_isp_cleanup(): vha->flags.online 0x0, ISP_ABORT_NEEDED 0x0
-<...>
-kernel: pid 1404:drivers/scsi/qla2xxx/qla_os.c:1107 qla2x00_wait_for_hba_online(): base_vha->flags.online 0x0
-
-echo 1 > /sys/kernel/config/target/qla2xxx/21:00:00:24:ff:86:a6:2a/tpgt_1/enable
-kernel: pid 1404:drivers/scsi/qla2xxx/qla_os.c:1107 qla2x00_wait_for_hba_online(): base_vha->flags.online 0x0
-kernel: -----------[ cut here ]-----------
-kernel: WARNING: CPU: 1 PID: 1404 at drivers/scsi/qla2xxx/qla_target.c:6654 qlt_enable_vha+0x1e0/0x280 [qla2xxx]
-
-The issue happens because no real ISP reset is executed.  The
-qla2x00_abort_isp(scsi_qla_host_t *vha) function expects that
-vha->flags.online will be not zero for ISP reset procedure.  This patch
-sets vha->flags.online to 1 before calling ->abort_isp() for starting the
-ISP reset.
-
-Link: https://lore.kernel.org/r/1d7b21bf9f7676643239eb3d60eaca7cfa505cf0.camel@yadro.com
-Reviewed-by: Roman Bolshakov <r.bolshakov@yadro.com>
-Signed-off-by: Viacheslav Dubeyko <v.dubeiko@yadro.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_os.c | 1 +
- 1 file changed, 1 insertion(+)
+ security/selinux/ss/services.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
-index d4024015f859f..ea60c6e603c06 100644
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -5824,6 +5824,7 @@ qla2x00_do_dpc(void *data)
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -2857,8 +2857,12 @@ err:
+ 	if (*names) {
+ 		for (i = 0; i < *len; i++)
+ 			kfree((*names)[i]);
++		kfree(*names);
+ 	}
+ 	kfree(*values);
++	*len = 0;
++	*names = NULL;
++	*values = NULL;
+ 	goto out;
+ }
  
- 			if (do_reset && !(test_and_set_bit(ABORT_ISP_ACTIVE,
- 			    &base_vha->dpc_flags))) {
-+				base_vha->flags.online = 1;
- 				ql_dbg(ql_dbg_dpc, base_vha, 0x4007,
- 				    "ISP abort scheduled.\n");
- 				if (ha->isp_ops->abort_isp(base_vha)) {
--- 
-2.25.1
-
 
 
