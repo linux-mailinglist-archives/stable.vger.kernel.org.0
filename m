@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3701205F38
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:32:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF491206021
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:47:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391163AbgFWUao (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:30:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51060 "EHLO mail.kernel.org"
+        id S2392089AbgFWUjo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:39:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391152AbgFWUam (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:30:42 -0400
+        id S2392085AbgFWUjo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:39:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4EE052070E;
-        Tue, 23 Jun 2020 20:30:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B12B217D8;
+        Tue, 23 Jun 2020 20:39:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944242;
-        bh=/UXAHFaS8OVho6FHO+lrtTbMB3D6hzejmkHdzFTN9bQ=;
+        s=default; t=1592944783;
+        bh=0ucHMYDFft9f8l+yGC+JoPvteAuq9Z9BYn60Xkfsr+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cFGv3wmIV0kqTrfNbmKK3uKjiH6rPRwYF8paYPNxOL61IRls3SCddyVi2pdb8bWOR
-         KBtQTFL0cs1wIPKG3ZEO+qKHYRGLb7KmEz643sJwC0j1s9Qji/IAtVq+neU8cWT9i5
-         qJe2+BWrlvwVJIyj9jCRzS3fIO0U5WG3s6uq3MwA=
+        b=YsyXPi1+Etho+8HgzjAcUvwUzoCveOQTIIr2xecRviHzJunqDjqf1LQXtqTUYnmLO
+         Litnq+cI/0yFWzt1Igj11dmSv3pL4bnZ6sgMuefYHK2vYX2fZlqea2TybtVpz3+XzV
+         C1deHRK8/G81RnxJgSc6O3KqPwfbgV6HJ7G2zhbU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 227/314] blktrace: fix endianness for blk_log_remap()
-Date:   Tue, 23 Jun 2020 21:57:02 +0200
-Message-Id: <20200623195349.776578978@linuxfoundation.org>
+        stable@vger.kernel.org, Souptick Joarder <jrdr.linux@gmail.com>,
+        Wu Hao <hao.wu@intel.com>, Xu Yilun <yilun.xu@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 096/206] fpga: dfl: afu: Corrected error handling levels
+Date:   Tue, 23 Jun 2020 21:57:04 +0200
+Message-Id: <20200623195321.662025579@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
-References: <20200623195338.770401005@linuxfoundation.org>
+In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
+References: <20200623195316.864547658@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+From: Souptick Joarder <jrdr.linux@gmail.com>
 
-[ Upstream commit 5aec598c456fe3c1b71a1202cbb42bdc2a643277 ]
+[ Upstream commit c9d7e3da1f3c4cf5dddfc5d7ce4d76d013aba1cc ]
 
-The function blk_log_remap() can be simplified by removing the
-call to get_pdu_remap() that copies the values into extra variable to
-print the data, which also fixes the endiannness warning reported by
-sparse.
+Corrected error handling goto sequnece. Level put_pages should
+be called when pinned pages >= 0 && pinned != npages. Level
+free_pages should be called when pinned pages < 0.
 
-Signed-off-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: fa8dda1edef9 ("fpga: dfl: afu: add DFL_FPGA_PORT_DMA_MAP/UNMAP ioctls support")
+Signed-off-by: Souptick Joarder <jrdr.linux@gmail.com>
+Acked-by: Wu Hao <hao.wu@intel.com>
+Reviewed-by: Xu Yilun <yilun.xu@intel.com>
+Link: https://lore.kernel.org/r/1589825991-3545-1-git-send-email-jrdr.linux@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/blktrace.c | 19 ++++---------------
- 1 file changed, 4 insertions(+), 15 deletions(-)
+ drivers/fpga/dfl-afu-dma-region.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/trace/blktrace.c b/kernel/trace/blktrace.c
-index 23e5f86c99215..a677aa84ccb6e 100644
---- a/kernel/trace/blktrace.c
-+++ b/kernel/trace/blktrace.c
-@@ -1266,17 +1266,6 @@ static __u64 get_pdu_int(const struct trace_entry *ent, bool has_cg)
- 	return be64_to_cpu(*val);
- }
+diff --git a/drivers/fpga/dfl-afu-dma-region.c b/drivers/fpga/dfl-afu-dma-region.c
+index c9a613dc9eb7e..e056965ef97b3 100644
+--- a/drivers/fpga/dfl-afu-dma-region.c
++++ b/drivers/fpga/dfl-afu-dma-region.c
+@@ -106,10 +106,10 @@ static int afu_dma_pin_pages(struct dfl_feature_platform_data *pdata,
+ 				     region->pages);
+ 	if (pinned < 0) {
+ 		ret = pinned;
+-		goto put_pages;
++		goto free_pages;
+ 	} else if (pinned != npages) {
+ 		ret = -EFAULT;
+-		goto free_pages;
++		goto put_pages;
+ 	}
  
--static void get_pdu_remap(const struct trace_entry *ent,
--			  struct blk_io_trace_remap *r, bool has_cg)
--{
--	const struct blk_io_trace_remap *__r = pdu_start(ent, has_cg);
--	__u64 sector_from = __r->sector_from;
--
--	r->device_from = be32_to_cpu(__r->device_from);
--	r->device_to   = be32_to_cpu(__r->device_to);
--	r->sector_from = be64_to_cpu(sector_from);
--}
--
- typedef void (blk_log_action_t) (struct trace_iterator *iter, const char *act,
- 	bool has_cg);
- 
-@@ -1402,13 +1391,13 @@ static void blk_log_with_error(struct trace_seq *s,
- 
- static void blk_log_remap(struct trace_seq *s, const struct trace_entry *ent, bool has_cg)
- {
--	struct blk_io_trace_remap r = { .device_from = 0, };
-+	const struct blk_io_trace_remap *__r = pdu_start(ent, has_cg);
- 
--	get_pdu_remap(ent, &r, has_cg);
- 	trace_seq_printf(s, "%llu + %u <- (%d,%d) %llu\n",
- 			 t_sector(ent), t_sec(ent),
--			 MAJOR(r.device_from), MINOR(r.device_from),
--			 (unsigned long long)r.sector_from);
-+			 MAJOR(be32_to_cpu(__r->device_from)),
-+			 MINOR(be32_to_cpu(__r->device_from)),
-+			 be64_to_cpu(__r->sector_from));
- }
- 
- static void blk_log_plug(struct trace_seq *s, const struct trace_entry *ent, bool has_cg)
+ 	dev_dbg(dev, "%d pages pinned\n", pinned);
 -- 
 2.25.1
 
