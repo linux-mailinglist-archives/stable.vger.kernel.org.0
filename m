@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43D112060BB
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:49:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA2FB206065
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:48:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390231AbgFWUp6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:45:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43630 "EHLO mail.kernel.org"
+        id S2392426AbgFWUmd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:42:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392786AbgFWUpy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:45:54 -0400
+        id S2391802AbgFWUmb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:42:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A851620656;
-        Tue, 23 Jun 2020 20:45:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 791B02053B;
+        Tue, 23 Jun 2020 20:42:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592945155;
-        bh=wicaoCAJNuk7XntjN2HU1xs0spmHSn5Q2EMQqELHpJM=;
+        s=default; t=1592944952;
+        bh=oLM9mZZYs/YSKFC3NB04AuXd89VQrWwoajHorXVHtNs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qo87JOGE2/PPOX5IgETZs72tWFlAhpGFJHxMrRhyo/tQzxLcHq5ti2j9JFnlZWZ6k
-         1CHqec7lAYmYYFiWNyNJRMBlvnVIj3J97+f2cqClArfYSd6W6s+pmwfOJ2xU+ICn9B
-         Gy09AmYmTQrzNaAKvAG/jMGtNSLPPx1GrsmJ+ctA=
+        b=sDmYGpjTUi2i9Luio9uTRIUKxBgF0tDWf7ER/3BWRSO0nTlLzHFuoSvY4vGUZ7q79
+         VMHiJMuNqTxRjatK8HWtV5WaV7RV75LgZoXhAscjUrmH/KjQbiPTZvMQU8+uYXGdd9
+         uZtJVde6mnQfC8Xv0fpc+0Z+pofrMubaCBgQfH0E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
+        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 060/136] vfio-pci: Mask cap zero
+Subject: [PATCH 4.19 188/206] mtd: rawnand: orion: Fix the probe error path
 Date:   Tue, 23 Jun 2020 21:58:36 +0200
-Message-Id: <20200623195306.701731577@linuxfoundation.org>
+Message-Id: <20200623195326.279247950@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195303.601828702@linuxfoundation.org>
-References: <20200623195303.601828702@linuxfoundation.org>
+In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
+References: <20200623195316.864547658@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Williamson <alex.williamson@redhat.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-[ Upstream commit bc138db1b96264b9c1779cf18d5a3b186aa90066 ]
+[ Upstream commit be238fbf78e4c7c586dac235ab967d3e565a4d1a ]
 
-The PCI Code and ID Assignment Specification changed capability ID 0
-from reserved to a NULL capability in the v1.1 revision.  The NULL
-capability is defined to include only the 16-bit capability header,
-ie. only the ID and next pointer.  Unfortunately vfio-pci creates a
-map of config space, where ID 0 is used to reserve the standard type
-0 header.  Finding an actual capability with this ID therefore results
-in a bogus range marked in that map and conflicts with subsequent
-capabilities.  As this seems to be a dummy capability anyway and we
-already support dropping capabilities, let's hide this one rather than
-delving into the potentially subtle dependencies within our map.
+nand_release() is supposed be called after MTD device registration.
+Here, only nand_scan() happened, so use nand_cleanup() instead.
 
-Seen on an NVIDIA Tesla T4.
+There is no real Fixes tag applying here as the use of nand_release()
+in this driver predates by far the introduction of nand_cleanup() in
+commit d44154f969a4 ("mtd: nand: Provide nand_cleanup() function to free NAND related resources")
+which makes this change possible. However, pointing this commit as the
+culprit for backporting purposes makes sense even if this commit is not
+introducing any bug.
 
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Fixes: d44154f969a4 ("mtd: nand: Provide nand_cleanup() function to free NAND related resources")
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/linux-mtd/20200519130035.1883-34-miquel.raynal@bootlin.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/pci/vfio_pci_config.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/mtd/nand/raw/orion_nand.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/vfio/pci/vfio_pci_config.c b/drivers/vfio/pci/vfio_pci_config.c
-index c2d300bc37f64..36bc8f104e42e 100644
---- a/drivers/vfio/pci/vfio_pci_config.c
-+++ b/drivers/vfio/pci/vfio_pci_config.c
-@@ -1464,7 +1464,12 @@ static int vfio_cap_init(struct vfio_pci_device *vdev)
- 		if (ret)
- 			return ret;
+diff --git a/drivers/mtd/nand/raw/orion_nand.c b/drivers/mtd/nand/raw/orion_nand.c
+index 5c58d91ffaee6..caffebab6c9b1 100644
+--- a/drivers/mtd/nand/raw/orion_nand.c
++++ b/drivers/mtd/nand/raw/orion_nand.c
+@@ -181,7 +181,7 @@ static int __init orion_nand_probe(struct platform_device *pdev)
+ 	mtd->name = "orion_nand";
+ 	ret = mtd_device_register(mtd, board->parts, board->nr_parts);
+ 	if (ret) {
+-		nand_release(nc);
++		nand_cleanup(nc);
+ 		goto no_dev;
+ 	}
  
--		if (cap <= PCI_CAP_ID_MAX) {
-+		/*
-+		 * ID 0 is a NULL capability, conflicting with our fake
-+		 * PCI_CAP_ID_BASIC.  As it has no content, consider it
-+		 * hidden for now.
-+		 */
-+		if (cap && cap <= PCI_CAP_ID_MAX) {
- 			len = pci_cap_length[cap];
- 			if (len == 0xFF) { /* Variable length */
- 				len = vfio_cap_len(vdev, cap, pos);
 -- 
 2.25.1
 
