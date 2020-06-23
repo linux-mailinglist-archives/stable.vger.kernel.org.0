@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70A7B2060E3
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:49:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BFAE206075
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:48:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390026AbgFWUru (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:47:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46414 "EHLO mail.kernel.org"
+        id S2392477AbgFWUnG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:43:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404079AbgFWUrr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:47:47 -0400
+        id S2392473AbgFWUnF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:43:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 482D121548;
-        Tue, 23 Jun 2020 20:47:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7FF0821941;
+        Tue, 23 Jun 2020 20:43:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592945267;
-        bh=fo5IicuzVZcxkY15Ztxrcpm6Hb1BOiwqofyzoKjdMBk=;
+        s=default; t=1592944985;
+        bh=TQ4RRLMwABj/h2pa92vRnNrTUg18wAIi0ZH1SJOFJI0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tmj/PCkygy6axZMSlYMLZSKWrzMyEV16JNCYu/Ok9wtsqRyh+M989nROtA2dBeYF2
-         4RnpPcLmcWTHqC2n2f4UxsBZLKd8dN57X9sARvrveuocfAJRRlDvpjLmZeswX7t5ci
-         E8J0YpV+YLl7ZwF5E+W21WSJ33BT9Q/3ClbQCM18=
+        b=QjaGPLjoJsORclqqcyPBD7yaGgTwIO5wBLEyIBNRS2eKO+3hWfAda8jngctT9qQDT
+         vD57UwALaV2MwiQXsiX9I/9WdsG1LuS/7uJ45Vgyx8jHne5qimwZ8WDG3KVGHlNS1B
+         yh6ZkMnMNDCKGdKDrd6OcEisPXxzzpTsvX+IRin0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
-        Felipe Balbi <balbi@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 074/136] usb: gadget: fix potential double-free in m66592_probe.
+        stable@vger.kernel.org,
+        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 202/206] net: octeon: mgmt: Repair filling of RX ring
 Date:   Tue, 23 Jun 2020 21:58:50 +0200
-Message-Id: <20200623195307.401290675@linuxfoundation.org>
+Message-Id: <20200623195326.979645687@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195303.601828702@linuxfoundation.org>
-References: <20200623195303.601828702@linuxfoundation.org>
+In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
+References: <20200623195316.864547658@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
 
-[ Upstream commit 44734a594196bf1d474212f38fe3a0d37a73278b ]
+commit 0c34bb598c510e070160029f34efeeb217000f8d upstream.
 
-m66592_free_request() is called under label "err_add_udc"
-and "clean_up", and m66592->ep0_req is not set to NULL after
-first free, leading to a double-free. Fix this issue by
-setting m66592->ep0_req to NULL after the first free.
+The removal of mips_swiotlb_ops exposed a problem in octeon_mgmt Ethernet
+driver. mips_swiotlb_ops had an mb() after most of the operations and the
+removal of the ops had broken the receive functionality of the driver.
+My code inspection has shown no other places except
+octeon_mgmt_rx_fill_ring() where an explicit barrier would be obviously
+missing. The latter function however has to make sure that "ringing the
+bell" doesn't happen before RX ring entry is really written.
 
-Fixes: 0f91349b89f3 ("usb: gadget: convert all users to the new udc infrastructure")
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The patch has been successfully tested on Octeon II.
+
+Fixes: a999933db9ed ("MIPS: remove mips_swiotlb_ops")
+Cc: stable@vger.kernel.org
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/usb/gadget/udc/m66592-udc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/cavium/octeon/octeon_mgmt.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/usb/gadget/udc/m66592-udc.c b/drivers/usb/gadget/udc/m66592-udc.c
-index 46ce7bc15f2b0..53abad98af6d8 100644
---- a/drivers/usb/gadget/udc/m66592-udc.c
-+++ b/drivers/usb/gadget/udc/m66592-udc.c
-@@ -1672,7 +1672,7 @@ static int m66592_probe(struct platform_device *pdev)
+--- a/drivers/net/ethernet/cavium/octeon/octeon_mgmt.c
++++ b/drivers/net/ethernet/cavium/octeon/octeon_mgmt.c
+@@ -235,6 +235,11 @@ static void octeon_mgmt_rx_fill_ring(str
  
- err_add_udc:
- 	m66592_free_request(&m66592->ep[0].ep, m66592->ep0_req);
--
-+	m66592->ep0_req = NULL;
- clean_up3:
- 	if (m66592->pdata->on_chip) {
- 		clk_disable(m66592->clk);
--- 
-2.25.1
-
+ 		/* Put it in the ring.  */
+ 		p->rx_ring[p->rx_next_fill] = re.d64;
++		/* Make sure there is no reorder of filling the ring and ringing
++		 * the bell
++		 */
++		wmb();
++
+ 		dma_sync_single_for_device(p->dev, p->rx_ring_handle,
+ 					   ring_size_to_bytes(OCTEON_MGMT_RX_RING_SIZE),
+ 					   DMA_BIDIRECTIONAL);
 
 
