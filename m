@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40D89205D53
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:14:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11FDE205D57
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:14:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388733AbgFWUL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:11:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53394 "EHLO mail.kernel.org"
+        id S2388944AbgFWUMJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:12:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388723AbgFWULy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:11:54 -0400
+        id S2387612AbgFWUMI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:12:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C0D50206C3;
-        Tue, 23 Jun 2020 20:11:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C214420707;
+        Tue, 23 Jun 2020 20:12:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943113;
-        bh=+ZcY/aEUVu0+i/O/libCrzYtlt1Fm0M0Wu1MynLpqeI=;
+        s=default; t=1592943128;
+        bh=cIGi7f44F9fI57GkzRC8e+rGive0O2H72b3r/AtLP00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xzZIW5LgCUWUlE9DXgXifoCbKUZbBXCkLiHb/qAZ+8Px3HkaHvrItAAVk356KmWyw
-         reDE0mrld5zM/+U4C90KjrueELtBfS7G3kQZwlJK9rtdqnE6rwEIltH1Dcn1Nscvsp
-         HW5HY/BsCja66IFBP5CGQB9x4/+OV75ADQfZM9L8=
+        b=WPTL8iLPWw0f7ruF5HrW9Mb8+YcRFpVo5zsBqdIFxWxfMqEgVOBcGjoLY1eUfom51
+         vthjilmP5Ua7ryAxfpsRP1K8+0lBkPU9BR225o5S8GAo2fxj98VlcqStixiDll5hWD
+         91oantteTwiFJeMWcwpKb49dAMIpkI42VSSf271I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lang Cheng <chenglang@huawei.com>,
-        Weihang Li <liweihang@huawei.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
+        Dong Aisheng <aisheng.dong@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 237/477] RDMA/hns: Fix cmdq parameter of querying pf timer resource
-Date:   Tue, 23 Jun 2020 21:53:54 +0200
-Message-Id: <20200623195418.777875456@linuxfoundation.org>
+Subject: [PATCH 5.7 240/477] firmware: imx: scu: Fix possible memory leak in imx_scu_probe()
+Date:   Tue, 23 Jun 2020 21:53:57 +0200
+Message-Id: <20200623195418.921054673@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -45,75 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lang Cheng <chenglang@huawei.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit 441c88d5b3ff80108ff536c6cf80591187015403 ]
+[ Upstream commit 89f12d6509bff004852c51cb713a439a86816b24 ]
 
-The firmware has reduced the number of descriptions of command
-HNS_ROCE_OPC_QUERY_PF_TIMER_RES to 1. The driver needs to adapt, otherwise
-the hardware will report error 4(CMD_NEXT_ERR).
+'chan_name' is malloced in imx_scu_probe() and should be freed
+before leaving from the error handling cases, otherwise it will
+cause memory leak.
 
-Fixes: 0e40dc2f70cd ("RDMA/hns: Add timer allocation support for hip08")
-Link: https://lore.kernel.org/r/1588931159-56875-3-git-send-email-liweihang@huawei.com
-Signed-off-by: Lang Cheng <chenglang@huawei.com>
-Signed-off-by: Weihang Li <liweihang@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: edbee095fafb ("firmware: imx: add SCU firmware driver support")
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 32 ++++++++--------------
- 1 file changed, 12 insertions(+), 20 deletions(-)
+ drivers/firmware/imx/imx-scu.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-index 96ff610bbdc4e..f9fa80ae55603 100644
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -1349,34 +1349,26 @@ static int hns_roce_query_pf_resource(struct hns_roce_dev *hr_dev)
- static int hns_roce_query_pf_timer_resource(struct hns_roce_dev *hr_dev)
- {
- 	struct hns_roce_pf_timer_res_a *req_a;
--	struct hns_roce_cmq_desc desc[2];
--	int ret, i;
-+	struct hns_roce_cmq_desc desc;
-+	int ret;
+diff --git a/drivers/firmware/imx/imx-scu.c b/drivers/firmware/imx/imx-scu.c
+index b3da2e193ad2d..176ddd151375a 100644
+--- a/drivers/firmware/imx/imx-scu.c
++++ b/drivers/firmware/imx/imx-scu.c
+@@ -314,6 +314,7 @@ static int imx_scu_probe(struct platform_device *pdev)
+ 			if (ret != -EPROBE_DEFER)
+ 				dev_err(dev, "Failed to request mbox chan %s ret %d\n",
+ 					chan_name, ret);
++			kfree(chan_name);
+ 			return ret;
+ 		}
  
--	for (i = 0; i < 2; i++) {
--		hns_roce_cmq_setup_basic_desc(&desc[i],
--					      HNS_ROCE_OPC_QUERY_PF_TIMER_RES,
--					      true);
-+	hns_roce_cmq_setup_basic_desc(&desc, HNS_ROCE_OPC_QUERY_PF_TIMER_RES,
-+				      true);
- 
--		if (i == 0)
--			desc[i].flag |= cpu_to_le16(HNS_ROCE_CMD_FLAG_NEXT);
--		else
--			desc[i].flag &= ~cpu_to_le16(HNS_ROCE_CMD_FLAG_NEXT);
--	}
--
--	ret = hns_roce_cmq_send(hr_dev, desc, 2);
-+	ret = hns_roce_cmq_send(hr_dev, &desc, 1);
- 	if (ret)
- 		return ret;
- 
--	req_a = (struct hns_roce_pf_timer_res_a *)desc[0].data;
-+	req_a = (struct hns_roce_pf_timer_res_a *)desc.data;
- 
- 	hr_dev->caps.qpc_timer_bt_num =
--				roce_get_field(req_a->qpc_timer_bt_idx_num,
--					PF_RES_DATA_1_PF_QPC_TIMER_BT_NUM_M,
--					PF_RES_DATA_1_PF_QPC_TIMER_BT_NUM_S);
-+		roce_get_field(req_a->qpc_timer_bt_idx_num,
-+			       PF_RES_DATA_1_PF_QPC_TIMER_BT_NUM_M,
-+			       PF_RES_DATA_1_PF_QPC_TIMER_BT_NUM_S);
- 	hr_dev->caps.cqc_timer_bt_num =
--				roce_get_field(req_a->cqc_timer_bt_idx_num,
--					PF_RES_DATA_2_PF_CQC_TIMER_BT_NUM_M,
--					PF_RES_DATA_2_PF_CQC_TIMER_BT_NUM_S);
-+		roce_get_field(req_a->cqc_timer_bt_idx_num,
-+			       PF_RES_DATA_2_PF_CQC_TIMER_BT_NUM_M,
-+			       PF_RES_DATA_2_PF_CQC_TIMER_BT_NUM_S);
- 
- 	return 0;
- }
 -- 
 2.25.1
 
