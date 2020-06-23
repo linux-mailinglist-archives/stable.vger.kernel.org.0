@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED55A205D11
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:09:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3CFA205D13
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:09:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388152AbgFWUIg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:08:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49444 "EHLO mail.kernel.org"
+        id S2388248AbgFWUIm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:08:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387997AbgFWUI2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:08:28 -0400
+        id S2388208AbgFWUIk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:08:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 418A02064B;
-        Tue, 23 Jun 2020 20:08:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D58C20FC3;
+        Tue, 23 Jun 2020 20:08:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592942907;
-        bh=OawpyKz8cvpjMBzYjkduS4+n6MkUnUmUoMX2bh1R1Os=;
+        s=default; t=1592942920;
+        bh=xez/82YlJ7SYV4iZ5OSzgj55WpYE4zP+9siTcqExYDg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pXJPencuUfomDRmJkVDkM9IhjbRAhoD8kTC6qivPh8M//nSLAdbwNHUQi0cTunldg
-         DJP4vMj2VTRwdmE0nQLRU9kR5uOK4bQvZlfEMGkax+HGFjp8Fl/wvpcUf8kyE085jD
-         SYKIDAjYQsTxbM9QZBEUkYvqPXQrKj/0xSmvAxqA=
+        b=PYkOYRnyEiMcJKBd22HGCOeAZ9vx9TNeONjuz60sV989sEOUjkRO85W0xqgsbVE1c
+         CYW7gTK0EatKR4dRPiuYmal8mlLZkvW/awbNBgj3IL0RU3AM+0fzQAjQ+nXNcQRf3M
+         f0WC0cI8M4wr4vz2X+mxULXNUn0Iv3Rmjit2+cMc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bodo Stroesser <bstroesser@ts.fujitsu.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Daeho Jeong <daehojeong@google.com>,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 183/477] scsi: target: loopback: Fix READ with data and sensebytes
-Date:   Tue, 23 Jun 2020 21:53:00 +0200
-Message-Id: <20200623195416.237301106@linuxfoundation.org>
+Subject: [PATCH 5.7 187/477] f2fs: compress: fix zstd data corruption
+Date:   Tue, 23 Jun 2020 21:53:04 +0200
+Message-Id: <20200623195416.427934605@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -44,103 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bodo Stroesser <bstroesser@ts.fujitsu.com>
+From: Chao Yu <yuchao0@huawei.com>
 
-[ Upstream commit c68a56736c129f5dd1632856956f9c3e04bae200 ]
+[ Upstream commit 1454c978efbb57b052670d50023f48c759d704ce ]
 
-We use tcm_loop with tape emulations running on tcmu.
+During zstd compression, ZSTD_endStream() may return non-zero value
+because distination buffer is full, but there is still compressed data
+remained in intermediate buffer, it means that zstd algorithm can not
+save at last one block space, let's just writeback raw data instead of
+compressed one, this can fix data corruption when decompressing
+incomplete stored compression data.
 
-In case application reads a short tape block with a longer READ, or a long
-tape block with a short READ, according to SCC spec data has to be
-tranferred _and_ sensebytes with ILI set and information field containing
-the residual count. Similar problem also exists when using fixed block
-size in READ.
-
-Up to now tcm_loop is not prepared to handle sensebytes if input data is
-provided, as in tcm_loop_queue_data_in() it only sets SAM_STAT_GOOD and, if
-necessary, the residual count.
-
-To fix the bug, the same handling for sensebytes as present in
-tcm_loop_queue_status() must be done in tcm_loop_queue_data_in() also.
-
-After adding this handling, the two function now are nearly identical, so I
-created a single function with two wrappers.
-
-Link: https://lore.kernel.org/r/20200428182617.32726-1-bstroesser@ts.fujitsu.com
-Signed-off-by: Bodo Stroesser <bstroesser@ts.fujitsu.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 50cfa66f0de0 ("f2fs: compress: support zstd compress algorithm")
+Signed-off-by: Daeho Jeong <daehojeong@google.com>
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/target/loopback/tcm_loop.c | 36 +++++++++++++-----------------
- 1 file changed, 15 insertions(+), 21 deletions(-)
+ fs/f2fs/compress.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/target/loopback/tcm_loop.c b/drivers/target/loopback/tcm_loop.c
-index 3305b47fdf536..16d5a4e117a27 100644
---- a/drivers/target/loopback/tcm_loop.c
-+++ b/drivers/target/loopback/tcm_loop.c
-@@ -545,32 +545,15 @@ static int tcm_loop_write_pending(struct se_cmd *se_cmd)
+diff --git a/fs/f2fs/compress.c b/fs/f2fs/compress.c
+index c05801758a358..a5b2e72174bb1 100644
+--- a/fs/f2fs/compress.c
++++ b/fs/f2fs/compress.c
+@@ -369,6 +369,13 @@ static int zstd_compress_pages(struct compress_ctx *cc)
+ 		return -EIO;
+ 	}
+ 
++	/*
++	 * there is compressed data remained in intermediate buffer due to
++	 * no more space in cbuf.cdata
++	 */
++	if (ret)
++		return -EAGAIN;
++
+ 	cc->clen = outbuf.pos;
  	return 0;
  }
- 
--static int tcm_loop_queue_data_in(struct se_cmd *se_cmd)
-+static int tcm_loop_queue_data_or_status(const char *func,
-+		struct se_cmd *se_cmd, u8 scsi_status)
- {
- 	struct tcm_loop_cmd *tl_cmd = container_of(se_cmd,
- 				struct tcm_loop_cmd, tl_se_cmd);
- 	struct scsi_cmnd *sc = tl_cmd->sc;
- 
- 	pr_debug("%s() called for scsi_cmnd: %p cdb: 0x%02x\n",
--		 __func__, sc, sc->cmnd[0]);
--
--	sc->result = SAM_STAT_GOOD;
--	set_host_byte(sc, DID_OK);
--	if ((se_cmd->se_cmd_flags & SCF_OVERFLOW_BIT) ||
--	    (se_cmd->se_cmd_flags & SCF_UNDERFLOW_BIT))
--		scsi_set_resid(sc, se_cmd->residual_count);
--	sc->scsi_done(sc);
--	return 0;
--}
--
--static int tcm_loop_queue_status(struct se_cmd *se_cmd)
--{
--	struct tcm_loop_cmd *tl_cmd = container_of(se_cmd,
--				struct tcm_loop_cmd, tl_se_cmd);
--	struct scsi_cmnd *sc = tl_cmd->sc;
--
--	pr_debug("%s() called for scsi_cmnd: %p cdb: 0x%02x\n",
--		 __func__, sc, sc->cmnd[0]);
-+		 func, sc, sc->cmnd[0]);
- 
- 	if (se_cmd->sense_buffer &&
- 	   ((se_cmd->se_cmd_flags & SCF_TRANSPORT_TASK_SENSE) ||
-@@ -581,7 +564,7 @@ static int tcm_loop_queue_status(struct se_cmd *se_cmd)
- 		sc->result = SAM_STAT_CHECK_CONDITION;
- 		set_driver_byte(sc, DRIVER_SENSE);
- 	} else
--		sc->result = se_cmd->scsi_status;
-+		sc->result = scsi_status;
- 
- 	set_host_byte(sc, DID_OK);
- 	if ((se_cmd->se_cmd_flags & SCF_OVERFLOW_BIT) ||
-@@ -591,6 +574,17 @@ static int tcm_loop_queue_status(struct se_cmd *se_cmd)
- 	return 0;
- }
- 
-+static int tcm_loop_queue_data_in(struct se_cmd *se_cmd)
-+{
-+	return tcm_loop_queue_data_or_status(__func__, se_cmd, SAM_STAT_GOOD);
-+}
-+
-+static int tcm_loop_queue_status(struct se_cmd *se_cmd)
-+{
-+	return tcm_loop_queue_data_or_status(__func__,
-+					     se_cmd, se_cmd->scsi_status);
-+}
-+
- static void tcm_loop_queue_tm_rsp(struct se_cmd *se_cmd)
- {
- 	struct tcm_loop_cmd *tl_cmd = container_of(se_cmd,
 -- 
 2.25.1
 
