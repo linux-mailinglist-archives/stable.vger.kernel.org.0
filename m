@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED041206047
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:48:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2428E2060D1
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:49:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392178AbgFWUlL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:41:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37520 "EHLO mail.kernel.org"
+        id S2392879AbgFWUqv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:46:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392174AbgFWUlI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:41:08 -0400
+        id S2403993AbgFWUoh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:44:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9270C20702;
-        Tue, 23 Jun 2020 20:41:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 070C7218AC;
+        Tue, 23 Jun 2020 20:44:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944869;
-        bh=iUhx2mCEszatdkL0B/6D09sYtm+d5NmvFLb6a1swACw=;
+        s=default; t=1592945077;
+        bh=8MP+yUbfzIAUWflXaZ1RhpaOEhTpWa47P/ZhgkUfhRg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q5yaPbwEWtHXQRASNc2bEaVz4Nbkj8eOlclVntApR6AFpSdAQ32VsFudZXrnOaJ4h
-         +KxjxxQR3qxQhzT7jCr0OUvN7x937+Pf4WX6GJziolCF9XrjxC5HlZiHequIFJ0pLN
-         G/0r11V8+rfIBGfzmIWD2ddJrc39smsZxjR3yuHc=
+        b=X918vuhG0Ja/vdl7CWw//Wn8U/AV2WM+1LYPEKgzFpbXS7rEYCe2QaRn7yOu/XX4p
+         lnOOZZkOvPda8rgD0tGftuaE9JY9IsalSRA0E8rLYL32L14Dq115cz/KGwSVYypuYe
+         vLSzGPJLZx1koJJAjx9WpB5fPaaMJx94Pk+XdMRM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
-        Qiushi Wu <wu000273@umn.edu>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 129/206] scsi: iscsi: Fix reference count leak in iscsi_boot_create_kobj
-Date:   Tue, 23 Jun 2020 21:57:37 +0200
-Message-Id: <20200623195323.321288415@linuxfoundation.org>
+Subject: [PATCH 4.14 003/136] power: supply: bq24257_charger: Replace depends on REGMAP_I2C with select
+Date:   Tue, 23 Jun 2020 21:57:39 +0200
+Message-Id: <20200623195303.785910695@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
-References: <20200623195316.864547658@linuxfoundation.org>
+In-Reply-To: <20200623195303.601828702@linuxfoundation.org>
+References: <20200623195303.601828702@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 
-[ Upstream commit 0267ffce562c8bbf9b57ebe0e38445ad04972890 ]
+[ Upstream commit 87c3d579c8ed0eaea6b1567d529a8daa85a2bc6c ]
 
-kobject_init_and_add() takes reference even when it fails. If this
-function returns an error, kobject_put() must be called to properly
-clean up the memory associated with the object.
+regmap is a library function that gets selected by drivers that need
+it. No driver modules should depend on it. Depending on REGMAP_I2C makes
+this driver only build if another driver already selected REGMAP_I2C,
+as the symbol can't be selected through the menu kernel configuration.
 
-Link: https://lore.kernel.org/r/20200528201353.14849-1-wu000273@umn.edu
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 2219a935963e ("power_supply: Add TI BQ24257 charger driver")
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/iscsi_boot_sysfs.c | 2 +-
+ drivers/power/supply/Kconfig | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/iscsi_boot_sysfs.c b/drivers/scsi/iscsi_boot_sysfs.c
-index d453667612f88..15d64f96e623c 100644
---- a/drivers/scsi/iscsi_boot_sysfs.c
-+++ b/drivers/scsi/iscsi_boot_sysfs.c
-@@ -360,7 +360,7 @@ iscsi_boot_create_kobj(struct iscsi_boot_kset *boot_kset,
- 	boot_kobj->kobj.kset = boot_kset->kset;
- 	if (kobject_init_and_add(&boot_kobj->kobj, &iscsi_boot_ktype,
- 				 NULL, name, index)) {
--		kfree(boot_kobj);
-+		kobject_put(&boot_kobj->kobj);
- 		return NULL;
- 	}
- 	boot_kobj->data = data;
+diff --git a/drivers/power/supply/Kconfig b/drivers/power/supply/Kconfig
+index 5ab90c1f3f7c4..24163cf8612c5 100644
+--- a/drivers/power/supply/Kconfig
++++ b/drivers/power/supply/Kconfig
+@@ -530,7 +530,7 @@ config CHARGER_BQ24257
+ 	tristate "TI BQ24250/24251/24257 battery charger driver"
+ 	depends on I2C
+ 	depends on GPIOLIB || COMPILE_TEST
+-	depends on REGMAP_I2C
++	select REGMAP_I2C
+ 	help
+ 	  Say Y to enable support for the TI BQ24250, BQ24251, and BQ24257 battery
+ 	  chargers.
 -- 
 2.25.1
 
