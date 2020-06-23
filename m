@@ -2,77 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BCD520515E
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 13:54:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79985205160
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 13:54:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732333AbgFWLyW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 07:54:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34876 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732225AbgFWLyW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 07:54:22 -0400
+        id S1732364AbgFWLyz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 07:54:55 -0400
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:34631 "EHLO
+        wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1732225AbgFWLyy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 23 Jun 2020 07:54:54 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.west.internal (Postfix) with ESMTP id CEAC9A1D;
+        Tue, 23 Jun 2020 07:54:53 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Tue, 23 Jun 2020 07:54:54 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=a91elt
+        YdeWikXqJOsr9OG7hDF13OGY4MLgOwfMs0JAQ=; b=hO2EF8Y1p0fbYLFhHMQnrl
+        XJVZx0xt7ayEjMO4HqCqdFwvXkeISeO7qj5czpHg6YjZHbo78N9Ao//8hMK1vSWe
+        lWpOrqSx7RN4yTkhZexhPyZPcaYIFynZbsZq32s9Obexf4SxrqIayKiPu7Hqn8dh
+        PsyoTpexI2a+A4E0JVMPZxvOlgreduSok3lvBS6Ihog4C8vGFjOcMpSgtx0bfipp
+        GJ0fYoK+DrXiBmk51LbY4VkxVKrSVrHC7CfBs3ztgL1+yZemYDvtMyh9DDkja9PK
+        4QH78kjYfw/ewCwuf6vomER2IoPi9+qSod4iRprs9uI9RcNQwZIwo9nh91PaXCMg
+        ==
+X-ME-Sender: <xms:jO3xXqmYz70JkZm37h7KKyjoDKeEg_ItXWu0-Ck3kySEGVJwnfzTeA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudekhedgudekucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
+    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:jO3xXh3yTebZQjGXEYRgM09-FVnscO-O2RTLGSxygIcVhd6e8-bWkQ>
+    <xmx:jO3xXop80mZbo0-matANm93f1jleFbqsIMqnCZyhS34IxmHxJmiEuw>
+    <xmx:jO3xXulunqNH49BkdwFXHjHDonkIVs3HdgVUj-KTFeucuNcYZ5a1HQ>
+    <xmx:je3xXphrYYohWDr5qyndocXOgYSCZys8f7X2BjC9HYWL951MEJspamd1dlQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A1A4520771;
-        Tue, 23 Jun 2020 11:54:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592913261;
-        bh=eyzS+tqORO1KfMB8WYmSySe1A0bDu0wMbvD3f7zRBuw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=kIsB6wX1dU8CmLBPvK+DQHJ0dDVlzwBGRW3nfZc5Fp5nsvAlwKSJoJYWjI3RPPmrb
-         s+CylihYfJHC6DnEpzgc6zfHW6boPa4wUGmbserfnNF45E19ANpgNH9FBSzUnBsK8f
-         p6kRUHW9wrPv1RUpH4gEDuyJJXlxILq/+ENy6AeY=
-Date:   Tue, 23 Jun 2020 13:54:15 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Rodrigo Vivi <rodrigo.vivi@intel.com>
-Cc:     stable@vger.kernel.org, intel-gfx@lists.freedesktop.org,
-        Swathi Dhanavanthri <swathi.dhanavanthri@intel.com>,
-        Rafael Antognolli <rafael.antognolli@intel.com>,
-        Matt Roper <matthew.d.roper@intel.com>
-Subject: Re: [PATCH] drm/i915/tgl: Make Wa_14010229206 permanent
-Message-ID: <20200623115415.GB1966723@kroah.com>
-References: <20200618202701.729-1-rodrigo.vivi@intel.com>
- <20200619080900.GD8425@kroah.com>
- <20200619201404.GI334084@intel.com>
+        by mail.messagingengine.com (Postfix) with ESMTPA id 1EC703280063;
+        Tue, 23 Jun 2020 07:54:52 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] crypto: algif_skcipher - Cap recv SG list at ctx->used" failed to apply to 4.4-stable tree
+To:     herbert@gondor.apana.org.au, smueller@chronox.de,
+        stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 23 Jun 2020 13:54:47 +0200
+Message-ID: <1592913287234176@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200619201404.GI334084@intel.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jun 19, 2020 at 01:14:04PM -0700, Rodrigo Vivi wrote:
-> On Fri, Jun 19, 2020 at 10:09:00AM +0200, Greg KH wrote:
-> > On Thu, Jun 18, 2020 at 01:27:00PM -0700, Rodrigo Vivi wrote:
-> > > From: Swathi Dhanavanthri <swathi.dhanavanthri@intel.com>
-> > > 
-> > > commit 63d0f3ea8ebb67160eca281320d255c72b0cb51a upstream.
-> > > 
-> > > This workaround now applies to all steppings, not just A0.
-> > > Wa_1409085225 is a temporary A0-only W/A however it is
-> > > identical to Wa_14010229206 and hence the combined workaround
-> > > is made permanent.
-> > > Bspec: 52890
-> > > 
-> > > Signed-off-by: Swathi Dhanavanthri <swathi.dhanavanthri@intel.com>
-> > > Tested-by: Rafael Antognolli <rafael.antognolli@intel.com>
-> > > Reviewed-by: Matt Roper <matthew.d.roper@intel.com>
-> > > [mattrope: added missing blank line]
-> > > Signed-off-by: Matt Roper <matthew.d.roper@intel.com>
-> > > Link: https://patchwork.freedesktop.org/patch/msgid/20200326234955.16155-1-swathi.dhanavanthri@intel.com
-> > > Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-> > > ---
-> > >  drivers/gpu/drm/i915/gt/intel_workarounds.c | 12 ++++++------
-> > >  1 file changed, 6 insertions(+), 6 deletions(-)
-> > 
-> > What stable kernel(s) is this backport for?  You need to give us a hint
-> > :)
-> 
-> It's for 5.7.y only. Sorry for not being clear
 
-Thanks, now queued up.
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 7cf81954705b7e5b057f7dc39a7ded54422ab6e1 Mon Sep 17 00:00:00 2001
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Date: Fri, 29 May 2020 14:54:43 +1000
+Subject: [PATCH] crypto: algif_skcipher - Cap recv SG list at ctx->used
+
+Somewhere along the line the cap on the SG list length for receive
+was lost.  This patch restores it and removes the subsequent test
+which is now redundant.
+
+Fixes: 2d97591ef43d ("crypto: af_alg - consolidation of...")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Reviewed-by: Stephan Mueller <smueller@chronox.de>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+
+diff --git a/crypto/algif_skcipher.c b/crypto/algif_skcipher.c
+index e2c8ab408bed..4c3bdffe0c3a 100644
+--- a/crypto/algif_skcipher.c
++++ b/crypto/algif_skcipher.c
+@@ -74,14 +74,10 @@ static int _skcipher_recvmsg(struct socket *sock, struct msghdr *msg,
+ 		return PTR_ERR(areq);
+ 
+ 	/* convert iovecs of output buffers into RX SGL */
+-	err = af_alg_get_rsgl(sk, msg, flags, areq, -1, &len);
++	err = af_alg_get_rsgl(sk, msg, flags, areq, ctx->used, &len);
+ 	if (err)
+ 		goto free;
+ 
+-	/* Process only as much RX buffers for which we have TX data */
+-	if (len > ctx->used)
+-		len = ctx->used;
+-
+ 	/*
+ 	 * If more buffers are to be expected to be processed, process only
+ 	 * full block size buffers.
+
