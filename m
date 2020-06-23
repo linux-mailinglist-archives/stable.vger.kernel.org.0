@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F179420620F
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:08:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C52DD206240
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:09:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388206AbgFWUya (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:54:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43362 "EHLO mail.kernel.org"
+        id S2404205AbgFWU5t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:57:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392765AbgFWUpo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:45:44 -0400
+        id S2392019AbgFWUmY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:42:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D02F32098B;
-        Tue, 23 Jun 2020 20:45:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 114AC20675;
+        Tue, 23 Jun 2020 20:42:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592945144;
-        bh=Rzukqn1LovFivbTJcvvURK5wy2+wHiHaUXxgkGBpk34=;
+        s=default; t=1592944944;
+        bh=G4lq514lijAHobNjoWnxe5GrZdksI5aFkPFJ/gh1Dfs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0AUuhwS2cAXIU6QVMlYNbKIPlq8/jZXEjPtEfbQhNGS/kDlQXBTIkfZQxDUGpH8zR
-         1l4eNerfbE9GjouGmkBJEUIj/dEY4h1gfWiAgGubOf0BgIamIkwD7jmpBZzEyeA6Vx
-         IylU3YxeO91zWbsbJ/o9ILOxz5a8pO/Bz7dhM4Vk=
+        b=2g5pujcaju1Y4q+fNDmm0zYU7rqxl1Ta6iI9TIkdauvir4h2hnbNehrXLWMR1AzDy
+         4XFrMqU2IrJn+G5ow7LRF8nTO2sfufz5/aW0/2brkM63kVDU6dFDQjYxnfl1/vLaVC
+         M3pEkIsay6gCRjFArFsj8+8cLM+SVJOBpmda+IDk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 056/136] tty: n_gsm: Fix SOF skipping
-Date:   Tue, 23 Jun 2020 21:58:32 +0200
-Message-Id: <20200623195306.492631180@linuxfoundation.org>
+Subject: [PATCH 4.19 185/206] mtd: rawnand: diskonchip: Fix the probe error path
+Date:   Tue, 23 Jun 2020 21:58:33 +0200
+Message-Id: <20200623195326.137955645@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195303.601828702@linuxfoundation.org>
-References: <20200623195303.601828702@linuxfoundation.org>
+In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
+References: <20200623195316.864547658@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,56 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gregory CLEMENT <gregory.clement@bootlin.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-[ Upstream commit 84d6f81c1fb58b56eba81ff0a36cf31946064b40 ]
+[ Upstream commit c5be12e45940f1aa1b5dfa04db5d15ad24f7c896 ]
 
-For at least some modems like the TELIT LE910, skipping SOF makes
-transfers blocking indefinitely after a short amount of data
-transferred.
+Not sure nand_cleanup() is the right function to call here but in any
+case it is not nand_release(). Indeed, even a comment says that
+calling nand_release() is a bit of a hack as there is no MTD device to
+unregister. So switch to nand_cleanup() for now and drop this
+comment.
 
-Given the small improvement provided by skipping the SOF (just one
-byte on about 100 bytes), it seems better to completely remove this
-"feature" than make it optional.
+There is no Fixes tag applying here as the use of nand_release()
+in this driver predates by far the introduction of nand_cleanup() in
+commit d44154f969a4 ("mtd: nand: Provide nand_cleanup() function to free NAND related resources")
+which makes this change possible. However, pointing this commit as the
+culprit for backporting purposes makes sense even if it did not intruce
+any bug.
 
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
-Link: https://lore.kernel.org/r/20200512115323.1447922-3-gregory.clement@bootlin.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: d44154f969a4 ("mtd: nand: Provide nand_cleanup() function to free NAND related resources")
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/linux-mtd/20200519130035.1883-13-miquel.raynal@bootlin.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_gsm.c | 8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ drivers/mtd/nand/raw/diskonchip.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
-index f46bd1af7a10b..eabdcfa414aad 100644
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -681,7 +681,6 @@ static void gsm_data_kick(struct gsm_mux *gsm)
- {
- 	struct gsm_msg *msg, *nmsg;
- 	int len;
--	int skip_sof = 0;
+diff --git a/drivers/mtd/nand/raw/diskonchip.c b/drivers/mtd/nand/raw/diskonchip.c
+index 43d1e08133ceb..ac3792b6fb331 100644
+--- a/drivers/mtd/nand/raw/diskonchip.c
++++ b/drivers/mtd/nand/raw/diskonchip.c
+@@ -1621,13 +1621,10 @@ static int __init doc_probe(unsigned long physadr)
+ 		numchips = doc2001_init(mtd);
  
- 	list_for_each_entry_safe(msg, nmsg, &gsm->tx_list, list) {
- 		if (gsm->constipated && msg->addr)
-@@ -703,15 +702,10 @@ static void gsm_data_kick(struct gsm_mux *gsm)
- 			print_hex_dump_bytes("gsm_data_kick: ",
- 					     DUMP_PREFIX_OFFSET,
- 					     gsm->txframe, len);
--
--		if (gsm->output(gsm, gsm->txframe + skip_sof,
--						len - skip_sof) < 0)
-+		if (gsm->output(gsm, gsm->txframe, len) < 0)
- 			break;
- 		/* FIXME: Can eliminate one SOF in many more cases */
- 		gsm->tx_bytes -= msg->len;
--		/* For a burst of frames skip the extra SOF within the
--		   burst */
--		skip_sof = 1;
+ 	if ((ret = nand_scan(nand, numchips)) || (ret = doc->late_init(mtd))) {
+-		/* DBB note: i believe nand_release is necessary here, as
++		/* DBB note: i believe nand_cleanup is necessary here, as
+ 		   buffers may have been allocated in nand_base.  Check with
+ 		   Thomas. FIX ME! */
+-		/* nand_release will call mtd_device_unregister, but we
+-		   haven't yet added it.  This is handled without incident by
+-		   mtd_device_unregister, as far as I can tell. */
+-		nand_release(nand);
++		nand_cleanup(nand);
+ 		goto fail;
+ 	}
  
- 		list_del(&msg->list);
- 		kfree(msg);
 -- 
 2.25.1
 
