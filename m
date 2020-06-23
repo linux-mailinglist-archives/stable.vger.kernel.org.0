@@ -2,38 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EC4F206321
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:28:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4029920639F
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:29:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389544AbgFWURW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:17:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33406 "EHLO mail.kernel.org"
+        id S2391005AbgFWU3h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:29:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389540AbgFWURW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:17:22 -0400
+        id S2391002AbgFWU3g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:29:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D083B2080C;
-        Tue, 23 Jun 2020 20:17:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB91B206C3;
+        Tue, 23 Jun 2020 20:29:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943442;
-        bh=yjLNnVrXTbpjqg3oWOo5sCoBcJMvFQZ0j9rLHkHf8so=;
+        s=default; t=1592944176;
+        bh=0PBbNoMLgT/OjPeh5DapmIdaNhEuA8/SPN2ldUn2pTo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wREgFz49PHGA7lQTpE5j713py80xWZrk6aw2qDraQqrbDKL9KHVFtySfiWw/qPlRv
-         umVJ8MXeRswQCcgKLOazFkoUJZDdHecV12s66FfRpIsHen1ShL52DFYsealeY4Na7Q
-         UiUzoM/grRzIGsgJzXkwVRvPJvp7gK1OP79UT0Nk=
+        b=0FbmZVfbouu+tHvTidLWoUCHDn6W9hMzkBlB8YvX4etHJLa0NVKguohks0mc2+ARU
+         AlUP5Wjq60CZRRCaWV0AWuORDC/aphx1AeoUtdGQN64UA7r/GXHqbIdv8H7zkRbxmJ
+         JXtaUXk+11ToamAa2kK7kw0vMO89US5y1xRlXK4Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        stable@vger.kernel.org, Derek Kiernan <derek.kiernan@xilinx.com>,
+        Dragan Cvetic <dragan.cvetic@xilinx.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Michal Simek <michal.simek@xilinx.com>,
+        linux-arm-kernel@lists.infradead.org,
+        John Hubbard <jhubbard@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 393/477] afs: afs_write_end() should change i_size under the right lock
+Subject: [PATCH 5.4 195/314] misc: xilinx-sdfec: improve get_user_pages_fast() error handling
 Date:   Tue, 23 Jun 2020 21:56:30 +0200
-Message-Id: <20200623195426.103767931@linuxfoundation.org>
+Message-Id: <20200623195348.226110468@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
-References: <20200623195407.572062007@linuxfoundation.org>
+In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
+References: <20200623195338.770401005@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,42 +48,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: John Hubbard <jhubbard@nvidia.com>
 
-[ Upstream commit 1f32ef79897052ef7d3d154610d8d6af95abde83 ]
+[ Upstream commit 57343d51613227373759f5b0f2eede257fd4b82e ]
 
-Fix afs_write_end() to change i_size under vnode->cb_lock rather than
-->wb_lock so that it doesn't race with afs_vnode_commit_status() and
-afs_getattr().
+This fixes the case of get_user_pages_fast() returning a -errno.
+The result needs to be stored in a signed integer. And for safe
+signed/unsigned comparisons, it's best to keep everything signed.
+And get_user_pages_fast() also expects a signed value for number
+of pages to pin.
 
-The ->wb_lock is only meant to guard access to ->wb_keys which isn't
-accessed by that piece of code.
+Therefore, change most relevant variables, from u32 to int. Leave
+"n" unsigned, for convenience in checking for overflow. And provide
+a WARN_ON_ONCE() and early return, if overflow occurs.
 
-Fixes: 4343d00872e1 ("afs: Get rid of the afs_writeback record")
-Signed-off-by: David Howells <dhowells@redhat.com>
+Also, as long as we're tidying up: rename the page array from page,
+to pages, in order to match the conventions used in most other call
+sites.
+
+Fixes: 20ec628e8007e ("misc: xilinx_sdfec: Add ability to configure LDPC")
+Cc: Derek Kiernan <derek.kiernan@xilinx.com>
+Cc: Dragan Cvetic <dragan.cvetic@xilinx.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Michal Simek <michal.simek@xilinx.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Signed-off-by: John Hubbard <jhubbard@nvidia.com>
+Link: https://lore.kernel.org/r/20200527012628.1100649-2-jhubbard@nvidia.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/write.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/misc/xilinx_sdfec.c | 27 +++++++++++++++++----------
+ 1 file changed, 17 insertions(+), 10 deletions(-)
 
-diff --git a/fs/afs/write.c b/fs/afs/write.c
-index 371db86c6c5ec..96b042af62485 100644
---- a/fs/afs/write.c
-+++ b/fs/afs/write.c
-@@ -194,11 +194,11 @@ int afs_write_end(struct file *file, struct address_space *mapping,
+diff --git a/drivers/misc/xilinx_sdfec.c b/drivers/misc/xilinx_sdfec.c
+index 48ba7e02bed72..d4c14b617201e 100644
+--- a/drivers/misc/xilinx_sdfec.c
++++ b/drivers/misc/xilinx_sdfec.c
+@@ -602,10 +602,10 @@ static int xsdfec_table_write(struct xsdfec_dev *xsdfec, u32 offset,
+ 			      const u32 depth)
+ {
+ 	u32 reg = 0;
+-	u32 res;
+-	u32 n, i;
++	int res, i, nr_pages;
++	u32 n;
+ 	u32 *addr = NULL;
+-	struct page *page[MAX_NUM_PAGES];
++	struct page *pages[MAX_NUM_PAGES];
  
- 	i_size = i_size_read(&vnode->vfs_inode);
- 	if (maybe_i_size > i_size) {
--		spin_lock(&vnode->wb_lock);
-+		write_seqlock(&vnode->cb_lock);
- 		i_size = i_size_read(&vnode->vfs_inode);
- 		if (maybe_i_size > i_size)
- 			i_size_write(&vnode->vfs_inode, maybe_i_size);
--		spin_unlock(&vnode->wb_lock);
-+		write_sequnlock(&vnode->cb_lock);
+ 	/*
+ 	 * Writes that go beyond the length of
+@@ -622,15 +622,22 @@ static int xsdfec_table_write(struct xsdfec_dev *xsdfec, u32 offset,
+ 	if ((len * XSDFEC_REG_WIDTH_JUMP) % PAGE_SIZE)
+ 		n += 1;
+ 
+-	res = get_user_pages_fast((unsigned long)src_ptr, n, 0, page);
+-	if (res < n) {
+-		for (i = 0; i < res; i++)
+-			put_page(page[i]);
++	if (WARN_ON_ONCE(n > INT_MAX))
++		return -EINVAL;
++
++	nr_pages = n;
++
++	res = get_user_pages_fast((unsigned long)src_ptr, nr_pages, 0, pages);
++	if (res < nr_pages) {
++		if (res > 0) {
++			for (i = 0; i < res; i++)
++				put_page(pages[i]);
++		}
+ 		return -EINVAL;
  	}
  
- 	if (!PageUptodate(page)) {
+-	for (i = 0; i < n; i++) {
+-		addr = kmap(page[i]);
++	for (i = 0; i < nr_pages; i++) {
++		addr = kmap(pages[i]);
+ 		do {
+ 			xsdfec_regwrite(xsdfec,
+ 					base_addr + ((offset + reg) *
+@@ -639,7 +646,7 @@ static int xsdfec_table_write(struct xsdfec_dev *xsdfec, u32 offset,
+ 			reg++;
+ 		} while ((reg < len) &&
+ 			 ((reg * XSDFEC_REG_WIDTH_JUMP) % PAGE_SIZE));
+-		put_page(page[i]);
++		put_page(pages[i]);
+ 	}
+ 	return reg;
+ }
 -- 
 2.25.1
 
