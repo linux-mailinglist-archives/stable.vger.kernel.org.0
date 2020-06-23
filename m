@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CAA6205C74
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:02:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10937205C7F
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:03:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387769AbgFWUCG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:02:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39130 "EHLO mail.kernel.org"
+        id S2387848AbgFWUCa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:02:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39742 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387750AbgFWUCF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:02:05 -0400
+        id S2387826AbgFWUC2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:02:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 237102078A;
-        Tue, 23 Jun 2020 20:02:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C181220E65;
+        Tue, 23 Jun 2020 20:02:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592942524;
-        bh=jppDhtFpMQG5S2oXy6qFfHAOUk3pE5ywoqQQNRTuD/8=;
+        s=default; t=1592942548;
+        bh=G6gJobnW9yi0MNv6+w9KLJ9SHXHL/JVkkUHzlJdmsLU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gSVA2W+DYdEvenewGLT5mf50eUBUq3q4okTK8mY+SeeW+gZf4uGqcrkiNgW7foPZV
-         +6ftDrK06c05Cj559rLuED9QCn+SjwJ+CAiwl4/cgUC01sk0u101dSnqbUIvHG+NJW
-         PhX+pRnw0f31Ly5eMd48JQcH4Ru32hM4vWAluVy0=
+        b=uP9T6cymzwJo4c6ksnBO9KFluWQHwtmmu2KezEr8w79/h4QSE/n1jYs6Fix0i2Uu0
+         kLkJVwImVDH3iO8JwQSzqQXzTL8JghRcylooQIu2ABy05UIyqRUya6Wv98TxpZSek1
+         E33YmIGkA+E7dG45XMNeNwggr/G+kQYO208xh6/M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, erhard_f@mailbox.org,
-        Christophe Leroy <christophe.leroy@c-s.fr>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Daeho Jeong <daehojeong@google.com>,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 031/477] powerpc/kasan: Fix stack overflow by increasing THREAD_SHIFT
-Date:   Tue, 23 Jun 2020 21:50:28 +0200
-Message-Id: <20200623195409.069059360@linuxfoundation.org>
+Subject: [PATCH 5.7 034/477] f2fs: compress: let lz4 compressor handle output buffer budget properly
+Date:   Tue, 23 Jun 2020 21:50:31 +0200
+Message-Id: <20200623195409.212029184@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -45,38 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@c-s.fr>
+From: Chao Yu <yuchao0@huawei.com>
 
-[ Upstream commit edbadaf0671072298e506074128b64e003c5812c ]
+[ Upstream commit f6644143c63f2eac88973f7fea087582579b0189 ]
 
-When CONFIG_KASAN is selected, the stack usage is increased.
+Commonly, in order to handle lz4 worst compress case, caller should
+allocate buffer with size of LZ4_compressBound(inputsize) for target
+compressed data storing, however in this case, if caller didn't
+allocate enough space, lz4 compressor still can handle output buffer
+budget properly, and end up compressing when left space in output
+buffer is not enough.
 
-In the same way as x86 and arm64 architectures, increase
-THREAD_SHIFT when CONFIG_KASAN is selected.
+So we don't have to allocate buffer with size for worst case, then
+we can avoid 2 * 4KB size intermediate buffer allocation when
+log_cluster_size is 2, and avoid unnecessary compressing work of
+compressor if we can not save at least 4KB space.
 
-Fixes: 2edb16efc899 ("powerpc/32: Add KASAN support")
-Reported-by: <erhard_f@mailbox.org>
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=207129
-Link: https://lore.kernel.org/r/2c50f3b1c9bbaa4217c9a98f3044bd2a36c46a4f.1586361277.git.christophe.leroy@c-s.fr
+Suggested-by: Daeho Jeong <daehojeong@google.com>
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ fs/f2fs/compress.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-index 62aca9efbbbed..310957b988e31 100644
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -773,6 +773,7 @@ config THREAD_SHIFT
- 	range 13 15
- 	default "15" if PPC_256K_PAGES
- 	default "14" if PPC64
-+	default "14" if KASAN
- 	default "13"
- 	help
- 	  Used to define the stack size. The default is almost always what you
+diff --git a/fs/f2fs/compress.c b/fs/f2fs/compress.c
+index df7b2d15eacde..c05801758a358 100644
+--- a/fs/f2fs/compress.c
++++ b/fs/f2fs/compress.c
+@@ -236,7 +236,12 @@ static int lz4_init_compress_ctx(struct compress_ctx *cc)
+ 	if (!cc->private)
+ 		return -ENOMEM;
+ 
+-	cc->clen = LZ4_compressBound(PAGE_SIZE << cc->log_cluster_size);
++	/*
++	 * we do not change cc->clen to LZ4_compressBound(inputsize) to
++	 * adapt worst compress case, because lz4 compressor can handle
++	 * output budget properly.
++	 */
++	cc->clen = cc->rlen - PAGE_SIZE - COMPRESS_HEADER_SIZE;
+ 	return 0;
+ }
+ 
+@@ -252,11 +257,9 @@ static int lz4_compress_pages(struct compress_ctx *cc)
+ 
+ 	len = LZ4_compress_default(cc->rbuf, cc->cbuf->cdata, cc->rlen,
+ 						cc->clen, cc->private);
+-	if (!len) {
+-		printk_ratelimited("%sF2FS-fs (%s): lz4 compress failed\n",
+-				KERN_ERR, F2FS_I_SB(cc->inode)->sb->s_id);
+-		return -EIO;
+-	}
++	if (!len)
++		return -EAGAIN;
++
+ 	cc->clen = len;
+ 	return 0;
+ }
 -- 
 2.25.1
 
