@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 596C82060F2
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:49:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E882C2060FC
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:49:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392940AbgFWUsY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:48:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47368 "EHLO mail.kernel.org"
+        id S2404134AbgFWUs6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:48:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392932AbgFWUsU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:48:20 -0400
+        id S2404132AbgFWUs4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:48:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D4F721548;
-        Tue, 23 Jun 2020 20:48:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DBF972098B;
+        Tue, 23 Jun 2020 20:48:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592945301;
-        bh=9qEEOibyO+UeBbgruNVcxalCX8lLeefGOc9hf40Qzps=;
+        s=default; t=1592945336;
+        bh=ldubIelhFi6phziJtpFYwyha/cUAIGDCBQl1UyKHo8E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qJqxqVFQYWrOsKujaBTCMCyvhVC3JGIx+2H/eyMolpLpKBbZg+ysYaJbcM4nJD61h
-         14HbDr2iHy2qjF7kpEqTfrEUIIB1Kq/rC69wsPWIaVzNFCEkiGNLjSivKHcRxsT7R6
-         SW4uMLV/ZOfquR2OKDpH/hnMXD2Kt1HQSlELBudc=
+        b=Mz7Q9/jSKknWv1mITl7qx/qo3c8VQmA4WwJlNXmWY0+BbU5U7gxQqavMIFCg5k//Q
+         o8AKQS0zffi6quaqN10PVmne+KaXvhAS5bU9HH3pwwkIDKy/1Ckjco7KAsw2lTDcg7
+         0Tu88x3HKfS29o0f7NEJYWJTf+Fc5ufdKnns/LlU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
+        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@siol.net>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 100/136] gfs2: fix use-after-free on transaction ail lists
-Date:   Tue, 23 Jun 2020 21:59:16 +0200
-Message-Id: <20200623195308.699308038@linuxfoundation.org>
+Subject: [PATCH 4.14 102/136] drm/sun4i: hdmi ddc clk: Fix size of m divider
+Date:   Tue, 23 Jun 2020 21:59:18 +0200
+Message-Id: <20200623195308.807562433@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195303.601828702@linuxfoundation.org>
 References: <20200623195303.601828702@linuxfoundation.org>
@@ -44,77 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Jernej Skrabec <jernej.skrabec@siol.net>
 
-[ Upstream commit 83d060ca8d90fa1e3feac227f995c013100862d3 ]
+[ Upstream commit 54e1e06bcf1cf6e7ac3f86daa5f7454add24b494 ]
 
-Before this patch, transactions could be merged into the system
-transaction by function gfs2_merge_trans(), but the transaction ail
-lists were never merged. Because the ail flushing mechanism can run
-separately, bd elements can be attached to the transaction's buffer
-list during the transaction (trans_add_meta, etc) but quickly moved
-to its ail lists. Later, in function gfs2_trans_end, the transaction
-can be freed (by gfs2_trans_end) while it still has bd elements
-queued to its ail lists, which can cause it to either lose track of
-the bd elements altogether (memory leak) or worse, reference the bd
-elements after the parent transaction has been freed.
+m divider in DDC clock register is 4 bits wide. Fix that.
 
-Although I've not seen any serious consequences, the problem becomes
-apparent with the previous patch's addition of:
-
-	gfs2_assert_warn(sdp, list_empty(&tr->tr_ail1_list));
-
-to function gfs2_trans_free().
-
-This patch adds logic into gfs2_merge_trans() to move the merged
-transaction's ail lists to the sdp transaction. This prevents the
-use-after-free. To do this properly, we need to hold the ail lock,
-so we pass sdp into the function instead of the transaction itself.
-
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Fixes: 9c5681011a0c ("drm/sun4i: Add HDMI support")
+Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
+Reviewed-by: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200413095457.1176754-1-jernej.skrabec@siol.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/log.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/sun4i/sun4i_hdmi.h         | 2 +-
+ drivers/gpu/drm/sun4i/sun4i_hdmi_ddc_clk.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/gfs2/log.c b/fs/gfs2/log.c
-index a3208511f35aa..f30418911e1bd 100644
---- a/fs/gfs2/log.c
-+++ b/fs/gfs2/log.c
-@@ -804,8 +804,10 @@ void gfs2_log_flush(struct gfs2_sbd *sdp, struct gfs2_glock *gl,
-  * @new: New transaction to be merged
-  */
+diff --git a/drivers/gpu/drm/sun4i/sun4i_hdmi.h b/drivers/gpu/drm/sun4i/sun4i_hdmi.h
+index a1f8cba251a24..3d9148eb40a7e 100644
+--- a/drivers/gpu/drm/sun4i/sun4i_hdmi.h
++++ b/drivers/gpu/drm/sun4i/sun4i_hdmi.h
+@@ -143,7 +143,7 @@
+ #define SUN4I_HDMI_DDC_CMD_IMPLICIT_WRITE	3
  
--static void gfs2_merge_trans(struct gfs2_trans *old, struct gfs2_trans *new)
-+static void gfs2_merge_trans(struct gfs2_sbd *sdp, struct gfs2_trans *new)
- {
-+	struct gfs2_trans *old = sdp->sd_log_tr;
-+
- 	WARN_ON_ONCE(!test_bit(TR_ATTACHED, &old->tr_flags));
+ #define SUN4I_HDMI_DDC_CLK_REG		0x528
+-#define SUN4I_HDMI_DDC_CLK_M(m)			(((m) & 0x7) << 3)
++#define SUN4I_HDMI_DDC_CLK_M(m)			(((m) & 0xf) << 3)
+ #define SUN4I_HDMI_DDC_CLK_N(n)			((n) & 0x7)
  
- 	old->tr_num_buf_new	+= new->tr_num_buf_new;
-@@ -817,6 +819,11 @@ static void gfs2_merge_trans(struct gfs2_trans *old, struct gfs2_trans *new)
+ #define SUN4I_HDMI_DDC_LINE_CTRL_REG	0x540
+diff --git a/drivers/gpu/drm/sun4i/sun4i_hdmi_ddc_clk.c b/drivers/gpu/drm/sun4i/sun4i_hdmi_ddc_clk.c
+index 4692e8c345ed4..58d9557a774fe 100644
+--- a/drivers/gpu/drm/sun4i/sun4i_hdmi_ddc_clk.c
++++ b/drivers/gpu/drm/sun4i/sun4i_hdmi_ddc_clk.c
+@@ -32,7 +32,7 @@ static unsigned long sun4i_ddc_calc_divider(unsigned long rate,
+ 	unsigned long best_rate = 0;
+ 	u8 best_m = 0, best_n = 0, _m, _n;
  
- 	list_splice_tail_init(&new->tr_databuf, &old->tr_databuf);
- 	list_splice_tail_init(&new->tr_buf, &old->tr_buf);
-+
-+	spin_lock(&sdp->sd_ail_lock);
-+	list_splice_tail_init(&new->tr_ail1_list, &old->tr_ail1_list);
-+	list_splice_tail_init(&new->tr_ail2_list, &old->tr_ail2_list);
-+	spin_unlock(&sdp->sd_ail_lock);
- }
+-	for (_m = 0; _m < 8; _m++) {
++	for (_m = 0; _m < 16; _m++) {
+ 		for (_n = 0; _n < 8; _n++) {
+ 			unsigned long tmp_rate;
  
- static void log_refund(struct gfs2_sbd *sdp, struct gfs2_trans *tr)
-@@ -828,7 +835,7 @@ static void log_refund(struct gfs2_sbd *sdp, struct gfs2_trans *tr)
- 	gfs2_log_lock(sdp);
- 
- 	if (sdp->sd_log_tr) {
--		gfs2_merge_trans(sdp->sd_log_tr, tr);
-+		gfs2_merge_trans(sdp, tr);
- 	} else if (tr->tr_num_buf_new || tr->tr_num_databuf_new) {
- 		gfs2_assert_withdraw(sdp, test_bit(TR_ALLOCED, &tr->tr_flags));
- 		sdp->sd_log_tr = tr;
 -- 
 2.25.1
 
