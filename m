@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79D302060C2
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:49:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62D14206071
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:48:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392827AbgFWUqR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:46:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44074 "EHLO mail.kernel.org"
+        id S2392074AbgFWUmz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:42:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392824AbgFWUqP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:46:15 -0400
+        id S2389956AbgFWUmw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:42:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F0EB320656;
-        Tue, 23 Jun 2020 20:46:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA60F2070E;
+        Tue, 23 Jun 2020 20:42:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592945175;
-        bh=S9fjgN8jzrVvI3RGXDztUnJdH8QxV4shq08x4hdQ3VQ=;
+        s=default; t=1592944972;
+        bh=Xyq7Rd3xJ9lMMJTvTVShejbG5V6YJWXpQdHVzdJB8gQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lvxuu3JPVOPUFyW91a3WheBY6dVyTOH5Ohmvo+CWBUCcWzgROJO8iAXjEwh3wv/25
-         xvnNiKczacWSZf+2zF+cfly5o+zSBulg8Koz7BPjPAY2nmeOEgs5GiKF2TK0He2vJy
-         wwzd9ZsO2BqKgknAnWgN7TS97qlgEl9VFcgB+vMA=
+        b=G7grFQWUnVpcj5gBqOuvaBEup6/8X9CHp8YTdVcS64I3b+EwrsHY0xXCh6pppyAy1
+         UyT3caom8W4Mqpq2/kfR35jD/a+F8jO7zAcJkNhfJc0XN4Qxa/2yUroRP73h9K1Wnt
+         sBpugfNRQJYw72iAwOPxWZi1NfGQkbL6PMb0MCu4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aiman Najjar <aiman.najjar@hurranet.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, yangerkun <yangerkun@huawei.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 037/136] staging: rtl8712: fix multiline derefernce warnings
-Date:   Tue, 23 Jun 2020 21:58:13 +0200
-Message-Id: <20200623195305.503170326@linuxfoundation.org>
+Subject: [PATCH 4.19 166/206] ext4: stop overwrite the errcode in ext4_setup_super
+Date:   Tue, 23 Jun 2020 21:58:14 +0200
+Message-Id: <20200623195325.173015774@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195303.601828702@linuxfoundation.org>
-References: <20200623195303.601828702@linuxfoundation.org>
+In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
+References: <20200623195316.864547658@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,78 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aiman Najjar <aiman.najjar@hurranet.com>
+From: yangerkun <yangerkun@huawei.com>
 
-[ Upstream commit 269da10b1477c31c660288633c8d613e421b131f ]
+[ Upstream commit 5adaccac46ea79008d7b75f47913f1a00f91d0ce ]
 
-This patch fixes remaining checkpatch warnings
-in rtl871x_xmit.c:
+Now the errcode from ext4_commit_super will overwrite EROFS exists in
+ext4_setup_super. Actually, no need to call ext4_commit_super since we
+will return EROFS. Fix it by goto done directly.
 
-WARNING: Avoid multiple line dereference - prefer 'psecuritypriv->PrivacyKeyIndex'
-636: FILE: drivers/staging//rtl8712/rtl871x_xmit.c:636:
-+					      (u8)psecuritypriv->
-+					      PrivacyKeyIndex);
-
-WARNING: Avoid multiple line dereference - prefer 'psecuritypriv->XGrpKeyid'
-643: FILE: drivers/staging//rtl8712/rtl871x_xmit.c:643:
-+						   (u8)psecuritypriv->
-+						   XGrpKeyid);
-
-WARNING: Avoid multiple line dereference - prefer 'psecuritypriv->XGrpKeyid'
-652: FILE: drivers/staging//rtl8712/rtl871x_xmit.c:652:
-+						   (u8)psecuritypriv->
-+						   XGrpKeyid);
-
-Signed-off-by: Aiman Najjar <aiman.najjar@hurranet.com>
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/98805a72b92e9bbf933e05b827d27944663b7bc1.1585508171.git.aiman.najjar@hurranet.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c89128a00838 ("ext4: handle errors on ext4_commit_super")
+Signed-off-by: yangerkun <yangerkun@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20200601073404.3712492-1-yangerkun@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8712/rtl871x_xmit.c | 11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+ fs/ext4/super.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/staging/rtl8712/rtl871x_xmit.c b/drivers/staging/rtl8712/rtl871x_xmit.c
-index eda2aee02ff89..06e2377092fe0 100644
---- a/drivers/staging/rtl8712/rtl871x_xmit.c
-+++ b/drivers/staging/rtl8712/rtl871x_xmit.c
-@@ -601,7 +601,7 @@ sint r8712_xmitframe_coalesce(struct _adapter *padapter, _pkt *pkt,
- 	addr_t addr;
- 	u8 *pframe, *mem_start, *ptxdesc;
- 	struct sta_info		*psta;
--	struct security_priv	*psecuritypriv = &padapter->securitypriv;
-+	struct security_priv	*psecpriv = &padapter->securitypriv;
- 	struct mlme_priv	*pmlmepriv = &padapter->mlmepriv;
- 	struct xmit_priv	*pxmitpriv = &padapter->xmitpriv;
- 	struct pkt_attrib	*pattrib = &pxmitframe->attrib;
-@@ -644,15 +644,13 @@ sint r8712_xmitframe_coalesce(struct _adapter *padapter, _pkt *pkt,
- 				case _WEP40_:
- 				case _WEP104_:
- 					WEP_IV(pattrib->iv, psta->txpn,
--					       (u8)psecuritypriv->
--					       PrivacyKeyIndex);
-+					       (u8)psecpriv->PrivacyKeyIndex);
- 					break;
- 				case _TKIP_:
- 					if (bmcst)
- 						TKIP_IV(pattrib->iv,
- 						    psta->txpn,
--						    (u8)psecuritypriv->
--						    XGrpKeyid);
-+						    (u8)psecpriv->XGrpKeyid);
- 					else
- 						TKIP_IV(pattrib->iv, psta->txpn,
- 							0);
-@@ -660,8 +658,7 @@ sint r8712_xmitframe_coalesce(struct _adapter *padapter, _pkt *pkt,
- 				case _AES_:
- 					if (bmcst)
- 						AES_IV(pattrib->iv, psta->txpn,
--						    (u8)psecuritypriv->
--						    XGrpKeyid);
-+						    (u8)psecpriv->XGrpKeyid);
- 					else
- 						AES_IV(pattrib->iv, psta->txpn,
- 						       0);
+diff --git a/fs/ext4/super.c b/fs/ext4/super.c
+index 93c14ecac831e..affccf55294e9 100644
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -2249,6 +2249,7 @@ static int ext4_setup_super(struct super_block *sb, struct ext4_super_block *es,
+ 		ext4_msg(sb, KERN_ERR, "revision level too high, "
+ 			 "forcing read-only mode");
+ 		err = -EROFS;
++		goto done;
+ 	}
+ 	if (read_only)
+ 		goto done;
 -- 
 2.25.1
 
