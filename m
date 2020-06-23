@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2E9F205F10
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:32:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00DE2205FDC
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:47:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390940AbgFWU3D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:29:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48984 "EHLO mail.kernel.org"
+        id S2391843AbgFWUhA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:37:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60274 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390221AbgFWU3D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:29:03 -0400
+        id S2391264AbgFWUg7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:36:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D9247206C3;
-        Tue, 23 Jun 2020 20:29:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E577321527;
+        Tue, 23 Jun 2020 20:36:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944143;
-        bh=giVs8lzCvKSJtFFHoU4pzvCNBJJN2SkZUT7eSNvlx/w=;
+        s=default; t=1592944619;
+        bh=PrCNUgQ/SXgMeIdcoc5Sk0/EeTIz7pOsb/IZl/fh8g4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tvU9rxoeriom1K877hg+GU0ulPQ9+SEN9v1Fw36S7HlpxrKnwwNfSVDQUMAvVr2Fz
-         VH8NJxRU+jJORM+0saDRzK5T1tU7iIge81QhdBoC9StUy6PIB1krE0P8h35i4ORutI
-         /mV/mu0r3ScMp+4eNAqaYaU+uuuFztcXG4yopZyg=
+        b=j/kdxM1rLmmVPnp2wqKmt+i+Gj6W25a3CLYwj9HpYCuvQb08p9iI0fh6sFKSem1mm
+         Od/UC/qPMDmekcdJRKhylWrna6JiQknp+x0KEY6P/NJt2ovW9wFx+wdnX0SQWiMm8A
+         IBAZUDAyuZ+p0Te6Z5mGjb4/+XakIZkAta5EyZqk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 189/314] clk: bcm2835: Fix return type of bcm2835_register_gate
-Date:   Tue, 23 Jun 2020 21:56:24 +0200
-Message-Id: <20200623195347.933432071@linuxfoundation.org>
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 058/206] staging: gasket: Fix mapping refcnt leak when register/store fails
+Date:   Tue, 23 Jun 2020 21:56:26 +0200
+Message-Id: <20200623195319.825470787@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
-References: <20200623195338.770401005@linuxfoundation.org>
+In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
+References: <20200623195316.864547658@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,57 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-[ Upstream commit f376c43bec4f8ee8d1ba5c5c4cfbd6e84fb279cb ]
+[ Upstream commit e3436ce60cf5f5eaedda2b8c622f69feb97595e2 ]
 
-bcm2835_register_gate is used as a callback for the clk_register member
-of bcm2835_clk_desc, which expects a struct clk_hw * return type but
-bcm2835_register_gate returns a struct clk *.
+gasket_sysfs_register_store() invokes get_mapping(), which returns a
+reference of the specified gasket_sysfs_mapping object to "mapping" with
+increased refcnt.
 
-This discrepancy is hidden by the fact that bcm2835_register_gate is
-cast to the typedef bcm2835_clk_register by the _REGISTER macro. This
-turns out to be a control flow integrity violation, which is how this
-was noticed.
+When gasket_sysfs_register_store() returns, local variable "mapping"
+becomes invalid, so the refcount should be decreased to keep refcount
+balanced.
 
-Change the return type of bcm2835_register_gate to be struct clk_hw *
-and use clk_hw_register_gate to do so. This should be a non-functional
-change as clk_register_gate calls clk_hw_register_gate anyways but this
-is needed to avoid issues with further changes.
+The reference counting issue happens in one exception handling path of
+gasket_sysfs_register_store(). When gasket_dev is NULL, the function
+forgets to decrease the refcnt increased by get_mapping(), causing a
+refcnt leak.
 
-Fixes: b19f009d4510 ("clk: bcm2835: Migrate to clk_hw based registration and OF APIs")
-Link: https://github.com/ClangBuiltLinux/linux/issues/1028
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Link: https://lkml.kernel.org/r/20200516080806.1459784-1-natechancellor@gmail.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fix this issue by calling put_mapping() when gasket_dev is NULL.
+
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Link: https://lore.kernel.org/r/1587618941-13718-1-git-send-email-xiyuyang19@fudan.edu.cn
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/bcm/clk-bcm2835.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/staging/gasket/gasket_sysfs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/clk/bcm/clk-bcm2835.c b/drivers/clk/bcm/clk-bcm2835.c
-index 802e488fd3c3d..6e5d635f030f4 100644
---- a/drivers/clk/bcm/clk-bcm2835.c
-+++ b/drivers/clk/bcm/clk-bcm2835.c
-@@ -1448,13 +1448,13 @@ static struct clk_hw *bcm2835_register_clock(struct bcm2835_cprman *cprman,
- 	return &clock->hw;
- }
+diff --git a/drivers/staging/gasket/gasket_sysfs.c b/drivers/staging/gasket/gasket_sysfs.c
+index 9c982f1c0881d..5986c67bc7ec3 100644
+--- a/drivers/staging/gasket/gasket_sysfs.c
++++ b/drivers/staging/gasket/gasket_sysfs.c
+@@ -377,6 +377,7 @@ ssize_t gasket_sysfs_register_store(struct device *device,
+ 	gasket_dev = mapping->gasket_dev;
+ 	if (!gasket_dev) {
+ 		dev_err(device, "Device driver may have been removed\n");
++		put_mapping(mapping);
+ 		return 0;
+ 	}
  
--static struct clk *bcm2835_register_gate(struct bcm2835_cprman *cprman,
-+static struct clk_hw *bcm2835_register_gate(struct bcm2835_cprman *cprman,
- 					 const struct bcm2835_gate_data *data)
- {
--	return clk_register_gate(cprman->dev, data->name, data->parent,
--				 CLK_IGNORE_UNUSED | CLK_SET_RATE_GATE,
--				 cprman->regs + data->ctl_reg,
--				 CM_GATE_BIT, 0, &cprman->regs_lock);
-+	return clk_hw_register_gate(cprman->dev, data->name, data->parent,
-+				    CLK_IGNORE_UNUSED | CLK_SET_RATE_GATE,
-+				    cprman->regs + data->ctl_reg,
-+				    CM_GATE_BIT, 0, &cprman->regs_lock);
- }
- 
- typedef struct clk_hw *(*bcm2835_clk_register)(struct bcm2835_cprman *cprman,
 -- 
 2.25.1
 
