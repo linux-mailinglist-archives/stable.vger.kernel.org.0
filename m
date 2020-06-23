@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE4802061A1
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:07:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 615F32061A2
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:07:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392863AbgFWUqo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:46:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44726 "EHLO mail.kernel.org"
+        id S2392875AbgFWUqu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:46:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392857AbgFWUqm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:46:42 -0400
+        id S2392869AbgFWUqt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:46:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A89F021548;
-        Tue, 23 Jun 2020 20:46:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5926B21548;
+        Tue, 23 Jun 2020 20:46:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592945201;
-        bh=zs1Fsnj+WxD8z7ioOPR4f0U8x/ABY56oKNjP/7rKsb4=;
+        s=default; t=1592945208;
+        bh=SgV5cgpPQst53QtexAFdvgpyzPThItA8o3g8CM1WL5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P2bhknq3AaDzHzfFFdbodNKP/gZX8SA0Pf/lAwWfnHE6oWdJ1Ro9cqUnVYVMiK+iw
-         IfiOKNv1RcKfrBfBo1oO4mA7VdVC6hWkrJmvUXwGO3IFBdBbGaIIidHpUn1k4Hzg9B
-         OEfb4/zbOpolIV1KWiMhs72zj3k9yRrWaAFFvzTk=
+        b=HWTdAUlDZql0EZ4boTihFh10G69B3I8Cg5gI48VOWwBBqCE0ExbEqmHcmdMupDowq
+         2Ke3/HJu+rcexs5Od7H9n+jAYJDaR7/mVkcFFkchqJ/vVTD/ynuO3m1fh8vjNWQNkl
+         2e95ViSSnOS2/6xcEf64B8fD4DQNKFUEYjLsiEvo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fedor Tokarev <ftokarev@gmail.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 079/136] net: sunrpc: Fix off-by-one issues in rpc_ntop6
-Date:   Tue, 23 Jun 2020 21:58:55 +0200
-Message-Id: <20200623195307.681534637@linuxfoundation.org>
+Subject: [PATCH 4.14 082/136] extcon: adc-jack: Fix an error handling path in adc_jack_probe()
+Date:   Tue, 23 Jun 2020 21:58:58 +0200
+Message-Id: <20200623195307.818861863@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195303.601828702@linuxfoundation.org>
 References: <20200623195303.601828702@linuxfoundation.org>
@@ -44,43 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fedor Tokarev <ftokarev@gmail.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 118917d696dc59fd3e1741012c2f9db2294bed6f ]
+[ Upstream commit bc84cff2c92ae5ccb2c37da73756e7174b1b430f ]
 
-Fix off-by-one issues in 'rpc_ntop6':
- - 'snprintf' returns the number of characters which would have been
-   written if enough space had been available, excluding the terminating
-   null byte. Thus, a return value of 'sizeof(scopebuf)' means that the
-   last character was dropped.
- - 'strcat' adds a terminating null byte to the string, thus if len ==
-   buflen, the null byte is written past the end of the buffer.
+In some error handling paths, a call to 'iio_channel_get()' is not balanced
+by a corresponding call to 'iio_channel_release()'.
 
-Signed-off-by: Fedor Tokarev <ftokarev@gmail.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+This can be achieved easily by using the devm_ variant of
+'iio_channel_get()'.
+
+This has the extra benefit to simplify the remove function.
+
+Fixes: 19939860dcae ("extcon: adc_jack: adc-jack driver to support 3.5 pi or simliar devices")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/addr.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/extcon/extcon-adc-jack.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/net/sunrpc/addr.c b/net/sunrpc/addr.c
-index 2e0a6f92e563d..8391c27855501 100644
---- a/net/sunrpc/addr.c
-+++ b/net/sunrpc/addr.c
-@@ -81,11 +81,11 @@ static size_t rpc_ntop6(const struct sockaddr *sap,
+diff --git a/drivers/extcon/extcon-adc-jack.c b/drivers/extcon/extcon-adc-jack.c
+index 6f6537ab0a791..59e6ca685be85 100644
+--- a/drivers/extcon/extcon-adc-jack.c
++++ b/drivers/extcon/extcon-adc-jack.c
+@@ -128,7 +128,7 @@ static int adc_jack_probe(struct platform_device *pdev)
+ 	for (i = 0; data->adc_conditions[i].id != EXTCON_NONE; i++);
+ 	data->num_conditions = i;
  
- 	rc = snprintf(scopebuf, sizeof(scopebuf), "%c%u",
- 			IPV6_SCOPE_DELIMITER, sin6->sin6_scope_id);
--	if (unlikely((size_t)rc > sizeof(scopebuf)))
-+	if (unlikely((size_t)rc >= sizeof(scopebuf)))
- 		return 0;
+-	data->chan = iio_channel_get(&pdev->dev, pdata->consumer_channel);
++	data->chan = devm_iio_channel_get(&pdev->dev, pdata->consumer_channel);
+ 	if (IS_ERR(data->chan))
+ 		return PTR_ERR(data->chan);
  
- 	len += rc;
--	if (unlikely(len > buflen))
-+	if (unlikely(len >= buflen))
- 		return 0;
+@@ -170,7 +170,6 @@ static int adc_jack_remove(struct platform_device *pdev)
  
- 	strcat(buf, scopebuf);
+ 	free_irq(data->irq, data);
+ 	cancel_work_sync(&data->handler.work);
+-	iio_channel_release(data->chan);
+ 
+ 	return 0;
+ }
 -- 
 2.25.1
 
