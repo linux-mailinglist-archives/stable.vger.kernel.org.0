@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90631205F49
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:32:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77569206010
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:47:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390606AbgFWUbW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:31:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51828 "EHLO mail.kernel.org"
+        id S2392026AbgFWUjN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:39:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388270AbgFWUbT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:31:19 -0400
+        id S2392021AbgFWUjK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:39:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BD0C12070E;
-        Tue, 23 Jun 2020 20:31:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5C7A221531;
+        Tue, 23 Jun 2020 20:39:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944279;
-        bh=yKZrSni4dmxJYz20NLHLzdDMij3yaW5TYYSXl8WovN4=;
+        s=default; t=1592944750;
+        bh=DrZu0NMmSZMIz0xH6G9+APbQxnDbr+G3aSdiLuebcDU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xhoUeb9YlZ5jeyCk3YwJWAutBDpeqHk1PmHQt6qzjFnFzdV71zIXOnny2KJ+HegkY
-         cXznPq/cBe5BEno6qoHaBnhiT9T5ZCGqkUrKuJ2ED/TG6gR7lhEGnBR5BICU3Lv5pj
-         NS/lH9byovsisa2y1fkGwh0zdVhsclMILtu/LeOs=
+        b=BI6sI5BAbHyBFm8mQgkgsTaROoP36XosPZSzSCAJZihkos2qMNnSR4VTE+BQzDS0k
+         cV0H/g8GkuVWm1qzWyElTCHCJdAR6xNwdOPbSsvrmS4Z7fFj+tOPm1llmnEYZYPTUr
+         1lbn3x4YitZwER/K8wdSJ6P/zr7PwzqB4ISLwPmk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Baluta <daniel.baluta@nxp.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
-        Daniel Baluta <daniel.baluta@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Potnuri Bharat Teja <bharat@chelsio.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 243/314] ASoC: core: only convert non DPCM link to DPCM link
-Date:   Tue, 23 Jun 2020 21:57:18 +0200
-Message-Id: <20200623195350.544004137@linuxfoundation.org>
+Subject: [PATCH 4.19 111/206] RDMA/iw_cxgb4: cleanup device debugfs entries on ULD remove
+Date:   Tue, 23 Jun 2020 21:57:19 +0200
+Message-Id: <20200623195322.404205831@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
-References: <20200623195338.770401005@linuxfoundation.org>
+In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
+References: <20200623195316.864547658@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,70 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bard Liao <yung-chuan.liao@linux.intel.com>
+From: Potnuri Bharat Teja <bharat@chelsio.com>
 
-[ Upstream commit 607fa205a7e4dfad28b8a67ab1c985756ddbccb0 ]
+[ Upstream commit 49ea0c036ede81f126f1a9389d377999fdf5c5a1 ]
 
-Additional checks for valid DAIs expose a corner case, where existing
-BE dailinks get modified, e.g. HDMI links are tagged with
-dpcm_capture=1 even if the DAIs are for playback.
+Remove device specific debugfs entries immediately if LLD detaches a
+particular ULD device in case of fatal PCI errors.
 
-This patch makes those changes conditional and flags configuration
-issues when a BE dailink is has no_pcm=0 but dpcm_playback or
-dpcm_capture=1 (which makes no sense).
-
-As discussed on the alsa-devel mailing list, there are redundant flags
-for dpcm_playback, dpcm_capture, playback_only, capture_only. This
-will have to be cleaned-up in a future update. For now only correct
-and flag problematic configurations.
-
-Fixes: 218fe9b7ec7f3 ("ASoC: soc-core: Set dpcm_playback / dpcm_capture")
-Suggested-by: Daniel Baluta <daniel.baluta@nxp.com>
-Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Reviewed-by: Daniel Baluta <daniel.baluta@gmail.com>
-Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Link: https://lore.kernel.org/r/20200608194415.4663-3-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20200524190814.17599-1-bharat@chelsio.com
+Signed-off-by: Potnuri Bharat Teja <bharat@chelsio.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-core.c | 22 +++++++++++++++++++---
- 1 file changed, 19 insertions(+), 3 deletions(-)
+ drivers/infiniband/hw/cxgb4/device.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
-index 0215e2c94bf08..9df20768a8f29 100644
---- a/sound/soc/soc-core.c
-+++ b/sound/soc/soc-core.c
-@@ -1895,9 +1895,25 @@ match:
- 			dai_link->platforms->name = component->name;
- 
- 			/* convert non BE into BE */
--			dai_link->no_pcm = 1;
--			dai_link->dpcm_playback = 1;
--			dai_link->dpcm_capture = 1;
-+			if (!dai_link->no_pcm) {
-+				dai_link->no_pcm = 1;
-+
-+				if (dai_link->dpcm_playback)
-+					dev_warn(card->dev,
-+						 "invalid configuration, dailink %s has flags no_pcm=0 and dpcm_playback=1\n",
-+						 dai_link->name);
-+				if (dai_link->dpcm_capture)
-+					dev_warn(card->dev,
-+						 "invalid configuration, dailink %s has flags no_pcm=0 and dpcm_capture=1\n",
-+						 dai_link->name);
-+
-+				/* convert normal link into DPCM one */
-+				if (!(dai_link->dpcm_playback ||
-+				      dai_link->dpcm_capture)) {
-+					dai_link->dpcm_playback = !dai_link->capture_only;
-+					dai_link->dpcm_capture = !dai_link->playback_only;
-+				}
-+			}
- 
- 			/* override any BE fixups */
- 			dai_link->be_hw_params_fixup =
+diff --git a/drivers/infiniband/hw/cxgb4/device.c b/drivers/infiniband/hw/cxgb4/device.c
+index c13c0ba30f63e..af974a2570862 100644
+--- a/drivers/infiniband/hw/cxgb4/device.c
++++ b/drivers/infiniband/hw/cxgb4/device.c
+@@ -945,6 +945,7 @@ void c4iw_dealloc(struct uld_ctx *ctx)
+ static void c4iw_remove(struct uld_ctx *ctx)
+ {
+ 	pr_debug("c4iw_dev %p\n", ctx->dev);
++	debugfs_remove_recursive(ctx->dev->debugfs_root);
+ 	c4iw_unregister_device(ctx->dev);
+ 	c4iw_dealloc(ctx);
+ }
 -- 
 2.25.1
 
