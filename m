@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0080020666A
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:52:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69D7B20658E
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:51:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388954AbgFWVlp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 17:41:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45230 "EHLO mail.kernel.org"
+        id S2387842AbgFWUFq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:05:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387841AbgFWUFk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:05:40 -0400
+        id S2387976AbgFWUFp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:05:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B8778206C3;
-        Tue, 23 Jun 2020 20:05:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC5C2206C3;
+        Tue, 23 Jun 2020 20:05:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592942739;
-        bh=8OD0oLEMtoz2b3kF+Ko69dJ60zm1O134MUg1/UpKczo=;
+        s=default; t=1592942744;
+        bh=gTAQEQdY6aH0F1czDOboGVSLtTzJ+xL9zjHbwme/WQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CKi+RJT3vOJhDojwOb74o9Az+5W8vNlxNRzZqTTN73vpFsTj9veuDjVhoxolkCyzB
-         /3fkJbPTO6dddavAz5K4xUA26FmaXAQ53BthvdZs53ws4v1jBj2S4+9WE10EFQOu4B
-         CKGm2MLWszgtgXwPuzRMrJlrfmepd4qKuiYQrZGA=
+        b=K+jKnflcsWt1+LUn4nCAoWtB68+SW5FyX51VPGgHoyC4YntvAY+SCgQAFoqgw0kPU
+         CUefN6MthraoL7kg14CmJuklrreVZy/R7GXXihaxsRk95wIdAInytalCDOxxc2RjrV
+         JwQ+riqEK34NW5C50D+9soay8n7oFlI12/SUsqUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sergio Paracuellos <sergio.paracuellos@gmail.com>,
+        stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        Manish Rangankar <mrangankar@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 117/477] staging: mt7621-pci: fix PCIe interrupt mapping
-Date:   Tue, 23 Jun 2020 21:51:54 +0200
-Message-Id: <20200623195413.133085025@linuxfoundation.org>
+Subject: [PATCH 5.7 119/477] scsi: qedi: Do not flush offload work if ARP not resolved
+Date:   Tue, 23 Jun 2020 21:51:56 +0200
+Message-Id: <20200623195413.229980979@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -44,185 +46,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergio Paracuellos <sergio.paracuellos@gmail.com>
+From: Nilesh Javali <njavali@marvell.com>
 
-[ Upstream commit fab6710e4c51f4eb622f95a08322ab5fdbe3f295 ]
+[ Upstream commit 927527aea0e2a9c1d336c7d33f77f1911481d008 ]
 
-MT7621 has three assigned interrupts for the pcie. This
-interrupts should properly being mapped taking into account
-which devices are finally connected in which bus according
-to link status. So the irq mappings should be as follows
-according to link status (three bits indicating which devices
-are link up):
+For an unreachable target, offload_work is not initialized and the endpoint
+state is set to OFLDCONN_NONE. This results in a WARN_ON due to the check
+of the work function field being set to zero.
 
-* For PCIe Bus 1 slot 0:
-  - status = 0x2 || status = 0x6 => IRQ = pcie1_irq (24).
-  - status = 0x4 => IRQ = pcie2_irq (25).
-  - default => IRQ = pcie0_irq (23).
-* For PCIe Bus 2 slot 0:
-  - status = 0x5 || status = 0x6 => IRQ = pcie2_irq (25).
-  - default => IRQ = pcie1_irq (24).
-* For PCIe Bus 2 slot 1:
-  - status = 0x5 || status = 0x6 => IRQ = pcie2_irq (25).
-  - default => IRQ = pcie1_irq (24).
-* For PCIe Bus 3 any slot:
-  - default => IRQ = pcie2_irq (25).
+------------[ cut here ]------------
+WARNING: CPU: 24 PID: 18587 at ../kernel/workqueue.c:3037 __flush_work+0x1c1/0x1d0
+:
+Hardware name: HPE ProLiant DL380 Gen10/ProLiant DL380 Gen10, BIOS U30 02/01/2020
+RIP: 0010:__flush_work+0x1c1/0x1d0
+Code: ba 6d 00 03 80 c9 f0 eb b6 48 c7 c7 20 ee 6c a4 e8 52 d3 04 00 0f 0b 31 c0 e9 d1 fe ff
+ff 48 c7 c7 20 ee 6c a4 e8 3d d3 04 00 <0f> 0b 31 c0 e9 bc fe ff ff e8 11 f3 f
+ 00 31 f6
+RSP: 0018:ffffac5a8cd47a80 EFLAGS: 00010282
+RAX: 0000000000000024 RBX: ffff98d68c1fcaf0 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: ffff98ce9fd99898 RDI: ffff98ce9fd99898
+RBP: ffff98d68c1fcbc0 R08: 00000000000006fa R09: 0000000000000001
+R10: ffffac5a8cd47b50 R11: 0000000000000001 R12: 0000000000000000
+R13: 000000000000489b R14: ffff98d68c1fc800 R15: ffff98d692132c00
+FS:  00007f65f7f62280(0000) GS:ffff98ce9fd80000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007ffd2435e880 CR3: 0000000809334003 CR4: 00000000007606e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+PKRU: 55555554
+Call Trace:
+ ? class_create_release+0x40/0x40
+ ? klist_put+0x2c/0x80
+ qedi_ep_disconnect+0xdd/0x400 [qedi]
+ iscsi_if_ep_disconnect.isra.20+0x59/0x70 [scsi_transport_iscsi]
+ iscsi_if_rx+0x129b/0x1670 [scsi_transport_iscsi]
+ ? __netlink_lookup+0xe7/0x160
+ netlink_unicast+0x21d/0x300
+ netlink_sendmsg+0x30f/0x430
+ sock_sendmsg+0x5b/0x60
+ ____sys_sendmsg+0x1e2/0x240
+ ? copy_msghdr_from_user+0xd9/0x160
+ ___sys_sendmsg+0x88/0xd0
+ ? ___sys_recvmsg+0xa2/0xe0
+ ? hrtimer_try_to_cancel+0x25/0x100
+ ? do_nanosleep+0x9c/0x170
+ ? __sys_sendmsg+0x5e/0xa0
+ __sys_sendmsg+0x5e/0xa0
+ do_syscall_64+0x60/0x1f0
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x7f65f6f16107
+Code: 64 89 02 48 c7 c0 ff ff ff ff eb b9 0f 1f 80 00 00 00 00 8b 05 aa d2 2b 00 48 63 d2 48
+63 ff 85 c0 75 18 b8 2e 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 59 f3 c3 0f 1f 8
+    0 00 00 00 00 53 48 89 f3 48
+ RSP: 002b:00007ffd24367ca8 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+ RAX: ffffffffffffffda RBX: 000055a7aeaaf110 RCX: 00007f65f6f16107
+ RDX: 0000000000000000 RSI: 00007ffd24367cc0 RDI: 0000000000000003
+ RBP: 0000000000000070 R08: 0000000000000000 R09: 0000000000000000
+ R10: 000000000000075c R11: 0000000000000246 R12: 00007ffd24367cc0
+ R13: 000055a7ae560008 R14: 00007ffd24367db0 R15: 0000000000000000
+ ---[ end trace 54f499c05d41f8bb ]---
 
-Because of this, the function 'of_irq_parse_and_map_pci' cannot
-be used and we need to change device tree information from using
-the 'interrupt-map' and 'interrupt-map-mask' properties into an
-'interrupts' property to be able to get irq information from the
-ports using the 'platform_get_irq' and storing an 'irq-map' into
-the pcie driver data node to properly map correct irq using a
-new 'mt7621_map_irq' function where this map will be read and the
-correct irq returned.
+Only flush if the connection endpoint state if different from
+OFLDCONN_NONE.
 
-Fixes: 46d093124df4 ("staging: mt7621-pci: improve interrupt mapping")
-Signed-off-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
-Link: https://lore.kernel.org/r/20200413055942.2714-1-sergio.paracuellos@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[mkp: clarified commit desc]
+
+Link: https://lore.kernel.org/r/20200408064332.19377-5-mrangankar@marvell.com
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Manish Rangankar <mrangankar@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/mt7621-dts/mt7621.dtsi  |  9 +++----
- drivers/staging/mt7621-pci/pci-mt7621.c | 36 +++++++++++++++++++++++--
- 2 files changed, 38 insertions(+), 7 deletions(-)
+ drivers/scsi/qedi/qedi_iscsi.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/staging/mt7621-dts/mt7621.dtsi b/drivers/staging/mt7621-dts/mt7621.dtsi
-index 9e5cf68731bb0..82aa93634eda3 100644
---- a/drivers/staging/mt7621-dts/mt7621.dtsi
-+++ b/drivers/staging/mt7621-dts/mt7621.dtsi
-@@ -523,11 +523,10 @@
- 			0x01000000 0 0x00000000 0x1e160000 0 0x00010000 /* io space */
- 		>;
+diff --git a/drivers/scsi/qedi/qedi_iscsi.c b/drivers/scsi/qedi/qedi_iscsi.c
+index d2e5b485afeb4..366c65b295a50 100644
+--- a/drivers/scsi/qedi/qedi_iscsi.c
++++ b/drivers/scsi/qedi/qedi_iscsi.c
+@@ -1001,7 +1001,8 @@ static void qedi_ep_disconnect(struct iscsi_endpoint *ep)
+ 	if (qedi_ep->state == EP_STATE_OFLDCONN_START)
+ 		goto ep_exit_recover;
  
--		#interrupt-cells = <1>;
--		interrupt-map-mask = <0xF0000 0 0 1>;
--		interrupt-map = <0x10000 0 0 1 &gic GIC_SHARED 4 IRQ_TYPE_LEVEL_HIGH>,
--				<0x20000 0 0 1 &gic GIC_SHARED 24 IRQ_TYPE_LEVEL_HIGH>,
--				<0x30000 0 0 1 &gic GIC_SHARED 25 IRQ_TYPE_LEVEL_HIGH>;
-+		interrupt-parent = <&gic>;
-+		interrupts = <GIC_SHARED 4 IRQ_TYPE_LEVEL_HIGH
-+				GIC_SHARED 24 IRQ_TYPE_LEVEL_HIGH
-+				GIC_SHARED 25 IRQ_TYPE_LEVEL_HIGH>;
+-	flush_work(&qedi_ep->offload_work);
++	if (qedi_ep->state != EP_STATE_OFLDCONN_NONE)
++		flush_work(&qedi_ep->offload_work);
  
- 		status = "disabled";
- 
-diff --git a/drivers/staging/mt7621-pci/pci-mt7621.c b/drivers/staging/mt7621-pci/pci-mt7621.c
-index b9d460a9c0419..36207243a71b0 100644
---- a/drivers/staging/mt7621-pci/pci-mt7621.c
-+++ b/drivers/staging/mt7621-pci/pci-mt7621.c
-@@ -97,6 +97,7 @@
-  * @pcie_rst: pointer to port reset control
-  * @gpio_rst: gpio reset
-  * @slot: port slot
-+ * @irq: GIC irq
-  * @enabled: indicates if port is enabled
-  */
- struct mt7621_pcie_port {
-@@ -107,6 +108,7 @@ struct mt7621_pcie_port {
- 	struct reset_control *pcie_rst;
- 	struct gpio_desc *gpio_rst;
- 	u32 slot;
-+	int irq;
- 	bool enabled;
- };
- 
-@@ -120,6 +122,7 @@ struct mt7621_pcie_port {
-  * @dev: Pointer to PCIe device
-  * @io_map_base: virtual memory base address for io
-  * @ports: pointer to PCIe port information
-+ * @irq_map: irq mapping info according pcie link status
-  * @resets_inverted: depends on chip revision
-  * reset lines are inverted.
-  */
-@@ -135,6 +138,7 @@ struct mt7621_pcie {
- 	} offset;
- 	unsigned long io_map_base;
- 	struct list_head ports;
-+	int irq_map[PCIE_P2P_MAX];
- 	bool resets_inverted;
- };
- 
-@@ -279,6 +283,16 @@ static void setup_cm_memory_region(struct mt7621_pcie *pcie)
- 	}
- }
- 
-+static int mt7621_map_irq(const struct pci_dev *pdev, u8 slot, u8 pin)
-+{
-+	struct mt7621_pcie *pcie = pdev->bus->sysdata;
-+	struct device *dev = pcie->dev;
-+	int irq = pcie->irq_map[slot];
-+
-+	dev_info(dev, "bus=%d slot=%d irq=%d\n", pdev->bus->number, slot, irq);
-+	return irq;
-+}
-+
- static int mt7621_pci_parse_request_of_pci_ranges(struct mt7621_pcie *pcie)
- {
- 	struct device *dev = pcie->dev;
-@@ -330,6 +344,7 @@ static int mt7621_pcie_parse_port(struct mt7621_pcie *pcie,
- {
- 	struct mt7621_pcie_port *port;
- 	struct device *dev = pcie->dev;
-+	struct platform_device *pdev = to_platform_device(dev);
- 	struct device_node *pnode = dev->of_node;
- 	struct resource regs;
- 	char name[10];
-@@ -371,6 +386,12 @@ static int mt7621_pcie_parse_port(struct mt7621_pcie *pcie,
- 	port->slot = slot;
- 	port->pcie = pcie;
- 
-+	port->irq = platform_get_irq(pdev, slot);
-+	if (port->irq < 0) {
-+		dev_err(dev, "Failed to get IRQ for PCIe%d\n", slot);
-+		return -ENXIO;
-+	}
-+
- 	INIT_LIST_HEAD(&port->list);
- 	list_add_tail(&port->list, &pcie->ports);
- 
-@@ -585,13 +606,15 @@ static int mt7621_pcie_init_virtual_bridges(struct mt7621_pcie *pcie)
- {
- 	u32 pcie_link_status = 0;
- 	u32 n;
--	int i;
-+	int i = 0;
- 	u32 p2p_br_devnum[PCIE_P2P_MAX];
-+	int irqs[PCIE_P2P_MAX];
- 	struct mt7621_pcie_port *port;
- 
- 	list_for_each_entry(port, &pcie->ports, list) {
- 		u32 slot = port->slot;
- 
-+		irqs[i++] = port->irq;
- 		if (port->enabled)
- 			pcie_link_status |= BIT(slot);
- 	}
-@@ -614,6 +637,15 @@ static int mt7621_pcie_init_virtual_bridges(struct mt7621_pcie *pcie)
- 		 (p2p_br_devnum[1] << PCIE_P2P_BR_DEVNUM1_SHIFT) |
- 		 (p2p_br_devnum[2] << PCIE_P2P_BR_DEVNUM2_SHIFT));
- 
-+	/* Assign IRQs */
-+	n = 0;
-+	for (i = 0; i < PCIE_P2P_MAX; i++)
-+		if (pcie_link_status & BIT(i))
-+			pcie->irq_map[n++] = irqs[i];
-+
-+	for (i = n; i < PCIE_P2P_MAX; i++)
-+		pcie->irq_map[i] = -1;
-+
- 	return 0;
- }
- 
-@@ -638,7 +670,7 @@ static int mt7621_pcie_register_host(struct pci_host_bridge *host,
- 	host->busnr = pcie->busn.start;
- 	host->dev.parent = pcie->dev;
- 	host->ops = &mt7621_pci_ops;
--	host->map_irq = of_irq_parse_and_map_pci;
-+	host->map_irq = mt7621_map_irq;
- 	host->swizzle_irq = pci_common_swizzle;
- 	host->sysdata = pcie;
- 
+ 	if (qedi_ep->conn) {
+ 		qedi_conn = qedi_ep->conn;
 -- 
 2.25.1
 
