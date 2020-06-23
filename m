@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 050B520592C
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 19:38:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBAC1205927
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 19:38:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387848AbgFWRib (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 13:38:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34270 "EHLO mail.kernel.org"
+        id S1733299AbgFWRiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 13:38:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387653AbgFWRgs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 13:36:48 -0400
+        id S2387659AbgFWRgt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 13:36:49 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E8A8E20706;
-        Tue, 23 Jun 2020 17:36:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5823920781;
+        Tue, 23 Jun 2020 17:36:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592933807;
-        bh=tNQ5/g0hGBvD2t9G9NPiam5thrxzFaMNuLWo9eawRTM=;
+        s=default; t=1592933809;
+        bh=lxhKP8mUk7NWPWZ5S591OwGbHEUQgWTP8rlI4jSLJjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pn7JJlycZn1ipPg6WBJObybUIU/2K05m2sCs6IcJpZ0tF8bMJ0OJA7iwAJoTLBzaL
-         x9KmcEfO6QzOnLFHgtVtruSfCvG1j8juvxdV/0qUq09Fyv8cRmr4s4XmNSZ8Rd+v/P
-         hoyTT+zFq6JY5ONqRv1dBBiik8Y9wlkN12SbGR28=
+        b=EqCZPCTRryv1ABTYlYT5b6aJU1NaotyixNt2+tFsjijKLIt0qLEsVu26Pi8mdRDhl
+         Y4MMP24WQYw+Olm2oTIEphT6+3TWvtS5V6oKASTLK5/SPF0prguzlwNIzzb8c/dIWf
+         dMUnRMXZD9CEP4vaHa5AATipAfzF6QwL1QzsN8qs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Luis Chamberlain <mcgrof@kernel.org>, Jan Kara <jack@suse.cz>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 14/15] blktrace: break out of blktrace setup on concurrent calls
-Date:   Tue, 23 Jun 2020 13:36:29 -0400
-Message-Id: <20200623173630.1355971-14-sashal@kernel.org>
+Cc:     Yash Shah <yash.shah@sifive.com>,
+        David Abdurachmanov <david.abdurachmanov@gmail.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-riscv@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 15/15] RISC-V: Don't allow write+exec only page mapping request in mmap
+Date:   Tue, 23 Jun 2020 13:36:30 -0400
+Message-Id: <20200623173630.1355971-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200623173630.1355971-1-sashal@kernel.org>
 References: <20200623173630.1355971-1-sashal@kernel.org>
@@ -44,91 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luis Chamberlain <mcgrof@kernel.org>
+From: Yash Shah <yash.shah@sifive.com>
 
-[ Upstream commit 1b0b283648163dae2a214ca28ed5a99f62a77319 ]
+[ Upstream commit e0d17c842c0f824fd4df9f4688709fc6907201e1 ]
 
-We use one blktrace per request_queue, that means one per the entire
-disk.  So we cannot run one blktrace on say /dev/vda and then /dev/vda1,
-or just two calls on /dev/vda.
+As per the table 4.4 of version "20190608-Priv-MSU-Ratified" of the
+RISC-V instruction set manual[0], the PTE permission bit combination of
+"write+exec only" is reserved for future use. Hence, don't allow such
+mapping request in mmap call.
 
-We check for concurrent setup only at the very end of the blktrace setup though.
+An issue is been reported by David Abdurachmanov, that while running
+stress-ng with "sysbadaddr" argument, RCU stalls are observed on RISC-V
+specific kernel.
 
-If we try to run two concurrent blktraces on the same block device the
-second one will fail, and the first one seems to go on. However when
-one tries to kill the first one one will see things like this:
+This issue arises when the stress-sysbadaddr request for pages with
+"write+exec only" permission bits and then passes the address obtain
+from this mmap call to various system call. For the riscv kernel, the
+mmap call should fail for this particular combination of permission bits
+since it's not valid.
 
-The kernel will show these:
+[0]: http://dabbelt.com/~palmer/keep/riscv-isa-manual/riscv-privileged-20190608-1.pdf
 
-```
-debugfs: File 'dropped' in directory 'nvme1n1' already present!
-debugfs: File 'msg' in directory 'nvme1n1' already present!
-debugfs: File 'trace0' in directory 'nvme1n1' already present!
-``
-
-And userspace just sees this error message for the second call:
-
-```
-blktrace /dev/nvme1n1
-BLKTRACESETUP(2) /dev/nvme1n1 failed: 5/Input/output error
-```
-
-The first userspace process #1 will also claim that the files
-were taken underneath their nose as well. The files are taken
-away form the first process given that when the second blktrace
-fails, it will follow up with a BLKTRACESTOP and BLKTRACETEARDOWN.
-This means that even if go-happy process #1 is waiting for blktrace
-data, we *have* been asked to take teardown the blktrace.
-
-This can easily be reproduced with break-blktrace [0] run_0005.sh test.
-
-Just break out early if we know we're already going to fail, this will
-prevent trying to create the files all over again, which we know still
-exist.
-
-[0] https://github.com/mcgrof/break-blktrace
-
-Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Yash Shah <yash.shah@sifive.com>
+Reported-by: David Abdurachmanov <david.abdurachmanov@gmail.com>
+[Palmer: Refer to the latest ISA specification at the only link I could
+find, and update the terminology.]
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/blktrace.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ arch/riscv/kernel/sys_riscv.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/kernel/trace/blktrace.c b/kernel/trace/blktrace.c
-index 6cea8bbca03cb..c774b0ad0525b 100644
---- a/kernel/trace/blktrace.c
-+++ b/kernel/trace/blktrace.c
-@@ -3,6 +3,9 @@
-  * Copyright (C) 2006 Jens Axboe <axboe@kernel.dk>
-  *
-  */
-+
-+#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-+
- #include <linux/kernel.h>
- #include <linux/blkdev.h>
- #include <linux/blktrace_api.h>
-@@ -495,6 +498,16 @@ static int do_blk_trace_setup(struct request_queue *q, char *name, dev_t dev,
- 	 */
- 	strreplace(buts->name, '/', '_');
+diff --git a/arch/riscv/kernel/sys_riscv.c b/arch/riscv/kernel/sys_riscv.c
+index fb03a4482ad60..db44da32701f2 100644
+--- a/arch/riscv/kernel/sys_riscv.c
++++ b/arch/riscv/kernel/sys_riscv.c
+@@ -16,6 +16,7 @@
+ #include <linux/syscalls.h>
+ #include <asm/unistd.h>
+ #include <asm/cacheflush.h>
++#include <asm-generic/mman-common.h>
  
-+	/*
-+	 * bdev can be NULL, as with scsi-generic, this is a helpful as
-+	 * we can be.
-+	 */
-+	if (q->blk_trace) {
-+		pr_warn("Concurrent blktraces are not allowed on %s\n",
-+			buts->name);
-+		return -EBUSY;
-+	}
+ static long riscv_sys_mmap(unsigned long addr, unsigned long len,
+ 			   unsigned long prot, unsigned long flags,
+@@ -24,6 +25,11 @@ static long riscv_sys_mmap(unsigned long addr, unsigned long len,
+ {
+ 	if (unlikely(offset & (~PAGE_MASK >> page_shift_offset)))
+ 		return -EINVAL;
 +
- 	bt = kzalloc(sizeof(*bt), GFP_KERNEL);
- 	if (!bt)
- 		return -ENOMEM;
++	if ((prot & PROT_WRITE) && (prot & PROT_EXEC))
++		if (unlikely(!(prot & PROT_READ)))
++			return -EINVAL;
++
+ 	return ksys_mmap_pgoff(addr, len, prot, flags, fd,
+ 			       offset >> (PAGE_SHIFT - page_shift_offset));
+ }
 -- 
 2.25.1
 
