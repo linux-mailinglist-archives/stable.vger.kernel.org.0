@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E435205FF4
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:47:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68BB9205FF6
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:47:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390850AbgFWUiC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:38:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33366 "EHLO mail.kernel.org"
+        id S2391917AbgFWUiG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:38:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391897AbgFWUiB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:38:01 -0400
+        id S2391909AbgFWUiD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:38:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A58C921582;
-        Tue, 23 Jun 2020 20:38:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F1F321556;
+        Tue, 23 Jun 2020 20:38:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944681;
-        bh=4KDcz1iopXRvmjclR2HsTquzCKzhhVhEbIY7mOWBpcQ=;
+        s=default; t=1592944683;
+        bh=RKzGD6lcVFVuneTYXmOsS0SLZyi2rWyTN9HgVIs7GMw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ybD1IpCMC1l8nUsMcY2DAlU5It8qVnDVbE8tyABM0BXT+EJG3rI8mgEeg06trjGUk
-         Yb821tHTc9WM0gkhpuR1x+em6OifUgAIpxqzuj0qRbmvFGGJVT01cCRUeT9Qc6LVeK
-         xkNHfQMjPccm0KD9JlCwjmI6Fr7gytUgV/9zqzVU=
+        b=w8kdtqwAZCFw4IQ4q6a5nhMbYYyZQlkZ22wMLaY+xWPgujBXrOCyBfstQhZ0XWXGz
+         wXv6dMv6tWz0NfDHffRzfNtV9yVoL4/UxTYbHNjFYuIcCej7mGhJ3zmQvnllSLuUVL
+         oGle0eVVd75i+9J2bsWDoKfvRXfSBkgl+yiUwAp8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 083/206] powerpc/64: Dont initialise init_task->thread.regs
-Date:   Tue, 23 Jun 2020 21:56:51 +0200
-Message-Id: <20200623195321.028621674@linuxfoundation.org>
+Subject: [PATCH 4.19 084/206] tty: n_gsm: Fix SOF skipping
+Date:   Tue, 23 Jun 2020 21:56:52 +0200
+Message-Id: <20200623195321.078680703@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
 References: <20200623195316.864547658@linuxfoundation.org>
@@ -45,180 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Gregory CLEMENT <gregory.clement@bootlin.com>
 
-[ Upstream commit 7ffa8b7dc11752827329e4e84a574ea6aaf24716 ]
+[ Upstream commit 84d6f81c1fb58b56eba81ff0a36cf31946064b40 ]
 
-Aneesh increased the size of struct pt_regs by 16 bytes and started
-seeing this WARN_ON:
+For at least some modems like the TELIT LE910, skipping SOF makes
+transfers blocking indefinitely after a short amount of data
+transferred.
 
-  smp: Bringing up secondary CPUs ...
-  ------------[ cut here ]------------
-  WARNING: CPU: 0 PID: 0 at arch/powerpc/kernel/process.c:455 giveup_all+0xb4/0x110
-  Modules linked in:
-  CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.7.0-rc2-gcc-8.2.0-1.g8f6a41f-default+ #318
-  NIP:  c00000000001a2b4 LR: c00000000001a29c CTR: c0000000031d0000
-  REGS: c0000000026d3980 TRAP: 0700   Not tainted  (5.7.0-rc2-gcc-8.2.0-1.g8f6a41f-default+)
-  MSR:  800000000282b033 <SF,VEC,VSX,EE,FP,ME,IR,DR,RI,LE>  CR: 48048224  XER: 00000000
-  CFAR: c000000000019cc8 IRQMASK: 1
-  GPR00: c00000000001a264 c0000000026d3c20 c0000000026d7200 800000000280b033
-  GPR04: 0000000000000001 0000000000000000 0000000000000077 30206d7372203164
-  GPR08: 0000000000002000 0000000002002000 800000000280b033 3230303030303030
-  GPR12: 0000000000008800 c0000000031d0000 0000000000800050 0000000002000066
-  GPR16: 000000000309a1a0 000000000309a4b0 000000000309a2d8 000000000309a890
-  GPR20: 00000000030d0098 c00000000264da40 00000000fd620000 c0000000ff798080
-  GPR24: c00000000264edf0 c0000001007469f0 00000000fd620000 c0000000020e5e90
-  GPR28: c00000000264edf0 c00000000264d200 000000001db60000 c00000000264d200
-  NIP [c00000000001a2b4] giveup_all+0xb4/0x110
-  LR [c00000000001a29c] giveup_all+0x9c/0x110
-  Call Trace:
-  [c0000000026d3c20] [c00000000001a264] giveup_all+0x64/0x110 (unreliable)
-  [c0000000026d3c90] [c00000000001ae34] __switch_to+0x104/0x480
-  [c0000000026d3cf0] [c000000000e0b8a0] __schedule+0x320/0x970
-  [c0000000026d3dd0] [c000000000e0c518] schedule_idle+0x38/0x70
-  [c0000000026d3df0] [c00000000019c7c8] do_idle+0x248/0x3f0
-  [c0000000026d3e70] [c00000000019cbb8] cpu_startup_entry+0x38/0x40
-  [c0000000026d3ea0] [c000000000011bb0] rest_init+0xe0/0xf8
-  [c0000000026d3ed0] [c000000002004820] start_kernel+0x990/0x9e0
-  [c0000000026d3f90] [c00000000000c49c] start_here_common+0x1c/0x400
+Given the small improvement provided by skipping the SOF (just one
+byte on about 100 bytes), it seems better to completely remove this
+"feature" than make it optional.
 
-Which was unexpected. The warning is checking the thread.regs->msr
-value of the task we are switching from:
-
-  usermsr = tsk->thread.regs->msr;
-  ...
-  WARN_ON((usermsr & MSR_VSX) && !((usermsr & MSR_FP) && (usermsr & MSR_VEC)));
-
-ie. if MSR_VSX is set then both of MSR_FP and MSR_VEC are also set.
-
-Dumping tsk->thread.regs->msr we see that it's: 0x1db60000
-
-Which is not a normal looking MSR, in fact the only valid bit is
-MSR_VSX, all the other bits are reserved in the current definition of
-the MSR.
-
-We can see from the oops that it was swapper/0 that we were switching
-from when we hit the warning, ie. init_task. So its thread.regs points
-to the base (high addresses) in init_stack.
-
-Dumping the content of init_task->thread.regs, with the members of
-pt_regs annotated (the 16 bytes larger version), we see:
-
-  0000000000000000 c000000002780080    gpr[0]     gpr[1]
-  0000000000000000 c000000002666008    gpr[2]     gpr[3]
-  c0000000026d3ed0 0000000000000078    gpr[4]     gpr[5]
-  c000000000011b68 c000000002780080    gpr[6]     gpr[7]
-  0000000000000000 0000000000000000    gpr[8]     gpr[9]
-  c0000000026d3f90 0000800000002200    gpr[10]    gpr[11]
-  c000000002004820 c0000000026d7200    gpr[12]    gpr[13]
-  000000001db60000 c0000000010aabe8    gpr[14]    gpr[15]
-  c0000000010aabe8 c0000000010aabe8    gpr[16]    gpr[17]
-  c00000000294d598 0000000000000000    gpr[18]    gpr[19]
-  0000000000000000 0000000000001ff8    gpr[20]    gpr[21]
-  0000000000000000 c00000000206d608    gpr[22]    gpr[23]
-  c00000000278e0cc 0000000000000000    gpr[24]    gpr[25]
-  000000002fff0000 c000000000000000    gpr[26]    gpr[27]
-  0000000002000000 0000000000000028    gpr[28]    gpr[29]
-  000000001db60000 0000000004750000    gpr[30]    gpr[31]
-  0000000002000000 000000001db60000    nip        msr
-  0000000000000000 0000000000000000    orig_r3    ctr
-  c00000000000c49c 0000000000000000    link       xer
-  0000000000000000 0000000000000000    ccr        softe
-  0000000000000000 0000000000000000    trap       dar
-  0000000000000000 0000000000000000    dsisr      result
-  0000000000000000 0000000000000000    ppr        kuap
-  0000000000000000 0000000000000000    pad[2]     pad[3]
-
-This looks suspiciously like stack frames, not a pt_regs. If we look
-closely we can see return addresses from the stack trace above,
-c000000002004820 (start_kernel) and c00000000000c49c (start_here_common).
-
-init_task->thread.regs is setup at build time in processor.h:
-
-  #define INIT_THREAD  { \
-  	.ksp = INIT_SP, \
-  	.regs = (struct pt_regs *)INIT_SP - 1, /* XXX bogus, I think */ \
-
-The early boot code where we setup the initial stack is:
-
-  LOAD_REG_ADDR(r3,init_thread_union)
-
-  /* set up a stack pointer */
-  LOAD_REG_IMMEDIATE(r1,THREAD_SIZE)
-  add	r1,r3,r1
-  li	r0,0
-  stdu	r0,-STACK_FRAME_OVERHEAD(r1)
-
-Which creates a stack frame of size 112 bytes (STACK_FRAME_OVERHEAD).
-Which is far too small to contain a pt_regs.
-
-So the result is init_task->thread.regs is pointing at some stack
-frames on the init stack, not at a pt_regs.
-
-We have gotten away with this for so long because with pt_regs at its
-current size the MSR happens to point into the first frame, at a
-location that is not written to by the early asm. With the 16 byte
-expansion the MSR falls into the second frame, which is used by the
-compiler, and collides with a saved register that tends to be
-non-zero.
-
-As far as I can see this has been wrong since the original merge of
-64-bit ppc support, back in 2002.
-
-Conceptually swapper should have no regs, it never entered from
-userspace, and in fact that's what we do on 32-bit. It's also
-presumably what the "bogus" comment is referring to.
-
-So I think the right fix is to just not-initialise regs at all. I'm
-slightly worried this will break some code that isn't prepared for a
-NULL regs, but we'll have to see.
-
-Remove the comment in head_64.S which refers to us setting up the
-regs (even though we never did), and is otherwise not really accurate
-any more.
-
-Reported-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200428123130.73078-1-mpe@ellerman.id.au
+Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Link: https://lore.kernel.org/r/20200512115323.1447922-3-gregory.clement@bootlin.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/processor.h | 1 -
- arch/powerpc/kernel/head_64.S        | 9 +--------
- 2 files changed, 1 insertion(+), 9 deletions(-)
+ drivers/tty/n_gsm.c | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/processor.h b/arch/powerpc/include/asm/processor.h
-index 52fadded5c1ef..45bbcffcb7b67 100644
---- a/arch/powerpc/include/asm/processor.h
-+++ b/arch/powerpc/include/asm/processor.h
-@@ -386,7 +386,6 @@ struct thread_struct {
- #else
- #define INIT_THREAD  { \
- 	.ksp = INIT_SP, \
--	.regs = (struct pt_regs *)INIT_SP - 1, /* XXX bogus, I think */ \
- 	.addr_limit = KERNEL_DS, \
- 	.fpexc_mode = 0, \
- 	.ppr = INIT_PPR, \
-diff --git a/arch/powerpc/kernel/head_64.S b/arch/powerpc/kernel/head_64.S
-index 3fb564f3e8874..389da790c1296 100644
---- a/arch/powerpc/kernel/head_64.S
-+++ b/arch/powerpc/kernel/head_64.S
-@@ -950,15 +950,8 @@ start_here_multiplatform:
- 	std	r0,0(r4)
- #endif
+diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
+index 86b7e20ffd7f1..8d8229dd27961 100644
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -669,7 +669,6 @@ static void gsm_data_kick(struct gsm_mux *gsm)
+ {
+ 	struct gsm_msg *msg, *nmsg;
+ 	int len;
+-	int skip_sof = 0;
  
--	/* The following gets the stack set up with the regs */
--	/* pointing to the real addr of the kernel stack.  This is   */
--	/* all done to support the C function call below which sets  */
--	/* up the htab.  This is done because we have relocated the  */
--	/* kernel but are still running in real mode. */
+ 	list_for_each_entry_safe(msg, nmsg, &gsm->tx_list, list) {
+ 		if (gsm->constipated && msg->addr)
+@@ -691,15 +690,10 @@ static void gsm_data_kick(struct gsm_mux *gsm)
+ 			print_hex_dump_bytes("gsm_data_kick: ",
+ 					     DUMP_PREFIX_OFFSET,
+ 					     gsm->txframe, len);
 -
--	LOAD_REG_ADDR(r3,init_thread_union)
--
- 	/* set up a stack pointer */
-+	LOAD_REG_ADDR(r3,init_thread_union)
- 	LOAD_REG_IMMEDIATE(r1,THREAD_SIZE)
- 	add	r1,r3,r1
- 	li	r0,0
+-		if (gsm->output(gsm, gsm->txframe + skip_sof,
+-						len - skip_sof) < 0)
++		if (gsm->output(gsm, gsm->txframe, len) < 0)
+ 			break;
+ 		/* FIXME: Can eliminate one SOF in many more cases */
+ 		gsm->tx_bytes -= msg->len;
+-		/* For a burst of frames skip the extra SOF within the
+-		   burst */
+-		skip_sof = 1;
+ 
+ 		list_del(&msg->list);
+ 		kfree(msg);
 -- 
 2.25.1
 
