@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0366205D0F
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:09:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7340B205D10
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:09:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387983AbgFWUI3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:08:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49324 "EHLO mail.kernel.org"
+        id S2388021AbgFWUIa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:08:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387940AbgFWUIS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:08:18 -0400
+        id S2387960AbgFWUIX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:08:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 54C1B2078A;
-        Tue, 23 Jun 2020 20:08:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7DA902064B;
+        Tue, 23 Jun 2020 20:08:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592942897;
-        bh=eifDWVPFldsD+PyNHHITs1T5QKTW3hVGnwp/JVTCbCQ=;
+        s=default; t=1592942903;
+        bh=3aoChUl2UDZ0+bckNEqzvaEEiD5ZmCZpEvLq7LeN2lQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bB9rmNvez3ktTfRUFmAITvXXWo/R5KPM4SM46KQY4aWz3xd588PeCwULXJ3XjhFzR
-         p6H3ysTw5pXcVD82hLJyQdWm93cUJqoGpZMc8UQ2+pjbELXwwe0GL1H/1KZkuW+xtP
-         V2lTdtD8Fp28Tbi54C1XfuivNsZVhKR/pNX8g1PA=
+        b=iH3rxNdiNiQtn32j8r57yU8vpaFggpj++EL8J82XG/Y0sPAsXKA6MSH8F9umqTvUS
+         6mX2k9s4Pd4+uWgbECE1CC8tmDDRUAwQ8GfEPa6cx9iFn8jMZ0BOVtQ3LvIMcDGf79
+         DgDJZAXeGXD/qi0EJG3RwFtryom49AeM8hOXcfL4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Hulk Robot <hulkci@huawei.com>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 179/477] PCI: brcmstb: Assert fundamental reset on initialization
-Date:   Tue, 23 Jun 2020 21:52:56 +0200
-Message-Id: <20200623195416.044902331@linuxfoundation.org>
+Subject: [PATCH 5.7 181/477] remoteproc/mediatek: fix invalid use of sizeof in scp_ipi_init()
+Date:   Tue, 23 Jun 2020 21:52:58 +0200
+Message-Id: <20200623195416.141650809@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -46,38 +47,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit 22e21e51ce755399fd42055a3f668ee4af370881 ]
+[ Upstream commit 8096f80a5c09b716be207eb042c4e40d6cdefbd2 ]
 
-While preparing the driver for upstream this detail was missed.
+sizeof() when applied to a pointer typed expression gives the
+size of the pointer, not that of the pointed data.
 
-If not asserted during the initialization process, devices connected on
-the bus will not be made aware of the internal reset happening. This,
-potentially resulting in unexpected behavior.
-
-Link: https://lore.kernel.org/r/20200507172020.18000-1-nsaenzjulienne@suse.de
-Fixes: c0452137034b ("PCI: brcmstb: Add Broadcom STB PCIe host controller driver")
-Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Fixes: 63c13d61eafe ("remoteproc/mediatek: add SCP support for mt8183")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Link: https://lore.kernel.org/r/20200509084237.36293-1-weiyongjun1@huawei.com
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pcie-brcmstb.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/remoteproc/mtk_scp.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pci/controller/pcie-brcmstb.c b/drivers/pci/controller/pcie-brcmstb.c
-index c9ecc4d639c19..2297910bf6e47 100644
---- a/drivers/pci/controller/pcie-brcmstb.c
-+++ b/drivers/pci/controller/pcie-brcmstb.c
-@@ -697,6 +697,7 @@ static int brcm_pcie_setup(struct brcm_pcie *pcie)
+diff --git a/drivers/remoteproc/mtk_scp.c b/drivers/remoteproc/mtk_scp.c
+index 2bead57c9cf9b..ac13e7b046a60 100644
+--- a/drivers/remoteproc/mtk_scp.c
++++ b/drivers/remoteproc/mtk_scp.c
+@@ -132,8 +132,8 @@ static int scp_ipi_init(struct mtk_scp *scp)
+ 		(struct mtk_share_obj __iomem *)(scp->sram_base + recv_offset);
+ 	scp->send_buf =
+ 		(struct mtk_share_obj __iomem *)(scp->sram_base + send_offset);
+-	memset_io(scp->recv_buf, 0, sizeof(scp->recv_buf));
+-	memset_io(scp->send_buf, 0, sizeof(scp->send_buf));
++	memset_io(scp->recv_buf, 0, sizeof(*scp->recv_buf));
++	memset_io(scp->send_buf, 0, sizeof(*scp->send_buf));
  
- 	/* Reset the bridge */
- 	brcm_pcie_bridge_sw_init_set(pcie, 1);
-+	brcm_pcie_perst_set(pcie, 1);
- 
- 	usleep_range(100, 200);
- 
+ 	return 0;
+ }
 -- 
 2.25.1
 
