@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D410206459
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:31:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 524742065E9
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:51:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390424AbgFWVUO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 17:20:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41876 "EHLO mail.kernel.org"
+        id S2393881AbgFWVfM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 17:35:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390324AbgFWUXj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:23:39 -0400
+        id S2388068AbgFWUKf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:10:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1845920780;
-        Tue, 23 Jun 2020 20:23:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5043820CC7;
+        Tue, 23 Jun 2020 20:10:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943819;
-        bh=Q0uGvxYBaSzETHk8r24Ts7/Bpe5C/cVPyFEOiuYfPts=;
+        s=default; t=1592943033;
+        bh=Arp4v8LkMU16lqmZ4UxQCpz+thT9uMyq3bfUHXIiadY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XMsxcJ4v0dSLgJFvS0pm3g/GAmNjh2uGuH/VLDE7pSnYeT5dcZrLNyNrftYZsroL9
-         MH2luBFUJgZ+4AndNng8g0842TeR6dX/bk6AJvYr7aahrxoHfKLIeqdYHHWISMTaSA
-         V4DB5aP73WZRiduAvszgEa5UGaMoKeuYueQVtvD8=
+        b=Wrpsj2DnhZMsoW4QUjNARwIJYiSH+YJjEuoWw4LRhW28KMMSq4NNYsGf/YjVrIydx
+         Ltwl8qQ5qH24szrwN/Kws7CPT2p9Ve5QTWN/9/O7Hiol8OEhsujJmomMb5iUvzsUze
+         sVpdswfcp7HJSvzzCbQ0NHSCvNwCEmN1wL6cDc0A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Mike Leach <mike.leach@linaro.org>,
+        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 033/314] misc: fastrpc: fix potential fastrpc_invoke_ctx leak
-Date:   Tue, 23 Jun 2020 21:53:48 +0200
-Message-Id: <20200623195340.401181080@linuxfoundation.org>
+Subject: [PATCH 5.7 232/477] coresight: Fix support for sparsely populated ports
+Date:   Tue, 23 Jun 2020 21:53:49 +0200
+Message-Id: <20200623195418.547290487@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
-References: <20200623195338.770401005@linuxfoundation.org>
+In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
+References: <20200623195407.572062007@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,57 +48,342 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Suzuki K Poulose <suzuki.poulose@arm.com>
 
-[ Upstream commit 74003385cf716f1b88cc7753ca282f5493f204a2 ]
+[ Upstream commit d375b356e687f2eefb51ddc3f1f2414cfa498f86 ]
 
-fastrpc_invoke_ctx can have refcount of 2 in error path where
-rpmsg_send() fails to send invoke message. decrement the refcount
-properly in the error path to fix this leak.
+On some systems the firmware may not describe all the ports
+connected to a component (e.g, for security reasons). This
+could be especially problematic for "funnels" where we could
+end up in modifying memory beyond the allocated space for
+refcounts.
 
-This also fixes below static checker warning:
+e.g, for a funnel with input ports listed 0, 3, 5, nr_inport = 3.
+However the we could access refcnts[5] while checking for
+references, like :
 
-drivers/misc/fastrpc.c:990 fastrpc_internal_invoke()
-warn: 'ctx->refcount.refcount.ref.counter' not decremented on lines: 990.
+ [  526.110401] ==================================================================
+ [  526.117988] BUG: KASAN: slab-out-of-bounds in funnel_enable+0x54/0x1b0
+ [  526.124706] Read of size 4 at addr ffffff8135f9549c by task bash/1114
+ [  526.131324]
+ [  526.132886] CPU: 3 PID: 1114 Comm: bash Tainted: G S                5.4.25 #232
+ [  526.140397] Hardware name: Qualcomm Technologies, Inc. SC7180 IDP (DT)
+ [  526.147113] Call trace:
+ [  526.149653]  dump_backtrace+0x0/0x188
+ [  526.153431]  show_stack+0x20/0x2c
+ [  526.156852]  dump_stack+0xdc/0x144
+ [  526.160370]  print_address_description+0x3c/0x494
+ [  526.165211]  __kasan_report+0x144/0x168
+ [  526.169170]  kasan_report+0x10/0x18
+ [  526.172769]  check_memory_region+0x1a4/0x1b4
+ [  526.177164]  __kasan_check_read+0x18/0x24
+ [  526.181292]  funnel_enable+0x54/0x1b0
+ [  526.185072]  coresight_enable_path+0x104/0x198
+ [  526.189649]  coresight_enable+0x118/0x26c
 
-Fixes: c68cfb718c8f ("misc: fastrpc: Add support for context")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20200512110930.2550-1-srinivas.kandagatla@linaro.org
+  ...
+
+ [  526.237782] Allocated by task 280:
+ [  526.241298]  __kasan_kmalloc+0xf0/0x1ac
+ [  526.245249]  kasan_kmalloc+0xc/0x14
+ [  526.248849]  __kmalloc+0x28c/0x3b4
+ [  526.252361]  coresight_register+0x88/0x250
+ [  526.256587]  funnel_probe+0x15c/0x228
+ [  526.260365]  dynamic_funnel_probe+0x20/0x2c
+ [  526.264679]  amba_probe+0xbc/0x158
+ [  526.268193]  really_probe+0x144/0x408
+ [  526.271970]  driver_probe_device+0x70/0x140
+
+ ...
+
+ [  526.316810]
+ [  526.318364] Freed by task 0:
+ [  526.321344] (stack is not available)
+ [  526.325024]
+ [  526.326580] The buggy address belongs to the object at ffffff8135f95480
+ [  526.326580]  which belongs to the cache kmalloc-128 of size 128
+ [  526.339439] The buggy address is located 28 bytes inside of
+ [  526.339439]  128-byte region [ffffff8135f95480, ffffff8135f95500)
+ [  526.351399] The buggy address belongs to the page:
+ [  526.356342] page:ffffffff04b7e500 refcount:1 mapcount:0 mapping:ffffff814b00c380 index:0x0 compound_mapcount: 0
+ [  526.366711] flags: 0x4000000000010200(slab|head)
+ [  526.371475] raw: 4000000000010200 ffffffff05034008 ffffffff0501eb08 ffffff814b00c380
+ [  526.379435] raw: 0000000000000000 0000000000190019 00000001ffffffff 0000000000000000
+ [  526.387393] page dumped because: kasan: bad access detected
+ [  526.393128]
+ [  526.394681] Memory state around the buggy address:
+ [  526.399619]  ffffff8135f95380: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ [  526.407046]  ffffff8135f95400: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ [  526.414473] >ffffff8135f95480: 04 fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ [  526.421900]                             ^
+ [  526.426029]  ffffff8135f95500: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ [  526.433456]  ffffff8135f95580: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ [  526.440883] ==================================================================
+
+To keep the code simple, we now track the maximum number of
+possible input/output connections to/from this component
+@ nr_inport and nr_outport in platform_data, respectively.
+Thus the output connections could be sparse and code is
+adjusted to skip the unspecified connections.
+
+Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+Cc: Mike Leach <mike.leach@linaro.org>
+Reported-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+Tested-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+Tested-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Link: https://lore.kernel.org/r/20200518180242.7916-13-mathieu.poirier@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/fastrpc.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ .../hwtracing/coresight/coresight-platform.c  | 85 +++++++++++++------
+ drivers/hwtracing/coresight/coresight.c       |  7 +-
+ include/linux/coresight.h                     | 10 ++-
+ 3 files changed, 72 insertions(+), 30 deletions(-)
 
-diff --git a/drivers/misc/fastrpc.c b/drivers/misc/fastrpc.c
-index ee3291f7e6156..3a5d2890fe2aa 100644
---- a/drivers/misc/fastrpc.c
-+++ b/drivers/misc/fastrpc.c
-@@ -886,6 +886,7 @@ static int fastrpc_invoke_send(struct fastrpc_session_ctx *sctx,
- 	struct fastrpc_channel_ctx *cctx;
- 	struct fastrpc_user *fl = ctx->fl;
- 	struct fastrpc_msg *msg = &ctx->msg;
-+	int ret;
+diff --git a/drivers/hwtracing/coresight/coresight-platform.c b/drivers/hwtracing/coresight/coresight-platform.c
+index 43418a2126ffe..471f34e40c743 100644
+--- a/drivers/hwtracing/coresight/coresight-platform.c
++++ b/drivers/hwtracing/coresight/coresight-platform.c
+@@ -87,6 +87,7 @@ static void of_coresight_get_ports_legacy(const struct device_node *node,
+ 					  int *nr_inport, int *nr_outport)
+ {
+ 	struct device_node *ep = NULL;
++	struct of_endpoint endpoint;
+ 	int in = 0, out = 0;
  
- 	cctx = fl->cctx;
- 	msg->pid = fl->tgid;
-@@ -901,7 +902,13 @@ static int fastrpc_invoke_send(struct fastrpc_session_ctx *sctx,
- 	msg->size = roundup(ctx->msg_sz, PAGE_SIZE);
- 	fastrpc_context_get(ctx);
+ 	do {
+@@ -94,10 +95,16 @@ static void of_coresight_get_ports_legacy(const struct device_node *node,
+ 		if (!ep)
+ 			break;
  
--	return rpmsg_send(cctx->rpdev->ept, (void *)msg, sizeof(*msg));
-+	ret = rpmsg_send(cctx->rpdev->ept, (void *)msg, sizeof(*msg));
+-		if (of_coresight_legacy_ep_is_input(ep))
+-			in++;
+-		else
+-			out++;
++		if (of_graph_parse_endpoint(ep, &endpoint))
++			continue;
 +
-+	if (ret)
-+		fastrpc_context_put(ctx);
++		if (of_coresight_legacy_ep_is_input(ep)) {
++			in = (endpoint.port + 1 > in) ?
++				endpoint.port + 1 : in;
++		} else {
++			out = (endpoint.port + 1) > out ?
++				endpoint.port + 1 : out;
++		}
+ 
+ 	} while (ep);
+ 
+@@ -137,9 +144,16 @@ of_coresight_count_ports(struct device_node *port_parent)
+ {
+ 	int i = 0;
+ 	struct device_node *ep = NULL;
++	struct of_endpoint endpoint;
 +
-+	return ret;
-+
++	while ((ep = of_graph_get_next_endpoint(port_parent, ep))) {
++		/* Defer error handling to parsing */
++		if (of_graph_parse_endpoint(ep, &endpoint))
++			continue;
++		if (endpoint.port + 1 > i)
++			i = endpoint.port + 1;
++	}
+ 
+-	while ((ep = of_graph_get_next_endpoint(port_parent, ep)))
+-		i++;
+ 	return i;
  }
  
- static int fastrpc_internal_invoke(struct fastrpc_user *fl,  u32 kernel,
+@@ -191,14 +205,12 @@ static int of_coresight_get_cpu(struct device *dev)
+  * Parses the local port, remote device name and the remote port.
+  *
+  * Returns :
+- *	 1	- If the parsing is successful and a connection record
+- *		  was created for an output connection.
+  *	 0	- If the parsing completed without any fatal errors.
+  *	-Errno	- Fatal error, abort the scanning.
+  */
+ static int of_coresight_parse_endpoint(struct device *dev,
+ 				       struct device_node *ep,
+-				       struct coresight_connection *conn)
++				       struct coresight_platform_data *pdata)
+ {
+ 	int ret = 0;
+ 	struct of_endpoint endpoint, rendpoint;
+@@ -206,6 +218,7 @@ static int of_coresight_parse_endpoint(struct device *dev,
+ 	struct device_node *rep = NULL;
+ 	struct device *rdev = NULL;
+ 	struct fwnode_handle *rdev_fwnode;
++	struct coresight_connection *conn;
+ 
+ 	do {
+ 		/* Parse the local port details */
+@@ -232,6 +245,13 @@ static int of_coresight_parse_endpoint(struct device *dev,
+ 			break;
+ 		}
+ 
++		conn = &pdata->conns[endpoint.port];
++		if (conn->child_fwnode) {
++			dev_warn(dev, "Duplicate output port %d\n",
++				 endpoint.port);
++			ret = -EINVAL;
++			break;
++		}
+ 		conn->outport = endpoint.port;
+ 		/*
+ 		 * Hold the refcount to the target device. This could be
+@@ -244,7 +264,6 @@ static int of_coresight_parse_endpoint(struct device *dev,
+ 		conn->child_fwnode = fwnode_handle_get(rdev_fwnode);
+ 		conn->child_port = rendpoint.port;
+ 		/* Connection record updated */
+-		ret = 1;
+ 	} while (0);
+ 
+ 	of_node_put(rparent);
+@@ -258,7 +277,6 @@ static int of_get_coresight_platform_data(struct device *dev,
+ 					  struct coresight_platform_data *pdata)
+ {
+ 	int ret = 0;
+-	struct coresight_connection *conn;
+ 	struct device_node *ep = NULL;
+ 	const struct device_node *parent = NULL;
+ 	bool legacy_binding = false;
+@@ -287,8 +305,6 @@ static int of_get_coresight_platform_data(struct device *dev,
+ 		dev_warn_once(dev, "Uses obsolete Coresight DT bindings\n");
+ 	}
+ 
+-	conn = pdata->conns;
+-
+ 	/* Iterate through each output port to discover topology */
+ 	while ((ep = of_graph_get_next_endpoint(parent, ep))) {
+ 		/*
+@@ -300,15 +316,9 @@ static int of_get_coresight_platform_data(struct device *dev,
+ 		if (legacy_binding && of_coresight_legacy_ep_is_input(ep))
+ 			continue;
+ 
+-		ret = of_coresight_parse_endpoint(dev, ep, conn);
+-		switch (ret) {
+-		case 1:
+-			conn++;		/* Fall through */
+-		case 0:
+-			break;
+-		default:
++		ret = of_coresight_parse_endpoint(dev, ep, pdata);
++		if (ret)
+ 			return ret;
+-		}
+ 	}
+ 
+ 	return 0;
+@@ -647,6 +657,16 @@ static int acpi_coresight_parse_link(struct acpi_device *adev,
+ 		 *    coresight_remove_match().
+ 		 */
+ 		conn->child_fwnode = fwnode_handle_get(&r_adev->fwnode);
++	} else if (dir == ACPI_CORESIGHT_LINK_SLAVE) {
++		/*
++		 * We are only interested in the port number
++		 * for the input ports at this component.
++		 * Store the port number in child_port.
++		 */
++		conn->child_port = fields[0].integer.value;
++	} else {
++		/* Invalid direction */
++		return -EINVAL;
+ 	}
+ 
+ 	return dir;
+@@ -692,10 +712,20 @@ static int acpi_coresight_parse_graph(struct acpi_device *adev,
+ 			return dir;
+ 
+ 		if (dir == ACPI_CORESIGHT_LINK_MASTER) {
+-			pdata->nr_outport++;
++			if (ptr->outport > pdata->nr_outport)
++				pdata->nr_outport = ptr->outport;
+ 			ptr++;
+ 		} else {
+-			pdata->nr_inport++;
++			WARN_ON(pdata->nr_inport == ptr->child_port);
++			/*
++			 * We do not track input port connections for a device.
++			 * However we need the highest port number described,
++			 * which can be recorded now and reuse this connection
++			 * record for an output connection. Hence, do not move
++			 * the ptr for input connections
++			 */
++			if (ptr->child_port > pdata->nr_inport)
++				pdata->nr_inport = ptr->child_port;
+ 		}
+ 	}
+ 
+@@ -704,8 +734,13 @@ static int acpi_coresight_parse_graph(struct acpi_device *adev,
+ 		return rc;
+ 
+ 	/* Copy the connection information to the final location */
+-	for (i = 0; i < pdata->nr_outport; i++)
+-		pdata->conns[i] = conns[i];
++	for (i = 0; conns + i < ptr; i++) {
++		int port = conns[i].outport;
++
++		/* Duplicate output port */
++		WARN_ON(pdata->conns[port].child_fwnode);
++		pdata->conns[port] = conns[i];
++	}
+ 
+ 	devm_kfree(&adev->dev, conns);
+ 	return 0;
+diff --git a/drivers/hwtracing/coresight/coresight.c b/drivers/hwtracing/coresight/coresight.c
+index c71553c09f8ef..8f5e62f02444e 100644
+--- a/drivers/hwtracing/coresight/coresight.c
++++ b/drivers/hwtracing/coresight/coresight.c
+@@ -1053,6 +1053,9 @@ static int coresight_orphan_match(struct device *dev, void *data)
+ 	for (i = 0; i < i_csdev->pdata->nr_outport; i++) {
+ 		conn = &i_csdev->pdata->conns[i];
+ 
++		/* Skip the port if FW doesn't describe it */
++		if (!conn->child_fwnode)
++			continue;
+ 		/* We have found at least one orphan connection */
+ 		if (conn->child_dev == NULL) {
+ 			/* Does it match this newly added device? */
+@@ -1091,6 +1094,8 @@ static void coresight_fixup_device_conns(struct coresight_device *csdev)
+ 	for (i = 0; i < csdev->pdata->nr_outport; i++) {
+ 		struct coresight_connection *conn = &csdev->pdata->conns[i];
+ 
++		if (!conn->child_fwnode)
++			continue;
+ 		conn->child_dev =
+ 			coresight_find_csdev_by_fwnode(conn->child_fwnode);
+ 		if (!conn->child_dev)
+@@ -1118,7 +1123,7 @@ static int coresight_remove_match(struct device *dev, void *data)
+ 	for (i = 0; i < iterator->pdata->nr_outport; i++) {
+ 		conn = &iterator->pdata->conns[i];
+ 
+-		if (conn->child_dev == NULL)
++		if (conn->child_dev == NULL || conn->child_fwnode == NULL)
+ 			continue;
+ 
+ 		if (csdev->dev.fwnode == conn->child_fwnode) {
+diff --git a/include/linux/coresight.h b/include/linux/coresight.h
+index 193cc9dbf448a..09f0565a5de3d 100644
+--- a/include/linux/coresight.h
++++ b/include/linux/coresight.h
+@@ -100,10 +100,12 @@ union coresight_dev_subtype {
+ };
+ 
+ /**
+- * struct coresight_platform_data - data harvested from the DT specification
+- * @nr_inport:	number of input ports for this component.
+- * @nr_outport:	number of output ports for this component.
+- * @conns:	Array of nr_outport connections from this component
++ * struct coresight_platform_data - data harvested from the firmware
++ * specification.
++ *
++ * @nr_inport:	Number of elements for the input connections.
++ * @nr_outport:	Number of elements for the output connections.
++ * @conns:	Sparse array of nr_outport connections from this component.
+  */
+ struct coresight_platform_data {
+ 	int nr_inport;
 -- 
 2.25.1
 
