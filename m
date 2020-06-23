@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD0A22061B9
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:08:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47C582061BA
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:08:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404163AbgFWUtQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:49:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48700 "EHLO mail.kernel.org"
+        id S2392962AbgFWUt1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:49:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392629AbgFWUtO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:49:14 -0400
+        id S2404172AbgFWUtZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:49:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B079A2098B;
-        Tue, 23 Jun 2020 20:49:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E9D6D21548;
+        Tue, 23 Jun 2020 20:49:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592945354;
-        bh=mAnF15wAyu4dE2ORZ90SsLT8GhRsD5iyWzmJTPigbMY=;
+        s=default; t=1592945364;
+        bh=vKgwmMDpAC/E00aTZFZh/dxHGGFK/leairZxCUsyfos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y+Tb1vDoHjsUbisRvYBjnDrFdZMqftxfZLxTC7/ahdeTXiOLL5x+mt4AekRqjg173
-         TLktX7cYgLMkrum1wAtyeCiJ1nMqvXSILPpvjnLCk6sqpYCJtRgKJq+agSPD4ES7xC
-         nMTF7mRb/PkXYDPxU1bQrimJECnLhXINODQ/68XY=
+        b=1KxMQQo1CsQCsf13XOvNoWpyHJ7KtQHNGLJ27lZMD+Kpg+nV5tzRGqQ6xakq8z++W
+         JKnxWbm9SmETj6VI6vlOtblAPohZLVQS1DoRqMZALrjxB/lvS/2stiTHAOZ6R8wtOK
+         V/Sllw8nE5cy8wtCOLTRS6Oozyi/sLGmkcUQvPQQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Gerow <gerow@google.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Eric Biggers <ebiggers@google.com>,
-        =?UTF-8?q?Kai=20L=C3=BCke?= <kai@kinvolk.io>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.14 131/136] crypto: algboss - dont wait during notifier callback
-Date:   Tue, 23 Jun 2020 21:59:47 +0200
-Message-Id: <20200623195310.402566070@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>, netdev@vger.kernel.org,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 135/136] sched/rt, net: Use CONFIG_PREEMPTION.patch
+Date:   Tue, 23 Jun 2020 21:59:51 +0200
+Message-Id: <20200623195310.622612806@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195303.601828702@linuxfoundation.org>
 References: <20200623195303.601828702@linuxfoundation.org>
@@ -46,55 +47,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit 77251e41f89a813b4090f5199442f217bbf11297 upstream.
+[ Upstream commit 2da2b32fd9346009e9acdb68c570ca8d3966aba7 ]
 
-When a crypto template needs to be instantiated, CRYPTO_MSG_ALG_REQUEST
-is sent to crypto_chain.  cryptomgr_schedule_probe() handles this by
-starting a thread to instantiate the template, then waiting for this
-thread to complete via crypto_larval::completion.
+CONFIG_PREEMPTION is selected by CONFIG_PREEMPT and by CONFIG_PREEMPT_RT.
+Both PREEMPT and PREEMPT_RT require the same functionality which today
+depends on CONFIG_PREEMPT.
 
-This can deadlock because instantiating the template may require loading
-modules, and this (apparently depending on userspace) may need to wait
-for the crc-t10dif module (lib/crc-t10dif.c) to be loaded.  But
-crc-t10dif's module_init function uses crypto_register_notifier() and
-therefore takes crypto_chain.rwsem for write.  That can't proceed until
-the notifier callback has finished, as it holds this semaphore for read.
+Update the comment to use CONFIG_PREEMPTION.
 
-Fix this by removing the wait on crypto_larval::completion from within
-cryptomgr_schedule_probe().  It's actually unnecessary because
-crypto_alg_mod_lookup() calls crypto_larval_wait() itself after sending
-CRYPTO_MSG_ALG_REQUEST.
-
-This only actually became a problem in v4.20 due to commit b76377543b73
-("crc-t10dif: Pick better transform if one becomes available"), but the
-unnecessary wait was much older.
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207159
-Reported-by: Mike Gerow <gerow@google.com>
-Fixes: 398710379f51 ("crypto: algapi - Move larval completion into algboss")
-Cc: <stable@vger.kernel.org> # v3.6+
-Cc: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Reported-by: Kai Lüke <kai@kinvolk.io>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: David S. Miller <davem@davemloft.net>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: netdev@vger.kernel.org
+Link: https://lore.kernel.org/r/20191015191821.11479-22-bigeasy@linutronix.de
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/algboss.c |    2 --
- 1 file changed, 2 deletions(-)
+ net/core/dev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/crypto/algboss.c
-+++ b/crypto/algboss.c
-@@ -194,8 +194,6 @@ static int cryptomgr_schedule_probe(stru
- 	if (IS_ERR(thread))
- 		goto err_put_larval;
- 
--	wait_for_completion_interruptible(&larval->completion);
--
- 	return NOTIFY_STOP;
- 
- err_put_larval:
+diff --git a/net/core/dev.c b/net/core/dev.c
+index ed552ad3f7834..9e4a00462f5c7 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -901,7 +901,7 @@ EXPORT_SYMBOL(dev_get_by_napi_id);
+  *
+  *	The use of raw_seqcount_begin() and cond_resched() before
+  *	retrying is required as we want to give the writers a chance
+- *	to complete when CONFIG_PREEMPT is not set.
++ *	to complete when CONFIG_PREEMPTION is not set.
+  */
+ int netdev_get_name(struct net *net, char *name, int ifindex)
+ {
+-- 
+2.25.1
+
 
 
