@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85D20206245
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:09:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73E772062EB
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:10:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390898AbgFWU6K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:58:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38550 "EHLO mail.kernel.org"
+        id S2391513AbgFWUeQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:34:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391974AbgFWUmC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:42:02 -0400
+        id S2391508AbgFWUeO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:34:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7BA6D20702;
-        Tue, 23 Jun 2020 20:42:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4661A206C3;
+        Tue, 23 Jun 2020 20:34:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944923;
-        bh=Gs21tgiMFl5DiApiKPmnEbobYTjCIKXQhdHQfSDUvr0=;
+        s=default; t=1592944454;
+        bh=XtFeMb8kGk3fuqPFWEzobBSlX/FA3bh16zbM1mW+u2U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d+fuE3LokzLbLoxux99b0sf7t8BwNCwzv0AFgx2k/+NPB/e1xlj/N+5/hq3X/INVv
-         5+qSPBWya+7NxChIjOk6yQixKsguSSVIfIZBY0lUL2pONJhDrPLkP7tgLEagoXXgeE
-         to2xJHlYxcDmTp7/5lPMDyXXrFKN9yE52GlPqkqQ=
+        b=Lon8or8hv8Gdn3auoQvG3lYDdhknOWiBzkn2V8qqetY0F9xT6Sz0/MnacXjBrCArd
+         1ksWmwuQbyH3+TozvKdoj127B46rM7cVpHYa9SVoflbaCckX3Eb/g/BUICmRqQLVYt
+         XlbzMBGGwkFnZ7rrVHxgH+Nelp3+y7nLQx6WXbE8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeffle Xu <jefflexu@linux.alibaba.com>,
-        Eric Whitney <enwlinux@gmail.com>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
-        stable@kernel.org
-Subject: [PATCH 4.19 178/206] ext4: fix partial cluster initialization when splitting extent
-Date:   Tue, 23 Jun 2020 21:58:26 +0200
-Message-Id: <20200623195325.794849583@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Paul Cercueil <paul@crapouillou.net>,
+        Thierry Reding <thierry.reding@gmail.com>
+Subject: [PATCH 5.4 312/314] pwm: jz4740: Enhance precision in calculation of duty cycle
+Date:   Tue, 23 Jun 2020 21:58:27 +0200
+Message-Id: <20200623195353.884541761@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195316.864547658@linuxfoundation.org>
-References: <20200623195316.864547658@linuxfoundation.org>
+In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
+References: <20200623195338.770401005@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,120 +46,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit cfb3c85a600c6aa25a2581b3c1c4db3460f14e46 ]
+From: Paul Cercueil <paul@crapouillou.net>
 
-Fix the bug when calculating the physical block number of the first
-block in the split extent.
+commit 9017dc4fbd59c09463019ce494cfe36d654495a8 upstream.
 
-This bug will cause xfstests shared/298 failure on ext4 with bigalloc
-enabled occasionally. Ext4 error messages indicate that previously freed
-blocks are being freed again, and the following fsck will fail due to
-the inconsistency of block bitmap and bg descriptor.
+Calculating the hardware value for the duty from the hardware value of
+the period resulted in a precision loss versus calculating it from the
+clock rate directly.
 
-The following is an example case:
+(Also remove a cast that doesn't really need to be here)
 
-1. First, Initialize a ext4 filesystem with cluster size '16K', block size
-'4K', in which case, one cluster contains four blocks.
+Fixes: f6b8a5700057 ("pwm: Add Ingenic JZ4740 support")
+Cc: <stable@vger.kernel.org>
+Suggested-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+[ukl: backport to v5.4.y and adapt commit log accordingly]
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-2. Create one file (e.g., xxx.img) on this ext4 filesystem. Now the extent
-tree of this file is like:
-
-...
-36864:[0]4:220160
-36868:[0]14332:145408
-51200:[0]2:231424
-...
-
-3. Then execute PUNCH_HOLE fallocate on this file. The hole range is
-like:
-
-..
-ext4_ext_remove_space: dev 254,16 ino 12 since 49506 end 49506 depth 1
-ext4_ext_remove_space: dev 254,16 ino 12 since 49544 end 49546 depth 1
-ext4_ext_remove_space: dev 254,16 ino 12 since 49605 end 49607 depth 1
-...
-
-4. Then the extent tree of this file after punching is like
-
-...
-49507:[0]37:158047
-49547:[0]58:158087
-...
-
-5. Detailed procedure of punching hole [49544, 49546]
-
-5.1. The block address space:
-```
-lblk        ~49505  49506   49507~49543     49544~49546    49547~
-	  ---------+------+-------------+----------------+--------
-	    extent | hole |   extent	|	hole	 | extent
-	  ---------+------+-------------+----------------+--------
-pblk       ~158045  158046  158047~158083  158084~158086   158087~
-```
-
-5.2. The detailed layout of cluster 39521:
-```
-		cluster 39521
-	<------------------------------->
-
-		hole		  extent
-	<----------------------><--------
-
-lblk      49544   49545   49546   49547
-	+-------+-------+-------+-------+
-	|	|	|	|	|
-	+-------+-------+-------+-------+
-pblk     158084  1580845  158086  158087
-```
-
-5.3. The ftrace output when punching hole [49544, 49546]:
-- ext4_ext_remove_space (start 49544, end 49546)
-  - ext4_ext_rm_leaf (start 49544, end 49546, last_extent [49507(158047), 40], partial [pclu 39522 lblk 0 state 2])
-    - ext4_remove_blocks (extent [49507(158047), 40], from 49544 to 49546, partial [pclu 39522 lblk 0 state 2]
-      - ext4_free_blocks: (block 158084 count 4)
-        - ext4_mballoc_free (extent 1/6753/1)
-
-5.4. Ext4 error message in dmesg:
-EXT4-fs error (device vdb): mb_free_blocks:1457: group 1, block 158084:freeing already freed block (bit 6753); block bitmap corrupt.
-EXT4-fs error (device vdb): ext4_mb_generate_buddy:747: group 1, block bitmap and bg descriptor inconsistent: 19550 vs 19551 free clusters
-
-In this case, the whole cluster 39521 is freed mistakenly when freeing
-pblock 158084~158086 (i.e., the first three blocks of this cluster),
-although pblock 158087 (the last remaining block of this cluster) has
-not been freed yet.
-
-The root cause of this isuue is that, the pclu of the partial cluster is
-calculated mistakenly in ext4_ext_remove_space(). The correct
-partial_cluster.pclu (i.e., the cluster number of the first block in the
-next extent, that is, lblock 49597 (pblock 158086)) should be 39521 rather
-than 39522.
-
-Fixes: f4226d9ea400 ("ext4: fix partial cluster initialization")
-Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
-Reviewed-by: Eric Whitney <enwlinux@gmail.com>
-Cc: stable@kernel.org # v3.19+
-Link: https://lore.kernel.org/r/1590121124-37096-1-git-send-email-jefflexu@linux.alibaba.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/extents.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pwm/pwm-jz4740.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/ext4/extents.c b/fs/ext4/extents.c
-index 6e8049031c1a2..3a4570e37cb0b 100644
---- a/fs/ext4/extents.c
-+++ b/fs/ext4/extents.c
-@@ -2905,7 +2905,7 @@ int ext4_ext_remove_space(struct inode *inode, ext4_lblk_t start,
- 			 * in use to avoid freeing it when removing blocks.
- 			 */
- 			if (sbi->s_cluster_ratio > 1) {
--				pblk = ext4_ext_pblock(ex) + end - ee_block + 2;
-+				pblk = ext4_ext_pblock(ex) + end - ee_block + 1;
- 				partial_cluster =
- 					-(long long) EXT4_B2C(sbi, pblk);
- 			}
--- 
-2.25.1
-
+--- a/drivers/pwm/pwm-jz4740.c
++++ b/drivers/pwm/pwm-jz4740.c
+@@ -108,8 +108,8 @@ static int jz4740_pwm_apply(struct pwm_c
+ 	if (prescaler == 6)
+ 		return -EINVAL;
+ 
+-	tmp = (unsigned long long)period * state->duty_cycle;
+-	do_div(tmp, state->period);
++	tmp = (unsigned long long)rate * state->duty_cycle;
++	do_div(tmp, NSEC_PER_SEC);
+ 	duty = period - tmp;
+ 
+ 	if (duty >= period)
 
 
