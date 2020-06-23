@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C7AC205D08
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:08:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC127205D0A
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 22:08:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388197AbgFWUID (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:08:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48958 "EHLO mail.kernel.org"
+        id S2387917AbgFWUIH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:08:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388692AbgFWUIC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:08:02 -0400
+        id S2387792AbgFWUIE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:08:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 807D82078A;
-        Tue, 23 Jun 2020 20:08:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 140B32078A;
+        Tue, 23 Jun 2020 20:08:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592942882;
-        bh=DTy5+KKhOvDumFrETKDqUe+uDSaHlmNX0AfYy8W082g=;
+        s=default; t=1592942884;
+        bh=kFvlRI1DJkWhOtlwTbd/fwD/9DKWV8ga+NNawGwowEM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PMYt6AJ42zM2JpTyawxZcEReUmhOsavpRByhKIsZb07QR9ldwhsQygPik90d/5rFS
-         P1ObgPkPNSr2gTN89Q2956uccGUP81S9r9ToSnxLKKzv9VvsSkgN8ZORK49sAWYbBj
-         v7AgDhRIMUfFE3/UWTUJJ/EznivZUKKAiUGawRPM=
+        b=pu8YF57zBaqG87NsaG7DzuiHOU1r6bSe28BW/3bxbSa4ksOZcNxtb7ziD/6bPivAN
+         FG1XF+3Y6c4trqZshtTmH2VA83RSQS19SOqThrk/pxJjW3giX60lmkC+es9IDQ/B+h
+         u8ng5s//4VAYbwB/qDYI8Klo8fpwsiyQ38IkSJf0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         =?UTF-8?q?J=C3=A9r=C3=B4me=20Pouiller?= 
         <jerome.pouiller@silabs.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 141/477] staging: wfx: fix overflow in frame counters
-Date:   Tue, 23 Jun 2020 21:52:18 +0200
-Message-Id: <20200623195414.272118318@linuxfoundation.org>
+Subject: [PATCH 5.7 142/477] staging: wfx: fix double init of tx_policy_upload_work
+Date:   Tue, 23 Jun 2020 21:52:19 +0200
+Message-Id: <20200623195414.319333698@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
 References: <20200623195407.572062007@linuxfoundation.org>
@@ -46,39 +46,31 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jérôme Pouiller <jerome.pouiller@silabs.com>
 
-[ Upstream commit 87066173e34b0ca5d041d5519e6bb030b1958184 ]
+[ Upstream commit 6ae0878b4800c7042d35c0fb4c6baabb62621ecc ]
 
-It has been reported that trying to send small packets of data could
-produce a "inconsistent notification" warning.
+The work_struct tx_policy_upload_work was initialized twice.
 
-It seems that in some circumstances, the number of frame queued in the
-driver could greatly increase and exceed UCHAR_MAX. So the field
-"buffered" from struct sta_priv can overflow.
-
-Just increase the size of "bueffered" to fix the problem.
-
-Fixes: 7d2d2bfdeb82 ("staging: wfx: relocate "buffered" information to sta_priv")
+Fixes: 99879121bfbb ("staging: wfx: fix the cache of rate policies on interface reset")
 Signed-off-by: Jérôme Pouiller <jerome.pouiller@silabs.com>
-Link: https://lore.kernel.org/r/20200427134031.323403-10-Jerome.Pouiller@silabs.com
+Link: https://lore.kernel.org/r/20200427134031.323403-12-Jerome.Pouiller@silabs.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/wfx/sta.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/staging/wfx/sta.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/staging/wfx/sta.h b/drivers/staging/wfx/sta.h
-index cf99a8a74a81b..ace845f9ed140 100644
---- a/drivers/staging/wfx/sta.h
-+++ b/drivers/staging/wfx/sta.h
-@@ -37,7 +37,7 @@ struct wfx_grp_addr_table {
- struct wfx_sta_priv {
- 	int link_id;
- 	int vif_id;
--	u8 buffered[IEEE80211_NUM_TIDS];
-+	int buffered[IEEE80211_NUM_TIDS];
- 	// Ensure atomicity of "buffered" and calls to ieee80211_sta_set_buffered()
- 	spinlock_t lock;
- };
+diff --git a/drivers/staging/wfx/sta.c b/drivers/staging/wfx/sta.c
+index 969d7a4a7fbd9..b4cd7cb1ce569 100644
+--- a/drivers/staging/wfx/sta.c
++++ b/drivers/staging/wfx/sta.c
+@@ -1049,7 +1049,6 @@ int wfx_add_interface(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
+ 	init_completion(&wvif->scan_complete);
+ 	INIT_WORK(&wvif->scan_work, wfx_hw_scan_work);
+ 
+-	INIT_WORK(&wvif->tx_policy_upload_work, wfx_tx_policy_upload_work);
+ 	mutex_unlock(&wdev->conf_mutex);
+ 
+ 	hif_set_macaddr(wvif, vif->addr);
 -- 
 2.25.1
 
