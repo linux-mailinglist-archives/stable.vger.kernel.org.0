@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07B892062F5
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:10:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D57B2206192
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:07:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391471AbgFWUd5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:33:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55554 "EHLO mail.kernel.org"
+        id S2392727AbgFWUpM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 16:45:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403772AbgFWUd4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:33:56 -0400
+        id S2390941AbgFWUpK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:45:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 738752064B;
-        Tue, 23 Jun 2020 20:33:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 73DCB21BE5;
+        Tue, 23 Jun 2020 20:45:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592944436;
-        bh=wDtFrapsnioZClbXOoiJVnqKh7rXYEFcysXwDAhr9fg=;
+        s=default; t=1592945111;
+        bh=WjpFl7wlHy8PUGGqQ+jjo7NvQULXFyfkngycAh22ifQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AF89dtPnbhQu5bOM8CFD7f+BK4wMV5uHti40twzb0nFA1mPXTdw0RgA/Jwhuld+WO
-         fgTq7k3qdJDNPjjM5t8hH7mJbIg50LBoCgbUYi/6l1iE5zdJXPtW4s1EmNKLPk9fVU
-         TbaOdgsAE2zzylhGWINViD7bEFDT7+feo7AkThjw=
+        b=FLlHtasRUcbWjumaKYYwIuEFzWbJgUQajPjyQKhke2MGBdBQpIj/zIKeuQ+/3/BKE
+         KiLqT1Bmsh6Cb9H8eP1LSc0QeKnMaIO4q3zlyJXF1CY0bUsn/O3wYVUQccnx4Hjtzs
+         5rJGsosOMZKvZoxryLs+mvS0texCYDobcTtnj0wc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
-        Stephan Mueller <smueller@chronox.de>
-Subject: [PATCH 5.4 305/314] crypto: algif_skcipher - Cap recv SG list at ctx->used
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 044/136] i2c: pxa: fix i2c_pxa_scream_blue_murder() debug output
 Date:   Tue, 23 Jun 2020 21:58:20 +0200
-Message-Id: <20200623195353.545410487@linuxfoundation.org>
+Message-Id: <20200623195305.861831772@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
-References: <20200623195338.770401005@linuxfoundation.org>
+In-Reply-To: <20200623195303.601828702@linuxfoundation.org>
+References: <20200623195303.601828702@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,42 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-commit 7cf81954705b7e5b057f7dc39a7ded54422ab6e1 upstream.
+[ Upstream commit 88b73ee7ca4c90baf136ed5a8377fc5a9b73ac08 ]
 
-Somewhere along the line the cap on the SG list length for receive
-was lost.  This patch restores it and removes the subsequent test
-which is now redundant.
+The IRQ log output is supposed to appear on a single line.  However,
+commit 3a2dc1677b60 ("i2c: pxa: Update debug function to dump more info
+on error") resulted in it being printed one-entry-per-line, which is
+excessively long.
 
-Fixes: 2d97591ef43d ("crypto: af_alg - consolidation of...")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Reviewed-by: Stephan Mueller <smueller@chronox.de>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixing this is not a trivial matter; using pr_cont() doesn't work as
+the previous dev_dbg() may not have been compiled in, or may be
+dynamic.
 
+Since the rest of this function output is at error level, and is also
+debug output, promote this to error level as well to avoid this
+problem.
+
+Reduce the number of always zero prefix digits to save screen real-
+estate.
+
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/algif_skcipher.c |    6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/i2c/busses/i2c-pxa.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/crypto/algif_skcipher.c
-+++ b/crypto/algif_skcipher.c
-@@ -74,14 +74,10 @@ static int _skcipher_recvmsg(struct sock
- 		return PTR_ERR(areq);
- 
- 	/* convert iovecs of output buffers into RX SGL */
--	err = af_alg_get_rsgl(sk, msg, flags, areq, -1, &len);
-+	err = af_alg_get_rsgl(sk, msg, flags, areq, ctx->used, &len);
- 	if (err)
- 		goto free;
- 
--	/* Process only as much RX buffers for which we have TX data */
--	if (len > ctx->used)
--		len = ctx->used;
+diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+index ecc84aea51319..e300f9530f190 100644
+--- a/drivers/i2c/busses/i2c-pxa.c
++++ b/drivers/i2c/busses/i2c-pxa.c
+@@ -315,11 +315,10 @@ static void i2c_pxa_scream_blue_murder(struct pxa_i2c *i2c, const char *why)
+ 	dev_err(dev, "IBMR: %08x IDBR: %08x ICR: %08x ISR: %08x\n",
+ 		readl(_IBMR(i2c)), readl(_IDBR(i2c)), readl(_ICR(i2c)),
+ 		readl(_ISR(i2c)));
+-	dev_dbg(dev, "log: ");
++	dev_err(dev, "log:");
+ 	for (i = 0; i < i2c->irqlogidx; i++)
+-		pr_debug("[%08x:%08x] ", i2c->isrlog[i], i2c->icrlog[i]);
 -
- 	/*
- 	 * If more buffers are to be expected to be processed, process only
- 	 * full block size buffers.
+-	pr_debug("\n");
++		pr_cont(" [%03x:%05x]", i2c->isrlog[i], i2c->icrlog[i]);
++	pr_cont("\n");
+ }
+ 
+ #else /* ifdef DEBUG */
+-- 
+2.25.1
+
 
 
