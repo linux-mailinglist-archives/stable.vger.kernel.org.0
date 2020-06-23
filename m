@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8CE7206536
-	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:33:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A53D206462
+	for <lists+stable@lfdr.de>; Tue, 23 Jun 2020 23:31:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387979AbgFWUMb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 23 Jun 2020 16:12:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54130 "EHLO mail.kernel.org"
+        id S2388517AbgFWVUs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 23 Jun 2020 17:20:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388759AbgFWUM3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 23 Jun 2020 16:12:29 -0400
+        id S2390425AbgFWUY3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 23 Jun 2020 16:24:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 47E7220707;
-        Tue, 23 Jun 2020 20:12:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 306E62064B;
+        Tue, 23 Jun 2020 20:24:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1592943148;
-        bh=li5D3uOG2gu6Ux4TerVx/9z/nBnXCeCz0BpHMZTXwmY=;
+        s=default; t=1592943868;
+        bh=ZlApbjXxU37MYPbywtIA5qOjp2wk5ss4fkRX5GoBLOc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wIG2Y/DUWdbruHh/adlT80SmC9c6shBj0cqQ3tXC6l3EkfArsotN+KSvTZRZmbKS/
-         2J80+ubcO1L0T4QVcgsBMLTcEPT9f+WKfEbrAaaLU/d2xMHja5aLeCzHvpBFYwVpfk
-         g4fReZxN/oC7j7QH02HSZVwPYLP7Bs+SJ5KRZ3tk=
+        b=xZEJx+7VV4wUHaIVLoQdnW+P3NG1zMAmnpHSr4X2ea4roi2JCXgchZTfZ9nqzHR5J
+         kPy1/zpxVz26fNbx93RdOKYobiEySE/X27e1yK2tElnqjlmYEPcyhZICoSNVFmlA4z
+         E5POIB3Wagl7OcNbDSC2MAYednADtcR5CxvHPodM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tejas Patel <tejas.patel@xilinx.com>,
-        Jolly Shah <jolly.shah@xilinx.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org,
+        John Johansen <john.johansen@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 279/477] clk: zynqmp: Fix divider2 calculation
-Date:   Tue, 23 Jun 2020 21:54:36 +0200
-Message-Id: <20200623195420.755821270@linuxfoundation.org>
+Subject: [PATCH 5.4 082/314] apparmor: fix nnp subset test for unconfined
+Date:   Tue, 23 Jun 2020 21:54:37 +0200
+Message-Id: <20200623195342.780940895@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200623195407.572062007@linuxfoundation.org>
-References: <20200623195407.572062007@linuxfoundation.org>
+In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
+References: <20200623195338.770401005@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,85 +44,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejas Patel <tejas.patel@xilinx.com>
+From: John Johansen <john.johansen@canonical.com>
 
-[ Upstream commit b8c1049c68d634a412ed5980ae666ed7c8839305 ]
+[ Upstream commit 3ed4aaa94fc07db3cd0c91be95e3e1b9782a2710 ]
 
-zynqmp_get_divider2_val() calculates, divider value of type DIV2 clock,
-considering best possible combination of DIV1 and DIV2.
+The subset test is not taking into account the unconfined exception
+which will cause profile transitions in the stacked confinement
+case to fail when no_new_privs is applied.
 
-To find best possible values of DIV1 and DIV2, DIV1's parent rate
-should be consider and not DIV2's parent rate since it would rate of
-div1 clock. Consider a below topology,
+This fixes a regression introduced in the fix for
+https://bugs.launchpad.net/bugs/1839037
 
-	out_clk->div2_clk->div1_clk->fixed_parent
-
-where out_clk = (fixed_parent/div1_clk) / div2_clk, so parent clock
-of div1_clk (i.e. out_clk) should be divided by div1_clk and div2_clk.
-
-Existing code divides parent rate of div2_clk's clock instead of
-div1_clk's parent rate, which is wrong.
-
-Fix the same by considering div1's parent clock rate.
-
-Fixes: 4ebd92d2e228 ("clk: zynqmp: Fix divider calculation")
-Signed-off-by: Tejas Patel <tejas.patel@xilinx.com>
-Signed-off-by: Jolly Shah <jolly.shah@xilinx.com>
-Link: https://lkml.kernel.org/r/1583185843-20707-3-git-send-email-jolly.shah@xilinx.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+BugLink: https://bugs.launchpad.net/bugs/1844186
+Signed-off-by: John Johansen <john.johansen@canonical.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/zynqmp/divider.c | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ security/apparmor/domain.c        |  9 +++++----
+ security/apparmor/include/label.h |  1 +
+ security/apparmor/label.c         | 33 +++++++++++++++++++++++++++++++
+ 3 files changed, 39 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/clk/zynqmp/divider.c b/drivers/clk/zynqmp/divider.c
-index 4be2cc76aa2e7..9bc4f9409aea0 100644
---- a/drivers/clk/zynqmp/divider.c
-+++ b/drivers/clk/zynqmp/divider.c
-@@ -111,23 +111,30 @@ static unsigned long zynqmp_clk_divider_recalc_rate(struct clk_hw *hw,
- 
- static void zynqmp_get_divider2_val(struct clk_hw *hw,
- 				    unsigned long rate,
--				    unsigned long parent_rate,
- 				    struct zynqmp_clk_divider *divider,
- 				    int *bestdiv)
- {
- 	int div1;
- 	int div2;
- 	long error = LONG_MAX;
--	struct clk_hw *parent_hw = clk_hw_get_parent(hw);
--	struct zynqmp_clk_divider *pdivider = to_zynqmp_clk_divider(parent_hw);
-+	unsigned long div1_prate;
-+	struct clk_hw *div1_parent_hw;
-+	struct clk_hw *div2_parent_hw = clk_hw_get_parent(hw);
-+	struct zynqmp_clk_divider *pdivider =
-+				to_zynqmp_clk_divider(div2_parent_hw);
- 
- 	if (!pdivider)
- 		return;
- 
-+	div1_parent_hw = clk_hw_get_parent(div2_parent_hw);
-+	if (!div1_parent_hw)
-+		return;
-+
-+	div1_prate = clk_hw_get_rate(div1_parent_hw);
- 	*bestdiv = 1;
- 	for (div1 = 1; div1 <= pdivider->max_div;) {
- 		for (div2 = 1; div2 <= divider->max_div;) {
--			long new_error = ((parent_rate / div1) / div2) - rate;
-+			long new_error = ((div1_prate / div1) / div2) - rate;
- 
- 			if (abs(new_error) < abs(error)) {
- 				*bestdiv = div2;
-@@ -192,7 +199,7 @@ static long zynqmp_clk_divider_round_rate(struct clk_hw *hw,
+diff --git a/security/apparmor/domain.c b/security/apparmor/domain.c
+index 5dedc0173b024..1a33f490e6670 100644
+--- a/security/apparmor/domain.c
++++ b/security/apparmor/domain.c
+@@ -935,7 +935,8 @@ int apparmor_bprm_set_creds(struct linux_binprm *bprm)
+ 	 * aways results in a further reduction of permissions.
  	 */
- 	if (div_type == TYPE_DIV2 &&
- 	    (clk_hw_get_flags(hw) & CLK_SET_RATE_PARENT)) {
--		zynqmp_get_divider2_val(hw, rate, *prate, divider, &bestdiv);
-+		zynqmp_get_divider2_val(hw, rate, divider, &bestdiv);
- 	}
+ 	if ((bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS) &&
+-	    !unconfined(label) && !aa_label_is_subset(new, ctx->nnp)) {
++	    !unconfined(label) &&
++	    !aa_label_is_unconfined_subset(new, ctx->nnp)) {
+ 		error = -EPERM;
+ 		info = "no new privs";
+ 		goto audit;
+@@ -1213,7 +1214,7 @@ int aa_change_hat(const char *hats[], int count, u64 token, int flags)
+ 		 * reduce restrictions.
+ 		 */
+ 		if (task_no_new_privs(current) && !unconfined(label) &&
+-		    !aa_label_is_subset(new, ctx->nnp)) {
++		    !aa_label_is_unconfined_subset(new, ctx->nnp)) {
+ 			/* not an apparmor denial per se, so don't log it */
+ 			AA_DEBUG("no_new_privs - change_hat denied");
+ 			error = -EPERM;
+@@ -1234,7 +1235,7 @@ int aa_change_hat(const char *hats[], int count, u64 token, int flags)
+ 		 * reduce restrictions.
+ 		 */
+ 		if (task_no_new_privs(current) && !unconfined(label) &&
+-		    !aa_label_is_subset(previous, ctx->nnp)) {
++		    !aa_label_is_unconfined_subset(previous, ctx->nnp)) {
+ 			/* not an apparmor denial per se, so don't log it */
+ 			AA_DEBUG("no_new_privs - change_hat denied");
+ 			error = -EPERM;
+@@ -1429,7 +1430,7 @@ check:
+ 		 * reduce restrictions.
+ 		 */
+ 		if (task_no_new_privs(current) && !unconfined(label) &&
+-		    !aa_label_is_subset(new, ctx->nnp)) {
++		    !aa_label_is_unconfined_subset(new, ctx->nnp)) {
+ 			/* not an apparmor denial per se, so don't log it */
+ 			AA_DEBUG("no_new_privs - change_hat denied");
+ 			error = -EPERM;
+diff --git a/security/apparmor/include/label.h b/security/apparmor/include/label.h
+index 47942c4ba7ca7..255764ab06e2f 100644
+--- a/security/apparmor/include/label.h
++++ b/security/apparmor/include/label.h
+@@ -281,6 +281,7 @@ bool aa_label_init(struct aa_label *label, int size, gfp_t gfp);
+ struct aa_label *aa_label_alloc(int size, struct aa_proxy *proxy, gfp_t gfp);
  
- 	if ((clk_hw_get_flags(hw) & CLK_SET_RATE_PARENT) && divider->is_frac)
+ bool aa_label_is_subset(struct aa_label *set, struct aa_label *sub);
++bool aa_label_is_unconfined_subset(struct aa_label *set, struct aa_label *sub);
+ struct aa_profile *__aa_label_next_not_in_set(struct label_it *I,
+ 					     struct aa_label *set,
+ 					     struct aa_label *sub);
+diff --git a/security/apparmor/label.c b/security/apparmor/label.c
+index 6c3acae701efd..5f324d63ceaa3 100644
+--- a/security/apparmor/label.c
++++ b/security/apparmor/label.c
+@@ -550,6 +550,39 @@ bool aa_label_is_subset(struct aa_label *set, struct aa_label *sub)
+ 	return __aa_label_next_not_in_set(&i, set, sub) == NULL;
+ }
+ 
++/**
++ * aa_label_is_unconfined_subset - test if @sub is a subset of @set
++ * @set: label to test against
++ * @sub: label to test if is subset of @set
++ *
++ * This checks for subset but taking into account unconfined. IF
++ * @sub contains an unconfined profile that does not have a matching
++ * unconfined in @set then this will not cause the test to fail.
++ * Conversely we don't care about an unconfined in @set that is not in
++ * @sub
++ *
++ * Returns: true if @sub is special_subset of @set
++ *     else false
++ */
++bool aa_label_is_unconfined_subset(struct aa_label *set, struct aa_label *sub)
++{
++	struct label_it i = { };
++	struct aa_profile *p;
++
++	AA_BUG(!set);
++	AA_BUG(!sub);
++
++	if (sub == set)
++		return true;
++
++	do {
++		p = __aa_label_next_not_in_set(&i, set, sub);
++		if (p && !profile_unconfined(p))
++			break;
++	} while (p);
++
++	return p == NULL;
++}
+ 
+ 
+ /**
 -- 
 2.25.1
 
