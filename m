@@ -2,99 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4697D2072F8
-	for <lists+stable@lfdr.de>; Wed, 24 Jun 2020 14:12:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 573D6207388
+	for <lists+stable@lfdr.de>; Wed, 24 Jun 2020 14:40:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390264AbgFXMMh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jun 2020 08:12:37 -0400
-Received: from correo.us.es ([193.147.175.20]:46892 "EHLO mail.us.es"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389376AbgFXMMg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jun 2020 08:12:36 -0400
-Received: from antivirus1-rhel7.int (unknown [192.168.2.11])
-        by mail.us.es (Postfix) with ESMTP id 0DA3818CDC5
-        for <stable@vger.kernel.org>; Wed, 24 Jun 2020 14:12:35 +0200 (CEST)
-Received: from antivirus1-rhel7.int (localhost [127.0.0.1])
-        by antivirus1-rhel7.int (Postfix) with ESMTP id F23D1DA78D
-        for <stable@vger.kernel.org>; Wed, 24 Jun 2020 14:12:34 +0200 (CEST)
-Received: by antivirus1-rhel7.int (Postfix, from userid 99)
-        id E76BFDA789; Wed, 24 Jun 2020 14:12:34 +0200 (CEST)
-X-Spam-Checker-Version: SpamAssassin 3.4.1 (2015-04-28) on antivirus1-rhel7.int
-X-Spam-Level: 
-X-Spam-Status: No, score=-108.2 required=7.5 tests=ALL_TRUSTED,BAYES_50,
-        SMTPAUTH_US2,URIBL_BLOCKED,USER_IN_WHITELIST autolearn=disabled version=3.4.1
-Received: from antivirus1-rhel7.int (localhost [127.0.0.1])
-        by antivirus1-rhel7.int (Postfix) with ESMTP id B1ED0DA78F;
-        Wed, 24 Jun 2020 14:12:32 +0200 (CEST)
-Received: from 192.168.1.97 (192.168.1.97)
- by antivirus1-rhel7.int (F-Secure/fsigk_smtp/550/antivirus1-rhel7.int);
- Wed, 24 Jun 2020 14:12:32 +0200 (CEST)
-X-Virus-Status: clean(F-Secure/fsigk_smtp/550/antivirus1-rhel7.int)
-Received: from us.es (unknown [90.77.255.23])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: 1984lsi)
-        by entrada.int (Postfix) with ESMTPSA id 936FA42EF42B;
-        Wed, 24 Jun 2020 14:12:32 +0200 (CEST)
-Date:   Wed, 24 Jun 2020 14:12:32 +0200
-X-SMTPAUTHUS: auth mail.us.es
-From:   Pablo Neira Ayuso <pablo@netfilter.org>
-To:     Vasily Averin <vvs@virtuozzo.com>
-Cc:     netfilter-devel@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v4.10] netfilter: nf_conntrack_h323: lost .data_len
- definition for Q.931/ipv6
-Message-ID: <20200624121232.GA28150@salvia>
-References: <c2385b5c-309c-cc64-2e10-a0ef62897502@virtuozzo.com>
+        id S2389221AbgFXMka (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jun 2020 08:40:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33590 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389336AbgFXMkY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Jun 2020 08:40:24 -0400
+Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 921CEC061573;
+        Wed, 24 Jun 2020 05:40:23 -0700 (PDT)
+Received: by mail-ej1-x642.google.com with SMTP id w6so2291792ejq.6;
+        Wed, 24 Jun 2020 05:40:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Bn5TVU/nW/bgfATcG9+z6zl/KPajXa2DYKDGrKOJLu8=;
+        b=oxyHXCiGH+fToizrLcsX+wtcUo3wwAnL1rg0ZciTerqCviZfbzxBAjL3PIiyUGBvz8
+         +B0Ii0iMnmnQC8sRG7haR8F93KgvZffcJy5db8ofmvf8fb7qnIersn7yMgnATcy2kJhg
+         vjnpdwPik0GYsGC3lvymomApMmyXXA4QobMzNLV79MvRkdhRIOSBEzKvBEWVvF6kUPOg
+         8atkSUsUmX9NEBeoxfOg+zr3nFeyNjT24bWFcC9rp4KkJVeaam0GC0mdUecrSHwtF+MB
+         RIELcW4j3TaJqzbpZMbOkdlyGrhDdWdLT2NDTQ4zY9ANvRu+N7AEH5WxIujJFTAdpdaq
+         mscw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Bn5TVU/nW/bgfATcG9+z6zl/KPajXa2DYKDGrKOJLu8=;
+        b=Hjv3UtGxwPdB5E+NoGIYCzkFLh0J+rsaJaXDNsvE+sS5KyGEwKkthlfMVVHDHZ3Igv
+         BqJRiqrhnJFCzr+/56wqgLqBKoNYZh3tGU3uUcngWYE94wMmqWtiDyX5Rt2F3CQCwequ
+         i0Gec/oHXsVqrvd1zmRBmzQhpXRRxhqrs1GlED10C6h9H5heVUlFrqECTSKrexA8+L1E
+         SwrvDUU9f+iq8wSsWnWvw6gwDv52trsBtPLaczkHk+fMuD5hXrI6XbCY63NFPWE2XAQL
+         PZk+hQLemv4UACIptgfclHGKNqJtxSgQMCIFF6kXThW1XkbBn+cFooFbh8AoKdL0c9kU
+         rd0g==
+X-Gm-Message-State: AOAM530WbZZ1xaLWdS2fFeYnUG2UJdGJvIZU49JCCbXAdXESmGmt1Wne
+        tSi6hb/TqXs8MnQZirtPbYb0z3CU
+X-Google-Smtp-Source: ABdhPJwFbEj5+vtIVk799zais4HB5rvWpOC3PBuRy84HW5qcliF+P2+NrOLo/TVF2E4vpTgREF9EDA==
+X-Received: by 2002:a17:906:4b16:: with SMTP id y22mr3654476eju.4.1593002422079;
+        Wed, 24 Jun 2020 05:40:22 -0700 (PDT)
+Received: from localhost.localdomain ([188.26.56.128])
+        by smtp.gmail.com with ESMTPSA id gv24sm10605997ejb.72.2020.06.24.05.40.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 24 Jun 2020 05:40:21 -0700 (PDT)
+From:   Vladimir Oltean <olteanv@gmail.com>
+To:     stable@vger.kernel.org, gregkh@linuxfoundation.org,
+        netdev@vger.kernel.org
+Cc:     madalin.bucur@oss.nxp.com, camelia.groza@nxp.com,
+        joakim.tjernlund@infinera.com, fido_max@inbox.ru,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH stable-5.4.y] Revert "dpaa_eth: fix usage as DSA master, try 3"
+Date:   Wed, 24 Jun 2020 15:40:13 +0300
+Message-Id: <20200624124013.3210537-1-olteanv@gmail.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c2385b5c-309c-cc64-2e10-a0ef62897502@virtuozzo.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Virus-Scanned: ClamAV using ClamSMTP
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-CC'ing stable@vger.kernel.org
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-On Tue, Jun 09, 2020 at 10:53:22AM +0300, Vasily Averin wrote:
-> Could you please push this patch into stable@?
-> it fixes memory corruption in kernels  v3.5 .. v4.10
-> 
-> Lost .data_len definition leads to write beyond end of
-> struct nf_ct_h323_master. Usually it corrupts following
-> struct nf_conn_nat, however if nat is not loaded it corrupts
-> following slab object.
-> 
-> In mainline this problem went away in v4.11,
-> after commit 9f0f3ebeda47 ("netfilter: helpers: remove data_len usage
-> for inkernel helpers") however many stable kernels are still affected.
+This reverts commit b145710b69388aa4034d32b4a937f18f66b5538e.
 
--stable maintainers of: 3.16, 4.4 and 4.9.
+The patch is not wrong, but the Fixes: tag is. It should have been:
 
-Please apply this patch, thanks.
+	Fixes: 060ad66f9795 ("dpaa_eth: change DMA device")
 
-> cc: stable@vger.kernel.org
-> Fixes: 1afc56794e03 ("netfilter: nf_ct_helper: implement variable length helper private data") # v3.5
-> Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-> ---
->  net/netfilter/nf_conntrack_h323_main.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/net/netfilter/nf_conntrack_h323_main.c b/net/netfilter/nf_conntrack_h323_main.c
-> index f65d93639d12..29fe1e7eac88 100644
-> --- a/net/netfilter/nf_conntrack_h323_main.c
-> +++ b/net/netfilter/nf_conntrack_h323_main.c
-> @@ -1225,6 +1225,7 @@ static struct nf_conntrack_helper nf_conntrack_helper_q931[] __read_mostly = {
->  	{
->  		.name			= "Q.931",
->  		.me			= THIS_MODULE,
-> +		.data_len		= sizeof(struct nf_ct_h323_master),
->  		.tuple.src.l3num	= AF_INET6,
->  		.tuple.src.u.tcp.port	= cpu_to_be16(Q931_PORT),
->  		.tuple.dst.protonum	= IPPROTO_TCP,
-> -- 
-> 2.17.1
-> 
+which means that it's fixing a commit which was introduced in:
+
+git tag --contains 060ad66f97954
+v5.5
+
+which then means it should have not been backported to linux-5.4.y,
+where things _were_ working and now they're not.
+
+Reported-by: Joakim Tjernlund <joakim.tjernlund@infinera.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+---
+ drivers/net/ethernet/freescale/dpaa/dpaa_eth.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c b/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
+index 6683409fbd4a..4b21ae27a9fd 100644
+--- a/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
++++ b/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
+@@ -2796,7 +2796,7 @@ static int dpaa_eth_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	/* Do this here, so we can be verbose early */
+-	SET_NETDEV_DEV(net_dev, dev->parent);
++	SET_NETDEV_DEV(net_dev, dev);
+ 	dev_set_drvdata(dev, net_dev);
+ 
+ 	priv = netdev_priv(net_dev);
+-- 
+2.25.1
+
