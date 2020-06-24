@@ -2,54 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80EF5207501
-	for <lists+stable@lfdr.de>; Wed, 24 Jun 2020 15:56:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0151207504
+	for <lists+stable@lfdr.de>; Wed, 24 Jun 2020 15:57:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391163AbgFXN4d convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 24 Jun 2020 09:56:33 -0400
-Received: from mailpd.shecc.com ([180.168.117.213]:5553 "EHLO srvq7.shecc.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S2389544AbgFXN4d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jun 2020 09:56:33 -0400
-X-Greylist: delayed 319 seconds by postgrey-1.27 at vger.kernel.org; Wed, 24 Jun 2020 09:56:32 EDT
-Received: from SRVQ1.shecc.com (10.1.1.21) by srvq7.shecc.com (10.1.1.27) with
- Microsoft SMTP Server (TLS) id 14.3.123.3; Wed, 24 Jun 2020 21:50:58 +0800
-Received: from [192.168.0.13] (10.1.2.21) by srvq1.shecc.com (10.1.1.21) with
- Microsoft SMTP Server (TLS) id 15.0.1076.9; Wed, 24 Jun 2020 21:50:52 +0800
-Content-Type: text/plain; charset="iso-8859-1"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Content-Description: Mail message body
-Subject: Re;
-To:     Recipients <test02@shecc.com>
-From:   <test02@shecc.com>
-Date:   Wed, 24 Jun 2020 06:50:43 -0700
-Reply-To: <charles_jackson001@yahoo.com>
-X-Antivirus: Avast (VPS 200624-2, 06/24/2020), Outbound message
-X-Antivirus-Status: Clean
-Message-ID: <66bc75596a6e4747900d36000de2ffa4@SRVQ1.shecc.com>
-X-Originating-IP: [10.1.2.21]
-X-ClientProxiedBy: SRVQ3.shecc.com (10.1.1.23) To srvq1.shecc.com (10.1.1.21)
+        id S2403994AbgFXN4u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jun 2020 09:56:50 -0400
+Received: from mga02.intel.com ([134.134.136.20]:43621 "EHLO mga02.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2403988AbgFXN4t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jun 2020 09:56:49 -0400
+IronPort-SDR: bsdUCaeIpFPvR/waB7x3aHUK+rPOYm+211kl8kvCiK46AkTvzVGXsRWRRBWEo/IsE4uZDyLMdN
+ qu6KuhnYPNdg==
+X-IronPort-AV: E=McAfee;i="6000,8403,9661"; a="132909235"
+X-IronPort-AV: E=Sophos;i="5.75,275,1589266800"; 
+   d="scan'208";a="132909235"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Jun 2020 06:56:49 -0700
+IronPort-SDR: GvYDAlAvEJinW2lPbtJBxLMTCUdj0IS7x+oNC/TYNtPbxKZVyMK/R1h4VOOou2g+e66sbB/F9i
+ ehzQwqRkXvSg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.75,275,1589266800"; 
+   d="scan'208";a="263644026"
+Received: from mattu-haswell.fi.intel.com ([10.237.72.170])
+  by fmsmga007.fm.intel.com with ESMTP; 24 Jun 2020 06:56:47 -0700
+From:   Mathias Nyman <mathias.nyman@linux.intel.com>
+To:     <gregkh@linuxfoundation.org>
+Cc:     <linux-usb@vger.kernel.org>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH 1/5] xhci: Fix incorrect EP_STATE_MASK
+Date:   Wed, 24 Jun 2020 16:59:45 +0300
+Message-Id: <20200624135949.22611-2-mathias.nyman@linux.intel.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200624135949.22611-1-mathias.nyman@linux.intel.com>
+References: <20200624135949.22611-1-mathias.nyman@linux.intel.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Congratulations!!!
+EP_STATE_MASK should be 0x7 instead of 0xf
 
+xhci spec 6.2.3 shows that the EP state field in the endpoint context data
+structure consist of bits [2:0].
+The old value included a bit from the next field which fortunately is a
+ RsvdZ region. So hopefully this hasn't caused too much harm
 
-As part of my humanitarian individual support during this hard times of fighting the Corona Virus (Convid-19); your email account was selected for a Donation of $1,000,000.00 USD for charity and community medical support in your area. 
-Please contact us for more information on charles_jackson001@yahoo.com.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+---
+ drivers/usb/host/xhci.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-
-Send Your Response To: charles_jackson001@yahoo.com
-
-
-Best Regards,
-
-Charles .W. Jackson Jr
-
+diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
+index 2c6c4f8d1ee1..c295e8a7f5ae 100644
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -716,7 +716,7 @@ struct xhci_ep_ctx {
+  * 4 - TRB error
+  * 5-7 - reserved
+  */
+-#define EP_STATE_MASK		(0xf)
++#define EP_STATE_MASK		(0x7)
+ #define EP_STATE_DISABLED	0
+ #define EP_STATE_RUNNING	1
+ #define EP_STATE_HALTED		2
 -- 
-This email has been checked for viruses by Avast antivirus software.
-https://www.avast.com/antivirus
+2.17.1
 
