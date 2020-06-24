@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0151207504
-	for <lists+stable@lfdr.de>; Wed, 24 Jun 2020 15:57:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7F68207506
+	for <lists+stable@lfdr.de>; Wed, 24 Jun 2020 15:57:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403994AbgFXN4u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jun 2020 09:56:50 -0400
+        id S2403996AbgFXN4w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jun 2020 09:56:52 -0400
 Received: from mga02.intel.com ([134.134.136.20]:43621 "EHLO mga02.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403988AbgFXN4t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jun 2020 09:56:49 -0400
-IronPort-SDR: bsdUCaeIpFPvR/waB7x3aHUK+rPOYm+211kl8kvCiK46AkTvzVGXsRWRRBWEo/IsE4uZDyLMdN
- qu6KuhnYPNdg==
-X-IronPort-AV: E=McAfee;i="6000,8403,9661"; a="132909235"
+        id S2403988AbgFXN4v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jun 2020 09:56:51 -0400
+IronPort-SDR: QQz8Hc5i5KjwmscPx//gt9LfU1NXeUehjYrTOYA7I8UsDILNX2LFT3yFkBtDoxMwewCZTdEUvs
+ mjGl2DSpiulQ==
+X-IronPort-AV: E=McAfee;i="6000,8403,9661"; a="132909248"
 X-IronPort-AV: E=Sophos;i="5.75,275,1589266800"; 
-   d="scan'208";a="132909235"
+   d="scan'208";a="132909248"
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
 Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Jun 2020 06:56:49 -0700
-IronPort-SDR: GvYDAlAvEJinW2lPbtJBxLMTCUdj0IS7x+oNC/TYNtPbxKZVyMK/R1h4VOOou2g+e66sbB/F9i
- ehzQwqRkXvSg==
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Jun 2020 06:56:51 -0700
+IronPort-SDR: Uxu3TMFCFHnKJdxg1E0+XmOR4Zz4FrMrAoeEiUd7ej26YP5XD5OmcddpMji3sYU00JcBl9V25N
+ cL8Cnk1lnzAg==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.75,275,1589266800"; 
-   d="scan'208";a="263644026"
+   d="scan'208";a="263644036"
 Received: from mattu-haswell.fi.intel.com ([10.237.72.170])
-  by fmsmga007.fm.intel.com with ESMTP; 24 Jun 2020 06:56:47 -0700
+  by fmsmga007.fm.intel.com with ESMTP; 24 Jun 2020 06:56:49 -0700
 From:   Mathias Nyman <mathias.nyman@linux.intel.com>
 To:     <gregkh@linuxfoundation.org>
-Cc:     <linux-usb@vger.kernel.org>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH 1/5] xhci: Fix incorrect EP_STATE_MASK
-Date:   Wed, 24 Jun 2020 16:59:45 +0300
-Message-Id: <20200624135949.22611-2-mathias.nyman@linux.intel.com>
+Cc:     <linux-usb@vger.kernel.org>, Al Cooper <alcooperx@gmail.com>,
+        stable@vger.kernel.org,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 2/5] xhci: Fix enumeration issue when setting max packet size for FS devices.
+Date:   Wed, 24 Jun 2020 16:59:46 +0300
+Message-Id: <20200624135949.22611-3-mathias.nyman@linux.intel.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200624135949.22611-1-mathias.nyman@linux.intel.com>
 References: <20200624135949.22611-1-mathias.nyman@linux.intel.com>
@@ -43,32 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-EP_STATE_MASK should be 0x7 instead of 0xf
+From: Al Cooper <alcooperx@gmail.com>
 
-xhci spec 6.2.3 shows that the EP state field in the endpoint context data
-structure consist of bits [2:0].
-The old value included a bit from the next field which fortunately is a
- RsvdZ region. So hopefully this hasn't caused too much harm
+Unable to complete the enumeration of a USB TV Tuner device.
+
+Per XHCI spec (4.6.5), the EP state field of the input context shall
+be cleared for a set address command. In the special case of an FS
+device that has "MaxPacketSize0 = 8", the Linux XHCI driver does
+not do this before evaluating the context. With an XHCI controller
+that checks the EP state field for parameter context error this
+causes a problem in cases such as the device getting reset again
+after enumeration.
+
+When that field is cleared, the problem does not occur.
+
+This was found and fixed by Sasi Kumar.
 
 Cc: stable@vger.kernel.org
+Signed-off-by: Al Cooper <alcooperx@gmail.com>
 Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
 ---
- drivers/usb/host/xhci.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/host/xhci.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
-index 2c6c4f8d1ee1..c295e8a7f5ae 100644
---- a/drivers/usb/host/xhci.h
-+++ b/drivers/usb/host/xhci.h
-@@ -716,7 +716,7 @@ struct xhci_ep_ctx {
-  * 4 - TRB error
-  * 5-7 - reserved
-  */
--#define EP_STATE_MASK		(0xf)
-+#define EP_STATE_MASK		(0x7)
- #define EP_STATE_DISABLED	0
- #define EP_STATE_RUNNING	1
- #define EP_STATE_HALTED		2
+diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+index bee5deccc83d..03b64b73eb99 100644
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -1430,6 +1430,7 @@ static int xhci_check_maxpacket(struct xhci_hcd *xhci, unsigned int slot_id,
+ 				xhci->devs[slot_id]->out_ctx, ep_index);
+ 
+ 		ep_ctx = xhci_get_ep_ctx(xhci, command->in_ctx, ep_index);
++		ep_ctx->ep_info &= cpu_to_le32(~EP_STATE_MASK);/* must clear */
+ 		ep_ctx->ep_info2 &= cpu_to_le32(~MAX_PACKET_MASK);
+ 		ep_ctx->ep_info2 |= cpu_to_le32(MAX_PACKET(max_packet_size));
+ 
 -- 
 2.17.1
 
