@@ -2,99 +2,181 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D1ACC20750C
-	for <lists+stable@lfdr.de>; Wed, 24 Jun 2020 15:57:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30F0A207520
+	for <lists+stable@lfdr.de>; Wed, 24 Jun 2020 16:01:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403973AbgFXN5I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jun 2020 09:57:08 -0400
-Received: from mga02.intel.com ([134.134.136.20]:43639 "EHLO mga02.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389544AbgFXN5I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jun 2020 09:57:08 -0400
-IronPort-SDR: 6Nqy74fbKE+YbkzIeXmYnnQ1Jp4CP2LQ1c2RGVDDQ9KGXdd6IS5KBgujyIPlPQvOAOwRjjhIwl
- 03aGTM62fDiQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9661"; a="132909282"
-X-IronPort-AV: E=Sophos;i="5.75,275,1589266800"; 
-   d="scan'208";a="132909282"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Jun 2020 06:56:56 -0700
-IronPort-SDR: A4P6iVBtT+xePkzVqnJ0pKEX+VfueRWxXSASMWyB/IAEOtr6FUfKiw5gIz/XCfUZGC/skH9KXo
- uFbshhT2+EQg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.75,275,1589266800"; 
-   d="scan'208";a="263644061"
-Received: from mattu-haswell.fi.intel.com ([10.237.72.170])
-  by fmsmga007.fm.intel.com with ESMTP; 24 Jun 2020 06:56:55 -0700
-From:   Mathias Nyman <mathias.nyman@linux.intel.com>
-To:     <gregkh@linuxfoundation.org>
-Cc:     <linux-usb@vger.kernel.org>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5/5] xhci: Poll for U0 after disabling USB2 LPM
-Date:   Wed, 24 Jun 2020 16:59:49 +0300
-Message-Id: <20200624135949.22611-6-mathias.nyman@linux.intel.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200624135949.22611-1-mathias.nyman@linux.intel.com>
-References: <20200624135949.22611-1-mathias.nyman@linux.intel.com>
+        id S2403992AbgFXOBK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jun 2020 10:01:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46064 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2391062AbgFXOBG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Jun 2020 10:01:06 -0400
+Received: from mail-lf1-x142.google.com (mail-lf1-x142.google.com [IPv6:2a00:1450:4864:20::142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E428C061573
+        for <stable@vger.kernel.org>; Wed, 24 Jun 2020 07:01:06 -0700 (PDT)
+Received: by mail-lf1-x142.google.com with SMTP id y13so1325276lfe.9
+        for <stable@vger.kernel.org>; Wed, 24 Jun 2020 07:01:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=txAQaxbTCMLo8x/+VG8IbEhFhSU5w166AKvUL10WpzU=;
+        b=nCp7a5HcgIUlFf75HKyQfQgq+wlGBvm48Kvsh1VneHiH4d59er8QEZEJP+PtudAXz3
+         NUf3R3/ME+60d93sJr/U0J9keJLAH1XSeFNRf/uJqb+aeq8yIXDAH082LWuh1kXFcSuc
+         45/EEs4aHxpzVfu0m7I4yiJ+6FuivyPiVK1g0L6R5CTbKKFoVwi5i2EQZpyn+sk/3mko
+         15aMpgNpCVUG9ZTXeY4NUk3ZQU2fdLnnqgVLoiiIJ67tcr4kP5+a1e9nMQOeHpwi+X2v
+         NWTqHRktpBwCt5hSW7HhWwJPs8w1fLeeCjJdTZTEJ1UTFpzTIZQI0Sl1pygFcJnIyAlZ
+         8ygA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=txAQaxbTCMLo8x/+VG8IbEhFhSU5w166AKvUL10WpzU=;
+        b=opjF8cMCUuP4DBh0+mm4p9WQicMMkBmEswEnquZH0Xf5lMAJQwdujVvxKzzpNlz6a3
+         +9lb3RYkrGw7RzSL31bi+A/i9UUnlpPtLwg812VbDdupPpZzdWkgoNWxwOC+KXhA27u8
+         ixxSjZBTyAg7pTjKbFre20cg2eOgEZgWJ5jnqRd++n5E6hYdxpjsHE1XLz+ssKkhTwoF
+         oNQ/5CHQFKAj23JJeEdFsuYfxBI6zLsHKI4a1yeO5tO4aAM2RWDzyQ2rxiqY2LMXqq01
+         S/b0K8RTALyw+uGWaIaewW8ZA7bGNhlunL0bNxPysTYGkk/Osr2Huj2RZpY/k2o7OjY/
+         Ecng==
+X-Gm-Message-State: AOAM533af+lErdE3WKhQ1JKjiOzuBXyNcSTFTXY1OsovcVzK/wgVYGT9
+        C+kbSqZpvFScryVChvwLOVT63rkvu/GT8vHHeWciYQ==
+X-Google-Smtp-Source: ABdhPJxRHCgryN28ag9fEQT7zXllZ1PRtu0A1X9BXy038Szqr4/3TXTkrTEHaWX33k5G5pbdjY8OmnBz/IM506eC79k=
+X-Received: by 2002:ac2:5325:: with SMTP id f5mr15440767lfh.6.1593007264743;
+ Wed, 24 Jun 2020 07:01:04 -0700 (PDT)
+MIME-Version: 1.0
+References: <20200624055901.258687997@linuxfoundation.org>
+In-Reply-To: <20200624055901.258687997@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 24 Jun 2020 19:30:52 +0530
+Message-ID: <CA+G9fYvz0P+M2j-xuAATQScmXgz=gJOXJdHGdPdsC0KveNO6zQ@mail.gmail.com>
+Subject: Re: [PATCH 4.19 000/203] 4.19.130-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+On Wed, 24 Jun 2020 at 11:40, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.19.130 release.
+> There are 203 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Fri, 26 Jun 2020 05:58:19 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.130-rc2.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
+>
 
-USB2 devices with LPM enabled may interrupt the system suspend:
-[  932.510475] usb 1-7: usb suspend, wakeup 0
-[  932.510549] hub 1-0:1.0: hub_suspend
-[  932.510581] usb usb1: bus suspend, wakeup 0
-[  932.510590] xhci_hcd 0000:00:14.0: port 9 not suspended
-[  932.510593] xhci_hcd 0000:00:14.0: port 8 not suspended
-..
-[  932.520323] xhci_hcd 0000:00:14.0: Port change event, 1-7, id 7, portsc: 0x400e03
-..
-[  932.591405] PM: pci_pm_suspend(): hcd_pci_suspend+0x0/0x30 returns -16
-[  932.591414] PM: dpm_run_callback(): pci_pm_suspend+0x0/0x160 returns -16
-[  932.591418] PM: Device 0000:00:14.0 failed to suspend async: error -16
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-During system suspend, USB core will let HC suspends the device if it
-doesn't have remote wakeup enabled and doesn't have any children.
-However, from the log above we can see that the usb 1-7 doesn't get bus
-suspended due to not in U0. After a while the port finished U2 -> U0
-transition, interrupts the suspend process.
+Summary
+------------------------------------------------------------------------
 
-The observation is that after disabling LPM, port doesn't transit to U0
-immediately and can linger in U2. xHCI spec 4.23.5.2 states that the
-maximum exit latency for USB2 LPM should be BESL + 10us. The BESL for
-the affected device is advertised as 400us, which is still not enough
-based on my testing result.
+kernel: 4.19.130-rc2
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.19.y
+git commit: f12dcdbf9d549ca30275420a0c7f1c27ba80bf23
+git describe: v4.19.129-204-gf12dcdbf9d54
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.19-oe/bu=
+ild/v4.19.129-204-gf12dcdbf9d54
 
-So let's use the maximum permitted latency, 10000, to poll for U0
-status to solve the issue.
+No regressions (compared to build v4.19.128-266-g7e6addf7237f)
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
----
- drivers/usb/host/xhci.c | 3 +++
- 1 file changed, 3 insertions(+)
+No fixes (compared to build v4.19.128-266-g7e6addf7237f)
 
-diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
-index f97106e2860f..ed468eed299c 100644
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -4475,6 +4475,9 @@ static int xhci_set_usb2_hardware_lpm(struct usb_hcd *hcd,
- 			mutex_lock(hcd->bandwidth_mutex);
- 			xhci_change_max_exit_latency(xhci, udev, 0);
- 			mutex_unlock(hcd->bandwidth_mutex);
-+			readl_poll_timeout(ports[port_num]->addr, pm_val,
-+					   (pm_val & PORT_PLS_MASK) == XDEV_U0,
-+					   100, 10000);
- 			return 0;
- 		}
- 	}
--- 
-2.17.1
+Ran 31466 total tests in the following environments and test suites.
 
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- juno-r2-compat
+- juno-r2-kasan
+- nxp-ls2088
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+- x86-kasan
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* install-android-platform-tools-r2800
+* kselftest
+* kselftest/drivers
+* kselftest/filesystems
+* kselftest/net
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-hugetlb-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-securebits-tests
+* kvm-unit-tests
+* ltp-controllers-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-io-tests
+* ltp-sched-tests
+* ltp-syscalls-tests
+* network-basic-tests
+* perf
+* v4l2-compliance
+* ltp-open-posix-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-native/drivers
+* kselftest-vsyscall-mode-native/filesystems
+* kselftest-vsyscall-mode-native/net
+* kselftest-vsyscall-mode-none
+* kselftest-vsyscall-mode-none/drivers
+* kselftest-vsyscall-mode-none/filesystems
+* kselftest-vsyscall-mode-none/net
+
+--
+Linaro LKFT
+https://lkft.linaro.org
