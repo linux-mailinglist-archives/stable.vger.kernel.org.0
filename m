@@ -2,95 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79C45206B27
-	for <lists+stable@lfdr.de>; Wed, 24 Jun 2020 06:32:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51B69206B5B
+	for <lists+stable@lfdr.de>; Wed, 24 Jun 2020 06:47:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728681AbgFXEcA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jun 2020 00:32:00 -0400
-Received: from userp2130.oracle.com ([156.151.31.86]:54616 "EHLO
-        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726131AbgFXEcA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Jun 2020 00:32:00 -0400
-Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
-        by userp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 05O4Mpsv053294;
-        Wed, 24 Jun 2020 04:31:51 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=corp-2020-01-29;
- bh=suWIxa7byyihzA9tXBmQWH7Fk6N+fzCUrLg8b9n8MYU=;
- b=0Z0UTlzgls7TQZ/MbJn4qrSLmLKP3H3fB3F1mjhdA/ihWnYrB9oXx0JV8KwDNqnmi2Hu
- 9WvKWJfP6tLy5Wi+QeRT+jkQ17UxL7tcZhNzzcDucJfGvFkUPJYptT2gz6PEIM5rTsrG
- KVM0eZxHR+PjftowdAacblOhzc5aZc2VHLOomguKLZrkqYZrZsqJtYVNAdZA6/qLiZvb
- 9CY3tZb5cCBgce1MRlE1GlJofWIRJy2R+VqDMbd6X9xb/rnxxa/T/3bkVcC4LaOEAZZe
- tf9TwXLAgLPTUQSl3oya4U1Rups9n+nnxZbPo5aHUb9KfUEZih2ceF/YIRGbBFFGo/6w mQ== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
-        by userp2130.oracle.com with ESMTP id 31uut5gkuf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Wed, 24 Jun 2020 04:31:51 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
-        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 05O4OAIj117928;
-        Wed, 24 Jun 2020 04:29:51 GMT
-Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
-        by userp3020.oracle.com with ESMTP id 31uur6r6by-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 24 Jun 2020 04:29:51 +0000
-Received: from abhmp0007.oracle.com (abhmp0007.oracle.com [141.146.116.13])
-        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 05O4TnHX030165;
-        Wed, 24 Jun 2020 04:29:49 GMT
-Received: from ca-mkp.ca.oracle.com (/10.156.108.201)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Wed, 24 Jun 2020 04:29:49 +0000
-From:   "Martin K. Petersen" <martin.petersen@oracle.com>
-To:     linux-scsi@vger.kernel.org, Roman Bolshakov <r.bolshakov@yadro.com>
-Cc:     "Martin K . Petersen" <martin.petersen@oracle.com>,
-        GR-QLogic-Storage-Upstream@marvell.com,
-        target-devel@vger.kernel.org, Nilesh Javali <njavali@marvell.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Arun Easi <aeasi@marvell.com>, stable@vger.kernel.org,
-        Martin Wilck <mwilck@suse.com>,
-        Quinn Tran <qutran@marvell.com>, linux@yadro.com,
-        Daniel Wagner <dwagner@suse.de>
-Subject: Re: [PATCH v2] scsi: qla2xxx: Keep initiator ports after RSCN
-Date:   Wed, 24 Jun 2020 00:29:41 -0400
-Message-Id: <159297296072.9797.15955182612058210718.b4-ty@oracle.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200605144435.27023-1-r.bolshakov@yadro.com>
-References: <20200605144435.27023-1-r.bolshakov@yadro.com>
+        id S1728856AbgFXEr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jun 2020 00:47:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45676 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728681AbgFXErY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Jun 2020 00:47:24 -0400
+Received: from mail-pj1-x1041.google.com (mail-pj1-x1041.google.com [IPv6:2607:f8b0:4864:20::1041])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8078FC061573;
+        Tue, 23 Jun 2020 21:47:24 -0700 (PDT)
+Received: by mail-pj1-x1041.google.com with SMTP id q90so117992pjh.3;
+        Tue, 23 Jun 2020 21:47:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:autocrypt:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=54cE+EkqacA1w/btJdZdQes8JGuKQsbPV0AIKODdnTA=;
+        b=O2DmO9VQT2Ga/OJbN8rpP6gYjr9gRKNiT3aj5eX9j0opEOuz8rFEbyjjN+QbZ1pk1H
+         E/kh6/HsqQ79pb3zWsi0PQukYmXMj87a3wdYrRCeCUks3EsL9cJ/n0+0HptrC8s4z209
+         CQpC9eY9b5Dyy7EG6hGJbTe3rpBACvL2/dIk7ZbEL5wLxphUqgeB0rhekKGzHzeCfqqT
+         fTf3Ns4MdOilke5SpedbSxsyDo5e/AoMMS1Ngpkt7sPqyDQ6asQQVmf/v42xAAmGGZ/H
+         QExhja48hVPQaFbjrdF1+JglGfmxXYe8XXXp5+76Z5m9ZuCFAAR8iHHuvbog/d7jm7Lf
+         yz9g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=54cE+EkqacA1w/btJdZdQes8JGuKQsbPV0AIKODdnTA=;
+        b=in1pVTBlgSarMezTXE4abBwZEwjr5aNPfJ2XIITdbUTdLqVKUBocMNhH9qdpYPXM8p
+         em4ogy2XFHxGP6EjBvTGtG8P4eABLZsTbk+UKt9FQhDe1gh05/6n61FySdKKhWLjJHaq
+         w5FwNMsf41PwIeXAnChSw3X2US+AL0lf7Z6cIC95m0Ue4BxQtezSpjBrElDAS9SWIUzJ
+         rG2q9IesIIy0zmiwRwL3QMstK5aLGcaRuIG/9JXtmhyVM3LjTOaRlDTO+9vw98Oc5yEq
+         o8rNKTkevsj1efb/nrNIw6sBZsNSUJBIqRMLMQEOihfcwkDduOvF9FilukQQJjCcZXVT
+         HYrw==
+X-Gm-Message-State: AOAM531bgywQPI5+8/RsYVLRV0e2DrDRlnNNOm1csy6H7g+mVP40IZl7
+        whxOg7XQWlg74DfeFfs4RGhYEUji
+X-Google-Smtp-Source: ABdhPJy1LOu+Q5fd+8CCd6nAv6DtxnnvnmGDEoUs91oQW0d5epzkgT0tlBPHnsMav15Gl0kLxKpcHw==
+X-Received: by 2002:a17:90a:f8e:: with SMTP id 14mr28400759pjz.172.1592974043817;
+        Tue, 23 Jun 2020 21:47:23 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id o20sm3795354pjw.19.2020.06.23.21.47.21
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 23 Jun 2020 21:47:22 -0700 (PDT)
+Subject: Re: [PATCH 5.4 000/314] 5.4.49-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+References: <20200623195338.770401005@linuxfoundation.org>
+From:   Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ xsFNBE6H1WcBEACu6jIcw5kZ5dGeJ7E7B2uweQR/4FGxH10/H1O1+ApmcQ9i87XdZQiB9cpN
+ RYHA7RCEK2dh6dDccykQk3bC90xXMPg+O3R+C/SkwcnUak1UZaeK/SwQbq/t0tkMzYDRxfJ7
+ nyFiKxUehbNF3r9qlJgPqONwX5vJy4/GvDHdddSCxV41P/ejsZ8PykxyJs98UWhF54tGRWFl
+ 7i1xvaDB9lN5WTLRKSO7wICuLiSz5WZHXMkyF4d+/O5ll7yz/o/JxK5vO/sduYDIlFTvBZDh
+ gzaEtNf5tQjsjG4io8E0Yq0ViobLkS2RTNZT8ICq/Jmvl0SpbHRvYwa2DhNsK0YjHFQBB0FX
+ IdhdUEzNefcNcYvqigJpdICoP2e4yJSyflHFO4dr0OrdnGLe1Zi/8Xo/2+M1dSSEt196rXaC
+ kwu2KgIgmkRBb3cp2vIBBIIowU8W3qC1+w+RdMUrZxKGWJ3juwcgveJlzMpMZNyM1jobSXZ0
+ VHGMNJ3MwXlrEFPXaYJgibcg6brM6wGfX/LBvc/haWw4yO24lT5eitm4UBdIy9pKkKmHHh7s
+ jfZJkB5fWKVdoCv/omy6UyH6ykLOPFugl+hVL2Prf8xrXuZe1CMS7ID9Lc8FaL1ROIN/W8Vk
+ BIsJMaWOhks//7d92Uf3EArDlDShwR2+D+AMon8NULuLBHiEUQARAQABzTJHdWVudGVyIFJv
+ ZWNrIChMaW51eCBhY2NvdW50KSA8bGludXhAcm9lY2stdXMubmV0PsLBgQQTAQIAKwIbAwYL
+ CQgHAwIGFQgCCQoLBBYCAwECHgECF4ACGQEFAlVcphcFCRmg06EACgkQyx8mb86fmYFg0RAA
+ nzXJzuPkLJaOmSIzPAqqnutACchT/meCOgMEpS5oLf6xn5ySZkl23OxuhpMZTVX+49c9pvBx
+ hpvl5bCWFu5qC1jC2eWRYU+aZZE4sxMaAGeWenQJsiG9lP8wkfCJP3ockNu0ZXXAXwIbY1O1
+ c+l11zQkZw89zNgWgKobKzrDMBFOYtAh0pAInZ9TSn7oA4Ctejouo5wUugmk8MrDtUVXmEA9
+ 7f9fgKYSwl/H7dfKKsS1bDOpyJlqhEAH94BHJdK/b1tzwJCFAXFhMlmlbYEk8kWjcxQgDWMu
+ GAthQzSuAyhqyZwFcOlMCNbAcTSQawSo3B9yM9mHJne5RrAbVz4TWLnEaX8gA5xK3uCNCeyI
+ sqYuzA4OzcMwnnTASvzsGZoYHTFP3DQwf2nzxD6yBGCfwNGIYfS0i8YN8XcBgEcDFMWpOQhT
+ Pu3HeztMnF3HXrc0t7e5rDW9zCh3k2PA6D2NV4fews9KDFhLlTfCVzf0PS1dRVVWM+4jVl6l
+ HRIAgWp+2/f8dx5vPc4Ycp4IsZN0l1h9uT7qm1KTwz+sSl1zOqKD/BpfGNZfLRRxrXthvvY8
+ BltcuZ4+PGFTcRkMytUbMDFMF9Cjd2W9dXD35PEtvj8wnEyzIos8bbgtLrGTv/SYhmPpahJA
+ l8hPhYvmAvpOmusUUyB30StsHIU2LLccUPPOwU0ETofVZwEQALlLbQeBDTDbwQYrj0gbx3bq
+ 7kpKABxN2MqeuqGr02DpS9883d/t7ontxasXoEz2GTioevvRmllJlPQERVxM8gQoNg22twF7
+ pB/zsrIjxkE9heE4wYfN1AyzT+AxgYN6f8hVQ7Nrc9XgZZe+8IkuW/Nf64KzNJXnSH4u6nJM
+ J2+Dt274YoFcXR1nG76Q259mKwzbCukKbd6piL+VsT/qBrLhZe9Ivbjq5WMdkQKnP7gYKCAi
+ pNVJC4enWfivZsYupMd9qn7Uv/oCZDYoBTdMSBUblaLMwlcjnPpOYK5rfHvC4opxl+P/Vzyz
+ 6WC2TLkPtKvYvXmdsI6rnEI4Uucg0Au/Ulg7aqqKhzGPIbVaL+U0Wk82nz6hz+WP2ggTrY1w
+ ZlPlRt8WM9w6WfLf2j+PuGklj37m+KvaOEfLsF1v464dSpy1tQVHhhp8LFTxh/6RWkRIR2uF
+ I4v3Xu/k5D0LhaZHpQ4C+xKsQxpTGuYh2tnRaRL14YMW1dlI3HfeB2gj7Yc8XdHh9vkpPyuT
+ nY/ZsFbnvBtiw7GchKKri2gDhRb2QNNDyBnQn5mRFw7CyuFclAksOdV/sdpQnYlYcRQWOUGY
+ HhQ5eqTRZjm9z+qQe/T0HQpmiPTqQcIaG/edgKVTUjITfA7AJMKLQHgp04Vylb+G6jocnQQX
+ JqvvP09whbqrABEBAAHCwWUEGAECAA8CGwwFAlVcpi8FCRmg08MACgkQyx8mb86fmYHNRQ/+
+ J0OZsBYP4leJvQF8lx9zif+v4ZY/6C9tTcUv/KNAE5leyrD4IKbnV4PnbrVhjq861it/zRQW
+ cFpWQszZyWRwNPWUUz7ejmm9lAwPbr8xWT4qMSA43VKQ7ZCeTQJ4TC8kjqtcbw41SjkjrcTG
+ wF52zFO4bOWyovVAPncvV9eGA/vtnd3xEZXQiSt91kBSqK28yjxAqK/c3G6i7IX2rg6pzgqh
+ hiH3/1qM2M/LSuqAv0Rwrt/k+pZXE+B4Ud42hwmMr0TfhNxG+X7YKvjKC+SjPjqp0CaztQ0H
+ nsDLSLElVROxCd9m8CAUuHplgmR3seYCOrT4jriMFBtKNPtj2EE4DNV4s7k0Zy+6iRQ8G8ng
+ QjsSqYJx8iAR8JRB7Gm2rQOMv8lSRdjva++GT0VLXtHULdlzg8VjDnFZ3lfz5PWEOeIMk7Rj
+ trjv82EZtrhLuLjHRCaG50OOm0hwPSk1J64R8O3HjSLdertmw7eyAYOo4RuWJguYMg5DRnBk
+ WkRwrSuCn7UG+qVWZeKEsFKFOkynOs3pVbcbq1pxbhk3TRWCGRU5JolI4ohy/7JV1TVbjiDI
+ HP/aVnm6NC8of26P40Pg8EdAhajZnHHjA7FrJXsy3cyIGqvg9os4rNkUWmrCfLLsZDHD8FnU
+ mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
+Message-ID: <09317285-b447-0d35-c49c-ad0cffaf9105@roeck-us.net>
+Date:   Tue, 23 Jun 2020 21:47:21 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9661 signatures=668680
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 spamscore=0 malwarescore=0
- suspectscore=0 mlxlogscore=999 adultscore=0 phishscore=0 mlxscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2004280000
- definitions=main-2006240031
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9661 signatures=668680
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 clxscore=1015
- lowpriorityscore=0 bulkscore=0 adultscore=0 spamscore=0 suspectscore=0
- phishscore=0 impostorscore=0 cotscore=-2147483648 priorityscore=1501
- mlxscore=0 mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2004280000 definitions=main-2006240031
+In-Reply-To: <20200623195338.770401005@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 5 Jun 2020 17:44:37 +0300, Roman Bolshakov wrote:
-
-> The driver performs SCR (state change registration) in all modes
-> including pure target mode.
+On 6/23/20 12:53 PM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.49 release.
+> There are 314 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> For each RSCN, scan_needed flag is set in qla2x00_handle_rscn() for the
-> port mentioned in the RSCN and fabric rescan is scheduled. During the
-> rescan, GNN_FT handler, qla24xx_async_gnnft_done() deletes session of
-> the port that caused the RSCN.
+> Responses should be made by Thu, 25 Jun 2020 19:52:30 +0000.
+> Anything received after that time might be too late.
 > 
-> [...]
 
-Applied to 5.8/scsi-fixes, thanks!
+I see a number of reboot failures in mcimx7d-sabre images; it looks
+like the gpio driver doesn't instantiate. I'll bisect.
 
-[1/1] scsi: qla2xxx: Keep initiator ports after RSCN
-      https://git.kernel.org/mkp/scsi/c/632f24f09d5b
+This affects both v5.4.y and v5.7.y.
 
--- 
-Martin K. Petersen	Oracle Linux Engineering
+Guenter
