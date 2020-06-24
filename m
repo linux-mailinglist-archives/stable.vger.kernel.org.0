@@ -2,109 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A1C52073A7
-	for <lists+stable@lfdr.de>; Wed, 24 Jun 2020 14:45:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B36A2073CB
+	for <lists+stable@lfdr.de>; Wed, 24 Jun 2020 14:55:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390859AbgFXMpb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jun 2020 08:45:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34394 "EHLO
+        id S2389393AbgFXMzT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jun 2020 08:55:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389802AbgFXMpb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 24 Jun 2020 08:45:31 -0400
-Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC33BC061573;
-        Wed, 24 Jun 2020 05:45:30 -0700 (PDT)
-Received: by mail-ej1-x642.google.com with SMTP id a1so2274616ejg.12;
-        Wed, 24 Jun 2020 05:45:30 -0700 (PDT)
+        with ESMTP id S2388942AbgFXMzS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Jun 2020 08:55:18 -0400
+Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5AD5C061573
+        for <stable@vger.kernel.org>; Wed, 24 Jun 2020 05:55:18 -0700 (PDT)
+Received: by mail-pg1-x52c.google.com with SMTP id l63so1366160pge.12
+        for <stable@vger.kernel.org>; Wed, 24 Jun 2020 05:55:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=0LUd1INo56iKCsw5DicOzPD1VjG9HiDFCnhmfdUAl/A=;
-        b=L4jNppFe+m/IT/N+Em2WAJSwzW0sY6/ZtVYSfY8RFkFL3dJZdjPO63g6+fKgXjyFgE
-         LGG5o+Wmw/r5kksZQ/mkX99UMZ1duZib8TOpaVKw9xMEx1wKjCWCNOhdrAdPIDJ1v/d2
-         scuOtNLb9U4wiJst+2UymjQRHK80nS5IFLmxNwuZneiOjoF6YsHg7t5KLHRC7PBZpa1P
-         6kXWMmX8N3zEXzSPHA3qC7UK6CMAS1AesUYzAy+TzjHf429PQY+D7R9Kh3BwxT/qAOhF
-         AwKsKvvPMyJZ2EgwPP3V2lVKTpORinrdZLoBJOhZ04N3QggPOHNcbkwnGBxkWpL5WbVi
-         C50g==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=LKYZikns6FxT5uNm1cLzLw9A6wNVTv50J74ch37U/Jw=;
+        b=hkETrF5omNsbhidIuityCVclf25Z8QJCfQwUZzVMGFKQlYCgkqN2OcvZcgEqkOQpNH
+         5oZPMqurKConjXi2kWrstWUjhOY/h0zwCCQGTei/5ZgnN37hQTk5eITRXll3sRl+rg6s
+         H/w3wjP546ZUTWzr2dMiKtY7LlfcbLmx2CIJXJfyetyFkVLiE8FmS9KFS2B5UQR2YhbA
+         J2pTiRdCxCKgH1lqjfqMd471CwSPaHbgJ/EkUP0OC+4OHNridc6qVTHdqFxstm4fwcNB
+         PtGQ2Xb+LujhBc2PZu99MP0nS4EXto+pBp/UsOiOjeLLXj4Sdg60rZpTMX8ojV9tDsg9
+         o6ZQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=0LUd1INo56iKCsw5DicOzPD1VjG9HiDFCnhmfdUAl/A=;
-        b=qp80e3XTbQ41SvdXobYWeWcXpUKBpZ1h24G0bvbadwX8o3/tyO6jRXmS1vvYmxV9lP
-         b1pE8SogUB0HL/zKfB22sL0ENJ9BihrhNLLHbDmSmko+wzciVN7zwEHSn8wy9mdhIO05
-         XjfDmrUvED2CWd9H6zJUdNWsb+6aAf/oLTxtYbtN7b7wDTECHtbeOMbKorFCR9SWMj9N
-         A89VUu9GEmvDfMu+W+onpHjO9zcOIBinxk2fjoXj8YqFQP59O+1zothJwBdkP8sRu+iN
-         IOc4G0ZvaPbAMH1ZgGVZR+CbwNCS+/Os79mk7AM/D0cLAI7YtgNpRDQdXb8CQ8gS5VkV
-         qMQg==
-X-Gm-Message-State: AOAM530OTMblJN9dFAdw2t8+9hsZgyhNoQeQFrG8zik987aEU2Xrv+C0
-        YaeXsQmpMhoZOT1rKhLx/3+wabhR
-X-Google-Smtp-Source: ABdhPJyGP8cyKXshNYTdtxp/lUkqB90Mcabefvc7A4g7YNomHk1D7ixN0ldzesQSJjlxmvvdt7o4UA==
-X-Received: by 2002:a17:906:f49:: with SMTP id h9mr25988916ejj.155.1593002729570;
-        Wed, 24 Jun 2020 05:45:29 -0700 (PDT)
-Received: from localhost.localdomain ([188.26.56.128])
-        by smtp.gmail.com with ESMTPSA id o14sm5183613eja.121.2020.06.24.05.45.28
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=LKYZikns6FxT5uNm1cLzLw9A6wNVTv50J74ch37U/Jw=;
+        b=HVqCFj2AuiJJk/UhM809U44910bVF3bCrVfXaJYw1AWx5UA7QcuWXZfHU1IZ266pXY
+         f9xmiRKalbIIn/usJv3tebp6pKWvBGjNcYbhdM6q4/XHIBLnE/7xLZjDsJrmm3t2gtIx
+         bhCRy+ARYXCy5GTuT5T834ASttqx/arRnvXNY/2exgF+lv5RJnB/B50TLQh9KuQSKsMC
+         IehVxDmUlUZKY+ooqopixxMU6jlJmEbwecu2WGsTSxEN8lth/bjaTHyFXpYWY5ON0BYn
+         eXIiZEKNd2tiFUu3kPCMDGKZhrottTwYWbTXOwRIYBT5ot34kwUKe1uvrpFl97tM1nMl
+         GcUA==
+X-Gm-Message-State: AOAM5322PomSNOcnduZIXeGlbg0VNGl59nWS3xNJJI/zWbbRXj3ubcq0
+        4ovXbfElH3CLw7AeESe2o/oYypqEMSQ=
+X-Google-Smtp-Source: ABdhPJwK1mqHHf4k7sL4uwnTeuoiF/1m/8PvO4hU/sxVQ7movuri3h9zVvQkj4I2PMt8p1rSqnPgIA==
+X-Received: by 2002:aa7:9782:: with SMTP id o2mr29735913pfp.212.1593003317889;
+        Wed, 24 Jun 2020 05:55:17 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id b1sm5435843pjc.33.2020.06.24.05.55.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 24 Jun 2020 05:45:28 -0700 (PDT)
-From:   Vladimir Oltean <olteanv@gmail.com>
-To:     stable@vger.kernel.org, gregkh@linuxfoundation.org,
-        netdev@vger.kernel.org
-Cc:     madalin.bucur@oss.nxp.com, camelia.groza@nxp.com,
-        joakim.tjernlund@infinera.com, fido_max@inbox.ru,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v2 stable-5.4.y] Revert "dpaa_eth: fix usage as DSA master, try 3"
-Date:   Wed, 24 Jun 2020 15:45:17 +0300
-Message-Id: <20200624124517.3212326-1-olteanv@gmail.com>
-X-Mailer: git-send-email 2.25.1
+        Wed, 24 Jun 2020 05:55:17 -0700 (PDT)
+Message-ID: <5ef34d35.1c69fb81.aa0bc.1399@mx.google.com>
+Date:   Wed, 24 Jun 2020 05:55:17 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.19.126-525-gf12dcdbf9d54
+Subject: stable-rc/linux-4.19.y baseline: 76 runs,
+ 1 regressions (v4.19.126-525-gf12dcdbf9d54)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+stable-rc/linux-4.19.y baseline: 76 runs, 1 regressions (v4.19.126-525-gf12=
+dcdbf9d54)
 
-This reverts commit 40a904b1c2e57b22dd002dfce73688871cb0bac8.
+Regressions Summary
+-------------------
 
-The patch is not wrong, but the Fixes: tag is. It should have been:
+platform        | arch  | lab          | compiler | defconfig | results
+----------------+-------+--------------+----------+-----------+--------
+bcm2837-rpi-3-b | arm64 | lab-baylibre | gcc-8    | defconfig | 4/5    =
 
-	Fixes: 060ad66f9795 ("dpaa_eth: change DMA device")
 
-which means that it's fixing a commit which was introduced in:
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
+nel/v4.19.126-525-gf12dcdbf9d54/plan/baseline/
 
-git tag --contains 060ad66f97954
-v5.5
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.19.y
+  Describe: v4.19.126-525-gf12dcdbf9d54
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      f12dcdbf9d549ca30275420a0c7f1c27ba80bf23 =
 
-which then means it should have not been backported to linux-5.4.y,
-where things _were_ working and now they're not.
 
-Reported-by: Joakim Tjernlund <joakim.tjernlund@infinera.com>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
----
-Changes in v1:
-Adjusted the commit message from linux-4.19.y to linux-5.4.y
 
-Changes in v2:
-Fixed the sha1sum of the reverted commit.
+Test Regressions
+---------------- =
 
- drivers/net/ethernet/freescale/dpaa/dpaa_eth.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c b/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
-index 6683409fbd4a..4b21ae27a9fd 100644
---- a/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
-+++ b/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
-@@ -2796,7 +2796,7 @@ static int dpaa_eth_probe(struct platform_device *pdev)
- 	}
- 
- 	/* Do this here, so we can be verbose early */
--	SET_NETDEV_DEV(net_dev, dev->parent);
-+	SET_NETDEV_DEV(net_dev, dev);
- 	dev_set_drvdata(dev, net_dev);
- 
- 	priv = netdev_priv(net_dev);
--- 
-2.25.1
 
+platform        | arch  | lab          | compiler | defconfig | results
+----------------+-------+--------------+----------+-----------+--------
+bcm2837-rpi-3-b | arm64 | lab-baylibre | gcc-8    | defconfig | 4/5    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ef31958d5382fe48697bf09
+
+  Results:     4 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+26-525-gf12dcdbf9d54/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rp=
+i-3-b.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+26-525-gf12dcdbf9d54/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rp=
+i-3-b.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2019=
+.02-11-g17e793fa4728/arm64/baseline/rootfs.cpio.gz =
+
+
+  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5ef31958d5382fe4=
+8697bf0c
+      failing since 0 day (last pass: v4.19.126-501-g74874ce1e245, first fa=
+il: v4.19.126-528-g54d0fce94603)
+      1 lines =20
