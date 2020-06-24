@@ -2,82 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC7E620785F
-	for <lists+stable@lfdr.de>; Wed, 24 Jun 2020 18:06:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 699532078FB
+	for <lists+stable@lfdr.de>; Wed, 24 Jun 2020 18:24:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404641AbgFXQFk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jun 2020 12:05:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52106 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404503AbgFXQFk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jun 2020 12:05:40 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 80B66206F7;
-        Wed, 24 Jun 2020 16:05:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593014740;
-        bh=AWZteoRvB+bV0L1jEfUdGppba27IOiPJkLjir5C2LwQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=nDubSH1hcmIHhxBkrJCbAtFInAjaZVP0xAhFeA6PxLTBeQf/86p7360IzPRZquAFb
-         bDJnaPpjo3UVWKv+AP0p3VGoXimYzY6IXnw8ZEGQW06MICo9UUR6LK93eL4Wy3qH1Y
-         d/cWydLMBC4LVwmGMWP5I/3FkG0dwSRSlBNFMM6k=
-Date:   Wed, 24 Jun 2020 18:05:36 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jon Hunter <jonathanh@nvidia.com>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org,
-        linux-tegra <linux-tegra@vger.kernel.org>
-Subject: Re: [PATCH 5.7 000/474] 5.7.6-rc2 review
-Message-ID: <20200624160536.GA2097866@kroah.com>
-References: <20200624055938.609070954@linuxfoundation.org>
- <f21cfef6-78a6-af8b-86a0-f278f5e5eda8@nvidia.com>
+        id S2404539AbgFXQYU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jun 2020 12:24:20 -0400
+Received: from mx0a-001ae601.pphosted.com ([67.231.149.25]:13800 "EHLO
+        mx0b-001ae601.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2404468AbgFXQYU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Jun 2020 12:24:20 -0400
+Received: from pps.filterd (m0077473.ppops.net [127.0.0.1])
+        by mx0a-001ae601.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 05OGOFi9018499;
+        Wed, 24 Jun 2020 11:24:16 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cirrus.com; h=date : from : to : cc
+ : subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=PODMain02222019;
+ bh=ckrvlB8Dw3frM8BYudQeZbvk7wFuvz5qojyaKBhhE24=;
+ b=FPbm6ddgjNT4Z2EH7Bj6D4+bX0fH9JXnF6ROvM4eiq/u+o4/TJSDDTkXAPOgUlCiYnEf
+ WefGYacBX2Lz9/7lLS42jUnQPhtnYqrurB7F7icTJ/o8X93n7BC2nhj/4g3bldEtBCXw
+ zYaKUuv62+jY0sWDiN802REBgLsLPUzmzC2KMm7+HuWFa96ETrArKEiOptAgGqcTm39P
+ ReQHs1RkqIMbxIZm+bwGpizPIsnbzOQ64Jeoj0DERYKdj3pBXF+92hfG8HatwA+WHiRB
+ Xg4sHJ1pppuQg4BXtm9Q6NRn0mJ6ONhS3X6CHoR9U13445v2ip+cmaJAwsDAEYQ2+83x lw== 
+Authentication-Results: ppops.net;
+        spf=fail smtp.mailfrom=ckeepax@opensource.cirrus.com
+Received: from ediex02.ad.cirrus.com ([87.246.76.36])
+        by mx0a-001ae601.pphosted.com with ESMTP id 31uus3952v-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
+        Wed, 24 Jun 2020 11:24:16 -0500
+Received: from EDIEX01.ad.cirrus.com (198.61.84.80) by EDIEX02.ad.cirrus.com
+ (198.61.84.81) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1913.5; Wed, 24 Jun
+ 2020 17:24:10 +0100
+Received: from ediswmail.ad.cirrus.com (198.61.86.93) by EDIEX01.ad.cirrus.com
+ (198.61.84.80) with Microsoft SMTP Server id 15.1.1913.5 via Frontend
+ Transport; Wed, 24 Jun 2020 17:24:10 +0100
+Received: from ediswmail.ad.cirrus.com (ediswmail.ad.cirrus.com [198.61.86.93])
+        by ediswmail.ad.cirrus.com (Postfix) with ESMTP id 865CF44A;
+        Wed, 24 Jun 2020 16:24:10 +0000 (UTC)
+Date:   Wed, 24 Jun 2020 16:24:10 +0000
+From:   Charles Keepax <ckeepax@opensource.cirrus.com>
+To:     Lee Jones <lee.jones@linaro.org>
+CC:     <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
+        Mark Brown <broonie@opensource.wolfsonmicro.com>,
+        <patches@opensource.cirrus.com>
+Subject: Re: [PATCH 09/10] mfd: wm8400-core: Supply description for
+ wm8400_reset_codec_reg_cache's arg
+Message-ID: <20200624162410.GY71940@ediswmail.ad.cirrus.com>
+References: <20200624150704.2729736-1-lee.jones@linaro.org>
+ <20200624150704.2729736-10-lee.jones@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Content-Disposition: inline
-In-Reply-To: <f21cfef6-78a6-af8b-86a0-f278f5e5eda8@nvidia.com>
+In-Reply-To: <20200624150704.2729736-10-lee.jones@linaro.org>
+User-Agent: Mutt/1.5.21 (2010-09-15)
+X-Proofpoint-SPF-Result: fail
+X-Proofpoint-SPF-Record: v=spf1 include:spf-001ae601.pphosted.com include:spf.protection.outlook.com
+ ip4:5.172.152.52 -all
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 lowpriorityscore=0 malwarescore=0
+ mlxscore=0 mlxlogscore=886 phishscore=0 spamscore=0 cotscore=-2147483648
+ impostorscore=0 priorityscore=1501 bulkscore=0 adultscore=0 suspectscore=0
+ clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2004280000 definitions=main-2006240112
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 24, 2020 at 11:32:40AM +0100, Jon Hunter wrote:
+On Wed, Jun 24, 2020 at 04:07:03PM +0100, Lee Jones wrote:
+> Kerneldoc syntax is used, but not complete.  Descriptions required.
 > 
-> On 24/06/2020 07:10, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.7.6 release.
-> > There are 474 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Fri, 26 Jun 2020 05:58:09 +0000.
-> > Anything received after that time might be too late.
-> > 
-> > The whole patch series can be found in one patch at:
-> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.7.6-rc2.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.7.y
-> > and the diffstat can be found below.
-> > 
-> > thanks,
-> > 
-> > greg k-h
+> Prevents warnings like:
 > 
-> All tests are passing for Tegra ...
+>  drivers/mfd/wm8400-core.c:113: warning: Function parameter or member 'wm8400' not described in 'wm8400_reset_codec_reg_cache'
 > 
-> Test results for stable-v5.7:
->     11 builds:	11 pass, 0 fail
->     26 boots:	26 pass, 0 fail
->     56 tests:	56 pass, 0 fail
-> 
-> Linux version:	5.7.6-rc2-ga5e7ca280376
-> Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
->                 tegra194-p2972-0000, tegra20-ventana,
->                 tegra210-p2371-2180, tegra210-p3450-0000,
->                 tegra30-cardhu-a04
+> Cc: <stable@vger.kernel.org>
+> Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>
+> Cc: patches@opensource.cirrus.com
+> Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> ---
 
-Thanks for testing all of these and letting me know.
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-greg k-h
+Thanks,
+Charles
