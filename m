@@ -2,948 +2,7811 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DEF6207A3E
-	for <lists+stable@lfdr.de>; Wed, 24 Jun 2020 19:29:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5729A207BBC
+	for <lists+stable@lfdr.de>; Wed, 24 Jun 2020 20:48:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405478AbgFXR1Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jun 2020 13:27:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42836 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405318AbgFXR1Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jun 2020 13:27:24 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 760BC2078D;
-        Wed, 24 Jun 2020 17:27:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593019641;
-        bh=WALUXbJxY/KlmZ3zEEyObiDbyWbiV5w1iT5a2tBqsi4=;
-        h=From:To:Cc:Subject:Date:From;
-        b=ydxEeqjOQGrliXHXq/v0UL+gQpcNMAbdDDB1sxyFrvYZ2vYeSJ9pcN3SL1eYjBvJT
-         4Zev6K3RU1ZkpbkBPddJ6t37TFu6x1cYUTcQ7+yTnjzzy5rJPHTJEVPqk/pm4dZekV
-         mgKJZZ6QQzFqMnEPItRnIno+oBFT1ZaEvRPkzVOc=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: [PATCH 4.19 000/207] 4.19.130-rc3 review
-Date:   Wed, 24 Jun 2020 19:27:18 +0200
-Message-Id: <20200624172351.011387771@linuxfoundation.org>
-X-Mailer: git-send-email 2.27.0
+        id S2405581AbgFXSsg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jun 2020 14:48:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34450 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2405384AbgFXSsf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Jun 2020 14:48:35 -0400
+Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 089A0C061573
+        for <stable@vger.kernel.org>; Wed, 24 Jun 2020 11:48:34 -0700 (PDT)
+Received: by mail-pj1-x1042.google.com with SMTP id ev7so1007518pjb.2
+        for <stable@vger.kernel.org>; Wed, 24 Jun 2020 11:48:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Aj/0X5yWMU7G8h86A3qECwbkTMvy/SxIKj4FKF/TVlc=;
+        b=gdN6z3+pRNkFRwo59gY8Qd0gPPB7BsdCOOUskbFH6+mIdaNphZ35n0SkhHd18ruqkF
+         cpqzc6mRhUD/vsBNdh6QrSHewv6KX6D+wLHyXc5cqMxk9Pp+dEVc+E5KQSXyianvp5v3
+         WDVnoDSH3XrWxjxFURKuxfNboWHv/eG5C7s+yRwEjD/B3yWpbxfrrHgd5No3UBUAj+dV
+         O/opyIJNyuSrSVRysCDhjmE7naItPCRgQKc7B8po1t5t83s51rm+FUrluSSQxMkPCujQ
+         xAJ+JGUsrdUlggqS1L+JU0scxCF6CiZEA+YsJ+Zl2a5xY9z2IEM0Ia0twdlpYIXqjhSE
+         ntyA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Aj/0X5yWMU7G8h86A3qECwbkTMvy/SxIKj4FKF/TVlc=;
+        b=gxwFhnSNZyybW0FDy9Wkj+JJlVJPDRLNDCZrNtPB/14Bmf6XblDmjyhnnvTSg/r/nn
+         4YK+zlZZ2xFCYgSyqLTlzO0uC6lnm9lN8uOFYH5WCd+6s7/z1YQ5PBvXAws1kBYSiBGD
+         XWRgp/BqDFAKeC8fRsmb46YEoa1FdvWz6aXjmwbywXFztoGf0eNUN96OIgqa790z1OuL
+         b3g3NV2EbsYddzjlme6wO+JQ86lJrAGUE6PElv3m/JcL7CPILcw9CdzzK2NICz9Iekt5
+         awCfhJYPjcpca3otJKdM5CufqFeA1QMCwbZnWn3ueVENjtJ60AMXaSPAggLO7O4mHBZh
+         KG2Q==
+X-Gm-Message-State: AOAM530/L6EB0Q04ZcxOhxQmOTdejt/3Vmx0C8YHe9XjJchozFOr0+hn
+        WH8DIqqVspWTRHer6+G27c/aMWd4OYc=
+X-Google-Smtp-Source: ABdhPJwSHc53oSgOQlKTSab2PeFwVPqETQ0XXc3+B8ho3Fcvz1d1RUlViA+N8Luo1zm39gagwhaloQ==
+X-Received: by 2002:a17:902:8a96:: with SMTP id p22mr21048603plo.281.1593024511337;
+        Wed, 24 Jun 2020 11:48:31 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id j2sm6106745pjf.4.2020.06.24.11.48.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 24 Jun 2020 11:48:29 -0700 (PDT)
+Message-ID: <5ef39ffd.1c69fb81.5e572.252d@mx.google.com>
+Date:   Wed, 24 Jun 2020 11:48:29 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.130-rc3.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.19.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.19.130-rc3
-X-KernelTest-Deadline: 2020-06-26T17:24+00:00
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: build
+X-Kernelci-Branch: linux-3.16.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v3.16.85
+Subject: stable-rc/linux-3.16.y build: 125 builds: 10 failed, 115 passed,
+ 11 errors, 2980 warnings (v3.16.85)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.19.130 release.
-There are 207 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
-
-Responses should be made by Fri, 26 Jun 2020 17:23:16 +0000.
-Anything received after that time might be too late.
-
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.130-rc3.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-and the diffstat can be found below.
-
-thanks,
-
-greg k-h
-
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.19.130-rc3
-
-Sean Christopherson <sean.j.christopherson@intel.com>
-    KVM: x86/mmu: Set mmio_value to '0' if reserved #PF can't be generated
-
-Kai Huang <kai.huang@linux.intel.com>
-    kvm: x86: Fix reserved bits related calculation errors caused by MKTME
-
-Kai Huang <kai.huang@linux.intel.com>
-    kvm: x86: Move kvm_set_mmio_spte_mask() from x86.c to mmu.c
-
-NeilBrown <neilb@suse.de>
-    md: add feature flag MD_FEATURE_RAID0_LAYOUT
-
-Vladimir Oltean <vladimir.oltean@nxp.com>
-    Revert "dpaa_eth: fix usage as DSA master, try 3"
-
-Ahmed S. Darwish <a.darwish@linutronix.de>
-    net: core: device_rename: Use rwsem instead of a seqcount
-
-Thomas Gleixner <tglx@linutronix.de>
-    sched/rt, net: Use CONFIG_PREEMPTION.patch
-
-Jiri Olsa <jolsa@redhat.com>
-    kretprobe: Prevent triggering kretprobe from within kprobe_flush_task
-
-Alexander Sverdlin <alexander.sverdlin@nokia.com>
-    net: octeon: mgmt: Repair filling of RX ring
-
-Chen Yu <yu.c.chen@intel.com>
-    e1000e: Do not wake up the system via WOL if device wakeup is disabled
-
-Masami Hiramatsu <mhiramat@kernel.org>
-    kprobes: Fix to protect kick_kprobe_optimizer() by kprobe_mutex
-
-Eric Biggers <ebiggers@google.com>
-    crypto: algboss - don't wait during notifier callback
-
-Herbert Xu <herbert@gondor.apana.org.au>
-    crypto: algif_skcipher - Cap recv SG list at ctx->used
-
-Imre Deak <imre.deak@intel.com>
-    drm/i915/icl+: Fix hotplug interrupt disabling after storm detection
-
-Chris Wilson <chris@chris-wilson.co.uk>
-    drm/i915: Whitelist context-local timestamp in the gen9 cmdparser
-
-Dmitry V. Levin <ldv@altlinux.org>
-    s390: fix syscall_get_error for compat processes
-
-Miquel Raynal <miquel.raynal@bootlin.com>
-    mtd: rawnand: tmio: Fix the probe error path
-
-Miquel Raynal <miquel.raynal@bootlin.com>
-    mtd: rawnand: mtk: Fix the probe error path
-
-Miquel Raynal <miquel.raynal@bootlin.com>
-    mtd: rawnand: plat_nand: Fix the probe error path
-
-Miquel Raynal <miquel.raynal@bootlin.com>
-    mtd: rawnand: socrates: Fix the probe error path
-
-Miquel Raynal <miquel.raynal@bootlin.com>
-    mtd: rawnand: oxnas: Fix the probe error path
-
-Nishka Dasgupta <nishkadg.linux@gmail.com>
-    mtd: rawnand: oxnas: Add of_node_put()
-
-Miquel Raynal <miquel.raynal@bootlin.com>
-    mtd: rawnand: orion: Fix the probe error path
-
-Miquel Raynal <miquel.raynal@bootlin.com>
-    mtd: rawnand: xway: Fix the probe error path
-
-Miquel Raynal <miquel.raynal@bootlin.com>
-    mtd: rawnand: sharpsl: Fix the probe error path
-
-Miquel Raynal <miquel.raynal@bootlin.com>
-    mtd: rawnand: diskonchip: Fix the probe error path
-
-Boris Brezillon <boris.brezillon@bootlin.com>
-    mtd: rawnand: Pass a nand_chip object to nand_release()
-
-Boris Brezillon <boris.brezillon@bootlin.com>
-    mtd: rawnand: Pass a nand_chip object to nand_scan()
-
-Ahmed S. Darwish <a.darwish@linutronix.de>
-    block: nr_sects_write(): Disable preemption on seqcount write
-
-Ard Biesheuvel <ardb@kernel.org>
-    x86/boot/compressed: Relax sed symbol type regex for LLVM ld.lld
-
-Lyude Paul <lyude@redhat.com>
-    drm/dp_mst: Increase ACT retry timeout to 3s
-
-Theodore Ts'o <tytso@mit.edu>
-    ext4: avoid race conditions when remounting with options that change dax
-
-Sasha Levin <sashal@kernel.org>
-    ext4: fix partial cluster initialization when splitting extent
-
-Tom Rix <trix@redhat.com>
-    selinux: fix double free
-
-Sandeep Raghuraman <sandy.8925@gmail.com>
-    drm/amdgpu: Replace invalid device ID with a valid device ID
-
-Huacai Chen <chenhc@lemote.com>
-    drm/qxl: Use correct notify port address when creating cursor ring
-
-Lyude Paul <lyude@redhat.com>
-    drm/dp_mst: Reformat drm_dp_check_act_status() a bit
-
-Wolfram Sang <wsa+renesas@sang-engineering.com>
-    drm: encoder_slave: fix refcouting error for modules
-
-Kai-Heng Feng <kai.heng.feng@canonical.com>
-    libata: Use per port sync for detach
-
-Will Deacon <will@kernel.org>
-    arm64: hw_breakpoint: Don't invoke overflow handler on uaccess watchpoints
-
-Jason Yan <yanaijie@huawei.com>
-    block: Fix use-after-free in blkdev_get()
-
-David Howells <dhowells@redhat.com>
-    afs: afs_write_end() should change i_size under the right lock
-
-David Howells <dhowells@redhat.com>
-    afs: Fix non-setting of mtime when writing into mmap
-
-Zhiqiang Liu <liuzhiqiang26@huawei.com>
-    bcache: fix potential deadlock problem in btree_gc_coalesce
-
-yangerkun <yangerkun@huawei.com>
-    ext4: stop overwrite the errcode in ext4_setup_super
-
-Gaurav Singh <gaurav1086@gmail.com>
-    perf report: Fix NULL pointer dereference in hists__fprintf_nr_sample_events()
-
-Qais Yousef <qais.yousef@arm.com>
-    usb/ehci-platform: Set PM runtime as active on resume
-
-Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-    usb: host: ehci-platform: add a quirk to avoid stuck
-
-Qais Yousef <qais.yousef@arm.com>
-    usb/xhci-plat: Set PM runtime as active on resume
-
-Li RongQing <lirongqing@baidu.com>
-    xdp: Fix xsk_generic_xmit errno
-
-YiFei Zhu <zhuyifei1999@gmail.com>
-    net/filter: Permit reading NET in load_bytes_relative when MAC not set
-
-Vitaly Kuznetsov <vkuznets@redhat.com>
-    x86/idt: Keep spurious entries unset in system_vectors
-
-Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-    scsi: acornscsi: Fix an error handling path in acornscsi_probe()
-
-Jernej Skrabec <jernej.skrabec@siol.net>
-    drm/sun4i: hdmi ddc clk: Fix size of m divider
-
-Hans de Goede <hdegoede@redhat.com>
-    ASoC: rt5645: Add platform-data for Asus T101HA
-
-Hans de Goede <hdegoede@redhat.com>
-    ASoC: Intel: bytcr_rt5640: Add quirk for Toshiba Encore WT10-A tablet
-
-Bard Liao <yung-chuan.liao@linux.intel.com>
-    ASoC: core: only convert non DPCM link to DPCM link
-
-Zhihao Cheng <chengzhihao1@huawei.com>
-    afs: Fix memory leak in afs_put_sysnames()
-
-tannerlove <tannerlove@google.com>
-    selftests/net: in timestamping, strncpy needs to preserve null byte
-
-Shaokun Zhang <zhangshaokun@hisilicon.com>
-    drivers/perf: hisi: Fix wrong value for all counters enable
-
-Logan Gunthorpe <logang@deltatee.com>
-    NTB: ntb_test: Fix bug when counting remote files
-
-Logan Gunthorpe <logang@deltatee.com>
-    NTB: perf: Fix race condition when run with ntb_test
-
-Logan Gunthorpe <logang@deltatee.com>
-    NTB: perf: Fix support for hardware that doesn't have port numbers
-
-Logan Gunthorpe <logang@deltatee.com>
-    NTB: perf: Don't require one more memory window than number of peers
-
-Logan Gunthorpe <logang@deltatee.com>
-    NTB: Revert the change to use the NTB device dev for DMA allocations
-
-Logan Gunthorpe <logang@deltatee.com>
-    NTB: ntb_tool: reading the link file should not end in a NULL byte
-
-Sanjay R Mehta <sanju.mehta@amd.com>
-    ntb_tool: pass correct struct device to dma_alloc_coherent
-
-Sanjay R Mehta <sanju.mehta@amd.com>
-    ntb_perf: pass correct struct device to dma_alloc_coherent
-
-Bob Peterson <rpeterso@redhat.com>
-    gfs2: fix use-after-free on transaction ail lists
-
-Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-    blktrace: fix endianness for blk_log_remap()
-
-Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-    blktrace: fix endianness in get_pdu_int()
-
-Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-    blktrace: use errno instead of bi_status
-
-Ram Pai <linuxram@us.ibm.com>
-    selftests/vm/pkeys: fix alloc_random_pkey() to make it really random
-
-Nick Desaulniers <ndesaulniers@google.com>
-    elfnote: mark all .note sections SHF_ALLOC
-
-Arnd Bergmann <arnd@arndb.de>
-    include/linux/bitops.h: avoid clang shift-count-overflow warnings
-
-Jann Horn <jannh@google.com>
-    lib/zlib: remove outdated and incorrect pre-increment optimization
-
-Jiri Benc <jbenc@redhat.com>
-    geneve: change from tx_error to tx_dropped on missing metadata
-
-Tero Kristo <t-kristo@ti.com>
-    crypto: omap-sham - add proper load balancing support for multicore
-
-Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-    pinctrl: freescale: imx: Fix an error handling path in 'imx_pinctrl_probe()'
-
-Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-    pinctrl: imxl: Fix an error handling path in 'imx1_pinctrl_core_probe()'
-
-Can Guo <cang@codeaurora.org>
-    scsi: ufs: Don't update urgent bkops level when toggling auto bkops
-
-Qiushi Wu <wu000273@umn.edu>
-    scsi: iscsi: Fix reference count leak in iscsi_boot_create_kobj
-
-Bob Peterson <rpeterso@redhat.com>
-    gfs2: Allow lock_nolock mount to specify jid=X
-
-Stafford Horne <shorne@gmail.com>
-    openrisc: Fix issue with argument clobbering for clone/fork
-
-David Howells <dhowells@redhat.com>
-    rxrpc: Adjust /proc/net/rxrpc/calls to display call->debug_id not user_ID
-
-Qiushi Wu <wu000273@umn.edu>
-    vfio/mdev: Fix reference count leak in add_mdev_supported_type
-
-Xiyu Yang <xiyuyang19@fudan.edu.cn>
-    ASoC: fsl_asrc_dma: Fix dma_chan leak when config DMA channel failed
-
-Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-    extcon: adc-jack: Fix an error handling path in 'adc_jack_probe()'
-
-huhai <huhai@tj.kylinos.cn>
-    powerpc/4xx: Don't unmap NULL mbase
-
-Dan Carpenter <dan.carpenter@oracle.com>
-    of: Fix a refcounting bug in __of_attach_node_sysfs()
-
-Olga Kornievskaia <olga.kornievskaia@gmail.com>
-    NFSv4.1 fix rpc_call_done assignment for BIND_CONN_TO_SESSION
-
-Fedor Tokarev <ftokarev@gmail.com>
-    net: sunrpc: Fix off-by-one issues in 'rpc_ntop6'
-
-Chunyan Zhang <chunyan.zhang@unisoc.com>
-    clk: sprd: return correct type of value for _sprd_pll_recalc_rate
-
-Qian Cai <cai@lca.pw>
-    KVM: PPC: Book3S HV: Ignore kmemleak false positives
-
-Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
-    scsi: ufs-qcom: Fix scheduling while atomic issue
-
-Nathan Chancellor <natechancellor@gmail.com>
-    clk: bcm2835: Fix return type of bcm2835_register_gate
-
-Dan Carpenter <dan.carpenter@oracle.com>
-    scsi: target: tcmu: Fix a use after free in tcmu_check_expired_queue_cmd()
-
-Qiushi Wu <wu000273@umn.edu>
-    ASoC: fix incomplete error-handling in img_i2s_in_probe.
-
-Borislav Petkov <bp@suse.de>
-    x86/apic: Make TSC deadline timer detection message visible
-
-Potnuri Bharat Teja <bharat@chelsio.com>
-    RDMA/iw_cxgb4: cleanup device debugfs entries on ULD remove
-
-Pawel Laszczak <pawell@cadence.com>
-    usb: gadget: Fix issue with config_ep_by_speed function
-
-Qiushi Wu <wu000273@umn.edu>
-    usb: gadget: fix potential double-free in m66592_probe.
-
-Colin Ian King <colin.king@canonical.com>
-    usb: gadget: lpc32xx_udc: don't dereference ep pointer before null check
-
-Nathan Chancellor <natechancellor@gmail.com>
-    USB: gadget: udc: s3c2410_udc: Remove pointless NULL check in s3c2410_udc_nuke
-
-Fabrice Gasnier <fabrice.gasnier@st.com>
-    usb: dwc2: gadget: move gadget resume after the core is in L0 state
-
-Stefan Riedmueller <s.riedmueller@phytec.de>
-    watchdog: da9062: No need to ping manually before setting timeout
-
-Maor Gottlieb <maorg@mellanox.com>
-    IB/cma: Fix ports memory leak in cma_configfs
-
-Marc Zyngier <maz@kernel.org>
-    PCI: dwc: Fix inner MSI IRQ domain registration
-
-Bjorn Helgaas <bhelgaas@google.com>
-    PCI/PTM: Inherit Switch Downstream Port PTM settings from Upstream Port
-
-Hannes Reinecke <hare@suse.de>
-    dm zoned: return NULL if dmz_get_zone_for_reclaim() fails to find a zone
-
-Qian Cai <cai@lca.pw>
-    powerpc/64s/pgtable: fix an undefined behaviour
-
-Jon Hunter <jonathanh@nvidia.com>
-    arm64: tegra: Fix ethernet phy-mode for Jetson Xavier
-
-Bodo Stroesser <bstroesser@ts.fujitsu.com>
-    scsi: target: tcmu: Userspace must not complete queued commands
-
-Marek Szyprowski <m.szyprowski@samsung.com>
-    clk: samsung: exynos5433: Add IGNORE_UNUSED flag to sclk_i2s1
-
-Souptick Joarder <jrdr.linux@gmail.com>
-    fpga: dfl: afu: Corrected error handling levels
-
-Gregory CLEMENT <gregory.clement@bootlin.com>
-    tty: n_gsm: Fix bogus i++ in gsm_data_kick
-
-Tang Bin <tangbin@cmss.chinamobile.com>
-    USB: host: ehci-mxc: Add error handling in ehci_mxc_drv_probe()
-
-Hans de Goede <hdegoede@redhat.com>
-    ASoC: Intel: bytcr_rt5640: Add quirk for Toshiba Encore WT8-A tablet
-
-Roy Spliet <nouveau@spliet.org>
-    drm/msm/mdp5: Fix mdp5_init error path for failed mdp5_kms allocation
-
-Qais Yousef <qais.yousef@arm.com>
-    usb/ohci-platform: Fix a warning when hibernating
-
-Alex Williamson <alex.williamson@redhat.com>
-    vfio-pci: Mask cap zero
-
-Geoff Levand <geoff@infradead.org>
-    powerpc/ps3: Fix kexec shutdown hang
-
-Nicholas Piggin <npiggin@gmail.com>
-    powerpc/pseries/ras: Fix FWNMI_VALID off by one
-
-Feng Tang <feng.tang@intel.com>
-    ipmi: use vzalloc instead of kmalloc for user creation
-
-Cristian Klein <cristian.klein@elastisys.com>
-    HID: Add quirks for Trust Panora Graphic Tablet
-
-Gregory CLEMENT <gregory.clement@bootlin.com>
-    tty: n_gsm: Fix waking up upper tty layer when room available
-
-Gregory CLEMENT <gregory.clement@bootlin.com>
-    tty: n_gsm: Fix SOF skipping
-
-Michael Ellerman <mpe@ellerman.id.au>
-    powerpc/64: Don't initialise init_task->thread.regs
-
-Rob Herring <robh@kernel.org>
-    PCI: Fix pci_register_host_bridge() device_register() error handling
-
-Tero Kristo <t-kristo@ti.com>
-    clk: ti: composite: fix memory leak
-
-Arnd Bergmann <arnd@arndb.de>
-    dlm: remove BUG() before panic()
-
-Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
-    pinctrl: rockchip: fix memleak in rockchip_dt_node_to_map
-
-Suganath Prabu S <suganath-prabu.subramani@broadcom.com>
-    scsi: mpt3sas: Fix double free warnings
-
-Dmitry Osipenko <digetx@gmail.com>
-    power: supply: smb347-charger: IRQSTAT_D is volatile
-
-Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-    power: supply: lp8788: Fix an error handling path in 'lp8788_charger_probe()'
-
-Viacheslav Dubeyko <v.dubeiko@yadro.com>
-    scsi: qla2xxx: Fix warning after FC target reset
-
-Kai-Heng Feng <kai.heng.feng@canonical.com>
-    PCI/ASPM: Allow ASPM on links to PCIe-to-PCI/PCI-X Bridges
-
-Andrew Murray <andrew.murray@arm.com>
-    PCI: rcar: Fix incorrect programming of OB windows
-
-Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-    drivers: base: Fix NULL pointer exception in __platform_driver_probe() if a driver developer is foolish
-
-John Stultz <john.stultz@linaro.org>
-    serial: amba-pl011: Make sure we initialize the port.lock spinlock
-
-Russell King <rmk+kernel@armlinux.org.uk>
-    i2c: pxa: fix i2c_pxa_scream_blue_murder() debug output
-
-Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-    PCI: v3-semi: Fix a memory leak in v3_pci_probe() error handling paths
-
-Matej Dujava <mdujava@kocurkovo.cz>
-    staging: sm750fb: add missing case while setting FB_VISUAL
-
-Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-    usb: dwc3: gadget: Properly handle failed kick_transfer
-
-Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-    thermal/drivers/ti-soc-thermal: Avoid dereferencing ERR_PTR
-
-Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-    slimbus: ngd: get drvdata from correct device
-
-Raghavendra Rao Ananta <rananta@codeaurora.org>
-    tty: hvc: Fix data abort due to race in hvc_open
-
-Julian Wiedmann <jwi@linux.ibm.com>
-    s390/qdio: put thinint indicator after early error
-
-Takashi Iwai <tiwai@suse.de>
-    ALSA: usb-audio: Fix racy list management in output queue
-
-Alexander Tsoy <alexander@tsoy.me>
-    ALSA: usb-audio: Improve frames size computation
-
-Xiyu Yang <xiyuyang19@fudan.edu.cn>
-    staging: gasket: Fix mapping refcnt leak when register/store fails
-
-Xiyu Yang <xiyuyang19@fudan.edu.cn>
-    staging: gasket: Fix mapping refcnt leak when put attribute fails
-
-Christoph Hellwig <hch@lst.de>
-    firmware: qcom_scm: fix bogous abuse of dma-direct internals
-
-Jason Yan <yanaijie@huawei.com>
-    pinctrl: rza1: Fix wrong array assignment of rza1l_swio_entries
-
-Chad Dupuis <cdupuis@marvell.com>
-    scsi: qedf: Fix crash when MFW calls for protocol stats while function is still probing
-
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-    gpio: dwapb: Append MODULE_ALIAS for platform driver
-
-Vincent Stehlé <vincent.stehle@laposte.net>
-    ARM: dts: sun8i-h2-plus-bananapi-m2-zero: Fix led polarity
-
-Nilesh Javali <njavali@marvell.com>
-    scsi: qedi: Do not flush offload work if ARP not resolved
-
-Hsin-Yi Wang <hsinyi@chromium.org>
-    arm64: dts: mt8173: fix unit name warnings
-
-Chen Zhou <chenzhou10@huawei.com>
-    staging: greybus: fix a missing-check bug in gb_lights_light_config()
-
-Hans de Goede <hdegoede@redhat.com>
-    x86/purgatory: Disable various profiling and sanitizing options
-
-John Johansen <john.johansen@canonical.com>
-    apparmor: fix nnp subset test for unconfined
-
-Tyrel Datwyler <tyreld@linux.ibm.com>
-    scsi: ibmvscsi: Don't send host info in adapter info MAD after LPM
-
-Simon Arlott <simon@octiron.net>
-    scsi: sr: Fix sr_probe() missing deallocate of device minor
-
-Pavel Machek (CIP) <pavel@denx.de>
-    ASoC: meson: add missing free_irq() in error path
-
-Mauricio Faria de Oliveira <mfo@canonical.com>
-    apparmor: check/put label on apparmor_sk_clone_security()
-
-John Johansen <john.johansen@canonical.com>
-    apparmor: fix introspection of of task mode for unconfined tasks
-
-ashimida <ashimida@linux.alibaba.com>
-    mksysmap: Fix the mismatch of '.L' symbols in System.map
-
-Logan Gunthorpe <logang@deltatee.com>
-    NTB: Fix the default port and peer numbers for legacy drivers
-
-Logan Gunthorpe <logang@deltatee.com>
-    NTB: ntb_pingpong: Choose doorbells based on port number
-
-Wang Hai <wanghai38@huawei.com>
-    yam: fix possible memory leak in yam_init_driver
-
-Navid Emamdoost <navid.emamdoost@gmail.com>
-    pwm: img: Call pm_runtime_put() in pm_runtime_get_sync() failed case
-
-Pingfan Liu <kernelfans@gmail.com>
-    powerpc/crashkernel: Take "mem=" option into account
-
-Jon Derrick <jonathan.derrick@intel.com>
-    PCI: vmd: Filter resource type bits from shadow register
-
-Xiyu Yang <xiyuyang19@fudan.edu.cn>
-    nfsd: Fix svc_xprt refcnt leak when setup callback client failed
-
-Kajol Jain <kjain@linux.ibm.com>
-    powerpc/perf/hv-24x7: Fix inconsistent output values incase multiple hv-24x7 events run
-
-Alain Volmat <avolmat@me.com>
-    clk: clk-flexgen: fix clock-critical handling
-
-Xiyu Yang <xiyuyang19@fudan.edu.cn>
-    scsi: lpfc: Fix lpfc_nodelist leak when processing unsolicited event
-
-Marek Szyprowski <m.szyprowski@samsung.com>
-    mfd: wm8994: Fix driver operation if loaded as modules
-
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-    gpio: dwapb: Call acpi_gpiochip_free_interrupts() on GPIO chip de-registration
-
-Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-    m68k/PCI: Fix a memory leak in an error handling path
-
-Aharon Landau <aharonl@mellanox.com>
-    RDMA/mlx5: Add init2init as a modify command
-
-Qian Cai <cai@lca.pw>
-    vfio/pci: fix memory leaks in alloc_perm_bits()
-
-Emmanuel Nicolet <emmanuel.nicolet@gmail.com>
-    ps3disk: use the default segment boundary
-
-Pali Rohár <pali@kernel.org>
-    PCI: aardvark: Don't blindly enable ASPM L0s and don't write to read-only register
-
-Martin Wilck <mwilck@suse.com>
-    dm mpath: switch paths in dm_blk_ioctl() code path
-
-Serge Semin <Sergey.Semin@baikalelectronics.ru>
-    serial: 8250: Fix max baud limit in generic 8250 port
-
-Oliver Neukum <oneukum@suse.com>
-    usblp: poison URBs upon disconnect
-
-Marek Szyprowski <m.szyprowski@samsung.com>
-    clk: samsung: Mark top ISP and CAM clocks on Exynos542x as critical
-
-Russell King <rmk+kernel@armlinux.org.uk>
-    i2c: pxa: clear all master action bits in i2c_pxa_stop_message()
-
-Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-    f2fs: report delalloc reserve as non-free in statfs for project quota
-
-Andreas Klinger <ak@it-klinger.de>
-    iio: bmp280: fix compensation of humidity
-
-Viacheslav Dubeyko <v.dubeiko@yadro.com>
-    scsi: qla2xxx: Fix issue with adapter's stopping state
-
-Ard Biesheuvel <ardb@kernel.org>
-    PCI: Allow pci_resize_resource() for devices on root bus
-
-Dan Carpenter <dan.carpenter@oracle.com>
-    ALSA: isa/wavefront: prevent out of bounds write in ioctl
-
-Kai-Heng Feng <kai.heng.feng@canonical.com>
-    ALSA: hda/realtek - Introduce polarity for micmute LED GPIO
-
-Dan Carpenter <dan.carpenter@oracle.com>
-    scsi: qedi: Check for buffer overflow in qedi_set_path()
-
-Linus Walleij <linus.walleij@linaro.org>
-    ARM: integrator: Add some Kconfig selections
-
-Xiyu Yang <xiyuyang19@fudan.edu.cn>
-    ASoC: davinci-mcasp: Fix dma_chan refcnt leak when getting dma type
-
-Jon Hunter <jonathanh@nvidia.com>
-    backlight: lp855x: Ensure regulators are disabled on probe failure
-
-Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-    clk: qcom: msm8916: Fix the address location of pll->config_reg
-
-Alex Elder <elder@linaro.org>
-    remoteproc: Fix IDR initialisation in rproc_alloc()
-
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-    iio: pressure: bmp280: Tolerate IRQ before registering
-
-Adam Honse <calcprogrammer1@gmail.com>
-    i2c: piix4: Detect secondary SMBus controller on AMD AM4 chipsets
-
-Dmitry Osipenko <digetx@gmail.com>
-    ASoC: tegra: tegra_wm8903: Support nvidia, headset property
-
-Rikard Falkeborn <rikard.falkeborn@gmail.com>
-    clk: sunxi: Fix incorrect usage of round_down()
-
-Enric Balletbo i Serra <enric.balletbo@collabora.com>
-    power: supply: bq24257_charger: Replace depends on REGMAP_I2C with select
-
-
--------------
-
-Diffstat:
-
- Documentation/driver-api/mtdnand.rst               |   4 +-
- Makefile                                           |   4 +-
- .../boot/dts/sun8i-h2-plus-bananapi-m2-zero.dts    |   2 +-
- arch/arm/mach-integrator/Kconfig                   |   7 +-
- arch/arm64/boot/dts/mediatek/mt8173.dtsi           |  22 +--
- arch/arm64/boot/dts/nvidia/tegra194-p2888.dtsi     |   2 +-
- arch/arm64/kernel/hw_breakpoint.c                  |  44 +++---
- arch/m68k/coldfire/pci.c                           |   4 +-
- arch/openrisc/kernel/entry.S                       |   4 +-
- arch/powerpc/include/asm/book3s/64/pgtable.h       |  23 ++-
- arch/powerpc/include/asm/processor.h               |   1 -
- arch/powerpc/kernel/head_64.S                      |   9 +-
- arch/powerpc/kernel/machine_kexec.c                |   8 +-
- arch/powerpc/kvm/book3s_64_mmu_radix.c             |  16 ++-
- arch/powerpc/perf/hv-24x7.c                        |  10 --
- arch/powerpc/platforms/4xx/pci.c                   |   4 +-
- arch/powerpc/platforms/ps3/mm.c                    |  22 +--
- arch/powerpc/platforms/pseries/ras.c               |   5 +-
- arch/s390/include/asm/syscall.h                    |  12 +-
- arch/x86/boot/Makefile                             |   2 +-
- arch/x86/kernel/apic/apic.c                        |   2 +-
- arch/x86/kernel/idt.c                              |   6 +-
- arch/x86/kernel/kprobes/core.c                     |  16 +--
- arch/x86/kvm/mmu.c                                 |  51 ++++++-
- arch/x86/kvm/x86.c                                 |  31 -----
- arch/x86/purgatory/Makefile                        |   5 +-
- crypto/algboss.c                                   |   2 -
- crypto/algif_skcipher.c                            |   6 +-
- drivers/ata/libata-core.c                          |  11 +-
- drivers/base/platform.c                            |   2 +
- drivers/block/ps3disk.c                            |   1 -
- drivers/char/ipmi/ipmi_msghandler.c                |   7 +-
- drivers/clk/bcm/clk-bcm2835.c                      |  10 +-
- drivers/clk/qcom/gcc-msm8916.c                     |   8 +-
- drivers/clk/samsung/clk-exynos5420.c               |  16 ++-
- drivers/clk/samsung/clk-exynos5433.c               |   3 +-
- drivers/clk/sprd/pll.c                             |   2 +-
- drivers/clk/st/clk-flexgen.c                       |   1 +
- drivers/clk/sunxi/clk-sunxi.c                      |   2 +-
- drivers/clk/ti/composite.c                         |   1 +
- drivers/crypto/omap-sham.c                         |  64 +++++----
- drivers/extcon/extcon-adc-jack.c                   |   3 +-
- drivers/firmware/qcom_scm.c                        |   9 +-
- drivers/fpga/dfl-afu-dma-region.c                  |   4 +-
- drivers/gpio/gpio-dwapb.c                          |  34 +++--
- drivers/gpu/drm/amd/powerplay/smumgr/ci_smumgr.c   |   2 +-
- drivers/gpu/drm/drm_dp_mst_topology.c              |  58 ++++----
- drivers/gpu/drm/drm_encoder_slave.c                |   5 +-
- drivers/gpu/drm/i915/i915_cmd_parser.c             |   4 +
- drivers/gpu/drm/i915/i915_irq.c                    |   1 +
- drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c           |   3 +-
- drivers/gpu/drm/qxl/qxl_kms.c                      |   2 +-
- drivers/gpu/drm/sun4i/sun4i_hdmi.h                 |   2 +-
- drivers/gpu/drm/sun4i/sun4i_hdmi_ddc_clk.c         |   2 +-
- drivers/hid/hid-ids.h                              |   3 +
- drivers/hid/hid-quirks.c                           |   1 +
- drivers/i2c/busses/i2c-piix4.c                     |   3 +-
- drivers/i2c/busses/i2c-pxa.c                       |  13 +-
- drivers/iio/pressure/bmp280-core.c                 |   7 +-
- drivers/infiniband/core/cma_configfs.c             |  13 ++
- drivers/infiniband/hw/cxgb4/device.c               |   1 +
- drivers/infiniband/hw/mlx5/devx.c                  |   1 +
- drivers/md/bcache/btree.c                          |   8 +-
- drivers/md/dm-mpath.c                              |   2 +-
- drivers/md/dm-zoned-metadata.c                     |   4 +-
- drivers/md/dm-zoned-reclaim.c                      |   4 +-
- drivers/md/md.c                                    |  13 ++
- drivers/md/raid0.c                                 |   3 +
- drivers/mfd/wm8994-core.c                          |   1 +
- drivers/mtd/nand/raw/ams-delta.c                   |   4 +-
- drivers/mtd/nand/raw/atmel/nand-controller.c       |   2 +-
- drivers/mtd/nand/raw/au1550nd.c                    |   4 +-
- drivers/mtd/nand/raw/bcm47xxnflash/main.c          |   2 +-
- drivers/mtd/nand/raw/bcm47xxnflash/ops_bcm4706.c   |   2 +-
- drivers/mtd/nand/raw/brcmnand/brcmnand.c           |   4 +-
- drivers/mtd/nand/raw/cafe_nand.c                   |   4 +-
- drivers/mtd/nand/raw/cmx270_nand.c                 |   4 +-
- drivers/mtd/nand/raw/cs553x_nand.c                 |   4 +-
- drivers/mtd/nand/raw/davinci_nand.c                |   4 +-
- drivers/mtd/nand/raw/denali.c                      |   6 +-
- drivers/mtd/nand/raw/diskonchip.c                  |  11 +-
- drivers/mtd/nand/raw/docg4.c                       |   4 +-
- drivers/mtd/nand/raw/fsl_elbc_nand.c               |   5 +-
- drivers/mtd/nand/raw/fsl_ifc_nand.c                |   5 +-
- drivers/mtd/nand/raw/fsl_upm.c                     |   4 +-
- drivers/mtd/nand/raw/fsmc_nand.c                   |   4 +-
- drivers/mtd/nand/raw/gpio.c                        |   4 +-
- drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c         |   4 +-
- drivers/mtd/nand/raw/hisi504_nand.c                |   5 +-
- drivers/mtd/nand/raw/jz4740_nand.c                 |   4 +-
- drivers/mtd/nand/raw/jz4780_nand.c                 |   6 +-
- drivers/mtd/nand/raw/lpc32xx_mlc.c                 |   5 +-
- drivers/mtd/nand/raw/lpc32xx_slc.c                 |   5 +-
- drivers/mtd/nand/raw/marvell_nand.c                |   6 +-
- drivers/mtd/nand/raw/mpc5121_nfc.c                 |   4 +-
- drivers/mtd/nand/raw/mtk_nand.c                    |   6 +-
- drivers/mtd/nand/raw/mxc_nand.c                    |   4 +-
- drivers/mtd/nand/raw/nand_base.c                   |  29 ++--
- drivers/mtd/nand/raw/nandsim.c                     |   6 +-
- drivers/mtd/nand/raw/ndfc.c                        |   4 +-
- drivers/mtd/nand/raw/nuc900_nand.c                 |   4 +-
- drivers/mtd/nand/raw/omap2.c                       |   4 +-
- drivers/mtd/nand/raw/orion_nand.c                  |   7 +-
- drivers/mtd/nand/raw/oxnas_nand.c                  |  18 +--
- drivers/mtd/nand/raw/pasemi_nand.c                 |   4 +-
- drivers/mtd/nand/raw/plat_nand.c                   |   6 +-
- drivers/mtd/nand/raw/qcom_nandc.c                  |   4 +-
- drivers/mtd/nand/raw/r852.c                        |   4 +-
- drivers/mtd/nand/raw/s3c2410.c                     |   4 +-
- drivers/mtd/nand/raw/sh_flctl.c                    |   4 +-
- drivers/mtd/nand/raw/sharpsl.c                     |   6 +-
- drivers/mtd/nand/raw/sm_common.c                   |   2 +-
- drivers/mtd/nand/raw/socrates_nand.c               |   7 +-
- drivers/mtd/nand/raw/sunxi_nand.c                  |   6 +-
- drivers/mtd/nand/raw/tango_nand.c                  |   4 +-
- drivers/mtd/nand/raw/tegra_nand.c                  |   2 +-
- drivers/mtd/nand/raw/tmio_nand.c                   |   6 +-
- drivers/mtd/nand/raw/txx9ndfmc.c                   |   4 +-
- drivers/mtd/nand/raw/vf610_nfc.c                   |   4 +-
- drivers/mtd/nand/raw/xway_nand.c                   |   6 +-
- drivers/net/ethernet/cavium/octeon/octeon_mgmt.c   |   5 +
- drivers/net/ethernet/freescale/dpaa/dpaa_eth.c     |   2 +-
- drivers/net/ethernet/intel/e1000e/netdev.c         |  14 +-
- drivers/net/geneve.c                               |   7 +-
- drivers/net/hamradio/yam.c                         |   1 +
- drivers/ntb/ntb.c                                  |   9 +-
- drivers/ntb/test/ntb_perf.c                        |  30 +++-
- drivers/ntb/test/ntb_pingpong.c                    |  14 +-
- drivers/ntb/test/ntb_tool.c                        |   9 +-
- drivers/of/kobj.c                                  |   3 +-
- drivers/pci/controller/dwc/pcie-designware-host.c  |   2 +
- drivers/pci/controller/pci-aardvark.c              |   4 -
- drivers/pci/controller/pci-v3-semi.c               |   2 +-
- drivers/pci/controller/pcie-rcar.c                 |   9 +-
- drivers/pci/controller/vmd.c                       |   6 +-
- drivers/pci/pcie/aspm.c                            |  10 --
- drivers/pci/pcie/ptm.c                             |  22 ++-
- drivers/pci/probe.c                                |   5 +-
- drivers/pci/setup-res.c                            |   9 +-
- drivers/perf/hisilicon/hisi_uncore_l3c_pmu.c       |   2 +-
- drivers/pinctrl/freescale/pinctrl-imx.c            |  19 +--
- drivers/pinctrl/freescale/pinctrl-imx1-core.c      |   1 -
- drivers/pinctrl/pinctrl-rockchip.c                 |   7 +-
- drivers/pinctrl/pinctrl-rza1.c                     |   2 +-
- drivers/power/supply/Kconfig                       |   2 +-
- drivers/power/supply/lp8788-charger.c              |  18 +--
- drivers/power/supply/smb347-charger.c              |   1 +
- drivers/pwm/pwm-img.c                              |   8 +-
- drivers/remoteproc/remoteproc_core.c               |   3 +-
- drivers/s390/cio/qdio.h                            |   1 -
- drivers/s390/cio/qdio_setup.c                      |   1 -
- drivers/s390/cio/qdio_thinint.c                    |  14 +-
- drivers/scsi/arm/acornscsi.c                       |   4 +-
- drivers/scsi/ibmvscsi/ibmvscsi.c                   |   2 +
- drivers/scsi/iscsi_boot_sysfs.c                    |   2 +-
- drivers/scsi/lpfc/lpfc_els.c                       |   2 +
- drivers/scsi/mpt3sas/mpt3sas_base.c                |   2 +
- drivers/scsi/qedf/qedf.h                           |   1 +
- drivers/scsi/qedf/qedf_main.c                      |  35 ++++-
- drivers/scsi/qedi/qedi_iscsi.c                     |   7 +-
- drivers/scsi/qla2xxx/qla_os.c                      |   1 +
- drivers/scsi/qla2xxx/tcm_qla2xxx.c                 |   2 +
- drivers/scsi/sr.c                                  |   6 +-
- drivers/scsi/ufs/ufs-qcom.c                        |   6 +-
- drivers/scsi/ufs/ufshcd.c                          |   1 -
- drivers/slimbus/qcom-ngd-ctrl.c                    |   4 +-
- drivers/staging/gasket/gasket_sysfs.c              |   2 +
- drivers/staging/greybus/light.c                    |   3 +-
- drivers/staging/mt29f_spinand/mt29f_spinand.c      |   2 +-
- drivers/staging/sm750fb/sm750.c                    |   1 +
- drivers/target/target_core_user.c                  | 154 ++++++++++-----------
- drivers/thermal/ti-soc-thermal/ti-thermal-common.c |   6 +-
- drivers/tty/hvc/hvc_console.c                      |  16 ++-
- drivers/tty/n_gsm.c                                |  26 ++--
- drivers/tty/serial/8250/8250_port.c                |   4 +-
- drivers/tty/serial/amba-pl011.c                    |   1 +
- drivers/usb/class/usblp.c                          |   5 +-
- drivers/usb/dwc2/core_intr.c                       |   7 +-
- drivers/usb/dwc3/gadget.c                          |  24 ++--
- drivers/usb/gadget/composite.c                     |  78 ++++++++---
- drivers/usb/gadget/udc/lpc32xx_udc.c               |  11 +-
- drivers/usb/gadget/udc/m66592-udc.c                |   2 +-
- drivers/usb/gadget/udc/s3c2410_udc.c               |   4 -
- drivers/usb/host/ehci-mxc.c                        |   2 +
- drivers/usb/host/ehci-platform.c                   | 131 ++++++++++++++++++
- drivers/usb/host/ohci-platform.c                   |   5 +
- drivers/usb/host/xhci-plat.c                       |  10 +-
- drivers/vfio/mdev/mdev_sysfs.c                     |   2 +-
- drivers/vfio/pci/vfio_pci_config.c                 |  14 +-
- drivers/video/backlight/lp855x_bl.c                |  20 ++-
- drivers/watchdog/da9062_wdt.c                      |   5 -
- fs/afs/proc.c                                      |   1 +
- fs/afs/write.c                                     |   5 +-
- fs/block_dev.c                                     |  12 +-
- fs/dlm/dlm_internal.h                              |   1 -
- fs/ext4/extents.c                                  |   2 +-
- fs/ext4/super.c                                    |  23 ++-
- fs/f2fs/super.c                                    |   3 +-
- fs/gfs2/log.c                                      |  11 +-
- fs/gfs2/ops_fstype.c                               |   2 +-
- fs/nfs/nfs4proc.c                                  |   2 +-
- fs/nfsd/nfs4callback.c                             |   2 +
- include/linux/bitops.h                             |   2 +-
- include/linux/elfnote.h                            |   2 +-
- include/linux/genhd.h                              |   2 +
- include/linux/kprobes.h                            |   4 +
- include/linux/libata.h                             |   3 +
- include/linux/mtd/rawnand.h                        |   9 +-
- include/linux/usb/composite.h                      |   3 +
- include/linux/usb/ehci_def.h                       |   2 +-
- include/uapi/linux/raid/md_p.h                     |   2 +
- kernel/kprobes.c                                   |  27 +++-
- kernel/trace/blktrace.c                            |  30 ++--
- lib/zlib_inflate/inffast.c                         |  91 +++++-------
- net/core/dev.c                                     |  40 +++---
- net/core/filter.c                                  |  16 ++-
- net/rxrpc/proc.c                                   |   6 +-
- net/sunrpc/addr.c                                  |   4 +-
- net/xdp/xsk.c                                      |   4 +-
- scripts/mksysmap                                   |   2 +-
- security/apparmor/domain.c                         |   9 +-
- security/apparmor/include/label.h                  |   1 +
- security/apparmor/label.c                          |  37 ++++-
- security/apparmor/lsm.c                            |   5 +
- security/selinux/ss/services.c                     |   4 +
- sound/isa/wavefront/wavefront_synth.c              |   8 +-
- sound/pci/hda/patch_realtek.c                      |  14 +-
- sound/soc/codecs/rt5645.c                          |  14 ++
- sound/soc/davinci/davinci-mcasp.c                  |   4 +-
- sound/soc/fsl/fsl_asrc_dma.c                       |   1 +
- sound/soc/img/img-i2s-in.c                         |   1 +
- sound/soc/intel/boards/bytcr_rt5640.c              |  24 ++++
- sound/soc/meson/axg-fifo.c                         |  10 +-
- sound/soc/soc-core.c                               |  22 ++-
- sound/soc/tegra/tegra_wm8903.c                     |   6 +-
- sound/usb/card.h                                   |   4 +
- sound/usb/endpoint.c                               |  49 +++++--
- sound/usb/endpoint.h                               |   1 +
- sound/usb/pcm.c                                    |   2 +
- tools/perf/builtin-report.c                        |   3 +-
- .../networking/timestamping/timestamping.c         |  10 +-
- tools/testing/selftests/ntb/ntb_test.sh            |   2 +-
- tools/testing/selftests/x86/protection_keys.c      |   3 +-
- 243 files changed, 1440 insertions(+), 888 deletions(-)
-
-
+stable-rc/linux-3.16.y build: 125 builds: 10 failed, 115 passed, 11 errors,=
+ 2980 warnings (v3.16.85)
+
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-3.16.=
+y/kernel/v3.16.85/
+
+Tree: stable-rc
+Branch: linux-3.16.y
+Git Describe: v3.16.85
+Git Commit: 16f3f0d74b2069038a24f69952f0c19ad7c48d9a
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Built: 6 unique architectures
+
+Build Failures Detected:
+
+arc:
+    allnoconfig: (gcc-8) FAIL
+    fpga_noramfs_defconfig: (gcc-8) FAIL
+
+arm:
+    kzm9g_defconfig: (gcc-8) FAIL
+
+mips:
+    cavium_octeon_defconfig: (gcc-8) FAIL
+    lemote2f_defconfig: (gcc-8) FAIL
+    malta_kvm_defconfig: (gcc-8) FAIL
+    nlm_xlr_defconfig: (gcc-8) FAIL
+    rt305x_defconfig: (gcc-8) FAIL
+    sead3micro_defconfig: (gcc-8) FAIL
+    xway_defconfig: (gcc-8) FAIL
+
+Errors and Warnings Detected:
+
+arc:
+    allnoconfig (gcc-8): 2 errors, 233 warnings
+    fpga_noramfs_defconfig (gcc-8): 2 errors, 8 warnings
+
+arm64:
+    allnoconfig (gcc-8): 2 warnings
+    defconfig (gcc-8): 40 warnings
+
+arm:
+    acs5k_defconfig (gcc-8): 7 warnings
+    acs5k_tiny_defconfig (gcc-8): 6 warnings
+    allnoconfig (gcc-8): 4 warnings
+    ape6evm_defconfig (gcc-8): 29 warnings
+    armadillo800eva_defconfig (gcc-8): 5 warnings
+    at91_dt_defconfig (gcc-8): 6 warnings
+    at91sam9263_defconfig (gcc-8): 12 warnings
+    at91sam9g45_defconfig (gcc-8): 5 warnings
+    at91sam9rl_defconfig (gcc-8): 8 warnings
+    at91x40_defconfig (gcc-8): 4 warnings
+    axm55xx_defconfig (gcc-8): 19 warnings
+    badge4_defconfig (gcc-8): 17 warnings
+    bcm2835_defconfig (gcc-8): 5 warnings
+    bockw_defconfig (gcc-8): 9 warnings
+    clps711x_defconfig (gcc-8): 10 warnings
+    cm_x2xx_defconfig (gcc-8): 14 warnings
+    colibri_pxa270_defconfig (gcc-8): 19 warnings
+    collie_defconfig (gcc-8): 5 warnings
+    corgi_defconfig (gcc-8): 20 warnings
+    dove_defconfig (gcc-8): 17 warnings
+    efm32_defconfig (gcc-8): 3 warnings
+    em_x270_defconfig (gcc-8): 15 warnings
+    exynos_defconfig (gcc-8): 18 warnings
+    footbridge_defconfig (gcc-8): 10 warnings
+    h3600_defconfig (gcc-8): 10 warnings
+    h5000_defconfig (gcc-8): 12 warnings
+    hackkit_defconfig (gcc-8): 6 warnings
+    hi3xxx_defconfig (gcc-8): 13 warnings
+    imx_v4_v5_defconfig (gcc-8): 32 warnings
+    imx_v6_v7_defconfig (gcc-8): 26 warnings
+    integrator_defconfig (gcc-8): 8 warnings
+    iop33x_defconfig (gcc-8): 8 warnings
+    ixp4xx_defconfig (gcc-8): 8 warnings
+    keystone_defconfig (gcc-8): 36 warnings
+    kzm9g_defconfig (gcc-8): 1 error, 9 warnings
+    lart_defconfig (gcc-8): 11 warnings
+    lubbock_defconfig (gcc-8): 7 warnings
+    mackerel_defconfig (gcc-8): 16 warnings
+    magician_defconfig (gcc-8): 19 warnings
+    marzen_defconfig (gcc-8): 10 warnings
+    mini2440_defconfig (gcc-8): 17 warnings
+    mmp2_defconfig (gcc-8): 9 warnings
+    msm_defconfig (gcc-8): 35 warnings
+    multi_v5_defconfig (gcc-8): 19 warnings
+    mv78xx0_defconfig (gcc-8): 34 warnings
+    mvebu_v7_defconfig (gcc-8): 17 warnings
+    mxs_defconfig (gcc-8): 36 warnings
+    netx_defconfig (gcc-8): 12 warnings
+    nhk8815_defconfig (gcc-8): 17 warnings
+    nuc950_defconfig (gcc-8): 6 warnings
+    nuc960_defconfig (gcc-8): 6 warnings
+    omap2plus_defconfig (gcc-8): 36 warnings
+    orion5x_defconfig (gcc-8): 16 warnings
+    palmz72_defconfig (gcc-8): 6 warnings
+    prima2_defconfig (gcc-8): 9 warnings
+    pxa168_defconfig (gcc-8): 6 warnings
+    pxa255-idp_defconfig (gcc-8): 6 warnings
+    pxa910_defconfig (gcc-8): 6 warnings
+    qcom_defconfig (gcc-8): 36 warnings
+    raumfeld_defconfig (gcc-8): 15 warnings
+    rpc_defconfig (gcc-8): 9 warnings
+    s3c6400_defconfig (gcc-8): 6 warnings
+    s5pc100_defconfig (gcc-8): 5 warnings
+    sama5_defconfig (gcc-8): 20 warnings
+    shannon_defconfig (gcc-8): 6 warnings
+    shmobile_defconfig (gcc-8): 5 warnings
+    simpad_defconfig (gcc-8): 16 warnings
+    spear13xx_defconfig (gcc-8): 9 warnings
+    spear6xx_defconfig (gcc-8): 7 warnings
+    sunxi_defconfig (gcc-8): 11 warnings
+    tegra_defconfig (gcc-8): 23 warnings
+    trizeps4_defconfig (gcc-8): 20 warnings
+    u300_defconfig (gcc-8): 7 warnings
+    u8500_defconfig (gcc-8): 19 warnings
+    versatile_defconfig (gcc-8): 6 warnings
+    viper_defconfig (gcc-8): 14 warnings
+    xcep_defconfig (gcc-8): 6 warnings
+
+i386:
+    allnoconfig (gcc-8): 3 warnings
+    i386_defconfig (gcc-8): 5 warnings
+
+mips:
+    allnoconfig (gcc-8): 28 warnings
+    ath79_defconfig (gcc-8): 31 warnings
+    bcm47xx_defconfig (gcc-8): 43 warnings
+    bcm63xx_defconfig (gcc-8): 28 warnings
+    bigsur_defconfig (gcc-8): 86 warnings
+    capcella_defconfig (gcc-8): 29 warnings
+    cavium_octeon_defconfig (gcc-8): 50 warnings
+    cobalt_defconfig (gcc-8): 29 warnings
+    db1xxx_defconfig (gcc-8): 29 warnings
+    decstation_defconfig (gcc-8): 29 warnings
+    e55_defconfig (gcc-8): 29 warnings
+    fuloong2e_defconfig (gcc-8): 59 warnings
+    gpr_defconfig (gcc-8): 29 warnings
+    ip22_defconfig (gcc-8): 30 warnings
+    ip27_defconfig (gcc-8): 73 warnings
+    jmr3927_defconfig (gcc-8): 28 warnings
+    lemote2f_defconfig (gcc-8): 1 error, 4 warnings
+    loongson3_defconfig (gcc-8): 329 warnings
+    ls1b_defconfig (gcc-8): 29 warnings
+    malta_defconfig (gcc-8): 31 warnings
+    malta_kvm_defconfig (gcc-8): 2 errors, 4 warnings
+    malta_kvm_guest_defconfig (gcc-8): 31 warnings
+    maltasmvp_defconfig (gcc-8): 34 warnings
+    maltasmvp_eva_defconfig (gcc-8): 34 warnings
+    maltaup_defconfig (gcc-8): 31 warnings
+    mips_paravirt_defconfig (gcc-8): 50 warnings
+    mpc30x_defconfig (gcc-8): 29 warnings
+    msp71xx_defconfig (gcc-8): 31 warnings
+    mtx1_defconfig (gcc-8): 35 warnings
+    nlm_xlr_defconfig (gcc-8): 1 error, 2 warnings
+    pnx8335_stb225_defconfig (gcc-8): 31 warnings
+    qi_lb60_defconfig (gcc-8): 30 warnings
+    rb532_defconfig (gcc-8): 29 warnings
+    rm200_defconfig (gcc-8): 29 warnings
+    rt305x_defconfig (gcc-8): 31 warnings
+    sb1250_swarm_defconfig (gcc-8): 48 warnings
+    sead3micro_defconfig (gcc-8): 2 errors, 2 warnings
+    tb0226_defconfig (gcc-8): 29 warnings
+    tb0287_defconfig (gcc-8): 29 warnings
+    xway_defconfig (gcc-8): 31 warnings
+
+x86_64:
+    allnoconfig (gcc-8): 2 warnings
+    x86_64_defconfig (gcc-8): 63 warnings
+
+Errors summary:
+
+    4    arch/arc/include/asm/uaccess.h:676:2: error: impossible constraint=
+ in =E2=80=98asm=E2=80=99
+    2    include/linux/kern_levels.h:4:18: error: format =E2=80=98%lx=E2=80=
+=99 expects argument of type =E2=80=98long unsigned int=E2=80=99, but argum=
+ent 4 has type =E2=80=98u64=E2=80=99 {aka =E2=80=98long long unsigned int=
+=E2=80=99} [-Werror=3Dformat=3D]
+    1    arch/mips/loongson/common/cs5536/cs5536_ohci.c:141:25: error: bitw=
+ise comparison always evaluates to false [-Werror=3Dtautological-compare]
+    1    arch/mips/kernel/genex.S:234: Error: branch to a symbol in another=
+ ISA mode
+    1    arch/mips/kernel/genex.S:152: Error: branch to a symbol in another=
+ ISA mode
+    1    arch/mips/include/asm/netlogic/xlr/fmn.h:304:22: error: bitwise co=
+mparison always evaluates to false [-Werror=3Dtautological-compare]
+    1    arch/arm/mach-shmobile/board-kzm9g.c:734:13: error: initializer el=
+ement is not computable at load time
+
+Warnings summary:
+
+    756  arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 o=
+n a boolean expression [-Wbool-operation]
+    271  <stdin>:1238:2: warning: #warning syscall seccomp not implemented =
+[-Wcpp]
+    216  arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 o=
+n a boolean expression [-Wbool-operation]
+    119  arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    112  cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    80   fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 i=
+n =E2=80=98strncpy=E2=80=99 call is the same expression as the source; did =
+you mean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    74   lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    71   fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 outpu=
+t truncated before terminating nul copying as many bytes from a string as i=
+ts length [-Wstringop-truncation]
+    64   net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified b=
+ound depends on the length of the source argument [-Wstringop-overflow=3D]
+    49   include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98=
+struct sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    49   include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=
+=E2=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t=
+ aligned to 8 [-Wpacked-not-aligned]
+    49   include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98=
+struct sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    49   include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t =
+aligned to 8 [-Wpacked-not-aligned]
+    49   include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98=
+struct sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    49   include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to=
+ 8 [-Wpacked-not-aligned]
+    49   include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98=
+struct sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    49   include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t =
+aligned to 8 [-Wpacked-not-aligned]
+    49   include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98=
+struct sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    41   drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=
+=99 output truncated copying between 0 and 16 bytes from a string of length=
+ 16 [-Wstringop-truncation]
+    41   drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound depends on the length of the source argument [-Wstringo=
+p-overflow=3D]
+    33   crypto/blkcipher.c:516:2: warning: =E2=80=98strncpy=E2=80=99 speci=
+fied bound 64 equals destination size [-Wstringop-truncation]
+    33   crypto/aead.c:206:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 64 equals destination size [-Wstringop-truncation]
+    33   crypto/aead.c:121:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 64 equals destination size [-Wstringop-truncation]
+    33   crypto/ablkcipher.c:466:2: warning: =E2=80=98strncpy=E2=80=99 spec=
+ified bound 64 equals destination size [-Wstringop-truncation]
+    33   crypto/ablkcipher.c:384:2: warning: =E2=80=98strncpy=E2=80=99 spec=
+ified bound 64 equals destination size [-Wstringop-truncation]
+    30   drivers/base/regmap/regcache-rbtree.c:36:1: warning: alignment 1 o=
+f =E2=80=98struct regcache_rbtree_node=E2=80=99 is less than 4 [-Wpacked-no=
+t-aligned]
+    22   fs/ext4/super.c:314:3: warning: =E2=80=98strncpy=E2=80=99 specifie=
+d bound 32 equals destination size [-Wstringop-truncation]
+    22   fs/ext4/super.c:310:2: warning: =E2=80=98strncpy=E2=80=99 specifie=
+d bound 32 equals destination size [-Wstringop-truncation]
+    19   net/ipv4/ip_tunnel.c:312:3: warning: =E2=80=98strncat=E2=80=99 spe=
+cified bound 2 equals source length [-Wstringop-overflow=3D]
+    18   net/compat.c:556:1: warning: alignment 4 of =E2=80=98struct compat=
+_group_source_req=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    18   include/trace/events/writeback.h:78:3: warning: =E2=80=98strncpy=
+=E2=80=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    18   include/trace/events/writeback.h:564:3: warning: =E2=80=98strncpy=
+=E2=80=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    18   include/trace/events/writeback.h:49:3: warning: =E2=80=98strncpy=
+=E2=80=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    18   include/trace/events/writeback.h:493:3: warning: =E2=80=98strncpy=
+=E2=80=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    18   include/trace/events/writeback.h:292:3: warning: =E2=80=98strncpy=
+=E2=80=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    18   include/trace/events/writeback.h:245:3: warning: =E2=80=98strncpy=
+=E2=80=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    18   include/trace/events/writeback.h:212:3: warning: =E2=80=98strncpy=
+=E2=80=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    18   include/trace/events/writeback.h:162:3: warning: =E2=80=98strncpy=
+=E2=80=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    18   include/trace/events/writeback.h:118:3: warning: =E2=80=98strncpy=
+=E2=80=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    14   include/linux/sh_intc.h:99:63: warning: division =E2=80=98sizeof (=
+void *) / sizeof (void)=E2=80=99 does not compute the number of array eleme=
+nts [-Wsizeof-pointer-div]
+    14   fs/configfs/symlink.c:67:3: warning: =E2=80=98strncpy=E2=80=99 out=
+put truncated before terminating nul copying as many bytes from a string as=
+ its length [-Wstringop-truncation]
+    14   drivers/net/wireless/brcm80211/brcmsmac/d11.h:786:1: warning: alig=
+nment 1 of =E2=80=98struct d11txh=E2=80=99 is less than 2 [-Wpacked-not-ali=
+gned]
+    10   net/irda/irlmp.c:870:2: warning: =E2=80=98strncpy=E2=80=99 output =
+may be truncated copying 21 bytes from a string of length 64 [-Wstringop-tr=
+uncation]
+    10   net/irda/irlmp.c:1107:2: warning: =E2=80=98strncpy=E2=80=99 output=
+ may be truncated copying 21 bytes from a string of length 64 [-Wstringop-t=
+runcation]
+    10   net/irda/af_irda.c:481:2: warning: =E2=80=98strncpy=E2=80=99 speci=
+fied bound 16 equals destination size [-Wstringop-truncation]
+    9    net/irda/ircomm/ircomm_param.c:260:3: warning: =E2=80=98strncpy=E2=
+=80=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    9    net/compat.c:566:1: warning: alignment 4 of =E2=80=98struct compat=
+_group_filter=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    9    net/compat.c:560:35: warning: =E2=80=98gf_group=E2=80=99 offset 4 =
+in =E2=80=98struct compat_group_filter=E2=80=99 isn=E2=80=99t aligned to 8 =
+[-Wpacked-not-aligned]
+    9    net/compat.c:554:35: warning: =E2=80=98gsr_source=E2=80=99 offset =
+132 in =E2=80=98struct compat_group_source_req=E2=80=99 isn=E2=80=99t align=
+ed to 8 [-Wpacked-not-aligned]
+    9    net/compat.c:552:35: warning: =E2=80=98gsr_group=E2=80=99 offset 4=
+ in =E2=80=98struct compat_group_source_req=E2=80=99 isn=E2=80=99t aligned =
+to 8 [-Wpacked-not-aligned]
+    9    net/compat.c:548:1: warning: alignment 4 of =E2=80=98struct compat=
+_group_req=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    9    net/compat.c:546:35: warning: =E2=80=98gr_group=E2=80=99 offset 4 =
+in =E2=80=98struct compat_group_req=E2=80=99 isn=E2=80=99t aligned to 8 [-W=
+packed-not-aligned]
+    9    net/bluetooth/hidp/core.c:779:2: warning: =E2=80=98strncpy=E2=80=
+=99 output may be truncated copying 127 bytes from a string of length 127 [=
+-Wstringop-truncation]
+    8    fs/udf/super.c:933:4: warning: =E2=80=98strncpy=E2=80=99 output ma=
+y be truncated copying between 0 and 31 bytes from a string of length 253 [=
+-Wstringop-truncation]
+    5    drivers/video/hdmi.c:163:2: warning: =E2=80=98strncpy=E2=80=99 spe=
+cified bound 16 equals destination size [-Wstringop-truncation]
+    5    drivers/video/hdmi.c:162:2: warning: =E2=80=98strncpy=E2=80=99 spe=
+cified bound 8 equals destination size [-Wstringop-truncation]
+    5    drivers/net/irda/irtty-sir.c:405:3: warning: =E2=80=98strncpy=E2=
+=80=99 output may be truncated copying 5 bytes from a string of length 15 [=
+-Wstringop-truncation]
+    4    {standard input}:1462: Warning: the `msa' extension requires 64-bi=
+t FPRs
+    4    drivers/net/wireless/brcm80211/brcmfmac/wl_cfg80211.c:3598:2: warn=
+ing: =E2=80=98strncpy=E2=80=99 output truncated before terminating nul copy=
+ing 3 bytes from a string of the same length [-Wstringop-truncation]
+    3    sound/pci/au88x0/au88x0_core.c:2303:58: warning: =E2=80=98src[0]=
+=E2=80=99 may be used uninitialized in this function [-Wmaybe-uninitialized]
+    3    sound/pci/au88x0/au88x0_core.c:2302:59: warning: =E2=80=98mix[0]=
+=E2=80=99 may be used uninitialized in this function [-Wmaybe-uninitialized]
+    3    drivers/video/fbdev/mx3fb.c:748:2: warning: =E2=80=98strncpy=E2=80=
+=99 output truncated before terminating nul copying 8 bytes from a string o=
+f the same length [-Wstringop-truncation]
+    3    drivers/net/wireless/hostap/hostap_ioctl.c:3614:3: warning: =E2=80=
+=98strncpy=E2=80=99 specified bound 16 equals destination size [-Wstringop-=
+truncation]
+    3    drivers/misc/eeprom/at25.c:311:2: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 10 equals destination size [-Wstringop-truncation]
+    3    cc1: all warnings being treated as errors
+    2    {standard input}:1715: Warning: the `msa' extension requires 64-bi=
+t FPRs
+    2    {standard input}:1498: Warning: the `msa' extension requires 64-bi=
+t FPRs
+    2    mm/mmap.c:650:2: warning: =E2=80=98prev=E2=80=99 may be used unini=
+tialized in this function [-Wmaybe-uninitialized]
+    2    mm/memory.c:581:7: warning: assignment to =E2=80=98pgtable_t=E2=80=
+=99 {aka =E2=80=98long unsigned int=E2=80=99} from =E2=80=98void *=E2=80=99=
+ makes integer from pointer without a cast [-Wint-conversion]
+    2    include/linux/rbtree.h:85:11: warning: =E2=80=98rb_link=E2=80=99 m=
+ay be used uninitialized in this function [-Wmaybe-uninitialized]
+    2    include/linux/rbtree.h:82:28: warning: =E2=80=98rb_parent=E2=80=99=
+ may be used uninitialized in this function [-Wmaybe-uninitialized]
+    2    include/linux/kernel.h:716:17: warning: comparison of distinct poi=
+nter types lacks a cast
+    2    drivers/scsi/scsi_tgt_if.c:192:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 16 equals destination size [-Wstringop-truncation]
+    2    drivers/base/regmap/regcache-rbtree.c:36:1: warning: alignment 1 o=
+f =E2=80=98struct regcache_rbtree_node=E2=80=99 is less than 8 [-Wpacked-no=
+t-aligned]
+    2    arch/x86/kernel/rtc.c:173:29: warning: duplicate =E2=80=98const=E2=
+=80=99 declaration specifier [-Wduplicate-decl-specifier]
+    2    arch/x86/kernel/head_32.S:672: Warning: ignoring fill value in sec=
+tion `.bss..page_aligned'
+    2    arch/x86/kernel/head_32.S:670: Warning: ignoring fill value in sec=
+tion `.bss..page_aligned'
+    2    arch/x86/kernel/head_32.S:665: Warning: ignoring fill value in sec=
+tion `.bss..page_aligned'
+    2    arch/mips/kernel/cps-vec.S:384: Warning: tried to set unrecognized=
+ symbol: MIPS_ISA_LEVEL_RAW
+    2    arch/mips/kernel/cps-vec.S:352: Warning: tried to set unrecognized=
+ symbol: MIPS_ISA_LEVEL_RAW
+    2    arch/mips/kernel/cps-vec.S:232: Warning: tried to set unrecognized=
+ symbol: MIPS_ISA_LEVEL_RAW
+    1    {standard input}:900: Warning: the `msa' extension requires 64-bit=
+ FPRs
+    1    {standard input}:2119: Warning: the `msa' extension requires 64-bi=
+t FPRs
+    1    {standard input}:1953: Warning: the `msa' extension requires 64-bi=
+t FPRs
+    1    {standard input}:1882: Warning: the `msa' extension requires 64-bi=
+t FPRs
+    1    {standard input}:1822: Warning: the `msa' extension requires 64-bi=
+t FPRs
+    1    {standard input}:1821: Warning: the `msa' extension requires 64-bi=
+t FPRs
+    1    {standard input}:1668: Warning: the `msa' extension requires 64-bi=
+t FPRs
+    1    {standard input}:1664: Warning: the `msa' extension requires 64-bi=
+t FPRs
+    1    {standard input}:1655: Warning: the `msa' extension requires 64-bi=
+t FPRs
+    1    {standard input}:1525: Warning: the `msa' extension requires 64-bi=
+t FPRs
+    1    {standard input}:1485: Warning: the `msa' extension requires 64-bi=
+t FPRs
+    1    {standard input}:1431: Warning: the `msa' extension requires 64-bi=
+t FPRs
+    1    {standard input}:1395: Warning: the `msa' extension requires 64-bi=
+t FPRs
+    1    {standard input}:1359: Warning: the `msa' extension requires 64-bi=
+t FPRs
+    1    {standard input}:1257: Warning: the `msa' extension requires 64-bi=
+t FPRs
+    1    net/caif/cfctrl.c:261:3: warning: =E2=80=98strncpy=E2=80=99 output=
+ may be truncated copying 15 bytes from a string of length 15 [-Wstringop-t=
+runcation]
+    1    kernel/debug/kdb/kdb_support.c:132:4: warning: =E2=80=98memcpy=E2=
+=80=99 accessing 396 bytes at offsets 0 and 4 overlaps 392 bytes at offset =
+4 [-Wrestrict]
+    1    fs/cifs/cifsencrypt.c:309:3: warning: =E2=80=98strncpy=E2=80=99 sp=
+ecified bound 16 equals destination size [-Wstringop-truncation]
+    1    drivers/video/fbdev/matrox/matroxfb_Ti3026.c:375:2: warning: =E2=
+=80=98memcpy=E2=80=99 forming offset [22, 80] is out of the bounds [0, 21] =
+of object =E2=80=98MGADACbpp32=E2=80=99 with type =E2=80=98const unsigned c=
+har[21]=E2=80=99 [-Warray-bounds]
+    1    drivers/scsi/pmcraid.h:1059:1: warning: alignment 1 of =E2=80=98st=
+ruct pmcraid_passthrough_ioctl_buffer=E2=80=99 is less than 4 [-Wpacked-not=
+-aligned]
+    1    drivers/scsi/pmcraid.h:1059:1: warning: alignment 1 of =E2=80=98st=
+ruct pmcraid_passthrough_ioctl_buffer=E2=80=99 is less than 32 [-Wpacked-no=
+t-aligned]
+    1    drivers/scsi/pmcraid.h:1056:24: warning: =E2=80=98ioarcb=E2=80=99 =
+offset 16 in =E2=80=98struct pmcraid_passthrough_ioctl_buffer=E2=80=99 isn=
+=E2=80=99t aligned to 32 [-Wpacked-not-aligned]
+    1    drivers/net/wireless/rtlwifi/rtl8192cu/hw.c:1363:22: warning: bitw=
+ise comparison always evaluates to false [-Wtautological-compare]
+    1    drivers/net/wireless/rtl818x/rtl8187/leds.c:149:2: warning: =E2=80=
+=98strncpy=E2=80=99 specified bound 22 equals destination size [-Wstringop-=
+truncation]
+    1    drivers/net/wireless/prism54/isl_ioctl.c:284:2: warning: =E2=80=98=
+strncpy=E2=80=99 output may be truncated copying 16 bytes from a string of =
+length 28 [-Wstringop-truncation]
+    1    drivers/net/wireless/mwl8k.c:805:1: warning: alignment 1 of =E2=80=
+=98struct mwl8k_dma_data=E2=80=99 is less than 2 [-Wpacked-not-aligned]
+    1    drivers/net/ethernet/seeq/sgiseeq.c:804:26: warning: passing argum=
+ent 5 of =E2=80=98dma_free_attrs=E2=80=99 makes pointer from integer withou=
+t a cast [-Wint-conversion]
+    1    drivers/mfd/db8500-prcmu.c:2721:2: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 20 equals destination size [-Wstringop-truncation]
+    1    drivers/gpu/drm/i915/intel_tv.c:1422:3: warning: =E2=80=98strncpy=
+=E2=80=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    1    arch/x86/power/hibernate_64.c:129:2: warning: =E2=80=98memcpy=E2=
+=80=99 forming offset [2, 4096] is out of the bounds [0, 1] of object =E2=
+=80=98core_restore_code=E2=80=99 with type =E2=80=98char=E2=80=99 [-Warray-=
+bounds]
+    1    arch/x86/kernel/apic/apic.c:138:13: warning: =E2=80=98nox2apic=E2=
+=80=99 defined but not used [-Wunused-variable]
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
+
+Detailed per-defconfig build reports:
+
+---------------------------------------------------------------------------=
+-----
+acs5k_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 7 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    drivers/net/wireless/prism54/isl_ioctl.c:284:2: warning: =E2=80=98strnc=
+py=E2=80=99 output may be truncated copying 16 bytes from a string of lengt=
+h 28 [-Wstringop-truncation]
+
+---------------------------------------------------------------------------=
+-----
+acs5k_tiny_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 6 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section =
+mismatches
+
+Warnings:
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section m=
+ismatches
+
+Warnings:
+    arch/x86/kernel/head_32.S:665: Warning: ignoring fill value in section =
+`.bss..page_aligned'
+    arch/x86/kernel/head_32.S:670: Warning: ignoring fill value in section =
+`.bss..page_aligned'
+    arch/x86/kernel/head_32.S:672: Warning: ignoring fill value in section =
+`.bss..page_aligned'
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arc, gcc-8) =E2=80=94 FAIL, 2 errors, 233 warnings, 0 section =
+mismatches
+
+Errors:
+    arch/arc/include/asm/uaccess.h:676:2: error: impossible constraint in =
+=E2=80=98asm=E2=80=99
+    arch/arc/include/asm/uaccess.h:676:2: error: impossible constraint in =
+=E2=80=98asm=E2=80=99
+
+Warnings:
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    mm/memory.c:581:7: warning: assignment to =E2=80=98pgtable_t=E2=80=99 {=
+aka =E2=80=98long unsigned int=E2=80=99} from =E2=80=98void *=E2=80=99 make=
+s integer from pointer without a cast [-Wint-conversion]
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    include/linux/rbtree.h:85:11: warning: =E2=80=98rb_link=E2=80=99 may be=
+ used uninitialized in this function [-Wmaybe-uninitialized]
+    include/linux/rbtree.h:82:28: warning: =E2=80=98rb_parent=E2=80=99 may =
+be used uninitialized in this function [-Wmaybe-uninitialized]
+    mm/mmap.c:650:2: warning: =E2=80=98prev=E2=80=99 may be used uninitiali=
+zed in this function [-Wmaybe-uninitialized]
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    include/linux/kernel.h:716:17: warning: comparison of distinct pointer =
+types lacks a cast
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    cc1: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section=
+ mismatches
+
+Warnings:
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section mi=
+smatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 28 warnings, 0 section =
+mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+ape6evm_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 29 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    include/trace/events/writeback.h:49:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:78:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:118:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:162:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:212:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:245:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:292:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:493:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:564:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:49:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:78:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:118:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:162:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:212:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:245:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:292:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:493:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:564:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    crypto/ablkcipher.c:384:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:466:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/blkcipher.c:516:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:121:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:206:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+armadillo800eva_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 5 warnings=
+, 0 section mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    drivers/base/regmap/regcache-rbtree.c:36:1: warning: alignment 1 of =E2=
+=80=98struct regcache_rbtree_node=E2=80=99 is less than 4 [-Wpacked-not-ali=
+gned]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+at91_dt_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 6 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    net/ipv4/ip_tunnel.c:312:3: warning: =E2=80=98strncat=E2=80=99 specifie=
+d bound 2 equals source length [-Wstringop-overflow=3D]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    drivers/net/wireless/rtlwifi/rtl8192cu/hw.c:1363:22: warning: bitwise c=
+omparison always evaluates to false [-Wtautological-compare]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+at91sam9263_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 12 warnings, 0=
+ section mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    fs/configfs/symlink.c:67:3: warning: =E2=80=98strncpy=E2=80=99 output t=
+runcated before terminating nul copying as many bytes from a string as its =
+length [-Wstringop-truncation]
+    fs/ext4/super.c:310:2: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    fs/ext4/super.c:314:3: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+    net/ipv4/ip_tunnel.c:312:3: warning: =E2=80=98strncat=E2=80=99 specifie=
+d bound 2 equals source length [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+at91sam9g45_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 5 warnings, 0 =
+section mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    net/ipv4/ip_tunnel.c:312:3: warning: =E2=80=98strncat=E2=80=99 specifie=
+d bound 2 equals source length [-Wstringop-overflow=3D]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+at91sam9rl_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 8 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+at91x40_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 4 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+
+---------------------------------------------------------------------------=
+-----
+ath79_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 31 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    {standard input}:1359: Warning: the `msa' extension requires 64-bit FPRs
+    {standard input}:900: Warning: the `msa' extension requires 64-bit FPRs
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+axm55xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 19 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    crypto/ablkcipher.c:384:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:466:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/blkcipher.c:516:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:121:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:206:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    drivers/base/regmap/regcache-rbtree.c:36:1: warning: alignment 1 of =E2=
+=80=98struct regcache_rbtree_node=E2=80=99 is less than 4 [-Wpacked-not-ali=
+gned]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    fs/ext4/super.c:310:2: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    fs/ext4/super.c:314:3: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    drivers/misc/eeprom/at25.c:311:2: warning: =E2=80=98strncpy=E2=80=99 sp=
+ecified bound 10 equals destination size [-Wstringop-truncation]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    fs/udf/super.c:933:4: warning: =E2=80=98strncpy=E2=80=99 output may be =
+truncated copying between 0 and 31 bytes from a string of length 253 [-Wstr=
+ingop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+badge4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 17 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    crypto/ablkcipher.c:384:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:466:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/blkcipher.c:516:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:121:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:206:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    net/irda/irlmp.c:870:2: warning: =E2=80=98strncpy=E2=80=99 output may b=
+e truncated copying 21 bytes from a string of length 64 [-Wstringop-truncat=
+ion]
+    net/irda/irlmp.c:1107:2: warning: =E2=80=98strncpy=E2=80=99 output may =
+be truncated copying 21 bytes from a string of length 64 [-Wstringop-trunca=
+tion]
+    net/irda/af_irda.c:481:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 16 equals destination size [-Wstringop-truncation]
+    net/irda/ircomm/ircomm_param.c:260:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+bcm2835_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 5 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    kernel/debug/kdb/kdb_support.c:132:4: warning: =E2=80=98memcpy=E2=80=99=
+ accessing 396 bytes at offsets 0 and 4 overlaps 392 bytes at offset 4 [-Wr=
+estrict]
+    net/ipv4/ip_tunnel.c:312:3: warning: =E2=80=98strncat=E2=80=99 specifie=
+d bound 2 equals source length [-Wstringop-overflow=3D]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+bcm47xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 43 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    drivers/net/wireless/brcm80211/brcmsmac/d11.h:786:1: warning: alignment=
+ 1 of =E2=80=98struct d11txh=E2=80=99 is less than 2 [-Wpacked-not-aligned]
+    drivers/net/wireless/brcm80211/brcmsmac/d11.h:786:1: warning: alignment=
+ 1 of =E2=80=98struct d11txh=E2=80=99 is less than 2 [-Wpacked-not-aligned]
+    drivers/net/wireless/brcm80211/brcmsmac/d11.h:786:1: warning: alignment=
+ 1 of =E2=80=98struct d11txh=E2=80=99 is less than 2 [-Wpacked-not-aligned]
+    drivers/net/wireless/brcm80211/brcmsmac/d11.h:786:1: warning: alignment=
+ 1 of =E2=80=98struct d11txh=E2=80=99 is less than 2 [-Wpacked-not-aligned]
+    drivers/net/wireless/brcm80211/brcmsmac/d11.h:786:1: warning: alignment=
+ 1 of =E2=80=98struct d11txh=E2=80=99 is less than 2 [-Wpacked-not-aligned]
+    drivers/net/wireless/brcm80211/brcmsmac/d11.h:786:1: warning: alignment=
+ 1 of =E2=80=98struct d11txh=E2=80=99 is less than 2 [-Wpacked-not-aligned]
+    drivers/net/wireless/brcm80211/brcmsmac/d11.h:786:1: warning: alignment=
+ 1 of =E2=80=98struct d11txh=E2=80=99 is less than 2 [-Wpacked-not-aligned]
+    drivers/net/wireless/brcm80211/brcmsmac/d11.h:786:1: warning: alignment=
+ 1 of =E2=80=98struct d11txh=E2=80=99 is less than 2 [-Wpacked-not-aligned]
+    drivers/net/wireless/brcm80211/brcmsmac/d11.h:786:1: warning: alignment=
+ 1 of =E2=80=98struct d11txh=E2=80=99 is less than 2 [-Wpacked-not-aligned]
+    drivers/net/wireless/brcm80211/brcmsmac/d11.h:786:1: warning: alignment=
+ 1 of =E2=80=98struct d11txh=E2=80=99 is less than 2 [-Wpacked-not-aligned]
+    drivers/net/wireless/brcm80211/brcmsmac/d11.h:786:1: warning: alignment=
+ 1 of =E2=80=98struct d11txh=E2=80=99 is less than 2 [-Wpacked-not-aligned]
+    drivers/net/wireless/brcm80211/brcmsmac/d11.h:786:1: warning: alignment=
+ 1 of =E2=80=98struct d11txh=E2=80=99 is less than 2 [-Wpacked-not-aligned]
+    drivers/net/wireless/brcm80211/brcmsmac/d11.h:786:1: warning: alignment=
+ 1 of =E2=80=98struct d11txh=E2=80=99 is less than 2 [-Wpacked-not-aligned]
+    drivers/net/wireless/brcm80211/brcmsmac/d11.h:786:1: warning: alignment=
+ 1 of =E2=80=98struct d11txh=E2=80=99 is less than 2 [-Wpacked-not-aligned]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+bcm63xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 28 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+bigsur_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 86 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    net/compat.c:548:1: warning: alignment 4 of =E2=80=98struct compat_grou=
+p_req=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    net/compat.c:546:35: warning: =E2=80=98gr_group=E2=80=99 offset 4 in =
+=E2=80=98struct compat_group_req=E2=80=99 isn=E2=80=99t aligned to 8 [-Wpac=
+ked-not-aligned]
+    net/compat.c:556:1: warning: alignment 4 of =E2=80=98struct compat_grou=
+p_source_req=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    net/compat.c:552:35: warning: =E2=80=98gsr_group=E2=80=99 offset 4 in =
+=E2=80=98struct compat_group_source_req=E2=80=99 isn=E2=80=99t aligned to 8=
+ [-Wpacked-not-aligned]
+    net/compat.c:556:1: warning: alignment 4 of =E2=80=98struct compat_grou=
+p_source_req=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    net/compat.c:554:35: warning: =E2=80=98gsr_source=E2=80=99 offset 132 i=
+n =E2=80=98struct compat_group_source_req=E2=80=99 isn=E2=80=99t aligned to=
+ 8 [-Wpacked-not-aligned]
+    net/compat.c:566:1: warning: alignment 4 of =E2=80=98struct compat_grou=
+p_filter=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    net/compat.c:560:35: warning: =E2=80=98gf_group=E2=80=99 offset 4 in =
+=E2=80=98struct compat_group_filter=E2=80=99 isn=E2=80=99t aligned to 8 [-W=
+packed-not-aligned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+bockw_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 9 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    drivers/base/regmap/regcache-rbtree.c:36:1: warning: alignment 1 of =E2=
+=80=98struct regcache_rbtree_node=E2=80=99 is less than 4 [-Wpacked-not-ali=
+gned]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+capcella_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 29 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+cavium_octeon_defconfig (mips, gcc-8) =E2=80=94 FAIL, 0 errors, 50 warnings=
+, 0 section mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    net/compat.c:548:1: warning: alignment 4 of =E2=80=98struct compat_grou=
+p_req=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    net/compat.c:546:35: warning: =E2=80=98gr_group=E2=80=99 offset 4 in =
+=E2=80=98struct compat_group_req=E2=80=99 isn=E2=80=99t aligned to 8 [-Wpac=
+ked-not-aligned]
+    net/compat.c:556:1: warning: alignment 4 of =E2=80=98struct compat_grou=
+p_source_req=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    net/compat.c:552:35: warning: =E2=80=98gsr_group=E2=80=99 offset 4 in =
+=E2=80=98struct compat_group_source_req=E2=80=99 isn=E2=80=99t aligned to 8=
+ [-Wpacked-not-aligned]
+    net/compat.c:556:1: warning: alignment 4 of =E2=80=98struct compat_grou=
+p_source_req=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    net/compat.c:554:35: warning: =E2=80=98gsr_source=E2=80=99 offset 132 i=
+n =E2=80=98struct compat_group_source_req=E2=80=99 isn=E2=80=99t aligned to=
+ 8 [-Wpacked-not-aligned]
+    net/compat.c:566:1: warning: alignment 4 of =E2=80=98struct compat_grou=
+p_filter=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    net/compat.c:560:35: warning: =E2=80=98gf_group=E2=80=99 offset 4 in =
+=E2=80=98struct compat_group_filter=E2=80=99 isn=E2=80=99t aligned to 8 [-W=
+packed-not-aligned]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+clps711x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 10 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    drivers/base/regmap/regcache-rbtree.c:36:1: warning: alignment 1 of =E2=
+=80=98struct regcache_rbtree_node=E2=80=99 is less than 4 [-Wpacked-not-ali=
+gned]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    drivers/net/irda/irtty-sir.c:405:3: warning: =E2=80=98strncpy=E2=80=99 =
+output may be truncated copying 5 bytes from a string of length 15 [-Wstrin=
+gop-truncation]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    net/irda/irlmp.c:870:2: warning: =E2=80=98strncpy=E2=80=99 output may b=
+e truncated copying 21 bytes from a string of length 64 [-Wstringop-truncat=
+ion]
+    net/irda/irlmp.c:1107:2: warning: =E2=80=98strncpy=E2=80=99 output may =
+be truncated copying 21 bytes from a string of length 64 [-Wstringop-trunca=
+tion]
+    net/irda/af_irda.c:481:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 16 equals destination size [-Wstringop-truncation]
+
+---------------------------------------------------------------------------=
+-----
+cm_x2xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 14 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    crypto/ablkcipher.c:384:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:466:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/blkcipher.c:516:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:121:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:206:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    net/bluetooth/hidp/core.c:779:2: warning: =E2=80=98strncpy=E2=80=99 out=
+put may be truncated copying 127 bytes from a string of length 127 [-Wstrin=
+gop-truncation]
+
+---------------------------------------------------------------------------=
+-----
+cobalt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 29 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 19 warnings=
+, 0 section mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    fs/configfs/symlink.c:67:3: warning: =E2=80=98strncpy=E2=80=99 output t=
+runcated before terminating nul copying as many bytes from a string as its =
+length [-Wstringop-truncation]
+    crypto/ablkcipher.c:384:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:466:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/blkcipher.c:516:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:121:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:206:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    drivers/net/wireless/hostap/hostap_ioctl.c:3614:3: warning: =E2=80=98st=
+rncpy=E2=80=99 specified bound 16 equals destination size [-Wstringop-trunc=
+ation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    drivers/net/irda/irtty-sir.c:405:3: warning: =E2=80=98strncpy=E2=80=99 =
+output may be truncated copying 5 bytes from a string of length 15 [-Wstrin=
+gop-truncation]
+    net/bluetooth/hidp/core.c:779:2: warning: =E2=80=98strncpy=E2=80=99 out=
+put may be truncated copying 127 bytes from a string of length 127 [-Wstrin=
+gop-truncation]
+    net/irda/irlmp.c:870:2: warning: =E2=80=98strncpy=E2=80=99 output may b=
+e truncated copying 21 bytes from a string of length 64 [-Wstringop-truncat=
+ion]
+    net/irda/irlmp.c:1107:2: warning: =E2=80=98strncpy=E2=80=99 output may =
+be truncated copying 21 bytes from a string of length 64 [-Wstringop-trunca=
+tion]
+    net/irda/af_irda.c:481:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 16 equals destination size [-Wstringop-truncation]
+    net/irda/ircomm/ircomm_param.c:260:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+
+---------------------------------------------------------------------------=
+-----
+collie_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 5 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+
+---------------------------------------------------------------------------=
+-----
+corgi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 20 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    crypto/ablkcipher.c:384:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:466:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/blkcipher.c:516:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:121:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:206:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/configfs/symlink.c:67:3: warning: =E2=80=98strncpy=E2=80=99 output t=
+runcated before terminating nul copying as many bytes from a string as its =
+length [-Wstringop-truncation]
+    net/ipv4/ip_tunnel.c:312:3: warning: =E2=80=98strncat=E2=80=99 specifie=
+d bound 2 equals source length [-Wstringop-overflow=3D]
+    net/bluetooth/hidp/core.c:779:2: warning: =E2=80=98strncpy=E2=80=99 out=
+put may be truncated copying 127 bytes from a string of length 127 [-Wstrin=
+gop-truncation]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+    net/irda/irlmp.c:870:2: warning: =E2=80=98strncpy=E2=80=99 output may b=
+e truncated copying 21 bytes from a string of length 64 [-Wstringop-truncat=
+ion]
+    net/irda/irlmp.c:1107:2: warning: =E2=80=98strncpy=E2=80=99 output may =
+be truncated copying 21 bytes from a string of length 64 [-Wstringop-trunca=
+tion]
+    net/irda/af_irda.c:481:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 16 equals destination size [-Wstringop-truncation]
+    net/irda/ircomm/ircomm_param.c:260:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+
+---------------------------------------------------------------------------=
+-----
+db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 29 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    drivers/base/regmap/regcache-rbtree.c:36:1: warning: alignment 1 of =E2=
+=80=98struct regcache_rbtree_node=E2=80=99 is less than 4 [-Wpacked-not-ali=
+gned]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+decstation_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 29 warnings, 0=
+ section mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 40 warnings, 0 section m=
+ismatches
+
+Warnings:
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    crypto/ablkcipher.c:384:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:466:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/blkcipher.c:516:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:121:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:206:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    drivers/base/regmap/regcache-rbtree.c:36:1: warning: alignment 1 of =E2=
+=80=98struct regcache_rbtree_node=E2=80=99 is less than 8 [-Wpacked-not-ali=
+gned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    fs/ext4/super.c:310:2: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    fs/ext4/super.c:314:3: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/compat.c:548:1: warning: alignment 4 of =E2=80=98struct compat_grou=
+p_req=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    net/compat.c:546:35: warning: =E2=80=98gr_group=E2=80=99 offset 4 in =
+=E2=80=98struct compat_group_req=E2=80=99 isn=E2=80=99t aligned to 8 [-Wpac=
+ked-not-aligned]
+    net/compat.c:556:1: warning: alignment 4 of =E2=80=98struct compat_grou=
+p_source_req=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    net/compat.c:552:35: warning: =E2=80=98gsr_group=E2=80=99 offset 4 in =
+=E2=80=98struct compat_group_source_req=E2=80=99 isn=E2=80=99t aligned to 8=
+ [-Wpacked-not-aligned]
+    net/compat.c:556:1: warning: alignment 4 of =E2=80=98struct compat_grou=
+p_source_req=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    net/compat.c:554:35: warning: =E2=80=98gsr_source=E2=80=99 offset 132 i=
+n =E2=80=98struct compat_group_source_req=E2=80=99 isn=E2=80=99t aligned to=
+ 8 [-Wpacked-not-aligned]
+    net/compat.c:566:1: warning: alignment 4 of =E2=80=98struct compat_grou=
+p_filter=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    net/compat.c:560:35: warning: =E2=80=98gf_group=E2=80=99 offset 4 in =
+=E2=80=98struct compat_group_filter=E2=80=99 isn=E2=80=99t aligned to 8 [-W=
+packed-not-aligned]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+
+---------------------------------------------------------------------------=
+-----
+dove_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 17 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    crypto/ablkcipher.c:384:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:466:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/blkcipher.c:516:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:121:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:206:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    fs/ext4/super.c:310:2: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    fs/ext4/super.c:314:3: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    drivers/base/regmap/regcache-rbtree.c:36:1: warning: alignment 1 of =E2=
+=80=98struct regcache_rbtree_node=E2=80=99 is less than 4 [-Wpacked-not-ali=
+gned]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/udf/super.c:933:4: warning: =E2=80=98strncpy=E2=80=99 output may be =
+truncated copying between 0 and 31 bytes from a string of length 253 [-Wstr=
+ingop-truncation]
+
+---------------------------------------------------------------------------=
+-----
+e55_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 29 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+efm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+em_x270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 15 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    crypto/blkcipher.c:516:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 64 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:384:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:466:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:121:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:206:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    drivers/base/regmap/regcache-rbtree.c:36:1: warning: alignment 1 of =E2=
+=80=98struct regcache_rbtree_node=E2=80=99 is less than 4 [-Wpacked-not-ali=
+gned]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    net/bluetooth/hidp/core.c:779:2: warning: =E2=80=98strncpy=E2=80=99 out=
+put may be truncated copying 127 bytes from a string of length 127 [-Wstrin=
+gop-truncation]
+
+---------------------------------------------------------------------------=
+-----
+exynos_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 18 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    crypto/ablkcipher.c:384:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:466:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/blkcipher.c:516:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:121:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:206:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    fs/ext4/super.c:310:2: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    fs/ext4/super.c:314:3: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    drivers/base/regmap/regcache-rbtree.c:36:1: warning: alignment 1 of =E2=
+=80=98struct regcache_rbtree_node=E2=80=99 is less than 4 [-Wpacked-not-ali=
+gned]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    net/ipv4/ip_tunnel.c:312:3: warning: =E2=80=98strncat=E2=80=99 specifie=
+d bound 2 equals source length [-Wstringop-overflow=3D]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+footbridge_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 10 warnings, 0 =
+section mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    net/irda/irlmp.c:870:2: warning: =E2=80=98strncpy=E2=80=99 output may b=
+e truncated copying 21 bytes from a string of length 64 [-Wstringop-truncat=
+ion]
+    net/irda/irlmp.c:1107:2: warning: =E2=80=98strncpy=E2=80=99 output may =
+be truncated copying 21 bytes from a string of length 64 [-Wstringop-trunca=
+tion]
+    net/irda/af_irda.c:481:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 16 equals destination size [-Wstringop-truncation]
+    net/irda/ircomm/ircomm_param.c:260:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+
+---------------------------------------------------------------------------=
+-----
+fpga_noramfs_defconfig (arc, gcc-8) =E2=80=94 FAIL, 2 errors, 8 warnings, 0=
+ section mismatches
+
+Errors:
+    arch/arc/include/asm/uaccess.h:676:2: error: impossible constraint in =
+=E2=80=98asm=E2=80=99
+    arch/arc/include/asm/uaccess.h:676:2: error: impossible constraint in =
+=E2=80=98asm=E2=80=99
+
+Warnings:
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    arc-elf32-gcc: warning: =E2=80=98-mno-mpy=E2=80=99 is deprecated
+    mm/memory.c:581:7: warning: assignment to =E2=80=98pgtable_t=E2=80=99 {=
+aka =E2=80=98long unsigned int=E2=80=99} from =E2=80=98void *=E2=80=99 make=
+s integer from pointer without a cast [-Wint-conversion]
+    include/linux/rbtree.h:85:11: warning: =E2=80=98rb_link=E2=80=99 may be=
+ used uninitialized in this function [-Wmaybe-uninitialized]
+    include/linux/rbtree.h:82:28: warning: =E2=80=98rb_parent=E2=80=99 may =
+be used uninitialized in this function [-Wmaybe-uninitialized]
+    mm/mmap.c:650:2: warning: =E2=80=98prev=E2=80=99 may be used uninitiali=
+zed in this function [-Wmaybe-uninitialized]
+    include/linux/kernel.h:716:17: warning: comparison of distinct pointer =
+types lacks a cast
+
+---------------------------------------------------------------------------=
+-----
+fuloong2e_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 59 warnings, 0 =
+section mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    net/compat.c:548:1: warning: alignment 4 of =E2=80=98struct compat_grou=
+p_req=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    net/compat.c:546:35: warning: =E2=80=98gr_group=E2=80=99 offset 4 in =
+=E2=80=98struct compat_group_req=E2=80=99 isn=E2=80=99t aligned to 8 [-Wpac=
+ked-not-aligned]
+    net/compat.c:556:1: warning: alignment 4 of =E2=80=98struct compat_grou=
+p_source_req=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    net/compat.c:552:35: warning: =E2=80=98gsr_group=E2=80=99 offset 4 in =
+=E2=80=98struct compat_group_source_req=E2=80=99 isn=E2=80=99t aligned to 8=
+ [-Wpacked-not-aligned]
+    net/compat.c:556:1: warning: alignment 4 of =E2=80=98struct compat_grou=
+p_source_req=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    net/compat.c:554:35: warning: =E2=80=98gsr_source=E2=80=99 offset 132 i=
+n =E2=80=98struct compat_group_source_req=E2=80=99 isn=E2=80=99t aligned to=
+ 8 [-Wpacked-not-aligned]
+    net/compat.c:566:1: warning: alignment 4 of =E2=80=98struct compat_grou=
+p_filter=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    net/compat.c:560:35: warning: =E2=80=98gf_group=E2=80=99 offset 4 in =
+=E2=80=98struct compat_group_filter=E2=80=99 isn=E2=80=99t aligned to 8 [-W=
+packed-not-aligned]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+gpr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 29 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+h3600_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 10 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    net/irda/irlmp.c:870:2: warning: =E2=80=98strncpy=E2=80=99 output may b=
+e truncated copying 21 bytes from a string of length 64 [-Wstringop-truncat=
+ion]
+    net/irda/irlmp.c:1107:2: warning: =E2=80=98strncpy=E2=80=99 output may =
+be truncated copying 21 bytes from a string of length 64 [-Wstringop-trunca=
+tion]
+    net/irda/af_irda.c:481:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 16 equals destination size [-Wstringop-truncation]
+    net/irda/ircomm/ircomm_param.c:260:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+
+---------------------------------------------------------------------------=
+-----
+h5000_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 12 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    crypto/ablkcipher.c:384:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:466:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/blkcipher.c:516:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:121:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:206:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/configfs/symlink.c:67:3: warning: =E2=80=98strncpy=E2=80=99 output t=
+runcated before terminating nul copying as many bytes from a string as its =
+length [-Wstringop-truncation]
+
+---------------------------------------------------------------------------=
+-----
+hackkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 6 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+hi3xxx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 13 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    fs/ext4/super.c:310:2: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    fs/ext4/super.c:314:3: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    net/ipv4/ip_tunnel.c:312:3: warning: =E2=80=98strncat=E2=80=99 specifie=
+d bound 2 equals source length [-Wstringop-overflow=3D]
+    drivers/video/hdmi.c:162:2: warning: =E2=80=98strncpy=E2=80=99 specifie=
+d bound 8 equals destination size [-Wstringop-truncation]
+    drivers/video/hdmi.c:163:2: warning: =E2=80=98strncpy=E2=80=99 specifie=
+d bound 16 equals destination size [-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+i386_defconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 5 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    arch/x86/kernel/rtc.c:173:29: warning: duplicate =E2=80=98const=E2=80=
+=99 declaration specifier [-Wduplicate-decl-specifier]
+    arch/x86/kernel/apic/apic.c:138:13: warning: =E2=80=98nox2apic=E2=80=99=
+ defined but not used [-Wunused-variable]
+    arch/x86/kernel/head_32.S:665: Warning: ignoring fill value in section =
+`.bss..page_aligned'
+    arch/x86/kernel/head_32.S:670: Warning: ignoring fill value in section =
+`.bss..page_aligned'
+    arch/x86/kernel/head_32.S:672: Warning: ignoring fill value in section =
+`.bss..page_aligned'
+
+---------------------------------------------------------------------------=
+-----
+imx_v4_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 32 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    include/trace/events/writeback.h:49:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:78:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:118:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:162:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:212:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:245:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:292:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:49:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:78:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:118:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:162:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:212:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:245:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:292:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:493:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:564:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:493:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:564:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    fs/ext4/super.c:310:2: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    fs/ext4/super.c:314:3: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    drivers/base/regmap/regcache-rbtree.c:36:1: warning: alignment 1 of =E2=
+=80=98struct regcache_rbtree_node=E2=80=99 is less than 4 [-Wpacked-not-ali=
+gned]
+    drivers/misc/eeprom/at25.c:311:2: warning: =E2=80=98strncpy=E2=80=99 sp=
+ecified bound 10 equals destination size [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+    drivers/video/fbdev/mx3fb.c:748:2: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated before terminating nul copying 8 bytes from a string of the=
+ same length [-Wstringop-truncation]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+imx_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 26 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    crypto/ablkcipher.c:384:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:466:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/blkcipher.c:516:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:121:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:206:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    fs/ext4/super.c:310:2: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    fs/ext4/super.c:314:3: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    drivers/base/regmap/regcache-rbtree.c:36:1: warning: alignment 1 of =E2=
+=80=98struct regcache_rbtree_node=E2=80=99 is less than 4 [-Wpacked-not-ali=
+gned]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/ipv4/ip_tunnel.c:312:3: warning: =E2=80=98strncat=E2=80=99 specifie=
+d bound 2 equals source length [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    drivers/misc/eeprom/at25.c:311:2: warning: =E2=80=98strncpy=E2=80=99 sp=
+ecified bound 10 equals destination size [-Wstringop-truncation]
+    drivers/video/hdmi.c:162:2: warning: =E2=80=98strncpy=E2=80=99 specifie=
+d bound 8 equals destination size [-Wstringop-truncation]
+    drivers/video/hdmi.c:163:2: warning: =E2=80=98strncpy=E2=80=99 specifie=
+d bound 16 equals destination size [-Wstringop-truncation]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+    drivers/video/fbdev/mx3fb.c:748:2: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated before terminating nul copying 8 bytes from a string of the=
+ same length [-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/configfs/symlink.c:67:3: warning: =E2=80=98strncpy=E2=80=99 output t=
+runcated before terminating nul copying as many bytes from a string as its =
+length [-Wstringop-truncation]
+    drivers/net/wireless/brcm80211/brcmfmac/wl_cfg80211.c:3598:2: warning: =
+=E2=80=98strncpy=E2=80=99 output truncated before terminating nul copying 3=
+ bytes from a string of the same length [-Wstringop-truncation]
+    drivers/net/wireless/brcm80211/brcmfmac/wl_cfg80211.c:3598:2: warning: =
+=E2=80=98strncpy=E2=80=99 output truncated before terminating nul copying 3=
+ bytes from a string of the same length [-Wstringop-truncation]
+    fs/udf/super.c:933:4: warning: =E2=80=98strncpy=E2=80=99 output may be =
+truncated copying between 0 and 31 bytes from a string of length 253 [-Wstr=
+ingop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+integrator_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 8 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    drivers/video/fbdev/matrox/matroxfb_Ti3026.c:375:2: warning: =E2=80=98m=
+emcpy=E2=80=99 forming offset [22, 80] is out of the bounds [0, 21] of obje=
+ct =E2=80=98MGADACbpp32=E2=80=99 with type =E2=80=98const unsigned char[21]=
+=E2=80=99 [-Warray-bounds]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+iop33x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 8 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+ip22_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 30 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    drivers/net/ethernet/seeq/sgiseeq.c:804:26: warning: passing argument 5=
+ of =E2=80=98dma_free_attrs=E2=80=99 makes pointer from integer without a c=
+ast [-Wint-conversion]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+ip27_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 73 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    drivers/base/regmap/regcache-rbtree.c:36:1: warning: alignment 1 of =E2=
+=80=98struct regcache_rbtree_node=E2=80=99 is less than 8 [-Wpacked-not-ali=
+gned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    drivers/net/wireless/mwl8k.c:805:1: warning: alignment 1 of =E2=80=98st=
+ruct mwl8k_dma_data=E2=80=99 is less than 2 [-Wpacked-not-aligned]
+    net/compat.c:548:1: warning: alignment 4 of =E2=80=98struct compat_grou=
+p_req=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    net/compat.c:546:35: warning: =E2=80=98gr_group=E2=80=99 offset 4 in =
+=E2=80=98struct compat_group_req=E2=80=99 isn=E2=80=99t aligned to 8 [-Wpac=
+ked-not-aligned]
+    net/compat.c:556:1: warning: alignment 4 of =E2=80=98struct compat_grou=
+p_source_req=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    net/compat.c:552:35: warning: =E2=80=98gsr_group=E2=80=99 offset 4 in =
+=E2=80=98struct compat_group_source_req=E2=80=99 isn=E2=80=99t aligned to 8=
+ [-Wpacked-not-aligned]
+    net/compat.c:556:1: warning: alignment 4 of =E2=80=98struct compat_grou=
+p_source_req=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    net/compat.c:554:35: warning: =E2=80=98gsr_source=E2=80=99 offset 132 i=
+n =E2=80=98struct compat_group_source_req=E2=80=99 isn=E2=80=99t aligned to=
+ 8 [-Wpacked-not-aligned]
+    net/compat.c:566:1: warning: alignment 4 of =E2=80=98struct compat_grou=
+p_filter=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    net/compat.c:560:35: warning: =E2=80=98gf_group=E2=80=99 offset 4 in =
+=E2=80=98struct compat_group_filter=E2=80=99 isn=E2=80=99t aligned to 8 [-W=
+packed-not-aligned]
+    drivers/scsi/pmcraid.h:1059:1: warning: alignment 1 of =E2=80=98struct =
+pmcraid_passthrough_ioctl_buffer=E2=80=99 is less than 32 [-Wpacked-not-ali=
+gned]
+    drivers/scsi/pmcraid.h:1056:24: warning: =E2=80=98ioarcb=E2=80=99 offse=
+t 16 in =E2=80=98struct pmcraid_passthrough_ioctl_buffer=E2=80=99 isn=E2=80=
+=99t aligned to 32 [-Wpacked-not-aligned]
+    drivers/scsi/pmcraid.h:1059:1: warning: alignment 1 of =E2=80=98struct =
+pmcraid_passthrough_ioctl_buffer=E2=80=99 is less than 4 [-Wpacked-not-alig=
+ned]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+ixp4xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 8 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+jmr3927_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 28 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+keystone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 36 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    crypto/ablkcipher.c:384:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:466:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/blkcipher.c:516:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:121:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:206:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:49:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:78:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:118:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:162:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:212:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:245:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:292:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:49:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:78:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:118:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:162:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:212:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:245:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:292:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:493:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:564:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:493:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:564:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    fs/ext4/super.c:310:2: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    fs/ext4/super.c:314:3: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    drivers/base/regmap/regcache-rbtree.c:36:1: warning: alignment 1 of =E2=
+=80=98struct regcache_rbtree_node=E2=80=99 is less than 4 [-Wpacked-not-ali=
+gned]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+    net/ipv4/ip_tunnel.c:312:3: warning: =E2=80=98strncat=E2=80=99 specifie=
+d bound 2 equals source length [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+kzm9g_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 9 warnings, 0 section=
+ mismatches
+
+Errors:
+    arch/arm/mach-shmobile/board-kzm9g.c:734:13: error: initializer element=
+ is not computable at load time
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    include/linux/sh_intc.h:99:63: warning: division =E2=80=98sizeof (void =
+*) / sizeof (void)=E2=80=99 does not compute the number of array elements [=
+-Wsizeof-pointer-div]
+    include/linux/sh_intc.h:99:63: warning: division =E2=80=98sizeof (void =
+*) / sizeof (void)=E2=80=99 does not compute the number of array elements [=
+-Wsizeof-pointer-div]
+    include/linux/sh_intc.h:99:63: warning: division =E2=80=98sizeof (void =
+*) / sizeof (void)=E2=80=99 does not compute the number of array elements [=
+-Wsizeof-pointer-div]
+    include/linux/sh_intc.h:99:63: warning: division =E2=80=98sizeof (void =
+*) / sizeof (void)=E2=80=99 does not compute the number of array elements [=
+-Wsizeof-pointer-div]
+    include/linux/sh_intc.h:99:63: warning: division =E2=80=98sizeof (void =
+*) / sizeof (void)=E2=80=99 does not compute the number of array elements [=
+-Wsizeof-pointer-div]
+    include/linux/sh_intc.h:99:63: warning: division =E2=80=98sizeof (void =
+*) / sizeof (void)=E2=80=99 does not compute the number of array elements [=
+-Wsizeof-pointer-div]
+    include/linux/sh_intc.h:99:63: warning: division =E2=80=98sizeof (void =
+*) / sizeof (void)=E2=80=99 does not compute the number of array elements [=
+-Wsizeof-pointer-div]
+    include/linux/sh_intc.h:99:63: warning: division =E2=80=98sizeof (void =
+*) / sizeof (void)=E2=80=99 does not compute the number of array elements [=
+-Wsizeof-pointer-div]
+
+---------------------------------------------------------------------------=
+-----
+lart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 11 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    net/irda/irlmp.c:870:2: warning: =E2=80=98strncpy=E2=80=99 output may b=
+e truncated copying 21 bytes from a string of length 64 [-Wstringop-truncat=
+ion]
+    net/irda/irlmp.c:1107:2: warning: =E2=80=98strncpy=E2=80=99 output may =
+be truncated copying 21 bytes from a string of length 64 [-Wstringop-trunca=
+tion]
+    net/irda/af_irda.c:481:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 16 equals destination size [-Wstringop-truncation]
+    net/irda/ircomm/ircomm_param.c:260:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    fs/udf/super.c:933:4: warning: =E2=80=98strncpy=E2=80=99 output may be =
+truncated copying between 0 and 31 bytes from a string of length 253 [-Wstr=
+ingop-truncation]
+
+---------------------------------------------------------------------------=
+-----
+lemote2f_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 4 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    arch/mips/loongson/common/cs5536/cs5536_ohci.c:141:25: error: bitwise c=
+omparison always evaluates to false [-Werror=3Dtautological-compare]
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    cc1: all warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 329 warnings, 0=
+ section mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    net/compat.c:548:1: warning: alignment 4 of =E2=80=98struct compat_grou=
+p_req=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    net/compat.c:546:35: warning: =E2=80=98gr_group=E2=80=99 offset 4 in =
+=E2=80=98struct compat_group_req=E2=80=99 isn=E2=80=99t aligned to 8 [-Wpac=
+ked-not-aligned]
+    net/compat.c:556:1: warning: alignment 4 of =E2=80=98struct compat_grou=
+p_source_req=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    net/compat.c:552:35: warning: =E2=80=98gsr_group=E2=80=99 offset 4 in =
+=E2=80=98struct compat_group_source_req=E2=80=99 isn=E2=80=99t aligned to 8=
+ [-Wpacked-not-aligned]
+    net/compat.c:556:1: warning: alignment 4 of =E2=80=98struct compat_grou=
+p_source_req=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    net/compat.c:554:35: warning: =E2=80=98gsr_source=E2=80=99 offset 132 i=
+n =E2=80=98struct compat_group_source_req=E2=80=99 isn=E2=80=99t aligned to=
+ 8 [-Wpacked-not-aligned]
+    net/compat.c:566:1: warning: alignment 4 of =E2=80=98struct compat_grou=
+p_filter=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    net/compat.c:560:35: warning: =E2=80=98gf_group=E2=80=99 offset 4 in =
+=E2=80=98struct compat_group_filter=E2=80=99 isn=E2=80=99t aligned to 8 [-W=
+packed-not-aligned]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+ls1b_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 29 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+lubbock_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 7 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/configfs/symlink.c:67:3: warning: =E2=80=98strncpy=E2=80=99 output t=
+runcated before terminating nul copying as many bytes from a string as its =
+length [-Wstringop-truncation]
+
+---------------------------------------------------------------------------=
+-----
+mackerel_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 16 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    include/linux/sh_intc.h:99:63: warning: division =E2=80=98sizeof (void =
+*) / sizeof (void)=E2=80=99 does not compute the number of array elements [=
+-Wsizeof-pointer-div]
+    include/linux/sh_intc.h:99:63: warning: division =E2=80=98sizeof (void =
+*) / sizeof (void)=E2=80=99 does not compute the number of array elements [=
+-Wsizeof-pointer-div]
+    include/linux/sh_intc.h:99:63: warning: division =E2=80=98sizeof (void =
+*) / sizeof (void)=E2=80=99 does not compute the number of array elements [=
+-Wsizeof-pointer-div]
+    include/linux/sh_intc.h:99:63: warning: division =E2=80=98sizeof (void =
+*) / sizeof (void)=E2=80=99 does not compute the number of array elements [=
+-Wsizeof-pointer-div]
+    include/linux/sh_intc.h:99:63: warning: division =E2=80=98sizeof (void =
+*) / sizeof (void)=E2=80=99 does not compute the number of array elements [=
+-Wsizeof-pointer-div]
+    include/linux/sh_intc.h:99:63: warning: division =E2=80=98sizeof (void =
+*) / sizeof (void)=E2=80=99 does not compute the number of array elements [=
+-Wsizeof-pointer-div]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    drivers/base/regmap/regcache-rbtree.c:36:1: warning: alignment 1 of =E2=
+=80=98struct regcache_rbtree_node=E2=80=99 is less than 4 [-Wpacked-not-ali=
+gned]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+magician_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 19 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    crypto/ablkcipher.c:384:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:466:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/blkcipher.c:516:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:121:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:206:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    drivers/base/regmap/regcache-rbtree.c:36:1: warning: alignment 1 of =E2=
+=80=98struct regcache_rbtree_node=E2=80=99 is less than 4 [-Wpacked-not-ali=
+gned]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/configfs/symlink.c:67:3: warning: =E2=80=98strncpy=E2=80=99 output t=
+runcated before terminating nul copying as many bytes from a string as its =
+length [-Wstringop-truncation]
+    drivers/net/irda/irtty-sir.c:405:3: warning: =E2=80=98strncpy=E2=80=99 =
+output may be truncated copying 5 bytes from a string of length 15 [-Wstrin=
+gop-truncation]
+    net/bluetooth/hidp/core.c:779:2: warning: =E2=80=98strncpy=E2=80=99 out=
+put may be truncated copying 127 bytes from a string of length 127 [-Wstrin=
+gop-truncation]
+    net/irda/irlmp.c:870:2: warning: =E2=80=98strncpy=E2=80=99 output may b=
+e truncated copying 21 bytes from a string of length 64 [-Wstringop-truncat=
+ion]
+    net/irda/irlmp.c:1107:2: warning: =E2=80=98strncpy=E2=80=99 output may =
+be truncated copying 21 bytes from a string of length 64 [-Wstringop-trunca=
+tion]
+    net/irda/af_irda.c:481:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 16 equals destination size [-Wstringop-truncation]
+    net/irda/ircomm/ircomm_param.c:260:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+
+---------------------------------------------------------------------------=
+-----
+malta_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 31 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    {standard input}:1498: Warning: the `msa' extension requires 64-bit FPRs
+    {standard input}:1715: Warning: the `msa' extension requires 64-bit FPRs
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 4 warnings, 0 s=
+ection mismatches
+
+Errors:
+    include/linux/kern_levels.h:4:18: error: format =E2=80=98%lx=E2=80=99 e=
+xpects argument of type =E2=80=98long unsigned int=E2=80=99, but argument 4=
+ has type =E2=80=98u64=E2=80=99 {aka =E2=80=98long long unsigned int=E2=80=
+=99} [-Werror=3Dformat=3D]
+    include/linux/kern_levels.h:4:18: error: format =E2=80=98%lx=E2=80=99 e=
+xpects argument of type =E2=80=98long unsigned int=E2=80=99, but argument 4=
+ has type =E2=80=98u64=E2=80=99 {aka =E2=80=98long long unsigned int=E2=80=
+=99} [-Werror=3Dformat=3D]
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    {standard input}:1498: Warning: the `msa' extension requires 64-bit FPRs
+    cc1: all warnings being treated as errors
+    {standard input}:1953: Warning: the `msa' extension requires 64-bit FPRs
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 31 warnin=
+gs, 0 section mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    {standard input}:1462: Warning: the `msa' extension requires 64-bit FPRs
+    {standard input}:1664: Warning: the `msa' extension requires 64-bit FPRs
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 34 warnings, 0 =
+section mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    {standard input}:1462: Warning: the `msa' extension requires 64-bit FPRs
+    {standard input}:1715: Warning: the `msa' extension requires 64-bit FPRs
+    arch/mips/kernel/cps-vec.S:232: Warning: tried to set unrecognized symb=
+ol: MIPS_ISA_LEVEL_RAW
+    arch/mips/kernel/cps-vec.S:352: Warning: tried to set unrecognized symb=
+ol: MIPS_ISA_LEVEL_RAW
+    arch/mips/kernel/cps-vec.S:384: Warning: tried to set unrecognized symb=
+ol: MIPS_ISA_LEVEL_RAW
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 34 warnings=
+, 0 section mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    {standard input}:1462: Warning: the `msa' extension requires 64-bit FPRs
+    {standard input}:1822: Warning: the `msa' extension requires 64-bit FPRs
+    arch/mips/kernel/cps-vec.S:232: Warning: tried to set unrecognized symb=
+ol: MIPS_ISA_LEVEL_RAW
+    arch/mips/kernel/cps-vec.S:352: Warning: tried to set unrecognized symb=
+ol: MIPS_ISA_LEVEL_RAW
+    arch/mips/kernel/cps-vec.S:384: Warning: tried to set unrecognized symb=
+ol: MIPS_ISA_LEVEL_RAW
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+maltaup_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 31 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    {standard input}:1462: Warning: the `msa' extension requires 64-bit FPRs
+    {standard input}:1668: Warning: the `msa' extension requires 64-bit FPRs
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+marzen_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 10 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+    drivers/video/hdmi.c:162:2: warning: =E2=80=98strncpy=E2=80=99 specifie=
+d bound 8 equals destination size [-Wstringop-truncation]
+    drivers/video/hdmi.c:163:2: warning: =E2=80=98strncpy=E2=80=99 specifie=
+d bound 16 equals destination size [-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+mini2440_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 17 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    crypto/ablkcipher.c:384:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:466:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    crypto/blkcipher.c:516:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:121:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:206:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    drivers/base/regmap/regcache-rbtree.c:36:1: warning: alignment 1 of =E2=
+=80=98struct regcache_rbtree_node=E2=80=99 is less than 4 [-Wpacked-not-ali=
+gned]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/configfs/symlink.c:67:3: warning: =E2=80=98strncpy=E2=80=99 output t=
+runcated before terminating nul copying as many bytes from a string as its =
+length [-Wstringop-truncation]
+    drivers/net/wireless/hostap/hostap_ioctl.c:3614:3: warning: =E2=80=98st=
+rncpy=E2=80=99 specified bound 16 equals destination size [-Wstringop-trunc=
+ation]
+    net/bluetooth/hidp/core.c:779:2: warning: =E2=80=98strncpy=E2=80=99 out=
+put may be truncated copying 127 bytes from a string of length 127 [-Wstrin=
+gop-truncation]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+
+---------------------------------------------------------------------------=
+-----
+mips_paravirt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 50 warnings=
+, 0 section mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    net/compat.c:548:1: warning: alignment 4 of =E2=80=98struct compat_grou=
+p_req=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    net/compat.c:546:35: warning: =E2=80=98gr_group=E2=80=99 offset 4 in =
+=E2=80=98struct compat_group_req=E2=80=99 isn=E2=80=99t aligned to 8 [-Wpac=
+ked-not-aligned]
+    net/compat.c:556:1: warning: alignment 4 of =E2=80=98struct compat_grou=
+p_source_req=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    net/compat.c:552:35: warning: =E2=80=98gsr_group=E2=80=99 offset 4 in =
+=E2=80=98struct compat_group_source_req=E2=80=99 isn=E2=80=99t aligned to 8=
+ [-Wpacked-not-aligned]
+    net/compat.c:556:1: warning: alignment 4 of =E2=80=98struct compat_grou=
+p_source_req=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    net/compat.c:554:35: warning: =E2=80=98gsr_source=E2=80=99 offset 132 i=
+n =E2=80=98struct compat_group_source_req=E2=80=99 isn=E2=80=99t aligned to=
+ 8 [-Wpacked-not-aligned]
+    net/compat.c:566:1: warning: alignment 4 of =E2=80=98struct compat_grou=
+p_filter=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    net/compat.c:560:35: warning: =E2=80=98gf_group=E2=80=99 offset 4 in =
+=E2=80=98struct compat_group_filter=E2=80=99 isn=E2=80=99t aligned to 8 [-W=
+packed-not-aligned]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+mmp2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 9 warnings, 0 section=
+ mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    drivers/base/regmap/regcache-rbtree.c:36:1: warning: alignment 1 of =E2=
+=80=98struct regcache_rbtree_node=E2=80=99 is less than 4 [-Wpacked-not-ali=
+gned]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    fs/ext4/super.c:310:2: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    fs/ext4/super.c:314:3: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+mpc30x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 29 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+msm_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 35 warnings, 0 section=
+ mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    crypto/ablkcipher.c:384:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:466:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/blkcipher.c:516:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 64 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:49:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:78:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:118:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:162:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:212:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:245:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:292:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:49:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:78:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:118:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:162:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:212:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:245:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:292:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:493:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:564:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:493:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:564:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:121:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:206:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    drivers/base/regmap/regcache-rbtree.c:36:1: warning: alignment 1 of =E2=
+=80=98struct regcache_rbtree_node=E2=80=99 is less than 4 [-Wpacked-not-ali=
+gned]
+    fs/ext4/super.c:310:2: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    fs/ext4/super.c:314:3: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+    drivers/scsi/scsi_tgt_if.c:192:3: warning: =E2=80=98strncpy=E2=80=99 sp=
+ecified bound 16 equals destination size [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+msp71xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 31 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    {standard input}:1655: Warning: the `msa' extension requires 64-bit FPRs
+    {standard input}:1882: Warning: the `msa' extension requires 64-bit FPRs
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+mtx1_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 35 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    sound/pci/au88x0/au88x0_core.c:2302:59: warning: =E2=80=98mix[0]=E2=80=
+=99 may be used uninitialized in this function [-Wmaybe-uninitialized]
+    sound/pci/au88x0/au88x0_core.c:2303:58: warning: =E2=80=98src[0]=E2=80=
+=99 may be used uninitialized in this function [-Wmaybe-uninitialized]
+    sound/pci/au88x0/au88x0_core.c:2302:59: warning: =E2=80=98mix[0]=E2=80=
+=99 may be used uninitialized in this function [-Wmaybe-uninitialized]
+    sound/pci/au88x0/au88x0_core.c:2303:58: warning: =E2=80=98src[0]=E2=80=
+=99 may be used uninitialized in this function [-Wmaybe-uninitialized]
+    sound/pci/au88x0/au88x0_core.c:2302:59: warning: =E2=80=98mix[0]=E2=80=
+=99 may be used uninitialized in this function [-Wmaybe-uninitialized]
+    sound/pci/au88x0/au88x0_core.c:2303:58: warning: =E2=80=98src[0]=E2=80=
+=99 may be used uninitialized in this function [-Wmaybe-uninitialized]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 19 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    crypto/ablkcipher.c:384:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:466:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/blkcipher.c:516:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:121:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:206:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    fs/ext4/super.c:310:2: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    fs/ext4/super.c:314:3: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    drivers/base/regmap/regcache-rbtree.c:36:1: warning: alignment 1 of =E2=
+=80=98struct regcache_rbtree_node=E2=80=99 is less than 4 [-Wpacked-not-ali=
+gned]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+    drivers/video/fbdev/mx3fb.c:748:2: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated before terminating nul copying 8 bytes from a string of the=
+ same length [-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/udf/super.c:933:4: warning: =E2=80=98strncpy=E2=80=99 output may be =
+truncated copying between 0 and 31 bytes from a string of length 253 [-Wstr=
+ingop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+mv78xx0_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 34 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    include/trace/events/writeback.h:49:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:78:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:118:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:162:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:212:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:245:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:292:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:49:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:78:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:118:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:162:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:212:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:245:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:292:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:493:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:564:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:493:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:564:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:384:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:466:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/blkcipher.c:516:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:121:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:206:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/ext4/super.c:310:2: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    fs/ext4/super.c:314:3: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    fs/udf/super.c:933:4: warning: =E2=80=98strncpy=E2=80=99 output may be =
+truncated copying between 0 and 31 bytes from a string of length 253 [-Wstr=
+ingop-truncation]
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 17 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    crypto/ablkcipher.c:384:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:466:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/blkcipher.c:516:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:121:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:206:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    drivers/base/regmap/regcache-rbtree.c:36:1: warning: alignment 1 of =E2=
+=80=98struct regcache_rbtree_node=E2=80=99 is less than 4 [-Wpacked-not-ali=
+gned]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    net/ipv4/ip_tunnel.c:312:3: warning: =E2=80=98strncat=E2=80=99 specifie=
+d bound 2 equals source length [-Wstringop-overflow=3D]
+    fs/udf/super.c:933:4: warning: =E2=80=98strncpy=E2=80=99 output may be =
+truncated copying between 0 and 31 bytes from a string of length 253 [-Wstr=
+ingop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+mxs_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 36 warnings, 0 section=
+ mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    include/trace/events/writeback.h:49:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:78:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:118:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:162:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:212:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:245:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:292:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:49:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:78:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:118:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:162:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:212:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:245:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:292:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:493:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:564:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:493:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:564:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:384:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:466:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/blkcipher.c:516:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:121:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:206:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    fs/ext4/super.c:310:2: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    fs/ext4/super.c:314:3: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    drivers/base/regmap/regcache-rbtree.c:36:1: warning: alignment 1 of =E2=
+=80=98struct regcache_rbtree_node=E2=80=99 is less than 4 [-Wpacked-not-ali=
+gned]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/configfs/symlink.c:67:3: warning: =E2=80=98strncpy=E2=80=99 output t=
+runcated before terminating nul copying as many bytes from a string as its =
+length [-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+netx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 12 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    crypto/ablkcipher.c:384:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:466:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/blkcipher.c:516:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:121:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:206:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    net/ipv4/ip_tunnel.c:312:3: warning: =E2=80=98strncat=E2=80=99 specifie=
+d bound 2 equals source length [-Wstringop-overflow=3D]
+
+---------------------------------------------------------------------------=
+-----
+nhk8815_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 17 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    crypto/ablkcipher.c:384:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:466:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/blkcipher.c:516:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:121:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:206:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+    net/ipv4/ip_tunnel.c:312:3: warning: =E2=80=98strncat=E2=80=99 specifie=
+d bound 2 equals source length [-Wstringop-overflow=3D]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/cifs/cifsencrypt.c:309:3: warning: =E2=80=98strncpy=E2=80=99 specifi=
+ed bound 16 equals destination size [-Wstringop-truncation]
+    net/bluetooth/hidp/core.c:779:2: warning: =E2=80=98strncpy=E2=80=99 out=
+put may be truncated copying 127 bytes from a string of length 127 [-Wstrin=
+gop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlr_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 2 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    arch/mips/include/asm/netlogic/xlr/fmn.h:304:22: error: bitwise compari=
+son always evaluates to false [-Werror=3Dtautological-compare]
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    cc1: all warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+nuc950_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 6 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+
+---------------------------------------------------------------------------=
+-----
+nuc960_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 6 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+
+---------------------------------------------------------------------------=
+-----
+omap2plus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 36 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    include/trace/events/writeback.h:49:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:78:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:118:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:162:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:212:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:245:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:292:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:49:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:78:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:118:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:162:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:212:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:245:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:292:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:493:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:564:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:493:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:564:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    fs/ext4/super.c:310:2: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    fs/ext4/super.c:314:3: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:384:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:466:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/blkcipher.c:516:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:121:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:206:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    drivers/base/regmap/regcache-rbtree.c:36:1: warning: alignment 1 of =E2=
+=80=98struct regcache_rbtree_node=E2=80=99 is less than 4 [-Wpacked-not-ali=
+gned]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/configfs/symlink.c:67:3: warning: =E2=80=98strncpy=E2=80=99 output t=
+runcated before terminating nul copying as many bytes from a string as its =
+length [-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+orion5x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 16 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    crypto/ablkcipher.c:384:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:466:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/blkcipher.c:516:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:121:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:206:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/ext4/super.c:310:2: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    fs/ext4/super.c:314:3: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    fs/udf/super.c:933:4: warning: =E2=80=98strncpy=E2=80=99 output may be =
+truncated copying between 0 and 31 bytes from a string of length 253 [-Wstr=
+ingop-truncation]
+
+---------------------------------------------------------------------------=
+-----
+palmz72_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 6 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+pnx8335_stb225_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 31 warning=
+s, 0 section mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    {standard input}:1485: Warning: the `msa' extension requires 64-bit FPRs
+    {standard input}:2119: Warning: the `msa' extension requires 64-bit FPRs
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+prima2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 9 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/configfs/symlink.c:67:3: warning: =E2=80=98strncpy=E2=80=99 output t=
+runcated before terminating nul copying as many bytes from a string as its =
+length [-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+pxa168_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 6 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+pxa255-idp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 6 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+pxa910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 6 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+qcom_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 36 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    crypto/ablkcipher.c:384:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:466:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/blkcipher.c:516:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:121:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:206:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:49:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:78:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:118:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:162:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:212:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:245:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:292:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:49:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:78:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:118:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:162:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:212:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:245:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:292:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:493:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:564:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:493:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:564:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    drivers/base/regmap/regcache-rbtree.c:36:1: warning: alignment 1 of =E2=
+=80=98struct regcache_rbtree_node=E2=80=99 is less than 4 [-Wpacked-not-ali=
+gned]
+    fs/ext4/super.c:310:2: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    fs/ext4/super.c:314:3: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+    drivers/scsi/scsi_tgt_if.c:192:3: warning: =E2=80=98strncpy=E2=80=99 sp=
+ecified bound 16 equals destination size [-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+qi_lb60_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 30 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    drivers/base/regmap/regcache-rbtree.c:36:1: warning: alignment 1 of =E2=
+=80=98struct regcache_rbtree_node=E2=80=99 is less than 4 [-Wpacked-not-ali=
+gned]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+raumfeld_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 15 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    crypto/ablkcipher.c:384:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:466:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/blkcipher.c:516:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:121:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:206:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    drivers/base/regmap/regcache-rbtree.c:36:1: warning: alignment 1 of =E2=
+=80=98struct regcache_rbtree_node=E2=80=99 is less than 4 [-Wpacked-not-ali=
+gned]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    net/ipv4/ip_tunnel.c:312:3: warning: =E2=80=98strncat=E2=80=99 specifie=
+d bound 2 equals source length [-Wstringop-overflow=3D]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 29 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+rm200_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 29 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+rpc_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 9 warnings, 0 section =
+mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    net/ipv4/ip_tunnel.c:312:3: warning: =E2=80=98strncat=E2=80=99 specifie=
+d bound 2 equals source length [-Wstringop-overflow=3D]
+
+---------------------------------------------------------------------------=
+-----
+rt305x_defconfig (mips, gcc-8) =E2=80=94 FAIL, 0 errors, 31 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    {standard input}:1431: Warning: the `msa' extension requires 64-bit FPRs
+    {standard input}:1257: Warning: the `msa' extension requires 64-bit FPRs
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 6 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    drivers/base/regmap/regcache-rbtree.c:36:1: warning: alignment 1 of =E2=
+=80=98struct regcache_rbtree_node=E2=80=99 is less than 4 [-Wpacked-not-ali=
+gned]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+s5pc100_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 5 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+sama5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 20 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    fs/configfs/symlink.c:67:3: warning: =E2=80=98strncpy=E2=80=99 output t=
+runcated before terminating nul copying as many bytes from a string as its =
+length [-Wstringop-truncation]
+    crypto/ablkcipher.c:384:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:466:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/blkcipher.c:516:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:121:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:206:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    fs/ext4/super.c:310:2: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    fs/ext4/super.c:314:3: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    drivers/base/regmap/regcache-rbtree.c:36:1: warning: alignment 1 of =E2=
+=80=98struct regcache_rbtree_node=E2=80=99 is less than 4 [-Wpacked-not-ali=
+gned]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    net/ipv4/ip_tunnel.c:312:3: warning: =E2=80=98strncat=E2=80=99 specifie=
+d bound 2 equals source length [-Wstringop-overflow=3D]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    drivers/net/wireless/rtl818x/rtl8187/leds.c:149:2: warning: =E2=80=98st=
+rncpy=E2=80=99 specified bound 22 equals destination size [-Wstringop-trunc=
+ation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 48 warnings,=
+ 0 section mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    net/compat.c:548:1: warning: alignment 4 of =E2=80=98struct compat_grou=
+p_req=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    net/compat.c:546:35: warning: =E2=80=98gr_group=E2=80=99 offset 4 in =
+=E2=80=98struct compat_group_req=E2=80=99 isn=E2=80=99t aligned to 8 [-Wpac=
+ked-not-aligned]
+    net/compat.c:556:1: warning: alignment 4 of =E2=80=98struct compat_grou=
+p_source_req=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    net/compat.c:552:35: warning: =E2=80=98gsr_group=E2=80=99 offset 4 in =
+=E2=80=98struct compat_group_source_req=E2=80=99 isn=E2=80=99t aligned to 8=
+ [-Wpacked-not-aligned]
+    net/compat.c:556:1: warning: alignment 4 of =E2=80=98struct compat_grou=
+p_source_req=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    net/compat.c:554:35: warning: =E2=80=98gsr_source=E2=80=99 offset 132 i=
+n =E2=80=98struct compat_group_source_req=E2=80=99 isn=E2=80=99t aligned to=
+ 8 [-Wpacked-not-aligned]
+    net/compat.c:566:1: warning: alignment 4 of =E2=80=98struct compat_grou=
+p_filter=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    net/compat.c:560:35: warning: =E2=80=98gf_group=E2=80=99 offset 4 in =
+=E2=80=98struct compat_group_filter=E2=80=99 isn=E2=80=99t aligned to 8 [-W=
+packed-not-aligned]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+sead3micro_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 2 warnings, 0 =
+section mismatches
+
+Errors:
+    arch/mips/kernel/genex.S:152: Error: branch to a symbol in another ISA =
+mode
+    arch/mips/kernel/genex.S:234: Error: branch to a symbol in another ISA =
+mode
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    {standard input}:1395: Warning: the `msa' extension requires 64-bit FPRs
+
+---------------------------------------------------------------------------=
+-----
+shannon_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 6 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+shmobile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 5 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    drivers/base/regmap/regcache-rbtree.c:36:1: warning: alignment 1 of =E2=
+=80=98struct regcache_rbtree_node=E2=80=99 is less than 4 [-Wpacked-not-ali=
+gned]
+    net/ipv4/ip_tunnel.c:312:3: warning: =E2=80=98strncat=E2=80=99 specifie=
+d bound 2 equals source length [-Wstringop-overflow=3D]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+simpad_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 16 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    crypto/ablkcipher.c:384:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:466:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/blkcipher.c:516:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:121:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:206:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    drivers/net/irda/irtty-sir.c:405:3: warning: =E2=80=98strncpy=E2=80=99 =
+output may be truncated copying 5 bytes from a string of length 15 [-Wstrin=
+gop-truncation]
+    net/irda/irlmp.c:870:2: warning: =E2=80=98strncpy=E2=80=99 output may b=
+e truncated copying 21 bytes from a string of length 64 [-Wstringop-truncat=
+ion]
+    net/irda/irlmp.c:1107:2: warning: =E2=80=98strncpy=E2=80=99 output may =
+be truncated copying 21 bytes from a string of length 64 [-Wstringop-trunca=
+tion]
+    net/irda/af_irda.c:481:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 16 equals destination size [-Wstringop-truncation]
+    net/irda/ircomm/ircomm_param.c:260:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+
+---------------------------------------------------------------------------=
+-----
+spear13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 9 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+spear6xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 7 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+sunxi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 11 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    fs/ext4/super.c:310:2: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    fs/ext4/super.c:314:3: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    drivers/base/regmap/regcache-rbtree.c:36:1: warning: alignment 1 of =E2=
+=80=98struct regcache_rbtree_node=E2=80=99 is less than 4 [-Wpacked-not-ali=
+gned]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+tb0226_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 29 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+tb0287_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 29 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+tegra_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 23 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    crypto/ablkcipher.c:384:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:466:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/blkcipher.c:516:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:121:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:206:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    fs/ext4/super.c:310:2: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    fs/ext4/super.c:314:3: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    drivers/base/regmap/regcache-rbtree.c:36:1: warning: alignment 1 of =E2=
+=80=98struct regcache_rbtree_node=E2=80=99 is less than 4 [-Wpacked-not-ali=
+gned]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    net/bluetooth/hidp/core.c:779:2: warning: =E2=80=98strncpy=E2=80=99 out=
+put may be truncated copying 127 bytes from a string of length 127 [-Wstrin=
+gop-truncation]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    net/ipv4/ip_tunnel.c:312:3: warning: =E2=80=98strncat=E2=80=99 specifie=
+d bound 2 equals source length [-Wstringop-overflow=3D]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+    drivers/video/hdmi.c:162:2: warning: =E2=80=98strncpy=E2=80=99 specifie=
+d bound 8 equals destination size [-Wstringop-truncation]
+    drivers/video/hdmi.c:163:2: warning: =E2=80=98strncpy=E2=80=99 specifie=
+d bound 16 equals destination size [-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    drivers/net/wireless/brcm80211/brcmfmac/wl_cfg80211.c:3598:2: warning: =
+=E2=80=98strncpy=E2=80=99 output truncated before terminating nul copying 3=
+ bytes from a string of the same length [-Wstringop-truncation]
+    drivers/net/wireless/brcm80211/brcmfmac/wl_cfg80211.c:3598:2: warning: =
+=E2=80=98strncpy=E2=80=99 output truncated before terminating nul copying 3=
+ bytes from a string of the same length [-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+trizeps4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 20 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    crypto/ablkcipher.c:384:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:466:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/blkcipher.c:516:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:121:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:206:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    drivers/net/wireless/hostap/hostap_ioctl.c:3614:3: warning: =E2=80=98st=
+rncpy=E2=80=99 specified bound 16 equals destination size [-Wstringop-trunc=
+ation]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    drivers/net/irda/irtty-sir.c:405:3: warning: =E2=80=98strncpy=E2=80=99 =
+output may be truncated copying 5 bytes from a string of length 15 [-Wstrin=
+gop-truncation]
+    net/bluetooth/hidp/core.c:779:2: warning: =E2=80=98strncpy=E2=80=99 out=
+put may be truncated copying 127 bytes from a string of length 127 [-Wstrin=
+gop-truncation]
+    net/irda/irlmp.c:870:2: warning: =E2=80=98strncpy=E2=80=99 output may b=
+e truncated copying 21 bytes from a string of length 64 [-Wstringop-truncat=
+ion]
+    net/irda/irlmp.c:1107:2: warning: =E2=80=98strncpy=E2=80=99 output may =
+be truncated copying 21 bytes from a string of length 64 [-Wstringop-trunca=
+tion]
+    net/irda/af_irda.c:481:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 16 equals destination size [-Wstringop-truncation]
+    net/irda/ircomm/ircomm_param.c:260:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+
+---------------------------------------------------------------------------=
+-----
+u300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 7 warnings, 0 section=
+ mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    drivers/base/regmap/regcache-rbtree.c:36:1: warning: alignment 1 of =E2=
+=80=98struct regcache_rbtree_node=E2=80=99 is less than 4 [-Wpacked-not-ali=
+gned]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+u8500_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 19 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    crypto/ablkcipher.c:384:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:466:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/blkcipher.c:516:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:121:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:206:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    drivers/base/regmap/regcache-rbtree.c:36:1: warning: alignment 1 of =E2=
+=80=98struct regcache_rbtree_node=E2=80=99 is less than 4 [-Wpacked-not-ali=
+gned]
+    fs/ext4/super.c:310:2: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    fs/ext4/super.c:314:3: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    net/caif/cfctrl.c:261:3: warning: =E2=80=98strncpy=E2=80=99 output may =
+be truncated copying 15 bytes from a string of length 15 [-Wstringop-trunca=
+tion]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    drivers/mfd/db8500-prcmu.c:2721:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound 20 equals destination size [-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/configfs/symlink.c:67:3: warning: =E2=80=98strncpy=E2=80=99 output t=
+runcated before terminating nul copying as many bytes from a string as its =
+length [-Wstringop-truncation]
+    net/ipv4/ip_tunnel.c:312:3: warning: =E2=80=98strncat=E2=80=99 specifie=
+d bound 2 equals source length [-Wstringop-overflow=3D]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+versatile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 6 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+viper_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 14 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    crypto/ablkcipher.c:384:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:466:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/blkcipher.c:516:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:121:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:206:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/configfs/symlink.c:67:3: warning: =E2=80=98strncpy=E2=80=99 output t=
+runcated before terminating nul copying as many bytes from a string as its =
+length [-Wstringop-truncation]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 63 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    arch/x86/kernel/rtc.c:173:29: warning: duplicate =E2=80=98const=E2=80=
+=99 declaration specifier [-Wduplicate-decl-specifier]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    include/trace/events/writeback.h:212:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:118:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:78:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:49:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:493:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:292:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:245:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:212:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:162:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:564:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:118:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:78:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:49:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:493:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:292:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:245:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:162:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    include/trace/events/writeback.h:564:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:384:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/ablkcipher.c:466:2: warning: =E2=80=98strncpy=E2=80=99 specified=
+ bound 64 equals destination size [-Wstringop-truncation]
+    crypto/blkcipher.c:516:2: warning: =E2=80=98strncpy=E2=80=99 specified =
+bound 64 equals destination size [-Wstringop-truncation]
+    fs/ext4/super.c:310:2: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    fs/ext4/super.c:314:3: warning: =E2=80=98strncpy=E2=80=99 specified bou=
+nd 32 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:121:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    crypto/aead.c:206:2: warning: =E2=80=98strncpy=E2=80=99 specified bound=
+ 64 equals destination size [-Wstringop-truncation]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    arch/x86/power/hibernate_64.c:129:2: warning: =E2=80=98memcpy=E2=80=99 =
+forming offset [2, 4096] is out of the bounds [0, 1] of object =E2=80=98cor=
+e_restore_code=E2=80=99 with type =E2=80=98char=E2=80=99 [-Warray-bounds]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    include/uapi/linux/sctp.h:239:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddr_change=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:513:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_setpeerprim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:512:26: warning: =E2=80=98sspp_addr=E2=80=99 =
+offset 4 in =E2=80=98struct sctp_setpeerprim=E2=80=99 isn=E2=80=99t aligned=
+ to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:526:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_prim=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:525:26: warning: =E2=80=98ssp_addr=E2=80=99 o=
+ffset 4 in =E2=80=98struct sctp_prim=E2=80=99 isn=E2=80=99t aligned to 8 [-=
+Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:573:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrparams=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:567:26: warning: =E2=80=98spp_address=E2=80=
+=99 offset 4 in =E2=80=98struct sctp_paddrparams=E2=80=99 isn=E2=80=99t ali=
+gned to 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:680:1: warning: alignment 4 of =E2=80=98struc=
+t sctp_paddrinfo=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    include/uapi/linux/sctp.h:674:26: warning: =E2=80=98spinfo_address=E2=
+=80=99 offset 4 in =E2=80=98struct sctp_paddrinfo=E2=80=99 isn=E2=80=99t al=
+igned to 8 [-Wpacked-not-aligned]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    net/ipv4/ip_tunnel.c:312:3: warning: =E2=80=98strncat=E2=80=99 specifie=
+d bound 2 equals source length [-Wstringop-overflow=3D]
+    drivers/gpu/drm/i915/intel_tv.c:1422:3: warning: =E2=80=98strncpy=E2=80=
+=99 specified bound 32 equals destination size [-Wstringop-truncation]
+    net/compat.c:548:1: warning: alignment 4 of =E2=80=98struct compat_grou=
+p_req=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    net/compat.c:546:35: warning: =E2=80=98gr_group=E2=80=99 offset 4 in =
+=E2=80=98struct compat_group_req=E2=80=99 isn=E2=80=99t aligned to 8 [-Wpac=
+ked-not-aligned]
+    net/compat.c:556:1: warning: alignment 4 of =E2=80=98struct compat_grou=
+p_source_req=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    net/compat.c:552:35: warning: =E2=80=98gsr_group=E2=80=99 offset 4 in =
+=E2=80=98struct compat_group_source_req=E2=80=99 isn=E2=80=99t aligned to 8=
+ [-Wpacked-not-aligned]
+    net/compat.c:556:1: warning: alignment 4 of =E2=80=98struct compat_grou=
+p_source_req=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    net/compat.c:554:35: warning: =E2=80=98gsr_source=E2=80=99 offset 132 i=
+n =E2=80=98struct compat_group_source_req=E2=80=99 isn=E2=80=99t aligned to=
+ 8 [-Wpacked-not-aligned]
+    net/compat.c:566:1: warning: alignment 4 of =E2=80=98struct compat_grou=
+p_filter=E2=80=99 is less than 8 [-Wpacked-not-aligned]
+    net/compat.c:560:35: warning: =E2=80=98gf_group=E2=80=99 offset 4 in =
+=E2=80=98struct compat_group_filter=E2=80=99 isn=E2=80=99t aligned to 8 [-W=
+packed-not-aligned]
+    drivers/scsi/scsi_devinfo.c:293:2: warning: =E2=80=98strncpy=E2=80=99 s=
+pecified bound depends on the length of the source argument [-Wstringop-ove=
+rflow=3D]
+    drivers/scsi/scsi_devinfo.c:304:4: warning: =E2=80=98strncpy=E2=80=99 o=
+utput truncated copying between 0 and 16 bytes from a string of length 16 [=
+-Wstringop-truncation]
+    drivers/video/hdmi.c:162:2: warning: =E2=80=98strncpy=E2=80=99 specifie=
+d bound 8 equals destination size [-Wstringop-truncation]
+    drivers/video/hdmi.c:163:2: warning: =E2=80=98strncpy=E2=80=99 specifie=
+d bound 16 equals destination size [-Wstringop-truncation]
+
+---------------------------------------------------------------------------=
+-----
+xcep_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 6 warnings, 0 section=
+ mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    fs/exec.c:1069:32: warning: argument to =E2=80=98sizeof=E2=80=99 in =E2=
+=80=98strncpy=E2=80=99 call is the same expression as the source; did you m=
+ean to use the size of the destination? [-Wsizeof-pointer-memaccess]
+    net/socket.c:490:4: warning: =E2=80=98strncpy=E2=80=99 specified bound =
+depends on the length of the source argument [-Wstringop-overflow=3D]
+    fs/kernfs/symlink.c:91:3: warning: =E2=80=98strncpy=E2=80=99 output tru=
+ncated before terminating nul copying as many bytes from a string as its le=
+ngth [-Wstringop-truncation]
+    lib/kobject.c:130:3: warning: =E2=80=98strncpy=E2=80=99 output truncate=
+d before terminating nul copying as many bytes from a string as its length =
+[-Wstringop-truncation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---------------------------------------------------------------------------=
+-----
+xway_defconfig (mips, gcc-8) =E2=80=94 FAIL, 0 errors, 31 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+    {standard input}:1525: Warning: the `msa' extension requires 64-bit FPRs
+    {standard input}:1821: Warning: the `msa' extension requires 64-bit FPRs
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:679:36: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:684:14: warning: =E2=80=98~=E2=80=99 on a b=
+oolean expression [-Wbool-operation]
+    <stdin>:1238:2: warning: #warning syscall seccomp not implemented [-Wcp=
+p]
+
+---
+For more info write to <info@kernelci.org>
