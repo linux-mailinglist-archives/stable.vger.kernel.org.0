@@ -2,108 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D98B2207538
-	for <lists+stable@lfdr.de>; Wed, 24 Jun 2020 16:05:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71652207569
+	for <lists+stable@lfdr.de>; Wed, 24 Jun 2020 16:15:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390920AbgFXOFN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jun 2020 10:05:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45648 "EHLO mail.kernel.org"
+        id S2389831AbgFXOPW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jun 2020 10:15:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389668AbgFXOFN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jun 2020 10:05:13 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        id S2389682AbgFXOPW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 24 Jun 2020 10:15:22 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B6CC20781;
-        Wed, 24 Jun 2020 14:05:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 806132076E;
+        Wed, 24 Jun 2020 14:15:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593007513;
-        bh=5Zc6yJIuVvIa+ic+NBVP+ADNi9Fkjydk5nGT98cShIM=;
-        h=Subject:To:From:Date:From;
-        b=e0Itjdivzo8OutAy4GrX0OcMzirivaien1pGDRC8XggKRraCkQPFuGUJBrjYmAZOG
-         3Sfoti0elt+JDWBzbk3UHu46hpsvW7v+1PKIhwMgAn6hYfSQ9gRhNt/GCzhyF/gc7k
-         a9m//v3ub0NWN00pRilF1OjvxhJkeBzrMBW6/IVs=
-Subject: patch "Revert "usb: dwc3: exynos: Add support for Exynos5422 suspend clk"" added to usb-linus
-To:     linux.amoon@gmail.com, balbi@kernel.org,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 24 Jun 2020 16:05:11 +0200
-Message-ID: <159300751183242@kroah.com>
+        s=default; t=1593008121;
+        bh=b7QM/AnAF2FLjRffq2R666yrcagu50c8AB3ZQJKmq98=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=DOahzyNiRhEpLN5dUFOi42BNnIooay0Op/7I7YVPOOm8VDNPk48W/QwucjAF7hizb
+         YkeCU3EKTwrUERjUHBSDaJLTIOeU1A255t/d0el+aEkmiTgOcyURiX08GP4QYD7h00
+         ApMHDwF21UoDCm4KeXgiwAaPUUjoV4ccFw/y4xB4=
+Date:   Wed, 24 Jun 2020 10:15:20 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     "Rantala, Tommi T. (Nokia - FI/Espoo)" <tommi.t.rantala@nokia.com>
+Cc:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "pbonzini@redhat.com" <pbonzini@redhat.com>
+Subject: Re: [PATCH 4.14 038/190] KVM: x86: only do L1TF workaround on
+ affected processors
+Message-ID: <20200624141520.GF1931@sasha-vm>
+References: <20200619141633.446429600@linuxfoundation.org>
+ <20200619141635.473250358@linuxfoundation.org>
+ <6610924417787ad9e2332d399b5948ce19fbd6fc.camel@nokia.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <6610924417787ad9e2332d399b5948ce19fbd6fc.camel@nokia.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Jun 24, 2020 at 12:00:59PM +0000, Rantala, Tommi T. (Nokia - FI/Espoo) wrote:
+>On Fri, 2020-06-19 at 16:31 +0200, Greg Kroah-Hartman wrote:
+>> From: Paolo Bonzini <pbonzini@redhat.com>
+>>
+>> [ Upstream commit d43e2675e96fc6ae1a633b6a69d296394448cc32 ]
+>>
+>> KVM stores the gfn in MMIO SPTEs as a caching optimization.  These are
+>> split
+>> in two parts, as in "[high 11111 low]", to thwart any attempt to use these
+>> bits
+>> in an L1TF attack.  This works as long as there are 5 free bits between
+>> MAXPHYADDR and bit 50 (inclusive), leaving bit 51 free so that the MMIO
+>> access triggers a reserved-bit-set page fault.
+>
+>Hi, I'm now seeing this warning in VM bootup with 4.14.y
 
-This is a note to let you know that I've just added the patch titled
+Thanks for the report!
 
-    Revert "usb: dwc3: exynos: Add support for Exynos5422 suspend clk"
+>Not seen with 4.19.129 and 5.4.47 that also included this commit.
+>
+>Any ideas what's missing in 4.14 ?
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
+I think that this was because we're missing 6129ed877d40 ("KVM: x86/mmu:
+Set mmio_value to '0' if reserved #PF can't be generated"). I've queued
+it up (along with a few other related commits) and a new -rc cycle
+should be underway for those.
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From ad38beb373a14e082f4e64b68c0b6e6b09764680 Mon Sep 17 00:00:00 2001
-From: Anand Moon <linux.amoon@gmail.com>
-Date: Tue, 23 Jun 2020 07:46:37 +0000
-Subject: Revert "usb: dwc3: exynos: Add support for Exynos5422 suspend clk"
-
-This reverts commit 07f6842341abe978e6375078f84506ec3280ece5.
-
-Since SCLK_SCLK_USBD300 suspend clock need to be configured
-for phy module, I wrongly mapped this clock to DWC3 code.
-
-Cc: Felipe Balbi <balbi@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Anand Moon <linux.amoon@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Fixes: 07f6842341ab ("usb: dwc3: exynos: Add support for Exynos5422 suspend clk")
-Link: https://lore.kernel.org/r/20200623074637.756-1-linux.amoon@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/dwc3/dwc3-exynos.c | 9 ---------
- 1 file changed, 9 deletions(-)
-
-diff --git a/drivers/usb/dwc3/dwc3-exynos.c b/drivers/usb/dwc3/dwc3-exynos.c
-index 48b68b6f0dc8..90bb022737da 100644
---- a/drivers/usb/dwc3/dwc3-exynos.c
-+++ b/drivers/usb/dwc3/dwc3-exynos.c
-@@ -162,12 +162,6 @@ static const struct dwc3_exynos_driverdata exynos5250_drvdata = {
- 	.suspend_clk_idx = -1,
- };
- 
--static const struct dwc3_exynos_driverdata exynos5420_drvdata = {
--	.clk_names = { "usbdrd30", "usbdrd30_susp_clk"},
--	.num_clks = 2,
--	.suspend_clk_idx = 1,
--};
--
- static const struct dwc3_exynos_driverdata exynos5433_drvdata = {
- 	.clk_names = { "aclk", "susp_clk", "pipe_pclk", "phyclk" },
- 	.num_clks = 4,
-@@ -184,9 +178,6 @@ static const struct of_device_id exynos_dwc3_match[] = {
- 	{
- 		.compatible = "samsung,exynos5250-dwusb3",
- 		.data = &exynos5250_drvdata,
--	}, {
--		.compatible = "samsung,exynos5420-dwusb3",
--		.data = &exynos5420_drvdata,
- 	}, {
- 		.compatible = "samsung,exynos5433-dwusb3",
- 		.data = &exynos5433_drvdata,
 -- 
-2.27.0
-
-
+Thanks,
+Sasha
