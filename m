@@ -2,98 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF6F1206B14
-	for <lists+stable@lfdr.de>; Wed, 24 Jun 2020 06:25:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25791206B1B
+	for <lists+stable@lfdr.de>; Wed, 24 Jun 2020 06:29:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727056AbgFXEZp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jun 2020 00:25:45 -0400
-Received: from mga14.intel.com ([192.55.52.115]:64658 "EHLO mga14.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726389AbgFXEZp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jun 2020 00:25:45 -0400
-IronPort-SDR: Ea8TuLErRqPk/0hXor9KeStypJUZoOC6+msJfmX2XAkKwMeyKY/Odil5ZaZQ0gXfLJQ4mVlb1g
- ljKT/yu/uySQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9661"; a="143427741"
-X-IronPort-AV: E=Sophos;i="5.75,273,1589266800"; 
-   d="scan'208";a="143427741"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Jun 2020 21:25:44 -0700
-IronPort-SDR: hIPrFEUvtyOdS6Jt/Xrmz72tsK/qgvvKKa9ktjVGEgx2I32MXaWCEkBuyW2p32uQ7bI3B05Vko
- ujYyoEX/S0ZA==
-X-IronPort-AV: E=Sophos;i="5.75,273,1589266800"; 
-   d="scan'208";a="279346643"
-Received: from agluck-desk2.sc.intel.com (HELO agluck-desk2.amr.corp.intel.com) ([10.3.52.68])
-  by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Jun 2020 21:25:43 -0700
-Date:   Tue, 23 Jun 2020 21:25:42 -0700
-From:   "Luck, Tony" <tony.luck@intel.com>
-To:     Dan Williams <dan.j.williams@intel.com>
-Cc:     akpm@linux-foundation.org, tglx@linutronix.de, mingo@redhat.com,
-        Peter Zijlstra <peterz@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Borislav Petkov <bp@alien8.de>, stable@vger.kernel.org,
-        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Erwin Tsaur <erwin.tsaur@intel.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Mikulas Patocka <mpatocka@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        linux-kernel@vger.kernel.org, linux-nvdimm@lists.01.org
-Subject: Re: [PATCH v6 0/2] Renovate memcpy_mcsafe with copy_mc_to_{user,
- kernel}
-Message-ID: <20200624042542.GA30842@agluck-desk2.amr.corp.intel.com>
-References: <159244031857.1107636.5054974045023236143.stgit@dwillia2-desk3.amr.corp.intel.com>
+        id S1728808AbgFXE3z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jun 2020 00:29:55 -0400
+Received: from aserp2120.oracle.com ([141.146.126.78]:56644 "EHLO
+        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727862AbgFXE3x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Jun 2020 00:29:53 -0400
+Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
+        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 05O4LvSc030582;
+        Wed, 24 Jun 2020 04:29:50 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=corp-2020-01-29;
+ bh=jt9ppXIndIGWmGXxqK3cCyssTE94sxkPsZAau7yXdVk=;
+ b=sdj2F3YKsX86XmRgJddHfdtO4l9GAnHza4TRJihFrbUSgKMa6Ys041jbVj40Vib3v2sV
+ rHrf1gjCA4N2nrFN7DqfLy3EUQ063jHE5stlhYEV5wpM1bhkur4bS9Sq7Byv9DaBHhRt
+ 4o4LM4s0sToaHCYWBa/MHV8/dp0y+S843sPmiWL82Mhr15xO1br1Ye5gn0MYf+k3K7Kw
+ sLfp7XunhoJ0RM3x8ta008eU/q1idZgDyk6XIf/wAajCNF/m0CDrU+84d+F24LnPiKe3
+ +n9l8S7GyaVo/+C0U6lwTd2702PW36oTJFxWpr/V41R2aWRZai5UjNDMV+eoZGWnvtHG vQ== 
+Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
+        by aserp2120.oracle.com with ESMTP id 31uustrksy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Wed, 24 Jun 2020 04:29:50 +0000
+Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
+        by aserp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 05O4Nmxc086112;
+        Wed, 24 Jun 2020 04:29:50 GMT
+Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
+        by aserp3030.oracle.com with ESMTP id 31uuqy7dg0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 24 Jun 2020 04:29:50 +0000
+Received: from abhmp0019.oracle.com (abhmp0019.oracle.com [141.146.116.25])
+        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 05O4Tmem030156;
+        Wed, 24 Jun 2020 04:29:48 GMT
+Received: from ca-mkp.ca.oracle.com (/10.156.108.201)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Wed, 24 Jun 2020 04:29:47 +0000
+From:   "Martin K. Petersen" <martin.petersen@oracle.com>
+To:     Steffen Maier <maier@linux.ibm.com>,
+        "James E . J . Bottomley" <jejb@linux.ibm.com>
+Cc:     "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Kees Cook <keescook@chromium.org>, linux-scsi@vger.kernel.org,
+        stable@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>,
+        linux-s390@vger.kernel.org, Benjamin Block <bblock@linux.ibm.com>
+Subject: Re: [PATCH] zfcp: fix panic on ERP timeout for previously dismissed ERP action
+Date:   Wed, 24 Jun 2020 00:29:40 -0400
+Message-Id: <159297296072.9797.12946914828075340057.b4-ty@oracle.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200623140242.98864-1-maier@linux.ibm.com>
+References: <20200623140242.98864-1-maier@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <159244031857.1107636.5054974045023236143.stgit@dwillia2-desk3.amr.corp.intel.com>
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9661 signatures=668680
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 mlxlogscore=851
+ adultscore=0 mlxscore=0 suspectscore=0 malwarescore=0 phishscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2004280000 definitions=main-2006240031
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9661 signatures=668680
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 bulkscore=0
+ cotscore=-2147483648 malwarescore=0 mlxscore=0 clxscore=1011
+ lowpriorityscore=0 mlxlogscore=866 phishscore=0 priorityscore=1501
+ spamscore=0 impostorscore=0 adultscore=0 classifier=spam adjust=0
+ reason=mlx scancount=1 engine=8.12.0-2004280000
+ definitions=main-2006240031
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 17, 2020 at 05:31:58PM -0700, Dan Williams wrote:
-> No changes since v5 [1], just rebased to v5.8-rc1. No comments since
-> that posting back at the end of May either, will continue to re-post
-> weekly, I am otherwise at a loss for what else to do to move this
-> forward. Should it go through Andrew since it's across PPC and x86?
-> Thanks again to Michael for the PPC acks.
-> 
-> [1]: http://lore.kernel.org/r/159062136234.2192412.7285856919306307817.stgit@dwillia2-desk3.amr.corp.intel.com
-> 
-> ---
-> 
-> The primary motivation to go touch memcpy_mcsafe() is that the existing
-> benefit of doing slow "handle with care" copies is obviated on newer
-> CPUs. With that concern lifted it also obviates the need to continue to
-> update the MCA-recovery capability detection code currently gated by
-> "mcsafe_key". Now the old "mcsafe_key" opt-in to perform the copy with
-> concerns for recovery fragility can instead be made an opt-out from the
-> default fast copy implementation (enable_copy_mc_fragile()).
-> 
-> The discussion with Linus on the first iteration of this patch
-> identified that memcpy_mcsafe() was misnamed relative to its usage. The
-> new names copy_mc_to_user() and copy_mc_to_kernel() clearly indicate the
-> intended use case and lets the architecture organize the implementation
-> accordingly.
-> 
-> For both powerpc and x86 a copy_mc_generic() implementation is added as
-> the backend for these interfaces.
-> 
-> Patches are relative to v5.8-rc1. It has a recent build success
-> notification from the kbuild robot and is passing local nvdimm tests.
-> 
+On Tue, 23 Jun 2020 16:02:42 +0200, Steffen Maier wrote:
 
-Looks good to me.   I tested on a Broadwell generation system (i.e.
-one of the system you now list as "fragile") and injecting uncorrected
-errors into buffers that are then copied using copy_mc_to_kernel()
-result in recovered machine checks with the return value correctly
-indicating the amount remaining.
+> Suppose that, for unrelated reasons, FSF requests on behalf of recovery
+> are very slow and can run into the ERP timeout.
+> 
+> In the case at hand, we did adapter recovery to a large degree.
+> However due to the slowness a LUN open is pending
+> so the corresponding fc_rport remains blocked.
+> After fast_io_fail_tmo we trigger close physical port recovery
+> for the port under which the LUN should have been opened.
+> The new higher order port recovery
+> dismisses the pending LUN open ERP action and
+> dismisses the pending LUN open FSF request.
+> Such dismissal decouples the ERP action from the pending corresponding
+> FSF request by setting zfcp_fsf_req->erp_action to NULL
+> (among other things) [zfcp_erp_strategy_check_fsfreq()].
+> 
+> [...]
 
-Reviewed-by: Tony Luck <tony.luck@intel.com>
+Applied to 5.8/scsi-fixes, thanks!
 
--Tony
+[1/1] scsi: zfcp: Fix panic on ERP timeout for previously dismissed ERP action
+      https://git.kernel.org/mkp/scsi/c/936e6b85da04
+
+-- 
+Martin K. Petersen	Oracle Linux Engineering
