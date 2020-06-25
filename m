@@ -2,79 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 918CD20A3F0
-	for <lists+stable@lfdr.de>; Thu, 25 Jun 2020 19:27:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DAE820A3F1
+	for <lists+stable@lfdr.de>; Thu, 25 Jun 2020 19:27:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404706AbgFYR1P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jun 2020 13:27:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46306 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2404701AbgFYR1P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Jun 2020 13:27:15 -0400
-Received: from mail-qk1-x743.google.com (mail-qk1-x743.google.com [IPv6:2607:f8b0:4864:20::743])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1D2CC08C5C1
-        for <stable@vger.kernel.org>; Thu, 25 Jun 2020 10:27:14 -0700 (PDT)
-Received: by mail-qk1-x743.google.com with SMTP id j80so6142334qke.0
-        for <stable@vger.kernel.org>; Thu, 25 Jun 2020 10:27:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=oyH8ESYrAPi/9PkqEmGaq+D4CyK9NqOQkYGBYni9Kmk=;
-        b=fURrV0IehAh0vXxhBXxOqJLRGEPy/3zJEREVo04x75QovYQYkzHrPCCgR4rnX1YbO/
-         9KxtgB/o4qf9iF1+QnVEx8LoTC9fR5FrMwB/iwvjtKOi3tleFBNFio8hvMLpcTHp90Ec
-         Yb/yuWOq4pP796r0NosURowBhIs5AZKDISTgUULk+YCEB+Vqvn76MmkNL+HE4yoHAzE4
-         efVoeJezXgFZKz1QPhmmiXa6Z548feBD9rAd3i5mhp2ddKWEeVYyoO9RSBNOkApEVagK
-         Kwid6L529+yLIGcgUPs7UXY/DbIF5pbZtzm/Hg0wJH2S9k0jeLgbS6W+WWo0RdEO2tlN
-         19Fg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=oyH8ESYrAPi/9PkqEmGaq+D4CyK9NqOQkYGBYni9Kmk=;
-        b=rb904Vn4k6afzp8PbM0PTfaxlVASUohzSKvALeMBWPnjIGU9ioi5/BEHE2RRl69Xor
-         g5MOIeSmlYCi9+eskKQlrUMPZGkvew1FeJpQAQ0ZJErdqfZg/YK3ZehmJyUT7jjVfsz7
-         XYkLiuppoApAATSSs+/aJcBlnM1wmPmJqTPn91h/JXBEm84Z/GhuyJIGXxTlqevQP+7n
-         py2uLS69nNjq4UYIvhWS0zFg8onF4ZWBD64YQK6Eij5MnyimBMQv32eIRjDY2HaeoU8Z
-         IGT5N/OTdL0fM0Hq/npY4MpvcYIU7DaMHpx6Je60uudKGQdDxikc8M1c3rejXL15dmF5
-         cNCg==
-X-Gm-Message-State: AOAM533Kn4TKZe4PNX49Vw0tDNVbmEgGdfUGg6PFZxuu2Xi+YCvWV+Ck
-        NtnpOv4WAwKbs3SlPIKds//SbXeNN+7290K+JLk=
-X-Google-Smtp-Source: ABdhPJxqCtku9mM2R2i+UDw0Q4XRyJ65PxM+oZQC4+oOc5bSWcXHXTwt5mmaytulLybCFC0FX679+Z4VHl+a8jsOZeM=
-X-Received: by 2002:a37:345:: with SMTP id 66mr8456710qkd.272.1593106034174;
- Thu, 25 Jun 2020 10:27:14 -0700 (PDT)
+        id S2404679AbgFYR12 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jun 2020 13:27:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49388 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2404711AbgFYR12 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jun 2020 13:27:28 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4369320773;
+        Thu, 25 Jun 2020 17:27:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1593106047;
+        bh=swKIgBHCHhqeVNFve0RHkoMOIOIki7r6j8InBIrYiIk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=PkZ2KGxXnnSNrDOALBMdUs9Khc6qtg2PkAjUpT2tXqRHCCA2KuUCuhrGSPZl5AtUX
+         Gqle8C6sYcLTqAZEPb+W1dYX2exRhKrbdHJBZ5GUnZlWlUH+6+SZUS5McdECUUseDI
+         BFxbsHXdUxifixqPRl0Y+xFmMygH/Dldkjh77oX4=
+Date:   Thu, 25 Jun 2020 19:27:23 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 4.19 000/207] 4.19.130-rc3 review
+Message-ID: <20200625172723.GA3966298@kroah.com>
+References: <20200624172351.011387771@linuxfoundation.org>
+ <20200625155441.GB149301@roeck-us.net>
 MIME-Version: 1.0
-Received: by 2002:ad4:4532:0:0:0:0:0 with HTTP; Thu, 25 Jun 2020 10:27:13
- -0700 (PDT)
-Reply-To: brianjesse343@gmail.com
-From:   brianjesse <raymondmicheal973@gmail.com>
-Date:   Thu, 25 Jun 2020 18:27:13 +0100
-Message-ID: <CAHA9Ky=xduaZT-5aMjubqyxsvaR5kh+wO=XcPck3qwEeyPi1-g@mail.gmail.com>
-Subject: Witaj
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200625155441.GB149301@roeck-us.net>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Witaj, Uprzejmie informujemy, =C5=BCe ten e-mail, kt=C3=B3ry dotar=C5=82 do=
- Twojej
-skrzynki pocztowej, nie jest b=C5=82=C4=99dem, ale zosta=C5=82 specjalnie d=
-o Ciebie
-skierowany. Mam propozycj=C4=99 (7,500.000,00 $) pozostawion=C4=85 przez mo=
-jego
-zmar=C5=82ego klienta in=C5=BCyniera Carlosa, kt=C3=B3ry nosi to samo nazwi=
-sko, kt=C3=B3ry
-kiedy=C5=9B pracowa=C5=82 i mieszka=C5=82 tutaj w Lome Togo. M=C3=B3j zmar=
-=C5=82y klient i
-rodzina uczestniczyli w wypadku samochodowym, kt=C3=B3ry zabra=C5=82 ich =
-=C5=BCycie .
-Skontaktuj=C4=99 si=C4=99 z tob=C4=85 jako najbli=C5=BCszym krewnym zmar=C5=
-=82ego, aby=C5=9B m=C3=B3g=C5=82
-otrzyma=C4=87 =C5=9Brodki na roszczenia. Po szybkiej odpowiedzi poinformuj=
-=C4=99 ci=C4=99
-o sposobach wykonania tego przymierza, skontaktuj si=C4=99 ze mn=C4=85 w te=
-j
-sprawie (brianjesse343@gmail.com)
+On Thu, Jun 25, 2020 at 08:54:41AM -0700, Guenter Roeck wrote:
+> On Wed, Jun 24, 2020 at 07:27:18PM +0200, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 4.19.130 release.
+> > There are 207 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Fri, 26 Jun 2020 17:23:16 +0000.
+> > Anything received after that time might be too late.
+> > 
+> 
+> Build results:
+> 	total: 155 pass: 155 fail: 0
+> Qemu test results:
+> 	total: 421 pass: 421 fail: 0
+
+Thanks for testing all of these and letting me know.
+
+greg k-h
