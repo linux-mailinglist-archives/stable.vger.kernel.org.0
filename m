@@ -2,69 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F597209A32
-	for <lists+stable@lfdr.de>; Thu, 25 Jun 2020 09:01:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65D49209A5B
+	for <lists+stable@lfdr.de>; Thu, 25 Jun 2020 09:13:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389960AbgFYHBD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jun 2020 03:01:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34124 "EHLO
+        id S2390040AbgFYHNT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jun 2020 03:13:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389730AbgFYHBC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Jun 2020 03:01:02 -0400
-Received: from mail-qt1-x841.google.com (mail-qt1-x841.google.com [IPv6:2607:f8b0:4864:20::841])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61D58C061573
-        for <stable@vger.kernel.org>; Thu, 25 Jun 2020 00:01:02 -0700 (PDT)
-Received: by mail-qt1-x841.google.com with SMTP id o38so3858190qtf.6
-        for <stable@vger.kernel.org>; Thu, 25 Jun 2020 00:01:02 -0700 (PDT)
+        with ESMTP id S1728725AbgFYHNS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Jun 2020 03:13:18 -0400
+Received: from mail-wm1-x341.google.com (mail-wm1-x341.google.com [IPv6:2a00:1450:4864:20::341])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E4FFC0613ED
+        for <stable@vger.kernel.org>; Thu, 25 Jun 2020 00:13:17 -0700 (PDT)
+Received: by mail-wm1-x341.google.com with SMTP id 17so4810032wmo.1
+        for <stable@vger.kernel.org>; Thu, 25 Jun 2020 00:13:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=c43ItN5rh5OC49xUEKLWqqTGp8q3gF36TXuyKKq5gFE=;
-        b=ReS9aR1ZkRB5IwY0kKqtyBTDZ9YYjCtCi4DCkGyyoxCvaao/s/q5j5nvKcoA1r3eJY
-         2itN4mo8O4Y2CS5+ELWOOeikLfWCrdhmVWbG5o1xxT0HPKHqJopTswq85By9mwXp54X9
-         S27ldrlly8MJwUeKiFiXu1T7sOM1v5MR0G13ACFzImC+awz9UVvxGZqQqKLOMBkp0DKY
-         VoUi1f/cWV8MVjUlGBc/CYJ9001F9Ea5uulfLqHjAN6fwVs1PVPmI0DqzL3USeGeH2T9
-         GwMLniaO2ZnWyLZGHbn2fxH1Rm9juc5Vz4GE7FGv4fbrJpG0jEZVNxCYegHatFbSUY1S
-         qTqg==
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=PGrFn0XRF8uRjgWBcvu5PNhHZSeJg99S++WxkFtMkJg=;
+        b=CUhPTx8zB8HG/jcwwRDUYIHNNuZEJLNauEiMY3C8REU8XySPEUL2z+OjVtjtmvZp1V
+         gv64csC0HP0xav0rLymHXUpb4c76VdX/oASWUyNAS7ATXvVYxBVX0eNKC2wrr31y+n6I
+         Dhk9lYjjVjun2tV6q+X/T1vDfzdYcOxeJTsOCppWVILpxk/206vBT7P4EmmnZfbSdNht
+         p/73hFHkszMDi4+PyWy/KzxjAreb1/zrkSgBzJkW7cfBwEwSTONHt2rIPxVC8BEZDBNS
+         ASE2YzV4UB5l7ejYhwAUYLv5PjwGu1pq2B/RKISqBFpxF8s7Ug8ubH2jab497xOpxYao
+         CmHg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=c43ItN5rh5OC49xUEKLWqqTGp8q3gF36TXuyKKq5gFE=;
-        b=saz8BmRnZTF/E7zPBx+ms5FkOk8/XbqXkt2JADM2qN5V0B0fIUYLdMipd3OK22qXoD
-         zqU/tJ8dHK64hxfDKOoU1dpRVlX/gmrc3oU5gnxMfi6lx6eZ3wUGfgkcq+fTOu2k065y
-         LdArSPFLk/DaT1dNN1gD+UHdHoZetflmhNB4GNSI8YEo8q5vkuL94hJEM27XpOWdrWfQ
-         Gl6CYsQmpmPPf3WVLA/V+TDSB+Dr0Uh0RkauPkrvndZZUiMSn+VPQn9wKTyPTLLmyXEy
-         ACYHaFtPAGst47Ms/7r2MpXx57gacb4+hHVmBMgp89Osk6snTHjK09OMD/sbrN0fdFXN
-         +rPA==
-X-Gm-Message-State: AOAM531SvaimCFFcf4IuFUjNkpDwRravzx0MdTkkJvhOt4PyjhoB8WuA
-        7a6rJIvIuTTPLbtWkR+D636dBE+TJkAhKROM0ug=
-X-Google-Smtp-Source: ABdhPJxuGfCYWtgRKKWuysoePaKOrlTnbh6CXYDeU06e35mjIRtcHrXWS71B8VmDwHskUjomMc3zKSqhHjSCzHkXhys=
-X-Received: by 2002:ac8:6d16:: with SMTP id o22mr15927724qtt.155.1593068461473;
- Thu, 25 Jun 2020 00:01:01 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=PGrFn0XRF8uRjgWBcvu5PNhHZSeJg99S++WxkFtMkJg=;
+        b=tn3JeLox8IM9k+QtGbdUh5cRub5+7isS2DKl9O6WJYCOqxWk7c4qfgsE8G+6J00ybK
+         ZsivnnWFlMV84F08C3/j1JJqKggBz/1JHy89ZkMbBpCblt5Ol1m4a6LS/h+Vz5iJnljJ
+         V/zwjXDNXB5TBtVk+kntAlTHhzCZS1hn9xJ4pWHQagwEaW8Lwrw7Ac5npnfbOkputJlQ
+         Pzd2/x4FyWKTCzCZ3e0iK0qewW5qsy3D49zIp8fXt3NZFZvFVpW+aeLwUtmhnAsG6SyU
+         OV0jC0Gz8u1sOHYycd7moYBZIybdY/pxuYCgDaWS5nXQJ8FbIxt4DjF2jqM9X3wF7Kej
+         XpBg==
+X-Gm-Message-State: AOAM530SkMHHwDW4UDFuUX96iiVvkFbDLZPVq2KZYKkuXHnUaDEt1omW
+        x1MjC9k0iISTNrnNDpQvuLoJR73DENw=
+X-Google-Smtp-Source: ABdhPJw8CK6oDvUI2B5bmK60SBWVP+jU29EXOd9oqJLvueX5GkJxnGw69NGYQHimfWSQI2tVlu/hDA==
+X-Received: by 2002:a1c:5583:: with SMTP id j125mr1867316wmb.189.1593069195923;
+        Thu, 25 Jun 2020 00:13:15 -0700 (PDT)
+Received: from dell ([2.27.35.144])
+        by smtp.gmail.com with ESMTPSA id c18sm5124907wmk.18.2020.06.25.00.13.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 25 Jun 2020 00:13:15 -0700 (PDT)
+Date:   Thu, 25 Jun 2020 08:13:13 +0100
+From:   Lee Jones <lee.jones@linaro.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, patches@opensource.cirrus.com
+Subject: Re: [PATCH 01/10] mfd: wm8350-core: Supply description
+ wm8350_reg_{un}lock args
+Message-ID: <20200625071313.GM954398@dell>
+References: <20200625064619.2775707-1-lee.jones@linaro.org>
+ <20200625064619.2775707-2-lee.jones@linaro.org>
+ <20200625065608.GB2789306@kroah.com>
 MIME-Version: 1.0
-Received: by 2002:a0c:fa01:0:0:0:0:0 with HTTP; Thu, 25 Jun 2020 00:01:00
- -0700 (PDT)
-Reply-To: r.lori11@yahoo.com
-From:   Mrs Lori Robinson <robinsonlori989@gmail.com>
-Date:   Thu, 25 Jun 2020 00:01:00 -0700
-Message-ID: <CANi+herYZYK0NSvD+yBthwYQWURi4BOczgeC95yxoft9tODMbQ@mail.gmail.com>
-Subject: Greetings
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200625065608.GB2789306@kroah.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greetings,
+On Thu, 25 Jun 2020, Greg KH wrote:
 
-I wonder why you continue neglecting my emails. Please, acknowledge
-the receipt of this message in reference to the subject above as I
-intend to send to you the details of the mail. Sometimes, try to check
-your spam box because most of these correspondences fall out sometimes
-in SPAM folder.
+> On Thu, Jun 25, 2020 at 07:46:10AM +0100, Lee Jones wrote:
+> > Kerneldoc syntax is used, but not complete.  Descriptions required.
+> > 
+> > Prevents warnings like:
+> > 
+> >  drivers/mfd/wm8350-core.c:136: warning: Function parameter or member 'wm8350' not described in 'wm8350_reg_lock'
+> >  drivers/mfd/wm8350-core.c:165: warning: Function parameter or member 'wm8350' not described in 'wm8350_reg_unlock'
+> > 
+> > Cc: <stable@vger.kernel.org>
+> > Cc: patches@opensource.cirrus.com
+> > Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> > ---
+> >  drivers/mfd/wm8350-core.c | 4 ++++
+> >  1 file changed, 4 insertions(+)
+> > 
+> > diff --git a/drivers/mfd/wm8350-core.c b/drivers/mfd/wm8350-core.c
+> > index 42b16503e6cd1..fbc77b218215c 100644
+> > --- a/drivers/mfd/wm8350-core.c
+> > +++ b/drivers/mfd/wm8350-core.c
+> > @@ -131,6 +131,8 @@ EXPORT_SYMBOL_GPL(wm8350_block_write);
+> >   * The WM8350 has a hardware lock which can be used to prevent writes to
+> >   * some registers (generally those which can cause particularly serious
+> >   * problems if misused).  This function enables that lock.
+> > + *
+> > + * @wm8350: pointer to local driver data structure
+> >   */
+> >  int wm8350_reg_lock(struct wm8350 *wm8350)
+> >  {
+> > @@ -160,6 +162,8 @@ EXPORT_SYMBOL_GPL(wm8350_reg_lock);
+> >   * problems if misused).  This function disables that lock so updates
+> >   * can be performed.  For maximum safety this should be done only when
+> >   * required.
+> > + *
+> > + * @wm8350: pointer to local driver data structure
+> >   */
+> >  int wm8350_reg_unlock(struct wm8350 *wm8350)
+> >  {
+> 
+> Why are all of these documentation fixes for stable?
 
-Best regards,
+Because they fix compiler warnings.
 
-Mrs. Lori Robinson
+Not correct?
+
+-- 
+Lee Jones [李琼斯]
+Senior Technical Lead - Developer Services
+Linaro.org │ Open source software for Arm SoCs
+Follow Linaro: Facebook | Twitter | Blog
