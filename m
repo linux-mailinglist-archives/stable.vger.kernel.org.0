@@ -2,73 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 224E7209844
-	for <lists+stable@lfdr.de>; Thu, 25 Jun 2020 03:44:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F7FB209863
+	for <lists+stable@lfdr.de>; Thu, 25 Jun 2020 04:07:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388984AbgFYBoF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 24 Jun 2020 21:44:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51398 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388930AbgFYBoE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 24 Jun 2020 21:44:04 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4C5D92077D;
-        Thu, 25 Jun 2020 01:44:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593049444;
-        bh=xWGXXbhoYuVLr6v0DfSjRMA4tC4cAG9LKaccLui8rW0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ejKRohTYSgCRtY8wLGmMxZ7M/r0o2PyHnAK6Z2dSyjQP0+Fyhi/bRJ7lCSuixtlMu
-         /OFIGOZuVjsCXsEMoWhVWI/RfE2fSZtzsKK5ogGueiHvLQUJloX/tqU3P90HC/OpiI
-         6rEtwKjiLesu6ZIKJWmYWLlg0LRGmOXLASrsHn1M=
-Date:   Wed, 24 Jun 2020 21:44:03 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Paul Gortmaker <paul.gortmaker@windriver.com>
-Cc:     stable@vger.kernel.org, songliubraving@fb.com, neilb@suse.de,
-        guoqing.jiang@cloud.ionos.com
-Subject: Re: Please backport 33f2c35a54df to kernels containing c84a1372df92
- for raid0 compatibility
-Message-ID: <20200625014403.GG1931@sasha-vm>
-References: <20200624164931.GA15350@windriver.com>
+        id S2389121AbgFYCHN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 24 Jun 2020 22:07:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45690 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389070AbgFYCHN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 24 Jun 2020 22:07:13 -0400
+Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3A98C061573
+        for <stable@vger.kernel.org>; Wed, 24 Jun 2020 19:07:11 -0700 (PDT)
+Received: by mail-pf1-x430.google.com with SMTP id u5so2273657pfn.7
+        for <stable@vger.kernel.org>; Wed, 24 Jun 2020 19:07:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=kWrq0AkVRyASv9ef1ifL9E0TdZPdjvKR15aibJZ9tq0=;
+        b=jBxNdJ8nc/Iy6qYsVOWrhu3GYtOFG3nnawIVie1EiikwcOxtMJBMKoWR/tilNWyUG1
+         +RdPOBZLZ38IYhyTBhbCOAmp4B/yynYCjPl5PL90F02jZWsR16E77FfTZ60vdXD1Ud53
+         b5Ef8MJ57kalvkfB6+zVXiJOjalu4EY88AY/htS4+r0jcEIL2UNwpa/XErQy6PTsp1R+
+         MplcZQ82/JTo4eYsrivTFnQ+4MHmTuM7wZOZ5CF2N+itPT8ul2THS87CPxvB7tBOEo4r
+         pOuQRozh1QQZ2Dg94DabxlHHceg8wZSdbhoODpIpG2E62P7sFC1fnkwh5jMfWDyDVivz
+         hrBA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=kWrq0AkVRyASv9ef1ifL9E0TdZPdjvKR15aibJZ9tq0=;
+        b=S5DwxjhXLrM1lEvvjIPTe5qZ+fPSxvVcS4Ip9JRuLsgSA+A3VCGzhgM0/xlq/ZTgPm
+         SUjfDWg5pAmSsFiWdSqawkH+zND1RU7sxECIUFcTId0EcUIcJ636+TdTfl247tu1ReNa
+         2UJSi4K1kxxs8u8jVVpiFvxsKRVbNPPZP9CGk6B/IZeYKn5f7yKYoXMMd1Wbyvn1OGN6
+         P8cQTRK30ZbMWj8j+iMVH7r8kesDMY33QTV+Sf5w7c02znol67EFDIIx+jM/lM5Yyxv8
+         JEu53k6KtFFRrrQK+9re7p5t/vbVKHOwVRLoAdIwTIv+keCh0KkqF3SWCj4G7XQkcpnT
+         DXGw==
+X-Gm-Message-State: AOAM5324pwH1N/wxsmKtopso5Z/HAMhPkiTMcDuUBqzvPzx919dgFPy8
+        3bxH+L50FXsJLhvAA8ZVNuJTv0fTTk4=
+X-Google-Smtp-Source: ABdhPJxWgJ8yVKy5pg232t9f+53JY9rmmLPl/p84wpPpgg0oga3LpvAKhP0wy7KqZYcMJ8Xo4fZvDw==
+X-Received: by 2002:a63:b90a:: with SMTP id z10mr4151183pge.277.1593050830949;
+        Wed, 24 Jun 2020 19:07:10 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id m15sm18013186pgv.45.2020.06.24.19.07.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 24 Jun 2020 19:07:10 -0700 (PDT)
+Message-ID: <5ef406ce.1c69fb81.ee483.597d@mx.google.com>
+Date:   Wed, 24 Jun 2020 19:07:10 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20200624164931.GA15350@windriver.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.4.228
+Subject: stable-rc/linux-4.4.y baseline: 44 runs, 1 regressions (v4.4.228)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 24, 2020 at 12:49:31PM -0400, Paul Gortmaker wrote:
->Hi all,
->
->I'm recommending backporting commit 33f2c35a54dfd75ad0e7e86918dcbe4de799a56c
->("md: add feature flag MD_FEATURE_RAID0_LAYOUT") to any stable kernels with
->commit c84a1372df929033cb1a0441fb57bd3932f39ac9 ("md/raid0: avoid RAID0
->data corruption due to layout confusion.")
->
->Here is why.  As part of the various recommended mitigation pages out
->there, we'll see instructions indicating that using a newer mdadm can
->allow one to avoid using the raid0.layout= boot argument.
->
->However, if one does that on a kernel that does *not* contain 33f2c,
->then such an older kernel will be "locked out" from mounting the volume
->because this test will fail:
->
->	(le32_to_cpu(sb->feature_map) & ~MD_FEATURE_ALL) != 0)
->
->...since the on-disk sb now has MD_FEATURE_RAID0_LAYOUT but the older
->kernel knows nothing about it and you get EINVAL (-22) during mount.
->
->I ran into the above situation on a v5.2 kernel, and backporting the
->33f2c resolved the locked out issue, and then the bootarg was no longer
->required, as documented by the updated mdadm man page.
+stable-rc/linux-4.4.y baseline: 44 runs, 1 regressions (v4.4.228)
 
-33f2c35a54df ("md: add feature flag MD_FEATURE_RAID0_LAYOUT") was queued
-for the 4.19 and 4.14 branches, thank you!
+Regressions Summary
+-------------------
 
--- 
-Thanks,
-Sasha
+platform    | arch   | lab          | compiler | defconfig        | results
+------------+--------+--------------+----------+------------------+--------
+qemu_x86_64 | x86_64 | lab-baylibre | gcc-8    | x86_64_defconfig | 0/1    =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.4.y/kern=
+el/v4.4.228/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.4.y
+  Describe: v4.4.228
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      ddb4a7b3a08a9a2867d9ca9d22f12d28e72b5075 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform    | arch   | lab          | compiler | defconfig        | results
+------------+--------+--------------+----------+------------------+--------
+qemu_x86_64 | x86_64 | lab-baylibre | gcc-8    | x86_64_defconfig | 0/1    =
+
+
+  Details:     https://kernelci.org/test/plan/id/5ef3d187451646e0e097bf25
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.228=
+/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_x86_64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.228=
+/x86_64/x86_64_defconfig/gcc-8/lab-baylibre/baseline-qemu_x86_64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2019=
+.02-11-g17e793fa4728/x86/baseline/rootfs.cpio.gz =
+
+
+  * baseline.login: https://kernelci.org/test/case/id/5ef3d187451646e0e097b=
+f26
+      failing since 0 day (last pass: v4.4.226-205-g47365a65ad5f, first fai=
+l: v4.4.226-219-g2ff318e63314) =20
