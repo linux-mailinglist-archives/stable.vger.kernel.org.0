@@ -2,122 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 240D220A28B
-	for <lists+stable@lfdr.de>; Thu, 25 Jun 2020 18:03:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8857520A349
+	for <lists+stable@lfdr.de>; Thu, 25 Jun 2020 18:46:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390491AbgFYQDH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jun 2020 12:03:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49582 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389860AbgFYQDH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Jun 2020 12:03:07 -0400
-Received: from devnote2 (NE2965lan1.rev.em-net.ne.jp [210.141.244.193])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B9D5620775;
-        Thu, 25 Jun 2020 16:03:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593100986;
-        bh=K6JHJo/0IjNgaEcWgtsnvmvPHucK9EUSVBDBkHLL2CM=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=1eSXYhjUSJAxKnnLB/JGk7y6Vp6r2rsR5B7R4JQHb1kNA4Pa+yP7ujk6HFKI6uJPa
-         r0mgQpQ1+O3WvKtmwQ/YWfFHuPt6/WcDJR6zlQAmpDIVVR/nS1oq0KlCXFlUwMxeBR
-         bmTsvVyoS6k8fF9bW2h9YXKVIEGA3Wg3abml4m9k=
-Date:   Fri, 26 Jun 2020 01:03:02 +0900
-From:   Masami Hiramatsu <mhiramat@kernel.org>
-To:     Mark Rutland <mark.rutland@arm.com>
-Cc:     Will Deacon <will@kernel.org>,
-        Paul Gortmaker <paul.gortmaker@windriver.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        "Paul E . McKenney" <paulmck@linux.ibm.com>,
-        James Morse <james.morse@arm.com>
-Subject: Re: [PATCH] arm64: don't preempt_disable in do_debug_exception
-Message-Id: <20200626010302.0b5b00aed36fdaf6d630bee5@kernel.org>
-In-Reply-To: <20200623165557.GA12767@C02TD0UTHF1T.local>
-References: <1592501369-27645-1-git-send-email-paul.gortmaker@windriver.com>
-        <20200623155900.GA4777@willie-the-truck>
-        <20200623165557.GA12767@C02TD0UTHF1T.local>
-X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+        id S2390984AbgFYQql (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jun 2020 12:46:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40026 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2390952AbgFYQqg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Jun 2020 12:46:36 -0400
+Received: from mail-ot1-x342.google.com (mail-ot1-x342.google.com [IPv6:2607:f8b0:4864:20::342])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FEDDC08C5C1
+        for <stable@vger.kernel.org>; Thu, 25 Jun 2020 09:46:36 -0700 (PDT)
+Received: by mail-ot1-x342.google.com with SMTP id v13so5890030otp.4
+        for <stable@vger.kernel.org>; Thu, 25 Jun 2020 09:46:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=J0VpeRSOJK/TFNJp5yzWMw9fGCcpvggw0aTUG92BVzQ=;
+        b=YzjCZz6qEtygUH8brDk/6BXnbgkm0XjCIdGK5/3ErIvT7a/zZjnjbHE4oSL9Dcxmkg
+         XX7sCfQn+DIKxHRsCkWs5UbY9eHZoNOlK00RwuicaqvLYmV9eOYpQ8BbQkfd4LnT0XVe
+         Q1scyTIie7JQSjp1fQ6SU0dprCvedMifs+k+oN4OsM9cnKxnV7y0QPFfmimm/1Kd3IRU
+         g7Y09htJsIDv1r9EAjpJZhH/ct9W/FWcWJauwrlqOhTkKgtRvLTIwexfYAkr8dA0pZa9
+         oVeWFPPZ8xtdYYmvcIZ6jN9LN8LxQRVO2XhHpQGx4D15n72aa/Nu9p7Nb2054jn6r96Q
+         sf+Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=J0VpeRSOJK/TFNJp5yzWMw9fGCcpvggw0aTUG92BVzQ=;
+        b=KLY3ubm5mIimEbfqjnBp95X0J/OAvMcz0eDFqFwrcXlEU2ChNH0CxJOUfDsyVxFFx9
+         VuVoZWRwu6SPyFm4uMJGXqilsI+BOs8rPgT7Esc2+n+XpznzshNNvCcGlnreGQkfUqZA
+         1DundkUaOANErkMgGbbG3Zp0E8lR3jwfBARa2l4Ase+9kv44i+ibgSGQjVmcvG3OEGZi
+         vnGaVIgc+eBFVzecNW3hY8x945B3igMUH1uidQmsSuanllJiQl1yAEyV+L4DGt7M1IzK
+         NfXgnzvxUA0FHI/dmas8WeKbk4/feX7ZXI/TQgq9Xs73/mycLkMxPB6NClrCwPADWN+g
+         JS2w==
+X-Gm-Message-State: AOAM530qFiL4cQhc2f3RuE4T/Jl8ZZKTEZNlqKszLJ5LXE3/ZbcktI7v
+        ev01w1ySyzFnkz0GHuQX1KhQAV/IuyASKbae8pU=
+X-Google-Smtp-Source: ABdhPJwoqF3Mjk9ZJWNUNq7rvIKfAH+yy9N8qMsbO5pgkUhJNnz6z278bck2rd9RdGR0prdsh9E9hDT6htjXN2XUEpI=
+X-Received: by 2002:a9d:6546:: with SMTP id q6mr26797497otl.365.1593103595269;
+ Thu, 25 Jun 2020 09:46:35 -0700 (PDT)
+MIME-Version: 1.0
+Received: by 2002:a05:6820:54e:0:0:0:0 with HTTP; Thu, 25 Jun 2020 09:46:34
+ -0700 (PDT)
+Reply-To: sctnld11170@tlen.pl
+From:   "Mr. Scott Donald" <alimoses07@gmail.com>
+Date:   Thu, 25 Jun 2020 09:46:34 -0700
+Message-ID: <CADWzZe7dVS6Kfp8fGthwA8tTLJdQb0LsHk3ZRj4DcBgKV2eFgQ@mail.gmail.com>
+Subject: Hello, Please
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 23 Jun 2020 17:55:57 +0100
-Mark Rutland <mark.rutland@arm.com> wrote:
+Dear Friend,
+I'm Mr. Scott Donald a Successful business Man. dealing with
+Exportation, I got your mail contact through search to let you know my
+Ugly Situation Am a dying Man here in Los Angeles California Hospital
+Bed in (USA), I Lost my Wife and my only Daughter for Covid-19 I'm
+dying with same symptoms. my Doctor open-up to me that I don't have
+enough time to live anymore, I have a project that I am about to hand
+over to you. I have already instructed the Barclays Bank of London to
+transfer my fund sum of =C2=A33,7M GBP to you as to enable you to give 50%
+to Charitable Home and take 50% I have given all I have here in
+America to Charitable home I ask my Doctor to help me keep you notice
+when I'm no more please, allow me to see you on my Doctor whats-app
+video call very urgent please, here is my Doctor Whats-app Number for
+urgent notice +13019692737
 
-> On Tue, Jun 23, 2020 at 04:59:01PM +0100, Will Deacon wrote:
-> > On Thu, Jun 18, 2020 at 01:29:29PM -0400, Paul Gortmaker wrote:
-> > > In commit d8bb6718c4db ("arm64: Make debug exception handlers visible
-> > > from RCU") debug_exception_enter and exit were added to deal with better
-> > > tracking of RCU state - however, in addition to that, but not mentioned
-> > > in the commit log, a preempt_disable/enable pair were also added.
-> > > 
-> > > Based on the comment (being removed here) it would seem that the pair
-> > > were not added to address a specific problem, but just as a proactive,
-> > > preventative measure - as in "seemed like a good idea at the time".
-> > > 
-> > > The problem is that do_debug_exception() eventually calls out to
-> > > generic kernel code like do_force_sig_info() which takes non-raw locks
-> > > and on -rt enabled kernels, results in things looking like the following,
-> > > since on -rt kernels, it is noticed that preemption is still disabled.
-> > > 
-> > >  BUG: sleeping function called from invalid context at kernel/locking/rtmutex.c:975
-> > >  in_atomic(): 1, irqs_disabled(): 0, pid: 35658, name: gdbtest
-> > >  Preemption disabled at:
-> > >  [<ffff000010081578>] do_debug_exception+0x38/0x1a4
-> > >  Call trace:
-> > >  dump_backtrace+0x0/0x138
-> > >  show_stack+0x24/0x30
-> > >  dump_stack+0x94/0xbc
-> > >  ___might_sleep+0x13c/0x168
-> > >  rt_spin_lock+0x40/0x80
-> > >  do_force_sig_info+0x30/0xe0
-> > >  force_sig_fault+0x64/0x90
-> > >  arm64_force_sig_fault+0x50/0x80
-> > >  send_user_sigtrap+0x50/0x80
-> > >  brk_handler+0x98/0xc8
-> > >  do_debug_exception+0x70/0x1a4
-> > >  el0_dbg+0x18/0x20
-> > > 
-> > > The reproducer was basically an automated gdb test that set a breakpoint
-> > > on a simple "hello world" program and then quit gdb once the breakpoint
-> > > was hit - i.e. "(gdb) A debugging session is active.  Quit anyway? "
-> > 
-> > Hmm, the debug exception handler path was definitely written with the
-> > expectation that preemption is disabled, so this is unfortunate. For
-> > exceptions from kernelspace, we need to keep that guarantee as we implement
-> > things like BUG() using this path. For exceptions from userspace, it's
-> > plausible that we could re-enable preemption, but then we should also
-> > re-enable interrupts and debug exceptions too because we don't
-> > context-switch pstate in switch_to() and we would end up with holes in our
-> > kernel debug coverage (and these might be fatal if e.g. single step doesn't
-> > work in a kprobe OOL buffer). However, that then means that any common code
-> > when handling user and kernel debug exceptions needs to be re-entrant,
-> > which it probably isn't at the moment (I haven't checked).
-> 
-> I'm pretty certain existing code is not reentrant, and regardless it's
-> going to be a mess to reason about this generally if we have to undo our
-> strict exception nesting rules.
+Hope To Hear From You. I'm sending this email to you for the second
+time yet no response from you.
 
-Sounds like a kprobe post-handler hits another kprobe, which might invoke
-the debug handler in debug context. If kprobes find that, it skips the
-nested one, but it needs to do single stepping in it to exit.
-Is that not possible on arm64?
+My Regards.
 
-Thank you,
-
-> 
-> I reckon we need to treat this like an NMI instead -- is that plausible?
-> 
-> Mark.
-
-
--- 
-Masami Hiramatsu <mhiramat@kernel.org>
+Mr. Scott Donald
+CEO
