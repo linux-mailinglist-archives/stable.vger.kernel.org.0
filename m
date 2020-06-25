@@ -2,83 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A498209A33
-	for <lists+stable@lfdr.de>; Thu, 25 Jun 2020 09:02:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F597209A32
+	for <lists+stable@lfdr.de>; Thu, 25 Jun 2020 09:01:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389906AbgFYHCb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jun 2020 03:02:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34350 "EHLO
+        id S2389960AbgFYHBD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jun 2020 03:01:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728725AbgFYHCa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Jun 2020 03:02:30 -0400
-X-Greylist: delayed 422 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 25 Jun 2020 00:02:29 PDT
-Received: from mx2.mailbox.org (mx2a.mailbox.org [IPv6:2001:67c:2050:104:0:2:25:2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0FC9C061573;
-        Thu, 25 Jun 2020 00:02:29 -0700 (PDT)
-Received: from smtp1.mailbox.org (smtp1.mailbox.org [80.241.60.240])
-        (using TLSv1.2 with cipher ECDHE-RSA-CHACHA20-POLY1305 (256/256 bits))
-        (No client certificate requested)
-        by mx2.mailbox.org (Postfix) with ESMTPS id 680DFA1748;
-        Thu, 25 Jun 2020 08:55:24 +0200 (CEST)
-X-Virus-Scanned: amavisd-new at heinlein-support.de
-Received: from smtp1.mailbox.org ([80.241.60.240])
-        by spamfilter03.heinlein-hosting.de (spamfilter03.heinlein-hosting.de [80.241.56.117]) (amavisd-new, port 10030)
-        with ESMTP id RXc4sIHA9DJp; Thu, 25 Jun 2020 08:55:20 +0200 (CEST)
-From:   Thomas Martitz <t.martitz@avm.de>
-To:     netdev@vger.kernel.org
-Cc:     Thomas Martitz <t.martitz@avm.de>,
-        Roopa Prabhu <roopa@cumulusnetworks.com>,
-        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>, Felix Fietkau <nbd@nbd.name>,
-        stable@vger.kernel.org
-Subject: [PATCH] net: bridge: enfore alignment for ethernet address
-Date:   Thu, 25 Jun 2020 08:54:07 +0200
-Message-Id: <20200625065407.1196147-1-t.martitz@avm.de>
+        with ESMTP id S2389730AbgFYHBC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Jun 2020 03:01:02 -0400
+Received: from mail-qt1-x841.google.com (mail-qt1-x841.google.com [IPv6:2607:f8b0:4864:20::841])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61D58C061573
+        for <stable@vger.kernel.org>; Thu, 25 Jun 2020 00:01:02 -0700 (PDT)
+Received: by mail-qt1-x841.google.com with SMTP id o38so3858190qtf.6
+        for <stable@vger.kernel.org>; Thu, 25 Jun 2020 00:01:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=c43ItN5rh5OC49xUEKLWqqTGp8q3gF36TXuyKKq5gFE=;
+        b=ReS9aR1ZkRB5IwY0kKqtyBTDZ9YYjCtCi4DCkGyyoxCvaao/s/q5j5nvKcoA1r3eJY
+         2itN4mo8O4Y2CS5+ELWOOeikLfWCrdhmVWbG5o1xxT0HPKHqJopTswq85By9mwXp54X9
+         S27ldrlly8MJwUeKiFiXu1T7sOM1v5MR0G13ACFzImC+awz9UVvxGZqQqKLOMBkp0DKY
+         VoUi1f/cWV8MVjUlGBc/CYJ9001F9Ea5uulfLqHjAN6fwVs1PVPmI0DqzL3USeGeH2T9
+         GwMLniaO2ZnWyLZGHbn2fxH1Rm9juc5Vz4GE7FGv4fbrJpG0jEZVNxCYegHatFbSUY1S
+         qTqg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=c43ItN5rh5OC49xUEKLWqqTGp8q3gF36TXuyKKq5gFE=;
+        b=saz8BmRnZTF/E7zPBx+ms5FkOk8/XbqXkt2JADM2qN5V0B0fIUYLdMipd3OK22qXoD
+         zqU/tJ8dHK64hxfDKOoU1dpRVlX/gmrc3oU5gnxMfi6lx6eZ3wUGfgkcq+fTOu2k065y
+         LdArSPFLk/DaT1dNN1gD+UHdHoZetflmhNB4GNSI8YEo8q5vkuL94hJEM27XpOWdrWfQ
+         Gl6CYsQmpmPPf3WVLA/V+TDSB+Dr0Uh0RkauPkrvndZZUiMSn+VPQn9wKTyPTLLmyXEy
+         ACYHaFtPAGst47Ms/7r2MpXx57gacb4+hHVmBMgp89Osk6snTHjK09OMD/sbrN0fdFXN
+         +rPA==
+X-Gm-Message-State: AOAM531SvaimCFFcf4IuFUjNkpDwRravzx0MdTkkJvhOt4PyjhoB8WuA
+        7a6rJIvIuTTPLbtWkR+D636dBE+TJkAhKROM0ug=
+X-Google-Smtp-Source: ABdhPJxuGfCYWtgRKKWuysoePaKOrlTnbh6CXYDeU06e35mjIRtcHrXWS71B8VmDwHskUjomMc3zKSqhHjSCzHkXhys=
+X-Received: by 2002:ac8:6d16:: with SMTP id o22mr15927724qtt.155.1593068461473;
+ Thu, 25 Jun 2020 00:01:01 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-MBO-SPAM-Probability: 0
-X-Rspamd-Score: -6.56 / 15.00 / 15.00
-X-Rspamd-Queue-Id: 95D1617FE
-X-Rspamd-UID: 1e8f0f
+Received: by 2002:a0c:fa01:0:0:0:0:0 with HTTP; Thu, 25 Jun 2020 00:01:00
+ -0700 (PDT)
+Reply-To: r.lori11@yahoo.com
+From:   Mrs Lori Robinson <robinsonlori989@gmail.com>
+Date:   Thu, 25 Jun 2020 00:01:00 -0700
+Message-ID: <CANi+herYZYK0NSvD+yBthwYQWURi4BOczgeC95yxoft9tODMbQ@mail.gmail.com>
+Subject: Greetings
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The eth_addr member is passed to ether_addr functions that require
-2-byte alignment, therefore the member must be properly aligned
-to avoid unaligned accesses.
+Greetings,
 
-The problem is in place since the initial merge of multicast to unicast:
-commit 6db6f0eae6052b70885562e1733896647ec1d807 bridge: multicast to unicast
+I wonder why you continue neglecting my emails. Please, acknowledge
+the receipt of this message in reference to the subject above as I
+intend to send to you the details of the mail. Sometimes, try to check
+your spam box because most of these correspondences fall out sometimes
+in SPAM folder.
 
-Fixes: 6db6f0eae605 ("bridge: multicast to unicast")
-Cc: Roopa Prabhu <roopa@cumulusnetworks.com>
-Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Felix Fietkau <nbd@nbd.name>
-Cc: stable@vger.kernel.org
-Signed-off-by: Thomas Martitz <t.martitz@avm.de>
----
- net/bridge/br_private.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Best regards,
 
-diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-index 7501be4eeba0..22cb2f1993ef 100644
---- a/net/bridge/br_private.h
-+++ b/net/bridge/br_private.h
-@@ -217,8 +217,8 @@ struct net_bridge_port_group {
- 	struct rcu_head			rcu;
- 	struct timer_list		timer;
- 	struct br_ip			addr;
-+	unsigned char			eth_addr[ETH_ALEN]; /* 2-byte aligned */
- 	unsigned char			flags;
--	unsigned char			eth_addr[ETH_ALEN];
- };
- 
- struct net_bridge_mdb_entry {
--- 
-2.27.0
-
+Mrs. Lori Robinson
