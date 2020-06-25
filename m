@@ -2,72 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6814420A585
-	for <lists+stable@lfdr.de>; Thu, 25 Jun 2020 21:16:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5F4A20A5F7
+	for <lists+stable@lfdr.de>; Thu, 25 Jun 2020 21:38:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406459AbgFYTQM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jun 2020 15:16:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34952 "EHLO
+        id S2406116AbgFYTiM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jun 2020 15:38:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2405969AbgFYTQM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Jun 2020 15:16:12 -0400
+        with ESMTP id S2406069AbgFYTiL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Jun 2020 15:38:11 -0400
 Received: from shards.monkeyblade.net (shards.monkeyblade.net [IPv6:2620:137:e000::1:9])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A31FC08C5C1;
-        Thu, 25 Jun 2020 12:16:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC463C08C5C1;
+        Thu, 25 Jun 2020 12:38:11 -0700 (PDT)
 Received: from localhost (unknown [IPv6:2601:601:9f00:477::3d5])
         (using TLSv1 with cipher AES256-SHA (256/256 bits))
         (Client did not present a certificate)
         (Authenticated sender: davem-davemloft)
-        by shards.monkeyblade.net (Postfix) with ESMTPSA id 57BED129D29E7;
-        Thu, 25 Jun 2020 12:16:08 -0700 (PDT)
-Date:   Thu, 25 Jun 2020 12:16:05 -0700 (PDT)
-Message-Id: <20200625.121605.1198833456036514480.davem@davemloft.net>
-To:     ardb@kernel.org
-Cc:     netdev@vger.kernel.org, linux-crypto@vger.kernel.org,
-        antoine.tenart@bootlin.com, andrew@lunn.ch, f.fainelli@gmail.com,
-        hkallweit1@gmail.com, kuba@kernel.org, stable@vger.kernel.org,
-        ebiggers@google.com
-Subject: Re: [PATCH v2] net: phy: mscc: avoid skcipher API for single block
- AES encryption
+        by shards.monkeyblade.net (Postfix) with ESMTPSA id 35FA113B48C33;
+        Thu, 25 Jun 2020 12:38:11 -0700 (PDT)
+Date:   Thu, 25 Jun 2020 12:38:10 -0700 (PDT)
+Message-Id: <20200625.123810.272736267545607911.davem@davemloft.net>
+To:     t.martitz@avm.de
+Cc:     netdev@vger.kernel.org, roopa@cumulusnetworks.com,
+        nikolay@cumulusnetworks.com, kuba@kernel.org, nbd@nbd.name,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2] net: bridge: enfore alignment for ethernet address
 From:   David Miller <davem@davemloft.net>
-In-Reply-To: <20200625071816.1739528-1-ardb@kernel.org>
-References: <20200625071816.1739528-1-ardb@kernel.org>
+In-Reply-To: <20200625122602.2582222-1-t.martitz@avm.de>
+References: <20200625065407.1196147-1-t.martitz@avm.de>
+        <20200625122602.2582222-1-t.martitz@avm.de>
 X-Mailer: Mew version 6.8 on Emacs 26.3
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.5.12 (shards.monkeyblade.net [149.20.54.216]); Thu, 25 Jun 2020 12:16:08 -0700 (PDT)
+X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.5.12 (shards.monkeyblade.net [149.20.54.216]); Thu, 25 Jun 2020 12:38:11 -0700 (PDT)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
-Date: Thu, 25 Jun 2020 09:18:16 +0200
+From: Thomas Martitz <t.martitz@avm.de>
+Date: Thu, 25 Jun 2020 14:26:03 +0200
 
-> The skcipher API dynamically instantiates the transformation object
-> on request that implements the requested algorithm optimally on the
-> given platform. This notion of optimality only matters for cases like
-> bulk network or disk encryption, where performance can be a bottleneck,
-> or in cases where the algorithm itself is not known at compile time.
+> The eth_addr member is passed to ether_addr functions that require
+> 2-byte alignment, therefore the member must be properly aligned
+> to avoid unaligned accesses.
 > 
-> In the mscc case, we are dealing with AES encryption of a single
-> block, and so neither concern applies, and we are better off using
-> the AES library interface, which is lightweight and safe for this
-> kind of use.
+> The problem is in place since the initial merge of multicast to unicast:
+> commit 6db6f0eae6052b70885562e1733896647ec1d807 bridge: multicast to unicast
 > 
-> Note that the scatterlist API does not permit references to buffers
-> that are located on the stack, so the existing code is incorrect in
-> any case, but avoiding the skcipher and scatterlist APIs entirely is
-> the most straight-forward approach to fixing this.
-> 
-> Fixes: 28c5107aa904e ("net: phy: mscc: macsec support")
-> Reviewed-by: Eric Biggers <ebiggers@google.com>
-> Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+> Fixes: 6db6f0eae605 ("bridge: multicast to unicast")
+> Cc: Roopa Prabhu <roopa@cumulusnetworks.com>
+> Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+> Cc: David S. Miller <davem@davemloft.net>
+> Cc: Jakub Kicinski <kuba@kernel.org>
+> Cc: Felix Fietkau <nbd@nbd.name>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Thomas Martitz <t.martitz@avm.de>
 
-Applied and queued up for -stable, thanks.
+Applied and queued up for -stable.
 
-Please never CC: stable for networking changes, I handle the submissions
-by hand.
+Please do not explicitly CC: stable for networking changes, I take care
+of those by hand.
 
 Thank you.
