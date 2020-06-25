@@ -2,107 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C607D209E74
-	for <lists+stable@lfdr.de>; Thu, 25 Jun 2020 14:29:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEDE2209F0C
+	for <lists+stable@lfdr.de>; Thu, 25 Jun 2020 15:01:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404694AbgFYM3X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jun 2020 08:29:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56268 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2404343AbgFYM3W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Jun 2020 08:29:22 -0400
-Received: from mail-wr1-x443.google.com (mail-wr1-x443.google.com [IPv6:2a00:1450:4864:20::443])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B598C061573
-        for <stable@vger.kernel.org>; Thu, 25 Jun 2020 05:29:22 -0700 (PDT)
-Received: by mail-wr1-x443.google.com with SMTP id r12so5599717wrj.13
-        for <stable@vger.kernel.org>; Thu, 25 Jun 2020 05:29:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=cumulusnetworks.com; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=73iKzUgDyHRFOj3NbLKG7YPlDqRRtV15fke3CQiuJfI=;
-        b=gPUr7u36+aH0aCuOPahh1xa2NR9f02BdGBGmt8l0Qm6CDd93hgqKl8fbMz4LzLnWTW
-         7EaqlYMhuoY/rJExsrUKq7cNazb+Z0kdh54BPibiklnZC6SjI3IBYymPT0EROb4wzs/R
-         Ni44bPaeW9I6bmuqH1rgkgZaIceENJ8jOo22w=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=73iKzUgDyHRFOj3NbLKG7YPlDqRRtV15fke3CQiuJfI=;
-        b=kuZXUNrvjPvN2+ycrMFdXxNQhiJ98VH3RcctHNwz/lI6lv/bxIyoAv0dmJuTi6k7T/
-         l6PvU3zw6uQqYfo6AnZv0l10OlLfMWZHKKAojSqoiF/4Cvgt1KiVn7+BazrTKUc/MHKt
-         /mUhMWWjbryCWgV5HKDTnHUMFa4d6TjYpzNxAwjwHoVIFLeDpjGVSMpJSeBlVntHjp27
-         nKKeqMJ85gWSWWw6FgBs+78/osJ4Oc9/rjGPdy01wCheoPv8Cs4yje8TkYQzsSxR/8hQ
-         K74PsrAk4EF6zgyJ0jFfHz4poHh13NJ1wIGfZcsuQaCZxdFzENYLzJ7Xw+BV1Z5Vmt/2
-         HjZQ==
-X-Gm-Message-State: AOAM5306aNE4sbU7qU3RuWF6+U+kW5CgsA2jyiNMYkZt9vFp0WBvnZi7
-        0lgkzFCgbCkQgRpWKpar+tpzEI0TUHd23Q==
-X-Google-Smtp-Source: ABdhPJx6WqTOiXIuWAdOE8mQlOoWpWFYaMTzG3e54xLGnt55TmAFnKDcXnP7TtLJ/asjtqo0GTCdzw==
-X-Received: by 2002:adf:82f5:: with SMTP id 108mr9369379wrc.218.1593088160490;
-        Thu, 25 Jun 2020 05:29:20 -0700 (PDT)
-Received: from [192.168.0.109] (84-238-136-197.ip.btc-net.bg. [84.238.136.197])
-        by smtp.gmail.com with ESMTPSA id k185sm8990373wmk.47.2020.06.25.05.29.19
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 25 Jun 2020 05:29:19 -0700 (PDT)
-Subject: Re: [PATCH v2] net: bridge: enfore alignment for ethernet address
-To:     Thomas Martitz <t.martitz@avm.de>, netdev@vger.kernel.org
-Cc:     Roopa Prabhu <roopa@cumulusnetworks.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>, Felix Fietkau <nbd@nbd.name>,
-        stable@vger.kernel.org
-References: <20200625065407.1196147-1-t.martitz@avm.de>
- <20200625122602.2582222-1-t.martitz@avm.de>
-From:   Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <2a4836c4-76ab-6fb2-0474-b74f0087047c@cumulusnetworks.com>
-Date:   Thu, 25 Jun 2020 15:29:18 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
-MIME-Version: 1.0
-In-Reply-To: <20200625122602.2582222-1-t.martitz@avm.de>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        id S2404690AbgFYNBN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jun 2020 09:01:13 -0400
+Received: from mx2.suse.de ([195.135.220.15]:53684 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2403941AbgFYNBL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jun 2020 09:01:11 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 8CFB4AE54;
+        Thu, 25 Jun 2020 13:01:09 +0000 (UTC)
+Date:   Thu, 25 Jun 2020 15:01:09 +0200
+Message-ID: <s5heeq3guzu.wl-tiwai@suse.de>
+From:   Takashi Iwai <tiwai@suse.de>
+To:     Hui Wang <hui.wang@canonical.com>
+Cc:     alsa-devel@alsa-project.org, stable@vger.kernel.org
+Subject: Re: [PATCH] ALSA: hda - let hs_mic be picked ahead of hp_mic
+In-Reply-To: <20200625083833.11264-1-hui.wang@canonical.com>
+References: <20200625083833.11264-1-hui.wang@canonical.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI/1.14.6 (Maruoka)
+ FLIM/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL/10.8 Emacs/25.3
+ (x86_64-suse-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI 1.14.6 - "Maruoka")
+Content-Type: text/plain; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 25/06/2020 15:26, Thomas Martitz wrote:
-> The eth_addr member is passed to ether_addr functions that require
-> 2-byte alignment, therefore the member must be properly aligned
-> to avoid unaligned accesses.
+On Thu, 25 Jun 2020 10:38:33 +0200,
+Hui Wang wrote:
 > 
-> The problem is in place since the initial merge of multicast to unicast:
-> commit 6db6f0eae6052b70885562e1733896647ec1d807 bridge: multicast to unicast
+> We have a Dell AIO, there is neither internal speaker nor internal
+> mic, only a multi-function audio jack on it.
 > 
-> Fixes: 6db6f0eae605 ("bridge: multicast to unicast")
-> Cc: Roopa Prabhu <roopa@cumulusnetworks.com>
-> Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-> Cc: David S. Miller <davem@davemloft.net>
-> Cc: Jakub Kicinski <kuba@kernel.org>
-> Cc: Felix Fietkau <nbd@nbd.name>
+> Users reported that after freshly installing the OS and plug
+> a headset to the audio jack, the headset can't output sound. I
+> reproduced this bug, at that moment, the Input Source is as below:
+> Simple mixer control 'Input Source',0
+>   Capabilities: cenum
+>   Items: 'Headphone Mic' 'Headset Mic'
+>   Item0: 'Headphone Mic'
+> 
+> That is because the patch_realtek will set this audio jack as mic_in
+> mode if Input Source's value is hp_mic.
+> 
+> If it is not fresh installing, this issue will not happen since the
+> systemd will run alsactl restore -f /var/lib/alsa/asound.state, this
+> will set the 'Input Source' according to history value.
+> 
+> If there is internal speaker or internal mic, this issue will not
+> happen since there is valid sink/source in the pulseaudio, the PA will
+> set the 'Input Source' according to active_port.
+> 
+> To fix this issue, change the parser function to let the hs_mic be
+> stored ahead of hp_mic.
+> 
 > Cc: stable@vger.kernel.org
-> Signed-off-by: Thomas Martitz <t.martitz@avm.de>
-> ---
->  net/bridge/br_private.h | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-> index 7501be4eeba0..2130fe0194e6 100644
-> --- a/net/bridge/br_private.h
-> +++ b/net/bridge/br_private.h
-> @@ -217,8 +217,8 @@ struct net_bridge_port_group {
->  	struct rcu_head			rcu;
->  	struct timer_list		timer;
->  	struct br_ip			addr;
-> +	unsigned char			eth_addr[ETH_ALEN] __aligned(2);
->  	unsigned char			flags;
-> -	unsigned char			eth_addr[ETH_ALEN];
->  };
->  
->  struct net_bridge_mdb_entry {
-> 
+> Signed-off-by: Hui Wang <hui.wang@canonical.com>
 
-Thanks!
-Acked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Applied now.  Thanks.
+
+
+Takashi
