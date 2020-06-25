@@ -2,164 +2,185 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91A8420A883
-	for <lists+stable@lfdr.de>; Fri, 26 Jun 2020 01:01:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E795720A986
+	for <lists+stable@lfdr.de>; Fri, 26 Jun 2020 02:06:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406182AbgFYXAb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jun 2020 19:00:31 -0400
-Received: from smtp-fw-33001.amazon.com ([207.171.190.10]:29966 "EHLO
-        smtp-fw-33001.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728280AbgFYXAa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Jun 2020 19:00:30 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1593126030; x=1624662030;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version;
-  bh=C22IGVcT9eGE1qdsfL9In4SLrNzaF/Q8ZCZXjLtdlSQ=;
-  b=D/vuoO9VK3nVbqmtn5RIl0oOGwRLRhAGp6o6z6LK09Tu3thRlAMSO0yi
-   P3adrJkHJ2NAb9x8vkILcPSQTZ5yfqe1/hbJr+bjjNiLSWC2fDl023Eoq
-   akCzwkCAK4tfvt8PfxDdim80DAED7m6oKIVoBYxULeNtTZRFE1C5Pz2hA
-   k=;
-IronPort-SDR: ibJBBy7IKRfnoK++AZGnFr07bWLmO3vkekKxVsIRt5xwt+fVstt52YvG8IoSmqBRXYrH+zBUpa
- 08i9axyu/81Q==
-X-IronPort-AV: E=Sophos;i="5.75,280,1589241600"; 
-   d="scan'208";a="54023192"
-Received: from sea32-co-svc-lb4-vlan3.sea.corp.amazon.com (HELO email-inbound-relay-1a-821c648d.us-east-1.amazon.com) ([10.47.23.38])
-  by smtp-border-fw-out-33001.sea14.amazon.com with ESMTP; 25 Jun 2020 23:00:26 +0000
-Received: from EX13MTAUWB001.ant.amazon.com (iad55-ws-svc-p15-lb9-vlan3.iad.amazon.com [10.40.159.166])
-        by email-inbound-relay-1a-821c648d.us-east-1.amazon.com (Postfix) with ESMTPS id 8D299A1C0D;
-        Thu, 25 Jun 2020 23:00:24 +0000 (UTC)
-Received: from EX13D42UWB004.ant.amazon.com (10.43.161.99) by
- EX13MTAUWB001.ant.amazon.com (10.43.161.207) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Thu, 25 Jun 2020 23:00:24 +0000
-Received: from EX13MTAUWB001.ant.amazon.com (10.43.161.207) by
- EX13D42UWB004.ant.amazon.com (10.43.161.99) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Thu, 25 Jun 2020 23:00:24 +0000
-Received: from dev-dsk-yishache-2a-0a3e7335.us-west-2.amazon.com
- (172.19.44.166) by mail-relay.amazon.com (10.43.161.249) with Microsoft SMTP
- Server (TLS) id 15.0.1497.2 via Frontend Transport; Thu, 25 Jun 2020 23:00:23
- +0000
-From:   <yishache@amazon.com>
-To:     <gregkh@linuxfoundation.org>
-CC:     <stable@vger.kernel.org>, Zheng Bin <zhengbin13@huawei.com>,
-        Ren Xudong <renxudong1@huawei.com>,
-        "Darrick J . Wong" <darrick.wong@oracle.com>
-Subject: [PATCH] xfs: add agf freeblocks verify in xfs_agf_verify
-Date:   Thu, 25 Jun 2020 22:59:35 +0000
-Message-ID: <20200625225935.16844-2-yishache@amazon.com>
-X-Mailer: git-send-email 2.16.6
-In-Reply-To: <20200625225935.16844-1-yishache@amazon.com>
-References: <20200625225935.16844-1-yishache@amazon.com>
+        id S1725767AbgFZAGg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jun 2020 20:06:36 -0400
+Received: from mga14.intel.com ([192.55.52.115]:52828 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725601AbgFZAGg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jun 2020 20:06:36 -0400
+IronPort-SDR: z4VGufpsHOg/6ZzWUZP9j5a+uHohL6XRpOsI8ftKQWZMuW+tgy32rna3A+sk/lb2DfwQD1D7Ls
+ RsmuDrD3aDCA==
+X-IronPort-AV: E=McAfee;i="6000,8403,9663"; a="144216399"
+X-IronPort-AV: E=Sophos;i="5.75,281,1589266800"; 
+   d="scan'208";a="144216399"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Jun 2020 17:06:35 -0700
+IronPort-SDR: 3wEKX7poML61AVWa+R+QN3AbCCN3ihex4zKTmDuNHj5B3vsCoTAED3TxENjIyDNEatnBfPBoi3
+ bJ/6VkAgtipw==
+X-IronPort-AV: E=Sophos;i="5.75,281,1589266800"; 
+   d="scan'208";a="453192731"
+Received: from dwillia2-desk3.jf.intel.com (HELO dwillia2-desk3.amr.corp.intel.com) ([10.54.39.16])
+  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Jun 2020 17:06:35 -0700
+Subject: [PATCH 00/12] ACPI/NVDIMM: Runtime Firmware Activation
+From:   Dan Williams <dan.j.williams@intel.com>
+To:     linux-nvdimm@lists.01.org
+Cc:     Ira Weiny <ira.weiny@intel.com>, Dave Jiang <dave.jiang@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@intel.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Len Brown <len.brown@intel.com>, Len Brown <lenb@kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Pavel Machek <pavel@ucw.cz>, stable@vger.kernel.org,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+Date:   Thu, 25 Jun 2020 16:50:20 -0700
+Message-ID: <159312902033.1850128.1712559453279208264.stgit@dwillia2-desk3.amr.corp.intel.com>
+User-Agent: StGit/0.18-3-g996c
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Bin <zhengbin13@huawei.com>
+Quoting the documentation:
 
-We recently used fuzz(hydra) to test XFS and automatically generate
-tmp.img(XFS v5 format, but some metadata is wrong)
+    Some persistent memory devices run a firmware locally on the device /
+    "DIMM" to perform tasks like media management, capacity provisioning,
+    and health monitoring. The process of updating that firmware typically
+    involves a reboot because it has implications for in-flight memory
+    transactions. However, reboots are disruptive and at least the Intel
+    persistent memory platform implementation, described by the Intel ACPI
+    DSM specification [1], has added support for activating firmware at
+    runtime.
 
-xfs_repair information(just one AG):
-agf_freeblks 0, counted 3224 in ag 0
-agf_longest 536874136, counted 3224 in ag 0
-sb_fdblocks 613, counted 3228
+    [1]: https://docs.pmem.io/persistent-memory/
 
-Test as follows:
-mount tmp.img tmpdir
-cp file1M tmpdir
-sync
+The approach taken is to abstract the Intel platform specific mechanism
+behind a libnvdimm-generic sysfs interface. The interface could support
+runtime-firmware-activation on another architecture without need to
+change userspace tooling.
 
-In 4.19-stable, sync will stuck, the reason is:
-xfs_mountfs
-  xfs_check_summary_counts
-    if ((!xfs_sb_version_haslazysbcount(&mp->m_sb) ||
-       XFS_LAST_UNMOUNT_WAS_CLEAN(mp)) &&
-       !xfs_fs_has_sickness(mp, XFS_SICK_FS_COUNTERS))
-	return 0;  -->just return, incore sb_fdblocks still be 613
-    xfs_initialize_perag_data
+The ACPI NFIT implementation involves a set of device-specific-methods
+(DSMs) to 'arm' individual devices for activation and bus-level
+'trigger' method to execute the activation. Informational / enumeration
+methods are also provided at the bus and device level.
 
-cp file1M tmpdir -->ok(write file to pagecache)
-sync -->stuck(write pagecache to disk)
-xfs_map_blocks
-  xfs_iomap_write_allocate
-    while (count_fsb != 0) {
-      nimaps = 0;
-      while (nimaps == 0) { --> endless loop
-         nimaps = 1;
-         xfs_bmapi_write(..., &nimaps) --> nimaps becomes 0 again
-xfs_bmapi_write
-  xfs_bmap_alloc
-    xfs_bmap_btalloc
-      xfs_alloc_vextent
-        xfs_alloc_fix_freelist
-          xfs_alloc_space_available -->fail(agf_freeblks is 0)
+One complicating aspect of the memory device firmware activation is that
+the memory controller may need to be quiesced, no memory cycles, during
+the activation. While the platform has mechanisms to support holding off
+in-flight DMA during the activation, the device response to that delay
+is potentially undefined. The platform may reject a runtime firmware
+update if, for example a PCI-E device does not support its completion
+timeout value being increased to meet the activation time. Outside of
+device timeouts the quiesce period may also violate application
+timeouts.
 
-In linux-next, sync not stuck, cause commit c2b3164320b5 ("xfs:
-use the latest extent at writeback delalloc conversion time") remove
-the above while, dmesg is as follows:
-[   55.250114] XFS (loop0): page discard on page ffffea0008bc7380, inode 0x1b0c, offset 0.
+Given the above device and application timeout considerations the
+implementation defaults to hooking into the suspend path to trigger the
+activation, i.e. that a suspend-resume cycle (at least up to the syscore
+suspend point) is required. That default policy ensures that the system
+is in a quiescent state before ceasing memory controller responses for
+the activate. However, if desired, runtime activation without suspend
+can be forced as an override.
 
-Users do not know why this page is discard, the better soultion is:
-1. Like xfs_repair, make sure sb_fdblocks is equal to counted
-(xfs_initialize_perag_data did this, who is not called at this mount)
-2. Add agf verify, if fail, will tell users to repair
+The ndctl utility grows the following extensions / commands to drive
+this mechanism:
 
-This patch use the second soultion.
+1/ The existing update-firmware command will 'arm' devices where the
+   firmware image is staged by default.
 
-Signed-off-by: Zheng Bin <zhengbin13@huawei.com>
-Signed-off-by: Ren Xudong <renxudong1@huawei.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-(cherry picked from commit d0c7feaf87678371c2c09b3709400be416b2dc62)
+    ndctl update-firmware all -f firmware_image.bin
+
+2/ The existing ability to enumerate firmware-update capabilities now
+   includes firmware activate capabilities at the 'bus' and 'dimm/device'
+   level:
+
+    ndctl list -BDF -b nfit_test.0
+    [
+      {
+        "provider":"nfit_test.0",
+        "dev":"ndbus2",
+        "scrub_state":"idle",
+        "firmware":{
+          "activate_method":"suspend",
+          "activate_state":"idle"
+        },
+        "dimms":[
+          {
+            "dev":"nmem1",
+            "id":"cdab-0a-07e0-ffffffff",
+            "handle":0,
+            "phys_id":0,
+            "security":"disabled",
+            "firmware":{
+              "current_version":0,
+              "can_update":true
+            }
+          },
+    ...
+
+3/ When the system can support activation without quiesce, or when the
+   suspend-resume requirement is going to be suppressed, the new
+   activate-firmware command wraps that functionality:
+
+    ndctl activate-firmware nfit_test.0 --force
+
+One major open question for review is how users can trigger
+firmware-activation via suspend without doing a full trip through the
+BIOS. The activation currently requires CONFIG_PM_DEBUG to enable that
+flow. This seems an awkward dependency for something that is expected to
+be a production capability.
+
 ---
- fs/xfs/libxfs/xfs_alloc.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
 
-diff --git a/fs/xfs/libxfs/xfs_alloc.c b/fs/xfs/libxfs/xfs_alloc.c
-index 516e0c57cf9c..43c87cb5a747 100644
---- a/fs/xfs/libxfs/xfs_alloc.c
-+++ b/fs/xfs/libxfs/xfs_alloc.c
-@@ -2529,6 +2529,13 @@ xfs_agf_verify(
- 	      be32_to_cpu(agf->agf_flcount) <= xfs_agfl_size(mp)))
- 		return false;
- 
-+	if (be32_to_cpu(agf->agf_length) > mp->m_sb.sb_dblocks)
-+		return __this_address;
-+
-+	if (be32_to_cpu(agf->agf_freeblks) < be32_to_cpu(agf->agf_longest) ||
-+	    be32_to_cpu(agf->agf_freeblks) > be32_to_cpu(agf->agf_length))
-+		return __this_address;
-+
- 	if (be32_to_cpu(agf->agf_levels[XFS_BTNUM_BNO]) < 1 ||
- 	    be32_to_cpu(agf->agf_levels[XFS_BTNUM_CNT]) < 1 ||
- 	    be32_to_cpu(agf->agf_levels[XFS_BTNUM_BNO]) > XFS_BTREE_MAXLEVELS ||
-@@ -2540,6 +2547,10 @@ xfs_agf_verify(
- 	     be32_to_cpu(agf->agf_levels[XFS_BTNUM_RMAP]) > XFS_BTREE_MAXLEVELS))
- 		return false;
- 
-+	if (xfs_sb_version_hasrmapbt(&mp->m_sb) &&
-+	    be32_to_cpu(agf->agf_rmap_blocks) > be32_to_cpu(agf->agf_length))
-+		return __this_address;
-+
- 	/*
- 	 * during growfs operations, the perag is not fully initialised,
- 	 * so we can't use it for any useful checking. growfs ensures we can't
-@@ -2553,6 +2564,11 @@ xfs_agf_verify(
- 	    be32_to_cpu(agf->agf_btreeblks) > be32_to_cpu(agf->agf_length))
- 		return false;
- 
-+	if (xfs_sb_version_hasreflink(&mp->m_sb) &&
-+	    be32_to_cpu(agf->agf_refcount_blocks) >
-+	    be32_to_cpu(agf->agf_length))
-+		return __this_address;
-+
- 	if (xfs_sb_version_hasreflink(&mp->m_sb) &&
- 	    (be32_to_cpu(agf->agf_refcount_level) < 1 ||
- 	     be32_to_cpu(agf->agf_refcount_level) > XFS_BTREE_MAXLEVELS))
--- 
-2.16.6
+Dan Williams (12):
+      libnvdimm: Validate command family indices
+      ACPI: NFIT: Move bus_dsm_mask out of generic nvdimm_bus_descriptor
+      ACPI: NFIT: Define runtime firmware activation commands
+      tools/testing/nvdimm: Cleanup dimm index passing
+      tools/testing/nvdimm: Add command debug messages
+      tools/testing/nvdimm: Prepare nfit_ctl_test() for ND_CMD_CALL emulation
+      tools/testing/nvdimm: Emulate firmware activation commands
+      driver-core: Introduce DEVICE_ATTR_ADMIN_{RO,RW}
+      libnvdimm: Convert to DEVICE_ATTR_ADMIN_RO()
+      libnvdimm: Add runtime firmware activation sysfs interface
+      PM, libnvdimm: Add syscore_quiesced() callback for firmware activation
+      ACPI: NFIT: Add runtime firmware activate support
 
+
+ Documentation/ABI/testing/sysfs-bus-nfit           |   35 ++
+ Documentation/ABI/testing/sysfs-bus-nvdimm         |    2 
+ .../driver-api/nvdimm/firmware-activate.rst        |   74 +++
+ drivers/acpi/nfit/core.c                           |  146 +++++--
+ drivers/acpi/nfit/intel.c                          |  426 ++++++++++++++++++++
+ drivers/acpi/nfit/intel.h                          |   61 +++
+ drivers/acpi/nfit/nfit.h                           |   39 ++
+ drivers/base/syscore.c                             |   18 +
+ drivers/nvdimm/bus.c                               |   46 ++
+ drivers/nvdimm/core.c                              |  103 +++++
+ drivers/nvdimm/dimm_devs.c                         |   99 +++++
+ drivers/nvdimm/namespace_devs.c                    |    2 
+ drivers/nvdimm/nd-core.h                           |    1 
+ drivers/nvdimm/pfn_devs.c                          |    2 
+ drivers/nvdimm/region_devs.c                       |    2 
+ include/linux/device.h                             |    4 
+ include/linux/libnvdimm.h                          |   53 ++
+ include/linux/syscore_ops.h                        |    2 
+ include/linux/sysfs.h                              |    7 
+ include/uapi/linux/ndctl.h                         |    5 
+ kernel/power/suspend.c                             |    2 
+ tools/testing/nvdimm/test/nfit.c                   |  367 ++++++++++++++---
+ 22 files changed, 1382 insertions(+), 114 deletions(-)
+ create mode 100644 Documentation/ABI/testing/sysfs-bus-nvdimm
+ create mode 100644 Documentation/driver-api/nvdimm/firmware-activate.rst
+
+base-commit: 48778464bb7d346b47157d21ffde2af6b2d39110
