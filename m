@@ -2,113 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E63E209DD6
-	for <lists+stable@lfdr.de>; Thu, 25 Jun 2020 13:54:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A3E1209E68
+	for <lists+stable@lfdr.de>; Thu, 25 Jun 2020 14:27:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404538AbgFYLyI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jun 2020 07:54:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50870 "EHLO
+        id S2404508AbgFYM1c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jun 2020 08:27:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2404531AbgFYLyH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Jun 2020 07:54:07 -0400
-Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8684FC0613ED
-        for <stable@vger.kernel.org>; Thu, 25 Jun 2020 04:54:07 -0700 (PDT)
-Received: by mail-wm1-x344.google.com with SMTP id t194so5615952wmt.4
-        for <stable@vger.kernel.org>; Thu, 25 Jun 2020 04:54:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=cumulusnetworks.com; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=A+8DNTwPTrqWV9XPKAnnx4MrDkAfz5yRU2Rp9COzdPI=;
-        b=dxn3mon9w6eseYb+gRQ3Op7xYvzJMstrGkYMYGq9ssAiklqMjA6dIPlJzlAO8kTMOM
-         7OfABoG7fcZguaTgR5jVnroL+UaRBunY42V9Ei8PFjS4N/R+i6yHPFXwU8Hl12ncM8EK
-         TTIPMp9qQbZdqGqZhNpMUMPDgDgTWWOWo9MKQ=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=A+8DNTwPTrqWV9XPKAnnx4MrDkAfz5yRU2Rp9COzdPI=;
-        b=Kivq+Q0oEaN/Tpx2874Spb47I1Y6hr/BeR4joLXpIVw2aSDd+kQEV/x2ULAuUeOwja
-         pMO83IP+86ky9XcFpvI7p+M+dC88LaL96CbQ73fs2k6WOG+8uzUdf7vGHmhpUMJAhWWS
-         qgnd4/hYVYUBcIxlgnGqYjO1pVHH3u9xNQrW6CHDm/UXeWW4PiYQO42pKiLHLxOGn+P4
-         u7NWbRKFZ9t5GAdI0G2EN2PjTcfV4H+0IlZ+3P12Q9dS3BPq6MMtZVdeK8YFjPT0+FwL
-         uLG+O8SdnBKTaxSLGV75AtQyttqxcth074pC/N2VQGUKl9SPKPAAILPd84upoT+PqNgy
-         jFBw==
-X-Gm-Message-State: AOAM533ZxNIuhwdVxBuOfhZKvbz0/ierE1g+PD+abbH+sKzvC8y4MvFd
-        2z0EBzAyApSi1CjpD4fOP1bCIUgH/BYX+A==
-X-Google-Smtp-Source: ABdhPJwn+XSqv+8QmTLeaF/shei+HCIPInxytmOVyfHe2owPXKtIpbIHfDTy9bkg0qZARd/9cnuOYg==
-X-Received: by 2002:a1c:7f81:: with SMTP id a123mr2952428wmd.107.1593086045745;
-        Thu, 25 Jun 2020 04:54:05 -0700 (PDT)
-Received: from [192.168.0.109] (84-238-136-197.ip.btc-net.bg. [84.238.136.197])
-        by smtp.gmail.com with ESMTPSA id b17sm22128105wrp.32.2020.06.25.04.54.02
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 25 Jun 2020 04:54:03 -0700 (PDT)
-Subject: Re: [PATCH] net: bridge: enfore alignment for ethernet address
-To:     Thomas Martitz <t.martitz@avm.de>, netdev@vger.kernel.org
-Cc:     Roopa Prabhu <roopa@cumulusnetworks.com>,
+        with ESMTP id S2404343AbgFYM1b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 25 Jun 2020 08:27:31 -0400
+Received: from mx2.mailbox.org (mx2a.mailbox.org [IPv6:2001:67c:2050:104:0:2:25:2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A464BC061573;
+        Thu, 25 Jun 2020 05:27:31 -0700 (PDT)
+Received: from smtp2.mailbox.org (smtp2.mailbox.org [80.241.60.241])
+        (using TLSv1.2 with cipher ECDHE-RSA-CHACHA20-POLY1305 (256/256 bits))
+        (No client certificate requested)
+        by mx2.mailbox.org (Postfix) with ESMTPS id D7BCFA0FCE;
+        Thu, 25 Jun 2020 14:27:28 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at heinlein-support.de
+Received: from smtp2.mailbox.org ([80.241.60.241])
+        by spamfilter06.heinlein-hosting.de (spamfilter06.heinlein-hosting.de [80.241.56.125]) (amavisd-new, port 10030)
+        with ESMTP id I7nd8-Dali38; Thu, 25 Jun 2020 14:27:22 +0200 (CEST)
+From:   Thomas Martitz <t.martitz@avm.de>
+To:     netdev@vger.kernel.org
+Cc:     Thomas Martitz <t.martitz@avm.de>,
+        Roopa Prabhu <roopa@cumulusnetworks.com>,
+        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
         "David S . Miller" <davem@davemloft.net>,
         Jakub Kicinski <kuba@kernel.org>, Felix Fietkau <nbd@nbd.name>,
         stable@vger.kernel.org
-References: <20200625065407.1196147-1-t.martitz@avm.de>
-From:   Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Message-ID: <b25f8e1c-2a45-b522-52d0-7628586b2ef8@cumulusnetworks.com>
-Date:   Thu, 25 Jun 2020 14:54:02 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
-MIME-Version: 1.0
+Subject: [PATCH v2] net: bridge: enfore alignment for ethernet address
+Date:   Thu, 25 Jun 2020 14:26:03 +0200
+Message-Id: <20200625122602.2582222-1-t.martitz@avm.de>
 In-Reply-To: <20200625065407.1196147-1-t.martitz@avm.de>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20200625065407.1196147-1-t.martitz@avm.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-MBO-SPAM-Probability: 0
+X-Rspamd-Score: -7.56 / 15.00 / 15.00
+X-Rspamd-Queue-Id: E1BC31782
+X-Rspamd-UID: 358470
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 25/06/2020 09:54, Thomas Martitz wrote:
-> The eth_addr member is passed to ether_addr functions that require
-> 2-byte alignment, therefore the member must be properly aligned
-> to avoid unaligned accesses.
-> 
-> The problem is in place since the initial merge of multicast to unicast:
-> commit 6db6f0eae6052b70885562e1733896647ec1d807 bridge: multicast to unicast
-> 
-> Fixes: 6db6f0eae605 ("bridge: multicast to unicast")
-> Cc: Roopa Prabhu <roopa@cumulusnetworks.com>
-> Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-> Cc: David S. Miller <davem@davemloft.net>
-> Cc: Jakub Kicinski <kuba@kernel.org>
-> Cc: Felix Fietkau <nbd@nbd.name>
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Thomas Martitz <t.martitz@avm.de>
-> ---
->  net/bridge/br_private.h | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
-> index 7501be4eeba0..22cb2f1993ef 100644
-> --- a/net/bridge/br_private.h
-> +++ b/net/bridge/br_private.h
-> @@ -217,8 +217,8 @@ struct net_bridge_port_group {
->  	struct rcu_head			rcu;
->  	struct timer_list		timer;
->  	struct br_ip			addr;
-> +	unsigned char			eth_addr[ETH_ALEN]; /* 2-byte aligned */
->  	unsigned char			flags;
-> -	unsigned char			eth_addr[ETH_ALEN];
->  };
->  
->  struct net_bridge_mdb_entry {
-> 
+The eth_addr member is passed to ether_addr functions that require
+2-byte alignment, therefore the member must be properly aligned
+to avoid unaligned accesses.
 
-Hi Thomas,
-To document it and guarantee that future struct changes won't break it I think
-it'd be a good idea to add __aligned(2) for that member instead of the comment.
+The problem is in place since the initial merge of multicast to unicast:
+commit 6db6f0eae6052b70885562e1733896647ec1d807 bridge: multicast to unicast
 
-Other than that the patch looks good.
+Fixes: 6db6f0eae605 ("bridge: multicast to unicast")
+Cc: Roopa Prabhu <roopa@cumulusnetworks.com>
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Felix Fietkau <nbd@nbd.name>
+Cc: stable@vger.kernel.org
+Signed-off-by: Thomas Martitz <t.martitz@avm.de>
+---
+ net/bridge/br_private.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thanks,
- Nik
-
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 7501be4eeba0..2130fe0194e6 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -217,8 +217,8 @@ struct net_bridge_port_group {
+ 	struct rcu_head			rcu;
+ 	struct timer_list		timer;
+ 	struct br_ip			addr;
++	unsigned char			eth_addr[ETH_ALEN] __aligned(2);
+ 	unsigned char			flags;
+-	unsigned char			eth_addr[ETH_ALEN];
+ };
+ 
+ struct net_bridge_mdb_entry {
+-- 
+2.27.0
