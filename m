@@ -2,166 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8439209AD3
-	for <lists+stable@lfdr.de>; Thu, 25 Jun 2020 09:54:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9198209B4E
+	for <lists+stable@lfdr.de>; Thu, 25 Jun 2020 10:31:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390416AbgFYHye convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 25 Jun 2020 03:54:34 -0400
-Received: from relay8-d.mail.gandi.net ([217.70.183.201]:35577 "EHLO
-        relay8-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390360AbgFYHyd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Jun 2020 03:54:33 -0400
-X-Originating-IP: 90.76.143.236
-Received: from localhost (lfbn-tou-1-1075-236.w90-76.abo.wanadoo.fr [90.76.143.236])
-        (Authenticated sender: antoine.tenart@bootlin.com)
-        by relay8-d.mail.gandi.net (Postfix) with ESMTPSA id 2787C1BF209;
-        Thu, 25 Jun 2020 07:54:28 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        id S2390652AbgFYIbP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jun 2020 04:31:15 -0400
+Received: from elvis.franken.de ([193.175.24.41]:36823 "EHLO elvis.franken.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2389537AbgFYIbP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jun 2020 04:31:15 -0400
+Received: from uucp (helo=alpha)
+        by elvis.franken.de with local-bsmtp (Exim 3.36 #1)
+        id 1joNHs-0001Gi-02; Thu, 25 Jun 2020 10:31:12 +0200
+Received: by alpha.franken.de (Postfix, from userid 1000)
+        id 98D3FC06F9; Thu, 25 Jun 2020 10:23:11 +0200 (CEST)
+Date:   Thu, 25 Jun 2020 10:23:11 +0200
+From:   Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+To:     =?iso-8859-1?Q?Jo=E3o_H=2E?= Spies <jhlspies@gmail.com>
+Cc:     Paul Cercueil <paul@crapouillou.net>, devicetree@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] MIPS: ingenic: gcw0: Fix HP detection GPIO.
+Message-ID: <20200625082311.GA6319@alpha.franken.de>
+References: <20200623211945.823-1-jhlspies@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <20200625071816.1739528-1-ardb@kernel.org>
-References: <20200625071816.1739528-1-ardb@kernel.org>
-Subject: Re: [PATCH v2] net: phy: mscc: avoid skcipher API for single block AES encryption
-Cc:     linux-crypto@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>, stable@vger.kernel.org,
-        Eric Biggers <ebiggers@google.com>
-From:   Antoine Tenart <antoine.tenart@bootlin.com>
-To:     Ard Biesheuvel <ardb@kernel.org>, netdev@vger.kernel.org
-Message-ID: <159307166803.397581.14181147952249059680@kwain>
-Date:   Thu, 25 Jun 2020 09:54:28 +0200
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200623211945.823-1-jhlspies@gmail.com>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Ard,
-
-Quoting Ard Biesheuvel (2020-06-25 09:18:16)
-> The skcipher API dynamically instantiates the transformation object
-> on request that implements the requested algorithm optimally on the
-> given platform. This notion of optimality only matters for cases like
-> bulk network or disk encryption, where performance can be a bottleneck,
-> or in cases where the algorithm itself is not known at compile time.
+On Tue, Jun 23, 2020 at 06:19:45PM -0300, João H. Spies wrote:
+> Previously marked as active high, but is in reality active low.
 > 
-> In the mscc case, we are dealing with AES encryption of a single
-> block, and so neither concern applies, and we are better off using
-> the AES library interface, which is lightweight and safe for this
-> kind of use.
-> 
-> Note that the scatterlist API does not permit references to buffers
-> that are located on the stack, so the existing code is incorrect in
-> any case, but avoiding the skcipher and scatterlist APIs entirely is
-> the most straight-forward approach to fixing this.
-> 
-> Cc: Antoine Tenart <antoine.tenart@bootlin.com>
-> Cc: Andrew Lunn <andrew@lunn.ch>
-> Cc: Florian Fainelli <f.fainelli@gmail.com>
-> Cc: Heiner Kallweit <hkallweit1@gmail.com>
-> Cc: "David S. Miller" <davem@davemloft.net>
-> Cc: Jakub Kicinski <kuba@kernel.org>
-> Cc: <stable@vger.kernel.org>
-> Fixes: 28c5107aa904e ("net: phy: mscc: macsec support")
-> Reviewed-by: Eric Biggers <ebiggers@google.com>
-> Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-
-Tested-by: Antoine Tenart <antoine.tenart@bootlin.com>
-
-That improves and simplifies a lot the code, thank you!
-Antoine
-
+> Cc: stable@vger.kernel.org
+> Fixes: b1bfdb660516 ("MIPS: ingenic: DTS: Update GCW0 support")
+> Signed-off-by: João H. Spies <jhlspies@gmail.com>
 > ---
-> v2:
-> - select CRYPTO_LIB_AES only if MACSEC is enabled
-> - add Eric's R-b
-> 
->  drivers/net/phy/Kconfig            |  3 +-
->  drivers/net/phy/mscc/mscc_macsec.c | 40 +++++---------------
->  2 files changed, 10 insertions(+), 33 deletions(-)
-> 
-> diff --git a/drivers/net/phy/Kconfig b/drivers/net/phy/Kconfig
-> index f25702386d83..e351d65533aa 100644
-> --- a/drivers/net/phy/Kconfig
-> +++ b/drivers/net/phy/Kconfig
-> @@ -480,8 +480,7 @@ config MICROCHIP_T1_PHY
->  config MICROSEMI_PHY
->         tristate "Microsemi PHYs"
->         depends on MACSEC || MACSEC=n
-> -       select CRYPTO_AES
-> -       select CRYPTO_ECB
-> +       select CRYPTO_LIB_AES if MACSEC
->         help
->           Currently supports VSC8514, VSC8530, VSC8531, VSC8540 and VSC8541 PHYs
->  
-> diff --git a/drivers/net/phy/mscc/mscc_macsec.c b/drivers/net/phy/mscc/mscc_macsec.c
-> index b4d3dc4068e2..d53ca884b5c9 100644
-> --- a/drivers/net/phy/mscc/mscc_macsec.c
-> +++ b/drivers/net/phy/mscc/mscc_macsec.c
-> @@ -10,7 +10,7 @@
->  #include <linux/phy.h>
->  #include <dt-bindings/net/mscc-phy-vsc8531.h>
->  
-> -#include <crypto/skcipher.h>
-> +#include <crypto/aes.h>
->  
->  #include <net/macsec.h>
->  
-> @@ -500,39 +500,17 @@ static u32 vsc8584_macsec_flow_context_id(struct macsec_flow *flow)
->  static int vsc8584_macsec_derive_key(const u8 key[MACSEC_KEYID_LEN],
->                                      u16 key_len, u8 hkey[16])
->  {
-> -       struct crypto_skcipher *tfm = crypto_alloc_skcipher("ecb(aes)", 0, 0);
-> -       struct skcipher_request *req = NULL;
-> -       struct scatterlist src, dst;
-> -       DECLARE_CRYPTO_WAIT(wait);
-> -       u32 input[4] = {0};
-> +       const u8 input[AES_BLOCK_SIZE] = {0};
-> +       struct crypto_aes_ctx ctx;
->         int ret;
->  
-> -       if (IS_ERR(tfm))
-> -               return PTR_ERR(tfm);
-> -
-> -       req = skcipher_request_alloc(tfm, GFP_KERNEL);
-> -       if (!req) {
-> -               ret = -ENOMEM;
-> -               goto out;
-> -       }
-> -
-> -       skcipher_request_set_callback(req, CRYPTO_TFM_REQ_MAY_BACKLOG |
-> -                                     CRYPTO_TFM_REQ_MAY_SLEEP, crypto_req_done,
-> -                                     &wait);
-> -       ret = crypto_skcipher_setkey(tfm, key, key_len);
-> -       if (ret < 0)
-> -               goto out;
-> -
-> -       sg_init_one(&src, input, 16);
-> -       sg_init_one(&dst, hkey, 16);
-> -       skcipher_request_set_crypt(req, &src, &dst, 16, NULL);
-> -
-> -       ret = crypto_wait_req(crypto_skcipher_encrypt(req), &wait);
-> +       ret = aes_expandkey(&ctx, key, key_len);
-> +       if (ret)
-> +               return ret;
->  
-> -out:
-> -       skcipher_request_free(req);
-> -       crypto_free_skcipher(tfm);
-> -       return ret;
-> +       aes_encrypt(&ctx, hkey, input);
-> +       memzero_explicit(&ctx, sizeof(ctx));
-> +       return 0;
->  }
->  
->  static int vsc8584_macsec_transformation(struct phy_device *phydev,
-> -- 
-> 2.27.0
-> 
+>  arch/mips/boot/dts/ingenic/gcw0.dts | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+
+applied to mips-fixes.
+
+Thomas.
 
 -- 
-Antoine TÃ©nart, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+Crap can work. Given enough thrust pigs will fly, but it's not necessarily a
+good idea.                                                [ RFC1925, 2.3 ]
