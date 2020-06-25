@@ -2,106 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 282CF20A01E
-	for <lists+stable@lfdr.de>; Thu, 25 Jun 2020 15:38:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D410720A14F
+	for <lists+stable@lfdr.de>; Thu, 25 Jun 2020 16:53:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405012AbgFYNiu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jun 2020 09:38:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38902 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2404996AbgFYNit (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 25 Jun 2020 09:38:49 -0400
-Received: from mail-wm1-x342.google.com (mail-wm1-x342.google.com [IPv6:2a00:1450:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D37D3C08C5DB
-        for <stable@vger.kernel.org>; Thu, 25 Jun 2020 06:38:48 -0700 (PDT)
-Received: by mail-wm1-x342.google.com with SMTP id l17so5615393wmj.0
-        for <stable@vger.kernel.org>; Thu, 25 Jun 2020 06:38:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=sChA7GHV4hlkfpK+ozmJjB10++7TNo/bmR1QteXGK7Y=;
-        b=VE1H4cUGZxywExFFi62qrPnBOZqKjdb+jDa5svgWaNo5vczGVwC+hGVzms75r9EN99
-         ynBiDKp6F3K2woAR15eWxxr15ZF4xdwwEPfWFym2I9DYpqJMSRDdlJrwQBX40V5l9/sL
-         flAa+jjvwqAVo6XI0piFN35fypGzChA1muKJAe6FPRiDXu887m2RCtrqeBr9WHsHd1Cy
-         FiJ+TqRXn27CTzQ/X796jPWTUk6NHVjBNuNspEzZBLz2qc9hKqj+5K7v2L5/B/4s5kzp
-         /YMUVNCytsS49H1vFyOy4yXT5ogSKEjAbGv8glKbUpAh6IE8YIbm5n6O8qdk+p2zxJlM
-         fRAA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=sChA7GHV4hlkfpK+ozmJjB10++7TNo/bmR1QteXGK7Y=;
-        b=q7pwVITp1hVGTf+mtQWpYkZFf2ILq5L6pzw5iAbK+p5JABFcCd2au4wM+k8OFw0XNM
-         t9UF7sPGldUhNdY0OBlMkOY0JwqGC83J0r92MHwm8jYxXU7Ugn949Ph2w5CkjQ+YI31L
-         8Xw+iWdJ8WE1dZzOOwAsY2NKfjLYlIl+j4XaK7aY8LzV09Ftai5+oCsXMx07NSFn9e8M
-         LQcD2cze86B08ZwdjDZdn5Bonho1m97cyaNfzE+SDQgGb0MwyEgu6DXA+A2n8ZrFpDHz
-         hT6xDHkTQS0qZ67hPsfl3IpZbeXSwC4O1C99HVPA9/doyNscIEEwrGLrWl0m42WUWrQt
-         NA+w==
-X-Gm-Message-State: AOAM530TIt8mbFf/+3rHpJ11JUYS94hpI8gg21YWR+REqOG9Pe5caSvH
-        DBl5RI8y9gQp1EOf2zZTERMr0w==
-X-Google-Smtp-Source: ABdhPJzFZQWGTBTBa4T/1hxiqe1NJvboVg4FHe1xLQbOxZguhizJ0+w360c0uCvspO0ywn5TRE8fXw==
-X-Received: by 2002:a1c:3dc3:: with SMTP id k186mr3610133wma.66.1593092327610;
-        Thu, 25 Jun 2020 06:38:47 -0700 (PDT)
-Received: from dell ([2.27.35.144])
-        by smtp.gmail.com with ESMTPSA id l14sm15255159wrn.18.2020.06.25.06.38.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 25 Jun 2020 06:38:46 -0700 (PDT)
-Date:   Thu, 25 Jun 2020 14:38:45 +0100
-From:   Lee Jones <lee.jones@linaro.org>
-To:     Jonathan Corbet <corbet@lwn.net>
-Cc:     Greg KH <gregkh@linuxfoundation.org>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, patches@opensource.cirrus.com
-Subject: Re: [PATCH 01/10] mfd: wm8350-core: Supply description
- wm8350_reg_{un}lock args
-Message-ID: <20200625133845.GQ954398@dell>
-References: <20200625064619.2775707-1-lee.jones@linaro.org>
- <20200625064619.2775707-2-lee.jones@linaro.org>
- <20200625065608.GB2789306@kroah.com>
- <20200625071313.GM954398@dell>
- <20200625072449.4d3e3fca@lwn.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20200625072449.4d3e3fca@lwn.net>
+        id S2405405AbgFYOx4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jun 2020 10:53:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49908 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2405309AbgFYOx4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jun 2020 10:53:56 -0400
+Received: from localhost (unknown [137.135.114.1])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3E5BB20768;
+        Thu, 25 Jun 2020 14:53:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1593096835;
+        bh=NAJKRYY0MQ7KEvPqGjaP5V5F1etD3ZR4WhDtnXRMksQ=;
+        h=Date:From:To:To:To:Cc:Cc:Subject:In-Reply-To:References:From;
+        b=ZULTOdOw+lIwfbzK99GntpkE+tDiLi6hnWU/FDiQHfOIe/jK+gtqANufcN+QgdWqH
+         HkNfPXV/nUuMyJ3BXgqhc/avma24QtsoN13cX/sXGpWl/h2ItWxOyW/VFm0gLD+os4
+         iHboANvJx8WzzBlBLARbVwUeMltrmvnSkM0cMHfI=
+Date:   Thu, 25 Jun 2020 14:53:54 +0000
+From:   Sasha Levin <sashal@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+To:     Finley Xiao <finley.xiao@rock-chips.com>
+To:     xf@rock-chips.com
+Cc:     Finley Xiao <finley.xiao@rock-chips.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH v1] thermal/drivers/cpufreq_cooling: Fix wrong frequency converted from power
+In-Reply-To: <20200623114206.13762-1-finley.xiao@rock-chips.com>
+References: <20200623114206.13762-1-finley.xiao@rock-chips.com>
+Message-Id: <20200625145355.3E5BB20768@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 25 Jun 2020, Jonathan Corbet wrote:
-> On Thu, 25 Jun 2020 08:13:13 +0100
-> Lee Jones <lee.jones@linaro.org> wrote:
-> 
-> > > Why are all of these documentation fixes for stable?  
-> > 
-> > Because they fix compiler warnings.
-> > 
-> > Not correct?
-> 
-> I am overjoyed to see people fixing docs build warnings, it is work that
-> is desperately needed.
+Hi
 
-I'll do what I can with the time that I have.
+[This is an automated email]
 
-The plan is to keep plodding on and seeing how far I can take it.  A
-clean W=1 build sounds like rainbows and unicorns presently, but Rome
-wasn't built in a day.
+This commit has been processed because it contains a "Fixes:" tag
+fixing commit: 349d39dc5739 ("thermal: cpu_cooling: merge frequency and power tables").
 
-Tell you the truth, drafting patches (again, after a break) is a
-welcome change/release from digging around and reviewing Android
-Stable patches.  It's the only thing keeping me sane. :)
+The bot has tested the following trees: v5.7.5, v5.4.48, v4.19.129, v4.14.185.
 
-> That said, these warning fixes are probably not
-> stable material; the problem is bigger and longer-term than that.
+v5.7.5: Build OK!
+v5.4.48: Failed to apply! Possible dependencies:
+    5a4e5b78956a5 ("thermal: cpu_cooling: Make the power-related code depend on IPA")
+    a4e893e802e6a ("thermal: cpu_cooling: Migrate to using the EM framework")
 
-Fair enough.
+v4.19.129: Failed to apply! Possible dependencies:
+    18c49926c4bf4 ("cpufreq: Add QoS requests for userspace constraints")
+    2acb9bdae92d0 ("cpufreq: Explain the kobject_put() in cpufreq_policy_alloc()")
+    2d8b39a62a5d3 ("ACPI: processor: Avoid NULL pointer dereferences at init time")
+    3000ce3c52f8b ("cpufreq: Use per-policy frequency QoS")
+    348a2ec5f5a5a ("cpufreq: Reorder and simplify cpufreq_update_policy()")
+    4ebe36c94aed9 ("cpufreq: Fix kobject memleak")
+    540a375822a40 ("cpufreq: Add cpufreq_cpu_acquire() and cpufreq_cpu_release()")
+    5a4e5b78956a5 ("thermal: cpu_cooling: Make the power-related code depend on IPA")
+    5c238a8b599f1 ("cpufreq: Auto-register the driver as a thermal cooling device if asked")
+    67d874c3b2c69 ("cpufreq: Register notifiers with the PM QoS framework")
+    70a59fde6e69d ("cpufreq: Avoid calling cpufreq_verify_current_freq() from handle_update()")
+    a0dbb819b84f8 ("cpufreq: Add kerneldoc comments for two core functions")
+    a4e893e802e6a ("thermal: cpu_cooling: Migrate to using the EM framework")
+    d15ce412737ac ("ACPI: cpufreq: Switch to QoS requests instead of cpufreq notifier")
+
+v4.14.185: Failed to apply! Possible dependencies:
+    18c49926c4bf4 ("cpufreq: Add QoS requests for userspace constraints")
+    2acb9bdae92d0 ("cpufreq: Explain the kobject_put() in cpufreq_policy_alloc()")
+    2d8b39a62a5d3 ("ACPI: processor: Avoid NULL pointer dereferences at init time")
+    3000ce3c52f8b ("cpufreq: Use per-policy frequency QoS")
+    348a2ec5f5a5a ("cpufreq: Reorder and simplify cpufreq_update_policy()")
+    4ebe36c94aed9 ("cpufreq: Fix kobject memleak")
+    540a375822a40 ("cpufreq: Add cpufreq_cpu_acquire() and cpufreq_cpu_release()")
+    5a4e5b78956a5 ("thermal: cpu_cooling: Make the power-related code depend on IPA")
+    5c238a8b599f1 ("cpufreq: Auto-register the driver as a thermal cooling device if asked")
+    67d874c3b2c69 ("cpufreq: Register notifiers with the PM QoS framework")
+    70a59fde6e69d ("cpufreq: Avoid calling cpufreq_verify_current_freq() from handle_update()")
+    a0dbb819b84f8 ("cpufreq: Add kerneldoc comments for two core functions")
+    a4e893e802e6a ("thermal: cpu_cooling: Migrate to using the EM framework")
+    d15ce412737ac ("ACPI: cpufreq: Switch to QoS requests instead of cpufreq notifier")
+
+
+NOTE: The patch will not be queued to stable trees until it is upstream.
+
+How should we proceed with this patch?
 
 -- 
-Lee Jones [李琼斯]
-Senior Technical Lead - Developer Services
-Linaro.org │ Open source software for Arm SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Thanks
+Sasha
