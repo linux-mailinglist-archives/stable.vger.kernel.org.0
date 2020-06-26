@@ -2,134 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 05A7020AF45
-	for <lists+stable@lfdr.de>; Fri, 26 Jun 2020 11:56:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9903220B0D8
+	for <lists+stable@lfdr.de>; Fri, 26 Jun 2020 13:49:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726960AbgFZJ4A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jun 2020 05:56:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38696 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725883AbgFZJ4A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jun 2020 05:56:00 -0400
-Received: from willie-the-truck (236.31.169.217.in-addr.arpa [217.169.31.236])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9066620679;
-        Fri, 26 Jun 2020 09:55:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593165359;
-        bh=vxGNZn3Yl1xN6kiNr2vP7aVHHOR6nYuFWLC8GA5GtB0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=hQH5vOqqkc/SjUsPQc5K8FhkTZKu8AIOvZm2oZoOIurmZ5IO0IVxZlkZxVSHwydCS
-         5mwi1otgBnV9fuo0T7TU7JJxfNSIpFxn0Qc5u0EVYm1KpzkbKjJL4fq1Qb6CjL+45X
-         GEnAtE7NWkUmfTugsvnutbKG/pBZm+HI6haIUHxU=
-Date:   Fri, 26 Jun 2020 10:55:54 +0100
-From:   Will Deacon <will@kernel.org>
-To:     Mark Rutland <mark.rutland@arm.com>
-Cc:     Paul Gortmaker <paul.gortmaker@windriver.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        "Paul E . McKenney" <paulmck@linux.ibm.com>,
-        James Morse <james.morse@arm.com>
-Subject: Re: [PATCH] arm64: don't preempt_disable in do_debug_exception
-Message-ID: <20200626095551.GA9312@willie-the-truck>
-References: <1592501369-27645-1-git-send-email-paul.gortmaker@windriver.com>
- <20200623155900.GA4777@willie-the-truck>
- <20200623165557.GA12767@C02TD0UTHF1T.local>
+        id S1726981AbgFZLt1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jun 2020 07:49:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46858 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726846AbgFZLt1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 26 Jun 2020 07:49:27 -0400
+Received: from mail-lf1-x141.google.com (mail-lf1-x141.google.com [IPv6:2a00:1450:4864:20::141])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3C66C08C5DB;
+        Fri, 26 Jun 2020 04:49:26 -0700 (PDT)
+Received: by mail-lf1-x141.google.com with SMTP id g2so5012062lfb.0;
+        Fri, 26 Jun 2020 04:49:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=ss1mUQEA71hYwxYf3sh5BP88GR/cUANQn8zzc0btYbU=;
+        b=O/LIwe/zc8JPp/jBjwpyYuXwWZv3UnSIM6MSWeU1kyXjXiqL3oDrijIhOcQHXMu/+g
+         qu1ERd3JTYEEsUx2PhgFBtldsRa6LRIGvG0RnrBeZSHSUS+GAEdD5GapfHwMEARqQ/HS
+         HmFzquwzaUUP8gYN8ul2l0nVgN0fekhv4WUPyXopbXGeY6UBR8cSP0DnC5CCga95DiQI
+         yo5Krwgpx91r2ld92U2zPPUWoWLnVAEWMhjwSh1r3aYYcOXga1DnV29PcovLI9v9GNKb
+         elUheNvKIHNCfFDMrY9XdS00AscTVaNPR7F0QjLAzJ8i78+q3zKqCWZL3CUMVA1xcCrL
+         4R7A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=ss1mUQEA71hYwxYf3sh5BP88GR/cUANQn8zzc0btYbU=;
+        b=SXiiz6JptBNlB8LtaE0cLyjwLTOsoyBB29gIutVjzJc4/79lHxhcRFsSklghjZJJ4r
+         Hpq+rFqhwP0ro5UVkHYlGkFHaJCB+Q9ZjPNkV9snYawNU/3JL3XnTLWgy7wHNMJfxVcn
+         ZxgNXZeQiUsj4d790VG7NLqJq6l2eXojRyFzRgusS7fGhNeECqunGOvWByCYPjqojzT4
+         Tk+7rH439pebA6nmhQPmoOTrzKxZQFNqQVwELcT3IIoInfcPE3H7WTvTXnbbXdWY51XO
+         TwXitdZLB48BIUoC+vxwVN/luY2zw7egwzso1hmXEEVrsP2f56spESyIKdHL08mfBB3o
+         yG/Q==
+X-Gm-Message-State: AOAM531B1jyqOwF8ZrTMuRVnMF2YX/i36c0Afecm1r0RDsPv4NQcaS/o
+        jY+K6ZcsiY6dm4LLm2IN9TPSt7PxuHN+LW8dWw==
+X-Google-Smtp-Source: ABdhPJzIEmOG6suuMShv0PXoi5S0Dx2fUmNIh9k3VNglBE5zGov/Q3DWWKLfrj2FC/OqDp7cDXXM/CnPylwaoRuEHms=
+X-Received: by 2002:a19:7014:: with SMTP id h20mr1614176lfc.49.1593172165222;
+ Fri, 26 Jun 2020 04:49:25 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200623165557.GA12767@C02TD0UTHF1T.local>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <1592410366125160@kroah.com> <CAEJqkgjV8p6LtBV8YUGbNb0vYzKOQt4-AMAvYw5mzFr3eicyTg@mail.gmail.com>
+ <b7993e83-1df7-0c93-f6dd-dba9dc10e27a@kernel.org> <CAEJqkggG2ZB8De_zbP2W7Z9eRYve2br8jALaLRhjC33ksLZpTw@mail.gmail.com>
+ <CAEJqkgj4LS7M3zYK51Vagt4rWC9A7uunA+7CvX0Qv=57Or3Ngg@mail.gmail.com>
+In-Reply-To: <CAEJqkgj4LS7M3zYK51Vagt4rWC9A7uunA+7CvX0Qv=57Or3Ngg@mail.gmail.com>
+From:   Gabriel C <nix.or.die@googlemail.com>
+Date:   Fri, 26 Jun 2020 13:48:59 +0200
+Message-ID: <CAEJqkghJWGsLCj2Wvt-yhzMewjXwrXhSEDpar6rbDpbSA6R8kQ@mail.gmail.com>
+Subject: Re: ath9k broken [was: Linux 5.7.3]
+To:     Jiri Slaby <jirislaby@kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable <stable@vger.kernel.org>, lwn@lwn.net,
+        angrypenguinpoland@gmail.com, Qiujun Huang <hqjagain@gmail.com>,
+        ath9k-devel <ath9k-devel@qca.qualcomm.com>,
+        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 23, 2020 at 05:55:57PM +0100, Mark Rutland wrote:
-> On Tue, Jun 23, 2020 at 04:59:01PM +0100, Will Deacon wrote:
-> > On Thu, Jun 18, 2020 at 01:29:29PM -0400, Paul Gortmaker wrote:
-> > >  BUG: sleeping function called from invalid context at kernel/locking/rtmutex.c:975
-> > >  in_atomic(): 1, irqs_disabled(): 0, pid: 35658, name: gdbtest
-> > >  Preemption disabled at:
-> > >  [<ffff000010081578>] do_debug_exception+0x38/0x1a4
-> > >  Call trace:
-> > >  dump_backtrace+0x0/0x138
-> > >  show_stack+0x24/0x30
-> > >  dump_stack+0x94/0xbc
-> > >  ___might_sleep+0x13c/0x168
-> > >  rt_spin_lock+0x40/0x80
-> > >  do_force_sig_info+0x30/0xe0
-> > >  force_sig_fault+0x64/0x90
-> > >  arm64_force_sig_fault+0x50/0x80
-> > >  send_user_sigtrap+0x50/0x80
-> > >  brk_handler+0x98/0xc8
-> > >  do_debug_exception+0x70/0x1a4
-> > >  el0_dbg+0x18/0x20
-> > > 
-> > > The reproducer was basically an automated gdb test that set a breakpoint
-> > > on a simple "hello world" program and then quit gdb once the breakpoint
-> > > was hit - i.e. "(gdb) A debugging session is active.  Quit anyway? "
-> > 
-> > Hmm, the debug exception handler path was definitely written with the
-> > expectation that preemption is disabled, so this is unfortunate. For
-> > exceptions from kernelspace, we need to keep that guarantee as we implement
-> > things like BUG() using this path. For exceptions from userspace, it's
-> > plausible that we could re-enable preemption, but then we should also
-> > re-enable interrupts and debug exceptions too because we don't
-> > context-switch pstate in switch_to() and we would end up with holes in our
-> > kernel debug coverage (and these might be fatal if e.g. single step doesn't
-> > work in a kprobe OOL buffer). However, that then means that any common code
-> > when handling user and kernel debug exceptions needs to be re-entrant,
-> > which it probably isn't at the moment (I haven't checked).
-> 
-> I'm pretty certain existing code is not reentrant, and regardless it's
-> going to be a mess to reason about this generally if we have to undo our
-> strict exception nesting rules.
+Am Do., 25. Juni 2020 um 12:52 Uhr schrieb Gabriel C
+<nix.or.die@googlemail.com>:
+>
+> Am Do., 25. Juni 2020 um 12:48 Uhr schrieb Gabriel C
+> <nix.or.die@googlemail.com>:
+> >
+> > Am Do., 25. Juni 2020 um 06:57 Uhr schrieb Jiri Slaby <jirislaby@kernel.org>:
+> > >
+> > > On 25. 06. 20, 0:05, Gabriel C wrote:
+> > > > Am Mi., 17. Juni 2020 um 18:13 Uhr schrieb Greg Kroah-Hartman
+> > > > <gregkh@linuxfoundation.org>:
+> > > >>
+> > > >> I'm announcing the release of the 5.7.3 kernel.
+> > > >>
+> > > >
+> > > > Hello Greg,
+> > > >
+> > > >> Qiujun Huang (5):
+> > > >>       ath9k: Fix use-after-free Read in htc_connect_service
+> > > >>       ath9k: Fix use-after-free Read in ath9k_wmi_ctrl_rx
+> > > >>       ath9k: Fix use-after-free Write in ath9k_htc_rx_msg
+> > > >>       ath9x: Fix stack-out-of-bounds Write in ath9k_hif_usb_rx_cb
+> > > >>       ath9k: Fix general protection fault in ath9k_hif_usb_rx_cb
+> > > >>
+> > > >
+> > > > We got a report on IRC about 5.7.3+ breaking a USB ath9k Wifi Dongle,
+> > > > while working fine on <5.7.3.
+> > > >
+> > > > I don't have myself such HW, and the reported doesn't have any experience
+> > > > in bisecting the kernel, so we build kernels, each with one of the
+> > > > above commits reverted,
+> > > > to find the bad commit.
+> > > >
+> > > > The winner is:
+> > > >
+> > > > commit 6602f080cb28745259e2fab1a4cf55eeb5894f93
+> > > > Author: Qiujun Huang <hqjagain@gmail.com>
+> > > > Date:   Sat Apr 4 12:18:38 2020 +0800
+> > > >
+> > > >     ath9k: Fix general protection fault in ath9k_hif_usb_rx_cb
+> > > >
+> > > >     commit 2bbcaaee1fcbd83272e29f31e2bb7e70d8c49e05 upstream.
+> > > > ...
+> > > >
+> > > > Reverting this one fixed his problem.
+> > >
+> > > Obvious question: is 5.8-rc1 (containing the commit) broken too?
+> >
+> > Yes, it does, just checked.
+> >
+> > git tag --contains 2bbcaaee1fcbd83272e29f31e2bb7e70d8c49e05
+> > v5.8-rc1
+> > v5.8-rc2
+> >
+>
+> Sorry, I read the wrong, I just woke up.
+>
+> We didn't test 5.8-rc{1,2} yet but we will today and let you know.
+>
 
-Are these rules written down somewhere? I'll need to update them if we
-get this working for preempt-rt (and we should try to do that).
+We tested 5.8-rc2 and it is broken too.
 
-> I reckon we need to treat this like an NMI instead -- is that plausible?
+The exact HW name is:
 
-I don't think so. It's very much a synchronous exception, and delivering a
-signal to the exceptional context doesn't feel like an NMI to me. There's
-also a fair amount of code that can run in debug context (hw_breakpoint,
-kprobes, uprobes, kasan) which might not be happy to suddenly be in an
-NMI-like environment. Furthermore, the masking rules are different depending
-on what triggers the exception.
+TP-link tl-wn722n (Atheros AR9271 chip)
 
-One of the things I've started looking at is ripping out our dodgy
-hw_breakpoint code so that kernel debug exceptions are easier to reason
-about. Specifically, I think we end up with something like:
+> > >
+> > > I fail to see how the commit could cause an issue like this. Is this
+> > > really reproducibly broken with the commit and irreproducible without
+> > > it?
+> >
+> > I can't see something obvious wrong either, but yes it's reproducible on his HW.
+> > Kernel with this commit breaks the dongle, with the commit reverted it works.
+> >
+> > >As it looks like a USB/wiring problem:
+> > > usb 1-2: USB disconnect, device number 2
+> > > ath: phy0: Reading Magic # failed
+> > > ath: phy0: Unable to initialize hardware; initialization status: -5
+> > > ...
+> > > usb 1-2: device descriptor read/64, error -110
+> > > usb 1-2: device descriptor read/64, error -71
+> > >
+> > > Ccing ath9k maintainers too.
+> > >
+> > > > I don't have so much info about the HW, besides a dmesg showing the
+> > > > phy breaking.
+> > > > I also added the reporter to CC too.
+> > > >
+> > > > https://gist.github.com/AngryPenguinPL/1e545f0da3c2339e443b9e5044fcccea
+> > > >
+> > > > If you need more info, please let me know and I'll try my best to get
+> > > > it as fast as possible for you.
+> > >
 
-- On taking a non-debug exception from EL0, unmask D as soon as we can.
+Best Regards,
 
-- On taking a debug exception from EL0, unmask {D,I} and invoke user
-  handlers. I think this always means SIGTRAP, apart from uprobes.
-  This will mean making those paths preemptible, as I don't think they
-  are right now (e.g. traversing the callback hooks uses an RCU-protected
-  list).
-
-- On taking a non-debug, non-fatal synchronous exception from EL1, unmask
-  D as soon as we can (i.e. we step into these exceptions). Fatal exceptions
-  can obviously leave D masked.
-
-- On taking an interrupt from EL1, stash MDSCR_EL1.SS in a pcpu variable and
-  clear the register bit if it was set. Then unmask only D and leave I set. On
-  return from the exception, set D and restore MDSCR_EL1.SS. If we decide to
-  reschedule, unmask D (i.e. we only step into interrupts if we need a
-  reschedule. Alternatively, we could skip the reschedule if we were
-  stepping.)
-
-- On taking a debug exception from EL1, leave {D,I} set. Watchpoints on
-  uaccess are silently stepped over.
-
-Thoughts? We could probably simplify this if we could state that stepping an
-instruction in kernel space could only ever be interrupted by an interrupt.
-That's probably true for kprobes, but relying on it feels like it might bite
-us later on.
-
-Will
+Gabriel C
