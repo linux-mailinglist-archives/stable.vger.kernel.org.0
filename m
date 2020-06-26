@@ -2,70 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4823820B8DC
-	for <lists+stable@lfdr.de>; Fri, 26 Jun 2020 20:57:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 385C320B8F5
+	for <lists+stable@lfdr.de>; Fri, 26 Jun 2020 21:03:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725781AbgFZS5V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jun 2020 14:57:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56408 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725283AbgFZS5V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 26 Jun 2020 14:57:21 -0400
-Received: from mail-vs1-xe43.google.com (mail-vs1-xe43.google.com [IPv6:2607:f8b0:4864:20::e43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0251FC03E979
-        for <stable@vger.kernel.org>; Fri, 26 Jun 2020 11:57:19 -0700 (PDT)
-Received: by mail-vs1-xe43.google.com with SMTP id o15so6005432vsp.12
-        for <stable@vger.kernel.org>; Fri, 26 Jun 2020 11:57:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=4o58lpb/fyWWm5f0KMUFLrPPzAtQtY4+vzLKRalbKbE=;
-        b=NXnf662cpwxwU1/BP4W4VTg9MIgXF2aALmwSNTY/JQMgtmG41GN3d5AgpC6/9pU1ZV
-         /5v5Q2U7I7z+O/P/fKmqOHXdjEtLmF1cqUMAwQqah6z6dkGIVTJF14JaaS4nKP59AcwM
-         O/rqp0arTOgsGnc5sqtI8KVrNOdlyPLAmhNsfxB6+k6Lp5vSg2qTX75bBnUJk6DE4hW9
-         XaeqSr4tog+v5Deb3aMeUaNWIXZo2a+OKrOc8/EcryRJAm7z6qqvmPoZM5lr7g2TJzah
-         P0jS08OKWv062S2InGaMsLlpTohYvSkt4cwK8I9A0i7n1hZqjlVWvGLWVOIQecHlBbhs
-         w0Hg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=4o58lpb/fyWWm5f0KMUFLrPPzAtQtY4+vzLKRalbKbE=;
-        b=SbdJaZ4yvcl4XQZOLoD85Ahn7Kb8OKF1d8wcHSEU2vudQoFtGcSUHoLHUBXygN3mQv
-         CRU9CMZHf0YMnpCYKJi5e5gtlOzGfPRsVkFRk495Nhs7iagtaB72nutSHH0QAWJghpNz
-         5LhLk0OaoOKGf5Qi+BlX7C4IHBOxOqXykjrthqBLO/c75VV6kpEZXqgeLscRvYG3tgeV
-         6CmBdjiEAXEP24JBZj9KX+Df5kJnyEGN5pxwOGyL8ncS4wMeo2hMyFmG25dk+0Ct3OKV
-         ibYXssVByaHbxCY2lkYc53v9DeZEYj5mV3hdkgbZp0Zp4dCwDvhq4x6QjbqvxHBVZn1T
-         RsuQ==
-X-Gm-Message-State: AOAM53171L0nkeDyF0+XcQqjeAM6Rn11UwAmKLeWVdxUcomGy7kdpHpr
-        hHm2WkqvJ8ZdYzCuF4Af3pkreJlQBinUZB3+BbI=
-X-Google-Smtp-Source: ABdhPJycTvItkkrb4dqy8t2KiK/QedZv0yNWU7j9ahS91PJiYC01sAr2lXzhlw5U9uq8+llvgqcHaXc4C8BwQBbZgw8=
-X-Received: by 2002:a67:eb98:: with SMTP id e24mr3664428vso.72.1593197838108;
- Fri, 26 Jun 2020 11:57:18 -0700 (PDT)
+        id S1725811AbgFZTDM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jun 2020 15:03:12 -0400
+Received: from cheddar.halon.org.uk ([93.93.131.118]:57656 "EHLO
+        cheddar.halon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725803AbgFZTDM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 26 Jun 2020 15:03:12 -0400
+Received: from bsmtp by cheddar.halon.org.uk with local-bsmtp (Exim 4.92)
+        (envelope-from <steve@einval.com>)
+        id 1jotd0-00030i-E2; Fri, 26 Jun 2020 20:03:10 +0100
+Received: from steve by tack.einval.org with local (Exim 4.92)
+        (envelope-from <steve@einval.com>)
+        id 1jotbC-0005mW-VS; Fri, 26 Jun 2020 20:01:18 +0100
+Date:   Fri, 26 Jun 2020 20:01:18 +0100
+From:   Steve McIntyre <steve@einval.com>
+To:     John Johansen <john.johansen@canonical.com>
+Cc:     Jann Horn <jannh@google.com>, Greg KH <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        stable <stable@vger.kernel.org>, 963493@bugs.debian.org
+Subject: Re: Repeatable hard lockup running strace testsuite on 4.19.98+
+ onwards
+Message-ID: <20200626190118.GA21186@tack.einval.com>
+References: <20200626113558.GA32542@unset.einval.com>
+ <20200626134132.GB4024297@kroah.com>
+ <CAG48ez3fQroA2Drx3vCUB38=f82Bv0t+MnR6chhH3GM7y-SziQ@mail.gmail.com>
+ <20200626165000.GB2950@unset.einval.com>
+ <eed65f58-b63e-bfa4-ac74-1501cef58466@canonical.com>
 MIME-Version: 1.0
-Received: by 2002:a67:d009:0:0:0:0:0 with HTTP; Fri, 26 Jun 2020 11:57:17
- -0700 (PDT)
-Reply-To: rubelrahman910@gmail.com
-From:   ruhbel rahman <te.ahmed250@gmail.com>
-Date:   Fri, 26 Jun 2020 19:57:17 +0100
-Message-ID: <CA+H_zeMtUSd_58d7g6cBgPQTCwt+R8ChrZDaX+XU0O=iZAHeTQ@mail.gmail.com>
-Subject: URGENT RESPOND
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <eed65f58-b63e-bfa4-ac74-1501cef58466@canonical.com>
+X-attached: unknown
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
--- 
-My name is Mr.  rubelrahman I am working with one of the prime banks
-in Burkina Faso. Here in this bank existed a dormant account for many
-years, which belong to one of our late foreign customer. The amount in
-this account stands at $13,300,000.00 (Thirteen Million Three Hundred
-Thousand USA Dollars).
+On Fri, Jun 26, 2020 at 10:29:28AM -0700, John Johansen wrote:
+>On 6/26/20 9:50 AM, Steve McIntyre wrote:
+>> 
+>> OK, will try that second...
+>> 
+>
+>I have not been able to reproduce but
+>
+>So looking at linux-4.19.y it looks like
+>1f8266ff5884 apparmor: don't try to replace stale label in ptrace access check
+>
+>was picked without
+>ca3fde5214e1 apparmor: don't try to replace stale label in ptraceme check
+>
+>Both of them are marked as
+>Fixes: b2d09ae449ced ("apparmor: move ptrace checks to using labels")
+>
+>so I would expect them to be picked together.
+>
+>ptraceme is potentially updating the task's cred while the access check is
+>running.
+>
+>Try building after picking
+>ca3fde5214e1 apparmor: don't try to replace stale label in ptraceme check
 
-I want a foreign account where the bank will transfer this fund. I
-know you would be surprised to read this message, especially from
-someone relatively unknown to you. But, do not worry yourself so much.
-This is a genuine, risk free and legal business transaction.
-Reply back to me urgently,[ rubelrahman910@gmail.com]
+Bingo! With that one change the test suite runs to completion, no lockup.
+
+\o/
+
+Thanks guys, I think we've found the cause here.
+
+-- 
+Steve McIntyre, Cambridge, UK.                                steve@einval.com
+"The whole problem with the world is that fools and fanatics are
+ always so certain of themselves, and wiser people so full of doubts."
+   -- Bertrand Russell
+
