@@ -2,73 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CED020B952
-	for <lists+stable@lfdr.de>; Fri, 26 Jun 2020 21:30:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84E1020B983
+	for <lists+stable@lfdr.de>; Fri, 26 Jun 2020 21:58:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725823AbgFZTaH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jun 2020 15:30:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37704 "EHLO mail.kernel.org"
+        id S1725780AbgFZT57 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jun 2020 15:57:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725768AbgFZTaH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jun 2020 15:30:07 -0400
+        id S1725275AbgFZT57 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jun 2020 15:57:59 -0400
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C0982070A;
-        Fri, 26 Jun 2020 19:30:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9EB45206BE;
+        Fri, 26 Jun 2020 19:57:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593199806;
-        bh=jA5es0Ur1eplSo2ilpi6BzKAmXLfXei8r6/oNcoJiZg=;
+        s=default; t=1593201478;
+        bh=BJoUR1xZSuVVlfX4JPT4JuMWZiU/SS/nH/hboi9MQcs=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Mk7/e/A3wZj4mbsysOyZ/farVgeJBfHabvlxR/7PNNJrTwo7gKRjDm2oX0Kpehh2y
-         38Aes/7SOkcxFEahMDOvqL3OtVlTfNX2nQi6FxVTypHNwg8FF4RDgua3jgog/gB1qE
-         UOVr1Hhq6z84tCVwBdQZxW5u1a2xlPjvVR8Rd4DM=
-Date:   Fri, 26 Jun 2020 15:30:05 -0400
+        b=uVwgEg+h5vZTLbwgtfdou172jbhSZKGI0DLOwx7Qp11svxv7Qq9FNXEdiD78LDJ+j
+         VXIV9Rkt0wb7ssRVm0NRnliyAgyyXYVucp8C6475QcOQrUu7L+UMaeuNRXgaV/tCB7
+         bUpYOOGDIEJL/L04i03CkuP13CwlWY+BF/baaC6o=
+Date:   Fri, 26 Jun 2020 15:57:57 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: Re: [PATCH 4.19 012/206] ALSA: hda/realtek - Introduce polarity for
- micmute LED GPIO
-Message-ID: <20200626193005.GH1931@sasha-vm>
-References: <20200623195316.864547658@linuxfoundation.org>
- <20200623195317.567695457@linuxfoundation.org>
- <20200625190255.GB5531@duo.ucw.cz>
+To:     Steve McIntyre <steve@einval.com>
+Cc:     John Johansen <john.johansen@canonical.com>,
+        Jann Horn <jannh@google.com>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        stable <stable@vger.kernel.org>, 963493@bugs.debian.org
+Subject: Re: Repeatable hard lockup running strace testsuite on 4.19.98+
+ onwards
+Message-ID: <20200626195757.GJ1931@sasha-vm>
+References: <20200626113558.GA32542@unset.einval.com>
+ <20200626134132.GB4024297@kroah.com>
+ <CAG48ez3fQroA2Drx3vCUB38=f82Bv0t+MnR6chhH3GM7y-SziQ@mail.gmail.com>
+ <20200626165000.GB2950@unset.einval.com>
+ <eed65f58-b63e-bfa4-ac74-1501cef58466@canonical.com>
+ <20200626190118.GA21186@tack.einval.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20200625190255.GB5531@duo.ucw.cz>
+In-Reply-To: <20200626190118.GA21186@tack.einval.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 25, 2020 at 09:02:55PM +0200, Pavel Machek wrote:
->Hi!
->
->> Currently mute LED and micmute LED share the same GPIO polarity.
+On Fri, Jun 26, 2020 at 08:01:18PM +0100, Steve McIntyre wrote:
+>On Fri, Jun 26, 2020 at 10:29:28AM -0700, John Johansen wrote:
+>>On 6/26/20 9:50 AM, Steve McIntyre wrote:
+>>>
+>>> OK, will try that second...
+>>>
 >>
->> So split the polarity for mute and micmute, in case they have different
->> polarities.
->
->> +++ b/sound/pci/hda/patch_realtek.c
->> @@ -94,6 +94,7 @@ struct alc_spec {
+>>I have not been able to reproduce but
 >>
->>  	/* mute LED for HP laptops, see alc269_fixup_mic_mute_hook() */
->>  	int mute_led_polarity;
->> +	int micmute_led_polarity;
->>  	hda_nid_t mute_led_nid;
->>  	hda_nid_t cap_mute_led_nid;
+>>So looking at linux-4.19.y it looks like
+>>1f8266ff5884 apparmor: don't try to replace stale label in ptrace access check
 >>
+>>was picked without
+>>ca3fde5214e1 apparmor: don't try to replace stale label in ptraceme check
+>>
+>>Both of them are marked as
+>>Fixes: b2d09ae449ced ("apparmor: move ptrace checks to using labels")
+>>
+>>so I would expect them to be picked together.
+>>
+>>ptraceme is potentially updating the task's cred while the access check is
+>>running.
+>>
+>>Try building after picking
+>>ca3fde5214e1 apparmor: don't try to replace stale label in ptraceme check
 >
->This variable will be always zero in 4.19.130... so the patch does not
->really do anything.
->
->In mainline, commit 3e0650ab26e20 makes use of this variable.
+>Bingo! With that one change the test suite runs to completion, no lockup.
 
-I'll queue 3e0650ab26e20 for 4.19, thanks!
+I've queued ca3fde5214e1 for 4.19 and 4.14, thank you for your work!
 
 -- 
 Thanks,
