@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43A3720B44C
-	for <lists+stable@lfdr.de>; Fri, 26 Jun 2020 17:17:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4551D20B44B
+	for <lists+stable@lfdr.de>; Fri, 26 Jun 2020 17:17:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726568AbgFZPRX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jun 2020 11:17:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59856 "EHLO mail.kernel.org"
+        id S1726036AbgFZPRV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jun 2020 11:17:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725280AbgFZPRX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 26 Jun 2020 11:17:23 -0400
+        id S1725280AbgFZPRU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jun 2020 11:17:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 203A4207E8;
-        Fri, 26 Jun 2020 15:17:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A232420706;
+        Fri, 26 Jun 2020 15:17:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593184642;
-        bh=yiCbDRqU1w7i0MTQIap6mAIQGiGuYDlFa0SBU7COmgQ=;
+        s=default; t=1593184640;
+        bh=ab37v7OZdeSXnDEq9iwT2i5MaXHbFkM4loshClsWa1g=;
         h=Subject:To:From:Date:From;
-        b=v0Kwq1zBHjPS9YsZ3Q6C4126K4Pu9T5ilaNcSggVR4ls/oS/NPaK///0BiC2y30YI
-         R7Nj0DF9fsEi/fJ0Yspwa19ZBIeFts9ANA+rYwvUyjszk3PTX+k5GPnBRvGHEXj089
-         yuEDE+uHy9aLyT9VV9SK0kDlurS81Egv3/IE7wBw=
-Subject: patch "usb: cdns3: trace: using correct dir value" added to usb-linus
+        b=plCfOmrH++/OxKTjUYczD4nAmecXmb6DElNSlB8F+FYKPGpkabzlXHkmg5Aq4YEoV
+         tOS9uRW/F8WbrMieZd4lIX0UaJAFzlsrkAorL8Kaxl6TrsWZv6XCbk+Zl/qa+fYlfF
+         GFHmBkanTLkM/lOy4KrlLCoWyRrzrv8/ZPWwB0Cw=
+Subject: patch "usb: cdns3: ep0: add spinlock for cdns3_check_new_setup" added to usb-linus
 To:     peter.chen@nxp.com, balbi@kernel.org, pawell@cadence.com,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Fri, 26 Jun 2020 17:17:13 +0200
-Message-ID: <1593184633157126@kroah.com>
+Message-ID: <15931846331772@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: cdns3: trace: using correct dir value
+    usb: cdns3: ep0: add spinlock for cdns3_check_new_setup
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -55,19 +55,13 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From ba3a80fe0fb67d8790f62b7bc60df97406d89871 Mon Sep 17 00:00:00 2001
+From 2587a029fa2a877d0a8dda955ef1b24c94b4bd0e Mon Sep 17 00:00:00 2001
 From: Peter Chen <peter.chen@nxp.com>
-Date: Tue, 23 Jun 2020 11:09:17 +0800
-Subject: usb: cdns3: trace: using correct dir value
+Date: Tue, 23 Jun 2020 11:09:18 +0800
+Subject: usb: cdns3: ep0: add spinlock for cdns3_check_new_setup
 
-It should use the correct direction value from register, not depends
-on previous software setting. It fixed the EP number wrong issue at
-trace when the TRBERR interrupt occurs for EP0IN.
-
-When the EP0IN IOC has finished, software prepares the setup packet
-request, the expected direction is OUT, but at that time, the TRBERR
-for EP0IN may occur since it is DMULT mode, the DMA does not stop
-until TRBERR has met.
+The other thread may access other endpoints when the cdns3_check_new_setup
+is handling, add spinlock to protect it.
 
 Cc: <stable@vger.kernel.org>
 Fixes: 7733f6c32e36 ("usb: cdns3: Add Cadence USB3 DRD Driver")
@@ -75,22 +69,41 @@ Reviewed-by: Pawel Laszczak <pawell@cadence.com>
 Signed-off-by: Peter Chen <peter.chen@nxp.com>
 Signed-off-by: Felipe Balbi <balbi@kernel.org>
 ---
- drivers/usb/cdns3/trace.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/cdns3/ep0.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/cdns3/trace.h b/drivers/usb/cdns3/trace.h
-index 8d121e207fd8..755c56582257 100644
---- a/drivers/usb/cdns3/trace.h
-+++ b/drivers/usb/cdns3/trace.h
-@@ -156,7 +156,7 @@ DECLARE_EVENT_CLASS(cdns3_log_ep0_irq,
- 		__dynamic_array(char, str, CDNS3_MSG_MAX)
- 	),
- 	TP_fast_assign(
--		__entry->ep_dir = priv_dev->ep0_data_dir;
-+		__entry->ep_dir = priv_dev->selected_ep;
- 		__entry->ep_sts = ep_sts;
- 	),
- 	TP_printk("%s", cdns3_decode_ep0_irq(__get_str(str),
+diff --git a/drivers/usb/cdns3/ep0.c b/drivers/usb/cdns3/ep0.c
+index 04e49582fb55..61ec5bb2b0ca 100644
+--- a/drivers/usb/cdns3/ep0.c
++++ b/drivers/usb/cdns3/ep0.c
+@@ -705,15 +705,17 @@ static int cdns3_gadget_ep0_queue(struct usb_ep *ep,
+ 	int ret = 0;
+ 	u8 zlp = 0;
+ 
++	spin_lock_irqsave(&priv_dev->lock, flags);
+ 	trace_cdns3_ep0_queue(priv_dev, request);
+ 
+ 	/* cancel the request if controller receive new SETUP packet. */
+-	if (cdns3_check_new_setup(priv_dev))
++	if (cdns3_check_new_setup(priv_dev)) {
++		spin_unlock_irqrestore(&priv_dev->lock, flags);
+ 		return -ECONNRESET;
++	}
+ 
+ 	/* send STATUS stage. Should be called only for SET_CONFIGURATION */
+ 	if (priv_dev->ep0_stage == CDNS3_STATUS_STAGE) {
+-		spin_lock_irqsave(&priv_dev->lock, flags);
+ 		cdns3_select_ep(priv_dev, 0x00);
+ 
+ 		erdy_sent = !priv_dev->hw_configured_flag;
+@@ -738,7 +740,6 @@ static int cdns3_gadget_ep0_queue(struct usb_ep *ep,
+ 		return 0;
+ 	}
+ 
+-	spin_lock_irqsave(&priv_dev->lock, flags);
+ 	if (!list_empty(&priv_ep->pending_req_list)) {
+ 		dev_err(priv_dev->dev,
+ 			"can't handle multiple requests for ep0\n");
 -- 
 2.27.0
 
