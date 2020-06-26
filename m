@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2285220B303
-	for <lists+stable@lfdr.de>; Fri, 26 Jun 2020 15:59:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2ED4720B304
+	for <lists+stable@lfdr.de>; Fri, 26 Jun 2020 15:59:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728866AbgFZN7N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jun 2020 09:59:13 -0400
-Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:32865 "EHLO
+        id S1728842AbgFZN7R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jun 2020 09:59:17 -0400
+Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:50737 "EHLO
         forward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728751AbgFZN7N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 26 Jun 2020 09:59:13 -0400
+        by vger.kernel.org with ESMTP id S1728751AbgFZN7R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 26 Jun 2020 09:59:17 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 7AA6519406E7;
-        Fri, 26 Jun 2020 09:59:12 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Fri, 26 Jun 2020 09:59:12 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id 2AA141940771;
+        Fri, 26 Jun 2020 09:59:16 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Fri, 26 Jun 2020 09:59:16 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=pqASBU
-        9ONpdFAM2VShcTwWJKGkV4kKb4TB7az9Ygrl0=; b=Xjd7zOg55+G6spaiYfGkSd
-        5WPEODfao99+uGziU30YFJ49vS2+cRLLa8X19NB7nQN7+tzjtxdzVzYb8prSoYno
-        1if5Wsi2grK1vAsbUZTD9mj007Wgof5fjrJJwRNc/FTxOmBxI12rwdumjn8o6OYX
-        FSeWBMX3BTWeLeNZ9A71ZI6bvOXsTZ2QMBDR5KSTBhpJMEVMOr0q2QMAhQkTbWrD
-        2pvmaPZ1FpR36HSRUMHotq8/saghphW404yAy6somLInxR8iRIBfpzyqE7F7SwKZ
-        LbvsIkz/eZtd/FExBnz05RV+6rGosVrj+e3ld/F8uqknXx3Y4CWy9XdBNrqmVliQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=C0XAHb
+        ldapcslEpz+LLKcH+KZ2NNGTXm5y4smiQ+xYA=; b=imW5PtS/VhJCl3yNnV6H9P
+        XOL+09O1XxOMY7bmPpu8BcMx+yQ+sHTL3J1w9zKvm8JGgb0v1DieZ1+Lwl8M41Zx
+        WsMzG3c/PyuntqlvM4YM9sXRef9g+6Bj8cSkJKLArCI681K4ioOZwXD8IykStJye
+        ntmoSBLMA2ZIv5PM9Rjbb4ACGBuLjva2NUcpN7J4qc+xBUtZxIS4eUbcbwR8sO20
+        08w2I5i71JYCUnZ2WqQtzAXOQ7PWnbG1U2BTtFuCdsTHYgraBX4r9vlPuyutFrOJ
+        8IrEtqKmaufhmNDYJUTupwAMUnDz9P+KqNa2quWAjV2yhvJUG1R5k6gcfm5Nxp7A
         ==
-X-ME-Sender: <xms:MP_1XsmNPVtWiF4R7vACuOhVOlRC_RO1WbRZBqqlSRHIVxx1ZFR1eQ>
+X-ME-Sender: <xms:NP_1XpRd39d-PlH1qsbwpayMtZ95QExXxQ8lI8oNoPEZZlqog2UkAw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudeluddgjedvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -36,20 +36,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudeluddgjedvucetufdoteggod
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
     keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpe
     hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:MP_1Xr0Q2nFbSTfDRCC5D-DD1wYIkzLAgLRHWii34tYWkZ0u2dQv8g>
-    <xmx:MP_1XqpGf7D6ak6Q73lHaf24v20sJR1veu4HuCyFwtGvElb7G2SkiQ>
-    <xmx:MP_1Xok-SVUcOquJVxWrcQhLLcwffzsShsNNA9d_682JkG5bcZFg7w>
-    <xmx:MP_1Xv_OKsJoyZkAvFE626Qwp8KeftnvZ6HdQ0h9kWM_ZMf-i-4Q4w>
+X-ME-Proxy: <xmx:NP_1Xizsk3zg2iHiBtA4G3nSvry8Untk5TGS4DB0tyTHVHvN3Cl1zQ>
+    <xmx:NP_1Xu1uG8l2D-O1iOoEbuiavElb8EvHwxE16ZuGXGR05_tNuPZ2dw>
+    <xmx:NP_1XhCVtlOgNrAUOy01dBw37e-7b0ehJ224E5vrE83XNIrXbh-tUQ>
+    <xmx:NP_1XqKc_FnmqU-_5b-rQFp317jUs5SZEaGzREBdzs7DvbcssVP3eA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 0270A3067925;
-        Fri, 26 Jun 2020 09:59:11 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] spi: spi-fsl-dspi: Free DMA memory with matching function" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id AB865328005E;
+        Fri, 26 Jun 2020 09:59:15 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] spi: spi-fsl-dspi: Free DMA memory with matching function" failed to apply to 5.4-stable tree
 To:     krzk@kernel.org, broonie@kernel.org, stable@vger.kernel.org,
         vladimir.oltean@nxp.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 26 Jun 2020 15:59:00 +0200
-Message-ID: <159317994043162@kroah.com>
+Date:   Fri, 26 Jun 2020 15:59:01 +0200
+Message-ID: <159317994115036@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
