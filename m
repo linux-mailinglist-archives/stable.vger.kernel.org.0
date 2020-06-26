@@ -2,81 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFA5B20B298
-	for <lists+stable@lfdr.de>; Fri, 26 Jun 2020 15:36:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E15F20B2A4
+	for <lists+stable@lfdr.de>; Fri, 26 Jun 2020 15:40:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727845AbgFZNgf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jun 2020 09:36:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35150 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726013AbgFZNge (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 26 Jun 2020 09:36:34 -0400
-Received: from mail-yb1-xb41.google.com (mail-yb1-xb41.google.com [IPv6:2607:f8b0:4864:20::b41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D953C03E979
-        for <stable@vger.kernel.org>; Fri, 26 Jun 2020 06:36:34 -0700 (PDT)
-Received: by mail-yb1-xb41.google.com with SMTP id d13so4483539ybk.8
-        for <stable@vger.kernel.org>; Fri, 26 Jun 2020 06:36:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=CZOZ6zJl7K+CX7mG44VkFRrQ+i68m5YSb/XRoNfw+DM=;
-        b=ddT47AQJpAymXssOz6KdVNjZwJEaFE5w8Q2n9Q28ES0BIvGoaFu3yECSPHqB42bWwx
-         F3s6QoOEx8xpNAcuOG2JrjvwMMGQy/0uTFoFYdq2Iy3iGBkeeqvlcvlcooUr2KwyO2xg
-         hwJ3am/w7Rj50wR5vLTiiT7LbVCjAP5EV4VWWNMtRJGNQwto0Lu3bqKz68QicYERl2gp
-         vLscSOMW5SPiyUuUBESKhobdKu7+5nU218IJDrQh2v52ime/migbfaIR/eDelFmbl+ph
-         HXXAJQT1Fn2N0J3lNRKooDu5A/48wU7+5MG228TWP7rAwPIHbxuDihMhusCZrBFSkpX1
-         80dA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=CZOZ6zJl7K+CX7mG44VkFRrQ+i68m5YSb/XRoNfw+DM=;
-        b=SN681QihcIsy8xEpchGI6km9wWnMqnx1maGdohzUExYguLUYahnw62qrr/RBLSIoqG
-         vP9l0s0esYvKFKWVyokbRGIrkltmWlwsM2tOCkYFCGA/h+E3hbsZobnlUTs/+AJPr4hh
-         Lw+6yitGw/OviI/qThUwLYwkYu2G2iMy5VzBuCYokxsgvZLxvNMZ7C2tbtNDxW4rtck9
-         fdEEef3V2QKbW6sW+/cG8BL+yEPXFLZrjkozXshGHFSDIsbdF/SKpY9hn4T4yggWCWHf
-         +z0FwcowAyPIthdMSW8+InxcqYRsj9Vx2Lbx+RCAT/z0szBMWuUXnA1UqENzmiDGLXqx
-         hM8w==
-X-Gm-Message-State: AOAM533vbZS/qRPOuKHhJvWU2PKv7WnnRnkGoTT1ckwNAAGyV0wqOcqZ
-        PIPRKlTu0NP82Ld90XUWhP9khmU625iipBc4eNE=
-X-Google-Smtp-Source: ABdhPJydPX6bt7S0WhmgXz2/5Sk2+PLObZyMF1aP6a/iEJ2Hx5iZ8Hrc9Evju4oH9fd0oA+qj4k5Q4OCZQxyFrEgSqk=
-X-Received: by 2002:a25:8b0c:: with SMTP id i12mr4841190ybl.499.1593178593477;
- Fri, 26 Jun 2020 06:36:33 -0700 (PDT)
+        id S1728517AbgFZNkG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jun 2020 09:40:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38932 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726169AbgFZNkF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jun 2020 09:40:05 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id A71D52081A;
+        Fri, 26 Jun 2020 13:40:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1593178805;
+        bh=H19nFT12aZPcp8/O8HppsOpjA5roTacTuL691DsfL98=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=mSzna5Af/u+ZAHHtyCff4l4vPMIRDlprpeGCIbKuv6zMJl+0vZjg0URJoJRwY7/Bl
+         9Cxpa4G55rNCpf4NTvh1MM0l6H0T6/S3iQNaytyEvW9Vm+Qd/IKo2Srale5+rXqUdb
+         zvbajss+VVcNZBcrNY7tVavZh6UE7+KeXJ5ABpYo=
+Date:   Fri, 26 Jun 2020 15:39:59 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Gabriel C <nix.or.die@googlemail.com>
+Cc:     Jiri Slaby <jirislaby@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable <stable@vger.kernel.org>, lwn@lwn.net,
+        angrypenguinpoland@gmail.com, Qiujun Huang <hqjagain@gmail.com>,
+        ath9k-devel <ath9k-devel@qca.qualcomm.com>,
+        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>
+Subject: Re: ath9k broken [was: Linux 5.7.3]
+Message-ID: <20200626133959.GA4024297@kroah.com>
+References: <1592410366125160@kroah.com>
+ <CAEJqkgjV8p6LtBV8YUGbNb0vYzKOQt4-AMAvYw5mzFr3eicyTg@mail.gmail.com>
+ <b7993e83-1df7-0c93-f6dd-dba9dc10e27a@kernel.org>
+ <CAEJqkggG2ZB8De_zbP2W7Z9eRYve2br8jALaLRhjC33ksLZpTw@mail.gmail.com>
+ <CAEJqkgj4LS7M3zYK51Vagt4rWC9A7uunA+7CvX0Qv=57Or3Ngg@mail.gmail.com>
+ <CAEJqkghJWGsLCj2Wvt-yhzMewjXwrXhSEDpar6rbDpbSA6R8kQ@mail.gmail.com>
 MIME-Version: 1.0
-Received: by 2002:a25:bfc1:0:0:0:0:0 with HTTP; Fri, 26 Jun 2020 06:36:32
- -0700 (PDT)
-Reply-To: azizdake0@gmail.com
-From:   Aziz Dake <legalwaaboki@gmail.com>
-Date:   Fri, 26 Jun 2020 06:36:32 -0700
-Message-ID: <CAAiMQBC4fzD+xpZKeopnqvTDVNfdZMyg4jMM4dazVGTtDP--+g@mail.gmail.com>
-Subject: From Honourable Barrister Aziz Dake.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAEJqkghJWGsLCj2Wvt-yhzMewjXwrXhSEDpar6rbDpbSA6R8kQ@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Attn: Sir/Madam
+On Fri, Jun 26, 2020 at 01:48:59PM +0200, Gabriel C wrote:
+> Am Do., 25. Juni 2020 um 12:52 Uhr schrieb Gabriel C
+> <nix.or.die@googlemail.com>:
+> >
+> > Am Do., 25. Juni 2020 um 12:48 Uhr schrieb Gabriel C
+> > <nix.or.die@googlemail.com>:
+> > >
+> > > Am Do., 25. Juni 2020 um 06:57 Uhr schrieb Jiri Slaby <jirislaby@kernel.org>:
+> > > >
+> > > > On 25. 06. 20, 0:05, Gabriel C wrote:
+> > > > > Am Mi., 17. Juni 2020 um 18:13 Uhr schrieb Greg Kroah-Hartman
+> > > > > <gregkh@linuxfoundation.org>:
+> > > > >>
+> > > > >> I'm announcing the release of the 5.7.3 kernel.
+> > > > >>
+> > > > >
+> > > > > Hello Greg,
+> > > > >
+> > > > >> Qiujun Huang (5):
+> > > > >>       ath9k: Fix use-after-free Read in htc_connect_service
+> > > > >>       ath9k: Fix use-after-free Read in ath9k_wmi_ctrl_rx
+> > > > >>       ath9k: Fix use-after-free Write in ath9k_htc_rx_msg
+> > > > >>       ath9x: Fix stack-out-of-bounds Write in ath9k_hif_usb_rx_cb
+> > > > >>       ath9k: Fix general protection fault in ath9k_hif_usb_rx_cb
+> > > > >>
+> > > > >
+> > > > > We got a report on IRC about 5.7.3+ breaking a USB ath9k Wifi Dongle,
+> > > > > while working fine on <5.7.3.
+> > > > >
+> > > > > I don't have myself such HW, and the reported doesn't have any experience
+> > > > > in bisecting the kernel, so we build kernels, each with one of the
+> > > > > above commits reverted,
+> > > > > to find the bad commit.
+> > > > >
+> > > > > The winner is:
+> > > > >
+> > > > > commit 6602f080cb28745259e2fab1a4cf55eeb5894f93
+> > > > > Author: Qiujun Huang <hqjagain@gmail.com>
+> > > > > Date:   Sat Apr 4 12:18:38 2020 +0800
+> > > > >
+> > > > >     ath9k: Fix general protection fault in ath9k_hif_usb_rx_cb
+> > > > >
+> > > > >     commit 2bbcaaee1fcbd83272e29f31e2bb7e70d8c49e05 upstream.
+> > > > > ...
+> > > > >
+> > > > > Reverting this one fixed his problem.
+> > > >
+> > > > Obvious question: is 5.8-rc1 (containing the commit) broken too?
+> > >
+> > > Yes, it does, just checked.
+> > >
+> > > git tag --contains 2bbcaaee1fcbd83272e29f31e2bb7e70d8c49e05
+> > > v5.8-rc1
+> > > v5.8-rc2
+> > >
+> >
+> > Sorry, I read the wrong, I just woke up.
+> >
+> > We didn't test 5.8-rc{1,2} yet but we will today and let you know.
+> >
+> 
+> We tested 5.8-rc2 and it is broken too.
+> 
+> The exact HW name is:
+> 
+> TP-link tl-wn722n (Atheros AR9271 chip)
 
-I am Honourable Barrister Aziz the personal resident Attorney here in
-Burkina Faso to Late Mr. Muammar Muhammad Abu Minyar al-Gaddafi of
-Libya c. 1942 =E2=80=93 20 October 2011.
+Great!
 
-My client Late Mr. Muammar Muhammad Abu Minyar al-Gaddafi c. 1942 =E2=80=93=
- 20
-October 2011, was having a deposit sum of {thirty million four Hundred
-thousand united state dollars} only ($30.4M USD) with a security
-finance firm affiliated with African development bank here in Burkina
-Faso.
+Can you work with the developers to fix this in Linus's tree first?
 
-With the above explanation=E2=80=99s I want to move this money from Burkina
-Faso to your country, affidavit on your name, but note that this is a
-deal between me and you and should not be related to anybody until the
-deal is over for security reasons, please if interested reply as soon
-as possible.
+I bet they want to see the output of 'lsusb -v' for this device to see
+if the endpoint calculations are correct...
 
-Thanks,
-Honourable Barrister Aziz Dake.
+thanks,
+
+greg k-h
