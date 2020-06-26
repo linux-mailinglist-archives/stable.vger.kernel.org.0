@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD0E120AAAD
-	for <lists+stable@lfdr.de>; Fri, 26 Jun 2020 05:29:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C617920AAAF
+	for <lists+stable@lfdr.de>; Fri, 26 Jun 2020 05:29:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728331AbgFZD3Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jun 2020 23:29:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47838 "EHLO mail.kernel.org"
+        id S1728340AbgFZD3d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jun 2020 23:29:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728259AbgFZD3Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Jun 2020 23:29:25 -0400
+        id S1728333AbgFZD3b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jun 2020 23:29:31 -0400
 Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E41342084D;
-        Fri, 26 Jun 2020 03:29:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3088E2081A;
+        Fri, 26 Jun 2020 03:29:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593142165;
-        bh=BOOtNScon/F8RSvOC5TUchukW1Vi8hVtCQbXchQ1dOQ=;
+        s=default; t=1593142171;
+        bh=XFE8aA5RnuU28ytOvJEPgpRr6UxJGyhnNETkNqJgk78=;
         h=Date:From:To:Subject:In-Reply-To:From;
-        b=sRprRrBw/9EDVnMNdWctQPhoi3O8zHvwTGASoW5AT5SJhIWFPBirb3Wgu6g48S58v
-         0EqwezipKb4zBuKLVJyruPUyxkt0O6f4NxZD8U91ZD4+CkICaR/Iu4bYUaXHUMqzNc
-         Gcr7S2riV8pzpWxhT6IwA57626zHpuNEOVAcYNAA=
-Date:   Thu, 25 Jun 2020 20:29:24 -0700
+        b=HYKpREZsdB9SGCMmJ28JW0vv9Q3uqXwPIjDYKCLTNsJem6Ed8Y61DeqZZFwP7w+01
+         G3jYF1aMlUTaWMvUgmlKQ5Y+orF5AzRFDW1T2nQ6yHAoHeYhdlhxli69pQttxwVGmJ
+         ilVV5orC52gvEkG/4hfdA4yEwAHrIa+2luX02Gjw=
+Date:   Thu, 25 Jun 2020 20:29:30 -0700
 From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, alex.shi@linux.alibaba.com,
-        hughd@google.com, liwang@redhat.com, mgorman@techsingularity.net,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, vbabka@suse.cz
-Subject:  [patch 03/32] mm, compaction: make capture control
- handling safe wrt interrupts
-Message-ID: <20200626032924.PiPdcjulX%akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, gechangwei@live.cn, ghe@suse.com,
+        jlbec@evilplan.org, joseph.qi@linux.alibaba.com,
+        junxiao.bi@oracle.com, mark@fasheh.com, mm-commits@vger.kernel.org,
+        piaojun@huawei.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org
+Subject:  [patch 05/32] ocfs2: avoid inode removal while nfsd is
+ accessing it
+Message-ID: <20200626032930.4vH1ff2cG%akpm@linux-foundation.org>
 In-Reply-To: <20200625202807.b630829d6fa55388148bee7d@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
@@ -39,88 +40,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vlastimil Babka <vbabka@suse.cz>
-Subject: mm, compaction: make capture control handling safe wrt interrupts
+From: Junxiao Bi <junxiao.bi@oracle.com>
+Subject: ocfs2: avoid inode removal while nfsd is accessing it
 
-Hugh reports:
+Patch series "ocfs2: fix nfsd over ocfs2 issues", v2.
 
-: While stressing compaction, one run oopsed on NULL capc->cc in
-: __free_one_page()'s task_capc(zone): compact_zone_order() had been
-: interrupted, and a page was being freed in the return from interrupt.
-: 
-: Though you would not expect it from the source, both gccs I was using (a
-: 4.8.1 and a 7.5.0) had chosen to compile compact_zone_order() with the
-: ".cc = &cc" implemented by mov %rbx,-0xb0(%rbp) immediately before callq
-: compact_zone - long after the "current->capture_control = &capc".  An
-: interrupt in between those finds capc->cc NULL (zeroed by an earlier rep
-: stos).
-: 
-: This could presumably be fixed by a barrier() before setting
-: current->capture_control in compact_zone_order(); but would also need more
-: care on return from compact_zone(), in order not to risk leaking a page
-: captured by interrupt just before capture_control is reset.
-: 
-: Maybe that is the preferable fix, but I felt safer for task_capc() to
-: exclude the rather surprising possibility of capture at interrupt time.
+This is a series of patches to fix issues on nfsd over ocfs2.  patch 1 is
+to avoid inode removed while nfsd access it patch 2 & 3 is to fix a panic
+issue.
 
-I have checked that gcc10 also behaves the same.
 
-The advantage of fix in compact_zone_order() is that we don't add another
-test in the page freeing hot path, and that it might prevent future
-problems if we stop exposing pointers to uninitialized structures in
-current task.
+This patch (of 4):
 
-So this patch implements the suggestion for compact_zone_order() with
-barrier() (and WRITE_ONCE() to prevent store tearing) for setting
-current->capture_control, and prevents page leaking with
-WRITE_ONCE/READ_ONCE in the proper order.
+When nfsd is getting file dentry using handle or parent dentry of some
+dentry, one cluster lock is used to avoid inode removed from other node,
+but it still could be removed from local node, so use a rw lock to avoid
+this.
 
-Link: http://lkml.kernel.org/r/20200616082649.27173-1-vbabka@suse.cz
-Fixes: 5e1f0f098b46 ("mm, compaction: capture a page under direct compaction")
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
-Reported-by: Hugh Dickins <hughd@google.com>
-Suggested-by: Hugh Dickins <hughd@google.com>
-Acked-by: Hugh Dickins <hughd@google.com>
-Cc: Alex Shi <alex.shi@linux.alibaba.com>
-Cc: Li Wang <liwang@redhat.com>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: <stable@vger.kernel.org>	[5.1+]
+Link: http://lkml.kernel.org/r/20200616183829.87211-1-junxiao.bi@oracle.com
+Link: http://lkml.kernel.org/r/20200616183829.87211-2-junxiao.bi@oracle.com
+Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/compaction.c |   17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ fs/ocfs2/dlmglue.c |   17 ++++++++++++++++-
+ fs/ocfs2/ocfs2.h   |    1 +
+ 2 files changed, 17 insertions(+), 1 deletion(-)
 
---- a/mm/compaction.c~mm-compaction-make-capture-control-handling-safe-wrt-interrupts
-+++ a/mm/compaction.c
-@@ -2316,15 +2316,26 @@ static enum compact_result compact_zone_
- 		.page = NULL,
- 	};
- 
--	current->capture_control = &capc;
-+	/*
-+	 * Make sure the structs are really initialized before we expose the
-+	 * capture control, in case we are interrupted and the interrupt handler
-+	 * frees a page.
-+	 */
-+	barrier();
-+	WRITE_ONCE(current->capture_control, &capc);
- 
- 	ret = compact_zone(&cc, &capc);
- 
- 	VM_BUG_ON(!list_empty(&cc.freepages));
- 	VM_BUG_ON(!list_empty(&cc.migratepages));
- 
--	*capture = capc.page;
--	current->capture_control = NULL;
-+	/*
-+	 * Make sure we hide capture control first before we read the captured
-+	 * page pointer, otherwise an interrupt could free and capture a page
-+	 * and we would leak it.
-+	 */
-+	WRITE_ONCE(current->capture_control, NULL);
-+	*capture = READ_ONCE(capc.page);
- 
- 	return ret;
+--- a/fs/ocfs2/dlmglue.c~ocfs2-avoid-inode-removed-while-nfsd-access-it
++++ a/fs/ocfs2/dlmglue.c
+@@ -689,6 +689,12 @@ static void ocfs2_nfs_sync_lock_res_init
+ 				   &ocfs2_nfs_sync_lops, osb);
  }
+ 
++static void ocfs2_nfs_sync_lock_init(struct ocfs2_super *osb)
++{
++	ocfs2_nfs_sync_lock_res_init(&osb->osb_nfs_sync_lockres, osb);
++	init_rwsem(&osb->nfs_sync_rwlock);
++}
++
+ void ocfs2_trim_fs_lock_res_init(struct ocfs2_super *osb)
+ {
+ 	struct ocfs2_lock_res *lockres = &osb->osb_trim_fs_lockres;
+@@ -2855,6 +2861,11 @@ int ocfs2_nfs_sync_lock(struct ocfs2_sup
+ 	if (ocfs2_is_hard_readonly(osb))
+ 		return -EROFS;
+ 
++	if (ex)
++		down_write(&osb->nfs_sync_rwlock);
++	else
++		down_read(&osb->nfs_sync_rwlock);
++
+ 	if (ocfs2_mount_local(osb))
+ 		return 0;
+ 
+@@ -2873,6 +2884,10 @@ void ocfs2_nfs_sync_unlock(struct ocfs2_
+ 	if (!ocfs2_mount_local(osb))
+ 		ocfs2_cluster_unlock(osb, lockres,
+ 				     ex ? LKM_EXMODE : LKM_PRMODE);
++	if (ex)
++		up_write(&osb->nfs_sync_rwlock);
++	else
++		up_read(&osb->nfs_sync_rwlock);
+ }
+ 
+ int ocfs2_trim_fs_lock(struct ocfs2_super *osb,
+@@ -3340,7 +3355,7 @@ int ocfs2_dlm_init(struct ocfs2_super *o
+ local:
+ 	ocfs2_super_lock_res_init(&osb->osb_super_lockres, osb);
+ 	ocfs2_rename_lock_res_init(&osb->osb_rename_lockres, osb);
+-	ocfs2_nfs_sync_lock_res_init(&osb->osb_nfs_sync_lockres, osb);
++	ocfs2_nfs_sync_lock_init(osb);
+ 	ocfs2_orphan_scan_lock_res_init(&osb->osb_orphan_scan.os_lockres, osb);
+ 
+ 	osb->cconn = conn;
+--- a/fs/ocfs2/ocfs2.h~ocfs2-avoid-inode-removed-while-nfsd-access-it
++++ a/fs/ocfs2/ocfs2.h
+@@ -395,6 +395,7 @@ struct ocfs2_super
+ 	struct ocfs2_lock_res osb_super_lockres;
+ 	struct ocfs2_lock_res osb_rename_lockres;
+ 	struct ocfs2_lock_res osb_nfs_sync_lockres;
++	struct rw_semaphore nfs_sync_rwlock;
+ 	struct ocfs2_lock_res osb_trim_fs_lockres;
+ 	struct mutex obs_trim_fs_mutex;
+ 	struct ocfs2_dlm_debug *osb_dlm_debug;
 _
