@@ -2,116 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2878D20AB85
-	for <lists+stable@lfdr.de>; Fri, 26 Jun 2020 06:55:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD47820AC7E
+	for <lists+stable@lfdr.de>; Fri, 26 Jun 2020 08:49:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725283AbgFZEzC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jun 2020 00:55:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39468 "EHLO
+        id S1728490AbgFZGte (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jun 2020 02:49:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725280AbgFZEzB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 26 Jun 2020 00:55:01 -0400
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A579C08C5C1
-        for <stable@vger.kernel.org>; Thu, 25 Jun 2020 21:55:01 -0700 (PDT)
-Received: by mail-pj1-x102e.google.com with SMTP id l6so1399616pjq.1
-        for <stable@vger.kernel.org>; Thu, 25 Jun 2020 21:55:01 -0700 (PDT)
+        with ESMTP id S1726311AbgFZGtd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 26 Jun 2020 02:49:33 -0400
+Received: from mail-io1-xd42.google.com (mail-io1-xd42.google.com [IPv6:2607:f8b0:4864:20::d42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D6C8C08C5C1
+        for <stable@vger.kernel.org>; Thu, 25 Jun 2020 23:49:33 -0700 (PDT)
+Received: by mail-io1-xd42.google.com with SMTP id a12so8693379ion.13
+        for <stable@vger.kernel.org>; Thu, 25 Jun 2020 23:49:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=fu70NoWPlASWBrJKXVj4qqIWRB1YvS0afQe7Cyl/OPk=;
-        b=l3+A9npzATtfi/xZFCtKgW2wqrG47mftf8A4ZAj+8xvkUq5FNvCPp1dri7lm7XSCcc
-         /229PsIGs9O9rc97Ge5O1PqVj2u6xLTjwVbQzcwA/Be/Wf6aafEvcismi8BfHtm3FD/j
-         xgjPzLKhZik8HLL5IAL1R5Z0q+fcV+ZSIzBOc6lwUNl3Y4rXASJuyLD8hGmHKFyLpgDT
-         Zafl/bk3AQUXpWiaK3Q4VlzK1a45qgDzDL02KoHHTyJYuoPPckkrMTzqi05rChr4RxdO
-         rubMiLe/wPsfdXBb1NsdNAC+okYAaKLc6aFGgo7Na5bcbYhfGpg8zheRQSBEueHnvDdT
-         x8HQ==
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=3eGngsjCRPW7/eGM9y9mgvnINTlv4sgjuuTCL62dvx0=;
+        b=QLIe0TX7oJy9wcLkfwAxYAMpdnq082R20GRRHpwBY/e/xUeXvH++PIIzbgKdsMLDfs
+         +wR0SNBesee9QYdAb1RkZOdVmuiCbDF2wCNg2XAc+MYaVnEcrYH9XPzeq3g93vvBouVd
+         cp9PcUnh0VMING8rwJTSrZnUdDQH15tmVBaTYkUN081tnVi1NRet6CS/tmlZemi+yap6
+         ohLR/oG0/WIKojwhvqKOwP1T3dauXa5zYkNEJ/wqL7XcwbC1N4hZJgbUJSMx0ZdsWMYs
+         rU3nrCTL5eLsY193saCKWVRzrVTvVMWstLlucKHAbl+nlo0bYPmyqmit0f6Hk2eaZ7mn
+         njBw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=fu70NoWPlASWBrJKXVj4qqIWRB1YvS0afQe7Cyl/OPk=;
-        b=OqIhTLT27YDMU7/dUc8NdITeOJ8CBIeBooJmXl5fp6dCgEFksRr/3nvINPQVZ2L5vJ
-         X66nAcq+VnxwavnXIOrc9nIwxbtYUBMcLqZEf5Mvq8bP8q2XKKSKKS8MP56s2RAjiSoB
-         uD5GC4m8uT/bKMq+8qWLk+YTZQHG6FFBqeGlAacJQ05ljQ5JIsxktroMApBmlI+qDJk4
-         awChsSbdpSByCtWMoKuGo2ge620DPqR5IHDRnC7KNs1rnXF5nO7sXtwBQtq91BUvUk8Y
-         KER8b2Ba5hSVCyVCqItmif3mrHSE8Ppyk2JdSSfG4YcoSc29PjmLNTvlmc/R8P0UFlml
-         ePZg==
-X-Gm-Message-State: AOAM533/Y3aFbdlpQKW4RYWo2D4sWxCw6Bd6eEYXRIHTXNrLEAABE/6u
-        BH+68OMQJ/YlXp3Hx03kvm/VCR0DtCQ=
-X-Google-Smtp-Source: ABdhPJzXd3NMGCcdFB9MaJvtTKB6TFJqQGaHjws9ujZ5K6G9vB5ZEauGFTqvwM7+qWF4FMW4Df0DJA==
-X-Received: by 2002:a17:90a:a616:: with SMTP id c22mr1388965pjq.44.1593147300733;
-        Thu, 25 Jun 2020 21:55:00 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id z9sm9773108pjr.39.2020.06.25.21.54.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 25 Jun 2020 21:55:00 -0700 (PDT)
-Message-ID: <5ef57fa4.1c69fb81.77411.cacd@mx.google.com>
-Date:   Thu, 25 Jun 2020 21:55:00 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=3eGngsjCRPW7/eGM9y9mgvnINTlv4sgjuuTCL62dvx0=;
+        b=poquA1SU2GgR9IhBwoMjeMXE+HsT4RG1PBMh+660Z2EEr+vibnlenwWiy5RKEx1HEK
+         odrHBZzHmdt1XRo4zK2NkeQ31/iEuIOzmkLJN59mIaaNwk7xsFrbVypshrh2dUt8Uugn
+         iBvadGfBaT00NamQuHGmsyFYyN5M2sxiycxv7LFDDzNVCxvK1lB1rJ7khCcg7Aor39ig
+         uzqQbDcYEs0/xE9dR4fnmvkSU0mFjI2Qvrl91Mky3tzt1xfP8tYItQnX9DXZwmdCDbj4
+         QEwYZwLH2kN9+o8yVGloGlP5LB+YaDMjbHTrGgqw9nBt16IEzp2w09MRLIAQGTI1aY1n
+         H/7w==
+X-Gm-Message-State: AOAM533hko7pguYppSYL0yQWJxAE/4TyuA5ucr7G4aimEfsJBl8Nzoxp
+        HAL4MxX+Oqce+6vfYUYjtWrWXRvGLwDqWm4N6YM=
+X-Google-Smtp-Source: ABdhPJxeZmx+JwESVyC9bPGpVLOKHN5vUdsW8QjyQpRkId4hDJNcTwX/vsQBaDqZArOSHLICLRxweO+3WfQoHGbw3pM=
+X-Received: by 2002:a05:6602:d8:: with SMTP id z24mr1944898ioe.136.1593154172951;
+ Thu, 25 Jun 2020 23:49:32 -0700 (PDT)
 MIME-Version: 1.0
+Received: by 2002:a05:6638:14f:0:0:0:0 with HTTP; Thu, 25 Jun 2020 23:49:32
+ -0700 (PDT)
+Reply-To: georgemike7031@gmail.com
+From:   george mike <bbruce539@gmail.com>
+Date:   Fri, 26 Jun 2020 08:49:32 +0200
+Message-ID: <CADiB6YksG9k9SH2bBHx6XGHhVktRiArcCazLeQHOG7quTiQyCw@mail.gmail.com>
+Subject: hello
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.130
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.19.y
-Subject: stable-rc/linux-4.19.y baseline: 76 runs, 1 regressions (v4.19.130)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y baseline: 76 runs, 1 regressions (v4.19.130)
+Guten Tag, Liebes
 
-Regressions Summary
--------------------
+Mein Name ist Herr George Mike ESQ, der mit einem der besten zusammenarbeit=
+et
+Kammern und ich schreiben, um Sie =C3=BCber den Tod meines Klienten zu
+informieren, der
+tot infolge eines Unfalls mit seiner Familie. Am 19. August
+2017 starb mein verstorbener Klient an den Folgen eines t=C3=B6dlichen
+Unfalls ohne ihn
+Registrieren Sie eines seiner Familienmitglieder als Angeh=C3=B6rige der
+Bank, bei der er hinterlegt hat
+eine riesige Menge Geld und er starb mit seiner Familie und ich habe gesuch=
+t
+alle anderen Mitglieder von ihm
+in der N=C3=A4he Verwandter ohne fruchtbares Ergebnis und es war, als die B=
+ank
+Hier schickte mir eine Mitteilung =C3=BCber ihren Beschluss, seinen
+Nachlass in der Schlange zu beschlagnahmen
+mit ihrem verlassenen Eigentum.
 
-platform        | arch  | lab          | compiler | defconfig | results
-----------------+-------+--------------+----------+-----------+--------
-bcm2837-rpi-3-b | arm64 | lab-baylibre | gcc-8    | defconfig | 4/5    =
+Dies dient dazu, Ihre Aufmerksamkeit zu erregen, indem Sie Ihre
+Zustimmung zur Pr=C3=A4sentation einholen
+Ihr Name als mein verstorbener Kunde neben Kin bei der Bank, bei der er
+hat vor seinem Tod einen riesigen Geldbetrag hinterlegt. Acht Millionen F=
+=C3=BCnf
+hunderttausend US-Dollar 8,5 Millionen US-Dollar
 
+Ich habe erfolglos mehrere Versuche unternommen, einen meiner zu finden
+Kunden erweiterten Verwandten, aber alles ohne Erfolg. Bitte ich
+brauche deine dringende
+ Antworten Sie, damit wir zu der Bank gehen k=C3=B6nnen, bei der der Fonds
+hinterlegt ist.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
-nel/v4.19.130/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.19.y
-  Describe: v4.19.130
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      a39e75458e1ceb7fefaa3a0bd9df21558713cf0d =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform        | arch  | lab          | compiler | defconfig | results
-----------------+-------+--------------+----------+-----------+--------
-bcm2837-rpi-3-b | arm64 | lab-baylibre | gcc-8    | defconfig | 4/5    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5ef54d7992764ded9485bb1c
-
-  Results:     4 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-30/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-30/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2019=
-.02-11-g17e793fa4728/arm64/baseline/rootfs.cpio.gz =
-
-
-  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5ef54d7992764ded=
-9485bb1f
-      new failure (last pass: v4.19.129-208-ge864f43593cc)
-      1 lines =20
+Danke und Gr=C3=BC=C3=9Fe,
+Rechtsanwalt George Mike (Esq)
+Hauptanwalt von
+Herrschaft assoziiert
+Kammern Rechtsanw=C3=A4lte
+Rufen Sie + 22890-33-26-71 an
