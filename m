@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B4F720AAB3
-	for <lists+stable@lfdr.de>; Fri, 26 Jun 2020 05:29:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 169AF20AAB4
+	for <lists+stable@lfdr.de>; Fri, 26 Jun 2020 05:29:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728351AbgFZD3u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 25 Jun 2020 23:29:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48170 "EHLO mail.kernel.org"
+        id S1728353AbgFZD3y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 25 Jun 2020 23:29:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728333AbgFZD3u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 25 Jun 2020 23:29:50 -0400
+        id S1728333AbgFZD3x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 25 Jun 2020 23:29:53 -0400
 Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B82202081A;
-        Fri, 26 Jun 2020 03:29:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EE32D20885;
+        Fri, 26 Jun 2020 03:29:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593142190;
-        bh=gJqVhnGNRkoppN0akj2ko9FC074SEW8dDzmzxOpPOyw=;
+        s=default; t=1593142193;
+        bh=0gKfvJL/ltoFdRty5G+wwUVc8XVDPFe5FXXxW25f8X4=;
         h=Date:From:To:Subject:In-Reply-To:From;
-        b=GLwMvNfVfOKx6rEDgkMeix6rOpqfVHDJ1Q0wCk9vp0NAu6SUWLMNiwX8ZscAYGHU0
-         RL4UGYzSeyDXQx+fqIEW5X+uejqyFRrxawCkphJ+YhJq3vgth9A9afrzyOkQx2ZM1U
-         kEQ9276MMg7f5oLlNX9PLlDD63X0IaETNSETG1TA=
-Date:   Thu, 25 Jun 2020 20:29:49 -0700
+        b=TS5e91FM3EaM3K6FBnxqeE+lbn43ypDZ9Ft384qy4WMcC4do2gxBTrxBGgyqWFUNo
+         76u+XiJnq2Fzii2WFEqfDoeiH5wHvhtH94IJgRokw7x8YIs1YzKbcxuo5ZaA7clBzQ
+         VUXB3MiQUgTw1mhx627zkZKZT3ipdFrTIrbEG+tQ=
+Date:   Thu, 25 Jun 2020 20:29:52 -0700
 From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, cl@linux.com, guro@fb.com,
-        hannes@cmpxchg.org, iamjoonsoo.kim@lge.com, longman@redhat.com,
-        mhocko@kernel.org, mm-commits@vger.kernel.org, penberg@kernel.org,
-        rientjes@google.com, shakeelb@google.com, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, vdavydov.dev@gmail.com
-Subject:  [patch 11/32] mm, slab: fix sign conversion problem in
- memcg_uncharge_slab()
-Message-ID: <20200626032949.NrLuc32Sk%akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, dan.carpenter@oracle.com,
+        dhowells@redhat.com, hannes@cmpxchg.org,
+        jarkko.sakkinen@linux.intel.com, Jason@zx2c4.com,
+        jmorris@namei.org, joe@perches.com, longman@redhat.com,
+        mhocko@suse.com, mm-commits@vger.kernel.org, rientjes@google.com,
+        serge@hallyn.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, willy@infradead.org
+Subject:  [patch 12/32] mm/slab: use memzero_explicit() in kzfree()
+Message-ID: <20200626032952._ed4K7Snx%akpm@linux-foundation.org>
 In-Reply-To: <20200625202807.b630829d6fa55388148bee7d@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
@@ -41,72 +42,47 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 From: Waiman Long <longman@redhat.com>
-Subject: mm, slab: fix sign conversion problem in memcg_uncharge_slab()
+Subject: mm/slab: use memzero_explicit() in kzfree()
 
-It was found that running the LTP test on a PowerPC system could produce
-erroneous values in /proc/meminfo, like:
+The kzfree() function is normally used to clear some sensitive
+information, like encryption keys, in the buffer before freeing it back to
+the pool.  Memset() is currently used for buffer clearing.  However
+unlikely, there is still a non-zero probability that the compiler may
+choose to optimize away the memory clearing especially if LTO is being
+used in the future.  To make sure that this optimization will never
+happen, memzero_explicit(), which is introduced in v3.18, is now used in
+kzfree() to future-proof it.
 
-  MemTotal:       531915072 kB
-  MemFree:        507962176 kB
-  MemAvailable:   1100020596352 kB
-
-Using bisection, the problem is tracked down to commit 9c315e4d7d8c ("mm:
-memcg/slab: cache page number in memcg_(un)charge_slab()").
-
-In memcg_uncharge_slab() with a "int order" argument:
-
-  unsigned int nr_pages = 1 << order;
-    :
-  mod_lruvec_state(lruvec, cache_vmstat_idx(s), -nr_pages);
-
-The mod_lruvec_state() function will eventually call the
-__mod_zone_page_state() which accepts a long argument.  Depending on the
-compiler and how inlining is done, "-nr_pages" may be treated as a
-negative number or a very large positive number.  Apparently, it was
-treated as a large positive number in that PowerPC system leading to
-incorrect stat counts.  This problem hasn't been seen in x86-64 yet,
-perhaps the gcc compiler there has some slight difference in behavior.
-
-It is fixed by making nr_pages a signed value.  For consistency, a similar
-change is applied to memcg_charge_slab() as well.
-
-Link: http://lkml.kernel.org/r/20200620184719.10994-1-longman@redhat.com
-Fixes: 9c315e4d7d8c ("mm: memcg/slab: cache page number in memcg_(un)charge_slab()").
+Link: http://lkml.kernel.org/r/20200616154311.12314-2-longman@redhat.com
+Fixes: 3ef0e5ba4673 ("slab: introduce kzfree()")
 Signed-off-by: Waiman Long <longman@redhat.com>
-Acked-by: Roman Gushchin <guro@fb.com>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: Pekka Enberg <penberg@kernel.org>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Cc: James Morris <jmorris@namei.org>
+Cc: "Serge E. Hallyn" <serge@hallyn.com>
+Cc: Joe Perches <joe@perches.com>
+Cc: Matthew Wilcox <willy@infradead.org>
 Cc: David Rientjes <rientjes@google.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Shakeel Butt <shakeelb@google.com>
 Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: "Jason A . Donenfeld" <Jason@zx2c4.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/slab.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ mm/slab_common.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/slab.h~mm-slab-fix-sign-conversion-problem-in-memcg_uncharge_slab
-+++ a/mm/slab.h
-@@ -348,7 +348,7 @@ static __always_inline int memcg_charge_
- 					     gfp_t gfp, int order,
- 					     struct kmem_cache *s)
- {
--	unsigned int nr_pages = 1 << order;
-+	int nr_pages = 1 << order;
- 	struct mem_cgroup *memcg;
- 	struct lruvec *lruvec;
- 	int ret;
-@@ -388,7 +388,7 @@ out:
- static __always_inline void memcg_uncharge_slab(struct page *page, int order,
- 						struct kmem_cache *s)
- {
--	unsigned int nr_pages = 1 << order;
-+	int nr_pages = 1 << order;
- 	struct mem_cgroup *memcg;
- 	struct lruvec *lruvec;
- 
+--- a/mm/slab_common.c~mm-slab-use-memzero_explicit-in-kzfree
++++ a/mm/slab_common.c
+@@ -1726,7 +1726,7 @@ void kzfree(const void *p)
+ 	if (unlikely(ZERO_OR_NULL_PTR(mem)))
+ 		return;
+ 	ks = ksize(mem);
+-	memset(mem, 0, ks);
++	memzero_explicit(mem, ks);
+ 	kfree(mem);
+ }
+ EXPORT_SYMBOL(kzfree);
 _
