@@ -2,151 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C5D220B414
-	for <lists+stable@lfdr.de>; Fri, 26 Jun 2020 17:01:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E87D020B44A
+	for <lists+stable@lfdr.de>; Fri, 26 Jun 2020 17:17:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727775AbgFZPB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 26 Jun 2020 11:01:26 -0400
-Received: from esa6.hgst.iphmx.com ([216.71.154.45]:20375 "EHLO
-        esa6.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725836AbgFZPBZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 26 Jun 2020 11:01:25 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1593183685; x=1624719685;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=71Um+1TYPFOxPr4eD3s8fnFPttTI3bEZgQ1l+I4R5pU=;
-  b=aiAtnIKabPfpSTMPUYMUEjqvrvAYVhiN2ksZ4Uh/kGMxXAupRoS7t/ok
-   savQFSEuk38cJKNMo1d8U5n0Xia3sY7Ja/F5NBSwksSkDRCCBYhgyKuTR
-   MNhi/Sc5do8o8DuSAcuPhX417IVUa0A/8hLn/cc+9Kxmo/ErrpsliU/k2
-   7cCUIkIeRNjDbMZz4hw992fQSoFoVqG9O9I/n8zMB9K7x3INVOyYlFKEq
-   k9iGkQGWipwbOShCiaqJvQkGPFaiVJhD0c19lSv9rO+F+JxbYSXB0Jyg6
-   iqN6pDet2WBAxE+Sj67zO5g1Zr2Jmmn5K9dRosbU/bSvCMdjAM0zaWRmO
-   A==;
-IronPort-SDR: S82CB/NPH2DDnOvxTvn83x4n9bxZqCjAo9rXnf2j63n7tMIWrGIjsX3WOOe9F3ElY8alnUHyAv
- ZdZ62LRFq5NTFmb8t3jZlBSSkKAmz7iN1woPh/1mBd7fLh+Kng+jtXDe3l0lB/b639I6WqW4jd
- eMBRvKpSohHTFMcjB1H7/0k6s7CM0/o71Pj7pEVaID8aC0mSHIinvpt5Fx2sWSqUJRej4DTyjs
- BbLmaybH6Pit2E610bp2mQrnPMsQmoebTJh1j9W3ng/URmnJg47OkZOH2c1tHF+4iPHrP++GNS
- RDw=
-X-IronPort-AV: E=Sophos;i="5.75,284,1589212800"; 
-   d="scan'208";a="142372879"
-Received: from h199-255-45-14.hgst.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 26 Jun 2020 23:01:25 +0800
-IronPort-SDR: rAi5oGCXKRlh5RoR/JcnkIt9q4Al335dGpIYmP8aVgNo5jfMNShXhD1oEOV/jnEomTJGriAQts
- ghj2aMmOO8W13Xd0JfGnvp0a6/J5CLcgg=
-Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Jun 2020 07:50:24 -0700
-IronPort-SDR: tKUo55bvFSD+gGu6eu5/gmKH/7yYyn7sa6iqC18EbWVYC07paHgVocfTTd8Xf9lgA62+FXxWpP
- fStlgLXeEEuw==
-WDCIronportException: Internal
-Received: from unknown (HELO redsun60.ssa.fujisawa.hgst.com) ([10.149.66.36])
-  by uls-op-cesaip01.wdc.com with ESMTP; 26 Jun 2020 08:01:24 -0700
-From:   Johannes Thumshirn <johannes.thumshirn@wdc.com>
-To:     David Sterba <dsterba@suse.cz>
-Cc:     linux-btrfs@vger.kernel.org,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        id S1725768AbgFZPRS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 26 Jun 2020 11:17:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59780 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725280AbgFZPRS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 26 Jun 2020 11:17:18 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F5D420702;
+        Fri, 26 Jun 2020 15:17:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1593184637;
+        bh=bEopOCfcNqXNfyGY8+wJ7TK9H355h5wkAUtFffA7EoE=;
+        h=Subject:To:From:Date:From;
+        b=EoUQjZusc9Cdo7jutlxJ2U9jfBdbC7f6HTo9qDv4ltE9Vb3qywWqQUEJFmvOp9FiE
+         a8+K0AmJDF3L85yev4Stl5jyv35lPfJtM6begItr0FcGjM6FSp1hY1tom+FLzecLDV
+         ZNT5q3F7wli03efrOtzZKcPNv1DrCC/EdMTtGwiI=
+Subject: patch "usb: cdns3: ep0: fix the test mode set incorrectly" added to usb-linus
+To:     peter.chen@nxp.com, balbi@kernel.org, jun.li@nxp.com,
         stable@vger.kernel.org
-Subject: [PATCH v3] btrfs: pass checksum type via BTRFS_IOC_FS_INFO ioctl
-Date:   Sat, 27 Jun 2020 00:01:07 +0900
-Message-Id: <20200626150107.19666-1-johannes.thumshirn@wdc.com>
-X-Mailer: git-send-email 2.26.2
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 26 Jun 2020 17:17:12 +0200
+Message-ID: <15931846325388@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-With the recent addition of filesystem checksum types other than CRC32c,
-it is not anymore hard-coded which checksum type a btrfs filesystem uses.
 
-Up to now there is no good way to read the filesystem checksum, apart from
-reading the filesystem UUID and then query sysfs for the checksum type.
+This is a note to let you know that I've just added the patch titled
 
-Add a new csum_type field to the BTRFS_IOC_FS_INFO ioctl command which
-usually is used to query filesystem features. Also add a flags member
-indicating that the kernel responded with a set csum_type field.
+    usb: cdns3: ep0: fix the test mode set incorrectly
 
-To simplify further additions to the ioctl, also switch the padding to a
-u8 array. Pahole was used to verify the result of this switch:
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
 
-pahole -C btrfs_ioctl_fs_info_args fs/btrfs/btrfs.ko
-struct btrfs_ioctl_fs_info_args {
-        __u64                      max_id;               /*     0     8 */
-        __u64                      num_devices;          /*     8     8 */
-        __u8                       fsid[16];             /*    16    16 */
-        __u32                      nodesize;             /*    32     4 */
-        __u32                      sectorsize;           /*    36     4 */
-        __u32                      clone_alignment;      /*    40     4 */
-        __u32                      flags;                /*    44     4 */
-        __u16                      csum_type;            /*    48     2 */
-        __u16                      csum_size;            /*    50     2 */
-        __u8                       reserved[972];        /*    52   972 */
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-        /* size: 1024, cachelines: 16, members: 10 */
-};
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
 
-Fixes: 3951e7f050ac ("btrfs: add xxhash64 to checksumming algorithms")
-Fixes: 3831bf0094ab ("btrfs: add sha256 to checksumming algorithm")
-Cc: stable@vger.kernel.org
-Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+If you have any questions about this process, please let me know.
+
+
+From b51e1cf64f93acebb6d8afbacd648a6ecefc39b4 Mon Sep 17 00:00:00 2001
+From: Peter Chen <peter.chen@nxp.com>
+Date: Tue, 23 Jun 2020 11:09:16 +0800
+Subject: usb: cdns3: ep0: fix the test mode set incorrectly
+
+The 'tmode' is ctrl->wIndex, changing it as the real test
+mode value for register assignment.
+
+Cc: <stable@vger.kernel.org>
+Fixes: 7733f6c32e36 ("usb: cdns3: Add Cadence USB3 DRD Driver")
+Reviewed-by: Jun Li <jun.li@nxp.com>
+Signed-off-by: Peter Chen <peter.chen@nxp.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 ---
-Changes to v2:
-* add additional csum_size (David)
-* rename flag value to BTRFS_FS_INFO_FLAG_CSUM_TYPE_SIZE to reflect
-  additional size
+ drivers/usb/cdns3/ep0.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Changes to v1:
-* add 'out' comment to be consistent (Hans)
-* remove le16_to_cpu() (kbuild robot)
-* switch padding to be all u8 (David)
----
- fs/btrfs/ioctl.c           |  3 +++
- include/uapi/linux/btrfs.h | 14 ++++++++++++--
- 2 files changed, 15 insertions(+), 2 deletions(-)
-
-diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
-index b3e4c632d80c..cfedcdf446c3 100644
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -3217,6 +3217,9 @@ static long btrfs_ioctl_fs_info(struct btrfs_fs_info *fs_info,
- 	fi_args->nodesize = fs_info->nodesize;
- 	fi_args->sectorsize = fs_info->sectorsize;
- 	fi_args->clone_alignment = fs_info->sectorsize;
-+	fi_args->csum_type = btrfs_super_csum_type(fs_info->super_copy);
-+	fi_args->csum_size = btrfs_super_csum_size(fs_info->super_copy);
-+	fi_args->flags |= BTRFS_FS_INFO_FLAG_CSUM_TYPE_SIZE;
+diff --git a/drivers/usb/cdns3/ep0.c b/drivers/usb/cdns3/ep0.c
+index 82645a2a0f52..04e49582fb55 100644
+--- a/drivers/usb/cdns3/ep0.c
++++ b/drivers/usb/cdns3/ep0.c
+@@ -327,7 +327,8 @@ static int cdns3_ep0_feature_handle_device(struct cdns3_device *priv_dev,
+ 		if (!set || (tmode & 0xff) != 0)
+ 			return -EINVAL;
  
- 	if (copy_to_user(arg, fi_args, sizeof(*fi_args)))
- 		ret = -EFAULT;
-diff --git a/include/uapi/linux/btrfs.h b/include/uapi/linux/btrfs.h
-index e6b6cb0f8bc6..2de3ef3c5c71 100644
---- a/include/uapi/linux/btrfs.h
-+++ b/include/uapi/linux/btrfs.h
-@@ -250,10 +250,20 @@ struct btrfs_ioctl_fs_info_args {
- 	__u32 nodesize;				/* out */
- 	__u32 sectorsize;			/* out */
- 	__u32 clone_alignment;			/* out */
--	__u32 reserved32;
--	__u64 reserved[122];			/* pad to 1k */
-+	__u32 flags;				/* out */
-+	__u16 csum_type;			/* out */
-+	__u16 csum_size;			/* out */
-+	__u8 reserved[972];			/* pad to 1k */
- };
- 
-+/*
-+ * fs_info ioctl flags
-+ *
-+ * Used by:
-+ * struct btrfs_ioctl_fs_info_args
-+ */
-+#define BTRFS_FS_INFO_FLAG_CSUM_TYPE_SIZE		(1 << 0)
-+
- /*
-  * feature flags
-  *
+-		switch (tmode >> 8) {
++		tmode >>= 8;
++		switch (tmode) {
+ 		case TEST_J:
+ 		case TEST_K:
+ 		case TEST_SE0_NAK:
 -- 
-2.26.2
+2.27.0
+
 
