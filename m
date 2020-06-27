@@ -2,77 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4D6520C0AB
-	for <lists+stable@lfdr.de>; Sat, 27 Jun 2020 12:20:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DA0E20C0EA
+	for <lists+stable@lfdr.de>; Sat, 27 Jun 2020 13:02:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726406AbgF0KUG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 27 Jun 2020 06:20:06 -0400
-Received: from rin.romanrm.net ([51.158.148.128]:54094 "EHLO rin.romanrm.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726175AbgF0KUG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 27 Jun 2020 06:20:06 -0400
-X-Greylist: delayed 392 seconds by postgrey-1.27 at vger.kernel.org; Sat, 27 Jun 2020 06:20:03 EDT
-Received: from natsu (unknown [IPv6:fd39::e99e:8f1b:cfc9:ccb8])
-        by rin.romanrm.net (Postfix) with SMTP id 91C8E42D;
-        Sat, 27 Jun 2020 10:13:28 +0000 (UTC)
-Date:   Sat, 27 Jun 2020 15:13:28 +0500
-From:   Roman Mamedov <rm@romanrm.net>
-To:     Jiri Slaby <jirislaby@kernel.org>
-Cc:     Gabriel C <nix.or.die@googlemail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        stable <stable@vger.kernel.org>, lwn@lwn.net,
-        angrypenguinpoland@gmail.com, Qiujun Huang <hqjagain@gmail.com>,
-        ath9k-devel@qca.qualcomm.com,
-        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>
-Subject: Re: ath9k broken [was: Linux 5.7.3]
-Message-ID: <20200627151328.1611acbc@natsu>
-In-Reply-To: <b7993e83-1df7-0c93-f6dd-dba9dc10e27a@kernel.org>
-References: <1592410366125160@kroah.com>
-        <CAEJqkgjV8p6LtBV8YUGbNb0vYzKOQt4-AMAvYw5mzFr3eicyTg@mail.gmail.com>
-        <b7993e83-1df7-0c93-f6dd-dba9dc10e27a@kernel.org>
+        id S1726175AbgF0LCF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 27 Jun 2020 07:02:05 -0400
+Received: from sonic307-1.consmr.mail.bf2.yahoo.com ([74.6.134.40]:41324 "EHLO
+        sonic307-1.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725991AbgF0LCE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 27 Jun 2020 07:02:04 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1593255723; bh=UXgtDsRN7lwk5hslMhDS77KoWasIDbV8j6zhJXeW8ys=; h=Date:From:Reply-To:Subject:References:From:Subject; b=PgOwB9zsVZhpstLOvg0beYAs0KRxMTsYeoK9KyQlydbeWRNrySWnjM0MmBg+lkzm+Eq/O2piULnthJokCDE8DTjtIrxdfc6g/6UhIB/8obaegkmbHOhEiB2GBxlCdG+gDQW/zBDGF9Jf1CddfDFqcdDTR2skndGXsM0PdW+KNn9ibnxIaSDETztbJU1KdbbMY4U9YXVHLL0ft4aRz8h5ducwzvZsAlmDMmlBZ1xA95X3aQcSbvXfYK9ABq9jVATNK4HrTz71W4K+rOgamDu0h4bLJLDWsiAkOkwSfbiMH0ED58uSj4n3YL5iNU35nwuEMVfU8aLGzwaM2y2cv0JDcA==
+X-YMail-OSG: BCsoXsEVM1kPxc5X5TiPmmwhsl_Sq3ODD3Arl036uZBV4BG_Wl7ALgbeOjGd.As
+ osd_DcqwypzTwP6ccZ.vx5OTTya7TDKtzVXuA.8NfD7iBf04NS9NSLFry4VyehTQutDx1D2yQyiU
+ GAyMFWyRUM2yddCa8ouLcTqjishcOCyCqzGPI5T8zpG8PQxfwTE0ouItMAeIdroI.8qx20dRxAxK
+ 0sjhH1BZzkfEvJOcua17hwyqt2lR8xeYCXQDKxP1vXjqlIiU24UwX8_xonKQRAdUQtzA3KRdv7nl
+ .UtHdERT6gveQJKf85.QOIKk9LUp.pIOBVLTeq8kcvSRCrqO_.m7OVqmxvdrRyCL5hDyypnVP8Ak
+ UxCkd0SdJZq1nZIgCOnO6jmz4FxJ7da44_Ek0gad.Odf.7ibxfKPV.0gSfd4lhIXGh40Dl54Dgda
+ 9ErI9T2Hq48e0fhiI2Y8LEaG3ej1yyce8mXEfs8xl_v8qPwZkbv03W40oUQag6XxbhwvS_3HxySP
+ TW1hqHIPIxc_hE4iaPR8EzolOs1Y9w2zMo1B5fCalLyvW9dJH6kTBtN_Aiorf0a0tGqQ0hfIa19d
+ GTfnW7rdL.NO0Y.vqY89NjPhi9HyrP0redhrnNI2FLORuYeO6AxlUteRnYqRhN7.RCNTtOBBa.Su
+ C6D0KlRZEo4iInKzHT8VOS.6JXFwMn_U.UEx3eYbKMoQ..CU9TJKTvlCioWCfzSBxLTJSWdm3pNU
+ KKpzvXhKadzuWFcj7zqd5yq9qL5cbzfomg3zmnmw4iLoD4pld5KjFrEtVeHG_93y9pkbIH6CgFHC
+ e6uOrqyxvnhTTWBUt5MtmLq_wVrKEHEyAaBbpIEstYxUA2g10IjhUkKQXLwJ.cieawuvKjwr9qox
+ 8gB7dPWez8ybSjfyk7chgY3OMMj_cszI0hhqwMpi1opWMchHoff0ZZfSt.lCCjoVYjNvK34Qjk7E
+ Cd441aCyCgwS70j_nkF_0_xAG43I.z3JWdtOhuUuTyTLg0oxxocyFPmWwmV.u6bWkZKlDlRjrbPx
+ tfNgtexkdiCCXw7IGtWTrV4_0pfnpuljJsYs9RsGUoX13EDv9L7JuXlkIYuKi0dxlRm_s0fLvgvV
+ YBLJ.FvYUyE5m78DwbIj6NI0iK..VscpyEmUS2.Wd.xVFszTlpqacUVzsRCIS1aAyDYgHAdT09xW
+ 5RgJLbHh_cI6VQvnbaUrz7C7wa4tzcKqN9PShSzHw58QEPNSSbgVpnRqgt0Mckk_5tLrxLmIEsHK
+ wlU1izXel016z9Mb0hHIM6No71gTtfYHUHOXth9ItYbVKN5AKzHslkSX1jDtR4qyQu_WLU0I-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic307.consmr.mail.bf2.yahoo.com with HTTP; Sat, 27 Jun 2020 11:02:03 +0000
+Date:   Sat, 27 Jun 2020 11:01:58 +0000 (UTC)
+From:   Miss Abibatu Ali <abibatuali01@gmail.com>
+Reply-To: abibatu22ali@gmail.com
+Message-ID: <1430393398.3201143.1593255718669@mail.yahoo.com>
+Subject: Dear.Friend
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
+References: <1430393398.3201143.1593255718669.ref@mail.yahoo.com>
+X-Mailer: WebService/1.1.16138 YMailNodin Mozilla/5.0 (Windows NT 6.1; rv:77.0) Gecko/20100101 Firefox/77.0
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 25 Jun 2020 06:57:13 +0200
-Jiri Slaby <jirislaby@kernel.org> wrote:
-
-> I fail to see how the commit could cause an issue like this. Is this
-> really reproducibly broken with the commit and irreproducible without
-> it? As it looks like a USB/wiring problem:
-> usb 1-2: USB disconnect, device number 2
-> ath: phy0: Reading Magic # failed
-> ath: phy0: Unable to initialize hardware; initialization status: -5
-> ...
-> usb 1-2: device descriptor read/64, error -110
-> usb 1-2: device descriptor read/64, error -71
-> 
-> Ccing ath9k maintainers too.
-
-Note that this has been previously reported in:
-https://bugzilla.kernel.org/show_bug.cgi?id=208251
-and confirmed by several people on various stable series and the mainline that
-the referenced commit is indeed causing the problem.
-
-I don't get the "device descriptor read" errors though, my dmesg is posted on
-the bug report, it just says "ath9k_htc: Failed to initialize the device".
-
-> > I don't have so much info about the HW, besides a dmesg showing the
-> > phy breaking.
-> > I also added the reporter to CC too.
-> > 
-> > https://gist.github.com/AngryPenguinPL/1e545f0da3c2339e443b9e5044fcccea
-> > 
-> > If you need more info, please let me know and I'll try my best to get
-> > it as fast as possible for you.
-
--- 
-With respect,
-Roman
+Dear.Friend
+I am Mrs. Abibatu. I am sending this brief letter to solicit
+your partnership to transfer a sum of 11.9 Million Dollars into your
+reliable account as my business partner. However, it's my urgent need
+for foreign partner that made me to contact you for this transaction.
+Further details of the transfer will be forwarded to you if you are
+ready to assist me.
+Best Regards.
+Mrs.Abibatu Ali
