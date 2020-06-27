@@ -2,128 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D1A3020C288
-	for <lists+stable@lfdr.de>; Sat, 27 Jun 2020 16:57:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4350520C378
+	for <lists+stable@lfdr.de>; Sat, 27 Jun 2020 20:22:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726125AbgF0O5U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 27 Jun 2020 10:57:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48300 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725922AbgF0O5T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 27 Jun 2020 10:57:19 -0400
-Received: from archlinux (cpc149474-cmbg20-2-0-cust94.5-4.cable.virginm.net [82.4.196.95])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E324208B6;
-        Sat, 27 Jun 2020 14:57:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593269839;
-        bh=2k+Ddvpy38yCyS24U3uqfEu9sS8DoXsnMunaJLPEhwM=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=FxGuDTOWd4gGbazeLB6tt0juiurDHonA2P6+DxziSUgnwD3twuvKPxhAe7s4qn3kv
-         bm8Evici7YPzopjFwnqUyO925FKQmtZlZk+9AlO78Lye1GxeOyRrNhILXW+MMwpFTN
-         Fr/3d5VMqaMmuAUrtCD8SAiHgQmBV6L49FNAEmPE=
-Date:   Sat, 27 Jun 2020 15:57:14 +0100
-From:   Jonathan Cameron <jic23@kernel.org>
-To:     Krzysztof Kozlowski <krzk@kernel.org>
-Cc:     Hartmut Knaack <knaack.h@gmx.de>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-        Rob Herring <robh+dt@kernel.org>, linux-iio@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] dt-bindings: iio: bmc150_magn: Document missing
- compatibles
-Message-ID: <20200627155714.15478f60@archlinux>
-In-Reply-To: <20200622051940.GA4021@kozik-lap>
-References: <20200617101259.12525-1-krzk@kernel.org>
-        <20200620164049.5aa91365@archlinux>
-        <20200622051940.GA4021@kozik-lap>
-X-Mailer: Claws Mail 3.17.5 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        id S1726695AbgF0SWd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 27 Jun 2020 14:22:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45320 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725932AbgF0SWb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 27 Jun 2020 14:22:31 -0400
+Received: from mail-qk1-x743.google.com (mail-qk1-x743.google.com [IPv6:2607:f8b0:4864:20::743])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A01D2C03E979
+        for <stable@vger.kernel.org>; Sat, 27 Jun 2020 11:22:30 -0700 (PDT)
+Received: by mail-qk1-x743.google.com with SMTP id e13so11840724qkg.5
+        for <stable@vger.kernel.org>; Sat, 27 Jun 2020 11:22:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=wknXL/NZZBsk//od0+ACYvlDvjjEXtFODMTp/oomwis=;
+        b=gy42z+6cy8ul5JraOk9jo44rONTJWYOz8zCY+b1cDGhklC9x1j9JQleDZ+cDg9XKIz
+         kOLCc87SIQaieB795ZhReKG4MCPphuoFynjteK/os1Ff9I7E33uDizZD3UmQB4rk8vUB
+         p3ucSkV7E4bPsKeajNlQ/T66NtHKQKCePNhLfDa4jkTinDcvVk41/7hnQ/gwwBftf8At
+         MhFNLNGvzZHPnvwyUdzdhwDbJKblAAu5vuTFlx2ogyCElXnHjMiePc2f4fe6GwVYCcDv
+         OCn1r4Gm1EIpUvW1CXvE3DEhKg7ed6aif/tw1n8Bh1mITbsMrH8uvDMQb8KDCPJk+H93
+         Scsg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=wknXL/NZZBsk//od0+ACYvlDvjjEXtFODMTp/oomwis=;
+        b=iGjx45IVQH7Msq1JbbFYc9d7Zb62sCZXXznMTp14H/U/iMAKbSl6sOseArtC62ivgX
+         v9J1W+x+9jaPb5PEaF0tkDVCfH7EBH8zViyLQhOD9t0O1Eqphrf8w0UNKg0XuJm3kMuC
+         zWoRBOIm3EAFXZK13B9ulYnM4NQzKxXua+yxN0gOyi6ZxtD57h+NeqKjVxnw3Zv2d42i
+         QYGNqH7E1bUbhiLeZyNszmm9I6LsT+7deSw2YxoA/vK17wMIjxrYfyhgR3RXeW6mIsVa
+         bgqjNP+wL1ycHHKlecevfn/J/aIrHql7czEdDh9Juwpd/LXp7ai4xSgkeelO4mFOB5wC
+         jM8A==
+X-Gm-Message-State: AOAM533obouZOLC6Xnh9B/KO8x2ineHvmjI1tE/8N1ihe1afrkeMkkIZ
+        w1LZGWDGvQxip2CXjoAmEF9gXw==
+X-Google-Smtp-Source: ABdhPJyMXt2Ydo4dC6F+leoChRx/t4i2wi/giZ/uvjrThjMGzcC5n4fP3Y0B6gfrNjz/A5fawt1+lQ==
+X-Received: by 2002:a05:620a:1275:: with SMTP id b21mr8233352qkl.4.1593282149751;
+        Sat, 27 Jun 2020 11:22:29 -0700 (PDT)
+Received: from localhost (rfs.netwinder.org. [206.248.184.2])
+        by smtp.gmail.com with ESMTPSA id q5sm10310519qtf.12.2020.06.27.11.22.28
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Sat, 27 Jun 2020 11:22:29 -0700 (PDT)
+Date:   Sat, 27 Jun 2020 14:22:28 -0400
+From:   Ralph Siemsen <ralph.siemsen@linaro.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Pavel Machek <pavel@denx.de>,
+        Serge Semin <fancer.lancer@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Georgy Vlasov <Georgy.Vlasov@baikalelectronics.ru>,
+        Ramil Zaripov <Ramil.Zaripov@baikalelectronics.ru>,
+        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Feng Tang <feng.tang@intel.com>,
+        Rob Herring <robh+dt@kernel.org>, linux-mips@vger.kernel.org,
+        devicetree@vger.kernel.org, Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH 4.19 182/267] spi: dw: Return any value retrieved from
+ the dma_transfer callback
+Message-ID: <20200627182228.GA23327@maple.netwinder.org>
+References: <20200619141648.840376470@linuxfoundation.org>
+ <20200619141657.498868116@linuxfoundation.org>
+ <20200619210719.GB12233@amd>
+ <20200622205121.4xuki7guyj6u5yul@mobilestation>
+ <20200626151800.GA22242@maple.netwinder.org>
+ <20200626200710.GK1931@sasha-vm>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20200626200710.GK1931@sasha-vm>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 22 Jun 2020 07:19:40 +0200
-Krzysztof Kozlowski <krzk@kernel.org> wrote:
+Hi Sasha,
 
-> On Sat, Jun 20, 2020 at 04:40:49PM +0100, Jonathan Cameron wrote:
-> > On Wed, 17 Jun 2020 12:12:59 +0200
-> > Krzysztof Kozlowski <krzk@kernel.org> wrote:
-> >   
-> > > The driver supports also BMC156B and BMM150B so document the compatibles
-> > > for these devices.
-> > > 
-> > > Fixes: 9d75db36df14 ("iio: magn: Add support for BMM150 magnetometer")
-> > > Cc: <stable@vger.kernel.org>
-> > > Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-> > > 
-> > > ---
-> > > 
-> > > The fixes tag is not accurate but at least offer some backporting.  
-> > 
-> > I'm not sure we generally bother backporting a missing section of binding
-> > documentation. Particularly as this doc isn't in yaml yet so it's not
-> > as though any automated checking is likely to be occurring.
-> > 
-> > Rob, any views on backporting this sort of missing id addition?
-> > 
-> > One side comment here is that the devices that are magnetometers only
-> > should never have had the _magn prefix in their compatibles. We only
-> > do that for devices in incorporating several sensors in one package
-> > (like the bmc150) where we have multiple drivers for the different
-> > sensors incorporated. We are too late to fix that now though.  It
-> > may make sense to mark the _magn variants deprecated though and
-> > add the ones without the _magn postfix.  
-> 
-> I can add proper compatibles and mark these as deprecated but actually
-> the driver should not have additional compatibles in first place - all
-> devices are just compatible with bosch,bmc150.
+On Fri, Jun 26, 2020 at 04:07:10PM -0400, Sasha Levin wrote:
+>On Fri, Jun 26, 2020 at 11:18:00AM -0400, Ralph Siemsen wrote:
+>>
+>>So the following patch is needed as well, at least in 4.9 and 4.19, 
+>>I did not check/test other versions. Mainline does not need this, 
+>>since the code seems to have been refactored to avoid the 
+>>duplication.
+>
+>Could you add your signed-off-by tag please? :)
 
-Why not?  Whilst the devices may be compatible in theory, it's not unusual
-for subtle differences to emerge later.   As such we tend to at least
-support the most specific compatible possible for a part - though we
-can use fallback compatibles.
+Whoops, for some reason I snipped it out... sorry about that!
+Here it is again, with the commit message tweaked for clarity.
 
-> 
-> Therefore I can just add one new compatible: "bosch,bmc156" and mark the
-> last two deprecated.
+Subject: [PATCH] spi: dw: Fix return value of dma_transfer callback
 
-Sorry. I missed this earlier in the week.   The bmc156 is a SIP combining
-separate silicon for the magnetometer and accelerometer.  Hence that one
-should have the _magn extension as we will (I think) be loading two drivers
-for the same part number.  The bmm part however is just a magnetometer
-so doesn't need the postfix.
+Earlier commit "spi: dw: Return any value retrieved from the
+dma_transfer callback" changed the return code of mid_spi_dma_transfer()
+from 0 to 1 in drivers/spi/spi-dw-mid.c.
 
-> 
-> Best regards,
-> Krzysztof
-> 
-> 
-> >   
-> > > ---
-> > >  .../devicetree/bindings/iio/magnetometer/bmc150_magn.txt     | 5 ++++-
-> > >  1 file changed, 4 insertions(+), 1 deletion(-)
-> > > 
-> > > diff --git a/Documentation/devicetree/bindings/iio/magnetometer/bmc150_magn.txt b/Documentation/devicetree/bindings/iio/magnetometer/bmc150_magn.txt
-> > > index fd5fca90fb39..7469073022db 100644
-> > > --- a/Documentation/devicetree/bindings/iio/magnetometer/bmc150_magn.txt
-> > > +++ b/Documentation/devicetree/bindings/iio/magnetometer/bmc150_magn.txt
-> > > @@ -4,7 +4,10 @@ http://ae-bst.resource.bosch.com/media/products/dokumente/bmc150/BST-BMC150-DS00
-> > >  
-> > >  Required properties:
-> > >  
-> > > -  - compatible : should be "bosch,bmc150_magn"
-> > > +  - compatible : should be one of:
-> > > +                 "bosch,bmc150_magn"
-> > > +                 "bosch,bmc156_magn"
-> > > +                 "bosch,bmm150_magn"
-> > >    - reg : the I2C address of the magnetometer
-> > >  
-> > >  Optional properties:  
-> >   
+A similar change is needed spi-dw-mmio.c for mmio_spi_dma_transfer()
+function. Note this only applies to older branches, as mainline has
+refactored the code to avoid duplication.
+
+Signed-off-by: Ralph Siemsen <ralph.siemsen@linaro.org>
+---
+ drivers/spi/spi-dw-mmio.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/spi/spi-dw-mmio.c b/drivers/spi/spi-dw-mmio.c
+index c563c2815093..99641c485288 100644
+--- a/drivers/spi/spi-dw-mmio.c
++++ b/drivers/spi/spi-dw-mmio.c
+@@ -358,7 +358,7 @@ static int mmio_spi_dma_transfer(struct dw_spi *dws, struct spi_transfer *xfer)
+ 		dma_async_issue_pending(dws->txchan);
+ 	}
+ 
+-	return 0;
++	return 1;
+ }
+ 
+ static void mmio_spi_dma_stop(struct dw_spi *dws)
+-- 
+2.17.1
 
