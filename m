@@ -2,130 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4350520C378
-	for <lists+stable@lfdr.de>; Sat, 27 Jun 2020 20:22:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 136D120C3E5
+	for <lists+stable@lfdr.de>; Sat, 27 Jun 2020 21:55:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726695AbgF0SWd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 27 Jun 2020 14:22:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45320 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725932AbgF0SWb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 27 Jun 2020 14:22:31 -0400
-Received: from mail-qk1-x743.google.com (mail-qk1-x743.google.com [IPv6:2607:f8b0:4864:20::743])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A01D2C03E979
-        for <stable@vger.kernel.org>; Sat, 27 Jun 2020 11:22:30 -0700 (PDT)
-Received: by mail-qk1-x743.google.com with SMTP id e13so11840724qkg.5
-        for <stable@vger.kernel.org>; Sat, 27 Jun 2020 11:22:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=wknXL/NZZBsk//od0+ACYvlDvjjEXtFODMTp/oomwis=;
-        b=gy42z+6cy8ul5JraOk9jo44rONTJWYOz8zCY+b1cDGhklC9x1j9JQleDZ+cDg9XKIz
-         kOLCc87SIQaieB795ZhReKG4MCPphuoFynjteK/os1Ff9I7E33uDizZD3UmQB4rk8vUB
-         p3ucSkV7E4bPsKeajNlQ/T66NtHKQKCePNhLfDa4jkTinDcvVk41/7hnQ/gwwBftf8At
-         MhFNLNGvzZHPnvwyUdzdhwDbJKblAAu5vuTFlx2ogyCElXnHjMiePc2f4fe6GwVYCcDv
-         OCn1r4Gm1EIpUvW1CXvE3DEhKg7ed6aif/tw1n8Bh1mITbsMrH8uvDMQb8KDCPJk+H93
-         Scsg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=wknXL/NZZBsk//od0+ACYvlDvjjEXtFODMTp/oomwis=;
-        b=iGjx45IVQH7Msq1JbbFYc9d7Zb62sCZXXznMTp14H/U/iMAKbSl6sOseArtC62ivgX
-         v9J1W+x+9jaPb5PEaF0tkDVCfH7EBH8zViyLQhOD9t0O1Eqphrf8w0UNKg0XuJm3kMuC
-         zWoRBOIm3EAFXZK13B9ulYnM4NQzKxXua+yxN0gOyi6ZxtD57h+NeqKjVxnw3Zv2d42i
-         QYGNqH7E1bUbhiLeZyNszmm9I6LsT+7deSw2YxoA/vK17wMIjxrYfyhgR3RXeW6mIsVa
-         bgqjNP+wL1ycHHKlecevfn/J/aIrHql7czEdDh9Juwpd/LXp7ai4xSgkeelO4mFOB5wC
-         jM8A==
-X-Gm-Message-State: AOAM533obouZOLC6Xnh9B/KO8x2ineHvmjI1tE/8N1ihe1afrkeMkkIZ
-        w1LZGWDGvQxip2CXjoAmEF9gXw==
-X-Google-Smtp-Source: ABdhPJyMXt2Ydo4dC6F+leoChRx/t4i2wi/giZ/uvjrThjMGzcC5n4fP3Y0B6gfrNjz/A5fawt1+lQ==
-X-Received: by 2002:a05:620a:1275:: with SMTP id b21mr8233352qkl.4.1593282149751;
-        Sat, 27 Jun 2020 11:22:29 -0700 (PDT)
-Received: from localhost (rfs.netwinder.org. [206.248.184.2])
-        by smtp.gmail.com with ESMTPSA id q5sm10310519qtf.12.2020.06.27.11.22.28
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Sat, 27 Jun 2020 11:22:29 -0700 (PDT)
-Date:   Sat, 27 Jun 2020 14:22:28 -0400
-From:   Ralph Siemsen <ralph.siemsen@linaro.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Serge Semin <Sergey.Semin@baikalelectronics.ru>,
-        Pavel Machek <pavel@denx.de>,
-        Serge Semin <fancer.lancer@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Georgy Vlasov <Georgy.Vlasov@baikalelectronics.ru>,
-        Ramil Zaripov <Ramil.Zaripov@baikalelectronics.ru>,
-        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Feng Tang <feng.tang@intel.com>,
-        Rob Herring <robh+dt@kernel.org>, linux-mips@vger.kernel.org,
-        devicetree@vger.kernel.org, Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH 4.19 182/267] spi: dw: Return any value retrieved from
- the dma_transfer callback
-Message-ID: <20200627182228.GA23327@maple.netwinder.org>
-References: <20200619141648.840376470@linuxfoundation.org>
- <20200619141657.498868116@linuxfoundation.org>
- <20200619210719.GB12233@amd>
- <20200622205121.4xuki7guyj6u5yul@mobilestation>
- <20200626151800.GA22242@maple.netwinder.org>
- <20200626200710.GK1931@sasha-vm>
+        id S1725932AbgF0TzD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 27 Jun 2020 15:55:03 -0400
+Received: from sonic309-25.consmr.mail.ir2.yahoo.com ([77.238.179.83]:38683
+        "EHLO sonic309-25.consmr.mail.ir2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725900AbgF0TzD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 27 Jun 2020 15:55:03 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1593287701; bh=DPYuw2gUpgtMJzJhlH/AVmRGu2wSKCY1C+f8nOCoxu0=; h=Date:From:Reply-To:Subject:References:From:Subject; b=TcebUPn6vBA+SvAGJh0jsjbCvZ/nT9Yw5N89mk55OLcOFxij+4EFWk4FWbWF62/bIghXf+K+j/HiuVFLzM0rvjVdR7JRR1bk5Kf7hN/2D1HrG6OIapprGYUAmWoBqCXUTQddXRQ0FF5ASjHvI890Jk/usbl69lkFG1xgUj2dWbOUfXv2uVR1E0EdieYWQlubnRotdGkgZsb4WeE5CWFPD2ORFru9WHSvj1rpecsf1j7DsyiYL7hVelSRGpBUBRT0PzHnZhZcZwIm/+RNwMiY2y7MddS2WGONsX7frX2Fe0hzQyLevicAg3ACm8DZ9EMxN84XK8TZN8vNQ5BIhBgqUQ==
+X-YMail-OSG: D1d..xAVM1mN4xc0TD4fVujc0GTCyKzZQtQ7iw895yIDexsFCpx12U5M7AfDmav
+ 80TxKhwXBR0.duF5ulRQZ9eA6IuB_ZkhTLFZwZuwolQbUcMb_0o6I6iLhaBWHvFAJlXUnjQc_rYh
+ uAZF6s1Za7upHrIEz6GCmSgu4A.ahC4edlRyehflvmu3Ef3cad3KAPzJz6_8JqgqW1J4HU6ynJIv
+ gMDC6jqqRJUddsIswrg1IAL7XBLletCfLrC841InjOr1WT6IHHLlORlXNTU7n6jn_EuSBts26num
+ oiGr9yc1.CLfU9KPG4hzaSmlNAYG._A1ZO__zubyB7AgDILEygZsLGxY_hBTx69Z0kJXT6pq3F6n
+ C12l6ctPUTF1y3hzH7D13qsQ.XmUHXHiwm3qwiAUwiEV1_KTaAQamAuctdO6RjMw2hZ9H9FiCFwV
+ GKv6rKlCo4NoGDDWWQEm9CASmw6oBqQvJAVVKPtOCSxVs9Y83472lkDD9ppU4JUjFW0H08qCJPh6
+ 5cnt0KKgQtDiMSSSyQinyoww4jUVd.QzrND2j7U6At81L6hNF6tg4O6wahpaYpykiAXb8SE8R1Uk
+ emtg3ByOKwbRd1ezduGRyeaN5Vm8Dz.6PBz68Xi2XuHt3xrW21UqsHViWGHSCcSQHh6N4cSUYiCK
+ kyJGyuZ.Oq.9N5ixfKRconSDON7i74H6tu0AGiCHYGYeI83DnEgRhk6h7ksW.ux2VMTVWLjWJsnk
+ AgRvpt1Weef5o6wOSJexMia7lrULryMCBgGqGzgJLky7bMqTyxd64fh9n5lbVR9yLh_7xELZAJzA
+ MBrjKcL7ffTRXHL5DIlIZs6jBinTu1maTbI.6Z7h.8QGSPwlFl0WzSYytpYPl_A0lHi5P6X7r6kj
+ Gr7c6eH5OaKukuMVY4ZhKCsGaz0flkQFf5Ie5zBlfSmsgrXHjs36WKHTTEQsgfNNJNs6VKXCZ0Zm
+ dX_XiS8H5S4.AWhXE2JrkzvQRmkzR4QHREnygu5Uf1TsiW5KgEHYjhrA1hLCu7Uvva9TR0OPeQyz
+ WKSNbbvQt0IuaVDby3eqzjra77wyWqVC7qooKS4qY6LIzcZWf9ZZxat01Jqhfr31WDRgFiPEA3A5
+ FXwgVpsHtRjncFU1VcTQZEQ.wwVhO2CKKsHDyO0NmdRooM4oy_ZLXFV4VOe0sZyip.FVwYCNDNe2
+ vcInsUaqxq4fhsZKVnEk.L53Y_XRiG.Kgz9sG1FacTxomMtlBtVvoDz5lp3BLQEw2ad9CR0btkV7
+ GIJKzdtqOjLVoUp.RvbXFs4voovLrObpBzKL2pQUV.cP9J8whwdPhH64pos.o7Qy_Ig--
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.ir2.yahoo.com with HTTP; Sat, 27 Jun 2020 19:55:01 +0000
+Date:   Sat, 27 Jun 2020 19:54:59 +0000 (UTC)
+From:   "Mina A. Brunel" <mrsminaabrunel2334@gmail.com>
+Reply-To: mrsminaabrunel57044@gmail.com
+Message-ID: <126450270.8161920.1593287699543@mail.yahoo.com>
+Subject: My Dear in the lord
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20200626200710.GK1931@sasha-vm>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+References: <126450270.8161920.1593287699543.ref@mail.yahoo.com>
+X-Mailer: WebService/1.1.16138 YMailNodin Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sasha,
 
-On Fri, Jun 26, 2020 at 04:07:10PM -0400, Sasha Levin wrote:
->On Fri, Jun 26, 2020 at 11:18:00AM -0400, Ralph Siemsen wrote:
->>
->>So the following patch is needed as well, at least in 4.9 and 4.19, 
->>I did not check/test other versions. Mainline does not need this, 
->>since the code seems to have been refactored to avoid the 
->>duplication.
->
->Could you add your signed-off-by tag please? :)
 
-Whoops, for some reason I snipped it out... sorry about that!
-Here it is again, with the commit message tweaked for clarity.
+My Dear in the lord
 
-Subject: [PATCH] spi: dw: Fix return value of dma_transfer callback
 
-Earlier commit "spi: dw: Return any value retrieved from the
-dma_transfer callback" changed the return code of mid_spi_dma_transfer()
-from 0 to 1 in drivers/spi/spi-dw-mid.c.
+My name is Mrs. Mina A. Brunel I am a Norway Citizen who is living in Burki=
+na Faso, I am married to Mr. Brunel Patrice, a politicians who owns a small=
+ gold company in Burkina Faso; He died of Leprosy and Radesyge, in year Feb=
+ruary 2010, During his lifetime he deposited the sum of =E2=82=AC 8.5 Milli=
+on Euro) Eight million, Five hundred thousand Euros in a bank in Ouagadougo=
+u the capital city of of Burkina in West Africa. The money was from the sal=
+e of his company and death benefits payment and entitlements of my deceased=
+ husband by his company.
 
-A similar change is needed spi-dw-mmio.c for mmio_spi_dma_transfer()
-function. Note this only applies to older branches, as mainline has
-refactored the code to avoid duplication.
+I am sending you this message with heavy tears in my eyes and great sorrow =
+in my heart, and also praying that it will reach you in good health because=
+ I am not in good health, I sleep every night without knowing if I may be a=
+live to see the next day. I am suffering from long time cancer and presentl=
+y I am partially suffering from Leprosy, which has become difficult for me =
+to move around. I was married to my late husband for more than 6 years with=
+out having a child and my doctor confided that I have less chance to live, =
+having to know when the cup of death will come, I decided to contact you to=
+ claim the fund since I don't have any relation I grew up from an orphanage=
+ home.
 
-Signed-off-by: Ralph Siemsen <ralph.siemsen@linaro.org>
----
- drivers/spi/spi-dw-mmio.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+I have decided to donate this money for the support of helping Motherless b=
+abies/Less privileged/Widows and churches also to build the house of God be=
+cause I am dying and diagnosed with cancer for about 3 years ago. I have de=
+cided to donate from what I have inherited from my late husband to you for =
+the good work of Almighty God; I will be going in for an operation surgery =
+soon.
 
-diff --git a/drivers/spi/spi-dw-mmio.c b/drivers/spi/spi-dw-mmio.c
-index c563c2815093..99641c485288 100644
---- a/drivers/spi/spi-dw-mmio.c
-+++ b/drivers/spi/spi-dw-mmio.c
-@@ -358,7 +358,7 @@ static int mmio_spi_dma_transfer(struct dw_spi *dws, struct spi_transfer *xfer)
- 		dma_async_issue_pending(dws->txchan);
- 	}
- 
--	return 0;
-+	return 1;
- }
- 
- static void mmio_spi_dma_stop(struct dw_spi *dws)
--- 
-2.17.1
+Now I want you to stand as my next of kin to claim the funds for charity pu=
+rposes. Because of this money remains unclaimed after my death, the bank ex=
+ecutives or the government will take the money as unclaimed fund and maybe =
+use it for selfishness and worthless ventures, I need a very honest person =
+who can claim this money and use it for Charity works, for orphanages, wido=
+ws and also build schools and churches for less privilege that will be name=
+d after my late husband and my name.
 
+I need your urgent answer to know if you will be able to execute this proje=
+ct, and I will give you more information on how the fund will be transferre=
+d to your bank account or online banking.
+
+Thanks
+Mrs. Mina A. Brunel
