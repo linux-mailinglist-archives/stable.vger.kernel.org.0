@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D46F20C1FD
-	for <lists+stable@lfdr.de>; Sat, 27 Jun 2020 16:17:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0074320C1FF
+	for <lists+stable@lfdr.de>; Sat, 27 Jun 2020 16:17:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725828AbgF0OQ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 27 Jun 2020 10:16:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36722 "EHLO mail.kernel.org"
+        id S1725850AbgF0ORK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 27 Jun 2020 10:17:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725798AbgF0OQ7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 27 Jun 2020 10:16:59 -0400
+        id S1725798AbgF0ORK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 27 Jun 2020 10:17:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A5F0421655;
-        Sat, 27 Jun 2020 14:16:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BFBB421655;
+        Sat, 27 Jun 2020 14:17:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593267418;
-        bh=jAc5GYpcGKf5DuXdEdODwITAMFxWteJ4jTIMUJ/Dok0=;
+        s=default; t=1593267429;
+        bh=xsdJCskCvRzrVMuiEnkXXtfiHNLHi74fkwe/7GCxlbE=;
         h=Subject:To:From:Date:From;
-        b=o7eORC++rHIqlZN8djNp7Wh7A+H9teXLg0KfnECr4ePQHyU4wxOMSVhjo28LYNqkS
-         xS9mhE7JmlsDbMaaEEjh51mDnqDyKBsfQB+CHmAbfe3cmCRJAGggiLWo75SGonS61+
-         SUMSM8tm8oXYpSzhS9g5RjEfdnIuxr+TukY2ovvs=
-Subject: patch "Revert "serial: core: Refactor uart_unlock_and_check_sysrq()"" added to tty-linus
-To:     johan@kernel.org, andriy.shevchenko@linux.intel.com,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org
+        b=RIsekqCiS5w0Jse7HrBbbsJJgNe/6qw+lTG/mqfTRBE8Qf7/+fyQ+BN2OIJKyWCrm
+         bcPoQicma03znkLJqfNY7JU3fXz6ZMHmmZGoK9fbSbbu4O0sj4jc9sYfXoLAEYGhsB
+         tiSRIlK85hoU3JaNx1luUOVFELK8raNxqnaArRfk=
+Subject: patch "serial: core: fix sysrq overhead regression" added to tty-linus
+To:     johan@kernel.org, 0x7f454c46@gmail.com,
+        andriy.shevchenko@linux.intel.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 27 Jun 2020 16:16:51 +0200
-Message-ID: <1593267411143191@kroah.com>
+Date:   Sat, 27 Jun 2020 16:16:52 +0200
+Message-ID: <159326741213315@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +41,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    Revert "serial: core: Refactor uart_unlock_and_check_sysrq()"
+    serial: core: fix sysrq overhead regression
 
 to my tty git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
@@ -55,59 +56,224 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 10652a9e9fe3fbcaca090f99cd3060ac3fee2913 Mon Sep 17 00:00:00 2001
+From 08d5470308ac3598e7709d08b8979ce6e9de8da2 Mon Sep 17 00:00:00 2001
 From: Johan Hovold <johan@kernel.org>
-Date: Wed, 10 Jun 2020 17:22:30 +0200
-Subject: Revert "serial: core: Refactor uart_unlock_and_check_sysrq()"
+Date: Wed, 10 Jun 2020 17:22:31 +0200
+Subject: serial: core: fix sysrq overhead regression
 
-This reverts commit da9a5aa3402db0ff3b57216d8dbf2478e1046cae.
+Commit 8e20fc391711 ("serial_core: Move sysrq functions from header
+file") converted the inline sysrq helpers to exported functions which
+are now called for every received character, interrupt and break signal
+also on systems without CONFIG_MAGIC_SYSRQ_SERIAL instead of being
+optimised away by the compiler.
 
-In order to ease backporting a fix for a sysrq regression, revert this
-rewrite which was since added on top.
+Inlining these helpers again also avoids the function call overhead when
+CONFIG_MAGIC_SYSRQ_SERIAL is enabled (e.g. when the port is not used as
+a console).
 
-The other sysrq helpers now bail out early when sysrq is not enabled;
-it's better to keep that pattern here as well.
-
-Note that the __releases() attribute won't be needed after the follow-on
-fix either.
-
-Fixes: da9a5aa3402d ("serial: core: Refactor uart_unlock_and_check_sysrq()")
-Cc: stable <stable@vger.kernel.org>
+Fixes: 8e20fc391711 ("serial_core: Move sysrq functions from header file")
+Cc: Dmitry Safonov <0x7f454c46@gmail.com>
 Signed-off-by: Johan Hovold <johan@kernel.org>
+Cc: stable <stable@vger.kernel.org>
 Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20200610152232.16925-2-johan@kernel.org
+Reviewed-by: Dmitry Safonov <0x7f454c46@gmail.com>
+Link: https://lore.kernel.org/r/20200610152232.16925-3-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/serial_core.c | 23 +++++++++++++----------
- include/linux/serial_core.h      |  3 ++-
- 2 files changed, 15 insertions(+), 11 deletions(-)
+ drivers/tty/serial/serial_core.c |  99 +----------------------------
+ include/linux/serial_core.h      | 103 +++++++++++++++++++++++++++++--
+ 2 files changed, 100 insertions(+), 102 deletions(-)
 
 diff --git a/drivers/tty/serial/serial_core.c b/drivers/tty/serial/serial_core.c
-index 13fb92ae3710..fcdb6bfbe2cf 100644
+index fcdb6bfbe2cf..abb102e71b14 100644
 --- a/drivers/tty/serial/serial_core.c
 +++ b/drivers/tty/serial/serial_core.c
-@@ -3239,19 +3239,22 @@ int uart_prepare_sysrq_char(struct uart_port *port, unsigned int ch)
- }
- EXPORT_SYMBOL_GPL(uart_prepare_sysrq_char);
+@@ -41,8 +41,6 @@ static struct lock_class_key port_lock_key;
  
--void uart_unlock_and_check_sysrq(struct uart_port *port, unsigned long flags)
--__releases(&port->lock)
-+void uart_unlock_and_check_sysrq(struct uart_port *port, unsigned long irqflags)
+ #define HIGH_BITS_OFFSET	((sizeof(long)-sizeof(int))*8)
+ 
+-#define SYSRQ_TIMEOUT	(HZ * 5)
+-
+ static void uart_change_speed(struct tty_struct *tty, struct uart_state *state,
+ 					struct ktermios *old_termios);
+ static void uart_wait_until_sent(struct tty_struct *tty, int timeout);
+@@ -3163,7 +3161,7 @@ static DECLARE_WORK(sysrq_enable_work, uart_sysrq_on);
+  *	Returns false if @ch is out of enabling sequence and should be
+  *	handled some other way, true if @ch was consumed.
+  */
+-static bool uart_try_toggle_sysrq(struct uart_port *port, unsigned int ch)
++bool uart_try_toggle_sysrq(struct uart_port *port, unsigned int ch)
  {
--	if (port->has_sysrq) {
--		int sysrq_ch = port->sysrq_ch;
-+	int sysrq_ch;
+ 	int sysrq_toggle_seq_len = strlen(sysrq_toggle_seq);
  
--		port->sysrq_ch = 0;
--		spin_unlock_irqrestore(&port->lock, flags);
--		if (sysrq_ch)
--			handle_sysrq(sysrq_ch);
--	} else {
--		spin_unlock_irqrestore(&port->lock, flags);
+@@ -3186,102 +3184,9 @@ static bool uart_try_toggle_sysrq(struct uart_port *port, unsigned int ch)
+ 	port->sysrq = 0;
+ 	return true;
+ }
+-#else
+-static inline bool uart_try_toggle_sysrq(struct uart_port *port, unsigned int ch)
+-{
+-	return false;
+-}
++EXPORT_SYMBOL_GPL(uart_try_toggle_sysrq);
+ #endif
+ 
+-int uart_handle_sysrq_char(struct uart_port *port, unsigned int ch)
+-{
+-	if (!IS_ENABLED(CONFIG_MAGIC_SYSRQ_SERIAL))
+-		return 0;
+-
+-	if (!port->has_sysrq || !port->sysrq)
+-		return 0;
+-
+-	if (ch && time_before(jiffies, port->sysrq)) {
+-		if (sysrq_mask()) {
+-			handle_sysrq(ch);
+-			port->sysrq = 0;
+-			return 1;
+-		}
+-		if (uart_try_toggle_sysrq(port, ch))
+-			return 1;
+-	}
+-	port->sysrq = 0;
+-
+-	return 0;
+-}
+-EXPORT_SYMBOL_GPL(uart_handle_sysrq_char);
+-
+-int uart_prepare_sysrq_char(struct uart_port *port, unsigned int ch)
+-{
+-	if (!IS_ENABLED(CONFIG_MAGIC_SYSRQ_SERIAL))
+-		return 0;
+-
+-	if (!port->has_sysrq || !port->sysrq)
+-		return 0;
+-
+-	if (ch && time_before(jiffies, port->sysrq)) {
+-		if (sysrq_mask()) {
+-			port->sysrq_ch = ch;
+-			port->sysrq = 0;
+-			return 1;
+-		}
+-		if (uart_try_toggle_sysrq(port, ch))
+-			return 1;
+-	}
+-	port->sysrq = 0;
+-
+-	return 0;
+-}
+-EXPORT_SYMBOL_GPL(uart_prepare_sysrq_char);
+-
+-void uart_unlock_and_check_sysrq(struct uart_port *port, unsigned long irqflags)
+-{
+-	int sysrq_ch;
+-
+-	if (!port->has_sysrq) {
+-		spin_unlock_irqrestore(&port->lock, irqflags);
+-		return;
+-	}
+-
+-	sysrq_ch = port->sysrq_ch;
+-	port->sysrq_ch = 0;
+-
+-	spin_unlock_irqrestore(&port->lock, irqflags);
+-
+-	if (sysrq_ch)
+-		handle_sysrq(sysrq_ch);
+-}
+-EXPORT_SYMBOL_GPL(uart_unlock_and_check_sysrq);
+-
+-/*
+- * We do the SysRQ and SAK checking like this...
+- */
+-int uart_handle_break(struct uart_port *port)
+-{
+-	struct uart_state *state = port->state;
+-
+-	if (port->handle_break)
+-		port->handle_break(port);
+-
+-	if (port->has_sysrq && uart_console(port)) {
+-		if (!port->sysrq) {
+-			port->sysrq = jiffies + SYSRQ_TIMEOUT;
+-			return 1;
+-		}
+-		port->sysrq = 0;
+-	}
+-
+-	if (port->flags & UPF_SAK)
+-		do_SAK(state->port.tty);
+-	return 0;
+-}
+-EXPORT_SYMBOL_GPL(uart_handle_break);
+-
+ EXPORT_SYMBOL(uart_write_wakeup);
+ EXPORT_SYMBOL(uart_register_driver);
+ EXPORT_SYMBOL(uart_unregister_driver);
+diff --git a/include/linux/serial_core.h b/include/linux/serial_core.h
+index ef4921ddbe97..03fa7b967103 100644
+--- a/include/linux/serial_core.h
++++ b/include/linux/serial_core.h
+@@ -462,11 +462,104 @@ extern void uart_handle_cts_change(struct uart_port *uport,
+ extern void uart_insert_char(struct uart_port *port, unsigned int status,
+ 		 unsigned int overrun, unsigned int ch, unsigned int flag);
+ 
+-extern int uart_handle_sysrq_char(struct uart_port *port, unsigned int ch);
+-extern int uart_prepare_sysrq_char(struct uart_port *port, unsigned int ch);
+-extern void uart_unlock_and_check_sysrq(struct uart_port *port,
+-					unsigned long irqflags);
+-extern int uart_handle_break(struct uart_port *port);
++#ifdef CONFIG_MAGIC_SYSRQ_SERIAL
++#define SYSRQ_TIMEOUT	(HZ * 5)
++
++bool uart_try_toggle_sysrq(struct uart_port *port, unsigned int ch);
++
++static inline int uart_handle_sysrq_char(struct uart_port *port, unsigned int ch)
++{
++	if (!port->has_sysrq || !port->sysrq)
++		return 0;
++
++	if (ch && time_before(jiffies, port->sysrq)) {
++		if (sysrq_mask()) {
++			handle_sysrq(ch);
++			port->sysrq = 0;
++			return 1;
++		}
++		if (uart_try_toggle_sysrq(port, ch))
++			return 1;
++	}
++	port->sysrq = 0;
++
++	return 0;
++}
++
++static inline int uart_prepare_sysrq_char(struct uart_port *port, unsigned int ch)
++{
++	if (!port->has_sysrq || !port->sysrq)
++		return 0;
++
++	if (ch && time_before(jiffies, port->sysrq)) {
++		if (sysrq_mask()) {
++			port->sysrq_ch = ch;
++			port->sysrq = 0;
++			return 1;
++		}
++		if (uart_try_toggle_sysrq(port, ch))
++			return 1;
++	}
++	port->sysrq = 0;
++
++	return 0;
++}
++
++static inline void uart_unlock_and_check_sysrq(struct uart_port *port, unsigned long irqflags)
++{
++	int sysrq_ch;
++
 +	if (!port->has_sysrq) {
 +		spin_unlock_irqrestore(&port->lock, irqflags);
 +		return;
- 	}
++	}
 +
 +	sysrq_ch = port->sysrq_ch;
 +	port->sysrq_ch = 0;
@@ -116,23 +282,48 @@ index 13fb92ae3710..fcdb6bfbe2cf 100644
 +
 +	if (sysrq_ch)
 +		handle_sysrq(sysrq_ch);
- }
- EXPORT_SYMBOL_GPL(uart_unlock_and_check_sysrq);
- 
-diff --git a/include/linux/serial_core.h b/include/linux/serial_core.h
-index 9fd550e7946a..ef4921ddbe97 100644
---- a/include/linux/serial_core.h
-+++ b/include/linux/serial_core.h
-@@ -464,7 +464,8 @@ extern void uart_insert_char(struct uart_port *port, unsigned int status,
- 
- extern int uart_handle_sysrq_char(struct uart_port *port, unsigned int ch);
- extern int uart_prepare_sysrq_char(struct uart_port *port, unsigned int ch);
--extern void uart_unlock_and_check_sysrq(struct uart_port *port, unsigned long flags);
-+extern void uart_unlock_and_check_sysrq(struct uart_port *port,
-+					unsigned long irqflags);
- extern int uart_handle_break(struct uart_port *port);
++}
++#else	/* CONFIG_MAGIC_SYSRQ_SERIAL */
++static inline int uart_handle_sysrq_char(struct uart_port *port, unsigned int ch)
++{
++	return 0;
++}
++static inline int uart_prepare_sysrq_char(struct uart_port *port, unsigned int ch)
++{
++	return 0;
++}
++static inline void uart_unlock_and_check_sysrq(struct uart_port *port, unsigned long irqflags)
++{
++	spin_unlock_irqrestore(&port->lock, irqflags);
++}
++#endif	/* CONFIG_MAGIC_SYSRQ_SERIAL */
++
++/*
++ * We do the SysRQ and SAK checking like this...
++ */
++static inline int uart_handle_break(struct uart_port *port)
++{
++	struct uart_state *state = port->state;
++
++	if (port->handle_break)
++		port->handle_break(port);
++
++#ifdef CONFIG_MAGIC_SYSRQ_SERIAL
++	if (port->has_sysrq && uart_console(port)) {
++		if (!port->sysrq) {
++			port->sysrq = jiffies + SYSRQ_TIMEOUT;
++			return 1;
++		}
++		port->sysrq = 0;
++	}
++#endif
++	if (port->flags & UPF_SAK)
++		do_SAK(state->port.tty);
++	return 0;
++}
  
  /*
+  *	UART_ENABLE_MS - determine if port should enable modem status irqs
 -- 
 2.27.0
 
