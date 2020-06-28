@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A38720C9E8
-	for <lists+stable@lfdr.de>; Sun, 28 Jun 2020 21:41:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69ACB20CA73
+	for <lists+stable@lfdr.de>; Sun, 28 Jun 2020 22:50:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726685AbgF1TlP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 28 Jun 2020 15:41:15 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:22251 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726668AbgF1TlO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 28 Jun 2020 15:41:14 -0400
+        id S1726189AbgF1UuK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 28 Jun 2020 16:50:10 -0400
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:50684 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726188AbgF1UuK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 28 Jun 2020 16:50:10 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1593373272;
+        s=mimecast20190719; t=1593377407;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding;
-        bh=mEnTRqLAnTWY6NoLo1OvZ+jiIakjH5gzumv5L3qbeNI=;
-        b=WnzbmqaNulBb6MQm63i37FZ17XiLYYHP342QQqeif3KMNQTG5hriHKPZZdRaCk6i+jdqyi
-        Xo3OQELn4L4VHmXGh3oVUqCTkJXp+WNCO2M3McVFmOufoEDuJcMVVajELejs2OtyRGNmX/
-        rmueuCl+PF6sPL/i6ZduED+jzfssnXs=
+        bh=uFRUCUjyOEuNoe8OPX//yG1vcUKBA1z9VLuU5xe8ZDE=;
+        b=OmEP04pVwMhI92PLnpcNsuYT0tSgL1CXcsrFyV9OzpAC0z8h1W9kSoF5VNw0KInXFsWkyX
+        dMub0jgHBCi0DBBkyXfLP+KN8Cm6zNg8ifWcbKQo2Ea/fMvoi3785vdreqyjHaTg/oseTO
+        9BiRA57YPEGP2oafKsvOsvkx2T1r6sQ=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-82-psQ_lIBZPJqxYYspSiJcKw-1; Sun, 28 Jun 2020 15:41:08 -0400
-X-MC-Unique: psQ_lIBZPJqxYYspSiJcKw-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+ us-mta-358-_2jHkNvpOyOdpdmvzm744A-1; Sun, 28 Jun 2020 16:50:03 -0400
+X-MC-Unique: _2jHkNvpOyOdpdmvzm744A-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9E1FB1800D4A
-        for <stable@vger.kernel.org>; Sun, 28 Jun 2020 19:41:07 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id BDB5D107ACCA
+        for <stable@vger.kernel.org>; Sun, 28 Jun 2020 20:50:02 +0000 (UTC)
 Received: from [10.131.9.136] (unknown [10.0.117.154])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 864F95D9C9;
-        Sun, 28 Jun 2020 19:41:01 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id AF017121B12;
+        Sun, 28 Jun 2020 20:49:59 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 From:   CKI Project <cki-project@redhat.com>
 To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.7.6-efc8aa5.cki
+Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.7.6-8dfcd41.cki
  (stable-queue)
-Date:   Sun, 28 Jun 2020 19:41:01 -0000
-Message-ID: <cki.E22BBABAFF.XHQCYL0WE6@redhat.com>
-X-Gitlab-Pipeline-ID: 609100
+Date:   Sun, 28 Jun 2020 20:49:59 -0000
+Message-ID: <cki.3BD6527E84.7GK47SQL26@redhat.com>
+X-Gitlab-Pipeline-ID: 609102
 X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com/
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/609100
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/609102
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -57,7 +57,7 @@ We ran automated tests on a recent commit from this kernel tree:
 
        Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
 nux-stable-rc.git
-            Commit: efc8aa58c75c - btrfs: fix a block group ref counter leak =
+            Commit: 8dfcd4110882 - btrfs: fix a block group ref counter leak =
 after failure to remove block group
 
 The results of these automated tests are provided below.
@@ -70,7 +70,7 @@ The results of these automated tests are provided below.
 All kernel binaries, config files, and logs are available for download here:
 
   https://cki-artifacts.s3.us-east-2.amazonaws.com/index.html?prefix=3Ddatawa=
-rehouse/2020/06/28/609100
+rehouse/2020/06/28/609102
 
 Please reply to this email if you have any questions about the tests that we
 ran or if you have any suggestions on how to make future tests more effective.
@@ -108,6 +108,17 @@ We booted each kernel and ran the following tests:
   aarch64:
     Host 1:
        =E2=9C=85 Boot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =E2=9C=85 stress: stress-ng
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+    Host 2:
+       =E2=9C=85 Boot test
        =E2=9C=85 Podman system integration test - as root
        =E2=9C=85 Podman system integration test - as user
        =E2=9C=85 LTP
@@ -144,29 +155,8 @@ We booted each kernel and ran the following tests:
        =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
        =F0=9F=9A=A7 =E2=9C=85 kdump - kexec_boot
 
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
   ppc64le:
     Host 1:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
-marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 kdump - sysrq-c
-
-    Host 2:
        =E2=9C=85 Boot test
        =E2=9C=85 Podman system integration test - as root
        =E2=9C=85 Podman system integration test - as user
@@ -200,6 +190,10 @@ marked
        =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
        =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
 
+    Host 2:
+       =E2=9C=85 Boot test
+       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
+
     Host 3:
        =E2=9C=85 Boot test
        =E2=9C=85 xfstests - ext4
@@ -210,12 +204,18 @@ marked
        =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
        =F0=9F=9A=A7 =E2=9C=85 Storage blktests
 
-    Host 4:
+  s390x:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 stress: stress-ng
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+    Host 2:
        =E2=9C=85 Boot test
        =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
 
-  s390x:
-    Host 1:
+    Host 3:
 
        =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
 marked
@@ -251,16 +251,6 @@ marked
        =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
        =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
        =F0=9F=9A=A7 =E2=9C=85 kdump - kexec_boot
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
-
-    Host 3:
-       =E2=9C=85 Boot test
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
 
   x86_64:
     Host 1:
@@ -304,6 +294,10 @@ marked
 
     Host 2:
        =E2=9C=85 Boot test
+       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
+
+    Host 3:
+       =E2=9C=85 Boot test
        =E2=9C=85 xfstests - ext4
        =E2=9C=85 xfstests - xfs
        =E2=9C=85 selinux-policy: serge-testsuite
@@ -315,10 +309,6 @@ marked
        =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
        =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
        =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-    Host 3:
-       =E2=9C=85 Boot test
-       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
 
   Test sources: https://github.com/CKI-project/tests-beaker
     =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
