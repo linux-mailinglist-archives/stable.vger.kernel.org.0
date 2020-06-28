@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C340A20C8BC
-	for <lists+stable@lfdr.de>; Sun, 28 Jun 2020 17:40:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41B7520C8C5
+	for <lists+stable@lfdr.de>; Sun, 28 Jun 2020 17:49:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726007AbgF1PkV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 28 Jun 2020 11:40:21 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:59713 "EHLO
+        id S1726209AbgF1Ptt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 28 Jun 2020 11:49:49 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:41651 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725970AbgF1PkU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 28 Jun 2020 11:40:20 -0400
+        by vger.kernel.org with ESMTP id S1725970AbgF1Ptt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 28 Jun 2020 11:49:49 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id E367319407ED;
-        Sun, 28 Jun 2020 11:40:19 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Sun, 28 Jun 2020 11:40:19 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id E9D751940709;
+        Sun, 28 Jun 2020 11:49:47 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Sun, 28 Jun 2020 11:49:47 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=O8W65r
-        EpwVsKwvs0u87fnSKvLsAyW5mqnJqtRDlJqMs=; b=NZ3R8henzcNEMyCvcxSqhp
-        6B/hvgss/m9Wv2HMErxkgEIbNGHBUv+ucDECu/YeZBgS8q2UpQB78I9egTZCWu4x
-        Civ9PAv4M4nfYaZXWjx4jvWFO3tjxl7gxk1G4U/DAPh3Tf3QlT48TRMgoQiH8zm4
-        cjVVdJHVhoMIvrJ+TQZ6qXYzEG6DXrZg4vytRsf+MvxAX7XKDabMNIw3+tPcCZAR
-        HoIuc8N8dAVyyjEf+MnbKVFOe9OJEzvFy35RqwHxcslKUCU/eCtB5prxiEHnKXRw
-        a7+XPYuYB4LNTpxaXLgsQ8y/oPo6aKX89jRi/CcOOITJSBnmx6UxmZAtmz4biG5Q
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=QWvXXU
+        NLntABvcU1Z0PtjPlyUN42fI/D35yQaUkbRuU=; b=eg4fnw0ym2D0qCWr7fc9RL
+        mKXO370TAUomp3icG2on+8PjiQK9ML3EYRphGGI4mS6vfH9VvAmOcDVxjcQKrkCd
+        CsiaXhDY5RIrGspEw/1Sirw6NB+dQQfuJ09x1mGBForYsPsKjN+hyCLOelRjbOxY
+        +Uu533uzrs9+wLrXoIo5KhjSS9rcy0b1lqQqnHjFhTx5XRgmGaerGFFZREFbpSB8
+        f+7jXw5Siq6Z8D6C0p3TbnbLHPGwcy8hXJiMaqHkoxKu/hJWXg/P/qGA3u3HC6pF
+        oYDZbvI0GWXH66popYtof2mSSZTjx35rNPgDqnHe6SyBYGETw5QFsw7pqJa6S2rQ
         ==
-X-ME-Sender: <xms:47n4XvlJkpvLmhxRBP3YCWz2PPU9zccqmpihJVNpI8BYRO5Ox49EDg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudeliedgleegucetufdoteggodetrfdotf
+X-ME-Sender: <xms:G7z4XkQzVR0xrN5ffNuN29yalPe_hmNGztYBAn9c0kc5mNXuhU1b7Q>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudeliedgleeiucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepvdenucfrrghrrghmpe
-    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:47n4Xi1RQRPi-CYb6xDQKovR6zYyJ5u5XnaFjv9sIAbhdcFd_htkyg>
-    <xmx:47n4XlpWmrSIgZJpQeOWz03XA5Bt6yslWEWktXAo8mALYe7uXJeWIg>
-    <xmx:47n4XnkMJ3uSMQv0MpYuhmrtSbnCRhU2C-7Sg6Od4h7Rez1WyPsaqQ>
-    <xmx:47n4Xq8k1qwHxewG-Jcrj9Yrmm2WpSgjCzFrh3BAfKIITGtQojvipA>
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
+    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:G7z4XhwI_Ivvf8fuOPHgVdjbmblYPfJUH67R685WcgYv2bbo058bpA>
+    <xmx:G7z4Xh30yMK6Nu_gQWxLSOXoJc-nxVSKXznQXTxkPH9zMOhbab6Lzw>
+    <xmx:G7z4XoBqgfDXc9hyWx0YoWbLD9dAmwSEB5GU8tS_WJw9tJ607q6uLA>
+    <xmx:G7z4XtKXA19ecXHIF6v0zq5R0iKDSJ97qK8j0YSjYKRyL5b8gcbPpw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 82D5F328005D;
-        Sun, 28 Jun 2020 11:40:19 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] xhci: Poll for U0 after disabling USB2 LPM" failed to apply to 4.4-stable tree
-To:     kai.heng.feng@canonical.com, gregkh@linuxfoundation.org,
-        mathias.nyman@linux.intel.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 0B6CA3067B94;
+        Sun, 28 Jun 2020 11:49:46 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] cifs/smb3: Fix data inconsistent when punch hole" failed to apply to 4.4-stable tree
+To:     zhangxiaoxu5@huawei.com, pshilov@microsoft.com,
+        stfrench@microsoft.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 28 Jun 2020 17:40:11 +0200
-Message-ID: <159335881183213@kroah.com>
+Date:   Sun, 28 Jun 2020 17:49:36 +0200
+Message-ID: <159335937686102@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -70,57 +70,50 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b3d71abd135e6919ca0b6cab463738472653ddfb Mon Sep 17 00:00:00 2001
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Date: Wed, 24 Jun 2020 16:59:49 +0300
-Subject: [PATCH] xhci: Poll for U0 after disabling USB2 LPM
+From acc91c2d8de4ef46ed751c5f9df99ed9a109b100 Mon Sep 17 00:00:00 2001
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Date: Tue, 23 Jun 2020 07:31:53 -0400
+Subject: [PATCH] cifs/smb3: Fix data inconsistent when punch hole
 
-USB2 devices with LPM enabled may interrupt the system suspend:
-[  932.510475] usb 1-7: usb suspend, wakeup 0
-[  932.510549] hub 1-0:1.0: hub_suspend
-[  932.510581] usb usb1: bus suspend, wakeup 0
-[  932.510590] xhci_hcd 0000:00:14.0: port 9 not suspended
-[  932.510593] xhci_hcd 0000:00:14.0: port 8 not suspended
-..
-[  932.520323] xhci_hcd 0000:00:14.0: Port change event, 1-7, id 7, portsc: 0x400e03
-..
-[  932.591405] PM: pci_pm_suspend(): hcd_pci_suspend+0x0/0x30 returns -16
-[  932.591414] PM: dpm_run_callback(): pci_pm_suspend+0x0/0x160 returns -16
-[  932.591418] PM: Device 0000:00:14.0 failed to suspend async: error -16
+When punch hole success, we also can read old data from file:
+  # strace -e trace=pread64,fallocate xfs_io -f -c "pread 20 40" \
+           -c "fpunch 20 40" -c"pread 20 40" file
+  pread64(3, " version 5.8.0-rc1+"..., 40, 20) = 40
+  fallocate(3, FALLOC_FL_KEEP_SIZE|FALLOC_FL_PUNCH_HOLE, 20, 40) = 0
+  pread64(3, " version 5.8.0-rc1+"..., 40, 20) = 40
 
-During system suspend, USB core will let HC suspends the device if it
-doesn't have remote wakeup enabled and doesn't have any children.
-However, from the log above we can see that the usb 1-7 doesn't get bus
-suspended due to not in U0. After a while the port finished U2 -> U0
-transition, interrupts the suspend process.
+CIFS implements the fallocate(FALLOCATE_FL_PUNCH_HOLE) with send SMB
+ioctl(FSCTL_SET_ZERO_DATA) to server. It just set the range of the
+remote file to zero, but local page caches not updated, then the
+local page caches inconsistent with server.
 
-The observation is that after disabling LPM, port doesn't transit to U0
-immediately and can linger in U2. xHCI spec 4.23.5.2 states that the
-maximum exit latency for USB2 LPM should be BESL + 10us. The BESL for
-the affected device is advertised as 400us, which is still not enough
-based on my testing result.
+Also can be found by xfstests generic/316.
 
-So let's use the maximum permitted latency, 10000, to poll for U0
-status to solve the issue.
+So, we need to remove the page caches before send the SMB
+ioctl(FSCTL_SET_ZERO_DATA) to server.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20200624135949.22611-6-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 31742c5a33176 ("enable fallocate punch hole ("fallocate -p") for SMB3")
+Suggested-by: Pavel Shilovsky <pshilov@microsoft.com>
+Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Cc: stable@vger.kernel.org # v3.17
+Signed-off-by: Steve French <stfrench@microsoft.com>
 
-diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
-index f97106e2860f..ed468eed299c 100644
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -4475,6 +4475,9 @@ static int xhci_set_usb2_hardware_lpm(struct usb_hcd *hcd,
- 			mutex_lock(hcd->bandwidth_mutex);
- 			xhci_change_max_exit_latency(xhci, udev, 0);
- 			mutex_unlock(hcd->bandwidth_mutex);
-+			readl_poll_timeout(ports[port_num]->addr, pm_val,
-+					   (pm_val & PORT_PLS_MASK) == XDEV_U0,
-+					   100, 10000);
- 			return 0;
- 		}
+diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
+index 876a0d9e3d46..d9fdafa5eb60 100644
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -3259,6 +3259,12 @@ static long smb3_punch_hole(struct file *file, struct cifs_tcon *tcon,
+ 		return rc;
  	}
+ 
++	/*
++	 * We implement the punch hole through ioctl, so we need remove the page
++	 * caches first, otherwise the data may be inconsistent with the server.
++	 */
++	truncate_pagecache_range(inode, offset, offset + len - 1);
++
+ 	cifs_dbg(FYI, "Offset %lld len %lld\n", offset, len);
+ 
+ 	fsctl_buf.FileOffset = cpu_to_le64(offset);
 
