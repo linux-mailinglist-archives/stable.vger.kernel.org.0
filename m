@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B98EC20C8CA
-	for <lists+stable@lfdr.de>; Sun, 28 Jun 2020 17:50:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 882D820C8CB
+	for <lists+stable@lfdr.de>; Sun, 28 Jun 2020 17:50:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725970AbgF1Put (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 28 Jun 2020 11:50:49 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:39513 "EHLO
+        id S1726374AbgF1Puu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 28 Jun 2020 11:50:50 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:50465 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726040AbgF1Pus (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 28 Jun 2020 11:50:48 -0400
+        by vger.kernel.org with ESMTP id S1726040AbgF1Puu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 28 Jun 2020 11:50:50 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id E80101940705;
-        Sun, 28 Jun 2020 11:50:47 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 5031B194071C;
+        Sun, 28 Jun 2020 11:50:49 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Sun, 28 Jun 2020 11:50:47 -0400
+  by compute1.internal (MEProxy); Sun, 28 Jun 2020 11:50:49 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=ykDEjk
-        vPU8H6Hq2qo0XEdXYscS8DJjux0jRqH7p7wvM=; b=hbv23o3gffg8y4dCG3TGOX
-        Z063GKYGqvOUTi8yJlAWECX8FeKIxWg3YlMqU27mQcShLZjcPSxZcbFwK9u75p6v
-        2jt2hsNTkoU13KTPnnzZPRWSIpkWcMFTwjWwwoKDB55qdHg1VG/SLKGaEmmdzaDp
-        OxDbgt84Vl+JD6gsq7LBqFVVnN8LZBdHAw97vk4P+y8S3GxD7Hld+/JXzK4x7k6m
-        jDhGPfQiZCWuswhL0Eg/Xj73bV2AftX3h+QVSdLTEosqotHUUW5j5wBqI1philJC
-        pxn9v8WdUOrUO7kJnaDB7y7irQ0FN5KOnaZpvbu477+ZaZLMAgfAoT7muZw0iKkg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=do8Tvr
+        QCzP9vp74Qvls8embUy4ofcIA/ofO+h/9RG+A=; b=Fx1DrRt6tiKcPV85stQ714
+        sAR08B2f7Df32oAKjMtEDZ28YDOSH55U8n9H86LwGp/GD13KNhD2zb1iEG9ZDq3f
+        9VQtpimCIE2M5wLKuN7WeZcE/Wg0NsBVhO+Nnrh6vR2hdxCmMemLC9KFTjh7UJ5o
+        iQALPgUyJt6++TKwTnHZL/LTc4pVoN5GP9BUxaG7O42M7kZNJcjR3TweeUpKoLSA
+        MbK4ZCm52VYsNbIt1ZRBRD8c7s/xjQnyGTtHXgDstJJZYNyCieXQ/+a6oNcgLbhM
+        53EArA2Wtsv4hLtJSrbe3MjLGWyJ2laUPNU+gd6klLI6RENPnwqh74Db4l9o4NpQ
         ==
-X-ME-Sender: <xms:V7z4XtMFocJLYEs-bViGJFnjnRhea-dtCLLZNYdV-bE7YmWzQdzQAQ>
+X-ME-Sender: <xms:Wbz4Xhqk054F4qorecz1EuXN8uKSMwx6O8OjoOT3wU0ruLsjgxeN7g>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudeliedgleeiucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -36,20 +36,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudeliedgleeiucetufdoteggod
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
     vghrufhiiigvpeegnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
     drtghomh
-X-ME-Proxy: <xmx:V7z4Xv8oRSreTaF7Q2RLIPHnKAsxLFJA8_wo3z5gdrJGsZ2IIdYMUw>
-    <xmx:V7z4XsTmuwYxk_ZkgUFIdEnuID8PFP6zUjXvbz7ED5xnBGk5DvT5mw>
-    <xmx:V7z4XpvF6KiUvVY08-p5VavkbcBmTXpMfsXx4YG-9M--zRQbrYJvDg>
-    <xmx:V7z4XlHJekiarcIXr3CczFnBvuKeOVkByA9g2_lNBGN1QU_rAQrKHA>
+X-ME-Proxy: <xmx:Wbz4XjpXeuFk73ucTnyD3HYgKJt5PGFkLSnD06Rvs3zUMJJNdP4tPQ>
+    <xmx:Wbz4XuOXTZgsJvGtHDuf4h9YgR8TkoJWrCrd46gs5zs1HPv_Uk8nYQ>
+    <xmx:Wbz4Xs4Jp7OYnr0eugd6dFsHxk_SntBDO3eR34lKZudLCHVqlz_XqQ>
+    <xmx:Wbz4XuRAvF9HYbmLs2J3Q4wCrco2w6K4ZCA8ZJBLSb8aTV2afAyYFw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 891A73067B94;
-        Sun, 28 Jun 2020 11:50:47 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] cifs/smb3: Fix data inconsistent when zero file range" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id E52FE3067B9D;
+        Sun, 28 Jun 2020 11:50:48 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] cifs/smb3: Fix data inconsistent when zero file range" failed to apply to 4.9-stable tree
 To:     zhangxiaoxu5@huawei.com, hulkci@huawei.com, pshilov@microsoft.com,
         stfrench@microsoft.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 28 Jun 2020 17:50:39 +0200
-Message-ID: <159335943922362@kroah.com>
+Message-ID: <1593359439778@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
