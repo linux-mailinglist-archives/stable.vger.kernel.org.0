@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7040520CACA
-	for <lists+stable@lfdr.de>; Sun, 28 Jun 2020 23:52:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9EA820CAD3
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 00:01:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726104AbgF1VwZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 28 Jun 2020 17:52:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41362 "EHLO mail.kernel.org"
+        id S1726395AbgF1WBs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 28 Jun 2020 18:01:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726079AbgF1VwZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 28 Jun 2020 17:52:25 -0400
+        id S1726080AbgF1WBs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 28 Jun 2020 18:01:48 -0400
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB709206C3;
-        Sun, 28 Jun 2020 21:52:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 889FA20672;
+        Sun, 28 Jun 2020 22:01:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593381145;
-        bh=bnMnFIkJ5LxQ90e1w1fW2KZCQeNzVzDS0zucd1dK4NY=;
+        s=default; t=1593381707;
+        bh=4hYE+lRLGGCsXCjtjMbftfGY6p839lc6ytEcFM7ut8Y=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=xhGIcDS5kXkXBsgWG47glLTGnR8iIHff+SDh1zIMPg7PTahms3xsg/M9oZ7OH9VOc
-         MsUgoHv77gcJ+MC8vBKX6zcgZVkhl2G/nLRn1Dsi/ZTKLHYWFWAJRx0j7qxzOWH44K
-         Roi2cr58WWjCsNHaUxp8EH/e8s6BRywFynLAZu1U=
-Date:   Sun, 28 Jun 2020 17:52:23 -0400
+        b=KkInysPOFdqWmq7Oh8/PoJ0cBfbV2TpYCQjQbUfjLNnZ8vdbvRP7DlmjCA6BC+g5D
+         w4JjlcaO3My5DALDK1TomOBJKYf9DGEkiQkiyStEwvCvHceIrZ1T/2OyjGPBRO94P/
+         bDrZbC3cAHC6lWKdajZ6O255ydmArOC9Mt3UifOw=
+Date:   Sun, 28 Jun 2020 18:01:46 -0400
 From:   Sasha Levin <sashal@kernel.org>
 To:     gregkh@linuxfoundation.org
-Cc:     tiwai@suse.de, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] ALSA: usb-audio: Fix OOB access of mixer
- element list" failed to apply to 4.14-stable tree
-Message-ID: <20200628215223.GM1931@sasha-vm>
-References: <1593358260240211@kroah.com>
+Cc:     kai.heng.feng@canonical.com, mathias.nyman@linux.intel.com,
+        stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] xhci: Poll for U0 after disabling USB2
+ LPM" failed to apply to 4.14-stable tree
+Message-ID: <20200628220146.GN1931@sasha-vm>
+References: <1593358699218117@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <1593358260240211@kroah.com>
+In-Reply-To: <1593358699218117@kroah.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Jun 28, 2020 at 05:31:00PM +0200, gregkh@linuxfoundation.org wrote:
+On Sun, Jun 28, 2020 at 05:38:19PM +0200, gregkh@linuxfoundation.org wrote:
 >
 >The patch below does not apply to the 4.14-stable tree.
 >If someone wants it applied there, or to any other stable or longterm
@@ -53,36 +54,48 @@ On Sun, Jun 28, 2020 at 05:31:00PM +0200, gregkh@linuxfoundation.org wrote:
 >
 >------------------ original commit in Linus's tree ------------------
 >
->From 220345e98f1cdc768eeb6e3364a0fa7ab9647fe7 Mon Sep 17 00:00:00 2001
->From: Takashi Iwai <tiwai@suse.de>
->Date: Wed, 24 Jun 2020 14:23:40 +0200
->Subject: [PATCH] ALSA: usb-audio: Fix OOB access of mixer element list
+>From b3d71abd135e6919ca0b6cab463738472653ddfb Mon Sep 17 00:00:00 2001
+>From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+>Date: Wed, 24 Jun 2020 16:59:49 +0300
+>Subject: [PATCH] xhci: Poll for U0 after disabling USB2 LPM
 >
->The USB-audio mixer code holds a linked list of usb_mixer_elem_list,
->and several operations are performed for each mixer element.  A few of
->them (snd_usb_mixer_notify_id() and snd_usb_mixer_interrupt_v2())
->assume each mixer element being a usb_mixer_elem_info object that is a
->subclass of usb_mixer_elem_list, cast via container_of() and access it
->members.  This may result in an out-of-bound access when a
->non-standard list element has been added, as spotted by syzkaller
->recently.
+>USB2 devices with LPM enabled may interrupt the system suspend:
+>[  932.510475] usb 1-7: usb suspend, wakeup 0
+>[  932.510549] hub 1-0:1.0: hub_suspend
+>[  932.510581] usb usb1: bus suspend, wakeup 0
+>[  932.510590] xhci_hcd 0000:00:14.0: port 9 not suspended
+>[  932.510593] xhci_hcd 0000:00:14.0: port 8 not suspended
+>..
+>[  932.520323] xhci_hcd 0000:00:14.0: Port change event, 1-7, id 7, portsc: 0x400e03
+>..
+>[  932.591405] PM: pci_pm_suspend(): hcd_pci_suspend+0x0/0x30 returns -16
+>[  932.591414] PM: dpm_run_callback(): pci_pm_suspend+0x0/0x160 returns -16
+>[  932.591418] PM: Device 0000:00:14.0 failed to suspend async: error -16
 >
->This patch adds a new field, is_std_info, in usb_mixer_elem_list to
->indicate that the element is the usb_mixer_elem_info type or not, and
->skip the access to such an element if needed.
+>During system suspend, USB core will let HC suspends the device if it
+>doesn't have remote wakeup enabled and doesn't have any children.
+>However, from the log above we can see that the usb 1-7 doesn't get bus
+>suspended due to not in U0. After a while the port finished U2 -> U0
+>transition, interrupts the suspend process.
 >
->Reported-by: syzbot+fb14314433463ad51625@syzkaller.appspotmail.com
->Reported-by: syzbot+2405ca3401e943c538b5@syzkaller.appspotmail.com
->Cc: <stable@vger.kernel.org>
->Link: https://lore.kernel.org/r/20200624122340.9615-1-tiwai@suse.de
->Signed-off-by: Takashi Iwai <tiwai@suse.de>
+>The observation is that after disabling LPM, port doesn't transit to U0
+>immediately and can linger in U2. xHCI spec 4.23.5.2 states that the
+>maximum exit latency for USB2 LPM should be BESL + 10us. The BESL for
+>the affected device is advertised as 400us, which is still not enough
+>based on my testing result.
+>
+>So let's use the maximum permitted latency, 10000, to poll for U0
+>status to solve the issue.
+>
+>Cc: stable@vger.kernel.org
+>Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+>Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+>Link: https://lore.kernel.org/r/20200624135949.22611-6-mathias.nyman@linux.intel.com
+>Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-I took these two additional commits:
-
-8c558076c740 ("ALSA: usb-audio: Clean up mixer element list traverse")
-b2500b584cfd ("ALSA: usb-audio: uac1: Invalidate ctl on interrupt")
-
-and queued all 3 for 4.14, 4.9, and 4.4
+I've adjusted the patch to missing 38986ffa6a74 ("xhci: use port
+structures instead of port arrays in xhci.c functions") and queued it
+for 4.14, 4.9, and 4.4.
 
 -- 
 Thanks,
