@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48C8D20C8B7
+	by mail.lfdr.de (Postfix) with ESMTP id D8BFE20C8B8
 	for <lists+stable@lfdr.de>; Sun, 28 Jun 2020 17:31:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726011AbgF1PbR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 28 Jun 2020 11:31:17 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:46669 "EHLO
+        id S1726002AbgF1PbT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 28 Jun 2020 11:31:19 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:36219 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725965AbgF1PbQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 28 Jun 2020 11:31:16 -0400
+        by vger.kernel.org with ESMTP id S1725965AbgF1PbS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 28 Jun 2020 11:31:18 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id C8B8E194078E;
-        Sun, 28 Jun 2020 11:31:15 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Sun, 28 Jun 2020 11:31:15 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id 80482194078E;
+        Sun, 28 Jun 2020 11:31:17 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Sun, 28 Jun 2020 11:31:17 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=OcbJKQ
-        Dr8/ZJRBwDBZAy9QCQizz+xTTjbhr1fSBFf/g=; b=RIuFLcvB2sSrtwc4xbt+YC
-        DqGsdMajfv6ATJp0UCwVugJgKPVF1ui8wSCb2w6bx5CocPVleCnrNWdGSx4N0EoY
-        CZK95+DItV4OuaZ+IV4uAAWmhMQUUx2JedLCoOb9gLFupnSYy7DkfK8kVBuYVGaB
-        gy/p/nsOXg+DMYDltpMtcr5zZjCzoH/0iPLpKGX5RGhVAXbOzpzVmERL8aT+82ch
-        15KV/XRwnDT0qX6t3/Mqh/eJ7QXb5Skxw+djaTh/Aza41CMjVe1Zy3y6oteMZgFI
-        +AqDoKNIJuhfJ14zaSGMhoj6bSV9osv8+rffZT1yljkqATwp8Eqo9YVNiQMEXTAw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=pFRAH0
+        bJqxjppzJ7DshBjSBgZoAsG45T+/7tKURh0Zg=; b=LR+NVC/G7QwJa0h28tKVTz
+        KEMdl1/9nHdtFkQhtht0dGKTuixpVcRwPbu/ZEY4W9DoqkzN2USnjo0SYEJp5cvf
+        V6MmSCJK2FlMrTZteA4wTh0EemSQz84OHjuh3XWijoaA0G/NtvWpmGqNvg5eez/2
+        Ju8dgAfBPzOw2zoprSsgfb39rJU9pnigS0ARtMGSMvBXQHUorECfVa9NpBkPbSJX
+        wS2KyMBMiUPXs2mCBqPxaMkyBAbSmSDc0FlO/Rfc099rdkMNrv1TuDl1xCmw2/AR
+        dPdkZkZYDlvHtN3Guae0p2IcGVh3JqfFSTc7KxWUkFPp78+xcZOUAHGlCNXBdONw
         ==
-X-ME-Sender: <xms:w7f4XsYF8ArAkLLg6As_njzfyh5z71P5JJj3xLMAqylCCXYB9xpGGQ>
+X-ME-Sender: <xms:xbf4XnsJiv556690IZyIBMeB8M2MA7IE0hMrHm5h4A4ml8zzkuMEWQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudeliedgledtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -36,19 +36,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudeliedgledtucetufdoteggod
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
     keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpe
     hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:w7f4XnZ14JsCkhypwg6lw4kDFVZtz9lSa_oc7hCLeiCR0q-YWmIDdQ>
-    <xmx:w7f4Xm9fQpzCGVOtXfjn43l7XBqLRsN5rT6nbeajxC5Qzq5wwnWzoQ>
-    <xmx:w7f4XmrIN6suaE-ejT8GNomzIy30FSy78kQVsgS0Pnv3cbnLDODc4Q>
-    <xmx:w7f4Xk0jddiBvzdFbVcynDOuAEgwvE6Qbq7jeA_sJl4jJVZ01vGx_Q>
+X-ME-Proxy: <xmx:xbf4XoenpBRe_kv71JUdaO6QYu_kz4bM67IirDD4rN6-3Z1ei2CAdw>
+    <xmx:xbf4Xqz2cjLpQ7gjdwmcij-dnpZFghUt6SNkVq-Q_1Pc3W0yqtwFzQ>
+    <xmx:xbf4XmP7BJjbi-dJPkUUlPs43jtH2_XKjOCchJQHoVdsQPoIdotIkg>
+    <xmx:xbf4XqIIxtt69pRBjkcvn70TvN4W1lGE4VdY15TGjzrJdmhrKFYuSQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 5ED65328005A;
-        Sun, 28 Jun 2020 11:31:15 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] ALSA: usb-audio: Fix OOB access of mixer element list" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 065D33067B93;
+        Sun, 28 Jun 2020 11:31:16 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] ALSA: usb-audio: Fix OOB access of mixer element list" failed to apply to 4.14-stable tree
 To:     tiwai@suse.de, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 28 Jun 2020 17:30:59 +0200
-Message-ID: <1593358259629@kroah.com>
+Date:   Sun, 28 Jun 2020 17:31:00 +0200
+Message-ID: <1593358260240211@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
