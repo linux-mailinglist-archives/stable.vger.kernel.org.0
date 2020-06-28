@@ -2,90 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2612720C8D1
-	for <lists+stable@lfdr.de>; Sun, 28 Jun 2020 17:52:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D91F320C93C
+	for <lists+stable@lfdr.de>; Sun, 28 Jun 2020 19:23:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726068AbgF1Pwo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 28 Jun 2020 11:52:44 -0400
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:49879 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726002AbgF1Pwo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 28 Jun 2020 11:52:44 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1593359563;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=/T+n/WMSXGYQh59L/TuX8qKl/A0OCCf7D9e+yxcaST8=;
-        b=B5+FBVxvtcA2jGOYWuRJXkyJe7mebLeAplmjH9NO/C68HMDyTyd4uXTQOvuBr5gA8No6NZ
-        wDuV9BNWDyB2ZDtlk04JWJvyDLfzmTCTjhB46qW1LJXHEZMr8AvbUipKq+h5Hf9VAqd8qk
-        Eh58dF7wkvlQC49zpHbZgvsPqUcnJ7U=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-18-_OOB8aivOMKO-qr5yjEHUg-1; Sun, 28 Jun 2020 11:52:39 -0400
-X-MC-Unique: _OOB8aivOMKO-qr5yjEHUg-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 5B19F18FE860;
-        Sun, 28 Jun 2020 15:52:38 +0000 (UTC)
-Received: from x1.localdomain.com (ovpn-112-41.ams2.redhat.com [10.36.112.41])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id B01D01944D;
-        Sun, 28 Jun 2020 15:52:36 +0000 (UTC)
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     Cezary Rojewski <cezary.rojewski@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Liam Girdwood <liam.r.girdwood@linux.intel.com>,
-        Jie Yang <yang.jie@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Oder Chiou <oder_chiou@realtek.com>
-Cc:     Hans de Goede <hdegoede@redhat.com>, alsa-devel@alsa-project.org,
-        stable@vger.kernel.org
-Subject: [PATCH 2/6] ASoC: rt5670: Correct RT5670_LDO_SEL_MASK
-Date:   Sun, 28 Jun 2020 17:52:27 +0200
-Message-Id: <20200628155231.71089-3-hdegoede@redhat.com>
-In-Reply-To: <20200628155231.71089-1-hdegoede@redhat.com>
-References: <20200628155231.71089-1-hdegoede@redhat.com>
+        id S1726143AbgF1RXI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 28 Jun 2020 13:23:08 -0400
+Received: from mail-ot1-f67.google.com ([209.85.210.67]:39196 "EHLO
+        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726059AbgF1RXH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 28 Jun 2020 13:23:07 -0400
+Received: by mail-ot1-f67.google.com with SMTP id 18so13375160otv.6;
+        Sun, 28 Jun 2020 10:23:07 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=lJ/7Mwdioa+LkvwxDevBww4xCE/dU3bIOQYsqm3j9ng=;
+        b=oSb8imbUlUT+MSUkhtwZwBrywq5pbdxjqJca3s8ZJomg+i8TFWb81E6lmQWyvZxQl6
+         dXnsX/KtTBVgLlMmMH2+EAOirRL73tRm7PbdyrIiHHiVvg/Ku0LeTScNuQLz7Olu4gku
+         qCaFu8DCIaw4akGTJs7L1Jz+ogw1Jj8/6Ct8fITjNsSkmysOcTxa8cYr2cH5rqewnlS5
+         f82q3XxaGsIGOcHQbjMiJ/1Ogl9LoJWt0OzYrb1RLzT0xHvnUOGUsz1MWRe4BwTggMyZ
+         w6sSzZauke828mN9/U6gI+r1L3sg7lIvjeVJxebUavfDZR80x7DFZS09tvkAxU2MR/jE
+         aAHw==
+X-Gm-Message-State: AOAM530GI+xI+JfioiQF0VJQXouRjgXGlibPKALH1lEKbkQgDfG7aFDT
+        fkirhJ8JVhUBYAtGSqX1r2aVDOS+49PsVsaQD3c=
+X-Google-Smtp-Source: ABdhPJxWeIRMAX90bePkgZ2eZsip3wobT0DgKId2QVtHye5EgsJU87W+GWkfAZOi33Iq2RFvZeSEGzQe1N1PGQe9zfE=
+X-Received: by 2002:a05:6830:10ca:: with SMTP id z10mr10078158oto.167.1593364986761;
+ Sun, 28 Jun 2020 10:23:06 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+References: <159312902033.1850128.1712559453279208264.stgit@dwillia2-desk3.amr.corp.intel.com>
+ <CAJZ5v0h8Eg5_FVxz0COLDMK8cy72xxDk_2nFnXDJNUY-MvdBEQ@mail.gmail.com> <CAPcyv4jqShnZr1b0-upwWf8L3JjKtHox_pCuu229630rXGuLkg@mail.gmail.com>
+In-Reply-To: <CAPcyv4jqShnZr1b0-upwWf8L3JjKtHox_pCuu229630rXGuLkg@mail.gmail.com>
+From:   "Rafael J. Wysocki" <rafael@kernel.org>
+Date:   Sun, 28 Jun 2020 19:22:55 +0200
+Message-ID: <CAJZ5v0i=SkqtgcXzq0oYNEAuYA-FvBEG-bm6fyidzAsYSNcEdQ@mail.gmail.com>
+Subject: Re: [PATCH 00/12] ACPI/NVDIMM: Runtime Firmware Activation
+To:     Dan Williams <dan.j.williams@intel.com>
+Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
+        "linux-nvdimm@lists.01.org" <linux-nvdimm@lists.01.org>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@intel.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Len Brown <len.brown@intel.com>, Len Brown <lenb@kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Pavel Machek <pavel@ucw.cz>, Stable <stable@vger.kernel.org>,
+        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The RT5670_PWR_ANLG1 register has 3 bits to select the LDO voltage,
-so the correct mask is 0x7 not 0x3.
+On Fri, Jun 26, 2020 at 8:43 PM Dan Williams <dan.j.williams@intel.com> wrote:
+>
+> On Fri, Jun 26, 2020 at 7:22 AM Rafael J. Wysocki <rafael@kernel.org> wrote:
+> >
+> > On Fri, Jun 26, 2020 at 2:06 AM Dan Williams <dan.j.williams@intel.com> wrote:
+> > >
+> > > Quoting the documentation:
+> > >
+> > >     Some persistent memory devices run a firmware locally on the device /
+> > >     "DIMM" to perform tasks like media management, capacity provisioning,
+> > >     and health monitoring. The process of updating that firmware typically
+> > >     involves a reboot because it has implications for in-flight memory
+> > >     transactions. However, reboots are disruptive and at least the Intel
+> > >     persistent memory platform implementation, described by the Intel ACPI
+> > >     DSM specification [1], has added support for activating firmware at
+> > >     runtime.
+> > >
+> > >     [1]: https://docs.pmem.io/persistent-memory/
+> > >
+> > > The approach taken is to abstract the Intel platform specific mechanism
+> > > behind a libnvdimm-generic sysfs interface. The interface could support
+> > > runtime-firmware-activation on another architecture without need to
+> > > change userspace tooling.
+> > >
+> > > The ACPI NFIT implementation involves a set of device-specific-methods
+> > > (DSMs) to 'arm' individual devices for activation and bus-level
+> > > 'trigger' method to execute the activation. Informational / enumeration
+> > > methods are also provided at the bus and device level.
+> > >
+> > > One complicating aspect of the memory device firmware activation is that
+> > > the memory controller may need to be quiesced, no memory cycles, during
+> > > the activation. While the platform has mechanisms to support holding off
+> > > in-flight DMA during the activation, the device response to that delay
+> > > is potentially undefined. The platform may reject a runtime firmware
+> > > update if, for example a PCI-E device does not support its completion
+> > > timeout value being increased to meet the activation time. Outside of
+> > > device timeouts the quiesce period may also violate application
+> > > timeouts.
+> > >
+> > > Given the above device and application timeout considerations the
+> > > implementation defaults to hooking into the suspend path to trigger the
+> > > activation, i.e. that a suspend-resume cycle (at least up to the syscore
+> > > suspend point) is required.
+> >
+> > Well, that doesn't work if the suspend method for the system is set to
+> > suspend-to-idle (for example, via /sys/power/mem_sleep), because the
+> > syscore callbacks are not invoked in that case.
+> >
+> > Also you probably don't need the device power state toggling that
+> > happens during regular suspend/resume (you may not want it even for
+> > some devices).
+> >
+> > The hibernation freeze/thaw may be a better match and there is some
+> > test support in there already that may be kind of co-opted for your
+> > use case.
+>
+> Hmm, yes I guess freeze should be sufficient to quiesce most
+> device-DMA in the general case as applications will stop sending
+> requests.
 
-Because of this wrong mask we were programming the ldo bits
-to a setting of binary 001 (0x05 & 0x03) instead of binary 101
-when moving to SND_SOC_BIAS_PREPARE.
+It is expected to be sufficient to quiesce all of them.
 
-According to the datasheet 001 is a reserved value, so no idea
-what it did, since the driver was working fine before I guess we
-got lucky and it does something which is ok.
+If that is not the case, the integrity of the hibernation image cannot
+be guaranteed on the system in question.
 
-Fixes: 5e8351de740d ("ASoC: add RT5670 CODEC driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- sound/soc/codecs/rt5670.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> I do expect some RDMA devices will happily keep on
+> transmitting, but that likely will need explicit mitigation. It also
+> appears the suspend callback for at least one RDMA device
+> mlx5_suspend() is rather violent as it appears to fully teardown the
+> device context, not just suspend operations.
+>
+> To be clear, what debug interface were you thinking I could glom onto
+> to just trigger firmware-activate at the end of the freeze phase?
 
-diff --git a/sound/soc/codecs/rt5670.h b/sound/soc/codecs/rt5670.h
-index a8c3e44770b8..de0203369b7c 100644
---- a/sound/soc/codecs/rt5670.h
-+++ b/sound/soc/codecs/rt5670.h
-@@ -757,7 +757,7 @@
- #define RT5670_PWR_VREF2_BIT			4
- #define RT5670_PWR_FV2				(0x1 << 3)
- #define RT5670_PWR_FV2_BIT			3
--#define RT5670_LDO_SEL_MASK			(0x3)
-+#define RT5670_LDO_SEL_MASK			(0x7)
- #define RT5670_LDO_SEL_SFT			0
- 
- /* Power Management for Analog 2 (0x64) */
--- 
-2.26.2
+Functionally, the same as for suspend, but using the hibernation
+interface, so "echo platform > /sys/power/pm_test" followed by "echo
+disk > /sys/power/state".
 
+But it might be cleaner to introduce a special "hibernation mode", ie.
+is one more item in /sys/power/disk, that will trigger what you need
+(in analogy with "test_resume").
