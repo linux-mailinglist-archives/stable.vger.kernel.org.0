@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 808DC20D1B4
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 20:49:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39C0120D136
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 20:41:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726759AbgF2SnP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 14:43:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38380 "EHLO
+        id S1727939AbgF2Sjj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 14:39:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729148AbgF2Smx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Jun 2020 14:42:53 -0400
-Received: from mail-oi1-x241.google.com (mail-oi1-x241.google.com [IPv6:2607:f8b0:4864:20::241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B36A5C033C3A
-        for <stable@vger.kernel.org>; Mon, 29 Jun 2020 11:37:09 -0700 (PDT)
-Received: by mail-oi1-x241.google.com with SMTP id 12so8730757oir.4
-        for <stable@vger.kernel.org>; Mon, 29 Jun 2020 11:37:09 -0700 (PDT)
+        with ESMTP id S1726084AbgF2Sji (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Jun 2020 14:39:38 -0400
+Received: from mail-oi1-x244.google.com (mail-oi1-x244.google.com [IPv6:2607:f8b0:4864:20::244])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DB01C033C00
+        for <stable@vger.kernel.org>; Mon, 29 Jun 2020 11:39:38 -0700 (PDT)
+Received: by mail-oi1-x244.google.com with SMTP id y22so2636694oie.8
+        for <stable@vger.kernel.org>; Mon, 29 Jun 2020 11:39:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=date:from:to:cc:subject:in-reply-to:message-id:references
          :user-agent:mime-version;
-        bh=0NWLBCPVBs61Lp01XjgMc/2BQZcxn2mLfMtt/2tQ0K8=;
-        b=qQlrlewk0GSUVAKyFXMLySqQm2DLACtneciOqBPyk82GKQI3S3ybMEWDxLOcu2PhIk
-         y0JtelrNIrr2lPkz2peK5UGDaoZagfPNhe73LLSwxytwy/OgyDjPMYI4Y34h+cFEiiLp
-         K9YY/dvGtJoMhcQX+nHiL3lJlywMzZIq/FUKLgIzQ7zZ3wU2hqUMG4Yt8c/Vb2qzao8N
-         k7lTdZ0P2V4XbZ/YAWSSv0wN0Gdytc0Mr4uFJftDWVsG/MjbtThLyUYOlPBkZ8y2WYsC
-         nzrcNeDw24wdKk8lupd1Npy3BvOVDKwtE3PyAv7PoFG2Qqd+DMXm9xomk6xDNcSJicQJ
-         gY7A==
+        bh=6zsOe0RtfiJS9z/VKUnFXkhRo94DOY7cc6tNTMDWhXA=;
+        b=FwCBAvRHwwk3FnO0LObaL0/h5GA+QTAWGZgtNosfO/1E/ZXoQiQSGDmkulzEhVVhWA
+         eVlQlBnNS7h0lNYjv8M7Ctyk1bc3RZd0WklB2QY5lyKLFpqDhoV66kB1vP3nI/m881kn
+         SVZQTgUONDaEtoqIZyeukogpzv5dS0gS4BDWWDVLwkH7c1BvHtrK3+pJoFO/SV7DJtrP
+         KSbsOwDohVdcSGw04xjBJOTq9kTl/mPY4La65dwCZqy9r3coydN10ry0ML+A/lsyNHsF
+         LlD35PWCmV1NPQ87gGxRvXmOksjUreBJZC3ZcOGf/AYCuuooGedsJnmgq19xMH4eKWFv
+         /lzA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:in-reply-to:message-id
          :references:user-agent:mime-version;
-        bh=0NWLBCPVBs61Lp01XjgMc/2BQZcxn2mLfMtt/2tQ0K8=;
-        b=HW4sB5xlz88u2jvNg1+PPe3c2OIeQE0yDooVAySqoogOK8LLXe9memM6Ct1C0t1vA0
-         GCCqhtXbwWsVmie0OOGu1iVK/YzeppkKa+kvOV9eaTHY3jwrnVVNgENtVth3ZXEulK48
-         3p6EYZ/lAznimtzoTgExzwFe90ujL9UEVMN5sqnMkiLcWtWsCTTvIKCK8bEyu+MSxInr
-         Zbcq+Plkwp4dIMyTAFLN9dz23BXQOdbEMOSEnVIpNm0OrMlUwJPzZObEGxwQPYCMyrLA
-         zyLIYygf83ASOqPRHXybH5HDkVopaqG8hdYNfXb+tcSCeCh4h6fwJcnUqV4lkLhiKfo7
-         i1Bg==
-X-Gm-Message-State: AOAM5300BInJYplcprwq349tPYm8KC+Dp1cqzIDE3Uuuk9k3EjYt5uIa
-        kCXBkXdI8mmcBmt82aOLarzpKg==
-X-Google-Smtp-Source: ABdhPJztqZGKNlgwJFgr1r58vyB9QrWqheNaBu1sn+eMoQeqdcFZOzvu77zwKQCkAhZSa5L4Qr/f4w==
-X-Received: by 2002:aca:c587:: with SMTP id v129mr12747628oif.0.1593455828886;
-        Mon, 29 Jun 2020 11:37:08 -0700 (PDT)
+        bh=6zsOe0RtfiJS9z/VKUnFXkhRo94DOY7cc6tNTMDWhXA=;
+        b=ELTRNjjCK9Oaxfhrrwe1xpIC7kmXKmq8VWuukfevrERu1F6lRBuxMhjM04S6vxptoa
+         YFNCuTfTP1J4KvHhk21rLcroDSTAdoq17DtKHcXKS7396CB8sfbNhrEwScZnkk1Z6Qhf
+         4Bv2FXcMlKDUl0i3PFK/qjFE/mI6zhYyeeaOVIfvH5FgyRHWd+NHXwrjn6JDXBSGOgfM
+         oS1utchr16/GHELavGr2l8vZm1lNKhqCCvavm69868pSJd9ntcz17UhAd+QhuHKOfBdN
+         Bdk9kpJBkjuTL0AdD1Hj531J3HErHT7Lpl5NtChxSUAZZZxHqCzBFDL2k3shcw/t/iEl
+         b0PQ==
+X-Gm-Message-State: AOAM533XFdBixIfCNi+zHlsPPySD3CIc07zK5zdS6N9hWPSc2Gp9B3GK
+        DGM77h8qg0tHiUFo/MGHJkQVuQ==
+X-Google-Smtp-Source: ABdhPJxP9YELpoS492EO2px5wvTrnWHkDWwL/XxRQcTbSJoroepQ0Agji1QToGLA6O7Q9W0TxeF3jA==
+X-Received: by 2002:aca:dcc2:: with SMTP id t185mr13562682oig.75.1593455977566;
+        Mon, 29 Jun 2020 11:39:37 -0700 (PDT)
 Received: from eggly.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id y5sm171496otq.75.2020.06.29.11.37.07
+        by smtp.gmail.com with ESMTPSA id 62sm171415ooa.25.2020.06.29.11.39.35
         (version=TLS1 cipher=ECDHE-ECDSA-AES128-SHA bits=128/128);
-        Mon, 29 Jun 2020 11:37:07 -0700 (PDT)
-Date:   Mon, 29 Jun 2020 11:37:05 -0700 (PDT)
+        Mon, 29 Jun 2020 11:39:36 -0700 (PDT)
+Date:   Mon, 29 Jun 2020 11:39:34 -0700 (PDT)
 From:   Hugh Dickins <hughd@google.com>
 X-X-Sender: hugh@eggly.anvils
 To:     gregkh@linuxfoundation.org
@@ -55,10 +55,10 @@ cc:     hughd@google.com, akpm@linux-foundation.org,
         lists@colorremedies.com, stable@vger.kernel.org,
         torvalds@linux-foundation.org, vbabka@suse.cz, willy@infradead.org
 Subject: Re: FAILED: patch "[PATCH] mm: fix swap cache node allocation mask"
- failed to apply to 4.19-stable tree
-In-Reply-To: <1593429754193109@kroah.com>
-Message-ID: <alpine.LSU.2.11.2006291135340.3798@eggly.anvils>
-References: <1593429754193109@kroah.com>
+ failed to apply to 4.9-stable tree
+In-Reply-To: <159342975761243@kroah.com>
+Message-ID: <alpine.LSU.2.11.2006291137280.3798@eggly.anvils>
+References: <159342975761243@kroah.com>
 User-Agent: Alpine 2.11 (LSU 23 2013-08-11)
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
@@ -70,7 +70,7 @@ X-Mailing-List: stable@vger.kernel.org
 On Mon, 29 Jun 2020, gregkh@linuxfoundation.org wrote:
 
 > 
-> The patch below does not apply to the 4.19-stable tree.
+> The patch below does not apply to the 4.9-stable tree.
 > If someone wants it applied there, or to any other stable or longterm
 > tree, then please email the backport, including the original git commit
 > id to <stable@vger.kernel.org>.
@@ -79,7 +79,7 @@ On Mon, 29 Jun 2020, gregkh@linuxfoundation.org wrote:
 > 
 > greg k-h
 > 
------------------- Please use the below for both v4.19 and v4.14
+------------------ Please use the below for both v4.9 and v4.4
 
 Original: 243bce09c91b0145aeaedd5afba799d81841c030
 From: Hugh Dickins <hughd@google.com>
@@ -147,18 +147,18 @@ Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 
 diff --git a/mm/swap_state.c b/mm/swap_state.c
-index ecee9c6c4cc1..09731f4174c7 100644
+index 35d7e0ee1c77..f5cb6b23ceda 100644
 --- a/mm/swap_state.c
 +++ b/mm/swap_state.c
-@@ -23,6 +23,7 @@
- #include <linux/huge_mm.h>
+@@ -19,6 +19,7 @@
+ #include <linux/migrate.h>
  
  #include <asm/pgtable.h>
 +#include "internal.h"
  
  /*
   * swapper_space is a fiction, retained to simplify the path through
-@@ -416,7 +417,7 @@ struct page *__read_swap_cache_async(swp_entry_t entry, gfp_t gfp_mask,
+@@ -326,7 +327,7 @@ struct page *__read_swap_cache_async(swp_entry_t entry, gfp_t gfp_mask,
  		/*
  		 * call radix_tree_preload() while we can wait.
  		 */
