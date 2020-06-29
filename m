@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B792F20E54C
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:06:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E44820E7FD
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:12:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728539AbgF2VfX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:35:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60640 "EHLO mail.kernel.org"
+        id S1726245AbgF2WCS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 18:02:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728530AbgF2Skv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:40:51 -0400
+        id S1726314AbgF2SfY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:35:24 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 726D724140;
-        Mon, 29 Jun 2020 15:18:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6994E24147;
+        Mon, 29 Jun 2020 15:18:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593443938;
-        bh=tHKeWTmblrT4lq8h5vz2KlmQG2ELREY9h+fGXVFQfXQ=;
+        s=default; t=1593443939;
+        bh=Juh4M+SC6Sr7mXiYuUHa6Dn1LDw5fGTbK0JF67n+rkI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DTdOWevtmSr+m3eUZncN1s37R76u0RfpCis7tRGL0Gsa09FiVj9jQn6tUp+s+pVpM
-         DJuA1rG/BpmMoVLktJaNnxLb9NwmON1aYVv/vubqK9zg9VToiw9u8RH4hpiIB+m5r0
-         RKe1rt42J00aiyei2kkPPjxRwCHacS83zFXAO970=
+        b=DCmXGfIOWqaG5tPEwZQ1AEPhiJgKG0ezUKivgR68oOqRR/zNbmUypGI4un7yrwHRj
+         6XmFmLUYo6rc2mgtBChu3mHO7skKOcK6cCgzbxfWe3+w0K1WuENA+yRNLbPq0fSIsC
+         GgfZVTWAy/C88H4BYe2n3eBhLFvc3ZdCwzZqLC/o=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
+Cc:     Heiner Kallweit <hkallweit1@gmail.com>,
+        Aaron Ma <mapengyu@gmail.com>,
         "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.7 039/265] net: macb: undo operations in case of failure
-Date:   Mon, 29 Jun 2020 11:14:32 -0400
-Message-Id: <20200629151818.2493727-40-sashal@kernel.org>
+Subject: [PATCH 5.7 040/265] r8169: fix firmware not resetting tp->ocp_base
+Date:   Mon, 29 Jun 2020 11:14:33 -0400
+Message-Id: <20200629151818.2493727-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -50,49 +50,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-[ Upstream commit faa620876b01d6744f1599e279042bb8149247ab ]
+[ Upstream commit 89fbd26cca7ec9e82ec4787a4b6e95939b57d073 ]
 
-Undo previously done operation in case macb_phylink_connect()
-fails. Since macb_reset_hw() is the 1st undo operation the
-napi_exit label was renamed to reset_hw.
+Typically the firmware takes care that tp->ocp_base is reset to its
+default value. That's not the case (at least) for RTL8117.
+As a result subsequent PHY access reads/writes the wrong page and
+the link is broken. Fix this be resetting tp->ocp_base explicitly.
 
-Fixes: 7897b071ac3b ("net: macb: convert to phylink")
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Fixes: 229c1e0dfd3d ("r8169: load firmware for RTL8168fp/RTL8117")
+Reported-by: Aaron Ma <mapengyu@gmail.com>
+Tested-by: Aaron Ma <mapengyu@gmail.com>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/cadence/macb_main.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/realtek/r8169_main.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
-index 67933079aeea5..257c4920cb886 100644
---- a/drivers/net/ethernet/cadence/macb_main.c
-+++ b/drivers/net/ethernet/cadence/macb_main.c
-@@ -2558,7 +2558,7 @@ static int macb_open(struct net_device *dev)
+diff --git a/drivers/net/ethernet/realtek/r8169_main.c b/drivers/net/ethernet/realtek/r8169_main.c
+index c51b48dc36397..7bda2671bd5b6 100644
+--- a/drivers/net/ethernet/realtek/r8169_main.c
++++ b/drivers/net/ethernet/realtek/r8169_main.c
+@@ -2192,8 +2192,11 @@ static void rtl_release_firmware(struct rtl8169_private *tp)
+ void r8169_apply_firmware(struct rtl8169_private *tp)
+ {
+ 	/* TODO: release firmware if rtl_fw_write_firmware signals failure. */
+-	if (tp->rtl_fw)
++	if (tp->rtl_fw) {
+ 		rtl_fw_write_firmware(tp, tp->rtl_fw);
++		/* At least one firmware doesn't reset tp->ocp_base. */
++		tp->ocp_base = OCP_STD_PHY_BASE;
++	}
+ }
  
- 	err = macb_phylink_connect(bp);
- 	if (err)
--		goto napi_exit;
-+		goto reset_hw;
- 
- 	netif_tx_start_all_queues(dev);
- 
-@@ -2567,9 +2567,11 @@ static int macb_open(struct net_device *dev)
- 
- 	return 0;
- 
--napi_exit:
-+reset_hw:
-+	macb_reset_hw(bp);
- 	for (q = 0, queue = bp->queues; q < bp->num_queues; ++q, ++queue)
- 		napi_disable(&queue->napi);
-+	macb_free_consistent(bp);
- pm_exit:
- 	pm_runtime_put_sync(&bp->pdev->dev);
- 	return err;
+ static void rtl8168_config_eee_mac(struct rtl8169_private *tp)
 -- 
 2.25.1
 
