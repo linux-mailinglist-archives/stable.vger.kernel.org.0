@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58F9C20D0C0
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 20:36:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64F8D20D0BE
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 20:36:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726706AbgF2Sfl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 14:35:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56892 "EHLO mail.kernel.org"
+        id S1726186AbgF2Sfk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 14:35:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726632AbgF2Sfj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:35:39 -0400
+        id S1726479AbgF2Sf2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:35:28 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 35CA02468A;
-        Mon, 29 Jun 2020 15:19:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F3CD8246BA;
+        Mon, 29 Jun 2020 15:20:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593443986;
-        bh=7VlxaRnLEAXuzxc1DqjOaN93RU3LWp7PGuQKVENWRGI=;
+        s=default; t=1593444009;
+        bh=dUZkHkgB/7ulFGjs0AMPzzCU/9UP9/5a5DGcbNsCZwA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hjb/P3hWbOp5rp0qejC78C+JuRJqvFcJicEYiIh1m073CDzK3quy6GUQ4ZfpD46t5
-         tSQsDqW2CIK2nf7QJ9I0FDWHZ+FxXhXynL7CvgQtO8IZENDuxEzPXzgIE1Z7rMbJBi
-         0IrY9ESK8HCSB5fIHTJN8Gleu46CUggJZoyO3VRI=
+        b=AiWn8zzCcE7HsskBi0U7/yA5WmS8yWSMWDM4UEWCtEFH34VSLU9iZJ7mKq8uG7KdV
+         dTh15F/JHs67YXvwSTTBwzR/dmJMVZwowhcGxcP8XG8pdaJ92WwcqWDnw9QAOYJhDD
+         Uq7iworf9UVfB0OZah9eLHCkSypW01uj+zNJ/LYE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zheng Bin <zhengbin13@huawei.com>, Christoph Hellwig <hch@lst.de>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.7 090/265] loop: replace kill_bdev with invalidate_bdev
-Date:   Mon, 29 Jun 2020 11:15:23 -0400
-Message-Id: <20200629151818.2493727-91-sashal@kernel.org>
+Cc:     Tom Seewald <tseewald@gmail.com>,
+        Bernard Metzler <bmt@zurich.ibm.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 115/265] RDMA/siw: Fix pointer-to-int-cast warning in siw_rx_pbl()
+Date:   Mon, 29 Jun 2020 11:15:48 -0400
+Message-Id: <20200629151818.2493727-116-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -50,76 +50,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Bin <zhengbin13@huawei.com>
+From: Tom Seewald <tseewald@gmail.com>
 
-[ Upstream commit f4bd34b139a3fa2808c4205f12714c65e1548c6c ]
+[ Upstream commit 6769b275a313c76ddcd7d94c632032326db5f759 ]
 
-When a filesystem is mounted on a loop device and on a loop ioctl
-LOOP_SET_STATUS64, because of kill_bdev, buffer_head mappings are getting
-destroyed.
-kill_bdev
-  truncate_inode_pages
-    truncate_inode_pages_range
-      do_invalidatepage
-        block_invalidatepage
-          discard_buffer  -->clear BH_Mapped flag
+The variable buf_addr is type dma_addr_t, which may not be the same size
+as a pointer.  To ensure it is the correct size, cast to a uintptr_t.
 
-sb_bread
-  __bread_gfp
-  bh = __getblk_gfp
-  -->discard_buffer clear BH_Mapped flag
-  __bread_slow
-    submit_bh
-      submit_bh_wbc
-        BUG_ON(!buffer_mapped(bh))  --> hit this BUG_ON
-
-Fixes: 5db470e229e2 ("loop: drop caches if offset or block_size are changed")
-Signed-off-by: Zheng Bin <zhengbin13@huawei.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: c536277e0db1 ("RDMA/siw: Fix 64/32bit pointer inconsistency")
+Link: https://lore.kernel.org/r/20200610174717.15932-1-tseewald@gmail.com
+Signed-off-by: Tom Seewald <tseewald@gmail.com>
+Reviewed-by: Bernard Metzler <bmt@zurich.ibm.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/loop.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/infiniband/sw/siw/siw_qp_rx.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index da693e6a834e5..418bb4621255a 100644
---- a/drivers/block/loop.c
-+++ b/drivers/block/loop.c
-@@ -1289,7 +1289,7 @@ loop_set_status(struct loop_device *lo, const struct loop_info64 *info)
- 	if (lo->lo_offset != info->lo_offset ||
- 	    lo->lo_sizelimit != info->lo_sizelimit) {
- 		sync_blockdev(lo->lo_device);
--		kill_bdev(lo->lo_device);
-+		invalidate_bdev(lo->lo_device);
- 	}
+diff --git a/drivers/infiniband/sw/siw/siw_qp_rx.c b/drivers/infiniband/sw/siw/siw_qp_rx.c
+index 650520244ed0c..7271d705f4b06 100644
+--- a/drivers/infiniband/sw/siw/siw_qp_rx.c
++++ b/drivers/infiniband/sw/siw/siw_qp_rx.c
+@@ -139,7 +139,8 @@ static int siw_rx_pbl(struct siw_rx_stream *srx, int *pbl_idx,
+ 			break;
  
- 	/* I/O need to be drained during transfer transition */
-@@ -1320,7 +1320,7 @@ loop_set_status(struct loop_device *lo, const struct loop_info64 *info)
- 
- 	if (lo->lo_offset != info->lo_offset ||
- 	    lo->lo_sizelimit != info->lo_sizelimit) {
--		/* kill_bdev should have truncated all the pages */
-+		/* invalidate_bdev should have truncated all the pages */
- 		if (lo->lo_device->bd_inode->i_mapping->nrpages) {
- 			err = -EAGAIN;
- 			pr_warn("%s: loop%d (%s) has still dirty pages (nrpages=%lu)\n",
-@@ -1565,11 +1565,11 @@ static int loop_set_block_size(struct loop_device *lo, unsigned long arg)
- 		return 0;
- 
- 	sync_blockdev(lo->lo_device);
--	kill_bdev(lo->lo_device);
-+	invalidate_bdev(lo->lo_device);
- 
- 	blk_mq_freeze_queue(lo->lo_queue);
- 
--	/* kill_bdev should have truncated all the pages */
-+	/* invalidate_bdev should have truncated all the pages */
- 	if (lo->lo_device->bd_inode->i_mapping->nrpages) {
- 		err = -EAGAIN;
- 		pr_warn("%s: loop%d (%s) has still dirty pages (nrpages=%lu)\n",
+ 		bytes = min(bytes, len);
+-		if (siw_rx_kva(srx, (void *)buf_addr, bytes) == bytes) {
++		if (siw_rx_kva(srx, (void *)(uintptr_t)buf_addr, bytes) ==
++		    bytes) {
+ 			copied += bytes;
+ 			offset += bytes;
+ 			len -= bytes;
 -- 
 2.25.1
 
