@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D2CA20DC88
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:17:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0FD020DC8F
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:17:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732898AbgF2UQR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:16:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40566 "EHLO mail.kernel.org"
+        id S1729402AbgF2UQf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:16:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732812AbgF2TaQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1732813AbgF2TaQ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 29 Jun 2020 15:30:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E7532523B;
-        Mon, 29 Jun 2020 15:35:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9C3972523C;
+        Mon, 29 Jun 2020 15:35:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444954;
-        bh=6tU5t7Wp3ryxUnzg+wsVxrjZn9g2w7paFvQL6w9l024=;
+        s=default; t=1593444955;
+        bh=Mexa4EipNkHkN58XW6bo6kyGbN+IljX5NLie9H/M6sg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i/EG+1QUtLJ5emHQGQJE8OL2cKk+dClErpr8Uf05ehouhsvSwxCiML+1KdjCIq2Pv
-         olz3nHwXcK1EsOMeFuIJwMHKc3qEj2HnrbmgHrEn/w3V96qjEz5Dv9Gz0xWw93oOat
-         4n5jCv1iaIRghWQJfKNdpdu5MkNJ0P2f5P9jgiPU=
+        b=Tx72nvOn0Grjkf5hAlLOV84VD0Smux5ngYXxiSp32zndkWUSRf93Ka0jafQ7Pxc0Q
+         bTHF6C9R+B6bDrZQ7WSgDtkoVfygat0rTgSEZUZ0pVZdq9VJ8Xae6FUfwrzByJp8Y2
+         DM3uDI4vQzdSjCdUCnCi8WhXmSVKefRaOSKnKWqQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Steffen Maier <maier@linux.ibm.com>,
-        Julian Wiedmann <jwi@linux.ibm.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
+Cc:     Mathias Nyman <mathias.nyman@linux.intel.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.19 052/131] scsi: zfcp: Fix panic on ERP timeout for previously dismissed ERP action
-Date:   Mon, 29 Jun 2020 11:33:43 -0400
-Message-Id: <20200629153502.2494656-53-sashal@kernel.org>
+Subject: [PATCH 4.19 053/131] xhci: Fix incorrect EP_STATE_MASK
+Date:   Mon, 29 Jun 2020 11:33:44 -0400
+Message-Id: <20200629153502.2494656-54-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629153502.2494656-1-sashal@kernel.org>
 References: <20200629153502.2494656-1-sashal@kernel.org>
@@ -50,131 +48,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steffen Maier <maier@linux.ibm.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit 936e6b85da0476dd2edac7c51c68072da9fb4ba2 upstream.
+commit dceea67058fe22075db3aed62d5cb62092be5053 upstream.
 
-Suppose that, for unrelated reasons, FSF requests on behalf of recovery are
-very slow and can run into the ERP timeout.
+EP_STATE_MASK should be 0x7 instead of 0xf
 
-In the case at hand, we did adapter recovery to a large degree.  However
-due to the slowness a LUN open is pending so the corresponding fc_rport
-remains blocked.  After fast_io_fail_tmo we trigger close physical port
-recovery for the port under which the LUN should have been opened.  The new
-higher order port recovery dismisses the pending LUN open ERP action and
-dismisses the pending LUN open FSF request.  Such dismissal decouples the
-ERP action from the pending corresponding FSF request by setting
-zfcp_fsf_req->erp_action to NULL (among other things)
-[zfcp_erp_strategy_check_fsfreq()].
+xhci spec 6.2.3 shows that the EP state field in the endpoint context data
+structure consist of bits [2:0].
+The old value included a bit from the next field which fortunately is a
+ RsvdZ region. So hopefully this hasn't caused too much harm
 
-If now the ERP timeout for the pending open LUN request runs out, we must
-not use zfcp_fsf_req->erp_action in the ERP timeout handler.  This is a
-problem since v4.15 commit 75492a51568b ("s390/scsi: Convert timers to use
-timer_setup()"). Before that we intentionally only passed zfcp_erp_action
-as context argument to zfcp_erp_timeout_handler().
-
-Note: The lifetime of the corresponding zfcp_fsf_req object continues until
-a (late) response or an (unrelated) adapter recovery.
-
-Just like the regular response path ignores dismissed requests
-[zfcp_fsf_req_complete() => zfcp_fsf_protstatus_eval() => return early] the
-ERP timeout handler now needs to ignore dismissed requests.  So simply
-return early in the ERP timeout handler if the FSF request is marked as
-dismissed in its status flags.  To protect against the race where
-zfcp_erp_strategy_check_fsfreq() dismisses and sets
-zfcp_fsf_req->erp_action to NULL after our previous status flag check,
-return early if zfcp_fsf_req->erp_action is NULL.  After all, the former
-ERP action does not need to be woken up as that was already done as part of
-the dismissal above [zfcp_erp_action_dismiss()].
-
-This fixes the following panic due to kernel page fault in IRQ context:
-
-Unable to handle kernel pointer dereference in virtual kernel address space
-Failing address: 0000000000000000 TEID: 0000000000000483
-Fault in home space mode while using kernel ASCE.
-AS:000009859238c00b R2:00000e3e7ffd000b R3:00000e3e7ffcc007 S:00000e3e7ffd7000 P:000000000000013d
-Oops: 0004 ilc:2 [#1] SMP
-Modules linked in: ...
-CPU: 82 PID: 311273 Comm: stress Kdump: loaded Tainted: G            E  X   ...
-Hardware name: IBM 8561 T01 701 (LPAR)
-Krnl PSW : 0404c00180000000 001fffff80549be0 (zfcp_erp_notify+0x40/0xc0 [zfcp])
-           R:0 T:1 IO:0 EX:0 Key:0 M:1 W:0 P:0 AS:3 CC:0 PM:0 RI:0 EA:3
-Krnl GPRS: 0000000000000080 00000e3d00000000 00000000000000f0 0000000000030000
-           000000010028e700 000000000400a39c 000000010028e700 00000e3e7cf87e02
-           0000000010000000 0700098591cb67f0 0000000000000000 0000000000000000
-           0000033840e9a000 0000000000000000 001fffe008d6bc18 001fffe008d6bbc8
-Krnl Code: 001fffff80549bd4: a7180000            lhi     %r1,0
-           001fffff80549bd8: 4120a0f0            la      %r2,240(%r10)
-          #001fffff80549bdc: a53e0003            llilh   %r3,3
-          >001fffff80549be0: ba132000            cs      %r1,%r3,0(%r2)
-           001fffff80549be4: a7740037            brc     7,1fffff80549c52
-           001fffff80549be8: e320b0180004        lg      %r2,24(%r11)
-           001fffff80549bee: e31020e00004        lg      %r1,224(%r2)
-           001fffff80549bf4: 412020e0            la      %r2,224(%r2)
-Call Trace:
- [<001fffff80549be0>] zfcp_erp_notify+0x40/0xc0 [zfcp]
- [<00000985915e26f0>] call_timer_fn+0x38/0x190
- [<00000985915e2944>] expire_timers+0xfc/0x190
- [<00000985915e2ac4>] run_timer_softirq+0xec/0x218
- [<0000098591ca7c4c>] __do_softirq+0x144/0x398
- [<00000985915110aa>] do_softirq_own_stack+0x72/0x88
- [<0000098591551b58>] irq_exit+0xb0/0xb8
- [<0000098591510c6a>] do_IRQ+0x82/0xb0
- [<0000098591ca7140>] ext_int_handler+0x128/0x12c
- [<0000098591722d98>] clear_subpage.constprop.13+0x38/0x60
-([<000009859172ae4c>] clear_huge_page+0xec/0x250)
- [<000009859177e7a2>] do_huge_pmd_anonymous_page+0x32a/0x768
- [<000009859172a712>] __handle_mm_fault+0x88a/0x900
- [<000009859172a860>] handle_mm_fault+0xd8/0x1b0
- [<0000098591529ef6>] do_dat_exception+0x136/0x3e8
- [<0000098591ca6d34>] pgm_check_handler+0x1c8/0x220
-Last Breaking-Event-Address:
- [<001fffff80549c88>] zfcp_erp_timeout_handler+0x10/0x18 [zfcp]
-Kernel panic - not syncing: Fatal exception in interrupt
-
-Link: https://lore.kernel.org/r/20200623140242.98864-1-maier@linux.ibm.com
-Fixes: 75492a51568b ("s390/scsi: Convert timers to use timer_setup()")
-Cc: <stable@vger.kernel.org> #4.15+
-Reviewed-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: Steffen Maier <maier@linux.ibm.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20200624135949.22611-2-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/s390/scsi/zfcp_erp.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ drivers/usb/host/xhci.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/s390/scsi/zfcp_erp.c b/drivers/s390/scsi/zfcp_erp.c
-index 7522aa06672dd..b7afdb55a459f 100644
---- a/drivers/s390/scsi/zfcp_erp.c
-+++ b/drivers/s390/scsi/zfcp_erp.c
-@@ -592,7 +592,10 @@ static void zfcp_erp_strategy_check_fsfreq(struct zfcp_erp_action *act)
- 				   ZFCP_STATUS_ERP_TIMEDOUT)) {
- 			req->status |= ZFCP_STATUS_FSFREQ_DISMISSED;
- 			zfcp_dbf_rec_run("erscf_1", act);
--			req->erp_action = NULL;
-+			/* lock-free concurrent access with
-+			 * zfcp_erp_timeout_handler()
-+			 */
-+			WRITE_ONCE(req->erp_action, NULL);
- 		}
- 		if (act->status & ZFCP_STATUS_ERP_TIMEDOUT)
- 			zfcp_dbf_rec_run("erscf_2", act);
-@@ -628,8 +631,14 @@ void zfcp_erp_notify(struct zfcp_erp_action *erp_action, unsigned long set_mask)
- void zfcp_erp_timeout_handler(struct timer_list *t)
- {
- 	struct zfcp_fsf_req *fsf_req = from_timer(fsf_req, t, timer);
--	struct zfcp_erp_action *act = fsf_req->erp_action;
-+	struct zfcp_erp_action *act;
- 
-+	if (fsf_req->status & ZFCP_STATUS_FSFREQ_DISMISSED)
-+		return;
-+	/* lock-free concurrent access with zfcp_erp_strategy_check_fsfreq() */
-+	act = READ_ONCE(fsf_req->erp_action);
-+	if (!act)
-+		return;
- 	zfcp_erp_notify(act, ZFCP_STATUS_ERP_TIMEDOUT);
- }
- 
+diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
+index 4dedc822237fc..39efbcf63c11d 100644
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -716,7 +716,7 @@ struct xhci_ep_ctx {
+  * 4 - TRB error
+  * 5-7 - reserved
+  */
+-#define EP_STATE_MASK		(0xf)
++#define EP_STATE_MASK		(0x7)
+ #define EP_STATE_DISABLED	0
+ #define EP_STATE_RUNNING	1
+ #define EP_STATE_HALTED		2
 -- 
 2.25.1
 
