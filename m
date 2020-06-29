@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FC1E20DE07
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:52:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DA9020DE71
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:52:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729584AbgF2UWC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:22:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37040 "EHLO mail.kernel.org"
+        id S1732532AbgF2UZq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:25:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732587AbgF2TZe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:25:34 -0400
+        id S1732534AbgF2TZ1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:25:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 39A392545C;
-        Mon, 29 Jun 2020 15:43:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 752812545D;
+        Mon, 29 Jun 2020 15:43:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445412;
-        bh=Y9JbWJRDCLCRnMh50E6JZ1pSET7MhCQwZXpaFxR59YM=;
+        s=default; t=1593445413;
+        bh=bK43YyasDjA+nH/El0kOebEyB1q57XCqJhlpWhWcKUY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ikyCcMpyRA9KLejozwT5wA1RiFj3OTznx5r/nDA0bdlKE3YYi3TvbYzgf8wKsmntV
-         OHeyXe8FoazvXq4SkphmJCLD9bae/9r33Mrn+hA/dDxMlP67f90vZkPEPlDq6kvaMQ
-         iUwtlptoJHrFVbZuk99bV5DvXgssN+nF/3OTuFB4=
+        b=IaD60DIEIVN4uHmBOaJXL5TcfoZ+VW0D4g3urksYKKlfmWLhvMvQuhmU6QkdROpIp
+         ZiCiK5T/eHyvVSpAnvO6AAREKMWpfF26XiJ0GKGMPvmtmDwXy/fT+Ywe0nz0hvd4D2
+         l75jdatXj6PJ+YaCn27dp9Zi2guIp/CMWDztzgp0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Fan Guo <guofan5@huawei.com>, Jason Gunthorpe <jgg@mellanox.com>,
+Cc:     Alexander Lobakin <alobakin@marvell.com>,
+        Igor Russkikh <irusskikh@marvell.com>,
+        Michal Kalderon <michal.kalderon@marvell.com>,
+        "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 162/191] RDMA/mad: Fix possible memory leak in ib_mad_post_receive_mads()
-Date:   Mon, 29 Jun 2020 11:39:38 -0400
-Message-Id: <20200629154007.2495120-163-sashal@kernel.org>
+Subject: [PATCH 4.9 163/191] net: qed: fix left elements count calculation
+Date:   Mon, 29 Jun 2020 11:39:39 -0400
+Message-Id: <20200629154007.2495120-164-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
 References: <20200629154007.2495120-1-sashal@kernel.org>
@@ -48,36 +51,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fan Guo <guofan5@huawei.com>
+From: Alexander Lobakin <alobakin@marvell.com>
 
-[ Upstream commit a17f4bed811c60712d8131883cdba11a105d0161 ]
+[ Upstream commit 97dd1abd026ae4e6a82fa68645928404ad483409 ]
 
-If ib_dma_mapping_error() returns non-zero value,
-ib_mad_post_receive_mads() will jump out of loops and return -ENOMEM
-without freeing mad_priv. Fix this memory-leak problem by freeing mad_priv
-in this case.
+qed_chain_get_element_left{,_u32} returned 0 when the difference
+between producer and consumer page count was equal to the total
+page count.
+Fix this by conditional expanding of producer value (vs
+unconditional). This allowed to eliminate normalizaton against
+total page count, which was the cause of this bug.
 
-Fixes: 2c34e68f4261 ("IB/mad: Check and handle potential DMA mapping errors")
-Link: https://lore.kernel.org/r/20200612063824.180611-1-guofan5@huawei.com
-Signed-off-by: Fan Guo <guofan5@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Misc: replace open-coded constants with common defines.
+
+Fixes: a91eb52abb50 ("qed: Revisit chain implementation")
+Signed-off-by: Alexander Lobakin <alobakin@marvell.com>
+Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
+Signed-off-by: Michal Kalderon <michal.kalderon@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/mad.c | 1 +
- 1 file changed, 1 insertion(+)
+ include/linux/qed/qed_chain.h | 26 ++++++++++++++++----------
+ 1 file changed, 16 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/infiniband/core/mad.c b/drivers/infiniband/core/mad.c
-index a1f059a9c7519..f03e10517accd 100644
---- a/drivers/infiniband/core/mad.c
-+++ b/drivers/infiniband/core/mad.c
-@@ -2885,6 +2885,7 @@ static int ib_mad_post_receive_mads(struct ib_mad_qp_info *qp_info,
- 						 DMA_FROM_DEVICE);
- 		if (unlikely(ib_dma_mapping_error(qp_info->port_priv->device,
- 						  sg_list.addr))) {
-+			kfree(mad_priv);
- 			ret = -ENOMEM;
- 			break;
- 		}
+diff --git a/include/linux/qed/qed_chain.h b/include/linux/qed/qed_chain.h
+index 72d88cf3ca25b..5a215da57b55a 100644
+--- a/include/linux/qed/qed_chain.h
++++ b/include/linux/qed/qed_chain.h
+@@ -155,28 +155,34 @@ static inline u32 qed_chain_get_cons_idx_u32(struct qed_chain *p_chain)
+ 
+ static inline u16 qed_chain_get_elem_left(struct qed_chain *p_chain)
+ {
++	u16 elem_per_page = p_chain->elem_per_page;
++	u32 prod = p_chain->u.chain16.prod_idx;
++	u32 cons = p_chain->u.chain16.cons_idx;
+ 	u16 used;
+ 
+-	used = (u16) (((u32)0x10000 +
+-		       (u32)p_chain->u.chain16.prod_idx) -
+-		      (u32)p_chain->u.chain16.cons_idx);
++	if (prod < cons)
++		prod += (u32)U16_MAX + 1;
++
++	used = (u16)(prod - cons);
+ 	if (p_chain->mode == QED_CHAIN_MODE_NEXT_PTR)
+-		used -= p_chain->u.chain16.prod_idx / p_chain->elem_per_page -
+-		    p_chain->u.chain16.cons_idx / p_chain->elem_per_page;
++		used -= prod / elem_per_page - cons / elem_per_page;
+ 
+ 	return (u16)(p_chain->capacity - used);
+ }
+ 
+ static inline u32 qed_chain_get_elem_left_u32(struct qed_chain *p_chain)
+ {
++	u16 elem_per_page = p_chain->elem_per_page;
++	u64 prod = p_chain->u.chain32.prod_idx;
++	u64 cons = p_chain->u.chain32.cons_idx;
+ 	u32 used;
+ 
+-	used = (u32) (((u64)0x100000000ULL +
+-		       (u64)p_chain->u.chain32.prod_idx) -
+-		      (u64)p_chain->u.chain32.cons_idx);
++	if (prod < cons)
++		prod += (u64)U32_MAX + 1;
++
++	used = (u32)(prod - cons);
+ 	if (p_chain->mode == QED_CHAIN_MODE_NEXT_PTR)
+-		used -= p_chain->u.chain32.prod_idx / p_chain->elem_per_page -
+-		    p_chain->u.chain32.cons_idx / p_chain->elem_per_page;
++		used -= (u32)(prod / elem_per_page - cons / elem_per_page);
+ 
+ 	return p_chain->capacity - used;
+ }
 -- 
 2.25.1
 
