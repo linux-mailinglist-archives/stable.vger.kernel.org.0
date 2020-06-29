@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8111B20DAA9
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:14:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 255DB20D93F
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:11:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388133AbgF2T7X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:59:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47658 "EHLO mail.kernel.org"
+        id S2388024AbgF2Tpr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:45:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387575AbgF2TkR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:17 -0400
+        id S2387822AbgF2Tko (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B06324934;
-        Mon, 29 Jun 2020 15:28:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC7762493A;
+        Mon, 29 Jun 2020 15:28:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444484;
-        bh=VuUUdGb2TlywTniT2NGwwtwLzk6Fre6Oz1qh+7xJ8YY=;
+        s=default; t=1593444485;
+        bh=Z7NsjXxpZEVCJp2cpvTUtpY6YzyZYuNUqTIoUiYB53c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AGCRF58eAWqIpiPOoSzHFULLNGh9Fncj31ae29CDA6n7LI8/JSjAj29xI2oFL3plw
-         13v5C37PHqNPogcWqCaxp56EjK66ZbjkBi0nvIZGSiwxyxbV9krTqJEjk2eYCZ5Atm
-         gLpnBkdQQETp4U1dnUrW7tq5md2vaHaAeuOkP470=
+        b=etklJRmsjiUMWkLWrEVOhnOr1PGJCHguZiSUz2v4fPG1I3FqDCU1u001gt2TsoZXz
+         jtWsxpzoTCnwBW9G1aJwqmogPL2himIiRrZ6xVTEq0gaCFPVTIZV+rrYM7VZcda0CG
+         JPMr88R613ci6VuWsJAggpJjEEt/MHh0CcotBwW8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Robin Gong <yibin.gong@nxp.com>,
@@ -30,9 +30,9 @@ Cc:     Robin Gong <yibin.gong@nxp.com>,
         Fabio Estevam <festevam@gmail.com>,
         Shawn Guo <shawnguo@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.4 161/178] arm64: dts: imx8mm-evk: correct ldo1/ldo2 voltage range
-Date:   Mon, 29 Jun 2020 11:25:06 -0400
-Message-Id: <20200629152523.2494198-162-sashal@kernel.org>
+Subject: [PATCH 5.4 162/178] arm64: dts: imx8mn-ddr4-evk: correct ldo1/ldo2 voltage range
+Date:   Mon, 29 Jun 2020 11:25:07 -0400
+Message-Id: <20200629152523.2494198-163-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -53,19 +53,19 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Robin Gong <yibin.gong@nxp.com>
 
-commit 4fd6b5735c03c0955d93960d31f17d7144f5578f upstream.
+commit cfb12c8952f617df58d73d24161e539a035d82b0 upstream.
 
 Correct ldo1 voltage range from wrong high group(3.0V~3.3V) to low group
 (1.6V~1.9V) because the ldo1 should be 1.8V. Actually, two voltage groups
 have been supported at bd718x7-regulator driver, hence, just corrrect the
 voltage range to 1.6V~3.3V. For ldo2@0.8V, correct voltage range too.
-Otherwise, ldo1 would be kept @3.0V and ldo2@0.9V which violate i.mx8mm
+Otherwise, ldo1 would be kept @3.0V and ldo2@0.9V which violate i.mx8mn
 datasheet as the below warning log in kernel:
 
 [    0.995524] LDO1: Bringing 1800000uV into 3000000-3000000uV
 [    0.999196] LDO2: Bringing 800000uV into 900000-900000uV
 
-Fixes: 78cc25fa265d ("arm64: dts: imx8mm-evk: Add BD71847 PMIC")
+Fixes: 3e44dd09736d ("arm64: dts: imx8mn-ddr4-evk: Add rohm,bd71847 PMIC support")
 Cc: stable@vger.kernel.org
 Signed-off-by: Robin Gong <yibin.gong@nxp.com>
 Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
@@ -73,14 +73,14 @@ Reviewed-by: Fabio Estevam <festevam@gmail.com>
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mm-evk.dts | 4 ++--
+ arch/arm64/boot/dts/freescale/imx8mn-ddr4-evk.dts | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mm-evk.dts b/arch/arm64/boot/dts/freescale/imx8mm-evk.dts
-index 13137451b438a..b9f8b7aac8ff1 100644
---- a/arch/arm64/boot/dts/freescale/imx8mm-evk.dts
-+++ b/arch/arm64/boot/dts/freescale/imx8mm-evk.dts
-@@ -231,7 +231,7 @@
+diff --git a/arch/arm64/boot/dts/freescale/imx8mn-ddr4-evk.dts b/arch/arm64/boot/dts/freescale/imx8mn-ddr4-evk.dts
+index 11c705d225d02..9ad1d43b8ce75 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mn-ddr4-evk.dts
++++ b/arch/arm64/boot/dts/freescale/imx8mn-ddr4-evk.dts
+@@ -268,7 +268,7 @@
  
  			ldo1_reg: LDO1 {
  				regulator-name = "LDO1";
@@ -89,7 +89,7 @@ index 13137451b438a..b9f8b7aac8ff1 100644
  				regulator-max-microvolt = <3300000>;
  				regulator-boot-on;
  				regulator-always-on;
-@@ -239,7 +239,7 @@
+@@ -276,7 +276,7 @@
  
  			ldo2_reg: LDO2 {
  				regulator-name = "LDO2";
