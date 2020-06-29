@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 200FB20DC12
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:16:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C6C120DC06
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:16:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730380AbgF2UMA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:12:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40596 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732889AbgF2TaV (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1732910AbgF2TaV (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 29 Jun 2020 15:30:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40580 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1732872AbgF2TaU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:30:20 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D307F252AA;
-        Mon, 29 Jun 2020 15:36:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 666B0252AC;
+        Mon, 29 Jun 2020 15:36:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445018;
-        bh=AxsttLVOxrBP8cPcE8rjkd3YtVNE7N+1sqoYyZwdLSI=;
+        s=default; t=1593445019;
+        bh=cduFsDcSpOjXaUOvO9o6TSsYlscfu5yN+mMa8iE+lcc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y5ICjroh/l6BUqS4m7Y3SvT0QYLCNjIe9TGI+KSIElFuah5AEi2WeJlvxYG3m5nH5
-         zt4OHDHXuAWBOGKotq53eptbl4XNxiOhSowDusRwBiXb0gVy8W5VSEJnv7++qWmDIq
-         Ir0KQLKDansdGf/sBoQLlsaiaFdDHoKFEkpWqvmE=
+        b=GMrYHXo/KCKBlfpDOu9ZAJafRKTvWddc6MYJ/tY+Xeiaa8/rgex99PfBz1vw2RqRi
+         X+5xteLpHztHvQdskcuhxJIyEGVoLZzOH3sHv6cp9uZoK7F2v8iYy2Bv5H5NWd1ASM
+         iFDuVDyFqovGu+Xn2W5P2/h2yrOVVaoUhsmYJ7YE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Junxiao Bi <junxiao.bi@oracle.com>,
         Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
         Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Jun Piao <piaojun@huawei.com>, Mark Fasheh <mark@fasheh.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.19 116/131] ocfs2: fix value of OCFS2_INVALID_SLOT
-Date:   Mon, 29 Jun 2020 11:34:47 -0400
-Message-Id: <20200629153502.2494656-117-sashal@kernel.org>
+Subject: [PATCH 4.19 117/131] ocfs2: fix panic on nfs server over ocfs2
+Date:   Mon, 29 Jun 2020 11:34:48 -0400
+Message-Id: <20200629153502.2494656-118-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629153502.2494656-1-sashal@kernel.org>
 References: <20200629153502.2494656-1-sashal@kernel.org>
@@ -57,53 +56,90 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Junxiao Bi <junxiao.bi@oracle.com>
 
-commit 9277f8334ffc719fe922d776444d6e4e884dbf30 upstream.
+commit e5a15e17a78d58f933d17cafedfcf7486a29f5b4 upstream.
 
-In the ocfs2 disk layout, slot number is 16 bits, but in ocfs2
-implementation, slot number is 32 bits.  Usually this will not cause any
-issue, because slot number is converted from u16 to u32, but
-OCFS2_INVALID_SLOT was defined as -1, when an invalid slot number from
-disk was obtained, its value was (u16)-1, and it was converted to u32.
-Then the following checking in get_local_system_inode will be always
-skipped:
+The following kernel panic was captured when running nfs server over
+ocfs2, at that time ocfs2_test_inode_bit() was checking whether one
+inode locating at "blkno" 5 was valid, that is ocfs2 root inode, its
+"suballoc_slot" was OCFS2_INVALID_SLOT(65535) and it was allocted from
+//global_inode_alloc, but here it wrongly assumed that it was got from per
+slot inode alloctor which would cause array overflow and trigger kernel
+panic.
 
- static struct inode **get_local_system_inode(struct ocfs2_super *osb,
-                                               int type,
-                                               u32 slot)
- {
- 	BUG_ON(slot == OCFS2_INVALID_SLOT);
-	...
- }
+  BUG: unable to handle kernel paging request at 0000000000001088
+  IP: [<ffffffff816f6898>] _raw_spin_lock+0x18/0xf0
+  PGD 1e06ba067 PUD 1e9e7d067 PMD 0
+  Oops: 0002 [#1] SMP
+  CPU: 6 PID: 24873 Comm: nfsd Not tainted 4.1.12-124.36.1.el6uek.x86_64 #2
+  Hardware name: Huawei CH121 V3/IT11SGCA1, BIOS 3.87 02/02/2018
+  RIP: _raw_spin_lock+0x18/0xf0
+  RSP: e02b:ffff88005ae97908  EFLAGS: 00010206
+  RAX: ffff88005ae98000 RBX: 0000000000001088 RCX: 0000000000000000
+  RDX: 0000000000020000 RSI: 0000000000000009 RDI: 0000000000001088
+  RBP: ffff88005ae97928 R08: 0000000000000000 R09: ffff880212878e00
+  R10: 0000000000007ff0 R11: 0000000000000000 R12: 0000000000001088
+  R13: ffff8800063c0aa8 R14: ffff8800650c27d0 R15: 000000000000ffff
+  FS:  0000000000000000(0000) GS:ffff880218180000(0000) knlGS:ffff880218180000
+  CS:  e033 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 0000000000001088 CR3: 00000002033d0000 CR4: 0000000000042660
+  Call Trace:
+    igrab+0x1e/0x60
+    ocfs2_get_system_file_inode+0x63/0x3a0 [ocfs2]
+    ocfs2_test_inode_bit+0x328/0xa00 [ocfs2]
+    ocfs2_get_parent+0xba/0x3e0 [ocfs2]
+    reconnect_path+0xb5/0x300
+    exportfs_decode_fh+0xf6/0x2b0
+    fh_verify+0x350/0x660 [nfsd]
+    nfsd4_putfh+0x4d/0x60 [nfsd]
+    nfsd4_proc_compound+0x3d3/0x6f0 [nfsd]
+    nfsd_dispatch+0xe0/0x290 [nfsd]
+    svc_process_common+0x412/0x6a0 [sunrpc]
+    svc_process+0x123/0x210 [sunrpc]
+    nfsd+0xff/0x170 [nfsd]
+    kthread+0xcb/0xf0
+    ret_from_fork+0x61/0x90
+  Code: 83 c2 02 0f b7 f2 e8 18 dc 91 ff 66 90 eb bf 0f 1f 40 00 55 48 89 e5 41 56 41 55 41 54 53 0f 1f 44 00 00 48 89 fb ba 00 00 02 00 <f0> 0f c1 17 89 d0 45 31 e4 45 31 ed c1 e8 10 66 39 d0 41 89 c6
+  RIP   _raw_spin_lock+0x18/0xf0
+  CR2: 0000000000001088
+  ---[ end trace 7264463cd1aac8f9 ]---
+  Kernel panic - not syncing: Fatal exception
 
-Link: http://lkml.kernel.org/r/20200616183829.87211-5-junxiao.bi@oracle.com
+Link: http://lkml.kernel.org/r/20200616183829.87211-4-junxiao.bi@oracle.com
 Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
 Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
 Cc: Changwei Ge <gechangwei@live.cn>
 Cc: Gang He <ghe@suse.com>
+Cc: Joel Becker <jlbec@evilplan.org>
 Cc: Jun Piao <piaojun@huawei.com>
+Cc: Mark Fasheh <mark@fasheh.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ocfs2/ocfs2_fs.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ocfs2/suballoc.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/fs/ocfs2/ocfs2_fs.h b/fs/ocfs2/ocfs2_fs.h
-index 263e28ebeeabe..d50b7f2c7395e 100644
---- a/fs/ocfs2/ocfs2_fs.h
-+++ b/fs/ocfs2/ocfs2_fs.h
-@@ -303,7 +303,7 @@
- #define OCFS2_MAX_SLOTS			255
+diff --git a/fs/ocfs2/suballoc.c b/fs/ocfs2/suballoc.c
+index f7c972fbed6ae..15a89c513da2f 100644
+--- a/fs/ocfs2/suballoc.c
++++ b/fs/ocfs2/suballoc.c
+@@ -2841,9 +2841,12 @@ int ocfs2_test_inode_bit(struct ocfs2_super *osb, u64 blkno, int *res)
+ 		goto bail;
+ 	}
  
- /* Slot map indicator for an empty slot */
--#define OCFS2_INVALID_SLOT		-1
-+#define OCFS2_INVALID_SLOT		((u16)-1)
- 
- #define OCFS2_VOL_UUID_LEN		16
- #define OCFS2_MAX_VOL_LABEL_LEN		64
+-	inode_alloc_inode =
+-		ocfs2_get_system_file_inode(osb, INODE_ALLOC_SYSTEM_INODE,
+-					    suballoc_slot);
++	if (suballoc_slot == (u16)OCFS2_INVALID_SLOT)
++		inode_alloc_inode = ocfs2_get_system_file_inode(osb,
++			GLOBAL_INODE_ALLOC_SYSTEM_INODE, suballoc_slot);
++	else
++		inode_alloc_inode = ocfs2_get_system_file_inode(osb,
++			INODE_ALLOC_SYSTEM_INODE, suballoc_slot);
+ 	if (!inode_alloc_inode) {
+ 		/* the error code could be inaccurate, but we are not able to
+ 		 * get the correct one. */
 -- 
 2.25.1
 
