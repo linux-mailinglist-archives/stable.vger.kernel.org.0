@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9812420DB92
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:15:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39D2320DBCF
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:16:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731885AbgF2UHn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:07:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40562 "EHLO mail.kernel.org"
+        id S1726992AbgF2UJq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:09:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732939AbgF2TaX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:30:23 -0400
+        id S1732923AbgF2TaW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:30:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0463D23407;
-        Mon, 29 Jun 2020 15:35:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0DA7625201;
+        Mon, 29 Jun 2020 15:35:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444921;
-        bh=zgoXs/RsTAQ/e/fGoosL0x1He5G/+vUgYLrwDiM1y9w=;
+        s=default; t=1593444923;
+        bh=6FQOpK2Gl9FPOH/Zv2HvhQOSAiGCPIPIg99k4N738II=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C+65gp33/tBQbxnsN0s9yUlkCyYryDIh9xyMfbNTOt6skASxmJ5uwGoqPfqCkk7oc
-         WSnz6xfeRMkFQy7Vwy13IOT3bnHUYsQqG1GOl1RrF1IIOhlnRgHx4fmzpCglwi9SAd
-         Y+9iqBjQBGK+4mCCbEcUOj9UiHEPKS84uoAGApdY=
+        b=dmzULtm8DDVcMTBvEgkxbE+Us/1PrNcbx/SajO/9hHMDQE/ky2I0m+aZOkQWiIKmx
+         fnDkUOVyzlRQ9ptWmfu7+u3+y7leGNfaaRp2uyGcFHaAmcoXGzDSBn2lU1ijwE6JAg
+         JpnIDXugCxP3Mu7TpKQwRHzH00+hYQq6ZSEXwXAk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wang Hai <wanghai38@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
+Cc:     Thomas Martitz <t.martitz@avm.de>,
+        Roopa Prabhu <roopa@cumulusnetworks.com>,
+        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
         "David S . Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, Felix Fietkau <nbd@nbd.name>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.19 018/131] mld: fix memory leak in ipv6_mc_destroy_dev()
-Date:   Mon, 29 Jun 2020 11:33:09 -0400
-Message-Id: <20200629153502.2494656-19-sashal@kernel.org>
+Subject: [PATCH 4.19 019/131] net: bridge: enfore alignment for ethernet address
+Date:   Mon, 29 Jun 2020 11:33:10 -0400
+Message-Id: <20200629153502.2494656-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629153502.2494656-1-sashal@kernel.org>
 References: <20200629153502.2494656-1-sashal@kernel.org>
@@ -50,60 +52,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Thomas Martitz <t.martitz@avm.de>
 
-[ Upstream commit ea2fce88d2fd678ed9d45354ff49b73f1d5615dd ]
+[ Upstream commit db7202dec92e6caa2706c21d6fc359af318bde2e ]
 
-Commit a84d01647989 ("mld: fix memory leak in mld_del_delrec()") fixed
-the memory leak of MLD, but missing the ipv6_mc_destroy_dev() path, in
-which mca_sources are leaked after ma_put().
+The eth_addr member is passed to ether_addr functions that require
+2-byte alignment, therefore the member must be properly aligned
+to avoid unaligned accesses.
 
-Using ip6_mc_clear_src() to take care of the missing free.
+The problem is in place since the initial merge of multicast to unicast:
+commit 6db6f0eae6052b70885562e1733896647ec1d807 bridge: multicast to unicast
 
-BUG: memory leak
-unreferenced object 0xffff8881113d3180 (size 64):
-  comm "syz-executor071", pid 389, jiffies 4294887985 (age 17.943s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 ff 02 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<000000002cbc483c>] kmalloc include/linux/slab.h:555 [inline]
-    [<000000002cbc483c>] kzalloc include/linux/slab.h:669 [inline]
-    [<000000002cbc483c>] ip6_mc_add1_src net/ipv6/mcast.c:2237 [inline]
-    [<000000002cbc483c>] ip6_mc_add_src+0x7f5/0xbb0 net/ipv6/mcast.c:2357
-    [<0000000058b8b1ff>] ip6_mc_source+0xe0c/0x1530 net/ipv6/mcast.c:449
-    [<000000000bfc4fb5>] do_ipv6_setsockopt.isra.12+0x1b2c/0x3b30 net/ipv6/ipv6_sockglue.c:754
-    [<00000000e4e7a722>] ipv6_setsockopt+0xda/0x150 net/ipv6/ipv6_sockglue.c:950
-    [<0000000029260d9a>] rawv6_setsockopt+0x45/0x100 net/ipv6/raw.c:1081
-    [<000000005c1b46f9>] __sys_setsockopt+0x131/0x210 net/socket.c:2132
-    [<000000008491f7db>] __do_sys_setsockopt net/socket.c:2148 [inline]
-    [<000000008491f7db>] __se_sys_setsockopt net/socket.c:2145 [inline]
-    [<000000008491f7db>] __x64_sys_setsockopt+0xba/0x150 net/socket.c:2145
-    [<00000000c7bc11c5>] do_syscall_64+0xa1/0x530 arch/x86/entry/common.c:295
-    [<000000005fb7a3f3>] entry_SYSCALL_64_after_hwframe+0x49/0xb3
-
-Fixes: 1666d49e1d41 ("mld: do not remove mld souce list info when set link down")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Acked-by: Hangbin Liu <liuhangbin@gmail.com>
+Fixes: 6db6f0eae605 ("bridge: multicast to unicast")
+Cc: Roopa Prabhu <roopa@cumulusnetworks.com>
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Felix Fietkau <nbd@nbd.name>
+Cc: stable@vger.kernel.org
+Signed-off-by: Thomas Martitz <t.martitz@avm.de>
+Acked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/mcast.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/bridge/br_private.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv6/mcast.c b/net/ipv6/mcast.c
-index 2d80e913b82f1..f2f8551416c33 100644
---- a/net/ipv6/mcast.c
-+++ b/net/ipv6/mcast.c
-@@ -2620,6 +2620,7 @@ void ipv6_mc_destroy_dev(struct inet6_dev *idev)
- 		idev->mc_list = i->next;
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index 11ed2029985fd..33b8222db75c4 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -202,8 +202,8 @@ struct net_bridge_port_group {
+ 	struct rcu_head			rcu;
+ 	struct timer_list		timer;
+ 	struct br_ip			addr;
++	unsigned char			eth_addr[ETH_ALEN] __aligned(2);
+ 	unsigned char			flags;
+-	unsigned char			eth_addr[ETH_ALEN];
+ };
  
- 		write_unlock_bh(&idev->lock);
-+		ip6_mc_clear_src(i);
- 		ma_put(i);
- 		write_lock_bh(&idev->lock);
- 	}
+ struct net_bridge_mdb_entry
 -- 
 2.25.1
 
