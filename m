@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EA6F20DC91
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:17:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34DCC20DC8E
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:17:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732815AbgF2TaQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:30:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40530 "EHLO mail.kernel.org"
+        id S1729547AbgF2UQP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:16:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732236AbgF2TaP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:30:15 -0400
+        id S1732816AbgF2TaR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:30:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 95909252E1;
-        Mon, 29 Jun 2020 15:38:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1424F252E0;
+        Mon, 29 Jun 2020 15:38:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445110;
-        bh=ZjfaqJcqCoYR9S2k6hGkT0Xs4RvC6KD+LU81NfTLZvY=;
+        s=default; t=1593445112;
+        bh=deag+b/mojh9djZNOT+JGZIAzlzwjFwNrsFsHn6DI/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pkVOlkHQssvEWj+mhyp9vX7UyrCBqLi+5jU44mSpS+/1lf7aY8vS5ELl24IaAC86R
-         cyfQUJMJxQYO+m+I71WFE+7/qtil+aP0vk1YziuSxGc2P76XUQYMxNezsP39wkVAGN
-         xJjhNaV9t3ESNiBeV95LHD2BnPWWxdDGp42V1UsU=
+        b=adL0SETroL/qEl10RZlBt4/WEkIVi2I7xZs2wlRpz/m76Ztkoo488dUQaO+z68RDz
+         YvcMoGW1ygVv3Vc9svVrc03mFn++c2BkIaFsBIem7I+xDsjtt0O/wNwUB5PeWv8iMF
+         7wIj0ynMLfMp3AnKuwHQWsNePUSII+T3qdJ7yFaQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Neal Cardwell <ncardwell@google.com>,
-        Mirja Kuehlewind <mirja.kuehlewind@ericsson.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
+Cc:     Taehee Yoo <ap420073@gmail.com>,
+        Eric Dumazet <eric.dumazet@gmail.com>,
         "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.14 18/78] tcp_cubic: fix spurious HYSTART_DELAY exit upon drop in min RTT
-Date:   Mon, 29 Jun 2020 11:37:06 -0400
-Message-Id: <20200629153806.2494953-19-sashal@kernel.org>
+Subject: [PATCH 4.14 19/78] ip6_gre: fix use-after-free in ip6gre_tunnel_lookup()
+Date:   Mon, 29 Jun 2020 11:37:07 -0400
+Message-Id: <20200629153806.2494953-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629153806.2494953-1-sashal@kernel.org>
 References: <20200629153806.2494953-1-sashal@kernel.org>
@@ -52,53 +50,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neal Cardwell <ncardwell@google.com>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit b344579ca8478598937215f7005d6c7b84d28aee ]
+[ Upstream commit dafabb6590cb15f300b77c095d50312e2c7c8e0f ]
 
-Mirja Kuehlewind reported a bug in Linux TCP CUBIC Hystart, where
-Hystart HYSTART_DELAY mechanism can exit Slow Start spuriously on an
-ACK when the minimum rtt of a connection goes down. From inspection it
-is clear from the existing code that this could happen in an example
-like the following:
+In the datapath, the ip6gre_tunnel_lookup() is used and it internally uses
+fallback tunnel device pointer, which is fb_tunnel_dev.
+This pointer variable should be set to NULL when a fb interface is deleted.
+But there is no routine to set fb_tunnel_dev pointer to NULL.
+So, this pointer will be still used after interface is deleted and
+it eventually results in the use-after-free problem.
 
-o The first 8 RTT samples in a round trip are 150ms, resulting in a
-  curr_rtt of 150ms and a delay_min of 150ms.
+Test commands:
+    ip netns add A
+    ip netns add B
+    ip link add eth0 type veth peer name eth1
+    ip link set eth0 netns A
+    ip link set eth1 netns B
 
-o The 9th RTT sample is 100ms. The curr_rtt does not change after the
-  first 8 samples, so curr_rtt remains 150ms. But delay_min can be
-  lowered at any time, so delay_min falls to 100ms. The code executes
-  the HYSTART_DELAY comparison between curr_rtt of 150ms and delay_min
-  of 100ms, and the curr_rtt is declared far enough above delay_min to
-  force a (spurious) exit of Slow start.
+    ip netns exec A ip link set lo up
+    ip netns exec A ip link set eth0 up
+    ip netns exec A ip link add ip6gre1 type ip6gre local fc:0::1 \
+	    remote fc:0::2
+    ip netns exec A ip -6 a a fc:100::1/64 dev ip6gre1
+    ip netns exec A ip link set ip6gre1 up
+    ip netns exec A ip -6 a a fc:0::1/64 dev eth0
+    ip netns exec A ip link set ip6gre0 up
 
-The fix here is simple: allow every RTT sample in a round trip to
-lower the curr_rtt.
+    ip netns exec B ip link set lo up
+    ip netns exec B ip link set eth1 up
+    ip netns exec B ip link add ip6gre1 type ip6gre local fc:0::2 \
+	    remote fc:0::1
+    ip netns exec B ip -6 a a fc:100::2/64 dev ip6gre1
+    ip netns exec B ip link set ip6gre1 up
+    ip netns exec B ip -6 a a fc:0::2/64 dev eth1
+    ip netns exec B ip link set ip6gre0 up
+    ip netns exec A ping fc:100::2 -s 60000 &
+    ip netns del B
 
-Fixes: ae27e98a5152 ("[TCP] CUBIC v2.3")
-Reported-by: Mirja Kuehlewind <mirja.kuehlewind@ericsson.com>
-Signed-off-by: Neal Cardwell <ncardwell@google.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
+Splat looks like:
+[   73.087285][    C1] BUG: KASAN: use-after-free in ip6gre_tunnel_lookup+0x1064/0x13f0 [ip6_gre]
+[   73.088361][    C1] Read of size 4 at addr ffff888040559218 by task ping/1429
+[   73.089317][    C1]
+[   73.089638][    C1] CPU: 1 PID: 1429 Comm: ping Not tainted 5.7.0+ #602
+[   73.090531][    C1] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
+[   73.091725][    C1] Call Trace:
+[   73.092160][    C1]  <IRQ>
+[   73.092556][    C1]  dump_stack+0x96/0xdb
+[   73.093122][    C1]  print_address_description.constprop.6+0x2cc/0x450
+[   73.094016][    C1]  ? ip6gre_tunnel_lookup+0x1064/0x13f0 [ip6_gre]
+[   73.094894][    C1]  ? ip6gre_tunnel_lookup+0x1064/0x13f0 [ip6_gre]
+[   73.095767][    C1]  ? ip6gre_tunnel_lookup+0x1064/0x13f0 [ip6_gre]
+[   73.096619][    C1]  kasan_report+0x154/0x190
+[   73.097209][    C1]  ? ip6gre_tunnel_lookup+0x1064/0x13f0 [ip6_gre]
+[   73.097989][    C1]  ip6gre_tunnel_lookup+0x1064/0x13f0 [ip6_gre]
+[   73.098750][    C1]  ? gre_del_protocol+0x60/0x60 [gre]
+[   73.099500][    C1]  gre_rcv+0x1c5/0x1450 [ip6_gre]
+[   73.100199][    C1]  ? ip6gre_header+0xf00/0xf00 [ip6_gre]
+[   73.100985][    C1]  ? rcu_read_lock_sched_held+0xc0/0xc0
+[   73.101830][    C1]  ? ip6_input_finish+0x5/0xf0
+[   73.102483][    C1]  ip6_protocol_deliver_rcu+0xcbb/0x1510
+[   73.103296][    C1]  ip6_input_finish+0x5b/0xf0
+[   73.103920][    C1]  ip6_input+0xcd/0x2c0
+[   73.104473][    C1]  ? ip6_input_finish+0xf0/0xf0
+[   73.105115][    C1]  ? rcu_read_lock_held+0x90/0xa0
+[   73.105783][    C1]  ? rcu_read_lock_sched_held+0xc0/0xc0
+[   73.106548][    C1]  ipv6_rcv+0x1f1/0x300
+[ ... ]
+
+Suggested-by: Eric Dumazet <eric.dumazet@gmail.com>
+Fixes: c12b395a4664 ("gre: Support GRE over IPv6")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp_cubic.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/ipv6/ip6_gre.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/net/ipv4/tcp_cubic.c b/net/ipv4/tcp_cubic.c
-index 78bfadfcf3426..8b5ba0a5cd386 100644
---- a/net/ipv4/tcp_cubic.c
-+++ b/net/ipv4/tcp_cubic.c
-@@ -403,6 +403,8 @@ static void hystart_update(struct sock *sk, u32 delay)
+diff --git a/net/ipv6/ip6_gre.c b/net/ipv6/ip6_gre.c
+index 726ba41133a36..e07cc2cfc1a63 100644
+--- a/net/ipv6/ip6_gre.c
++++ b/net/ipv6/ip6_gre.c
+@@ -124,6 +124,7 @@ static struct ip6_tnl *ip6gre_tunnel_lookup(struct net_device *dev,
+ 	int dev_type = (gre_proto == htons(ETH_P_TEB)) ?
+ 		       ARPHRD_ETHER : ARPHRD_IP6GRE;
+ 	int score, cand_score = 4;
++	struct net_device *ndev;
  
- 	if (hystart_detect & HYSTART_DELAY) {
- 		/* obtain the minimum delay of more than sampling packets */
-+		if (ca->curr_rtt > delay)
-+			ca->curr_rtt = delay;
- 		if (ca->sample_cnt < HYSTART_MIN_SAMPLES) {
- 			if (ca->curr_rtt == 0 || ca->curr_rtt > delay)
- 				ca->curr_rtt = delay;
+ 	for_each_ip_tunnel_rcu(t, ign->tunnels_r_l[h0 ^ h1]) {
+ 		if (!ipv6_addr_equal(local, &t->parms.laddr) ||
+@@ -226,9 +227,9 @@ static struct ip6_tnl *ip6gre_tunnel_lookup(struct net_device *dev,
+ 	if (cand)
+ 		return cand;
+ 
+-	dev = ign->fb_tunnel_dev;
+-	if (dev->flags & IFF_UP)
+-		return netdev_priv(dev);
++	ndev = READ_ONCE(ign->fb_tunnel_dev);
++	if (ndev && ndev->flags & IFF_UP)
++		return netdev_priv(ndev);
+ 
+ 	return NULL;
+ }
+@@ -364,6 +365,8 @@ static void ip6gre_tunnel_uninit(struct net_device *dev)
+ 	struct ip6gre_net *ign = net_generic(t->net, ip6gre_net_id);
+ 
+ 	ip6gre_tunnel_unlink(ign, t);
++	if (ign->fb_tunnel_dev == dev)
++		WRITE_ONCE(ign->fb_tunnel_dev, NULL);
+ 	dst_cache_reset(&t->dst_cache);
+ 	dev_put(dev);
+ }
 -- 
 2.25.1
 
