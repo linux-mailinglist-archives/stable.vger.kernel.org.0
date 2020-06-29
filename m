@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91CDF20DA90
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:13:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 932D220D8DC
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:10:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388430AbgF2T6b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:58:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47672 "EHLO mail.kernel.org"
+        id S1733082AbgF2TmT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:42:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387601AbgF2TkS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:18 -0400
+        id S2387845AbgF2Tkq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:46 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1498D248C8;
-        Mon, 29 Jun 2020 15:27:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EACA8248C9;
+        Mon, 29 Jun 2020 15:27:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444421;
-        bh=W4IM7D2E1FmkEYvPp8iWmlQ9o/pvtw/YUi/t1cXKruE=;
+        s=default; t=1593444422;
+        bh=HqEiHU2rj80Shi+LPfuxmCzWI+NAFjs/6RR6u3kGg4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d4Y81AkSkE3OVSpGBpZ2TR/Jbw6/AY0+jUzBr9XzMGdm/dVHfg/Lh5cF9FaNAP8E7
-         6GWXN7uJsIg933wGzfl3Ex+OYWLZpMy9SS0gOcPPeLOi2DRrTctVvNCqGmLjlX7+F+
-         OsHzewZipz+xy+h284Tn5JySCmWPtwBKXBaqtqG8=
+        b=pyUnBhYRFyMERUIxOny6Nqx8QJhvZd14Wfk82dZtSZQxKBv/0DTgJT3EW7aBRn2mP
+         7PN7deRyBb1NijHh/5YQbTBUs3r+ALrhuZvQI+OxVadV2Buo6/E6/MWTJFpHXKB9zF
+         HBCFirAMpSSB9hDXByWijfnyC4SeRKEfLa9cxfKM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     yu kuai <yukuai3@huawei.com>, Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 099/178] cxgb4: move handling L2T ARP failures to caller
-Date:   Mon, 29 Jun 2020 11:24:04 -0400
-Message-Id: <20200629152523.2494198-100-sashal@kernel.org>
+Subject: [PATCH 5.4 100/178] ARM: imx5: add missing put_device() call in imx_suspend_alloc_ocram()
+Date:   Mon, 29 Jun 2020 11:24:05 -0400
+Message-Id: <20200629152523.2494198-101-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -49,102 +48,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
+From: yu kuai <yukuai3@huawei.com>
 
-[ Upstream commit 11d8cd5c9f3b46f397f889cefdb66795518aaebd ]
+[ Upstream commit 586745f1598ccf71b0a5a6df2222dee0a865954e ]
 
-Move code handling L2T ARP failures to the only caller.
+if of_find_device_by_node() succeed, imx_suspend_alloc_ocram() doesn't
+have a corresponding put_device(). Thus add a jump target to fix the
+exception handling for this function implementation.
 
-Fixes following sparse warning:
-skbuff.h:2091:29: warning: context imbalance in
-'handle_failed_resolution' - unexpected unlock
-
-Fixes: 749cb5fe48bb ("cxgb4: Replace arpq_head/arpq_tail with SKB double link-list code")
-Signed-off-by: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 1579c7b9fe01 ("ARM: imx53: Set DDR pins to high impedance when in suspend to RAM.")
+Signed-off-by: yu kuai <yukuai3@huawei.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/l2t.c | 52 +++++++++++-------------
- 1 file changed, 24 insertions(+), 28 deletions(-)
+ arch/arm/mach-imx/pm-imx5.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/l2t.c b/drivers/net/ethernet/chelsio/cxgb4/l2t.c
-index e6fe2870137b0..a440c1cf0b61e 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/l2t.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/l2t.c
-@@ -506,41 +506,20 @@ u64 cxgb4_select_ntuple(struct net_device *dev,
- }
- EXPORT_SYMBOL(cxgb4_select_ntuple);
- 
--/*
-- * Called when address resolution fails for an L2T entry to handle packets
-- * on the arpq head.  If a packet specifies a failure handler it is invoked,
-- * otherwise the packet is sent to the device.
-- */
--static void handle_failed_resolution(struct adapter *adap, struct l2t_entry *e)
--{
--	struct sk_buff *skb;
--
--	while ((skb = __skb_dequeue(&e->arpq)) != NULL) {
--		const struct l2t_skb_cb *cb = L2T_SKB_CB(skb);
--
--		spin_unlock(&e->lock);
--		if (cb->arp_err_handler)
--			cb->arp_err_handler(cb->handle, skb);
--		else
--			t4_ofld_send(adap, skb);
--		spin_lock(&e->lock);
--	}
--}
--
- /*
-  * Called when the host's neighbor layer makes a change to some entry that is
-  * loaded into the HW L2 table.
-  */
- void t4_l2t_update(struct adapter *adap, struct neighbour *neigh)
- {
--	struct l2t_entry *e;
--	struct sk_buff_head *arpq = NULL;
--	struct l2t_data *d = adap->l2t;
- 	unsigned int addr_len = neigh->tbl->key_len;
- 	u32 *addr = (u32 *) neigh->primary_key;
--	int ifidx = neigh->dev->ifindex;
--	int hash = addr_hash(d, addr, addr_len, ifidx);
-+	int hash, ifidx = neigh->dev->ifindex;
-+	struct sk_buff_head *arpq = NULL;
-+	struct l2t_data *d = adap->l2t;
-+	struct l2t_entry *e;
- 
-+	hash = addr_hash(d, addr, addr_len, ifidx);
- 	read_lock_bh(&d->lock);
- 	for (e = d->l2tab[hash].first; e; e = e->next)
- 		if (!addreq(e, addr) && e->ifindex == ifidx) {
-@@ -573,8 +552,25 @@ void t4_l2t_update(struct adapter *adap, struct neighbour *neigh)
- 			write_l2e(adap, e, 0);
+diff --git a/arch/arm/mach-imx/pm-imx5.c b/arch/arm/mach-imx/pm-imx5.c
+index f057df813f83a..e9962b48e30cb 100644
+--- a/arch/arm/mach-imx/pm-imx5.c
++++ b/arch/arm/mach-imx/pm-imx5.c
+@@ -295,14 +295,14 @@ static int __init imx_suspend_alloc_ocram(
+ 	if (!ocram_pool) {
+ 		pr_warn("%s: ocram pool unavailable!\n", __func__);
+ 		ret = -ENODEV;
+-		goto put_node;
++		goto put_device;
  	}
  
--	if (arpq)
--		handle_failed_resolution(adap, e);
-+	if (arpq) {
-+		struct sk_buff *skb;
-+
-+		/* Called when address resolution fails for an L2T
-+		 * entry to handle packets on the arpq head. If a
-+		 * packet specifies a failure handler it is invoked,
-+		 * otherwise the packet is sent to the device.
-+		 */
-+		while ((skb = __skb_dequeue(&e->arpq)) != NULL) {
-+			const struct l2t_skb_cb *cb = L2T_SKB_CB(skb);
-+
-+			spin_unlock(&e->lock);
-+			if (cb->arp_err_handler)
-+				cb->arp_err_handler(cb->handle, skb);
-+			else
-+				t4_ofld_send(adap, skb);
-+			spin_lock(&e->lock);
-+		}
-+	}
- 	spin_unlock_bh(&e->lock);
- }
+ 	ocram_base = gen_pool_alloc(ocram_pool, size);
+ 	if (!ocram_base) {
+ 		pr_warn("%s: unable to alloc ocram!\n", __func__);
+ 		ret = -ENOMEM;
+-		goto put_node;
++		goto put_device;
+ 	}
+ 
+ 	phys = gen_pool_virt_to_phys(ocram_pool, ocram_base);
+@@ -312,6 +312,8 @@ static int __init imx_suspend_alloc_ocram(
+ 	if (virt_out)
+ 		*virt_out = virt;
+ 
++put_device:
++	put_device(&pdev->dev);
+ put_node:
+ 	of_node_put(node);
  
 -- 
 2.25.1
