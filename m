@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D862320E2D4
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:01:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0A9D20E2A8
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:01:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732206AbgF2VJF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:09:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45464 "EHLO mail.kernel.org"
+        id S2390367AbgF2VHc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:07:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730326AbgF2TAT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:00:19 -0400
+        id S1730828AbgF2TKR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:10:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F5BE254C6;
-        Mon, 29 Jun 2020 15:53:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 12156254C8;
+        Mon, 29 Jun 2020 15:53:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593446020;
-        bh=w3TFxo/9VyhZfB+HgR6d7F51RKl8eRTq06YPoX5tZuI=;
+        s=default; t=1593446021;
+        bh=HNyBE1hTrNXbSBGAqMnk8Ynsekr44GsKu7muWPFXWPo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cRIEdwWpVzo+P+SOwdr/RX0OXF/BZnipd1x46kuY/FIJbO1X8ZfOOJuYt/Ehyqg+k
-         l22sBEruBOJd9fe6XsMyhzj3ZuN7j7fOmXUoXO4gEy0mxu2iJ8CxML8is4IDq8dvdt
-         5wsOEuufg9QTKZwfZN1F2ADuagx66YtWMPoWQ5aU=
+        b=eXbPthKr1UZRXuLsB8TOp8DJPpkKewLzAC7TPZUqXaqQz1WUYPOn8V5ZVIZsTDLnq
+         RiG+MYD2c5Hfx9EsZi/lz8vyhLOr4vj1o7LSYoi4PGTdOJIrprvXWdg9QkoFTQiYwF
+         0xAiqZlN1o1wG8bIiL3jHuL+emca+/ZvR3htLcxQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dmitry Osipenko <digetx@gmail.com>,
-        David Heidelberg <david@ixit.cz>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+Cc:     Suganath Prabu S <suganath-prabu.subramani@broadcom.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 027/135] power: supply: smb347-charger: IRQSTAT_D is volatile
-Date:   Mon, 29 Jun 2020 11:51:21 -0400
-Message-Id: <20200629155309.2495516-28-sashal@kernel.org>
+Subject: [PATCH 4.4 028/135] scsi: mpt3sas: Fix double free warnings
+Date:   Mon, 29 Jun 2020 11:51:22 -0400
+Message-Id: <20200629155309.2495516-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
 References: <20200629155309.2495516-1-sashal@kernel.org>
@@ -50,36 +50,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Suganath Prabu S <suganath-prabu.subramani@broadcom.com>
 
-[ Upstream commit c32ea07a30630ace950e07ffe7a18bdcc25898e1 ]
+[ Upstream commit cbbfdb2a2416c9f0cde913cf09670097ac281282 ]
 
-Fix failure when USB cable is connected:
-smb347 2-006a: reading IRQSTAT_D failed
+Fix following warning from Smatch static analyser:
 
-Fixes: 1502cfe19bac ("smb347-charger: Fix battery status reporting logic for charger faults")
+drivers/scsi/mpt3sas/mpt3sas_base.c:5256 _base_allocate_memory_pools()
+warn: 'ioc->hpr_lookup' double freed
 
-Tested-by: David Heidelberg <david@ixit.cz>
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: David Heidelberg <david@ixit.cz>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+drivers/scsi/mpt3sas/mpt3sas_base.c:5256 _base_allocate_memory_pools()
+warn: 'ioc->internal_lookup' double freed
+
+Link: https://lore.kernel.org/r/20200508110738.30732-1-suganath-prabu.subramani@broadcom.com
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Suganath Prabu S <suganath-prabu.subramani@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/smb347-charger.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/mpt3sas/mpt3sas_base.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/power/smb347-charger.c b/drivers/power/smb347-charger.c
-index 072c5189bd6d1..0655dbdc7000d 100644
---- a/drivers/power/smb347-charger.c
-+++ b/drivers/power/smb347-charger.c
-@@ -1141,6 +1141,7 @@ static bool smb347_volatile_reg(struct device *dev, unsigned int reg)
- 	switch (reg) {
- 	case IRQSTAT_A:
- 	case IRQSTAT_C:
-+	case IRQSTAT_D:
- 	case IRQSTAT_E:
- 	case IRQSTAT_F:
- 	case STAT_A:
+diff --git a/drivers/scsi/mpt3sas/mpt3sas_base.c b/drivers/scsi/mpt3sas/mpt3sas_base.c
+index 7af7a08594785..8d52afd1f71db 100644
+--- a/drivers/scsi/mpt3sas/mpt3sas_base.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_base.c
+@@ -3136,7 +3136,9 @@ _base_release_memory_pools(struct MPT3SAS_ADAPTER *ioc)
+ 		ioc->scsi_lookup = NULL;
+ 	}
+ 	kfree(ioc->hpr_lookup);
++	ioc->hpr_lookup = NULL;
+ 	kfree(ioc->internal_lookup);
++	ioc->internal_lookup = NULL;
+ 	if (ioc->chain_lookup) {
+ 		for (i = 0; i < ioc->chain_depth; i++) {
+ 			if (ioc->chain_lookup[i].chain_buffer)
 -- 
 2.25.1
 
