@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B1B520D91E
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:10:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 539A720D8CC
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:10:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733191AbgF2Tof (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:44:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47694 "EHLO mail.kernel.org"
+        id S1732872AbgF2Tln (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:41:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387837AbgF2Tkp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:45 -0400
+        id S1732679AbgF2Tkr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:47 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4FF57248DC;
-        Mon, 29 Jun 2020 15:27:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 45FCA248DF;
+        Mon, 29 Jun 2020 15:27:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1593444434;
-        bh=WCjtbpjQ4nsvFwRlVNbbY7Rzz1MwGVeN88ApKGRWaO0=;
+        bh=JYx4yj8CzOUQClNd7aRJBUhlk4jct1WTIRIxB2hatyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VQh/8WH/jtM18lSaP5N5BSoWqCfCj4fxMOVvJWznAoSlKBozSl44Ssw8BaNAGXIUK
-         MD+rF1/UuyDmyfseOZCBYQEMb1SnlbdY0p78cK41hLGFwnWt3M/85/PiDPkXa5hl17
-         LluABOEUdiq/V0xw78Oo4yr2zAPFbDVZ/ilFKjZs=
+        b=AQ3GrkafEBazvzyS7Y16uxbvEuFxJyYrs03vUY2nZNoXeFZUAh3Vwm6RTp6L8t+la
+         0hvKNIDixvmTgC0cbXlAKZm+kuN9L3FxWa+oFBfMBeB9s6re1hqINEtGhJVCAsmHxE
+         IW3k0mGepb4WbwTu/CNgB4+RnuCWR8ceHs4+jttE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eddie James <eajames@linux.ibm.com>, Joel Stanley <joel@jms.id.au>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 112/178] i2c: fsi: Fix the port number field in status register
-Date:   Mon, 29 Jun 2020 11:24:17 -0400
-Message-Id: <20200629152523.2494198-113-sashal@kernel.org>
+Cc:     Mans Rullgard <mans@mansr.com>, Wolfram Sang <wsa@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 113/178] i2c: core: check returned size of emulated smbus block read
+Date:   Mon, 29 Jun 2020 11:24:18 -0400
+Message-Id: <20200629152523.2494198-114-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -48,34 +48,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eddie James <eajames@linux.ibm.com>
+From: Mans Rullgard <mans@mansr.com>
 
-[ Upstream commit 502035e284cc7e9efef22b01771d822d49698ab9 ]
+[ Upstream commit 40e05200593af06633f64ab0effff052eee6f076 ]
 
-The port number field in the status register was not correct, so fix it.
+If the i2c bus driver ignores the I2C_M_RECV_LEN flag (as some of
+them do), it is possible for an I2C_SMBUS_BLOCK_DATA read issued
+on some random device to return an arbitrary value in the first
+byte (and nothing else).  When this happens, i2c_smbus_xfer_emulated()
+will happily write past the end of the supplied data buffer, thus
+causing Bad Things to happen.  To prevent this, check the size
+before copying the data block and return an error if it is too large.
 
-Fixes: d6ffb6300116 ("i2c: Add FSI-attached I2C master algorithm")
-Signed-off-by: Eddie James <eajames@linux.ibm.com>
-Signed-off-by: Joel Stanley <joel@jms.id.au>
+Fixes: 209d27c3b167 ("i2c: Emulate SMBus block read over I2C")
+Signed-off-by: Mans Rullgard <mans@mansr.com>
+[wsa: use better errno]
 Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-fsi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/i2c-core-smbus.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-fsi.c b/drivers/i2c/busses/i2c-fsi.c
-index e0c256922d4f1..977d6f524649c 100644
---- a/drivers/i2c/busses/i2c-fsi.c
-+++ b/drivers/i2c/busses/i2c-fsi.c
-@@ -98,7 +98,7 @@
- #define I2C_STAT_DAT_REQ	BIT(25)
- #define I2C_STAT_CMD_COMP	BIT(24)
- #define I2C_STAT_STOP_ERR	BIT(23)
--#define I2C_STAT_MAX_PORT	GENMASK(19, 16)
-+#define I2C_STAT_MAX_PORT	GENMASK(22, 16)
- #define I2C_STAT_ANY_INT	BIT(15)
- #define I2C_STAT_SCL_IN		BIT(11)
- #define I2C_STAT_SDA_IN		BIT(10)
+diff --git a/drivers/i2c/i2c-core-smbus.c b/drivers/i2c/i2c-core-smbus.c
+index 3ac426a8ab5ab..c2ae8c8cd4295 100644
+--- a/drivers/i2c/i2c-core-smbus.c
++++ b/drivers/i2c/i2c-core-smbus.c
+@@ -495,6 +495,13 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
+ 			break;
+ 		case I2C_SMBUS_BLOCK_DATA:
+ 		case I2C_SMBUS_BLOCK_PROC_CALL:
++			if (msg[1].buf[0] > I2C_SMBUS_BLOCK_MAX) {
++				dev_err(&adapter->dev,
++					"Invalid block size returned: %d\n",
++					msg[1].buf[0]);
++				status = -EPROTO;
++				goto cleanup;
++			}
+ 			for (i = 0; i < msg[1].buf[0] + 1; i++)
+ 				data->block[i] = msg[1].buf[i];
+ 			break;
 -- 
 2.25.1
 
