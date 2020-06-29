@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7657B20DA92
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:13:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1784220D9E0
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:12:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388440AbgF2T6c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:58:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47694 "EHLO mail.kernel.org"
+        id S2388223AbgF2Tvy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:51:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387594AbgF2TkS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:18 -0400
+        id S2387715AbgF2Tkb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C1312490A;
+        by mail.kernel.org (Postfix) with ESMTPSA id F0FBF24908;
         Mon, 29 Jun 2020 15:27:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444459;
-        bh=h63UWjESisQE8n3eAG6r0gEX4O1AVAstfhT8AixWNGw=;
+        s=default; t=1593444460;
+        bh=PTXgBodTo5cXRnYlvSzqSd9BTMIrdK30OzvUyOONAiY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rlTrMlvN8qtqLpc1EnLs2KULqNeQ4dnhR3x8bHXAuzzqthJtX3SZAwRcdvLAUmClh
-         dJTP+GYpZI3tLQeE8kWxzWvQIQkE1+c1mJHrYprLIiL65zRtPhBKwK9I/R5i4i3Qsn
-         B5Rmsbk+C6Pqkh4fSVS/VuGe8jOI1Rx/tHABlV/o=
+        b=EAuteJD3+cSUQwPBwpP1afnq07N9AhF3wwG71KV7QEcnxSR/bqnqfUNUBD9C7rzfg
+         yNhHoM4xzIAckMKuXM85kiGKUOaJ3qtmCWZVPwEbn9zP7MP1QhVDMay/ACEgfSye9u
+         HY9hlcZIUlxDCoCS0NiigsT0k0LHVoFJFbtXNE5I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Aaron Plattner <aplattner@nvidia.com>,
-        Takashi Iwai <tiwai@suse.de>,
+Cc:     Takashi Iwai <tiwai@suse.de>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.4 139/178] ALSA: hda: Add NVIDIA codec IDs 9a & 9d through a0 to patch table
-Date:   Mon, 29 Jun 2020 11:24:44 -0400
-Message-Id: <20200629152523.2494198-140-sashal@kernel.org>
+Subject: [PATCH 5.4 140/178] ALSA: hda/realtek - Add quirk for MSI GE63 laptop
+Date:   Mon, 29 Jun 2020 11:24:45 -0400
+Message-Id: <20200629152523.2494198-141-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -49,38 +48,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aaron Plattner <aplattner@nvidia.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit adb36a8203831e40494a92095dacd566b2ad4a69 upstream.
+commit a0b03952a797591d4b6d6fa7b9b7872e27783729 upstream.
 
-These IDs are for upcoming NVIDIA chips with audio functions that are largely
-similar to the existing ones.
+MSI GE63 laptop with ALC1220 codec requires the very same quirk
+(ALC1220_FIXUP_CLEVO_P950) as other MSI devices for the proper sound
+output.
 
-Signed-off-by: Aaron Plattner <aplattner@nvidia.com>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=208057
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200611180845.39942-1-aplattner@nvidia.com
+Link: https://lore.kernel.org/r/20200616132150.8778-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_hdmi.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ sound/pci/hda/patch_realtek.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
-index d41c91468ab33..e78c4367b6c86 100644
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -4146,6 +4146,11 @@ HDA_CODEC_ENTRY(0x10de0095, "GPU 95 HDMI/DP",	patch_nvhdmi),
- HDA_CODEC_ENTRY(0x10de0097, "GPU 97 HDMI/DP",	patch_nvhdmi),
- HDA_CODEC_ENTRY(0x10de0098, "GPU 98 HDMI/DP",	patch_nvhdmi),
- HDA_CODEC_ENTRY(0x10de0099, "GPU 99 HDMI/DP",	patch_nvhdmi),
-+HDA_CODEC_ENTRY(0x10de009a, "GPU 9a HDMI/DP",	patch_nvhdmi),
-+HDA_CODEC_ENTRY(0x10de009d, "GPU 9d HDMI/DP",	patch_nvhdmi),
-+HDA_CODEC_ENTRY(0x10de009e, "GPU 9e HDMI/DP",	patch_nvhdmi),
-+HDA_CODEC_ENTRY(0x10de009f, "GPU 9f HDMI/DP",	patch_nvhdmi),
-+HDA_CODEC_ENTRY(0x10de00a0, "GPU a0 HDMI/DP",	patch_nvhdmi),
- HDA_CODEC_ENTRY(0x10de8001, "MCP73 HDMI",	patch_nvhdmi_2ch),
- HDA_CODEC_ENTRY(0x10de8067, "MCP67/68 HDMI",	patch_nvhdmi_2ch),
- HDA_CODEC_ENTRY(0x11069f80, "VX900 HDMI/DP",	patch_via_hdmi),
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index 459a7d61326ec..45315b14abe63 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -2460,6 +2460,7 @@ static const struct snd_pci_quirk alc882_fixup_tbl[] = {
+ 	SND_PCI_QUIRK(0x1458, 0xa0b8, "Gigabyte AZ370-Gaming", ALC1220_FIXUP_GB_DUAL_CODECS),
+ 	SND_PCI_QUIRK(0x1458, 0xa0cd, "Gigabyte X570 Aorus Master", ALC1220_FIXUP_CLEVO_P950),
+ 	SND_PCI_QUIRK(0x1458, 0xa0ce, "Gigabyte X570 Aorus Xtreme", ALC1220_FIXUP_CLEVO_P950),
++	SND_PCI_QUIRK(0x1462, 0x11f7, "MSI-GE63", ALC1220_FIXUP_CLEVO_P950),
+ 	SND_PCI_QUIRK(0x1462, 0x1228, "MSI-GP63", ALC1220_FIXUP_CLEVO_P950),
+ 	SND_PCI_QUIRK(0x1462, 0x1275, "MSI-GL63", ALC1220_FIXUP_CLEVO_P950),
+ 	SND_PCI_QUIRK(0x1462, 0x1276, "MSI-GL73", ALC1220_FIXUP_CLEVO_P950),
 -- 
 2.25.1
 
