@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5903820E6D9
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:10:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDD3220E85B
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:12:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726686AbgF2Sfk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 14:35:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56790 "EHLO mail.kernel.org"
+        id S1726148AbgF2WGC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 18:06:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726637AbgF2Sfj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:35:39 -0400
+        id S1726150AbgF2SfT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:35:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 38CAC2417A;
-        Mon, 29 Jun 2020 15:19:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 17A1D24170;
+        Mon, 29 Jun 2020 15:19:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593443946;
-        bh=TbuXKkWK6Wnle4WCzHVoxqRANxqbnVeGz1vYu64Bbkw=;
+        s=default; t=1593443947;
+        bh=34dyPVdeFg/qO3TlEhfhP7V9iu5OMl+FVa3uPJqFPrE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BzcQohNy+dtlPLXfrpnzOUIeJ51fbnngcxfEvP6dU6VZMJDb3L0jlIrxyAH8mjNZM
-         Ne3ofRY70kTomI5A3mQsZ6+zTG/fRD4wyAC0B2L/zg8CD4DiG/U+3jH53lBDHZVwLu
-         MPZSDFhn8nve5nRvjHhQYmzb2o2M7Y8FZlTRFGxM=
+        b=upSYItexZM6D2ivENzSY+dn1AUqvg4fgriaByFQFXAeAxoICzpa3MT9UJCCl8/in9
+         Aol4MCrCtLHnVJ4J8M+dONlN2BR91FSSSzchZIvqQtrPbeUIjdozu42ExmGjzcjw0l
+         9m7Dd2GCl8VYh9xD2pE34xX5QnMAiFoEyiHHBmNE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Martin <martin.varghese@nokia.com>,
+Cc:     Shannon Nelson <snelson@pensando.io>,
+        Jakub Kicinski <kuba@kernel.org>,
         "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.7 048/265] bareudp: Fixed multiproto mode configuration
-Date:   Mon, 29 Jun 2020 11:14:41 -0400
-Message-Id: <20200629151818.2493727-49-sashal@kernel.org>
+Subject: [PATCH 5.7 049/265] ionic: update the queue count on open
+Date:   Mon, 29 Jun 2020 11:14:42 -0400
+Message-Id: <20200629151818.2493727-50-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -49,34 +50,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin <martin.varghese@nokia.com>
+From: Shannon Nelson <snelson@pensando.io>
 
-[ Upstream commit 4c98045c9b74feab837be58986c0517d3cc661f1 ]
+[ Upstream commit fa48494cce5f6360b0f8683cdf258fb45c666287 ]
 
-Code to handle multiproto configuration is missing.
+Let the network stack know the real number of queues that
+we are using.
 
-Fixes: 4b5f67232d95 ("net: Special handling for IP & MPLS")
-Signed-off-by: Martin <martin.varghese@nokia.com>
+v2: added error checking
+
+Fixes: 49d3b493673a ("ionic: disable the queues on link down")
+Signed-off-by: Shannon Nelson <snelson@pensando.io>
+Reviewed-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/bareudp.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/pensando/ionic/ionic_lif.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/net/bareudp.c b/drivers/net/bareudp.c
-index 5d3c691a1c668..3dd46cd551145 100644
---- a/drivers/net/bareudp.c
-+++ b/drivers/net/bareudp.c
-@@ -572,6 +572,9 @@ static int bareudp2info(struct nlattr *data[], struct bareudp_conf *conf,
- 	if (data[IFLA_BAREUDP_SRCPORT_MIN])
- 		conf->sport_min =  nla_get_u16(data[IFLA_BAREUDP_SRCPORT_MIN]);
+diff --git a/drivers/net/ethernet/pensando/ionic/ionic_lif.c b/drivers/net/ethernet/pensando/ionic/ionic_lif.c
+index 7aa037c3fe020..2729b0bb12739 100644
+--- a/drivers/net/ethernet/pensando/ionic/ionic_lif.c
++++ b/drivers/net/ethernet/pensando/ionic/ionic_lif.c
+@@ -1653,6 +1653,14 @@ int ionic_open(struct net_device *netdev)
+ 	if (err)
+ 		goto err_out;
  
-+	if (data[IFLA_BAREUDP_MULTIPROTO_MODE])
-+		conf->multi_proto_mode = true;
++	err = netif_set_real_num_tx_queues(netdev, lif->nxqs);
++	if (err)
++		goto err_txrx_deinit;
 +
- 	return 0;
- }
- 
++	err = netif_set_real_num_rx_queues(netdev, lif->nxqs);
++	if (err)
++		goto err_txrx_deinit;
++
+ 	/* don't start the queues until we have link */
+ 	if (netif_carrier_ok(netdev)) {
+ 		err = ionic_start_queues(lif);
 -- 
 2.25.1
 
