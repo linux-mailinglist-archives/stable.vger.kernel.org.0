@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D68220D182
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 20:42:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A895320D17E
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 20:42:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728085AbgF2SmE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 14:42:04 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:44815 "EHLO
+        id S1728025AbgF2SmB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 14:42:01 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:35197 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729063AbgF2SmC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Jun 2020 14:42:02 -0400
+        by vger.kernel.org with ESMTP id S1729052AbgF2Sl7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Jun 2020 14:41:59 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 4CF5E580;
-        Mon, 29 Jun 2020 07:02:40 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 29 Jun 2020 07:02:40 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id 3D84B853;
+        Mon, 29 Jun 2020 07:05:18 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Mon, 29 Jun 2020 07:05:18 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=bsV5/4
-        l+gr328i2QWjUsbMcm1QHe3cVbo60EGhdh0lo=; b=AMgw4w+qINLVZywSWlt3bm
-        jQAHYNb+QtHOm+s/75aSULgP6D+zJa4693rl3dkp31fzjVexAxqFVE4jqNl4Gw40
-        CooSj5VFWmUUG9swtMUgCLcPIHNEat+zG3y0ne3YsFc9kzGleI+gLScHE6592Q0z
-        b+sLll6ItpiTCUcJ8FV010KWbpaw1Yt5LaczXEQjIaFoxh7IB4tzXEuPk4XS51R/
-        R2vOQe25lyYCip6YzsQHgUGSkViBKDgxiwOFUM60ulaY/BH0m/R8RDOgogPXfxFw
-        2YvchsmYLUTDbVgLyYpoglXEPN0vn0cC02DuohSafOVc+xlBoUwhp7KV6tdgjaTA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=A+IORO
+        273MM5xbKGtjksBScCCROgQC8K/K5H9tUqwow=; b=lebYqebQPCZrcASBkFZAdO
+        ckV62Lig4anhv4Icig0HCkB5ygQxYdi7qb8/z+M1NsE0GI1XgBBnbGLVydFXele2
+        C9RvVjaEjC5NRhS57Omw8ILRA9SdnzuDWSN+NVF8MjShcLakNpe/KuISYUuJ+P3K
+        tEQmGRT3iV6koaFrkb16Pw3ejnaEP97aGmmMR0H6vZeHOFJF9nrrQRC1qG7/RxHj
+        7uao6OSWw0hZtlGxjs11Ijc4Yt9+euDgbpHXpbu8HRf5pF4sZMNJUeXagkZNzs/r
+        rbOY2kNwSH8GFWNtzZ2ad5n6mYZNIsaTjjjIPk6Yk1BVUqrMrezLn3TzCCkBtQ3g
         ==
-X-ME-Sender: <xms:T8r5XpD0AyR8Bu9iALLv8KH75tJHjvunBbHiXm8eMoWcr_ehS_5j9A>
+X-ME-Sender: <xms:7cr5XiETo29-J51Vvf5KyK3W5Yl4wvw6eLSKtse5iyr_GJqj1L97AA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudelkedgfeegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepfeetteehueetheekueevhfefveejheegtdeiudehue
-    ekheeijeefgfeuhfeigefhnecuffhomhgrihhnpehqvghmuhdrohhrghenucfkphepkeef
-    rdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepuddunecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:T8r5XnidHoCFhFRFktbgE9XKVg6ZRYZRHU1gIrHU0aDGy_M5S3_dyw>
-    <xmx:T8r5Xkk0g0BYFyzjywgSoVA6bm1-rz6aEdq_pFcFtGrOWS5kZW80YQ>
-    <xmx:T8r5XjxFBh83Epzvomck0iZmv6otTav8OAkxQa57As4Kzq69Q6JVvg>
-    <xmx:T8r5Xn4xPdwLtTCs2bTEzFQSaCB8auR6rJQCP_wDZj3_rj2fD8fQPyXrl2Q>
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
+    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:7cr5XjXnAJQZKeoT19gUKX7e3xn5DwNgIAdyI_NCJZZEKhjr8eyZdA>
+    <xmx:7cr5XsJnWOZh52UUkix4GZlgw9d1kiWgvMCwZmaGwslRYhNMRodSCw>
+    <xmx:7cr5XsHll6gRDFx3W6VW3WaogNkGl-ACKqdzCKGrcJm6qUNzpNvVCA>
+    <xmx:7cr5XrDrJGkslqnw1uvG7zr9GhaTch-kJx_eapUjNRxQBu_8-TuosJkpoNM>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 4C888328005D;
-        Mon, 29 Jun 2020 07:02:39 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] btrfs: fix data block group relocation failure due to" failed to apply to 4.14-stable tree
-To:     fdmanana@suse.com, dsterba@suse.com, josef@toxicpanda.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 4CB453067C72;
+        Mon, 29 Jun 2020 07:05:17 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] btrfs: fix hang on snapshot creation after RWF_NOWAIT write" failed to apply to 4.14-stable tree
+To:     fdmanana@suse.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 29 Jun 2020 13:02:31 +0200
-Message-ID: <1593428551379@kroah.com>
+Date:   Mon, 29 Jun 2020 13:05:08 +0200
+Message-ID: <1593428708164195@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -69,192 +69,50 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 432cd2a10f1c10cead91fe706ff5dc52f06d642a Mon Sep 17 00:00:00 2001
+From f2cb2f39ccc30fa13d3ac078d461031a63960e5b Mon Sep 17 00:00:00 2001
 From: Filipe Manana <fdmanana@suse.com>
-Date: Mon, 8 Jun 2020 13:32:55 +0100
-Subject: [PATCH] btrfs: fix data block group relocation failure due to
- concurrent scrub
+Date: Mon, 15 Jun 2020 18:46:01 +0100
+Subject: [PATCH] btrfs: fix hang on snapshot creation after RWF_NOWAIT write
 
-When running relocation of a data block group while scrub is running in
-parallel, it is possible that the relocation will fail and abort the
-current transaction with an -EINVAL error:
+If we do a successful RWF_NOWAIT write we end up locking the snapshot lock
+of the inode, through a call to check_can_nocow(), but we never unlock it.
 
-   [134243.988595] BTRFS info (device sdc): found 14 extents, stage: move data extents
-   [134243.999871] ------------[ cut here ]------------
-   [134244.000741] BTRFS: Transaction aborted (error -22)
-   [134244.001692] WARNING: CPU: 0 PID: 26954 at fs/btrfs/ctree.c:1071 __btrfs_cow_block+0x6a7/0x790 [btrfs]
-   [134244.003380] Modules linked in: btrfs blake2b_generic xor raid6_pq (...)
-   [134244.012577] CPU: 0 PID: 26954 Comm: btrfs Tainted: G        W         5.6.0-rc7-btrfs-next-58 #5
-   [134244.014162] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
-   [134244.016184] RIP: 0010:__btrfs_cow_block+0x6a7/0x790 [btrfs]
-   [134244.017151] Code: 48 c7 c7 (...)
-   [134244.020549] RSP: 0018:ffffa41607863888 EFLAGS: 00010286
-   [134244.021515] RAX: 0000000000000000 RBX: ffff9614bdfe09c8 RCX: 0000000000000000
-   [134244.022822] RDX: 0000000000000001 RSI: ffffffffb3d63980 RDI: 0000000000000001
-   [134244.024124] RBP: ffff961589e8c000 R08: 0000000000000000 R09: 0000000000000001
-   [134244.025424] R10: ffffffffc0ae5955 R11: 0000000000000000 R12: ffff9614bd530d08
-   [134244.026725] R13: ffff9614ced41b88 R14: ffff9614bdfe2a48 R15: 0000000000000000
-   [134244.028024] FS:  00007f29b63c08c0(0000) GS:ffff9615ba600000(0000) knlGS:0000000000000000
-   [134244.029491] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-   [134244.030560] CR2: 00007f4eb339b000 CR3: 0000000130d6e006 CR4: 00000000003606f0
-   [134244.031997] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-   [134244.033153] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-   [134244.034484] Call Trace:
-   [134244.034984]  btrfs_cow_block+0x12b/0x2b0 [btrfs]
-   [134244.035859]  do_relocation+0x30b/0x790 [btrfs]
-   [134244.036681]  ? do_raw_spin_unlock+0x49/0xc0
-   [134244.037460]  ? _raw_spin_unlock+0x29/0x40
-   [134244.038235]  relocate_tree_blocks+0x37b/0x730 [btrfs]
-   [134244.039245]  relocate_block_group+0x388/0x770 [btrfs]
-   [134244.040228]  btrfs_relocate_block_group+0x161/0x2e0 [btrfs]
-   [134244.041323]  btrfs_relocate_chunk+0x36/0x110 [btrfs]
-   [134244.041345]  btrfs_balance+0xc06/0x1860 [btrfs]
-   [134244.043382]  ? btrfs_ioctl_balance+0x27c/0x310 [btrfs]
-   [134244.045586]  btrfs_ioctl_balance+0x1ed/0x310 [btrfs]
-   [134244.045611]  btrfs_ioctl+0x1880/0x3760 [btrfs]
-   [134244.049043]  ? do_raw_spin_unlock+0x49/0xc0
-   [134244.049838]  ? _raw_spin_unlock+0x29/0x40
-   [134244.050587]  ? __handle_mm_fault+0x11b3/0x14b0
-   [134244.051417]  ? ksys_ioctl+0x92/0xb0
-   [134244.052070]  ksys_ioctl+0x92/0xb0
-   [134244.052701]  ? trace_hardirqs_off_thunk+0x1a/0x1c
-   [134244.053511]  __x64_sys_ioctl+0x16/0x20
-   [134244.054206]  do_syscall_64+0x5c/0x280
-   [134244.054891]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-   [134244.055819] RIP: 0033:0x7f29b51c9dd7
-   [134244.056491] Code: 00 00 00 (...)
-   [134244.059767] RSP: 002b:00007ffcccc1dd08 EFLAGS: 00000202 ORIG_RAX: 0000000000000010
-   [134244.061168] RAX: ffffffffffffffda RBX: 0000000000000001 RCX: 00007f29b51c9dd7
-   [134244.062474] RDX: 00007ffcccc1dda0 RSI: 00000000c4009420 RDI: 0000000000000003
-   [134244.063771] RBP: 0000000000000003 R08: 00005565cea4b000 R09: 0000000000000000
-   [134244.065032] R10: 0000000000000541 R11: 0000000000000202 R12: 00007ffcccc2060a
-   [134244.066327] R13: 00007ffcccc1dda0 R14: 0000000000000002 R15: 00007ffcccc1dec0
-   [134244.067626] irq event stamp: 0
-   [134244.068202] hardirqs last  enabled at (0): [<0000000000000000>] 0x0
-   [134244.069351] hardirqs last disabled at (0): [<ffffffffb2abdedf>] copy_process+0x74f/0x2020
-   [134244.070909] softirqs last  enabled at (0): [<ffffffffb2abdedf>] copy_process+0x74f/0x2020
-   [134244.072392] softirqs last disabled at (0): [<0000000000000000>] 0x0
-   [134244.073432] ---[ end trace bd7c03622e0b0a99 ]---
+This means the next attempt to create a snapshot on the subvolume will
+hang forever.
 
-The -EINVAL error comes from the following chain of function calls:
+Trivial reproducer:
 
-  __btrfs_cow_block() <-- aborts the transaction
-    btrfs_reloc_cow_block()
-      replace_file_extents()
-        get_new_location() <-- returns -EINVAL
+  $ mkfs.btrfs -f /dev/sdb
+  $ mount /dev/sdb /mnt
 
-When relocating a data block group, for each allocated extent of the block
-group, we preallocate another extent (at prealloc_file_extent_cluster()),
-associated with the data relocation inode, and then dirty all its pages.
-These preallocated extents have, and must have, the same size that extents
-from the data block group being relocated have.
+  $ touch /mnt/foobar
+  $ chattr +C /mnt/foobar
+  $ xfs_io -d -c "pwrite -S 0xab 0 64K" /mnt/foobar
+  $ xfs_io -d -c "pwrite -N -V 1 -S 0xfe 0 64K" /mnt/foobar
 
-Later before we start the relocation stage that updates pointers (bytenr
-field of file extent items) to point to the the new extents, we trigger
-writeback for the data relocation inode. The expectation is that writeback
-will write the pages to the previously preallocated extents, that it
-follows the NOCOW path. That is generally the case, however, if a scrub
-is running it may have turned the block group that contains those extents
-into RO mode, in which case writeback falls back to the COW path.
+  $ btrfs subvolume snapshot -r /mnt /mnt/snap
+    --> hangs
 
-However in the COW path instead of allocating exactly one extent with the
-expected size, the allocator may end up allocating several smaller extents
-due to free space fragmentation - because we tell it at cow_file_range()
-that the minimum allocation size can match the filesystem's sector size.
-This later breaks the relocation's expectation that an extent associated
-to a file extent item in the data relocation inode has the same size as
-the respective extent pointed by a file extent item in another tree - in
-this case the extent to which the relocation inode poins to is smaller,
-causing relocation.c:get_new_location() to return -EINVAL.
+Fix this by unlocking the snapshot lock if check_can_nocow() returned
+success.
 
-For example, if we are relocating a data block group X that has a logical
-address of X and the block group has an extent allocated at the logical
-address X + 128KiB with a size of 64KiB:
-
-1) At prealloc_file_extent_cluster() we allocate an extent for the data
-   relocation inode with a size of 64KiB and associate it to the file
-   offset 128KiB (X + 128KiB - X) of the data relocation inode. This
-   preallocated extent was allocated at block group Z;
-
-2) A scrub running in parallel turns block group Z into RO mode and
-   starts scrubing its extents;
-
-3) Relocation triggers writeback for the data relocation inode;
-
-4) When running delalloc (btrfs_run_delalloc_range()), we try first the
-   NOCOW path because the data relocation inode has BTRFS_INODE_PREALLOC
-   set in its flags. However, because block group Z is in RO mode, the
-   NOCOW path (run_delalloc_nocow()) falls back into the COW path, by
-   calling cow_file_range();
-
-5) At cow_file_range(), in the first iteration of the while loop we call
-   btrfs_reserve_extent() to allocate a 64KiB extent and pass it a minimum
-   allocation size of 4KiB (fs_info->sectorsize). Due to free space
-   fragmentation, btrfs_reserve_extent() ends up allocating two extents
-   of 32KiB each, each one on a different iteration of that while loop;
-
-6) Writeback of the data relocation inode completes;
-
-7) Relocation proceeds and ends up at relocation.c:replace_file_extents(),
-   with a leaf which has a file extent item that points to the data extent
-   from block group X, that has a logical address (bytenr) of X + 128KiB
-   and a size of 64KiB. Then it calls get_new_location(), which does a
-   lookup in the data relocation tree for a file extent item starting at
-   offset 128KiB (X + 128KiB - X) and belonging to the data relocation
-   inode. It finds a corresponding file extent item, however that item
-   points to an extent that has a size of 32KiB, which doesn't match the
-   expected size of 64KiB, resuling in -EINVAL being returned from this
-   function and propagated up to __btrfs_cow_block(), which aborts the
-   current transaction.
-
-To fix this make sure that at cow_file_range() when we call the allocator
-we pass it a minimum allocation size corresponding the desired extent size
-if the inode belongs to the data relocation tree, otherwise pass it the
-filesystem's sector size as the minimum allocation size.
-
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Fixes: edf064e7c6fec3 ("btrfs: nowait aio support")
+CC: stable@vger.kernel.org # 4.14+
 Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index 12b5d61f23bb..62c3f4972ff6 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -985,6 +985,7 @@ static noinline int cow_file_range(struct inode *inode,
- 	u64 num_bytes;
- 	unsigned long ram_size;
- 	u64 cur_alloc_size = 0;
-+	u64 min_alloc_size;
- 	u64 blocksize = fs_info->sectorsize;
- 	struct btrfs_key ins;
- 	struct extent_map *em;
-@@ -1035,10 +1036,26 @@ static noinline int cow_file_range(struct inode *inode,
- 	btrfs_drop_extent_cache(BTRFS_I(inode), start,
- 			start + num_bytes - 1, 0);
+diff --git a/fs/btrfs/file.c b/fs/btrfs/file.c
+index 2c14312b05e8..04faa04fccd1 100644
+--- a/fs/btrfs/file.c
++++ b/fs/btrfs/file.c
+@@ -1914,6 +1914,8 @@ static ssize_t btrfs_file_write_iter(struct kiocb *iocb,
+ 			inode_unlock(inode);
+ 			return -EAGAIN;
+ 		}
++		/* check_can_nocow() locks the snapshot lock on success */
++		btrfs_drew_write_unlock(&root->snapshot_lock);
+ 	}
  
-+	/*
-+	 * Relocation relies on the relocated extents to have exactly the same
-+	 * size as the original extents. Normally writeback for relocation data
-+	 * extents follows a NOCOW path because relocation preallocates the
-+	 * extents. However, due to an operation such as scrub turning a block
-+	 * group to RO mode, it may fallback to COW mode, so we must make sure
-+	 * an extent allocated during COW has exactly the requested size and can
-+	 * not be split into smaller extents, otherwise relocation breaks and
-+	 * fails during the stage where it updates the bytenr of file extent
-+	 * items.
-+	 */
-+	if (root->root_key.objectid == BTRFS_DATA_RELOC_TREE_OBJECTID)
-+		min_alloc_size = num_bytes;
-+	else
-+		min_alloc_size = fs_info->sectorsize;
-+
- 	while (num_bytes > 0) {
- 		cur_alloc_size = num_bytes;
- 		ret = btrfs_reserve_extent(root, cur_alloc_size, cur_alloc_size,
--					   fs_info->sectorsize, 0, alloc_hint,
-+					   min_alloc_size, 0, alloc_hint,
- 					   &ins, 1, 1);
- 		if (ret < 0)
- 			goto out_unlock;
+ 	current->backing_dev_info = inode_to_bdi(inode);
 
