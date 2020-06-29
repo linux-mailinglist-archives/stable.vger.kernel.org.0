@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 430E120E2AF
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:01:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B92F20E288
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:01:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731284AbgF2VHv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:07:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53668 "EHLO mail.kernel.org"
+        id S1732252AbgF2VGX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:06:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729718AbgF2TKQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:10:16 -0400
+        id S1730748AbgF2TKS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:10:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9EF91254B0;
-        Mon, 29 Jun 2020 15:53:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE53E254B6;
+        Mon, 29 Jun 2020 15:53:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593446007;
-        bh=w7GlQFTaYFcZ6jych7cJJuYH9oE5jPL9nxOqmIsBkFI=;
+        s=default; t=1593446011;
+        bh=AgRFdOEPmRGhMwYWEDiAD/ydaphTjPBnO+pOw4nCiM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c2sos6CMpTYu+zYEjSOByQ+NZ1oB3g5uHqd03SmudEMo6whW1Kg/skBfDQErTgQ2D
-         MG9TDlJ94HFW8jd6hK3vf+RlBcuZS3H1HzGJE4cK7L3Q3FRaMStY4ZFxpBCUTIN2ms
-         i5bsJ2aFTCoAZn64P4Vnm6YlrxCKouJEHIUZuy44=
+        b=ivqGkrn8GCp+UeowK/7yCYprxII02l4YWmuzhtTMujhjcBh4VFHadXsdzlObGvG6u
+         xiSXRv+PnqxzdMjjjVZEtflzR56eI57lm4kAm/cYaSBYFJHXjBcLWOUS1glAMVHC6+
+         fxvOrFHwsW5HwRXu+YqqbLbfcbO11QxyIcIQ4vjQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pingfan Liu <kernelfans@gmail.com>,
-        Hari Bathini <hbathini@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+Cc:     Tyrel Datwyler <tyreld@linux.ibm.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 014/135] powerpc/crashkernel: Take "mem=" option into account
-Date:   Mon, 29 Jun 2020 11:51:08 -0400
-Message-Id: <20200629155309.2495516-15-sashal@kernel.org>
+Subject: [PATCH 4.4 018/135] scsi: ibmvscsi: Don't send host info in adapter info MAD after LPM
+Date:   Mon, 29 Jun 2020 11:51:12 -0400
+Message-Id: <20200629155309.2495516-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
 References: <20200629155309.2495516-1-sashal@kernel.org>
@@ -50,79 +49,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pingfan Liu <kernelfans@gmail.com>
+From: Tyrel Datwyler <tyreld@linux.ibm.com>
 
-[ Upstream commit be5470e0c285a68dc3afdea965032f5ddc8269d7 ]
+[ Upstream commit 4919b33b63c8b69d8dcf2b867431d0e3b6dc6d28 ]
 
-'mem=" option is an easy way to put high pressure on memory during
-some test. Hence after applying the memory limit, instead of total
-mem, the actual usable memory should be considered when reserving mem
-for crashkernel. Otherwise the boot up may experience OOM issue.
+The adapter info MAD is used to send the client info and receive the host
+info as a response. A persistent buffer is used and as such the client info
+is overwritten after the response. During the course of a normal adapter
+reset the client info is refreshed in the buffer in preparation for sending
+the adapter info MAD.
 
-E.g. it would reserve 4G prior to the change and 512M afterward, if
-passing
-crashkernel="2G-4G:384M,4G-16G:512M,16G-64G:1G,64G-128G:2G,128G-:4G",
-and mem=5G on a 256G machine.
+However, in the special case of LPM where we reenable the CRQ instead of a
+full CRQ teardown and reset we fail to refresh the client info in the
+adapter info buffer. As a result, after Live Partition Migration (LPM) we
+erroneously report the host's info as our own.
 
-This issue is powerpc specific because it puts higher priority on
-fadump and kdump reservation than on "mem=". Referring the following
-code:
-    if (fadump_reserve_mem() == 0)
-            reserve_crashkernel();
-    ...
-    /* Ensure that total memory size is page-aligned. */
-    limit = ALIGN(memory_limit ?: memblock_phys_mem_size(), PAGE_SIZE);
-    memblock_enforce_memory_limit(limit);
+[mkp: typos]
 
-While on other arches, the effect of "mem=" takes a higher priority
-and pass through memblock_phys_mem_size() before calling
-reserve_crashkernel().
-
-Signed-off-by: Pingfan Liu <kernelfans@gmail.com>
-Reviewed-by: Hari Bathini <hbathini@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1585749644-4148-1-git-send-email-kernelfans@gmail.com
+Link: https://lore.kernel.org/r/20200603203632.18426-1-tyreld@linux.ibm.com
+Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/machine_kexec.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/scsi/ibmvscsi/ibmvscsi.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/powerpc/kernel/machine_kexec.c b/arch/powerpc/kernel/machine_kexec.c
-index 8dff2b3712190..a14d9b008f744 100644
---- a/arch/powerpc/kernel/machine_kexec.c
-+++ b/arch/powerpc/kernel/machine_kexec.c
-@@ -113,11 +113,12 @@ void machine_kexec(struct kimage *image)
+diff --git a/drivers/scsi/ibmvscsi/ibmvscsi.c b/drivers/scsi/ibmvscsi/ibmvscsi.c
+index e26747a1b35a1..e7075aae15daa 100644
+--- a/drivers/scsi/ibmvscsi/ibmvscsi.c
++++ b/drivers/scsi/ibmvscsi/ibmvscsi.c
+@@ -427,6 +427,8 @@ static int ibmvscsi_reenable_crq_queue(struct crq_queue *queue,
+ 	int rc = 0;
+ 	struct vio_dev *vdev = to_vio_dev(hostdata->dev);
  
- void __init reserve_crashkernel(void)
- {
--	unsigned long long crash_size, crash_base;
-+	unsigned long long crash_size, crash_base, total_mem_sz;
- 	int ret;
- 
-+	total_mem_sz = memory_limit ? memory_limit : memblock_phys_mem_size();
- 	/* use common parsing */
--	ret = parse_crashkernel(boot_command_line, memblock_phys_mem_size(),
-+	ret = parse_crashkernel(boot_command_line, total_mem_sz,
- 			&crash_size, &crash_base);
- 	if (ret == 0 && crash_size > 0) {
- 		crashk_res.start = crash_base;
-@@ -176,6 +177,7 @@ void __init reserve_crashkernel(void)
- 	/* Crash kernel trumps memory limit */
- 	if (memory_limit && memory_limit <= crashk_res.end) {
- 		memory_limit = crashk_res.end + 1;
-+		total_mem_sz = memory_limit;
- 		printk("Adjusted memory limit for crashkernel, now 0x%llx\n",
- 		       memory_limit);
- 	}
-@@ -184,7 +186,7 @@ void __init reserve_crashkernel(void)
- 			"for crashkernel (System RAM: %ldMB)\n",
- 			(unsigned long)(crash_size >> 20),
- 			(unsigned long)(crashk_res.start >> 20),
--			(unsigned long)(memblock_phys_mem_size() >> 20));
-+			(unsigned long)(total_mem_sz >> 20));
- 
- 	if (!memblock_is_region_memory(crashk_res.start, crash_size) ||
- 	    memblock_reserve(crashk_res.start, crash_size)) {
++	set_adapter_info(hostdata);
++
+ 	/* Re-enable the CRQ */
+ 	do {
+ 		if (rc)
 -- 
 2.25.1
 
