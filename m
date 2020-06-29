@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C98220D681
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:05:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9823A20D672
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:05:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728005AbgF2TUk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:20:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33190 "EHLO mail.kernel.org"
+        id S1732114AbgF2TUR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:20:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732108AbgF2TUS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:20:18 -0400
+        id S1732094AbgF2TUQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:20:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8217725482;
-        Mon, 29 Jun 2020 15:44:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 787642548F;
+        Mon, 29 Jun 2020 15:44:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445442;
-        bh=ly7L6gTzvRcEm/5lV1rw9iLUG5wSagYIK5k0Ki83m0k=;
+        s=default; t=1593445451;
+        bh=R2ZvoPBUi7lSSOB5oPgRVLBJybDMUeo5dvIOa37TyzQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1DEtVDs4yT9dBbP9s1MG0pRu0BcPtQO6M0MndQBnJX8rGMxDJRIlI/mdQn0QajEMp
-         gOKfXHVFhlCx9MF8M8Jz2QPlI9Y0kUPav5p/3SeSf2rAElXIbJq67m9S84NKxz171a
-         vIns5ycCsOpmDEcTm8Nb4E6h28gsLfI9/Qfq3WKo=
+        b=WIcnz3lM4Sd+0R0LjSPfHyHb2hBCsG+2ctUt1Ccv+JNnErdyZj4rhC/lbhLYw3diz
+         PDMM8U3bTiicX4wySausLU6METUXInZJrnTqO7pRE52NfX2w4eHtlbMQWQHevcP4bQ
+         88y8k1lYgDCkB39WYrdAsq8kl8kC1WnWqbqRZaxg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
-        Tom Zanussi <zanussi@kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.9 183/191] tracing: Fix event trigger to accept redundant spaces
-Date:   Mon, 29 Jun 2020 11:39:59 -0400
-Message-Id: <20200629154007.2495120-184-sashal@kernel.org>
+Cc:     Zheng Bin <zhengbin13@huawei.com>,
+        Ren Xudong <renxudong1@huawei.com>,
+        "Darrick J . Wong" <darrick.wong@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 190/191] xfs: add agf freeblocks verify in xfs_agf_verify
+Date:   Mon, 29 Jun 2020 11:40:06 -0400
+Message-Id: <20200629154007.2495120-191-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
 References: <20200629154007.2495120-1-sashal@kernel.org>
@@ -50,89 +50,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Zheng Bin <zhengbin13@huawei.com>
 
-commit 6784beada631800f2c5afd567e5628c843362cee upstream.
+[ Upstream commit d0c7feaf87678371c2c09b3709400be416b2dc62 ]
 
-Fix the event trigger to accept redundant spaces in
-the trigger input.
+We recently used fuzz(hydra) to test XFS and automatically generate
+tmp.img(XFS v5 format, but some metadata is wrong)
 
-For example, these return -EINVAL
+xfs_repair information(just one AG):
+agf_freeblks 0, counted 3224 in ag 0
+agf_longest 536874136, counted 3224 in ag 0
+sb_fdblocks 613, counted 3228
 
-echo " traceon" > events/ftrace/print/trigger
-echo "traceon  if common_pid == 0" > events/ftrace/print/trigger
-echo "disable_event:kmem:kmalloc " > events/ftrace/print/trigger
+Test as follows:
+mount tmp.img tmpdir
+cp file1M tmpdir
+sync
 
-But these are hard to find what is wrong.
+In 4.19-stable, sync will stuck, the reason is:
+xfs_mountfs
+  xfs_check_summary_counts
+    if ((!xfs_sb_version_haslazysbcount(&mp->m_sb) ||
+       XFS_LAST_UNMOUNT_WAS_CLEAN(mp)) &&
+       !xfs_fs_has_sickness(mp, XFS_SICK_FS_COUNTERS))
+	return 0;  -->just return, incore sb_fdblocks still be 613
+    xfs_initialize_perag_data
 
-To fix this issue, use skip_spaces() to remove spaces
-in front of actual tokens, and set NULL if there is no
-token.
+cp file1M tmpdir -->ok(write file to pagecache)
+sync -->stuck(write pagecache to disk)
+xfs_map_blocks
+  xfs_iomap_write_allocate
+    while (count_fsb != 0) {
+      nimaps = 0;
+      while (nimaps == 0) { --> endless loop
+         nimaps = 1;
+         xfs_bmapi_write(..., &nimaps) --> nimaps becomes 0 again
+xfs_bmapi_write
+  xfs_bmap_alloc
+    xfs_bmap_btalloc
+      xfs_alloc_vextent
+        xfs_alloc_fix_freelist
+          xfs_alloc_space_available -->fail(agf_freeblks is 0)
 
-Link: http://lkml.kernel.org/r/159262476352.185015.5261566783045364186.stgit@devnote2
+In linux-next, sync not stuck, cause commit c2b3164320b5 ("xfs:
+use the latest extent at writeback delalloc conversion time") remove
+the above while, dmesg is as follows:
+[   55.250114] XFS (loop0): page discard on page ffffea0008bc7380, inode 0x1b0c, offset 0.
 
-Cc: Tom Zanussi <zanussi@kernel.org>
-Cc: stable@vger.kernel.org
-Fixes: 85f2b08268c0 ("tracing: Add basic event trigger framework")
-Reviewed-by: Tom Zanussi <zanussi@kernel.org>
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Users do not know why this page is discard, the better soultion is:
+1. Like xfs_repair, make sure sb_fdblocks is equal to counted
+(xfs_initialize_perag_data did this, who is not called at this mount)
+2. Add agf verify, if fail, will tell users to repair
+
+This patch use the second soultion.
+
+Signed-off-by: Zheng Bin <zhengbin13@huawei.com>
+Signed-off-by: Ren Xudong <renxudong1@huawei.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_events_trigger.c | 21 +++++++++++++++++++--
- 1 file changed, 19 insertions(+), 2 deletions(-)
+ fs/xfs/libxfs/xfs_alloc.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/kernel/trace/trace_events_trigger.c b/kernel/trace/trace_events_trigger.c
-index c9ca2ed50c0e5..a371c7def875e 100644
---- a/kernel/trace/trace_events_trigger.c
-+++ b/kernel/trace/trace_events_trigger.c
-@@ -222,11 +222,17 @@ static int event_trigger_regex_open(struct inode *inode, struct file *file)
+diff --git a/fs/xfs/libxfs/xfs_alloc.c b/fs/xfs/libxfs/xfs_alloc.c
+index e567551402a65..b904d46343556 100644
+--- a/fs/xfs/libxfs/xfs_alloc.c
++++ b/fs/xfs/libxfs/xfs_alloc.c
+@@ -2507,6 +2507,13 @@ xfs_agf_verify(
+ 	      be32_to_cpu(agf->agf_flcount) <= XFS_AGFL_SIZE(mp)))
+ 		return false;
  
- static int trigger_process_regex(struct trace_event_file *file, char *buff)
- {
--	char *command, *next = buff;
-+	char *command, *next;
- 	struct event_command *p;
- 	int ret = -EINVAL;
++	if (be32_to_cpu(agf->agf_length) > mp->m_sb.sb_dblocks)
++		return false;
++
++	if (be32_to_cpu(agf->agf_freeblks) < be32_to_cpu(agf->agf_longest) ||
++	    be32_to_cpu(agf->agf_freeblks) > be32_to_cpu(agf->agf_length))
++		return false;
++
+ 	if (be32_to_cpu(agf->agf_levels[XFS_BTNUM_BNO]) < 1 ||
+ 	    be32_to_cpu(agf->agf_levels[XFS_BTNUM_CNT]) < 1 ||
+ 	    be32_to_cpu(agf->agf_levels[XFS_BTNUM_BNO]) > XFS_BTREE_MAXLEVELS ||
+@@ -2518,6 +2525,10 @@ xfs_agf_verify(
+ 	     be32_to_cpu(agf->agf_levels[XFS_BTNUM_RMAP]) > XFS_BTREE_MAXLEVELS))
+ 		return false;
  
-+	next = buff = skip_spaces(buff);
- 	command = strsep(&next, ": \t");
-+	if (next) {
-+		next = skip_spaces(next);
-+		if (!*next)
-+			next = NULL;
-+	}
- 	command = (command[0] != '!') ? command : command + 1;
++	if (xfs_sb_version_hasrmapbt(&mp->m_sb) &&
++	    be32_to_cpu(agf->agf_rmap_blocks) > be32_to_cpu(agf->agf_length))
++		return false;
++
+ 	/*
+ 	 * during growfs operations, the perag is not fully initialised,
+ 	 * so we can't use it for any useful checking. growfs ensures we can't
+@@ -2531,6 +2542,11 @@ xfs_agf_verify(
+ 	    be32_to_cpu(agf->agf_btreeblks) > be32_to_cpu(agf->agf_length))
+ 		return false;
  
- 	mutex_lock(&trigger_cmd_mutex);
-@@ -629,8 +635,14 @@ event_trigger_callback(struct event_command *cmd_ops,
- 	int ret;
- 
- 	/* separate the trigger from the filter (t:n [if filter]) */
--	if (param && isdigit(param[0]))
-+	if (param && isdigit(param[0])) {
- 		trigger = strsep(&param, " \t");
-+		if (param) {
-+			param = skip_spaces(param);
-+			if (!*param)
-+				param = NULL;
-+		}
-+	}
- 
- 	trigger_ops = cmd_ops->get_trigger_ops(cmd, trigger);
- 
-@@ -1335,6 +1347,11 @@ int event_enable_trigger_func(struct event_command *cmd_ops,
- 	trigger = strsep(&param, " \t");
- 	if (!trigger)
- 		return -EINVAL;
-+	if (param) {
-+		param = skip_spaces(param);
-+		if (!*param)
-+			param = NULL;
-+	}
- 
- 	system = strsep(&trigger, ":");
- 	if (!trigger)
++	if (xfs_sb_version_hasreflink(&mp->m_sb) &&
++	    be32_to_cpu(agf->agf_refcount_blocks) >
++	    be32_to_cpu(agf->agf_length))
++		return false;
++
+ 	if (xfs_sb_version_hasreflink(&mp->m_sb) &&
+ 	    (be32_to_cpu(agf->agf_refcount_level) < 1 ||
+ 	     be32_to_cpu(agf->agf_refcount_level) > XFS_BTREE_MAXLEVELS))
 -- 
 2.25.1
 
