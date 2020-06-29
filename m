@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1222520E76E
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:11:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6425B20E6E8
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:10:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404560AbgF2V5D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:57:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56892 "EHLO mail.kernel.org"
+        id S2404574AbgF2Vvz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:51:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726509AbgF2Sfa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:35:30 -0400
+        id S1726647AbgF2Sfk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:35:40 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5271324747;
-        Mon, 29 Jun 2020 15:21:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 34B2324744;
+        Mon, 29 Jun 2020 15:21:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444064;
-        bh=QcRfZJniiltEW6KmV8PKB4BRobpN1Ff18VLIQgwZ1yc=;
+        s=default; t=1593444065;
+        bh=NMTP80wN+ewpTJxV9j+dBrPqhrhKQJgOIdEz6TaTsNY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U7voeI0m9U4bLSC1mFFU/q4jy9qf6DdFH0x0jw+LO8fOhn6i8r9pVGTWP45s7mN23
-         ET/SvtI94wvhV5CRerVOj4JH/9tvvNPNK//5KD0j0NJSpbOzEJ695EhgpEVBz7V7Wv
-         IbVZTgWAQxnxNbiOT7OIWpCSYXSKrGwrnzFsuNZ4=
+        b=pMyZSv6iS/bHNTweW6qbWu7Ian979E2Ma3rSxVRadeWnqkhbBwmAUqJxVHuAPizqU
+         fXgD5fOwg0bj/ol+Wm7Rxof6JloeUl9WiTSKsyGRR92Ca+irt5pTHX52l8B15pLan7
+         GIdxDsOg6OUIBitVbhpCmxJ52gugdRgbxKtnk9g0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 173/265] wireguard: receive: account for napi_gro_receive never returning GRO_DROP
-Date:   Mon, 29 Jun 2020 11:16:46 -0400
-Message-Id: <20200629151818.2493727-174-sashal@kernel.org>
+Subject: [PATCH 5.7 174/265] socionext: account for napi_gro_receive never returning GRO_DROP
+Date:   Mon, 29 Jun 2020 11:16:47 -0400
+Message-Id: <20200629151818.2493727-175-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -51,7 +51,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-[ Upstream commit df08126e3833e9dca19e2407db5f5860a7c194fb ]
+[ Upstream commit e5e7d8052f6140985c03bd49ebaa0af9c2944bc6 ]
 
 The napi_gro_receive function no longer returns GRO_DROP ever, making
 handling GRO_DROP dead code. This commit removes that dead code.
@@ -59,36 +59,30 @@ Further, it's not even clear that device drivers have any business in
 taking action after passing off received packets; that's arguably out of
 their hands.
 
-Fixes: e7096c131e51 ("net: WireGuard secure network tunnel")
 Fixes: 6570bc79c0df ("net: core: use listified Rx for GRO_NORMAL in napi_gro_receive()")
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireguard/receive.c | 10 ++--------
- 1 file changed, 2 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/socionext/netsec.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireguard/receive.c b/drivers/net/wireguard/receive.c
-index 91438144e4f7a..9b2ab6fc91cdd 100644
---- a/drivers/net/wireguard/receive.c
-+++ b/drivers/net/wireguard/receive.c
-@@ -414,14 +414,8 @@ static void wg_packet_consume_data_done(struct wg_peer *peer,
- 	if (unlikely(routed_peer != peer))
- 		goto dishonest_packet_peer;
+diff --git a/drivers/net/ethernet/socionext/netsec.c b/drivers/net/ethernet/socionext/netsec.c
+index a5a0fb60193ab..5a70c49bf454f 100644
+--- a/drivers/net/ethernet/socionext/netsec.c
++++ b/drivers/net/ethernet/socionext/netsec.c
+@@ -1038,8 +1038,9 @@ static int netsec_process_rx(struct netsec_priv *priv, int budget)
+ 			skb->ip_summed = CHECKSUM_UNNECESSARY;
  
--	if (unlikely(napi_gro_receive(&peer->napi, skb) == GRO_DROP)) {
--		++dev->stats.rx_dropped;
--		net_dbg_ratelimited("%s: Failed to give packet to userspace from peer %llu (%pISpfsc)\n",
--				    dev->name, peer->internal_id,
--				    &peer->endpoint.addr);
--	} else {
--		update_rx_stats(peer, message_data_len(len_before_trim));
--	}
-+	napi_gro_receive(&peer->napi, skb);
-+	update_rx_stats(peer, message_data_len(len_before_trim));
- 	return;
- 
- dishonest_packet_peer:
+ next:
+-		if ((skb && napi_gro_receive(&priv->napi, skb) != GRO_DROP) ||
+-		    xdp_result) {
++		if (skb)
++			napi_gro_receive(&priv->napi, skb);
++		if (skb || xdp_result) {
+ 			ndev->stats.rx_packets++;
+ 			ndev->stats.rx_bytes += xdp.data_end - xdp.data;
+ 		}
 -- 
 2.25.1
 
