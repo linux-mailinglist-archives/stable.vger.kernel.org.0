@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7754920D767
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:07:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84EED20D6EF
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:06:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732377AbgF2T3h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:29:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37056 "EHLO mail.kernel.org"
+        id S1732519AbgF2TZZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:25:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732653AbgF2TZm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:25:42 -0400
+        id S1732492AbgF2TZX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:25:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D10C2546E;
-        Mon, 29 Jun 2020 15:43:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 25E8C25472;
+        Mon, 29 Jun 2020 15:43:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445425;
-        bh=xla0wtMSjnMhxORYMrMe5StIcLOTwWq49SnoT0hOzYM=;
+        s=default; t=1593445427;
+        bh=pF3pWv/GOcDxOoaEshP3nh+jd3va/7b8gr2M0p5wcCY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=09QYBIJNXPYIyAaiUZ7r6pcTbI9vGQ+1GFqSfScoibh7q/4KSARrjNF/GN5XxBDp8
-         aQwrLiK+jje0iVqJCj2XlZXT5elakIfdYoi/4+VQ6S+kDmZ31fsY1pcxNyTewmzsMN
-         L/u1h7vcmy/4uGu8Ouuq+q+hapQaIEJxuLS/a7fY=
+        b=aIXWxqT1L4FYsr8XRae2vhoajK95wCTpkgW8cEQ7vSS7ia7qVpG1qmVi8oQ7JIAbY
+         fLG4SYZI1TQdxPFvLe+8HuevVeJZVNMIunS9USxbu8YhyRDByXBLUgOIi2/RCv8oXA
+         FgImzAusKPYFGVrKn+E22/RH0PtbguHTzIcvUSlU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Masahiro Yamada <masahiroy@kernel.org>,
+Cc:     Luis Chamberlain <mcgrof@kernel.org>, Jan Kara <jack@suse.cz>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 173/191] kbuild: improve cc-option to clean up all temporary files
-Date:   Mon, 29 Jun 2020 11:39:49 -0400
-Message-Id: <20200629154007.2495120-174-sashal@kernel.org>
+Subject: [PATCH 4.9 174/191] blktrace: break out of blktrace setup on concurrent calls
+Date:   Mon, 29 Jun 2020 11:39:50 -0400
+Message-Id: <20200629154007.2495120-175-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
 References: <20200629154007.2495120-1-sashal@kernel.org>
@@ -48,70 +50,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Luis Chamberlain <mcgrof@kernel.org>
 
-[ Upstream commit f2f02ebd8f3833626642688b2d2c6a7b3c141fa9 ]
+[ Upstream commit 1b0b283648163dae2a214ca28ed5a99f62a77319 ]
 
-When cc-option and friends evaluate compiler flags, the temporary file
-$$TMP is created as an output object, and automatically cleaned up.
-The actual file path of $$TMP is .<pid>.tmp, here <pid> is the process
-ID of $(shell ...) invoked from cc-option. (Please note $$$$ is the
-escape sequence of $$).
+We use one blktrace per request_queue, that means one per the entire
+disk.  So we cannot run one blktrace on say /dev/vda and then /dev/vda1,
+or just two calls on /dev/vda.
 
-Such garbage files are cleaned up in most cases, but some compiler flags
-create additional output files.
+We check for concurrent setup only at the very end of the blktrace setup though.
 
-For example, -gsplit-dwarf creates a .dwo file.
+If we try to run two concurrent blktraces on the same block device the
+second one will fail, and the first one seems to go on. However when
+one tries to kill the first one one will see things like this:
 
-When CONFIG_DEBUG_INFO_SPLIT=y, you will see a bunch of .<pid>.dwo files
-left in the top of build directories. You may not notice them unless you
-do 'ls -a', but the garbage files will increase every time you run 'make'.
+The kernel will show these:
 
-This commit changes the temporary object path to .tmp_<pid>/tmp, and
-removes .tmp_<pid> directory when exiting. Separate build artifacts such
-as *.dwo will be cleaned up all together because their file paths are
-usually determined based on the base name of the object.
+```
+debugfs: File 'dropped' in directory 'nvme1n1' already present!
+debugfs: File 'msg' in directory 'nvme1n1' already present!
+debugfs: File 'trace0' in directory 'nvme1n1' already present!
+``
 
-Another example is -ftest-coverage, which outputs the coverage data into
-<base-name-of-object>.gcno
+And userspace just sees this error message for the second call:
 
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+```
+blktrace /dev/nvme1n1
+BLKTRACESETUP(2) /dev/nvme1n1 failed: 5/Input/output error
+```
+
+The first userspace process #1 will also claim that the files
+were taken underneath their nose as well. The files are taken
+away form the first process given that when the second blktrace
+fails, it will follow up with a BLKTRACESTOP and BLKTRACETEARDOWN.
+This means that even if go-happy process #1 is waiting for blktrace
+data, we *have* been asked to take teardown the blktrace.
+
+This can easily be reproduced with break-blktrace [0] run_0005.sh test.
+
+Just break out early if we know we're already going to fail, this will
+prevent trying to create the files all over again, which we know still
+exist.
+
+[0] https://github.com/mcgrof/break-blktrace
+
+Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/Kbuild.include | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ kernel/trace/blktrace.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/scripts/Kbuild.include b/scripts/Kbuild.include
-index 558dea61db114..1920b9e2d2514 100644
---- a/scripts/Kbuild.include
-+++ b/scripts/Kbuild.include
-@@ -82,20 +82,21 @@ cc-cross-prefix =  \
- 		fi)))
+diff --git a/kernel/trace/blktrace.c b/kernel/trace/blktrace.c
+index 6d3b432a748a6..88eb9261c7b5c 100644
+--- a/kernel/trace/blktrace.c
++++ b/kernel/trace/blktrace.c
+@@ -15,6 +15,9 @@
+  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+  *
+  */
++
++#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
++
+ #include <linux/kernel.h>
+ #include <linux/blkdev.h>
+ #include <linux/blktrace_api.h>
+@@ -481,6 +484,16 @@ int do_blk_trace_setup(struct request_queue *q, char *name, dev_t dev,
+ 	 */
+ 	strreplace(buts->name, '/', '_');
  
- # output directory for tests below
--TMPOUT := $(if $(KBUILD_EXTMOD),$(firstword $(KBUILD_EXTMOD))/)
-+TMPOUT = $(if $(KBUILD_EXTMOD),$(firstword $(KBUILD_EXTMOD))/).tmp_$$$$
- 
- # try-run
- # Usage: option = $(call try-run, $(CC)...-o "$$TMP",option-ok,otherwise)
- # Exit code chooses option. "$$TMP" is can be used as temporary file and
- # is automatically cleaned up.
- try-run = $(shell set -e;		\
--	TMP="$(TMPOUT).$$$$.tmp";	\
--	TMPO="$(TMPOUT).$$$$.o";	\
-+	TMP=$(TMPOUT)/tmp;		\
-+	TMPO=$(TMPOUT)/tmp.o;		\
-+	mkdir -p $(TMPOUT);		\
-+	trap "rm -rf $(TMPOUT)" EXIT;	\
- 	if ($(1)) >/dev/null 2>&1;	\
- 	then echo "$(2)";		\
- 	else echo "$(3)";		\
--	fi;				\
--	rm -f "$$TMP" "$$TMPO")
-+	fi)
- 
- # as-option
- # Usage: cflags-y += $(call as-option,-Wa$(comma)-isa=foo,)
++	/*
++	 * bdev can be NULL, as with scsi-generic, this is a helpful as
++	 * we can be.
++	 */
++	if (q->blk_trace) {
++		pr_warn("Concurrent blktraces are not allowed on %s\n",
++			buts->name);
++		return -EBUSY;
++	}
++
+ 	bt = kzalloc(sizeof(*bt), GFP_KERNEL);
+ 	if (!bt)
+ 		return -ENOMEM;
 -- 
 2.25.1
 
