@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01A7E20E7BC
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:11:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46F3320E6FA
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:10:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391715AbgF2V7z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:59:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56788 "EHLO mail.kernel.org"
+        id S2388530AbgF2VwS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:52:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726388AbgF2SfZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:35:25 -0400
+        id S1726649AbgF2Sfj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:35:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D99B1247EA;
-        Mon, 29 Jun 2020 15:22:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B6740247F5;
+        Mon, 29 Jun 2020 15:22:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444152;
-        bh=Dph8eKuyg9WVFWOCCxI2zDNW8OAcyMNptYEcBaT4Jyw=;
+        s=default; t=1593444153;
+        bh=5UrSFmKEAXzAlU88xkoyVMYQ07T5cpZSA4wEaKz4x+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r+gX8p5svhkI2vpwj9+9TI34mjZzDauBf1bufHBFeFa5nj+5zJHSsAs1L7IzLyIC0
-         MBLASEuyN6EREPItTg+lluKUlVZjUVvhsYQUOhYWVbdXWcRR5u0ss4BsHN5WGYlJTv
-         Z22Vp0FJ6qXXKqP9PrxKFdT0Hd0/RZql3iydzBdE=
+        b=bd9KQ03CEZVkTItEobYcoqOFhFQXHHSlOR+NG3g/xzQbwdqiQMs8jctDsidPuu+ZX
+         5mORBibkSnM423IkbuRzwuwd3QgWHP4q8fijGlfNNuUpee7qovrtzl8rKwwHC68Efj
+         fcMDqxnt3KhEH/XepN1CelB6vN//bVUSJYqfCivo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chuck Lever <chuck.lever@oracle.com>,
+Cc:     Trond Myklebust <trond.myklebust@hammerspace.com>,
         Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.7 258/265] SUNRPC: Properly set the @subbuf parameter of xdr_buf_subsegment()
-Date:   Mon, 29 Jun 2020 11:18:11 -0400
-Message-Id: <20200629151818.2493727-259-sashal@kernel.org>
+Subject: [PATCH 5.7 259/265] pNFS/flexfiles: Fix list corruption if the mirror count changes
+Date:   Mon, 29 Jun 2020 11:18:12 -0400
+Message-Id: <20200629151818.2493727-260-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -49,56 +49,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit 89a3c9f5b9f0bcaa9aea3e8b2a616fcaea9aad78 upstream.
+commit 8b04013737341442ed914b336cde866b902664ae upstream.
 
-@subbuf is an output parameter of xdr_buf_subsegment(). A survey of
-call sites shows that @subbuf is always uninitialized before
-xdr_buf_segment() is invoked by callers.
+If the mirror count changes in the new layout we pick up inside
+ff_layout_pg_init_write(), then we can end up adding the
+request to the wrong mirror and corrupting the mirror->pg_list.
 
-There are some execution paths through xdr_buf_subsegment() that do
-not set all of the fields in @subbuf, leaving some pointer fields
-containing garbage addresses. Subsequent processing of that buffer
-then results in a page fault.
-
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Cc: <stable@vger.kernel.org>
+Fixes: d600ad1f2bdb ("NFS41: pop some layoutget errors to application")
+Cc: stable@vger.kernel.org
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sunrpc/xdr.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ fs/nfs/flexfilelayout/flexfilelayout.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/net/sunrpc/xdr.c b/net/sunrpc/xdr.c
-index 6f7d82fb1eb0a..be11d672b5b97 100644
---- a/net/sunrpc/xdr.c
-+++ b/net/sunrpc/xdr.c
-@@ -1118,6 +1118,7 @@ xdr_buf_subsegment(struct xdr_buf *buf, struct xdr_buf *subbuf,
- 		base = 0;
- 	} else {
- 		base -= buf->head[0].iov_len;
-+		subbuf->head[0].iov_base = buf->head[0].iov_base;
- 		subbuf->head[0].iov_len = 0;
- 	}
+diff --git a/fs/nfs/flexfilelayout/flexfilelayout.c b/fs/nfs/flexfilelayout/flexfilelayout.c
+index 7d399f72ebbbf..de03e440b7eef 100644
+--- a/fs/nfs/flexfilelayout/flexfilelayout.c
++++ b/fs/nfs/flexfilelayout/flexfilelayout.c
+@@ -907,9 +907,8 @@ retry:
+ 		goto out_mds;
  
-@@ -1130,6 +1131,8 @@ xdr_buf_subsegment(struct xdr_buf *buf, struct xdr_buf *subbuf,
- 		base = 0;
- 	} else {
- 		base -= buf->page_len;
-+		subbuf->pages = buf->pages;
-+		subbuf->page_base = 0;
- 		subbuf->page_len = 0;
- 	}
+ 	/* Use a direct mapping of ds_idx to pgio mirror_idx */
+-	if (WARN_ON_ONCE(pgio->pg_mirror_count !=
+-	    FF_LAYOUT_MIRROR_COUNT(pgio->pg_lseg)))
+-		goto out_mds;
++	if (pgio->pg_mirror_count != FF_LAYOUT_MIRROR_COUNT(pgio->pg_lseg))
++		goto out_eagain;
  
-@@ -1141,6 +1144,7 @@ xdr_buf_subsegment(struct xdr_buf *buf, struct xdr_buf *subbuf,
- 		base = 0;
- 	} else {
- 		base -= buf->tail[0].iov_len;
-+		subbuf->tail[0].iov_base = buf->tail[0].iov_base;
- 		subbuf->tail[0].iov_len = 0;
- 	}
+ 	for (i = 0; i < pgio->pg_mirror_count; i++) {
+ 		mirror = FF_LAYOUT_COMP(pgio->pg_lseg, i);
+@@ -931,7 +930,10 @@ retry:
+ 			(NFS_MOUNT_SOFT|NFS_MOUNT_SOFTERR))
+ 		pgio->pg_maxretrans = io_maxretrans;
+ 	return;
+-
++out_eagain:
++	pnfs_generic_pg_cleanup(pgio);
++	pgio->pg_error = -EAGAIN;
++	return;
+ out_mds:
+ 	trace_pnfs_mds_fallback_pg_init_write(pgio->pg_inode,
+ 			0, NFS4_MAX_UINT64, IOMODE_RW,
+@@ -941,6 +943,7 @@ out_mds:
+ 	pgio->pg_lseg = NULL;
+ 	pgio->pg_maxretrans = 0;
+ 	nfs_pageio_reset_write_mds(pgio);
++	pgio->pg_error = -EAGAIN;
+ }
  
+ static unsigned int
 -- 
 2.25.1
 
