@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 461C620E538
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:06:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E1E320E566
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:07:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726992AbgF2Vec (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:34:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60648 "EHLO mail.kernel.org"
+        id S2391092AbgF2Vgj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:36:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728609AbgF2Sk5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:40:57 -0400
+        id S1728431AbgF2Skk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:40:40 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 015DA23ED0;
-        Mon, 29 Jun 2020 15:18:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D765D23ED2;
+        Mon, 29 Jun 2020 15:18:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593443904;
-        bh=2wW1ZablLRZ2EYClWlZMOab5AEpw4UtTQ2CXvTCt/20=;
+        s=default; t=1593443905;
+        bh=vBVODVLhA21VNdblvAjpiZ7aFEQkw084iJxoeDNUa4o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bH6ZZnqZiAxhAmTEsCdTDc+7aZrLQJtvGI/OtaK0wVEUkyJO5mLfJeVMPRzdCYM4Q
-         hbDa0cn9mic0ZsQjo7xxZ82xLEeyqIeZaV8ChMzeB/L0xShCmi2r1dVaLfOxPqKpe5
-         VoohpH3uuLRrTPHU/CBj2uhABMnigOKsyt6cJyqQ=
+        b=Au2zn7RNQYYOkaeo77qsbc4A1onLRhFXjCtr+X3nWjh6S1/lo8Fg5QHTjjJtPvgYu
+         MLpbssb0nNnObjTXWLLpINBFC/PZaAMNunQohxB3YM2RyB20seEeWJC11dKHEP2Tm5
+         lQ0+SrAsvcV0BOI9/o9R9629YGs1YTFHgm10dRUo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gaurav Singh <gaurav1086@gmail.com>,
+Cc:     Sabrina Dubroca <sd@queasysnail.net>,
+        Stefano Brivio <sbrivio@redhat.com>,
         "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.7 004/265] ethtool: Fix check in ethtool_rx_flow_rule_create
-Date:   Mon, 29 Jun 2020 11:13:57 -0400
-Message-Id: <20200629151818.2493727-5-sashal@kernel.org>
+Subject: [PATCH 5.7 005/265] geneve: allow changing DF behavior after creation
+Date:   Mon, 29 Jun 2020 11:13:58 -0400
+Message-Id: <20200629151818.2493727-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -49,33 +50,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaurav Singh <gaurav1086@gmail.com>
+From: Sabrina Dubroca <sd@queasysnail.net>
 
-[ Upstream commit 21a739c64d3e9871186483a0cc3e7b52638c3d59 ]
+[ Upstream commit 56c09de347e40804fc8dad155272fb9609e0a97b ]
 
-Fix check in ethtool_rx_flow_rule_create
+Currently, trying to change the DF parameter of a geneve device does
+nothing:
 
-Fixes: eca4205f9ec3 ("ethtool: add ethtool_rx_flow_spec to flow_rule structure translator")
-Signed-off-by: Gaurav Singh <gaurav1086@gmail.com>
+    # ip -d link show geneve1
+    14: geneve1: <snip>
+        link/ether <snip>
+        geneve id 1 remote 10.0.0.1 ttl auto df set dstport 6081 <snip>
+    # ip link set geneve1 type geneve id 1 df unset
+    # ip -d link show geneve1
+    14: geneve1: <snip>
+        link/ether <snip>
+        geneve id 1 remote 10.0.0.1 ttl auto df set dstport 6081 <snip>
+
+We just need to update the value in geneve_changelink.
+
+Fixes: a025fb5f49ad ("geneve: Allow configuration of DF behaviour")
+Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
+Reviewed-by: Stefano Brivio <sbrivio@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ethtool/ioctl.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/geneve.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/ethtool/ioctl.c b/net/ethtool/ioctl.c
-index 89d0b1827aaff..d3eeeb26396cd 100644
---- a/net/ethtool/ioctl.c
-+++ b/net/ethtool/ioctl.c
-@@ -2957,7 +2957,7 @@ ethtool_rx_flow_rule_create(const struct ethtool_rx_flow_spec_input *input)
- 			       sizeof(match->mask.ipv6.dst));
- 		}
- 		if (memcmp(v6_m_spec->ip6src, &zero_addr, sizeof(zero_addr)) ||
--		    memcmp(v6_m_spec->ip6src, &zero_addr, sizeof(zero_addr))) {
-+		    memcmp(v6_m_spec->ip6dst, &zero_addr, sizeof(zero_addr))) {
- 			match->dissector.used_keys |=
- 				BIT(FLOW_DISSECTOR_KEY_IPV6_ADDRS);
- 			match->dissector.offset[FLOW_DISSECTOR_KEY_IPV6_ADDRS] =
+diff --git a/drivers/net/geneve.c b/drivers/net/geneve.c
+index 75266580b586d..4661ef865807f 100644
+--- a/drivers/net/geneve.c
++++ b/drivers/net/geneve.c
+@@ -1649,6 +1649,7 @@ static int geneve_changelink(struct net_device *dev, struct nlattr *tb[],
+ 	geneve->collect_md = metadata;
+ 	geneve->use_udp6_rx_checksums = use_udp6_rx_checksums;
+ 	geneve->ttl_inherit = ttl_inherit;
++	geneve->df = df;
+ 	geneve_unquiesce(geneve, gs4, gs6);
+ 
+ 	return 0;
 -- 
 2.25.1
 
