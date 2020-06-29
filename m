@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CDB720E2D9
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:01:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE14320E29E
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:01:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727072AbgF2VJU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:09:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45480 "EHLO mail.kernel.org"
+        id S2389872AbgF2VHD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:07:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730325AbgF2TAT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:00:19 -0400
+        id S1730946AbgF2TKR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:10:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5BAE8254D7;
-        Mon, 29 Jun 2020 15:53:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 62663254DC;
+        Mon, 29 Jun 2020 15:53:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593446033;
-        bh=NxoIYNIIbfOJgNLjpRrH+E1LwpRHKvafmzUGCZq7qzo=;
+        s=default; t=1593446036;
+        bh=Wbpjtpg84Kks/heMA4+5KkUNS4Oj/ZQKLOymbYfgQVM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GEy9ZfJPVLD4lS53WHT+b+SNQNacN3vIjZvUwGNTolNxpDI08vSnUFdwWeb9HsBzv
-         amC+7iBqiBRz7cVZHP0BbsaZL0a0+C1LwsE3ryAS/F27HUSPNoxTbyJ5juuuMZySRi
-         MAOe7gxhTY42PxPTlBmuYt25KfDcKBsm+jJHIJjk=
+        b=CQ/Kl7eqa6fwjbPwsL8bEQ0s4zTe+uVXKNSxTgGRgmhxrMKAHOjAcD5dNP0TVPvIh
+         Mmr2ec2juHyorsKHyljpEeyKU+i7b+l+LtxJZL3scodO7s9Ux5ZzHGvVjJycB5NGGq
+         wpXLMzmJBVGBnMNUL0DxEEboZoIicdRjcfK0Hsn4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gregory CLEMENT <gregory.clement@bootlin.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+Cc:     Fabrice Gasnier <fabrice.gasnier@st.com>,
+        Minas Harutyunyan <hminas@synopsys.com>,
+        Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 038/135] tty: n_gsm: Fix bogus i++ in gsm_data_kick
-Date:   Mon, 29 Jun 2020 11:51:32 -0400
-Message-Id: <20200629155309.2495516-39-sashal@kernel.org>
+Subject: [PATCH 4.4 041/135] usb: dwc2: gadget: move gadget resume after the core is in L0 state
+Date:   Mon, 29 Jun 2020 11:51:35 -0400
+Message-Id: <20200629155309.2495516-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
 References: <20200629155309.2495516-1-sashal@kernel.org>
@@ -49,51 +50,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gregory CLEMENT <gregory.clement@bootlin.com>
+From: Fabrice Gasnier <fabrice.gasnier@st.com>
 
-[ Upstream commit 4dd31f1ffec6c370c3c2e0c605628bf5e16d5c46 ]
+[ Upstream commit 8c935deacebb8fac8f41378701eb79d12f3c2e2d ]
 
-When submitting the previous fix "tty: n_gsm: Fix waking up upper tty
-layer when room available". It was suggested to switch from a while to
-a for loop, but when doing it, there was a remaining bogus i++.
+When the remote wakeup interrupt is triggered, lx_state is resumed from L2
+to L0 state. But when the gadget resume is called, lx_state is still L2.
+This prevents the resume callback to queue any request. Any attempt
+to queue a request from resume callback will result in:
+- "submit request only in active state" debug message to be issued
+- dwc2_hsotg_ep_queue() returns -EAGAIN
 
-This patch removes this i++ and also reorganizes the code making it more
-compact.
+Call the gadget resume routine after the core is in L0 state.
 
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
-Link: https://lore.kernel.org/r/20200518084517.2173242-3-gregory.clement@bootlin.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f81f46e1f530 ("usb: dwc2: implement hibernation during bus suspend/resume")
+
+Acked-by: Minas Harutyunyan <hminas@synopsys.com>
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_gsm.c | 14 +++-----------
- 1 file changed, 3 insertions(+), 11 deletions(-)
+ drivers/usb/dwc2/core_intr.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
-index 0020de4fe66f5..9b2beada2ff3b 100644
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -719,17 +719,9 @@ static void gsm_data_kick(struct gsm_mux *gsm, struct gsm_dlci *dlci)
- 		} else {
- 			int i = 0;
+diff --git a/drivers/usb/dwc2/core_intr.c b/drivers/usb/dwc2/core_intr.c
+index 27daa42788b1a..796d60d49ac5f 100644
+--- a/drivers/usb/dwc2/core_intr.c
++++ b/drivers/usb/dwc2/core_intr.c
+@@ -363,10 +363,13 @@ static void dwc2_handle_wakeup_detected_intr(struct dwc2_hsotg *hsotg)
+ 			if (ret && (ret != -ENOTSUPP))
+ 				dev_err(hsotg->dev, "exit hibernation failed\n");
  
--			for (i = 0; i < NUM_DLCI; i++) {
--				struct gsm_dlci *dlci;
--
--				dlci = gsm->dlci[i];
--				if (dlci == NULL) {
--					i++;
--					continue;
--				}
--
--				tty_port_tty_wakeup(&dlci->port);
--			}
-+			for (i = 0; i < NUM_DLCI; i++)
-+				if (gsm->dlci[i])
-+					tty_port_tty_wakeup(&gsm->dlci[i]->port);
++			/* Change to L0 state */
++			hsotg->lx_state = DWC2_L0;
+ 			call_gadget(hsotg, resume);
++		} else {
++			/* Change to L0 state */
++			hsotg->lx_state = DWC2_L0;
  		}
- 	}
- }
+-		/* Change to L0 state */
+-		hsotg->lx_state = DWC2_L0;
+ 	} else {
+ 		if (hsotg->core_params->hibernation) {
+ 			dwc2_writel(GINTSTS_WKUPINT, hsotg->regs + GINTSTS);
 -- 
 2.25.1
 
