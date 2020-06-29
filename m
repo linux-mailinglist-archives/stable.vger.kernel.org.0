@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EEE4E20E79B
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:11:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B66F20E74A
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:10:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726443AbgF2Sf2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 14:35:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56910 "EHLO mail.kernel.org"
+        id S2404334AbgF2V4B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:56:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726408AbgF2Sf0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:35:26 -0400
+        id S1726529AbgF2Sfb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:35:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 755CB24729;
-        Mon, 29 Jun 2020 15:20:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 549A02472B;
+        Mon, 29 Jun 2020 15:20:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1593444049;
-        bh=tVsnTm9/h7OmU9e02FNXpZ30dLcpvq334sbkhXiJcuk=;
+        bh=HqEiHU2rj80Shi+LPfuxmCzWI+NAFjs/6RR6u3kGg4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jO+0ubFfMv5CUYWGJ93BzYQWoYevsyN19d+yqqRVZhj0VfxY0fxyBthgvZUH/10U0
-         t/j0e4/8eM3KX2lMNlKs32nibqi7ueKySq8yl00Zz7JnIScL0Vrn4y2Sa8Z0ZIKJ0X
-         Fa6EzPFpnzbPtvTTuieIQFav/vybYsyOwt+ZoBnQ=
+        b=pPCwjQXKpiVkyv1XmYU2lvdS0bsOQUKu8oAJ6JSM3k90OAbRc/FOsTg2ZYel7jXwA
+         +338EP+7h4aYYUwyW9cHpR3ABcTIgGOy4CX/eULhuRjIQqCSBM+UAxUR0F69HPp/4r
+         gfgSVGSNfxEIl3TnQtahDqa4YJKs9a5md6yWXgfA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     yu kuai <yukuai3@huawei.com>, Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 156/265] cxgb4: move PTP lock and unlock to caller in Tx path
-Date:   Mon, 29 Jun 2020 11:16:29 -0400
-Message-Id: <20200629151818.2493727-157-sashal@kernel.org>
+Subject: [PATCH 5.7 157/265] ARM: imx5: add missing put_device() call in imx_suspend_alloc_ocram()
+Date:   Mon, 29 Jun 2020 11:16:30 -0400
+Message-Id: <20200629151818.2493727-158-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -49,98 +48,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
+From: yu kuai <yukuai3@huawei.com>
 
-[ Upstream commit 030c98824deaba205787af501a074b3d7f46e32e ]
+[ Upstream commit 586745f1598ccf71b0a5a6df2222dee0a865954e ]
 
-Check for whether PTP is enabled or not at the caller and perform
-locking/unlocking at the caller.
+if of_find_device_by_node() succeed, imx_suspend_alloc_ocram() doesn't
+have a corresponding put_device(). Thus add a jump target to fix the
+exception handling for this function implementation.
 
-Fixes following sparse warning:
-sge.c:1641:26: warning: context imbalance in 'cxgb4_eth_xmit' -
-different lock contexts for basic block
-
-Fixes: a456950445a0 ("cxgb4: time stamping interface for PTP")
-Signed-off-by: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 1579c7b9fe01 ("ARM: imx53: Set DDR pins to high impedance when in suspend to RAM.")
+Signed-off-by: yu kuai <yukuai3@huawei.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/sge.c | 23 +++++++++++------------
- 1 file changed, 11 insertions(+), 12 deletions(-)
+ arch/arm/mach-imx/pm-imx5.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/sge.c b/drivers/net/ethernet/chelsio/cxgb4/sge.c
-index 6516c45864b35..db8106d9d6edf 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/sge.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/sge.c
-@@ -1425,12 +1425,10 @@ static netdev_tx_t cxgb4_eth_xmit(struct sk_buff *skb, struct net_device *dev)
- 
- 	qidx = skb_get_queue_mapping(skb);
- 	if (ptp_enabled) {
--		spin_lock(&adap->ptp_lock);
- 		if (!(adap->ptp_tx_skb)) {
- 			skb_shinfo(skb)->tx_flags |= SKBTX_IN_PROGRESS;
- 			adap->ptp_tx_skb = skb_get(skb);
- 		} else {
--			spin_unlock(&adap->ptp_lock);
- 			goto out_free;
- 		}
- 		q = &adap->sge.ptptxq;
-@@ -1444,11 +1442,8 @@ static netdev_tx_t cxgb4_eth_xmit(struct sk_buff *skb, struct net_device *dev)
- 
- #ifdef CONFIG_CHELSIO_T4_FCOE
- 	ret = cxgb_fcoe_offload(skb, adap, pi, &cntrl);
--	if (unlikely(ret == -ENOTSUPP)) {
--		if (ptp_enabled)
--			spin_unlock(&adap->ptp_lock);
-+	if (unlikely(ret == -EOPNOTSUPP))
- 		goto out_free;
--	}
- #endif /* CONFIG_CHELSIO_T4_FCOE */
- 
- 	chip_ver = CHELSIO_CHIP_VERSION(adap->params.chip);
-@@ -1461,8 +1456,6 @@ static netdev_tx_t cxgb4_eth_xmit(struct sk_buff *skb, struct net_device *dev)
- 		dev_err(adap->pdev_dev,
- 			"%s: Tx ring %u full while queue awake!\n",
- 			dev->name, qidx);
--		if (ptp_enabled)
--			spin_unlock(&adap->ptp_lock);
- 		return NETDEV_TX_BUSY;
+diff --git a/arch/arm/mach-imx/pm-imx5.c b/arch/arm/mach-imx/pm-imx5.c
+index f057df813f83a..e9962b48e30cb 100644
+--- a/arch/arm/mach-imx/pm-imx5.c
++++ b/arch/arm/mach-imx/pm-imx5.c
+@@ -295,14 +295,14 @@ static int __init imx_suspend_alloc_ocram(
+ 	if (!ocram_pool) {
+ 		pr_warn("%s: ocram pool unavailable!\n", __func__);
+ 		ret = -ENODEV;
+-		goto put_node;
++		goto put_device;
  	}
  
-@@ -1481,8 +1474,6 @@ static netdev_tx_t cxgb4_eth_xmit(struct sk_buff *skb, struct net_device *dev)
- 	    unlikely(cxgb4_map_skb(adap->pdev_dev, skb, sgl_sdesc->addr) < 0)) {
- 		memset(sgl_sdesc->addr, 0, sizeof(sgl_sdesc->addr));
- 		q->mapping_err++;
--		if (ptp_enabled)
--			spin_unlock(&adap->ptp_lock);
- 		goto out_free;
+ 	ocram_base = gen_pool_alloc(ocram_pool, size);
+ 	if (!ocram_base) {
+ 		pr_warn("%s: unable to alloc ocram!\n", __func__);
+ 		ret = -ENOMEM;
+-		goto put_node;
++		goto put_device;
  	}
  
-@@ -1630,8 +1621,6 @@ static netdev_tx_t cxgb4_eth_xmit(struct sk_buff *skb, struct net_device *dev)
- 	txq_advance(&q->q, ndesc);
+ 	phys = gen_pool_virt_to_phys(ocram_pool, ocram_base);
+@@ -312,6 +312,8 @@ static int __init imx_suspend_alloc_ocram(
+ 	if (virt_out)
+ 		*virt_out = virt;
  
- 	cxgb4_ring_tx_db(adap, &q->q, ndesc);
--	if (ptp_enabled)
--		spin_unlock(&adap->ptp_lock);
- 	return NETDEV_TX_OK;
- 
- out_free:
-@@ -2365,6 +2354,16 @@ netdev_tx_t t4_start_xmit(struct sk_buff *skb, struct net_device *dev)
- 	if (unlikely(qid >= pi->nqsets))
- 		return cxgb4_ethofld_xmit(skb, dev);
- 
-+	if (is_ptp_enabled(skb, dev)) {
-+		struct adapter *adap = netdev2adap(dev);
-+		netdev_tx_t ret;
-+
-+		spin_lock(&adap->ptp_lock);
-+		ret = cxgb4_eth_xmit(skb, dev);
-+		spin_unlock(&adap->ptp_lock);
-+		return ret;
-+	}
-+
- 	return cxgb4_eth_xmit(skb, dev);
- }
++put_device:
++	put_device(&pdev->dev);
+ put_node:
+ 	of_node_put(node);
  
 -- 
 2.25.1
