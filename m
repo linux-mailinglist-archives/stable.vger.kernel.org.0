@@ -2,75 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B80D520DFD5
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:55:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AF6B20E27F
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:01:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730639AbgF2UkF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:40:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39908 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389471AbgF2UkC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 16:40:02 -0400
-Received: from localhost.localdomain (cpe-70-114-128-244.austin.res.rr.com [70.114.128.244])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5275120771;
-        Mon, 29 Jun 2020 20:40:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593463201;
-        bh=IBqeirKPT8c7wmG4BPRldsNMENUT88K8pOX2cD5ov0A=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SDY6bsUD7MD6zbQ6sIlOut/22uy/Q4zhMlaod/kJLOwT1jSkUweXIC8L2UayIPiH8
-         HSbR+qftW2rj6pgAGEESmVGQCOj/RstAQGpQnD2+UNRo49Z1Nv+VZeYLddG89Y7QyJ
-         tF8lSoMV0UaQCRFtjehON9ARPWfKPyjTcraFYzAA=
-From:   Dinh Nguyen <dinguyen@kernel.org>
-To:     linux-arm-kernel@lists.infradead.org
-Cc:     dinguyen@kernel.org, devicetree@vger.kernel.org,
-        Dinh Nguyen <dinh.nguyen@intel.com>,
-        linux-stable <stable@vger.kernel.org>
-Subject: [PATCH 3/3] arm64: dts: stratix10: increase QSPI reg address in nand dts file
-Date:   Mon, 29 Jun 2020 15:39:49 -0500
-Message-Id: <20200629203949.6601-3-dinguyen@kernel.org>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200629203949.6601-1-dinguyen@kernel.org>
-References: <20200629203949.6601-1-dinguyen@kernel.org>
+        id S2388406AbgF2VGE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:06:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43340 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731010AbgF2TMm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Jun 2020 15:12:42 -0400
+Received: from mail-ot1-x341.google.com (mail-ot1-x341.google.com [IPv6:2607:f8b0:4864:20::341])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0534C08C5E3
+        for <stable@vger.kernel.org>; Sun, 28 Jun 2020 21:21:24 -0700 (PDT)
+Received: by mail-ot1-x341.google.com with SMTP id n6so14282413otl.0
+        for <stable@vger.kernel.org>; Sun, 28 Jun 2020 21:21:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=nFQAZ17rW5dEK0S1Q3shZ62tcOLwgxbbt4Gs2MOss7s=;
+        b=pamdNnq1JUca6sE7vj9hC8fwE3+nTHyoSLRbwZ2UdrLe/5UHXf/9aBBElcU+3vsWt1
+         wZtCEy7bp84m8erOmQPZ3ZKsKc+WSi12MpRKLFekHgnzG+s2uKtKtDcaQ/QUcLW7ML62
+         HtL/9L9R+mdekqb6TE5r6lZ/tGCi/c4skJmMibWAMMcEKlqxw88JTQAPST3Ak5jje4/3
+         E/rW7euYTRruNZ7Lk3knN/O7DanI0dWJaBwazR4XSEMfw7mXEL4R5twFrHavGb6FjpmK
+         kagA2U9UYo1lsTthI7iX6VYhbDPa+yw0vwqLsZOjYUfmzPtgqZnPSIwxEp0tZRZyEhpa
+         S+EA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=nFQAZ17rW5dEK0S1Q3shZ62tcOLwgxbbt4Gs2MOss7s=;
+        b=BUEQb9KW56VxlTmKJIzpkO9Stmg2LV0sfSsyC4e7GtxuiQmGMxyYsGdd/rPuITblIA
+         +ZIiRuzxIusCPq2IXEDJ6SatAj0idsegik0Rh5jVLaleUw2QUFTv/slJ2ky8H2ZzgXLj
+         dmr0lgIszGjbbpgZBOKBZ9lpm5sXiY2wHSEGUPuEG2HqK/6L+ZWYYg8OA5s0TLHlpEx2
+         RGn8UbGx7XR+I1OEFb+6RJzVR1X8k9RkzaUkZ2+YfRbdBhkrMUJSl9OXZNzw22x3K7Qc
+         rlzc5WMkdQ/sK+U5dyVrk0o8at2Mr0OKZH6ratq1JDmDUfBs+VIQf2pTTyUgTp5C5/9a
+         ZhwQ==
+X-Gm-Message-State: AOAM5324QfW1md/c5JggrNoFL88Q+G0wbg0JSV2ODaNHLXxZ/4MLi7go
+        Q29W80HqbBCGqZ2vFzDrwCMsHHH+RGWrmrWXB84=
+X-Google-Smtp-Source: ABdhPJx1j37XSt7L5KOPAvfqz0tGrvlMm2f8Rjq5wQxE0Mt6G51H53sBGoo+acpyUYFfMyLgOt0HlY99eVUJDQhd4A4=
+X-Received: by 2002:a05:6830:4a2:: with SMTP id l2mr11340624otd.10.1593404483756;
+ Sun, 28 Jun 2020 21:21:23 -0700 (PDT)
+MIME-Version: 1.0
+Received: by 2002:a9d:6014:0:0:0:0:0 with HTTP; Sun, 28 Jun 2020 21:21:23
+ -0700 (PDT)
+Reply-To: ahmedghazi720@yahoo.com
+From:   "Mr.Ghazi Ahmed" <ghzaiahmed6@gmail.com>
+Date:   Sun, 28 Jun 2020 21:21:23 -0700
+Message-ID: <CA+VeoZ9RDmWxuhDtgRw-HFcUZJtLtKYvMs3g06MdJRdc3eZeMg@mail.gmail.com>
+Subject: YOUR URGENT RESPONSE IS NEEDED
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinh Nguyen <dinh.nguyen@intel.com>
+I have a business proposal in the tune of $10.2m USD for you to handle
+with me. I have opportunity to transfer this abandon fund to your bank
+account in your country which belongs to our client.
 
-Match the QSPI reg address in the socfpga_stratix10_socdk.dts file.
+I am inviting you in this transaction where this money can be shared
+between us at ratio of 50/50% and help the needy around us don=E2=80=99t be
+afraid of anything I am with you I will instruct you what you will do
+to maintain this fund.
 
-Fixes: 80f132d73709 ("arm64: dts: increase the QSPI reg address for Stratix10
-and Agilex")
-Cc: linux-stable <stable@vger.kernel.org> # >= v5.6
-Signed-off-by: Dinh Nguyen <dinh.nguyen@intel.com>
----
- arch/arm64/boot/dts/altera/socfpga_stratix10_socdk_nand.dts | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+Please kindly contact me with your information's if you are interested
+in this tranasction for more details(ahmedghazi720@yahoo.com)
 
-diff --git a/arch/arm64/boot/dts/altera/socfpga_stratix10_socdk_nand.dts b/arch/arm64/boot/dts/altera/socfpga_stratix10_socdk_nand.dts
-index 4000c393243d..c07966740e14 100644
---- a/arch/arm64/boot/dts/altera/socfpga_stratix10_socdk_nand.dts
-+++ b/arch/arm64/boot/dts/altera/socfpga_stratix10_socdk_nand.dts
-@@ -212,12 +212,12 @@
- 
- 			qspi_boot: partition@0 {
- 				label = "Boot and fpga data";
--				reg = <0x0 0x034B0000>;
-+				reg = <0x0 0x03FE0000>;
- 			};
- 
--			qspi_rootfs: partition@4000000 {
-+			qspi_rootfs: partition@3FE0000 {
- 				label = "Root Filesystem - JFFS2";
--				reg = <0x034B0000 0x0EB50000>;
-+				reg = <0x03FE0000 0x0C020000>;
- 			};
- 		};
- 	};
--- 
-2.17.1
+1. Your Full Name.....................
+2. Your Address......................
+3. Your Country of Origin.............
+4. What do you do for living ...............
+5. Your Age..........................
+6. Gender.........................
+7. Your ID card copy and telephone number for easy communication...........=
+....
 
+Mr.Ghazi Ahmed
