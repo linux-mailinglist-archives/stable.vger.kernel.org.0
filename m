@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4676A20D3C5
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 21:13:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EC5720D3BA
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 21:13:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727820AbgF2TCD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:02:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45472 "EHLO mail.kernel.org"
+        id S1729026AbgF2TBk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:01:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730355AbgF2TAV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:00:21 -0400
+        id S1730361AbgF2TAW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:00:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB462254E5;
-        Mon, 29 Jun 2020 15:54:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B72F254EA;
+        Mon, 29 Jun 2020 15:54:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593446041;
-        bh=LrZXZEubYZSKqiTFZIYg7Vo/qX4plYNVGh4YOJxUS/w=;
+        s=default; t=1593446044;
+        bh=vmugkxIgB19790+fzgwfilMygv1QF9obfzL5aEYFQwQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DCd8VXDtWtnSgWd+4517JZwoxUmDJFL1VxzINTGI/eufiljAE+ewP7TLmNUCjBiSn
-         8plJ4kGgnmRoHjJjOKRPG8UKFNXteanc/zRWPHzaSEqr9rael8AGQP3Vs/VIiwAg21
-         nMoGahJN6hgcTnojZ7hS9vb8FxbABoI5DpKBnVhw=
+        b=uSeAthm1045V1Qi6sU1ahrrBZeSKEb6RGUX7eczTnfI9FK8omPWTMqe46phwUhj8q
+         a/W7OCbsMY2A9hJrB1SsJoPg6RpkPGPAA0YS3YRxRtXnwnjbWRff+dX23rXb3rNh1I
+         hXPo3YkN0eDCcbRuNbXYlX5He2HgTIZHjoa3LPlM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+Cc:     Bob Peterson <rpeterso@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 046/135] ASoC: fsl_asrc_dma: Fix dma_chan leak when config DMA channel failed
-Date:   Mon, 29 Jun 2020 11:51:40 -0400
-Message-Id: <20200629155309.2495516-47-sashal@kernel.org>
+Subject: [PATCH 4.4 048/135] gfs2: Allow lock_nolock mount to specify jid=X
+Date:   Mon, 29 Jun 2020 11:51:42 -0400
+Message-Id: <20200629155309.2495516-49-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
 References: <20200629155309.2495516-1-sashal@kernel.org>
@@ -50,43 +49,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+From: Bob Peterson <rpeterso@redhat.com>
 
-[ Upstream commit 36124fb19f1ae68a500cd76a76d40c6e81bee346 ]
+[ Upstream commit ea22eee4e6027d8927099de344f7fff43c507ef9 ]
 
-fsl_asrc_dma_hw_params() invokes dma_request_channel() or
-fsl_asrc_get_dma_channel(), which returns a reference of the specified
-dma_chan object to "pair->dma_chan[dir]" with increased refcnt.
+Before this patch, a simple typo accidentally added \n to the jid=
+string for lock_nolock mounts. This made it impossible to mount a
+gfs2 file system with a journal other than journal0. Thus:
 
-The reference counting issue happens in one exception handling path of
-fsl_asrc_dma_hw_params(). When config DMA channel failed for Back-End,
-the function forgets to decrease the refcnt increased by
-dma_request_channel() or fsl_asrc_get_dma_channel(), causing a refcnt
-leak.
+mount -tgfs2 -o hostdata="jid=1" <device> <mount pt>
 
-Fix this issue by calling dma_release_channel() when config DMA channel
-failed.
+Resulted in:
+mount: wrong fs type, bad option, bad superblock on <device>
 
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Link: https://lore.kernel.org/r/1590415966-52416-1-git-send-email-xiyuyang19@fudan.edu.cn
-Signed-off-by: Mark Brown <broonie@kernel.org>
+In most cases this is not a problem. However, for debugging and
+testing purposes we sometimes want to test the integrity of other
+journals. This patch removes the unnecessary \n and thus allows
+lock_nolock users to specify an alternate journal.
+
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/fsl_asrc_dma.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/gfs2/ops_fstype.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/fsl/fsl_asrc_dma.c b/sound/soc/fsl/fsl_asrc_dma.c
-index ffc000bc1f15b..56a873ba08e47 100644
---- a/sound/soc/fsl/fsl_asrc_dma.c
-+++ b/sound/soc/fsl/fsl_asrc_dma.c
-@@ -243,6 +243,7 @@ static int fsl_asrc_dma_hw_params(struct snd_pcm_substream *substream,
- 	ret = dmaengine_slave_config(pair->dma_chan[dir], &config_be);
- 	if (ret) {
- 		dev_err(dev, "failed to config DMA channel for Back-End\n");
-+		dma_release_channel(pair->dma_chan[dir]);
- 		return ret;
- 	}
+diff --git a/fs/gfs2/ops_fstype.c b/fs/gfs2/ops_fstype.c
+index de7143e2b361a..b7b43d00cc6d7 100644
+--- a/fs/gfs2/ops_fstype.c
++++ b/fs/gfs2/ops_fstype.c
+@@ -916,7 +916,7 @@ static int init_per_node(struct gfs2_sbd *sdp, int undo)
+ }
+ 
+ static const match_table_t nolock_tokens = {
+-	{ Opt_jid, "jid=%d\n", },
++	{ Opt_jid, "jid=%d", },
+ 	{ Opt_err, NULL },
+ };
  
 -- 
 2.25.1
