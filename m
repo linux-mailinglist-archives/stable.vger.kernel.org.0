@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6BC220DEF1
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:53:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A0AD20DEA8
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:53:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733029AbgF2Ua6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:30:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37054 "EHLO mail.kernel.org"
+        id S2388956AbgF2U1w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:27:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732481AbgF2TZT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:25:19 -0400
+        id S1732510AbgF2TZY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:25:24 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C063D25429;
-        Mon, 29 Jun 2020 15:42:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D6AD32542C;
+        Mon, 29 Jun 2020 15:42:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445378;
-        bh=qIdhd1f6eHOYapZmovH72ShT5h0sRK0Uxj8J0WuHwpc=;
+        s=default; t=1593445379;
+        bh=9y8PnE3clKHdder3KdR/nVVVcMVW5RJc192R86H2fSs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UQYCFGiHJP4fA9y3C3/zERlyMvqd+GDxBWxsUWw2aLT6S+0p+F1oFXm2UJEFcgMFt
-         56OgAIAIa5tqmY9Sh+4AwWb8LL3R14A69WIm6oVbKQ1sheRxEI02iwj+mE01HBLIHi
-         Dxdw5KMHMlArI8DMIf6zcqaUtDKqUU6hWthUN7+I=
+        b=POQvV3YbmypzgdytPQB1GKr46d3TykKIWNwgYqCRRzSzc7FmMFeny9lJsgZ6qNj+c
+         u8mP1Wzu+uzpcvpBEY4vq5E5SXaHRl3bNHcFli5aYbC+ejwBvlEZ4i8m8/dv5y2veh
+         fVfTlnUCDwky25mZxCsG8Gr3WCxHY9l2Orx6i/zw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yang Yingliang <yangyingliang@huawei.com>,
-        Hulk Robot <hulkci@huawei.com>,
+Cc:     Jeremy Kerr <jk@ozlabs.org>,
         "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.9 133/191] net: fix memleak in register_netdevice()
-Date:   Mon, 29 Jun 2020 11:39:09 -0400
-Message-Id: <20200629154007.2495120-134-sashal@kernel.org>
+Subject: [PATCH 4.9 134/191] net: usb: ax88179_178a: fix packet alignment padding
+Date:   Mon, 29 Jun 2020 11:39:10 -0400
+Message-Id: <20200629154007.2495120-135-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
 References: <20200629154007.2495120-1-sashal@kernel.org>
@@ -50,90 +49,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Jeremy Kerr <jk@ozlabs.org>
 
-[ Upstream commit 814152a89ed52c722ab92e9fbabcac3cb8a39245 ]
+[ Upstream commit e869e7a17798d85829fa7d4f9bbe1eebd4b2d3f6 ]
 
-I got a memleak report when doing some fuzz test:
+Using a AX88179 device (0b95:1790), I see two bytes of appended data on
+every RX packet. For example, this 48-byte ping, using 0xff as a
+payload byte:
 
-unreferenced object 0xffff888112584000 (size 13599):
-  comm "ip", pid 3048, jiffies 4294911734 (age 343.491s)
-  hex dump (first 32 bytes):
-    74 61 70 30 00 00 00 00 00 00 00 00 00 00 00 00  tap0............
-    00 ee d9 19 81 88 ff ff 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<000000002f60ba65>] __kmalloc_node+0x309/0x3a0
-    [<0000000075b211ec>] kvmalloc_node+0x7f/0xc0
-    [<00000000d3a97396>] alloc_netdev_mqs+0x76/0xfc0
-    [<00000000609c3655>] __tun_chr_ioctl+0x1456/0x3d70
-    [<000000001127ca24>] ksys_ioctl+0xe5/0x130
-    [<00000000b7d5e66a>] __x64_sys_ioctl+0x6f/0xb0
-    [<00000000e1023498>] do_syscall_64+0x56/0xa0
-    [<000000009ec0eb12>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
-unreferenced object 0xffff888111845cc0 (size 8):
-  comm "ip", pid 3048, jiffies 4294911734 (age 343.491s)
-  hex dump (first 8 bytes):
-    74 61 70 30 00 88 ff ff                          tap0....
-  backtrace:
-    [<000000004c159777>] kstrdup+0x35/0x70
-    [<00000000d8b496ad>] kstrdup_const+0x3d/0x50
-    [<00000000494e884a>] kvasprintf_const+0xf1/0x180
-    [<0000000097880a2b>] kobject_set_name_vargs+0x56/0x140
-    [<000000008fbdfc7b>] dev_set_name+0xab/0xe0
-    [<000000005b99e3b4>] netdev_register_kobject+0xc0/0x390
-    [<00000000602704fe>] register_netdevice+0xb61/0x1250
-    [<000000002b7ca244>] __tun_chr_ioctl+0x1cd1/0x3d70
-    [<000000001127ca24>] ksys_ioctl+0xe5/0x130
-    [<00000000b7d5e66a>] __x64_sys_ioctl+0x6f/0xb0
-    [<00000000e1023498>] do_syscall_64+0x56/0xa0
-    [<000000009ec0eb12>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
-unreferenced object 0xffff88811886d800 (size 512):
-  comm "ip", pid 3048, jiffies 4294911734 (age 343.491s)
-  hex dump (first 32 bytes):
-    00 00 00 00 ad 4e ad de ff ff ff ff 00 00 00 00  .....N..........
-    ff ff ff ff ff ff ff ff c0 66 3d a3 ff ff ff ff  .........f=.....
-  backtrace:
-    [<0000000050315800>] device_add+0x61e/0x1950
-    [<0000000021008dfb>] netdev_register_kobject+0x17e/0x390
-    [<00000000602704fe>] register_netdevice+0xb61/0x1250
-    [<000000002b7ca244>] __tun_chr_ioctl+0x1cd1/0x3d70
-    [<000000001127ca24>] ksys_ioctl+0xe5/0x130
-    [<00000000b7d5e66a>] __x64_sys_ioctl+0x6f/0xb0
-    [<00000000e1023498>] do_syscall_64+0x56/0xa0
-    [<000000009ec0eb12>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  04:20:22.528472 IP 192.168.1.1 > 192.168.1.2: ICMP echo request, id 2447, seq 1, length 64
+	0x0000:  000a cd35 ea50 000a cd35 ea4f 0800 4500
+	0x0010:  0054 c116 4000 4001 f63e c0a8 0101 c0a8
+	0x0020:  0102 0800 b633 098f 0001 87ea cd5e 0000
+	0x0030:  0000 dcf2 0600 0000 0000 ffff ffff ffff
+	0x0040:  ffff ffff ffff ffff ffff ffff ffff ffff
+	0x0050:  ffff ffff ffff ffff ffff ffff ffff ffff
+	0x0060:  ffff 961f
 
-If call_netdevice_notifiers() failed, then rollback_registered()
-calls netdev_unregister_kobject() which holds the kobject. The
-reference cannot be put because the netdev won't be add to todo
-list, so it will leads a memleak, we need put the reference to
-avoid memleak.
+Those last two bytes - 96 1f - aren't part of the original packet.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+In the ax88179 RX path, the usbnet rx_fixup function trims a 2-byte
+'alignment pseudo header' from the start of the packet, and sets the
+length from a per-packet field populated by hardware. It looks like that
+length field *includes* the 2-byte header; the current driver assumes
+that it's excluded.
+
+This change trims the 2-byte alignment header after we've set the packet
+length, so the resulting packet length is correct. While we're moving
+the comment around, this also fixes the spelling of 'pseudo'.
+
+Signed-off-by: Jeremy Kerr <jk@ozlabs.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/dev.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/net/usb/ax88179_178a.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/net/core/dev.c b/net/core/dev.c
-index edb2ddbbed9a1..267b648a0645e 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -7355,6 +7355,13 @@ int register_netdevice(struct net_device *dev)
- 		rcu_barrier();
+diff --git a/drivers/net/usb/ax88179_178a.c b/drivers/net/usb/ax88179_178a.c
+index 559af8e6ad90f..0434ecf677122 100644
+--- a/drivers/net/usb/ax88179_178a.c
++++ b/drivers/net/usb/ax88179_178a.c
+@@ -1396,10 +1396,10 @@ static int ax88179_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
+ 		}
  
- 		dev->reg_state = NETREG_UNREGISTERED;
-+		/* We should put the kobject that hold in
-+		 * netdev_unregister_kobject(), otherwise
-+		 * the net device cannot be freed when
-+		 * driver calls free_netdev(), because the
-+		 * kobject is being hold.
-+		 */
-+		kobject_put(&dev->dev.kobj);
- 	}
- 	/*
- 	 *	Prevent userspace races by waiting until the network
+ 		if (pkt_cnt == 0) {
+-			/* Skip IP alignment psudo header */
+-			skb_pull(skb, 2);
+ 			skb->len = pkt_len;
+-			skb_set_tail_pointer(skb, pkt_len);
++			/* Skip IP alignment pseudo header */
++			skb_pull(skb, 2);
++			skb_set_tail_pointer(skb, skb->len);
+ 			skb->truesize = pkt_len + sizeof(struct sk_buff);
+ 			ax88179_rx_checksum(skb, pkt_hdr);
+ 			return 1;
+@@ -1408,8 +1408,9 @@ static int ax88179_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
+ 		ax_skb = skb_clone(skb, GFP_ATOMIC);
+ 		if (ax_skb) {
+ 			ax_skb->len = pkt_len;
+-			ax_skb->data = skb->data + 2;
+-			skb_set_tail_pointer(ax_skb, pkt_len);
++			/* Skip IP alignment pseudo header */
++			skb_pull(ax_skb, 2);
++			skb_set_tail_pointer(ax_skb, ax_skb->len);
+ 			ax_skb->truesize = pkt_len + sizeof(struct sk_buff);
+ 			ax88179_rx_checksum(ax_skb, pkt_hdr);
+ 			usbnet_skb_return(dev, ax_skb);
 -- 
 2.25.1
 
