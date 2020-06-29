@@ -2,98 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FE3920D191
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 20:42:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 993E820D1DA
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 20:50:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726935AbgF2SmS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 14:42:18 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:50185 "EHLO
-        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729013AbgF2Slw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Jun 2020 14:41:52 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id DFD65A2F;
-        Mon, 29 Jun 2020 07:38:48 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 29 Jun 2020 07:38:49 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=ss66Ca
-        eDf7rOe54MWH41j7qYDuhgDCysGDKGZGu5Y8A=; b=ujFvQvbKZNedY7cVcXopf1
-        S1jO04QfVs+KQEzy85QmUgjUoCoXsBY3Ltg1TdZiCeDJSAx9+HdOV+QqodLTmXwX
-        BoRPkqRUJpsbuiu/Ob9a2QOMoiPuWuOMzBnkNkhafMMLrdITs4MN2cs4XG6mbg+5
-        NpNLcsE0j0t2L8hL0gkWl6/zCK/jvO/5uhu1jph9VLKJCWY5qxsY7UF4sBa8B1o8
-        YYGKYO+aN0Ivh2PxGJdmWo5HvZjaHFHXO/ec4tQ9DjJmGMktFzVqqzxoW7OMhBM5
-        JmTBjc3/9pN6L5UK0hRReHajQDIM+gdKrw01IPfNTbP8l8Ahrixj56NFbRBFm5xQ
-        ==
-X-ME-Sender: <xms:yNL5Xi43lIrJpWBh8CQll7vJgTkWONS6ZgTU5OfeU-ns5iSP0Elz6Q>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudelkedggedvucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
-    vghrufhiiigvpedvnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:yNL5Xr7uDDVaMhepbafJgxv_ZBWu3-3pmP7v9VrseV5FE8rjnTmB6w>
-    <xmx:yNL5XheziAcjQHeWvnf061JxI9DnassIM3VWmoeOT1H1GazSQLkGBA>
-    <xmx:yNL5XvJWMlaIGzZirxEBLLB11BhyTyak-BoZNsO0DzEFLDbhB9aXJA>
-    <xmx:yNL5Xgx8ejNfFrR79bMyVBNAIAD5H6TPVjtBtIh2pstnHRNsv9YSoR7QehE>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 239423280068;
-        Mon, 29 Jun 2020 07:38:48 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] dm zoned: assign max_io_len correctly" failed to apply to 5.4-stable tree
-To:     houtao1@huawei.com, damien.lemoal@wdc.com, snitzer@redhat.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 29 Jun 2020 13:38:29 +0200
-Message-ID: <15934307097203@kroah.com>
+        id S1727018AbgF2So0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 14:44:26 -0400
+Received: from mga02.intel.com ([134.134.136.20]:40929 "EHLO mga02.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729207AbgF2SoH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:44:07 -0400
+IronPort-SDR: AAFcEpXyqGPuY/r2wzkoyq7dQ/PoRmSYz3Xz+zRvEdMl6K9vAJJaw43epnsu15axYVGXcEzKSN
+ iXClhUxtOIog==
+X-IronPort-AV: E=McAfee;i="6000,8403,9666"; a="134327836"
+X-IronPort-AV: E=Sophos;i="5.75,295,1589266800"; 
+   d="scan'208";a="134327836"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jun 2020 10:33:59 -0700
+IronPort-SDR: ifTNC6vK3Hv++aTC6d4EftzwDzy8SJ/ov5Xgz5cG76np/LhlBPWbAluyFWi7WsP7ZRudUfRAWw
+ evmVrd018qBA==
+X-IronPort-AV: E=Sophos;i="5.75,295,1589266800"; 
+   d="scan'208";a="318665194"
+Received: from mmmille1-t460s.amr.corp.intel.com (HELO [10.255.230.126]) ([10.255.230.126])
+  by orsmga007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jun 2020 10:33:58 -0700
+Subject: Re: [PATCH 1/6] ASoC: Intel: cht_bsw_rt5672: Change bus format to I2S
+ 2 channel
+To:     Hans de Goede <hdegoede@redhat.com>,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        Liam Girdwood <liam.r.girdwood@linux.intel.com>,
+        Jie Yang <yang.jie@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Oder Chiou <oder_chiou@realtek.com>
+Cc:     alsa-devel@alsa-project.org, stable@vger.kernel.org
+References: <20200628155231.71089-1-hdegoede@redhat.com>
+ <20200628155231.71089-2-hdegoede@redhat.com>
+From:   Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Message-ID: <4a9413ef-89d9-427b-27e9-a3b2df6f310a@linux.intel.com>
+Date:   Mon, 29 Jun 2020 10:06:14 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200628155231.71089-2-hdegoede@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
 
-thanks,
+On 6/28/20 10:52 AM, Hans de Goede wrote:
+> The default mode for SSP configuration is TDM 4 slot and so far we were
+> using this for the bus format on cht-bsw-rt56732 boards.
+> 
+> One board, the Lenovo Miix 2 10 uses not 1 but 2 codecs connected to SSP2.
+> The second piggy-backed, output-only codec is inside the keyboard-dock
+> (which has extra speakers). Unlike the main rt5672 codec, we cannot
+> configure this codec, it is hard coded to use 2 channel 24 bit I2S.
+> 
+> Using 4 channel TDM leads to the dock speakers codec (which listens in on
+> the data send from the SSP to the rt5672 codec) emiting horribly distorted
+> sound.
+> 
+> Since we only support 2 channels anyways, there is no need for TDM on any
+> cht-bsw-rt5672 designs. So we can simply use I2S 2ch everywhere.
+> 
+> This commit fixes the Lenovo Miix 2 10 dock speakers issue by changing
+> the bus format set in cht_codec_fixup() to I2S 2 channel.
+> 
+> This change has been tested on the following devices with a rt5672 codec:
+> 
+> Lenovo Miix 2 10
+> Lenovo Thinkpad 8
+> Lenovo Thinkpad 10 (gen 1)
+> 
+> Cc: stable@vger.kernel.org
+> BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1786723
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> ---
+>   sound/soc/intel/boards/cht_bsw_rt5672.c | 23 +++++++++++------------
+>   1 file changed, 11 insertions(+), 12 deletions(-)
+> 
+> diff --git a/sound/soc/intel/boards/cht_bsw_rt5672.c b/sound/soc/intel/boards/cht_bsw_rt5672.c
+> index 7a43c70a1378..22e432768edb 100644
+> --- a/sound/soc/intel/boards/cht_bsw_rt5672.c
+> +++ b/sound/soc/intel/boards/cht_bsw_rt5672.c
+> @@ -253,21 +253,20 @@ static int cht_codec_fixup(struct snd_soc_pcm_runtime *rtd,
+>   	params_set_format(params, SNDRV_PCM_FORMAT_S24_LE);
+>   
+>   	/*
+> -	 * Default mode for SSP configuration is TDM 4 slot
+> +	 * Default mode for SSP configuration is TDM 4 slot. One board/design,
+> +	 * the Lenovo Miix 2 10 uses not 1 but 2 codecs connected to SSP2. The
+> +	 * second piggy-backed, output-only codec is inside the keyboard-dock
+> +	 * (which has extra speakers). Unlike the main rt5672 codec, we cannot
+> +	 * configure this codec, it is hard coded to use 2 channel 24 bit I2S.
+> +	 * Since we only support 2 channels anyways, there is no need for TDM
+> +	 * on any cht-bsw-rt5672 designs. So we simply use I2S 2ch everywhere.
+>   	 */
 
-greg k-h
+The change looks fine, but you may want to add additional comments to 
+explain what happens here.
 
------------------- original commit in Linus's tree ------------------
+The default mode for the SSP configuration is TDM 4 slot for the cpu-dai 
+(hard-coded in DSP firmware)
+the default mode for the SSP configuration is I2S for the codec-dai 
+(hard-coded in the 'SSP2-Codec" .dai_fmt masks, so far unused).
 
-From 7b2377486767503d47265e4d487a63c651f6b55d Mon Sep 17 00:00:00 2001
-From: Hou Tao <houtao1@huawei.com>
-Date: Mon, 15 Jun 2020 11:33:23 +0800
-Subject: [PATCH] dm zoned: assign max_io_len correctly
+So with this change, you trade one dynamic configuration for another 
+(was codec, not cpu). It works because of the pre-existing hard-coded 
+values for the parts that are not set in this function.
 
-The unit of max_io_len is sector instead of byte (spotted through
-code review), so fix it.
-
-Fixes: 3b1a94c88b79 ("dm zoned: drive-managed zoned block device target")
-Cc: stable@vger.kernel.org
-Signed-off-by: Hou Tao <houtao1@huawei.com>
-Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-
-diff --git a/drivers/md/dm-zoned-target.c b/drivers/md/dm-zoned-target.c
-index a907a9446c0b..cf915009c306 100644
---- a/drivers/md/dm-zoned-target.c
-+++ b/drivers/md/dm-zoned-target.c
-@@ -890,7 +890,7 @@ static int dmz_ctr(struct dm_target *ti, unsigned int argc, char **argv)
- 	}
- 
- 	/* Set target (no write same support) */
--	ti->max_io_len = dmz_zone_nr_sectors(dmz->metadata) << 9;
-+	ti->max_io_len = dmz_zone_nr_sectors(dmz->metadata);
- 	ti->num_flush_bios = 1;
- 	ti->num_discard_bios = 1;
- 	ti->num_write_zeroes_bios = 1;
-
+> -	ret = snd_soc_dai_set_fmt(asoc_rtd_to_codec(rtd, 0),
+> -				  SND_SOC_DAIFMT_DSP_B |
+> -				  SND_SOC_DAIFMT_IB_NF |
+> +	ret = snd_soc_dai_set_fmt(asoc_rtd_to_cpu(rtd, 0),
+> +				  SND_SOC_DAIFMT_I2S     |
+> +				  SND_SOC_DAIFMT_NB_NF   |
+>   				  SND_SOC_DAIFMT_CBS_CFS);
+>   	if (ret < 0) {
+> -		dev_err(rtd->dev, "can't set format to TDM %d\n", ret);
+> -		return ret;
+> -	}
+> -
+> -	/* TDM 4 slots 24 bit, set Rx & Tx bitmask to 4 active slots */
+> -	ret = snd_soc_dai_set_tdm_slot(asoc_rtd_to_codec(rtd, 0), 0xF, 0xF, 4, 24);
+> -	if (ret < 0) {
+> -		dev_err(rtd->dev, "can't set codec TDM slot %d\n", ret);
+> +		dev_err(rtd->dev, "can't set format to I2S, err %d\n", ret); >   		return ret;
+>   	}
+>   
+> 
