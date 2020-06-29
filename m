@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AD1F20DEB4
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:53:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA9B320DE5C
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:52:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730383AbgF2U2U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:28:20 -0400
+        id S1729447AbgF2UY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:24:56 -0400
 Received: from mail.kernel.org ([198.145.29.99]:37040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732503AbgF2TZX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:25:23 -0400
+        id S1732544AbgF2TZ2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:25:28 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6EDE4253ED;
-        Mon, 29 Jun 2020 15:42:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 591DF253F1;
+        Mon, 29 Jun 2020 15:42:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445329;
-        bh=pt8TGwydI0Q2NG5Q0h+jWjnuF3rsdC1OdZDVC8mGVLs=;
+        s=default; t=1593445336;
+        bh=JPSD4BtgicOFfZH9DkQyNOqcrCw79aH4Ed1d2ZfYyZc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LApN4g4LCo7QlxCj3Qyr/bPULYTLoBL9cwAHAGrr2HjsajLsMplCFQxw8BLt/FTwW
-         QOD5ywrPizbhUa+SmFZVKMq7KHbBi1kcxrH/icw9XusmS4H3q/+1hLptjACj8H8x3w
-         ebo9sUeNPjNoS4qy+TPHBC2BLpiLdw6RkJ8bewtk=
+        b=HVZ+zNx6HSKJcl1FGG2hT0MD95ROpQPheuuf5NMxPwm0crna8noyRLBOaYUfXyJ5H
+         GHRPKJIMrwxG+6PsCClGoPv8LX0h4NEtoJl6gYNmYresugok50w1Q89AFom4wdKjf5
+         +29aofU+ibGHb9D0v+M6wC+KLW5dSzqDC0+m1CWU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 093/191] powerpc/kprobes: Fixes for kprobe_lookup_name() on BE
-Date:   Mon, 29 Jun 2020 11:38:29 -0400
-Message-Id: <20200629154007.2495120-94-sashal@kernel.org>
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        "David S . Miller" <davem@davemloft.net>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>, netdev@vger.kernel.org,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 097/191] sched/rt, net: Use CONFIG_PREEMPTION.patch
+Date:   Mon, 29 Jun 2020 11:38:33 -0400
+Message-Id: <20200629154007.2495120-98-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
 References: <20200629154007.2495120-1-sashal@kernel.org>
@@ -49,48 +52,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 30176466e36aadba01e1a630cf42397a3438efa4 ]
+[ Upstream commit 2da2b32fd9346009e9acdb68c570ca8d3966aba7 ]
 
-Fix two issues with kprobes.h on BE which were exposed with the
-optprobes work:
-  - one, having to do with a missing include for linux/module.h for
-    MODULE_NAME_LEN -- this didn't show up previously since the only
-    users of kprobe_lookup_name were in kprobes.c, which included
-    linux/module.h through other headers, and
-  - two, with a missing const qualifier for a local variable which ends
-    up referring a string literal. Again, this is unique to how
-    kprobe_lookup_name is being invoked in optprobes.c
+CONFIG_PREEMPTION is selected by CONFIG_PREEMPT and by CONFIG_PREEMPT_RT.
+Both PREEMPT and PREEMPT_RT require the same functionality which today
+depends on CONFIG_PREEMPT.
 
-Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Update the comment to use CONFIG_PREEMPTION.
+
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: David S. Miller <davem@davemloft.net>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: netdev@vger.kernel.org
+Link: https://lore.kernel.org/r/20191015191821.11479-22-bigeasy@linutronix.de
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/kprobes.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/core/dev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/include/asm/kprobes.h b/arch/powerpc/include/asm/kprobes.h
-index 2c9759bdb63bc..063d64c1c9e89 100644
---- a/arch/powerpc/include/asm/kprobes.h
-+++ b/arch/powerpc/include/asm/kprobes.h
-@@ -29,6 +29,7 @@
- #include <linux/types.h>
- #include <linux/ptrace.h>
- #include <linux/percpu.h>
-+#include <linux/module.h>
- #include <asm/probes.h>
- #include <asm/code-patching.h>
- 
-@@ -60,7 +61,7 @@ typedef ppc_opcode_t kprobe_opcode_t;
- #define kprobe_lookup_name(name, addr)					\
- {									\
- 	char dot_name[MODULE_NAME_LEN + 1 + KSYM_NAME_LEN];		\
--	char *modsym;							\
-+	const char *modsym;							\
- 	bool dot_appended = false;					\
- 	if ((modsym = strchr(name, ':')) != NULL) {			\
- 		modsym++;						\
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 1041523aaa76e..86f69ff758250 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -869,7 +869,7 @@ EXPORT_SYMBOL(dev_get_by_index);
+  *
+  *	The use of raw_seqcount_begin() and cond_resched() before
+  *	retrying is required as we want to give the writers a chance
+- *	to complete when CONFIG_PREEMPT is not set.
++ *	to complete when CONFIG_PREEMPTION is not set.
+  */
+ int netdev_get_name(struct net *net, char *name, int ifindex)
+ {
 -- 
 2.25.1
 
