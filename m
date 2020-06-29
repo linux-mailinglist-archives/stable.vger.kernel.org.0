@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4250220E82D
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:12:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B925D20E803
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:12:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391822AbgF2WEW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 18:04:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56780 "EHLO mail.kernel.org"
+        id S1730157AbgF2WCa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 18:02:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726173AbgF2SfV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:35:21 -0400
+        id S1726249AbgF2SfX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:35:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F2EB24182;
-        Mon, 29 Jun 2020 15:19:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 26A7724196;
+        Mon, 29 Jun 2020 15:19:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593443952;
-        bh=OZU4AHm2DkxTja+J+YK4vXYb0fvaUQ/Dp2hM+Aq594k=;
+        s=default; t=1593443953;
+        bh=S4oSBEKFtn41itg9mzsbFJpEvLbzU9TYSrz+ppPP6Es=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MBnbruB/E+3H0PRHbYMfF7nXE6IyeQG925s/KNdho9uO/dghp4CiNQDCaSQ8EmIqI
-         7WLEtg74MFvgww9E226pyCet5PLJx2NAQHghrElJmzHMDj4oE/5XPtDnnRMJI2v01x
-         zvzNxUXpiiNvgYHicR1YdZcBrzlpV7NzYq5OlSpY=
+        b=ssc6vpKKd+8FBR9j3F2t5sweklbGR81LepenAVhpRiffII7zbpFz5HxaCHKsZos09
+         pRVixcehWhENq0UwaAr0JPqug+WW1mz+67LpZh/a8FWShiQp6inc2eoMyjyMU/wjef
+         lai1yg13qi8GKYro7IY8JOoZWSsuCRiW9fgGOOvo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 054/265] nvmet: fail outstanding host posted AEN req
-Date:   Mon, 29 Jun 2020 11:14:47 -0400
-Message-Id: <20200629151818.2493727-55-sashal@kernel.org>
+Cc:     Al Viro <viro@zeniv.linux.org.uk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 055/265] fix a braino in "sparc32: fix register window handling in genregs32_[gs]et()"
+Date:   Mon, 29 Jun 2020 11:14:48 -0400
+Message-Id: <20200629151818.2493727-56-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -50,140 +47,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit 819f7b88b48fd2bce932cfe3a38bf8fcefbcabe7 ]
+[ Upstream commit 9d964e1b82d8182184153b70174f445ea616f053 ]
 
-In function nvmet_async_event_process() we only process AENs iff
-there is an open slot on the ctrl->async_event_cmds[] && aen
-event list posted by the target is not empty. This keeps host
-posted AEN outstanding if target generated AEN list is empty.
-We do cleanup the target generated entries from the aen list in
-nvmet_ctrl_free()-> nvmet_async_events_free() but we don't
-process AEN posted by the host. This leads to following problem :-
+lost npc in PTRACE_SETREGSET, breaking PTRACE_SETREGS as well
 
-When processing admin sq at the time of nvmet_sq_destroy() holds
-an extra percpu reference(atomic value = 1), so in the following code
-path after switching to atomic rcu, release function (nvmet_sq_free())
-is not getting called which blocks the sq->free_done in
-nvmet_sq_destroy() :-
-
-nvmet_sq_destroy()
- percpu_ref_kill_and_confirm()
- - __percpu_ref_switch_mode()
- --  __percpu_ref_switch_to_atomic()
- ---   call_rcu() -> percpu_ref_switch_to_atomic_rcu()
- ----     /* calls switch callback */
- - percpu_ref_put()
- -- percpu_ref_put_many(ref, 1)
- --- else if (unlikely(atomic_long_sub_and_test(nr, &ref->count)))
- ----   ref->release(ref); <---- Not called.
-
-This results in indefinite hang:-
-
-  void nvmet_sq_destroy(struct nvmet_sq *sq)
-...
-          if (ctrl && ctrl->sqs && ctrl->sqs[0] == sq) {
-                  nvmet_async_events_process(ctrl, status);
-                  percpu_ref_put(&sq->ref);
-          }
-          percpu_ref_kill_and_confirm(&sq->ref, nvmet_confirm_sq);
-          wait_for_completion(&sq->confirm_done);
-          wait_for_completion(&sq->free_done); <-- Hang here
-
-Which breaks the further disconnect sequence. This problem seems to be
-introduced after commit 64f5e9cdd711b ("nvmet: fix memory leak when
-removing namespaces and controllers concurrently").
-
-This patch processes ctrl->async_event_cmds[] in the admin sq destroy()
-context irrespetive of aen_list. Also we get rid of the controller's
-aen_list processing in the nvmet_sq_destroy() context and just ignore
-ctrl->aen_list.
-
-This results in nvmet_async_events_process() being called from workqueue
-context so we adjust the code accordingly.
-
-Fixes: 64f5e9cdd711 ("nvmet: fix memory leak when removing namespaces and controllers concurrently ")
-Signed-off-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: cf51e129b968 "sparc32: fix register window handling in genregs32_[gs]et()"
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/target/core.c | 27 ++++++++++++++++++++-------
- 1 file changed, 20 insertions(+), 7 deletions(-)
+ arch/sparc/kernel/ptrace_32.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/target/core.c b/drivers/nvme/target/core.c
-index ac7ae031ce78d..96deaf3484662 100644
---- a/drivers/nvme/target/core.c
-+++ b/drivers/nvme/target/core.c
-@@ -129,7 +129,22 @@ static u32 nvmet_async_event_result(struct nvmet_async_event *aen)
- 	return aen->event_type | (aen->event_info << 8) | (aen->log_page << 16);
+diff --git a/arch/sparc/kernel/ptrace_32.c b/arch/sparc/kernel/ptrace_32.c
+index 60f7205ebe40d..646dd58169ecb 100644
+--- a/arch/sparc/kernel/ptrace_32.c
++++ b/arch/sparc/kernel/ptrace_32.c
+@@ -168,12 +168,17 @@ static int genregs32_set(struct task_struct *target,
+ 	if (ret || !count)
+ 		return ret;
+ 	ret = user_regset_copyin(&pos, &count, &kbuf, &ubuf,
+-				 &regs->y,
++				 &regs->npc,
+ 				 34 * sizeof(u32), 35 * sizeof(u32));
+ 	if (ret || !count)
+ 		return ret;
++	ret = user_regset_copyin(&pos, &count, &kbuf, &ubuf,
++				 &regs->y,
++				 35 * sizeof(u32), 36 * sizeof(u32));
++	if (ret || !count)
++		return ret;
+ 	return user_regset_copyin_ignore(&pos, &count, &kbuf, &ubuf,
+-					 35 * sizeof(u32), 38 * sizeof(u32));
++					 36 * sizeof(u32), 38 * sizeof(u32));
  }
  
--static void nvmet_async_events_process(struct nvmet_ctrl *ctrl, u16 status)
-+static void nvmet_async_events_failall(struct nvmet_ctrl *ctrl)
-+{
-+	u16 status = NVME_SC_INTERNAL | NVME_SC_DNR;
-+	struct nvmet_req *req;
-+
-+	mutex_lock(&ctrl->lock);
-+	while (ctrl->nr_async_event_cmds) {
-+		req = ctrl->async_event_cmds[--ctrl->nr_async_event_cmds];
-+		mutex_unlock(&ctrl->lock);
-+		nvmet_req_complete(req, status);
-+		mutex_lock(&ctrl->lock);
-+	}
-+	mutex_unlock(&ctrl->lock);
-+}
-+
-+static void nvmet_async_events_process(struct nvmet_ctrl *ctrl)
- {
- 	struct nvmet_async_event *aen;
- 	struct nvmet_req *req;
-@@ -139,14 +154,13 @@ static void nvmet_async_events_process(struct nvmet_ctrl *ctrl, u16 status)
- 		aen = list_first_entry(&ctrl->async_events,
- 				       struct nvmet_async_event, entry);
- 		req = ctrl->async_event_cmds[--ctrl->nr_async_event_cmds];
--		if (status == 0)
--			nvmet_set_result(req, nvmet_async_event_result(aen));
-+		nvmet_set_result(req, nvmet_async_event_result(aen));
- 
- 		list_del(&aen->entry);
- 		kfree(aen);
- 
- 		mutex_unlock(&ctrl->lock);
--		nvmet_req_complete(req, status);
-+		nvmet_req_complete(req, 0);
- 		mutex_lock(&ctrl->lock);
- 	}
- 	mutex_unlock(&ctrl->lock);
-@@ -169,7 +183,7 @@ static void nvmet_async_event_work(struct work_struct *work)
- 	struct nvmet_ctrl *ctrl =
- 		container_of(work, struct nvmet_ctrl, async_event_work);
- 
--	nvmet_async_events_process(ctrl, 0);
-+	nvmet_async_events_process(ctrl);
- }
- 
- void nvmet_add_async_event(struct nvmet_ctrl *ctrl, u8 event_type,
-@@ -752,7 +766,6 @@ static void nvmet_confirm_sq(struct percpu_ref *ref)
- 
- void nvmet_sq_destroy(struct nvmet_sq *sq)
- {
--	u16 status = NVME_SC_INTERNAL | NVME_SC_DNR;
- 	struct nvmet_ctrl *ctrl = sq->ctrl;
- 
- 	/*
-@@ -760,7 +773,7 @@ void nvmet_sq_destroy(struct nvmet_sq *sq)
- 	 * queue doesn't have outstanding requests on it.
- 	 */
- 	if (ctrl && ctrl->sqs && ctrl->sqs[0] == sq)
--		nvmet_async_events_process(ctrl, status);
-+		nvmet_async_events_failall(ctrl);
- 	percpu_ref_kill_and_confirm(&sq->ref, nvmet_confirm_sq);
- 	wait_for_completion(&sq->confirm_done);
- 	wait_for_completion(&sq->free_done);
+ static int fpregs32_get(struct task_struct *target,
 -- 
 2.25.1
 
