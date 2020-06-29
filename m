@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF31B20DE30
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:52:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A93420DE35
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:52:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731434AbgF2UXY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:23:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37066 "EHLO mail.kernel.org"
+        id S1733230AbgF2UXi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:23:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732566AbgF2TZc (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1732567AbgF2TZc (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 29 Jun 2020 15:25:32 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5932325378;
-        Mon, 29 Jun 2020 15:40:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A3C42537B;
+        Mon, 29 Jun 2020 15:40:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445242;
-        bh=hqaq0wA3RTshUAgU5UIX03B8XFtT0KgmASFI8o55E18=;
+        s=default; t=1593445243;
+        bh=22GcyC7muiffFtETFdjF2sD42yntUmJ9O0GxjhYMGP4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iZEx+LudwDf4XTBxYOOors32XJ5o27pNn4aULZgOEJ8y/2zDlryoaWV4NKbnJKrDZ
-         yfYMxUwxthexxbsrC7Vd+nGZ5CoWQein/qOUU4P3D4X7pYFI7tH2x4suqwMXywlbj8
-         k5VnxardLtHDNeX23/CWs8tVGP2iAVbJhscjdiJU=
+        b=wcgbvXfJ4LR4MmOPZCA7+Isk4n+v5XwVnF8xQ1ZeI+iUT9LxPVR9LN4ouLmbEnulk
+         cjmfGFO/7alLUNpXwJlDz12qa4sDYYeDkJ/ruXeZfBu7saUhdsZBTGP4q36S79KkjF
+         N6d6evjfEPQZJwfjSAZJaSc+eMuitMwPvOmtY+rs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Tsoy <alexander@tsoy.me>, Takashi Iwai <tiwai@suse.de>,
+Cc:     Julian Wiedmann <jwi@linux.ibm.com>,
+        Benjamin Block <bblock@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 026/191] ALSA: usb-audio: Improve frames size computation
-Date:   Mon, 29 Jun 2020 11:37:22 -0400
-Message-Id: <20200629154007.2495120-27-sashal@kernel.org>
+Subject: [PATCH 4.9 027/191] s390/qdio: put thinint indicator after early error
+Date:   Mon, 29 Jun 2020 11:37:23 -0400
+Message-Id: <20200629154007.2495120-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
 References: <20200629154007.2495120-1-sashal@kernel.org>
@@ -48,165 +50,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Tsoy <alexander@tsoy.me>
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-[ Upstream commit f0bd62b64016508938df9babe47f65c2c727d25c ]
+[ Upstream commit 75e82bec6b2622c6f455b7a543fb5476a5d0eed7 ]
 
-For computation of the the next frame size current value of fs/fps and
-accumulated fractional parts of fs/fps are used, where values are stored
-in Q16.16 format. This is quite natural for computing frame size for
-asynchronous endpoints driven by explicit feedback, since in this case
-fs/fps is a value provided by the feedback endpoint and it's already in
-the Q format. If an error is accumulated over time, the device can
-adjust fs/fps value to prevent buffer overruns/underruns.
+qdio_establish() calls qdio_setup_thinint() via qdio_setup_irq().
+If the subsequent qdio_establish_thinint() fails, we miss to put the
+DSCI again. Thus the DSCI isn't available for re-use. Given enough of
+such errors, we could end up with having only the shared DSCI available.
 
-But for synchronous endpoints the accuracy provided by these computations
-is not enough. Due to accumulated error the driver periodically produces
-frames with incorrect size (+/- 1 audio sample).
+Merge qdio_setup_thinint() into qdio_establish_thinint(), and deal with
+such an error internally.
 
-This patch fixes this issue by implementing a different algorithm for
-frame size computation. It is based on accumulating of the remainders
-from division fs/fps and it doesn't accumulate errors over time. This
-new method is enabled for synchronous and adaptive playback endpoints.
-
-Signed-off-by: Alexander Tsoy <alexander@tsoy.me>
-Link: https://lore.kernel.org/r/20200424022449.14972-1-alexander@tsoy.me
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 779e6e1c724d ("[S390] qdio: new qdio driver.")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/card.h     |  4 ++++
- sound/usb/endpoint.c | 43 ++++++++++++++++++++++++++++++++++++++-----
- sound/usb/endpoint.h |  1 +
- sound/usb/pcm.c      |  2 ++
- 4 files changed, 45 insertions(+), 5 deletions(-)
+ drivers/s390/cio/qdio.h         |  1 -
+ drivers/s390/cio/qdio_setup.c   |  1 -
+ drivers/s390/cio/qdio_thinint.c | 14 ++++++++------
+ 3 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/sound/usb/card.h b/sound/usb/card.h
-index 111b0f009afa4..c4599cf0ddc94 100644
---- a/sound/usb/card.h
-+++ b/sound/usb/card.h
-@@ -80,6 +80,10 @@ struct snd_usb_endpoint {
- 	dma_addr_t sync_dma;		/* DMA address of syncbuf */
+diff --git a/drivers/s390/cio/qdio.h b/drivers/s390/cio/qdio.h
+index 7e70f9298cc13..11f6ebd045456 100644
+--- a/drivers/s390/cio/qdio.h
++++ b/drivers/s390/cio/qdio.h
+@@ -376,7 +376,6 @@ static inline int multicast_outbound(struct qdio_q *q)
+ extern u64 last_ai_time;
  
- 	unsigned int pipe;		/* the data i/o pipe */
-+	unsigned int framesize[2];	/* small/large frame sizes in samples */
-+	unsigned int sample_rem;	/* remainder from division fs/fps */
-+	unsigned int sample_accum;	/* sample accumulator */
-+	unsigned int fps;		/* frames per second */
- 	unsigned int freqn;		/* nominal sampling rate in fs/fps in Q16.16 format */
- 	unsigned int freqm;		/* momentary sampling rate in fs/fps in Q16.16 format */
- 	int	   freqshift;		/* how much to shift the feedback value to get Q16.16 */
-diff --git a/sound/usb/endpoint.c b/sound/usb/endpoint.c
-index 30aa5f2df6da5..b5207e71ed720 100644
---- a/sound/usb/endpoint.c
-+++ b/sound/usb/endpoint.c
-@@ -137,12 +137,12 @@ int snd_usb_endpoint_implicit_feedback_sink(struct snd_usb_endpoint *ep)
+ /* prototypes for thin interrupt */
+-void qdio_setup_thinint(struct qdio_irq *irq_ptr);
+ int qdio_establish_thinint(struct qdio_irq *irq_ptr);
+ void qdio_shutdown_thinint(struct qdio_irq *irq_ptr);
+ void tiqdio_add_input_queues(struct qdio_irq *irq_ptr);
+diff --git a/drivers/s390/cio/qdio_setup.c b/drivers/s390/cio/qdio_setup.c
+index d0090c5c88e74..a64615a10352b 100644
+--- a/drivers/s390/cio/qdio_setup.c
++++ b/drivers/s390/cio/qdio_setup.c
+@@ -479,7 +479,6 @@ int qdio_setup_irq(struct qdio_initialize *init_data)
+ 	setup_queues(irq_ptr, init_data);
  
- /*
-  * For streaming based on information derived from sync endpoints,
-- * prepare_outbound_urb_sizes() will call next_packet_size() to
-+ * prepare_outbound_urb_sizes() will call slave_next_packet_size() to
-  * determine the number of samples to be sent in the next packet.
-  *
-- * For implicit feedback, next_packet_size() is unused.
-+ * For implicit feedback, slave_next_packet_size() is unused.
-  */
--int snd_usb_endpoint_next_packet_size(struct snd_usb_endpoint *ep)
-+int snd_usb_endpoint_slave_next_packet_size(struct snd_usb_endpoint *ep)
+ 	setup_qib(irq_ptr, init_data);
+-	qdio_setup_thinint(irq_ptr);
+ 	set_impl_params(irq_ptr, init_data->qib_param_field_format,
+ 			init_data->qib_param_field,
+ 			init_data->input_slib_elements,
+diff --git a/drivers/s390/cio/qdio_thinint.c b/drivers/s390/cio/qdio_thinint.c
+index debe69adfc705..aecb6445a5671 100644
+--- a/drivers/s390/cio/qdio_thinint.c
++++ b/drivers/s390/cio/qdio_thinint.c
+@@ -268,17 +268,19 @@ int __init tiqdio_register_thinints(void)
+ 
+ int qdio_establish_thinint(struct qdio_irq *irq_ptr)
  {
- 	unsigned long flags;
- 	int ret;
-@@ -159,6 +159,29 @@ int snd_usb_endpoint_next_packet_size(struct snd_usb_endpoint *ep)
- 	return ret;
++	int rc;
++
+ 	if (!is_thinint_irq(irq_ptr))
+ 		return 0;
+-	return set_subchannel_ind(irq_ptr, 0);
+-}
+ 
+-void qdio_setup_thinint(struct qdio_irq *irq_ptr)
+-{
+-	if (!is_thinint_irq(irq_ptr))
+-		return;
+ 	irq_ptr->dsci = get_indicator();
+ 	DBF_HEX(&irq_ptr->dsci, sizeof(void *));
++
++	rc = set_subchannel_ind(irq_ptr, 0);
++	if (rc)
++		put_indicator(irq_ptr->dsci);
++
++	return rc;
  }
  
-+/*
-+ * For adaptive and synchronous endpoints, prepare_outbound_urb_sizes()
-+ * will call next_packet_size() to determine the number of samples to be
-+ * sent in the next packet.
-+ */
-+int snd_usb_endpoint_next_packet_size(struct snd_usb_endpoint *ep)
-+{
-+	int ret;
-+
-+	if (ep->fill_max)
-+		return ep->maxframesize;
-+
-+	ep->sample_accum += ep->sample_rem;
-+	if (ep->sample_accum >= ep->fps) {
-+		ep->sample_accum -= ep->fps;
-+		ret = ep->framesize[1];
-+	} else {
-+		ret = ep->framesize[0];
-+	}
-+
-+	return ret;
-+}
-+
- static void retire_outbound_urb(struct snd_usb_endpoint *ep,
- 				struct snd_urb_ctx *urb_ctx)
- {
-@@ -203,6 +226,8 @@ static void prepare_silent_urb(struct snd_usb_endpoint *ep,
- 
- 		if (ctx->packet_size[i])
- 			counts = ctx->packet_size[i];
-+		else if (ep->sync_master)
-+			counts = snd_usb_endpoint_slave_next_packet_size(ep);
- 		else
- 			counts = snd_usb_endpoint_next_packet_size(ep);
- 
-@@ -875,10 +900,17 @@ int snd_usb_endpoint_set_params(struct snd_usb_endpoint *ep,
- 	ep->maxpacksize = fmt->maxpacksize;
- 	ep->fill_max = !!(fmt->attributes & UAC_EP_CS_ATTR_FILL_MAX);
- 
--	if (snd_usb_get_speed(ep->chip->dev) == USB_SPEED_FULL)
-+	if (snd_usb_get_speed(ep->chip->dev) == USB_SPEED_FULL) {
- 		ep->freqn = get_usb_full_speed_rate(rate);
--	else
-+		ep->fps = 1000;
-+	} else {
- 		ep->freqn = get_usb_high_speed_rate(rate);
-+		ep->fps = 8000;
-+	}
-+
-+	ep->sample_rem = rate % ep->fps;
-+	ep->framesize[0] = rate / ep->fps;
-+	ep->framesize[1] = (rate + (ep->fps - 1)) / ep->fps;
- 
- 	/* calculate the frequency in 16.16 format */
- 	ep->freqm = ep->freqn;
-@@ -937,6 +969,7 @@ int snd_usb_endpoint_start(struct snd_usb_endpoint *ep)
- 	ep->active_mask = 0;
- 	ep->unlink_mask = 0;
- 	ep->phase = 0;
-+	ep->sample_accum = 0;
- 
- 	snd_usb_endpoint_start_quirk(ep);
- 
-diff --git a/sound/usb/endpoint.h b/sound/usb/endpoint.h
-index 584f295d7c773..4aad49cbeb5f1 100644
---- a/sound/usb/endpoint.h
-+++ b/sound/usb/endpoint.h
-@@ -27,6 +27,7 @@ void snd_usb_endpoint_release(struct snd_usb_endpoint *ep);
- void snd_usb_endpoint_free(struct snd_usb_endpoint *ep);
- 
- int snd_usb_endpoint_implicit_feedback_sink(struct snd_usb_endpoint *ep);
-+int snd_usb_endpoint_slave_next_packet_size(struct snd_usb_endpoint *ep);
- int snd_usb_endpoint_next_packet_size(struct snd_usb_endpoint *ep);
- 
- void snd_usb_handle_sync_urb(struct snd_usb_endpoint *ep,
-diff --git a/sound/usb/pcm.c b/sound/usb/pcm.c
-index 9bc995f9b4e17..615213aeda338 100644
---- a/sound/usb/pcm.c
-+++ b/sound/usb/pcm.c
-@@ -1483,6 +1483,8 @@ static void prepare_playback_urb(struct snd_usb_substream *subs,
- 	for (i = 0; i < ctx->packets; i++) {
- 		if (ctx->packet_size[i])
- 			counts = ctx->packet_size[i];
-+		else if (ep->sync_master)
-+			counts = snd_usb_endpoint_slave_next_packet_size(ep);
- 		else
- 			counts = snd_usb_endpoint_next_packet_size(ep);
- 
+ void qdio_shutdown_thinint(struct qdio_irq *irq_ptr)
 -- 
 2.25.1
 
