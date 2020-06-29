@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8CCC20DF1E
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:54:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0323E20DDD4
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:51:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732416AbgF2UcX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:32:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37026 "EHLO mail.kernel.org"
+        id S1732613AbgF2UTq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:19:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732417AbgF2TZS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:25:18 -0400
+        id S1732622AbgF2TZk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:25:40 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1EECB25318;
-        Mon, 29 Jun 2020 15:39:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8FD6C25397;
+        Mon, 29 Jun 2020 15:41:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445146;
-        bh=QQjTy83/bItqKgEe9rfd0Yx/TjTAlqto0VCLdCQMsCM=;
+        s=default; t=1593445262;
+        bh=3Ob8pXuAG12RcidzX5/UkCv6xb4eoYNzwyVZ7XKkcCo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IZxtp2jQY6bzSaWdhYyhZsU3UImWRUcT3YQ+Yh8T3VR+BagXF0qzrEIhW5/cV9cJx
-         smM1rF4VvPsaMpVYJYv9q29gV1kX59q+XbCFQG96Lb6dDAwT7AroDOQB6I424p9tII
-         0PYk0WzW7KCH86MxExUC6MJMO994M6/eQ5nzmQrE=
+        b=eIuqBEUsj+Bsp7c6RFpHukHO0QTmW9MBBpopjA5HzgfkjduwrP0Auc5KcCH9zy6fg
+         BvduxnMv+kjf/b2o3Z9vnXWXUTkp5UCQyB6Knx45ur5T0LN2zSsyH564FC9OJBk8hi
+         N3Kc1xPYkdEaIZkmqonG5yp54q7NOOLIXIC44f7A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
-        Felipe Balbi <balbi@kernel.org>,
+Cc:     Geoff Levand <geoff@infradead.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 50/78] usb: gadget: udc: Potential Oops in error handling code
-Date:   Mon, 29 Jun 2020 11:37:38 -0400
-Message-Id: <20200629153806.2494953-51-sashal@kernel.org>
+Subject: [PATCH 4.9 043/191] powerpc/ps3: Fix kexec shutdown hang
+Date:   Mon, 29 Jun 2020 11:37:39 -0400
+Message-Id: <20200629154007.2495120-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200629153806.2494953-1-sashal@kernel.org>
-References: <20200629153806.2494953-1-sashal@kernel.org>
+In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
+References: <20200629154007.2495120-1-sashal@kernel.org>
 MIME-Version: 1.0
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.186-rc1.gz
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.229-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.14.y
+X-KernelTest-Branch: linux-4.9.y
 X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.14.186-rc1
-X-KernelTest-Deadline: 2020-07-01T15:38+00:00
+X-KernelTest-Version: 4.9.229-rc1
+X-KernelTest-Deadline: 2020-07-01T15:39+00:00
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -49,36 +49,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Geoff Levand <geoff@infradead.org>
 
-[ Upstream commit e55f3c37cb8d31c7e301f46396b2ac6a19eb3a7c ]
+[ Upstream commit 126554465d93b10662742128918a5fc338cda4aa ]
 
-If this is in "transceiver" mode the the ->qwork isn't required and is
-a NULL pointer.  This can lead to a NULL dereference when we call
-destroy_workqueue(udc->qwork).
+The ps3_mm_region_destroy() and ps3_mm_vas_destroy() routines
+are called very late in the shutdown via kexec's mmu_cleanup_all
+routine.  By the time mmu_cleanup_all runs it is too late to use
+udbg_printf, and calling it will cause PS3 systems to hang.
 
-Fixes: 3517c31a8ece ("usb: gadget: mv_udc: use devm_xxx for probe")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Remove all debugging statements from ps3_mm_region_destroy() and
+ps3_mm_vas_destroy() and replace any error reporting with calls
+to lv1_panic.
+
+With this change builds with 'DEBUG' defined will not cause kexec
+reboots to hang, and builds with 'DEBUG' defined or not will end
+in lv1_panic if an error is encountered.
+
+Signed-off-by: Geoff Levand <geoff@infradead.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/7325c4af2b4c989c19d6a26b90b1fec9c0615ddf.1589049250.git.geoff@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/mv_udc_core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/powerpc/platforms/ps3/mm.c | 22 ++++++++++++----------
+ 1 file changed, 12 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/usb/gadget/udc/mv_udc_core.c b/drivers/usb/gadget/udc/mv_udc_core.c
-index 4103bf7cf52ab..62fad60d0c061 100644
---- a/drivers/usb/gadget/udc/mv_udc_core.c
-+++ b/drivers/usb/gadget/udc/mv_udc_core.c
-@@ -2317,7 +2317,8 @@ static int mv_udc_probe(struct platform_device *pdev)
- 	return 0;
+diff --git a/arch/powerpc/platforms/ps3/mm.c b/arch/powerpc/platforms/ps3/mm.c
+index b0f34663b1aec..19bae78b1f25b 100644
+--- a/arch/powerpc/platforms/ps3/mm.c
++++ b/arch/powerpc/platforms/ps3/mm.c
+@@ -212,13 +212,14 @@ void ps3_mm_vas_destroy(void)
+ {
+ 	int result;
  
- err_create_workqueue:
--	destroy_workqueue(udc->qwork);
-+	if (udc->qwork)
-+		destroy_workqueue(udc->qwork);
- err_destroy_dma:
- 	dma_pool_destroy(udc->dtd_pool);
- err_free_dma:
+-	DBG("%s:%d: map.vas_id    = %llu\n", __func__, __LINE__, map.vas_id);
+-
+ 	if (map.vas_id) {
+ 		result = lv1_select_virtual_address_space(0);
+-		BUG_ON(result);
+-		result = lv1_destruct_virtual_address_space(map.vas_id);
+-		BUG_ON(result);
++		result += lv1_destruct_virtual_address_space(map.vas_id);
++
++		if (result) {
++			lv1_panic(0);
++		}
++
+ 		map.vas_id = 0;
+ 	}
+ }
+@@ -316,19 +317,20 @@ static void ps3_mm_region_destroy(struct mem_region *r)
+ 	int result;
+ 
+ 	if (!r->destroy) {
+-		pr_info("%s:%d: Not destroying high region: %llxh %llxh\n",
+-			__func__, __LINE__, r->base, r->size);
+ 		return;
+ 	}
+ 
+-	DBG("%s:%d: r->base = %llxh\n", __func__, __LINE__, r->base);
+-
+ 	if (r->base) {
+ 		result = lv1_release_memory(r->base);
+-		BUG_ON(result);
++
++		if (result) {
++			lv1_panic(0);
++		}
++
+ 		r->size = r->base = r->offset = 0;
+ 		map.total = map.rm.size;
+ 	}
++
+ 	ps3_mm_set_repository_highmem(NULL);
+ }
+ 
 -- 
 2.25.1
 
