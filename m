@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D553720E83E
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:12:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E2D520E64B
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:08:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391834AbgF2WEp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 18:04:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56788 "EHLO mail.kernel.org"
+        id S1726791AbgF2VqN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:46:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726179AbgF2SfV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:35:21 -0400
+        id S1726782AbgF2Sfu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:35:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19A83246A1;
+        by mail.kernel.org (Postfix) with ESMTPSA id EFB9E246A0;
         Mon, 29 Jun 2020 15:19:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593443996;
-        bh=yP2iUUsoD9wU6n3FXJD0Asi3/uyg3v8g2KmgWtmx3Mg=;
+        s=default; t=1593443997;
+        bh=bsVnmFnwHQX1Iq9XkTHGGqBJy3pS/LOLzkSfDILiQOo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qW4162CXrxI1ua6gu2B7JJHqra8yY5YRbwcQULF9nahYn10Vm1IfUmc+fkkUY1sj0
-         AY+UhnyOsE1R1x1Pkeoag3oHlljBFkaYipc5FrnLNuucMgvv08rn35F95N0IitbzyX
-         CGvxGXEE3A9Bksx4G3LWQX3SWVQpORHD55nQ5oIM=
+        b=QUNBc7/gXtY5vLNKN9uaDm0ZamYFoLENq+MOhkv426Yd2fdjCt8TPnBd7vrGdfrAM
+         GAcpIDf4BSoXQl2DdR5uI7Q0df55XZGCF0dntPn+wn4/K1CsoMziImr/4jOq6tOM6k
+         ruQ7M9oSM9+SO1HeCxP4Wf0E6fwPoEZXgtNbQfi0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+Cc:     Martin Fuzzey <martin.fuzzey@flowbird.group>,
+        kernel test robot <lkp@intel.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 101/265] ASoC: q6asm: handle EOS correctly
-Date:   Mon, 29 Jun 2020 11:15:34 -0400
-Message-Id: <20200629151818.2493727-102-sashal@kernel.org>
+Subject: [PATCH 5.7 102/265] regulator: da9063: fix LDO9 suspend and warning.
+Date:   Mon, 29 Jun 2020 11:15:35 -0400
+Message-Id: <20200629151818.2493727-103-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -49,58 +50,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Martin Fuzzey <martin.fuzzey@flowbird.group>
 
-[ Upstream commit 6476b60f32866be49d05e2e0163f337374c55b06 ]
+[ Upstream commit d7442ba13d62de9afc4e57344a676f9f4623dcaa ]
 
-Successful send of EOS command does not indicate that EOS is actually
-finished, correct event to wait EOS is finished is EOS_RENDERED event.
-EOS_RENDERED means that the DSP has finished processing all the buffers
-for that particular session and stream.
+Commit 99f75ce66619 ("regulator: da9063: fix suspend") converted
+the regulators to use a common (corrected) suspend bit setting but
+one of regulators (LDO9) slipped through the crack.
 
-This patch fixes EOS handling!
+This means that the original problem was not fixed for LDO9 and
+also leads to a warning found by the test robot.
+	da9063-regulator.c:515:3: warning: initialized field overwritten
 
-Fixes: 68fd8480bb7b ("ASoC: qdsp6: q6asm: Add support to audio stream apis")
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20200611124159.20742-3-srinivas.kandagatla@linaro.org
+Fix this by converting that regulator too like the others.
+
+Fixes: 99f75ce66619 ("regulator: da9063: fix suspend")
+Reported-by: kernel test robot <lkp@intel.com>
+
+Signed-off-by: Martin Fuzzey <martin.fuzzey@flowbird.group>
+Link: https://lore.kernel.org/r/1591959073-16792-1-git-send-email-martin.fuzzey@flowbird.group
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/qcom/qdsp6/q6asm.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/regulator/da9063-regulator.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/sound/soc/qcom/qdsp6/q6asm.c b/sound/soc/qcom/qdsp6/q6asm.c
-index 0e0e8f7a460ab..ae4b2cabdf2d6 100644
---- a/sound/soc/qcom/qdsp6/q6asm.c
-+++ b/sound/soc/qcom/qdsp6/q6asm.c
-@@ -25,6 +25,7 @@
- #define ASM_STREAM_CMD_FLUSH			0x00010BCE
- #define ASM_SESSION_CMD_PAUSE			0x00010BD3
- #define ASM_DATA_CMD_EOS			0x00010BDB
-+#define ASM_DATA_EVENT_RENDERED_EOS		0x00010C1C
- #define ASM_NULL_POPP_TOPOLOGY			0x00010C68
- #define ASM_STREAM_CMD_FLUSH_READBUFS		0x00010C09
- #define ASM_STREAM_CMD_SET_ENCDEC_PARAM		0x00010C10
-@@ -622,9 +623,6 @@ static int32_t q6asm_stream_callback(struct apr_device *adev,
- 		case ASM_SESSION_CMD_SUSPEND:
- 			client_event = ASM_CLIENT_EVENT_CMD_SUSPEND_DONE;
- 			break;
--		case ASM_DATA_CMD_EOS:
--			client_event = ASM_CLIENT_EVENT_CMD_EOS_DONE;
--			break;
- 		case ASM_STREAM_CMD_FLUSH:
- 			client_event = ASM_CLIENT_EVENT_CMD_FLUSH_DONE;
- 			break;
-@@ -727,6 +725,9 @@ static int32_t q6asm_stream_callback(struct apr_device *adev,
- 			spin_unlock_irqrestore(&ac->lock, flags);
- 		}
- 
-+		break;
-+	case ASM_DATA_EVENT_RENDERED_EOS:
-+		client_event = ASM_CLIENT_EVENT_CMD_EOS_DONE;
- 		break;
- 	}
- 
+diff --git a/drivers/regulator/da9063-regulator.c b/drivers/regulator/da9063-regulator.c
+index e1d6c8f6d40bb..fe65b5acaf280 100644
+--- a/drivers/regulator/da9063-regulator.c
++++ b/drivers/regulator/da9063-regulator.c
+@@ -512,7 +512,6 @@ static const struct da9063_regulator_info da9063_regulator_info[] = {
+ 	},
+ 	{
+ 		DA9063_LDO(DA9063, LDO9, 950, 50, 3600),
+-		.suspend = BFIELD(DA9063_REG_LDO9_CONT, DA9063_VLDO9_SEL),
+ 	},
+ 	{
+ 		DA9063_LDO(DA9063, LDO11, 900, 50, 3600),
 -- 
 2.25.1
 
