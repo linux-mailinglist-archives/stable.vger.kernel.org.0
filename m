@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0524820D92B
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:11:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C59720DA3C
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:13:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732748AbgF2TpN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:45:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47678 "EHLO mail.kernel.org"
+        id S1729932AbgF2TzK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:55:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387825AbgF2Tkp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:45 -0400
+        id S2387664AbgF2TkZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 420DE24810;
-        Mon, 29 Jun 2020 15:25:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 22C0724811;
+        Mon, 29 Jun 2020 15:25:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444331;
-        bh=kfz40U3GJTPN7qzf2x608CXIypAWHOkTtsPZiquQHbA=;
+        s=default; t=1593444333;
+        bh=xiHZeVbkn0uJvIcAhgkE6AUFOK1vtmvL1otQOIYYmE0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=atjNXCt1hCw73NbxiZLLgFIhTA2FIOaG8sREqSJZgRKuTI2WY7YxOmTm65vcz1gBw
-         OVF10ftOeEouYWqPXbAJGXtUA1ND0hzyfqEFs2MsHT9Gv/0ja5JZnx2+W/u4kNhPPF
-         NanFqGGtd+CC6COfF8UelmZLGwO/eiXGNHC6qGIE=
+        b=pATzCdRiq+cwvamuYzE8VjSRr2oVtFYM2w6lxv9vDi6/KBbNAR+f92h0W4xNMhhol
+         Ifvugk8dy466leNu16GZTfSVRcRIMjffcCIFA5w+tI/NuyjewMa+rOydELFgdS0qMI
+         fHlB8nF80T2wgcUoF0IpvUY+cNtCndBx2t/McJgI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sven Auhagen <sven.auhagen@voleatech.de>,
+Cc:     Thomas Martitz <t.martitz@avm.de>,
+        Roopa Prabhu <roopa@cumulusnetworks.com>,
+        Nikolay Aleksandrov <nikolay@cumulusnetworks.com>,
         "David S . Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, Felix Fietkau <nbd@nbd.name>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.4 006/178] mvpp2: ethtool rxtx stats fix
-Date:   Mon, 29 Jun 2020 11:22:31 -0400
-Message-Id: <20200629152523.2494198-7-sashal@kernel.org>
+Subject: [PATCH 5.4 007/178] net: bridge: enfore alignment for ethernet address
+Date:   Mon, 29 Jun 2020 11:22:32 -0400
+Message-Id: <20200629152523.2494198-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -49,42 +52,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Auhagen <sven.auhagen@voleatech.de>
+From: Thomas Martitz <t.martitz@avm.de>
 
-[ Upstream commit cc970925feb9a38c2f0d34305518e00a3084ce85 ]
+[ Upstream commit db7202dec92e6caa2706c21d6fc359af318bde2e ]
 
-The ethtool rx and tx queue statistics are reporting wrong values.
-Fix reading out the correct ones.
+The eth_addr member is passed to ether_addr functions that require
+2-byte alignment, therefore the member must be properly aligned
+to avoid unaligned accesses.
 
-Signed-off-by: Sven Auhagen <sven.auhagen@voleatech.de>
+The problem is in place since the initial merge of multicast to unicast:
+commit 6db6f0eae6052b70885562e1733896647ec1d807 bridge: multicast to unicast
+
+Fixes: 6db6f0eae605 ("bridge: multicast to unicast")
+Cc: Roopa Prabhu <roopa@cumulusnetworks.com>
+Cc: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Felix Fietkau <nbd@nbd.name>
+Cc: stable@vger.kernel.org
+Signed-off-by: Thomas Martitz <t.martitz@avm.de>
+Acked-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/bridge/br_private.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-index cf5d447af7db2..0f136f1af5d14 100644
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-@@ -1541,7 +1541,7 @@ static void mvpp2_read_stats(struct mvpp2_port *port)
- 	for (q = 0; q < port->ntxqs; q++)
- 		for (i = 0; i < ARRAY_SIZE(mvpp2_ethtool_txq_regs); i++)
- 			*pstats++ += mvpp2_read_index(port->priv,
--						      MVPP22_CTRS_TX_CTR(port->id, i),
-+						      MVPP22_CTRS_TX_CTR(port->id, q),
- 						      mvpp2_ethtool_txq_regs[i].offset);
+diff --git a/net/bridge/br_private.h b/net/bridge/br_private.h
+index ce2ab14ee6057..cecb4223440e7 100644
+--- a/net/bridge/br_private.h
++++ b/net/bridge/br_private.h
+@@ -208,8 +208,8 @@ struct net_bridge_port_group {
+ 	struct rcu_head			rcu;
+ 	struct timer_list		timer;
+ 	struct br_ip			addr;
++	unsigned char			eth_addr[ETH_ALEN] __aligned(2);
+ 	unsigned char			flags;
+-	unsigned char			eth_addr[ETH_ALEN];
+ };
  
- 	/* Rxqs are numbered from 0 from the user standpoint, but not from the
-@@ -1550,7 +1550,7 @@ static void mvpp2_read_stats(struct mvpp2_port *port)
- 	for (q = 0; q < port->nrxqs; q++)
- 		for (i = 0; i < ARRAY_SIZE(mvpp2_ethtool_rxq_regs); i++)
- 			*pstats++ += mvpp2_read_index(port->priv,
--						      port->first_rxq + i,
-+						      port->first_rxq + q,
- 						      mvpp2_ethtool_rxq_regs[i].offset);
- }
- 
+ struct net_bridge_mdb_entry {
 -- 
 2.25.1
 
