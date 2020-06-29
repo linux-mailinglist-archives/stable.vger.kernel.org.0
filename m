@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D45120E54B
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:06:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BED820E642
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:08:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388739AbgF2VfX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:35:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60600 "EHLO mail.kernel.org"
+        id S2404088AbgF2Vpr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:45:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728542AbgF2Skv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:40:51 -0400
+        id S1726771AbgF2Sfu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:35:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F37E724053;
-        Mon, 29 Jun 2020 15:18:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E09DB24055;
+        Mon, 29 Jun 2020 15:18:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593443924;
-        bh=8O0wL4n2D+Y4u9xbE0rqfjH5mKu6GoZguKHfIxykiac=;
+        s=default; t=1593443926;
+        bh=X5wvYzdYdmiEvI3MUmNaguXAvPmPDk/q6YALBMlO8qw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AuWMDvbPWNLoHFDMKy0QBI3IGsBFX0LQA5LuKTMpKR+KIopYHwnRaJ676Bo0rg3rI
-         9hqdmc9HFgMtNuTGQC/bxLbkHl4pYqkFKfEykB8YjzUeMAbPYpZIXf0SW+EVJDzy2u
-         y76SJzUJGLUM20qfMyTnrCPCS7Ot0v27iIfnrDMQ=
+        b=ZqcrRrg/HlhArt97qpoWsfd6q1dJA/SeA59YMAhrx/AWyIlTP+ibb28KvJmhV6Z+g
+         GvCMsbcLoR+jFuae6n+t+q8zNqkBRg+OByqWPY+/5J6w6UEFjK5k7sQ7/+bONK4sYx
+         TqqfJFAlbEUrDMqFnw9fSBFQwiw7GgIn7nr5W974=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Taehee Yoo <ap420073@gmail.com>,
         Eric Dumazet <eric.dumazet@gmail.com>,
         "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.7 025/265] ip6_gre: fix use-after-free in ip6gre_tunnel_lookup()
-Date:   Mon, 29 Jun 2020 11:14:18 -0400
-Message-Id: <20200629151818.2493727-26-sashal@kernel.org>
+Subject: [PATCH 5.7 027/265] ip_tunnel: fix use-after-free in ip_tunnel_lookup()
+Date:   Mon, 29 Jun 2020 11:14:20 -0400
+Message-Id: <20200629151818.2493727-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -52,9 +52,9 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit dafabb6590cb15f300b77c095d50312e2c7c8e0f ]
+[ Upstream commit ba61539c6ae57f4146284a5cb4f7b7ed8d42bf45 ]
 
-In the datapath, the ip6gre_tunnel_lookup() is used and it internally uses
+In the datapath, the ip_tunnel_lookup() is used and it internally uses
 fallback tunnel device pointer, which is fb_tunnel_dev.
 This pointer variable should be set to NULL when a fb interface is deleted.
 But there is no routine to set fb_tunnel_dev pointer to NULL.
@@ -70,96 +70,99 @@ Test commands:
 
     ip netns exec A ip link set lo up
     ip netns exec A ip link set eth0 up
-    ip netns exec A ip link add ip6gre1 type ip6gre local fc:0::1 \
-	    remote fc:0::2
-    ip netns exec A ip -6 a a fc:100::1/64 dev ip6gre1
-    ip netns exec A ip link set ip6gre1 up
-    ip netns exec A ip -6 a a fc:0::1/64 dev eth0
-    ip netns exec A ip link set ip6gre0 up
+    ip netns exec A ip link add gre1 type gre local 10.0.0.1 \
+	    remote 10.0.0.2
+    ip netns exec A ip link set gre1 up
+    ip netns exec A ip a a 10.0.100.1/24 dev gre1
+    ip netns exec A ip a a 10.0.0.1/24 dev eth0
 
     ip netns exec B ip link set lo up
     ip netns exec B ip link set eth1 up
-    ip netns exec B ip link add ip6gre1 type ip6gre local fc:0::2 \
-	    remote fc:0::1
-    ip netns exec B ip -6 a a fc:100::2/64 dev ip6gre1
-    ip netns exec B ip link set ip6gre1 up
-    ip netns exec B ip -6 a a fc:0::2/64 dev eth1
-    ip netns exec B ip link set ip6gre0 up
-    ip netns exec A ping fc:100::2 -s 60000 &
+    ip netns exec B ip link add gre1 type gre local 10.0.0.2 \
+	    remote 10.0.0.1
+    ip netns exec B ip link set gre1 up
+    ip netns exec B ip a a 10.0.100.2/24 dev gre1
+    ip netns exec B ip a a 10.0.0.2/24 dev eth1
+    ip netns exec A hping3 10.0.100.2 -2 --flood -d 60000 &
     ip netns del B
 
 Splat looks like:
-[   73.087285][    C1] BUG: KASAN: use-after-free in ip6gre_tunnel_lookup+0x1064/0x13f0 [ip6_gre]
-[   73.088361][    C1] Read of size 4 at addr ffff888040559218 by task ping/1429
-[   73.089317][    C1]
-[   73.089638][    C1] CPU: 1 PID: 1429 Comm: ping Not tainted 5.7.0+ #602
-[   73.090531][    C1] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
-[   73.091725][    C1] Call Trace:
-[   73.092160][    C1]  <IRQ>
-[   73.092556][    C1]  dump_stack+0x96/0xdb
-[   73.093122][    C1]  print_address_description.constprop.6+0x2cc/0x450
-[   73.094016][    C1]  ? ip6gre_tunnel_lookup+0x1064/0x13f0 [ip6_gre]
-[   73.094894][    C1]  ? ip6gre_tunnel_lookup+0x1064/0x13f0 [ip6_gre]
-[   73.095767][    C1]  ? ip6gre_tunnel_lookup+0x1064/0x13f0 [ip6_gre]
-[   73.096619][    C1]  kasan_report+0x154/0x190
-[   73.097209][    C1]  ? ip6gre_tunnel_lookup+0x1064/0x13f0 [ip6_gre]
-[   73.097989][    C1]  ip6gre_tunnel_lookup+0x1064/0x13f0 [ip6_gre]
-[   73.098750][    C1]  ? gre_del_protocol+0x60/0x60 [gre]
-[   73.099500][    C1]  gre_rcv+0x1c5/0x1450 [ip6_gre]
-[   73.100199][    C1]  ? ip6gre_header+0xf00/0xf00 [ip6_gre]
-[   73.100985][    C1]  ? rcu_read_lock_sched_held+0xc0/0xc0
-[   73.101830][    C1]  ? ip6_input_finish+0x5/0xf0
-[   73.102483][    C1]  ip6_protocol_deliver_rcu+0xcbb/0x1510
-[   73.103296][    C1]  ip6_input_finish+0x5b/0xf0
-[   73.103920][    C1]  ip6_input+0xcd/0x2c0
-[   73.104473][    C1]  ? ip6_input_finish+0xf0/0xf0
-[   73.105115][    C1]  ? rcu_read_lock_held+0x90/0xa0
-[   73.105783][    C1]  ? rcu_read_lock_sched_held+0xc0/0xc0
-[   73.106548][    C1]  ipv6_rcv+0x1f1/0x300
+[   77.793450][    C3] ==================================================================
+[   77.794702][    C3] BUG: KASAN: use-after-free in ip_tunnel_lookup+0xcc4/0xf30
+[   77.795573][    C3] Read of size 4 at addr ffff888060bd9c84 by task hping3/2905
+[   77.796398][    C3]
+[   77.796664][    C3] CPU: 3 PID: 2905 Comm: hping3 Not tainted 5.8.0-rc1+ #616
+[   77.797474][    C3] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
+[   77.798453][    C3] Call Trace:
+[   77.798815][    C3]  <IRQ>
+[   77.799142][    C3]  dump_stack+0x9d/0xdb
+[   77.799605][    C3]  print_address_description.constprop.7+0x2cc/0x450
+[   77.800365][    C3]  ? ip_tunnel_lookup+0xcc4/0xf30
+[   77.800908][    C3]  ? ip_tunnel_lookup+0xcc4/0xf30
+[   77.801517][    C3]  ? ip_tunnel_lookup+0xcc4/0xf30
+[   77.802145][    C3]  kasan_report+0x154/0x190
+[   77.802821][    C3]  ? ip_tunnel_lookup+0xcc4/0xf30
+[   77.803503][    C3]  ip_tunnel_lookup+0xcc4/0xf30
+[   77.804165][    C3]  __ipgre_rcv+0x1ab/0xaa0 [ip_gre]
+[   77.804862][    C3]  ? rcu_read_lock_sched_held+0xc0/0xc0
+[   77.805621][    C3]  gre_rcv+0x304/0x1910 [ip_gre]
+[   77.806293][    C3]  ? lock_acquire+0x1a9/0x870
+[   77.806925][    C3]  ? gre_rcv+0xfe/0x354 [gre]
+[   77.807559][    C3]  ? erspan_xmit+0x2e60/0x2e60 [ip_gre]
+[   77.808305][    C3]  ? rcu_read_lock_sched_held+0xc0/0xc0
+[   77.809032][    C3]  ? rcu_read_lock_held+0x90/0xa0
+[   77.809713][    C3]  gre_rcv+0x1b8/0x354 [gre]
 [ ... ]
 
 Suggested-by: Eric Dumazet <eric.dumazet@gmail.com>
-Fixes: c12b395a4664 ("gre: Support GRE over IPv6")
+Fixes: c54419321455 ("GRE: Refactor GRE tunneling code.")
 Signed-off-by: Taehee Yoo <ap420073@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/ip6_gre.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ net/ipv4/ip_tunnel.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/net/ipv6/ip6_gre.c b/net/ipv6/ip6_gre.c
-index 781ca8c07a0da..6532bde82b40a 100644
---- a/net/ipv6/ip6_gre.c
-+++ b/net/ipv6/ip6_gre.c
-@@ -127,6 +127,7 @@ static struct ip6_tnl *ip6gre_tunnel_lookup(struct net_device *dev,
- 			gre_proto == htons(ETH_P_ERSPAN2)) ?
- 		       ARPHRD_ETHER : ARPHRD_IP6GRE;
- 	int score, cand_score = 4;
+diff --git a/net/ipv4/ip_tunnel.c b/net/ipv4/ip_tunnel.c
+index cd4b84310d929..a0b4dc54f8a60 100644
+--- a/net/ipv4/ip_tunnel.c
++++ b/net/ipv4/ip_tunnel.c
+@@ -85,9 +85,10 @@ struct ip_tunnel *ip_tunnel_lookup(struct ip_tunnel_net *itn,
+ 				   __be32 remote, __be32 local,
+ 				   __be32 key)
+ {
+-	unsigned int hash;
+ 	struct ip_tunnel *t, *cand = NULL;
+ 	struct hlist_head *head;
 +	struct net_device *ndev;
++	unsigned int hash;
  
- 	for_each_ip_tunnel_rcu(t, ign->tunnels_r_l[h0 ^ h1]) {
- 		if (!ipv6_addr_equal(local, &t->parms.laddr) ||
-@@ -238,9 +239,9 @@ static struct ip6_tnl *ip6gre_tunnel_lookup(struct net_device *dev,
+ 	hash = ip_tunnel_hash(key, remote);
+ 	head = &itn->tunnels[hash];
+@@ -162,8 +163,9 @@ struct ip_tunnel *ip_tunnel_lookup(struct ip_tunnel_net *itn,
  	if (t && t->dev->flags & IFF_UP)
  		return t;
  
--	dev = ign->fb_tunnel_dev;
--	if (dev && dev->flags & IFF_UP)
--		return netdev_priv(dev);
-+	ndev = READ_ONCE(ign->fb_tunnel_dev);
+-	if (itn->fb_tunnel_dev && itn->fb_tunnel_dev->flags & IFF_UP)
+-		return netdev_priv(itn->fb_tunnel_dev);
++	ndev = READ_ONCE(itn->fb_tunnel_dev);
 +	if (ndev && ndev->flags & IFF_UP)
 +		return netdev_priv(ndev);
  
  	return NULL;
  }
-@@ -413,6 +414,8 @@ static void ip6gre_tunnel_uninit(struct net_device *dev)
+@@ -1245,9 +1247,9 @@ void ip_tunnel_uninit(struct net_device *dev)
+ 	struct ip_tunnel_net *itn;
  
- 	ip6gre_tunnel_unlink_md(ign, t);
- 	ip6gre_tunnel_unlink(ign, t);
-+	if (ign->fb_tunnel_dev == dev)
-+		WRITE_ONCE(ign->fb_tunnel_dev, NULL);
- 	dst_cache_reset(&t->dst_cache);
- 	dev_put(dev);
+ 	itn = net_generic(net, tunnel->ip_tnl_net_id);
+-	/* fb_tunnel_dev will be unregisted in net-exit call. */
+-	if (itn->fb_tunnel_dev != dev)
+-		ip_tunnel_del(itn, netdev_priv(dev));
++	ip_tunnel_del(itn, netdev_priv(dev));
++	if (itn->fb_tunnel_dev == dev)
++		WRITE_ONCE(itn->fb_tunnel_dev, NULL);
+ 
+ 	dst_cache_reset(&tunnel->dst_cache);
  }
 -- 
 2.25.1
