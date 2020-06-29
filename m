@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BCA620D9E2
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:12:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E93A20DA09
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:12:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388154AbgF2Tvy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:51:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47696 "EHLO mail.kernel.org"
+        id S1729879AbgF2TxG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:53:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387716AbgF2Tkb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:31 -0400
+        id S2387686AbgF2Tk0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:26 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2FA7251BA;
-        Mon, 29 Jun 2020 15:28:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4909251BB;
+        Mon, 29 Jun 2020 15:28:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444490;
-        bh=jj3Ljte/sgoT3oHrDvoMUysMOGVCiWeb/5cZvyxK/jM=;
+        s=default; t=1593444491;
+        bh=2QGbqlj29PbLRqTPspr6W19awiuDaSEDafDJQiGb6l4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YWhuJ3m2qVXRRwVDkcuM26gPis+So7L4ZLEqR7a1iXc3mxTeu6zbuqzSlqURFbRAm
-         wO4iVjyEcAVFd1ToEqpOOOpwWb8AJnMvhJRjzh0b+FqAZ5fuhUQhdg2nneE5E8Tvd8
-         MHM760fuhyQvVFAZh5ItBuzFPPET/LHd1PjZJTgk=
+        b=PJ0bHke7A8LWGiaFagGECEWBWw9/bbLGwD2cIDT/SriobjTj34UHvuRyBk/fCxqNh
+         7cq6Win5oyG29mY6IyPJarBJaFTTlN73JtoNGaMTdPAhRx2MuAxJV0rMk6+IV0xTh4
+         PUi4J1mp3IFO7qYbtVqiCBurO8Vqiy/61fuXZ2Mw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Denis Efremov <efremov@linux.com>,
+Cc:     Wenhui Sheng <Wenhui.Sheng@amd.com>,
+        Hawking Zhang <Hawking.Zhang@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.4 167/178] drm/radeon: fix fb_div check in ni_init_smc_spll_table()
-Date:   Mon, 29 Jun 2020 11:25:12 -0400
-Message-Id: <20200629152523.2494198-168-sashal@kernel.org>
+Subject: [PATCH 5.4 168/178] drm/amdgpu: add fw release for sdma v5_0
+Date:   Mon, 29 Jun 2020 11:25:13 -0400
+Message-Id: <20200629152523.2494198-169-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -49,35 +50,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Denis Efremov <efremov@linux.com>
+From: Wenhui Sheng <Wenhui.Sheng@amd.com>
 
-commit 35f760b44b1b9cb16a306bdcc7220fbbf78c4789 upstream.
+commit edfaf6fa73f15568d4337f208b2333f647c35810 upstream.
 
-clk_s is checked twice in a row in ni_init_smc_spll_table().
-fb_div should be checked instead.
+sdma fw isn't released when module exit
 
-Fixes: 69e0b57a91ad ("drm/radeon/kms: add dpm support for cayman (v5)")
-Cc: stable@vger.kernel.org
-Signed-off-by: Denis Efremov <efremov@linux.com>
+Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Signed-off-by: Wenhui Sheng <Wenhui.Sheng@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/radeon/ni_dpm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/sdma_v5_0.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/radeon/ni_dpm.c b/drivers/gpu/drm/radeon/ni_dpm.c
-index d9e62ca65ab8d..bd2e577c701f2 100644
---- a/drivers/gpu/drm/radeon/ni_dpm.c
-+++ b/drivers/gpu/drm/radeon/ni_dpm.c
-@@ -2128,7 +2128,7 @@ static int ni_init_smc_spll_table(struct radeon_device *rdev)
- 		if (clk_s & ~(SMC_NISLANDS_SPLL_DIV_TABLE_CLKS_MASK >> SMC_NISLANDS_SPLL_DIV_TABLE_CLKS_SHIFT))
- 			ret = -EINVAL;
+diff --git a/drivers/gpu/drm/amd/amdgpu/sdma_v5_0.c b/drivers/gpu/drm/amd/amdgpu/sdma_v5_0.c
+index bd715012185c6..23fc16dc92b4d 100644
+--- a/drivers/gpu/drm/amd/amdgpu/sdma_v5_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/sdma_v5_0.c
+@@ -1273,8 +1273,12 @@ static int sdma_v5_0_sw_fini(void *handle)
+ 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+ 	int i;
  
--		if (clk_s & ~(SMC_NISLANDS_SPLL_DIV_TABLE_CLKS_MASK >> SMC_NISLANDS_SPLL_DIV_TABLE_CLKS_SHIFT))
-+		if (fb_div & ~(SMC_NISLANDS_SPLL_DIV_TABLE_FBDIV_MASK >> SMC_NISLANDS_SPLL_DIV_TABLE_FBDIV_SHIFT))
- 			ret = -EINVAL;
+-	for (i = 0; i < adev->sdma.num_instances; i++)
++	for (i = 0; i < adev->sdma.num_instances; i++) {
++		if (adev->sdma.instance[i].fw != NULL)
++			release_firmware(adev->sdma.instance[i].fw);
++
+ 		amdgpu_ring_fini(&adev->sdma.instance[i].ring);
++	}
  
- 		if (clk_v & ~(SMC_NISLANDS_SPLL_DIV_TABLE_CLKV_MASK >> SMC_NISLANDS_SPLL_DIV_TABLE_CLKV_SHIFT))
+ 	return 0;
+ }
 -- 
 2.25.1
 
