@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7CF920D492
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 21:14:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A9C020D4E8
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 21:15:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729268AbgF2TJu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:09:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45460 "EHLO mail.kernel.org"
+        id S1728444AbgF2TMl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:12:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730328AbgF2TAT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:00:19 -0400
+        id S1730964AbgF2TKS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:10:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 57536254E7;
-        Mon, 29 Jun 2020 15:54:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B90E1254EF;
+        Mon, 29 Jun 2020 15:54:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593446046;
-        bh=cUVD8MUa7zKGUm2OVDFHUR8FBVnWGLkMd7Cf7ZGfS2E=;
+        s=default; t=1593446048;
+        bh=xh3UdEMZpdGNd9bxEHkP9QErM1NQotGeJT+jSfjzBbE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sm7H7wAJYhnCKKSe4oWJ90kw39LG3eUFvoXB8P/ubZZYvYj52OD2Nprff8eC0fDYE
-         JA7NUHQdCRJ7lhct5+FZcagP+byxSI72YJ8HHHYf8N8G9cYk1fZe6xWhPyMFgg25do
-         eN8EkiAjpjK9Vn2HndN9OLd3bS4qfJAJ3SgFjh68=
+        b=D1ts4VzD9eOQiRhmVuAzApqad+OlcPExK7aSLvxZMn/NuGwaTKn++AuJKcLdq3xYS
+         zt4B01wByldP5SnPw0GPmAGGg3XlQQSw4+TwdP4W34oQKpN+6Qf1FiqfTOOCnwrFQj
+         dXJ3L2sBKQBaebM7zwfe/+lcZz3fy/dsGz0K+H1w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jann Horn <jannh@google.com>,
+Cc:     Arnd Bergmann <arnd@arndb.de>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Mikhail Zaslonko <zaslonko@linux.ibm.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 050/135] lib/zlib: remove outdated and incorrect pre-increment optimization
-Date:   Mon, 29 Jun 2020 11:51:44 -0400
-Message-Id: <20200629155309.2495516-51-sashal@kernel.org>
+Subject: [PATCH 4.4 051/135] include/linux/bitops.h: avoid clang shift-count-overflow warnings
+Date:   Mon, 29 Jun 2020 11:51:45 -0400
+Message-Id: <20200629155309.2495516-52-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
 References: <20200629155309.2495516-1-sashal@kernel.org>
@@ -51,277 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit acaab7335bd6f0c0b54ce3a00bd7f18222ce0f5f ]
+[ Upstream commit bd93f003b7462ae39a43c531abca37fe7073b866 ]
 
-The zlib inflate code has an old micro-optimization based on the
-assumption that for pre-increment memory accesses, the compiler will
-generate code that fits better into the processor's pipeline than what
-would be generated for post-increment memory accesses.
+Clang normally does not warn about certain issues in inline functions when
+it only happens in an eliminated code path. However if something else
+goes wrong, it does tend to complain about the definition of hweight_long()
+on 32-bit targets:
 
-This optimization was already removed in upstream zlib in 2016:
-https://github.com/madler/zlib/commit/9aaec95e8211
+  include/linux/bitops.h:75:41: error: shift count >= width of type [-Werror,-Wshift-count-overflow]
+          return sizeof(w) == 4 ? hweight32(w) : hweight64(w);
+                                                 ^~~~~~~~~~~~
+  include/asm-generic/bitops/const_hweight.h:29:49: note: expanded from macro 'hweight64'
+   define hweight64(w) (__builtin_constant_p(w) ? __const_hweight64(w) : __arch_hweight64(w))
+                                                  ^~~~~~~~~~~~~~~~~~~~
+  include/asm-generic/bitops/const_hweight.h:21:76: note: expanded from macro '__const_hweight64'
+   define __const_hweight64(w) (__const_hweight32(w) + __const_hweight32((w) >> 32))
+                                                                             ^  ~~
+  include/asm-generic/bitops/const_hweight.h:20:49: note: expanded from macro '__const_hweight32'
+   define __const_hweight32(w) (__const_hweight16(w) + __const_hweight16((w) >> 16))
+                                                  ^
+  include/asm-generic/bitops/const_hweight.h:19:72: note: expanded from macro '__const_hweight16'
+   define __const_hweight16(w) (__const_hweight8(w)  + __const_hweight8((w)  >> 8 ))
+                                                                         ^
+  include/asm-generic/bitops/const_hweight.h:12:9: note: expanded from macro '__const_hweight8'
+            (!!((w) & (1ULL << 2))) +     \
 
-This optimization causes UB according to C99, which says in section 6.5.6
-"Additive operators": "If both the pointer operand and the result point to
-elements of the same array object, or one past the last element of the
-array object, the evaluation shall not produce an overflow; otherwise, the
-behavior is undefined".
+Adding an explicit cast to __u64 avoids that warning and makes it easier
+to read other output.
 
-This UB is not only a theoretical concern, but can also cause trouble for
-future work on compiler-based sanitizers.
-
-According to the zlib commit, this optimization also is not optimal
-anymore with modern compilers.
-
-Replace uses of OFF, PUP and UP_UNALIGNED with their definitions in the
-POSTINC case, and remove the macro definitions, just like in the upstream
-patch.
-
-Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Mikhail Zaslonko <zaslonko@linux.ibm.com>
-Link: http://lkml.kernel.org/r/20200507123112.252723-1-jannh@google.com
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Link: http://lkml.kernel.org/r/20200505135513.65265-1-arnd@arndb.de
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/zlib_inflate/inffast.c | 91 +++++++++++++++-----------------------
- 1 file changed, 35 insertions(+), 56 deletions(-)
+ include/linux/bitops.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/lib/zlib_inflate/inffast.c b/lib/zlib_inflate/inffast.c
-index 2c13ecc5bb2c7..ed1f3df272602 100644
---- a/lib/zlib_inflate/inffast.c
-+++ b/lib/zlib_inflate/inffast.c
-@@ -10,17 +10,6 @@
+diff --git a/include/linux/bitops.h b/include/linux/bitops.h
+index ce2bb045b3fdd..9b9711ea267a4 100644
+--- a/include/linux/bitops.h
++++ b/include/linux/bitops.h
+@@ -59,7 +59,7 @@ static inline int get_count_order(unsigned int count)
  
- #ifndef ASMINF
- 
--/* Allow machine dependent optimization for post-increment or pre-increment.
--   Based on testing to date,
--   Pre-increment preferred for:
--   - PowerPC G3 (Adler)
--   - MIPS R5000 (Randers-Pehrson)
--   Post-increment preferred for:
--   - none
--   No measurable difference:
--   - Pentium III (Anderson)
--   - M68060 (Nikl)
-- */
- union uu {
- 	unsigned short us;
- 	unsigned char b[2];
-@@ -38,16 +27,6 @@ get_unaligned16(const unsigned short *p)
- 	return mm.us;
+ static __always_inline unsigned long hweight_long(unsigned long w)
+ {
+-	return sizeof(w) == 4 ? hweight32(w) : hweight64(w);
++	return sizeof(w) == 4 ? hweight32(w) : hweight64((__u64)w);
  }
  
--#ifdef POSTINC
--#  define OFF 0
--#  define PUP(a) *(a)++
--#  define UP_UNALIGNED(a) get_unaligned16((a)++)
--#else
--#  define OFF 1
--#  define PUP(a) *++(a)
--#  define UP_UNALIGNED(a) get_unaligned16(++(a))
--#endif
--
- /*
-    Decode literal, length, and distance codes and write out the resulting
-    literal and match bytes until either not enough input or output is
-@@ -115,9 +94,9 @@ void inflate_fast(z_streamp strm, unsigned start)
- 
-     /* copy state to local variables */
-     state = (struct inflate_state *)strm->state;
--    in = strm->next_in - OFF;
-+    in = strm->next_in;
-     last = in + (strm->avail_in - 5);
--    out = strm->next_out - OFF;
-+    out = strm->next_out;
-     beg = out - (start - strm->avail_out);
-     end = out + (strm->avail_out - 257);
- #ifdef INFLATE_STRICT
-@@ -138,9 +117,9 @@ void inflate_fast(z_streamp strm, unsigned start)
-        input data or output space */
-     do {
-         if (bits < 15) {
--            hold += (unsigned long)(PUP(in)) << bits;
-+            hold += (unsigned long)(*in++) << bits;
-             bits += 8;
--            hold += (unsigned long)(PUP(in)) << bits;
-+            hold += (unsigned long)(*in++) << bits;
-             bits += 8;
-         }
-         this = lcode[hold & lmask];
-@@ -150,14 +129,14 @@ void inflate_fast(z_streamp strm, unsigned start)
-         bits -= op;
-         op = (unsigned)(this.op);
-         if (op == 0) {                          /* literal */
--            PUP(out) = (unsigned char)(this.val);
-+            *out++ = (unsigned char)(this.val);
-         }
-         else if (op & 16) {                     /* length base */
-             len = (unsigned)(this.val);
-             op &= 15;                           /* number of extra bits */
-             if (op) {
-                 if (bits < op) {
--                    hold += (unsigned long)(PUP(in)) << bits;
-+                    hold += (unsigned long)(*in++) << bits;
-                     bits += 8;
-                 }
-                 len += (unsigned)hold & ((1U << op) - 1);
-@@ -165,9 +144,9 @@ void inflate_fast(z_streamp strm, unsigned start)
-                 bits -= op;
-             }
-             if (bits < 15) {
--                hold += (unsigned long)(PUP(in)) << bits;
-+                hold += (unsigned long)(*in++) << bits;
-                 bits += 8;
--                hold += (unsigned long)(PUP(in)) << bits;
-+                hold += (unsigned long)(*in++) << bits;
-                 bits += 8;
-             }
-             this = dcode[hold & dmask];
-@@ -180,10 +159,10 @@ void inflate_fast(z_streamp strm, unsigned start)
-                 dist = (unsigned)(this.val);
-                 op &= 15;                       /* number of extra bits */
-                 if (bits < op) {
--                    hold += (unsigned long)(PUP(in)) << bits;
-+                    hold += (unsigned long)(*in++) << bits;
-                     bits += 8;
-                     if (bits < op) {
--                        hold += (unsigned long)(PUP(in)) << bits;
-+                        hold += (unsigned long)(*in++) << bits;
-                         bits += 8;
-                     }
-                 }
-@@ -205,13 +184,13 @@ void inflate_fast(z_streamp strm, unsigned start)
-                         state->mode = BAD;
-                         break;
-                     }
--                    from = window - OFF;
-+                    from = window;
-                     if (write == 0) {           /* very common case */
-                         from += wsize - op;
-                         if (op < len) {         /* some from window */
-                             len -= op;
-                             do {
--                                PUP(out) = PUP(from);
-+                                *out++ = *from++;
-                             } while (--op);
-                             from = out - dist;  /* rest from output */
-                         }
-@@ -222,14 +201,14 @@ void inflate_fast(z_streamp strm, unsigned start)
-                         if (op < len) {         /* some from end of window */
-                             len -= op;
-                             do {
--                                PUP(out) = PUP(from);
-+                                *out++ = *from++;
-                             } while (--op);
--                            from = window - OFF;
-+                            from = window;
-                             if (write < len) {  /* some from start of window */
-                                 op = write;
-                                 len -= op;
-                                 do {
--                                    PUP(out) = PUP(from);
-+                                    *out++ = *from++;
-                                 } while (--op);
-                                 from = out - dist;      /* rest from output */
-                             }
-@@ -240,21 +219,21 @@ void inflate_fast(z_streamp strm, unsigned start)
-                         if (op < len) {         /* some from window */
-                             len -= op;
-                             do {
--                                PUP(out) = PUP(from);
-+                                *out++ = *from++;
-                             } while (--op);
-                             from = out - dist;  /* rest from output */
-                         }
-                     }
-                     while (len > 2) {
--                        PUP(out) = PUP(from);
--                        PUP(out) = PUP(from);
--                        PUP(out) = PUP(from);
-+                        *out++ = *from++;
-+                        *out++ = *from++;
-+                        *out++ = *from++;
-                         len -= 3;
-                     }
-                     if (len) {
--                        PUP(out) = PUP(from);
-+                        *out++ = *from++;
-                         if (len > 1)
--                            PUP(out) = PUP(from);
-+                            *out++ = *from++;
-                     }
-                 }
-                 else {
-@@ -264,29 +243,29 @@ void inflate_fast(z_streamp strm, unsigned start)
-                     from = out - dist;          /* copy direct from output */
- 		    /* minimum length is three */
- 		    /* Align out addr */
--		    if (!((long)(out - 1 + OFF) & 1)) {
--			PUP(out) = PUP(from);
-+		    if (!((long)(out - 1) & 1)) {
-+			*out++ = *from++;
- 			len--;
- 		    }
--		    sout = (unsigned short *)(out - OFF);
-+		    sout = (unsigned short *)(out);
- 		    if (dist > 2) {
- 			unsigned short *sfrom;
- 
--			sfrom = (unsigned short *)(from - OFF);
-+			sfrom = (unsigned short *)(from);
- 			loops = len >> 1;
- 			do
- #ifdef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
--			    PUP(sout) = PUP(sfrom);
-+			    *sout++ = *sfrom++;
- #else
--			    PUP(sout) = UP_UNALIGNED(sfrom);
-+			    *sout++ = get_unaligned16(sfrom++);
- #endif
- 			while (--loops);
--			out = (unsigned char *)sout + OFF;
--			from = (unsigned char *)sfrom + OFF;
-+			out = (unsigned char *)sout;
-+			from = (unsigned char *)sfrom;
- 		    } else { /* dist == 1 or dist == 2 */
- 			unsigned short pat16;
- 
--			pat16 = *(sout-1+OFF);
-+			pat16 = *(sout-1);
- 			if (dist == 1) {
- 				union uu mm;
- 				/* copy one char pattern to both bytes */
-@@ -296,12 +275,12 @@ void inflate_fast(z_streamp strm, unsigned start)
- 			}
- 			loops = len >> 1;
- 			do
--			    PUP(sout) = pat16;
-+			    *sout++ = pat16;
- 			while (--loops);
--			out = (unsigned char *)sout + OFF;
-+			out = (unsigned char *)sout;
- 		    }
- 		    if (len & 1)
--			PUP(out) = PUP(from);
-+			*out++ = *from++;
-                 }
-             }
-             else if ((op & 64) == 0) {          /* 2nd level distance code */
-@@ -336,8 +315,8 @@ void inflate_fast(z_streamp strm, unsigned start)
-     hold &= (1U << bits) - 1;
- 
-     /* update state and return */
--    strm->next_in = in + OFF;
--    strm->next_out = out + OFF;
-+    strm->next_in = in;
-+    strm->next_out = out;
-     strm->avail_in = (unsigned)(in < last ? 5 + (last - in) : 5 - (in - last));
-     strm->avail_out = (unsigned)(out < end ?
-                                  257 + (end - out) : 257 - (out - end));
+ /**
 -- 
 2.25.1
 
