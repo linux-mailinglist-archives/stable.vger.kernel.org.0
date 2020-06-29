@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A103720E70D
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:10:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39FC320E804
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:12:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404616AbgF2VxT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:53:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56786 "EHLO mail.kernel.org"
+        id S1726288AbgF2SfX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 14:35:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726612AbgF2Sfi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:35:38 -0400
+        id S1726175AbgF2SfW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:35:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A384247C7;
-        Mon, 29 Jun 2020 15:22:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 16422247C9;
+        Mon, 29 Jun 2020 15:22:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444133;
-        bh=qk3PqaYN3K8ht8hxfcYu2z1uz6TSo+5efZS26xagav0=;
+        s=default; t=1593444135;
+        bh=+BScHcEoWoNxBeKrIFUTdorvUOhsOsh1PWnSVcUlz+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MAzbI5hUwtxWqWOBjaiQ5Z0qV2LR+jj0DChZ5qcqa+s476OiZOEai4vgt0TM7V+hk
-         ccpoi4Hg7XMdgWHYbDQCDDyS+givmW+GIBUapDuxIdeUpcVo8wZ8om62JavuSXVAEL
-         YUhrfLyauB90quixT14Ce18he93TGvV0VmhwgIok=
+        b=C7ZZEU5o/tSeT1CJRSnZB4t4L2xwXudOXzi6nGDqaHhfiGax9+j92QEpq9pg9pXib
+         /FesMi5G1tSLGrCgPs4GY+LSFWbt+ZJD1LLOVN7jSe+pS0sKIh8ZpLpJFH4/M0I+MI
+         Nulj7Z+FEOpX0NpN3kipMPcrcJUFKbtIa31S5bDM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Robin Gong <yibin.gong@nxp.com>,
-        Dong Aisheng <aisheng.dong@nxp.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+Cc:     Sascha Ortmann <sascha.ortmann@stud.uni-hannover.de>,
+        linux-kernel@i4.cs.fau.de,
+        Maximilian Werner <maximilian.werner96@gmail.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.7 240/265] arm64: dts: imx8mn-ddr4-evk: correct ldo1/ldo2 voltage range
-Date:   Mon, 29 Jun 2020 11:17:53 -0400
-Message-Id: <20200629151818.2493727-241-sashal@kernel.org>
+Subject: [PATCH 5.7 241/265] tracing/boottime: Fix kprobe multiple events
+Date:   Mon, 29 Jun 2020 11:17:54 -0400
+Message-Id: <20200629151818.2493727-242-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -51,53 +52,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Gong <yibin.gong@nxp.com>
+From: Sascha Ortmann <sascha.ortmann@stud.uni-hannover.de>
 
-commit cfb12c8952f617df58d73d24161e539a035d82b0 upstream.
+commit 20dc3847cc2fc886ee4eb9112e6e2fad9419b0c7 upstream.
 
-Correct ldo1 voltage range from wrong high group(3.0V~3.3V) to low group
-(1.6V~1.9V) because the ldo1 should be 1.8V. Actually, two voltage groups
-have been supported at bd718x7-regulator driver, hence, just corrrect the
-voltage range to 1.6V~3.3V. For ldo2@0.8V, correct voltage range too.
-Otherwise, ldo1 would be kept @3.0V and ldo2@0.9V which violate i.mx8mn
-datasheet as the below warning log in kernel:
+Fix boottime kprobe events to report and abort after each failure when
+adding probes.
 
-[    0.995524] LDO1: Bringing 1800000uV into 3000000-3000000uV
-[    0.999196] LDO2: Bringing 800000uV into 900000-900000uV
+As an example, when we try to set multiprobe kprobe events in
+bootconfig like this:
 
-Fixes: 3e44dd09736d ("arm64: dts: imx8mn-ddr4-evk: Add rohm,bd71847 PMIC support")
+ftrace.event.kprobes.vfsevents {
+        probes = "vfs_read $arg1 $arg2,,
+                 !error! not reported;?", // leads to error
+                 "vfs_write $arg1 $arg2"
+}
+
+This will not work as expected. After
+commit da0f1f4167e3af69e ("tracing/boottime: Fix kprobe event API usage"),
+the function trace_boot_add_kprobe_event will not produce any error
+message when adding a probe fails at kprobe_event_gen_cmd_start.
+Furthermore, we continue to add probes when kprobe_event_gen_cmd_end fails
+(and kprobe_event_gen_cmd_start did not fail). In this case the function
+even returns successfully when the last call to kprobe_event_gen_cmd_end
+is successful.
+
+The behaviour of reporting and aborting after failures is not
+consistent.
+
+The function trace_boot_add_kprobe_event now reports each failure and
+stops adding probes immediately.
+
+Link: https://lkml.kernel.org/r/20200618163301.25854-1-sascha.ortmann@stud.uni-hannover.de
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Robin Gong <yibin.gong@nxp.com>
-Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Cc: linux-kernel@i4.cs.fau.de
+Co-developed-by: Maximilian Werner <maximilian.werner96@gmail.com>
+Fixes: da0f1f4167e3 ("tracing/boottime: Fix kprobe event API usage")
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Maximilian Werner <maximilian.werner96@gmail.com>
+Signed-off-by: Sascha Ortmann <sascha.ortmann@stud.uni-hannover.de>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mn-ddr4-evk.dts | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/trace/trace_boot.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mn-ddr4-evk.dts b/arch/arm64/boot/dts/freescale/imx8mn-ddr4-evk.dts
-index 2497eebb57393..fe49dbc535e1f 100644
---- a/arch/arm64/boot/dts/freescale/imx8mn-ddr4-evk.dts
-+++ b/arch/arm64/boot/dts/freescale/imx8mn-ddr4-evk.dts
-@@ -101,7 +101,7 @@
+diff --git a/kernel/trace/trace_boot.c b/kernel/trace/trace_boot.c
+index 9de29bb45a27f..fdc5abc00bf84 100644
+--- a/kernel/trace/trace_boot.c
++++ b/kernel/trace/trace_boot.c
+@@ -101,12 +101,16 @@ trace_boot_add_kprobe_event(struct xbc_node *node, const char *event)
+ 		kprobe_event_cmd_init(&cmd, buf, MAX_BUF_LEN);
  
- 			ldo1_reg: LDO1 {
- 				regulator-name = "LDO1";
--				regulator-min-microvolt = <3000000>;
-+				regulator-min-microvolt = <1600000>;
- 				regulator-max-microvolt = <3300000>;
- 				regulator-boot-on;
- 				regulator-always-on;
-@@ -109,7 +109,7 @@
+ 		ret = kprobe_event_gen_cmd_start(&cmd, event, val);
+-		if (ret)
++		if (ret) {
++			pr_err("Failed to generate probe: %s\n", buf);
+ 			break;
++		}
  
- 			ldo2_reg: LDO2 {
- 				regulator-name = "LDO2";
--				regulator-min-microvolt = <900000>;
-+				regulator-min-microvolt = <800000>;
- 				regulator-max-microvolt = <900000>;
- 				regulator-boot-on;
- 				regulator-always-on;
+ 		ret = kprobe_event_gen_cmd_end(&cmd);
+-		if (ret)
++		if (ret) {
+ 			pr_err("Failed to add probe: %s\n", buf);
++			break;
++		}
+ 	}
+ 
+ 	return ret;
 -- 
 2.25.1
 
