@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C721220D0C1
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 20:36:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBEDD20D0BF
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 20:36:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726713AbgF2Sfm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 14:35:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56908 "EHLO mail.kernel.org"
+        id S1726699AbgF2Sfl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 14:35:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726667AbgF2Sfk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:35:40 -0400
+        id S1726640AbgF2Sfj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:35:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B4DCC246BC;
-        Mon, 29 Jun 2020 15:20:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3766D2472E;
+        Mon, 29 Jun 2020 15:20:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444013;
-        bh=3xpw2/nluRUYHk+2t0LVKeUAmmf5nv6Rgbkmmm9xDYs=;
+        s=default; t=1593444050;
+        bh=oIYrLKBcbE1yGStjETpm0NAs49UI9Y8xkZBOAIb8+T4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bP1/o96mXp/Uc7ZP4VSsoWcTKlHc087+Mlomd+Y9M2C3FE3aEVi4fyZowA5ZxxDzD
-         Fxco22WenHiDN4FApLPh5Ees0IaEG3xMfaHrAFj5vieexVFOpiRyaqDVFlFAMycJWb
-         7JOzyvTbYo/ylXAPdEjFaA7R7eLfCWAZ8/wW5WqI=
+        b=WQ9kz0T7yv5z00QXACz86disFifERmadzjt9SvYDwsngKV0hpcJMVr9Xsn/Nqt0cY
+         ICB8LlTjjPCRJd3HiLbN5vnTMceP+emLlLEz+FyVVSgXJ9Be1ZGp88SmVADDUqpgil
+         bounURSy4uLN9DwU3iuN4edcxZvn1K3LQSSGP4dQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gaurav Singh <gaurav1086@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jesper Dangaard Brouer <brouer@redhat.com>,
-        John Fastabend <john.fastabend@gmail.com>,
+Cc:     SeongJae Park <sjpark@amazon.de>,
+        James Smart <james.smart@broadcom.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 119/265] bpf, xdp, samples: Fix null pointer dereference in *_user code
-Date:   Mon, 29 Jun 2020 11:15:52 -0400
-Message-Id: <20200629151818.2493727-120-sashal@kernel.org>
+Subject: [PATCH 5.7 158/265] scsi: lpfc: Avoid another null dereference in lpfc_sli4_hba_unset()
+Date:   Mon, 29 Jun 2020 11:16:31 -0400
+Message-Id: <20200629151818.2493727-159-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -51,123 +50,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaurav Singh <gaurav1086@gmail.com>
+From: SeongJae Park <sjpark@amazon.de>
 
-[ Upstream commit 6903cdae9f9f08d61e49c16cbef11c293e33a615 ]
+[ Upstream commit 46da547e21d6cefceec3fb3dba5ebbca056627fc ]
 
-Memset on the pointer right after malloc can cause a NULL pointer
-deference if it failed to allocate memory. A simple fix is to
-replace malloc()/memset() pair with a simple call to calloc().
+Commit cdb42becdd40 ("scsi: lpfc: Replace io_channels for nvme and fcp with
+general hdw_queues per cpu") has introduced static checker warnings for
+potential null dereferences in 'lpfc_sli4_hba_unset()' and commit 1ffdd2c0440d
+("scsi: lpfc: resolve static checker warning in lpfc_sli4_hba_unset") has
+tried to fix it.  However, yet another potential null dereference is
+remaining.  This commit fixes it.
 
-Fixes: 0fca931a6f21 ("samples/bpf: program demonstrating access to xdp_rxq_info")
-Signed-off-by: Gaurav Singh <gaurav1086@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
+This bug was discovered and resolved using Coverity Static Analysis
+Security Testing (SAST) by Synopsys, Inc.
+
+Link: https://lore.kernel.org/r/20200623084122.30633-1-sjpark@amazon.com
+Fixes: 1ffdd2c0440d ("scsi: lpfc: resolve static checker warning inlpfc_sli4_hba_unset")
+Fixes: cdb42becdd40 ("scsi: lpfc: Replace io_channels for nvme and fcp with general hdw_queues per cpu")
+Reviewed-by: James Smart <james.smart@broadcom.com>
+Signed-off-by: SeongJae Park <sjpark@amazon.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- samples/bpf/xdp_monitor_user.c      |  8 ++------
- samples/bpf/xdp_redirect_cpu_user.c |  7 ++-----
- samples/bpf/xdp_rxq_info_user.c     | 13 +++----------
- 3 files changed, 7 insertions(+), 21 deletions(-)
+ drivers/scsi/lpfc/lpfc_init.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/samples/bpf/xdp_monitor_user.c b/samples/bpf/xdp_monitor_user.c
-index dd558cbb23094..ef53b93db5732 100644
---- a/samples/bpf/xdp_monitor_user.c
-+++ b/samples/bpf/xdp_monitor_user.c
-@@ -509,11 +509,8 @@ static void *alloc_rec_per_cpu(int record_size)
- {
- 	unsigned int nr_cpus = bpf_num_possible_cpus();
- 	void *array;
--	size_t size;
+diff --git a/drivers/scsi/lpfc/lpfc_init.c b/drivers/scsi/lpfc/lpfc_init.c
+index 4104bdcdbb6fd..70be1f5de8730 100644
+--- a/drivers/scsi/lpfc/lpfc_init.c
++++ b/drivers/scsi/lpfc/lpfc_init.c
+@@ -11895,7 +11895,8 @@ lpfc_sli4_hba_unset(struct lpfc_hba *phba)
+ 	lpfc_sli4_xri_exchange_busy_wait(phba);
  
--	size = record_size * nr_cpus;
--	array = malloc(size);
--	memset(array, 0, size);
-+	array = calloc(nr_cpus, record_size);
- 	if (!array) {
- 		fprintf(stderr, "Mem alloc error (nr_cpus:%u)\n", nr_cpus);
- 		exit(EXIT_FAIL_MEM);
-@@ -528,8 +525,7 @@ static struct stats_record *alloc_stats_record(void)
- 	int i;
+ 	/* per-phba callback de-registration for hotplug event */
+-	lpfc_cpuhp_remove(phba);
++	if (phba->pport)
++		lpfc_cpuhp_remove(phba);
  
- 	/* Alloc main stats_record structure */
--	rec = malloc(sizeof(*rec));
--	memset(rec, 0, sizeof(*rec));
-+	rec = calloc(1, sizeof(*rec));
- 	if (!rec) {
- 		fprintf(stderr, "Mem alloc error\n");
- 		exit(EXIT_FAIL_MEM);
-diff --git a/samples/bpf/xdp_redirect_cpu_user.c b/samples/bpf/xdp_redirect_cpu_user.c
-index 9b8f21abeac47..e86fed5cdb92c 100644
---- a/samples/bpf/xdp_redirect_cpu_user.c
-+++ b/samples/bpf/xdp_redirect_cpu_user.c
-@@ -210,11 +210,8 @@ static struct datarec *alloc_record_per_cpu(void)
- {
- 	unsigned int nr_cpus = bpf_num_possible_cpus();
- 	struct datarec *array;
--	size_t size;
- 
--	size = sizeof(struct datarec) * nr_cpus;
--	array = malloc(size);
--	memset(array, 0, size);
-+	array = calloc(nr_cpus, sizeof(struct datarec));
- 	if (!array) {
- 		fprintf(stderr, "Mem alloc error (nr_cpus:%u)\n", nr_cpus);
- 		exit(EXIT_FAIL_MEM);
-@@ -229,11 +226,11 @@ static struct stats_record *alloc_stats_record(void)
- 
- 	size = sizeof(*rec) + n_cpus * sizeof(struct record);
- 	rec = malloc(size);
--	memset(rec, 0, size);
- 	if (!rec) {
- 		fprintf(stderr, "Mem alloc error\n");
- 		exit(EXIT_FAIL_MEM);
- 	}
-+	memset(rec, 0, size);
- 	rec->rx_cnt.cpu    = alloc_record_per_cpu();
- 	rec->redir_err.cpu = alloc_record_per_cpu();
- 	rec->kthread.cpu   = alloc_record_per_cpu();
-diff --git a/samples/bpf/xdp_rxq_info_user.c b/samples/bpf/xdp_rxq_info_user.c
-index 4fe47502ebed4..caa4e7ffcfc7b 100644
---- a/samples/bpf/xdp_rxq_info_user.c
-+++ b/samples/bpf/xdp_rxq_info_user.c
-@@ -198,11 +198,8 @@ static struct datarec *alloc_record_per_cpu(void)
- {
- 	unsigned int nr_cpus = bpf_num_possible_cpus();
- 	struct datarec *array;
--	size_t size;
- 
--	size = sizeof(struct datarec) * nr_cpus;
--	array = malloc(size);
--	memset(array, 0, size);
-+	array = calloc(nr_cpus, sizeof(struct datarec));
- 	if (!array) {
- 		fprintf(stderr, "Mem alloc error (nr_cpus:%u)\n", nr_cpus);
- 		exit(EXIT_FAIL_MEM);
-@@ -214,11 +211,8 @@ static struct record *alloc_record_per_rxq(void)
- {
- 	unsigned int nr_rxqs = bpf_map__def(rx_queue_index_map)->max_entries;
- 	struct record *array;
--	size_t size;
- 
--	size = sizeof(struct record) * nr_rxqs;
--	array = malloc(size);
--	memset(array, 0, size);
-+	array = calloc(nr_rxqs, sizeof(struct record));
- 	if (!array) {
- 		fprintf(stderr, "Mem alloc error (nr_rxqs:%u)\n", nr_rxqs);
- 		exit(EXIT_FAIL_MEM);
-@@ -232,8 +226,7 @@ static struct stats_record *alloc_stats_record(void)
- 	struct stats_record *rec;
- 	int i;
- 
--	rec = malloc(sizeof(*rec));
--	memset(rec, 0, sizeof(*rec));
-+	rec = calloc(1, sizeof(struct stats_record));
- 	if (!rec) {
- 		fprintf(stderr, "Mem alloc error\n");
- 		exit(EXIT_FAIL_MEM);
+ 	/* Disable PCI subsystem interrupt */
+ 	lpfc_sli4_disable_intr(phba);
 -- 
 2.25.1
 
