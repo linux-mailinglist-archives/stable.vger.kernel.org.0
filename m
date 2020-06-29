@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61EF720DDB8
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:51:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C27E220DE8E
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:53:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732643AbgF2USc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:18:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37058 "EHLO mail.kernel.org"
+        id S1732607AbgF2U0u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:26:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732628AbgF2TZl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:25:41 -0400
+        id S1732459AbgF2TZZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:25:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A788925390;
-        Mon, 29 Jun 2020 15:40:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D303C25316;
+        Mon, 29 Jun 2020 15:39:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445259;
-        bh=ZJ+tY0mEOW4kbbhTdVLDb5bY+9vwmA+0mfiv3q0RqN0=;
+        s=default; t=1593445144;
+        bh=jYcTHKfl71oRSgVpLIw4fJJ7HkJD9PW7AfDpRhNHGMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lswYTyUvU5hq/8QAx2G1aeBIyb/XESXuxZ1guHqDA36NARhDoh+BCxkygLeyoqB5Z
-         m75XsIya9LtbiqHBaokN8DdVm/zXZ3hwxmSsYdFK3fQTpod3J8GL48f5sqHM9BGrWQ
-         XwuuLv4cxN2bLk3mAuYB8xA565+TnJFxFGGKCpMc=
+        b=OC6D1BpT8GHOSBEPlYKLQNaxhXqJ7LXWA2Spw4+HnOUITMYzFSdMm6mrIoLGu8MrQ
+         wAerfY3I5Lb6lskmGdiU8bBi5F/vHJ+sqOi/znbT37g70NZ/vbCJcc8u/ruAoSYJ/q
+         nz+ojxCmnID+Lw84ulsDDjXHANCK33dRAf2mugPg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gregory CLEMENT <gregory.clement@bootlin.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+Cc:     Alexander Lobakin <alobakin@marvell.com>,
+        Igor Russkikh <irusskikh@marvell.com>,
+        Michal Kalderon <michal.kalderon@marvell.com>,
+        "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 040/191] tty: n_gsm: Fix SOF skipping
+Subject: [PATCH 4.14 48/78] net: qed: fix excessive QM ILT lines consumption
 Date:   Mon, 29 Jun 2020 11:37:36 -0400
-Message-Id: <20200629154007.2495120-41-sashal@kernel.org>
+Message-Id: <20200629153806.2494953-49-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
-References: <20200629154007.2495120-1-sashal@kernel.org>
+In-Reply-To: <20200629153806.2494953-1-sashal@kernel.org>
+References: <20200629153806.2494953-1-sashal@kernel.org>
 MIME-Version: 1.0
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.229-rc1.gz
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.186-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.9.y
+X-KernelTest-Branch: linux-4.14.y
 X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.9.229-rc1
-X-KernelTest-Deadline: 2020-07-01T15:39+00:00
+X-KernelTest-Version: 4.14.186-rc1
+X-KernelTest-Deadline: 2020-07-01T15:38+00:00
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -49,56 +51,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gregory CLEMENT <gregory.clement@bootlin.com>
+From: Alexander Lobakin <alobakin@marvell.com>
 
-[ Upstream commit 84d6f81c1fb58b56eba81ff0a36cf31946064b40 ]
+[ Upstream commit d434d02f7e7c24c721365fd594ed781acb18e0da ]
 
-For at least some modems like the TELIT LE910, skipping SOF makes
-transfers blocking indefinitely after a short amount of data
-transferred.
+This is likely a copy'n'paste mistake. The amount of ILT lines to
+reserve for a single VF was being multiplied by the total VFs count.
+This led to a huge redundancy in reservation and potential lines
+drainouts.
 
-Given the small improvement provided by skipping the SOF (just one
-byte on about 100 bytes), it seems better to completely remove this
-"feature" than make it optional.
-
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
-Link: https://lore.kernel.org/r/20200512115323.1447922-3-gregory.clement@bootlin.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1408cc1fa48c ("qed: Introduce VFs")
+Signed-off-by: Alexander Lobakin <alobakin@marvell.com>
+Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
+Signed-off-by: Michal Kalderon <michal.kalderon@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_gsm.c | 8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ drivers/net/ethernet/qlogic/qed/qed_cxt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
-index 9e9016e67843b..d5efacd27b15c 100644
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -685,7 +685,6 @@ static void gsm_data_kick(struct gsm_mux *gsm)
- {
- 	struct gsm_msg *msg, *nmsg;
- 	int len;
--	int skip_sof = 0;
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_cxt.c b/drivers/net/ethernet/qlogic/qed/qed_cxt.c
+index 27ba476f761d4..4fc3468f6f38b 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_cxt.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_cxt.c
+@@ -396,7 +396,7 @@ static void qed_cxt_qm_iids(struct qed_hwfn *p_hwfn,
+ 		vf_tids += segs[NUM_TASK_PF_SEGMENTS].count;
+ 	}
  
- 	list_for_each_entry_safe(msg, nmsg, &gsm->tx_list, list) {
- 		if (gsm->constipated && msg->addr)
-@@ -707,15 +706,10 @@ static void gsm_data_kick(struct gsm_mux *gsm)
- 			print_hex_dump_bytes("gsm_data_kick: ",
- 					     DUMP_PREFIX_OFFSET,
- 					     gsm->txframe, len);
--
--		if (gsm->output(gsm, gsm->txframe + skip_sof,
--						len - skip_sof) < 0)
-+		if (gsm->output(gsm, gsm->txframe, len) < 0)
- 			break;
- 		/* FIXME: Can eliminate one SOF in many more cases */
- 		gsm->tx_bytes -= msg->len;
--		/* For a burst of frames skip the extra SOF within the
--		   burst */
--		skip_sof = 1;
+-	iids->vf_cids += vf_cids * p_mngr->vf_count;
++	iids->vf_cids = vf_cids;
+ 	iids->tids += vf_tids * p_mngr->vf_count;
  
- 		list_del(&msg->list);
- 		kfree(msg);
+ 	DP_VERBOSE(p_hwfn, QED_MSG_ILT,
 -- 
 2.25.1
 
