@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C35B520DBD9
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:16:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E4B520DC35
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:17:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726972AbgF2UKU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:10:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40564 "EHLO mail.kernel.org"
+        id S1731028AbgF2UNJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:13:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732914AbgF2TaW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:30:22 -0400
+        id S1732858AbgF2TaT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:30:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5CEBE2522A;
-        Mon, 29 Jun 2020 15:35:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 280D12522C;
+        Mon, 29 Jun 2020 15:35:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444945;
-        bh=agRQypckGCYSkFlC3kExSSvrt4mjZ/93NTQyMsU16ws=;
+        s=default; t=1593444946;
+        bh=PP0ajkeGP6eoBJXOFpuMrFRvLXRQW3qx0S6W7XWD21Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P9CV97CnbZNLAO08S20hD1eTh1lxkz5NV0HGPGF8iJMLgM0w7T6twM7sYioLrfu5c
-         6/WGRDz+5eTkaMuxwqbt7JClzSU7ItLnx26iMvcvdDi70yiVA6VabiKs0+ZdAOGIra
-         kkkvYffvuup8ck5NqBQDR1TPXReiHsxtqCitOzt8=
+        b=Gh4D+5HZyQC3magTfqfy/IwIru4fI3CM1x1Q7vyd/MLafcRH4rbIzImsS4nTMtfk8
+         zlPE7Q9sf+F7+yxGHTe2MzccpIuUNpcOEPP0970vr1u5n4MfhQF5lGeIfQKChRg2zg
+         pfJI1y062QNrpJrqUMY0cpFXNu13oOX7/FTKhPGI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Tomasz=20Meresi=C5=84ski?= <tomasz@meresinski.eu>,
+Cc:     Longfang Liu <liulongfang@huawei.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.19 043/131] usb: add USB_QUIRK_DELAY_INIT for Logitech C922
-Date:   Mon, 29 Jun 2020 11:33:34 -0400
-Message-Id: <20200629153502.2494656-44-sashal@kernel.org>
+Subject: [PATCH 4.19 044/131] USB: ehci: reopen solution for Synopsys HC bug
+Date:   Mon, 29 Jun 2020 11:33:35 -0400
+Message-Id: <20200629153502.2494656-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629153502.2494656-1-sashal@kernel.org>
 References: <20200629153502.2494656-1-sashal@kernel.org>
@@ -49,40 +50,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomasz Meresiński <tomasz@meresinski.eu>
+From: Longfang Liu <liulongfang@huawei.com>
 
-commit 5d8021923e8a8cc37a421a64e27c7221f0fee33c upstream.
+commit 1ddcb71a3edf0e1682b6e056158e4c4b00325f66 upstream.
 
-The Logitech C922, just like other Logitech webcams,
-needs the USB_QUIRK_DELAY_INIT or it will randomly
-not respond after device connection
+A Synopsys USB2.0 core used in Huawei Kunpeng920 SoC has a bug which
+might cause the host controller not issuing ping.
 
-Signed-off-by: Tomasz Meresiński <tomasz@meresinski.eu>
+Bug description:
+After indicating an Interrupt on Async Advance, the software uses the
+doorbell mechanism to delete the Next Link queue head of the last
+executed queue head. At this time, the host controller still references
+the removed queue head(the queue head is NULL). NULL reference causes
+the host controller to lose the USB device.
+
+Solution:
+After deleting the Next Link queue head, when has_synopsys_hc_bug set
+to 1，the software can write one of the valid queue head addresses to
+the ASYNCLISTADDR register to allow the host controller to get
+the valid queue head. in order to solve that problem, this patch set
+the flag for Huawei Kunpeng920
+
+There are detailed instructions and solutions in this patch:
+commit 2f7ac6c19997 ("USB: ehci: add workaround for Synopsys HC bug")
+
+Signed-off-by: Longfang Liu <liulongfang@huawei.com>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200603203347.7792-1-tomasz@meresinski.eu
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/1591588019-44284-1-git-send-email-liulongfang@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/quirks.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/host/ehci-pci.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
-index 3e8efe759c3e6..e0b77674869ce 100644
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -218,11 +218,12 @@ static const struct usb_device_id usb_quirk_list[] = {
- 	/* Logitech HD Webcam C270 */
- 	{ USB_DEVICE(0x046d, 0x0825), .driver_info = USB_QUIRK_RESET_RESUME },
+diff --git a/drivers/usb/host/ehci-pci.c b/drivers/usb/host/ehci-pci.c
+index fe9422d3bcdc4..fcfad5c298a9f 100644
+--- a/drivers/usb/host/ehci-pci.c
++++ b/drivers/usb/host/ehci-pci.c
+@@ -216,6 +216,13 @@ static int ehci_pci_setup(struct usb_hcd *hcd)
+ 		ehci_info(ehci, "applying MosChip frame-index workaround\n");
+ 		ehci->frame_index_bug = 1;
+ 		break;
++	case PCI_VENDOR_ID_HUAWEI:
++		/* Synopsys HC bug */
++		if (pdev->device == 0xa239) {
++			ehci_info(ehci, "applying Synopsys HC workaround\n");
++			ehci->has_synopsys_hc_bug = 1;
++		}
++		break;
+ 	}
  
--	/* Logitech HD Pro Webcams C920, C920-C, C925e and C930e */
-+	/* Logitech HD Pro Webcams C920, C920-C, C922, C925e and C930e */
- 	{ USB_DEVICE(0x046d, 0x082d), .driver_info = USB_QUIRK_DELAY_INIT },
- 	{ USB_DEVICE(0x046d, 0x0841), .driver_info = USB_QUIRK_DELAY_INIT },
- 	{ USB_DEVICE(0x046d, 0x0843), .driver_info = USB_QUIRK_DELAY_INIT },
- 	{ USB_DEVICE(0x046d, 0x085b), .driver_info = USB_QUIRK_DELAY_INIT },
-+	{ USB_DEVICE(0x046d, 0x085c), .driver_info = USB_QUIRK_DELAY_INIT },
- 
- 	/* Logitech ConferenceCam CC3000e */
- 	{ USB_DEVICE(0x046d, 0x0847), .driver_info = USB_QUIRK_DELAY_INIT },
+ 	/* optional debug port, normally in the first BAR */
 -- 
 2.25.1
 
