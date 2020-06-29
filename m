@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B23120DF2D
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:54:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8421220DDD3
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:51:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732009AbgF2Ucw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:32:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37042 "EHLO mail.kernel.org"
+        id S1730354AbgF2UTp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:19:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732398AbgF2TZS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:25:18 -0400
+        id S1732617AbgF2TZk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:25:40 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 90937253A9;
-        Mon, 29 Jun 2020 15:41:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B56C9253AA;
+        Mon, 29 Jun 2020 15:41:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445274;
-        bh=cPJjhIRuVR6ILETKUiSiAnd68luBbKR16bzeD9+IJi0=;
+        s=default; t=1593445275;
+        bh=9mTK1c+NsX/lpeb9u0hRpDUgCNM27kvlzHnsMC7fYK4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fToyxOt/AQBwRlbqU/YTPfTbfQ2lXZrzl/WmzUM56A9InEIq3J0V+iTSVJDbqUhfR
-         94tJbNATwCrgGHWgxwk9/H0KTGR7kS/n8fQEvxFwh751rWAHfdTkNzoqXvRg1vhleC
-         Y2uxc4moUgYhEnMPjpq/BLwiB5JIHvvJURorfH0w=
+        b=QAElEFSs5uosY6kcXjI+KZpholq8CUBP+TjJGB+6qIhpWGfCDbdnN4eYT65+ThU85
+         A3rnhPVbR1Q6I2+BPItB8s3dSd6VyIxSOAqGRU/X3AVhF/5CJMvX7oMmNkEMne2RzO
+         lRBY7soE8FIq68mNCK6Mygfr9znP9mG9DfL7bGJc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stefan Riedmueller <s.riedmueller@phytec.de>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Adam Thomson <Adam.Thomson.Opensource@diasemi.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
+Cc:     Fabrice Gasnier <fabrice.gasnier@st.com>,
+        Minas Harutyunyan <hminas@synopsys.com>,
+        Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 053/191] watchdog: da9062: No need to ping manually before setting timeout
-Date:   Mon, 29 Jun 2020 11:37:49 -0400
-Message-Id: <20200629154007.2495120-54-sashal@kernel.org>
+Subject: [PATCH 4.9 054/191] usb: dwc2: gadget: move gadget resume after the core is in L0 state
+Date:   Mon, 29 Jun 2020 11:37:50 -0400
+Message-Id: <20200629154007.2495120-55-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
 References: <20200629154007.2495120-1-sashal@kernel.org>
@@ -51,47 +50,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Riedmueller <s.riedmueller@phytec.de>
+From: Fabrice Gasnier <fabrice.gasnier@st.com>
 
-[ Upstream commit a0948ddba65f4f6d3cfb5e2b84685485d0452966 ]
+[ Upstream commit 8c935deacebb8fac8f41378701eb79d12f3c2e2d ]
 
-There is actually no need to ping the watchdog before disabling it
-during timeout change. Disabling the watchdog already takes care of
-resetting the counter.
+When the remote wakeup interrupt is triggered, lx_state is resumed from L2
+to L0 state. But when the gadget resume is called, lx_state is still L2.
+This prevents the resume callback to queue any request. Any attempt
+to queue a request from resume callback will result in:
+- "submit request only in active state" debug message to be issued
+- dwc2_hsotg_ep_queue() returns -EAGAIN
 
-This fixes an issue during boot when the userspace watchdog handler takes
-over and the watchdog is already running. Opening the watchdog in this case
-leads to the first ping and directly after that without the required
-heartbeat delay a second ping issued by the set_timeout call. Due to the
-missing delay this resulted in a reset.
+Call the gadget resume routine after the core is in L0 state.
 
-Signed-off-by: Stefan Riedmueller <s.riedmueller@phytec.de>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
-Link: https://lore.kernel.org/r/20200403130728.39260-3-s.riedmueller@phytec.de
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Fixes: f81f46e1f530 ("usb: dwc2: implement hibernation during bus suspend/resume")
+
+Acked-by: Minas Harutyunyan <hminas@synopsys.com>
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/da9062_wdt.c | 5 -----
- 1 file changed, 5 deletions(-)
+ drivers/usb/dwc2/core_intr.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/watchdog/da9062_wdt.c b/drivers/watchdog/da9062_wdt.c
-index daeb645fcea8a..519419136ce8f 100644
---- a/drivers/watchdog/da9062_wdt.c
-+++ b/drivers/watchdog/da9062_wdt.c
-@@ -94,11 +94,6 @@ static int da9062_wdt_update_timeout_register(struct da9062_watchdog *wdt,
- 					      unsigned int regval)
- {
- 	struct da9062 *chip = wdt->hw;
--	int ret;
--
--	ret = da9062_reset_watchdog_timer(wdt);
--	if (ret)
--		return ret;
+diff --git a/drivers/usb/dwc2/core_intr.c b/drivers/usb/dwc2/core_intr.c
+index d85c5c9f96c1d..f046703f63f27 100644
+--- a/drivers/usb/dwc2/core_intr.c
++++ b/drivers/usb/dwc2/core_intr.c
+@@ -365,10 +365,13 @@ static void dwc2_handle_wakeup_detected_intr(struct dwc2_hsotg *hsotg)
+ 			if (ret && (ret != -ENOTSUPP))
+ 				dev_err(hsotg->dev, "exit hibernation failed\n");
  
- 	return regmap_update_bits(chip->regmap,
- 				  DA9062AA_CONTROL_D,
++			/* Change to L0 state */
++			hsotg->lx_state = DWC2_L0;
+ 			call_gadget(hsotg, resume);
++		} else {
++			/* Change to L0 state */
++			hsotg->lx_state = DWC2_L0;
+ 		}
+-		/* Change to L0 state */
+-		hsotg->lx_state = DWC2_L0;
+ 	} else {
+ 		if (hsotg->core_params->hibernation)
+ 			return;
 -- 
 2.25.1
 
