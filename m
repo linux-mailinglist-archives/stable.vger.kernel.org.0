@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B4D320D8DD
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:10:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA0B220DA7F
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:13:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731622AbgF2TmT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:42:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47672 "EHLO mail.kernel.org"
+        id S1731351AbgF2T5v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:57:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387843AbgF2Tkq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:46 -0400
+        id S2387623AbgF2TkV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E9D382487E;
-        Mon, 29 Jun 2020 15:26:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB5C52487D;
+        Mon, 29 Jun 2020 15:26:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444378;
-        bh=eeqBxFNzqz9GKNAdsaG+9pW4Xgjp7docAW6M9uGrd9Y=;
+        s=default; t=1593444379;
+        bh=0ojqZ3xSEL6DtPWJWKShNDGexKeRTIPRH9yGm9GLi8U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hvr4BXDrpmQwD2n1Iv8KNS1xtDAOwIxfDy5R0m5BABl2gD+rzHzc42987ptOEbAke
-         R6kT9y7qm8I643LDPL+Cxy27n7XqqzRRxmNXhL2UfrV6wOMIZJVKrCkLmJXclI0WJ0
-         /Yis1dSZ839L8eEJf7KTCdNXj0sbudXcFBH0z2kQ=
+        b=utWAqH3o3s2ijbdR3AoguaIoBDYiID+B0jNZbTcagb4SAtUDZH6uP1kSwCo12cB1n
+         Nv4KDm46K+10dWJAg5FUkknbBLXq7GUh5AXiXjQ1b2Fv18gg3iQSWwgHfebppflBY8
+         nXrOan6l/Iw0R90LTYEImXzEGi0fkjrFZB5Kilyw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Al Cooper <alcooperx@gmail.com>,
+Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
         Mathias Nyman <mathias.nyman@linux.intel.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.4 055/178] xhci: Fix enumeration issue when setting max packet size for FS devices.
-Date:   Mon, 29 Jun 2020 11:23:20 -0400
-Message-Id: <20200629152523.2494198-56-sashal@kernel.org>
+Subject: [PATCH 5.4 056/178] xhci: Return if xHCI doesn't support LPM
+Date:   Mon, 29 Jun 2020 11:23:21 -0400
+Message-Id: <20200629152523.2494198-57-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -49,46 +49,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Cooper <alcooperx@gmail.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit a73d9d9cfc3cfceabd91fb0b0c13e4062b6dbcd7 upstream.
+commit f0c472a6da51f9fac15e80fe2fd9c83b68754cff upstream.
 
-Unable to complete the enumeration of a USB TV Tuner device.
+Just return if xHCI is quirked to disable LPM. We can save some time
+from reading registers and doing spinlocks.
 
-Per XHCI spec (4.6.5), the EP state field of the input context shall
-be cleared for a set address command. In the special case of an FS
-device that has "MaxPacketSize0 = 8", the Linux XHCI driver does
-not do this before evaluating the context. With an XHCI controller
-that checks the EP state field for parameter context error this
-causes a problem in cases such as the device getting reset again
-after enumeration.
-
-When that field is cleared, the problem does not occur.
-
-This was found and fixed by Sasi Kumar.
+Add stable tag as we want this patch together with the next one,
+"Poll for U0 after disabling USB2 LPM" which fixes a suspend issue
+for some USB2 LPM devices
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Al Cooper <alcooperx@gmail.com>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
 Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20200624135949.22611-3-mathias.nyman@linux.intel.com
+Link: https://lore.kernel.org/r/20200624135949.22611-5-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/host/xhci.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
-index f913bc9344d2b..13d2971c35445 100644
+index 13d2971c35445..11a65854d3f09 100644
 --- a/drivers/usb/host/xhci.c
 +++ b/drivers/usb/host/xhci.c
-@@ -1430,6 +1430,7 @@ static int xhci_check_maxpacket(struct xhci_hcd *xhci, unsigned int slot_id,
- 				xhci->devs[slot_id]->out_ctx, ep_index);
+@@ -4391,6 +4391,9 @@ static int xhci_set_usb2_hardware_lpm(struct usb_hcd *hcd,
+ 	int		hird, exit_latency;
+ 	int		ret;
  
- 		ep_ctx = xhci_get_ep_ctx(xhci, command->in_ctx, ep_index);
-+		ep_ctx->ep_info &= cpu_to_le32(~EP_STATE_MASK);/* must clear */
- 		ep_ctx->ep_info2 &= cpu_to_le32(~MAX_PACKET_MASK);
- 		ep_ctx->ep_info2 |= cpu_to_le32(MAX_PACKET(max_packet_size));
++	if (xhci->quirks & XHCI_HW_LPM_DISABLE)
++		return -EPERM;
++
+ 	if (hcd->speed >= HCD_USB3 || !xhci->hw_lpm_support ||
+ 			!udev->lpm_capable)
+ 		return -EPERM;
+@@ -4413,7 +4416,7 @@ static int xhci_set_usb2_hardware_lpm(struct usb_hcd *hcd,
+ 	xhci_dbg(xhci, "%s port %d USB2 hardware LPM\n",
+ 			enable ? "enable" : "disable", port_num + 1);
  
+-	if (enable && !(xhci->quirks & XHCI_HW_LPM_DISABLE)) {
++	if (enable) {
+ 		/* Host supports BESL timeout instead of HIRD */
+ 		if (udev->usb2_hw_lpm_besl_capable) {
+ 			/* if device doesn't have a preferred BESL value use a
 -- 
 2.25.1
 
