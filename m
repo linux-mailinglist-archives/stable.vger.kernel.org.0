@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 588D820E2D3
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:01:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BCAE20E2F0
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:02:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730827AbgF2VJE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:09:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45430 "EHLO mail.kernel.org"
+        id S2390337AbgF2VKG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:10:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730313AbgF2TAT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:00:19 -0400
+        id S1730210AbgF2TAS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:00:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DEB7325536;
-        Mon, 29 Jun 2020 15:54:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DD43825538;
+        Mon, 29 Jun 2020 15:54:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593446099;
-        bh=iyk7aEUo9yTnwoHe5Z2I8aXR1ATCXoZ5X7cVnr/kBVs=;
+        s=default; t=1593446100;
+        bh=/nf4V0oqCFiybyCnrQDSkzatkPUNi5M6Tc8facvxjsg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=maHx1XmAYxd7JkbV2UPt0/Ertweku7ZuR1v5hrubwtfAy00Yh44ug2/EIbNP5rQMP
-         +/378IeVrcrURrKuWqkasN682BdtXHa8jr2Ph+F0UikPnv+TYGTolM321Kns/c3JEo
-         ZsFGKKTe57nSwwNGfc79V5k+gAH62LcZJXxcAvz0=
+        b=YYIl/RVOPJzL0JMC6gzDDGrv9hu8AQgLU9R9YGaQQv9lLqNXffvUBmN34/Nnhuo6u
+         3yGCN0LaHsbB9Fs9ol41MFZS1g3LNTxDnw8KBuHu8ub9r1uYhs1tZP1sy/UTL35T3L
+         r41HVRnGIcMfsf5NMilcxI2ZL6uh/mt6Hob81cq0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Taehee Yoo <ap420073@gmail.com>,
+Cc:     Wang Hai <wanghai38@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Hangbin Liu <liuhangbin@gmail.com>,
         "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.4 092/135] net: core: reduce recursion limit value
-Date:   Mon, 29 Jun 2020 11:52:26 -0400
-Message-Id: <20200629155309.2495516-93-sashal@kernel.org>
+Subject: [PATCH 4.4 093/135] mld: fix memory leak in ipv6_mc_destroy_dev()
+Date:   Mon, 29 Jun 2020 11:52:27 -0400
+Message-Id: <20200629155309.2495516-94-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
 References: <20200629155309.2495516-1-sashal@kernel.org>
@@ -49,84 +50,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit fb7861d14c8d7edac65b2fcb6e8031cb138457b2 ]
+[ Upstream commit ea2fce88d2fd678ed9d45354ff49b73f1d5615dd ]
 
-In the current code, ->ndo_start_xmit() can be executed recursively only
-10 times because of stack memory.
-But, in the case of the vxlan, 10 recursion limit value results in
-a stack overflow.
-In the current code, the nested interface is limited by 8 depth.
-There is no critical reason that the recursion limitation value should
-be 10.
-So, it would be good to be the same value with the limitation value of
-nesting interface depth.
+Commit a84d01647989 ("mld: fix memory leak in mld_del_delrec()") fixed
+the memory leak of MLD, but missing the ipv6_mc_destroy_dev() path, in
+which mca_sources are leaked after ma_put().
 
-Test commands:
-    ip link add vxlan10 type vxlan vni 10 dstport 4789 srcport 4789 4789
-    ip link set vxlan10 up
-    ip a a 192.168.10.1/24 dev vxlan10
-    ip n a 192.168.10.2 dev vxlan10 lladdr fc:22:33:44:55:66 nud permanent
+Using ip6_mc_clear_src() to take care of the missing free.
 
-    for i in {9..0}
-    do
-        let A=$i+1
-	ip link add vxlan$i type vxlan vni $i dstport 4789 srcport 4789 4789
-	ip link set vxlan$i up
-	ip a a 192.168.$i.1/24 dev vxlan$i
-	ip n a 192.168.$i.2 dev vxlan$i lladdr fc:22:33:44:55:66 nud permanent
-	bridge fdb add fc:22:33:44:55:66 dev vxlan$A dst 192.168.$i.2 self
-    done
-    hping3 192.168.10.2 -2 -d 60000
+BUG: memory leak
+unreferenced object 0xffff8881113d3180 (size 64):
+  comm "syz-executor071", pid 389, jiffies 4294887985 (age 17.943s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 ff 02 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<000000002cbc483c>] kmalloc include/linux/slab.h:555 [inline]
+    [<000000002cbc483c>] kzalloc include/linux/slab.h:669 [inline]
+    [<000000002cbc483c>] ip6_mc_add1_src net/ipv6/mcast.c:2237 [inline]
+    [<000000002cbc483c>] ip6_mc_add_src+0x7f5/0xbb0 net/ipv6/mcast.c:2357
+    [<0000000058b8b1ff>] ip6_mc_source+0xe0c/0x1530 net/ipv6/mcast.c:449
+    [<000000000bfc4fb5>] do_ipv6_setsockopt.isra.12+0x1b2c/0x3b30 net/ipv6/ipv6_sockglue.c:754
+    [<00000000e4e7a722>] ipv6_setsockopt+0xda/0x150 net/ipv6/ipv6_sockglue.c:950
+    [<0000000029260d9a>] rawv6_setsockopt+0x45/0x100 net/ipv6/raw.c:1081
+    [<000000005c1b46f9>] __sys_setsockopt+0x131/0x210 net/socket.c:2132
+    [<000000008491f7db>] __do_sys_setsockopt net/socket.c:2148 [inline]
+    [<000000008491f7db>] __se_sys_setsockopt net/socket.c:2145 [inline]
+    [<000000008491f7db>] __x64_sys_setsockopt+0xba/0x150 net/socket.c:2145
+    [<00000000c7bc11c5>] do_syscall_64+0xa1/0x530 arch/x86/entry/common.c:295
+    [<000000005fb7a3f3>] entry_SYSCALL_64_after_hwframe+0x49/0xb3
 
-Splat looks like:
-[  103.814237][ T1127] =============================================================================
-[  103.871955][ T1127] BUG kmalloc-2k (Tainted: G    B            ): Padding overwritten. 0x00000000897a2e4f-0x000
-[  103.873187][ T1127] -----------------------------------------------------------------------------
-[  103.873187][ T1127]
-[  103.874252][ T1127] INFO: Slab 0x000000005cccc724 objects=5 used=5 fp=0x0000000000000000 flags=0x10000000001020
-[  103.881323][ T1127] CPU: 3 PID: 1127 Comm: hping3 Tainted: G    B             5.7.0+ #575
-[  103.882131][ T1127] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
-[  103.883006][ T1127] Call Trace:
-[  103.883324][ T1127]  dump_stack+0x96/0xdb
-[  103.883716][ T1127]  slab_err+0xad/0xd0
-[  103.884106][ T1127]  ? _raw_spin_unlock+0x1f/0x30
-[  103.884620][ T1127]  ? get_partial_node.isra.78+0x140/0x360
-[  103.885214][ T1127]  slab_pad_check.part.53+0xf7/0x160
-[  103.885769][ T1127]  ? pskb_expand_head+0x110/0xe10
-[  103.886316][ T1127]  check_slab+0x97/0xb0
-[  103.886763][ T1127]  alloc_debug_processing+0x84/0x1a0
-[  103.887308][ T1127]  ___slab_alloc+0x5a5/0x630
-[  103.887765][ T1127]  ? pskb_expand_head+0x110/0xe10
-[  103.888265][ T1127]  ? lock_downgrade+0x730/0x730
-[  103.888762][ T1127]  ? pskb_expand_head+0x110/0xe10
-[  103.889244][ T1127]  ? __slab_alloc+0x3e/0x80
-[  103.889675][ T1127]  __slab_alloc+0x3e/0x80
-[  103.890108][ T1127]  __kmalloc_node_track_caller+0xc7/0x420
-[ ... ]
-
-Fixes: 11a766ce915f ("net: Increase xmit RECURSION_LIMIT to 10.")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Fixes: 1666d49e1d41 ("mld: do not remove mld souce list info when set link down")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Acked-by: Hangbin Liu <liuhangbin@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/dev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv6/mcast.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/core/dev.c b/net/core/dev.c
-index 67725818d562d..09115c68f29dc 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -3017,7 +3017,7 @@ static void skb_update_prio(struct sk_buff *skb)
- DEFINE_PER_CPU(int, xmit_recursion);
- EXPORT_SYMBOL(xmit_recursion);
+diff --git a/net/ipv6/mcast.c b/net/ipv6/mcast.c
+index 976c8133a2819..2d28f0b544946 100644
+--- a/net/ipv6/mcast.c
++++ b/net/ipv6/mcast.c
+@@ -2580,6 +2580,7 @@ void ipv6_mc_destroy_dev(struct inet6_dev *idev)
+ 		write_unlock_bh(&idev->lock);
  
--#define RECURSION_LIMIT 10
-+#define RECURSION_LIMIT 8
+ 		igmp6_group_dropped(i);
++		ip6_mc_clear_src(i);
+ 		ma_put(i);
  
- /**
-  *	dev_loopback_xmit - loop back @skb
+ 		write_lock_bh(&idev->lock);
 -- 
 2.25.1
 
