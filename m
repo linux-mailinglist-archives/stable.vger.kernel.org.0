@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA0B220DA7F
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:13:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26E8620D94A
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:11:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731351AbgF2T5v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:57:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47658 "EHLO mail.kernel.org"
+        id S1730040AbgF2TqP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:46:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387623AbgF2TkV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:21 -0400
+        id S1731178AbgF2Tkn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB5C52487D;
-        Mon, 29 Jun 2020 15:26:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE58A2487F;
+        Mon, 29 Jun 2020 15:26:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444379;
-        bh=0ojqZ3xSEL6DtPWJWKShNDGexKeRTIPRH9yGm9GLi8U=;
+        s=default; t=1593444380;
+        bh=B6B7CbmE1beGD7a0XoTWkaxDA7EpKHPavxaZ8XF46Fo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=utWAqH3o3s2ijbdR3AoguaIoBDYiID+B0jNZbTcagb4SAtUDZH6uP1kSwCo12cB1n
-         Nv4KDm46K+10dWJAg5FUkknbBLXq7GUh5AXiXjQ1b2Fv18gg3iQSWwgHfebppflBY8
-         nXrOan6l/Iw0R90LTYEImXzEGi0fkjrFZB5Kilyw=
+        b=yzbt0mbmxlcsb0pDJOJBoaaZyfKsVRPMIA+Sv6y9WB5OpzECVaLEquTEOWqhWcnKr
+         O4cDu/a10uFyUOKfdDlA7ZHR2yg3Urpzl5sxhxjGZwyinXOjwqB4D24C5eaQAp0fg6
+         W0CU//MeuzH2lxNtswtipPR2Jm19G6M3k2m4SkYI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
+Cc:     Joakim Tjernlund <joakim.tjernlund@infinera.com>,
+        Oliver Neukum <oneukum@suse.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.4 056/178] xhci: Return if xHCI doesn't support LPM
-Date:   Mon, 29 Jun 2020 11:23:21 -0400
-Message-Id: <20200629152523.2494198-57-sashal@kernel.org>
+Subject: [PATCH 5.4 057/178] cdc-acm: Add DISABLE_ECHO quirk for Microchip/SMSC chip
+Date:   Mon, 29 Jun 2020 11:23:22 -0400
+Message-Id: <20200629152523.2494198-58-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -49,50 +49,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Joakim Tjernlund <joakim.tjernlund@infinera.com>
 
-commit f0c472a6da51f9fac15e80fe2fd9c83b68754cff upstream.
+commit 03894573f2913181ee5aae0089f333b2131f2d4b upstream.
 
-Just return if xHCI is quirked to disable LPM. We can save some time
-from reading registers and doing spinlocks.
+USB_DEVICE(0x0424, 0x274e) can send data before cdc_acm is ready,
+causing garbage chars on the TTY causing stray input to the shell
+and/or login prompt.
 
-Add stable tag as we want this patch together with the next one,
-"Poll for U0 after disabling USB2 LPM" which fixes a suspend issue
-for some USB2 LPM devices
-
+Signed-off-by: Joakim Tjernlund <joakim.tjernlund@infinera.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20200624135949.22611-5-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Link: https://lore.kernel.org/r/20200605105418.22263-1-joakim.tjernlund@infinera.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/usb/class/cdc-acm.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
-index 13d2971c35445..11a65854d3f09 100644
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -4391,6 +4391,9 @@ static int xhci_set_usb2_hardware_lpm(struct usb_hcd *hcd,
- 	int		hird, exit_latency;
- 	int		ret;
+diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
+index f67088bb8218b..d5187b50fc828 100644
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -1689,6 +1689,8 @@ static int acm_pre_reset(struct usb_interface *intf)
  
-+	if (xhci->quirks & XHCI_HW_LPM_DISABLE)
-+		return -EPERM;
-+
- 	if (hcd->speed >= HCD_USB3 || !xhci->hw_lpm_support ||
- 			!udev->lpm_capable)
- 		return -EPERM;
-@@ -4413,7 +4416,7 @@ static int xhci_set_usb2_hardware_lpm(struct usb_hcd *hcd,
- 	xhci_dbg(xhci, "%s port %d USB2 hardware LPM\n",
- 			enable ? "enable" : "disable", port_num + 1);
- 
--	if (enable && !(xhci->quirks & XHCI_HW_LPM_DISABLE)) {
-+	if (enable) {
- 		/* Host supports BESL timeout instead of HIRD */
- 		if (udev->usb2_hw_lpm_besl_capable) {
- 			/* if device doesn't have a preferred BESL value use a
+ static const struct usb_device_id acm_ids[] = {
+ 	/* quirky and broken devices */
++	{ USB_DEVICE(0x0424, 0x274e), /* Microchip Technology, Inc. (formerly SMSC) */
++	  .driver_info = DISABLE_ECHO, }, /* DISABLE ECHO in termios flag */
+ 	{ USB_DEVICE(0x076d, 0x0006), /* Denso Cradle CU-321 */
+ 	.driver_info = NO_UNION_NORMAL, },/* has no union descriptor */
+ 	{ USB_DEVICE(0x17ef, 0x7000), /* Lenovo USB modem */
 -- 
 2.25.1
 
