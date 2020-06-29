@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DCAD20D898
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:09:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A38120DAE9
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:14:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387592AbgF2TkR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:40:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47656 "EHLO mail.kernel.org"
+        id S1730271AbgF2UBt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:01:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387561AbgF2TkQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:16 -0400
+        id S2387495AbgF2TkP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:15 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9946224889;
-        Mon, 29 Jun 2020 15:26:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 91E222488A;
+        Mon, 29 Jun 2020 15:26:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444385;
-        bh=654HW8eN8nsMN0MFjbKPYJtwu9+JQYwiQahStHN2M24=;
+        s=default; t=1593444386;
+        bh=ke+E4ACwtF8UcIi+lq2rwLffvdLaAJALS7zP8w5TH0A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UHUQeUih0fvyqCMWpuIyksUzpKV8GWS1QhOlsBJ2Sw6lIhbgPwNtZOlxzVcpTFjJw
-         vL0WpGXBQkR2Qt0DbA2PDewFYG866wHh11m1lCn/fNnqgv+UPKxYPYg2LT1g0NYHOr
-         +ZAzZY4pCOd9VwnGzthYx6Rq85qxXN5HlBFQXLBM=
+        b=QJuDFe1KWYb4aKvcIgIrDT864y7laKSbQsTTFN015BBP6q+ZiUJ2dEcr3Pklvn6tc
+         Y/oJiD5EZ2jdfIe0tFVooXJHPCtGj7xhsJhc7dOkeIlq9+u+GugjA1hNY+BK7O4SDq
+         QCpx2th0poDq+Eyf8g0V9YEAu9gcCeSnSwdIHCIk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Tony Lindgren <tony@atomide.com>,
         Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Tomi Valkeinen <tomi.valkeinen@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 062/178] bus: ti-sysc: Ignore clockactivity unless specified as a quirk
-Date:   Mon, 29 Jun 2020 11:23:27 -0400
-Message-Id: <20200629152523.2494198-63-sashal@kernel.org>
+Subject: [PATCH 5.4 063/178] ARM: OMAP2+: Fix legacy mode dss_reset
+Date:   Mon, 29 Jun 2020 11:23:28 -0400
+Message-Id: <20200629152523.2494198-64-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -52,43 +52,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 08b91dd6e547467fad61a7c201ff71080d7ad65a ]
+[ Upstream commit 77cad9dbc957f23a73169e8a8971186744296614 ]
 
-We must ignore the clockactivity bit for most modules and not set it
-unless specified for the module with SYSC_QUIRK_USE_CLOCKACT. Otherwise
-the interface clock can be automatically gated constantly causing
-unexpected performance issues.
+We must check for "dss_core" instead of "dss" to avoid also matching
+also "dss_dispc". This only matters for the mixed case of data
+configured in device tree but with legacy booting ti,hwmods property
+still enabled.
 
-Fixes: ae9ae12e9daa ("bus: ti-sysc: Handle clockactivity for enable and disable")
+Fixes: 8b30919a4e3c ("ARM: OMAP2+: Handle reset quirks for dynamically allocated modules")
 Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Cc: Tomi Valkeinen <tomi.valkeinen@ti.com>
 Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/ti-sysc.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ arch/arm/mach-omap2/omap_hwmod.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
-index c088c6f4adcff..553c0e2796217 100644
---- a/drivers/bus/ti-sysc.c
-+++ b/drivers/bus/ti-sysc.c
-@@ -880,10 +880,13 @@ static int sysc_enable_module(struct device *dev)
- 	regbits = ddata->cap->regbits;
- 	reg = sysc_read(ddata, ddata->offsets[SYSC_SYSCONFIG]);
+diff --git a/arch/arm/mach-omap2/omap_hwmod.c b/arch/arm/mach-omap2/omap_hwmod.c
+index 203664c40d3d2..eb74aa1826614 100644
+--- a/arch/arm/mach-omap2/omap_hwmod.c
++++ b/arch/arm/mach-omap2/omap_hwmod.c
+@@ -3535,7 +3535,7 @@ static const struct omap_hwmod_reset dra7_reset_quirks[] = {
+ };
  
--	/* Set CLOCKACTIVITY, we only use it for ick */
-+	/*
-+	 * Set CLOCKACTIVITY, we only use it for ick. And we only configure it
-+	 * based on the SYSC_QUIRK_USE_CLOCKACT flag, not based on the hardware
-+	 * capabilities. See the old HWMOD_SET_DEFAULT_CLOCKACT flag.
-+	 */
- 	if (regbits->clkact_shift >= 0 &&
--	    (ddata->cfg.quirks & SYSC_QUIRK_USE_CLOCKACT ||
--	     ddata->cfg.sysc_val & BIT(regbits->clkact_shift)))
-+	    (ddata->cfg.quirks & SYSC_QUIRK_USE_CLOCKACT))
- 		reg |= SYSC_CLOCACT_ICK << regbits->clkact_shift;
- 
- 	/* Set SIDLE mode */
+ static const struct omap_hwmod_reset omap_reset_quirks[] = {
+-	{ .match = "dss", .len = 3, .reset = omap_dss_reset, },
++	{ .match = "dss_core", .len = 8, .reset = omap_dss_reset, },
+ 	{ .match = "hdq1w", .len = 5, .reset = omap_hdq1w_reset, },
+ 	{ .match = "i2c", .len = 3, .reset = omap_i2c_reset, },
+ 	{ .match = "wd_timer", .len = 8, .reset = omap2_wd_timer_reset, },
 -- 
 2.25.1
 
