@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6765E20D184
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 20:42:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5EEA20D178
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 20:42:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728087AbgF2SmF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 14:42:05 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:51147 "EHLO
+        id S1728022AbgF2SmA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 14:42:00 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:44779 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729057AbgF2SmB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Jun 2020 14:42:01 -0400
+        by vger.kernel.org with ESMTP id S1729037AbgF2Sl7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Jun 2020 14:41:59 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 873C3601;
-        Mon, 29 Jun 2020 07:07:49 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 29 Jun 2020 07:07:50 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id 3BD50715;
+        Mon, 29 Jun 2020 07:22:42 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 29 Jun 2020 07:22:42 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=+AnODi
-        qI/+XXwnxF9MrlpJpC7wAwN5p31BuWUT+NMVM=; b=cvtgpLlgNB6elDVKaxxDLK
-        6Vn00gUOExMwvsB55pgImGMGN9OcGEy7b77ErI2RmpjC50wRLLlrDSOtnDf+vHko
-        gMZoeEeXnvktK0cH94f/s5CYi1D2j+0edt81XW2LzvwBmVIzpubic0zmKkgWY8bw
-        NqtqVeYyZdmdE44sDgfPZ9+zOFQ1ufthtKYEu1MevLMQnrqovoLi6AlTBP7p1dVl
-        yb7T3iq21oWmPlR8Wysi+Tb09p2VlxxmceqRLLzPvW4L39PkS6WbiTkSvDPQNzD9
-        lUg/WLmHcXln2SofjhB4WKI2pn9UO2lBKi1NNlSZhGcRIxtN8Bhcf7G/6qh9IFQQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=HlAxx6
+        VeMPtRmtfCr7KIQ6rwAgzQnt4cyzdPEPOGBS4=; b=Sq6w7GYK7ysMDoJxkgxofg
+        9fS31hNHuwBtSkgPNJKbOCNsXPZiGtyxRfeOZ7i7CmNgkTmgnSXIIQqj1set2Kcj
+        8U9r3xQ6kHAoGrp+0AHTXW9EJOWsaIM8RUXcKtTMjP7vtjW/9BFyi0R1FDSKF2xl
+        3BXHEMko+LUeZpXXJONj9fgdoEmd3E8zvphl25CLGsKoY9BNxUZo+2r+pI+fK3U0
+        BNncBNGQl/nfy34bO3VNoL8ZfldWTK+DPZrTpoEpbMbuurnd70JV7u0rBb74Easv
+        dkucTXJ4N4rIDBzKGn3lxkt7tiFVTVPHXNCbcn/PPE9ksqgOsa92r3YkCXhoZhAg
         ==
-X-ME-Sender: <xms:hMv5XlgZJUADY_YDfwchf7L2ZToE_L3iUOLXznhdU4NWoH4Z4rvHgA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudelkedgfeehucetufdoteggodetrfdotf
+X-ME-Sender: <xms:Ac_5XogX2XbFAtElataNMBjsoRDZ2FMNED258mcDPOyFgPEmWdcHBg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudelkedgfeekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
@@ -36,22 +36,21 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudelkedgfeehucetufdoteggod
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
     keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
     hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:hMv5XqD2pplBvvjPff6wXC6ugQRZCjOY8m2KElzo4cgczC8TWxz_Tg>
-    <xmx:hMv5XlEai4BTiYBp35c9QJyiZfStAifAGItf9HvCwm4208Q0oYH0JQ>
-    <xmx:hMv5XqRmbnoJzCI2onTZ_Hzwmv02zb-XTwgulKwwH8lay3PGyBy0IA>
-    <xmx:hcv5XstIvPEoDF9QV4uhB2Y_u5akxVG8R4-EY1todxl7XSUP_DHwHFxP3h8>
+X-ME-Proxy: <xmx:Ac_5XhBR6Y6qCb6pwsQctso-ZfR1IALidJVoa22BCrkMfqaCU06IVA>
+    <xmx:Ac_5XgE8TApjwbiOwVIGIPCRyOzvutuOwDaFT4I3TTXmrbKVMUFRBw>
+    <xmx:Ac_5XpTeLVRAODIQP6RTMIfXcbekWruWjMh0n84Yo1872pE_mlgtkQ>
+    <xmx:Ac_5Xt8Pah7mfrvg_vx1SWHp-zGj23LrX5_p3Jqd3KMEGOyqEEoKdYeafi0>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 560B93067C80;
-        Mon, 29 Jun 2020 07:07:48 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mm, compaction: make capture control handling safe wrt" failed to apply to 5.4-stable tree
-To:     vbabka@suse.cz, akpm@linux-foundation.org,
-        alex.shi@linux.alibaba.com, hughd@google.com, liwang@redhat.com,
-        mgorman@techsingularity.net, stable@vger.kernel.org,
-        torvalds@linux-foundation.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 0216A3280059;
+        Mon, 29 Jun 2020 07:22:40 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] mm: fix swap cache node allocation mask" failed to apply to 5.7-stable tree
+To:     hughd@google.com, akpm@linux-foundation.org,
+        lists@colorremedies.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, vbabka@suse.cz, willy@infradead.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 29 Jun 2020 13:07:39 +0200
-Message-ID: <15934288599599@kroah.com>
+Date:   Mon, 29 Jun 2020 13:22:31 +0200
+Message-ID: <1593429751245129@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -61,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.7-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -72,91 +71,91 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b9e20f0da1f5c9c68689450a8cb436c9486434c8 Mon Sep 17 00:00:00 2001
-From: Vlastimil Babka <vbabka@suse.cz>
-Date: Thu, 25 Jun 2020 20:29:24 -0700
-Subject: [PATCH] mm, compaction: make capture control handling safe wrt
- interrupts
+From 243bce09c91b0145aeaedd5afba799d81841c030 Mon Sep 17 00:00:00 2001
+From: Hugh Dickins <hughd@google.com>
+Date: Thu, 25 Jun 2020 20:29:59 -0700
+Subject: [PATCH] mm: fix swap cache node allocation mask
 
-Hugh reports:
+Chris Murphy reports that a slightly overcommitted load, testing swap
+and zram along with i915, splats and keeps on splatting, when it had
+better fail less noisily:
 
- "While stressing compaction, one run oopsed on NULL capc->cc in
-  __free_one_page()'s task_capc(zone): compact_zone_order() had been
-  interrupted, and a page was being freed in the return from interrupt.
+  gnome-shell: page allocation failure: order:0,
+  mode:0x400d0(__GFP_IO|__GFP_FS|__GFP_COMP|__GFP_RECLAIMABLE),
+  nodemask=(null),cpuset=/,mems_allowed=0
+  CPU: 2 PID: 1155 Comm: gnome-shell Not tainted 5.7.0-1.fc33.x86_64 #1
+  Call Trace:
+    dump_stack+0x64/0x88
+    warn_alloc.cold+0x75/0xd9
+    __alloc_pages_slowpath.constprop.0+0xcfa/0xd30
+    __alloc_pages_nodemask+0x2df/0x320
+    alloc_slab_page+0x195/0x310
+    allocate_slab+0x3c5/0x440
+    ___slab_alloc+0x40c/0x5f0
+    __slab_alloc+0x1c/0x30
+    kmem_cache_alloc+0x20e/0x220
+    xas_nomem+0x28/0x70
+    add_to_swap_cache+0x321/0x400
+    __read_swap_cache_async+0x105/0x240
+    swap_cluster_readahead+0x22c/0x2e0
+    shmem_swapin+0x8e/0xc0
+    shmem_swapin_page+0x196/0x740
+    shmem_getpage_gfp+0x3a2/0xa60
+    shmem_read_mapping_page_gfp+0x32/0x60
+    shmem_get_pages+0x155/0x5e0 [i915]
+    __i915_gem_object_get_pages+0x68/0xa0 [i915]
+    i915_vma_pin+0x3fe/0x6c0 [i915]
+    eb_add_vma+0x10b/0x2c0 [i915]
+    i915_gem_do_execbuffer+0x704/0x3430 [i915]
+    i915_gem_execbuffer2_ioctl+0x1ea/0x3e0 [i915]
+    drm_ioctl_kernel+0x86/0xd0 [drm]
+    drm_ioctl+0x206/0x390 [drm]
+    ksys_ioctl+0x82/0xc0
+    __x64_sys_ioctl+0x16/0x20
+    do_syscall_64+0x5b/0xf0
+    entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-  Though you would not expect it from the source, both gccs I was using
-  (4.8.1 and 7.5.0) had chosen to compile compact_zone_order() with the
-  ".cc = &cc" implemented by mov %rbx,-0xb0(%rbp) immediately before
-  callq compact_zone - long after the "current->capture_control =
-  &capc". An interrupt in between those finds capc->cc NULL (zeroed by
-  an earlier rep stos).
+Reported on 5.7, but it goes back really to 3.1: when
+shmem_read_mapping_page_gfp() was implemented for use by i915, and
+allowed for __GFP_NORETRY and __GFP_NOWARN flags in most places, but
+missed swapin's "& GFP_KERNEL" mask for page tree node allocation in
+__read_swap_cache_async() - that was to mask off HIGHUSER_MOVABLE bits
+from what page cache uses, but GFP_RECLAIM_MASK is now what's needed.
 
-  This could presumably be fixed by a barrier() before setting
-  current->capture_control in compact_zone_order(); but would also need
-  more care on return from compact_zone(), in order not to risk leaking
-  a page captured by interrupt just before capture_control is reset.
-
-  Maybe that is the preferable fix, but I felt safer for task_capc() to
-  exclude the rather surprising possibility of capture at interrupt
-  time"
-
-I have checked that gcc10 also behaves the same.
-
-The advantage of fix in compact_zone_order() is that we don't add
-another test in the page freeing hot path, and that it might prevent
-future problems if we stop exposing pointers to uninitialized structures
-in current task.
-
-So this patch implements the suggestion for compact_zone_order() with
-barrier() (and WRITE_ONCE() to prevent store tearing) for setting
-current->capture_control, and prevents page leaking with
-WRITE_ONCE/READ_ONCE in the proper order.
-
-Link: http://lkml.kernel.org/r/20200616082649.27173-1-vbabka@suse.cz
-Fixes: 5e1f0f098b46 ("mm, compaction: capture a page under direct compaction")
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
-Reported-by: Hugh Dickins <hughd@google.com>
-Suggested-by: Hugh Dickins <hughd@google.com>
-Acked-by: Hugh Dickins <hughd@google.com>
-Cc: Alex Shi <alex.shi@linux.alibaba.com>
-Cc: Li Wang <liwang@redhat.com>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: <stable@vger.kernel.org>	[5.1+]
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=208085
+Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2006151330070.11064@eggly.anvils
+Fixes: 68da9f055755 ("tmpfs: pass gfp to shmem_getpage_gfp")
+Signed-off-by: Hugh Dickins <hughd@google.com>
+Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
+Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Reported-by: Chris Murphy <lists@colorremedies.com>
+Analyzed-by: Vlastimil Babka <vbabka@suse.cz>
+Analyzed-by: Matthew Wilcox <willy@infradead.org>
+Tested-by: Chris Murphy <lists@colorremedies.com>
+Cc: <stable@vger.kernel.org>	[3.1+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 
-diff --git a/mm/compaction.c b/mm/compaction.c
-index fd988b7e5f2b..86375605faa9 100644
---- a/mm/compaction.c
-+++ b/mm/compaction.c
-@@ -2316,15 +2316,26 @@ static enum compact_result compact_zone_order(struct zone *zone, int order,
- 		.page = NULL,
- 	};
+diff --git a/mm/swap_state.c b/mm/swap_state.c
+index e98ff460e9e9..05889e8e3c97 100644
+--- a/mm/swap_state.c
++++ b/mm/swap_state.c
+@@ -21,7 +21,7 @@
+ #include <linux/vmalloc.h>
+ #include <linux/swap_slots.h>
+ #include <linux/huge_mm.h>
+-
++#include "internal.h"
  
--	current->capture_control = &capc;
-+	/*
-+	 * Make sure the structs are really initialized before we expose the
-+	 * capture control, in case we are interrupted and the interrupt handler
-+	 * frees a page.
-+	 */
-+	barrier();
-+	WRITE_ONCE(current->capture_control, &capc);
+ /*
+  * swapper_space is a fiction, retained to simplify the path through
+@@ -429,7 +429,7 @@ struct page *__read_swap_cache_async(swp_entry_t entry, gfp_t gfp_mask,
+ 	__SetPageSwapBacked(page);
  
- 	ret = compact_zone(&cc, &capc);
- 
- 	VM_BUG_ON(!list_empty(&cc.freepages));
- 	VM_BUG_ON(!list_empty(&cc.migratepages));
- 
--	*capture = capc.page;
--	current->capture_control = NULL;
-+	/*
-+	 * Make sure we hide capture control first before we read the captured
-+	 * page pointer, otherwise an interrupt could free and capture a page
-+	 * and we would leak it.
-+	 */
-+	WRITE_ONCE(current->capture_control, NULL);
-+	*capture = READ_ONCE(capc.page);
- 
- 	return ret;
- }
+ 	/* May fail (-ENOMEM) if XArray node allocation failed. */
+-	if (add_to_swap_cache(page, entry, gfp_mask & GFP_KERNEL)) {
++	if (add_to_swap_cache(page, entry, gfp_mask & GFP_RECLAIM_MASK)) {
+ 		put_swap_page(page, entry);
+ 		goto fail_unlock;
+ 	}
 
