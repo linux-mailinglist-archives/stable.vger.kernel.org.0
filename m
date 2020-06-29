@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3606820DEF4
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:53:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5BDA20DE65
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:52:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733004AbgF2Ua7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:30:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37072 "EHLO mail.kernel.org"
+        id S1732543AbgF2UZP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:25:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726482AbgF2TZT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:25:19 -0400
+        id S1730243AbgF2TZ1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:25:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 14E01253DB;
-        Mon, 29 Jun 2020 15:41:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7ED80253E0;
+        Mon, 29 Jun 2020 15:41:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445317;
-        bh=q+kG1Sa+lQ0cXuiS+umqu2lRV66Ub13zt01QatBAZcw=;
+        s=default; t=1593445319;
+        bh=Ed2RpHD5Put3EVR9jo7izQTgbbStuIxsivDzrkQZpfI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jPuhe1dFp4iQw8wlLao9h3vSfQEQIWsNNKz8EHQpp3S5HavL5B/osqBszAIcm9zZe
-         gKDJdDQWiJzSZL3+zpcnJDhkvebFvSJwXiDd4uw7PO/jHIk+21eFQ2QopPbX8INeWc
-         gKZJ3NPtK4QUw0UKuW0u2uRL1NfH6uI/8rxf5K8Y=
+        b=JT4gbGxqa64k71gWmQm/nF83KrJ6if8wxg5vLwWqgs14s+NkYieSvpCJOpO4u+sg/
+         njuhj1Ulood+3yX3izkIXg6sfNYGQ7NzjkMISGvAQ2E/jQGCnZi2S2f33fKRGctUUK
+         tPBvp1c0ZxC3M7OQVDrhJaHT8tcjp3GQ07SNRG/c=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jeffle Xu <jefflexu@linux.alibaba.com>,
-        Eric Whitney <enwlinux@gmail.com>, stable@kernel.org,
-        Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 085/191] ext4: fix partial cluster initialization when splitting extent
-Date:   Mon, 29 Jun 2020 11:38:21 -0400
-Message-Id: <20200629154007.2495120-86-sashal@kernel.org>
+Cc:     Lyude Paul <lyude@redhat.com>, Sean Paul <sean@poorly.run>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 086/191] drm/dp_mst: Increase ACT retry timeout to 3s
+Date:   Mon, 29 Jun 2020 11:38:22 -0400
+Message-Id: <20200629154007.2495120-87-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
 References: <20200629154007.2495120-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.229-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-4.9.y
@@ -49,120 +49,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeffle Xu <jefflexu@linux.alibaba.com>
+From: Lyude Paul <lyude@redhat.com>
 
-[ Upstream commit cfb3c85a600c6aa25a2581b3c1c4db3460f14e46 ]
+[ Upstream commit 873a95e0d59ac06901ae261dda0b7165ffd002b8 ]
 
-Fix the bug when calculating the physical block number of the first
-block in the split extent.
+Currently we only poll for an ACT up to 30 times, with a busy-wait delay
+of 100µs between each attempt - giving us a timeout of 2900µs. While
+this might seem sensible, it would appear that in certain scenarios it
+can take dramatically longer then that for us to receive an ACT. On one
+of the EVGA MST hubs that I have available, I observed said hub
+sometimes taking longer then a second before signalling the ACT. These
+delays mostly seem to occur when previous sideband messages we've sent
+are NAKd by the hub, however it wouldn't be particularly surprising if
+it's possible to reproduce times like this simply by introducing branch
+devices with large LCTs since payload allocations have to take effect on
+every downstream device up to the payload's target.
 
-This bug will cause xfstests shared/298 failure on ext4 with bigalloc
-enabled occasionally. Ext4 error messages indicate that previously freed
-blocks are being freed again, and the following fsck will fail due to
-the inconsistency of block bitmap and bg descriptor.
+So, instead of just retrying 30 times we poll for the ACT for up to 3ms,
+and additionally use usleep_range() to avoid a very long and rude
+busy-wait. Note that the previous retry count of 30 appears to have been
+arbitrarily chosen, as I can't find any mention of a recommended timeout
+or retry count for ACTs in the DisplayPort 2.0 specification. This also
+goes for the range we were previously using for udelay(), although I
+suspect that was just copied from the recommended delay for link
+training on SST devices.
 
-The following is an example case:
+Changes since v1:
+* Use readx_poll_timeout() instead of open-coding timeout loop - Sean
+  Paul
+Changes since v2:
+* Increase poll interval to 200us - Sean Paul
+* Print status in hex when we timeout waiting for ACT - Sean Paul
 
-1. First, Initialize a ext4 filesystem with cluster size '16K', block size
-'4K', in which case, one cluster contains four blocks.
-
-2. Create one file (e.g., xxx.img) on this ext4 filesystem. Now the extent
-tree of this file is like:
-
-...
-36864:[0]4:220160
-36868:[0]14332:145408
-51200:[0]2:231424
-...
-
-3. Then execute PUNCH_HOLE fallocate on this file. The hole range is
-like:
-
-..
-ext4_ext_remove_space: dev 254,16 ino 12 since 49506 end 49506 depth 1
-ext4_ext_remove_space: dev 254,16 ino 12 since 49544 end 49546 depth 1
-ext4_ext_remove_space: dev 254,16 ino 12 since 49605 end 49607 depth 1
-...
-
-4. Then the extent tree of this file after punching is like
-
-...
-49507:[0]37:158047
-49547:[0]58:158087
-...
-
-5. Detailed procedure of punching hole [49544, 49546]
-
-5.1. The block address space:
-```
-lblk        ~49505  49506   49507~49543     49544~49546    49547~
-	  ---------+------+-------------+----------------+--------
-	    extent | hole |   extent	|	hole	 | extent
-	  ---------+------+-------------+----------------+--------
-pblk       ~158045  158046  158047~158083  158084~158086   158087~
-```
-
-5.2. The detailed layout of cluster 39521:
-```
-		cluster 39521
-	<------------------------------->
-
-		hole		  extent
-	<----------------------><--------
-
-lblk      49544   49545   49546   49547
-	+-------+-------+-------+-------+
-	|	|	|	|	|
-	+-------+-------+-------+-------+
-pblk     158084  1580845  158086  158087
-```
-
-5.3. The ftrace output when punching hole [49544, 49546]:
-- ext4_ext_remove_space (start 49544, end 49546)
-  - ext4_ext_rm_leaf (start 49544, end 49546, last_extent [49507(158047), 40], partial [pclu 39522 lblk 0 state 2])
-    - ext4_remove_blocks (extent [49507(158047), 40], from 49544 to 49546, partial [pclu 39522 lblk 0 state 2]
-      - ext4_free_blocks: (block 158084 count 4)
-        - ext4_mballoc_free (extent 1/6753/1)
-
-5.4. Ext4 error message in dmesg:
-EXT4-fs error (device vdb): mb_free_blocks:1457: group 1, block 158084:freeing already freed block (bit 6753); block bitmap corrupt.
-EXT4-fs error (device vdb): ext4_mb_generate_buddy:747: group 1, block bitmap and bg descriptor inconsistent: 19550 vs 19551 free clusters
-
-In this case, the whole cluster 39521 is freed mistakenly when freeing
-pblock 158084~158086 (i.e., the first three blocks of this cluster),
-although pblock 158087 (the last remaining block of this cluster) has
-not been freed yet.
-
-The root cause of this isuue is that, the pclu of the partial cluster is
-calculated mistakenly in ext4_ext_remove_space(). The correct
-partial_cluster.pclu (i.e., the cluster number of the first block in the
-next extent, that is, lblock 49597 (pblock 158086)) should be 39521 rather
-than 39522.
-
-Fixes: f4226d9ea400 ("ext4: fix partial cluster initialization")
-Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
-Reviewed-by: Eric Whitney <enwlinux@gmail.com>
-Cc: stable@kernel.org # v3.19+
-Link: https://lore.kernel.org/r/1590121124-37096-1-git-send-email-jefflexu@linux.alibaba.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Fixes: ad7f8a1f9ced ("drm/helper: add Displayport multi-stream helper (v0.6)")
+Cc: Sean Paul <sean@poorly.run>
+Cc: <stable@vger.kernel.org> # v3.17+
+Reviewed-by: Sean Paul <sean@poorly.run>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200406221253.1307209-4-lyude@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/extents.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/drm_dp_mst_topology.c | 54 ++++++++++++++++-----------
+ 1 file changed, 32 insertions(+), 22 deletions(-)
 
-diff --git a/fs/ext4/extents.c b/fs/ext4/extents.c
-index 51c2713a615a1..ab19f61bd04bc 100644
---- a/fs/ext4/extents.c
-+++ b/fs/ext4/extents.c
-@@ -2916,7 +2916,7 @@ int ext4_ext_remove_space(struct inode *inode, ext4_lblk_t start,
- 			 * in use to avoid freeing it when removing blocks.
- 			 */
- 			if (sbi->s_cluster_ratio > 1) {
--				pblk = ext4_ext_pblock(ex) + end - ee_block + 2;
-+				pblk = ext4_ext_pblock(ex) + end - ee_block + 1;
- 				partial_cluster =
- 					-(long long) EXT4_B2C(sbi, pblk);
- 			}
+diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c b/drivers/gpu/drm/drm_dp_mst_topology.c
+index 528d6575b01e3..bb70c5272fe8e 100644
+--- a/drivers/gpu/drm/drm_dp_mst_topology.c
++++ b/drivers/gpu/drm/drm_dp_mst_topology.c
+@@ -29,6 +29,7 @@
+ #include <linux/i2c.h>
+ #include <drm/drm_dp_mst_helper.h>
+ #include <drm/drmP.h>
++#include <linux/iopoll.h>
+ 
+ #include <drm/drm_fixed.h>
+ 
+@@ -2673,6 +2674,17 @@ static int drm_dp_dpcd_write_payload(struct drm_dp_mst_topology_mgr *mgr,
+ 	return ret;
+ }
+ 
++static int do_get_act_status(struct drm_dp_aux *aux)
++{
++	int ret;
++	u8 status;
++
++	ret = drm_dp_dpcd_readb(aux, DP_PAYLOAD_TABLE_UPDATE_STATUS, &status);
++	if (ret < 0)
++		return ret;
++
++	return status;
++}
+ 
+ /**
+  * drm_dp_check_act_status() - Check ACT handled status.
+@@ -2682,30 +2694,28 @@ static int drm_dp_dpcd_write_payload(struct drm_dp_mst_topology_mgr *mgr,
+  */
+ int drm_dp_check_act_status(struct drm_dp_mst_topology_mgr *mgr)
+ {
+-	int count = 0, ret;
+-	u8 status;
+-
+-	do {
+-		ret = drm_dp_dpcd_readb(mgr->aux,
+-					DP_PAYLOAD_TABLE_UPDATE_STATUS,
+-					&status);
+-		if (ret < 0) {
+-			DRM_DEBUG_KMS("failed to read payload table status %d\n",
+-				      ret);
+-			return ret;
+-		}
+-
+-		if (status & DP_PAYLOAD_ACT_HANDLED)
+-			break;
+-		count++;
+-		udelay(100);
+-	} while (count < 30);
+-
+-	if (!(status & DP_PAYLOAD_ACT_HANDLED)) {
+-		DRM_DEBUG_KMS("failed to get ACT bit %d after %d retries\n",
+-			      status, count);
++	/*
++	 * There doesn't seem to be any recommended retry count or timeout in
++	 * the MST specification. Since some hubs have been observed to take
++	 * over 1 second to update their payload allocations under certain
++	 * conditions, we use a rather large timeout value.
++	 */
++	const int timeout_ms = 3000;
++	int ret, status;
++
++	ret = readx_poll_timeout(do_get_act_status, mgr->aux, status,
++				 status & DP_PAYLOAD_ACT_HANDLED || status < 0,
++				 200, timeout_ms * USEC_PER_MSEC);
++	if (ret < 0 && status >= 0) {
++		DRM_DEBUG_KMS("Failed to get ACT after %dms, last status: %02x\n",
++			      timeout_ms, status);
+ 		return -EINVAL;
++	} else if (status < 0) {
++		DRM_DEBUG_KMS("Failed to read payload table status: %d\n",
++			      status);
++		return status;
+ 	}
++
+ 	return 0;
+ }
+ EXPORT_SYMBOL(drm_dp_check_act_status);
 -- 
 2.25.1
 
