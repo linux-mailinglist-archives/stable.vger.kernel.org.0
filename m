@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FA4D20D4AE
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 21:15:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C55C20D4A1
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 21:15:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730717AbgF2TKm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:10:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53724 "EHLO mail.kernel.org"
+        id S1729895AbgF2TKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:10:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730978AbgF2TKT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:10:19 -0400
+        id S1730294AbgF2TKP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:10:15 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF3AE2549A;
-        Mon, 29 Jun 2020 15:53:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 140FC2549D;
+        Mon, 29 Jun 2020 15:53:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445992;
-        bh=0TIgXh0UJBp6NZVUlhYfT7EIO63h8jLGw0n+lEZnSD8=;
+        s=default; t=1593445995;
+        bh=GDty82TpQn3TQtvSKvWJza1OMJHRZPsq4SrmyPwrfAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mizO200FF6uAbE4UmJgAqfppqS6rtj1urLBVDHK9G1qL0Eb+RiuJu+ekMaGgvvQwA
-         JpGjriEb+lWlpFi4Hmqep/7ltRDLTXmyJM7pG0eiCAIBX6FuAxx9nYuT5Y2Lcx5jsQ
-         rmQ/Hdp7k2jljTKa2l9BibGFDgCzckR2HC9hdi3A=
+        b=vNhB/hXSv1Dl7J+ovJnhVBecx2HAOtIRaqg/pPVPgsAlGYz0OqTXm2FoUylkccThk
+         XyT7c1T2/mjKWnw/eUndFMtAcDGb3OVJRx72a0oEYQPKYYwujzII0qR0hyXMkjEGYV
+         1gcoh4JvckHVETt2SG181EiuKfJBOjmXZsj9VGIU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Dmitry V. Levin" <ldv@altlinux.org>,
-        Elvira Khabirova <lineprinter@altlinux.org>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.4 001/135] s390: fix syscall_get_error for compat processes
-Date:   Mon, 29 Jun 2020 11:50:55 -0400
-Message-Id: <20200629155309.2495516-2-sashal@kernel.org>
+Cc:     Adam Honse <calcprogrammer1@gmail.com>,
+        Jean Delvare <jdelvare@suse.de>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 003/135] i2c: piix4: Detect secondary SMBus controller on AMD AM4 chipsets
+Date:   Mon, 29 Jun 2020 11:50:57 -0400
+Message-Id: <20200629155309.2495516-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
 References: <20200629155309.2495516-1-sashal@kernel.org>
@@ -51,58 +51,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Dmitry V. Levin" <ldv@altlinux.org>
+From: Adam Honse <calcprogrammer1@gmail.com>
 
-commit b3583fca5fb654af2cfc1c08259abb9728272538 upstream.
+[ Upstream commit f27237c174fd9653033330e4e532cd9d153ce824 ]
 
-If both the tracer and the tracee are compat processes, and gprs[2]
-is assigned a value by __poke_user_compat, then the higher 32 bits
-of gprs[2] are cleared, IS_ERR_VALUE() always returns false, and
-syscall_get_error() always returns 0.
+The AMD X370 and other AM4 chipsets (A/B/X 3/4/5 parts) and Threadripper
+equivalents have a secondary SMBus controller at I/O port address
+0x0B20.  This bus is used by several manufacturers to control
+motherboard RGB lighting via embedded controllers.  I have been using
+this bus in my OpenRGB project to control the Aura RGB on many
+motherboards and ASRock also uses this bus for their Polychrome RGB
+controller.
 
-Fix the implementation by sign-extending the value for compat processes
-the same way as x86 implementation does.
+I am not aware of any CZ-compatible platforms which do not have the
+second SMBus channel.  All of AMD's AM4- and Threadripper- series
+chipsets that OpenRGB users have tested appear to have this secondary
+bus.  I also noticed this secondary bus is present on older AMD
+platforms including my FM1 home server.
 
-The bug was exposed to user space by commit 201766a20e30f ("ptrace: add
-PTRACE_GET_SYSCALL_INFO request") and detected by strace test suite.
-
-This change fixes strace syscall tampering on s390.
-
-Link: https://lkml.kernel.org/r/20200602180051.GA2427@altlinux.org
-Fixes: 753c4dd6a2fa2 ("[S390] ptrace changes")
-Cc: Elvira Khabirova <lineprinter@altlinux.org>
-Cc: stable@vger.kernel.org # v2.6.28+
-Signed-off-by: Dmitry V. Levin <ldv@altlinux.org>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=202587
+Signed-off-by: Adam Honse <calcprogrammer1@gmail.com>
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
+Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Tested-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/syscall.h | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-piix4.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/include/asm/syscall.h b/arch/s390/include/asm/syscall.h
-index 6bc941be69217..166fbd74e316c 100644
---- a/arch/s390/include/asm/syscall.h
-+++ b/arch/s390/include/asm/syscall.h
-@@ -41,7 +41,17 @@ static inline void syscall_rollback(struct task_struct *task,
- static inline long syscall_get_error(struct task_struct *task,
- 				     struct pt_regs *regs)
- {
--	return IS_ERR_VALUE(regs->gprs[2]) ? regs->gprs[2] : 0;
-+	unsigned long error = regs->gprs[2];
-+#ifdef CONFIG_COMPAT
-+	if (test_tsk_thread_flag(task, TIF_31BIT)) {
-+		/*
-+		 * Sign-extend the value so (int)-EFOO becomes (long)-EFOO
-+		 * and will match correctly in comparisons.
-+		 */
-+		error = (long)(int)error;
-+	}
-+#endif
-+	return IS_ERR_VALUE(error) ? error : 0;
- }
+diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+index b61db9db3ca5d..c85ac178c4838 100644
+--- a/drivers/i2c/busses/i2c-piix4.c
++++ b/drivers/i2c/busses/i2c-piix4.c
+@@ -647,7 +647,8 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 	}
  
- static inline long syscall_get_return_value(struct task_struct *task,
+ 	if (dev->vendor == PCI_VENDOR_ID_AMD &&
+-	    dev->device == PCI_DEVICE_ID_AMD_HUDSON2_SMBUS) {
++	    (dev->device == PCI_DEVICE_ID_AMD_HUDSON2_SMBUS ||
++	     dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS)) {
+ 		retval = piix4_setup_sb800(dev, id, 1);
+ 	}
+ 
 -- 
 2.25.1
 
