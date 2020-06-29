@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB0B520D827
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:08:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B2F620DBFD
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:16:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731272AbgF2Tgn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:36:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40598 "EHLO mail.kernel.org"
+        id S1729988AbgF2UL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:11:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733017AbgF2Tae (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:30:34 -0400
+        id S1732881AbgF2TaV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:30:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EDE162529F;
-        Mon, 29 Jun 2020 15:36:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D27C4252A0;
+        Mon, 29 Jun 2020 15:36:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445009;
-        bh=Dz13eb/rJGgeoaRVyWqs3XRGPmYfk43xXMq8OI26fbA=;
+        s=default; t=1593445010;
+        bh=HR6m3AwhFYsO7ddBpONsvdxaEJ7thoc56BY7coe+9fg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z8Mb36iTsHoqwIPO6Hv8NMp1GKDM2pzAA/CjKmHhMwAkE2x7pXeYMdOPWIllSpPn1
-         JlVFrzZjMwLNPeUafmPXlbgfgFL5/sfsOlks3VVTofNY3M5mozMRb9BB9zOy7zQjZq
-         pPfMykz+tjKZjEYF978TkqdL6lpwMT+H3wPlN/wU=
+        b=caXZ1PLoWuXiZQYLBqzOz2AezepKGGWnUuZqYU58tJmV488E4ZxKWioPcHXbf1UCa
+         rbo5zloz2im65s9KneL+5CBxe0XYBcly/yTri9EWMXLCzN9pmt3oTJcWQNk7EnUzJG
+         ErvUKgCaSR5COSDsd6jrnMaGU0gOc6HM+DeIzVHY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Matt Fleming <matt@codeblueprint.co.uk>,
-        Borislav Petkov <bp@suse.de>,
+Cc:     Filipe Manana <fdmanana@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.19 110/131] x86/asm/64: Align start of __clear_user() loop to 16-bytes
-Date:   Mon, 29 Jun 2020 11:34:41 -0400
-Message-Id: <20200629153502.2494656-111-sashal@kernel.org>
+Subject: [PATCH 4.19 111/131] btrfs: fix data block group relocation failure due to concurrent scrub
+Date:   Mon, 29 Jun 2020 11:34:42 -0400
+Message-Id: <20200629153502.2494656-112-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629153502.2494656-1-sashal@kernel.org>
 References: <20200629153502.2494656-1-sashal@kernel.org>
@@ -49,66 +50,196 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matt Fleming <matt@codeblueprint.co.uk>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit bb5570ad3b54e7930997aec76ab68256d5236d94 upstream.
+commit 432cd2a10f1c10cead91fe706ff5dc52f06d642a upstream.
 
-x86 CPUs can suffer severe performance drops if a tight loop, such as
-the ones in __clear_user(), straddles a 16-byte instruction fetch
-window, or worse, a 64-byte cacheline. This issues was discovered in the
-SUSE kernel with the following commit,
+When running relocation of a data block group while scrub is running in
+parallel, it is possible that the relocation will fail and abort the
+current transaction with an -EINVAL error:
 
-  1153933703d9 ("x86/asm/64: Micro-optimize __clear_user() - Use immediate constants")
+   [134243.988595] BTRFS info (device sdc): found 14 extents, stage: move data extents
+   [134243.999871] ------------[ cut here ]------------
+   [134244.000741] BTRFS: Transaction aborted (error -22)
+   [134244.001692] WARNING: CPU: 0 PID: 26954 at fs/btrfs/ctree.c:1071 __btrfs_cow_block+0x6a7/0x790 [btrfs]
+   [134244.003380] Modules linked in: btrfs blake2b_generic xor raid6_pq (...)
+   [134244.012577] CPU: 0 PID: 26954 Comm: btrfs Tainted: G        W         5.6.0-rc7-btrfs-next-58 #5
+   [134244.014162] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
+   [134244.016184] RIP: 0010:__btrfs_cow_block+0x6a7/0x790 [btrfs]
+   [134244.017151] Code: 48 c7 c7 (...)
+   [134244.020549] RSP: 0018:ffffa41607863888 EFLAGS: 00010286
+   [134244.021515] RAX: 0000000000000000 RBX: ffff9614bdfe09c8 RCX: 0000000000000000
+   [134244.022822] RDX: 0000000000000001 RSI: ffffffffb3d63980 RDI: 0000000000000001
+   [134244.024124] RBP: ffff961589e8c000 R08: 0000000000000000 R09: 0000000000000001
+   [134244.025424] R10: ffffffffc0ae5955 R11: 0000000000000000 R12: ffff9614bd530d08
+   [134244.026725] R13: ffff9614ced41b88 R14: ffff9614bdfe2a48 R15: 0000000000000000
+   [134244.028024] FS:  00007f29b63c08c0(0000) GS:ffff9615ba600000(0000) knlGS:0000000000000000
+   [134244.029491] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+   [134244.030560] CR2: 00007f4eb339b000 CR3: 0000000130d6e006 CR4: 00000000003606f0
+   [134244.031997] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+   [134244.033153] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+   [134244.034484] Call Trace:
+   [134244.034984]  btrfs_cow_block+0x12b/0x2b0 [btrfs]
+   [134244.035859]  do_relocation+0x30b/0x790 [btrfs]
+   [134244.036681]  ? do_raw_spin_unlock+0x49/0xc0
+   [134244.037460]  ? _raw_spin_unlock+0x29/0x40
+   [134244.038235]  relocate_tree_blocks+0x37b/0x730 [btrfs]
+   [134244.039245]  relocate_block_group+0x388/0x770 [btrfs]
+   [134244.040228]  btrfs_relocate_block_group+0x161/0x2e0 [btrfs]
+   [134244.041323]  btrfs_relocate_chunk+0x36/0x110 [btrfs]
+   [134244.041345]  btrfs_balance+0xc06/0x1860 [btrfs]
+   [134244.043382]  ? btrfs_ioctl_balance+0x27c/0x310 [btrfs]
+   [134244.045586]  btrfs_ioctl_balance+0x1ed/0x310 [btrfs]
+   [134244.045611]  btrfs_ioctl+0x1880/0x3760 [btrfs]
+   [134244.049043]  ? do_raw_spin_unlock+0x49/0xc0
+   [134244.049838]  ? _raw_spin_unlock+0x29/0x40
+   [134244.050587]  ? __handle_mm_fault+0x11b3/0x14b0
+   [134244.051417]  ? ksys_ioctl+0x92/0xb0
+   [134244.052070]  ksys_ioctl+0x92/0xb0
+   [134244.052701]  ? trace_hardirqs_off_thunk+0x1a/0x1c
+   [134244.053511]  __x64_sys_ioctl+0x16/0x20
+   [134244.054206]  do_syscall_64+0x5c/0x280
+   [134244.054891]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+   [134244.055819] RIP: 0033:0x7f29b51c9dd7
+   [134244.056491] Code: 00 00 00 (...)
+   [134244.059767] RSP: 002b:00007ffcccc1dd08 EFLAGS: 00000202 ORIG_RAX: 0000000000000010
+   [134244.061168] RAX: ffffffffffffffda RBX: 0000000000000001 RCX: 00007f29b51c9dd7
+   [134244.062474] RDX: 00007ffcccc1dda0 RSI: 00000000c4009420 RDI: 0000000000000003
+   [134244.063771] RBP: 0000000000000003 R08: 00005565cea4b000 R09: 0000000000000000
+   [134244.065032] R10: 0000000000000541 R11: 0000000000000202 R12: 00007ffcccc2060a
+   [134244.066327] R13: 00007ffcccc1dda0 R14: 0000000000000002 R15: 00007ffcccc1dec0
+   [134244.067626] irq event stamp: 0
+   [134244.068202] hardirqs last  enabled at (0): [<0000000000000000>] 0x0
+   [134244.069351] hardirqs last disabled at (0): [<ffffffffb2abdedf>] copy_process+0x74f/0x2020
+   [134244.070909] softirqs last  enabled at (0): [<ffffffffb2abdedf>] copy_process+0x74f/0x2020
+   [134244.072392] softirqs last disabled at (0): [<0000000000000000>] 0x0
+   [134244.073432] ---[ end trace bd7c03622e0b0a99 ]---
 
-which increased the code object size from 10 bytes to 15 bytes and
-caused the 8-byte copy loop in __clear_user() to be split across a
-64-byte cacheline.
+The -EINVAL error comes from the following chain of function calls:
 
-Aligning the start of the loop to 16-bytes makes this fit neatly inside
-a single instruction fetch window again and restores the performance of
-__clear_user() which is used heavily when reading from /dev/zero.
+  __btrfs_cow_block() <-- aborts the transaction
+    btrfs_reloc_cow_block()
+      replace_file_extents()
+        get_new_location() <-- returns -EINVAL
 
-Here are some numbers from running libmicro's read_z* and pread_z*
-microbenchmarks which read from /dev/zero:
+When relocating a data block group, for each allocated extent of the block
+group, we preallocate another extent (at prealloc_file_extent_cluster()),
+associated with the data relocation inode, and then dirty all its pages.
+These preallocated extents have, and must have, the same size that extents
+from the data block group being relocated have.
 
-  Zen 1 (Naples)
+Later before we start the relocation stage that updates pointers (bytenr
+field of file extent items) to point to the the new extents, we trigger
+writeback for the data relocation inode. The expectation is that writeback
+will write the pages to the previously preallocated extents, that it
+follows the NOCOW path. That is generally the case, however, if a scrub
+is running it may have turned the block group that contains those extents
+into RO mode, in which case writeback falls back to the COW path.
 
-  libmicro-file
-                                        5.7.0-rc6              5.7.0-rc6              5.7.0-rc6
-                                                    revert-1153933703d9+               align16+
-  Time mean95-pread_z100k       9.9195 (   0.00%)      5.9856 (  39.66%)      5.9938 (  39.58%)
-  Time mean95-pread_z10k        1.1378 (   0.00%)      0.7450 (  34.52%)      0.7467 (  34.38%)
-  Time mean95-pread_z1k         0.2623 (   0.00%)      0.2251 (  14.18%)      0.2252 (  14.15%)
-  Time mean95-pread_zw100k      9.9974 (   0.00%)      6.0648 (  39.34%)      6.0756 (  39.23%)
-  Time mean95-read_z100k        9.8940 (   0.00%)      5.9885 (  39.47%)      5.9994 (  39.36%)
-  Time mean95-read_z10k         1.1394 (   0.00%)      0.7483 (  34.33%)      0.7482 (  34.33%)
+However in the COW path instead of allocating exactly one extent with the
+expected size, the allocator may end up allocating several smaller extents
+due to free space fragmentation - because we tell it at cow_file_range()
+that the minimum allocation size can match the filesystem's sector size.
+This later breaks the relocation's expectation that an extent associated
+to a file extent item in the data relocation inode has the same size as
+the respective extent pointed by a file extent item in another tree - in
+this case the extent to which the relocation inode poins to is smaller,
+causing relocation.c:get_new_location() to return -EINVAL.
 
-Note that this doesn't affect Haswell or Broadwell microarchitectures
-which seem to avoid the alignment issue by executing the loop straight
-out of the Loop Stream Detector (verified using perf events).
+For example, if we are relocating a data block group X that has a logical
+address of X and the block group has an extent allocated at the logical
+address X + 128KiB with a size of 64KiB:
 
-Fixes: 1153933703d9 ("x86/asm/64: Micro-optimize __clear_user() - Use immediate constants")
-Signed-off-by: Matt Fleming <matt@codeblueprint.co.uk>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: <stable@vger.kernel.org> # v4.19+
-Link: https://lkml.kernel.org/r/20200618102002.30034-1-matt@codeblueprint.co.uk
+1) At prealloc_file_extent_cluster() we allocate an extent for the data
+   relocation inode with a size of 64KiB and associate it to the file
+   offset 128KiB (X + 128KiB - X) of the data relocation inode. This
+   preallocated extent was allocated at block group Z;
+
+2) A scrub running in parallel turns block group Z into RO mode and
+   starts scrubing its extents;
+
+3) Relocation triggers writeback for the data relocation inode;
+
+4) When running delalloc (btrfs_run_delalloc_range()), we try first the
+   NOCOW path because the data relocation inode has BTRFS_INODE_PREALLOC
+   set in its flags. However, because block group Z is in RO mode, the
+   NOCOW path (run_delalloc_nocow()) falls back into the COW path, by
+   calling cow_file_range();
+
+5) At cow_file_range(), in the first iteration of the while loop we call
+   btrfs_reserve_extent() to allocate a 64KiB extent and pass it a minimum
+   allocation size of 4KiB (fs_info->sectorsize). Due to free space
+   fragmentation, btrfs_reserve_extent() ends up allocating two extents
+   of 32KiB each, each one on a different iteration of that while loop;
+
+6) Writeback of the data relocation inode completes;
+
+7) Relocation proceeds and ends up at relocation.c:replace_file_extents(),
+   with a leaf which has a file extent item that points to the data extent
+   from block group X, that has a logical address (bytenr) of X + 128KiB
+   and a size of 64KiB. Then it calls get_new_location(), which does a
+   lookup in the data relocation tree for a file extent item starting at
+   offset 128KiB (X + 128KiB - X) and belonging to the data relocation
+   inode. It finds a corresponding file extent item, however that item
+   points to an extent that has a size of 32KiB, which doesn't match the
+   expected size of 64KiB, resuling in -EINVAL being returned from this
+   function and propagated up to __btrfs_cow_block(), which aborts the
+   current transaction.
+
+To fix this make sure that at cow_file_range() when we call the allocator
+we pass it a minimum allocation size corresponding the desired extent size
+if the inode belongs to the data relocation tree, otherwise pass it the
+filesystem's sector size as the minimum allocation size.
+
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/lib/usercopy_64.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/btrfs/inode.c | 19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/lib/usercopy_64.c b/arch/x86/lib/usercopy_64.c
-index 9c5606d88f618..7077b3e282414 100644
---- a/arch/x86/lib/usercopy_64.c
-+++ b/arch/x86/lib/usercopy_64.c
-@@ -23,6 +23,7 @@ unsigned long __clear_user(void __user *addr, unsigned long size)
- 	asm volatile(
- 		"	testq  %[size8],%[size8]\n"
- 		"	jz     4f\n"
-+		"	.align 16\n"
- 		"0:	movq $0,(%[dst])\n"
- 		"	addq   $8,%[dst]\n"
- 		"	decl %%ecx ; jnz   0b\n"
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index 887f9ebc2bc2b..7ffb15b473a72 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -977,6 +977,7 @@ static noinline int cow_file_range(struct inode *inode,
+ 	u64 num_bytes;
+ 	unsigned long ram_size;
+ 	u64 cur_alloc_size = 0;
++	u64 min_alloc_size;
+ 	u64 blocksize = fs_info->sectorsize;
+ 	struct btrfs_key ins;
+ 	struct extent_map *em;
+@@ -1028,10 +1029,26 @@ static noinline int cow_file_range(struct inode *inode,
+ 	btrfs_drop_extent_cache(BTRFS_I(inode), start,
+ 			start + num_bytes - 1, 0);
+ 
++	/*
++	 * Relocation relies on the relocated extents to have exactly the same
++	 * size as the original extents. Normally writeback for relocation data
++	 * extents follows a NOCOW path because relocation preallocates the
++	 * extents. However, due to an operation such as scrub turning a block
++	 * group to RO mode, it may fallback to COW mode, so we must make sure
++	 * an extent allocated during COW has exactly the requested size and can
++	 * not be split into smaller extents, otherwise relocation breaks and
++	 * fails during the stage where it updates the bytenr of file extent
++	 * items.
++	 */
++	if (root->root_key.objectid == BTRFS_DATA_RELOC_TREE_OBJECTID)
++		min_alloc_size = num_bytes;
++	else
++		min_alloc_size = fs_info->sectorsize;
++
+ 	while (num_bytes > 0) {
+ 		cur_alloc_size = num_bytes;
+ 		ret = btrfs_reserve_extent(root, cur_alloc_size, cur_alloc_size,
+-					   fs_info->sectorsize, 0, alloc_hint,
++					   min_alloc_size, 0, alloc_hint,
+ 					   &ins, 1, 1);
+ 		if (ret < 0)
+ 			goto out_unlock;
 -- 
 2.25.1
 
