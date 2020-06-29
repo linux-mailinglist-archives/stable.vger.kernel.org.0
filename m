@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FE8920D30F
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 21:11:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 223DA20D321
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 21:11:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729984AbgF2SzR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 14:55:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42446 "EHLO mail.kernel.org"
+        id S1729678AbgF2Sz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 14:55:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729915AbgF2SzQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:55:16 -0400
+        id S1729975AbgF2SzR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:55:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE0EB25576;
-        Mon, 29 Jun 2020 15:55:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EE93C25579;
+        Mon, 29 Jun 2020 15:55:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593446141;
-        bh=0bQKSbV06uF3Fy86wdZrTACqP+ZgxQPNSlkVIp9y6To=;
+        s=default; t=1593446142;
+        bh=C6FW2g4U3g9zleI+T6QiaWuTQjwS7KiK2AgAFaLs56w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AdScB9VmfKJRGP+k1OBK8m2REXCCVxNVEWbAaoVErQXxoJXewRVZeBfvlu5fF0lue
-         CgVbd/Gc4BaDIXlSiXRlfUpqcrfzaBNVecp5L3yO+CEyTgD8tp5U83Eamq0ONuO4+H
-         lx72MjtHziRvzvVo7c1BLvuideeI3n9s5wzd9j+g=
+        b=ng6HIQjcOEABxj12/uEgXMyLzxV8uqN0gez9wffQ1T3D0VOf3A8suWCkbGfgdV5Xs
+         Ie5eIlxNPTY8lvxLjqyfLdJG6Ci7ZlnUei8AK18oC4NIhDckjl04UTSHHcJSDCKlOA
+         7+Yl+01rQvgc1wOMo4Re4e9B2zjHAuKSB/RolAvg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vasily Averin <vvs@virtuozzo.com>,
-        Jeff Layton <jlayton@redhat.com>,
+Cc:     Chuck Lever <chuck.lever@oracle.com>,
         Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.4 129/135] sunrpc: fixed rollback in rpc_gssd_dummy_populate()
-Date:   Mon, 29 Jun 2020 11:53:03 -0400
-Message-Id: <20200629155309.2495516-130-sashal@kernel.org>
+Subject: [PATCH 4.4 130/135] SUNRPC: Properly set the @subbuf parameter of xdr_buf_subsegment()
+Date:   Mon, 29 Jun 2020 11:53:04 -0400
+Message-Id: <20200629155309.2495516-131-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
 References: <20200629155309.2495516-1-sashal@kernel.org>
@@ -50,34 +49,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-commit b7ade38165ca0001c5a3bd5314a314abbbfbb1b7 upstream.
+commit 89a3c9f5b9f0bcaa9aea3e8b2a616fcaea9aad78 upstream.
 
-__rpc_depopulate(gssd_dentry) was lost on error path
+@subbuf is an output parameter of xdr_buf_subsegment(). A survey of
+call sites shows that @subbuf is always uninitialized before
+xdr_buf_segment() is invoked by callers.
 
-cc: stable@vger.kernel.org
-Fixes: commit 4b9a445e3eeb ("sunrpc: create a new dummy pipe for gssd to hold open")
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Reviewed-by: Jeff Layton <jlayton@redhat.com>
+There are some execution paths through xdr_buf_subsegment() that do
+not set all of the fields in @subbuf, leaving some pointer fields
+containing garbage addresses. Subsequent processing of that buffer
+then results in a page fault.
+
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sunrpc/rpc_pipe.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/sunrpc/xdr.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/net/sunrpc/rpc_pipe.c b/net/sunrpc/rpc_pipe.c
-index 9103dd15511cc..12dd5cc499c1e 100644
---- a/net/sunrpc/rpc_pipe.c
-+++ b/net/sunrpc/rpc_pipe.c
-@@ -1347,6 +1347,7 @@ rpc_gssd_dummy_populate(struct dentry *root, struct rpc_pipe *pipe_data)
- 	q.len = strlen(gssd_dummy_clnt_dir[0].name);
- 	clnt_dentry = d_hash_and_lookup(gssd_dentry, &q);
- 	if (!clnt_dentry) {
-+		__rpc_depopulate(gssd_dentry, gssd_dummy_clnt_dir, 0, 1);
- 		pipe_dentry = ERR_PTR(-ENOENT);
- 		goto out;
+diff --git a/net/sunrpc/xdr.c b/net/sunrpc/xdr.c
+index ed9bbd383f7d3..df7ecf9584f68 100644
+--- a/net/sunrpc/xdr.c
++++ b/net/sunrpc/xdr.c
+@@ -1031,6 +1031,7 @@ xdr_buf_subsegment(struct xdr_buf *buf, struct xdr_buf *subbuf,
+ 		base = 0;
+ 	} else {
+ 		base -= buf->head[0].iov_len;
++		subbuf->head[0].iov_base = buf->head[0].iov_base;
+ 		subbuf->head[0].iov_len = 0;
  	}
+ 
+@@ -1043,6 +1044,8 @@ xdr_buf_subsegment(struct xdr_buf *buf, struct xdr_buf *subbuf,
+ 		base = 0;
+ 	} else {
+ 		base -= buf->page_len;
++		subbuf->pages = buf->pages;
++		subbuf->page_base = 0;
+ 		subbuf->page_len = 0;
+ 	}
+ 
+@@ -1054,6 +1057,7 @@ xdr_buf_subsegment(struct xdr_buf *buf, struct xdr_buf *subbuf,
+ 		base = 0;
+ 	} else {
+ 		base -= buf->tail[0].iov_len;
++		subbuf->tail[0].iov_base = buf->tail[0].iov_base;
+ 		subbuf->tail[0].iov_len = 0;
+ 	}
+ 
 -- 
 2.25.1
 
