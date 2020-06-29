@@ -2,42 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 844EA20DEB6
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:53:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7948620DDB6
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:51:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732443AbgF2U2V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:28:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37018 "EHLO mail.kernel.org"
+        id S1731735AbgF2USb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:18:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732501AbgF2TZX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:25:23 -0400
+        id S1732637AbgF2TZl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:25:41 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6891D253E2;
-        Mon, 29 Jun 2020 15:42:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A7445253E3;
+        Mon, 29 Jun 2020 15:42:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445325;
-        bh=Z+lOGaPeEiSVC2XbgGFRsgc+lOH7cZOhLcUrKI7FS/E=;
+        s=default; t=1593445328;
+        bh=zmb9aZXgj3+VHQSBwM4mMhdjrr/RkgwzppLqULpozgE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ckYvKjGPVUjZ3Se+7r4ewinvsdxtzCbG26gAaSgx/yzjUt0AsrYdo2RxYMvYwWgbR
-         qI7aXnMEHD9LIfeP0BCgrZa43Xa9M6TN6X4ZgHVtphUDq8QgxoDhr9Ou9CzLYfPLUg
-         PbzbrGlZgP5e4I1K/FN/cDW+1WpCZAZbAHJ41/Ps=
+        b=BXmD/OwQTpann1s9AVmUfUMYAHCl4IswcfGlNI+pYTkS8QZjrAdI2MneowH2n2hvl
+         2YK5wDFQiaGc63jW7U3aGYuZUY+rUMcVFcTQgxPaL6hmZ2GVmFOZdHSiY8LAlCZpBk
+         5xnfReoIrIly/mhtPT1wBISVM+N+1oq9pNCz1slc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Biggers <ebiggers@google.com>, Mike Gerow <gerow@google.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        =?UTF-8?q?Kai=20L=C3=BCke?= <kai@kinvolk.io>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.9 091/191] crypto: algboss - don't wait during notifier callback
-Date:   Mon, 29 Jun 2020 11:38:27 -0400
-Message-Id: <20200629154007.2495120-92-sashal@kernel.org>
+Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Gustavo A . R . Silva" <gustavoars@kernel.org>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>,
+        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+        David Miller <davem@davemloft.net>,
+        Ingo Molnar <mingo@elte.hu>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ziqian SUN <zsun@redhat.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 092/191] kprobes: Fix to protect kick_kprobe_optimizer() by kprobe_mutex
+Date:   Mon, 29 Jun 2020 11:38:28 -0400
+Message-Id: <20200629154007.2495120-93-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
 References: <20200629154007.2495120-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.229-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-4.9.y
@@ -52,57 +58,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-commit 77251e41f89a813b4090f5199442f217bbf11297 upstream.
+[ Upstream commit 1a0aa991a6274161c95a844c58cfb801d681eb59 ]
 
-When a crypto template needs to be instantiated, CRYPTO_MSG_ALG_REQUEST
-is sent to crypto_chain.  cryptomgr_schedule_probe() handles this by
-starting a thread to instantiate the template, then waiting for this
-thread to complete via crypto_larval::completion.
+In kprobe_optimizer() kick_kprobe_optimizer() is called
+without kprobe_mutex, but this can race with other caller
+which is protected by kprobe_mutex.
 
-This can deadlock because instantiating the template may require loading
-modules, and this (apparently depending on userspace) may need to wait
-for the crc-t10dif module (lib/crc-t10dif.c) to be loaded.  But
-crc-t10dif's module_init function uses crypto_register_notifier() and
-therefore takes crypto_chain.rwsem for write.  That can't proceed until
-the notifier callback has finished, as it holds this semaphore for read.
+To fix that, expand kprobe_mutex protected area to protect
+kick_kprobe_optimizer() call.
 
-Fix this by removing the wait on crypto_larval::completion from within
-cryptomgr_schedule_probe().  It's actually unnecessary because
-crypto_alg_mod_lookup() calls crypto_larval_wait() itself after sending
-CRYPTO_MSG_ALG_REQUEST.
+Link: http://lkml.kernel.org/r/158927057586.27680.5036330063955940456.stgit@devnote2
 
-This only actually became a problem in v4.20 due to commit b76377543b73
-("crc-t10dif: Pick better transform if one becomes available"), but the
-unnecessary wait was much older.
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207159
-Reported-by: Mike Gerow <gerow@google.com>
-Fixes: 398710379f51 ("crypto: algapi - Move larval completion into algboss")
-Cc: <stable@vger.kernel.org> # v3.6+
-Cc: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Reported-by: Kai Lüke <kai@kinvolk.io>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: cd7ebe2298ff ("kprobes: Use text_poke_smp_batch for optimizing")
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: "Gustavo A . R . Silva" <gustavoars@kernel.org>
+Cc: Anders Roxell <anders.roxell@linaro.org>
+Cc: "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>
+Cc: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
+Cc: David Miller <davem@davemloft.net>
+Cc: Ingo Molnar <mingo@elte.hu>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Ziqian SUN <zsun@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/algboss.c | 2 --
- 1 file changed, 2 deletions(-)
+ kernel/kprobes.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/crypto/algboss.c b/crypto/algboss.c
-index 6e39d9c05b98a..5cbc588555ca0 100644
---- a/crypto/algboss.c
-+++ b/crypto/algboss.c
-@@ -194,8 +194,6 @@ static int cryptomgr_schedule_probe(struct crypto_larval *larval)
- 	if (IS_ERR(thread))
- 		goto err_put_larval;
+diff --git a/kernel/kprobes.c b/kernel/kprobes.c
+index 1b75fb8c7735e..3db9cf412996c 100644
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -561,11 +561,12 @@ static void kprobe_optimizer(struct work_struct *work)
+ 	do_free_cleaned_kprobes();
  
--	wait_for_completion_interruptible(&larval->completion);
--
- 	return NOTIFY_STOP;
+ 	mutex_unlock(&module_mutex);
+-	mutex_unlock(&kprobe_mutex);
  
- err_put_larval:
+ 	/* Step 5: Kick optimizer again if needed */
+ 	if (!list_empty(&optimizing_list) || !list_empty(&unoptimizing_list))
+ 		kick_kprobe_optimizer();
++
++	mutex_unlock(&kprobe_mutex);
+ }
+ 
+ /* Wait for completing optimization and unoptimization */
 -- 
 2.25.1
 
