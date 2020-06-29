@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1784220D9E0
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:12:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFEC020D992
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:11:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388223AbgF2Tvy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:51:54 -0400
+        id S2387842AbgF2Tsy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:48:54 -0400
 Received: from mail.kernel.org ([198.145.29.99]:47658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387715AbgF2Tkb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:31 -0400
+        id S2387768AbgF2Tkj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F0FBF24908;
-        Mon, 29 Jun 2020 15:27:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB4032490B;
+        Mon, 29 Jun 2020 15:27:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444460;
-        bh=PTXgBodTo5cXRnYlvSzqSd9BTMIrdK30OzvUyOONAiY=;
+        s=default; t=1593444461;
+        bh=7vb3UwUMMshPjuwApV7mzovKqdMZKh6jOKI3/FAwR8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EAuteJD3+cSUQwPBwpP1afnq07N9AhF3wwG71KV7QEcnxSR/bqnqfUNUBD9C7rzfg
-         yNhHoM4xzIAckMKuXM85kiGKUOaJ3qtmCWZVPwEbn9zP7MP1QhVDMay/ACEgfSye9u
-         HY9hlcZIUlxDCoCS0NiigsT0k0LHVoFJFbtXNE5I=
+        b=b8j8g7HLfChwwcvd4D4K+6hj//d7zecGSHNcf435sP3XMl8yE3nzynL+ieE8ydNmK
+         nbnb5SxJ2G8cjqt65Q/JBC/ibdIR4kbvFw1FYS/Xt2KnNKr/lf/HQZ7GeqoljiHe2V
+         ESdSSovflrRr49oPb/puwIvLqxsOpcwxwML1XJC4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Iwai <tiwai@suse.de>,
+Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.4 140/178] ALSA: hda/realtek - Add quirk for MSI GE63 laptop
-Date:   Mon, 29 Jun 2020 11:24:45 -0400
-Message-Id: <20200629152523.2494198-141-sashal@kernel.org>
+Subject: [PATCH 5.4 141/178] ALSA: hda/realtek: Add mute LED and micmute LED support for HP systems
+Date:   Mon, 29 Jun 2020 11:24:46 -0400
+Message-Id: <20200629152523.2494198-142-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -48,35 +49,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit a0b03952a797591d4b6d6fa7b9b7872e27783729 upstream.
+commit b2c22910fe5aae10b7e17b0721e63a3edf0c9553 upstream.
 
-MSI GE63 laptop with ALC1220 codec requires the very same quirk
-(ALC1220_FIXUP_CLEVO_P950) as other MSI devices for the proper sound
-output.
+There are two more HP systems control mute LED from HDA codec and need
+to expose micmute led class so SoF can control micmute LED.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=208057
+Add quirks to support them.
+
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200616132150.8778-1-tiwai@suse.de
+Link: https://lore.kernel.org/r/20200617102906.16156-2-kai.heng.feng@canonical.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/pci/hda/patch_realtek.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index 459a7d61326ec..45315b14abe63 100644
+index 45315b14abe63..34868459104d4 100644
 --- a/sound/pci/hda/patch_realtek.c
 +++ b/sound/pci/hda/patch_realtek.c
-@@ -2460,6 +2460,7 @@ static const struct snd_pci_quirk alc882_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x1458, 0xa0b8, "Gigabyte AZ370-Gaming", ALC1220_FIXUP_GB_DUAL_CODECS),
- 	SND_PCI_QUIRK(0x1458, 0xa0cd, "Gigabyte X570 Aorus Master", ALC1220_FIXUP_CLEVO_P950),
- 	SND_PCI_QUIRK(0x1458, 0xa0ce, "Gigabyte X570 Aorus Xtreme", ALC1220_FIXUP_CLEVO_P950),
-+	SND_PCI_QUIRK(0x1462, 0x11f7, "MSI-GE63", ALC1220_FIXUP_CLEVO_P950),
- 	SND_PCI_QUIRK(0x1462, 0x1228, "MSI-GP63", ALC1220_FIXUP_CLEVO_P950),
- 	SND_PCI_QUIRK(0x1462, 0x1275, "MSI-GL63", ALC1220_FIXUP_CLEVO_P950),
- 	SND_PCI_QUIRK(0x1462, 0x1276, "MSI-GL73", ALC1220_FIXUP_CLEVO_P950),
+@@ -7436,6 +7436,8 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+ 	SND_PCI_QUIRK(0x103c, 0x83b9, "HP Spectre x360", ALC269_FIXUP_HP_MUTE_LED_MIC3),
+ 	SND_PCI_QUIRK(0x103c, 0x8497, "HP Envy x360", ALC269_FIXUP_HP_MUTE_LED_MIC3),
+ 	SND_PCI_QUIRK(0x103c, 0x84e7, "HP Pavilion 15", ALC269_FIXUP_HP_MUTE_LED_MIC3),
++	SND_PCI_QUIRK(0x103c, 0x869d, "HP", ALC236_FIXUP_HP_MUTE_LED),
++	SND_PCI_QUIRK(0x103c, 0x8729, "HP", ALC285_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x8736, "HP", ALC285_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x877a, "HP", ALC285_FIXUP_HP_MUTE_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x877d, "HP", ALC236_FIXUP_HP_MUTE_LED),
 -- 
 2.25.1
 
