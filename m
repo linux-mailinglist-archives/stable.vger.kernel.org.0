@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20C0420D781
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:07:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D64420DBEC
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:16:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733019AbgF2Tae (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:30:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40592 "EHLO mail.kernel.org"
+        id S1732918AbgF2TaW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:30:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732986AbgF2Tab (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:30:31 -0400
+        id S1732759AbgF2TaU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:30:20 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 82B7C25228;
-        Mon, 29 Jun 2020 15:35:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 66AFA25224;
+        Mon, 29 Jun 2020 15:35:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444943;
-        bh=u8+YsUztz+BPseXMGrTmb/r65SQkRQS7f94slS33SsI=;
+        s=default; t=1593444944;
+        bh=zVxml5wEXF6c7i/SNNh3TfWm82mK2HgfMq8Uwz/nyfw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wXe0xktBtmicxvjSaa6kENI2ZXFuceJdTcY2bMiEy+OxYO/itgiy6U2izEUDqeKo/
-         0HJu3s7yf2j1n/32z4cEsjUKq9ygblT45OBKNv0kmTGn9k6XA1H4nuSpDjMGs0XP4T
-         9WfDQbOGxliSTrj98EvQirWJ9MQPRYHKWeW0C09I=
+        b=cjqjaCrcRE4fi7kYY/ToRvI13CxDfLjxbkKfNs8DPRwOTHPa5BvUBtsasd1KcH4vF
+         gjYw0uFTiXy+VXBSUe0UCvMgRrWmjLpxmKv2gWajw6t0vIZ+13nHQjEMEu7c7coZhq
+         SaGlKP1c12E+gYCkHisIa7eye+5DWsvaN7+SDYyY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Taehee Yoo <ap420073@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     Chuhong Yuan <hslester96@gmail.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.19 040/131] net: core: reduce recursion limit value
-Date:   Mon, 29 Jun 2020 11:33:31 -0400
-Message-Id: <20200629153502.2494656-41-sashal@kernel.org>
+Subject: [PATCH 4.19 041/131] USB: ohci-sm501: Add missed iounmap() in remove
+Date:   Mon, 29 Jun 2020 11:33:32 -0400
+Message-Id: <20200629153502.2494656-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629153502.2494656-1-sashal@kernel.org>
 References: <20200629153502.2494656-1-sashal@kernel.org>
@@ -49,84 +49,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-[ Upstream commit fb7861d14c8d7edac65b2fcb6e8031cb138457b2 ]
+commit 07c112fb09c86c0231f6ff0061a000ffe91c8eb9 upstream.
 
-In the current code, ->ndo_start_xmit() can be executed recursively only
-10 times because of stack memory.
-But, in the case of the vxlan, 10 recursion limit value results in
-a stack overflow.
-In the current code, the nested interface is limited by 8 depth.
-There is no critical reason that the recursion limitation value should
-be 10.
-So, it would be good to be the same value with the limitation value of
-nesting interface depth.
+This driver misses calling iounmap() in remove to undo the ioremap()
+called in probe.
+Add the missed call to fix it.
 
-Test commands:
-    ip link add vxlan10 type vxlan vni 10 dstport 4789 srcport 4789 4789
-    ip link set vxlan10 up
-    ip a a 192.168.10.1/24 dev vxlan10
-    ip n a 192.168.10.2 dev vxlan10 lladdr fc:22:33:44:55:66 nud permanent
-
-    for i in {9..0}
-    do
-        let A=$i+1
-	ip link add vxlan$i type vxlan vni $i dstport 4789 srcport 4789 4789
-	ip link set vxlan$i up
-	ip a a 192.168.$i.1/24 dev vxlan$i
-	ip n a 192.168.$i.2 dev vxlan$i lladdr fc:22:33:44:55:66 nud permanent
-	bridge fdb add fc:22:33:44:55:66 dev vxlan$A dst 192.168.$i.2 self
-    done
-    hping3 192.168.10.2 -2 -d 60000
-
-Splat looks like:
-[  103.814237][ T1127] =============================================================================
-[  103.871955][ T1127] BUG kmalloc-2k (Tainted: G    B            ): Padding overwritten. 0x00000000897a2e4f-0x000
-[  103.873187][ T1127] -----------------------------------------------------------------------------
-[  103.873187][ T1127]
-[  103.874252][ T1127] INFO: Slab 0x000000005cccc724 objects=5 used=5 fp=0x0000000000000000 flags=0x10000000001020
-[  103.881323][ T1127] CPU: 3 PID: 1127 Comm: hping3 Tainted: G    B             5.7.0+ #575
-[  103.882131][ T1127] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
-[  103.883006][ T1127] Call Trace:
-[  103.883324][ T1127]  dump_stack+0x96/0xdb
-[  103.883716][ T1127]  slab_err+0xad/0xd0
-[  103.884106][ T1127]  ? _raw_spin_unlock+0x1f/0x30
-[  103.884620][ T1127]  ? get_partial_node.isra.78+0x140/0x360
-[  103.885214][ T1127]  slab_pad_check.part.53+0xf7/0x160
-[  103.885769][ T1127]  ? pskb_expand_head+0x110/0xe10
-[  103.886316][ T1127]  check_slab+0x97/0xb0
-[  103.886763][ T1127]  alloc_debug_processing+0x84/0x1a0
-[  103.887308][ T1127]  ___slab_alloc+0x5a5/0x630
-[  103.887765][ T1127]  ? pskb_expand_head+0x110/0xe10
-[  103.888265][ T1127]  ? lock_downgrade+0x730/0x730
-[  103.888762][ T1127]  ? pskb_expand_head+0x110/0xe10
-[  103.889244][ T1127]  ? __slab_alloc+0x3e/0x80
-[  103.889675][ T1127]  __slab_alloc+0x3e/0x80
-[  103.890108][ T1127]  __kmalloc_node_track_caller+0xc7/0x420
-[ ... ]
-
-Fixes: 11a766ce915f ("net: Increase xmit RECURSION_LIMIT to 10.")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: f54aab6ebcec ("usb: ohci-sm501 driver")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20200610024844.3628408-1-hslester96@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/netdevice.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/host/ohci-sm501.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-index 85dc3497c74f1..4e14926433edb 100644
---- a/include/linux/netdevice.h
-+++ b/include/linux/netdevice.h
-@@ -3004,7 +3004,7 @@ static inline int dev_recursion_level(void)
- 	return this_cpu_read(softnet_data.xmit.recursion);
- }
+diff --git a/drivers/usb/host/ohci-sm501.c b/drivers/usb/host/ohci-sm501.c
+index c9233cddf9a23..0a39dc58f3767 100644
+--- a/drivers/usb/host/ohci-sm501.c
++++ b/drivers/usb/host/ohci-sm501.c
+@@ -196,6 +196,7 @@ static int ohci_hcd_sm501_drv_remove(struct platform_device *pdev)
+ 	struct resource	*mem;
  
--#define XMIT_RECURSION_LIMIT	10
-+#define XMIT_RECURSION_LIMIT	8
- static inline bool dev_xmit_recursion(void)
- {
- 	return unlikely(__this_cpu_read(softnet_data.xmit.recursion) >
+ 	usb_remove_hcd(hcd);
++	iounmap(hcd->regs);
+ 	release_mem_region(hcd->rsrc_start, hcd->rsrc_len);
+ 	usb_put_hcd(hcd);
+ 	dma_release_declared_memory(&pdev->dev);
 -- 
 2.25.1
 
