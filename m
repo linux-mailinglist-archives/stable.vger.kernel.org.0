@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61E9920DB9A
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:15:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B46620DC07
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:16:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388739AbgF2UH6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:07:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40570 "EHLO mail.kernel.org"
+        id S1730236AbgF2ULs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:11:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732931AbgF2TaX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:30:23 -0400
+        id S1732888AbgF2TaV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:30:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 08CF925258;
-        Mon, 29 Jun 2020 15:36:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DDE102525C;
+        Mon, 29 Jun 2020 15:36:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444969;
-        bh=TxMID6fxqEkgSgeo9KtR8+r1rroRp8nPjSidQB2ZTrE=;
+        s=default; t=1593444970;
+        bh=ezznXUQTHXAvH1nGRSfvNkBY0zcMF05Sn3Ekfv8DUvQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZINXOserTlZi0MgghE/kUTegrk3bhFWV4J781C+6mvjixL1z69WpCntUOMGYI2IRv
-         060xmSNMnH3CXJOF/939Wa9PHEO62YsNviTemiL+Layr8PVJ4QCqhrXjZ+dYdrLzJH
-         M/Wxc5XV1NQBkNSMdw1COYO1uMiPQxfvY28RXT74=
+        b=FgZW4LYi5cBTN1SERvh2L0deoaRYm952hrunJ/5v561dN0yMYJyRKOG5nkaCCHVO2
+         r2W7JD94+Jpy/+9HtcwK/67xnGEYTtbd21sa1JDIieUEJHpypkRBNwA1InKl2Oso7y
+         LtM8EZJUf3ZPmjolf5gkxrj7073e2NFKZ2u6IMmg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
+Cc:     Matthew Hagan <mnhagan88@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 068/131] regmap: Fix memory leak from regmap_register_patch
-Date:   Mon, 29 Jun 2020 11:33:59 -0400
-Message-Id: <20200629153502.2494656-69-sashal@kernel.org>
+Subject: [PATCH 4.19 069/131] ARM: dts: NSP: Correct FA2 mailbox node
+Date:   Mon, 29 Jun 2020 11:34:00 -0400
+Message-Id: <20200629153502.2494656-70-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629153502.2494656-1-sashal@kernel.org>
 References: <20200629153502.2494656-1-sashal@kernel.org>
@@ -49,35 +49,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
+From: Matthew Hagan <mnhagan88@gmail.com>
 
-[ Upstream commit 95b2c3ec4cb1689db2389c251d39f64490ba641c ]
+[ Upstream commit ac4e106d8934a5894811fc263f4b03fc8ed0fb7a ]
 
-When a register patch is registered the reg_sequence is copied but the
-memory allocated is never freed. Add a kfree in regmap_exit to clean it
-up.
+The FA2 mailbox is specified at 0x18025000 but should actually be
+0x18025c00, length 0x400 according to socregs_nsp.h and board_bu.c. Also
+the interrupt was off by one and should be GIC SPI 151 instead of 150.
 
-Fixes: 22f0d90a3482 ("regmap: Support register patch sets")
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20200617152129.19655-1-ckeepax@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 17d517172300 ("ARM: dts: NSP: Add mailbox (PDC) to NSP")
+Signed-off-by: Matthew Hagan <mnhagan88@gmail.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/regmap/regmap.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/bcm-nsp.dtsi | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/base/regmap/regmap.c b/drivers/base/regmap/regmap.c
-index 6c9f6988bc093..b38b2d8c333d5 100644
---- a/drivers/base/regmap/regmap.c
-+++ b/drivers/base/regmap/regmap.c
-@@ -1336,6 +1336,7 @@ void regmap_exit(struct regmap *map)
- 	if (map->hwlock)
- 		hwspin_lock_free(map->hwlock);
- 	kfree_const(map->name);
-+	kfree(map->patch);
- 	kfree(map);
- }
- EXPORT_SYMBOL_GPL(regmap_exit);
+diff --git a/arch/arm/boot/dts/bcm-nsp.dtsi b/arch/arm/boot/dts/bcm-nsp.dtsi
+index 2b219addeb449..273a316045798 100644
+--- a/arch/arm/boot/dts/bcm-nsp.dtsi
++++ b/arch/arm/boot/dts/bcm-nsp.dtsi
+@@ -249,10 +249,10 @@
+ 			status = "disabled";
+ 		};
+ 
+-		mailbox: mailbox@25000 {
++		mailbox: mailbox@25c00 {
+ 			compatible = "brcm,iproc-fa2-mbox";
+-			reg = <0x25000 0x445>;
+-			interrupts = <GIC_SPI 150 IRQ_TYPE_LEVEL_HIGH>;
++			reg = <0x25c00 0x400>;
++			interrupts = <GIC_SPI 151 IRQ_TYPE_LEVEL_HIGH>;
+ 			#mbox-cells = <1>;
+ 			brcm,rx-status-len = <32>;
+ 			brcm,use-bcm-hdr;
 -- 
 2.25.1
 
