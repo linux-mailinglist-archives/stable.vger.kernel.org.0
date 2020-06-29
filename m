@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9ADC020DA9B
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:13:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AACD120DA59
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:13:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387676AbgF2T6v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:58:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47680 "EHLO mail.kernel.org"
+        id S1730656AbgF2T4S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:56:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387584AbgF2TkR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:17 -0400
+        id S2387648AbgF2TkY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:24 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 10AC62491C;
-        Mon, 29 Jun 2020 15:27:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2559B2491B;
+        Mon, 29 Jun 2020 15:27:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444471;
-        bh=goxvCIsyGxrPg+Ermk+bFpwWIgMVXg8sZhEEI/NXmpM=;
+        s=default; t=1593444472;
+        bh=X6PyK9vQHq019m+5vte1gbSKyERkXScBvVNW3TjqUCU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MfW2h1xLHYmQ/kG0MrCkekZSmXdO7ih1NwvKzGv/4c8apd3jfVJU5/THxjp8IW5HU
-         2W8gvJJizg8GKbcGAelGXJosM4P09z5Rz9571X0AkkFsuihU23Q9mXMoLbzsUzGzJw
-         JtfcizYp2R+q4rgZqdx/N821duqQNiiHa0mT9SRg=
+        b=xIFKLgLC/vEmowtyN3B5xnNG55ytXIGwzxB5+z+mMPutqd8zE+VO4PGx25Nqxh0+L
+         3w6KbAEdMQLgapndIPu/2K2hnbMERjHshh7p60TW9h2LTIRs2yfwnv+npkvyhHbgL0
+         PWA2Q5c+b3raNaX6qstRBEQY0zMNN95adk99Z1/8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Filipe Manana <fdmanana@suse.com>,
-        kernel test robot <rong.a.chen@intel.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
+Cc:     Filipe Manana <fdmanana@suse.com>, David Sterba <dsterba@suse.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.4 152/178] btrfs: check if a log root exists before locking the log_mutex on unlink
-Date:   Mon, 29 Jun 2020 11:24:57 -0400
-Message-Id: <20200629152523.2494198-153-sashal@kernel.org>
+Subject: [PATCH 5.4 153/178] btrfs: fix failure of RWF_NOWAIT write into prealloc extent beyond eof
+Date:   Mon, 29 Jun 2020 11:24:58 -0400
+Message-Id: <20200629152523.2494198-154-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -53,150 +50,61 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Filipe Manana <fdmanana@suse.com>
 
-commit e7a79811d0db136dc2d336b56d54cf1b774ce972 upstream.
+commit 4b1946284dd6641afdb9457101056d9e6ee6204c upstream.
 
-This brings back an optimization that commit e678934cbe5f02 ("btrfs:
-Remove unnecessary check from join_running_log_trans") removed, but in
-a different form. So it's almost equivalent to a revert.
+If we attempt to write to prealloc extent located after eof using a
+RWF_NOWAIT write, we always fail with -EAGAIN.
 
-That commit removed an optimization where we avoid locking a root's
-log_mutex when there is no log tree created in the current transaction.
-The affected code path is triggered through unlink operations.
+We do actually check if we have an allocated extent for the write at
+the start of btrfs_file_write_iter() through a call to check_can_nocow(),
+but later when we go into the actual direct IO write path we simply
+return -EAGAIN if the write starts at or beyond EOF.
 
-That commit was based on the assumption that the optimization was not
-necessary because we used to have the following checks when the patch
-was authored:
+Trivial to reproduce:
 
-  int btrfs_del_dir_entries_in_log(...)
-  {
-        (...)
-        if (dir->logged_trans < trans->transid)
-            return 0;
+  $ mkfs.btrfs -f /dev/sdb
+  $ mount /dev/sdb /mnt
 
-        ret = join_running_log_trans(root);
-        (...)
-   }
+  $ touch /mnt/foo
+  $ chattr +C /mnt/foo
 
-   int btrfs_del_inode_ref_in_log(...)
-   {
-        (...)
-        if (inode->logged_trans < trans->transid)
-            return 0;
+  $ xfs_io -d -c "pwrite -S 0xab 0 64K" /mnt/foo
+  wrote 65536/65536 bytes at offset 0
+  64 KiB, 16 ops; 0.0004 sec (135.575 MiB/sec and 34707.1584 ops/sec)
 
-        ret = join_running_log_trans(root);
-        (...)
-   }
+  $ xfs_io -c "falloc -k 64K 1M" /mnt/foo
 
-However before that patch was merged, another patch was merged first which
-replaced those checks because they were buggy.
+  $ xfs_io -d -c "pwrite -N -V 1 -S 0xfe -b 64K 64K 64K" /mnt/foo
+  pwrite: Resource temporarily unavailable
 
-That other patch corresponds to commit 803f0f64d17769 ("Btrfs: fix fsync
-not persisting dentry deletions due to inode evictions"). The assumption
-that if the logged_trans field of an inode had a smaller value then the
-current transaction's generation (transid) meant that the inode was not
-logged in the current transaction was only correct if the inode was not
-evicted and reloaded in the current transaction. So the corresponding bug
-fix changed those checks and replaced them with the following helper
-function:
+On xfs and ext4 the write succeeds, as expected.
 
-  static bool inode_logged(struct btrfs_trans_handle *trans,
-                           struct btrfs_inode *inode)
-  {
-        if (inode->logged_trans == trans->transid)
-                return true;
+Fix this by removing the wrong check at btrfs_direct_IO().
 
-        if (inode->last_trans == trans->transid &&
-            test_bit(BTRFS_INODE_NEEDS_FULL_SYNC, &inode->runtime_flags) &&
-            !test_bit(BTRFS_FS_LOG_RECOVERING, &trans->fs_info->flags))
-                return true;
-
-        return false;
-  }
-
-So if we have a subvolume without a log tree in the current transaction
-(because we had no fsyncs), every time we unlink an inode we can end up
-trying to lock the log_mutex of the root through join_running_log_trans()
-twice, once for the inode being unlinked (by btrfs_del_inode_ref_in_log())
-and once for the parent directory (with btrfs_del_dir_entries_in_log()).
-
-This means if we have several unlink operations happening in parallel for
-inodes in the same subvolume, and the those inodes and/or their parent
-inode were changed in the current transaction, we end up having a lot of
-contention on the log_mutex.
-
-The test robots from intel reported a -30.7% performance regression for
-a REAIM test after commit e678934cbe5f02 ("btrfs: Remove unnecessary check
-from join_running_log_trans").
-
-So just bring back the optimization to join_running_log_trans() where we
-check first if a log root exists before trying to lock the log_mutex. This
-is done by checking for a bit that is set on the root when a log tree is
-created and removed when a log tree is freed (at transaction commit time).
-
-Commit e678934cbe5f02 ("btrfs: Remove unnecessary check from
-join_running_log_trans") was merged in the 5.4 merge window while commit
-803f0f64d17769 ("Btrfs: fix fsync not persisting dentry deletions due to
-inode evictions") was merged in the 5.3 merge window. But the first
-commit was actually authored before the second commit (May 23 2019 vs
-June 19 2019).
-
-Reported-by: kernel test robot <rong.a.chen@intel.com>
-Link: https://lore.kernel.org/lkml/20200611090233.GL12456@shao2-debian/
-Fixes: e678934cbe5f02 ("btrfs: Remove unnecessary check from join_running_log_trans")
-CC: stable@vger.kernel.org # 5.4+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Fixes: edf064e7c6fec3 ("btrfs: nowait aio support")
+CC: stable@vger.kernel.org # 4.14+
 Signed-off-by: Filipe Manana <fdmanana@suse.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/ctree.h    | 2 ++
- fs/btrfs/tree-log.c | 5 +++++
- 2 files changed, 7 insertions(+)
+ fs/btrfs/inode.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/fs/btrfs/ctree.h b/fs/btrfs/ctree.h
-index 6d2c277c6e0a4..36cd210ee2ef7 100644
---- a/fs/btrfs/ctree.h
-+++ b/fs/btrfs/ctree.h
-@@ -940,6 +940,8 @@ enum {
- 	BTRFS_ROOT_DEAD_RELOC_TREE,
- 	/* Mark dead root stored on device whose cleanup needs to be resumed */
- 	BTRFS_ROOT_DEAD_TREE,
-+	/* The root has a log tree. Used only for subvolume roots. */
-+	BTRFS_ROOT_HAS_LOG_TREE,
- };
- 
- /*
-diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
-index 7d464b049507a..f46afbff668eb 100644
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -167,6 +167,7 @@ static int start_log_trans(struct btrfs_trans_handle *trans,
- 		if (ret)
- 			goto out;
- 
-+		set_bit(BTRFS_ROOT_HAS_LOG_TREE, &root->state);
- 		clear_bit(BTRFS_ROOT_MULTI_LOG_TASKS, &root->state);
- 		root->log_start_pid = current->pid;
- 	}
-@@ -193,6 +194,9 @@ static int join_running_log_trans(struct btrfs_root *root)
- {
- 	int ret = -ENOENT;
- 
-+	if (!test_bit(BTRFS_ROOT_HAS_LOG_TREE, &root->state))
-+		return ret;
-+
- 	mutex_lock(&root->log_mutex);
- 	if (root->log_root) {
- 		ret = 0;
-@@ -3327,6 +3331,7 @@ int btrfs_free_log(struct btrfs_trans_handle *trans, struct btrfs_root *root)
- 	if (root->log_root) {
- 		free_log_tree(trans, root->log_root);
- 		root->log_root = NULL;
-+		clear_bit(BTRFS_ROOT_HAS_LOG_TREE, &root->state);
- 	}
- 	return 0;
- }
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index 0984601418e50..280c45c91ddc4 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -8857,9 +8857,6 @@ static ssize_t btrfs_direct_IO(struct kiocb *iocb, struct iov_iter *iter)
+ 			dio_data.overwrite = 1;
+ 			inode_unlock(inode);
+ 			relock = true;
+-		} else if (iocb->ki_flags & IOCB_NOWAIT) {
+-			ret = -EAGAIN;
+-			goto out;
+ 		}
+ 		ret = btrfs_delalloc_reserve_space(inode, &data_reserved,
+ 						   offset, count);
 -- 
 2.25.1
 
