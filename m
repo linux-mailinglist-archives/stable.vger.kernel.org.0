@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9D0B20DD4E
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:50:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A5C120DD38
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:50:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728708AbgF2SlJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 14:41:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60660 "EHLO mail.kernel.org"
+        id S1727789AbgF2Sho (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 14:37:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728688AbgF2SlG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:41:06 -0400
+        id S1726779AbgF2Sfu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:35:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 35F9124125;
-        Mon, 29 Jun 2020 15:18:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E95EE24656;
+        Mon, 29 Jun 2020 15:19:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593443936;
-        bh=R7Ov2awEkrZIyqcu8QasaYukANbO8HJ0R3f0yEw4k7U=;
+        s=default; t=1593443969;
+        bh=eY0QGIFZIS7WdQIamcQCrBKEmMR1zTMwcRLCHTgVfd8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nl3iI7PteN8xcIH8JJvpqjbX8/2TMlGokKC8TTu9V1fBcQf7tvQWSZDPuEPe5oQxN
-         RvHC8LQDNfDXtZgsNJqsBpG57oIaGmYwnaYTpfKqhiTco54uj/8t2jtvob7Tr0nql3
-         lkLPJGdQr4L12sfUdMiUHR8usBhkCFXvJa/FC6/8=
+        b=QvM59Q1AeNB6S1jCCFuUPBc2leuDZsW3zefX0rN7xEq4uPaDX3TWQkDcVn3Be656m
+         jCskXfOco26RvTZRs6JwMvqYp7+PnxPGiJIisjDjN0dQQeaZVZORSJwuUwTQQopagZ
+         pkWJC+5ruAz78SZ+jskQ1DhjgMESbWU/TWgLDM8U=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Neal Cardwell <ncardwell@google.com>,
-        Mirja Kuehlewind <mirja.kuehlewind@ericsson.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     "Yick W. Tse" <y_w_tse@yahoo.com.hk>, Takashi Iwai <tiwai@suse.de>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.7 037/265] tcp_cubic: fix spurious HYSTART_DELAY exit upon drop in min RTT
-Date:   Mon, 29 Jun 2020 11:14:30 -0400
-Message-Id: <20200629151818.2493727-38-sashal@kernel.org>
+Subject: [PATCH 5.7 073/265] ALSA: usb-audio: add quirk for Denon DCD-1500RE
+Date:   Mon, 29 Jun 2020 11:15:06 -0400
+Message-Id: <20200629151818.2493727-74-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -52,57 +48,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neal Cardwell <ncardwell@google.com>
+From: "Yick W. Tse" <y_w_tse@yahoo.com.hk>
 
-[ Upstream commit b344579ca8478598937215f7005d6c7b84d28aee ]
+commit c9808bbfed3cfc911ecb60fe8e80c0c27876c657 upstream.
 
-Mirja Kuehlewind reported a bug in Linux TCP CUBIC Hystart, where
-Hystart HYSTART_DELAY mechanism can exit Slow Start spuriously on an
-ACK when the minimum rtt of a connection goes down. From inspection it
-is clear from the existing code that this could happen in an example
-like the following:
+fix error "clock source 41 is not valid, cannot use"
 
-o The first 8 RTT samples in a round trip are 150ms, resulting in a
-  curr_rtt of 150ms and a delay_min of 150ms.
+[] New USB device found, idVendor=154e, idProduct=1002, bcdDevice= 1.00
+[] New USB device strings: Mfr=1, Product=2, SerialNumber=0
+[] Product: DCD-1500RE
+[] Manufacturer: D & M Holdings Inc.
+[]
+[] clock source 41 is not valid, cannot use
+[] usbcore: registered new interface driver snd-usb-audio
 
-o The 9th RTT sample is 100ms. The curr_rtt does not change after the
-  first 8 samples, so curr_rtt remains 150ms. But delay_min can be
-  lowered at any time, so delay_min falls to 100ms. The code executes
-  the HYSTART_DELAY comparison between curr_rtt of 150ms and delay_min
-  of 100ms, and the curr_rtt is declared far enough above delay_min to
-  force a (spurious) exit of Slow start.
-
-The fix here is simple: allow every RTT sample in a round trip to
-lower the curr_rtt.
-
-Fixes: ae27e98a5152 ("[TCP] CUBIC v2.3")
-Reported-by: Mirja Kuehlewind <mirja.kuehlewind@ericsson.com>
-Signed-off-by: Neal Cardwell <ncardwell@google.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Yick W. Tse <y_w_tse@yahoo.com.hk>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1373857985.210365.1592048406997@mail.yahoo.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp_cubic.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ sound/usb/quirks.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/ipv4/tcp_cubic.c b/net/ipv4/tcp_cubic.c
-index 8f8eefd3a3ce1..c7bf5b26bf0c2 100644
---- a/net/ipv4/tcp_cubic.c
-+++ b/net/ipv4/tcp_cubic.c
-@@ -432,10 +432,9 @@ static void hystart_update(struct sock *sk, u32 delay)
- 
- 	if (hystart_detect & HYSTART_DELAY) {
- 		/* obtain the minimum delay of more than sampling packets */
-+		if (ca->curr_rtt > delay)
-+			ca->curr_rtt = delay;
- 		if (ca->sample_cnt < HYSTART_MIN_SAMPLES) {
--			if (ca->curr_rtt > delay)
--				ca->curr_rtt = delay;
--
- 			ca->sample_cnt++;
- 		} else {
- 			if (ca->curr_rtt > ca->delay_min +
+diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
+index d8a765be5dfe8..aa964847b39b2 100644
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1505,6 +1505,7 @@ bool snd_usb_get_sample_rate_quirk(struct snd_usb_audio *chip)
+ static bool is_itf_usb_dsd_dac(unsigned int id)
+ {
+ 	switch (id) {
++	case USB_ID(0x154e, 0x1002): /* Denon DCD-1500RE */
+ 	case USB_ID(0x154e, 0x1003): /* Denon DA-300USB */
+ 	case USB_ID(0x154e, 0x3005): /* Marantz HD-DAC1 */
+ 	case USB_ID(0x154e, 0x3006): /* Marantz SA-14S1 */
 -- 
 2.25.1
 
