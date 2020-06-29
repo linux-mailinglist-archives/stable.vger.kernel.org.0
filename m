@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E47620E758
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:10:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55A1420E701
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:10:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391603AbgF2V4N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:56:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56814 "EHLO mail.kernel.org"
+        id S1731608AbgF2Vwk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:52:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726539AbgF2Sfb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:35:31 -0400
+        id S1726620AbgF2Sfj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:35:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5EEF0247AF;
-        Mon, 29 Jun 2020 15:21:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D928247B1;
+        Mon, 29 Jun 2020 15:21:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1593444114;
-        bh=ENgkJVTolnCjsYCFo4x7kLx6RHWaOF/1KVZMARmqOnI=;
+        bh=Yn0VfqWS4xDvXpPauWQ/AwR0jBqLHAG+sbhriLI01aE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0U0fsl1q1b6UvByWqAqwnu3EsnYaiPmSNUrD3GyXN7j48EuSbPDLDgPsPc2A56i2I
-         xUYUh9gJIy0E/I7V3ci806ZuPStCTOW0u+6LO78p5rL0+RoPkROLRrvb6CrCGxw8wh
-         yFQqy/9sIigjxQwq2xGugXSLPOVop8lXZ3lwtn+M=
+        b=lsDVryGM5wt0lfyjuKnrDTZ8kiHIjxe+nT2D5ZV4nF5yXjQ22GFIzBxKH+vaepsse
+         3KcMThkvxXtiVHKpqOD0N6oxVFzY7aHFGdeR5ovw6G7TY67QppsyUGL9ogwRss7XvE
+         pMj6yhDpkw7OGakCzL74bZanLka894NnUuKiZY4c=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Filipe Manana <fdmanana@suse.com>, David Sterba <dsterba@suse.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.7 225/265] btrfs: fix hang on snapshot creation after RWF_NOWAIT write
-Date:   Mon, 29 Jun 2020 11:17:38 -0400
-Message-Id: <20200629151818.2493727-226-sashal@kernel.org>
+Subject: [PATCH 5.7 226/265] btrfs: fix failure of RWF_NOWAIT write into prealloc extent beyond eof
+Date:   Mon, 29 Jun 2020 11:17:39 -0400
+Message-Id: <20200629151818.2493727-227-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -50,29 +50,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Filipe Manana <fdmanana@suse.com>
 
-commit f2cb2f39ccc30fa13d3ac078d461031a63960e5b upstream.
+commit 4b1946284dd6641afdb9457101056d9e6ee6204c upstream.
 
-If we do a successful RWF_NOWAIT write we end up locking the snapshot lock
-of the inode, through a call to check_can_nocow(), but we never unlock it.
+If we attempt to write to prealloc extent located after eof using a
+RWF_NOWAIT write, we always fail with -EAGAIN.
 
-This means the next attempt to create a snapshot on the subvolume will
-hang forever.
+We do actually check if we have an allocated extent for the write at
+the start of btrfs_file_write_iter() through a call to check_can_nocow(),
+but later when we go into the actual direct IO write path we simply
+return -EAGAIN if the write starts at or beyond EOF.
 
-Trivial reproducer:
+Trivial to reproduce:
 
   $ mkfs.btrfs -f /dev/sdb
   $ mount /dev/sdb /mnt
 
-  $ touch /mnt/foobar
-  $ chattr +C /mnt/foobar
-  $ xfs_io -d -c "pwrite -S 0xab 0 64K" /mnt/foobar
-  $ xfs_io -d -c "pwrite -N -V 1 -S 0xfe 0 64K" /mnt/foobar
+  $ touch /mnt/foo
+  $ chattr +C /mnt/foo
 
-  $ btrfs subvolume snapshot -r /mnt /mnt/snap
-    --> hangs
+  $ xfs_io -d -c "pwrite -S 0xab 0 64K" /mnt/foo
+  wrote 65536/65536 bytes at offset 0
+  64 KiB, 16 ops; 0.0004 sec (135.575 MiB/sec and 34707.1584 ops/sec)
 
-Fix this by unlocking the snapshot lock if check_can_nocow() returned
-success.
+  $ xfs_io -c "falloc -k 64K 1M" /mnt/foo
+
+  $ xfs_io -d -c "pwrite -N -V 1 -S 0xfe -b 64K 64K 64K" /mnt/foo
+  pwrite: Resource temporarily unavailable
+
+On xfs and ext4 the write succeeds, as expected.
+
+Fix this by removing the wrong check at btrfs_direct_IO().
 
 Fixes: edf064e7c6fec3 ("btrfs: nowait aio support")
 CC: stable@vger.kernel.org # 4.14+
@@ -81,22 +88,23 @@ Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/file.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/btrfs/inode.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/fs/btrfs/file.c b/fs/btrfs/file.c
-index 719e68ab552c5..484803f8b2290 100644
---- a/fs/btrfs/file.c
-+++ b/fs/btrfs/file.c
-@@ -1922,6 +1922,8 @@ static ssize_t btrfs_file_write_iter(struct kiocb *iocb,
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index 18111b0263d71..6aa200e373c8f 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -8262,9 +8262,6 @@ static ssize_t btrfs_direct_IO(struct kiocb *iocb, struct iov_iter *iter)
+ 			dio_data.overwrite = 1;
  			inode_unlock(inode);
- 			return -EAGAIN;
+ 			relock = true;
+-		} else if (iocb->ki_flags & IOCB_NOWAIT) {
+-			ret = -EAGAIN;
+-			goto out;
  		}
-+		/* check_can_nocow() locks the snapshot lock on success */
-+		btrfs_drew_write_unlock(&root->snapshot_lock);
- 	}
- 
- 	current->backing_dev_info = inode_to_bdi(inode);
+ 		ret = btrfs_delalloc_reserve_space(inode, &data_reserved,
+ 						   offset, count);
 -- 
 2.25.1
 
