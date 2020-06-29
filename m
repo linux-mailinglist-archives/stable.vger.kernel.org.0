@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 243A220DAB1
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:14:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F8A720D998
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:11:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387574AbgF2T7q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:59:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47670 "EHLO mail.kernel.org"
+        id S1732043AbgF2TtI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:49:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387568AbgF2TkR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:17 -0400
+        id S2387763AbgF2Tki (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:38 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9736624875;
-        Mon, 29 Jun 2020 15:26:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 343AC24873;
+        Mon, 29 Jun 2020 15:26:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444372;
-        bh=78G/8cjf9PgRo9JXjCPxoSNhAZS8BC6RIKWrqBpwcIo=;
+        s=default; t=1593444373;
+        bh=KEbRq+rTPTpNKQEudz8+xyiJH24D2HCcrAN6RI92WyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ybdZvFml2dRyULSlMnUmKO0MvS+CazIn1ZmDHF+CkLMzptdA37NS1QO1sPrWb3wLW
-         vuE+kB6VHsA8jeuOr64y0p3I/LR16zfrUZehcM89tjnn+ru4/zq12rTGRxTvmcDtwg
-         WOQWgnvxOV0HAdxw5GOh+0D/crcNwUVOpv9Y9B1E=
+        b=pcBJsqEkDfXmFrHJyWjsbGc0m38Yb54+w3S9dQ2ScQVB2EmsI8KHTlOoWa8y7kReo
+         6GxN0X90I/zL33l4lDbVhMt0v64SKkkjVdtBggoKUd6oZloYVx6G/tZXNCepqvu4Ff
+         nJHdQQBYHF/O5NbKv+vaMGzXDDWmbdtF2gwXNx58=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Roman Bolshakov <r.bolshakov@yadro.com>,
-        Quinn Tran <qutran@marvell.com>, Arun Easi <aeasi@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Daniel Wagner <dwagner@suse.de>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Martin Wilck <mwilck@suse.com>,
-        Shyam Sundar <ssundar@marvell.com>,
+Cc:     Steffen Maier <maier@linux.ibm.com>,
+        Julian Wiedmann <jwi@linux.ibm.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.4 049/178] scsi: qla2xxx: Keep initiator ports after RSCN
-Date:   Mon, 29 Jun 2020 11:23:14 -0400
-Message-Id: <20200629152523.2494198-50-sashal@kernel.org>
+Subject: [PATCH 5.4 050/178] scsi: zfcp: Fix panic on ERP timeout for previously dismissed ERP action
+Date:   Mon, 29 Jun 2020 11:23:15 -0400
+Message-Id: <20200629152523.2494198-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -56,82 +50,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Bolshakov <r.bolshakov@yadro.com>
+From: Steffen Maier <maier@linux.ibm.com>
 
-commit 632f24f09d5b7c8a2f94932c3391ca957ae76cc4 upstream.
+commit 936e6b85da0476dd2edac7c51c68072da9fb4ba2 upstream.
 
-The driver performs SCR (state change registration) in all modes including
-pure target mode.
+Suppose that, for unrelated reasons, FSF requests on behalf of recovery are
+very slow and can run into the ERP timeout.
 
-For each RSCN, scan_needed flag is set in qla2x00_handle_rscn() for the
-port mentioned in the RSCN and fabric rescan is scheduled. During the
-rescan, GNN_FT handler, qla24xx_async_gnnft_done() deletes session of the
-port that caused the RSCN.
+In the case at hand, we did adapter recovery to a large degree.  However
+due to the slowness a LUN open is pending so the corresponding fc_rport
+remains blocked.  After fast_io_fail_tmo we trigger close physical port
+recovery for the port under which the LUN should have been opened.  The new
+higher order port recovery dismisses the pending LUN open ERP action and
+dismisses the pending LUN open FSF request.  Such dismissal decouples the
+ERP action from the pending corresponding FSF request by setting
+zfcp_fsf_req->erp_action to NULL (among other things)
+[zfcp_erp_strategy_check_fsfreq()].
 
-In target mode, the session deletion has an impact on ATIO handler,
-qlt_24xx_atio_pkt(). Target responds with SAM STATUS BUSY to I/O incoming
-from the deleted session. qlt_handle_cmd_for_atio() and
-qlt_handle_task_mgmt() return -EFAULT if they are not able to find session
-of the command/TMF, and that results in invocation of qlt_send_busy():
+If now the ERP timeout for the pending open LUN request runs out, we must
+not use zfcp_fsf_req->erp_action in the ERP timeout handler.  This is a
+problem since v4.15 commit 75492a51568b ("s390/scsi: Convert timers to use
+timer_setup()"). Before that we intentionally only passed zfcp_erp_action
+as context argument to zfcp_erp_timeout_handler().
 
-  qlt_24xx_atio_pkt_all_vps: qla_target(0): type 6 ox_id 0014
-  qla_target(0): Unable to send command to target, sending BUSY status
+Note: The lifetime of the corresponding zfcp_fsf_req object continues until
+a (late) response or an (unrelated) adapter recovery.
 
-Such response causes command timeout on the initiator. Error handler thread
-on the initiator will be spawned to abort the commands:
+Just like the regular response path ignores dismissed requests
+[zfcp_fsf_req_complete() => zfcp_fsf_protstatus_eval() => return early] the
+ERP timeout handler now needs to ignore dismissed requests.  So simply
+return early in the ERP timeout handler if the FSF request is marked as
+dismissed in its status flags.  To protect against the race where
+zfcp_erp_strategy_check_fsfreq() dismisses and sets
+zfcp_fsf_req->erp_action to NULL after our previous status flag check,
+return early if zfcp_fsf_req->erp_action is NULL.  After all, the former
+ERP action does not need to be woken up as that was already done as part of
+the dismissal above [zfcp_erp_action_dismiss()].
 
-  scsi 23:0:0:0: tag#0 abort scheduled
-  scsi 23:0:0:0: tag#0 aborting command
-  qla2xxx [0000:af:00.0]-188c:23: Entered qla24xx_abort_command.
-  qla2xxx [0000:af:00.0]-801c:23: Abort command issued nexus=23:0:0 -- 0 2003.
+This fixes the following panic due to kernel page fault in IRQ context:
 
-Command abort is rejected by target and fails (2003), error handler then
-tries to perform DEVICE RESET and TARGET RESET but they're also doomed to
-fail because TMFs are ignored for the deleted sessions.
+Unable to handle kernel pointer dereference in virtual kernel address space
+Failing address: 0000000000000000 TEID: 0000000000000483
+Fault in home space mode while using kernel ASCE.
+AS:000009859238c00b R2:00000e3e7ffd000b R3:00000e3e7ffcc007 S:00000e3e7ffd7000 P:000000000000013d
+Oops: 0004 ilc:2 [#1] SMP
+Modules linked in: ...
+CPU: 82 PID: 311273 Comm: stress Kdump: loaded Tainted: G            E  X   ...
+Hardware name: IBM 8561 T01 701 (LPAR)
+Krnl PSW : 0404c00180000000 001fffff80549be0 (zfcp_erp_notify+0x40/0xc0 [zfcp])
+           R:0 T:1 IO:0 EX:0 Key:0 M:1 W:0 P:0 AS:3 CC:0 PM:0 RI:0 EA:3
+Krnl GPRS: 0000000000000080 00000e3d00000000 00000000000000f0 0000000000030000
+           000000010028e700 000000000400a39c 000000010028e700 00000e3e7cf87e02
+           0000000010000000 0700098591cb67f0 0000000000000000 0000000000000000
+           0000033840e9a000 0000000000000000 001fffe008d6bc18 001fffe008d6bbc8
+Krnl Code: 001fffff80549bd4: a7180000            lhi     %r1,0
+           001fffff80549bd8: 4120a0f0            la      %r2,240(%r10)
+          #001fffff80549bdc: a53e0003            llilh   %r3,3
+          >001fffff80549be0: ba132000            cs      %r1,%r3,0(%r2)
+           001fffff80549be4: a7740037            brc     7,1fffff80549c52
+           001fffff80549be8: e320b0180004        lg      %r2,24(%r11)
+           001fffff80549bee: e31020e00004        lg      %r1,224(%r2)
+           001fffff80549bf4: 412020e0            la      %r2,224(%r2)
+Call Trace:
+ [<001fffff80549be0>] zfcp_erp_notify+0x40/0xc0 [zfcp]
+ [<00000985915e26f0>] call_timer_fn+0x38/0x190
+ [<00000985915e2944>] expire_timers+0xfc/0x190
+ [<00000985915e2ac4>] run_timer_softirq+0xec/0x218
+ [<0000098591ca7c4c>] __do_softirq+0x144/0x398
+ [<00000985915110aa>] do_softirq_own_stack+0x72/0x88
+ [<0000098591551b58>] irq_exit+0xb0/0xb8
+ [<0000098591510c6a>] do_IRQ+0x82/0xb0
+ [<0000098591ca7140>] ext_int_handler+0x128/0x12c
+ [<0000098591722d98>] clear_subpage.constprop.13+0x38/0x60
+([<000009859172ae4c>] clear_huge_page+0xec/0x250)
+ [<000009859177e7a2>] do_huge_pmd_anonymous_page+0x32a/0x768
+ [<000009859172a712>] __handle_mm_fault+0x88a/0x900
+ [<000009859172a860>] handle_mm_fault+0xd8/0x1b0
+ [<0000098591529ef6>] do_dat_exception+0x136/0x3e8
+ [<0000098591ca6d34>] pgm_check_handler+0x1c8/0x220
+Last Breaking-Event-Address:
+ [<001fffff80549c88>] zfcp_erp_timeout_handler+0x10/0x18 [zfcp]
+Kernel panic - not syncing: Fatal exception in interrupt
 
-Then initiator makes BUS RESET that resets the link via
-qla2x00_full_login_lip(). BUS RESET succeeds and brings initiator port up,
-SAN switch detects that and sends RSCN to the target port and it fails
-again the same way as described above. It never goes out of the loop.
-
-The change breaks the RSCN loop by keeping initiator sessions mentioned in
-RSCN payload in all modes, including dual and pure target mode.
-
-Link: https://lore.kernel.org/r/20200605144435.27023-1-r.bolshakov@yadro.com
-Fixes: 2037ce49d30a ("scsi: qla2xxx: Fix stale session")
-Cc: Quinn Tran <qutran@marvell.com>
-Cc: Arun Easi <aeasi@marvell.com>
-Cc: Nilesh Javali <njavali@marvell.com>
-Cc: Bart Van Assche <bvanassche@acm.org>
-Cc: Daniel Wagner <dwagner@suse.de>
-Cc: Himanshu Madhani <himanshu.madhani@oracle.com>
-Cc: Martin Wilck <mwilck@suse.com>
-Cc: stable@vger.kernel.org # v5.4+
-Reviewed-by: Daniel Wagner <dwagner@suse.de>
-Reviewed-by: Shyam Sundar <ssundar@marvell.com>
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Roman Bolshakov <r.bolshakov@yadro.com>
+Link: https://lore.kernel.org/r/20200623140242.98864-1-maier@linux.ibm.com
+Fixes: 75492a51568b ("s390/scsi: Convert timers to use timer_setup()")
+Cc: <stable@vger.kernel.org> #4.15+
+Reviewed-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Steffen Maier <maier@linux.ibm.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_gs.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/s390/scsi/zfcp_erp.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_gs.c b/drivers/scsi/qla2xxx/qla_gs.c
-index 84bb4a0480166..a44de4c5dcf6c 100644
---- a/drivers/scsi/qla2xxx/qla_gs.c
-+++ b/drivers/scsi/qla2xxx/qla_gs.c
-@@ -3638,7 +3638,9 @@ void qla24xx_async_gnnft_done(scsi_qla_host_t *vha, srb_t *sp)
- 				qla2x00_clear_loop_id(fcport);
- 				fcport->flags |= FCF_FABRIC_DEVICE;
- 			} else if (fcport->d_id.b24 != rp->id.b24 ||
--				fcport->scan_needed) {
-+				   (fcport->scan_needed &&
-+				    fcport->port_type != FCT_INITIATOR &&
-+				    fcport->port_type != FCT_NVME_INITIATOR)) {
- 				qlt_schedule_sess_for_deletion(fcport);
- 			}
- 			fcport->d_id.b24 = rp->id.b24;
+diff --git a/drivers/s390/scsi/zfcp_erp.c b/drivers/s390/scsi/zfcp_erp.c
+index cb84125ab80d4..08dc2efb7d8a5 100644
+--- a/drivers/s390/scsi/zfcp_erp.c
++++ b/drivers/s390/scsi/zfcp_erp.c
+@@ -576,7 +576,10 @@ static void zfcp_erp_strategy_check_fsfreq(struct zfcp_erp_action *act)
+ 				   ZFCP_STATUS_ERP_TIMEDOUT)) {
+ 			req->status |= ZFCP_STATUS_FSFREQ_DISMISSED;
+ 			zfcp_dbf_rec_run("erscf_1", act);
+-			req->erp_action = NULL;
++			/* lock-free concurrent access with
++			 * zfcp_erp_timeout_handler()
++			 */
++			WRITE_ONCE(req->erp_action, NULL);
+ 		}
+ 		if (act->status & ZFCP_STATUS_ERP_TIMEDOUT)
+ 			zfcp_dbf_rec_run("erscf_2", act);
+@@ -612,8 +615,14 @@ void zfcp_erp_notify(struct zfcp_erp_action *erp_action, unsigned long set_mask)
+ void zfcp_erp_timeout_handler(struct timer_list *t)
+ {
+ 	struct zfcp_fsf_req *fsf_req = from_timer(fsf_req, t, timer);
+-	struct zfcp_erp_action *act = fsf_req->erp_action;
++	struct zfcp_erp_action *act;
+ 
++	if (fsf_req->status & ZFCP_STATUS_FSFREQ_DISMISSED)
++		return;
++	/* lock-free concurrent access with zfcp_erp_strategy_check_fsfreq() */
++	act = READ_ONCE(fsf_req->erp_action);
++	if (!act)
++		return;
+ 	zfcp_erp_notify(act, ZFCP_STATUS_ERP_TIMEDOUT);
+ }
+ 
 -- 
 2.25.1
 
