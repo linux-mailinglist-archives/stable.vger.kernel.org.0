@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E44820E7FD
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:12:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1C2220E53B
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:06:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726245AbgF2WCS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 18:02:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56788 "EHLO mail.kernel.org"
+        id S2391274AbgF2Vei (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:34:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726314AbgF2SfY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:35:24 -0400
+        id S1728590AbgF2Skz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:40:55 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6994E24147;
-        Mon, 29 Jun 2020 15:18:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5C6CC24153;
+        Mon, 29 Jun 2020 15:18:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593443939;
-        bh=Juh4M+SC6Sr7mXiYuUHa6Dn1LDw5fGTbK0JF67n+rkI=;
+        s=default; t=1593443940;
+        bh=VdCvBULUEvQmmVuxWkyEmYYD54v+XsoI/gX+pxPXyWY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DCmXGfIOWqaG5tPEwZQ1AEPhiJgKG0ezUKivgR68oOqRR/zNbmUypGI4un7yrwHRj
-         6XmFmLUYo6rc2mgtBChu3mHO7skKOcK6cCgzbxfWe3+w0K1WuENA+yRNLbPq0fSIsC
-         GgfZVTWAy/C88H4BYe2n3eBhLFvc3ZdCwzZqLC/o=
+        b=1+KQgbsPuzQISCC7NrWIO4OlmihMUcmtDdofhxjRlyNnA6xSzrO1MXiKLidPexuPA
+         cazQHdq01jEx2X7saREXxACXD/9tsUjEk0gNzJ/SnaB6/cxL57AyvZEQKM66NOZprP
+         Y1ww5UW+BkyZnh0o7omNBDVy5Fcw7SvEN1AdBMzg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Heiner Kallweit <hkallweit1@gmail.com>,
-        Aaron Ma <mapengyu@gmail.com>,
+Cc:     Geliang Tang <geliangtang@gmail.com>,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
         "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.7 040/265] r8169: fix firmware not resetting tp->ocp_base
-Date:   Mon, 29 Jun 2020 11:14:33 -0400
-Message-Id: <20200629151818.2493727-41-sashal@kernel.org>
+Subject: [PATCH 5.7 041/265] mptcp: drop sndr_key in mptcp_syn_options
+Date:   Mon, 29 Jun 2020 11:14:34 -0400
+Message-Id: <20200629151818.2493727-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -50,42 +50,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Geliang Tang <geliangtang@gmail.com>
 
-[ Upstream commit 89fbd26cca7ec9e82ec4787a4b6e95939b57d073 ]
+[ Upstream commit b562f58bbc12444219b74a5d6524977a3d87a022 ]
 
-Typically the firmware takes care that tp->ocp_base is reset to its
-default value. That's not the case (at least) for RTL8117.
-As a result subsequent PHY access reads/writes the wrong page and
-the link is broken. Fix this be resetting tp->ocp_base explicitly.
+In RFC 8684, we don't need to send sndr_key in SYN package anymore, so drop
+it.
 
-Fixes: 229c1e0dfd3d ("r8169: load firmware for RTL8168fp/RTL8117")
-Reported-by: Aaron Ma <mapengyu@gmail.com>
-Tested-by: Aaron Ma <mapengyu@gmail.com>
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Fixes: cc7972ea1932 ("mptcp: parse and emit MP_CAPABLE option according to v1 spec")
+Signed-off-by: Geliang Tang <geliangtang@gmail.com>
+Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/realtek/r8169_main.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/mptcp/options.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/realtek/r8169_main.c b/drivers/net/ethernet/realtek/r8169_main.c
-index c51b48dc36397..7bda2671bd5b6 100644
---- a/drivers/net/ethernet/realtek/r8169_main.c
-+++ b/drivers/net/ethernet/realtek/r8169_main.c
-@@ -2192,8 +2192,11 @@ static void rtl_release_firmware(struct rtl8169_private *tp)
- void r8169_apply_firmware(struct rtl8169_private *tp)
- {
- 	/* TODO: release firmware if rtl_fw_write_firmware signals failure. */
--	if (tp->rtl_fw)
-+	if (tp->rtl_fw) {
- 		rtl_fw_write_firmware(tp, tp->rtl_fw);
-+		/* At least one firmware doesn't reset tp->ocp_base. */
-+		tp->ocp_base = OCP_STD_PHY_BASE;
-+	}
- }
- 
- static void rtl8168_config_eee_mac(struct rtl8169_private *tp)
+diff --git a/net/mptcp/options.c b/net/mptcp/options.c
+index 1c20dd14b2aa2..2430bbfa34059 100644
+--- a/net/mptcp/options.c
++++ b/net/mptcp/options.c
+@@ -336,9 +336,7 @@ bool mptcp_syn_options(struct sock *sk, const struct sk_buff *skb,
+ 	 */
+ 	subflow->snd_isn = TCP_SKB_CB(skb)->end_seq;
+ 	if (subflow->request_mptcp) {
+-		pr_debug("local_key=%llu", subflow->local_key);
+ 		opts->suboptions = OPTION_MPTCP_MPC_SYN;
+-		opts->sndr_key = subflow->local_key;
+ 		*size = TCPOLEN_MPTCP_MPC_SYN;
+ 		return true;
+ 	} else if (subflow->request_join) {
 -- 
 2.25.1
 
