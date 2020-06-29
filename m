@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9823A20D672
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:05:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 845D920D674
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:05:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732114AbgF2TUR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:20:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33132 "EHLO mail.kernel.org"
+        id S1732105AbgF2TUS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:20:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732094AbgF2TUQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:20:16 -0400
+        id S1732107AbgF2TUR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:20:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 787642548F;
-        Mon, 29 Jun 2020 15:44:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8DFE525492;
+        Mon, 29 Jun 2020 15:44:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445451;
-        bh=R2ZvoPBUi7lSSOB5oPgRVLBJybDMUeo5dvIOa37TyzQ=;
+        s=default; t=1593445452;
+        bh=+P3lwz5oXBLMnEGQYs3uIzBwkqbw+S6t1wotcxU+IpM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WIcnz3lM4Sd+0R0LjSPfHyHb2hBCsG+2ctUt1Ccv+JNnErdyZj4rhC/lbhLYw3diz
-         PDMM8U3bTiicX4wySausLU6METUXInZJrnTqO7pRE52NfX2w4eHtlbMQWQHevcP4bQ
-         88y8k1lYgDCkB39WYrdAsq8kl8kC1WnWqbqRZaxg=
+        b=REc/32gerX69pcFIF82f5lAJmmLklezajeR7LX8Vfxdx+4O4CJpXlHHZtuS/awt4g
+         k8L5/fEMaDz20IqFmbFzOShI1YXt1zTlPetJC2o9BQmrLBXKqoRrLVts9ZYNx1ZUFi
+         VsmlVLMqYchwwsra2rKuX5lNh81mSydmPEZGul3Y=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zheng Bin <zhengbin13@huawei.com>,
-        Ren Xudong <renxudong1@huawei.com>,
-        "Darrick J . Wong" <darrick.wong@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 190/191] xfs: add agf freeblocks verify in xfs_agf_verify
-Date:   Mon, 29 Jun 2020 11:40:06 -0400
-Message-Id: <20200629154007.2495120-191-sashal@kernel.org>
+Cc:     Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 191/191] Linux 4.9.229-rc1
+Date:   Mon, 29 Jun 2020 11:40:07 -0400
+Message-Id: <20200629154007.2495120-192-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
 References: <20200629154007.2495120-1-sashal@kernel.org>
@@ -50,110 +47,24 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Bin <zhengbin13@huawei.com>
-
-[ Upstream commit d0c7feaf87678371c2c09b3709400be416b2dc62 ]
-
-We recently used fuzz(hydra) to test XFS and automatically generate
-tmp.img(XFS v5 format, but some metadata is wrong)
-
-xfs_repair information(just one AG):
-agf_freeblks 0, counted 3224 in ag 0
-agf_longest 536874136, counted 3224 in ag 0
-sb_fdblocks 613, counted 3228
-
-Test as follows:
-mount tmp.img tmpdir
-cp file1M tmpdir
-sync
-
-In 4.19-stable, sync will stuck, the reason is:
-xfs_mountfs
-  xfs_check_summary_counts
-    if ((!xfs_sb_version_haslazysbcount(&mp->m_sb) ||
-       XFS_LAST_UNMOUNT_WAS_CLEAN(mp)) &&
-       !xfs_fs_has_sickness(mp, XFS_SICK_FS_COUNTERS))
-	return 0;  -->just return, incore sb_fdblocks still be 613
-    xfs_initialize_perag_data
-
-cp file1M tmpdir -->ok(write file to pagecache)
-sync -->stuck(write pagecache to disk)
-xfs_map_blocks
-  xfs_iomap_write_allocate
-    while (count_fsb != 0) {
-      nimaps = 0;
-      while (nimaps == 0) { --> endless loop
-         nimaps = 1;
-         xfs_bmapi_write(..., &nimaps) --> nimaps becomes 0 again
-xfs_bmapi_write
-  xfs_bmap_alloc
-    xfs_bmap_btalloc
-      xfs_alloc_vextent
-        xfs_alloc_fix_freelist
-          xfs_alloc_space_available -->fail(agf_freeblks is 0)
-
-In linux-next, sync not stuck, cause commit c2b3164320b5 ("xfs:
-use the latest extent at writeback delalloc conversion time") remove
-the above while, dmesg is as follows:
-[   55.250114] XFS (loop0): page discard on page ffffea0008bc7380, inode 0x1b0c, offset 0.
-
-Users do not know why this page is discard, the better soultion is:
-1. Like xfs_repair, make sure sb_fdblocks is equal to counted
-(xfs_initialize_perag_data did this, who is not called at this mount)
-2. Add agf verify, if fail, will tell users to repair
-
-This patch use the second soultion.
-
-Signed-off-by: Zheng Bin <zhengbin13@huawei.com>
-Signed-off-by: Ren Xudong <renxudong1@huawei.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/libxfs/xfs_alloc.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/xfs/libxfs/xfs_alloc.c b/fs/xfs/libxfs/xfs_alloc.c
-index e567551402a65..b904d46343556 100644
---- a/fs/xfs/libxfs/xfs_alloc.c
-+++ b/fs/xfs/libxfs/xfs_alloc.c
-@@ -2507,6 +2507,13 @@ xfs_agf_verify(
- 	      be32_to_cpu(agf->agf_flcount) <= XFS_AGFL_SIZE(mp)))
- 		return false;
+diff --git a/Makefile b/Makefile
+index af23d7b67442c..f9eb288348690 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ VERSION = 4
+ PATCHLEVEL = 9
+-SUBLEVEL = 228
+-EXTRAVERSION =
++SUBLEVEL = 229
++EXTRAVERSION = -rc1
+ NAME = Roaring Lionus
  
-+	if (be32_to_cpu(agf->agf_length) > mp->m_sb.sb_dblocks)
-+		return false;
-+
-+	if (be32_to_cpu(agf->agf_freeblks) < be32_to_cpu(agf->agf_longest) ||
-+	    be32_to_cpu(agf->agf_freeblks) > be32_to_cpu(agf->agf_length))
-+		return false;
-+
- 	if (be32_to_cpu(agf->agf_levels[XFS_BTNUM_BNO]) < 1 ||
- 	    be32_to_cpu(agf->agf_levels[XFS_BTNUM_CNT]) < 1 ||
- 	    be32_to_cpu(agf->agf_levels[XFS_BTNUM_BNO]) > XFS_BTREE_MAXLEVELS ||
-@@ -2518,6 +2525,10 @@ xfs_agf_verify(
- 	     be32_to_cpu(agf->agf_levels[XFS_BTNUM_RMAP]) > XFS_BTREE_MAXLEVELS))
- 		return false;
- 
-+	if (xfs_sb_version_hasrmapbt(&mp->m_sb) &&
-+	    be32_to_cpu(agf->agf_rmap_blocks) > be32_to_cpu(agf->agf_length))
-+		return false;
-+
- 	/*
- 	 * during growfs operations, the perag is not fully initialised,
- 	 * so we can't use it for any useful checking. growfs ensures we can't
-@@ -2531,6 +2542,11 @@ xfs_agf_verify(
- 	    be32_to_cpu(agf->agf_btreeblks) > be32_to_cpu(agf->agf_length))
- 		return false;
- 
-+	if (xfs_sb_version_hasreflink(&mp->m_sb) &&
-+	    be32_to_cpu(agf->agf_refcount_blocks) >
-+	    be32_to_cpu(agf->agf_length))
-+		return false;
-+
- 	if (xfs_sb_version_hasreflink(&mp->m_sb) &&
- 	    (be32_to_cpu(agf->agf_refcount_level) < 1 ||
- 	     be32_to_cpu(agf->agf_refcount_level) > XFS_BTREE_MAXLEVELS))
+ # *DOCUMENTATION*
 -- 
 2.25.1
 
