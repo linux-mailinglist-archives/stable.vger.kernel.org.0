@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EC4820DB69
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:15:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D37E20DC1B
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:16:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730515AbgF2UGG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:06:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40556 "EHLO mail.kernel.org"
+        id S1726855AbgF2UMS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:12:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732964AbgF2Ta2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:30:28 -0400
+        id S1732807AbgF2TaV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:30:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B36A325212;
-        Mon, 29 Jun 2020 15:35:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D99C125214;
+        Mon, 29 Jun 2020 15:35:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444931;
-        bh=m32cNJQu1T6wlvaySXWcIlQovFFpvcDTYU7vQZew5cg=;
+        s=default; t=1593444932;
+        bh=CDnV8wgM8h/k65NbFa4Ok2WEounI+mN6nVJiujCCaMw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vvfZaHf12u7+hkcHWhuJlqFMGgAjneh0ukisc7B92FVDWn3TPyV7BLdha8rmShmw6
-         NsPkGDl3BcKruFIu5nZQgDBSbsZOAMTEhT4X7ADGS1hlSGmtqpdsBxL86kuVuQD8+i
-         A+F0MVWqq/LEPk+L7eI8e85wMTyEDOps94xDEfpA=
+        b=c/k9uCzgFh1qG5FpN4H3/BjMsObKVVNE07l1pyJQ2NGEpAbMeRp2bYIss25OOMZpk
+         8YRUPsVNhrbWTPFVsaTI9XUvZJDUKsKU4RQuwRHzkL/Zvw8xCYTeHEskwh8eg/8C5G
+         Dkh9eQxH8YfiRBC7QnvC+2aJPrzI5NuYbukmNO3w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Denis Kirjanov <kda@linux-powerpc.org>,
-        Denis Kirjanov <denis.kirjanov@suse.com>,
+Cc:     Eric Dumazet <edumazet@google.com>,
+        Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>,
         Neal Cardwell <ncardwell@google.com>,
-        Eric Dumazet <edumazet@google.com>,
         "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.19 028/131] tcp: don't ignore ECN CWR on pure ACK
-Date:   Mon, 29 Jun 2020 11:33:19 -0400
-Message-Id: <20200629153502.2494656-29-sashal@kernel.org>
+Subject: [PATCH 4.19 029/131] tcp: grow window for OOO packets only for SACK flows
+Date:   Mon, 29 Jun 2020 11:33:20 -0400
+Message-Id: <20200629153502.2494656-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629153502.2494656-1-sashal@kernel.org>
 References: <20200629153502.2494656-1-sashal@kernel.org>
@@ -52,100 +51,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Denis Kirjanov <kda@linux-powerpc.org>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 2570284060b48f3f79d8f1a2698792f36c385e9a ]
+[ Upstream commit 662051215c758ae8545451628816204ed6cd372d ]
 
-there is a problem with the CWR flag set in an incoming ACK segment
-and it leads to the situation when the ECE flag is latched forever
+Back in 2013, we made a change that broke fast retransmit
+for non SACK flows.
 
-the following packetdrill script shows what happens:
+Indeed, for these flows, a sender needs to receive three duplicate
+ACK before starting fast retransmit. Sending ACK with different
+receive window do not count.
 
-// Stack receives incoming segments with CE set
-+0.1 <[ect0]  . 11001:12001(1000) ack 1001 win 65535
-+0.0 <[ce]    . 12001:13001(1000) ack 1001 win 65535
-+0.0 <[ect0] P. 13001:14001(1000) ack 1001 win 65535
+Even if enabling SACK is strongly recommended these days,
+there still are some cases where it has to be disabled.
 
-// Stack repsonds with ECN ECHO
-+0.0 >[noecn]  . 1001:1001(0) ack 12001
-+0.0 >[noecn] E. 1001:1001(0) ack 13001
-+0.0 >[noecn] E. 1001:1001(0) ack 14001
+Not increasing the window seems better than having to
+rely on RTO.
 
-// Write a packet
-+0.1 write(3, ..., 1000) = 1000
-+0.0 >[ect0] PE. 1001:2001(1000) ack 14001
+After the fix, following packetdrill test gives :
 
-// Pure ACK received
-+0.01 <[noecn] W. 14001:14001(0) ack 2001 win 65535
+// Initialize connection
+    0 socket(..., SOCK_STREAM, IPPROTO_TCP) = 3
+   +0 setsockopt(3, SOL_SOCKET, SO_REUSEADDR, [1], 4) = 0
+   +0 bind(3, ..., ...) = 0
+   +0 listen(3, 1) = 0
 
-// Since CWR was sent, this packet should NOT have ECE set
+   +0 < S 0:0(0) win 32792 <mss 1000,nop,wscale 7>
+   +0 > S. 0:0(0) ack 1 <mss 1460,nop,wscale 8>
+   +0 < . 1:1(0) ack 1 win 514
 
-+0.1 write(3, ..., 1000) = 1000
-+0.0 >[ect0]  P. 2001:3001(1000) ack 14001
-// but Linux will still keep ECE latched here, with packetdrill
-// flagging a missing ECE flag, expecting
-// >[ect0] PE. 2001:3001(1000) ack 14001
-// in the script
+   +0 accept(3, ..., ...) = 4
 
-In the situation above we will continue to send ECN ECHO packets
-and trigger the peer to reduce the congestion window. To avoid that
-we can check CWR on pure ACKs received.
+   +0 < . 1:1001(1000) ack 1 win 514
+// Quick ack
+   +0 > . 1:1(0) ack 1001 win 264
 
-v3:
-- Add a sequence check to avoid sending an ACK to an ACK
+   +0 < . 2001:3001(1000) ack 1 win 514
+// DUPACK : Normally we should not change the window
+   +0 > . 1:1(0) ack 1001 win 264
 
-v2:
-- Adjusted the comment
-- move CWR check before checking for unacknowledged packets
+   +0 < . 3001:4001(1000) ack 1 win 514
+// DUPACK : Normally we should not change the window
+   +0 > . 1:1(0) ack 1001 win 264
 
-Signed-off-by: Denis Kirjanov <denis.kirjanov@suse.com>
-Acked-by: Neal Cardwell <ncardwell@google.com>
+   +0 < . 4001:5001(1000) ack 1 win 514
+// DUPACK : Normally we should not change the window
+    +0 > . 1:1(0) ack 1001 win 264
+
+   +0 < . 1001:2001(1000) ack 1 win 514
+// Hole is repaired.
+   +0 > . 1:1(0) ack 5001 win 272
+
+Fixes: 4e4f1fc22681 ("tcp: properly increase rcv_ssthresh for ofo packets")
 Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>
+Acked-by: Neal Cardwell <ncardwell@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp_input.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ net/ipv4/tcp_input.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
 diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-index 12e1ea7344d96..ee1b4804b40de 100644
+index ee1b4804b40de..7441ecfc8320a 100644
 --- a/net/ipv4/tcp_input.c
 +++ b/net/ipv4/tcp_input.c
-@@ -254,7 +254,8 @@ static void tcp_ecn_accept_cwr(struct sock *sk, const struct sk_buff *skb)
- 		 * cwnd may be very low (even just 1 packet), so we should ACK
- 		 * immediately.
- 		 */
--		inet_csk(sk)->icsk_ack.pending |= ICSK_ACK_NOW;
-+		if (TCP_SKB_CB(skb)->seq != TCP_SKB_CB(skb)->end_seq)
-+			inet_csk(sk)->icsk_ack.pending |= ICSK_ACK_NOW;
+@@ -4528,7 +4528,11 @@ static void tcp_data_queue_ofo(struct sock *sk, struct sk_buff *skb)
+ 	if (tcp_ooo_try_coalesce(sk, tp->ooo_last_skb,
+ 				 skb, &fragstolen)) {
+ coalesce_done:
+-		tcp_grow_window(sk, skb);
++		/* For non sack flows, do not grow window to force DUPACK
++		 * and trigger fast retransmit.
++		 */
++		if (tcp_is_sack(tp))
++			tcp_grow_window(sk, skb);
+ 		kfree_skb_partial(skb, fragstolen);
+ 		skb = NULL;
+ 		goto add_sack;
+@@ -4612,7 +4616,11 @@ static void tcp_data_queue_ofo(struct sock *sk, struct sk_buff *skb)
+ 		tcp_sack_new_ofo_skb(sk, seq, end_seq);
+ end:
+ 	if (skb) {
+-		tcp_grow_window(sk, skb);
++		/* For non sack flows, do not grow window to force DUPACK
++		 * and trigger fast retransmit.
++		 */
++		if (tcp_is_sack(tp))
++			tcp_grow_window(sk, skb);
+ 		skb_condense(skb);
+ 		skb_set_owner_r(skb, sk);
  	}
- }
- 
-@@ -3665,6 +3666,15 @@ static int tcp_ack(struct sock *sk, const struct sk_buff *skb, int flag)
- 		tcp_in_ack_event(sk, ack_ev_flags);
- 	}
- 
-+	/* This is a deviation from RFC3168 since it states that:
-+	 * "When the TCP data sender is ready to set the CWR bit after reducing
-+	 * the congestion window, it SHOULD set the CWR bit only on the first
-+	 * new data packet that it transmits."
-+	 * We accept CWR on pure ACKs to be more robust
-+	 * with widely-deployed TCP implementations that do this.
-+	 */
-+	tcp_ecn_accept_cwr(sk, skb);
-+
- 	/* We passed data and got it acked, remove any soft error
- 	 * log. Something worked...
- 	 */
-@@ -4703,8 +4713,6 @@ static void tcp_data_queue(struct sock *sk, struct sk_buff *skb)
- 	skb_dst_drop(skb);
- 	__skb_pull(skb, tcp_hdr(skb)->doff * 4);
- 
--	tcp_ecn_accept_cwr(sk, skb);
--
- 	tp->rx_opt.dsack = 0;
- 
- 	/*  Queue data for delivery to the user.
 -- 
 2.25.1
 
