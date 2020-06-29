@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DAD2F20E68F
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:09:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D378D20E686
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:09:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404311AbgF2Vsk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:48:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56796 "EHLO mail.kernel.org"
+        id S2404274AbgF2VsT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:48:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726719AbgF2Sfm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:35:42 -0400
+        id S1726714AbgF2Sfn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:35:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AD98324760;
-        Mon, 29 Jun 2020 15:21:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A44D824761;
+        Mon, 29 Jun 2020 15:21:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444078;
-        bh=pmR/0QLMadPzlQumAh7CF7ZTtI1d/law5OkmNEhUj1c=;
+        s=default; t=1593444079;
+        bh=sc5f8187uxVzY6pGmrOQEZXwwHoqL0rU2Y3yzc/cin4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wmi7aj/ky2EnLGqK6j/L3tWMe6Pkm1dsMnLIYHETohyEu3t5U8anqVKS00lrC2xKp
-         G/7mC7JfpgN6rTvYH+ivp64p8ZUgrE3ikXEx8mFpdehAwsP0s5/KhBd6G6WbWS5UoE
-         ja9Yc+uJuLWZFxW6k8jidk2j4X7Ow1FT6MC1S6BQ=
+        b=FYSsCEl5lqzJOUOgcMYfzzNH3Uy8dzZwn4AG4cK236lK1WzDIMx5+UbKbjinXFOay
+         NbsMENdmWKqqxVnQ7AuqstNYDNy2kXP+1+CUfAEX/AW0Y3C8o9slI44aXkTpzFFfNX
+         lK+NONWUP13rIzH7qJQ7AwO+n47F2KHAwRAQEP/8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+Cc:     Dave Martin <Dave.Martin@arm.com>, Will Deacon <will@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 187/265] hwrng: ks-sa - Fix runtime PM imbalance on error
-Date:   Mon, 29 Jun 2020 11:17:00 -0400
-Message-Id: <20200629151818.2493727-188-sashal@kernel.org>
+Subject: [PATCH 5.7 188/265] arm64/sve: Eliminate data races on sve_default_vl
+Date:   Mon, 29 Jun 2020 11:17:01 -0400
+Message-Id: <20200629151818.2493727-189-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -50,34 +48,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Dave Martin <Dave.Martin@arm.com>
 
-[ Upstream commit 95459261c99f1621d90bc628c2a48e60b7cf9a88 ]
+[ Upstream commit 1e570f512cbdc5e9e401ba640d9827985c1bea1e ]
 
-pm_runtime_get_sync() increments the runtime PM usage counter even
-the call returns an error code. Thus a pairing decrement is needed
-on the error handling path to keep the counter balanced.
+sve_default_vl can be modified via the /proc/sys/abi/sve_default_vl
+sysctl concurrently with use, and modified concurrently by multiple
+threads.
 
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Reviewed-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Adding a lock for this seems overkill, and I don't want to think any
+more than necessary, so just define wrappers using READ_ONCE()/
+WRITE_ONCE().
+
+This will avoid the possibility of torn accesses and repeated loads
+and stores.
+
+There's no evidence yet that this is going wrong in practice: this
+is just hygiene.  For generic sysctl users, it would be better to
+build this kind of thing into the sysctl common code somehow.
+
+Reported-by: Will Deacon <will@kernel.org>
+Signed-off-by: Dave Martin <Dave.Martin@arm.com>
+Link: https://lore.kernel.org/r/1591808590-20210-3-git-send-email-Dave.Martin@arm.com
+[will: move set_sve_default_vl() inside #ifdef to squash allnoconfig warning]
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/hw_random/ks-sa-rng.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/kernel/fpsimd.c | 25 ++++++++++++++++++-------
+ 1 file changed, 18 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/char/hw_random/ks-sa-rng.c b/drivers/char/hw_random/ks-sa-rng.c
-index e2330e757f1ff..001617033d6a2 100644
---- a/drivers/char/hw_random/ks-sa-rng.c
-+++ b/drivers/char/hw_random/ks-sa-rng.c
-@@ -244,6 +244,7 @@ static int ks_sa_rng_probe(struct platform_device *pdev)
- 	ret = pm_runtime_get_sync(dev);
- 	if (ret < 0) {
- 		dev_err(dev, "Failed to enable SA power-domain\n");
-+		pm_runtime_put_noidle(dev);
- 		pm_runtime_disable(dev);
- 		return ret;
- 	}
+diff --git a/arch/arm64/kernel/fpsimd.c b/arch/arm64/kernel/fpsimd.c
+index 94289d1269933..4a77263c183b3 100644
+--- a/arch/arm64/kernel/fpsimd.c
++++ b/arch/arm64/kernel/fpsimd.c
+@@ -12,6 +12,7 @@
+ #include <linux/bug.h>
+ #include <linux/cache.h>
+ #include <linux/compat.h>
++#include <linux/compiler.h>
+ #include <linux/cpu.h>
+ #include <linux/cpu_pm.h>
+ #include <linux/kernel.h>
+@@ -119,10 +120,20 @@ struct fpsimd_last_state_struct {
+ static DEFINE_PER_CPU(struct fpsimd_last_state_struct, fpsimd_last_state);
+ 
+ /* Default VL for tasks that don't set it explicitly: */
+-static int sve_default_vl = -1;
++static int __sve_default_vl = -1;
++
++static int get_sve_default_vl(void)
++{
++	return READ_ONCE(__sve_default_vl);
++}
+ 
+ #ifdef CONFIG_ARM64_SVE
+ 
++static void set_sve_default_vl(int val)
++{
++	WRITE_ONCE(__sve_default_vl, val);
++}
++
+ /* Maximum supported vector length across all CPUs (initially poisoned) */
+ int __ro_after_init sve_max_vl = SVE_VL_MIN;
+ int __ro_after_init sve_max_virtualisable_vl = SVE_VL_MIN;
+@@ -345,7 +356,7 @@ static int sve_proc_do_default_vl(struct ctl_table *table, int write,
+ 				  loff_t *ppos)
+ {
+ 	int ret;
+-	int vl = sve_default_vl;
++	int vl = get_sve_default_vl();
+ 	struct ctl_table tmp_table = {
+ 		.data = &vl,
+ 		.maxlen = sizeof(vl),
+@@ -362,7 +373,7 @@ static int sve_proc_do_default_vl(struct ctl_table *table, int write,
+ 	if (!sve_vl_valid(vl))
+ 		return -EINVAL;
+ 
+-	sve_default_vl = find_supported_vector_length(vl);
++	set_sve_default_vl(find_supported_vector_length(vl));
+ 	return 0;
+ }
+ 
+@@ -869,7 +880,7 @@ void __init sve_setup(void)
+ 	 * For the default VL, pick the maximum supported value <= 64.
+ 	 * VL == 64 is guaranteed not to grow the signal frame.
+ 	 */
+-	sve_default_vl = find_supported_vector_length(64);
++	set_sve_default_vl(find_supported_vector_length(64));
+ 
+ 	bitmap_andnot(tmp_map, sve_vq_partial_map, sve_vq_map,
+ 		      SVE_VQ_MAX);
+@@ -890,7 +901,7 @@ void __init sve_setup(void)
+ 	pr_info("SVE: maximum available vector length %u bytes per vector\n",
+ 		sve_max_vl);
+ 	pr_info("SVE: default vector length %u bytes per vector\n",
+-		sve_default_vl);
++		get_sve_default_vl());
+ 
+ 	/* KVM decides whether to support mismatched systems. Just warn here: */
+ 	if (sve_max_virtualisable_vl < sve_max_vl)
+@@ -1030,13 +1041,13 @@ void fpsimd_flush_thread(void)
+ 		 * vector length configured: no kernel task can become a user
+ 		 * task without an exec and hence a call to this function.
+ 		 * By the time the first call to this function is made, all
+-		 * early hardware probing is complete, so sve_default_vl
++		 * early hardware probing is complete, so __sve_default_vl
+ 		 * should be valid.
+ 		 * If a bug causes this to go wrong, we make some noise and
+ 		 * try to fudge thread.sve_vl to a safe value here.
+ 		 */
+ 		vl = current->thread.sve_vl_onexec ?
+-			current->thread.sve_vl_onexec : sve_default_vl;
++			current->thread.sve_vl_onexec : get_sve_default_vl();
+ 
+ 		if (WARN_ON(!sve_vl_valid(vl)))
+ 			vl = SVE_VL_MIN;
 -- 
 2.25.1
 
