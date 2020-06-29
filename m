@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8EB920E2AC
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:01:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4E8D20E29C
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:01:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731209AbgF2VHl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:07:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53710 "EHLO mail.kernel.org"
+        id S2388368AbgF2VHC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:07:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730703AbgF2TKQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:10:16 -0400
+        id S1730957AbgF2TKR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:10:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 143F5254C9;
-        Mon, 29 Jun 2020 15:53:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 36503254CA;
+        Mon, 29 Jun 2020 15:53:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593446022;
-        bh=owJ+I6NGz3jpBe2GEq1rvAxlpf0k7MEWMJUWLU1jE+E=;
+        s=default; t=1593446024;
+        bh=XGuWL52K+qAbtTA70o3IBFExy55ErqwDzLBqz/ZsfZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1ExlE0IOQpTpJnaq9rSqTjfM82bBI63Dja8xmx4l/uUeTeIEmRecHnd/A03MgNdr9
-         EDnaV7DeR6w9XMVd2ACzMyBqHDe8sdfOCJ9RBAUJ+KaGilJxaTSQ+chaKZwRtBK3ka
-         qsa60DqmsioM3/1fM6hzCpFfUQYWo/Ajaif6au4A=
+        b=gYubyoltP+z/2jeiqTfZXc7luL1gAvngx30Yt8wZHBjEFjxE5Yi3bXDB85Sp7Agmu
+         AalogZ+EG9gc7aswzHzGU68E0JtAnN8Ps6T4O/Zpbf919Ws6FfLhBV2WDE5cpK8wgY
+         Xkzueyn/VJmkHD1Vri5dkV2jDeGZXstBsxnFhv+0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        clang-built-linux@googlegroups.com,
-        David Teigland <teigland@redhat.com>,
+Cc:     Tero Kristo <t-kristo@ti.com>,
+        Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 029/135] dlm: remove BUG() before panic()
-Date:   Mon, 29 Jun 2020 11:51:23 -0400
-Message-Id: <20200629155309.2495516-30-sashal@kernel.org>
+Subject: [PATCH 4.4 030/135] clk: ti: composite: fix memory leak
+Date:   Mon, 29 Jun 2020 11:51:24 -0400
+Message-Id: <20200629155309.2495516-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
 References: <20200629155309.2495516-1-sashal@kernel.org>
@@ -51,49 +51,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Tero Kristo <t-kristo@ti.com>
 
-[ Upstream commit fe204591cc9480347af7d2d6029b24a62e449486 ]
+[ Upstream commit c7c1cbbc9217ebb5601b88d138d4a5358548de9d ]
 
-Building a kernel with clang sometimes fails with an objtool error in dlm:
+The parent_names is never released for a component clock definition,
+causing some memory leak. Fix by releasing it once it is no longer
+needed.
 
-fs/dlm/lock.o: warning: objtool: revert_lock_pc()+0xbd: can't find jump dest instruction at .text+0xd7fc
-
-The problem is that BUG() never returns and the compiler knows
-that anything after it is unreachable, however the panic still
-emits some code that does not get fully eliminated.
-
-Having both BUG() and panic() is really pointless as the BUG()
-kills the current process and the subsequent panic() never hits.
-In most cases, we probably don't really want either and should
-replace the DLM_ASSERT() statements with WARN_ON(), as has
-been done for some of them.
-
-Remove the BUG() here so the user at least sees the panic message
-and we can reliably build randconfig kernels.
-
-Fixes: e7fd41792fc0 ("[DLM] The core of the DLM for GFS2/CLVM")
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: clang-built-linux@googlegroups.com
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: David Teigland <teigland@redhat.com>
+Reported-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Signed-off-by: Tero Kristo <t-kristo@ti.com>
+Link: https://lkml.kernel.org/r/20200429131341.4697-2-t-kristo@ti.com
+Acked-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dlm/dlm_internal.h | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/clk/ti/composite.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/dlm/dlm_internal.h b/fs/dlm/dlm_internal.h
-index 5eff6ea3e27f1..63e856d90ed05 100644
---- a/fs/dlm/dlm_internal.h
-+++ b/fs/dlm/dlm_internal.h
-@@ -92,7 +92,6 @@ do { \
-                __LINE__, __FILE__, #x, jiffies); \
-     {do} \
-     printk("\n"); \
--    BUG(); \
-     panic("DLM:  Record message above and reboot.\n"); \
-   } \
- }
+diff --git a/drivers/clk/ti/composite.c b/drivers/clk/ti/composite.c
+index dbef218fe5ecd..14201c52b44bc 100644
+--- a/drivers/clk/ti/composite.c
++++ b/drivers/clk/ti/composite.c
+@@ -228,6 +228,7 @@ static void __init _register_composite(struct clk_hw *hw,
+ 		if (!cclk->comp_clks[i])
+ 			continue;
+ 		list_del(&cclk->comp_clks[i]->link);
++		kfree(cclk->comp_clks[i]->parent_names);
+ 		kfree(cclk->comp_clks[i]);
+ 	}
+ 
 -- 
 2.25.1
 
