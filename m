@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9159320DA17
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:12:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B1B520D91E
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:10:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731097AbgF2Txm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:53:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47706 "EHLO mail.kernel.org"
+        id S1733191AbgF2Tof (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:44:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387681AbgF2Tk0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:26 -0400
+        id S2387837AbgF2Tkp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F471248DB;
-        Mon, 29 Jun 2020 15:27:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4FF57248DC;
+        Mon, 29 Jun 2020 15:27:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444433;
-        bh=whz2AYzxqIosz40Rk8FfNtqCsv/X1JKsrbmEzCmFp8k=;
+        s=default; t=1593444434;
+        bh=WCjtbpjQ4nsvFwRlVNbbY7Rzz1MwGVeN88ApKGRWaO0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yghRabmA3VVz0GK32FCfsR0jyKnOIl/oRNlH7ApGONDWQHhyIsFLY3+g8CwFnuR9J
-         A8tAfXQpSziRiGYWtoKuqezhkL77pmXdt6ka5P6jsfSZURxaLkvoy9DFo2Lq2+YII/
-         BD7Za+V2CFC6iLngpK/8pCT1vPx1zJxynXvRMGfI=
+        b=VQh/8WH/jtM18lSaP5N5BSoWqCfCj4fxMOVvJWznAoSlKBozSl44Ssw8BaNAGXIUK
+         MD+rF1/UuyDmyfseOZCBYQEMb1SnlbdY0p78cK41hLGFwnWt3M/85/PiDPkXa5hl17
+         LluABOEUdiq/V0xw78Oo4yr2zAPFbDVZ/ilFKjZs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vincent Chen <vincent.chen@sifive.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 111/178] clk: sifive: allocate sufficient memory for struct __prci_data
-Date:   Mon, 29 Jun 2020 11:24:16 -0400
-Message-Id: <20200629152523.2494198-112-sashal@kernel.org>
+Cc:     Eddie James <eajames@linux.ibm.com>, Joel Stanley <joel@jms.id.au>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 112/178] i2c: fsi: Fix the port number field in status register
+Date:   Mon, 29 Jun 2020 11:24:17 -0400
+Message-Id: <20200629152523.2494198-113-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -49,41 +48,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Chen <vincent.chen@sifive.com>
+From: Eddie James <eajames@linux.ibm.com>
 
-[ Upstream commit d0a5fdf4cc83dabcdea668f971b8a2e916437711 ]
+[ Upstream commit 502035e284cc7e9efef22b01771d822d49698ab9 ]
 
-The (struct __prci_data).hw_clks.hws is an array with dynamic elements.
-Using struct_size(pd, hw_clks.hws, ARRAY_SIZE(__prci_init_clocks))
-instead of sizeof(*pd) to get the correct memory size of
-struct __prci_data for sifive/fu540-prci. After applying this
-modifications, the kernel runs smoothly with CONFIG_SLAB_FREELIST_RANDOM
-enabled on the HiFive unleashed board.
+The port number field in the status register was not correct, so fix it.
 
-Fixes: 30b8e27e3b58 ("clk: sifive: add a driver for the SiFive FU540 PRCI IP block")
-Signed-off-by: Vincent Chen <vincent.chen@sifive.com>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Fixes: d6ffb6300116 ("i2c: Add FSI-attached I2C master algorithm")
+Signed-off-by: Eddie James <eajames@linux.ibm.com>
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/sifive/fu540-prci.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-fsi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/sifive/fu540-prci.c b/drivers/clk/sifive/fu540-prci.c
-index 6282ee2f361cd..a8901f90a61ac 100644
---- a/drivers/clk/sifive/fu540-prci.c
-+++ b/drivers/clk/sifive/fu540-prci.c
-@@ -586,7 +586,10 @@ static int sifive_fu540_prci_probe(struct platform_device *pdev)
- 	struct __prci_data *pd;
- 	int r;
- 
--	pd = devm_kzalloc(dev, sizeof(*pd), GFP_KERNEL);
-+	pd = devm_kzalloc(dev,
-+			  struct_size(pd, hw_clks.hws,
-+				      ARRAY_SIZE(__prci_init_clocks)),
-+			  GFP_KERNEL);
- 	if (!pd)
- 		return -ENOMEM;
- 
+diff --git a/drivers/i2c/busses/i2c-fsi.c b/drivers/i2c/busses/i2c-fsi.c
+index e0c256922d4f1..977d6f524649c 100644
+--- a/drivers/i2c/busses/i2c-fsi.c
++++ b/drivers/i2c/busses/i2c-fsi.c
+@@ -98,7 +98,7 @@
+ #define I2C_STAT_DAT_REQ	BIT(25)
+ #define I2C_STAT_CMD_COMP	BIT(24)
+ #define I2C_STAT_STOP_ERR	BIT(23)
+-#define I2C_STAT_MAX_PORT	GENMASK(19, 16)
++#define I2C_STAT_MAX_PORT	GENMASK(22, 16)
+ #define I2C_STAT_ANY_INT	BIT(15)
+ #define I2C_STAT_SCL_IN		BIT(11)
+ #define I2C_STAT_SDA_IN		BIT(10)
 -- 
 2.25.1
 
