@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5ADE820E84A
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:12:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F05B20E7D8
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:11:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726715AbgF2WFg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 18:05:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56814 "EHLO mail.kernel.org"
+        id S2391762AbgF2WAy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 18:00:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726152AbgF2SfT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:35:19 -0400
+        id S1726276AbgF2SfY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:35:24 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1CE4B246CE;
-        Mon, 29 Jun 2020 15:20:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 279D0246D1;
+        Mon, 29 Jun 2020 15:20:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444020;
-        bh=f8wWRBJu0xVCp0JlyfTc7Lt1H4gqJ376r6jAqEgVev0=;
+        s=default; t=1593444021;
+        bh=Tp4oBHPGfd8p24YkN3+BS4LvQkkurIqnCJ0Eu188tlM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A/oD33WVMxmCOpXy4kav837aZr/P4NhsJU499GzZ1H4pHzCRNWXobdHtnDk9vvKeF
-         cjhRddufqTycSVpIVNsVtfBpS5xuuZxvDSx6NHhEveIfVQnYoUW7CiKiPXzTfrxqBm
-         9Tq6lz6QPOv5bKJJFl45RQJtUB/3mKolr5oJ5xKk=
+        b=jXQRe/kTT7Z+Kmr2VToBkhvn4oE6oo/cZTuamx2eRQDhlSKalKIr16j/K998Jdobg
+         9f23rfMlaM4QsY7iWwZg0cREK09r0EQqdK+JTdqGbIZvkSiWhmJOqRyB2U2i+xVtrG
+         ZoEDTXiwClXXLfU4HQE9it1LmbjOVxeSG2M/7KRY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
-        Xiumei Mu <xmu@redhat.com>,
+Cc:     Stanislav Fomichev <sdf@google.com>,
         Alexei Starovoitov <ast@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
+        David Laight <David.Laight@ACULAB.COM>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 127/265] devmap: Use bpf_map_area_alloc() for allocating hash buckets
-Date:   Mon, 29 Jun 2020 11:16:00 -0400
-Message-Id: <20200629151818.2493727-128-sashal@kernel.org>
+Subject: [PATCH 5.7 128/265] bpf: Don't return EINVAL from {get,set}sockopt when optlen > PAGE_SIZE
+Date:   Mon, 29 Jun 2020 11:16:01 -0400
+Message-Id: <20200629151818.2493727-129-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.7.7-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-5.7.y
@@ -52,66 +50,158 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Toke Høiland-Jørgensen <toke@redhat.com>
+From: Stanislav Fomichev <sdf@google.com>
 
-[ Upstream commit 99c51064fb06146b3d494b745c947e438a10aaa7 ]
+[ Upstream commit d8fe449a9c51a37d844ab607e14e2f5c657d3cf2 ]
 
-Syzkaller discovered that creating a hash of type devmap_hash with a large
-number of entries can hit the memory allocator limit for allocating
-contiguous memory regions. There's really no reason to use kmalloc_array()
-directly in the devmap code, so just switch it to the existing
-bpf_map_area_alloc() function that is used elsewhere.
+Attaching to these hooks can break iptables because its optval is
+usually quite big, or at least bigger than the current PAGE_SIZE limit.
+David also mentioned some SCTP options can be big (around 256k).
 
-Fixes: 6f9d451ab1a3 ("xdp: Add devmap_hash map type for looking up devices by hashed index")
-Reported-by: Xiumei Mu <xmu@redhat.com>
-Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
+For such optvals we expose only the first PAGE_SIZE bytes to
+the BPF program. BPF program has two options:
+1. Set ctx->optlen to 0 to indicate that the BPF's optval
+   should be ignored and the kernel should use original userspace
+   value.
+2. Set ctx->optlen to something that's smaller than the PAGE_SIZE.
+
+v5:
+* use ctx->optlen == 0 with trimmed buffer (Alexei Starovoitov)
+* update the docs accordingly
+
+v4:
+* use temporary buffer to avoid optval == optval_end == NULL;
+  this removes the corner case in the verifier that might assume
+  non-zero PTR_TO_PACKET/PTR_TO_PACKET_END.
+
+v3:
+* don't increase the limit, bypass the argument
+
+v2:
+* proper comments formatting (Jakub Kicinski)
+
+Fixes: 0d01da6afc54 ("bpf: implement getsockopt and setsockopt hooks")
+Signed-off-by: Stanislav Fomichev <sdf@google.com>
 Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/bpf/20200616142829.114173-1-toke@redhat.com
+Cc: David Laight <David.Laight@ACULAB.COM>
+Link: https://lore.kernel.org/bpf/20200617010416.93086-1-sdf@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/devmap.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ kernel/bpf/cgroup.c | 53 ++++++++++++++++++++++++++++-----------------
+ 1 file changed, 33 insertions(+), 20 deletions(-)
 
-diff --git a/kernel/bpf/devmap.c b/kernel/bpf/devmap.c
-index 58bdca5d978a8..badf382bbd365 100644
---- a/kernel/bpf/devmap.c
-+++ b/kernel/bpf/devmap.c
-@@ -85,12 +85,13 @@ static DEFINE_PER_CPU(struct list_head, dev_flush_list);
- static DEFINE_SPINLOCK(dev_map_lock);
- static LIST_HEAD(dev_map_list);
+diff --git a/kernel/bpf/cgroup.c b/kernel/bpf/cgroup.c
+index cb305e71e7deb..25aebd21c15b1 100644
+--- a/kernel/bpf/cgroup.c
++++ b/kernel/bpf/cgroup.c
+@@ -1240,16 +1240,23 @@ static bool __cgroup_bpf_prog_array_is_empty(struct cgroup *cgrp,
  
--static struct hlist_head *dev_map_create_hash(unsigned int entries)
-+static struct hlist_head *dev_map_create_hash(unsigned int entries,
-+					      int numa_node)
+ static int sockopt_alloc_buf(struct bpf_sockopt_kern *ctx, int max_optlen)
  {
- 	int i;
- 	struct hlist_head *hash;
- 
--	hash = kmalloc_array(entries, sizeof(*hash), GFP_KERNEL);
-+	hash = bpf_map_area_alloc(entries * sizeof(*hash), numa_node);
- 	if (hash != NULL)
- 		for (i = 0; i < entries; i++)
- 			INIT_HLIST_HEAD(&hash[i]);
-@@ -138,7 +139,8 @@ static int dev_map_init_map(struct bpf_dtab *dtab, union bpf_attr *attr)
+-	if (unlikely(max_optlen > PAGE_SIZE) || max_optlen < 0)
++	if (unlikely(max_optlen < 0))
  		return -EINVAL;
  
- 	if (attr->map_type == BPF_MAP_TYPE_DEVMAP_HASH) {
--		dtab->dev_index_head = dev_map_create_hash(dtab->n_buckets);
-+		dtab->dev_index_head = dev_map_create_hash(dtab->n_buckets,
-+							   dtab->map.numa_node);
- 		if (!dtab->dev_index_head)
- 			goto free_charge;
++	if (unlikely(max_optlen > PAGE_SIZE)) {
++		/* We don't expose optvals that are greater than PAGE_SIZE
++		 * to the BPF program.
++		 */
++		max_optlen = PAGE_SIZE;
++	}
++
+ 	ctx->optval = kzalloc(max_optlen, GFP_USER);
+ 	if (!ctx->optval)
+ 		return -ENOMEM;
  
-@@ -223,7 +225,7 @@ static void dev_map_free(struct bpf_map *map)
- 			}
+ 	ctx->optval_end = ctx->optval + max_optlen;
+ 
+-	return 0;
++	return max_optlen;
+ }
+ 
+ static void sockopt_free_buf(struct bpf_sockopt_kern *ctx)
+@@ -1283,13 +1290,13 @@ int __cgroup_bpf_run_filter_setsockopt(struct sock *sk, int *level,
+ 	 */
+ 	max_optlen = max_t(int, 16, *optlen);
+ 
+-	ret = sockopt_alloc_buf(&ctx, max_optlen);
+-	if (ret)
+-		return ret;
++	max_optlen = sockopt_alloc_buf(&ctx, max_optlen);
++	if (max_optlen < 0)
++		return max_optlen;
+ 
+ 	ctx.optlen = *optlen;
+ 
+-	if (copy_from_user(ctx.optval, optval, *optlen) != 0) {
++	if (copy_from_user(ctx.optval, optval, min(*optlen, max_optlen)) != 0) {
+ 		ret = -EFAULT;
+ 		goto out;
+ 	}
+@@ -1317,8 +1324,14 @@ int __cgroup_bpf_run_filter_setsockopt(struct sock *sk, int *level,
+ 		/* export any potential modifications */
+ 		*level = ctx.level;
+ 		*optname = ctx.optname;
+-		*optlen = ctx.optlen;
+-		*kernel_optval = ctx.optval;
++
++		/* optlen == 0 from BPF indicates that we should
++		 * use original userspace data.
++		 */
++		if (ctx.optlen != 0) {
++			*optlen = ctx.optlen;
++			*kernel_optval = ctx.optval;
++		}
+ 	}
+ 
+ out:
+@@ -1350,12 +1363,12 @@ int __cgroup_bpf_run_filter_getsockopt(struct sock *sk, int level,
+ 	    __cgroup_bpf_prog_array_is_empty(cgrp, BPF_CGROUP_GETSOCKOPT))
+ 		return retval;
+ 
+-	ret = sockopt_alloc_buf(&ctx, max_optlen);
+-	if (ret)
+-		return ret;
+-
+ 	ctx.optlen = max_optlen;
+ 
++	max_optlen = sockopt_alloc_buf(&ctx, max_optlen);
++	if (max_optlen < 0)
++		return max_optlen;
++
+ 	if (!retval) {
+ 		/* If kernel getsockopt finished successfully,
+ 		 * copy whatever was returned to the user back
+@@ -1369,10 +1382,8 @@ int __cgroup_bpf_run_filter_getsockopt(struct sock *sk, int level,
+ 			goto out;
  		}
  
--		kfree(dtab->dev_index_head);
-+		bpf_map_area_free(dtab->dev_index_head);
- 	} else {
- 		for (i = 0; i < dtab->map.max_entries; i++) {
- 			struct bpf_dtab_netdev *dev;
+-		if (ctx.optlen > max_optlen)
+-			ctx.optlen = max_optlen;
+-
+-		if (copy_from_user(ctx.optval, optval, ctx.optlen) != 0) {
++		if (copy_from_user(ctx.optval, optval,
++				   min(ctx.optlen, max_optlen)) != 0) {
+ 			ret = -EFAULT;
+ 			goto out;
+ 		}
+@@ -1401,10 +1412,12 @@ int __cgroup_bpf_run_filter_getsockopt(struct sock *sk, int level,
+ 		goto out;
+ 	}
+ 
+-	if (copy_to_user(optval, ctx.optval, ctx.optlen) ||
+-	    put_user(ctx.optlen, optlen)) {
+-		ret = -EFAULT;
+-		goto out;
++	if (ctx.optlen != 0) {
++		if (copy_to_user(optval, ctx.optval, ctx.optlen) ||
++		    put_user(ctx.optlen, optlen)) {
++			ret = -EFAULT;
++			goto out;
++		}
+ 	}
+ 
+ 	ret = ctx.retval;
 -- 
 2.25.1
 
