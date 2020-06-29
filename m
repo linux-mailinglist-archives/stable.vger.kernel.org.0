@@ -2,55 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C3C120D175
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 20:42:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C88920D16B
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 20:42:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727928AbgF2Sl6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 14:41:58 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:60439 "EHLO
+        id S1729030AbgF2Slx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 14:41:53 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:56923 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729034AbgF2Sl6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Jun 2020 14:41:58 -0400
+        by vger.kernel.org with ESMTP id S1728999AbgF2Slt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Jun 2020 14:41:49 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id B15E88E8;
-        Mon, 29 Jun 2020 07:22:50 -0400 (EDT)
+        by mailforward.west.internal (Postfix) with ESMTP id AB462A85;
+        Mon, 29 Jun 2020 07:36:57 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 29 Jun 2020 07:22:51 -0400
+  by compute1.internal (MEProxy); Mon, 29 Jun 2020 07:36:57 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=8b8KpG
-        KARcCgq10kyrPPIdlGxpzX7JSLmrIAeiYDPM8=; b=oADgeO/OkQ81HmPzhMTtRU
-        JGL49KJ/E3937NkoKBTjgH5or3cpR2qrPRldOTLtDrm1sqDY31ToCMdaptb4tD2N
-        AIeNwDyH3jyMj6V57CBYODroY/JWBGRfBquuFylh0G2FNcGw0UarvGYOkcf1PHz7
-        HvuH0HYkDyXk7q7ZL7TNXfKgbmFbl+wYsZRVLxexP4rTnoH0dDvX/Z+wt4T+eT1/
-        dqqakqomY4cmsUOoYF059jGml/DMg9MlYOn+iyOXr6J9YiDQef5j/MDmEMfRqlun
-        4SEbxIfcrCm98XwxKVV8Nc1jeJtvKhXEzRT8NGCxqiTa0SUOtnNp8x5hm5QrX0SQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=lRJFs6
+        A8p/uvPuVrnHvu71KP1EShfRJM4oy3Yd7KWFQ=; b=nGjR3ihI/WiS6mLDaedJBm
+        WDCW/BJN7QtYvsCdpkjrFPfn5Y6ozKJ9Lc5xtyySVVI9fEzMrZ/bB5mk/X50yQI6
+        oqVStn1CJiY12PD+pgOY8A/jOG1HmTUu40dkh9WihAMRiLSKXblV41YrDm+rylzb
+        Kt3/pHzDpqQAz07uZBTGxsUuWjtfhlmjfSYJ9XxeeFA4/J89tM1y+PwQvqRgJw0X
+        yWQIsH0lY6apKCI/j6k3lCnhdcQVCQenUQdZfvalnZEYYHtMbWymiLHXDP3jfrKb
+        ppnjmcyORdg+wArz4X1b7Komj7cZvCu8E/cNeiM9rfNcqvz3sulHU7WlZiuHnyuQ
         ==
-X-ME-Sender: <xms:Cs_5Xuyu0rITB4yt0tpi9g9rzgUpbkGif_vi5cQbQCiYrgiR_CXX5g>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudelkedgfeekucetufdoteggodetrfdotf
+X-ME-Sender: <xms:WNL5XtE1sCSOJ1NzlGqutYe57wYqQzNYFQYr2MKGtbnbkROO4brT0g>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudelkedggeduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepfeenucfrrghrrghmpe
+    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
     hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:Cs_5XqSeYp4j7HjXC2yWt4VW3mW2QZvO1nDFlnv5Zfgf2vgIO7h-7Q>
-    <xmx:Cs_5XgU8FXnsNfuL3dhfIPcBI8ld7YUA0tZzGXhC1wDiKC-3PqWu6g>
-    <xmx:Cs_5Xkh4dpEHmaKh06YxpSn9S9jiNkEnNYoRoAH6fngTYSiee7GHmA>
-    <xmx:Cs_5XjMpCvyAqin_GFGr273_LZgbYb3qlD6IlPQPw-Yq445xqgPqzEcZkys>
+X-ME-Proxy: <xmx:WNL5XiXMAhIXongxBV7FZmKWnDuVzNC7HWPbEWfdct1iIi-2mlHcaQ>
+    <xmx:WNL5XvKBFm4mBtTsnJg69wws6Zk3v1jgG9TyGtysQ5eg9YRnRE7Atg>
+    <xmx:WNL5XjEsUARb9lOD1SGPHHQYYeLiR9Zhf9woN0zLnSWinoWjj_Yy8A>
+    <xmx:WdL5XqB-RPuIZKv-umcWJGaGMpVw6go4xCMncQj4ovdHJZAj3qf_NU0s3k0>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E4F373067C83;
-        Mon, 29 Jun 2020 07:22:49 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mm: fix swap cache node allocation mask" failed to apply to 4.4-stable tree
-To:     hughd@google.com, akpm@linux-foundation.org,
-        lists@colorremedies.com, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, vbabka@suse.cz, willy@infradead.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 8464E3067C81;
+        Mon, 29 Jun 2020 07:36:56 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] EDAC/amd64: Read back the scrub rate PCI register on F15h" failed to apply to 4.4-stable tree
+To:     bp@suse.de, pipatron@gmail.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 29 Jun 2020 13:22:38 +0200
-Message-ID: <159342975876129@kroah.com>
+Date:   Mon, 29 Jun 2020 13:36:47 +0200
+Message-ID: <159343060717839@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -71,91 +69,40 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 243bce09c91b0145aeaedd5afba799d81841c030 Mon Sep 17 00:00:00 2001
-From: Hugh Dickins <hughd@google.com>
-Date: Thu, 25 Jun 2020 20:29:59 -0700
-Subject: [PATCH] mm: fix swap cache node allocation mask
+From ee470bb25d0dcdf126f586ec0ae6dca66cb340a4 Mon Sep 17 00:00:00 2001
+From: Borislav Petkov <bp@suse.de>
+Date: Thu, 18 Jun 2020 20:25:25 +0200
+Subject: [PATCH] EDAC/amd64: Read back the scrub rate PCI register on F15h
 
-Chris Murphy reports that a slightly overcommitted load, testing swap
-and zram along with i915, splats and keeps on splatting, when it had
-better fail less noisily:
+Commit:
 
-  gnome-shell: page allocation failure: order:0,
-  mode:0x400d0(__GFP_IO|__GFP_FS|__GFP_COMP|__GFP_RECLAIMABLE),
-  nodemask=(null),cpuset=/,mems_allowed=0
-  CPU: 2 PID: 1155 Comm: gnome-shell Not tainted 5.7.0-1.fc33.x86_64 #1
-  Call Trace:
-    dump_stack+0x64/0x88
-    warn_alloc.cold+0x75/0xd9
-    __alloc_pages_slowpath.constprop.0+0xcfa/0xd30
-    __alloc_pages_nodemask+0x2df/0x320
-    alloc_slab_page+0x195/0x310
-    allocate_slab+0x3c5/0x440
-    ___slab_alloc+0x40c/0x5f0
-    __slab_alloc+0x1c/0x30
-    kmem_cache_alloc+0x20e/0x220
-    xas_nomem+0x28/0x70
-    add_to_swap_cache+0x321/0x400
-    __read_swap_cache_async+0x105/0x240
-    swap_cluster_readahead+0x22c/0x2e0
-    shmem_swapin+0x8e/0xc0
-    shmem_swapin_page+0x196/0x740
-    shmem_getpage_gfp+0x3a2/0xa60
-    shmem_read_mapping_page_gfp+0x32/0x60
-    shmem_get_pages+0x155/0x5e0 [i915]
-    __i915_gem_object_get_pages+0x68/0xa0 [i915]
-    i915_vma_pin+0x3fe/0x6c0 [i915]
-    eb_add_vma+0x10b/0x2c0 [i915]
-    i915_gem_do_execbuffer+0x704/0x3430 [i915]
-    i915_gem_execbuffer2_ioctl+0x1ea/0x3e0 [i915]
-    drm_ioctl_kernel+0x86/0xd0 [drm]
-    drm_ioctl+0x206/0x390 [drm]
-    ksys_ioctl+0x82/0xc0
-    __x64_sys_ioctl+0x16/0x20
-    do_syscall_64+0x5b/0xf0
-    entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  da92110dfdfa ("EDAC, amd64_edac: Extend scrub rate support to F15hM60h")
 
-Reported on 5.7, but it goes back really to 3.1: when
-shmem_read_mapping_page_gfp() was implemented for use by i915, and
-allowed for __GFP_NORETRY and __GFP_NOWARN flags in most places, but
-missed swapin's "& GFP_KERNEL" mask for page tree node allocation in
-__read_swap_cache_async() - that was to mask off HIGHUSER_MOVABLE bits
-from what page cache uses, but GFP_RECLAIM_MASK is now what's needed.
+added support for F15h, model 0x60 CPUs but in doing so, missed to read
+back SCRCTRL PCI config register on F15h CPUs which are *not* model
+0x60. Add that read so that doing
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=208085
-Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2006151330070.11064@eggly.anvils
-Fixes: 68da9f055755 ("tmpfs: pass gfp to shmem_getpage_gfp")
-Signed-off-by: Hugh Dickins <hughd@google.com>
-Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
-Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Reported-by: Chris Murphy <lists@colorremedies.com>
-Analyzed-by: Vlastimil Babka <vbabka@suse.cz>
-Analyzed-by: Matthew Wilcox <willy@infradead.org>
-Tested-by: Chris Murphy <lists@colorremedies.com>
-Cc: <stable@vger.kernel.org>	[3.1+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+  $ cat /sys/devices/system/edac/mc/mc0/sdram_scrub_rate
 
-diff --git a/mm/swap_state.c b/mm/swap_state.c
-index e98ff460e9e9..05889e8e3c97 100644
---- a/mm/swap_state.c
-+++ b/mm/swap_state.c
-@@ -21,7 +21,7 @@
- #include <linux/vmalloc.h>
- #include <linux/swap_slots.h>
- #include <linux/huge_mm.h>
--
-+#include "internal.h"
+can show the previously set DRAM scrub rate.
+
+Fixes: da92110dfdfa ("EDAC, amd64_edac: Extend scrub rate support to F15hM60h")
+Reported-by: Anders Andersson <pipatron@gmail.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: <stable@vger.kernel.org> #v4.4..
+Link: https://lkml.kernel.org/r/CAKkunMbNWppx_i6xSdDHLseA2QQmGJqj_crY=NF-GZML5np4Vw@mail.gmail.com
+
+diff --git a/drivers/edac/amd64_edac.c b/drivers/edac/amd64_edac.c
+index ef90070a9194..6262f6370c5d 100644
+--- a/drivers/edac/amd64_edac.c
++++ b/drivers/edac/amd64_edac.c
+@@ -269,6 +269,8 @@ static int get_scrub_rate(struct mem_ctl_info *mci)
  
- /*
-  * swapper_space is a fiction, retained to simplify the path through
-@@ -429,7 +429,7 @@ struct page *__read_swap_cache_async(swp_entry_t entry, gfp_t gfp_mask,
- 	__SetPageSwapBacked(page);
- 
- 	/* May fail (-ENOMEM) if XArray node allocation failed. */
--	if (add_to_swap_cache(page, entry, gfp_mask & GFP_KERNEL)) {
-+	if (add_to_swap_cache(page, entry, gfp_mask & GFP_RECLAIM_MASK)) {
- 		put_swap_page(page, entry);
- 		goto fail_unlock;
+ 		if (pvt->model == 0x60)
+ 			amd64_read_pci_cfg(pvt->F2, F15H_M60H_SCRCTRL, &scrubval);
++		else
++			amd64_read_pci_cfg(pvt->F3, SCRCTRL, &scrubval);
+ 	} else {
+ 		amd64_read_pci_cfg(pvt->F3, SCRCTRL, &scrubval);
  	}
 
