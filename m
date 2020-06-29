@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3605120DEBE
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:53:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4710720DE84
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:53:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389128AbgF2U2k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:28:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37020 "EHLO mail.kernel.org"
+        id S1733040AbgF2U01 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:26:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732504AbgF2TZX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:25:23 -0400
+        id S1732521AbgF2TZZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:25:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 648A825388;
-        Mon, 29 Jun 2020 15:40:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 767B72530B;
+        Mon, 29 Jun 2020 15:38:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445254;
-        bh=Yi0rkYte0Ul8/AyWWV2kwBrjlTBSzJEKQoFAOQiac0E=;
+        s=default; t=1593445139;
+        bh=SCtbMOcrB/KK3PIIuQGXj7HFYEfXPtOgwcKxCTRLek8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PVPfaNprHtJ8XeovBCvfHF9dvj9dhaLH9o23B91xssKG9uQngJmsYa9JyVF5ku/wF
-         5ywIo6Cmg7flTDANqMXwKslnLIritE2XpyFS9Uo2gYt22TcocnI1azEdnGPPm0RTR3
-         Ekz2JR7+ZCfqw8EuVOQrEJl9Jj7PX7wqagaARlEo=
+        b=OLGZiI1fSK/fT7hbQbIUBbMxrFqPfOfADyhca/kj3OLfFr+roRnCIelKv42mQp6m3
+         uJB6RNOOJrzdDyEZ+bhLMYqL1H8K0pOWFJBvgtiDkVaSUan37bUx7hsy8OdYuQgE5n
+         15axHVRreaLNGDAghjIiSiR+e5qB6PUhSwC77o6k=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dmitry Osipenko <digetx@gmail.com>,
-        David Heidelberg <david@ixit.cz>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+Cc:     Qiushi Wu <wu000273@umn.edu>, Heiko Stuebner <heiko@sntech.de>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 036/191] power: supply: smb347-charger: IRQSTAT_D is volatile
+Subject: [PATCH 4.14 44/78] ASoC: rockchip: Fix a reference count leak.
 Date:   Mon, 29 Jun 2020 11:37:32 -0400
-Message-Id: <20200629154007.2495120-37-sashal@kernel.org>
+Message-Id: <20200629153806.2494953-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
-References: <20200629154007.2495120-1-sashal@kernel.org>
+In-Reply-To: <20200629153806.2494953-1-sashal@kernel.org>
+References: <20200629153806.2494953-1-sashal@kernel.org>
 MIME-Version: 1.0
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.229-rc1.gz
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.186-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.9.y
+X-KernelTest-Branch: linux-4.14.y
 X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.9.229-rc1
-X-KernelTest-Deadline: 2020-07-01T15:39+00:00
+X-KernelTest-Version: 4.14.186-rc1
+X-KernelTest-Deadline: 2020-07-01T15:38+00:00
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -50,36 +49,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Qiushi Wu <wu000273@umn.edu>
 
-[ Upstream commit c32ea07a30630ace950e07ffe7a18bdcc25898e1 ]
+[ Upstream commit f141a422159a199f4c8dedb7e0df55b3b2cf16cd ]
 
-Fix failure when USB cable is connected:
-smb347 2-006a: reading IRQSTAT_D failed
+Calling pm_runtime_get_sync increments the counter even in case of
+failure, causing incorrect ref count if pm_runtime_put is not called in
+error handling paths. Call pm_runtime_put if pm_runtime_get_sync fails.
 
-Fixes: 1502cfe19bac ("smb347-charger: Fix battery status reporting logic for charger faults")
-
-Tested-by: David Heidelberg <david@ixit.cz>
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: David Heidelberg <david@ixit.cz>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Fixes: fc05a5b22253 ("ASoC: rockchip: add support for pdm controller")
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+Reviewed-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://lore.kernel.org/r/20200613205158.27296-1-wu000273@umn.edu
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/smb347-charger.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/rockchip/rockchip_pdm.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/power/supply/smb347-charger.c b/drivers/power/supply/smb347-charger.c
-index 072c5189bd6d1..0655dbdc7000d 100644
---- a/drivers/power/supply/smb347-charger.c
-+++ b/drivers/power/supply/smb347-charger.c
-@@ -1141,6 +1141,7 @@ static bool smb347_volatile_reg(struct device *dev, unsigned int reg)
- 	switch (reg) {
- 	case IRQSTAT_A:
- 	case IRQSTAT_C:
-+	case IRQSTAT_D:
- 	case IRQSTAT_E:
- 	case IRQSTAT_F:
- 	case STAT_A:
+diff --git a/sound/soc/rockchip/rockchip_pdm.c b/sound/soc/rockchip/rockchip_pdm.c
+index 8a2e3bbce3a16..ad16c8310dd38 100644
+--- a/sound/soc/rockchip/rockchip_pdm.c
++++ b/sound/soc/rockchip/rockchip_pdm.c
+@@ -478,8 +478,10 @@ static int rockchip_pdm_resume(struct device *dev)
+ 	int ret;
+ 
+ 	ret = pm_runtime_get_sync(dev);
+-	if (ret < 0)
++	if (ret < 0) {
++		pm_runtime_put(dev);
+ 		return ret;
++	}
+ 
+ 	ret = regcache_sync(pdm->regmap);
+ 
 -- 
 2.25.1
 
