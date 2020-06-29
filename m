@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9835A20E652
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:08:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9023320E807
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:12:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729658AbgF2Vq1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:46:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56796 "EHLO mail.kernel.org"
+        id S2390054AbgF2WCw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 18:02:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726760AbgF2Sft (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:35:49 -0400
+        id S1726226AbgF2SfX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:35:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E7CD5246B5;
-        Mon, 29 Jun 2020 15:20:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C6FCC246AE;
+        Mon, 29 Jun 2020 15:20:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444010;
-        bh=FNpzwp1s02R1GjuXV+0y15viWvqFwwi/HZ1PMgAv9kY=;
+        s=default; t=1593444011;
+        bh=j2PgZ/whi0LQa51s89tNZ3et6wNy7JuSHDp1a9QO73A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I6p6hCOi6sSuJGX/d+wGwc7E8y5I+mBH5JVVAgjerUcrLAFWIAIezYW9nG6PtvgVr
-         wHL1AiuvK2KCdXgmnXPPRxfl3SAyQ3ogziIy7r5/haE5+DAu7k80hV/p+fHqtqJiXi
-         shkS1yVbwQ/PDY+0v3b1dFzAqIW2OJlIkQFkoCSM=
+        b=V7SGgFssjOgpxsr375i0F/0Me5PwsAYUE6AO+NszV2MNtNa7aaG/X4B4bW58uDa0G
+         WPA9045TDOmYTSRe0ihmmq89oqzJJcXsJAIvxKzbX0QZq6NrWM3ZdLmwbOT3XGfmgC
+         MPna5n6BxNHIcDTpZH/gipwj4zBBd7Tec86iasmE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Matthew Hagan <mnhagan88@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+Cc:     Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Nicolin Chen <nicoleotsuka@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 116/265] ARM: dts: NSP: Disable PL330 by default, add dma-coherent property
-Date:   Mon, 29 Jun 2020 11:15:49 -0400
-Message-Id: <20200629151818.2493727-117-sashal@kernel.org>
+Subject: [PATCH 5.7 117/265] ASoC: fsl_ssi: Fix bclk calculation for mono channel
+Date:   Mon, 29 Jun 2020 11:15:50 -0400
+Message-Id: <20200629151818.2493727-118-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -49,160 +50,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Hagan <mnhagan88@gmail.com>
+From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-[ Upstream commit b9dbe0101e344e8339406a11b7a91d4a0c50ad13 ]
+[ Upstream commit ed1220df6e666500ebf58c4f2fccc681941646fb ]
 
-Currently the PL330 is enabled by default. However if left in IDM reset, as is
-the case with the Meraki and Synology NSP devices, the system will hang when
-probing for the PL330's AMBA peripheral ID. We therefore should be able to
-disable it in these cases.
+For mono channel, SSI will switch to Normal mode.
 
-The PL330 is also included among of the list of peripherals put into coherent
-mode, so "dma-coherent" has been added here as well.
+In Normal mode and Network mode, the Word Length Control bits
+control the word length divider in clock generator, which is
+different with I2S Master mode (the word length is fixed to
+32bit), it should be the value of params_width(hw_params).
 
-Fixes: 5fa1026a3e4d ("ARM: dts: NSP: Add PL330 support")
-Signed-off-by: Matthew Hagan <mnhagan88@gmail.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+The condition "slots == 2" is not good for I2S Master mode,
+because for Network mode and Normal mode, the slots can also
+be 2. Then we need to use (ssi->i2s_net & SSI_SCR_I2S_MODE_MASK)
+to check if it is I2S Master mode.
+
+So we refine the formula for mono channel, otherwise there
+will be sound issue for S24_LE.
+
+Fixes: b0a7043d5c2c ("ASoC: fsl_ssi: Caculate bit clock rate using slot number and width")
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Reviewed-by: Nicolin Chen <nicoleotsuka@gmail.com>
+Link: https://lore.kernel.org/r/034eff1435ff6ce300b6c781130cefd9db22ab9a.1592276147.git.shengjiu.wang@nxp.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/bcm-nsp.dtsi     | 4 +++-
- arch/arm/boot/dts/bcm958522er.dts  | 4 ++++
- arch/arm/boot/dts/bcm958525er.dts  | 4 ++++
- arch/arm/boot/dts/bcm958525xmc.dts | 4 ++++
- arch/arm/boot/dts/bcm958622hr.dts  | 4 ++++
- arch/arm/boot/dts/bcm958623hr.dts  | 4 ++++
- arch/arm/boot/dts/bcm958625hr.dts  | 4 ++++
- arch/arm/boot/dts/bcm958625k.dts   | 4 ++++
- 8 files changed, 31 insertions(+), 1 deletion(-)
+ sound/soc/fsl/fsl_ssi.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/boot/dts/bcm-nsp.dtsi b/arch/arm/boot/dts/bcm-nsp.dtsi
-index da6d70f09ef19..920c0f561e5ce 100644
---- a/arch/arm/boot/dts/bcm-nsp.dtsi
-+++ b/arch/arm/boot/dts/bcm-nsp.dtsi
-@@ -200,7 +200,7 @@
- 			status = "disabled";
- 		};
+diff --git a/sound/soc/fsl/fsl_ssi.c b/sound/soc/fsl/fsl_ssi.c
+index bad89b0d129e7..1a2fa7f181423 100644
+--- a/sound/soc/fsl/fsl_ssi.c
++++ b/sound/soc/fsl/fsl_ssi.c
+@@ -678,8 +678,9 @@ static int fsl_ssi_set_bclk(struct snd_pcm_substream *substream,
+ 	struct regmap *regs = ssi->regs;
+ 	u32 pm = 999, div2, psr, stccr, mask, afreq, factor, i;
+ 	unsigned long clkrate, baudrate, tmprate;
+-	unsigned int slots = params_channels(hw_params);
+-	unsigned int slot_width = 32;
++	unsigned int channels = params_channels(hw_params);
++	unsigned int slot_width = params_width(hw_params);
++	unsigned int slots = 2;
+ 	u64 sub, savesub = 100000;
+ 	unsigned int freq;
+ 	bool baudclk_is_used;
+@@ -688,10 +689,14 @@ static int fsl_ssi_set_bclk(struct snd_pcm_substream *substream,
+ 	/* Override slots and slot_width if being specifically set... */
+ 	if (ssi->slots)
+ 		slots = ssi->slots;
+-	/* ...but keep 32 bits if slots is 2 -- I2S Master mode */
+-	if (ssi->slot_width && slots != 2)
++	if (ssi->slot_width)
+ 		slot_width = ssi->slot_width;
  
--		dma@20000 {
-+		dma: dma@20000 {
- 			compatible = "arm,pl330", "arm,primecell";
- 			reg = <0x20000 0x1000>;
- 			interrupts = <GIC_SPI 47 IRQ_TYPE_LEVEL_HIGH>,
-@@ -215,6 +215,8 @@
- 			clocks = <&iprocslow>;
- 			clock-names = "apb_pclk";
- 			#dma-cells = <1>;
-+			dma-coherent;
-+			status = "disabled";
- 		};
- 
- 		sdio: sdhci@21000 {
-diff --git a/arch/arm/boot/dts/bcm958522er.dts b/arch/arm/boot/dts/bcm958522er.dts
-index 8c388eb8a08f8..7be4c4e628e02 100644
---- a/arch/arm/boot/dts/bcm958522er.dts
-+++ b/arch/arm/boot/dts/bcm958522er.dts
-@@ -58,6 +58,10 @@
- 
- /* USB 3 support needed to be complete */
- 
-+&dma {
-+	status = "okay";
-+};
++	/* ...but force 32 bits for stereo audio using I2S Master Mode */
++	if (channels == 2 &&
++	    (ssi->i2s_net & SSI_SCR_I2S_MODE_MASK) == SSI_SCR_I2S_MODE_MASTER)
++		slot_width = 32;
 +
- &amac0 {
- 	status = "okay";
- };
-diff --git a/arch/arm/boot/dts/bcm958525er.dts b/arch/arm/boot/dts/bcm958525er.dts
-index c339771bb22e0..e58ed7e953460 100644
---- a/arch/arm/boot/dts/bcm958525er.dts
-+++ b/arch/arm/boot/dts/bcm958525er.dts
-@@ -58,6 +58,10 @@
+ 	/* Generate bit clock based on the slot number and slot width */
+ 	freq = slots * slot_width * params_rate(hw_params);
  
- /* USB 3 support needed to be complete */
- 
-+&dma {
-+	status = "okay";
-+};
-+
- &amac0 {
- 	status = "okay";
- };
-diff --git a/arch/arm/boot/dts/bcm958525xmc.dts b/arch/arm/boot/dts/bcm958525xmc.dts
-index 1c72ec8288de4..716da62f57885 100644
---- a/arch/arm/boot/dts/bcm958525xmc.dts
-+++ b/arch/arm/boot/dts/bcm958525xmc.dts
-@@ -58,6 +58,10 @@
- 
- /* XHCI support needed to be complete */
- 
-+&dma {
-+	status = "okay";
-+};
-+
- &amac0 {
- 	status = "okay";
- };
-diff --git a/arch/arm/boot/dts/bcm958622hr.dts b/arch/arm/boot/dts/bcm958622hr.dts
-index 96a021cebd97b..a49c2fd21f4a8 100644
---- a/arch/arm/boot/dts/bcm958622hr.dts
-+++ b/arch/arm/boot/dts/bcm958622hr.dts
-@@ -58,6 +58,10 @@
- 
- /* USB 3 and SLIC support needed to be complete */
- 
-+&dma {
-+	status = "okay";
-+};
-+
- &amac0 {
- 	status = "okay";
- };
-diff --git a/arch/arm/boot/dts/bcm958623hr.dts b/arch/arm/boot/dts/bcm958623hr.dts
-index b2c7f21d471e6..dd6dff6452b87 100644
---- a/arch/arm/boot/dts/bcm958623hr.dts
-+++ b/arch/arm/boot/dts/bcm958623hr.dts
-@@ -58,6 +58,10 @@
- 
- /* USB 3 and SLIC support needed to be complete */
- 
-+&dma {
-+	status = "okay";
-+};
-+
- &amac0 {
- 	status = "okay";
- };
-diff --git a/arch/arm/boot/dts/bcm958625hr.dts b/arch/arm/boot/dts/bcm958625hr.dts
-index 536fb24f38bb7..a71371b4065ed 100644
---- a/arch/arm/boot/dts/bcm958625hr.dts
-+++ b/arch/arm/boot/dts/bcm958625hr.dts
-@@ -69,6 +69,10 @@
- 	status = "okay";
- };
- 
-+&dma {
-+	status = "okay";
-+};
-+
- &amac0 {
- 	status = "okay";
- };
-diff --git a/arch/arm/boot/dts/bcm958625k.dts b/arch/arm/boot/dts/bcm958625k.dts
-index 3fcca12d83c2d..7b84b54436edd 100644
---- a/arch/arm/boot/dts/bcm958625k.dts
-+++ b/arch/arm/boot/dts/bcm958625k.dts
-@@ -48,6 +48,10 @@
- 	};
- };
- 
-+&dma {
-+	status = "okay";
-+};
-+
- &amac0 {
- 	status = "okay";
- };
 -- 
 2.25.1
 
