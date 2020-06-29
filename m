@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55DF620E6F1
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:10:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 149F120E6B4
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:09:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731655AbgF2VwS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:52:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56796 "EHLO mail.kernel.org"
+        id S2404380AbgF2Vt4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:49:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726110AbgF2Sfj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:35:39 -0400
+        id S1726693AbgF2Sfl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:35:41 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA730246C3;
-        Mon, 29 Jun 2020 15:20:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 834A121883;
+        Mon, 29 Jun 2020 15:20:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444015;
-        bh=IPjqOOWZ9Sfj5zluR+FvX6Y/lbIVzybNA36IqjFDWSI=;
+        s=default; t=1593444016;
+        bh=i8qZhbIvdS30tcZvAuSwD6f39kDveI1mWIy+nCpRyL4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hJdsom3totfyQtHlOZHJeN1kyRQ393ObY3h5+WOFV0D8jElHpkWOV9N9l+wWCr505
-         St6EJ6hXr/pqBIhfDf+ZdMfToh0tACcUtuipahtSMeVXSSxk/THN+ff4rUbwHv5GdH
-         Ax+DYzj28rykqQwRryjU18js+BXEwwt1hG8gTrVk=
+        b=BUNvxRsQ2UYr8TVvMKi1H4Jlcu7P01JAZN4sP8zu9bPMdJ8nNWs3ny9eQQUlZlmDs
+         rzeP/3vYUwP1mBUcXBvw+w8U+5BdE1h1lhpx8BvWJLs9xQrQBXzyo7vNmb6/aJ0DU8
+         3wMdO1HEv6WQ5LtVXZcSdpwqXAc+oFAdoNm7ONKk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tony Lindgren <tony@atomide.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 121/265] ARM: dts: Fix duovero smsc interrupt for suspend
-Date:   Mon, 29 Jun 2020 11:15:54 -0400
-Message-Id: <20200629151818.2493727-122-sashal@kernel.org>
+Cc:     David Rientjes <rientjes@google.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 122/265] dma-direct: re-encrypt memory if dma_direct_alloc_pages() fails
+Date:   Mon, 29 Jun 2020 11:15:55 -0400
+Message-Id: <20200629151818.2493727-123-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -47,38 +48,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: David Rientjes <rientjes@google.com>
 
-[ Upstream commit 9cf28e41f9f768791f54ee18333239fda6927ed8 ]
+[ Upstream commit 96a539fa3bb71f443ae08e57b9f63d6e5bb2207c ]
 
-While testing the recent suspend and resume regressions I noticed that
-duovero can still end up losing edge gpio interrupts on runtime
-suspend. This causes NFSroot easily stopping working after resume on
-duovero.
+If arch_dma_set_uncached() fails after memory has been decrypted, it needs
+to be re-encrypted before freeing.
 
-Let's fix the issue by using gpio level interrupts for smsc as then
-the gpio interrupt state is seen by the gpio controller on resume.
-
-Fixes: 731b409878a3 ("ARM: dts: Configure duovero for to allow core retention during idle")
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Fixes: fa7e2247c572 ("dma-direct: make uncached_kernel_address more general")
+Signed-off-by: David Rientjes <rientjes@google.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/omap4-duovero-parlor.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/dma/direct.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/omap4-duovero-parlor.dts b/arch/arm/boot/dts/omap4-duovero-parlor.dts
-index 8047e8cdb3af0..4548d87534e37 100644
---- a/arch/arm/boot/dts/omap4-duovero-parlor.dts
-+++ b/arch/arm/boot/dts/omap4-duovero-parlor.dts
-@@ -139,7 +139,7 @@
- 	ethernet@gpmc {
- 		reg = <5 0 0xff>;
- 		interrupt-parent = <&gpio2>;
--		interrupts = <12 IRQ_TYPE_EDGE_FALLING>;	/* gpio_44 */
-+		interrupts = <12 IRQ_TYPE_LEVEL_LOW>;		/* gpio_44 */
- 
- 		phy-mode = "mii";
- 
+diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
+index 8f4bbdaf965eb..4e789c46ff0bf 100644
+--- a/kernel/dma/direct.c
++++ b/kernel/dma/direct.c
+@@ -186,7 +186,7 @@ void *dma_direct_alloc_pages(struct device *dev, size_t size,
+ 		arch_dma_prep_coherent(page, size);
+ 		ret = arch_dma_set_uncached(ret, size);
+ 		if (IS_ERR(ret))
+-			goto out_free_pages;
++			goto out_encrypt_pages;
+ 	}
+ done:
+ 	if (force_dma_unencrypted(dev))
+@@ -194,6 +194,11 @@ done:
+ 	else
+ 		*dma_handle = phys_to_dma(dev, page_to_phys(page));
+ 	return ret;
++
++out_encrypt_pages:
++	if (force_dma_unencrypted(dev))
++		set_memory_encrypted((unsigned long)page_address(page),
++				     1 << get_order(size));
+ out_free_pages:
+ 	dma_free_contiguous(dev, page, size);
+ 	return NULL;
 -- 
 2.25.1
 
