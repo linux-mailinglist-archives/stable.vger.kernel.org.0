@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1745B20D3D9
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 21:13:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10F9C20D394
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 21:12:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730382AbgF2TCi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:02:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45480 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730344AbgF2TAU (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730345AbgF2TAU (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 29 Jun 2020 15:00:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45436 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730309AbgF2TAS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:00:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B8DD7254FE;
-        Mon, 29 Jun 2020 15:54:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE8D1254FF;
+        Mon, 29 Jun 2020 15:54:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593446058;
-        bh=lxxQnrSMlr+97kH0qKxyqvhMkplbf2d/pEWokw3G1Go=;
+        s=default; t=1593446060;
+        bh=7UZGFVIq3dV1dcHto4syuA8n3NxWKtVATlv2TOdA1Cc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kw+a2qTqpdNQe+5kwqc63kVw9Fa8K5O2dlzMHlMEiQZQ2UlZTg/zVKQ3sZrnnI6hi
-         i29vc0wer8zfW1LTDuJgjl+z2vIlvlnq5W6GZ16A9RDYpY9l56bZ4f4warR5WCpip3
-         s3DZ6Qeidh4fwUxPaL15hQakH3INa67zMXIme2lE=
+        b=LCgo9R8oDuusGufw+ARk8CDlbPlo8eaxqLKD/WzERxzRu34D/i8LDBVGe7nQ5Mo7v
+         ZzTgHMCRmjD4RgTMK58BKrREJjCOf1h1Vpleyy2tBzPUhVGJ7rHep2tdKN3qLGvn6B
+         pYUc39T8ZjrYUMUGU6tjybNZ3idBvrrTVk1+v9b0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhiqiang Liu <liuzhiqiang26@huawei.com>, Coly Li <colyli@suse.de>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 058/135] bcache: fix potential deadlock problem in btree_gc_coalesce
-Date:   Mon, 29 Jun 2020 11:51:52 -0400
-Message-Id: <20200629155309.2495516-59-sashal@kernel.org>
+Cc:     Jason Yan <yanaijie@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Sedat Dilek <sedat.dilek@gmail.com>, Jan Kara <jack@suse.cz>,
+        Christoph Hellwig <hch@lst.de>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Jens Axboe <axboe@kernel.dk>, Ming Lei <ming.lei@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 059/135] block: Fix use-after-free in blkdev_get()
+Date:   Mon, 29 Jun 2020 11:51:53 -0400
+Message-Id: <20200629155309.2495516-60-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
 References: <20200629155309.2495516-1-sashal@kernel.org>
@@ -48,94 +52,197 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhiqiang Liu <liuzhiqiang26@huawei.com>
+From: Jason Yan <yanaijie@huawei.com>
 
-[ Upstream commit be23e837333a914df3f24bf0b32e87b0331ab8d1 ]
+[ Upstream commit 2d3a8e2deddea6c89961c422ec0c5b851e648c14 ]
 
-coccicheck reports:
-  drivers/md//bcache/btree.c:1538:1-7: preceding lock on line 1417
+In blkdev_get() we call __blkdev_get() to do some internal jobs and if
+there is some errors in __blkdev_get(), the bdput() is called which
+means we have released the refcount of the bdev (actually the refcount of
+the bdev inode). This means we cannot access bdev after that point. But
+acctually bdev is still accessed in blkdev_get() after calling
+__blkdev_get(). This results in use-after-free if the refcount is the
+last one we released in __blkdev_get(). Let's take a look at the
+following scenerio:
 
-In btree_gc_coalesce func, if the coalescing process fails, we will goto
-to out_nocoalesce tag directly without releasing new_nodes[i]->write_lock.
-Then, it will cause a deadlock when trying to acquire new_nodes[i]->
-write_lock for freeing new_nodes[i] before return.
+  CPU0            CPU1                    CPU2
+blkdev_open     blkdev_open           Remove disk
+                  bd_acquire
+		  blkdev_get
+		    __blkdev_get      del_gendisk
+					bdev_unhash_inode
+  bd_acquire          bdev_get_gendisk
+    bd_forget           failed because of unhashed
+	  bdput
+	              bdput (the last one)
+		        bdev_evict_inode
 
-btree_gc_coalesce func details as follows:
-	if alloc new_nodes[i] fails:
-		goto out_nocoalesce;
-	// obtain new_nodes[i]->write_lock
-	mutex_lock(&new_nodes[i]->write_lock)
-	// main coalescing process
-	for (i = nodes - 1; i > 0; --i)
-		[snipped]
-		if coalescing process fails:
-			// Here, directly goto out_nocoalesce
-			 // tag will cause a deadlock
-			goto out_nocoalesce;
-		[snipped]
-	// release new_nodes[i]->write_lock
-	mutex_unlock(&new_nodes[i]->write_lock)
-	// coalesing succ, return
-	return;
-out_nocoalesce:
-	btree_node_free(new_nodes[i])	// free new_nodes[i]
-	// obtain new_nodes[i]->write_lock
-	mutex_lock(&new_nodes[i]->write_lock);
-	// set flag for reuse
-	clear_bit(BTREE_NODE_dirty, &ew_nodes[i]->flags);
-	// release new_nodes[i]->write_lock
-	mutex_unlock(&new_nodes[i]->write_lock);
+	  	    access bdev => use after free
 
-To fix the problem, we add a new tag 'out_unlock_nocoalesce' for
-releasing new_nodes[i]->write_lock before out_nocoalesce tag. If
-coalescing process fails, we will go to out_unlock_nocoalesce tag
-for releasing new_nodes[i]->write_lock before free new_nodes[i] in
-out_nocoalesce tag.
+[  459.350216] BUG: KASAN: use-after-free in __lock_acquire+0x24c1/0x31b0
+[  459.351190] Read of size 8 at addr ffff88806c815a80 by task syz-executor.0/20132
+[  459.352347]
+[  459.352594] CPU: 0 PID: 20132 Comm: syz-executor.0 Not tainted 4.19.90 #2
+[  459.353628] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
+[  459.354947] Call Trace:
+[  459.355337]  dump_stack+0x111/0x19e
+[  459.355879]  ? __lock_acquire+0x24c1/0x31b0
+[  459.356523]  print_address_description+0x60/0x223
+[  459.357248]  ? __lock_acquire+0x24c1/0x31b0
+[  459.357887]  kasan_report.cold+0xae/0x2d8
+[  459.358503]  __lock_acquire+0x24c1/0x31b0
+[  459.359120]  ? _raw_spin_unlock_irq+0x24/0x40
+[  459.359784]  ? lockdep_hardirqs_on+0x37b/0x580
+[  459.360465]  ? _raw_spin_unlock_irq+0x24/0x40
+[  459.361123]  ? finish_task_switch+0x125/0x600
+[  459.361812]  ? finish_task_switch+0xee/0x600
+[  459.362471]  ? mark_held_locks+0xf0/0xf0
+[  459.363108]  ? __schedule+0x96f/0x21d0
+[  459.363716]  lock_acquire+0x111/0x320
+[  459.364285]  ? blkdev_get+0xce/0xbe0
+[  459.364846]  ? blkdev_get+0xce/0xbe0
+[  459.365390]  __mutex_lock+0xf9/0x12a0
+[  459.365948]  ? blkdev_get+0xce/0xbe0
+[  459.366493]  ? bdev_evict_inode+0x1f0/0x1f0
+[  459.367130]  ? blkdev_get+0xce/0xbe0
+[  459.367678]  ? destroy_inode+0xbc/0x110
+[  459.368261]  ? mutex_trylock+0x1a0/0x1a0
+[  459.368867]  ? __blkdev_get+0x3e6/0x1280
+[  459.369463]  ? bdev_disk_changed+0x1d0/0x1d0
+[  459.370114]  ? blkdev_get+0xce/0xbe0
+[  459.370656]  blkdev_get+0xce/0xbe0
+[  459.371178]  ? find_held_lock+0x2c/0x110
+[  459.371774]  ? __blkdev_get+0x1280/0x1280
+[  459.372383]  ? lock_downgrade+0x680/0x680
+[  459.373002]  ? lock_acquire+0x111/0x320
+[  459.373587]  ? bd_acquire+0x21/0x2c0
+[  459.374134]  ? do_raw_spin_unlock+0x4f/0x250
+[  459.374780]  blkdev_open+0x202/0x290
+[  459.375325]  do_dentry_open+0x49e/0x1050
+[  459.375924]  ? blkdev_get_by_dev+0x70/0x70
+[  459.376543]  ? __x64_sys_fchdir+0x1f0/0x1f0
+[  459.377192]  ? inode_permission+0xbe/0x3a0
+[  459.377818]  path_openat+0x148c/0x3f50
+[  459.378392]  ? kmem_cache_alloc+0xd5/0x280
+[  459.379016]  ? entry_SYSCALL_64_after_hwframe+0x49/0xbe
+[  459.379802]  ? path_lookupat.isra.0+0x900/0x900
+[  459.380489]  ? __lock_is_held+0xad/0x140
+[  459.381093]  do_filp_open+0x1a1/0x280
+[  459.381654]  ? may_open_dev+0xf0/0xf0
+[  459.382214]  ? find_held_lock+0x2c/0x110
+[  459.382816]  ? lock_downgrade+0x680/0x680
+[  459.383425]  ? __lock_is_held+0xad/0x140
+[  459.384024]  ? do_raw_spin_unlock+0x4f/0x250
+[  459.384668]  ? _raw_spin_unlock+0x1f/0x30
+[  459.385280]  ? __alloc_fd+0x448/0x560
+[  459.385841]  do_sys_open+0x3c3/0x500
+[  459.386386]  ? filp_open+0x70/0x70
+[  459.386911]  ? trace_hardirqs_on_thunk+0x1a/0x1c
+[  459.387610]  ? trace_hardirqs_off_caller+0x55/0x1c0
+[  459.388342]  ? do_syscall_64+0x1a/0x520
+[  459.388930]  do_syscall_64+0xc3/0x520
+[  459.389490]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+[  459.390248] RIP: 0033:0x416211
+[  459.390720] Code: 75 14 b8 02 00 00 00 0f 05 48 3d 01 f0 ff ff 0f 83
+04 19 00 00 c3 48 83 ec 08 e8 0a fa ff ff 48 89 04 24 b8 02 00 00 00 0f
+   05 <48> 8b 3c 24 48 89 c2 e8 53 fa ff ff 48 89 d0 48 83 c4 08 48 3d
+      01
+[  459.393483] RSP: 002b:00007fe45dfe9a60 EFLAGS: 00000293 ORIG_RAX: 0000000000000002
+[  459.394610] RAX: ffffffffffffffda RBX: 00007fe45dfea6d4 RCX: 0000000000416211
+[  459.395678] RDX: 00007fe45dfe9b0a RSI: 0000000000000002 RDI: 00007fe45dfe9b00
+[  459.396758] RBP: 000000000076bf20 R08: 0000000000000000 R09: 000000000000000a
+[  459.397930] R10: 0000000000000075 R11: 0000000000000293 R12: 00000000ffffffff
+[  459.399022] R13: 0000000000000bd9 R14: 00000000004cdb80 R15: 000000000076bf2c
+[  459.400168]
+[  459.400430] Allocated by task 20132:
+[  459.401038]  kasan_kmalloc+0xbf/0xe0
+[  459.401652]  kmem_cache_alloc+0xd5/0x280
+[  459.402330]  bdev_alloc_inode+0x18/0x40
+[  459.402970]  alloc_inode+0x5f/0x180
+[  459.403510]  iget5_locked+0x57/0xd0
+[  459.404095]  bdget+0x94/0x4e0
+[  459.404607]  bd_acquire+0xfa/0x2c0
+[  459.405113]  blkdev_open+0x110/0x290
+[  459.405702]  do_dentry_open+0x49e/0x1050
+[  459.406340]  path_openat+0x148c/0x3f50
+[  459.406926]  do_filp_open+0x1a1/0x280
+[  459.407471]  do_sys_open+0x3c3/0x500
+[  459.408010]  do_syscall_64+0xc3/0x520
+[  459.408572]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+[  459.409415]
+[  459.409679] Freed by task 1262:
+[  459.410212]  __kasan_slab_free+0x129/0x170
+[  459.410919]  kmem_cache_free+0xb2/0x2a0
+[  459.411564]  rcu_process_callbacks+0xbb2/0x2320
+[  459.412318]  __do_softirq+0x225/0x8ac
 
-(Coly Li helps to clean up commit log format.)
+Fix this by delaying bdput() to the end of blkdev_get() which means we
+have finished accessing bdev.
 
-Fixes: 2a285686c109816 ("bcache: btree locking rework")
-Signed-off-by: Zhiqiang Liu <liuzhiqiang26@huawei.com>
-Signed-off-by: Coly Li <colyli@suse.de>
+Fixes: 77ea887e433a ("implement in-kernel gendisk events handling")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Jason Yan <yanaijie@huawei.com>
+Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Ming Lei <ming.lei@redhat.com>
+Cc: Jan Kara <jack@suse.cz>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/bcache/btree.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ fs/block_dev.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/md/bcache/btree.c b/drivers/md/bcache/btree.c
-index 5c93582c71cc6..634e9284b7bee 100644
---- a/drivers/md/bcache/btree.c
-+++ b/drivers/md/bcache/btree.c
-@@ -1375,7 +1375,7 @@ static int btree_gc_coalesce(struct btree *b, struct btree_op *op,
- 			if (__set_blocks(n1, n1->keys + n2->keys,
- 					 block_bytes(b->c)) >
- 			    btree_blocks(new_nodes[i]))
--				goto out_nocoalesce;
-+				goto out_unlock_nocoalesce;
+diff --git a/fs/block_dev.c b/fs/block_dev.c
+index 26bbaaefdff48..b2ebfd96785b7 100644
+--- a/fs/block_dev.c
++++ b/fs/block_dev.c
+@@ -1181,10 +1181,8 @@ static int __blkdev_get(struct block_device *bdev, fmode_t mode, int for_part)
+ 	 */
+ 	if (!for_part) {
+ 		ret = devcgroup_inode_permission(bdev->bd_inode, perm);
+-		if (ret != 0) {
+-			bdput(bdev);
++		if (ret != 0)
+ 			return ret;
+-		}
+ 	}
  
- 			keys = n2->keys;
- 			/* Take the key of the node we're getting rid of */
-@@ -1404,7 +1404,7 @@ static int btree_gc_coalesce(struct btree *b, struct btree_op *op,
+  restart:
+@@ -1253,8 +1251,10 @@ static int __blkdev_get(struct block_device *bdev, fmode_t mode, int for_part)
+ 				goto out_clear;
+ 			BUG_ON(for_part);
+ 			ret = __blkdev_get(whole, mode, 1);
+-			if (ret)
++			if (ret) {
++				bdput(whole);
+ 				goto out_clear;
++			}
+ 			bdev->bd_contains = whole;
+ 			bdev->bd_part = disk_get_part(disk, partno);
+ 			if (!(disk->flags & GENHD_FL_UP) ||
+@@ -1311,7 +1311,6 @@ static int __blkdev_get(struct block_device *bdev, fmode_t mode, int for_part)
+ 	put_disk(disk);
+ 	module_put(owner);
+  out:
+-	bdput(bdev);
  
- 		if (__bch_keylist_realloc(&keylist,
- 					  bkey_u64s(&new_nodes[i]->key)))
--			goto out_nocoalesce;
-+			goto out_unlock_nocoalesce;
+ 	return ret;
+ }
+@@ -1397,6 +1396,9 @@ int blkdev_get(struct block_device *bdev, fmode_t mode, void *holder)
+ 		bdput(whole);
+ 	}
  
- 		bch_btree_node_write(new_nodes[i], &cl);
- 		bch_keylist_add(&keylist, &new_nodes[i]->key);
-@@ -1450,6 +1450,10 @@ static int btree_gc_coalesce(struct btree *b, struct btree_op *op,
- 	/* Invalidated our iterator */
- 	return -EINTR;
- 
-+out_unlock_nocoalesce:
-+	for (i = 0; i < nodes; i++)
-+		mutex_unlock(&new_nodes[i]->write_lock);
++	if (res)
++		bdput(bdev);
 +
- out_nocoalesce:
- 	closure_sync(&cl);
- 	bch_keylist_free(&keylist);
+ 	return res;
+ }
+ EXPORT_SYMBOL(blkdev_get);
 -- 
 2.25.1
 
