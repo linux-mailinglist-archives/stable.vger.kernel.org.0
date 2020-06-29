@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02C6420D96B
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:11:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93BAA20D940
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:11:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388130AbgF2TrW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:47:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47652 "EHLO mail.kernel.org"
+        id S2387970AbgF2Tpr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:45:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387786AbgF2Tkj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:39 -0400
+        id S2387818AbgF2Tko (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 81A07248BA;
-        Mon, 29 Jun 2020 15:26:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A633A248BD;
+        Mon, 29 Jun 2020 15:26:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444413;
-        bh=HBXY920oo0pacrv3V9t54CQyy7bpNG+4WV0uWzGTL84=;
+        s=default; t=1593444414;
+        bh=LoVIHkXo/f1i0Yzxzmm7UVOq2WlhqMhxCMJ6m/utMNQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NIOsk5RPNmZH++/GnW9j9Ma9aEXOarIGPsuSV7Pihhtl+/7dH5yXIl4atkcArqfjO
-         L8Ys0rq6YWH/3u5iFSiFlW31ZeoQi4uVecylkQ3HR4lQzWUihSQlsY3Sip1jCQTGg2
-         RGB98aCPJ6ScuQ3ybJcwmtg1Oo58Un1l6xgROe50=
+        b=VVkvXmZWoyWkgscTqTBXFQj+4FrMi36+I3APp0gGB087iTxNd34sMBAdUvjoQ4HW0
+         X+ZPgkeMMHpMymDKjnZEe/sAb6IStVq4WpZLsIxTl4QdB3nD4vSau6eCvZqRBI4lJg
+         way+Shiy9Q2IQ4beGTJ+HIOlE36DXFY0zfuP7LjY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lu Baolu <baolu.lu@linux.intel.com>,
-        Ashok Raj <ashok.raj@intel.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Jacob Pan <jacob.jun.pan@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 091/178] iommu/vt-d: Update scalable mode paging structure coherency
-Date:   Mon, 29 Jun 2020 11:23:56 -0400
-Message-Id: <20200629152523.2494198-92-sashal@kernel.org>
+Cc:     Alexander Lobakin <alobakin@marvell.com>,
+        Igor Russkikh <irusskikh@marvell.com>,
+        Michal Kalderon <michal.kalderon@marvell.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 092/178] net: qed: fix left elements count calculation
+Date:   Mon, 29 Jun 2020 11:23:57 -0400
+Message-Id: <20200629152523.2494198-93-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -51,74 +51,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lu Baolu <baolu.lu@linux.intel.com>
+From: Alexander Lobakin <alobakin@marvell.com>
 
-[ Upstream commit 04c00956ee3cd138fd38560a91452a804a8c5550 ]
+[ Upstream commit 97dd1abd026ae4e6a82fa68645928404ad483409 ]
 
-The Scalable-mode Page-walk Coherency (SMPWC) field in the VT-d extended
-capability register indicates the hardware coherency behavior on paging
-structures accessed through the pasid table entry. This is ignored in
-current code and using ECAP.C instead which is only valid in legacy mode.
-Fix this so that paging structure updates could be manually flushed from
-the cache line if hardware page walking is not snooped.
+qed_chain_get_element_left{,_u32} returned 0 when the difference
+between producer and consumer page count was equal to the total
+page count.
+Fix this by conditional expanding of producer value (vs
+unconditional). This allowed to eliminate normalizaton against
+total page count, which was the cause of this bug.
 
-Fixes: 765b6a98c1de3 ("iommu/vt-d: Enumerate the scalable mode capability")
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Cc: Ashok Raj <ashok.raj@intel.com>
-Cc: Kevin Tian <kevin.tian@intel.com>
-Cc: Jacob Pan <jacob.jun.pan@linux.intel.com>
-Link: https://lore.kernel.org/r/20200622231345.29722-6-baolu.lu@linux.intel.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Misc: replace open-coded constants with common defines.
+
+Fixes: a91eb52abb50 ("qed: Revisit chain implementation")
+Signed-off-by: Alexander Lobakin <alobakin@marvell.com>
+Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
+Signed-off-by: Michal Kalderon <michal.kalderon@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel-iommu.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ include/linux/qed/qed_chain.h | 26 ++++++++++++++++----------
+ 1 file changed, 16 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
-index 773ac2b0d6068..6366b5fbb3a46 100644
---- a/drivers/iommu/intel-iommu.c
-+++ b/drivers/iommu/intel-iommu.c
-@@ -611,6 +611,12 @@ struct intel_iommu *domain_get_iommu(struct dmar_domain *domain)
- 	return g_iommus[iommu_id];
+diff --git a/include/linux/qed/qed_chain.h b/include/linux/qed/qed_chain.h
+index 733fad7dfbed9..6d15040c642cb 100644
+--- a/include/linux/qed/qed_chain.h
++++ b/include/linux/qed/qed_chain.h
+@@ -207,28 +207,34 @@ static inline u32 qed_chain_get_cons_idx_u32(struct qed_chain *p_chain)
+ 
+ static inline u16 qed_chain_get_elem_left(struct qed_chain *p_chain)
+ {
++	u16 elem_per_page = p_chain->elem_per_page;
++	u32 prod = p_chain->u.chain16.prod_idx;
++	u32 cons = p_chain->u.chain16.cons_idx;
+ 	u16 used;
+ 
+-	used = (u16) (((u32)0x10000 +
+-		       (u32)p_chain->u.chain16.prod_idx) -
+-		      (u32)p_chain->u.chain16.cons_idx);
++	if (prod < cons)
++		prod += (u32)U16_MAX + 1;
++
++	used = (u16)(prod - cons);
+ 	if (p_chain->mode == QED_CHAIN_MODE_NEXT_PTR)
+-		used -= p_chain->u.chain16.prod_idx / p_chain->elem_per_page -
+-		    p_chain->u.chain16.cons_idx / p_chain->elem_per_page;
++		used -= prod / elem_per_page - cons / elem_per_page;
+ 
+ 	return (u16)(p_chain->capacity - used);
  }
  
-+static inline bool iommu_paging_structure_coherency(struct intel_iommu *iommu)
-+{
-+	return sm_supported(iommu) ?
-+			ecap_smpwc(iommu->ecap) : ecap_coherent(iommu->ecap);
-+}
-+
- static void domain_update_iommu_coherency(struct dmar_domain *domain)
+ static inline u32 qed_chain_get_elem_left_u32(struct qed_chain *p_chain)
  {
- 	struct dmar_drhd_unit *drhd;
-@@ -622,7 +628,7 @@ static void domain_update_iommu_coherency(struct dmar_domain *domain)
++	u16 elem_per_page = p_chain->elem_per_page;
++	u64 prod = p_chain->u.chain32.prod_idx;
++	u64 cons = p_chain->u.chain32.cons_idx;
+ 	u32 used;
  
- 	for_each_domain_iommu(i, domain) {
- 		found = true;
--		if (!ecap_coherent(g_iommus[i]->ecap)) {
-+		if (!iommu_paging_structure_coherency(g_iommus[i])) {
- 			domain->iommu_coherency = 0;
- 			break;
- 		}
-@@ -633,7 +639,7 @@ static void domain_update_iommu_coherency(struct dmar_domain *domain)
- 	/* No hardware attached; use lowest common denominator */
- 	rcu_read_lock();
- 	for_each_active_iommu(iommu, drhd) {
--		if (!ecap_coherent(iommu->ecap)) {
-+		if (!iommu_paging_structure_coherency(iommu)) {
- 			domain->iommu_coherency = 0;
- 			break;
- 		}
-@@ -2090,7 +2096,8 @@ static int domain_context_mapping_one(struct dmar_domain *domain,
+-	used = (u32) (((u64)0x100000000ULL +
+-		       (u64)p_chain->u.chain32.prod_idx) -
+-		      (u64)p_chain->u.chain32.cons_idx);
++	if (prod < cons)
++		prod += (u64)U32_MAX + 1;
++
++	used = (u32)(prod - cons);
+ 	if (p_chain->mode == QED_CHAIN_MODE_NEXT_PTR)
+-		used -= p_chain->u.chain32.prod_idx / p_chain->elem_per_page -
+-		    p_chain->u.chain32.cons_idx / p_chain->elem_per_page;
++		used -= (u32)(prod / elem_per_page - cons / elem_per_page);
  
- 	context_set_fault_enable(context);
- 	context_set_present(context);
--	domain_flush_cache(domain, context, sizeof(*context));
-+	if (!ecap_coherent(iommu->ecap))
-+		clflush_cache_range(context, sizeof(*context));
- 
- 	/*
- 	 * It's a non-present to present mapping. If hardware doesn't cache
+ 	return p_chain->capacity - used;
+ }
 -- 
 2.25.1
 
