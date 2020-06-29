@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 286F520D828
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:08:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 076B520DC66
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:17:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732718AbgF2Tgo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:36:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40608 "EHLO mail.kernel.org"
+        id S1728030AbgF2UOu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:14:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732976AbgF2Tae (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:30:34 -0400
+        id S1732831AbgF2TaS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:30:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E2904251ED;
-        Mon, 29 Jun 2020 15:35:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C662E251EE;
+        Mon, 29 Jun 2020 15:35:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444910;
-        bh=wnWbHIeC0vNL682tRqjN0VBlCI1lxlSjMrK/S1A0UNg=;
+        s=default; t=1593444911;
+        bh=N8Kw4vgdWvrmLWML7P5AQDoKHbBDhEK38kF08BLH4Gc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fPXAEd2LZFvjElUNoHEZ7s9ry/wVQu6uoRbIWowMWrJ3feIcwrr1eeuMCqXMQCey5
-         bKuc/62lY1uOq1inomrxMoFvWoyWegOSnCCpbGkZ2GmchkB69vfuV9YmteANolQsTl
-         67eNEMYbUwV/swPE40BV/oYcPSSkrJMI3U2ibZY8=
+        b=jZLd6sgf7bEItZ76KoZsHn3uLTbfg56m9AbeyzhLvVrpdjqRnwoXb5Fcitz5am01Q
+         pMdOKboKboBX5pYFeqYnohbTibUgmRHZWJXCUVxX6RqDmLo+1SRUXrXft11fQSNh00
+         z/2OW0GhEOXZEzRfMcFu7utJjpMKyFJjfGdQdKrw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Valentin Longchamp <valentin@longchamp.me>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     Yazen Ghannam <yazen.ghannam@amd.com>,
+        Borislav Petkov <bp@suse.de>,
+        Kim Phillips <kim.phillips@amd.com>,
+        James Morse <james.morse@arm.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        linux-edac <linux-edac@vger.kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 006/131] net: sched: export __netdev_watchdog_up()
-Date:   Mon, 29 Jun 2020 11:32:57 -0400
-Message-Id: <20200629153502.2494656-7-sashal@kernel.org>
+Subject: [PATCH 4.19 007/131] EDAC/amd64: Add Family 17h Model 30h PCI IDs
+Date:   Mon, 29 Jun 2020 11:32:58 -0400
+Message-Id: <20200629153502.2494656-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629153502.2494656-1-sashal@kernel.org>
 References: <20200629153502.2494656-1-sashal@kernel.org>
@@ -49,40 +53,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentin Longchamp <valentin@longchamp.me>
+From: Yazen Ghannam <yazen.ghannam@amd.com>
 
-[ Upstream commit 1a3db27ad9a72d033235b9673653962c02e3486e ]
+[ Upstream commit 6e846239e5487cbb89ac8192d5f11437d010130e ]
 
-Since the quiesce/activate rework, __netdev_watchdog_up() is directly
-called in the ucc_geth driver.
+Add the new Family 17h Model 30h PCI IDs to the AMD64 EDAC module.
 
-Unfortunately, this function is not available for modules and thus
-ucc_geth cannot be built as a module anymore. Fix it by exporting
-__netdev_watchdog_up().
+This also fixes a probe failure that appeared when some other PCI IDs
+for Family 17h Model 30h were added to the AMD NB code.
 
-Since the commit introducing the regression was backported to stable
-branches, this one should ideally be as well.
-
-Fixes: 79dde73cf9bc ("net/ethernet/freescale: rework quiesce/activate for ucc_geth")
-Signed-off-by: Valentin Longchamp <valentin@longchamp.me>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: be3518a16ef2 (x86/amd_nb: Add PCI device IDs for family 17h, model 30h)
+Signed-off-by: Yazen Ghannam <yazen.ghannam@amd.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Tested-by: Kim Phillips <kim.phillips@amd.com>
+Cc: James Morse <james.morse@arm.com>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: linux-edac <linux-edac@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20190228153558.127292-1-Yazen.Ghannam@amd.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_generic.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/edac/amd64_edac.c | 13 +++++++++++++
+ drivers/edac/amd64_edac.h |  3 +++
+ 2 files changed, 16 insertions(+)
 
-diff --git a/net/sched/sch_generic.c b/net/sched/sch_generic.c
-index 8a4d01e427a22..119e20cad662b 100644
---- a/net/sched/sch_generic.c
-+++ b/net/sched/sch_generic.c
-@@ -487,6 +487,7 @@ void __netdev_watchdog_up(struct net_device *dev)
- 			dev_hold(dev);
- 	}
- }
-+EXPORT_SYMBOL_GPL(__netdev_watchdog_up);
+diff --git a/drivers/edac/amd64_edac.c b/drivers/edac/amd64_edac.c
+index 05d6f9c86ac38..268ada29cd987 100644
+--- a/drivers/edac/amd64_edac.c
++++ b/drivers/edac/amd64_edac.c
+@@ -2209,6 +2209,15 @@ static struct amd64_family_type family_types[] = {
+ 			.dbam_to_cs		= f17_base_addr_to_cs_size,
+ 		}
+ 	},
++	[F17_M30H_CPUS] = {
++		.ctl_name = "F17h_M30h",
++		.f0_id = PCI_DEVICE_ID_AMD_17H_M30H_DF_F0,
++		.f6_id = PCI_DEVICE_ID_AMD_17H_M30H_DF_F6,
++		.ops = {
++			.early_channel_count	= f17_early_channel_count,
++			.dbam_to_cs		= f17_base_addr_to_cs_size,
++		}
++	},
+ };
  
- static void dev_watchdog_up(struct net_device *dev)
- {
+ /*
+@@ -3212,6 +3221,10 @@ static struct amd64_family_type *per_family_init(struct amd64_pvt *pvt)
+ 			fam_type = &family_types[F17_M10H_CPUS];
+ 			pvt->ops = &family_types[F17_M10H_CPUS].ops;
+ 			break;
++		} else if (pvt->model >= 0x30 && pvt->model <= 0x3f) {
++			fam_type = &family_types[F17_M30H_CPUS];
++			pvt->ops = &family_types[F17_M30H_CPUS].ops;
++			break;
+ 		}
+ 		fam_type	= &family_types[F17_CPUS];
+ 		pvt->ops	= &family_types[F17_CPUS].ops;
+diff --git a/drivers/edac/amd64_edac.h b/drivers/edac/amd64_edac.h
+index 4242f8e39c18f..de8dbb0b42b55 100644
+--- a/drivers/edac/amd64_edac.h
++++ b/drivers/edac/amd64_edac.h
+@@ -117,6 +117,8 @@
+ #define PCI_DEVICE_ID_AMD_17H_DF_F6	0x1466
+ #define PCI_DEVICE_ID_AMD_17H_M10H_DF_F0 0x15e8
+ #define PCI_DEVICE_ID_AMD_17H_M10H_DF_F6 0x15ee
++#define PCI_DEVICE_ID_AMD_17H_M30H_DF_F0 0x1490
++#define PCI_DEVICE_ID_AMD_17H_M30H_DF_F6 0x1496
+ 
+ /*
+  * Function 1 - Address Map
+@@ -284,6 +286,7 @@ enum amd_families {
+ 	F16_M30H_CPUS,
+ 	F17_CPUS,
+ 	F17_M10H_CPUS,
++	F17_M30H_CPUS,
+ 	NUM_FAMILIES,
+ };
+ 
 -- 
 2.25.1
 
