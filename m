@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9038020D322
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 21:11:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A39BB20D32E
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 21:12:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729269AbgF2Sz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 14:55:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42448 "EHLO mail.kernel.org"
+        id S1729902AbgF2S43 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 14:56:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729972AbgF2SzR (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729973AbgF2SzR (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 29 Jun 2020 14:55:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 87BEB25564;
-        Mon, 29 Jun 2020 15:55:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A460F25568;
+        Mon, 29 Jun 2020 15:55:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593446127;
-        bh=4d8E+xxY6HjJP5yT1ceEnqlab49ZVk3WLYdMr1sR3qI=;
+        s=default; t=1593446130;
+        bh=LnoLMhivPI6wCVzyXgcGdRW6vEjwSQHeb/GieJZKDAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zEBWlRO/YV5IrZmllkovqNrcQMLRqPzwHO4OQo4Yu4sT6yWpxK7t68NNbZaqYavJi
-         QKw+2SiNrTYx4kkhnIhnbrsAKIX7mpblW/r0nA9QGhIWwOjUI+VgP/wV7OtMS+zxvJ
-         L/MIl4S/GbBNTgWk3WsrzLW5ibljMAiLk0WFTTtU=
+        b=JQ1MNqf5Utl5r4dLDbu/uhEUKlBNXXf/I/EBC1AMCm3Tdcs6sjdo0sVe6wMhQB7eg
+         EphdQcouM9OuzULi0W3GtoYlmYKcqeFYvwKqUz8678In947bfhtW5JhzogVufgbo3W
+         7hXUgqE8PIHb6MA8xUO7AngVYouTWaj+BxQbWiyw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Masahiro Yamada <masahiroy@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 118/135] kbuild: improve cc-option to clean up all temporary files
-Date:   Mon, 29 Jun 2020 11:52:52 -0400
-Message-Id: <20200629155309.2495516-119-sashal@kernel.org>
+Cc:     Xiaoyao Li <xiaoyao.li@intel.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Jim Mattson <jmattson@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 4.4 121/135] KVM: X86: Fix MSR range of APIC registers in X2APIC mode
+Date:   Mon, 29 Jun 2020 11:52:55 -0400
+Message-Id: <20200629155309.2495516-122-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
 References: <20200629155309.2495516-1-sashal@kernel.org>
@@ -48,70 +51,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Xiaoyao Li <xiaoyao.li@intel.com>
 
-[ Upstream commit f2f02ebd8f3833626642688b2d2c6a7b3c141fa9 ]
+commit bf10bd0be53282183f374af23577b18b5fbf7801 upstream.
 
-When cc-option and friends evaluate compiler flags, the temporary file
-$$TMP is created as an output object, and automatically cleaned up.
-The actual file path of $$TMP is .<pid>.tmp, here <pid> is the process
-ID of $(shell ...) invoked from cc-option. (Please note $$$$ is the
-escape sequence of $$).
+Only MSR address range 0x800 through 0x8ff is architecturally reserved
+and dedicated for accessing APIC registers in x2APIC mode.
 
-Such garbage files are cleaned up in most cases, but some compiler flags
-create additional output files.
-
-For example, -gsplit-dwarf creates a .dwo file.
-
-When CONFIG_DEBUG_INFO_SPLIT=y, you will see a bunch of .<pid>.dwo files
-left in the top of build directories. You may not notice them unless you
-do 'ls -a', but the garbage files will increase every time you run 'make'.
-
-This commit changes the temporary object path to .tmp_<pid>/tmp, and
-removes .tmp_<pid> directory when exiting. Separate build artifacts such
-as *.dwo will be cleaned up all together because their file paths are
-usually determined based on the base name of the object.
-
-Another example is -ftest-coverage, which outputs the coverage data into
-<base-name-of-object>.gcno
-
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 0105d1a52640 ("KVM: x2apic interface to lapic")
+Signed-off-by: Xiaoyao Li <xiaoyao.li@intel.com>
+Message-Id: <20200616073307.16440-1-xiaoyao.li@intel.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Reviewed-by: Jim Mattson <jmattson@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- scripts/Kbuild.include | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ arch/x86/kvm/x86.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/scripts/Kbuild.include b/scripts/Kbuild.include
-index e61a5c29b08c5..b6f055157b89a 100644
---- a/scripts/Kbuild.include
-+++ b/scripts/Kbuild.include
-@@ -81,20 +81,21 @@ cc-cross-prefix =  \
- 		fi)))
- 
- # output directory for tests below
--TMPOUT := $(if $(KBUILD_EXTMOD),$(firstword $(KBUILD_EXTMOD))/)
-+TMPOUT = $(if $(KBUILD_EXTMOD),$(firstword $(KBUILD_EXTMOD))/).tmp_$$$$
- 
- # try-run
- # Usage: option = $(call try-run, $(CC)...-o "$$TMP",option-ok,otherwise)
- # Exit code chooses option. "$$TMP" is can be used as temporary file and
- # is automatically cleaned up.
- try-run = $(shell set -e;		\
--	TMP="$(TMPOUT).$$$$.tmp";	\
--	TMPO="$(TMPOUT).$$$$.o";	\
-+	TMP=$(TMPOUT)/tmp;		\
-+	TMPO=$(TMPOUT)/tmp.o;		\
-+	mkdir -p $(TMPOUT);		\
-+	trap "rm -rf $(TMPOUT)" EXIT;	\
- 	if ($(1)) >/dev/null 2>&1;	\
- 	then echo "$(2)";		\
- 	else echo "$(3)";		\
--	fi;				\
--	rm -f "$$TMP" "$$TMPO")
-+	fi)
- 
- # as-option
- # Usage: cflags-y += $(call as-option,-Wa$(comma)-isa=foo,)
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index aac60d1605ffe..61fc92f92e0a0 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -2162,7 +2162,7 @@ int kvm_set_msr_common(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
+ 		return kvm_mtrr_set_msr(vcpu, msr, data);
+ 	case MSR_IA32_APICBASE:
+ 		return kvm_set_apic_base(vcpu, msr_info);
+-	case APIC_BASE_MSR ... APIC_BASE_MSR + 0x3ff:
++	case APIC_BASE_MSR ... APIC_BASE_MSR + 0xff:
+ 		return kvm_x2apic_msr_write(vcpu, msr, data);
+ 	case MSR_IA32_TSCDEADLINE:
+ 		kvm_set_lapic_tscdeadline_msr(vcpu, data);
+@@ -2432,7 +2432,7 @@ int kvm_get_msr_common(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
+ 	case MSR_IA32_APICBASE:
+ 		msr_info->data = kvm_get_apic_base(vcpu);
+ 		break;
+-	case APIC_BASE_MSR ... APIC_BASE_MSR + 0x3ff:
++	case APIC_BASE_MSR ... APIC_BASE_MSR + 0xff:
+ 		return kvm_x2apic_msr_read(vcpu, msr_info->index, &msr_info->data);
+ 		break;
+ 	case MSR_IA32_TSCDEADLINE:
 -- 
 2.25.1
 
