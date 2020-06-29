@@ -2,93 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80E2C20E51C
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:06:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7370820E543
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:06:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728677AbgF2Vcg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:32:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60594 "EHLO mail.kernel.org"
+        id S2391292AbgF2Vez (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:34:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728668AbgF2SlD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:41:03 -0400
+        id S1728544AbgF2Skz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:40:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 38031233A0;
-        Mon, 29 Jun 2020 09:11:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 51CAA239EE;
+        Mon, 29 Jun 2020 10:59:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593421865;
-        bh=uQOX+GkrsHDobAGd6ILyyZoNcTVsAss7SxTAoUPHhsI=;
+        s=default; t=1593428388;
+        bh=HCf1PDcazJNTYh4cWiI0TA+wRLYx2zOnUVW+p6mgCwo=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=dFZySqfI2H+49SgN7Fe+j5ckSNxhTHIoo1/aoOOBZaAme4xS+z90JQOmm5Fg0YI1v
-         j3W0NKEjemCarw1AWIZdmTFzIzpAFVsgp1U1/ly+hN0xVMldogznACBHcNQB8CW8bY
-         RrrfZGP1tWBn5MtLsRJiclS2aveKf24YxCoI4Aso=
-Date:   Mon, 29 Jun 2020 11:10:56 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Gao Xiang <hsiangkao@aol.com>
-Cc:     Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org,
-        Hongyu Jin <hongyu.jin@unisoc.com>,
-        Chao Yu <yuchao0@huawei.com>
-Subject: Re: [PATCH 4.19.y] erofs: fix partially uninitialized misuse in
- z_erofs_onlinepage_fixup
-Message-ID: <20200629091056.GA1359328@kroah.com>
-References: <20200625051939.32454-1-hsiangkao.ref@aol.com>
- <20200625051939.32454-1-hsiangkao@aol.com>
- <20200629003309.GA27377@hsiangkao-HP-ZHAN-66-Pro-G1>
+        b=VRN5i4WdBKUaSMoop/hlajMSmJgAJZNr/jl3HvwBcyBg9DilCEaQdh9fZmgU2+CPK
+         hKEIeoFT87RepeBJHlzvRrmxd/da6nWSNaQtg0ktUCqN/g8iNMjzdZE5xsXhwp/Yxn
+         NpPupo37Hyu1L6DqLfAUhWr18L+3kX4TKdSOPcsI=
+Date:   Mon, 29 Jun 2020 12:59:39 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Yi Zhang <yi.zhang@redhat.com>
+Cc:     linux-nvme@lists.infradead.org, chaitanya.kulkarni@wdc.com,
+        stable@vger.kernel.org
+Subject: Re: regression: blktests nvme/004 failed on linux-stable 5.7.y
+Message-ID: <20200629105939.GA3362395@kroah.com>
+References: <1528690896.32343478.1593229315244.JavaMail.zimbra@redhat.com>
+ <1015661434.32401219.1593424943236.JavaMail.zimbra@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200629003309.GA27377@hsiangkao-HP-ZHAN-66-Pro-G1>
+In-Reply-To: <1015661434.32401219.1593424943236.JavaMail.zimbra@redhat.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 29, 2020 at 08:33:13AM +0800, Gao Xiang wrote:
-> Hi Greg, Sasha
+On Mon, Jun 29, 2020 at 06:02:23AM -0400, Yi Zhang wrote:
+> Hello
 > 
-> On Thu, Jun 25, 2020 at 01:19:39PM +0800, Gao Xiang via Linux-erofs wrote:
-> > From: Gao Xiang <hsiangkao@redhat.com>
-> > 
-> > commit 3c597282887fd55181578996dca52ce697d985a5 upstream.
-> > 
-> > Hongyu reported "id != index" in z_erofs_onlinepage_fixup() with
-> > specific aarch64 environment easily, which wasn't shown before.
-> > 
-> > After digging into that, I found that high 32 bits of page->private
-> > was set to 0xaaaaaaaa rather than 0 (due to z_erofs_onlinepage_init
-> > behavior with specific compiler options). Actually we only use low
-> > 32 bits to keep the page information since page->private is only 4
-> > bytes on most 32-bit platforms. However z_erofs_onlinepage_fixup()
-> > uses the upper 32 bits by mistake.
-> > 
-> > Let's fix it now.
-> > 
-> > Reported-and-tested-by: Hongyu Jin <hongyu.jin@unisoc.com>
-> > Fixes: 3883a79abd02 ("staging: erofs: introduce VLE decompression support")
-> > Cc: <stable@vger.kernel.org> # 4.19+
-> > Reviewed-by: Chao Yu <yuchao0@huawei.com>
-> > Link: https://lore.kernel.org/r/20200618234349.22553-1-hsiangkao@aol.com
-> > Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
-> > ---
-> > This fix has been merged into Linus's tree just now (today).
-> > Since the patch could not directly be applied to 4.19, manually handle this.
+> commit[1] introduced regression that will lead blktest nvme/004 failed on v5.7.5, and commits [2] fixed this issue on latest linux tree.
+> But commit[2] cannot be directly applied to stable tree due to dependceny[3], could you help backport the fix and dependency to stable tree, thanks.
 > 
-> Could this patch be applied to all next version stable
-> versions (4.19, 5.4 as well as 5.7) after 5.8-rc3 is out...
 > 
-> It's some important fix on specific compiler options
-> and should be fixed ASAP.
+> [1]
+> 64f5e9cdd711 nvmet: fix memory leak when removing namespaces and controllers concurrently
 > 
-> Without this patch, unexpected behaviors would happen
-> conditionally and break the filesystem from working.
-> Apart from 4.19 patch, both 5.4 and 5.7 patches are
-> quite trivial ones (can be cherry-picked directly).
+> [2]
+> 819f7b88b48f nvmet: fail outstanding host posted AEN req
 > 
-> Could kindly consider this and it's just a little
-> heads-up... Sorry for the noise if it's already in queue...
+> [3]
+> 1cdf9f7670a7 nvmet: cleanups the loop in nvmet_async_events_process
+> 696ece751366 nvmet: add async event tracing support
 
-Please let us catch up on patches, there's been a lot of them recently
-for some reason...
+Why is this last commit needed?
+
+The other ones are already queued up in the current queue, thanks.
 
 greg k-h
