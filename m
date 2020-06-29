@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92D7920D680
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:05:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C98220D681
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:05:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731277AbgF2TUk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728005AbgF2TUk (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 29 Jun 2020 15:20:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33184 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:33190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732106AbgF2TUS (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1732108AbgF2TUS (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 29 Jun 2020 15:20:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3397D2547F;
-        Mon, 29 Jun 2020 15:44:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8217725482;
+        Mon, 29 Jun 2020 15:44:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445441;
-        bh=hoCMlla39SLvw5n04FRhF9LJw31TGSiSnqjCWRv5ILM=;
+        s=default; t=1593445442;
+        bh=ly7L6gTzvRcEm/5lV1rw9iLUG5wSagYIK5k0Ki83m0k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sxKPXQruW7dYSeDV1ndXS5H+mUmWT2agvikX9YVt2wsRTH0xy8YEHCb/P13n+CHXt
-         JyjT4GIRBzcnmdSDh9YNpvA2kJxY1vM6MCwBCCfDNE/yw1R11bPAQBM//ldZSg04mr
-         /Mqhf2c0v25YpWhK43FCgAHLHR3fpvoOlssJGk60=
+        b=1DEtVDs4yT9dBbP9s1MG0pRu0BcPtQO6M0MndQBnJX8rGMxDJRIlI/mdQn0QajEMp
+         gOKfXHVFhlCx9MF8M8Jz2QPlI9Y0kUPav5p/3SeSf2rAElXIbJq67m9S84NKxz171a
+         vIns5ycCsOpmDEcTm8Nb4E6h28gsLfI9/Qfq3WKo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiping Ma <jiping.ma2@windriver.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Will Deacon <will@kernel.org>,
+Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
+        Tom Zanussi <zanussi@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.9 182/191] arm64: perf: Report the PC value in REGS_ABI_32 mode
-Date:   Mon, 29 Jun 2020 11:39:58 -0400
-Message-Id: <20200629154007.2495120-183-sashal@kernel.org>
+Subject: [PATCH 4.9 183/191] tracing: Fix event trigger to accept redundant spaces
+Date:   Mon, 29 Jun 2020 11:39:59 -0400
+Message-Id: <20200629154007.2495120-184-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
 References: <20200629154007.2495120-1-sashal@kernel.org>
@@ -50,69 +50,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiping Ma <jiping.ma2@windriver.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-commit 8dfe804a4031ca6ba3a3efb2048534249b64f3a5 upstream.
+commit 6784beada631800f2c5afd567e5628c843362cee upstream.
 
-A 32-bit perf querying the registers of a compat task using REGS_ABI_32
-will receive zeroes from w15, when it expects to find the PC.
+Fix the event trigger to accept redundant spaces in
+the trigger input.
 
-Return the PC value for register dwarf register 15 when returning register
-values for a compat task to perf.
+For example, these return -EINVAL
 
-Cc: <stable@vger.kernel.org>
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Jiping Ma <jiping.ma2@windriver.com>
-Link: https://lore.kernel.org/r/1589165527-188401-1-git-send-email-jiping.ma2@windriver.com
-[will: Shuffled code and added a comment]
-Signed-off-by: Will Deacon <will@kernel.org>
+echo " traceon" > events/ftrace/print/trigger
+echo "traceon  if common_pid == 0" > events/ftrace/print/trigger
+echo "disable_event:kmem:kmalloc " > events/ftrace/print/trigger
+
+But these are hard to find what is wrong.
+
+To fix this issue, use skip_spaces() to remove spaces
+in front of actual tokens, and set NULL if there is no
+token.
+
+Link: http://lkml.kernel.org/r/159262476352.185015.5261566783045364186.stgit@devnote2
+
+Cc: Tom Zanussi <zanussi@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 85f2b08268c0 ("tracing: Add basic event trigger framework")
+Reviewed-by: Tom Zanussi <zanussi@kernel.org>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/perf_regs.c | 25 ++++++++++++++++++++++---
- 1 file changed, 22 insertions(+), 3 deletions(-)
+ kernel/trace/trace_events_trigger.c | 21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/kernel/perf_regs.c b/arch/arm64/kernel/perf_regs.c
-index 3f62b35fb6f15..815c395a1076c 100644
---- a/arch/arm64/kernel/perf_regs.c
-+++ b/arch/arm64/kernel/perf_regs.c
-@@ -13,15 +13,34 @@ u64 perf_reg_value(struct pt_regs *regs, int idx)
- 		return 0;
+diff --git a/kernel/trace/trace_events_trigger.c b/kernel/trace/trace_events_trigger.c
+index c9ca2ed50c0e5..a371c7def875e 100644
+--- a/kernel/trace/trace_events_trigger.c
++++ b/kernel/trace/trace_events_trigger.c
+@@ -222,11 +222,17 @@ static int event_trigger_regex_open(struct inode *inode, struct file *file)
  
- 	/*
--	 * Compat (i.e. 32 bit) mode:
--	 * - PC has been set in the pt_regs struct in kernel_entry,
--	 * - Handle SP and LR here.
-+	 * Our handling of compat tasks (PERF_SAMPLE_REGS_ABI_32) is weird, but
-+	 * we're stuck with it for ABI compatability reasons.
-+	 *
-+	 * For a 32-bit consumer inspecting a 32-bit task, then it will look at
-+	 * the first 16 registers (see arch/arm/include/uapi/asm/perf_regs.h).
-+	 * These correspond directly to a prefix of the registers saved in our
-+	 * 'struct pt_regs', with the exception of the PC, so we copy that down
-+	 * (x15 corresponds to SP_hyp in the architecture).
-+	 *
-+	 * So far, so good.
-+	 *
-+	 * The oddity arises when a 64-bit consumer looks at a 32-bit task and
-+	 * asks for registers beyond PERF_REG_ARM_MAX. In this case, we return
-+	 * SP_usr, LR_usr and PC in the positions where the AArch64 SP, LR and
-+	 * PC registers would normally live. The initial idea was to allow a
-+	 * 64-bit unwinder to unwind a 32-bit task and, although it's not clear
-+	 * how well that works in practice, somebody might be relying on it.
-+	 *
-+	 * At the time we make a sample, we don't know whether the consumer is
-+	 * 32-bit or 64-bit, so we have to cater for both possibilities.
- 	 */
- 	if (compat_user_mode(regs)) {
- 		if ((u32)idx == PERF_REG_ARM64_SP)
- 			return regs->compat_sp;
- 		if ((u32)idx == PERF_REG_ARM64_LR)
- 			return regs->compat_lr;
-+		if (idx == 15)
-+			return regs->pc;
- 	}
+ static int trigger_process_regex(struct trace_event_file *file, char *buff)
+ {
+-	char *command, *next = buff;
++	char *command, *next;
+ 	struct event_command *p;
+ 	int ret = -EINVAL;
  
- 	if ((u32)idx == PERF_REG_ARM64_SP)
++	next = buff = skip_spaces(buff);
+ 	command = strsep(&next, ": \t");
++	if (next) {
++		next = skip_spaces(next);
++		if (!*next)
++			next = NULL;
++	}
+ 	command = (command[0] != '!') ? command : command + 1;
+ 
+ 	mutex_lock(&trigger_cmd_mutex);
+@@ -629,8 +635,14 @@ event_trigger_callback(struct event_command *cmd_ops,
+ 	int ret;
+ 
+ 	/* separate the trigger from the filter (t:n [if filter]) */
+-	if (param && isdigit(param[0]))
++	if (param && isdigit(param[0])) {
+ 		trigger = strsep(&param, " \t");
++		if (param) {
++			param = skip_spaces(param);
++			if (!*param)
++				param = NULL;
++		}
++	}
+ 
+ 	trigger_ops = cmd_ops->get_trigger_ops(cmd, trigger);
+ 
+@@ -1335,6 +1347,11 @@ int event_enable_trigger_func(struct event_command *cmd_ops,
+ 	trigger = strsep(&param, " \t");
+ 	if (!trigger)
+ 		return -EINVAL;
++	if (param) {
++		param = skip_spaces(param);
++		if (!*param)
++			param = NULL;
++	}
+ 
+ 	system = strsep(&trigger, ":");
+ 	if (!trigger)
 -- 
 2.25.1
 
