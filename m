@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CEE9620DA06
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:12:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43DE820D991
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:11:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730493AbgF2TxF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:53:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47674 "EHLO mail.kernel.org"
+        id S2387642AbgF2Tsy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:48:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387692AbgF2Tk1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:27 -0400
+        id S2387767AbgF2Tkj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF216248EB;
-        Mon, 29 Jun 2020 15:27:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB9B6248F1;
+        Mon, 29 Jun 2020 15:27:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444443;
-        bh=dsXPPeg6cIv+Pkd9+QstYAyB8a1dU40W6wd0csB7Qx4=;
+        s=default; t=1593444444;
+        bh=Ko1ZhXCx4mPUi3PFsF4m7owQC8fH7OXNJhwIkoqVYA0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n6tsQCPQlEkc9Vofa9/Rh5/XBxlj1Jb8Fwjv1YRat2crD+bJdZarLdZJKxCUcHGbv
-         SivCtkFivq4a6oivgR2xElKGhY4pGp6GWCdx70J3l48EJ4Cp9NIEbTnvCUra539qhg
-         PmO65E5cKWrNBbI+pAr7s0QOJQTG4IMWgWO3/6V8=
+        b=JyVXANs6yDNJEHOXXfwfe7ptAQmU82yO+tKpxRBKqtTQEzHaSWbmamnd60Cfzm3Iw
+         LjiWNK+t6Vrb5xXjAN4BDYKgqWnAjtpBkIFNFdpMAq3/hXPny8Mh64mL2zhSDY9yVp
+         aRl6UeIOA9Q0aEzeNBcuX6tx0/uJ2VWDjeGYZnts=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dave Martin <Dave.Martin@arm.com>, Will Deacon <will@kernel.org>,
+Cc:     Thomas Falcon <tlfalcon@linux.ibm.com>,
+        "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 122/178] arm64/sve: Eliminate data races on sve_default_vl
-Date:   Mon, 29 Jun 2020 11:24:27 -0400
-Message-Id: <20200629152523.2494198-123-sashal@kernel.org>
+Subject: [PATCH 5.4 123/178] ibmvnic: Harden device login requests
+Date:   Mon, 29 Jun 2020 11:24:28 -0400
+Message-Id: <20200629152523.2494198-124-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -48,121 +49,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Martin <Dave.Martin@arm.com>
+From: Thomas Falcon <tlfalcon@linux.ibm.com>
 
-[ Upstream commit 1e570f512cbdc5e9e401ba640d9827985c1bea1e ]
+[ Upstream commit dff515a3e71dc8ab3b9dcc2e23a9b5fca88b3c18 ]
 
-sve_default_vl can be modified via the /proc/sys/abi/sve_default_vl
-sysctl concurrently with use, and modified concurrently by multiple
-threads.
+The VNIC driver's "login" command sequence is the final step
+in the driver's initialization process with device firmware,
+confirming the available device queue resources to be utilized
+by the driver. Under high system load, firmware may not respond
+to the request in a timely manner or may abort the request. In
+such cases, the driver should reattempt the login command
+sequence. In case of a device error, the number of retries
+is bounded.
 
-Adding a lock for this seems overkill, and I don't want to think any
-more than necessary, so just define wrappers using READ_ONCE()/
-WRITE_ONCE().
-
-This will avoid the possibility of torn accesses and repeated loads
-and stores.
-
-There's no evidence yet that this is going wrong in practice: this
-is just hygiene.  For generic sysctl users, it would be better to
-build this kind of thing into the sysctl common code somehow.
-
-Reported-by: Will Deacon <will@kernel.org>
-Signed-off-by: Dave Martin <Dave.Martin@arm.com>
-Link: https://lore.kernel.org/r/1591808590-20210-3-git-send-email-Dave.Martin@arm.com
-[will: move set_sve_default_vl() inside #ifdef to squash allnoconfig warning]
-Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Thomas Falcon <tlfalcon@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/fpsimd.c | 25 ++++++++++++++++++-------
- 1 file changed, 18 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/ibm/ibmvnic.c | 21 +++++++++++++++++----
+ 1 file changed, 17 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/kernel/fpsimd.c b/arch/arm64/kernel/fpsimd.c
-index 1765e5284994f..d8895251a2aac 100644
---- a/arch/arm64/kernel/fpsimd.c
-+++ b/arch/arm64/kernel/fpsimd.c
-@@ -12,6 +12,7 @@
- #include <linux/bug.h>
- #include <linux/cache.h>
- #include <linux/compat.h>
-+#include <linux/compiler.h>
- #include <linux/cpu.h>
- #include <linux/cpu_pm.h>
- #include <linux/kernel.h>
-@@ -119,10 +120,20 @@ struct fpsimd_last_state_struct {
- static DEFINE_PER_CPU(struct fpsimd_last_state_struct, fpsimd_last_state);
+diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
+index 5a42ddeecfe50..4f503b9a674c4 100644
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -779,12 +779,13 @@ static int ibmvnic_login(struct net_device *netdev)
+ 	struct ibmvnic_adapter *adapter = netdev_priv(netdev);
+ 	unsigned long timeout = msecs_to_jiffies(30000);
+ 	int retry_count = 0;
++	int retries = 10;
+ 	bool retry;
+ 	int rc;
  
- /* Default VL for tasks that don't set it explicitly: */
--static int sve_default_vl = -1;
-+static int __sve_default_vl = -1;
-+
-+static int get_sve_default_vl(void)
-+{
-+	return READ_ONCE(__sve_default_vl);
-+}
+ 	do {
+ 		retry = false;
+-		if (retry_count > IBMVNIC_MAX_QUEUES) {
++		if (retry_count > retries) {
+ 			netdev_warn(netdev, "Login attempts exceeded\n");
+ 			return -1;
+ 		}
+@@ -799,11 +800,23 @@ static int ibmvnic_login(struct net_device *netdev)
  
- #ifdef CONFIG_ARM64_SVE
+ 		if (!wait_for_completion_timeout(&adapter->init_done,
+ 						 timeout)) {
+-			netdev_warn(netdev, "Login timed out\n");
+-			return -1;
++			netdev_warn(netdev, "Login timed out, retrying...\n");
++			retry = true;
++			adapter->init_done_rc = 0;
++			retry_count++;
++			continue;
+ 		}
  
-+static void set_sve_default_vl(int val)
-+{
-+	WRITE_ONCE(__sve_default_vl, val);
-+}
-+
- /* Maximum supported vector length across all CPUs (initially poisoned) */
- int __ro_after_init sve_max_vl = SVE_VL_MIN;
- int __ro_after_init sve_max_virtualisable_vl = SVE_VL_MIN;
-@@ -345,7 +356,7 @@ static int sve_proc_do_default_vl(struct ctl_table *table, int write,
- 				  loff_t *ppos)
- {
- 	int ret;
--	int vl = sve_default_vl;
-+	int vl = get_sve_default_vl();
- 	struct ctl_table tmp_table = {
- 		.data = &vl,
- 		.maxlen = sizeof(vl),
-@@ -362,7 +373,7 @@ static int sve_proc_do_default_vl(struct ctl_table *table, int write,
- 	if (!sve_vl_valid(vl))
- 		return -EINVAL;
+-		if (adapter->init_done_rc == PARTIALSUCCESS) {
++		if (adapter->init_done_rc == ABORTED) {
++			netdev_warn(netdev, "Login aborted, retrying...\n");
++			retry = true;
++			adapter->init_done_rc = 0;
++			retry_count++;
++			/* FW or device may be busy, so
++			 * wait a bit before retrying login
++			 */
++			msleep(500);
++		} else if (adapter->init_done_rc == PARTIALSUCCESS) {
+ 			retry_count++;
+ 			release_sub_crqs(adapter, 1);
  
--	sve_default_vl = find_supported_vector_length(vl);
-+	set_sve_default_vl(find_supported_vector_length(vl));
- 	return 0;
- }
- 
-@@ -869,7 +880,7 @@ void __init sve_setup(void)
- 	 * For the default VL, pick the maximum supported value <= 64.
- 	 * VL == 64 is guaranteed not to grow the signal frame.
- 	 */
--	sve_default_vl = find_supported_vector_length(64);
-+	set_sve_default_vl(find_supported_vector_length(64));
- 
- 	bitmap_andnot(tmp_map, sve_vq_partial_map, sve_vq_map,
- 		      SVE_VQ_MAX);
-@@ -890,7 +901,7 @@ void __init sve_setup(void)
- 	pr_info("SVE: maximum available vector length %u bytes per vector\n",
- 		sve_max_vl);
- 	pr_info("SVE: default vector length %u bytes per vector\n",
--		sve_default_vl);
-+		get_sve_default_vl());
- 
- 	/* KVM decides whether to support mismatched systems. Just warn here: */
- 	if (sve_max_virtualisable_vl < sve_max_vl)
-@@ -1030,13 +1041,13 @@ void fpsimd_flush_thread(void)
- 		 * vector length configured: no kernel task can become a user
- 		 * task without an exec and hence a call to this function.
- 		 * By the time the first call to this function is made, all
--		 * early hardware probing is complete, so sve_default_vl
-+		 * early hardware probing is complete, so __sve_default_vl
- 		 * should be valid.
- 		 * If a bug causes this to go wrong, we make some noise and
- 		 * try to fudge thread.sve_vl to a safe value here.
- 		 */
- 		vl = current->thread.sve_vl_onexec ?
--			current->thread.sve_vl_onexec : sve_default_vl;
-+			current->thread.sve_vl_onexec : get_sve_default_vl();
- 
- 		if (WARN_ON(!sve_vl_valid(vl)))
- 			vl = SVE_VL_MIN;
 -- 
 2.25.1
 
