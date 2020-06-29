@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 143FB20E818
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:12:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AE8220E7F9
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:12:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391611AbgF2WDb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 18:03:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56796 "EHLO mail.kernel.org"
+        id S1726342AbgF2SfY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 14:35:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726183AbgF2SfW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:35:22 -0400
+        id S1726228AbgF2SfX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:35:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C1B0424680;
-        Mon, 29 Jun 2020 15:19:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC8F124683;
+        Mon, 29 Jun 2020 15:19:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593443981;
-        bh=Lf6jb8z4iIF/Glg9uv3XNjE9mqcTEL/2yKtxJnHNVOI=;
+        s=default; t=1593443982;
+        bh=Lh/wP2IgRNVU0BEv+HYmvbnZxJKAdQ3IZPOli5tfthM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N9KOxRM9E2xGZuZ0BuT+KZlPHSQVqvKu9ysiBVzAzTH7fEkATmmFMeddlSr3jX0d0
-         OfGV2t6vzBgi9LzuUrV2+cR0ioUkOj3pyWPhcHMYELXNz5nf2py2pWJA7VSRrO28fn
-         e9lQEkbDvSJOcyeO7GlJTmqC8XdfOnwDJpMy3klI=
+        b=tcDuA73RwbUDk2Q9lWydpnD52xOIs05glgLoHDWu56sZJV9fDAt6rSe1glrKc5fRJ
+         xQi0s54kKBuyxH6m0ddwUZ590gtnQ1KBstpuFifnevT9Qu9w1U9lvcjE0Tsm+GSFDt
+         DK4M531XXdRkNvsQOdziCFiKjJ0/SL2PVZVNMyLw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Hulk Robot <hulkci@huawei.com>,
-        Pavel Shilovsky <pshilov@microsoft.com>,
-        Steve French <stfrench@microsoft.com>,
+Cc:     Mathias Nyman <mathias.nyman@linux.intel.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.7 085/265] cifs/smb3: Fix data inconsistent when zero file range
-Date:   Mon, 29 Jun 2020 11:15:18 -0400
-Message-Id: <20200629151818.2493727-86-sashal@kernel.org>
+Subject: [PATCH 5.7 086/265] xhci: Fix incorrect EP_STATE_MASK
+Date:   Mon, 29 Jun 2020 11:15:19 -0400
+Message-Id: <20200629151818.2493727-87-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -51,46 +48,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit 6b69040247e14b43419a520f841f2b3052833df9 upstream.
+commit dceea67058fe22075db3aed62d5cb62092be5053 upstream.
 
-CIFS implements the fallocate(FALLOC_FL_ZERO_RANGE) with send SMB
-ioctl(FSCTL_SET_ZERO_DATA) to server. It just set the range of the
-remote file to zero, but local page cache not update, then the data
-inconsistent with server, which leads the xfstest generic/008 failed.
+EP_STATE_MASK should be 0x7 instead of 0xf
 
-So we need to remove the local page caches before send SMB
-ioctl(FSCTL_SET_ZERO_DATA) to server. After next read, it will
-re-cache it.
+xhci spec 6.2.3 shows that the EP state field in the endpoint context data
+structure consist of bits [2:0].
+The old value included a bit from the next field which fortunately is a
+ RsvdZ region. So hopefully this hasn't caused too much harm
 
-Fixes: 30175628bf7f5 ("[SMB3] Enable fallocate -z support for SMB3 mounts")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
-Cc: stable@vger.kernel.org # v3.17
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20200624135949.22611-2-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/smb2ops.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/usb/host/xhci.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
-index 3de9113eb8e35..6fc69c3b2749d 100644
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -3145,6 +3145,11 @@ static long smb3_zero_range(struct file *file, struct cifs_tcon *tcon,
- 	trace_smb3_zero_enter(xid, cfile->fid.persistent_fid, tcon->tid,
- 			      ses->Suid, offset, len);
- 
-+	/*
-+	 * We zero the range through ioctl, so we need remove the page caches
-+	 * first, otherwise the data may be inconsistent with the server.
-+	 */
-+	truncate_pagecache_range(inode, offset, offset + len - 1);
- 
- 	/* if file not oplocked can't be sure whether asking to extend size */
- 	if (!CIFS_CACHE_READ(cifsi))
+diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
+index 86cfefdd6632b..c80710e474769 100644
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -716,7 +716,7 @@ struct xhci_ep_ctx {
+  * 4 - TRB error
+  * 5-7 - reserved
+  */
+-#define EP_STATE_MASK		(0xf)
++#define EP_STATE_MASK		(0x7)
+ #define EP_STATE_DISABLED	0
+ #define EP_STATE_RUNNING	1
+ #define EP_STATE_HALTED		2
 -- 
 2.25.1
 
