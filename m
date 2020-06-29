@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 788E520D724
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:06:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8897A20D712
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:06:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730856AbgF2T1X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:27:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37022 "EHLO mail.kernel.org"
+        id S1730632AbgF2T0p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:26:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732241AbgF2TZn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:25:43 -0400
+        id S1732673AbgF2TZo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:25:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EEDEA2540D;
-        Mon, 29 Jun 2020 15:42:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EFE132540B;
+        Mon, 29 Jun 2020 15:42:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445357;
-        bh=3G6RcH4HFEvNVyVbppRrb++MZ9amUYbAvaaqBJgKZp0=;
+        s=default; t=1593445358;
+        bh=8syAJ3fthn+zD5CKMzlub3CBePknRBgAdwrW7T343+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jcMR9is4TB708HxPYCmsgOq+7D2N3n2/vcVInTfIuBjPUBi7gExCrHms7wZNBpDiR
-         6sXLdEnzaRcSov+mvGoRn436UnN5JgjTIm1DJlS7JkYca0R+yf7SC65/ZQLMToYdJj
-         Xkw6uaDJqI3pO/HudMxMrGdz26Ma25rmVblwl8AE=
+        b=zEgJa2la82dmSj03dG2jZeZRlSm1XV1KBIgkSNnv7+/32iBz82kKrb4dYVSKJAEVv
+         GtnS6yzCv35PbI2TtRrBMIhEZkkgrQwCjLh9rpJ2svvxNED/6StHd+W8SYsy1mgdj7
+         IVisC0NpWSD25nToViu8nd8VupZkd3GPryFBzU8s=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Jaedon Shin <jaedon.shin@gmail.com>,
         Mauro Carvalho Chehab <mchehab@s-opensource.com>,
         Florian Fainelli <f.fainelli@gmail.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.9 115/191] media: dvb_frontend: Add compat_ioctl callback
-Date:   Mon, 29 Jun 2020 11:38:51 -0400
-Message-Id: <20200629154007.2495120-116-sashal@kernel.org>
+Subject: [PATCH 4.9 116/191] media: dvb_frontend: Add commands implementation for compat ioct
+Date:   Mon, 29 Jun 2020 11:38:52 -0400
+Message-Id: <20200629154007.2495120-117-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
 References: <20200629154007.2495120-1-sashal@kernel.org>
@@ -52,85 +52,166 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jaedon Shin <jaedon.shin@gmail.com>
 
-commit c2dfd2276cec63a0c6f6ce18ed83800d96fde542 upstream
+commit 18192a77f0810933ab71a46c1b260d230d7352ee upstream
 
-Adds compat_ioctl for 32-bit user space applications on a 64-bit system.
+The dtv_properties structure and the dtv_property structure are
+different sizes in 32-bit and 64-bit system. This patch provides
+FE_SET_PROPERTY and FE_GET_PROPERTY ioctl commands implementation for
+32-bit user space applications.
 
-[m.chehab@osg.samsung.com: add missing include compat.h]
 Signed-off-by: Jaedon Shin <jaedon.shin@gmail.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/dvb-core/dvb_frontend.c | 12 ++++++++++++
- fs/compat_ioctl.c                     | 17 -----------------
- 2 files changed, 12 insertions(+), 17 deletions(-)
+ drivers/media/dvb-core/dvb_frontend.c | 131 ++++++++++++++++++++++++++
+ 1 file changed, 131 insertions(+)
 
 diff --git a/drivers/media/dvb-core/dvb_frontend.c b/drivers/media/dvb-core/dvb_frontend.c
-index dacc467e24af2..c0a25cd6ccb8b 100644
+index c0a25cd6ccb8b..34f55a2ba071d 100644
 --- a/drivers/media/dvb-core/dvb_frontend.c
 +++ b/drivers/media/dvb-core/dvb_frontend.c
-@@ -41,6 +41,7 @@
- #include <linux/jiffies.h>
- #include <linux/kthread.h>
- #include <linux/ktime.h>
-+#include <linux/compat.h>
- #include <asm/processor.h>
- 
- #include "dvb_frontend.h"
-@@ -1981,6 +1982,14 @@ static long dvb_frontend_ioctl(struct file *file, unsigned int cmd,
- 	return dvb_usercopy(file, cmd, arg, dvb_frontend_do_ioctl);
+@@ -1983,9 +1983,140 @@ static long dvb_frontend_ioctl(struct file *file, unsigned int cmd,
  }
  
-+#ifdef CONFIG_COMPAT
-+static long dvb_frontend_compat_ioctl(struct file *file, unsigned int cmd,
-+				      unsigned long arg)
-+{
-+	return dvb_frontend_ioctl(file, cmd, (unsigned long)compat_ptr(arg));
-+}
-+#endif
+ #ifdef CONFIG_COMPAT
++struct compat_dtv_property {
++	__u32 cmd;
++	__u32 reserved[3];
++	union {
++		__u32 data;
++		struct dtv_fe_stats st;
++		struct {
++			__u8 data[32];
++			__u32 len;
++			__u32 reserved1[3];
++			compat_uptr_t reserved2;
++		} buffer;
++	} u;
++	int result;
++} __attribute__ ((packed));
 +
- static int dtv_set_frontend(struct dvb_frontend *fe)
++struct compat_dtv_properties {
++	__u32 num;
++	compat_uptr_t props;
++};
++
++#define COMPAT_FE_SET_PROPERTY	   _IOW('o', 82, struct compat_dtv_properties)
++#define COMPAT_FE_GET_PROPERTY	   _IOR('o', 83, struct compat_dtv_properties)
++
++static int dvb_frontend_handle_compat_ioctl(struct file *file, unsigned int cmd,
++					    unsigned long arg)
++{
++	struct dvb_device *dvbdev = file->private_data;
++	struct dvb_frontend *fe = dvbdev->priv;
++	struct dvb_frontend_private *fepriv = fe->frontend_priv;
++	int i, err = 0;
++
++	if (cmd == COMPAT_FE_SET_PROPERTY) {
++		struct compat_dtv_properties prop, *tvps = NULL;
++		struct compat_dtv_property *tvp = NULL;
++
++		if (copy_from_user(&prop, compat_ptr(arg), sizeof(prop)))
++			return -EFAULT;
++
++		tvps = &prop;
++
++		/*
++		 * Put an arbitrary limit on the number of messages that can
++		 * be sent at once
++		 */
++		if (!tvps->num || (tvps->num > DTV_IOCTL_MAX_MSGS))
++			return -EINVAL;
++
++		tvp = memdup_user(compat_ptr(tvps->props), tvps->num * sizeof(*tvp));
++		if (IS_ERR(tvp))
++			return PTR_ERR(tvp);
++
++		for (i = 0; i < tvps->num; i++) {
++			err = dtv_property_process_set(fe, file,
++							(tvp + i)->cmd,
++							(tvp + i)->u.data);
++			if (err < 0) {
++				kfree(tvp);
++				return err;
++			}
++		}
++		kfree(tvp);
++	} else if (cmd == COMPAT_FE_GET_PROPERTY) {
++		struct compat_dtv_properties prop, *tvps = NULL;
++		struct compat_dtv_property *tvp = NULL;
++		struct dtv_frontend_properties getp = fe->dtv_property_cache;
++
++		if (copy_from_user(&prop, compat_ptr(arg), sizeof(prop)))
++			return -EFAULT;
++
++		tvps = &prop;
++
++		/*
++		 * Put an arbitrary limit on the number of messages that can
++		 * be sent at once
++		 */
++		if (!tvps->num || (tvps->num > DTV_IOCTL_MAX_MSGS))
++			return -EINVAL;
++
++		tvp = memdup_user(compat_ptr(tvps->props), tvps->num * sizeof(*tvp));
++		if (IS_ERR(tvp))
++			return PTR_ERR(tvp);
++
++		/*
++		 * Let's use our own copy of property cache, in order to
++		 * avoid mangling with DTV zigzag logic, as drivers might
++		 * return crap, if they don't check if the data is available
++		 * before updating the properties cache.
++		 */
++		if (fepriv->state != FESTATE_IDLE) {
++			err = dtv_get_frontend(fe, &getp, NULL);
++			if (err < 0) {
++				kfree(tvp);
++				return err;
++			}
++		}
++		for (i = 0; i < tvps->num; i++) {
++			err = dtv_property_process_get(
++			    fe, &getp, (struct dtv_property *)tvp + i, file);
++			if (err < 0) {
++				kfree(tvp);
++				return err;
++			}
++		}
++
++		if (copy_to_user((void __user *)compat_ptr(tvps->props), tvp,
++				 tvps->num * sizeof(struct compat_dtv_property))) {
++			kfree(tvp);
++			return -EFAULT;
++		}
++		kfree(tvp);
++	}
++
++	return err;
++}
++
+ static long dvb_frontend_compat_ioctl(struct file *file, unsigned int cmd,
+ 				      unsigned long arg)
  {
- 	struct dvb_frontend_private *fepriv = fe->frontend_priv;
-@@ -2651,6 +2660,9 @@ static int dvb_frontend_release(struct inode *inode, struct file *file)
- static const struct file_operations dvb_frontend_fops = {
- 	.owner		= THIS_MODULE,
- 	.unlocked_ioctl	= dvb_frontend_ioctl,
-+#ifdef CONFIG_COMPAT
-+	.compat_ioctl	= dvb_frontend_compat_ioctl,
-+#endif
- 	.poll		= dvb_frontend_poll,
- 	.open		= dvb_frontend_open,
- 	.release	= dvb_frontend_release,
-diff --git a/fs/compat_ioctl.c b/fs/compat_ioctl.c
-index 02ac9067a3542..9fa3285425fef 100644
---- a/fs/compat_ioctl.c
-+++ b/fs/compat_ioctl.c
-@@ -1340,23 +1340,6 @@ COMPATIBLE_IOCTL(DMX_GET_PES_PIDS)
- COMPATIBLE_IOCTL(DMX_GET_CAPS)
- COMPATIBLE_IOCTL(DMX_SET_SOURCE)
- COMPATIBLE_IOCTL(DMX_GET_STC)
--COMPATIBLE_IOCTL(FE_GET_INFO)
--COMPATIBLE_IOCTL(FE_DISEQC_RESET_OVERLOAD)
--COMPATIBLE_IOCTL(FE_DISEQC_SEND_MASTER_CMD)
--COMPATIBLE_IOCTL(FE_DISEQC_RECV_SLAVE_REPLY)
--COMPATIBLE_IOCTL(FE_DISEQC_SEND_BURST)
--COMPATIBLE_IOCTL(FE_SET_TONE)
--COMPATIBLE_IOCTL(FE_SET_VOLTAGE)
--COMPATIBLE_IOCTL(FE_ENABLE_HIGH_LNB_VOLTAGE)
--COMPATIBLE_IOCTL(FE_READ_STATUS)
--COMPATIBLE_IOCTL(FE_READ_BER)
--COMPATIBLE_IOCTL(FE_READ_SIGNAL_STRENGTH)
--COMPATIBLE_IOCTL(FE_READ_SNR)
--COMPATIBLE_IOCTL(FE_READ_UNCORRECTED_BLOCKS)
--COMPATIBLE_IOCTL(FE_SET_FRONTEND)
--COMPATIBLE_IOCTL(FE_GET_FRONTEND)
--COMPATIBLE_IOCTL(FE_GET_EVENT)
--COMPATIBLE_IOCTL(FE_DISHNETWORK_SEND_LEGACY_CMD)
- COMPATIBLE_IOCTL(VIDEO_STOP)
- COMPATIBLE_IOCTL(VIDEO_PLAY)
- COMPATIBLE_IOCTL(VIDEO_FREEZE)
++	struct dvb_device *dvbdev = file->private_data;
++	struct dvb_frontend *fe = dvbdev->priv;
++	struct dvb_frontend_private *fepriv = fe->frontend_priv;
++	int err;
++
++	if (cmd == COMPAT_FE_SET_PROPERTY || cmd == COMPAT_FE_GET_PROPERTY) {
++		if (down_interruptible(&fepriv->sem))
++			return -ERESTARTSYS;
++
++		err = dvb_frontend_handle_compat_ioctl(file, cmd, arg);
++
++		up(&fepriv->sem);
++		return err;
++	}
++
+ 	return dvb_frontend_ioctl(file, cmd, (unsigned long)compat_ptr(arg));
+ }
+ #endif
 -- 
 2.25.1
 
