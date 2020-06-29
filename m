@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C87A20E392
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:03:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51FEC20E387
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:03:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390625AbgF2VP2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:15:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42442 "EHLO mail.kernel.org"
+        id S2390494AbgF2VPJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:15:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729949AbgF2SzQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729958AbgF2SzQ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 29 Jun 2020 14:55:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DCDFB2557A;
-        Mon, 29 Jun 2020 15:55:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 02B0B2557F;
+        Mon, 29 Jun 2020 15:55:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593446144;
-        bh=iglSSy/eC9l0eP21No46s42jVb9ef03e/eA03aL4duw=;
+        s=default; t=1593446145;
+        bh=tj8mok7xLm3fKM3u/SqgmOgHmlyAZkKm/jdH4QAZhEs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zKHYGsuJRuOyRjMFHu2GTgtZk2U53wp9Mb5SixYgYCIaWbj4FztGNrylIdLD6yXI/
-         uYe9BJvn0DFigr66xcadpIVnxCXpl4Ugix9Bj/blCQECIZDPKYyv+Hcg7WWrG/wTK4
-         Lrg/jPiXB0VjHUtmVvQrsPKSvivw0rqfmYtJsqxo=
+        b=2H0RGfp3kpHfOa55bAHGvEHLEdI4JvSJtt0wEmqs91763Y2ZIhwrboZR3op/vMyBh
+         hktFsrzID9u8/nE+p3WB1hTVVmCCOp2ySQnNOKLdPja2Y3B99WFg3M1DxpzEVX/JId
+         xrvI09cxTdM5CPWgbUIXdmgDkFqLv+Py8z0Ld94E=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Olga Kornievskaia <olga.kornievskaia@gmail.com>,
-        Olga Kornievskaia <kolga@netapp.com>,
-        Neil Brown <neilb@suse.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+Cc:     Dongdong Liu <liudongdong3@huawei.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Zhou Wang <wangzhou1@hisilicon.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.4 132/135] NFSv4 fix CLOSE not waiting for direct IO compeletion
-Date:   Mon, 29 Jun 2020 11:53:06 -0400
-Message-Id: <20200629155309.2495516-133-sashal@kernel.org>
+Subject: [PATCH 4.4 133/135] PCI: Disable MSI for HiSilicon Hip06/Hip07 only in Root Port mode
+Date:   Mon, 29 Jun 2020 11:53:07 -0400
+Message-Id: <20200629155309.2495516-134-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
 References: <20200629155309.2495516-1-sashal@kernel.org>
@@ -51,96 +50,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olga Kornievskaia <olga.kornievskaia@gmail.com>
+From: Dongdong Liu <liudongdong3@huawei.com>
 
-commit d03727b248d0dae6199569a8d7b629a681154633 upstream.
+commit deb86999323661c019ef2740eb9d479d1e526b5c upstream.
 
-Figuring out the root case for the REMOVE/CLOSE race and
-suggesting the solution was done by Neil Brown.
+HiSilicon Hip06/Hip07 can operate as either a Root Port or an Endpoint.  It
+always advertises an MSI capability, but it can only generate MSIs when in
+Endpoint mode.
 
-Currently what happens is that direct IO calls hold a reference
-on the open context which is decremented as an asynchronous task
-in the nfs_direct_complete(). Before reference is decremented,
-control is returned to the application which is free to close the
-file. When close is being processed, it decrements its reference
-on the open_context but since directIO still holds one, it doesn't
-sent a close on the wire. It returns control to the application
-which is free to do other operations. For instance, it can delete a
-file. Direct IO is finally releasing its reference and triggering
-an asynchronous close. Which races with the REMOVE. On the server,
-REMOVE can be processed before the CLOSE, failing the REMOVE with
-EACCES as the file is still opened.
+The device has the same Vendor and Device IDs in both modes, so check the
+Class Code and disable MSI only when operating as a Root Port.
 
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-Suggested-by: Neil Brown <neilb@suse.com>
-CC: stable@vger.kernel.org
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+[bhelgaas: changelog]
+Fixes: 72f2ff0deb87 ("PCI: Disable MSI for HiSilicon Hip06/Hip07 Root Ports")
+Signed-off-by: Dongdong Liu <liudongdong3@huawei.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Zhou Wang <wangzhou1@hisilicon.com>
+Cc: stable@vger.kernel.org	# v4.11+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/direct.c | 13 +++++++++----
- fs/nfs/file.c   |  1 +
- 2 files changed, 10 insertions(+), 4 deletions(-)
+ drivers/pci/quirks.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/nfs/direct.c b/fs/nfs/direct.c
-index 7789f0b9b999e..4d76e9a97538d 100644
---- a/fs/nfs/direct.c
-+++ b/fs/nfs/direct.c
-@@ -385,8 +385,6 @@ static void nfs_direct_complete(struct nfs_direct_req *dreq, bool write)
- 	if (write)
- 		nfs_zap_mapping(inode, inode->i_mapping);
+diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+index eeb771ecda15b..ab161bbeb4d41 100644
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -1623,8 +1623,8 @@ static void quirk_pcie_mch(struct pci_dev *pdev)
+ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_E7520_MCH,	quirk_pcie_mch);
+ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_E7320_MCH,	quirk_pcie_mch);
+ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_E7525_MCH,	quirk_pcie_mch);
+-DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_HUAWEI,	0x1610,	quirk_pcie_mch);
  
--	inode_dio_end(inode);
--
- 	if (dreq->iocb) {
- 		long res = (long) dreq->error;
- 		if (!res)
-@@ -396,7 +394,10 @@ static void nfs_direct_complete(struct nfs_direct_req *dreq, bool write)
++DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_VENDOR_ID_HUAWEI, 0x1610, PCI_CLASS_BRIDGE_PCI, 8, quirk_pcie_mch);
  
- 	complete_all(&dreq->completion);
- 
-+	igrab(inode);
- 	nfs_direct_req_release(dreq);
-+	inode_dio_end(inode);
-+	iput(inode);
- }
- 
- static void nfs_direct_readpage_release(struct nfs_page *req)
-@@ -537,8 +538,10 @@ static ssize_t nfs_direct_read_schedule_iovec(struct nfs_direct_req *dreq,
- 	 * generic layer handle the completion.
- 	 */
- 	if (requested_bytes == 0) {
--		inode_dio_end(inode);
-+		igrab(inode);
- 		nfs_direct_req_release(dreq);
-+		inode_dio_end(inode);
-+		iput(inode);
- 		return result < 0 ? result : -EIO;
- 	}
- 
-@@ -939,8 +942,10 @@ static ssize_t nfs_direct_write_schedule_iovec(struct nfs_direct_req *dreq,
- 	 * generic layer handle the completion.
- 	 */
- 	if (requested_bytes == 0) {
--		inode_dio_end(inode);
-+		igrab(inode);
- 		nfs_direct_req_release(dreq);
-+		inode_dio_end(inode);
-+		iput(inode);
- 		return result < 0 ? result : -EIO;
- 	}
- 
-diff --git a/fs/nfs/file.c b/fs/nfs/file.c
-index dc875cd0e11d5..eaa6697d256ea 100644
---- a/fs/nfs/file.c
-+++ b/fs/nfs/file.c
-@@ -82,6 +82,7 @@ nfs_file_release(struct inode *inode, struct file *filp)
- 	dprintk("NFS: release(%pD2)\n", filp);
- 
- 	nfs_inc_stats(inode, NFSIOS_VFSRELEASE);
-+	inode_dio_wait(inode);
- 	nfs_file_clear_open_context(filp);
- 	return 0;
- }
+ /*
+  * It's possible for the MSI to get corrupted if shpc and acpi
 -- 
 2.25.1
 
