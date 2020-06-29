@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DDB7C20D9CE
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:12:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3315120D932
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:11:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732669AbgF2Tu6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:50:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47652 "EHLO mail.kernel.org"
+        id S1726960AbgF2Tp2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:45:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387723AbgF2Tkc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:32 -0400
+        id S2387831AbgF2Tko (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5B5ED2489F;
-        Mon, 29 Jun 2020 15:26:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4E5A4248A2;
+        Mon, 29 Jun 2020 15:26:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1593444398;
-        bh=sc57KxTG1+aCoDv41LVl5ehw3kZUuTNZaOK2LBSb4Tc=;
+        bh=IPjqOOWZ9Sfj5zluR+FvX6Y/lbIVzybNA36IqjFDWSI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2InHoC7h2W2JIrJTHG3j/LWVxj0ng164U/r5CAemZ+tulhg7TFGg4u2WawDWh4b+I
-         fhMNDZiYdwl47SRfIHxRWW/l29CZNFqOLb5zGgC2fwvSr2rD2aCP3Lp3OiRTDUiM0T
-         JXEOgusBXe1zcijg7qEe/PoExLVzQ03+euEMdGsg=
+        b=idPounMUKWE7HqeTeFGack22iuu1sB2+D8LLYwJQlhg/MA4v31cGyJTkesBZo2EnW
+         IfB645gLZxA5VJgz1eHF9cpauGXkxEy6bk9IdMlZFKHLw3vnwE/hIu8jvTpBwoP3Og
+         MNxDNVFdzYu6WN/ulc96rmh9kwFyQRA5u8YLIFqc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Drew Fustini <drew@beagleboard.org>,
-        Robert Nelson <robertcnelson@gmail.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 075/178] ARM: dts: am335x-pocketbeagle: Fix mmc0 Write Protect
-Date:   Mon, 29 Jun 2020 11:23:40 -0400
-Message-Id: <20200629152523.2494198-76-sashal@kernel.org>
+Cc:     Tony Lindgren <tony@atomide.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 076/178] ARM: dts: Fix duovero smsc interrupt for suspend
+Date:   Mon, 29 Jun 2020 11:23:41 -0400
+Message-Id: <20200629152523.2494198-77-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -50,38 +47,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Drew Fustini <drew@beagleboard.org>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit d7af722344e6dc52d87649100516515263e15c75 ]
+[ Upstream commit 9cf28e41f9f768791f54ee18333239fda6927ed8 ]
 
-AM3358 pin mcasp0_aclkr (ZCZ ball B13) [0] is routed to P1.31 header [1]
-Mode 4 of this pin is mmc0_sdwp (SD Write Protect).  A signal connected
-to P1.31 may accidentally trigger mmc0 write protection.  To avoid this
-situation, do not put mcasp0_aclkr in mode 4 (mmc0_sdwp) by default.
+While testing the recent suspend and resume regressions I noticed that
+duovero can still end up losing edge gpio interrupts on runtime
+suspend. This causes NFSroot easily stopping working after resume on
+duovero.
 
-[0] http://www.ti.com/lit/ds/symlink/am3358.pdf
-[1] https://github.com/beagleboard/pocketbeagle/wiki/System-Reference-Manual#531_Expansion_Headers
+Let's fix the issue by using gpio level interrupts for smsc as then
+the gpio interrupt state is seen by the gpio controller on resume.
 
-Fixes: 047905376a16 (ARM: dts: Add am335x-pocketbeagle)
-Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
-Signed-off-by: Drew Fustini <drew@beagleboard.org>
+Fixes: 731b409878a3 ("ARM: dts: Configure duovero for to allow core retention during idle")
 Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/am335x-pocketbeagle.dts | 1 -
- 1 file changed, 1 deletion(-)
+ arch/arm/boot/dts/omap4-duovero-parlor.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/am335x-pocketbeagle.dts b/arch/arm/boot/dts/am335x-pocketbeagle.dts
-index ff4f919d22f62..abf2badce53d9 100644
---- a/arch/arm/boot/dts/am335x-pocketbeagle.dts
-+++ b/arch/arm/boot/dts/am335x-pocketbeagle.dts
-@@ -88,7 +88,6 @@
- 			AM33XX_PADCONF(AM335X_PIN_MMC0_DAT3, PIN_INPUT_PULLUP, MUX_MODE0)
- 			AM33XX_PADCONF(AM335X_PIN_MMC0_CMD, PIN_INPUT_PULLUP, MUX_MODE0)
- 			AM33XX_PADCONF(AM335X_PIN_MMC0_CLK, PIN_INPUT_PULLUP, MUX_MODE0)
--			AM33XX_PADCONF(AM335X_PIN_MCASP0_ACLKR, PIN_INPUT, MUX_MODE4)		/* (B12) mcasp0_aclkr.mmc0_sdwp */
- 		>;
- 	};
+diff --git a/arch/arm/boot/dts/omap4-duovero-parlor.dts b/arch/arm/boot/dts/omap4-duovero-parlor.dts
+index 8047e8cdb3af0..4548d87534e37 100644
+--- a/arch/arm/boot/dts/omap4-duovero-parlor.dts
++++ b/arch/arm/boot/dts/omap4-duovero-parlor.dts
+@@ -139,7 +139,7 @@
+ 	ethernet@gpmc {
+ 		reg = <5 0 0xff>;
+ 		interrupt-parent = <&gpio2>;
+-		interrupts = <12 IRQ_TYPE_EDGE_FALLING>;	/* gpio_44 */
++		interrupts = <12 IRQ_TYPE_LEVEL_LOW>;		/* gpio_44 */
+ 
+ 		phy-mode = "mii";
  
 -- 
 2.25.1
