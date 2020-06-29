@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0105B20DBC8
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:16:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62DB720DCA4
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:17:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726853AbgF2UJU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:09:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40594 "EHLO mail.kernel.org"
+        id S1729985AbgF2URG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:17:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732916AbgF2TaW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:30:22 -0400
+        id S1730777AbgF2TaP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:30:15 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 59B24252CA;
-        Mon, 29 Jun 2020 15:38:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 99A17252CC;
+        Mon, 29 Jun 2020 15:38:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445093;
-        bh=EhVqRIVL7XTnFLSU+chvQGfM9cMEKsaL5C1NCbVo8PY=;
+        s=default; t=1593445094;
+        bh=jG48EIU4dr9zDxGG51f0h/mF76bDGtCruCg/QBobqhw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qWZ5U5Y2vkU8ezJEB7hdqXPI7mx0r2bkEGAuWXk6D7UiHFn2Fo3MN76CoY7CUjNun
-         5Mu7eg65ndk29RA/VZMyHbSaLqwY7B1N5qiinWwFYteKEhpKuo2ZuLekvZeoaiW6tK
-         8XHmPZ7wiq+Y0LlGzeHuuf/gKjAv9kcSLen3hrEo=
+        b=aTAflVfxPDtUQ4wUyDgg7uEIY0ad47DaZ6g2gSeVKbZuemQb3sv1rzLTNxA1eGNOs
+         d3ZQX4nRpUkT9BrTQVsbzZ+fam/eXxiLrmQ+84ev80KiB8u5kIeURc2AF0dNIgqdY1
+         5ivuHcXst3h5ILXgqQiYc1A75gfkYNqgsf9/UEE8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     yu kuai <yukuai3@huawei.com>, Ming Lei <ming.lei@redhat.com>,
-        Bob Liu <bob.liu@oracle.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.14 03/78] block/bio-integrity: don't free 'buf' if bio_integrity_add_page() failed
-Date:   Mon, 29 Jun 2020 11:36:51 -0400
-Message-Id: <20200629153806.2494953-4-sashal@kernel.org>
+Cc:     Valentin Longchamp <valentin@longchamp.me>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 04/78] net: sched: export __netdev_watchdog_up()
+Date:   Mon, 29 Jun 2020 11:36:52 -0400
+Message-Id: <20200629153806.2494953-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629153806.2494953-1-sashal@kernel.org>
 References: <20200629153806.2494953-1-sashal@kernel.org>
@@ -52,39 +49,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: yu kuai <yukuai3@huawei.com>
+From: Valentin Longchamp <valentin@longchamp.me>
 
-commit a75ca9303175d36af93c0937dd9b1a6422908b8d upstream.
+[ Upstream commit 1a3db27ad9a72d033235b9673653962c02e3486e ]
 
-commit e7bf90e5afe3 ("block/bio-integrity: fix a memory leak bug") added
-a kfree() for 'buf' if bio_integrity_add_page() returns '0'. However,
-the object will be freed in bio_integrity_free() since 'bio->bi_opf' and
-'bio->bi_integrity' were set previousy in bio_integrity_alloc().
+Since the quiesce/activate rework, __netdev_watchdog_up() is directly
+called in the ucc_geth driver.
 
-Fixes: commit e7bf90e5afe3 ("block/bio-integrity: fix a memory leak bug")
-Signed-off-by: yu kuai <yukuai3@huawei.com>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Reviewed-by: Bob Liu <bob.liu@oracle.com>
-Acked-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Unfortunately, this function is not available for modules and thus
+ucc_geth cannot be built as a module anymore. Fix it by exporting
+__netdev_watchdog_up().
+
+Since the commit introducing the regression was backported to stable
+branches, this one should ideally be as well.
+
+Fixes: 79dde73cf9bc ("net/ethernet/freescale: rework quiesce/activate for ucc_geth")
+Signed-off-by: Valentin Longchamp <valentin@longchamp.me>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bio-integrity.c | 1 -
- 1 file changed, 1 deletion(-)
+ net/sched/sch_generic.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/block/bio-integrity.c b/block/bio-integrity.c
-index 7f80106624375..d3df44c3b43af 100644
---- a/block/bio-integrity.c
-+++ b/block/bio-integrity.c
-@@ -315,7 +315,6 @@ bool bio_integrity_prep(struct bio *bio)
+diff --git a/net/sched/sch_generic.c b/net/sched/sch_generic.c
+index 21b981abbacb5..091a9746627fa 100644
+--- a/net/sched/sch_generic.c
++++ b/net/sched/sch_generic.c
+@@ -341,6 +341,7 @@ void __netdev_watchdog_up(struct net_device *dev)
+ 			dev_hold(dev);
+ 	}
+ }
++EXPORT_SYMBOL_GPL(__netdev_watchdog_up);
  
- 		if (ret == 0) {
- 			printk(KERN_ERR "could not attach integrity payload\n");
--			kfree(buf);
- 			status = BLK_STS_RESOURCE;
- 			goto err_end_io;
- 		}
+ static void dev_watchdog_up(struct net_device *dev)
+ {
 -- 
 2.25.1
 
