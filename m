@@ -2,80 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0293520E0AA
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:57:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DAA1E20E1A3
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:59:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728027AbgF2Usk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:48:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43364 "EHLO
+        id S1731259AbgF2U6H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:58:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731517AbgF2TNt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Jun 2020 15:13:49 -0400
-Received: from mail-il1-x142.google.com (mail-il1-x142.google.com [IPv6:2607:f8b0:4864:20::142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D3F7C08ECB6
-        for <stable@vger.kernel.org>; Sun, 28 Jun 2020 23:50:34 -0700 (PDT)
-Received: by mail-il1-x142.google.com with SMTP id t27so8535896ill.9
-        for <stable@vger.kernel.org>; Sun, 28 Jun 2020 23:50:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=GhYE10QAs2eBgL/jTh3H4abtZ2nGJeeaFPnZ4jyf5aw=;
-        b=dOmEgW3bC1HR5pmivirmGofv12uLJkkKbF/6ph9vFfrm185VO/k6KdlvpzJfARZuzD
-         OtjSRpj2n3JFH8mRNyFTZI3L82Z/IeZhW5CUqUOrmP1WtA2zgVaH/iC7c5lY/Cu9BdxX
-         seu2z9tIQnfYXdmTmR+PV+7Ki543VWB2U7J48HBWevNSHgSxwliSO8uqt7AwkKZKEFou
-         RPhiNhBSdKIA1wEWVvl92RHndXw1XIej7hHrdT6t0uJyygByFQh2C4qcVmhXVbaCIiNG
-         pdcwIHpK/vqqm1U753XGmaLuJgpORZtfdvldyM3p36J2TkQCywoWzh8QN7aUTJsFk6K/
-         SYxQ==
+        with ESMTP id S1730795AbgF2TNE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Jun 2020 15:13:04 -0400
+Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27941C00861B;
+        Mon, 29 Jun 2020 03:32:26 -0700 (PDT)
+Received: by mail-wr1-x441.google.com with SMTP id f7so13005273wrw.1;
+        Mon, 29 Jun 2020 03:32:26 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=GhYE10QAs2eBgL/jTh3H4abtZ2nGJeeaFPnZ4jyf5aw=;
-        b=Sedlfayh8vTIkKcDIUP11ykTUGz2hXxV3VMHo86xbDPVLQk1rPGvuWgHI/AsoKzW70
-         NHZtRM68Hz/znV0SJKMlx5Dhpiy1gboxLIIrtEjryhhsLf0mpgoGP7L+Tvmrqh18dHMk
-         dZIGnlaN7++qtPnowKM07nmoLrJZeZVK7A4p3aWagJi/3D0q8cYBHYz/WAQ8okfjs5Br
-         cGfH9baNF0UqMPnXr8ZfQpMs5INBPzb4E0yOl/FbcKFEO4M3CCSTnVhBsSaR84r+1Qb1
-         QhM+JyW2d4ISDTkKnalccskVe5d9FFkh66Dq1aAJWD8F2rsju21h+BcTrf/wTbmxzTtV
-         uO8A==
-X-Gm-Message-State: AOAM531FwlAMIEsK7efk/i7M0l7SaI20FTGJHcHKqumAnT9g7V2llRG3
-        g5Qxad1mRevifmsrP4Bzats6WnNbUp/WnkhbiqY=
-X-Google-Smtp-Source: ABdhPJx04uOprVTTZeIbouxrbDWjn8WLXqIERbQ4RY/x51OQSNuvquOhdBanDbZ21uh+d8Wgoui3k/zBYXnWXo1b4OA=
-X-Received: by 2002:a92:4995:: with SMTP id k21mr384586ilg.45.1593413433746;
- Sun, 28 Jun 2020 23:50:33 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=uA93shaS3ROaZO1F/Theu2W+pMXUv937OHVYLQtQpJc=;
+        b=QK9tK1GHNBE7aDAP8tGPnrwMHTwrspXJNSldTfaw2XfVBowb4ndW3UB1CXE+lCXLiD
+         oZ3dwZ/LQQflwvqsBUPoydEzXLNhTeBeNUdbt1ugJZ2DwoylZp8MXRE4OInh8OKgUNZU
+         1W6IFepl8kW12d6/MYgcGQA+X+1d7L/Q05ntTPVWi2kgbPkiAsbfY1CmNyx/263kVp1u
+         5zP8ISuN6/7XyZ2oRH/ZkTBitJEFi6zWEgTnFnNRQ6JWhCdl/lAW62OS/gS7YnzoG/zy
+         f8wWRGRPVY/9ko9g4VMsV/UdbkPiQjAoWA8g/WdkqDBeppBUz+sCQVoUA2iSDbi2FrBF
+         pGPw==
+X-Gm-Message-State: AOAM530lsHdL+EFmCZzaqvdxSTzXEJ8hPA9m4vTuZ3Ev3foTsiIM6fnN
+        7SnYhW46nm9CqbKW3aUKe54=
+X-Google-Smtp-Source: ABdhPJyQVyWd7PiCVN+PqIz3jcQ5yfRgoN5qX/9YK1HLjlJOQ0zbG0Eh8/SqLuvv2dP6GWVZw170OA==
+X-Received: by 2002:adf:ee05:: with SMTP id y5mr16955076wrn.185.1593426744827;
+        Mon, 29 Jun 2020 03:32:24 -0700 (PDT)
+Received: from liuwe-devbox-debian-v2 ([51.145.34.42])
+        by smtp.gmail.com with ESMTPSA id r1sm14814942wrw.24.2020.06.29.03.32.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 29 Jun 2020 03:32:24 -0700 (PDT)
+Date:   Mon, 29 Jun 2020 10:32:23 +0000
+From:   Wei Liu <wei.liu@kernel.org>
+To:     Joseph Salisbury <joseph.salisbury@microsoft.com>
+Cc:     kys@microsoft.com, haiyangz@microsoft.com, sthemmin@microsoft.com,
+        sashal@kernel.org, wei.liu@kernel.org, mikelley@microsoft.com,
+        linux-hyperv@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH][v2] Drivers: hv: Change flag to write log level in panic
+ msg to false
+Message-ID: <20200629103223.ft7l76vbr45eec6x@liuwe-devbox-debian-v2>
+References: <1593210497-114310-1-git-send-email-joseph.salisbury@microsoft.com>
 MIME-Version: 1.0
-Received: by 2002:a5e:d916:0:0:0:0:0 with HTTP; Sun, 28 Jun 2020 23:50:33
- -0700 (PDT)
-Reply-To: scdn-1@tlen.pl
-From:   "Mrs. Patricia Edgar" <alexwills033@gmail.com>
-Date:   Sun, 28 Jun 2020 23:50:33 -0700
-Message-ID: <CAPByBJsHMMs4hkmrsc501s=LRjv_ikFpR4iO6hz1o7dD=U81Zg@mail.gmail.com>
-Subject: Your Response,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1593210497-114310-1-git-send-email-joseph.salisbury@microsoft.com>
+User-Agent: NeoMutt/20180716
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
-I am Mrs. Patricia Edgar My Sorrow Is Deep Bitter dying Woman here in
-Hospital Bed in United State. I Lost my Husband and my only Daughter
-Angela for heartless Covid-19 i am the only remaining in the Family am
-dying here in the Hospital slowly Heart Disease Corona-virus High
-Blood.
+On Fri, Jun 26, 2020 at 03:28:17PM -0700, Joseph Salisbury wrote:
+> When the kernel panics, one page of kmsg data may be collected and sent to
+> Hyper-V to aid in diagnosing the failure.  The collected kmsg data typically
+>  contains 50 to 100 lines, each of which has a log level prefix that isn't
+> very useful from a diagnostic standpoint.  So tell kmsg_dump_get_buffer()
+> to not include the log level, enabling more information that *is* useful to
+> fit in the page.
+> 
+> Requesting in stable kernels, since many kernels running in production are
+> stable releases.
+> 
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Joseph Salisbury <joseph.salisbury@microsoft.com>
 
-i have a project that I am about to hand over to you. I have already
-instructed the Bank to make the transfer to you as soon as the Account
-Manager hear from you. the fund i want you to give 50% to Charitable
-Home and take 50% Please, don't think otherwise and why would anybody
-sent someone you barely know a huge amount of money is this real or
-what? please do as i said there was someone from that State i Love and
-i miss him so very very much i have no means to reach any Charitable
-Home there. that is why i go for personal search of the Country and
-State and i got your mail contact through search to let you know my
-Bitterness and please, help me now is getting very Dark I ask my
-Doctor to help me keep you notice failure for me to reach you in
-person Your Response,
+Applied to hyperv-fixes with Michael's review from v1. Thanks.
 
-Thanks.
-Mrs. Patricia Edgar
+> ---
+>  drivers/hv/vmbus_drv.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
+> index 9147ee9d5f7d..d69f4efa3719 100644
+> --- a/drivers/hv/vmbus_drv.c
+> +++ b/drivers/hv/vmbus_drv.c
+> @@ -1368,7 +1368,7 @@ static void hv_kmsg_dump(struct kmsg_dumper *dumper,
+>  	 * Write dump contents to the page. No need to synchronize; panic should
+>  	 * be single-threaded.
+>  	 */
+> -	kmsg_dump_get_buffer(dumper, true, hv_panic_page, HV_HYP_PAGE_SIZE,
+> +	kmsg_dump_get_buffer(dumper, false, hv_panic_page, HV_HYP_PAGE_SIZE,
+>  			     &bytes_written);
+>  	if (bytes_written)
+>  		hyperv_report_panic_msg(panic_pa, bytes_written);
+> -- 
+> 2.17.1
+> 
