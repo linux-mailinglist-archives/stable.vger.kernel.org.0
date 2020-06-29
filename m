@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77FF020DC5A
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:17:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E364920DB76
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:15:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729818AbgF2UOd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:14:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40580 "EHLO mail.kernel.org"
+        id S1732333AbgF2UG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:06:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732838AbgF2TaS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:30:18 -0400
+        id S1732965AbgF2Ta1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:30:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2B8A251F6;
-        Mon, 29 Jun 2020 15:35:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB9A3251F8;
+        Mon, 29 Jun 2020 15:35:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444914;
-        bh=nDK7Vd65zXaNkIiAip2aUpYP8MkPkFhbPYTrKFizs54=;
+        s=default; t=1593444915;
+        bh=GAFwoHC/HyW+i5lJKlhyT/lkP/qDkV54/eKdoBoi7tk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=170KneM49If7uJJJowQ8Pnp/uBt6biS0b1DmEgL9peLY3TLibVK9IOrBy5x4SUwLT
-         yN9L8frQ8qpmh2kIMZVjgx3xcrLAFAp7rzEg89lj5rczTpthd7sMbq9CQZvqaoOPDh
-         V0A4MSZLq5bFCOKqqDCEa7rJxzD3jzBpcO0zvdUI=
+        b=lrmzBSY9O7wHcKQLjAS0kjX8vJdGcvuxfEK3r/BpTcb5uQgXLJGA3zKm1uEuDXxpF
+         MAUQyXLzNiRkg8CDGlgJfAHIr/20WuvkjVte98sf/zYDHjhd37Vse44VG/5yLFnpXd
+         cowx00u/Tqp4EPgdEavNAqIs92u4cUiYOVPg7rVA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sowjanya Komatineni <skomatineni@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
+Cc:     Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 010/131] i2c: tegra: Fix Maximum transfer size
-Date:   Mon, 29 Jun 2020 11:33:01 -0400
-Message-Id: <20200629153502.2494656-11-sashal@kernel.org>
+Subject: [PATCH 4.19 011/131] btrfs: make caching_thread use btrfs_find_next_key
+Date:   Mon, 29 Jun 2020 11:33:02 -0400
+Message-Id: <20200629153502.2494656-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629153502.2494656-1-sashal@kernel.org>
 References: <20200629153502.2494656-1-sashal@kernel.org>
@@ -50,119 +49,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sowjanya Komatineni <skomatineni@nvidia.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit b67d4530cdade7ebfafa2c6b46f2a0dad3e41bcb ]
+[ Upstream commit 6a9fb468f1152d6254f49fee6ac28c3cfa3367e5 ]
 
-Tegra194 supports maximum 64K Bytes transfer per packet.
-Tegra186 and prior supports maximum 4K Bytes transfer per packet.
+extent-tree.c has a find_next_key that just walks up the path to find
+the next key, but it is used for both the caching stuff and the snapshot
+delete stuff.  The snapshot deletion stuff is special so it can't really
+use btrfs_find_next_key, but the caching thread stuff can.  We just need
+to fix btrfs_find_next_key to deal with ->skip_locking and then it works
+exactly the same as the private find_next_key helper.
 
-This patch fixes this payload difference between Tegra194 and prior
-Tegra chipsets using separate i2c_adapter_quirks.
-
-Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
-Acked-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-tegra.c | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ fs/btrfs/ctree.c       | 4 ++--
+ fs/btrfs/extent-tree.c | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 917f416787b10..af06198851f1b 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -164,6 +164,8 @@ enum msg_end_type {
-  * @has_mst_fifo: The I2C controller contains the new MST FIFO interface that
-  *		provides additional features and allows for longer messages to
-  *		be transferred in one go.
-+ * @quirks: i2c adapter quirks for limiting write/read transfer size and not
-+ *		allowing 0 length transfers.
-  */
- struct tegra_i2c_hw_feature {
- 	bool has_continue_xfer_support;
-@@ -176,6 +178,7 @@ struct tegra_i2c_hw_feature {
- 	bool has_multi_master_mode;
- 	bool has_slcg_override_reg;
- 	bool has_mst_fifo;
-+	const struct i2c_adapter_quirks *quirks;
- };
+diff --git a/fs/btrfs/ctree.c b/fs/btrfs/ctree.c
+index c9943d70e2cb2..d03944735ee42 100644
+--- a/fs/btrfs/ctree.c
++++ b/fs/btrfs/ctree.c
+@@ -5665,7 +5665,7 @@ int btrfs_find_next_key(struct btrfs_root *root, struct btrfs_path *path,
+ 	int slot;
+ 	struct extent_buffer *c;
  
- /**
-@@ -847,6 +850,10 @@ static const struct i2c_adapter_quirks tegra_i2c_quirks = {
- 	.max_write_len = 4096 - 12,
- };
+-	WARN_ON(!path->keep_locks);
++	WARN_ON(!path->keep_locks && !path->skip_locking);
+ 	while (level < BTRFS_MAX_LEVEL) {
+ 		if (!path->nodes[level])
+ 			return 1;
+@@ -5681,7 +5681,7 @@ int btrfs_find_next_key(struct btrfs_root *root, struct btrfs_path *path,
+ 			    !path->nodes[level + 1])
+ 				return 1;
  
-+static const struct i2c_adapter_quirks tegra194_i2c_quirks = {
-+	.flags = I2C_AQ_NO_ZERO_LEN,
-+};
-+
- static const struct tegra_i2c_hw_feature tegra20_i2c_hw = {
- 	.has_continue_xfer_support = false,
- 	.has_per_pkt_xfer_complete_irq = false,
-@@ -858,6 +865,7 @@ static const struct tegra_i2c_hw_feature tegra20_i2c_hw = {
- 	.has_multi_master_mode = false,
- 	.has_slcg_override_reg = false,
- 	.has_mst_fifo = false,
-+	.quirks = &tegra_i2c_quirks,
- };
- 
- static const struct tegra_i2c_hw_feature tegra30_i2c_hw = {
-@@ -871,6 +879,7 @@ static const struct tegra_i2c_hw_feature tegra30_i2c_hw = {
- 	.has_multi_master_mode = false,
- 	.has_slcg_override_reg = false,
- 	.has_mst_fifo = false,
-+	.quirks = &tegra_i2c_quirks,
- };
- 
- static const struct tegra_i2c_hw_feature tegra114_i2c_hw = {
-@@ -884,6 +893,7 @@ static const struct tegra_i2c_hw_feature tegra114_i2c_hw = {
- 	.has_multi_master_mode = false,
- 	.has_slcg_override_reg = false,
- 	.has_mst_fifo = false,
-+	.quirks = &tegra_i2c_quirks,
- };
- 
- static const struct tegra_i2c_hw_feature tegra124_i2c_hw = {
-@@ -897,6 +907,7 @@ static const struct tegra_i2c_hw_feature tegra124_i2c_hw = {
- 	.has_multi_master_mode = false,
- 	.has_slcg_override_reg = true,
- 	.has_mst_fifo = false,
-+	.quirks = &tegra_i2c_quirks,
- };
- 
- static const struct tegra_i2c_hw_feature tegra210_i2c_hw = {
-@@ -910,6 +921,7 @@ static const struct tegra_i2c_hw_feature tegra210_i2c_hw = {
- 	.has_multi_master_mode = true,
- 	.has_slcg_override_reg = true,
- 	.has_mst_fifo = false,
-+	.quirks = &tegra_i2c_quirks,
- };
- 
- static const struct tegra_i2c_hw_feature tegra194_i2c_hw = {
-@@ -923,6 +935,7 @@ static const struct tegra_i2c_hw_feature tegra194_i2c_hw = {
- 	.has_multi_master_mode = true,
- 	.has_slcg_override_reg = true,
- 	.has_mst_fifo = true,
-+	.quirks = &tegra194_i2c_quirks,
- };
- 
- /* Match table for of_platform binding */
-@@ -974,7 +987,6 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 	i2c_dev->base = base;
- 	i2c_dev->div_clk = div_clk;
- 	i2c_dev->adapter.algo = &tegra_i2c_algo;
--	i2c_dev->adapter.quirks = &tegra_i2c_quirks;
- 	i2c_dev->irq = irq;
- 	i2c_dev->cont_id = pdev->id;
- 	i2c_dev->dev = &pdev->dev;
-@@ -990,6 +1002,7 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 	i2c_dev->hw = of_device_get_match_data(&pdev->dev);
- 	i2c_dev->is_dvc = of_device_is_compatible(pdev->dev.of_node,
- 						  "nvidia,tegra20-i2c-dvc");
-+	i2c_dev->adapter.quirks = i2c_dev->hw->quirks;
- 	init_completion(&i2c_dev->msg_complete);
- 	spin_lock_init(&i2c_dev->xfer_lock);
+-			if (path->locks[level + 1]) {
++			if (path->locks[level + 1] || path->skip_locking) {
+ 				level++;
+ 				continue;
+ 			}
+diff --git a/fs/btrfs/extent-tree.c b/fs/btrfs/extent-tree.c
+index 271e70c45d5bd..954e558c4380f 100644
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -436,7 +436,7 @@ static int load_extent_tree_free(struct btrfs_caching_control *caching_ctl)
+ 		if (path->slots[0] < nritems) {
+ 			btrfs_item_key_to_cpu(leaf, &key, path->slots[0]);
+ 		} else {
+-			ret = find_next_key(path, 0, &key);
++			ret = btrfs_find_next_key(extent_root, path, &key, 0, 0);
+ 			if (ret)
+ 				break;
  
 -- 
 2.25.1
