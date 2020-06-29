@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B61E20DB50
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:15:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0808C20DB2F
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:15:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388533AbgF2UF1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:05:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40596 "EHLO mail.kernel.org"
+        id S2388762AbgF2UE0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:04:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732973AbgF2Ta2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:30:28 -0400
+        id S1732988AbgF2Tab (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:30:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE9332525A;
-        Mon, 29 Jun 2020 15:36:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8AF5425256;
+        Mon, 29 Jun 2020 15:36:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444971;
-        bh=j1YDaC6IH6gS+KiXpMItb5OhVrH4IUnNqrmPXW67plI=;
+        s=default; t=1593444972;
+        bh=4Blk32RzQ+UzyP7QmJitEaBEKLU/tRY+xGER/lF4uZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Px2Vnc3foAs8hBxTcuh8MIcESWZxFzzbddRxyRC4ALjEmwWuaIYNsOWOFy79zmdLS
-         gP0dbe4pXLLQGD3lb3bLHFQ0ZC+425HKHwJLGwl3xeFFrin7ivCEpA412NvGgRSNT4
-         koWnHil+A7FN89ei7M15TjWu1xPCmCroKnUXS48o=
+        b=UqcnoTAiJzcIiMbemxzARkH1JUsMzizZwhDMLAldlG1umBgdrHW7MUr8QcOssESjf
+         aZialkukAMLlkPoRlU+PiX5nObdLtKhmSlev4TN0h6TiBrr+K0kPMtoH4x6ZwqRb50
+         DkDGF2Jv3y9aj7w5SA2plGE/OU53YyBbvKDSSNx0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Howells <dhowells@redhat.com>,
+Cc:     Michal Kalderon <michal.kalderon@marvell.com>,
+        Ariel Elior <ariel.elior@marvell.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 070/131] rxrpc: Fix handling of rwind from an ACK packet
-Date:   Mon, 29 Jun 2020 11:34:01 -0400
-Message-Id: <20200629153502.2494656-71-sashal@kernel.org>
+Subject: [PATCH 4.19 071/131] RDMA/qedr: Fix KASAN: use-after-free in ucma_event_handler+0x532
+Date:   Mon, 29 Jun 2020 11:34:02 -0400
+Message-Id: <20200629153502.2494656-72-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629153502.2494656-1-sashal@kernel.org>
 References: <20200629153502.2494656-1-sashal@kernel.org>
@@ -48,51 +50,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Michal Kalderon <michal.kalderon@marvell.com>
 
-[ Upstream commit a2ad7c21ad8cf1ce4ad65e13df1c2a1c29b38ac5 ]
+[ Upstream commit 0dfbd5ecf28cbcb81674c49d34ee97366db1be44 ]
 
-The handling of the receive window size (rwind) from a received ACK packet
-is not correct.  The rxrpc_input_ackinfo() function currently checks the
-current Tx window size against the rwind from the ACK to see if it has
-changed, but then limits the rwind size before storing it in the tx_winsize
-member and, if it increased, wake up the transmitting process.  This means
-that if rwind > RXRPC_RXTX_BUFF_SIZE - 1, this path will always be
-followed.
+Private data passed to iwarp_cm_handler is copied for connection request /
+response, but ignored otherwise.  If junk is passed, it is stored in the
+event and used later in the event processing.
 
-Fix this by limiting rwind before we compare it to tx_winsize.
+The driver passes an old junk pointer during connection close which leads
+to a use-after-free on event processing.  Set private data to NULL for
+events that don 't have private data.
 
-The effect of this can be seen by enabling the rxrpc_rx_rwind_change
-tracepoint.
+  BUG: KASAN: use-after-free in ucma_event_handler+0x532/0x560 [rdma_ucm]
+  kernel: Read of size 4 at addr ffff8886caa71200 by task kworker/u128:1/5250
+  kernel:
+  kernel: Workqueue: iw_cm_wq cm_work_handler [iw_cm]
+  kernel: Call Trace:
+  kernel: dump_stack+0x8c/0xc0
+  kernel: print_address_description.constprop.0+0x1b/0x210
+  kernel: ? ucma_event_handler+0x532/0x560 [rdma_ucm]
+  kernel: ? ucma_event_handler+0x532/0x560 [rdma_ucm]
+  kernel: __kasan_report.cold+0x1a/0x33
+  kernel: ? ucma_event_handler+0x532/0x560 [rdma_ucm]
+  kernel: kasan_report+0xe/0x20
+  kernel: check_memory_region+0x130/0x1a0
+  kernel: memcpy+0x20/0x50
+  kernel: ucma_event_handler+0x532/0x560 [rdma_ucm]
+  kernel: ? __rpc_execute+0x608/0x620 [sunrpc]
+  kernel: cma_iw_handler+0x212/0x330 [rdma_cm]
+  kernel: ? iw_conn_req_handler+0x6e0/0x6e0 [rdma_cm]
+  kernel: ? enqueue_timer+0x86/0x140
+  kernel: ? _raw_write_lock_irq+0xd0/0xd0
+  kernel: cm_work_handler+0xd3d/0x1070 [iw_cm]
 
-Fixes: 702f2ac87a9a ("rxrpc: Wake up the transmitter if Rx window size increases on the peer")
-Signed-off-by: David Howells <dhowells@redhat.com>
+Fixes: e411e0587e0d ("RDMA/qedr: Add iWARP connection management functions")
+Link: https://lore.kernel.org/r/20200616093408.17827-1-michal.kalderon@marvell.com
+Signed-off-by: Ariel Elior <ariel.elior@marvell.com>
+Signed-off-by: Michal Kalderon <michal.kalderon@marvell.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rxrpc/input.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/infiniband/hw/qedr/qedr_iw_cm.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/net/rxrpc/input.c b/net/rxrpc/input.c
-index e65b230fce4c4..58bd558a277a4 100644
---- a/net/rxrpc/input.c
-+++ b/net/rxrpc/input.c
-@@ -735,13 +735,12 @@ static void rxrpc_input_ackinfo(struct rxrpc_call *call, struct sk_buff *skb,
- 	       ntohl(ackinfo->rxMTU), ntohl(ackinfo->maxMTU),
- 	       rwind, ntohl(ackinfo->jumbo_max));
- 
-+	if (rwind > RXRPC_RXTX_BUFF_SIZE - 1)
-+		rwind = RXRPC_RXTX_BUFF_SIZE - 1;
- 	if (call->tx_winsize != rwind) {
--		if (rwind > RXRPC_RXTX_BUFF_SIZE - 1)
--			rwind = RXRPC_RXTX_BUFF_SIZE - 1;
- 		if (rwind > call->tx_winsize)
- 			wake = true;
--		trace_rxrpc_rx_rwind_change(call, sp->hdr.serial,
--					    ntohl(ackinfo->rwind), wake);
-+		trace_rxrpc_rx_rwind_change(call, sp->hdr.serial, rwind, wake);
- 		call->tx_winsize = rwind;
+diff --git a/drivers/infiniband/hw/qedr/qedr_iw_cm.c b/drivers/infiniband/hw/qedr/qedr_iw_cm.c
+index 93b16237b7677..2566715773675 100644
+--- a/drivers/infiniband/hw/qedr/qedr_iw_cm.c
++++ b/drivers/infiniband/hw/qedr/qedr_iw_cm.c
+@@ -128,8 +128,17 @@ qedr_iw_issue_event(void *context,
+ 	if (params->cm_info) {
+ 		event.ird = params->cm_info->ird;
+ 		event.ord = params->cm_info->ord;
+-		event.private_data_len = params->cm_info->private_data_len;
+-		event.private_data = (void *)params->cm_info->private_data;
++		/* Only connect_request and reply have valid private data
++		 * the rest of the events this may be left overs from
++		 * connection establishment. CONNECT_REQUEST is issued via
++		 * qedr_iw_mpa_request
++		 */
++		if (event_type == IW_CM_EVENT_CONNECT_REPLY) {
++			event.private_data_len =
++				params->cm_info->private_data_len;
++			event.private_data =
++				(void *)params->cm_info->private_data;
++		}
  	}
  
+ 	if (ep->cm_id)
 -- 
 2.25.1
 
