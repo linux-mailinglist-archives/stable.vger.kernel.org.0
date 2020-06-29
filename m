@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F35B620E7EF
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:12:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6873320E83D
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:12:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729374AbgF2WBf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 18:01:35 -0400
+        id S2391836AbgF2WEq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 18:04:46 -0400
 Received: from mail.kernel.org ([198.145.29.99]:56904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726245AbgF2SfY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:35:24 -0400
+        id S1726177AbgF2SfV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:35:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26D3E246B9;
-        Mon, 29 Jun 2020 15:20:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E61C246B3;
+        Mon, 29 Jun 2020 15:20:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444007;
-        bh=NZBpvXR0toR/Aek7Lz0RRaujuuhv5ZM2HJX/D3SBmPo=;
+        s=default; t=1593444008;
+        bh=5ZilBD8b4awJ7XRyq9tntI+OmekGDGgyK6digP59zWQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EeZbPeUEAOC90haDojY/P3BrCjPXMrKkRZN9+rFx5wrdpACbZDcqWCBlPOWIhEmQg
-         zkNY6OFO6gJWYinE6BOeqPNrQhDBDCG/KA4VHIaHsQ9jWumm8phDwn5yM2n7lROijW
-         YIOePzpaOBzoR/g1dPdNYsxLe7WT/x0dy3uZdaPM=
+        b=wCkvbJGFbiBANH7/FwctO1Z8OfhA5FwYLsgoIafDOe+hKjA/0Zzb2kx1vSpmTc6Vh
+         ew8BOd7AIjfGIxvIMTuC/T3OUzH5VwI+VIXCEmgwspxDATy88p0BwRRkYentBJYjwU
+         esMYfwgzau/bfostSp0v/NDQlZoGmysUB1ona0SM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Robin Gong <yibin.gong@nxp.com>,
-        Christophe Meynard <Christophe.Meynard@ign.fr>,
-        Mark Brown <broonie@kernel.org>,
+Cc:     Philipp Fent <fent@in.tum.de>, Ard Biesheuvel <ardb@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 113/265] regualtor: pfuze100: correct sw1a/sw2 on pfuze3000
-Date:   Mon, 29 Jun 2020 11:15:46 -0400
-Message-Id: <20200629151818.2493727-114-sashal@kernel.org>
+Subject: [PATCH 5.7 114/265] efi/libstub: Fix path separator regression
+Date:   Mon, 29 Jun 2020 11:15:47 -0400
+Message-Id: <20200629151818.2493727-115-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -50,119 +48,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Gong <yibin.gong@nxp.com>
+From: Philipp Fent <fent@in.tum.de>
 
-[ Upstream commit 6f1cf5257acc6e6242ddf2f52bc7912aed77b79f ]
+[ Upstream commit 7a88a6227dc7f2e723bba11ece05e57bd8dce8e4 ]
 
-PFUZE100_SWB_REG is not proper for sw1a/sw2, because enable_mask/enable_reg
-is not correct. On PFUZE3000, sw1a/sw2 should be the same as sw1a/sw2 on
-pfuze100 except that voltages are not linear, so add new PFUZE3000_SW_REG
-and pfuze3000_sw_regulator_ops which like the non-linear PFUZE100_SW_REG
-and pfuze100_sw_regulator_ops.
+Commit 9302c1bb8e47 ("efi/libstub: Rewrite file I/O routine") introduced a
+regression that made a couple of (badly configured) systems fail to
+boot [1]: Until 5.6, we silently accepted Unix-style file separators in
+EFI paths, which might violate the EFI standard, but are an easy to make
+mistake. This fix restores the pre-5.7 behaviour.
 
-Fixes: 1dced996ee70 ("regulator: pfuze100: update voltage setting for pfuze3000 sw1a")
-Reported-by: Christophe Meynard <Christophe.Meynard@ign.fr>
-Signed-off-by: Robin Gong <yibin.gong@nxp.com>
-Link: https://lore.kernel.org/r/1592171648-8752-1-git-send-email-yibin.gong@nxp.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+[1] https://bbs.archlinux.org/viewtopic.php?id=256273
+
+Fixes: 9302c1bb8e47 ("efi/libstub: Rewrite file I/O routine")
+Signed-off-by: Philipp Fent <fent@in.tum.de>
+Link: https://lore.kernel.org/r/20200615115109.7823-1-fent@in.tum.de
+[ardb: rewrite as chained if/else statements]
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/pfuze100-regulator.c | 60 +++++++++++++++++---------
- 1 file changed, 39 insertions(+), 21 deletions(-)
+ drivers/firmware/efi/libstub/file.c | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/regulator/pfuze100-regulator.c b/drivers/regulator/pfuze100-regulator.c
-index 689537927f6f7..4c8e8b4722872 100644
---- a/drivers/regulator/pfuze100-regulator.c
-+++ b/drivers/regulator/pfuze100-regulator.c
-@@ -209,6 +209,19 @@ static const struct regulator_ops pfuze100_swb_regulator_ops = {
+diff --git a/drivers/firmware/efi/libstub/file.c b/drivers/firmware/efi/libstub/file.c
+index ea66b1f16a79d..f1c4faf58c764 100644
+--- a/drivers/firmware/efi/libstub/file.c
++++ b/drivers/firmware/efi/libstub/file.c
+@@ -104,12 +104,20 @@ static int find_file_option(const efi_char16_t *cmdline, int cmdline_len,
+ 	if (!found)
+ 		return 0;
  
- };
- 
-+static const struct regulator_ops pfuze3000_sw_regulator_ops = {
-+	.enable = regulator_enable_regmap,
-+	.disable = regulator_disable_regmap,
-+	.is_enabled = regulator_is_enabled_regmap,
-+	.list_voltage = regulator_list_voltage_table,
-+	.map_voltage = regulator_map_voltage_ascend,
-+	.set_voltage_sel = regulator_set_voltage_sel_regmap,
-+	.get_voltage_sel = regulator_get_voltage_sel_regmap,
-+	.set_voltage_time_sel = regulator_set_voltage_time_sel,
-+	.set_ramp_delay = pfuze100_set_ramp_delay,
++	/* Skip any leading slashes */
++	while (cmdline[i] == L'/' || cmdline[i] == L'\\')
++		i++;
 +
-+};
+ 	while (--result_len > 0 && i < cmdline_len) {
+-		if (cmdline[i] == L'\0' ||
+-		    cmdline[i] == L'\n' ||
+-		    cmdline[i] == L' ')
++		efi_char16_t c = cmdline[i++];
 +
- #define PFUZE100_FIXED_REG(_chip, _name, base, voltage)	\
- 	[_chip ## _ ## _name] = {	\
- 		.desc = {	\
-@@ -318,23 +331,28 @@ static const struct regulator_ops pfuze100_swb_regulator_ops = {
- 	.stby_mask = 0x20,	\
- }
- 
--
--#define PFUZE3000_SW2_REG(_chip, _name, base, min, max, step)	{	\
--	.desc = {	\
--		.name = #_name,\
--		.n_voltages = ((max) - (min)) / (step) + 1,	\
--		.ops = &pfuze100_sw_regulator_ops,	\
--		.type = REGULATOR_VOLTAGE,	\
--		.id = _chip ## _ ## _name,	\
--		.owner = THIS_MODULE,	\
--		.min_uV = (min),	\
--		.uV_step = (step),	\
--		.vsel_reg = (base) + PFUZE100_VOL_OFFSET,	\
--		.vsel_mask = 0x7,	\
--	},	\
--	.stby_reg = (base) + PFUZE100_STANDBY_OFFSET,	\
--	.stby_mask = 0x7,	\
--}
-+/* No linar case for the some switches of PFUZE3000 */
-+#define PFUZE3000_SW_REG(_chip, _name, base, mask, voltages)	\
-+	[_chip ## _ ##  _name] = {	\
-+		.desc = {	\
-+			.name = #_name,	\
-+			.n_voltages = ARRAY_SIZE(voltages),	\
-+			.ops = &pfuze3000_sw_regulator_ops,	\
-+			.type = REGULATOR_VOLTAGE,	\
-+			.id = _chip ## _ ## _name,	\
-+			.owner = THIS_MODULE,	\
-+			.volt_table = voltages,	\
-+			.vsel_reg = (base) + PFUZE100_VOL_OFFSET,	\
-+			.vsel_mask = (mask),	\
-+			.enable_reg = (base) + PFUZE100_MODE_OFFSET,	\
-+			.enable_mask = 0xf,	\
-+			.enable_val = 0x8,	\
-+			.enable_time = 500,	\
-+		},	\
-+		.stby_reg = (base) + PFUZE100_STANDBY_OFFSET,	\
-+		.stby_mask = (mask),	\
-+		.sw_reg = true,		\
-+	}
- 
- #define PFUZE3000_SW3_REG(_chip, _name, base, min, max, step)	{	\
- 	.desc = {	\
-@@ -391,9 +409,9 @@ static struct pfuze_regulator pfuze200_regulators[] = {
- };
- 
- static struct pfuze_regulator pfuze3000_regulators[] = {
--	PFUZE100_SWB_REG(PFUZE3000, SW1A, PFUZE100_SW1ABVOL, 0x1f, pfuze3000_sw1a),
-+	PFUZE3000_SW_REG(PFUZE3000, SW1A, PFUZE100_SW1ABVOL, 0x1f, pfuze3000_sw1a),
- 	PFUZE100_SW_REG(PFUZE3000, SW1B, PFUZE100_SW1CVOL, 700000, 1475000, 25000),
--	PFUZE100_SWB_REG(PFUZE3000, SW2, PFUZE100_SW2VOL, 0x7, pfuze3000_sw2lo),
-+	PFUZE3000_SW_REG(PFUZE3000, SW2, PFUZE100_SW2VOL, 0x7, pfuze3000_sw2lo),
- 	PFUZE3000_SW3_REG(PFUZE3000, SW3, PFUZE100_SW3AVOL, 900000, 1650000, 50000),
- 	PFUZE100_SWB_REG(PFUZE3000, SWBST, PFUZE100_SWBSTCON1, 0x3, pfuze100_swbst),
- 	PFUZE100_SWB_REG(PFUZE3000, VSNVS, PFUZE100_VSNVSVOL, 0x7, pfuze100_vsnvs),
-@@ -407,8 +425,8 @@ static struct pfuze_regulator pfuze3000_regulators[] = {
- };
- 
- static struct pfuze_regulator pfuze3001_regulators[] = {
--	PFUZE100_SWB_REG(PFUZE3001, SW1, PFUZE100_SW1ABVOL, 0x1f, pfuze3000_sw1a),
--	PFUZE100_SWB_REG(PFUZE3001, SW2, PFUZE100_SW2VOL, 0x7, pfuze3000_sw2lo),
-+	PFUZE3000_SW_REG(PFUZE3001, SW1, PFUZE100_SW1ABVOL, 0x1f, pfuze3000_sw1a),
-+	PFUZE3000_SW_REG(PFUZE3001, SW2, PFUZE100_SW2VOL, 0x7, pfuze3000_sw2lo),
- 	PFUZE3000_SW3_REG(PFUZE3001, SW3, PFUZE100_SW3AVOL, 900000, 1650000, 50000),
- 	PFUZE100_SWB_REG(PFUZE3001, VSNVS, PFUZE100_VSNVSVOL, 0x7, pfuze100_vsnvs),
- 	PFUZE100_VGEN_REG(PFUZE3001, VLDO1, PFUZE100_VGEN1VOL, 1800000, 3300000, 100000),
++		if (c == L'\0' || c == L'\n' || c == L' ')
+ 			break;
+-		*result++ = cmdline[i++];
++		else if (c == L'/')
++			/* Replace UNIX dir separators with EFI standard ones */
++			*result++ = L'\\';
++		else
++			*result++ = c;
+ 	}
+ 	*result = L'\0';
+ 	return i;
 -- 
 2.25.1
 
