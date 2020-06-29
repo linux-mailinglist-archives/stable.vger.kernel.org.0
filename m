@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 501C020DB3D
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:15:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 503BD20DB43
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:15:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730219AbgF2UEo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1731817AbgF2UEo (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 29 Jun 2020 16:04:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40608 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:40574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732984AbgF2Tab (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1732989AbgF2Tab (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 29 Jun 2020 15:30:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F9F025261;
-        Mon, 29 Jun 2020 15:36:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8625E25264;
+        Mon, 29 Jun 2020 15:36:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444974;
-        bh=SCtbMOcrB/KK3PIIuQGXj7HFYEfXPtOgwcKxCTRLek8=;
+        s=default; t=1593444975;
+        bh=1ZDQjQTTwcBQldNxnDO1vv80rmNxahdb4GVupela0pU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NABBM0SUjyTOdrzCb9EM9pr+Eo1NTS5SZ8po2P+RVISVoEb1+BylHQM+NR/Ikw1LR
-         4iXYCt+iVV5F+qYmSWwb/eXOkLMt08z6mMvpXYHNk/PNGdFIyuRp4PCq6Se3W0oIz8
-         ovnoaj6demtL1jjDDYEsL0lo3zcr2Pi3cb+DD7M8=
+        b=rjKLJ7VjU4U3ERNkzKxKTCJIRU6J89lVBF7R7ndaH1UCw+JIDe0xo6pG9bcXaROem
+         OZpNn8jN956IPhTYwFE6ZmAg8B5FVcpPpVZeSKTw2RXfnC6LWA7fp+XpJMmAL8zr3F
+         oyCv0yExYzAsuutyFrzZIawv7eIBtHMAv7wBj8Gc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qiushi Wu <wu000273@umn.edu>, Heiko Stuebner <heiko@sntech.de>,
-        Mark Brown <broonie@kernel.org>,
+Cc:     Fan Guo <guofan5@huawei.com>, Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 073/131] ASoC: rockchip: Fix a reference count leak.
-Date:   Mon, 29 Jun 2020 11:34:04 -0400
-Message-Id: <20200629153502.2494656-74-sashal@kernel.org>
+Subject: [PATCH 4.19 074/131] RDMA/mad: Fix possible memory leak in ib_mad_post_receive_mads()
+Date:   Mon, 29 Jun 2020 11:34:05 -0400
+Message-Id: <20200629153502.2494656-75-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629153502.2494656-1-sashal@kernel.org>
 References: <20200629153502.2494656-1-sashal@kernel.org>
@@ -49,40 +48,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Fan Guo <guofan5@huawei.com>
 
-[ Upstream commit f141a422159a199f4c8dedb7e0df55b3b2cf16cd ]
+[ Upstream commit a17f4bed811c60712d8131883cdba11a105d0161 ]
 
-Calling pm_runtime_get_sync increments the counter even in case of
-failure, causing incorrect ref count if pm_runtime_put is not called in
-error handling paths. Call pm_runtime_put if pm_runtime_get_sync fails.
+If ib_dma_mapping_error() returns non-zero value,
+ib_mad_post_receive_mads() will jump out of loops and return -ENOMEM
+without freeing mad_priv. Fix this memory-leak problem by freeing mad_priv
+in this case.
 
-Fixes: fc05a5b22253 ("ASoC: rockchip: add support for pdm controller")
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-Reviewed-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://lore.kernel.org/r/20200613205158.27296-1-wu000273@umn.edu
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 2c34e68f4261 ("IB/mad: Check and handle potential DMA mapping errors")
+Link: https://lore.kernel.org/r/20200612063824.180611-1-guofan5@huawei.com
+Signed-off-by: Fan Guo <guofan5@huawei.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/rockchip/rockchip_pdm.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/infiniband/core/mad.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/rockchip/rockchip_pdm.c b/sound/soc/rockchip/rockchip_pdm.c
-index 8a2e3bbce3a16..ad16c8310dd38 100644
---- a/sound/soc/rockchip/rockchip_pdm.c
-+++ b/sound/soc/rockchip/rockchip_pdm.c
-@@ -478,8 +478,10 @@ static int rockchip_pdm_resume(struct device *dev)
- 	int ret;
- 
- 	ret = pm_runtime_get_sync(dev);
--	if (ret < 0)
-+	if (ret < 0) {
-+		pm_runtime_put(dev);
- 		return ret;
-+	}
- 
- 	ret = regcache_sync(pdm->regmap);
- 
+diff --git a/drivers/infiniband/core/mad.c b/drivers/infiniband/core/mad.c
+index cd82134d517be..a36b3b4f5c0a2 100644
+--- a/drivers/infiniband/core/mad.c
++++ b/drivers/infiniband/core/mad.c
+@@ -2920,6 +2920,7 @@ static int ib_mad_post_receive_mads(struct ib_mad_qp_info *qp_info,
+ 						 DMA_FROM_DEVICE);
+ 		if (unlikely(ib_dma_mapping_error(qp_info->port_priv->device,
+ 						  sg_list.addr))) {
++			kfree(mad_priv);
+ 			ret = -ENOMEM;
+ 			break;
+ 		}
 -- 
 2.25.1
 
