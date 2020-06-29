@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9023320E807
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:12:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A99320E6CA
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:09:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390054AbgF2WCw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 18:02:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56886 "EHLO mail.kernel.org"
+        id S2404464AbgF2Vue (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:50:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726226AbgF2SfX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:35:23 -0400
+        id S1726655AbgF2Sfk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:35:40 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C6FCC246AE;
-        Mon, 29 Jun 2020 15:20:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BAAF5246BB;
+        Mon, 29 Jun 2020 15:20:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444011;
-        bh=j2PgZ/whi0LQa51s89tNZ3et6wNy7JuSHDp1a9QO73A=;
+        s=default; t=1593444012;
+        bh=T2XlFw7cYAIqYBlNSB3w8BAm1u/f7UnydUIyVFS42Mw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V7SGgFssjOgpxsr375i0F/0Me5PwsAYUE6AO+NszV2MNtNa7aaG/X4B4bW58uDa0G
-         WPA9045TDOmYTSRe0ihmmq89oqzJJcXsJAIvxKzbX0QZq6NrWM3ZdLmwbOT3XGfmgC
-         MPna5n6BxNHIcDTpZH/gipwj4zBBd7Tec86iasmE=
+        b=bkypAtiijMw8JJ+L8PCjZx53GL+ryPv4xt+Tpmbtv/51tePdCoN8zH0kWRzWdvoMr
+         8TiOj5tulPVjWD97FeG127jelHQcYRplMwzocQH23WSbDF2Kq8S4BZUMNawW2+Lrro
+         Dw+KOmzPdYXHcrWeogAnsfomvHOGjya0g1rkyU9o=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shengjiu Wang <shengjiu.wang@nxp.com>,
-        Nicolin Chen <nicoleotsuka@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 117/265] ASoC: fsl_ssi: Fix bclk calculation for mono channel
-Date:   Mon, 29 Jun 2020 11:15:50 -0400
-Message-Id: <20200629151818.2493727-118-sashal@kernel.org>
+Cc:     Lorenzo Bianconi <lorenzo@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 118/265] samples/bpf: xdp_redirect_cpu: Set MAX_CPUS according to NR_CPUS
+Date:   Mon, 29 Jun 2020 11:15:51 -0400
+Message-Id: <20200629151818.2493727-119-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -50,68 +49,159 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shengjiu Wang <shengjiu.wang@nxp.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit ed1220df6e666500ebf58c4f2fccc681941646fb ]
+[ Upstream commit 6a09815428547657f3ffd2f5c31ac2a191e7fdf3 ]
 
-For mono channel, SSI will switch to Normal mode.
+xdp_redirect_cpu is currently failing in bpf_prog_load_xattr()
+allocating cpu_map map if CONFIG_NR_CPUS is less than 64 since
+cpu_map_alloc() requires max_entries to be less than NR_CPUS.
+Set cpu_map max_entries according to NR_CPUS in xdp_redirect_cpu_kern.c
+and get currently running cpus in xdp_redirect_cpu_user.c
 
-In Normal mode and Network mode, the Word Length Control bits
-control the word length divider in clock generator, which is
-different with I2S Master mode (the word length is fixed to
-32bit), it should be the value of params_width(hw_params).
-
-The condition "slots == 2" is not good for I2S Master mode,
-because for Network mode and Normal mode, the slots can also
-be 2. Then we need to use (ssi->i2s_net & SSI_SCR_I2S_MODE_MASK)
-to check if it is I2S Master mode.
-
-So we refine the formula for mono channel, otherwise there
-will be sound issue for S24_LE.
-
-Fixes: b0a7043d5c2c ("ASoC: fsl_ssi: Caculate bit clock rate using slot number and width")
-Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
-Reviewed-by: Nicolin Chen <nicoleotsuka@gmail.com>
-Link: https://lore.kernel.org/r/034eff1435ff6ce300b6c781130cefd9db22ab9a.1592276147.git.shengjiu.wang@nxp.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/374472755001c260158c4e4b22f193bdd3c56fb7.1589300442.git.lorenzo@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/fsl_ssi.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ samples/bpf/xdp_redirect_cpu_kern.c |  2 +-
+ samples/bpf/xdp_redirect_cpu_user.c | 29 ++++++++++++++++-------------
+ 2 files changed, 17 insertions(+), 14 deletions(-)
 
-diff --git a/sound/soc/fsl/fsl_ssi.c b/sound/soc/fsl/fsl_ssi.c
-index bad89b0d129e7..1a2fa7f181423 100644
---- a/sound/soc/fsl/fsl_ssi.c
-+++ b/sound/soc/fsl/fsl_ssi.c
-@@ -678,8 +678,9 @@ static int fsl_ssi_set_bclk(struct snd_pcm_substream *substream,
- 	struct regmap *regs = ssi->regs;
- 	u32 pm = 999, div2, psr, stccr, mask, afreq, factor, i;
- 	unsigned long clkrate, baudrate, tmprate;
--	unsigned int slots = params_channels(hw_params);
--	unsigned int slot_width = 32;
-+	unsigned int channels = params_channels(hw_params);
-+	unsigned int slot_width = params_width(hw_params);
-+	unsigned int slots = 2;
- 	u64 sub, savesub = 100000;
- 	unsigned int freq;
- 	bool baudclk_is_used;
-@@ -688,10 +689,14 @@ static int fsl_ssi_set_bclk(struct snd_pcm_substream *substream,
- 	/* Override slots and slot_width if being specifically set... */
- 	if (ssi->slots)
- 		slots = ssi->slots;
--	/* ...but keep 32 bits if slots is 2 -- I2S Master mode */
--	if (ssi->slot_width && slots != 2)
-+	if (ssi->slot_width)
- 		slot_width = ssi->slot_width;
+diff --git a/samples/bpf/xdp_redirect_cpu_kern.c b/samples/bpf/xdp_redirect_cpu_kern.c
+index 313a8fe6d125c..2baf8db1f7e70 100644
+--- a/samples/bpf/xdp_redirect_cpu_kern.c
++++ b/samples/bpf/xdp_redirect_cpu_kern.c
+@@ -15,7 +15,7 @@
+ #include <bpf/bpf_helpers.h>
+ #include "hash_func01.h"
  
-+	/* ...but force 32 bits for stereo audio using I2S Master Mode */
-+	if (channels == 2 &&
-+	    (ssi->i2s_net & SSI_SCR_I2S_MODE_MASK) == SSI_SCR_I2S_MODE_MASTER)
-+		slot_width = 32;
+-#define MAX_CPUS 64 /* WARNING - sync with _user.c */
++#define MAX_CPUS NR_CPUS
+ 
+ /* Special map type that can XDP_REDIRECT frames to another CPU */
+ struct {
+diff --git a/samples/bpf/xdp_redirect_cpu_user.c b/samples/bpf/xdp_redirect_cpu_user.c
+index 15bdf047a2221..9b8f21abeac47 100644
+--- a/samples/bpf/xdp_redirect_cpu_user.c
++++ b/samples/bpf/xdp_redirect_cpu_user.c
+@@ -13,6 +13,7 @@ static const char *__doc__ =
+ #include <unistd.h>
+ #include <locale.h>
+ #include <sys/resource.h>
++#include <sys/sysinfo.h>
+ #include <getopt.h>
+ #include <net/if.h>
+ #include <time.h>
+@@ -24,8 +25,6 @@ static const char *__doc__ =
+ #include <arpa/inet.h>
+ #include <linux/if_link.h>
+ 
+-#define MAX_CPUS 64 /* WARNING - sync with _kern.c */
+-
+ /* How many xdp_progs are defined in _kern.c */
+ #define MAX_PROG 6
+ 
+@@ -40,6 +39,7 @@ static char *ifname;
+ static __u32 prog_id;
+ 
+ static __u32 xdp_flags = XDP_FLAGS_UPDATE_IF_NOEXIST;
++static int n_cpus;
+ static int cpu_map_fd;
+ static int rx_cnt_map_fd;
+ static int redirect_err_cnt_map_fd;
+@@ -170,7 +170,7 @@ struct stats_record {
+ 	struct record redir_err;
+ 	struct record kthread;
+ 	struct record exception;
+-	struct record enq[MAX_CPUS];
++	struct record enq[];
+ };
+ 
+ static bool map_collect_percpu(int fd, __u32 key, struct record *rec)
+@@ -225,10 +225,11 @@ static struct datarec *alloc_record_per_cpu(void)
+ static struct stats_record *alloc_stats_record(void)
+ {
+ 	struct stats_record *rec;
+-	int i;
++	int i, size;
+ 
+-	rec = malloc(sizeof(*rec));
+-	memset(rec, 0, sizeof(*rec));
++	size = sizeof(*rec) + n_cpus * sizeof(struct record);
++	rec = malloc(size);
++	memset(rec, 0, size);
+ 	if (!rec) {
+ 		fprintf(stderr, "Mem alloc error\n");
+ 		exit(EXIT_FAIL_MEM);
+@@ -237,7 +238,7 @@ static struct stats_record *alloc_stats_record(void)
+ 	rec->redir_err.cpu = alloc_record_per_cpu();
+ 	rec->kthread.cpu   = alloc_record_per_cpu();
+ 	rec->exception.cpu = alloc_record_per_cpu();
+-	for (i = 0; i < MAX_CPUS; i++)
++	for (i = 0; i < n_cpus; i++)
+ 		rec->enq[i].cpu = alloc_record_per_cpu();
+ 
+ 	return rec;
+@@ -247,7 +248,7 @@ static void free_stats_record(struct stats_record *r)
+ {
+ 	int i;
+ 
+-	for (i = 0; i < MAX_CPUS; i++)
++	for (i = 0; i < n_cpus; i++)
+ 		free(r->enq[i].cpu);
+ 	free(r->exception.cpu);
+ 	free(r->kthread.cpu);
+@@ -350,7 +351,7 @@ static void stats_print(struct stats_record *stats_rec,
+ 	}
+ 
+ 	/* cpumap enqueue stats */
+-	for (to_cpu = 0; to_cpu < MAX_CPUS; to_cpu++) {
++	for (to_cpu = 0; to_cpu < n_cpus; to_cpu++) {
+ 		char *fmt = "%-15s %3d:%-3d %'-14.0f %'-11.0f %'-10.2f %s\n";
+ 		char *fm2 = "%-15s %3s:%-3d %'-14.0f %'-11.0f %'-10.2f %s\n";
+ 		char *errstr = "";
+@@ -475,7 +476,7 @@ static void stats_collect(struct stats_record *rec)
+ 	map_collect_percpu(fd, 1, &rec->redir_err);
+ 
+ 	fd = cpumap_enqueue_cnt_map_fd;
+-	for (i = 0; i < MAX_CPUS; i++)
++	for (i = 0; i < n_cpus; i++)
+ 		map_collect_percpu(fd, i, &rec->enq[i]);
+ 
+ 	fd = cpumap_kthread_cnt_map_fd;
+@@ -549,10 +550,10 @@ static int create_cpu_entry(__u32 cpu, __u32 queue_size,
+  */
+ static void mark_cpus_unavailable(void)
+ {
+-	__u32 invalid_cpu = MAX_CPUS;
++	__u32 invalid_cpu = n_cpus;
+ 	int ret, i;
+ 
+-	for (i = 0; i < MAX_CPUS; i++) {
++	for (i = 0; i < n_cpus; i++) {
+ 		ret = bpf_map_update_elem(cpus_available_map_fd, &i,
+ 					  &invalid_cpu, 0);
+ 		if (ret) {
+@@ -688,6 +689,8 @@ int main(int argc, char **argv)
+ 	int prog_fd;
+ 	__u32 qsize;
+ 
++	n_cpus = get_nprocs_conf();
 +
- 	/* Generate bit clock based on the slot number and slot width */
- 	freq = slots * slot_width * params_rate(hw_params);
- 
+ 	/* Notice: choosing he queue size is very important with the
+ 	 * ixgbe driver, because it's driver page recycling trick is
+ 	 * dependend on pages being returned quickly.  The number of
+@@ -757,7 +760,7 @@ int main(int argc, char **argv)
+ 		case 'c':
+ 			/* Add multiple CPUs */
+ 			add_cpu = strtoul(optarg, NULL, 0);
+-			if (add_cpu >= MAX_CPUS) {
++			if (add_cpu >= n_cpus) {
+ 				fprintf(stderr,
+ 				"--cpu nr too large for cpumap err(%d):%s\n",
+ 					errno, strerror(errno));
 -- 
 2.25.1
 
