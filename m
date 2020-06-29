@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F215720DBFC
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:16:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D450920DB42
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:15:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728033AbgF2UL1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:11:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40568 "EHLO mail.kernel.org"
+        id S1731896AbgF2UEo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:04:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732896AbgF2TaV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:30:21 -0400
+        id S1732985AbgF2Tab (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:30:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7EB1E2526A;
-        Mon, 29 Jun 2020 15:36:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8BCC925269;
+        Mon, 29 Jun 2020 15:36:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444978;
-        bh=qwjgMEJOUXMxAEhruOdIpoJgjvepYjoKozzLvbHfU84=;
+        s=default; t=1593444979;
+        bh=OvWWwk41cNAWQcZ61SqYRjzD8VCGnnJDsEo9RiDUSbk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sFkR6uf/SoXsaRxEwIDCXKyDAsuQdlaBi2xiJ3EwQuI7jBSpce5CdnWmI/YwOXyjN
-         E4FlGbbfZFLzdQoQLjXMEHBd/c2qsEaXFKI+XG97ga8nHB3VlBvehwUTPbT7meVy3Q
-         r2eSwGt812gYsuwWh2Q5rLtv5BYKxmbhp/r7tVIQ=
+        b=jJOOvJudU/4IA9UD2ZyrlzmlT1fqNDCe5gZQw7DslGSSP1fiKE9thkc5ZOx6tKTJe
+         Jdieqg4ecQmIU/VBoEYaMDYLiClL+R1BH7sIvAeC1U6p1zTk0mwNooQC0LfC2WaqtO
+         HcYXvEPRipuSmPuludYpG5Sz7wtZ2MLvIfFYIc0U=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Lobakin <alobakin@marvell.com>,
-        Igor Russkikh <irusskikh@marvell.com>,
-        Michal Kalderon <michal.kalderon@marvell.com>,
+Cc:     Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 077/131] net: qed: fix excessive QM ILT lines consumption
-Date:   Mon, 29 Jun 2020 11:34:08 -0400
-Message-Id: <20200629153502.2494656-78-sashal@kernel.org>
+Subject: [PATCH 4.19 078/131] cxgb4: move handling L2T ARP failures to caller
+Date:   Mon, 29 Jun 2020 11:34:09 -0400
+Message-Id: <20200629153502.2494656-79-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629153502.2494656-1-sashal@kernel.org>
 References: <20200629153502.2494656-1-sashal@kernel.org>
@@ -51,38 +49,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alobakin@marvell.com>
+From: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
 
-[ Upstream commit d434d02f7e7c24c721365fd594ed781acb18e0da ]
+[ Upstream commit 11d8cd5c9f3b46f397f889cefdb66795518aaebd ]
 
-This is likely a copy'n'paste mistake. The amount of ILT lines to
-reserve for a single VF was being multiplied by the total VFs count.
-This led to a huge redundancy in reservation and potential lines
-drainouts.
+Move code handling L2T ARP failures to the only caller.
 
-Fixes: 1408cc1fa48c ("qed: Introduce VFs")
-Signed-off-by: Alexander Lobakin <alobakin@marvell.com>
-Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
-Signed-off-by: Michal Kalderon <michal.kalderon@marvell.com>
+Fixes following sparse warning:
+skbuff.h:2091:29: warning: context imbalance in
+'handle_failed_resolution' - unexpected unlock
+
+Fixes: 749cb5fe48bb ("cxgb4: Replace arpq_head/arpq_tail with SKB double link-list code")
+Signed-off-by: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_cxt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/chelsio/cxgb4/l2t.c | 52 +++++++++++-------------
+ 1 file changed, 24 insertions(+), 28 deletions(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_cxt.c b/drivers/net/ethernet/qlogic/qed/qed_cxt.c
-index f1977aa440e5d..f3d7c38f539a8 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_cxt.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_cxt.c
-@@ -397,7 +397,7 @@ static void qed_cxt_qm_iids(struct qed_hwfn *p_hwfn,
- 		vf_tids += segs[NUM_TASK_PF_SEGMENTS].count;
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/l2t.c b/drivers/net/ethernet/chelsio/cxgb4/l2t.c
+index 986277744611c..08f4780e7fe7a 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/l2t.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/l2t.c
+@@ -507,41 +507,20 @@ u64 cxgb4_select_ntuple(struct net_device *dev,
+ }
+ EXPORT_SYMBOL(cxgb4_select_ntuple);
+ 
+-/*
+- * Called when address resolution fails for an L2T entry to handle packets
+- * on the arpq head.  If a packet specifies a failure handler it is invoked,
+- * otherwise the packet is sent to the device.
+- */
+-static void handle_failed_resolution(struct adapter *adap, struct l2t_entry *e)
+-{
+-	struct sk_buff *skb;
+-
+-	while ((skb = __skb_dequeue(&e->arpq)) != NULL) {
+-		const struct l2t_skb_cb *cb = L2T_SKB_CB(skb);
+-
+-		spin_unlock(&e->lock);
+-		if (cb->arp_err_handler)
+-			cb->arp_err_handler(cb->handle, skb);
+-		else
+-			t4_ofld_send(adap, skb);
+-		spin_lock(&e->lock);
+-	}
+-}
+-
+ /*
+  * Called when the host's neighbor layer makes a change to some entry that is
+  * loaded into the HW L2 table.
+  */
+ void t4_l2t_update(struct adapter *adap, struct neighbour *neigh)
+ {
+-	struct l2t_entry *e;
+-	struct sk_buff_head *arpq = NULL;
+-	struct l2t_data *d = adap->l2t;
+ 	unsigned int addr_len = neigh->tbl->key_len;
+ 	u32 *addr = (u32 *) neigh->primary_key;
+-	int ifidx = neigh->dev->ifindex;
+-	int hash = addr_hash(d, addr, addr_len, ifidx);
++	int hash, ifidx = neigh->dev->ifindex;
++	struct sk_buff_head *arpq = NULL;
++	struct l2t_data *d = adap->l2t;
++	struct l2t_entry *e;
+ 
++	hash = addr_hash(d, addr, addr_len, ifidx);
+ 	read_lock_bh(&d->lock);
+ 	for (e = d->l2tab[hash].first; e; e = e->next)
+ 		if (!addreq(e, addr) && e->ifindex == ifidx) {
+@@ -574,8 +553,25 @@ void t4_l2t_update(struct adapter *adap, struct neighbour *neigh)
+ 			write_l2e(adap, e, 0);
  	}
  
--	iids->vf_cids += vf_cids * p_mngr->vf_count;
-+	iids->vf_cids = vf_cids;
- 	iids->tids += vf_tids * p_mngr->vf_count;
+-	if (arpq)
+-		handle_failed_resolution(adap, e);
++	if (arpq) {
++		struct sk_buff *skb;
++
++		/* Called when address resolution fails for an L2T
++		 * entry to handle packets on the arpq head. If a
++		 * packet specifies a failure handler it is invoked,
++		 * otherwise the packet is sent to the device.
++		 */
++		while ((skb = __skb_dequeue(&e->arpq)) != NULL) {
++			const struct l2t_skb_cb *cb = L2T_SKB_CB(skb);
++
++			spin_unlock(&e->lock);
++			if (cb->arp_err_handler)
++				cb->arp_err_handler(cb->handle, skb);
++			else
++				t4_ofld_send(adap, skb);
++			spin_lock(&e->lock);
++		}
++	}
+ 	spin_unlock_bh(&e->lock);
+ }
  
- 	DP_VERBOSE(p_hwfn, QED_MSG_ILT,
 -- 
 2.25.1
 
