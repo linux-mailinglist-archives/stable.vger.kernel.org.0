@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9C1820DDC4
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:51:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 504F220DDEB
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:51:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728239AbgF2UTH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:19:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37064 "EHLO mail.kernel.org"
+        id S1729484AbgF2UUx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:20:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732631AbgF2TZl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:25:41 -0400
+        id S1732597AbgF2TZf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:25:35 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AEF1E25381;
-        Mon, 29 Jun 2020 15:40:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BD51125305;
+        Mon, 29 Jun 2020 15:38:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445246;
-        bh=9o5x72zZZnWSCJ6J+SEm8U/hiA+ojDbeHCsxOYiiEwM=;
+        s=default; t=1593445133;
+        bh=2WCO/bxMMjPr3Vtr9iWPQFZiUO2tw/ioc0Unv3TduXg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=erWO35jjJYLPPwes7c2a8yPgO+MeuxHg88BJ9u9CZHQaX+tJ/wOecN4ueXSqbG1Gs
-         Gu3wlfh18yTIKF8WrMdYmnwonAwJ4GMID9yT6hqwdrIHXopmAqkt/VQQP1rZtHkKVR
-         2oio3N19iHNgJlHXIU9s4EhWpWkl53EAMJBMp6Hc=
+        b=mw70aPuoSZY9ToajR2HpXHcpy6bvth3J1GZOVG+UXsyL2nM+lsx7KKfGSpVH7pvJw
+         YxvtRZXS21p4SnmVXXd7WjCXqrXNxTGWUqsLCqMGHvojwNL+q8wcnR9qQ5SVr7WvU0
+         uklk8fastQS2EmrkpFUo26z3PxMcviP1e3iNbpQg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Russell King <rmk+kernel@armlinux.org.uk>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 030/191] i2c: pxa: fix i2c_pxa_scream_blue_murder() debug output
-Date:   Mon, 29 Jun 2020 11:37:26 -0400
-Message-Id: <20200629154007.2495120-31-sashal@kernel.org>
+Cc:     Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Hulk Robot <hulkci@huawei.com>,
+        Pavel Shilovsky <pshilov@microsoft.com>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 39/78] cifs/smb3: Fix data inconsistent when zero file range
+Date:   Mon, 29 Jun 2020 11:37:27 -0400
+Message-Id: <20200629153806.2494953-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
-References: <20200629154007.2495120-1-sashal@kernel.org>
+In-Reply-To: <20200629153806.2494953-1-sashal@kernel.org>
+References: <20200629153806.2494953-1-sashal@kernel.org>
 MIME-Version: 1.0
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.229-rc1.gz
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.186-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.9.y
+X-KernelTest-Branch: linux-4.14.y
 X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.9.229-rc1
-X-KernelTest-Deadline: 2020-07-01T15:39+00:00
+X-KernelTest-Version: 4.14.186-rc1
+X-KernelTest-Deadline: 2020-07-01T15:38+00:00
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -48,52 +51,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-[ Upstream commit 88b73ee7ca4c90baf136ed5a8377fc5a9b73ac08 ]
+[ Upstream commit 6b69040247e14b43419a520f841f2b3052833df9 ]
 
-The IRQ log output is supposed to appear on a single line.  However,
-commit 3a2dc1677b60 ("i2c: pxa: Update debug function to dump more info
-on error") resulted in it being printed one-entry-per-line, which is
-excessively long.
+CIFS implements the fallocate(FALLOC_FL_ZERO_RANGE) with send SMB
+ioctl(FSCTL_SET_ZERO_DATA) to server. It just set the range of the
+remote file to zero, but local page cache not update, then the data
+inconsistent with server, which leads the xfstest generic/008 failed.
 
-Fixing this is not a trivial matter; using pr_cont() doesn't work as
-the previous dev_dbg() may not have been compiled in, or may be
-dynamic.
+So we need to remove the local page caches before send SMB
+ioctl(FSCTL_SET_ZERO_DATA) to server. After next read, it will
+re-cache it.
 
-Since the rest of this function output is at error level, and is also
-debug output, promote this to error level as well to avoid this
-problem.
-
-Reduce the number of always zero prefix digits to save screen real-
-estate.
-
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Fixes: 30175628bf7f5 ("[SMB3] Enable fallocate -z support for SMB3 mounts")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
+Cc: stable@vger.kernel.org # v3.17
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-pxa.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ fs/cifs/smb2ops.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-index e49af19852098..fb191ad8fc3aa 100644
---- a/drivers/i2c/busses/i2c-pxa.c
-+++ b/drivers/i2c/busses/i2c-pxa.c
-@@ -297,11 +297,10 @@ static void i2c_pxa_scream_blue_murder(struct pxa_i2c *i2c, const char *why)
- 	dev_err(dev, "IBMR: %08x IDBR: %08x ICR: %08x ISR: %08x\n",
- 		readl(_IBMR(i2c)), readl(_IDBR(i2c)), readl(_ICR(i2c)),
- 		readl(_ISR(i2c)));
--	dev_dbg(dev, "log: ");
-+	dev_err(dev, "log:");
- 	for (i = 0; i < i2c->irqlogidx; i++)
--		pr_debug("[%08x:%08x] ", i2c->isrlog[i], i2c->icrlog[i]);
--
--	pr_debug("\n");
-+		pr_cont(" [%03x:%05x]", i2c->isrlog[i], i2c->icrlog[i]);
-+	pr_cont("\n");
- }
+diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
+index 61ea429e1210b..b46fdb2b8d349 100644
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -1755,6 +1755,12 @@ static long smb3_zero_range(struct file *file, struct cifs_tcon *tcon,
+ 	inode = d_inode(cfile->dentry);
+ 	cifsi = CIFS_I(inode);
  
- #else /* ifdef DEBUG */
++	/*
++	 * We zero the range through ioctl, so we need remove the page caches
++	 * first, otherwise the data may be inconsistent with the server.
++	 */
++	truncate_pagecache_range(inode, offset, offset + len - 1);
++
+ 	/* if file not oplocked can't be sure whether asking to extend size */
+ 	if (!CIFS_CACHE_READ(cifsi))
+ 		if (keep_size == false) {
 -- 
 2.25.1
 
