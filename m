@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83ECE20DBE8
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:16:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C8AE20DBDA
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:16:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729202AbgF2UKf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:10:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40574 "EHLO mail.kernel.org"
+        id S1728020AbgF2UKU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:10:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732907AbgF2TaW (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1732908AbgF2TaW (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 29 Jun 2020 15:30:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 59A6625294;
-        Mon, 29 Jun 2020 15:36:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 55E4825296;
+        Mon, 29 Jun 2020 15:36:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445003;
-        bh=lxhKP8mUk7NWPWZ5S591OwGbHEUQgWTP8rlI4jSLJjM=;
+        s=default; t=1593445004;
+        bh=x0AoaXvV2cdMsib5FuNGAAYoEwzPS03AsIMQvmvA1Lg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1EgqCQVtceaIXlgoCZqKpXCb+tyYdMtu1iWa1BW76C7IauegyFC7JTzThVGk1fXmC
-         T+fxSRNpLyBJtMbntxlGJryN3wSKUeFkxe7BiCqLn7ae+AeUirhoNStF07jD+ben/j
-         hCYhu0r2tXO2a9RY12pKupILOi8g8+82qeBfFXnU=
+        b=qa0bn2pC132oyFf/peGa/rU5lfsjrRBUkHQpoulMSbwgIBLaJqc/isOYkt4HoTz5u
+         KvKoSSubxchAchD+ZXjflGWbqdK0gXPkkLPOEb0+dQ/T/LlAbH2v1UrwKfEQM/xug2
+         zoWV6Q9y8Rm5GpyX/ryTS7bjpU+Vf2gxlIjkIJFY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yash Shah <yash.shah@sifive.com>,
-        David Abdurachmanov <david.abdurachmanov@gmail.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 103/131] RISC-V: Don't allow write+exec only page mapping request in mmap
-Date:   Mon, 29 Jun 2020 11:34:34 -0400
-Message-Id: <20200629153502.2494656-104-sashal@kernel.org>
+Cc:     Aaron Plattner <aplattner@nvidia.com>,
+        Takashi Iwai <tiwai@suse.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 4.19 104/131] ALSA: hda: Add NVIDIA codec IDs 9a & 9d through a0 to patch table
+Date:   Mon, 29 Jun 2020 11:34:35 -0400
+Message-Id: <20200629153502.2494656-105-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629153502.2494656-1-sashal@kernel.org>
 References: <20200629153502.2494656-1-sashal@kernel.org>
@@ -50,61 +49,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yash Shah <yash.shah@sifive.com>
+From: Aaron Plattner <aplattner@nvidia.com>
 
-[ Upstream commit e0d17c842c0f824fd4df9f4688709fc6907201e1 ]
+commit adb36a8203831e40494a92095dacd566b2ad4a69 upstream.
 
-As per the table 4.4 of version "20190608-Priv-MSU-Ratified" of the
-RISC-V instruction set manual[0], the PTE permission bit combination of
-"write+exec only" is reserved for future use. Hence, don't allow such
-mapping request in mmap call.
+These IDs are for upcoming NVIDIA chips with audio functions that are largely
+similar to the existing ones.
 
-An issue is been reported by David Abdurachmanov, that while running
-stress-ng with "sysbadaddr" argument, RCU stalls are observed on RISC-V
-specific kernel.
-
-This issue arises when the stress-sysbadaddr request for pages with
-"write+exec only" permission bits and then passes the address obtain
-from this mmap call to various system call. For the riscv kernel, the
-mmap call should fail for this particular combination of permission bits
-since it's not valid.
-
-[0]: http://dabbelt.com/~palmer/keep/riscv-isa-manual/riscv-privileged-20190608-1.pdf
-
-Signed-off-by: Yash Shah <yash.shah@sifive.com>
-Reported-by: David Abdurachmanov <david.abdurachmanov@gmail.com>
-[Palmer: Refer to the latest ISA specification at the only link I could
-find, and update the terminology.]
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Aaron Plattner <aplattner@nvidia.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200611180845.39942-1-aplattner@nvidia.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/kernel/sys_riscv.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ sound/pci/hda/patch_hdmi.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/riscv/kernel/sys_riscv.c b/arch/riscv/kernel/sys_riscv.c
-index fb03a4482ad60..db44da32701f2 100644
---- a/arch/riscv/kernel/sys_riscv.c
-+++ b/arch/riscv/kernel/sys_riscv.c
-@@ -16,6 +16,7 @@
- #include <linux/syscalls.h>
- #include <asm/unistd.h>
- #include <asm/cacheflush.h>
-+#include <asm-generic/mman-common.h>
- 
- static long riscv_sys_mmap(unsigned long addr, unsigned long len,
- 			   unsigned long prot, unsigned long flags,
-@@ -24,6 +25,11 @@ static long riscv_sys_mmap(unsigned long addr, unsigned long len,
- {
- 	if (unlikely(offset & (~PAGE_MASK >> page_shift_offset)))
- 		return -EINVAL;
-+
-+	if ((prot & PROT_WRITE) && (prot & PROT_EXEC))
-+		if (unlikely(!(prot & PROT_READ)))
-+			return -EINVAL;
-+
- 	return ksys_mmap_pgoff(addr, len, prot, flags, fd,
- 			       offset >> (PAGE_SHIFT - page_shift_offset));
- }
+diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
+index 1d83c3c59e1ac..419d099b5582b 100644
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -3898,6 +3898,11 @@ HDA_CODEC_ENTRY(0x10de0095, "GPU 95 HDMI/DP",	patch_nvhdmi),
+ HDA_CODEC_ENTRY(0x10de0097, "GPU 97 HDMI/DP",	patch_nvhdmi),
+ HDA_CODEC_ENTRY(0x10de0098, "GPU 98 HDMI/DP",	patch_nvhdmi),
+ HDA_CODEC_ENTRY(0x10de0099, "GPU 99 HDMI/DP",	patch_nvhdmi),
++HDA_CODEC_ENTRY(0x10de009a, "GPU 9a HDMI/DP",	patch_nvhdmi),
++HDA_CODEC_ENTRY(0x10de009d, "GPU 9d HDMI/DP",	patch_nvhdmi),
++HDA_CODEC_ENTRY(0x10de009e, "GPU 9e HDMI/DP",	patch_nvhdmi),
++HDA_CODEC_ENTRY(0x10de009f, "GPU 9f HDMI/DP",	patch_nvhdmi),
++HDA_CODEC_ENTRY(0x10de00a0, "GPU a0 HDMI/DP",	patch_nvhdmi),
+ HDA_CODEC_ENTRY(0x10de8001, "MCP73 HDMI",	patch_nvhdmi_2ch),
+ HDA_CODEC_ENTRY(0x10de8067, "MCP67/68 HDMI",	patch_nvhdmi_2ch),
+ HDA_CODEC_ENTRY(0x11069f80, "VX900 HDMI/DP",	patch_via_hdmi),
 -- 
 2.25.1
 
