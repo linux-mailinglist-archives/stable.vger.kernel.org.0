@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B05420DA83
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:13:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7094520DA52
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:13:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732895AbgF2T6A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:58:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47652 "EHLO mail.kernel.org"
+        id S2387650AbgF2T4A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:56:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387607AbgF2TkS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:18 -0400
+        id S2387654AbgF2TkY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:24 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1B1132489D;
-        Mon, 29 Jun 2020 15:26:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 23B8D248A4;
+        Mon, 29 Jun 2020 15:26:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444399;
-        bh=FATNjAXvx8vrwrvho3+k3jo6fRNhCtd/10INbKd4NGs=;
+        s=default; t=1593444400;
+        bh=+E0bitveH20osE1qAh7Cun30LPerQPCMAvFAgZcslfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZI9yQrSxzD+QUT6zfU1DF8IKZfFeio3q5raQh4iavfu+IY5rQWhJhqiN/Dl6sZW9V
-         znhNGEa4YiF69nA+Qm9EpqwY0GewpkvC1Gz4ouXlFPRnBYE+rwJztSWX1FwudDuQNL
-         s+wV18aTXYbAFXtMVB+zQA5oJQC+3UeI2N2/yWv4=
+        b=HcpNlfqY3bQhbX8UwegFOLAkiQ64KufLia/s9VV38yoc2fFZT3xU+LUT7DivwmjLg
+         RmBEq5C5ZlyIxJNauuhu8f6X+gcxRNGfxpbC5miWLiDad6ydyVO3U2tNqODhGwYDo4
+         HY+FyBj8e9rxWeMsQfY2adyG1pykwXdN35HQguIg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
-        Borislav Petkov <bp@suse.de>,
-        Reinette Chatre <reinette.chatre@intel.com>,
-        Fenghua Yu <fenghua.yu@intel.com>,
+Cc:     Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 077/178] x86/resctrl: Fix a NULL vs IS_ERR() static checker warning in rdt_cdp_peer_get()
-Date:   Mon, 29 Jun 2020 11:23:42 -0400
-Message-Id: <20200629152523.2494198-78-sashal@kernel.org>
+Subject: [PATCH 5.4 078/178] regmap: Fix memory leak from regmap_register_patch
+Date:   Mon, 29 Jun 2020 11:23:43 -0400
+Message-Id: <20200629152523.2494198-79-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -51,50 +49,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[ Upstream commit cc5277fe66cf3ad68f41f1c539b2ef0d5e432974 ]
+[ Upstream commit 95b2c3ec4cb1689db2389c251d39f64490ba641c ]
 
-The callers don't expect *d_cdp to be set to an error pointer, they only
-check for NULL.  This leads to a static checker warning:
+When a register patch is registered the reg_sequence is copied but the
+memory allocated is never freed. Add a kfree in regmap_exit to clean it
+up.
 
-  arch/x86/kernel/cpu/resctrl/rdtgroup.c:2648 __init_one_rdt_domain()
-  warn: 'd_cdp' could be an error pointer
-
-This would not trigger a bug in this specific case because
-__init_one_rdt_domain() calls it with a valid domain that would not have
-a negative id and thus not trigger the return of the ERR_PTR(). If this
-was a negative domain id then the call to rdt_find_domain() in
-domain_add_cpu() would have returned the ERR_PTR() much earlier and the
-creation of the domain with an invalid id would have been prevented.
-
-Even though a bug is not triggered currently the right and safe thing to
-do is to set the pointer to NULL because that is what can be checked for
-when the caller is handling the CDP and non-CDP cases.
-
-Fixes: 52eb74339a62 ("x86/resctrl: Fix rdt_find_domain() return value and checks")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Reinette Chatre <reinette.chatre@intel.com>
-Acked-by: Fenghua Yu <fenghua.yu@intel.com>
-Link: https://lkml.kernel.org/r/20200602193611.GA190851@mwanda
+Fixes: 22f0d90a3482 ("regmap: Support register patch sets")
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20200617152129.19655-1-ckeepax@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/resctrl/rdtgroup.c | 1 +
+ drivers/base/regmap/regmap.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/kernel/cpu/resctrl/rdtgroup.c b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-index 20856d80dce3b..54b711bc06073 100644
---- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-+++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-@@ -1027,6 +1027,7 @@ static int rdt_cdp_peer_get(struct rdt_resource *r, struct rdt_domain *d,
- 	_d_cdp = rdt_find_domain(_r_cdp, d->id, NULL);
- 	if (WARN_ON(IS_ERR_OR_NULL(_d_cdp))) {
- 		_r_cdp = NULL;
-+		_d_cdp = NULL;
- 		ret = -EINVAL;
- 	}
- 
+diff --git a/drivers/base/regmap/regmap.c b/drivers/base/regmap/regmap.c
+index 59f911e577192..508bbd6ea4396 100644
+--- a/drivers/base/regmap/regmap.c
++++ b/drivers/base/regmap/regmap.c
+@@ -1356,6 +1356,7 @@ void regmap_exit(struct regmap *map)
+ 	if (map->hwlock)
+ 		hwspin_lock_free(map->hwlock);
+ 	kfree_const(map->name);
++	kfree(map->patch);
+ 	kfree(map);
+ }
+ EXPORT_SYMBOL_GPL(regmap_exit);
 -- 
 2.25.1
 
