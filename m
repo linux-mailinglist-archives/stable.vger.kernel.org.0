@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D488020DEE3
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:53:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA95420DDE7
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:51:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388994AbgF2UaC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:30:02 -0400
+        id S1729990AbgF2UUl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:20:41 -0400
 Received: from mail.kernel.org ([198.145.29.99]:37018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732489AbgF2TZU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:25:20 -0400
+        id S1731890AbgF2TZg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:25:36 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C941D25387;
-        Mon, 29 Jun 2020 15:40:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BC8352530A;
+        Mon, 29 Jun 2020 15:38:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445251;
-        bh=hoWzCq7YdJ466h88JZyEVbYkbSgIOZ4vAwz8CrtxGEE=;
+        s=default; t=1593445136;
+        bh=Q4Lswz6i6II4qFDhrgBuB9RG8nq8AdjQIpsfofTTtPQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o3ymeRqb4VJVLi7GKDIrfHecKTimCm5S+K/XjOuba5mhWkzvCeM7dXjyh/gErRanS
-         YDrlHdhB4K7hpQC4wvYe8lk89Pr7KVOXb/9+Fr0UoxFRtFTkOOVZ8XtAHcRR6Fkx6Y
-         PrSpWBeJkaPRXCHIeVBbFhIQ7jZhVT6LSk2yh0hQ=
+        b=yC6MAI3zfu5iQF43cKskBxXXwR2IWsZDhcDnhbIebSfC8yxiblm2VaPtF0xfspyAW
+         iVQOz9r54XARpfBwM2MwAPBjI6m5H1zFxrNTlpDzPCt6N996kX/Zf4QIAfP5AEBIfP
+         GY3QBbiuMz0Z7R9EGE/u8jFvjIJvSkDiaw8I5gX4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
+Cc:     David Howells <dhowells@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 034/191] PCI/ASPM: Allow ASPM on links to PCIe-to-PCI/PCI-X Bridges
+Subject: [PATCH 4.14 42/78] rxrpc: Fix handling of rwind from an ACK packet
 Date:   Mon, 29 Jun 2020 11:37:30 -0400
-Message-Id: <20200629154007.2495120-35-sashal@kernel.org>
+Message-Id: <20200629153806.2494953-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
-References: <20200629154007.2495120-1-sashal@kernel.org>
+In-Reply-To: <20200629153806.2494953-1-sashal@kernel.org>
+References: <20200629153806.2494953-1-sashal@kernel.org>
 MIME-Version: 1.0
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.229-rc1.gz
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.186-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.9.y
+X-KernelTest-Branch: linux-4.14.y
 X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.9.229-rc1
-X-KernelTest-Deadline: 2020-07-01T15:39+00:00
+X-KernelTest-Version: 4.14.186-rc1
+X-KernelTest-Deadline: 2020-07-01T15:38+00:00
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -50,53 +48,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 66ff14e59e8a30690755b08bc3042359703fb07a ]
+[ Upstream commit a2ad7c21ad8cf1ce4ad65e13df1c2a1c29b38ac5 ]
 
-7d715a6c1ae5 ("PCI: add PCI Express ASPM support") added the ability for
-Linux to enable ASPM, but for some undocumented reason, it didn't enable
-ASPM on links where the downstream component is a PCIe-to-PCI/PCI-X Bridge.
+The handling of the receive window size (rwind) from a received ACK packet
+is not correct.  The rxrpc_input_ackinfo() function currently checks the
+current Tx window size against the rwind from the ACK to see if it has
+changed, but then limits the rwind size before storing it in the tx_winsize
+member and, if it increased, wake up the transmitting process.  This means
+that if rwind > RXRPC_RXTX_BUFF_SIZE - 1, this path will always be
+followed.
 
-Remove this exclusion so we can enable ASPM on these links.
+Fix this by limiting rwind before we compare it to tx_winsize.
 
-The Dell OptiPlex 7080 mentioned in the bugzilla has a TI XIO2001
-PCIe-to-PCI Bridge.  Enabling ASPM on the link leading to it allows the
-Intel SoC to enter deeper Package C-states, which is a significant power
-savings.
+The effect of this can be seen by enabling the rxrpc_rx_rwind_change
+tracepoint.
 
-[bhelgaas: commit log]
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=207571
-Link: https://lore.kernel.org/r/20200505173423.26968-1-kai.heng.feng@canonical.com
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Fixes: 702f2ac87a9a ("rxrpc: Wake up the transmitter if Rx window size increases on the peer")
+Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pcie/aspm.c | 10 ----------
- 1 file changed, 10 deletions(-)
+ net/rxrpc/input.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/pci/pcie/aspm.c b/drivers/pci/pcie/aspm.c
-index 4a5fde58974a6..75551a781e887 100644
---- a/drivers/pci/pcie/aspm.c
-+++ b/drivers/pci/pcie/aspm.c
-@@ -410,16 +410,6 @@ static void pcie_aspm_cap_init(struct pcie_link_state *link, int blacklist)
+diff --git a/net/rxrpc/input.c b/net/rxrpc/input.c
+index 18ce6f97462b6..98285b117a7c0 100644
+--- a/net/rxrpc/input.c
++++ b/net/rxrpc/input.c
+@@ -664,13 +664,12 @@ static void rxrpc_input_ackinfo(struct rxrpc_call *call, struct sk_buff *skb,
+ 	       ntohl(ackinfo->rxMTU), ntohl(ackinfo->maxMTU),
+ 	       rwind, ntohl(ackinfo->jumbo_max));
  
- 	/* Setup initial capable state. Will be updated later */
- 	link->aspm_capable = link->aspm_support;
--	/*
--	 * If the downstream component has pci bridge function, don't
--	 * do ASPM for now.
--	 */
--	list_for_each_entry(child, &linkbus->devices, bus_list) {
--		if (pci_pcie_type(child) == PCI_EXP_TYPE_PCI_BRIDGE) {
--			link->aspm_disable = ASPM_STATE_ALL;
--			break;
--		}
--	}
++	if (rwind > RXRPC_RXTX_BUFF_SIZE - 1)
++		rwind = RXRPC_RXTX_BUFF_SIZE - 1;
+ 	if (call->tx_winsize != rwind) {
+-		if (rwind > RXRPC_RXTX_BUFF_SIZE - 1)
+-			rwind = RXRPC_RXTX_BUFF_SIZE - 1;
+ 		if (rwind > call->tx_winsize)
+ 			wake = true;
+-		trace_rxrpc_rx_rwind_change(call, sp->hdr.serial,
+-					    ntohl(ackinfo->rwind), wake);
++		trace_rxrpc_rx_rwind_change(call, sp->hdr.serial, rwind, wake);
+ 		call->tx_winsize = rwind;
+ 	}
  
- 	/* Get and check endpoint acceptable latencies */
- 	list_for_each_entry(child, &linkbus->devices, bus_list) {
 -- 
 2.25.1
 
