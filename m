@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 331DE20DE1C
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:52:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FC1E20DE07
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:52:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729217AbgF2UWk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:22:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37038 "EHLO mail.kernel.org"
+        id S1729584AbgF2UWC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:22:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732582AbgF2TZd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:25:33 -0400
+        id S1732587AbgF2TZe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:25:34 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3752025456;
-        Mon, 29 Jun 2020 15:43:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 39A392545C;
+        Mon, 29 Jun 2020 15:43:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445410;
-        bh=KIqz86iLPbGE0xfrJUfeaiRP4YEt5cJQXJcpZvxjiMo=;
+        s=default; t=1593445412;
+        bh=Y9JbWJRDCLCRnMh50E6JZ1pSET7MhCQwZXpaFxR59YM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ItTgehNiLDU9LDBTnS9bY2bRzLmOLL3tyyh0MSE0IClURo/kpXwgINeZ1+XNP7sN8
-         5yTxbK5BRNdjhoe/7/4BDs/gretc2XQwyr2ByZTeXc9M+/GtPysKxFhoJW4anRA0nX
-         o/ZdPruR0S2P8pG0AFYmZbKfqbApjoy0CL33LbZw=
+        b=ikyCcMpyRA9KLejozwT5wA1RiFj3OTznx5r/nDA0bdlKE3YYi3TvbYzgf8wKsmntV
+         OHeyXe8FoazvXq4SkphmJCLD9bae/9r33Mrn+hA/dDxMlP67f90vZkPEPlDq6kvaMQ
+         iUwtlptoJHrFVbZuk99bV5DvXgssN+nF/3OTuFB4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qiushi Wu <wu000273@umn.edu>, Ard Biesheuvel <ardb@kernel.org>,
+Cc:     Fan Guo <guofan5@huawei.com>, Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 161/191] efi/esrt: Fix reference count leak in esre_create_sysfs_entry.
-Date:   Mon, 29 Jun 2020 11:39:37 -0400
-Message-Id: <20200629154007.2495120-162-sashal@kernel.org>
+Subject: [PATCH 4.9 162/191] RDMA/mad: Fix possible memory leak in ib_mad_post_receive_mads()
+Date:   Mon, 29 Jun 2020 11:39:38 -0400
+Message-Id: <20200629154007.2495120-163-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
 References: <20200629154007.2495120-1-sashal@kernel.org>
@@ -48,37 +48,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Fan Guo <guofan5@huawei.com>
 
-[ Upstream commit 4ddf4739be6e375116c375f0a68bf3893ffcee21 ]
+[ Upstream commit a17f4bed811c60712d8131883cdba11a105d0161 ]
 
-kobject_init_and_add() takes reference even when it fails.
-If this function returns an error, kobject_put() must be called to
-properly clean up the memory associated with the object. Previous
-commit "b8eb718348b8" fixed a similar problem.
+If ib_dma_mapping_error() returns non-zero value,
+ib_mad_post_receive_mads() will jump out of loops and return -ENOMEM
+without freeing mad_priv. Fix this memory-leak problem by freeing mad_priv
+in this case.
 
-Fixes: 0bb549052d33 ("efi: Add esrt support")
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-Link: https://lore.kernel.org/r/20200528183804.4497-1-wu000273@umn.edu
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Fixes: 2c34e68f4261 ("IB/mad: Check and handle potential DMA mapping errors")
+Link: https://lore.kernel.org/r/20200612063824.180611-1-guofan5@huawei.com
+Signed-off-by: Fan Guo <guofan5@huawei.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/efi/esrt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/core/mad.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/firmware/efi/esrt.c b/drivers/firmware/efi/esrt.c
-index 241dd7c63d2c8..481b2f0a190b0 100644
---- a/drivers/firmware/efi/esrt.c
-+++ b/drivers/firmware/efi/esrt.c
-@@ -180,7 +180,7 @@ static int esre_create_sysfs_entry(void *esre, int entry_num)
- 		rc = kobject_init_and_add(&entry->kobj, &esre1_ktype, NULL,
- 					  "entry%d", entry_num);
- 		if (rc) {
--			kfree(entry);
-+			kobject_put(&entry->kobj);
- 			return rc;
+diff --git a/drivers/infiniband/core/mad.c b/drivers/infiniband/core/mad.c
+index a1f059a9c7519..f03e10517accd 100644
+--- a/drivers/infiniband/core/mad.c
++++ b/drivers/infiniband/core/mad.c
+@@ -2885,6 +2885,7 @@ static int ib_mad_post_receive_mads(struct ib_mad_qp_info *qp_info,
+ 						 DMA_FROM_DEVICE);
+ 		if (unlikely(ib_dma_mapping_error(qp_info->port_priv->device,
+ 						  sg_list.addr))) {
++			kfree(mad_priv);
+ 			ret = -ENOMEM;
+ 			break;
  		}
- 	}
 -- 
 2.25.1
 
