@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4E8220E7F1
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:12:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDD6120E672
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:09:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387988AbgF2WBo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 18:01:44 -0400
+        id S2404229AbgF2Vrh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:47:37 -0400
 Received: from mail.kernel.org ([198.145.29.99]:56790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726248AbgF2SfY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:35:24 -0400
+        id S1726731AbgF2Sfn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:35:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 22A94246F0;
-        Mon, 29 Jun 2020 15:20:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 460C4246F2;
+        Mon, 29 Jun 2020 15:20:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444036;
-        bh=N0ijplVvcF9uZZu2JhVQaZooxRDw2w5dSphqSIH3Ues=;
+        s=default; t=1593444037;
+        bh=xad0Vf4y6tkQ6kiNJkH+zGRdUliz2elF3LQs9dqu5sM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DNwePhBpU7mCNWm7uy37TKScrR1Rq/UbL0seA4C0ye0H3Rif3r4Ph+SUavBAMQHIl
-         HmA+odM3qR8GpOqOFsMYsvJxjzT4BWQUmGzB7IOjB5rhSAj+NugXgZVdRaSJ8IflTL
-         rBUAuouNF7xUqWqFTM6o/IU1PvvmnXUAhgbV6oR8=
+        b=0JL/hbwhrfaZLzNjeTDhr/+tr9u0enGwoiGfjUCXWfewKXrUp3hgqMUWDl2FsdC+G
+         nATXQReLlMNgNU46vNYiPHvQU69UbPo+v3GSdjIq+tC+P5H++UhWfBjhqxGOWYY+iT
+         jFhVBhUHLjTnlMjRlbx30Up/st07M4A2FzkZabfE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Lu Baolu <baolu.lu@linux.intel.com>,
-        Lalithambika Krishnakumar <lalithambika.krishnakumar@intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
         Ashok Raj <ashok.raj@intel.com>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Jacob Pan <jacob.jun.pan@linux.intel.com>,
         Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 143/265] iommu/vt-d: Enable PCI ACS for platform opt in hint
-Date:   Mon, 29 Jun 2020 11:16:16 -0400
-Message-Id: <20200629151818.2493727-144-sashal@kernel.org>
+Subject: [PATCH 5.7 144/265] iommu/vt-d: Update scalable mode paging structure coherency
+Date:   Mon, 29 Jun 2020 11:16:17 -0400
+Message-Id: <20200629151818.2493727-145-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -53,51 +53,72 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lu Baolu <baolu.lu@linux.intel.com>
 
-[ Upstream commit 50310600ebda74b9988467e2e6128711c7ba56fc ]
+[ Upstream commit 04c00956ee3cd138fd38560a91452a804a8c5550 ]
 
-PCI ACS is disabled if Intel IOMMU is off by default or intel_iommu=off
-is used in command line. Unfortunately, Intel IOMMU will be forced on if
-there're devices sitting on an external facing PCI port that is marked
-as untrusted (for example, thunderbolt peripherals). That means, PCI ACS
-is disabled while Intel IOMMU is forced on to isolate those devices. As
-the result, the devices of an MFD will be grouped by a single group even
-the ACS is supported on device.
+The Scalable-mode Page-walk Coherency (SMPWC) field in the VT-d extended
+capability register indicates the hardware coherency behavior on paging
+structures accessed through the pasid table entry. This is ignored in
+current code and using ECAP.C instead which is only valid in legacy mode.
+Fix this so that paging structure updates could be manually flushed from
+the cache line if hardware page walking is not snooped.
 
-[    0.691263] pci 0000:00:07.1: Adding to iommu group 3
-[    0.691277] pci 0000:00:07.2: Adding to iommu group 3
-[    0.691292] pci 0000:00:07.3: Adding to iommu group 3
-
-Fix it by requesting PCI ACS when Intel IOMMU is detected with platform
-opt in hint.
-
-Fixes: 89a6079df791a ("iommu/vt-d: Force IOMMU on for platform opt in hint")
-Co-developed-by: Lalithambika Krishnakumar <lalithambika.krishnakumar@intel.com>
-Signed-off-by: Lalithambika Krishnakumar <lalithambika.krishnakumar@intel.com>
+Fixes: 765b6a98c1de3 ("iommu/vt-d: Enumerate the scalable mode capability")
 Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
 Cc: Ashok Raj <ashok.raj@intel.com>
-Link: https://lore.kernel.org/r/20200622231345.29722-5-baolu.lu@linux.intel.com
+Cc: Kevin Tian <kevin.tian@intel.com>
+Cc: Jacob Pan <jacob.jun.pan@linux.intel.com>
+Link: https://lore.kernel.org/r/20200622231345.29722-6-baolu.lu@linux.intel.com
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/dmar.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/iommu/intel-iommu.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iommu/dmar.c b/drivers/iommu/dmar.c
-index f77dae7ba7d40..7df5621bba8de 100644
---- a/drivers/iommu/dmar.c
-+++ b/drivers/iommu/dmar.c
-@@ -898,7 +898,8 @@ int __init detect_intel_iommu(void)
- 	if (!ret)
- 		ret = dmar_walk_dmar_table((struct acpi_table_dmar *)dmar_tbl,
- 					   &validate_drhd_cb);
--	if (!ret && !no_iommu && !iommu_detected && !dmar_disabled) {
-+	if (!ret && !no_iommu && !iommu_detected &&
-+	    (!dmar_disabled || dmar_platform_optin())) {
- 		iommu_detected = 1;
- 		/* Make sure ACS will be enabled */
- 		pci_request_acs();
+diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
+index a0b9ea0805210..34b2ed91cf4d9 100644
+--- a/drivers/iommu/intel-iommu.c
++++ b/drivers/iommu/intel-iommu.c
+@@ -634,6 +634,12 @@ struct intel_iommu *domain_get_iommu(struct dmar_domain *domain)
+ 	return g_iommus[iommu_id];
+ }
+ 
++static inline bool iommu_paging_structure_coherency(struct intel_iommu *iommu)
++{
++	return sm_supported(iommu) ?
++			ecap_smpwc(iommu->ecap) : ecap_coherent(iommu->ecap);
++}
++
+ static void domain_update_iommu_coherency(struct dmar_domain *domain)
+ {
+ 	struct dmar_drhd_unit *drhd;
+@@ -645,7 +651,7 @@ static void domain_update_iommu_coherency(struct dmar_domain *domain)
+ 
+ 	for_each_domain_iommu(i, domain) {
+ 		found = true;
+-		if (!ecap_coherent(g_iommus[i]->ecap)) {
++		if (!iommu_paging_structure_coherency(g_iommus[i])) {
+ 			domain->iommu_coherency = 0;
+ 			break;
+ 		}
+@@ -656,7 +662,7 @@ static void domain_update_iommu_coherency(struct dmar_domain *domain)
+ 	/* No hardware attached; use lowest common denominator */
+ 	rcu_read_lock();
+ 	for_each_active_iommu(iommu, drhd) {
+-		if (!ecap_coherent(iommu->ecap)) {
++		if (!iommu_paging_structure_coherency(iommu)) {
+ 			domain->iommu_coherency = 0;
+ 			break;
+ 		}
+@@ -2177,7 +2183,8 @@ static int domain_context_mapping_one(struct dmar_domain *domain,
+ 
+ 	context_set_fault_enable(context);
+ 	context_set_present(context);
+-	domain_flush_cache(domain, context, sizeof(*context));
++	if (!ecap_coherent(iommu->ecap))
++		clflush_cache_range(context, sizeof(*context));
+ 
+ 	/*
+ 	 * It's a non-present to present mapping. If hardware doesn't cache
 -- 
 2.25.1
 
