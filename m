@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 845D820DDCB
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:51:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61EF720DDB8
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:51:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732723AbgF2UTS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:19:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37042 "EHLO mail.kernel.org"
+        id S1732643AbgF2USc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:18:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732165AbgF2TZk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:25:40 -0400
+        id S1732628AbgF2TZl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:25:41 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B619925314;
-        Mon, 29 Jun 2020 15:39:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A788925390;
+        Mon, 29 Jun 2020 15:40:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445142;
-        bh=UFnQ0j9vRU9dtyUAJS6l4WDlLbEXsutWmWL5HIeCguA=;
+        s=default; t=1593445259;
+        bh=ZJ+tY0mEOW4kbbhTdVLDb5bY+9vwmA+0mfiv3q0RqN0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xDOR0BnpEJGxEN0UVInngpbOTEJ4LdxZ7+K5DjBFUiXDRUdIPifdFgkpMFUyjquT5
-         xuPfmQFIqWI1OFBgJMeJIDic7+yvxzMyn4aQoP8a7Q3/MpF/iHmiF9w391pDM2r8rh
-         DsFV4ONN28PAp7XPHRa2kKKuyyfdVie2D8bku01Y=
+        b=lswYTyUvU5hq/8QAx2G1aeBIyb/XESXuxZ1guHqDA36NARhDoh+BCxkygLeyoqB5Z
+         m75XsIya9LtbiqHBaokN8DdVm/zXZ3hwxmSsYdFK3fQTpod3J8GL48f5sqHM9BGrWQ
+         XwuuLv4cxN2bLk3mAuYB8xA565+TnJFxFGGKCpMc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Lobakin <alobakin@marvell.com>,
-        Igor Russkikh <irusskikh@marvell.com>,
-        Michal Kalderon <michal.kalderon@marvell.com>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     Gregory CLEMENT <gregory.clement@bootlin.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 47/78] net: qed: fix NVMe login fails over VFs
-Date:   Mon, 29 Jun 2020 11:37:35 -0400
-Message-Id: <20200629153806.2494953-48-sashal@kernel.org>
+Subject: [PATCH 4.9 040/191] tty: n_gsm: Fix SOF skipping
+Date:   Mon, 29 Jun 2020 11:37:36 -0400
+Message-Id: <20200629154007.2495120-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200629153806.2494953-1-sashal@kernel.org>
-References: <20200629153806.2494953-1-sashal@kernel.org>
+In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
+References: <20200629154007.2495120-1-sashal@kernel.org>
 MIME-Version: 1.0
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.186-rc1.gz
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.229-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.14.y
+X-KernelTest-Branch: linux-4.9.y
 X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.14.186-rc1
-X-KernelTest-Deadline: 2020-07-01T15:38+00:00
+X-KernelTest-Version: 4.9.229-rc1
+X-KernelTest-Deadline: 2020-07-01T15:39+00:00
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -51,78 +49,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alobakin@marvell.com>
+From: Gregory CLEMENT <gregory.clement@bootlin.com>
 
-[ Upstream commit ccd7c7ce167a21dbf2b698ffcf00f11d96d44f9b ]
+[ Upstream commit 84d6f81c1fb58b56eba81ff0a36cf31946064b40 ]
 
-25ms sleep cycles in waiting for PF response are excessive and may lead
-to different timeout failures.
+For at least some modems like the TELIT LE910, skipping SOF makes
+transfers blocking indefinitely after a short amount of data
+transferred.
 
-Start to wait with short udelays, and in most cases polling will end
-here. If the time was not sufficient, switch to msleeps.
-usleep_range() may go far beyond 100us depending on platform and tick
-configuration, hence atomic udelays for consistency.
+Given the small improvement provided by skipping the SOF (just one
+byte on about 100 bytes), it seems better to completely remove this
+"feature" than make it optional.
 
-Also add explicit DMA barriers since 'done' always comes from a shared
-request-response DMA pool, and note that in the comment nearby.
-
-Fixes: 1408cc1fa48c ("qed: Introduce VFs")
-Signed-off-by: Alexander Lobakin <alobakin@marvell.com>
-Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
-Signed-off-by: Michal Kalderon <michal.kalderon@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Link: https://lore.kernel.org/r/20200512115323.1447922-3-gregory.clement@bootlin.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_vf.c | 23 ++++++++++++++++++-----
- 1 file changed, 18 insertions(+), 5 deletions(-)
+ drivers/tty/n_gsm.c | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_vf.c b/drivers/net/ethernet/qlogic/qed/qed_vf.c
-index a2a9921b467b1..693f2a0393835 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_vf.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_vf.c
-@@ -81,12 +81,17 @@ static void qed_vf_pf_req_end(struct qed_hwfn *p_hwfn, int req_status)
- 	mutex_unlock(&(p_hwfn->vf_iov_info->mutex));
- }
- 
-+#define QED_VF_CHANNEL_USLEEP_ITERATIONS	90
-+#define QED_VF_CHANNEL_USLEEP_DELAY		100
-+#define QED_VF_CHANNEL_MSLEEP_ITERATIONS	10
-+#define QED_VF_CHANNEL_MSLEEP_DELAY		25
-+
- static int qed_send_msg2pf(struct qed_hwfn *p_hwfn, u8 *done, u32 resp_size)
+diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
+index 9e9016e67843b..d5efacd27b15c 100644
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -685,7 +685,6 @@ static void gsm_data_kick(struct gsm_mux *gsm)
  {
- 	union vfpf_tlvs *p_req = p_hwfn->vf_iov_info->vf2pf_request;
- 	struct ustorm_trigger_vf_zone trigger;
- 	struct ustorm_vf_zone *zone_data;
--	int rc = 0, time = 100;
-+	int iter, rc = 0;
+ 	struct gsm_msg *msg, *nmsg;
+ 	int len;
+-	int skip_sof = 0;
  
- 	zone_data = (struct ustorm_vf_zone *)PXP_VF_BAR0_START_USDM_ZONE_B;
+ 	list_for_each_entry_safe(msg, nmsg, &gsm->tx_list, list) {
+ 		if (gsm->constipated && msg->addr)
+@@ -707,15 +706,10 @@ static void gsm_data_kick(struct gsm_mux *gsm)
+ 			print_hex_dump_bytes("gsm_data_kick: ",
+ 					     DUMP_PREFIX_OFFSET,
+ 					     gsm->txframe, len);
+-
+-		if (gsm->output(gsm, gsm->txframe + skip_sof,
+-						len - skip_sof) < 0)
++		if (gsm->output(gsm, gsm->txframe, len) < 0)
+ 			break;
+ 		/* FIXME: Can eliminate one SOF in many more cases */
+ 		gsm->tx_bytes -= msg->len;
+-		/* For a burst of frames skip the extra SOF within the
+-		   burst */
+-		skip_sof = 1;
  
-@@ -126,11 +131,19 @@ static int qed_send_msg2pf(struct qed_hwfn *p_hwfn, u8 *done, u32 resp_size)
- 	REG_WR(p_hwfn, (uintptr_t)&zone_data->trigger, *((u32 *)&trigger));
- 
- 	/* When PF would be done with the response, it would write back to the
--	 * `done' address. Poll until then.
-+	 * `done' address from a coherent DMA zone. Poll until then.
- 	 */
--	while ((!*done) && time) {
--		msleep(25);
--		time--;
-+
-+	iter = QED_VF_CHANNEL_USLEEP_ITERATIONS;
-+	while (!*done && iter--) {
-+		udelay(QED_VF_CHANNEL_USLEEP_DELAY);
-+		dma_rmb();
-+	}
-+
-+	iter = QED_VF_CHANNEL_MSLEEP_ITERATIONS;
-+	while (!*done && iter--) {
-+		msleep(QED_VF_CHANNEL_MSLEEP_DELAY);
-+		dma_rmb();
- 	}
- 
- 	if (!*done) {
+ 		list_del(&msg->list);
+ 		kfree(msg);
 -- 
 2.25.1
 
