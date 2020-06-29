@@ -2,73 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56D1620E96E
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 01:41:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B43320E9BE
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 02:02:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728140AbgF2Xhs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 19:37:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47338 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726596AbgF2Xhr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 19:37:47 -0400
-Received: from kernel.org (unknown [104.132.0.74])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D59C206F1;
-        Mon, 29 Jun 2020 23:37:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593473867;
-        bh=jwY2o3i7A/yilz2MIuZg3u9zREXVh4++QwAfajlJ9l4=;
-        h=In-Reply-To:References:Subject:From:Cc:To:Date:From;
-        b=QnKqIkK1Mtx4Lx4nmaKwHDuiOd0k9+8ngFNH1vIGu8nJpMDUEN7dZg5OVCz6DCWU3
-         RZ5vFPXRwWRSNN6WKEgVJvW0r4AeJyj3qRbFmjNf9elEMd1pEa791bd0d+v1e3TdiD
-         GsJ7ELoqXLrhZ2QhtSAXrXUW6ARFVFfOQxFADq4s=
-Content-Type: text/plain; charset="utf-8"
+        id S1726687AbgF2Xwy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 19:52:54 -0400
+Received: from outils.crapouillou.net ([89.234.176.41]:49608 "EHLO
+        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726199AbgF2Xwy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Jun 2020 19:52:54 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
+        s=mail; t=1593474744; h=from:from:sender:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=XhUI9cXsdT/2cw8/5dvvRfnnNMBhQmrV1moGXmAW/Lw=;
+        b=mpqOZSbM5JU2BKhHEQ0C0DcH7p9ZsEcJ1o58c9yUtf6P0ZHUwDFK98VyD5i5qAxjqqB7IW
+        KOktx4qh6rMJwrQ2nHix1hvysVlvS3W8q25aGxcaPoHRBO+7EBKBcLKMTmSft1nsulTFiQ
+        8f6YFQvEnicwmtaVgtEYHx0VySIAN30=
+From:   Paul Cercueil <paul@crapouillou.net>
+To:     David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>,
+        Rob Herring <robh+dt@kernel.org>
+Cc:     od@zcrc.me, dri-devel@lists.freedesktop.org,
+        devicetree@vger.kernel.org, linux-mips@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        stable@vger.kernel.org
+Subject: [PATCH v2 05/10] drm/ingenic: Fix incorrect assumption about plane->index
+Date:   Tue, 30 Jun 2020 01:52:05 +0200
+Message-Id: <20200629235210.441709-5-paul@crapouillou.net>
+In-Reply-To: <20200629235210.441709-1-paul@crapouillou.net>
+References: <20200629235210.441709-1-paul@crapouillou.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <mhng-f15789ef-8446-4dbe-a483-19d2f6c37b96@palmerdabbelt-glaptop1>
-References: <mhng-f15789ef-8446-4dbe-a483-19d2f6c37b96@palmerdabbelt-glaptop1>
-Subject: Re: [PATCH] clk: sifive: allocate sufficient memory for struct __prci_data
-From:   Stephen Boyd <sboyd@kernel.org>
-Cc:     vincent.chen@sifive.com, mturquette@baylibre.com,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        linux-riscv@lists.infradead.org, schwab@suse.de,
-        vincent.chen@sifive.com, stable@vger.kernel.org
-To:     Palmer Dabbelt <palmer@dabbelt.com>
-Date:   Mon, 29 Jun 2020 16:37:46 -0700
-Message-ID: <159347386681.1987609.8025910491933969394@swboyd.mtv.corp.google.com>
-User-Agent: alot/0.9
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Quoting Palmer Dabbelt (2020-06-29 16:34:10)
-> On Mon, 29 Jun 2020 16:23:47 PDT (-0700), sboyd@kernel.org wrote:
-> >
-> > Does that mean applied to sifive tree? I see it in next but only noticed
-> > this by chance because it wasn't sent to the linux-clk mailing list.
->=20
-> Sorry, I was going a bit too fast and didn't realize this wasn't in arch/=
-riscv/
-> so I didn't wait for an ack.  I put it on my fixes branch, which is what =
-I sent
-> for the RCs.  That's merged into linux-next as well, as far as I understa=
-nd
-> that's the normal way to do things.  It ended up in Linus' tree as d0a5fd=
-f4cc83
-> ("clk: sifive: allocate sufficient memory for struct __prci_data"), which=
- is in
-> rc3.
->=20
-> We don't really have a SiFive tree, the SiFive stuff just goes in through=
- the
-> RISC-V tree.  In theory I've been meaning to split them up for a while, b=
-ut
-> given the maintainers are the same I just never got around to doing so.
->=20
-> LMK if I screwed something up.
+plane->index is NOT the index of the color plane in a YUV frame.
+Actually, a YUV frame is represented by a single drm_plane, even though
+it contains three Y, U, V planes.
 
-No worries. I would have noticed this patch earlier if it had been sent
-to the linux-clk mailing list which I use to catch patches that should
-be reviewed for the clk tree. I'm not overly concerned. Thanks.
+Cc: stable@vger.kernel.org # v5.3
+Fixes: 90b86fcc47b4 ("DRM: Add KMS driver for the Ingenic JZ47xx SoCs")
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+---
+
+Notes:
+    v2: No change
+
+ drivers/gpu/drm/ingenic/ingenic-drm-drv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
+index a15f9a1940c6..924c8daf071a 100644
+--- a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
++++ b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
+@@ -386,7 +386,7 @@ static void ingenic_drm_plane_atomic_update(struct drm_plane *plane,
+ 		addr = drm_fb_cma_get_gem_addr(state->fb, state, 0);
+ 		width = state->src_w >> 16;
+ 		height = state->src_h >> 16;
+-		cpp = state->fb->format->cpp[plane->index];
++		cpp = state->fb->format->cpp[0];
+ 
+ 		priv->dma_hwdesc->addr = addr;
+ 		priv->dma_hwdesc->cmd = width * height * cpp / 4;
+-- 
+2.27.0
+
