@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C99E20D3BB
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 21:13:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DC2E20D3A8
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 21:13:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730105AbgF2TBl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:01:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45422 "EHLO mail.kernel.org"
+        id S1729381AbgF2TBH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:01:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730356AbgF2TAV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:00:21 -0400
+        id S1730360AbgF2TAW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:00:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8A67F25532;
-        Mon, 29 Jun 2020 15:54:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E65A32553B;
+        Mon, 29 Jun 2020 15:55:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593446098;
-        bh=jnk5Zme9d9tz2syJJU7ak+cKFbMjS6pv4B0XXXnJ2Qw=;
+        s=default; t=1593446103;
+        bh=R6p6CPvab4qXGoi74cHq70AKz/fSLbmbm+2atUmsmYw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rxqEVP4RN9w2CtVydoltKmbLhihlCii2c/8zDEsWu8wWAThcEmqbqx+8MiSq0xPoG
-         2izy758zf1oRfEwI9VyB5LtiFsOXF8dOQkKfxTGiESrsB8di/UCUGI4UB1fNq0Cg3U
-         mFpH0iXDF3dbKlDYisiNLqji6iAYzO3hu6Dy19Rc=
+        b=RrECYSAK6AWbWmWSVhdBjC1FayZ3jOKoewA4k1CR6+EodIGXwOpVA64PGadrjxIra
+         7oNF38brfp31L/HQj8mPP372zL5KhwbAcuSY10UzMVUEveQVUTW3fIUZGJkKFWlmt7
+         iqwH/cizEfKRiAkNKZmgzVWCUdTbKoADOh+1BxkI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tariq Toukan <tariqt@mellanox.com>,
-        Boris Pismenny <borisp@mellanox.com>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
+        kbuild test robot <lkp@intel.com>,
+        Marek Vasut <marex@denx.de>,
+        Minas Harutyunyan <hminas@synopsys.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.4 091/135] net: Do not clear the sock TX queue in sk_set_socket()
-Date:   Mon, 29 Jun 2020 11:52:25 -0400
-Message-Id: <20200629155309.2495516-92-sashal@kernel.org>
+Subject: [PATCH 4.4 095/135] usb: dwc2: Postponed gadget registration to the udc class driver
+Date:   Mon, 29 Jun 2020 11:52:29 -0400
+Message-Id: <20200629155309.2495516-96-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
 References: <20200629155309.2495516-1-sashal@kernel.org>
@@ -50,62 +51,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tariq Toukan <tariqt@mellanox.com>
+From: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
 
-[ Upstream commit 41b14fb8724d5a4b382a63cb4a1a61880347ccb8 ]
+commit 207324a321a866401b098cadf19e4a2dd6584622 upstream.
 
-Clearing the sock TX queue in sk_set_socket() might cause unexpected
-out-of-order transmit when called from sock_orphan(), as outstanding
-packets can pick a different TX queue and bypass the ones already queued.
+During dwc2 driver probe, after gadget registration to the udc class
+driver, if exist any builtin function driver it immediately bound to
+dwc2 and after init host side (dwc2_hcd_init()) stucked in host mode.
+Patch postpone gadget registration after host side initialization done.
 
-This is undesired in general. More specifically, it breaks the in-order
-scheduling property guarantee for device-offloaded TLS sockets.
-
-Remove the call to sk_tx_queue_clear() in sk_set_socket(), and add it
-explicitly only where needed.
-
-Fixes: e022f0b4a03f ("net: Introduce sk_tx_queue_mapping")
-Signed-off-by: Tariq Toukan <tariqt@mellanox.com>
-Reviewed-by: Boris Pismenny <borisp@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 117777b2c3bb9 ("usb: dwc2: Move gadget probe function into platform code")
+Reported-by: kbuild test robot <lkp@intel.com>
+Tested-by: Marek Vasut <marex@denx.de>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Minas Harutyunyan <hminas@synopsys.com>
+Link: https://lore.kernel.org/r/f21cb38fecc72a230b86155d94c7e60c9cb66f58.1591690938.git.hminas@synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/sock.h | 1 -
- net/core/sock.c    | 2 ++
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/dwc2/gadget.c   |  6 ------
+ drivers/usb/dwc2/platform.c | 11 +++++++++++
+ 2 files changed, 11 insertions(+), 6 deletions(-)
 
-diff --git a/include/net/sock.h b/include/net/sock.h
-index be5ec94020f1a..426a57874964c 100644
---- a/include/net/sock.h
-+++ b/include/net/sock.h
-@@ -1678,7 +1678,6 @@ static inline int sk_tx_queue_get(const struct sock *sk)
- 
- static inline void sk_set_socket(struct sock *sk, struct socket *sock)
- {
--	sk_tx_queue_clear(sk);
- 	sk->sk_socket = sock;
- }
- 
-diff --git a/net/core/sock.c b/net/core/sock.c
-index 60b19c3bb0f7d..120d5058d81ae 100644
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -1435,6 +1435,7 @@ struct sock *sk_alloc(struct net *net, int family, gfp_t priority,
- 
- 		sock_update_classid(sk);
- 		sock_update_netprioidx(sk);
-+		sk_tx_queue_clear(sk);
+diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
+index 842c1ae7a2911..e5ad717cba22f 100644
+--- a/drivers/usb/dwc2/gadget.c
++++ b/drivers/usb/dwc2/gadget.c
+@@ -3656,12 +3656,6 @@ int dwc2_gadget_init(struct dwc2_hsotg *hsotg, int irq)
+ 								epnum, 0);
  	}
  
- 	return sk;
-@@ -1601,6 +1602,7 @@ struct sock *sk_clone_lock(const struct sock *sk, const gfp_t priority)
- 		 */
- 		sk_refcnt_debug_inc(newsk);
- 		sk_set_socket(newsk, NULL);
-+		sk_tx_queue_clear(newsk);
- 		newsk->sk_wq = NULL;
+-	ret = usb_add_gadget_udc(dev, &hsotg->gadget);
+-	if (ret) {
+-		dwc2_hsotg_ep_free_request(&hsotg->eps_out[0]->ep,
+-					   hsotg->ctrl_req);
+-		return ret;
+-	}
+ 	dwc2_hsotg_dump(hsotg);
  
- 		sk_update_clone(sk, newsk);
+ 	return 0;
+diff --git a/drivers/usb/dwc2/platform.c b/drivers/usb/dwc2/platform.c
+index 39c1cbf0e75d9..5e554b1d5a8f9 100644
+--- a/drivers/usb/dwc2/platform.c
++++ b/drivers/usb/dwc2/platform.c
+@@ -452,6 +452,17 @@ static int dwc2_driver_probe(struct platform_device *dev)
+ 	if (hsotg->dr_mode == USB_DR_MODE_PERIPHERAL)
+ 		dwc2_lowlevel_hw_disable(hsotg);
+ 
++#if IS_ENABLED(CONFIG_USB_DWC2_PERIPHERAL) || \
++	IS_ENABLED(CONFIG_USB_DWC2_DUAL_ROLE)
++	/* Postponed adding a new gadget to the udc class driver list */
++	if (hsotg->gadget_enabled) {
++		retval = usb_add_gadget_udc(hsotg->dev, &hsotg->gadget);
++		if (retval) {
++			dwc2_hsotg_remove(hsotg);
++			goto error;
++		}
++	}
++#endif /* CONFIG_USB_DWC2_PERIPHERAL || CONFIG_USB_DWC2_DUAL_ROLE */
+ 	return 0;
+ 
+ error:
 -- 
 2.25.1
 
