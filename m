@@ -2,54 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BC1820D17B
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 20:42:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C40220D170
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 20:42:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726839AbgF2SmC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 14:42:02 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:48647 "EHLO
+        id S1726948AbgF2Sl5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 14:41:57 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:44815 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729051AbgF2Sl7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Jun 2020 14:41:59 -0400
+        by vger.kernel.org with ESMTP id S1729021AbgF2Slz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Jun 2020 14:41:55 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 3DF3D6BC;
-        Mon, 29 Jun 2020 07:00:56 -0400 (EDT)
+        by mailforward.west.internal (Postfix) with ESMTP id 982DB5E0;
+        Mon, 29 Jun 2020 07:01:21 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 29 Jun 2020 07:00:56 -0400
+  by compute1.internal (MEProxy); Mon, 29 Jun 2020 07:01:21 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=ZP9tdJ
-        RRJWHjsrh3Jv0Tv2UvUmpbirJlFfTZSEmBfXI=; b=DM9MfMPW3QMugpQmDc0wdS
-        Ji9EoUFYOK8JEyGvfjUujZus5F9HJBvkrLQLjOsQKZQ3iUhXhG5m7cZ09h5eXiOu
-        BSlItEaDUc3wdIaVI1+vTk5PLD0UmADdr3LQ9LhuiwzTYjiqYYqWwveWHTtY/4zJ
-        nuPN4KlCwaSpfdDs2w+PjR9wZKnS+wXg6y/PDkHbdW8FGf43XyRsnGXef5xLBqLI
-        mF0DVCkmtF1zxNq7Z1vU24MNfGzEg27P5+NEqv8HyFJazTvtgr6PJ+wo5d8h9y9T
-        hASkqKivI15jtAp/kvobuBX5GOJ+5/uQto+SG4a3YZDks2b5URV/4yZZnl5xjatg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=i62e5/
+        GCXJiwE9hgLDS2Eer+OOUi20SnBAE5FgzOs74=; b=Tc5r18V/WCxOvsAAGcMyJp
+        Qda4KI5MIgIbIuNk3St/webtfby426gKdayvnBOjqOE0DMq00uebqPhAVZvmvd6G
+        prjgxAPA5nXjmx8E3YntL+D76reDA2FF2oY1QgQpusOg46crTlwq1aaWuP+RkU32
+        V4xA2OeFvgvLP8M5FqvRQyLHvgvNSxT8TaSBCMB7RAhEL3qySri3jO46f0sMqzk/
+        nMlg6IAn7TrHNYrfHjtHKG4wmqzBX0/k6IHBkbiWOaURqb0lCm1bjTlTsNwHGt09
+        H68g9IMCgS3M/Sf4Dek00tRtsbuI4Gp11UC/oNmdNADvT6WOiU0IPrvzLQ3TpL5w
         ==
-X-ME-Sender: <xms:58n5XlgCLIBu0H3upoV3NX4gsXcMScVO9ZHUNUMvivTM4GK_g0nIWg>
+X-ME-Sender: <xms:AMr5XqZUjM7EXApE0QvwbuhXfVj8VAGd5nHhJHPn5vBwv_yXriF_eA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudelkedgfeegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
-    vghrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:58n5XqAr7t0xv-LeQdPOuaMLzosq52jwQuN7P6YeCmWg4vfOIFZwnw>
-    <xmx:58n5XlGremhjTrfgypruApJkvrMUnl4h_RR3y7s2U8mPWmuj4lLzIw>
-    <xmx:58n5XqQjtSNbymg281C1QQ027WjDsIUzmIUtNm7A7-x3q4zTFh9Vhw>
-    <xmx:58n5Xnp_hzmBQD-kI5VFUkMHtex2WhjvG-sxtkjdkVLb1eav0_3LJggkJTc>
+    gheqnecuggftrfgrthhtvghrnhepfeetteehueetheekueevhfefveejheegtdeiudehue
+    ekheeijeefgfeuhfeigefhnecuffhomhgrihhnpehqvghmuhdrohhrghenucfkphepkeef
+    rdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
+    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:AMr5XtZKy0qNI1_PDPZT9qYjCyyBhOaQQUHG99IO_MtQM7I9a2TrYA>
+    <xmx:AMr5Xk95cwbcMYsoBZFX7Ht0kNraf3XmVi73yYGLunlWIBBGcE3mwg>
+    <xmx:AMr5XsoM3xlwwYm_z2c3YXD_Iq1tpI0otn-dYX2qirPpORdZMxSIrg>
+    <xmx:Acr5XkTR8k71wU9bPLxHTb9YJ6f6QuPpVAt6qLVbJiHgjWAxJLQ7ionzlYc>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 73D9C3067BFE;
-        Mon, 29 Jun 2020 07:00:55 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] btrfs: fix a block group ref counter leak after failure to" failed to apply to 4.19-stable tree
-To:     fdmanana@suse.com, anand.jain@oracle.com, dsterba@suse.com,
-        nborisov@suse.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 95AB53067C57;
+        Mon, 29 Jun 2020 07:01:20 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] btrfs: fix bytes_may_use underflow when running balance and" failed to apply to 4.4-stable tree
+To:     fdmanana@suse.com, dsterba@suse.com, josef@toxicpanda.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 29 Jun 2020 13:00:43 +0200
-Message-ID: <1593428443202151@kroah.com>
+Date:   Mon, 29 Jun 2020 13:01:12 +0200
+Message-ID: <1593428472134138@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,112 +69,149 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 9fecd13202f520f3f25d5b1c313adb740fe19773 Mon Sep 17 00:00:00 2001
+From 6bd335b469f945f75474c11e3f577f85409f39c3 Mon Sep 17 00:00:00 2001
 From: Filipe Manana <fdmanana@suse.com>
-Date: Mon, 1 Jun 2020 19:12:06 +0100
-Subject: [PATCH] btrfs: fix a block group ref counter leak after failure to
- remove block group
+Date: Mon, 8 Jun 2020 13:33:05 +0100
+Subject: [PATCH] btrfs: fix bytes_may_use underflow when running balance and
+ scrub in parallel
 
-When removing a block group, if we fail to delete the block group's item
-from the extent tree, we jump to the 'out' label and end up decrementing
-the block group's reference count once only (by 1), resulting in a counter
-leak because the block group at that point was already removed from the
-block group cache rbtree - so we have to decrement the reference count
-twice, once for the rbtree and once for our lookup at the start of the
-function.
+When balance and scrub are running in parallel it is possible to end up
+with an underflow of the bytes_may_use counter of the data space_info
+object, which triggers a warning like the following:
 
-There is a second bug where if removing the free space tree entries (the
-call to remove_block_group_free_space()) fails we end up jumping to the
-'out_put_group' label but end up decrementing the reference count only
-once, when we should have done it twice, since we have already removed
-the block group from the block group cache rbtree. This happens because
-the reference count decrement for the rbtree reference happens after
-attempting to remove the free space tree entries, which is far away from
-the place where we remove the block group from the rbtree.
+   [134243.793196] BTRFS info (device sdc): relocating block group 1104150528 flags data
+   [134243.806891] ------------[ cut here ]------------
+   [134243.807561] WARNING: CPU: 1 PID: 26884 at fs/btrfs/space-info.h:125 btrfs_add_reserved_bytes+0x1da/0x280 [btrfs]
+   [134243.808819] Modules linked in: btrfs blake2b_generic xor (...)
+   [134243.815779] CPU: 1 PID: 26884 Comm: kworker/u8:8 Tainted: G        W         5.6.0-rc7-btrfs-next-58 #5
+   [134243.816944] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
+   [134243.818389] Workqueue: writeback wb_workfn (flush-btrfs-108483)
+   [134243.819186] RIP: 0010:btrfs_add_reserved_bytes+0x1da/0x280 [btrfs]
+   [134243.819963] Code: 0b f2 85 (...)
+   [134243.822271] RSP: 0018:ffffa4160aae7510 EFLAGS: 00010287
+   [134243.822929] RAX: 000000000000c000 RBX: ffff96159a8c1000 RCX: 0000000000000000
+   [134243.823816] RDX: 0000000000008000 RSI: 0000000000000000 RDI: ffff96158067a810
+   [134243.824742] RBP: ffff96158067a800 R08: 0000000000000001 R09: 0000000000000000
+   [134243.825636] R10: ffff961501432a40 R11: 0000000000000000 R12: 000000000000c000
+   [134243.826532] R13: 0000000000000001 R14: ffffffffffff4000 R15: ffff96158067a810
+   [134243.827432] FS:  0000000000000000(0000) GS:ffff9615baa00000(0000) knlGS:0000000000000000
+   [134243.828451] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+   [134243.829184] CR2: 000055bd7e414000 CR3: 00000001077be004 CR4: 00000000003606e0
+   [134243.830083] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+   [134243.830975] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+   [134243.831867] Call Trace:
+   [134243.832211]  find_free_extent+0x4a0/0x16c0 [btrfs]
+   [134243.832846]  btrfs_reserve_extent+0x91/0x180 [btrfs]
+   [134243.833487]  cow_file_range+0x12d/0x490 [btrfs]
+   [134243.834080]  fallback_to_cow+0x82/0x1b0 [btrfs]
+   [134243.834689]  ? release_extent_buffer+0x121/0x170 [btrfs]
+   [134243.835370]  run_delalloc_nocow+0x33f/0xa30 [btrfs]
+   [134243.836032]  btrfs_run_delalloc_range+0x1ea/0x6d0 [btrfs]
+   [134243.836725]  ? find_lock_delalloc_range+0x221/0x250 [btrfs]
+   [134243.837450]  writepage_delalloc+0xe8/0x150 [btrfs]
+   [134243.838059]  __extent_writepage+0xe8/0x4c0 [btrfs]
+   [134243.838674]  extent_write_cache_pages+0x237/0x530 [btrfs]
+   [134243.839364]  extent_writepages+0x44/0xa0 [btrfs]
+   [134243.839946]  do_writepages+0x23/0x80
+   [134243.840401]  __writeback_single_inode+0x59/0x700
+   [134243.841006]  writeback_sb_inodes+0x267/0x5f0
+   [134243.841548]  __writeback_inodes_wb+0x87/0xe0
+   [134243.842091]  wb_writeback+0x382/0x590
+   [134243.842574]  ? wb_workfn+0x4a2/0x6c0
+   [134243.843030]  wb_workfn+0x4a2/0x6c0
+   [134243.843468]  process_one_work+0x26d/0x6a0
+   [134243.843978]  worker_thread+0x4f/0x3e0
+   [134243.844452]  ? process_one_work+0x6a0/0x6a0
+   [134243.844981]  kthread+0x103/0x140
+   [134243.845400]  ? kthread_create_worker_on_cpu+0x70/0x70
+   [134243.846030]  ret_from_fork+0x3a/0x50
+   [134243.846494] irq event stamp: 0
+   [134243.846892] hardirqs last  enabled at (0): [<0000000000000000>] 0x0
+   [134243.847682] hardirqs last disabled at (0): [<ffffffffb2abdedf>] copy_process+0x74f/0x2020
+   [134243.848687] softirqs last  enabled at (0): [<ffffffffb2abdedf>] copy_process+0x74f/0x2020
+   [134243.849913] softirqs last disabled at (0): [<0000000000000000>] 0x0
+   [134243.850698] ---[ end trace bd7c03622e0b0a96 ]---
+   [134243.851335] ------------[ cut here ]------------
 
-To make things less error prone, decrement the reference count for the
-rbtree immediately after removing the block group from it. This also
-eleminates the need for two different exit labels on error, renaming
-'out_put_label' to just 'out' and removing the old 'out'.
+When relocating a data block group, for each extent allocated in the
+block group we preallocate another extent with the same size for the
+data relocation inode (we do it at prealloc_file_extent_cluster()).
+We reserve space by calling btrfs_check_data_free_space(), which ends
+up incrementing the data space_info's bytes_may_use counter, and
+then call btrfs_prealloc_file_range() to allocate the extent, which
+always decrements the bytes_may_use counter by the same amount.
 
-Fixes: f6033c5e333238 ("btrfs: fix block group leak when removing fails")
+The expectation is that writeback of the data relocation inode always
+follows a NOCOW path, by writing into the preallocated extents. However,
+when starting writeback we might end up falling back into the COW path,
+because the block group that contains the preallocated extent was turned
+into RO mode by a scrub running in parallel. The COW path then calls the
+extent allocator which ends up calling btrfs_add_reserved_bytes(), and
+this function decrements the bytes_may_use counter of the data space_info
+object by an amount corresponding to the size of the allocated extent,
+despite we haven't previously incremented it. When the counter currently
+has a value smaller then the allocated extent we reset the counter to 0
+and emit a warning, otherwise we just decrement it and slowly mess up
+with this counter which is crucial for space reservation, the end result
+can be granting reserved space to tasks when there isn't really enough
+free space, and having the tasks fail later in critical places where
+error handling consists of a transaction abort or hitting a BUG_ON().
+
+Fix this by making sure that if we fallback to the COW path for a data
+relocation inode, we increment the bytes_may_use counter of the data
+space_info object. The COW path will then decrement it at
+btrfs_add_reserved_bytes() on success or through its error handling part
+by a call to extent_clear_unlock_delalloc() (which ends up calling
+btrfs_clear_delalloc_extent() that does the decrement operation) in case
+of an error.
+
+Test case btrfs/061 from fstests could sporadically trigger this.
+
 CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
 Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/block-group.c b/fs/btrfs/block-group.c
-index 176e8a292fd1..6462dd0b155c 100644
---- a/fs/btrfs/block-group.c
-+++ b/fs/btrfs/block-group.c
-@@ -940,7 +940,7 @@ int btrfs_remove_block_group(struct btrfs_trans_handle *trans,
- 	path = btrfs_alloc_path();
- 	if (!path) {
- 		ret = -ENOMEM;
--		goto out_put_group;
-+		goto out;
- 	}
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index 62c3f4972ff6..62b49d2db928 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -1378,6 +1378,8 @@ static int fallback_to_cow(struct inode *inode, struct page *locked_page,
+ 			   int *page_started, unsigned long *nr_written)
+ {
+ 	const bool is_space_ino = btrfs_is_free_space_inode(BTRFS_I(inode));
++	const bool is_reloc_ino = (BTRFS_I(inode)->root->root_key.objectid ==
++				   BTRFS_DATA_RELOC_TREE_OBJECTID);
+ 	const u64 range_bytes = end + 1 - start;
+ 	struct extent_io_tree *io_tree = &BTRFS_I(inode)->io_tree;
+ 	u64 range_start = start;
+@@ -1408,18 +1410,23 @@ static int fallback_to_cow(struct inode *inode, struct page *locked_page,
+ 	 *    data space info, which we incremented in the step above.
+ 	 *
+ 	 * If we need to fallback to cow and the inode corresponds to a free
+-	 * space cache inode, we must also increment bytes_may_use of the data
+-	 * space_info for the same reason. Space caches always get a prealloc
++	 * space cache inode or an inode of the data relocation tree, we must
++	 * also increment bytes_may_use of the data space_info for the same
++	 * reason. Space caches and relocated data extents always get a prealloc
+ 	 * extent for them, however scrub or balance may have set the block
+-	 * group that contains that extent to RO mode.
++	 * group that contains that extent to RO mode and therefore force COW
++	 * when starting writeback.
+ 	 */
+ 	count = count_range_bits(io_tree, &range_start, end, range_bytes,
+ 				 EXTENT_NORESERVE, 0);
+-	if (count > 0 || is_space_ino) {
+-		const u64 bytes = is_space_ino ? range_bytes : count;
++	if (count > 0 || is_space_ino || is_reloc_ino) {
++		u64 bytes = count;
+ 		struct btrfs_fs_info *fs_info = BTRFS_I(inode)->root->fs_info;
+ 		struct btrfs_space_info *sinfo = fs_info->data_sinfo;
  
- 	/*
-@@ -978,7 +978,7 @@ int btrfs_remove_block_group(struct btrfs_trans_handle *trans,
- 		ret = btrfs_orphan_add(trans, BTRFS_I(inode));
- 		if (ret) {
- 			btrfs_add_delayed_iput(inode);
--			goto out_put_group;
-+			goto out;
- 		}
- 		clear_nlink(inode);
- 		/* One for the block groups ref */
-@@ -1001,13 +1001,13 @@ int btrfs_remove_block_group(struct btrfs_trans_handle *trans,
- 
- 	ret = btrfs_search_slot(trans, tree_root, &key, path, -1, 1);
- 	if (ret < 0)
--		goto out_put_group;
-+		goto out;
- 	if (ret > 0)
- 		btrfs_release_path(path);
- 	if (ret == 0) {
- 		ret = btrfs_del_item(trans, tree_root, path);
- 		if (ret)
--			goto out_put_group;
-+			goto out;
- 		btrfs_release_path(path);
- 	}
- 
-@@ -1016,6 +1016,9 @@ int btrfs_remove_block_group(struct btrfs_trans_handle *trans,
- 		 &fs_info->block_group_cache_tree);
- 	RB_CLEAR_NODE(&block_group->cache_node);
- 
-+	/* Once for the block groups rbtree */
-+	btrfs_put_block_group(block_group);
++		if (is_space_ino || is_reloc_ino)
++			bytes = range_bytes;
 +
- 	if (fs_info->first_logical_byte == block_group->start)
- 		fs_info->first_logical_byte = (u64)-1;
- 	spin_unlock(&fs_info->block_group_cache_lock);
-@@ -1125,10 +1128,7 @@ int btrfs_remove_block_group(struct btrfs_trans_handle *trans,
- 
- 	ret = remove_block_group_free_space(trans, block_group);
- 	if (ret)
--		goto out_put_group;
--
--	/* Once for the block groups rbtree */
--	btrfs_put_block_group(block_group);
-+		goto out;
- 
- 	ret = remove_block_group_item(trans, path, block_group);
- 	if (ret < 0)
-@@ -1145,10 +1145,9 @@ int btrfs_remove_block_group(struct btrfs_trans_handle *trans,
- 		free_extent_map(em);
- 	}
- 
--out_put_group:
-+out:
- 	/* Once for the lookup reference */
- 	btrfs_put_block_group(block_group);
--out:
- 	if (remove_rsv)
- 		btrfs_delayed_refs_rsv_release(fs_info, 1);
- 	btrfs_free_path(path);
+ 		spin_lock(&sinfo->lock);
+ 		btrfs_space_info_update_bytes_may_use(fs_info, sinfo, bytes);
+ 		spin_unlock(&sinfo->lock);
 
