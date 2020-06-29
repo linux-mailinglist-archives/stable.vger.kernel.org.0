@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A7CD20DE37
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:52:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF2B620DF36
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:54:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388840AbgF2UXj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:23:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37020 "EHLO mail.kernel.org"
+        id S1731892AbgF2UdK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:33:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732568AbgF2TZc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:25:32 -0400
+        id S1732254AbgF2TZR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:25:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 04110252F3;
-        Mon, 29 Jun 2020 15:38:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98AB925376;
+        Mon, 29 Jun 2020 15:40:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445122;
-        bh=qZwIWYIJGBVkV7epgfcVhNDcWnZ6eQ/wY1kVipmEu5k=;
+        s=default; t=1593445239;
+        bh=0ITsDM3fOKZh+tWWm63frmHczA2dJQnz3x74cD9OrLA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GhIZZD16niAEAdEW6X/cXu4KGrylsfSZGDXQWho2G04XGI06I5YzVvWi7u9m4eEX3
-         lwumsAoaIkvIeqCzK799PH5J2vmLAtGtTq/rmN/Cdk/2dAc71IJNaZk2xwsiARsJ4b
-         5wk7B9vWZqHMpQgjETmq1hTzfLwtuMrZZgWhyqO0=
+        b=WURG1hDEXLVgkKqNehDDgNcu717QwfR404KCuQ3OnO6OnpAN/PatoFpUOfhR7rvp4
+         Mdw+g62/9+S4nkRETfmc2+n5BtkIFCFcg9mfFuzsC2k6nk277FiEcDHQ5eo17Oo47w
+         6t72y3LvLtzUdIFV/GahcScZ0H/f0aM/9czmYFCw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Yick W. Tse" <y_w_tse@yahoo.com.hk>, Takashi Iwai <tiwai@suse.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.14 29/78] ALSA: usb-audio: add quirk for Denon DCD-1500RE
-Date:   Mon, 29 Jun 2020 11:37:17 -0400
-Message-Id: <20200629153806.2494953-30-sashal@kernel.org>
+Cc:     ashimida <ashimida@linux.alibaba.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 023/191] mksysmap: Fix the mismatch of '.L' symbols in System.map
+Date:   Mon, 29 Jun 2020 11:37:19 -0400
+Message-Id: <20200629154007.2495120-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200629153806.2494953-1-sashal@kernel.org>
-References: <20200629153806.2494953-1-sashal@kernel.org>
+In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
+References: <20200629154007.2495120-1-sashal@kernel.org>
 MIME-Version: 1.0
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.186-rc1.gz
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.229-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.14.y
+X-KernelTest-Branch: linux-4.9.y
 X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.14.186-rc1
-X-KernelTest-Deadline: 2020-07-01T15:38+00:00
+X-KernelTest-Version: 4.9.229-rc1
+X-KernelTest-Deadline: 2020-07-01T15:39+00:00
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -48,41 +49,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Yick W. Tse" <y_w_tse@yahoo.com.hk>
+From: ashimida <ashimida@linux.alibaba.com>
 
-commit c9808bbfed3cfc911ecb60fe8e80c0c27876c657 upstream.
+[ Upstream commit 72d24accf02add25e08733f0ecc93cf10fcbd88c ]
 
-fix error "clock source 41 is not valid, cannot use"
+When System.map was generated, the kernel used mksysmap to
+filter the kernel symbols, but all the symbols with the
+second letter 'L' in the kernel were filtered out, not just
+the symbols starting with 'dot + L'.
 
-[] New USB device found, idVendor=154e, idProduct=1002, bcdDevice= 1.00
-[] New USB device strings: Mfr=1, Product=2, SerialNumber=0
-[] Product: DCD-1500RE
-[] Manufacturer: D & M Holdings Inc.
-[]
-[] clock source 41 is not valid, cannot use
-[] usbcore: registered new interface driver snd-usb-audio
+For example:
+ashimida@ubuntu:~/linux$ cat System.map |grep ' .L'
+ashimida@ubuntu:~/linux$ nm -n vmlinux |grep ' .L'
+ffff0000088028e0 t bLength_show
+......
+ffff0000092e0408 b PLLP_OUTC_lock
+ffff0000092e0410 b PLLP_OUTA_lock
 
-Signed-off-by: Yick W. Tse <y_w_tse@yahoo.com.hk>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1373857985.210365.1592048406997@mail.yahoo.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The original intent should be to filter out all local symbols
+starting with '.L', so the dot should be escaped.
+
+Fixes: 00902e984732 ("mksysmap: Add h8300 local symbol pattern")
+Signed-off-by: ashimida <ashimida@linux.alibaba.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/quirks.c | 1 +
- 1 file changed, 1 insertion(+)
+ scripts/mksysmap | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
-index f29a8ed4f8564..cd36394e27ae6 100644
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1164,6 +1164,7 @@ bool snd_usb_get_sample_rate_quirk(struct snd_usb_audio *chip)
- static bool is_itf_usb_dsd_2alts_dac(unsigned int id)
- {
- 	switch (id) {
-+	case USB_ID(0x154e, 0x1002): /* Denon DCD-1500RE */
- 	case USB_ID(0x154e, 0x1003): /* Denon DA-300USB */
- 	case USB_ID(0x154e, 0x3005): /* Marantz HD-DAC1 */
- 	case USB_ID(0x154e, 0x3006): /* Marantz SA-14S1 */
+diff --git a/scripts/mksysmap b/scripts/mksysmap
+index a35acc0d0b827..9aa23d15862a0 100755
+--- a/scripts/mksysmap
++++ b/scripts/mksysmap
+@@ -41,4 +41,4 @@
+ # so we just ignore them to let readprofile continue to work.
+ # (At least sparc64 has __crc_ in the middle).
+ 
+-$NM -n $1 | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( .L\)' > $2
++$NM -n $1 | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( \.L\)' > $2
 -- 
 2.25.1
 
