@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5A2020D685
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:05:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00F8220D675
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:05:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730302AbgF2TUx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:20:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33192 "EHLO mail.kernel.org"
+        id S1732118AbgF2TUT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:20:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732109AbgF2TUS (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1732110AbgF2TUS (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 29 Jun 2020 15:20:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA8D825471;
-        Mon, 29 Jun 2020 15:43:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4729225477;
+        Mon, 29 Jun 2020 15:43:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445429;
-        bh=JIuHCG9xBlss0OKlezJxniWqQWL/lZ6ZBPVaqA7ldZQ=;
+        s=default; t=1593445431;
+        bh=CPoLbO4bEUspwUnycH2PlRBtiaWpwvB983rVPZ/hEcI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q7YMe6xeFE4CAJstDZi2AtUWATPK3PB66gzE4ZDeIjkj7wWZFLKfytfHidK8PgA4o
-         X5HiFJAltRB/H0KHeTN8wJD8pFqxYc/vlOJBUaYXRIeCVqmNa3KWrji7SaMSYvAnZV
-         BPozndkkfZSdfwzZWSFcbtQsbB6r7khcAfo32BMk=
+        b=y+7l2+0WYoU9szJpNIxihGJolRW/KBQ9XBbWzO08y/gjVSDSaAZXaVB9nw+rtTzhF
+         OsQmtFPEYxqnKRbAhaQYhdB+kA1rrIm3gc1yO1d0x4s3EavdW/XSHxqRrYv0eB5AWs
+         GfNfltxR5Z2Pb6nu6b2IWDgbfqhZNN2dcvkZ8WiA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Aaron Plattner <aplattner@nvidia.com>,
-        Takashi Iwai <tiwai@suse.de>,
+Cc:     Xiaoyao Li <xiaoyao.li@intel.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Jim Mattson <jmattson@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.9 175/191] ALSA: hda: Add NVIDIA codec IDs 9a & 9d through a0 to patch table
-Date:   Mon, 29 Jun 2020 11:39:51 -0400
-Message-Id: <20200629154007.2495120-176-sashal@kernel.org>
+Subject: [PATCH 4.9 177/191] KVM: X86: Fix MSR range of APIC registers in X2APIC mode
+Date:   Mon, 29 Jun 2020 11:39:53 -0400
+Message-Id: <20200629154007.2495120-178-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
 References: <20200629154007.2495120-1-sashal@kernel.org>
@@ -49,38 +51,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aaron Plattner <aplattner@nvidia.com>
+From: Xiaoyao Li <xiaoyao.li@intel.com>
 
-commit adb36a8203831e40494a92095dacd566b2ad4a69 upstream.
+commit bf10bd0be53282183f374af23577b18b5fbf7801 upstream.
 
-These IDs are for upcoming NVIDIA chips with audio functions that are largely
-similar to the existing ones.
+Only MSR address range 0x800 through 0x8ff is architecturally reserved
+and dedicated for accessing APIC registers in x2APIC mode.
 
-Signed-off-by: Aaron Plattner <aplattner@nvidia.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200611180845.39942-1-aplattner@nvidia.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 0105d1a52640 ("KVM: x2apic interface to lapic")
+Signed-off-by: Xiaoyao Li <xiaoyao.li@intel.com>
+Message-Id: <20200616073307.16440-1-xiaoyao.li@intel.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Reviewed-by: Jim Mattson <jmattson@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_hdmi.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/x86/kvm/x86.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
-index a866a20349c32..2def4ad579ccf 100644
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -3687,6 +3687,11 @@ HDA_CODEC_ENTRY(0x10de0095, "GPU 95 HDMI/DP",	patch_nvhdmi),
- HDA_CODEC_ENTRY(0x10de0097, "GPU 97 HDMI/DP",	patch_nvhdmi),
- HDA_CODEC_ENTRY(0x10de0098, "GPU 98 HDMI/DP",	patch_nvhdmi),
- HDA_CODEC_ENTRY(0x10de0099, "GPU 99 HDMI/DP",	patch_nvhdmi),
-+HDA_CODEC_ENTRY(0x10de009a, "GPU 9a HDMI/DP",	patch_nvhdmi),
-+HDA_CODEC_ENTRY(0x10de009d, "GPU 9d HDMI/DP",	patch_nvhdmi),
-+HDA_CODEC_ENTRY(0x10de009e, "GPU 9e HDMI/DP",	patch_nvhdmi),
-+HDA_CODEC_ENTRY(0x10de009f, "GPU 9f HDMI/DP",	patch_nvhdmi),
-+HDA_CODEC_ENTRY(0x10de00a0, "GPU a0 HDMI/DP",	patch_nvhdmi),
- HDA_CODEC_ENTRY(0x10de8001, "MCP73 HDMI",	patch_nvhdmi_2ch),
- HDA_CODEC_ENTRY(0x10de8067, "MCP67/68 HDMI",	patch_nvhdmi_2ch),
- HDA_CODEC_ENTRY(0x11069f80, "VX900 HDMI/DP",	patch_via_hdmi),
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 0f66f7dd89384..6b7faa14c27bb 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -2304,7 +2304,7 @@ int kvm_set_msr_common(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
+ 		return kvm_mtrr_set_msr(vcpu, msr, data);
+ 	case MSR_IA32_APICBASE:
+ 		return kvm_set_apic_base(vcpu, msr_info);
+-	case APIC_BASE_MSR ... APIC_BASE_MSR + 0x3ff:
++	case APIC_BASE_MSR ... APIC_BASE_MSR + 0xff:
+ 		return kvm_x2apic_msr_write(vcpu, msr, data);
+ 	case MSR_IA32_TSCDEADLINE:
+ 		kvm_set_lapic_tscdeadline_msr(vcpu, data);
+@@ -2576,7 +2576,7 @@ int kvm_get_msr_common(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
+ 	case MSR_IA32_APICBASE:
+ 		msr_info->data = kvm_get_apic_base(vcpu);
+ 		break;
+-	case APIC_BASE_MSR ... APIC_BASE_MSR + 0x3ff:
++	case APIC_BASE_MSR ... APIC_BASE_MSR + 0xff:
+ 		return kvm_x2apic_msr_read(vcpu, msr_info->index, &msr_info->data);
+ 		break;
+ 	case MSR_IA32_TSCDEADLINE:
 -- 
 2.25.1
 
