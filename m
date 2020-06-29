@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E51C20DF44
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:54:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6BC220DEF1
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:53:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732561AbgF2Udx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:33:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37022 "EHLO mail.kernel.org"
+        id S1733029AbgF2Ua6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:30:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732291AbgF2TZQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:25:16 -0400
+        id S1732481AbgF2TZT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:25:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 93A3A2542A;
-        Mon, 29 Jun 2020 15:42:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C063D25429;
+        Mon, 29 Jun 2020 15:42:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445377;
-        bh=MtdVQO9YvinReJrh/3g8nOZ5g+saU97ovcI+Uv+a8oM=;
+        s=default; t=1593445378;
+        bh=qIdhd1f6eHOYapZmovH72ShT5h0sRK0Uxj8J0WuHwpc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kvs87PVuek3Z7Cbs/l+kIyggNQXsdgZs3L7zvRQbv6tfXkOUCQEqjVucJwWsga8BF
-         RWU2wzpWf9Oekf8n/TMJRmXBcKIgRsDv1hEVhvnKmmhf55pgF9c7YAZKINIbMJTY1P
-         NaDBnf/t7yHaqpEyY7a4U14EE956JOvI4HZOQKAI=
+        b=UQYCFGiHJP4fA9y3C3/zERlyMvqd+GDxBWxsUWw2aLT6S+0p+F1oFXm2UJEFcgMFt
+         56OgAIAIa5tqmY9Sh+4AwWb8LL3R14A69WIm6oVbKQ1sheRxEI02iwj+mE01HBLIHi
+         Dxdw5KMHMlArI8DMIf6zcqaUtDKqUU6hWthUN7+I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wang Hai <wanghai38@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
+Cc:     Yang Yingliang <yangyingliang@huawei.com>,
+        Hulk Robot <hulkci@huawei.com>,
         "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.9 132/191] mld: fix memory leak in ipv6_mc_destroy_dev()
-Date:   Mon, 29 Jun 2020 11:39:08 -0400
-Message-Id: <20200629154007.2495120-133-sashal@kernel.org>
+Subject: [PATCH 4.9 133/191] net: fix memleak in register_netdevice()
+Date:   Mon, 29 Jun 2020 11:39:09 -0400
+Message-Id: <20200629154007.2495120-134-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
 References: <20200629154007.2495120-1-sashal@kernel.org>
@@ -50,60 +50,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit ea2fce88d2fd678ed9d45354ff49b73f1d5615dd ]
+[ Upstream commit 814152a89ed52c722ab92e9fbabcac3cb8a39245 ]
 
-Commit a84d01647989 ("mld: fix memory leak in mld_del_delrec()") fixed
-the memory leak of MLD, but missing the ipv6_mc_destroy_dev() path, in
-which mca_sources are leaked after ma_put().
+I got a memleak report when doing some fuzz test:
 
-Using ip6_mc_clear_src() to take care of the missing free.
-
-BUG: memory leak
-unreferenced object 0xffff8881113d3180 (size 64):
-  comm "syz-executor071", pid 389, jiffies 4294887985 (age 17.943s)
+unreferenced object 0xffff888112584000 (size 13599):
+  comm "ip", pid 3048, jiffies 4294911734 (age 343.491s)
   hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 ff 02 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00  ................
+    74 61 70 30 00 00 00 00 00 00 00 00 00 00 00 00  tap0............
+    00 ee d9 19 81 88 ff ff 00 00 00 00 00 00 00 00  ................
   backtrace:
-    [<000000002cbc483c>] kmalloc include/linux/slab.h:555 [inline]
-    [<000000002cbc483c>] kzalloc include/linux/slab.h:669 [inline]
-    [<000000002cbc483c>] ip6_mc_add1_src net/ipv6/mcast.c:2237 [inline]
-    [<000000002cbc483c>] ip6_mc_add_src+0x7f5/0xbb0 net/ipv6/mcast.c:2357
-    [<0000000058b8b1ff>] ip6_mc_source+0xe0c/0x1530 net/ipv6/mcast.c:449
-    [<000000000bfc4fb5>] do_ipv6_setsockopt.isra.12+0x1b2c/0x3b30 net/ipv6/ipv6_sockglue.c:754
-    [<00000000e4e7a722>] ipv6_setsockopt+0xda/0x150 net/ipv6/ipv6_sockglue.c:950
-    [<0000000029260d9a>] rawv6_setsockopt+0x45/0x100 net/ipv6/raw.c:1081
-    [<000000005c1b46f9>] __sys_setsockopt+0x131/0x210 net/socket.c:2132
-    [<000000008491f7db>] __do_sys_setsockopt net/socket.c:2148 [inline]
-    [<000000008491f7db>] __se_sys_setsockopt net/socket.c:2145 [inline]
-    [<000000008491f7db>] __x64_sys_setsockopt+0xba/0x150 net/socket.c:2145
-    [<00000000c7bc11c5>] do_syscall_64+0xa1/0x530 arch/x86/entry/common.c:295
-    [<000000005fb7a3f3>] entry_SYSCALL_64_after_hwframe+0x49/0xb3
+    [<000000002f60ba65>] __kmalloc_node+0x309/0x3a0
+    [<0000000075b211ec>] kvmalloc_node+0x7f/0xc0
+    [<00000000d3a97396>] alloc_netdev_mqs+0x76/0xfc0
+    [<00000000609c3655>] __tun_chr_ioctl+0x1456/0x3d70
+    [<000000001127ca24>] ksys_ioctl+0xe5/0x130
+    [<00000000b7d5e66a>] __x64_sys_ioctl+0x6f/0xb0
+    [<00000000e1023498>] do_syscall_64+0x56/0xa0
+    [<000000009ec0eb12>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+unreferenced object 0xffff888111845cc0 (size 8):
+  comm "ip", pid 3048, jiffies 4294911734 (age 343.491s)
+  hex dump (first 8 bytes):
+    74 61 70 30 00 88 ff ff                          tap0....
+  backtrace:
+    [<000000004c159777>] kstrdup+0x35/0x70
+    [<00000000d8b496ad>] kstrdup_const+0x3d/0x50
+    [<00000000494e884a>] kvasprintf_const+0xf1/0x180
+    [<0000000097880a2b>] kobject_set_name_vargs+0x56/0x140
+    [<000000008fbdfc7b>] dev_set_name+0xab/0xe0
+    [<000000005b99e3b4>] netdev_register_kobject+0xc0/0x390
+    [<00000000602704fe>] register_netdevice+0xb61/0x1250
+    [<000000002b7ca244>] __tun_chr_ioctl+0x1cd1/0x3d70
+    [<000000001127ca24>] ksys_ioctl+0xe5/0x130
+    [<00000000b7d5e66a>] __x64_sys_ioctl+0x6f/0xb0
+    [<00000000e1023498>] do_syscall_64+0x56/0xa0
+    [<000000009ec0eb12>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+unreferenced object 0xffff88811886d800 (size 512):
+  comm "ip", pid 3048, jiffies 4294911734 (age 343.491s)
+  hex dump (first 32 bytes):
+    00 00 00 00 ad 4e ad de ff ff ff ff 00 00 00 00  .....N..........
+    ff ff ff ff ff ff ff ff c0 66 3d a3 ff ff ff ff  .........f=.....
+  backtrace:
+    [<0000000050315800>] device_add+0x61e/0x1950
+    [<0000000021008dfb>] netdev_register_kobject+0x17e/0x390
+    [<00000000602704fe>] register_netdevice+0xb61/0x1250
+    [<000000002b7ca244>] __tun_chr_ioctl+0x1cd1/0x3d70
+    [<000000001127ca24>] ksys_ioctl+0xe5/0x130
+    [<00000000b7d5e66a>] __x64_sys_ioctl+0x6f/0xb0
+    [<00000000e1023498>] do_syscall_64+0x56/0xa0
+    [<000000009ec0eb12>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Fixes: 1666d49e1d41 ("mld: do not remove mld souce list info when set link down")
+If call_netdevice_notifiers() failed, then rollback_registered()
+calls netdev_unregister_kobject() which holds the kobject. The
+reference cannot be put because the netdev won't be add to todo
+list, so it will leads a memleak, we need put the reference to
+avoid memleak.
+
 Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Acked-by: Hangbin Liu <liuhangbin@gmail.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/mcast.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/core/dev.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/net/ipv6/mcast.c b/net/ipv6/mcast.c
-index e065d48b31b9f..f904b9b240275 100644
---- a/net/ipv6/mcast.c
-+++ b/net/ipv6/mcast.c
-@@ -2601,6 +2601,7 @@ void ipv6_mc_destroy_dev(struct inet6_dev *idev)
- 		idev->mc_list = i->next;
+diff --git a/net/core/dev.c b/net/core/dev.c
+index edb2ddbbed9a1..267b648a0645e 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -7355,6 +7355,13 @@ int register_netdevice(struct net_device *dev)
+ 		rcu_barrier();
  
- 		write_unlock_bh(&idev->lock);
-+		ip6_mc_clear_src(i);
- 		ma_put(i);
- 		write_lock_bh(&idev->lock);
+ 		dev->reg_state = NETREG_UNREGISTERED;
++		/* We should put the kobject that hold in
++		 * netdev_unregister_kobject(), otherwise
++		 * the net device cannot be freed when
++		 * driver calls free_netdev(), because the
++		 * kobject is being hold.
++		 */
++		kobject_put(&dev->dev.kobj);
  	}
+ 	/*
+ 	 *	Prevent userspace races by waiting until the network
 -- 
 2.25.1
 
