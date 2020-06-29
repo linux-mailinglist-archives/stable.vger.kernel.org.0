@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9E0B20DEF3
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:53:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B182920DE3E
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:52:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733166AbgF2Ua7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:30:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37028 "EHLO mail.kernel.org"
+        id S1732566AbgF2UX4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:23:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732444AbgF2TZT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:25:19 -0400
+        id S1732572AbgF2TZc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:25:32 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C721A253DD;
-        Mon, 29 Jun 2020 15:41:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0FEE6253DA;
+        Mon, 29 Jun 2020 15:41:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445315;
-        bh=+RTLm4nwuLUV6n4xQyBpCOQVWTHC9HipVho00fhacZQ=;
+        s=default; t=1593445316;
+        bh=DLpiSkuHHXGMoU/1ydEngL9Q0QpIlhx2bgN93M2f1Mg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0x6ISDVMOQx6EzHHCGLTS7xx9HIMfMnf16veMVKTJjldIyKgaDxArgTGHk5psNbd6
-         MZGroJuz5VIUJZWUdTPIbmekKVOCGbnQ+dehxZnW8h4z9a8jL3xpI4GjCq/LZ0ar48
-         rDq+19xkY1ifZxWrb9wGDHhZp18xsrX7YBxeQwwY=
+        b=n6puT8skakobD/2XHKunsj8j71BKQRnNaghG5v6dIS8fhh9x4c873D6wYSicjOkra
+         gPruup3y1ZIT7d0AcmWE8Jc20sGtoV6vsdQ5XajQ+e9cV9oe+CklN9P5NcIK9cjWD3
+         VntxRI8MgR5QuQuA90BHCG1ifagkXzKU4IrxUPAw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Huacai Chen <chenhc@lemote.com>, Gerd Hoffmann <kraxel@redhat.com>,
+Cc:     Tom Rix <trix@redhat.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Paul Moore <paul@paul-moore.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.9 083/191] drm/qxl: Use correct notify port address when creating cursor ring
-Date:   Mon, 29 Jun 2020 11:38:19 -0400
-Message-Id: <20200629154007.2495120-84-sashal@kernel.org>
+Subject: [PATCH 4.9 084/191] selinux: fix double free
+Date:   Mon, 29 Jun 2020 11:38:20 -0400
+Message-Id: <20200629154007.2495120-85-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
 References: <20200629154007.2495120-1-sashal@kernel.org>
@@ -48,41 +50,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huacai Chen <chenhc@lemote.com>
+From: Tom Rix <trix@redhat.com>
 
-commit 80e5f89da3ab949fbbf1cae01dfaea29f5483a75 upstream.
+commit 65de50969a77509452ae590e9449b70a22b923bb upstream.
 
-The command ring and cursor ring use different notify port addresses
-definition: QXL_IO_NOTIFY_CMD and QXL_IO_NOTIFY_CURSOR. However, in
-qxl_device_init() we use QXL_IO_NOTIFY_CMD to create both command ring
-and cursor ring. This doesn't cause any problems now, because QEMU's
-behaviors on QXL_IO_NOTIFY_CMD and QXL_IO_NOTIFY_CURSOR are the same.
-However, QEMU's behavior may be change in future, so let's fix it.
+Clang's static analysis tool reports these double free memory errors.
 
-P.S.: In the X.org QXL driver, the notify port address of cursor ring
-      is correct.
+security/selinux/ss/services.c:2987:4: warning: Attempt to free released memory [unix.Malloc]
+                        kfree(bnames[i]);
+                        ^~~~~~~~~~~~~~~~
+security/selinux/ss/services.c:2990:2: warning: Attempt to free released memory [unix.Malloc]
+        kfree(bvalues);
+        ^~~~~~~~~~~~~~
 
-Signed-off-by: Huacai Chen <chenhc@lemote.com>
-Cc: <stable@vger.kernel.org>
-Link: http://patchwork.freedesktop.org/patch/msgid/1585635488-17507-1-git-send-email-chenhc@lemote.com
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+So improve the security_get_bools error handling by freeing these variables
+and setting their return pointers to NULL and the return len to 0
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Tom Rix <trix@redhat.com>
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/qxl/qxl_kms.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ security/selinux/ss/services.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/gpu/drm/qxl/qxl_kms.c b/drivers/gpu/drm/qxl/qxl_kms.c
-index e642242728c0b..a886652ed895b 100644
---- a/drivers/gpu/drm/qxl/qxl_kms.c
-+++ b/drivers/gpu/drm/qxl/qxl_kms.c
-@@ -199,7 +199,7 @@ static int qxl_device_init(struct qxl_device *qdev,
- 				&(qdev->ram_header->cursor_ring_hdr),
- 				sizeof(struct qxl_command),
- 				QXL_CURSOR_RING_SIZE,
--				qdev->io_base + QXL_IO_NOTIFY_CMD,
-+				qdev->io_base + QXL_IO_NOTIFY_CURSOR,
- 				false,
- 				&qdev->cursor_event);
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index bfc4ffa1fa1a4..6ca297821d459 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -2616,8 +2616,12 @@ int security_get_bools(int *len, char ***names, int **values)
+ 	if (*names) {
+ 		for (i = 0; i < *len; i++)
+ 			kfree((*names)[i]);
++		kfree(*names);
+ 	}
+ 	kfree(*values);
++	*len = 0;
++	*names = NULL;
++	*values = NULL;
+ 	goto out;
+ }
  
 -- 
 2.25.1
