@@ -2,33 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFE0E20E3A5
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:03:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB45620E39A
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:03:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731227AbgF2VQJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:16:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42390 "EHLO mail.kernel.org"
+        id S2390139AbgF2VPt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:15:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729938AbgF2SzP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:55:15 -0400
+        id S1729951AbgF2SzQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:55:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98FF325553;
-        Mon, 29 Jun 2020 15:55:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7ACB225299;
+        Mon, 29 Jun 2020 15:55:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593446115;
-        bh=T879Ggz8zg9MIuGjLYvLFAyf/Cw5E5Q2TNLL9+LsFGs=;
+        s=default; t=1593446119;
+        bh=S08nYrekJmBOyeiTsbZtC3oLsNMFUCdDZY8lMIQKECY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VD6lE4OQAwgAcV/r79S6WbDG8VFlAhNjk0j8QFi8ZFBpWwKVgCrqPZV9Wep+U/UYH
-         pysOPC1mKE6Ns7g3DJzMm1OVG2dtMEOM0TnbQ69mLQ2sJuGiLP9lAvLZ3OfHMwAnzO
-         Y9sL4ld7XsjkGASSKxp4JeovS4t5d1+8DGDoBViw=
+        b=tg8c7WLq1bbc5FuszN/URA+GWyDvgdjF3cPTUUZLbNlQKhAN/W6zbQ0Zo8kNbhfXU
+         1qYl+Tsi2dDl28Kqp/2Myu3xUGBJ7p+XK2AusV/OLWzqDlvun14XmKISR/MdU0GVOB
+         74F8c0YCmOzdMmFMrdebH0Rs8aNOZQaZ0ZLIEJdg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 106/135] ALSA: usb-audio: Clean up mixer element list traverse
-Date:   Mon, 29 Jun 2020 11:52:40 -0400
-Message-Id: <20200629155309.2495516-107-sashal@kernel.org>
+Cc:     Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Hulk Robot <hulkci@huawei.com>,
+        Pavel Shilovsky <pshilov@microsoft.com>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 110/135] cifs/smb3: Fix data inconsistent when zero file range
+Date:   Mon, 29 Jun 2020 11:52:44 -0400
+Message-Id: <20200629155309.2495516-111-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
 References: <20200629155309.2495516-1-sashal@kernel.org>
@@ -47,157 +51,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-[ Upstream commit 8c558076c740e8009a96c6fdc3d4245dde62be77 ]
+[ Upstream commit 6b69040247e14b43419a520f841f2b3052833df9 ]
 
-Introduce a new macro for iterating over mixer element list for
-avoiding the open codes in many places.  Also the open-coded
-container_of() and the forced cast to struct usb_mixer_elem_info are
-replaced with another simple macro, too.
+CIFS implements the fallocate(FALLOC_FL_ZERO_RANGE) with send SMB
+ioctl(FSCTL_SET_ZERO_DATA) to server. It just set the range of the
+remote file to zero, but local page cache not update, then the data
+inconsistent with server, which leads the xfstest generic/008 failed.
 
-No functional changes but just readability improvement.
+So we need to remove the local page caches before send SMB
+ioctl(FSCTL_SET_ZERO_DATA) to server. After next read, it will
+re-cache it.
 
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 30175628bf7f5 ("[SMB3] Enable fallocate -z support for SMB3 mounts")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
+Cc: stable@vger.kernel.org # v3.17
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/mixer.c          | 20 +++++++++-----------
- sound/usb/mixer.h          |  6 ++++++
- sound/usb/mixer_quirks.c   |  2 +-
- sound/usb/mixer_scarlett.c |  6 ++----
- 4 files changed, 18 insertions(+), 16 deletions(-)
+ fs/cifs/smb2ops.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/sound/usb/mixer.c b/sound/usb/mixer.c
-index eb98e60e57335..c29931cd461fc 100644
---- a/sound/usb/mixer.c
-+++ b/sound/usb/mixer.c
-@@ -2330,9 +2330,9 @@ void snd_usb_mixer_notify_id(struct usb_mixer_interface *mixer, int unitid)
- {
- 	struct usb_mixer_elem_list *list;
+diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
+index 870b7e763bab9..087261ca6d463 100644
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -1145,6 +1145,12 @@ static long smb3_zero_range(struct file *file, struct cifs_tcon *tcon,
+ 	inode = d_inode(cfile->dentry);
+ 	cifsi = CIFS_I(inode);
  
--	for (list = mixer->id_elems[unitid]; list; list = list->next_id_elem) {
-+	for_each_mixer_elem(list, mixer, unitid) {
- 		struct usb_mixer_elem_info *info =
--			(struct usb_mixer_elem_info *)list;
-+			mixer_elem_list_to_info(list);
- 		/* invalidate cache, so the value is read from the device */
- 		info->cached = 0;
- 		snd_ctl_notify(mixer->chip->card, SNDRV_CTL_EVENT_MASK_VALUE,
-@@ -2343,7 +2343,7 @@ void snd_usb_mixer_notify_id(struct usb_mixer_interface *mixer, int unitid)
- static void snd_usb_mixer_dump_cval(struct snd_info_buffer *buffer,
- 				    struct usb_mixer_elem_list *list)
- {
--	struct usb_mixer_elem_info *cval = (struct usb_mixer_elem_info *)list;
-+	struct usb_mixer_elem_info *cval = mixer_elem_list_to_info(list);
- 	static char *val_types[] = {"BOOLEAN", "INV_BOOLEAN",
- 				    "S8", "U8", "S16", "U16"};
- 	snd_iprintf(buffer, "    Info: id=%i, control=%i, cmask=0x%x, "
-@@ -2369,8 +2369,7 @@ static void snd_usb_mixer_proc_read(struct snd_info_entry *entry,
- 				mixer->ignore_ctl_error);
- 		snd_iprintf(buffer, "Card: %s\n", chip->card->longname);
- 		for (unitid = 0; unitid < MAX_ID_ELEMS; unitid++) {
--			for (list = mixer->id_elems[unitid]; list;
--			     list = list->next_id_elem) {
-+			for_each_mixer_elem(list, mixer, unitid) {
- 				snd_iprintf(buffer, "  Unit: %i\n", list->id);
- 				if (list->kctl)
- 					snd_iprintf(buffer,
-@@ -2400,19 +2399,19 @@ static void snd_usb_mixer_interrupt_v2(struct usb_mixer_interface *mixer,
- 		return;
- 	}
- 
--	for (list = mixer->id_elems[unitid]; list; list = list->next_id_elem)
-+	for_each_mixer_elem(list, mixer, unitid)
- 		count++;
- 
- 	if (count == 0)
- 		return;
- 
--	for (list = mixer->id_elems[unitid]; list; list = list->next_id_elem) {
-+	for_each_mixer_elem(list, mixer, unitid) {
- 		struct usb_mixer_elem_info *info;
- 
- 		if (!list->kctl)
- 			continue;
- 
--		info = (struct usb_mixer_elem_info *)list;
-+		info = mixer_elem_list_to_info(list);
- 		if (count > 1 && info->control != control)
- 			continue;
- 
-@@ -2632,7 +2631,7 @@ int snd_usb_mixer_suspend(struct usb_mixer_interface *mixer)
- 
- static int restore_mixer_value(struct usb_mixer_elem_list *list)
- {
--	struct usb_mixer_elem_info *cval = (struct usb_mixer_elem_info *)list;
-+	struct usb_mixer_elem_info *cval = mixer_elem_list_to_info(list);
- 	int c, err, idx;
- 
- 	if (cval->cmask) {
-@@ -2668,8 +2667,7 @@ int snd_usb_mixer_resume(struct usb_mixer_interface *mixer, bool reset_resume)
- 	if (reset_resume) {
- 		/* restore cached mixer values */
- 		for (id = 0; id < MAX_ID_ELEMS; id++) {
--			for (list = mixer->id_elems[id]; list;
--			     list = list->next_id_elem) {
-+			for_each_mixer_elem(list, mixer, id) {
- 				if (list->resume) {
- 					err = list->resume(list);
- 					if (err < 0)
-diff --git a/sound/usb/mixer.h b/sound/usb/mixer.h
-index 545d99b09706b..004d99037210f 100644
---- a/sound/usb/mixer.h
-+++ b/sound/usb/mixer.h
-@@ -52,6 +52,12 @@ struct usb_mixer_elem_list {
- 	usb_mixer_elem_resume_func_t resume;
- };
- 
-+/* iterate over mixer element list of the given unit id */
-+#define for_each_mixer_elem(list, mixer, id)	\
-+	for ((list) = (mixer)->id_elems[id]; (list); (list) = (list)->next_id_elem)
-+#define mixer_elem_list_to_info(list) \
-+	container_of(list, struct usb_mixer_elem_info, head)
++	/*
++	 * We zero the range through ioctl, so we need remove the page caches
++	 * first, otherwise the data may be inconsistent with the server.
++	 */
++	truncate_pagecache_range(inode, offset, offset + len - 1);
 +
- struct usb_mixer_elem_info {
- 	struct usb_mixer_elem_list head;
- 	unsigned int control;	/* CS or ICN (high byte) */
-diff --git a/sound/usb/mixer_quirks.c b/sound/usb/mixer_quirks.c
-index 723b535ca2ec5..5d6af9c861ad9 100644
---- a/sound/usb/mixer_quirks.c
-+++ b/sound/usb/mixer_quirks.c
-@@ -1170,7 +1170,7 @@ void snd_emuusb_set_samplerate(struct snd_usb_audio *chip,
- 	int unitid = 12; /* SamleRate ExtensionUnit ID */
- 
- 	list_for_each_entry(mixer, &chip->mixer_list, list) {
--		cval = (struct usb_mixer_elem_info *)mixer->id_elems[unitid];
-+		cval = mixer_elem_list_to_info(mixer->id_elems[unitid]);
- 		if (cval) {
- 			snd_usb_mixer_set_ctl_value(cval, UAC_SET_CUR,
- 						    cval->control << 8,
-diff --git a/sound/usb/mixer_scarlett.c b/sound/usb/mixer_scarlett.c
-index 7438e7c4a842d..2876cd9b35b38 100644
---- a/sound/usb/mixer_scarlett.c
-+++ b/sound/usb/mixer_scarlett.c
-@@ -287,8 +287,7 @@ static int scarlett_ctl_switch_put(struct snd_kcontrol *kctl,
- 
- static int scarlett_ctl_resume(struct usb_mixer_elem_list *list)
- {
--	struct usb_mixer_elem_info *elem =
--		container_of(list, struct usb_mixer_elem_info, head);
-+	struct usb_mixer_elem_info *elem = mixer_elem_list_to_info(list);
- 	int i;
- 
- 	for (i = 0; i < elem->channels; i++)
-@@ -447,8 +446,7 @@ static int scarlett_ctl_enum_put(struct snd_kcontrol *kctl,
- 
- static int scarlett_ctl_enum_resume(struct usb_mixer_elem_list *list)
- {
--	struct usb_mixer_elem_info *elem =
--		container_of(list, struct usb_mixer_elem_info, head);
-+	struct usb_mixer_elem_info *elem = mixer_elem_list_to_info(list);
- 
- 	if (elem->cached)
- 		snd_usb_set_cur_mix_value(elem, 0, 0, *elem->cache_val);
+ 	/* if file not oplocked can't be sure whether asking to extend size */
+ 	if (!CIFS_CACHE_READ(cifsi))
+ 		if (keep_size == false)
 -- 
 2.25.1
 
