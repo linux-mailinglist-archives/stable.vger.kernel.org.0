@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9079F20E3A0
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:03:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FB9520E38B
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:03:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390678AbgF2VP6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:15:58 -0400
+        id S2390475AbgF2VPK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:15:10 -0400
 Received: from mail.kernel.org ([198.145.29.99]:42436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729947AbgF2SzP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:55:15 -0400
+        id S1729956AbgF2SzQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:55:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 680B225554;
-        Mon, 29 Jun 2020 15:55:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 52B742555D;
+        Mon, 29 Jun 2020 15:55:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593446121;
-        bh=UQu+7V1cXILSqWmsj5TqeEtkMiRO+mIQRZp8rW3iTS8=;
+        s=default; t=1593446122;
+        bh=WbLLflRH1kjA+aX3PDTiByYeTImPHtnDXacasBWp4V0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kj1c03mM85vLRRTV/wqBIERNgmVF5l2DHJPoETr7ldr0k8birB0omqyWwOpbKWGpS
-         QurUX/qVs0l678aZzrbtfr40VZFAw9rFPxJDFTUJa+ayEQsjRJ5GQzP0cGSGyPXMDC
-         q/ZIXcfrprkLKMuR23lW/TgVxg8Mgv9kg5Wgxm8g=
+        b=MkmWNwNFvBtUC0kDeLW4z9CJT5chbEmGAHhpfyCWukVMpk6kL1Uvu8OHfWqae9l9S
+         xHbN86C7PKWJR75U9IV914fAREClw06soTN3CeNsSRJTXIG94fBdS1PSK6u+1S/ySX
+         l16SSUiQSMSUbiPxDVWNvfIhAr6swywwe2zXflPo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Fan Guo <guofan5@huawei.com>, Jason Gunthorpe <jgg@mellanox.com>,
+Cc:     yu kuai <yukuai3@huawei.com>, Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 112/135] RDMA/mad: Fix possible memory leak in ib_mad_post_receive_mads()
-Date:   Mon, 29 Jun 2020 11:52:46 -0400
-Message-Id: <20200629155309.2495516-113-sashal@kernel.org>
+Subject: [PATCH 4.4 113/135] ARM: imx5: add missing put_device() call in imx_suspend_alloc_ocram()
+Date:   Mon, 29 Jun 2020 11:52:47 -0400
+Message-Id: <20200629155309.2495516-114-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
 References: <20200629155309.2495516-1-sashal@kernel.org>
@@ -48,36 +48,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fan Guo <guofan5@huawei.com>
+From: yu kuai <yukuai3@huawei.com>
 
-[ Upstream commit a17f4bed811c60712d8131883cdba11a105d0161 ]
+[ Upstream commit 586745f1598ccf71b0a5a6df2222dee0a865954e ]
 
-If ib_dma_mapping_error() returns non-zero value,
-ib_mad_post_receive_mads() will jump out of loops and return -ENOMEM
-without freeing mad_priv. Fix this memory-leak problem by freeing mad_priv
-in this case.
+if of_find_device_by_node() succeed, imx_suspend_alloc_ocram() doesn't
+have a corresponding put_device(). Thus add a jump target to fix the
+exception handling for this function implementation.
 
-Fixes: 2c34e68f4261 ("IB/mad: Check and handle potential DMA mapping errors")
-Link: https://lore.kernel.org/r/20200612063824.180611-1-guofan5@huawei.com
-Signed-off-by: Fan Guo <guofan5@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: 1579c7b9fe01 ("ARM: imx53: Set DDR pins to high impedance when in suspend to RAM.")
+Signed-off-by: yu kuai <yukuai3@huawei.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/mad.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/mach-imx/pm-imx5.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/core/mad.c b/drivers/infiniband/core/mad.c
-index 616173b7a5e8a..c26fdcb7dddf8 100644
---- a/drivers/infiniband/core/mad.c
-+++ b/drivers/infiniband/core/mad.c
-@@ -2912,6 +2912,7 @@ static int ib_mad_post_receive_mads(struct ib_mad_qp_info *qp_info,
- 						 DMA_FROM_DEVICE);
- 		if (unlikely(ib_dma_mapping_error(qp_info->port_priv->device,
- 						  sg_list.addr))) {
-+			kfree(mad_priv);
- 			ret = -ENOMEM;
- 			break;
- 		}
+diff --git a/arch/arm/mach-imx/pm-imx5.c b/arch/arm/mach-imx/pm-imx5.c
+index 532d4b08276dc..fd996187fc5fb 100644
+--- a/arch/arm/mach-imx/pm-imx5.c
++++ b/arch/arm/mach-imx/pm-imx5.c
+@@ -301,14 +301,14 @@ static int __init imx_suspend_alloc_ocram(
+ 	if (!ocram_pool) {
+ 		pr_warn("%s: ocram pool unavailable!\n", __func__);
+ 		ret = -ENODEV;
+-		goto put_node;
++		goto put_device;
+ 	}
+ 
+ 	ocram_base = gen_pool_alloc(ocram_pool, size);
+ 	if (!ocram_base) {
+ 		pr_warn("%s: unable to alloc ocram!\n", __func__);
+ 		ret = -ENOMEM;
+-		goto put_node;
++		goto put_device;
+ 	}
+ 
+ 	phys = gen_pool_virt_to_phys(ocram_pool, ocram_base);
+@@ -318,6 +318,8 @@ static int __init imx_suspend_alloc_ocram(
+ 	if (virt_out)
+ 		*virt_out = virt;
+ 
++put_device:
++	put_device(&pdev->dev);
+ put_node:
+ 	of_node_put(node);
+ 
 -- 
 2.25.1
 
