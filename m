@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EDC420D0F5
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 20:41:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3772320D0B3
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 20:36:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726807AbgF2Sfw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 14:35:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56788 "EHLO mail.kernel.org"
+        id S1726153AbgF2SfT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 14:35:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726795AbgF2Sfv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:35:51 -0400
+        id S1726126AbgF2SfQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:35:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E529824754;
-        Mon, 29 Jun 2020 15:21:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 97C2D24779;
+        Mon, 29 Jun 2020 15:21:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444074;
-        bh=593OyubN331LWjjdmxQZ5FO8EQpjPse/1PEqKhxkcfc=;
+        s=default; t=1593444088;
+        bh=/yIniaPFKZ11CTcjGIIKnnQplSH1xgEGXA3jO9oQshA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OvKjlfi9eZef0NVnrkpJm7TX77WIXMfJ9veV32w03fOzaH6E8/ZHI8GkB3WqnABRJ
-         plnv/lfV2RdH2ySUY8cASw6NdQ+bwPc9ff5fsY/9k1Ci/ALwwQ+FbFnrL9fqnsVI2B
-         MkI0lHP9M3pK56xEV8QkYocgjBH1uzfJxsNVNAkE=
+        b=EQ/1xmDIRwhsQKmFdQNqzyW2BzHioBimgrTq7eDBlQ6S5td0E/i9AGaGoMHS8v9jv
+         M37JOgG6kdG7oKvu8T4xKS5DBskr2kFk8I0bTjp3Jj+WZ8yco6BWOk+yOE+ShWCKdt
+         bfllvPrfLhVywEVKLn4Oky+Kej/0raFeHTOrFWR0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ye Bin <yebin10@huawei.com>, Jens Axboe <axboe@kernel.dk>,
+Cc:     Nathan Chancellor <natechancellor@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 183/265] ata/libata: Fix usage of page address by page_address in ata_scsi_mode_select_xlat function
-Date:   Mon, 29 Jun 2020 11:16:56 -0400
-Message-Id: <20200629151818.2493727-184-sashal@kernel.org>
+Subject: [PATCH 5.7 198/265] s390/vdso: Use $(LD) instead of $(CC) to link vDSO
+Date:   Mon, 29 Jun 2020 11:17:11 -0400
+Message-Id: <20200629151818.2493727-199-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -48,179 +51,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit f650ef61e040bcb175dd8762164b00a5d627f20e ]
+[ Upstream commit 2b2a25845d534ac6d55086e35c033961fdd83a26 ]
 
-BUG: KASAN: use-after-free in ata_scsi_mode_select_xlat+0x10bd/0x10f0
-drivers/ata/libata-scsi.c:4045
-Read of size 1 at addr ffff88803b8cd003 by task syz-executor.6/12621
+Currently, the VDSO is being linked through $(CC). This does not match
+how the rest of the kernel links objects, which is through the $(LD)
+variable.
 
-CPU: 1 PID: 12621 Comm: syz-executor.6 Not tainted 4.19.95 #1
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-1.10.2-1ubuntu1 04/01/2014
-Call Trace:
-__dump_stack lib/dump_stack.c:77 [inline]
-dump_stack+0xac/0xee lib/dump_stack.c:118
-print_address_description+0x60/0x223 mm/kasan/report.c:253
-kasan_report_error mm/kasan/report.c:351 [inline]
-kasan_report mm/kasan/report.c:409 [inline]
-kasan_report.cold+0xae/0x2d8 mm/kasan/report.c:393
-ata_scsi_mode_select_xlat+0x10bd/0x10f0 drivers/ata/libata-scsi.c:4045
-ata_scsi_translate+0x2da/0x680 drivers/ata/libata-scsi.c:2035
-__ata_scsi_queuecmd drivers/ata/libata-scsi.c:4360 [inline]
-ata_scsi_queuecmd+0x2e4/0x790 drivers/ata/libata-scsi.c:4409
-scsi_dispatch_cmd+0x2ee/0x6c0 drivers/scsi/scsi_lib.c:1867
-scsi_queue_rq+0xfd7/0x1990 drivers/scsi/scsi_lib.c:2170
-blk_mq_dispatch_rq_list+0x1e1/0x19a0 block/blk-mq.c:1186
-blk_mq_do_dispatch_sched+0x147/0x3d0 block/blk-mq-sched.c:108
-blk_mq_sched_dispatch_requests+0x427/0x680 block/blk-mq-sched.c:204
-__blk_mq_run_hw_queue+0xbc/0x200 block/blk-mq.c:1308
-__blk_mq_delay_run_hw_queue+0x3c0/0x460 block/blk-mq.c:1376
-blk_mq_run_hw_queue+0x152/0x310 block/blk-mq.c:1413
-blk_mq_sched_insert_request+0x337/0x6c0 block/blk-mq-sched.c:397
-blk_execute_rq_nowait+0x124/0x320 block/blk-exec.c:64
-blk_execute_rq+0xc5/0x112 block/blk-exec.c:101
-sg_scsi_ioctl+0x3b0/0x6a0 block/scsi_ioctl.c:507
-sg_ioctl+0xd37/0x23f0 drivers/scsi/sg.c:1106
-vfs_ioctl fs/ioctl.c:46 [inline]
-file_ioctl fs/ioctl.c:501 [inline]
-do_vfs_ioctl+0xae6/0x1030 fs/ioctl.c:688
-ksys_ioctl+0x76/0xa0 fs/ioctl.c:705
-__do_sys_ioctl fs/ioctl.c:712 [inline]
-__se_sys_ioctl fs/ioctl.c:710 [inline]
-__x64_sys_ioctl+0x6f/0xb0 fs/ioctl.c:710
-do_syscall_64+0xa0/0x2e0 arch/x86/entry/common.c:293
-entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x45c479
-Code: ad b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89
-f7 48
-89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff
-ff 0f
-83 7b b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007fb0e9602c78 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-RAX: ffffffffffffffda RBX: 00007fb0e96036d4 RCX: 000000000045c479
-RDX: 0000000020000040 RSI: 0000000000000001 RDI: 0000000000000003
-RBP: 000000000076bfc0 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 00000000ffffffff
-R13: 000000000000046d R14: 00000000004c6e1a R15: 000000000076bfcc
+When clang is built in a default configuration, it first attempts to use
+the target triple's default linker, which is just ld. However, the user
+can override this through the CLANG_DEFAULT_LINKER cmake define so that
+clang uses another linker by default, such as LLVM's own linker, ld.lld.
+This can be useful to get more optimized links across various different
+projects.
 
-Allocated by task 12577:
-set_track mm/kasan/kasan.c:460 [inline]
-kasan_kmalloc mm/kasan/kasan.c:553 [inline]
-kasan_kmalloc+0xbf/0xe0 mm/kasan/kasan.c:531
-__kmalloc+0xf3/0x1e0 mm/slub.c:3749
-kmalloc include/linux/slab.h:520 [inline]
-load_elf_phdrs+0x118/0x1b0 fs/binfmt_elf.c:441
-load_elf_binary+0x2de/0x4610 fs/binfmt_elf.c:737
-search_binary_handler fs/exec.c:1654 [inline]
-search_binary_handler+0x15c/0x4e0 fs/exec.c:1632
-exec_binprm fs/exec.c:1696 [inline]
-__do_execve_file.isra.0+0xf52/0x1a90 fs/exec.c:1820
-do_execveat_common fs/exec.c:1866 [inline]
-do_execve fs/exec.c:1883 [inline]
-__do_sys_execve fs/exec.c:1964 [inline]
-__se_sys_execve fs/exec.c:1959 [inline]
-__x64_sys_execve+0x8a/0xb0 fs/exec.c:1959
-do_syscall_64+0xa0/0x2e0 arch/x86/entry/common.c:293
-entry_SYSCALL_64_after_hwframe+0x44/0xa9
+However, this is problematic for the s390 vDSO because ld.lld does not
+have any s390 emulatiom support:
 
-Freed by task 12577:
-set_track mm/kasan/kasan.c:460 [inline]
-__kasan_slab_free+0x129/0x170 mm/kasan/kasan.c:521
-slab_free_hook mm/slub.c:1370 [inline]
-slab_free_freelist_hook mm/slub.c:1397 [inline]
-slab_free mm/slub.c:2952 [inline]
-kfree+0x8b/0x1a0 mm/slub.c:3904
-load_elf_binary+0x1be7/0x4610 fs/binfmt_elf.c:1118
-search_binary_handler fs/exec.c:1654 [inline]
-search_binary_handler+0x15c/0x4e0 fs/exec.c:1632
-exec_binprm fs/exec.c:1696 [inline]
-__do_execve_file.isra.0+0xf52/0x1a90 fs/exec.c:1820
-do_execveat_common fs/exec.c:1866 [inline]
-do_execve fs/exec.c:1883 [inline]
-__do_sys_execve fs/exec.c:1964 [inline]
-__se_sys_execve fs/exec.c:1959 [inline]
-__x64_sys_execve+0x8a/0xb0 fs/exec.c:1959
-do_syscall_64+0xa0/0x2e0 arch/x86/entry/common.c:293
-entry_SYSCALL_64_after_hwframe+0x44/0xa9
+https://github.com/llvm/llvm-project/blob/llvmorg-10.0.1-rc1/lld/ELF/Driver.cpp#L132-L150
 
-The buggy address belongs to the object at ffff88803b8ccf00
-which belongs to the cache kmalloc-512 of size 512
-The buggy address is located 259 bytes inside of
-512-byte region [ffff88803b8ccf00, ffff88803b8cd100)
-The buggy address belongs to the page:
-page:ffffea0000ee3300 count:1 mapcount:0 mapping:ffff88806cc03080
-index:0xffff88803b8cc780 compound_mapcount: 0
-flags: 0x100000000008100(slab|head)
-raw: 0100000000008100 ffffea0001104080 0000000200000002 ffff88806cc03080
-raw: ffff88803b8cc780 00000000800c000b 00000001ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
+Thus, if a user is using a toolchain with ld.lld as the default, they
+will see an error, even if they have specified ld.bfd through the LD
+make variable:
 
-Memory state around the buggy address:
-ffff88803b8ccf00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-ffff88803b8ccf80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
->ffff88803b8cd000: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-^
-ffff88803b8cd080: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-ffff88803b8cd100: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+$ make -j"$(nproc)" -s ARCH=s390 CROSS_COMPILE=s390x-linux-gnu- LLVM=1 \
+                       LD=s390x-linux-gnu-ld \
+                       defconfig arch/s390/kernel/vdso64/
+ld.lld: error: unknown emulation: elf64_s390
+clang-11: error: linker command failed with exit code 1 (use -v to see invocation)
 
-You can refer to "https://www.lkml.org/lkml/2019/1/17/474" reproduce
-this error.
+Normally, '-fuse-ld=bfd' could be used to get around this; however, this
+can be fragile, depending on paths and variable naming. The cleaner
+solution for the kernel is to take advantage of the fact that $(LD) can
+be invoked directly, which bypasses the heuristics of $(CC) and respects
+the user's choice. Similar changes have been done for ARM, ARM64, and
+MIPS.
 
-The exception code is "bd_len = p[3];", "p" value is ffff88803b8cd000
-which belongs to the cache kmalloc-512 of size 512. The "page_address(sg_page(scsi_sglist(scmd)))"
-maybe from sg_scsi_ioctl function "buffer" which allocated by kzalloc, so "buffer"
-may not page aligned.
-This also looks completely buggy on highmem systems and really needs to use a
-kmap_atomic.      --Christoph Hellwig
-To address above bugs, Paolo Bonzini advise to simpler to just make a char array
-of size CACHE_MPAGE_LEN+8+8+4-2(or just 64 to make it easy), use sg_copy_to_buffer
-to copy from the sglist into the buffer, and workthere.
-
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Link: https://lkml.kernel.org/r/20200602192523.32758-1-natechancellor@gmail.com
+Link: https://github.com/ClangBuiltLinux/linux/issues/1041
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+[heiko.carstens@de.ibm.com: add --build-id flag]
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libata-scsi.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ arch/s390/kernel/vdso64/Makefile | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/ata/libata-scsi.c b/drivers/ata/libata-scsi.c
-index 36e588d88b956..c10deb87015ba 100644
---- a/drivers/ata/libata-scsi.c
-+++ b/drivers/ata/libata-scsi.c
-@@ -3692,12 +3692,13 @@ static unsigned int ata_scsi_mode_select_xlat(struct ata_queued_cmd *qc)
- {
- 	struct scsi_cmnd *scmd = qc->scsicmd;
- 	const u8 *cdb = scmd->cmnd;
--	const u8 *p;
- 	u8 pg, spg;
- 	unsigned six_byte, pg_len, hdr_len, bd_len;
- 	int len;
- 	u16 fp = (u16)-1;
- 	u8 bp = 0xff;
-+	u8 buffer[64];
-+	const u8 *p = buffer;
+diff --git a/arch/s390/kernel/vdso64/Makefile b/arch/s390/kernel/vdso64/Makefile
+index bec19e7e6e1cf..4a66a1cb919b1 100644
+--- a/arch/s390/kernel/vdso64/Makefile
++++ b/arch/s390/kernel/vdso64/Makefile
+@@ -18,8 +18,8 @@ KBUILD_AFLAGS_64 += -m64 -s
  
- 	VPRINTK("ENTER\n");
+ KBUILD_CFLAGS_64 := $(filter-out -m64,$(KBUILD_CFLAGS))
+ KBUILD_CFLAGS_64 += -m64 -fPIC -shared -fno-common -fno-builtin
+-KBUILD_CFLAGS_64 += -nostdlib -Wl,-soname=linux-vdso64.so.1 \
+-		    -Wl,--hash-style=both
++ldflags-y := -fPIC -shared -nostdlib -soname=linux-vdso64.so.1 \
++	     --hash-style=both --build-id -T
  
-@@ -3731,12 +3732,14 @@ static unsigned int ata_scsi_mode_select_xlat(struct ata_queued_cmd *qc)
- 	if (!scsi_sg_count(scmd) || scsi_sglist(scmd)->length < len)
- 		goto invalid_param_len;
+ $(targets:%=$(obj)/%.dbg): KBUILD_CFLAGS = $(KBUILD_CFLAGS_64)
+ $(targets:%=$(obj)/%.dbg): KBUILD_AFLAGS = $(KBUILD_AFLAGS_64)
+@@ -37,8 +37,8 @@ KASAN_SANITIZE := n
+ $(obj)/vdso64_wrapper.o : $(obj)/vdso64.so
  
--	p = page_address(sg_page(scsi_sglist(scmd)));
--
- 	/* Move past header and block descriptors.  */
- 	if (len < hdr_len)
- 		goto invalid_param_len;
+ # link rule for the .so file, .lds has to be first
+-$(obj)/vdso64.so.dbg: $(src)/vdso64.lds $(obj-vdso64) FORCE
+-	$(call if_changed,vdso64ld)
++$(obj)/vdso64.so.dbg: $(obj)/vdso64.lds $(obj-vdso64) FORCE
++	$(call if_changed,ld)
  
-+	if (!sg_copy_to_buffer(scsi_sglist(scmd), scsi_sg_count(scmd),
-+			       buffer, sizeof(buffer)))
-+		goto invalid_param_len;
-+
- 	if (six_byte)
- 		bd_len = p[3];
- 	else
+ # strip rule for the .so file
+ $(obj)/%.so: OBJCOPYFLAGS := -S
+@@ -50,8 +50,6 @@ $(obj-vdso64): %.o: %.S FORCE
+ 	$(call if_changed_dep,vdso64as)
+ 
+ # actual build commands
+-quiet_cmd_vdso64ld = VDSO64L $@
+-      cmd_vdso64ld = $(CC) $(c_flags) -Wl,-T $(filter %.lds %.o,$^) -o $@
+ quiet_cmd_vdso64as = VDSO64A $@
+       cmd_vdso64as = $(CC) $(a_flags) -c -o $@ $<
+ 
 -- 
 2.25.1
 
