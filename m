@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D1B620D830
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:09:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B4EB20DC08
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:16:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730499AbgF2ThJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:37:09 -0400
+        id S1730250AbgF2ULt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:11:49 -0400
 Received: from mail.kernel.org ([198.145.29.99]:40600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733015AbgF2Tae (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:30:34 -0400
+        id S1732886AbgF2TaV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:30:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E7CD825216;
-        Mon, 29 Jun 2020 15:35:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC76625217;
+        Mon, 29 Jun 2020 15:35:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444933;
-        bh=jC+AG3mTjlPMjRcj/yd1i1EAFIc8JNKo40nByaNX9OE=;
+        s=default; t=1593444934;
+        bh=1z1jc3kp3fWLoynTYIXH9SHbMy9Zg9uHu0Oh4qEy5D8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AErx3r9LrmLp98mcttvVUku56KXoqgyrbfZ5jv/2Vr90agG0JuThrz03KJVxDGPlM
-         +c43s1MMfPcSGe3kNfsqvhNxchm9AbV1qjVinVMm3rQkj5337Fiys61MPThLXLRLfa
-         8UUlD8NsO4k+Jjp8xcCv7VsUhJXZg30I81CkRV3I=
+        b=VhAKVZwUOrGVKLvwCVVOOxUs8RwllE6ef4776Md+Wu1oHsGSMeAYH066BDScL7Hfc
+         uaLFCrcJw/uMe4sOF6iG0Ml38h4hRSRT9QoNLuOEvivjijAjApMGsnROiawcaxok19
+         fqktlUY+/YGZk49/lSfjl5cy9ILqWZpg/Uu59yj4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Christensen <drc@linux.vnet.ibm.com>,
-        Michael Chan <michael.chan@broadcom.com>,
+Cc:     Taehee Yoo <ap420073@gmail.com>,
+        Eric Dumazet <eric.dumazet@gmail.com>,
         "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.19 030/131] tg3: driver sleeps indefinitely when EEH errors exceed eeh_max_freezes
-Date:   Mon, 29 Jun 2020 11:33:21 -0400
-Message-Id: <20200629153502.2494656-31-sashal@kernel.org>
+Subject: [PATCH 4.19 031/131] ip6_gre: fix use-after-free in ip6gre_tunnel_lookup()
+Date:   Mon, 29 Jun 2020 11:33:22 -0400
+Message-Id: <20200629153502.2494656-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629153502.2494656-1-sashal@kernel.org>
 References: <20200629153502.2494656-1-sashal@kernel.org>
@@ -50,40 +50,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Christensen <drc@linux.vnet.ibm.com>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit 3a2656a211caf35e56afc9425e6e518fa52f7fbc ]
+[ Upstream commit dafabb6590cb15f300b77c095d50312e2c7c8e0f ]
 
-The driver function tg3_io_error_detected() calls napi_disable twice,
-without an intervening napi_enable, when the number of EEH errors exceeds
-eeh_max_freezes, resulting in an indefinite sleep while holding rtnl_lock.
+In the datapath, the ip6gre_tunnel_lookup() is used and it internally uses
+fallback tunnel device pointer, which is fb_tunnel_dev.
+This pointer variable should be set to NULL when a fb interface is deleted.
+But there is no routine to set fb_tunnel_dev pointer to NULL.
+So, this pointer will be still used after interface is deleted and
+it eventually results in the use-after-free problem.
 
-Add check for pcierr_recovery which skips code already executed for the
-"Frozen" state.
+Test commands:
+    ip netns add A
+    ip netns add B
+    ip link add eth0 type veth peer name eth1
+    ip link set eth0 netns A
+    ip link set eth1 netns B
 
-Signed-off-by: David Christensen <drc@linux.vnet.ibm.com>
-Reviewed-by: Michael Chan <michael.chan@broadcom.com>
+    ip netns exec A ip link set lo up
+    ip netns exec A ip link set eth0 up
+    ip netns exec A ip link add ip6gre1 type ip6gre local fc:0::1 \
+	    remote fc:0::2
+    ip netns exec A ip -6 a a fc:100::1/64 dev ip6gre1
+    ip netns exec A ip link set ip6gre1 up
+    ip netns exec A ip -6 a a fc:0::1/64 dev eth0
+    ip netns exec A ip link set ip6gre0 up
+
+    ip netns exec B ip link set lo up
+    ip netns exec B ip link set eth1 up
+    ip netns exec B ip link add ip6gre1 type ip6gre local fc:0::2 \
+	    remote fc:0::1
+    ip netns exec B ip -6 a a fc:100::2/64 dev ip6gre1
+    ip netns exec B ip link set ip6gre1 up
+    ip netns exec B ip -6 a a fc:0::2/64 dev eth1
+    ip netns exec B ip link set ip6gre0 up
+    ip netns exec A ping fc:100::2 -s 60000 &
+    ip netns del B
+
+Splat looks like:
+[   73.087285][    C1] BUG: KASAN: use-after-free in ip6gre_tunnel_lookup+0x1064/0x13f0 [ip6_gre]
+[   73.088361][    C1] Read of size 4 at addr ffff888040559218 by task ping/1429
+[   73.089317][    C1]
+[   73.089638][    C1] CPU: 1 PID: 1429 Comm: ping Not tainted 5.7.0+ #602
+[   73.090531][    C1] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
+[   73.091725][    C1] Call Trace:
+[   73.092160][    C1]  <IRQ>
+[   73.092556][    C1]  dump_stack+0x96/0xdb
+[   73.093122][    C1]  print_address_description.constprop.6+0x2cc/0x450
+[   73.094016][    C1]  ? ip6gre_tunnel_lookup+0x1064/0x13f0 [ip6_gre]
+[   73.094894][    C1]  ? ip6gre_tunnel_lookup+0x1064/0x13f0 [ip6_gre]
+[   73.095767][    C1]  ? ip6gre_tunnel_lookup+0x1064/0x13f0 [ip6_gre]
+[   73.096619][    C1]  kasan_report+0x154/0x190
+[   73.097209][    C1]  ? ip6gre_tunnel_lookup+0x1064/0x13f0 [ip6_gre]
+[   73.097989][    C1]  ip6gre_tunnel_lookup+0x1064/0x13f0 [ip6_gre]
+[   73.098750][    C1]  ? gre_del_protocol+0x60/0x60 [gre]
+[   73.099500][    C1]  gre_rcv+0x1c5/0x1450 [ip6_gre]
+[   73.100199][    C1]  ? ip6gre_header+0xf00/0xf00 [ip6_gre]
+[   73.100985][    C1]  ? rcu_read_lock_sched_held+0xc0/0xc0
+[   73.101830][    C1]  ? ip6_input_finish+0x5/0xf0
+[   73.102483][    C1]  ip6_protocol_deliver_rcu+0xcbb/0x1510
+[   73.103296][    C1]  ip6_input_finish+0x5b/0xf0
+[   73.103920][    C1]  ip6_input+0xcd/0x2c0
+[   73.104473][    C1]  ? ip6_input_finish+0xf0/0xf0
+[   73.105115][    C1]  ? rcu_read_lock_held+0x90/0xa0
+[   73.105783][    C1]  ? rcu_read_lock_sched_held+0xc0/0xc0
+[   73.106548][    C1]  ipv6_rcv+0x1f1/0x300
+[ ... ]
+
+Suggested-by: Eric Dumazet <eric.dumazet@gmail.com>
+Fixes: c12b395a4664 ("gre: Support GRE over IPv6")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/tg3.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/ipv6/ip6_gre.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/tg3.c b/drivers/net/ethernet/broadcom/tg3.c
-index a12962702611f..be845df050399 100644
---- a/drivers/net/ethernet/broadcom/tg3.c
-+++ b/drivers/net/ethernet/broadcom/tg3.c
-@@ -18229,8 +18229,8 @@ static pci_ers_result_t tg3_io_error_detected(struct pci_dev *pdev,
+diff --git a/net/ipv6/ip6_gre.c b/net/ipv6/ip6_gre.c
+index 90621d498fd14..f5144573c45c8 100644
+--- a/net/ipv6/ip6_gre.c
++++ b/net/ipv6/ip6_gre.c
+@@ -132,6 +132,7 @@ static struct ip6_tnl *ip6gre_tunnel_lookup(struct net_device *dev,
+ 			gre_proto == htons(ETH_P_ERSPAN2)) ?
+ 		       ARPHRD_ETHER : ARPHRD_IP6GRE;
+ 	int score, cand_score = 4;
++	struct net_device *ndev;
  
- 	rtnl_lock();
+ 	for_each_ip_tunnel_rcu(t, ign->tunnels_r_l[h0 ^ h1]) {
+ 		if (!ipv6_addr_equal(local, &t->parms.laddr) ||
+@@ -243,9 +244,9 @@ static struct ip6_tnl *ip6gre_tunnel_lookup(struct net_device *dev,
+ 	if (t && t->dev->flags & IFF_UP)
+ 		return t;
  
--	/* We probably don't have netdev yet */
--	if (!netdev || !netif_running(netdev))
-+	/* Could be second call or maybe we don't have netdev yet */
-+	if (!netdev || tp->pcierr_recovery || !netif_running(netdev))
- 		goto done;
+-	dev = ign->fb_tunnel_dev;
+-	if (dev && dev->flags & IFF_UP)
+-		return netdev_priv(dev);
++	ndev = READ_ONCE(ign->fb_tunnel_dev);
++	if (ndev && ndev->flags & IFF_UP)
++		return netdev_priv(ndev);
  
- 	/* We needn't recover from permanent error */
+ 	return NULL;
+ }
+@@ -418,6 +419,8 @@ static void ip6gre_tunnel_uninit(struct net_device *dev)
+ 
+ 	ip6gre_tunnel_unlink_md(ign, t);
+ 	ip6gre_tunnel_unlink(ign, t);
++	if (ign->fb_tunnel_dev == dev)
++		WRITE_ONCE(ign->fb_tunnel_dev, NULL);
+ 	dst_cache_reset(&t->dst_cache);
+ 	dev_put(dev);
+ }
 -- 
 2.25.1
 
