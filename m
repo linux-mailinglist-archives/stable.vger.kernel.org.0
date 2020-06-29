@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8024420E4EC
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:06:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EA1520E50F
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:06:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728873AbgF2Vaf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:30:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60644 "EHLO mail.kernel.org"
+        id S1728769AbgF2Vb5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:31:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728849AbgF2SlV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:41:21 -0400
+        id S1728716AbgF2SlK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:41:10 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AD86923EF3;
-        Mon, 29 Jun 2020 15:18:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B9A1223EF5;
+        Mon, 29 Jun 2020 15:18:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593443907;
-        bh=9K5dZmUCZ09b907mtuBrQymjYkfsXL2A+ZFWg/PT65I=;
+        s=default; t=1593443908;
+        bh=xpClRmG+Ihfwp71EU0kLzMCSVxYC4LHRRu1oX53w1nM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j7PoIfcVL4IDNCIiAO0PQxKjYC7iRj6j/jzNBkYc28/cVJ7CaTQvu1eryqkVLPnO7
-         z7HJUh1o8/L6qhSeCWpQ+Bj7Iy7xdK0aIoMBTEcqKDoYn4kctHe+0QhBMhv3VXp5k8
-         VYH4jWS3Eog2hYdIxGdEyMK2kae8SV4bQWcXAuGo=
+        b=zq7ejhvGH9NCD0RNdYeAkJZNlanYb0/mu69rtoP5HeKVo2bPUx2PG7sXBHF4Mv2xX
+         +x/oNJJ82tqW6wej/R+ay6bhw+ypvuTcFr7566eBe1UzCYz4y4sjdYsF7JpAKDHZFU
+         jI5kxTCAg5+b69ti24SWiOJLuCpRn2sqLQ/yfypg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wang Hai <wanghai38@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
+Cc:     Ido Schimmel <idosch@mellanox.com>,
+        Colin Ian King <colin.king@canonical.com>,
         "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.7 007/265] mld: fix memory leak in ipv6_mc_destroy_dev()
-Date:   Mon, 29 Jun 2020 11:14:00 -0400
-Message-Id: <20200629151818.2493727-8-sashal@kernel.org>
+Subject: [PATCH 5.7 008/265] mlxsw: spectrum: Do not rely on machine endianness
+Date:   Mon, 29 Jun 2020 11:14:01 -0400
+Message-Id: <20200629151818.2493727-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -50,60 +50,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Ido Schimmel <idosch@mellanox.com>
 
-[ Upstream commit ea2fce88d2fd678ed9d45354ff49b73f1d5615dd ]
+[ Upstream commit f3fe412b0a634286a6a3753c3f9ff201e6bec716 ]
 
-Commit a84d01647989 ("mld: fix memory leak in mld_del_delrec()") fixed
-the memory leak of MLD, but missing the ipv6_mc_destroy_dev() path, in
-which mca_sources are leaked after ma_put().
+The second commit cited below performed a cast of 'u32 buffsize' to
+'(u16 *)' when calling mlxsw_sp_port_headroom_8x_adjust():
 
-Using ip6_mc_clear_src() to take care of the missing free.
+mlxsw_sp_port_headroom_8x_adjust(mlxsw_sp_port, (u16 *) &buffsize);
 
-BUG: memory leak
-unreferenced object 0xffff8881113d3180 (size 64):
-  comm "syz-executor071", pid 389, jiffies 4294887985 (age 17.943s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 ff 02 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<000000002cbc483c>] kmalloc include/linux/slab.h:555 [inline]
-    [<000000002cbc483c>] kzalloc include/linux/slab.h:669 [inline]
-    [<000000002cbc483c>] ip6_mc_add1_src net/ipv6/mcast.c:2237 [inline]
-    [<000000002cbc483c>] ip6_mc_add_src+0x7f5/0xbb0 net/ipv6/mcast.c:2357
-    [<0000000058b8b1ff>] ip6_mc_source+0xe0c/0x1530 net/ipv6/mcast.c:449
-    [<000000000bfc4fb5>] do_ipv6_setsockopt.isra.12+0x1b2c/0x3b30 net/ipv6/ipv6_sockglue.c:754
-    [<00000000e4e7a722>] ipv6_setsockopt+0xda/0x150 net/ipv6/ipv6_sockglue.c:950
-    [<0000000029260d9a>] rawv6_setsockopt+0x45/0x100 net/ipv6/raw.c:1081
-    [<000000005c1b46f9>] __sys_setsockopt+0x131/0x210 net/socket.c:2132
-    [<000000008491f7db>] __do_sys_setsockopt net/socket.c:2148 [inline]
-    [<000000008491f7db>] __se_sys_setsockopt net/socket.c:2145 [inline]
-    [<000000008491f7db>] __x64_sys_setsockopt+0xba/0x150 net/socket.c:2145
-    [<00000000c7bc11c5>] do_syscall_64+0xa1/0x530 arch/x86/entry/common.c:295
-    [<000000005fb7a3f3>] entry_SYSCALL_64_after_hwframe+0x49/0xb3
+Colin noted that this will behave differently on big endian
+architectures compared to little endian architectures.
 
-Fixes: 1666d49e1d41 ("mld: do not remove mld souce list info when set link down")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Acked-by: Hangbin Liu <liuhangbin@gmail.com>
+Fix this by following Colin's suggestion and have the function accept
+and return 'u32' instead of passing the current size by reference.
+
+Fixes: da382875c616 ("mlxsw: spectrum: Extend to support Spectrum-3 ASIC")
+Fixes: 60833d54d56c ("mlxsw: spectrum: Adjust headroom buffers for 8x ports")
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Reported-by: Colin Ian King <colin.king@canonical.com>
+Suggested-by: Colin Ian King <colin.king@canonical.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/mcast.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/mellanox/mlxsw/spectrum.c         | 4 ++--
+ drivers/net/ethernet/mellanox/mlxsw/spectrum.h         | 8 +++-----
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_buffers.c | 2 +-
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_span.c    | 2 +-
+ 4 files changed, 7 insertions(+), 9 deletions(-)
 
-diff --git a/net/ipv6/mcast.c b/net/ipv6/mcast.c
-index eaa4c2cc2fbb2..c875c9b6edbe9 100644
---- a/net/ipv6/mcast.c
-+++ b/net/ipv6/mcast.c
-@@ -2618,6 +2618,7 @@ void ipv6_mc_destroy_dev(struct inet6_dev *idev)
- 		idev->mc_list = i->next;
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
+index 3e4199246a18d..d9a2267aeaea2 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
+@@ -990,10 +990,10 @@ int __mlxsw_sp_port_headroom_set(struct mlxsw_sp_port *mlxsw_sp_port, int mtu,
  
- 		write_unlock_bh(&idev->lock);
-+		ip6_mc_clear_src(i);
- 		ma_put(i);
- 		write_lock_bh(&idev->lock);
+ 		lossy = !(pfc || pause_en);
+ 		thres_cells = mlxsw_sp_pg_buf_threshold_get(mlxsw_sp, mtu);
+-		mlxsw_sp_port_headroom_8x_adjust(mlxsw_sp_port, &thres_cells);
++		thres_cells = mlxsw_sp_port_headroom_8x_adjust(mlxsw_sp_port, thres_cells);
+ 		delay_cells = mlxsw_sp_pg_buf_delay_get(mlxsw_sp, mtu, delay,
+ 							pfc, pause_en);
+-		mlxsw_sp_port_headroom_8x_adjust(mlxsw_sp_port, &delay_cells);
++		delay_cells = mlxsw_sp_port_headroom_8x_adjust(mlxsw_sp_port, delay_cells);
+ 		total_cells = thres_cells + delay_cells;
+ 
+ 		taken_headroom_cells += total_cells;
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum.h b/drivers/net/ethernet/mellanox/mlxsw/spectrum.h
+index e28ecb84b8164..6b2e4e730b189 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum.h
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum.h
+@@ -395,17 +395,15 @@ mlxsw_sp_port_vlan_find_by_vid(const struct mlxsw_sp_port *mlxsw_sp_port,
+ 	return NULL;
+ }
+ 
+-static inline void
++static inline u32
+ mlxsw_sp_port_headroom_8x_adjust(const struct mlxsw_sp_port *mlxsw_sp_port,
+-				 u16 *p_size)
++				 u32 size_cells)
+ {
+ 	/* Ports with eight lanes use two headroom buffers between which the
+ 	 * configured headroom size is split. Therefore, multiply the calculated
+ 	 * headroom size by two.
+ 	 */
+-	if (mlxsw_sp_port->mapping.width != 8)
+-		return;
+-	*p_size *= 2;
++	return mlxsw_sp_port->mapping.width == 8 ? 2 * size_cells : size_cells;
+ }
+ 
+ enum mlxsw_sp_flood_type {
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_buffers.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_buffers.c
+index 19bf0768ed788..2fb2cbd4f229e 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_buffers.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_buffers.c
+@@ -312,7 +312,7 @@ static int mlxsw_sp_port_pb_init(struct mlxsw_sp_port *mlxsw_sp_port)
+ 
+ 		if (i == MLXSW_SP_PB_UNUSED)
+ 			continue;
+-		mlxsw_sp_port_headroom_8x_adjust(mlxsw_sp_port, &size);
++		size = mlxsw_sp_port_headroom_8x_adjust(mlxsw_sp_port, size);
+ 		mlxsw_reg_pbmc_lossy_buffer_pack(pbmc_pl, i, size);
  	}
+ 	mlxsw_reg_pbmc_lossy_buffer_pack(pbmc_pl,
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_span.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_span.c
+index 7c5032f9c8fff..76242c70d41ad 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_span.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_span.c
+@@ -776,7 +776,7 @@ mlxsw_sp_span_port_buffsize_update(struct mlxsw_sp_port *mlxsw_sp_port, u16 mtu)
+ 		speed = 0;
+ 
+ 	buffsize = mlxsw_sp_span_buffsize_get(mlxsw_sp, speed, mtu);
+-	mlxsw_sp_port_headroom_8x_adjust(mlxsw_sp_port, (u16 *) &buffsize);
++	buffsize = mlxsw_sp_port_headroom_8x_adjust(mlxsw_sp_port, buffsize);
+ 	mlxsw_reg_sbib_pack(sbib_pl, mlxsw_sp_port->local_port, buffsize);
+ 	return mlxsw_reg_write(mlxsw_sp->core, MLXSW_REG(sbib), sbib_pl);
+ }
 -- 
 2.25.1
 
