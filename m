@@ -2,44 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7948620DDB6
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:51:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AD1F20DEB4
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:53:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731735AbgF2USb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:18:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37044 "EHLO mail.kernel.org"
+        id S1730383AbgF2U2U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:28:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732637AbgF2TZl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:25:41 -0400
+        id S1732503AbgF2TZX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:25:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A7445253E3;
-        Mon, 29 Jun 2020 15:42:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6EDE4253ED;
+        Mon, 29 Jun 2020 15:42:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445328;
-        bh=zmb9aZXgj3+VHQSBwM4mMhdjrr/RkgwzppLqULpozgE=;
+        s=default; t=1593445329;
+        bh=pt8TGwydI0Q2NG5Q0h+jWjnuF3rsdC1OdZDVC8mGVLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BXmD/OwQTpann1s9AVmUfUMYAHCl4IswcfGlNI+pYTkS8QZjrAdI2MneowH2n2hvl
-         2YK5wDFQiaGc63jW7U3aGYuZUY+rUMcVFcTQgxPaL6hmZ2GVmFOZdHSiY8LAlCZpBk
-         5xnfReoIrIly/mhtPT1wBISVM+N+1oq9pNCz1slc=
+        b=LApN4g4LCo7QlxCj3Qyr/bPULYTLoBL9cwAHAGrr2HjsajLsMplCFQxw8BLt/FTwW
+         QOD5ywrPizbhUa+SmFZVKMq7KHbBi1kcxrH/icw9XusmS4H3q/+1hLptjACj8H8x3w
+         ebo9sUeNPjNoS4qy+TPHBC2BLpiLdw6RkJ8bewtk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Gustavo A . R . Silva" <gustavoars@kernel.org>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>,
-        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-        David Miller <davem@davemloft.net>,
-        Ingo Molnar <mingo@elte.hu>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ziqian SUN <zsun@redhat.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
+Cc:     "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 092/191] kprobes: Fix to protect kick_kprobe_optimizer() by kprobe_mutex
-Date:   Mon, 29 Jun 2020 11:38:28 -0400
-Message-Id: <20200629154007.2495120-93-sashal@kernel.org>
+Subject: [PATCH 4.9 093/191] powerpc/kprobes: Fixes for kprobe_lookup_name() on BE
+Date:   Mon, 29 Jun 2020 11:38:29 -0400
+Message-Id: <20200629154007.2495120-94-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
 References: <20200629154007.2495120-1-sashal@kernel.org>
@@ -58,55 +49,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>
 
-[ Upstream commit 1a0aa991a6274161c95a844c58cfb801d681eb59 ]
+[ Upstream commit 30176466e36aadba01e1a630cf42397a3438efa4 ]
 
-In kprobe_optimizer() kick_kprobe_optimizer() is called
-without kprobe_mutex, but this can race with other caller
-which is protected by kprobe_mutex.
+Fix two issues with kprobes.h on BE which were exposed with the
+optprobes work:
+  - one, having to do with a missing include for linux/module.h for
+    MODULE_NAME_LEN -- this didn't show up previously since the only
+    users of kprobe_lookup_name were in kprobes.c, which included
+    linux/module.h through other headers, and
+  - two, with a missing const qualifier for a local variable which ends
+    up referring a string literal. Again, this is unique to how
+    kprobe_lookup_name is being invoked in optprobes.c
 
-To fix that, expand kprobe_mutex protected area to protect
-kick_kprobe_optimizer() call.
-
-Link: http://lkml.kernel.org/r/158927057586.27680.5036330063955940456.stgit@devnote2
-
-Fixes: cd7ebe2298ff ("kprobes: Use text_poke_smp_batch for optimizing")
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: "Gustavo A . R . Silva" <gustavoars@kernel.org>
-Cc: Anders Roxell <anders.roxell@linaro.org>
-Cc: "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>
-Cc: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-Cc: David Miller <davem@davemloft.net>
-Cc: Ingo Molnar <mingo@elte.hu>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Ziqian SUN <zsun@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/kprobes.c | 3 ++-
+ arch/powerpc/include/asm/kprobes.h | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/kprobes.c b/kernel/kprobes.c
-index 1b75fb8c7735e..3db9cf412996c 100644
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -561,11 +561,12 @@ static void kprobe_optimizer(struct work_struct *work)
- 	do_free_cleaned_kprobes();
+diff --git a/arch/powerpc/include/asm/kprobes.h b/arch/powerpc/include/asm/kprobes.h
+index 2c9759bdb63bc..063d64c1c9e89 100644
+--- a/arch/powerpc/include/asm/kprobes.h
++++ b/arch/powerpc/include/asm/kprobes.h
+@@ -29,6 +29,7 @@
+ #include <linux/types.h>
+ #include <linux/ptrace.h>
+ #include <linux/percpu.h>
++#include <linux/module.h>
+ #include <asm/probes.h>
+ #include <asm/code-patching.h>
  
- 	mutex_unlock(&module_mutex);
--	mutex_unlock(&kprobe_mutex);
- 
- 	/* Step 5: Kick optimizer again if needed */
- 	if (!list_empty(&optimizing_list) || !list_empty(&unoptimizing_list))
- 		kick_kprobe_optimizer();
-+
-+	mutex_unlock(&kprobe_mutex);
- }
- 
- /* Wait for completing optimization and unoptimization */
+@@ -60,7 +61,7 @@ typedef ppc_opcode_t kprobe_opcode_t;
+ #define kprobe_lookup_name(name, addr)					\
+ {									\
+ 	char dot_name[MODULE_NAME_LEN + 1 + KSYM_NAME_LEN];		\
+-	char *modsym;							\
++	const char *modsym;							\
+ 	bool dot_appended = false;					\
+ 	if ((modsym = strchr(name, ':')) != NULL) {			\
+ 		modsym++;						\
 -- 
 2.25.1
 
