@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4431920E855
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:12:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EA3820E6CC
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:09:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726155AbgF2SfT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 14:35:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56764 "EHLO mail.kernel.org"
+        id S1732847AbgF2Vud (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:50:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725930AbgF2SfR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:35:17 -0400
+        id S1726675AbgF2Sfk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:35:40 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F8FA247F7;
-        Mon, 29 Jun 2020 15:22:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8047C247F8;
+        Mon, 29 Jun 2020 15:22:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444155;
-        bh=J56cYYTWlPlgnKtraKgukkZV8i9esAm0+h4VzSWG7u8=;
+        s=default; t=1593444156;
+        bh=A3K3ErW6wak4Wb7RQTGMwgbd+KYm4MBulm8X6qBHnzY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aCHcFUTUPNjK7m1JexbjYw8aa9c/SwSsLQaEH49THTZyRXXFfXlod/IPLsO5Ssap8
-         sjVNG3qfXf/tYV4+k9iWsV6ZH0wZtxELN9Uh/H7NtidsU+9ZHk01I6fkzB0bZ+eadW
-         s44hNhEBBc4QHnr9uoZEPKv0EP9m2G2g65Vdzs7U=
+        b=mRaQdkM1Ba25bC0blWAslH5+TZlXXVC2XUFMFnsBZ2PgE1ulesxpLgS0QxqATFDyX
+         8HhJlcnXUDOAg+g8RIx0A3PB0HXTrHg2Xx5JXpMR/2FQeT2QqRKWleoKHJDiJ4K6dz
+         sgf0lxIURUSwn3HCKdYvG41oclE9MoFsOipC3UXI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Borislav Petkov <bp@suse.de>,
-        Anders Andersson <pipatron@gmail.com>,
+Cc:     Chuck Lever <chuck.lever@oracle.com>, stable@kernel.vger.org,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.7 261/265] EDAC/amd64: Read back the scrub rate PCI register on F15h
-Date:   Mon, 29 Jun 2020 11:18:14 -0400
-Message-Id: <20200629151818.2493727-262-sashal@kernel.org>
+Subject: [PATCH 5.7 262/265] xprtrdma: Fix handling of RDMA_ERROR replies
+Date:   Mon, 29 Jun 2020 11:18:15 -0400
+Message-Id: <20200629151818.2493727-263-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -49,45 +49,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-commit ee470bb25d0dcdf126f586ec0ae6dca66cb340a4 upstream.
+commit 7b2182ec381f8ea15c7eb1266d6b5d7da620ad93 upstream.
 
-Commit:
+The RPC client currently doesn't handle ERR_CHUNK replies correctly.
+rpcrdma_complete_rqst() incorrectly passes a negative number to
+xprt_complete_rqst() as the number of bytes copied. Instead, set
+task->tk_status to the error value, and return zero bytes copied.
 
-  da92110dfdfa ("EDAC, amd64_edac: Extend scrub rate support to F15hM60h")
+In these cases, return -EIO rather than -EREMOTEIO. The RPC client's
+finite state machine doesn't know what to do with -EREMOTEIO.
 
-added support for F15h, model 0x60 CPUs but in doing so, missed to read
-back SCRCTRL PCI config register on F15h CPUs which are *not* model
-0x60. Add that read so that doing
+Additional clean ups:
+- Don't double-count RDMA_ERROR replies
+- Remove a stale comment
 
-  $ cat /sys/devices/system/edac/mc/mc0/sdram_scrub_rate
-
-can show the previously set DRAM scrub rate.
-
-Fixes: da92110dfdfa ("EDAC, amd64_edac: Extend scrub rate support to F15hM60h")
-Reported-by: Anders Andersson <pipatron@gmail.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: <stable@vger.kernel.org> #v4.4..
-Link: https://lkml.kernel.org/r/CAKkunMbNWppx_i6xSdDHLseA2QQmGJqj_crY=NF-GZML5np4Vw@mail.gmail.com
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Cc: <stable@kernel.vger.org>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/edac/amd64_edac.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/sunrpc/xprtrdma/rpc_rdma.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/edac/amd64_edac.c b/drivers/edac/amd64_edac.c
-index 4e9994de0b900..0d89c3e473bdc 100644
---- a/drivers/edac/amd64_edac.c
-+++ b/drivers/edac/amd64_edac.c
-@@ -272,6 +272,8 @@ static int get_scrub_rate(struct mem_ctl_info *mci)
- 
- 		if (pvt->model == 0x60)
- 			amd64_read_pci_cfg(pvt->F2, F15H_M60H_SCRCTRL, &scrubval);
-+		else
-+			amd64_read_pci_cfg(pvt->F3, SCRCTRL, &scrubval);
- 	} else {
- 		amd64_read_pci_cfg(pvt->F3, SCRCTRL, &scrubval);
+diff --git a/net/sunrpc/xprtrdma/rpc_rdma.c b/net/sunrpc/xprtrdma/rpc_rdma.c
+index 3c627dc685cc8..57118e342c8eb 100644
+--- a/net/sunrpc/xprtrdma/rpc_rdma.c
++++ b/net/sunrpc/xprtrdma/rpc_rdma.c
+@@ -1349,8 +1349,7 @@ rpcrdma_decode_error(struct rpcrdma_xprt *r_xprt, struct rpcrdma_rep *rep,
+ 			be32_to_cpup(p), be32_to_cpu(rep->rr_xid));
  	}
+ 
+-	r_xprt->rx_stats.bad_reply_count++;
+-	return -EREMOTEIO;
++	return -EIO;
+ }
+ 
+ /* Perform XID lookup, reconstruction of the RPC reply, and
+@@ -1387,13 +1386,11 @@ out:
+ 	spin_unlock(&xprt->queue_lock);
+ 	return;
+ 
+-/* If the incoming reply terminated a pending RPC, the next
+- * RPC call will post a replacement receive buffer as it is
+- * being marshaled.
+- */
+ out_badheader:
+ 	trace_xprtrdma_reply_hdr(rep);
+ 	r_xprt->rx_stats.bad_reply_count++;
++	rqst->rq_task->tk_status = status;
++	status = 0;
+ 	goto out;
+ }
+ 
 -- 
 2.25.1
 
