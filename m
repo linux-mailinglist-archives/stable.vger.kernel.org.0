@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 083D920E808
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:12:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5EB420E598
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:07:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389991AbgF2WCv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 18:02:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56794 "EHLO mail.kernel.org"
+        id S1730250AbgF2VjJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:39:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726237AbgF2SfX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:35:23 -0400
+        id S1728280AbgF2Skb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:40:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F8842415D;
-        Mon, 29 Jun 2020 15:19:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 242832415F;
+        Mon, 29 Jun 2020 15:19:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593443941;
-        bh=VKjYd9w/iLilRizjFkGuP8LDcAOj554owitDPp/Vwjc=;
+        s=default; t=1593443942;
+        bh=eV1hwMrZg/nVMqycfjegu4dbxpDijmSyrwC/bRAfnqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vU1GwDk2lKucC+BicY1dkfua6xeeJUpChT4R2bY+gKsC7eFj6fcl+RthNeumKULvS
-         38Jcir+fIq9ALQYaV3rp32qxT+Z+mbT7be3OUycUgnbyWi2/2B1Fupb7kwdaJ1Bijc
-         u+FdXMYEy9T6Sku/S2SYfstBQwvxzY8YgKs76E50=
+        b=1OdjMbDnjB9s4LKIz2Ox0KvUw7tje7N1AC1AGksLj+QybNVvlnIQLmKLNRsc3L5LD
+         rzMllGK1DB5zWBsmaqogooRyXfxrB+nzco/FlzgO8PHNTTdhMtVpLIhmUh2Oy/8b45
+         nLMI4gjK9FNwbTVCpemc7VRBBjMZpSyKF7LdmeQQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Lobakin <alobakin@pm.me>,
-        Michal Kubecek <mkubecek@suse.cz>,
+Cc:     Claudiu Beznea <claudiu.beznea@microchip.com>,
         "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.7 043/265] net: ethtool: add missing NETIF_F_GSO_FRAGLIST feature string
-Date:   Mon, 29 Jun 2020 11:14:36 -0400
-Message-Id: <20200629151818.2493727-44-sashal@kernel.org>
+Subject: [PATCH 5.7 044/265] net: macb: call pm_runtime_put_sync on failure path
+Date:   Mon, 29 Jun 2020 11:14:37 -0400
+Message-Id: <20200629151818.2493727-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -50,37 +49,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alobakin@pm.me>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-[ Upstream commit eddbf5d0204e550ee59de02bdc19fe90d4203dd6 ]
+[ Upstream commit 0eaf228d574bd82a9aed73e3953bfb81721f4227 ]
 
-Commit 3b33583265ed ("net: Add fraglist GRO/GSO feature flags") missed
-an entry for NETIF_F_GSO_FRAGLIST in netdev_features_strings array. As
-a result, fraglist GSO feature is not shown in 'ethtool -k' output and
-can't be toggled on/off.
-The fix is trivial.
+Call pm_runtime_put_sync() on failure path of at91ether_open.
 
-Fixes: 3b33583265ed ("net: Add fraglist GRO/GSO feature flags")
-Signed-off-by: Alexander Lobakin <alobakin@pm.me>
-Reviewed-by: Michal Kubecek <mkubecek@suse.cz>
+Fixes: e6a41c23df0d ("net: macb: ensure interface is not suspended on at91rm9200")
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ethtool/common.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/cadence/macb_main.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/net/ethtool/common.c b/net/ethtool/common.c
-index 7f7fff88c5d3e..aaecfc916a4db 100644
---- a/net/ethtool/common.c
-+++ b/net/ethtool/common.c
-@@ -44,6 +44,7 @@ const char netdev_features_strings[NETDEV_FEATURE_COUNT][ETH_GSTRING_LEN] = {
- 	[NETIF_F_GSO_SCTP_BIT] =	 "tx-sctp-segmentation",
- 	[NETIF_F_GSO_ESP_BIT] =		 "tx-esp-segmentation",
- 	[NETIF_F_GSO_UDP_L4_BIT] =	 "tx-udp-segmentation",
-+	[NETIF_F_GSO_FRAGLIST_BIT] =	 "tx-gso-list",
+diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
+index 257c4920cb886..5705359a36124 100644
+--- a/drivers/net/ethernet/cadence/macb_main.c
++++ b/drivers/net/ethernet/cadence/macb_main.c
+@@ -3837,7 +3837,7 @@ static int at91ether_open(struct net_device *dev)
  
- 	[NETIF_F_FCOE_CRC_BIT] =         "tx-checksum-fcoe-crc",
- 	[NETIF_F_SCTP_CRC_BIT] =        "tx-checksum-sctp",
+ 	ret = at91ether_start(dev);
+ 	if (ret)
+-		return ret;
++		goto pm_exit;
+ 
+ 	/* Enable MAC interrupts */
+ 	macb_writel(lp, IER, MACB_BIT(RCOMP)	|
+@@ -3850,11 +3850,15 @@ static int at91ether_open(struct net_device *dev)
+ 
+ 	ret = macb_phylink_connect(lp);
+ 	if (ret)
+-		return ret;
++		goto pm_exit;
+ 
+ 	netif_start_queue(dev);
+ 
+ 	return 0;
++
++pm_exit:
++	pm_runtime_put_sync(&lp->pdev->dev);
++	return ret;
+ }
+ 
+ /* Close the interface */
 -- 
 2.25.1
 
