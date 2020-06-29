@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E74E020E655
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:08:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6416A20E812
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:12:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726553AbgF2Vq2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:46:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56786 "EHLO mail.kernel.org"
+        id S2390508AbgF2WDN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 18:03:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726767AbgF2Sft (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:35:49 -0400
+        id S1726247AbgF2SfX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:35:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 44588246AD;
-        Mon, 29 Jun 2020 15:20:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 264BC246AF;
+        Mon, 29 Jun 2020 15:20:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444002;
-        bh=Uf1bd+6LsOrQ0zPDM+2/FRJU4EgTQQASMeTpIMW2X7U=;
+        s=default; t=1593444003;
+        bh=1/ZFzVVzjPohzbHNwJsyjOAmCkS4AaSN6cYqJq14jks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L/Fe4r+oKb+qdG6RWJf/yWYgFA0Q0+iZGRIqD7vEnOGvgvR6pVvJEN2yCS4Eh6M0p
-         wQlU5WxpGbEA4kxkEmhEaXYvZ0ID3kuqKbz8XRfSF78XRgLoYgLlcGucm668LLmGiW
-         MXToBlJ69fVQ7uZ62rGi2BUjwqIN7ESmpNAfFPyU=
+        b=f/UW0Hjq9YwGYZXHM1qfD1uqAgmzlsizggZKX9K9KRKWnnWwc8+54nuVB8mRaZGHI
+         7xskypGSMDDHuHNqwbmsfzk0mx1OAippSgEl7EJuR7CD60OBftZGtEyFFPxMQ5DD3b
+         9z6mlSFPkg/zzTh4Y5TGeM1gk541djtQIofkvCxg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Fabian Vogt <fvogt@suse.de>, Ard Biesheuvel <ardb@kernel.org>,
+Cc:     Qiushi Wu <wu000273@umn.edu>, Ard Biesheuvel <ardb@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 108/265] efi/tpm: Verify event log header before parsing
-Date:   Mon, 29 Jun 2020 11:15:41 -0400
-Message-Id: <20200629151818.2493727-109-sashal@kernel.org>
+Subject: [PATCH 5.7 109/265] efi/esrt: Fix reference count leak in esre_create_sysfs_entry.
+Date:   Mon, 29 Jun 2020 11:15:42 -0400
+Message-Id: <20200629151818.2493727-110-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -48,80 +48,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabian Vogt <fvogt@suse.de>
+From: Qiushi Wu <wu000273@umn.edu>
 
-[ Upstream commit 7dfc06a0f25b593a9f51992f540c0f80a57f3629 ]
+[ Upstream commit 4ddf4739be6e375116c375f0a68bf3893ffcee21 ]
 
-It is possible that the first event in the event log is not actually a
-log header at all, but rather a normal event. This leads to the cast in
-__calc_tpm2_event_size being an invalid conversion, which means that
-the values read are effectively garbage. Depending on the first event's
-contents, this leads either to apparently normal behaviour, a crash or
-a freeze.
+kobject_init_and_add() takes reference even when it fails.
+If this function returns an error, kobject_put() must be called to
+properly clean up the memory associated with the object. Previous
+commit "b8eb718348b8" fixed a similar problem.
 
-While this behaviour of the firmware is not in accordance with the
-TCG Client EFI Specification, this happens on a Dell Precision 5510
-with the TPM enabled but hidden from the OS ("TPM On" disabled, state
-otherwise untouched). The EFI firmware claims that the TPM is present
-and active and that it supports the TCG 2.0 event log format.
-
-Fortunately, this can be worked around by simply checking the header
-of the first event and the event log header signature itself.
-
-Commit b4f1874c6216 ("tpm: check event log version before reading final
-events") addressed a similar issue also found on Dell models.
-
-Fixes: 6b0326190205 ("efi: Attempt to get the TCG2 event log in the boot stub")
-Signed-off-by: Fabian Vogt <fvogt@suse.de>
-Link: https://lore.kernel.org/r/1927248.evlx2EsYKh@linux-e202.suse.de
-Bugzilla: https://bugzilla.suse.com/show_bug.cgi?id=1165773
+Fixes: 0bb549052d33 ("efi: Add esrt support")
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+Link: https://lore.kernel.org/r/20200528183804.4497-1-wu000273@umn.edu
 Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/tpm_eventlog.h | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ drivers/firmware/efi/esrt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/tpm_eventlog.h b/include/linux/tpm_eventlog.h
-index c253461b1c4e6..96d36b7a13440 100644
---- a/include/linux/tpm_eventlog.h
-+++ b/include/linux/tpm_eventlog.h
-@@ -81,6 +81,8 @@ struct tcg_efi_specid_event_algs {
- 	u16 digest_size;
- } __packed;
- 
-+#define TCG_SPECID_SIG "Spec ID Event03"
-+
- struct tcg_efi_specid_event_head {
- 	u8 signature[16];
- 	u32 platform_class;
-@@ -171,6 +173,7 @@ static inline int __calc_tpm2_event_size(struct tcg_pcr_event2_head *event,
- 	int i;
- 	int j;
- 	u32 count, event_type;
-+	const u8 zero_digest[sizeof(event_header->digest)] = {0};
- 
- 	marker = event;
- 	marker_start = marker;
-@@ -198,10 +201,19 @@ static inline int __calc_tpm2_event_size(struct tcg_pcr_event2_head *event,
- 	count = READ_ONCE(event->count);
- 	event_type = READ_ONCE(event->event_type);
- 
-+	/* Verify that it's the log header */
-+	if (event_header->pcr_idx != 0 ||
-+	    event_header->event_type != NO_ACTION ||
-+	    memcmp(event_header->digest, zero_digest, sizeof(zero_digest))) {
-+		size = 0;
-+		goto out;
-+	}
-+
- 	efispecid = (struct tcg_efi_specid_event_head *)event_header->event;
- 
- 	/* Check if event is malformed. */
--	if (count > efispecid->num_algs) {
-+	if (memcmp(efispecid->signature, TCG_SPECID_SIG,
-+		   sizeof(TCG_SPECID_SIG)) || count > efispecid->num_algs) {
- 		size = 0;
- 		goto out;
+diff --git a/drivers/firmware/efi/esrt.c b/drivers/firmware/efi/esrt.c
+index e3d6926965834..d5915272141fd 100644
+--- a/drivers/firmware/efi/esrt.c
++++ b/drivers/firmware/efi/esrt.c
+@@ -181,7 +181,7 @@ static int esre_create_sysfs_entry(void *esre, int entry_num)
+ 		rc = kobject_init_and_add(&entry->kobj, &esre1_ktype, NULL,
+ 					  "entry%d", entry_num);
+ 		if (rc) {
+-			kfree(entry);
++			kobject_put(&entry->kobj);
+ 			return rc;
+ 		}
  	}
 -- 
 2.25.1
