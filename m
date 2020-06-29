@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E1E320E566
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:07:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4653E20E5A2
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:07:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391092AbgF2Vgj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:36:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60640 "EHLO mail.kernel.org"
+        id S1728320AbgF2Vj7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:39:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728431AbgF2Skk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:40:40 -0400
+        id S1728307AbgF2Sk3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:40:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D765D23ED2;
-        Mon, 29 Jun 2020 15:18:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA8E923EF2;
+        Mon, 29 Jun 2020 15:18:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593443905;
-        bh=vBVODVLhA21VNdblvAjpiZ7aFEQkw084iJxoeDNUa4o=;
+        s=default; t=1593443906;
+        bh=PPeWyYS4FCFQJSFCRFag4CcXyIoAO/wk/iRh2ObDfuA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Au2zn7RNQYYOkaeo77qsbc4A1onLRhFXjCtr+X3nWjh6S1/lo8Fg5QHTjjJtPvgYu
-         MLpbssb0nNnObjTXWLLpINBFC/PZaAMNunQohxB3YM2RyB20seEeWJC11dKHEP2Tm5
-         lQ0+SrAsvcV0BOI9/o9R9629YGs1YTFHgm10dRUo=
+        b=CtHRuCCP3jaIG/tWjp4XvAH9i7bhSO2/CtnEBcXYshvbrK26DiNdva4YOpbU8c98k
+         mSloObqj4X0A8I+M6PA/KH304lnHTs0EdX9vMxslDr/t7xmZiRUtEqww3kzImhKilV
+         XdvlBRfa0n05nLI2FapFEaCXqgXC35fBHFQ1kuuE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sabrina Dubroca <sd@queasysnail.net>,
-        Stefano Brivio <sbrivio@redhat.com>,
+Cc:     Thomas Falcon <tlfalcon@linux.ibm.com>,
         "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.7 005/265] geneve: allow changing DF behavior after creation
-Date:   Mon, 29 Jun 2020 11:13:58 -0400
-Message-Id: <20200629151818.2493727-6-sashal@kernel.org>
+Subject: [PATCH 5.7 006/265] ibmveth: Fix max MTU limit
+Date:   Mon, 29 Jun 2020 11:13:59 -0400
+Message-Id: <20200629151818.2493727-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -50,46 +49,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sabrina Dubroca <sd@queasysnail.net>
+From: Thomas Falcon <tlfalcon@linux.ibm.com>
 
-[ Upstream commit 56c09de347e40804fc8dad155272fb9609e0a97b ]
+[ Upstream commit 5948378b26d89f8aa5eac37629dbd0616ce8d7a7 ]
 
-Currently, trying to change the DF parameter of a geneve device does
-nothing:
+The max MTU limit defined for ibmveth is not accounting for
+virtual ethernet buffer overhead, which is twenty-two additional
+bytes set aside for the ethernet header and eight additional bytes
+of an opaque handle reserved for use by the hypervisor. Update the
+max MTU to reflect this overhead.
 
-    # ip -d link show geneve1
-    14: geneve1: <snip>
-        link/ether <snip>
-        geneve id 1 remote 10.0.0.1 ttl auto df set dstport 6081 <snip>
-    # ip link set geneve1 type geneve id 1 df unset
-    # ip -d link show geneve1
-    14: geneve1: <snip>
-        link/ether <snip>
-        geneve id 1 remote 10.0.0.1 ttl auto df set dstport 6081 <snip>
-
-We just need to update the value in geneve_changelink.
-
-Fixes: a025fb5f49ad ("geneve: Allow configuration of DF behaviour")
-Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
-Reviewed-by: Stefano Brivio <sbrivio@redhat.com>
+Fixes: d894be57ca92 ("ethernet: use net core MTU range checking in more drivers")
+Fixes: 110447f8269a ("ethernet: fix min/max MTU typos")
+Signed-off-by: Thomas Falcon <tlfalcon@linux.ibm.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/geneve.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/ibm/ibmveth.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/geneve.c b/drivers/net/geneve.c
-index 75266580b586d..4661ef865807f 100644
---- a/drivers/net/geneve.c
-+++ b/drivers/net/geneve.c
-@@ -1649,6 +1649,7 @@ static int geneve_changelink(struct net_device *dev, struct nlattr *tb[],
- 	geneve->collect_md = metadata;
- 	geneve->use_udp6_rx_checksums = use_udp6_rx_checksums;
- 	geneve->ttl_inherit = ttl_inherit;
-+	geneve->df = df;
- 	geneve_unquiesce(geneve, gs4, gs6);
+diff --git a/drivers/net/ethernet/ibm/ibmveth.c b/drivers/net/ethernet/ibm/ibmveth.c
+index 96d36ae5049e1..c5c732601e35e 100644
+--- a/drivers/net/ethernet/ibm/ibmveth.c
++++ b/drivers/net/ethernet/ibm/ibmveth.c
+@@ -1715,7 +1715,7 @@ static int ibmveth_probe(struct vio_dev *dev, const struct vio_device_id *id)
+ 	}
  
- 	return 0;
+ 	netdev->min_mtu = IBMVETH_MIN_MTU;
+-	netdev->max_mtu = ETH_MAX_MTU;
++	netdev->max_mtu = ETH_MAX_MTU - IBMVETH_BUFF_OH;
+ 
+ 	memcpy(netdev->dev_addr, mac_addr_p, ETH_ALEN);
+ 
 -- 
 2.25.1
 
