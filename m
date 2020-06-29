@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A9C020D4E8
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 21:15:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB08C20D3A9
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 21:13:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728444AbgF2TMl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:12:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53772 "EHLO mail.kernel.org"
+        id S1729806AbgF2TBI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:01:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730964AbgF2TKS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:10:18 -0400
+        id S1730364AbgF2TAW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:00:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B90E1254EF;
-        Mon, 29 Jun 2020 15:54:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E1D7A254F2;
+        Mon, 29 Jun 2020 15:54:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593446048;
-        bh=xh3UdEMZpdGNd9bxEHkP9QErM1NQotGeJT+jSfjzBbE=;
+        s=default; t=1593446050;
+        bh=+tp58noZXQoEUGiIglKdWJQNuoOipzmLxZuJLK3D7ss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D1ts4VzD9eOQiRhmVuAzApqad+OlcPExK7aSLvxZMn/NuGwaTKn++AuJKcLdq3xYS
-         zt4B01wByldP5SnPw0GPmAGGg3XlQQSw4+TwdP4W34oQKpN+6Qf1FiqfTOOCnwrFQj
-         dXJ3L2sBKQBaebM7zwfe/+lcZz3fy/dsGz0K+H1w=
+        b=Zuy4gx/Gx1fV9tsSoUzbnZw9At47H2+/K9zjy3x4AklnrvonWpR8ACJdLeadx/fSw
+         4xZXZthd218rpfCuN+PlOZdBpjlddBDesNXdjQ+HyHKyLrwj1nzpaVbq4kmJuQep2t
+         gjDgZwYTKbHMelE2UdphoPcwU/oKWye/HIuYHOQc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+Cc:     tannerlove <tannerlove@google.com>,
+        Willem de Bruijn <willemb@google.com>,
+        "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 051/135] include/linux/bitops.h: avoid clang shift-count-overflow warnings
-Date:   Mon, 29 Jun 2020 11:51:45 -0400
-Message-Id: <20200629155309.2495516-52-sashal@kernel.org>
+Subject: [PATCH 4.4 053/135] selftests/net: in timestamping, strncpy needs to preserve null byte
+Date:   Mon, 29 Jun 2020 11:51:47 -0400
+Message-Id: <20200629155309.2495516-54-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
 References: <20200629155309.2495516-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.229-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-4.4.y
@@ -55,63 +51,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: tannerlove <tannerlove@google.com>
 
-[ Upstream commit bd93f003b7462ae39a43c531abca37fe7073b866 ]
+[ Upstream commit 8027bc0307ce59759b90679fa5d8b22949586d20 ]
 
-Clang normally does not warn about certain issues in inline functions when
-it only happens in an eliminated code path. However if something else
-goes wrong, it does tend to complain about the definition of hweight_long()
-on 32-bit targets:
+If user passed an interface option longer than 15 characters, then
+device.ifr_name and hwtstamp.ifr_name became non-null-terminated
+strings. The compiler warned about this:
 
-  include/linux/bitops.h:75:41: error: shift count >= width of type [-Werror,-Wshift-count-overflow]
-          return sizeof(w) == 4 ? hweight32(w) : hweight64(w);
-                                                 ^~~~~~~~~~~~
-  include/asm-generic/bitops/const_hweight.h:29:49: note: expanded from macro 'hweight64'
-   define hweight64(w) (__builtin_constant_p(w) ? __const_hweight64(w) : __arch_hweight64(w))
-                                                  ^~~~~~~~~~~~~~~~~~~~
-  include/asm-generic/bitops/const_hweight.h:21:76: note: expanded from macro '__const_hweight64'
-   define __const_hweight64(w) (__const_hweight32(w) + __const_hweight32((w) >> 32))
-                                                                             ^  ~~
-  include/asm-generic/bitops/const_hweight.h:20:49: note: expanded from macro '__const_hweight32'
-   define __const_hweight32(w) (__const_hweight16(w) + __const_hweight16((w) >> 16))
-                                                  ^
-  include/asm-generic/bitops/const_hweight.h:19:72: note: expanded from macro '__const_hweight16'
-   define __const_hweight16(w) (__const_hweight8(w)  + __const_hweight8((w)  >> 8 ))
-                                                                         ^
-  include/asm-generic/bitops/const_hweight.h:12:9: note: expanded from macro '__const_hweight8'
-            (!!((w) & (1ULL << 2))) +     \
+timestamping.c:353:2: warning: ‘strncpy’ specified bound 16 equals \
+destination size [-Wstringop-truncation]
+  353 |  strncpy(device.ifr_name, interface, sizeof(device.ifr_name));
 
-Adding an explicit cast to __u64 avoids that warning and makes it easier
-to read other output.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Link: http://lkml.kernel.org/r/20200505135513.65265-1-arnd@arndb.de
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: cb9eff097831 ("net: new user space API for time stamping of incoming and outgoing packets")
+Signed-off-by: Tanner Love <tannerlove@google.com>
+Acked-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/bitops.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../selftests/networking/timestamping/timestamping.c   | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/bitops.h b/include/linux/bitops.h
-index ce2bb045b3fdd..9b9711ea267a4 100644
---- a/include/linux/bitops.h
-+++ b/include/linux/bitops.h
-@@ -59,7 +59,7 @@ static inline int get_count_order(unsigned int count)
+diff --git a/tools/testing/selftests/networking/timestamping/timestamping.c b/tools/testing/selftests/networking/timestamping/timestamping.c
+index 5cdfd743447b7..900ed4b478996 100644
+--- a/tools/testing/selftests/networking/timestamping/timestamping.c
++++ b/tools/testing/selftests/networking/timestamping/timestamping.c
+@@ -332,10 +332,16 @@ int main(int argc, char **argv)
+ 	int val;
+ 	socklen_t len;
+ 	struct timeval next;
++	size_t if_len;
  
- static __always_inline unsigned long hweight_long(unsigned long w)
- {
--	return sizeof(w) == 4 ? hweight32(w) : hweight64(w);
-+	return sizeof(w) == 4 ? hweight32(w) : hweight64((__u64)w);
- }
+ 	if (argc < 2)
+ 		usage(0);
+ 	interface = argv[1];
++	if_len = strlen(interface);
++	if (if_len >= IFNAMSIZ) {
++		printf("interface name exceeds IFNAMSIZ\n");
++		exit(1);
++	}
  
- /**
+ 	for (i = 2; i < argc; i++) {
+ 		if (!strcasecmp(argv[i], "SO_TIMESTAMP"))
+@@ -369,12 +375,12 @@ int main(int argc, char **argv)
+ 		bail("socket");
+ 
+ 	memset(&device, 0, sizeof(device));
+-	strncpy(device.ifr_name, interface, sizeof(device.ifr_name));
++	memcpy(device.ifr_name, interface, if_len + 1);
+ 	if (ioctl(sock, SIOCGIFADDR, &device) < 0)
+ 		bail("getting interface IP address");
+ 
+ 	memset(&hwtstamp, 0, sizeof(hwtstamp));
+-	strncpy(hwtstamp.ifr_name, interface, sizeof(hwtstamp.ifr_name));
++	memcpy(hwtstamp.ifr_name, interface, if_len + 1);
+ 	hwtstamp.ifr_data = (void *)&hwconfig;
+ 	memset(&hwconfig, 0, sizeof(hwconfig));
+ 	hwconfig.tx_type =
 -- 
 2.25.1
 
