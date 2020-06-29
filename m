@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B499220D6F8
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:06:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35B9C20DCA8
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:18:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732664AbgF2TZn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:25:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37020 "EHLO mail.kernel.org"
+        id S1732659AbgF2TZm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:25:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732616AbgF2TZk (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1732609AbgF2TZk (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 29 Jun 2020 15:25:40 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B8421253AD;
-        Mon, 29 Jun 2020 15:41:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 87B8C2532E;
+        Mon, 29 Jun 2020 15:39:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445276;
-        bh=GE0G3P08GA599AmVntNBGr/PEBtJYVNAt/jofKJFvzc=;
+        s=default; t=1593445164;
+        bh=OcH8GRCKOWgmoViLI3P0qqQ0oMYWYwFKp35jGfML/54=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gjyUR2IoohNyicvagQEa8npVwcGGgylHhwP2n/PgQe877z/lTZbotNeD0CXOrHvOx
-         N/cVWpduQOzmCSXMjGLpSteB5/Z04W0oslizX3Jxab5JlYHl/ZRWNNVoIRtAoAu/LG
-         853CuQQ0H6pMSxAo/RcHsCWQNpvGLdu65FqUAYjA=
+        b=eToR/UcnGfZTlaKHiv1Qex5zjy30pnl9goG5ndi3F0lt3MTWXyZrP9EaKFtPLuBfU
+         voSRzXJx6JLWt4b55CBSdwGRAFYQVl/NmXVXSn6Oo3+T3q/6QGnWDwFBPK6U4B7Fz3
+         avHHik79vFTdmmU9LGU1Ku/2dnN2AqW1sQ8yQXg8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        kbuild test robot <lkp@intel.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 055/191] USB: gadget: udc: s3c2410_udc: Remove pointless NULL check in s3c2410_udc_nuke
+Cc:     Filipe Manana <fdmanana@suse.com>, David Sterba <dsterba@suse.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 4.14 63/78] btrfs: fix failure of RWF_NOWAIT write into prealloc extent beyond eof
 Date:   Mon, 29 Jun 2020 11:37:51 -0400
-Message-Id: <20200629154007.2495120-56-sashal@kernel.org>
+Message-Id: <20200629153806.2494953-64-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
-References: <20200629154007.2495120-1-sashal@kernel.org>
+In-Reply-To: <20200629153806.2494953-1-sashal@kernel.org>
+References: <20200629153806.2494953-1-sashal@kernel.org>
 MIME-Version: 1.0
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.229-rc1.gz
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.186-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.9.y
+X-KernelTest-Branch: linux-4.14.y
 X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.9.229-rc1
-X-KernelTest-Deadline: 2020-07-01T15:39+00:00
+X-KernelTest-Version: 4.14.186-rc1
+X-KernelTest-Deadline: 2020-07-01T15:38+00:00
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -51,54 +48,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit 7a0fbcf7c308920bc6116b3a5fb21c8cc5fec128 ]
+commit 4b1946284dd6641afdb9457101056d9e6ee6204c upstream.
 
-Clang warns:
+If we attempt to write to prealloc extent located after eof using a
+RWF_NOWAIT write, we always fail with -EAGAIN.
 
-drivers/usb/gadget/udc/s3c2410_udc.c:255:11: warning: comparison of
-address of 'ep->queue' equal to a null pointer is always false
-[-Wtautological-pointer-compare]
-        if (&ep->queue == NULL)
-             ~~~~^~~~~    ~~~~
-1 warning generated.
+We do actually check if we have an allocated extent for the write at
+the start of btrfs_file_write_iter() through a call to check_can_nocow(),
+but later when we go into the actual direct IO write path we simply
+return -EAGAIN if the write starts at or beyond EOF.
 
-It is not wrong, queue is not a pointer so if ep is not NULL, the
-address of queue cannot be NULL. No other driver does a check like this
-and this check has been around since the driver was first introduced,
-presumably with no issues so it does not seem like this check should be
-something else. Just remove it.
+Trivial to reproduce:
 
-Commit afe956c577b2d ("kbuild: Enable -Wtautological-compare") exposed
-this but it is not the root cause of the warning.
+  $ mkfs.btrfs -f /dev/sdb
+  $ mount /dev/sdb /mnt
 
-Fixes: 3fc154b6b8134 ("USB Gadget driver for Samsung s3c2410 ARM SoC")
-Link: https://github.com/ClangBuiltLinux/linux/issues/1004
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  $ touch /mnt/foo
+  $ chattr +C /mnt/foo
+
+  $ xfs_io -d -c "pwrite -S 0xab 0 64K" /mnt/foo
+  wrote 65536/65536 bytes at offset 0
+  64 KiB, 16 ops; 0.0004 sec (135.575 MiB/sec and 34707.1584 ops/sec)
+
+  $ xfs_io -c "falloc -k 64K 1M" /mnt/foo
+
+  $ xfs_io -d -c "pwrite -N -V 1 -S 0xfe -b 64K 64K 64K" /mnt/foo
+  pwrite: Resource temporarily unavailable
+
+On xfs and ext4 the write succeeds, as expected.
+
+Fix this by removing the wrong check at btrfs_direct_IO().
+
+Fixes: edf064e7c6fec3 ("btrfs: nowait aio support")
+CC: stable@vger.kernel.org # 4.14+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/udc/s3c2410_udc.c | 4 ----
- 1 file changed, 4 deletions(-)
+ fs/btrfs/inode.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/usb/gadget/udc/s3c2410_udc.c b/drivers/usb/gadget/udc/s3c2410_udc.c
-index eb3571ee59e3c..08153a48704bb 100644
---- a/drivers/usb/gadget/udc/s3c2410_udc.c
-+++ b/drivers/usb/gadget/udc/s3c2410_udc.c
-@@ -269,10 +269,6 @@ static void s3c2410_udc_done(struct s3c2410_ep *ep,
- static void s3c2410_udc_nuke(struct s3c2410_udc *udc,
- 		struct s3c2410_ep *ep, int status)
- {
--	/* Sanity check */
--	if (&ep->queue == NULL)
--		return;
--
- 	while (!list_empty(&ep->queue)) {
- 		struct s3c2410_request *req;
- 		req = list_entry(ep->queue.next, struct s3c2410_request,
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index ad138f0b0ce12..39ad582d72c4b 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -8947,9 +8947,6 @@ static ssize_t btrfs_direct_IO(struct kiocb *iocb, struct iov_iter *iter)
+ 			dio_data.overwrite = 1;
+ 			inode_unlock(inode);
+ 			relock = true;
+-		} else if (iocb->ki_flags & IOCB_NOWAIT) {
+-			ret = -EAGAIN;
+-			goto out;
+ 		}
+ 		ret = btrfs_delalloc_reserve_space(inode, &data_reserved,
+ 						   offset, count);
 -- 
 2.25.1
 
