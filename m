@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0631020E667
+	by mail.lfdr.de (Postfix) with ESMTP id EBB8120E669
 	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:09:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404197AbgF2VrJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2404193AbgF2VrJ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 29 Jun 2020 17:47:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56794 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:56910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726737AbgF2Sfo (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726740AbgF2Sfo (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 29 Jun 2020 14:35:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4B6EB24697;
-        Mon, 29 Jun 2020 15:19:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4421424699;
+        Mon, 29 Jun 2020 15:19:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1593443992;
-        bh=sNOLCnFtuh+m9OD5TG/Nxs/Wi7fC45jIgNmN74LSD68=;
+        bh=7+ckgGs+391OquPJTLjfCaTeAqMTU6Gyltn8EGzmfDU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xVEWP8b0vlhVIVqeevq5CPd8itlP4SPQmY8b7Da82wwqCw1Z4NIZWMYPBFkQA0ofH
-         NvAZg6CRcLZ3tbjz9IRXCerji041kHGiofvxw4dwP4PDoHdpc3mCBr40l+oos865+A
-         lSX9Ck+vGSSH4fbUKekEH8yBsVj6f3m8tIlAeipo=
+        b=0EKnlx6NOnMUdkVvaTSOSmXqVh/Gg1z94Stsdx5hBt++vXfTeIqZ5lhrWAHy8d2HW
+         VgVmEn5SjuVqQ/Aqg7ZiWyoZn9Meg9vy6H+JHxvM9f+ZRYyZz4LDCtGrtwsP7XYIxE
+         T2msGaUE/6q2PEuT4lHSn47ziMnXgiOIZVZUtot4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Tony Lindgren <tony@atomide.com>,
         Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Tomi Valkeinen <tomi.valkeinen@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 096/265] bus: ti-sysc: Fix uninitialized framedonetv_irq
-Date:   Mon, 29 Jun 2020 11:15:29 -0400
-Message-Id: <20200629151818.2493727-97-sashal@kernel.org>
+Subject: [PATCH 5.7 097/265] ARM: OMAP2+: Fix legacy mode dss_reset
+Date:   Mon, 29 Jun 2020 11:15:30 -0400
+Message-Id: <20200629151818.2493727-98-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -52,42 +52,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 085bc0e576a4bf53b67a917c54908f299a2fb949 ]
+[ Upstream commit 77cad9dbc957f23a73169e8a8971186744296614 ]
 
-We are currently only setting the framedonetv_irq disabled for the SoCs
-that don't have it. But we are never setting it enabled for the SoCs that
-have it. Let's initialized it to true by default.
+We must check for "dss_core" instead of "dss" to avoid also matching
+also "dss_dispc". This only matters for the mixed case of data
+configured in device tree but with legacy booting ti,hwmods property
+still enabled.
 
-Fixes: 7324a7a0d5e2 ("bus: ti-sysc: Implement display subsystem reset quirk")
+Fixes: 8b30919a4e3c ("ARM: OMAP2+: Handle reset quirks for dynamically allocated modules")
 Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Cc: Tomi Valkeinen <tomi.valkeinen@ti.com>
 Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/ti-sysc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm/mach-omap2/omap_hwmod.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
-index 4f640a635ded1..db9541f385055 100644
---- a/drivers/bus/ti-sysc.c
-+++ b/drivers/bus/ti-sysc.c
-@@ -1552,7 +1552,7 @@ static u32 sysc_quirk_dispc(struct sysc *ddata, int dispc_offset,
- 	bool lcd_en, digit_en, lcd2_en = false, lcd3_en = false;
- 	const int lcd_en_mask = BIT(0), digit_en_mask = BIT(1);
- 	int manager_count;
--	bool framedonetv_irq;
-+	bool framedonetv_irq = true;
- 	u32 val, irq_mask = 0;
+diff --git a/arch/arm/mach-omap2/omap_hwmod.c b/arch/arm/mach-omap2/omap_hwmod.c
+index 82706af307dee..c630457bb228e 100644
+--- a/arch/arm/mach-omap2/omap_hwmod.c
++++ b/arch/arm/mach-omap2/omap_hwmod.c
+@@ -3489,7 +3489,7 @@ static const struct omap_hwmod_reset dra7_reset_quirks[] = {
+ };
  
- 	switch (sysc_soc->soc) {
-@@ -1569,6 +1569,7 @@ static u32 sysc_quirk_dispc(struct sysc *ddata, int dispc_offset,
- 		break;
- 	case SOC_AM4:
- 		manager_count = 1;
-+		framedonetv_irq = false;
- 		break;
- 	case SOC_UNKNOWN:
- 	default:
+ static const struct omap_hwmod_reset omap_reset_quirks[] = {
+-	{ .match = "dss", .len = 3, .reset = omap_dss_reset, },
++	{ .match = "dss_core", .len = 8, .reset = omap_dss_reset, },
+ 	{ .match = "hdq1w", .len = 5, .reset = omap_hdq1w_reset, },
+ 	{ .match = "i2c", .len = 3, .reset = omap_i2c_reset, },
+ 	{ .match = "wd_timer", .len = 8, .reset = omap2_wd_timer_reset, },
 -- 
 2.25.1
 
