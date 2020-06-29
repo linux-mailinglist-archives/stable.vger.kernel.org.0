@@ -2,36 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3304920DAAF
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:14:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 243A220DAB1
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:14:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732297AbgF2T7k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:59:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47652 "EHLO mail.kernel.org"
+        id S2387574AbgF2T7q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:59:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387573AbgF2TkR (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2387568AbgF2TkR (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 29 Jun 2020 15:40:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9D9F824874;
-        Mon, 29 Jun 2020 15:26:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9736624875;
+        Mon, 29 Jun 2020 15:26:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444371;
-        bh=1xv6yYBqZwbWzKf+MAaWuSrnLwTqcr4DmRgoY8PZRCM=;
+        s=default; t=1593444372;
+        bh=78G/8cjf9PgRo9JXjCPxoSNhAZS8BC6RIKWrqBpwcIo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xl+P7S3EX/+UgwYbniv3J8Xvf3zEbYjnO0z7dZ3wBD8RKwEl/GBeAVIYQ00VdK7zk
-         DEdwcRijZIJioJQCbRz66q1k2keyHlK6ZtYrIhSmObbeT4bMQE+FJpC44/pEQc7Ltc
-         +FPpPV054hZSuZlJY+e0O1oi6FoOl1/Ml+e07+S4=
+        b=ybdZvFml2dRyULSlMnUmKO0MvS+CazIn1ZmDHF+CkLMzptdA37NS1QO1sPrWb3wLW
+         vuE+kB6VHsA8jeuOr64y0p3I/LR16zfrUZehcM89tjnn+ru4/zq12rTGRxTvmcDtwg
+         WOQWgnvxOV0HAdxw5GOh+0D/crcNwUVOpv9Y9B1E=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Chen <peter.chen@nxp.com>,
-        Pawel Laszczak <pawell@cadence.com>,
-        Felipe Balbi <balbi@kernel.org>,
+Cc:     Roman Bolshakov <r.bolshakov@yadro.com>,
+        Quinn Tran <qutran@marvell.com>, Arun Easi <aeasi@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Daniel Wagner <dwagner@suse.de>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Martin Wilck <mwilck@suse.com>,
+        Shyam Sundar <ssundar@marvell.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.4 048/178] usb: cdns3: ep0: add spinlock for cdns3_check_new_setup
-Date:   Mon, 29 Jun 2020 11:23:13 -0400
-Message-Id: <20200629152523.2494198-49-sashal@kernel.org>
+Subject: [PATCH 5.4 049/178] scsi: qla2xxx: Keep initiator ports after RSCN
+Date:   Mon, 29 Jun 2020 11:23:14 -0400
+Message-Id: <20200629152523.2494198-50-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -50,55 +56,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Chen <peter.chen@nxp.com>
+From: Roman Bolshakov <r.bolshakov@yadro.com>
 
-commit 2587a029fa2a877d0a8dda955ef1b24c94b4bd0e upstream.
+commit 632f24f09d5b7c8a2f94932c3391ca957ae76cc4 upstream.
 
-The other thread may access other endpoints when the cdns3_check_new_setup
-is handling, add spinlock to protect it.
+The driver performs SCR (state change registration) in all modes including
+pure target mode.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 7733f6c32e36 ("usb: cdns3: Add Cadence USB3 DRD Driver")
-Reviewed-by: Pawel Laszczak <pawell@cadence.com>
-Signed-off-by: Peter Chen <peter.chen@nxp.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+For each RSCN, scan_needed flag is set in qla2x00_handle_rscn() for the
+port mentioned in the RSCN and fabric rescan is scheduled. During the
+rescan, GNN_FT handler, qla24xx_async_gnnft_done() deletes session of the
+port that caused the RSCN.
+
+In target mode, the session deletion has an impact on ATIO handler,
+qlt_24xx_atio_pkt(). Target responds with SAM STATUS BUSY to I/O incoming
+from the deleted session. qlt_handle_cmd_for_atio() and
+qlt_handle_task_mgmt() return -EFAULT if they are not able to find session
+of the command/TMF, and that results in invocation of qlt_send_busy():
+
+  qlt_24xx_atio_pkt_all_vps: qla_target(0): type 6 ox_id 0014
+  qla_target(0): Unable to send command to target, sending BUSY status
+
+Such response causes command timeout on the initiator. Error handler thread
+on the initiator will be spawned to abort the commands:
+
+  scsi 23:0:0:0: tag#0 abort scheduled
+  scsi 23:0:0:0: tag#0 aborting command
+  qla2xxx [0000:af:00.0]-188c:23: Entered qla24xx_abort_command.
+  qla2xxx [0000:af:00.0]-801c:23: Abort command issued nexus=23:0:0 -- 0 2003.
+
+Command abort is rejected by target and fails (2003), error handler then
+tries to perform DEVICE RESET and TARGET RESET but they're also doomed to
+fail because TMFs are ignored for the deleted sessions.
+
+Then initiator makes BUS RESET that resets the link via
+qla2x00_full_login_lip(). BUS RESET succeeds and brings initiator port up,
+SAN switch detects that and sends RSCN to the target port and it fails
+again the same way as described above. It never goes out of the loop.
+
+The change breaks the RSCN loop by keeping initiator sessions mentioned in
+RSCN payload in all modes, including dual and pure target mode.
+
+Link: https://lore.kernel.org/r/20200605144435.27023-1-r.bolshakov@yadro.com
+Fixes: 2037ce49d30a ("scsi: qla2xxx: Fix stale session")
+Cc: Quinn Tran <qutran@marvell.com>
+Cc: Arun Easi <aeasi@marvell.com>
+Cc: Nilesh Javali <njavali@marvell.com>
+Cc: Bart Van Assche <bvanassche@acm.org>
+Cc: Daniel Wagner <dwagner@suse.de>
+Cc: Himanshu Madhani <himanshu.madhani@oracle.com>
+Cc: Martin Wilck <mwilck@suse.com>
+Cc: stable@vger.kernel.org # v5.4+
+Reviewed-by: Daniel Wagner <dwagner@suse.de>
+Reviewed-by: Shyam Sundar <ssundar@marvell.com>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Roman Bolshakov <r.bolshakov@yadro.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/cdns3/ep0.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/scsi/qla2xxx/qla_gs.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/cdns3/ep0.c b/drivers/usb/cdns3/ep0.c
-index f785ce84aba62..da4c5eb03d7ee 100644
---- a/drivers/usb/cdns3/ep0.c
-+++ b/drivers/usb/cdns3/ep0.c
-@@ -712,15 +712,17 @@ static int cdns3_gadget_ep0_queue(struct usb_ep *ep,
- 	int ret = 0;
- 	u8 zlp = 0;
- 
-+	spin_lock_irqsave(&priv_dev->lock, flags);
- 	trace_cdns3_ep0_queue(priv_dev, request);
- 
- 	/* cancel the request if controller receive new SETUP packet. */
--	if (cdns3_check_new_setup(priv_dev))
-+	if (cdns3_check_new_setup(priv_dev)) {
-+		spin_unlock_irqrestore(&priv_dev->lock, flags);
- 		return -ECONNRESET;
-+	}
- 
- 	/* send STATUS stage. Should be called only for SET_CONFIGURATION */
- 	if (priv_dev->ep0_stage == CDNS3_STATUS_STAGE) {
--		spin_lock_irqsave(&priv_dev->lock, flags);
- 		cdns3_select_ep(priv_dev, 0x00);
- 
- 		erdy_sent = !priv_dev->hw_configured_flag;
-@@ -745,7 +747,6 @@ static int cdns3_gadget_ep0_queue(struct usb_ep *ep,
- 		return 0;
- 	}
- 
--	spin_lock_irqsave(&priv_dev->lock, flags);
- 	if (!list_empty(&priv_ep->pending_req_list)) {
- 		dev_err(priv_dev->dev,
- 			"can't handle multiple requests for ep0\n");
+diff --git a/drivers/scsi/qla2xxx/qla_gs.c b/drivers/scsi/qla2xxx/qla_gs.c
+index 84bb4a0480166..a44de4c5dcf6c 100644
+--- a/drivers/scsi/qla2xxx/qla_gs.c
++++ b/drivers/scsi/qla2xxx/qla_gs.c
+@@ -3638,7 +3638,9 @@ void qla24xx_async_gnnft_done(scsi_qla_host_t *vha, srb_t *sp)
+ 				qla2x00_clear_loop_id(fcport);
+ 				fcport->flags |= FCF_FABRIC_DEVICE;
+ 			} else if (fcport->d_id.b24 != rp->id.b24 ||
+-				fcport->scan_needed) {
++				   (fcport->scan_needed &&
++				    fcport->port_type != FCT_INITIATOR &&
++				    fcport->port_type != FCT_NVME_INITIATOR)) {
+ 				qlt_schedule_sess_for_deletion(fcport);
+ 			}
+ 			fcport->d_id.b24 = rp->id.b24;
 -- 
 2.25.1
 
