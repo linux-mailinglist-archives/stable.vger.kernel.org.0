@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F107F20D768
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:07:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 012D320D6F0
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:06:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732234AbgF2T3h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:29:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37028 "EHLO mail.kernel.org"
+        id S1732523AbgF2TZZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:25:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732657AbgF2TZm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:25:42 -0400
+        id S1731759AbgF2TZX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:25:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4533525416;
-        Mon, 29 Jun 2020 15:42:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B0C42543C;
+        Mon, 29 Jun 2020 15:43:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445367;
-        bh=wKVojw3v10HVgEldxDQ8d8OdOl9ZfBVivKKmRcFWmq4=;
+        s=default; t=1593445389;
+        bh=igXIQ9KhOPwaPpl0b/JdivR6aj4//a+EAr8lZskRhz8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LKcGVSdKs2Fbqt+k2nFzqrU46+6k3ZEXv9GQfqbsOZT41QoRXJYjCrUQ4RwEPPx/Z
-         TskONi364b8mb/q8NCjuGzSgTw4SfW3PvCXlcWmDt6jjDwlPlvB6irCN/0Vkr16lfI
-         dNF1TNbNVg1oTS1zbAiJhKe/mltlJOvb7+qI66kk=
+        b=sWHVvkh9j89ol+aCa/e1cJ1b8tsWdelSfe8Ph0xOuQZdpSsBIeOlbnJnincHLN5rk
+         EjSfLAciiokUgADnPQqOtHL+S6+w1gvpD/3ZjlsgDyII1Hu67TiSd6zwveWWJ1ojol
+         WkbXcu1ElyiBmBH54Om5wKQEesEzrH+8cXwaGHOg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Miquel Raynal <miquel.raynal@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 122/191] mtd: rawnand: xway: Fix the probe error path
-Date:   Mon, 29 Jun 2020 11:38:58 -0400
-Message-Id: <20200629154007.2495120-123-sashal@kernel.org>
+Cc:     guodeqing <geffrey.guo@huawei.com>,
+        David Ahern <dsahern@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 4.9 143/191] net: Fix the arp error in some cases
+Date:   Mon, 29 Jun 2020 11:39:19 -0400
+Message-Id: <20200629154007.2495120-144-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
 References: <20200629154007.2495120-1-sashal@kernel.org>
@@ -48,42 +50,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: guodeqing <geffrey.guo@huawei.com>
 
-[ Upstream commit 34531be5e804a8e1abf314a6c3a19fe342e4a154 ]
+[ Upstream commit 5eea3a63ff4aba6a26002e657a6d21934b7e2b96 ]
 
-nand_release() is supposed be called after MTD device registration.
-Here, only nand_scan() happened, so use nand_cleanup() instead.
+ie.,
+$ ifconfig eth0 6.6.6.6 netmask 255.255.255.0
 
-There is no real Fixes tag applying here as the use of nand_release()
-in this driver predates the introduction of nand_cleanup() in
-commit d44154f969a4 ("mtd: nand: Provide nand_cleanup() function to free NAND related resources")
-which makes this change possible. However, pointing this commit as the
-culprit for backporting purposes makes sense even if this commit is not
-introducing any bug.
+$ ip rule add from 6.6.6.6 table 6666
 
-Fixes: d44154f969a4 ("mtd: nand: Provide nand_cleanup() function to free NAND related resources")
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/linux-mtd/20200519130035.1883-61-miquel.raynal@bootlin.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+$ ip route add 9.9.9.9 via 6.6.6.6
+
+$ ping -I 6.6.6.6 9.9.9.9
+PING 9.9.9.9 (9.9.9.9) from 6.6.6.6 : 56(84) bytes of data.
+
+3 packets transmitted, 0 received, 100% packet loss, time 2079ms
+
+$ arp
+Address     HWtype  HWaddress           Flags Mask            Iface
+6.6.6.6             (incomplete)                              eth0
+
+The arp request address is error, this is because fib_table_lookup in
+fib_check_nh lookup the destnation 9.9.9.9 nexthop, the scope of
+the fib result is RT_SCOPE_LINK,the correct scope is RT_SCOPE_HOST.
+Here I add a check of whether this is RT_TABLE_MAIN to solve this problem.
+
+Fixes: 3bfd847203c6 ("net: Use passed in table for nexthop lookups")
+Signed-off-by: guodeqing <geffrey.guo@huawei.com>
+Reviewed-by: David Ahern <dsahern@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/nand/xway_nand.c | 2 +-
+ net/ipv4/fib_semantics.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/nand/xway_nand.c b/drivers/mtd/nand/xway_nand.c
-index d374a0007960a..3d51b8fc5aafe 100644
---- a/drivers/mtd/nand/xway_nand.c
-+++ b/drivers/mtd/nand/xway_nand.c
-@@ -211,7 +211,7 @@ static int xway_nand_probe(struct platform_device *pdev)
+diff --git a/net/ipv4/fib_semantics.c b/net/ipv4/fib_semantics.c
+index 6aec95e1fc134..305104d116d62 100644
+--- a/net/ipv4/fib_semantics.c
++++ b/net/ipv4/fib_semantics.c
+@@ -776,7 +776,7 @@ static int fib_check_nh(struct fib_config *cfg, struct fib_info *fi,
+ 			if (fl4.flowi4_scope < RT_SCOPE_LINK)
+ 				fl4.flowi4_scope = RT_SCOPE_LINK;
  
- 	err = mtd_device_register(mtd, NULL, 0);
- 	if (err)
--		nand_release(&data->chip);
-+		nand_cleanup(&data->chip);
+-			if (cfg->fc_table)
++			if (cfg->fc_table && cfg->fc_table != RT_TABLE_MAIN)
+ 				tbl = fib_get_table(net, cfg->fc_table);
  
- 	return err;
- }
+ 			if (tbl)
 -- 
 2.25.1
 
