@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B92F20E288
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:01:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA56920E2B1
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:01:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732252AbgF2VGX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:06:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53738 "EHLO mail.kernel.org"
+        id S1730789AbgF2VHv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:07:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730748AbgF2TKS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:10:18 -0400
+        id S1730467AbgF2TKQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:10:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE53E254B6;
-        Mon, 29 Jun 2020 15:53:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 97ED7254BB;
+        Mon, 29 Jun 2020 15:53:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593446011;
-        bh=AgRFdOEPmRGhMwYWEDiAD/ydaphTjPBnO+pOw4nCiM8=;
+        s=default; t=1593446013;
+        bh=22GcyC7muiffFtETFdjF2sD42yntUmJ9O0GxjhYMGP4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ivqGkrn8GCp+UeowK/7yCYprxII02l4YWmuzhtTMujhjcBh4VFHadXsdzlObGvG6u
-         xiSXRv+PnqxzdMjjjVZEtflzR56eI57lm4kAm/cYaSBYFJHXjBcLWOUS1glAMVHC6+
-         fxvOrFHwsW5HwRXu+YqqbLbfcbO11QxyIcIQ4vjQ=
+        b=P9Oxetovbc7BxMsubDH5eA3G/j3ePi28OZ5B7l1FyNFrHW2tI2fC76XHatCAlASfs
+         8kDqoOIZ9xAlQORDN+xdItSKCr57pRMAlbXBBWGkWAt80/pE/XMZNXQdgRztImabxx
+         grMBMX6JZxPYLUUnbzZQQuIW8Ey2+9wjOd5w8nrA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tyrel Datwyler <tyreld@linux.ibm.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
+Cc:     Julian Wiedmann <jwi@linux.ibm.com>,
+        Benjamin Block <bblock@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 018/135] scsi: ibmvscsi: Don't send host info in adapter info MAD after LPM
-Date:   Mon, 29 Jun 2020 11:51:12 -0400
-Message-Id: <20200629155309.2495516-19-sashal@kernel.org>
+Subject: [PATCH 4.4 020/135] s390/qdio: put thinint indicator after early error
+Date:   Mon, 29 Jun 2020 11:51:14 -0400
+Message-Id: <20200629155309.2495516-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
 References: <20200629155309.2495516-1-sashal@kernel.org>
@@ -49,44 +50,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tyrel Datwyler <tyreld@linux.ibm.com>
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-[ Upstream commit 4919b33b63c8b69d8dcf2b867431d0e3b6dc6d28 ]
+[ Upstream commit 75e82bec6b2622c6f455b7a543fb5476a5d0eed7 ]
 
-The adapter info MAD is used to send the client info and receive the host
-info as a response. A persistent buffer is used and as such the client info
-is overwritten after the response. During the course of a normal adapter
-reset the client info is refreshed in the buffer in preparation for sending
-the adapter info MAD.
+qdio_establish() calls qdio_setup_thinint() via qdio_setup_irq().
+If the subsequent qdio_establish_thinint() fails, we miss to put the
+DSCI again. Thus the DSCI isn't available for re-use. Given enough of
+such errors, we could end up with having only the shared DSCI available.
 
-However, in the special case of LPM where we reenable the CRQ instead of a
-full CRQ teardown and reset we fail to refresh the client info in the
-adapter info buffer. As a result, after Live Partition Migration (LPM) we
-erroneously report the host's info as our own.
+Merge qdio_setup_thinint() into qdio_establish_thinint(), and deal with
+such an error internally.
 
-[mkp: typos]
-
-Link: https://lore.kernel.org/r/20200603203632.18426-1-tyreld@linux.ibm.com
-Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 779e6e1c724d ("[S390] qdio: new qdio driver.")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ibmvscsi/ibmvscsi.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/s390/cio/qdio.h         |  1 -
+ drivers/s390/cio/qdio_setup.c   |  1 -
+ drivers/s390/cio/qdio_thinint.c | 14 ++++++++------
+ 3 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/scsi/ibmvscsi/ibmvscsi.c b/drivers/scsi/ibmvscsi/ibmvscsi.c
-index e26747a1b35a1..e7075aae15daa 100644
---- a/drivers/scsi/ibmvscsi/ibmvscsi.c
-+++ b/drivers/scsi/ibmvscsi/ibmvscsi.c
-@@ -427,6 +427,8 @@ static int ibmvscsi_reenable_crq_queue(struct crq_queue *queue,
- 	int rc = 0;
- 	struct vio_dev *vdev = to_vio_dev(hostdata->dev);
+diff --git a/drivers/s390/cio/qdio.h b/drivers/s390/cio/qdio.h
+index 7e70f9298cc13..11f6ebd045456 100644
+--- a/drivers/s390/cio/qdio.h
++++ b/drivers/s390/cio/qdio.h
+@@ -376,7 +376,6 @@ static inline int multicast_outbound(struct qdio_q *q)
+ extern u64 last_ai_time;
  
-+	set_adapter_info(hostdata);
+ /* prototypes for thin interrupt */
+-void qdio_setup_thinint(struct qdio_irq *irq_ptr);
+ int qdio_establish_thinint(struct qdio_irq *irq_ptr);
+ void qdio_shutdown_thinint(struct qdio_irq *irq_ptr);
+ void tiqdio_add_input_queues(struct qdio_irq *irq_ptr);
+diff --git a/drivers/s390/cio/qdio_setup.c b/drivers/s390/cio/qdio_setup.c
+index d0090c5c88e74..a64615a10352b 100644
+--- a/drivers/s390/cio/qdio_setup.c
++++ b/drivers/s390/cio/qdio_setup.c
+@@ -479,7 +479,6 @@ int qdio_setup_irq(struct qdio_initialize *init_data)
+ 	setup_queues(irq_ptr, init_data);
+ 
+ 	setup_qib(irq_ptr, init_data);
+-	qdio_setup_thinint(irq_ptr);
+ 	set_impl_params(irq_ptr, init_data->qib_param_field_format,
+ 			init_data->qib_param_field,
+ 			init_data->input_slib_elements,
+diff --git a/drivers/s390/cio/qdio_thinint.c b/drivers/s390/cio/qdio_thinint.c
+index debe69adfc705..aecb6445a5671 100644
+--- a/drivers/s390/cio/qdio_thinint.c
++++ b/drivers/s390/cio/qdio_thinint.c
+@@ -268,17 +268,19 @@ int __init tiqdio_register_thinints(void)
+ 
+ int qdio_establish_thinint(struct qdio_irq *irq_ptr)
+ {
++	int rc;
 +
- 	/* Re-enable the CRQ */
- 	do {
- 		if (rc)
+ 	if (!is_thinint_irq(irq_ptr))
+ 		return 0;
+-	return set_subchannel_ind(irq_ptr, 0);
+-}
+ 
+-void qdio_setup_thinint(struct qdio_irq *irq_ptr)
+-{
+-	if (!is_thinint_irq(irq_ptr))
+-		return;
+ 	irq_ptr->dsci = get_indicator();
+ 	DBF_HEX(&irq_ptr->dsci, sizeof(void *));
++
++	rc = set_subchannel_ind(irq_ptr, 0);
++	if (rc)
++		put_indicator(irq_ptr->dsci);
++
++	return rc;
+ }
+ 
+ void qdio_shutdown_thinint(struct qdio_irq *irq_ptr)
 -- 
 2.25.1
 
