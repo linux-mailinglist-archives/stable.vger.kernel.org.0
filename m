@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BDD720D9F8
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:12:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0332020D9B3
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:12:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388317AbgF2Twg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:52:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47650 "EHLO mail.kernel.org"
+        id S2387917AbgF2TuE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:50:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387699AbgF2Tk1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:27 -0400
+        id S2387749AbgF2Tkh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:37 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 77BB1248B5;
-        Mon, 29 Jun 2020 15:26:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5816A248B8;
+        Mon, 29 Jun 2020 15:26:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444411;
-        bh=tOrwBAVd/x0Oigir99dcKgnRdsCe7DV5Y5oW2/wsAZs=;
+        s=default; t=1593444412;
+        bh=6NadJLY2JjTTBHnBAPPLUmClRu1ve21sHbvw0vkswdI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zoxcgrn/lUSLtRFnTecjaUM6wn6h43UDsL47PQnDiMu6Kende1IZz1VkBpkYYNQjs
-         tiYBD2mkN15n1WL3oUGILQ8T0OjLGpQSyZPL0iis7A5ePu8zjU+2t8bNcFGit5TT24
-         lIlnSeQ/M0fkLbLfEGXXkXjWCC58/JEgzt7cnnNE=
+        b=LXOIm8UAM0NUjetVID4P0LzeD3bqiZwt8p1+HTMabulZqtP01sIFOaHBMgmljBUWT
+         jvEqDfMXAPJwK06hGQmGUZYxs8TXC1xMbPPmbedCFcEeX6yWSsyKm1Vp578ZgfwLCf
+         oi4EP3Jpnt8yeo67/8++gH4bKnJLcmKloAALdxVM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Willem de Bruijn <willemb@google.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 089/178] selftests/net: report etf errors correctly
-Date:   Mon, 29 Jun 2020 11:23:54 -0400
-Message-Id: <20200629152523.2494198-90-sashal@kernel.org>
+Cc:     Lu Baolu <baolu.lu@linux.intel.com>,
+        Lalithambika Krishnakumar <lalithambika.krishnakumar@intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Ashok Raj <ashok.raj@intel.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 090/178] iommu/vt-d: Enable PCI ACS for platform opt in hint
+Date:   Mon, 29 Jun 2020 11:23:55 -0400
+Message-Id: <20200629152523.2494198-91-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -49,99 +51,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willem de Bruijn <willemb@google.com>
+From: Lu Baolu <baolu.lu@linux.intel.com>
 
-[ Upstream commit ca8826095e4d4afc0ccaead27bba6e4b623a12ae ]
+[ Upstream commit 50310600ebda74b9988467e2e6128711c7ba56fc ]
 
-The ETF qdisc can queue skbs that it could not pace on the errqueue.
+PCI ACS is disabled if Intel IOMMU is off by default or intel_iommu=off
+is used in command line. Unfortunately, Intel IOMMU will be forced on if
+there're devices sitting on an external facing PCI port that is marked
+as untrusted (for example, thunderbolt peripherals). That means, PCI ACS
+is disabled while Intel IOMMU is forced on to isolate those devices. As
+the result, the devices of an MFD will be grouped by a single group even
+the ACS is supported on device.
 
-Address a few issues in the selftest
+[    0.691263] pci 0000:00:07.1: Adding to iommu group 3
+[    0.691277] pci 0000:00:07.2: Adding to iommu group 3
+[    0.691292] pci 0000:00:07.3: Adding to iommu group 3
 
-- recv buffer size was too small, and incorrectly calculated
-- compared errno to ee_code instead of ee_errno
-- missed invalid request error type
+Fix it by requesting PCI ACS when Intel IOMMU is detected with platform
+opt in hint.
 
-v2:
-  - fix a few checkpatch --strict indentation warnings
-
-Fixes: ea6a547669b3 ("selftests/net: make so_txtime more robust to timer variance")
-Signed-off-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 89a6079df791a ("iommu/vt-d: Force IOMMU on for platform opt in hint")
+Co-developed-by: Lalithambika Krishnakumar <lalithambika.krishnakumar@intel.com>
+Signed-off-by: Lalithambika Krishnakumar <lalithambika.krishnakumar@intel.com>
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Ashok Raj <ashok.raj@intel.com>
+Link: https://lore.kernel.org/r/20200622231345.29722-5-baolu.lu@linux.intel.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/so_txtime.c | 33 +++++++++++++++++++------
- 1 file changed, 26 insertions(+), 7 deletions(-)
+ drivers/iommu/dmar.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/net/so_txtime.c b/tools/testing/selftests/net/so_txtime.c
-index 383bac05ac324..ceaad78e96674 100644
---- a/tools/testing/selftests/net/so_txtime.c
-+++ b/tools/testing/selftests/net/so_txtime.c
-@@ -15,8 +15,9 @@
- #include <inttypes.h>
- #include <linux/net_tstamp.h>
- #include <linux/errqueue.h>
-+#include <linux/if_ether.h>
- #include <linux/ipv6.h>
--#include <linux/tcp.h>
-+#include <linux/udp.h>
- #include <stdbool.h>
- #include <stdlib.h>
- #include <stdio.h>
-@@ -140,8 +141,8 @@ static void do_recv_errqueue_timeout(int fdt)
- {
- 	char control[CMSG_SPACE(sizeof(struct sock_extended_err)) +
- 		     CMSG_SPACE(sizeof(struct sockaddr_in6))] = {0};
--	char data[sizeof(struct ipv6hdr) +
--		  sizeof(struct tcphdr) + 1];
-+	char data[sizeof(struct ethhdr) + sizeof(struct ipv6hdr) +
-+		  sizeof(struct udphdr) + 1];
- 	struct sock_extended_err *err;
- 	struct msghdr msg = {0};
- 	struct iovec iov = {0};
-@@ -159,6 +160,8 @@ static void do_recv_errqueue_timeout(int fdt)
- 	msg.msg_controllen = sizeof(control);
- 
- 	while (1) {
-+		const char *reason;
-+
- 		ret = recvmsg(fdt, &msg, MSG_ERRQUEUE);
- 		if (ret == -1 && errno == EAGAIN)
- 			break;
-@@ -176,14 +179,30 @@ static void do_recv_errqueue_timeout(int fdt)
- 		err = (struct sock_extended_err *)CMSG_DATA(cm);
- 		if (err->ee_origin != SO_EE_ORIGIN_TXTIME)
- 			error(1, 0, "errqueue: origin 0x%x\n", err->ee_origin);
--		if (err->ee_code != ECANCELED)
--			error(1, 0, "errqueue: code 0x%x\n", err->ee_code);
-+
-+		switch (err->ee_errno) {
-+		case ECANCELED:
-+			if (err->ee_code != SO_EE_CODE_TXTIME_MISSED)
-+				error(1, 0, "errqueue: unknown ECANCELED %u\n",
-+				      err->ee_code);
-+			reason = "missed txtime";
-+		break;
-+		case EINVAL:
-+			if (err->ee_code != SO_EE_CODE_TXTIME_INVALID_PARAM)
-+				error(1, 0, "errqueue: unknown EINVAL %u\n",
-+				      err->ee_code);
-+			reason = "invalid txtime";
-+		break;
-+		default:
-+			error(1, 0, "errqueue: errno %u code %u\n",
-+			      err->ee_errno, err->ee_code);
-+		};
- 
- 		tstamp = ((int64_t) err->ee_data) << 32 | err->ee_info;
- 		tstamp -= (int64_t) glob_tstart;
- 		tstamp /= 1000 * 1000;
--		fprintf(stderr, "send: pkt %c at %" PRId64 "ms dropped\n",
--				data[ret - 1], tstamp);
-+		fprintf(stderr, "send: pkt %c at %" PRId64 "ms dropped: %s\n",
-+			data[ret - 1], tstamp, reason);
- 
- 		msg.msg_flags = 0;
- 		msg.msg_controllen = sizeof(control);
+diff --git a/drivers/iommu/dmar.c b/drivers/iommu/dmar.c
+index 9e393b9c50911..30ac0ba55864e 100644
+--- a/drivers/iommu/dmar.c
++++ b/drivers/iommu/dmar.c
+@@ -898,7 +898,8 @@ int __init detect_intel_iommu(void)
+ 	if (!ret)
+ 		ret = dmar_walk_dmar_table((struct acpi_table_dmar *)dmar_tbl,
+ 					   &validate_drhd_cb);
+-	if (!ret && !no_iommu && !iommu_detected && !dmar_disabled) {
++	if (!ret && !no_iommu && !iommu_detected &&
++	    (!dmar_disabled || dmar_platform_optin())) {
+ 		iommu_detected = 1;
+ 		/* Make sure ACS will be enabled */
+ 		pci_request_acs();
 -- 
 2.25.1
 
