@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C38320DDF1
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:51:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED08C20DF05
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:54:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732274AbgF2UU4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:20:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37064 "EHLO mail.kernel.org"
+        id S1727020AbgF2Ubm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:31:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732593AbgF2TZe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:25:34 -0400
+        id S1732478AbgF2TZT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:25:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B8B79253B8;
-        Mon, 29 Jun 2020 15:41:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1BC5A25338;
+        Mon, 29 Jun 2020 15:39:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445281;
-        bh=zs1Fsnj+WxD8z7ioOPR4f0U8x/ABY56oKNjP/7rKsb4=;
+        s=default; t=1593445176;
+        bh=XA8c/YKNnoLzIpc+A11UhJ5iPVJSkMrrN+7KmSXM/cg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wxCPljBJ2ti76E5v3ec5F6w0Vb7ZEizRqqWVTlWyfGnPDAnbgCZ9sqXB9VIUcIuts
-         ccTcYlXdzBay5l8jnnLq5GEiCXEBEzdk3SEcrgr+95g6pWK8zlr/Bp0hX6fJPwfkIG
-         UBNLsrmoGhjpCHk3EKOOZNCgNOcQh2BHlM0gNCo8=
+        b=YBjK48I9shgvBXj4bQNCdIB+yOk17JZfR4YELgF5khtZqGyhUcG9qsxPEdb8Q0gxk
+         tB0sHI0SNNpZtBD/Qngt5qFJwmuWzdQNP5YPmiTiqEaQx3a9k33gJGfc7owRYgVOzR
+         i23L7e6SBXr46pJt0/vjDQmMi5ikbHSZycTqhHxM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Fedor Tokarev <ftokarev@gmail.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 060/191] net: sunrpc: Fix off-by-one issues in 'rpc_ntop6'
+Cc:     Jiping Ma <jiping.ma2@windriver.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 4.14 68/78] arm64: perf: Report the PC value in REGS_ABI_32 mode
 Date:   Mon, 29 Jun 2020 11:37:56 -0400
-Message-Id: <20200629154007.2495120-61-sashal@kernel.org>
+Message-Id: <20200629153806.2494953-69-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
-References: <20200629154007.2495120-1-sashal@kernel.org>
+In-Reply-To: <20200629153806.2494953-1-sashal@kernel.org>
+References: <20200629153806.2494953-1-sashal@kernel.org>
 MIME-Version: 1.0
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.229-rc1.gz
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.186-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.9.y
+X-KernelTest-Branch: linux-4.14.y
 X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.9.229-rc1
-X-KernelTest-Deadline: 2020-07-01T15:39+00:00
+X-KernelTest-Version: 4.14.186-rc1
+X-KernelTest-Deadline: 2020-07-01T15:38+00:00
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -49,43 +50,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fedor Tokarev <ftokarev@gmail.com>
+From: Jiping Ma <jiping.ma2@windriver.com>
 
-[ Upstream commit 118917d696dc59fd3e1741012c2f9db2294bed6f ]
+commit 8dfe804a4031ca6ba3a3efb2048534249b64f3a5 upstream.
 
-Fix off-by-one issues in 'rpc_ntop6':
- - 'snprintf' returns the number of characters which would have been
-   written if enough space had been available, excluding the terminating
-   null byte. Thus, a return value of 'sizeof(scopebuf)' means that the
-   last character was dropped.
- - 'strcat' adds a terminating null byte to the string, thus if len ==
-   buflen, the null byte is written past the end of the buffer.
+A 32-bit perf querying the registers of a compat task using REGS_ABI_32
+will receive zeroes from w15, when it expects to find the PC.
 
-Signed-off-by: Fedor Tokarev <ftokarev@gmail.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Return the PC value for register dwarf register 15 when returning register
+values for a compat task to perf.
+
+Cc: <stable@vger.kernel.org>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Jiping Ma <jiping.ma2@windriver.com>
+Link: https://lore.kernel.org/r/1589165527-188401-1-git-send-email-jiping.ma2@windriver.com
+[will: Shuffled code and added a comment]
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sunrpc/addr.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/kernel/perf_regs.c | 25 ++++++++++++++++++++++---
+ 1 file changed, 22 insertions(+), 3 deletions(-)
 
-diff --git a/net/sunrpc/addr.c b/net/sunrpc/addr.c
-index 2e0a6f92e563d..8391c27855501 100644
---- a/net/sunrpc/addr.c
-+++ b/net/sunrpc/addr.c
-@@ -81,11 +81,11 @@ static size_t rpc_ntop6(const struct sockaddr *sap,
- 
- 	rc = snprintf(scopebuf, sizeof(scopebuf), "%c%u",
- 			IPV6_SCOPE_DELIMITER, sin6->sin6_scope_id);
--	if (unlikely((size_t)rc > sizeof(scopebuf)))
-+	if (unlikely((size_t)rc >= sizeof(scopebuf)))
+diff --git a/arch/arm64/kernel/perf_regs.c b/arch/arm64/kernel/perf_regs.c
+index 1d091d048d046..0819db91ca947 100644
+--- a/arch/arm64/kernel/perf_regs.c
++++ b/arch/arm64/kernel/perf_regs.c
+@@ -15,15 +15,34 @@ u64 perf_reg_value(struct pt_regs *regs, int idx)
  		return 0;
  
- 	len += rc;
--	if (unlikely(len > buflen))
-+	if (unlikely(len >= buflen))
- 		return 0;
+ 	/*
+-	 * Compat (i.e. 32 bit) mode:
+-	 * - PC has been set in the pt_regs struct in kernel_entry,
+-	 * - Handle SP and LR here.
++	 * Our handling of compat tasks (PERF_SAMPLE_REGS_ABI_32) is weird, but
++	 * we're stuck with it for ABI compatability reasons.
++	 *
++	 * For a 32-bit consumer inspecting a 32-bit task, then it will look at
++	 * the first 16 registers (see arch/arm/include/uapi/asm/perf_regs.h).
++	 * These correspond directly to a prefix of the registers saved in our
++	 * 'struct pt_regs', with the exception of the PC, so we copy that down
++	 * (x15 corresponds to SP_hyp in the architecture).
++	 *
++	 * So far, so good.
++	 *
++	 * The oddity arises when a 64-bit consumer looks at a 32-bit task and
++	 * asks for registers beyond PERF_REG_ARM_MAX. In this case, we return
++	 * SP_usr, LR_usr and PC in the positions where the AArch64 SP, LR and
++	 * PC registers would normally live. The initial idea was to allow a
++	 * 64-bit unwinder to unwind a 32-bit task and, although it's not clear
++	 * how well that works in practice, somebody might be relying on it.
++	 *
++	 * At the time we make a sample, we don't know whether the consumer is
++	 * 32-bit or 64-bit, so we have to cater for both possibilities.
+ 	 */
+ 	if (compat_user_mode(regs)) {
+ 		if ((u32)idx == PERF_REG_ARM64_SP)
+ 			return regs->compat_sp;
+ 		if ((u32)idx == PERF_REG_ARM64_LR)
+ 			return regs->compat_lr;
++		if (idx == 15)
++			return regs->pc;
+ 	}
  
- 	strcat(buf, scopebuf);
+ 	if ((u32)idx == PERF_REG_ARM64_SP)
 -- 
 2.25.1
 
