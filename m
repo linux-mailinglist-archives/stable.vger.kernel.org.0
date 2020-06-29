@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0426B20E821
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:12:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 680E420E725
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:10:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391478AbgF2WDa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 18:03:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56764 "EHLO mail.kernel.org"
+        id S2404436AbgF2VyL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:54:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726192AbgF2SfW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:35:22 -0400
+        id S1726590AbgF2Sfd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:35:33 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D48F246DB;
+        by mail.kernel.org (Postfix) with ESMTPSA id 0094C246D0;
         Mon, 29 Jun 2020 15:20:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444022;
-        bh=Z1QEs3Oj9n1CWnpZuG8UpDqDYz8a9LXYk7Syj9bwlK8=;
+        s=default; t=1593444023;
+        bh=7GUbe3H6bGsgLR7A+WgWytyJG14XwkQ1TsxdR+n07kk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zf8JybDWet7RS2N7RRFn/Q3cmQ90g9kwZ9WoAe1sWK/zpmfEJvrkyDigGeD1ypc2h
-         JWHHN4ZgfU4suNRtKYcQ9z/Otdc1Fx3zUUV7EHDoLpII4ZkWJhgul60m4KdSByoxxM
-         L5kg6Ug0HvjU3I1Du+Bt8oxHtj6njhN2o7wrAP9U=
+        b=ZWT9pIsc+kSKgJB5WNlp+Fw0diRhYu1UlhNe0HRIIF0rtTWNt1ivdDesw7DRIejVB
+         tXvvzOwTI1QO0bEhSyRyFQWBwOgprjlRnwJa0DH0clatIWwCDvnsg5AhXIXp37QhHC
+         9RclHrl1PV8Fh8xvzez05rX+kba658vxYK2fgKWc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Matthew Hagan <mnhagan88@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+Cc:     David Howells <dhowells@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 129/265] ARM: dts: NSP: Correct FA2 mailbox node
-Date:   Mon, 29 Jun 2020 11:16:02 -0400
-Message-Id: <20200629151818.2493727-130-sashal@kernel.org>
+Subject: [PATCH 5.7 130/265] rxrpc: Fix handling of rwind from an ACK packet
+Date:   Mon, 29 Jun 2020 11:16:03 -0400
+Message-Id: <20200629151818.2493727-131-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -49,40 +48,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Hagan <mnhagan88@gmail.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit ac4e106d8934a5894811fc263f4b03fc8ed0fb7a ]
+[ Upstream commit a2ad7c21ad8cf1ce4ad65e13df1c2a1c29b38ac5 ]
 
-The FA2 mailbox is specified at 0x18025000 but should actually be
-0x18025c00, length 0x400 according to socregs_nsp.h and board_bu.c. Also
-the interrupt was off by one and should be GIC SPI 151 instead of 150.
+The handling of the receive window size (rwind) from a received ACK packet
+is not correct.  The rxrpc_input_ackinfo() function currently checks the
+current Tx window size against the rwind from the ACK to see if it has
+changed, but then limits the rwind size before storing it in the tx_winsize
+member and, if it increased, wake up the transmitting process.  This means
+that if rwind > RXRPC_RXTX_BUFF_SIZE - 1, this path will always be
+followed.
 
-Fixes: 17d517172300 ("ARM: dts: NSP: Add mailbox (PDC) to NSP")
-Signed-off-by: Matthew Hagan <mnhagan88@gmail.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Fix this by limiting rwind before we compare it to tx_winsize.
+
+The effect of this can be seen by enabling the rxrpc_rx_rwind_change
+tracepoint.
+
+Fixes: 702f2ac87a9a ("rxrpc: Wake up the transmitter if Rx window size increases on the peer")
+Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/bcm-nsp.dtsi | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/rxrpc/input.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/boot/dts/bcm-nsp.dtsi b/arch/arm/boot/dts/bcm-nsp.dtsi
-index 920c0f561e5ce..3175266ede646 100644
---- a/arch/arm/boot/dts/bcm-nsp.dtsi
-+++ b/arch/arm/boot/dts/bcm-nsp.dtsi
-@@ -259,10 +259,10 @@
- 			status = "disabled";
- 		};
+diff --git a/net/rxrpc/input.c b/net/rxrpc/input.c
+index 3be4177baf707..22dec6049e1bb 100644
+--- a/net/rxrpc/input.c
++++ b/net/rxrpc/input.c
+@@ -723,13 +723,12 @@ static void rxrpc_input_ackinfo(struct rxrpc_call *call, struct sk_buff *skb,
+ 	       ntohl(ackinfo->rxMTU), ntohl(ackinfo->maxMTU),
+ 	       rwind, ntohl(ackinfo->jumbo_max));
  
--		mailbox: mailbox@25000 {
-+		mailbox: mailbox@25c00 {
- 			compatible = "brcm,iproc-fa2-mbox";
--			reg = <0x25000 0x445>;
--			interrupts = <GIC_SPI 150 IRQ_TYPE_LEVEL_HIGH>;
-+			reg = <0x25c00 0x400>;
-+			interrupts = <GIC_SPI 151 IRQ_TYPE_LEVEL_HIGH>;
- 			#mbox-cells = <1>;
- 			brcm,rx-status-len = <32>;
- 			brcm,use-bcm-hdr;
++	if (rwind > RXRPC_RXTX_BUFF_SIZE - 1)
++		rwind = RXRPC_RXTX_BUFF_SIZE - 1;
+ 	if (call->tx_winsize != rwind) {
+-		if (rwind > RXRPC_RXTX_BUFF_SIZE - 1)
+-			rwind = RXRPC_RXTX_BUFF_SIZE - 1;
+ 		if (rwind > call->tx_winsize)
+ 			wake = true;
+-		trace_rxrpc_rx_rwind_change(call, sp->hdr.serial,
+-					    ntohl(ackinfo->rwind), wake);
++		trace_rxrpc_rx_rwind_change(call, sp->hdr.serial, rwind, wake);
+ 		call->tx_winsize = rwind;
+ 	}
+ 
 -- 
 2.25.1
 
