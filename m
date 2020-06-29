@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B6D720E75D
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:10:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 375A120E703
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:10:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388632AbgF2V4q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:56:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56904 "EHLO mail.kernel.org"
+        id S2403763AbgF2Vwz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:52:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726516AbgF2Sfa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:35:30 -0400
+        id S1726641AbgF2Sfj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:35:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5CC2D246F7;
-        Mon, 29 Jun 2020 15:20:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B17B246F8;
+        Mon, 29 Jun 2020 15:20:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444039;
-        bh=bLRl2rLPMhp83306SUIditzCcdXltvjcG8ReAqiFQ6g=;
+        s=default; t=1593444040;
+        bh=LoVIHkXo/f1i0Yzxzmm7UVOq2WlhqMhxCMJ6m/utMNQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z+eegtsCompvnv+dB1mCiMa0hUZmeY5IQK8Zs6o65t/Ing6yiWOAi6GoENy7WeX9D
-         LaCifcoDeinUnEDeRAsvuCUqMjzLTl0FN9A1/10o/xy1+vj6J7ebA+2JZ9vxqgIP9S
-         2kGf+gTSBCWxE/fufMlnu61/awYEunkeqI5dH0Do=
+        b=BmIOEF9Nbj+iWj0nCmZBq70LFii2azKhG8j1j1h7Io/t+eJfC8nf7CHe8qEwKVk8a
+         vbTXctfRj7TfLAHyymA5zhyNoMwzaXh7yItBs2JLK79lW/6ILz5x9AN9RNQNDLlcr8
+         Ic0pn4oi1gAJSjkO7itEPJsgI506meVfPeM0d+FU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Rientjes <rientjes@google.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 146/265] dma-direct: add missing set_memory_decrypted() for coherent mapping
-Date:   Mon, 29 Jun 2020 11:16:19 -0400
-Message-Id: <20200629151818.2493727-147-sashal@kernel.org>
+Cc:     Alexander Lobakin <alobakin@marvell.com>,
+        Igor Russkikh <irusskikh@marvell.com>,
+        Michal Kalderon <michal.kalderon@marvell.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 147/265] net: qed: fix left elements count calculation
+Date:   Mon, 29 Jun 2020 11:16:20 -0400
+Message-Id: <20200629151818.2493727-148-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -48,38 +51,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Rientjes <rientjes@google.com>
+From: Alexander Lobakin <alobakin@marvell.com>
 
-[ Upstream commit 1a2b3357e860d890f8045367b179c7e7e802cd71 ]
+[ Upstream commit 97dd1abd026ae4e6a82fa68645928404ad483409 ]
 
-When a coherent mapping is created in dma_direct_alloc_pages(), it needs
-to be decrypted if the device requires unencrypted DMA before returning.
+qed_chain_get_element_left{,_u32} returned 0 when the difference
+between producer and consumer page count was equal to the total
+page count.
+Fix this by conditional expanding of producer value (vs
+unconditional). This allowed to eliminate normalizaton against
+total page count, which was the cause of this bug.
 
-Fixes: 3acac065508f ("dma-mapping: merge the generic remapping helpers into dma-direct")
-Signed-off-by: David Rientjes <rientjes@google.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Misc: replace open-coded constants with common defines.
+
+Fixes: a91eb52abb50 ("qed: Revisit chain implementation")
+Signed-off-by: Alexander Lobakin <alobakin@marvell.com>
+Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
+Signed-off-by: Michal Kalderon <michal.kalderon@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/dma/direct.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ include/linux/qed/qed_chain.h | 26 ++++++++++++++++----------
+ 1 file changed, 16 insertions(+), 10 deletions(-)
 
-diff --git a/kernel/dma/direct.c b/kernel/dma/direct.c
-index 98c445dcb308b..2270930f36f83 100644
---- a/kernel/dma/direct.c
-+++ b/kernel/dma/direct.c
-@@ -161,6 +161,12 @@ void *dma_direct_alloc_pages(struct device *dev, size_t size,
- 				__builtin_return_address(0));
- 		if (!ret)
- 			goto out_free_pages;
-+		if (force_dma_unencrypted(dev)) {
-+			err = set_memory_decrypted((unsigned long)ret,
-+						   1 << get_order(size));
-+			if (err)
-+				goto out_free_pages;
-+		}
- 		memset(ret, 0, size);
- 		goto done;
- 	}
+diff --git a/include/linux/qed/qed_chain.h b/include/linux/qed/qed_chain.h
+index 733fad7dfbed9..6d15040c642cb 100644
+--- a/include/linux/qed/qed_chain.h
++++ b/include/linux/qed/qed_chain.h
+@@ -207,28 +207,34 @@ static inline u32 qed_chain_get_cons_idx_u32(struct qed_chain *p_chain)
+ 
+ static inline u16 qed_chain_get_elem_left(struct qed_chain *p_chain)
+ {
++	u16 elem_per_page = p_chain->elem_per_page;
++	u32 prod = p_chain->u.chain16.prod_idx;
++	u32 cons = p_chain->u.chain16.cons_idx;
+ 	u16 used;
+ 
+-	used = (u16) (((u32)0x10000 +
+-		       (u32)p_chain->u.chain16.prod_idx) -
+-		      (u32)p_chain->u.chain16.cons_idx);
++	if (prod < cons)
++		prod += (u32)U16_MAX + 1;
++
++	used = (u16)(prod - cons);
+ 	if (p_chain->mode == QED_CHAIN_MODE_NEXT_PTR)
+-		used -= p_chain->u.chain16.prod_idx / p_chain->elem_per_page -
+-		    p_chain->u.chain16.cons_idx / p_chain->elem_per_page;
++		used -= prod / elem_per_page - cons / elem_per_page;
+ 
+ 	return (u16)(p_chain->capacity - used);
+ }
+ 
+ static inline u32 qed_chain_get_elem_left_u32(struct qed_chain *p_chain)
+ {
++	u16 elem_per_page = p_chain->elem_per_page;
++	u64 prod = p_chain->u.chain32.prod_idx;
++	u64 cons = p_chain->u.chain32.cons_idx;
+ 	u32 used;
+ 
+-	used = (u32) (((u64)0x100000000ULL +
+-		       (u64)p_chain->u.chain32.prod_idx) -
+-		      (u64)p_chain->u.chain32.cons_idx);
++	if (prod < cons)
++		prod += (u64)U32_MAX + 1;
++
++	used = (u32)(prod - cons);
+ 	if (p_chain->mode == QED_CHAIN_MODE_NEXT_PTR)
+-		used -= p_chain->u.chain32.prod_idx / p_chain->elem_per_page -
+-		    p_chain->u.chain32.cons_idx / p_chain->elem_per_page;
++		used -= (u32)(prod / elem_per_page - cons / elem_per_page);
+ 
+ 	return p_chain->capacity - used;
+ }
 -- 
 2.25.1
 
