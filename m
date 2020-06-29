@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDA6D20E854
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:12:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF0BE20E856
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:12:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404739AbgF2WFt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 18:05:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56794 "EHLO mail.kernel.org"
+        id S1732564AbgF2WGD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 18:06:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726148AbgF2SfT (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726145AbgF2SfT (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 29 Jun 2020 14:35:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C5AF24757;
+        by mail.kernel.org (Postfix) with ESMTPSA id 113D724755;
         Mon, 29 Jun 2020 15:21:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444072;
-        bh=ez/Xza8UAdQdL+cOs3YfVkwIynKjFgX2omR/0GaZb1Y=;
+        s=default; t=1593444073;
+        bh=rddvpDfFVekss7/Pg3s+lxXRzrKvxWRTL8sw+yvTBNE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AUWMbIW/UDbfVVPtABk1o0h2ntRkuehxdxEs+2ao8/uOlGI8BC2vEt8Tr8WTCTdk1
-         lw+/llLhLVRWKc7gVGZZWj6heq0Wy9Q8NMH+JhOO3ts7ZgIamvZMNMGL0kg8WDXbye
-         JaXZv32ZEoYfkHKyb9xvaL5cxqe+6rjJMHZ/zOXg=
+        b=HPq7tQrKCGW5yJxmBMB1C6Qy3oDphoP7efwrKigsqu/Q80VdUW8bwTy/8qz4HLaJ6
+         /DStQaXbwRFUi1hyyqfdYC2p9FHrFelCdUEZ2p9832so7GUupQiM6D02jndZS3yd7X
+         A4WH/qwHrQ4zvOMDy9diT7R4DNcaqZ6NkXsjpxhU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vincent Guittot <vincent.guittot@linaro.org>,
-        kernel test robot <rong.a.chen@intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 181/265] sched/cfs: change initial value of runnable_avg
-Date:   Mon, 29 Jun 2020 11:16:54 -0400
-Message-Id: <20200629151818.2493727-182-sashal@kernel.org>
+Cc:     Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 182/265] sata_rcar: handle pm_runtime_get_sync failure cases
+Date:   Mon, 29 Jun 2020 11:16:55 -0400
+Message-Id: <20200629151818.2493727-183-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -50,44 +48,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Guittot <vincent.guittot@linaro.org>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit e21cf43406a190adfcc4bfe592768066fb3aaa9b ]
+[ Upstream commit eea1238867205b9e48a67c1a63219529a73c46fd ]
 
-Some performance regression on reaim benchmark have been raised with
-  commit 070f5e860ee2 ("sched/fair: Take into account runnable_avg to classify group")
+Calling pm_runtime_get_sync increments the counter even in case of
+failure, causing incorrect ref count. Call pm_runtime_put if
+pm_runtime_get_sync fails.
 
-The problem comes from the init value of runnable_avg which is initialized
-with max value. This can be a problem if the newly forked task is finally
-a short task because the group of CPUs is wrongly set to overloaded and
-tasks are pulled less agressively.
-
-Set initial value of runnable_avg equals to util_avg to reflect that there
-is no waiting time so far.
-
-Fixes: 070f5e860ee2 ("sched/fair: Take into account runnable_avg to classify group")
-Reported-by: kernel test robot <rong.a.chen@intel.com>
-Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20200624154422.29166-1-vincent.guittot@linaro.org
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/ata/sata_rcar.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 2ae7e30ccb33c..5725199b32dcf 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -807,7 +807,7 @@ void post_init_entity_util_avg(struct task_struct *p)
- 		}
- 	}
+diff --git a/drivers/ata/sata_rcar.c b/drivers/ata/sata_rcar.c
+index 980aacdbcf3b4..141ac600b64c8 100644
+--- a/drivers/ata/sata_rcar.c
++++ b/drivers/ata/sata_rcar.c
+@@ -907,7 +907,7 @@ static int sata_rcar_probe(struct platform_device *pdev)
+ 	pm_runtime_enable(dev);
+ 	ret = pm_runtime_get_sync(dev);
+ 	if (ret < 0)
+-		goto err_pm_disable;
++		goto err_pm_put;
  
--	sa->runnable_avg = cpu_scale;
-+	sa->runnable_avg = sa->util_avg;
+ 	host = ata_host_alloc(dev, 1);
+ 	if (!host) {
+@@ -937,7 +937,6 @@ static int sata_rcar_probe(struct platform_device *pdev)
  
- 	if (p->sched_class != &fair_sched_class) {
- 		/*
+ err_pm_put:
+ 	pm_runtime_put(dev);
+-err_pm_disable:
+ 	pm_runtime_disable(dev);
+ 	return ret;
+ }
+@@ -991,8 +990,10 @@ static int sata_rcar_resume(struct device *dev)
+ 	int ret;
+ 
+ 	ret = pm_runtime_get_sync(dev);
+-	if (ret < 0)
++	if (ret < 0) {
++		pm_runtime_put(dev);
+ 		return ret;
++	}
+ 
+ 	if (priv->type == RCAR_GEN3_SATA) {
+ 		sata_rcar_init_module(priv);
+@@ -1017,8 +1018,10 @@ static int sata_rcar_restore(struct device *dev)
+ 	int ret;
+ 
+ 	ret = pm_runtime_get_sync(dev);
+-	if (ret < 0)
++	if (ret < 0) {
++		pm_runtime_put(dev);
+ 		return ret;
++	}
+ 
+ 	sata_rcar_setup_port(host);
+ 
 -- 
 2.25.1
 
