@@ -2,39 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0B4920DC74
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:17:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09F2320DBE9
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:16:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730341AbgF2UPP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:15:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40572 "EHLO mail.kernel.org"
+        id S1729178AbgF2UKf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:10:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732827AbgF2TaR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:30:17 -0400
+        id S1732909AbgF2TaW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:30:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E3B02527D;
-        Mon, 29 Jun 2020 15:36:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56A272527C;
+        Mon, 29 Jun 2020 15:36:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1593444990;
-        bh=A/iejyMXASVuRe9IDxE5ScubzxcWtQAlOBvnIvtXnDo=;
+        bh=W1eadARlGahJjOg5KrWyJCvs5DwkTNwLFWf11lo/REc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j6ziL9k0XTfFaUigGr6gNf4GkV3D6BAQvLVE2fYSiMlT5M7hMnWla6e37ecBIdFEU
-         mnzpYpEENHz8Mm6GcVoEbMDTRhE67snfjDPUJDi7mJwF1y3AQrCuTQJGK9koFIXHpi
-         fpUtvCuXPnHaMgcqg+HhjFFUPGNiffM5bM7pMNJg=
+        b=cOnpUs+wwNlp6tw6UyaQHLk52QxsMVOCIVVqQTZzT7n6f5LQcCH/2wD2fpvGh9pm6
+         Uzn9pnMIaO5A8cmVXdm3+IrkX0myLRoJTFukimQ4KRqaCzMEhTPuUDe/LuBHkqjhNW
+         4WZfqZ+YiNQBqxCI5c8Y07xtE/+9N50otBEusY9w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Juri Lelli <juri.lelli@redhat.com>,
-        syzbot+119ba87189432ead09b4@syzkaller.appspotmail.com,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        Daniel Wagner <dwagner@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 089/131] sched/core: Fix PI boosting between RT and DEADLINE tasks
-Date:   Mon, 29 Jun 2020 11:34:20 -0400
-Message-Id: <20200629153502.2494656-90-sashal@kernel.org>
+Cc:     Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 090/131] sata_rcar: handle pm_runtime_get_sync failure cases
+Date:   Mon, 29 Jun 2020 11:34:21 -0400
+Message-Id: <20200629153502.2494656-91-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629153502.2494656-1-sashal@kernel.org>
 References: <20200629153502.2494656-1-sashal@kernel.org>
@@ -53,73 +48,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juri Lelli <juri.lelli@redhat.com>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit 740797ce3a124b7dd22b7fb832d87bc8fba1cf6f ]
+[ Upstream commit eea1238867205b9e48a67c1a63219529a73c46fd ]
 
-syzbot reported the following warning:
+Calling pm_runtime_get_sync increments the counter even in case of
+failure, causing incorrect ref count. Call pm_runtime_put if
+pm_runtime_get_sync fails.
 
- WARNING: CPU: 1 PID: 6351 at kernel/sched/deadline.c:628
- enqueue_task_dl+0x22da/0x38a0 kernel/sched/deadline.c:1504
-
-At deadline.c:628 we have:
-
- 623 static inline void setup_new_dl_entity(struct sched_dl_entity *dl_se)
- 624 {
- 625 	struct dl_rq *dl_rq = dl_rq_of_se(dl_se);
- 626 	struct rq *rq = rq_of_dl_rq(dl_rq);
- 627
- 628 	WARN_ON(dl_se->dl_boosted);
- 629 	WARN_ON(dl_time_before(rq_clock(rq), dl_se->deadline));
-        [...]
-     }
-
-Which means that setup_new_dl_entity() has been called on a task
-currently boosted. This shouldn't happen though, as setup_new_dl_entity()
-is only called when the 'dynamic' deadline of the new entity
-is in the past w.r.t. rq_clock and boosted tasks shouldn't verify this
-condition.
-
-Digging through the PI code I noticed that what above might in fact happen
-if an RT tasks blocks on an rt_mutex hold by a DEADLINE task. In the
-first branch of boosting conditions we check only if a pi_task 'dynamic'
-deadline is earlier than mutex holder's and in this case we set mutex
-holder to be dl_boosted. However, since RT 'dynamic' deadlines are only
-initialized if such tasks get boosted at some point (or if they become
-DEADLINE of course), in general RT 'dynamic' deadlines are usually equal
-to 0 and this verifies the aforementioned condition.
-
-Fix it by checking that the potential donor task is actually (even if
-temporary because in turn boosted) running at DEADLINE priority before
-using its 'dynamic' deadline value.
-
-Fixes: 2d3d891d3344 ("sched/deadline: Add SCHED_DEADLINE inheritance logic")
-Reported-by: syzbot+119ba87189432ead09b4@syzkaller.appspotmail.com
-Signed-off-by: Juri Lelli <juri.lelli@redhat.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Reviewed-by: Daniel Bristot de Oliveira <bristot@redhat.com>
-Tested-by: Daniel Wagner <dwagner@suse.de>
-Link: https://lkml.kernel.org/r/20181119153201.GB2119@localhost.localdomain
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/ata/sata_rcar.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 0325ccf3a8e45..843394d0ea426 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -3862,7 +3862,8 @@ void rt_mutex_setprio(struct task_struct *p, struct task_struct *pi_task)
- 	 */
- 	if (dl_prio(prio)) {
- 		if (!dl_prio(p->normal_prio) ||
--		    (pi_task && dl_entity_preempt(&pi_task->dl, &p->dl))) {
-+		    (pi_task && dl_prio(pi_task->prio) &&
-+		     dl_entity_preempt(&pi_task->dl, &p->dl))) {
- 			p->dl.dl_boosted = 1;
- 			queue_flag |= ENQUEUE_REPLENISH;
- 		} else
+diff --git a/drivers/ata/sata_rcar.c b/drivers/ata/sata_rcar.c
+index 03867f539f3a8..50ebd779d975f 100644
+--- a/drivers/ata/sata_rcar.c
++++ b/drivers/ata/sata_rcar.c
+@@ -909,7 +909,7 @@ static int sata_rcar_probe(struct platform_device *pdev)
+ 	pm_runtime_enable(dev);
+ 	ret = pm_runtime_get_sync(dev);
+ 	if (ret < 0)
+-		goto err_pm_disable;
++		goto err_pm_put;
+ 
+ 	host = ata_host_alloc(dev, 1);
+ 	if (!host) {
+@@ -940,7 +940,6 @@ static int sata_rcar_probe(struct platform_device *pdev)
+ 
+ err_pm_put:
+ 	pm_runtime_put(dev);
+-err_pm_disable:
+ 	pm_runtime_disable(dev);
+ 	return ret;
+ }
+@@ -994,8 +993,10 @@ static int sata_rcar_resume(struct device *dev)
+ 	int ret;
+ 
+ 	ret = pm_runtime_get_sync(dev);
+-	if (ret < 0)
++	if (ret < 0) {
++		pm_runtime_put(dev);
+ 		return ret;
++	}
+ 
+ 	if (priv->type == RCAR_GEN3_SATA) {
+ 		sata_rcar_init_module(priv);
+@@ -1020,8 +1021,10 @@ static int sata_rcar_restore(struct device *dev)
+ 	int ret;
+ 
+ 	ret = pm_runtime_get_sync(dev);
+-	if (ret < 0)
++	if (ret < 0) {
++		pm_runtime_put(dev);
+ 		return ret;
++	}
+ 
+ 	sata_rcar_setup_port(host);
+ 
 -- 
 2.25.1
 
