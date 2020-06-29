@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31CAD20E7DA
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:11:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4BAF20E805
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:12:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391770AbgF2WA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 18:00:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56908 "EHLO mail.kernel.org"
+        id S2389984AbgF2WCu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 18:02:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726254AbgF2SfY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:35:24 -0400
+        id S1726244AbgF2SfX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:35:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2DD1D24767;
-        Mon, 29 Jun 2020 15:21:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2517A24769;
+        Mon, 29 Jun 2020 15:21:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444082;
-        bh=hlJzryK0YI2B6UOeX5mG0dMrQH8hcdUBIULXt+JZ1TY=;
+        s=default; t=1593444083;
+        bh=qa3ui2/kDGMV+cg74CBa2bCjyT0eCU4DDQlNS1iEZY0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G6D9CSuK+VxW2IVD9yoroYnNt+6RNQ6VI/363tkquQikrwrD9AdBtuM7VHyf0wL7i
-         nD9oB8mZ88BqRkyAakKGiUJFZn5mfGtNmoVoZwrZRy1+0JYefCDyEpn33vLN+CQ5RG
-         esu2LGL/DWS9nXAafsr8Y8LMvYrYbRjr1I0JU8L0=
+        b=xc4DIldNNt9tT+ej7s+3Nts8Y2SiZgN4+6UX6L953SCl9htu6aCgx9TpczQYUKs9x
+         tNyGzK0RM1nDqgqf6nVF4bnuRsbiO7ErmMUaVB5g+U57cSyUgFSB5oaEKsmUEgbjQc
+         T5lFSgK0A+Yf0XAiIr6aiCX9I4EKnLOdXS95BYz0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+Cc:     Vidya Sagar <vidyas@nvidia.com>,
+        Dmitry Osipenko <digetx@gmail.com>,
         Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 192/265] pinctrl: qcom: spmi-gpio: fix warning about irq chip reusage
-Date:   Mon, 29 Jun 2020 11:17:05 -0400
-Message-Id: <20200629151818.2493727-193-sashal@kernel.org>
+Subject: [PATCH 5.7 193/265] pinctrl: tegra: Use noirq suspend/resume callbacks
+Date:   Mon, 29 Jun 2020 11:17:06 -0400
+Message-Id: <20200629151818.2493727-194-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -50,74 +50,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Vidya Sagar <vidyas@nvidia.com>
 
-[ Upstream commit 5e50311556c9f409a85740e3cb4c4511e7e27da0 ]
+[ Upstream commit 782b6b69847f34dda330530493ea62b7de3fd06a ]
 
-Fix the following warnings caused by reusage of the same irq_chip
-instance for all spmi-gpio gpio_irq_chip instances. Instead embed
-irq_chip into pmic_gpio_state struct.
+Use noirq suspend/resume callbacks as other drivers which implement
+noirq suspend/resume callbacks (Ex:- PCIe) depend on pinctrl driver to
+configure the signals used by their respective devices in the noirq phase.
 
-gpio gpiochip2: (c440000.qcom,spmi:pmic@2:gpio@c000): detected irqchip that is shared with multiple gpiochips: please fix the driver.
-gpio gpiochip3: (c440000.qcom,spmi:pmic@4:gpio@c000): detected irqchip that is shared with multiple gpiochips: please fix the driver.
-gpio gpiochip4: (c440000.qcom,spmi:pmic@a:gpio@c000): detected irqchip that is shared with multiple gpiochips: please fix the driver.
-
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Acked-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Link: https://lore.kernel.org/r/20200604002817.667160-1-dmitry.baryshkov@linaro.org
+Signed-off-by: Vidya Sagar <vidyas@nvidia.com>
+Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
+Link: https://lore.kernel.org/r/20200604174935.26560-1-vidyas@nvidia.com
 Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/qcom/pinctrl-spmi-gpio.c | 21 ++++++++++-----------
- 1 file changed, 10 insertions(+), 11 deletions(-)
+ drivers/pinctrl/tegra/pinctrl-tegra.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pinctrl/qcom/pinctrl-spmi-gpio.c b/drivers/pinctrl/qcom/pinctrl-spmi-gpio.c
-index fe0be8a6ebb7b..092a48e4dff57 100644
---- a/drivers/pinctrl/qcom/pinctrl-spmi-gpio.c
-+++ b/drivers/pinctrl/qcom/pinctrl-spmi-gpio.c
-@@ -170,6 +170,7 @@ struct pmic_gpio_state {
- 	struct regmap	*map;
- 	struct pinctrl_dev *ctrl;
- 	struct gpio_chip chip;
-+	struct irq_chip irq;
- };
- 
- static const struct pinconf_generic_params pmic_gpio_bindings[] = {
-@@ -917,16 +918,6 @@ static int pmic_gpio_populate(struct pmic_gpio_state *state,
- 	return 0;
+diff --git a/drivers/pinctrl/tegra/pinctrl-tegra.c b/drivers/pinctrl/tegra/pinctrl-tegra.c
+index 21661f6490d68..195cfe557511b 100644
+--- a/drivers/pinctrl/tegra/pinctrl-tegra.c
++++ b/drivers/pinctrl/tegra/pinctrl-tegra.c
+@@ -731,8 +731,8 @@ static int tegra_pinctrl_resume(struct device *dev)
  }
  
--static struct irq_chip pmic_gpio_irq_chip = {
--	.name = "spmi-gpio",
--	.irq_ack = irq_chip_ack_parent,
--	.irq_mask = irq_chip_mask_parent,
--	.irq_unmask = irq_chip_unmask_parent,
--	.irq_set_type = irq_chip_set_type_parent,
--	.irq_set_wake = irq_chip_set_wake_parent,
--	.flags = IRQCHIP_MASK_ON_SUSPEND,
--};
--
- static int pmic_gpio_domain_translate(struct irq_domain *domain,
- 				      struct irq_fwspec *fwspec,
- 				      unsigned long *hwirq,
-@@ -1053,8 +1044,16 @@ static int pmic_gpio_probe(struct platform_device *pdev)
- 	if (!parent_domain)
- 		return -ENXIO;
+ const struct dev_pm_ops tegra_pinctrl_pm = {
+-	.suspend = &tegra_pinctrl_suspend,
+-	.resume = &tegra_pinctrl_resume
++	.suspend_noirq = &tegra_pinctrl_suspend,
++	.resume_noirq = &tegra_pinctrl_resume
+ };
  
-+	state->irq.name = "spmi-gpio",
-+	state->irq.irq_ack = irq_chip_ack_parent,
-+	state->irq.irq_mask = irq_chip_mask_parent,
-+	state->irq.irq_unmask = irq_chip_unmask_parent,
-+	state->irq.irq_set_type = irq_chip_set_type_parent,
-+	state->irq.irq_set_wake = irq_chip_set_wake_parent,
-+	state->irq.flags = IRQCHIP_MASK_ON_SUSPEND,
-+
- 	girq = &state->chip.irq;
--	girq->chip = &pmic_gpio_irq_chip;
-+	girq->chip = &state->irq;
- 	girq->default_type = IRQ_TYPE_NONE;
- 	girq->handler = handle_level_irq;
- 	girq->fwnode = of_node_to_fwnode(state->dev->of_node);
+ static bool tegra_pinctrl_gpio_node_has_range(struct tegra_pmx *pmx)
 -- 
 2.25.1
 
