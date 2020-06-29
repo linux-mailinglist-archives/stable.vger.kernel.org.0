@@ -2,86 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04DE620E936
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 01:21:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DD7F20E94D
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 01:30:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726894AbgF2XS2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 19:18:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41894 "EHLO mail.kernel.org"
+        id S1726441AbgF2XXs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 19:23:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726199AbgF2XS2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 19:18:28 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        id S1726199AbgF2XXs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 19:23:48 -0400
+Received: from kernel.org (unknown [104.132.0.74])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D20EE20776;
-        Mon, 29 Jun 2020 23:18:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA80D20780;
+        Mon, 29 Jun 2020 23:23:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593472708;
-        bh=Ap0GGyo3TT4bbUcnODAakDh+tdESRemEszuYecL7hu8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=0bPCRdJ/elG7YYslCo5o8utl9pmlYGZbTiVI8rX41Rlp46edDosAP0eoH5jikoE+n
-         G97w8RVRcigRB2FKRm1sLZ+0qJOrRascrZIgMjPdcqKk3lm7KeXVwPOl724ZPK8EmY
-         iUglfuFMowRPQnyA4CxEqVJCYduZHu235Ui9TibI=
-Date:   Mon, 29 Jun 2020 19:18:26 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Shuah Khan <skhan@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH 5.7 000/265] 5.7.7-rc1 review
-Message-ID: <20200629231826.GT1931@sasha-vm>
-References: <20200629151818.2493727-1-sashal@kernel.org>
- <42dadde8-04c0-863b-651a-1959a3d85494@linuxfoundation.org>
+        s=default; t=1593473028;
+        bh=hqPs8DLD77hq4TNWe6Dogw9lD5Amp3jnTwpKNY13XfQ=;
+        h=In-Reply-To:References:Subject:From:Cc:To:Date:From;
+        b=RaR4qRznyLd0UK2ArLdMhravXeQv+J6w3qmbvJiQeY5mVMn/wzlaCRy0tOX8eWkWc
+         tV4MNXC2C4xY342VflA9gc1RsfDZ2fKyrTmCx2q04do8e0jrFLsH/CoZNcF+2hT89B
+         vn8tQskrv914AJIw3pt4B9pDQh+7yWzjAPPiLszw=
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <42dadde8-04c0-863b-651a-1959a3d85494@linuxfoundation.org>
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <mhng-af462151-9be0-44c9-aeca-7777d4040d72@palmerdabbelt-glaptop1>
+References: <mhng-af462151-9be0-44c9-aeca-7777d4040d72@palmerdabbelt-glaptop1>
+Subject: Re: [PATCH] clk: sifive: allocate sufficient memory for struct __prci_data
+From:   Stephen Boyd <sboyd@kernel.org>
+Cc:     mturquette@baylibre.com, Paul Walmsley <paul.walmsley@sifive.com>,
+        linux-riscv@lists.infradead.org, schwab@suse.de,
+        vincent.chen@sifive.com, stable@vger.kernel.org
+To:     Palmer Dabbelt <palmer@dabbelt.com>, vincent.chen@sifive.com
+Date:   Mon, 29 Jun 2020 16:23:47 -0700
+Message-ID: <159347302727.1987609.17461999827407726291@swboyd.mtv.corp.google.com>
+User-Agent: alot/0.9
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 29, 2020 at 02:37:53PM -0600, Shuah Khan wrote:
->Hi Sasha,
->
->On 6/29/20 9:13 AM, Sasha Levin wrote:
->>
->>This is the start of the stable review cycle for the 5.7.7 release.
->>There are 265 patches in this series, all will be posted as a response
->>to this one.  If anyone has any issues with these being applied, please
->>let me know.
->>
->>Responses should be made by Wed 01 Jul 2020 03:14:48 PM UTC.
->>Anything received after that time might be too late.
->>
->>The whole patch series can be found in one patch at:
->>	https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/patch/?id=linux-5.7.y&id2=v5.7.6
->>
->
->Looks like patch naming convention has changed. My scripts look
->for the following convention Greg uses. Are you planning to use
->the above going forward? My scripts failed looking for the usual
->naming convention.
->
->The whole patch series can be found in one patch at:
->	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.7.6-rc1.gz
->or in the git tree and branch at:
->	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.7.y
->and the diffstat can be found below.
+Quoting Palmer Dabbelt (2020-06-25 15:13:39)
+> On Mon, 22 Jun 2020 18:24:17 PDT (-0700), vincent.chen@sifive.com wrote:
+> > The (struct __prci_data).hw_clks.hws is an array with dynamic elements.
+> > Using struct_size(pd, hw_clks.hws, ARRAY_SIZE(__prci_init_clocks))
+> > instead of sizeof(*pd) to get the correct memory size of
+> > struct __prci_data for sifive/fu540-prci. After applying this
+> > modifications, the kernel runs smoothly with CONFIG_SLAB_FREELIST_RANDOM
+> > enabled on the HiFive unleashed board.
+> >
+> > Fixes: 30b8e27e3b58 ("clk: sifive: add a driver for the SiFive FU540 PR=
+CI IP block")
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Vincent Chen <vincent.chen@sifive.com>
+> > ---
+> >  drivers/clk/sifive/fu540-prci.c | 5 ++++-
+> >  1 file changed, 4 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/drivers/clk/sifive/fu540-prci.c b/drivers/clk/sifive/fu540=
+-prci.c
+> > index 6282ee2f361c..a8901f90a61a 100644
+> > --- a/drivers/clk/sifive/fu540-prci.c
+> > +++ b/drivers/clk/sifive/fu540-prci.c
+> > @@ -586,7 +586,10 @@ static int sifive_fu540_prci_probe(struct platform=
+_device *pdev)
+> >       struct __prci_data *pd;
+> >       int r;
+> >
+> > -     pd =3D devm_kzalloc(dev, sizeof(*pd), GFP_KERNEL);
+> > +     pd =3D devm_kzalloc(dev,
+> > +                       struct_size(pd, hw_clks.hws,
+> > +                                   ARRAY_SIZE(__prci_init_clocks)),
+> > +                       GFP_KERNEL);
+> >       if (!pd)
+> >               return -ENOMEM;
+>=20
+> This is on fixes, thanks!
 
-Sorry for that. I was hoping to avoid using the signed upload mechanism
-Greg was using by simply pointing the links to automatically generated
-patches on cgit (the git.kernel.org interface).
-
-Would it be ok to change the pattern matching here? Something like this
-should work for both Greg's format and my own (and whatever may come
-next):
-
-	grep -A1 "The whole patch series can be found in one patch at:" | tail -n1 | sed 's/\t//'
-
--- 
-Thanks,
-Sasha
+Does that mean applied to sifive tree? I see it in next but only noticed
+this by chance because it wasn't sent to the linux-clk mailing list.
