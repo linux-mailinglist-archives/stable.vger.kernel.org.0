@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9A9E20E823
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:12:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5A7D20E835
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:12:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391782AbgF2WD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 18:03:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56912 "EHLO mail.kernel.org"
+        id S2391687AbgF2WEW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 18:04:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726203AbgF2SfW (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726196AbgF2SfW (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 29 Jun 2020 14:35:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C23212405B;
-        Mon, 29 Jun 2020 15:18:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C95FC2405C;
+        Mon, 29 Jun 2020 15:18:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593443929;
-        bh=fLY1AgT1wEp7fNrc7MHIRNNDgz4/uoC9E8LizHZsIdI=;
+        s=default; t=1593443930;
+        bh=7NDwsqB7TgbdnkZ66qpsR+9t4LAP6VSLYc1GeJ1+DD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cVzkNFoPv7tbsBCDE8cki91XTlEK4NkxTLMyux2GvUz3l+/PZD5jJ9n8ORePi4jBa
-         uEEfpAzAnwv4sbAJzkSa2VKb6DmsVpvuH5woTYFypkovI1FeF0PY3lfq8oTl73TJGr
-         JEgcnsEYzkzVEZW/OFipgErR8EBMNE3HRBbE7Uvw=
+        b=EOtKi7r0hDKXkNZlA7RZ5RBdduTEYe/TO47gLPB3+t0jHJhIdUPXviQvmVWUbFQbX
+         JuSLn+r1ZcYa/aF5Ime9O5vwt//XkgT2A3RHT/+NVJ+BHpristHmW15SLqSKxw8aM7
+         M8uuO2o3luk/2YcZBYtLXPvJr5Sk2ZJyEiZqTcwY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Chan <michael.chan@broadcom.com>,
-        Jakub Kicinski <kicinski@fb.com>,
-        Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
+Cc:     Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
         "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.7 030/265] bnxt_en: Fix statistics counters issue during ifdown with older firmware.
-Date:   Mon, 29 Jun 2020 11:14:23 -0400
-Message-Id: <20200629151818.2493727-31-sashal@kernel.org>
+Subject: [PATCH 5.7 031/265] bnxt_en: Read VPD info only for PFs
+Date:   Mon, 29 Jun 2020 11:14:24 -0400
+Message-Id: <20200629151818.2493727-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -51,66 +50,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
 
-[ Upstream commit c2dec363feb41544a76c8083aca2378990e17166 ]
+[ Upstream commit c55e28a8b43fcd7dc71868bd165705bc7741a7ca ]
 
-On older firmware, the hardware statistics are not cleared when the
-driver frees the hardware stats contexts during ifdown.  The driver
-expects these stats to be cleared and saves a copy before freeing
-the stats contexts.  During the next ifup, the driver will likely
-allocate the same hardware stats contexts and this will cause a big
-increase in the counters as the old counters are added back to the
-saved counters.
+Virtual functions does not have VPD information. This patch modifies
+calling bnxt_read_vpd_info() only for PFs and avoids an unnecessary
+error log.
 
-We fix it by making an additional firmware call to clear the counters
-before freeing the hw stats contexts when the firmware is the older
-20.x firmware.
-
-Fixes: b8875ca356f1 ("bnxt_en: Save ring statistics before reset.")
-Reported-by: Jakub Kicinski <kicinski@fb.com>
-Reviewed-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
+Fixes: a0d0fd70fed5 ("bnxt_en: Read partno and serialno of the board from VPD")
+Signed-off-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
 Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Tested-by: Jakub Kicinski <kicinski@fb.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index 6bf97b3acdadc..c202c2a3d140d 100644
+index c202c2a3d140d..b6fb5a1709c01 100644
 --- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
 +++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -6293,6 +6293,7 @@ int bnxt_hwrm_set_coal(struct bnxt *bp)
+@@ -11884,7 +11884,8 @@ static int bnxt_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	dev->ethtool_ops = &bnxt_ethtool_ops;
+ 	pci_set_drvdata(pdev, dev);
  
- static void bnxt_hwrm_stat_ctx_free(struct bnxt *bp)
- {
-+	struct hwrm_stat_ctx_clr_stats_input req0 = {0};
- 	struct hwrm_stat_ctx_free_input req = {0};
- 	int i;
+-	bnxt_vpd_read_info(bp);
++	if (BNXT_PF(bp))
++		bnxt_vpd_read_info(bp);
  
-@@ -6302,6 +6303,7 @@ static void bnxt_hwrm_stat_ctx_free(struct bnxt *bp)
- 	if (BNXT_CHIP_TYPE_NITRO_A0(bp))
- 		return;
- 
-+	bnxt_hwrm_cmd_hdr_init(bp, &req0, HWRM_STAT_CTX_CLR_STATS, -1, -1);
- 	bnxt_hwrm_cmd_hdr_init(bp, &req, HWRM_STAT_CTX_FREE, -1, -1);
- 
- 	mutex_lock(&bp->hwrm_cmd_lock);
-@@ -6311,7 +6313,11 @@ static void bnxt_hwrm_stat_ctx_free(struct bnxt *bp)
- 
- 		if (cpr->hw_stats_ctx_id != INVALID_STATS_CTX_ID) {
- 			req.stat_ctx_id = cpu_to_le32(cpr->hw_stats_ctx_id);
--
-+			if (BNXT_FW_MAJ(bp) <= 20) {
-+				req0.stat_ctx_id = req.stat_ctx_id;
-+				_hwrm_send_message(bp, &req0, sizeof(req0),
-+						   HWRM_CMD_TIMEOUT);
-+			}
- 			_hwrm_send_message(bp, &req, sizeof(req),
- 					   HWRM_CMD_TIMEOUT);
- 
+ 	rc = bnxt_alloc_hwrm_resources(bp);
+ 	if (rc)
 -- 
 2.25.1
 
