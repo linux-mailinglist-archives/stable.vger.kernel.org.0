@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A5F220E6DB
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:10:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C037920E6E2
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:10:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404533AbgF2VvS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:51:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56782 "EHLO mail.kernel.org"
+        id S2404256AbgF2Vvb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:51:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726657AbgF2Sfk (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726663AbgF2Sfk (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 29 Jun 2020 14:35:40 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B117A24799;
-        Mon, 29 Jun 2020 15:21:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA4952479A;
+        Mon, 29 Jun 2020 15:21:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444104;
-        bh=Kuy8Ad4hwYhwta+PZGSFRXEPjlBGOLgTob4+vRAy4b4=;
+        s=default; t=1593444105;
+        bh=R2j6V0eZaLlrba2WbCE1v/ST4757gs8/EMzZo0IjirQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b/YGq+tPBude5/g3i8SiCyU9lnZiziSV6wxz/ehOeBlPfDd2ALQY7ns/7BPaOoZqq
-         b4Qb339Ed6M9onJhpvXRApNPOdsHqVR+G3pd+WTGnhrSUr+JlMsnxppbfUFY3zmZXp
-         T1q1UpzJmHflPWtqa39M1Hm0Yaf8+E6p1QI3RHK8=
+        b=B1OviV8XQhH3uAJBDH2eMw9RXdFn+G6UwWSUG3wPMJuhb62mebPXPCgUXkA40SUD3
+         2bJaN6Uhl1hpdCYwIKErV80N1WIJnNUfzcCg33+n+o2yT344dLGtzXhAS1tlTfpiAu
+         OjG5q4TWYr1oWM3+tqYSGp6P9+n254akVMpDEdoU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiaoyao Li <xiaoyao.li@intel.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Jim Mattson <jmattson@google.com>,
+Cc:     Igor Mammedov <imammedo@redhat.com>,
         Paolo Bonzini <pbonzini@redhat.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.7 215/265] KVM: X86: Fix MSR range of APIC registers in X2APIC mode
-Date:   Mon, 29 Jun 2020 11:17:28 -0400
-Message-Id: <20200629151818.2493727-216-sashal@kernel.org>
+Subject: [PATCH 5.7 216/265] kvm: lapic: fix broken vcpu hotplug
+Date:   Mon, 29 Jun 2020 11:17:29 -0400
+Message-Id: <20200629151818.2493727-217-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -51,47 +49,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaoyao Li <xiaoyao.li@intel.com>
+From: Igor Mammedov <imammedo@redhat.com>
 
-commit bf10bd0be53282183f374af23577b18b5fbf7801 upstream.
+commit af28dfacbe00d53df5dec2bf50640df33138b1fe upstream.
 
-Only MSR address range 0x800 through 0x8ff is architecturally reserved
-and dedicated for accessing APIC registers in x2APIC mode.
+Guest fails to online hotplugged CPU with error
+  smpboot: do_boot_cpu failed(-1) to wakeup CPU#4
 
-Fixes: 0105d1a52640 ("KVM: x2apic interface to lapic")
-Signed-off-by: Xiaoyao Li <xiaoyao.li@intel.com>
-Message-Id: <20200616073307.16440-1-xiaoyao.li@intel.com>
+It's caused by the fact that kvm_apic_set_state(), which used to call
+recalculate_apic_map() unconditionally and pulled hotplugged CPU into
+apic map, is updating map conditionally on state changes.  In this case
+the APIC map is not considered dirty and the is not updated.
+
+Fix the issue by forcing unconditional update from kvm_apic_set_state(),
+like it used to be.
+
+Fixes: 4abaffce4d25a ("KVM: LAPIC: Recalculate apic map in batch")
 Cc: stable@vger.kernel.org
-Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Reviewed-by: Jim Mattson <jmattson@google.com>
+Signed-off-by: Igor Mammedov <imammedo@redhat.com>
+Message-Id: <20200622160830.426022-1-imammedo@redhat.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/x86.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/kvm/lapic.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 97c5a92146f9d..5f08eeac16c87 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -2784,7 +2784,7 @@ int kvm_set_msr_common(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
- 		return kvm_mtrr_set_msr(vcpu, msr, data);
- 	case MSR_IA32_APICBASE:
- 		return kvm_set_apic_base(vcpu, msr_info);
--	case APIC_BASE_MSR ... APIC_BASE_MSR + 0x3ff:
-+	case APIC_BASE_MSR ... APIC_BASE_MSR + 0xff:
- 		return kvm_x2apic_msr_write(vcpu, msr, data);
- 	case MSR_IA32_TSCDEADLINE:
- 		kvm_set_lapic_tscdeadline_msr(vcpu, data);
-@@ -3112,7 +3112,7 @@ int kvm_get_msr_common(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
- 	case MSR_IA32_APICBASE:
- 		msr_info->data = kvm_get_apic_base(vcpu);
- 		break;
--	case APIC_BASE_MSR ... APIC_BASE_MSR + 0x3ff:
-+	case APIC_BASE_MSR ... APIC_BASE_MSR + 0xff:
- 		return kvm_x2apic_msr_read(vcpu, msr_info->index, &msr_info->data);
- 	case MSR_IA32_TSCDEADLINE:
- 		msr_info->data = kvm_get_lapic_tscdeadline_msr(vcpu);
+diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
+index 9af25c97612a7..8967e320a9784 100644
+--- a/arch/x86/kvm/lapic.c
++++ b/arch/x86/kvm/lapic.c
+@@ -2512,6 +2512,7 @@ int kvm_apic_set_state(struct kvm_vcpu *vcpu, struct kvm_lapic_state *s)
+ 	}
+ 	memcpy(vcpu->arch.apic->regs, s->regs, sizeof(*s));
+ 
++	apic->vcpu->kvm->arch.apic_map_dirty = true;
+ 	kvm_recalculate_apic_map(vcpu->kvm);
+ 	kvm_apic_set_version(vcpu);
+ 
 -- 
 2.25.1
 
