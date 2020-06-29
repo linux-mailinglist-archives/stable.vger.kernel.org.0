@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1A4C20E2EC
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:02:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 817A920E30F
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:02:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390324AbgF2VKF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:10:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45426 "EHLO mail.kernel.org"
+        id S1731332AbgF2VLJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:11:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726958AbgF2TAS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:00:18 -0400
+        id S1730306AbgF2TAP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:00:15 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB45A2552A;
-        Mon, 29 Jun 2020 15:54:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B9302552F;
+        Mon, 29 Jun 2020 15:54:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593446090;
-        bh=fx5wFK4wALx17wcbsiLjM8z05eZ7XQjzYmewsRIB94s=;
+        s=default; t=1593446094;
+        bh=WUitdJWmkG6QX/RcPT3sZzbXh2tUsaNL7rYm7Sr8PN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gbBPSjPqaaw+nXpfIu7XoV9SZtVHee0Fpq1GQKm4/k6qrYwBpJmxWknrhyb9wH2N/
-         jGhac711MlPRkccilo2WfCZNlRsIVWbmz6x2CONxwqsfy6VsLM4/TUI9KBjzIb9jz8
-         4N3bsv+cbfiG8lxn2JmoJN0bHoLTkmeh4tYCHR3s=
+        b=V4mYMIWvpKXAn8MiAYfq+qrFtYkPWWgl8yqSeK+pPB7EXGAi8vatJwMpxBvgXRlgk
+         QXRs6wjGH9vggPfetvcboNLukyrC6aZyBKn0+aYMpVymKORSZWz60a+NxFz276P+wh
+         f4D5RmA793+yUJgkhX301CVFt27BehbOINiFPe8c=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Taehee Yoo <ap420073@gmail.com>,
-        Eric Dumazet <eric.dumazet@gmail.com>,
+Cc:     Eric Dumazet <edumazet@google.com>,
+        Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>,
+        Neal Cardwell <ncardwell@google.com>,
         "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.4 085/135] ip_tunnel: fix use-after-free in ip_tunnel_lookup()
-Date:   Mon, 29 Jun 2020 11:52:19 -0400
-Message-Id: <20200629155309.2495516-86-sashal@kernel.org>
+Subject: [PATCH 4.4 088/135] tcp: grow window for OOO packets only for SACK flows
+Date:   Mon, 29 Jun 2020 11:52:22 -0400
+Message-Id: <20200629155309.2495516-89-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
 References: <20200629155309.2495516-1-sashal@kernel.org>
@@ -50,119 +51,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit ba61539c6ae57f4146284a5cb4f7b7ed8d42bf45 ]
+[ Upstream commit 662051215c758ae8545451628816204ed6cd372d ]
 
-In the datapath, the ip_tunnel_lookup() is used and it internally uses
-fallback tunnel device pointer, which is fb_tunnel_dev.
-This pointer variable should be set to NULL when a fb interface is deleted.
-But there is no routine to set fb_tunnel_dev pointer to NULL.
-So, this pointer will be still used after interface is deleted and
-it eventually results in the use-after-free problem.
+Back in 2013, we made a change that broke fast retransmit
+for non SACK flows.
 
-Test commands:
-    ip netns add A
-    ip netns add B
-    ip link add eth0 type veth peer name eth1
-    ip link set eth0 netns A
-    ip link set eth1 netns B
+Indeed, for these flows, a sender needs to receive three duplicate
+ACK before starting fast retransmit. Sending ACK with different
+receive window do not count.
 
-    ip netns exec A ip link set lo up
-    ip netns exec A ip link set eth0 up
-    ip netns exec A ip link add gre1 type gre local 10.0.0.1 \
-	    remote 10.0.0.2
-    ip netns exec A ip link set gre1 up
-    ip netns exec A ip a a 10.0.100.1/24 dev gre1
-    ip netns exec A ip a a 10.0.0.1/24 dev eth0
+Even if enabling SACK is strongly recommended these days,
+there still are some cases where it has to be disabled.
 
-    ip netns exec B ip link set lo up
-    ip netns exec B ip link set eth1 up
-    ip netns exec B ip link add gre1 type gre local 10.0.0.2 \
-	    remote 10.0.0.1
-    ip netns exec B ip link set gre1 up
-    ip netns exec B ip a a 10.0.100.2/24 dev gre1
-    ip netns exec B ip a a 10.0.0.2/24 dev eth1
-    ip netns exec A hping3 10.0.100.2 -2 --flood -d 60000 &
-    ip netns del B
+Not increasing the window seems better than having to
+rely on RTO.
 
-Splat looks like:
-[   77.793450][    C3] ==================================================================
-[   77.794702][    C3] BUG: KASAN: use-after-free in ip_tunnel_lookup+0xcc4/0xf30
-[   77.795573][    C3] Read of size 4 at addr ffff888060bd9c84 by task hping3/2905
-[   77.796398][    C3]
-[   77.796664][    C3] CPU: 3 PID: 2905 Comm: hping3 Not tainted 5.8.0-rc1+ #616
-[   77.797474][    C3] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
-[   77.798453][    C3] Call Trace:
-[   77.798815][    C3]  <IRQ>
-[   77.799142][    C3]  dump_stack+0x9d/0xdb
-[   77.799605][    C3]  print_address_description.constprop.7+0x2cc/0x450
-[   77.800365][    C3]  ? ip_tunnel_lookup+0xcc4/0xf30
-[   77.800908][    C3]  ? ip_tunnel_lookup+0xcc4/0xf30
-[   77.801517][    C3]  ? ip_tunnel_lookup+0xcc4/0xf30
-[   77.802145][    C3]  kasan_report+0x154/0x190
-[   77.802821][    C3]  ? ip_tunnel_lookup+0xcc4/0xf30
-[   77.803503][    C3]  ip_tunnel_lookup+0xcc4/0xf30
-[   77.804165][    C3]  __ipgre_rcv+0x1ab/0xaa0 [ip_gre]
-[   77.804862][    C3]  ? rcu_read_lock_sched_held+0xc0/0xc0
-[   77.805621][    C3]  gre_rcv+0x304/0x1910 [ip_gre]
-[   77.806293][    C3]  ? lock_acquire+0x1a9/0x870
-[   77.806925][    C3]  ? gre_rcv+0xfe/0x354 [gre]
-[   77.807559][    C3]  ? erspan_xmit+0x2e60/0x2e60 [ip_gre]
-[   77.808305][    C3]  ? rcu_read_lock_sched_held+0xc0/0xc0
-[   77.809032][    C3]  ? rcu_read_lock_held+0x90/0xa0
-[   77.809713][    C3]  gre_rcv+0x1b8/0x354 [gre]
-[ ... ]
+After the fix, following packetdrill test gives :
 
-Suggested-by: Eric Dumazet <eric.dumazet@gmail.com>
-Fixes: c54419321455 ("GRE: Refactor GRE tunneling code.")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+// Initialize connection
+    0 socket(..., SOCK_STREAM, IPPROTO_TCP) = 3
+   +0 setsockopt(3, SOL_SOCKET, SO_REUSEADDR, [1], 4) = 0
+   +0 bind(3, ..., ...) = 0
+   +0 listen(3, 1) = 0
+
+   +0 < S 0:0(0) win 32792 <mss 1000,nop,wscale 7>
+   +0 > S. 0:0(0) ack 1 <mss 1460,nop,wscale 8>
+   +0 < . 1:1(0) ack 1 win 514
+
+   +0 accept(3, ..., ...) = 4
+
+   +0 < . 1:1001(1000) ack 1 win 514
+// Quick ack
+   +0 > . 1:1(0) ack 1001 win 264
+
+   +0 < . 2001:3001(1000) ack 1 win 514
+// DUPACK : Normally we should not change the window
+   +0 > . 1:1(0) ack 1001 win 264
+
+   +0 < . 3001:4001(1000) ack 1 win 514
+// DUPACK : Normally we should not change the window
+   +0 > . 1:1(0) ack 1001 win 264
+
+   +0 < . 4001:5001(1000) ack 1 win 514
+// DUPACK : Normally we should not change the window
+    +0 > . 1:1(0) ack 1001 win 264
+
+   +0 < . 1001:2001(1000) ack 1 win 514
+// Hole is repaired.
+   +0 > . 1:1(0) ack 5001 win 272
+
+Fixes: 4e4f1fc22681 ("tcp: properly increase rcv_ssthresh for ofo packets")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>
+Acked-by: Neal Cardwell <ncardwell@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/ip_tunnel.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ net/ipv4/tcp_input.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv4/ip_tunnel.c b/net/ipv4/ip_tunnel.c
-index 20b21f8578e18..3d9761516683f 100644
---- a/net/ipv4/ip_tunnel.c
-+++ b/net/ipv4/ip_tunnel.c
-@@ -98,9 +98,10 @@ struct ip_tunnel *ip_tunnel_lookup(struct ip_tunnel_net *itn,
- 				   __be32 remote, __be32 local,
- 				   __be32 key)
- {
--	unsigned int hash;
- 	struct ip_tunnel *t, *cand = NULL;
- 	struct hlist_head *head;
-+	struct net_device *ndev;
-+	unsigned int hash;
- 
- 	hash = ip_tunnel_hash(key, remote);
- 	head = &itn->tunnels[hash];
-@@ -175,8 +176,9 @@ struct ip_tunnel *ip_tunnel_lookup(struct ip_tunnel_net *itn,
- 	if (t)
- 		return t;
- 
--	if (itn->fb_tunnel_dev && itn->fb_tunnel_dev->flags & IFF_UP)
--		return netdev_priv(itn->fb_tunnel_dev);
-+	ndev = READ_ONCE(itn->fb_tunnel_dev);
-+	if (ndev && ndev->flags & IFF_UP)
-+		return netdev_priv(ndev);
- 
- 	return NULL;
- }
-@@ -1160,9 +1162,9 @@ void ip_tunnel_uninit(struct net_device *dev)
- 	struct ip_tunnel_net *itn;
- 
- 	itn = net_generic(net, tunnel->ip_tnl_net_id);
--	/* fb_tunnel_dev will be unregisted in net-exit call. */
--	if (itn->fb_tunnel_dev != dev)
--		ip_tunnel_del(itn, netdev_priv(dev));
-+	ip_tunnel_del(itn, netdev_priv(dev));
-+	if (itn->fb_tunnel_dev == dev)
-+		WRITE_ONCE(itn->fb_tunnel_dev, NULL);
- 
- 	dst_cache_reset(&tunnel->dst_cache);
+diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+index 64c7265793a59..e2066f2f19b4a 100644
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -4465,7 +4465,11 @@ static void tcp_data_queue_ofo(struct sock *sk, struct sk_buff *skb)
+ 	if (tcp_ooo_try_coalesce(sk, tp->ooo_last_skb,
+ 				 skb, &fragstolen)) {
+ coalesce_done:
+-		tcp_grow_window(sk, skb);
++		/* For non sack flows, do not grow window to force DUPACK
++		 * and trigger fast retransmit.
++		 */
++		if (tcp_is_sack(tp))
++			tcp_grow_window(sk, skb);
+ 		kfree_skb_partial(skb, fragstolen);
+ 		skb = NULL;
+ 		goto add_sack;
+@@ -4545,7 +4549,11 @@ static void tcp_data_queue_ofo(struct sock *sk, struct sk_buff *skb)
+ 		tcp_sack_new_ofo_skb(sk, seq, end_seq);
+ end:
+ 	if (skb) {
+-		tcp_grow_window(sk, skb);
++		/* For non sack flows, do not grow window to force DUPACK
++		 * and trigger fast retransmit.
++		 */
++		if (tcp_is_sack(tp))
++			tcp_grow_window(sk, skb);
+ 		skb_set_owner_r(skb, sk);
+ 	}
  }
 -- 
 2.25.1
