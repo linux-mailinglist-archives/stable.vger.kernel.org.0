@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43F5A20DB8F
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:15:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0236520DB00
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:14:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729373AbgF2UHW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:07:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40564 "EHLO mail.kernel.org"
+        id S2387619AbgF2UCp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:02:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732946AbgF2TaY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:30:24 -0400
+        id S1733006AbgF2Tad (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:30:33 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3BCA125248;
-        Mon, 29 Jun 2020 15:36:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4EDCB2524A;
+        Mon, 29 Jun 2020 15:36:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444962;
-        bh=3rNnnkQvxgqmhcMErzisHMd6/5gUFMS/6cR9myII+UM=;
+        s=default; t=1593444963;
+        bh=bsjkEPlMaZYEEPYBQu3CvF/iDRd/LbjtbUl6h2D/N7c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PnTDbUEqlLY0LOg9f1pIYC/OG4uTP9CuZfT5BxHyFH1hn3glkqp7eeHqpILWwoEAC
-         +IQHVv4r9Iyd7BHJO5CHVFt5KPx3FWb+/g14BJsWfSYbSJu3FRXY8zkvXBjkNWKdz6
-         /RqSvA2A36g1x9uGgbyEM/fETfJ6inuru5A7Jk3Y=
+        b=19uSIz6z6FktWfetDSXEsAwrXpx2BAudyDIfW6ttCSPkUe2FhcV3TIyEhxnT2nnd+
+         7FwA6ZO4uPUOVLnFSaJaY3OBMfwV4Cmsika/jzYWmdC9MoJw6+lME4Fy26w16l/oQO
+         iYAB/xorfoc/WU2tfMrrFG9gFSo1hOyBN2LZE8Mw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Hulk Robot <hulkci@huawei.com>,
-        Pavel Shilovsky <pshilov@microsoft.com>,
-        Steve French <stfrench@microsoft.com>,
+Cc:     Huy Nguyen <huyn@mellanox.com>,
+        Boris Pismenny <borisp@mellanox.com>,
+        Raed Salem <raeds@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 060/131] cifs/smb3: Fix data inconsistent when zero file range
-Date:   Mon, 29 Jun 2020 11:33:51 -0400
-Message-Id: <20200629153502.2494656-61-sashal@kernel.org>
+Subject: [PATCH 4.19 061/131] xfrm: Fix double ESP trailer insertion in IPsec crypto offload.
+Date:   Mon, 29 Jun 2020 11:33:52 -0400
+Message-Id: <20200629153502.2494656-62-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629153502.2494656-1-sashal@kernel.org>
 References: <20200629153502.2494656-1-sashal@kernel.org>
@@ -51,47 +52,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Huy Nguyen <huyn@mellanox.com>
 
-[ Upstream commit 6b69040247e14b43419a520f841f2b3052833df9 ]
+[ Upstream commit 94579ac3f6d0820adc83b5dc5358ead0158101e9 ]
 
-CIFS implements the fallocate(FALLOC_FL_ZERO_RANGE) with send SMB
-ioctl(FSCTL_SET_ZERO_DATA) to server. It just set the range of the
-remote file to zero, but local page cache not update, then the data
-inconsistent with server, which leads the xfstest generic/008 failed.
+During IPsec performance testing, we see bad ICMP checksum. The error packet
+has duplicated ESP trailer due to double validate_xmit_xfrm calls. The first call
+is from ip_output, but the packet cannot be sent because
+netif_xmit_frozen_or_stopped is true and the packet gets dev_requeue_skb. The second
+call is from NET_TX softirq. However after the first call, the packet already
+has the ESP trailer.
 
-So we need to remove the local page caches before send SMB
-ioctl(FSCTL_SET_ZERO_DATA) to server. After next read, it will
-re-cache it.
+Fix by marking the skb with XFRM_XMIT bit after the packet is handled by
+validate_xmit_xfrm to avoid duplicate ESP trailer insertion.
 
-Fixes: 30175628bf7f5 ("[SMB3] Enable fallocate -z support for SMB3 mounts")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
-Cc: stable@vger.kernel.org # v3.17
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Fixes: f6e27114a60a ("net: Add a xfrm validate function to validate_xmit_skb")
+Signed-off-by: Huy Nguyen <huyn@mellanox.com>
+Reviewed-by: Boris Pismenny <borisp@mellanox.com>
+Reviewed-by: Raed Salem <raeds@mellanox.com>
+Reviewed-by: Saeed Mahameed <saeedm@mellanox.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2ops.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ include/net/xfrm.h     | 1 +
+ net/xfrm/xfrm_device.c | 4 +++-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
-index 0b830ac8a9e72..2a523139a05fb 100644
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -2180,6 +2180,12 @@ static long smb3_zero_range(struct file *file, struct cifs_tcon *tcon,
- 	inode = d_inode(cfile->dentry);
- 	cifsi = CIFS_I(inode);
+diff --git a/include/net/xfrm.h b/include/net/xfrm.h
+index 48dc1ce2170d8..f087c8d125b8f 100644
+--- a/include/net/xfrm.h
++++ b/include/net/xfrm.h
+@@ -1083,6 +1083,7 @@ struct xfrm_offload {
+ #define	XFRM_GRO		32
+ #define	XFRM_ESP_NO_TRAILER	64
+ #define	XFRM_DEV_RESUME		128
++#define	XFRM_XMIT		256
  
-+	/*
-+	 * We zero the range through ioctl, so we need remove the page caches
-+	 * first, otherwise the data may be inconsistent with the server.
-+	 */
-+	truncate_pagecache_range(inode, offset, offset + len - 1);
+ 	__u32			status;
+ #define CRYPTO_SUCCESS				1
+diff --git a/net/xfrm/xfrm_device.c b/net/xfrm/xfrm_device.c
+index 8634ce6771421..e7a0ce98479f3 100644
+--- a/net/xfrm/xfrm_device.c
++++ b/net/xfrm/xfrm_device.c
+@@ -33,7 +33,7 @@ struct sk_buff *validate_xmit_xfrm(struct sk_buff *skb, netdev_features_t featur
+ 	netdev_features_t esp_features = features;
+ 	struct xfrm_offload *xo = xfrm_offload(skb);
+ 
+-	if (!xo)
++	if (!xo || (xo->flags & XFRM_XMIT))
+ 		return skb;
+ 
+ 	if (!(features & NETIF_F_HW_ESP))
+@@ -53,6 +53,8 @@ struct sk_buff *validate_xmit_xfrm(struct sk_buff *skb, netdev_features_t featur
+ 		return skb;
+ 	}
+ 
++	xo->flags |= XFRM_XMIT;
 +
- 	/* if file not oplocked can't be sure whether asking to extend size */
- 	if (!CIFS_CACHE_READ(cifsi))
- 		if (keep_size == false) {
+ 	if (skb_is_gso(skb)) {
+ 		struct net_device *dev = skb->dev;
+ 
 -- 
 2.25.1
 
