@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C395D20D880
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:09:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB6E620DCA7
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:18:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727049AbgF2Tjl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:39:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40566 "EHLO mail.kernel.org"
+        id S1730025AbgF2T3w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:29:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733011AbgF2Tad (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:30:33 -0400
+        id S1732620AbgF2TZm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:25:42 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E4123252DD;
-        Mon, 29 Jun 2020 15:38:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD0122535A;
+        Mon, 29 Jun 2020 15:40:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445106;
-        bh=lKaoxD5baWqBra+UjxTPw0o4s09kf96wr0Lu7J2gTcE=;
+        s=default; t=1593445218;
+        bh=X2R+j2ZdNZt6t0CmdutaIa9okM3nECUW4GKc5aL0RiU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DCY+1uHOIrU5zc4T198b0f1DOnnRLSLQpgF/DJf9VRRNSrkBJ5ljpQlo5ThwU0wnJ
-         VyUJQbJQM1Z6bZeDHYYmy3kvqiGMZ91Re3ZUpUMj3lwj5aMcWbbq3Le6mdq5cqf3Jx
-         IWCUzdgDmsbylthNXIJ6AjK+Oij/sPj/z/hbxD+4=
+        b=X6Gh7UbTAid3iF/jVW/ZjOtMCoXlumQIsUSDd1+SuQjX4eQzZiAk/FDpY+jiZLn4R
+         W2yy6P66AT5J1CkwtFX5Lkuohl9RsGhMals9fB/25EJfjERFIkOMC5zPX70+DrklOt
+         B9aUnGOcYrVcH938fO0Dc+pP8YEe5piLoQk08XZU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Corey Minyard <cminyard@mvista.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.14 14/78] sctp: Don't advertise IPv4 addresses if ipv6only is set on the socket
+Cc:     Jon Hunter <jonathanh@nvidia.com>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 006/191] backlight: lp855x: Ensure regulators are disabled on probe failure
 Date:   Mon, 29 Jun 2020 11:37:02 -0400
-Message-Id: <20200629153806.2494953-15-sashal@kernel.org>
+Message-Id: <20200629154007.2495120-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200629153806.2494953-1-sashal@kernel.org>
-References: <20200629153806.2494953-1-sashal@kernel.org>
+In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
+References: <20200629154007.2495120-1-sashal@kernel.org>
 MIME-Version: 1.0
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.186-rc1.gz
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.229-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.14.y
+X-KernelTest-Branch: linux-4.9.y
 X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.14.186-rc1
-X-KernelTest-Deadline: 2020-07-01T15:38+00:00
+X-KernelTest-Version: 4.9.229-rc1
+X-KernelTest-Deadline: 2020-07-01T15:39+00:00
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -50,97 +50,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+From: Jon Hunter <jonathanh@nvidia.com>
 
-[ Upstream commit 471e39df96b9a4c4ba88a2da9e25a126624d7a9c ]
+[ Upstream commit d8207c155a7c6015eb7f43739baa7dfb1fa638af ]
 
-If a socket is set ipv6only, it will still send IPv4 addresses in the
-INIT and INIT_ACK packets. This potentially misleads the peer into using
-them, which then would cause association termination.
+If probing the LP885x backlight fails after the regulators have been
+enabled, then the following warning is seen when releasing the
+regulators ...
 
-The fix is to not add IPv4 addresses to ipv6only sockets.
+ WARNING: CPU: 1 PID: 289 at drivers/regulator/core.c:2051 _regulator_put.part.28+0x158/0x160
+ Modules linked in: tegra_xudc lp855x_bl(+) host1x pwm_tegra ip_tables x_tables ipv6 nf_defrag_ipv6
+ CPU: 1 PID: 289 Comm: systemd-udevd Not tainted 5.6.0-rc2-next-20200224 #1
+ Hardware name: NVIDIA Jetson TX1 Developer Kit (DT)
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Corey Minyard <cminyard@mvista.com>
-Signed-off-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Tested-by: Corey Minyard <cminyard@mvista.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ ...
+
+ Call trace:
+  _regulator_put.part.28+0x158/0x160
+  regulator_put+0x34/0x50
+  devm_regulator_release+0x10/0x18
+  release_nodes+0x12c/0x230
+  devres_release_all+0x34/0x50
+  really_probe+0x1c0/0x370
+  driver_probe_device+0x58/0x100
+  device_driver_attach+0x6c/0x78
+  __driver_attach+0xb0/0xf0
+  bus_for_each_dev+0x68/0xc8
+  driver_attach+0x20/0x28
+  bus_add_driver+0x160/0x1f0
+  driver_register+0x60/0x110
+  i2c_register_driver+0x40/0x80
+  lp855x_driver_init+0x20/0x1000 [lp855x_bl]
+  do_one_initcall+0x58/0x1a0
+  do_init_module+0x54/0x1d0
+  load_module+0x1d80/0x21c8
+  __do_sys_finit_module+0xe8/0x100
+  __arm64_sys_finit_module+0x18/0x20
+  el0_svc_common.constprop.3+0xb0/0x168
+  do_el0_svc+0x20/0x98
+  el0_sync_handler+0xf4/0x1b0
+  el0_sync+0x140/0x180
+
+Fix this by ensuring that the regulators are disabled, if enabled, on
+probe failure.
+
+Finally, ensure that the vddio regulator is disabled in the driver
+remove handler.
+
+Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/sctp/constants.h | 8 +++++---
- net/sctp/associola.c         | 5 ++++-
- net/sctp/bind_addr.c         | 1 +
- net/sctp/protocol.c          | 3 ++-
- 4 files changed, 12 insertions(+), 5 deletions(-)
+ drivers/video/backlight/lp855x_bl.c | 20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
-diff --git a/include/net/sctp/constants.h b/include/net/sctp/constants.h
-index deaafa9b09cbe..d4da07048aa3e 100644
---- a/include/net/sctp/constants.h
-+++ b/include/net/sctp/constants.h
-@@ -361,11 +361,13 @@ enum {
- 	 ipv4_is_anycast_6to4(a))
+diff --git a/drivers/video/backlight/lp855x_bl.c b/drivers/video/backlight/lp855x_bl.c
+index 939f057836e19..4cdc7a3f6dc5c 100644
+--- a/drivers/video/backlight/lp855x_bl.c
++++ b/drivers/video/backlight/lp855x_bl.c
+@@ -460,7 +460,7 @@ static int lp855x_probe(struct i2c_client *cl, const struct i2c_device_id *id)
+ 		ret = regulator_enable(lp->enable);
+ 		if (ret < 0) {
+ 			dev_err(lp->dev, "failed to enable vddio: %d\n", ret);
+-			return ret;
++			goto disable_supply;
+ 		}
  
- /* Flags used for the bind address copy functions.  */
--#define SCTP_ADDR6_ALLOWED	0x00000001	/* IPv6 address is allowed by
-+#define SCTP_ADDR4_ALLOWED	0x00000001	/* IPv4 address is allowed by
- 						   local sock family */
--#define SCTP_ADDR4_PEERSUPP	0x00000002	/* IPv4 address is supported by
-+#define SCTP_ADDR6_ALLOWED	0x00000002	/* IPv6 address is allowed by
-+						   local sock family */
-+#define SCTP_ADDR4_PEERSUPP	0x00000004	/* IPv4 address is supported by
- 						   peer */
--#define SCTP_ADDR6_PEERSUPP	0x00000004	/* IPv6 address is supported by
-+#define SCTP_ADDR6_PEERSUPP	0x00000008	/* IPv6 address is supported by
- 						   peer */
+ 		/*
+@@ -475,24 +475,34 @@ static int lp855x_probe(struct i2c_client *cl, const struct i2c_device_id *id)
+ 	ret = lp855x_configure(lp);
+ 	if (ret) {
+ 		dev_err(lp->dev, "device config err: %d", ret);
+-		return ret;
++		goto disable_vddio;
+ 	}
  
- /* Reasons to retransmit. */
-diff --git a/net/sctp/associola.c b/net/sctp/associola.c
-index dd1a3bd80be5f..0a5764016721b 100644
---- a/net/sctp/associola.c
-+++ b/net/sctp/associola.c
-@@ -1598,12 +1598,15 @@ void sctp_assoc_rwnd_decrease(struct sctp_association *asoc, unsigned int len)
- int sctp_assoc_set_bind_addr_from_ep(struct sctp_association *asoc,
- 				     enum sctp_scope scope, gfp_t gfp)
- {
-+	struct sock *sk = asoc->base.sk;
- 	int flags;
+ 	ret = lp855x_backlight_register(lp);
+ 	if (ret) {
+ 		dev_err(lp->dev,
+ 			"failed to register backlight. err: %d\n", ret);
+-		return ret;
++		goto disable_vddio;
+ 	}
  
- 	/* Use scoping rules to determine the subset of addresses from
- 	 * the endpoint.
- 	 */
--	flags = (PF_INET6 == asoc->base.sk->sk_family) ? SCTP_ADDR6_ALLOWED : 0;
-+	flags = (PF_INET6 == sk->sk_family) ? SCTP_ADDR6_ALLOWED : 0;
-+	if (!inet_v6_ipv6only(sk))
-+		flags |= SCTP_ADDR4_ALLOWED;
- 	if (asoc->peer.ipv4_address)
- 		flags |= SCTP_ADDR4_PEERSUPP;
- 	if (asoc->peer.ipv6_address)
-diff --git a/net/sctp/bind_addr.c b/net/sctp/bind_addr.c
-index 7df3704982f54..38d01cfb313e5 100644
---- a/net/sctp/bind_addr.c
-+++ b/net/sctp/bind_addr.c
-@@ -453,6 +453,7 @@ static int sctp_copy_one_addr(struct net *net, struct sctp_bind_addr *dest,
- 		 * well as the remote peer.
- 		 */
- 		if ((((AF_INET == addr->sa.sa_family) &&
-+		      (flags & SCTP_ADDR4_ALLOWED) &&
- 		      (flags & SCTP_ADDR4_PEERSUPP))) ||
- 		    (((AF_INET6 == addr->sa.sa_family) &&
- 		      (flags & SCTP_ADDR6_ALLOWED) &&
-diff --git a/net/sctp/protocol.c b/net/sctp/protocol.c
-index 785456df75051..8fe9c06462052 100644
---- a/net/sctp/protocol.c
-+++ b/net/sctp/protocol.c
-@@ -213,7 +213,8 @@ int sctp_copy_local_addr_list(struct net *net, struct sctp_bind_addr *bp,
- 		 * sock as well as the remote peer.
- 		 */
- 		if (addr->a.sa.sa_family == AF_INET &&
--		    !(copy_flags & SCTP_ADDR4_PEERSUPP))
-+		    (!(copy_flags & SCTP_ADDR4_ALLOWED) ||
-+		     !(copy_flags & SCTP_ADDR4_PEERSUPP)))
- 			continue;
- 		if (addr->a.sa.sa_family == AF_INET6 &&
- 		    (!(copy_flags & SCTP_ADDR6_ALLOWED) ||
+ 	ret = sysfs_create_group(&lp->dev->kobj, &lp855x_attr_group);
+ 	if (ret) {
+ 		dev_err(lp->dev, "failed to register sysfs. err: %d\n", ret);
+-		return ret;
++		goto disable_vddio;
+ 	}
+ 
+ 	backlight_update_status(lp->bl);
++
+ 	return 0;
++
++disable_vddio:
++	if (lp->enable)
++		regulator_disable(lp->enable);
++disable_supply:
++	if (lp->supply)
++		regulator_disable(lp->supply);
++
++	return ret;
+ }
+ 
+ static int lp855x_remove(struct i2c_client *cl)
+@@ -501,6 +511,8 @@ static int lp855x_remove(struct i2c_client *cl)
+ 
+ 	lp->bl->props.brightness = 0;
+ 	backlight_update_status(lp->bl);
++	if (lp->enable)
++		regulator_disable(lp->enable);
+ 	if (lp->supply)
+ 		regulator_disable(lp->supply);
+ 	sysfs_remove_group(&lp->dev->kobj, &lp855x_attr_group);
 -- 
 2.25.1
 
