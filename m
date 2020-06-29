@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C98120D9AB
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:12:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9ABE220D957
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:11:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388052AbgF2Ttl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:49:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47674 "EHLO mail.kernel.org"
+        id S2388099AbgF2Tqp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:46:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387759AbgF2Tkh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:37 -0400
+        id S2387787AbgF2Tkk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:40 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0BE0F24921;
-        Mon, 29 Jun 2020 15:27:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B84A24920;
+        Mon, 29 Jun 2020 15:27:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444476;
-        bh=wUuYCyPvSVKhGvpP66IJOSYqfV3P4xzWIrHqXDhl3cY=;
+        s=default; t=1593444477;
+        bh=YBsjVRUWqqmyL8LfYEeByOmsDlq4b2dOd9N1TYiQx0o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vxJojArVtWrUNBRULFfbhB9PCh8b+yoe70mpWHbVPU4cemcO4A52W/8Y/4FMdeUXF
-         c59ht7End2M3IU8/xJD/NE+Ck6gsENt2icgpL0eIz1P5siKIzRGln9qj5lSTHWg2YW
-         u4oShPjsypE2gu0dIobDdf1LbMsjf/gQmH9kO+68=
+        b=q1oIbJHZXFEKIMfjysI0NFhHaCVm6eg9qVcl72p7/STAuRxVUdVETDfwXXUjOjNcr
+         xVxQHL5b/2WsaCxGRo2oy7ALoFzgCbaF3hIymak5dvQeob8oz0Hc3KweIxw4KBSjvI
+         wwSxysJHt1bR+tBj6QtrNCw1Wnk15RdZmwJSgUsA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Junxiao Bi <junxiao.bi@oracle.com>,
@@ -33,9 +33,9 @@ Cc:     Junxiao Bi <junxiao.bi@oracle.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.4 155/178] ocfs2: avoid inode removal while nfsd is accessing it
-Date:   Mon, 29 Jun 2020 11:25:00 -0400
-Message-Id: <20200629152523.2494198-156-sashal@kernel.org>
+Subject: [PATCH 5.4 156/178] ocfs2: load global_inode_alloc
+Date:   Mon, 29 Jun 2020 11:25:01 -0400
+Message-Id: <20200629152523.2494198-157-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -56,23 +56,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Junxiao Bi <junxiao.bi@oracle.com>
 
-commit 4cd9973f9ff69e37dd0ba2bd6e6423f8179c329a upstream.
+commit 7569d3c754e452769a5747eeeba488179e38a5da upstream.
 
-Patch series "ocfs2: fix nfsd over ocfs2 issues", v2.
+Set global_inode_alloc as OCFS2_FIRST_ONLINE_SYSTEM_INODE, that will
+make it load during mount.  It can be used to test whether some
+global/system inodes are valid.  One use case is that nfsd will test
+whether root inode is valid.
 
-This is a series of patches to fix issues on nfsd over ocfs2.  patch 1
-is to avoid inode removed while nfsd access it patch 2 & 3 is to fix a
-panic issue.
-
-This patch (of 4):
-
-When nfsd is getting file dentry using handle or parent dentry of some
-dentry, one cluster lock is used to avoid inode removed from other node,
-but it still could be removed from local node, so use a rw lock to avoid
-this.
-
-Link: http://lkml.kernel.org/r/20200616183829.87211-1-junxiao.bi@oracle.com
-Link: http://lkml.kernel.org/r/20200616183829.87211-2-junxiao.bi@oracle.com
+Link: http://lkml.kernel.org/r/20200616183829.87211-3-junxiao.bi@oracle.com
 Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
 Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
 Cc: Changwei Ge <gechangwei@live.cn>
@@ -85,71 +76,23 @@ Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ocfs2/dlmglue.c | 17 ++++++++++++++++-
- fs/ocfs2/ocfs2.h   |  1 +
- 2 files changed, 17 insertions(+), 1 deletion(-)
+ fs/ocfs2/ocfs2_fs.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/ocfs2/dlmglue.c b/fs/ocfs2/dlmglue.c
-index 8a2e284ccfcdb..e2c34c704185d 100644
---- a/fs/ocfs2/dlmglue.c
-+++ b/fs/ocfs2/dlmglue.c
-@@ -689,6 +689,12 @@ static void ocfs2_nfs_sync_lock_res_init(struct ocfs2_lock_res *res,
- 				   &ocfs2_nfs_sync_lops, osb);
- }
- 
-+static void ocfs2_nfs_sync_lock_init(struct ocfs2_super *osb)
-+{
-+	ocfs2_nfs_sync_lock_res_init(&osb->osb_nfs_sync_lockres, osb);
-+	init_rwsem(&osb->nfs_sync_rwlock);
-+}
-+
- void ocfs2_trim_fs_lock_res_init(struct ocfs2_super *osb)
- {
- 	struct ocfs2_lock_res *lockres = &osb->osb_trim_fs_lockres;
-@@ -2855,6 +2861,11 @@ int ocfs2_nfs_sync_lock(struct ocfs2_super *osb, int ex)
- 	if (ocfs2_is_hard_readonly(osb))
- 		return -EROFS;
- 
-+	if (ex)
-+		down_write(&osb->nfs_sync_rwlock);
-+	else
-+		down_read(&osb->nfs_sync_rwlock);
-+
- 	if (ocfs2_mount_local(osb))
- 		return 0;
- 
-@@ -2873,6 +2884,10 @@ void ocfs2_nfs_sync_unlock(struct ocfs2_super *osb, int ex)
- 	if (!ocfs2_mount_local(osb))
- 		ocfs2_cluster_unlock(osb, lockres,
- 				     ex ? LKM_EXMODE : LKM_PRMODE);
-+	if (ex)
-+		up_write(&osb->nfs_sync_rwlock);
-+	else
-+		up_read(&osb->nfs_sync_rwlock);
- }
- 
- int ocfs2_trim_fs_lock(struct ocfs2_super *osb,
-@@ -3340,7 +3355,7 @@ int ocfs2_dlm_init(struct ocfs2_super *osb)
- local:
- 	ocfs2_super_lock_res_init(&osb->osb_super_lockres, osb);
- 	ocfs2_rename_lock_res_init(&osb->osb_rename_lockres, osb);
--	ocfs2_nfs_sync_lock_res_init(&osb->osb_nfs_sync_lockres, osb);
-+	ocfs2_nfs_sync_lock_init(osb);
- 	ocfs2_orphan_scan_lock_res_init(&osb->osb_orphan_scan.os_lockres, osb);
- 
- 	osb->cconn = conn;
-diff --git a/fs/ocfs2/ocfs2.h b/fs/ocfs2/ocfs2.h
-index 9150cfa4df7dc..9461bd3e1c0c8 100644
---- a/fs/ocfs2/ocfs2.h
-+++ b/fs/ocfs2/ocfs2.h
-@@ -394,6 +394,7 @@ struct ocfs2_super
- 	struct ocfs2_lock_res osb_super_lockres;
- 	struct ocfs2_lock_res osb_rename_lockres;
- 	struct ocfs2_lock_res osb_nfs_sync_lockres;
-+	struct rw_semaphore nfs_sync_rwlock;
- 	struct ocfs2_lock_res osb_trim_fs_lockres;
- 	struct mutex obs_trim_fs_mutex;
- 	struct ocfs2_dlm_debug *osb_dlm_debug;
+diff --git a/fs/ocfs2/ocfs2_fs.h b/fs/ocfs2/ocfs2_fs.h
+index 0db4a7ec58a2d..46700f9b6b4cd 100644
+--- a/fs/ocfs2/ocfs2_fs.h
++++ b/fs/ocfs2/ocfs2_fs.h
+@@ -326,8 +326,8 @@ struct ocfs2_system_inode_info {
+ enum {
+ 	BAD_BLOCK_SYSTEM_INODE = 0,
+ 	GLOBAL_INODE_ALLOC_SYSTEM_INODE,
++#define OCFS2_FIRST_ONLINE_SYSTEM_INODE GLOBAL_INODE_ALLOC_SYSTEM_INODE
+ 	SLOT_MAP_SYSTEM_INODE,
+-#define OCFS2_FIRST_ONLINE_SYSTEM_INODE SLOT_MAP_SYSTEM_INODE
+ 	HEARTBEAT_SYSTEM_INODE,
+ 	GLOBAL_BITMAP_SYSTEM_INODE,
+ 	USER_QUOTA_SYSTEM_INODE,
 -- 
 2.25.1
 
