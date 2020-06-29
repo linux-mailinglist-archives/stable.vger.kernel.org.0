@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0683120DA2B
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:13:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D67020DAE0
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:14:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388074AbgF2Ty2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:54:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47656 "EHLO mail.kernel.org"
+        id S2388261AbgF2UB1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:01:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387460AbgF2Tk0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:26 -0400
+        id S2387547AbgF2TkP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:15 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6E0452483F;
-        Mon, 29 Jun 2020 15:25:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9325024840;
+        Mon, 29 Jun 2020 15:25:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444352;
-        bh=k4BViiCZTFDLFtenuQ6Xj6HOd+D0BxckrvynWJCnYMk=;
+        s=default; t=1593444353;
+        bh=HRSgkNNcN9hXr8UE2smMGJ57xFPxY2jHvMplTRcgQkE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mnqLJ3/3NFrBS4TYWGgWit0a0SvAKGLBNTanNWC+1V85QADOs+MKOoWqM9F6PPyEZ
-         m1mBR06rsnF9lqnqBdphrT2LQvgy6SKO4OgQJUbTzT6G0VXd2wNgwqgWkIoHlMT/Ox
-         ViLCUpmUstlhjCZLxmqF+UDCjwfALU7mq9CPgw5g=
+        b=TZPRF0vasjVlx7JUx2yay+l8bL1PPjMbwB60hh0o12hLrnSYGUtkz/evYT8h5GpiC
+         dd2A/IbEp6wa3M+AvnnGTYkD6BNmcGqMqafV60efBLTVWxIqUn562tpK0tRZZfPdK4
+         bf5d8ZX9iIU++v684lib2lesHChmjHkkk2rZhjxo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Neal Cardwell <ncardwell@google.com>,
-        Mirja Kuehlewind <mirja.kuehlewind@ericsson.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.4 027/178] tcp_cubic: fix spurious HYSTART_DELAY exit upon drop in min RTT
-Date:   Mon, 29 Jun 2020 11:22:52 -0400
-Message-Id: <20200629152523.2494198-28-sashal@kernel.org>
+Cc:     Thierry Reding <treding@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 028/178] Revert "i2c: tegra: Fix suspending in active runtime PM state"
+Date:   Mon, 29 Jun 2020 11:22:53 -0400
+Message-Id: <20200629152523.2494198-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -52,53 +48,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neal Cardwell <ncardwell@google.com>
+From: Thierry Reding <treding@nvidia.com>
 
-[ Upstream commit b344579ca8478598937215f7005d6c7b84d28aee ]
+[ Upstream commit 78ad73421831247e46c31899a7bead02740e4bef ]
 
-Mirja Kuehlewind reported a bug in Linux TCP CUBIC Hystart, where
-Hystart HYSTART_DELAY mechanism can exit Slow Start spuriously on an
-ACK when the minimum rtt of a connection goes down. From inspection it
-is clear from the existing code that this could happen in an example
-like the following:
+This reverts commit 9f42de8d4ec2304f10bbc51dc0484f3503d61196.
 
-o The first 8 RTT samples in a round trip are 150ms, resulting in a
-  curr_rtt of 150ms and a delay_min of 150ms.
+It's not safe to use pm_runtime_force_{suspend,resume}(), especially
+during the noirq phase of suspend. See also the guidance provided in
+commit 1e2ef05bb8cf ("PM: Limit race conditions between runtime PM
+and system sleep (v2)").
 
-o The 9th RTT sample is 100ms. The curr_rtt does not change after the
-  first 8 samples, so curr_rtt remains 150ms. But delay_min can be
-  lowered at any time, so delay_min falls to 100ms. The code executes
-  the HYSTART_DELAY comparison between curr_rtt of 150ms and delay_min
-  of 100ms, and the curr_rtt is declared far enough above delay_min to
-  force a (spurious) exit of Slow start.
-
-The fix here is simple: allow every RTT sample in a round trip to
-lower the curr_rtt.
-
-Fixes: ae27e98a5152 ("[TCP] CUBIC v2.3")
-Reported-by: Mirja Kuehlewind <mirja.kuehlewind@ericsson.com>
-Signed-off-by: Neal Cardwell <ncardwell@google.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_cubic.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/i2c/busses/i2c-tegra.c | 9 ---------
+ 1 file changed, 9 deletions(-)
 
-diff --git a/net/ipv4/tcp_cubic.c b/net/ipv4/tcp_cubic.c
-index 1b3d032a4df2a..ee6c38a73325d 100644
---- a/net/ipv4/tcp_cubic.c
-+++ b/net/ipv4/tcp_cubic.c
-@@ -404,6 +404,8 @@ static void hystart_update(struct sock *sk, u32 delay)
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index dbc43cfec19d4..331f7cca9babe 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -1719,14 +1719,9 @@ static int tegra_i2c_remove(struct platform_device *pdev)
+ static int __maybe_unused tegra_i2c_suspend(struct device *dev)
+ {
+ 	struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
+-	int err;
  
- 	if (hystart_detect & HYSTART_DELAY) {
- 		/* obtain the minimum delay of more than sampling packets */
-+		if (ca->curr_rtt > delay)
-+			ca->curr_rtt = delay;
- 		if (ca->sample_cnt < HYSTART_MIN_SAMPLES) {
- 			if (ca->curr_rtt == 0 || ca->curr_rtt > delay)
- 				ca->curr_rtt = delay;
+ 	i2c_mark_adapter_suspended(&i2c_dev->adapter);
+ 
+-	err = pm_runtime_force_suspend(dev);
+-	if (err < 0)
+-		return err;
+-
+ 	return 0;
+ }
+ 
+@@ -1747,10 +1742,6 @@ static int __maybe_unused tegra_i2c_resume(struct device *dev)
+ 	if (err)
+ 		return err;
+ 
+-	err = pm_runtime_force_resume(dev);
+-	if (err < 0)
+-		return err;
+-
+ 	i2c_mark_adapter_resumed(&i2c_dev->adapter);
+ 
+ 	return 0;
 -- 
 2.25.1
 
