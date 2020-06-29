@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E14C20D181
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 20:42:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F17220D188
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 20:42:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728015AbgF2SmD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 14:42:03 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:44605 "EHLO
+        id S1728065AbgF2SmG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 14:42:06 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:49359 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729019AbgF2SmC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Jun 2020 14:42:02 -0400
+        by vger.kernel.org with ESMTP id S1728020AbgF2Sl4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Jun 2020 14:41:56 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 421B166D;
-        Mon, 29 Jun 2020 07:01:31 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 29 Jun 2020 07:01:31 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id E8A0C6D1;
+        Mon, 29 Jun 2020 07:01:50 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 29 Jun 2020 07:01:51 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=hKK9Wg
-        3uEZZ1Q9BLOvEblEHOEBgMihzvrGiWmzpWUIo=; b=YVO9kQdt7CRe7RfNUhD6XP
-        l5MjxZ5edKTp97ye0y0KCVNeylougYY6Hd+h9FT7qSnic+O4sLQexgXD6keuZ9kO
-        BErLPrwv2VbNeqGFHlpgsj371c8Y+CJC+ZTo69Axn1hYnNLf1cxF3qJfq5zXd9vc
-        B7VzqEITQEOaJzixjhmE41ZXwGTwVbXKScgWuWfBazuGIsEeXQc5eafh7WMFJ7AR
-        e/kI37XMbWhSq4JfwLSgs+WINegR5ZDrBG5JEL3cPCZa7Q97DZEsPPb/cmt1f7ei
-        WAgPqD74fKyNh1sSTwiy0GRUaK3SAYobWbf8MzD+lvTqKGf7Abk5xbZ0Sw1IGj6A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=pd3TpG
+        jcELFMZY+GrQDZ6sK7k4dXBfgw7Kmlfnn3VVQ=; b=lfv4+0Y62rIOG6SWTEnJgt
+        524M5UXozBTLcx1iCXrE+d68BPjHlYde2ZUj9nbA5g4V2SVAT+cXEPepXj87Cqu6
+        XjAS/318FCe6ml0UMtXQzxV3pOydpg7kHpoc83SKLpQwY8/S+smFJcVt7madZVFE
+        a4eLxxF+uOdvrOrPan9glgVUskj1mPZsUr3FWFJqJyqHq0my+BrLC0PZHxh416dD
+        F1+HpvBEo3HRdBV31qqsLHGlX2RpXcyoGrfRcfvH6S/LHcVNJ8knWvhhcRt8pERw
+        oYkarx2IyxVDq8bugAMcWeDeKqVnPAdfccVCsqfC+rYyuYtKIcUB3LiqAMuTTwbg
         ==
-X-ME-Sender: <xms:Csr5XjuCBJcpALRGp5HvJTGllFrFVoug_6qxnRRjv0HwhOIW7KM9-g>
+X-ME-Sender: <xms:Hsr5XmT-hVKo9l3c39VUbyDvSVV0xao1n-V7vYjc39tWgBxu9O-ubg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudelkedgfeegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepfeetteehueetheekueevhfefveejheegtdeiudehue
     ekheeijeefgfeuhfeigefhnecuffhomhgrihhnpehqvghmuhdrohhrghenucfkphepkeef
-    rdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepfeenucfrrghrrghmpehmrg
+    rdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgepgeenucfrrghrrghmpehmrg
     hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:Csr5XkeRRtqSJ7oqtjKlpv7mAGUKEL8ijPkcjIkNAyoF8-CRUQcg5g>
-    <xmx:Csr5Xmz9Zc21PXOfizrG9ugX22gqPAR7KqmWd30m-rPnUiNbVwlb3w>
-    <xmx:Csr5XiNbj6L0YaTqGLlSxPjW0lsJU0uYlXVwnA5F5ESZAIJTGukHvQ>
-    <xmx:Csr5XgHcdK_bfVXTqfBkS4dwdUvrZPLHec3M9o4qp2vVqbcTI1zLBmnifzY>
+X-ME-Proxy: <xmx:Hsr5XrxEwQnvNY0C5wBvX3ZxC_kNfDDXJyH2nrpDTMU4HTMPYpp2hw>
+    <xmx:Hsr5Xj2EuyeDcO0Gu-ZYDASoEzvlvEqnkL2nHRdwsvNYIh4CktkjFQ>
+    <xmx:Hsr5XiCIxXYw_01CnkuPt5wwrqnd8zQURwmwqCH0iq7fJzIfGM17RQ>
+    <xmx:Hsr5XhfTim5aE27S1YT1qHohk84KV__DecGWCooQoaZjBGNfRyFw2WkU78Q>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 630003067C59;
-        Mon, 29 Jun 2020 07:01:30 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] btrfs: fix bytes_may_use underflow when running balance and" failed to apply to 4.19-stable tree
-To:     fdmanana@suse.com, dsterba@suse.com, josef@toxicpanda.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 2F2BD3280065;
+        Mon, 29 Jun 2020 07:01:50 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] btrfs: fix race between block group removal and block group" failed to apply to 5.7-stable tree
+To:     fdmanana@suse.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 29 Jun 2020 13:01:22 +0200
-Message-ID: <15934284829262@kroah.com>
+Date:   Mon, 29 Jun 2020 13:01:42 +0200
+Message-ID: <1593428502197204@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.7-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -69,149 +69,167 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 6bd335b469f945f75474c11e3f577f85409f39c3 Mon Sep 17 00:00:00 2001
+From ffcb9d44572afbaf8fa6dbf5115bff6dab7b299e Mon Sep 17 00:00:00 2001
 From: Filipe Manana <fdmanana@suse.com>
-Date: Mon, 8 Jun 2020 13:33:05 +0100
-Subject: [PATCH] btrfs: fix bytes_may_use underflow when running balance and
- scrub in parallel
+Date: Mon, 1 Jun 2020 19:12:19 +0100
+Subject: [PATCH] btrfs: fix race between block group removal and block group
+ creation
 
-When balance and scrub are running in parallel it is possible to end up
-with an underflow of the bytes_may_use counter of the data space_info
-object, which triggers a warning like the following:
+There is a race between block group removal and block group creation
+when the removal is completed by a task running fitrim or scrub. When
+this happens we end up failing the block group creation with an error
+-EEXIST since we attempt to insert a duplicate block group item key
+in the extent tree. That results in a transaction abort.
 
-   [134243.793196] BTRFS info (device sdc): relocating block group 1104150528 flags data
-   [134243.806891] ------------[ cut here ]------------
-   [134243.807561] WARNING: CPU: 1 PID: 26884 at fs/btrfs/space-info.h:125 btrfs_add_reserved_bytes+0x1da/0x280 [btrfs]
-   [134243.808819] Modules linked in: btrfs blake2b_generic xor (...)
-   [134243.815779] CPU: 1 PID: 26884 Comm: kworker/u8:8 Tainted: G        W         5.6.0-rc7-btrfs-next-58 #5
-   [134243.816944] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
-   [134243.818389] Workqueue: writeback wb_workfn (flush-btrfs-108483)
-   [134243.819186] RIP: 0010:btrfs_add_reserved_bytes+0x1da/0x280 [btrfs]
-   [134243.819963] Code: 0b f2 85 (...)
-   [134243.822271] RSP: 0018:ffffa4160aae7510 EFLAGS: 00010287
-   [134243.822929] RAX: 000000000000c000 RBX: ffff96159a8c1000 RCX: 0000000000000000
-   [134243.823816] RDX: 0000000000008000 RSI: 0000000000000000 RDI: ffff96158067a810
-   [134243.824742] RBP: ffff96158067a800 R08: 0000000000000001 R09: 0000000000000000
-   [134243.825636] R10: ffff961501432a40 R11: 0000000000000000 R12: 000000000000c000
-   [134243.826532] R13: 0000000000000001 R14: ffffffffffff4000 R15: ffff96158067a810
-   [134243.827432] FS:  0000000000000000(0000) GS:ffff9615baa00000(0000) knlGS:0000000000000000
-   [134243.828451] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-   [134243.829184] CR2: 000055bd7e414000 CR3: 00000001077be004 CR4: 00000000003606e0
-   [134243.830083] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-   [134243.830975] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-   [134243.831867] Call Trace:
-   [134243.832211]  find_free_extent+0x4a0/0x16c0 [btrfs]
-   [134243.832846]  btrfs_reserve_extent+0x91/0x180 [btrfs]
-   [134243.833487]  cow_file_range+0x12d/0x490 [btrfs]
-   [134243.834080]  fallback_to_cow+0x82/0x1b0 [btrfs]
-   [134243.834689]  ? release_extent_buffer+0x121/0x170 [btrfs]
-   [134243.835370]  run_delalloc_nocow+0x33f/0xa30 [btrfs]
-   [134243.836032]  btrfs_run_delalloc_range+0x1ea/0x6d0 [btrfs]
-   [134243.836725]  ? find_lock_delalloc_range+0x221/0x250 [btrfs]
-   [134243.837450]  writepage_delalloc+0xe8/0x150 [btrfs]
-   [134243.838059]  __extent_writepage+0xe8/0x4c0 [btrfs]
-   [134243.838674]  extent_write_cache_pages+0x237/0x530 [btrfs]
-   [134243.839364]  extent_writepages+0x44/0xa0 [btrfs]
-   [134243.839946]  do_writepages+0x23/0x80
-   [134243.840401]  __writeback_single_inode+0x59/0x700
-   [134243.841006]  writeback_sb_inodes+0x267/0x5f0
-   [134243.841548]  __writeback_inodes_wb+0x87/0xe0
-   [134243.842091]  wb_writeback+0x382/0x590
-   [134243.842574]  ? wb_workfn+0x4a2/0x6c0
-   [134243.843030]  wb_workfn+0x4a2/0x6c0
-   [134243.843468]  process_one_work+0x26d/0x6a0
-   [134243.843978]  worker_thread+0x4f/0x3e0
-   [134243.844452]  ? process_one_work+0x6a0/0x6a0
-   [134243.844981]  kthread+0x103/0x140
-   [134243.845400]  ? kthread_create_worker_on_cpu+0x70/0x70
-   [134243.846030]  ret_from_fork+0x3a/0x50
-   [134243.846494] irq event stamp: 0
-   [134243.846892] hardirqs last  enabled at (0): [<0000000000000000>] 0x0
-   [134243.847682] hardirqs last disabled at (0): [<ffffffffb2abdedf>] copy_process+0x74f/0x2020
-   [134243.848687] softirqs last  enabled at (0): [<ffffffffb2abdedf>] copy_process+0x74f/0x2020
-   [134243.849913] softirqs last disabled at (0): [<0000000000000000>] 0x0
-   [134243.850698] ---[ end trace bd7c03622e0b0a96 ]---
-   [134243.851335] ------------[ cut here ]------------
+The race happens like this:
 
-When relocating a data block group, for each extent allocated in the
-block group we preallocate another extent with the same size for the
-data relocation inode (we do it at prealloc_file_extent_cluster()).
-We reserve space by calling btrfs_check_data_free_space(), which ends
-up incrementing the data space_info's bytes_may_use counter, and
-then call btrfs_prealloc_file_range() to allocate the extent, which
-always decrements the bytes_may_use counter by the same amount.
+1) Task A is doing a fitrim, and at btrfs_trim_block_group() it freezes
+   block group X with btrfs_freeze_block_group() (until very recently
+   that was named btrfs_get_block_group_trimming());
 
-The expectation is that writeback of the data relocation inode always
-follows a NOCOW path, by writing into the preallocated extents. However,
-when starting writeback we might end up falling back into the COW path,
-because the block group that contains the preallocated extent was turned
-into RO mode by a scrub running in parallel. The COW path then calls the
-extent allocator which ends up calling btrfs_add_reserved_bytes(), and
-this function decrements the bytes_may_use counter of the data space_info
-object by an amount corresponding to the size of the allocated extent,
-despite we haven't previously incremented it. When the counter currently
-has a value smaller then the allocated extent we reset the counter to 0
-and emit a warning, otherwise we just decrement it and slowly mess up
-with this counter which is crucial for space reservation, the end result
-can be granting reserved space to tasks when there isn't really enough
-free space, and having the tasks fail later in critical places where
-error handling consists of a transaction abort or hitting a BUG_ON().
+2) Task B starts removing block group X, either because it's now unused
+   or due to relocation for example. So at btrfs_remove_block_group(),
+   while holding the chunk mutex and the block group's lock, it sets
+   the 'removed' flag of the block group and it sets the local variable
+   'remove_em' to false, because the block group is currently frozen
+   (its 'frozen' counter is > 0, until very recently this counter was
+   named 'trimming');
 
-Fix this by making sure that if we fallback to the COW path for a data
-relocation inode, we increment the bytes_may_use counter of the data
-space_info object. The COW path will then decrement it at
-btrfs_add_reserved_bytes() on success or through its error handling part
-by a call to extent_clear_unlock_delalloc() (which ends up calling
-btrfs_clear_delalloc_extent() that does the decrement operation) in case
-of an error.
+3) Task B unlocks the block group and the chunk mutex;
 
-Test case btrfs/061 from fstests could sporadically trigger this.
+4) Task A is done trimming the block group and unfreezes the block group
+   by calling btrfs_unfreeze_block_group() (until very recently this was
+   named btrfs_put_block_group_trimming()). In this function we lock the
+   block group and set the local variable 'cleanup' to true because we
+   were able to decrement the block group's 'frozen' counter down to 0 and
+   the flag 'removed' is set in the block group.
 
+   Since 'cleanup' is set to true, it locks the chunk mutex and removes
+   the extent mapping representing the block group from the mapping tree;
+
+5) Task C allocates a new block group Y and it picks up the logical address
+   that block group X had as the logical address for Y, because X was the
+   block group with the highest logical address and now the second block
+   group with the highest logical address, the last in the fs mapping tree,
+   ends at an offset corresponding to block group X's logical address (this
+   logical address selection is done at volumes.c:find_next_chunk()).
+
+   At this point the new block group Y does not have yet its item added
+   to the extent tree (nor the corresponding device extent items and
+   chunk item in the device and chunk trees). The new group Y is added to
+   the list of pending block groups in the transaction handle;
+
+6) Before task B proceeds to removing the block group item for block
+   group X from the extent tree, which has a key matching:
+
+   (X logical offset, BTRFS_BLOCK_GROUP_ITEM_KEY, length)
+
+   task C while ending its transaction handle calls
+   btrfs_create_pending_block_groups(), which finds block group Y and
+   tries to insert the block group item for Y into the exten tree, which
+   fails with -EEXIST since logical offset is the same that X had and
+   task B hasn't yet deleted the key from the extent tree.
+   This failure results in a transaction abort, producing a stack like
+   the following:
+
+------------[ cut here ]------------
+ BTRFS: Transaction aborted (error -17)
+ WARNING: CPU: 2 PID: 19736 at fs/btrfs/block-group.c:2074 btrfs_create_pending_block_groups+0x1eb/0x260 [btrfs]
+ Modules linked in: btrfs blake2b_generic xor raid6_pq (...)
+ CPU: 2 PID: 19736 Comm: fsstress Tainted: G        W         5.6.0-rc7-btrfs-next-58 #5
+ Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
+ RIP: 0010:btrfs_create_pending_block_groups+0x1eb/0x260 [btrfs]
+ Code: ff ff ff 48 8b 55 50 f0 48 (...)
+ RSP: 0018:ffffa4160a1c7d58 EFLAGS: 00010286
+ RAX: 0000000000000000 RBX: ffff961581909d98 RCX: 0000000000000000
+ RDX: 0000000000000001 RSI: ffffffffb3d63990 RDI: 0000000000000001
+ RBP: ffff9614f3356a58 R08: 0000000000000000 R09: 0000000000000001
+ R10: ffff9615b65b0040 R11: 0000000000000000 R12: ffff961581909c10
+ R13: ffff9615b0c32000 R14: ffff9614f3356ab0 R15: ffff9614be779000
+ FS:  00007f2ce2841e80(0000) GS:ffff9615bae00000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 0000555f18780000 CR3: 0000000131d34005 CR4: 00000000003606e0
+ DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+ DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+ Call Trace:
+  btrfs_start_dirty_block_groups+0x398/0x4e0 [btrfs]
+  btrfs_commit_transaction+0xd0/0xc50 [btrfs]
+  ? btrfs_attach_transaction_barrier+0x1e/0x50 [btrfs]
+  ? __ia32_sys_fdatasync+0x20/0x20
+  iterate_supers+0xdb/0x180
+  ksys_sync+0x60/0xb0
+  __ia32_sys_sync+0xa/0x10
+  do_syscall_64+0x5c/0x280
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+ RIP: 0033:0x7f2ce1d4d5b7
+ Code: 83 c4 08 48 3d 01 (...)
+ RSP: 002b:00007ffd8b558c58 EFLAGS: 00000202 ORIG_RAX: 00000000000000a2
+ RAX: ffffffffffffffda RBX: 000000000000002c RCX: 00007f2ce1d4d5b7
+ RDX: 00000000ffffffff RSI: 00000000186ba07b RDI: 000000000000002c
+ RBP: 0000555f17b9e520 R08: 0000000000000012 R09: 000000000000ce00
+ R10: 0000000000000078 R11: 0000000000000202 R12: 0000000000000032
+ R13: 0000000051eb851f R14: 00007ffd8b558cd0 R15: 0000555f1798ec20
+ irq event stamp: 0
+ hardirqs last  enabled at (0): [<0000000000000000>] 0x0
+ hardirqs last disabled at (0): [<ffffffffb2abdedf>] copy_process+0x74f/0x2020
+ softirqs last  enabled at (0): [<ffffffffb2abdedf>] copy_process+0x74f/0x2020
+ softirqs last disabled at (0): [<0000000000000000>] 0x0
+ ---[ end trace bd7c03622e0b0a9c ]---
+
+Fix this simply by making btrfs_remove_block_group() remove the block
+group's item from the extent tree before it flags the block group as
+removed. Also make the free space deletion from the free space tree
+before flagging the block group as removed, to avoid a similar race
+with adding and removing free space entries for the free space tree.
+
+Fixes: 04216820fe83d5 ("Btrfs: fix race between fs trimming and block group remove/allocation")
 CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
 Signed-off-by: Filipe Manana <fdmanana@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index 62c3f4972ff6..62b49d2db928 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -1378,6 +1378,8 @@ static int fallback_to_cow(struct inode *inode, struct page *locked_page,
- 			   int *page_started, unsigned long *nr_written)
- {
- 	const bool is_space_ino = btrfs_is_free_space_inode(BTRFS_I(inode));
-+	const bool is_reloc_ino = (BTRFS_I(inode)->root->root_key.objectid ==
-+				   BTRFS_DATA_RELOC_TREE_OBJECTID);
- 	const u64 range_bytes = end + 1 - start;
- 	struct extent_io_tree *io_tree = &BTRFS_I(inode)->io_tree;
- 	u64 range_start = start;
-@@ -1408,18 +1410,23 @@ static int fallback_to_cow(struct inode *inode, struct page *locked_page,
- 	 *    data space info, which we incremented in the step above.
- 	 *
- 	 * If we need to fallback to cow and the inode corresponds to a free
--	 * space cache inode, we must also increment bytes_may_use of the data
--	 * space_info for the same reason. Space caches always get a prealloc
-+	 * space cache inode or an inode of the data relocation tree, we must
-+	 * also increment bytes_may_use of the data space_info for the same
-+	 * reason. Space caches and relocated data extents always get a prealloc
- 	 * extent for them, however scrub or balance may have set the block
--	 * group that contains that extent to RO mode.
-+	 * group that contains that extent to RO mode and therefore force COW
-+	 * when starting writeback.
- 	 */
- 	count = count_range_bits(io_tree, &range_start, end, range_bytes,
- 				 EXTENT_NORESERVE, 0);
--	if (count > 0 || is_space_ino) {
--		const u64 bytes = is_space_ino ? range_bytes : count;
-+	if (count > 0 || is_space_ino || is_reloc_ino) {
-+		u64 bytes = count;
- 		struct btrfs_fs_info *fs_info = BTRFS_I(inode)->root->fs_info;
- 		struct btrfs_space_info *sinfo = fs_info->data_sinfo;
+diff --git a/fs/btrfs/block-group.c b/fs/btrfs/block-group.c
+index 6462dd0b155c..c037ef514b64 100644
+--- a/fs/btrfs/block-group.c
++++ b/fs/btrfs/block-group.c
+@@ -1092,6 +1092,25 @@ int btrfs_remove_block_group(struct btrfs_trans_handle *trans,
  
-+		if (is_space_ino || is_reloc_ino)
-+			bytes = range_bytes;
+ 	spin_unlock(&block_group->space_info->lock);
+ 
++	/*
++	 * Remove the free space for the block group from the free space tree
++	 * and the block group's item from the extent tree before marking the
++	 * block group as removed. This is to prevent races with tasks that
++	 * freeze and unfreeze a block group, this task and another task
++	 * allocating a new block group - the unfreeze task ends up removing
++	 * the block group's extent map before the task calling this function
++	 * deletes the block group item from the extent tree, allowing for
++	 * another task to attempt to create another block group with the same
++	 * item key (and failing with -EEXIST and a transaction abort).
++	 */
++	ret = remove_block_group_free_space(trans, block_group);
++	if (ret)
++		goto out;
 +
- 		spin_lock(&sinfo->lock);
- 		btrfs_space_info_update_bytes_may_use(fs_info, sinfo, bytes);
- 		spin_unlock(&sinfo->lock);
++	ret = remove_block_group_item(trans, path, block_group);
++	if (ret < 0)
++		goto out;
++
+ 	mutex_lock(&fs_info->chunk_mutex);
+ 	spin_lock(&block_group->lock);
+ 	block_group->removed = 1;
+@@ -1126,14 +1145,6 @@ int btrfs_remove_block_group(struct btrfs_trans_handle *trans,
+ 
+ 	mutex_unlock(&fs_info->chunk_mutex);
+ 
+-	ret = remove_block_group_free_space(trans, block_group);
+-	if (ret)
+-		goto out;
+-
+-	ret = remove_block_group_item(trans, path, block_group);
+-	if (ret < 0)
+-		goto out;
+-
+ 	if (remove_em) {
+ 		struct extent_map_tree *em_tree;
+ 
 
