@@ -2,123 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38FE220E1F4
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:59:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0293520E0AA
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:57:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732279AbgF2VBO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:01:14 -0400
+        id S1728027AbgF2Usk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:48:40 -0400
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731194AbgF2TM5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Jun 2020 15:12:57 -0400
-Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91A3BC08EC10;
-        Sun, 28 Jun 2020 23:49:30 -0700 (PDT)
-Received: by mail-ej1-x644.google.com with SMTP id i14so15404630ejr.9;
-        Sun, 28 Jun 2020 23:49:30 -0700 (PDT)
+        with ESMTP id S1731517AbgF2TNt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Jun 2020 15:13:49 -0400
+Received: from mail-il1-x142.google.com (mail-il1-x142.google.com [IPv6:2607:f8b0:4864:20::142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D3F7C08ECB6
+        for <stable@vger.kernel.org>; Sun, 28 Jun 2020 23:50:34 -0700 (PDT)
+Received: by mail-il1-x142.google.com with SMTP id t27so8535896ill.9
+        for <stable@vger.kernel.org>; Sun, 28 Jun 2020 23:50:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=GhYE10QAs2eBgL/jTh3H4abtZ2nGJeeaFPnZ4jyf5aw=;
+        b=dOmEgW3bC1HR5pmivirmGofv12uLJkkKbF/6ph9vFfrm185VO/k6KdlvpzJfARZuzD
+         OtjSRpj2n3JFH8mRNyFTZI3L82Z/IeZhW5CUqUOrmP1WtA2zgVaH/iC7c5lY/Cu9BdxX
+         seu2z9tIQnfYXdmTmR+PV+7Ki543VWB2U7J48HBWevNSHgSxwliSO8uqt7AwkKZKEFou
+         RPhiNhBSdKIA1wEWVvl92RHndXw1XIej7hHrdT6t0uJyygByFQh2C4qcVmhXVbaCIiNG
+         pdcwIHpK/vqqm1U753XGmaLuJgpORZtfdvldyM3p36J2TkQCywoWzh8QN7aUTJsFk6K/
+         SYxQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=TKwtdoMLrftBw60aqwE/HJ7d+xVc1MlrSqukfHqaiKs=;
-        b=UWgpYyJEbr4N8zXRK13WZy/tUvJMtbfOUekjNMHFmwfJ/soRso//841nXY0LQR6DYA
-         xXL+6rVvCRE//21iNgN2bPGhKpH+BSZ8kDqfxPE9hIbxIv7agzh0esjiazmBeDh4wQHE
-         zBN6pjs8Kgru3mWxD9RhlG/otTjlIN3SdGFgk0vEhhxCwMA3+T6k5LLwfjwxm4lfCVfn
-         +7XId92ZB/Pasxk1U3lyEet6gZS3UQxBmWqaaxyCoj+a9qdg5A2jxSpDd8TecieQWif3
-         PRhFI5rPQ/BMNgtv6bEEQ/Fkqe/yxY+GWf+4p4B8HeDRdZdE8YwsIpq21V4ezVVXpyG5
-         bKQg==
-X-Gm-Message-State: AOAM531QXUskNPjvHRc0mKFJE/ojsBu5he/hA3Hyh8/ag0Jkd4SagqjY
-        eLrdb4TSI7ZmeIbId2haebc=
-X-Google-Smtp-Source: ABdhPJzXl7soEl0o86brPX6M1qQlUE37P3YFwoNS0PcuQCOlQOznanTfQcYMHYD9r9X7IdwabM3H7w==
-X-Received: by 2002:a17:906:e299:: with SMTP id gg25mr12372085ejb.160.1593413369113;
-        Sun, 28 Jun 2020 23:49:29 -0700 (PDT)
-Received: from kozik-lap ([194.230.155.195])
-        by smtp.googlemail.com with ESMTPSA id o14sm13662343eja.121.2020.06.28.23.49.27
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Sun, 28 Jun 2020 23:49:28 -0700 (PDT)
-Date:   Mon, 29 Jun 2020 08:49:25 +0200
-From:   Krzysztof Kozlowski <krzk@kernel.org>
-To:     Jonathan Cameron <jic23@kernel.org>
-Cc:     Hartmut Knaack <knaack.h@gmx.de>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-        Rob Herring <robh+dt@kernel.org>, linux-iio@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] dt-bindings: iio: bmc150_magn: Document missing
- compatibles
-Message-ID: <20200629064925.GA5879@kozik-lap>
-References: <20200617101259.12525-1-krzk@kernel.org>
- <20200620164049.5aa91365@archlinux>
- <20200622051940.GA4021@kozik-lap>
- <20200627155714.15478f60@archlinux>
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=GhYE10QAs2eBgL/jTh3H4abtZ2nGJeeaFPnZ4jyf5aw=;
+        b=Sedlfayh8vTIkKcDIUP11ykTUGz2hXxV3VMHo86xbDPVLQk1rPGvuWgHI/AsoKzW70
+         NHZtRM68Hz/znV0SJKMlx5Dhpiy1gboxLIIrtEjryhhsLf0mpgoGP7L+Tvmrqh18dHMk
+         dZIGnlaN7++qtPnowKM07nmoLrJZeZVK7A4p3aWagJi/3D0q8cYBHYz/WAQ8okfjs5Br
+         cGfH9baNF0UqMPnXr8ZfQpMs5INBPzb4E0yOl/FbcKFEO4M3CCSTnVhBsSaR84r+1Qb1
+         QhM+JyW2d4ISDTkKnalccskVe5d9FFkh66Dq1aAJWD8F2rsju21h+BcTrf/wTbmxzTtV
+         uO8A==
+X-Gm-Message-State: AOAM531FwlAMIEsK7efk/i7M0l7SaI20FTGJHcHKqumAnT9g7V2llRG3
+        g5Qxad1mRevifmsrP4Bzats6WnNbUp/WnkhbiqY=
+X-Google-Smtp-Source: ABdhPJx04uOprVTTZeIbouxrbDWjn8WLXqIERbQ4RY/x51OQSNuvquOhdBanDbZ21uh+d8Wgoui3k/zBYXnWXo1b4OA=
+X-Received: by 2002:a92:4995:: with SMTP id k21mr384586ilg.45.1593413433746;
+ Sun, 28 Jun 2020 23:50:33 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20200627155714.15478f60@archlinux>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Received: by 2002:a5e:d916:0:0:0:0:0 with HTTP; Sun, 28 Jun 2020 23:50:33
+ -0700 (PDT)
+Reply-To: scdn-1@tlen.pl
+From:   "Mrs. Patricia Edgar" <alexwills033@gmail.com>
+Date:   Sun, 28 Jun 2020 23:50:33 -0700
+Message-ID: <CAPByBJsHMMs4hkmrsc501s=LRjv_ikFpR4iO6hz1o7dD=U81Zg@mail.gmail.com>
+Subject: Your Response,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jun 27, 2020 at 03:57:14PM +0100, Jonathan Cameron wrote:
-> On Mon, 22 Jun 2020 07:19:40 +0200
-> Krzysztof Kozlowski <krzk@kernel.org> wrote:
-> 
-> > On Sat, Jun 20, 2020 at 04:40:49PM +0100, Jonathan Cameron wrote:
-> > > On Wed, 17 Jun 2020 12:12:59 +0200
-> > > Krzysztof Kozlowski <krzk@kernel.org> wrote:
-> > >   
-> > > > The driver supports also BMC156B and BMM150B so document the compatibles
-> > > > for these devices.
-> > > > 
-> > > > Fixes: 9d75db36df14 ("iio: magn: Add support for BMM150 magnetometer")
-> > > > Cc: <stable@vger.kernel.org>
-> > > > Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-> > > > 
-> > > > ---
-> > > > 
-> > > > The fixes tag is not accurate but at least offer some backporting.  
-> > > 
-> > > I'm not sure we generally bother backporting a missing section of binding
-> > > documentation. Particularly as this doc isn't in yaml yet so it's not
-> > > as though any automated checking is likely to be occurring.
-> > > 
-> > > Rob, any views on backporting this sort of missing id addition?
-> > > 
-> > > One side comment here is that the devices that are magnetometers only
-> > > should never have had the _magn prefix in their compatibles. We only
-> > > do that for devices in incorporating several sensors in one package
-> > > (like the bmc150) where we have multiple drivers for the different
-> > > sensors incorporated. We are too late to fix that now though.  It
-> > > may make sense to mark the _magn variants deprecated though and
-> > > add the ones without the _magn postfix.  
-> > 
-> > I can add proper compatibles and mark these as deprecated but actually
-> > the driver should not have additional compatibles in first place - all
-> > devices are just compatible with bosch,bmc150.
-> 
-> Why not?  Whilst the devices may be compatible in theory, it's not unusual
-> for subtle differences to emerge later.   As such we tend to at least
-> support the most specific compatible possible for a part - though we
-> can use fallback compatibles.
+Hello,
+I am Mrs. Patricia Edgar My Sorrow Is Deep Bitter dying Woman here in
+Hospital Bed in United State. I Lost my Husband and my only Daughter
+Angela for heartless Covid-19 i am the only remaining in the Family am
+dying here in the Hospital slowly Heart Disease Corona-virus High
+Blood.
 
-It does not strictly harm but have in mind that adding is always
-possible (when you spot the difference between devices). But it is
-entirely different with removal - it takes time to deprecate one and to
-remove it.
+i have a project that I am about to hand over to you. I have already
+instructed the Bank to make the transfer to you as soon as the Account
+Manager hear from you. the fund i want you to give 50% to Charitable
+Home and take 50% Please, don't think otherwise and why would anybody
+sent someone you barely know a huge amount of money is this real or
+what? please do as i said there was someone from that State i Love and
+i miss him so very very much i have no means to reach any Charitable
+Home there. that is why i go for personal search of the Country and
+State and i got your mail contact through search to let you know my
+Bitterness and please, help me now is getting very Dark I ask my
+Doctor to help me keep you notice failure for me to reach you in
+person Your Response,
 
-There is just no benefit for adding new compatibles for really
-compatible devices. The module device table just grows. It makes sense
-however to document in bindings that given compatible serves family of
-devices.
-
-Somehow driver developers got impression that they need to make a commit
-like "Add support for xyz123 device" adding only compatible, to bring
-support for new device. But the support was already there so just
-document that xyz001 is compatible with xyz123.
-
-Best regards,
-Krzysztof
-
+Thanks.
+Mrs. Patricia Edgar
