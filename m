@@ -2,108 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C335720D9AC
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:12:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5761120D824
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:08:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731930AbgF2Ttl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:49:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47696 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387752AbgF2Tkh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:37 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 04F28255A7;
-        Mon, 29 Jun 2020 17:11:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593450682;
-        bh=8lDpxQ3aT45//5lXfEUlYjzKHtE33hJ9wKgcm0mKrw8=;
-        h=Subject:To:From:Date:From;
-        b=AwMWH8XZsG26z/Ig0e9/WCp6yF2JBvW1Mn04gu/L7AeOckiyhcL6SZjQQkNygfEMy
-         i0/q5u+EqqbzkNITunFVLxm+Qp16vE+pkHJBj4h0lMRwsWKZJw6tdLV8S8qt1Q6Fv1
-         FkDbaoAWn1aH1yxNPCGuuwQZGNoR9c6P39MjblYo=
-Subject: patch "mei: bus: don't clean driver pointer" added to char-misc-linus
-To:     alexander.usyskin@intel.com, apw@canonical.com,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org,
-        tomas.winkler@intel.com
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 29 Jun 2020 19:11:04 +0200
-Message-ID: <1593450664160167@kroah.com>
+        id S1729271AbgF2Tgc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:36:32 -0400
+Received: from smtp-fw-4101.amazon.com ([72.21.198.25]:54693 "EHLO
+        smtp-fw-4101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729305AbgF2TgX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Jun 2020 15:36:23 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1593459383; x=1624995383;
+  h=from:to:cc:subject:date:message-id:mime-version;
+  bh=b4/y29sI+1yiTQiF1xYesH4kt0pQMd5eSrVNTpeSPi4=;
+  b=LhMrpjSDf/mnZHYhSrEDPKDmdrPwxiQfr1dbGMLPojkN6ps2Afa7AiEa
+   Vg3gYnKcTSWGjSF2j8DBPkd7PVqE78er3SOTq6THG/PC0pHFD5xhJCVPf
+   c5Zgpk2UuTgvDaEIoxB9kIq7GKpENd0xy7PTHSilfNgCtiOvzgmi4YkwW
+   s=;
+IronPort-SDR: 30ZfxPliLXRENJTl2hI0YJ7tElU9JTYqigHOFsbk/lUG7zcXVx6pI7nW0ogcDx+3yHCtxim+sP
+ YCQMGiTTYanQ==
+X-IronPort-AV: E=Sophos;i="5.75,295,1589241600"; 
+   d="scan'208";a="39176521"
+Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO email-inbound-relay-1d-5dd976cd.us-east-1.amazon.com) ([10.43.8.6])
+  by smtp-border-fw-out-4101.iad4.amazon.com with ESMTP; 29 Jun 2020 19:36:19 +0000
+Received: from EX13MTAUEA002.ant.amazon.com (iad55-ws-svc-p15-lb9-vlan3.iad.amazon.com [10.40.159.166])
+        by email-inbound-relay-1d-5dd976cd.us-east-1.amazon.com (Postfix) with ESMTPS id B7CFDA1C47;
+        Mon, 29 Jun 2020 19:36:17 +0000 (UTC)
+Received: from EX13D31EUA004.ant.amazon.com (10.43.165.161) by
+ EX13MTAUEA002.ant.amazon.com (10.43.61.77) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Mon, 29 Jun 2020 19:36:17 +0000
+Received: from u886c93fd17d25d.ant.amazon.com (10.43.160.48) by
+ EX13D31EUA004.ant.amazon.com (10.43.165.161) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2; Mon, 29 Jun 2020 19:36:12 +0000
+From:   SeongJae Park <sjpark@amazon.com>
+To:     <gregkh@linuxfoundation.org>, <sashal@kernel.org>
+CC:     <sj38.park@gmail.com>, <stable@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Upstream fixes not merged in 5.4.y
+Date:   Mon, 29 Jun 2020 21:35:37 +0200
+Message-ID: <20200629193537.21738-1-sjpark@amazon.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.43.160.48]
+X-ClientProxiedBy: EX13D04UWB001.ant.amazon.com (10.43.161.46) To
+ EX13D31EUA004.ant.amazon.com (10.43.165.161)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-This is a note to let you know that I've just added the patch titled
-
-    mei: bus: don't clean driver pointer
-
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
+Hello,
 
 
-From e852c2c251ed9c23ae6e3efebc5ec49adb504207 Mon Sep 17 00:00:00 2001
-From: Alexander Usyskin <alexander.usyskin@intel.com>
-Date: Mon, 29 Jun 2020 01:53:59 +0300
-Subject: mei: bus: don't clean driver pointer
+With my little script, I found below commits in the mainline tree are more than
+1 week old and fixing commits that back-ported in v5.4..v5.4.49 but not merged
+in the stable/linux-5.4.y tree.  Are those need to be merged in but missed or
+dealyed?
 
-It's not needed to set driver to NULL in mei_cl_device_remove()
-which is bus_type remove() handler as this is done anyway
-in __device_release_driver().
+9210c075cef2 ("nvme-pci: avoid race between nvme_reap_pending_cqes() and nvme_poll()")
+9fecd13202f5 ("btrfs: fix a block group ref counter leak after failure to remove block group")
+9d964e1b82d8 ("fix a braino in "sparc32: fix register window handling in genregs32_[gs]et()"")
+8ab3a3812aa9 ("drm/i915/gt: Incrementally check for rewinding")
+6e2f83884c09 ("bnxt_en: Fix AER reset logic on 57500 chips.")
+efb94790852a ("drm/panel-simple: fix connector type for LogicPD Type28 Display")
+ff58bbc7b970 ("ALSA: usb-audio: Fix potential use-after-free of streams")
+ff58bbc7b970 ("ALSA: usb-audio: Fix potential use-after-free of streams")
+8dbe4c5d5e40 ("net: dsa: bcm_sf2: Fix node reference count")
+ca8826095e4d ("selftests/net: report etf errors correctly")
+5a8d7f126c97 ("of: of_mdio: Correct loop scanning logic")
+d35d3660e065 ("binder: fix null deref of proc->context")
 
-Actually this is causing an endless loop in driver_detach()
-on ubuntu patched kernel, while removing (rmmod) the mei_hdcp module.
-The reason list_empty(&drv->p->klist_devices.k_list) is always not-empty.
-as the check is always true in  __device_release_driver()
-	if (dev->driver != drv)
-		return;
-
-The non upstream patch is causing this behavior, titled:
-'vfio -- release device lock before userspace requests'
-
-Nevertheless the fix is correct also for the upstream.
-
-Link: https://patchwork.ozlabs.org/project/ubuntu-kernel/patch/20180912085046.3401-2-apw@canonical.com/
-Cc: <stable@vger.kernel.org>
-Cc: Andy Whitcroft <apw@canonical.com>
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20200628225359.2185929-1-tomas.winkler@intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/misc/mei/bus.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
-diff --git a/drivers/misc/mei/bus.c b/drivers/misc/mei/bus.c
-index 8d468e0a950a..f476dbc7252b 100644
---- a/drivers/misc/mei/bus.c
-+++ b/drivers/misc/mei/bus.c
-@@ -745,9 +745,8 @@ static int mei_cl_device_remove(struct device *dev)
- 
- 	mei_cl_bus_module_put(cldev);
- 	module_put(THIS_MODULE);
--	dev->driver = NULL;
--	return ret;
- 
-+	return ret;
- }
- 
- static ssize_t name_show(struct device *dev, struct device_attribute *a,
--- 
-2.27.0
+The script found several more commits but I exclude those here, because those
+seems not applicable on 5.4.y or fixing trivial problems only.  If I'm not
+following a proper process for this kind of reports, please let me know.
 
 
+Thanks,
+SeongJae Park
