@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09E6520D723
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:06:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9E7220DC1C
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:16:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730220AbgF2T1W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:27:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37072 "EHLO mail.kernel.org"
+        id S1726554AbgF2UMR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:12:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732667AbgF2TZn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:25:43 -0400
+        id S1732883AbgF2TaV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:30:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E63D32538E;
-        Mon, 29 Jun 2020 15:40:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D6F3525317;
+        Mon, 29 Jun 2020 15:39:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445258;
-        bh=n1Cc7AO/NCJwt7ao+2iFJ8N6fB59Qxob9gL4uCsLVIU=;
+        s=default; t=1593445145;
+        bh=kQvr20PH6P7HMgnnOg/6cEQl1b6N7Ru9B3CPfUxmv1w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o/uNSMtSrWPXkU4OzSBa9I1luj320nFzd7wwAtANe+YID7iag+OtbJCNcerkuOPoV
-         Hc+dD8HiiQaxio6zH/LJQfcXWNlzwK/WIpkKKR7bDaivB4Sny9TiftQa5j03ZAPXwk
-         4+v58WNqLD8jhcrNSTa0IFeBnnShW7alQ3h0bBQM=
+        b=Jxa92TIzw9BIVqyCZsCN5PGvG0xA2Q3t/sZGASgpVdhkjEZoATJYJblaOdVssjozc
+         OyB9jumSTWS5CsYNh8UCpoRLfVS63x0Uw8DFw9CBq+WeBLs6PbvVhIc57w1h0jH3sn
+         aPTNYQb68IRLkU2IogoYhLxtnXKdbUmny5pAfVKE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tero Kristo <t-kristo@ti.com>,
-        Tomi Valkeinen <tomi.valkeinen@ti.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+Cc:     yu kuai <yukuai3@huawei.com>, Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 039/191] clk: ti: composite: fix memory leak
-Date:   Mon, 29 Jun 2020 11:37:35 -0400
-Message-Id: <20200629154007.2495120-40-sashal@kernel.org>
+Subject: [PATCH 4.14 49/78] ARM: imx5: add missing put_device() call in imx_suspend_alloc_ocram()
+Date:   Mon, 29 Jun 2020 11:37:37 -0400
+Message-Id: <20200629153806.2494953-50-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
-References: <20200629154007.2495120-1-sashal@kernel.org>
+In-Reply-To: <20200629153806.2494953-1-sashal@kernel.org>
+References: <20200629153806.2494953-1-sashal@kernel.org>
 MIME-Version: 1.0
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.229-rc1.gz
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.186-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.9.y
+X-KernelTest-Branch: linux-4.14.y
 X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.9.229-rc1
-X-KernelTest-Deadline: 2020-07-01T15:39+00:00
+X-KernelTest-Version: 4.14.186-rc1
+X-KernelTest-Deadline: 2020-07-01T15:38+00:00
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -51,35 +48,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tero Kristo <t-kristo@ti.com>
+From: yu kuai <yukuai3@huawei.com>
 
-[ Upstream commit c7c1cbbc9217ebb5601b88d138d4a5358548de9d ]
+[ Upstream commit 586745f1598ccf71b0a5a6df2222dee0a865954e ]
 
-The parent_names is never released for a component clock definition,
-causing some memory leak. Fix by releasing it once it is no longer
-needed.
+if of_find_device_by_node() succeed, imx_suspend_alloc_ocram() doesn't
+have a corresponding put_device(). Thus add a jump target to fix the
+exception handling for this function implementation.
 
-Reported-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Signed-off-by: Tero Kristo <t-kristo@ti.com>
-Link: https://lkml.kernel.org/r/20200429131341.4697-2-t-kristo@ti.com
-Acked-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 1579c7b9fe01 ("ARM: imx53: Set DDR pins to high impedance when in suspend to RAM.")
+Signed-off-by: yu kuai <yukuai3@huawei.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/ti/composite.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/mach-imx/pm-imx5.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clk/ti/composite.c b/drivers/clk/ti/composite.c
-index 1cf70f452e1e6..3725b2e0c7887 100644
---- a/drivers/clk/ti/composite.c
-+++ b/drivers/clk/ti/composite.c
-@@ -226,6 +226,7 @@ static void __init _register_composite(struct clk_hw *hw,
- 		if (!cclk->comp_clks[i])
- 			continue;
- 		list_del(&cclk->comp_clks[i]->link);
-+		kfree(cclk->comp_clks[i]->parent_names);
- 		kfree(cclk->comp_clks[i]);
+diff --git a/arch/arm/mach-imx/pm-imx5.c b/arch/arm/mach-imx/pm-imx5.c
+index 868781fd460c7..14c630c899c5d 100644
+--- a/arch/arm/mach-imx/pm-imx5.c
++++ b/arch/arm/mach-imx/pm-imx5.c
+@@ -301,14 +301,14 @@ static int __init imx_suspend_alloc_ocram(
+ 	if (!ocram_pool) {
+ 		pr_warn("%s: ocram pool unavailable!\n", __func__);
+ 		ret = -ENODEV;
+-		goto put_node;
++		goto put_device;
  	}
+ 
+ 	ocram_base = gen_pool_alloc(ocram_pool, size);
+ 	if (!ocram_base) {
+ 		pr_warn("%s: unable to alloc ocram!\n", __func__);
+ 		ret = -ENOMEM;
+-		goto put_node;
++		goto put_device;
+ 	}
+ 
+ 	phys = gen_pool_virt_to_phys(ocram_pool, ocram_base);
+@@ -318,6 +318,8 @@ static int __init imx_suspend_alloc_ocram(
+ 	if (virt_out)
+ 		*virt_out = virt;
+ 
++put_device:
++	put_device(&pdev->dev);
+ put_node:
+ 	of_node_put(node);
  
 -- 
 2.25.1
