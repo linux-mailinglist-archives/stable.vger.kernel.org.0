@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6571320DDA2
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:51:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1298720DE22
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:52:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731774AbgF2TZT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:25:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37014 "EHLO mail.kernel.org"
+        id S1729342AbgF2UWz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:22:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732146AbgF2TZQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:25:16 -0400
+        id S1732577AbgF2TZc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:25:32 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DFD425459;
-        Mon, 29 Jun 2020 15:43:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0673925454;
+        Mon, 29 Jun 2020 15:43:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445408;
-        bh=NreF01LoI6c9QfXFcdFmk5Yu4R8Y/7nG3te/iilV4QY=;
+        s=default; t=1593445409;
+        bh=eISxDRQGqvnifGfBTu9Mpzrk1QNYu/9Er5waF/zjx+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NWtBbDTgSMHDKFNHsCABoEPXlHvKXHKR4NUUtpTwWavMFqWArXwtNoLacXKfgydzg
-         wEKMklVr5W42vFDd30E4g1luSxlLdU4Dz3ogQ6GtVwkCnfYnuViN7yVM16KsTrSIak
-         bgc+qUT0ZkS0wZWBf82ookX0/e5FUZnmtxThrgs0=
+        b=rIAoB9INVFJdkfSCOTm1aUndyFzZtrerfHMQA7xqzwPHV/G++oCwi2T/ebbD42IrC
+         1EYAnpCEp3aDTQ0wJbVnYaIyCE+X+j1IuPvx54VmO+aHUFkNOAQqDMTPqOqOzpPRae
+         jq+bvXq0BwMCZgVo8vYxr7eFlpbQdcvvgKIpUWRo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Hulk Robot <hulkci@huawei.com>,
         Pavel Shilovsky <pshilov@microsoft.com>,
         Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 159/191] cifs/smb3: Fix data inconsistent when punch hole
-Date:   Mon, 29 Jun 2020 11:39:35 -0400
-Message-Id: <20200629154007.2495120-160-sashal@kernel.org>
+Subject: [PATCH 4.9 160/191] cifs/smb3: Fix data inconsistent when zero file range
+Date:   Mon, 29 Jun 2020 11:39:36 -0400
+Message-Id: <20200629154007.2495120-161-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
 References: <20200629154007.2495120-1-sashal@kernel.org>
@@ -52,29 +53,21 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-[ Upstream commit acc91c2d8de4ef46ed751c5f9df99ed9a109b100 ]
+[ Upstream commit 6b69040247e14b43419a520f841f2b3052833df9 ]
 
-When punch hole success, we also can read old data from file:
-  # strace -e trace=pread64,fallocate xfs_io -f -c "pread 20 40" \
-           -c "fpunch 20 40" -c"pread 20 40" file
-  pread64(3, " version 5.8.0-rc1+"..., 40, 20) = 40
-  fallocate(3, FALLOC_FL_KEEP_SIZE|FALLOC_FL_PUNCH_HOLE, 20, 40) = 0
-  pread64(3, " version 5.8.0-rc1+"..., 40, 20) = 40
-
-CIFS implements the fallocate(FALLOCATE_FL_PUNCH_HOLE) with send SMB
+CIFS implements the fallocate(FALLOC_FL_ZERO_RANGE) with send SMB
 ioctl(FSCTL_SET_ZERO_DATA) to server. It just set the range of the
-remote file to zero, but local page caches not updated, then the
-local page caches inconsistent with server.
+remote file to zero, but local page cache not update, then the data
+inconsistent with server, which leads the xfstest generic/008 failed.
 
-Also can be found by xfstests generic/316.
+So we need to remove the local page caches before send SMB
+ioctl(FSCTL_SET_ZERO_DATA) to server. After next read, it will
+re-cache it.
 
-So, we need to remove the page caches before send the SMB
-ioctl(FSCTL_SET_ZERO_DATA) to server.
-
-Fixes: 31742c5a33176 ("enable fallocate punch hole ("fallocate -p") for SMB3")
-Suggested-by: Pavel Shilovsky <pshilov@microsoft.com>
-Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
+Fixes: 30175628bf7f5 ("[SMB3] Enable fallocate -z support for SMB3 mounts")
+Reported-by: Hulk Robot <hulkci@huawei.com>
 Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
 Cc: stable@vger.kernel.org # v3.17
 Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
@@ -83,22 +76,22 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 6 insertions(+)
 
 diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
-index 67d9b7a277a3b..9c29317deef56 100644
+index 9c29317deef56..edd4c7292be00 100644
 --- a/fs/cifs/smb2ops.c
 +++ b/fs/cifs/smb2ops.c
-@@ -1276,6 +1276,12 @@ static long smb3_punch_hole(struct file *file, struct cifs_tcon *tcon,
- 	if (!smb2_set_sparse(xid, tcon, cfile, inode, set_sparse))
- 		return -EOPNOTSUPP;
+@@ -1220,6 +1220,12 @@ static long smb3_zero_range(struct file *file, struct cifs_tcon *tcon,
+ 	inode = d_inode(cfile->dentry);
+ 	cifsi = CIFS_I(inode);
  
 +	/*
-+	 * We implement the punch hole through ioctl, so we need remove the page
-+	 * caches first, otherwise the data may be inconsistent with the server.
++	 * We zero the range through ioctl, so we need remove the page caches
++	 * first, otherwise the data may be inconsistent with the server.
 +	 */
 +	truncate_pagecache_range(inode, offset, offset + len - 1);
 +
- 	cifs_dbg(FYI, "offset %lld len %lld", offset, len);
- 
- 	fsctl_buf.FileOffset = cpu_to_le64(offset);
+ 	/* if file not oplocked can't be sure whether asking to extend size */
+ 	if (!CIFS_CACHE_READ(cifsi))
+ 		if (keep_size == false)
 -- 
 2.25.1
 
