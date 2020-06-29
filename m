@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1843120D67E
+	by mail.lfdr.de (Postfix) with ESMTP id 92D7920D680
 	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:05:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730238AbgF2TUj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:20:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33182 "EHLO mail.kernel.org"
+        id S1731277AbgF2TUk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:20:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732112AbgF2TUS (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1732106AbgF2TUS (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 29 Jun 2020 15:20:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6E202547E;
-        Mon, 29 Jun 2020 15:43:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3397D2547F;
+        Mon, 29 Jun 2020 15:44:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445439;
-        bh=UZvZgezNavCKadSxCsxOY10XoVBAHOzNzUSN2qzY/0M=;
+        s=default; t=1593445441;
+        bh=hoCMlla39SLvw5n04FRhF9LJw31TGSiSnqjCWRv5ILM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eTHWw7e80Labs9QpsZlPoyBsyq494j85S4QoIpxfmgNABZZT8NNyFaRqNHapZSTFm
-         wIxYLktLGKpbrsVgR9D2EiYBUXQMdztJzQNpnKIDFkY7wwh2Iha5YEn9pndQasUCP4
-         ak95BZJLXHns+VTGPqmWgYNFuMt1thVTNZXjq3jo=
+        b=sxKPXQruW7dYSeDV1ndXS5H+mUmWT2agvikX9YVt2wsRTH0xy8YEHCb/P13n+CHXt
+         JyjT4GIRBzcnmdSDh9YNpvA2kJxY1vM6MCwBCCfDNE/yw1R11bPAQBM//ldZSg04mr
+         /Mqhf2c0v25YpWhK43FCgAHLHR3fpvoOlssJGk60=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Junxiao Bi <junxiao.bi@oracle.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Jun Piao <piaojun@huawei.com>, Mark Fasheh <mark@fasheh.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+Cc:     Jiping Ma <jiping.ma2@windriver.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Will Deacon <will@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.9 181/191] ocfs2: fix panic on nfs server over ocfs2
-Date:   Mon, 29 Jun 2020 11:39:57 -0400
-Message-Id: <20200629154007.2495120-182-sashal@kernel.org>
+Subject: [PATCH 4.9 182/191] arm64: perf: Report the PC value in REGS_ABI_32 mode
+Date:   Mon, 29 Jun 2020 11:39:58 -0400
+Message-Id: <20200629154007.2495120-183-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
 References: <20200629154007.2495120-1-sashal@kernel.org>
@@ -54,92 +50,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Junxiao Bi <junxiao.bi@oracle.com>
+From: Jiping Ma <jiping.ma2@windriver.com>
 
-commit e5a15e17a78d58f933d17cafedfcf7486a29f5b4 upstream.
+commit 8dfe804a4031ca6ba3a3efb2048534249b64f3a5 upstream.
 
-The following kernel panic was captured when running nfs server over
-ocfs2, at that time ocfs2_test_inode_bit() was checking whether one
-inode locating at "blkno" 5 was valid, that is ocfs2 root inode, its
-"suballoc_slot" was OCFS2_INVALID_SLOT(65535) and it was allocted from
-//global_inode_alloc, but here it wrongly assumed that it was got from per
-slot inode alloctor which would cause array overflow and trigger kernel
-panic.
+A 32-bit perf querying the registers of a compat task using REGS_ABI_32
+will receive zeroes from w15, when it expects to find the PC.
 
-  BUG: unable to handle kernel paging request at 0000000000001088
-  IP: [<ffffffff816f6898>] _raw_spin_lock+0x18/0xf0
-  PGD 1e06ba067 PUD 1e9e7d067 PMD 0
-  Oops: 0002 [#1] SMP
-  CPU: 6 PID: 24873 Comm: nfsd Not tainted 4.1.12-124.36.1.el6uek.x86_64 #2
-  Hardware name: Huawei CH121 V3/IT11SGCA1, BIOS 3.87 02/02/2018
-  RIP: _raw_spin_lock+0x18/0xf0
-  RSP: e02b:ffff88005ae97908  EFLAGS: 00010206
-  RAX: ffff88005ae98000 RBX: 0000000000001088 RCX: 0000000000000000
-  RDX: 0000000000020000 RSI: 0000000000000009 RDI: 0000000000001088
-  RBP: ffff88005ae97928 R08: 0000000000000000 R09: ffff880212878e00
-  R10: 0000000000007ff0 R11: 0000000000000000 R12: 0000000000001088
-  R13: ffff8800063c0aa8 R14: ffff8800650c27d0 R15: 000000000000ffff
-  FS:  0000000000000000(0000) GS:ffff880218180000(0000) knlGS:ffff880218180000
-  CS:  e033 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 0000000000001088 CR3: 00000002033d0000 CR4: 0000000000042660
-  Call Trace:
-    igrab+0x1e/0x60
-    ocfs2_get_system_file_inode+0x63/0x3a0 [ocfs2]
-    ocfs2_test_inode_bit+0x328/0xa00 [ocfs2]
-    ocfs2_get_parent+0xba/0x3e0 [ocfs2]
-    reconnect_path+0xb5/0x300
-    exportfs_decode_fh+0xf6/0x2b0
-    fh_verify+0x350/0x660 [nfsd]
-    nfsd4_putfh+0x4d/0x60 [nfsd]
-    nfsd4_proc_compound+0x3d3/0x6f0 [nfsd]
-    nfsd_dispatch+0xe0/0x290 [nfsd]
-    svc_process_common+0x412/0x6a0 [sunrpc]
-    svc_process+0x123/0x210 [sunrpc]
-    nfsd+0xff/0x170 [nfsd]
-    kthread+0xcb/0xf0
-    ret_from_fork+0x61/0x90
-  Code: 83 c2 02 0f b7 f2 e8 18 dc 91 ff 66 90 eb bf 0f 1f 40 00 55 48 89 e5 41 56 41 55 41 54 53 0f 1f 44 00 00 48 89 fb ba 00 00 02 00 <f0> 0f c1 17 89 d0 45 31 e4 45 31 ed c1 e8 10 66 39 d0 41 89 c6
-  RIP   _raw_spin_lock+0x18/0xf0
-  CR2: 0000000000001088
-  ---[ end trace 7264463cd1aac8f9 ]---
-  Kernel panic - not syncing: Fatal exception
+Return the PC value for register dwarf register 15 when returning register
+values for a compat task to perf.
 
-Link: http://lkml.kernel.org/r/20200616183829.87211-4-junxiao.bi@oracle.com
-Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: Mark Fasheh <mark@fasheh.com>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Jiping Ma <jiping.ma2@windriver.com>
+Link: https://lore.kernel.org/r/1589165527-188401-1-git-send-email-jiping.ma2@windriver.com
+[will: Shuffled code and added a comment]
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ocfs2/suballoc.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ arch/arm64/kernel/perf_regs.c | 25 ++++++++++++++++++++++---
+ 1 file changed, 22 insertions(+), 3 deletions(-)
 
-diff --git a/fs/ocfs2/suballoc.c b/fs/ocfs2/suballoc.c
-index 6ad3533940ba5..00558bc59052e 100644
---- a/fs/ocfs2/suballoc.c
-+++ b/fs/ocfs2/suballoc.c
-@@ -2891,9 +2891,12 @@ int ocfs2_test_inode_bit(struct ocfs2_super *osb, u64 blkno, int *res)
- 		goto bail;
+diff --git a/arch/arm64/kernel/perf_regs.c b/arch/arm64/kernel/perf_regs.c
+index 3f62b35fb6f15..815c395a1076c 100644
+--- a/arch/arm64/kernel/perf_regs.c
++++ b/arch/arm64/kernel/perf_regs.c
+@@ -13,15 +13,34 @@ u64 perf_reg_value(struct pt_regs *regs, int idx)
+ 		return 0;
+ 
+ 	/*
+-	 * Compat (i.e. 32 bit) mode:
+-	 * - PC has been set in the pt_regs struct in kernel_entry,
+-	 * - Handle SP and LR here.
++	 * Our handling of compat tasks (PERF_SAMPLE_REGS_ABI_32) is weird, but
++	 * we're stuck with it for ABI compatability reasons.
++	 *
++	 * For a 32-bit consumer inspecting a 32-bit task, then it will look at
++	 * the first 16 registers (see arch/arm/include/uapi/asm/perf_regs.h).
++	 * These correspond directly to a prefix of the registers saved in our
++	 * 'struct pt_regs', with the exception of the PC, so we copy that down
++	 * (x15 corresponds to SP_hyp in the architecture).
++	 *
++	 * So far, so good.
++	 *
++	 * The oddity arises when a 64-bit consumer looks at a 32-bit task and
++	 * asks for registers beyond PERF_REG_ARM_MAX. In this case, we return
++	 * SP_usr, LR_usr and PC in the positions where the AArch64 SP, LR and
++	 * PC registers would normally live. The initial idea was to allow a
++	 * 64-bit unwinder to unwind a 32-bit task and, although it's not clear
++	 * how well that works in practice, somebody might be relying on it.
++	 *
++	 * At the time we make a sample, we don't know whether the consumer is
++	 * 32-bit or 64-bit, so we have to cater for both possibilities.
+ 	 */
+ 	if (compat_user_mode(regs)) {
+ 		if ((u32)idx == PERF_REG_ARM64_SP)
+ 			return regs->compat_sp;
+ 		if ((u32)idx == PERF_REG_ARM64_LR)
+ 			return regs->compat_lr;
++		if (idx == 15)
++			return regs->pc;
  	}
  
--	inode_alloc_inode =
--		ocfs2_get_system_file_inode(osb, INODE_ALLOC_SYSTEM_INODE,
--					    suballoc_slot);
-+	if (suballoc_slot == (u16)OCFS2_INVALID_SLOT)
-+		inode_alloc_inode = ocfs2_get_system_file_inode(osb,
-+			GLOBAL_INODE_ALLOC_SYSTEM_INODE, suballoc_slot);
-+	else
-+		inode_alloc_inode = ocfs2_get_system_file_inode(osb,
-+			INODE_ALLOC_SYSTEM_INODE, suballoc_slot);
- 	if (!inode_alloc_inode) {
- 		/* the error code could be inaccurate, but we are not able to
- 		 * get the correct one. */
+ 	if ((u32)idx == PERF_REG_ARM64_SP)
 -- 
 2.25.1
 
