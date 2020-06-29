@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3906F20DDBC
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:51:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A84EC20DF00
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:53:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732462AbgF2USd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:18:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37056 "EHLO mail.kernel.org"
+        id S2387492AbgF2Ub3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:31:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732630AbgF2TZl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:25:41 -0400
+        id S1730369AbgF2TZT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:25:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A3A85253C5;
-        Mon, 29 Jun 2020 15:41:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 123C2253C8;
+        Mon, 29 Jun 2020 15:41:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445296;
-        bh=hjbnlEuAjZ36wh0c/541957pAiG2JIgnuVqRRy+/BWg=;
+        s=default; t=1593445298;
+        bh=vEjf/A/Kuk4YUAnfqpXqh4UJDM3Zzu27UFabstohaUI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OoJZJhNCRK5dBaBl3hfUfU1ulQRy3SAaSCdj9/2vPpSNx7HExU5xZx4ix6teD+4ao
-         HXuAN1NKI336UYz0To5sXpzfLAiENSffztys65t2LNOtl5sacL+tqOSILDcUS9SctA
-         EEnpqATADwJUW9GGs28nvrJI6SwRwLzMzeKXEJxA=
+        b=Lf3SC+rtJbK6zFDGa8jOVoI24hAok5DhyVhnx+Z1qeS/xKZX8BeAPJCx2PAkYY9YP
+         H2Iid/paJZPwFqPivag5dRTAL5wKGn9MZfpZzCP11aDbb+DI97HV8DfPokNfowKixT
+         LWDU+iiaTKx4S3XW6k3re+5vkx+tTNqxrZEWeVM0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
+Cc:     Nick Desaulniers <ndesaulniers@google.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Fangrui Song <maskray@google.com>,
+        Jeremy Fitzhardinge <jeremy@goop.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Ilie Halip <ilie.halip@gmail.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 070/191] include/linux/bitops.h: avoid clang shift-count-overflow warnings
-Date:   Mon, 29 Jun 2020 11:38:06 -0400
-Message-Id: <20200629154007.2495120-71-sashal@kernel.org>
+Subject: [PATCH 4.9 071/191] elfnote: mark all .note sections SHF_ALLOC
+Date:   Mon, 29 Jun 2020 11:38:07 -0400
+Message-Id: <20200629154007.2495120-72-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
 References: <20200629154007.2495120-1-sashal@kernel.org>
@@ -55,63 +56,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-[ Upstream commit bd93f003b7462ae39a43c531abca37fe7073b866 ]
+[ Upstream commit 51da9dfb7f20911ae4e79e9b412a9c2d4c373d4b ]
 
-Clang normally does not warn about certain issues in inline functions when
-it only happens in an eliminated code path. However if something else
-goes wrong, it does tend to complain about the definition of hweight_long()
-on 32-bit targets:
+ELFNOTE_START allows callers to specify flags for .pushsection assembler
+directives.  All callsites but ELF_NOTE use "a" for SHF_ALLOC.  For vdso's
+that explicitly use ELF_NOTE_START and BUILD_SALT, the same section is
+specified twice after preprocessing, once with "a" flag, once without.
+Example:
 
-  include/linux/bitops.h:75:41: error: shift count >= width of type [-Werror,-Wshift-count-overflow]
-          return sizeof(w) == 4 ? hweight32(w) : hweight64(w);
-                                                 ^~~~~~~~~~~~
-  include/asm-generic/bitops/const_hweight.h:29:49: note: expanded from macro 'hweight64'
-   define hweight64(w) (__builtin_constant_p(w) ? __const_hweight64(w) : __arch_hweight64(w))
-                                                  ^~~~~~~~~~~~~~~~~~~~
-  include/asm-generic/bitops/const_hweight.h:21:76: note: expanded from macro '__const_hweight64'
-   define __const_hweight64(w) (__const_hweight32(w) + __const_hweight32((w) >> 32))
-                                                                             ^  ~~
-  include/asm-generic/bitops/const_hweight.h:20:49: note: expanded from macro '__const_hweight32'
-   define __const_hweight32(w) (__const_hweight16(w) + __const_hweight16((w) >> 16))
-                                                  ^
-  include/asm-generic/bitops/const_hweight.h:19:72: note: expanded from macro '__const_hweight16'
-   define __const_hweight16(w) (__const_hweight8(w)  + __const_hweight8((w)  >> 8 ))
-                                                                         ^
-  include/asm-generic/bitops/const_hweight.h:12:9: note: expanded from macro '__const_hweight8'
-            (!!((w) & (1ULL << 2))) +     \
+.pushsection .note.Linux, "a", @note ;
+.pushsection .note.Linux, "", @note ;
 
-Adding an explicit cast to __u64 avoids that warning and makes it easier
-to read other output.
+While GNU as allows this ordering, it warns for the opposite ordering,
+making these directives position dependent.  We'd prefer not to precisely
+match this behavior in Clang's integrated assembler.  Instead, the non
+__ASSEMBLY__ definition of ELF_NOTE uses
+__attribute__((section(".note.Linux"))) which is created with SHF_ALLOC,
+so let's make the __ASSEMBLY__ definition of ELF_NOTE consistent with C
+and just always use "a" flag.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+This allows Clang to assemble a working mainline (5.6) kernel via:
+$ make CC=clang AS=clang
+
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Link: http://lkml.kernel.org/r/20200505135513.65265-1-arnd@arndb.de
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Fangrui Song <maskray@google.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/913
+Link: http://lkml.kernel.org/r/20200325231250.99205-1-ndesaulniers@google.com
+Debugged-by: Ilie Halip <ilie.halip@gmail.com>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/bitops.h | 2 +-
+ include/linux/elfnote.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/bitops.h b/include/linux/bitops.h
-index cee74a52b9eb8..e1dee6c91ff57 100644
---- a/include/linux/bitops.h
-+++ b/include/linux/bitops.h
-@@ -49,7 +49,7 @@ static inline int get_bitmask_order(unsigned int count)
+diff --git a/include/linux/elfnote.h b/include/linux/elfnote.h
+index 278e3ef053369..56c6d9031663d 100644
+--- a/include/linux/elfnote.h
++++ b/include/linux/elfnote.h
+@@ -53,7 +53,7 @@
+ .popsection				;
  
- static __always_inline unsigned long hweight_long(unsigned long w)
- {
--	return sizeof(w) == 4 ? hweight32(w) : hweight64(w);
-+	return sizeof(w) == 4 ? hweight32(w) : hweight64((__u64)w);
- }
+ #define ELFNOTE(name, type, desc)		\
+-	ELFNOTE_START(name, type, "")		\
++	ELFNOTE_START(name, type, "a")		\
+ 		desc			;	\
+ 	ELFNOTE_END
  
- /**
 -- 
 2.25.1
 
