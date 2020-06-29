@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 867F820D8C8
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:10:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD9A120D8A2
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:09:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731332AbgF2Tll (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:41:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47670 "EHLO mail.kernel.org"
+        id S2387672AbgF2TkZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:40:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387828AbgF2Tkr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:47 -0400
+        id S2387645AbgF2TkY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:24 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED0512481F;
-        Mon, 29 Jun 2020 15:25:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE0AB24821;
+        Mon, 29 Jun 2020 15:25:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444339;
-        bh=MCYkuFW+5XeYXr71zGuhSH25Gd1iQl/aqkrPgJdzNhw=;
+        s=default; t=1593444340;
+        bh=PFvL3VxOVOlF/3zx/5l47zDQBKLBGVYgekU9F93Jmqg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H7VthXyju+5Thp9Rb+2p2l9eQJYZmFghR284PvvQ2ftO6tVn3OC8DnSAn+wnCkNvW
-         jcK9mbyoKm1c98MtwjDgbZ/6UqM96ZbnEq1hlDxFcwFq4rTPSrGCXzB1rFwHHUDDfV
-         UZL57C9Qkg8B6F0p15c+WJ/BmVaCRmAlB5CJH5CY=
+        b=j4mLAf3ajWdg5jpMw6arT9B8a74ImZeVYZeiHjCBGaAejWSJBLq3EJOwoDN2MJji1
+         Y/X+yKYwcWqA/WvI3DKOatBZ9V1+JTF5YfgCdP0oTZLbt9B5ZcPrHyUHlW6ygZPfcx
+         U8UN+94cpx8bpqN2YCX/MaLlG0DH3EfaifDwo0SE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lorenzo Bianconi <lorenzo@kernel.org>,
+Cc:     Aditya Pakki <pakki001@umn.edu>,
         "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.4 014/178] openvswitch: take into account de-fragmentation/gso_size in execute_check_pkt_len
-Date:   Mon, 29 Jun 2020 11:22:39 -0400
-Message-Id: <20200629152523.2494198-15-sashal@kernel.org>
+Subject: [PATCH 5.4 015/178] rocker: fix incorrect error handling in dma_rings_init
+Date:   Mon, 29 Jun 2020 11:22:40 -0400
+Message-Id: <20200629152523.2494198-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -49,56 +49,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Aditya Pakki <pakki001@umn.edu>
 
-[ Upstream commit 17843655708e1941c0653af3cd61be6948e36f43 ]
+[ Upstream commit 58d0c864e1a759a15c9df78f50ea5a5c32b3989e ]
 
-ovs connection tracking module performs de-fragmentation on incoming
-fragmented traffic. Take info account if traffic has been de-fragmented
-in execute_check_pkt_len action otherwise we will perform the wrong
-nested action considering the original packet size. This issue typically
-occurs if ovs-vswitchd adds a rule in the pipeline that requires connection
-tracking (e.g. OVN stateful ACLs) before execute_check_pkt_len action.
-Moreover take into account GSO fragment size for GSO packet in
-execute_check_pkt_len routine
+In rocker_dma_rings_init, the goto blocks in case of errors
+caused by the functions rocker_dma_cmd_ring_waits_alloc() and
+rocker_dma_ring_create() are incorrect. The patch fixes the
+order consistent with cleanup in rocker_dma_rings_fini().
 
-Fixes: 4d5ec89fc8d14 ("net: openvswitch: Add a new action check_pkt_len")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Aditya Pakki <pakki001@umn.edu>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/openvswitch/actions.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/rocker/rocker_main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/openvswitch/actions.c b/net/openvswitch/actions.c
-index 99352f09deaac..3d96dab104490 100644
---- a/net/openvswitch/actions.c
-+++ b/net/openvswitch/actions.c
-@@ -1146,9 +1146,10 @@ static int execute_check_pkt_len(struct datapath *dp, struct sk_buff *skb,
- 				 struct sw_flow_key *key,
- 				 const struct nlattr *attr, bool last)
- {
-+	struct ovs_skb_cb *ovs_cb = OVS_CB(skb);
- 	const struct nlattr *actions, *cpl_arg;
-+	int len, max_len, rem = nla_len(attr);
- 	const struct check_pkt_len_arg *arg;
--	int rem = nla_len(attr);
- 	bool clone_flow_key;
- 
- 	/* The first netlink attribute in 'attr' is always
-@@ -1157,7 +1158,11 @@ static int execute_check_pkt_len(struct datapath *dp, struct sk_buff *skb,
- 	cpl_arg = nla_data(attr);
- 	arg = nla_data(cpl_arg);
- 
--	if (skb->len <= arg->pkt_len) {
-+	len = ovs_cb->mru ? ovs_cb->mru + skb->mac_len : skb->len;
-+	max_len = arg->pkt_len;
-+
-+	if ((skb_is_gso(skb) && skb_gso_validate_mac_len(skb, max_len)) ||
-+	    len <= max_len) {
- 		/* Second netlink attribute in 'attr' is always
- 		 * 'OVS_CHECK_PKT_LEN_ATTR_ACTIONS_IF_LESS_EQUAL'.
- 		 */
+diff --git a/drivers/net/ethernet/rocker/rocker_main.c b/drivers/net/ethernet/rocker/rocker_main.c
+index 786b158bd3050..5abb3f9684ffd 100644
+--- a/drivers/net/ethernet/rocker/rocker_main.c
++++ b/drivers/net/ethernet/rocker/rocker_main.c
+@@ -647,10 +647,10 @@ static int rocker_dma_rings_init(struct rocker *rocker)
+ err_dma_event_ring_bufs_alloc:
+ 	rocker_dma_ring_destroy(rocker, &rocker->event_ring);
+ err_dma_event_ring_create:
++	rocker_dma_cmd_ring_waits_free(rocker);
++err_dma_cmd_ring_waits_alloc:
+ 	rocker_dma_ring_bufs_free(rocker, &rocker->cmd_ring,
+ 				  PCI_DMA_BIDIRECTIONAL);
+-err_dma_cmd_ring_waits_alloc:
+-	rocker_dma_cmd_ring_waits_free(rocker);
+ err_dma_cmd_ring_bufs_alloc:
+ 	rocker_dma_ring_destroy(rocker, &rocker->cmd_ring);
+ 	return err;
 -- 
 2.25.1
 
