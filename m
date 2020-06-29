@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E44F20D91A
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:10:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F54320D9F2
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:12:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727993AbgF2To1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:44:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47652 "EHLO mail.kernel.org"
+        id S1731945AbgF2TwY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:52:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387842AbgF2Tkq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:46 -0400
+        id S2387711AbgF2Tka (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 40C0A24801;
-        Mon, 29 Jun 2020 15:25:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7985424800;
+        Mon, 29 Jun 2020 15:25:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444327;
-        bh=NbIIanRtOQq4orleKOc5/qazWwvR7o3ndILm16qvPZQ=;
+        s=default; t=1593444328;
+        bh=TY+OzDIfjSGqQuHfrjy5eBvrcMpU/vCz/7fbYEldFgM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ilP09Z4xeKf6zQt/Kzs6SQYpSA6iiCNtLvk9gc1onS2BlBOOXkSgh96XU7EP0NhLa
-         bNxoZe9i1G9XrxRs2FqNnvNEaM7lKVun7sq0LIC2bc1DV7KVSn14OcpYftf0Ukwxa3
-         fqz6PDZGdybJge8aAJAlF4cE/5LlST9Eeq4ey8Sc=
+        b=aO+lpBukTh11QsHDBkQm/mdhQyuPbIvKKikXdcGPWZNjdGay/IE6cj7vQy98QKJZE
+         l5kTmN/AukK/RlLpDDpdPJtlqiu+MhqPk4m1Zd4ew9GL/UR3Pjo3lx/1JnSzoyFVSJ
+         f7QKYEt2nCq0vQGCC+pynoDXktdCP5YglyeQ4lmg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     yu kuai <yukuai3@huawei.com>, Ming Lei <ming.lei@redhat.com>,
-        Bob Liu <bob.liu@oracle.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Guenter Roeck <linux@roeck-us.net>,
+Cc:     Claudiu Manoil <claudiu.manoil@nxp.com>,
+        "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.4 001/178] block/bio-integrity: don't free 'buf' if bio_integrity_add_page() failed
-Date:   Mon, 29 Jun 2020 11:22:26 -0400
-Message-Id: <20200629152523.2494198-2-sashal@kernel.org>
+Subject: [PATCH 5.4 002/178] enetc: Fix tx rings bitmap iteration range, irq handling
+Date:   Mon, 29 Jun 2020 11:22:27 -0400
+Message-Id: <20200629152523.2494198-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -52,39 +49,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: yu kuai <yukuai3@huawei.com>
+From: Claudiu Manoil <claudiu.manoil@nxp.com>
 
-commit a75ca9303175d36af93c0937dd9b1a6422908b8d upstream.
+[ Upstream commit 0574e2000fc3103cbc69ba82ec1175ce171fdf5e ]
 
-commit e7bf90e5afe3 ("block/bio-integrity: fix a memory leak bug") added
-a kfree() for 'buf' if bio_integrity_add_page() returns '0'. However,
-the object will be freed in bio_integrity_free() since 'bio->bi_opf' and
-'bio->bi_integrity' were set previousy in bio_integrity_alloc().
+The rings bitmap of an interrupt vector encodes
+which of the device's rings were assigned to that
+interrupt vector.
+Hence the iteration range of the tx rings bitmap
+(for_each_set_bit()) should be the total number of
+Tx rings of that netdevice instead of the number of
+rings assigned to the interrupt vector.
+Since there are 2 cores, and one interrupt vector for
+each core, the number of rings asigned to an interrupt
+vector is half the number of available rings.
+The impact of this error is that the upper half of the
+tx rings could still generate interrupts during napi
+polling.
 
-Fixes: commit e7bf90e5afe3 ("block/bio-integrity: fix a memory leak bug")
-Signed-off-by: yu kuai <yukuai3@huawei.com>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Reviewed-by: Bob Liu <bob.liu@oracle.com>
-Acked-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Cc: Guenter Roeck <linux@roeck-us.net>
+Fixes: d4fd0404c1c9 ("enetc: Introduce basic PF and VF ENETC ethernet drivers")
+Signed-off-by: Claudiu Manoil <claudiu.manoil@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/bio-integrity.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/net/ethernet/freescale/enetc/enetc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/block/bio-integrity.c b/block/bio-integrity.c
-index bf62c25cde8f4..ae07dd78e9518 100644
---- a/block/bio-integrity.c
-+++ b/block/bio-integrity.c
-@@ -278,7 +278,6 @@ bool bio_integrity_prep(struct bio *bio)
+diff --git a/drivers/net/ethernet/freescale/enetc/enetc.c b/drivers/net/ethernet/freescale/enetc/enetc.c
+index b6ff893074092..4ef4d41b0d8d6 100644
+--- a/drivers/net/ethernet/freescale/enetc/enetc.c
++++ b/drivers/net/ethernet/freescale/enetc/enetc.c
+@@ -254,7 +254,7 @@ static irqreturn_t enetc_msix(int irq, void *data)
+ 	/* disable interrupts */
+ 	enetc_wr_reg(v->rbier, 0);
  
- 		if (ret == 0) {
- 			printk(KERN_ERR "could not attach integrity payload\n");
--			kfree(buf);
- 			status = BLK_STS_RESOURCE;
- 			goto err_end_io;
- 		}
+-	for_each_set_bit(i, &v->tx_rings_map, v->count_tx_rings)
++	for_each_set_bit(i, &v->tx_rings_map, ENETC_MAX_NUM_TXQS)
+ 		enetc_wr_reg(v->tbier_base + ENETC_BDR_OFF(i), 0);
+ 
+ 	napi_schedule_irqoff(&v->napi);
+@@ -290,7 +290,7 @@ static int enetc_poll(struct napi_struct *napi, int budget)
+ 	/* enable interrupts */
+ 	enetc_wr_reg(v->rbier, ENETC_RBIER_RXTIE);
+ 
+-	for_each_set_bit(i, &v->tx_rings_map, v->count_tx_rings)
++	for_each_set_bit(i, &v->tx_rings_map, ENETC_MAX_NUM_TXQS)
+ 		enetc_wr_reg(v->tbier_base + ENETC_BDR_OFF(i),
+ 			     ENETC_TBIER_TXTIE);
+ 
 -- 
 2.25.1
 
