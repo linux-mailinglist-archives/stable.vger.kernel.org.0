@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79E5C20E6CD
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:09:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F251A20E7D5
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:11:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726672AbgF2Vuw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:50:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56796 "EHLO mail.kernel.org"
+        id S1728637AbgF2WAa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 18:00:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726679AbgF2Sfk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:35:40 -0400
+        id S1726361AbgF2SfY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:35:24 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8AC4E24764;
-        Mon, 29 Jun 2020 15:21:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6D7EE24763;
+        Mon, 29 Jun 2020 15:21:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444080;
-        bh=HQUvo0mlc9rK+gcTau9SRds3qCJmeoUzrohT/q4RGEk=;
+        s=default; t=1593444081;
+        bh=Liu3gg+QK6I8HMBtI7FtM+sIXcKmpNtk3VPR/BFoJCY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pg+7Ey24USpSefxMpXBpF7n5vwlU1nIv3izzB8C2ZS7o/bSHLHh8r8RDSKjrCHEqf
-         f0vumDrIzAiGx7GQ7ygUcktw/UcLC4T2ZbMRUNjM1JTsfWXHH6OHaAheTkmkj3n5Rd
-         iMKeFcSIJCuY0FyA5+PZ9PLfzW/qbw+jShn+oY4s=
+        b=V1oKV/l3oDs0Ac+ReOfOum/NzA8daDSRR+VtNrDE1CjJhviw9iLuj5TRoRBNIUOA6
+         Bvj1fcl520Vc40+pCvYVn5aCp50rvzfRIDjA9LyO2bBVc2vCO5S3XO21b3X8e1YEJt
+         vvq518IZ8nI7y0obVqUfZFLrrJgi6wC0k6gFhEB8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Falcon <tlfalcon@linux.ibm.com>,
+Cc:     Zekun Shen <bruceshenzk@gmail.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 189/265] ibmvnic: Harden device login requests
-Date:   Mon, 29 Jun 2020 11:17:02 -0400
-Message-Id: <20200629151818.2493727-190-sashal@kernel.org>
+Subject: [PATCH 5.7 190/265] net: alx: fix race condition in alx_remove
+Date:   Mon, 29 Jun 2020 11:17:03 -0400
+Message-Id: <20200629151818.2493727-191-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -49,71 +49,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Falcon <tlfalcon@linux.ibm.com>
+From: Zekun Shen <bruceshenzk@gmail.com>
 
-[ Upstream commit dff515a3e71dc8ab3b9dcc2e23a9b5fca88b3c18 ]
+[ Upstream commit e89df5c4322c1bf495f62d74745895b5fd2a4393 ]
 
-The VNIC driver's "login" command sequence is the final step
-in the driver's initialization process with device firmware,
-confirming the available device queue resources to be utilized
-by the driver. Under high system load, firmware may not respond
-to the request in a timely manner or may abort the request. In
-such cases, the driver should reattempt the login command
-sequence. In case of a device error, the number of retries
-is bounded.
+There is a race condition exist during termination. The path is
+alx_stop and then alx_remove. An alx_schedule_link_check could be called
+before alx_stop by interrupt handler and invoke alx_link_check later.
+Alx_stop frees the napis, and alx_remove cancels any pending works.
+If any of the work is scheduled before termination and invoked before
+alx_remove, a null-ptr-deref occurs because both expect alx->napis[i].
 
-Signed-off-by: Thomas Falcon <tlfalcon@linux.ibm.com>
+This patch fix the race condition by moving cancel_work_sync functions
+before alx_free_napis inside alx_stop. Because interrupt handler can call
+alx_schedule_link_check again, alx_free_irq is moved before
+cancel_work_sync calls too.
+
+Signed-off-by: Zekun Shen <bruceshenzk@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c | 21 +++++++++++++++++----
- 1 file changed, 17 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/atheros/alx/main.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index 1b4d04e4474bb..2baf7b3ff4cbf 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -842,12 +842,13 @@ static int ibmvnic_login(struct net_device *netdev)
- 	struct ibmvnic_adapter *adapter = netdev_priv(netdev);
- 	unsigned long timeout = msecs_to_jiffies(30000);
- 	int retry_count = 0;
-+	int retries = 10;
- 	bool retry;
- 	int rc;
+diff --git a/drivers/net/ethernet/atheros/alx/main.c b/drivers/net/ethernet/atheros/alx/main.c
+index b9b4edb913c13..9b7f1af5f5747 100644
+--- a/drivers/net/ethernet/atheros/alx/main.c
++++ b/drivers/net/ethernet/atheros/alx/main.c
+@@ -1249,8 +1249,12 @@ out_disable_adv_intr:
  
- 	do {
- 		retry = false;
--		if (retry_count > IBMVNIC_MAX_QUEUES) {
-+		if (retry_count > retries) {
- 			netdev_warn(netdev, "Login attempts exceeded\n");
- 			return -1;
- 		}
-@@ -862,11 +863,23 @@ static int ibmvnic_login(struct net_device *netdev)
+ static void __alx_stop(struct alx_priv *alx)
+ {
+-	alx_halt(alx);
+ 	alx_free_irq(alx);
++
++	cancel_work_sync(&alx->link_check_wk);
++	cancel_work_sync(&alx->reset_wk);
++
++	alx_halt(alx);
+ 	alx_free_rings(alx);
+ 	alx_free_napis(alx);
+ }
+@@ -1855,9 +1859,6 @@ static void alx_remove(struct pci_dev *pdev)
+ 	struct alx_priv *alx = pci_get_drvdata(pdev);
+ 	struct alx_hw *hw = &alx->hw;
  
- 		if (!wait_for_completion_timeout(&adapter->init_done,
- 						 timeout)) {
--			netdev_warn(netdev, "Login timed out\n");
--			return -1;
-+			netdev_warn(netdev, "Login timed out, retrying...\n");
-+			retry = true;
-+			adapter->init_done_rc = 0;
-+			retry_count++;
-+			continue;
- 		}
- 
--		if (adapter->init_done_rc == PARTIALSUCCESS) {
-+		if (adapter->init_done_rc == ABORTED) {
-+			netdev_warn(netdev, "Login aborted, retrying...\n");
-+			retry = true;
-+			adapter->init_done_rc = 0;
-+			retry_count++;
-+			/* FW or device may be busy, so
-+			 * wait a bit before retrying login
-+			 */
-+			msleep(500);
-+		} else if (adapter->init_done_rc == PARTIALSUCCESS) {
- 			retry_count++;
- 			release_sub_crqs(adapter, 1);
+-	cancel_work_sync(&alx->link_check_wk);
+-	cancel_work_sync(&alx->reset_wk);
+-
+ 	/* restore permanent mac address */
+ 	alx_set_macaddr(hw, hw->perm_addr);
  
 -- 
 2.25.1
