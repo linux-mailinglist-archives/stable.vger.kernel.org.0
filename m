@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C65420D9EB
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:12:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9159320DA17
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:12:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732791AbgF2TwM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:52:12 -0400
+        id S1731097AbgF2Txm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:53:42 -0400
 Received: from mail.kernel.org ([198.145.29.99]:47706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387714AbgF2Tkb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:31 -0400
+        id S2387681AbgF2Tk0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:26 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7656F248D6;
-        Mon, 29 Jun 2020 15:27:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6F471248DB;
+        Mon, 29 Jun 2020 15:27:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444432;
-        bh=EFrWqokRNn6x/VJWEHdDYbIUJVTFyOptt1vzQzbn/Ng=;
+        s=default; t=1593444433;
+        bh=whz2AYzxqIosz40Rk8FfNtqCsv/X1JKsrbmEzCmFp8k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dDBxJF+e6RDeyVhWm+9d9xT4XD+BQru+0qdn+YmBs15yo+9cGctmCFPjRxr+0bSqs
-         kzQRfRp5DfbJVncQWmoGHKyyVaqz2slPvwtSkbawWVTp0LAh7x503NMVypKCe7ag9a
-         OLnGIX7lwo5XOsZJjKKcGo/ubeD5V0GfECAOhtEE=
+        b=yghRabmA3VVz0GK32FCfsR0jyKnOIl/oRNlH7ApGONDWQHhyIsFLY3+g8CwFnuR9J
+         A8tAfXQpSziRiGYWtoKuqezhkL77pmXdt6ka5P6jsfSZURxaLkvoy9DFo2Lq2+YII/
+         BD7Za+V2CFC6iLngpK/8pCT1vPx1zJxynXvRMGfI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Doug Berger <opendmb@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     Vincent Chen <vincent.chen@sifive.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 110/178] net: bcmgenet: use hardware padding of runt frames
-Date:   Mon, 29 Jun 2020 11:24:15 -0400
-Message-Id: <20200629152523.2494198-111-sashal@kernel.org>
+Subject: [PATCH 5.4 111/178] clk: sifive: allocate sufficient memory for struct __prci_data
+Date:   Mon, 29 Jun 2020 11:24:16 -0400
+Message-Id: <20200629152523.2494198-112-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -50,63 +49,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Berger <opendmb@gmail.com>
+From: Vincent Chen <vincent.chen@sifive.com>
 
-[ Upstream commit 20d1f2d1b024f6be199a3bedf1578a1d21592bc5 ]
+[ Upstream commit d0a5fdf4cc83dabcdea668f971b8a2e916437711 ]
 
-When commit 474ea9cafc45 ("net: bcmgenet: correctly pad short
-packets") added the call to skb_padto() it should have been
-located before the nr_frags parameter was read since that value
-could be changed when padding packets with lengths between 55
-and 59 bytes (inclusive).
+The (struct __prci_data).hw_clks.hws is an array with dynamic elements.
+Using struct_size(pd, hw_clks.hws, ARRAY_SIZE(__prci_init_clocks))
+instead of sizeof(*pd) to get the correct memory size of
+struct __prci_data for sifive/fu540-prci. After applying this
+modifications, the kernel runs smoothly with CONFIG_SLAB_FREELIST_RANDOM
+enabled on the HiFive unleashed board.
 
-The use of a stale nr_frags value can cause corruption of the
-pad data when tx-scatter-gather is enabled. This corruption of
-the pad can cause invalid checksum computation when hardware
-offload of tx-checksum is also enabled.
-
-Since the original reason for the padding was corrected by
-commit 7dd399130efb ("net: bcmgenet: fix skb_len in
-bcmgenet_xmit_single()") we can remove the software padding all
-together and make use of hardware padding of short frames as
-long as the hardware also always appends the FCS value to the
-frame.
-
-Fixes: 474ea9cafc45 ("net: bcmgenet: correctly pad short packets")
-Signed-off-by: Doug Berger <opendmb@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 30b8e27e3b58 ("clk: sifive: add a driver for the SiFive FU540 PRCI IP block")
+Signed-off-by: Vincent Chen <vincent.chen@sifive.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/genet/bcmgenet.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/clk/sifive/fu540-prci.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet.c b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-index 3d3b1005d0761..03f82786c0b98 100644
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-@@ -1591,11 +1591,6 @@ static netdev_tx_t bcmgenet_xmit(struct sk_buff *skb, struct net_device *dev)
- 		goto out;
- 	}
+diff --git a/drivers/clk/sifive/fu540-prci.c b/drivers/clk/sifive/fu540-prci.c
+index 6282ee2f361cd..a8901f90a61ac 100644
+--- a/drivers/clk/sifive/fu540-prci.c
++++ b/drivers/clk/sifive/fu540-prci.c
+@@ -586,7 +586,10 @@ static int sifive_fu540_prci_probe(struct platform_device *pdev)
+ 	struct __prci_data *pd;
+ 	int r;
  
--	if (skb_padto(skb, ETH_ZLEN)) {
--		ret = NETDEV_TX_OK;
--		goto out;
--	}
--
- 	/* Retain how many bytes will be sent on the wire, without TSB inserted
- 	 * by transmit checksum offload
- 	 */
-@@ -1644,6 +1639,9 @@ static netdev_tx_t bcmgenet_xmit(struct sk_buff *skb, struct net_device *dev)
- 		len_stat = (size << DMA_BUFLENGTH_SHIFT) |
- 			   (priv->hw_params->qtag_mask << DMA_TX_QTAG_SHIFT);
+-	pd = devm_kzalloc(dev, sizeof(*pd), GFP_KERNEL);
++	pd = devm_kzalloc(dev,
++			  struct_size(pd, hw_clks.hws,
++				      ARRAY_SIZE(__prci_init_clocks)),
++			  GFP_KERNEL);
+ 	if (!pd)
+ 		return -ENOMEM;
  
-+		/* Note: if we ever change from DMA_TX_APPEND_CRC below we
-+		 * will need to restore software padding of "runt" packets
-+		 */
- 		if (!i) {
- 			len_stat |= DMA_TX_APPEND_CRC | DMA_SOP;
- 			if (skb->ip_summed == CHECKSUM_PARTIAL)
 -- 
 2.25.1
 
