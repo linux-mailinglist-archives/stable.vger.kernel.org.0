@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 692EA20E385
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:03:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B1D120E3A4
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:03:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390414AbgF2VPI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:15:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42434 "EHLO mail.kernel.org"
+        id S2390696AbgF2VQJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:16:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729957AbgF2SzQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:55:16 -0400
+        id S1729936AbgF2SzP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:55:15 -0400
 Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 04EFD25592;
+        by mail.kernel.org (Postfix) with ESMTPSA id 9FF5225594;
         Mon, 29 Jun 2020 16:25:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1593447934;
-        bh=VdO0jQ/MssMzZwJ3Jmcy7j9yhjcRN0AurIn0itRbDB4=;
+        bh=Dipb/rgSszc7XJQH0kxxfAICY/VzC7ACJ2EZBikguW4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zzLChNvlDrQi+ZfF4CpY+8pP5YHckGR9bXphz2iJVJrvT0xNx03guK3euKdB8ey/p
-         Aob+xKUnA2bGpyfza4nOvV7yN1TnVuNRsxal3ipw2bh8M4iNHopEaV+ZoKBk4Z7Awq
-         +b8vSiEbWxZMtvvLzjtsY8a2kjo2IC5scsvOfFVE=
+        b=L3elRaJ4LdrJVuZNqKJ8HI7CvmS2H0HF2zIcgQWgTavDk1r65ChRxRpAgWOruwjHb
+         +XWY1u8+OQXGZ7Pp/uKVJ6kNzJcKo/IdAXVXnqMEImn4u0d5okoB9fcJYt5NsbDX7l
+         65hCZOmbMIuiDpV+yOc26gcQfguA6dq4gf3upouU=
 Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.lan)
         by disco-boy.misterjones.org with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <maz@kernel.org>)
-        id 1jpwb6-007M5T-Gk; Mon, 29 Jun 2020 17:25:32 +0100
+        id 1jpwb7-007M5T-6f; Mon, 29 Jun 2020 17:25:33 +0100
 From:   Marc Zyngier <maz@kernel.org>
 To:     Paolo Bonzini <pbonzini@redhat.com>
 Cc:     Alexandru Elisei <alexandru.elisei@arm.com>,
@@ -40,9 +40,9 @@ Cc:     Alexandru Elisei <alexandru.elisei@arm.com>,
         kernel-team@android.com, linux-arm-kernel@lists.infradead.org,
         kvmarm@lists.cs.columbia.edu, kvm@vger.kernel.org,
         stable@vger.kernel.org
-Subject: [PATCH 1/4] KVM: arm64: Annotate hyp NMI-related functions as __always_inline
-Date:   Mon, 29 Jun 2020 17:25:16 +0100
-Message-Id: <20200629162519.825200-2-maz@kernel.org>
+Subject: [PATCH 2/4] KVM: arm64: Fix kvm_reset_vcpu() return code being incorrect with SVE
+Date:   Mon, 29 Jun 2020 17:25:17 +0100
+Message-Id: <20200629162519.825200-3-maz@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200629162519.825200-1-maz@kernel.org>
 References: <20200629162519.825200-1-maz@kernel.org>
@@ -57,78 +57,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandru Elisei <alexandru.elisei@arm.com>
+From: Steven Price <steven.price@arm.com>
 
-The "inline" keyword is a hint for the compiler to inline a function.  The
-functions system_uses_irq_prio_masking() and gic_write_pmr() are used by
-the code running at EL2 on a non-VHE system, so mark them as
-__always_inline to make sure they'll always be part of the .hyp.text
-section.
+If SVE is enabled then 'ret' can be assigned the return value of
+kvm_vcpu_enable_sve() which may be 0 causing future "goto out" sites to
+erroneously return 0 on failure rather than -EINVAL as expected.
 
-This fixes the following splat when trying to run a VM:
+Remove the initialisation of 'ret' and make setting the return value
+explicit to avoid this situation in the future.
 
-[   47.625273] Kernel panic - not syncing: HYP panic:
-[   47.625273] PS:a00003c9 PC:0000ca0b42049fc4 ESR:86000006
-[   47.625273] FAR:0000ca0b42049fc4 HPFAR:0000000010001000 PAR:0000000000000000
-[   47.625273] VCPU:0000000000000000
-[   47.647261] CPU: 1 PID: 217 Comm: kvm-vcpu-0 Not tainted 5.8.0-rc1-ARCH+ #61
-[   47.654508] Hardware name: Globalscale Marvell ESPRESSOBin Board (DT)
-[   47.661139] Call trace:
-[   47.663659]  dump_backtrace+0x0/0x1cc
-[   47.667413]  show_stack+0x18/0x24
-[   47.670822]  dump_stack+0xb8/0x108
-[   47.674312]  panic+0x124/0x2f4
-[   47.677446]  panic+0x0/0x2f4
-[   47.680407] SMP: stopping secondary CPUs
-[   47.684439] Kernel Offset: disabled
-[   47.688018] CPU features: 0x240402,20002008
-[   47.692318] Memory Limit: none
-[   47.695465] ---[ end Kernel panic - not syncing: HYP panic:
-[   47.695465] PS:a00003c9 PC:0000ca0b42049fc4 ESR:86000006
-[   47.695465] FAR:0000ca0b42049fc4 HPFAR:0000000010001000 PAR:0000000000000000
-[   47.695465] VCPU:0000000000000000 ]---
-
-The instruction abort was caused by the code running at EL2 trying to fetch
-an instruction which wasn't mapped in the EL2 translation tables. Using
-objdump showed the two functions as separate symbols in the .text section.
-
-Fixes: 85738e05dc38 ("arm64: kvm: Unmask PMR before entering guest")
+Fixes: 9a3cdf26e336 ("KVM: arm64/sve: Allow userspace to enable SVE for vcpus")
 Cc: stable@vger.kernel.org
-Signed-off-by: Alexandru Elisei <alexandru.elisei@arm.com>
+Reported-by: James Morse <james.morse@arm.com>
+Signed-off-by: Steven Price <steven.price@arm.com>
 Signed-off-by: Marc Zyngier <maz@kernel.org>
-Acked-by: James Morse <james.morse@arm.com>
-Link: https://lore.kernel.org/r/20200618171254.1596055-1-alexandru.elisei@arm.com
+Link: https://lore.kernel.org/r/20200617105456.28245-1-steven.price@arm.com
 ---
- arch/arm64/include/asm/arch_gicv3.h | 2 +-
- arch/arm64/include/asm/cpufeature.h | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/kvm/reset.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/include/asm/arch_gicv3.h b/arch/arm64/include/asm/arch_gicv3.h
-index a358e97572c1..6647ae4f0231 100644
---- a/arch/arm64/include/asm/arch_gicv3.h
-+++ b/arch/arm64/include/asm/arch_gicv3.h
-@@ -109,7 +109,7 @@ static inline u32 gic_read_pmr(void)
- 	return read_sysreg_s(SYS_ICC_PMR_EL1);
- }
- 
--static inline void gic_write_pmr(u32 val)
-+static __always_inline void gic_write_pmr(u32 val)
+diff --git a/arch/arm64/kvm/reset.c b/arch/arm64/kvm/reset.c
+index d3b209023727..6ed36be51b4b 100644
+--- a/arch/arm64/kvm/reset.c
++++ b/arch/arm64/kvm/reset.c
+@@ -245,7 +245,7 @@ static int kvm_vcpu_enable_ptrauth(struct kvm_vcpu *vcpu)
+  */
+ int kvm_reset_vcpu(struct kvm_vcpu *vcpu)
  {
- 	write_sysreg_s(val, SYS_ICC_PMR_EL1);
- }
-diff --git a/arch/arm64/include/asm/cpufeature.h b/arch/arm64/include/asm/cpufeature.h
-index 5d1f4ae42799..f7c3d1ff091d 100644
---- a/arch/arm64/include/asm/cpufeature.h
-+++ b/arch/arm64/include/asm/cpufeature.h
-@@ -675,7 +675,7 @@ static inline bool system_supports_generic_auth(void)
- 		cpus_have_const_cap(ARM64_HAS_GENERIC_AUTH);
- }
+-	int ret = -EINVAL;
++	int ret;
+ 	bool loaded;
+ 	u32 pstate;
  
--static inline bool system_uses_irq_prio_masking(void)
-+static __always_inline bool system_uses_irq_prio_masking(void)
- {
- 	return IS_ENABLED(CONFIG_ARM64_PSEUDO_NMI) &&
- 	       cpus_have_const_cap(ARM64_HAS_IRQ_PRIO_MASKING);
+@@ -269,15 +269,19 @@ int kvm_reset_vcpu(struct kvm_vcpu *vcpu)
+ 
+ 	if (test_bit(KVM_ARM_VCPU_PTRAUTH_ADDRESS, vcpu->arch.features) ||
+ 	    test_bit(KVM_ARM_VCPU_PTRAUTH_GENERIC, vcpu->arch.features)) {
+-		if (kvm_vcpu_enable_ptrauth(vcpu))
++		if (kvm_vcpu_enable_ptrauth(vcpu)) {
++			ret = -EINVAL;
+ 			goto out;
++		}
+ 	}
+ 
+ 	switch (vcpu->arch.target) {
+ 	default:
+ 		if (test_bit(KVM_ARM_VCPU_EL1_32BIT, vcpu->arch.features)) {
+-			if (!cpus_have_const_cap(ARM64_HAS_32BIT_EL1))
++			if (!cpus_have_const_cap(ARM64_HAS_32BIT_EL1)) {
++				ret = -EINVAL;
+ 				goto out;
++			}
+ 			pstate = VCPU_RESET_PSTATE_SVC;
+ 		} else {
+ 			pstate = VCPU_RESET_PSTATE_EL1;
 -- 
 2.27.0
 
