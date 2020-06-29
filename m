@@ -2,46 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F89820D676
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:05:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1843120D67E
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:05:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732116AbgF2TUT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:20:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33186 "EHLO mail.kernel.org"
+        id S1730238AbgF2TUj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:20:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727020AbgF2TUS (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1732112AbgF2TUS (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 29 Jun 2020 15:20:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B239925476;
-        Mon, 29 Jun 2020 15:43:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E6E202547E;
+        Mon, 29 Jun 2020 15:43:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445433;
-        bh=WEhn6K+T8CG8Gtu1lKNFABAEEl2O15fFlFTcYiimaF8=;
+        s=default; t=1593445439;
+        bh=UZvZgezNavCKadSxCsxOY10XoVBAHOzNzUSN2qzY/0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LA/FSPedMBIcjuaJQ30CZV5c4bUALqVNpy4iR6w8ekn0jHsSoeb/kb/AJ8BQeNTTe
-         L4YvQSeBNUNiwKxuGdFSg5COg+BWbRTLdWXPsUVqNVKsXvmrjDg+Mr6iKUZlT/qzZT
-         z7Mc14JJem+JmXAkM9fRneUfGYQqwlP5UDrXZG5o=
+        b=eTHWw7e80Labs9QpsZlPoyBsyq494j85S4QoIpxfmgNABZZT8NNyFaRqNHapZSTFm
+         wIxYLktLGKpbrsVgR9D2EiYBUXQMdztJzQNpnKIDFkY7wwh2Iha5YEn9pndQasUCP4
+         ak95BZJLXHns+VTGPqmWgYNFuMt1thVTNZXjq3jo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Waiman Long <longman@redhat.com>, Michal Hocko <mhocko@suse.com>,
-        David Howells <dhowells@redhat.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Joe Perches <joe@perches.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        David Rientjes <rientjes@google.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        "Jason A . Donenfeld" <Jason@zx2c4.com>,
+Cc:     Junxiao Bi <junxiao.bi@oracle.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Jun Piao <piaojun@huawei.com>, Mark Fasheh <mark@fasheh.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.9 178/191] mm/slab: use memzero_explicit() in kzfree()
-Date:   Mon, 29 Jun 2020 11:39:54 -0400
-Message-Id: <20200629154007.2495120-179-sashal@kernel.org>
+Subject: [PATCH 4.9 181/191] ocfs2: fix panic on nfs server over ocfs2
+Date:   Mon, 29 Jun 2020 11:39:57 -0400
+Message-Id: <20200629154007.2495120-182-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
 References: <20200629154007.2495120-1-sashal@kernel.org>
@@ -60,56 +54,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Junxiao Bi <junxiao.bi@oracle.com>
 
-commit 8982ae527fbef170ef298650c15d55a9ccd33973 upstream.
+commit e5a15e17a78d58f933d17cafedfcf7486a29f5b4 upstream.
 
-The kzfree() function is normally used to clear some sensitive
-information, like encryption keys, in the buffer before freeing it back to
-the pool.  Memset() is currently used for buffer clearing.  However
-unlikely, there is still a non-zero probability that the compiler may
-choose to optimize away the memory clearing especially if LTO is being
-used in the future.
+The following kernel panic was captured when running nfs server over
+ocfs2, at that time ocfs2_test_inode_bit() was checking whether one
+inode locating at "blkno" 5 was valid, that is ocfs2 root inode, its
+"suballoc_slot" was OCFS2_INVALID_SLOT(65535) and it was allocted from
+//global_inode_alloc, but here it wrongly assumed that it was got from per
+slot inode alloctor which would cause array overflow and trigger kernel
+panic.
 
-To make sure that this optimization will never happen,
-memzero_explicit(), which is introduced in v3.18, is now used in
-kzfree() to future-proof it.
+  BUG: unable to handle kernel paging request at 0000000000001088
+  IP: [<ffffffff816f6898>] _raw_spin_lock+0x18/0xf0
+  PGD 1e06ba067 PUD 1e9e7d067 PMD 0
+  Oops: 0002 [#1] SMP
+  CPU: 6 PID: 24873 Comm: nfsd Not tainted 4.1.12-124.36.1.el6uek.x86_64 #2
+  Hardware name: Huawei CH121 V3/IT11SGCA1, BIOS 3.87 02/02/2018
+  RIP: _raw_spin_lock+0x18/0xf0
+  RSP: e02b:ffff88005ae97908  EFLAGS: 00010206
+  RAX: ffff88005ae98000 RBX: 0000000000001088 RCX: 0000000000000000
+  RDX: 0000000000020000 RSI: 0000000000000009 RDI: 0000000000001088
+  RBP: ffff88005ae97928 R08: 0000000000000000 R09: ffff880212878e00
+  R10: 0000000000007ff0 R11: 0000000000000000 R12: 0000000000001088
+  R13: ffff8800063c0aa8 R14: ffff8800650c27d0 R15: 000000000000ffff
+  FS:  0000000000000000(0000) GS:ffff880218180000(0000) knlGS:ffff880218180000
+  CS:  e033 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 0000000000001088 CR3: 00000002033d0000 CR4: 0000000000042660
+  Call Trace:
+    igrab+0x1e/0x60
+    ocfs2_get_system_file_inode+0x63/0x3a0 [ocfs2]
+    ocfs2_test_inode_bit+0x328/0xa00 [ocfs2]
+    ocfs2_get_parent+0xba/0x3e0 [ocfs2]
+    reconnect_path+0xb5/0x300
+    exportfs_decode_fh+0xf6/0x2b0
+    fh_verify+0x350/0x660 [nfsd]
+    nfsd4_putfh+0x4d/0x60 [nfsd]
+    nfsd4_proc_compound+0x3d3/0x6f0 [nfsd]
+    nfsd_dispatch+0xe0/0x290 [nfsd]
+    svc_process_common+0x412/0x6a0 [sunrpc]
+    svc_process+0x123/0x210 [sunrpc]
+    nfsd+0xff/0x170 [nfsd]
+    kthread+0xcb/0xf0
+    ret_from_fork+0x61/0x90
+  Code: 83 c2 02 0f b7 f2 e8 18 dc 91 ff 66 90 eb bf 0f 1f 40 00 55 48 89 e5 41 56 41 55 41 54 53 0f 1f 44 00 00 48 89 fb ba 00 00 02 00 <f0> 0f c1 17 89 d0 45 31 e4 45 31 ed c1 e8 10 66 39 d0 41 89 c6
+  RIP   _raw_spin_lock+0x18/0xf0
+  CR2: 0000000000001088
+  ---[ end trace 7264463cd1aac8f9 ]---
+  Kernel panic - not syncing: Fatal exception
 
-Link: http://lkml.kernel.org/r/20200616154311.12314-2-longman@redhat.com
-Fixes: 3ef0e5ba4673 ("slab: introduce kzfree()")
-Signed-off-by: Waiman Long <longman@redhat.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: David Howells <dhowells@redhat.com>
-Cc: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Cc: James Morris <jmorris@namei.org>
-Cc: "Serge E. Hallyn" <serge@hallyn.com>
-Cc: Joe Perches <joe@perches.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: "Jason A . Donenfeld" <Jason@zx2c4.com>
+Link: http://lkml.kernel.org/r/20200616183829.87211-4-junxiao.bi@oracle.com
+Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: Mark Fasheh <mark@fasheh.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/slab_common.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ocfs2/suballoc.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/mm/slab_common.c b/mm/slab_common.c
-index 13f1926f8fcd4..26c4d47229273 100644
---- a/mm/slab_common.c
-+++ b/mm/slab_common.c
-@@ -1345,7 +1345,7 @@ void kzfree(const void *p)
- 	if (unlikely(ZERO_OR_NULL_PTR(mem)))
- 		return;
- 	ks = ksize(mem);
--	memset(mem, 0, ks);
-+	memzero_explicit(mem, ks);
- 	kfree(mem);
- }
- EXPORT_SYMBOL(kzfree);
+diff --git a/fs/ocfs2/suballoc.c b/fs/ocfs2/suballoc.c
+index 6ad3533940ba5..00558bc59052e 100644
+--- a/fs/ocfs2/suballoc.c
++++ b/fs/ocfs2/suballoc.c
+@@ -2891,9 +2891,12 @@ int ocfs2_test_inode_bit(struct ocfs2_super *osb, u64 blkno, int *res)
+ 		goto bail;
+ 	}
+ 
+-	inode_alloc_inode =
+-		ocfs2_get_system_file_inode(osb, INODE_ALLOC_SYSTEM_INODE,
+-					    suballoc_slot);
++	if (suballoc_slot == (u16)OCFS2_INVALID_SLOT)
++		inode_alloc_inode = ocfs2_get_system_file_inode(osb,
++			GLOBAL_INODE_ALLOC_SYSTEM_INODE, suballoc_slot);
++	else
++		inode_alloc_inode = ocfs2_get_system_file_inode(osb,
++			INODE_ALLOC_SYSTEM_INODE, suballoc_slot);
+ 	if (!inode_alloc_inode) {
+ 		/* the error code could be inaccurate, but we are not able to
+ 		 * get the correct one. */
 -- 
 2.25.1
 
