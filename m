@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AFB220DF83
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:55:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94CBA20DEA7
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:53:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732103AbgF2Uha (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:37:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33128 "EHLO mail.kernel.org"
+        id S1732549AbgF2U1v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:27:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732093AbgF2TUP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:20:15 -0400
+        id S1731731AbgF2TZY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:25:24 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 687A725461;
-        Mon, 29 Jun 2020 15:43:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D846525462;
+        Mon, 29 Jun 2020 15:43:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445416;
-        bh=xO3sT6IgS2WbwSMz1EvA1CyywwKU3wgEYZVabJJbBPI=;
+        s=default; t=1593445417;
+        bh=kQvr20PH6P7HMgnnOg/6cEQl1b6N7Ru9B3CPfUxmv1w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qwrPpZPH7FfNMI59Ict/opxS+7icrRs/ctfMixUzXtkqP0crbb7f9/6UnwlP7KF/L
-         aK/DyEghgFhsrpNP5bDtsBQXJaCGBnoSc6pKC4pU0ShLJ6G1E1v9g3ftDJP8gP6+sB
-         WkPl6eXWv3dq3bVw5/m/N313IKjuHVauCxb4tMXU=
+        b=ZKpzHViLpA8huGM1zE897Ld9xRdGC+JaiQlV0bN79iSXOxJWt/kigItSSMYHDLuw/
+         aEk7AH05TkxAuZG5Cv4QOoqvZjRmJbiU96Z6TyPDHv8M5YpeNwggfngGtcC+ffEppk
+         6Rxdxm3X0EKVbmfYTxo//U9x6MPfNsiUTdES1V5w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Lobakin <alobakin@marvell.com>,
-        Igor Russkikh <irusskikh@marvell.com>,
-        Michal Kalderon <michal.kalderon@marvell.com>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     yu kuai <yukuai3@huawei.com>, Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 165/191] net: qed: fix excessive QM ILT lines consumption
-Date:   Mon, 29 Jun 2020 11:39:41 -0400
-Message-Id: <20200629154007.2495120-166-sashal@kernel.org>
+Subject: [PATCH 4.9 166/191] ARM: imx5: add missing put_device() call in imx_suspend_alloc_ocram()
+Date:   Mon, 29 Jun 2020 11:39:42 -0400
+Message-Id: <20200629154007.2495120-167-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
 References: <20200629154007.2495120-1-sashal@kernel.org>
@@ -51,38 +48,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alobakin@marvell.com>
+From: yu kuai <yukuai3@huawei.com>
 
-[ Upstream commit d434d02f7e7c24c721365fd594ed781acb18e0da ]
+[ Upstream commit 586745f1598ccf71b0a5a6df2222dee0a865954e ]
 
-This is likely a copy'n'paste mistake. The amount of ILT lines to
-reserve for a single VF was being multiplied by the total VFs count.
-This led to a huge redundancy in reservation and potential lines
-drainouts.
+if of_find_device_by_node() succeed, imx_suspend_alloc_ocram() doesn't
+have a corresponding put_device(). Thus add a jump target to fix the
+exception handling for this function implementation.
 
-Fixes: 1408cc1fa48c ("qed: Introduce VFs")
-Signed-off-by: Alexander Lobakin <alobakin@marvell.com>
-Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
-Signed-off-by: Michal Kalderon <michal.kalderon@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 1579c7b9fe01 ("ARM: imx53: Set DDR pins to high impedance when in suspend to RAM.")
+Signed-off-by: yu kuai <yukuai3@huawei.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_cxt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/mach-imx/pm-imx5.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_cxt.c b/drivers/net/ethernet/qlogic/qed/qed_cxt.c
-index f1956c4d02a01..d026da36e47e6 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_cxt.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_cxt.c
-@@ -339,7 +339,7 @@ static void qed_cxt_qm_iids(struct qed_hwfn *p_hwfn,
- 		vf_tids += segs[NUM_TASK_PF_SEGMENTS].count;
+diff --git a/arch/arm/mach-imx/pm-imx5.c b/arch/arm/mach-imx/pm-imx5.c
+index 868781fd460c7..14c630c899c5d 100644
+--- a/arch/arm/mach-imx/pm-imx5.c
++++ b/arch/arm/mach-imx/pm-imx5.c
+@@ -301,14 +301,14 @@ static int __init imx_suspend_alloc_ocram(
+ 	if (!ocram_pool) {
+ 		pr_warn("%s: ocram pool unavailable!\n", __func__);
+ 		ret = -ENODEV;
+-		goto put_node;
++		goto put_device;
  	}
  
--	iids->vf_cids += vf_cids * p_mngr->vf_count;
-+	iids->vf_cids = vf_cids;
- 	iids->tids += vf_tids * p_mngr->vf_count;
+ 	ocram_base = gen_pool_alloc(ocram_pool, size);
+ 	if (!ocram_base) {
+ 		pr_warn("%s: unable to alloc ocram!\n", __func__);
+ 		ret = -ENOMEM;
+-		goto put_node;
++		goto put_device;
+ 	}
  
- 	DP_VERBOSE(p_hwfn, QED_MSG_ILT,
+ 	phys = gen_pool_virt_to_phys(ocram_pool, ocram_base);
+@@ -318,6 +318,8 @@ static int __init imx_suspend_alloc_ocram(
+ 	if (virt_out)
+ 		*virt_out = virt;
+ 
++put_device:
++	put_device(&pdev->dev);
+ put_node:
+ 	of_node_put(node);
+ 
 -- 
 2.25.1
 
