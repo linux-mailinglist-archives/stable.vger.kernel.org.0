@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D62220D778
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:07:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7616320DBEA
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:16:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732902AbgF2TaV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:30:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40596 "EHLO mail.kernel.org"
+        id S1729184AbgF2UKf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:10:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732873AbgF2TaU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:30:20 -0400
+        id S1732905AbgF2TaW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:30:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6A11322C9E;
-        Mon, 29 Jun 2020 15:35:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5DE3D23EF6;
+        Mon, 29 Jun 2020 15:35:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444917;
-        bh=Lx2d3HOrYC8hQMF3kfUNLx7Tj5g3due1qmNAPhciJvk=;
+        s=default; t=1593444918;
+        bh=emakqb68zynqWff8gOjBLPusUCIxEvi60xO/MerYsEo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PTzJTAKPiNKE9tkWuobDA8fhDvzqt/gCHV8jXhl8Oa5lUoNGpeUNiLRSMgIHB0Ixr
-         EyuJoLPnwa4A/4Lonvz0yDIyEvVw0wRka4cNizk29XUjSx/TrJDDu7+oZgVvF9Ptz5
-         HuX+APIfV3p5VWkjZJC3pTHVxo+AE9HuSXt7Txfg=
+        b=wKytuCT95Mc71k11VFW9gNDgDSK6JtSAfqnafmB2jpQ7O9subuTdLHA6UpeGiIUbp
+         4GWy/wyuBtMJ3ONQqa5FHFvxDNuF90ZMcB4PJwXOAnEq0j6WQbH74GkVRIN5Q21qGr
+         dYiUbnZc2ZQdCArceBg9N4/omIUXpYkWc4xAPRPE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sasha Levin <sashal@kernel.org>,
-        Jian-Hong Pan <jian-hong@endlessm.com>,
-        Kailang Yang <kailang@realtek.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 013/131] ALSA: hda/realtek - Enable the headset of ASUS B9450FA with ALC294
-Date:   Mon, 29 Jun 2020 11:33:04 -0400
-Message-Id: <20200629153502.2494656-14-sashal@kernel.org>
+Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 014/131] ALSA: hda/realtek: Enable mute LED on an HP system
+Date:   Mon, 29 Jun 2020 11:33:05 -0400
+Message-Id: <20200629153502.2494656-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629153502.2494656-1-sashal@kernel.org>
 References: <20200629153502.2494656-1-sashal@kernel.org>
@@ -50,61 +48,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8b33a134a9cc2a501f8fc731d91caef39237d495 ]
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-A headset on the laptop like ASUS B9450FA does not work, until quirk
-ALC294_FIXUP_ASUS_HPE is applied.
+[ Upstream commit f5a88b0accc24c4a9021247d7a3124f90aa4c586 ]
 
-Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
-Signed-off-by: Kailang Yang <kailang@realtek.com>
+The system in question uses ALC285, and it uses GPIO 0x04 to control its
+mute LED.
+
+The mic mute LED can be controlled by GPIO 0x01, however the system uses
+DMIC so we should use that to control mic mute LED.
+
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200225072920.109199-1-jian-hong@endlessm.com
+Link: https://lore.kernel.org/r/20200327044626.29582-1-kai.heng.feng@canonical.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c | 15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ sound/pci/hda/patch_realtek.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
 diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index 623ebe2e7db43..9847be4349e60 100644
+index 9847be4349e60..3103f990299c9 100644
 --- a/sound/pci/hda/patch_realtek.c
 +++ b/sound/pci/hda/patch_realtek.c
-@@ -5747,7 +5747,7 @@ enum {
- 	ALC289_FIXUP_DUAL_SPK,
+@@ -3918,6 +3918,12 @@ static void alc269_fixup_hp_gpio_led(struct hda_codec *codec,
+ 	alc_fixup_hp_gpio_led(codec, action, 0x08, 0x10);
+ }
+ 
++static void alc285_fixup_hp_gpio_led(struct hda_codec *codec,
++				const struct hda_fixup *fix, int action)
++{
++	alc_fixup_hp_gpio_led(codec, action, 0x04, 0x00);
++}
++
+ static void alc286_fixup_hp_gpio_led(struct hda_codec *codec,
+ 				const struct hda_fixup *fix, int action)
+ {
+@@ -5748,6 +5754,7 @@ enum {
  	ALC294_FIXUP_SPK2_TO_DAC1,
  	ALC294_FIXUP_ASUS_DUAL_SPK,
--
-+	ALC294_FIXUP_ASUS_HPE,
+ 	ALC294_FIXUP_ASUS_HPE,
++	ALC285_FIXUP_HP_GPIO_LED,
  };
  
  static const struct hda_fixup alc269_fixups[] = {
-@@ -6836,7 +6836,17 @@ static const struct hda_fixup alc269_fixups[] = {
+@@ -6847,6 +6854,10 @@ static const struct hda_fixup alc269_fixups[] = {
  		.chained = true,
- 		.chain_id = ALC294_FIXUP_SPK2_TO_DAC1
+ 		.chain_id = ALC294_FIXUP_ASUS_HEADSET_MIC
  	},
--
-+	[ALC294_FIXUP_ASUS_HPE] = {
-+		.type = HDA_FIXUP_VERBS,
-+		.v.verbs = (const struct hda_verb[]) {
-+			/* Set EAPD high */
-+			{ 0x20, AC_VERB_SET_COEF_INDEX, 0x0f },
-+			{ 0x20, AC_VERB_SET_PROC_COEF, 0x7774 },
-+			{ }
-+		},
-+		.chained = true,
-+		.chain_id = ALC294_FIXUP_ASUS_HEADSET_MIC
++	[ALC285_FIXUP_HP_GPIO_LED] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc285_fixup_hp_gpio_led,
 +	},
  };
  
  static const struct snd_pci_quirk alc269_fixup_tbl[] = {
-@@ -6999,6 +7009,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x1043, 0x16e3, "ASUS UX50", ALC269_FIXUP_STEREO_DMIC),
- 	SND_PCI_QUIRK(0x1043, 0x17d1, "ASUS UX431FL", ALC294_FIXUP_ASUS_DUAL_SPK),
- 	SND_PCI_QUIRK(0x1043, 0x18b1, "Asus MJ401TA", ALC256_FIXUP_ASUS_HEADSET_MIC),
-+	SND_PCI_QUIRK(0x1043, 0x19ce, "ASUS B9450FA", ALC294_FIXUP_ASUS_HPE),
- 	SND_PCI_QUIRK(0x1043, 0x1a13, "Asus G73Jw", ALC269_FIXUP_ASUS_G73JW),
- 	SND_PCI_QUIRK(0x1043, 0x1a30, "ASUS X705UD", ALC256_FIXUP_ASUS_MIC),
- 	SND_PCI_QUIRK(0x1043, 0x1b13, "Asus U41SV", ALC269_FIXUP_INV_DMIC),
+@@ -6991,6 +7002,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+ 	SND_PCI_QUIRK(0x103c, 0x83b9, "HP Spectre x360", ALC269_FIXUP_HP_MUTE_LED_MIC3),
+ 	SND_PCI_QUIRK(0x103c, 0x8497, "HP Envy x360", ALC269_FIXUP_HP_MUTE_LED_MIC3),
+ 	SND_PCI_QUIRK(0x103c, 0x84e7, "HP Pavilion 15", ALC269_FIXUP_HP_MUTE_LED_MIC3),
++	SND_PCI_QUIRK(0x103c, 0x8736, "HP", ALC285_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x1043, 0x103e, "ASUS X540SA", ALC256_FIXUP_ASUS_MIC),
+ 	SND_PCI_QUIRK(0x1043, 0x103f, "ASUS TX300", ALC282_FIXUP_ASUS_TX300),
+ 	SND_PCI_QUIRK(0x1043, 0x106d, "Asus K53BE", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
 -- 
 2.25.1
 
