@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D023B20E6F9
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:10:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA24F20E840
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:12:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391472AbgF2VwT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:52:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56904 "EHLO mail.kernel.org"
+        id S1732934AbgF2WFC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 18:05:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726642AbgF2Sfj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:35:39 -0400
+        id S1726122AbgF2SfV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:35:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3814424653;
-        Mon, 29 Jun 2020 15:19:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 159A124655;
+        Mon, 29 Jun 2020 15:19:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593443967;
-        bh=R7EbNfwBfhbKAwJL9cGsCE0UyhurDjirYYrMzZFv7YQ=;
+        s=default; t=1593443968;
+        bh=1FFAhl0OAM6WMZkxs4GUZv3PqFs8gVfwKn18iQl9Ccg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CrHu0aNqrupclbky3ZB66u1e+ZZp81S/AQRnF9fNc5h6et0vM+ZxaIzqawM4GMNor
-         TNw3G0aspFqMhNA7JPSkOxuE7xkh44Cmc6a8tYlclRGnEamB5gGucxAoTNCkqKUv+R
-         aLkN1wmA8zSdLq0VeZBbSeuGR2VybyO52y3Eqxp4=
+        b=hRtESvOMqMQ66pWE3IXEvARAOJ+wfYUki8Fjq3L3iKPm6osGsPQNabdvp2k4VHnpk
+         wPjg2ifIjA55r0oaWFqBDSSxgs3V1UxPvUQJcdq3BYc1bp24bzwr0SmNqQXB4EdERz
+         IlNwNi7taJjTGgpCYrRv9YFDj3ICV26to/BttD6M=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Prashant Malani <pmalani@chromium.org>,
+Cc:     Laurence Tratt <laurie@tratt.net>, Takashi Iwai <tiwai@suse.de>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.7 071/265] usb: typec: mux: intel_pmc_mux: Fix DP alternate mode entry
-Date:   Mon, 29 Jun 2020 11:15:04 -0400
-Message-Id: <20200629151818.2493727-72-sashal@kernel.org>
+Subject: [PATCH 5.7 072/265] ALSA: usb-audio: Add implicit feedback quirk for SSL2+.
+Date:   Mon, 29 Jun 2020 11:15:05 -0400
+Message-Id: <20200629151818.2493727-73-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -49,65 +48,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+From: Laurence Tratt <laurie@tratt.net>
 
-commit 130206a88683d859f63ed6d4a56ab5c2b4930c8e upstream.
+commit e7585db1b0b5b4e4eb1967bb1472df308f7ffcbf upstream.
 
-The PMC needs to be notified separately about HPD (hotplug
-detected) signal being high after mode entry. There is a bit
-"HPD High" in the Alternate Mode Request that the driver
-already sets, but that bit is only valid when the
-DisplayPort Alternate Mode is directly entered from
-disconnected state.
+This uses the same quirk as the Motu M2 and M4 to ensure the driver uses the
+audio interface's clock. Tested on an SSL2+.
 
-Fixes: 5c4edcdbcd97 ("usb: typec: mux: intel: Fix DP_HPD_LVL bit field")
-Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Cc: stable <stable@vger.kernel.org>
-Tested-by: Prashant Malani <pmalani@chromium.org>
-Link: https://lore.kernel.org/r/20200529131753.15587-1-heikki.krogerus@linux.intel.com
+Signed-off-by: Laurence Tratt <laurie@tratt.net>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200612111807.dgnig6rwhmsl2bod@overdrive.tratt.net
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/mux/intel_pmc_mux.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ sound/usb/pcm.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/typec/mux/intel_pmc_mux.c b/drivers/usb/typec/mux/intel_pmc_mux.c
-index c22e5c4bbf1a9..e35508f5e1287 100644
---- a/drivers/usb/typec/mux/intel_pmc_mux.c
-+++ b/drivers/usb/typec/mux/intel_pmc_mux.c
-@@ -129,7 +129,8 @@ pmc_usb_mux_dp_hpd(struct pmc_usb_port *port, struct typec_mux_state *state)
- 	msg[0] = PMC_USB_DP_HPD;
- 	msg[0] |= port->usb3_port << PMC_USB_MSG_USB3_PORT_SHIFT;
- 
--	msg[1] = PMC_USB_DP_HPD_IRQ;
-+	if (data->status & DP_STATUS_IRQ_HPD)
-+		msg[1] = PMC_USB_DP_HPD_IRQ;
- 
- 	if (data->status & DP_STATUS_HPD_STATE)
- 		msg[1] |= PMC_USB_DP_HPD_LVL;
-@@ -142,6 +143,7 @@ pmc_usb_mux_dp(struct pmc_usb_port *port, struct typec_mux_state *state)
- {
- 	struct typec_displayport_data *data = state->data;
- 	struct altmode_req req = { };
-+	int ret;
- 
- 	if (data->status & DP_STATUS_IRQ_HPD)
- 		return pmc_usb_mux_dp_hpd(port, state);
-@@ -161,7 +163,14 @@ pmc_usb_mux_dp(struct pmc_usb_port *port, struct typec_mux_state *state)
- 	if (data->status & DP_STATUS_HPD_STATE)
- 		req.mode_data |= PMC_USB_ALTMODE_HPD_HIGH;
- 
--	return pmc_usb_command(port, (void *)&req, sizeof(req));
-+	ret = pmc_usb_command(port, (void *)&req, sizeof(req));
-+	if (ret)
-+		return ret;
-+
-+	if (data->status & DP_STATUS_HPD_STATE)
-+		return pmc_usb_mux_dp_hpd(port, state);
-+
-+	return 0;
- }
- 
- static int
+diff --git a/sound/usb/pcm.c b/sound/usb/pcm.c
+index 3411e27eb64bb..39aec83f8aca4 100644
+--- a/sound/usb/pcm.c
++++ b/sound/usb/pcm.c
+@@ -367,6 +367,7 @@ static int set_sync_ep_implicit_fb_quirk(struct snd_usb_substream *subs,
+ 		ifnum = 0;
+ 		goto add_sync_ep_from_ifnum;
+ 	case USB_ID(0x07fd, 0x0008): /* MOTU M Series */
++	case USB_ID(0x31e9, 0x0002): /* Solid State Logic SSL2+ */
+ 		ep = 0x81;
+ 		ifnum = 2;
+ 		goto add_sync_ep_from_ifnum;
 -- 
 2.25.1
 
