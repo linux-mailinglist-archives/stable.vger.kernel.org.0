@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C763420D336
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 21:12:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40C3C20D337
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 21:12:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728005AbgF2S4r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728103AbgF2S4r (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 29 Jun 2020 14:56:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42460 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:42458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729965AbgF2SzR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:55:17 -0400
+        id S1729964AbgF2SzQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:55:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3BEB025562;
-        Mon, 29 Jun 2020 15:55:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3FFFB25563;
+        Mon, 29 Jun 2020 15:55:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593446124;
-        bh=t1E3JVaFTVKNlVeXM74XVF6HIKEdKy9b6e4wFtTfKH0=;
+        s=default; t=1593446125;
+        bh=wdpkh57p5M91Zz9X/7I099FhH4cCdmPjJrwS5NFQ/pg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SgY8p42PRpcYE8Tp0JZWg5NdWG3XG/y6e3Hbv54kk2NosfXF1Lk29ChhK8Tnq7BTA
-         yL+2Pb/wXgeUR9+gub9eJU8ia6liANX/NDo+9UpasaplNzg2UMrYhbFVWidURtBbQ6
-         6AKZJgbxqqadtvUNJMujye0eGQ+KzaVB2xcr1PkM=
+        b=AFhoaqpfGS5GlHJGJFJjIUISWRgUrwSYAa4MkNhJncUbaYJedT9bAhqE/mgsxF2n2
+         R0oS81YrxLhfP2N9rHa/PADOGOd/5PgmdFVaNyu6JImJkdI3+IkdL8w++BrC+I/yhK
+         mZ3T8mbIyCIkb4f79XZmZQ874JkzXizOj4wkglJM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Russell King <rmk+kernel@armlinux.org.uk>,
-        Jozsef Kadlecsik <kadlec@netfilter.org>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+Cc:     Juri Lelli <juri.lelli@redhat.com>,
+        syzbot+119ba87189432ead09b4@syzkaller.appspotmail.com,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Daniel Wagner <dwagner@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 115/135] netfilter: ipset: fix unaligned atomic access
-Date:   Mon, 29 Jun 2020 11:52:49 -0400
-Message-Id: <20200629155309.2495516-116-sashal@kernel.org>
+Subject: [PATCH 4.4 116/135] sched/core: Fix PI boosting between RT and DEADLINE tasks
+Date:   Mon, 29 Jun 2020 11:52:50 -0400
+Message-Id: <20200629155309.2495516-117-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
 References: <20200629155309.2495516-1-sashal@kernel.org>
@@ -50,55 +53,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Juri Lelli <juri.lelli@redhat.com>
 
-[ Upstream commit 715028460082d07a7ec6fcd87b14b46784346a72 ]
+[ Upstream commit 740797ce3a124b7dd22b7fb832d87bc8fba1cf6f ]
 
-When using ip_set with counters and comment, traffic causes the kernel
-to panic on 32-bit ARM:
+syzbot reported the following warning:
 
-Alignment trap: not handling instruction e1b82f9f at [<bf01b0dc>]
-Unhandled fault: alignment exception (0x221) at 0xea08133c
-PC is at ip_set_match_extensions+0xe0/0x224 [ip_set]
+ WARNING: CPU: 1 PID: 6351 at kernel/sched/deadline.c:628
+ enqueue_task_dl+0x22da/0x38a0 kernel/sched/deadline.c:1504
 
-The problem occurs when we try to update the 64-bit counters - the
-faulting address above is not 64-bit aligned.  The problem occurs
-due to the way elements are allocated, for example:
+At deadline.c:628 we have:
 
-	set->dsize = ip_set_elem_len(set, tb, 0, 0);
-	map = ip_set_alloc(sizeof(*map) + elements * set->dsize);
+ 623 static inline void setup_new_dl_entity(struct sched_dl_entity *dl_se)
+ 624 {
+ 625 	struct dl_rq *dl_rq = dl_rq_of_se(dl_se);
+ 626 	struct rq *rq = rq_of_dl_rq(dl_rq);
+ 627
+ 628 	WARN_ON(dl_se->dl_boosted);
+ 629 	WARN_ON(dl_time_before(rq_clock(rq), dl_se->deadline));
+        [...]
+     }
 
-If the element has a requirement for a member to be 64-bit aligned,
-and set->dsize is not a multiple of 8, but is a multiple of four,
-then every odd numbered elements will be misaligned - and hitting
-an atomic64_add() on that element will cause the kernel to panic.
+Which means that setup_new_dl_entity() has been called on a task
+currently boosted. This shouldn't happen though, as setup_new_dl_entity()
+is only called when the 'dynamic' deadline of the new entity
+is in the past w.r.t. rq_clock and boosted tasks shouldn't verify this
+condition.
 
-ip_set_elem_len() must return a size that is rounded to the maximum
-alignment of any extension field stored in the element.  This change
-ensures that is the case.
+Digging through the PI code I noticed that what above might in fact happen
+if an RT tasks blocks on an rt_mutex hold by a DEADLINE task. In the
+first branch of boosting conditions we check only if a pi_task 'dynamic'
+deadline is earlier than mutex holder's and in this case we set mutex
+holder to be dl_boosted. However, since RT 'dynamic' deadlines are only
+initialized if such tasks get boosted at some point (or if they become
+DEADLINE of course), in general RT 'dynamic' deadlines are usually equal
+to 0 and this verifies the aforementioned condition.
 
-Fixes: 95ad1f4a9358 ("netfilter: ipset: Fix extension alignment")
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Acked-by: Jozsef Kadlecsik <kadlec@netfilter.org>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fix it by checking that the potential donor task is actually (even if
+temporary because in turn boosted) running at DEADLINE priority before
+using its 'dynamic' deadline value.
+
+Fixes: 2d3d891d3344 ("sched/deadline: Add SCHED_DEADLINE inheritance logic")
+Reported-by: syzbot+119ba87189432ead09b4@syzkaller.appspotmail.com
+Signed-off-by: Juri Lelli <juri.lelli@redhat.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Reviewed-by: Daniel Bristot de Oliveira <bristot@redhat.com>
+Tested-by: Daniel Wagner <dwagner@suse.de>
+Link: https://lkml.kernel.org/r/20181119153201.GB2119@localhost.localdomain
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/ipset/ip_set_core.c | 2 ++
- 1 file changed, 2 insertions(+)
+ kernel/sched/core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/netfilter/ipset/ip_set_core.c b/net/netfilter/ipset/ip_set_core.c
-index 0583e2491770d..3231030a73edb 100644
---- a/net/netfilter/ipset/ip_set_core.c
-+++ b/net/netfilter/ipset/ip_set_core.c
-@@ -379,6 +379,8 @@ ip_set_elem_len(struct ip_set *set, struct nlattr *tb[], size_t len,
- 	for (id = 0; id < IPSET_EXT_ID_MAX; id++) {
- 		if (!add_extension(id, cadt_flags, tb))
- 			continue;
-+		if (align < ip_set_extensions[id].align)
-+			align = ip_set_extensions[id].align;
- 		len = ALIGN(len, ip_set_extensions[id].align);
- 		set->offset[id] = len;
- 		set->extensions |= ip_set_extensions[id].type;
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index d81bcc6362fff..14a87c1f3a3ac 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -3439,7 +3439,8 @@ void rt_mutex_setprio(struct task_struct *p, int prio)
+ 	if (dl_prio(prio)) {
+ 		struct task_struct *pi_task = rt_mutex_get_top_task(p);
+ 		if (!dl_prio(p->normal_prio) ||
+-		    (pi_task && dl_entity_preempt(&pi_task->dl, &p->dl))) {
++		    (pi_task && dl_prio(pi_task->prio) &&
++		     dl_entity_preempt(&pi_task->dl, &p->dl))) {
+ 			p->dl.dl_boosted = 1;
+ 			enqueue_flag |= ENQUEUE_REPLENISH;
+ 		} else
 -- 
 2.25.1
 
