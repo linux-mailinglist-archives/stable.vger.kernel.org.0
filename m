@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55C5320DA96
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:13:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 867F820D8C8
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:10:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732253AbgF2T6q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:58:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47654 "EHLO mail.kernel.org"
+        id S1731332AbgF2Tll (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:41:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387598AbgF2TkS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:18 -0400
+        id S2387828AbgF2Tkr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:47 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 195D22481D;
+        by mail.kernel.org (Postfix) with ESMTPSA id ED0512481F;
         Mon, 29 Jun 2020 15:25:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444338;
-        bh=w6apJk8AfKAn6zaaO5RkNTDJ2S+KinzX00mJQQ4CrxU=;
+        s=default; t=1593444339;
+        bh=MCYkuFW+5XeYXr71zGuhSH25Gd1iQl/aqkrPgJdzNhw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GwBEgawYLlSxIR59SIGFf1XtWY+CRaW3aQUKYVcZnNprG4TK9Ye8aQgsTqOgdNsaG
-         OLMWdsCU+G1KRNLX0SePI2QNIhCVTFvFoMKToquT1HKmHK7zoHFvHUJQAiBX69KYOf
-         s8d5oEvd6p11/nl5L3n0Cwrz5LGrWkMm+OynJ8HY=
+        b=H7VthXyju+5Thp9Rb+2p2l9eQJYZmFghR284PvvQ2ftO6tVn3OC8DnSAn+wnCkNvW
+         jcK9mbyoKm1c98MtwjDgbZ/6UqM96ZbnEq1hlDxFcwFq4rTPSrGCXzB1rFwHHUDDfV
+         UZL57C9Qkg8B6F0p15c+WJ/BmVaCRmAlB5CJH5CY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jeremy Kerr <jk@ozlabs.org>,
+Cc:     Lorenzo Bianconi <lorenzo@kernel.org>,
         "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.4 013/178] net: usb: ax88179_178a: fix packet alignment padding
-Date:   Mon, 29 Jun 2020 11:22:38 -0400
-Message-Id: <20200629152523.2494198-14-sashal@kernel.org>
+Subject: [PATCH 5.4 014/178] openvswitch: take into account de-fragmentation/gso_size in execute_check_pkt_len
+Date:   Mon, 29 Jun 2020 11:22:39 -0400
+Message-Id: <20200629152523.2494198-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -49,72 +49,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Kerr <jk@ozlabs.org>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit e869e7a17798d85829fa7d4f9bbe1eebd4b2d3f6 ]
+[ Upstream commit 17843655708e1941c0653af3cd61be6948e36f43 ]
 
-Using a AX88179 device (0b95:1790), I see two bytes of appended data on
-every RX packet. For example, this 48-byte ping, using 0xff as a
-payload byte:
+ovs connection tracking module performs de-fragmentation on incoming
+fragmented traffic. Take info account if traffic has been de-fragmented
+in execute_check_pkt_len action otherwise we will perform the wrong
+nested action considering the original packet size. This issue typically
+occurs if ovs-vswitchd adds a rule in the pipeline that requires connection
+tracking (e.g. OVN stateful ACLs) before execute_check_pkt_len action.
+Moreover take into account GSO fragment size for GSO packet in
+execute_check_pkt_len routine
 
-  04:20:22.528472 IP 192.168.1.1 > 192.168.1.2: ICMP echo request, id 2447, seq 1, length 64
-	0x0000:  000a cd35 ea50 000a cd35 ea4f 0800 4500
-	0x0010:  0054 c116 4000 4001 f63e c0a8 0101 c0a8
-	0x0020:  0102 0800 b633 098f 0001 87ea cd5e 0000
-	0x0030:  0000 dcf2 0600 0000 0000 ffff ffff ffff
-	0x0040:  ffff ffff ffff ffff ffff ffff ffff ffff
-	0x0050:  ffff ffff ffff ffff ffff ffff ffff ffff
-	0x0060:  ffff 961f
-
-Those last two bytes - 96 1f - aren't part of the original packet.
-
-In the ax88179 RX path, the usbnet rx_fixup function trims a 2-byte
-'alignment pseudo header' from the start of the packet, and sets the
-length from a per-packet field populated by hardware. It looks like that
-length field *includes* the 2-byte header; the current driver assumes
-that it's excluded.
-
-This change trims the 2-byte alignment header after we've set the packet
-length, so the resulting packet length is correct. While we're moving
-the comment around, this also fixes the spelling of 'pseudo'.
-
-Signed-off-by: Jeremy Kerr <jk@ozlabs.org>
+Fixes: 4d5ec89fc8d14 ("net: openvswitch: Add a new action check_pkt_len")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/ax88179_178a.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ net/openvswitch/actions.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/usb/ax88179_178a.c b/drivers/net/usb/ax88179_178a.c
-index daa54486ab094..df2f7cc6dc03a 100644
---- a/drivers/net/usb/ax88179_178a.c
-+++ b/drivers/net/usb/ax88179_178a.c
-@@ -1387,10 +1387,10 @@ static int ax88179_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
- 		}
+diff --git a/net/openvswitch/actions.c b/net/openvswitch/actions.c
+index 99352f09deaac..3d96dab104490 100644
+--- a/net/openvswitch/actions.c
++++ b/net/openvswitch/actions.c
+@@ -1146,9 +1146,10 @@ static int execute_check_pkt_len(struct datapath *dp, struct sk_buff *skb,
+ 				 struct sw_flow_key *key,
+ 				 const struct nlattr *attr, bool last)
+ {
++	struct ovs_skb_cb *ovs_cb = OVS_CB(skb);
+ 	const struct nlattr *actions, *cpl_arg;
++	int len, max_len, rem = nla_len(attr);
+ 	const struct check_pkt_len_arg *arg;
+-	int rem = nla_len(attr);
+ 	bool clone_flow_key;
  
- 		if (pkt_cnt == 0) {
--			/* Skip IP alignment psudo header */
--			skb_pull(skb, 2);
- 			skb->len = pkt_len;
--			skb_set_tail_pointer(skb, pkt_len);
-+			/* Skip IP alignment pseudo header */
-+			skb_pull(skb, 2);
-+			skb_set_tail_pointer(skb, skb->len);
- 			skb->truesize = pkt_len + sizeof(struct sk_buff);
- 			ax88179_rx_checksum(skb, pkt_hdr);
- 			return 1;
-@@ -1399,8 +1399,9 @@ static int ax88179_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
- 		ax_skb = skb_clone(skb, GFP_ATOMIC);
- 		if (ax_skb) {
- 			ax_skb->len = pkt_len;
--			ax_skb->data = skb->data + 2;
--			skb_set_tail_pointer(ax_skb, pkt_len);
-+			/* Skip IP alignment pseudo header */
-+			skb_pull(ax_skb, 2);
-+			skb_set_tail_pointer(ax_skb, ax_skb->len);
- 			ax_skb->truesize = pkt_len + sizeof(struct sk_buff);
- 			ax88179_rx_checksum(ax_skb, pkt_hdr);
- 			usbnet_skb_return(dev, ax_skb);
+ 	/* The first netlink attribute in 'attr' is always
+@@ -1157,7 +1158,11 @@ static int execute_check_pkt_len(struct datapath *dp, struct sk_buff *skb,
+ 	cpl_arg = nla_data(attr);
+ 	arg = nla_data(cpl_arg);
+ 
+-	if (skb->len <= arg->pkt_len) {
++	len = ovs_cb->mru ? ovs_cb->mru + skb->mac_len : skb->len;
++	max_len = arg->pkt_len;
++
++	if ((skb_is_gso(skb) && skb_gso_validate_mac_len(skb, max_len)) ||
++	    len <= max_len) {
+ 		/* Second netlink attribute in 'attr' is always
+ 		 * 'OVS_CHECK_PKT_LEN_ATTR_ACTIONS_IF_LESS_EQUAL'.
+ 		 */
 -- 
 2.25.1
 
