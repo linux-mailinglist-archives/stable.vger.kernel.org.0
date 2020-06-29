@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26E8620D94A
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:11:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E017820DAC7
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:14:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730040AbgF2TqP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:46:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47654 "EHLO mail.kernel.org"
+        id S2387759AbgF2UAc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:00:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731178AbgF2Tkn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:43 -0400
+        id S2387567AbgF2TkQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE58A2487F;
-        Mon, 29 Jun 2020 15:26:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 90F3624884;
+        Mon, 29 Jun 2020 15:26:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444380;
-        bh=B6B7CbmE1beGD7a0XoTWkaxDA7EpKHPavxaZ8XF46Fo=;
+        s=default; t=1593444381;
+        bh=eyHmQB9Z/yvGy0UPdwRfvNnC+Pc8b1C8bJqVPS9nQMA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yzbt0mbmxlcsb0pDJOJBoaaZyfKsVRPMIA+Sv6y9WB5OpzECVaLEquTEOWqhWcnKr
-         O4cDu/a10uFyUOKfdDlA7ZHR2yg3Urpzl5sxhxjGZwyinXOjwqB4D24C5eaQAp0fg6
-         W0CU//MeuzH2lxNtswtipPR2Jm19G6M3k2m4SkYI=
+        b=sW6nHVa5ux2uCEpfF+nAD84eEopxPvyxuLozSwYx7Y3FvtNQRbS5pjTd4AUvjONU2
+         pXWDtGqUqxzG39WNc8qxCxurxsPPSh470joMVE3P9DyRMJqud9YHNpBtbfJqwQZ9C7
+         Jc9y7Lo1ep2drWQm1Kjvhh+sk8jnHGmfH48SF8pM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Joakim Tjernlund <joakim.tjernlund@infinera.com>,
-        Oliver Neukum <oneukum@suse.com>,
+Cc:     Zheng Bin <zhengbin13@huawei.com>, Christoph Hellwig <hch@lst.de>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Jens Axboe <axboe@kernel.dk>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.4 057/178] cdc-acm: Add DISABLE_ECHO quirk for Microchip/SMSC chip
-Date:   Mon, 29 Jun 2020 11:23:22 -0400
-Message-Id: <20200629152523.2494198-58-sashal@kernel.org>
+Subject: [PATCH 5.4 058/178] loop: replace kill_bdev with invalidate_bdev
+Date:   Mon, 29 Jun 2020 11:23:23 -0400
+Message-Id: <20200629152523.2494198-59-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -49,36 +50,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joakim Tjernlund <joakim.tjernlund@infinera.com>
+From: Zheng Bin <zhengbin13@huawei.com>
 
-commit 03894573f2913181ee5aae0089f333b2131f2d4b upstream.
+commit f4bd34b139a3fa2808c4205f12714c65e1548c6c upstream.
 
-USB_DEVICE(0x0424, 0x274e) can send data before cdc_acm is ready,
-causing garbage chars on the TTY causing stray input to the shell
-and/or login prompt.
+When a filesystem is mounted on a loop device and on a loop ioctl
+LOOP_SET_STATUS64, because of kill_bdev, buffer_head mappings are getting
+destroyed.
+kill_bdev
+  truncate_inode_pages
+    truncate_inode_pages_range
+      do_invalidatepage
+        block_invalidatepage
+          discard_buffer  -->clear BH_Mapped flag
 
-Signed-off-by: Joakim Tjernlund <joakim.tjernlund@infinera.com>
-Cc: stable@vger.kernel.org
-Acked-by: Oliver Neukum <oneukum@suse.com>
-Link: https://lore.kernel.org/r/20200605105418.22263-1-joakim.tjernlund@infinera.com
+sb_bread
+  __bread_gfp
+  bh = __getblk_gfp
+  -->discard_buffer clear BH_Mapped flag
+  __bread_slow
+    submit_bh
+      submit_bh_wbc
+        BUG_ON(!buffer_mapped(bh))  --> hit this BUG_ON
+
+Fixes: 5db470e229e2 ("loop: drop caches if offset or block_size are changed")
+Signed-off-by: Zheng Bin <zhengbin13@huawei.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/class/cdc-acm.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/block/loop.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
-index f67088bb8218b..d5187b50fc828 100644
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -1689,6 +1689,8 @@ static int acm_pre_reset(struct usb_interface *intf)
+diff --git a/drivers/block/loop.c b/drivers/block/loop.c
+index 57ed6b70d2950..565e35e69f249 100644
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -1284,7 +1284,7 @@ loop_set_status(struct loop_device *lo, const struct loop_info64 *info)
+ 	if (lo->lo_offset != info->lo_offset ||
+ 	    lo->lo_sizelimit != info->lo_sizelimit) {
+ 		sync_blockdev(lo->lo_device);
+-		kill_bdev(lo->lo_device);
++		invalidate_bdev(lo->lo_device);
+ 	}
  
- static const struct usb_device_id acm_ids[] = {
- 	/* quirky and broken devices */
-+	{ USB_DEVICE(0x0424, 0x274e), /* Microchip Technology, Inc. (formerly SMSC) */
-+	  .driver_info = DISABLE_ECHO, }, /* DISABLE ECHO in termios flag */
- 	{ USB_DEVICE(0x076d, 0x0006), /* Denso Cradle CU-321 */
- 	.driver_info = NO_UNION_NORMAL, },/* has no union descriptor */
- 	{ USB_DEVICE(0x17ef, 0x7000), /* Lenovo USB modem */
+ 	/* I/O need to be drained during transfer transition */
+@@ -1558,12 +1558,12 @@ static int loop_set_block_size(struct loop_device *lo, unsigned long arg)
+ 
+ 	if (lo->lo_queue->limits.logical_block_size != arg) {
+ 		sync_blockdev(lo->lo_device);
+-		kill_bdev(lo->lo_device);
++		invalidate_bdev(lo->lo_device);
+ 	}
+ 
+ 	blk_mq_freeze_queue(lo->lo_queue);
+ 
+-	/* kill_bdev should have truncated all the pages */
++	/* invalidate_bdev should have truncated all the pages */
+ 	if (lo->lo_queue->limits.logical_block_size != arg &&
+ 			lo->lo_device->bd_inode->i_mapping->nrpages) {
+ 		err = -EAGAIN;
 -- 
 2.25.1
 
