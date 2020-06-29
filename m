@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 314A320E841
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:12:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0182220E7CC
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:11:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391862AbgF2WFD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 18:05:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56784 "EHLO mail.kernel.org"
+        id S2387740AbgF2WAb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 18:00:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726165AbgF2SfV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:35:21 -0400
+        id S1726362AbgF2SfY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:35:24 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C555247E6;
+        by mail.kernel.org (Postfix) with ESMTPSA id D97C2247E4;
         Mon, 29 Jun 2020 15:22:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444149;
-        bh=XjGbmrbRRRYSZINDhADAOU6AqF78SzA+WiHTDdERRUE=;
+        s=default; t=1593444150;
+        bh=XarSoApLLTETtyGYNWWLrDZKQDBGnJS7T4Sk19EpEdw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=noR8iZBZZrgf119tWUpdH0GJzmGcJE5Ig+6URFCYvdQykF0Qt4TuygLVKJ72cQM2O
-         T2dnhgMs6716udbZKNvq1ebTwCVBRlwODYCR/AnmgzbZrkEQ5IYqyA2dufnuYwksjg
-         3NSSB4fn8oloCm/vtjIi9TcLJIpFcSvcT42+QtOM=
+        b=BUSAoqWPBFUjuq42hX1zhcP9Cp5nvPhBOc4U8iKjMBvCx6S9BuYU2T21p4wG0AIuz
+         7NhWZotWh75MrMaTN12jis0q+d3TbzWzcnR9axbKR9fP+k67vNJ1OJgdybVeZwy3dl
+         X7lOOWLgWEkLgD/AKC2CbgFMPrl3Kritt5NrZr10=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+Cc:     Arseny Solokha <asolokha@kb.kras.ru>,
+        Jason Yan <yanaijie@huawei.com>, Scott Wood <oss@buserror.net>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.7 255/265] Staging: rtl8723bs: prevent buffer overflow in update_sta_support_rate()
-Date:   Mon, 29 Jun 2020 11:18:08 -0400
-Message-Id: <20200629151818.2493727-256-sashal@kernel.org>
+Subject: [PATCH 5.7 256/265] powerpc/fsl_booke/32: Fix build with CONFIG_RANDOMIZE_BASE
+Date:   Mon, 29 Jun 2020 11:18:09 -0400
+Message-Id: <20200629151818.2493727-257-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -48,43 +50,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Arseny Solokha <asolokha@kb.kras.ru>
 
-commit b65a2d8c8614386f7e8d38ea150749f8a862f431 upstream.
+commit 7e4773f73dcfb92e7e33532162f722ec291e75a4 upstream.
 
-The "ie_len" variable is in the 0-255 range and it comes from the
-network.  If it's over NDIS_802_11_LENGTH_RATES_EX (16) then that will
-lead to memory corruption.
+Building the current 5.8 kernel for an e500 machine with
+CONFIG_RANDOMIZE_BASE=y and CONFIG_BLOCK=n yields the following
+failure:
 
-Fixes: 554c0a3abf21 ("staging: Add rtl8723bs sdio wifi driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200603101958.GA1845750@mwanda
+  arch/powerpc/mm/nohash/kaslr_booke.c: In function 'kaslr_early_init':
+  arch/powerpc/mm/nohash/kaslr_booke.c:387:2: error: implicit
+  declaration of function 'flush_icache_range'; did you mean 'flush_tlb_range'?
+
+Indeed, including asm/cacheflush.h into kaslr_booke.c fixes the build.
+
+Fixes: 2b0e86cc5de6 ("powerpc/fsl_booke/32: implement KASLR infrastructure")
+Cc: stable@vger.kernel.org # v5.5+
+Signed-off-by: Arseny Solokha <asolokha@kb.kras.ru>
+Reviewed-by: Jason Yan <yanaijie@huawei.com>
+Acked-by: Scott Wood <oss@buserror.net>
+[mpe: Tweak change log to mention CONFIG_BLOCK=n]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200613162801.1946619-1-asolokha@kb.kras.ru
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/rtl8723bs/core/rtw_wlan_util.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/powerpc/mm/nohash/kaslr_booke.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/staging/rtl8723bs/core/rtw_wlan_util.c b/drivers/staging/rtl8723bs/core/rtw_wlan_util.c
-index 110338dbe3728..cc60f6a28d700 100644
---- a/drivers/staging/rtl8723bs/core/rtw_wlan_util.c
-+++ b/drivers/staging/rtl8723bs/core/rtw_wlan_util.c
-@@ -1830,12 +1830,14 @@ int update_sta_support_rate(struct adapter *padapter, u8 *pvar_ie, uint var_ie_l
- 	pIE = (struct ndis_80211_var_ie *)rtw_get_ie(pvar_ie, _SUPPORTEDRATES_IE_, &ie_len, var_ie_len);
- 	if (!pIE)
- 		return _FAIL;
-+	if (ie_len > sizeof(pmlmeinfo->FW_sta_info[cam_idx].SupportedRates))
-+		return _FAIL;
- 
- 	memcpy(pmlmeinfo->FW_sta_info[cam_idx].SupportedRates, pIE->data, ie_len);
- 	supportRateNum = ie_len;
- 
- 	pIE = (struct ndis_80211_var_ie *)rtw_get_ie(pvar_ie, _EXT_SUPPORTEDRATES_IE_, &ie_len, var_ie_len);
--	if (pIE)
-+	if (pIE && (ie_len <= sizeof(pmlmeinfo->FW_sta_info[cam_idx].SupportedRates) - supportRateNum))
- 		memcpy((pmlmeinfo->FW_sta_info[cam_idx].SupportedRates + supportRateNum), pIE->data, ie_len);
- 
- 	return _SUCCESS;
+diff --git a/arch/powerpc/mm/nohash/kaslr_booke.c b/arch/powerpc/mm/nohash/kaslr_booke.c
+index 4a75f2d9bf0e0..bce0e5349978f 100644
+--- a/arch/powerpc/mm/nohash/kaslr_booke.c
++++ b/arch/powerpc/mm/nohash/kaslr_booke.c
+@@ -14,6 +14,7 @@
+ #include <linux/memblock.h>
+ #include <linux/libfdt.h>
+ #include <linux/crash_core.h>
++#include <asm/cacheflush.h>
+ #include <asm/pgalloc.h>
+ #include <asm/prom.h>
+ #include <asm/kdump.h>
 -- 
 2.25.1
 
