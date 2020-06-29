@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AFEC020D992
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:11:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B672220DABC
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:14:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387842AbgF2Tsy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:48:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47658 "EHLO mail.kernel.org"
+        id S1732138AbgF2UAI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:00:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387768AbgF2Tkj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:39 -0400
+        id S2387570AbgF2TkQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB4032490B;
-        Mon, 29 Jun 2020 15:27:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9C8262490D;
+        Mon, 29 Jun 2020 15:27:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444461;
-        bh=7vb3UwUMMshPjuwApV7mzovKqdMZKh6jOKI3/FAwR8A=;
+        s=default; t=1593444462;
+        bh=PGAYS1/D/9xQhANcx3m13l7PCByYGFVBOre8nNONMlc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b8j8g7HLfChwwcvd4D4K+6hj//d7zecGSHNcf435sP3XMl8yE3nzynL+ieE8ydNmK
-         nbnb5SxJ2G8cjqt65Q/JBC/ibdIR4kbvFw1FYS/Xt2KnNKr/lf/HQZ7GeqoljiHe2V
-         ESdSSovflrRr49oPb/puwIvLqxsOpcwxwML1XJC4=
+        b=2FM3W0K8jb4jXwDxiNNzPSVN6Bk+4ERn67dvnEwqL1OWbcta/5tP5rxVz8M8zPL/W
+         z7e+Py/wW5JxVg4Txqm74Bb/L3RgxmFAIdicmsP4E406yLK7AgBOeik6eSdusgRDH7
+         5CXk3QTDU2e7gY8ikAqZK1lMZMzRjxI7UR9St7L8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>,
+Cc:     Nathan Chancellor <natechancellor@gmail.com>,
+        yuu ichii <byahu140@heisei.be>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.4 141/178] ALSA: hda/realtek: Add mute LED and micmute LED support for HP systems
-Date:   Mon, 29 Jun 2020 11:24:46 -0400
-Message-Id: <20200629152523.2494198-142-sashal@kernel.org>
+Subject: [PATCH 5.4 142/178] ACPI: sysfs: Fix pm_profile_attr type
+Date:   Mon, 29 Jun 2020 11:24:47 -0400
+Message-Id: <20200629152523.2494198-143-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -49,37 +50,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-commit b2c22910fe5aae10b7e17b0721e63a3edf0c9553 upstream.
+commit e6d701dca9893990d999fd145e3e07223c002b06 upstream.
 
-There are two more HP systems control mute LED from HDA codec and need
-to expose micmute led class so SoF can control micmute LED.
+When running a kernel with Clang's Control Flow Integrity implemented,
+there is a violation that happens when accessing
+/sys/firmware/acpi/pm_profile:
 
-Add quirks to support them.
+$ cat /sys/firmware/acpi/pm_profile
+0
 
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200617102906.16156-2-kai.heng.feng@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+$ dmesg
+...
+[   17.352564] ------------[ cut here ]------------
+[   17.352568] CFI failure (target: acpi_show_profile+0x0/0x8):
+[   17.352572] WARNING: CPU: 3 PID: 497 at kernel/cfi.c:29 __cfi_check_fail+0x33/0x40
+[   17.352573] Modules linked in:
+[   17.352575] CPU: 3 PID: 497 Comm: cat Tainted: G        W         5.7.0-microsoft-standard+ #1
+[   17.352576] RIP: 0010:__cfi_check_fail+0x33/0x40
+[   17.352577] Code: 48 c7 c7 50 b3 85 84 48 c7 c6 50 0a 4e 84 e8 a4 d8 60 00 85 c0 75 02 5b c3 48 c7 c7 dc 5e 49 84 48 89 de 31 c0 e8 7d 06 eb ff <0f> 0b 5b c3 00 00 cc cc 00 00 cc cc 00 85 f6 74 25 41 b9 ea ff ff
+[   17.352577] RSP: 0018:ffffaa6dc3c53d30 EFLAGS: 00010246
+[   17.352578] RAX: 331267e0c06cee00 RBX: ffffffff83d85890 RCX: ffffffff8483a6f8
+[   17.352579] RDX: ffff9cceabbb37c0 RSI: 0000000000000082 RDI: ffffffff84bb9e1c
+[   17.352579] RBP: ffffffff845b2bc8 R08: 0000000000000001 R09: ffff9cceabbba200
+[   17.352579] R10: 000000000000019d R11: 0000000000000000 R12: ffff9cc947766f00
+[   17.352580] R13: ffffffff83d6bd50 R14: ffff9ccc6fa80000 R15: ffffffff845bd328
+[   17.352582] FS:  00007fdbc8d13580(0000) GS:ffff9cce91ac0000(0000) knlGS:0000000000000000
+[   17.352582] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   17.352583] CR2: 00007fdbc858e000 CR3: 00000005174d0000 CR4: 0000000000340ea0
+[   17.352584] Call Trace:
+[   17.352586]  ? rev_id_show+0x8/0x8
+[   17.352587]  ? __cfi_check+0x45bac/0x4b640
+[   17.352589]  ? kobj_attr_show+0x73/0x80
+[   17.352590]  ? sysfs_kf_seq_show+0xc1/0x140
+[   17.352592]  ? ext4_seq_options_show.cfi_jt+0x8/0x8
+[   17.352593]  ? seq_read+0x180/0x600
+[   17.352595]  ? sysfs_create_file_ns.cfi_jt+0x10/0x10
+[   17.352596]  ? tlbflush_read_file+0x8/0x8
+[   17.352597]  ? __vfs_read+0x6b/0x220
+[   17.352598]  ? handle_mm_fault+0xa23/0x11b0
+[   17.352599]  ? vfs_read+0xa2/0x130
+[   17.352599]  ? ksys_read+0x6a/0xd0
+[   17.352601]  ? __do_sys_getpgrp+0x8/0x8
+[   17.352602]  ? do_syscall_64+0x72/0x120
+[   17.352603]  ? entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[   17.352604] ---[ end trace 7b1fa81dc897e419 ]---
+
+When /sys/firmware/acpi/pm_profile is read, sysfs_kf_seq_show is called,
+which in turn calls kobj_attr_show, which gets the ->show callback
+member by calling container_of on attr (casting it to struct
+kobj_attribute) then calls it.
+
+There is a CFI violation because pm_profile_attr is of type
+struct device_attribute but kobj_attr_show calls ->show expecting it
+to be from struct kobj_attribute. CFI checking ensures that function
+pointer types match when doing indirect calls. Fix pm_profile_attr to
+be defined in terms of kobj_attribute so there is no violation or
+mismatch.
+
+Fixes: 362b646062b2 ("ACPI: Export FADT pm_profile integer value to userspace")
+Link: https://github.com/ClangBuiltLinux/linux/issues/1051
+Reported-by: yuu ichii <byahu140@heisei.be>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Cc: 3.10+ <stable@vger.kernel.org> # 3.10+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/acpi/sysfs.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index 45315b14abe63..34868459104d4 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -7436,6 +7436,8 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x103c, 0x83b9, "HP Spectre x360", ALC269_FIXUP_HP_MUTE_LED_MIC3),
- 	SND_PCI_QUIRK(0x103c, 0x8497, "HP Envy x360", ALC269_FIXUP_HP_MUTE_LED_MIC3),
- 	SND_PCI_QUIRK(0x103c, 0x84e7, "HP Pavilion 15", ALC269_FIXUP_HP_MUTE_LED_MIC3),
-+	SND_PCI_QUIRK(0x103c, 0x869d, "HP", ALC236_FIXUP_HP_MUTE_LED),
-+	SND_PCI_QUIRK(0x103c, 0x8729, "HP", ALC285_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8736, "HP", ALC285_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x877a, "HP", ALC285_FIXUP_HP_MUTE_LED),
- 	SND_PCI_QUIRK(0x103c, 0x877d, "HP", ALC236_FIXUP_HP_MUTE_LED),
+diff --git a/drivers/acpi/sysfs.c b/drivers/acpi/sysfs.c
+index 3a89909b50a6c..76c668c05fa03 100644
+--- a/drivers/acpi/sysfs.c
++++ b/drivers/acpi/sysfs.c
+@@ -938,13 +938,13 @@ static void __exit interrupt_stats_exit(void)
+ }
+ 
+ static ssize_t
+-acpi_show_profile(struct device *dev, struct device_attribute *attr,
++acpi_show_profile(struct kobject *kobj, struct kobj_attribute *attr,
+ 		  char *buf)
+ {
+ 	return sprintf(buf, "%d\n", acpi_gbl_FADT.preferred_profile);
+ }
+ 
+-static const struct device_attribute pm_profile_attr =
++static const struct kobj_attribute pm_profile_attr =
+ 	__ATTR(pm_profile, S_IRUGO, acpi_show_profile, NULL);
+ 
+ static ssize_t hotplug_enabled_show(struct kobject *kobj,
 -- 
 2.25.1
 
