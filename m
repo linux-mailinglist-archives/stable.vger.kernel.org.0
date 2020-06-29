@@ -2,37 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00F8220D675
+	by mail.lfdr.de (Postfix) with ESMTP id 6F89820D676
 	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:05:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732118AbgF2TUT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1732116AbgF2TUT (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 29 Jun 2020 15:20:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33196 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:33186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732110AbgF2TUS (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727020AbgF2TUS (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 29 Jun 2020 15:20:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4729225477;
-        Mon, 29 Jun 2020 15:43:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B239925476;
+        Mon, 29 Jun 2020 15:43:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445431;
-        bh=CPoLbO4bEUspwUnycH2PlRBtiaWpwvB983rVPZ/hEcI=;
+        s=default; t=1593445433;
+        bh=WEhn6K+T8CG8Gtu1lKNFABAEEl2O15fFlFTcYiimaF8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y+7l2+0WYoU9szJpNIxihGJolRW/KBQ9XBbWzO08y/gjVSDSaAZXaVB9nw+rtTzhF
-         OsQmtFPEYxqnKRbAhaQYhdB+kA1rrIm3gc1yO1d0x4s3EavdW/XSHxqRrYv0eB5AWs
-         GfNfltxR5Z2Pb6nu6b2IWDgbfqhZNN2dcvkZ8WiA=
+        b=LA/FSPedMBIcjuaJQ30CZV5c4bUALqVNpy4iR6w8ekn0jHsSoeb/kb/AJ8BQeNTTe
+         L4YvQSeBNUNiwKxuGdFSg5COg+BWbRTLdWXPsUVqNVKsXvmrjDg+Mr6iKUZlT/qzZT
+         z7Mc14JJem+JmXAkM9fRneUfGYQqwlP5UDrXZG5o=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiaoyao Li <xiaoyao.li@intel.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Jim Mattson <jmattson@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+Cc:     Waiman Long <longman@redhat.com>, Michal Hocko <mhocko@suse.com>,
+        David Howells <dhowells@redhat.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Joe Perches <joe@perches.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        David Rientjes <rientjes@google.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        "Jason A . Donenfeld" <Jason@zx2c4.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.9 177/191] KVM: X86: Fix MSR range of APIC registers in X2APIC mode
-Date:   Mon, 29 Jun 2020 11:39:53 -0400
-Message-Id: <20200629154007.2495120-178-sashal@kernel.org>
+Subject: [PATCH 4.9 178/191] mm/slab: use memzero_explicit() in kzfree()
+Date:   Mon, 29 Jun 2020 11:39:54 -0400
+Message-Id: <20200629154007.2495120-179-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
 References: <20200629154007.2495120-1-sashal@kernel.org>
@@ -51,47 +60,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaoyao Li <xiaoyao.li@intel.com>
+From: Waiman Long <longman@redhat.com>
 
-commit bf10bd0be53282183f374af23577b18b5fbf7801 upstream.
+commit 8982ae527fbef170ef298650c15d55a9ccd33973 upstream.
 
-Only MSR address range 0x800 through 0x8ff is architecturally reserved
-and dedicated for accessing APIC registers in x2APIC mode.
+The kzfree() function is normally used to clear some sensitive
+information, like encryption keys, in the buffer before freeing it back to
+the pool.  Memset() is currently used for buffer clearing.  However
+unlikely, there is still a non-zero probability that the compiler may
+choose to optimize away the memory clearing especially if LTO is being
+used in the future.
 
-Fixes: 0105d1a52640 ("KVM: x2apic interface to lapic")
-Signed-off-by: Xiaoyao Li <xiaoyao.li@intel.com>
-Message-Id: <20200616073307.16440-1-xiaoyao.li@intel.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Reviewed-by: Jim Mattson <jmattson@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+To make sure that this optimization will never happen,
+memzero_explicit(), which is introduced in v3.18, is now used in
+kzfree() to future-proof it.
+
+Link: http://lkml.kernel.org/r/20200616154311.12314-2-longman@redhat.com
+Fixes: 3ef0e5ba4673 ("slab: introduce kzfree()")
+Signed-off-by: Waiman Long <longman@redhat.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Cc: James Morris <jmorris@namei.org>
+Cc: "Serge E. Hallyn" <serge@hallyn.com>
+Cc: Joe Perches <joe@perches.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: "Jason A . Donenfeld" <Jason@zx2c4.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/x86.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ mm/slab_common.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 0f66f7dd89384..6b7faa14c27bb 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -2304,7 +2304,7 @@ int kvm_set_msr_common(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
- 		return kvm_mtrr_set_msr(vcpu, msr, data);
- 	case MSR_IA32_APICBASE:
- 		return kvm_set_apic_base(vcpu, msr_info);
--	case APIC_BASE_MSR ... APIC_BASE_MSR + 0x3ff:
-+	case APIC_BASE_MSR ... APIC_BASE_MSR + 0xff:
- 		return kvm_x2apic_msr_write(vcpu, msr, data);
- 	case MSR_IA32_TSCDEADLINE:
- 		kvm_set_lapic_tscdeadline_msr(vcpu, data);
-@@ -2576,7 +2576,7 @@ int kvm_get_msr_common(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
- 	case MSR_IA32_APICBASE:
- 		msr_info->data = kvm_get_apic_base(vcpu);
- 		break;
--	case APIC_BASE_MSR ... APIC_BASE_MSR + 0x3ff:
-+	case APIC_BASE_MSR ... APIC_BASE_MSR + 0xff:
- 		return kvm_x2apic_msr_read(vcpu, msr_info->index, &msr_info->data);
- 		break;
- 	case MSR_IA32_TSCDEADLINE:
+diff --git a/mm/slab_common.c b/mm/slab_common.c
+index 13f1926f8fcd4..26c4d47229273 100644
+--- a/mm/slab_common.c
++++ b/mm/slab_common.c
+@@ -1345,7 +1345,7 @@ void kzfree(const void *p)
+ 	if (unlikely(ZERO_OR_NULL_PTR(mem)))
+ 		return;
+ 	ks = ksize(mem);
+-	memset(mem, 0, ks);
++	memzero_explicit(mem, ks);
+ 	kfree(mem);
+ }
+ EXPORT_SYMBOL(kzfree);
 -- 
 2.25.1
 
