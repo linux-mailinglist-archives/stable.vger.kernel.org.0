@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BCAE20E2F0
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:02:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC7B120E2B7
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:01:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390337AbgF2VKG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:10:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45432 "EHLO mail.kernel.org"
+        id S1732309AbgF2VIJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:08:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730210AbgF2TAS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:00:18 -0400
+        id S1730333AbgF2TAT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:00:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD43825538;
-        Mon, 29 Jun 2020 15:54:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 02C6725539;
+        Mon, 29 Jun 2020 15:55:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593446100;
-        bh=/nf4V0oqCFiybyCnrQDSkzatkPUNi5M6Tc8facvxjsg=;
+        s=default; t=1593446101;
+        bh=fgtjaYDMo1aVgKIYzqGWElnEGe7SANQWeDGk2abn22M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YYIl/RVOPJzL0JMC6gzDDGrv9hu8AQgLU9R9YGaQQv9lLqNXffvUBmN34/Nnhuo6u
-         3yGCN0LaHsbB9Fs9ol41MFZS1g3LNTxDnw8KBuHu8ub9r1uYhs1tZP1sy/UTL35T3L
-         r41HVRnGIcMfsf5NMilcxI2ZL6uh/mt6Hob81cq0=
+        b=ky8IIC+1B/1cCg8O1hPy4zox4KMDNJTByUHlWl5e0i/+dAAGi96ODkWD2rmmHGRCJ
+         Lc0K4TZqhzXj4JzH0qo6XfPksQW7/gJsDm1G/h95RSivCWZIROctckDUeDmTIS/9Ow
+         MJ/AS3xqIC6xId/GHY7uZgsMEBPMW8fXC9HlLkVk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wang Hai <wanghai38@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     Chuhong Yuan <hslester96@gmail.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.4 093/135] mld: fix memory leak in ipv6_mc_destroy_dev()
-Date:   Mon, 29 Jun 2020 11:52:27 -0400
-Message-Id: <20200629155309.2495516-94-sashal@kernel.org>
+Subject: [PATCH 4.4 094/135] USB: ohci-sm501: Add missed iounmap() in remove
+Date:   Mon, 29 Jun 2020 11:52:28 -0400
+Message-Id: <20200629155309.2495516-95-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
 References: <20200629155309.2495516-1-sashal@kernel.org>
@@ -50,60 +49,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-[ Upstream commit ea2fce88d2fd678ed9d45354ff49b73f1d5615dd ]
+commit 07c112fb09c86c0231f6ff0061a000ffe91c8eb9 upstream.
 
-Commit a84d01647989 ("mld: fix memory leak in mld_del_delrec()") fixed
-the memory leak of MLD, but missing the ipv6_mc_destroy_dev() path, in
-which mca_sources are leaked after ma_put().
+This driver misses calling iounmap() in remove to undo the ioremap()
+called in probe.
+Add the missed call to fix it.
 
-Using ip6_mc_clear_src() to take care of the missing free.
-
-BUG: memory leak
-unreferenced object 0xffff8881113d3180 (size 64):
-  comm "syz-executor071", pid 389, jiffies 4294887985 (age 17.943s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 ff 02 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<000000002cbc483c>] kmalloc include/linux/slab.h:555 [inline]
-    [<000000002cbc483c>] kzalloc include/linux/slab.h:669 [inline]
-    [<000000002cbc483c>] ip6_mc_add1_src net/ipv6/mcast.c:2237 [inline]
-    [<000000002cbc483c>] ip6_mc_add_src+0x7f5/0xbb0 net/ipv6/mcast.c:2357
-    [<0000000058b8b1ff>] ip6_mc_source+0xe0c/0x1530 net/ipv6/mcast.c:449
-    [<000000000bfc4fb5>] do_ipv6_setsockopt.isra.12+0x1b2c/0x3b30 net/ipv6/ipv6_sockglue.c:754
-    [<00000000e4e7a722>] ipv6_setsockopt+0xda/0x150 net/ipv6/ipv6_sockglue.c:950
-    [<0000000029260d9a>] rawv6_setsockopt+0x45/0x100 net/ipv6/raw.c:1081
-    [<000000005c1b46f9>] __sys_setsockopt+0x131/0x210 net/socket.c:2132
-    [<000000008491f7db>] __do_sys_setsockopt net/socket.c:2148 [inline]
-    [<000000008491f7db>] __se_sys_setsockopt net/socket.c:2145 [inline]
-    [<000000008491f7db>] __x64_sys_setsockopt+0xba/0x150 net/socket.c:2145
-    [<00000000c7bc11c5>] do_syscall_64+0xa1/0x530 arch/x86/entry/common.c:295
-    [<000000005fb7a3f3>] entry_SYSCALL_64_after_hwframe+0x49/0xb3
-
-Fixes: 1666d49e1d41 ("mld: do not remove mld souce list info when set link down")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Acked-by: Hangbin Liu <liuhangbin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: f54aab6ebcec ("usb: ohci-sm501 driver")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20200610024844.3628408-1-hslester96@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/mcast.c | 1 +
+ drivers/usb/host/ohci-sm501.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/net/ipv6/mcast.c b/net/ipv6/mcast.c
-index 976c8133a2819..2d28f0b544946 100644
---- a/net/ipv6/mcast.c
-+++ b/net/ipv6/mcast.c
-@@ -2580,6 +2580,7 @@ void ipv6_mc_destroy_dev(struct inet6_dev *idev)
- 		write_unlock_bh(&idev->lock);
+diff --git a/drivers/usb/host/ohci-sm501.c b/drivers/usb/host/ohci-sm501.c
+index a8b8d8b8d9f39..a960d2bb8dd1e 100644
+--- a/drivers/usb/host/ohci-sm501.c
++++ b/drivers/usb/host/ohci-sm501.c
+@@ -196,6 +196,7 @@ static int ohci_hcd_sm501_drv_remove(struct platform_device *pdev)
+ 	struct resource	*mem;
  
- 		igmp6_group_dropped(i);
-+		ip6_mc_clear_src(i);
- 		ma_put(i);
- 
- 		write_lock_bh(&idev->lock);
+ 	usb_remove_hcd(hcd);
++	iounmap(hcd->regs);
+ 	release_mem_region(hcd->rsrc_start, hcd->rsrc_len);
+ 	usb_put_hcd(hcd);
+ 	dma_release_declared_memory(&pdev->dev);
 -- 
 2.25.1
 
