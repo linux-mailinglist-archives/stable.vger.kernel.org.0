@@ -2,33 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E7B820E2FD
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:02:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F32C720E2DD
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:01:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387775AbgF2VK3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:10:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45422 "EHLO mail.kernel.org"
+        id S2390439AbgF2VJX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:09:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730031AbgF2TAR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:00:17 -0400
+        id S1730314AbgF2TAS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:00:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9BC9225524;
-        Mon, 29 Jun 2020 15:54:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7E55325527;
+        Mon, 29 Jun 2020 15:54:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593446086;
-        bh=VdR4YBb7q6E74iOpqmSSJK8A0d147iOoy9No4eOtmuU=;
+        s=default; t=1593446087;
+        bh=3EB4DZqVoFyQto/b1QnVXsp5YHbKVYrBtULo/IYkatE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kSs3/Q3F7JxGz3sZv+YGnODOvdwYv0BoiOkmdWyKUyUIFc5F5r9+IWf1xq3qLqY1n
-         nUGNrTKCYFvMMGENudiInp2uJTTpBGrjXYoDP9HwILDUKpx8pyFIUeWw5ZXOxInRZX
-         Qke+WzEMdsOBpPzWbCUTe6VrTNlFkKlxv6A+SGRQ=
+        b=tw4bPVJM0cq56dr3hZRShLIDgqG0uPQ3+fFIYGz59GqtUjsrJ/7V9EGd6sCBpaMPQ
+         G+DenUu1i6unffB9jT5kZyTTSaSdYyFBtioKrCgvE1tTx73j/HWkl7ZMVm+x7Zxeh3
+         QLn6gOjM04T5bzbfQTp/AWldjtfB1MmKePdYUG2I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Al Viro <viro@zeniv.linux.org.uk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 081/135] fix a braino in "sparc32: fix register window handling in genregs32_[gs]et()"
-Date:   Mon, 29 Jun 2020 11:52:15 -0400
-Message-Id: <20200629155309.2495516-82-sashal@kernel.org>
+Cc:     Yang Yingliang <yangyingliang@huawei.com>,
+        Hulk Robot <hulkci@huawei.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 4.4 082/135] net: fix memleak in register_netdevice()
+Date:   Mon, 29 Jun 2020 11:52:16 -0400
+Message-Id: <20200629155309.2495516-83-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
 References: <20200629155309.2495516-1-sashal@kernel.org>
@@ -47,43 +50,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 9d964e1b82d8182184153b70174f445ea616f053 ]
+[ Upstream commit 814152a89ed52c722ab92e9fbabcac3cb8a39245 ]
 
-lost npc in PTRACE_SETREGSET, breaking PTRACE_SETREGS as well
+I got a memleak report when doing some fuzz test:
 
-Fixes: cf51e129b968 "sparc32: fix register window handling in genregs32_[gs]et()"
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+unreferenced object 0xffff888112584000 (size 13599):
+  comm "ip", pid 3048, jiffies 4294911734 (age 343.491s)
+  hex dump (first 32 bytes):
+    74 61 70 30 00 00 00 00 00 00 00 00 00 00 00 00  tap0............
+    00 ee d9 19 81 88 ff ff 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<000000002f60ba65>] __kmalloc_node+0x309/0x3a0
+    [<0000000075b211ec>] kvmalloc_node+0x7f/0xc0
+    [<00000000d3a97396>] alloc_netdev_mqs+0x76/0xfc0
+    [<00000000609c3655>] __tun_chr_ioctl+0x1456/0x3d70
+    [<000000001127ca24>] ksys_ioctl+0xe5/0x130
+    [<00000000b7d5e66a>] __x64_sys_ioctl+0x6f/0xb0
+    [<00000000e1023498>] do_syscall_64+0x56/0xa0
+    [<000000009ec0eb12>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+unreferenced object 0xffff888111845cc0 (size 8):
+  comm "ip", pid 3048, jiffies 4294911734 (age 343.491s)
+  hex dump (first 8 bytes):
+    74 61 70 30 00 88 ff ff                          tap0....
+  backtrace:
+    [<000000004c159777>] kstrdup+0x35/0x70
+    [<00000000d8b496ad>] kstrdup_const+0x3d/0x50
+    [<00000000494e884a>] kvasprintf_const+0xf1/0x180
+    [<0000000097880a2b>] kobject_set_name_vargs+0x56/0x140
+    [<000000008fbdfc7b>] dev_set_name+0xab/0xe0
+    [<000000005b99e3b4>] netdev_register_kobject+0xc0/0x390
+    [<00000000602704fe>] register_netdevice+0xb61/0x1250
+    [<000000002b7ca244>] __tun_chr_ioctl+0x1cd1/0x3d70
+    [<000000001127ca24>] ksys_ioctl+0xe5/0x130
+    [<00000000b7d5e66a>] __x64_sys_ioctl+0x6f/0xb0
+    [<00000000e1023498>] do_syscall_64+0x56/0xa0
+    [<000000009ec0eb12>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+unreferenced object 0xffff88811886d800 (size 512):
+  comm "ip", pid 3048, jiffies 4294911734 (age 343.491s)
+  hex dump (first 32 bytes):
+    00 00 00 00 ad 4e ad de ff ff ff ff 00 00 00 00  .....N..........
+    ff ff ff ff ff ff ff ff c0 66 3d a3 ff ff ff ff  .........f=.....
+  backtrace:
+    [<0000000050315800>] device_add+0x61e/0x1950
+    [<0000000021008dfb>] netdev_register_kobject+0x17e/0x390
+    [<00000000602704fe>] register_netdevice+0xb61/0x1250
+    [<000000002b7ca244>] __tun_chr_ioctl+0x1cd1/0x3d70
+    [<000000001127ca24>] ksys_ioctl+0xe5/0x130
+    [<00000000b7d5e66a>] __x64_sys_ioctl+0x6f/0xb0
+    [<00000000e1023498>] do_syscall_64+0x56/0xa0
+    [<000000009ec0eb12>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+If call_netdevice_notifiers() failed, then rollback_registered()
+calls netdev_unregister_kobject() which holds the kobject. The
+reference cannot be put because the netdev won't be add to todo
+list, so it will leads a memleak, we need put the reference to
+avoid memleak.
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/sparc/kernel/ptrace_32.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ net/core/dev.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/sparc/kernel/ptrace_32.c b/arch/sparc/kernel/ptrace_32.c
-index 396dbdea0cfa0..2f4316c142664 100644
---- a/arch/sparc/kernel/ptrace_32.c
-+++ b/arch/sparc/kernel/ptrace_32.c
-@@ -167,12 +167,17 @@ static int genregs32_set(struct task_struct *target,
- 	if (ret || !count)
- 		return ret;
- 	ret = user_regset_copyin(&pos, &count, &kbuf, &ubuf,
--				 &regs->y,
-+				 &regs->npc,
- 				 34 * sizeof(u32), 35 * sizeof(u32));
- 	if (ret || !count)
- 		return ret;
-+	ret = user_regset_copyin(&pos, &count, &kbuf, &ubuf,
-+				 &regs->y,
-+				 35 * sizeof(u32), 36 * sizeof(u32));
-+	if (ret || !count)
-+		return ret;
- 	return user_regset_copyin_ignore(&pos, &count, &kbuf, &ubuf,
--					 35 * sizeof(u32), 38 * sizeof(u32));
-+					 36 * sizeof(u32), 38 * sizeof(u32));
- }
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 82f9ec1bd94b6..67725818d562d 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -6840,6 +6840,13 @@ int register_netdevice(struct net_device *dev)
+ 		rcu_barrier();
  
- static int fpregs32_get(struct task_struct *target,
+ 		dev->reg_state = NETREG_UNREGISTERED;
++		/* We should put the kobject that hold in
++		 * netdev_unregister_kobject(), otherwise
++		 * the net device cannot be freed when
++		 * driver calls free_netdev(), because the
++		 * kobject is being hold.
++		 */
++		kobject_put(&dev->dev.kobj);
+ 	}
+ 	/*
+ 	 *	Prevent userspace races by waiting until the network
 -- 
 2.25.1
 
