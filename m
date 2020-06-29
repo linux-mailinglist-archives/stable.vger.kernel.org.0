@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C06F20DF2B
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:54:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1336220DEB5
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:53:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387962AbgF2Ucv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:32:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37022 "EHLO mail.kernel.org"
+        id S1732631AbgF2U2V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:28:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732400AbgF2TZS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:25:18 -0400
+        id S1732502AbgF2TZX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:25:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 92AB82544B;
-        Mon, 29 Jun 2020 15:43:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A22D2544D;
+        Mon, 29 Jun 2020 15:43:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445400;
-        bh=n+cUBZCrIf+GYJLnVnt3+i5W6LAp8t1afFp1UK6ngXg=;
+        s=default; t=1593445401;
+        bh=tQrJ7xXyHSuWsbMexpBpMnmj87YrtGVDi36GBSGUga4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yjDQYTuiH+k0yrdxzqg54HkZNtydEEsY6uEIwzkkQNBLP42QMwaNOETsiBIMjDvX+
-         +kgt0wyqtPvJ0K+XZoFFt925EMqKMLH0yknLSzGcZnhC16b+GAiwMJbgyU0iLlIrr0
-         CmhFAFMegPTp1li4J5oAFbcyRr05m381t+oOo3W0=
+        b=b4zPsFu6tVPuzGkkopxxI6ETiKjHXv+tly7FPz2PLR0Z8XRDENOTBCRGtEqXJi6Mj
+         8ouy69YXFbXPY5rw82yADgh3kLEOMTtEoMPtE69T+E62UwomHJxxgvWrNlPx2GQz89
+         0xQcMcAanm7rJ9wXHZoNlb5qLZ+kHNC2SyDfGkaA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mathias Nyman <mathias.nyman@linux.intel.com>,
+Cc:     Al Cooper <alcooperx@gmail.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.9 152/191] xhci: Fix incorrect EP_STATE_MASK
-Date:   Mon, 29 Jun 2020 11:39:28 -0400
-Message-Id: <20200629154007.2495120-153-sashal@kernel.org>
+Subject: [PATCH 4.9 153/191] xhci: Fix enumeration issue when setting max packet size for FS devices.
+Date:   Mon, 29 Jun 2020 11:39:29 -0400
+Message-Id: <20200629154007.2495120-154-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
 References: <20200629154007.2495120-1-sashal@kernel.org>
@@ -48,39 +49,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Al Cooper <alcooperx@gmail.com>
 
-commit dceea67058fe22075db3aed62d5cb62092be5053 upstream.
+commit a73d9d9cfc3cfceabd91fb0b0c13e4062b6dbcd7 upstream.
 
-EP_STATE_MASK should be 0x7 instead of 0xf
+Unable to complete the enumeration of a USB TV Tuner device.
 
-xhci spec 6.2.3 shows that the EP state field in the endpoint context data
-structure consist of bits [2:0].
-The old value included a bit from the next field which fortunately is a
- RsvdZ region. So hopefully this hasn't caused too much harm
+Per XHCI spec (4.6.5), the EP state field of the input context shall
+be cleared for a set address command. In the special case of an FS
+device that has "MaxPacketSize0 = 8", the Linux XHCI driver does
+not do this before evaluating the context. With an XHCI controller
+that checks the EP state field for parameter context error this
+causes a problem in cases such as the device getting reset again
+after enumeration.
+
+When that field is cleared, the problem does not occur.
+
+This was found and fixed by Sasi Kumar.
 
 Cc: stable@vger.kernel.org
+Signed-off-by: Al Cooper <alcooperx@gmail.com>
 Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20200624135949.22611-2-mathias.nyman@linux.intel.com
+Link: https://lore.kernel.org/r/20200624135949.22611-3-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/host/xhci.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
-index 2b603ef5c10cd..2b8df83dad38d 100644
---- a/drivers/usb/host/xhci.h
-+++ b/drivers/usb/host/xhci.h
-@@ -709,7 +709,7 @@ struct xhci_ep_ctx {
-  * 4 - TRB error
-  * 5-7 - reserved
-  */
--#define EP_STATE_MASK		(0xf)
-+#define EP_STATE_MASK		(0x7)
- #define EP_STATE_DISABLED	0
- #define EP_STATE_RUNNING	1
- #define EP_STATE_HALTED		2
+diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+index baacc442ec6a2..4ef019152613e 100644
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -1347,6 +1347,7 @@ static int xhci_check_maxpacket(struct xhci_hcd *xhci, unsigned int slot_id,
+ 				xhci->devs[slot_id]->out_ctx, ep_index);
+ 
+ 		ep_ctx = xhci_get_ep_ctx(xhci, command->in_ctx, ep_index);
++		ep_ctx->ep_info &= cpu_to_le32(~EP_STATE_MASK);/* must clear */
+ 		ep_ctx->ep_info2 &= cpu_to_le32(~MAX_PACKET_MASK);
+ 		ep_ctx->ep_info2 |= cpu_to_le32(MAX_PACKET(max_packet_size));
+ 
 -- 
 2.25.1
 
