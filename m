@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 124D320DB54
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:15:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81EB620DB1D
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:14:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388532AbgF2UFj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:05:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40586 "EHLO mail.kernel.org"
+        id S2388707AbgF2UDh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:03:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732963AbgF2Ta2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:30:28 -0400
+        id S1732993AbgF2Tac (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:30:32 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B56A8252F6;
-        Mon, 29 Jun 2020 15:38:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A6B89252F8;
+        Mon, 29 Jun 2020 15:38:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445124;
-        bh=TCCkuqH489hXhYC0XfzyB8vf2AK77+HJyNN5X/SHct8=;
+        s=default; t=1593445125;
+        bh=PCMb1FSQDXT+Fl2v4voDD/LCRJKIFXWVpLWwX+ZrLm0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1CjgLl7e2pdApg2ICLwxRQ2v8BMkm2Igb+rtFPip+2y3dSm+RyaN5I4oYAJRKj/ad
-         cRcWXURyCz4FdLd+CgdjYx4pIJPrklPldMzuY1iDhpjQ1iqI7Bw9L+kbBrUbGNRPRl
-         Jcx6UW+im/pRuJB559E7cK4bCTvsvtbzGMUtVh0Y=
+        b=vM+4u+gIcBxbm9h4pB9hDhm7mJSnLspaSRHRmZP++tLypsIEimKyqs2hFqsG/s/p1
+         chzF+EyzEbYYTnoZc7BxYVXg4D/zkc5lIzlDDsu3GpAxZnBHZW0bwgVDScKYFiRdIz
+         5fwdd+5PeAE0x19AIXO/bIZTqs0n71r3s/ByjbDY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Al Cooper <alcooperx@gmail.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
+Cc:     Joakim Tjernlund <joakim.tjernlund@infinera.com>,
+        Oliver Neukum <oneukum@suse.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.14 31/78] xhci: Fix enumeration issue when setting max packet size for FS devices.
-Date:   Mon, 29 Jun 2020 11:37:19 -0400
-Message-Id: <20200629153806.2494953-32-sashal@kernel.org>
+Subject: [PATCH 4.14 32/78] cdc-acm: Add DISABLE_ECHO quirk for Microchip/SMSC chip
+Date:   Mon, 29 Jun 2020 11:37:20 -0400
+Message-Id: <20200629153806.2494953-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629153806.2494953-1-sashal@kernel.org>
 References: <20200629153806.2494953-1-sashal@kernel.org>
@@ -49,46 +49,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Cooper <alcooperx@gmail.com>
+From: Joakim Tjernlund <joakim.tjernlund@infinera.com>
 
-commit a73d9d9cfc3cfceabd91fb0b0c13e4062b6dbcd7 upstream.
+commit 03894573f2913181ee5aae0089f333b2131f2d4b upstream.
 
-Unable to complete the enumeration of a USB TV Tuner device.
+USB_DEVICE(0x0424, 0x274e) can send data before cdc_acm is ready,
+causing garbage chars on the TTY causing stray input to the shell
+and/or login prompt.
 
-Per XHCI spec (4.6.5), the EP state field of the input context shall
-be cleared for a set address command. In the special case of an FS
-device that has "MaxPacketSize0 = 8", the Linux XHCI driver does
-not do this before evaluating the context. With an XHCI controller
-that checks the EP state field for parameter context error this
-causes a problem in cases such as the device getting reset again
-after enumeration.
-
-When that field is cleared, the problem does not occur.
-
-This was found and fixed by Sasi Kumar.
-
+Signed-off-by: Joakim Tjernlund <joakim.tjernlund@infinera.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Al Cooper <alcooperx@gmail.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20200624135949.22611-3-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Link: https://lore.kernel.org/r/20200605105418.22263-1-joakim.tjernlund@infinera.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/class/cdc-acm.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
-index 6c0a0ca316d3e..d727cbbad44a2 100644
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -1346,6 +1346,7 @@ static int xhci_check_maxpacket(struct xhci_hcd *xhci, unsigned int slot_id,
- 				xhci->devs[slot_id]->out_ctx, ep_index);
+diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
+index 4067f079b08da..0de467c8593db 100644
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -1734,6 +1734,8 @@ static int acm_pre_reset(struct usb_interface *intf)
  
- 		ep_ctx = xhci_get_ep_ctx(xhci, command->in_ctx, ep_index);
-+		ep_ctx->ep_info &= cpu_to_le32(~EP_STATE_MASK);/* must clear */
- 		ep_ctx->ep_info2 &= cpu_to_le32(~MAX_PACKET_MASK);
- 		ep_ctx->ep_info2 |= cpu_to_le32(MAX_PACKET(max_packet_size));
- 
+ static const struct usb_device_id acm_ids[] = {
+ 	/* quirky and broken devices */
++	{ USB_DEVICE(0x0424, 0x274e), /* Microchip Technology, Inc. (formerly SMSC) */
++	  .driver_info = DISABLE_ECHO, }, /* DISABLE ECHO in termios flag */
+ 	{ USB_DEVICE(0x076d, 0x0006), /* Denso Cradle CU-321 */
+ 	.driver_info = NO_UNION_NORMAL, },/* has no union descriptor */
+ 	{ USB_DEVICE(0x17ef, 0x7000), /* Lenovo USB modem */
 -- 
 2.25.1
 
