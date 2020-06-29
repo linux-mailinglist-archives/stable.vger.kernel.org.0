@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B6A520D4DE
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 21:15:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13F3E20D4A5
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 21:15:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730740AbgF2TK5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:10:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53726 "EHLO mail.kernel.org"
+        id S1730985AbgF2TKV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:10:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730976AbgF2TKT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:10:19 -0400
+        id S1730966AbgF2TKS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:10:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 47B07254AE;
-        Mon, 29 Jun 2020 15:53:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A8A3C254B3;
+        Mon, 29 Jun 2020 15:53:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593446006;
-        bh=yLu+cqA/ig/+z2Gan85O1IALJQ5kWNNIPMLyZspTfzE=;
+        s=default; t=1593446009;
+        bh=0ITsDM3fOKZh+tWWm63frmHczA2dJQnz3x74cD9OrLA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nUlJ/qdnsU87Qjiy4m9cl9/nYljfNDwjzZDWhsemY5octlWKICVBxDB/kzpgCNZP0
-         zBlwf9bioORL6jIr2wyy7Ou4/4MaGahBE71NYGrF+F0F6onMTUpLJqtdSkQSBvc65I
-         MNrkykI3DZqGyJaIWXWZqEgj/s2Vy3aTHN1xZvaM=
+        b=J0jalzkpvp/PBxP+DmNNWXszeUb+jLcC26qzoOMKBRpwEDFoheucI8SRvIfWBCq6t
+         G8/qoYhbO86ReDeqSrRDPsYJpOQRLLBuy0d730PVTC9vnktNBfq//ivEKDSvUr+gWh
+         q6sHvC/A9Dl4JmYR+sWEdfOGH8JYl5PGKoqN8D+A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        "J . Bruce Fields" <bfields@redhat.com>,
+Cc:     ashimida <ashimida@linux.alibaba.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 013/135] nfsd: Fix svc_xprt refcnt leak when setup callback client failed
-Date:   Mon, 29 Jun 2020 11:51:07 -0400
-Message-Id: <20200629155309.2495516-14-sashal@kernel.org>
+Subject: [PATCH 4.4 016/135] mksysmap: Fix the mismatch of '.L' symbols in System.map
+Date:   Mon, 29 Jun 2020 11:51:10 -0400
+Message-Id: <20200629155309.2495516-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
 References: <20200629155309.2495516-1-sashal@kernel.org>
@@ -50,42 +49,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+From: ashimida <ashimida@linux.alibaba.com>
 
-[ Upstream commit a4abc6b12eb1f7a533c2e7484cfa555454ff0977 ]
+[ Upstream commit 72d24accf02add25e08733f0ecc93cf10fcbd88c ]
 
-nfsd4_process_cb_update() invokes svc_xprt_get(), which increases the
-refcount of the "c->cn_xprt".
+When System.map was generated, the kernel used mksysmap to
+filter the kernel symbols, but all the symbols with the
+second letter 'L' in the kernel were filtered out, not just
+the symbols starting with 'dot + L'.
 
-The reference counting issue happens in one exception handling path of
-nfsd4_process_cb_update(). When setup callback client failed, the
-function forgets to decrease the refcnt increased by svc_xprt_get(),
-causing a refcnt leak.
+For example:
+ashimida@ubuntu:~/linux$ cat System.map |grep ' .L'
+ashimida@ubuntu:~/linux$ nm -n vmlinux |grep ' .L'
+ffff0000088028e0 t bLength_show
+......
+ffff0000092e0408 b PLLP_OUTC_lock
+ffff0000092e0410 b PLLP_OUTA_lock
 
-Fix this issue by calling svc_xprt_put() when setup callback client
-failed.
+The original intent should be to filter out all local symbols
+starting with '.L', so the dot should be escaped.
 
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Fixes: 00902e984732 ("mksysmap: Add h8300 local symbol pattern")
+Signed-off-by: ashimida <ashimida@linux.alibaba.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4callback.c | 2 ++
- 1 file changed, 2 insertions(+)
+ scripts/mksysmap | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/nfsd/nfs4callback.c b/fs/nfsd/nfs4callback.c
-index 4fa3f0ba9ab3c..0a0b41071ed77 100644
---- a/fs/nfsd/nfs4callback.c
-+++ b/fs/nfsd/nfs4callback.c
-@@ -1096,6 +1096,8 @@ static void nfsd4_process_cb_update(struct nfsd4_callback *cb)
- 	err = setup_callback_client(clp, &conn, ses);
- 	if (err) {
- 		nfsd4_mark_cb_down(clp, err);
-+		if (c)
-+			svc_xprt_put(c->cn_xprt);
- 		return;
- 	}
- }
+diff --git a/scripts/mksysmap b/scripts/mksysmap
+index a35acc0d0b827..9aa23d15862a0 100755
+--- a/scripts/mksysmap
++++ b/scripts/mksysmap
+@@ -41,4 +41,4 @@
+ # so we just ignore them to let readprofile continue to work.
+ # (At least sparc64 has __crc_ in the middle).
+ 
+-$NM -n $1 | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( .L\)' > $2
++$NM -n $1 | grep -v '\( [aNUw] \)\|\(__crc_\)\|\( \$[adt]\)\|\( \.L\)' > $2
 -- 
 2.25.1
 
