@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB16B20DC52
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:17:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70FAE20DB6C
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:15:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729527AbgF2UOU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:14:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40598 "EHLO mail.kernel.org"
+        id S2388566AbgF2UG2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:06:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732834AbgF2TaS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:30:18 -0400
+        id S1732665AbgF2Ta1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:30:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C71402521B;
-        Mon, 29 Jun 2020 15:35:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE5BC2521D;
+        Mon, 29 Jun 2020 15:35:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444936;
-        bh=6EppaO/PVMjvUXoOY2z4oct3VoTOlS1yzr/bcz2SewE=;
+        s=default; t=1593444937;
+        bh=4JS9mGeU2OHBwi42V6yiTDZFBXzJ+sFeEZSphCVFZPM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wf0t6Emxob7eiS+tHKRTd860Vg4VwvH7iO1XNPPM12PQQJY0Sj8m45Y/j2Qa3SpAr
-         gZqk3PErkLeUltrvRoD6FTqu/Wi8xCEXbkZggZmXCWmsA7UiTO4TRnivS6PwX0IqKV
-         jP4/MuMoFPcOn+2ln6L/0Jelig7uZuZTfeiadpOg=
+        b=buliLr0eMFOvvm+YyuG9q5ZIaHFMNGr9Sfs7nMaG66gMKHaES7MU+SypIGL7H9S1h
+         +DyuUY6qrNSg2zSBObS7OcXppm5NjYG0tS0sFMYnmd9mjrIqtn20ixWzQthdCoW0tV
+         X4EpRYo7Z0SMV889z7y1uMZh9JkJyfsqWbvPNh6I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Taehee Yoo <ap420073@gmail.com>,
-        Eric Dumazet <eric.dumazet@gmail.com>,
+Cc:     Ilya Ponetayev <i.ponetaev@ndmsystems.com>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
         "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.19 033/131] ip_tunnel: fix use-after-free in ip_tunnel_lookup()
-Date:   Mon, 29 Jun 2020 11:33:24 -0400
-Message-Id: <20200629153502.2494656-34-sashal@kernel.org>
+Subject: [PATCH 4.19 034/131] sch_cake: don't try to reallocate or unshare skb unconditionally
+Date:   Mon, 29 Jun 2020 11:33:25 -0400
+Message-Id: <20200629153502.2494656-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629153502.2494656-1-sashal@kernel.org>
 References: <20200629153502.2494656-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.131-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-4.19.y
@@ -50,120 +51,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Ilya Ponetayev <i.ponetaev@ndmsystems.com>
 
-[ Upstream commit ba61539c6ae57f4146284a5cb4f7b7ed8d42bf45 ]
+[ Upstream commit 9208d2863ac689a563b92f2161d8d1e7127d0add ]
 
-In the datapath, the ip_tunnel_lookup() is used and it internally uses
-fallback tunnel device pointer, which is fb_tunnel_dev.
-This pointer variable should be set to NULL when a fb interface is deleted.
-But there is no routine to set fb_tunnel_dev pointer to NULL.
-So, this pointer will be still used after interface is deleted and
-it eventually results in the use-after-free problem.
+cake_handle_diffserv() tries to linearize mac and network header parts of
+skb and to make it writable unconditionally. In some cases it leads to full
+skb reallocation, which reduces throughput and increases CPU load. Some
+measurements of IPv4 forward + NAPT on MIPS router with 580 MHz single-core
+CPU was conducted. It appears that on kernel 4.9 skb_try_make_writable()
+reallocates skb, if skb was allocated in ethernet driver via so-called
+'build skb' method from page cache (it was discovered by strange increase
+of kmalloc-2048 slab at first).
 
-Test commands:
-    ip netns add A
-    ip netns add B
-    ip link add eth0 type veth peer name eth1
-    ip link set eth0 netns A
-    ip link set eth1 netns B
+Obtain DSCP value via read-only skb_header_pointer() call, and leave
+linearization only for DSCP bleaching or ECN CE setting. And, as an
+additional optimisation, skip diffserv parsing entirely if it is not needed
+by the current configuration.
 
-    ip netns exec A ip link set lo up
-    ip netns exec A ip link set eth0 up
-    ip netns exec A ip link add gre1 type gre local 10.0.0.1 \
-	    remote 10.0.0.2
-    ip netns exec A ip link set gre1 up
-    ip netns exec A ip a a 10.0.100.1/24 dev gre1
-    ip netns exec A ip a a 10.0.0.1/24 dev eth0
-
-    ip netns exec B ip link set lo up
-    ip netns exec B ip link set eth1 up
-    ip netns exec B ip link add gre1 type gre local 10.0.0.2 \
-	    remote 10.0.0.1
-    ip netns exec B ip link set gre1 up
-    ip netns exec B ip a a 10.0.100.2/24 dev gre1
-    ip netns exec B ip a a 10.0.0.2/24 dev eth1
-    ip netns exec A hping3 10.0.100.2 -2 --flood -d 60000 &
-    ip netns del B
-
-Splat looks like:
-[   77.793450][    C3] ==================================================================
-[   77.794702][    C3] BUG: KASAN: use-after-free in ip_tunnel_lookup+0xcc4/0xf30
-[   77.795573][    C3] Read of size 4 at addr ffff888060bd9c84 by task hping3/2905
-[   77.796398][    C3]
-[   77.796664][    C3] CPU: 3 PID: 2905 Comm: hping3 Not tainted 5.8.0-rc1+ #616
-[   77.797474][    C3] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
-[   77.798453][    C3] Call Trace:
-[   77.798815][    C3]  <IRQ>
-[   77.799142][    C3]  dump_stack+0x9d/0xdb
-[   77.799605][    C3]  print_address_description.constprop.7+0x2cc/0x450
-[   77.800365][    C3]  ? ip_tunnel_lookup+0xcc4/0xf30
-[   77.800908][    C3]  ? ip_tunnel_lookup+0xcc4/0xf30
-[   77.801517][    C3]  ? ip_tunnel_lookup+0xcc4/0xf30
-[   77.802145][    C3]  kasan_report+0x154/0x190
-[   77.802821][    C3]  ? ip_tunnel_lookup+0xcc4/0xf30
-[   77.803503][    C3]  ip_tunnel_lookup+0xcc4/0xf30
-[   77.804165][    C3]  __ipgre_rcv+0x1ab/0xaa0 [ip_gre]
-[   77.804862][    C3]  ? rcu_read_lock_sched_held+0xc0/0xc0
-[   77.805621][    C3]  gre_rcv+0x304/0x1910 [ip_gre]
-[   77.806293][    C3]  ? lock_acquire+0x1a9/0x870
-[   77.806925][    C3]  ? gre_rcv+0xfe/0x354 [gre]
-[   77.807559][    C3]  ? erspan_xmit+0x2e60/0x2e60 [ip_gre]
-[   77.808305][    C3]  ? rcu_read_lock_sched_held+0xc0/0xc0
-[   77.809032][    C3]  ? rcu_read_lock_held+0x90/0xa0
-[   77.809713][    C3]  gre_rcv+0x1b8/0x354 [gre]
-[ ... ]
-
-Suggested-by: Eric Dumazet <eric.dumazet@gmail.com>
-Fixes: c54419321455 ("GRE: Refactor GRE tunneling code.")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Fixes: c87b4ecdbe8d ("sch_cake: Make sure we can write the IP header before changing DSCP bits")
+Signed-off-by: Ilya Ponetayev <i.ponetaev@ndmsystems.com>
+[ fix a few style issues, reflow commit message ]
+Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/ip_tunnel.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ net/sched/sch_cake.c | 41 ++++++++++++++++++++++++++++++-----------
+ 1 file changed, 30 insertions(+), 11 deletions(-)
 
-diff --git a/net/ipv4/ip_tunnel.c b/net/ipv4/ip_tunnel.c
-index b37abba3b369e..375d0e516d85f 100644
---- a/net/ipv4/ip_tunnel.c
-+++ b/net/ipv4/ip_tunnel.c
-@@ -98,9 +98,10 @@ struct ip_tunnel *ip_tunnel_lookup(struct ip_tunnel_net *itn,
- 				   __be32 remote, __be32 local,
- 				   __be32 key)
+diff --git a/net/sched/sch_cake.c b/net/sched/sch_cake.c
+index 824e3c37e5dd6..c0d92a251bcb6 100644
+--- a/net/sched/sch_cake.c
++++ b/net/sched/sch_cake.c
+@@ -1510,30 +1510,49 @@ static unsigned int cake_drop(struct Qdisc *sch, struct sk_buff **to_free)
+ 
+ static u8 cake_handle_diffserv(struct sk_buff *skb, u16 wash)
  {
--	unsigned int hash;
- 	struct ip_tunnel *t, *cand = NULL;
- 	struct hlist_head *head;
-+	struct net_device *ndev;
-+	unsigned int hash;
+-	int wlen = skb_network_offset(skb);
++	const int offset = skb_network_offset(skb);
++	u16 *buf, buf_;
+ 	u8 dscp;
  
- 	hash = ip_tunnel_hash(key, remote);
- 	head = &itn->tunnels[hash];
-@@ -175,8 +176,9 @@ struct ip_tunnel *ip_tunnel_lookup(struct ip_tunnel_net *itn,
- 	if (t && t->dev->flags & IFF_UP)
- 		return t;
+ 	switch (tc_skb_protocol(skb)) {
+ 	case htons(ETH_P_IP):
+-		wlen += sizeof(struct iphdr);
+-		if (!pskb_may_pull(skb, wlen) ||
+-		    skb_try_make_writable(skb, wlen))
++		buf = skb_header_pointer(skb, offset, sizeof(buf_), &buf_);
++		if (unlikely(!buf))
+ 			return 0;
  
--	if (itn->fb_tunnel_dev && itn->fb_tunnel_dev->flags & IFF_UP)
--		return netdev_priv(itn->fb_tunnel_dev);
-+	ndev = READ_ONCE(itn->fb_tunnel_dev);
-+	if (ndev && ndev->flags & IFF_UP)
-+		return netdev_priv(ndev);
+-		dscp = ipv4_get_dsfield(ip_hdr(skb)) >> 2;
+-		if (wash && dscp)
++		/* ToS is in the second byte of iphdr */
++		dscp = ipv4_get_dsfield((struct iphdr *)buf) >> 2;
++
++		if (wash && dscp) {
++			const int wlen = offset + sizeof(struct iphdr);
++
++			if (!pskb_may_pull(skb, wlen) ||
++			    skb_try_make_writable(skb, wlen))
++				return 0;
++
+ 			ipv4_change_dsfield(ip_hdr(skb), INET_ECN_MASK, 0);
++		}
++
+ 		return dscp;
  
- 	return NULL;
- }
-@@ -1212,9 +1214,9 @@ void ip_tunnel_uninit(struct net_device *dev)
- 	struct ip_tunnel_net *itn;
+ 	case htons(ETH_P_IPV6):
+-		wlen += sizeof(struct ipv6hdr);
+-		if (!pskb_may_pull(skb, wlen) ||
+-		    skb_try_make_writable(skb, wlen))
++		buf = skb_header_pointer(skb, offset, sizeof(buf_), &buf_);
++		if (unlikely(!buf))
+ 			return 0;
  
- 	itn = net_generic(net, tunnel->ip_tnl_net_id);
--	/* fb_tunnel_dev will be unregisted in net-exit call. */
--	if (itn->fb_tunnel_dev != dev)
--		ip_tunnel_del(itn, netdev_priv(dev));
-+	ip_tunnel_del(itn, netdev_priv(dev));
-+	if (itn->fb_tunnel_dev == dev)
-+		WRITE_ONCE(itn->fb_tunnel_dev, NULL);
+-		dscp = ipv6_get_dsfield(ipv6_hdr(skb)) >> 2;
+-		if (wash && dscp)
++		/* Traffic class is in the first and second bytes of ipv6hdr */
++		dscp = ipv6_get_dsfield((struct ipv6hdr *)buf) >> 2;
++
++		if (wash && dscp) {
++			const int wlen = offset + sizeof(struct ipv6hdr);
++
++			if (!pskb_may_pull(skb, wlen) ||
++			    skb_try_make_writable(skb, wlen))
++				return 0;
++
+ 			ipv6_change_dsfield(ipv6_hdr(skb), INET_ECN_MASK, 0);
++		}
++
+ 		return dscp;
  
- 	dst_cache_reset(&tunnel->dst_cache);
- }
+ 	case htons(ETH_P_ARP):
 -- 
 2.25.1
 
