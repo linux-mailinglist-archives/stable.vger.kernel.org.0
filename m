@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B14320DA2A
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:13:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90DC820D9EE
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:12:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387465AbgF2Ty2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:54:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47670 "EHLO mail.kernel.org"
+        id S2388287AbgF2TwN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:52:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387676AbgF2Tk0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:26 -0400
+        id S2387717AbgF2Tkb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6BA4824910;
-        Mon, 29 Jun 2020 15:27:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7665024911;
+        Mon, 29 Jun 2020 15:27:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444465;
-        bh=Epgfdw5T1sde/Ipkq3mq31YonFT7STLR7rDzLr18MgE=;
+        s=default; t=1593444466;
+        bh=nClVM/6n33gE2bdRgvpM6esDuLr+bUqP/M+CYFqdkwM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2hRNRJ4AgxPMpj4Nd1SBSTp/ueYOoJLNMoUHWDv58JwsDBFLuM2X1ZpdCGuM1aUE3
-         lri9+oIoHVhSRtxXt1Ab4MSbhVN5rj7X1ilJiihzM3SddznhtwP6hFCIBHl/GMAlX+
-         QRDh9X/uFIViJxvyAFKtFMpwvyKrnkkAXSBeBZDk=
+        b=eXz9O1iNpdTh7oXhAU/Ls774wXsqpxs+2C+tsdCpiv4uI0ORfPcU58raCWD5AkVO2
+         RCRXASt0w/6DJDCo/aKzruv9i4YmN05vhZOZWico33xhnLqy0uoSoXljaR1qgb4Ni/
+         KAoRB1oy1ydxh6oHezGJhDTWQkElJUpOQ6uFxgnk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiaoyao Li <xiaoyao.li@intel.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Jim Mattson <jmattson@google.com>,
+Cc:     Sean Christopherson <sean.j.christopherson@intel.com>,
         Paolo Bonzini <pbonzini@redhat.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.4 145/178] KVM: X86: Fix MSR range of APIC registers in X2APIC mode
-Date:   Mon, 29 Jun 2020 11:24:50 -0400
-Message-Id: <20200629152523.2494198-146-sashal@kernel.org>
+Subject: [PATCH 5.4 146/178] KVM: nVMX: Plumb L2 GPA through to PML emulation
+Date:   Mon, 29 Jun 2020 11:24:51 -0400
+Message-Id: <20200629152523.2494198-147-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -51,47 +49,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaoyao Li <xiaoyao.li@intel.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit bf10bd0be53282183f374af23577b18b5fbf7801 upstream.
+commit 2dbebf7ae1ed9a420d954305e2c9d5ed39ec57c3 upstream.
 
-Only MSR address range 0x800 through 0x8ff is architecturally reserved
-and dedicated for accessing APIC registers in x2APIC mode.
+Explicitly pass the L2 GPA to kvm_arch_write_log_dirty(), which for all
+intents and purposes is vmx_write_pml_buffer(), instead of having the
+latter pull the GPA from vmcs.GUEST_PHYSICAL_ADDRESS.  If the dirty bit
+update is the result of KVM emulation (rare for L2), then the GPA in the
+VMCS may be stale and/or hold a completely unrelated GPA.
 
-Fixes: 0105d1a52640 ("KVM: x2apic interface to lapic")
-Signed-off-by: Xiaoyao Li <xiaoyao.li@intel.com>
-Message-Id: <20200616073307.16440-1-xiaoyao.li@intel.com>
+Fixes: c5f983f6e8455 ("nVMX: Implement emulated Page Modification Logging")
 Cc: stable@vger.kernel.org
-Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Reviewed-by: Jim Mattson <jmattson@google.com>
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Message-Id: <20200622215832.22090-2-sean.j.christopherson@intel.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/x86.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/include/asm/kvm_host.h | 2 +-
+ arch/x86/kvm/mmu.c              | 4 ++--
+ arch/x86/kvm/mmu.h              | 2 +-
+ arch/x86/kvm/paging_tmpl.h      | 7 ++++---
+ arch/x86/kvm/vmx/vmx.c          | 6 +++---
+ 5 files changed, 11 insertions(+), 10 deletions(-)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index fff279fb173bc..eed1866ae4d3a 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -2753,7 +2753,7 @@ int kvm_set_msr_common(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
- 		return kvm_mtrr_set_msr(vcpu, msr, data);
- 	case MSR_IA32_APICBASE:
- 		return kvm_set_apic_base(vcpu, msr_info);
--	case APIC_BASE_MSR ... APIC_BASE_MSR + 0x3ff:
-+	case APIC_BASE_MSR ... APIC_BASE_MSR + 0xff:
- 		return kvm_x2apic_msr_write(vcpu, msr, data);
- 	case MSR_IA32_TSCDEADLINE:
- 		kvm_set_lapic_tscdeadline_msr(vcpu, data);
-@@ -3057,7 +3057,7 @@ int kvm_get_msr_common(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
- 	case MSR_IA32_APICBASE:
- 		msr_info->data = kvm_get_apic_base(vcpu);
- 		break;
--	case APIC_BASE_MSR ... APIC_BASE_MSR + 0x3ff:
-+	case APIC_BASE_MSR ... APIC_BASE_MSR + 0xff:
- 		return kvm_x2apic_msr_read(vcpu, msr_info->index, &msr_info->data);
- 		break;
- 	case MSR_IA32_TSCDEADLINE:
+diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+index 7d91a3f5b26ab..742de9d97ba14 100644
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -1160,7 +1160,7 @@ struct kvm_x86_ops {
+ 	void (*enable_log_dirty_pt_masked)(struct kvm *kvm,
+ 					   struct kvm_memory_slot *slot,
+ 					   gfn_t offset, unsigned long mask);
+-	int (*write_log_dirty)(struct kvm_vcpu *vcpu);
++	int (*write_log_dirty)(struct kvm_vcpu *vcpu, gpa_t l2_gpa);
+ 
+ 	/* pmu operations of sub-arch */
+ 	const struct kvm_pmu_ops *pmu_ops;
+diff --git a/arch/x86/kvm/mmu.c b/arch/x86/kvm/mmu.c
+index a3824ae9a634c..aab02ea2d2cb2 100644
+--- a/arch/x86/kvm/mmu.c
++++ b/arch/x86/kvm/mmu.c
+@@ -1819,10 +1819,10 @@ void kvm_arch_mmu_enable_log_dirty_pt_masked(struct kvm *kvm,
+  * Emulate arch specific page modification logging for the
+  * nested hypervisor
+  */
+-int kvm_arch_write_log_dirty(struct kvm_vcpu *vcpu)
++int kvm_arch_write_log_dirty(struct kvm_vcpu *vcpu, gpa_t l2_gpa)
+ {
+ 	if (kvm_x86_ops->write_log_dirty)
+-		return kvm_x86_ops->write_log_dirty(vcpu);
++		return kvm_x86_ops->write_log_dirty(vcpu, l2_gpa);
+ 
+ 	return 0;
+ }
+diff --git a/arch/x86/kvm/mmu.h b/arch/x86/kvm/mmu.h
+index d55674f44a18b..6f2208cf30df3 100644
+--- a/arch/x86/kvm/mmu.h
++++ b/arch/x86/kvm/mmu.h
+@@ -209,7 +209,7 @@ void kvm_mmu_gfn_disallow_lpage(struct kvm_memory_slot *slot, gfn_t gfn);
+ void kvm_mmu_gfn_allow_lpage(struct kvm_memory_slot *slot, gfn_t gfn);
+ bool kvm_mmu_slot_gfn_write_protect(struct kvm *kvm,
+ 				    struct kvm_memory_slot *slot, u64 gfn);
+-int kvm_arch_write_log_dirty(struct kvm_vcpu *vcpu);
++int kvm_arch_write_log_dirty(struct kvm_vcpu *vcpu, gpa_t l2_gpa);
+ 
+ int kvm_mmu_post_init_vm(struct kvm *kvm);
+ void kvm_mmu_pre_destroy_vm(struct kvm *kvm);
+diff --git a/arch/x86/kvm/paging_tmpl.h b/arch/x86/kvm/paging_tmpl.h
+index 4e3f137ffa8c8..a20fc1ba607f3 100644
+--- a/arch/x86/kvm/paging_tmpl.h
++++ b/arch/x86/kvm/paging_tmpl.h
+@@ -220,7 +220,7 @@ static inline unsigned FNAME(gpte_access)(u64 gpte)
+ static int FNAME(update_accessed_dirty_bits)(struct kvm_vcpu *vcpu,
+ 					     struct kvm_mmu *mmu,
+ 					     struct guest_walker *walker,
+-					     int write_fault)
++					     gpa_t addr, int write_fault)
+ {
+ 	unsigned level, index;
+ 	pt_element_t pte, orig_pte;
+@@ -245,7 +245,7 @@ static int FNAME(update_accessed_dirty_bits)(struct kvm_vcpu *vcpu,
+ 				!(pte & PT_GUEST_DIRTY_MASK)) {
+ 			trace_kvm_mmu_set_dirty_bit(table_gfn, index, sizeof(pte));
+ #if PTTYPE == PTTYPE_EPT
+-			if (kvm_arch_write_log_dirty(vcpu))
++			if (kvm_arch_write_log_dirty(vcpu, addr))
+ 				return -EINVAL;
+ #endif
+ 			pte |= PT_GUEST_DIRTY_MASK;
+@@ -442,7 +442,8 @@ static int FNAME(walk_addr_generic)(struct guest_walker *walker,
+ 			(PT_GUEST_DIRTY_SHIFT - PT_GUEST_ACCESSED_SHIFT);
+ 
+ 	if (unlikely(!accessed_dirty)) {
+-		ret = FNAME(update_accessed_dirty_bits)(vcpu, mmu, walker, write_fault);
++		ret = FNAME(update_accessed_dirty_bits)(vcpu, mmu, walker,
++							addr, write_fault);
+ 		if (unlikely(ret < 0))
+ 			goto error;
+ 		else if (ret)
+diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+index 5fac01865a2dc..2e6d400ce0a01 100644
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -7272,11 +7272,11 @@ static void vmx_flush_log_dirty(struct kvm *kvm)
+ 	kvm_flush_pml_buffers(kvm);
+ }
+ 
+-static int vmx_write_pml_buffer(struct kvm_vcpu *vcpu)
++static int vmx_write_pml_buffer(struct kvm_vcpu *vcpu, gpa_t gpa)
+ {
+ 	struct vmcs12 *vmcs12;
+ 	struct vcpu_vmx *vmx = to_vmx(vcpu);
+-	gpa_t gpa, dst;
++	gpa_t dst;
+ 
+ 	if (is_guest_mode(vcpu)) {
+ 		WARN_ON_ONCE(vmx->nested.pml_full);
+@@ -7295,7 +7295,7 @@ static int vmx_write_pml_buffer(struct kvm_vcpu *vcpu)
+ 			return 1;
+ 		}
+ 
+-		gpa = vmcs_read64(GUEST_PHYSICAL_ADDRESS) & ~0xFFFull;
++		gpa &= ~0xFFFull;
+ 		dst = vmcs12->pml_address + sizeof(u64) * vmcs12->guest_pml_index;
+ 
+ 		if (kvm_write_guest_page(vcpu->kvm, gpa_to_gfn(dst), &gpa,
 -- 
 2.25.1
 
