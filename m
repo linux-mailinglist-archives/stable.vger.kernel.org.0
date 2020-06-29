@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B86DD20DD8B
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:51:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B88420DD88
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:51:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731085AbgF2TMn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:12:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53740 "EHLO mail.kernel.org"
+        id S1730433AbgF2TMl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:12:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730960AbgF2TKS (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730968AbgF2TKS (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 29 Jun 2020 15:10:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B19BF2545F;
-        Mon, 29 Jun 2020 15:53:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB9EE254A6;
+        Mon, 29 Jun 2020 15:53:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445997;
-        bh=NBYooCxBz9DLx51kVAfojPfrpaJKY1fDyyxiKGfm8rs=;
+        s=default; t=1593446000;
+        bh=H4bLp+NXSxDVf8zAgb8bhAnGb5CXhl2QrEc45pTUjk4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YzpYXpxA36uY64e3qR4E4VbNysSBWu2m2fnS1dZrkHOT+xJYkZA4aTrdP+W7AfF1m
-         tN6VoiiPfUko8rCSaAwU8zkua4TWdUO6LO8mh8WEPaXcWbsE7wW9myJVGWYaydYhyK
-         uMevMFPSHyo6eU4+14M9mFG33PVMM9o6EAn4UwFQ=
+        b=DrjgGUxASs1xU9EfzrSc7h0cEyDaDpWLWYrtASy/Osoq1niqG1kwRvKsOf8sNAFaQ
+         R/j19Smb9Hr45RPmN5hdklAmqc6RfSBnyOMApUI+xW2FKI5SWOExI6Ic8lVOv4FonW
+         iVuuucKGSQhCRB34ZXNXTkGOKGosqMgifA/UmKio=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 005/135] ALSA: isa/wavefront: prevent out of bounds write in ioctl
-Date:   Mon, 29 Jun 2020 11:50:59 -0400
-Message-Id: <20200629155309.2495516-6-sashal@kernel.org>
+Cc:     Oliver Neukum <oneukum@suse.com>,
+        syzbot+be5b5f86a162a6c281e6@syzkaller.appspotmail.com,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 008/135] usblp: poison URBs upon disconnect
+Date:   Mon, 29 Jun 2020 11:51:02 -0400
+Message-Id: <20200629155309.2495516-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
 References: <20200629155309.2495516-1-sashal@kernel.org>
@@ -48,47 +50,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-[ Upstream commit 7f0d5053c5a9d23fe5c2d337495a9d79038d267b ]
+[ Upstream commit 296a193b06120aa6ae7cf5c0d7b5e5b55968026e ]
 
-The "header->number" comes from the ioctl and it needs to be clamped to
-prevent out of bounds writes.
+syzkaller reported an URB that should have been killed to be active.
+We do not understand it, but this should fix the issue if it is real.
 
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20200501094011.GA960082@mwanda
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Reported-by: syzbot+be5b5f86a162a6c281e6@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/20200507085806.5793-1-oneukum@suse.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/isa/wavefront/wavefront_synth.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/usb/class/usblp.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/sound/isa/wavefront/wavefront_synth.c b/sound/isa/wavefront/wavefront_synth.c
-index 718d5e3b7806f..6c06d06457796 100644
---- a/sound/isa/wavefront/wavefront_synth.c
-+++ b/sound/isa/wavefront/wavefront_synth.c
-@@ -1174,7 +1174,10 @@ wavefront_send_alias (snd_wavefront_t *dev, wavefront_patch_info *header)
- 				      "alias for %d\n",
- 				      header->number,
- 				      header->hdr.a.OriginalSample);
--    
-+
-+	if (header->number >= WF_MAX_SAMPLE)
-+		return -EINVAL;
-+
- 	munge_int32 (header->number, &alias_hdr[0], 2);
- 	munge_int32 (header->hdr.a.OriginalSample, &alias_hdr[2], 2);
- 	munge_int32 (*((unsigned int *)&header->hdr.a.sampleStartOffset),
-@@ -1205,6 +1208,9 @@ wavefront_send_multisample (snd_wavefront_t *dev, wavefront_patch_info *header)
- 	int num_samples;
- 	unsigned char *msample_hdr;
+diff --git a/drivers/usb/class/usblp.c b/drivers/usb/class/usblp.c
+index 07c3c3449147f..c578d64edc153 100644
+--- a/drivers/usb/class/usblp.c
++++ b/drivers/usb/class/usblp.c
+@@ -481,7 +481,8 @@ static int usblp_release(struct inode *inode, struct file *file)
+ 	usb_autopm_put_interface(usblp->intf);
  
-+	if (header->number >= WF_MAX_SAMPLE)
-+		return -EINVAL;
+ 	if (!usblp->present)		/* finish cleanup from disconnect */
+-		usblp_cleanup(usblp);
++		usblp_cleanup(usblp);	/* any URBs must be dead */
 +
- 	msample_hdr = kmalloc(WF_MSAMPLE_BYTES, GFP_KERNEL);
- 	if (! msample_hdr)
- 		return -ENOMEM;
+ 	mutex_unlock(&usblp_mutex);
+ 	return 0;
+ }
+@@ -1397,9 +1398,11 @@ static void usblp_disconnect(struct usb_interface *intf)
+ 
+ 	usblp_unlink_urbs(usblp);
+ 	mutex_unlock(&usblp->mut);
++	usb_poison_anchored_urbs(&usblp->urbs);
+ 
+ 	if (!usblp->used)
+ 		usblp_cleanup(usblp);
++
+ 	mutex_unlock(&usblp_mutex);
+ }
+ 
 -- 
 2.25.1
 
