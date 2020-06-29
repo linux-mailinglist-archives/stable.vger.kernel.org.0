@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 375A120E703
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:10:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED12F20E657
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:09:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403763AbgF2Vwz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:52:55 -0400
+        id S2404142AbgF2Vq3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:46:29 -0400
 Received: from mail.kernel.org ([198.145.29.99]:56788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726641AbgF2Sfj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:35:39 -0400
+        id S1726764AbgF2Sft (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:35:49 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3B17B246F8;
-        Mon, 29 Jun 2020 15:20:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 479C624708;
+        Mon, 29 Jun 2020 15:20:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444040;
-        bh=LoVIHkXo/f1i0Yzxzmm7UVOq2WlhqMhxCMJ6m/utMNQ=;
+        s=default; t=1593444041;
+        bh=pnxNyqlrUmoFk5ozA2QUt9Kmgq8XNYMXIpDY0QYnR+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BmIOEF9Nbj+iWj0nCmZBq70LFii2azKhG8j1j1h7Io/t+eJfC8nf7CHe8qEwKVk8a
-         vbTXctfRj7TfLAHyymA5zhyNoMwzaXh7yItBs2JLK79lW/6ILz5x9AN9RNQNDLlcr8
-         Ic0pn4oi1gAJSjkO7itEPJsgI506meVfPeM0d+FU=
+        b=xh0sxG1/sxTPRB/Sa9nWUPPLYnGonB2mSl9eF6XDhYlzclWfB4nOtK6+GOX/5Wv6L
+         jaMMK8b6cpGPQvYx+K+RA51pi0aIy0wwsyARf8GKE5nk+5XD4g6zePrE8LfH4sfc1G
+         c/Y19y1uRtoz0E20GFtqjDE3lYdxCiROQDZjAhZM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Alexander Lobakin <alobakin@marvell.com>,
@@ -30,9 +30,9 @@ Cc:     Alexander Lobakin <alobakin@marvell.com>,
         Michal Kalderon <michal.kalderon@marvell.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 147/265] net: qed: fix left elements count calculation
-Date:   Mon, 29 Jun 2020 11:16:20 -0400
-Message-Id: <20200629151818.2493727-148-sashal@kernel.org>
+Subject: [PATCH 5.7 148/265] net: qed: fix async event callbacks unregistering
+Date:   Mon, 29 Jun 2020 11:16:21 -0400
+Message-Id: <20200629151818.2493727-149-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -53,76 +53,85 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alexander Lobakin <alobakin@marvell.com>
 
-[ Upstream commit 97dd1abd026ae4e6a82fa68645928404ad483409 ]
+[ Upstream commit 31333c1a2521ff4b4ceb0c29de492549cd4a8de3 ]
 
-qed_chain_get_element_left{,_u32} returned 0 when the difference
-between producer and consumer page count was equal to the total
-page count.
-Fix this by conditional expanding of producer value (vs
-unconditional). This allowed to eliminate normalizaton against
-total page count, which was the cause of this bug.
+qed_spq_unregister_async_cb() should be called before
+qed_rdma_info_free() to avoid crash-spawning uses-after-free.
+Instead of calling it from each subsystem exit code, do it in one place
+on PF down.
 
-Misc: replace open-coded constants with common defines.
-
-Fixes: a91eb52abb50 ("qed: Revisit chain implementation")
+Fixes: 291d57f67d24 ("qed: Fix rdma_info structure allocation")
 Signed-off-by: Alexander Lobakin <alobakin@marvell.com>
 Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
 Signed-off-by: Michal Kalderon <michal.kalderon@marvell.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/qed/qed_chain.h | 26 ++++++++++++++++----------
- 1 file changed, 16 insertions(+), 10 deletions(-)
+ drivers/net/ethernet/qlogic/qed/qed_dev.c   | 9 +++++++--
+ drivers/net/ethernet/qlogic/qed/qed_iwarp.c | 2 --
+ drivers/net/ethernet/qlogic/qed/qed_roce.c  | 1 -
+ 3 files changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/include/linux/qed/qed_chain.h b/include/linux/qed/qed_chain.h
-index 733fad7dfbed9..6d15040c642cb 100644
---- a/include/linux/qed/qed_chain.h
-+++ b/include/linux/qed/qed_chain.h
-@@ -207,28 +207,34 @@ static inline u32 qed_chain_get_cons_idx_u32(struct qed_chain *p_chain)
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_dev.c b/drivers/net/ethernet/qlogic/qed/qed_dev.c
+index 38a65b984e476..9b00988fb77e1 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_dev.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_dev.c
+@@ -1368,6 +1368,8 @@ static void qed_dbg_user_data_free(struct qed_hwfn *p_hwfn)
  
- static inline u16 qed_chain_get_elem_left(struct qed_chain *p_chain)
+ void qed_resc_free(struct qed_dev *cdev)
  {
-+	u16 elem_per_page = p_chain->elem_per_page;
-+	u32 prod = p_chain->u.chain16.prod_idx;
-+	u32 cons = p_chain->u.chain16.cons_idx;
- 	u16 used;
++	struct qed_rdma_info *rdma_info;
++	struct qed_hwfn *p_hwfn;
+ 	int i;
  
--	used = (u16) (((u32)0x10000 +
--		       (u32)p_chain->u.chain16.prod_idx) -
--		      (u32)p_chain->u.chain16.cons_idx);
-+	if (prod < cons)
-+		prod += (u32)U16_MAX + 1;
-+
-+	used = (u16)(prod - cons);
- 	if (p_chain->mode == QED_CHAIN_MODE_NEXT_PTR)
--		used -= p_chain->u.chain16.prod_idx / p_chain->elem_per_page -
--		    p_chain->u.chain16.cons_idx / p_chain->elem_per_page;
-+		used -= prod / elem_per_page - cons / elem_per_page;
+ 	if (IS_VF(cdev)) {
+@@ -1385,7 +1387,8 @@ void qed_resc_free(struct qed_dev *cdev)
+ 	qed_llh_free(cdev);
  
- 	return (u16)(p_chain->capacity - used);
+ 	for_each_hwfn(cdev, i) {
+-		struct qed_hwfn *p_hwfn = &cdev->hwfns[i];
++		p_hwfn = cdev->hwfns + i;
++		rdma_info = p_hwfn->p_rdma_info;
+ 
+ 		qed_cxt_mngr_free(p_hwfn);
+ 		qed_qm_info_free(p_hwfn);
+@@ -1404,8 +1407,10 @@ void qed_resc_free(struct qed_dev *cdev)
+ 			qed_ooo_free(p_hwfn);
+ 		}
+ 
+-		if (QED_IS_RDMA_PERSONALITY(p_hwfn))
++		if (QED_IS_RDMA_PERSONALITY(p_hwfn) && rdma_info) {
++			qed_spq_unregister_async_cb(p_hwfn, rdma_info->proto);
+ 			qed_rdma_info_free(p_hwfn);
++		}
+ 
+ 		qed_iov_free(p_hwfn);
+ 		qed_l2_free(p_hwfn);
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_iwarp.c b/drivers/net/ethernet/qlogic/qed/qed_iwarp.c
+index d2fe61a5cf567..5409a2da6106d 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_iwarp.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_iwarp.c
+@@ -2836,8 +2836,6 @@ int qed_iwarp_stop(struct qed_hwfn *p_hwfn)
+ 	if (rc)
+ 		return rc;
+ 
+-	qed_spq_unregister_async_cb(p_hwfn, PROTOCOLID_IWARP);
+-
+ 	return qed_iwarp_ll2_stop(p_hwfn);
  }
  
- static inline u32 qed_chain_get_elem_left_u32(struct qed_chain *p_chain)
- {
-+	u16 elem_per_page = p_chain->elem_per_page;
-+	u64 prod = p_chain->u.chain32.prod_idx;
-+	u64 cons = p_chain->u.chain32.cons_idx;
- 	u32 used;
- 
--	used = (u32) (((u64)0x100000000ULL +
--		       (u64)p_chain->u.chain32.prod_idx) -
--		      (u64)p_chain->u.chain32.cons_idx);
-+	if (prod < cons)
-+		prod += (u64)U32_MAX + 1;
-+
-+	used = (u32)(prod - cons);
- 	if (p_chain->mode == QED_CHAIN_MODE_NEXT_PTR)
--		used -= p_chain->u.chain32.prod_idx / p_chain->elem_per_page -
--		    p_chain->u.chain32.cons_idx / p_chain->elem_per_page;
-+		used -= (u32)(prod / elem_per_page - cons / elem_per_page);
- 
- 	return p_chain->capacity - used;
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_roce.c b/drivers/net/ethernet/qlogic/qed/qed_roce.c
+index 37e70562a9645..f15c26ef88709 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_roce.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_roce.c
+@@ -113,7 +113,6 @@ void qed_roce_stop(struct qed_hwfn *p_hwfn)
+ 			break;
+ 		}
+ 	}
+-	qed_spq_unregister_async_cb(p_hwfn, PROTOCOLID_ROCE);
  }
+ 
+ static void qed_rdma_copy_gids(struct qed_rdma_qp *qp, __le32 *src_gid,
 -- 
 2.25.1
 
