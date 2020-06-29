@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5888620D335
+	by mail.lfdr.de (Postfix) with ESMTP id C763420D336
 	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 21:12:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726907AbgF2S4r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728005AbgF2S4r (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 29 Jun 2020 14:56:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42442 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:42460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729344AbgF2SzR (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729965AbgF2SzR (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 29 Jun 2020 14:55:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4439125560;
-        Mon, 29 Jun 2020 15:55:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3BEB025562;
+        Mon, 29 Jun 2020 15:55:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593446123;
-        bh=tzLUPNuFjhni840cOZi9CFA58r7CpGWMWGFnbgO4BHs=;
+        s=default; t=1593446124;
+        bh=t1E3JVaFTVKNlVeXM74XVF6HIKEdKy9b6e4wFtTfKH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BLprKUfTxO7jGtTMcHMFbMJiGNU4gKoLH+klYaCER4DQ38s/Qr0aOL7gMm2vtDvRq
-         yMLpF/+GYshiG0uh7efkCGpJg7uMNRDMsfdE4kVKbnQa2S41/dEWSpppYw7sqsCA3U
-         TRACEzS4iPV9e0xrwDw1XU5w+JWZTEIv7Ent+Zyk=
+        b=SgY8p42PRpcYE8Tp0JZWg5NdWG3XG/y6e3Hbv54kk2NosfXF1Lk29ChhK8Tnq7BTA
+         yL+2Pb/wXgeUR9+gub9eJU8ia6liANX/NDo+9UpasaplNzg2UMrYhbFVWidURtBbQ6
+         6AKZJgbxqqadtvUNJMujye0eGQ+KzaVB2xcr1PkM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
-        Felipe Balbi <balbi@kernel.org>,
+Cc:     Russell King <rmk+kernel@armlinux.org.uk>,
+        Jozsef Kadlecsik <kadlec@netfilter.org>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 114/135] usb: gadget: udc: Potential Oops in error handling code
-Date:   Mon, 29 Jun 2020 11:52:48 -0400
-Message-Id: <20200629155309.2495516-115-sashal@kernel.org>
+Subject: [PATCH 4.4 115/135] netfilter: ipset: fix unaligned atomic access
+Date:   Mon, 29 Jun 2020 11:52:49 -0400
+Message-Id: <20200629155309.2495516-116-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
 References: <20200629155309.2495516-1-sashal@kernel.org>
@@ -49,36 +50,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit e55f3c37cb8d31c7e301f46396b2ac6a19eb3a7c ]
+[ Upstream commit 715028460082d07a7ec6fcd87b14b46784346a72 ]
 
-If this is in "transceiver" mode the the ->qwork isn't required and is
-a NULL pointer.  This can lead to a NULL dereference when we call
-destroy_workqueue(udc->qwork).
+When using ip_set with counters and comment, traffic causes the kernel
+to panic on 32-bit ARM:
 
-Fixes: 3517c31a8ece ("usb: gadget: mv_udc: use devm_xxx for probe")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Felipe Balbi <balbi@kernel.org>
+Alignment trap: not handling instruction e1b82f9f at [<bf01b0dc>]
+Unhandled fault: alignment exception (0x221) at 0xea08133c
+PC is at ip_set_match_extensions+0xe0/0x224 [ip_set]
+
+The problem occurs when we try to update the 64-bit counters - the
+faulting address above is not 64-bit aligned.  The problem occurs
+due to the way elements are allocated, for example:
+
+	set->dsize = ip_set_elem_len(set, tb, 0, 0);
+	map = ip_set_alloc(sizeof(*map) + elements * set->dsize);
+
+If the element has a requirement for a member to be 64-bit aligned,
+and set->dsize is not a multiple of 8, but is a multiple of four,
+then every odd numbered elements will be misaligned - and hitting
+an atomic64_add() on that element will cause the kernel to panic.
+
+ip_set_elem_len() must return a size that is rounded to the maximum
+alignment of any extension field stored in the element.  This change
+ensures that is the case.
+
+Fixes: 95ad1f4a9358 ("netfilter: ipset: Fix extension alignment")
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Acked-by: Jozsef Kadlecsik <kadlec@netfilter.org>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/mv_udc_core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/netfilter/ipset/ip_set_core.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/usb/gadget/udc/mv_udc_core.c b/drivers/usb/gadget/udc/mv_udc_core.c
-index 81b6229c78054..4f480059f851c 100644
---- a/drivers/usb/gadget/udc/mv_udc_core.c
-+++ b/drivers/usb/gadget/udc/mv_udc_core.c
-@@ -2322,7 +2322,8 @@ static int mv_udc_probe(struct platform_device *pdev)
- 	return 0;
- 
- err_create_workqueue:
--	destroy_workqueue(udc->qwork);
-+	if (udc->qwork)
-+		destroy_workqueue(udc->qwork);
- err_destroy_dma:
- 	dma_pool_destroy(udc->dtd_pool);
- err_free_dma:
+diff --git a/net/netfilter/ipset/ip_set_core.c b/net/netfilter/ipset/ip_set_core.c
+index 0583e2491770d..3231030a73edb 100644
+--- a/net/netfilter/ipset/ip_set_core.c
++++ b/net/netfilter/ipset/ip_set_core.c
+@@ -379,6 +379,8 @@ ip_set_elem_len(struct ip_set *set, struct nlattr *tb[], size_t len,
+ 	for (id = 0; id < IPSET_EXT_ID_MAX; id++) {
+ 		if (!add_extension(id, cadt_flags, tb))
+ 			continue;
++		if (align < ip_set_extensions[id].align)
++			align = ip_set_extensions[id].align;
+ 		len = ALIGN(len, ip_set_extensions[id].align);
+ 		set->offset[id] = len;
+ 		set->extensions |= ip_set_extensions[id].type;
 -- 
 2.25.1
 
