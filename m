@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A03C420D9A3
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:11:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48BD920DA49
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:13:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387890AbgF2Tt0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:49:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47676 "EHLO mail.kernel.org"
+        id S2387770AbgF2Tzh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:55:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387754AbgF2Tkh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:37 -0400
+        id S2387653AbgF2TkY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:24 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3797E24818;
-        Mon, 29 Jun 2020 15:25:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2DCDC24819;
+        Mon, 29 Jun 2020 15:25:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444335;
-        bh=CvlSKTTDjePQe/WKeSqrmGecE7/eSJzVRRunVyWV4SM=;
+        s=default; t=1593444336;
+        bh=zKVcYxZ7pwGdvdRzSRYHpqasgfwum5iG35R7JTeTdwc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x7w7scI8kHHFFqNILvAx918msEZfl1FstR6gp3JVJuDIQde7MH0x4ujMrIkjIW/Oz
-         tv8xSE8d88WBUuQyVClFhfJi+6+et9qcr8HNc7OQ0v6T3q85L/DOSNzg72r3eGBbLE
-         0aL3Z+SRpDMgp3Bfx02XSEPE6zAg/nU2clsHpyqQ=
+        b=SL6EKP+IrXcI47CvrO73xRr4SRpiU/3HA0se+KvOKGJmaBsriRE0bvJPuhcsnKr9S
+         1e9kFwSnnNY3UIqNANM+wvTmLdPNPp9jAyze/J53RQzeY71hzg1UW5urWBiFNppxOZ
+         7bcn+SDsDB0dAUDx0OUQ3dhAuGQ+QIDt0pP0Kezg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yang Yingliang <yangyingliang@huawei.com>,
-        Hulk Robot <hulkci@huawei.com>,
+Cc:     guodeqing <geffrey.guo@huawei.com>,
+        David Ahern <dsahern@gmail.com>,
         "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.4 010/178] net: fix memleak in register_netdevice()
-Date:   Mon, 29 Jun 2020 11:22:35 -0400
-Message-Id: <20200629152523.2494198-11-sashal@kernel.org>
+Subject: [PATCH 5.4 011/178] net: Fix the arp error in some cases
+Date:   Mon, 29 Jun 2020 11:22:36 -0400
+Message-Id: <20200629152523.2494198-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -50,90 +50,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: guodeqing <geffrey.guo@huawei.com>
 
-[ Upstream commit 814152a89ed52c722ab92e9fbabcac3cb8a39245 ]
+[ Upstream commit 5eea3a63ff4aba6a26002e657a6d21934b7e2b96 ]
 
-I got a memleak report when doing some fuzz test:
+ie.,
+$ ifconfig eth0 6.6.6.6 netmask 255.255.255.0
 
-unreferenced object 0xffff888112584000 (size 13599):
-  comm "ip", pid 3048, jiffies 4294911734 (age 343.491s)
-  hex dump (first 32 bytes):
-    74 61 70 30 00 00 00 00 00 00 00 00 00 00 00 00  tap0............
-    00 ee d9 19 81 88 ff ff 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<000000002f60ba65>] __kmalloc_node+0x309/0x3a0
-    [<0000000075b211ec>] kvmalloc_node+0x7f/0xc0
-    [<00000000d3a97396>] alloc_netdev_mqs+0x76/0xfc0
-    [<00000000609c3655>] __tun_chr_ioctl+0x1456/0x3d70
-    [<000000001127ca24>] ksys_ioctl+0xe5/0x130
-    [<00000000b7d5e66a>] __x64_sys_ioctl+0x6f/0xb0
-    [<00000000e1023498>] do_syscall_64+0x56/0xa0
-    [<000000009ec0eb12>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
-unreferenced object 0xffff888111845cc0 (size 8):
-  comm "ip", pid 3048, jiffies 4294911734 (age 343.491s)
-  hex dump (first 8 bytes):
-    74 61 70 30 00 88 ff ff                          tap0....
-  backtrace:
-    [<000000004c159777>] kstrdup+0x35/0x70
-    [<00000000d8b496ad>] kstrdup_const+0x3d/0x50
-    [<00000000494e884a>] kvasprintf_const+0xf1/0x180
-    [<0000000097880a2b>] kobject_set_name_vargs+0x56/0x140
-    [<000000008fbdfc7b>] dev_set_name+0xab/0xe0
-    [<000000005b99e3b4>] netdev_register_kobject+0xc0/0x390
-    [<00000000602704fe>] register_netdevice+0xb61/0x1250
-    [<000000002b7ca244>] __tun_chr_ioctl+0x1cd1/0x3d70
-    [<000000001127ca24>] ksys_ioctl+0xe5/0x130
-    [<00000000b7d5e66a>] __x64_sys_ioctl+0x6f/0xb0
-    [<00000000e1023498>] do_syscall_64+0x56/0xa0
-    [<000000009ec0eb12>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
-unreferenced object 0xffff88811886d800 (size 512):
-  comm "ip", pid 3048, jiffies 4294911734 (age 343.491s)
-  hex dump (first 32 bytes):
-    00 00 00 00 ad 4e ad de ff ff ff ff 00 00 00 00  .....N..........
-    ff ff ff ff ff ff ff ff c0 66 3d a3 ff ff ff ff  .........f=.....
-  backtrace:
-    [<0000000050315800>] device_add+0x61e/0x1950
-    [<0000000021008dfb>] netdev_register_kobject+0x17e/0x390
-    [<00000000602704fe>] register_netdevice+0xb61/0x1250
-    [<000000002b7ca244>] __tun_chr_ioctl+0x1cd1/0x3d70
-    [<000000001127ca24>] ksys_ioctl+0xe5/0x130
-    [<00000000b7d5e66a>] __x64_sys_ioctl+0x6f/0xb0
-    [<00000000e1023498>] do_syscall_64+0x56/0xa0
-    [<000000009ec0eb12>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+$ ip rule add from 6.6.6.6 table 6666
 
-If call_netdevice_notifiers() failed, then rollback_registered()
-calls netdev_unregister_kobject() which holds the kobject. The
-reference cannot be put because the netdev won't be add to todo
-list, so it will leads a memleak, we need put the reference to
-avoid memleak.
+$ ip route add 9.9.9.9 via 6.6.6.6
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+$ ping -I 6.6.6.6 9.9.9.9
+PING 9.9.9.9 (9.9.9.9) from 6.6.6.6 : 56(84) bytes of data.
+
+3 packets transmitted, 0 received, 100% packet loss, time 2079ms
+
+$ arp
+Address     HWtype  HWaddress           Flags Mask            Iface
+6.6.6.6             (incomplete)                              eth0
+
+The arp request address is error, this is because fib_table_lookup in
+fib_check_nh lookup the destnation 9.9.9.9 nexthop, the scope of
+the fib result is RT_SCOPE_LINK,the correct scope is RT_SCOPE_HOST.
+Here I add a check of whether this is RT_TABLE_MAIN to solve this problem.
+
+Fixes: 3bfd847203c6 ("net: Use passed in table for nexthop lookups")
+Signed-off-by: guodeqing <geffrey.guo@huawei.com>
+Reviewed-by: David Ahern <dsahern@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/dev.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ net/ipv4/fib_semantics.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/core/dev.c b/net/core/dev.c
-index 204d87e7c9b19..5b7d9c2b821d6 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -9114,6 +9114,13 @@ int register_netdevice(struct net_device *dev)
- 		rcu_barrier();
+diff --git a/net/ipv4/fib_semantics.c b/net/ipv4/fib_semantics.c
+index 01588eef0cee2..b1b3220917ca0 100644
+--- a/net/ipv4/fib_semantics.c
++++ b/net/ipv4/fib_semantics.c
+@@ -1100,7 +1100,7 @@ static int fib_check_nh_v4_gw(struct net *net, struct fib_nh *nh, u32 table,
+ 		if (fl4.flowi4_scope < RT_SCOPE_LINK)
+ 			fl4.flowi4_scope = RT_SCOPE_LINK;
  
- 		dev->reg_state = NETREG_UNREGISTERED;
-+		/* We should put the kobject that hold in
-+		 * netdev_unregister_kobject(), otherwise
-+		 * the net device cannot be freed when
-+		 * driver calls free_netdev(), because the
-+		 * kobject is being hold.
-+		 */
-+		kobject_put(&dev->dev.kobj);
- 	}
- 	/*
- 	 *	Prevent userspace races by waiting until the network
+-		if (table)
++		if (table && table != RT_TABLE_MAIN)
+ 			tbl = fib_get_table(net, table);
+ 
+ 		if (tbl)
 -- 
 2.25.1
 
