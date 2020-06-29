@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CCB620D782
+	by mail.lfdr.de (Postfix) with ESMTP id 20C0420D781
 	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:07:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732705AbgF2Taf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:30:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40556 "EHLO mail.kernel.org"
+        id S1733019AbgF2Tae (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:30:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732992AbgF2Tac (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:30:32 -0400
+        id S1732986AbgF2Tab (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:30:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C47325223;
-        Mon, 29 Jun 2020 15:35:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 82B7C25228;
+        Mon, 29 Jun 2020 15:35:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444942;
-        bh=G1OaI6ru6BFUiiAeqdzS2X/v02E6klbhEIvMe3Sjtg8=;
+        s=default; t=1593444943;
+        bh=u8+YsUztz+BPseXMGrTmb/r65SQkRQS7f94slS33SsI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N1CB4tadVzq709PnKf3LqqNpxP2DDyxMsf4+AO9ePEbisJRv6+K/hrtwoG9+VZFWw
-         b4ICd9RjLdqxkbN7jtDYrUPr0FRiGRf82rHNdXYvndYDg6TeGXd6lHSGXOavKRJhHH
-         aaJW/bM1MR8HMS5nEZwcKwoF31Mts35yQOvIMqE4=
+        b=wXe0xktBtmicxvjSaa6kENI2ZXFuceJdTcY2bMiEy+OxYO/itgiy6U2izEUDqeKo/
+         0HJu3s7yf2j1n/32z4cEsjUKq9ygblT45OBKNv0kmTGn9k6XA1H4nuSpDjMGs0XP4T
+         9WfDQbOGxliSTrj98EvQirWJ9MQPRYHKWeW0C09I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tariq Toukan <tariqt@mellanox.com>,
-        Boris Pismenny <borisp@mellanox.com>,
+Cc:     Taehee Yoo <ap420073@gmail.com>,
         "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.19 039/131] net: Do not clear the sock TX queue in sk_set_socket()
-Date:   Mon, 29 Jun 2020 11:33:30 -0400
-Message-Id: <20200629153502.2494656-40-sashal@kernel.org>
+Subject: [PATCH 4.19 040/131] net: core: reduce recursion limit value
+Date:   Mon, 29 Jun 2020 11:33:31 -0400
+Message-Id: <20200629153502.2494656-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629153502.2494656-1-sashal@kernel.org>
 References: <20200629153502.2494656-1-sashal@kernel.org>
@@ -50,62 +49,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tariq Toukan <tariqt@mellanox.com>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit 41b14fb8724d5a4b382a63cb4a1a61880347ccb8 ]
+[ Upstream commit fb7861d14c8d7edac65b2fcb6e8031cb138457b2 ]
 
-Clearing the sock TX queue in sk_set_socket() might cause unexpected
-out-of-order transmit when called from sock_orphan(), as outstanding
-packets can pick a different TX queue and bypass the ones already queued.
+In the current code, ->ndo_start_xmit() can be executed recursively only
+10 times because of stack memory.
+But, in the case of the vxlan, 10 recursion limit value results in
+a stack overflow.
+In the current code, the nested interface is limited by 8 depth.
+There is no critical reason that the recursion limitation value should
+be 10.
+So, it would be good to be the same value with the limitation value of
+nesting interface depth.
 
-This is undesired in general. More specifically, it breaks the in-order
-scheduling property guarantee for device-offloaded TLS sockets.
+Test commands:
+    ip link add vxlan10 type vxlan vni 10 dstport 4789 srcport 4789 4789
+    ip link set vxlan10 up
+    ip a a 192.168.10.1/24 dev vxlan10
+    ip n a 192.168.10.2 dev vxlan10 lladdr fc:22:33:44:55:66 nud permanent
 
-Remove the call to sk_tx_queue_clear() in sk_set_socket(), and add it
-explicitly only where needed.
+    for i in {9..0}
+    do
+        let A=$i+1
+	ip link add vxlan$i type vxlan vni $i dstport 4789 srcport 4789 4789
+	ip link set vxlan$i up
+	ip a a 192.168.$i.1/24 dev vxlan$i
+	ip n a 192.168.$i.2 dev vxlan$i lladdr fc:22:33:44:55:66 nud permanent
+	bridge fdb add fc:22:33:44:55:66 dev vxlan$A dst 192.168.$i.2 self
+    done
+    hping3 192.168.10.2 -2 -d 60000
 
-Fixes: e022f0b4a03f ("net: Introduce sk_tx_queue_mapping")
-Signed-off-by: Tariq Toukan <tariqt@mellanox.com>
-Reviewed-by: Boris Pismenny <borisp@mellanox.com>
+Splat looks like:
+[  103.814237][ T1127] =============================================================================
+[  103.871955][ T1127] BUG kmalloc-2k (Tainted: G    B            ): Padding overwritten. 0x00000000897a2e4f-0x000
+[  103.873187][ T1127] -----------------------------------------------------------------------------
+[  103.873187][ T1127]
+[  103.874252][ T1127] INFO: Slab 0x000000005cccc724 objects=5 used=5 fp=0x0000000000000000 flags=0x10000000001020
+[  103.881323][ T1127] CPU: 3 PID: 1127 Comm: hping3 Tainted: G    B             5.7.0+ #575
+[  103.882131][ T1127] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
+[  103.883006][ T1127] Call Trace:
+[  103.883324][ T1127]  dump_stack+0x96/0xdb
+[  103.883716][ T1127]  slab_err+0xad/0xd0
+[  103.884106][ T1127]  ? _raw_spin_unlock+0x1f/0x30
+[  103.884620][ T1127]  ? get_partial_node.isra.78+0x140/0x360
+[  103.885214][ T1127]  slab_pad_check.part.53+0xf7/0x160
+[  103.885769][ T1127]  ? pskb_expand_head+0x110/0xe10
+[  103.886316][ T1127]  check_slab+0x97/0xb0
+[  103.886763][ T1127]  alloc_debug_processing+0x84/0x1a0
+[  103.887308][ T1127]  ___slab_alloc+0x5a5/0x630
+[  103.887765][ T1127]  ? pskb_expand_head+0x110/0xe10
+[  103.888265][ T1127]  ? lock_downgrade+0x730/0x730
+[  103.888762][ T1127]  ? pskb_expand_head+0x110/0xe10
+[  103.889244][ T1127]  ? __slab_alloc+0x3e/0x80
+[  103.889675][ T1127]  __slab_alloc+0x3e/0x80
+[  103.890108][ T1127]  __kmalloc_node_track_caller+0xc7/0x420
+[ ... ]
+
+Fixes: 11a766ce915f ("net: Increase xmit RECURSION_LIMIT to 10.")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/sock.h | 1 -
- net/core/sock.c    | 2 ++
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ include/linux/netdevice.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/net/sock.h b/include/net/sock.h
-index f359e5c947628..e2df102e669e8 100644
---- a/include/net/sock.h
-+++ b/include/net/sock.h
-@@ -1775,7 +1775,6 @@ static inline int sk_rx_queue_get(const struct sock *sk)
- 
- static inline void sk_set_socket(struct sock *sk, struct socket *sock)
- {
--	sk_tx_queue_clear(sk);
- 	sk->sk_socket = sock;
+diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+index 85dc3497c74f1..4e14926433edb 100644
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -3004,7 +3004,7 @@ static inline int dev_recursion_level(void)
+ 	return this_cpu_read(softnet_data.xmit.recursion);
  }
  
-diff --git a/net/core/sock.c b/net/core/sock.c
-index b11d116383dab..8721264a2b394 100644
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -1540,6 +1540,7 @@ struct sock *sk_alloc(struct net *net, int family, gfp_t priority,
- 		cgroup_sk_alloc(&sk->sk_cgrp_data);
- 		sock_update_classid(&sk->sk_cgrp_data);
- 		sock_update_netprioidx(&sk->sk_cgrp_data);
-+		sk_tx_queue_clear(sk);
- 	}
- 
- 	return sk;
-@@ -1747,6 +1748,7 @@ struct sock *sk_clone_lock(const struct sock *sk, const gfp_t priority)
- 		 */
- 		sk_refcnt_debug_inc(newsk);
- 		sk_set_socket(newsk, NULL);
-+		sk_tx_queue_clear(newsk);
- 		newsk->sk_wq = NULL;
- 
- 		if (newsk->sk_prot->sockets_allocated)
+-#define XMIT_RECURSION_LIMIT	10
++#define XMIT_RECURSION_LIMIT	8
+ static inline bool dev_xmit_recursion(void)
+ {
+ 	return unlikely(__this_cpu_read(softnet_data.xmit.recursion) >
 -- 
 2.25.1
 
