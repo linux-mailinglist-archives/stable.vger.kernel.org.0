@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54A4F20DE8D
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:53:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CABB20DED1
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:53:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732570AbgF2U0u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:26:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37028 "EHLO mail.kernel.org"
+        id S2388934AbgF2U32 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:29:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732455AbgF2TZZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:25:25 -0400
+        id S1731281AbgF2TZW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:25:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D62DD25324;
-        Mon, 29 Jun 2020 15:39:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 25086253A3;
+        Mon, 29 Jun 2020 15:41:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445156;
-        bh=f2UiAtHANs9tFRVesQfBZNsitQGOznVCjZKCH6GXzDk=;
+        s=default; t=1593445269;
+        bh=qPmb8nADJ/fGtJUgCbimYNTWKsU//6MpTOpdHRzcIkU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bM5a3IxILeCPiMNMSkdHU7mvmmHg5R1X7ysVLL0MZH7Ru8SoAnRfAVmrfVmx2c/3v
-         o6amw4pdOIv/VMHthjTi3SsfizAU+HRybuYXRucQZOjZUXvMkGsmXLrjkNbVpcMbWT
-         fnZn5iRR6Mqn5mbHJXOsaYBXw9r0Vn5XSQwrq2h0=
+        b=HhmWJ3e/dlDfql10HWjIbyc5ouoNPLkhJnGsi1uWPvndBxhHP16wJ3/6ECHRumWig
+         w2AikLjShvkWmAFgTrw/pGBCRWEtw6rXpbYF9i8pOJh0zCBXsA0T5HnY9K2ZQmcVIR
+         qvrmvAmWprQY+K3TWzQ7QwDk0qVo8AjC8T2DmoXY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Masahiro Yamada <masahiroy@kernel.org>,
+Cc:     Marek Szyprowski <m.szyprowski@samsung.com>,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 57/78] kbuild: improve cc-option to clean up all temporary files
+Subject: [PATCH 4.9 049/191] clk: samsung: exynos5433: Add IGNORE_UNUSED flag to sclk_i2s1
 Date:   Mon, 29 Jun 2020 11:37:45 -0400
-Message-Id: <20200629153806.2494953-58-sashal@kernel.org>
+Message-Id: <20200629154007.2495120-50-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200629153806.2494953-1-sashal@kernel.org>
-References: <20200629153806.2494953-1-sashal@kernel.org>
+In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
+References: <20200629154007.2495120-1-sashal@kernel.org>
 MIME-Version: 1.0
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.186-rc1.gz
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.229-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.14.y
+X-KernelTest-Branch: linux-4.9.y
 X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.14.186-rc1
-X-KernelTest-Deadline: 2020-07-01T15:38+00:00
+X-KernelTest-Version: 4.9.229-rc1
+X-KernelTest-Deadline: 2020-07-01T15:39+00:00
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -48,70 +49,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit f2f02ebd8f3833626642688b2d2c6a7b3c141fa9 ]
+[ Upstream commit 25bdae0f1c6609ceaf55fe6700654f0be2253d8e ]
 
-When cc-option and friends evaluate compiler flags, the temporary file
-$$TMP is created as an output object, and automatically cleaned up.
-The actual file path of $$TMP is .<pid>.tmp, here <pid> is the process
-ID of $(shell ...) invoked from cc-option. (Please note $$$$ is the
-escape sequence of $$).
+Mark the SCLK clock for Exynos5433 I2S1 device with IGNORE_UNUSED flag to
+match its behaviour with SCLK clock for AUD_I2S (I2S0) device until
+a proper fix for Exynos I2S driver is ready.
 
-Such garbage files are cleaned up in most cases, but some compiler flags
-create additional output files.
+This fixes the following synchronous abort issue revealed by the probe
+order change caused by the commit 93d2e4322aa7 ("of: platform: Batch
+fwnode parsing when adding all top level devices")
 
-For example, -gsplit-dwarf creates a .dwo file.
+Internal error: synchronous external abort: 96000210 [#1] PREEMPT SMP
+Modules linked in:
+CPU: 0 PID: 50 Comm: kworker/0:1 Not tainted 5.7.0-rc5+ #701
+Hardware name: Samsung TM2E board (DT)
+Workqueue: events deferred_probe_work_func
+pstate: 60000005 (nZCv daif -PAN -UAO)
+pc : samsung_i2s_probe+0x768/0x8f0
+lr : samsung_i2s_probe+0x688/0x8f0
+...
+Call trace:
+ samsung_i2s_probe+0x768/0x8f0
+ platform_drv_probe+0x50/0xa8
+ really_probe+0x108/0x370
+ driver_probe_device+0x54/0xb8
+ __device_attach_driver+0x90/0xc0
+ bus_for_each_drv+0x70/0xc8
+ __device_attach+0xdc/0x140
+ device_initial_probe+0x10/0x18
+ bus_probe_device+0x94/0xa0
+ deferred_probe_work_func+0x70/0xa8
+ process_one_work+0x2a8/0x718
+ worker_thread+0x48/0x470
+ kthread+0x134/0x160
+ ret_from_fork+0x10/0x1c
+Code: 17ffffaf d503201f f94086c0 91003000 (88dffc00)
+---[ end trace ccf721c9400ddbd6 ]---
 
-When CONFIG_DEBUG_INFO_SPLIT=y, you will see a bunch of .<pid>.dwo files
-left in the top of build directories. You may not notice them unless you
-do 'ls -a', but the garbage files will increase every time you run 'make'.
-
-This commit changes the temporary object path to .tmp_<pid>/tmp, and
-removes .tmp_<pid> directory when exiting. Separate build artifacts such
-as *.dwo will be cleaned up all together because their file paths are
-usually determined based on the base name of the object.
-
-Another example is -ftest-coverage, which outputs the coverage data into
-<base-name-of-object>.gcno
-
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/Kbuild.include | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/clk/samsung/clk-exynos5433.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/scripts/Kbuild.include b/scripts/Kbuild.include
-index a33fa1a918731..28bfb4378dbd8 100644
---- a/scripts/Kbuild.include
-+++ b/scripts/Kbuild.include
-@@ -82,20 +82,21 @@ cc-cross-prefix =  \
- 		fi)))
- 
- # output directory for tests below
--TMPOUT := $(if $(KBUILD_EXTMOD),$(firstword $(KBUILD_EXTMOD))/)
-+TMPOUT = $(if $(KBUILD_EXTMOD),$(firstword $(KBUILD_EXTMOD))/).tmp_$$$$
- 
- # try-run
- # Usage: option = $(call try-run, $(CC)...-o "$$TMP",option-ok,otherwise)
- # Exit code chooses option. "$$TMP" serves as a temporary file and is
- # automatically cleaned up.
- try-run = $(shell set -e;		\
--	TMP="$(TMPOUT).$$$$.tmp";	\
--	TMPO="$(TMPOUT).$$$$.o";	\
-+	TMP=$(TMPOUT)/tmp;		\
-+	TMPO=$(TMPOUT)/tmp.o;		\
-+	mkdir -p $(TMPOUT);		\
-+	trap "rm -rf $(TMPOUT)" EXIT;	\
- 	if ($(1)) >/dev/null 2>&1;	\
- 	then echo "$(2)";		\
- 	else echo "$(3)";		\
--	fi;				\
--	rm -f "$$TMP" "$$TMPO")
-+	fi)
- 
- # as-option
- # Usage: cflags-y += $(call as-option,-Wa$(comma)-isa=foo,)
+diff --git a/drivers/clk/samsung/clk-exynos5433.c b/drivers/clk/samsung/clk-exynos5433.c
+index 09cdd35dc434d..a082b026791af 100644
+--- a/drivers/clk/samsung/clk-exynos5433.c
++++ b/drivers/clk/samsung/clk-exynos5433.c
+@@ -1672,7 +1672,8 @@ static const struct samsung_gate_clock peric_gate_clks[] __initconst = {
+ 	GATE(CLK_SCLK_PCM1, "sclk_pcm1", "sclk_pcm1_peric",
+ 			ENABLE_SCLK_PERIC, 7, CLK_SET_RATE_PARENT, 0),
+ 	GATE(CLK_SCLK_I2S1, "sclk_i2s1", "sclk_i2s1_peric",
+-			ENABLE_SCLK_PERIC, 6, CLK_SET_RATE_PARENT, 0),
++			ENABLE_SCLK_PERIC, 6,
++			CLK_SET_RATE_PARENT | CLK_IGNORE_UNUSED, 0),
+ 	GATE(CLK_SCLK_SPI2, "sclk_spi2", "sclk_spi2_peric", ENABLE_SCLK_PERIC,
+ 			5, CLK_SET_RATE_PARENT, 0),
+ 	GATE(CLK_SCLK_SPI1, "sclk_spi1", "sclk_spi1_peric", ENABLE_SCLK_PERIC,
 -- 
 2.25.1
 
