@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A908620D8AC
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:10:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 414D420DA98
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:13:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387804AbgF2Tkk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:40:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47680 "EHLO mail.kernel.org"
+        id S2387431AbgF2T6v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:58:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387773AbgF2Tkj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:39 -0400
+        id S2387576AbgF2TkR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B7DC32485A;
-        Mon, 29 Jun 2020 15:25:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 95CD32485C;
+        Mon, 29 Jun 2020 15:25:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444358;
-        bh=suxS3uWxS2tL0+jBGETGD3bqF3me5u0sGxXU3krztR0=;
+        s=default; t=1593444359;
+        bh=7FER3X3bF/BuUo4GLN1LKSdPZ7JlrMU5UDI7zCGaRC8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b6fjR43taMS2rKdbcoo6AIsHxmpJ8P9M4+tziiCI8gjpXTy2qy9b3naxDucx1arGy
-         xWbsszIbZc7iaZet01RA5jiAzgr4mNrpMhKjv2UjB/WkFvGgQSidJfCsLjxjS6fgWQ
-         gl1gzuIOaM29/RWvLPF0SzstM4XcIMtlHCfrWONU=
+        b=mEhBK65UMcGeKTZK+OoL2yKdr5bEDzJQzM+LHA4L1aW4mxY5FF/AlXv6/spzS0nyx
+         6nPqOjZEcFmGmYVvwaBZBumteSFzre6O+FWntA4d8ykO+nLoiobPKpacVJ4Vwp93lK
+         9cHmtf0f8eomVp4d48hlMDftitzJ/RrELxl4Lvdk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chuhong Yuan <hslester96@gmail.com>,
-        Alan Stern <stern@rowland.harvard.edu>,
+Cc:     Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
+        kbuild test robot <lkp@intel.com>,
+        Marek Vasut <marex@denx.de>,
+        Minas Harutyunyan <hminas@synopsys.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.4 034/178] USB: ohci-sm501: Add missed iounmap() in remove
-Date:   Mon, 29 Jun 2020 11:22:59 -0400
-Message-Id: <20200629152523.2494198-35-sashal@kernel.org>
+Subject: [PATCH 5.4 035/178] usb: dwc2: Postponed gadget registration to the udc class driver
+Date:   Mon, 29 Jun 2020 11:23:00 -0400
+Message-Id: <20200629152523.2494198-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -49,36 +51,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
 
-commit 07c112fb09c86c0231f6ff0061a000ffe91c8eb9 upstream.
+commit 207324a321a866401b098cadf19e4a2dd6584622 upstream.
 
-This driver misses calling iounmap() in remove to undo the ioremap()
-called in probe.
-Add the missed call to fix it.
+During dwc2 driver probe, after gadget registration to the udc class
+driver, if exist any builtin function driver it immediately bound to
+dwc2 and after init host side (dwc2_hcd_init()) stucked in host mode.
+Patch postpone gadget registration after host side initialization done.
 
-Fixes: f54aab6ebcec ("usb: ohci-sm501 driver")
+Fixes: 117777b2c3bb9 ("usb: dwc2: Move gadget probe function into platform code")
+Reported-by: kbuild test robot <lkp@intel.com>
+Tested-by: Marek Vasut <marex@denx.de>
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/20200610024844.3628408-1-hslester96@gmail.com
+Signed-off-by: Minas Harutyunyan <hminas@synopsys.com>
+Link: https://lore.kernel.org/r/f21cb38fecc72a230b86155d94c7e60c9cb66f58.1591690938.git.hminas@synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/ohci-sm501.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/dwc2/gadget.c   |  6 ------
+ drivers/usb/dwc2/platform.c | 11 +++++++++++
+ 2 files changed, 11 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/usb/host/ohci-sm501.c b/drivers/usb/host/ohci-sm501.c
-index cff9652403270..b91d50da6127f 100644
---- a/drivers/usb/host/ohci-sm501.c
-+++ b/drivers/usb/host/ohci-sm501.c
-@@ -191,6 +191,7 @@ static int ohci_hcd_sm501_drv_remove(struct platform_device *pdev)
- 	struct resource	*mem;
+diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
+index 7fd0900a9cb0c..f7528f732b2aa 100644
+--- a/drivers/usb/dwc2/gadget.c
++++ b/drivers/usb/dwc2/gadget.c
+@@ -4886,12 +4886,6 @@ int dwc2_gadget_init(struct dwc2_hsotg *hsotg)
+ 					  epnum, 0);
+ 	}
  
- 	usb_remove_hcd(hcd);
-+	iounmap(hcd->regs);
- 	release_mem_region(hcd->rsrc_start, hcd->rsrc_len);
- 	usb_put_hcd(hcd);
- 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 1);
+-	ret = usb_add_gadget_udc(dev, &hsotg->gadget);
+-	if (ret) {
+-		dwc2_hsotg_ep_free_request(&hsotg->eps_out[0]->ep,
+-					   hsotg->ctrl_req);
+-		return ret;
+-	}
+ 	dwc2_hsotg_dump(hsotg);
+ 
+ 	return 0;
+diff --git a/drivers/usb/dwc2/platform.c b/drivers/usb/dwc2/platform.c
+index 3c6ce09a6db56..15e55808cf4ea 100644
+--- a/drivers/usb/dwc2/platform.c
++++ b/drivers/usb/dwc2/platform.c
+@@ -507,6 +507,17 @@ static int dwc2_driver_probe(struct platform_device *dev)
+ 	if (hsotg->dr_mode == USB_DR_MODE_PERIPHERAL)
+ 		dwc2_lowlevel_hw_disable(hsotg);
+ 
++#if IS_ENABLED(CONFIG_USB_DWC2_PERIPHERAL) || \
++	IS_ENABLED(CONFIG_USB_DWC2_DUAL_ROLE)
++	/* Postponed adding a new gadget to the udc class driver list */
++	if (hsotg->gadget_enabled) {
++		retval = usb_add_gadget_udc(hsotg->dev, &hsotg->gadget);
++		if (retval) {
++			dwc2_hsotg_remove(hsotg);
++			goto error;
++		}
++	}
++#endif /* CONFIG_USB_DWC2_PERIPHERAL || CONFIG_USB_DWC2_DUAL_ROLE */
+ 	return 0;
+ 
+ error:
 -- 
 2.25.1
 
