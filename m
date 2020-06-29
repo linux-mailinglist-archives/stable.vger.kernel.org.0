@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BB9420D6F1
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:06:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30F0720D6EC
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:06:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732533AbgF2TZ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:25:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37042 "EHLO mail.kernel.org"
+        id S1732407AbgF2TZS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:25:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732506AbgF2TZY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:25:24 -0400
+        id S1731916AbgF2TZQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:25:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 60D932537D;
-        Mon, 29 Jun 2020 15:40:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F53C25300;
+        Mon, 29 Jun 2020 15:38:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445244;
-        bh=ypQggd1jTN90dgiL1MA75jtztYY5Xc4dxZIh5jqZWCo=;
+        s=default; t=1593445129;
+        bh=293rpKy0v8xh4bIVOL88tAUCSNTrAdXpaA8DqQdvsY0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IZMaIWJHs0ynEWyBtnWRuVYi5bhu5FBji4qsW6BrpzGRaE+hE8s3A8j6/uLVNIxmr
-         SqKlH7kzLui3A/tkxgGovAoHYqzMpG687brkuTRgrHZ3DS2eS5Z0R7+T8kp3NbgIQR
-         u2+Cg6alNa9pACXJmnC0fARswDzvR53+fuBlTu2g=
+        b=oqQUGKS1wvya/w1/O+vvRhKnvmuTPPl+MGGN1x0Z92S7G09i5zdbZGYURDDtrLVxM
+         1A0j3xYNd0XVBk1tne34hcMC8Yo9XmP7JF3XXlN7bYWm2xYXKXuaDWblosAtjsXXrA
+         lL9nm2NEUidf2/7/bezuShkDnd++OXiST9e2hlAY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Raghavendra Rao Ananta <rananta@codeaurora.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+Cc:     Takashi Iwai <tiwai@suse.de>,
+        syzbot+fb14314433463ad51625@syzkaller.appspotmail.com,
+        syzbot+2405ca3401e943c538b5@syzkaller.appspotmail.com,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 028/191] tty: hvc: Fix data abort due to race in hvc_open
+Subject: [PATCH 4.14 36/78] ALSA: usb-audio: Fix OOB access of mixer element list
 Date:   Mon, 29 Jun 2020 11:37:24 -0400
-Message-Id: <20200629154007.2495120-29-sashal@kernel.org>
+Message-Id: <20200629153806.2494953-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
-References: <20200629154007.2495120-1-sashal@kernel.org>
+In-Reply-To: <20200629153806.2494953-1-sashal@kernel.org>
+References: <20200629153806.2494953-1-sashal@kernel.org>
 MIME-Version: 1.0
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.229-rc1.gz
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.186-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.9.y
+X-KernelTest-Branch: linux-4.14.y
 X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.9.229-rc1
-X-KernelTest-Deadline: 2020-07-01T15:39+00:00
+X-KernelTest-Version: 4.14.186-rc1
+X-KernelTest-Deadline: 2020-07-01T15:38+00:00
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -49,79 +50,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raghavendra Rao Ananta <rananta@codeaurora.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit e2bd1dcbe1aa34ff5570b3427c530e4332ecf0fe ]
+[ Upstream commit 220345e98f1cdc768eeb6e3364a0fa7ab9647fe7 ]
 
-Potentially, hvc_open() can be called in parallel when two tasks calls
-open() on /dev/hvcX. In such a scenario, if the hp->ops->notifier_add()
-callback in the function fails, where it sets the tty->driver_data to
-NULL, the parallel hvc_open() can see this NULL and cause a memory abort.
-Hence, serialize hvc_open and check if tty->private_data is NULL before
-proceeding ahead.
+The USB-audio mixer code holds a linked list of usb_mixer_elem_list,
+and several operations are performed for each mixer element.  A few of
+them (snd_usb_mixer_notify_id() and snd_usb_mixer_interrupt_v2())
+assume each mixer element being a usb_mixer_elem_info object that is a
+subclass of usb_mixer_elem_list, cast via container_of() and access it
+members.  This may result in an out-of-bound access when a
+non-standard list element has been added, as spotted by syzkaller
+recently.
 
-The issue can be easily reproduced by launching two tasks simultaneously
-that does nothing but open() and close() on /dev/hvcX.
-For example:
-$ ./simple_open_close /dev/hvc0 & ./simple_open_close /dev/hvc0 &
+This patch adds a new field, is_std_info, in usb_mixer_elem_list to
+indicate that the element is the usb_mixer_elem_info type or not, and
+skip the access to such an element if needed.
 
-Signed-off-by: Raghavendra Rao Ananta <rananta@codeaurora.org>
-Link: https://lore.kernel.org/r/20200428032601.22127-1-rananta@codeaurora.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: syzbot+fb14314433463ad51625@syzkaller.appspotmail.com
+Reported-by: syzbot+2405ca3401e943c538b5@syzkaller.appspotmail.com
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200624122340.9615-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/hvc/hvc_console.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ sound/usb/mixer.c        | 15 +++++++++++----
+ sound/usb/mixer.h        |  9 +++++++--
+ sound/usb/mixer_quirks.c |  3 ++-
+ 3 files changed, 20 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/tty/hvc/hvc_console.c b/drivers/tty/hvc/hvc_console.c
-index 985f49a659068..35d591287734d 100644
---- a/drivers/tty/hvc/hvc_console.c
-+++ b/drivers/tty/hvc/hvc_console.c
-@@ -89,6 +89,8 @@ static LIST_HEAD(hvc_structs);
+diff --git a/sound/usb/mixer.c b/sound/usb/mixer.c
+index 1a8d706491e65..b29a3546ab6af 100644
+--- a/sound/usb/mixer.c
++++ b/sound/usb/mixer.c
+@@ -591,8 +591,9 @@ static int check_matrix_bitmap(unsigned char *bmap,
+  * if failed, give up and free the control instance.
   */
- static DEFINE_SPINLOCK(hvc_structs_lock);
  
-+/* Mutex to serialize hvc_open */
-+static DEFINE_MUTEX(hvc_open_mutex);
- /*
-  * This value is used to assign a tty->index value to a hvc_struct based
-  * upon order of exposure via hvc_probe(), when we can not match it to
-@@ -333,16 +335,24 @@ static int hvc_install(struct tty_driver *driver, struct tty_struct *tty)
-  */
- static int hvc_open(struct tty_struct *tty, struct file * filp)
+-int snd_usb_mixer_add_control(struct usb_mixer_elem_list *list,
+-			      struct snd_kcontrol *kctl)
++int snd_usb_mixer_add_list(struct usb_mixer_elem_list *list,
++			   struct snd_kcontrol *kctl,
++			   bool is_std_info)
  {
--	struct hvc_struct *hp = tty->driver_data;
-+	struct hvc_struct *hp;
- 	unsigned long flags;
- 	int rc = 0;
+ 	struct usb_mixer_interface *mixer = list->mixer;
+ 	int err;
+@@ -605,6 +606,7 @@ int snd_usb_mixer_add_control(struct usb_mixer_elem_list *list,
+ 		return err;
+ 	}
+ 	list->kctl = kctl;
++	list->is_std_info = is_std_info;
+ 	list->next_id_elem = mixer->id_elems[list->id];
+ 	mixer->id_elems[list->id] = list;
+ 	return 0;
+@@ -2404,8 +2406,11 @@ void snd_usb_mixer_notify_id(struct usb_mixer_interface *mixer, int unitid)
+ 	struct usb_mixer_elem_list *list;
  
-+	mutex_lock(&hvc_open_mutex);
+ 	for_each_mixer_elem(list, mixer, unitid) {
+-		struct usb_mixer_elem_info *info =
+-			mixer_elem_list_to_info(list);
++		struct usb_mixer_elem_info *info;
 +
-+	hp = tty->driver_data;
-+	if (!hp) {
-+		rc = -EIO;
-+		goto out;
-+	}
++		if (!list->is_std_info)
++			continue;
++		info = mixer_elem_list_to_info(list);
+ 		/* invalidate cache, so the value is read from the device */
+ 		info->cached = 0;
+ 		snd_ctl_notify(mixer->chip->card, SNDRV_CTL_EVENT_MASK_VALUE,
+@@ -2483,6 +2488,8 @@ static void snd_usb_mixer_interrupt_v2(struct usb_mixer_interface *mixer,
+ 
+ 		if (!list->kctl)
+ 			continue;
++		if (!list->is_std_info)
++			continue;
+ 
+ 		info = mixer_elem_list_to_info(list);
+ 		if (count > 1 && info->control != control)
+diff --git a/sound/usb/mixer.h b/sound/usb/mixer.h
+index e02653465e292..7c824a44589b0 100644
+--- a/sound/usb/mixer.h
++++ b/sound/usb/mixer.h
+@@ -49,6 +49,7 @@ struct usb_mixer_elem_list {
+ 	struct usb_mixer_elem_list *next_id_elem; /* list of controls with same id */
+ 	struct snd_kcontrol *kctl;
+ 	unsigned int id;
++	bool is_std_info;
+ 	usb_mixer_elem_dump_func_t dump;
+ 	usb_mixer_elem_resume_func_t resume;
+ };
+@@ -86,8 +87,12 @@ void snd_usb_mixer_notify_id(struct usb_mixer_interface *mixer, int unitid);
+ int snd_usb_mixer_set_ctl_value(struct usb_mixer_elem_info *cval,
+ 				int request, int validx, int value_set);
+ 
+-int snd_usb_mixer_add_control(struct usb_mixer_elem_list *list,
+-			      struct snd_kcontrol *kctl);
++int snd_usb_mixer_add_list(struct usb_mixer_elem_list *list,
++			   struct snd_kcontrol *kctl,
++			   bool is_std_info);
 +
- 	spin_lock_irqsave(&hp->port.lock, flags);
- 	/* Check and then increment for fast path open. */
- 	if (hp->port.count++ > 0) {
- 		spin_unlock_irqrestore(&hp->port.lock, flags);
- 		hvc_kick();
--		return 0;
-+		goto out;
- 	} /* else count == 0 */
- 	spin_unlock_irqrestore(&hp->port.lock, flags);
++#define snd_usb_mixer_add_control(list, kctl) \
++	snd_usb_mixer_add_list(list, kctl, true)
  
-@@ -370,6 +380,8 @@ static int hvc_open(struct tty_struct *tty, struct file * filp)
- 	/* Force wakeup of the polling thread */
- 	hvc_kick();
- 
-+out:
-+	mutex_unlock(&hvc_open_mutex);
- 	return rc;
+ void snd_usb_mixer_elem_init_std(struct usb_mixer_elem_list *list,
+ 				 struct usb_mixer_interface *mixer,
+diff --git a/sound/usb/mixer_quirks.c b/sound/usb/mixer_quirks.c
+index ead0456a747c2..5604cce30a582 100644
+--- a/sound/usb/mixer_quirks.c
++++ b/sound/usb/mixer_quirks.c
+@@ -169,7 +169,8 @@ static int add_single_ctl_with_resume(struct usb_mixer_interface *mixer,
+ 		return -ENOMEM;
+ 	}
+ 	kctl->private_free = snd_usb_mixer_elem_free;
+-	return snd_usb_mixer_add_control(list, kctl);
++	/* don't use snd_usb_mixer_add_control() here, this is a special list element */
++	return snd_usb_mixer_add_list(list, kctl, false);
  }
  
+ /*
 -- 
 2.25.1
 
