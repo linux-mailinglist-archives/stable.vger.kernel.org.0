@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11F2A20DACE
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:14:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8587220D968
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:11:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387457AbgF2UAo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:00:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47652 "EHLO mail.kernel.org"
+        id S2387988AbgF2TrV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:47:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387548AbgF2TkQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:16 -0400
+        id S2387791AbgF2Tkj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 924B5248D4;
-        Mon, 29 Jun 2020 15:27:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8AD71248D5;
+        Mon, 29 Jun 2020 15:27:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444429;
-        bh=3/sCQmNiRo2QgM8gU+c241Fiwn/a2hTSPYHc67QFY3A=;
+        s=default; t=1593444430;
+        bh=Brifg5H2GM2UzNR684NMp71BfyWKASxXhfyy9IO3azY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hoNh28KngH0i0RoPZgcZmedUXMhh/6DWYkI3pFrLram648GEgyIOvVHR1KxOUk2RP
-         fTPQdb4GueUlfUxXkngVtPpFezhLOMYRuoLI7lEt2B5/b4ZJtV+RkW1L2CQaVAosDm
-         J6093A2fUfoJUcjEY2mxnFKkyuS1kEJYvXUhZlug=
+        b=Jh5soXBGnjw5RJTd/hDaoZVOvvsgm20yf6HSJqfnqXH2MJxLjAY3h81QUGUuQuScH
+         8F1wZBUbXMgj2Xn8l9RENkOJAc/LfTxMxIrRPl6Mu60q3xJBvIuRhKkSb1ORbqGoAW
+         ac2lHaOeYWQQiytU2NyU+zM3lmAl2MFyp9rBPhAI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sagi Grimberg <sagi@grimberg.me>,
-        Anton Eidelman <anton@lightbitslabs.com>,
+Cc:     Anton Eidelman <anton@lightbitslabs.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
         Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 107/178] nvme: don't protect ns mutation with ns->head->lock
-Date:   Mon, 29 Jun 2020 11:24:12 -0400
-Message-Id: <20200629152523.2494198-108-sashal@kernel.org>
+Subject: [PATCH 5.4 108/178] nvme-multipath: fix deadlock due to head->lock
+Date:   Mon, 29 Jun 2020 11:24:13 -0400
+Message-Id: <20200629152523.2494198-109-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -49,24 +49,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: Anton Eidelman <anton@lightbitslabs.com>
 
-[ Upstream commit e164471dcf19308d154adb69e7760d8ba426a77f ]
+[ Upstream commit d8a22f85609fadb46ba699e0136cc3ebdeebff79 ]
 
-Right now ns->head->lock is protecting namespace mutation
-which is wrong and unneeded. Move it to only protect
-against head mutations. While we're at it, remove unnecessary
-ns->head reference as we already have head pointer.
+In the following scenario scan_work and ana_work will deadlock:
 
-The problem with this is that the head->lock spans
-mpath disk node I/O that may block under some conditions (if
-for example the controller is disconnecting or the path
-became inaccessible), The locking scheme does not allow any
-other path to enable itself, preventing blocked I/O to complete
-and forward-progress from there.
+When scan_work calls nvme_mpath_add_disk() this holds ana_lock
+and invokes nvme_parse_ana_log(), which may issue IO
+in device_add_disk() and hang waiting for an accessible path.
 
-This is a preparation patch for the fix in a subsequent patch
-where the disk I/O will also be done outside the head->lock.
+While nvme_mpath_set_live() only called when nvme_state_is_live(),
+a transition may cause NVME_SC_ANA_TRANSITION and requeue the IO.
+
+Since nvme_mpath_set_live() holds ns->head->lock, an ana_work on
+ANY ctrl will not be able to complete nvme_mpath_set_live()
+on the same ns->head, which is required in order to update
+the new accessible path and remove NVME_NS_ANA_PENDING..
+Therefore IO never completes: deadlock [1].
+
+Fix:
+Move device_add_disk out of the head->lock and protect it with an
+atomic test_and_set for a new NVME_NS_HEAD_HAS_DISK bit.
+
+[1]:
+kernel: INFO: task kworker/u8:2:160 blocked for more than 120 seconds.
+kernel:       Tainted: G           OE     5.3.5-050305-generic #201910071830
+kernel: "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+kernel: kworker/u8:2    D    0   160      2 0x80004000
+kernel: Workqueue: nvme-wq nvme_ana_work [nvme_core]
+kernel: Call Trace:
+kernel:  __schedule+0x2b9/0x6c0
+kernel:  schedule+0x42/0xb0
+kernel:  schedule_preempt_disabled+0xe/0x10
+kernel:  __mutex_lock.isra.0+0x182/0x4f0
+kernel:  __mutex_lock_slowpath+0x13/0x20
+kernel:  mutex_lock+0x2e/0x40
+kernel:  nvme_update_ns_ana_state+0x22/0x60 [nvme_core]
+kernel:  nvme_update_ana_state+0xca/0xe0 [nvme_core]
+kernel:  nvme_parse_ana_log+0xa1/0x180 [nvme_core]
+kernel:  nvme_read_ana_log+0x76/0x100 [nvme_core]
+kernel:  nvme_ana_work+0x15/0x20 [nvme_core]
+kernel:  process_one_work+0x1db/0x380
+kernel:  worker_thread+0x4d/0x400
+kernel:  kthread+0x104/0x140
+kernel:  ret_from_fork+0x35/0x40
+kernel: INFO: task kworker/u8:4:439 blocked for more than 120 seconds.
+kernel:       Tainted: G           OE     5.3.5-050305-generic #201910071830
+kernel: "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+kernel: kworker/u8:4    D    0   439      2 0x80004000
+kernel: Workqueue: nvme-wq nvme_scan_work [nvme_core]
+kernel: Call Trace:
+kernel:  __schedule+0x2b9/0x6c0
+kernel:  schedule+0x42/0xb0
+kernel:  io_schedule+0x16/0x40
+kernel:  do_read_cache_page+0x438/0x830
+kernel:  read_cache_page+0x12/0x20
+kernel:  read_dev_sector+0x27/0xc0
+kernel:  read_lba+0xc1/0x220
+kernel:  efi_partition+0x1e6/0x708
+kernel:  check_partition+0x154/0x244
+kernel:  rescan_partitions+0xae/0x280
+kernel:  __blkdev_get+0x40f/0x560
+kernel:  blkdev_get+0x3d/0x140
+kernel:  __device_add_disk+0x388/0x480
+kernel:  device_add_disk+0x13/0x20
+kernel:  nvme_mpath_set_live+0x119/0x140 [nvme_core]
+kernel:  nvme_update_ns_ana_state+0x5c/0x60 [nvme_core]
+kernel:  nvme_mpath_add_disk+0xbe/0x100 [nvme_core]
+kernel:  nvme_validate_ns+0x396/0x940 [nvme_core]
+kernel:  nvme_scan_work+0x256/0x390 [nvme_core]
+kernel:  process_one_work+0x1db/0x380
+kernel:  worker_thread+0x4d/0x400
+kernel:  kthread+0x104/0x140
+kernel:  ret_from_fork+0x35/0x40
 
 Fixes: 0d0b660f214d ("nvme: add ANA support")
 Signed-off-by: Anton Eidelman <anton@lightbitslabs.com>
@@ -74,65 +130,41 @@ Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/multipath.c | 12 ++++--------
- 1 file changed, 4 insertions(+), 8 deletions(-)
+ drivers/nvme/host/multipath.c | 4 ++--
+ drivers/nvme/host/nvme.h      | 2 ++
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
-index 0f08c15553a64..18f0a05c74b56 100644
+index 18f0a05c74b56..574b52e911f08 100644
 --- a/drivers/nvme/host/multipath.c
 +++ b/drivers/nvme/host/multipath.c
-@@ -414,11 +414,10 @@ static void nvme_mpath_set_live(struct nvme_ns *ns)
- {
- 	struct nvme_ns_head *head = ns->head;
- 
--	lockdep_assert_held(&ns->head->lock);
--
+@@ -417,11 +417,11 @@ static void nvme_mpath_set_live(struct nvme_ns *ns)
  	if (!head->disk)
  		return;
  
-+	mutex_lock(&head->lock);
- 	if (!(head->disk->flags & GENHD_FL_UP))
+-	mutex_lock(&head->lock);
+-	if (!(head->disk->flags & GENHD_FL_UP))
++	if (!test_and_set_bit(NVME_NSHEAD_DISK_LIVE, &head->flags))
  		device_add_disk(&head->subsys->dev, head->disk,
  				nvme_ns_id_attr_groups);
-@@ -431,9 +430,10 @@ static void nvme_mpath_set_live(struct nvme_ns *ns)
- 			__nvme_find_path(head, node);
- 		srcu_read_unlock(&head->srcu, srcu_idx);
- 	}
-+	mutex_unlock(&head->lock);
  
--	synchronize_srcu(&ns->head->srcu);
--	kblockd_schedule_work(&ns->head->requeue_work);
-+	synchronize_srcu(&head->srcu);
-+	kblockd_schedule_work(&head->requeue_work);
- }
++	mutex_lock(&head->lock);
+ 	if (nvme_path_is_optimized(ns)) {
+ 		int node, srcu_idx;
  
- static int nvme_parse_ana_log(struct nvme_ctrl *ctrl, void *data,
-@@ -484,14 +484,12 @@ static inline bool nvme_state_is_live(enum nvme_ana_state state)
- static void nvme_update_ns_ana_state(struct nvme_ana_group_desc *desc,
- 		struct nvme_ns *ns)
- {
--	mutex_lock(&ns->head->lock);
- 	ns->ana_grpid = le32_to_cpu(desc->grpid);
- 	ns->ana_state = desc->state;
- 	clear_bit(NVME_NS_ANA_PENDING, &ns->flags);
- 
- 	if (nvme_state_is_live(ns->ana_state))
- 		nvme_mpath_set_live(ns);
--	mutex_unlock(&ns->head->lock);
- }
- 
- static int nvme_update_ana_state(struct nvme_ctrl *ctrl,
-@@ -670,10 +668,8 @@ void nvme_mpath_add_disk(struct nvme_ns *ns, struct nvme_id_ns *id)
- 			nvme_update_ns_ana_state(&desc, ns);
- 		}
- 	} else {
--		mutex_lock(&ns->head->lock);
- 		ns->ana_state = NVME_ANA_OPTIMIZED; 
- 		nvme_mpath_set_live(ns);
--		mutex_unlock(&ns->head->lock);
- 	}
- 
- 	if (bdi_cap_stable_pages_required(ns->queue->backing_dev_info)) {
+diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
+index 22e8401352c22..ed02260862cb5 100644
+--- a/drivers/nvme/host/nvme.h
++++ b/drivers/nvme/host/nvme.h
+@@ -345,6 +345,8 @@ struct nvme_ns_head {
+ 	spinlock_t		requeue_lock;
+ 	struct work_struct	requeue_work;
+ 	struct mutex		lock;
++	unsigned long		flags;
++#define NVME_NSHEAD_DISK_LIVE	0
+ 	struct nvme_ns __rcu	*current_path[];
+ #endif
+ };
 -- 
 2.25.1
 
