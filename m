@@ -2,46 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2296B20D30E
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 21:11:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAE3220D32C
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 21:12:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729978AbgF2SzR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 14:55:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42432 "EHLO mail.kernel.org"
+        id S1727115AbgF2S42 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 14:56:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729943AbgF2SzQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:55:16 -0400
+        id S1729968AbgF2SzR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:55:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CABCC2556D;
-        Mon, 29 Jun 2020 15:55:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E5B172556E;
+        Mon, 29 Jun 2020 15:55:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593446132;
-        bh=NzJiSt9g1A0IkY1gDVeVFO1A+AGElzRZS2z5eg2GhWk=;
+        s=default; t=1593446134;
+        bh=i8Z4pq02HlIQq7mnk4M7zGdB1Rt3YMJGxBQpYLuK0QE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bJinHi6L2hle1kHSTGQADdjxYiHX9z9DjaHCQ1Ljttb0U1vrEWpQeDShfdjrOLQNN
-         012Y8oZU0lTl6CNC6Miq7ujGNxxKxG/knWiMTUeZhP8eJ5LDPYxnmqMcJI1Iqvc5Fk
-         Q+WoaNVUgkeisnHNvaocP4RDshpNcUeg5KbP+/s0=
+        b=aqmZf+btYSquC38j1yZqKsevSu75B5cQvLuULek+Ya3Fq1PYXtZ1GlAhqUNVeOFAD
+         lYcgRqPaRBnrI2zpfeDvTsK7kLAI+VwwrECbuUEwFLUc6OfTkydarib6n+54oaPgRn
+         Uom7kaognmwlrJ63EV5ZZm4MpCoLahbpjq7Kf+DU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Waiman Long <longman@redhat.com>, Michal Hocko <mhocko@suse.com>,
-        David Howells <dhowells@redhat.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Joe Perches <joe@perches.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        David Rientjes <rientjes@google.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        "Jason A . Donenfeld" <Jason@zx2c4.com>,
+Cc:     Junxiao Bi <junxiao.bi@oracle.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Jun Piao <piaojun@huawei.com>, Mark Fasheh <mark@fasheh.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.4 122/135] mm/slab: use memzero_explicit() in kzfree()
-Date:   Mon, 29 Jun 2020 11:52:56 -0400
-Message-Id: <20200629155309.2495516-123-sashal@kernel.org>
+Subject: [PATCH 4.4 123/135] ocfs2: load global_inode_alloc
+Date:   Mon, 29 Jun 2020 11:52:57 -0400
+Message-Id: <20200629155309.2495516-124-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
 References: <20200629155309.2495516-1-sashal@kernel.org>
@@ -60,56 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Junxiao Bi <junxiao.bi@oracle.com>
 
-commit 8982ae527fbef170ef298650c15d55a9ccd33973 upstream.
+commit 7569d3c754e452769a5747eeeba488179e38a5da upstream.
 
-The kzfree() function is normally used to clear some sensitive
-information, like encryption keys, in the buffer before freeing it back to
-the pool.  Memset() is currently used for buffer clearing.  However
-unlikely, there is still a non-zero probability that the compiler may
-choose to optimize away the memory clearing especially if LTO is being
-used in the future.
+Set global_inode_alloc as OCFS2_FIRST_ONLINE_SYSTEM_INODE, that will
+make it load during mount.  It can be used to test whether some
+global/system inodes are valid.  One use case is that nfsd will test
+whether root inode is valid.
 
-To make sure that this optimization will never happen,
-memzero_explicit(), which is introduced in v3.18, is now used in
-kzfree() to future-proof it.
-
-Link: http://lkml.kernel.org/r/20200616154311.12314-2-longman@redhat.com
-Fixes: 3ef0e5ba4673 ("slab: introduce kzfree()")
-Signed-off-by: Waiman Long <longman@redhat.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: David Howells <dhowells@redhat.com>
-Cc: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Cc: James Morris <jmorris@namei.org>
-Cc: "Serge E. Hallyn" <serge@hallyn.com>
-Cc: Joe Perches <joe@perches.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: "Jason A . Donenfeld" <Jason@zx2c4.com>
+Link: http://lkml.kernel.org/r/20200616183829.87211-3-junxiao.bi@oracle.com
+Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: Mark Fasheh <mark@fasheh.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/slab_common.c | 2 +-
+ fs/ocfs2/ocfs2_fs.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/mm/slab_common.c b/mm/slab_common.c
-index 01e7246de8dfa..5d8c809a3ff71 100644
---- a/mm/slab_common.c
-+++ b/mm/slab_common.c
-@@ -1269,7 +1269,7 @@ void kzfree(const void *p)
- 	if (unlikely(ZERO_OR_NULL_PTR(mem)))
- 		return;
- 	ks = ksize(mem);
--	memset(mem, 0, ks);
-+	memzero_explicit(mem, ks);
- 	kfree(mem);
- }
- EXPORT_SYMBOL(kzfree);
+diff --git a/fs/ocfs2/ocfs2_fs.h b/fs/ocfs2/ocfs2_fs.h
+index 540ab5b75dbb0..88c1bd3898faf 100644
+--- a/fs/ocfs2/ocfs2_fs.h
++++ b/fs/ocfs2/ocfs2_fs.h
+@@ -340,8 +340,8 @@ struct ocfs2_system_inode_info {
+ enum {
+ 	BAD_BLOCK_SYSTEM_INODE = 0,
+ 	GLOBAL_INODE_ALLOC_SYSTEM_INODE,
++#define OCFS2_FIRST_ONLINE_SYSTEM_INODE GLOBAL_INODE_ALLOC_SYSTEM_INODE
+ 	SLOT_MAP_SYSTEM_INODE,
+-#define OCFS2_FIRST_ONLINE_SYSTEM_INODE SLOT_MAP_SYSTEM_INODE
+ 	HEARTBEAT_SYSTEM_INODE,
+ 	GLOBAL_BITMAP_SYSTEM_INODE,
+ 	USER_QUOTA_SYSTEM_INODE,
 -- 
 2.25.1
 
