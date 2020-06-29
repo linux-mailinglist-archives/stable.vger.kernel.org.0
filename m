@@ -2,86 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03D6120DD85
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:51:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9F3920DDAF
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:51:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729889AbgF2TJu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:09:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45424 "EHLO mail.kernel.org"
+        id S1729219AbgF2USO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:18:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730338AbgF2TAT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:00:19 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1732627AbgF2TZl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:25:41 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3473B254D5;
-        Mon, 29 Jun 2020 15:53:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A05DE2558A;
+        Mon, 29 Jun 2020 16:15:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593446032;
-        bh=ws8BzZB8g1upQCbMjiyvcwajLytfvmMGBkpxrNv9/60=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P7+QitxAJWFx5Ih/R8liF5gFcn1uv+Z80ptVe5w5OVVW3frFheuQZAI7/gi5MT4Fm
-         oQOWN/5MotvZDFCn8RGYb5mjQAZhrJGkIvIJ7sFslpWmewst8n3heri8R9IlLLyYDe
-         Ak46Fbzh6ToZn7oxqX1u6SZicYVKCTS+MiBomEqU=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tang Bin <tangbin@cmss.chinamobile.com>,
-        Zhang Shengju <zhangshengju@cmss.chinamobile.com>,
-        Peter Chen <peter.chen@nxp.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 037/135] USB: host: ehci-mxc: Add error handling in ehci_mxc_drv_probe()
-Date:   Mon, 29 Jun 2020 11:51:31 -0400
-Message-Id: <20200629155309.2495516-38-sashal@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
-References: <20200629155309.2495516-1-sashal@kernel.org>
+        s=default; t=1593447352;
+        bh=klIL3IOn+Sds26IUTL2F8EnYRJUx3am2hJ0RrpMsz0g=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=f9oWsTBo0LTbV90r28cXpkf0rG6Cx+kBwQhW0WyK5V7LJACKMYaXrNxLEsrfrbqfN
+         rttFp9EJzONsmvLLNJPGF4asPeiYLbxGyVKv3fe0PPtvUJH+5AuMaTzimvfWrLwNTa
+         tlcJPsSbq9Ck5M+B1LWGLoCgQEUCKcFTg/VPSd+c=
+Date:   Mon, 29 Jun 2020 18:15:42 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     SeongJae Park <sjpark@amazon.com>
+Cc:     sashal@kernel.org, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: Upstream fixes not merged in 5.4.y
+Message-ID: <20200629161542.GA683634@kroah.com>
+References: <20200629142805.28013-1-sjpark@amazon.com>
 MIME-Version: 1.0
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.229-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.4.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.4.229-rc1
-X-KernelTest-Deadline: 2020-07-01T15:53+00:00
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200629142805.28013-1-sjpark@amazon.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tang Bin <tangbin@cmss.chinamobile.com>
+On Mon, Jun 29, 2020 at 04:28:05PM +0200, SeongJae Park wrote:
+> Hello,
+> 
+> 
+> With my little script, I found below commits in the mainline tree are more than
+> 1 week old and fixing commits that back-ported in v5.4..v5.4.49, but not merged
+> in the stable/linux-5.4.y tree.  Are those need to be merged in but missed or
+> dealyed?
+> 
+> 9210c075cef2 ("nvme-pci: avoid race between nvme_reap_pending_cqes() and nvme_poll()")
+> 9fecd13202f5 ("btrfs: fix a block group ref counter leak after failure to remove block group")
+> 9d964e1b82d8 ("fix a braino in "sparc32: fix register window handling in genregs32_[gs]et()"")
+> 8ab3a3812aa9 ("drm/i915/gt: Incrementally check for rewinding")
+> 6e2f83884c09 ("bnxt_en: Fix AER reset logic on 57500 chips.")
+> efb94790852a ("drm/panel-simple: fix connector type for LogicPD Type28 Display")
+> ff58bbc7b970 ("ALSA: usb-audio: Fix potential use-after-free of streams")
+> ff58bbc7b970 ("ALSA: usb-audio: Fix potential use-after-free of streams")
+> 8dbe4c5d5e40 ("net: dsa: bcm_sf2: Fix node reference count")
+> ca8826095e4d ("selftests/net: report etf errors correctly")
+> 5a8d7f126c97 ("of: of_mdio: Correct loop scanning logic")
+> d35d3660e065 ("binder: fix null deref of proc->context")
+> 
+> The script found several more commits but I exclude those here, because those
+> seems not applicable on 5.4.y or fixing trivial problems only.  If I'm not
+> following a proper process for this kind of reports, please let me know.
 
-[ Upstream commit d49292025f79693d3348f8e2029a8b4703be0f0a ]
+For commits that only have a "Fixes:" tag, and not a "cc: stable..."
+tag, wait a few weeks, or a month, for us to catch up with them.  We
+usually get to them eventually, but it takes us a while as we have lots
+more to deal with by developers and maintainers that are properly
+tagging patches for this type of thing.
 
-The function ehci_mxc_drv_probe() does not perform sufficient error
-checking after executing platform_get_irq(), thus fix it.
+Some of the above commits are queued up already, but not all of them.
+I'll take a look at the list after this next round of patches go out,
+and will let you know.
 
-Fixes: 7e8d5cd93fac ("USB: Add EHCI support for MX27 and MX31 based boards")
-Signed-off-by: Zhang Shengju <zhangshengju@cmss.chinamobile.com>
-Signed-off-by: Tang Bin <tangbin@cmss.chinamobile.com>
-Reviewed-by: Peter Chen <peter.chen@nxp.com>
-Link: https://lore.kernel.org/r/20200513132647.5456-1-tangbin@cmss.chinamobile.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/usb/host/ehci-mxc.c | 2 ++
- 1 file changed, 2 insertions(+)
+And yes, we do want this type of list, it's greatly appreciated.
 
-diff --git a/drivers/usb/host/ehci-mxc.c b/drivers/usb/host/ehci-mxc.c
-index c7a9b31eeaeff..637079a350032 100644
---- a/drivers/usb/host/ehci-mxc.c
-+++ b/drivers/usb/host/ehci-mxc.c
-@@ -63,6 +63,8 @@ static int ehci_mxc_drv_probe(struct platform_device *pdev)
- 	}
- 
- 	irq = platform_get_irq(pdev, 0);
-+	if (irq < 0)
-+		return irq;
- 
- 	hcd = usb_create_hcd(&ehci_mxc_hc_driver, dev, dev_name(dev));
- 	if (!hcd)
--- 
-2.25.1
+thanks,
 
+greg k-h
