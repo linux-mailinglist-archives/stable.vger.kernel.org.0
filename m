@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B48E120E2C9
+	by mail.lfdr.de (Postfix) with ESMTP id 1ECF120E2C8
 	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:01:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390212AbgF2VIj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:08:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45470 "EHLO mail.kernel.org"
+        id S2387467AbgF2VIi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:08:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730334AbgF2TAT (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730331AbgF2TAT (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 29 Jun 2020 15:00:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 083F12551E;
-        Mon, 29 Jun 2020 15:54:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 076CD25521;
+        Mon, 29 Jun 2020 15:54:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593446081;
-        bh=WtHvaAkbfjrMfJ5jfP+E55n4gaI0gk2nzaQF1Y7dwEc=;
+        s=default; t=1593446083;
+        bh=+DMUUgr9D6uvdJVqahzq9YkaVV0oxf2qaoM9WEMrPfs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=odGTnDB9cII5l51UCUHyLyoB7akwQMJy7TAMQ/S5OxiBzYhPvminQafVwONScEjgM
-         nxg275a0jiHIxw6O5cLEtcwqAV18YGGPGhHuBtHoAZwnxRiiV+PW2m/U2iMAezK6pB
-         0uU8DVCXUC3QXOzKQ5u/Hum/+8DauGniPL6OXA3w=
+        b=bPw0i8dcvYXQ39UyPpLAT0zJoJ2IMvHOB+t02BlEJeUX+PBGVkIqSuxAm5W1rWYcQ
+         iXBCFyffabhYHpRFSJIDb2L38qMvXGXs4QgUa4gh9fW3kX10SVkZgehoXf29xS9I8f
+         NumlDGrzxhwaG4D5N2YO0CNDU4STMEPd4ipL3D7s=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+Cc:     Martin Wilck <mwilck@suse.com>,
+        Bart Van Assche <bart.vanassche@wdc.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.4 077/135] net: Revert "pkt_sched: fq: use proper locking in fq_dump_stats()"
-Date:   Mon, 29 Jun 2020 11:52:11 -0400
-Message-Id: <20200629155309.2495516-78-sashal@kernel.org>
+Subject: [PATCH 4.4 078/135] scsi: scsi_devinfo: handle non-terminated strings
+Date:   Mon, 29 Jun 2020 11:52:12 -0400
+Message-Id: <20200629155309.2495516-79-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
 References: <20200629155309.2495516-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.229-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-4.4.y
@@ -49,65 +51,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Toke Høiland-Jørgensen <toke@redhat.com>
+From: Martin Wilck <mwilck@suse.com>
 
-This reverts commit 191cf872190de28a92e1bd2b56d8860e37e07443 which is
-commit 695b4ec0f0a9cf29deabd3ac075911d58b31f42b upstream.
+commit ba69ead9e9e9bb3cec5faf03526c36764ac8942a upstream.
 
-That commit should never have been backported since it relies on a change in
-locking semantics that was introduced in v4.8 and not backported. Because of
-this, the backported commit to sch_fq leads to lockups because of the double
-locking.
+devinfo->vendor and devinfo->model aren't necessarily
+zero-terminated.
 
-Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Fixes: b8018b973c7c "scsi_devinfo: fixup string compare"
+Signed-off-by: Martin Wilck <mwilck@suse.com>
+Reviewed-by: Bart Van Assche <bart.vanassche@wdc.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Cc: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_fq.c | 32 ++++++++++++++------------------
- 1 file changed, 14 insertions(+), 18 deletions(-)
+ drivers/scsi/scsi_devinfo.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/sched/sch_fq.c b/net/sched/sch_fq.c
-index f4aa2ab4713a2..eb814ffc09023 100644
---- a/net/sched/sch_fq.c
-+++ b/net/sched/sch_fq.c
-@@ -830,24 +830,20 @@ static int fq_dump(struct Qdisc *sch, struct sk_buff *skb)
- static int fq_dump_stats(struct Qdisc *sch, struct gnet_dump *d)
- {
- 	struct fq_sched_data *q = qdisc_priv(sch);
--	struct tc_fq_qd_stats st;
--
--	sch_tree_lock(sch);
--
--	st.gc_flows		  = q->stat_gc_flows;
--	st.highprio_packets	  = q->stat_internal_packets;
--	st.tcp_retrans		  = q->stat_tcp_retrans;
--	st.throttled		  = q->stat_throttled;
--	st.flows_plimit		  = q->stat_flows_plimit;
--	st.pkts_too_long	  = q->stat_pkts_too_long;
--	st.allocation_errors	  = q->stat_allocation_errors;
--	st.time_next_delayed_flow = q->time_next_delayed_flow - ktime_get_ns();
--	st.flows		  = q->flows;
--	st.inactive_flows	  = q->inactive_flows;
--	st.throttled_flows	  = q->throttled_flows;
--	st.pad			  = 0;
--
--	sch_tree_unlock(sch);
-+	u64 now = ktime_get_ns();
-+	struct tc_fq_qd_stats st = {
-+		.gc_flows		= q->stat_gc_flows,
-+		.highprio_packets	= q->stat_internal_packets,
-+		.tcp_retrans		= q->stat_tcp_retrans,
-+		.throttled		= q->stat_throttled,
-+		.flows_plimit		= q->stat_flows_plimit,
-+		.pkts_too_long		= q->stat_pkts_too_long,
-+		.allocation_errors	= q->stat_allocation_errors,
-+		.flows			= q->flows,
-+		.inactive_flows		= q->inactive_flows,
-+		.throttled_flows	= q->throttled_flows,
-+		.time_next_delayed_flow	= q->time_next_delayed_flow - now,
-+	};
+diff --git a/drivers/scsi/scsi_devinfo.c b/drivers/scsi/scsi_devinfo.c
+index 4055cb7c212b9..3a9b6b61607e6 100644
+--- a/drivers/scsi/scsi_devinfo.c
++++ b/drivers/scsi/scsi_devinfo.c
+@@ -443,7 +443,8 @@ static struct scsi_dev_info_list *scsi_dev_info_list_find(const char *vendor,
+ 			/*
+ 			 * vendor strings must be an exact match
+ 			 */
+-			if (vmax != strlen(devinfo->vendor) ||
++			if (vmax != strnlen(devinfo->vendor,
++					    sizeof(devinfo->vendor)) ||
+ 			    memcmp(devinfo->vendor, vskip, vmax))
+ 				continue;
  
- 	return gnet_stats_copy_app(d, &st, sizeof(st));
- }
+@@ -451,7 +452,7 @@ static struct scsi_dev_info_list *scsi_dev_info_list_find(const char *vendor,
+ 			 * @model specifies the full string, and
+ 			 * must be larger or equal to devinfo->model
+ 			 */
+-			mlen = strlen(devinfo->model);
++			mlen = strnlen(devinfo->model, sizeof(devinfo->model));
+ 			if (mmax < mlen || memcmp(devinfo->model, mskip, mlen))
+ 				continue;
+ 			return devinfo;
 -- 
 2.25.1
 
