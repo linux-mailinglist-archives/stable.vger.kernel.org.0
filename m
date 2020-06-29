@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7041C20DF31
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:54:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3F8320DE69
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:52:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389167AbgF2UdI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:33:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37044 "EHLO mail.kernel.org"
+        id S1732641AbgF2UZ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:25:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732396AbgF2TZR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:25:17 -0400
+        id S1732538AbgF2TZ1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:25:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 97230253FF;
-        Mon, 29 Jun 2020 15:42:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D66C253FE;
+        Mon, 29 Jun 2020 15:42:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445348;
-        bh=Mej9ssHFMj3X60ejOpk7m0olOfhDlfijdDv4Gmjkx4k=;
+        s=default; t=1593445349;
+        bh=6NCLh468s3MnlmKfmD9EEgmVzGE5yq/Xs2FkF+dWh/0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GrANEctbxL1F8r8e7XcHQzv+x+7wyEy6sAUzRDitduZ+wclvmpKs6n4DJ/rOEbR+W
-         cilG/pczqaidrR9bzzmWoaoGnj80Ne9m5LRHntU7FsgtCadNst62VNhGgcA5Hbvn4X
-         36FQdI7nRCztoBgr9y3Lc9DRIrlPCycA/y1jJ2Lc=
+        b=osOpiINohpJwWVf4fUVmWqSRWQYRDKTk3DE18ZbLXm3X2MvEmAd8Vd17h0Ibx7zUG
+         7U3cSOKdb/XeSh0K788JfKz1N3FnkzE7UFAnXktXo/5kfMzZKZUipWAfk4ieRXB5g6
+         0M1ePz+2LvljTgRsyc0SEsZZQnoZIRmnfcqrlWpw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Mauro Carvalho Chehab <mchehab@s-opensource.com>,
+        Shuah Khan <shuahkh@osg.samsung.com>,
         Florian Fainelli <f.fainelli@gmail.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.9 106/191] media: dvb_frontend: get rid of set_property() callback
-Date:   Mon, 29 Jun 2020 11:38:42 -0400
-Message-Id: <20200629154007.2495120-107-sashal@kernel.org>
+Subject: [PATCH 4.9 107/191] media: dvb_frontend: cleanup dvb_frontend_ioctl_properties()
+Date:   Mon, 29 Jun 2020 11:38:43 -0400
+Message-Id: <20200629154007.2495120-108-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
 References: <20200629154007.2495120-1-sashal@kernel.org>
@@ -51,62 +52,153 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
 
-commit 6680e73b5226114992acfc11f9cf5730f706fb01 upstream
+commit 2b5df42b8dec69fb926a242007fd462343db4408 upstream
 
-Now that all clients of set_property() were removed, get rid
-of this callback.
+Use a switch() on this function, just like on other ioctl
+handlers and handle parameters inside each part of the
+switch.
 
+That makes it easier to integrate with the already existing
+ioctl handler function.
+
+Reviewed-by: Shuah Khan <shuahkh@osg.samsung.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/dvb-core/dvb_frontend.c | 7 -------
- drivers/media/dvb-core/dvb_frontend.h | 5 -----
- 2 files changed, 12 deletions(-)
+ drivers/media/dvb-core/dvb_frontend.c | 83 ++++++++++++++++-----------
+ 1 file changed, 51 insertions(+), 32 deletions(-)
 
 diff --git a/drivers/media/dvb-core/dvb_frontend.c b/drivers/media/dvb-core/dvb_frontend.c
-index 97c825f97b15e..2bf55a786e297 100644
+index 2bf55a786e297..c446f51be21a9 100644
 --- a/drivers/media/dvb-core/dvb_frontend.c
 +++ b/drivers/media/dvb-core/dvb_frontend.c
-@@ -1751,13 +1751,6 @@ static int dtv_property_process_set(struct dvb_frontend *fe,
- 	int r = 0;
+@@ -1956,21 +1956,25 @@ static int dvb_frontend_ioctl_properties(struct file *file,
+ 	struct dvb_frontend *fe = dvbdev->priv;
+ 	struct dvb_frontend_private *fepriv = fe->frontend_priv;
  	struct dtv_frontend_properties *c = &fe->dtv_property_cache;
- 
--	/* Allow the frontend to validate incoming properties */
--	if (fe->ops.set_property) {
--		r = fe->ops.set_property(fe, tvp);
--		if (r < 0)
--			return r;
--	}
+-	int err = 0;
 -
- 	dtv_property_dump(fe, true, tvp);
+-	struct dtv_properties *tvps = parg;
+-	struct dtv_property *tvp = NULL;
+-	int i;
++	int err, i;
  
- 	switch(tvp->cmd) {
-diff --git a/drivers/media/dvb-core/dvb_frontend.h b/drivers/media/dvb-core/dvb_frontend.h
-index 57cedbe5c2c79..f852f0a49f422 100644
---- a/drivers/media/dvb-core/dvb_frontend.h
-+++ b/drivers/media/dvb-core/dvb_frontend.h
-@@ -397,11 +397,8 @@ struct dtv_frontend_properties;
-  * @search:		callback function used on some custom algo search algos.
-  * @tuner_ops:		pointer to struct dvb_tuner_ops
-  * @analog_ops:		pointer to struct analog_demod_ops
-- * @set_property:	callback function to allow the frontend to validade
-- *			incoming properties. Should not be used on new drivers.
-  */
- struct dvb_frontend_ops {
+ 	dev_dbg(fe->dvb->device, "%s:\n", __func__);
+ 
+-	if (cmd == FE_SET_PROPERTY) {
+-		dev_dbg(fe->dvb->device, "%s: properties.num = %d\n", __func__, tvps->num);
+-		dev_dbg(fe->dvb->device, "%s: properties.props = %p\n", __func__, tvps->props);
++	switch(cmd) {
++	case FE_SET_PROPERTY: {
++		struct dtv_properties *tvps = parg;
++		struct dtv_property *tvp = NULL;
++
++		dev_dbg(fe->dvb->device, "%s: properties.num = %d\n",
++			__func__, tvps->num);
++		dev_dbg(fe->dvb->device, "%s: properties.props = %p\n",
++			__func__, tvps->props);
+ 
+-		/* Put an arbitrary limit on the number of messages that can
+-		 * be sent at once */
+-		if ((tvps->num == 0) || (tvps->num > DTV_IOCTL_MAX_MSGS))
++		/*
++		 * Put an arbitrary limit on the number of messages that can
++		 * be sent at once
++		 */
++		if (!tvps->num || (tvps->num > DTV_IOCTL_MAX_MSGS))
+ 			return -EINVAL;
+ 
+ 		tvp = memdup_user(tvps->props, tvps->num * sizeof(*tvp));
+@@ -1979,23 +1983,34 @@ static int dvb_frontend_ioctl_properties(struct file *file,
+ 
+ 		for (i = 0; i < tvps->num; i++) {
+ 			err = dtv_property_process_set(fe, tvp + i, file);
+-			if (err < 0)
+-				goto out;
++			if (err < 0) {
++				kfree(tvp);
++				return err;
++			}
+ 			(tvp + i)->result = err;
+ 		}
+ 
+ 		if (c->state == DTV_TUNE)
+ 			dev_dbg(fe->dvb->device, "%s: Property cache is full, tuning\n", __func__);
+ 
+-	} else if (cmd == FE_GET_PROPERTY) {
++		kfree(tvp);
++		break;
++	}
++	case FE_GET_PROPERTY: {
++		struct dtv_properties *tvps = parg;
++		struct dtv_property *tvp = NULL;
+ 		struct dtv_frontend_properties getp = fe->dtv_property_cache;
+ 
+-		dev_dbg(fe->dvb->device, "%s: properties.num = %d\n", __func__, tvps->num);
+-		dev_dbg(fe->dvb->device, "%s: properties.props = %p\n", __func__, tvps->props);
++		dev_dbg(fe->dvb->device, "%s: properties.num = %d\n",
++			__func__, tvps->num);
++		dev_dbg(fe->dvb->device, "%s: properties.props = %p\n",
++			__func__, tvps->props);
+ 
+-		/* Put an arbitrary limit on the number of messages that can
+-		 * be sent at once */
+-		if ((tvps->num == 0) || (tvps->num > DTV_IOCTL_MAX_MSGS))
++		/*
++		 * Put an arbitrary limit on the number of messages that can
++		 * be sent at once
++		 */
++		if (!tvps->num || (tvps->num > DTV_IOCTL_MAX_MSGS))
+ 			return -EINVAL;
+ 
+ 		tvp = memdup_user(tvps->props, tvps->num * sizeof(*tvp));
+@@ -2010,28 +2025,32 @@ static int dvb_frontend_ioctl_properties(struct file *file,
+ 		 */
+ 		if (fepriv->state != FESTATE_IDLE) {
+ 			err = dtv_get_frontend(fe, &getp, NULL);
+-			if (err < 0)
+-				goto out;
++			if (err < 0) {
++				kfree(tvp);
++				return err;
++			}
+ 		}
+ 		for (i = 0; i < tvps->num; i++) {
+ 			err = dtv_property_process_get(fe, &getp, tvp + i, file);
+-			if (err < 0)
+-				goto out;
++			if (err < 0) {
++				kfree(tvp);
++				return err;
++			}
+ 			(tvp + i)->result = err;
+ 		}
+ 
+ 		if (copy_to_user((void __user *)tvps->props, tvp,
+ 				 tvps->num * sizeof(struct dtv_property))) {
+-			err = -EFAULT;
+-			goto out;
++			kfree(tvp);
++			return -EFAULT;
+ 		}
 -
- 	struct dvb_frontend_info info;
- 
- 	u8 delsys[MAX_DELSYS];
-@@ -459,8 +456,6 @@ struct dvb_frontend_ops {
- 
- 	struct dvb_tuner_ops tuner_ops;
- 	struct analog_demod_ops analog_ops;
+-	} else
+-		err = -EOPNOTSUPP;
 -
--	int (*set_property)(struct dvb_frontend* fe, struct dtv_property* tvp);
- };
+-out:
+-	kfree(tvp);
+-	return err;
++		kfree(tvp);
++		break;
++	}
++	default:
++		return -ENOTSUPP;
++	} /* switch */
++	return 0;
+ }
  
- #ifdef __DVB_CORE__
+ static int dtv_set_frontend(struct dvb_frontend *fe)
 -- 
 2.25.1
 
