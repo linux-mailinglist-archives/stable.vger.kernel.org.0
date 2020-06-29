@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DC6A20E2F7
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:02:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B48E120E2C9
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:01:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731260AbgF2VK1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:10:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45438 "EHLO mail.kernel.org"
+        id S2390212AbgF2VIj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:08:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730310AbgF2TAS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:00:18 -0400
+        id S1730334AbgF2TAT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:00:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD6C02551D;
-        Mon, 29 Jun 2020 15:54:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 083F12551E;
+        Mon, 29 Jun 2020 15:54:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593446080;
-        bh=I9bBrounO9gZ9Qyw3N5oZhKEYMFFp9vCj/kcakWxcGU=;
+        s=default; t=1593446081;
+        bh=WtHvaAkbfjrMfJ5jfP+E55n4gaI0gk2nzaQF1Y7dwEc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FaeFk9LhQ/qjyJNxShnyyrew0k0uLu1Jdze2fC8Y2Oa+Asq3ALYo/+EZuCDX9eIhL
-         G2ArzH9WofEEhypB1IWwsjuQ0TXoRw85O4xWL13sAbR4Mm0OAaTYGMaGLPVYMxZRg5
-         AtSCIaC+G/opKzaxJIMCbj89m+wVl2JQJl8ihe7Y=
+        b=odGTnDB9cII5l51UCUHyLyoB7akwQMJy7TAMQ/S5OxiBzYhPvminQafVwONScEjgM
+         nxg275a0jiHIxw6O5cLEtcwqAV18YGGPGhHuBtHoAZwnxRiiV+PW2m/U2iMAezK6pB
+         0uU8DVCXUC3QXOzKQ5u/Hum/+8DauGniPL6OXA3w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Ahmed S. Darwish" <a.darwish@linutronix.de>,
-        kbuild test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 076/135] net: core: device_rename: Use rwsem instead of a seqcount
-Date:   Mon, 29 Jun 2020 11:52:10 -0400
-Message-Id: <20200629155309.2495516-77-sashal@kernel.org>
+Cc:     =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 4.4 077/135] net: Revert "pkt_sched: fq: use proper locking in fq_dump_stats()"
+Date:   Mon, 29 Jun 2020 11:52:11 -0400
+Message-Id: <20200629155309.2495516-78-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
 References: <20200629155309.2495516-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.229-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-4.4.y
@@ -52,158 +49,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Ahmed S. Darwish" <a.darwish@linutronix.de>
+From: Toke Høiland-Jørgensen <toke@redhat.com>
 
-[ Upstream commit 11d6011c2cf29f7c8181ebde6c8bc0c4d83adcd7 ]
+This reverts commit 191cf872190de28a92e1bd2b56d8860e37e07443 which is
+commit 695b4ec0f0a9cf29deabd3ac075911d58b31f42b upstream.
 
-Sequence counters write paths are critical sections that must never be
-preempted, and blocking, even for CONFIG_PREEMPTION=n, is not allowed.
+That commit should never have been backported since it relies on a change in
+locking semantics that was introduced in v4.8 and not backported. Because of
+this, the backported commit to sch_fq leads to lockups because of the double
+locking.
 
-Commit 5dbe7c178d3f ("net: fix kernel deadlock with interface rename and
-netdev name retrieval.") handled a deadlock, observed with
-CONFIG_PREEMPTION=n, where the devnet_rename seqcount read side was
-infinitely spinning: it got scheduled after the seqcount write side
-blocked inside its own critical section.
-
-To fix that deadlock, among other issues, the commit added a
-cond_resched() inside the read side section. While this will get the
-non-preemptible kernel eventually unstuck, the seqcount reader is fully
-exhausting its slice just spinning -- until TIF_NEED_RESCHED is set.
-
-The fix is also still broken: if the seqcount reader belongs to a
-real-time scheduling policy, it can spin forever and the kernel will
-livelock.
-
-Disabling preemption over the seqcount write side critical section will
-not work: inside it are a number of GFP_KERNEL allocations and mutex
-locking through the drivers/base/ :: device_rename() call chain.
-
->From all the above, replace the seqcount with a rwsem.
-
-Fixes: 5dbe7c178d3f (net: fix kernel deadlock with interface rename and netdev name retrieval.)
-Fixes: 30e6c9fa93cf (net: devnet_rename_seq should be a seqcount)
-Fixes: c91f6df2db49 (sockopt: Change getsockopt() of SO_BINDTODEVICE to return an interface name)
-Cc: <stable@vger.kernel.org>
-Reported-by: kbuild test robot <lkp@intel.com> [ v1 missing up_read() on error exit ]
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com> [ v1 missing up_read() on error exit ]
-Signed-off-by: Ahmed S. Darwish <a.darwish@linutronix.de>
-Reviewed-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/dev.c | 40 ++++++++++++++++++----------------------
- 1 file changed, 18 insertions(+), 22 deletions(-)
+ net/sched/sch_fq.c | 32 ++++++++++++++------------------
+ 1 file changed, 14 insertions(+), 18 deletions(-)
 
-diff --git a/net/core/dev.c b/net/core/dev.c
-index 775c8dfeff848..82f9ec1bd94b6 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -82,6 +82,7 @@
- #include <linux/slab.h>
- #include <linux/sched.h>
- #include <linux/mutex.h>
-+#include <linux/rwsem.h>
- #include <linux/string.h>
- #include <linux/mm.h>
- #include <linux/socket.h>
-@@ -185,7 +186,7 @@ static DEFINE_SPINLOCK(napi_hash_lock);
- static unsigned int napi_gen_id = NR_CPUS;
- static DEFINE_HASHTABLE(napi_hash, 8);
- 
--static seqcount_t devnet_rename_seq;
-+static DECLARE_RWSEM(devnet_rename_sem);
- 
- static inline void dev_base_seq_inc(struct net *net)
+diff --git a/net/sched/sch_fq.c b/net/sched/sch_fq.c
+index f4aa2ab4713a2..eb814ffc09023 100644
+--- a/net/sched/sch_fq.c
++++ b/net/sched/sch_fq.c
+@@ -830,24 +830,20 @@ static int fq_dump(struct Qdisc *sch, struct sk_buff *skb)
+ static int fq_dump_stats(struct Qdisc *sch, struct gnet_dump *d)
  {
-@@ -862,33 +863,28 @@ EXPORT_SYMBOL(dev_get_by_index);
-  *	@net: network namespace
-  *	@name: a pointer to the buffer where the name will be stored.
-  *	@ifindex: the ifindex of the interface to get the name from.
-- *
-- *	The use of raw_seqcount_begin() and cond_resched() before
-- *	retrying is required as we want to give the writers a chance
-- *	to complete when CONFIG_PREEMPTION is not set.
-  */
- int netdev_get_name(struct net *net, char *name, int ifindex)
- {
- 	struct net_device *dev;
--	unsigned int seq;
-+	int ret;
+ 	struct fq_sched_data *q = qdisc_priv(sch);
+-	struct tc_fq_qd_stats st;
+-
+-	sch_tree_lock(sch);
+-
+-	st.gc_flows		  = q->stat_gc_flows;
+-	st.highprio_packets	  = q->stat_internal_packets;
+-	st.tcp_retrans		  = q->stat_tcp_retrans;
+-	st.throttled		  = q->stat_throttled;
+-	st.flows_plimit		  = q->stat_flows_plimit;
+-	st.pkts_too_long	  = q->stat_pkts_too_long;
+-	st.allocation_errors	  = q->stat_allocation_errors;
+-	st.time_next_delayed_flow = q->time_next_delayed_flow - ktime_get_ns();
+-	st.flows		  = q->flows;
+-	st.inactive_flows	  = q->inactive_flows;
+-	st.throttled_flows	  = q->throttled_flows;
+-	st.pad			  = 0;
+-
+-	sch_tree_unlock(sch);
++	u64 now = ktime_get_ns();
++	struct tc_fq_qd_stats st = {
++		.gc_flows		= q->stat_gc_flows,
++		.highprio_packets	= q->stat_internal_packets,
++		.tcp_retrans		= q->stat_tcp_retrans,
++		.throttled		= q->stat_throttled,
++		.flows_plimit		= q->stat_flows_plimit,
++		.pkts_too_long		= q->stat_pkts_too_long,
++		.allocation_errors	= q->stat_allocation_errors,
++		.flows			= q->flows,
++		.inactive_flows		= q->inactive_flows,
++		.throttled_flows	= q->throttled_flows,
++		.time_next_delayed_flow	= q->time_next_delayed_flow - now,
++	};
  
--retry:
--	seq = raw_seqcount_begin(&devnet_rename_seq);
-+	down_read(&devnet_rename_sem);
- 	rcu_read_lock();
-+
- 	dev = dev_get_by_index_rcu(net, ifindex);
- 	if (!dev) {
--		rcu_read_unlock();
--		return -ENODEV;
-+		ret = -ENODEV;
-+		goto out;
- 	}
- 
- 	strcpy(name, dev->name);
--	rcu_read_unlock();
--	if (read_seqcount_retry(&devnet_rename_seq, seq)) {
--		cond_resched();
--		goto retry;
--	}
- 
--	return 0;
-+	ret = 0;
-+out:
-+	rcu_read_unlock();
-+	up_read(&devnet_rename_sem);
-+	return ret;
+ 	return gnet_stats_copy_app(d, &st, sizeof(st));
  }
- 
- /**
-@@ -1153,10 +1149,10 @@ int dev_change_name(struct net_device *dev, const char *newname)
- 	if (dev->flags & IFF_UP)
- 		return -EBUSY;
- 
--	write_seqcount_begin(&devnet_rename_seq);
-+	down_write(&devnet_rename_sem);
- 
- 	if (strncmp(newname, dev->name, IFNAMSIZ) == 0) {
--		write_seqcount_end(&devnet_rename_seq);
-+		up_write(&devnet_rename_sem);
- 		return 0;
- 	}
- 
-@@ -1164,7 +1160,7 @@ int dev_change_name(struct net_device *dev, const char *newname)
- 
- 	err = dev_get_valid_name(net, dev, newname);
- 	if (err < 0) {
--		write_seqcount_end(&devnet_rename_seq);
-+		up_write(&devnet_rename_sem);
- 		return err;
- 	}
- 
-@@ -1179,11 +1175,11 @@ int dev_change_name(struct net_device *dev, const char *newname)
- 	if (ret) {
- 		memcpy(dev->name, oldname, IFNAMSIZ);
- 		dev->name_assign_type = old_assign_type;
--		write_seqcount_end(&devnet_rename_seq);
-+		up_write(&devnet_rename_sem);
- 		return ret;
- 	}
- 
--	write_seqcount_end(&devnet_rename_seq);
-+	up_write(&devnet_rename_sem);
- 
- 	netdev_adjacent_rename_links(dev, oldname);
- 
-@@ -1204,7 +1200,7 @@ int dev_change_name(struct net_device *dev, const char *newname)
- 		/* err >= 0 after dev_alloc_name() or stores the first errno */
- 		if (err >= 0) {
- 			err = ret;
--			write_seqcount_begin(&devnet_rename_seq);
-+			down_write(&devnet_rename_sem);
- 			memcpy(dev->name, oldname, IFNAMSIZ);
- 			memcpy(oldname, newname, IFNAMSIZ);
- 			dev->name_assign_type = old_assign_type;
 -- 
 2.25.1
 
