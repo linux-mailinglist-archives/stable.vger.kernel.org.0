@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C52DA20D9D0
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:12:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C07C20DA32
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:13:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387812AbgF2Tu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:50:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47650 "EHLO mail.kernel.org"
+        id S2388169AbgF2Tyq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:54:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387731AbgF2Tkc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:32 -0400
+        id S2387670AbgF2TkZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5586624912;
-        Mon, 29 Jun 2020 15:27:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6158924915;
+        Mon, 29 Jun 2020 15:27:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444467;
-        bh=nr8fbONF3tDpmAoLcrs3fhK3KkecQR6+CE/6sRuNh9I=;
+        s=default; t=1593444468;
+        bh=19OlWGj9RaBxGlKCog2wC6rU/8KlpvB7Sp/c+ntoFhc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qqY0pUGWsVBpx5Fk3jkajDgcQBc09OJfJm6m8cXWj6nOE+1JzhPh+SXJInmEMj+Ob
-         EiGVMHulYiJnn+ehI317ldTzQRu9P9C1pMAL/K84gTqZalQ3L2wEOPcMtebr9PqSmQ
-         oKURhF6Bw+4Yz+hHcXl6U+m102/VVOb170hlFOy4=
+        b=wgnqs/X0GiJy8r0Z5PqG+yCIBxOtvbIIWEyXjP9MqTGK+p0OPVpyknJ4tw+0U+gG4
+         HzrWmrSFLDMHcUbDRdJhDP2NWfHQRpOlWhkXGMfHXsAQXoBWNJUgnRS6XH4Su9cDvK
+         AyZyVL/juNWvWOIUZcnamtDwOrK2u82F4E7csn6U=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sean Christopherson <sean.j.christopherson@intel.com>,
-        Jingqi Liu <jingqi.liu@intel.com>, Tao Xu <tao3.xu@intel.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+Cc:     Kees Cook <keescook@chromium.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.4 147/178] KVM: VMX: Stop context switching MSR_IA32_UMWAIT_CONTROL
-Date:   Mon, 29 Jun 2020 11:24:52 -0400
-Message-Id: <20200629152523.2494198-148-sashal@kernel.org>
+Subject: [PATCH 5.4 148/178] x86/cpu: Use pinning mask for CR4 bits needing to be 0
+Date:   Mon, 29 Jun 2020 11:24:53 -0400
+Message-Id: <20200629152523.2494198-149-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -50,132 +49,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit bf09fb6cba4f7099620cc9ed32d94c27c4af992e upstream.
+commit a13b9d0b97211579ea63b96c606de79b963c0f47 upstream.
 
-Remove support for context switching between the guest's and host's
-desired UMWAIT_CONTROL.  Propagating the guest's value to hardware isn't
-required for correct functionality, e.g. KVM intercepts reads and writes
-to the MSR, and the latency effects of the settings controlled by the
-MSR are not architecturally visible.
+The X86_CR4_FSGSBASE bit of CR4 should not change after boot[1]. Older
+kernels should enforce this bit to zero, and newer kernels need to
+enforce it depending on boot-time configuration (e.g. "nofsgsbase").
+To support a pinned bit being either 1 or 0, use an explicit mask in
+combination with the expected pinned bit values.
 
-As a general rule, KVM should not allow the guest to control power
-management settings unless explicitly enabled by userspace, e.g. see
-KVM_CAP_X86_DISABLE_EXITS.  E.g. Intel's SDM explicitly states that C0.2
-can improve the performance of SMT siblings.  A devious guest could
-disable C0.2 so as to improve the performance of their workloads at the
-detriment to workloads running in the host or on other VMs.
+[1] https://lore.kernel.org/lkml/20200527103147.GI325280@hirez.programming.kicks-ass.net
 
-Wholesale removal of UMWAIT_CONTROL context switching also fixes a race
-condition where updates from the host may cause KVM to enter the guest
-with the incorrect value.  Because updates are are propagated to all
-CPUs via IPI (SMP function callback), the value in hardware may be
-stale with respect to the cached value and KVM could enter the guest
-with the wrong value in hardware.  As above, the guest can't observe the
-bad value, but it's a weird and confusing wart in the implementation.
-
-Removal also fixes the unnecessary usage of VMX's atomic load/store MSR
-lists.  Using the lists is only necessary for MSRs that are required for
-correct functionality immediately upon VM-Enter/VM-Exit, e.g. EFER on
-old hardware, or for MSRs that need to-the-uop precision, e.g. perf
-related MSRs.  For UMWAIT_CONTROL, the effects are only visible in the
-kernel via TPAUSE/delay(), and KVM doesn't do any form of delay in
-vcpu_vmx_run().  Using the atomic lists is undesirable as they are more
-expensive than direct RDMSR/WRMSR.
-
-Furthermore, even if giving the guest control of the MSR is legitimate,
-e.g. in pass-through scenarios, it's not clear that the benefits would
-outweigh the overhead.  E.g. saving and restoring an MSR across a VMX
-roundtrip costs ~250 cycles, and if the guest diverged from the host
-that cost would be paid on every run of the guest.  In other words, if
-there is a legitimate use case then it should be enabled by a new
-per-VM capability.
-
-Note, KVM still needs to emulate MSR_IA32_UMWAIT_CONTROL so that it can
-correctly expose other WAITPKG features to the guest, e.g. TPAUSE,
-UMWAIT and UMONITOR.
-
-Fixes: 6e3ba4abcea56 ("KVM: vmx: Emulate MSR IA32_UMWAIT_CONTROL")
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Cc: stable@vger.kernel.org
-Cc: Jingqi Liu <jingqi.liu@intel.com>
-Cc: Tao Xu <tao3.xu@intel.com>
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Message-Id: <20200623005135.10414-1-sean.j.christopherson@intel.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Link: https://lkml.kernel.org/r/202006082013.71E29A42@keescook
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/umwait.c |  6 ------
- arch/x86/kvm/vmx/vmx.c       | 18 ------------------
- arch/x86/kvm/vmx/vmx.h       |  2 --
- 3 files changed, 26 deletions(-)
+ arch/x86/kernel/cpu/common.c | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/umwait.c b/arch/x86/kernel/cpu/umwait.c
-index c222f283b4560..32b4dc9030aa9 100644
---- a/arch/x86/kernel/cpu/umwait.c
-+++ b/arch/x86/kernel/cpu/umwait.c
-@@ -17,12 +17,6 @@
-  */
- static u32 umwait_control_cached = UMWAIT_CTRL_VAL(100000, UMWAIT_C02_ENABLE);
- 
--u32 get_umwait_control_msr(void)
--{
--	return umwait_control_cached;
--}
--EXPORT_SYMBOL_GPL(get_umwait_control_msr);
--
- /*
-  * Cache the original IA32_UMWAIT_CONTROL MSR value which is configured by
-  * hardware or BIOS before kernel boot.
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index 2e6d400ce0a01..10e6471896cdb 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -6427,23 +6427,6 @@ static void atomic_switch_perf_msrs(struct vcpu_vmx *vmx)
- 					msrs[i].host, false);
+diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
+index 650df6d210496..9b3f25e146087 100644
+--- a/arch/x86/kernel/cpu/common.c
++++ b/arch/x86/kernel/cpu/common.c
+@@ -366,6 +366,9 @@ static __always_inline void setup_umip(struct cpuinfo_x86 *c)
+ 	cr4_clear_bits(X86_CR4_UMIP);
  }
  
--static void atomic_switch_umwait_control_msr(struct vcpu_vmx *vmx)
--{
--	u32 host_umwait_control;
--
--	if (!vmx_has_waitpkg(vmx))
--		return;
--
--	host_umwait_control = get_umwait_control_msr();
--
--	if (vmx->msr_ia32_umwait_control != host_umwait_control)
--		add_atomic_switch_msr(vmx, MSR_IA32_UMWAIT_CONTROL,
--			vmx->msr_ia32_umwait_control,
--			host_umwait_control, false);
--	else
--		clear_atomic_switch_msr(vmx, MSR_IA32_UMWAIT_CONTROL);
--}
--
- static void vmx_update_hv_timer(struct kvm_vcpu *vcpu)
++/* These bits should not change their value after CPU init is finished. */
++static const unsigned long cr4_pinned_mask =
++	X86_CR4_SMEP | X86_CR4_SMAP | X86_CR4_UMIP | X86_CR4_FSGSBASE;
+ static DEFINE_STATIC_KEY_FALSE_RO(cr_pinning);
+ static unsigned long cr4_pinned_bits __ro_after_init;
+ 
+@@ -390,20 +393,20 @@ EXPORT_SYMBOL(native_write_cr0);
+ 
+ void native_write_cr4(unsigned long val)
  {
- 	struct vcpu_vmx *vmx = to_vmx(vcpu);
-@@ -6533,7 +6516,6 @@ static void vmx_vcpu_run(struct kvm_vcpu *vcpu)
- 	pt_guest_enter(vmx);
+-	unsigned long bits_missing = 0;
++	unsigned long bits_changed = 0;
  
- 	atomic_switch_perf_msrs(vmx);
--	atomic_switch_umwait_control_msr(vmx);
+ set_register:
+ 	asm volatile("mov %0,%%cr4": "+r" (val), "+m" (cr4_pinned_bits));
  
- 	if (enable_preemption_timer)
- 		vmx_update_hv_timer(vcpu);
-diff --git a/arch/x86/kvm/vmx/vmx.h b/arch/x86/kvm/vmx/vmx.h
-index 295c5f83842e5..a1919ec7fd108 100644
---- a/arch/x86/kvm/vmx/vmx.h
-+++ b/arch/x86/kvm/vmx/vmx.h
-@@ -14,8 +14,6 @@
- extern const u32 vmx_msr_index[];
- extern u64 host_efer;
+ 	if (static_branch_likely(&cr_pinning)) {
+-		if (unlikely((val & cr4_pinned_bits) != cr4_pinned_bits)) {
+-			bits_missing = ~val & cr4_pinned_bits;
+-			val |= bits_missing;
++		if (unlikely((val & cr4_pinned_mask) != cr4_pinned_bits)) {
++			bits_changed = (val & cr4_pinned_mask) ^ cr4_pinned_bits;
++			val = (val & ~cr4_pinned_mask) | cr4_pinned_bits;
+ 			goto set_register;
+ 		}
+-		/* Warn after we've set the missing bits. */
+-		WARN_ONCE(bits_missing, "CR4 bits went missing: %lx!?\n",
+-			  bits_missing);
++		/* Warn after we've corrected the changed bits. */
++		WARN_ONCE(bits_changed, "pinned CR4 bits changed: 0x%lx!?\n",
++			  bits_changed);
+ 	}
+ }
+ EXPORT_SYMBOL(native_write_cr4);
+@@ -415,7 +418,7 @@ void cr4_init(void)
+ 	if (boot_cpu_has(X86_FEATURE_PCID))
+ 		cr4 |= X86_CR4_PCIDE;
+ 	if (static_branch_likely(&cr_pinning))
+-		cr4 |= cr4_pinned_bits;
++		cr4 = (cr4 & ~cr4_pinned_mask) | cr4_pinned_bits;
  
--extern u32 get_umwait_control_msr(void);
+ 	__write_cr4(cr4);
+ 
+@@ -430,10 +433,7 @@ void cr4_init(void)
+  */
+ static void __init setup_cr_pinning(void)
+ {
+-	unsigned long mask;
 -
- #define MSR_TYPE_R	1
- #define MSR_TYPE_W	2
- #define MSR_TYPE_RW	3
+-	mask = (X86_CR4_SMEP | X86_CR4_SMAP | X86_CR4_UMIP);
+-	cr4_pinned_bits = this_cpu_read(cpu_tlbstate.cr4) & mask;
++	cr4_pinned_bits = this_cpu_read(cpu_tlbstate.cr4) & cr4_pinned_mask;
+ 	static_key_enable(&cr_pinning.key);
+ }
+ 
 -- 
 2.25.1
 
