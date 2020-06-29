@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7315F20D96A
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:11:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF0FD20D949
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:11:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388128AbgF2TrW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:47:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47678 "EHLO mail.kernel.org"
+        id S2387478AbgF2TqP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:46:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387785AbgF2Tkj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:39 -0400
+        id S2387809AbgF2Tkn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B59BC24839;
-        Mon, 29 Jun 2020 15:25:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ACEB22483B;
+        Mon, 29 Jun 2020 15:25:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444349;
-        bh=Q0/KPKdoE+l7DUi5F1eMTVmjpkyw2495FuaeHQCbkcY=;
+        s=default; t=1593444350;
+        bh=aOq9x4iCdztZ6cvAmz+gxQBz3807++Jw8Ozx/3tiEf4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Psr7DSTw2vtkiSM+I67tXYla/BzZS/dm+bCnDtKAPrFktsWzgqHN3qiMqmr7+gcsu
-         G85lrvu2bpj7VC3GT840PBFyYOSh7hF2a1apVwS6jJ7EsDr022RIDorBycqFeZoHYw
-         GbMaYE9HIZdxEohYpwS0apoajqkk/Vbheo81m/ig=
+        b=yEz23+9yD6IGDlv9URXMT0eOQfworXl2fOro+DZ81hpZv+0e83RxPW4c21iRfunBg
+         pS1YXkFSq/0hXkgtMB8lmrYl9jgEvhSxWjUNFaWC+7TkMtgphZVczD3dG7E0Fn5K9/
+         w3TNOKqiF8McMpqEHFgtdF6AFGGPa+KormWCT0rE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ilya Ponetayev <i.ponetaev@ndmsystems.com>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+Cc:     =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
         "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.4 024/178] sch_cake: don't try to reallocate or unshare skb unconditionally
-Date:   Mon, 29 Jun 2020 11:22:49 -0400
-Message-Id: <20200629152523.2494198-25-sashal@kernel.org>
+Subject: [PATCH 5.4 025/178] sch_cake: don't call diffserv parsing code when it is not needed
+Date:   Mon, 29 Jun 2020 11:22:50 -0400
+Message-Id: <20200629152523.2494198-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -51,99 +50,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Ponetayev <i.ponetaev@ndmsystems.com>
+From: Toke Høiland-Jørgensen <toke@redhat.com>
 
-[ Upstream commit 9208d2863ac689a563b92f2161d8d1e7127d0add ]
+[ Upstream commit 8c95eca0bb8c4bd2231a0d581f1ad0d50c90488c ]
 
-cake_handle_diffserv() tries to linearize mac and network header parts of
-skb and to make it writable unconditionally. In some cases it leads to full
-skb reallocation, which reduces throughput and increases CPU load. Some
-measurements of IPv4 forward + NAPT on MIPS router with 580 MHz single-core
-CPU was conducted. It appears that on kernel 4.9 skb_try_make_writable()
-reallocates skb, if skb was allocated in ethernet driver via so-called
-'build skb' method from page cache (it was discovered by strange increase
-of kmalloc-2048 slab at first).
-
-Obtain DSCP value via read-only skb_header_pointer() call, and leave
-linearization only for DSCP bleaching or ECN CE setting. And, as an
-additional optimisation, skip diffserv parsing entirely if it is not needed
-by the current configuration.
+As a further optimisation of the diffserv parsing codepath, we can skip it
+entirely if CAKE is configured to neither use diffserv-based
+classification, nor to zero out the diffserv bits.
 
 Fixes: c87b4ecdbe8d ("sch_cake: Make sure we can write the IP header before changing DSCP bits")
-Signed-off-by: Ilya Ponetayev <i.ponetaev@ndmsystems.com>
-[ fix a few style issues, reflow commit message ]
 Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_cake.c | 41 ++++++++++++++++++++++++++++++-----------
- 1 file changed, 30 insertions(+), 11 deletions(-)
+ net/sched/sch_cake.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
 diff --git a/net/sched/sch_cake.c b/net/sched/sch_cake.c
-index 2277369feae58..8020d0829f1a9 100644
+index 8020d0829f1a9..e1b93ff79ab53 100644
 --- a/net/sched/sch_cake.c
 +++ b/net/sched/sch_cake.c
-@@ -1517,30 +1517,49 @@ static unsigned int cake_drop(struct Qdisc *sch, struct sk_buff **to_free)
+@@ -1515,7 +1515,7 @@ static unsigned int cake_drop(struct Qdisc *sch, struct sk_buff **to_free)
+ 	return idx + (tin << 16);
+ }
  
- static u8 cake_handle_diffserv(struct sk_buff *skb, u16 wash)
+-static u8 cake_handle_diffserv(struct sk_buff *skb, u16 wash)
++static u8 cake_handle_diffserv(struct sk_buff *skb, bool wash)
  {
--	int wlen = skb_network_offset(skb);
-+	const int offset = skb_network_offset(skb);
-+	u16 *buf, buf_;
+ 	const int offset = skb_network_offset(skb);
+ 	u16 *buf, buf_;
+@@ -1576,14 +1576,17 @@ static struct cake_tin_data *cake_select_tin(struct Qdisc *sch,
+ {
+ 	struct cake_sched_data *q = qdisc_priv(sch);
+ 	u32 tin, mark;
++	bool wash;
  	u8 dscp;
  
- 	switch (tc_skb_protocol(skb)) {
- 	case htons(ETH_P_IP):
--		wlen += sizeof(struct iphdr);
--		if (!pskb_may_pull(skb, wlen) ||
--		    skb_try_make_writable(skb, wlen))
-+		buf = skb_header_pointer(skb, offset, sizeof(buf_), &buf_);
-+		if (unlikely(!buf))
- 			return 0;
+ 	/* Tin selection: Default to diffserv-based selection, allow overriding
+-	 * using firewall marks or skb->priority.
++	 * using firewall marks or skb->priority. Call DSCP parsing early if
++	 * wash is enabled, otherwise defer to below to skip unneeded parsing.
+ 	 */
+-	dscp = cake_handle_diffserv(skb,
+-				    q->rate_flags & CAKE_FLAG_WASH);
+ 	mark = (skb->mark & q->fwmark_mask) >> q->fwmark_shft;
++	wash = !!(q->rate_flags & CAKE_FLAG_WASH);
++	if (wash)
++		dscp = cake_handle_diffserv(skb, wash);
  
--		dscp = ipv4_get_dsfield(ip_hdr(skb)) >> 2;
--		if (wash && dscp)
-+		/* ToS is in the second byte of iphdr */
-+		dscp = ipv4_get_dsfield((struct iphdr *)buf) >> 2;
-+
-+		if (wash && dscp) {
-+			const int wlen = offset + sizeof(struct iphdr);
-+
-+			if (!pskb_may_pull(skb, wlen) ||
-+			    skb_try_make_writable(skb, wlen))
-+				return 0;
-+
- 			ipv4_change_dsfield(ip_hdr(skb), INET_ECN_MASK, 0);
-+		}
-+
- 		return dscp;
+ 	if (q->tin_mode == CAKE_DIFFSERV_BESTEFFORT)
+ 		tin = 0;
+@@ -1597,6 +1600,8 @@ static struct cake_tin_data *cake_select_tin(struct Qdisc *sch,
+ 		tin = q->tin_order[TC_H_MIN(skb->priority) - 1];
  
- 	case htons(ETH_P_IPV6):
--		wlen += sizeof(struct ipv6hdr);
--		if (!pskb_may_pull(skb, wlen) ||
--		    skb_try_make_writable(skb, wlen))
-+		buf = skb_header_pointer(skb, offset, sizeof(buf_), &buf_);
-+		if (unlikely(!buf))
- 			return 0;
+ 	else {
++		if (!wash)
++			dscp = cake_handle_diffserv(skb, wash);
+ 		tin = q->tin_index[dscp];
  
--		dscp = ipv6_get_dsfield(ipv6_hdr(skb)) >> 2;
--		if (wash && dscp)
-+		/* Traffic class is in the first and second bytes of ipv6hdr */
-+		dscp = ipv6_get_dsfield((struct ipv6hdr *)buf) >> 2;
-+
-+		if (wash && dscp) {
-+			const int wlen = offset + sizeof(struct ipv6hdr);
-+
-+			if (!pskb_may_pull(skb, wlen) ||
-+			    skb_try_make_writable(skb, wlen))
-+				return 0;
-+
- 			ipv6_change_dsfield(ipv6_hdr(skb), INET_ECN_MASK, 0);
-+		}
-+
- 		return dscp;
- 
- 	case htons(ETH_P_ARP):
+ 		if (unlikely(tin >= q->tin_cnt))
 -- 
 2.25.1
 
