@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 484FA20E77C
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:11:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 704C620E52B
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:06:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404729AbgF2V5m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:57:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56786 "EHLO mail.kernel.org"
+        id S1727872AbgF2Vdh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:33:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726473AbgF2Sf2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:35:28 -0400
+        id S1728645AbgF2Sk7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:40:59 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F0E4D24051;
-        Mon, 29 Jun 2020 15:18:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0A34924052;
+        Mon, 29 Jun 2020 15:18:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593443922;
-        bh=BWncpzPC+Rb9or2yBrKBq8PfXfe7Y6glSYItgDGDzys=;
+        s=default; t=1593443923;
+        bh=p2Vmo2jSjK79op65VL5twbFOdnnj3SKE1L+bE5826Iw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ycKfTCiGcUYiR8MpTGGaN6t0H0pQTG9zWH43t3Q4ESEoTAiA9YTdKXzt9NFqe2vVA
-         r7SyINtzqe8cibbgJ0YpWjFjYlHz2fBrjH6pe+IZ9teX7bWEz8V+Jbet9ZRoIgA2le
-         vp78ZTGW6z7fyDrU8XJSmykf2XHOVbtVEqTi10lA=
+        b=GIYM9CMg07SOy6UtPoKodt6rrk16yZKmbiEfbhVOXzzf1qAB7ozHNj685Gs0vTm8f
+         PQuWLuZV1ovfMVa72mzil7SgSnH0Czfjbn9o2utVGdAMTnfrGoUb07x6AM48LEnseN
+         XKeQ3YxZ4focKZkZKrgf4+p274UgBk15+H+hgW+E=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Dumazet <edumazet@google.com>,
-        Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>,
-        Neal Cardwell <ncardwell@google.com>,
+Cc:     David Christensen <drc@linux.vnet.ibm.com>,
+        Michael Chan <michael.chan@broadcom.com>,
         "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.7 023/265] tcp: grow window for OOO packets only for SACK flows
-Date:   Mon, 29 Jun 2020 11:14:16 -0400
-Message-Id: <20200629151818.2493727-24-sashal@kernel.org>
+Subject: [PATCH 5.7 024/265] tg3: driver sleeps indefinitely when EEH errors exceed eeh_max_freezes
+Date:   Mon, 29 Jun 2020 11:14:17 -0400
+Message-Id: <20200629151818.2493727-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -51,97 +50,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: David Christensen <drc@linux.vnet.ibm.com>
 
-[ Upstream commit 662051215c758ae8545451628816204ed6cd372d ]
+[ Upstream commit 3a2656a211caf35e56afc9425e6e518fa52f7fbc ]
 
-Back in 2013, we made a change that broke fast retransmit
-for non SACK flows.
+The driver function tg3_io_error_detected() calls napi_disable twice,
+without an intervening napi_enable, when the number of EEH errors exceeds
+eeh_max_freezes, resulting in an indefinite sleep while holding rtnl_lock.
 
-Indeed, for these flows, a sender needs to receive three duplicate
-ACK before starting fast retransmit. Sending ACK with different
-receive window do not count.
+Add check for pcierr_recovery which skips code already executed for the
+"Frozen" state.
 
-Even if enabling SACK is strongly recommended these days,
-there still are some cases where it has to be disabled.
-
-Not increasing the window seems better than having to
-rely on RTO.
-
-After the fix, following packetdrill test gives :
-
-// Initialize connection
-    0 socket(..., SOCK_STREAM, IPPROTO_TCP) = 3
-   +0 setsockopt(3, SOL_SOCKET, SO_REUSEADDR, [1], 4) = 0
-   +0 bind(3, ..., ...) = 0
-   +0 listen(3, 1) = 0
-
-   +0 < S 0:0(0) win 32792 <mss 1000,nop,wscale 7>
-   +0 > S. 0:0(0) ack 1 <mss 1460,nop,wscale 8>
-   +0 < . 1:1(0) ack 1 win 514
-
-   +0 accept(3, ..., ...) = 4
-
-   +0 < . 1:1001(1000) ack 1 win 514
-// Quick ack
-   +0 > . 1:1(0) ack 1001 win 264
-
-   +0 < . 2001:3001(1000) ack 1 win 514
-// DUPACK : Normally we should not change the window
-   +0 > . 1:1(0) ack 1001 win 264
-
-   +0 < . 3001:4001(1000) ack 1 win 514
-// DUPACK : Normally we should not change the window
-   +0 > . 1:1(0) ack 1001 win 264
-
-   +0 < . 4001:5001(1000) ack 1 win 514
-// DUPACK : Normally we should not change the window
-    +0 > . 1:1(0) ack 1001 win 264
-
-   +0 < . 1001:2001(1000) ack 1 win 514
-// Hole is repaired.
-   +0 > . 1:1(0) ack 5001 win 272
-
-Fixes: 4e4f1fc22681 ("tcp: properly increase rcv_ssthresh for ofo packets")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Venkat Venkatsubra <venkat.x.venkatsubra@oracle.com>
-Acked-by: Neal Cardwell <ncardwell@google.com>
+Signed-off-by: David Christensen <drc@linux.vnet.ibm.com>
+Reviewed-by: Michael Chan <michael.chan@broadcom.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp_input.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/broadcom/tg3.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-index ccab8bc29e2b1..1fa009999f577 100644
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -4603,7 +4603,11 @@ static void tcp_data_queue_ofo(struct sock *sk, struct sk_buff *skb)
- 	if (tcp_ooo_try_coalesce(sk, tp->ooo_last_skb,
- 				 skb, &fragstolen)) {
- coalesce_done:
--		tcp_grow_window(sk, skb);
-+		/* For non sack flows, do not grow window to force DUPACK
-+		 * and trigger fast retransmit.
-+		 */
-+		if (tcp_is_sack(tp))
-+			tcp_grow_window(sk, skb);
- 		kfree_skb_partial(skb, fragstolen);
- 		skb = NULL;
- 		goto add_sack;
-@@ -4687,7 +4691,11 @@ add_sack:
- 		tcp_sack_new_ofo_skb(sk, seq, end_seq);
- end:
- 	if (skb) {
--		tcp_grow_window(sk, skb);
-+		/* For non sack flows, do not grow window to force DUPACK
-+		 * and trigger fast retransmit.
-+		 */
-+		if (tcp_is_sack(tp))
-+			tcp_grow_window(sk, skb);
- 		skb_condense(skb);
- 		skb_set_owner_r(skb, sk);
- 	}
+diff --git a/drivers/net/ethernet/broadcom/tg3.c b/drivers/net/ethernet/broadcom/tg3.c
+index ff98a82b7bc47..d71ce7634ac19 100644
+--- a/drivers/net/ethernet/broadcom/tg3.c
++++ b/drivers/net/ethernet/broadcom/tg3.c
+@@ -18170,8 +18170,8 @@ static pci_ers_result_t tg3_io_error_detected(struct pci_dev *pdev,
+ 
+ 	rtnl_lock();
+ 
+-	/* We probably don't have netdev yet */
+-	if (!netdev || !netif_running(netdev))
++	/* Could be second call or maybe we don't have netdev yet */
++	if (!netdev || tp->pcierr_recovery || !netif_running(netdev))
+ 		goto done;
+ 
+ 	/* We needn't recover from permanent error */
 -- 
 2.25.1
 
