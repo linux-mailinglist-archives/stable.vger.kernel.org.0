@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DC2E20D3A8
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 21:13:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46D8F20D488
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 21:14:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729381AbgF2TBH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:01:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45460 "EHLO mail.kernel.org"
+        id S1729819AbgF2TJZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:09:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730360AbgF2TAW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:00:22 -0400
+        id S1730341AbgF2TAU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:00:20 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E65A32553B;
-        Mon, 29 Jun 2020 15:55:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0D9C2553D;
+        Mon, 29 Jun 2020 15:55:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593446103;
-        bh=R6p6CPvab4qXGoi74cHq70AKz/fSLbmbm+2atUmsmYw=;
+        s=default; t=1593446104;
+        bh=GGxbJOfbtAE6e03+LO15Vu7dDc/n1vkzpcClBCmxWjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RrECYSAK6AWbWmWSVhdBjC1FayZ3jOKoewA4k1CR6+EodIGXwOpVA64PGadrjxIra
-         7oNF38brfp31L/HQj8mPP372zL5KhwbAcuSY10UzMVUEveQVUTW3fIUZGJkKFWlmt7
-         iqwH/cizEfKRiAkNKZmgzVWCUdTbKoADOh+1BxkI=
+        b=GnErIBMIor16GJWvkOI8/DlOsexEl4jcZA2yf841Vp8najHvUElhWOt9z0kt00Yva
+         MOobbtMZrKo6e/dBbkcUDKWgk8yc88B+ayCZzSV3dDr0fT95pj2ZEg04R+BdQmpXzA
+         nQ6GhEb50m9uQvpEUVENoarnu3vv4GpucGtTKOss=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
-        kbuild test robot <lkp@intel.com>,
-        Marek Vasut <marex@denx.de>,
-        Minas Harutyunyan <hminas@synopsys.com>,
+Cc:     =?UTF-8?q?Tomasz=20Meresi=C5=84ski?= <tomasz@meresinski.eu>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.4 095/135] usb: dwc2: Postponed gadget registration to the udc class driver
-Date:   Mon, 29 Jun 2020 11:52:29 -0400
-Message-Id: <20200629155309.2495516-96-sashal@kernel.org>
+Subject: [PATCH 4.4 096/135] usb: add USB_QUIRK_DELAY_INIT for Logitech C922
+Date:   Mon, 29 Jun 2020 11:52:30 -0400
+Message-Id: <20200629155309.2495516-97-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
 References: <20200629155309.2495516-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.229-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-4.4.y
@@ -51,66 +49,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+From: Tomasz Meresiński <tomasz@meresinski.eu>
 
-commit 207324a321a866401b098cadf19e4a2dd6584622 upstream.
+commit 5d8021923e8a8cc37a421a64e27c7221f0fee33c upstream.
 
-During dwc2 driver probe, after gadget registration to the udc class
-driver, if exist any builtin function driver it immediately bound to
-dwc2 and after init host side (dwc2_hcd_init()) stucked in host mode.
-Patch postpone gadget registration after host side initialization done.
+The Logitech C922, just like other Logitech webcams,
+needs the USB_QUIRK_DELAY_INIT or it will randomly
+not respond after device connection
 
-Fixes: 117777b2c3bb9 ("usb: dwc2: Move gadget probe function into platform code")
-Reported-by: kbuild test robot <lkp@intel.com>
-Tested-by: Marek Vasut <marex@denx.de>
+Signed-off-by: Tomasz Meresiński <tomasz@meresinski.eu>
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Minas Harutyunyan <hminas@synopsys.com>
-Link: https://lore.kernel.org/r/f21cb38fecc72a230b86155d94c7e60c9cb66f58.1591690938.git.hminas@synopsys.com
+Link: https://lore.kernel.org/r/20200603203347.7792-1-tomasz@meresinski.eu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc2/gadget.c   |  6 ------
- drivers/usb/dwc2/platform.c | 11 +++++++++++
- 2 files changed, 11 insertions(+), 6 deletions(-)
+ drivers/usb/core/quirks.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
-index 842c1ae7a2911..e5ad717cba22f 100644
---- a/drivers/usb/dwc2/gadget.c
-+++ b/drivers/usb/dwc2/gadget.c
-@@ -3656,12 +3656,6 @@ int dwc2_gadget_init(struct dwc2_hsotg *hsotg, int irq)
- 								epnum, 0);
- 	}
+diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
+index 27d05f0134de8..e6e0f786547bf 100644
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -73,11 +73,12 @@ static const struct usb_device_id usb_quirk_list[] = {
+ 	/* Logitech HD Webcam C270 */
+ 	{ USB_DEVICE(0x046d, 0x0825), .driver_info = USB_QUIRK_RESET_RESUME },
  
--	ret = usb_add_gadget_udc(dev, &hsotg->gadget);
--	if (ret) {
--		dwc2_hsotg_ep_free_request(&hsotg->eps_out[0]->ep,
--					   hsotg->ctrl_req);
--		return ret;
--	}
- 	dwc2_hsotg_dump(hsotg);
+-	/* Logitech HD Pro Webcams C920, C920-C, C925e and C930e */
++	/* Logitech HD Pro Webcams C920, C920-C, C922, C925e and C930e */
+ 	{ USB_DEVICE(0x046d, 0x082d), .driver_info = USB_QUIRK_DELAY_INIT },
+ 	{ USB_DEVICE(0x046d, 0x0841), .driver_info = USB_QUIRK_DELAY_INIT },
+ 	{ USB_DEVICE(0x046d, 0x0843), .driver_info = USB_QUIRK_DELAY_INIT },
+ 	{ USB_DEVICE(0x046d, 0x085b), .driver_info = USB_QUIRK_DELAY_INIT },
++	{ USB_DEVICE(0x046d, 0x085c), .driver_info = USB_QUIRK_DELAY_INIT },
  
- 	return 0;
-diff --git a/drivers/usb/dwc2/platform.c b/drivers/usb/dwc2/platform.c
-index 39c1cbf0e75d9..5e554b1d5a8f9 100644
---- a/drivers/usb/dwc2/platform.c
-+++ b/drivers/usb/dwc2/platform.c
-@@ -452,6 +452,17 @@ static int dwc2_driver_probe(struct platform_device *dev)
- 	if (hsotg->dr_mode == USB_DR_MODE_PERIPHERAL)
- 		dwc2_lowlevel_hw_disable(hsotg);
- 
-+#if IS_ENABLED(CONFIG_USB_DWC2_PERIPHERAL) || \
-+	IS_ENABLED(CONFIG_USB_DWC2_DUAL_ROLE)
-+	/* Postponed adding a new gadget to the udc class driver list */
-+	if (hsotg->gadget_enabled) {
-+		retval = usb_add_gadget_udc(hsotg->dev, &hsotg->gadget);
-+		if (retval) {
-+			dwc2_hsotg_remove(hsotg);
-+			goto error;
-+		}
-+	}
-+#endif /* CONFIG_USB_DWC2_PERIPHERAL || CONFIG_USB_DWC2_DUAL_ROLE */
- 	return 0;
- 
- error:
+ 	/* Logitech ConferenceCam CC3000e */
+ 	{ USB_DEVICE(0x046d, 0x0847), .driver_info = USB_QUIRK_DELAY_INIT },
 -- 
 2.25.1
 
