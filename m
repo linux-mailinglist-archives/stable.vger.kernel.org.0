@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79FCD20DB4A
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:15:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37D0A20DC53
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:17:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731809AbgF2UFK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:05:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40554 "EHLO mail.kernel.org"
+        id S1732519AbgF2UOV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:14:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732978AbgF2Ta3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:30:29 -0400
+        id S1732844AbgF2TaS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:30:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B30B5252E2;
-        Mon, 29 Jun 2020 15:38:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 20C8C252E4;
+        Mon, 29 Jun 2020 15:38:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445113;
-        bh=wQq2d3fy/7yNpl+BXWHi56yLi/aUisRKVh+58QC2WqI=;
+        s=default; t=1593445115;
+        bh=mHTMAWW1raNFP2h5TTT6iMi2R378EA2fCHGDsRw1TvM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zbKwso5xK9uVW0ln8Qc5qlsJw5qUj7QSNJggh4B5GdRxt+SslMUvas6OtX+IdN6Jx
-         k5q6YpsARNcZx8s8sNu0/HQry97r580W3zECOztJnAzkttgsCSNAhP/YesxoPDFbv6
-         ckz9jMltGuEtwNqIw5+dE18Prj+ZPmm8OV7/A7ig=
+        b=1PSwTOMpjxYANKD6gJ8/VFCnoyTP4L2OHn3x8GD9a2ZUYT/m3qdp/UQeqDU+bkM2c
+         KBCLC1i0v7R+LWZ/++M5DtriP3EoI1oWl7NK2IQ0B76A1WVQNY7cMiKg1lO3FLwrIJ
+         mh5GYcpP+d6vmTV4bZ4rBQ2urKeiriccJiAj/Cxs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     guodeqing <geffrey.guo@huawei.com>,
-        David Ahern <dsahern@gmail.com>,
+Cc:     Tariq Toukan <tariqt@mellanox.com>,
+        Boris Pismenny <borisp@mellanox.com>,
         "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.14 20/78] net: Fix the arp error in some cases
-Date:   Mon, 29 Jun 2020 11:37:08 -0400
-Message-Id: <20200629153806.2494953-21-sashal@kernel.org>
+Subject: [PATCH 4.14 21/78] net: Do not clear the sock TX queue in sk_set_socket()
+Date:   Mon, 29 Jun 2020 11:37:09 -0400
+Message-Id: <20200629153806.2494953-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629153806.2494953-1-sashal@kernel.org>
 References: <20200629153806.2494953-1-sashal@kernel.org>
@@ -50,53 +50,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: guodeqing <geffrey.guo@huawei.com>
+From: Tariq Toukan <tariqt@mellanox.com>
 
-[ Upstream commit 5eea3a63ff4aba6a26002e657a6d21934b7e2b96 ]
+[ Upstream commit 41b14fb8724d5a4b382a63cb4a1a61880347ccb8 ]
 
-ie.,
-$ ifconfig eth0 6.6.6.6 netmask 255.255.255.0
+Clearing the sock TX queue in sk_set_socket() might cause unexpected
+out-of-order transmit when called from sock_orphan(), as outstanding
+packets can pick a different TX queue and bypass the ones already queued.
 
-$ ip rule add from 6.6.6.6 table 6666
+This is undesired in general. More specifically, it breaks the in-order
+scheduling property guarantee for device-offloaded TLS sockets.
 
-$ ip route add 9.9.9.9 via 6.6.6.6
+Remove the call to sk_tx_queue_clear() in sk_set_socket(), and add it
+explicitly only where needed.
 
-$ ping -I 6.6.6.6 9.9.9.9
-PING 9.9.9.9 (9.9.9.9) from 6.6.6.6 : 56(84) bytes of data.
-
-3 packets transmitted, 0 received, 100% packet loss, time 2079ms
-
-$ arp
-Address     HWtype  HWaddress           Flags Mask            Iface
-6.6.6.6             (incomplete)                              eth0
-
-The arp request address is error, this is because fib_table_lookup in
-fib_check_nh lookup the destnation 9.9.9.9 nexthop, the scope of
-the fib result is RT_SCOPE_LINK,the correct scope is RT_SCOPE_HOST.
-Here I add a check of whether this is RT_TABLE_MAIN to solve this problem.
-
-Fixes: 3bfd847203c6 ("net: Use passed in table for nexthop lookups")
-Signed-off-by: guodeqing <geffrey.guo@huawei.com>
-Reviewed-by: David Ahern <dsahern@gmail.com>
+Fixes: e022f0b4a03f ("net: Introduce sk_tx_queue_mapping")
+Signed-off-by: Tariq Toukan <tariqt@mellanox.com>
+Reviewed-by: Boris Pismenny <borisp@mellanox.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/fib_semantics.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/sock.h | 1 -
+ net/core/sock.c    | 2 ++
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv4/fib_semantics.c b/net/ipv4/fib_semantics.c
-index eff703cb13b6f..bc233fdfae0fe 100644
---- a/net/ipv4/fib_semantics.c
-+++ b/net/ipv4/fib_semantics.c
-@@ -839,7 +839,7 @@ static int fib_check_nh(struct fib_config *cfg, struct fib_info *fi,
- 			if (fl4.flowi4_scope < RT_SCOPE_LINK)
- 				fl4.flowi4_scope = RT_SCOPE_LINK;
+diff --git a/include/net/sock.h b/include/net/sock.h
+index c6a003bc4737c..a2e10d0b12804 100644
+--- a/include/net/sock.h
++++ b/include/net/sock.h
+@@ -1687,7 +1687,6 @@ static inline int sk_tx_queue_get(const struct sock *sk)
  
--			if (cfg->fc_table)
-+			if (cfg->fc_table && cfg->fc_table != RT_TABLE_MAIN)
- 				tbl = fib_get_table(net, cfg->fc_table);
+ static inline void sk_set_socket(struct sock *sk, struct socket *sock)
+ {
+-	sk_tx_queue_clear(sk);
+ 	sk->sk_socket = sock;
+ }
  
- 			if (tbl)
+diff --git a/net/core/sock.c b/net/core/sock.c
+index d2cb2051d0453..08ca2ec0ce60a 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -1538,6 +1538,7 @@ struct sock *sk_alloc(struct net *net, int family, gfp_t priority,
+ 		cgroup_sk_alloc(&sk->sk_cgrp_data);
+ 		sock_update_classid(&sk->sk_cgrp_data);
+ 		sock_update_netprioidx(&sk->sk_cgrp_data);
++		sk_tx_queue_clear(sk);
+ 	}
+ 
+ 	return sk;
+@@ -1740,6 +1741,7 @@ struct sock *sk_clone_lock(const struct sock *sk, const gfp_t priority)
+ 		 */
+ 		sk_refcnt_debug_inc(newsk);
+ 		sk_set_socket(newsk, NULL);
++		sk_tx_queue_clear(newsk);
+ 		newsk->sk_wq = NULL;
+ 
+ 		if (newsk->sk_prot->sockets_allocated)
 -- 
 2.25.1
 
