@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C424520DA35
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:13:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A800C20D9AE
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:12:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388256AbgF2Tyq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:54:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47660 "EHLO mail.kernel.org"
+        id S2388145AbgF2Ttm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:49:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387668AbgF2TkZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:25 -0400
+        id S2387744AbgF2Tkh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:37 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 64ACD2489A;
-        Mon, 29 Jun 2020 15:26:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B1902489C;
+        Mon, 29 Jun 2020 15:26:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444394;
-        bh=1r0f4ZnQmdR4BWSj2HlcLqxYIZwQ45jP+tBmxdtmu24=;
+        s=default; t=1593444395;
+        bh=ZsO/Gz2btHq/e4G43/KKmYyVu0Zy/snV+DU8BBNW4Mg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pRVVToz5NLWcYlwpxzyext4FDelD4ciXZa6R6nvCSngC35cvJMNJEQg8b2K7d61Pn
-         wgT/MID7Kw1bznA6X5EjIredr+ZOpYyAHup4S5UkZhyoZvO8UcX227+fE9XRF8vVcf
-         r4Xu0uJuWrWs7CtWC2SGcqEcdpwg3riJSico9H0U=
+        b=jxV7QZpmf5SaKrzpNPHLg03NRdFGgeLPgRMwdH+xQZ0SnQgn4JLklroAp2/EDlFsF
+         lJmFSzJF7qpqZI0yn6Q61XHdsC7T6lsbk5jZc9rmyqzrVMGFKu51HmsE0N7v9//l/E
+         wkwSSegyEU+gzTG7IyvLSt0FTnOH6wWU4snV45f0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tom Seewald <tseewald@gmail.com>,
-        Bernard Metzler <bmt@zurich.ibm.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+Cc:     Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Nicolin Chen <nicoleotsuka@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 071/178] RDMA/siw: Fix pointer-to-int-cast warning in siw_rx_pbl()
-Date:   Mon, 29 Jun 2020 11:23:36 -0400
-Message-Id: <20200629152523.2494198-72-sashal@kernel.org>
+Subject: [PATCH 5.4 072/178] ASoC: fsl_ssi: Fix bclk calculation for mono channel
+Date:   Mon, 29 Jun 2020 11:23:37 -0400
+Message-Id: <20200629152523.2494198-73-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -50,37 +50,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Seewald <tseewald@gmail.com>
+From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-[ Upstream commit 6769b275a313c76ddcd7d94c632032326db5f759 ]
+[ Upstream commit ed1220df6e666500ebf58c4f2fccc681941646fb ]
 
-The variable buf_addr is type dma_addr_t, which may not be the same size
-as a pointer.  To ensure it is the correct size, cast to a uintptr_t.
+For mono channel, SSI will switch to Normal mode.
 
-Fixes: c536277e0db1 ("RDMA/siw: Fix 64/32bit pointer inconsistency")
-Link: https://lore.kernel.org/r/20200610174717.15932-1-tseewald@gmail.com
-Signed-off-by: Tom Seewald <tseewald@gmail.com>
-Reviewed-by: Bernard Metzler <bmt@zurich.ibm.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+In Normal mode and Network mode, the Word Length Control bits
+control the word length divider in clock generator, which is
+different with I2S Master mode (the word length is fixed to
+32bit), it should be the value of params_width(hw_params).
+
+The condition "slots == 2" is not good for I2S Master mode,
+because for Network mode and Normal mode, the slots can also
+be 2. Then we need to use (ssi->i2s_net & SSI_SCR_I2S_MODE_MASK)
+to check if it is I2S Master mode.
+
+So we refine the formula for mono channel, otherwise there
+will be sound issue for S24_LE.
+
+Fixes: b0a7043d5c2c ("ASoC: fsl_ssi: Caculate bit clock rate using slot number and width")
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Reviewed-by: Nicolin Chen <nicoleotsuka@gmail.com>
+Link: https://lore.kernel.org/r/034eff1435ff6ce300b6c781130cefd9db22ab9a.1592276147.git.shengjiu.wang@nxp.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/siw/siw_qp_rx.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/soc/fsl/fsl_ssi.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/infiniband/sw/siw/siw_qp_rx.c b/drivers/infiniband/sw/siw/siw_qp_rx.c
-index c0a8872403258..0520e70084f97 100644
---- a/drivers/infiniband/sw/siw/siw_qp_rx.c
-+++ b/drivers/infiniband/sw/siw/siw_qp_rx.c
-@@ -139,7 +139,8 @@ static int siw_rx_pbl(struct siw_rx_stream *srx, int *pbl_idx,
- 			break;
+diff --git a/sound/soc/fsl/fsl_ssi.c b/sound/soc/fsl/fsl_ssi.c
+index 537dc69256f0e..a4ebd6ddaba10 100644
+--- a/sound/soc/fsl/fsl_ssi.c
++++ b/sound/soc/fsl/fsl_ssi.c
+@@ -678,8 +678,9 @@ static int fsl_ssi_set_bclk(struct snd_pcm_substream *substream,
+ 	struct regmap *regs = ssi->regs;
+ 	u32 pm = 999, div2, psr, stccr, mask, afreq, factor, i;
+ 	unsigned long clkrate, baudrate, tmprate;
+-	unsigned int slots = params_channels(hw_params);
+-	unsigned int slot_width = 32;
++	unsigned int channels = params_channels(hw_params);
++	unsigned int slot_width = params_width(hw_params);
++	unsigned int slots = 2;
+ 	u64 sub, savesub = 100000;
+ 	unsigned int freq;
+ 	bool baudclk_is_used;
+@@ -688,10 +689,14 @@ static int fsl_ssi_set_bclk(struct snd_pcm_substream *substream,
+ 	/* Override slots and slot_width if being specifically set... */
+ 	if (ssi->slots)
+ 		slots = ssi->slots;
+-	/* ...but keep 32 bits if slots is 2 -- I2S Master mode */
+-	if (ssi->slot_width && slots != 2)
++	if (ssi->slot_width)
+ 		slot_width = ssi->slot_width;
  
- 		bytes = min(bytes, len);
--		if (siw_rx_kva(srx, (void *)buf_addr, bytes) == bytes) {
-+		if (siw_rx_kva(srx, (void *)(uintptr_t)buf_addr, bytes) ==
-+		    bytes) {
- 			copied += bytes;
- 			offset += bytes;
- 			len -= bytes;
++	/* ...but force 32 bits for stereo audio using I2S Master Mode */
++	if (channels == 2 &&
++	    (ssi->i2s_net & SSI_SCR_I2S_MODE_MASK) == SSI_SCR_I2S_MODE_MASTER)
++		slot_width = 32;
++
+ 	/* Generate bit clock based on the slot number and slot width */
+ 	freq = slots * slot_width * params_rate(hw_params);
+ 
 -- 
 2.25.1
 
