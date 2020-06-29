@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6343C20DA5F
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:13:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9949F20DACD
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:14:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388433AbgF2T43 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:56:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47660 "EHLO mail.kernel.org"
+        id S2388496AbgF2UAn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:00:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387644AbgF2TkY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:24 -0400
+        id S2387563AbgF2TkQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C915F251BD;
-        Mon, 29 Jun 2020 15:28:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 961C5251BF;
+        Mon, 29 Jun 2020 15:28:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444492;
-        bh=1+Nu6MuUBTW3BOlVA/Y9jOm5rWUIfLwpB4nC3oDiAdQ=;
+        s=default; t=1593444493;
+        bh=Wey9NWm6SEoUMi8gGkWxezjIJSpDGHLnsTrE9L0Do0s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mZ99LQDNdHbSeH7arLcxJjQVQTEVgXrZdmk1f2c70MQ1ACki/ucU67UgPnpE/KAGJ
-         2sYVD8uyouNU4cqZkj67gizBSnQ1g36k8EYB3NuHL0Vdi3yyiEHUh8syXFR8MRfsBI
-         I43I5yMo2R3ftzrtmzBw2H/gIeJ6FrJxQCgpYCio=
+        b=l3FhNENfVyGIk2Op5pvNMa/INtb0Y91TGxpXQJFYbx1dMxSZTqKKgRCPrY3okxZzA
+         z3E1MbspWMIATaTlDlRWiWufAhbQ71Yb5fD3tRpe7yylN+CA9/VoLEO3dY0aZhibSg
+         5BvWpRU2li3hLnjiytI7xcGmXF4bt+7Bg0m7xOIs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+Cc:     Vasily Averin <vvs@virtuozzo.com>,
+        Jeff Layton <jlayton@redhat.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.4 169/178] Staging: rtl8723bs: prevent buffer overflow in update_sta_support_rate()
-Date:   Mon, 29 Jun 2020 11:25:14 -0400
-Message-Id: <20200629152523.2494198-170-sashal@kernel.org>
+Subject: [PATCH 5.4 170/178] sunrpc: fixed rollback in rpc_gssd_dummy_populate()
+Date:   Mon, 29 Jun 2020 11:25:15 -0400
+Message-Id: <20200629152523.2494198-171-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -48,43 +50,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-commit b65a2d8c8614386f7e8d38ea150749f8a862f431 upstream.
+commit b7ade38165ca0001c5a3bd5314a314abbbfbb1b7 upstream.
 
-The "ie_len" variable is in the 0-255 range and it comes from the
-network.  If it's over NDIS_802_11_LENGTH_RATES_EX (16) then that will
-lead to memory corruption.
+__rpc_depopulate(gssd_dentry) was lost on error path
 
-Fixes: 554c0a3abf21 ("staging: Add rtl8723bs sdio wifi driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200603101958.GA1845750@mwanda
+cc: stable@vger.kernel.org
+Fixes: commit 4b9a445e3eeb ("sunrpc: create a new dummy pipe for gssd to hold open")
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Reviewed-by: Jeff Layton <jlayton@redhat.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/rtl8723bs/core/rtw_wlan_util.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/sunrpc/rpc_pipe.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/staging/rtl8723bs/core/rtw_wlan_util.c b/drivers/staging/rtl8723bs/core/rtw_wlan_util.c
-index ea3ea2a6b3142..f6678ba6d4bc7 100644
---- a/drivers/staging/rtl8723bs/core/rtw_wlan_util.c
-+++ b/drivers/staging/rtl8723bs/core/rtw_wlan_util.c
-@@ -1845,12 +1845,14 @@ int update_sta_support_rate(struct adapter *padapter, u8 *pvar_ie, uint var_ie_l
- 	pIE = (struct ndis_80211_var_ie *)rtw_get_ie(pvar_ie, _SUPPORTEDRATES_IE_, &ie_len, var_ie_len);
- 	if (!pIE)
- 		return _FAIL;
-+	if (ie_len > sizeof(pmlmeinfo->FW_sta_info[cam_idx].SupportedRates))
-+		return _FAIL;
- 
- 	memcpy(pmlmeinfo->FW_sta_info[cam_idx].SupportedRates, pIE->data, ie_len);
- 	supportRateNum = ie_len;
- 
- 	pIE = (struct ndis_80211_var_ie *)rtw_get_ie(pvar_ie, _EXT_SUPPORTEDRATES_IE_, &ie_len, var_ie_len);
--	if (pIE)
-+	if (pIE && (ie_len <= sizeof(pmlmeinfo->FW_sta_info[cam_idx].SupportedRates) - supportRateNum))
- 		memcpy((pmlmeinfo->FW_sta_info[cam_idx].SupportedRates + supportRateNum), pIE->data, ie_len);
- 
- 	return _SUCCESS;
+diff --git a/net/sunrpc/rpc_pipe.c b/net/sunrpc/rpc_pipe.c
+index b71a39ded930a..37792675ed571 100644
+--- a/net/sunrpc/rpc_pipe.c
++++ b/net/sunrpc/rpc_pipe.c
+@@ -1317,6 +1317,7 @@ rpc_gssd_dummy_populate(struct dentry *root, struct rpc_pipe *pipe_data)
+ 	q.len = strlen(gssd_dummy_clnt_dir[0].name);
+ 	clnt_dentry = d_hash_and_lookup(gssd_dentry, &q);
+ 	if (!clnt_dentry) {
++		__rpc_depopulate(gssd_dentry, gssd_dummy_clnt_dir, 0, 1);
+ 		pipe_dentry = ERR_PTR(-ENOENT);
+ 		goto out;
+ 	}
 -- 
 2.25.1
 
