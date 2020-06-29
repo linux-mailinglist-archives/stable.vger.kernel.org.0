@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AEC3120E6BC
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:09:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D972520E864
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:12:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391502AbgF2Vtz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:49:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56794 "EHLO mail.kernel.org"
+        id S1726144AbgF2WGS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 18:06:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726690AbgF2Sfl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:35:41 -0400
+        id S1726131AbgF2SfS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:35:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 87A7324728;
-        Mon, 29 Jun 2020 15:20:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 942FC24726;
+        Mon, 29 Jun 2020 15:20:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444047;
-        bh=Ht9oBW9+GiV9POucHEmRG02sEXdW3uG9rcfD6XnO24g=;
+        s=default; t=1593444048;
+        bh=5xZ9Bfz31l30pCq45KyeE0+gkOEVNXg0vIJALHphUow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qWmldLe71n+UNtLg3JKqlUzWhCEM2AyKcDV1V4gaU1BXfXgN75GQ7Ndn1yj/4xfQ3
-         gPmfaDqrJvsF2dXQ33m0JCi8bD9RfvY1QUVR93DEgS9K3m21jB+ZRjdfWY/Ctl2mYY
-         AR3Lv9kY9TfuEq2dxXa1A7+9LcMkTMy0dzJoQya4=
+        b=wtE3fHB/MOwn8HQfpPKBpLlC34XKZ6nEJEU01oX5eggfvXaNX58jQndKaKFNyd1v5
+         oOefkTFZvUhstohIckcC0Hbh0QXWn7PBqYpslaPkYAJiA92FkD3PL+WBVJwOkJxeFy
+         n90vzYY6CclVeOpVugsZJSLvsDLbZd/bZVHjBRd8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Lobakin <alobakin@marvell.com>,
-        Igor Russkikh <irusskikh@marvell.com>,
-        Michal Kalderon <michal.kalderon@marvell.com>,
+Cc:     Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 154/265] net: qed: reset ILT block sizes before recomputing to fix crashes
-Date:   Mon, 29 Jun 2020 11:16:27 -0400
-Message-Id: <20200629151818.2493727-155-sashal@kernel.org>
+Subject: [PATCH 5.7 155/265] cxgb4: move handling L2T ARP failures to caller
+Date:   Mon, 29 Jun 2020 11:16:28 -0400
+Message-Id: <20200629151818.2493727-156-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -51,61 +49,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alobakin@marvell.com>
+From: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
 
-[ Upstream commit c221dd1831732449f844e03631a34fd21c2b9429 ]
+[ Upstream commit 11d8cd5c9f3b46f397f889cefdb66795518aaebd ]
 
-Sizes of all ILT blocks must be reset before ILT recomputing when
-disabling clients, or memory allocation may exceed ILT shadow array
-and provoke system crashes.
+Move code handling L2T ARP failures to the only caller.
 
-Fixes: 1408cc1fa48c ("qed: Introduce VFs")
-Signed-off-by: Alexander Lobakin <alobakin@marvell.com>
-Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
-Signed-off-by: Michal Kalderon <michal.kalderon@marvell.com>
+Fixes following sparse warning:
+skbuff.h:2091:29: warning: context imbalance in
+'handle_failed_resolution' - unexpected unlock
+
+Fixes: 749cb5fe48bb ("cxgb4: Replace arpq_head/arpq_tail with SKB double link-list code")
+Signed-off-by: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_cxt.c | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ drivers/net/ethernet/chelsio/cxgb4/l2t.c | 52 +++++++++++-------------
+ 1 file changed, 24 insertions(+), 28 deletions(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_cxt.c b/drivers/net/ethernet/qlogic/qed/qed_cxt.c
-index 1880aa1d3bb59..aeed8939f410a 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_cxt.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_cxt.c
-@@ -442,6 +442,20 @@ static struct qed_ilt_cli_blk *qed_cxt_set_blk(struct qed_ilt_cli_blk *p_blk)
- 	return p_blk;
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/l2t.c b/drivers/net/ethernet/chelsio/cxgb4/l2t.c
+index 72b37a66c7d88..0ed20a9cca144 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/l2t.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/l2t.c
+@@ -502,41 +502,20 @@ u64 cxgb4_select_ntuple(struct net_device *dev,
+ }
+ EXPORT_SYMBOL(cxgb4_select_ntuple);
+ 
+-/*
+- * Called when address resolution fails for an L2T entry to handle packets
+- * on the arpq head.  If a packet specifies a failure handler it is invoked,
+- * otherwise the packet is sent to the device.
+- */
+-static void handle_failed_resolution(struct adapter *adap, struct l2t_entry *e)
+-{
+-	struct sk_buff *skb;
+-
+-	while ((skb = __skb_dequeue(&e->arpq)) != NULL) {
+-		const struct l2t_skb_cb *cb = L2T_SKB_CB(skb);
+-
+-		spin_unlock(&e->lock);
+-		if (cb->arp_err_handler)
+-			cb->arp_err_handler(cb->handle, skb);
+-		else
+-			t4_ofld_send(adap, skb);
+-		spin_lock(&e->lock);
+-	}
+-}
+-
+ /*
+  * Called when the host's neighbor layer makes a change to some entry that is
+  * loaded into the HW L2 table.
+  */
+ void t4_l2t_update(struct adapter *adap, struct neighbour *neigh)
+ {
+-	struct l2t_entry *e;
+-	struct sk_buff_head *arpq = NULL;
+-	struct l2t_data *d = adap->l2t;
+ 	unsigned int addr_len = neigh->tbl->key_len;
+ 	u32 *addr = (u32 *) neigh->primary_key;
+-	int ifidx = neigh->dev->ifindex;
+-	int hash = addr_hash(d, addr, addr_len, ifidx);
++	int hash, ifidx = neigh->dev->ifindex;
++	struct sk_buff_head *arpq = NULL;
++	struct l2t_data *d = adap->l2t;
++	struct l2t_entry *e;
+ 
++	hash = addr_hash(d, addr, addr_len, ifidx);
+ 	read_lock_bh(&d->lock);
+ 	for (e = d->l2tab[hash].first; e; e = e->next)
+ 		if (!addreq(e, addr) && e->ifindex == ifidx) {
+@@ -569,8 +548,25 @@ void t4_l2t_update(struct adapter *adap, struct neighbour *neigh)
+ 			write_l2e(adap, e, 0);
+ 	}
+ 
+-	if (arpq)
+-		handle_failed_resolution(adap, e);
++	if (arpq) {
++		struct sk_buff *skb;
++
++		/* Called when address resolution fails for an L2T
++		 * entry to handle packets on the arpq head. If a
++		 * packet specifies a failure handler it is invoked,
++		 * otherwise the packet is sent to the device.
++		 */
++		while ((skb = __skb_dequeue(&e->arpq)) != NULL) {
++			const struct l2t_skb_cb *cb = L2T_SKB_CB(skb);
++
++			spin_unlock(&e->lock);
++			if (cb->arp_err_handler)
++				cb->arp_err_handler(cb->handle, skb);
++			else
++				t4_ofld_send(adap, skb);
++			spin_lock(&e->lock);
++		}
++	}
+ 	spin_unlock_bh(&e->lock);
  }
  
-+static void qed_cxt_ilt_blk_reset(struct qed_hwfn *p_hwfn)
-+{
-+	struct qed_ilt_client_cfg *clients = p_hwfn->p_cxt_mngr->clients;
-+	u32 cli_idx, blk_idx;
-+
-+	for (cli_idx = 0; cli_idx < MAX_ILT_CLIENTS; cli_idx++) {
-+		for (blk_idx = 0; blk_idx < ILT_CLI_PF_BLOCKS; blk_idx++)
-+			clients[cli_idx].pf_blks[blk_idx].total_size = 0;
-+
-+		for (blk_idx = 0; blk_idx < ILT_CLI_VF_BLOCKS; blk_idx++)
-+			clients[cli_idx].vf_blks[blk_idx].total_size = 0;
-+	}
-+}
-+
- int qed_cxt_cfg_ilt_compute(struct qed_hwfn *p_hwfn, u32 *line_count)
- {
- 	struct qed_cxt_mngr *p_mngr = p_hwfn->p_cxt_mngr;
-@@ -461,6 +475,11 @@ int qed_cxt_cfg_ilt_compute(struct qed_hwfn *p_hwfn, u32 *line_count)
- 
- 	p_mngr->pf_start_line = RESC_START(p_hwfn, QED_ILT);
- 
-+	/* Reset all ILT blocks at the beginning of ILT computing in order
-+	 * to prevent memory allocation for irrelevant blocks afterwards.
-+	 */
-+	qed_cxt_ilt_blk_reset(p_hwfn);
-+
- 	DP_VERBOSE(p_hwfn, QED_MSG_ILT,
- 		   "hwfn [%d] - Set context manager starting line to be 0x%08x\n",
- 		   p_hwfn->my_id, p_hwfn->p_cxt_mngr->pf_start_line);
 -- 
 2.25.1
 
