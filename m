@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3345820D3C7
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 21:13:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B411E20D3C6
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 21:13:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730203AbgF2TCE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727997AbgF2TCE (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 29 Jun 2020 15:02:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45438 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730358AbgF2TAV (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730354AbgF2TAV (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 29 Jun 2020 15:00:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A7EDA25519;
-        Mon, 29 Jun 2020 15:54:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8FC5725518;
+        Mon, 29 Jun 2020 15:54:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593446073;
-        bh=nnG65npblopB49xLdLnlkOiuMveqdiuLEcgLLxBTwKo=;
+        s=default; t=1593446074;
+        bh=7MlvgpPyDiNSt0lwyi/GdEL6i/uftduwAr+4gQhJWJo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=baWVMTkBuoQ3AB/z30Hj4C5+HANgNouQ3Y9LryVp9eLWiwWz0JOyuDGLYe6B3WLDi
-         mOmyKrLzyCZhEPZ3sk/hc5UnONqIbMk8M7QQd0jXrehkB6QWIBJpWYzrXHZdkPd5l7
-         XX2oAb2jxeRFVVnlAYqc0quxETKWEWAB9EscGkgQ=
+        b=jVjpeAA7cCRfyIv4ADLNBckwzdGtqTZ28kEhGXLDkIJHfTO9G+DSLIfA0FTozCZRt
+         eWwUmV7haAVQNDJ2bKHoX26V5nvsn3xs/Qdi41ag/OMD7m1N+8kmpI3BQC51zqX5jJ
+         YTqEPMN178nAaK0GlcSptwuXl0WdRH38wpDJPbRc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 071/135] powerpc/kprobes: Fixes for kprobe_lookup_name() on BE
-Date:   Mon, 29 Jun 2020 11:52:05 -0400
-Message-Id: <20200629155309.2495516-72-sashal@kernel.org>
+Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
+        Andrea Righi <righi.andrea@gmail.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 072/135] x86/kprobes: Avoid kretprobe recursion bug
+Date:   Mon, 29 Jun 2020 11:52:06 -0400
+Message-Id: <20200629155309.2495516-73-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
 References: <20200629155309.2495516-1-sashal@kernel.org>
@@ -49,48 +54,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit 30176466e36aadba01e1a630cf42397a3438efa4 ]
+[ Upstream commit b191fa96ea6dc00d331dcc28c1f7db5e075693a0 ]
 
-Fix two issues with kprobes.h on BE which were exposed with the
-optprobes work:
-  - one, having to do with a missing include for linux/module.h for
-    MODULE_NAME_LEN -- this didn't show up previously since the only
-    users of kprobe_lookup_name were in kprobes.c, which included
-    linux/module.h through other headers, and
-  - two, with a missing const qualifier for a local variable which ends
-    up referring a string literal. Again, this is unique to how
-    kprobe_lookup_name is being invoked in optprobes.c
+Avoid kretprobe recursion loop bg by setting a dummy
+kprobes to current_kprobe per-CPU variable.
 
-Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+This bug has been introduced with the asm-coded trampoline
+code, since previously it used another kprobe for hooking
+the function return placeholder (which only has a nop) and
+trampoline handler was called from that kprobe.
+
+This revives the old lost kprobe again.
+
+With this fix, we don't see deadlock anymore.
+
+And you can see that all inner-called kretprobe are skipped.
+
+  event_1                                  235               0
+  event_2                                19375           19612
+
+The 1st column is recorded count and the 2nd is missed count.
+Above shows (event_1 rec) + (event_2 rec) ~= (event_2 missed)
+(some difference are here because the counter is racy)
+
+Reported-by: Andrea Righi <righi.andrea@gmail.com>
+Tested-by: Andrea Righi <righi.andrea@gmail.com>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Acked-by: Steven Rostedt <rostedt@goodmis.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Fixes: c9becf58d935 ("[PATCH] kretprobe: kretprobe-booster")
+Link: http://lkml.kernel.org/r/155094064889.6137.972160690963039.stgit@devbox
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/kprobes.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/kernel/kprobes/core.c | 22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/kprobes.h b/arch/powerpc/include/asm/kprobes.h
-index 039b583db0292..f0717eedf781c 100644
---- a/arch/powerpc/include/asm/kprobes.h
-+++ b/arch/powerpc/include/asm/kprobes.h
-@@ -29,6 +29,7 @@
- #include <linux/types.h>
- #include <linux/ptrace.h>
- #include <linux/percpu.h>
-+#include <linux/module.h>
- #include <asm/probes.h>
- #include <asm/code-patching.h>
+diff --git a/arch/x86/kernel/kprobes/core.c b/arch/x86/kernel/kprobes/core.c
+index 7c48aa03fe77a..7d2e2e40bbba3 100644
+--- a/arch/x86/kernel/kprobes/core.c
++++ b/arch/x86/kernel/kprobes/core.c
+@@ -736,11 +736,16 @@ static void __used kretprobe_trampoline_holder(void)
+ NOKPROBE_SYMBOL(kretprobe_trampoline_holder);
+ NOKPROBE_SYMBOL(kretprobe_trampoline);
  
-@@ -61,7 +62,7 @@ typedef ppc_opcode_t kprobe_opcode_t;
- #define kprobe_lookup_name(name, addr)					\
- {									\
- 	char dot_name[MODULE_NAME_LEN + 1 + KSYM_NAME_LEN];		\
--	char *modsym;							\
-+	const char *modsym;							\
- 	bool dot_appended = false;					\
- 	if ((modsym = strchr(name, ':')) != NULL) {			\
- 		modsym++;						\
++static struct kprobe kretprobe_kprobe = {
++	.addr = (void *)kretprobe_trampoline,
++};
++
+ /*
+  * Called from kretprobe_trampoline
+  */
+ __visible __used void *trampoline_handler(struct pt_regs *regs)
+ {
++	struct kprobe_ctlblk *kcb;
+ 	struct kretprobe_instance *ri = NULL;
+ 	struct hlist_head *head, empty_rp;
+ 	struct hlist_node *tmp;
+@@ -750,6 +755,17 @@ __visible __used void *trampoline_handler(struct pt_regs *regs)
+ 	void *frame_pointer;
+ 	bool skipped = false;
+ 
++	preempt_disable();
++
++	/*
++	 * Set a dummy kprobe for avoiding kretprobe recursion.
++	 * Since kretprobe never run in kprobe handler, kprobe must not
++	 * be running at this point.
++	 */
++	kcb = get_kprobe_ctlblk();
++	__this_cpu_write(current_kprobe, &kretprobe_kprobe);
++	kcb->kprobe_status = KPROBE_HIT_ACTIVE;
++
+ 	INIT_HLIST_HEAD(&empty_rp);
+ 	kretprobe_hash_lock(current, &head, &flags);
+ 	/* fixup registers */
+@@ -825,10 +841,9 @@ __visible __used void *trampoline_handler(struct pt_regs *regs)
+ 		orig_ret_address = (unsigned long)ri->ret_addr;
+ 		if (ri->rp && ri->rp->handler) {
+ 			__this_cpu_write(current_kprobe, &ri->rp->kp);
+-			get_kprobe_ctlblk()->kprobe_status = KPROBE_HIT_ACTIVE;
+ 			ri->ret_addr = correct_ret_addr;
+ 			ri->rp->handler(ri, regs);
+-			__this_cpu_write(current_kprobe, NULL);
++			__this_cpu_write(current_kprobe, &kretprobe_kprobe);
+ 		}
+ 
+ 		recycle_rp_inst(ri, &empty_rp);
+@@ -844,6 +859,9 @@ __visible __used void *trampoline_handler(struct pt_regs *regs)
+ 
+ 	kretprobe_hash_unlock(current, &flags);
+ 
++	__this_cpu_write(current_kprobe, NULL);
++	preempt_enable();
++
+ 	hlist_for_each_entry_safe(ri, tmp, &empty_rp, hlist) {
+ 		hlist_del(&ri->hlist);
+ 		kfree(ri);
 -- 
 2.25.1
 
