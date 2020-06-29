@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0236520DB00
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:14:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F94D20DC05
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:16:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387619AbgF2UCp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:02:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40580 "EHLO mail.kernel.org"
+        id S1729976AbgF2UL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:11:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733006AbgF2Tad (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:30:33 -0400
+        id S1732897AbgF2TaV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:30:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4EDCB2524A;
-        Mon, 29 Jun 2020 15:36:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 72BD82524C;
+        Mon, 29 Jun 2020 15:36:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444963;
-        bh=bsjkEPlMaZYEEPYBQu3CvF/iDRd/LbjtbUl6h2D/N7c=;
+        s=default; t=1593444964;
+        bh=KJUCqd4rgt2KFzP8sLsgHMd1fLX7cHSIFn0BssomEV4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=19uSIz6z6FktWfetDSXEsAwrXpx2BAudyDIfW6ttCSPkUe2FhcV3TIyEhxnT2nnd+
-         7FwA6ZO4uPUOVLnFSaJaY3OBMfwV4Cmsika/jzYWmdC9MoJw6+lME4Fy26w16l/oQO
-         iYAB/xorfoc/WU2tfMrrFG9gFSo1hOyBN2LZE8Mw=
+        b=Qpwt8BOorX3CgYhFvIoc+oGixKQth+cbZ/Ty6Wa5MzNGgIBsEGysAxpjJPkl/ryv0
+         Bc9Uhu65h0INHPUMkoibK2PyZyZb9FPWBuE0tMCT4vvtKL1unEU9/58tvEZjhXF6I3
+         w75VSdtHE8TZWkw9BacwnLtSZ0kZ7plXHSaRykoI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Huy Nguyen <huyn@mellanox.com>,
-        Boris Pismenny <borisp@mellanox.com>,
-        Raed Salem <raeds@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+Cc:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 061/131] xfrm: Fix double ESP trailer insertion in IPsec crypto offload.
-Date:   Mon, 29 Jun 2020 11:33:52 -0400
-Message-Id: <20200629153502.2494656-62-sashal@kernel.org>
+Subject: [PATCH 4.19 062/131] ASoC: q6asm: handle EOS correctly
+Date:   Mon, 29 Jun 2020 11:33:53 -0400
+Message-Id: <20200629153502.2494656-63-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629153502.2494656-1-sashal@kernel.org>
 References: <20200629153502.2494656-1-sashal@kernel.org>
@@ -52,65 +49,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huy Nguyen <huyn@mellanox.com>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit 94579ac3f6d0820adc83b5dc5358ead0158101e9 ]
+[ Upstream commit 6476b60f32866be49d05e2e0163f337374c55b06 ]
 
-During IPsec performance testing, we see bad ICMP checksum. The error packet
-has duplicated ESP trailer due to double validate_xmit_xfrm calls. The first call
-is from ip_output, but the packet cannot be sent because
-netif_xmit_frozen_or_stopped is true and the packet gets dev_requeue_skb. The second
-call is from NET_TX softirq. However after the first call, the packet already
-has the ESP trailer.
+Successful send of EOS command does not indicate that EOS is actually
+finished, correct event to wait EOS is finished is EOS_RENDERED event.
+EOS_RENDERED means that the DSP has finished processing all the buffers
+for that particular session and stream.
 
-Fix by marking the skb with XFRM_XMIT bit after the packet is handled by
-validate_xmit_xfrm to avoid duplicate ESP trailer insertion.
+This patch fixes EOS handling!
 
-Fixes: f6e27114a60a ("net: Add a xfrm validate function to validate_xmit_skb")
-Signed-off-by: Huy Nguyen <huyn@mellanox.com>
-Reviewed-by: Boris Pismenny <borisp@mellanox.com>
-Reviewed-by: Raed Salem <raeds@mellanox.com>
-Reviewed-by: Saeed Mahameed <saeedm@mellanox.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Fixes: 68fd8480bb7b ("ASoC: qdsp6: q6asm: Add support to audio stream apis")
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20200611124159.20742-3-srinivas.kandagatla@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/xfrm.h     | 1 +
- net/xfrm/xfrm_device.c | 4 +++-
- 2 files changed, 4 insertions(+), 1 deletion(-)
+ sound/soc/qcom/qdsp6/q6asm.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/include/net/xfrm.h b/include/net/xfrm.h
-index 48dc1ce2170d8..f087c8d125b8f 100644
---- a/include/net/xfrm.h
-+++ b/include/net/xfrm.h
-@@ -1083,6 +1083,7 @@ struct xfrm_offload {
- #define	XFRM_GRO		32
- #define	XFRM_ESP_NO_TRAILER	64
- #define	XFRM_DEV_RESUME		128
-+#define	XFRM_XMIT		256
+diff --git a/sound/soc/qcom/qdsp6/q6asm.c b/sound/soc/qcom/qdsp6/q6asm.c
+index 2b2c7233bb5fa..1bdacf7976139 100644
+--- a/sound/soc/qcom/qdsp6/q6asm.c
++++ b/sound/soc/qcom/qdsp6/q6asm.c
+@@ -25,6 +25,7 @@
+ #define ASM_STREAM_CMD_FLUSH			0x00010BCE
+ #define ASM_SESSION_CMD_PAUSE			0x00010BD3
+ #define ASM_DATA_CMD_EOS			0x00010BDB
++#define ASM_DATA_EVENT_RENDERED_EOS		0x00010C1C
+ #define ASM_NULL_POPP_TOPOLOGY			0x00010C68
+ #define ASM_STREAM_CMD_FLUSH_READBUFS		0x00010C09
+ #define ASM_STREAM_CMD_SET_ENCDEC_PARAM		0x00010C10
+@@ -545,9 +546,6 @@ static int32_t q6asm_stream_callback(struct apr_device *adev,
+ 		case ASM_SESSION_CMD_SUSPEND:
+ 			client_event = ASM_CLIENT_EVENT_CMD_SUSPEND_DONE;
+ 			break;
+-		case ASM_DATA_CMD_EOS:
+-			client_event = ASM_CLIENT_EVENT_CMD_EOS_DONE;
+-			break;
+ 		case ASM_STREAM_CMD_FLUSH:
+ 			client_event = ASM_CLIENT_EVENT_CMD_FLUSH_DONE;
+ 			break;
+@@ -650,6 +648,9 @@ static int32_t q6asm_stream_callback(struct apr_device *adev,
+ 			spin_unlock_irqrestore(&ac->lock, flags);
+ 		}
  
- 	__u32			status;
- #define CRYPTO_SUCCESS				1
-diff --git a/net/xfrm/xfrm_device.c b/net/xfrm/xfrm_device.c
-index 8634ce6771421..e7a0ce98479f3 100644
---- a/net/xfrm/xfrm_device.c
-+++ b/net/xfrm/xfrm_device.c
-@@ -33,7 +33,7 @@ struct sk_buff *validate_xmit_xfrm(struct sk_buff *skb, netdev_features_t featur
- 	netdev_features_t esp_features = features;
- 	struct xfrm_offload *xo = xfrm_offload(skb);
- 
--	if (!xo)
-+	if (!xo || (xo->flags & XFRM_XMIT))
- 		return skb;
- 
- 	if (!(features & NETIF_F_HW_ESP))
-@@ -53,6 +53,8 @@ struct sk_buff *validate_xmit_xfrm(struct sk_buff *skb, netdev_features_t featur
- 		return skb;
++		break;
++	case ASM_DATA_EVENT_RENDERED_EOS:
++		client_event = ASM_CLIENT_EVENT_CMD_EOS_DONE;
+ 		break;
  	}
- 
-+	xo->flags |= XFRM_XMIT;
-+
- 	if (skb_is_gso(skb)) {
- 		struct net_device *dev = skb->dev;
  
 -- 
 2.25.1
