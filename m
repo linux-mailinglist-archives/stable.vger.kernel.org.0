@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3479120D6F9
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:06:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A320820DC2A
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:17:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732684AbgF2TZo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:25:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37040 "EHLO mail.kernel.org"
+        id S1726796AbgF2UNI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:13:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732639AbgF2TZm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:25:42 -0400
+        id S1732866AbgF2TaU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:30:20 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A472F25350;
-        Mon, 29 Jun 2020 15:40:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 64DD2252D9;
+        Mon, 29 Jun 2020 15:38:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445212;
-        bh=ZU5O1gB835UeqWtaz1gNddsc1/ysFadOpSpz+cJ4rGA=;
+        s=default; t=1593445101;
+        bh=3ZMdc+RGeK23hlZouBqse1iDaDpe7ynZ7ye5vWuCnWI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uibM17Wy9KGNqPahmNZEHFOonY7xy7kjTM71jmza8Dm9014c4bSurPzXKgsz9uEmx
-         DV3jmOTPnO7IGs2WU7HQt7wE04x/F4UCrllkykldd6haeFT6jDrT6IdSBQrq66oIjv
-         mn8tUsS0Wu7ksofqy820PdFaqvjNbavD6s3VySvw=
+        b=m44OD4zdwAJWw5lYC4xMgVUEmjV3SU/wEotRd9Nz6KCKAx5hNLNce0Az1w/2/h/2B
+         fZ5mC6z/TX6eVy9IqrU91qc3hfsEOTndrT1vP7MDXTDkcAWZTjRLoPZScejuSNYFtk
+         kQPDTsozY4YcMyGbuAmKo/MZpqH6GyMGg3xd9ikE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 001/191] power: supply: bq24257_charger: Replace depends on REGMAP_I2C with select
-Date:   Mon, 29 Jun 2020 11:36:57 -0400
-Message-Id: <20200629154007.2495120-2-sashal@kernel.org>
+Cc:     Yang Yingliang <yangyingliang@huawei.com>,
+        Hulk Robot <hulkci@huawei.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 4.14 10/78] net: fix memleak in register_netdevice()
+Date:   Mon, 29 Jun 2020 11:36:58 -0400
+Message-Id: <20200629153806.2494953-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
-References: <20200629154007.2495120-1-sashal@kernel.org>
+In-Reply-To: <20200629153806.2494953-1-sashal@kernel.org>
+References: <20200629153806.2494953-1-sashal@kernel.org>
 MIME-Version: 1.0
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.229-rc1.gz
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.186-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.9.y
+X-KernelTest-Branch: linux-4.14.y
 X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.9.229-rc1
-X-KernelTest-Deadline: 2020-07-01T15:39+00:00
+X-KernelTest-Version: 4.14.186-rc1
+X-KernelTest-Deadline: 2020-07-01T15:38+00:00
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -49,36 +50,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 87c3d579c8ed0eaea6b1567d529a8daa85a2bc6c ]
+[ Upstream commit 814152a89ed52c722ab92e9fbabcac3cb8a39245 ]
 
-regmap is a library function that gets selected by drivers that need
-it. No driver modules should depend on it. Depending on REGMAP_I2C makes
-this driver only build if another driver already selected REGMAP_I2C,
-as the symbol can't be selected through the menu kernel configuration.
+I got a memleak report when doing some fuzz test:
 
-Fixes: 2219a935963e ("power_supply: Add TI BQ24257 charger driver")
-Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+unreferenced object 0xffff888112584000 (size 13599):
+  comm "ip", pid 3048, jiffies 4294911734 (age 343.491s)
+  hex dump (first 32 bytes):
+    74 61 70 30 00 00 00 00 00 00 00 00 00 00 00 00  tap0............
+    00 ee d9 19 81 88 ff ff 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<000000002f60ba65>] __kmalloc_node+0x309/0x3a0
+    [<0000000075b211ec>] kvmalloc_node+0x7f/0xc0
+    [<00000000d3a97396>] alloc_netdev_mqs+0x76/0xfc0
+    [<00000000609c3655>] __tun_chr_ioctl+0x1456/0x3d70
+    [<000000001127ca24>] ksys_ioctl+0xe5/0x130
+    [<00000000b7d5e66a>] __x64_sys_ioctl+0x6f/0xb0
+    [<00000000e1023498>] do_syscall_64+0x56/0xa0
+    [<000000009ec0eb12>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+unreferenced object 0xffff888111845cc0 (size 8):
+  comm "ip", pid 3048, jiffies 4294911734 (age 343.491s)
+  hex dump (first 8 bytes):
+    74 61 70 30 00 88 ff ff                          tap0....
+  backtrace:
+    [<000000004c159777>] kstrdup+0x35/0x70
+    [<00000000d8b496ad>] kstrdup_const+0x3d/0x50
+    [<00000000494e884a>] kvasprintf_const+0xf1/0x180
+    [<0000000097880a2b>] kobject_set_name_vargs+0x56/0x140
+    [<000000008fbdfc7b>] dev_set_name+0xab/0xe0
+    [<000000005b99e3b4>] netdev_register_kobject+0xc0/0x390
+    [<00000000602704fe>] register_netdevice+0xb61/0x1250
+    [<000000002b7ca244>] __tun_chr_ioctl+0x1cd1/0x3d70
+    [<000000001127ca24>] ksys_ioctl+0xe5/0x130
+    [<00000000b7d5e66a>] __x64_sys_ioctl+0x6f/0xb0
+    [<00000000e1023498>] do_syscall_64+0x56/0xa0
+    [<000000009ec0eb12>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+unreferenced object 0xffff88811886d800 (size 512):
+  comm "ip", pid 3048, jiffies 4294911734 (age 343.491s)
+  hex dump (first 32 bytes):
+    00 00 00 00 ad 4e ad de ff ff ff ff 00 00 00 00  .....N..........
+    ff ff ff ff ff ff ff ff c0 66 3d a3 ff ff ff ff  .........f=.....
+  backtrace:
+    [<0000000050315800>] device_add+0x61e/0x1950
+    [<0000000021008dfb>] netdev_register_kobject+0x17e/0x390
+    [<00000000602704fe>] register_netdevice+0xb61/0x1250
+    [<000000002b7ca244>] __tun_chr_ioctl+0x1cd1/0x3d70
+    [<000000001127ca24>] ksys_ioctl+0xe5/0x130
+    [<00000000b7d5e66a>] __x64_sys_ioctl+0x6f/0xb0
+    [<00000000e1023498>] do_syscall_64+0x56/0xa0
+    [<000000009ec0eb12>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+If call_netdevice_notifiers() failed, then rollback_registered()
+calls netdev_unregister_kobject() which holds the kobject. The
+reference cannot be put because the netdev won't be add to todo
+list, so it will leads a memleak, we need put the reference to
+avoid memleak.
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/power/supply/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/core/dev.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/power/supply/Kconfig b/drivers/power/supply/Kconfig
-index 76806a0be820e..0de9a958b29a5 100644
---- a/drivers/power/supply/Kconfig
-+++ b/drivers/power/supply/Kconfig
-@@ -424,7 +424,7 @@ config CHARGER_BQ24257
- 	tristate "TI BQ24250/24251/24257 battery charger driver"
- 	depends on I2C
- 	depends on GPIOLIB || COMPILE_TEST
--	depends on REGMAP_I2C
-+	select REGMAP_I2C
- 	help
- 	  Say Y to enable support for the TI BQ24250, BQ24251, and BQ24257 battery
- 	  chargers.
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 0aaa1426450fa..1ee177485fd0f 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -7694,6 +7694,13 @@ int register_netdevice(struct net_device *dev)
+ 		rcu_barrier();
+ 
+ 		dev->reg_state = NETREG_UNREGISTERED;
++		/* We should put the kobject that hold in
++		 * netdev_unregister_kobject(), otherwise
++		 * the net device cannot be freed when
++		 * driver calls free_netdev(), because the
++		 * kobject is being hold.
++		 */
++		kobject_put(&dev->dev.kobj);
+ 	}
+ 	/*
+ 	 *	Prevent userspace races by waiting until the network
 -- 
 2.25.1
 
