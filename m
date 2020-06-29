@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6ECA20E643
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:08:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4AC920E7EB
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:12:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404099AbgF2Vps (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:45:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56906 "EHLO mail.kernel.org"
+        id S1726389AbgF2SfY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 14:35:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726775AbgF2Sfu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:35:50 -0400
+        id S1726209AbgF2SfX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:35:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA0D724739;
-        Mon, 29 Jun 2020 15:20:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3C4C2473B;
+        Mon, 29 Jun 2020 15:20:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444057;
-        bh=3hWHspX37AzT5nJB2ou9YS6LXgzkVdN09nZlqnESwZc=;
+        s=default; t=1593444059;
+        bh=OPjqXLYev10H5olWoqeIxX2UjObS9ZzCJfkGOS9eXLo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WMrLpoKOkwU/DPW2vO60qJ6eXerD0l5u7PKoCxCK0TtHGgVSDWFAFZnFzKDFswXWY
-         uxAOuZEwB1lNM1kFZS+K7p0ca8iMAfmYSJ2/MKEQABvZAmNlFQ/607rBoxu/+Gtzbz
-         Bg2Nt6XRtwHKE46EzXYZ7x/wwAzhfs+65XgoAN2w=
+        b=x+8ED3fLmMsJDR50lSZHAyfTNSfhp9HiVFYGP4801NZaxxeYIf8NHtqx4o5qjrxKy
+         llu52JxhUvbdWi/HHTq1Ep3zMorWnV5ap7iiWmmUsPNr3mHnoL/v8htYvE3OfnEs0q
+         ekwjjZf01eQp5zXCnuJF1alTIo7HBfzHFAWRv4Rk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anton Eidelman <anton@lightbitslabs.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 165/265] nvme-multipath: fix deadlock due to head->lock
-Date:   Mon, 29 Jun 2020 11:16:38 -0400
-Message-Id: <20200629151818.2493727-166-sashal@kernel.org>
+Cc:     Russell King <rmk+kernel@armlinux.org.uk>,
+        Jozsef Kadlecsik <kadlec@netfilter.org>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 167/265] netfilter: ipset: fix unaligned atomic access
+Date:   Mon, 29 Jun 2020 11:16:40 -0400
+Message-Id: <20200629151818.2493727-168-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -49,122 +50,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anton Eidelman <anton@lightbitslabs.com>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit d8a22f85609fadb46ba699e0136cc3ebdeebff79 ]
+[ Upstream commit 715028460082d07a7ec6fcd87b14b46784346a72 ]
 
-In the following scenario scan_work and ana_work will deadlock:
+When using ip_set with counters and comment, traffic causes the kernel
+to panic on 32-bit ARM:
 
-When scan_work calls nvme_mpath_add_disk() this holds ana_lock
-and invokes nvme_parse_ana_log(), which may issue IO
-in device_add_disk() and hang waiting for an accessible path.
+Alignment trap: not handling instruction e1b82f9f at [<bf01b0dc>]
+Unhandled fault: alignment exception (0x221) at 0xea08133c
+PC is at ip_set_match_extensions+0xe0/0x224 [ip_set]
 
-While nvme_mpath_set_live() only called when nvme_state_is_live(),
-a transition may cause NVME_SC_ANA_TRANSITION and requeue the IO.
+The problem occurs when we try to update the 64-bit counters - the
+faulting address above is not 64-bit aligned.  The problem occurs
+due to the way elements are allocated, for example:
 
-Since nvme_mpath_set_live() holds ns->head->lock, an ana_work on
-ANY ctrl will not be able to complete nvme_mpath_set_live()
-on the same ns->head, which is required in order to update
-the new accessible path and remove NVME_NS_ANA_PENDING..
-Therefore IO never completes: deadlock [1].
+	set->dsize = ip_set_elem_len(set, tb, 0, 0);
+	map = ip_set_alloc(sizeof(*map) + elements * set->dsize);
 
-Fix:
-Move device_add_disk out of the head->lock and protect it with an
-atomic test_and_set for a new NVME_NS_HEAD_HAS_DISK bit.
+If the element has a requirement for a member to be 64-bit aligned,
+and set->dsize is not a multiple of 8, but is a multiple of four,
+then every odd numbered elements will be misaligned - and hitting
+an atomic64_add() on that element will cause the kernel to panic.
 
-[1]:
-kernel: INFO: task kworker/u8:2:160 blocked for more than 120 seconds.
-kernel:       Tainted: G           OE     5.3.5-050305-generic #201910071830
-kernel: "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-kernel: kworker/u8:2    D    0   160      2 0x80004000
-kernel: Workqueue: nvme-wq nvme_ana_work [nvme_core]
-kernel: Call Trace:
-kernel:  __schedule+0x2b9/0x6c0
-kernel:  schedule+0x42/0xb0
-kernel:  schedule_preempt_disabled+0xe/0x10
-kernel:  __mutex_lock.isra.0+0x182/0x4f0
-kernel:  __mutex_lock_slowpath+0x13/0x20
-kernel:  mutex_lock+0x2e/0x40
-kernel:  nvme_update_ns_ana_state+0x22/0x60 [nvme_core]
-kernel:  nvme_update_ana_state+0xca/0xe0 [nvme_core]
-kernel:  nvme_parse_ana_log+0xa1/0x180 [nvme_core]
-kernel:  nvme_read_ana_log+0x76/0x100 [nvme_core]
-kernel:  nvme_ana_work+0x15/0x20 [nvme_core]
-kernel:  process_one_work+0x1db/0x380
-kernel:  worker_thread+0x4d/0x400
-kernel:  kthread+0x104/0x140
-kernel:  ret_from_fork+0x35/0x40
-kernel: INFO: task kworker/u8:4:439 blocked for more than 120 seconds.
-kernel:       Tainted: G           OE     5.3.5-050305-generic #201910071830
-kernel: "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-kernel: kworker/u8:4    D    0   439      2 0x80004000
-kernel: Workqueue: nvme-wq nvme_scan_work [nvme_core]
-kernel: Call Trace:
-kernel:  __schedule+0x2b9/0x6c0
-kernel:  schedule+0x42/0xb0
-kernel:  io_schedule+0x16/0x40
-kernel:  do_read_cache_page+0x438/0x830
-kernel:  read_cache_page+0x12/0x20
-kernel:  read_dev_sector+0x27/0xc0
-kernel:  read_lba+0xc1/0x220
-kernel:  efi_partition+0x1e6/0x708
-kernel:  check_partition+0x154/0x244
-kernel:  rescan_partitions+0xae/0x280
-kernel:  __blkdev_get+0x40f/0x560
-kernel:  blkdev_get+0x3d/0x140
-kernel:  __device_add_disk+0x388/0x480
-kernel:  device_add_disk+0x13/0x20
-kernel:  nvme_mpath_set_live+0x119/0x140 [nvme_core]
-kernel:  nvme_update_ns_ana_state+0x5c/0x60 [nvme_core]
-kernel:  nvme_mpath_add_disk+0xbe/0x100 [nvme_core]
-kernel:  nvme_validate_ns+0x396/0x940 [nvme_core]
-kernel:  nvme_scan_work+0x256/0x390 [nvme_core]
-kernel:  process_one_work+0x1db/0x380
-kernel:  worker_thread+0x4d/0x400
-kernel:  kthread+0x104/0x140
-kernel:  ret_from_fork+0x35/0x40
+ip_set_elem_len() must return a size that is rounded to the maximum
+alignment of any extension field stored in the element.  This change
+ensures that is the case.
 
-Fixes: 0d0b660f214d ("nvme: add ANA support")
-Signed-off-by: Anton Eidelman <anton@lightbitslabs.com>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: 95ad1f4a9358 ("netfilter: ipset: Fix extension alignment")
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Acked-by: Jozsef Kadlecsik <kadlec@netfilter.org>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/multipath.c | 4 ++--
- drivers/nvme/host/nvme.h      | 2 ++
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ net/netfilter/ipset/ip_set_core.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
-index f4287d8550a9f..d1cb65698288b 100644
---- a/drivers/nvme/host/multipath.c
-+++ b/drivers/nvme/host/multipath.c
-@@ -413,11 +413,11 @@ static void nvme_mpath_set_live(struct nvme_ns *ns)
- 	if (!head->disk)
- 		return;
- 
--	mutex_lock(&head->lock);
--	if (!(head->disk->flags & GENHD_FL_UP))
-+	if (!test_and_set_bit(NVME_NSHEAD_DISK_LIVE, &head->flags))
- 		device_add_disk(&head->subsys->dev, head->disk,
- 				nvme_ns_id_attr_groups);
- 
-+	mutex_lock(&head->lock);
- 	if (nvme_path_is_optimized(ns)) {
- 		int node, srcu_idx;
- 
-diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
-index 2e04a36296d95..719342600be62 100644
---- a/drivers/nvme/host/nvme.h
-+++ b/drivers/nvme/host/nvme.h
-@@ -359,6 +359,8 @@ struct nvme_ns_head {
- 	spinlock_t		requeue_lock;
- 	struct work_struct	requeue_work;
- 	struct mutex		lock;
-+	unsigned long		flags;
-+#define NVME_NSHEAD_DISK_LIVE	0
- 	struct nvme_ns __rcu	*current_path[];
- #endif
- };
+diff --git a/net/netfilter/ipset/ip_set_core.c b/net/netfilter/ipset/ip_set_core.c
+index 340cb955af25c..56621d6bfd297 100644
+--- a/net/netfilter/ipset/ip_set_core.c
++++ b/net/netfilter/ipset/ip_set_core.c
+@@ -460,6 +460,8 @@ ip_set_elem_len(struct ip_set *set, struct nlattr *tb[], size_t len,
+ 	for (id = 0; id < IPSET_EXT_ID_MAX; id++) {
+ 		if (!add_extension(id, cadt_flags, tb))
+ 			continue;
++		if (align < ip_set_extensions[id].align)
++			align = ip_set_extensions[id].align;
+ 		len = ALIGN(len, ip_set_extensions[id].align);
+ 		set->offset[id] = len;
+ 		set->extensions |= ip_set_extensions[id].type;
 -- 
 2.25.1
 
