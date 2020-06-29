@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58A1D20D399
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 21:12:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 335C120D3AA
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 21:13:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730242AbgF2TAX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:00:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45476 "EHLO mail.kernel.org"
+        id S1729484AbgF2TBI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:01:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730365AbgF2TAW (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730363AbgF2TAW (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 29 Jun 2020 15:00:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E88E25548;
-        Mon, 29 Jun 2020 15:55:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 442C925549;
+        Mon, 29 Jun 2020 15:55:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1593446109;
-        bh=YpJd79kjTQ4kVh6u8tT6HFP2u0rptIoIcXXL4A7Y5BM=;
+        bh=CLuD78hSDZry6q0IZ5+0dE6txkqVSlnjENSPHZm+94w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ERv47LKmoLIMv6OshN8CCdgdampeFtSxMxDMQ61uE9IfbGPrEjxLdZrwMZ7MwMCBD
-         z4z6wC1jV8v2ncpdc5cfVZxI3oktOHSDjcALWN0LjAj30DPGbFsgd2TYc03pRSDyQR
-         aApo9apNYTa0UOW4r0RQyBT/ruB+UCw+6d/75Buk=
+        b=s10LyWPLQJIoXcOHJ8Lr2i17ROBbmanOmn+u+BhUm6zrcK3AOjRN9g2gqencLDInI
+         Zllln5EVqwnGmApC5NLHj89IeFHR1x/Wn8jzmCV4NsCBquG7JVOF/uJDiEpNGJHc/x
+         IuVQlpcbK18nQ7fIaEwOSDOegroKDm89Ssu6Ey0o=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Yick W. Tse" <y_w_tse@yahoo.com.hk>, Takashi Iwai <tiwai@suse.de>,
+Cc:     Mathias Nyman <mathias.nyman@linux.intel.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.4 100/135] ALSA: usb-audio: add quirk for Denon DCD-1500RE
-Date:   Mon, 29 Jun 2020 11:52:34 -0400
-Message-Id: <20200629155309.2495516-101-sashal@kernel.org>
+Subject: [PATCH 4.4 101/135] xhci: Fix incorrect EP_STATE_MASK
+Date:   Mon, 29 Jun 2020 11:52:35 -0400
+Message-Id: <20200629155309.2495516-102-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
 References: <20200629155309.2495516-1-sashal@kernel.org>
@@ -48,41 +48,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Yick W. Tse" <y_w_tse@yahoo.com.hk>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit c9808bbfed3cfc911ecb60fe8e80c0c27876c657 upstream.
+commit dceea67058fe22075db3aed62d5cb62092be5053 upstream.
 
-fix error "clock source 41 is not valid, cannot use"
+EP_STATE_MASK should be 0x7 instead of 0xf
 
-[] New USB device found, idVendor=154e, idProduct=1002, bcdDevice= 1.00
-[] New USB device strings: Mfr=1, Product=2, SerialNumber=0
-[] Product: DCD-1500RE
-[] Manufacturer: D & M Holdings Inc.
-[]
-[] clock source 41 is not valid, cannot use
-[] usbcore: registered new interface driver snd-usb-audio
+xhci spec 6.2.3 shows that the EP state field in the endpoint context data
+structure consist of bits [2:0].
+The old value included a bit from the next field which fortunately is a
+ RsvdZ region. So hopefully this hasn't caused too much harm
 
-Signed-off-by: Yick W. Tse <y_w_tse@yahoo.com.hk>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1373857985.210365.1592048406997@mail.yahoo.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Cc: stable@vger.kernel.org
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20200624135949.22611-2-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/quirks.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/host/xhci.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
-index b7a7bf0e566c4..47979c9c3e290 100644
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1162,6 +1162,7 @@ bool snd_usb_get_sample_rate_quirk(struct snd_usb_audio *chip)
- static bool is_marantz_denon_dac(unsigned int id)
- {
- 	switch (id) {
-+	case USB_ID(0x154e, 0x1002): /* Denon DCD-1500RE */
- 	case USB_ID(0x154e, 0x1003): /* Denon DA-300USB */
- 	case USB_ID(0x154e, 0x3005): /* Marantz HD-DAC1 */
- 	case USB_ID(0x154e, 0x3006): /* Marantz SA-14S1 */
+diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
+index 0a3aa38b3c96e..a7f346529f913 100644
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -706,7 +706,7 @@ struct xhci_ep_ctx {
+  * 4 - TRB error
+  * 5-7 - reserved
+  */
+-#define EP_STATE_MASK		(0xf)
++#define EP_STATE_MASK		(0x7)
+ #define EP_STATE_DISABLED	0
+ #define EP_STATE_RUNNING	1
+ #define EP_STATE_HALTED		2
 -- 
 2.25.1
 
