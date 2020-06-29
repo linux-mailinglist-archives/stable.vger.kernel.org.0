@@ -2,88 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7B6D20E4E2
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:06:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E02C20E380
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:03:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730855AbgF2VaL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:30:11 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:51522 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726978AbgF2SlX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Jun 2020 14:41:23 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1593456082;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=CkBsRTU3NLnLOCtZABIJSi326dv/G4KE311OeelG590=;
-        b=GLZKp7oOzPyxe1jz6YETADttW9FRFacZnwfAXPnkXEKIW1v79q8ldEMoswSK+i7bUUVu9y
-        5/RXdmWFcTNgodWug7RU+WfSfDiajT3SwuBnIFoTlbrxFYi6pfdqBH1hC+h9e54SO9MDDW
-        0tQssO0AEaCeTwpr0z1+Zh5yBKCaUi0=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-361-PxlUawicPrKyo7-miOyCiw-1; Mon, 29 Jun 2020 07:40:07 -0400
-X-MC-Unique: PxlUawicPrKyo7-miOyCiw-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 20A62102;
-        Mon, 29 Jun 2020 11:40:06 +0000 (UTC)
-Received: from localhost.localdomain (ovpn-12-123.pek2.redhat.com [10.72.12.123])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 2CB215DC1E;
-        Mon, 29 Jun 2020 11:40:03 +0000 (UTC)
-Subject: Re: regression: blktests nvme/004 failed on linux-stable 5.7.y
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     linux-nvme@lists.infradead.org, chaitanya.kulkarni@wdc.com,
-        stable@vger.kernel.org
-References: <1528690896.32343478.1593229315244.JavaMail.zimbra@redhat.com>
- <1015661434.32401219.1593424943236.JavaMail.zimbra@redhat.com>
- <20200629105939.GA3362395@kroah.com>
-From:   Yi Zhang <yi.zhang@redhat.com>
-Message-ID: <ec706623-76ac-bb87-8591-869b3844f237@redhat.com>
-Date:   Mon, 29 Jun 2020 19:40:00 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S1729052AbgF2VO5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:14:57 -0400
+Received: from stargate.chelsio.com ([12.32.117.8]:16510 "EHLO
+        stargate.chelsio.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727983AbgF2S4v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Jun 2020 14:56:51 -0400
+Received: from localhost (moto.blr.asicdesigners.com [10.193.184.79] (may be forged))
+        by stargate.chelsio.com (8.13.8/8.13.8) with ESMTP id 05TDt0rP010969;
+        Mon, 29 Jun 2020 06:55:01 -0700
+Date:   Mon, 29 Jun 2020 19:25:00 +0530
+From:   Dakshaja Uppalapati <dakshaja@chelsio.com>
+To:     Keith Busch <kbusch@kernel.org>
+Cc:     linux-nvme@lists.infradead.org, eduard@hasenleithner.at,
+        sagi@grimberg.me, hch@lst.de, stable@vger.kernel.org,
+        Nirranjan Kirubaharan <nirranjan@chelsio.com>,
+        Potnuri Bharat Teja <bharat@chelsio.com>
+Subject: Re: [PATCH for-stable nvmet 0/6] nvme: Fix for blk_update_request IO
+ error.
+Message-ID: <20200629135459.GA32129@chelsio.com>
+References: <20200611155339.9429-1-dakshaja@chelsio.com>
+ <20200617141541.GA712019@dhcp-10-100-145-180.wdl.wdc.com>
+ <20200622112143.GA25601@chelsio.com>
 MIME-Version: 1.0
-In-Reply-To: <20200629105939.GA3362395@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200622112143.GA25601@chelsio.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 6/29/20 6:59 PM, Greg KH wrote:
-> On Mon, Jun 29, 2020 at 06:02:23AM -0400, Yi Zhang wrote:
->> Hello
->>
->> commit[1] introduced regression that will lead blktest nvme/004 failed on v5.7.5, and commits [2] fixed this issue on latest linux tree.
->> But commit[2] cannot be directly applied to stable tree due to dependceny[3], could you help backport the fix and dependency to stable tree, thanks.
->>
->>
->> [1]
->> 64f5e9cdd711 nvmet: fix memory leak when removing namespaces and controllers concurrently
->>
->> [2]
->> 819f7b88b48f nvmet: fail outstanding host posted AEN req
->>
->> [3]
->> 1cdf9f7670a7 nvmet: cleanups the loop in nvmet_async_events_process
-
-Without it, the other patch cannot be applied directly on stable.
-yes, we can backport them without bellow patch, I also found they 
-already queued up, sorry for the noise.
-
->> 696ece751366 nvmet: add async event tracing support
-> Why is this last commit needed?
+On Monday, June 06/22/20, 2020 at 16:51:43 +0530, Dakshaja Uppalapati wrote:
+> On Wednesday, June 06/17/20, 2020 at 07:15:41 -0700, Keith Busch wrote:
+> > On Thu, Jun 11, 2020 at 09:23:33PM +0530, Dakshaja Uppalapati wrote:
+> > > The below error is seen in dmesg, while formatting the disks discovered on host.
+> > > 
+> > > dmesg:
+> > >         [  636.733374] blk_update_request: I/O error, dev nvme4n1, sector 0 op 0x3:(DISCARD) flags 0x800 phys_seg 1 prio class 0
+> > > 
+> > > Patch 6 fixes it and there are 5 other dependent patches that also need to be 
+> > > pulled from upstream to stable, 5.4 and 4.19 branches.
+> > > 
+> > > Patch 1 dependent patch
+> > > 
+> > > Patch 2 dependent patch
+> > > 
+> > > Patch 3 dependent patch
+> > > 
+> > > Patch 4 dependent patch
+> > > 
+> > > Patch 5 dependent patch
+> > > 
+> > > Patch 6 fix patch
+> > 
+> > 1. You need to copy the linux-nvme mainling list for linux nvme kernel patches.
+> > 
+> > 2. If you're sending someone else's patch, the patch is supposed to have
+> > the From: tag so the author is appropriately identified.
+> > 
+> > 3. Stable patches must referece the upstream commit ID.
+> > 
+> > As for this particular issue, while stable patches are required to
+> > reference an upstream commit, you don't need to bring in dependent
+> > patches. You are allowed to write an equivalent fix specific to the
+> > stable branch so that stable doesn't need to take a bunch of unrelated
+> > changes. For example, it looks like this particular isssue can be fixed
+> > with the following simple stable patch:
+> >
+> 
+> Hi keith,
+> 
+> Thanks for the review.
+> 
+> I initially tried pushing only the fix + required portion of the dependent 
+> patches(https://www.spinics.net/lists/stable/msg387744.html) but as that 
+> approach is discouraged in stable tree, I submitted all the patches as it is.
+> 
+> Here are the ways to fix the issue in stable tree:
+> 
+> •  push fix + all dependent patches
+> •  push fix + custom patch of dependent patches
+> •  revert the culprit patch.
+> 
+> Please let me know how this issue can be resolved in stable tree.
 >
-> The other ones are already queued up in the current queue, thanks.
->
-> greg k-h
->
 
+Hi keith,
+
+Gentle reminder.
+
+Thanks,
+Dakshaja
