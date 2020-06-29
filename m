@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A31B120E704
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:10:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D553720E83E
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:12:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729890AbgF2Vw5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:52:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56886 "EHLO mail.kernel.org"
+        id S2391834AbgF2WEp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 18:04:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726639AbgF2Sfj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:35:39 -0400
+        id S1726179AbgF2SfV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:35:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3CF7D2469F;
-        Mon, 29 Jun 2020 15:19:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 19A83246A1;
+        Mon, 29 Jun 2020 15:19:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593443995;
-        bh=h1exmCBpP4dvGL6YomoSTtUxadSu5YsmIGfU3pB2C+U=;
+        s=default; t=1593443996;
+        bh=yP2iUUsoD9wU6n3FXJD0Asi3/uyg3v8g2KmgWtmx3Mg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yj6lLEgdnKqLpoOrkFRtTBimi/I0Lb1E+oPB6m+Pujc3awe15W//qyXY9PeXBQQ4r
-         xYxh9v70rWoL4NZd1WR6Led9tAYu7I2K53j/YX/AtscN9Zd4P+Bzkb9Excy4tOFDtj
-         nAepcD7hoaHfVYFYwMhAMgqa6TERCE14L8wAwuFQ=
+        b=qW4162CXrxI1ua6gu2B7JJHqra8yY5YRbwcQULF9nahYn10Vm1IfUmc+fkkUY1sj0
+         AY+UhnyOsE1R1x1Pkeoag3oHlljBFkaYipc5FrnLNuucMgvv08rn35F95N0IitbzyX
+         CGvxGXEE3A9Bksx4G3LWQX3SWVQpORHD55nQ5oIM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Oskar Holmlund <oskar@ohdata.se>, Tony Lindgren <tony@atomide.com>,
+Cc:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 100/265] ARM: dts: Fix am33xx.dtsi ti,sysc-mask wrong softreset flag
-Date:   Mon, 29 Jun 2020 11:15:33 -0400
-Message-Id: <20200629151818.2493727-101-sashal@kernel.org>
+Subject: [PATCH 5.7 101/265] ASoC: q6asm: handle EOS correctly
+Date:   Mon, 29 Jun 2020 11:15:34 -0400
+Message-Id: <20200629151818.2493727-102-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -48,35 +49,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oskar Holmlund <oskar@ohdata.se>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit 9f872f924545324a06fa216ad38132804c20f2db ]
+[ Upstream commit 6476b60f32866be49d05e2e0163f337374c55b06 ]
 
-AM335x TRM: Figure 16-23 define sysconfig register and soft_reset
-are in first position corresponding to SYSC_OMAP4_SOFTRESET defined
-in ti-sysc.h.
+Successful send of EOS command does not indicate that EOS is actually
+finished, correct event to wait EOS is finished is EOS_RENDERED event.
+EOS_RENDERED means that the DSP has finished processing all the buffers
+for that particular session and stream.
 
-Fixes: 0782e8572ce4 ("ARM: dts: Probe am335x musb with ti-sysc")
-Signed-off-by: Oskar Holmlund <oskar@ohdata.se>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+This patch fixes EOS handling!
+
+Fixes: 68fd8480bb7b ("ASoC: qdsp6: q6asm: Add support to audio stream apis")
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20200611124159.20742-3-srinivas.kandagatla@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/am33xx.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/qcom/qdsp6/q6asm.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/am33xx.dtsi b/arch/arm/boot/dts/am33xx.dtsi
-index be76ded7e4c0c..ed6634d34c3c7 100644
---- a/arch/arm/boot/dts/am33xx.dtsi
-+++ b/arch/arm/boot/dts/am33xx.dtsi
-@@ -335,7 +335,7 @@
- 			      <0x47400010 0x4>;
- 			reg-names = "rev", "sysc";
- 			ti,sysc-mask = <(SYSC_OMAP4_FREEEMU |
--					 SYSC_OMAP2_SOFTRESET)>;
-+					 SYSC_OMAP4_SOFTRESET)>;
- 			ti,sysc-midle = <SYSC_IDLE_FORCE>,
- 					<SYSC_IDLE_NO>,
- 					<SYSC_IDLE_SMART>;
+diff --git a/sound/soc/qcom/qdsp6/q6asm.c b/sound/soc/qcom/qdsp6/q6asm.c
+index 0e0e8f7a460ab..ae4b2cabdf2d6 100644
+--- a/sound/soc/qcom/qdsp6/q6asm.c
++++ b/sound/soc/qcom/qdsp6/q6asm.c
+@@ -25,6 +25,7 @@
+ #define ASM_STREAM_CMD_FLUSH			0x00010BCE
+ #define ASM_SESSION_CMD_PAUSE			0x00010BD3
+ #define ASM_DATA_CMD_EOS			0x00010BDB
++#define ASM_DATA_EVENT_RENDERED_EOS		0x00010C1C
+ #define ASM_NULL_POPP_TOPOLOGY			0x00010C68
+ #define ASM_STREAM_CMD_FLUSH_READBUFS		0x00010C09
+ #define ASM_STREAM_CMD_SET_ENCDEC_PARAM		0x00010C10
+@@ -622,9 +623,6 @@ static int32_t q6asm_stream_callback(struct apr_device *adev,
+ 		case ASM_SESSION_CMD_SUSPEND:
+ 			client_event = ASM_CLIENT_EVENT_CMD_SUSPEND_DONE;
+ 			break;
+-		case ASM_DATA_CMD_EOS:
+-			client_event = ASM_CLIENT_EVENT_CMD_EOS_DONE;
+-			break;
+ 		case ASM_STREAM_CMD_FLUSH:
+ 			client_event = ASM_CLIENT_EVENT_CMD_FLUSH_DONE;
+ 			break;
+@@ -727,6 +725,9 @@ static int32_t q6asm_stream_callback(struct apr_device *adev,
+ 			spin_unlock_irqrestore(&ac->lock, flags);
+ 		}
+ 
++		break;
++	case ASM_DATA_EVENT_RENDERED_EOS:
++		client_event = ASM_CLIENT_EVENT_CMD_EOS_DONE;
+ 		break;
+ 	}
+ 
 -- 
 2.25.1
 
