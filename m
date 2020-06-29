@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BF1E20DE1A
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:52:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F9B320DE43
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:52:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728101AbgF2UWk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:22:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37022 "EHLO mail.kernel.org"
+        id S1732854AbgF2UX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:23:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732579AbgF2TZd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:25:33 -0400
+        id S1732561AbgF2TZb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:25:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 35FAF253BA;
-        Mon, 29 Jun 2020 15:41:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 570702533B;
+        Mon, 29 Jun 2020 15:39:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445285;
-        bh=UHelsFg/AqUVtCQxeJp1oOdDdEIQu5lnGE6njx6+GwM=;
+        s=default; t=1593445179;
+        bh=4ZO3tFXObaGfCPX+bWEYa6pc6iCg3U9UGNYrABAuf1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2ApNeCEfhwac9dOvfNyGSjQdGebaew/cpaMOMHSGuHy41ij2emVNQ9hyU+XFO+iCD
-         kLC4Z2fHkR1qo9e1QA+i4M6apAyn2k4FEwFDqHdJGDilndUecgpef4uvAtrD6l1LM2
-         pgY+HfMpQqCW6wCseJyM70+i7yJndMEr3r+bdUqw=
+        b=J2NTubYYF830biPVa+KlzxnAoURunxts8D1x5LFUuY0kjfjZ8LegdNOheperPDNFU
+         uxevVxwQ44XxNks75KJRVscmLO1UFnoVpiYDQkIUJt2Gti2QkKMglKIfseQ+dA2JpM
+         vJO298x9alzKNak8KZDUMIRhZp/HG3/OYg4yfHM8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 063/191] ASoC: fsl_asrc_dma: Fix dma_chan leak when config DMA channel failed
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 4.14 71/78] Staging: rtl8723bs: prevent buffer overflow in update_sta_support_rate()
 Date:   Mon, 29 Jun 2020 11:37:59 -0400
-Message-Id: <20200629154007.2495120-64-sashal@kernel.org>
+Message-Id: <20200629153806.2494953-72-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
-References: <20200629154007.2495120-1-sashal@kernel.org>
+In-Reply-To: <20200629153806.2494953-1-sashal@kernel.org>
+References: <20200629153806.2494953-1-sashal@kernel.org>
 MIME-Version: 1.0
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.229-rc1.gz
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.186-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.9.y
+X-KernelTest-Branch: linux-4.14.y
 X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.9.229-rc1
-X-KernelTest-Deadline: 2020-07-01T15:39+00:00
+X-KernelTest-Version: 4.14.186-rc1
+X-KernelTest-Deadline: 2020-07-01T15:38+00:00
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -50,44 +48,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 36124fb19f1ae68a500cd76a76d40c6e81bee346 ]
+commit b65a2d8c8614386f7e8d38ea150749f8a862f431 upstream.
 
-fsl_asrc_dma_hw_params() invokes dma_request_channel() or
-fsl_asrc_get_dma_channel(), which returns a reference of the specified
-dma_chan object to "pair->dma_chan[dir]" with increased refcnt.
+The "ie_len" variable is in the 0-255 range and it comes from the
+network.  If it's over NDIS_802_11_LENGTH_RATES_EX (16) then that will
+lead to memory corruption.
 
-The reference counting issue happens in one exception handling path of
-fsl_asrc_dma_hw_params(). When config DMA channel failed for Back-End,
-the function forgets to decrease the refcnt increased by
-dma_request_channel() or fsl_asrc_get_dma_channel(), causing a refcnt
-leak.
-
-Fix this issue by calling dma_release_channel() when config DMA channel
-failed.
-
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Link: https://lore.kernel.org/r/1590415966-52416-1-git-send-email-xiyuyang19@fudan.edu.cn
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 554c0a3abf21 ("staging: Add rtl8723bs sdio wifi driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200603101958.GA1845750@mwanda
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/fsl/fsl_asrc_dma.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/staging/rtl8723bs/core/rtw_wlan_util.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/fsl/fsl_asrc_dma.c b/sound/soc/fsl/fsl_asrc_dma.c
-index dc30d780f8742..3fcf174b99d30 100644
---- a/sound/soc/fsl/fsl_asrc_dma.c
-+++ b/sound/soc/fsl/fsl_asrc_dma.c
-@@ -243,6 +243,7 @@ static int fsl_asrc_dma_hw_params(struct snd_pcm_substream *substream,
- 	ret = dmaengine_slave_config(pair->dma_chan[dir], &config_be);
- 	if (ret) {
- 		dev_err(dev, "failed to config DMA channel for Back-End\n");
-+		dma_release_channel(pair->dma_chan[dir]);
- 		return ret;
- 	}
+diff --git a/drivers/staging/rtl8723bs/core/rtw_wlan_util.c b/drivers/staging/rtl8723bs/core/rtw_wlan_util.c
+index f485f541e36d0..d6de62ee681e5 100644
+--- a/drivers/staging/rtl8723bs/core/rtw_wlan_util.c
++++ b/drivers/staging/rtl8723bs/core/rtw_wlan_util.c
+@@ -1904,12 +1904,14 @@ int update_sta_support_rate(struct adapter *padapter, u8 *pvar_ie, uint var_ie_l
+ 	pIE = (struct ndis_80211_var_ie *)rtw_get_ie(pvar_ie, _SUPPORTEDRATES_IE_, &ie_len, var_ie_len);
+ 	if (pIE == NULL)
+ 		return _FAIL;
++	if (ie_len > sizeof(pmlmeinfo->FW_sta_info[cam_idx].SupportedRates))
++		return _FAIL;
  
+ 	memcpy(pmlmeinfo->FW_sta_info[cam_idx].SupportedRates, pIE->data, ie_len);
+ 	supportRateNum = ie_len;
+ 
+ 	pIE = (struct ndis_80211_var_ie *)rtw_get_ie(pvar_ie, _EXT_SUPPORTEDRATES_IE_, &ie_len, var_ie_len);
+-	if (pIE)
++	if (pIE && (ie_len <= sizeof(pmlmeinfo->FW_sta_info[cam_idx].SupportedRates) - supportRateNum))
+ 		memcpy((pmlmeinfo->FW_sta_info[cam_idx].SupportedRates + supportRateNum), pIE->data, ie_len);
+ 
+ 	return _SUCCESS;
 -- 
 2.25.1
 
