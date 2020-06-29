@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD77020D838
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:09:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF3F920D76C
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:07:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730590AbgF2Th0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:37:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40556 "EHLO mail.kernel.org"
+        id S1727820AbgF2T3v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:29:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733012AbgF2Tae (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:30:34 -0400
+        id S1732655AbgF2TZm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:25:42 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E2D9D252F5;
-        Mon, 29 Jun 2020 15:38:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4521425373;
+        Mon, 29 Jun 2020 15:40:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445123;
-        bh=f3e/1L34sVRxI7MIOBSPC7haaFlePTPqWxep9OqTXqo=;
+        s=default; t=1593445238;
+        bh=M6ZaHtfMbTpj9D5canL426J6A9WFvGSijT5BxaGkz0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zoI1fMwVZd5xF5hRK2oHXffD/dHs/8Q+Tpf7zp90c7YDXQvA2fg8VKEulwgYvyLW4
-         29dzneo6+hLKDOLzx9okO6cN3dXEDqNNE89duYGJ/ppBZ6bBfH3AoaBO77LRExIiut
-         atdL/npoUC/39MVbM9zQi7AF1fGstF6lVLUlCWs4=
+        b=H2Zd79TB3K6r72/zNnN5ZB2Uifjgp1cFmVVOHbkiGrQtv+yfB3VUfNfL+al+m4by5
+         aAtEqnimbYUmLHrksBxFd49b2xA5LWTHsoMsilL8BRWT2gKW58ThqXzwovh0epKm67
+         1MmLGj3ldD/8l+WjlUMHfuBP+crZnAd07bctRkMI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.14 30/78] xhci: Fix incorrect EP_STATE_MASK
+Cc:     Wang Hai <wanghai38@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 022/191] yam: fix possible memory leak in yam_init_driver
 Date:   Mon, 29 Jun 2020 11:37:18 -0400
-Message-Id: <20200629153806.2494953-31-sashal@kernel.org>
+Message-Id: <20200629154007.2495120-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200629153806.2494953-1-sashal@kernel.org>
-References: <20200629153806.2494953-1-sashal@kernel.org>
+In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
+References: <20200629154007.2495120-1-sashal@kernel.org>
 MIME-Version: 1.0
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.186-rc1.gz
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.229-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.14.y
+X-KernelTest-Branch: linux-4.9.y
 X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.14.186-rc1
-X-KernelTest-Deadline: 2020-07-01T15:38+00:00
+X-KernelTest-Version: 4.9.229-rc1
+X-KernelTest-Deadline: 2020-07-01T15:39+00:00
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -48,39 +49,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-commit dceea67058fe22075db3aed62d5cb62092be5053 upstream.
+[ Upstream commit 98749b7188affbf2900c2aab704a8853901d1139 ]
 
-EP_STATE_MASK should be 0x7 instead of 0xf
+If register_netdev(dev) fails, free_netdev(dev) needs
+to be called, otherwise a memory leak will occur.
 
-xhci spec 6.2.3 shows that the EP state field in the endpoint context data
-structure consist of bits [2:0].
-The old value included a bit from the next field which fortunately is a
- RsvdZ region. So hopefully this hasn't caused too much harm
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20200624135949.22611-2-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/hamradio/yam.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
-index db1af99d53bdb..8b52a7773bc84 100644
---- a/drivers/usb/host/xhci.h
-+++ b/drivers/usb/host/xhci.h
-@@ -718,7 +718,7 @@ struct xhci_ep_ctx {
-  * 4 - TRB error
-  * 5-7 - reserved
-  */
--#define EP_STATE_MASK		(0xf)
-+#define EP_STATE_MASK		(0x7)
- #define EP_STATE_DISABLED	0
- #define EP_STATE_RUNNING	1
- #define EP_STATE_HALTED		2
+diff --git a/drivers/net/hamradio/yam.c b/drivers/net/hamradio/yam.c
+index aaff07c100585..a453b82d10777 100644
+--- a/drivers/net/hamradio/yam.c
++++ b/drivers/net/hamradio/yam.c
+@@ -1160,6 +1160,7 @@ static int __init yam_init_driver(void)
+ 		err = register_netdev(dev);
+ 		if (err) {
+ 			printk(KERN_WARNING "yam: cannot register net device %s\n", dev->name);
++			free_netdev(dev);
+ 			goto error;
+ 		}
+ 		yam_devs[i] = dev;
 -- 
 2.25.1
 
