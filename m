@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CBD6720D990
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:11:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1209220D967
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:11:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731836AbgF2Tsy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:48:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47710 "EHLO mail.kernel.org"
+        id S2388123AbgF2TrV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:47:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387769AbgF2Tkj (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2387780AbgF2Tkj (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 29 Jun 2020 15:40:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA95F248B9;
-        Mon, 29 Jun 2020 15:26:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B2141248AF;
+        Mon, 29 Jun 2020 15:26:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444408;
-        bh=oCoaaWGr5MOoT2sXVLSno5YS0mBX7CG2YT0Ne6tRkVo=;
+        s=default; t=1593444409;
+        bh=jwYVoiyk/dSM19se0StrQfL99xfooW7INIzccJ0Lk/0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fKs90qGUph2zbxXTg/jSXA/J3LbdjKvINSvxNlZ3vPZN+9VAJ0Exxw/Z663vChwEW
-         W8BjVO+6enTXVb3Tm025EeM4STbBoBr4ZqsbDxcJovy69vr+2DXWHfIrRnWDwod2lq
-         Y4Qfv5c5/K2nMfoz2SWOtzNKsk3MOvWIld/PZytI=
+        b=ICG7koyP5+WlOEtNPMPpdTgcSDV/juDbJYDgJfK8caffY4hnmAKbNViLXApDGDxfq
+         ZoVY0k9uLEIJQ7SRCHx12ufO9RiIl9asIYo8PhR0z+OobcBLhFhJ6SbMVOPavko9r0
+         ZDTbjWDo6t2/M+WSkvRNRHKeruzZF852YrHaXqnY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qiushi Wu <wu000273@umn.edu>, Heiko Stuebner <heiko@sntech.de>,
-        Mark Brown <broonie@kernel.org>,
+Cc:     Julian Wiedmann <jwi@linux.ibm.com>,
+        "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 086/178] ASoC: rockchip: Fix a reference count leak.
-Date:   Mon, 29 Jun 2020 11:23:51 -0400
-Message-Id: <20200629152523.2494198-87-sashal@kernel.org>
+Subject: [PATCH 5.4 087/178] s390/qeth: fix error handling for isolation mode cmds
+Date:   Mon, 29 Jun 2020 11:23:52 -0400
+Message-Id: <20200629152523.2494198-88-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -49,40 +49,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiushi Wu <wu000273@umn.edu>
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-[ Upstream commit f141a422159a199f4c8dedb7e0df55b3b2cf16cd ]
+[ Upstream commit e2dfcfba00ba4a414617ef4c5a8501fe21567eb3 ]
 
-Calling pm_runtime_get_sync increments the counter even in case of
-failure, causing incorrect ref count if pm_runtime_put is not called in
-error handling paths. Call pm_runtime_put if pm_runtime_get_sync fails.
+Current(?) OSA devices also store their cmd-specific return codes for
+SET_ACCESS_CONTROL cmds into the top-level cmd->hdr.return_code.
+So once we added stricter checking for the top-level field a while ago,
+none of the error logic that rolls back the user's configuration to its
+old state is applied any longer.
 
-Fixes: fc05a5b22253 ("ASoC: rockchip: add support for pdm controller")
-Signed-off-by: Qiushi Wu <wu000273@umn.edu>
-Reviewed-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://lore.kernel.org/r/20200613205158.27296-1-wu000273@umn.edu
-Signed-off-by: Mark Brown <broonie@kernel.org>
+For this specific cmd, go back to the old model where we peek into the
+cmd structure even though the top-level field indicated an error.
+
+Fixes: 686c97ee29c8 ("s390/qeth: fix error handling in adapter command callbacks")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/rockchip/rockchip_pdm.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/s390/net/qeth_core_main.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/sound/soc/rockchip/rockchip_pdm.c b/sound/soc/rockchip/rockchip_pdm.c
-index 7cd42fcfcf38a..1707414cfa921 100644
---- a/sound/soc/rockchip/rockchip_pdm.c
-+++ b/sound/soc/rockchip/rockchip_pdm.c
-@@ -590,8 +590,10 @@ static int rockchip_pdm_resume(struct device *dev)
- 	int ret;
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index fe70e9875bde0..5043f0fcf399a 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -4163,9 +4163,6 @@ static int qeth_setadpparms_set_access_ctrl_cb(struct qeth_card *card,
+ 	int fallback = *(int *)reply->param;
  
- 	ret = pm_runtime_get_sync(dev);
--	if (ret < 0)
-+	if (ret < 0) {
-+		pm_runtime_put(dev);
- 		return ret;
-+	}
+ 	QETH_CARD_TEXT(card, 4, "setaccb");
+-	if (cmd->hdr.return_code)
+-		return -EIO;
+-	qeth_setadpparms_inspect_rc(cmd);
  
- 	ret = regcache_sync(pdm->regmap);
- 
+ 	access_ctrl_req = &cmd->data.setadapterparms.data.set_access_ctrl;
+ 	QETH_CARD_TEXT_(card, 2, "rc=%d",
+@@ -4175,7 +4172,7 @@ static int qeth_setadpparms_set_access_ctrl_cb(struct qeth_card *card,
+ 		QETH_DBF_MESSAGE(3, "ERR:SET_ACCESS_CTRL(%#x) on device %x: %#x\n",
+ 				 access_ctrl_req->subcmd_code, CARD_DEVID(card),
+ 				 cmd->data.setadapterparms.hdr.return_code);
+-	switch (cmd->data.setadapterparms.hdr.return_code) {
++	switch (qeth_setadpparms_inspect_rc(cmd)) {
+ 	case SET_ACCESS_CTRL_RC_SUCCESS:
+ 		if (card->options.isolation == ISOLATION_MODE_NONE) {
+ 			dev_info(&card->gdev->dev,
 -- 
 2.25.1
 
