@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0182220E7CC
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:11:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01A7E20E7BC
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:11:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387740AbgF2WAb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 18:00:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56892 "EHLO mail.kernel.org"
+        id S2391715AbgF2V7z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:59:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726362AbgF2SfY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:35:24 -0400
+        id S1726388AbgF2SfZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:35:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D97C2247E4;
-        Mon, 29 Jun 2020 15:22:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D99B1247EA;
+        Mon, 29 Jun 2020 15:22:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444150;
-        bh=XarSoApLLTETtyGYNWWLrDZKQDBGnJS7T4Sk19EpEdw=;
+        s=default; t=1593444152;
+        bh=Dph8eKuyg9WVFWOCCxI2zDNW8OAcyMNptYEcBaT4Jyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BUSAoqWPBFUjuq42hX1zhcP9Cp5nvPhBOc4U8iKjMBvCx6S9BuYU2T21p4wG0AIuz
-         7NhWZotWh75MrMaTN12jis0q+d3TbzWzcnR9axbKR9fP+k67vNJ1OJgdybVeZwy3dl
-         X7lOOWLgWEkLgD/AKC2CbgFMPrl3Kritt5NrZr10=
+        b=r+gX8p5svhkI2vpwj9+9TI34mjZzDauBf1bufHBFeFa5nj+5zJHSsAs1L7IzLyIC0
+         MBLASEuyN6EREPItTg+lluKUlVZjUVvhsYQUOhYWVbdXWcRR5u0ss4BsHN5WGYlJTv
+         Z22Vp0FJ6qXXKqP9PrxKFdT0Hd0/RZql3iydzBdE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arseny Solokha <asolokha@kb.kras.ru>,
-        Jason Yan <yanaijie@huawei.com>, Scott Wood <oss@buserror.net>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+Cc:     Chuck Lever <chuck.lever@oracle.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.7 256/265] powerpc/fsl_booke/32: Fix build with CONFIG_RANDOMIZE_BASE
-Date:   Mon, 29 Jun 2020 11:18:09 -0400
-Message-Id: <20200629151818.2493727-257-sashal@kernel.org>
+Subject: [PATCH 5.7 258/265] SUNRPC: Properly set the @subbuf parameter of xdr_buf_subsegment()
+Date:   Mon, 29 Jun 2020 11:18:11 -0400
+Message-Id: <20200629151818.2493727-259-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -50,45 +49,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arseny Solokha <asolokha@kb.kras.ru>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-commit 7e4773f73dcfb92e7e33532162f722ec291e75a4 upstream.
+commit 89a3c9f5b9f0bcaa9aea3e8b2a616fcaea9aad78 upstream.
 
-Building the current 5.8 kernel for an e500 machine with
-CONFIG_RANDOMIZE_BASE=y and CONFIG_BLOCK=n yields the following
-failure:
+@subbuf is an output parameter of xdr_buf_subsegment(). A survey of
+call sites shows that @subbuf is always uninitialized before
+xdr_buf_segment() is invoked by callers.
 
-  arch/powerpc/mm/nohash/kaslr_booke.c: In function 'kaslr_early_init':
-  arch/powerpc/mm/nohash/kaslr_booke.c:387:2: error: implicit
-  declaration of function 'flush_icache_range'; did you mean 'flush_tlb_range'?
+There are some execution paths through xdr_buf_subsegment() that do
+not set all of the fields in @subbuf, leaving some pointer fields
+containing garbage addresses. Subsequent processing of that buffer
+then results in a page fault.
 
-Indeed, including asm/cacheflush.h into kaslr_booke.c fixes the build.
-
-Fixes: 2b0e86cc5de6 ("powerpc/fsl_booke/32: implement KASLR infrastructure")
-Cc: stable@vger.kernel.org # v5.5+
-Signed-off-by: Arseny Solokha <asolokha@kb.kras.ru>
-Reviewed-by: Jason Yan <yanaijie@huawei.com>
-Acked-by: Scott Wood <oss@buserror.net>
-[mpe: Tweak change log to mention CONFIG_BLOCK=n]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200613162801.1946619-1-asolokha@kb.kras.ru
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/mm/nohash/kaslr_booke.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/sunrpc/xdr.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/powerpc/mm/nohash/kaslr_booke.c b/arch/powerpc/mm/nohash/kaslr_booke.c
-index 4a75f2d9bf0e0..bce0e5349978f 100644
---- a/arch/powerpc/mm/nohash/kaslr_booke.c
-+++ b/arch/powerpc/mm/nohash/kaslr_booke.c
-@@ -14,6 +14,7 @@
- #include <linux/memblock.h>
- #include <linux/libfdt.h>
- #include <linux/crash_core.h>
-+#include <asm/cacheflush.h>
- #include <asm/pgalloc.h>
- #include <asm/prom.h>
- #include <asm/kdump.h>
+diff --git a/net/sunrpc/xdr.c b/net/sunrpc/xdr.c
+index 6f7d82fb1eb0a..be11d672b5b97 100644
+--- a/net/sunrpc/xdr.c
++++ b/net/sunrpc/xdr.c
+@@ -1118,6 +1118,7 @@ xdr_buf_subsegment(struct xdr_buf *buf, struct xdr_buf *subbuf,
+ 		base = 0;
+ 	} else {
+ 		base -= buf->head[0].iov_len;
++		subbuf->head[0].iov_base = buf->head[0].iov_base;
+ 		subbuf->head[0].iov_len = 0;
+ 	}
+ 
+@@ -1130,6 +1131,8 @@ xdr_buf_subsegment(struct xdr_buf *buf, struct xdr_buf *subbuf,
+ 		base = 0;
+ 	} else {
+ 		base -= buf->page_len;
++		subbuf->pages = buf->pages;
++		subbuf->page_base = 0;
+ 		subbuf->page_len = 0;
+ 	}
+ 
+@@ -1141,6 +1144,7 @@ xdr_buf_subsegment(struct xdr_buf *buf, struct xdr_buf *subbuf,
+ 		base = 0;
+ 	} else {
+ 		base -= buf->tail[0].iov_len;
++		subbuf->tail[0].iov_base = buf->tail[0].iov_base;
+ 		subbuf->tail[0].iov_len = 0;
+ 	}
+ 
 -- 
 2.25.1
 
