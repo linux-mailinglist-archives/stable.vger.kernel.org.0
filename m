@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 080F620D922
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:10:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C49E220D8AB
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:10:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732054AbgF2Tot (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:44:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47654 "EHLO mail.kernel.org"
+        id S2387800AbgF2Tkk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:40:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387833AbgF2Tkp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:45 -0400
+        id S2387764AbgF2Tki (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:38 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4FC5724805;
-        Mon, 29 Jun 2020 15:25:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 32EC124807;
+        Mon, 29 Jun 2020 15:25:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444329;
-        bh=6b5KKbzCD16/UYiEDLH2M5EnoWk7Y4bdxlpxfeS917U=;
+        s=default; t=1593444331;
+        bh=9K5dZmUCZ09b907mtuBrQymjYkfsXL2A+ZFWg/PT65I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FI+kDIn800Lo+fhUkUJ8g218lKpXryGXMZ6wHN8N4LvF9Sw5su0kZJxdTiFUOcM1F
-         zvPSY0y9XAocZMOvHZ10rixe/W/SpDmNqqO9HFlqOx8v704KnQTJkLugaKKo7zZwls
-         a5vVVZTH6ySarY+85E4IX5teQKHyXgb+m7XjP6Vc=
+        b=ixagkDcaGEzpkhpmhzN9mG3o/y+zL89whkpI2p0YA0R7/iDgFSRheU+oU49hDP2hv
+         3PoO3wOPdmu6SRE4pxdo+H0p2LAxnnk9RDO6pGxm5dYxsJe7bytCl4xjtsQ4E6Dy3Q
+         vx9kygX/4kT2Ge1lHI8IOUL5eiFqL2rcJuuBowK4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Falcon <tlfalcon@linux.ibm.com>,
+Cc:     Wang Hai <wanghai38@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Hangbin Liu <liuhangbin@gmail.com>,
         "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.4 004/178] ibmveth: Fix max MTU limit
-Date:   Mon, 29 Jun 2020 11:22:29 -0400
-Message-Id: <20200629152523.2494198-5-sashal@kernel.org>
+Subject: [PATCH 5.4 005/178] mld: fix memory leak in ipv6_mc_destroy_dev()
+Date:   Mon, 29 Jun 2020 11:22:30 -0400
+Message-Id: <20200629152523.2494198-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -49,38 +50,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Falcon <tlfalcon@linux.ibm.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit 5948378b26d89f8aa5eac37629dbd0616ce8d7a7 ]
+[ Upstream commit ea2fce88d2fd678ed9d45354ff49b73f1d5615dd ]
 
-The max MTU limit defined for ibmveth is not accounting for
-virtual ethernet buffer overhead, which is twenty-two additional
-bytes set aside for the ethernet header and eight additional bytes
-of an opaque handle reserved for use by the hypervisor. Update the
-max MTU to reflect this overhead.
+Commit a84d01647989 ("mld: fix memory leak in mld_del_delrec()") fixed
+the memory leak of MLD, but missing the ipv6_mc_destroy_dev() path, in
+which mca_sources are leaked after ma_put().
 
-Fixes: d894be57ca92 ("ethernet: use net core MTU range checking in more drivers")
-Fixes: 110447f8269a ("ethernet: fix min/max MTU typos")
-Signed-off-by: Thomas Falcon <tlfalcon@linux.ibm.com>
+Using ip6_mc_clear_src() to take care of the missing free.
+
+BUG: memory leak
+unreferenced object 0xffff8881113d3180 (size 64):
+  comm "syz-executor071", pid 389, jiffies 4294887985 (age 17.943s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 ff 02 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<000000002cbc483c>] kmalloc include/linux/slab.h:555 [inline]
+    [<000000002cbc483c>] kzalloc include/linux/slab.h:669 [inline]
+    [<000000002cbc483c>] ip6_mc_add1_src net/ipv6/mcast.c:2237 [inline]
+    [<000000002cbc483c>] ip6_mc_add_src+0x7f5/0xbb0 net/ipv6/mcast.c:2357
+    [<0000000058b8b1ff>] ip6_mc_source+0xe0c/0x1530 net/ipv6/mcast.c:449
+    [<000000000bfc4fb5>] do_ipv6_setsockopt.isra.12+0x1b2c/0x3b30 net/ipv6/ipv6_sockglue.c:754
+    [<00000000e4e7a722>] ipv6_setsockopt+0xda/0x150 net/ipv6/ipv6_sockglue.c:950
+    [<0000000029260d9a>] rawv6_setsockopt+0x45/0x100 net/ipv6/raw.c:1081
+    [<000000005c1b46f9>] __sys_setsockopt+0x131/0x210 net/socket.c:2132
+    [<000000008491f7db>] __do_sys_setsockopt net/socket.c:2148 [inline]
+    [<000000008491f7db>] __se_sys_setsockopt net/socket.c:2145 [inline]
+    [<000000008491f7db>] __x64_sys_setsockopt+0xba/0x150 net/socket.c:2145
+    [<00000000c7bc11c5>] do_syscall_64+0xa1/0x530 arch/x86/entry/common.c:295
+    [<000000005fb7a3f3>] entry_SYSCALL_64_after_hwframe+0x49/0xb3
+
+Fixes: 1666d49e1d41 ("mld: do not remove mld souce list info when set link down")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Acked-by: Hangbin Liu <liuhangbin@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/ibm/ibmveth.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv6/mcast.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/ibm/ibmveth.c b/drivers/net/ethernet/ibm/ibmveth.c
-index c5be4ebd84373..aa32a5b041129 100644
---- a/drivers/net/ethernet/ibm/ibmveth.c
-+++ b/drivers/net/ethernet/ibm/ibmveth.c
-@@ -1682,7 +1682,7 @@ static int ibmveth_probe(struct vio_dev *dev, const struct vio_device_id *id)
+diff --git a/net/ipv6/mcast.c b/net/ipv6/mcast.c
+index eaa4c2cc2fbb2..c875c9b6edbe9 100644
+--- a/net/ipv6/mcast.c
++++ b/net/ipv6/mcast.c
+@@ -2618,6 +2618,7 @@ void ipv6_mc_destroy_dev(struct inet6_dev *idev)
+ 		idev->mc_list = i->next;
+ 
+ 		write_unlock_bh(&idev->lock);
++		ip6_mc_clear_src(i);
+ 		ma_put(i);
+ 		write_lock_bh(&idev->lock);
  	}
- 
- 	netdev->min_mtu = IBMVETH_MIN_MTU;
--	netdev->max_mtu = ETH_MAX_MTU;
-+	netdev->max_mtu = ETH_MAX_MTU - IBMVETH_BUFF_OH;
- 
- 	memcpy(netdev->dev_addr, mac_addr_p, ETH_ALEN);
- 
 -- 
 2.25.1
 
