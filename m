@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AE1C20DDA4
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:51:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD07820DF07
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:54:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732553AbgF2TZ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:25:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37014 "EHLO mail.kernel.org"
+        id S2389114AbgF2Ubn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:31:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732458AbgF2TZZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:25:25 -0400
+        id S1732476AbgF2TZT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:25:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D24F625446;
-        Mon, 29 Jun 2020 15:43:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F4FC2544A;
+        Mon, 29 Jun 2020 15:43:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445396;
-        bh=3lzka7GUEHHZvBdDCkYMxm2rjJTw2qLkb03atsx6oXU=;
+        s=default; t=1593445397;
+        bh=C4pLqg9guNpwTOM939XRXDfQJWlayJHsoVrefLXAvhI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mYFjwLLqr+Y3690SBnSiPoJzZpwqKUG5W+bYKebVvGqt3mGrm5b7gY4iuiTH4M8Wc
-         ed7OiKGQ5XWFtscWEhPiryH0Spm/SK1weXYGGuag7KVk39xF8cGdrRaBGn8CNinsTF
-         RBM8SeJAxLR1L1LPCBBvkoUEYFB+8xSOdEYwdhjM=
+        b=Ruj4C4Wof3bOyExsX3JnN6Kd1TJitdIf8BIoI88L2xbZYu7Wc48vwsFEmvc+3GVBX
+         oR1yP8lzTvkAJjJUU9sK4nZ1YMjgiZj0oKVEdQQ+9bJSI/bZimM7MqQK0cVwvPlbJF
+         171equJJ8gpi+XueIfPOsIkxDi0XGMJxy0im/1mY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Longfang Liu <liulongfang@huawei.com>,
-        Alan Stern <stern@rowland.harvard.edu>,
+Cc:     Tang Bin <tangbin@cmss.chinamobile.com>,
+        Zhang Shengju <zhangshengju@cmss.chinamobile.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.9 149/191] USB: ehci: reopen solution for Synopsys HC bug
-Date:   Mon, 29 Jun 2020 11:39:25 -0400
-Message-Id: <20200629154007.2495120-150-sashal@kernel.org>
+Subject: [PATCH 4.9 150/191] usb: host: ehci-exynos: Fix error check in exynos_ehci_probe()
+Date:   Mon, 29 Jun 2020 11:39:26 -0400
+Message-Id: <20200629154007.2495120-151-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
 References: <20200629154007.2495120-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.229-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-4.9.y
@@ -50,57 +49,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Longfang Liu <liulongfang@huawei.com>
+From: Tang Bin <tangbin@cmss.chinamobile.com>
 
-commit 1ddcb71a3edf0e1682b6e056158e4c4b00325f66 upstream.
+commit 44ed240d62736ad29943ec01e41e194b96f7c5e9 upstream.
 
-A Synopsys USB2.0 core used in Huawei Kunpeng920 SoC has a bug which
-might cause the host controller not issuing ping.
+If the function platform_get_irq() failed, the negative value
+returned will not be detected here. So fix error handling in
+exynos_ehci_probe(). And when get irq failed, the function
+platform_get_irq() logs an error message, so remove redundant
+message here.
 
-Bug description:
-After indicating an Interrupt on Async Advance, the software uses the
-doorbell mechanism to delete the Next Link queue head of the last
-executed queue head. At this time, the host controller still references
-the removed queue head(the queue head is NULL). NULL reference causes
-the host controller to lose the USB device.
-
-Solution:
-After deleting the Next Link queue head, when has_synopsys_hc_bug set
-to 1，the software can write one of the valid queue head addresses to
-the ASYNCLISTADDR register to allow the host controller to get
-the valid queue head. in order to solve that problem, this patch set
-the flag for Huawei Kunpeng920
-
-There are detailed instructions and solutions in this patch:
-commit 2f7ac6c19997 ("USB: ehci: add workaround for Synopsys HC bug")
-
-Signed-off-by: Longfang Liu <liulongfang@huawei.com>
+Fixes: 1bcc5aa87f04 ("USB: Add initial S5P EHCI driver")
 Cc: stable <stable@vger.kernel.org>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/1591588019-44284-1-git-send-email-liulongfang@huawei.com
+Signed-off-by: Zhang Shengju <zhangshengju@cmss.chinamobile.com>
+Signed-off-by: Tang Bin <tangbin@cmss.chinamobile.com>
+Link: https://lore.kernel.org/r/20200602114708.28620-1-tangbin@cmss.chinamobile.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/ehci-pci.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/usb/host/ehci-exynos.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/host/ehci-pci.c b/drivers/usb/host/ehci-pci.c
-index 3b3649d88c5f0..08b3f8c806016 100644
---- a/drivers/usb/host/ehci-pci.c
-+++ b/drivers/usb/host/ehci-pci.c
-@@ -229,6 +229,13 @@ static int ehci_pci_setup(struct usb_hcd *hcd)
- 		ehci_info(ehci, "applying MosChip frame-index workaround\n");
- 		ehci->frame_index_bug = 1;
- 		break;
-+	case PCI_VENDOR_ID_HUAWEI:
-+		/* Synopsys HC bug */
-+		if (pdev->device == 0xa239) {
-+			ehci_info(ehci, "applying Synopsys HC workaround\n");
-+			ehci->has_synopsys_hc_bug = 1;
-+		}
-+		break;
+diff --git a/drivers/usb/host/ehci-exynos.c b/drivers/usb/host/ehci-exynos.c
+index 7a603f66a9bc5..44b7c3e780f67 100644
+--- a/drivers/usb/host/ehci-exynos.c
++++ b/drivers/usb/host/ehci-exynos.c
+@@ -199,9 +199,8 @@ static int exynos_ehci_probe(struct platform_device *pdev)
+ 	hcd->rsrc_len = resource_size(res);
+ 
+ 	irq = platform_get_irq(pdev, 0);
+-	if (!irq) {
+-		dev_err(&pdev->dev, "Failed to get IRQ\n");
+-		err = -ENODEV;
++	if (irq < 0) {
++		err = irq;
+ 		goto fail_io;
  	}
  
- 	/* optional debug port, normally in the first BAR */
 -- 
 2.25.1
 
