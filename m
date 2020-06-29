@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A620320D72B
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:06:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF9C820D729
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:06:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730961AbgF2T1f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730345AbgF2T1f (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 29 Jun 2020 15:27:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37018 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:37038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732662AbgF2TZn (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1732666AbgF2TZn (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 29 Jun 2020 15:25:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E056925403;
-        Mon, 29 Jun 2020 15:42:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E332825405;
+        Mon, 29 Jun 2020 15:42:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445351;
-        bh=xPMuZO5O/Jy6Op+1E1+PCul+bO+Kwo+5tm/LDP35Ixs=;
+        s=default; t=1593445352;
+        bh=siDFv2wBYonOfCEnGvScoWYFodnBr3X6yc4XrIJKW9o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hA0cy/JW0Q6G3iQoZ19x1C0t796SnQTPnBkNGiu/x4I6c3LhxYp207cHqb3gr8PQk
-         4l5fU1g6faUbFM2yYoD5tLs5YSTTPyts5SunNg87Dnj7UjOt38Oku+37gmwwjrzxey
-         c5AAmC+/z3nABDH11XHQNhT0TC5nHdfGmHx+E7kM=
+        b=omi0j0rzDn1rUsCn//77wA55nGr8hG4dws3yBWHPYZ9n2u6d5rznIJeuZCSClYpKI
+         1U+csIgX8ggK2rrXpLzT5LytVrd9rcyxR9hvT9kdfjySNdReReZ4NEBf5yaVLl1TQQ
+         RaWgO4Mpqlgioxw5hbLbaFYS4pWwUA0yHyLympvQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Mauro Carvalho Chehab <mchehab@s-opensource.com>,
-        Shuah Khan <shuahkg@osg.samsung.com>,
         Florian Fainelli <f.fainelli@gmail.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.9 109/191] media: dvb_frontend: get rid of property cache's state
-Date:   Mon, 29 Jun 2020 11:38:45 -0400
-Message-Id: <20200629154007.2495120-110-sashal@kernel.org>
+Subject: [PATCH 4.9 110/191] media: dvb_frontend: better document the -EPERM condition
+Date:   Mon, 29 Jun 2020 11:38:46 -0400
+Message-Id: <20200629154007.2495120-111-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
 References: <20200629154007.2495120-1-sashal@kernel.org>
@@ -52,101 +51,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
 
-commit ef2cc27cf860b79874e9fde1419dd67c3372e41c upstream
+commit da5516b5e81d45a96291823620f6c820178dc055 upstream
 
-In the past, I guess the idea was to use state in order to
-allow an autofush logic. However, in the current code, it is
-used only for debug messages, on a poor man's solution, as
-there's already a debug message to indicate when the properties
-got flushed.
+Two readonly ioctls can't be allowed if the frontend device
+is opened in read only mode. Explain why.
 
-So, just get rid of it for good.
+Reviewed by: Shuah Khan <shuahkh@osg.samsung.com>
 
-Reviewed-by: Shuah Khan <shuahkg@osg.samsung.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/dvb-core/dvb_frontend.c | 20 ++++++--------------
- drivers/media/dvb-core/dvb_frontend.h |  5 -----
- 2 files changed, 6 insertions(+), 19 deletions(-)
+ drivers/media/dvb-core/dvb_frontend.c | 20 +++++++++++++++++---
+ 1 file changed, 17 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/media/dvb-core/dvb_frontend.c b/drivers/media/dvb-core/dvb_frontend.c
-index 5b06ac91420ff..a7ba8e200b677 100644
+index a7ba8e200b677..673cefb7230cb 100644
 --- a/drivers/media/dvb-core/dvb_frontend.c
 +++ b/drivers/media/dvb-core/dvb_frontend.c
-@@ -932,8 +932,6 @@ static int dvb_frontend_clear_cache(struct dvb_frontend *fe)
- 	memset(c, 0, offsetof(struct dtv_frontend_properties, strength));
- 	c->delivery_system = delsys;
+@@ -1925,9 +1925,23 @@ static int dvb_frontend_ioctl(struct file *file, unsigned int cmd, void *parg)
+ 		return -ENODEV;
+ 	}
  
--	c->state = DTV_CLEAR;
--
- 	dev_dbg(fe->dvb->device, "%s: Clearing cache for delivery system %d\n",
- 			__func__, c->delivery_system);
- 
-@@ -1760,13 +1758,13 @@ static int dtv_property_process_set(struct dvb_frontend *fe,
- 		dvb_frontend_clear_cache(fe);
- 		break;
- 	case DTV_TUNE:
--		/* interpret the cache of data, build either a traditional frontend
--		 * tunerequest so we can pass validation in the FE_SET_FRONTEND
--		 * ioctl.
-+		/*
-+		 * Use the cached Digital TV properties to tune the
-+		 * frontend
- 		 */
--		c->state = tvp->cmd;
--		dev_dbg(fe->dvb->device, "%s: Finalised property cache\n",
--				__func__);
-+		dev_dbg(fe->dvb->device,
-+			"%s: Setting the frontend from property cache\n",
-+			__func__);
- 
- 		r = dtv_set_frontend(fe);
- 		break;
-@@ -1915,7 +1913,6 @@ static int dvb_frontend_ioctl(struct file *file, unsigned int cmd, void *parg)
- {
- 	struct dvb_device *dvbdev = file->private_data;
- 	struct dvb_frontend *fe = dvbdev->priv;
--	struct dtv_frontend_properties *c = &fe->dtv_property_cache;
- 	struct dvb_frontend_private *fepriv = fe->frontend_priv;
- 	int err;
- 
-@@ -1935,7 +1932,6 @@ static int dvb_frontend_ioctl(struct file *file, unsigned int cmd, void *parg)
+-	if ((file->f_flags & O_ACCMODE) == O_RDONLY &&
+-	    (_IOC_DIR(cmd) != _IOC_READ || cmd == FE_GET_EVENT ||
+-	     cmd == FE_DISEQC_RECV_SLAVE_REPLY)) {
++	/*
++	 * If the frontend is opened in read-only mode, only the ioctls
++	 * that don't interfere with the tune logic should be accepted.
++	 * That allows an external application to monitor the DVB QoS and
++	 * statistics parameters.
++	 *
++	 * That matches all _IOR() ioctls, except for two special cases:
++	 *   - FE_GET_EVENT is part of the tuning logic on a DVB application;
++	 *   - FE_DISEQC_RECV_SLAVE_REPLY is part of DiSEqC 2.0
++	 *     setup
++	 * So, those two ioctls should also return -EPERM, as otherwise
++	 * reading from them would interfere with a DVB tune application
++	 */
++	if ((file->f_flags & O_ACCMODE) == O_RDONLY
++	    && (_IOC_DIR(cmd) != _IOC_READ
++		|| cmd == FE_GET_EVENT
++		|| cmd == FE_DISEQC_RECV_SLAVE_REPLY)) {
+ 		up(&fepriv->sem);
  		return -EPERM;
  	}
- 
--	c->state = DTV_UNDEFINED;
- 	err = dvb_frontend_handle_ioctl(file, cmd, parg);
- 
- 	up(&fepriv->sem);
-@@ -2119,10 +2115,6 @@ static int dvb_frontend_handle_ioctl(struct file *file,
- 			}
- 			(tvp + i)->result = err;
- 		}
--
--		if (c->state == DTV_TUNE)
--			dev_dbg(fe->dvb->device, "%s: Property cache is full, tuning\n", __func__);
--
- 		kfree(tvp);
- 		break;
- 	}
-diff --git a/drivers/media/dvb-core/dvb_frontend.h b/drivers/media/dvb-core/dvb_frontend.h
-index f852f0a49f422..8a6267ad56d69 100644
---- a/drivers/media/dvb-core/dvb_frontend.h
-+++ b/drivers/media/dvb-core/dvb_frontend.h
-@@ -615,11 +615,6 @@ struct dtv_frontend_properties {
- 	struct dtv_fe_stats	post_bit_count;
- 	struct dtv_fe_stats	block_error;
- 	struct dtv_fe_stats	block_count;
--
--	/* private: */
--	/* Cache State */
--	u32			state;
--
- };
- 
- #define DVB_FE_NO_EXIT  0
 -- 
 2.25.1
 
