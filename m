@@ -2,121 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7496E20E8E3
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 01:14:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04DE620E936
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 01:21:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726914AbgF2Wn2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 18:43:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49022 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726046AbgF2Wn2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Jun 2020 18:43:28 -0400
-Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08A2CC061755
-        for <stable@vger.kernel.org>; Mon, 29 Jun 2020 15:43:28 -0700 (PDT)
-Received: by mail-pg1-x52f.google.com with SMTP id z5so8983783pgb.6
-        for <stable@vger.kernel.org>; Mon, 29 Jun 2020 15:43:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=sRbXY4cehngYiqmltIGKF5pxQvXR9q0G2ed+0T/nW+s=;
-        b=Ye5n+awhL/FXfKdhVHr5ajM5nn8Aye0DbvKgAYm42Zwncu2jV6H85nuIanDKRjeuh3
-         EUaGDPzXwOEbANCwNrkv3WXDmG8ykOMn8Q9tDLe09Cv6soStK0QUa6uHY5PwN/2XqKQQ
-         ewq9ahWK1Mjx/0q1ndF6Gf1Gbw0BL8a5Vkp0n/eQQWo6ITAiJiBYFXtasgV/ef/qcPjq
-         dInD6Ok5X1/0u8ixurHBp9myAwn9p5rNpz93AYS8pkLRMzdZB6JQ0FMLuGclDAVL+5qV
-         HxMx8A79Rk0rBjf4poYo60Y9khlbXQ+RmAjCo5YYw9DASztO5XDP9hgZpDGBpvo0Kamt
-         j23Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=sRbXY4cehngYiqmltIGKF5pxQvXR9q0G2ed+0T/nW+s=;
-        b=iXnOyvz8Lv59TzD15oXs+QA30TgiJwwdDAiJIPdoJxGlkNuvNrNVsmQkM1BOhCHNYb
-         ZQuHxuRkkI1wCJgOSVWbLwaJCsT0sOPMNX90SFgirVXd8SzeN9Cfiw0AUIA5Xmfs0VsB
-         5k6kP//dOPkFQjPwLlyfF1yE6/kpKbI8jh5Abr6Zmsg+CsaEgpYnRhhbuVjiaB+b3b+7
-         PkKhIgku9D0XYueTzFMs18NgTbDSqhBxHU28B8E+yRJA7lmiy/BjdWBpHFs7iCwkFQYO
-         I6xt3ENQZkYq3AJfQZlfuiexn70PJ8CfQCQCnhSaqxqWMq4LoLh6s34CRfMRV/kDGWpJ
-         MSsw==
-X-Gm-Message-State: AOAM530GVJqYwTAG5eBLaNg+8GWElA10iX6WNsWQQqDtrW0xiWFNCdEZ
-        fzO5ZFOK0UrCROwBYZ7GwmPd1nd49Qw=
-X-Google-Smtp-Source: ABdhPJxdlS4KseJ6ik0FJ7PxJi7LelQTYz4sFpcS+/oL177IsWWj/QY0hceX0UdDCEclweF0nKYBKw==
-X-Received: by 2002:a62:6446:: with SMTP id y67mr9215741pfb.299.1593470606320;
-        Mon, 29 Jun 2020 15:43:26 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id u13sm442166pjy.40.2020.06.29.15.43.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 29 Jun 2020 15:43:25 -0700 (PDT)
-Message-ID: <5efa6e8d.1c69fb81.57d5b.1bef@mx.google.com>
-Date:   Mon, 29 Jun 2020 15:43:25 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726894AbgF2XS2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 19:18:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41894 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726199AbgF2XS2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 19:18:28 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id D20EE20776;
+        Mon, 29 Jun 2020 23:18:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1593472708;
+        bh=Ap0GGyo3TT4bbUcnODAakDh+tdESRemEszuYecL7hu8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=0bPCRdJ/elG7YYslCo5o8utl9pmlYGZbTiVI8rX41Rlp46edDosAP0eoH5jikoE+n
+         G97w8RVRcigRB2FKRm1sLZ+0qJOrRascrZIgMjPdcqKk3lm7KeXVwPOl724ZPK8EmY
+         iUglfuFMowRPQnyA4CxEqVJCYduZHu235Ui9TibI=
+Date:   Mon, 29 Jun 2020 19:18:26 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Shuah Khan <skhan@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH 5.7 000/265] 5.7.7-rc1 review
+Message-ID: <20200629231826.GT1931@sasha-vm>
+References: <20200629151818.2493727-1-sashal@kernel.org>
+ <42dadde8-04c0-863b-651a-1959a3d85494@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.4.49-178-g7d61c4b6865a
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.4.y
-Subject: stable-rc/linux-5.4.y baseline: 72 runs,
- 1 regressions (v5.4.49-178-g7d61c4b6865a)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <42dadde8-04c0-863b-651a-1959a3d85494@linuxfoundation.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y baseline: 72 runs, 1 regressions (v5.4.49-178-g7d61c4=
-b6865a)
+On Mon, Jun 29, 2020 at 02:37:53PM -0600, Shuah Khan wrote:
+>Hi Sasha,
+>
+>On 6/29/20 9:13 AM, Sasha Levin wrote:
+>>
+>>This is the start of the stable review cycle for the 5.7.7 release.
+>>There are 265 patches in this series, all will be posted as a response
+>>to this one.  If anyone has any issues with these being applied, please
+>>let me know.
+>>
+>>Responses should be made by Wed 01 Jul 2020 03:14:48 PM UTC.
+>>Anything received after that time might be too late.
+>>
+>>The whole patch series can be found in one patch at:
+>>	https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/patch/?id=linux-5.7.y&id2=v5.7.6
+>>
+>
+>Looks like patch naming convention has changed. My scripts look
+>for the following convention Greg uses. Are you planning to use
+>the above going forward? My scripts failed looking for the usual
+>naming convention.
+>
+>The whole patch series can be found in one patch at:
+>	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.7.6-rc1.gz
+>or in the git tree and branch at:
+>	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.7.y
+>and the diffstat can be found below.
 
-Regressions Summary
--------------------
+Sorry for that. I was hoping to avoid using the signed upload mechanism
+Greg was using by simply pointing the links to automatically generated
+patches on cgit (the git.kernel.org interface).
 
-platform        | arch  | lab          | compiler | defconfig | results
-----------------+-------+--------------+----------+-----------+--------
-bcm2837-rpi-3-b | arm64 | lab-baylibre | gcc-8    | defconfig | 4/5    =
+Would it be ok to change the pattern matching here? Something like this
+should work for both Greg's format and my own (and whatever may come
+next):
 
+	grep -A1 "The whole patch series can be found in one patch at:" | tail -n1 | sed 's/\t//'
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
-el/v5.4.49-178-g7d61c4b6865a/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.4.y
-  Describe: v5.4.49-178-g7d61c4b6865a
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      7d61c4b6865ab9c9f22e4ddbc65645c0c4b0427e =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform        | arch  | lab          | compiler | defconfig | results
-----------------+-------+--------------+----------+-----------+--------
-bcm2837-rpi-3-b | arm64 | lab-baylibre | gcc-8    | defconfig | 4/5    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5efa354f8e13ac2aa785bb35
-
-  Results:     4 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.49-=
-178-g7d61c4b6865a/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3=
--b.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.49-=
-178-g7d61c4b6865a/arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3=
--b.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2019=
-.02-11-g17e793fa4728/arm64/baseline/rootfs.cpio.gz =
-
-
-  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5efa354f8e13ac2a=
-a785bb38
-      failing since 5 days (last pass: v5.4.44-781-g065c1728d31a, first fai=
-l: v5.4.44-778-gf7f032930408)
-      2 lines =20
+-- 
+Thanks,
+Sasha
