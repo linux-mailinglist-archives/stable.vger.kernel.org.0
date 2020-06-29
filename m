@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF9C820D729
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:06:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E52A820D725
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:06:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730345AbgF2T1f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:27:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37038 "EHLO mail.kernel.org"
+        id S1732301AbgF2T1X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:27:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732666AbgF2TZn (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1732663AbgF2TZn (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 29 Jun 2020 15:25:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E332825405;
-        Mon, 29 Jun 2020 15:42:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E99AC2540A;
+        Mon, 29 Jun 2020 15:42:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445352;
-        bh=siDFv2wBYonOfCEnGvScoWYFodnBr3X6yc4XrIJKW9o=;
+        s=default; t=1593445355;
+        bh=VC0RHqcVsa2hE+dmNr1/xgwrg5FMctxrbBQx02b4w1w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=omi0j0rzDn1rUsCn//77wA55nGr8hG4dws3yBWHPYZ9n2u6d5rznIJeuZCSClYpKI
-         1U+csIgX8ggK2rrXpLzT5LytVrd9rcyxR9hvT9kdfjySNdReReZ4NEBf5yaVLl1TQQ
-         RaWgO4Mpqlgioxw5hbLbaFYS4pWwUA0yHyLympvQ=
+        b=dLNjKlVhlNc4uFRMiw0cmwyaR7eVRPBVQE7PdMU2mMiQCyxzzbI0w4XvxDqozRet0
+         Aw5Wi0OkamoB1VtpUK4WmM7wG1rZppuTxWV1ufR9K0uwNHba66GnvfGKOJgNJQnmb9
+         jVxs0YBCfqaWbxFJeZTURhqUuPvQFnYyKadreQRs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Mauro Carvalho Chehab <mchehab@s-opensource.com>,
+        Daniel Scheller <d.scheller@gmx.net>,
         Florian Fainelli <f.fainelli@gmail.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.9 110/191] media: dvb_frontend: better document the -EPERM condition
-Date:   Mon, 29 Jun 2020 11:38:46 -0400
-Message-Id: <20200629154007.2495120-111-sashal@kernel.org>
+Subject: [PATCH 4.9 113/191] media: dvb_frontend: be sure to init dvb_frontend_handle_ioctl() return code
+Date:   Mon, 29 Jun 2020 11:38:49 -0400
+Message-Id: <20200629154007.2495120-114-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
 References: <20200629154007.2495120-1-sashal@kernel.org>
@@ -51,51 +52,58 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
 
-commit da5516b5e81d45a96291823620f6c820178dc055 upstream
+commit a9cb97c3e628902e37583d8a40bb28cf76522cf1 upstream
 
-Two readonly ioctls can't be allowed if the frontend device
-is opened in read only mode. Explain why.
+As smatch warned:
+	drivers/media/dvb-core/dvb_frontend.c:2468 dvb_frontend_handle_ioctl() error: uninitialized symbol 'err'.
 
-Reviewed by: Shuah Khan <shuahkh@osg.samsung.com>
+The ioctl handler actually got a regression here: before changeset
+d73dcf0cdb95 ("media: dvb_frontend: cleanup ioctl handling logic"),
+the code used to return -EOPNOTSUPP if an ioctl handler was not
+implemented on a driver. After the change, it may return a random
+value.
 
+Fixes: d73dcf0cdb95 ("media: dvb_frontend: cleanup ioctl handling logic")
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+Tested-by: Daniel Scheller <d.scheller@gmx.net>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/dvb-core/dvb_frontend.c | 20 +++++++++++++++++---
- 1 file changed, 17 insertions(+), 3 deletions(-)
+ drivers/media/dvb-core/dvb_frontend.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/media/dvb-core/dvb_frontend.c b/drivers/media/dvb-core/dvb_frontend.c
-index a7ba8e200b677..673cefb7230cb 100644
+index a9ae9e5092050..6f9ee78a18703 100644
 --- a/drivers/media/dvb-core/dvb_frontend.c
 +++ b/drivers/media/dvb-core/dvb_frontend.c
-@@ -1925,9 +1925,23 @@ static int dvb_frontend_ioctl(struct file *file, unsigned int cmd, void *parg)
- 		return -ENODEV;
+@@ -2113,7 +2113,7 @@ static int dvb_frontend_handle_ioctl(struct file *file,
+ 	struct dvb_frontend *fe = dvbdev->priv;
+ 	struct dvb_frontend_private *fepriv = fe->frontend_priv;
+ 	struct dtv_frontend_properties *c = &fe->dtv_property_cache;
+-	int i, err;
++	int i, err = -EOPNOTSUPP;
+ 
+ 	dev_dbg(fe->dvb->device, "%s:\n", __func__);
+ 
+@@ -2148,6 +2148,7 @@ static int dvb_frontend_handle_ioctl(struct file *file,
+ 			}
+ 		}
+ 		kfree(tvp);
++		err = 0;
+ 		break;
+ 	}
+ 	case FE_GET_PROPERTY: {
+@@ -2198,6 +2199,7 @@ static int dvb_frontend_handle_ioctl(struct file *file,
+ 			return -EFAULT;
+ 		}
+ 		kfree(tvp);
++		err = 0;
+ 		break;
  	}
  
--	if ((file->f_flags & O_ACCMODE) == O_RDONLY &&
--	    (_IOC_DIR(cmd) != _IOC_READ || cmd == FE_GET_EVENT ||
--	     cmd == FE_DISEQC_RECV_SLAVE_REPLY)) {
-+	/*
-+	 * If the frontend is opened in read-only mode, only the ioctls
-+	 * that don't interfere with the tune logic should be accepted.
-+	 * That allows an external application to monitor the DVB QoS and
-+	 * statistics parameters.
-+	 *
-+	 * That matches all _IOR() ioctls, except for two special cases:
-+	 *   - FE_GET_EVENT is part of the tuning logic on a DVB application;
-+	 *   - FE_DISEQC_RECV_SLAVE_REPLY is part of DiSEqC 2.0
-+	 *     setup
-+	 * So, those two ioctls should also return -EPERM, as otherwise
-+	 * reading from them would interfere with a DVB tune application
-+	 */
-+	if ((file->f_flags & O_ACCMODE) == O_RDONLY
-+	    && (_IOC_DIR(cmd) != _IOC_READ
-+		|| cmd == FE_GET_EVENT
-+		|| cmd == FE_DISEQC_RECV_SLAVE_REPLY)) {
- 		up(&fepriv->sem);
- 		return -EPERM;
- 	}
 -- 
 2.25.1
 
