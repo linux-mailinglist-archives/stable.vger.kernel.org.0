@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB45620E39A
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:03:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69D7E20E390
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:03:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390139AbgF2VPt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:15:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42448 "EHLO mail.kernel.org"
+        id S1730613AbgF2VP1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:15:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729951AbgF2SzQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729971AbgF2SzQ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 29 Jun 2020 14:55:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7ACB225299;
-        Mon, 29 Jun 2020 15:55:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 857442555B;
+        Mon, 29 Jun 2020 15:55:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593446119;
-        bh=S08nYrekJmBOyeiTsbZtC3oLsNMFUCdDZY8lMIQKECY=;
+        s=default; t=1593446120;
+        bh=CnfFPVNFf2MOak4PEBuDHgbaazvboLiSg0mZjVjsj1o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tg8c7WLq1bbc5FuszN/URA+GWyDvgdjF3cPTUUZLbNlQKhAN/W6zbQ0Zo8kNbhfXU
-         1qYl+Tsi2dDl28Kqp/2Myu3xUGBJ7p+XK2AusV/OLWzqDlvun14XmKISR/MdU0GVOB
-         74F8c0YCmOzdMmFMrdebH0Rs8aNOZQaZ0ZLIEJdg=
+        b=iDNaHv4d14HPgHLoIXTr3UHY3cTfkgcwRAhVDMas/UH2DbRL3Domo5K+2K/rl+gRJ
+         a6kmyNTjV37THHHz82kSMTXVd3TiDp9///kETVAZKXDjVHvgp4E59WM25JoRo1omYQ
+         OL3i3mVV8dkmThJ824+FlYNxI6wxNStAylnRY3Eg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Hulk Robot <hulkci@huawei.com>,
-        Pavel Shilovsky <pshilov@microsoft.com>,
-        Steve French <stfrench@microsoft.com>,
+Cc:     Qiushi Wu <wu000273@umn.edu>, Ard Biesheuvel <ardb@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 110/135] cifs/smb3: Fix data inconsistent when zero file range
-Date:   Mon, 29 Jun 2020 11:52:44 -0400
-Message-Id: <20200629155309.2495516-111-sashal@kernel.org>
+Subject: [PATCH 4.4 111/135] efi/esrt: Fix reference count leak in esre_create_sysfs_entry.
+Date:   Mon, 29 Jun 2020 11:52:45 -0400
+Message-Id: <20200629155309.2495516-112-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
 References: <20200629155309.2495516-1-sashal@kernel.org>
@@ -51,47 +48,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Qiushi Wu <wu000273@umn.edu>
 
-[ Upstream commit 6b69040247e14b43419a520f841f2b3052833df9 ]
+[ Upstream commit 4ddf4739be6e375116c375f0a68bf3893ffcee21 ]
 
-CIFS implements the fallocate(FALLOC_FL_ZERO_RANGE) with send SMB
-ioctl(FSCTL_SET_ZERO_DATA) to server. It just set the range of the
-remote file to zero, but local page cache not update, then the data
-inconsistent with server, which leads the xfstest generic/008 failed.
+kobject_init_and_add() takes reference even when it fails.
+If this function returns an error, kobject_put() must be called to
+properly clean up the memory associated with the object. Previous
+commit "b8eb718348b8" fixed a similar problem.
 
-So we need to remove the local page caches before send SMB
-ioctl(FSCTL_SET_ZERO_DATA) to server. After next read, it will
-re-cache it.
-
-Fixes: 30175628bf7f5 ("[SMB3] Enable fallocate -z support for SMB3 mounts")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
-Cc: stable@vger.kernel.org # v3.17
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Fixes: 0bb549052d33 ("efi: Add esrt support")
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
+Link: https://lore.kernel.org/r/20200528183804.4497-1-wu000273@umn.edu
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2ops.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/firmware/efi/esrt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
-index 870b7e763bab9..087261ca6d463 100644
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -1145,6 +1145,12 @@ static long smb3_zero_range(struct file *file, struct cifs_tcon *tcon,
- 	inode = d_inode(cfile->dentry);
- 	cifsi = CIFS_I(inode);
- 
-+	/*
-+	 * We zero the range through ioctl, so we need remove the page caches
-+	 * first, otherwise the data may be inconsistent with the server.
-+	 */
-+	truncate_pagecache_range(inode, offset, offset + len - 1);
-+
- 	/* if file not oplocked can't be sure whether asking to extend size */
- 	if (!CIFS_CACHE_READ(cifsi))
- 		if (keep_size == false)
+diff --git a/drivers/firmware/efi/esrt.c b/drivers/firmware/efi/esrt.c
+index 341b8c686ec7b..4aaaccf95b362 100644
+--- a/drivers/firmware/efi/esrt.c
++++ b/drivers/firmware/efi/esrt.c
+@@ -182,7 +182,7 @@ static int esre_create_sysfs_entry(void *esre, int entry_num)
+ 		rc = kobject_init_and_add(&entry->kobj, &esre1_ktype, NULL,
+ 					  "%s", name);
+ 		if (rc) {
+-			kfree(entry);
++			kobject_put(&entry->kobj);
+ 			return rc;
+ 		}
+ 	}
 -- 
 2.25.1
 
