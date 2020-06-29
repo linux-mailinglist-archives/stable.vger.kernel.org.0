@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFDD620DE83
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:52:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EACF920DE4D
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:52:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389054AbgF2U00 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:26:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37040 "EHLO mail.kernel.org"
+        id S1730501AbgF2UYT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:24:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732522AbgF2TZZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:25:25 -0400
+        id S1732549AbgF2TZ2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:25:28 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7966925332;
-        Mon, 29 Jun 2020 15:39:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B51C25334;
+        Mon, 29 Jun 2020 15:39:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445170;
-        bh=77AbZOkNlJkcpxk2glaWK5W0zDbAswsRAgE+vZNHdIE=;
+        s=default; t=1593445173;
+        bh=FMapCmLQRxuzVHtsvICUMvntIMnbv6WNgbDo+FCNfWc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gIuhrNAsanAipdxU+UlAUY6P3oC5XS5WOX1PoAvCtOcyGoV7CuEThZQ/ffCd8pyRm
-         AgDoNVg+1Sj2paWurlpctQIfYS7RkkR8cOtLX2R25wKStWYXfi7dQu1wRx1pHRAGrx
-         owXcVADCWyDpRydAsNRUCg18d7Dddz4XJLSpZkzM=
+        b=ZI9V3WS5pb78AkQ9J1cAtp+skO3DIcTWxvyre5jVrwXKjfNk+yiA8QkUKrX2zirVg
+         m6hQi1B89fiZi2Bp4q7QDAs6BE/6sI2oFRj4avcfMCYGF2I4tPbbhTgbcn8u00xj28
+         0StGM6T4+lcVcd8ois7MOjctRkvlred8ABF2Iw0Y=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Junxiao Bi <junxiao.bi@oracle.com>,
         Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Mark Fasheh <mark@fasheh.com>,
         Joel Becker <jlbec@evilplan.org>,
-        Jun Piao <piaojun@huawei.com>, Mark Fasheh <mark@fasheh.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.14 65/78] ocfs2: load global_inode_alloc
-Date:   Mon, 29 Jun 2020 11:37:53 -0400
-Message-Id: <20200629153806.2494953-66-sashal@kernel.org>
+Subject: [PATCH 4.14 66/78] ocfs2: fix value of OCFS2_INVALID_SLOT
+Date:   Mon, 29 Jun 2020 11:37:54 -0400
+Message-Id: <20200629153806.2494953-67-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629153806.2494953-1-sashal@kernel.org>
 References: <20200629153806.2494953-1-sashal@kernel.org>
@@ -56,21 +57,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Junxiao Bi <junxiao.bi@oracle.com>
 
-commit 7569d3c754e452769a5747eeeba488179e38a5da upstream.
+commit 9277f8334ffc719fe922d776444d6e4e884dbf30 upstream.
 
-Set global_inode_alloc as OCFS2_FIRST_ONLINE_SYSTEM_INODE, that will
-make it load during mount.  It can be used to test whether some
-global/system inodes are valid.  One use case is that nfsd will test
-whether root inode is valid.
+In the ocfs2 disk layout, slot number is 16 bits, but in ocfs2
+implementation, slot number is 32 bits.  Usually this will not cause any
+issue, because slot number is converted from u16 to u32, but
+OCFS2_INVALID_SLOT was defined as -1, when an invalid slot number from
+disk was obtained, its value was (u16)-1, and it was converted to u32.
+Then the following checking in get_local_system_inode will be always
+skipped:
 
-Link: http://lkml.kernel.org/r/20200616183829.87211-3-junxiao.bi@oracle.com
+ static struct inode **get_local_system_inode(struct ocfs2_super *osb,
+                                               int type,
+                                               u32 slot)
+ {
+ 	BUG_ON(slot == OCFS2_INVALID_SLOT);
+	...
+ }
+
+Link: http://lkml.kernel.org/r/20200616183829.87211-5-junxiao.bi@oracle.com
 Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
 Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
 Cc: Changwei Ge <gechangwei@live.cn>
 Cc: Gang He <ghe@suse.com>
-Cc: Joel Becker <jlbec@evilplan.org>
 Cc: Jun Piao <piaojun@huawei.com>
-Cc: Mark Fasheh <mark@fasheh.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
@@ -80,19 +92,18 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/fs/ocfs2/ocfs2_fs.h b/fs/ocfs2/ocfs2_fs.h
-index 5bb4a89f90453..7a3866d7fc36c 100644
+index 7a3866d7fc36c..0773c774e2bfe 100644
 --- a/fs/ocfs2/ocfs2_fs.h
 +++ b/fs/ocfs2/ocfs2_fs.h
-@@ -339,8 +339,8 @@ struct ocfs2_system_inode_info {
- enum {
- 	BAD_BLOCK_SYSTEM_INODE = 0,
- 	GLOBAL_INODE_ALLOC_SYSTEM_INODE,
-+#define OCFS2_FIRST_ONLINE_SYSTEM_INODE GLOBAL_INODE_ALLOC_SYSTEM_INODE
- 	SLOT_MAP_SYSTEM_INODE,
--#define OCFS2_FIRST_ONLINE_SYSTEM_INODE SLOT_MAP_SYSTEM_INODE
- 	HEARTBEAT_SYSTEM_INODE,
- 	GLOBAL_BITMAP_SYSTEM_INODE,
- 	USER_QUOTA_SYSTEM_INODE,
+@@ -303,7 +303,7 @@
+ #define OCFS2_MAX_SLOTS			255
+ 
+ /* Slot map indicator for an empty slot */
+-#define OCFS2_INVALID_SLOT		-1
++#define OCFS2_INVALID_SLOT		((u16)-1)
+ 
+ #define OCFS2_VOL_UUID_LEN		16
+ #define OCFS2_MAX_VOL_LABEL_LEN		64
 -- 
 2.25.1
 
