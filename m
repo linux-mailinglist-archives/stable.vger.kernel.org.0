@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8E1E20DE58
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:52:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B932B20DECF
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:53:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732463AbgF2UYn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:24:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37024 "EHLO mail.kernel.org"
+        id S1732774AbgF2U31 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:29:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732547AbgF2TZ2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:25:28 -0400
+        id S1731875AbgF2TZW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:25:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A81025420;
-        Mon, 29 Jun 2020 15:42:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2CE9925423;
+        Mon, 29 Jun 2020 15:42:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445371;
-        bh=o5iABVfbPasP49152lRGrgPImPS6VdQj30+/1zRG2Wc=;
+        s=default; t=1593445373;
+        bh=6/4kCDrwLS0IfenpjfkUnT/YELglo3dU/0ir4CvFD50=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iHbrMsdr3orvW5o+irjj8a7hddjIZqSKAzX8liLVYFmmsJogrFwe2SL6p4XFWqCz6
-         iAM6CeVkrLPIyho0Mx3e9bqN1/Eqbcwf12ZbcOidDnQvwInL46FcGi5owUbsnRRjh2
-         g3S3nWcSRvQN0qsP1bOwL7moZkuIgLhRP9FDnc8c=
+        b=2Y0GPCSe+UM0DPLy4acOd4r1c3wiZwiN98nT0ey/Yg20xa1L8UXEAwn7uVcKMemQB
+         WOQlJwYNpnUwL8yec/srzEeFk4AV2FygDQAD5B16u6zx99ZkOR0DYT9swih0bDn19R
+         E6FWzBLV73jqP1+xtAPMUYYjFqSbHjf+FTZbRfdQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Miquel Raynal <miquel.raynal@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 127/191] mtd: rawnand: tmio: Fix the probe error path
-Date:   Mon, 29 Jun 2020 11:39:03 -0400
-Message-Id: <20200629154007.2495120-128-sashal@kernel.org>
+Cc:     Martin Wilck <mwilck@suse.com>,
+        Bart Van Assche <bart.vanassche@wdc.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 4.9 128/191] scsi: scsi_devinfo: handle non-terminated strings
+Date:   Mon, 29 Jun 2020 11:39:04 -0400
+Message-Id: <20200629154007.2495120-129-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
 References: <20200629154007.2495120-1-sashal@kernel.org>
@@ -48,42 +51,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Martin Wilck <mwilck@suse.com>
 
-[ Upstream commit 75e9a330a9bd48f97a55a08000236084fe3dae56 ]
+commit ba69ead9e9e9bb3cec5faf03526c36764ac8942a upstream.
 
-nand_release() is supposed be called after MTD device registration.
-Here, only nand_scan() happened, so use nand_cleanup() instead.
+devinfo->vendor and devinfo->model aren't necessarily
+zero-terminated.
 
-There is no real Fixes tag applying here as the use of nand_release()
-in this driver predates by far the introduction of nand_cleanup() in
-commit d44154f969a4 ("mtd: nand: Provide nand_cleanup() function to free NAND related resources")
-which makes this change possible. However, pointing this commit as the
-culprit for backporting purposes makes sense even if this commit is not
-introducing any bug.
-
-Fixes: d44154f969a4 ("mtd: nand: Provide nand_cleanup() function to free NAND related resources")
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/linux-mtd/20200519130035.1883-57-miquel.raynal@bootlin.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: b8018b973c7c "scsi_devinfo: fixup string compare"
+Signed-off-by: Martin Wilck <mwilck@suse.com>
+Reviewed-by: Bart Van Assche <bart.vanassche@wdc.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/nand/tmio_nand.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/scsi_devinfo.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mtd/nand/tmio_nand.c b/drivers/mtd/nand/tmio_nand.c
-index 1deb5229db15d..d07c729f5b9b8 100644
---- a/drivers/mtd/nand/tmio_nand.c
-+++ b/drivers/mtd/nand/tmio_nand.c
-@@ -446,7 +446,7 @@ static int tmio_probe(struct platform_device *dev)
- 	if (!retval)
- 		return retval;
+diff --git a/drivers/scsi/scsi_devinfo.c b/drivers/scsi/scsi_devinfo.c
+index d596b76eea641..aad9195b356a8 100644
+--- a/drivers/scsi/scsi_devinfo.c
++++ b/drivers/scsi/scsi_devinfo.c
+@@ -451,7 +451,8 @@ static struct scsi_dev_info_list *scsi_dev_info_list_find(const char *vendor,
+ 			/*
+ 			 * vendor strings must be an exact match
+ 			 */
+-			if (vmax != strlen(devinfo->vendor) ||
++			if (vmax != strnlen(devinfo->vendor,
++					    sizeof(devinfo->vendor)) ||
+ 			    memcmp(devinfo->vendor, vskip, vmax))
+ 				continue;
  
--	nand_release(nand_chip);
-+	nand_cleanup(nand_chip);
- 
- err_irq:
- 	tmio_hw_stop(dev, tmio);
+@@ -459,7 +460,7 @@ static struct scsi_dev_info_list *scsi_dev_info_list_find(const char *vendor,
+ 			 * @model specifies the full string, and
+ 			 * must be larger or equal to devinfo->model
+ 			 */
+-			mlen = strlen(devinfo->model);
++			mlen = strnlen(devinfo->model, sizeof(devinfo->model));
+ 			if (mmax < mlen || memcmp(devinfo->model, mskip, mlen))
+ 				continue;
+ 			return devinfo;
 -- 
 2.25.1
 
