@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BC5120D9D7
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:12:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F68220DA1C
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:12:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732090AbgF2Tvb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:51:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47682 "EHLO mail.kernel.org"
+        id S1729169AbgF2Txo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:53:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387726AbgF2Tkc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:32 -0400
+        id S2387682AbgF2Tk0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:26 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5EA9524898;
-        Mon, 29 Jun 2020 15:26:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6DE402489B;
+        Mon, 29 Jun 2020 15:26:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444392;
-        bh=INcq5wxv6l6AovBo3O4mUJtdrDH+kYf9POZ5RalqkMk=;
+        s=default; t=1593444393;
+        bh=NZBpvXR0toR/Aek7Lz0RRaujuuhv5ZM2HJX/D3SBmPo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oWFJ3pKk4TWfSIBxgpBe+C39fDmUFs8PEXKjHK5CBhTzkvM/2nFQTku5EaEmV6CEb
-         VAjfSXKqtIrh0sRAk4xHDwYEYAKNGKcs5OYh2w92I0x9g37ukARnLRvQCGnA06OfcD
-         YvADq+FjLZbKuL5eFD/maE0dwIxjhsum+CAulyvk=
+        b=j29ob9AdVSJ82cr9u5sJ4g+fz+uoZ3Nr5RBFl8rH3NVcSsgp6VPR2mXiEvaiQQnpO
+         PmCkokPGK4vkXfTOy5um0JciPaMiaBpDu7Bdd5VFbjkBCmrioHhKH/THgqgQ6reczd
+         5mLPRdsKrRsZT+gL3kKBi6vGrtk2pggVcrTw3J2o=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        John Stultz <john.stultz@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>, Mark Brown <broonie@kernel.org>,
+Cc:     Robin Gong <yibin.gong@nxp.com>,
+        Christophe Meynard <Christophe.Meynard@ign.fr>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 069/178] ASoC: qcom: common: set correct directions for dailinks
-Date:   Mon, 29 Jun 2020 11:23:34 -0400
-Message-Id: <20200629152523.2494198-70-sashal@kernel.org>
+Subject: [PATCH 5.4 070/178] regualtor: pfuze100: correct sw1a/sw2 on pfuze3000
+Date:   Mon, 29 Jun 2020 11:23:35 -0400
+Message-Id: <20200629152523.2494198-71-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -50,69 +50,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Robin Gong <yibin.gong@nxp.com>
 
-[ Upstream commit a2120089251f1fe221305e88df99af16f940e236 ]
+[ Upstream commit 6f1cf5257acc6e6242ddf2f52bc7912aed77b79f ]
 
-Currently both FE and BE dai-links are configured bi-directional,
-However the DSP BE dais are only single directional,
-so set the directions as supported by the BE dais.
+PFUZE100_SWB_REG is not proper for sw1a/sw2, because enable_mask/enable_reg
+is not correct. On PFUZE3000, sw1a/sw2 should be the same as sw1a/sw2 on
+pfuze100 except that voltages are not linear, so add new PFUZE3000_SW_REG
+and pfuze3000_sw_regulator_ops which like the non-linear PFUZE100_SW_REG
+and pfuze100_sw_regulator_ops.
 
-Fixes: c25e295cd77b (ASoC: qcom: Add support to parse common audio device nodes)
-Reported-by: John Stultz <john.stultz@linaro.org>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Tested-by: John Stultz <john.stultz@linaro.org>
-Reviewed-by: Vinod Koul <vkoul@kernel.org>
-Link: https://lore.kernel.org/r/20200612123711.29130-2-srinivas.kandagatla@linaro.org
+Fixes: 1dced996ee70 ("regulator: pfuze100: update voltage setting for pfuze3000 sw1a")
+Reported-by: Christophe Meynard <Christophe.Meynard@ign.fr>
+Signed-off-by: Robin Gong <yibin.gong@nxp.com>
+Link: https://lore.kernel.org/r/1592171648-8752-1-git-send-email-yibin.gong@nxp.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/qcom/common.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/regulator/pfuze100-regulator.c | 60 +++++++++++++++++---------
+ 1 file changed, 39 insertions(+), 21 deletions(-)
 
-diff --git a/sound/soc/qcom/common.c b/sound/soc/qcom/common.c
-index 6c20bdd850f33..8ada4ecba8472 100644
---- a/sound/soc/qcom/common.c
-+++ b/sound/soc/qcom/common.c
-@@ -4,6 +4,7 @@
+diff --git a/drivers/regulator/pfuze100-regulator.c b/drivers/regulator/pfuze100-regulator.c
+index 689537927f6f7..4c8e8b4722872 100644
+--- a/drivers/regulator/pfuze100-regulator.c
++++ b/drivers/regulator/pfuze100-regulator.c
+@@ -209,6 +209,19 @@ static const struct regulator_ops pfuze100_swb_regulator_ops = {
  
- #include <linux/module.h>
- #include "common.h"
-+#include "qdsp6/q6afe.h"
+ };
  
- int qcom_snd_parse_of(struct snd_soc_card *card)
- {
-@@ -101,6 +102,15 @@ int qcom_snd_parse_of(struct snd_soc_card *card)
- 			}
- 			link->no_pcm = 1;
- 			link->ignore_pmdown_time = 1;
++static const struct regulator_ops pfuze3000_sw_regulator_ops = {
++	.enable = regulator_enable_regmap,
++	.disable = regulator_disable_regmap,
++	.is_enabled = regulator_is_enabled_regmap,
++	.list_voltage = regulator_list_voltage_table,
++	.map_voltage = regulator_map_voltage_ascend,
++	.set_voltage_sel = regulator_set_voltage_sel_regmap,
++	.get_voltage_sel = regulator_get_voltage_sel_regmap,
++	.set_voltage_time_sel = regulator_set_voltage_time_sel,
++	.set_ramp_delay = pfuze100_set_ramp_delay,
 +
-+			if (q6afe_is_rx_port(link->id)) {
-+				link->dpcm_playback = 1;
-+				link->dpcm_capture = 0;
-+			} else {
-+				link->dpcm_playback = 0;
-+				link->dpcm_capture = 1;
-+			}
++};
 +
- 		} else {
- 			dlc = devm_kzalloc(dev, sizeof(*dlc), GFP_KERNEL);
- 			if (!dlc)
-@@ -113,12 +123,12 @@ int qcom_snd_parse_of(struct snd_soc_card *card)
- 			link->codecs->dai_name = "snd-soc-dummy-dai";
- 			link->codecs->name = "snd-soc-dummy";
- 			link->dynamic = 1;
-+			link->dpcm_playback = 1;
-+			link->dpcm_capture = 1;
- 		}
+ #define PFUZE100_FIXED_REG(_chip, _name, base, voltage)	\
+ 	[_chip ## _ ## _name] = {	\
+ 		.desc = {	\
+@@ -318,23 +331,28 @@ static const struct regulator_ops pfuze100_swb_regulator_ops = {
+ 	.stby_mask = 0x20,	\
+ }
  
- 		link->ignore_suspend = 1;
- 		link->nonatomic = 1;
--		link->dpcm_playback = 1;
--		link->dpcm_capture = 1;
- 		link->stream_name = link->name;
- 		link++;
+-
+-#define PFUZE3000_SW2_REG(_chip, _name, base, min, max, step)	{	\
+-	.desc = {	\
+-		.name = #_name,\
+-		.n_voltages = ((max) - (min)) / (step) + 1,	\
+-		.ops = &pfuze100_sw_regulator_ops,	\
+-		.type = REGULATOR_VOLTAGE,	\
+-		.id = _chip ## _ ## _name,	\
+-		.owner = THIS_MODULE,	\
+-		.min_uV = (min),	\
+-		.uV_step = (step),	\
+-		.vsel_reg = (base) + PFUZE100_VOL_OFFSET,	\
+-		.vsel_mask = 0x7,	\
+-	},	\
+-	.stby_reg = (base) + PFUZE100_STANDBY_OFFSET,	\
+-	.stby_mask = 0x7,	\
+-}
++/* No linar case for the some switches of PFUZE3000 */
++#define PFUZE3000_SW_REG(_chip, _name, base, mask, voltages)	\
++	[_chip ## _ ##  _name] = {	\
++		.desc = {	\
++			.name = #_name,	\
++			.n_voltages = ARRAY_SIZE(voltages),	\
++			.ops = &pfuze3000_sw_regulator_ops,	\
++			.type = REGULATOR_VOLTAGE,	\
++			.id = _chip ## _ ## _name,	\
++			.owner = THIS_MODULE,	\
++			.volt_table = voltages,	\
++			.vsel_reg = (base) + PFUZE100_VOL_OFFSET,	\
++			.vsel_mask = (mask),	\
++			.enable_reg = (base) + PFUZE100_MODE_OFFSET,	\
++			.enable_mask = 0xf,	\
++			.enable_val = 0x8,	\
++			.enable_time = 500,	\
++		},	\
++		.stby_reg = (base) + PFUZE100_STANDBY_OFFSET,	\
++		.stby_mask = (mask),	\
++		.sw_reg = true,		\
++	}
  
+ #define PFUZE3000_SW3_REG(_chip, _name, base, min, max, step)	{	\
+ 	.desc = {	\
+@@ -391,9 +409,9 @@ static struct pfuze_regulator pfuze200_regulators[] = {
+ };
+ 
+ static struct pfuze_regulator pfuze3000_regulators[] = {
+-	PFUZE100_SWB_REG(PFUZE3000, SW1A, PFUZE100_SW1ABVOL, 0x1f, pfuze3000_sw1a),
++	PFUZE3000_SW_REG(PFUZE3000, SW1A, PFUZE100_SW1ABVOL, 0x1f, pfuze3000_sw1a),
+ 	PFUZE100_SW_REG(PFUZE3000, SW1B, PFUZE100_SW1CVOL, 700000, 1475000, 25000),
+-	PFUZE100_SWB_REG(PFUZE3000, SW2, PFUZE100_SW2VOL, 0x7, pfuze3000_sw2lo),
++	PFUZE3000_SW_REG(PFUZE3000, SW2, PFUZE100_SW2VOL, 0x7, pfuze3000_sw2lo),
+ 	PFUZE3000_SW3_REG(PFUZE3000, SW3, PFUZE100_SW3AVOL, 900000, 1650000, 50000),
+ 	PFUZE100_SWB_REG(PFUZE3000, SWBST, PFUZE100_SWBSTCON1, 0x3, pfuze100_swbst),
+ 	PFUZE100_SWB_REG(PFUZE3000, VSNVS, PFUZE100_VSNVSVOL, 0x7, pfuze100_vsnvs),
+@@ -407,8 +425,8 @@ static struct pfuze_regulator pfuze3000_regulators[] = {
+ };
+ 
+ static struct pfuze_regulator pfuze3001_regulators[] = {
+-	PFUZE100_SWB_REG(PFUZE3001, SW1, PFUZE100_SW1ABVOL, 0x1f, pfuze3000_sw1a),
+-	PFUZE100_SWB_REG(PFUZE3001, SW2, PFUZE100_SW2VOL, 0x7, pfuze3000_sw2lo),
++	PFUZE3000_SW_REG(PFUZE3001, SW1, PFUZE100_SW1ABVOL, 0x1f, pfuze3000_sw1a),
++	PFUZE3000_SW_REG(PFUZE3001, SW2, PFUZE100_SW2VOL, 0x7, pfuze3000_sw2lo),
+ 	PFUZE3000_SW3_REG(PFUZE3001, SW3, PFUZE100_SW3AVOL, 900000, 1650000, 50000),
+ 	PFUZE100_SWB_REG(PFUZE3001, VSNVS, PFUZE100_VSNVSVOL, 0x7, pfuze100_vsnvs),
+ 	PFUZE100_VGEN_REG(PFUZE3001, VLDO1, PFUZE100_VGEN1VOL, 1800000, 3300000, 100000),
 -- 
 2.25.1
 
