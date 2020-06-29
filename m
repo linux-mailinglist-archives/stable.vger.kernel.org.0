@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C07A20D3D7
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 21:13:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF55120D3A7
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 21:13:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729444AbgF2TCh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:02:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45426 "EHLO mail.kernel.org"
+        id S1728563AbgF2TBH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:01:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729229AbgF2TAU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:00:20 -0400
+        id S1730362AbgF2TAW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:00:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 89C0425528;
-        Mon, 29 Jun 2020 15:54:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E71FD25529;
+        Mon, 29 Jun 2020 15:54:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593446088;
-        bh=fMO4jSJVSkgKvxcbkd3PUtLTMUfTWuiDNyJ6o5bgtAc=;
+        s=default; t=1593446091;
+        bh=iTb1TmiSIxWsy6PGti5hKwlxh7Anhvbfmt0aLsL/E5M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PTKZvCLjP2Mi2nBgKydv3jEyr5pae/jJ4W1VaJiulC0qXzH9Ipf71U97RTJfSEGg+
-         umDgS1ZbGUZLeR6Mo0F+JbXf+hPt2B8+DaKFUEHoxsLvCV5dPRRuI//iTwSAJ38uaN
-         gYkfVDbbSX5WOS9diZ1GGm6gViA9bREkTLYA8gRM=
+        b=ulhfYApZktX+eAG9UO01LlPxBsItGL944IDTllBtChwQZEhHlyqoWqerY4USWvJn7
+         pLg58vmpKtg9pt+3dfQ1yNd+Txces2zVReJnIJJhKBmzzNSftzHKnm5HcmeTUFeBTI
+         RjrItxYlO2xf5wB/71Bq1p0j9qqC26NG9bv4bdMs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jeremy Kerr <jk@ozlabs.org>,
+Cc:     Neal Cardwell <ncardwell@google.com>,
+        Mirja Kuehlewind <mirja.kuehlewind@ericsson.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
         "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.4 083/135] net: usb: ax88179_178a: fix packet alignment padding
-Date:   Mon, 29 Jun 2020 11:52:17 -0400
-Message-Id: <20200629155309.2495516-84-sashal@kernel.org>
+Subject: [PATCH 4.4 086/135] tcp_cubic: fix spurious HYSTART_DELAY exit upon drop in min RTT
+Date:   Mon, 29 Jun 2020 11:52:20 -0400
+Message-Id: <20200629155309.2495516-87-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
 References: <20200629155309.2495516-1-sashal@kernel.org>
@@ -49,72 +52,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Kerr <jk@ozlabs.org>
+From: Neal Cardwell <ncardwell@google.com>
 
-[ Upstream commit e869e7a17798d85829fa7d4f9bbe1eebd4b2d3f6 ]
+[ Upstream commit b344579ca8478598937215f7005d6c7b84d28aee ]
 
-Using a AX88179 device (0b95:1790), I see two bytes of appended data on
-every RX packet. For example, this 48-byte ping, using 0xff as a
-payload byte:
+Mirja Kuehlewind reported a bug in Linux TCP CUBIC Hystart, where
+Hystart HYSTART_DELAY mechanism can exit Slow Start spuriously on an
+ACK when the minimum rtt of a connection goes down. From inspection it
+is clear from the existing code that this could happen in an example
+like the following:
 
-  04:20:22.528472 IP 192.168.1.1 > 192.168.1.2: ICMP echo request, id 2447, seq 1, length 64
-	0x0000:  000a cd35 ea50 000a cd35 ea4f 0800 4500
-	0x0010:  0054 c116 4000 4001 f63e c0a8 0101 c0a8
-	0x0020:  0102 0800 b633 098f 0001 87ea cd5e 0000
-	0x0030:  0000 dcf2 0600 0000 0000 ffff ffff ffff
-	0x0040:  ffff ffff ffff ffff ffff ffff ffff ffff
-	0x0050:  ffff ffff ffff ffff ffff ffff ffff ffff
-	0x0060:  ffff 961f
+o The first 8 RTT samples in a round trip are 150ms, resulting in a
+  curr_rtt of 150ms and a delay_min of 150ms.
 
-Those last two bytes - 96 1f - aren't part of the original packet.
+o The 9th RTT sample is 100ms. The curr_rtt does not change after the
+  first 8 samples, so curr_rtt remains 150ms. But delay_min can be
+  lowered at any time, so delay_min falls to 100ms. The code executes
+  the HYSTART_DELAY comparison between curr_rtt of 150ms and delay_min
+  of 100ms, and the curr_rtt is declared far enough above delay_min to
+  force a (spurious) exit of Slow start.
 
-In the ax88179 RX path, the usbnet rx_fixup function trims a 2-byte
-'alignment pseudo header' from the start of the packet, and sets the
-length from a per-packet field populated by hardware. It looks like that
-length field *includes* the 2-byte header; the current driver assumes
-that it's excluded.
+The fix here is simple: allow every RTT sample in a round trip to
+lower the curr_rtt.
 
-This change trims the 2-byte alignment header after we've set the packet
-length, so the resulting packet length is correct. While we're moving
-the comment around, this also fixes the spelling of 'pseudo'.
-
-Signed-off-by: Jeremy Kerr <jk@ozlabs.org>
+Fixes: ae27e98a5152 ("[TCP] CUBIC v2.3")
+Reported-by: Mirja Kuehlewind <mirja.kuehlewind@ericsson.com>
+Signed-off-by: Neal Cardwell <ncardwell@google.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/ax88179_178a.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ net/ipv4/tcp_cubic.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/usb/ax88179_178a.c b/drivers/net/usb/ax88179_178a.c
-index e3f2e6098db40..2dcc8a039d42e 100644
---- a/drivers/net/usb/ax88179_178a.c
-+++ b/drivers/net/usb/ax88179_178a.c
-@@ -1396,10 +1396,10 @@ static int ax88179_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
- 		}
+diff --git a/net/ipv4/tcp_cubic.c b/net/ipv4/tcp_cubic.c
+index 448c2615fece9..9fb3a5e83a7c7 100644
+--- a/net/ipv4/tcp_cubic.c
++++ b/net/ipv4/tcp_cubic.c
+@@ -414,6 +414,8 @@ static void hystart_update(struct sock *sk, u32 delay)
  
- 		if (pkt_cnt == 0) {
--			/* Skip IP alignment psudo header */
--			skb_pull(skb, 2);
- 			skb->len = pkt_len;
--			skb_set_tail_pointer(skb, pkt_len);
-+			/* Skip IP alignment pseudo header */
-+			skb_pull(skb, 2);
-+			skb_set_tail_pointer(skb, skb->len);
- 			skb->truesize = pkt_len + sizeof(struct sk_buff);
- 			ax88179_rx_checksum(skb, pkt_hdr);
- 			return 1;
-@@ -1408,8 +1408,9 @@ static int ax88179_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
- 		ax_skb = skb_clone(skb, GFP_ATOMIC);
- 		if (ax_skb) {
- 			ax_skb->len = pkt_len;
--			ax_skb->data = skb->data + 2;
--			skb_set_tail_pointer(ax_skb, pkt_len);
-+			/* Skip IP alignment pseudo header */
-+			skb_pull(ax_skb, 2);
-+			skb_set_tail_pointer(ax_skb, ax_skb->len);
- 			ax_skb->truesize = pkt_len + sizeof(struct sk_buff);
- 			ax88179_rx_checksum(ax_skb, pkt_hdr);
- 			usbnet_skb_return(dev, ax_skb);
+ 	if (hystart_detect & HYSTART_DELAY) {
+ 		/* obtain the minimum delay of more than sampling packets */
++		if (ca->curr_rtt > delay)
++			ca->curr_rtt = delay;
+ 		if (ca->sample_cnt < HYSTART_MIN_SAMPLES) {
+ 			if (ca->curr_rtt == 0 || ca->curr_rtt > delay)
+ 				ca->curr_rtt = delay;
 -- 
 2.25.1
 
