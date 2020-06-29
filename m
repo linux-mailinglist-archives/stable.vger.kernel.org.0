@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3DCB20E29B
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:01:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D58420E2F9
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:02:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730822AbgF2VHC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:07:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53736 "EHLO mail.kernel.org"
+        id S2390214AbgF2VK2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:10:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730950AbgF2TKR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:10:17 -0400
+        id S1730307AbgF2TAR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:00:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6994D254E2;
-        Mon, 29 Jun 2020 15:53:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C7935254E1;
+        Mon, 29 Jun 2020 15:53:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593446037;
-        bh=GE0G3P08GA599AmVntNBGr/PEBtJYVNAt/jofKJFvzc=;
+        s=default; t=1593446039;
+        bh=c0HTlPD+7w++x9Jd+UeSiTifYZWtKyrYE4qjPsbHibY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y/ng3tlBz6lkyQydWXBUCTdOgwYH3APm3IFZ+xeEUHrkPa5Oei+4wlKOXNFOrppVz
-         a4Ce3VJM1gpMRYZNHW/0usGT9hf9ZP/CwNdgn1hsyvJkfitEh/6Focb63xJQQxnp4o
-         3ZuPt5WWLT842u4eK+qMJvvQ+Cnzd+x6Bxcqvwrs=
+        b=bsYLYA2/9NaZhCRomgW4raCW6kPUJCQxs3t2+eod9E2ZTvGd+jQG5S3sSyDXhyPyz
+         6gPa43uM8IZ/GQcLyoXFNHDy1FriIYjaCrcAZ2tVYVwQFB4MMHFTMSrwvIo6akt5Yo
+         UcWhfWWvo5Ra1chXnlAMt+lAvUbOH3gt2tIvtFqo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        kbuild test robot <lkp@intel.com>,
-        Felipe Balbi <balbi@kernel.org>,
+Cc:     Qiushi Wu <wu000273@umn.edu>, Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 042/135] USB: gadget: udc: s3c2410_udc: Remove pointless NULL check in s3c2410_udc_nuke
-Date:   Mon, 29 Jun 2020 11:51:36 -0400
-Message-Id: <20200629155309.2495516-43-sashal@kernel.org>
+Subject: [PATCH 4.4 044/135] usb: gadget: fix potential double-free in m66592_probe.
+Date:   Mon, 29 Jun 2020 11:51:38 -0400
+Message-Id: <20200629155309.2495516-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
 References: <20200629155309.2495516-1-sashal@kernel.org>
@@ -51,54 +48,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Qiushi Wu <wu000273@umn.edu>
 
-[ Upstream commit 7a0fbcf7c308920bc6116b3a5fb21c8cc5fec128 ]
+[ Upstream commit 44734a594196bf1d474212f38fe3a0d37a73278b ]
 
-Clang warns:
+m66592_free_request() is called under label "err_add_udc"
+and "clean_up", and m66592->ep0_req is not set to NULL after
+first free, leading to a double-free. Fix this issue by
+setting m66592->ep0_req to NULL after the first free.
 
-drivers/usb/gadget/udc/s3c2410_udc.c:255:11: warning: comparison of
-address of 'ep->queue' equal to a null pointer is always false
-[-Wtautological-pointer-compare]
-        if (&ep->queue == NULL)
-             ~~~~^~~~~    ~~~~
-1 warning generated.
-
-It is not wrong, queue is not a pointer so if ep is not NULL, the
-address of queue cannot be NULL. No other driver does a check like this
-and this check has been around since the driver was first introduced,
-presumably with no issues so it does not seem like this check should be
-something else. Just remove it.
-
-Commit afe956c577b2d ("kbuild: Enable -Wtautological-compare") exposed
-this but it is not the root cause of the warning.
-
-Fixes: 3fc154b6b8134 ("USB Gadget driver for Samsung s3c2410 ARM SoC")
-Link: https://github.com/ClangBuiltLinux/linux/issues/1004
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Fixes: 0f91349b89f3 ("usb: gadget: convert all users to the new udc infrastructure")
+Signed-off-by: Qiushi Wu <wu000273@umn.edu>
 Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/s3c2410_udc.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/usb/gadget/udc/m66592-udc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/udc/s3c2410_udc.c b/drivers/usb/gadget/udc/s3c2410_udc.c
-index eb3571ee59e3c..08153a48704bb 100644
---- a/drivers/usb/gadget/udc/s3c2410_udc.c
-+++ b/drivers/usb/gadget/udc/s3c2410_udc.c
-@@ -269,10 +269,6 @@ static void s3c2410_udc_done(struct s3c2410_ep *ep,
- static void s3c2410_udc_nuke(struct s3c2410_udc *udc,
- 		struct s3c2410_ep *ep, int status)
- {
--	/* Sanity check */
--	if (&ep->queue == NULL)
--		return;
+diff --git a/drivers/usb/gadget/udc/m66592-udc.c b/drivers/usb/gadget/udc/m66592-udc.c
+index b1cfa96cc88f8..db95eab8b4328 100644
+--- a/drivers/usb/gadget/udc/m66592-udc.c
++++ b/drivers/usb/gadget/udc/m66592-udc.c
+@@ -1684,7 +1684,7 @@ static int m66592_probe(struct platform_device *pdev)
+ 
+ err_add_udc:
+ 	m66592_free_request(&m66592->ep[0].ep, m66592->ep0_req);
 -
- 	while (!list_empty(&ep->queue)) {
- 		struct s3c2410_request *req;
- 		req = list_entry(ep->queue.next, struct s3c2410_request,
++	m66592->ep0_req = NULL;
+ clean_up3:
+ 	if (m66592->pdata->on_chip) {
+ 		clk_disable(m66592->clk);
 -- 
 2.25.1
 
