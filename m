@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0192120D1A0
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 20:49:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72CE620D14C
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 20:41:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728100AbgF2Sm3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 14:42:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60658 "EHLO mail.kernel.org"
+        id S1728235AbgF2SkW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 14:40:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728935AbgF2Sl0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:41:26 -0400
+        id S1728192AbgF2SkU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:40:20 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ECFD124050;
-        Mon, 29 Jun 2020 15:18:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9CF4924060;
+        Mon, 29 Jun 2020 15:18:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593443925;
-        bh=nkXVUsdToHyNieb+U/6qjEft4C6WlZi7raDmgvDcMO0=;
+        s=default; t=1593443932;
+        bh=iVLEtNuN/GMh+pcLYfri49Eh+Ax/UHlczwS5d0b59wg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZSbTpfQ6whzHdgPRdLDv17mix5yhEUz83j4EGTIk9jcg2PlEuHLfEwWJfObPLNnIJ
-         rSDLQ/MTUF+TSuS9A4vi+bR9L1mWaR013jLDZHVvd+GS9MndvXmg8w87iSJzxSHIrm
-         7HCKTt/erpZ9MKh0mYpotHRquumKMgeYV7lt/Ij8=
+        b=YTXXBjI0Jt+07DFJNG2h/Yj3ODq0FdyULTQTMkEcYle50UpdKCQ2FrUgRIzKdjRj8
+         UMklR9n1sQGt+qSRTu0P8AwGByfhE0W3xK73AcxdiwZPOxzxMbd/DeBta/O1AZ7GH8
+         OvpS6TlYeA4JHOEqTqTjZtKkih1RAUalCS0XK/Ig=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Florian Fainelli <f.fainelli@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>,
+Cc:     Russell King <rmk+kernel@armlinux.org.uk>,
         "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.7 026/265] net: phy: Check harder for errors in get_phy_id()
-Date:   Mon, 29 Jun 2020 11:14:19 -0400
-Message-Id: <20200629151818.2493727-27-sashal@kernel.org>
+Subject: [PATCH 5.7 033/265] net: phylink: ensure manual pause mode configuration takes effect
+Date:   Mon, 29 Jun 2020 11:14:26 -0400
+Message-Id: <20200629151818.2493727-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -50,53 +49,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit b2ffc75e2e990b09903f9d15ccd53bc5f3a4217c ]
+[ Upstream commit 2e919bc446faee429ac862a6cdb5e40017051f6b ]
 
-Commit 02a6efcab675 ("net: phy: allow scanning busses with missing
-phys") added a special condition to return -ENODEV in case -ENODEV or
--EIO was returned from the first read of the MII_PHYSID1 register.
+We have been relying on link events and mac_config() when the manual
+pause modes are changed.  With recent developments, such as moving
+the programming of link state to mac_link_up(), this no longer works.
 
-In case the MDIO bus data line pull-up is not strong enough, the MDIO
-bus controller will not flag this as a read error. This can happen when
-a pluggable daughter card is not connected and weak internal pull-ups
-are used (since that is the only option, otherwise the pins are
-floating).
+To ensure that we update the MAC, we must generate a link-down followed
+by a link-up event; we can do that by setting mac_link_dropped and
+triggering a resolve.
 
-The second read of MII_PHYSID2 will be correctly flagged an error
-though, but now we will return -EIO which will be treated as a hard
-error, thus preventing MDIO bus scanning loops to continue succesfully.
-
-Apply the same logic to both register reads, thus allowing the scanning
-logic to proceed.
-
-Fixes: 02a6efcab675 ("net: phy: allow scanning busses with missing phys")
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: 91a208f2185a ("net: phylink: propagate resolved link config via mac_link_up()")
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/phy_device.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/phy/phylink.c | 27 ++++++++++++++++++++++-----
+ 1 file changed, 22 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
-index 697c74deb222b..0881b4b923632 100644
---- a/drivers/net/phy/phy_device.c
-+++ b/drivers/net/phy/phy_device.c
-@@ -798,8 +798,10 @@ static int get_phy_id(struct mii_bus *bus, int addr, u32 *phy_id,
+diff --git a/drivers/net/phy/phylink.c b/drivers/net/phy/phylink.c
+index b0ddeab2a8d2f..ac38bead1cd25 100644
+--- a/drivers/net/phy/phylink.c
++++ b/drivers/net/phy/phylink.c
+@@ -1480,6 +1480,8 @@ int phylink_ethtool_set_pauseparam(struct phylink *pl,
+ 				   struct ethtool_pauseparam *pause)
+ {
+ 	struct phylink_link_state *config = &pl->link_config;
++	bool manual_changed;
++	int pause_state;
  
- 	/* Grab the bits from PHYIR2, and put them in the lower half */
- 	phy_reg = mdiobus_read(bus, addr, MII_PHYSID2);
--	if (phy_reg < 0)
--		return -EIO;
-+	if (phy_reg < 0) {
-+		/* returning -ENODEV doesn't stop bus scanning */
-+		return (phy_reg == -EIO || phy_reg == -ENODEV) ? -ENODEV : -EIO;
+ 	ASSERT_RTNL();
+ 
+@@ -1494,15 +1496,15 @@ int phylink_ethtool_set_pauseparam(struct phylink *pl,
+ 	    !pause->autoneg && pause->rx_pause != pause->tx_pause)
+ 		return -EINVAL;
+ 
+-	mutex_lock(&pl->state_mutex);
+-	config->pause = 0;
++	pause_state = 0;
+ 	if (pause->autoneg)
+-		config->pause |= MLO_PAUSE_AN;
++		pause_state |= MLO_PAUSE_AN;
+ 	if (pause->rx_pause)
+-		config->pause |= MLO_PAUSE_RX;
++		pause_state |= MLO_PAUSE_RX;
+ 	if (pause->tx_pause)
+-		config->pause |= MLO_PAUSE_TX;
++		pause_state |= MLO_PAUSE_TX;
+ 
++	mutex_lock(&pl->state_mutex);
+ 	/*
+ 	 * See the comments for linkmode_set_pause(), wrt the deficiencies
+ 	 * with the current implementation.  A solution to this issue would
+@@ -1519,6 +1521,12 @@ int phylink_ethtool_set_pauseparam(struct phylink *pl,
+ 	linkmode_set_pause(config->advertising, pause->tx_pause,
+ 			   pause->rx_pause);
+ 
++	manual_changed = (config->pause ^ pause_state) & MLO_PAUSE_AN ||
++			 (!(pause_state & MLO_PAUSE_AN) &&
++			   (config->pause ^ pause_state) & MLO_PAUSE_TXRX_MASK);
++
++	config->pause = pause_state;
++
+ 	if (!pl->phydev && !test_bit(PHYLINK_DISABLE_STOPPED,
+ 				     &pl->phylink_disable_state))
+ 		phylink_pcs_config(pl, true, &pl->link_config);
+@@ -1534,6 +1542,15 @@ int phylink_ethtool_set_pauseparam(struct phylink *pl,
+ 		phy_set_asym_pause(pl->phydev, pause->rx_pause,
+ 				   pause->tx_pause);
+ 
++	/* If the manual pause settings changed, make sure we trigger a
++	 * resolve to update their state; we can not guarantee that the
++	 * link will cycle.
++	 */
++	if (manual_changed) {
++		pl->mac_link_dropped = true;
++		phylink_run_resolve(pl);
 +	}
- 
- 	*phy_id |= phy_reg;
- 
++
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(phylink_ethtool_set_pauseparam);
 -- 
 2.25.1
 
