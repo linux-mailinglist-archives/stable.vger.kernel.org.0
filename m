@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 076B520DC66
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:17:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB5B420DBB8
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:16:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728030AbgF2UOu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:14:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40594 "EHLO mail.kernel.org"
+        id S1729284AbgF2UJF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:09:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732831AbgF2TaS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:30:18 -0400
+        id S1732930AbgF2TaX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:30:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C662E251EE;
-        Mon, 29 Jun 2020 15:35:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F2CF251F3;
+        Mon, 29 Jun 2020 15:35:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444911;
-        bh=N8Kw4vgdWvrmLWML7P5AQDoKHbBDhEK38kF08BLH4Gc=;
+        s=default; t=1593444912;
+        bh=nQhk4ferhdpSiVYEziuRKJniwPCP21C39LLTWy0DsMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jZLd6sgf7bEItZ76KoZsHn3uLTbfg56m9AbeyzhLvVrpdjqRnwoXb5Fcitz5am01Q
-         pMdOKboKboBX5pYFeqYnohbTibUgmRHZWJXCUVxX6RqDmLo+1SRUXrXft11fQSNh00
-         z/2OW0GhEOXZEzRfMcFu7utJjpMKyFJjfGdQdKrw=
+        b=dWWNiIM/KB4Mm6FvomLCFaIEEy8RzcXrTf69YlUYddPsa8szMVhefGdFK+uxzvjLu
+         3OodYE49KsS7enrvDcyqGELn93slGKQ/NlIw12CdlPyF+Beh1BKMv/gLy9h+/tPobk
+         yfXR5LA60+OQSdGzVMzwag0U5FCK2xEYtGFYYIyM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yazen Ghannam <yazen.ghannam@amd.com>,
-        Borislav Petkov <bp@suse.de>,
-        Kim Phillips <kim.phillips@amd.com>,
-        James Morse <james.morse@arm.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        linux-edac <linux-edac@vger.kernel.org>,
+Cc:     Thierry Reding <treding@nvidia.com>,
+        Wolfram Sang <wsa@the-dreams.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 007/131] EDAC/amd64: Add Family 17h Model 30h PCI IDs
-Date:   Mon, 29 Jun 2020 11:32:58 -0400
-Message-Id: <20200629153502.2494656-8-sashal@kernel.org>
+Subject: [PATCH 4.19 008/131] i2c: tegra: Cleanup kerneldoc comments
+Date:   Mon, 29 Jun 2020 11:32:59 -0400
+Message-Id: <20200629153502.2494656-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629153502.2494656-1-sashal@kernel.org>
 References: <20200629153502.2494656-1-sashal@kernel.org>
@@ -53,81 +49,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yazen Ghannam <yazen.ghannam@amd.com>
+From: Thierry Reding <treding@nvidia.com>
 
-[ Upstream commit 6e846239e5487cbb89ac8192d5f11437d010130e ]
+[ Upstream commit c990bbafdb11c608bba2d529f72ded9bdff88678 ]
 
-Add the new Family 17h Model 30h PCI IDs to the AMD64 EDAC module.
+Some of the kerneldoc uses a strange spelling for abbreviations. Turn
+them into all-uppercase and clean up some whitespace issues while at it.
 
-This also fixes a probe failure that appeared when some other PCI IDs
-for Family 17h Model 30h were added to the AMD NB code.
-
-Fixes: be3518a16ef2 (x86/amd_nb: Add PCI device IDs for family 17h, model 30h)
-Signed-off-by: Yazen Ghannam <yazen.ghannam@amd.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Tested-by: Kim Phillips <kim.phillips@amd.com>
-Cc: James Morse <james.morse@arm.com>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: linux-edac <linux-edac@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20190228153558.127292-1-Yazen.Ghannam@amd.com
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/amd64_edac.c | 13 +++++++++++++
- drivers/edac/amd64_edac.h |  3 +++
- 2 files changed, 16 insertions(+)
+ drivers/i2c/busses/i2c-tegra.c | 23 +++++++++++------------
+ 1 file changed, 11 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/edac/amd64_edac.c b/drivers/edac/amd64_edac.c
-index 05d6f9c86ac38..268ada29cd987 100644
---- a/drivers/edac/amd64_edac.c
-+++ b/drivers/edac/amd64_edac.c
-@@ -2209,6 +2209,15 @@ static struct amd64_family_type family_types[] = {
- 			.dbam_to_cs		= f17_base_addr_to_cs_size,
- 		}
- 	},
-+	[F17_M30H_CPUS] = {
-+		.ctl_name = "F17h_M30h",
-+		.f0_id = PCI_DEVICE_ID_AMD_17H_M30H_DF_F0,
-+		.f6_id = PCI_DEVICE_ID_AMD_17H_M30H_DF_F6,
-+		.ops = {
-+			.early_channel_count	= f17_early_channel_count,
-+			.dbam_to_cs		= f17_base_addr_to_cs_size,
-+		}
-+	},
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index 47d196c026ba6..9a6b9a1b88aef 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -145,8 +145,8 @@ enum msg_end_type {
+  * @has_continue_xfer_support: Continue transfer supports.
+  * @has_per_pkt_xfer_complete_irq: Has enable/disable capability for transfer
+  *		complete interrupt per packet basis.
+- * @has_single_clk_source: The i2c controller has single clock source. Tegra30
+- *		and earlier Socs has two clock sources i.e. div-clk and
++ * @has_single_clk_source: The I2C controller has single clock source. Tegra30
++ *		and earlier SoCs have two clock sources i.e. div-clk and
+  *		fast-clk.
+  * @has_config_load_reg: Has the config load register to load the new
+  *		configuration.
+@@ -155,7 +155,6 @@ enum msg_end_type {
+  *		applicable if there is no fast clock source i.e. single clock
+  *		source.
+  */
+-
+ struct tegra_i2c_hw_feature {
+ 	bool has_continue_xfer_support;
+ 	bool has_per_pkt_xfer_complete_irq;
+@@ -170,22 +169,22 @@ struct tegra_i2c_hw_feature {
  };
  
- /*
-@@ -3212,6 +3221,10 @@ static struct amd64_family_type *per_family_init(struct amd64_pvt *pvt)
- 			fam_type = &family_types[F17_M10H_CPUS];
- 			pvt->ops = &family_types[F17_M10H_CPUS].ops;
- 			break;
-+		} else if (pvt->model >= 0x30 && pvt->model <= 0x3f) {
-+			fam_type = &family_types[F17_M30H_CPUS];
-+			pvt->ops = &family_types[F17_M30H_CPUS].ops;
-+			break;
- 		}
- 		fam_type	= &family_types[F17_CPUS];
- 		pvt->ops	= &family_types[F17_CPUS].ops;
-diff --git a/drivers/edac/amd64_edac.h b/drivers/edac/amd64_edac.h
-index 4242f8e39c18f..de8dbb0b42b55 100644
---- a/drivers/edac/amd64_edac.h
-+++ b/drivers/edac/amd64_edac.h
-@@ -117,6 +117,8 @@
- #define PCI_DEVICE_ID_AMD_17H_DF_F6	0x1466
- #define PCI_DEVICE_ID_AMD_17H_M10H_DF_F0 0x15e8
- #define PCI_DEVICE_ID_AMD_17H_M10H_DF_F6 0x15ee
-+#define PCI_DEVICE_ID_AMD_17H_M30H_DF_F0 0x1490
-+#define PCI_DEVICE_ID_AMD_17H_M30H_DF_F6 0x1496
- 
- /*
-  * Function 1 - Address Map
-@@ -284,6 +286,7 @@ enum amd_families {
- 	F16_M30H_CPUS,
- 	F17_CPUS,
- 	F17_M10H_CPUS,
-+	F17_M30H_CPUS,
- 	NUM_FAMILIES,
- };
- 
+ /**
+- * struct tegra_i2c_dev	- per device i2c context
++ * struct tegra_i2c_dev - per device I2C context
+  * @dev: device reference for power management
+- * @hw: Tegra i2c hw feature.
+- * @adapter: core i2c layer adapter information
+- * @div_clk: clock reference for div clock of i2c controller.
+- * @fast_clk: clock reference for fast clock of i2c controller.
++ * @hw: Tegra I2C HW feature
++ * @adapter: core I2C layer adapter information
++ * @div_clk: clock reference for div clock of I2C controller
++ * @fast_clk: clock reference for fast clock of I2C controller
+  * @base: ioremapped registers cookie
+- * @cont_id: i2c controller id, used for for packet header
+- * @irq: irq number of transfer complete interrupt
+- * @is_dvc: identifies the DVC i2c controller, has a different register layout
++ * @cont_id: I2C controller ID, used for packet header
++ * @irq: IRQ number of transfer complete interrupt
++ * @is_dvc: identifies the DVC I2C controller, has a different register layout
+  * @msg_complete: transfer completion notifier
+  * @msg_err: error code for completed message
+  * @msg_buf: pointer to current message data
+  * @msg_buf_remaining: size of unsent data in the message buffer
+  * @msg_read: identifies read transfers
+- * @bus_clk_rate: current i2c bus clock rate
++ * @bus_clk_rate: current I2C bus clock rate
+  */
+ struct tegra_i2c_dev {
+ 	struct device *dev;
 -- 
 2.25.1
 
