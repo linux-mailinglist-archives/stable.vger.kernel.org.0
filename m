@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 76ED820DC80
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:17:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EB2B20DB01
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:14:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729203AbgF2UPg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:15:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40570 "EHLO mail.kernel.org"
+        id S2388494AbgF2UCp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:02:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732821AbgF2TaR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:30:17 -0400
+        id S1733002AbgF2Tad (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:30:33 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1956425243;
-        Mon, 29 Jun 2020 15:35:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4492A25246;
+        Mon, 29 Jun 2020 15:36:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1593444960;
-        bh=e2QNlmsuQpPKWy51VFelmbUXLW8vI9Bet605hJcGwOs=;
+        bh=eQi4cORXWtIrdBZk35/K4rmMJS6hHyA7dHS7DUmSLkA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lX3h5/+AgpPMo2oorRuCzuAPUG5Xi3yZgFW26yxyu2LC61YVkqMRRvWMiemVuyrFK
-         EuD5lk/CTrToJJdbzUHrySq+S1ha3e0WgoldsbnJTEstDdMZiZxzML3AKGGm6af7VF
-         wec0xhofIlFddwV0mM/M2zDL1NShCtPo+SdEHYuM=
+        b=hzNI3NqaQXhEGZLc7JWAI69RB2WpkLolGM0IG102ZNh8FUi8+c+H9mknmLJhRA7jI
+         PPqA8RQBnU/eNGdF+IccTA68kqN0F0EipX3E+u1rzEahm2ER00fVMDTMqfRETb9D3Z
+         onYO8mTuIKWC5TNqGsPbvnMFsVQH/u5NBMSvVuRE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shay Drory <shayd@mellanox.com>,
-        Maor Gottlieb <maorg@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.19 058/131] IB/mad: Fix use after free when destroying MAD agent
-Date:   Mon, 29 Jun 2020 11:33:49 -0400
-Message-Id: <20200629153502.2494656-59-sashal@kernel.org>
+Cc:     Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Pavel Shilovsky <pshilov@microsoft.com>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 059/131] cifs/smb3: Fix data inconsistent when punch hole
+Date:   Mon, 29 Jun 2020 11:33:50 -0400
+Message-Id: <20200629153502.2494656-60-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629153502.2494656-1-sashal@kernel.org>
 References: <20200629153502.2494656-1-sashal@kernel.org>
@@ -52,62 +50,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shay Drory <shayd@mellanox.com>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-commit 116a1b9f1cb769b83e5adff323f977a62b1dcb2e upstream.
+[ Upstream commit acc91c2d8de4ef46ed751c5f9df99ed9a109b100 ]
 
-Currently, when RMPP MADs are processed while the MAD agent is destroyed,
-it could result in use after free of rmpp_recv, as decribed below:
+When punch hole success, we also can read old data from file:
+  # strace -e trace=pread64,fallocate xfs_io -f -c "pread 20 40" \
+           -c "fpunch 20 40" -c"pread 20 40" file
+  pread64(3, " version 5.8.0-rc1+"..., 40, 20) = 40
+  fallocate(3, FALLOC_FL_KEEP_SIZE|FALLOC_FL_PUNCH_HOLE, 20, 40) = 0
+  pread64(3, " version 5.8.0-rc1+"..., 40, 20) = 40
 
-	cpu-0						cpu-1
-	-----						-----
-ib_mad_recv_done()
- ib_mad_complete_recv()
-  ib_process_rmpp_recv_wc()
-						unregister_mad_agent()
-						 ib_cancel_rmpp_recvs()
-						  cancel_delayed_work()
-   process_rmpp_data()
-    start_rmpp()
-     queue_delayed_work(rmpp_recv->cleanup_work)
-						  destroy_rmpp_recv()
-						   free_rmpp_recv()
-     cleanup_work()[1]
-      spin_lock_irqsave(&rmpp_recv->agent->lock) <-- use after free
+CIFS implements the fallocate(FALLOCATE_FL_PUNCH_HOLE) with send SMB
+ioctl(FSCTL_SET_ZERO_DATA) to server. It just set the range of the
+remote file to zero, but local page caches not updated, then the
+local page caches inconsistent with server.
 
-[1] cleanup_work() == recv_cleanup_handler
+Also can be found by xfstests generic/316.
 
-Fix it by waiting for the MAD agent reference count becoming zero before
-calling to ib_cancel_rmpp_recvs().
+So, we need to remove the page caches before send the SMB
+ioctl(FSCTL_SET_ZERO_DATA) to server.
 
-Fixes: 9a41e38a467c ("IB/mad: Use IDR for agent IDs")
-Link: https://lore.kernel.org/r/20200621104738.54850-2-leon@kernel.org
-Signed-off-by: Shay Drory <shayd@mellanox.com>
-Reviewed-by: Maor Gottlieb <maorg@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 31742c5a33176 ("enable fallocate punch hole ("fallocate -p") for SMB3")
+Suggested-by: Pavel Shilovsky <pshilov@microsoft.com>
+Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Cc: stable@vger.kernel.org # v3.17
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/core/mad.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/cifs/smb2ops.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/infiniband/core/mad.c b/drivers/infiniband/core/mad.c
-index 218411282069b..cd82134d517be 100644
---- a/drivers/infiniband/core/mad.c
-+++ b/drivers/infiniband/core/mad.c
-@@ -615,10 +615,10 @@ static void unregister_mad_agent(struct ib_mad_agent_private *mad_agent_priv)
- 	idr_unlock(&ib_mad_clients);
+diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
+index 6fc16329ceb45..0b830ac8a9e72 100644
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -2248,6 +2248,12 @@ static long smb3_punch_hole(struct file *file, struct cifs_tcon *tcon,
+ 		return rc;
+ 	}
  
- 	flush_workqueue(port_priv->wq);
--	ib_cancel_rmpp_recvs(mad_agent_priv);
++	/*
++	 * We implement the punch hole through ioctl, so we need remove the page
++	 * caches first, otherwise the data may be inconsistent with the server.
++	 */
++	truncate_pagecache_range(inode, offset, offset + len - 1);
++
+ 	cifs_dbg(FYI, "offset %lld len %lld", offset, len);
  
- 	deref_mad_agent(mad_agent_priv);
- 	wait_for_completion(&mad_agent_priv->comp);
-+	ib_cancel_rmpp_recvs(mad_agent_priv);
- 
- 	ib_mad_agent_security_cleanup(&mad_agent_priv->agent);
- 
+ 	fsctl_buf.FileOffset = cpu_to_le64(offset);
 -- 
 2.25.1
 
