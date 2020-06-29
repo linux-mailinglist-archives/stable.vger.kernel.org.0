@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EE9420DADA
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:14:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBDFD20D9F3
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:12:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388525AbgF2UBO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:01:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47636 "EHLO mail.kernel.org"
+        id S2388246AbgF2TwY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:52:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387546AbgF2TkP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:15 -0400
+        id S2387707AbgF2Tka (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 91A2D2490E;
-        Mon, 29 Jun 2020 15:27:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7263A24909;
+        Mon, 29 Jun 2020 15:27:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444463;
-        bh=jqIGikHXbjh0fGXK+ZUVg3Q2MlISrW97Srq0yttB7jM=;
+        s=default; t=1593444464;
+        bh=JlGPGxSOvt68HRiWmsy8y0VyzjBvTHeSu8EKcWfelhw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ADT3u4+7TWhUsLyrWQzun1/FK1aWPi8+q0l5zXDcl8Td2QieQb9tn8F7FEUsTpZCZ
-         KiECeU/1Ju4mfNTOl8AguROhoO36zRIC6admjEPO8HQ/G19qIUdCj/lVeiEprSjcdj
-         6W1ZFtvpbQ/2VAj/eEjjhdD0lTP4SOQz2cQWjv3U=
+        b=AreQYUwZgIm38p87SffPcVyABfYx6HpsKRp5hufaa98pwi4HCTnddcuEb75cfOSnX
+         l4tqbP3VSpJXBduIOOGSwwZ9J2CqzYri3zpCg6sbw3wmDUVESVu+4OOCvSM2wmQPTI
+         1PjSGLo5uMV/IpIeeUlkIZ70YsJcO4DJM0ilExWQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+Cc:     Gao Xiang <hsiangkao@redhat.com>,
+        Hongyu Jin <hongyu.jin@unisoc.com>,
+        Chao Yu <yuchao0@huawei.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.4 143/178] ACPI: configfs: Disallow loading ACPI tables when locked down
-Date:   Mon, 29 Jun 2020 11:24:48 -0400
-Message-Id: <20200629152523.2494198-144-sashal@kernel.org>
+Subject: [PATCH 5.4 144/178] erofs: fix partially uninitialized misuse in z_erofs_onlinepage_fixup
+Date:   Mon, 29 Jun 2020 11:24:49 -0400
+Message-Id: <20200629152523.2494198-145-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -49,50 +50,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Gao Xiang <hsiangkao@redhat.com>
 
-commit 75b0cea7bf307f362057cc778efe89af4c615354 upstream.
+commit 3c597282887fd55181578996dca52ce697d985a5 upstream.
 
-Like other vectors already patched, this one here allows the root
-user to load ACPI tables, which enables arbitrary physical address
-writes, which in turn makes it possible to disable lockdown.
+Hongyu reported "id != index" in z_erofs_onlinepage_fixup() with
+specific aarch64 environment easily, which wasn't shown before.
 
-Prevents this by checking the lockdown status before allowing a new
-ACPI table to be installed. The link in the trailer shows a PoC of
-how this might be used.
+After digging into that, I found that high 32 bits of page->private
+was set to 0xaaaaaaaa rather than 0 (due to z_erofs_onlinepage_init
+behavior with specific compiler options). Actually we only use low
+32 bits to keep the page information since page->private is only 4
+bytes on most 32-bit platforms. However z_erofs_onlinepage_fixup()
+uses the upper 32 bits by mistake.
 
-Link: https://git.zx2c4.com/american-unsigned-language/tree/american-unsigned-language-2.sh
-Cc: 5.4+ <stable@vger.kernel.org> # 5.4+
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Let's fix it now.
+
+Reported-and-tested-by: Hongyu Jin <hongyu.jin@unisoc.com>
+Fixes: 3883a79abd02 ("staging: erofs: introduce VLE decompression support")
+Cc: <stable@vger.kernel.org> # 4.19+
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Link: https://lore.kernel.org/r/20200618234349.22553-1-hsiangkao@aol.com
+Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/acpi_configfs.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ fs/erofs/zdata.h | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/acpi/acpi_configfs.c b/drivers/acpi/acpi_configfs.c
-index 57d9d574d4dde..01738d8e888e3 100644
---- a/drivers/acpi/acpi_configfs.c
-+++ b/drivers/acpi/acpi_configfs.c
-@@ -11,6 +11,7 @@
- #include <linux/module.h>
- #include <linux/configfs.h>
- #include <linux/acpi.h>
-+#include <linux/security.h>
- 
- #include "acpica/accommon.h"
- #include "acpica/actables.h"
-@@ -28,7 +29,10 @@ static ssize_t acpi_table_aml_write(struct config_item *cfg,
+diff --git a/fs/erofs/zdata.h b/fs/erofs/zdata.h
+index faf950189bd7a..568d5a493876c 100644
+--- a/fs/erofs/zdata.h
++++ b/fs/erofs/zdata.h
+@@ -148,22 +148,22 @@ static inline void z_erofs_onlinepage_init(struct page *page)
+ static inline void z_erofs_onlinepage_fixup(struct page *page,
+ 	uintptr_t index, bool down)
  {
- 	const struct acpi_table_header *header = data;
- 	struct acpi_table *table;
--	int ret;
-+	int ret = security_locked_down(LOCKDOWN_ACPI_TABLES);
-+
-+	if (ret)
-+		return ret;
+-	unsigned long *p, o, v, id;
+-repeat:
+-	p = &page_private(page);
+-	o = READ_ONCE(*p);
++	union z_erofs_onlinepage_converter u = { .v = &page_private(page) };
++	int orig, orig_index, val;
  
- 	table = container_of(cfg, struct acpi_table, cfg);
+-	id = o >> Z_EROFS_ONLINEPAGE_INDEX_SHIFT;
+-	if (id) {
++repeat:
++	orig = atomic_read(u.o);
++	orig_index = orig >> Z_EROFS_ONLINEPAGE_INDEX_SHIFT;
++	if (orig_index) {
+ 		if (!index)
+ 			return;
+ 
+-		DBG_BUGON(id != index);
++		DBG_BUGON(orig_index != index);
+ 	}
+ 
+-	v = (index << Z_EROFS_ONLINEPAGE_INDEX_SHIFT) |
+-		((o & Z_EROFS_ONLINEPAGE_COUNT_MASK) + (unsigned int)down);
+-	if (cmpxchg(p, o, v) != o)
++	val = (index << Z_EROFS_ONLINEPAGE_INDEX_SHIFT) |
++		((orig & Z_EROFS_ONLINEPAGE_COUNT_MASK) + (unsigned int)down);
++	if (atomic_cmpxchg(u.o, orig, val) != orig)
+ 		goto repeat;
+ }
  
 -- 
 2.25.1
