@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2207020D9FA
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:12:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E311C20D9A8
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:12:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388207AbgF2Twg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:52:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47710 "EHLO mail.kernel.org"
+        id S2387758AbgF2Ttk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:49:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387700AbgF2Tk1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:27 -0400
+        id S2387580AbgF2Tkh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:37 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 73087251C2;
-        Mon, 29 Jun 2020 15:28:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5592A251C4;
+        Mon, 29 Jun 2020 15:28:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444495;
-        bh=uiUgCBJW+P2z3Y1CbQBk2mXh7Nit/giMRJsltz66ggs=;
+        s=default; t=1593444496;
+        bh=SrV5cXXsBccjf35hFWEA1E2p80pMETKwb96DN6XalTE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QUJDsGHrOKcFBFMSv0Nt0WWPZ7a1Wy10Te+wkNQsdTqbK6yTC4DWXmsb/gEjXbLSW
-         9D4WLSs+d6rJcIEkSuKBt9wDE4o45dJp/L9YR8Az+jiZUoL2icqG3pUoXBEDxCImw9
-         EB7ybgASUl0jSzdpCh28cjUwso6lDaY+1YsyhbM4=
+        b=Z/m2rDhdNrK9DYxQhKlB3HJSZ3l5FPM3IGRZcl8TGb2MMT9ZUJfjWYj6kS2HAjEIQ
+         +Onqpqaswl9Yuu7MH3l2R2Yp0mrTO7CeLD7PHTbl6mZJ17vl+1VuELEi2G1+Vm8xXi
+         DGuY/G+C49YMhvXO2rZX5nwTm5+IcKHkTpwXgBSo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Trond Myklebust <trond.myklebust@hammerspace.com>,
+Cc:     Olga Kornievskaia <olga.kornievskaia@gmail.com>,
+        Olga Kornievskaia <kolga@netapp.com>,
+        Neil Brown <neilb@suse.com>,
         Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.4 172/178] pNFS/flexfiles: Fix list corruption if the mirror count changes
-Date:   Mon, 29 Jun 2020 11:25:17 -0400
-Message-Id: <20200629152523.2494198-173-sashal@kernel.org>
+Subject: [PATCH 5.4 173/178] NFSv4 fix CLOSE not waiting for direct IO compeletion
+Date:   Mon, 29 Jun 2020 11:25:18 -0400
+Message-Id: <20200629152523.2494198-174-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -49,59 +51,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Olga Kornievskaia <olga.kornievskaia@gmail.com>
 
-commit 8b04013737341442ed914b336cde866b902664ae upstream.
+commit d03727b248d0dae6199569a8d7b629a681154633 upstream.
 
-If the mirror count changes in the new layout we pick up inside
-ff_layout_pg_init_write(), then we can end up adding the
-request to the wrong mirror and corrupting the mirror->pg_list.
+Figuring out the root case for the REMOVE/CLOSE race and
+suggesting the solution was done by Neil Brown.
 
-Fixes: d600ad1f2bdb ("NFS41: pop some layoutget errors to application")
-Cc: stable@vger.kernel.org
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Currently what happens is that direct IO calls hold a reference
+on the open context which is decremented as an asynchronous task
+in the nfs_direct_complete(). Before reference is decremented,
+control is returned to the application which is free to close the
+file. When close is being processed, it decrements its reference
+on the open_context but since directIO still holds one, it doesn't
+sent a close on the wire. It returns control to the application
+which is free to do other operations. For instance, it can delete a
+file. Direct IO is finally releasing its reference and triggering
+an asynchronous close. Which races with the REMOVE. On the server,
+REMOVE can be processed before the CLOSE, failing the REMOVE with
+EACCES as the file is still opened.
+
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+Suggested-by: Neil Brown <neilb@suse.com>
+CC: stable@vger.kernel.org
 Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/flexfilelayout/flexfilelayout.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ fs/nfs/direct.c | 13 +++++++++----
+ fs/nfs/file.c   |  1 +
+ 2 files changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/fs/nfs/flexfilelayout/flexfilelayout.c b/fs/nfs/flexfilelayout/flexfilelayout.c
-index 5657b7f2611f1..1741d902b0d8f 100644
---- a/fs/nfs/flexfilelayout/flexfilelayout.c
-+++ b/fs/nfs/flexfilelayout/flexfilelayout.c
-@@ -984,9 +984,8 @@ ff_layout_pg_init_write(struct nfs_pageio_descriptor *pgio,
- 		goto out_mds;
+diff --git a/fs/nfs/direct.c b/fs/nfs/direct.c
+index 6b0bf4ebd8124..70cf8c5760c73 100644
+--- a/fs/nfs/direct.c
++++ b/fs/nfs/direct.c
+@@ -367,8 +367,6 @@ static void nfs_direct_complete(struct nfs_direct_req *dreq)
+ {
+ 	struct inode *inode = dreq->inode;
  
- 	/* Use a direct mapping of ds_idx to pgio mirror_idx */
--	if (WARN_ON_ONCE(pgio->pg_mirror_count !=
--	    FF_LAYOUT_MIRROR_COUNT(pgio->pg_lseg)))
--		goto out_mds;
-+	if (pgio->pg_mirror_count != FF_LAYOUT_MIRROR_COUNT(pgio->pg_lseg))
-+		goto out_eagain;
- 
- 	for (i = 0; i < pgio->pg_mirror_count; i++) {
- 		mirror = FF_LAYOUT_COMP(pgio->pg_lseg, i);
-@@ -1008,7 +1007,10 @@ ff_layout_pg_init_write(struct nfs_pageio_descriptor *pgio,
- 			(NFS_MOUNT_SOFT|NFS_MOUNT_SOFTERR))
- 		pgio->pg_maxretrans = io_maxretrans;
- 	return;
+-	inode_dio_end(inode);
 -
-+out_eagain:
-+	pnfs_generic_pg_cleanup(pgio);
-+	pgio->pg_error = -EAGAIN;
-+	return;
- out_mds:
- 	trace_pnfs_mds_fallback_pg_init_write(pgio->pg_inode,
- 			0, NFS4_MAX_UINT64, IOMODE_RW,
-@@ -1018,6 +1020,7 @@ ff_layout_pg_init_write(struct nfs_pageio_descriptor *pgio,
- 	pgio->pg_lseg = NULL;
- 	pgio->pg_maxretrans = 0;
- 	nfs_pageio_reset_write_mds(pgio);
-+	pgio->pg_error = -EAGAIN;
+ 	if (dreq->iocb) {
+ 		long res = (long) dreq->error;
+ 		if (dreq->count != 0) {
+@@ -380,7 +378,10 @@ static void nfs_direct_complete(struct nfs_direct_req *dreq)
+ 
+ 	complete(&dreq->completion);
+ 
++	igrab(inode);
+ 	nfs_direct_req_release(dreq);
++	inode_dio_end(inode);
++	iput(inode);
  }
  
- static unsigned int
+ static void nfs_direct_read_completion(struct nfs_pgio_header *hdr)
+@@ -510,8 +511,10 @@ static ssize_t nfs_direct_read_schedule_iovec(struct nfs_direct_req *dreq,
+ 	 * generic layer handle the completion.
+ 	 */
+ 	if (requested_bytes == 0) {
+-		inode_dio_end(inode);
++		igrab(inode);
+ 		nfs_direct_req_release(dreq);
++		inode_dio_end(inode);
++		iput(inode);
+ 		return result < 0 ? result : -EIO;
+ 	}
+ 
+@@ -923,8 +926,10 @@ static ssize_t nfs_direct_write_schedule_iovec(struct nfs_direct_req *dreq,
+ 	 * generic layer handle the completion.
+ 	 */
+ 	if (requested_bytes == 0) {
+-		inode_dio_end(inode);
++		igrab(inode);
+ 		nfs_direct_req_release(dreq);
++		inode_dio_end(inode);
++		iput(inode);
+ 		return result < 0 ? result : -EIO;
+ 	}
+ 
+diff --git a/fs/nfs/file.c b/fs/nfs/file.c
+index 95dc90570786c..7b31367532054 100644
+--- a/fs/nfs/file.c
++++ b/fs/nfs/file.c
+@@ -83,6 +83,7 @@ nfs_file_release(struct inode *inode, struct file *filp)
+ 	dprintk("NFS: release(%pD2)\n", filp);
+ 
+ 	nfs_inc_stats(inode, NFSIOS_VFSRELEASE);
++	inode_dio_wait(inode);
+ 	nfs_file_clear_open_context(filp);
+ 	return 0;
+ }
 -- 
 2.25.1
 
