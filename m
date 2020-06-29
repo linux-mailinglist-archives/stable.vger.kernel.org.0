@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A63E020DA8E
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:13:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 237CB20D8DB
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:10:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387736AbgF2T6b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:58:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47710 "EHLO mail.kernel.org"
+        id S1731407AbgF2TmS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:42:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387603AbgF2TkS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:18 -0400
+        id S2387850AbgF2Tkq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:46 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 134A7248EE;
-        Mon, 29 Jun 2020 15:27:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E8965248ED;
+        Mon, 29 Jun 2020 15:27:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444441;
-        bh=jCXcHNF4ffgYfk2J1Ar2eqA5w3GtOFqVWiURn6wkmOQ=;
+        s=default; t=1593444442;
+        bh=yWjydtHHG+r6V6UOLuq9t6zwh/FKdtVOlOZZv90+lzc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=flwTi2LUyWVUFyuPk8sDWSzDjreodRP/1kRi/eaqm0v+DNK9yta4HGZcC3Bo0IcpX
-         NJ7dXYolvAFF2mBEnY93ZLDb77TOaYMDts7oiRIHSCLCHu3uur05h4k3iTtBDM7VVh
-         Q87flB72smfb+cUr1jH4qRW57Gwrbcr/eE3Fp7jw=
+        b=imOpoaJhggWOim8NFQZoDj57wPRLLttWYLejpcFs5yFtnN1I3fDEoz3hWMo89wkJg
+         ktWB+qjofGIvt5NusH3e+GnziZGZY528uXRHHBH09sCh7qm4KIFKVgnq58MX5nzzG+
+         Y+ppudz7d9Q+LFI2fJEx63ZCmZRMr66PN6Ae8jlM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Huckleberry <nhuck@google.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
+Cc:     Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 120/178] riscv/atomic: Fix sign extension for RV64I
-Date:   Mon, 29 Jun 2020 11:24:25 -0400
-Message-Id: <20200629152523.2494198-121-sashal@kernel.org>
+Subject: [PATCH 5.4 121/178] hwrng: ks-sa - Fix runtime PM imbalance on error
+Date:   Mon, 29 Jun 2020 11:24:26 -0400
+Message-Id: <20200629152523.2494198-122-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -49,65 +50,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Huckleberry <nhuck@google.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 6c58f25e6938c073198af8b1e1832f83f8f0df33 ]
+[ Upstream commit 95459261c99f1621d90bc628c2a48e60b7cf9a88 ]
 
-The argument passed to cmpxchg is not guaranteed to be sign
-extended, but lr.w sign extends on RV64I. This makes cmpxchg
-fail on clang built kernels when __old is negative.
+pm_runtime_get_sync() increments the runtime PM usage counter even
+the call returns an error code. Thus a pairing decrement is needed
+on the error handling path to keep the counter balanced.
 
-To fix this, we just cast __old to long which sign extends on
-RV64I. With this fix, clang built RISC-V kernels now boot.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/867
-Signed-off-by: Nathan Huckleberry <nhuck@google.com>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Reviewed-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/include/asm/cmpxchg.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/char/hw_random/ks-sa-rng.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/riscv/include/asm/cmpxchg.h b/arch/riscv/include/asm/cmpxchg.h
-index d969bab4a26b5..262e5bbb27760 100644
---- a/arch/riscv/include/asm/cmpxchg.h
-+++ b/arch/riscv/include/asm/cmpxchg.h
-@@ -179,7 +179,7 @@
- 			"	bnez %1, 0b\n"				\
- 			"1:\n"						\
- 			: "=&r" (__ret), "=&r" (__rc), "+A" (*__ptr)	\
--			: "rJ" (__old), "rJ" (__new)			\
-+			: "rJ" ((long)__old), "rJ" (__new)		\
- 			: "memory");					\
- 		break;							\
- 	case 8:								\
-@@ -224,7 +224,7 @@
- 			RISCV_ACQUIRE_BARRIER				\
- 			"1:\n"						\
- 			: "=&r" (__ret), "=&r" (__rc), "+A" (*__ptr)	\
--			: "rJ" (__old), "rJ" (__new)			\
-+			: "rJ" ((long)__old), "rJ" (__new)		\
- 			: "memory");					\
- 		break;							\
- 	case 8:								\
-@@ -270,7 +270,7 @@
- 			"	bnez %1, 0b\n"				\
- 			"1:\n"						\
- 			: "=&r" (__ret), "=&r" (__rc), "+A" (*__ptr)	\
--			: "rJ" (__old), "rJ" (__new)			\
-+			: "rJ" ((long)__old), "rJ" (__new)		\
- 			: "memory");					\
- 		break;							\
- 	case 8:								\
-@@ -316,7 +316,7 @@
- 			"	fence rw, rw\n"				\
- 			"1:\n"						\
- 			: "=&r" (__ret), "=&r" (__rc), "+A" (*__ptr)	\
--			: "rJ" (__old), "rJ" (__new)			\
-+			: "rJ" ((long)__old), "rJ" (__new)		\
- 			: "memory");					\
- 		break;							\
- 	case 8:								\
+diff --git a/drivers/char/hw_random/ks-sa-rng.c b/drivers/char/hw_random/ks-sa-rng.c
+index a67430010aa68..5c7d3dfcfdd04 100644
+--- a/drivers/char/hw_random/ks-sa-rng.c
++++ b/drivers/char/hw_random/ks-sa-rng.c
+@@ -208,6 +208,7 @@ static int ks_sa_rng_probe(struct platform_device *pdev)
+ 	ret = pm_runtime_get_sync(dev);
+ 	if (ret < 0) {
+ 		dev_err(dev, "Failed to enable SA power-domain\n");
++		pm_runtime_put_noidle(dev);
+ 		pm_runtime_disable(dev);
+ 		return ret;
+ 	}
 -- 
 2.25.1
 
