@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4B0E20DC78
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:17:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0743A20D783
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:07:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730461AbgF2UPg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:15:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40562 "EHLO mail.kernel.org"
+        id S1733029AbgF2Tah (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:30:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732819AbgF2TaR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:30:17 -0400
+        id S1733022AbgF2Taf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:30:35 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 13A4A2527B;
-        Mon, 29 Jun 2020 15:36:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA97C2527E;
+        Mon, 29 Jun 2020 15:36:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444987;
-        bh=Gm6NB5OaSRX0V3apjQo3zJ4NUY4P+FuV6gxdeznFVKs=;
+        s=default; t=1593444988;
+        bh=Jofg5uL56/LdgjP5jFN/MLCW+s24eX2YwTHGnd9iqk4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ni8H6Nh2mNh+MpoZHBmrw9hCm2+831VE6TwAv8nMO3rLHTjmSKBSjS/DULb4mlmBG
-         4rLTWEfIeg4Ek7hhBhgG/Q+/sH73iKeeTKV6gx+V8WSp6WDwtluRtXveD2nPGAWTlz
-         /UMtj+2BBkKCxDgFdLmq5s+o/bIPbyYS5WWRJzFU=
+        b=xI67r9+n7FZjzm7mYPlfkHzmUXYG0kAs4Wl9cNV5+8Eah1yEQFv4l9hoqALu7JTpw
+         71SxhLlYBgW7Qd3XEKNFIEqeDPSeVBfX4P7wGmSalmSXxCThzOmqyZk0I/7Eu1a8Nw
+         J+fbMVAT8F/HduGN6LBBKHUPanxSrv1heVBNujgI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mans Rullgard <mans@mansr.com>, Wolfram Sang <wsa@kernel.org>,
+Cc:     Juri Lelli <juri.lelli@redhat.com>,
+        syzbot+5ac8bac25f95e8b221e7@syzkaller.appspotmail.com,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Daniel Wagner <dwagner@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 087/131] i2c: core: check returned size of emulated smbus block read
-Date:   Mon, 29 Jun 2020 11:34:18 -0400
-Message-Id: <20200629153502.2494656-88-sashal@kernel.org>
+Subject: [PATCH 4.19 088/131] sched/deadline: Initialize ->dl_boosted
+Date:   Mon, 29 Jun 2020 11:34:19 -0400
+Message-Id: <20200629153502.2494656-89-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629153502.2494656-1-sashal@kernel.org>
 References: <20200629153502.2494656-1-sashal@kernel.org>
@@ -48,45 +52,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mans Rullgard <mans@mansr.com>
+From: Juri Lelli <juri.lelli@redhat.com>
 
-[ Upstream commit 40e05200593af06633f64ab0effff052eee6f076 ]
+[ Upstream commit ce9bc3b27f2a21a7969b41ffb04df8cf61bd1592 ]
 
-If the i2c bus driver ignores the I2C_M_RECV_LEN flag (as some of
-them do), it is possible for an I2C_SMBUS_BLOCK_DATA read issued
-on some random device to return an arbitrary value in the first
-byte (and nothing else).  When this happens, i2c_smbus_xfer_emulated()
-will happily write past the end of the supplied data buffer, thus
-causing Bad Things to happen.  To prevent this, check the size
-before copying the data block and return an error if it is too large.
+syzbot reported the following warning triggered via SYSC_sched_setattr():
 
-Fixes: 209d27c3b167 ("i2c: Emulate SMBus block read over I2C")
-Signed-off-by: Mans Rullgard <mans@mansr.com>
-[wsa: use better errno]
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+  WARNING: CPU: 0 PID: 6973 at kernel/sched/deadline.c:593 setup_new_dl_entity /kernel/sched/deadline.c:594 [inline]
+  WARNING: CPU: 0 PID: 6973 at kernel/sched/deadline.c:593 enqueue_dl_entity /kernel/sched/deadline.c:1370 [inline]
+  WARNING: CPU: 0 PID: 6973 at kernel/sched/deadline.c:593 enqueue_task_dl+0x1c17/0x2ba0 /kernel/sched/deadline.c:1441
+
+This happens because the ->dl_boosted flag is currently not initialized by
+__dl_clear_params() (unlike the other flags) and setup_new_dl_entity()
+rightfully complains about it.
+
+Initialize dl_boosted to 0.
+
+Fixes: 2d3d891d3344 ("sched/deadline: Add SCHED_DEADLINE inheritance logic")
+Reported-by: syzbot+5ac8bac25f95e8b221e7@syzkaller.appspotmail.com
+Signed-off-by: Juri Lelli <juri.lelli@redhat.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Tested-by: Daniel Wagner <dwagner@suse.de>
+Link: https://lkml.kernel.org/r/20200617072919.818409-1-juri.lelli@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/i2c-core-smbus.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ kernel/sched/deadline.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/i2c/i2c-core-smbus.c b/drivers/i2c/i2c-core-smbus.c
-index 9cd66cabb84fd..8d6fad05b0c7f 100644
---- a/drivers/i2c/i2c-core-smbus.c
-+++ b/drivers/i2c/i2c-core-smbus.c
-@@ -497,6 +497,13 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
- 			break;
- 		case I2C_SMBUS_BLOCK_DATA:
- 		case I2C_SMBUS_BLOCK_PROC_CALL:
-+			if (msg[1].buf[0] > I2C_SMBUS_BLOCK_MAX) {
-+				dev_err(&adapter->dev,
-+					"Invalid block size returned: %d\n",
-+					msg[1].buf[0]);
-+				status = -EPROTO;
-+				goto cleanup;
-+			}
- 			for (i = 0; i < msg[1].buf[0] + 1; i++)
- 				data->block[i] = msg[1].buf[i];
- 			break;
+diff --git a/kernel/sched/deadline.c b/kernel/sched/deadline.c
+index ebec37cb3be9a..8aecfb143859d 100644
+--- a/kernel/sched/deadline.c
++++ b/kernel/sched/deadline.c
+@@ -2688,6 +2688,7 @@ void __dl_clear_params(struct task_struct *p)
+ 	dl_se->dl_bw			= 0;
+ 	dl_se->dl_density		= 0;
+ 
++	dl_se->dl_boosted		= 0;
+ 	dl_se->dl_throttled		= 0;
+ 	dl_se->dl_yielded		= 0;
+ 	dl_se->dl_non_contending	= 0;
 -- 
 2.25.1
 
