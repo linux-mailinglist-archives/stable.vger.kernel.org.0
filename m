@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F68220DA1C
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:12:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C424520DA35
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:13:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729169AbgF2Txo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:53:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47658 "EHLO mail.kernel.org"
+        id S2388256AbgF2Tyq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:54:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387682AbgF2Tk0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:26 -0400
+        id S2387668AbgF2TkZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6DE402489B;
-        Mon, 29 Jun 2020 15:26:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 64ACD2489A;
+        Mon, 29 Jun 2020 15:26:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444393;
-        bh=NZBpvXR0toR/Aek7Lz0RRaujuuhv5ZM2HJX/D3SBmPo=;
+        s=default; t=1593444394;
+        bh=1r0f4ZnQmdR4BWSj2HlcLqxYIZwQ45jP+tBmxdtmu24=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j29ob9AdVSJ82cr9u5sJ4g+fz+uoZ3Nr5RBFl8rH3NVcSsgp6VPR2mXiEvaiQQnpO
-         PmCkokPGK4vkXfTOy5um0JciPaMiaBpDu7Bdd5VFbjkBCmrioHhKH/THgqgQ6reczd
-         5mLPRdsKrRsZT+gL3kKBi6vGrtk2pggVcrTw3J2o=
+        b=pRVVToz5NLWcYlwpxzyext4FDelD4ciXZa6R6nvCSngC35cvJMNJEQg8b2K7d61Pn
+         wgT/MID7Kw1bznA6X5EjIredr+ZOpYyAHup4S5UkZhyoZvO8UcX227+fE9XRF8vVcf
+         r4Xu0uJuWrWs7CtWC2SGcqEcdpwg3riJSico9H0U=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Robin Gong <yibin.gong@nxp.com>,
-        Christophe Meynard <Christophe.Meynard@ign.fr>,
-        Mark Brown <broonie@kernel.org>,
+Cc:     Tom Seewald <tseewald@gmail.com>,
+        Bernard Metzler <bmt@zurich.ibm.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 070/178] regualtor: pfuze100: correct sw1a/sw2 on pfuze3000
-Date:   Mon, 29 Jun 2020 11:23:35 -0400
-Message-Id: <20200629152523.2494198-71-sashal@kernel.org>
+Subject: [PATCH 5.4 071/178] RDMA/siw: Fix pointer-to-int-cast warning in siw_rx_pbl()
+Date:   Mon, 29 Jun 2020 11:23:36 -0400
+Message-Id: <20200629152523.2494198-72-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -50,119 +50,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Gong <yibin.gong@nxp.com>
+From: Tom Seewald <tseewald@gmail.com>
 
-[ Upstream commit 6f1cf5257acc6e6242ddf2f52bc7912aed77b79f ]
+[ Upstream commit 6769b275a313c76ddcd7d94c632032326db5f759 ]
 
-PFUZE100_SWB_REG is not proper for sw1a/sw2, because enable_mask/enable_reg
-is not correct. On PFUZE3000, sw1a/sw2 should be the same as sw1a/sw2 on
-pfuze100 except that voltages are not linear, so add new PFUZE3000_SW_REG
-and pfuze3000_sw_regulator_ops which like the non-linear PFUZE100_SW_REG
-and pfuze100_sw_regulator_ops.
+The variable buf_addr is type dma_addr_t, which may not be the same size
+as a pointer.  To ensure it is the correct size, cast to a uintptr_t.
 
-Fixes: 1dced996ee70 ("regulator: pfuze100: update voltage setting for pfuze3000 sw1a")
-Reported-by: Christophe Meynard <Christophe.Meynard@ign.fr>
-Signed-off-by: Robin Gong <yibin.gong@nxp.com>
-Link: https://lore.kernel.org/r/1592171648-8752-1-git-send-email-yibin.gong@nxp.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: c536277e0db1 ("RDMA/siw: Fix 64/32bit pointer inconsistency")
+Link: https://lore.kernel.org/r/20200610174717.15932-1-tseewald@gmail.com
+Signed-off-by: Tom Seewald <tseewald@gmail.com>
+Reviewed-by: Bernard Metzler <bmt@zurich.ibm.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/pfuze100-regulator.c | 60 +++++++++++++++++---------
- 1 file changed, 39 insertions(+), 21 deletions(-)
+ drivers/infiniband/sw/siw/siw_qp_rx.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/regulator/pfuze100-regulator.c b/drivers/regulator/pfuze100-regulator.c
-index 689537927f6f7..4c8e8b4722872 100644
---- a/drivers/regulator/pfuze100-regulator.c
-+++ b/drivers/regulator/pfuze100-regulator.c
-@@ -209,6 +209,19 @@ static const struct regulator_ops pfuze100_swb_regulator_ops = {
+diff --git a/drivers/infiniband/sw/siw/siw_qp_rx.c b/drivers/infiniband/sw/siw/siw_qp_rx.c
+index c0a8872403258..0520e70084f97 100644
+--- a/drivers/infiniband/sw/siw/siw_qp_rx.c
++++ b/drivers/infiniband/sw/siw/siw_qp_rx.c
+@@ -139,7 +139,8 @@ static int siw_rx_pbl(struct siw_rx_stream *srx, int *pbl_idx,
+ 			break;
  
- };
- 
-+static const struct regulator_ops pfuze3000_sw_regulator_ops = {
-+	.enable = regulator_enable_regmap,
-+	.disable = regulator_disable_regmap,
-+	.is_enabled = regulator_is_enabled_regmap,
-+	.list_voltage = regulator_list_voltage_table,
-+	.map_voltage = regulator_map_voltage_ascend,
-+	.set_voltage_sel = regulator_set_voltage_sel_regmap,
-+	.get_voltage_sel = regulator_get_voltage_sel_regmap,
-+	.set_voltage_time_sel = regulator_set_voltage_time_sel,
-+	.set_ramp_delay = pfuze100_set_ramp_delay,
-+
-+};
-+
- #define PFUZE100_FIXED_REG(_chip, _name, base, voltage)	\
- 	[_chip ## _ ## _name] = {	\
- 		.desc = {	\
-@@ -318,23 +331,28 @@ static const struct regulator_ops pfuze100_swb_regulator_ops = {
- 	.stby_mask = 0x20,	\
- }
- 
--
--#define PFUZE3000_SW2_REG(_chip, _name, base, min, max, step)	{	\
--	.desc = {	\
--		.name = #_name,\
--		.n_voltages = ((max) - (min)) / (step) + 1,	\
--		.ops = &pfuze100_sw_regulator_ops,	\
--		.type = REGULATOR_VOLTAGE,	\
--		.id = _chip ## _ ## _name,	\
--		.owner = THIS_MODULE,	\
--		.min_uV = (min),	\
--		.uV_step = (step),	\
--		.vsel_reg = (base) + PFUZE100_VOL_OFFSET,	\
--		.vsel_mask = 0x7,	\
--	},	\
--	.stby_reg = (base) + PFUZE100_STANDBY_OFFSET,	\
--	.stby_mask = 0x7,	\
--}
-+/* No linar case for the some switches of PFUZE3000 */
-+#define PFUZE3000_SW_REG(_chip, _name, base, mask, voltages)	\
-+	[_chip ## _ ##  _name] = {	\
-+		.desc = {	\
-+			.name = #_name,	\
-+			.n_voltages = ARRAY_SIZE(voltages),	\
-+			.ops = &pfuze3000_sw_regulator_ops,	\
-+			.type = REGULATOR_VOLTAGE,	\
-+			.id = _chip ## _ ## _name,	\
-+			.owner = THIS_MODULE,	\
-+			.volt_table = voltages,	\
-+			.vsel_reg = (base) + PFUZE100_VOL_OFFSET,	\
-+			.vsel_mask = (mask),	\
-+			.enable_reg = (base) + PFUZE100_MODE_OFFSET,	\
-+			.enable_mask = 0xf,	\
-+			.enable_val = 0x8,	\
-+			.enable_time = 500,	\
-+		},	\
-+		.stby_reg = (base) + PFUZE100_STANDBY_OFFSET,	\
-+		.stby_mask = (mask),	\
-+		.sw_reg = true,		\
-+	}
- 
- #define PFUZE3000_SW3_REG(_chip, _name, base, min, max, step)	{	\
- 	.desc = {	\
-@@ -391,9 +409,9 @@ static struct pfuze_regulator pfuze200_regulators[] = {
- };
- 
- static struct pfuze_regulator pfuze3000_regulators[] = {
--	PFUZE100_SWB_REG(PFUZE3000, SW1A, PFUZE100_SW1ABVOL, 0x1f, pfuze3000_sw1a),
-+	PFUZE3000_SW_REG(PFUZE3000, SW1A, PFUZE100_SW1ABVOL, 0x1f, pfuze3000_sw1a),
- 	PFUZE100_SW_REG(PFUZE3000, SW1B, PFUZE100_SW1CVOL, 700000, 1475000, 25000),
--	PFUZE100_SWB_REG(PFUZE3000, SW2, PFUZE100_SW2VOL, 0x7, pfuze3000_sw2lo),
-+	PFUZE3000_SW_REG(PFUZE3000, SW2, PFUZE100_SW2VOL, 0x7, pfuze3000_sw2lo),
- 	PFUZE3000_SW3_REG(PFUZE3000, SW3, PFUZE100_SW3AVOL, 900000, 1650000, 50000),
- 	PFUZE100_SWB_REG(PFUZE3000, SWBST, PFUZE100_SWBSTCON1, 0x3, pfuze100_swbst),
- 	PFUZE100_SWB_REG(PFUZE3000, VSNVS, PFUZE100_VSNVSVOL, 0x7, pfuze100_vsnvs),
-@@ -407,8 +425,8 @@ static struct pfuze_regulator pfuze3000_regulators[] = {
- };
- 
- static struct pfuze_regulator pfuze3001_regulators[] = {
--	PFUZE100_SWB_REG(PFUZE3001, SW1, PFUZE100_SW1ABVOL, 0x1f, pfuze3000_sw1a),
--	PFUZE100_SWB_REG(PFUZE3001, SW2, PFUZE100_SW2VOL, 0x7, pfuze3000_sw2lo),
-+	PFUZE3000_SW_REG(PFUZE3001, SW1, PFUZE100_SW1ABVOL, 0x1f, pfuze3000_sw1a),
-+	PFUZE3000_SW_REG(PFUZE3001, SW2, PFUZE100_SW2VOL, 0x7, pfuze3000_sw2lo),
- 	PFUZE3000_SW3_REG(PFUZE3001, SW3, PFUZE100_SW3AVOL, 900000, 1650000, 50000),
- 	PFUZE100_SWB_REG(PFUZE3001, VSNVS, PFUZE100_VSNVSVOL, 0x7, pfuze100_vsnvs),
- 	PFUZE100_VGEN_REG(PFUZE3001, VLDO1, PFUZE100_VGEN1VOL, 1800000, 3300000, 100000),
+ 		bytes = min(bytes, len);
+-		if (siw_rx_kva(srx, (void *)buf_addr, bytes) == bytes) {
++		if (siw_rx_kva(srx, (void *)(uintptr_t)buf_addr, bytes) ==
++		    bytes) {
+ 			copied += bytes;
+ 			offset += bytes;
+ 			len -= bytes;
 -- 
 2.25.1
 
