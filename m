@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1209220D967
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:11:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60AD920DAD3
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:14:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388123AbgF2TrV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:47:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47706 "EHLO mail.kernel.org"
+        id S1731877AbgF2UBC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:01:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387780AbgF2Tkj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:39 -0400
+        id S2387544AbgF2TkP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:15 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2141248AF;
-        Mon, 29 Jun 2020 15:26:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 96B6E248B7;
+        Mon, 29 Jun 2020 15:26:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444409;
-        bh=jwYVoiyk/dSM19se0StrQfL99xfooW7INIzccJ0Lk/0=;
+        s=default; t=1593444410;
+        bh=W2lKIUT3jvh1ulzHEggBPfEuSFTuH8fB8H2owCNbxLU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ICG7koyP5+WlOEtNPMPpdTgcSDV/juDbJYDgJfK8caffY4hnmAKbNViLXApDGDxfq
-         ZoVY0k9uLEIJQ7SRCHx12ufO9RiIl9asIYo8PhR0z+OobcBLhFhJ6SbMVOPavko9r0
-         ZDTbjWDo6t2/M+WSkvRNRHKeruzZF852YrHaXqnY=
+        b=DaNDUx0OYV32jLcOj8Ei9n5B08vWHtOen2lVVUw25vgMRhU7xskiJV97CxVmZhnfj
+         +fKmgJ9zB6Kgf40P5mDzjL16GHjuYR6dUzfbZBuvn6q4dUZWXZaHwksV17QFQLrLeT
+         Zg6JeQ5bln2RuZIN0H4o6kdXLGEIgHPTcaGCsjlU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Julian Wiedmann <jwi@linux.ibm.com>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     Fan Guo <guofan5@huawei.com>, Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 087/178] s390/qeth: fix error handling for isolation mode cmds
-Date:   Mon, 29 Jun 2020 11:23:52 -0400
-Message-Id: <20200629152523.2494198-88-sashal@kernel.org>
+Subject: [PATCH 5.4 088/178] RDMA/mad: Fix possible memory leak in ib_mad_post_receive_mads()
+Date:   Mon, 29 Jun 2020 11:23:53 -0400
+Message-Id: <20200629152523.2494198-89-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -49,50 +48,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+From: Fan Guo <guofan5@huawei.com>
 
-[ Upstream commit e2dfcfba00ba4a414617ef4c5a8501fe21567eb3 ]
+[ Upstream commit a17f4bed811c60712d8131883cdba11a105d0161 ]
 
-Current(?) OSA devices also store their cmd-specific return codes for
-SET_ACCESS_CONTROL cmds into the top-level cmd->hdr.return_code.
-So once we added stricter checking for the top-level field a while ago,
-none of the error logic that rolls back the user's configuration to its
-old state is applied any longer.
+If ib_dma_mapping_error() returns non-zero value,
+ib_mad_post_receive_mads() will jump out of loops and return -ENOMEM
+without freeing mad_priv. Fix this memory-leak problem by freeing mad_priv
+in this case.
 
-For this specific cmd, go back to the old model where we peek into the
-cmd structure even though the top-level field indicated an error.
-
-Fixes: 686c97ee29c8 ("s390/qeth: fix error handling in adapter command callbacks")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 2c34e68f4261 ("IB/mad: Check and handle potential DMA mapping errors")
+Link: https://lore.kernel.org/r/20200612063824.180611-1-guofan5@huawei.com
+Signed-off-by: Fan Guo <guofan5@huawei.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/qeth_core_main.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/infiniband/core/mad.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index fe70e9875bde0..5043f0fcf399a 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -4163,9 +4163,6 @@ static int qeth_setadpparms_set_access_ctrl_cb(struct qeth_card *card,
- 	int fallback = *(int *)reply->param;
- 
- 	QETH_CARD_TEXT(card, 4, "setaccb");
--	if (cmd->hdr.return_code)
--		return -EIO;
--	qeth_setadpparms_inspect_rc(cmd);
- 
- 	access_ctrl_req = &cmd->data.setadapterparms.data.set_access_ctrl;
- 	QETH_CARD_TEXT_(card, 2, "rc=%d",
-@@ -4175,7 +4172,7 @@ static int qeth_setadpparms_set_access_ctrl_cb(struct qeth_card *card,
- 		QETH_DBF_MESSAGE(3, "ERR:SET_ACCESS_CTRL(%#x) on device %x: %#x\n",
- 				 access_ctrl_req->subcmd_code, CARD_DEVID(card),
- 				 cmd->data.setadapterparms.hdr.return_code);
--	switch (cmd->data.setadapterparms.hdr.return_code) {
-+	switch (qeth_setadpparms_inspect_rc(cmd)) {
- 	case SET_ACCESS_CTRL_RC_SUCCESS:
- 		if (card->options.isolation == ISOLATION_MODE_NONE) {
- 			dev_info(&card->gdev->dev,
+diff --git a/drivers/infiniband/core/mad.c b/drivers/infiniband/core/mad.c
+index a9e00cdf717b8..2284930b5f915 100644
+--- a/drivers/infiniband/core/mad.c
++++ b/drivers/infiniband/core/mad.c
+@@ -2960,6 +2960,7 @@ static int ib_mad_post_receive_mads(struct ib_mad_qp_info *qp_info,
+ 						 DMA_FROM_DEVICE);
+ 		if (unlikely(ib_dma_mapping_error(qp_info->port_priv->device,
+ 						  sg_list.addr))) {
++			kfree(mad_priv);
+ 			ret = -ENOMEM;
+ 			break;
+ 		}
 -- 
 2.25.1
 
