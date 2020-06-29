@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4FD620E794
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:11:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 977BB20E744
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:10:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391661AbgF2V6j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:58:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56792 "EHLO mail.kernel.org"
+        id S2389381AbgF2VzM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:55:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726465AbgF2Sf2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:35:28 -0400
+        id S1726552AbgF2Sfb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:35:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 79DBB246E7;
-        Mon, 29 Jun 2020 15:20:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B0D7246E9;
+        Mon, 29 Jun 2020 15:20:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444031;
-        bh=PPoFicczah2+Cv9aeNEK0ooYF25MkmA+rcIgIUfURK8=;
+        s=default; t=1593444032;
+        bh=tOrwBAVd/x0Oigir99dcKgnRdsCe7DV5Y5oW2/wsAZs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iIVxnAOj69spV+TCQt7YpGQcqn9cMhl3ExzFN1f3Z9ehTViP0zKn9Fy9XWyA06JUG
-         ayd/KZHoHC+DrRwF7BMix0IPJF5swy30mfSw3UtXRnpEJbpUwj9IWFvOD6T6y29iDO
-         5uzhK8TC+eDsD3QnP8+hW4t/QtCL8CRppPWnfREc=
+        b=HJkvdUWOsAVbIF1Nz4qwXzukCeaSB/A42PFJHgkiPlFzuaZyxHX0zYpfelZw+YdgM
+         tHaFv+1FZeFM9Hesv9A4VyJsFVEjc/MMAoYBYX0hF5mYkZwH8wSx7GBVBDkWW5JZ+X
+         BkQcqVFwc2WC0Fl8SJjbLoRXxcazAGmrpXrpZqqc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Fan Guo <guofan5@huawei.com>, Jason Gunthorpe <jgg@mellanox.com>,
+Cc:     Willem de Bruijn <willemb@google.com>,
+        "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 138/265] RDMA/mad: Fix possible memory leak in ib_mad_post_receive_mads()
-Date:   Mon, 29 Jun 2020 11:16:11 -0400
-Message-Id: <20200629151818.2493727-139-sashal@kernel.org>
+Subject: [PATCH 5.7 139/265] selftests/net: report etf errors correctly
+Date:   Mon, 29 Jun 2020 11:16:12 -0400
+Message-Id: <20200629151818.2493727-140-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -48,36 +49,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fan Guo <guofan5@huawei.com>
+From: Willem de Bruijn <willemb@google.com>
 
-[ Upstream commit a17f4bed811c60712d8131883cdba11a105d0161 ]
+[ Upstream commit ca8826095e4d4afc0ccaead27bba6e4b623a12ae ]
 
-If ib_dma_mapping_error() returns non-zero value,
-ib_mad_post_receive_mads() will jump out of loops and return -ENOMEM
-without freeing mad_priv. Fix this memory-leak problem by freeing mad_priv
-in this case.
+The ETF qdisc can queue skbs that it could not pace on the errqueue.
 
-Fixes: 2c34e68f4261 ("IB/mad: Check and handle potential DMA mapping errors")
-Link: https://lore.kernel.org/r/20200612063824.180611-1-guofan5@huawei.com
-Signed-off-by: Fan Guo <guofan5@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Address a few issues in the selftest
+
+- recv buffer size was too small, and incorrectly calculated
+- compared errno to ee_code instead of ee_errno
+- missed invalid request error type
+
+v2:
+  - fix a few checkpatch --strict indentation warnings
+
+Fixes: ea6a547669b3 ("selftests/net: make so_txtime more robust to timer variance")
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/mad.c | 1 +
- 1 file changed, 1 insertion(+)
+ tools/testing/selftests/net/so_txtime.c | 33 +++++++++++++++++++------
+ 1 file changed, 26 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/infiniband/core/mad.c b/drivers/infiniband/core/mad.c
-index f7626ebcf31cf..049c9cdc10dec 100644
---- a/drivers/infiniband/core/mad.c
-+++ b/drivers/infiniband/core/mad.c
-@@ -2941,6 +2941,7 @@ static int ib_mad_post_receive_mads(struct ib_mad_qp_info *qp_info,
- 						 DMA_FROM_DEVICE);
- 		if (unlikely(ib_dma_mapping_error(qp_info->port_priv->device,
- 						  sg_list.addr))) {
-+			kfree(mad_priv);
- 			ret = -ENOMEM;
+diff --git a/tools/testing/selftests/net/so_txtime.c b/tools/testing/selftests/net/so_txtime.c
+index 383bac05ac324..ceaad78e96674 100644
+--- a/tools/testing/selftests/net/so_txtime.c
++++ b/tools/testing/selftests/net/so_txtime.c
+@@ -15,8 +15,9 @@
+ #include <inttypes.h>
+ #include <linux/net_tstamp.h>
+ #include <linux/errqueue.h>
++#include <linux/if_ether.h>
+ #include <linux/ipv6.h>
+-#include <linux/tcp.h>
++#include <linux/udp.h>
+ #include <stdbool.h>
+ #include <stdlib.h>
+ #include <stdio.h>
+@@ -140,8 +141,8 @@ static void do_recv_errqueue_timeout(int fdt)
+ {
+ 	char control[CMSG_SPACE(sizeof(struct sock_extended_err)) +
+ 		     CMSG_SPACE(sizeof(struct sockaddr_in6))] = {0};
+-	char data[sizeof(struct ipv6hdr) +
+-		  sizeof(struct tcphdr) + 1];
++	char data[sizeof(struct ethhdr) + sizeof(struct ipv6hdr) +
++		  sizeof(struct udphdr) + 1];
+ 	struct sock_extended_err *err;
+ 	struct msghdr msg = {0};
+ 	struct iovec iov = {0};
+@@ -159,6 +160,8 @@ static void do_recv_errqueue_timeout(int fdt)
+ 	msg.msg_controllen = sizeof(control);
+ 
+ 	while (1) {
++		const char *reason;
++
+ 		ret = recvmsg(fdt, &msg, MSG_ERRQUEUE);
+ 		if (ret == -1 && errno == EAGAIN)
  			break;
- 		}
+@@ -176,14 +179,30 @@ static void do_recv_errqueue_timeout(int fdt)
+ 		err = (struct sock_extended_err *)CMSG_DATA(cm);
+ 		if (err->ee_origin != SO_EE_ORIGIN_TXTIME)
+ 			error(1, 0, "errqueue: origin 0x%x\n", err->ee_origin);
+-		if (err->ee_code != ECANCELED)
+-			error(1, 0, "errqueue: code 0x%x\n", err->ee_code);
++
++		switch (err->ee_errno) {
++		case ECANCELED:
++			if (err->ee_code != SO_EE_CODE_TXTIME_MISSED)
++				error(1, 0, "errqueue: unknown ECANCELED %u\n",
++				      err->ee_code);
++			reason = "missed txtime";
++		break;
++		case EINVAL:
++			if (err->ee_code != SO_EE_CODE_TXTIME_INVALID_PARAM)
++				error(1, 0, "errqueue: unknown EINVAL %u\n",
++				      err->ee_code);
++			reason = "invalid txtime";
++		break;
++		default:
++			error(1, 0, "errqueue: errno %u code %u\n",
++			      err->ee_errno, err->ee_code);
++		};
+ 
+ 		tstamp = ((int64_t) err->ee_data) << 32 | err->ee_info;
+ 		tstamp -= (int64_t) glob_tstart;
+ 		tstamp /= 1000 * 1000;
+-		fprintf(stderr, "send: pkt %c at %" PRId64 "ms dropped\n",
+-				data[ret - 1], tstamp);
++		fprintf(stderr, "send: pkt %c at %" PRId64 "ms dropped: %s\n",
++			data[ret - 1], tstamp, reason);
+ 
+ 		msg.msg_flags = 0;
+ 		msg.msg_controllen = sizeof(control);
 -- 
 2.25.1
 
