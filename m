@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E58D20E6D0
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:09:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B81F620E688
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:09:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404499AbgF2Vux (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:50:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56912 "EHLO mail.kernel.org"
+        id S2404279AbgF2VsU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:48:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726666AbgF2Sfk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:35:40 -0400
+        id S1726716AbgF2Sfn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:35:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B45B12476F;
-        Mon, 29 Jun 2020 15:21:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A6FA824770;
+        Mon, 29 Jun 2020 15:21:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444087;
-        bh=aZX3bH4RlKLW5bh/pndxC1n7t5/JBse0G0JucZ29OCg=;
+        s=default; t=1593444089;
+        bh=a0w75ceKG5xADy+1ICAIaqk8AtJh5EnmkqIiOCZj7NY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B1tTum5Rs/zc+xqhP7PcTlSA01KnnXnlr3CDnNe2s171OczQwYWT5g7PG+BrReTsc
-         6vlI/IXaRPA2C8/oEJdN7xXJzu+s9MUkDVQtvVtgS5QcooTu1CG93Ur2gzrCKmhTkR
-         Bgd3Ob7PdVClrF/QoBIOO4WZzQr8vdAlqbNfC36A=
+        b=BYAfVhLDp6d3rYHVMvJ8sWUCqZqQzpCZ3BuTgRlo7RdIOro6qOUFyqT4Wq5FIFbFp
+         eovjRZZzo2TrG3xU7xv1nRFo7uKmzWpmoWAotkLeH3cu2GD/pIt72pXtNow9De0qEP
+         2ssoF40qp5st91mTWqIDgrtYSyPqcsxPYbWNQW84=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sven Schnelle <svens@linux.ibm.com>,
+Cc:     Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 197/265] s390/ptrace: fix setting syscall number
-Date:   Mon, 29 Jun 2020 11:17:10 -0400
-Message-Id: <20200629151818.2493727-198-sashal@kernel.org>
+Subject: [PATCH 5.7 199/265] s390/vdso: fix vDSO clock_getres()
+Date:   Mon, 29 Jun 2020 11:17:12 -0400
+Message-Id: <20200629151818.2493727-200-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629151818.2493727-1-sashal@kernel.org>
 References: <20200629151818.2493727-1-sashal@kernel.org>
@@ -49,90 +51,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Schnelle <svens@linux.ibm.com>
+From: Vincenzo Frascino <vincenzo.frascino@arm.com>
 
-[ Upstream commit 873e5a763d604c32988c4a78913a8dab3862d2f9 ]
+[ Upstream commit 478237a595120a18e9b52fd2c57a6e8b7a01e411 ]
 
-When strace wants to update the syscall number, it sets GPR2
-to the desired number and updates the GPR via PTRACE_SETREGSET.
-It doesn't update regs->int_code which would cause the old syscall
-executed on syscall restart. As we cannot change the ptrace ABI and
-don't have a field for the interruption code, check whether the tracee
-is in a syscall and the last instruction was svc. In that case assume
-that the tracer wants to update the syscall number and copy the GPR2
-value to regs->int_code.
+clock_getres in the vDSO library has to preserve the same behaviour
+of posix_get_hrtimer_res().
 
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+In particular, posix_get_hrtimer_res() does:
+    sec = 0;
+    ns = hrtimer_resolution;
+and hrtimer_resolution depends on the enablement of the high
+resolution timers that can happen either at compile or at run time.
+
+Fix the s390 vdso implementation of clock_getres keeping a copy of
+hrtimer_resolution in vdso data and using that directly.
+
+Link: https://lkml.kernel.org/r/20200324121027.21665-1-vincenzo.frascino@arm.com
+Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+[heiko.carstens@de.ibm.com: use llgf for proper zero extension]
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/ptrace.c | 31 ++++++++++++++++++++++++++++++-
- 1 file changed, 30 insertions(+), 1 deletion(-)
+ arch/s390/include/asm/vdso.h           |  1 +
+ arch/s390/kernel/asm-offsets.c         |  2 +-
+ arch/s390/kernel/time.c                |  1 +
+ arch/s390/kernel/vdso64/clock_getres.S | 10 +++++-----
+ 4 files changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/arch/s390/kernel/ptrace.c b/arch/s390/kernel/ptrace.c
-index fca78b269349d..e007224b65bb2 100644
---- a/arch/s390/kernel/ptrace.c
-+++ b/arch/s390/kernel/ptrace.c
-@@ -324,6 +324,25 @@ static inline void __poke_user_per(struct task_struct *child,
- 		child->thread.per_user.end = data;
+diff --git a/arch/s390/include/asm/vdso.h b/arch/s390/include/asm/vdso.h
+index 3bcfdeb013951..0cd085cdeb4f2 100644
+--- a/arch/s390/include/asm/vdso.h
++++ b/arch/s390/include/asm/vdso.h
+@@ -36,6 +36,7 @@ struct vdso_data {
+ 	__u32 tk_shift;			/* Shift used for xtime_nsec	0x60 */
+ 	__u32 ts_dir;			/* TOD steering direction	0x64 */
+ 	__u64 ts_end;			/* TOD steering end		0x68 */
++	__u32 hrtimer_res;		/* hrtimer resolution		0x70 */
+ };
+ 
+ struct vdso_per_cpu_data {
+diff --git a/arch/s390/kernel/asm-offsets.c b/arch/s390/kernel/asm-offsets.c
+index e80f0e6f59722..46f84cb0d5528 100644
+--- a/arch/s390/kernel/asm-offsets.c
++++ b/arch/s390/kernel/asm-offsets.c
+@@ -76,6 +76,7 @@ int main(void)
+ 	OFFSET(__VDSO_TK_SHIFT, vdso_data, tk_shift);
+ 	OFFSET(__VDSO_TS_DIR, vdso_data, ts_dir);
+ 	OFFSET(__VDSO_TS_END, vdso_data, ts_end);
++	OFFSET(__VDSO_CLOCK_REALTIME_RES, vdso_data, hrtimer_res);
+ 	OFFSET(__VDSO_ECTG_BASE, vdso_per_cpu_data, ectg_timer_base);
+ 	OFFSET(__VDSO_ECTG_USER, vdso_per_cpu_data, ectg_user_time);
+ 	OFFSET(__VDSO_GETCPU_VAL, vdso_per_cpu_data, getcpu_val);
+@@ -86,7 +87,6 @@ int main(void)
+ 	DEFINE(__CLOCK_REALTIME_COARSE, CLOCK_REALTIME_COARSE);
+ 	DEFINE(__CLOCK_MONOTONIC_COARSE, CLOCK_MONOTONIC_COARSE);
+ 	DEFINE(__CLOCK_THREAD_CPUTIME_ID, CLOCK_THREAD_CPUTIME_ID);
+-	DEFINE(__CLOCK_REALTIME_RES, MONOTONIC_RES_NSEC);
+ 	DEFINE(__CLOCK_COARSE_RES, LOW_RES_NSEC);
+ 	BLANK();
+ 	/* idle data offsets */
+diff --git a/arch/s390/kernel/time.c b/arch/s390/kernel/time.c
+index f9d070d016e35..b1113b5194325 100644
+--- a/arch/s390/kernel/time.c
++++ b/arch/s390/kernel/time.c
+@@ -301,6 +301,7 @@ void update_vsyscall(struct timekeeper *tk)
+ 
+ 	vdso_data->tk_mult = tk->tkr_mono.mult;
+ 	vdso_data->tk_shift = tk->tkr_mono.shift;
++	vdso_data->hrtimer_res = hrtimer_resolution;
+ 	smp_wmb();
+ 	++vdso_data->tb_update_count;
  }
- 
-+static void fixup_int_code(struct task_struct *child, addr_t data)
-+{
-+	struct pt_regs *regs = task_pt_regs(child);
-+	int ilc = regs->int_code >> 16;
-+	u16 insn;
-+
-+	if (ilc > 6)
-+		return;
-+
-+	if (ptrace_access_vm(child, regs->psw.addr - (regs->int_code >> 16),
-+			&insn, sizeof(insn), FOLL_FORCE) != sizeof(insn))
-+		return;
-+
-+	/* double check that tracee stopped on svc instruction */
-+	if ((insn >> 8) != 0xa)
-+		return;
-+
-+	regs->int_code = 0x20000 | (data & 0xffff);
-+}
- /*
-  * Write a word to the user area of a process at location addr. This
-  * operation does have an additional problem compared to peek_user.
-@@ -335,7 +354,9 @@ static int __poke_user(struct task_struct *child, addr_t addr, addr_t data)
- 	struct user *dummy = NULL;
- 	addr_t offset;
- 
-+
- 	if (addr < (addr_t) &dummy->regs.acrs) {
-+		struct pt_regs *regs = task_pt_regs(child);
- 		/*
- 		 * psw and gprs are stored on the stack
- 		 */
-@@ -353,7 +374,11 @@ static int __poke_user(struct task_struct *child, addr_t addr, addr_t data)
- 				/* Invalid addressing mode bits */
- 				return -EINVAL;
- 		}
--		*(addr_t *)((addr_t) &task_pt_regs(child)->psw + addr) = data;
-+
-+		if (test_pt_regs_flag(regs, PIF_SYSCALL) &&
-+			addr == offsetof(struct user, regs.gprs[2]))
-+			fixup_int_code(child, data);
-+		*(addr_t *)((addr_t) &regs->psw + addr) = data;
- 
- 	} else if (addr < (addr_t) (&dummy->regs.orig_gpr2)) {
- 		/*
-@@ -719,6 +744,10 @@ static int __poke_user_compat(struct task_struct *child,
- 			regs->psw.mask = (regs->psw.mask & ~PSW_MASK_BA) |
- 				(__u64)(tmp & PSW32_ADDR_AMODE);
- 		} else {
-+
-+			if (test_pt_regs_flag(regs, PIF_SYSCALL) &&
-+				addr == offsetof(struct compat_user, regs.gprs[2]))
-+				fixup_int_code(child, data);
- 			/* gpr 0-15 */
- 			*(__u32*)((addr_t) &regs->psw + addr*2 + 4) = tmp;
- 		}
+diff --git a/arch/s390/kernel/vdso64/clock_getres.S b/arch/s390/kernel/vdso64/clock_getres.S
+index 081435398e0a1..0c79caa32b592 100644
+--- a/arch/s390/kernel/vdso64/clock_getres.S
++++ b/arch/s390/kernel/vdso64/clock_getres.S
+@@ -17,12 +17,14 @@
+ 	.type  __kernel_clock_getres,@function
+ __kernel_clock_getres:
+ 	CFI_STARTPROC
+-	larl	%r1,4f
++	larl	%r1,3f
++	lg	%r0,0(%r1)
+ 	cghi	%r2,__CLOCK_REALTIME_COARSE
+ 	je	0f
+ 	cghi	%r2,__CLOCK_MONOTONIC_COARSE
+ 	je	0f
+-	larl	%r1,3f
++	larl	%r1,_vdso_data
++	llgf	%r0,__VDSO_CLOCK_REALTIME_RES(%r1)
+ 	cghi	%r2,__CLOCK_REALTIME
+ 	je	0f
+ 	cghi	%r2,__CLOCK_MONOTONIC
+@@ -36,7 +38,6 @@ __kernel_clock_getres:
+ 	jz	2f
+ 0:	ltgr	%r3,%r3
+ 	jz	1f				/* res == NULL */
+-	lg	%r0,0(%r1)
+ 	xc	0(8,%r3),0(%r3)			/* set tp->tv_sec to zero */
+ 	stg	%r0,8(%r3)			/* store tp->tv_usec */
+ 1:	lghi	%r2,0
+@@ -45,6 +46,5 @@ __kernel_clock_getres:
+ 	svc	0
+ 	br	%r14
+ 	CFI_ENDPROC
+-3:	.quad	__CLOCK_REALTIME_RES
+-4:	.quad	__CLOCK_COARSE_RES
++3:	.quad	__CLOCK_COARSE_RES
+ 	.size	__kernel_clock_getres,.-__kernel_clock_getres
 -- 
 2.25.1
 
