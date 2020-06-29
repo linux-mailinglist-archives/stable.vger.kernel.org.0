@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C17620DA3F
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:13:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9269C20DAA6
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:14:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732279AbgF2TzK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:55:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47672 "EHLO mail.kernel.org"
+        id S1732378AbgF2T7W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:59:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387662AbgF2TkZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:25 -0400
+        id S1732365AbgF2TkR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 28014248E2;
-        Mon, 29 Jun 2020 15:27:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1C888248E3;
+        Mon, 29 Jun 2020 15:27:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444435;
-        bh=Zwd2UDIgV9gzJZvzusMDwP5lbmSKJVOpDo/8rnFUOwA=;
+        s=default; t=1593444437;
+        bh=mX4wMNn1g/7Ny6Rr+PpoHehJ4ZbRoJVgpWsTKJ0Vw7c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qE59pdMk58sbLhYpYpMLB1SV3NSt69TbDJ5xECl7feGe1arlySD9/mSHgTaTDqg+Q
-         WirU5aOMG16oTonfVOBwYpQDbqWVWG2H3+tVjScaFO1e23wdrzmCaR1r7f61xTjKzb
-         XN/b4lNCdxxiTMmQXDdJFreKRP7jMcaxF5nDQ9Dw=
+        b=kh4dyUVxQhu+IWwsCaoisTKggySvfuDKxMHGYIoKxfYYWGUdodg+bjrNzWZgPkpBM
+         78oSrZ8AZSBlpsDf7WUGFJRHK2uYqRHDN0beTQ6+c/oeDXRqOOTHrVpDcSV9+95olS
+         v03IK6D2wXwNGk+bPd75zMape+nIBLlD980Bi0ZI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Howells <dhowells@redhat.com>,
-        Colin Ian King <colin.king@canonical.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+Cc:     Juri Lelli <juri.lelli@redhat.com>,
+        syzbot+5ac8bac25f95e8b221e7@syzkaller.appspotmail.com,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Daniel Wagner <dwagner@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 114/178] afs: Fix storage of cell names
-Date:   Mon, 29 Jun 2020 11:24:19 -0400
-Message-Id: <20200629152523.2494198-115-sashal@kernel.org>
+Subject: [PATCH 5.4 115/178] sched/deadline: Initialize ->dl_boosted
+Date:   Mon, 29 Jun 2020 11:24:20 -0400
+Message-Id: <20200629152523.2494198-116-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -50,78 +52,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Juri Lelli <juri.lelli@redhat.com>
 
-[ Upstream commit 719fdd32921fb7e3208db8832d32ae1c2d68900f ]
+[ Upstream commit ce9bc3b27f2a21a7969b41ffb04df8cf61bd1592 ]
 
-The cell name stored in the afs_cell struct is a 64-char + NUL buffer -
-when it needs to be able to handle up to AFS_MAXCELLNAME (256 chars) + NUL.
+syzbot reported the following warning triggered via SYSC_sched_setattr():
 
-Fix this by changing the array to a pointer and allocating the string.
+  WARNING: CPU: 0 PID: 6973 at kernel/sched/deadline.c:593 setup_new_dl_entity /kernel/sched/deadline.c:594 [inline]
+  WARNING: CPU: 0 PID: 6973 at kernel/sched/deadline.c:593 enqueue_dl_entity /kernel/sched/deadline.c:1370 [inline]
+  WARNING: CPU: 0 PID: 6973 at kernel/sched/deadline.c:593 enqueue_task_dl+0x1c17/0x2ba0 /kernel/sched/deadline.c:1441
 
-Found using Coverity.
+This happens because the ->dl_boosted flag is currently not initialized by
+__dl_clear_params() (unlike the other flags) and setup_new_dl_entity()
+rightfully complains about it.
 
-Fixes: 989782dcdc91 ("afs: Overhaul cell database management")
-Reported-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Initialize dl_boosted to 0.
+
+Fixes: 2d3d891d3344 ("sched/deadline: Add SCHED_DEADLINE inheritance logic")
+Reported-by: syzbot+5ac8bac25f95e8b221e7@syzkaller.appspotmail.com
+Signed-off-by: Juri Lelli <juri.lelli@redhat.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Tested-by: Daniel Wagner <dwagner@suse.de>
+Link: https://lkml.kernel.org/r/20200617072919.818409-1-juri.lelli@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/afs/cell.c     | 9 +++++++++
- fs/afs/internal.h | 2 +-
- 2 files changed, 10 insertions(+), 1 deletion(-)
+ kernel/sched/deadline.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/afs/cell.c b/fs/afs/cell.c
-index 78ba5f9322879..296b489861a9a 100644
---- a/fs/afs/cell.c
-+++ b/fs/afs/cell.c
-@@ -154,10 +154,17 @@ static struct afs_cell *afs_alloc_cell(struct afs_net *net,
- 		return ERR_PTR(-ENOMEM);
- 	}
+diff --git a/kernel/sched/deadline.c b/kernel/sched/deadline.c
+index 08bdee0480b3e..4cb00538a207b 100644
+--- a/kernel/sched/deadline.c
++++ b/kernel/sched/deadline.c
+@@ -2693,6 +2693,7 @@ void __dl_clear_params(struct task_struct *p)
+ 	dl_se->dl_bw			= 0;
+ 	dl_se->dl_density		= 0;
  
-+	cell->name = kmalloc(namelen + 1, GFP_KERNEL);
-+	if (!cell->name) {
-+		kfree(cell);
-+		return ERR_PTR(-ENOMEM);
-+	}
-+
- 	cell->net = net;
- 	cell->name_len = namelen;
- 	for (i = 0; i < namelen; i++)
- 		cell->name[i] = tolower(name[i]);
-+	cell->name[i] = 0;
- 
- 	atomic_set(&cell->usage, 2);
- 	INIT_WORK(&cell->manager, afs_manage_cell);
-@@ -203,6 +210,7 @@ static struct afs_cell *afs_alloc_cell(struct afs_net *net,
- 	if (ret == -EINVAL)
- 		printk(KERN_ERR "kAFS: bad VL server IP address\n");
- error:
-+	kfree(cell->name);
- 	kfree(cell);
- 	_leave(" = %d", ret);
- 	return ERR_PTR(ret);
-@@ -483,6 +491,7 @@ static void afs_cell_destroy(struct rcu_head *rcu)
- 
- 	afs_put_vlserverlist(cell->net, rcu_access_pointer(cell->vl_servers));
- 	key_put(cell->anonymous_key);
-+	kfree(cell->name);
- 	kfree(cell);
- 
- 	_leave(" [destroyed]");
-diff --git a/fs/afs/internal.h b/fs/afs/internal.h
-index 555ad7c9afcb6..7fe88d918b238 100644
---- a/fs/afs/internal.h
-+++ b/fs/afs/internal.h
-@@ -397,7 +397,7 @@ struct afs_cell {
- 	struct afs_vlserver_list __rcu *vl_servers;
- 
- 	u8			name_len;	/* Length of name */
--	char			name[64 + 1];	/* Cell name, case-flattened and NUL-padded */
-+	char			*name;		/* Cell name, case-flattened and NUL-padded */
- };
- 
- /*
++	dl_se->dl_boosted		= 0;
+ 	dl_se->dl_throttled		= 0;
+ 	dl_se->dl_yielded		= 0;
+ 	dl_se->dl_non_contending	= 0;
 -- 
 2.25.1
 
