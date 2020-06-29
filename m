@@ -2,53 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C2E220D16C
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 20:42:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6765E20D184
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 20:42:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729042AbgF2Slx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 14:41:53 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:57183 "EHLO
+        id S1728087AbgF2SmF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 14:42:05 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:51147 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729004AbgF2Slv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 29 Jun 2020 14:41:51 -0400
+        by vger.kernel.org with ESMTP id S1729057AbgF2SmB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 29 Jun 2020 14:42:01 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id A9C5F8DA;
-        Mon, 29 Jun 2020 07:06:57 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 29 Jun 2020 07:06:57 -0400
+        by mailforward.west.internal (Postfix) with ESMTP id 873C3601;
+        Mon, 29 Jun 2020 07:07:49 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Mon, 29 Jun 2020 07:07:50 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=TMCm9l
-        0/mue7gk4lub0GJ5RHSL3SxrUJd+ZNDavjRug=; b=Yot2m5ytvDgTR+4Jm9Bj9c
-        NqtcSbaNU/I8yDHcvmRIOlRbGj1If4K39FXx5qvX7i5GHCuYMZK+pV0gMVYLQnzp
-        H8FNKY2ske9xkeoY9bFEhthFM/PEjVW6gJGLJfjgKygTyoj//OKNWKXsObAw1USp
-        Fy8jH/TUx0MCcdyINmsHHEDtkTzdWAuwIUJc+owpc3YGBaQwooCLE8l0rIinXYx9
-        /jjdXJEYdYIARP2EYVKX7+mBcQ/bzNYVKp60PDne4ly3XB5ux+CCdIjIHGeFP6MN
-        1Lm5OrcC1MkyB30De/wdOCoriL1GHnQ6DoY/07JS0tfE3yqigWsqDccpA7xP0HbA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=+AnODi
+        qI/+XXwnxF9MrlpJpC7wAwN5p31BuWUT+NMVM=; b=cvtgpLlgNB6elDVKaxxDLK
+        6Vn00gUOExMwvsB55pgImGMGN9OcGEy7b77ErI2RmpjC50wRLLlrDSOtnDf+vHko
+        gMZoeEeXnvktK0cH94f/s5CYi1D2j+0edt81XW2LzvwBmVIzpubic0zmKkgWY8bw
+        NqtqVeYyZdmdE44sDgfPZ9+zOFQ1ufthtKYEu1MevLMQnrqovoLi6AlTBP7p1dVl
+        yb7T3iq21oWmPlR8Wysi+Tb09p2VlxxmceqRLLzPvW4L39PkS6WbiTkSvDPQNzD9
+        lUg/WLmHcXln2SofjhB4WKI2pn9UO2lBKi1NNlSZhGcRIxtN8Bhcf7G/6qh9IFQQ
         ==
-X-ME-Sender: <xms:Ucv5Xqk4ZZfpKB-npSoiZhUrwZS5W2w0b1auEhVOw0d4Lam55AHobA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudelkedgfeegucetufdoteggodetrfdotf
+X-ME-Sender: <xms:hMv5XlgZJUADY_YDfwchf7L2ZToE_L3iUOLXznhdU4NWoH4Z4rvHgA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduhedrudelkedgfeehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdekledruddtjeenucevlhhushht
-    vghrufhiiigvpeehnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:Ucv5Xh0Sw3gsiNUWuVqtRhGN3Kr3HycrJw3UMe-jaXrZuCYv4WUkIw>
-    <xmx:Ucv5XooccX23v4eI9De7aHpuDr3iiaM0ba0Pa79XAwjw881VuUHtkg>
-    <xmx:Ucv5XumO6EgcsaBelRPwYv-AsdapYDMLwN_kcuMR6egYYUeyLXJKqA>
-    <xmx:Ucv5XpiLWsoOCaOfKf_tMTNDgH-vUkHg6jMDeey_uGfvez55laFz5i68WeA>
+    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
+    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
+    keefrdekiedrkeelrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
+    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:hMv5XqD2pplBvvjPff6wXC6ugQRZCjOY8m2KElzo4cgczC8TWxz_Tg>
+    <xmx:hMv5XlEai4BTiYBp35c9QJyiZfStAifAGItf9HvCwm4208Q0oYH0JQ>
+    <xmx:hMv5XqRmbnoJzCI2onTZ_Hzwmv02zb-XTwgulKwwH8lay3PGyBy0IA>
+    <xmx:hcv5XstIvPEoDF9QV4uhB2Y_u5akxVG8R4-EY1todxl7XSUP_DHwHFxP3h8>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E852B328005A;
-        Mon, 29 Jun 2020 07:06:56 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] btrfs: fix RWF_NOWAIT write not failling when we need to cow" failed to apply to 4.14-stable tree
-To:     fdmanana@suse.com, dsterba@suse.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 560B93067C80;
+        Mon, 29 Jun 2020 07:07:48 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] mm, compaction: make capture control handling safe wrt" failed to apply to 5.4-stable tree
+To:     vbabka@suse.cz, akpm@linux-foundation.org,
+        alex.shi@linux.alibaba.com, hughd@google.com, liwang@redhat.com,
+        mgorman@techsingularity.net, stable@vger.kernel.org,
+        torvalds@linux-foundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 29 Jun 2020 13:06:40 +0200
-Message-ID: <159342880021105@kroah.com>
+Date:   Mon, 29 Jun 2020 13:07:39 +0200
+Message-ID: <15934288599599@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +61,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -69,83 +72,91 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 260a63395f90f67d6ab89e4266af9e3dc34a77e9 Mon Sep 17 00:00:00 2001
-From: Filipe Manana <fdmanana@suse.com>
-Date: Mon, 15 Jun 2020 18:49:13 +0100
-Subject: [PATCH] btrfs: fix RWF_NOWAIT write not failling when we need to cow
+From b9e20f0da1f5c9c68689450a8cb436c9486434c8 Mon Sep 17 00:00:00 2001
+From: Vlastimil Babka <vbabka@suse.cz>
+Date: Thu, 25 Jun 2020 20:29:24 -0700
+Subject: [PATCH] mm, compaction: make capture control handling safe wrt
+ interrupts
 
-If we attempt to do a RWF_NOWAIT write against a file range for which we
-can only do NOCOW for a part of it, due to the existence of holes or
-shared extents for example, we proceed with the write as if it were
-possible to NOCOW the whole range.
+Hugh reports:
 
-Example:
+ "While stressing compaction, one run oopsed on NULL capc->cc in
+  __free_one_page()'s task_capc(zone): compact_zone_order() had been
+  interrupted, and a page was being freed in the return from interrupt.
 
-  $ mkfs.btrfs -f /dev/sdb
-  $ mount /dev/sdb /mnt
+  Though you would not expect it from the source, both gccs I was using
+  (4.8.1 and 7.5.0) had chosen to compile compact_zone_order() with the
+  ".cc = &cc" implemented by mov %rbx,-0xb0(%rbp) immediately before
+  callq compact_zone - long after the "current->capture_control =
+  &capc". An interrupt in between those finds capc->cc NULL (zeroed by
+  an earlier rep stos).
 
-  $ touch /mnt/sdj/bar
-  $ chattr +C /mnt/sdj/bar
+  This could presumably be fixed by a barrier() before setting
+  current->capture_control in compact_zone_order(); but would also need
+  more care on return from compact_zone(), in order not to risk leaking
+  a page captured by interrupt just before capture_control is reset.
 
-  $ xfs_io -d -c "pwrite -S 0xab -b 256K 0 256K" /mnt/bar
-  wrote 262144/262144 bytes at offset 0
-  256 KiB, 1 ops; 0.0003 sec (694.444 MiB/sec and 2777.7778 ops/sec)
+  Maybe that is the preferable fix, but I felt safer for task_capc() to
+  exclude the rather surprising possibility of capture at interrupt
+  time"
 
-  $ xfs_io -c "fpunch 64K 64K" /mnt/bar
-  $ sync
+I have checked that gcc10 also behaves the same.
 
-  $ xfs_io -d -c "pwrite -N -V 1 -b 128K -S 0xfe 0 128K" /mnt/bar
-  wrote 131072/131072 bytes at offset 0
-  128 KiB, 1 ops; 0.0007 sec (160.051 MiB/sec and 1280.4097 ops/sec)
+The advantage of fix in compact_zone_order() is that we don't add
+another test in the page freeing hot path, and that it might prevent
+future problems if we stop exposing pointers to uninitialized structures
+in current task.
 
-This last write should fail with -EAGAIN since the file range from 64K to
-128K is a hole. On xfs it fails, as expected, but on ext4 it currently
-succeeds because apparently it is expensive to check if there are extents
-allocated for the whole range, but I'll check with the ext4 people.
+So this patch implements the suggestion for compact_zone_order() with
+barrier() (and WRITE_ONCE() to prevent store tearing) for setting
+current->capture_control, and prevents page leaking with
+WRITE_ONCE/READ_ONCE in the proper order.
 
-Fix the issue by checking if check_can_nocow() returns a number of
-NOCOW'able bytes smaller then the requested number of bytes, and if it
-does return -EAGAIN.
+Link: http://lkml.kernel.org/r/20200616082649.27173-1-vbabka@suse.cz
+Fixes: 5e1f0f098b46 ("mm, compaction: capture a page under direct compaction")
+Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+Reported-by: Hugh Dickins <hughd@google.com>
+Suggested-by: Hugh Dickins <hughd@google.com>
+Acked-by: Hugh Dickins <hughd@google.com>
+Cc: Alex Shi <alex.shi@linux.alibaba.com>
+Cc: Li Wang <liwang@redhat.com>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: <stable@vger.kernel.org>	[5.1+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 
-Fixes: edf064e7c6fec3 ("btrfs: nowait aio support")
-CC: stable@vger.kernel.org # 4.14+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-
-diff --git a/fs/btrfs/file.c b/fs/btrfs/file.c
-index 04faa04fccd1..6d5d905281c6 100644
---- a/fs/btrfs/file.c
-+++ b/fs/btrfs/file.c
-@@ -1904,18 +1904,29 @@ static ssize_t btrfs_file_write_iter(struct kiocb *iocb,
- 	pos = iocb->ki_pos;
- 	count = iov_iter_count(from);
- 	if (iocb->ki_flags & IOCB_NOWAIT) {
-+		size_t nocow_bytes = count;
-+
- 		/*
- 		 * We will allocate space in case nodatacow is not set,
- 		 * so bail
- 		 */
- 		if (!(BTRFS_I(inode)->flags & (BTRFS_INODE_NODATACOW |
- 					      BTRFS_INODE_PREALLOC)) ||
--		    check_can_nocow(BTRFS_I(inode), pos, &count) <= 0) {
-+		    check_can_nocow(BTRFS_I(inode), pos, &nocow_bytes) <= 0) {
- 			inode_unlock(inode);
- 			return -EAGAIN;
- 		}
- 		/* check_can_nocow() locks the snapshot lock on success */
- 		btrfs_drew_write_unlock(&root->snapshot_lock);
-+		/*
-+		 * There are holes in the range or parts of the range that must
-+		 * be COWed (shared extents, RO block groups, etc), so just bail
-+		 * out.
-+		 */
-+		if (nocow_bytes < count) {
-+			inode_unlock(inode);
-+			return -EAGAIN;
-+		}
- 	}
+diff --git a/mm/compaction.c b/mm/compaction.c
+index fd988b7e5f2b..86375605faa9 100644
+--- a/mm/compaction.c
++++ b/mm/compaction.c
+@@ -2316,15 +2316,26 @@ static enum compact_result compact_zone_order(struct zone *zone, int order,
+ 		.page = NULL,
+ 	};
  
- 	current->backing_dev_info = inode_to_bdi(inode);
+-	current->capture_control = &capc;
++	/*
++	 * Make sure the structs are really initialized before we expose the
++	 * capture control, in case we are interrupted and the interrupt handler
++	 * frees a page.
++	 */
++	barrier();
++	WRITE_ONCE(current->capture_control, &capc);
+ 
+ 	ret = compact_zone(&cc, &capc);
+ 
+ 	VM_BUG_ON(!list_empty(&cc.freepages));
+ 	VM_BUG_ON(!list_empty(&cc.migratepages));
+ 
+-	*capture = capc.page;
+-	current->capture_control = NULL;
++	/*
++	 * Make sure we hide capture control first before we read the captured
++	 * page pointer, otherwise an interrupt could free and capture a page
++	 * and we would leak it.
++	 */
++	WRITE_ONCE(current->capture_control, NULL);
++	*capture = READ_ONCE(capc.page);
+ 
+ 	return ret;
+ }
 
