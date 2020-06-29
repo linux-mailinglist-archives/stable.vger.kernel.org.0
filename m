@@ -2,101 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DD1620E3A6
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:03:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 692EA20E385
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:03:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729947AbgF2VQJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:16:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42430 "EHLO mail.kernel.org"
+        id S2390414AbgF2VPI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:15:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729942AbgF2SzP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:55:15 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1729957AbgF2SzQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 14:55:16 -0400
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 15F562557D;
-        Mon, 29 Jun 2020 15:55:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 04EFD25592;
+        Mon, 29 Jun 2020 16:25:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593446146;
-        bh=68vB2YRlflfM6eEWY7FVvsbIyR/+gueoV8EbSaIbw6g=;
+        s=default; t=1593447934;
+        bh=VdO0jQ/MssMzZwJ3Jmcy7j9yhjcRN0AurIn0itRbDB4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bg5Jtcz0COl9dpeK6wWAFlB54hNUbA7jul0pbSijsy+R7qdSLuajiafBHp8lJe5Do
-         ed3Qvi/rCKzexdF/TfQBy3kBItFBfsLefC+S7F+f6vJZTQ5rWbdmY0MhfMmTSb4Vw9
-         Li8G0IIG1/AT2nJ7TSHwYnfIwbUC1MaBCxB7VeE0=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Iwai <tiwai@suse.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.4 134/135] ALSA: usb-audio: Fix invalid NULL check in snd_emuusb_set_samplerate()
-Date:   Mon, 29 Jun 2020 11:53:08 -0400
-Message-Id: <20200629155309.2495516-135-sashal@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
-References: <20200629155309.2495516-1-sashal@kernel.org>
+        b=zzLChNvlDrQi+ZfF4CpY+8pP5YHckGR9bXphz2iJVJrvT0xNx03guK3euKdB8ey/p
+         Aob+xKUnA2bGpyfza4nOvV7yN1TnVuNRsxal3ipw2bh8M4iNHopEaV+ZoKBk4Z7Awq
+         +b8vSiEbWxZMtvvLzjtsY8a2kjo2IC5scsvOfFVE=
+Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.lan)
+        by disco-boy.misterjones.org with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <maz@kernel.org>)
+        id 1jpwb6-007M5T-Gk; Mon, 29 Jun 2020 17:25:32 +0100
+From:   Marc Zyngier <maz@kernel.org>
+To:     Paolo Bonzini <pbonzini@redhat.com>
+Cc:     Alexandru Elisei <alexandru.elisei@arm.com>,
+        Andrew Jones <drjones@redhat.com>,
+        James Morse <james.morse@arm.com>,
+        Steven Price <steven.price@arm.com>,
+        Zenghui Yu <yuzenghui@huawei.com>,
+        Julien Thierry <julien.thierry.kdev@gmail.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        kernel-team@android.com, linux-arm-kernel@lists.infradead.org,
+        kvmarm@lists.cs.columbia.edu, kvm@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH 1/4] KVM: arm64: Annotate hyp NMI-related functions as __always_inline
+Date:   Mon, 29 Jun 2020 17:25:16 +0100
+Message-Id: <20200629162519.825200-2-maz@kernel.org>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20200629162519.825200-1-maz@kernel.org>
+References: <20200629162519.825200-1-maz@kernel.org>
 MIME-Version: 1.0
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.229-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.4.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.4.229-rc1
-X-KernelTest-Deadline: 2020-07-01T15:53+00:00
-X-stable: review
-X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 62.31.163.78
+X-SA-Exim-Rcpt-To: pbonzini@redhat.com, alexandru.elisei@arm.com, drjones@redhat.com, james.morse@arm.com, steven.price@arm.com, yuzenghui@huawei.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, kernel-team@android.com, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, kvm@vger.kernel.org, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Alexandru Elisei <alexandru.elisei@arm.com>
 
-commit 6de3c9e3f6b3eaf66859e1379b3f35dda781416b upstream.
+The "inline" keyword is a hint for the compiler to inline a function.  The
+functions system_uses_irq_prio_masking() and gic_write_pmr() are used by
+the code running at EL2 on a non-VHE system, so mark them as
+__always_inline to make sure they'll always be part of the .hyp.text
+section.
 
-The quirk function snd_emuusb_set_samplerate() has a NULL check for
-the mixer element, but this is useless in the current code.  It used
-to be a check against mixer->id_elems[unitid] but it was changed later
-to the value after mixer_eleme_list_to_info() which is always non-NULL
-due to the container_of() usage.
+This fixes the following splat when trying to run a VM:
 
-This patch fixes the check before the conversion.
+[   47.625273] Kernel panic - not syncing: HYP panic:
+[   47.625273] PS:a00003c9 PC:0000ca0b42049fc4 ESR:86000006
+[   47.625273] FAR:0000ca0b42049fc4 HPFAR:0000000010001000 PAR:0000000000000000
+[   47.625273] VCPU:0000000000000000
+[   47.647261] CPU: 1 PID: 217 Comm: kvm-vcpu-0 Not tainted 5.8.0-rc1-ARCH+ #61
+[   47.654508] Hardware name: Globalscale Marvell ESPRESSOBin Board (DT)
+[   47.661139] Call trace:
+[   47.663659]  dump_backtrace+0x0/0x1cc
+[   47.667413]  show_stack+0x18/0x24
+[   47.670822]  dump_stack+0xb8/0x108
+[   47.674312]  panic+0x124/0x2f4
+[   47.677446]  panic+0x0/0x2f4
+[   47.680407] SMP: stopping secondary CPUs
+[   47.684439] Kernel Offset: disabled
+[   47.688018] CPU features: 0x240402,20002008
+[   47.692318] Memory Limit: none
+[   47.695465] ---[ end Kernel panic - not syncing: HYP panic:
+[   47.695465] PS:a00003c9 PC:0000ca0b42049fc4 ESR:86000006
+[   47.695465] FAR:0000ca0b42049fc4 HPFAR:0000000010001000 PAR:0000000000000000
+[   47.695465] VCPU:0000000000000000 ]---
 
-While we're at it, correct a typo in the comment in the function,
-too.
+The instruction abort was caused by the code running at EL2 trying to fetch
+an instruction which wasn't mapped in the EL2 translation tables. Using
+objdump showed the two functions as separate symbols in the .text section.
 
-Fixes: 8c558076c740 ("ALSA: usb-audio: Clean up mixer element list traverse")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 85738e05dc38 ("arm64: kvm: Unmask PMR before entering guest")
+Cc: stable@vger.kernel.org
+Signed-off-by: Alexandru Elisei <alexandru.elisei@arm.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Acked-by: James Morse <james.morse@arm.com>
+Link: https://lore.kernel.org/r/20200618171254.1596055-1-alexandru.elisei@arm.com
 ---
- sound/usb/mixer_quirks.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/arm64/include/asm/arch_gicv3.h | 2 +-
+ arch/arm64/include/asm/cpufeature.h | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/usb/mixer_quirks.c b/sound/usb/mixer_quirks.c
-index 198515f86fcc2..9646513f4b4ad 100644
---- a/sound/usb/mixer_quirks.c
-+++ b/sound/usb/mixer_quirks.c
-@@ -1168,17 +1168,17 @@ void snd_emuusb_set_samplerate(struct snd_usb_audio *chip,
- {
- 	struct usb_mixer_interface *mixer;
- 	struct usb_mixer_elem_info *cval;
--	int unitid = 12; /* SamleRate ExtensionUnit ID */
-+	int unitid = 12; /* SampleRate ExtensionUnit ID */
- 
- 	list_for_each_entry(mixer, &chip->mixer_list, list) {
--		cval = mixer_elem_list_to_info(mixer->id_elems[unitid]);
--		if (cval) {
-+		if (mixer->id_elems[unitid]) {
-+			cval = mixer_elem_list_to_info(mixer->id_elems[unitid]);
- 			snd_usb_mixer_set_ctl_value(cval, UAC_SET_CUR,
- 						    cval->control << 8,
- 						    samplerate_id);
- 			snd_usb_mixer_notify_id(mixer, unitid);
-+			break;
- 		}
--		break;
- 	}
+diff --git a/arch/arm64/include/asm/arch_gicv3.h b/arch/arm64/include/asm/arch_gicv3.h
+index a358e97572c1..6647ae4f0231 100644
+--- a/arch/arm64/include/asm/arch_gicv3.h
++++ b/arch/arm64/include/asm/arch_gicv3.h
+@@ -109,7 +109,7 @@ static inline u32 gic_read_pmr(void)
+ 	return read_sysreg_s(SYS_ICC_PMR_EL1);
  }
  
+-static inline void gic_write_pmr(u32 val)
++static __always_inline void gic_write_pmr(u32 val)
+ {
+ 	write_sysreg_s(val, SYS_ICC_PMR_EL1);
+ }
+diff --git a/arch/arm64/include/asm/cpufeature.h b/arch/arm64/include/asm/cpufeature.h
+index 5d1f4ae42799..f7c3d1ff091d 100644
+--- a/arch/arm64/include/asm/cpufeature.h
++++ b/arch/arm64/include/asm/cpufeature.h
+@@ -675,7 +675,7 @@ static inline bool system_supports_generic_auth(void)
+ 		cpus_have_const_cap(ARM64_HAS_GENERIC_AUTH);
+ }
+ 
+-static inline bool system_uses_irq_prio_masking(void)
++static __always_inline bool system_uses_irq_prio_masking(void)
+ {
+ 	return IS_ENABLED(CONFIG_ARM64_PSEUDO_NMI) &&
+ 	       cpus_have_const_cap(ARM64_HAS_IRQ_PRIO_MASKING);
 -- 
-2.25.1
+2.27.0
 
