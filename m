@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F54320D9F2
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:12:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6014F20D9B8
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 22:12:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731945AbgF2TwY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 15:52:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47656 "EHLO mail.kernel.org"
+        id S1733300AbgF2TuF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 15:50:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387711AbgF2Tka (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:40:30 -0400
+        id S1732703AbgF2Tkg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:40:36 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7985424800;
-        Mon, 29 Jun 2020 15:25:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5C03E24803;
+        Mon, 29 Jun 2020 15:25:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593444328;
-        bh=TY+OzDIfjSGqQuHfrjy5eBvrcMpU/vCz/7fbYEldFgM=;
+        s=default; t=1593444329;
+        bh=YfelfwEUbcmCm/7aOeEl7t6zt0M79VdUgGvywh71Yzk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aO+lpBukTh11QsHDBkQm/mdhQyuPbIvKKikXdcGPWZNjdGay/IE6cj7vQy98QKJZE
-         l5kTmN/AukK/RlLpDDpdPJtlqiu+MhqPk4m1Zd4ew9GL/UR3Pjo3lx/1JnSzoyFVSJ
-         f7QKYEt2nCq0vQGCC+pynoDXktdCP5YglyeQ4lmg=
+        b=BJ0v7dXOU2iXSFDa4wmF344S5avXRRwtuNdcdurQG55rYPXq8Hzoh3lozWHBfsr59
+         NoIVJZOljnrQ6OGyNBzrzNbPtbWwV8qYbYq8+hQc8BnFBDli0Dkpp2Q6A+0f7AZCT8
+         7+M7RXtxOEDkorYAEI3zEZ49r9hnMC2BXGzxEZcI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Claudiu Manoil <claudiu.manoil@nxp.com>,
+Cc:     Sabrina Dubroca <sd@queasysnail.net>,
+        Stefano Brivio <sbrivio@redhat.com>,
         "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.4 002/178] enetc: Fix tx rings bitmap iteration range, irq handling
-Date:   Mon, 29 Jun 2020 11:22:27 -0400
-Message-Id: <20200629152523.2494198-3-sashal@kernel.org>
+Subject: [PATCH 5.4 003/178] geneve: allow changing DF behavior after creation
+Date:   Mon, 29 Jun 2020 11:22:28 -0400
+Message-Id: <20200629152523.2494198-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629152523.2494198-1-sashal@kernel.org>
 References: <20200629152523.2494198-1-sashal@kernel.org>
@@ -49,54 +50,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Manoil <claudiu.manoil@nxp.com>
+From: Sabrina Dubroca <sd@queasysnail.net>
 
-[ Upstream commit 0574e2000fc3103cbc69ba82ec1175ce171fdf5e ]
+[ Upstream commit 56c09de347e40804fc8dad155272fb9609e0a97b ]
 
-The rings bitmap of an interrupt vector encodes
-which of the device's rings were assigned to that
-interrupt vector.
-Hence the iteration range of the tx rings bitmap
-(for_each_set_bit()) should be the total number of
-Tx rings of that netdevice instead of the number of
-rings assigned to the interrupt vector.
-Since there are 2 cores, and one interrupt vector for
-each core, the number of rings asigned to an interrupt
-vector is half the number of available rings.
-The impact of this error is that the upper half of the
-tx rings could still generate interrupts during napi
-polling.
+Currently, trying to change the DF parameter of a geneve device does
+nothing:
 
-Fixes: d4fd0404c1c9 ("enetc: Introduce basic PF and VF ENETC ethernet drivers")
-Signed-off-by: Claudiu Manoil <claudiu.manoil@nxp.com>
+    # ip -d link show geneve1
+    14: geneve1: <snip>
+        link/ether <snip>
+        geneve id 1 remote 10.0.0.1 ttl auto df set dstport 6081 <snip>
+    # ip link set geneve1 type geneve id 1 df unset
+    # ip -d link show geneve1
+    14: geneve1: <snip>
+        link/ether <snip>
+        geneve id 1 remote 10.0.0.1 ttl auto df set dstport 6081 <snip>
+
+We just need to update the value in geneve_changelink.
+
+Fixes: a025fb5f49ad ("geneve: Allow configuration of DF behaviour")
+Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
+Reviewed-by: Stefano Brivio <sbrivio@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/freescale/enetc/enetc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/geneve.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/freescale/enetc/enetc.c b/drivers/net/ethernet/freescale/enetc/enetc.c
-index b6ff893074092..4ef4d41b0d8d6 100644
---- a/drivers/net/ethernet/freescale/enetc/enetc.c
-+++ b/drivers/net/ethernet/freescale/enetc/enetc.c
-@@ -254,7 +254,7 @@ static irqreturn_t enetc_msix(int irq, void *data)
- 	/* disable interrupts */
- 	enetc_wr_reg(v->rbier, 0);
+diff --git a/drivers/net/geneve.c b/drivers/net/geneve.c
+index cac75c7d1d018..19d9d78a6df2c 100644
+--- a/drivers/net/geneve.c
++++ b/drivers/net/geneve.c
+@@ -1649,6 +1649,7 @@ static int geneve_changelink(struct net_device *dev, struct nlattr *tb[],
+ 	geneve->collect_md = metadata;
+ 	geneve->use_udp6_rx_checksums = use_udp6_rx_checksums;
+ 	geneve->ttl_inherit = ttl_inherit;
++	geneve->df = df;
+ 	geneve_unquiesce(geneve, gs4, gs6);
  
--	for_each_set_bit(i, &v->tx_rings_map, v->count_tx_rings)
-+	for_each_set_bit(i, &v->tx_rings_map, ENETC_MAX_NUM_TXQS)
- 		enetc_wr_reg(v->tbier_base + ENETC_BDR_OFF(i), 0);
- 
- 	napi_schedule_irqoff(&v->napi);
-@@ -290,7 +290,7 @@ static int enetc_poll(struct napi_struct *napi, int budget)
- 	/* enable interrupts */
- 	enetc_wr_reg(v->rbier, ENETC_RBIER_RXTIE);
- 
--	for_each_set_bit(i, &v->tx_rings_map, v->count_tx_rings)
-+	for_each_set_bit(i, &v->tx_rings_map, ENETC_MAX_NUM_TXQS)
- 		enetc_wr_reg(v->tbier_base + ENETC_BDR_OFF(i),
- 			     ENETC_TBIER_TXTIE);
- 
+ 	return 0;
 -- 
 2.25.1
 
