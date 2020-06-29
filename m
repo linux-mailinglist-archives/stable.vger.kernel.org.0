@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C25E20E2DB
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:01:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 271DA20E2B8
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 00:01:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390225AbgF2VJW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 17:09:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45474 "EHLO mail.kernel.org"
+        id S2387682AbgF2VIJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 17:08:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730319AbgF2TAT (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730322AbgF2TAT (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 29 Jun 2020 15:00:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E3F025502;
-        Mon, 29 Jun 2020 15:54:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7E97C25509;
+        Mon, 29 Jun 2020 15:54:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593446065;
-        bh=cNMBpd8nqgUby7jFWs/v09K1erXrkS11i2iK7hcqnEM=;
+        s=default; t=1593446066;
+        bh=jG4XWYFGXJnz4ForPt/MAmTEi7umlnV2RuQuuTSRVbI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LDlzhoodYVYaRv41+4Pw3Ic45WfSRgBYStvRCaighWkhUtm21q6Tn10LE2dOqqHX0
-         EmYHZhDuoCX5aYEKSDQ7M5E3NACH2iV14MYTLnYY5U+htRu3A/b7xsN1QIe2C7MV/z
-         wMkUFiGGfk0bidvFxPwcK4TYUvxUqcirSyGFq5w4=
+        b=HQbrxacfxvQzZSzpKfQheiY5S1aVXbV5FFuSyY9SRHQBVZVwKiIUCkaJe7Imnar89
+         hB4HKdkC3aoHy6nta13VRJrvSMRBeFXVds/9/gOEZd1YLNKX343tIIOoRoPOYkVnDg
+         ReMuPwnV9fMJN523cQiEBX9YjRcbz04MS8RxHIQg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tom Rix <trix@redhat.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.4 064/135] selinux: fix double free
-Date:   Mon, 29 Jun 2020 11:51:58 -0400
-Message-Id: <20200629155309.2495516-65-sashal@kernel.org>
+Cc:     Jeffle Xu <jefflexu@linux.alibaba.com>,
+        Eric Whitney <enwlinux@gmail.com>, stable@kernel.org,
+        Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 065/135] ext4: fix partial cluster initialization when splitting extent
+Date:   Mon, 29 Jun 2020 11:51:59 -0400
+Message-Id: <20200629155309.2495516-66-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
 References: <20200629155309.2495516-1-sashal@kernel.org>
@@ -50,48 +49,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Jeffle Xu <jefflexu@linux.alibaba.com>
 
-commit 65de50969a77509452ae590e9449b70a22b923bb upstream.
+[ Upstream commit cfb3c85a600c6aa25a2581b3c1c4db3460f14e46 ]
 
-Clang's static analysis tool reports these double free memory errors.
+Fix the bug when calculating the physical block number of the first
+block in the split extent.
 
-security/selinux/ss/services.c:2987:4: warning: Attempt to free released memory [unix.Malloc]
-                        kfree(bnames[i]);
-                        ^~~~~~~~~~~~~~~~
-security/selinux/ss/services.c:2990:2: warning: Attempt to free released memory [unix.Malloc]
-        kfree(bvalues);
-        ^~~~~~~~~~~~~~
+This bug will cause xfstests shared/298 failure on ext4 with bigalloc
+enabled occasionally. Ext4 error messages indicate that previously freed
+blocks are being freed again, and the following fsck will fail due to
+the inconsistency of block bitmap and bg descriptor.
 
-So improve the security_get_bools error handling by freeing these variables
-and setting their return pointers to NULL and the return len to 0
+The following is an example case:
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Tom Rix <trix@redhat.com>
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+1. First, Initialize a ext4 filesystem with cluster size '16K', block size
+'4K', in which case, one cluster contains four blocks.
+
+2. Create one file (e.g., xxx.img) on this ext4 filesystem. Now the extent
+tree of this file is like:
+
+...
+36864:[0]4:220160
+36868:[0]14332:145408
+51200:[0]2:231424
+...
+
+3. Then execute PUNCH_HOLE fallocate on this file. The hole range is
+like:
+
+..
+ext4_ext_remove_space: dev 254,16 ino 12 since 49506 end 49506 depth 1
+ext4_ext_remove_space: dev 254,16 ino 12 since 49544 end 49546 depth 1
+ext4_ext_remove_space: dev 254,16 ino 12 since 49605 end 49607 depth 1
+...
+
+4. Then the extent tree of this file after punching is like
+
+...
+49507:[0]37:158047
+49547:[0]58:158087
+...
+
+5. Detailed procedure of punching hole [49544, 49546]
+
+5.1. The block address space:
+```
+lblk        ~49505  49506   49507~49543     49544~49546    49547~
+	  ---------+------+-------------+----------------+--------
+	    extent | hole |   extent	|	hole	 | extent
+	  ---------+------+-------------+----------------+--------
+pblk       ~158045  158046  158047~158083  158084~158086   158087~
+```
+
+5.2. The detailed layout of cluster 39521:
+```
+		cluster 39521
+	<------------------------------->
+
+		hole		  extent
+	<----------------------><--------
+
+lblk      49544   49545   49546   49547
+	+-------+-------+-------+-------+
+	|	|	|	|	|
+	+-------+-------+-------+-------+
+pblk     158084  1580845  158086  158087
+```
+
+5.3. The ftrace output when punching hole [49544, 49546]:
+- ext4_ext_remove_space (start 49544, end 49546)
+  - ext4_ext_rm_leaf (start 49544, end 49546, last_extent [49507(158047), 40], partial [pclu 39522 lblk 0 state 2])
+    - ext4_remove_blocks (extent [49507(158047), 40], from 49544 to 49546, partial [pclu 39522 lblk 0 state 2]
+      - ext4_free_blocks: (block 158084 count 4)
+        - ext4_mballoc_free (extent 1/6753/1)
+
+5.4. Ext4 error message in dmesg:
+EXT4-fs error (device vdb): mb_free_blocks:1457: group 1, block 158084:freeing already freed block (bit 6753); block bitmap corrupt.
+EXT4-fs error (device vdb): ext4_mb_generate_buddy:747: group 1, block bitmap and bg descriptor inconsistent: 19550 vs 19551 free clusters
+
+In this case, the whole cluster 39521 is freed mistakenly when freeing
+pblock 158084~158086 (i.e., the first three blocks of this cluster),
+although pblock 158087 (the last remaining block of this cluster) has
+not been freed yet.
+
+The root cause of this isuue is that, the pclu of the partial cluster is
+calculated mistakenly in ext4_ext_remove_space(). The correct
+partial_cluster.pclu (i.e., the cluster number of the first block in the
+next extent, that is, lblock 49597 (pblock 158086)) should be 39521 rather
+than 39522.
+
+Fixes: f4226d9ea400 ("ext4: fix partial cluster initialization")
+Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
+Reviewed-by: Eric Whitney <enwlinux@gmail.com>
+Cc: stable@kernel.org # v3.19+
+Link: https://lore.kernel.org/r/1590121124-37096-1-git-send-email-jefflexu@linux.alibaba.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/selinux/ss/services.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ fs/ext4/extents.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 0a258c0602d13..55c869e0a3a08 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -2622,8 +2622,12 @@ int security_get_bools(int *len, char ***names, int **values)
- 	if (*names) {
- 		for (i = 0; i < *len; i++)
- 			kfree((*names)[i]);
-+		kfree(*names);
- 	}
- 	kfree(*values);
-+	*len = 0;
-+	*names = NULL;
-+	*values = NULL;
- 	goto out;
- }
- 
+diff --git a/fs/ext4/extents.c b/fs/ext4/extents.c
+index 96336830f0350..fc2746e14c42a 100644
+--- a/fs/ext4/extents.c
++++ b/fs/ext4/extents.c
+@@ -2902,7 +2902,7 @@ int ext4_ext_remove_space(struct inode *inode, ext4_lblk_t start,
+ 			 * in use to avoid freeing it when removing blocks.
+ 			 */
+ 			if (sbi->s_cluster_ratio > 1) {
+-				pblk = ext4_ext_pblock(ex) + end - ee_block + 2;
++				pblk = ext4_ext_pblock(ex) + end - ee_block + 1;
+ 				partial_cluster =
+ 					-(long long) EXT4_B2C(sbi, pblk);
+ 			}
 -- 
 2.25.1
 
