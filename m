@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61D5B20DF3E
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:54:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7CD620DF46
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:54:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732568AbgF2Udh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:33:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37020 "EHLO mail.kernel.org"
+        id S2388957AbgF2Udy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:33:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732287AbgF2TZQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1732293AbgF2TZQ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 29 Jun 2020 15:25:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 99374253E6;
-        Mon, 29 Jun 2020 15:42:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F193253E4;
+        Mon, 29 Jun 2020 15:42:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445321;
-        bh=OrBffg6MOPJ0XQvccgzc1W1J1qM2pJOx0+JhQ9alzSo=;
+        s=default; t=1593445323;
+        bh=0TIgXh0UJBp6NZVUlhYfT7EIO63h8jLGw0n+lEZnSD8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=InCLuMkSWZfvrcn0ON+B7NyMP/ULDW/lujMDtXCt6SdFpLm3BCgJEmMoyeJmEancq
-         rl3Wc44eRVRq+lmA53GtgfD0c5gN/ZEmZq5B1c8NP2yhUKO3CM/Hpj7VrGybFici6d
-         QdCDEyohiSUnLuZ8E0MQsUQjwbOETleTVTjOGPzA=
+        b=ENbNF3ZVOXFhPnNTN5KKHqP7j3bc/USJxzSGJztKMaJ1vYwJWHMStFgheP1ftPq7R
+         VF+qJ7PshSfHODGDX5774jF10xscracrdc6xF7XbavyA5/gaPle2D9Kob9K4sowYMu
+         YywiP6kIQTW5TAshg2TMeVBPiRlEet63Vp/H1ils=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Ahmed S. Darwish" <a.darwish@linutronix.de>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 088/191] block: nr_sects_write(): Disable preemption on seqcount write
-Date:   Mon, 29 Jun 2020 11:38:24 -0400
-Message-Id: <20200629154007.2495120-89-sashal@kernel.org>
+Cc:     "Dmitry V. Levin" <ldv@altlinux.org>,
+        Elvira Khabirova <lineprinter@altlinux.org>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 4.9 089/191] s390: fix syscall_get_error for compat processes
+Date:   Mon, 29 Jun 2020 11:38:25 -0400
+Message-Id: <20200629154007.2495120-90-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
 References: <20200629154007.2495120-1-sashal@kernel.org>
@@ -49,46 +51,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Ahmed S. Darwish" <a.darwish@linutronix.de>
+From: "Dmitry V. Levin" <ldv@altlinux.org>
 
-[ Upstream commit 15b81ce5abdc4b502aa31dff2d415b79d2349d2f ]
+commit b3583fca5fb654af2cfc1c08259abb9728272538 upstream.
 
-For optimized block readers not holding a mutex, the "number of sectors"
-64-bit value is protected from tearing on 32-bit architectures by a
-sequence counter.
+If both the tracer and the tracee are compat processes, and gprs[2]
+is assigned a value by __poke_user_compat, then the higher 32 bits
+of gprs[2] are cleared, IS_ERR_VALUE() always returns false, and
+syscall_get_error() always returns 0.
 
-Disable preemption before entering that sequence counter's write side
-critical section. Otherwise, the read side can preempt the write side
-section and spin for the entire scheduler tick. If the reader belongs to
-a real-time scheduling class, it can spin forever and the kernel will
-livelock.
+Fix the implementation by sign-extending the value for compat processes
+the same way as x86 implementation does.
 
-Fixes: c83f6bf98dc1 ("block: add partition resize function to blkpg ioctl")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Ahmed S. Darwish <a.darwish@linutronix.de>
-Reviewed-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The bug was exposed to user space by commit 201766a20e30f ("ptrace: add
+PTRACE_GET_SYSCALL_INFO request") and detected by strace test suite.
+
+This change fixes strace syscall tampering on s390.
+
+Link: https://lkml.kernel.org/r/20200602180051.GA2427@altlinux.org
+Fixes: 753c4dd6a2fa2 ("[S390] ptrace changes")
+Cc: Elvira Khabirova <lineprinter@altlinux.org>
+Cc: stable@vger.kernel.org # v2.6.28+
+Signed-off-by: Dmitry V. Levin <ldv@altlinux.org>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/genhd.h | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/s390/include/asm/syscall.h | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/genhd.h b/include/linux/genhd.h
-index 3c99fb6727cac..12a2f5ac51c97 100644
---- a/include/linux/genhd.h
-+++ b/include/linux/genhd.h
-@@ -716,9 +716,11 @@ static inline sector_t part_nr_sects_read(struct hd_struct *part)
- static inline void part_nr_sects_write(struct hd_struct *part, sector_t size)
+diff --git a/arch/s390/include/asm/syscall.h b/arch/s390/include/asm/syscall.h
+index 6bc941be69217..166fbd74e316c 100644
+--- a/arch/s390/include/asm/syscall.h
++++ b/arch/s390/include/asm/syscall.h
+@@ -41,7 +41,17 @@ static inline void syscall_rollback(struct task_struct *task,
+ static inline long syscall_get_error(struct task_struct *task,
+ 				     struct pt_regs *regs)
  {
- #if BITS_PER_LONG==32 && defined(CONFIG_LBDAF) && defined(CONFIG_SMP)
-+	preempt_disable();
- 	write_seqcount_begin(&part->nr_sects_seq);
- 	part->nr_sects = size;
- 	write_seqcount_end(&part->nr_sects_seq);
-+	preempt_enable();
- #elif BITS_PER_LONG==32 && defined(CONFIG_LBDAF) && defined(CONFIG_PREEMPT)
- 	preempt_disable();
- 	part->nr_sects = size;
+-	return IS_ERR_VALUE(regs->gprs[2]) ? regs->gprs[2] : 0;
++	unsigned long error = regs->gprs[2];
++#ifdef CONFIG_COMPAT
++	if (test_tsk_thread_flag(task, TIF_31BIT)) {
++		/*
++		 * Sign-extend the value so (int)-EFOO becomes (long)-EFOO
++		 * and will match correctly in comparisons.
++		 */
++		error = (long)(int)error;
++	}
++#endif
++	return IS_ERR_VALUE(error) ? error : 0;
+ }
+ 
+ static inline long syscall_get_return_value(struct task_struct *task,
 -- 
 2.25.1
 
