@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4432320DF35
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:54:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1581A20DDB1
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 23:51:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389248AbgF2UdK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 16:33:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37014 "EHLO mail.kernel.org"
+        id S1730664AbgF2USP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 16:18:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732395AbgF2TZR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:25:17 -0400
+        id S1732643AbgF2TZl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:25:41 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F06E25432;
-        Mon, 29 Jun 2020 15:43:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AEDFA25433;
+        Mon, 29 Jun 2020 15:43:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593445383;
-        bh=ektUYiX3ebqRBZHo+FC56D327kyXAEqCp9K7SydggQI=;
+        s=default; t=1593445384;
+        bh=qCZoqYSe8toqmTwpU/7R4nE3J3AyzDYI0LJfEu0k/jY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gDM8C+vFXasB4jx7tSwbMFurp0Dxv/ebj1FM0Q4UzteTwTEEf+WSQIeDvgkYJfOZH
-         x4gtBu39iWLcIJNA27joO+2qdDiuVlepLac+hp4K4mEE80T543Y1T9zOGVZMDSpSNv
-         OWsxeH9GHj4PGppWLFLJUnSVn7Eq7i+r8N1Yshyk=
+        b=eUKM/ht3iufpi0aCecesrU3UHLuGe6xp25GdQGqJKKVHCpb7uhcX5zNRRVsEXhxwr
+         BKlvKJ9oUsLhUkquIlm/OkoamftM0S2FBHnZSO/MueBKPrXmNL7OTUtnTR/WS6NF99
+         iWSGy+l6U+WnOQh1q+nzOLmgZbJ1foCXBfkem/ow=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Christensen <drc@linux.vnet.ibm.com>,
-        Michael Chan <michael.chan@broadcom.com>,
+Cc:     Taehee Yoo <ap420073@gmail.com>,
+        Eric Dumazet <eric.dumazet@gmail.com>,
         "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.9 137/191] tg3: driver sleeps indefinitely when EEH errors exceed eeh_max_freezes
-Date:   Mon, 29 Jun 2020 11:39:13 -0400
-Message-Id: <20200629154007.2495120-138-sashal@kernel.org>
+Subject: [PATCH 4.9 138/191] ip_tunnel: fix use-after-free in ip_tunnel_lookup()
+Date:   Mon, 29 Jun 2020 11:39:14 -0400
+Message-Id: <20200629154007.2495120-139-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629154007.2495120-1-sashal@kernel.org>
 References: <20200629154007.2495120-1-sashal@kernel.org>
@@ -50,40 +50,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Christensen <drc@linux.vnet.ibm.com>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit 3a2656a211caf35e56afc9425e6e518fa52f7fbc ]
+[ Upstream commit ba61539c6ae57f4146284a5cb4f7b7ed8d42bf45 ]
 
-The driver function tg3_io_error_detected() calls napi_disable twice,
-without an intervening napi_enable, when the number of EEH errors exceeds
-eeh_max_freezes, resulting in an indefinite sleep while holding rtnl_lock.
+In the datapath, the ip_tunnel_lookup() is used and it internally uses
+fallback tunnel device pointer, which is fb_tunnel_dev.
+This pointer variable should be set to NULL when a fb interface is deleted.
+But there is no routine to set fb_tunnel_dev pointer to NULL.
+So, this pointer will be still used after interface is deleted and
+it eventually results in the use-after-free problem.
 
-Add check for pcierr_recovery which skips code already executed for the
-"Frozen" state.
+Test commands:
+    ip netns add A
+    ip netns add B
+    ip link add eth0 type veth peer name eth1
+    ip link set eth0 netns A
+    ip link set eth1 netns B
 
-Signed-off-by: David Christensen <drc@linux.vnet.ibm.com>
-Reviewed-by: Michael Chan <michael.chan@broadcom.com>
+    ip netns exec A ip link set lo up
+    ip netns exec A ip link set eth0 up
+    ip netns exec A ip link add gre1 type gre local 10.0.0.1 \
+	    remote 10.0.0.2
+    ip netns exec A ip link set gre1 up
+    ip netns exec A ip a a 10.0.100.1/24 dev gre1
+    ip netns exec A ip a a 10.0.0.1/24 dev eth0
+
+    ip netns exec B ip link set lo up
+    ip netns exec B ip link set eth1 up
+    ip netns exec B ip link add gre1 type gre local 10.0.0.2 \
+	    remote 10.0.0.1
+    ip netns exec B ip link set gre1 up
+    ip netns exec B ip a a 10.0.100.2/24 dev gre1
+    ip netns exec B ip a a 10.0.0.2/24 dev eth1
+    ip netns exec A hping3 10.0.100.2 -2 --flood -d 60000 &
+    ip netns del B
+
+Splat looks like:
+[   77.793450][    C3] ==================================================================
+[   77.794702][    C3] BUG: KASAN: use-after-free in ip_tunnel_lookup+0xcc4/0xf30
+[   77.795573][    C3] Read of size 4 at addr ffff888060bd9c84 by task hping3/2905
+[   77.796398][    C3]
+[   77.796664][    C3] CPU: 3 PID: 2905 Comm: hping3 Not tainted 5.8.0-rc1+ #616
+[   77.797474][    C3] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
+[   77.798453][    C3] Call Trace:
+[   77.798815][    C3]  <IRQ>
+[   77.799142][    C3]  dump_stack+0x9d/0xdb
+[   77.799605][    C3]  print_address_description.constprop.7+0x2cc/0x450
+[   77.800365][    C3]  ? ip_tunnel_lookup+0xcc4/0xf30
+[   77.800908][    C3]  ? ip_tunnel_lookup+0xcc4/0xf30
+[   77.801517][    C3]  ? ip_tunnel_lookup+0xcc4/0xf30
+[   77.802145][    C3]  kasan_report+0x154/0x190
+[   77.802821][    C3]  ? ip_tunnel_lookup+0xcc4/0xf30
+[   77.803503][    C3]  ip_tunnel_lookup+0xcc4/0xf30
+[   77.804165][    C3]  __ipgre_rcv+0x1ab/0xaa0 [ip_gre]
+[   77.804862][    C3]  ? rcu_read_lock_sched_held+0xc0/0xc0
+[   77.805621][    C3]  gre_rcv+0x304/0x1910 [ip_gre]
+[   77.806293][    C3]  ? lock_acquire+0x1a9/0x870
+[   77.806925][    C3]  ? gre_rcv+0xfe/0x354 [gre]
+[   77.807559][    C3]  ? erspan_xmit+0x2e60/0x2e60 [ip_gre]
+[   77.808305][    C3]  ? rcu_read_lock_sched_held+0xc0/0xc0
+[   77.809032][    C3]  ? rcu_read_lock_held+0x90/0xa0
+[   77.809713][    C3]  gre_rcv+0x1b8/0x354 [gre]
+[ ... ]
+
+Suggested-by: Eric Dumazet <eric.dumazet@gmail.com>
+Fixes: c54419321455 ("GRE: Refactor GRE tunneling code.")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/tg3.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/ipv4/ip_tunnel.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/tg3.c b/drivers/net/ethernet/broadcom/tg3.c
-index c069a04a6e7e2..5790b35064a8d 100644
---- a/drivers/net/ethernet/broadcom/tg3.c
-+++ b/drivers/net/ethernet/broadcom/tg3.c
-@@ -18174,8 +18174,8 @@ static pci_ers_result_t tg3_io_error_detected(struct pci_dev *pdev,
+diff --git a/net/ipv4/ip_tunnel.c b/net/ipv4/ip_tunnel.c
+index dd5db4cc7d066..5f2e3334cccec 100644
+--- a/net/ipv4/ip_tunnel.c
++++ b/net/ipv4/ip_tunnel.c
+@@ -98,9 +98,10 @@ struct ip_tunnel *ip_tunnel_lookup(struct ip_tunnel_net *itn,
+ 				   __be32 remote, __be32 local,
+ 				   __be32 key)
+ {
+-	unsigned int hash;
+ 	struct ip_tunnel *t, *cand = NULL;
+ 	struct hlist_head *head;
++	struct net_device *ndev;
++	unsigned int hash;
  
- 	rtnl_lock();
+ 	hash = ip_tunnel_hash(key, remote);
+ 	head = &itn->tunnels[hash];
+@@ -175,8 +176,9 @@ struct ip_tunnel *ip_tunnel_lookup(struct ip_tunnel_net *itn,
+ 	if (t)
+ 		return t;
  
--	/* We probably don't have netdev yet */
--	if (!netdev || !netif_running(netdev))
-+	/* Could be second call or maybe we don't have netdev yet */
-+	if (!netdev || tp->pcierr_recovery || !netif_running(netdev))
- 		goto done;
+-	if (itn->fb_tunnel_dev && itn->fb_tunnel_dev->flags & IFF_UP)
+-		return netdev_priv(itn->fb_tunnel_dev);
++	ndev = READ_ONCE(itn->fb_tunnel_dev);
++	if (ndev && ndev->flags & IFF_UP)
++		return netdev_priv(ndev);
  
- 	/* We needn't recover from permanent error */
+ 	return NULL;
+ }
+@@ -1193,9 +1195,9 @@ void ip_tunnel_uninit(struct net_device *dev)
+ 	struct ip_tunnel_net *itn;
+ 
+ 	itn = net_generic(net, tunnel->ip_tnl_net_id);
+-	/* fb_tunnel_dev will be unregisted in net-exit call. */
+-	if (itn->fb_tunnel_dev != dev)
+-		ip_tunnel_del(itn, netdev_priv(dev));
++	ip_tunnel_del(itn, netdev_priv(dev));
++	if (itn->fb_tunnel_dev == dev)
++		WRITE_ONCE(itn->fb_tunnel_dev, NULL);
+ 
+ 	dst_cache_reset(&tunnel->dst_cache);
+ }
 -- 
 2.25.1
 
