@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1D2920D320
-	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 21:11:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5888620D335
+	for <lists+stable@lfdr.de>; Mon, 29 Jun 2020 21:12:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730020AbgF2Sz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 29 Jun 2020 14:55:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42430 "EHLO mail.kernel.org"
+        id S1726907AbgF2S4r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 29 Jun 2020 14:56:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729976AbgF2SzR (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729344AbgF2SzR (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 29 Jun 2020 14:55:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 81EB9248C3;
-        Mon, 29 Jun 2020 15:55:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4439125560;
+        Mon, 29 Jun 2020 15:55:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593446118;
-        bh=Q5bwQkRY743XCiSdqiliDAuIeq9xfC1buCDIUfDYiWM=;
+        s=default; t=1593446123;
+        bh=tzLUPNuFjhni840cOZi9CFA58r7CpGWMWGFnbgO4BHs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DIKmiur++nZSLsFAii6bsXkAqAcyeTBnZrzfuDyia9vQJWcmS+topKE5HvYEaXI3G
-         rYnOJuPBPSqu6dXtlSeRR2CrCfvroEq5F6uGBWNBHvU1aEW5Sv4A7g5xK6hEhxShp6
-         mbvAcyRZRCxIP9OooKXNybyurEywK/Y67vIG4p/g=
+        b=BLprKUfTxO7jGtTMcHMFbMJiGNU4gKoLH+klYaCER4DQ38s/Qr0aOL7gMm2vtDvRq
+         yMLpF/+GYshiG0uh7efkCGpJg7uMNRDMsfdE4kVKbnQa2S41/dEWSpppYw7sqsCA3U
+         TRACEzS4iPV9e0xrwDw1XU5w+JWZTEIv7Ent+Zyk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Pavel Shilovsky <pshilov@microsoft.com>,
-        Steve French <stfrench@microsoft.com>,
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 109/135] cifs/smb3: Fix data inconsistent when punch hole
-Date:   Mon, 29 Jun 2020 11:52:43 -0400
-Message-Id: <20200629155309.2495516-110-sashal@kernel.org>
+Subject: [PATCH 4.4 114/135] usb: gadget: udc: Potential Oops in error handling code
+Date:   Mon, 29 Jun 2020 11:52:48 -0400
+Message-Id: <20200629155309.2495516-115-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
 References: <20200629155309.2495516-1-sashal@kernel.org>
@@ -50,55 +49,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit acc91c2d8de4ef46ed751c5f9df99ed9a109b100 ]
+[ Upstream commit e55f3c37cb8d31c7e301f46396b2ac6a19eb3a7c ]
 
-When punch hole success, we also can read old data from file:
-  # strace -e trace=pread64,fallocate xfs_io -f -c "pread 20 40" \
-           -c "fpunch 20 40" -c"pread 20 40" file
-  pread64(3, " version 5.8.0-rc1+"..., 40, 20) = 40
-  fallocate(3, FALLOC_FL_KEEP_SIZE|FALLOC_FL_PUNCH_HOLE, 20, 40) = 0
-  pread64(3, " version 5.8.0-rc1+"..., 40, 20) = 40
+If this is in "transceiver" mode the the ->qwork isn't required and is
+a NULL pointer.  This can lead to a NULL dereference when we call
+destroy_workqueue(udc->qwork).
 
-CIFS implements the fallocate(FALLOCATE_FL_PUNCH_HOLE) with send SMB
-ioctl(FSCTL_SET_ZERO_DATA) to server. It just set the range of the
-remote file to zero, but local page caches not updated, then the
-local page caches inconsistent with server.
-
-Also can be found by xfstests generic/316.
-
-So, we need to remove the page caches before send the SMB
-ioctl(FSCTL_SET_ZERO_DATA) to server.
-
-Fixes: 31742c5a33176 ("enable fallocate punch hole ("fallocate -p") for SMB3")
-Suggested-by: Pavel Shilovsky <pshilov@microsoft.com>
-Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Cc: stable@vger.kernel.org # v3.17
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Fixes: 3517c31a8ece ("usb: gadget: mv_udc: use devm_xxx for probe")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2ops.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/usb/gadget/udc/mv_udc_core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
-index 0fcf42401a5df..870b7e763bab9 100644
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -1201,6 +1201,12 @@ static long smb3_punch_hole(struct file *file, struct cifs_tcon *tcon,
- 	if (!smb2_set_sparse(xid, tcon, cfile, inode, set_sparse))
- 		return -EOPNOTSUPP;
+diff --git a/drivers/usb/gadget/udc/mv_udc_core.c b/drivers/usb/gadget/udc/mv_udc_core.c
+index 81b6229c78054..4f480059f851c 100644
+--- a/drivers/usb/gadget/udc/mv_udc_core.c
++++ b/drivers/usb/gadget/udc/mv_udc_core.c
+@@ -2322,7 +2322,8 @@ static int mv_udc_probe(struct platform_device *pdev)
+ 	return 0;
  
-+	/*
-+	 * We implement the punch hole through ioctl, so we need remove the page
-+	 * caches first, otherwise the data may be inconsistent with the server.
-+	 */
-+	truncate_pagecache_range(inode, offset, offset + len - 1);
-+
- 	cifs_dbg(FYI, "offset %lld len %lld", offset, len);
- 
- 	fsctl_buf.FileOffset = cpu_to_le64(offset);
+ err_create_workqueue:
+-	destroy_workqueue(udc->qwork);
++	if (udc->qwork)
++		destroy_workqueue(udc->qwork);
+ err_destroy_dma:
+ 	dma_pool_destroy(udc->dtd_pool);
+ err_free_dma:
 -- 
 2.25.1
 
