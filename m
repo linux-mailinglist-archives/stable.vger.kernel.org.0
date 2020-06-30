@@ -2,78 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DA4020F36A
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 13:10:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3147520F3A3
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 13:35:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732877AbgF3LKL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Jun 2020 07:10:11 -0400
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:30674 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1732872AbgF3LKK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Jun 2020 07:10:10 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1593515409;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=msnFaJYZDu81wFuqZFTp1ZOR5QC4oyv6dPxquziRN8w=;
-        b=HytoAQ3l5t4/mzUdrDO+1cm6r5p4j9FTs+iOJXMGAtfWT7bvzmhuGh8N5rxbmjSU3jE+mT
-        qO1fuvk8/H7yjzVvex5h6Jkk1rLPAzpm02tar+MXSeaVXG/D5AoS7AxJKZxBqMYCxn0RZg
-        SQAeR0W0uvLd9C9tVh9/WaOVioOUIDI=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-378-VBh_BiGdOGuDy8VESVo1Dw-1; Tue, 30 Jun 2020 07:10:07 -0400
-X-MC-Unique: VBh_BiGdOGuDy8VESVo1Dw-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1731407AbgF3Lfs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Jun 2020 07:35:48 -0400
+Received: from asavdk4.altibox.net ([109.247.116.15]:42248 "EHLO
+        asavdk4.altibox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727108AbgF3Lfr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Jun 2020 07:35:47 -0400
+Received: from ravnborg.org (unknown [188.228.123.71])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9B4C28015F4;
-        Tue, 30 Jun 2020 11:10:06 +0000 (UTC)
-Received: from virtlab511.virt.lab.eng.bos.redhat.com (virtlab511.virt.lab.eng.bos.redhat.com [10.19.152.198])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 171861001901;
-        Tue, 30 Jun 2020 11:10:06 +0000 (UTC)
-From:   Paolo Bonzini <pbonzini@redhat.com>
-To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc:     stable@vger.kernel.org, Nadav Amit <namit@vmware.com>
-Subject: [PATCH] KVM: x86: bit 8 of non-leaf PDPEs is not reserved
-Date:   Tue, 30 Jun 2020 07:10:05 -0400
-Message-Id: <20200630111005.457029-1-pbonzini@redhat.com>
+        by asavdk4.altibox.net (Postfix) with ESMTPS id BFD1E8053C;
+        Tue, 30 Jun 2020 13:35:43 +0200 (CEST)
+Date:   Tue, 30 Jun 2020 13:35:42 +0200
+From:   Sam Ravnborg <sam@ravnborg.org>
+To:     Paul Cercueil <paul@crapouillou.net>
+Cc:     David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>,
+        Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
+        linux-mips@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org, od@zcrc.me, stable@vger.kernel.org
+Subject: Re: [PATCH v2 05/10] drm/ingenic: Fix incorrect assumption about
+ plane->index
+Message-ID: <20200630113542.GA560155@ravnborg.org>
+References: <20200629235210.441709-1-paul@crapouillou.net>
+ <20200629235210.441709-5-paul@crapouillou.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200629235210.441709-5-paul@crapouillou.net>
+X-CMAE-Score: 0
+X-CMAE-Analysis: v=2.3 cv=aP3eV41m c=1 sm=1 tr=0
+        a=S6zTFyMACwkrwXSdXUNehg==:117 a=S6zTFyMACwkrwXSdXUNehg==:17
+        a=kj9zAlcOel0A:10 a=VwQbUJbxAAAA:8 a=ER_8r6IbAAAA:8 a=7gkXJVJtAAAA:8
+        a=e5mUnYsNAAAA:8 a=h8Z_pZuLarzTNQul7jAA:9 a=CjuIK1q_8ugA:10
+        a=AjGcO6oz07-iQ99wixmX:22 a=9LHmKk7ezEChjTCyhBa9:22
+        a=E9Po1WZjFZOl8hwRPBS3:22 a=Vxmtnl_E_bksehYqCbjh:22
+        a=pHzHmUro8NiASowvMSCR:22 a=nt3jZW36AmriUCFCBwmW:22
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Bit 8 would be the "global" bit, which does not quite make sense for non-leaf
-page table entries.  Intel ignores it; AMD ignores it in PDEs and PDPEs, but
-reserves it in PML4Es.
+On Tue, Jun 30, 2020 at 01:52:05AM +0200, Paul Cercueil wrote:
+> plane->index is NOT the index of the color plane in a YUV frame.
+> Actually, a YUV frame is represented by a single drm_plane, even though
+> it contains three Y, U, V planes.
+> 
+> Cc: stable@vger.kernel.org # v5.3
+> Fixes: 90b86fcc47b4 ("DRM: Add KMS driver for the Ingenic JZ47xx SoCs")
+> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 
-Probably, earlier versions of the AMD manual documented it as reserved in PDPEs
-as well, and that behavior made it into KVM as well as kvm-unit-tests; fix it.
+Look correct to me.
 
-Cc: stable@vger.kernel.org
-Reported-by: Nadav Amit <namit@vmware.com>
-Fixes: a0c0feb57992 ("KVM: x86: reserve bit 8 of non-leaf PDPEs and PML4Es in 64-bit mode on AMD", 2014-09-03)
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
----
- arch/x86/kvm/mmu/mmu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
+As this is tagged fixes: I assume this is for drm-misc-fixes and
+not for drm-misc-next.
+If you resend could you move it as patch 1/10 so this is more obvious.
 
-diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
-index 76817d13c86e..6d6a0ae7800c 100644
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -4449,7 +4449,7 @@ __reset_rsvds_bits_mask(struct kvm_vcpu *vcpu,
- 			nonleaf_bit8_rsvd | rsvd_bits(7, 7) |
- 			rsvd_bits(maxphyaddr, 51);
- 		rsvd_check->rsvd_bits_mask[0][2] = exb_bit_rsvd |
--			nonleaf_bit8_rsvd | gbpages_bit_rsvd |
-+			gbpages_bit_rsvd |
- 			rsvd_bits(maxphyaddr, 51);
- 		rsvd_check->rsvd_bits_mask[0][1] = exb_bit_rsvd |
- 			rsvd_bits(maxphyaddr, 51);
--- 
-2.26.2
-
+	Sam
+> ---
+> 
+> Notes:
+>     v2: No change
+> 
+>  drivers/gpu/drm/ingenic/ingenic-drm-drv.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
+> index a15f9a1940c6..924c8daf071a 100644
+> --- a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
+> +++ b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
+> @@ -386,7 +386,7 @@ static void ingenic_drm_plane_atomic_update(struct drm_plane *plane,
+>  		addr = drm_fb_cma_get_gem_addr(state->fb, state, 0);
+>  		width = state->src_w >> 16;
+>  		height = state->src_h >> 16;
+> -		cpp = state->fb->format->cpp[plane->index];
+> +		cpp = state->fb->format->cpp[0];
+>  
+>  		priv->dma_hwdesc->addr = addr;
+>  		priv->dma_hwdesc->cmd = width * height * cpp / 4;
+> -- 
+> 2.27.0
+> 
+> _______________________________________________
+> dri-devel mailing list
+> dri-devel@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/dri-devel
