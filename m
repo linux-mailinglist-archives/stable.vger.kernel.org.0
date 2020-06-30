@@ -2,115 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17E1C20F259
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 12:11:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECC1620F331
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 12:55:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732329AbgF3KLx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Jun 2020 06:11:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42124 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730237AbgF3KLx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Jun 2020 06:11:53 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A98D4C061755;
-        Tue, 30 Jun 2020 03:11:52 -0700 (PDT)
-Date:   Tue, 30 Jun 2020 10:11:49 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1593511910;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-        bh=x9Kx/vy/1w4IrADsqyxp3ADoc04m1/GxSgLtI8leJRo=;
-        b=yqm00unww/tf7emFMmRYcQoP6G3pW/OPW7pAHNa9NzGrPtYx7NQtA4KhxQbH6Pdmw/LAoK
-        L53w72+fbN511Uepel2XoECfdNQy509NqY6vjV0A9Hrr27LBEc+Ma++/42zuYmBWM2J1CG
-        9ThWcKC2ib2qgMScwT2yeV4gO67nK7vj1JkU7g8ffjXjqA8rviX8yCNZKU3GoDkDTmeehD
-        EtLIy9MP8BFXhQ8hNJM07Qp+MrBclgxi0lm8P5b2Y7BKO7Wunvm/lFcrTR4YGpqcidCEs3
-        4NaCVnJw6/S/JX7shRF/YuSSrXpc2LM1m8421SnAAU4AuJ/2KrVN0KTisKtIcw==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1593511910;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-        bh=x9Kx/vy/1w4IrADsqyxp3ADoc04m1/GxSgLtI8leJRo=;
-        b=056MC/Zex643vEKzRVSxcolTlGKjRDPUzzlCVSnhCXGPSX+RqYaye02aJcatO7OuSLnmRD
-        iwphyka5gwGV0kBw==
-From:   "tip-bot2 for Marc Zyngier" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: irq/urgent] irqchip/gic: Atomically update affinity
-Cc:     stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
+        id S1732713AbgF3Kzk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Jun 2020 06:55:40 -0400
+Received: from mail-oi1-f196.google.com ([209.85.167.196]:33728 "EHLO
+        mail-oi1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732697AbgF3Kzj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Jun 2020 06:55:39 -0400
+Received: by mail-oi1-f196.google.com with SMTP id k22so5710124oib.0;
+        Tue, 30 Jun 2020 03:55:36 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=hTbwPpfXI9xMDRsJXGGIpIBFM8wdp1+JDn7sklMEIMA=;
+        b=bMOQLUrrAjciG+YqTsVKynDdJEn+RLJ6NkWRn6vP/k/zSwLmRL3ICIfbYZZ6r0ZO3J
+         3+fRfm4+o9coIi1u5/z3OdMBHdkJQvnB9tyHfr29nIaAvY7lHxoOjr5wmuQwoRz+566u
+         Kk6MrNnIg0K365z77V54ox6cvIWShAmmVKeELW9OLgwtE2d9bGog4k4F87n3NHktkNxA
+         SaEptQghwTkTR+eJMvRuG+wXNpTAqs4U5vQksLmJ0l8uIaBzJ563ey1x41ATBzGwDrI6
+         QCG81h9gCTcCz+yv2HLwH8trcMWWP5mVHkw4X75uJqrc7qz7agI1Ff1FyYtxsjSpLS7v
+         pCHA==
+X-Gm-Message-State: AOAM531xusrdkSauo/j7kKR8p37I4BtdSAFialE3rICBL4CIRbE9sK9r
+        i7gSRoxtkv1zX0CUo7Fh3xSDFhzKQXiINDiYUSA=
+X-Google-Smtp-Source: ABdhPJyq1ZXnEfTbtsudUdaXDZrpsPo5g98IZqG6sv/5uEyV5HYApUjKZQyJd4BIkIqWp1JEVXC7zVOCno7knl/SaNo=
+X-Received: by 2002:aca:f58a:: with SMTP id t132mr9637240oih.68.1593514536147;
+ Tue, 30 Jun 2020 03:55:36 -0700 (PDT)
 MIME-Version: 1.0
-Message-ID: <159351190922.4006.6997590439954706407.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2.linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+References: <159312902033.1850128.1712559453279208264.stgit@dwillia2-desk3.amr.corp.intel.com>
+ <CAJZ5v0h8Eg5_FVxz0COLDMK8cy72xxDk_2nFnXDJNUY-MvdBEQ@mail.gmail.com>
+ <CAPcyv4jqShnZr1b0-upwWf8L3JjKtHox_pCuu229630rXGuLkg@mail.gmail.com>
+ <CAJZ5v0i=SkqtgcXzq0oYNEAuYA-FvBEG-bm6fyidzAsYSNcEdQ@mail.gmail.com> <CAPcyv4iTJcjbfeBHbOJEai4gZyD7m79AmqQrtdkEtEUOvXaYAA@mail.gmail.com>
+In-Reply-To: <CAPcyv4iTJcjbfeBHbOJEai4gZyD7m79AmqQrtdkEtEUOvXaYAA@mail.gmail.com>
+From:   "Rafael J. Wysocki" <rafael@kernel.org>
+Date:   Tue, 30 Jun 2020 12:55:24 +0200
+Message-ID: <CAJZ5v0g8indmC4N1+QRFPi1oHPmCr6AxmYVcfW+oCEsk=LwJEA@mail.gmail.com>
+Subject: Re: [PATCH 00/12] ACPI/NVDIMM: Runtime Firmware Activation
+To:     Dan Williams <dan.j.williams@intel.com>
+Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
+        "linux-nvdimm@lists.01.org" <linux-nvdimm@lists.01.org>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@intel.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Len Brown <len.brown@intel.com>, Len Brown <lenb@kernel.org>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Pavel Machek <pavel@ucw.cz>, Stable <stable@vger.kernel.org>,
+        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the irq/urgent branch of tip:
+On Tue, Jun 30, 2020 at 1:37 AM Dan Williams <dan.j.williams@intel.com> wrote:
+>
+> On Sun, Jun 28, 2020 at 10:23 AM Rafael J. Wysocki <rafael@kernel.org> wrote:
+> >
+> > On Fri, Jun 26, 2020 at 8:43 PM Dan Williams <dan.j.williams@intel.com> wrote:
+> > >
+> > > On Fri, Jun 26, 2020 at 7:22 AM Rafael J. Wysocki <rafael@kernel.org> wrote:
+> > > >
+> > > > On Fri, Jun 26, 2020 at 2:06 AM Dan Williams <dan.j.williams@intel.com> wrote:
+> > > > >
+> > > > > Quoting the documentation:
+> > > > >
+> > > > >     Some persistent memory devices run a firmware locally on the device /
+> > > > >     "DIMM" to perform tasks like media management, capacity provisioning,
+> > > > >     and health monitoring. The process of updating that firmware typically
+> > > > >     involves a reboot because it has implications for in-flight memory
+> > > > >     transactions. However, reboots are disruptive and at least the Intel
+> > > > >     persistent memory platform implementation, described by the Intel ACPI
+> > > > >     DSM specification [1], has added support for activating firmware at
+> > > > >     runtime.
+> > > > >
+> > > > >     [1]: https://docs.pmem.io/persistent-memory/
+> > > > >
+> > > > > The approach taken is to abstract the Intel platform specific mechanism
+> > > > > behind a libnvdimm-generic sysfs interface. The interface could support
+> > > > > runtime-firmware-activation on another architecture without need to
+> > > > > change userspace tooling.
+> > > > >
+> > > > > The ACPI NFIT implementation involves a set of device-specific-methods
+> > > > > (DSMs) to 'arm' individual devices for activation and bus-level
+> > > > > 'trigger' method to execute the activation. Informational / enumeration
+> > > > > methods are also provided at the bus and device level.
+> > > > >
+> > > > > One complicating aspect of the memory device firmware activation is that
+> > > > > the memory controller may need to be quiesced, no memory cycles, during
+> > > > > the activation. While the platform has mechanisms to support holding off
+> > > > > in-flight DMA during the activation, the device response to that delay
+> > > > > is potentially undefined. The platform may reject a runtime firmware
+> > > > > update if, for example a PCI-E device does not support its completion
+> > > > > timeout value being increased to meet the activation time. Outside of
+> > > > > device timeouts the quiesce period may also violate application
+> > > > > timeouts.
+> > > > >
+> > > > > Given the above device and application timeout considerations the
+> > > > > implementation defaults to hooking into the suspend path to trigger the
+> > > > > activation, i.e. that a suspend-resume cycle (at least up to the syscore
+> > > > > suspend point) is required.
+> > > >
+> > > > Well, that doesn't work if the suspend method for the system is set to
+> > > > suspend-to-idle (for example, via /sys/power/mem_sleep), because the
+> > > > syscore callbacks are not invoked in that case.
+> > > >
+> > > > Also you probably don't need the device power state toggling that
+> > > > happens during regular suspend/resume (you may not want it even for
+> > > > some devices).
+> > > >
+> > > > The hibernation freeze/thaw may be a better match and there is some
+> > > > test support in there already that may be kind of co-opted for your
+> > > > use case.
+> > >
+> > > Hmm, yes I guess freeze should be sufficient to quiesce most
+> > > device-DMA in the general case as applications will stop sending
+> > > requests.
+> >
+> > It is expected to be sufficient to quiesce all of them.
+> >
+> > If that is not the case, the integrity of the hibernation image cannot
+> > be guaranteed on the system in question.
+> >
+>
+> Ah, indeed, I was overlooking that property.
+>
+> > > I do expect some RDMA devices will happily keep on
+> > > transmitting, but that likely will need explicit mitigation. It also
+> > > appears the suspend callback for at least one RDMA device
+> > > mlx5_suspend() is rather violent as it appears to fully teardown the
+> > > device context, not just suspend operations.
+> > >
+> > > To be clear, what debug interface were you thinking I could glom onto
+> > > to just trigger firmware-activate at the end of the freeze phase?
+> >
+> > Functionally, the same as for suspend, but using the hibernation
+> > interface, so "echo platform > /sys/power/pm_test" followed by "echo
+> > disk > /sys/power/state".
+> >
+> > But it might be cleaner to introduce a special "hibernation mode", ie.
+> > is one more item in /sys/power/disk, that will trigger what you need
+> > (in analogy with "test_resume").
+>
+> I'll move the trigger to be after process freeze, but I'll keep it
+> tied to suspend-debug vs hibernate-debug. It appears the hibernate
+> debug path still goes through the exercise of allocating memory for
+> the hibernation image which is unnecessary if the goal is just to
+> 'freeze', 'activate', and 'thaw'.
 
-Commit-ID:     005c34ae4b44f085120d7f371121ec7ded677761
-Gitweb:        https://git.kernel.org/tip/005c34ae4b44f085120d7f371121ec7ded677761
-Author:        Marc Zyngier <maz@kernel.org>
-AuthorDate:    Sun, 21 Jun 2020 14:43:15 +01:00
-Committer:     Marc Zyngier <maz@kernel.org>
-CommitterDate: Sun, 21 Jun 2020 15:24:46 +01:00
+But you need the ->freeze and ->thaw callbacks to run which does not
+happen at the process freeze stage.
 
-irqchip/gic: Atomically update affinity
-
-The GIC driver uses a RMW sequence to update the affinity, and
-relies on the gic_lock_irqsave/gic_unlock_irqrestore sequences
-to update it atomically.
-
-But these sequences only expand into anything meaningful if
-the BL_SWITCHER option is selected, which almost never happens.
-
-It also turns out that using a RMW and locks is just as silly,
-as the GIC distributor supports byte accesses for the GICD_TARGETRn
-registers, which when used make the update atomic by definition.
-
-Drop the terminally broken code and replace it by a byte write.
-
-Fixes: 04c8b0f82c7d ("irqchip/gic: Make locking a BL_SWITCHER only feature")
-Cc: stable@vger.kernel.org
-Signed-off-by: Marc Zyngier <maz@kernel.org>
----
- drivers/irqchip/irq-gic.c | 14 +++-----------
- 1 file changed, 3 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/irqchip/irq-gic.c b/drivers/irqchip/irq-gic.c
-index 00de05a..c17fabd 100644
---- a/drivers/irqchip/irq-gic.c
-+++ b/drivers/irqchip/irq-gic.c
-@@ -329,10 +329,8 @@ static int gic_irq_set_vcpu_affinity(struct irq_data *d, void *vcpu)
- static int gic_set_affinity(struct irq_data *d, const struct cpumask *mask_val,
- 			    bool force)
- {
--	void __iomem *reg = gic_dist_base(d) + GIC_DIST_TARGET + (gic_irq(d) & ~3);
--	unsigned int cpu, shift = (gic_irq(d) % 4) * 8;
--	u32 val, mask, bit;
--	unsigned long flags;
-+	void __iomem *reg = gic_dist_base(d) + GIC_DIST_TARGET + gic_irq(d);
-+	unsigned int cpu;
- 
- 	if (!force)
- 		cpu = cpumask_any_and(mask_val, cpu_online_mask);
-@@ -342,13 +340,7 @@ static int gic_set_affinity(struct irq_data *d, const struct cpumask *mask_val,
- 	if (cpu >= NR_GIC_CPU_IF || cpu >= nr_cpu_ids)
- 		return -EINVAL;
- 
--	gic_lock_irqsave(flags);
--	mask = 0xff << shift;
--	bit = gic_cpu_map[cpu] << shift;
--	val = readl_relaxed(reg) & ~mask;
--	writel_relaxed(val | bit, reg);
--	gic_unlock_irqrestore(flags);
--
-+	writeb_relaxed(gic_cpu_map[cpu], reg);
- 	irq_data_update_effective_affinity(d, cpumask_of(cpu));
- 
- 	return IRQ_SET_MASK_OK_DONE;
+If you add a new hibernation mode dedicated to the NVDIMM firmware
+update, though, you can instrument the code to skip the memory
+allocation if this mode is selected.
