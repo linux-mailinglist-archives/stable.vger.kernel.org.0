@@ -2,74 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B97FB20F109
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 10:59:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3B3520F142
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 11:13:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731666AbgF3I7E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Jun 2020 04:59:04 -0400
-Received: from sonic307-56.consmr.mail.ne1.yahoo.com ([66.163.190.31]:34182
-        "EHLO sonic307-56.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731823AbgF3I7E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Jun 2020 04:59:04 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aol.com; s=a2048; t=1593507543; bh=ICTpPk6OHBtkNJL3JRqaYJle6OYp/MrdTJJRTueaLNk=; h=Date:From:Reply-To:Subject:References:From:Subject; b=NbKIj4LfNtVK1KDTBUVzqdRCdUsdMwPnrpKRG8J/d9X4BjGh0fDynlf5Bu5yVORSYkeLr8jhA2jS/5KB+h5GVeJ3tRVWGnyrU6OMjgSaEoiLcvw2KXQzPlBYNYH5bi0aZIHSUFKN3SJFQGNfsB+yQDpF9sA/NyEjH3jKVXrb+5s+Z8hw5pGjLbmdy5V0y4mBWLmyaMr0mTlf0lQ+gQM/HiYvrvbvAmrL7debGZuxTe5tYmx/pHIopBIE55er9RN20od75X27SlmEdgaI8Rzbmk+TcthcbpdWF7X7ADJmLyp6ob6xtpA84TG0F0VhNkn0jiSoQc4oT5lRGnoDIR8A+g==
-X-YMail-OSG: IzuJh3oVM1lwnjjcMldfefczGb2jhSl8JSf1VIbDKlOM1rqw04BdfWKQt2Q9aeU
- lFeUjWyymxoRcN8YnKNkuRV9NfMpla4rHMB0DgVkur8mW_gDCuQQiDWpsYE7I3npyuVOmHW8WbMz
- e0_UjP3JY0u0vRwgCDrDeuZhLjIMo20a6T4iXzNrPDFseu5XnmuGEm96D8VDA9nM0W4fPdwKkC9U
- LR1_zIYOSmXZn6zIg9WRwSxA2OWnWgdAYB5R5BuaIunxYzoHM4MMyzSmSbpcC8JItdTgvJikueC0
- L04X43ORudmzYhfbHaVV8v42PnqtbHMYK.fIjCor3wNwnJR4zMtCG5wIrG3Iu4q0yFX0N9lfhdhE
- lJb2LDojYqDT6QJXemiRETQPHNHA5BC9BsSyWfR0EGkLK7DMKI9nOvWGY3Vh4SnNsfWLXnZTen4p
- FJtRtDIVninooXleci6ciP80AENNvfxXBiqejpKCvjDW8N0HHjcAKVPo2W_4SLGzFjWpTbxOZeM8
- luJozVbvnD_9vucgSZitIqjG2.EgtTmwFU6w0qL2tLiKZJgIq0q3oF0o54BgcHcp_OD1RLgwTeuc
- Sd_iSo.On1hFQY0i5jJ4Eo.Ml7r6EWfa3D5TUn54oyj1UosHUPSLKEMKKLCJdCQQOQIzuFtIKsLx
- v.MkZg4X5LhvUNF1NeeEy0AmYv9OqpossPvVumO000R7ByPb6icmOuGvDuTOKSwgg4wYP.3_Mdxq
- LHtts_BA.0xB30i2p2T14_25eLKfJU9VGuLHLwRW0Z4y0SwTjMaxkVKYu6nq.mEfNUv3KodDZrHK
- nLhmtRpm_H8KZHvAnSEdw75dc5ecyD64R8xXPQTz40D7s.T2lSGS1zgni_WzuX0IzOjq2xAID0tb
- Q6IaRKJ_R5uP.qSRb1F2iSQpVRS2LBzyPdXhzSTBVggpFvSFrQW7fQyrCXtFisx0Tp92vTeSFcVp
- vHuQSxTR08POOLmuvno.Apevu01N28IHLEh6CN_pbkTCJFHudM_1mspoJ9MlZtwKBEbN_P_7_8D6
- avkYiquTxuKd.OLvL8ebDFagXtQMzBR1zC97pZoYfSljZgUAmnAvmG4s9Vx2AzgmVUDiJfasSPh9
- ex3aZCcildHCnPimfsHz2tgISvjNiyVrwZH2fslQ360cseOQYzjtUOA.JiF21hwJP7Nyn8_vbT9Q
- KYp2FD.9bJ7rY0hySMh82aGBNI242mwb8lV8q90EVKomr3EV3EsxRO5KC7E0Q10MNUTbDKujuk1I
- PsNNkhcy_v5946Fme1xyO4b7GfG8jTU_LBFK8fxvxqAYzfoMfBYUm6oEvQpp.vvA9Jkeus8_L
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic307.consmr.mail.ne1.yahoo.com with HTTP; Tue, 30 Jun 2020 08:59:03 +0000
-Date:   Tue, 30 Jun 2020 08:58:58 +0000 (UTC)
-From:   FRANK <frank_nack_2020@aol.com>
-Reply-To: frank_nack_2020@yahoo.com
-Message-ID: <1316942128.170821.1593507538180@mail.yahoo.com>
-Subject: APPROVAL RELEASED ORDERS OF TRANSFER
+        id S1729580AbgF3JN3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Jun 2020 05:13:29 -0400
+Received: from hqnvemgate26.nvidia.com ([216.228.121.65]:2725 "EHLO
+        hqnvemgate26.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726404AbgF3JN2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Jun 2020 05:13:28 -0400
+Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate26.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5efb022b0001>; Tue, 30 Jun 2020 02:13:15 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate102.nvidia.com (PGP Universal service);
+  Tue, 30 Jun 2020 02:13:28 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate102.nvidia.com on Tue, 30 Jun 2020 02:13:28 -0700
+Received: from [10.26.75.203] (10.124.1.5) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Tue, 30 Jun
+ 2020 09:13:26 +0000
+Subject: Re: [PATCH 4.4 000/135] 4.4.229-rc1 review
+To:     Sasha Levin <sashal@kernel.org>, <linux-kernel@vger.kernel.org>,
+        <stable@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        linux-tegra <linux-tegra@vger.kernel.org>
+References: <20200629155309.2495516-1-sashal@kernel.org>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <3b34e3f2-6d78-d42f-7358-86fe430db1eb@nvidia.com>
+Date:   Tue, 30 Jun 2020 10:13:24 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-References: <1316942128.170821.1593507538180.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.16197 YMailNodin Mozilla/5.0 (Windows NT 5.1; rv:52.0) Gecko/20100101 Firefox/52.0
-To:     unlisted-recipients:; (no To-header on input)
+In-Reply-To: <20200629155309.2495516-1-sashal@kernel.org>
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL111.nvidia.com (172.20.187.18) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1593508395; bh=RLxH6xnLK8ZOVtLH6xC/l0Kl5rUluekML1u1TVcJxMo=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=LH3BBRfLXZ+4a+jHU9VrZykPGlA9l/TX+75XMTCqM/jLNzqZ0iZLD7XdNfELFAuEO
+         ZNPy/5pWmiP5ZbU6O4IxgurqHO+rfgA0+GrykZ1NjXJfs0Yy48iSgfq65t40BfbDLr
+         7xR/9S7ZzBDYIldoN4gmRXZoi95I6If4DqCkS3WYPs/3y5t/s1D6sIqVUKbOYIpkrH
+         It6zt4zyze6Ipsnjc5FJXWec/D87bjP3veLlMzxW4J8WrylXkFEF6ZVnDZYQ/RQjMB
+         Tk/eBiV2xITWb4mhUsH40lVG918wYX7LmAcxvuIJY0miw5r/71F9Yni63NN8AoiyOT
+         OuT95KTSVwhfg==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
+On 29/06/2020 16:50, Sasha Levin wrote:
+> 
+> This is the start of the stable review cycle for the 4.4.229 release.
+> There are 135 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed 01 Jul 2020 03:53:07 PM UTC.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/patch/?id=linux-4.4.y&id2=v4.4.228
+> 
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+> and the diffstat can be found below.
+> 
+> --
+> Thanks,
+> Sasha
 
-Dear Friend,
 
-How are you today with your family, Hope fine? Please, it=E2=80=99s my grea=
-t pleasure to contact you today. I am Mr. Frank Nack a banker by profession=
- from Burkina Faso. Please, I want our bank management to transfer an aband=
-oned sum of US $7.5M United States Dollars (US$7.5M) into your bank account=
-. This business is 100% risk free.
+All tests are passing for Tegra ...
 
-Your share will be 40% while 60% for me. More details will be forwarded to =
-you with copy of my bank working ID card, photos and direct phone number im=
-mediately I receive your urgent response indicating your interest to handle=
- the business transaction with me.
+Test results for stable-v4.4:
+    6 builds:	6 pass, 0 fail
+    12 boots:	12 pass, 0 fail
+    25 tests:	25 pass, 0 fail
 
-1) Your Full Name.......................
-2) Your Private Telephone Number........
-3) Your Receiving Country............
+Linux version:	4.4.229-rc1-g136455f30e39
+Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
+                tegra30-cardhu-a04
 
-Do reply me urgent with this email address (frank_nack_2020@yahoo.com), (OR=
- +226 51 81 51 94,) for quick spend
+Cheers
+Jon
 
-Yours Sincerely,
-Best Regard.
-Mr. Frank Nack
-Tell; +226 51 81 51 94,
+-- 
+nvpublic
