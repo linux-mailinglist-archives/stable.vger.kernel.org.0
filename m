@@ -2,108 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAC2E20F060
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 10:20:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8E3820F062
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 10:20:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730613AbgF3IUU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Jun 2020 04:20:20 -0400
-Received: from mail29.static.mailgun.info ([104.130.122.29]:52538 "EHLO
-        mail29.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728079AbgF3IUT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Jun 2020 04:20:19 -0400
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1593505219; h=Content-Transfer-Encoding: MIME-Version:
- Message-Id: Date: Subject: Cc: To: From: Sender;
- bh=c70MMxXQxL9Q0nDICJFkGeCgnQoGRAhYSDB6a9QVanY=; b=UeEp+5tkO9aJViNi4zZ8wF32GBbEeYS0GSrZhb6rH7W19MJSwzjioFsSL0wse4NrosuS2l3B
- 5CpxjNmrXLeDO4wbyXqf768RHB/5Coh10n3xd3HPtZabaFD08UClQLgypLH7KMCOaFtC5JNh
- d/ZDadQ4Y5+2YcEFqxYqUaQpdNk=
-X-Mailgun-Sending-Ip: 104.130.122.29
-X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org
- (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
- smtp-out-n11.prod.us-east-1.postgun.com with SMTP id
- 5efaf5b186de6ccd44d461b6 (version=TLS1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Tue, 30 Jun 2020 08:20:01
- GMT
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id B3007C433A1; Tue, 30 Jun 2020 08:20:00 +0000 (UTC)
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=2.0 tests=ALL_TRUSTED,SPF_NONE,
-        URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
-Received: from blr-ubuntu-253.qualcomm.com (blr-bdr-fw-01_GlobalNAT_AllZones-Outside.qualcomm.com [103.229.18.19])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
+        id S1729917AbgF3IUY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Jun 2020 04:20:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47728 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727919AbgF3IUX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Jun 2020 04:20:23 -0400
+Received: from localhost (unknown [84.241.197.94])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        (Authenticated sender: sibis)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 97CBBC433C6;
-        Tue, 30 Jun 2020 08:19:56 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 97CBBC433C6
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=sibis@codeaurora.org
-From:   Sibi Sankar <sibis@codeaurora.org>
-To:     bjorn.andersson@linaro.org
-Cc:     agross@kernel.org, linux-arm-msm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, will@kernel.org,
-        saiprakash.ranjan@codeaurora.org, robh+dt@kernel.org,
-        evgreen@chromium.org, dianders@chromium.org, mka@chromium.org,
-        devicetree@vger.kernel.org, Sibi Sankar <sibis@codeaurora.org>,
-        stable@vger.kernel.org
-Subject: [PATCH] arm64: dts: qcom: sc7180: Drop the unused non-MSA SID
-Date:   Tue, 30 Jun 2020 13:49:38 +0530
-Message-Id: <20200630081938.8131-1-sibis@codeaurora.org>
-X-Mailer: git-send-email 2.27.0
+        by mail.kernel.org (Postfix) with ESMTPSA id 84A8220768;
+        Tue, 30 Jun 2020 08:20:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1593505222;
+        bh=zgYtACOiUxPCgAo/uDCmxNkysztpmNDFqy0jDeI/bqA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=HGKPDX02oo1FCvCk4c40H5o4YUV18s44gP5g6UmENlPV7lTW6iTC3pQqMwAK4IVBR
+         UerXBbU1lt1ajOH4vx8Wdu62FIEE112LDJu30qwpT4Twgb5jW7ijqquH6YZmqxgASG
+         VbypMO6ON9J2tGcSJCGYIkytt5sKml0iJmy/xh4s=
+Date:   Tue, 30 Jun 2020 10:20:19 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Damien Le Moal <Damien.LeMoal@wdc.com>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: Re: [PATCH] dm zoned: assign max_io_len correctly
+Message-ID: <20200630082019.GA636803@kroah.com>
+References: <20200630040047.231197-1-damien.lemoal@wdc.com>
+ <20200630061840.GC616711@kroah.com>
+ <CY4PR04MB37511B459111266535ACEF62E76F0@CY4PR04MB3751.namprd04.prod.outlook.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CY4PR04MB37511B459111266535ACEF62E76F0@CY4PR04MB3751.namprd04.prod.outlook.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Having a non-MSA (Modem Self-Authentication) SID bypassed breaks modem
-sandboxing i.e if a transaction were to originate from it, the hardware
-memory protections units (XPUs) would fail to flag them (any transaction
-originating from modem are historically termed as an MSA transaction).
-Drop the unused non-MSA modem SID on SC7180 SoCs and cheza so that SMMU
-continues to block them.
+On Tue, Jun 30, 2020 at 06:20:58AM +0000, Damien Le Moal wrote:
+> On 2020/06/30 15:18, Greg Kroah-Hartman wrote:
+> > On Tue, Jun 30, 2020 at 01:00:47PM +0900, Damien Le Moal wrote:
+> >> From: Hou Tao <houtao1@huawei.com>
+> >>
+> >> commit 7b2377486767503d47265e4d487a63c651f6b55d upstream.
+> >>
+> >> The unit of max_io_len is sector instead of byte (spotted through
+> >> code review), so fix it.
+> >>
+> >> Fixes: 3b1a94c88b79 ("dm zoned: drive-managed zoned block device target")
+> >> Cc: stable@vger.kernel.org
+> >> Signed-off-by: Hou Tao <houtao1@huawei.com>
+> >> Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
+> >> Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+> >> ---
+> >>  drivers/md/dm-zoned-target.c | 2 +-
+> >>  1 file changed, 1 insertion(+), 1 deletion(-)
+> > 
+> > What stable tree(s) is this for?
+> > 
+> 
+> 5.7, 5.4, 4.19 and 4.14.
+> 
+> Got the automated email that the patch was not applying so I sent this corrected
+> version. I sent you a separate note about this.
 
-Fixes: bec71ba243e95 ("arm64: dts: qcom: sc7180: Update Q6V5 MSS node")
-Fixes: 68aee4af5f620 ("arm64: dts: qcom: sdm845-cheza: Add iommus property")
-Cc: stable@vger.kernel.org
-Reported-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
-Signed-off-by: Sibi Sankar <sibis@codeaurora.org>
----
- arch/arm64/boot/dts/qcom/sc7180-idp.dts    | 2 +-
- arch/arm64/boot/dts/qcom/sdm845-cheza.dtsi | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+Yes, but given the huge email flow, you need to be specific as your
+response there was seen about an hour after this email due to them not
+being threaded/attached/whatever :)
 
-diff --git a/arch/arm64/boot/dts/qcom/sc7180-idp.dts b/arch/arm64/boot/dts/qcom/sc7180-idp.dts
-index 39dbfc89689e8..141de49a1b7d6 100644
---- a/arch/arm64/boot/dts/qcom/sc7180-idp.dts
-+++ b/arch/arm64/boot/dts/qcom/sc7180-idp.dts
-@@ -312,7 +312,7 @@ &qupv3_id_1 {
- &remoteproc_mpss {
- 	status = "okay";
- 	compatible = "qcom,sc7180-mss-pil";
--	iommus = <&apps_smmu 0x460 0x1>, <&apps_smmu 0x444 0x3>;
-+	iommus = <&apps_smmu 0x461 0x0>, <&apps_smmu 0x444 0x3>;
- 	memory-region = <&mba_mem &mpss_mem>;
- };
- 
-diff --git a/arch/arm64/boot/dts/qcom/sdm845-cheza.dtsi b/arch/arm64/boot/dts/qcom/sdm845-cheza.dtsi
-index 70466cc4b4055..64fc1bfd66fad 100644
---- a/arch/arm64/boot/dts/qcom/sdm845-cheza.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sdm845-cheza.dtsi
-@@ -634,7 +634,7 @@ &mdss_mdp {
- };
- 
- &mss_pil {
--	iommus = <&apps_smmu 0x780 0x1>,
-+	iommus = <&apps_smmu 0x781 0x0>,
- 		 <&apps_smmu 0x724 0x3>;
- };
- 
--- 
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-a Linux Foundation Collaborative Project
+thanks,
 
+gre gk-h
