@@ -2,66 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98E8620F6BB
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 16:08:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43CF520F776
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 16:45:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387664AbgF3OIs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Jun 2020 10:08:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50798 "EHLO mail.kernel.org"
+        id S1726699AbgF3Opf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Jun 2020 10:45:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731084AbgF3OIs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Jun 2020 10:08:48 -0400
-Received: from dhcp-10-100-145-180.wdl.wdc.com (unknown [199.255.45.60])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726087AbgF3Opf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Jun 2020 10:45:35 -0400
+Received: from localhost.localdomain (NE2965lan1.rev.em-net.ne.jp [210.141.244.193])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 564562072D;
-        Tue, 30 Jun 2020 14:08:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 44EF720663;
+        Tue, 30 Jun 2020 14:45:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593526127;
-        bh=Bir2/g52+uKiDFsLqGocRSdaGam+HlMfWXbv0m+pQTQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=xPEECGY0ZlkfbVu8+/j9jkZcaX0C2kOSAHGXacxSdFt9J8gIYxRvW7wHdzyn/pE1X
-         zVD5xi+yzQAdu6qncSpabQ6z+OnBQy1TYoy4WYvEula16bQGttes3jHQo1Mca0Ra2v
-         VOO7tM+zk8gtePRfyFMNIQRgZN5HG+Mcr18CIYKk=
-Date:   Tue, 30 Jun 2020 07:08:45 -0700
-From:   Keith Busch <kbusch@kernel.org>
-To:     Maximilian Heyne <mheyne@amazon.de>
-Cc:     Christoph Hellwig <hch@lst.de>, Amit Shah <aams@amazon.de>,
-        stable@vger.kernel.org, Jens Axboe <axboe@fb.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        linux-nvme@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] nvme: validate cntlid's only for nvme >= 1.1.0
-Message-ID: <20200630140845.GA1987534@dhcp-10-100-145-180.wdl.wdc.com>
-References: <20200630122923.70282-1-mheyne@amazon.de>
- <20200630133358.GA20602@lst.de>
- <20200630133609.GA20809@lst.de>
- <b3b621d9-b653-45c4-4164-f5a492cabd6a@amazon.de>
+        s=default; t=1593528334;
+        bh=zbsP9rS1uzBWcN+k9VTI1wOd8OrPWywy+CRsgj/n2Ko=;
+        h=From:To:Cc:Subject:Date:From;
+        b=rVN2mDhMqQF5Ur4AaOFL6aqpRMwL5T0FZgfvHe4pzqhqKoUteRca6riVYmY8ccxrc
+         5HsyE7PKh4U3l66hKwIxRUa4dSUXz4jgQzO/vIIbA0l4p2GKp2k3GCUUYQQ3vVIJBw
+         EA56A++nDYabWQ3dGjYUYb4wH0aZS4R+9vEjl4Io=
+From:   Masami Hiramatsu <mhiramat@kernel.org>
+To:     stable@vger.kernel.org
+Cc:     Changbin Du <changbin.du@gmail.com>, Jiri Olsa <jolsa@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        mhiramat@kernel.org
+Subject: [PATCH for 4.9 0/4] tools/perf: Backport fixes for 4.9 for newer toolchain
+Date:   Tue, 30 Jun 2020 23:45:30 +0900
+Message-Id: <159352833055.45385.11124685086393181445.stgit@devnote2>
+X-Mailer: git-send-email 2.25.1
+User-Agent: StGit/0.19
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b3b621d9-b653-45c4-4164-f5a492cabd6a@amazon.de>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 30, 2020 at 04:01:45PM +0200, Maximilian Heyne wrote:
-> On 6/30/20 3:36 PM, Christoph Hellwig wrote:
-> > And actually - 1.0 did not have the concept of a subsystem.  So having
-> > a duplicate serial number for a 1.0 controller actually is a pretty
-> > nasty bug.  Can you point me to this broken controller?  Do you think
-> > the OEM could fix it up to report a proper version number and controller
-> > ID?
-> > 
-> 
-> I meant that the VF NVMe controllers will all land in the same subsystem from
-> the kernel's point of view, because, as you said, there was no idea of different
-> subsystems in the 1.0 spec.
+Hi,
 
-Each controller should have landed in its own subsystem in this case
-rather than the same subsystem.
+While porting failed perf-probe fix to 4.9.y (*), I found the perf
+command had build errors on Ubuntu 20.04. Fortunately all issues has
+been fixed on the upstream. Thus I ported those patches too on 4.9.y.
 
-> It's an older in-house controller. Seems to set the same serial number for all
-> VF's. Should the firmware set unique serials for the VF's instead?
+(*) https://lore.kernel.org/stable/159257562524637@kroah.com/
 
-Yes, the driver shouldn't be finding duplicate serial numbers.
+I think perf tools in other stable branch also has similar issues.
+
+Thank you,
+
+---
+
+Arnaldo Carvalho de Melo (1):
+      perf annotate: Use asprintf when formatting objdump command line
+
+Changbin Du (1):
+      perf: Make perf able to build with latest libbfd
+
+Jiri Olsa (1):
+      perf tools: Fix snprint warnings for gcc 8
+
+Masami Hiramatsu (1):
+      perf probe: Fix to check blacklist address correctly
+
+
+ tools/perf/builtin-script.c    |   24 ++++++++++++------------
+ tools/perf/tests/attr.c        |    4 ++--
+ tools/perf/tests/pmu.c         |    2 +-
+ tools/perf/util/annotate.c     |   17 ++++++++++++-----
+ tools/perf/util/cgroup.c       |    2 +-
+ tools/perf/util/parse-events.c |    4 ++--
+ tools/perf/util/pmu.c          |    2 +-
+ tools/perf/util/probe-event.c  |   21 +++++++++++++++------
+ tools/perf/util/srcline.c      |   16 +++++++++++++++-
+ 9 files changed, 61 insertions(+), 31 deletions(-)
+
+--
+Masami Hiramatsu (Linaro) <mhiramat@kernel.org>
