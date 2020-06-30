@@ -2,146 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2D8F20F223
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 12:05:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17E1C20F259
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 12:11:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732196AbgF3KFx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Jun 2020 06:05:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44640 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732078AbgF3KFw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Jun 2020 06:05:52 -0400
-Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 02BA62073E;
-        Tue, 30 Jun 2020 10:05:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593511552;
-        bh=WGsfVoaT6gosQlq2ySDAquPdQTa/aXDxRdmxD1Nsln8=;
-        h=From:To:Cc:Subject:Date:From;
-        b=um9iXcbbiq0/h4rBLL3CVKNNpdpKp8XNwiBmhB/N1BOewXCoTQv7OhhXdXZq6f9ui
-         Ijow/waRSxqxqtWZvi2jPWc9y+xoFjYJ/OGRAqwMc0EOJkcvDXR1W1S/yQT7zbDCba
-         +uBUUkYa6Ti/Pk+a4NA0Euc+oJuMGK+VCk/70QcA=
-Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.lan)
-        by disco-boy.misterjones.org with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <maz@kernel.org>)
-        id 1jqD9C-007hs2-EG; Tue, 30 Jun 2020 11:05:50 +0100
-From:   Marc Zyngier <maz@kernel.org>
-To:     Chanwoo Choi <cw00.choi@samsung.com>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Cc:     MyungJoo Ham <myungjoo.ham@samsung.com>,
-        Kyungmin Park <kyungmin.park@samsung.com>,
-        Heiko Stuebner <heiko@sntech.de>, linux-pm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kernel-team@android.com,
-        stable@vger.kernel.org
-Subject: [PATCH v3] PM / devfreq: rk3399_dmc: Fix kernel oops when rockchip,pmu is absent
-Date:   Tue, 30 Jun 2020 11:05:46 +0100
-Message-Id: <20200630100546.862468-1-maz@kernel.org>
-X-Mailer: git-send-email 2.27.0
+        id S1732329AbgF3KLx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Jun 2020 06:11:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42124 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730237AbgF3KLx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Jun 2020 06:11:53 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A98D4C061755;
+        Tue, 30 Jun 2020 03:11:52 -0700 (PDT)
+Date:   Tue, 30 Jun 2020 10:11:49 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1593511910;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
+        bh=x9Kx/vy/1w4IrADsqyxp3ADoc04m1/GxSgLtI8leJRo=;
+        b=yqm00unww/tf7emFMmRYcQoP6G3pW/OPW7pAHNa9NzGrPtYx7NQtA4KhxQbH6Pdmw/LAoK
+        L53w72+fbN511Uepel2XoECfdNQy509NqY6vjV0A9Hrr27LBEc+Ma++/42zuYmBWM2J1CG
+        9ThWcKC2ib2qgMScwT2yeV4gO67nK7vj1JkU7g8ffjXjqA8rviX8yCNZKU3GoDkDTmeehD
+        EtLIy9MP8BFXhQ8hNJM07Qp+MrBclgxi0lm8P5b2Y7BKO7Wunvm/lFcrTR4YGpqcidCEs3
+        4NaCVnJw6/S/JX7shRF/YuSSrXpc2LM1m8421SnAAU4AuJ/2KrVN0KTisKtIcw==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1593511910;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
+        bh=x9Kx/vy/1w4IrADsqyxp3ADoc04m1/GxSgLtI8leJRo=;
+        b=056MC/Zex643vEKzRVSxcolTlGKjRDPUzzlCVSnhCXGPSX+RqYaye02aJcatO7OuSLnmRD
+        iwphyka5gwGV0kBw==
+From:   "tip-bot2 for Marc Zyngier" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: irq/urgent] irqchip/gic: Atomically update affinity
+Cc:     stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 62.31.163.78
-X-SA-Exim-Rcpt-To: cw00.choi@samsung.com, enric.balletbo@collabora.com, myungjoo.ham@samsung.com, kyungmin.park@samsung.com, heiko@sntech.de, linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-team@android.com, stable@vger.kernel.org
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+Message-ID: <159351190922.4006.6997590439954706407.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Booting a recent kernel on a rk3399-based system (nanopc-t4),
-equipped with a recent u-boot and ATF results in an Oops due
-to a NULL pointer dereference.
+The following commit has been merged into the irq/urgent branch of tip:
 
-This turns out to be due to the rk3399-dmc driver looking for
-an *undocumented* property (rockchip,pmu), and happily using
-a NULL pointer when the property isn't there.
+Commit-ID:     005c34ae4b44f085120d7f371121ec7ded677761
+Gitweb:        https://git.kernel.org/tip/005c34ae4b44f085120d7f371121ec7ded677761
+Author:        Marc Zyngier <maz@kernel.org>
+AuthorDate:    Sun, 21 Jun 2020 14:43:15 +01:00
+Committer:     Marc Zyngier <maz@kernel.org>
+CommitterDate: Sun, 21 Jun 2020 15:24:46 +01:00
 
-Instead, make most of what was brought in with 9173c5ceb035
-("PM / devfreq: rk3399_dmc: Pass ODT and auto power down parameters
-to TF-A.") conditioned on finding this property in the device-tree,
-preventing the driver from exploding.
+irqchip/gic: Atomically update affinity
 
+The GIC driver uses a RMW sequence to update the affinity, and
+relies on the gic_lock_irqsave/gic_unlock_irqrestore sequences
+to update it atomically.
+
+But these sequences only expand into anything meaningful if
+the BL_SWITCHER option is selected, which almost never happens.
+
+It also turns out that using a RMW and locks is just as silly,
+as the GIC distributor supports byte accesses for the GICD_TARGETRn
+registers, which when used make the update atomic by definition.
+
+Drop the terminally broken code and replace it by a byte write.
+
+Fixes: 04c8b0f82c7d ("irqchip/gic: Make locking a BL_SWITCHER only feature")
 Cc: stable@vger.kernel.org
-Fixes: 9173c5ceb035 ("PM / devfreq: rk3399_dmc: Pass ODT and auto power down parameters to TF-A.")
 Signed-off-by: Marc Zyngier <maz@kernel.org>
 ---
-* From v2:
-  - Trimmed down commit message
-  - Cc stable
+ drivers/irqchip/irq-gic.c | 14 +++-----------
+ 1 file changed, 3 insertions(+), 11 deletions(-)
 
- drivers/devfreq/rk3399_dmc.c | 42 ++++++++++++++++++++----------------
- 1 file changed, 23 insertions(+), 19 deletions(-)
-
-diff --git a/drivers/devfreq/rk3399_dmc.c b/drivers/devfreq/rk3399_dmc.c
-index 24f04f78285b..027769e39f9b 100644
---- a/drivers/devfreq/rk3399_dmc.c
-+++ b/drivers/devfreq/rk3399_dmc.c
-@@ -95,18 +95,20 @@ static int rk3399_dmcfreq_target(struct device *dev, unsigned long *freq,
+diff --git a/drivers/irqchip/irq-gic.c b/drivers/irqchip/irq-gic.c
+index 00de05a..c17fabd 100644
+--- a/drivers/irqchip/irq-gic.c
++++ b/drivers/irqchip/irq-gic.c
+@@ -329,10 +329,8 @@ static int gic_irq_set_vcpu_affinity(struct irq_data *d, void *vcpu)
+ static int gic_set_affinity(struct irq_data *d, const struct cpumask *mask_val,
+ 			    bool force)
+ {
+-	void __iomem *reg = gic_dist_base(d) + GIC_DIST_TARGET + (gic_irq(d) & ~3);
+-	unsigned int cpu, shift = (gic_irq(d) % 4) * 8;
+-	u32 val, mask, bit;
+-	unsigned long flags;
++	void __iomem *reg = gic_dist_base(d) + GIC_DIST_TARGET + gic_irq(d);
++	unsigned int cpu;
  
- 	mutex_lock(&dmcfreq->lock);
+ 	if (!force)
+ 		cpu = cpumask_any_and(mask_val, cpu_online_mask);
+@@ -342,13 +340,7 @@ static int gic_set_affinity(struct irq_data *d, const struct cpumask *mask_val,
+ 	if (cpu >= NR_GIC_CPU_IF || cpu >= nr_cpu_ids)
+ 		return -EINVAL;
  
--	if (target_rate >= dmcfreq->odt_dis_freq)
--		odt_enable = true;
+-	gic_lock_irqsave(flags);
+-	mask = 0xff << shift;
+-	bit = gic_cpu_map[cpu] << shift;
+-	val = readl_relaxed(reg) & ~mask;
+-	writel_relaxed(val | bit, reg);
+-	gic_unlock_irqrestore(flags);
 -
--	/*
--	 * This makes a SMC call to the TF-A to set the DDR PD (power-down)
--	 * timings and to enable or disable the ODT (on-die termination)
--	 * resistors.
--	 */
--	arm_smccc_smc(ROCKCHIP_SIP_DRAM_FREQ, dmcfreq->odt_pd_arg0,
--		      dmcfreq->odt_pd_arg1,
--		      ROCKCHIP_SIP_CONFIG_DRAM_SET_ODT_PD,
--		      odt_enable, 0, 0, 0, &res);
-+	if (dmcfreq->regmap_pmu) {
-+		if (target_rate >= dmcfreq->odt_dis_freq)
-+			odt_enable = true;
-+
-+		/*
-+		 * This makes a SMC call to the TF-A to set the DDR PD
-+		 * (power-down) timings and to enable or disable the
-+		 * ODT (on-die termination) resistors.
-+		 */
-+		arm_smccc_smc(ROCKCHIP_SIP_DRAM_FREQ, dmcfreq->odt_pd_arg0,
-+			      dmcfreq->odt_pd_arg1,
-+			      ROCKCHIP_SIP_CONFIG_DRAM_SET_ODT_PD,
-+			      odt_enable, 0, 0, 0, &res);
-+	}
++	writeb_relaxed(gic_cpu_map[cpu], reg);
+ 	irq_data_update_effective_affinity(d, cpumask_of(cpu));
  
- 	/*
- 	 * If frequency scaling from low to high, adjust voltage first.
-@@ -371,13 +373,14 @@ static int rk3399_dmcfreq_probe(struct platform_device *pdev)
- 	}
- 
- 	node = of_parse_phandle(np, "rockchip,pmu", 0);
--	if (node) {
--		data->regmap_pmu = syscon_node_to_regmap(node);
--		of_node_put(node);
--		if (IS_ERR(data->regmap_pmu)) {
--			ret = PTR_ERR(data->regmap_pmu);
--			goto err_edev;
--		}
-+	if (!node)
-+		goto no_pmu;
-+
-+	data->regmap_pmu = syscon_node_to_regmap(node);
-+	of_node_put(node);
-+	if (IS_ERR(data->regmap_pmu)) {
-+		ret = PTR_ERR(data->regmap_pmu);
-+		goto err_edev;
- 	}
- 
- 	regmap_read(data->regmap_pmu, RK3399_PMUGRF_OS_REG2, &val);
-@@ -399,6 +402,7 @@ static int rk3399_dmcfreq_probe(struct platform_device *pdev)
- 		goto err_edev;
- 	};
- 
-+no_pmu:
- 	arm_smccc_smc(ROCKCHIP_SIP_DRAM_FREQ, 0, 0,
- 		      ROCKCHIP_SIP_CONFIG_DRAM_INIT,
- 		      0, 0, 0, 0, &res);
--- 
-2.27.0
-
+ 	return IRQ_SET_MASK_OK_DONE;
