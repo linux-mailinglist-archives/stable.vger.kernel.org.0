@@ -2,375 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EA9920F570
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 15:11:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4434720F56A
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 15:09:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727985AbgF3NLO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Jun 2020 09:11:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41430 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726008AbgF3NLM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Jun 2020 09:11:12 -0400
-X-Greylist: delayed 173 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 30 Jun 2020 06:11:11 PDT
-Received: from mail.as201155.net (mail.as201155.net [IPv6:2a05:a1c0:f001::3])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7FB3C061755
-        for <stable@vger.kernel.org>; Tue, 30 Jun 2020 06:11:11 -0700 (PDT)
-Received: from smtps.newmedia-net.de ([2a05:a1c0:0:de::167]:53846 helo=webmail.newmedia-net.de)
-        by mail.as201155.net with esmtps (TLSv1:DHE-RSA-AES256-SHA:256)
-        (Exim 4.82_1-5b7a7c0-XX)
-        (envelope-from <s.gottschall@dd-wrt.com>)
-        id 1jqFzf-0002TD-28; Tue, 30 Jun 2020 15:08:11 +0200
-X-CTCH-RefID: str=0001.0A782F26.5EFB393B.008B,ss=1,re=0.000,recu=0.000,reip=0.000,cl=1,cld=1,fgs=0
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=dd-wrt.com; s=mikd;
-        h=Content-Transfer-Encoding:Content-Type:In-Reply-To:MIME-Version:Date:Message-ID:From:References:Cc:To:Subject; bh=mJX9PyIetwuEnGhmCRHKLIbcWXZ6uYql73iirKSXNho=;
-        b=HTC8bfARaOoALcPaNNDrEoBUsRE5KBibBa0p0m24JBdZxi+NHPGvWvPkfkDLKeyy+ncXTXYHXRJ5ER4gO/KWtZ69CWcocUTKoFxBBihF5HLNNn9Rs+RguXMf8eJ971f8H7FIoW3KkrnbGpWQu2RajsxiKzNH/xIN4wL+J89l6cY=;
-Subject: Re: [PATCH 4.14 00/78] 4.14.186-rc1 review
-To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org
-References: <20200629153806.2494953-1-sashal@kernel.org>
-From:   Sebastian Gottschall <s.gottschall@dd-wrt.com>
-Message-ID: <b450ae6a-e5a3-f870-e6bd-c3af0397e7a0@dd-wrt.com>
-Date:   Tue, 30 Jun 2020 15:08:08 +0200
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.0
+        id S1726935AbgF3NJN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Jun 2020 09:09:13 -0400
+Received: from esa5.hgst.iphmx.com ([216.71.153.144]:14118 "EHLO
+        esa5.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726744AbgF3NJL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 30 Jun 2020 09:09:11 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1593522551; x=1625058551;
+  h=from:to:cc:subject:date:message-id:references:
+   content-transfer-encoding:mime-version;
+  bh=RUAKv7/hjBSikpyghctcaOWGRNCM/BrsJZpnDk9mXjQ=;
+  b=YnnNBZsAsYpss1qRsMywZJYI8UYvESkK2FbYdRygn0gH3moV4beJoTsq
+   YuC04uqRSm0gSZGshmhU3nbLe+QqYczjPuVI0bPKLDofzYh0El9rxWk9K
+   C+bWKH+GkenIVbUoG287oPY9O3q4PyVvRmeLkkG0H7XKQL+IbhSJk0jL0
+   e8+KMGGVupIPWX4vYLF/lObZKWvw/1pOe4pqJmgXvbHnvQFQcIuDXMxpY
+   940u/CxREJvltUZEy1z0J2nBFPaTqIMV1sNL0/e7lbBoUvcIW0dCrIo2C
+   ++mpjwx9jJEeYlMvJgBhT4vLdWEZi9yGtYgCL+0DIck+0HyceuUg5vZuA
+   Q==;
+IronPort-SDR: bn+1zw41kptO9XhliRRafgfVjAUs7nkfrmO93150Rz8srmSF/TqK+sJ2REAjyh8VxQHtz7AS1A
+ w1Uc3bE0KQZECf4IBM0QGzv9NT9QwRO7h92QtIjam3vSo6MpDFTO8Mc/A8X4SHNOZ7JY74PGOK
+ KrL2kKSwxTl90Mzu7UNnQDRMH+NY+QJ9LtRfuLmLsvcutv/B8uExROk/64YBc8qmBYs1d9mlCj
+ SJghBhq1ZGT13bZRy2Xbb3a5PbAlUaynUFqJicktRSdLtjQrn2z3yB9TG/h0jfUNWyoLYLtkd1
+ pdA=
+X-IronPort-AV: E=Sophos;i="5.75,297,1589212800"; 
+   d="scan'208";a="141485084"
+Received: from mail-mw2nam10lp2109.outbound.protection.outlook.com (HELO NAM10-MW2-obe.outbound.protection.outlook.com) ([104.47.55.109])
+  by ob1.hgst.iphmx.com with ESMTP; 30 Jun 2020 21:09:11 +0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Xl5HYRyjAwOycphoumS+zbBZvtz4WxSRAyUSoYwY6Yt6LVUsVXqbyJVJgjNlEdEBCeM45qdRVpEYf8FUocns3hpCAjoAu1/BC9GKgWra8Tvf5Ya3ilbAGPLaTmb4WuMysok26Gvw4pwMgYbZ64nFwfot75+RHCa4/r4k7KBl4z6FecwXSWCmATNMjsi71EdhJwvXAtHQwIIbt1uvXr1R3i3kqTmKiFjWY+G4HotWj26LY7A8ZQFXC1RLpKcKIp6qi6qiKFBSiPCGIyytXg9ezTLexs1hlWoWH/H209nb27W5LB05KVz/c7Iwye1M5ZdDcQo3+Pp+CiV9YyT5KaqqmA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=RUAKv7/hjBSikpyghctcaOWGRNCM/BrsJZpnDk9mXjQ=;
+ b=ZhjOO4Y6zVOe9GBadlwnssbmTKvMcXogjqUC6gmQnelG9Mg4/L7QmbsKCrzYY0Ywk6v24GcmkdcLmm3xh47uje3UvSOq4Q3RwMQIB8I4bi2nioEbodDUCK39f+17oLIZ9dyoCG1yweuBAKKv/xG5i7D4OlblsyU7ii5zBAcwBiRVYpo7W9EQ67YH7o1uuudhhLbWfeaAXtbtaaJsZLEgZ49kDsCdm2IWTto2stEN29USIJzy8dAsDBMMhfUYtwkXAJJ71cEaqbwe3O3/egOL1f7eM8uBD+Y5s3nwm42WVCslih+NgK2TOhTpK2H707AnGllq05I2rLNla0AzdMZkXw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
+ header.d=wdc.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=RUAKv7/hjBSikpyghctcaOWGRNCM/BrsJZpnDk9mXjQ=;
+ b=ymHN31fZQR+jRClKNSr8E1erI4d91kETO2WpC6oJs8HfHg2pb5RHwuydK33/kZrdNMJR0g5B+eSDzTc1LZ6B8tkum3U2bkDGpcM5/zPa7oLdW/9Saas+1hC80vxU7SwT5iC5+2U/BnfmHM5NU3kR9w7E/y3+KXtAnLOraIwbd78=
+Received: from SN4PR0401MB3598.namprd04.prod.outlook.com
+ (2603:10b6:803:47::21) by SN6PR04MB4784.namprd04.prod.outlook.com
+ (2603:10b6:805:ad::28) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3131.21; Tue, 30 Jun
+ 2020 13:09:09 +0000
+Received: from SN4PR0401MB3598.namprd04.prod.outlook.com
+ ([fe80::1447:186c:326e:30b2]) by SN4PR0401MB3598.namprd04.prod.outlook.com
+ ([fe80::1447:186c:326e:30b2%7]) with mapi id 15.20.3131.028; Tue, 30 Jun 2020
+ 13:09:09 +0000
+From:   Johannes Thumshirn <Johannes.Thumshirn@wdc.com>
+To:     Hans van Kranenburg <hans@knorrie.org>,
+        David Sterba <dsterba@suse.cz>
+CC:     "linux-btrfs@vger.kernel.org" <linux-btrfs@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH v4] btrfs: pass checksum type via BTRFS_IOC_FS_INFO ioctl
+Thread-Topic: [PATCH v4] btrfs: pass checksum type via BTRFS_IOC_FS_INFO ioctl
+Thread-Index: AQHWTepoB6oio6k7uE+fiuF4wWRH6Q==
+Date:   Tue, 30 Jun 2020 13:09:08 +0000
+Message-ID: <SN4PR0401MB359836571F4572136EF1981F9B6F0@SN4PR0401MB3598.namprd04.prod.outlook.com>
+References: <20200629075329.36969-1-johannes.thumshirn@wdc.com>
+ <c9145a96-95ba-6f6d-c22a-8ba0d324e39e@knorrie.org>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: knorrie.org; dkim=none (message not signed)
+ header.d=none;knorrie.org; dmarc=none action=none header.from=wdc.com;
+x-originating-ip: [2001:a62:1515:bd01:8525:1965:641f:1b27]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-ht: Tenant
+x-ms-office365-filtering-correlation-id: 05ffa101-1bfa-40ad-7c93-08d81cf6c67b
+x-ms-traffictypediagnostic: SN6PR04MB4784:
+x-microsoft-antispam-prvs: <SN6PR04MB4784128D3F5589C3CBF12C149B6F0@SN6PR04MB4784.namprd04.prod.outlook.com>
+wdcipoutbound: EOP-TRUE
+x-ms-oob-tlc-oobclassifiers: OLM:10000;
+x-forefront-prvs: 0450A714CB
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: l6BSFiFVGF7szYxB9Qh2q4xOhhfs2XtGkr57zb/Cmw7LCT87PpJgBjt1XS4LsaoWywtmWLE9dgvqbaNQrth5wyH/Pl5w9gpv9QfF+PTbge366DrXDwT9f5MZwkcm56DASwELcI/JbvZCOBV4BZzvTFWO9i/875tXl17+UcMvE9wkcUEkssVBHliPhZlH041nrjUp9QAc1Dg0O/4UjW8zcmlVWCg9PPKMyBbnVFGOyIOqTb4oGBT18CABl3pvCn2w4w3kuGT7tBE2C9OCDCjy2W2ndpiCA5PE/ffCef1vsbsx2LFRKMWz0PODyY9/rqtmhd71+PNdz5Gr5tccpvzUNA==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SN4PR0401MB3598.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(4636009)(136003)(366004)(396003)(39860400002)(376002)(346002)(8936002)(8676002)(186003)(5660300002)(4326008)(7696005)(33656002)(52536014)(76116006)(91956017)(86362001)(4744005)(66446008)(64756008)(66556008)(66476007)(66946007)(55016002)(9686003)(316002)(71200400001)(2906002)(54906003)(478600001)(110136005)(6506007)(53546011);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata: 262aP8VvYngROP45PqgvyaKTur0NBfVmLJFUztOmpN/zfSEZGsWiYI0/PhkiNXsanlCQIizGZ5R23pWW5wawWXRDOuVz15Rgob9vRjlZ4E6aokXfDAIBXOY92cRu303zoYUurGGIgL0jenOBykvV8mSkkilT9N/VlSWTnPxbYmYx72y1OUUPb32IQHhJXAdD6a8yv0Bxy3bH6p+YOANM6JBwi7K6rZkS69IXL22enyJ/5Wx+eNwJ3fefaKVBpalR+FOJPMoJFSh05L47Y6Svjm+LmRDE4OUVcvseHPNpYgb5Pp86ylGSZPCvHle1TT5KM/IqBSut+SPeQjSKiayZxV8MIC9LgfSnyiN8OnYqGOLU/05jibHlktiMsT6Sj0qCDZCm6xKu+NIlzq++Zt3AcUz4Gq+X2V2LVfR19GsktnIssN8ivSU2/J1ZBtzPGf/JtvN4evbs7+2i2WhiCDcCmtmurYaBjRedZLNJ/WQgy3dlxSS95j3+QrgI4Qh9OLTv/MJe+v2MPgbQlEiECHiS6/i804SRFH494rWb0BZzzCnWM+xiw/svjyPtuRYcrHn/
+x-ms-exchange-transport-forked: True
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-In-Reply-To: <20200629153806.2494953-1-sashal@kernel.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Received:  from [2a01:7700:8040:4d00:c41a:a2eb:6429:b0a1]
-        by webmail.newmedia-net.de with esmtpsa (TLSv1:AES128-SHA:128)
-        (Exim 4.72)
-        (envelope-from <s.gottschall@dd-wrt.com>)
-        id 1jqFzf-000FPc-0s; Tue, 30 Jun 2020 15:08:11 +0200
+X-OriginatorOrg: wdc.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: SN4PR0401MB3598.namprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 05ffa101-1bfa-40ad-7c93-08d81cf6c67b
+X-MS-Exchange-CrossTenant-originalarrivaltime: 30 Jun 2020 13:09:08.9110
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 8E0zp7b6Y9NZbDsKpe7VhkN19uqvLTQ54IFIIPXshnv1JRDsqAz2LR+1NbnEeIU33PLqlgpEnPJFKsErbji+uAjsw0h1z2d3BissGb5jEOE=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN6PR04MB4784
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-this patch is broken. 4.14.186 has been already released. the patch 
-shows just conflicts
-
-Am 29.06.2020 um 17:36 schrieb Sasha Levin:
-> This is the start of the stable review cycle for the 4.14.186 release.
-> There are 78 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed 01 Jul 2020 03:38:04 PM UTC.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/patch/?id=linux-4.14.y&id2=v4.14.185
->
-> or in the git tree and branch at:
->          git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-> and the diffstat can be found below.
->
-> --
-> Thanks,
-> Sasha
->
-> -------------------------
->
-> Pseudo-Shortlog of commits:
->
-> Aaron Plattner (1):
->    ALSA: hda: Add NVIDIA codec IDs 9a & 9d through a0 to patch table
->
-> Aditya Pakki (1):
->    rocker: fix incorrect error handling in dma_rings_init
->
-> Al Cooper (1):
->    xhci: Fix enumeration issue when setting max packet size for FS
->      devices.
->
-> Al Viro (1):
->    fix a braino in "sparc32: fix register window handling in
->      genregs32_[gs]et()"
->
-> Alexander Lobakin (3):
->    net: qed: fix left elements count calculation
->    net: qed: fix NVMe login fails over VFs
->    net: qed: fix excessive QM ILT lines consumption
->
-> Chuck Lever (1):
->    SUNRPC: Properly set the @subbuf parameter of xdr_buf_subsegment()
->
-> Chuhong Yuan (1):
->    USB: ohci-sm501: Add missed iounmap() in remove
->
-> Dan Carpenter (2):
->    usb: gadget: udc: Potential Oops in error handling code
->    Staging: rtl8723bs: prevent buffer overflow in
->      update_sta_support_rate()
->
-> David Christensen (1):
->    tg3: driver sleeps indefinitely when EEH errors exceed eeh_max_freezes
->
-> David Howells (2):
->    rxrpc: Fix notification call on completion of discarded calls
->    rxrpc: Fix handling of rwind from an ACK packet
->
-> Denis Efremov (1):
->    drm/radeon: fix fb_div check in ni_init_smc_spll_table()
->
-> Doug Berger (1):
->    net: bcmgenet: use hardware padding of runt frames
->
-> Eric Dumazet (2):
->    net: be more gentle about silly gso requests coming from user
->    tcp: grow window for OOO packets only for SACK flows
->
-> Fan Guo (1):
->    RDMA/mad: Fix possible memory leak in ib_mad_post_receive_mads()
->
-> Filipe Manana (1):
->    btrfs: fix failure of RWF_NOWAIT write into prealloc extent beyond eof
->
-> Jann Horn (1):
->    apparmor: don't try to replace stale label in ptraceme check
->
-> Jeremy Kerr (1):
->    net: usb: ax88179_178a: fix packet alignment padding
->
-> Jiping Ma (1):
->    arm64: perf: Report the PC value in REGS_ABI_32 mode
->
-> Joakim Tjernlund (1):
->    cdc-acm: Add DISABLE_ECHO quirk for Microchip/SMSC chip
->
-> Julian Scheel (1):
->    ALSA: usb-audio: uac1: Invalidate ctl on interrupt
->
-> Junxiao Bi (3):
->    ocfs2: load global_inode_alloc
->    ocfs2: fix value of OCFS2_INVALID_SLOT
->    ocfs2: fix panic on nfs server over ocfs2
->
-> Juri Lelli (1):
->    sched/core: Fix PI boosting between RT and DEADLINE tasks
->
-> Kai-Heng Feng (1):
->    xhci: Poll for U0 after disabling USB2 LPM
->
-> Longfang Liu (1):
->    USB: ehci: reopen solution for Synopsys HC bug
->
-> Luis Chamberlain (1):
->    blktrace: break out of blktrace setup on concurrent calls
->
-> Macpaul Lin (1):
->    usb: host: xhci-mtk: avoid runtime suspend when removing hcd
->
-> Marcelo Ricardo Leitner (1):
->    sctp: Don't advertise IPv4 addresses if ipv6only is set on the socket
->
-> Mark Zhang (1):
->    RDMA/cma: Protect bind_list and listen_list while finding matching cm
->      id
->
-> Martin Wilck (1):
->    scsi: scsi_devinfo: handle non-terminated strings
->
-> Masahiro Yamada (1):
->    kbuild: improve cc-option to clean up all temporary files
->
-> Masami Hiramatsu (1):
->    tracing: Fix event trigger to accept redundant spaces
->
-> Mathias Nyman (1):
->    xhci: Fix incorrect EP_STATE_MASK
->
-> Matthew Hagan (1):
->    ARM: dts: NSP: Correct FA2 mailbox node
->
-> Minas Harutyunyan (1):
->    usb: dwc2: Postponed gadget registration to the udc class driver
->
-> Nathan Chancellor (1):
->    ACPI: sysfs: Fix pm_profile_attr type
->
-> Neal Cardwell (1):
->    tcp_cubic: fix spurious HYSTART_DELAY exit upon drop in min RTT
->
-> Olga Kornievskaia (1):
->    NFSv4 fix CLOSE not waiting for direct IO compeletion
->
-> Qiushi Wu (2):
->    efi/esrt: Fix reference count leak in esre_create_sysfs_entry.
->    ASoC: rockchip: Fix a reference count leak.
->
-> Russell King (1):
->    netfilter: ipset: fix unaligned atomic access
->
-> Sasha Levin (1):
->    Linux 4.14.186-rc1
->
-> Sean Christopherson (1):
->    KVM: nVMX: Plumb L2 GPA through to PML emulation
->
-> Sven Schnelle (1):
->    s390/ptrace: fix setting syscall number
->
-> Taehee Yoo (3):
->    ip_tunnel: fix use-after-free in ip_tunnel_lookup()
->    ip6_gre: fix use-after-free in ip6gre_tunnel_lookup()
->    net: core: reduce recursion limit value
->
-> Takashi Iwai (3):
->    ALSA: usb-audio: Clean up mixer element list traverse
->    ALSA: usb-audio: Fix OOB access of mixer element list
->    ALSA: usb-audio: Fix invalid NULL check in snd_emuusb_set_samplerate()
->
-> Tang Bin (1):
->    usb: host: ehci-exynos: Fix error check in exynos_ehci_probe()
->
-> Tariq Toukan (1):
->    net: Do not clear the sock TX queue in sk_set_socket()
->
-> Thomas Falcon (1):
->    ibmveth: Fix max MTU limit
->
-> Thomas Martitz (1):
->    net: bridge: enfore alignment for ethernet address
->
-> Tomasz Meresiński (1):
->    usb: add USB_QUIRK_DELAY_INIT for Logitech C922
->
-> Trond Myklebust (1):
->    pNFS/flexfiles: Fix list corruption if the mirror count changes
->
-> Valentin Longchamp (1):
->    net: sched: export __netdev_watchdog_up()
->
-> Vasily Averin (1):
->    sunrpc: fixed rollback in rpc_gssd_dummy_populate()
->
-> Waiman Long (1):
->    mm/slab: use memzero_explicit() in kzfree()
->
-> Wang Hai (1):
->    mld: fix memory leak in ipv6_mc_destroy_dev()
->
-> Xiaoyao Li (1):
->    KVM: X86: Fix MSR range of APIC registers in X2APIC mode
->
-> Yang Yingliang (1):
->    net: fix memleak in register_netdevice()
->
-> Ye Bin (1):
->    ata/libata: Fix usage of page address by page_address in
->      ata_scsi_mode_select_xlat function
->
-> Yick W. Tse (1):
->    ALSA: usb-audio: add quirk for Denon DCD-1500RE
->
-> Zekun Shen (1):
->    net: alx: fix race condition in alx_remove
->
-> Zhang Xiaoxu (2):
->    cifs/smb3: Fix data inconsistent when punch hole
->    cifs/smb3: Fix data inconsistent when zero file range
->
-> Zheng Bin (2):
->    loop: replace kill_bdev with invalidate_bdev
->    xfs: add agf freeblocks verify in xfs_agf_verify
->
-> guodeqing (1):
->    net: Fix the arp error in some cases
->
-> yu kuai (2):
->    block/bio-integrity: don't free 'buf' if bio_integrity_add_page()
->      failed
->    ARM: imx5: add missing put_device() call in imx_suspend_alloc_ocram()
->
->   Makefile                                      |  4 +--
->   arch/arm/boot/dts/bcm-nsp.dtsi                |  6 ++--
->   arch/arm/mach-imx/pm-imx5.c                   |  6 ++--
->   arch/arm64/kernel/perf_regs.c                 | 25 ++++++++++++--
->   arch/s390/kernel/ptrace.c                     | 31 ++++++++++++++++-
->   arch/sparc/kernel/ptrace_32.c                 |  9 +++--
->   arch/x86/include/asm/kvm_host.h               |  2 +-
->   arch/x86/kvm/mmu.c                            |  4 +--
->   arch/x86/kvm/mmu.h                            |  2 +-
->   arch/x86/kvm/paging_tmpl.h                    |  7 ++--
->   arch/x86/kvm/vmx.c                            |  5 ++-
->   arch/x86/kvm/x86.c                            |  4 +--
->   block/bio-integrity.c                         |  1 -
->   drivers/acpi/sysfs.c                          |  4 +--
->   drivers/ata/libata-scsi.c                     |  9 +++--
->   drivers/block/loop.c                          |  6 ++--
->   drivers/firmware/efi/esrt.c                   |  2 +-
->   drivers/gpu/drm/radeon/ni_dpm.c               |  2 +-
->   drivers/infiniband/core/cma.c                 | 18 ++++++++++
->   drivers/infiniband/core/mad.c                 |  1 +
->   drivers/net/ethernet/atheros/alx/main.c       |  9 ++---
->   .../net/ethernet/broadcom/genet/bcmgenet.c    |  8 ++---
->   drivers/net/ethernet/broadcom/tg3.c           |  4 +--
->   drivers/net/ethernet/ibm/ibmveth.c            |  2 +-
->   drivers/net/ethernet/qlogic/qed/qed_cxt.c     |  2 +-
->   drivers/net/ethernet/qlogic/qed/qed_vf.c      | 23 ++++++++++---
->   drivers/net/ethernet/rocker/rocker_main.c     |  4 +--
->   drivers/net/usb/ax88179_178a.c                | 11 +++---
->   drivers/scsi/scsi_devinfo.c                   |  5 +--
->   .../staging/rtl8723bs/core/rtw_wlan_util.c    |  4 ++-
->   drivers/usb/class/cdc-acm.c                   |  2 ++
->   drivers/usb/core/quirks.c                     |  3 +-
->   drivers/usb/dwc2/gadget.c                     |  6 ----
->   drivers/usb/dwc2/platform.c                   | 11 ++++++
->   drivers/usb/gadget/udc/mv_udc_core.c          |  3 +-
->   drivers/usb/host/ehci-exynos.c                |  5 ++-
->   drivers/usb/host/ehci-pci.c                   |  7 ++++
->   drivers/usb/host/ohci-sm501.c                 |  1 +
->   drivers/usb/host/xhci-mtk.c                   |  5 +--
->   drivers/usb/host/xhci.c                       |  4 +++
->   drivers/usb/host/xhci.h                       |  2 +-
->   fs/btrfs/inode.c                              |  3 --
->   fs/cifs/smb2ops.c                             | 12 +++++++
->   fs/nfs/direct.c                               | 13 ++++---
->   fs/nfs/file.c                                 |  1 +
->   fs/nfs/flexfilelayout/flexfilelayout.c        | 11 +++---
->   fs/ocfs2/ocfs2_fs.h                           |  4 +--
->   fs/ocfs2/suballoc.c                           |  9 +++--
->   fs/xfs/libxfs/xfs_alloc.c                     | 16 +++++++++
->   include/linux/netdevice.h                     |  2 +-
->   include/linux/qed/qed_chain.h                 | 26 ++++++++------
->   include/linux/virtio_net.h                    | 17 +++++-----
->   include/net/sctp/constants.h                  |  8 +++--
->   include/net/sock.h                            |  1 -
->   kernel/sched/core.c                           |  3 +-
->   kernel/trace/blktrace.c                       | 13 +++++++
->   kernel/trace/trace_events_trigger.c           | 21 ++++++++++--
->   mm/slab_common.c                              |  2 +-
->   net/bridge/br_private.h                       |  2 +-
->   net/core/dev.c                                |  7 ++++
->   net/core/sock.c                               |  2 ++
->   net/ipv4/fib_semantics.c                      |  2 +-
->   net/ipv4/ip_tunnel.c                          | 14 ++++----
->   net/ipv4/tcp_cubic.c                          |  2 ++
->   net/ipv4/tcp_input.c                          | 12 +++++--
->   net/ipv6/ip6_gre.c                            |  9 +++--
->   net/ipv6/mcast.c                              |  1 +
->   net/netfilter/ipset/ip_set_core.c             |  2 ++
->   net/rxrpc/call_accept.c                       |  7 ++++
->   net/rxrpc/input.c                             |  7 ++--
->   net/sched/sch_generic.c                       |  1 +
->   net/sctp/associola.c                          |  5 ++-
->   net/sctp/bind_addr.c                          |  1 +
->   net/sctp/protocol.c                           |  3 +-
->   net/sunrpc/rpc_pipe.c                         |  1 +
->   net/sunrpc/xdr.c                              |  4 +++
->   scripts/Kbuild.include                        | 11 +++---
->   security/apparmor/lsm.c                       |  4 +--
->   sound/pci/hda/patch_hdmi.c                    |  5 +++
->   sound/soc/rockchip/rockchip_pdm.c             |  4 ++-
->   sound/usb/mixer.c                             | 34 ++++++++++++-------
->   sound/usb/mixer.h                             | 15 ++++++--
->   sound/usb/mixer_quirks.c                      | 11 +++---
->   sound/usb/mixer_scarlett.c                    |  6 ++--
->   sound/usb/quirks.c                            |  1 +
->   85 files changed, 433 insertions(+), 171 deletions(-)
->
+On 30/06/2020 02:25, Hans van Kranenburg wrote:=0A=
+> So, (apologies if I'm already causing you a headache right at the=0A=
+> beginning of the week), I'd say... Let's for now park everything I just=
+=0A=
+> wrote and drop the whole idea of using input flags for FS_INFO, and keep=
+=0A=
+> it output-only and just properly document the output values that have a=
+=0A=
+> meaning with the flags bits. Because at least we know that the unused=0A=
+> output fields were zeroed before (phew!!).=0A=
+=0A=
+So basically you say we're going back to v3? David, do you want me to =0A=
+resend v3 as v5?=0A=
