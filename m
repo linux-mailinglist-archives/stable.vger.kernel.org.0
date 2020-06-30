@@ -2,94 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E87020F092
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 10:34:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1B2520F0A3
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 10:38:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731472AbgF3Ie3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Jun 2020 04:34:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55298 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727059AbgF3Ie3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Jun 2020 04:34:29 -0400
-Received: from mail-oi1-x229.google.com (mail-oi1-x229.google.com [IPv6:2607:f8b0:4864:20::229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DC7CC061755;
-        Tue, 30 Jun 2020 01:34:29 -0700 (PDT)
-Received: by mail-oi1-x229.google.com with SMTP id j11so14103834oiw.12;
-        Tue, 30 Jun 2020 01:34:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:from:date:message-id:subject:to;
-        bh=Xvujs7uAlZ7v9VquTZvFNbU+VMvTAkp34dsAu9VXmjo=;
-        b=KxiRDAkzJ8aG9D0Qr90cMtm85Rahd+HiuZQkZhIj+K/uwsvDMMZ1GlBjYcO3L8w3Ay
-         BO11tTAe3RiVGGia8ZvGJVbsFv2RnWGkuEyIA7CW1bLicZF5MFD+7hmfJ0JNj4Ed75vg
-         qFhmjVXpgO0VcNIOWGvLpTb9I1EdCr+jI4qRffdMgqPH/Es39pwUgdtyYD1UPnQ9CA7L
-         xX0+kGodTdCB5kZaC7a1kyIpc6ZkMu0Om8vU5h5SOY5GsMDPpDVkIgFDjhb0IhIxTgJ3
-         Tj5TUXU8WmyD5Gr5ynQjhDmxYOLzD41YiVJYRlBdeDin0l7VOhIkEbv/c1YanPGhU8qm
-         1cTg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
-        bh=Xvujs7uAlZ7v9VquTZvFNbU+VMvTAkp34dsAu9VXmjo=;
-        b=JVlvpfV3DjPCZoUx8UUb5ZL2ha7J/DJCYS61EI9pmkHcEITWpASz/JYoVuaC1znc1L
-         I1WuS2YxCWxbFXiMLr6hx/vtosMb8A3SNg0vPYvRv7LgCd5vMqk2RlGo0efOEIO11obo
-         AX5ddXHkyut5xlIefYrs3jEAktihNsEGw4ACUKqViJSLnOIppz9uUlbJdinmTzzhABNy
-         s15OHFoe8Q4i3hytOe+GqyewFXhSYqJtzNw4NpwSAmGSeDOKMP2LAPn8CFcN4T7cyeFr
-         zb/Tj/icm+mB7e0+gKZQmhfo7E00ABIyIAF6qd6dKNZ9Q3SfOcwH8Uu7IHKw/c1bY/HM
-         tBQw==
-X-Gm-Message-State: AOAM533dQTaeUyu0UyoY8poxw7flshdG2fw4YiSQt7SurTcggyr5VAEP
-        OTeT5fCHIitIvyWqAqzXBdo3+qIP8l/nn1XTZMkvZBXT
-X-Google-Smtp-Source: ABdhPJxad4tFEc/Did5pkIuHZfL40b8vqMlDvlHTmoM81ZIQ75oj6ttPsWfIVgkCxWLpqZ8+Ieh2b/cINyieF/NpPbE=
-X-Received: by 2002:aca:603:: with SMTP id 3mr14319288oig.89.1593506068111;
- Tue, 30 Jun 2020 01:34:28 -0700 (PDT)
+        id S1731481AbgF3Iit (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Jun 2020 04:38:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52922 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731458AbgF3Iit (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Jun 2020 04:38:49 -0400
+Received: from localhost (unknown [84.241.197.94])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2FFDF206BE;
+        Tue, 30 Jun 2020 08:38:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1593506328;
+        bh=CJ+C8ZdKsvhVaVIQGe4TZRTwKW7+G3J0siGkh8wZTdQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ZahWUwe6PFeTP3M0qu7LY5NLQwEnX83/pGSmNb08y/7YYeIPPogEea0UrvqCOqOxK
+         4mbZ01TEfqtiKeMvpLoz4cu26UR3wnPzKZUlo2EL57EZ7rGoehaideIYfbJ9/VBFgc
+         dZ3ALWv6NKFaygERtyLtGnJTNnKeWFbX5LzpvGMA=
+Date:   Tue, 30 Jun 2020 10:38:45 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Shuah Khan <skhan@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org
+Subject: Re: [PATCH 5.7 000/265] 5.7.7-rc1 review
+Message-ID: <20200630083845.GA637154@kroah.com>
+References: <20200629151818.2493727-1-sashal@kernel.org>
+ <42dadde8-04c0-863b-651a-1959a3d85494@linuxfoundation.org>
+ <20200629231826.GT1931@sasha-vm>
 MIME-Version: 1.0
-From:   richard clark <richard.xnu.clark@gmail.com>
-Date:   Tue, 30 Jun 2020 16:34:17 +0800
-Message-ID: <CAJNi4rNvzQ4Eqzxo-OokF+zfOvJ=kKUMUVGt8osji0mcaaxhkQ@mail.gmail.com>
-Subject: External kmod build failed on KASAN-enabled kernel
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200629231826.GT1931@sasha-vm>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Mon, Jun 29, 2020 at 07:18:26PM -0400, Sasha Levin wrote:
+> On Mon, Jun 29, 2020 at 02:37:53PM -0600, Shuah Khan wrote:
+> > Hi Sasha,
+> > 
+> > On 6/29/20 9:13 AM, Sasha Levin wrote:
+> > > 
+> > > This is the start of the stable review cycle for the 5.7.7 release.
+> > > There are 265 patches in this series, all will be posted as a response
+> > > to this one.  If anyone has any issues with these being applied, please
+> > > let me know.
+> > > 
+> > > Responses should be made by Wed 01 Jul 2020 03:14:48 PM UTC.
+> > > Anything received after that time might be too late.
+> > > 
+> > > The whole patch series can be found in one patch at:
+> > > 	https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/patch/?id=linux-5.7.y&id2=v5.7.6
+> > > 
+> > 
+> > Looks like patch naming convention has changed. My scripts look
+> > for the following convention Greg uses. Are you planning to use
+> > the above going forward? My scripts failed looking for the usual
+> > naming convention.
+> > 
+> > The whole patch series can be found in one patch at:
+> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.7.6-rc1.gz
+> > or in the git tree and branch at:
+> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.7.y
+> > and the diffstat can be found below.
+> 
+> Sorry for that. I was hoping to avoid using the signed upload mechanism
+> Greg was using by simply pointing the links to automatically generated
+> patches on cgit (the git.kernel.org interface).
+> 
+> Would it be ok to change the pattern matching here? Something like this
+> should work for both Greg's format and my own (and whatever may come
+> next):
+> 
+> 	grep -A1 "The whole patch series can be found in one patch at:" | tail -n1 | sed 's/\t//'
 
-The same kmod source code can be built on KASAN-disabled kernel
-(5.7.0), but after enable it with CONFIG_KASAN=y, the kmod can't build
-on the new installed KASAN-enabled kernel with below error message,
-seems no relevant answers for this issue with google:
+If those don't work, I can still push out -rc1 patches.
 
-root@build-ws:/home/mm/slab# make
+It might be best given that the above -rc.git tree is unstable and can,
+and will, change, and patches stored on kernel.org will not.
 
-make -C /lib/modules/5.7.0/build M=/home/mm/slab modules
+thanks,
 
-make[1]: Entering directory '/home/linux-5.7'
-
-  CC [M]  /home/mm/slab/tap_slab.o
-
-  MODPOST 1 modules
-
-ERROR: modpost: "__asan_register_globals" [/home/mm/slab/tap_slab.ko] undefined!
-
-ERROR: modpost: "__asan_unregister_globals"
-[/home/mm/slab/tap_slab.ko] undefined!
-
-ERROR: modpost: "__asan_load8_noabort" [/home/mm/slab/tap_slab.ko] undefined!
-
-scripts/Makefile.modpost:94: recipe for target '__modpost' failed
-
-make[2]: *** [__modpost] Error 1
-
-Makefile:1642: recipe for target 'modules' failed
-
-make[1]: *** [modules] Error 2
-
-make[1]: Leaving directory '/home/linux-5.7'
-
-Makefile:6: recipe for target 'default' failed
-
-make: *** [default] Error 2
-===
-Regards,
-Richard
+greg k-h
