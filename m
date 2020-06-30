@@ -2,107 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1189C20F16D
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 11:20:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2D8F20F223
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 12:05:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731548AbgF3JUc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Jun 2020 05:20:32 -0400
-Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:1168 "EHLO
-        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727059AbgF3JUb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 30 Jun 2020 05:20:31 -0400
-Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate25.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5efb03ae0000>; Tue, 30 Jun 2020 02:19:42 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate102.nvidia.com (PGP Universal service);
-  Tue, 30 Jun 2020 02:20:31 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate102.nvidia.com on Tue, 30 Jun 2020 02:20:31 -0700
-Received: from [10.26.75.203] (10.124.1.5) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Tue, 30 Jun
- 2020 09:20:28 +0000
-Subject: Re: [PATCH 4.14 00/78] 4.14.186-rc1 review
-To:     Sasha Levin <sashal@kernel.org>, <linux-kernel@vger.kernel.org>,
-        <stable@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
-        linux-tegra <linux-tegra@vger.kernel.org>
-References: <20200629153806.2494953-1-sashal@kernel.org>
-From:   Jon Hunter <jonathanh@nvidia.com>
-Message-ID: <90a6431c-db16-08bd-4e1b-e23b0d9961a3@nvidia.com>
-Date:   Tue, 30 Jun 2020 10:20:26 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
+        id S1732196AbgF3KFx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Jun 2020 06:05:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44640 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1732078AbgF3KFw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Jun 2020 06:05:52 -0400
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 02BA62073E;
+        Tue, 30 Jun 2020 10:05:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1593511552;
+        bh=WGsfVoaT6gosQlq2ySDAquPdQTa/aXDxRdmxD1Nsln8=;
+        h=From:To:Cc:Subject:Date:From;
+        b=um9iXcbbiq0/h4rBLL3CVKNNpdpKp8XNwiBmhB/N1BOewXCoTQv7OhhXdXZq6f9ui
+         Ijow/waRSxqxqtWZvi2jPWc9y+xoFjYJ/OGRAqwMc0EOJkcvDXR1W1S/yQT7zbDCba
+         +uBUUkYa6Ti/Pk+a4NA0Euc+oJuMGK+VCk/70QcA=
+Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.lan)
+        by disco-boy.misterjones.org with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <maz@kernel.org>)
+        id 1jqD9C-007hs2-EG; Tue, 30 Jun 2020 11:05:50 +0100
+From:   Marc Zyngier <maz@kernel.org>
+To:     Chanwoo Choi <cw00.choi@samsung.com>,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Cc:     MyungJoo Ham <myungjoo.ham@samsung.com>,
+        Kyungmin Park <kyungmin.park@samsung.com>,
+        Heiko Stuebner <heiko@sntech.de>, linux-pm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kernel-team@android.com,
+        stable@vger.kernel.org
+Subject: [PATCH v3] PM / devfreq: rk3399_dmc: Fix kernel oops when rockchip,pmu is absent
+Date:   Tue, 30 Jun 2020 11:05:46 +0100
+Message-Id: <20200630100546.862468-1-maz@kernel.org>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-In-Reply-To: <20200629153806.2494953-1-sashal@kernel.org>
-X-Originating-IP: [10.124.1.5]
-X-ClientProxiedBy: HQMAIL111.nvidia.com (172.20.187.18) To
- HQMAIL107.nvidia.com (172.20.187.13)
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1593508782; bh=gLyyXB6z9jO0ZeKepoSp8g8i3vQ+9fUEXPT7UE8Eo1E=;
-        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
-         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
-         X-ClientProxiedBy:Content-Type:Content-Language:
-         Content-Transfer-Encoding;
-        b=cGzM/m8OhpEYV8PBbU1C5Is40cEDasAAV3/srMxkdfXp4EDCg/EXfvZaILncASqIw
-         G4G7xk89f7o2KszU1T46ZDy6iWAGGSpruKaWJZ68iGXP4cIW5TXiKn8OnQtSyqe/gz
-         xPDle5gKQeifsM4sk9Ekrzs3VZ9GEWRz6J8KwYsINM8hxL7GK3xnr9eVWbRt8NpbJs
-         YPa5GmGm7Vs+cu8pZx3iGiicmrZO+t/wYEbiigyP4BsgRqE7+B1DrAjUIEwog8yJnI
-         d9PM8K/HUVx6J6OyMsEWM/GX5wLvwU1nxKE6Q74b9wXbM9KOuu7Q8E88HPrstWhOsP
-         bF9sNsSixkplQ==
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 62.31.163.78
+X-SA-Exim-Rcpt-To: cw00.choi@samsung.com, enric.balletbo@collabora.com, myungjoo.ham@samsung.com, kyungmin.park@samsung.com, heiko@sntech.de, linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-team@android.com, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Booting a recent kernel on a rk3399-based system (nanopc-t4),
+equipped with a recent u-boot and ATF results in an Oops due
+to a NULL pointer dereference.
 
-On 29/06/2020 16:36, Sasha Levin wrote:
-> 
-> This is the start of the stable review cycle for the 4.14.186 release.
-> There are 78 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed 01 Jul 2020 03:38:04 PM UTC.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/patch/?id=linux-4.14.y&id2=v4.14.185
-> 
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-> and the diffstat can be found below.
-> 
-> --
-> Thanks,
-> Sasha
+This turns out to be due to the rk3399-dmc driver looking for
+an *undocumented* property (rockchip,pmu), and happily using
+a NULL pointer when the property isn't there.
 
-Something does not seem right here. I believe that Greg released
-4.14.186 last week [0] and now the makefile is showing 4.14.187-rc1 [1].
-So maybe the subject and above are a typo? Anyway, for 4.14.187-rc1 ...
+Instead, make most of what was brought in with 9173c5ceb035
+("PM / devfreq: rk3399_dmc: Pass ODT and auto power down parameters
+to TF-A.") conditioned on finding this property in the device-tree,
+preventing the driver from exploding.
 
-All tests are passing for Tegra ...
+Cc: stable@vger.kernel.org
+Fixes: 9173c5ceb035 ("PM / devfreq: rk3399_dmc: Pass ODT and auto power down parameters to TF-A.")
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+---
+* From v2:
+  - Trimmed down commit message
+  - Cc stable
 
-Test results for stable-v4.14:
-    8 builds:	8 pass, 0 fail
-    16 boots:	16 pass, 0 fail
-    30 tests:	30 pass, 0 fail
+ drivers/devfreq/rk3399_dmc.c | 42 ++++++++++++++++++++----------------
+ 1 file changed, 23 insertions(+), 19 deletions(-)
 
-Linux version:	4.14.187-rc1-g27e703aa31e4
-Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
-                tegra210-p2371-2180, tegra30-cardhu-a04
-
-Cheers
-Jon
-
-[0]
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/tag/?h=v4.14.186
-[1]
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/tree/Makefile?h=linux-4.14.y
-
+diff --git a/drivers/devfreq/rk3399_dmc.c b/drivers/devfreq/rk3399_dmc.c
+index 24f04f78285b..027769e39f9b 100644
+--- a/drivers/devfreq/rk3399_dmc.c
++++ b/drivers/devfreq/rk3399_dmc.c
+@@ -95,18 +95,20 @@ static int rk3399_dmcfreq_target(struct device *dev, unsigned long *freq,
+ 
+ 	mutex_lock(&dmcfreq->lock);
+ 
+-	if (target_rate >= dmcfreq->odt_dis_freq)
+-		odt_enable = true;
+-
+-	/*
+-	 * This makes a SMC call to the TF-A to set the DDR PD (power-down)
+-	 * timings and to enable or disable the ODT (on-die termination)
+-	 * resistors.
+-	 */
+-	arm_smccc_smc(ROCKCHIP_SIP_DRAM_FREQ, dmcfreq->odt_pd_arg0,
+-		      dmcfreq->odt_pd_arg1,
+-		      ROCKCHIP_SIP_CONFIG_DRAM_SET_ODT_PD,
+-		      odt_enable, 0, 0, 0, &res);
++	if (dmcfreq->regmap_pmu) {
++		if (target_rate >= dmcfreq->odt_dis_freq)
++			odt_enable = true;
++
++		/*
++		 * This makes a SMC call to the TF-A to set the DDR PD
++		 * (power-down) timings and to enable or disable the
++		 * ODT (on-die termination) resistors.
++		 */
++		arm_smccc_smc(ROCKCHIP_SIP_DRAM_FREQ, dmcfreq->odt_pd_arg0,
++			      dmcfreq->odt_pd_arg1,
++			      ROCKCHIP_SIP_CONFIG_DRAM_SET_ODT_PD,
++			      odt_enable, 0, 0, 0, &res);
++	}
+ 
+ 	/*
+ 	 * If frequency scaling from low to high, adjust voltage first.
+@@ -371,13 +373,14 @@ static int rk3399_dmcfreq_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	node = of_parse_phandle(np, "rockchip,pmu", 0);
+-	if (node) {
+-		data->regmap_pmu = syscon_node_to_regmap(node);
+-		of_node_put(node);
+-		if (IS_ERR(data->regmap_pmu)) {
+-			ret = PTR_ERR(data->regmap_pmu);
+-			goto err_edev;
+-		}
++	if (!node)
++		goto no_pmu;
++
++	data->regmap_pmu = syscon_node_to_regmap(node);
++	of_node_put(node);
++	if (IS_ERR(data->regmap_pmu)) {
++		ret = PTR_ERR(data->regmap_pmu);
++		goto err_edev;
+ 	}
+ 
+ 	regmap_read(data->regmap_pmu, RK3399_PMUGRF_OS_REG2, &val);
+@@ -399,6 +402,7 @@ static int rk3399_dmcfreq_probe(struct platform_device *pdev)
+ 		goto err_edev;
+ 	};
+ 
++no_pmu:
+ 	arm_smccc_smc(ROCKCHIP_SIP_DRAM_FREQ, 0, 0,
+ 		      ROCKCHIP_SIP_CONFIG_DRAM_INIT,
+ 		      0, 0, 0, 0, &res);
 -- 
-nvpublic
+2.27.0
+
