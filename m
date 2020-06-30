@@ -2,101 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B64A20F77D
-	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 16:46:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 925AC20F7FD
+	for <lists+stable@lfdr.de>; Tue, 30 Jun 2020 17:12:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730766AbgF3OqL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 30 Jun 2020 10:46:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36538 "EHLO mail.kernel.org"
+        id S1731721AbgF3PMu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 30 Jun 2020 11:12:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726087AbgF3OqL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 30 Jun 2020 10:46:11 -0400
-Received: from localhost.localdomain (NE2965lan1.rev.em-net.ne.jp [210.141.244.193])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1731186AbgF3PMu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 30 Jun 2020 11:12:50 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D72C2072D;
-        Tue, 30 Jun 2020 14:46:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 905EF20720;
+        Tue, 30 Jun 2020 15:12:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593528370;
-        bh=oEPMOrl5gOT0FsyHfygw3so6SkLEhFqkRhcwfdwKeS4=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pDJ6EL+kMa7Y0QxqLAzfEAzh2PriEUzbHtTLl6jh34+U3l+JC61RFLSVnid4oblLz
-         qXD1xcNETjtD39zRTvUmAKXXAfsG5nQ4uFyI69ikB7gwJ27/uZnxdrnRgYkHyasefH
-         RANY1JuxpHgjETWqUTDlbT20sRJkX06eHwACADss=
-From:   Masami Hiramatsu <mhiramat@kernel.org>
-To:     stable@vger.kernel.org
-Cc:     Changbin Du <changbin.du@gmail.com>, Jiri Olsa <jolsa@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        mhiramat@kernel.org
-Subject: [PATCH for 4.9 4/4] perf: Make perf able to build with latest libbfd
-Date:   Tue, 30 Jun 2020 23:46:07 +0900
-Message-Id: <159352836699.45385.3033296707456805894.stgit@devnote2>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <159352833055.45385.11124685086393181445.stgit@devnote2>
-References: <159352833055.45385.11124685086393181445.stgit@devnote2>
-User-Agent: StGit/0.19
+        s=default; t=1593529969;
+        bh=yj6nkosG6nmarxoBkMNBEUQpObxgnvhoR3UcCFW79Q4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=t3j2C/wkRuYWOkFy9s7dD2o5Q/UR0JlQHwv2I7lBvwDOpt3PRKktxLVyBXxnILDrN
+         CTBkbzqhJVft7/wP24A3FhyI8HmvcwPpDfUqKZmVtDfT6DXND0wbtYIkHf9GhM9pYJ
+         6UUG+SHPg4yrnMDBRrAPkQWMZwWEtcuI5ttNnh9o=
+Date:   Tue, 30 Jun 2020 11:12:48 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Shuah Khan <skhan@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org
+Subject: Re: [PATCH 5.7 000/265] 5.7.7-rc1 review
+Message-ID: <20200630151248.GY1931@sasha-vm>
+References: <20200629151818.2493727-1-sashal@kernel.org>
+ <42dadde8-04c0-863b-651a-1959a3d85494@linuxfoundation.org>
+ <20200629231826.GT1931@sasha-vm>
+ <20200630083845.GA637154@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20200630083845.GA637154@kroah.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Changbin Du <changbin.du@gmail.com>
+On Tue, Jun 30, 2020 at 10:38:45AM +0200, Greg Kroah-Hartman wrote:
+>On Mon, Jun 29, 2020 at 07:18:26PM -0400, Sasha Levin wrote:
+>> On Mon, Jun 29, 2020 at 02:37:53PM -0600, Shuah Khan wrote:
+>> > Hi Sasha,
+>> >
+>> > On 6/29/20 9:13 AM, Sasha Levin wrote:
+>> > >
+>> > > This is the start of the stable review cycle for the 5.7.7 release.
+>> > > There are 265 patches in this series, all will be posted as a response
+>> > > to this one.  If anyone has any issues with these being applied, please
+>> > > let me know.
+>> > >
+>> > > Responses should be made by Wed 01 Jul 2020 03:14:48 PM UTC.
+>> > > Anything received after that time might be too late.
+>> > >
+>> > > The whole patch series can be found in one patch at:
+>> > > 	https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/patch/?id=linux-5.7.y&id2=v5.7.6
+>> > >
+>> >
+>> > Looks like patch naming convention has changed. My scripts look
+>> > for the following convention Greg uses. Are you planning to use
+>> > the above going forward? My scripts failed looking for the usual
+>> > naming convention.
+>> >
+>> > The whole patch series can be found in one patch at:
+>> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.7.6-rc1.gz
+>> > or in the git tree and branch at:
+>> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.7.y
+>> > and the diffstat can be found below.
+>>
+>> Sorry for that. I was hoping to avoid using the signed upload mechanism
+>> Greg was using by simply pointing the links to automatically generated
+>> patches on cgit (the git.kernel.org interface).
+>>
+>> Would it be ok to change the pattern matching here? Something like this
+>> should work for both Greg's format and my own (and whatever may come
+>> next):
+>>
+>> 	grep -A1 "The whole patch series can be found in one patch at:" | tail -n1 | sed 's/\t//'
+>
+>If those don't work, I can still push out -rc1 patches.
+>
+>It might be best given that the above -rc.git tree is unstable and can,
+>and will, change, and patches stored on kernel.org will not.
 
-commit 0ada120c883d4f1f6aafd01cf0fbb10d8bbba015 upstream.
+That's a good point. Maybe we should push tags for -rc releases too?
+that would allow us to keep stable links using the git.kernel.org
+interface.
 
-libbfd has changed the bfd_section_* macros to inline functions
-bfd_section_<field> since 2019-09-18. See below two commits:
-  o http://www.sourceware.org/ml/gdb-cvs/2019-09/msg00064.html
-  o https://www.sourceware.org/ml/gdb-cvs/2019-09/msg00072.html
-
-This fix make perf able to build with both old and new libbfd.
-
-Signed-off-by: Changbin Du <changbin.du@gmail.com>
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/20200128152938.31413-1-changbin.du@gmail.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
----
- tools/perf/util/srcline.c |   16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
-
-diff --git a/tools/perf/util/srcline.c b/tools/perf/util/srcline.c
-index b4db3f48e3b0..2853d4728ab9 100644
---- a/tools/perf/util/srcline.c
-+++ b/tools/perf/util/srcline.c
-@@ -86,16 +86,30 @@ static void find_address_in_section(bfd *abfd, asection *section, void *data)
- 	bfd_vma pc, vma;
- 	bfd_size_type size;
- 	struct a2l_data *a2l = data;
-+	flagword flags;
- 
- 	if (a2l->found)
- 		return;
- 
--	if ((bfd_get_section_flags(abfd, section) & SEC_ALLOC) == 0)
-+#ifdef bfd_get_section_flags
-+	flags = bfd_get_section_flags(abfd, section);
-+#else
-+	flags = bfd_section_flags(section);
-+#endif
-+	if ((flags & SEC_ALLOC) == 0)
- 		return;
- 
- 	pc = a2l->addr;
-+#ifdef bfd_get_section_vma
- 	vma = bfd_get_section_vma(abfd, section);
-+#else
-+	vma = bfd_section_vma(section);
-+#endif
-+#ifdef bfd_get_section_size
- 	size = bfd_get_section_size(section);
-+#else
-+	size = bfd_section_size(section);
-+#endif
- 
- 	if (pc < vma || pc >= vma + size)
- 		return;
-
+-- 
+Thanks,
+Sasha
