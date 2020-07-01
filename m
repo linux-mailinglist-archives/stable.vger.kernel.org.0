@@ -2,114 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2ABD8211402
-	for <lists+stable@lfdr.de>; Wed,  1 Jul 2020 22:03:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54DF62114CF
+	for <lists+stable@lfdr.de>; Wed,  1 Jul 2020 23:13:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726049AbgGAUDX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jul 2020 16:03:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46208 "EHLO
+        id S1726972AbgGAVNo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jul 2020 17:13:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726021AbgGAUDW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jul 2020 16:03:22 -0400
-Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A67AC08C5DB
-        for <stable@vger.kernel.org>; Wed,  1 Jul 2020 13:03:22 -0700 (PDT)
-Received: by mail-pg1-x542.google.com with SMTP id o13so9275420pgf.0
-        for <stable@vger.kernel.org>; Wed, 01 Jul 2020 13:03:22 -0700 (PDT)
+        with ESMTP id S1726208AbgGAVNn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jul 2020 17:13:43 -0400
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E782C08C5DB
+        for <stable@vger.kernel.org>; Wed,  1 Jul 2020 14:13:43 -0700 (PDT)
+Received: by mail-yb1-xb4a.google.com with SMTP id e192so27370009ybf.17
+        for <stable@vger.kernel.org>; Wed, 01 Jul 2020 14:13:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
-        h=date:from:to:cc:subject:in-reply-to:message-id:references
-         :user-agent:mime-version;
-        bh=DG/OiDzZKYxcN7tgph7u8U8cnXnzZZZ9acgCYJ83YwI=;
-        b=KypgvuN8A6GvTF5CN3Jkyl+A7/LMTi++GIYEZVAvfQi8Ot5Tt64QQjwC4jI0Hirc63
-         iBxqDmcC8hQBSMpQTuj32vL9Fuu9LG1Pvcyb6jm8sCChD5g6kENuDDiDPl8siCk5ItI1
-         9BNxJ9NPtSYOUcfNQUih4K3sxuEZfSR932DUdWkGiN8GefDd6KVkKhnbNa1N8U0k19js
-         aJXpTsMFQ0iIxT9bJ1RKG5ebx8FJH3c6RukiwJ5CMFoJHAlM/naxjBXIoTyLtVzwDz9L
-         cZM71EnZcykycNMhxQWdJwYTAX11OSuRavVKU054lU719RM88tvgtw45NLNa/pVDas6l
-         kvvw==
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=1693jLPCRTZKv04e3tT1L2R/SD/azULEZvoSLa7Hf7o=;
+        b=X4N13e+9sePnsNX3KaC3ifEpq8r8prYY7zHclzCR5upKpuH+zMAIp0a3v81FRPNLSQ
+         G/oEf3GoGKzfnImMohbfzdfak484FP/LerO7QfZnV6oiJy5RkPeJ4JGyaWW4d/KoT+og
+         xaCTxxyLWdrK4Iy5oj1E4JZQLNCwWwFK+QmJ/rHwp8YgFpakYgrdyJcDKvQ7Hhutimdk
+         veAa42QeTkaDOUzn9UlIWlC4KV+uT51zeVpLjn2F2l8a/oToAXzSKFN4laYPXVsvB7KO
+         IWeEQJElTFTPPbn1R8LGZw8Vc3cSYrMYEomRY+SMbjXzjp+LawK0qruJeF/TCA8JmuqR
+         92mA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:in-reply-to:message-id
-         :references:user-agent:mime-version;
-        bh=DG/OiDzZKYxcN7tgph7u8U8cnXnzZZZ9acgCYJ83YwI=;
-        b=VbEM1V3ahPO3gfSxDAKf5vg3raEBB2SspLKdDOUqu5M89FQhnM/RmTbbLmCPxD4RP3
-         Bgvwvi/ZejOJdd/zK+TZpWojO4PZFaLqTyfMc5AVD3sIOA5F3s4x/MHvQKqWN15pIjRU
-         2KQoOwq/JEsb6LxfPG9rMznOpsmYY1lp8EbjxTr8siYaV/YPCFbEO5SypcnU9SejQAHD
-         Gale35QTvleMBnCShN+lvszeiNttKRqPTCstm/Bt4lcJBJ+Z7YNRpmSuYxgNPSU7eGNG
-         TU/4zgDXuNemzI44p1OVLfs+a/JJ5O3BwViEHEvguqXJLhy1kGN2rTXZTBSoMrywpbea
-         2/nA==
-X-Gm-Message-State: AOAM533gPXIQZmMfJqsobCs4zpPQ/CTpW1xU0VCw0/mhq1hL2HrsipsU
-        q++CREwfpgnDGQ7f+RHIzU+nHA==
-X-Google-Smtp-Source: ABdhPJzS45NkXiunLsIzMQvukb9uRBU3YXdQl00MI74iobOT3CgQ4L0Gm7O7Mii1eRv3hj+zNHOjbw==
-X-Received: by 2002:aa7:86c1:: with SMTP id h1mr12889126pfo.175.1593633801894;
-        Wed, 01 Jul 2020 13:03:21 -0700 (PDT)
-Received: from [2620:15c:17:3:4a0f:cfff:fe51:6667] ([2620:15c:17:3:4a0f:cfff:fe51:6667])
-        by smtp.gmail.com with ESMTPSA id u2sm5954919pfl.21.2020.07.01.13.03.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 01 Jul 2020 13:03:21 -0700 (PDT)
-Date:   Wed, 1 Jul 2020 13:03:20 -0700 (PDT)
-From:   David Rientjes <rientjes@google.com>
-X-X-Sender: rientjes@chino.kir.corp.google.com
-To:     Dave Hansen <dave.hansen@linux.intel.com>
-cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        ben.widawsky@intel.com, alex.shi@linux.alibaba.com,
-        dwagner@suse.de, tobin@kernel.org, cl@linux.com,
-        akpm@linux-foundation.org, ying.huang@intel.com,
-        dan.j.williams@intel.com, cai@lca.pw, stable@vger.kernel.org
-Subject: Re: [PATCH 1/3] mm/vmscan: restore zone_reclaim_mode ABI
-In-Reply-To: <20200701152623.384AF0A7@viggo.jf.intel.com>
-Message-ID: <alpine.DEB.2.23.453.2007011303080.1908531@chino.kir.corp.google.com>
-References: <20200701152621.D520E62B@viggo.jf.intel.com> <20200701152623.384AF0A7@viggo.jf.intel.com>
-User-Agent: Alpine 2.23 (DEB 453 2020-06-18)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=1693jLPCRTZKv04e3tT1L2R/SD/azULEZvoSLa7Hf7o=;
+        b=mmwN3oixwrL/OUygo3zUbwFdWmT6NFSZwlsYQJ6DqXeMbYKOSrV0KurD0uVMHrINht
+         sPjU5qTyqMCfLdgQzttC5amhhcnUyCrm5517KnprHY20q79Pco2XvPP6IB1qd+7DPTIi
+         15EmwPKRElMxZaCWuiNbQ22qeQCyw7wJZvhWt/uJdNub3/7S+24h7fCHB1kcJd3YCtiD
+         gdehLSl94ZjJRImz2IKbNNtZGddwrfs0rv7KcG8SXl3HDFf7t8fq8Aoyn+5huIOl88D/
+         KDGIo5IC3rbPY1ZqTUtNZXBmgb+J5y+Oh+h7/6imVG5VsjVjY9cWh/31p6Il7/Zbdkiz
+         BDyg==
+X-Gm-Message-State: AOAM531ZFwwv6fKMQL4vpNHCmOVcAGYjhwHndiRKmS6bnuvvwquS+/mJ
+        4CaYueyk5LHllmt+4vLf+t7HRZV9v4zFVNuQOD0f
+X-Google-Smtp-Source: ABdhPJz8wsHLEwNJYlVtw6qZZkh7AGzr6LYq5q8mwTBXuA/WiMwNXf+RKMjvBio06uTM33Rt9QsVW8X11w5NfovFi+WJ
+X-Received: by 2002:a25:c7d3:: with SMTP id w202mr29331301ybe.84.1593638022312;
+ Wed, 01 Jul 2020 14:13:42 -0700 (PDT)
+Date:   Wed,  1 Jul 2020 14:13:36 -0700
+Message-Id: <20200701211337.3027448-1-danielwinkler@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.27.0.212.ge8ba1cc988-goog
+Subject: [PATCH v2 0/1] Revert "serial: 8250: Fix max baud limit in generic
+ 8250 port"
+From:   Daniel Winkler <danielwinkler@google.com>
+To:     linux-serial@vger.kernel.org, linux-mediatek@lists.infradead.org,
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>
+Cc:     BlueZ <linux-bluetooth@vger.kernel.org>,
+        chromeos-bluetooth-upstreaming 
+        <chromeos-bluetooth-upstreaming@chromium.org>,
+        stable@vger.kernel.org, abhishekpandit@chromium.org,
+        Daniel Winkler <danielwinkler@google.com>,
+        Aaron Sierra <asierra@xes-inc.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jslaby@suse.com>, Lukas Wunner <lukas@wunner.de>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 1 Jul 2020, Dave Hansen wrote:
 
-> 
-> From: Dave Hansen <dave.hansen@linux.intel.com>
-> 
-> I went to go add a new RECLAIM_* mode for the zone_reclaim_mode
-> sysctl.  Like a good kernel developer, I also went to go update the
-> documentation.  I noticed that the bits in the documentation didn't
-> match the bits in the #defines.
-> 
-> The VM never explicitly checks the RECLAIM_ZONE bit.  The bit is,
-> however implicitly checked when checking 'node_reclaim_mode==0'.
-> The RECLAIM_ZONE #define was removed in a cleanup.  That, by itself
-> is fine.
-> 
-> But, when the bit was removed (bit 0) the _other_ bit locations also
-> got changed.  That's not OK because the bit values are documented to
-> mean one specific thing and users surely rely on them meaning that one
-> thing and not changing from kernel to kernel.  The end result is that
-> if someone had a script that did:
-> 
-> 	sysctl vm.zone_reclaim_mode=1
-> 
-> That script went from doing nothing to writing out pages during
-> node reclaim after the commit in question.  That's not great.
-> 
-> Put the bits back the way they were and add a comment so something
-> like this is a bit harder to do again.  Update the documentation to
-> make it clear that the first bit is ignored.
-> 
-> Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-> Fixes: 648b5cf368e0 ("mm/vmscan: remove unused RECLAIM_OFF/RECLAIM_ZONE")
-> Cc: Ben Widawsky <ben.widawsky@intel.com>
-> Cc: Alex Shi <alex.shi@linux.alibaba.com>
-> Cc: Daniel Wagner <dwagner@suse.de>
-> Cc: "Tobin C. Harding" <tobin@kernel.org>
-> Cc: Christoph Lameter <cl@linux.com>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Huang Ying <ying.huang@intel.com>
-> Cc: Dan Williams <dan.j.williams@intel.com>
-> Cc: Qian Cai <cai@lca.pw>
-> Cc: Daniel Wagner <dwagner@suse.de>
-> Cc: stable@vger.kernel.org
+This change regresses the QCA6174A-3 bluetooth chip, preventing
+firmware from being properly loaded. Without this change, the
+chip works as intended.
 
-Acked-by: David Rientjes <rientjes@google.com>
+The device is the Kukui Chromebook using the Mediatek chipset
+and the 8250_mtk uart. Initial controller baudrate is 115200
+and operating speed is 3000000. Our entire suite of bluetooth
+tests now fail on this platform due to an apparent failure to
+sync its firmware on initialization.
+
+The driver is in the cros tree at drivers/bluetooth/hci_qca.c
+and uses the serdev interface. Specifically, this is the
+QCA_ROME chipset.
+
+
+Daniel Winkler (1):
+  Revert "serial: 8250: Fix max baud limit in generic 8250 port"
+
+ drivers/tty/serial/8250/8250_port.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+-- 
+2.27.0.212.ge8ba1cc988-goog
+
