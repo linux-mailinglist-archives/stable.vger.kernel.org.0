@@ -2,106 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 580CD211629
-	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 00:37:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 365F7211684
+	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 01:17:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726404AbgGAWhV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jul 2020 18:37:21 -0400
-Received: from mail.baikalelectronics.com ([87.245.175.226]:49852 "EHLO
-        mail.baikalelectronics.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726121AbgGAWhV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jul 2020 18:37:21 -0400
-Received: from localhost (unknown [127.0.0.1])
-        by mail.baikalelectronics.ru (Postfix) with ESMTP id 1F473803202A;
-        Wed,  1 Jul 2020 22:37:18 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at baikalelectronics.ru
-Received: from mail.baikalelectronics.ru ([127.0.0.1])
-        by localhost (mail.baikalelectronics.ru [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id DHd7Fb6uuWwY; Thu,  2 Jul 2020 01:37:16 +0300 (MSK)
-Date:   Thu, 2 Jul 2020 01:37:13 +0300
-From:   Serge Semin <Sergey.Semin@baikalelectronics.ru>
-To:     Daniel Winkler <danielwinkler@google.com>
-CC:     Serge Semin <fancer.lancer@gmail.com>,
-        <linux-serial@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>,
-        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
-        BlueZ <linux-bluetooth@vger.kernel.org>,
-        chromeos-bluetooth-upstreaming 
-        <chromeos-bluetooth-upstreaming@chromium.org>,
-        <stable@vger.kernel.org>, <abhishekpandit@chromium.org>,
-        Aaron Sierra <asierra@xes-inc.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>, Lukas Wunner <lukas@wunner.de>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v2 0/1] Revert "serial: 8250: Fix max baud limit in
- generic 8250 port"
-Message-ID: <20200701223713.gavale4aramu3xnb@mobilestation>
-References: <20200701211337.3027448-1-danielwinkler@google.com>
+        id S1726366AbgGAXRR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jul 2020 19:17:17 -0400
+Received: from foss.arm.com ([217.140.110.172]:59200 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726312AbgGAXRR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Jul 2020 19:17:17 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 4FB8631B;
+        Wed,  1 Jul 2020 16:17:16 -0700 (PDT)
+Received: from ewhatever.cambridge.arm.com (ewhatever.cambridge.arm.com [10.1.197.1])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 661783F73C;
+        Wed,  1 Jul 2020 16:17:15 -0700 (PDT)
+From:   Suzuki K Poulose <suzuki.poulose@arm.com>
+To:     linux-arm-kernel@lists.infradead.org
+Cc:     stable@vger.kernel.org, mathieu.poirier@linaro.org,
+        coresight@lists.linaro.org,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Mike Leach <mike.leach@linaro.org>
+Subject: [PATCH] coresight: etm4x: Fix save/restore during cpu idle
+Date:   Thu,  2 Jul 2020 00:17:01 +0100
+Message-Id: <20200701231701.91029-1-suzuki.poulose@arm.com>
+X-Mailer: git-send-email 2.24.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <20200701211337.3027448-1-danielwinkler@google.com>
-X-ClientProxiedBy: MAIL.baikal.int (192.168.51.25) To mail (192.168.51.25)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 01, 2020 at 02:13:36PM -0700, Daniel Winkler wrote:
-> 
-> This change regresses the QCA6174A-3 bluetooth chip, preventing
-> firmware from being properly loaded. Without this change, the
-> chip works as intended.
-> 
-> The device is the Kukui Chromebook using the Mediatek chipset
-> and the 8250_mtk uart. Initial controller baudrate is 115200
-> and operating speed is 3000000. Our entire suite of bluetooth
-> tests now fail on this platform due to an apparent failure to
-> sync its firmware on initialization.
+The ETM state save/restore incorrectly reads/writes some of the 64bit
+registers (e.g, address comparators, vmid/cid comparators etc.) using
+32bit accesses. Ensure we use the appropriate width accessors for
+the registers.
 
-Ok. It's mediatek 8250 driver, which is responsible for the failure.
-Then we'll have two options:
+Fixes: f188b5e76aae ("coresight: etm4x: Save/restore state across CPU low power states")
+Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+Cc: Mike Leach <mike.leach@linaro.org>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+---
+ drivers/hwtracing/coresight/coresight-etm4x.c | 16 ++++++++--------
+ drivers/hwtracing/coresight/coresight-etm4x.h |  2 +-
+ 2 files changed, 9 insertions(+), 9 deletions(-)
 
-1) Add a new capability like UART_CAP_NO16DIV and take it into account
-   in the serial8250_get_baud_rate() method.
+diff --git a/drivers/hwtracing/coresight/coresight-etm4x.c b/drivers/hwtracing/coresight/coresight-etm4x.c
+index 82fc2fab072a..be990457a8ea 100644
+--- a/drivers/hwtracing/coresight/coresight-etm4x.c
++++ b/drivers/hwtracing/coresight/coresight-etm4x.c
+@@ -1206,8 +1206,8 @@ static int etm4_cpu_save(struct etmv4_drvdata *drvdata)
+ 	}
  
-I don't have a documentation for the Mediatek UART port, but it seems to me
-that that controller calculates the baud rate differently from the standard
-8250 port. A standard 8250 port does that by the next formulae:
-  baud = uartclk / (16 * divisor).
-While it seems to me that the Mediatek port uses the formulae like:
-  baud = uartclk / divisor. (Please, correct me if I'm wrong)
-If so, then we could introduce a new capability like UART_CAP_NO16DIV. The
-8250_mtk driver will add it to the 8250-port capabilities field. The
-serial8250_get_baud_rate() method should be altered in a way so one would check
-whether the UART_CAP_NO16DIV flag is set and if it is then the
-uart_get_baud_rate() function will be called without uartclk normalized by the
-factor of 16.
+ 	for (i = 0; i < drvdata->nr_addr_cmp * 2; i++) {
+-		state->trcacvr[i] = readl(drvdata->base + TRCACVRn(i));
+-		state->trcacatr[i] = readl(drvdata->base + TRCACATRn(i));
++		state->trcacvr[i] = readq(drvdata->base + TRCACVRn(i));
++		state->trcacatr[i] = readq(drvdata->base + TRCACATRn(i));
+ 	}
+ 
+ 	/*
+@@ -1218,10 +1218,10 @@ static int etm4_cpu_save(struct etmv4_drvdata *drvdata)
+ 	 */
+ 
+ 	for (i = 0; i < drvdata->numcidc; i++)
+-		state->trccidcvr[i] = readl(drvdata->base + TRCCIDCVRn(i));
++		state->trccidcvr[i] = readq(drvdata->base + TRCCIDCVRn(i));
+ 
+ 	for (i = 0; i < drvdata->numvmidc; i++)
+-		state->trcvmidcvr[i] = readl(drvdata->base + TRCVMIDCVRn(i));
++		state->trcvmidcvr[i] = readq(drvdata->base + TRCVMIDCVRn(i));
+ 
+ 	state->trccidcctlr0 = readl(drvdata->base + TRCCIDCCTLR0);
+ 	state->trccidcctlr1 = readl(drvdata->base + TRCCIDCCTLR1);
+@@ -1319,18 +1319,18 @@ static void etm4_cpu_restore(struct etmv4_drvdata *drvdata)
+ 	}
+ 
+ 	for (i = 0; i < drvdata->nr_addr_cmp * 2; i++) {
+-		writel_relaxed(state->trcacvr[i],
++		writeq_relaxed(state->trcacvr[i],
+ 			       drvdata->base + TRCACVRn(i));
+-		writel_relaxed(state->trcacatr[i],
++		writeq_relaxed(state->trcacatr[i],
+ 			       drvdata->base + TRCACATRn(i));
+ 	}
+ 
+ 	for (i = 0; i < drvdata->numcidc; i++)
+-		writel_relaxed(state->trccidcvr[i],
++		writeq_relaxed(state->trccidcvr[i],
+ 			       drvdata->base + TRCCIDCVRn(i));
+ 
+ 	for (i = 0; i < drvdata->numvmidc; i++)
+-		writel_relaxed(state->trcvmidcvr[i],
++		writeq_relaxed(state->trcvmidcvr[i],
+ 			       drvdata->base + TRCVMIDCVRn(i));
+ 
+ 	writel_relaxed(state->trccidcctlr0, drvdata->base + TRCCIDCCTLR0);
+diff --git a/drivers/hwtracing/coresight/coresight-etm4x.h b/drivers/hwtracing/coresight/coresight-etm4x.h
+index 7da022e87218..b8283e1d6d88 100644
+--- a/drivers/hwtracing/coresight/coresight-etm4x.h
++++ b/drivers/hwtracing/coresight/coresight-etm4x.h
+@@ -334,7 +334,7 @@ struct etmv4_save_state {
+ 	u64	trcacvr[ETM_MAX_SINGLE_ADDR_CMP];
+ 	u64	trcacatr[ETM_MAX_SINGLE_ADDR_CMP];
+ 	u64	trccidcvr[ETMv4_MAX_CTXID_CMP];
+-	u32	trcvmidcvr[ETM_MAX_VMID_CMP];
++	u64	trcvmidcvr[ETM_MAX_VMID_CMP];
+ 	u32	trccidcctlr0;
+ 	u32	trccidcctlr1;
+ 	u32	trcvmidcctlr0;
+-- 
+2.24.1
 
-2) Manually call serial8250_do_set_divisor() in the custom set_termios()
-   callback.
-
-Just add the uart_update_timeout() and serial8250_do_set_divisor() methods
-invocation into the mtk8250_set_termios() function, which the original commit
-81bb549fdf14 ("serial: 8250_mtk: support big baud rate") author should have
-done in the first place.
-
--Sergey
-
-> 
-> The driver is in the cros tree at drivers/bluetooth/hci_qca.c
-> and uses the serdev interface. Specifically, this is the
-> QCA_ROME chipset.
-> 
-> 
-> Daniel Winkler (1):
->   Revert "serial: 8250: Fix max baud limit in generic 8250 port"
-> 
->  drivers/tty/serial/8250/8250_port.c | 4 +---
->  1 file changed, 1 insertion(+), 3 deletions(-)
-> 
-> -- 
-> 2.27.0.212.ge8ba1cc988-goog
-> 
