@@ -2,79 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0493C2113D8
-	for <lists+stable@lfdr.de>; Wed,  1 Jul 2020 21:46:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF71E2113FD
+	for <lists+stable@lfdr.de>; Wed,  1 Jul 2020 22:00:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726287AbgGATql (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jul 2020 15:46:41 -0400
-Received: from mga07.intel.com ([134.134.136.100]:48931 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726144AbgGATql (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Jul 2020 15:46:41 -0400
-IronPort-SDR: y6zt76ttF2o1v9ZhPmRDuh/fyvcIOVTUTBcsZKSb07LtH80DYsVA0pEN/LxzHh8L2qGP/qd6+J
- fUPugapFl/Kw==
-X-IronPort-AV: E=McAfee;i="6000,8403,9669"; a="211747569"
-X-IronPort-AV: E=Sophos;i="5.75,301,1589266800"; 
-   d="scan'208";a="211747569"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Jul 2020 12:46:40 -0700
-IronPort-SDR: qvtnx4bm3+4pxd36Ik9wvC7W1BPk5Cmx9bMDuTWRDCyrb2afNfWbRXGtGr+nuTmVFTt6rONibS
- SAxQpcWzktww==
-X-IronPort-AV: E=Sophos;i="5.75,301,1589266800"; 
-   d="scan'208";a="266844800"
-Received: from sawhitac-mobl.amr.corp.intel.com (HELO [10.254.111.76]) ([10.254.111.76])
-  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Jul 2020 12:46:40 -0700
-Subject: Re: [PATCH 1/6] ASoC: Intel: cht_bsw_rt5672: Change bus format to I2S
- 2 channel
-To:     Sasha Levin <sashal@kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Cezary Rojewski <cezary.rojewski@intel.com>
-Cc:     alsa-devel@alsa-project.org, stable@vger.kernel.org
-References: <20200628155231.71089-2-hdegoede@redhat.com>
- <20200701193320.C948B20870@mail.kernel.org>
-From:   Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Message-ID: <869046c6-030c-9243-784d-ecabdb774fa7@linux.intel.com>
-Date:   Wed, 1 Jul 2020 14:46:38 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
+        id S1726746AbgGAUAY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jul 2020 16:00:24 -0400
+Received: from mail29.static.mailgun.info ([104.130.122.29]:30497 "EHLO
+        mail29.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726444AbgGAUAX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Jul 2020 16:00:23 -0400
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1593633623; h=Content-Transfer-Encoding: MIME-Version:
+ Message-Id: Date: Subject: Cc: To: From: Sender;
+ bh=+Pn1474j/5xsTytr2L5ZmcpTGg1W/hqe1WIx/N9tLNU=; b=o4Bzc4FhAaSn3N+tKEB4icSaK+wJ76YB8Plv+Jc0U5XGigbdE2Jgn3soJ2Hy7e6nZChpLeou
+ V91CUoNUgcolks+zZhB0c+ns0sg8TqrXxNPnTtdwIMQxBKPpplrHJxMyCzT3Y58MAxZ4bUE7
+ 55xYxyozbWGARGxe3HUDFMQRfR8=
+X-Mailgun-Sending-Ip: 104.130.122.29
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org
+ (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
+ smtp-out-n15.prod.us-west-2.postgun.com with SMTP id
+ 5efceb496f2ee827da04f36a (version=TLS1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Wed, 01 Jul 2020 20:00:09
+ GMT
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id 497D5C433CB; Wed,  1 Jul 2020 20:00:09 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-1.0 required=2.0 tests=ALL_TRUSTED,SPF_NONE
+        autolearn=unavailable autolearn_force=no version=3.4.0
+Received: from blr-ubuntu-253.qualcomm.com (blr-bdr-fw-01_GlobalNAT_AllZones-Outside.qualcomm.com [103.229.18.19])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: sibis)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 1CF91C433CA;
+        Wed,  1 Jul 2020 20:00:05 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 1CF91C433CA
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=sibis@codeaurora.org
+From:   Sibi Sankar <sibis@codeaurora.org>
+To:     bjorn.andersson@linaro.org, rishabhb@codeaurora.org
+Cc:     agross@kernel.org, linux-arm-msm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, tsoni@codeaurora.org,
+        sidgup@codeaurora.org, stable@vger.kernel.org,
+        Sibi Sankar <sibis@codeaurora.org>
+Subject: [RESEND v1] soc: qcom: pdr: Reorder the PD state indication ack
+Date:   Thu,  2 Jul 2020 01:29:54 +0530
+Message-Id: <20200701195954.9007-1-sibis@codeaurora.org>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-In-Reply-To: <20200701193320.C948B20870@mail.kernel.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The Protection Domains (PD) have a mechanism to keep its resources
+enabled until the PD down indication is acked. Reorder the PD state
+indication ack so that clients get to release the relevant resources
+before the PD goes down.
 
+Fixes: fbe639b44a82 ("soc: qcom: Introduce Protection Domain Restart helpers")
+Reported-by: Rishabh Bhatnagar <rishabhb@codeaurora.org>
+Signed-off-by: Sibi Sankar <sibis@codeaurora.org>
+---
 
-On 7/1/20 2:33 PM, Sasha Levin wrote:
-> Hi
-> 
-> [This is an automated email]
-> 
-> This commit has been processed because it contains a -stable tag.
-> The stable tag indicates that it's relevant for the following trees: all
-> 
-> The bot has tested the following trees: v5.7.6, v5.4.49, v4.19.130, v4.14.186, v4.9.228, v4.4.228.
-> 
-> v5.7.6: Build OK!
-> v5.4.49: Failed to apply! Possible dependencies:
->      0d1571c197a92 ("ASoC: intel: use asoc_rtd_to_cpu() / asoc_rtd_to_codec() macro for DAI pointer")
+I couldn't find the previous patch on patchworks. Resending the patch
+since it would need to land on stable trees as well
 
-This patch is probably the missing dependency, but it's quite large and 
-invasive.
+ drivers/soc/qcom/pdr_interface.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-if we wanted to apply this patch to stable versions < 5.7, we should 
-replace all occurrences of
-
-asoc_rtd_to_cpu(rtd, 0) by rtd->cpu_dai
-
-and
-
-asoc_rtd_to_codec(rtd, 0) by rtd->codec_dai
-
+diff --git a/drivers/soc/qcom/pdr_interface.c b/drivers/soc/qcom/pdr_interface.c
+index a90d707da6894..088dc99f77f3f 100644
+--- a/drivers/soc/qcom/pdr_interface.c
++++ b/drivers/soc/qcom/pdr_interface.c
+@@ -279,13 +279,15 @@ static void pdr_indack_work(struct work_struct *work)
+ 
+ 	list_for_each_entry_safe(ind, tmp, &pdr->indack_list, node) {
+ 		pds = ind->pds;
+-		pdr_send_indack_msg(pdr, pds, ind->transaction_id);
+ 
+ 		mutex_lock(&pdr->status_lock);
+ 		pds->state = ind->curr_state;
+ 		pdr->status(pds->state, pds->service_path, pdr->priv);
+ 		mutex_unlock(&pdr->status_lock);
+ 
++		/* Ack the indication after clients release the PD resources */
++		pdr_send_indack_msg(pdr, pds, ind->transaction_id);
++
+ 		mutex_lock(&pdr->list_lock);
+ 		list_del(&ind->node);
+ 		mutex_unlock(&pdr->list_lock);
+-- 
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+a Linux Foundation Collaborative Project
 
