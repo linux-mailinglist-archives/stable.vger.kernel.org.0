@@ -2,116 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0A50211366
-	for <lists+stable@lfdr.de>; Wed,  1 Jul 2020 21:18:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66821211385
+	for <lists+stable@lfdr.de>; Wed,  1 Jul 2020 21:33:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726098AbgGATSi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jul 2020 15:18:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39290 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725771AbgGATSe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jul 2020 15:18:34 -0400
-Received: from mail-pg1-x536.google.com (mail-pg1-x536.google.com [IPv6:2607:f8b0:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EA0CC08C5C1
-        for <stable@vger.kernel.org>; Wed,  1 Jul 2020 12:18:34 -0700 (PDT)
-Received: by mail-pg1-x536.google.com with SMTP id e8so12196130pgc.5
-        for <stable@vger.kernel.org>; Wed, 01 Jul 2020 12:18:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=gqbyPSqo3+g3Hr1NA2qN6UQsXFSxKynB7kJdVFssM84=;
-        b=frsUnwfdvDh7j9PQBObgYhcJp0dsRq0Xcd8qGCynpcjc13HKVyeOvhu/2U2fj1w2ih
-         frdbQKXM0nGmI6KINCSquzW7aAWqziOtv7YJUVzoPXNp8ByLkFe4OguPRUUmrlLLvlFt
-         aorfLNbagR+9oHyZou/51e/mZ/1eRiv1C4fZa7yAjlXabUjJvvVoi9iS5vwQNjYeoI/q
-         Pxex/22yOpLS33d0RqbPPJqDG/jh1et4Z8E8le50ZqBG/C17xoB4jwik2zuWcQ1UFx3F
-         C3Nkl1IqSEj/WmyO6p7wPViRso9C0I0P0851XH3/HBmR3drNXMl5Q2xLvax1dQrdKMX4
-         3OHA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=gqbyPSqo3+g3Hr1NA2qN6UQsXFSxKynB7kJdVFssM84=;
-        b=enBlqve3fpuGT2xjDnA+lu1yhNAgh8ZJ2BSKqaHeXq5cHcHs1zerby6TjwvVl84Mgu
-         9r9uxuZUyLD7gFnpFgEAgs0a9/1wiu20warGCtOhwje2fVMVW1Xzy4+DNOgTTXTqHdrc
-         ec6wYSD66H2XIk0cwvVY34hjdjH92dmOFLDq0cheXYxZl4RDSUtoKLF/rdrHRpL8Xq/d
-         F7twKDMfksK/T8WyoyntkclLuKeqyIFPAOR3gGghMEx6AZqEXuFUhdIp0HcCYjWLdon9
-         nBFSklY76P/SOeE/6HpM/Md5+fyf9gnqTz+wX+Vit0tP0aNTSNKemNECTxR2kp8Ev8Qv
-         YQpA==
-X-Gm-Message-State: AOAM5311by3OS2i5lExVoKlmE3aj+7ibaGnpIyAVpKv8Yy2w7/GjoyN+
-        BnNnW9A7pRey8CqVENahCFGFI4d7cWA=
-X-Google-Smtp-Source: ABdhPJw1TP2bpISH6src6TSn5VU1iSGrmr5633qtvvk520ZWvW8KgIYXjcK/SrDVyP0r5G1mP54ZDw==
-X-Received: by 2002:a62:8183:: with SMTP id t125mr16052392pfd.210.1593631113734;
-        Wed, 01 Jul 2020 12:18:33 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id t4sm5667755pjs.39.2020.07.01.12.18.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 01 Jul 2020 12:18:32 -0700 (PDT)
-Message-ID: <5efce188.1c69fb81.af838.ef69@mx.google.com>
-Date:   Wed, 01 Jul 2020 12:18:32 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.131
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-4.19.y
-Subject: stable/linux-4.19.y baseline: 77 runs, 1 regressions (v4.19.131)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1726144AbgGATdO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jul 2020 15:33:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38288 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726035AbgGATdO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Jul 2020 15:33:14 -0400
+Received: from localhost (unknown [137.135.114.1])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 81C9F20760;
+        Wed,  1 Jul 2020 19:33:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1593631993;
+        bh=VvptTRaDt7ndl05+l3JBeHa0G2eudUrK0ICgg1ZxOig=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
+        b=02FTWgvAM+WZVUODNu00Ku69EE3pgmAYG/g6ka+mYDniHTIXgzJPlzHYGhnhx9zdg
+         iQ1V1vMIg24+6MJSJsm7H1N2+/IVHdrKoX4xZAYnFZL5IiBsQXmFhyYHjMVsEFAvt8
+         XVCci7L0Y3j+osvxGlR7osuEIwcyz45ZLCPzsEhk=
+Date:   Wed, 01 Jul 2020 19:33:12 +0000
+From:   Sasha Levin <sashal@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+To:     Lee Jones <lee.jones@linaro.org>
+To:     lee.jones@linaro.org
+Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH 02/10] mfd: mfd-core: Complete kerneldoc header for devm_mfd_add_devices()
+In-Reply-To: <20200625064619.2775707-3-lee.jones@linaro.org>
+References: <20200625064619.2775707-3-lee.jones@linaro.org>
+Message-Id: <20200701193313.81C9F20760@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.19.y baseline: 77 runs, 1 regressions (v4.19.131)
+Hi
 
-Regressions Summary
--------------------
+[This is an automated email]
 
-platform        | arch  | lab          | compiler | defconfig | results
-----------------+-------+--------------+----------+-----------+--------
-bcm2837-rpi-3-b | arm64 | lab-baylibre | gcc-8    | defconfig | 4/5    =
+This commit has been processed because it contains a -stable tag.
+The stable tag indicates that it's relevant for the following trees: all
 
+The bot has tested the following trees: v5.7.6, v5.4.49, v4.19.130, v4.14.186, v4.9.228, v4.4.228.
 
-  Details:  https://kernelci.org/test/job/stable/branch/linux-4.19.y/kernel=
-/v4.19.131/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-4.19.y
-  Describe: v4.19.131
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      399849e4654ea496a6217ba4e5ee3d304c995ab4 =
+v5.7.6: Build OK!
+v5.4.49: Build OK!
+v4.19.130: Build OK!
+v4.14.186: Build OK!
+v4.9.228: Build OK!
+v4.4.228: Failed to apply! Possible dependencies:
+    a8f447be8056d ("mfd: Add resource managed APIs for mfd_add_devices")
 
 
+NOTE: The patch will not be queued to stable trees until it is upstream.
 
-Test Regressions
----------------- =
+How should we proceed with this patch?
 
-
-
-platform        | arch  | lab          | compiler | defconfig | results
-----------------+-------+--------------+----------+-----------+--------
-bcm2837-rpi-3-b | arm64 | lab-baylibre | gcc-8    | defconfig | 4/5    =
-
-
-  Details:     https://kernelci.org/test/plan/id/5efca6c29c2427dc6285bb49
-
-  Results:     4 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.19.y/v4.19.131/=
-arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.19.y/v4.19.131/=
-arm64/defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2019=
-.02-11-g17e793fa4728/arm64/baseline/rootfs.cpio.gz =
-
-
-  * baseline.dmesg.crit: https://kernelci.org/test/case/id/5efca6c29c2427dc=
-6285bb4c
-      new failure (last pass: v4.19.130)
-      1 lines =20
+-- 
+Thanks
+Sasha
