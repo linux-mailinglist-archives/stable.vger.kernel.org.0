@@ -2,109 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55575210DE4
-	for <lists+stable@lfdr.de>; Wed,  1 Jul 2020 16:40:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCD0A210DEA
+	for <lists+stable@lfdr.de>; Wed,  1 Jul 2020 16:41:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726675AbgGAOkD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jul 2020 10:40:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40024 "EHLO mail.kernel.org"
+        id S1731538AbgGAOlg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jul 2020 10:41:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726251AbgGAOkD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Jul 2020 10:40:03 -0400
+        id S1730264AbgGAOlf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Jul 2020 10:41:35 -0400
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB1D3206BE;
-        Wed,  1 Jul 2020 14:40:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F468206BE;
+        Wed,  1 Jul 2020 14:41:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593614402;
-        bh=BqxH0cMOs/4FiCTI+vy8Y4QYi2z24pQRraMa1mojDnk=;
+        s=default; t=1593614495;
+        bh=nvSH9+2UcI96e3EjDMa5kVK8In3TIpQBLCm5N8cVFi0=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=IiIEvHvhiwOTdc0aHz4sbZAnKys7xXxlDUPWvhtTZw6crBqCk4jzufMoywpIE4364
-         sQQrOLvbQLxn7ougLHKjDsKUiP9GLNzXtnl6vGyXcXR2jKJbR94jENdQoYsQptloS9
-         iKo13pDMt/l0zDPiyKDAMp+GKuGAABbhxOjNEgLE=
-Date:   Wed, 1 Jul 2020 10:40:00 -0400
+        b=eORGEak+Owgx+ynvZGvWQlOfu+Ht2UxINJv+97tD9Y6h72mcvJMvLK103WUonhgKe
+         W1l9ho/ij7oUlMoQQTeoPKbw+j7W4ofbFiaKfvgpR9f1AfRE7hhc5Ght8kzbj+MVnj
+         sBvUuYwuHN6vWjDnFXg53jQW+gDs+z/cCI/b7s8U=
+Date:   Wed, 1 Jul 2020 10:41:34 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Shuah Khan <skhan@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        linux- stable <stable@vger.kernel.org>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        patches@kernelci.org, lkft-triage@lists.linaro.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>
 Subject: Re: [PATCH 5.7 000/265] 5.7.7-rc1 review
-Message-ID: <20200701144000.GC2687961@sasha-vm>
+Message-ID: <20200701144134.GD2687961@sasha-vm>
 References: <20200629151818.2493727-1-sashal@kernel.org>
- <42dadde8-04c0-863b-651a-1959a3d85494@linuxfoundation.org>
- <20200629231826.GT1931@sasha-vm>
- <20200630083845.GA637154@kroah.com>
- <20200630151248.GY1931@sasha-vm>
- <20200630153325.GA1785141@kroah.com>
+ <CA+G9fYu0Vq2KbqonYwp-mm+STOg5yKDjqHvSeFQ_u-VbaLjgUA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20200630153325.GA1785141@kroah.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CA+G9fYu0Vq2KbqonYwp-mm+STOg5yKDjqHvSeFQ_u-VbaLjgUA@mail.gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 30, 2020 at 05:33:25PM +0200, Greg Kroah-Hartman wrote:
->On Tue, Jun 30, 2020 at 11:12:48AM -0400, Sasha Levin wrote:
->> On Tue, Jun 30, 2020 at 10:38:45AM +0200, Greg Kroah-Hartman wrote:
->> > On Mon, Jun 29, 2020 at 07:18:26PM -0400, Sasha Levin wrote:
->> > > On Mon, Jun 29, 2020 at 02:37:53PM -0600, Shuah Khan wrote:
->> > > > Hi Sasha,
->> > > >
->> > > > On 6/29/20 9:13 AM, Sasha Levin wrote:
->> > > > >
->> > > > > This is the start of the stable review cycle for the 5.7.7 release.
->> > > > > There are 265 patches in this series, all will be posted as a response
->> > > > > to this one.  If anyone has any issues with these being applied, please
->> > > > > let me know.
->> > > > >
->> > > > > Responses should be made by Wed 01 Jul 2020 03:14:48 PM UTC.
->> > > > > Anything received after that time might be too late.
->> > > > >
->> > > > > The whole patch series can be found in one patch at:
->> > > > > 	https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/patch/?id=linux-5.7.y&id2=v5.7.6
->> > > > >
->> > > >
->> > > > Looks like patch naming convention has changed. My scripts look
->> > > > for the following convention Greg uses. Are you planning to use
->> > > > the above going forward? My scripts failed looking for the usual
->> > > > naming convention.
->> > > >
->> > > > The whole patch series can be found in one patch at:
->> > > > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.7.6-rc1.gz
->> > > > or in the git tree and branch at:
->> > > > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.7.y
->> > > > and the diffstat can be found below.
->> > >
->> > > Sorry for that. I was hoping to avoid using the signed upload mechanism
->> > > Greg was using by simply pointing the links to automatically generated
->> > > patches on cgit (the git.kernel.org interface).
->> > >
->> > > Would it be ok to change the pattern matching here? Something like this
->> > > should work for both Greg's format and my own (and whatever may come
->> > > next):
->> > >
->> > > 	grep -A1 "The whole patch series can be found in one patch at:" | tail -n1 | sed 's/\t//'
->> >
->> > If those don't work, I can still push out -rc1 patches.
->> >
->> > It might be best given that the above -rc.git tree is unstable and can,
->> > and will, change, and patches stored on kernel.org will not.
+On Tue, Jun 30, 2020 at 10:44:12AM +0530, Naresh Kamboju wrote:
+>On Mon, 29 Jun 2020 at 20:48, Sasha Levin <sashal@kernel.org> wrote:
 >>
->> That's a good point. Maybe we should push tags for -rc releases too?
->> that would allow us to keep stable links using the git.kernel.org
->> interface.
+>>
+>> This is the start of the stable review cycle for the 5.7.7 release.
+>> There are 265 patches in this series, all will be posted as a response
+>> to this one.  If anyone has any issues with these being applied, please
+>> let me know.
+>>
+>> Responses should be made by Wed 01 Jul 2020 03:14:48 PM UTC.
+>> Anything received after that time might be too late.
+>>
+>> The whole patch series can be found in one patch at:
+>>         https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/patch/?id=linux-5.7.y&id2=v5.7.6
+>>
+>> or in the git tree and branch at:
+>>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.7.y
+>> and the diffstat can be found below.
+>>
+>> --
+>> Thanks,
+>> Sasha
 >
->If we really want to do this, then yes, we could.  But that kind of goes
->against what we (well I) have been doing in the past with that tree...
+>Results from Linaro’s test farm.
+>No regressions on arm64, arm, x86_64, and i386.
 
-We've been force pushing it, yes, but if we add tags it would just keep
-older version around so I don't think it would change much for our
-workflow, but it would make it easy to get to older versions.
+Thanks for testing!
 
 -- 
 Thanks,
