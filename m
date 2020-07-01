@@ -2,98 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FEB1210395
-	for <lists+stable@lfdr.de>; Wed,  1 Jul 2020 08:04:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4DA4210415
+	for <lists+stable@lfdr.de>; Wed,  1 Jul 2020 08:45:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726828AbgGAGED (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jul 2020 02:04:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56542 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725272AbgGAGED (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Jul 2020 02:04:03 -0400
-Received: from mail-il1-x141.google.com (mail-il1-x141.google.com [IPv6:2607:f8b0:4864:20::141])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07028C061755
-        for <stable@vger.kernel.org>; Tue, 30 Jun 2020 23:04:03 -0700 (PDT)
-Received: by mail-il1-x141.google.com with SMTP id s21so4899456ilk.5
-        for <stable@vger.kernel.org>; Tue, 30 Jun 2020 23:04:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=zdxUWMWXTEs/zs0LJh1bxLoOHpDg1k5nkLimqXptzik=;
-        b=j+rLYrNfyX/dTDQJoWgm/sPxBHlh5cz1GWwlhw882VopnhWaGJ7UBYELcZ/CcYipTA
-         Vx4W3pudDBtHVy+8cHO9Wl21tl1E0C+wlroWHaV680ww4tTDBrGOFbvSLerWzlrp2EVX
-         lBTm2WjwjNscHX39X1HV1+M2QKDCGX29suW0mQ5jwnNDD2wEkbCK46NnQecLuxNi74L/
-         VIuWPmxjACj2OcO9EWXfopctuwlaJ8N1v/RB+Zmj3wBJrdt7Lf1WTQRcXHu9QBNyFjJF
-         7rQP9OblW065ttD4aaj/FtjJ23RrU5QNFeOck3ELbKr+HQTs8DD0cW/lX2jtFi8FpTRF
-         yQYQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=zdxUWMWXTEs/zs0LJh1bxLoOHpDg1k5nkLimqXptzik=;
-        b=FRQDlodsWsi2Cc2tr4zxRXeSiz7Q3EKWKf1CLUwkBM4tEj08PuBL23SNBpZlCFNe2k
-         6oLt11iqz6v+9qD+WXvYsZP17gqMsa0c5Oxo9Gd27SZ/PlyMDWnIwzSbE/x7EdCOeE56
-         OaRZd5Kb+mDDw+6ftjnfe4A5NPD6mzHu2MJFHch9offH0Bp6S+kY3WkSoU3PlHdgDv7/
-         IRLCrmv6JCzS6Rm4n3lbk2II19P+m1uMr3FRoRCVgIyoaF4ZRzQwsEpXaldzcoP2z0FL
-         wKrPHWSvm7vXGDDISRkfvijScq9mhQfz/enIhLIkvyzqMeUVwhrQ0Yw+JvT3XOHt/2XX
-         A+Yw==
-X-Gm-Message-State: AOAM530vZlyN6PG5mKqKKyi4pCT5rGd4EsDDq2ohl+I1/sNRAfEjly6n
-        DfITwGgMziaNY9RY+TsCT8eEcnCS0ozxUIV1lPo=
-X-Google-Smtp-Source: ABdhPJybk1lkmwf3cepwtm0ZPzeYrKMxAmh/OE7ERmkcIUvSb4BJP6atxwqdywUpl4rkU1KvwooEhdTyZW7UNOyfVmE=
-X-Received: by 2002:a92:5bdd:: with SMTP id c90mr5688770ilg.154.1593583441900;
- Tue, 30 Jun 2020 23:04:01 -0700 (PDT)
-MIME-Version: 1.0
-Received: by 2002:a6b:7212:0:0:0:0:0 with HTTP; Tue, 30 Jun 2020 23:04:01
- -0700 (PDT)
-Reply-To: ayishagddafio@mail.ru
-From:   AISHA GADDAFI <fred.kim0099@gmail.com>
-Date:   Tue, 30 Jun 2020 23:04:01 -0700
-Message-ID: <CAKfKxnOH45HG=PTKgDx_4hYB22O4igxM9yztQ4u5wX=uiZpevQ@mail.gmail.com>
-Subject: Lieber Freund (Assalamu Alaikum),?
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        id S1727911AbgGAGpU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jul 2020 02:45:20 -0400
+Received: from mx2.suse.de ([195.135.220.15]:34030 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726144AbgGAGpT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Jul 2020 02:45:19 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id E7CDAADC5;
+        Wed,  1 Jul 2020 06:45:17 +0000 (UTC)
+Date:   Wed, 01 Jul 2020 08:45:16 +0200
+Message-ID: <s5himf7g2df.wl-tiwai@suse.de>
+From:   Takashi Iwai <tiwai@suse.de>
+To:     Greg KH <greg@kroah.com>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        Alexander Tsoy <alexander@tsoy.me>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Takashi Iwai <tiwai@suse.de>
+Subject: Re: [PATCH 4.9 026/191] ALSA: usb-audio: Improve frames size computation
+In-Reply-To: <20200630183328.GA1916087@kroah.com>
+References: <20200629154007.2495120-1-sashal@kernel.org>
+        <20200629154007.2495120-27-sashal@kernel.org>
+        <e033669a50b53e439f5071ad12d05c2d02ab6cfc.camel@tsoy.me>
+        <20200630165407.GZ1931@sasha-vm>
+        <20200630183328.GA1916087@kroah.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI/1.14.6 (Maruoka)
+ FLIM/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL/10.8 Emacs/25.3
+ (x86_64-suse-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI 1.14.6 - "Maruoka")
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=20
-Lieber Freund (Assalamu Alaikum),
+On Tue, 30 Jun 2020 20:33:28 +0200,
+Greg KH wrote:
+> 
+> On Tue, Jun 30, 2020 at 12:54:07PM -0400, Sasha Levin wrote:
+> > On Tue, Jun 30, 2020 at 01:49:50PM +0300, Alexander Tsoy wrote:
+> > > В Пн, 29/06/2020 в 11:37 -0400, Sasha Levin пишет:
+> > > > From: Alexander Tsoy <alexander@tsoy.me>
+> > > > 
+> > > > [ Upstream commit f0bd62b64016508938df9babe47f65c2c727d25c ]
+> > > > 
+> > > > For computation of the the next frame size current value of fs/fps
+> > > > and
+> > > > accumulated fractional parts of fs/fps are used, where values are
+> > > > stored
+> > > > in Q16.16 format. This is quite natural for computing frame size for
+> > > > asynchronous endpoints driven by explicit feedback, since in this
+> > > > case
+> > > > fs/fps is a value provided by the feedback endpoint and it's already
+> > > > in
+> > > > the Q format. If an error is accumulated over time, the device can
+> > > > adjust fs/fps value to prevent buffer overruns/underruns.
+> > > > 
+> > > > But for synchronous endpoints the accuracy provided by these
+> > > > computations
+> > > > is not enough. Due to accumulated error the driver periodically
+> > > > produces
+> > > > frames with incorrect size (+/- 1 audio sample).
+> > > > 
+> > > > This patch fixes this issue by implementing a different algorithm for
+> > > > frame size computation. It is based on accumulating of the remainders
+> > > > from division fs/fps and it doesn't accumulate errors over time. This
+> > > > new method is enabled for synchronous and adaptive playback
+> > > > endpoints.
+> > > > 
+> > > > Signed-off-by: Alexander Tsoy <alexander@tsoy.me>
+> > > > Link:
+> > > > https://lore.kernel.org/r/20200424022449.14972-1-alexander@tsoy.me
+> > > > Signed-off-by: Takashi Iwai <tiwai@suse.de>
+> > > > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > > > ---
+> > > >  sound/usb/card.h     |  4 ++++
+> > > >  sound/usb/endpoint.c | 43 ++++++++++++++++++++++++++++++++++++++--
+> > > > ---
+> > > >  sound/usb/endpoint.h |  1 +
+> > > >  sound/usb/pcm.c      |  2 ++
+> > > >  4 files changed, 45 insertions(+), 5 deletions(-)
+> > > 
+> > > Please drop this patch from the queue for now (and for 4.4 as well). It
+> > > introduced a regression for some devices. The fix is available, but not
+> > > accepted yet.
+> > 
+> > I've dropped it from the older branches, but note that it's already in
+> > newer released stable kernels. Should it be reverted or should we wait
+> > for the fix?
+> 
+> I was going to wait for the fix.
 
-Ich bin vor einer privaten Suche auf Ihren E-Mail-Kontakt gesto=C3=9Fen
-Ihre Hilfe. Mein Name ist Aisha Al-Qaddafi, eine alleinerziehende
-Mutter und eine Witwe
-mit drei Kindern. Ich bin die einzige leibliche Tochter des Sp=C3=A4tlibysc=
-hen
-Pr=C3=A4sident (verstorbener Oberst Muammar Gaddafi).
+The corresponding fix is now in sound git tree.
+But since I'm traveling in this week, the pull request to Linus will
+be delayed likely to the next week.
 
-Ich habe Investmentfonds im Wert von siebenundzwanzig Millionen
-f=C3=BCnfhunderttausend
-United State Dollar ($ 27.500.000.00) und ich brauche eine
-vertrauensw=C3=BCrdige Investition
-Manager / Partner aufgrund meines aktuellen Fl=C3=BCchtlingsstatus bin ich =
-jedoch
-M=C3=B6glicherweise interessieren Sie sich f=C3=BCr die Unterst=C3=BCtzung =
-von
-Investitionsprojekten in Ihrem Land
-Von dort aus k=C3=B6nnen wir in naher Zukunft Gesch=C3=A4ftsbeziehungen auf=
-bauen.
 
-Ich bin bereit, mit Ihnen =C3=BCber das Verh=C3=A4ltnis zwischen Investitio=
-n und
-Unternehmensgewinn zu verhandeln
-Basis f=C3=BCr die zuk=C3=BCnftige Investition Gewinne zu erzielen.
+thanks,
 
-Wenn Sie bereit sind, dieses Projekt in meinem Namen zu bearbeiten,
-antworten Sie bitte dringend
-Damit ich Ihnen mehr Informationen =C3=BCber die Investmentfonds geben kann=
-.
-
-Ihre dringende Antwort wird gesch=C3=A4tzt. schreibe mir an diese email adr=
-esse (
-ayishagddafio@mail.ru ) zur weiteren Diskussion.
-
-Freundliche Gr=C3=BC=C3=9Fe
-Frau Aisha Al-Qaddafi
+Takashi
