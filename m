@@ -2,158 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F1CF21169F
+	by mail.lfdr.de (Postfix) with ESMTP id DFA252116A0
 	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 01:26:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727811AbgGAXZv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727799AbgGAXZv (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 1 Jul 2020 19:25:51 -0400
-Received: from mailout4.samsung.com ([203.254.224.34]:31968 "EHLO
-        mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726274AbgGAXZn (ORCPT
+Received: from mailout3.samsung.com ([203.254.224.33]:39448 "EHLO
+        mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726714AbgGAXZn (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 1 Jul 2020 19:25:43 -0400
-Received: from epcas1p2.samsung.com (unknown [182.195.41.46])
-        by mailout4.samsung.com (KnoxPortal) with ESMTP id 20200701232540epoutp048112684ead7c954ecf26dcde67934811~dxIoMX4rP0119701197epoutp04h
-        for <stable@vger.kernel.org>; Wed,  1 Jul 2020 23:25:40 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout4.samsung.com 20200701232540epoutp048112684ead7c954ecf26dcde67934811~dxIoMX4rP0119701197epoutp04h
+Received: from epcas1p4.samsung.com (unknown [182.195.41.48])
+        by mailout3.samsung.com (KnoxPortal) with ESMTP id 20200701232541epoutp03846e9c80fd94ca5622f4cca1b026cad3~dxIo4dbdR1698916989epoutp03s
+        for <stable@vger.kernel.org>; Wed,  1 Jul 2020 23:25:41 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout3.samsung.com 20200701232541epoutp03846e9c80fd94ca5622f4cca1b026cad3~dxIo4dbdR1698916989epoutp03s
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1593645940;
-        bh=5bep2QhQ25PvkbHaJR7gObnvaxyWQ3Hj7Fmcb4WTXig=;
+        s=mail20170921; t=1593645941;
+        bh=g8leJMPGlyebLqo38dOH+g6HIGb9Iw/k3OTSYjC+6x4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K5CyJGPeO4mYALZp0tbNLCGDJNKjpZyRCKXWhwKHwJ3E0Y8fTzEh7gFHDRBfpPnYG
-         detSPtORrWvyioqJkJyhs7YknXZAeerj6N88JOytrkxHS07tFq4eIzgbt/ykfW6dec
-         qPMu9vwiWa+5YpMQ5+jz92Pjfj3qY1IcILuPkRHs=
-Received: from epsnrtp3.localdomain (unknown [182.195.42.164]) by
-        epcas1p1.samsung.com (KnoxPortal) with ESMTP id
-        20200701232539epcas1p17037f448dd655aa05cae95b35341e5ca~dxIntl9Wy1842918429epcas1p1X;
-        Wed,  1 Jul 2020 23:25:39 +0000 (GMT)
-Received: from epsmges1p5.samsung.com (unknown [182.195.40.160]) by
-        epsnrtp3.localdomain (Postfix) with ESMTP id 49xy5G4yPPzMqYkV; Wed,  1 Jul
-        2020 23:25:38 +0000 (GMT)
-Received: from epcas1p1.samsung.com ( [182.195.41.45]) by
-        epsmges1p5.samsung.com (Symantec Messaging Gateway) with SMTP id
-        D4.C6.28578.27B1DFE5; Thu,  2 Jul 2020 08:25:38 +0900 (KST)
-Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
+        b=KFfIae4Jt7r+se++s9HyQpS51tbxNs8PRxTHGwgJZkvbbcwnj2mwT53NscbgcoGh0
+         3GCQBLj/dAlUZEc/MODvQqcSZRPBgZWWcTgrsqtvZpWQ2LY7V1OvNQ9eBo/PGCAdzT
+         9As0BenBWtXnvqlPOoxCdzMAqAiXIaKMEPsInQ3E=
+Received: from epsnrtp4.localdomain (unknown [182.195.42.165]) by
+        epcas1p2.samsung.com (KnoxPortal) with ESMTP id
+        20200701232540epcas1p290531fa0803c7d9c32e0861aae1d2234~dxIoiPSZf1693016930epcas1p2b;
+        Wed,  1 Jul 2020 23:25:40 +0000 (GMT)
+Received: from epsmges1p2.samsung.com (unknown [182.195.40.166]) by
+        epsnrtp4.localdomain (Postfix) with ESMTP id 49xy5H4jMxzMqYkh; Wed,  1 Jul
+        2020 23:25:39 +0000 (GMT)
+Received: from epcas1p2.samsung.com ( [182.195.41.46]) by
+        epsmges1p2.samsung.com (Symantec Messaging Gateway) with SMTP id
+        81.1B.19033.37B1DFE5; Thu,  2 Jul 2020 08:25:39 +0900 (KST)
+Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
         epcas1p1.samsung.com (KnoxPortal) with ESMTPA id
-        20200701232538epcas1p1e1e682b31b736069e70f5799244e27d5~dxImG7gAj1844418444epcas1p1b;
+        20200701232538epcas1p1219929c259f41782831936a2afeeafdf~dxImy7Om81844818448epcas1p1P;
         Wed,  1 Jul 2020 23:25:38 +0000 (GMT)
-Received: from epsmgms1p1new.samsung.com (unknown [182.195.42.41]) by
-        epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
-        20200701232538epsmtrp1479099760c1dfae70f656c9adcaddf6a~dxImGGAx71659116591epsmtrp1-;
+Received: from epsmgms1p2.samsung.com (unknown [182.195.42.42]) by
+        epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
+        20200701232538epsmtrp22eda4037d4cb830adc90d83c7c864ea2~dxImyNx7W1851918519epsmtrp26;
         Wed,  1 Jul 2020 23:25:38 +0000 (GMT)
-X-AuditID: b6c32a39-8dfff70000006fa2-98-5efd1b729403
+X-AuditID: b6c32a36-159ff70000004a59-77-5efd1b73eb61
 Received: from epsmtip2.samsung.com ( [182.195.34.31]) by
-        epsmgms1p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        29.0C.08382.17B1DFE5; Thu,  2 Jul 2020 08:25:37 +0900 (KST)
+        epsmgms1p2.samsung.com (Symantec Messaging Gateway) with SMTP id
+        B0.AE.08303.27B1DFE5; Thu,  2 Jul 2020 08:25:38 +0900 (KST)
 Received: from localhost.localdomain (unknown [10.88.103.87]) by
         epsmtip2.samsung.com (KnoxPortal) with ESMTPA id
-        20200701232537epsmtip255962a510a09792e521259c714fe4d77~dxIl6GWJn2598425984epsmtip2T;
-        Wed,  1 Jul 2020 23:25:37 +0000 (GMT)
+        20200701232538epsmtip268bbfa7188593f9f9346a4a0cc8f13ea~dxImm4CUv2699026990epsmtip2h;
+        Wed,  1 Jul 2020 23:25:38 +0000 (GMT)
 From:   Namjae Jeon <namjae.jeon@samsung.com>
 To:     gregkh@linuxfoundation.org, sashal@kernel.org
 Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Hyunchul Lee <hyc.lee@gmail.com>,
         Namjae Jeon <namjae.jeon@samsung.com>
-Subject: [PATCH 5.7.y 3/5] exfat: call sync_filesystem for read-only remount
-Date:   Thu,  2 Jul 2020 08:20:22 +0900
-Message-Id: <20200701232024.2083-4-namjae.jeon@samsung.com>
+Subject: [PATCH 5.7.y 4/5] exfat: move setting VOL_DIRTY over
+ exfat_remove_entries()
+Date:   Thu,  2 Jul 2020 08:20:23 +0900
+Message-Id: <20200701232024.2083-5-namjae.jeon@samsung.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200701232024.2083-1-namjae.jeon@samsung.com>
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFrrCKsWRmVeSWpSXmKPExsWy7bCmrm6R9N84gzm96hbNi9ezWVy7/57d
-        4vKuOWwWP6bXW2xac43NYsHGR4wObB47Z91l99i0qpPNY//cNewefVtWMXp83iQXwBqVY5OR
-        mpiSWqSQmpecn5KZl26r5B0c7xxvamZgqGtoaWGupJCXmJtqq+TiE6DrlpkDdICSQlliTilQ
-        KCCxuFhJ386mKL+0JFUhI7+4xFYptSAlp8DQoECvODG3uDQvXS85P9fK0MDAyBSoMiEnY8Fp
-        94KT3BW7lv1kb2A8ydnFyMkhIWAisebuJKYuRi4OIYEdjBJH/zUwQjifGCXu9fSzQjjfGCXW
-        X//BBNOy4uccNhBbSGAvo8Sd+8lwHUtbbwB1cHCwCWhL/NkiClIjImAocePzNRaQGmaBZkaJ
-        By0XmUESwgI+Erc3fGYFsVkEVCU+HulgAunlFbCW6DnmDrFLXmL1hgNg5ZwCNhLrzv0Hu05C
-        4BC7xNPTE5khilwk+m6vZoOwhSVeHd/CDmFLSbzsb2MHmSkhUC3xcT9UeQejxIvvthC2scTN
-        9RvATmYW0JRYv0sfIqwosfP3XEYQm1mAT+Ld1x5WiCm8Eh1tQhAlqhJ9lw5DQ0Raoqv9A9RS
-        D4n7bxexQEKkn1Fi36vfLBMY5WYhbFjAyLiKUSy1oDg3PbXYsMAUObo2MYKTl5blDsbpbz/o
-        HWJk4mA8xCjBwawkwnva4FecEG9KYmVValF+fFFpTmrxIUZTYNBNZJYSTc4Hps+8knhDUyNj
-        Y2MLEzNzM1NjJXFeJ+sLcUIC6YklqdmpqQWpRTB9TBycUg1Mi5q3/l6ldmeZzn1O//Qj3bMk
-        PRv3BzYWaS+rOFjoLyBdpq11f6f+nK11wjfNHz/cX3/sqtZ9Qf2j5g+E3l9xcjGYWLjlym/G
-        LdkdEtnpHkKWPhwzFjtdazHZuM54xyGBlZ6PfB9uMVt3q3y+nYOI6Izc57Gr1gVftbRjX1r2
-        3t77l9ftmTs0PG19AzK1thc1CwZ4PMgSWXyj86AzF+sRz7NanYlhIeI72G5O9yrj3e3M73er
-        4BPfYwkfwcc1GYVPFCONetZ3CV6uuf3mp2HVsuraO5H5S98+/PmBW7hTdedLM4ckg+2OZ84+
-        PFJ4iPEz+25jZstT90STp4Z7p6y/kBP0d8WF5knffzwyDvJTYinOSDTUYi4qTgQAO0qPPucD
-        AAA=
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFuplluLIzCtJLcpLzFFi42LZdlhJXrdQ+m+cwY+5NhbNi9ezWVy7/57d
-        4vKuOWwWP6bXW2xac43NYsHGR4wObB47Z91l99i0qpPNY//cNewefVtWMXp83iQXwBrFZZOS
-        mpNZllqkb5fAlbHgtHvBSe6KXct+sjcwnuTsYuTkkBAwkVjxcw5bFyMXh5DAbkaJhuc72CAS
-        0hLHTpxh7mLkALKFJQ4fLoao+cAoceFVIxtInE1AW+LPFlEQU0TAWKL9axlICbNAO6PE7P+b
-        2EHGCAv4SNze8JkVxGYRUJX4eKSDCaSeV8BaoueYO8QmeYnVGw4wg9icAjYS6879ZwSxhYBK
-        Nl55yTKBkW8BI8MqRsnUguLc9NxiwwLDvNRyveLE3OLSvHS95PzcTYzgENPS3MG4fdUHvUOM
-        TByMhxglOJiVRHhPG/yKE+JNSaysSi3Kjy8qzUktPsQozcGiJM57o3BhnJBAemJJanZqakFq
-        EUyWiYNTqoEpa0Va28lNT959mNTdV5M6/8PJZxsulD/dHH+xPOrDpkzbDp71Var810WjUm5P
-        9A5SK5MyP3984TVeg/cvU4J43yyf+YjvT89b6Zx+j7ilrIEM8w6I+Oqf27HwRa8gJ6+o11vd
-        NbOFr7w+xSv2+IbB0rA72bfNz7y51L9FJ+JOwrrpliqn3OY7TjQSEjcwX7e8S4NP5U5tkH3f
-        up/alxzZj5/Yeb7+UPk0m8Rnx9P6V5zoj91Tq8e74wO7kImw5+fvl1uOr3J+MXvvXtHwxV7X
-        yiT5rPxVuqUmqBzgvhv3r/fn8UXuO+bdElBymPQr9ovAphNi14v2thsyb+G4pu32x+jff4sF
-        TVrrJyQ9iOl5pMRSnJFoqMVcVJwIAFYM3gSgAgAA
-X-CMS-MailID: 20200701232538epcas1p1e1e682b31b736069e70f5799244e27d5
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFjrBKsWRmVeSWpSXmKPExsWy7bCmnm6x9N84gwcnlS2aF69ns7i8aw6b
+        xY/p9Rab1lxjs1iw8RGjA6vHplWdbB77565h9+jbsorR4/MmuQCWqBybjNTElNQihdS85PyU
+        zLx0WyXv4HjneFMzA0NdQ0sLcyWFvMTcVFslF58AXbfMHKC1SgpliTmlQKGAxOJiJX07m6L8
+        0pJUhYz84hJbpdSClJwCQ4MCveLE3OLSvHS95PxcK0MDAyNToMqEnIxLh9uYC55xVPxZ2svY
+        wLiZvYuRk0NCwERiWvMnli5GLg4hgR2MEj93/IZyPjFKXG/azAjhfGaU2Dt3PVxLz75nUIld
+        jBLTzt5nhmt5sPA4UBUHB5uAtsSfLaIgDSIChhI3Pl9jAQkzCyRKnN/rChIWFgiT6H92DKya
+        RUBV4vphfpAwr4C1xMWNMKvkJVZvOMAMYnMK2EisO/efESK+jl1i3p4wCNtF4sGbM2wQtrDE
+        q+NboHqlJD6/28sGMl5CoFri435miHAHo8SL77YQtrHEzfUbWCEO05RYv0sfIqwosfP3XLBN
+        zAJ8Eu++9rBCTOGV6GgTgihRlei7dJgJwpaW6Gr/ALXUQ2LmxTcsILaQQD+jxN8GtQmMcrMQ
+        FixgZFzFKJZaUJybnlpsWGCEHFmbGMFJSstsB+Oktx/0DjEycTAeYpTgYFYS4T1t8CtOiDcl
+        sbIqtSg/vqg0J7X4EKMpMOAmMkuJJucD02ReSbyhqZGxsbGFiZm5mamxkjivmsyFOCGB9MSS
+        1OzU1ILUIpg+Jg5OqQYmjtjUV1av/BYKPXra0KWgwHjhf/LRCQefaHFYTTr30K1TiT0malHn
+        zCURnRt622SeWdz+Gpm9J+yOwX/765v+HD+2OdDkww+93MNdfX5fGioUfmWl2H3/eWmu1glH
+        5gs/Nv10yo+ccub1xyW/J2gyf6yR2BDxJG655heRDo2213vjrxuZ+7ySPvK/2yWv8mKDscWE
+        tG1mK5KbZxRrlXubLNZ8JsTPz3H01O7o1OOd/zez8zBzf81N3SrAeURM/bh6+NKe5ifJFhUh
+        D2cohF8/vN3kkWpYUYx7ytSvry++0KxIuSt1lu/o17krTdb9DEsTezudL99jvv0eHqlMq9XV
+        vXPDOj//0m6yXS5wx2iJEktxRqKhFnNRcSIAZFGgH9sDAAA=
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFmpiluLIzCtJLcpLzFFi42LZdlhJXrdI+m+cwY2F+hbNi9ezWVzeNYfN
+        4sf0eotNa66xWSzY+IjRgdVj06pONo/9c9ewe/RtWcXo8XmTXABLFJdNSmpOZllqkb5dAlfG
+        pcNtzAXPOCr+LO1lbGDczN7FyMkhIWAi0bPvGWMXIxeHkMAORol3t1YxQSSkJY6dOMPcxcgB
+        ZAtLHD5cDFHzgVGidfNmNpA4m4C2xJ8toiCmiICxRPvXMhCTWSBZYv9eC5AhwgIhEjcOrgYb
+        wiKgKnH9MD9ImFfAWuLixvVQB8hLrN5wgBnE5hSwkVh37j8jiC0EVLPxykuWCYx8CxgZVjFK
+        phYU56bnFhsWGOWllusVJ+YWl+al6yXn525iBAeTltYOxj2rPugdYmTiYDzEKMHBrCTCe9rg
+        V5wQb0piZVVqUX58UWlOavEhRmkOFiVx3q+zFsYJCaQnlqRmp6YWpBbBZJk4OKUamFx8pwpt
+        cZcKijPfs9PTJEXQ4GbVNuvTzo8+3Fj3JeXHwsaX2XeNmUvmdrw5cuF6HMdX5ge9/p1+8XsU
+        kn32JPg2eQgnHQz6/6nQOWrZFK4TtyVLGVM3qFh7GQk6Hbj2dH+e1pvgmX+ueB3cXeXDfXvN
+        cxXzi83bNlZ7yqxVMY075Pb5cvFpXQYV3oWT7d4K1PIIiOyfX7Zou9W9y2FntnxzDPvK/k20
+        4pDstZwNN6r9i8/6Wlg6cd1kXrv50HJ+n6yoG0pT/sfYntLoLHG7WDJD7XaAiNCT3JWrayru
+        PpVtyM6Runyv/KBmdG6U2zv7XYVrDs7iuLSyYHFQppU028eiYsZtnncWz2aVaODfo8RSnJFo
+        qMVcVJwIABBkqN6VAgAA
+X-CMS-MailID: 20200701232538epcas1p1219929c259f41782831936a2afeeafdf
 X-Msg-Generator: CA
 Content-Type: text/plain; charset="utf-8"
 X-Sendblock-Type: SVC_REQ_APPROVE
 CMS-TYPE: 101P
 DLP-Filter: Pass
 X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20200701232538epcas1p1e1e682b31b736069e70f5799244e27d5
+X-CMS-RootMailID: 20200701232538epcas1p1219929c259f41782831936a2afeeafdf
 References: <20200701232024.2083-1-namjae.jeon@samsung.com>
-        <CGME20200701232538epcas1p1e1e682b31b736069e70f5799244e27d5@epcas1p1.samsung.com>
+        <CGME20200701232538epcas1p1219929c259f41782831936a2afeeafdf@epcas1p1.samsung.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hyunchul Lee <hyc.lee@gmail.com>
+Move setting VOL_DIRTY over exfat_remove_entries() to avoid unneeded
+leaving VOL_DIRTY on -ENOTEMPTY.
 
-We need to commit dirty metadata and pages to disk
-before remounting exfat as read-only.
-
-This fixes a failure in xfstests generic/452
-
-generic/452 does the following:
-cp something <exfat>/
-mount -o remount,ro <exfat>
-
-the <exfat>/something is corrupted. because while
-exfat is remounted as read-only, exfat doesn't
-have a chance to commit metadata and
-vfs invalidates page caches in a block device.
-
-Fixes: 719c1e182916 ("exfat: add super block operations")
+Fixes: 5f2aa075070c ("exfat: add inode operations")
 Cc: stable@vger.kernel.org # v5.7
-Signed-off-by: Hyunchul Lee <hyc.lee@gmail.com>
-Acked-by: Sungjong Seo <sj1557.seo@samsung.com>
+Reported-by: Tetsuhiro Kohada <kohada.t2@gmail.com>
+Reviewed-by: Sungjong Seo <sj1557.seo@samsung.com>
 Signed-off-by: Namjae Jeon <namjae.jeon@samsung.com>
 ---
- fs/exfat/super.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ fs/exfat/namei.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/exfat/super.c b/fs/exfat/super.c
-index c1b1ed306a48..e87980153398 100644
---- a/fs/exfat/super.c
-+++ b/fs/exfat/super.c
-@@ -637,10 +637,20 @@ static void exfat_free(struct fs_context *fc)
+diff --git a/fs/exfat/namei.c b/fs/exfat/namei.c
+index 3bf1dbadab69..2c9c78317721 100644
+--- a/fs/exfat/namei.c
++++ b/fs/exfat/namei.c
+@@ -984,7 +984,6 @@ static int exfat_rmdir(struct inode *dir, struct dentry *dentry)
+ 		goto unlock;
  	}
- }
  
-+static int exfat_reconfigure(struct fs_context *fc)
-+{
-+	fc->sb_flags |= SB_NODIRATIME;
-+
-+	/* volume flag will be updated in exfat_sync_fs */
-+	sync_filesystem(fc->root->d_sb);
-+	return 0;
-+}
-+
- static const struct fs_context_operations exfat_context_ops = {
- 	.parse_param	= exfat_parse_param,
- 	.get_tree	= exfat_get_tree,
- 	.free		= exfat_free,
-+	.reconfigure	= exfat_reconfigure,
- };
+-	exfat_set_vol_flags(sb, VOL_DIRTY);
+ 	exfat_chain_set(&clu_to_free, ei->start_clu,
+ 		EXFAT_B_TO_CLU_ROUND_UP(i_size_read(inode), sbi), ei->flags);
  
- static int exfat_init_fs_context(struct fs_context *fc)
+@@ -1012,6 +1011,7 @@ static int exfat_rmdir(struct inode *dir, struct dentry *dentry)
+ 	num_entries++;
+ 	brelse(bh);
+ 
++	exfat_set_vol_flags(sb, VOL_DIRTY);
+ 	err = exfat_remove_entries(dir, &cdir, entry, 0, num_entries);
+ 	if (err) {
+ 		exfat_msg(sb, KERN_ERR,
 -- 
 2.17.1
 
