@@ -2,45 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CCAE2113A0
-	for <lists+stable@lfdr.de>; Wed,  1 Jul 2020 21:34:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74B2521139E
+	for <lists+stable@lfdr.de>; Wed,  1 Jul 2020 21:34:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726895AbgGATdv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jul 2020 15:33:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38446 "EHLO mail.kernel.org"
+        id S1727095AbgGATdr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jul 2020 15:33:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726768AbgGATdS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Jul 2020 15:33:18 -0400
+        id S1726885AbgGATdT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Jul 2020 15:33:19 -0400
 Received: from localhost (unknown [137.135.114.1])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA03D208A7;
-        Wed,  1 Jul 2020 19:33:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B3A5B20760;
+        Wed,  1 Jul 2020 19:33:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593631997;
-        bh=3yFXOIlf/jaJ9LVqAKz8KOR8fQJjduxx7bKp5GcEi+M=;
-        h=Date:From:To:To:To:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Cc:Subject:In-Reply-To:
-         References:From;
-        b=2oAU5Ir4jBKIKpKMgw8qWqs+s4r3GWOAGleRz9cNaB7c62kttSM6hQEW709DGmX6g
-         cb6Z7YnI+bVZJ/zs3Iciomyv9kNI1ZPkRDedEo72V2onSEYtaUFCvrUv1gZ0EhxMPw
-         3ZldgAVF2MRpAMrLXrg5mwIlrdOPT+HuVVBCnbYk=
-Date:   Wed, 01 Jul 2020 19:33:17 +0000
+        s=default; t=1593631998;
+        bh=zuBKSP7D/NZLwX3HNXq7Bw5SIncmye/Toz5VJqJP7v8=;
+        h=Date:From:To:To:To:Cc:Cc:Subject:In-Reply-To:References:From;
+        b=DozZ76CnV5Tv/FKbXtsVxC+Qp7onFlFx35MoqQIVye3wnqKgA7OkSOJZtooiIX03A
+         /NTQZ4up/RsCvZfg5s/z6Boo9gwkeiVo3H/2roMGI8B/Z1kTcosgcQpf2PxUiNVewo
+         wyDDWDt7WztegCw6P9MTqH2G55vn0in++6c8ZSgk=
+Date:   Wed, 01 Jul 2020 19:33:18 +0000
 From:   Sasha Levin <sashal@kernel.org>
 To:     Sasha Levin <sashal@kernel.org>
-To:     Dan Williams <dan.j.williams@intel.com>
-To:     linux-nvdimm@lists.01.org
-Cc:     Vishal Verma <vishal.l.verma@intel.com>
-Cc:     Vishal Verma <vishal.l.verma@intel.com>
-Cc:     Dave Jiang <dave.jiang@intel.com>
-Cc:     Ira Weiny <ira.weiny@intel.com>
-Cc:     "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc:     Len Brown <lenb@kernel.org>
-Cc:     <stable@vger.kernel.org>
+To:     Nick Desaulniers <ndesaulniers@google.com>
+To:     Arnd Bergmann <arnd@arndb.de>
 Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 01/12] libnvdimm: Validate command family indices
-In-Reply-To: <159312902579.1850128.3536310031352445291.stgit@dwillia2-desk3.amr.corp.intel.com>
-References: <159312902579.1850128.3536310031352445291.stgit@dwillia2-desk3.amr.corp.intel.com>
-Message-Id: <20200701193317.AA03D208A7@mail.kernel.org>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH v2] vmlinux.lds: add PGO and AutoFDO input sections
+In-Reply-To: <20200625184752.73095-1-ndesaulniers@google.com>
+References: <20200625184752.73095-1-ndesaulniers@google.com>
+Message-Id: <20200701193318.B3A5B20760@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -50,61 +43,86 @@ Hi
 
 [This is an automated email]
 
-This commit has been processed because it contains a "Fixes:" tag
-fixing commit: 31eca76ba2fc ("nfit, libnvdimm: limited/whitelisted dimm command marshaling mechanism").
+This commit has been processed because it contains a -stable tag.
+The stable tag indicates that it's relevant for the following trees: all
 
-The bot has tested the following trees: v5.7.6, v5.4.49, v4.19.130, v4.14.186, v4.9.228.
+The bot has tested the following trees: v5.7.6, v5.4.49, v4.19.130, v4.14.186, v4.9.228, v4.4.228.
 
 v5.7.6: Failed to apply! Possible dependencies:
-    f517f7925b7b4 ("ndctl/papr_scm,uapi: Add support for PAPR nvdimm specific methods")
+    6553896666433 ("vmlinux.lds.h: Create section for protection against instrumentation")
 
 v5.4.49: Failed to apply! Possible dependencies:
-    72c4ebbac476b ("powerpc/papr_scm: Mark papr_scm_ndctl() as static")
-    f517f7925b7b4 ("ndctl/papr_scm,uapi: Add support for PAPR nvdimm specific methods")
+    6553896666433 ("vmlinux.lds.h: Create section for protection against instrumentation")
 
 v4.19.130: Failed to apply! Possible dependencies:
-    01091c496f920 ("acpi/nfit: improve bounds checking for 'func'")
-    0ead11181fe0c ("acpi, nfit: Collect shutdown status")
-    6f07f86c49407 ("acpi, nfit: Introduce nfit_mem flags")
-    72c4ebbac476b ("powerpc/papr_scm: Mark papr_scm_ndctl() as static")
-    b3ed2ce024c36 ("acpi/nfit: Add support for Intel DSM 1.8 commands")
-    b5beae5e224f1 ("powerpc/pseries: Add driver for PAPR SCM regions")
-    d6548ae4d16dc ("acpi/nfit, libnvdimm: Store dimm id as a member to struct nvdimm")
-    f517f7925b7b4 ("ndctl/papr_scm,uapi: Add support for PAPR nvdimm specific methods")
+    5c67a52f3da0f ("Compiler Attributes: always use the extra-underscores syntax")
+    6553896666433 ("vmlinux.lds.h: Create section for protection against instrumentation")
+    67361cf807128 ("powerpc/ftrace: Handle large kernel configs")
+    71391bdd2e9aa ("include/linux/compiler_types.h: don't pollute userspace with macro definitions")
+    77b0bf55bc675 ("kbuild/Makefile: Prepare for using macros in inline assembly code to work around asm() related GCC inlining bugs")
+    87b512def7925 ("objtool: Add support for C jump tables")
+    96af6cd02a10b ("Revert "x86/objtool: Use asm macros to work around GCC inlining bugs"")
+    989bd5000f360 ("Compiler Attributes: remove unneeded sparse (__CHECKER__) tests")
+    a3f8a30f3f007 ("Compiler Attributes: use feature checks instead of version checks")
+    c06c4d8090513 ("x86/objtool: Use asm macros to work around GCC inlining bugs")
+    c2c640aa04cc4 ("Compiler Attributes: remove unneeded tests")
+    ec0bbef66f867 ("Compiler Attributes: homogenize __must_be_array")
 
 v4.14.186: Failed to apply! Possible dependencies:
-    01091c496f920 ("acpi/nfit: improve bounds checking for 'func'")
-    0e7f0741450b1 ("acpi, nfit: validate commands against the device type")
-    1194c4133195d ("nfit: Add Hyper-V NVDIMM DSM command set to white list")
-    11e1427016095 ("acpi, nfit: add support for NVDIMM_FAMILY_INTEL v1.6 DSMs")
-    466d1493ea830 ("acpi, nfit: rework NVDIMM leaf method detection")
-    4b27db7e26cdb ("acpi, nfit: add support for the _LSI, _LSR, and _LSW label methods")
-    6f07f86c49407 ("acpi, nfit: Introduce nfit_mem flags")
-    b37b3fd33d034 ("acpi nfit: Enable to show what feature is supported via ND_CMD_CALL for nfit_test")
-    b9b1504d3c6d6 ("acpi, nfit: hide unknown commands from nmemX/commands")
-    d6548ae4d16dc ("acpi/nfit, libnvdimm: Store dimm id as a member to struct nvdimm")
+    10259821ac47d ("objtool: Make unreachable annotation inline asms explicitly volatile")
+    4c1d9bb0b5d3c ("powerpc: Allow LD_DEAD_CODE_DATA_ELIMINATION to be selected")
+    5633e85b2c313 ("powerpc64: Add .opd based function descriptor dereference")
+    6553896666433 ("vmlinux.lds.h: Create section for protection against instrumentation")
+    67361cf807128 ("powerpc/ftrace: Handle large kernel configs")
+    71391bdd2e9aa ("include/linux/compiler_types.h: don't pollute userspace with macro definitions")
+    7290d58095712 ("module: use relative references for __ksymtab entries")
+    77b0bf55bc675 ("kbuild/Makefile: Prepare for using macros in inline assembly code to work around asm() related GCC inlining bugs")
+    815f0ddb346c1 ("include/linux/compiler*.h: make compiler-*.h mutually exclusive")
+    8793bb7f4a9dd ("kbuild: add macro for controlling warnings to linux/compiler.h")
+    87b512def7925 ("objtool: Add support for C jump tables")
+    94e58e0ac3128 ("export.h: remove code for prefixing symbols with underscore")
+    96af6cd02a10b ("Revert "x86/objtool: Use asm macros to work around GCC inlining bugs"")
+    a10726075dec4 ("powerpc/32: Add .data.rel* sections explicitly")
+    ae30cc05bed2f ("powerpc64/ftrace: Implement support for ftrace_regs_caller()")
+    b865ea64304ed ("sections: split dereference_function_descriptor()")
+    c06c4d8090513 ("x86/objtool: Use asm macros to work around GCC inlining bugs")
+    cafa0010cd51f ("Raise the minimum required gcc version to 4.6")
+    ea678ac627e01 ("powerpc64/ftrace: Add a field in paca to disable ftrace in unsafe code paths")
+    fda784e50aace ("module: export module signature enforcement status")
 
 v4.9.228: Failed to apply! Possible dependencies:
-    095ab4b39f91b ("acpi, nfit: allow override of built-in bitmasks for nvdimm DSMs")
-    0f817ae696b04 ("usb: dwc3: pci: add a private driver structure")
-    36daf3aa399c0 ("usb: dwc3: pci: avoid build warning")
-    3f23df72dc351 ("mmc: sdhci-pci: Use ACPI to get max frequency for Intel NI byt sdio")
-    41c8bdb3ab10c ("acpi, nfit: Switch to use new generic UUID API")
-    42237e393f64d ("libnvdimm: allow a platform to force enable label support")
-    42b06496407c0 ("mmc: sdhci-pci: Add PCI ID for Intel NI byt sdio")
-    4b27db7e26cdb ("acpi, nfit: add support for the _LSI, _LSR, and _LSW label methods")
-    6f07f86c49407 ("acpi, nfit: Introduce nfit_mem flags")
-    8f078b38dd382 ("libnvdimm: convert NDD_ flags to use bitops, introduce NDD_LOCKED")
-    94116f8126de9 ("ACPI: Switch to use generic guid_t in acpi_evaluate_dsm()")
-    9cecca75b5a0d ("usb: dwc3: pci: call _DSM for suspend/resume")
-    9d62ed9651182 ("libnvdimm: handle locked label storage areas")
-    b7fe92999a98a ("ACPI / extlog: Switch to use new generic UUID API")
-    b917078c1c107 ("net: hns: Add ACPI support to check SFP present")
-    ba650cfcf9409 ("acpi, nfit: allow specifying a default DSM family")
-    c959a6b00ff58 ("mmc: sdhci-pci: Don't re-tune with runtime pm for some Intel devices")
-    d2061f9cc32db ("usb: typec: add driver for Intel Whiskey Cove PMIC USB Type-C PHY")
-    d6548ae4d16dc ("acpi/nfit, libnvdimm: Store dimm id as a member to struct nvdimm")
-    fab9288428ec0 ("usb: USB Type-C connector class")
+    096ff2ddba83b ("powerpc/ftrace/64: Split further based on -mprofile-kernel")
+    2f59be5b970b5 ("powerpc/ftrace: Restore LR from pt_regs")
+    4546561551106 ("powerpc/asm: Use OFFSET macro in asm-offsets.c")
+    5d451a87e5ebb ("powerpc/64: Retrieve number of L1 cache sets from device-tree")
+    6553896666433 ("vmlinux.lds.h: Create section for protection against instrumentation")
+    67361cf807128 ("powerpc/ftrace: Handle large kernel configs")
+    700e64377c2c8 ("powerpc/ftrace: Move stack setup and teardown code into ftrace_graph_caller()")
+    7853f9c029ac9 ("powerpc: Split ftrace bits into a separate file")
+    902e06eb86cd6 ("powerpc/32: Change the stack protector canary value per task")
+    99ad503287daf ("powerpc: Add a prototype for mcount() so it can be versioned")
+    ae30cc05bed2f ("powerpc64/ftrace: Implement support for ftrace_regs_caller()")
+    b3a7864c6feb0 ("powerpc/ftrace: Add prototype for prepare_ftrace_return()")
+    bd067f83b0840 ("powerpc/64: Fix naming of cache block vs. cache line")
+    c02e0349d7e9e ("powerpc/ftrace: Fix the comments for ftrace_modify_code")
+    e2827fe5c1566 ("powerpc/64: Clean up ppc64_caches using a struct per cache")
+    ea678ac627e01 ("powerpc64/ftrace: Add a field in paca to disable ftrace in unsafe code paths")
+
+v4.4.228: Failed to apply! Possible dependencies:
+    0f4c4af06eec5 ("kbuild: -ffunction-sections fix for archs with conflicting sections")
+    136cd3450af80 ("powerpc/module: Only try to generate the ftrace_caller() stub once")
+    153086644fd1f ("powerpc/ftrace: Add support for -mprofile-kernel ftrace ABI")
+    20ef10c1b3068 ("module: Use the same logic for setting and unsetting RO/NX")
+    336a7b5dd80a2 ("powerpc/module: Create a special stub for ftrace_caller()")
+    6553896666433 ("vmlinux.lds.h: Create section for protection against instrumentation")
+    67361cf807128 ("powerpc/ftrace: Handle large kernel configs")
+    7523e4dc5057e ("module: use a structure to encapsulate layout.")
+    a5967db9af51a ("kbuild: allow architectures to use thin archives instead of ld -r")
+    ae30cc05bed2f ("powerpc64/ftrace: Implement support for ftrace_regs_caller()")
+    b67067f1176df ("kbuild: allow archs to select link dead code/data elimination")
+    cb87481ee89db ("kbuild: linker script do not match C names unless LD_DEAD_CODE_DATA_ELIMINATION is configured")
+    f17c4e01e906c ("powerpc/module: Mark module stubs with a magic value")
+    f235541699bcf ("export.h: allow for per-symbol configurable EXPORT_SYMBOL()")
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
