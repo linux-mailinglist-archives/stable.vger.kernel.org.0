@@ -2,222 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA540212FB5
-	for <lists+stable@lfdr.de>; Fri,  3 Jul 2020 00:56:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADB55212FBE
+	for <lists+stable@lfdr.de>; Fri,  3 Jul 2020 01:02:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726345AbgGBW4N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jul 2020 18:56:13 -0400
-Received: from mga07.intel.com ([134.134.136.100]:52877 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726017AbgGBW4N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jul 2020 18:56:13 -0400
-IronPort-SDR: a+1uYMjfxWyx/8MngEQh/h6ENcQ5I9vuTYAQG160PicKWaH7mClLlI9jWcI9CRBmenScir7peG
- 5zFLaeRZ7KuA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9670"; a="212070437"
-X-IronPort-AV: E=Sophos;i="5.75,305,1589266800"; 
-   d="scan'208";a="212070437"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Jul 2020 15:56:12 -0700
-IronPort-SDR: TzjlWg0ORkTgQ63IQfi80JF8/WO0qJeq+9NRWr/2K+URbn+1GHTrlJ60lO0LjtW5x++WXSt+jx
- FGTpmRfJhB+Q==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.75,305,1589266800"; 
-   d="scan'208";a="455684823"
-Received: from chadjitt-mobl1.ger.corp.intel.com (HELO localhost) ([10.249.41.125])
-  by orsmga005.jf.intel.com with ESMTP; 02 Jul 2020 15:56:06 -0700
-From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-To:     linux-integrity@vger.kernel.org
-Cc:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Stefan Berger <stefanb@linux.ibm.com>, stable@vger.kernel.org,
-        Peter Huewe <peterhuewe@gmx.de>,
-        Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jerry Snitselaar <jsnitsel@redhat.com>,
-        Sumit Garg <sumit.garg@linaro.org>,
-        Alexey Klimov <aklimov@redhat.com>,
-        James Bottomley <James.Bottomley@HansenPartnership.com>,
-        linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH] tpm: Define TPM2_SPACE_BUFFER_SIZE to replace the use of PAGE_SIZE
-Date:   Fri,  3 Jul 2020 01:55:59 +0300
-Message-Id: <20200702225603.293122-1-jarkko.sakkinen@linux.intel.com>
-X-Mailer: git-send-email 2.25.1
+        id S1726323AbgGBXCG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jul 2020 19:02:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42018 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726110AbgGBXCG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Jul 2020 19:02:06 -0400
+X-Greylist: delayed 482 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 02 Jul 2020 16:02:06 PDT
+Received: from mout-p-202.mailbox.org (mout-p-202.mailbox.org [IPv6:2001:67c:2050::465:202])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 537CFC08C5C1;
+        Thu,  2 Jul 2020 16:02:06 -0700 (PDT)
+Received: from smtp2.mailbox.org (smtp2.mailbox.org [80.241.60.241])
+        (using TLSv1.2 with cipher ECDHE-RSA-CHACHA20-POLY1305 (256/256 bits))
+        (No client certificate requested)
+        by mout-p-202.mailbox.org (Postfix) with ESMTPS id 49yYLH2Jg0zQlH5;
+        Fri,  3 Jul 2020 00:53:59 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at heinlein-support.de
+Received: from smtp2.mailbox.org ([80.241.60.241])
+        by spamfilter05.heinlein-hosting.de (spamfilter05.heinlein-hosting.de [80.241.56.123]) (amavisd-new, port 10030)
+        with ESMTP id j0GeXSc04_hr; Fri,  3 Jul 2020 00:53:56 +0200 (CEST)
+From:   Hauke Mehrtens <hauke@hauke-m.de>
+To:     tsbogend@alpha.franken.de, linux-mips@vger.kernel.org
+Cc:     Hauke Mehrtens <hauke@hauke-m.de>, stable@vger.kernel.org
+Subject: [PATCH] MIPS: Add missing EHB in mtc0 -> mfc0 sequence for DSPen
+Date:   Fri,  3 Jul 2020 00:53:34 +0200
+Message-Id: <20200702225334.32414-1-hauke@hauke-m.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-MBO-SPAM-Probability: 0
+X-Rspamd-Score: -0.75 / 15.00 / 15.00
+X-Rspamd-Queue-Id: 422C1174A
+X-Rspamd-UID: 6831da
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The size of the buffers for storing context's and sessions can vary from
-arch to arch as PAGE_SIZE can be anything between 4 kB and 256 kB (the
-maximum for PPC64). Define a fixed buffer size set to 16 kB. This should be
-enough for most use with three handles (that is how many we allow at the
-moment). Parametrize the buffer size while doing this, so that it is easier
-to revisit this later on if required.
+This resolves the hazard between the mtc0 in the change_c0_status() and
+the mfc0 in configure_exception_vector(). Without resolving this hazard
+configure_exception_vector() could read an old value and would restore
+this old value again. This would revert the changes change_c0_status()
+did. I checked this by printing out the read_c0_status() at the end of
+per_cpu_trap_init() and the ST0_MX is not set without this patch.
 
-Reported-by: Stefan Berger <stefanb@linux.ibm.com>
-Cc: stable@vger.kernel.org
-Fixes: 745b361e989a ("tpm: infrastructure for TPM spaces")
-Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+The hazard is documented in the MIPS Architecture Reference Manual Vol.
+III: MIPS32/microMIPS32 Privileged Resource Architecture (MD00088), rev
+6.03 table 8.1 which includes:
+
+   Producer | Consumer | Hazard
+  ----------|----------|----------------------------
+   mtc0     | mfc0     | any coprocessor 0 register
+
+I saw this hazard on an Atheros AR9344 rev 2 SoC with a MIPS 74Kc CPU.
+There the change_c0_status() function would activate the DSPen by
+setting ST0_MX in the c0_status register. This was reverted and then the
+system got a DSP exception when the DSP registers were saved in
+save_dsp() in the first process switch. The crash looks like this:
+
+[    0.089999] Mount-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
+[    0.097796] Mountpoint-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
+[    0.107070] Kernel panic - not syncing: Unexpected DSP exception
+[    0.113470] Rebooting in 1 seconds..
+
+We saw this problem in OpenWrt only on the MIPS 74Kc based Atheros SoCs,
+not on the 24Kc based SoCs. We only saw it with kernel 5.4 not with
+kernel 4.19, in addition we had to use GCC 8.4 or 9.X, with GCC 8.3 it
+did not happen.
+
+In the kernel I bisected this problem to commit 9012d011660e ("compiler:
+allow all arches to enable CONFIG_OPTIMIZE_INLINING"), but when this was
+reverted it also happened after commit 172dcd935c34b ("MIPS: Always
+allocate exception vector for MIPSr2+").
+
+Commit 0b24cae4d535 ("MIPS: Add missing EHB in mtc0 -> mfc0 sequence.")
+does similar changes to a different file. I am not sure if there are
+more places affected by this problem.
+
+Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
+Cc: <stable@vger.kernel.org>
 ---
-v2: Also use the new buffer size for chip->work_buffer (reported by stefanb)
- drivers/char/tpm/tpm-chip.c   |  9 ++-------
- drivers/char/tpm/tpm.h        |  5 ++++-
- drivers/char/tpm/tpm2-space.c | 26 ++++++++++++++++----------
- drivers/char/tpm/tpmrm-dev.c  |  2 +-
- include/linux/tpm.h           |  5 +++--
- 5 files changed, 26 insertions(+), 21 deletions(-)
+ arch/mips/kernel/traps.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/char/tpm/tpm-chip.c b/drivers/char/tpm/tpm-chip.c
-index 8c77e88012e9..ddaeceb7e109 100644
---- a/drivers/char/tpm/tpm-chip.c
-+++ b/drivers/char/tpm/tpm-chip.c
-@@ -386,13 +386,8 @@ struct tpm_chip *tpm_chip_alloc(struct device *pdev,
- 	chip->cdev.owner = THIS_MODULE;
- 	chip->cdevs.owner = THIS_MODULE;
+diff --git a/arch/mips/kernel/traps.c b/arch/mips/kernel/traps.c
+index 7c32c956156a..1234ea21dd8f 100644
+--- a/arch/mips/kernel/traps.c
++++ b/arch/mips/kernel/traps.c
+@@ -2169,6 +2169,7 @@ static void configure_status(void)
  
--	chip->work_space.context_buf = kzalloc(PAGE_SIZE, GFP_KERNEL);
--	if (!chip->work_space.context_buf) {
--		rc = -ENOMEM;
--		goto out;
--	}
--	chip->work_space.session_buf = kzalloc(PAGE_SIZE, GFP_KERNEL);
--	if (!chip->work_space.session_buf) {
-+	rc = tpm2_init_space(&chip->work_space, TPM2_SPACE_BUFFER_SIZE);
-+	if (rc) {
- 		rc = -ENOMEM;
- 		goto out;
- 	}
-diff --git a/drivers/char/tpm/tpm.h b/drivers/char/tpm/tpm.h
-index 0fbcede241ea..947d1db0a5cc 100644
---- a/drivers/char/tpm/tpm.h
-+++ b/drivers/char/tpm/tpm.h
-@@ -59,6 +59,9 @@ enum tpm_addr {
- 
- #define TPM_TAG_RQU_COMMAND 193
- 
-+/* TPM2 specific constants. */
-+#define TPM2_SPACE_BUFFER_SIZE		16384 /* 16 kB */
-+
- struct	stclear_flags_t {
- 	__be16	tag;
- 	u8	deactivated;
-@@ -228,7 +231,7 @@ unsigned long tpm2_calc_ordinal_duration(struct tpm_chip *chip, u32 ordinal);
- int tpm2_probe(struct tpm_chip *chip);
- int tpm2_get_cc_attrs_tbl(struct tpm_chip *chip);
- int tpm2_find_cc(struct tpm_chip *chip, u32 cc);
--int tpm2_init_space(struct tpm_space *space);
-+int tpm2_init_space(struct tpm_space *space, unsigned int buf_size);
- void tpm2_del_space(struct tpm_chip *chip, struct tpm_space *space);
- void tpm2_flush_space(struct tpm_chip *chip);
- int tpm2_prepare_space(struct tpm_chip *chip, struct tpm_space *space, u8 *cmd,
-diff --git a/drivers/char/tpm/tpm2-space.c b/drivers/char/tpm/tpm2-space.c
-index 982d341d8837..784b8b3cb903 100644
---- a/drivers/char/tpm/tpm2-space.c
-+++ b/drivers/char/tpm/tpm2-space.c
-@@ -38,18 +38,21 @@ static void tpm2_flush_sessions(struct tpm_chip *chip, struct tpm_space *space)
- 	}
+ 	change_c0_status(ST0_CU|ST0_MX|ST0_RE|ST0_FR|ST0_BEV|ST0_TS|ST0_KX|ST0_SX|ST0_UX,
+ 			 status_set);
++	back_to_back_c0_hazard();
  }
  
--int tpm2_init_space(struct tpm_space *space)
-+int tpm2_init_space(struct tpm_space *space, unsigned int buf_size)
- {
--	space->context_buf = kzalloc(PAGE_SIZE, GFP_KERNEL);
-+	space->context_buf = kzalloc(buf_size, GFP_KERNEL);
- 	if (!space->context_buf)
- 		return -ENOMEM;
- 
--	space->session_buf = kzalloc(PAGE_SIZE, GFP_KERNEL);
-+	space->session_buf = kzalloc(buf_size, GFP_KERNEL);
- 	if (space->session_buf == NULL) {
- 		kfree(space->context_buf);
-+		/* Prevent caller getting a dangling pointer. */
-+		space->context_buf = NULL;
- 		return -ENOMEM;
- 	}
- 
-+	space->buf_size = buf_size;
- 	return 0;
- }
- 
-@@ -311,8 +314,10 @@ int tpm2_prepare_space(struct tpm_chip *chip, struct tpm_space *space, u8 *cmd,
- 	       sizeof(space->context_tbl));
- 	memcpy(&chip->work_space.session_tbl, &space->session_tbl,
- 	       sizeof(space->session_tbl));
--	memcpy(chip->work_space.context_buf, space->context_buf, PAGE_SIZE);
--	memcpy(chip->work_space.session_buf, space->session_buf, PAGE_SIZE);
-+	memcpy(chip->work_space.context_buf, space->context_buf,
-+	       space->buf_size);
-+	memcpy(chip->work_space.session_buf, space->session_buf,
-+	       space->buf_size);
- 
- 	rc = tpm2_load_space(chip);
- 	if (rc) {
-@@ -492,7 +497,7 @@ static int tpm2_save_space(struct tpm_chip *chip)
- 			continue;
- 
- 		rc = tpm2_save_context(chip, space->context_tbl[i],
--				       space->context_buf, PAGE_SIZE,
-+				       space->context_buf, space->buf_size,
- 				       &offset);
- 		if (rc == -ENOENT) {
- 			space->context_tbl[i] = 0;
-@@ -509,9 +514,8 @@ static int tpm2_save_space(struct tpm_chip *chip)
- 			continue;
- 
- 		rc = tpm2_save_context(chip, space->session_tbl[i],
--				       space->session_buf, PAGE_SIZE,
-+				       space->session_buf, space->buf_size,
- 				       &offset);
--
- 		if (rc == -ENOENT) {
- 			/* handle error saving session, just forget it */
- 			space->session_tbl[i] = 0;
-@@ -557,8 +561,10 @@ int tpm2_commit_space(struct tpm_chip *chip, struct tpm_space *space,
- 	       sizeof(space->context_tbl));
- 	memcpy(&space->session_tbl, &chip->work_space.session_tbl,
- 	       sizeof(space->session_tbl));
--	memcpy(space->context_buf, chip->work_space.context_buf, PAGE_SIZE);
--	memcpy(space->session_buf, chip->work_space.session_buf, PAGE_SIZE);
-+	memcpy(space->context_buf, chip->work_space.context_buf,
-+	       space->buf_size);
-+	memcpy(space->session_buf, chip->work_space.session_buf,
-+	       space->buf_size);
- 
- 	return 0;
- out:
-diff --git a/drivers/char/tpm/tpmrm-dev.c b/drivers/char/tpm/tpmrm-dev.c
-index 7a0a7051a06f..eef0fb06ea83 100644
---- a/drivers/char/tpm/tpmrm-dev.c
-+++ b/drivers/char/tpm/tpmrm-dev.c
-@@ -21,7 +21,7 @@ static int tpmrm_open(struct inode *inode, struct file *file)
- 	if (priv == NULL)
- 		return -ENOMEM;
- 
--	rc = tpm2_init_space(&priv->space);
-+	rc = tpm2_init_space(&priv->space, TPM2_SPACE_BUFFER_SIZE);
- 	if (rc) {
- 		kfree(priv);
- 		return -ENOMEM;
-diff --git a/include/linux/tpm.h b/include/linux/tpm.h
-index 03e9b184411b..d501156fedda 100644
---- a/include/linux/tpm.h
-+++ b/include/linux/tpm.h
-@@ -93,9 +93,10 @@ enum tpm_duration {
- 
- struct tpm_space {
- 	u32 context_tbl[3];
--	u8 *context_buf;
-+	u8  *context_buf;
- 	u32 session_tbl[3];
--	u8 *session_buf;
-+	u8  *session_buf;
-+	u32 buf_size;
- };
- 
- struct tpm_bios_log {
+ unsigned int hwrena;
 -- 
-2.25.1
+2.20.1
 
