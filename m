@@ -2,86 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 995E621300C
-	for <lists+stable@lfdr.de>; Fri,  3 Jul 2020 01:27:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83F50213017
+	for <lists+stable@lfdr.de>; Fri,  3 Jul 2020 01:27:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726504AbgGBX04 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jul 2020 19:26:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45828 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726726AbgGBX0r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Jul 2020 19:26:47 -0400
-Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F48FC08C5EF
-        for <stable@vger.kernel.org>; Thu,  2 Jul 2020 16:26:46 -0700 (PDT)
-Received: by mail-pl1-x641.google.com with SMTP id bj10so6672426plb.11
-        for <stable@vger.kernel.org>; Thu, 02 Jul 2020 16:26:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=qF2CZLD/R1jGbARFMDcuALfF7zwKKffMFtAaWgLK3W0=;
-        b=i9T8ozZ9ILF7cYgT0p8o+yUm2cFKjkJXBGmvy79jB5e88qD3+7WZFNa+uSSHVHSFJd
-         EwEBbQ8tE9q532P4nAt96j1X64DwrXyFjcqNDRCZg7Gfgub7t+fL2hufnw5nF5Kyer+T
-         5i79oPAisVKS5G1ySfNLaEKNytZQ7DaEPquhA=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=qF2CZLD/R1jGbARFMDcuALfF7zwKKffMFtAaWgLK3W0=;
-        b=JECQJuMiXNiBOCM8nzaFmh+DncdZpOcqr4twfnfMIcDwiTno7k7NdxlIe7k3kFc/eH
-         XysBnAZWf/eXtarwTnMV8qjIm/BBLLE+UbskGJwBQrHaYTu2PNKUl7F0zejy2SQCdDoS
-         ZdnI+IXdZq8+cwQu3X94cct9SaYB6SCrAMZI4wKlOtAznwjmcri7lyPoRH1HnXqpD59y
-         gDAS0G8vHfsWNplweKjtfd1SxGAkrbYA93ID4M3vLP0VtOK3mTJEo2vMLei3nLRmNCdn
-         0fUok+UiIeCPpuSeMl02Qv9GB9Ai9tqUmC7p4ILz82ycf/R5hDyL2Ipwpe1T3lPQitmC
-         O3TQ==
-X-Gm-Message-State: AOAM530EcpE8odczRunpWlj0we1Zoc/H5d3CDEHpg1JnqVK1ZVZuOgpN
-        X/1SAXQq/muX0CplRgUYqQZTbw==
-X-Google-Smtp-Source: ABdhPJz+z5PcmwjIbTbZn2qz8H3DMOipoQ1ecGl4gDxfvJgwEl9tv9acCNS3vGQ8KUBm7wSNRITMkw==
-X-Received: by 2002:a17:90a:db8a:: with SMTP id h10mr27506485pjv.58.1593732405796;
-        Thu, 02 Jul 2020 16:26:45 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id q24sm9468589pgg.3.2020.07.02.16.26.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Jul 2020 16:26:44 -0700 (PDT)
-From:   Kees Cook <keescook@chromium.org>
-To:     Dominik Czarnota <dominik.czarnota@trailofbits.com>
-Cc:     Kees Cook <keescook@chromium.org>, stable@vger.kernel.org,
-        Jessica Yu <jeyu@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
-        Andrii Nakryiko <andriin@fb.com>,
-        KP Singh <kpsingh@chromium.org>,
-        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
-        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Dmitry Safonov <0x7f454c46@gmail.com>,
-        Will Deacon <will@kernel.org>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Matteo Croce <mcroce@redhat.com>,
-        Edward Cree <ecree@solarflare.com>,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        Alexander Lobakin <alobakin@dlink.ru>,
-        Thomas Richter <tmricht@linux.ibm.com>,
-        Ingo Molnar <mingo@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 5/5] bpf: Check correct cred for CAP_SYSLOG in bpf_dump_raw_ok()
-Date:   Thu,  2 Jul 2020 16:26:38 -0700
-Message-Id: <20200702232638.2946421-6-keescook@chromium.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200702232638.2946421-1-keescook@chromium.org>
-References: <20200702232638.2946421-1-keescook@chromium.org>
+        id S1726826AbgGBX1U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jul 2020 19:27:20 -0400
+Received: from new3-smtp.messagingengine.com ([66.111.4.229]:50395 "EHLO
+        new3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726568AbgGBX1U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Jul 2020 19:27:20 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailnew.nyi.internal (Postfix) with ESMTP id 7BB1A58038B;
+        Thu,  2 Jul 2020 19:27:18 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Thu, 02 Jul 2020 19:27:18 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kdrag0n.dev; h=
+        from:to:cc:subject:date:message-id:in-reply-to:references
+        :mime-version:content-transfer-encoding; s=fm1; bh=e7+7Th1m9BXZP
+        GB/OmZlUELLweXezZABXtnEK2WW7Ys=; b=dNCDR6kgzoEDQdtwBKLbkJCwCan4I
+        RI46j74E4g4TGyr6dID+KO3w0enVII8cvN9YWe9X/ZfO37ifrSPmk2LqhhcH93nA
+        v1bZYC7XhyOFDIpWEB4bXQOaZMnktvb6knu/2w5sMGaXNRYhDtPM7oyb2dArGVum
+        iZt0diytvXFsraC90ApYj1QAjBVkXCliwVHNfPP99NFgkX9T8JovBNneJtbbbYTL
+        DwX7NsUXUauIa93viG4K39FN3QXgDbyyxUEZGlf21L9vSJfM05gospeI5rTd4v8K
+        cHfpiI0XpmFdSuChFgy6SgjqP04gOSiZ+DqqYzs+PGnwx8sss3DGkmKJg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:date:from
+        :in-reply-to:message-id:mime-version:references:subject:to
+        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+        fm3; bh=e7+7Th1m9BXZPGB/OmZlUELLweXezZABXtnEK2WW7Ys=; b=E06uoqPv
+        cqVkHstrueopNY7IfV99ERqSVZV6o5cvihIcRb2Nmn6IF2yJNSvZFZpMBA2ZdnwH
+        PP97straB9PExMebjC9d/fiPiFvP6e+Jnv3bp7CTJeuQl6ZhIAmtOhRGq1LP8MTm
+        +wYU/GMDIPvRYI/wKIT3HiLzpnN81nKaXyRgHHkvwP46EZo27hgle0sRgzzdhLy1
+        bvbDyOZini8rEvHvN3UgR2Zm16XiZBkJjGcIQrD5QybW4orUnw0V7JRbkT0G6Abp
+        0Nwz4lJ1ij/+l7/iaw0J1RkHVTEwvCA29C+xg09Xzzh0ICpCmMpa0jJX6w9jwbUb
+        fI/WkIlm+Yv/3Q==
+X-ME-Sender: <xms:VW3-XhUwNoCh7-UgD6Sbje0eplrd3gRO5mvHxJ0BcsK88MFvDbNigQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrtdehgddvtdcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpefhvffufffkofgjfhgggfestdekredtredttdenucfhrhhomhepffgrnhhnhicu
+    nfhinhcuoegurghnnhihsehkughrrghgtdhnrdguvghvqeenucggtffrrghtthgvrhhnpe
+    ffvdfgjeekleetleekkeegvdetvdejgfelkeevtdffffefhfefvddvtdffieegjeenucff
+    ohhmrghinhepghhithhhuhgsrdgtohhmpdhlphgsgidruggrthgrnecukfhppeejfedrvd
+    dvhedrgedrudefkeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhl
+    fhhrohhmpegurghnnhihsehkughrrghgtdhnrdguvghv
+X-ME-Proxy: <xmx:VW3-XhlzlxfgqeJyrBhe6M6wqjtR5wx-lNWT11WYYN6Q8ijDmJfDGA>
+    <xmx:VW3-XtbPUN3EUr0Dti1m_2HetNM1yPb_QZ387ZbbavZmLQdic-aBkA>
+    <xmx:VW3-XkUuTkjbzViTrlUmmDJll3fs_-n8b5qqpaaa8cKPwGz7wSHIpA>
+    <xmx:Vm3-XpX1F6a7TEQqKJXIjRcoscaln2Epa91xc0AsE1qf3YbiOvRMmA>
+Received: from pinwheel.hsd1.wa.comcast.net (c-73-225-4-138.hsd1.wa.comcast.net [73.225.4.138])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 87861306006C;
+        Thu,  2 Jul 2020 19:27:16 -0400 (EDT)
+From:   Danny Lin <danny@kdrag0n.dev>
+To:     Arnd Bergmann <arnd@arndb.de>
+Cc:     Nathan Chancellor <natechancellor@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Fangrui Song <maskray@google.com>, linux-arch@vger.kernel.org,
+        linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com,
+        Danny Lin <danny@kdrag0n.dev>, stable@vger.kernel.org
+Subject: [PATCH v2] vmlinux.lds.h: Coalesce transient LLVM dead code elimination sections
+Date:   Thu,  2 Jul 2020 16:27:13 -0700
+Message-Id: <20200702232713.123893-1-danny@kdrag0n.dev>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <7304fdf3-23d7-442b-b870-e88ae6f37004@localhost>
+References: <7304fdf3-23d7-442b-b870-e88ae6f37004@localhost>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -89,186 +75,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When evaluating access control over kallsyms visibility, credentials at
-open() time need to be used, not the "current" creds (though in BPF's
-case, this has likely always been the same). Plumb access to associated
-file->f_cred down through bpf_dump_raw_ok() and its callers now that
-kallsysm_show_value() has been refactored to take struct cred.
+A recent LLVM 11 commit [1] made LLD stop implicitly coalescing some
+temporary LLVM sections, namely .{data,bss}..compoundliteral.XXX:
 
-Cc: stable@vger.kernel.org
-Fixes: 7105e828c087 ("bpf: allow for correlation of maps and helpers in dump")
-Signed-off-by: Kees Cook <keescook@chromium.org>
+  [30] .data..compoundli PROGBITS         ffffffff9ac9a000  19e9a000
+       000000000000cea0  0000000000000000  WA       0     0     32
+  [31] .rela.data..compo RELA             0000000000000000  40965440
+       0000000000001d88  0000000000000018   I      2238    30     8
+  [32] .data..compoundli PROGBITS         ffffffff9aca6ea0  19ea6ea0
+       00000000000033c0  0000000000000000  WA       0     0     32
+  [33] .rela.data..compo RELA             0000000000000000  409671c8
+       0000000000000948  0000000000000018   I      2238    32     8
+  [...]
+  [2213] .bss..compoundlit NOBITS           ffffffffa3000000  1d85c000
+       00000000000000a0  0000000000000000  WA       0     0     32
+  [2214] .bss..compoundlit NOBITS           ffffffffa30000a0  1d85c000
+       0000000000000040  0000000000000000  WA       0     0     32
+  [...]
+
+.{data,bss}..L<symbol name> sections are also created in some cases.
+While there aren't any in this example, they should also be coalesced to
+be safe in case some config or future LLVM change makes it start
+creating more of those sections in the future. For example, enabling
+global merging causes ..L_MergedGlobals sections to be created, but it's
+likely that other changes will result in such sections as well.
+
+While these extra sections don't typically cause any breakage, they do
+inflate the vmlinux size due to the overhead of storing metadata for
+thousands of extra sections.
+
+It's also worth noting that for some reason, some downstream Android
+kernels can't boot at all if these sections aren't coalesced.
+
+This issue isn't limited to any specific architecture; it affects arm64
+and x86 if CONFIG_LD_DEAD_CODE_DATA_ELIMINATION is forced on.
+
+Example on x86 allyesconfig:
+    Before: 2241 sections, 1171169 KiB
+    After:    56 sections, 1170972 KiB
+
+[1] https://github.com/llvm/llvm-project/commit/9e33c096476ab5e02ab1c8442cc3cb4e32e29f17
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/958
+Cc: stable@vger.kernel.org # v4.4+
+Suggested-by: Fangrui Song <maskray@google.com>
+Signed-off-by: Danny Lin <danny@kdrag0n.dev>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
 ---
- include/linux/filter.h     |  4 ++--
- kernel/bpf/syscall.c       | 37 +++++++++++++++++++++----------------
- net/core/sysctl_net_core.c |  2 +-
- 3 files changed, 24 insertions(+), 19 deletions(-)
+v2:
+  - Fixed swapped example sizes
+  - Added .{data,bss}..L* sections, since it looks like they're emitted
+    in some cases even when LTO is disabled
 
-diff --git a/include/linux/filter.h b/include/linux/filter.h
-index 55104f6c78e8..0b0144752d78 100644
---- a/include/linux/filter.h
-+++ b/include/linux/filter.h
-@@ -884,12 +884,12 @@ void bpf_jit_compile(struct bpf_prog *prog);
- bool bpf_jit_needs_zext(void);
- bool bpf_helper_changes_pkt_data(void *func);
- 
--static inline bool bpf_dump_raw_ok(void)
-+static inline bool bpf_dump_raw_ok(const struct cred *cred)
- {
- 	/* Reconstruction of call-sites is dependent on kallsyms,
- 	 * thus make dump the same restriction.
- 	 */
--	return kallsyms_show_value(current_cred());
-+	return kallsyms_show_value(cred);
- }
- 
- struct bpf_prog *bpf_patch_insn_single(struct bpf_prog *prog, u32 off,
-diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
-index 8da159936bab..859053ddf05b 100644
---- a/kernel/bpf/syscall.c
-+++ b/kernel/bpf/syscall.c
-@@ -3139,7 +3139,8 @@ static const struct bpf_map *bpf_map_from_imm(const struct bpf_prog *prog,
- 	return NULL;
- }
- 
--static struct bpf_insn *bpf_insn_prepare_dump(const struct bpf_prog *prog)
-+static struct bpf_insn *bpf_insn_prepare_dump(const struct bpf_prog *prog,
-+					      const struct cred *f_cred)
- {
- 	const struct bpf_map *map;
- 	struct bpf_insn *insns;
-@@ -3165,7 +3166,7 @@ static struct bpf_insn *bpf_insn_prepare_dump(const struct bpf_prog *prog)
- 		    code == (BPF_JMP | BPF_CALL_ARGS)) {
- 			if (code == (BPF_JMP | BPF_CALL_ARGS))
- 				insns[i].code = BPF_JMP | BPF_CALL;
--			if (!bpf_dump_raw_ok())
-+			if (!bpf_dump_raw_ok(f_cred))
- 				insns[i].imm = 0;
- 			continue;
- 		}
-@@ -3221,7 +3222,8 @@ static int set_info_rec_size(struct bpf_prog_info *info)
- 	return 0;
- }
- 
--static int bpf_prog_get_info_by_fd(struct bpf_prog *prog,
-+static int bpf_prog_get_info_by_fd(struct file *file,
-+				   struct bpf_prog *prog,
- 				   const union bpf_attr *attr,
- 				   union bpf_attr __user *uattr)
- {
-@@ -3290,11 +3292,11 @@ static int bpf_prog_get_info_by_fd(struct bpf_prog *prog,
- 		struct bpf_insn *insns_sanitized;
- 		bool fault;
- 
--		if (prog->blinded && !bpf_dump_raw_ok()) {
-+		if (prog->blinded && !bpf_dump_raw_ok(file->f_cred)) {
- 			info.xlated_prog_insns = 0;
- 			goto done;
- 		}
--		insns_sanitized = bpf_insn_prepare_dump(prog);
-+		insns_sanitized = bpf_insn_prepare_dump(prog, file->f_cred);
- 		if (!insns_sanitized)
- 			return -ENOMEM;
- 		uinsns = u64_to_user_ptr(info.xlated_prog_insns);
-@@ -3328,7 +3330,7 @@ static int bpf_prog_get_info_by_fd(struct bpf_prog *prog,
- 	}
- 
- 	if (info.jited_prog_len && ulen) {
--		if (bpf_dump_raw_ok()) {
-+		if (bpf_dump_raw_ok(file->f_cred)) {
- 			uinsns = u64_to_user_ptr(info.jited_prog_insns);
- 			ulen = min_t(u32, info.jited_prog_len, ulen);
- 
-@@ -3363,7 +3365,7 @@ static int bpf_prog_get_info_by_fd(struct bpf_prog *prog,
- 	ulen = info.nr_jited_ksyms;
- 	info.nr_jited_ksyms = prog->aux->func_cnt ? : 1;
- 	if (ulen) {
--		if (bpf_dump_raw_ok()) {
-+		if (bpf_dump_raw_ok(file->f_cred)) {
- 			unsigned long ksym_addr;
- 			u64 __user *user_ksyms;
- 			u32 i;
-@@ -3394,7 +3396,7 @@ static int bpf_prog_get_info_by_fd(struct bpf_prog *prog,
- 	ulen = info.nr_jited_func_lens;
- 	info.nr_jited_func_lens = prog->aux->func_cnt ? : 1;
- 	if (ulen) {
--		if (bpf_dump_raw_ok()) {
-+		if (bpf_dump_raw_ok(file->f_cred)) {
- 			u32 __user *user_lens;
- 			u32 func_len, i;
- 
-@@ -3451,7 +3453,7 @@ static int bpf_prog_get_info_by_fd(struct bpf_prog *prog,
- 	else
- 		info.nr_jited_line_info = 0;
- 	if (info.nr_jited_line_info && ulen) {
--		if (bpf_dump_raw_ok()) {
-+		if (bpf_dump_raw_ok(file->f_cred)) {
- 			__u64 __user *user_linfo;
- 			u32 i;
- 
-@@ -3497,7 +3499,8 @@ static int bpf_prog_get_info_by_fd(struct bpf_prog *prog,
- 	return 0;
- }
- 
--static int bpf_map_get_info_by_fd(struct bpf_map *map,
-+static int bpf_map_get_info_by_fd(struct file *file,
-+				  struct bpf_map *map,
- 				  const union bpf_attr *attr,
- 				  union bpf_attr __user *uattr)
- {
-@@ -3540,7 +3543,8 @@ static int bpf_map_get_info_by_fd(struct bpf_map *map,
- 	return 0;
- }
- 
--static int bpf_btf_get_info_by_fd(struct btf *btf,
-+static int bpf_btf_get_info_by_fd(struct file *file,
-+				  struct btf *btf,
- 				  const union bpf_attr *attr,
- 				  union bpf_attr __user *uattr)
- {
-@@ -3555,7 +3559,8 @@ static int bpf_btf_get_info_by_fd(struct btf *btf,
- 	return btf_get_info_by_fd(btf, attr, uattr);
- }
- 
--static int bpf_link_get_info_by_fd(struct bpf_link *link,
-+static int bpf_link_get_info_by_fd(struct file *file,
-+				  struct bpf_link *link,
- 				  const union bpf_attr *attr,
- 				  union bpf_attr __user *uattr)
- {
-@@ -3608,15 +3613,15 @@ static int bpf_obj_get_info_by_fd(const union bpf_attr *attr,
- 		return -EBADFD;
- 
- 	if (f.file->f_op == &bpf_prog_fops)
--		err = bpf_prog_get_info_by_fd(f.file->private_data, attr,
-+		err = bpf_prog_get_info_by_fd(f.file, f.file->private_data, attr,
- 					      uattr);
- 	else if (f.file->f_op == &bpf_map_fops)
--		err = bpf_map_get_info_by_fd(f.file->private_data, attr,
-+		err = bpf_map_get_info_by_fd(f.file, f.file->private_data, attr,
- 					     uattr);
- 	else if (f.file->f_op == &btf_fops)
--		err = bpf_btf_get_info_by_fd(f.file->private_data, attr, uattr);
-+		err = bpf_btf_get_info_by_fd(f.file, f.file->private_data, attr, uattr);
- 	else if (f.file->f_op == &bpf_link_fops)
--		err = bpf_link_get_info_by_fd(f.file->private_data,
-+		err = bpf_link_get_info_by_fd(f.file, f.file->private_data,
- 					      attr, uattr);
- 	else
- 		err = -EINVAL;
-diff --git a/net/core/sysctl_net_core.c b/net/core/sysctl_net_core.c
-index f93f8ace6c56..6ada114bbcca 100644
---- a/net/core/sysctl_net_core.c
-+++ b/net/core/sysctl_net_core.c
-@@ -274,7 +274,7 @@ static int proc_dointvec_minmax_bpf_enable(struct ctl_table *table, int write,
- 	ret = proc_dointvec_minmax(&tmp, write, buffer, lenp, ppos);
- 	if (write && !ret) {
- 		if (jit_enable < 2 ||
--		    (jit_enable == 2 && bpf_dump_raw_ok())) {
-+		    (jit_enable == 2 && bpf_dump_raw_ok(current_cred()))) {
- 			*(int *)table->data = jit_enable;
- 			if (jit_enable == 2)
- 				pr_warn("bpf_jit_enable = 2 was set! NEVER use this in production, only for JIT debugging!\n");
+ include/asm-generic/vmlinux.lds.h | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
+index db600ef218d7..737ecf782229 100644
+--- a/include/asm-generic/vmlinux.lds.h
++++ b/include/asm-generic/vmlinux.lds.h
+@@ -94,10 +94,11 @@
+  */
+ #ifdef CONFIG_LD_DEAD_CODE_DATA_ELIMINATION
+ #define TEXT_MAIN .text .text.[0-9a-zA-Z_]*
+-#define DATA_MAIN .data .data.[0-9a-zA-Z_]* .data..LPBX*
++#define DATA_MAIN .data .data.[0-9a-zA-Z_]* .data..LPBX* \
++		  .data..compoundliteral* .data..L*
+ #define SDATA_MAIN .sdata .sdata.[0-9a-zA-Z_]*
+ #define RODATA_MAIN .rodata .rodata.[0-9a-zA-Z_]*
+-#define BSS_MAIN .bss .bss.[0-9a-zA-Z_]*
++#define BSS_MAIN .bss .bss.[0-9a-zA-Z_]* .bss..compoundliteral* .bss..L*
+ #define SBSS_MAIN .sbss .sbss.[0-9a-zA-Z_]*
+ #else
+ #define TEXT_MAIN .text
 -- 
-2.25.1
+2.27.0
 
