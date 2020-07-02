@@ -2,135 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8D74211F4B
-	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 10:57:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9B682120D0
+	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 12:15:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727955AbgGBI5R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jul 2020 04:57:17 -0400
-Received: from wnew1-smtp.messagingengine.com ([64.147.123.26]:46763 "EHLO
-        wnew1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726810AbgGBI5Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Jul 2020 04:57:16 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailnew.west.internal (Postfix) with ESMTP id 38122A00;
-        Thu,  2 Jul 2020 04:57:15 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Thu, 02 Jul 2020 04:57:15 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kdrag0n.dev; h=
-        from:to:cc:subject:date:message-id:mime-version
-        :content-transfer-encoding; s=fm1; bh=s7+5045RDL/6bm3EmBYWa1nF0t
-        eYes17mVjN68BsV4s=; b=MEUQxuCJJ1r4h/+JpF2w5cBdcKo6cDBS0qRTs19J75
-        ehTV09Hy2WMOV7jwHl1Q028sdcT3iloru0DPf/OAV+zF0Tc8YHCbQnMezjrQ8SBl
-        8JXqnEnayyz1lMXeKqxS6saV5yo+tnfbbljChCpicXScJkaVZMmS70AbU51AhOrf
-        2lPuOgWC8+NoaL9yUZwEsoizZe8tBXv38R2Yi28b44EcGFsh/I+fBuasnGQd8JHU
-        hnAO0XP4qnzzLiSXes9lkelCifwYLwtb+TkyOd7hagtijYzMNNAVDv4jtJP2loN6
-        pPDlKhli20iC2ZK5jF/eovd+4QerMRwWgN9lQquNWlug==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:date:from
-        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=s7+5045RDL/6bm3Em
-        BYWa1nF0teYes17mVjN68BsV4s=; b=uIwJGEKl9OOX7XH8TGS0ED0QdtB9UaPg5
-        RRmSP3NzkSLLkhg/BmQFJXHUNlsGbiApl5d3zM6CEh039IzO6lWl9ZioOjfWJuci
-        XgG+V3wUuU787MzEjfZCDBjPcfAAH0yueAWkbhD84pl5IRyeNdv5znqWhzfZlHbn
-        79jzloU/Lhd9lRGLlXon+DPLGCsDHC5tRZVTCtCLFraCpVj8avbHatr7aDrP9YgS
-        mVt86StWW4vTo361/uoMyRCgTjTw0M+Yp/3g1xdgY3NlVN6LP4eTelTB9hUhJyQM
-        JQs/Fb/T9AdvU417ZVIo8nqDTLVBj+UCG+MiJPgfmeyZaDkNEOYlQ==
-X-ME-Sender: <xms:aqH9XvJgSq0_pjEr9zmnGVQ2yFBbyLAW7divZolljUhUTT26hDl-JQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrtdeggddtgecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomhepffgrnhhnhicunfhi
-    nhcuoegurghnnhihsehkughrrghgtdhnrdguvghvqeenucggtffrrghtthgvrhhnpedtvd
-    etffeukeefuefffeeufedvtddvieegvefffeejfefhtdevjeetfefhgfehheenucffohhm
-    rghinhepghhithhhuhgsrdgtohhmpdhlphgsgidruggrthgrnecukfhppedugeelrddvge
-    ekrdefkedruddunecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhf
-    rhhomhepuggrnhhnhieskhgurhgrghdtnhdruggvvh
-X-ME-Proxy: <xmx:aqH9XjLP0h57_1VRP570Kx4CnKB0JVK0ngAGTPwGHljHkEj2uOpvLA>
-    <xmx:aqH9Xnt8YdtZJRT3uT8bXqtWKQ44obxNb5j5OYfInqNKGoCJXRH5xA>
-    <xmx:aqH9Xobun66ZchYsENWT79A71NqQsrIInjKBwoos_CqiqyeE0lP2Wg>
-    <xmx:aqH9Xu6JNg460E4TCYLAZpdaLKmUc3aN2xWaOajU6nNI-q7yLRneUeAPjwQ>
-Received: from pinwheel.localdomain (vsrv_sea01.kdrag0n.dev [149.248.38.11])
-        by mail.messagingengine.com (Postfix) with ESMTPA id CB7AC306005C;
-        Thu,  2 Jul 2020 04:57:12 -0400 (EDT)
-From:   Danny Lin <danny@kdrag0n.dev>
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Fangrui Song <maskray@google.com>, linux-arch@vger.kernel.org,
-        linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com,
-        Danny Lin <danny@kdrag0n.dev>, stable@vger.kernel.org
-Subject: [PATCH] vmlinux.lds.h: Coalesce transient LLVM dead code elimination sections
-Date:   Thu,  2 Jul 2020 01:54:00 -0700
-Message-Id: <20200702085400.2643527-1-danny@kdrag0n.dev>
-X-Mailer: git-send-email 2.27.0
+        id S1728320AbgGBKPc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jul 2020 06:15:32 -0400
+Received: from mga12.intel.com ([192.55.52.136]:60762 "EHLO mga12.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728388AbgGBKO2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jul 2020 06:14:28 -0400
+IronPort-SDR: Gnxj7rRa6tQar97LsVvft+1/iCuYwjoEZI2Acbs91yMliherdsWr/i2scRn0MkAX75PC3X+w71
+ B+8FE5W4Ly8g==
+X-IronPort-AV: E=McAfee;i="6000,8403,9669"; a="126467984"
+X-IronPort-AV: E=Sophos;i="5.75,304,1589266800"; 
+   d="scan'208";a="126467984"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Jul 2020 03:14:26 -0700
+IronPort-SDR: ctd/vJ6pf8QOJ8RP6O4ccGGcR/+wfiLyKoX55+3K6/UGxMdWKLDXrBieJqQM5YWyMU7SUP5j6l
+ qpbLbBr327iA==
+X-IronPort-AV: E=Sophos;i="5.75,304,1589266800"; 
+   d="scan'208";a="455475917"
+Received: from eliteleevi.tm.intel.com ([10.237.54.20])
+  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Jul 2020 03:14:25 -0700
+Date:   Thu, 2 Jul 2020 13:14:00 +0300 (EEST)
+From:   Kai Vehmanen <kai.vehmanen@linux.intel.com>
+X-X-Sender: kvehmane@eliteleevi.tm.intel.com
+To:     stable@vger.kernel.org
+cc:     =?ISO-8859-15?Q?Ville_Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: drm/i915: use forced codec wake on all gen9+ platforms
+Message-ID: <alpine.DEB.2.22.394.2007021302030.3186@eliteleevi.tm.intel.com>
+User-Agent: Alpine 2.22 (DEB 394 2020-01-19)
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7 02160 Espoo
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/mixed; boundary="-318106570-1786057578-1593684843=:3186"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-A recent LLVM 11 commit [1] made LLD stop implicitly coalescing some
-temporary LLVM sections, namely .{data,bss}..compoundliteral.XXX:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-  [30] .data..compoundli PROGBITS         ffffffff9ac9a000  19e9a000
-       000000000000cea0  0000000000000000  WA       0     0     32
-  [31] .rela.data..compo RELA             0000000000000000  40965440
-       0000000000001d88  0000000000000018   I      2238    30     8
-  [32] .data..compoundli PROGBITS         ffffffff9aca6ea0  19ea6ea0
-       00000000000033c0  0000000000000000  WA       0     0     32
-  [33] .rela.data..compo RELA             0000000000000000  409671c8
-       0000000000000948  0000000000000018   I      2238    32     8
-  [...]
-  [2213] .bss..compoundlit NOBITS           ffffffffa3000000  1d85c000
-       00000000000000a0  0000000000000000  WA       0     0     32
-  [2214] .bss..compoundlit NOBITS           ffffffffa30000a0  1d85c000
-       0000000000000040  0000000000000000  WA       0     0     32
-  [...]
+---318106570-1786057578-1593684843=:3186
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 
-While these extra sections don't typically cause any breakage, they do
-inflate the vmlinux size due to the overhead of storing metadata for
-thousands of extra sections.
+Hey,
 
-It's also worth noting that for some reason, some downstream Android
-kernels can't boot at all if these sections aren't coalesced.
+following commit from 5.8-rc1 would be beneficial for 5.4+ kernels.
+We've verified it fixes audio driver probe errors on systems with Intel 
+gen10/11/12 display hardware:
+    Link: https://github.com/thesofproject/linux/issues/1847
 
-This issue isn't limited to any specific architecture; it affects arm64
-and x86 if CONFIG_LD_DEAD_CODE_DATA_ELIMINATION is forced on.
+commit 1c664c15cf0a31784b217a84fa0128ce46f17a84
+Author: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Date:   Tue Mar 24 17:32:12 2020 +0200
 
-Example on x86 allyesconfig:
-    Before: 2241 sections, 1170972 KiB
-    After:    56 sections, 1171169 KiB
+    drm/i915: use forced codec wake on all gen9+ platforms
+    
+    Commit 632f3ab95fe2 ("drm/i915/audio: add codec wakeup override
+    enabled/disable callback"), added logic to toggle Codec Wake on gen9.
+    This is used by audio driver when it resets the HDA controller.
+    
+    It seems explicit toggling of the wakeline can help to fix problems
+    with probe failing on some gen12 platforms. And based on specs, there
+    is no reason why this programming sequence should not be applied to 
+all
+    gen9+ platforms. No side-effects are seen on gen10/11. So apply
+    the wake-logic to all gen9+ platforms.
+    
+    Link: https://github.com/thesofproject/linux/issues/1847
+    Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+    Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+    Link: https://patchwork.freedesktop.org/patch/msgid/20200324153212.6303-1-kai.vehmanen@linux.intel.com
 
-[1] https://github.com/llvm/llvm-project/commit/9e33c096476ab5e02ab1c8442cc3cb4e32e29f17
+Br, Kai
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/958
-Cc: stable@vger.kernel.org # v4.4+
-Suggested-by: Fangrui Song <maskray@google.com>
-Signed-off-by: Danny Lin <danny@kdrag0n.dev>
----
- include/asm-generic/vmlinux.lds.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
-index db600ef218d7..18968cba87c7 100644
---- a/include/asm-generic/vmlinux.lds.h
-+++ b/include/asm-generic/vmlinux.lds.h
-@@ -94,10 +94,10 @@
-  */
- #ifdef CONFIG_LD_DEAD_CODE_DATA_ELIMINATION
- #define TEXT_MAIN .text .text.[0-9a-zA-Z_]*
--#define DATA_MAIN .data .data.[0-9a-zA-Z_]* .data..LPBX*
-+#define DATA_MAIN .data .data.[0-9a-zA-Z_]* .data..LPBX* .data..compoundliteral*
- #define SDATA_MAIN .sdata .sdata.[0-9a-zA-Z_]*
- #define RODATA_MAIN .rodata .rodata.[0-9a-zA-Z_]*
--#define BSS_MAIN .bss .bss.[0-9a-zA-Z_]*
-+#define BSS_MAIN .bss .bss.[0-9a-zA-Z_]* .bss..compoundliteral*
- #define SBSS_MAIN .sbss .sbss.[0-9a-zA-Z_]*
- #else
- #define TEXT_MAIN .text
--- 
-2.27.0
-
+---318106570-1786057578-1593684843=:3186--
