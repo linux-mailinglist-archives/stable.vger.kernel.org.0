@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7370C21188A
-	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 03:29:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CA3F21188C
+	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 03:29:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729482AbgGBB11 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jul 2020 21:27:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59292 "EHLO mail.kernel.org"
+        id S1728632AbgGBB3B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jul 2020 21:29:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729472AbgGBB1Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Jul 2020 21:27:25 -0400
+        id S1729476AbgGBB10 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Jul 2020 21:27:26 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 57F382083E;
-        Thu,  2 Jul 2020 01:27:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A4F5720C56;
+        Thu,  2 Jul 2020 01:27:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593653245;
-        bh=MrnB04y5tDP3oh3CHtwgC9d4aQ4bXUX1BfesiJAAPLA=;
+        s=default; t=1593653246;
+        bh=9KSiEnsen1Uz6+bjwmI6z98B+CHqqeoJN7y2wg4gS0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y9hyE8M7xVIBrH7z12qCyex24cw/UTYugKLvFDrUX70dpHaMYKplQv/DGPOEdysX1
-         KgRsYDUAmIumH8wVTHQOZcVt/rmhA/HTSMDhXyuL037q5L2jQfLAp3jOuzNsO6HMeU
-         zJiSawpcJxrU05KL88BgZ52OqEnq5Q5V4K+fV7Gg=
+        b=alqfmE8rXpybkPZ6L6rsPAOyEsoTG3Y7HUv5yp/dlWA9u/bvCO98+kLzaPbp1/zfp
+         onj2jef+3pcKcV0XXmrsSK9lQ6HM+CtryNua5uVb/xV6xqjpxiExw0fjT8DelfgoJQ
+         EHP4WMcFnPLhV9AgNg+YjVRCcpPn5CmwiFO+5s00=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Hulk Robot <hulkci@huawei.com>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org,
-        samba-technical@lists.samba.org
-Subject: [PATCH AUTOSEL 4.9 10/13] cifs: update ctime and mtime during truncate
-Date:   Wed,  1 Jul 2020 21:27:09 -0400
-Message-Id: <20200702012712.2701986-10-sashal@kernel.org>
+Cc:     yu kuai <yukuai3@huawei.com>, Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.9 11/13] ARM: imx6: add missing put_device() call in imx6q_suspend_init()
+Date:   Wed,  1 Jul 2020 21:27:10 -0400
+Message-Id: <20200702012712.2701986-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200702012712.2701986-1-sashal@kernel.org>
 References: <20200702012712.2701986-1-sashal@kernel.org>
@@ -45,46 +43,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: yu kuai <yukuai3@huawei.com>
 
-[ Upstream commit 5618303d8516f8ac5ecfe53ee8e8bc9a40eaf066 ]
+[ Upstream commit 4845446036fc9c13f43b54a65c9b757c14f5141b ]
 
-As the man description of the truncate, if the size changed,
-then the st_ctime and st_mtime fields should be updated. But
-in cifs, we doesn't do it.
+if of_find_device_by_node() succeed, imx6q_suspend_init() doesn't have a
+corresponding put_device(). Thus add a jump target to fix the exception
+handling for this function implementation.
 
-It lead the xfstests generic/313 failed.
-
-So, add the ATTR_MTIME|ATTR_CTIME flags on attrs when change
-the file size
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: yu kuai <yukuai3@huawei.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/inode.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ arch/arm/mach-imx/pm-imx6.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/fs/cifs/inode.c b/fs/cifs/inode.c
-index dfa85ad5b4814..5478902a01009 100644
---- a/fs/cifs/inode.c
-+++ b/fs/cifs/inode.c
-@@ -2188,6 +2188,15 @@ cifs_set_file_size(struct inode *inode, struct iattr *attrs,
- 	if (rc == 0) {
- 		cifsInode->server_eof = attrs->ia_size;
- 		cifs_setsize(inode, attrs->ia_size);
-+
-+		/*
-+		 * The man page of truncate says if the size changed,
-+		 * then the st_ctime and st_mtime fields for the file
-+		 * are updated.
-+		 */
-+		attrs->ia_ctime = attrs->ia_mtime = current_time(inode);
-+		attrs->ia_valid |= ATTR_CTIME | ATTR_MTIME;
-+
- 		cifs_truncate_page(inode->i_mapping, inode->i_size);
+diff --git a/arch/arm/mach-imx/pm-imx6.c b/arch/arm/mach-imx/pm-imx6.c
+index dd9eb3f14f45c..6da26692f2fde 100644
+--- a/arch/arm/mach-imx/pm-imx6.c
++++ b/arch/arm/mach-imx/pm-imx6.c
+@@ -481,14 +481,14 @@ static int __init imx6q_suspend_init(const struct imx6_pm_socdata *socdata)
+ 	if (!ocram_pool) {
+ 		pr_warn("%s: ocram pool unavailable!\n", __func__);
+ 		ret = -ENODEV;
+-		goto put_node;
++		goto put_device;
  	}
+ 
+ 	ocram_base = gen_pool_alloc(ocram_pool, MX6Q_SUSPEND_OCRAM_SIZE);
+ 	if (!ocram_base) {
+ 		pr_warn("%s: unable to alloc ocram!\n", __func__);
+ 		ret = -ENOMEM;
+-		goto put_node;
++		goto put_device;
+ 	}
+ 
+ 	ocram_pbase = gen_pool_virt_to_phys(ocram_pool, ocram_base);
+@@ -511,7 +511,7 @@ static int __init imx6q_suspend_init(const struct imx6_pm_socdata *socdata)
+ 	ret = imx6_pm_get_base(&pm_info->mmdc_base, socdata->mmdc_compat);
+ 	if (ret) {
+ 		pr_warn("%s: failed to get mmdc base %d!\n", __func__, ret);
+-		goto put_node;
++		goto put_device;
+ 	}
+ 
+ 	ret = imx6_pm_get_base(&pm_info->src_base, socdata->src_compat);
+@@ -558,7 +558,7 @@ static int __init imx6q_suspend_init(const struct imx6_pm_socdata *socdata)
+ 		&imx6_suspend,
+ 		MX6Q_SUSPEND_OCRAM_SIZE - sizeof(*pm_info));
+ 
+-	goto put_node;
++	goto put_device;
+ 
+ pl310_cache_map_failed:
+ 	iounmap(pm_info->gpc_base.vbase);
+@@ -568,6 +568,8 @@ static int __init imx6q_suspend_init(const struct imx6_pm_socdata *socdata)
+ 	iounmap(pm_info->src_base.vbase);
+ src_map_failed:
+ 	iounmap(pm_info->mmdc_base.vbase);
++put_device:
++	put_device(&pdev->dev);
+ put_node:
+ 	of_node_put(node);
  
 -- 
 2.25.1
