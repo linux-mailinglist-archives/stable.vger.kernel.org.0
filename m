@@ -2,122 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A6E67211AA3
-	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 05:33:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91307211AD4
+	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 06:08:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726262AbgGBDdj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jul 2020 23:33:39 -0400
-Received: from helcar.hmeau.com ([216.24.177.18]:37150 "EHLO fornost.hmeau.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725857AbgGBDdi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Jul 2020 23:33:38 -0400
-Received: from gwarestrin.arnor.me.apana.org.au ([192.168.0.7])
-        by fornost.hmeau.com with smtp (Exim 4.92 #5 (Debian))
-        id 1jqpxV-0008AS-FA; Thu, 02 Jul 2020 13:32:22 +1000
-Received: by gwarestrin.arnor.me.apana.org.au (sSMTP sendmail emulation); Thu, 02 Jul 2020 13:32:21 +1000
-Date:   Thu, 2 Jul 2020 13:32:21 +1000
-From:   Herbert Xu <herbert@gondor.apana.org.au>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     Eric Biggers <ebiggers@kernel.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        LTP List <ltp@lists.linux.it>,
-        open list <linux-kernel@vger.kernel.org>,
-        linux-security-module@vger.kernel.org, keyrings@vger.kernel.org,
-        lkft-triage@lists.linaro.org,
-        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
-        Jan Stancek <jstancek@redhat.com>, chrubis <chrubis@suse.cz>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        James Morris <jmorris@namei.org>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        David Howells <dhowells@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sachin Sant <sachinp@linux.vnet.ibm.com>,
-        Linux Next Mailing List <linux-next@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        linux- stable <stable@vger.kernel.org>
-Subject: [v2 PATCH] crypto: af_alg - Fix regression on empty requests
-Message-ID: <20200702033221.GA19367@gondor.apana.org.au>
-References: <CA+G9fYvHFs5Yx8TnT6VavtfjMN8QLPuXg6us-dXVJqUUt68adA@mail.gmail.com>
- <20200622224920.GA4332@42.do-not-panic.com>
- <CA+G9fYsXDZUspc5OyfqrGZn=k=2uRiGzWY_aPePK2C_kZ+dYGQ@mail.gmail.com>
- <20200623064056.GA8121@gondor.apana.org.au>
- <20200623170217.GB150582@gmail.com>
- <20200626062948.GA25285@gondor.apana.org.au>
- <CA+G9fYutuU55iL_6Qrk3oG3iq-37PaxvtA4KnEQHuLH9YpH-QA@mail.gmail.com>
+        id S1726089AbgGBEH7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jul 2020 00:07:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36076 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725857AbgGBEH6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Jul 2020 00:07:58 -0400
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 795F1C08C5C1
+        for <stable@vger.kernel.org>; Wed,  1 Jul 2020 21:07:58 -0700 (PDT)
+Received: by mail-pj1-x1033.google.com with SMTP id k71so8354894pje.0
+        for <stable@vger.kernel.org>; Wed, 01 Jul 2020 21:07:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=m7j0Rkfwrad2tyURig19idAVXn3V+tmbMme2ir3hSHE=;
+        b=A94mNvLiKoLbu+nm6e26veOTgDPfv5oNTccjbAOKO03SWiTqC2r8f8PpdDUTYV0yzT
+         KBFIpuqq/PhEn+cPynSgr4DSws2+4M99Uti3TRVMumRmZCKFSg8EdV9HYxmUyBqve5kk
+         yi36Q3HCZ2fGgYLiSFXT9n0z6+KiMJBvr5eTPeRqwAWrp1oI6+csXoJStXcwCdFUtLqY
+         nRW0kz8ckB7xZ2YWGo4h9nYUcGhUnyh32Q7F6eR1lrnuGLtmrkMW5q35bTZ+b/z8G4GR
+         NKJcjYv5OVMpynbFFd/CEN9eYaOqaC4QBzrw8mwSuogOhEfjYPAwvVjdUJoh8rKRfO2k
+         +6Xg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=m7j0Rkfwrad2tyURig19idAVXn3V+tmbMme2ir3hSHE=;
+        b=YkCIPTe42RPbOaffzuYrQ6MFK8cDx5B9M6HXjXkwiFPLtO5EnnQnI8V32p4WfNKJwg
+         9ua26Dh/ggx5+3mosKGwzZr2ESVfurB3TSCAIfBlssGM5ppZzpjW8GqGxdYUx/ti6KCR
+         BZanhOT/kx8Hflwo7c65So7goZgJWJuhZ2lHeZUflRtAUL3cFI4x0Sk1pOXrowZIXIS+
+         fYF8Lj2cyEloOrXrN7IDZtZ0ISuJitDqAxtwLZIUqLJGh0v5y9cn32smzW7w+8lQPcD5
+         Ce37uy2mGNP/tTG4tPB69DFluM4hQlkYNpxqFiNIA/s4NRwxwhOd7WoGF6gGVaGLmhx5
+         YgSA==
+X-Gm-Message-State: AOAM533GSiZmgzMkWF3ErGkSRgun1CWaz4XyU3qCrS03Rkj6B3aoKZ9O
+        AyB47ywq0Kw07JoWFFSAidpjkQ==
+X-Google-Smtp-Source: ABdhPJyBaHd16uEIIv3M27j4+nq2qchNpRNwtDD83n0D1DEUKkduPrf5iWFEq/TI4ph/iQFfNL/Abw==
+X-Received: by 2002:a17:902:710b:: with SMTP id a11mr24967563pll.156.1593662877044;
+        Wed, 01 Jul 2020 21:07:57 -0700 (PDT)
+Received: from ?IPv6:2605:e000:100e:8c61:b0a2:2229:1cbe:53d2? ([2605:e000:100e:8c61:b0a2:2229:1cbe:53d2])
+        by smtp.gmail.com with ESMTPSA id 9sm7015938pfh.160.2020.07.01.21.07.56
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 01 Jul 2020 21:07:56 -0700 (PDT)
+Subject: Re: Request for patch inclusion for 5.4-stable
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     stable@vger.kernel.org, "Agarwal, Anchal" <anchalag@amazon.com>
+References: <dff7fc38-d2b3-1f7c-88c6-085fb93c7f11@kernel.dk>
+ <20200702013140.GG2687961@sasha-vm>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <a35028c3-6cb7-99dc-83f0-5b96f015d2c4@kernel.dk>
+Date:   Wed, 1 Jul 2020 22:07:55 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CA+G9fYutuU55iL_6Qrk3oG3iq-37PaxvtA4KnEQHuLH9YpH-QA@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20200702013140.GG2687961@sasha-vm>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 30, 2020 at 02:18:11PM +0530, Naresh Kamboju wrote:
+On 7/1/20 7:31 PM, Sasha Levin wrote:
+> On Wed, Jul 01, 2020 at 12:24:17PM -0600, Jens Axboe wrote:
+>> Hi,
+>>
+>> There's no upstream variant of this, as that would require backporting
+>> all the io-wq changes from 5.5 and on. Hence I made a one-off that
+>> ensures that we don't leak memory if we have async work items that
+>> need active cancelation (like socket IO).
+>>
+>> Can we get this queued up for 5.4? I've tested it and the original
+>> reporter has as well.
 > 
-> Since we are on this subject,
-> LTP af_alg02  test case fails on stable 4.9 and stable 4.4
-> This is not a regression because the test case has been failing from
-> the beginning.
-> 
-> Is this test case expected to fail on stable 4.9 and 4.4 ?
-> or any chance to fix this on these older branches ?
-> 
-> Test output:
-> af_alg02.c:52: BROK: Timed out while reading from request socket.
-> 
-> ref:
-> https://qa-reports.linaro.org/lkft/linux-stable-rc-4.9-oe/build/v4.9.228-191-g082e807235d7/testrun/2884917/suite/ltp-crypto-tests/test/af_alg02/history/
-> https://qa-reports.linaro.org/lkft/linux-stable-rc-4.9-oe/build/v4.9.228-191-g082e807235d7/testrun/2884606/suite/ltp-crypto-tests/test/af_alg02/log
+> I've added the previous paragraph which explains why there is no
+> upstream version of this into the commit message and queued it for 5.4,
+> thank you!
 
-Actually this test really is broken.  Even though empty requests
-are legal, they should never be done with no write(2) at all.
-Because this fundamentally breaks the use of a blocking read(2)
-to wait for more data.
+Perfect, thanks Sasha!
 
-Granted this has been broken since 2017 but I'm not going to
-reintroduce this just because of a broken test case.
-
-So please either remove af_alg02 or fix it by adding a control
-message through sendmsg(2).
-
-Thanks,
-
----8<---
-Some user-space programs rely on crypto requests that have no
-control metadata.  This broke when a check was added to require
-the presence of control metadata with the ctx->init flag.
-
-This patch fixes the regression by setting ctx->init as long as
-one sendmsg(2) has been made, with or without a control message.
-
-Reported-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
-Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-Fixes: f3c802a1f300 ("crypto: algif_aead - Only wake up when...")
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-
-diff --git a/crypto/af_alg.c b/crypto/af_alg.c
-index 9fcb91ea10c41..5882ed46f1adb 100644
---- a/crypto/af_alg.c
-+++ b/crypto/af_alg.c
-@@ -851,6 +851,7 @@ int af_alg_sendmsg(struct socket *sock, struct msghdr *msg, size_t size,
- 		err = -EINVAL;
- 		goto unlock;
- 	}
-+	ctx->init = true;
- 
- 	if (init) {
- 		ctx->enc = enc;
-@@ -858,7 +859,6 @@ int af_alg_sendmsg(struct socket *sock, struct msghdr *msg, size_t size,
- 			memcpy(ctx->iv, con.iv->iv, ivsize);
- 
- 		ctx->aead_assoclen = con.aead_assoclen;
--		ctx->init = true;
- 	}
- 
- 	while (size) {
 -- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Jens Axboe
+
