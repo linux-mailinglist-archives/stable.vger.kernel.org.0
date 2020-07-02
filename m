@@ -2,152 +2,263 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83F50213017
-	for <lists+stable@lfdr.de>; Fri,  3 Jul 2020 01:27:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4A7A213046
+	for <lists+stable@lfdr.de>; Fri,  3 Jul 2020 01:55:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726826AbgGBX1U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jul 2020 19:27:20 -0400
-Received: from new3-smtp.messagingengine.com ([66.111.4.229]:50395 "EHLO
-        new3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726568AbgGBX1U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Jul 2020 19:27:20 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailnew.nyi.internal (Postfix) with ESMTP id 7BB1A58038B;
-        Thu,  2 Jul 2020 19:27:18 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Thu, 02 Jul 2020 19:27:18 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kdrag0n.dev; h=
-        from:to:cc:subject:date:message-id:in-reply-to:references
-        :mime-version:content-transfer-encoding; s=fm1; bh=e7+7Th1m9BXZP
-        GB/OmZlUELLweXezZABXtnEK2WW7Ys=; b=dNCDR6kgzoEDQdtwBKLbkJCwCan4I
-        RI46j74E4g4TGyr6dID+KO3w0enVII8cvN9YWe9X/ZfO37ifrSPmk2LqhhcH93nA
-        v1bZYC7XhyOFDIpWEB4bXQOaZMnktvb6knu/2w5sMGaXNRYhDtPM7oyb2dArGVum
-        iZt0diytvXFsraC90ApYj1QAjBVkXCliwVHNfPP99NFgkX9T8JovBNneJtbbbYTL
-        DwX7NsUXUauIa93viG4K39FN3QXgDbyyxUEZGlf21L9vSJfM05gospeI5rTd4v8K
-        cHfpiI0XpmFdSuChFgy6SgjqP04gOSiZ+DqqYzs+PGnwx8sss3DGkmKJg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:date:from
-        :in-reply-to:message-id:mime-version:references:subject:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm3; bh=e7+7Th1m9BXZPGB/OmZlUELLweXezZABXtnEK2WW7Ys=; b=E06uoqPv
-        cqVkHstrueopNY7IfV99ERqSVZV6o5cvihIcRb2Nmn6IF2yJNSvZFZpMBA2ZdnwH
-        PP97straB9PExMebjC9d/fiPiFvP6e+Jnv3bp7CTJeuQl6ZhIAmtOhRGq1LP8MTm
-        +wYU/GMDIPvRYI/wKIT3HiLzpnN81nKaXyRgHHkvwP46EZo27hgle0sRgzzdhLy1
-        bvbDyOZini8rEvHvN3UgR2Zm16XiZBkJjGcIQrD5QybW4orUnw0V7JRbkT0G6Abp
-        0Nwz4lJ1ij/+l7/iaw0J1RkHVTEwvCA29C+xg09Xzzh0ICpCmMpa0jJX6w9jwbUb
-        fI/WkIlm+Yv/3Q==
-X-ME-Sender: <xms:VW3-XhUwNoCh7-UgD6Sbje0eplrd3gRO5mvHxJ0BcsK88MFvDbNigQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrtdehgddvtdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpefhvffufffkofgjfhgggfestdekredtredttdenucfhrhhomhepffgrnhhnhicu
-    nfhinhcuoegurghnnhihsehkughrrghgtdhnrdguvghvqeenucggtffrrghtthgvrhhnpe
-    ffvdfgjeekleetleekkeegvdetvdejgfelkeevtdffffefhfefvddvtdffieegjeenucff
-    ohhmrghinhepghhithhhuhgsrdgtohhmpdhlphgsgidruggrthgrnecukfhppeejfedrvd
-    dvhedrgedrudefkeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhl
-    fhhrohhmpegurghnnhihsehkughrrghgtdhnrdguvghv
-X-ME-Proxy: <xmx:VW3-XhlzlxfgqeJyrBhe6M6wqjtR5wx-lNWT11WYYN6Q8ijDmJfDGA>
-    <xmx:VW3-XtbPUN3EUr0Dti1m_2HetNM1yPb_QZ387ZbbavZmLQdic-aBkA>
-    <xmx:VW3-XkUuTkjbzViTrlUmmDJll3fs_-n8b5qqpaaa8cKPwGz7wSHIpA>
-    <xmx:Vm3-XpX1F6a7TEQqKJXIjRcoscaln2Epa91xc0AsE1qf3YbiOvRMmA>
-Received: from pinwheel.hsd1.wa.comcast.net (c-73-225-4-138.hsd1.wa.comcast.net [73.225.4.138])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 87861306006C;
-        Thu,  2 Jul 2020 19:27:16 -0400 (EDT)
-From:   Danny Lin <danny@kdrag0n.dev>
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Fangrui Song <maskray@google.com>, linux-arch@vger.kernel.org,
-        linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com,
-        Danny Lin <danny@kdrag0n.dev>, stable@vger.kernel.org
-Subject: [PATCH v2] vmlinux.lds.h: Coalesce transient LLVM dead code elimination sections
-Date:   Thu,  2 Jul 2020 16:27:13 -0700
-Message-Id: <20200702232713.123893-1-danny@kdrag0n.dev>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <7304fdf3-23d7-442b-b870-e88ae6f37004@localhost>
-References: <7304fdf3-23d7-442b-b870-e88ae6f37004@localhost>
+        id S1726110AbgGBXzv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jul 2020 19:55:51 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:56692 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726015AbgGBXzv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Jul 2020 19:55:51 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1593734148;
+        h=from:from:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:in-reply-to:in-reply-to:  references:references;
+        bh=+ftIgISrQQoJcDv2R/LS9YcKQ3ZdQs2UrwLyikN4zm0=;
+        b=Y/HLi9aEuqZ+XShaGDkDbSLVTkn5WqOcSzP/G5nREaydwKM9CI+GE6sMsHqBCkV2brrlyg
+        33btNropB1ngFtjROKV9dECXVdZNLVcI1eE7djj11k9ZM7DLxKTQbdW5IfxAREuxjdcOYa
+        WVb3vjE5ai0l+xgC6dcAe6EWz+rnq30=
+Received: from mail-qv1-f69.google.com (mail-qv1-f69.google.com
+ [209.85.219.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-392-nBIdnEByMfS0US29zTVamw-1; Thu, 02 Jul 2020 19:55:47 -0400
+X-MC-Unique: nBIdnEByMfS0US29zTVamw-1
+Received: by mail-qv1-f69.google.com with SMTP id ed5so3205012qvb.9
+        for <stable@vger.kernel.org>; Thu, 02 Jul 2020 16:55:47 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:reply-to
+         :mail-followup-to:references:mime-version:content-disposition
+         :in-reply-to;
+        bh=+ftIgISrQQoJcDv2R/LS9YcKQ3ZdQs2UrwLyikN4zm0=;
+        b=Mf/S5H5s3+1RCDLs9xi5UPBYrKMPwFs6r7e15tLf48dRzujvq4CNCc1nMHTliE+/Xf
+         jkJsg4vdDtpZ7kRFX2T0I42Q7Env4VAQZqHWhHbKwmS2qOISrwg+fixLIgQtFZskGbXg
+         FnMsdHnTAKF+p2L2V6sCM1agPW/vYSAHOh73x4Rp/CuSZdQ/6bIdCt74L65vWd+U8oVH
+         ASF4jMND1qG2u0ECSG8FlRSz7oifn7MEnByzMotiLEqBZ/iR3EbNmi1xPMiUbC94sIq4
+         qJDRr33kepp2YWW5jqXsrMsnziiiZCAiOnIUvTQaEQB+3dE8euaJnoLWaCNq5m2h6tsD
+         jyPg==
+X-Gm-Message-State: AOAM530RXYRvZnst/YGlqirkAS8cxmtE6IrQZIZyM/1yVXYacEEysVgW
+        mL8AiqK+MPnVDWPBvhkgar/CHOTjkjRBGOPTtRGhKUk0YoAeXOmR5JJbV3rh4oWndX/TIBRu9B1
+        Ortp/umWsyqqtmtwe
+X-Received: by 2002:aed:3904:: with SMTP id l4mr30326218qte.370.1593734146746;
+        Thu, 02 Jul 2020 16:55:46 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzye5HUiv8TSz4Fdr0d5NIM9B7qAJXuk34Oq1wxdW9/2ExxHXdthkxzzs7D43ntVNWPMWYFNQ==
+X-Received: by 2002:aed:3904:: with SMTP id l4mr30326201qte.370.1593734146487;
+        Thu, 02 Jul 2020 16:55:46 -0700 (PDT)
+Received: from localhost (ip70-163-223-149.ph.ph.cox.net. [70.163.223.149])
+        by smtp.gmail.com with ESMTPSA id o50sm10214519qtc.64.2020.07.02.16.55.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 02 Jul 2020 16:55:45 -0700 (PDT)
+Date:   Thu, 2 Jul 2020 16:55:44 -0700
+From:   Jerry Snitselaar <jsnitsel@redhat.com>
+To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Cc:     linux-integrity@vger.kernel.org,
+        Stefan Berger <stefanb@linux.ibm.com>, stable@vger.kernel.org,
+        Peter Huewe <peterhuewe@gmx.de>,
+        Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sumit Garg <sumit.garg@linaro.org>,
+        Alexey Klimov <aklimov@redhat.com>,
+        James Bottomley <James.Bottomley@hansenpartnership.com>,
+        open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] tpm: Define TPM2_SPACE_BUFFER_SIZE to replace the use of
+ PAGE_SIZE
+Message-ID: <20200702235544.4o7dbgvlq3br2x7e@cantor>
+Reply-To: Jerry Snitselaar <jsnitsel@redhat.com>
+Mail-Followup-To: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        linux-integrity@vger.kernel.org,
+        Stefan Berger <stefanb@linux.ibm.com>, stable@vger.kernel.org,
+        Peter Huewe <peterhuewe@gmx.de>, Jason Gunthorpe <jgg@ziepe.ca>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sumit Garg <sumit.garg@linaro.org>,
+        Alexey Klimov <aklimov@redhat.com>,
+        James Bottomley <James.Bottomley@hansenpartnership.com>,
+        open list <linux-kernel@vger.kernel.org>
+References: <20200702225603.293122-1-jarkko.sakkinen@linux.intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20200702225603.293122-1-jarkko.sakkinen@linux.intel.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-A recent LLVM 11 commit [1] made LLD stop implicitly coalescing some
-temporary LLVM sections, namely .{data,bss}..compoundliteral.XXX:
+On Fri Jul 03 20, Jarkko Sakkinen wrote:
+>The size of the buffers for storing context's and sessions can vary from
+>arch to arch as PAGE_SIZE can be anything between 4 kB and 256 kB (the
+>maximum for PPC64). Define a fixed buffer size set to 16 kB. This should be
+>enough for most use with three handles (that is how many we allow at the
+>moment). Parametrize the buffer size while doing this, so that it is easier
+>to revisit this later on if required.
+>
+>Reported-by: Stefan Berger <stefanb@linux.ibm.com>
+>Cc: stable@vger.kernel.org
+>Fixes: 745b361e989a ("tpm: infrastructure for TPM spaces")
+>Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
 
-  [30] .data..compoundli PROGBITS         ffffffff9ac9a000  19e9a000
-       000000000000cea0  0000000000000000  WA       0     0     32
-  [31] .rela.data..compo RELA             0000000000000000  40965440
-       0000000000001d88  0000000000000018   I      2238    30     8
-  [32] .data..compoundli PROGBITS         ffffffff9aca6ea0  19ea6ea0
-       00000000000033c0  0000000000000000  WA       0     0     32
-  [33] .rela.data..compo RELA             0000000000000000  409671c8
-       0000000000000948  0000000000000018   I      2238    32     8
-  [...]
-  [2213] .bss..compoundlit NOBITS           ffffffffa3000000  1d85c000
-       00000000000000a0  0000000000000000  WA       0     0     32
-  [2214] .bss..compoundlit NOBITS           ffffffffa30000a0  1d85c000
-       0000000000000040  0000000000000000  WA       0     0     32
-  [...]
+Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
 
-.{data,bss}..L<symbol name> sections are also created in some cases.
-While there aren't any in this example, they should also be coalesced to
-be safe in case some config or future LLVM change makes it start
-creating more of those sections in the future. For example, enabling
-global merging causes ..L_MergedGlobals sections to be created, but it's
-likely that other changes will result in such sections as well.
-
-While these extra sections don't typically cause any breakage, they do
-inflate the vmlinux size due to the overhead of storing metadata for
-thousands of extra sections.
-
-It's also worth noting that for some reason, some downstream Android
-kernels can't boot at all if these sections aren't coalesced.
-
-This issue isn't limited to any specific architecture; it affects arm64
-and x86 if CONFIG_LD_DEAD_CODE_DATA_ELIMINATION is forced on.
-
-Example on x86 allyesconfig:
-    Before: 2241 sections, 1171169 KiB
-    After:    56 sections, 1170972 KiB
-
-[1] https://github.com/llvm/llvm-project/commit/9e33c096476ab5e02ab1c8442cc3cb4e32e29f17
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/958
-Cc: stable@vger.kernel.org # v4.4+
-Suggested-by: Fangrui Song <maskray@google.com>
-Signed-off-by: Danny Lin <danny@kdrag0n.dev>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
----
-v2:
-  - Fixed swapped example sizes
-  - Added .{data,bss}..L* sections, since it looks like they're emitted
-    in some cases even when LTO is disabled
-
- include/asm-generic/vmlinux.lds.h | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
-index db600ef218d7..737ecf782229 100644
---- a/include/asm-generic/vmlinux.lds.h
-+++ b/include/asm-generic/vmlinux.lds.h
-@@ -94,10 +94,11 @@
-  */
- #ifdef CONFIG_LD_DEAD_CODE_DATA_ELIMINATION
- #define TEXT_MAIN .text .text.[0-9a-zA-Z_]*
--#define DATA_MAIN .data .data.[0-9a-zA-Z_]* .data..LPBX*
-+#define DATA_MAIN .data .data.[0-9a-zA-Z_]* .data..LPBX* \
-+		  .data..compoundliteral* .data..L*
- #define SDATA_MAIN .sdata .sdata.[0-9a-zA-Z_]*
- #define RODATA_MAIN .rodata .rodata.[0-9a-zA-Z_]*
--#define BSS_MAIN .bss .bss.[0-9a-zA-Z_]*
-+#define BSS_MAIN .bss .bss.[0-9a-zA-Z_]* .bss..compoundliteral* .bss..L*
- #define SBSS_MAIN .sbss .sbss.[0-9a-zA-Z_]*
- #else
- #define TEXT_MAIN .text
--- 
-2.27.0
+>---
+>v2: Also use the new buffer size for chip->work_buffer (reported by stefanb)
+> drivers/char/tpm/tpm-chip.c   |  9 ++-------
+> drivers/char/tpm/tpm.h        |  5 ++++-
+> drivers/char/tpm/tpm2-space.c | 26 ++++++++++++++++----------
+> drivers/char/tpm/tpmrm-dev.c  |  2 +-
+> include/linux/tpm.h           |  5 +++--
+> 5 files changed, 26 insertions(+), 21 deletions(-)
+>
+>diff --git a/drivers/char/tpm/tpm-chip.c b/drivers/char/tpm/tpm-chip.c
+>index 8c77e88012e9..ddaeceb7e109 100644
+>--- a/drivers/char/tpm/tpm-chip.c
+>+++ b/drivers/char/tpm/tpm-chip.c
+>@@ -386,13 +386,8 @@ struct tpm_chip *tpm_chip_alloc(struct device *pdev,
+> 	chip->cdev.owner = THIS_MODULE;
+> 	chip->cdevs.owner = THIS_MODULE;
+>
+>-	chip->work_space.context_buf = kzalloc(PAGE_SIZE, GFP_KERNEL);
+>-	if (!chip->work_space.context_buf) {
+>-		rc = -ENOMEM;
+>-		goto out;
+>-	}
+>-	chip->work_space.session_buf = kzalloc(PAGE_SIZE, GFP_KERNEL);
+>-	if (!chip->work_space.session_buf) {
+>+	rc = tpm2_init_space(&chip->work_space, TPM2_SPACE_BUFFER_SIZE);
+>+	if (rc) {
+> 		rc = -ENOMEM;
+> 		goto out;
+> 	}
+>diff --git a/drivers/char/tpm/tpm.h b/drivers/char/tpm/tpm.h
+>index 0fbcede241ea..947d1db0a5cc 100644
+>--- a/drivers/char/tpm/tpm.h
+>+++ b/drivers/char/tpm/tpm.h
+>@@ -59,6 +59,9 @@ enum tpm_addr {
+>
+> #define TPM_TAG_RQU_COMMAND 193
+>
+>+/* TPM2 specific constants. */
+>+#define TPM2_SPACE_BUFFER_SIZE		16384 /* 16 kB */
+>+
+> struct	stclear_flags_t {
+> 	__be16	tag;
+> 	u8	deactivated;
+>@@ -228,7 +231,7 @@ unsigned long tpm2_calc_ordinal_duration(struct tpm_chip *chip, u32 ordinal);
+> int tpm2_probe(struct tpm_chip *chip);
+> int tpm2_get_cc_attrs_tbl(struct tpm_chip *chip);
+> int tpm2_find_cc(struct tpm_chip *chip, u32 cc);
+>-int tpm2_init_space(struct tpm_space *space);
+>+int tpm2_init_space(struct tpm_space *space, unsigned int buf_size);
+> void tpm2_del_space(struct tpm_chip *chip, struct tpm_space *space);
+> void tpm2_flush_space(struct tpm_chip *chip);
+> int tpm2_prepare_space(struct tpm_chip *chip, struct tpm_space *space, u8 *cmd,
+>diff --git a/drivers/char/tpm/tpm2-space.c b/drivers/char/tpm/tpm2-space.c
+>index 982d341d8837..784b8b3cb903 100644
+>--- a/drivers/char/tpm/tpm2-space.c
+>+++ b/drivers/char/tpm/tpm2-space.c
+>@@ -38,18 +38,21 @@ static void tpm2_flush_sessions(struct tpm_chip *chip, struct tpm_space *space)
+> 	}
+> }
+>
+>-int tpm2_init_space(struct tpm_space *space)
+>+int tpm2_init_space(struct tpm_space *space, unsigned int buf_size)
+> {
+>-	space->context_buf = kzalloc(PAGE_SIZE, GFP_KERNEL);
+>+	space->context_buf = kzalloc(buf_size, GFP_KERNEL);
+> 	if (!space->context_buf)
+> 		return -ENOMEM;
+>
+>-	space->session_buf = kzalloc(PAGE_SIZE, GFP_KERNEL);
+>+	space->session_buf = kzalloc(buf_size, GFP_KERNEL);
+> 	if (space->session_buf == NULL) {
+> 		kfree(space->context_buf);
+>+		/* Prevent caller getting a dangling pointer. */
+>+		space->context_buf = NULL;
+> 		return -ENOMEM;
+> 	}
+>
+>+	space->buf_size = buf_size;
+> 	return 0;
+> }
+>
+>@@ -311,8 +314,10 @@ int tpm2_prepare_space(struct tpm_chip *chip, struct tpm_space *space, u8 *cmd,
+> 	       sizeof(space->context_tbl));
+> 	memcpy(&chip->work_space.session_tbl, &space->session_tbl,
+> 	       sizeof(space->session_tbl));
+>-	memcpy(chip->work_space.context_buf, space->context_buf, PAGE_SIZE);
+>-	memcpy(chip->work_space.session_buf, space->session_buf, PAGE_SIZE);
+>+	memcpy(chip->work_space.context_buf, space->context_buf,
+>+	       space->buf_size);
+>+	memcpy(chip->work_space.session_buf, space->session_buf,
+>+	       space->buf_size);
+>
+> 	rc = tpm2_load_space(chip);
+> 	if (rc) {
+>@@ -492,7 +497,7 @@ static int tpm2_save_space(struct tpm_chip *chip)
+> 			continue;
+>
+> 		rc = tpm2_save_context(chip, space->context_tbl[i],
+>-				       space->context_buf, PAGE_SIZE,
+>+				       space->context_buf, space->buf_size,
+> 				       &offset);
+> 		if (rc == -ENOENT) {
+> 			space->context_tbl[i] = 0;
+>@@ -509,9 +514,8 @@ static int tpm2_save_space(struct tpm_chip *chip)
+> 			continue;
+>
+> 		rc = tpm2_save_context(chip, space->session_tbl[i],
+>-				       space->session_buf, PAGE_SIZE,
+>+				       space->session_buf, space->buf_size,
+> 				       &offset);
+>-
+> 		if (rc == -ENOENT) {
+> 			/* handle error saving session, just forget it */
+> 			space->session_tbl[i] = 0;
+>@@ -557,8 +561,10 @@ int tpm2_commit_space(struct tpm_chip *chip, struct tpm_space *space,
+> 	       sizeof(space->context_tbl));
+> 	memcpy(&space->session_tbl, &chip->work_space.session_tbl,
+> 	       sizeof(space->session_tbl));
+>-	memcpy(space->context_buf, chip->work_space.context_buf, PAGE_SIZE);
+>-	memcpy(space->session_buf, chip->work_space.session_buf, PAGE_SIZE);
+>+	memcpy(space->context_buf, chip->work_space.context_buf,
+>+	       space->buf_size);
+>+	memcpy(space->session_buf, chip->work_space.session_buf,
+>+	       space->buf_size);
+>
+> 	return 0;
+> out:
+>diff --git a/drivers/char/tpm/tpmrm-dev.c b/drivers/char/tpm/tpmrm-dev.c
+>index 7a0a7051a06f..eef0fb06ea83 100644
+>--- a/drivers/char/tpm/tpmrm-dev.c
+>+++ b/drivers/char/tpm/tpmrm-dev.c
+>@@ -21,7 +21,7 @@ static int tpmrm_open(struct inode *inode, struct file *file)
+> 	if (priv == NULL)
+> 		return -ENOMEM;
+>
+>-	rc = tpm2_init_space(&priv->space);
+>+	rc = tpm2_init_space(&priv->space, TPM2_SPACE_BUFFER_SIZE);
+> 	if (rc) {
+> 		kfree(priv);
+> 		return -ENOMEM;
+>diff --git a/include/linux/tpm.h b/include/linux/tpm.h
+>index 03e9b184411b..d501156fedda 100644
+>--- a/include/linux/tpm.h
+>+++ b/include/linux/tpm.h
+>@@ -93,9 +93,10 @@ enum tpm_duration {
+>
+> struct tpm_space {
+> 	u32 context_tbl[3];
+>-	u8 *context_buf;
+>+	u8  *context_buf;
+> 	u32 session_tbl[3];
+>-	u8 *session_buf;
+>+	u8  *session_buf;
+>+	u32 buf_size;
+> };
+>
+> struct tpm_bios_log {
+>-- 
+>2.25.1
+>
 
