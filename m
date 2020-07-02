@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C04672119A6
-	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 03:38:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 863E72119AA
+	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 03:38:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728192AbgGBBXG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jul 2020 21:23:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53376 "EHLO mail.kernel.org"
+        id S1728050AbgGBBgv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jul 2020 21:36:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728175AbgGBBXE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Jul 2020 21:23:04 -0400
+        id S1728051AbgGBBXF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Jul 2020 21:23:05 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6F5920748;
-        Thu,  2 Jul 2020 01:23:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D70C2085B;
+        Thu,  2 Jul 2020 01:23:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593652983;
-        bh=/5tEx96xy1e4vi6a8sCn19YEYK/t5MtKMJLjxv8RtbY=;
+        s=default; t=1593652985;
+        bh=WZm9NVwm/5hzx3Z8PKdERAEM9pbyT8kA/yFB5RQ6bAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KMBLrFTTWgmGJbCRnVFdgqAuWGcGnW+rafceudbV1+Sy9KoJjWC83fN9SQ5H2Kkwt
-         BS4VPWly8zyKoIMhkCVOSnehRJ121wxMjhpbCl82P9E8PRCkVFKe45aQApftDPLBuu
-         s4FGxCeKnU/1dNrjPcCi/jRMZmG/+Lc/qsQ5U/xU=
+        b=x8qGi+cWwAXzgnN6FLYCB1u4BypWGDm8WUi2uwBLIp3Hp8T+V/fhHja7q6lNT/SSA
+         8qj4kSxrGkRn+hv6NAHDs/Igh8w7Z5wP5eQrHVEYj5g6uhzvDrNxo8C+ACSizRL94t
+         jEYH2+lDD3YaMXTFy4rBLd/rA/Yt9TdL691MOQOU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org,
-        linaro-mm-sig@lists.linaro.org
-Subject: [PATCH AUTOSEL 5.7 07/53] drm/ttm: Fix dma_fence refcnt leak when adding move fence
-Date:   Wed,  1 Jul 2020 21:21:16 -0400
-Message-Id: <20200702012202.2700645-7-sashal@kernel.org>
+        dri-devel@lists.freedesktop.org, linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 08/53] gpu: host1x: Clean up debugfs in error handling path
+Date:   Wed,  1 Jul 2020 21:21:17 -0400
+Message-Id: <20200702012202.2700645-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200702012202.2700645-1-sashal@kernel.org>
 References: <20200702012202.2700645-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -47,51 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 11425c4519e2c974a100fc984867046d905b9380 ]
+[ Upstream commit 109be8b23fb2ec8e2d309325ee3b7a49eab63961 ]
 
-ttm_bo_add_move_fence() invokes dma_fence_get(), which returns a
-reference of the specified dma_fence object to "fence" with increased
-refcnt.
+host1x_debug_init() must be reverted in an error handling path.
 
-When ttm_bo_add_move_fence() returns, local variable "fence" becomes
-invalid, so the refcount should be decreased to keep refcount balanced.
+This is already fixed in the remove function since commit 44156eee91ba
+("gpu: host1x: Clean up debugfs on removal")
 
-The reference counting issue happens in one exception handling path of
-ttm_bo_add_move_fence(). When no_wait_gpu flag is equals to true, the
-function forgets to decrease the refcnt increased by dma_fence_get(),
-causing a refcnt leak.
-
-Fix this issue by calling dma_fence_put() when no_wait_gpu flag is
-equals to true.
-
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Link: https://patchwork.freedesktop.org/patch/370221/
-Signed-off-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/ttm/ttm_bo.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/host1x/dev.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/ttm/ttm_bo.c b/drivers/gpu/drm/ttm/ttm_bo.c
-index 9e07c3f75156b..ef5bc00c73e23 100644
---- a/drivers/gpu/drm/ttm/ttm_bo.c
-+++ b/drivers/gpu/drm/ttm/ttm_bo.c
-@@ -881,8 +881,10 @@ static int ttm_bo_add_move_fence(struct ttm_buffer_object *bo,
- 	if (!fence)
- 		return 0;
+diff --git a/drivers/gpu/host1x/dev.c b/drivers/gpu/host1x/dev.c
+index d24344e919227..3c0f151847bae 100644
+--- a/drivers/gpu/host1x/dev.c
++++ b/drivers/gpu/host1x/dev.c
+@@ -468,11 +468,12 @@ static int host1x_probe(struct platform_device *pdev)
  
--	if (no_wait_gpu)
-+	if (no_wait_gpu) {
-+		dma_fence_put(fence);
- 		return -EBUSY;
-+	}
+ 	err = host1x_register(host);
+ 	if (err < 0)
+-		goto deinit_intr;
++		goto deinit_debugfs;
  
- 	dma_resv_add_shared_fence(bo->base.resv, fence);
+ 	return 0;
  
+-deinit_intr:
++deinit_debugfs:
++	host1x_debug_deinit(host);
+ 	host1x_intr_deinit(host);
+ deinit_syncpt:
+ 	host1x_syncpt_deinit(host);
 -- 
 2.25.1
 
