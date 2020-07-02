@@ -2,80 +2,179 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91AB2212A4A
-	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 18:49:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4041212AC2
+	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 19:03:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726671AbgGBQt2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jul 2020 12:49:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56306 "EHLO mail.kernel.org"
+        id S1727069AbgGBRDV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jul 2020 13:03:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726300AbgGBQt2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jul 2020 12:49:28 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        id S1726796AbgGBRDT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jul 2020 13:03:19 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B986F20720;
-        Thu,  2 Jul 2020 16:49:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DD1DB20885;
+        Thu,  2 Jul 2020 17:03:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593708568;
-        bh=lLUBehbgSA7L5Nlu4GfgmJqSXvphy6taLoYB1eTlx+M=;
+        s=default; t=1593709398;
+        bh=TegVILmUqn7TRqwu/Sk++L1oZcH0NEesH07n6RIFnXM=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=C+Isv7xnfhCimIaRG8HzlNiyeOdCQhgh7FX4x/v37JvXvnSxrkZIG33KmZlrqtepC
-         B6Ne9uJXYenSYKe7KfUN/0uY/bnz7eKK0WbquKpUq2yb6Dhkc2eLKvHX+++LsSvZhN
-         +q6pMsxRSp5/VKl7RnsvtgOPPc8VsZxiDIUXkYzc=
-Date:   Thu, 2 Jul 2020 18:49:31 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Ben Hutchings <ben@decadent.org.uk>
-Cc:     Denis Grigorev <d.grigorev@omprussia.ru>, stable@vger.kernel.org
-Subject: Re: 3.16 EOL
-Message-ID: <20200702164931.GA2147773@kroah.com>
-References: <20200630153641.21004-1-d.grigorev@omprussia.ru>
- <1bf72bc1ace92609fec953daf17342e1d2d48394.camel@decadent.org.uk>
- <20200702073919.GG1073011@kroah.com>
- <514c425e2b4dca71a11b0c669746d3122f7039a5.camel@decadent.org.uk>
+        b=IiHsn1AeCesqQn+7Rm8+ik3CpBhCuOaawO7VcPp8/XL+pWynKNhR3vamSl/8r+GWC
+         exZb2JDFZNNJNO5DBn8wsRCPeFhya/TOtyLmDnIfsxNawzn9j5muHQYkfo12L6IrTg
+         LXfsDh9PPfHNLMy8FcWk/R2L/Q/qxgRk0PfNXsxs=
+Date:   Thu, 2 Jul 2020 13:03:16 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     fdmanana@suse.com, dsterba@suse.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] btrfs: fix race between block group
+ removal and block group" failed to apply to 5.7-stable tree
+Message-ID: <20200702170316.GB2722994@sasha-vm>
+References: <1593428502197204@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <514c425e2b4dca71a11b0c669746d3122f7039a5.camel@decadent.org.uk>
+In-Reply-To: <1593428502197204@kroah.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 02, 2020 at 03:55:04PM +0100, Ben Hutchings wrote:
-> On Thu, 2020-07-02 at 09:39 +0200, Greg KH wrote:
-> > On Thu, Jul 02, 2020 at 12:31:01AM +0100, Ben Hutchings wrote:
-> > > On Tue, 2020-06-30 at 18:36 +0300, Denis Grigorev wrote:
-> > > > This series of commits fixes a problem with closing l2cap connection
-> > > > if socket has unACKed frames. Due an to an infinite loop in l2cap_wait_ack
-> > > > the userspace process gets stuck in close() and then the kernel crashes
-> > > > with the following report:
-> > > > 
-> > > > Call trace:
-> > > > [<ffffffc000ace0b4>] l2cap_do_send+0x2c/0xec
-> > > > [<ffffffc000acf5f8>] l2cap_send_sframe+0x178/0x260
-> > > > [<ffffffc000acf740>] l2cap_send_rr_or_rnr+0x60/0x84
-> > > > [<ffffffc000acf980>] l2cap_ack_timeout+0x60/0xac
-> > > > [<ffffffc0000b35b8>] process_one_work+0x140/0x384
-> > > > [<ffffffc0000b393c>] worker_thread+0x140/0x4e4
-> > > > [<ffffffc0000b8c48>] kthread+0xdc/0xf0
-> > > > 
-> > > > All kernels below v4.3 are affected.
-> > > [...]
-> > > 
-> > > Thanks for your work, but I'm afraid the 3.16-stable branch is no
-> > > longer being maintained (as of today).
-> > 
-> > Want me to mark it EOL and remove it from the release table on
-> > kernel.org now?
-> 
-> I was about to send that patch myself, but you're welcome to do so.
+On Mon, Jun 29, 2020 at 01:01:42PM +0200, gregkh@linuxfoundation.org wrote:
+>
+>The patch below does not apply to the 5.7-stable tree.
+>If someone wants it applied there, or to any other stable or longterm
+>tree, then please email the backport, including the original git commit
+>id to <stable@vger.kernel.org>.
+>
+>thanks,
+>
+>greg k-h
+>
+>------------------ original commit in Linus's tree ------------------
+>
+>From ffcb9d44572afbaf8fa6dbf5115bff6dab7b299e Mon Sep 17 00:00:00 2001
+>From: Filipe Manana <fdmanana@suse.com>
+>Date: Mon, 1 Jun 2020 19:12:19 +0100
+>Subject: [PATCH] btrfs: fix race between block group removal and block group
+> creation
+>
+>There is a race between block group removal and block group creation
+>when the removal is completed by a task running fitrim or scrub. When
+>this happens we end up failing the block group creation with an error
+>-EEXIST since we attempt to insert a duplicate block group item key
+>in the extent tree. That results in a transaction abort.
+>
+>The race happens like this:
+>
+>1) Task A is doing a fitrim, and at btrfs_trim_block_group() it freezes
+>   block group X with btrfs_freeze_block_group() (until very recently
+>   that was named btrfs_get_block_group_trimming());
+>
+>2) Task B starts removing block group X, either because it's now unused
+>   or due to relocation for example. So at btrfs_remove_block_group(),
+>   while holding the chunk mutex and the block group's lock, it sets
+>   the 'removed' flag of the block group and it sets the local variable
+>   'remove_em' to false, because the block group is currently frozen
+>   (its 'frozen' counter is > 0, until very recently this counter was
+>   named 'trimming');
+>
+>3) Task B unlocks the block group and the chunk mutex;
+>
+>4) Task A is done trimming the block group and unfreezes the block group
+>   by calling btrfs_unfreeze_block_group() (until very recently this was
+>   named btrfs_put_block_group_trimming()). In this function we lock the
+>   block group and set the local variable 'cleanup' to true because we
+>   were able to decrement the block group's 'frozen' counter down to 0 and
+>   the flag 'removed' is set in the block group.
+>
+>   Since 'cleanup' is set to true, it locks the chunk mutex and removes
+>   the extent mapping representing the block group from the mapping tree;
+>
+>5) Task C allocates a new block group Y and it picks up the logical address
+>   that block group X had as the logical address for Y, because X was the
+>   block group with the highest logical address and now the second block
+>   group with the highest logical address, the last in the fs mapping tree,
+>   ends at an offset corresponding to block group X's logical address (this
+>   logical address selection is done at volumes.c:find_next_chunk()).
+>
+>   At this point the new block group Y does not have yet its item added
+>   to the extent tree (nor the corresponding device extent items and
+>   chunk item in the device and chunk trees). The new group Y is added to
+>   the list of pending block groups in the transaction handle;
+>
+>6) Before task B proceeds to removing the block group item for block
+>   group X from the extent tree, which has a key matching:
+>
+>   (X logical offset, BTRFS_BLOCK_GROUP_ITEM_KEY, length)
+>
+>   task C while ending its transaction handle calls
+>   btrfs_create_pending_block_groups(), which finds block group Y and
+>   tries to insert the block group item for Y into the exten tree, which
+>   fails with -EEXIST since logical offset is the same that X had and
+>   task B hasn't yet deleted the key from the extent tree.
+>   This failure results in a transaction abort, producing a stack like
+>   the following:
+>
+>------------[ cut here ]------------
+> BTRFS: Transaction aborted (error -17)
+> WARNING: CPU: 2 PID: 19736 at fs/btrfs/block-group.c:2074 btrfs_create_pending_block_groups+0x1eb/0x260 [btrfs]
+> Modules linked in: btrfs blake2b_generic xor raid6_pq (...)
+> CPU: 2 PID: 19736 Comm: fsstress Tainted: G        W         5.6.0-rc7-btrfs-next-58 #5
+> Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
+> RIP: 0010:btrfs_create_pending_block_groups+0x1eb/0x260 [btrfs]
+> Code: ff ff ff 48 8b 55 50 f0 48 (...)
+> RSP: 0018:ffffa4160a1c7d58 EFLAGS: 00010286
+> RAX: 0000000000000000 RBX: ffff961581909d98 RCX: 0000000000000000
+> RDX: 0000000000000001 RSI: ffffffffb3d63990 RDI: 0000000000000001
+> RBP: ffff9614f3356a58 R08: 0000000000000000 R09: 0000000000000001
+> R10: ffff9615b65b0040 R11: 0000000000000000 R12: ffff961581909c10
+> R13: ffff9615b0c32000 R14: ffff9614f3356ab0 R15: ffff9614be779000
+> FS:  00007f2ce2841e80(0000) GS:ffff9615bae00000(0000) knlGS:0000000000000000
+> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> CR2: 0000555f18780000 CR3: 0000000131d34005 CR4: 00000000003606e0
+> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+> Call Trace:
+>  btrfs_start_dirty_block_groups+0x398/0x4e0 [btrfs]
+>  btrfs_commit_transaction+0xd0/0xc50 [btrfs]
+>  ? btrfs_attach_transaction_barrier+0x1e/0x50 [btrfs]
+>  ? __ia32_sys_fdatasync+0x20/0x20
+>  iterate_supers+0xdb/0x180
+>  ksys_sync+0x60/0xb0
+>  __ia32_sys_sync+0xa/0x10
+>  do_syscall_64+0x5c/0x280
+>  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+> RIP: 0033:0x7f2ce1d4d5b7
+> Code: 83 c4 08 48 3d 01 (...)
+> RSP: 002b:00007ffd8b558c58 EFLAGS: 00000202 ORIG_RAX: 00000000000000a2
+> RAX: ffffffffffffffda RBX: 000000000000002c RCX: 00007f2ce1d4d5b7
+> RDX: 00000000ffffffff RSI: 00000000186ba07b RDI: 000000000000002c
+> RBP: 0000555f17b9e520 R08: 0000000000000012 R09: 000000000000ce00
+> R10: 0000000000000078 R11: 0000000000000202 R12: 0000000000000032
+> R13: 0000000051eb851f R14: 00007ffd8b558cd0 R15: 0000555f1798ec20
+> irq event stamp: 0
+> hardirqs last  enabled at (0): [<0000000000000000>] 0x0
+> hardirqs last disabled at (0): [<ffffffffb2abdedf>] copy_process+0x74f/0x2020
+> softirqs last  enabled at (0): [<ffffffffb2abdedf>] copy_process+0x74f/0x2020
+> softirqs last disabled at (0): [<0000000000000000>] 0x0
+> ---[ end trace bd7c03622e0b0a9c ]---
+>
+>Fix this simply by making btrfs_remove_block_group() remove the block
+>group's item from the extent tree before it flags the block group as
+>removed. Also make the free space deletion from the free space tree
+>before flagging the block group as removed, to avoid a similar race
+>with adding and removing free space entries for the free space tree.
+>
+>Fixes: 04216820fe83d5 ("Btrfs: fix race between fs trimming and block group remove/allocation")
+>CC: stable@vger.kernel.org # 4.4+
+>Signed-off-by: Filipe Manana <fdmanana@suse.com>
+>Signed-off-by: David Sterba <dsterba@suse.com>
 
-Now done.
+I've backported it to 5.7 by also taking 7357623a7f4b ("btrfs:
+block-group: refactor how we delete one block group item"), but older
+branches require a more complex backport which I didn't attempt.
 
-> Thanks again for all your assistance with releasing updates for 3.2 and
-> 3.16 over the past 8 years.
-
-Hey, thanks for doing all the real work there, that was a lot!
-
-greg k-h
+-- 
+Thanks,
+Sasha
