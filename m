@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8FFD2118B9
-	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 03:36:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDA12211938
+	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 03:37:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729081AbgGBB0I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jul 2020 21:26:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57320 "EHLO mail.kernel.org"
+        id S1729415AbgGBBck (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jul 2020 21:32:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729075AbgGBB0H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Jul 2020 21:26:07 -0400
+        id S1728987AbgGBB0I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Jul 2020 21:26:08 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C8DF2083E;
-        Thu,  2 Jul 2020 01:26:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 890D520899;
+        Thu,  2 Jul 2020 01:26:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593653167;
-        bh=d57Z06bRJknnqjS3Wp/YqNK1f++WDqjwuAwuq9k2yN4=;
+        s=default; t=1593653168;
+        bh=XShLMHFLIslsFzvvnDfxIF44y2nXE8NLb7s1NS6Wa0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZwqHZR7htj68mVopc/JqdaH8Fum/3vKEs0DfXppvciA9n+HSAG3nzqEWdR83AdvNj
-         GsJIYVnkTtlPxbyq87+1RAkMhKk6YhNazpbEknrO0cZEn74giVyby46YzZA2Zm1TKf
-         MkS7+7sni7VeFBtqEuqU5xbg3X1O65s5AigJ3Bog=
+        b=mkQQPXLPCAcDcejUQUR/7tcY5hGbB0vgrKVFY0O1kJayBy8UFSlr7emKq9cWXX+lt
+         v/cCDd1gUrHz0nxTuLwXxVjmTGGn9FsdBcKd5J7AGxlHKHFaT/crf8ExQlgKRz0J/O
+         DwZq6D8yOpxjAmQH9iecpuKpCHntRB9cRxaXWx68=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tomas Henzl <thenzl@redhat.com>,
-        Stanislav Saner <ssaner@redhat.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>,
-        MPT-FusionLinux.pdl@broadcom.com, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 34/40] scsi: mptscsih: Fix read sense data size
-Date:   Wed,  1 Jul 2020 21:23:55 -0400
-Message-Id: <20200702012402.2701121-34-sashal@kernel.org>
+Cc:     Aditya Pakki <pakki001@umn.edu>, Felipe Balbi <balbi@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 35/40] usb: dwc3: pci: Fix reference count leak in dwc3_pci_resume_work
+Date:   Wed,  1 Jul 2020 21:23:56 -0400
+Message-Id: <20200702012402.2701121-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200702012402.2701121-1-sashal@kernel.org>
 References: <20200702012402.2701121-1-sashal@kernel.org>
@@ -45,48 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomas Henzl <thenzl@redhat.com>
+From: Aditya Pakki <pakki001@umn.edu>
 
-[ Upstream commit afe89f115e84edbc76d316759e206580a06c6973 ]
+[ Upstream commit 2655971ad4b34e97dd921df16bb0b08db9449df7 ]
 
-The sense data buffer in sense_buf_pool is allocated with size of
-MPT_SENSE_BUFFER_ALLOC(64) (multiplied by req_depth) while SNS_LEN(sc)(96)
-is used when reading the data.  That may lead to a read from unallocated
-area, sometimes from another (unallocated) page.  To fix this, limit the
-read size to MPT_SENSE_BUFFER_ALLOC.
+dwc3_pci_resume_work() calls pm_runtime_get_sync() that increments
+the reference counter. In case of failure, decrement the reference
+before returning.
 
-Link: https://lore.kernel.org/r/20200616150446.4840-1-thenzl@redhat.com
-Co-developed-by: Stanislav Saner <ssaner@redhat.com>
-Signed-off-by: Stanislav Saner <ssaner@redhat.com>
-Signed-off-by: Tomas Henzl <thenzl@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Aditya Pakki <pakki001@umn.edu>
+Signed-off-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/message/fusion/mptscsih.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/usb/dwc3/dwc3-pci.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/message/fusion/mptscsih.c b/drivers/message/fusion/mptscsih.c
-index f0737c57ed5fc..1491561d2e5c9 100644
---- a/drivers/message/fusion/mptscsih.c
-+++ b/drivers/message/fusion/mptscsih.c
-@@ -118,8 +118,6 @@ int 		mptscsih_suspend(struct pci_dev *pdev, pm_message_t state);
- int 		mptscsih_resume(struct pci_dev *pdev);
- #endif
+diff --git a/drivers/usb/dwc3/dwc3-pci.c b/drivers/usb/dwc3/dwc3-pci.c
+index b67372737dc9b..96c05b121fac8 100644
+--- a/drivers/usb/dwc3/dwc3-pci.c
++++ b/drivers/usb/dwc3/dwc3-pci.c
+@@ -206,8 +206,10 @@ static void dwc3_pci_resume_work(struct work_struct *work)
+ 	int ret;
  
--#define SNS_LEN(scp)	SCSI_SENSE_BUFFERSIZE
--
+ 	ret = pm_runtime_get_sync(&dwc3->dev);
+-	if (ret)
++	if (ret) {
++		pm_runtime_put_sync_autosuspend(&dwc3->dev);
+ 		return;
++	}
  
- /*=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
- /*
-@@ -2422,7 +2420,7 @@ mptscsih_copy_sense_data(struct scsi_cmnd *sc, MPT_SCSI_HOST *hd, MPT_FRAME_HDR
- 		/* Copy the sense received into the scsi command block. */
- 		req_index = le16_to_cpu(mf->u.frame.hwhdr.msgctxu.fld.req_idx);
- 		sense_data = ((u8 *)ioc->sense_buf_pool + (req_index * MPT_SENSE_BUFFER_ALLOC));
--		memcpy(sc->sense_buffer, sense_data, SNS_LEN(sc));
-+		memcpy(sc->sense_buffer, sense_data, MPT_SENSE_BUFFER_ALLOC);
- 
- 		/* Log SMART data (asc = 0x5D, non-IM case only) if required.
- 		 */
+ 	pm_runtime_mark_last_busy(&dwc3->dev);
+ 	pm_runtime_put_sync_autosuspend(&dwc3->dev);
 -- 
 2.25.1
 
