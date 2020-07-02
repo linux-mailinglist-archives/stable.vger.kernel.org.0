@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7268F2118E2
-	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 03:36:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C4A32118DF
+	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 03:36:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726135AbgGBB33 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jul 2020 21:29:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59124 "EHLO mail.kernel.org"
+        id S1728995AbgGBB3H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jul 2020 21:29:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729428AbgGBB1S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Jul 2020 21:27:18 -0400
+        id S1729111AbgGBB1W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Jul 2020 21:27:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0255721473;
-        Thu,  2 Jul 2020 01:27:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BBDD221473;
+        Thu,  2 Jul 2020 01:27:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593653237;
-        bh=lY5i/G1xFnqXCzRAHXjROM97QoklifLMJB3E/TZuJmw=;
+        s=default; t=1593653242;
+        bh=HQ0RL3PqNuqnPSDpWahWC774iELBt8xrsGRygVPHgJ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MPeoSEqGGt232TiWTXVWssCvtllVLh2UEsAK5+XtIvnDAsTtbLtRnilZAz1TaNwyH
-         6mTsOxqCXjAaZPYHVfkkb56CZfhtAXGpbGmCZusyuAS2feuxnBfgw6lhA42fh1/oIm
-         xoFcNjr2Zkdy8fUzeJ/RBVyhnsvLLxYqsm4Gbvrs=
+        b=RvgjfNRPIgMaHNMRdAdCrgEuOwajU88Vte4npnAyLxpFAdqcgwbEppCJSUxFptyGv
+         2pocrGr+8mxZTbhGwVVZEcGR0yvROvviL1O2eezD4svY/Nu9EzYq23qIFG+/wmkHqh
+         swGVeV88uezgd8sIt3kcQezy54lMS8OEjsca8xkM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhenzhong Duan <zhenzhong.duan@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 04/13] spi: spidev: fix a race between spidev_release and spidev_remove
-Date:   Wed,  1 Jul 2020 21:27:03 -0400
-Message-Id: <20200702012712.2701986-4-sashal@kernel.org>
+Cc:     Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 08/13] s390/kasan: fix early pgm check handler execution
+Date:   Wed,  1 Jul 2020 21:27:07 -0400
+Message-Id: <20200702012712.2701986-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200702012712.2701986-1-sashal@kernel.org>
 References: <20200702012712.2701986-1-sashal@kernel.org>
@@ -43,60 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhenzhong Duan <zhenzhong.duan@gmail.com>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-[ Upstream commit abd42781c3d2155868821f1b947ae45bbc33330d ]
+[ Upstream commit 998f5bbe3dbdab81c1cfb1aef7c3892f5d24f6c7 ]
 
-Imagine below scene, spidev is referenced after it's freed.
+Currently if early_pgm_check_handler is called it ends up in pgm check
+loop. The problem is that early_pgm_check_handler is instrumented by
+KASAN but executed without DAT flag enabled which leads to addressing
+exception when KASAN checks try to access shadow memory.
 
-spidev_release()                spidev_remove()
-...
-                                spin_lock_irq(&spidev->spi_lock);
-                                    spidev->spi = NULL;
-                                spin_unlock_irq(&spidev->spi_lock);
-mutex_lock(&device_list_lock);
-dofree = (spidev->spi == NULL);
-if (dofree)
-    kfree(spidev);
-mutex_unlock(&device_list_lock);
-                                mutex_lock(&device_list_lock);
-                                list_del(&spidev->device_entry);
-                                device_destroy(spidev_class, spidev->devt);
-                                clear_bit(MINOR(spidev->devt), minors);
-                                if (spidev->users == 0)
-                                    kfree(spidev);
-                                mutex_unlock(&device_list_lock);
+Fix that by executing early handlers with DAT flag on under KASAN as
+expected.
 
-Fix it by resetting spidev->spi in device_list_lock's protection.
-
-Signed-off-by: Zhenzhong Duan <zhenzhong.duan@gmail.com>
-Link: https://lore.kernel.org/r/20200618032125.4650-1-zhenzhong.duan@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-and-tested-by: Alexander Egorenkov <egorenar@linux.ibm.com>
+Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spidev.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/s390/kernel/early.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/spi/spidev.c b/drivers/spi/spidev.c
-index a685c6114a8d5..67ad7e46da42d 100644
---- a/drivers/spi/spidev.c
-+++ b/drivers/spi/spidev.c
-@@ -809,13 +809,13 @@ static int spidev_remove(struct spi_device *spi)
- {
- 	struct spidev_data	*spidev = spi_get_drvdata(spi);
+diff --git a/arch/s390/kernel/early.c b/arch/s390/kernel/early.c
+index a651c2bc94ef8..f862cc27fe98f 100644
+--- a/arch/s390/kernel/early.c
++++ b/arch/s390/kernel/early.c
+@@ -288,6 +288,8 @@ static noinline __init void setup_lowcore_early(void)
+ 	psw_t psw;
  
-+	/* prevent new opens */
-+	mutex_lock(&device_list_lock);
- 	/* make sure ops on existing fds can abort cleanly */
- 	spin_lock_irq(&spidev->spi_lock);
- 	spidev->spi = NULL;
- 	spin_unlock_irq(&spidev->spi_lock);
- 
--	/* prevent new opens */
--	mutex_lock(&device_list_lock);
- 	list_del(&spidev->device_entry);
- 	device_destroy(spidev_class, spidev->devt);
- 	clear_bit(MINOR(spidev->devt), minors);
+ 	psw.mask = PSW_MASK_BASE | PSW_DEFAULT_KEY | PSW_MASK_EA | PSW_MASK_BA;
++	if (IS_ENABLED(CONFIG_KASAN))
++		psw.mask |= PSW_MASK_DAT;
+ 	psw.addr = (unsigned long) s390_base_ext_handler;
+ 	S390_lowcore.external_new_psw = psw;
+ 	psw.addr = (unsigned long) s390_base_pgm_handler;
 -- 
 2.25.1
 
