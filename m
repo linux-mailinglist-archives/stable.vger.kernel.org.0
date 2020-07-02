@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D717321185A
-	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 03:28:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A60421185B
+	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 03:28:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729397AbgGBB1K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jul 2020 21:27:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58808 "EHLO mail.kernel.org"
+        id S1729407AbgGBB1O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jul 2020 21:27:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729395AbgGBB1J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Jul 2020 21:27:09 -0400
+        id S1729402AbgGBB1O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Jul 2020 21:27:14 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 46C7D214D8;
-        Thu,  2 Jul 2020 01:27:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 42CBF2083E;
+        Thu,  2 Jul 2020 01:27:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593653229;
-        bh=7KAztGtg5zIFVJoJpv7CQCGrmy5Zf3wf58AWBtyQj04=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q3Yx1Y6Y+8szKr712igEHEcAP/NQDLSHakcELQX+QtiPF+NYTcoyq+SNkGBGocdVf
-         z4EqlgxFFCYWDAjiLCfsk9PtXjGKYAxOBB8Olk5BcAR7EAIxuL7J7nes9vr6/wE0hK
-         PeqSCt9QDOG4+UcpHbh/1EYE8Rl7AjcONAab3NNI=
+        s=default; t=1593653234;
+        bh=s8s69X5ToTezidDLsSd20nuocrEgaag3s6dd4Dr//SM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=fyAZWfBr4VxMi9OCFwzFNhCrqwt6hyp53PIOCd+4EY5vkB6nsEpN0aBpmqajlufkv
+         BwSsCaBH72TLQG9T3lxOhpF7WPnK/reIF/k87d44Dz9ONTQuqLhfcACW6G1lRTTtbt
+         GYZpPrCV8boH36h7UkFINTJZWYCRfbik0XlGmhTY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Max Gurtovoy <maxg@mellanox.com>, Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 15/17] nvme-rdma: assign completion vector correctly
-Date:   Wed,  1 Jul 2020 21:26:47 -0400
-Message-Id: <20200702012649.2701799-15-sashal@kernel.org>
+Cc:     Thierry Reding <treding@nvidia.com>,
+        Sowjanya Komatineni <skomatineni@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org, linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 01/13] gpu: host1x: Detach driver on unregister
+Date:   Wed,  1 Jul 2020 21:27:00 -0400
+Message-Id: <20200702012712.2701986-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200702012649.2701799-1-sashal@kernel.org>
-References: <20200702012649.2701799-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,38 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Gurtovoy <maxg@mellanox.com>
+From: Thierry Reding <treding@nvidia.com>
 
-[ Upstream commit 032a9966a22a3596addf81dacf0c1736dfedc32a ]
+[ Upstream commit d9a0a05bf8c76e6dc79230669a8b5d685b168c30 ]
 
-The completion vector index that is given during CQ creation can't
-exceed the number of support vectors by the underlying RDMA device. This
-violation currently can accure, for example, in case one will try to
-connect with N regular read/write queues and M poll queues and the sum
-of N + M > num_supported_vectors. This will lead to failure in establish
-a connection to remote target. Instead, in that case, share a completion
-vector between queues.
+Currently when a host1x device driver is unregistered, it is not
+detached from the host1x controller, which means that the device
+will stay around and when the driver is registered again, it may
+bind to the old, stale device rather than the new one that was
+created from scratch upon driver registration. This in turn can
+cause various weird crashes within the driver core because it is
+confronted with a device that was already deleted.
 
-Signed-off-by: Max Gurtovoy <maxg@mellanox.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fix this by detaching the driver from the host1x controller when
+it is unregistered. This ensures that the deleted device also is
+no longer present in the device list that drivers will bind to.
+
+Reported-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Tested-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/rdma.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/host1x/bus.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
-index 9fffe41ead500..c91bfd839cabe 100644
---- a/drivers/nvme/host/rdma.c
-+++ b/drivers/nvme/host/rdma.c
-@@ -470,7 +470,7 @@ static int nvme_rdma_create_queue_ib(struct nvme_rdma_queue *queue)
- 	 * Spread I/O queues completion vectors according their queue index.
- 	 * Admin queues can always go on completion vector 0.
- 	 */
--	comp_vector = idx == 0 ? idx : idx - 1;
-+	comp_vector = (idx == 0 ? idx : idx - 1) % ibdev->num_comp_vectors;
+diff --git a/drivers/gpu/host1x/bus.c b/drivers/gpu/host1x/bus.c
+index c27858ae05529..6ef89e8a515a9 100644
+--- a/drivers/gpu/host1x/bus.c
++++ b/drivers/gpu/host1x/bus.c
+@@ -542,8 +542,17 @@ EXPORT_SYMBOL(host1x_driver_register_full);
  
- 	/* +1 for ib_stop_cq */
- 	queue->ib_cq = ib_alloc_cq(ibdev, queue,
+ void host1x_driver_unregister(struct host1x_driver *driver)
+ {
++	struct host1x *host1x;
++
+ 	driver_unregister(&driver->driver);
+ 
++	mutex_lock(&devices_lock);
++
++	list_for_each_entry(host1x, &devices, list)
++		host1x_detach_driver(host1x, driver);
++
++	mutex_unlock(&devices_lock);
++
+ 	mutex_lock(&drivers_lock);
+ 	list_del_init(&driver->list);
+ 	mutex_unlock(&drivers_lock);
 -- 
 2.25.1
 
