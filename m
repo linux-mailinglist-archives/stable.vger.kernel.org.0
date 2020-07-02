@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 863E72119AA
-	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 03:38:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54F3E2119A5
+	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 03:38:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728050AbgGBBgv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jul 2020 21:36:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53380 "EHLO mail.kernel.org"
+        id S1728206AbgGBBXH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jul 2020 21:23:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728051AbgGBBXF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Jul 2020 21:23:05 -0400
+        id S1728197AbgGBBXG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Jul 2020 21:23:06 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D70C2085B;
-        Thu,  2 Jul 2020 01:23:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7FC6D2083E;
+        Thu,  2 Jul 2020 01:23:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593652985;
-        bh=WZm9NVwm/5hzx3Z8PKdERAEM9pbyT8kA/yFB5RQ6bAs=;
+        s=default; t=1593652986;
+        bh=YLtzimeikThgMm92AmIeJHSv55DRFKGTackCYTrPO+U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x8qGi+cWwAXzgnN6FLYCB1u4BypWGDm8WUi2uwBLIp3Hp8T+V/fhHja7q6lNT/SSA
-         8qj4kSxrGkRn+hv6NAHDs/Igh8w7Z5wP5eQrHVEYj5g6uhzvDrNxo8C+ACSizRL94t
-         jEYH2+lDD3YaMXTFy4rBLd/rA/Yt9TdL691MOQOU=
+        b=Y7tQ8NdqTd8Hq5EEl+kGz2KsDUOQLB54eszVF8izUP2ZbWeW6wC2p9ezrnOm/fa71
+         c08T1s+3bPnMB8kx89K9GRfqpeyUYtEszYA0L0Z9YCeBnJoSMQ+9ig8SeKSND7prnG
+         JRBAuuhqtZMgU/Ktgf9MrGl00Q7Hi82hHnNlGmBI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+Cc:     Nicolin Chen <nicoleotsuka@gmail.com>,
         Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>,
         dri-devel@lists.freedesktop.org, linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 08/53] gpu: host1x: Clean up debugfs in error handling path
-Date:   Wed,  1 Jul 2020 21:21:17 -0400
-Message-Id: <20200702012202.2700645-8-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.7 09/53] drm/tegra: hub: Do not enable orphaned window group
+Date:   Wed,  1 Jul 2020 21:21:18 -0400
+Message-Id: <20200702012202.2700645-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200702012202.2700645-1-sashal@kernel.org>
 References: <20200702012202.2700645-1-sashal@kernel.org>
@@ -44,41 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Nicolin Chen <nicoleotsuka@gmail.com>
 
-[ Upstream commit 109be8b23fb2ec8e2d309325ee3b7a49eab63961 ]
+[ Upstream commit ef4e417eb3ec7fe657928f10ac1d2154d8a5fb38 ]
 
-host1x_debug_init() must be reverted in an error handling path.
+Though the unconditional enable/disable code is not a final solution,
+we don't want to run into a NULL pointer situation when window group
+doesn't link to its DC parent if the DC is disabled in Device Tree.
 
-This is already fixed in the remove function since commit 44156eee91ba
-("gpu: host1x: Clean up debugfs on removal")
+So this patch simply adds a check to make sure that window group has
+a valid parent before running into tegra_windowgroup_enable/disable.
 
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Nicolin Chen <nicoleotsuka@gmail.com>
 Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/host1x/dev.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/tegra/hub.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/host1x/dev.c b/drivers/gpu/host1x/dev.c
-index d24344e919227..3c0f151847bae 100644
---- a/drivers/gpu/host1x/dev.c
-+++ b/drivers/gpu/host1x/dev.c
-@@ -468,11 +468,12 @@ static int host1x_probe(struct platform_device *pdev)
+diff --git a/drivers/gpu/drm/tegra/hub.c b/drivers/gpu/drm/tegra/hub.c
+index 8183e617bf6b8..a2ef8f218d4ec 100644
+--- a/drivers/gpu/drm/tegra/hub.c
++++ b/drivers/gpu/drm/tegra/hub.c
+@@ -149,7 +149,9 @@ int tegra_display_hub_prepare(struct tegra_display_hub *hub)
+ 	for (i = 0; i < hub->soc->num_wgrps; i++) {
+ 		struct tegra_windowgroup *wgrp = &hub->wgrps[i];
  
- 	err = host1x_register(host);
- 	if (err < 0)
--		goto deinit_intr;
-+		goto deinit_debugfs;
+-		tegra_windowgroup_enable(wgrp);
++		/* Skip orphaned window group whose parent DC is disabled */
++		if (wgrp->parent)
++			tegra_windowgroup_enable(wgrp);
+ 	}
  
  	return 0;
+@@ -166,7 +168,9 @@ void tegra_display_hub_cleanup(struct tegra_display_hub *hub)
+ 	for (i = 0; i < hub->soc->num_wgrps; i++) {
+ 		struct tegra_windowgroup *wgrp = &hub->wgrps[i];
  
--deinit_intr:
-+deinit_debugfs:
-+	host1x_debug_deinit(host);
- 	host1x_intr_deinit(host);
- deinit_syncpt:
- 	host1x_syncpt_deinit(host);
+-		tegra_windowgroup_disable(wgrp);
++		/* Skip orphaned window group whose parent DC is disabled */
++		if (wgrp->parent)
++			tegra_windowgroup_disable(wgrp);
+ 	}
+ }
+ 
 -- 
 2.25.1
 
