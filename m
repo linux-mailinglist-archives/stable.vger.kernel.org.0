@@ -2,67 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 36667211BF9
-	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 08:28:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F360B211C03
+	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 08:36:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726068AbgGBG2w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jul 2020 02:28:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57648 "EHLO
+        id S1726118AbgGBGgC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jul 2020 02:36:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725774AbgGBG2v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Jul 2020 02:28:51 -0400
-Received: from mail-wr1-x443.google.com (mail-wr1-x443.google.com [IPv6:2a00:1450:4864:20::443])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 252F7C08C5DC
-        for <stable@vger.kernel.org>; Wed,  1 Jul 2020 23:28:51 -0700 (PDT)
-Received: by mail-wr1-x443.google.com with SMTP id f7so23652352wrw.1
-        for <stable@vger.kernel.org>; Wed, 01 Jul 2020 23:28:50 -0700 (PDT)
+        with ESMTP id S1725774AbgGBGgB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Jul 2020 02:36:01 -0400
+Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D789C08C5DC
+        for <stable@vger.kernel.org>; Wed,  1 Jul 2020 23:36:01 -0700 (PDT)
+Received: by mail-wr1-x444.google.com with SMTP id r12so26628960wrj.13
+        for <stable@vger.kernel.org>; Wed, 01 Jul 2020 23:36:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:content-transfer-encoding:in-reply-to;
         bh=jCQkFD83b8Tutn+WMP/3bAr1jQFc8WLuHymNCikYf+w=;
-        b=mKWkAyXewZEZnOTna5MEn54RJSrzCeMHT4RFOmf6zybQtHEtHBNxM1fg/d3wZYPHhO
-         dcXlW/mOLWGEXsNn00XmM1Lmt1NUqFtJVRpDDUVcM3yuLdd7RSN/R1OAmsiaofkK9nzJ
-         08rmCXu7dpoV8MA+0OFS9Tv8OpaFPV2Fqh6BkG5B6izCQ9/9a5L/Pk9JoZAO5EJRcM4L
-         UfvznEs81QPynMTSWULmJT+kXoSFl8/KECF/FylYPtuvkdW5+vgoX+iyr+4UKVd3X9kZ
-         opSFhpuhXcRQGwcfl76FG9MCrpAxkxXH7RrWDmjq51DTi1VUZnVUstdZamJ7mmr+nPmg
-         96+A==
+        b=OGHagwaEDmXjwiuEwkrgka40TvvS/Z8cVsZp26tE0lPRCpofEMfGBhFgEESZr3hlOX
+         UUiVHFYiXra6K/ZCeS2lntkPt76vKzvu049r9WeVABmdIS/fbhzrtfK4PQtdEbhsjBMJ
+         obPsVaLs95zH9XtpDi3fH2LNuerDKi5ABYdmPJW5dHVyoAi/7iC2QBB5h9Hg0aQ9ojJj
+         pMAO/d18ea0vRbTEXZjh57cw6DxOBTpO8gKKzW31VjHTg4Sw0QWkXa44OjSpKKVmwHYh
+         dFPt7chiln9jau4aMRlHx3XJ2usXyHqtjv95pQMJE2t9KReAXCHIMOzb1OKRBdI2XVoj
+         p7NQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:content-transfer-encoding
          :in-reply-to;
         bh=jCQkFD83b8Tutn+WMP/3bAr1jQFc8WLuHymNCikYf+w=;
-        b=CaUktLKDFs67swU6H8z1NfnZtTBF5/B1zJRWFZWjk9JuU9cchcca8UXJvVd6M6ywvj
-         Cv7s8aZi4MuMh0LPhQUr+LWi/QqH6j5xILmi+6RSDnQvmot7DxwDB528iJSSFT/Cltpo
-         CR5Zy0mRX3qK9TOqLXi8xDcPlgf284C7DHbmgqeUSUdw2lf/Ejd3z3zI+CnqV7vZxsSH
-         Yco6Pd93HLZJwXNUC5lVO0DMexh7/6f2RwbIviIsirmcxoU7xNITeJmLoVwpW+yIb6ih
-         7K0FA1n4AmDV1zhlxHbpUL9KC2EaSLBMXt4CEyeMJQrBKSrDDeklxv8tO3L3Kp3HfS8w
-         a5mQ==
-X-Gm-Message-State: AOAM533Qj0gh8Rz7YgJ6MpmvZ5+V9Kz8LuRJ8Ien4vOlbRr40StPnJR1
-        eFduOypUtiof9WRXy/2/9Af9Ig==
-X-Google-Smtp-Source: ABdhPJyNY8z3/hUMig6bxMXp9IPqQqAaIUQPnJl/6+xb3OWV+NBYXC2pezBLPGqZPjnpGpOuT1lSjg==
-X-Received: by 2002:a5d:5388:: with SMTP id d8mr29514405wrv.35.1593671328298;
-        Wed, 01 Jul 2020 23:28:48 -0700 (PDT)
+        b=DEs9m+pvPCrQrWyIyW7j0aaivqh42WMtR5W22sY/DZSrpkZl6TwE4VHjtpXXtfYhR7
+         BsGa3HI3auOSsFWFmvAK6LIj8OkrtJEq1FkivzrvyuDoCtlnt1AuMJjyTGH7aHuHrLe5
+         SYE4S/OjyuE0m+7cruAI4nzW664rJPmEz/y7A2UhqoJfwHTAR6rxq50pYYiuhdfs2x9d
+         1yj9rmP87ZFozy8ct2AuwnbyCGt7IvBo+Teanwde7JolrDS5daAgxJ+s5wDBooLsxFXC
+         LozYL2gJcGggO03OSaE0j7BAFVHc01LcikGGVuRCw/TBNGfh8Dzzk9imGpixGwP4Z2NW
+         2DCg==
+X-Gm-Message-State: AOAM532eoDicBt56RjQIU75aZk74IgFfKw2ff1xXo+Rqcku4NiDGBuNf
+        RphpNg3xiKxcSCL9sGLLIoJmSQ==
+X-Google-Smtp-Source: ABdhPJzEfamNDw2ogN1uCJXh+AgmrsJsL6ijdyGCVQFyvPE8L65x+fNyVfR41z6f4AR9rlYIDcRbkA==
+X-Received: by 2002:adf:ee0b:: with SMTP id y11mr6743030wrn.360.1593671760000;
+        Wed, 01 Jul 2020 23:36:00 -0700 (PDT)
 Received: from dell ([2.27.35.144])
-        by smtp.gmail.com with ESMTPSA id w12sm10112507wrm.79.2020.07.01.23.28.47
+        by smtp.gmail.com with ESMTPSA id m9sm9424650wml.45.2020.07.01.23.35.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 01 Jul 2020 23:28:47 -0700 (PDT)
-Date:   Thu, 2 Jul 2020 07:28:45 +0100
+        Wed, 01 Jul 2020 23:35:59 -0700 (PDT)
+Date:   Thu, 2 Jul 2020 07:35:57 +0100
 From:   Lee Jones <lee.jones@linaro.org>
 To:     Sasha Levin <sashal@kernel.org>
 Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org, Thor Thayer <thor.thayer@linux.intel.com>
-Subject: Re: [PATCH 04/10] mfd: altera-sysmgr: Fix physical address storing
- hacks
-Message-ID: <20200702062845.GK1179328@dell>
-References: <20200624150704.2729736-5-lee.jones@linaro.org>
- <20200701193325.097F920853@mail.kernel.org>
+Subject: Re: [PATCH 10/10] mfd: altera-sysmgr: Supply descriptions for 'np'
+ and 'property' function args
+Message-ID: <20200702063557.GL1179328@dell>
+References: <20200625064619.2775707-11-lee.jones@linaro.org>
+ <20200701193321.D7D0D20853@mail.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20200701193325.097F920853@mail.kernel.org>
+In-Reply-To: <20200701193321.D7D0D20853@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
