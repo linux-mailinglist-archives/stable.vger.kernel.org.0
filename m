@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99716211851
-	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 03:28:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81001211853
+	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 03:28:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729305AbgGBB0y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jul 2020 21:26:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58540 "EHLO mail.kernel.org"
+        id S1729315AbgGBB04 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jul 2020 21:26:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729299AbgGBB0x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Jul 2020 21:26:53 -0400
+        id S1728328AbgGBB0z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Jul 2020 21:26:55 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3887D20C56;
-        Thu,  2 Jul 2020 01:26:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 69386212CC;
+        Thu,  2 Jul 2020 01:26:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593653213;
-        bh=rnB7oV8v4NfwAOxGZ3yJ0hQ68m7fINDU3JLiiRZH5vs=;
+        s=default; t=1593653214;
+        bh=qch7SL1lWg43fDm7d4BAHHM43nWCwSszkGJaO6D0oiM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s6a30b7Ika6Zqgcyr0ZeGdRbb3I7dUka/GKxD9tED4UzXUigumFmiyJB/XwDRaVPW
-         nmBt69lI+/65FeDZkJsHyNh6gOsn8kZEyDxNXKd3rgAe9XiOPD4SqFow+Jf3tzCt1u
-         1bmeToBNrZNeDxuOONe741lAOxFREe0PymVx46BI=
+        b=BOchoi8uk+D+GMu5ajLhjloE/aW1nk85hIDSva1t1hNft1evssOYpWxPN+ZYf56VV
+         f5vn/irsEuWQyxU9OE0FT4nhn0KgkAQI0iC6uQ0dYWAsJ5FKli6RTwQLRwO9GQtCmr
+         amEvS9qF//OoS4Gt1kljdEtrGaVZURDdcJ6PkC8g=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thierry Reding <treding@nvidia.com>,
-        Sowjanya Komatineni <skomatineni@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 02/17] gpu: host1x: Detach driver on unregister
-Date:   Wed,  1 Jul 2020 21:26:34 -0400
-Message-Id: <20200702012649.2701799-2-sashal@kernel.org>
+Cc:     Jeremy Kerr <jk@ozlabs.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 03/17] net: usb: ax88179_178a: fix packet alignment padding
+Date:   Wed,  1 Jul 2020 21:26:35 -0400
+Message-Id: <20200702012649.2701799-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200702012649.2701799-1-sashal@kernel.org>
 References: <20200702012649.2701799-1-sashal@kernel.org>
@@ -44,53 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry Reding <treding@nvidia.com>
+From: Jeremy Kerr <jk@ozlabs.org>
 
-[ Upstream commit d9a0a05bf8c76e6dc79230669a8b5d685b168c30 ]
+[ Upstream commit e869e7a17798d85829fa7d4f9bbe1eebd4b2d3f6 ]
 
-Currently when a host1x device driver is unregistered, it is not
-detached from the host1x controller, which means that the device
-will stay around and when the driver is registered again, it may
-bind to the old, stale device rather than the new one that was
-created from scratch upon driver registration. This in turn can
-cause various weird crashes within the driver core because it is
-confronted with a device that was already deleted.
+Using a AX88179 device (0b95:1790), I see two bytes of appended data on
+every RX packet. For example, this 48-byte ping, using 0xff as a
+payload byte:
 
-Fix this by detaching the driver from the host1x controller when
-it is unregistered. This ensures that the deleted device also is
-no longer present in the device list that drivers will bind to.
+  04:20:22.528472 IP 192.168.1.1 > 192.168.1.2: ICMP echo request, id 2447, seq 1, length 64
+	0x0000:  000a cd35 ea50 000a cd35 ea4f 0800 4500
+	0x0010:  0054 c116 4000 4001 f63e c0a8 0101 c0a8
+	0x0020:  0102 0800 b633 098f 0001 87ea cd5e 0000
+	0x0030:  0000 dcf2 0600 0000 0000 ffff ffff ffff
+	0x0040:  ffff ffff ffff ffff ffff ffff ffff ffff
+	0x0050:  ffff ffff ffff ffff ffff ffff ffff ffff
+	0x0060:  ffff 961f
 
-Reported-by: Sowjanya Komatineni <skomatineni@nvidia.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Tested-by: Sowjanya Komatineni <skomatineni@nvidia.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Those last two bytes - 96 1f - aren't part of the original packet.
+
+In the ax88179 RX path, the usbnet rx_fixup function trims a 2-byte
+'alignment pseudo header' from the start of the packet, and sets the
+length from a per-packet field populated by hardware. It looks like that
+length field *includes* the 2-byte header; the current driver assumes
+that it's excluded.
+
+This change trims the 2-byte alignment header after we've set the packet
+length, so the resulting packet length is correct. While we're moving
+the comment around, this also fixes the spelling of 'pseudo'.
+
+Signed-off-by: Jeremy Kerr <jk@ozlabs.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/host1x/bus.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/net/usb/ax88179_178a.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/host1x/bus.c b/drivers/gpu/host1x/bus.c
-index f9cde03030fd9..c2a9dcf6f4907 100644
---- a/drivers/gpu/host1x/bus.c
-+++ b/drivers/gpu/host1x/bus.c
-@@ -615,8 +615,17 @@ EXPORT_SYMBOL(host1x_driver_register_full);
-  */
- void host1x_driver_unregister(struct host1x_driver *driver)
- {
-+	struct host1x *host1x;
-+
- 	driver_unregister(&driver->driver);
+diff --git a/drivers/net/usb/ax88179_178a.c b/drivers/net/usb/ax88179_178a.c
+index 0f69b77e8502b..875639b0e9d56 100644
+--- a/drivers/net/usb/ax88179_178a.c
++++ b/drivers/net/usb/ax88179_178a.c
+@@ -1400,10 +1400,10 @@ static int ax88179_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
+ 		}
  
-+	mutex_lock(&devices_lock);
-+
-+	list_for_each_entry(host1x, &devices, list)
-+		host1x_detach_driver(host1x, driver);
-+
-+	mutex_unlock(&devices_lock);
-+
- 	mutex_lock(&drivers_lock);
- 	list_del_init(&driver->list);
- 	mutex_unlock(&drivers_lock);
+ 		if (pkt_cnt == 0) {
+-			/* Skip IP alignment psudo header */
+-			skb_pull(skb, 2);
+ 			skb->len = pkt_len;
+-			skb_set_tail_pointer(skb, pkt_len);
++			/* Skip IP alignment pseudo header */
++			skb_pull(skb, 2);
++			skb_set_tail_pointer(skb, skb->len);
+ 			skb->truesize = pkt_len + sizeof(struct sk_buff);
+ 			ax88179_rx_checksum(skb, pkt_hdr);
+ 			return 1;
+@@ -1412,8 +1412,9 @@ static int ax88179_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
+ 		ax_skb = skb_clone(skb, GFP_ATOMIC);
+ 		if (ax_skb) {
+ 			ax_skb->len = pkt_len;
+-			ax_skb->data = skb->data + 2;
+-			skb_set_tail_pointer(ax_skb, pkt_len);
++			/* Skip IP alignment pseudo header */
++			skb_pull(ax_skb, 2);
++			skb_set_tail_pointer(ax_skb, ax_skb->len);
+ 			ax_skb->truesize = pkt_len + sizeof(struct sk_buff);
+ 			ax88179_rx_checksum(ax_skb, pkt_hdr);
+ 			usbnet_skb_return(dev, ax_skb);
 -- 
 2.25.1
 
