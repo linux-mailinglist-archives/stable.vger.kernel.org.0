@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF24B2118C4
-	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 03:36:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3431A211929
+	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 03:37:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729179AbgGBB02 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jul 2020 21:26:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57814 "EHLO mail.kernel.org"
+        id S1728651AbgGBBb7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jul 2020 21:31:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729166AbgGBB00 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Jul 2020 21:26:26 -0400
+        id S1729172AbgGBB02 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Jul 2020 21:26:28 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EFB96206BE;
-        Thu,  2 Jul 2020 01:26:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1C24E20884;
+        Thu,  2 Jul 2020 01:26:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593653186;
-        bh=5Jqa8Rm0KG4BHotO3qQqwn+APEvLoSbIZoKJA2xGqj0=;
+        s=default; t=1593653187;
+        bh=2iQA6mqimRsMV25dNMf7E6m/TlOIfN2OM6I+gFbKVQM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rw40hWweISIhDHboCj5uGiSpxctJPbjY+rXOZ0m5NVU7sga7X+rMqcKb0BbJ96KBt
-         6/WieUKV79dGm2A+m3v7U/602TXxwUVvNYO1kqhZeUmnVANLz7ZVX81n3EzVL1znJd
-         3BUmmBP/s5ChPQ5/VyqUcbNjb0xodRoW2TYCo+nU=
+        b=g+e98XblPKHqeURh7SVlaSxlCftCc5H++2RYnT9oe5QpPU0fn1jlhSaepsLZUZvRn
+         ffgtm3CNSxZgwp59kP6WJrtesvjWeN7IDFwA5VRvAeGsbv3XJPAwS5TkmCTQHeP+Sd
+         ANEeHxDjLfQVcStUFuDhaxyjlN7GxIfXm8tm6bKA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhenzhong Duan <zhenzhong.duan@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 09/27] spi: spidev: fix a potential use-after-free in spidev_release()
-Date:   Wed,  1 Jul 2020 21:25:57 -0400
-Message-Id: <20200702012615.2701532-9-sashal@kernel.org>
+Cc:     David Christensen <drc@linux.vnet.ibm.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 10/27] tg3: driver sleeps indefinitely when EEH errors exceed eeh_max_freezes
+Date:   Wed,  1 Jul 2020 21:25:58 -0400
+Message-Id: <20200702012615.2701532-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200702012615.2701532-1-sashal@kernel.org>
 References: <20200702012615.2701532-1-sashal@kernel.org>
@@ -43,74 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhenzhong Duan <zhenzhong.duan@gmail.com>
+From: David Christensen <drc@linux.vnet.ibm.com>
 
-[ Upstream commit 06096cc6c5a84ced929634b0d79376b94c65a4bd ]
+[ Upstream commit 3a2656a211caf35e56afc9425e6e518fa52f7fbc ]
 
-If an spi device is unbounded from the driver before the release
-process, there will be an NULL pointer reference when it's
-referenced in spi_slave_abort().
+The driver function tg3_io_error_detected() calls napi_disable twice,
+without an intervening napi_enable, when the number of EEH errors exceeds
+eeh_max_freezes, resulting in an indefinite sleep while holding rtnl_lock.
 
-Fix it by checking it's already freed before reference.
+Add check for pcierr_recovery which skips code already executed for the
+"Frozen" state.
 
-Signed-off-by: Zhenzhong Duan <zhenzhong.duan@gmail.com>
-Link: https://lore.kernel.org/r/20200618032125.4650-2-zhenzhong.duan@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: David Christensen <drc@linux.vnet.ibm.com>
+Reviewed-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spidev.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ drivers/net/ethernet/broadcom/tg3.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/spi/spidev.c b/drivers/spi/spidev.c
-index 5edf4029a3486..167047760d79a 100644
---- a/drivers/spi/spidev.c
-+++ b/drivers/spi/spidev.c
-@@ -607,15 +607,20 @@ static int spidev_open(struct inode *inode, struct file *filp)
- static int spidev_release(struct inode *inode, struct file *filp)
- {
- 	struct spidev_data	*spidev;
-+	int			dofree;
+diff --git a/drivers/net/ethernet/broadcom/tg3.c b/drivers/net/ethernet/broadcom/tg3.c
+index a12962702611f..be845df050399 100644
+--- a/drivers/net/ethernet/broadcom/tg3.c
++++ b/drivers/net/ethernet/broadcom/tg3.c
+@@ -18229,8 +18229,8 @@ static pci_ers_result_t tg3_io_error_detected(struct pci_dev *pdev,
  
- 	mutex_lock(&device_list_lock);
- 	spidev = filp->private_data;
- 	filp->private_data = NULL;
+ 	rtnl_lock();
  
-+	spin_lock_irq(&spidev->spi_lock);
-+	/* ... after we unbound from the underlying device? */
-+	dofree = (spidev->spi == NULL);
-+	spin_unlock_irq(&spidev->spi_lock);
-+
- 	/* last close? */
- 	spidev->users--;
- 	if (!spidev->users) {
--		int		dofree;
+-	/* We probably don't have netdev yet */
+-	if (!netdev || !netif_running(netdev))
++	/* Could be second call or maybe we don't have netdev yet */
++	if (!netdev || tp->pcierr_recovery || !netif_running(netdev))
+ 		goto done;
  
- 		kfree(spidev->tx_buffer);
- 		spidev->tx_buffer = NULL;
-@@ -623,19 +628,14 @@ static int spidev_release(struct inode *inode, struct file *filp)
- 		kfree(spidev->rx_buffer);
- 		spidev->rx_buffer = NULL;
- 
--		spin_lock_irq(&spidev->spi_lock);
--		if (spidev->spi)
--			spidev->speed_hz = spidev->spi->max_speed_hz;
--
--		/* ... after we unbound from the underlying device? */
--		dofree = (spidev->spi == NULL);
--		spin_unlock_irq(&spidev->spi_lock);
--
- 		if (dofree)
- 			kfree(spidev);
-+		else
-+			spidev->speed_hz = spidev->spi->max_speed_hz;
- 	}
- #ifdef CONFIG_SPI_SLAVE
--	spi_slave_abort(spidev->spi);
-+	if (!dofree)
-+		spi_slave_abort(spidev->spi);
- #endif
- 	mutex_unlock(&device_list_lock);
- 
+ 	/* We needn't recover from permanent error */
 -- 
 2.25.1
 
