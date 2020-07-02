@@ -2,89 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA209211AD5
-	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 06:11:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36667211BF9
+	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 08:28:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726118AbgGBEL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jul 2020 00:11:56 -0400
-Received: from bmailout1.hostsharing.net ([83.223.95.100]:45731 "EHLO
-        bmailout1.hostsharing.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725857AbgGBEL4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Jul 2020 00:11:56 -0400
-Received: from h08.hostsharing.net (h08.hostsharing.net [IPv6:2a01:37:1000::53df:5f1c:0])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (Client CN "*.hostsharing.net", Issuer "COMODO RSA Domain Validation Secure Server CA" (not verified))
-        by bmailout1.hostsharing.net (Postfix) with ESMTPS id 07030300011B9;
-        Thu,  2 Jul 2020 06:11:53 +0200 (CEST)
-Received: by h08.hostsharing.net (Postfix, from userid 100393)
-        id BC3492ED3E2; Thu,  2 Jul 2020 06:11:52 +0200 (CEST)
-Date:   Thu, 2 Jul 2020 06:11:52 +0200
-From:   Lukas Wunner <lukas@wunner.de>
-To:     Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Cc:     Daniel Winkler <danielwinkler@google.com>,
-        Serge Semin <fancer.lancer@gmail.com>,
-        linux-serial@vger.kernel.org, linux-mediatek@lists.infradead.org,
-        Alexey Malahov <Alexey.Malahov@baikalelectronics.ru>,
-        BlueZ <linux-bluetooth@vger.kernel.org>,
-        chromeos-bluetooth-upstreaming 
-        <chromeos-bluetooth-upstreaming@chromium.org>,
-        stable@vger.kernel.org, abhishekpandit@chromium.org,
-        Aaron Sierra <asierra@xes-inc.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jslaby@suse.com>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 0/1] Revert "serial: 8250: Fix max baud limit in
- generic 8250 port"
-Message-ID: <20200702041152.e5csvbodojzwnagx@wunner.de>
-References: <20200701211337.3027448-1-danielwinkler@google.com>
- <20200701223713.gavale4aramu3xnb@mobilestation>
+        id S1726068AbgGBG2w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jul 2020 02:28:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57648 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725774AbgGBG2v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Jul 2020 02:28:51 -0400
+Received: from mail-wr1-x443.google.com (mail-wr1-x443.google.com [IPv6:2a00:1450:4864:20::443])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 252F7C08C5DC
+        for <stable@vger.kernel.org>; Wed,  1 Jul 2020 23:28:51 -0700 (PDT)
+Received: by mail-wr1-x443.google.com with SMTP id f7so23652352wrw.1
+        for <stable@vger.kernel.org>; Wed, 01 Jul 2020 23:28:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=jCQkFD83b8Tutn+WMP/3bAr1jQFc8WLuHymNCikYf+w=;
+        b=mKWkAyXewZEZnOTna5MEn54RJSrzCeMHT4RFOmf6zybQtHEtHBNxM1fg/d3wZYPHhO
+         dcXlW/mOLWGEXsNn00XmM1Lmt1NUqFtJVRpDDUVcM3yuLdd7RSN/R1OAmsiaofkK9nzJ
+         08rmCXu7dpoV8MA+0OFS9Tv8OpaFPV2Fqh6BkG5B6izCQ9/9a5L/Pk9JoZAO5EJRcM4L
+         UfvznEs81QPynMTSWULmJT+kXoSFl8/KECF/FylYPtuvkdW5+vgoX+iyr+4UKVd3X9kZ
+         opSFhpuhXcRQGwcfl76FG9MCrpAxkxXH7RrWDmjq51DTi1VUZnVUstdZamJ7mmr+nPmg
+         96+A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=jCQkFD83b8Tutn+WMP/3bAr1jQFc8WLuHymNCikYf+w=;
+        b=CaUktLKDFs67swU6H8z1NfnZtTBF5/B1zJRWFZWjk9JuU9cchcca8UXJvVd6M6ywvj
+         Cv7s8aZi4MuMh0LPhQUr+LWi/QqH6j5xILmi+6RSDnQvmot7DxwDB528iJSSFT/Cltpo
+         CR5Zy0mRX3qK9TOqLXi8xDcPlgf284C7DHbmgqeUSUdw2lf/Ejd3z3zI+CnqV7vZxsSH
+         Yco6Pd93HLZJwXNUC5lVO0DMexh7/6f2RwbIviIsirmcxoU7xNITeJmLoVwpW+yIb6ih
+         7K0FA1n4AmDV1zhlxHbpUL9KC2EaSLBMXt4CEyeMJQrBKSrDDeklxv8tO3L3Kp3HfS8w
+         a5mQ==
+X-Gm-Message-State: AOAM533Qj0gh8Rz7YgJ6MpmvZ5+V9Kz8LuRJ8Ien4vOlbRr40StPnJR1
+        eFduOypUtiof9WRXy/2/9Af9Ig==
+X-Google-Smtp-Source: ABdhPJyNY8z3/hUMig6bxMXp9IPqQqAaIUQPnJl/6+xb3OWV+NBYXC2pezBLPGqZPjnpGpOuT1lSjg==
+X-Received: by 2002:a5d:5388:: with SMTP id d8mr29514405wrv.35.1593671328298;
+        Wed, 01 Jul 2020 23:28:48 -0700 (PDT)
+Received: from dell ([2.27.35.144])
+        by smtp.gmail.com with ESMTPSA id w12sm10112507wrm.79.2020.07.01.23.28.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 01 Jul 2020 23:28:47 -0700 (PDT)
+Date:   Thu, 2 Jul 2020 07:28:45 +0100
+From:   Lee Jones <lee.jones@linaro.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Thor Thayer <thor.thayer@linux.intel.com>
+Subject: Re: [PATCH 04/10] mfd: altera-sysmgr: Fix physical address storing
+ hacks
+Message-ID: <20200702062845.GK1179328@dell>
+References: <20200624150704.2729736-5-lee.jones@linaro.org>
+ <20200701193325.097F920853@mail.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20200701223713.gavale4aramu3xnb@mobilestation>
-User-Agent: NeoMutt/20170113 (1.7.2)
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200701193325.097F920853@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 02, 2020 at 01:37:13AM +0300, Serge Semin wrote:
-> 1) Add a new capability like UART_CAP_NO16DIV and take it into account
->    in the serial8250_get_baud_rate() method.
->  
-> I don't have a documentation for the Mediatek UART port, but it seems to me
-> that that controller calculates the baud rate differently from the standard
-> 8250 port. A standard 8250 port does that by the next formulae:
->   baud = uartclk / (16 * divisor).
-> While it seems to me that the Mediatek port uses the formulae like:
->   baud = uartclk / divisor. (Please, correct me if I'm wrong)
+On Wed, 01 Jul 2020, Sasha Levin wrote:
 
-8250_bcm2835aux.c seems to suffer from a similar issue and
-solves it like this in the ->probe hook:
-
-	/* the HW-clock divider for bcm2835aux is 8,
-	 * but 8250 expects a divider of 16,
-	 * so we have to multiply the actual clock by 2
-	 * to get identical baudrates.
-	 */
-	up.port.uartclk = clk_get_rate(data->clk) * 2;
-
-
-> 2) Manually call serial8250_do_set_divisor() in the custom set_termios()
->    callback.
+> Hi
 > 
-> Just add the uart_update_timeout() and serial8250_do_set_divisor() methods
-> invocation into the mtk8250_set_termios() function, which the original commit
-> 81bb549fdf14 ("serial: 8250_mtk: support big baud rate") author should have
-> done in the first place.
+> [This is an automated email]
+> 
+> This commit has been processed because it contains a -stable tag.
+> The stable tag indicates that it's relevant for the following trees: all
+> 
+> The bot has tested the following trees: v5.7.6, v5.4.49, v4.19.130, v4.14.186, v4.9.228, v4.4.228.
+> 
+> v5.7.6: Build OK!
+> v5.4.49: Build OK!
+> v4.19.130: Failed to apply! Possible dependencies:
+>     51908d2e9b7c7 ("mfd: stpmic1: Add STPMIC1 driver")
+>     f36e789a1f8d0 ("mfd: altera-sysmgr: Add SOCFPGA System Manager")
+> 
+> v4.14.186: Failed to apply! Possible dependencies:
+>     51908d2e9b7c7 ("mfd: stpmic1: Add STPMIC1 driver")
+>     f36e789a1f8d0 ("mfd: altera-sysmgr: Add SOCFPGA System Manager")
+> 
+> v4.9.228: Failed to apply! Possible dependencies:
+>     51908d2e9b7c7 ("mfd: stpmic1: Add STPMIC1 driver")
+>     937d3a0af521e ("mfd: Add support for Allwinner SoCs ADC")
+>     d0f949e220fdf ("mfd: Add STM32 Timers driver")
+>     f36e789a1f8d0 ("mfd: altera-sysmgr: Add SOCFPGA System Manager")
+> 
+> v4.4.228: Failed to apply! Possible dependencies:
+>     51908d2e9b7c7 ("mfd: stpmic1: Add STPMIC1 driver")
+>     8ce064bfe7c8c ("MAINTAINERS: Add Altera Arria10 System Resource Chip")
+>     937d3a0af521e ("mfd: Add support for Allwinner SoCs ADC")
+>     9787f5e28b507 ("mfd: altr_a10sr: Add Altera Arria10 DevKit System Resource Chip")
+>     b25c6b7d2801f ("mfd: act8945a: Add Active-semi ACT8945A PMIC MFD driver")
+>     d0f949e220fdf ("mfd: Add STM32 Timers driver")
+>     f36e789a1f8d0 ("mfd: altera-sysmgr: Add SOCFPGA System Manager")
+> 
+> 
+> NOTE: The patch will not be queued to stable trees until it is upstream.
+> 
+> How should we proceed with this patch?
 
-That sound preferable as adding new quirks into core code feels
-like a case of midlayer fallacy:
+Please drop it.
 
-https://blog.ffwll.ch/2016/12/midlayers-once-more-with-feeling.html
+Greg indicated that these should not be bound for Stable.
 
-Thanks,
-
-Lukas
+-- 
+Lee Jones [李琼斯]
+Senior Technical Lead - Developer Services
+Linaro.org │ Open source software for Arm SoCs
+Follow Linaro: Facebook | Twitter | Blog
