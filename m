@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 295F52118E8
-	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 03:36:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58DAC2118D9
+	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 03:36:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728050AbgGBB3n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jul 2020 21:29:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58998 "EHLO mail.kernel.org"
+        id S1729425AbgGBB1Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jul 2020 21:27:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728643AbgGBB1M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Jul 2020 21:27:12 -0400
+        id S1729224AbgGBB1P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Jul 2020 21:27:15 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 956B320C56;
-        Thu,  2 Jul 2020 01:27:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7682720874;
+        Thu,  2 Jul 2020 01:27:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593653231;
-        bh=ZHlUOK9zLspfvDv2JI4xS0q6GdpneiNVoKtvVGycwso=;
+        s=default; t=1593653235;
+        bh=kQawHBNVMSSb8e69wjh80bcPFS1Nv4IuBqHQlqEPkYM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0Ge9+3Db/QGMWTeynqS5mTQV/wW4hJjuWPVLIjlHAyt8ee0P/bM1Pxax/r8+4Jgho
-         IHjsVB6TAKsUR+7THX9KHfHLcmRQnsszwmJo2+zipKFqi3+A2faj/zhp8nYlylA45q
-         /vcSOq8Wh1ZdZsLv4w2ifHO4wPe0DUrPXCBzpbms=
+        b=iiiJD5XEUnIeF6uYAolFOWx70HrC+uNlB+EETg4AaVeB3wuR87PN+9dJA0nA9NwCH
+         1ouYq0OpslCzbm8/TfaIE0Fdmr9NrHOOtzR73No7CfOmfO37eVxpP69ts6jmkCUaHe
+         q/TwfEStw8Z91y6R8iFZGtIamsb4JMNdGt13kkH4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Douglas Anderson <dianders@chromium.org>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>,
-        kgdb-bugreport@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 4.14 17/17] kgdb: Avoid suspicious RCU usage warning
-Date:   Wed,  1 Jul 2020 21:26:49 -0400
-Message-Id: <20200702012649.2701799-17-sashal@kernel.org>
+Cc:     Jeremy Kerr <jk@ozlabs.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 02/13] net: usb: ax88179_178a: fix packet alignment padding
+Date:   Wed,  1 Jul 2020 21:27:01 -0400
+Message-Id: <20200702012712.2701986-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200702012649.2701799-1-sashal@kernel.org>
-References: <20200702012649.2701799-1-sashal@kernel.org>
+In-Reply-To: <20200702012712.2701986-1-sashal@kernel.org>
+References: <20200702012712.2701986-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,107 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Jeremy Kerr <jk@ozlabs.org>
 
-[ Upstream commit 440ab9e10e2e6e5fd677473ee6f9e3af0f6904d6 ]
+[ Upstream commit e869e7a17798d85829fa7d4f9bbe1eebd4b2d3f6 ]
 
-At times when I'm using kgdb I see a splat on my console about
-suspicious RCU usage.  I managed to come up with a case that could
-reproduce this that looked like this:
+Using a AX88179 device (0b95:1790), I see two bytes of appended data on
+every RX packet. For example, this 48-byte ping, using 0xff as a
+payload byte:
 
-  WARNING: suspicious RCU usage
-  5.7.0-rc4+ #609 Not tainted
-  -----------------------------
-  kernel/pid.c:395 find_task_by_pid_ns() needs rcu_read_lock() protection!
+  04:20:22.528472 IP 192.168.1.1 > 192.168.1.2: ICMP echo request, id 2447, seq 1, length 64
+	0x0000:  000a cd35 ea50 000a cd35 ea4f 0800 4500
+	0x0010:  0054 c116 4000 4001 f63e c0a8 0101 c0a8
+	0x0020:  0102 0800 b633 098f 0001 87ea cd5e 0000
+	0x0030:  0000 dcf2 0600 0000 0000 ffff ffff ffff
+	0x0040:  ffff ffff ffff ffff ffff ffff ffff ffff
+	0x0050:  ffff ffff ffff ffff ffff ffff ffff ffff
+	0x0060:  ffff 961f
 
-  other info that might help us debug this:
+Those last two bytes - 96 1f - aren't part of the original packet.
 
-    rcu_scheduler_active = 2, debug_locks = 1
-  3 locks held by swapper/0/1:
-   #0: ffffff81b6b8e988 (&dev->mutex){....}-{3:3}, at: __device_attach+0x40/0x13c
-   #1: ffffffd01109e9e8 (dbg_master_lock){....}-{2:2}, at: kgdb_cpu_enter+0x20c/0x7ac
-   #2: ffffffd01109ea90 (dbg_slave_lock){....}-{2:2}, at: kgdb_cpu_enter+0x3ec/0x7ac
+In the ax88179 RX path, the usbnet rx_fixup function trims a 2-byte
+'alignment pseudo header' from the start of the packet, and sets the
+length from a per-packet field populated by hardware. It looks like that
+length field *includes* the 2-byte header; the current driver assumes
+that it's excluded.
 
-  stack backtrace:
-  CPU: 7 PID: 1 Comm: swapper/0 Not tainted 5.7.0-rc4+ #609
-  Hardware name: Google Cheza (rev3+) (DT)
-  Call trace:
-   dump_backtrace+0x0/0x1b8
-   show_stack+0x1c/0x24
-   dump_stack+0xd4/0x134
-   lockdep_rcu_suspicious+0xf0/0x100
-   find_task_by_pid_ns+0x5c/0x80
-   getthread+0x8c/0xb0
-   gdb_serial_stub+0x9d4/0xd04
-   kgdb_cpu_enter+0x284/0x7ac
-   kgdb_handle_exception+0x174/0x20c
-   kgdb_brk_fn+0x24/0x30
-   call_break_hook+0x6c/0x7c
-   brk_handler+0x20/0x5c
-   do_debug_exception+0x1c8/0x22c
-   el1_sync_handler+0x3c/0xe4
-   el1_sync+0x7c/0x100
-   rpmh_rsc_probe+0x38/0x420
-   platform_drv_probe+0x94/0xb4
-   really_probe+0x134/0x300
-   driver_probe_device+0x68/0x100
-   __device_attach_driver+0x90/0xa8
-   bus_for_each_drv+0x84/0xcc
-   __device_attach+0xb4/0x13c
-   device_initial_probe+0x18/0x20
-   bus_probe_device+0x38/0x98
-   device_add+0x38c/0x420
+This change trims the 2-byte alignment header after we've set the packet
+length, so the resulting packet length is correct. While we're moving
+the comment around, this also fixes the spelling of 'pseudo'.
 
-If I understand properly we should just be able to blanket kgdb under
-one big RCU read lock and the problem should go away.  We'll add it to
-the beast-of-a-function known as kgdb_cpu_enter().
-
-With this I no longer get any splats and things seem to work fine.
-
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Link: https://lore.kernel.org/r/20200602154729.v2.1.I70e0d4fd46d5ed2aaf0c98a355e8e1b7a5bb7e4e@changeid
-Signed-off-by: Daniel Thompson <daniel.thompson@linaro.org>
+Signed-off-by: Jeremy Kerr <jk@ozlabs.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/debug/debug_core.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/usb/ax88179_178a.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/kernel/debug/debug_core.c b/kernel/debug/debug_core.c
-index 159a53ff27162..694fcd0492827 100644
---- a/kernel/debug/debug_core.c
-+++ b/kernel/debug/debug_core.c
-@@ -489,6 +489,7 @@ static int kgdb_cpu_enter(struct kgdb_state *ks, struct pt_regs *regs,
- 		arch_kgdb_ops.disable_hw_break(regs);
- 
- acquirelock:
-+	rcu_read_lock();
- 	/*
- 	 * Interrupts will be restored by the 'trap return' code, except when
- 	 * single stepping.
-@@ -545,6 +546,7 @@ static int kgdb_cpu_enter(struct kgdb_state *ks, struct pt_regs *regs,
- 			atomic_dec(&slaves_in_kgdb);
- 			dbg_touch_watchdogs();
- 			local_irq_restore(flags);
-+			rcu_read_unlock();
- 			return 0;
+diff --git a/drivers/net/usb/ax88179_178a.c b/drivers/net/usb/ax88179_178a.c
+index 559af8e6ad90f..0434ecf677122 100644
+--- a/drivers/net/usb/ax88179_178a.c
++++ b/drivers/net/usb/ax88179_178a.c
+@@ -1396,10 +1396,10 @@ static int ax88179_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
  		}
- 		cpu_relax();
-@@ -563,6 +565,7 @@ static int kgdb_cpu_enter(struct kgdb_state *ks, struct pt_regs *regs,
- 		raw_spin_unlock(&dbg_master_lock);
- 		dbg_touch_watchdogs();
- 		local_irq_restore(flags);
-+		rcu_read_unlock();
  
- 		goto acquirelock;
- 	}
-@@ -682,6 +685,7 @@ static int kgdb_cpu_enter(struct kgdb_state *ks, struct pt_regs *regs,
- 	raw_spin_unlock(&dbg_master_lock);
- 	dbg_touch_watchdogs();
- 	local_irq_restore(flags);
-+	rcu_read_unlock();
- 
- 	return kgdb_info[cpu].ret_state;
- }
+ 		if (pkt_cnt == 0) {
+-			/* Skip IP alignment psudo header */
+-			skb_pull(skb, 2);
+ 			skb->len = pkt_len;
+-			skb_set_tail_pointer(skb, pkt_len);
++			/* Skip IP alignment pseudo header */
++			skb_pull(skb, 2);
++			skb_set_tail_pointer(skb, skb->len);
+ 			skb->truesize = pkt_len + sizeof(struct sk_buff);
+ 			ax88179_rx_checksum(skb, pkt_hdr);
+ 			return 1;
+@@ -1408,8 +1408,9 @@ static int ax88179_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
+ 		ax_skb = skb_clone(skb, GFP_ATOMIC);
+ 		if (ax_skb) {
+ 			ax_skb->len = pkt_len;
+-			ax_skb->data = skb->data + 2;
+-			skb_set_tail_pointer(ax_skb, pkt_len);
++			/* Skip IP alignment pseudo header */
++			skb_pull(ax_skb, 2);
++			skb_set_tail_pointer(ax_skb, ax_skb->len);
+ 			ax_skb->truesize = pkt_len + sizeof(struct sk_buff);
+ 			ax88179_rx_checksum(ax_skb, pkt_hdr);
+ 			usbnet_skb_return(dev, ax_skb);
 -- 
 2.25.1
 
