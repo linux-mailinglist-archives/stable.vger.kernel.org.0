@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 536A421183E
-	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 03:28:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADB88211842
+	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 03:28:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729126AbgGBB0P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jul 2020 21:26:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57474 "EHLO mail.kernel.org"
+        id S1728490AbgGBB0X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jul 2020 21:26:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729118AbgGBB0O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Jul 2020 21:26:14 -0400
+        id S1728328AbgGBB0W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Jul 2020 21:26:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6BD3D20C56;
-        Thu,  2 Jul 2020 01:26:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 366022083E;
+        Thu,  2 Jul 2020 01:26:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593653174;
-        bh=PT7N+aXSQVZUHIxrTFtorbKOFXsjtn1Zk/F84yefJVs=;
+        s=default; t=1593653181;
+        bh=73609KfXOAIqlc6B/woCVMBcJsoRgZARJtEgN0Js7a4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EQHRVIBhzN6zj+G82sw3wVCEpfM/lc2/toUhRu8j5UKPH+FNuzeRCIxI7/4TVP61Z
-         aul8UTytwTN/2w5rz/eVR09Odf6m3u43nMu5WvjS9EaqciSeZHwj62F5KZ+e6Z13HH
-         j8RHO7+4VGb+p988NaUIiAEEuiNrTj+AIJaJCI04=
+        b=PyJzOPbjdXTykmA2AtsLAJrBLBqP3Hq1VIIOhIK6bZAm3mL7Mws7iBOAjJYIwb+aN
+         2qohf5S9xY2IwVEJZ47TOx3e0oUhO0kJjkv9ZrZ9rORAHqow7wLkyQqufBHyIjE4Bh
+         TbR7fLhpgACV/RHLKgS5CqlkjRwSs67gBnfmkqj8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Scott Wood <swood@redhat.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 40/40] sched/core: Check cpus_mask, not cpus_ptr in __set_cpus_allowed_ptr(), to fix mask corruption
-Date:   Wed,  1 Jul 2020 21:24:01 -0400
-Message-Id: <20200702012402.2701121-40-sashal@kernel.org>
+Cc:     Waiman Long <longman@redhat.com>, David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 05/27] btrfs: use kfree() in btrfs_ioctl_get_subvol_info()
+Date:   Wed,  1 Jul 2020 21:25:53 -0400
+Message-Id: <20200702012615.2701532-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200702012402.2701121-1-sashal@kernel.org>
-References: <20200702012402.2701121-1-sashal@kernel.org>
+In-Reply-To: <20200702012615.2701532-1-sashal@kernel.org>
+References: <20200702012615.2701532-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,40 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Scott Wood <swood@redhat.com>
+From: Waiman Long <longman@redhat.com>
 
-[ Upstream commit fd844ba9ae59b51e34e77105d79f8eca780b3bd6 ]
+[ Upstream commit b091f7fede97cc64f7aaad3eeb37965aebee3082 ]
 
-This function is concerned with the long-term CPU mask, not the
-transitory mask the task might have while migrate disabled.  Before
-this patch, if a task was migrate-disabled at the time
-__set_cpus_allowed_ptr() was called, and the new mask happened to be
-equal to the CPU that the task was running on, then the mask update
-would be lost.
+In btrfs_ioctl_get_subvol_info(), there is a classic case where kzalloc()
+was incorrectly paired with kzfree(). According to David Sterba, there
+isn't any sensitive information in the subvol_info that needs to be
+cleared before freeing. So kzfree() isn't really needed, use kfree()
+instead.
 
-Signed-off-by: Scott Wood <swood@redhat.com>
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lkml.kernel.org/r/20200617121742.cpxppyi7twxmpin7@linutronix.de
+Signed-off-by: Waiman Long <longman@redhat.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/core.c | 2 +-
+ fs/btrfs/ioctl.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 361cbc2dc9667..f5537f87c1928 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -1649,7 +1649,7 @@ static int __set_cpus_allowed_ptr(struct task_struct *p,
- 		goto out;
- 	}
+diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
+index a5ae02bf3652b..60418b1fcef5b 100644
+--- a/fs/btrfs/ioctl.c
++++ b/fs/btrfs/ioctl.c
+@@ -2723,7 +2723,7 @@ static int btrfs_ioctl_get_subvol_info(struct file *file, void __user *argp)
  
--	if (cpumask_equal(p->cpus_ptr, new_mask))
-+	if (cpumask_equal(&p->cpus_mask, new_mask))
- 		goto out;
+ out:
+ 	btrfs_free_path(path);
+-	kzfree(subvol_info);
++	kfree(subvol_info);
+ 	return ret;
+ }
  
- 	dest_cpu = cpumask_any_and(cpu_valid_mask, new_mask);
 -- 
 2.25.1
 
