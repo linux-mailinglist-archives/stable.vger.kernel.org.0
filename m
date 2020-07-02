@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A5DF211879
-	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 03:29:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5801E211866
+	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 03:28:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728753AbgGBB1h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jul 2020 21:27:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59568 "EHLO mail.kernel.org"
+        id S1729547AbgGBB1j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jul 2020 21:27:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728683AbgGBB1g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Jul 2020 21:27:36 -0400
+        id S1728554AbgGBB1i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Jul 2020 21:27:38 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 66E2F21473;
-        Thu,  2 Jul 2020 01:27:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 97FAD20874;
+        Thu,  2 Jul 2020 01:27:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593653256;
-        bh=El9OysCfIUZX9iH2PPNwdGqJu/otsnHDNnicWVQlxOU=;
+        s=default; t=1593653257;
+        bh=HvLjSETqSGwPJTCtt7FAZ1rCHmOP8smwQD4IRxTnFBE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tCavyok7QKUv5CfwqtUwxQQfelEccBSuVvEidGGg58yNS3tFl3H/YL6kUQloLAji2
-         yj65fP7Zev8NJ8ARHuv4Z2YwW39AfrgFAz++BXWLc/bepM1MyemmbNaYFvDYFIr3AD
-         oVWmpUGThQc8aQfzqUuuBrItHI1nokdNkULaox7k=
+        b=OqRkZaoEFo7c9lLLFI6OKK0Ww2adKEqUE/Dp3NkeWrWxXWvvQkVsUpzdOBYL0Qx3i
+         HpVczDj7Rm1et5QABN/FImWQNRQZm2utAZxP0oxnR0mQdSSW/eHRbJBL7nmMIBF20M
+         aDwWnauesTYwh4MC28YgkCqjhFprZh6QqdZSSoLE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Christensen <drc@linux.vnet.ibm.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 5/7] tg3: driver sleeps indefinitely when EEH errors exceed eeh_max_freezes
-Date:   Wed,  1 Jul 2020 21:27:27 -0400
-Message-Id: <20200702012729.2702141-5-sashal@kernel.org>
+Cc:     Tomas Henzl <thenzl@redhat.com>,
+        Stanislav Saner <ssaner@redhat.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>,
+        MPT-FusionLinux.pdl@broadcom.com, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 6/7] scsi: mptscsih: Fix read sense data size
+Date:   Wed,  1 Jul 2020 21:27:28 -0400
+Message-Id: <20200702012729.2702141-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200702012729.2702141-1-sashal@kernel.org>
 References: <20200702012729.2702141-1-sashal@kernel.org>
@@ -44,40 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Christensen <drc@linux.vnet.ibm.com>
+From: Tomas Henzl <thenzl@redhat.com>
 
-[ Upstream commit 3a2656a211caf35e56afc9425e6e518fa52f7fbc ]
+[ Upstream commit afe89f115e84edbc76d316759e206580a06c6973 ]
 
-The driver function tg3_io_error_detected() calls napi_disable twice,
-without an intervening napi_enable, when the number of EEH errors exceeds
-eeh_max_freezes, resulting in an indefinite sleep while holding rtnl_lock.
+The sense data buffer in sense_buf_pool is allocated with size of
+MPT_SENSE_BUFFER_ALLOC(64) (multiplied by req_depth) while SNS_LEN(sc)(96)
+is used when reading the data.  That may lead to a read from unallocated
+area, sometimes from another (unallocated) page.  To fix this, limit the
+read size to MPT_SENSE_BUFFER_ALLOC.
 
-Add check for pcierr_recovery which skips code already executed for the
-"Frozen" state.
-
-Signed-off-by: David Christensen <drc@linux.vnet.ibm.com>
-Reviewed-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20200616150446.4840-1-thenzl@redhat.com
+Co-developed-by: Stanislav Saner <ssaner@redhat.com>
+Signed-off-by: Stanislav Saner <ssaner@redhat.com>
+Signed-off-by: Tomas Henzl <thenzl@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/tg3.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/message/fusion/mptscsih.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/tg3.c b/drivers/net/ethernet/broadcom/tg3.c
-index 58102e96ac5cd..e198427d0f292 100644
---- a/drivers/net/ethernet/broadcom/tg3.c
-+++ b/drivers/net/ethernet/broadcom/tg3.c
-@@ -18182,8 +18182,8 @@ static pci_ers_result_t tg3_io_error_detected(struct pci_dev *pdev,
+diff --git a/drivers/message/fusion/mptscsih.c b/drivers/message/fusion/mptscsih.c
+index 6c9fc11efb872..e77185e143ab7 100644
+--- a/drivers/message/fusion/mptscsih.c
++++ b/drivers/message/fusion/mptscsih.c
+@@ -118,8 +118,6 @@ int 		mptscsih_suspend(struct pci_dev *pdev, pm_message_t state);
+ int 		mptscsih_resume(struct pci_dev *pdev);
+ #endif
  
- 	rtnl_lock();
+-#define SNS_LEN(scp)	SCSI_SENSE_BUFFERSIZE
+-
  
--	/* We probably don't have netdev yet */
--	if (!netdev || !netif_running(netdev))
-+	/* Could be second call or maybe we don't have netdev yet */
-+	if (!netdev || tp->pcierr_recovery || !netif_running(netdev))
- 		goto done;
+ /*=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
+ /*
+@@ -2427,7 +2425,7 @@ mptscsih_copy_sense_data(struct scsi_cmnd *sc, MPT_SCSI_HOST *hd, MPT_FRAME_HDR
+ 		/* Copy the sense received into the scsi command block. */
+ 		req_index = le16_to_cpu(mf->u.frame.hwhdr.msgctxu.fld.req_idx);
+ 		sense_data = ((u8 *)ioc->sense_buf_pool + (req_index * MPT_SENSE_BUFFER_ALLOC));
+-		memcpy(sc->sense_buffer, sense_data, SNS_LEN(sc));
++		memcpy(sc->sense_buffer, sense_data, MPT_SENSE_BUFFER_ALLOC);
  
- 	/* We needn't recover from permanent error */
+ 		/* Log SMART data (asc = 0x5D, non-IM case only) if required.
+ 		 */
 -- 
 2.25.1
 
