@@ -2,98 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 268FE212F5C
-	for <lists+stable@lfdr.de>; Fri,  3 Jul 2020 00:15:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0ECBA212F77
+	for <lists+stable@lfdr.de>; Fri,  3 Jul 2020 00:24:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726228AbgGBWPw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jul 2020 18:15:52 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:45562 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726163AbgGBWPv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Jul 2020 18:15:51 -0400
-Received: by mail-pg1-f194.google.com with SMTP id l63so14102225pge.12;
-        Thu, 02 Jul 2020 15:15:51 -0700 (PDT)
+        id S1726258AbgGBWYt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jul 2020 18:24:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36206 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726074AbgGBWYt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Jul 2020 18:24:49 -0400
+Received: from mail-lf1-x144.google.com (mail-lf1-x144.google.com [IPv6:2a00:1450:4864:20::144])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9800C08C5C1
+        for <stable@vger.kernel.org>; Thu,  2 Jul 2020 15:24:48 -0700 (PDT)
+Received: by mail-lf1-x144.google.com with SMTP id y13so17174442lfe.9
+        for <stable@vger.kernel.org>; Thu, 02 Jul 2020 15:24:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=rmRp1ZZXJd6eN5hNQwPnS8csHi2t2UcvvKpaxxW8OSo=;
+        b=dg7C3tlrqxSyRBVh8XrZt1yUXgkta1ByzkZ3tEGx48lZx2vqiLJJ0X8MQO93IB5GAQ
+         Afndo7zFedxvT5SxiIQiNfEnN2/vLTqdvDaY5UO/gaf+QPNh3aahvZem6AJDkhfqDzs3
+         0m3eDL9N5MmJgDJCsgtKgN4of3aNVBFTy72w4=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=cIIMlqNaO5Unw1RzIf81LBsODZ5TPRnfcppyapVK2+8=;
-        b=baCryEPMc2o9h6sPJV2L9WDBPDa7Ab4XG012UyS2Ylkds3kNFpcFhuKQvLxGjFVv70
-         3S6PE4plnY6LouzFa5698EgS07womE1Sza+C1/vJCQvZ7nfb0V3TUPFd3pc7aRjmKgER
-         C7YUWZDbyAMOPdGPcYA2ZDgLvaeBSyTVZjApltkHiwhQf3LgyrK6Cs+y0yFRuW4kp+hy
-         fQ0LddFdaDDr2wJjxrlsJ3/1t/yRt25teh8DdZTW7FmYNXfWBQBVygaJnaLPcZHjVAS6
-         8UrQO2ayKIOjPsOCZUpsWBNup8e4Umn7r+2lbsBv0fLpNs0FUTBwuZnvJCB58ZoNNN49
-         pDQg==
-X-Gm-Message-State: AOAM532W9TwTcqT/IpoUHkMwg2ocaL3JCTYOrosHMf4kDrYS18B1KdH8
-        II+J3ukg5v9hLuA8YC/IuYgi07YE
-X-Google-Smtp-Source: ABdhPJx0l7QL1nHWSKOp/IBbD2Z+tjawC6rDDB+Qqd61qUaYwon66FNhvOJsrOo9YHIfr5rKiD4lfA==
-X-Received: by 2002:a63:d848:: with SMTP id k8mr12692149pgj.119.1593728151066;
-        Thu, 02 Jul 2020 15:15:51 -0700 (PDT)
-Received: from ?IPv6:2601:647:4802:9070:18f8:9053:b0e3:60d4? ([2601:647:4802:9070:18f8:9053:b0e3:60d4])
-        by smtp.gmail.com with ESMTPSA id j17sm9157032pgn.87.2020.07.02.15.15.49
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=rmRp1ZZXJd6eN5hNQwPnS8csHi2t2UcvvKpaxxW8OSo=;
+        b=RvZAPJk3ivnaSE1vWHzbZQirLhVNP6KiQa2sQBt1lxzZyJW1IBS9WGXLECMylGol8w
+         tEDko+X6wox1f2kvbzGXe3kcbFmtmToHUJ63XfXrdpKMCpAEj1GdigjiGrak1tVzVgi1
+         48UgAxVcVgeu2KfTYNMaYj/nWvLEiT7aNmY9efg86NUH2a4yBZIksBVEaEaWSKrNkVHc
+         bpsDix5cx8wcNMXACbawMjDqWmvHTpoMYF268HlzAvUV59FA5dTlOS8ZRhfScomNrD+0
+         fnXWqWER5Iseub5xLH6u184B66WY9ULPi1WzqtQ2bm4S+cim2dq5DtcqSIxRFRmCrAvJ
+         +I8g==
+X-Gm-Message-State: AOAM532oiOA5Buu7/KqE9ooJOOHBhyZgc7poj/F2iZ/UZYPOsK72135X
+        Qtffyo5A7u6FVopWRi867v2761AnYYQ=
+X-Google-Smtp-Source: ABdhPJyZMRo0PYcnuc+h30PaFueGwXthIYUK5bW/lUvRcTFFEpHCRl/BaXoSo7p7PpQW5a2Qr1PIQQ==
+X-Received: by 2002:ac2:5a01:: with SMTP id q1mr20017453lfn.182.1593728686819;
+        Thu, 02 Jul 2020 15:24:46 -0700 (PDT)
+Received: from mail-lf1-f43.google.com (mail-lf1-f43.google.com. [209.85.167.43])
+        by smtp.gmail.com with ESMTPSA id s1sm2824529ljj.96.2020.07.02.15.24.45
+        for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 02 Jul 2020 15:15:50 -0700 (PDT)
-Subject: Re: [PATCH 4.19 082/131] nvme: fix possible deadlock when I/O is
- blocked
-To:     Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Anton Eidelman <anton@lightbitslabs.com>,
-        Christoph Hellwig <hch@lst.de>
-References: <20200629153502.2494656-1-sashal@kernel.org>
- <20200629153502.2494656-83-sashal@kernel.org> <20200702211743.GE5787@amd>
-From:   Sagi Grimberg <sagi@grimberg.me>
-Message-ID: <e05ddf9e-1804-d297-47f4-c422d4f98cfb@grimberg.me>
-Date:   Thu, 2 Jul 2020 15:15:48 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
+        Thu, 02 Jul 2020 15:24:45 -0700 (PDT)
+Received: by mail-lf1-f43.google.com with SMTP id s16so11720199lfp.12
+        for <stable@vger.kernel.org>; Thu, 02 Jul 2020 15:24:45 -0700 (PDT)
+X-Received: by 2002:a19:8a07:: with SMTP id m7mr19715939lfd.31.1593728685003;
+ Thu, 02 Jul 2020 15:24:45 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20200702211743.GE5787@amd>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20200629153502.2494656-1-sashal@kernel.org> <20200629153502.2494656-115-sashal@kernel.org>
+ <20200702211717.GC5787@amd>
+In-Reply-To: <20200702211717.GC5787@amd>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Thu, 2 Jul 2020 15:24:29 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wj1VVZoNvtVYL9wCPVjBHwxhCXd4TfKbY0-OsG4nGyf2w@mail.gmail.com>
+Message-ID: <CAHk-=wj1VVZoNvtVYL9wCPVjBHwxhCXd4TfKbY0-OsG4nGyf2w@mail.gmail.com>
+Subject: Re: [PATCH 4.19 114/131] ocfs2: avoid inode removal while nfsd is
+ accessing it
+To:     Pavel Machek <pavel@denx.de>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Jun Piao <piaojun@huawei.com>, Mark Fasheh <mark@fasheh.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Jul 2, 2020 at 2:17 PM Pavel Machek <pavel@denx.de> wrote:
+>
+>
+> > commit 4cd9973f9ff69e37dd0ba2bd6e6423f8179c329a upstream.
+> >
+> > Patch series "ocfs2: fix nfsd over ocfs2 issues", v2.
+>
+> This causes locking imbalance:
 
-> Hi!
-> 
->> From: Sagi Grimberg <sagi@grimberg.me>
->>
->> [ Upstream commit 3b4b19721ec652ad2c4fe51dfbe5124212b5f581 ]
->>
->> Revert fab7772bfbcf ("nvme-multipath: revalidate nvme_ns_head gendisk
->> in nvme_validate_ns")
->>
->> When adding a new namespace to the head disk (via nvme_mpath_set_live)
->> we will see partition scan which triggers I/O on the mpath device node.
->> This process will usually be triggered from the scan_work which holds
->> the scan_lock. If I/O blocks (if we got ana change currently have only
->> available paths but none are accessible) this can deadlock on the head
->> disk bd_mutex as both partition scan I/O takes it, and head disk revalidation
->> takes it to check for resize (also triggered from scan_work on a different
->> path). See trace [1].
->>
->> The mpath disk revalidation was originally added to detect online disk
->> size change, but this is no longer needed since commit cb224c3af4df
->> ("nvme: Convert to use set_capacity_revalidate_and_notify") which already
->> updates resize info without unnecessarily revalidating the disk (the
-> 
-> Unfortunately, v4.19-stable does not contain cb224c3af4df. According
-> to changelog, it seems it should be cherry-picked?
+This sems to be true upstream too.
 
-You are absolutely right,
+> When ocfs2_nfs_sync_lock() returns error, caller can not know if the
+> lock was taken or not.
 
-The reference commit is a part of the series:
-78317c5d58e6 ("scsi: Convert to use set_capacity_revalidate_and_notify")
-cb224c3af4df ("nvme: Convert to use set_capacity_revalidate_and_notify")
-3cbc28bb902b ("xen-blkfront.c: Convert to use 
-set_capacity_revalidate_and_notify")
-662155e2898d ("virtio_blk.c: Convert to use 
-set_capacity_revalidate_and_notify")
-e598a72faeb5 ("block/genhd: Notify udev about capacity change")
+Right you are.
 
-It would be cool if they are cherry picked, although they don't qualify
-as stable patches per se...
+And your patch looks sane:
+
+> diff --git a/fs/ocfs2/dlmglue.c b/fs/ocfs2/dlmglue.c
+> index c141b06811a6..8149fb6f1f0d 100644
+> --- a/fs/ocfs2/dlmglue.c
+> +++ b/fs/ocfs2/dlmglue.c
+> @@ -2867,9 +2867,15 @@ int ocfs2_nfs_sync_lock(struct ocfs2_super *osb, int ex)
+>
+>         status = ocfs2_cluster_lock(osb, lockres, ex ? LKM_EXMODE : LKM_PRMODE,
+>                                     0, 0);
+> -       if (status < 0)
+> +       if (status < 0) {
+>                 mlog(ML_ERROR, "lock on nfs sync lock failed %d\n", status);
+>
+> +               if (ex)
+> +                       up_write(&osb->nfs_sync_rwlock);
+> +               else
+> +                       up_read(&osb->nfs_sync_rwlock);
+> +       }
+> +
+>         return status;
+>  }
+
+although the whole thing looks messy.
+
+If the issue is a lifetime thing (like that commit says), the proper
+model isn't a lock, but a refcount.
+
+Oh well. Junxiao?
+
+               Linus
