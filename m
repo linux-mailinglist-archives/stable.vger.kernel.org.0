@@ -2,84 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBE1321234F
-	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 14:27:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E8E521238B
+	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 14:41:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728955AbgGBM1t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jul 2020 08:27:49 -0400
-Received: from mga09.intel.com ([134.134.136.24]:19322 "EHLO mga09.intel.com"
+        id S1728908AbgGBMli (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jul 2020 08:41:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728954AbgGBM1t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jul 2020 08:27:49 -0400
-IronPort-SDR: te8+BZUW2vA+ggfNR8KwE0ugCNsvGbMxW7DzhlnIiWJ0lOcnLcBIVy4xGLvNmAx+f/87yWTmyx
- qz9oOaJkrWbw==
-X-IronPort-AV: E=McAfee;i="6000,8403,9669"; a="148428527"
-X-IronPort-AV: E=Sophos;i="5.75,304,1589266800"; 
-   d="scan'208";a="148428527"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Jul 2020 05:27:48 -0700
-IronPort-SDR: n9B3TEmF8lcbbhsfjDkqIXQuq8GVImYsOh43rXQc7XhMKv6Gu3/fCZDvGglnjXh/wiZElnBznP
- pY0nc+5sNWzA==
-X-IronPort-AV: E=Sophos;i="5.75,304,1589266800"; 
-   d="scan'208";a="481984527"
-Received: from dandoron-mobl.ger.corp.intel.com (HELO [10.214.212.30]) ([10.214.212.30])
-  by fmsmga005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Jul 2020 05:27:46 -0700
-Subject: Re: [Intel-gfx] [PATCH 01/23] drm/i915: Drop vm.ref for duplicate vma
- on construction
-To:     Chris Wilson <chris@chris-wilson.co.uk>,
-        intel-gfx@lists.freedesktop.org
-Cc:     stable@vger.kernel.org
-References: <20200702083225.20044-1-chris@chris-wilson.co.uk>
-From:   Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
-Organization: Intel Corporation UK Plc
-Message-ID: <8a50fa3d-83bd-0a75-cd50-17a593a2e0ca@linux.intel.com>
-Date:   Thu, 2 Jul 2020 13:27:43 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
+        id S1728893AbgGBMlh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jul 2020 08:41:37 -0400
+Received: from localhost.localdomain (NE2965lan1.rev.em-net.ne.jp [210.141.244.193])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id E4AF020885;
+        Thu,  2 Jul 2020 12:41:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1593693697;
+        bh=lDOGQAowU/l/wTAh+KcXplccev7uS9fXUjTT1Xhovrw=;
+        h=From:To:Cc:Subject:Date:From;
+        b=VhZU5sgc8kugcXWjTJ3I2D13FfR1ovD2YijZMAgUt5dmfqJrEp1Yifm3BQos/WMGn
+         8PfWth/zGA5x8SfC+NGGc7scTPLaO+oexM37U5V1cJGiUyVXEtMu9vSJACSS70axSO
+         R/but8xOg4w91LT0B23OrmJipi3Ff8j7WTAQsSFw=
+From:   Masami Hiramatsu <mhiramat@kernel.org>
+To:     stable@vger.kernel.org
+Cc:     Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>,
+        Changbin Du <changbin.du@gmail.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        mhiramat@kernel.org
+Subject: [PATCH for 4.4.y 0/5] tools/perf: Backport fixes for 4.4 for newer toolchain
+Date:   Thu,  2 Jul 2020 21:41:32 +0900
+Message-Id: <159369369207.82195.5763005209795799082.stgit@devnote2>
+X-Mailer: git-send-email 2.25.1
+User-Agent: StGit/0.19
 MIME-Version: 1.0
-In-Reply-To: <20200702083225.20044-1-chris@chris-wilson.co.uk>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi,
 
-On 02/07/2020 09:32, Chris Wilson wrote:
-> As we allow for parallel threads to create vma instances in parallel,
-> and we only filter out the duplicates upon reacquiring the spinlock for
-> the rbtree, we have to free the loser of the constructors' race. When
-> freeing, we should also drop any resource references acquired for the
-> redundant vma.
-> 
-> Fixes: 2850748ef876 ("drm/i915: Pull i915_vma_pin under the vm->mutex")
-> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-> Cc: <stable@vger.kernel.org> # v5.5+
-> ---
->   drivers/gpu/drm/i915/i915_vma.c | 1 +
->   1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/gpu/drm/i915/i915_vma.c b/drivers/gpu/drm/i915/i915_vma.c
-> index 1f63c4a1f055..7fe1f317cd2b 100644
-> --- a/drivers/gpu/drm/i915/i915_vma.c
-> +++ b/drivers/gpu/drm/i915/i915_vma.c
-> @@ -198,6 +198,7 @@ vma_create(struct drm_i915_gem_object *obj,
->   		cmp = i915_vma_compare(pos, vm, view);
->   		if (cmp == 0) {
->   			spin_unlock(&obj->vma.lock);
-> +			i915_vm_put(vm);
->   			i915_vma_free(vma);
->   			return pos;
->   		}
-> 
+Here is a series of patches for 4.4.y to build perf-tools on
+newer toolchain. This also includes a perf-probe fix.
 
-Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Thank you,
 
-Regards,
+---
 
-Tvrtko
+Arnaldo Carvalho de Melo (1):
+      perf annotate: Use asprintf when formatting objdump command line
+
+Changbin Du (1):
+      perf: Make perf able to build with latest libbfd
+
+Jiri Olsa (1):
+      perf tools: Fix snprint warnings for gcc 8
+
+Masami Hiramatsu (1):
+      perf probe: Fix to check blacklist address correctly
+
+Sergey Senozhatsky (1):
+      tools/lib/subcmd/pager.c: do not alias select() params
+
+
+ tools/perf/builtin-script.c    |   24 ++++++++++++------------
+ tools/perf/tests/attr.c        |    4 ++--
+ tools/perf/tests/pmu.c         |    2 +-
+ tools/perf/util/annotate.c     |   14 +++++++++++---
+ tools/perf/util/cgroup.c       |    2 +-
+ tools/perf/util/pager.c        |    5 ++++-
+ tools/perf/util/parse-events.c |    4 ++--
+ tools/perf/util/pmu.c          |    2 +-
+ tools/perf/util/probe-event.c  |   21 +++++++++++++++------
+ tools/perf/util/srcline.c      |   16 +++++++++++++++-
+ 10 files changed, 64 insertions(+), 30 deletions(-)
+
+--
+Masami Hiramatsu (Linaro) <mhiramat@kernel.org>
