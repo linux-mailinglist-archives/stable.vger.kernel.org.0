@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 810DC2118FE
-	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 03:36:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 440F12118D0
+	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 03:36:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727956AbgGBBab (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jul 2020 21:30:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58666 "EHLO mail.kernel.org"
+        id S1729336AbgGBB07 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jul 2020 21:26:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729318AbgGBB05 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Jul 2020 21:26:57 -0400
+        id S1729328AbgGBB06 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Jul 2020 21:26:58 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D5A5820748;
-        Thu,  2 Jul 2020 01:26:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 01BBB20C56;
+        Thu,  2 Jul 2020 01:26:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593653216;
-        bh=bQdhkyleKNrB/eAmk3MoXZ4uuEJHYABQVPYga/A9WNQ=;
+        s=default; t=1593653217;
+        bh=5Jqa8Rm0KG4BHotO3qQqwn+APEvLoSbIZoKJA2xGqj0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vr6v19I9LlrkYNvq8VkGr9gi+MIU2GGYmyv4+OxeNOm7M1D5ZTBA5xKZO4AGfntd8
-         ANiwXfq46lTIb0Uvc+v1ZMWaZscXKcm6vtA1qzQYlDBjbXODlWgfC7i6LiPMlkFZ1s
-         dJq/7Be+RQO7JTxNcpwKLuUFlTov48Qdz6cEganc=
+        b=y+0RwhiT1NkmJta3/qTxAr4jxmkx8Ah8Wfo+jOqBmNJUbo11au5RLVIicpux28L9Q
+         drjQJzNWu6Gedcse5NAORSTpHM/DCOtRChS93/ZdhYwdF1kr9ziRKLujixbPghaOWi
+         DdB9bgSVHEnCZrHMlLDfTrk8xMaZVJQ5/UgJWiXM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Zhenzhong Duan <zhenzhong.duan@gmail.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 05/17] spi: spidev: fix a race between spidev_release and spidev_remove
-Date:   Wed,  1 Jul 2020 21:26:37 -0400
-Message-Id: <20200702012649.2701799-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 06/17] spi: spidev: fix a potential use-after-free in spidev_release()
+Date:   Wed,  1 Jul 2020 21:26:38 -0400
+Message-Id: <20200702012649.2701799-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200702012649.2701799-1-sashal@kernel.org>
 References: <20200702012649.2701799-1-sashal@kernel.org>
@@ -45,58 +45,72 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zhenzhong Duan <zhenzhong.duan@gmail.com>
 
-[ Upstream commit abd42781c3d2155868821f1b947ae45bbc33330d ]
+[ Upstream commit 06096cc6c5a84ced929634b0d79376b94c65a4bd ]
 
-Imagine below scene, spidev is referenced after it's freed.
+If an spi device is unbounded from the driver before the release
+process, there will be an NULL pointer reference when it's
+referenced in spi_slave_abort().
 
-spidev_release()                spidev_remove()
-...
-                                spin_lock_irq(&spidev->spi_lock);
-                                    spidev->spi = NULL;
-                                spin_unlock_irq(&spidev->spi_lock);
-mutex_lock(&device_list_lock);
-dofree = (spidev->spi == NULL);
-if (dofree)
-    kfree(spidev);
-mutex_unlock(&device_list_lock);
-                                mutex_lock(&device_list_lock);
-                                list_del(&spidev->device_entry);
-                                device_destroy(spidev_class, spidev->devt);
-                                clear_bit(MINOR(spidev->devt), minors);
-                                if (spidev->users == 0)
-                                    kfree(spidev);
-                                mutex_unlock(&device_list_lock);
-
-Fix it by resetting spidev->spi in device_list_lock's protection.
+Fix it by checking it's already freed before reference.
 
 Signed-off-by: Zhenzhong Duan <zhenzhong.duan@gmail.com>
-Link: https://lore.kernel.org/r/20200618032125.4650-1-zhenzhong.duan@gmail.com
+Link: https://lore.kernel.org/r/20200618032125.4650-2-zhenzhong.duan@gmail.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spidev.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/spi/spidev.c | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/spi/spidev.c b/drivers/spi/spidev.c
-index 028725573e632..5edf4029a3486 100644
+index 5edf4029a3486..167047760d79a 100644
 --- a/drivers/spi/spidev.c
 +++ b/drivers/spi/spidev.c
-@@ -782,13 +782,13 @@ static int spidev_remove(struct spi_device *spi)
+@@ -607,15 +607,20 @@ static int spidev_open(struct inode *inode, struct file *filp)
+ static int spidev_release(struct inode *inode, struct file *filp)
  {
- 	struct spidev_data	*spidev = spi_get_drvdata(spi);
+ 	struct spidev_data	*spidev;
++	int			dofree;
  
-+	/* prevent new opens */
-+	mutex_lock(&device_list_lock);
- 	/* make sure ops on existing fds can abort cleanly */
- 	spin_lock_irq(&spidev->spi_lock);
- 	spidev->spi = NULL;
- 	spin_unlock_irq(&spidev->spi_lock);
+ 	mutex_lock(&device_list_lock);
+ 	spidev = filp->private_data;
+ 	filp->private_data = NULL;
  
--	/* prevent new opens */
--	mutex_lock(&device_list_lock);
- 	list_del(&spidev->device_entry);
- 	device_destroy(spidev_class, spidev->devt);
- 	clear_bit(MINOR(spidev->devt), minors);
++	spin_lock_irq(&spidev->spi_lock);
++	/* ... after we unbound from the underlying device? */
++	dofree = (spidev->spi == NULL);
++	spin_unlock_irq(&spidev->spi_lock);
++
+ 	/* last close? */
+ 	spidev->users--;
+ 	if (!spidev->users) {
+-		int		dofree;
+ 
+ 		kfree(spidev->tx_buffer);
+ 		spidev->tx_buffer = NULL;
+@@ -623,19 +628,14 @@ static int spidev_release(struct inode *inode, struct file *filp)
+ 		kfree(spidev->rx_buffer);
+ 		spidev->rx_buffer = NULL;
+ 
+-		spin_lock_irq(&spidev->spi_lock);
+-		if (spidev->spi)
+-			spidev->speed_hz = spidev->spi->max_speed_hz;
+-
+-		/* ... after we unbound from the underlying device? */
+-		dofree = (spidev->spi == NULL);
+-		spin_unlock_irq(&spidev->spi_lock);
+-
+ 		if (dofree)
+ 			kfree(spidev);
++		else
++			spidev->speed_hz = spidev->spi->max_speed_hz;
+ 	}
+ #ifdef CONFIG_SPI_SLAVE
+-	spi_slave_abort(spidev->spi);
++	if (!dofree)
++		spi_slave_abort(spidev->spi);
+ #endif
+ 	mutex_unlock(&device_list_lock);
+ 
 -- 
 2.25.1
 
