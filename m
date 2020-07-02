@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F22F212EF9
-	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 23:41:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3A43212F10
+	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 23:51:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726010AbgGBVlI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jul 2020 17:41:08 -0400
-Received: from 4.mo2.mail-out.ovh.net ([87.98.172.75]:46689 "EHLO
-        4.mo2.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725994AbgGBVlH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Jul 2020 17:41:07 -0400
-X-Greylist: delayed 3598 seconds by postgrey-1.27 at vger.kernel.org; Thu, 02 Jul 2020 17:41:07 EDT
-Received: from player698.ha.ovh.net (unknown [10.110.115.5])
-        by mo2.mail-out.ovh.net (Postfix) with ESMTP id AE8701E0C3A
-        for <stable@vger.kernel.org>; Thu,  2 Jul 2020 22:25:54 +0200 (CEST)
+        id S1726003AbgGBVvJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jul 2020 17:51:09 -0400
+Received: from 18.mo3.mail-out.ovh.net ([87.98.172.162]:54477 "EHLO
+        18.mo3.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725937AbgGBVvI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Jul 2020 17:51:08 -0400
+Received: from player737.ha.ovh.net (unknown [10.110.115.149])
+        by mo3.mail-out.ovh.net (Postfix) with ESMTP id B33EF25ADE2
+        for <stable@vger.kernel.org>; Thu,  2 Jul 2020 23:15:18 +0200 (CEST)
 Received: from etezian.org (213-243-141-64.bb.dnainternet.fi [213.243.141.64])
         (Authenticated sender: andi@etezian.org)
-        by player698.ha.ovh.net (Postfix) with ESMTPSA id 80B4313F8DEFB;
-        Thu,  2 Jul 2020 20:25:46 +0000 (UTC)
-Authentication-Results: garm.ovh; auth=pass (GARM-100R003153a45de-222d-4edc-8908-80945713e232,FB3D8E5C650F7CFAB96446367E683FB3BA96C23C) smtp.auth=andi@etezian.org
-Date:   Thu, 2 Jul 2020 23:25:45 +0300
+        by player737.ha.ovh.net (Postfix) with ESMTPSA id EF439A89D2D4;
+        Thu,  2 Jul 2020 21:15:15 +0000 (UTC)
+Authentication-Results: garm.ovh; auth=pass (GARM-106R006d9394081-6ce4-426a-9017-d6615d2d9935,FB3D8E5C650F7CFAB96446367E683FB3BA96C23C) smtp.auth=andi@etezian.org
+Date:   Fri, 3 Jul 2020 00:15:14 +0300
 From:   Andi Shyti <andi@etezian.org>
 To:     Chris Wilson <chris@chris-wilson.co.uk>
-Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org,
-        andi@etezian.org, andi.shyti@intel.com
-Subject: Re: [Intel-gfx] [PATCH 01/23] drm/i915: Drop vm.ref for duplicate
- vma on construction
-Message-ID: <20200702202545.GA1969@jack.zhora.eu>
-References: <20200702083225.20044-1-chris@chris-wilson.co.uk>
+Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
+Subject: Re: [Intel-gfx] [PATCH] drm/i915: Also drop vm.ref along error paths
+ for vma construction
+Message-ID: <20200702211514.GC1969@jack.zhora.eu>
+References: <20200702211015.29604-1-chris@chris-wilson.co.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200702083225.20044-1-chris@chris-wilson.co.uk>
-X-Ovh-Tracer-Id: 4814910953956229641
+In-Reply-To: <20200702211015.29604-1-chris@chris-wilson.co.uk>
+X-Ovh-Tracer-Id: 5649202785312162313
 X-VR-SPAMSTATE: OK
 X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgeduiedrtdeggddugeegucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpeetnhguihcuufhhhihtihcuoegrnhguihesvghtvgiiihgrnhdrohhrgheqnecuggftrfgrthhtvghrnheptdfgudduhfefueeujeefieehtdeftefggeevhefgueellefhudetgeeikeduieefnecukfhppedtrddtrddtrddtpddvudefrddvgeefrddugedurdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhhouggvpehsmhhtphdqohhuthdphhgvlhhopehplhgrhigvrheileekrdhhrgdrohhvhhdrnhgvthdpihhnvghtpedtrddtrddtrddtpdhmrghilhhfrhhomheprghnughisegvthgviihirghnrdhorhhgpdhrtghpthhtohepshhtrggslhgvsehvghgvrhdrkhgvrhhnvghlrdhorhhg
+X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgeduiedrtdeggdduheegucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpeetnhguihcuufhhhihtihcuoegrnhguihesvghtvgiiihgrnhdrohhrgheqnecuggftrfgrthhtvghrnheptdfgudduhfefueeujeefieehtdeftefggeevhefgueellefhudetgeeikeduieefnecukfhppedtrddtrddtrddtpddvudefrddvgeefrddugedurdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhhouggvpehsmhhtphdqohhuthdphhgvlhhopehplhgrhigvrhejfeejrdhhrgdrohhvhhdrnhgvthdpihhnvghtpedtrddtrddtrddtpdhmrghilhhfrhhomheprghnughisegvthgviihirghnrdhorhhgpdhrtghpthhtohepshhtrggslhgvsehvghgvrhdrkhgvrhhnvghlrdhorhhg
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -44,60 +42,21 @@ X-Mailing-List: stable@vger.kernel.org
 
 Hi Chris,
 
-> diff --git a/drivers/gpu/drm/i915/i915_vma.c b/drivers/gpu/drm/i915/i915_vma.c
-> index 1f63c4a1f055..7fe1f317cd2b 100644
-> --- a/drivers/gpu/drm/i915/i915_vma.c
-> +++ b/drivers/gpu/drm/i915/i915_vma.c
-> @@ -198,6 +198,7 @@ vma_create(struct drm_i915_gem_object *obj,
->  		cmp = i915_vma_compare(pos, vm, view);
->  		if (cmp == 0) {
->  			spin_unlock(&obj->vma.lock);
-> +			i915_vm_put(vm);
->  			i915_vma_free(vma);
+On Thu, Jul 02, 2020 at 10:10:15PM +0100, Chris Wilson wrote:
+> Not only do we need to release the vm.ref we acquired for the vma on the
+> duplicate insert branch, but also for the normal error paths, so roll
+> them all into one.
+> 
+> Reported-by: Andi Shyti <andi.shyti@intel.com>
+> Suggested-by: Andi Shyti <andi.shyti@intel.com>
+> Fixes: 2850748ef876 ("drm/i915: Pull i915_vma_pin under the vm->mutex")
+> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+> Cc: Andi Shyti <andi.shyti@intel.com>
+> Cc: <stable@vger.kernel.org> # v5.5+
 
-You are forgettin one return without dereferencing it.
+I've never been mentioned this much before, not even at school.
+But that's not enough and I'll give myself another mention:
 
-would this be a solution:
-
-@@ -106,6 +106,7 @@ vma_create(struct drm_i915_gem_object *obj,
- {
-        struct i915_vma *vma;
-        struct rb_node *rb, **p;
-+       struct i915_vma *pos = ERR_PTR(-E2BIG);
- 
-        /* The aliasing_ppgtt should never be used directly! */
-        GEM_BUG_ON(vm == &vm->gt->ggtt->alias->vm);
-@@ -185,7 +186,6 @@ vma_create(struct drm_i915_gem_object *obj,
-        rb = NULL;
-        p = &obj->vma.tree.rb_node;
-        while (*p) {
--               struct i915_vma *pos;
-                long cmp;
- 
-                rb = *p;
-@@ -197,12 +197,8 @@ vma_create(struct drm_i915_gem_object *obj,
-                 * and dispose of ours.
-                 */
-                cmp = i915_vma_compare(pos, vm, view);
--               if (cmp == 0) {
--                       spin_unlock(&obj->vma.lock);
--                       i915_vm_put(vm);
--                       i915_vma_free(vma);
--                       return pos;
--               }
-+               if (!cmp)
-+                       goto err_unlock;
- 
-                if (cmp < 0)
-                        p = &rb->rb_right;
-@@ -230,8 +226,9 @@ vma_create(struct drm_i915_gem_object *obj,
- err_unlock:
-        spin_unlock(&obj->vma.lock);
- err_vma:
-+       i915_vm_put(vm);
-        i915_vma_free(vma);
--       return ERR_PTR(-E2BIG);
-+       return pos;
- }
+Reviewed-by: Andi Shyti <andi.shyti@intel.com>
 
 Andi
