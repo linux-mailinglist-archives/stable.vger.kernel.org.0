@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E8A1213001
-	for <lists+stable@lfdr.de>; Fri,  3 Jul 2020 01:26:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50033213012
+	for <lists+stable@lfdr.de>; Fri,  3 Jul 2020 01:27:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726437AbgGBX0n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jul 2020 19:26:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45794 "EHLO
+        id S1726575AbgGBX1P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jul 2020 19:27:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726015AbgGBX0n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Jul 2020 19:26:43 -0400
-Received: from mail-pl1-x644.google.com (mail-pl1-x644.google.com [IPv6:2607:f8b0:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D35BBC08C5DD
-        for <stable@vger.kernel.org>; Thu,  2 Jul 2020 16:26:42 -0700 (PDT)
-Received: by mail-pl1-x644.google.com with SMTP id g17so11894978plq.12
-        for <stable@vger.kernel.org>; Thu, 02 Jul 2020 16:26:42 -0700 (PDT)
+        with ESMTP id S1726560AbgGBX0p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Jul 2020 19:26:45 -0400
+Received: from mail-pj1-x1041.google.com (mail-pj1-x1041.google.com [IPv6:2607:f8b0:4864:20::1041])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 532D5C08C5DF
+        for <stable@vger.kernel.org>; Thu,  2 Jul 2020 16:26:45 -0700 (PDT)
+Received: by mail-pj1-x1041.google.com with SMTP id b92so13160374pjc.4
+        for <stable@vger.kernel.org>; Thu, 02 Jul 2020 16:26:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=7HijGgI2TvbxAdbkLmn+7FOevHZZvQsb/QB5kNsfRm8=;
-        b=kr+H74z6Y7mZaMt6BLkbJH6jXJe6j/Y78PHuFfeEaqhOFJUMX5pP2Bph8ILRWvLBrS
-         mxeLTfc6KWtp+iboAOsMoRZPipJusoIglLHxeFArstHKAufpjMOJ3ui4CtrajZNAXs8W
-         7hvDURyhFv/VldjQpo/vMbl4cN+Bhkk7rsjzM=
+        bh=Be8/RXHNUg3guKcAU0wzFOahH212pJR/5S0VSq/hiLk=;
+        b=AZNXg5cAGqKc/O1ef4Kc/yy3qUbP8UuKWLzdKUZA44cFM8OkYapLq3J29luk4nI4ms
+         xZlrbLj6B/RkKmXJeAwDSYoGxQU0jiD1te9ioq8uMs2I3waXWUfWcElsMjAEAshyT9y5
+         dvNbYPegQb9XnQnvHreZbZu6+7+uuOFy6Gv8U=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=7HijGgI2TvbxAdbkLmn+7FOevHZZvQsb/QB5kNsfRm8=;
-        b=gEVJFSNJkLmY6FQ0+nyZY+34qgM11JkcLf9VSXGd8KYbNB93mPg6CDZotoUXxwQ1d1
-         ByUR/kgAWIgSkmJ/ZfhMVqEerLbh3cEy6+/RRg6Z/MriLD+qiFVyQcUC1M7+Fw5X2WlV
-         tlVNAQRAs7N0f8bdDBIfwNQPowsVy5YIG9pg9m1WJzn7KQSpLk3S61e8QPjNIxkqOqHO
-         jazacvqowqjAg3CO7RCqiEgGiD/dZDf1HcDfUgwrsNt+qAizSQEldMm0lugT3Qy2wiyg
-         9ni+ug0CNQaiQqjy4wTN3a/kgTrIauYN3L13APzGMT6uKgJokSfFeCoofuE4MKKsFqcz
-         Bpnw==
-X-Gm-Message-State: AOAM532hs4wp1FmHg/Rc1v2glmwYDSicxtXioEawc7NqwICBUWkJRct8
-        dn0WxWPMScbUHpt1nYC4vdQZww==
-X-Google-Smtp-Source: ABdhPJzz8CnYHL225os3PvEw+cnKOtwdUEdHKeI66rSfONm++PTuKjYFyWcIQK9h9E+K5n13kFzU8Q==
-X-Received: by 2002:a17:902:b60c:: with SMTP id b12mr26535944pls.96.1593732402248;
-        Thu, 02 Jul 2020 16:26:42 -0700 (PDT)
+        bh=Be8/RXHNUg3guKcAU0wzFOahH212pJR/5S0VSq/hiLk=;
+        b=iinRNTxYlb9UkeNMGSxzT717fTVZRggGGZWNN/Za4Yy3OpNCM08zME4DLA5pX7EK2+
+         RcWZSd4JM5GNHV+S6UBKDt+UFyZAz6Nol4y6zo3RHz6tNrMQ+JvIQ4Xh8khcyfHTqfaJ
+         CdgWFYChYb0EK7Usw06wjc8GqzD+NzjqlNkLycICi6SGefjbRK0OJ5GPav7+ioptwj90
+         bMUU/1jNMH70MGH03+dFI57D/DeJC7a60s5meM2oHRgYNXUGAvu/9p2ZuRhylk2AfLpP
+         EcJf707EJTPA1LigG3NiA62NZ/DePa94Vzm4wv97qH0t77rYO2XMMGyDcNDwo7RUK3Av
+         8oyg==
+X-Gm-Message-State: AOAM530b8F938pRFfmThXh7qOJ7K1CC06i/51MpOqPr20HlXW5LmB/TY
+        Krs86JUVO9OsWtZze8Y1tqNLVg==
+X-Google-Smtp-Source: ABdhPJxTnpQERPtJv7OGqHQCc+gfp34thsR2FhSVKFIpGMpGOmREcUT37nlgZdRzgpRwqbSxEkGurg==
+X-Received: by 2002:a17:902:8a82:: with SMTP id p2mr27275418plo.316.1593732403984;
+        Thu, 02 Jul 2020 16:26:43 -0700 (PDT)
 Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id y8sm8858534pju.49.2020.07.02.16.26.41
+        by smtp.gmail.com with ESMTPSA id 2sm9791094pfa.110.2020.07.02.16.26.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Thu, 02 Jul 2020 16:26:41 -0700 (PDT)
 From:   Kees Cook <keescook@chromium.org>
@@ -76,9 +76,9 @@ Cc:     Kees Cook <keescook@chromium.org>, stable@vger.kernel.org,
         Thomas Richter <tmricht@linux.ibm.com>,
         Ingo Molnar <mingo@kernel.org>, netdev@vger.kernel.org,
         bpf@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 2/5] module: Refactor section attr into bin attribute
-Date:   Thu,  2 Jul 2020 16:26:35 -0700
-Message-Id: <20200702232638.2946421-3-keescook@chromium.org>
+Subject: [PATCH 3/5] module: Do not expose section addresses to non-CAP_SYSLOG
+Date:   Thu,  2 Jul 2020 16:26:36 -0700
+Message-Id: <20200702232638.2946421-4-keescook@chromium.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200702232638.2946421-1-keescook@chromium.org>
 References: <20200702232638.2946421-1-keescook@chromium.org>
@@ -89,125 +89,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In order to gain access to the open file's f_cred for kallsym visibility
-permission checks, refactor the module section attributes to use the
-bin_attribute instead of attribute interface. Additionally removes the
-redundant "name" struct member.
+The printing of section addresses in /sys/module/*/sections/* was not
+using the correct credentials to evaluate visibility.
+
+Before:
+
+ # cat /sys/module/*/sections/.*text
+ 0xffffffffc0458000
+ ...
+ # capsh --drop=CAP_SYSLOG -- -c "cat /sys/module/*/sections/.*text"
+ 0xffffffffc0458000
+ ...
+
+After:
+
+ # cat /sys/module/*/sections/*.text
+ 0xffffffffc0458000
+ ...
+ # capsh --drop=CAP_SYSLOG -- -c "cat /sys/module/*/sections/.*text"
+ 0x0000000000000000
+ ...
+
+Additionally replaces the existing (safe) /proc/modules check with
+file->f_cred for consistency.
 
 Cc: stable@vger.kernel.org
+Reported-by: Dominik Czarnota <dominik.czarnota@trailofbits.com>
+Fixes: be71eda5383f ("module: Fix display of wrong module .text address")
 Signed-off-by: Kees Cook <keescook@chromium.org>
 ---
- kernel/module.c | 45 ++++++++++++++++++++++++---------------------
- 1 file changed, 24 insertions(+), 21 deletions(-)
+ kernel/module.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/kernel/module.c b/kernel/module.c
-index a5022ae84e50..9e2954519259 100644
+index 9e2954519259..e6c7571092cb 100644
 --- a/kernel/module.c
 +++ b/kernel/module.c
-@@ -1510,8 +1510,7 @@ static inline bool sect_empty(const Elf_Shdr *sect)
+@@ -1530,8 +1530,8 @@ static ssize_t module_sect_read(struct file *file, struct kobject *kobj,
+ 	if (pos != 0)
+ 		return -EINVAL;
+ 
+-	return sprintf(buf, "0x%px\n", kptr_restrict < 2 ?
+-		       (void *)sattr->address : NULL);
++	return sprintf(buf, "0x%px\n",
++		       kallsyms_show_value(file->f_cred) ? (void *)sattr->address : NULL);
  }
  
- struct module_sect_attr {
--	struct module_attribute mattr;
--	char *name;
-+	struct bin_attribute battr;
- 	unsigned long address;
- };
+ static void free_sect_attrs(struct module_sect_attrs *sect_attrs)
+@@ -4380,7 +4380,7 @@ static int modules_open(struct inode *inode, struct file *file)
  
-@@ -1521,11 +1520,16 @@ struct module_sect_attrs {
- 	struct module_sect_attr attrs[];
- };
- 
--static ssize_t module_sect_show(struct module_attribute *mattr,
--				struct module_kobject *mk, char *buf)
-+static ssize_t module_sect_read(struct file *file, struct kobject *kobj,
-+				struct bin_attribute *battr,
-+				char *buf, loff_t pos, size_t count)
- {
- 	struct module_sect_attr *sattr =
--		container_of(mattr, struct module_sect_attr, mattr);
-+		container_of(battr, struct module_sect_attr, battr);
-+
-+	if (pos != 0)
-+		return -EINVAL;
-+
- 	return sprintf(buf, "0x%px\n", kptr_restrict < 2 ?
- 		       (void *)sattr->address : NULL);
- }
-@@ -1535,7 +1539,7 @@ static void free_sect_attrs(struct module_sect_attrs *sect_attrs)
- 	unsigned int section;
- 
- 	for (section = 0; section < sect_attrs->nsections; section++)
--		kfree(sect_attrs->attrs[section].name);
-+		kfree(sect_attrs->attrs[section].battr.attr.name);
- 	kfree(sect_attrs);
- }
- 
-@@ -1544,42 +1548,41 @@ static void add_sect_attrs(struct module *mod, const struct load_info *info)
- 	unsigned int nloaded = 0, i, size[2];
- 	struct module_sect_attrs *sect_attrs;
- 	struct module_sect_attr *sattr;
--	struct attribute **gattr;
-+	struct bin_attribute **gattr;
- 
- 	/* Count loaded sections and allocate structures */
- 	for (i = 0; i < info->hdr->e_shnum; i++)
- 		if (!sect_empty(&info->sechdrs[i]))
- 			nloaded++;
- 	size[0] = ALIGN(struct_size(sect_attrs, attrs, nloaded),
--			sizeof(sect_attrs->grp.attrs[0]));
--	size[1] = (nloaded + 1) * sizeof(sect_attrs->grp.attrs[0]);
-+			sizeof(sect_attrs->grp.bin_attrs[0]));
-+	size[1] = (nloaded + 1) * sizeof(sect_attrs->grp.bin_attrs[0]);
- 	sect_attrs = kzalloc(size[0] + size[1], GFP_KERNEL);
- 	if (sect_attrs == NULL)
- 		return;
- 
- 	/* Setup section attributes. */
- 	sect_attrs->grp.name = "sections";
--	sect_attrs->grp.attrs = (void *)sect_attrs + size[0];
-+	sect_attrs->grp.bin_attrs = (void *)sect_attrs + size[0];
- 
- 	sect_attrs->nsections = 0;
- 	sattr = &sect_attrs->attrs[0];
--	gattr = &sect_attrs->grp.attrs[0];
-+	gattr = &sect_attrs->grp.bin_attrs[0];
- 	for (i = 0; i < info->hdr->e_shnum; i++) {
- 		Elf_Shdr *sec = &info->sechdrs[i];
- 		if (sect_empty(sec))
- 			continue;
-+		sysfs_bin_attr_init(&sattr->battr);
- 		sattr->address = sec->sh_addr;
--		sattr->name = kstrdup(info->secstrings + sec->sh_name,
--					GFP_KERNEL);
--		if (sattr->name == NULL)
-+		sattr->battr.attr.name =
-+			kstrdup(info->secstrings + sec->sh_name, GFP_KERNEL);
-+		if (sattr->battr.attr.name == NULL)
- 			goto out;
- 		sect_attrs->nsections++;
--		sysfs_attr_init(&sattr->mattr.attr);
--		sattr->mattr.show = module_sect_show;
--		sattr->mattr.store = NULL;
--		sattr->mattr.attr.name = sattr->name;
--		sattr->mattr.attr.mode = S_IRUSR;
--		*(gattr++) = &(sattr++)->mattr.attr;
-+		sattr->battr.read = module_sect_read;
-+		sattr->battr.size = 3 /* "0x", "\n" */ + (BITS_PER_LONG / 4);
-+		sattr->battr.attr.mode = 0400;
-+		*(gattr++) = &(sattr++)->battr;
+ 	if (!err) {
+ 		struct seq_file *m = file->private_data;
+-		m->private = kallsyms_show_value(current_cred()) ? NULL : (void *)8ul;
++		m->private = kallsyms_show_value(file->f_cred) ? NULL : (void *)8ul;
  	}
- 	*gattr = NULL;
  
-@@ -1669,7 +1672,7 @@ static void add_notes_attrs(struct module *mod, const struct load_info *info)
- 			continue;
- 		if (info->sechdrs[i].sh_type == SHT_NOTE) {
- 			sysfs_bin_attr_init(nattr);
--			nattr->attr.name = mod->sect_attrs->attrs[loaded].name;
-+			nattr->attr.name = mod->sect_attrs->attrs[loaded].battr.attr.name;
- 			nattr->attr.mode = S_IRUGO;
- 			nattr->size = info->sechdrs[i].sh_size;
- 			nattr->private = (void *) info->sechdrs[i].sh_addr;
+ 	return err;
 -- 
 2.25.1
 
