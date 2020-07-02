@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5588F211996
-	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 03:37:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D74E211994
+	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 03:37:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728440AbgGBBgW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jul 2020 21:36:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53700 "EHLO mail.kernel.org"
+        id S1728262AbgGBBXR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jul 2020 21:23:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728248AbgGBBXP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Jul 2020 21:23:15 -0400
+        id S1728256AbgGBBXR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Jul 2020 21:23:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 06BCD20885;
-        Thu,  2 Jul 2020 01:23:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C73F20748;
+        Thu,  2 Jul 2020 01:23:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593652995;
-        bh=rAToyATJmJzHZQyIyJDmhYm9QwhloqEv1gMsff5kCjQ=;
+        s=default; t=1593652996;
+        bh=27HmbMVf7TIt+n99FWWFvZ4hX+iwRh6GrUkWrpJrksw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JD4+9+vQiP8pNbS3MptY6bz4I0i2X9/nfIPivDcP72sMqCaYIpzkGp00fUF3yCjta
-         E5HX5XgDvuQyIIjfAFVINkP4Rf3vqbp49q5SOSLIrJjRKPe1z9WvDPLKcUdqNJF78o
-         xmYiW/+20W6yiXPYyTza7E94f1TOTTRiI1vNvr0k=
+        b=kqC8H64at90Y63t1HhXNqXBMb9XaloiEpwDvQvHowrrQppy3g8GvmrGPnx8eE+oXN
+         I6HGaOGGI1A8rZ0DwfTUHncK9SC64HaVqlsZBaeyQ/vkS2v2GS+U2pB/wRtvG4aqDC
+         CgB1TdFpVzVPPm1rmpOD/5jp9HMFkRi71tZUpapU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Daniel Baluta <daniel.baluta@gmail.com>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Rander Wang <rander.wang@linux.intel.com>,
-        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.7 16/53] ASoC: hdac_hda: fix memleak with regmap not freed on remove
-Date:   Wed,  1 Jul 2020 21:21:25 -0400
-Message-Id: <20200702012202.2700645-16-sashal@kernel.org>
+Cc:     Jeremy Kerr <jk@ozlabs.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 17/53] net: usb: ax88179_178a: fix packet alignment padding
+Date:   Wed,  1 Jul 2020 21:21:26 -0400
+Message-Id: <20200702012202.2700645-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200702012202.2700645-1-sashal@kernel.org>
 References: <20200702012202.2700645-1-sashal@kernel.org>
@@ -48,96 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Jeremy Kerr <jk@ozlabs.org>
 
-[ Upstream commit a94eaccefea1186947c5c5451fcae2245dd7e714 ]
+[ Upstream commit e869e7a17798d85829fa7d4f9bbe1eebd4b2d3f6 ]
 
-kmemleak throws error reports on module load/unload tests, add
-snd_hdac_regmap_exit() in .remove().
+Using a AX88179 device (0b95:1790), I see two bytes of appended data on
+every RX packet. For example, this 48-byte ping, using 0xff as a
+payload byte:
 
-While we are at it, also fix the error handling flow in .probe() to
-use snd_hdac_regmap_exit() if needed.
+  04:20:22.528472 IP 192.168.1.1 > 192.168.1.2: ICMP echo request, id 2447, seq 1, length 64
+	0x0000:  000a cd35 ea50 000a cd35 ea4f 0800 4500
+	0x0010:  0054 c116 4000 4001 f63e c0a8 0101 c0a8
+	0x0020:  0102 0800 b633 098f 0001 87ea cd5e 0000
+	0x0030:  0000 dcf2 0600 0000 0000 ffff ffff ffff
+	0x0040:  ffff ffff ffff ffff ffff ffff ffff ffff
+	0x0050:  ffff ffff ffff ffff ffff ffff ffff ffff
+	0x0060:  ffff 961f
 
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Daniel Baluta <daniel.baluta@gmail.com>
-Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Reviewed-by: Rander Wang <rander.wang@linux.intel.com>
-Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Link: https://lore.kernel.org/r/20200617164144.17859-1-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Those last two bytes - 96 1f - aren't part of the original packet.
+
+In the ax88179 RX path, the usbnet rx_fixup function trims a 2-byte
+'alignment pseudo header' from the start of the packet, and sets the
+length from a per-packet field populated by hardware. It looks like that
+length field *includes* the 2-byte header; the current driver assumes
+that it's excluded.
+
+This change trims the 2-byte alignment header after we've set the packet
+length, so the resulting packet length is correct. While we're moving
+the comment around, this also fixes the spelling of 'pseudo'.
+
+Signed-off-by: Jeremy Kerr <jk@ozlabs.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/hdac_hda.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ drivers/net/usb/ax88179_178a.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/sound/soc/codecs/hdac_hda.c b/sound/soc/codecs/hdac_hda.c
-index de003acb1951f..473efe9ef998a 100644
---- a/sound/soc/codecs/hdac_hda.c
-+++ b/sound/soc/codecs/hdac_hda.c
-@@ -441,13 +441,13 @@ static int hdac_hda_codec_probe(struct snd_soc_component *component)
- 	ret = snd_hda_codec_set_name(hcodec, hcodec->preset->name);
- 	if (ret < 0) {
- 		dev_err(&hdev->dev, "name failed %s\n", hcodec->preset->name);
--		goto error;
-+		goto error_pm;
- 	}
- 
- 	ret = snd_hdac_regmap_init(&hcodec->core);
- 	if (ret < 0) {
- 		dev_err(&hdev->dev, "regmap init failed\n");
--		goto error;
-+		goto error_pm;
- 	}
- 
- 	patch = (hda_codec_patch_t)hcodec->preset->driver_data;
-@@ -455,7 +455,7 @@ static int hdac_hda_codec_probe(struct snd_soc_component *component)
- 		ret = patch(hcodec);
- 		if (ret < 0) {
- 			dev_err(&hdev->dev, "patch failed %d\n", ret);
--			goto error;
-+			goto error_regmap;
+diff --git a/drivers/net/usb/ax88179_178a.c b/drivers/net/usb/ax88179_178a.c
+index 93044cf1417a5..1fe4cc28d154d 100644
+--- a/drivers/net/usb/ax88179_178a.c
++++ b/drivers/net/usb/ax88179_178a.c
+@@ -1414,10 +1414,10 @@ static int ax88179_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
  		}
- 	} else {
- 		dev_dbg(&hdev->dev, "no patch file found\n");
-@@ -467,7 +467,7 @@ static int hdac_hda_codec_probe(struct snd_soc_component *component)
- 	ret = snd_hda_codec_parse_pcms(hcodec);
- 	if (ret < 0) {
- 		dev_err(&hdev->dev, "unable to map pcms to dai %d\n", ret);
--		goto error;
-+		goto error_regmap;
- 	}
  
- 	/* HDMI controls need to be created in machine drivers */
-@@ -476,7 +476,7 @@ static int hdac_hda_codec_probe(struct snd_soc_component *component)
- 		if (ret < 0) {
- 			dev_err(&hdev->dev, "unable to create controls %d\n",
- 				ret);
--			goto error;
-+			goto error_regmap;
- 		}
- 	}
- 
-@@ -496,7 +496,9 @@ static int hdac_hda_codec_probe(struct snd_soc_component *component)
- 
- 	return 0;
- 
--error:
-+error_regmap:
-+	snd_hdac_regmap_exit(hdev);
-+error_pm:
- 	pm_runtime_put(&hdev->dev);
- error_no_pm:
- 	snd_hdac_ext_bus_link_put(hdev->bus, hlink);
-@@ -518,6 +520,8 @@ static void hdac_hda_codec_remove(struct snd_soc_component *component)
- 
- 	pm_runtime_disable(&hdev->dev);
- 	snd_hdac_ext_bus_link_put(hdev->bus, hlink);
-+
-+	snd_hdac_regmap_exit(hdev);
- }
- 
- static const struct snd_soc_dapm_route hdac_hda_dapm_routes[] = {
+ 		if (pkt_cnt == 0) {
+-			/* Skip IP alignment psudo header */
+-			skb_pull(skb, 2);
+ 			skb->len = pkt_len;
+-			skb_set_tail_pointer(skb, pkt_len);
++			/* Skip IP alignment pseudo header */
++			skb_pull(skb, 2);
++			skb_set_tail_pointer(skb, skb->len);
+ 			skb->truesize = pkt_len + sizeof(struct sk_buff);
+ 			ax88179_rx_checksum(skb, pkt_hdr);
+ 			return 1;
+@@ -1426,8 +1426,9 @@ static int ax88179_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
+ 		ax_skb = skb_clone(skb, GFP_ATOMIC);
+ 		if (ax_skb) {
+ 			ax_skb->len = pkt_len;
+-			ax_skb->data = skb->data + 2;
+-			skb_set_tail_pointer(ax_skb, pkt_len);
++			/* Skip IP alignment pseudo header */
++			skb_pull(ax_skb, 2);
++			skb_set_tail_pointer(ax_skb, ax_skb->len);
+ 			ax_skb->truesize = pkt_len + sizeof(struct sk_buff);
+ 			ax88179_rx_checksum(ax_skb, pkt_hdr);
+ 			usbnet_skb_return(dev, ax_skb);
 -- 
 2.25.1
 
