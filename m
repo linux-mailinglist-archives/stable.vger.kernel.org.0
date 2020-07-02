@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 57B6C211831
-	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 03:28:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F75F211836
+	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 03:28:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728907AbgGBBZq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Jul 2020 21:25:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56802 "EHLO mail.kernel.org"
+        id S1728986AbgGBBZx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Jul 2020 21:25:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728894AbgGBBZp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Jul 2020 21:25:45 -0400
+        id S1728976AbgGBBZw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Jul 2020 21:25:52 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D3B920748;
-        Thu,  2 Jul 2020 01:25:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 94E2120748;
+        Thu,  2 Jul 2020 01:25:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593653144;
-        bh=zha5AFkQwOw2NWVbIqUcQjMdKsdTzxCfzu5JmQFV0GA=;
+        s=default; t=1593653152;
+        bh=S5y3AhmUCAUNnZse2ae1T3/X32UKywxLi6gBfv4BVxI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WZTrLIT0bbCNm3VrfDhNnEZN8wQV6Rk/QI+lzlAdNP5qG/qT+Q9JecB+OwPFaTbLf
-         sjE1Iw+Igq1rgNtfuCSzYQWxP4AWzZ3b/JDk3Mb1YTkreEA0bVcDPejJOrwJKQBUTM
-         5EgwdRDGog1C2QD0YJjz65eiA6wrn/XhIZEcV7+c=
+        b=ZXa/msgMZniBmlnQfIou1LW+cJYzLUc2Vsbl1Zp+5BWQlPm7DMi8IFR1wjrXbYpSd
+         G9QI68IjSFPbwIgPXfEQ989O5psfOoGjSNjGjUak/rFIJ8qtGypBfaa+RTJTTg/hkV
+         xbc+pznrSJl10qWdiIWeLOp1QJThIsUhxvWXV3bA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhenzhong Duan <zhenzhong.duan@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 16/40] spi: spidev: fix a potential use-after-free in spidev_release()
-Date:   Wed,  1 Jul 2020 21:23:37 -0400
-Message-Id: <20200702012402.2701121-16-sashal@kernel.org>
+Cc:     Dany Madden <drt@linux.ibm.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 22/40] ibmvnic: continue to init in CRQ reset returns H_CLOSED
+Date:   Wed,  1 Jul 2020 21:23:43 -0400
+Message-Id: <20200702012402.2701121-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200702012402.2701121-1-sashal@kernel.org>
 References: <20200702012402.2701121-1-sashal@kernel.org>
@@ -43,73 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhenzhong Duan <zhenzhong.duan@gmail.com>
+From: Dany Madden <drt@linux.ibm.com>
 
-[ Upstream commit 06096cc6c5a84ced929634b0d79376b94c65a4bd ]
+[ Upstream commit 8b40eb73509f5704a0e8cd25de0163876299f1a7 ]
 
-If an spi device is unbounded from the driver before the release
-process, there will be an NULL pointer reference when it's
-referenced in spi_slave_abort().
+Continue the reset path when partner adapter is not ready or H_CLOSED is
+returned from reset crq. This patch allows the CRQ init to proceed to
+establish a valid CRQ for traffic to flow after reset.
 
-Fix it by checking it's already freed before reference.
-
-Signed-off-by: Zhenzhong Duan <zhenzhong.duan@gmail.com>
-Link: https://lore.kernel.org/r/20200618032125.4650-2-zhenzhong.duan@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Dany Madden <drt@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spidev.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ drivers/net/ethernet/ibm/ibmvnic.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/spi/spidev.c b/drivers/spi/spidev.c
-index 88d0976215fac..ac6bf1fbbfe68 100644
---- a/drivers/spi/spidev.c
-+++ b/drivers/spi/spidev.c
-@@ -605,15 +605,20 @@ static int spidev_open(struct inode *inode, struct file *filp)
- static int spidev_release(struct inode *inode, struct file *filp)
- {
- 	struct spidev_data	*spidev;
-+	int			dofree;
+diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
+index 5a42ddeecfe50..143a9722ad11a 100644
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -1865,13 +1865,18 @@ static int do_reset(struct ibmvnic_adapter *adapter,
+ 			release_sub_crqs(adapter, 1);
+ 		} else {
+ 			rc = ibmvnic_reset_crq(adapter);
+-			if (!rc)
++			if (rc == H_CLOSED || rc == H_SUCCESS) {
+ 				rc = vio_enable_interrupts(adapter->vdev);
++				if (rc)
++					netdev_err(adapter->netdev,
++						   "Reset failed to enable interrupts. rc=%d\n",
++						   rc);
++			}
+ 		}
  
- 	mutex_lock(&device_list_lock);
- 	spidev = filp->private_data;
- 	filp->private_data = NULL;
- 
-+	spin_lock_irq(&spidev->spi_lock);
-+	/* ... after we unbound from the underlying device? */
-+	dofree = (spidev->spi == NULL);
-+	spin_unlock_irq(&spidev->spi_lock);
-+
- 	/* last close? */
- 	spidev->users--;
- 	if (!spidev->users) {
--		int		dofree;
- 
- 		kfree(spidev->tx_buffer);
- 		spidev->tx_buffer = NULL;
-@@ -621,19 +626,14 @@ static int spidev_release(struct inode *inode, struct file *filp)
- 		kfree(spidev->rx_buffer);
- 		spidev->rx_buffer = NULL;
- 
--		spin_lock_irq(&spidev->spi_lock);
--		if (spidev->spi)
--			spidev->speed_hz = spidev->spi->max_speed_hz;
--
--		/* ... after we unbound from the underlying device? */
--		dofree = (spidev->spi == NULL);
--		spin_unlock_irq(&spidev->spi_lock);
--
- 		if (dofree)
- 			kfree(spidev);
-+		else
-+			spidev->speed_hz = spidev->spi->max_speed_hz;
- 	}
- #ifdef CONFIG_SPI_SLAVE
--	spi_slave_abort(spidev->spi);
-+	if (!dofree)
-+		spi_slave_abort(spidev->spi);
- #endif
- 	mutex_unlock(&device_list_lock);
+ 		if (rc) {
+ 			netdev_err(adapter->netdev,
+-				   "Couldn't initialize crq. rc=%d\n", rc);
++				   "Reset couldn't initialize crq. rc=%d\n", rc);
+ 			goto out;
+ 		}
  
 -- 
 2.25.1
