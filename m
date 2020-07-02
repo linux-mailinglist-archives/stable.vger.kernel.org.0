@@ -2,89 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85DE321224C
-	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 13:29:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBE1321234F
+	for <lists+stable@lfdr.de>; Thu,  2 Jul 2020 14:27:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728663AbgGBL26 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jul 2020 07:28:58 -0400
-Received: from mga17.intel.com ([192.55.52.151]:17851 "EHLO mga17.intel.com"
+        id S1728955AbgGBM1t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Jul 2020 08:27:49 -0400
+Received: from mga09.intel.com ([134.134.136.24]:19322 "EHLO mga09.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728661AbgGBL26 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jul 2020 07:28:58 -0400
-IronPort-SDR: mdM+rUncm4MLNnTzFQCIVuYzAHoDKJiutv3b/M3N2CZ1w/Iqy0KtG7Gsel8ghmzBOngyoDRYPY
- jqFK9ZGDGvQw==
-X-IronPort-AV: E=McAfee;i="6000,8403,9669"; a="126948031"
+        id S1728954AbgGBM1t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Jul 2020 08:27:49 -0400
+IronPort-SDR: te8+BZUW2vA+ggfNR8KwE0ugCNsvGbMxW7DzhlnIiWJ0lOcnLcBIVy4xGLvNmAx+f/87yWTmyx
+ qz9oOaJkrWbw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9669"; a="148428527"
 X-IronPort-AV: E=Sophos;i="5.75,304,1589266800"; 
-   d="scan'208";a="126948031"
+   d="scan'208";a="148428527"
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
 Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Jul 2020 04:28:58 -0700
-IronPort-SDR: 9pspgZgUgzf7zRU62SMBhQfnaU/uODCsqnCGJmwULdBs3t7b8znyp7HUUCefXA4c2HsAAYqLai
- Io5U+R/YQi8Q==
-X-ExtLoop1: 1
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Jul 2020 05:27:48 -0700
+IronPort-SDR: n9B3TEmF8lcbbhsfjDkqIXQuq8GVImYsOh43rXQc7XhMKv6Gu3/fCZDvGglnjXh/wiZElnBznP
+ pY0nc+5sNWzA==
 X-IronPort-AV: E=Sophos;i="5.75,304,1589266800"; 
-   d="scan'208";a="481972084"
-Received: from yhuang-dev.sh.intel.com (HELO yhuang-dev) ([10.239.159.23])
-  by fmsmga005.fm.intel.com with ESMTP; 02 Jul 2020 04:28:55 -0700
-From:   "Huang\, Ying" <ying.huang@intel.com>
-To:     Dave Hansen <dave.hansen@linux.intel.com>
-Cc:     <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
-        <ben.widawsky@intel.com>, <alex.shi@linux.alibaba.com>,
-        <dwagner@suse.de>, <tobin@kernel.org>, <cl@linux.com>,
-        <akpm@linux-foundation.org>, <dan.j.williams@intel.com>,
-        <cai@lca.pw>, <stable@vger.kernel.org>
-Subject: Re: [PATCH 1/3] mm/vmscan: restore zone_reclaim_mode ABI
-References: <20200701152621.D520E62B@viggo.jf.intel.com>
-        <20200701152623.384AF0A7@viggo.jf.intel.com>
-Date:   Thu, 02 Jul 2020 19:28:55 +0800
-In-Reply-To: <20200701152623.384AF0A7@viggo.jf.intel.com> (Dave Hansen's
-        message of "Wed, 1 Jul 2020 08:26:23 -0700")
-Message-ID: <87d05ejgug.fsf@yhuang-dev.intel.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+   d="scan'208";a="481984527"
+Received: from dandoron-mobl.ger.corp.intel.com (HELO [10.214.212.30]) ([10.214.212.30])
+  by fmsmga005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Jul 2020 05:27:46 -0700
+Subject: Re: [Intel-gfx] [PATCH 01/23] drm/i915: Drop vm.ref for duplicate vma
+ on construction
+To:     Chris Wilson <chris@chris-wilson.co.uk>,
+        intel-gfx@lists.freedesktop.org
+Cc:     stable@vger.kernel.org
+References: <20200702083225.20044-1-chris@chris-wilson.co.uk>
+From:   Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+Organization: Intel Corporation UK Plc
+Message-ID: <8a50fa3d-83bd-0a75-cd50-17a593a2e0ca@linux.intel.com>
+Date:   Thu, 2 Jul 2020 13:27:43 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ascii
+In-Reply-To: <20200702083225.20044-1-chris@chris-wilson.co.uk>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dave Hansen <dave.hansen@linux.intel.com> writes:
 
-> From: Dave Hansen <dave.hansen@linux.intel.com>
->
-> I went to go add a new RECLAIM_* mode for the zone_reclaim_mode
-> sysctl.  Like a good kernel developer, I also went to go update the
-> documentation.  I noticed that the bits in the documentation didn't
-> match the bits in the #defines.
->
-> The VM never explicitly checks the RECLAIM_ZONE bit.  The bit is,
-> however implicitly checked when checking 'node_reclaim_mode==0'.
-> The RECLAIM_ZONE #define was removed in a cleanup.  That, by itself
-> is fine.
->
-> But, when the bit was removed (bit 0) the _other_ bit locations also
-> got changed.  That's not OK because the bit values are documented to
-> mean one specific thing and users surely rely on them meaning that one
-> thing and not changing from kernel to kernel.  The end result is that
-> if someone had a script that did:
->
-> 	sysctl vm.zone_reclaim_mode=1
->
-> That script went from doing nothing
+On 02/07/2020 09:32, Chris Wilson wrote:
+> As we allow for parallel threads to create vma instances in parallel,
+> and we only filter out the duplicates upon reacquiring the spinlock for
+> the rbtree, we have to free the loser of the constructors' race. When
+> freeing, we should also drop any resource references acquired for the
+> redundant vma.
+> 
+> Fixes: 2850748ef876 ("drm/i915: Pull i915_vma_pin under the vm->mutex")
+> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+> Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+> Cc: <stable@vger.kernel.org> # v5.5+
+> ---
+>   drivers/gpu/drm/i915/i915_vma.c | 1 +
+>   1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/gpu/drm/i915/i915_vma.c b/drivers/gpu/drm/i915/i915_vma.c
+> index 1f63c4a1f055..7fe1f317cd2b 100644
+> --- a/drivers/gpu/drm/i915/i915_vma.c
+> +++ b/drivers/gpu/drm/i915/i915_vma.c
+> @@ -198,6 +198,7 @@ vma_create(struct drm_i915_gem_object *obj,
+>   		cmp = i915_vma_compare(pos, vm, view);
+>   		if (cmp == 0) {
+>   			spin_unlock(&obj->vma.lock);
+> +			i915_vm_put(vm);
+>   			i915_vma_free(vma);
+>   			return pos;
+>   		}
+> 
 
-Per my understanding, this script would have enabled node reclaim for
-clean unmapped pages before commit 648b5cf368e0 ("mm/vmscan: remove
-unused RECLAIM_OFF/RECLAIM_ZONE").  So we should revise the description
-here?
+Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
 
-> to writing out pages during
-> node reclaim after the commit in question.  That's not great.
->
-> Put the bits back the way they were and add a comment so something
-> like this is a bit harder to do again.  Update the documentation to
-> make it clear that the first bit is ignored.
->
+Regards,
 
-Best Regards,
-Huang, Ying
+Tvrtko
