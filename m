@@ -2,131 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9380213479
-	for <lists+stable@lfdr.de>; Fri,  3 Jul 2020 08:47:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B69BE2134C7
+	for <lists+stable@lfdr.de>; Fri,  3 Jul 2020 09:17:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726228AbgGCGr4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jul 2020 02:47:56 -0400
-Received: from mailout4.samsung.com ([203.254.224.34]:60477 "EHLO
-        mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726053AbgGCGrz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jul 2020 02:47:55 -0400
-Received: from epcas1p1.samsung.com (unknown [182.195.41.45])
-        by mailout4.samsung.com (KnoxPortal) with ESMTP id 20200703064752epoutp04e917d56b6e2d95819972cb6f8c4a5ff3~eKz--aZjm0408304083epoutp04i
-        for <stable@vger.kernel.org>; Fri,  3 Jul 2020 06:47:52 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout4.samsung.com 20200703064752epoutp04e917d56b6e2d95819972cb6f8c4a5ff3~eKz--aZjm0408304083epoutp04i
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1593758872;
-        bh=jm6O3Uv0Bzvx8p6MvcNZv+0tmou8t7Cj9gm076+ZDlY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tpqa4wqkOpHpWrI27eEyvgqz09kg6qnt7bXOG//UlvPR7964aVEUEp04D1fTR69jI
-         DLtlaNjw5ZsenhyLRszb5YTJAB2cecTDXdgHRGEBScgGsDjpxJLZFex8K8irsKgAcJ
-         htDvtfHHr3cYEEV8DMf+0zRbW5zW8gWLQ3F5akzI=
-Received: from epsnrtp1.localdomain (unknown [182.195.42.162]) by
-        epcas1p2.samsung.com (KnoxPortal) with ESMTP id
-        20200703064751epcas1p25156dff15c705ee1730e470942fcf7c5~eKz-uD53T0329603296epcas1p2O;
-        Fri,  3 Jul 2020 06:47:51 +0000 (GMT)
-Received: from epsmges1p3.samsung.com (unknown [182.195.40.162]) by
-        epsnrtp1.localdomain (Postfix) with ESMTP id 49yls253MBzMqYlv; Fri,  3 Jul
-        2020 06:47:50 +0000 (GMT)
-Received: from epcas1p4.samsung.com ( [182.195.41.48]) by
-        epsmges1p3.samsung.com (Symantec Messaging Gateway) with SMTP id
-        AB.A4.29173.694DEFE5; Fri,  3 Jul 2020 15:47:50 +0900 (KST)
-Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
-        epcas1p4.samsung.com (KnoxPortal) with ESMTPA id
-        20200703064750epcas1p487820ba4670511e02410c3a9ffbf8f89~eKz_XMrFR0108901089epcas1p4Y;
-        Fri,  3 Jul 2020 06:47:50 +0000 (GMT)
-Received: from epsmgms1p2.samsung.com (unknown [182.195.42.42]) by
-        epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
-        20200703064750epsmtrp2d260d2dbf4c713f29047ff45db020cf8~eKz_WbgAs0903609036epsmtrp2r;
-        Fri,  3 Jul 2020 06:47:50 +0000 (GMT)
-X-AuditID: b6c32a37-9cdff700000071f5-05-5efed49625b1
-Received: from epsmtip1.samsung.com ( [182.195.34.30]) by
-        epsmgms1p2.samsung.com (Symantec Messaging Gateway) with SMTP id
-        D7.45.08303.694DEFE5; Fri,  3 Jul 2020 15:47:50 +0900 (KST)
-Received: from localhost.localdomain (unknown [10.88.103.87]) by
-        epsmtip1.samsung.com (KnoxPortal) with ESMTPA id
-        20200703064749epsmtip1cfcf448823c20aaa7a035cec4b15f9e5~eKz_HiGAw0033300333epsmtip1F;
-        Fri,  3 Jul 2020 06:47:49 +0000 (GMT)
-From:   Namjae Jeon <namjae.jeon@samsung.com>
-To:     linux-fsdevel@vger.kernel.org
-Cc:     sj1557.seo@samsung.com, kohada.t2@gmail.com,
-        Namjae Jeon <namjae.jeon@samsung.com>, stable@vger.kernel.org
-Subject: [PATCH 2/2] exfat: fix wrong hint_stat initialization in
- exfat_find_dir_entry()
-Date:   Fri,  3 Jul 2020 15:42:37 +0900
-Message-Id: <20200703064237.12963-2-namjae.jeon@samsung.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200703064237.12963-1-namjae.jeon@samsung.com>
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFjrMKsWRmVeSWpSXmKPExsWy7bCmge60K//iDJadULX4Mfc2i8WevSdZ
-        LH5Mr7fY8u8Iq8WCjY8YHVg9ds66y+7Rt2UVo8fnTXIBzFE5NhmpiSmpRQqpecn5KZl56bZK
-        3sHxzvGmZgaGuoaWFuZKCnmJuam2Si4+AbpumTlAG5UUyhJzSoFCAYnFxUr6djZF+aUlqQoZ
-        +cUltkqpBSk5BYYGBXrFibnFpXnpesn5uVaGBgZGpkCVCTkZC36cYiroZa941/eItYHxPWsX
-        IweHhICJxM8umy5GLg4hgR2MErM2HGaGcD4xSqx9OxXI4QRyPjNK9L5OA7FBGia8+MACUbSL
-        UeLBy36EjvZX/WBj2QS0Jf5sEQUxRQQUJS6/dwLpZRYokOg4/pYFxBYWiJI49mkZO0gJi4Cq
-        xLHfvCBhXgEbicbTT5ghVslLrN5wAMzmFLCVeHP0HdgmCYFV7BKH951jgyhykVh2q58FwhaW
-        eHV8CzuELSXx+d1eNognqyU+7oea2cEo8eK7LYRtLHFz/Qawg5kFNCXW79KHCCtK7Pw9lxHi
-        Yj6Jd197oEHFK9HRJgRRoirRd+kwE4QtLdHV/gFqqYfEzc03WSHhMQEYOEsnMk9glJuFsGEB
-        I+MqRrHUguLc9NRiwwJj5MjaxAhOTVrmOxinvf2gd4iRiYPxEKMEB7OSCG+C6r84Id6UxMqq
-        1KL8+KLSnNTiQ4ymwKCbyCwlmpwPTI55JfGGpkbGxsYWJmbmZqbGSuK8vlYX4oQE0hNLUrNT
-        UwtSi2D6mDg4pRqYqo4vn8jjJqhx7vqL1yckllqXZhkzbcmaffWJx0q9i4sM0quvb3w7J9W4
-        O3jNt25l5Tsr4jadbvUJTa194n7UoFCL2aHpkljdrau3XypPX7Fc98zRZ2lbLnTu9BHsypT7
-        LPrxzKrYxadmCWSb8jx87dt7fu3au9Mdw4xXNTNanZ4QKd70PqhsCuvyNw+2X7ujluq4XGVZ
-        9ONf0g/uzUzTPHBq4iYWj2vvSsNyq2e8atjzdE5B7AyLOQxfOxn7/5qcWn/1r3/T+eb2qkPZ
-        qRlyTNr72da8nbXM/OjUw7sSk8/z5DLMVmWqTrgS8Fzx+cNtM2YEN/jwujrry+7LKXFMPK6j
-        vqR3rXGddrm3eOmDE0osxRmJhlrMRcWJAPY2kQfWAwAA
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrLJMWRmVeSWpSXmKPExsWy7bCSnO60K//iDDb2clj8mHubxWLP3pMs
-        Fj+m11ts+XeE1WLBxkeMDqweO2fdZffo27KK0ePzJrkA5igum5TUnMyy1CJ9uwSujAU/TjEV
-        9LJXvOt7xNrA+J61i5GTQ0LARGLCiw8sXYxcHEICOxglvi55C5WQljh24gxzFyMHkC0scfhw
-        MUTNB0aJK/3PGUHibALaEn+2iIKYIgKKEpffO4F0MguUSMw794IRxBYWiJA4fe4RK0gJi4Cq
-        xLHfvCBhXgEbicbTT5ghFslLrN5wAMzmFLCVeHP0HdhSIaCaBceEJjDyLWBkWMUomVpQnJue
-        W2xYYJSXWq5XnJhbXJqXrpecn7uJERxCWlo7GPes+qB3iJGJg/EQowQHs5IIb4Lqvzgh3pTE
-        yqrUovz4otKc1OJDjNIcLErivF9nLYwTEkhPLEnNTk0tSC2CyTJxcEo1MMU1PwzU1zSau5JB
-        ernHPxZf2eW+3xLMTT9/PShwZQ/TytbYY/PyTnTPWFr85c6Fgpjtz43m72b/4DZBpuHAJGsp
-        132K9R80n35+eL3w5BYZ7fs3nC7/rrx8r6/HUsCq10sprTJDNO7FiZdBq9I5Apm3G6ruvRC2
-        jtvZUO3EQ/O8I0xRWyKWLtPsndDgYKto9XYKf1rPf8UZ672eFFQvWTHp5D+xHbIHlORbtvbU
-        crJq+mS+vup9Rmjz9qZXb34W9PvnuvtZtNis/7x0acjlOVNvnHp38RZX1T3b1JX+L/95fmJf
-        dyd/zn+ZGU3Gbw6rrSzedeVdTu+fvMNabcclf24R4tyz4celXxdyLp1SbLinxFKckWioxVxU
-        nAgA8n6U0pACAAA=
-X-CMS-MailID: 20200703064750epcas1p487820ba4670511e02410c3a9ffbf8f89
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-X-Sendblock-Type: SVC_REQ_APPROVE
-CMS-TYPE: 101P
-DLP-Filter: Pass
-X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20200703064750epcas1p487820ba4670511e02410c3a9ffbf8f89
-References: <20200703064237.12963-1-namjae.jeon@samsung.com>
-        <CGME20200703064750epcas1p487820ba4670511e02410c3a9ffbf8f89@epcas1p4.samsung.com>
+        id S1726227AbgGCHRi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jul 2020 03:17:38 -0400
+Received: from fllv0015.ext.ti.com ([198.47.19.141]:59178 "EHLO
+        fllv0015.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725779AbgGCHRi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jul 2020 03:17:38 -0400
+Received: from lelv0266.itg.ti.com ([10.180.67.225])
+        by fllv0015.ext.ti.com (8.15.2/8.15.2) with ESMTP id 0637HWoL115147;
+        Fri, 3 Jul 2020 02:17:32 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+        s=ti-com-17Q1; t=1593760652;
+        bh=tpCp46YgYhG/QrH4ChjpFQLXP5Ol+QOmEFujaXnFEPI=;
+        h=Subject:To:CC:References:From:Date:In-Reply-To;
+        b=JFeFvps/w2XpkSxRKOeoGYS+r9rHLogTZ3ryq3TPoNHlrFsoSe73PrTb/r1LNGu1e
+         MoALpJE2Yvc8JCUNQ26yAkS3aRQ5Qaqb5I8S/egTIQBrt/xU2z1SB9+r9GsxG+REy4
+         eVNfNSyPqlsZR1ZlGZ0K0s9P3a0o0dhMru/IqdyU=
+Received: from DLEE105.ent.ti.com (dlee105.ent.ti.com [157.170.170.35])
+        by lelv0266.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 0637HWPh031794
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Fri, 3 Jul 2020 02:17:32 -0500
+Received: from DLEE101.ent.ti.com (157.170.170.31) by DLEE105.ent.ti.com
+ (157.170.170.35) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1979.3; Fri, 3 Jul
+ 2020 02:17:31 -0500
+Received: from lelv0326.itg.ti.com (10.180.67.84) by DLEE101.ent.ti.com
+ (157.170.170.31) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1979.3 via
+ Frontend Transport; Fri, 3 Jul 2020 02:17:31 -0500
+Received: from [192.168.2.6] (ileax41-snat.itg.ti.com [10.172.224.153])
+        by lelv0326.itg.ti.com (8.15.2/8.15.2) with ESMTP id 0637HTNE007840;
+        Fri, 3 Jul 2020 02:17:30 -0500
+Subject: Re: [PATCH] omapfb: dss: Fix max fclk divider for omap36xx
+To:     Adam Ford <aford173@gmail.com>, <linux-fbdev@vger.kernel.org>
+CC:     <stable@vger.kernel.org>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Dave Airlie <airlied@gmail.com>,
+        Rob Clark <robdclark@gmail.com>, <linux-omap@vger.kernel.org>,
+        <dri-devel@lists.freedesktop.org>, <linux-kernel@vger.kernel.org>
+References: <20200630182636.439015-1-aford173@gmail.com>
+From:   Tomi Valkeinen <tomi.valkeinen@ti.com>
+Message-ID: <b9052a12-af5a-c1b9-5b86-907eac470cf8@ti.com>
+Date:   Fri, 3 Jul 2020 10:17:29 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.0
+MIME-Version: 1.0
+In-Reply-To: <20200630182636.439015-1-aford173@gmail.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We found the wrong hint_stat initialization in exfat_find_dir_entry().
-It should be initialized when cluster is EXFAT_EOF_CLUSTER.
+On 30/06/2020 21:26, Adam Ford wrote:
+> The drm/omap driver was fixed to correct an issue where using a
+> divider of 32 breaks the DSS despite the TRM stating 32 is a valid
+> number.  Through experimentation, it appears that 31 works, and
+> it is consistent with the value used by the drm/omap driver.
+> 
+> This patch fixes the divider for fbdev driver instead of the drm.
+> 
+> Fixes: f76ee892a99e ("omapfb: copy omapdss & displays for omapfb")
+> 
+> Cc: <stable@vger.kernel.org> #4.9+
+> Signed-off-by: Adam Ford <aford173@gmail.com>
+> ---
+> Linux 4.4 will need a similar patch, but it doesn't apply cleanly.
+> 
+> The DRM version of this same fix is:
+> e2c4ed148cf3 ("drm/omap: fix max fclk divider for omap36xx")
+> 
+> 
+> diff --git a/drivers/video/fbdev/omap2/omapfb/dss/dss.c b/drivers/video/fbdev/omap2/omapfb/dss/dss.c
+> index 7252d22dd117..bfc5c4c5a26a 100644
+> --- a/drivers/video/fbdev/omap2/omapfb/dss/dss.c
+> +++ b/drivers/video/fbdev/omap2/omapfb/dss/dss.c
+> @@ -833,7 +833,7 @@ static const struct dss_features omap34xx_dss_feats = {
+>   };
+>   
+>   static const struct dss_features omap3630_dss_feats = {
+> -	.fck_div_max		=	32,
+> +	.fck_div_max		=	31,
+>   	.dss_fck_multiplier	=	1,
+>   	.parent_clk_name	=	"dpll4_ck",
+>   	.dpi_select_source	=	&dss_dpi_select_source_omap2_omap3,
+> 
 
-Fixes: ca06197382bd ("exfat: add directory operations")
-Cc: stable@vger.kernel.org # v5.7
-Reviewed-by: Sungjong Seo <sj1557.seo@samsung.com>
-Signed-off-by: Namjae Jeon <namjae.jeon@samsung.com>
----
- fs/exfat/dir.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
 
-diff --git a/fs/exfat/dir.c b/fs/exfat/dir.c
-index f4cea9a7fd02..573659bfbc55 100644
---- a/fs/exfat/dir.c
-+++ b/fs/exfat/dir.c
-@@ -1116,7 +1116,7 @@ int exfat_find_dir_entry(struct super_block *sb, struct exfat_inode_info *ei,
- 			ret = exfat_get_next_cluster(sb, &clu.dir);
- 		}
- 
--		if (ret || clu.dir != EXFAT_EOF_CLUSTER) {
-+		if (ret || clu.dir == EXFAT_EOF_CLUSTER) {
- 			/* just initialized hint_stat */
- 			hint_stat->clu = p_dir->dir;
- 			hint_stat->eidx = 0;
+  Tomi
+
 -- 
-2.17.1
-
+Texas Instruments Finland Oy, Porkkalankatu 22, 00180 Helsinki.
+Y-tunnus/Business ID: 0615521-4. Kotipaikka/Domicile: Helsinki
