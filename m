@@ -2,84 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82ADC2130F2
-	for <lists+stable@lfdr.de>; Fri,  3 Jul 2020 03:21:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3DAD21327E
+	for <lists+stable@lfdr.de>; Fri,  3 Jul 2020 06:03:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726028AbgGCBVl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Jul 2020 21:21:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50366 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726017AbgGCBVl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Jul 2020 21:21:41 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C12E20748;
-        Fri,  3 Jul 2020 01:21:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593739301;
-        bh=+5wO+QJJrYc8VRHYL25WNGnnFuegM0jrilNl/Q8HEr8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=KZ/ApJR02Zz+o+VlQ1HWLcItQV9qFVZnFr5SL9ee9u56Dgbd9A8ne6tTnZtmuxKT7
-         cO+2GZMm3c8Ky4//CCFjB4aR5m4KBCo5v32XhLDNr/pGguUofM5nZFGWygwYw7eixU
-         VKY1Or5g4QCc0AWhhqPwOzBauqEAHi52TlEl6PXo=
-Date:   Thu, 2 Jul 2020 21:21:40 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     bp@suse.de, pipatron@gmail.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] EDAC/amd64: Read back the scrub rate PCI
- register on F15h" failed to apply to 5.4-stable tree
-Message-ID: <20200703012140.GF2722994@sasha-vm>
-References: <159343061095220@kroah.com>
+        id S1725891AbgGCEDe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jul 2020 00:03:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60110 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725294AbgGCEDe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jul 2020 00:03:34 -0400
+Received: from mail-ed1-x544.google.com (mail-ed1-x544.google.com [IPv6:2a00:1450:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5826C08C5C1
+        for <stable@vger.kernel.org>; Thu,  2 Jul 2020 21:03:33 -0700 (PDT)
+Received: by mail-ed1-x544.google.com with SMTP id by13so16453176edb.11
+        for <stable@vger.kernel.org>; Thu, 02 Jul 2020 21:03:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=iMSV2cyhzDXuSQN/5mI1WM18V+lLxj8SWd+84CtDZc0=;
+        b=OubXFvTu6s6p8cTgvOEzzsY383GCHh1d+T19e0aHv5s5J6oc0EEp8FnEirEH3lOHVk
+         VMfJZTIrIwhzePlIjG+JFMFwd7SS2pwdBvmQBRjUtYr6zz7UBnMwPSbpZiXjTQF/0jCm
+         TMTzy5DQ7NA0kPpgrjbdQMhcszfAP31AhTCPoMS6jpw7vTwmjDDmFcL2apB8YmY266wq
+         Vcns1GxLKcc66cewYFKqJVMd86ETvPbSYoZvaySb6TwWeBzWWFlh+ADGff48CsxYWIP5
+         tOZ74PjN5/L1ZUtfoR7Xf5mDQVh/di4wdxyAP1nvPpj4WKTGQL3CYLRm29RxxA9B/WzJ
+         /83w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=iMSV2cyhzDXuSQN/5mI1WM18V+lLxj8SWd+84CtDZc0=;
+        b=aZpHLTeXz0AcysUCLQn9gOsE+ZP1oMRs+fNb7sFpy8Eg5Cmif5y8eKrbLZVjJzx5aT
+         m+F5HrBXA7pU+2YR/d5iKmt/RFX39zG96wjiDxqjWiYMXt1+S2Hk5hkN8pa155Li+GPx
+         5Uab1/H8GEKYonNgBId5lckRR3jG8rMyWxdmtMtmFq3KLPiw+we6MQlxYmHXBq+iFDhT
+         Vl7a/sNI/o41qBPHm0tds2F90l23zAdbYEj2F6AlfyA9ISismcFOJ8nHAAVdXNOlP4/k
+         fUE7KojAhOMScAEtpyxPglFmPP7k701wX4t4axukOBk9vgBqXNu7klR6e3yrbaFz6jbm
+         yLUw==
+X-Gm-Message-State: AOAM533KCFejn4nu1DZJZm4jtOJBxgryY7muJ6hfVg4DnMVPIaLHId8W
+        PTfJArCurGs1OVy7YPxo582h9e2ueGP1T7xetL4=
+X-Google-Smtp-Source: ABdhPJxvkwtZKW+y0POGrvJSYXRcyUM1Ezd5QT04M/XgvfwyXw7arlg0AZv0rW+6v6GNdTsZrvH+jLXCwPFqriNNjTE=
+X-Received: by 2002:a05:6402:234b:: with SMTP id r11mr10571108eda.5.1593749012263;
+ Thu, 02 Jul 2020 21:03:32 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <159343061095220@kroah.com>
+Received: by 2002:a50:9e0d:0:0:0:0:0 with HTTP; Thu, 2 Jul 2020 21:03:31 -0700 (PDT)
+Reply-To: sctnld11170@tlen.pl
+From:   "Mr. Scott Donald" <mea23606@gmail.com>
+Date:   Thu, 2 Jul 2020 21:03:31 -0700
+Message-ID: <CACFzmP_qN98Ouhm1pk1BHZtHoqYNUFw-+qWq+FTg=RWaAySqVg@mail.gmail.com>
+Subject: Hello, Please
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 29, 2020 at 01:36:50PM +0200, gregkh@linuxfoundation.org wrote:
->
->The patch below does not apply to the 5.4-stable tree.
->If someone wants it applied there, or to any other stable or longterm
->tree, then please email the backport, including the original git commit
->id to <stable@vger.kernel.org>.
->
->thanks,
->
->greg k-h
->
->------------------ original commit in Linus's tree ------------------
->
->From ee470bb25d0dcdf126f586ec0ae6dca66cb340a4 Mon Sep 17 00:00:00 2001
->From: Borislav Petkov <bp@suse.de>
->Date: Thu, 18 Jun 2020 20:25:25 +0200
->Subject: [PATCH] EDAC/amd64: Read back the scrub rate PCI register on F15h
->
->Commit:
->
->  da92110dfdfa ("EDAC, amd64_edac: Extend scrub rate support to F15hM60h")
->
->added support for F15h, model 0x60 CPUs but in doing so, missed to read
->back SCRCTRL PCI config register on F15h CPUs which are *not* model
->0x60. Add that read so that doing
->
->  $ cat /sys/devices/system/edac/mc/mc0/sdram_scrub_rate
->
->can show the previously set DRAM scrub rate.
->
->Fixes: da92110dfdfa ("EDAC, amd64_edac: Extend scrub rate support to F15hM60h")
->Reported-by: Anders Andersson <pipatron@gmail.com>
->Signed-off-by: Borislav Petkov <bp@suse.de>
->Cc: <stable@vger.kernel.org> #v4.4..
->Link: https://lkml.kernel.org/r/CAKkunMbNWppx_i6xSdDHLseA2QQmGJqj_crY=NF-GZML5np4Vw@mail.gmail.com
+--=20
+Dear Friend,
 
-The code we're patching got moved around in dcd01394ce7c ("EDAC/amd64:
-Drop some family checks for newer systems"). I've fixed it up and queued
-for 5.4-4.4.
+I'm Mr. Scott Donald a Successful business Man dealing with
+Exportation, I got your mail contact through search to let you know my
+Ugly Situation Am a dying Man here in Los Angeles California Hospital
+Bed in (USA), I Lost my Wife and my only Daughter for Covid-19 I'm
+dying with same symptoms and more. my Doctor open-up to me that he is
+Afraid to tell me my Condition and inside me, I already know that I'm
+not going to survive and I can't live alone without my Family on
+Earth,
 
--- 
-Thanks,
-Sasha
+I have a project that I am about to hand over to you. and I already
+instructed the Barclays Bank of London to transfer my fund sum of
+=C2=A33,7M GBP to you as to enable you to give 50% to Charitable Home and
+take 50% don't think otherwise and why would anybody send someone you
+barely know to help you deliver a message, help me do this for the
+happiness of my soul and for God to mercy me and my Family and give Us
+a good place.
+
+
+please, do as I said there was someone from your State that I deeply
+love so very very much and I miss her so bad I have no means to reach
+any Charitable Home there. that is why I go for a personal search of
+the Country and State and I got your mail contact through search to
+let you know my Bitterness and please, help me is getting Dark I ask
+my Doctor to help me keep you notice failure for me to reach you in
+person Your urgent Response, here is my Doctor Whats-app Number for
+urgent notice +13019692737
+
+Hope To Hear From You. I'm sending this email to you for the second
+time yet no response from you.
+
+My Regards.
+
+Mr. Scott Donald
+CEO
