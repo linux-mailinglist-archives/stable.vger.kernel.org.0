@@ -2,109 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FA7721354F
-	for <lists+stable@lfdr.de>; Fri,  3 Jul 2020 09:44:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFF0C21365F
+	for <lists+stable@lfdr.de>; Fri,  3 Jul 2020 10:28:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726484AbgGCHn6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jul 2020 03:43:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37276 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726482AbgGCHn5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jul 2020 03:43:57 -0400
-Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 194B7C08C5DD
-        for <stable@vger.kernel.org>; Fri,  3 Jul 2020 00:43:57 -0700 (PDT)
-Received: by mail-pg1-x544.google.com with SMTP id l63so14706557pge.12
-        for <stable@vger.kernel.org>; Fri, 03 Jul 2020 00:43:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=YMA1iG2DR+aP68KXSdCOsvrFA0oomq7Nb72Iy6OynAc=;
-        b=eOjpfDnUhW2ER3jbX+CxmRW1kTHS4ha9+B04YjM9WkSWY+zXrVbJT2nho+GrVniC88
-         BnCjbPqTEu6VpWFtFGMj8bLBasFsETuYhAbwBNQCzQFS7/Vb+t1pLMbXFG835Zj+IsRL
-         0W4UyF6ZzUUbTTsMtdXLYyxRplXcQDfKVICAn/Few/slDEK1DkowMQLsI/xXyPvDgh5c
-         l5elsPzMyrdTcr9fRdsfHJcByOUqB70ZECB//QgmXcR/LBlYIPBy314lkiaUv/SDGmeh
-         hiuDlBOP9XLlVd7AXYw11Cei7ORRt06qDlfLL14hhhgAbJmIEOQbm9V+1tOSQeCRD51I
-         TVvQ==
+        id S1725779AbgGCI2X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jul 2020 04:28:23 -0400
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:44890 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725648AbgGCI2W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jul 2020 04:28:22 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1593764901;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=kcuCW971MtT9fDm0+vC/HbFyI8kTsXqRTn3WmXdz9Pc=;
+        b=DJdl31mR/1INaw7VLtfRK89cUAImIENHCLvULd6hvncN17YYNfWYaI+dnLAmeXs/1dIRnJ
+        h2e1Yfs3HbJXZuIT0WUIeM+MsME51RdkkdPnP0Q/7EMilLxeUUXPVDtHf3FfVMZ6BUdoGK
+        wBH/20j+6WF7B76TMb6eUXny6KH9BF4=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-468-9w3pzun2NjCrlWOKgl5k-A-1; Fri, 03 Jul 2020 04:28:19 -0400
+X-MC-Unique: 9w3pzun2NjCrlWOKgl5k-A-1
+Received: by mail-ed1-f70.google.com with SMTP id w19so33938078edx.0
+        for <stable@vger.kernel.org>; Fri, 03 Jul 2020 01:28:19 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=YMA1iG2DR+aP68KXSdCOsvrFA0oomq7Nb72Iy6OynAc=;
-        b=O8hewSRMoIerTNwADDwxT2R5O0RAtdziu7JKNBdDRr8+xz38HD/Ajh5/H2RJtRz/ST
-         SNcRqKTRnXpIf5TpNolICIYR11t1DuDe+R5M2/ezj3qUb0jjDQhyc+xRKWGIko3VoBjZ
-         sFLfSD8nB6nJdRomdHhwaTJDSlokOqU36qkyxg1EK5Nn4pz3m+Qxho3OohkThWRTB7dL
-         1YLVoRNSrfxqN1pzbgbMTMMPBRf7r0qAJyEIELD0XDAiHvalLj3WNK2kd/BKQwCC+hdT
-         qKFnIjpU5SgQOTCZTHcHBXbNf0PvTLGekvveyKr2jT29dNLeUmoLH27jiDkIeir3iaJX
-         uhnQ==
-X-Gm-Message-State: AOAM5319BBkqAaGu+bqeqfhQL1QkOR89J4BUJDY4i5BCnrTwBp14cYSz
-        lNuaLrYMIUrUEaDnwyKjB/KWTRZIUVY=
-X-Google-Smtp-Source: ABdhPJxs34VyOJKNvK67gXc9kQBjJa6obMlUr6G9NDi43bUnL4tffZoy9+osusLsDh0iM0haQ0giAQ==
-X-Received: by 2002:a65:63c4:: with SMTP id n4mr15600593pgv.230.1593762236641;
-        Fri, 03 Jul 2020 00:43:56 -0700 (PDT)
-Received: from localhost ([122.172.40.201])
-        by smtp.gmail.com with ESMTPSA id 73sm10987491pfy.24.2020.07.03.00.43.55
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 03 Jul 2020 00:43:55 -0700 (PDT)
-Date:   Fri, 3 Jul 2020 13:13:54 +0530
-From:   Viresh Kumar <viresh.kumar@linaro.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>
-Subject: Re: [FOR-STABLE-3.9+] sched/rt: Show the 'sched_rr_timeslice'
- SCHED_RR timeslice tuning knob in milliseconds
-Message-ID: <20200703074354.btmylgn5mxhbxywc@vireshk-i7>
-References: <ffdfb849a11b9cd66e0aded2161869e36aec7fc0.1593757471.git.viresh.kumar@linaro.org>
- <20200703074025.GA2390868@kroah.com>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=kcuCW971MtT9fDm0+vC/HbFyI8kTsXqRTn3WmXdz9Pc=;
+        b=MIUFpM8OPqV1NnEOl+VfSk2qICtl+Tacu9wbZeovib4mPcR4CTaNpgwRTwGsz8BeYf
+         V1TFccfzfdQ011v0i7xv3gU8jciBTA3zSVRNMNGLF6y0dNOdP9i8/572TENsMk1TEEgC
+         sLcdr9lgChn5LSI+iozwJqDCVZrftk+ezrd2tFn8twBV8MvBl0+7Wk2ZthdOETeWRPBj
+         6GJO2dvVkjhOVgdu44ifDKKqBat6bBoEArjFUCtIOFW+6nOrZWhayHQ6QtZzUeTYj1fL
+         u+GDpzUwSHWE24yu4jKRNMWCUIlh4jGm7c4jikXpkMl2KtRRMp3k3T98I9z1xQ9E4XZb
+         cjTA==
+X-Gm-Message-State: AOAM531qF6uTFm75gIfdwhU89yHKKr2NHPQEEN6uEbWNBeQE2rOP+U7t
+        evQaVFeTtGgu9qQ4rrjMF7hTN4HSSXf3jHiQMxtDstrGvPTZmXypriAoludatO+VtahWyJVCNQ9
+        XVO1HrDBaAljZWcf3
+X-Received: by 2002:a17:907:1050:: with SMTP id oy16mr32546074ejb.353.1593764898395;
+        Fri, 03 Jul 2020 01:28:18 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJy5F25xNxrjdxmltQqMgp5D7YcIJS+ItkF/2SWSVv0IqXEEONzaxbYjkXzEpAG6b+ZhoOEjkg==
+X-Received: by 2002:a17:907:1050:: with SMTP id oy16mr32546063ejb.353.1593764898226;
+        Fri, 03 Jul 2020 01:28:18 -0700 (PDT)
+Received: from x1.localdomain (2001-1c00-0c0c-fe00-d2ea-f29d-118b-24dc.cable.dynamic.v6.ziggo.nl. [2001:1c00:c0c:fe00:d2ea:f29d:118b:24dc])
+        by smtp.gmail.com with ESMTPSA id d26sm11356201edz.93.2020.07.03.01.28.17
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 03 Jul 2020 01:28:17 -0700 (PDT)
+Subject: Re: [PATCH 1/6] ASoC: Intel: cht_bsw_rt5672: Change bus format to I2S
+ 2 channel
+To:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Cezary Rojewski <cezary.rojewski@intel.com>
+Cc:     alsa-devel@alsa-project.org, stable@vger.kernel.org
+References: <20200628155231.71089-2-hdegoede@redhat.com>
+ <20200701193320.C948B20870@mail.kernel.org>
+ <869046c6-030c-9243-784d-ecabdb774fa7@linux.intel.com>
+From:   Hans de Goede <hdegoede@redhat.com>
+Message-ID: <24708afa-bf28-3c5b-84ef-a6e7fb455bf0@redhat.com>
+Date:   Fri, 3 Jul 2020 10:28:17 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.9.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200703074025.GA2390868@kroah.com>
-User-Agent: NeoMutt/20180716-391-311a52
+In-Reply-To: <869046c6-030c-9243-784d-ecabdb774fa7@linux.intel.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 03-07-20, 09:40, Greg KH wrote:
-> On Fri, Jul 03, 2020 at 12:54:04PM +0530, Viresh Kumar wrote:
-> > From: Shile Zhang <shile.zhang@nokia.com>
-> > 
-> > We added the 'sched_rr_timeslice_ms' SCHED_RR tuning knob in this commit:
-> > 
-> >   ce0dbbbb30ae ("sched/rt: Add a tuning knob to allow changing SCHED_RR timeslice")
-> > 
-> > ... which name suggests to users that it's in milliseconds, while in reality
-> > it's being set in milliseconds but the result is shown in jiffies.
-> > 
-> > This is obviously confusing when HZ is not 1000, it makes it appear like the
-> > value set failed, such as HZ=100:
-> > 
-> >   root# echo 100 > /proc/sys/kernel/sched_rr_timeslice_ms
-> >   root# cat /proc/sys/kernel/sched_rr_timeslice_ms
-> >   10
-> > 
-> > Fix this to be milliseconds all around.
-> > 
-> > Cc: <stable@vger.kernel.org> # v3.9+
-> > Signed-off-by: Shile Zhang <shile.zhang@nokia.com>
-> > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> > Cc: Linus Torvalds <torvalds@linux-foundation.org>
-> > Cc: Mike Galbraith <efault@gmx.de>
-> > Cc: Peter Zijlstra <peterz@infradead.org>
-> > Cc: Thomas Gleixner <tglx@linutronix.de>
-> > Link: http://lkml.kernel.org/r/1485612049-20923-1-git-send-email-shile.zhang@nokia.com
-> > Signed-off-by: Ingo Molnar <mingo@kernel.org>
-> > Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Hi,
+
+On 7/1/20 9:46 PM, Pierre-Louis Bossart wrote:
 > 
-> What is the git commit id of this patch in Linus's tree?
+> 
+> On 7/1/20 2:33 PM, Sasha Levin wrote:
+>> Hi
+>>
+>> [This is an automated email]
+>>
+>> This commit has been processed because it contains a -stable tag.
+>> The stable tag indicates that it's relevant for the following trees: all
+>>
+>> The bot has tested the following trees: v5.7.6, v5.4.49, v4.19.130, v4.14.186, v4.9.228, v4.4.228.
+>>
+>> v5.7.6: Build OK!
+>> v5.4.49: Failed to apply! Possible dependencies:
+>>      0d1571c197a92 ("ASoC: intel: use asoc_rtd_to_cpu() / asoc_rtd_to_codec() macro for DAI pointer")
+> 
+> This patch is probably the missing dependency, but it's quite large and invasive.
+> 
+> if we wanted to apply this patch to stable versions < 5.7, we should replace all occurrences of
+> 
+> asoc_rtd_to_cpu(rtd, 0) by rtd->cpu_dai
+> 
+> and
+> 
+> asoc_rtd_to_codec(rtd, 0) by rtd->codec_dai
 
-I am really sorry for missing the only thing I was required to do :(
+This fix affects only 1 model tablet, so I think it is fine to just add it to 5.7
+and skip it for older kernels.
 
-commit 975e155ed8732cb81f55c021c441ae662dd040b5 upstream.
+Regards,
 
--- 
-viresh
+Hans
+
