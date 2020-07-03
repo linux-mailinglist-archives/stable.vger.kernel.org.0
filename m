@@ -2,93 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55178213FD3
-	for <lists+stable@lfdr.de>; Fri,  3 Jul 2020 21:20:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A938213FDB
+	for <lists+stable@lfdr.de>; Fri,  3 Jul 2020 21:21:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726418AbgGCTUr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jul 2020 15:20:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49052 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726236AbgGCTUr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 3 Jul 2020 15:20:47 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 859D3208C7;
-        Fri,  3 Jul 2020 19:20:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593804046;
-        bh=UQi7dOI5ns+OpFpJwAy29bQROH9AifmbrWRrzgpDljQ=;
-        h=Date:From:To:Subject:From;
-        b=OnlXVjqRJO96xAgb/9hIdl42s8BvLxD7KRgc6Lh5gzYeei672HFwpon1QB4fz5nQ5
-         rxmVYio2MwMfvWEDGSxNcegDy0V4VrAnVumBXv1y5jl1zvzWcei+0XaMMeeGxHGuJb
-         QR2BNlbdlvrQEFlRa6Mn+IvSrCaTKVKcqb91rkqc=
-Date:   Fri, 03 Jul 2020 12:20:46 -0700
-From:   akpm@linux-foundation.org
-To:     akpm@linux-foundation.org, cgxu519@mykernel.net,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org
-Subject:  + mm-shmem-fix-freeing-new_attr-in-shmem_initxattrs.patch
- added to -mm tree
-Message-ID: <20200703192046.vw7STmQB6%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1726488AbgGCTVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jul 2020 15:21:09 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:51470 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726147AbgGCTVJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jul 2020 15:21:09 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id E91E01C0BD2; Fri,  3 Jul 2020 21:21:06 +0200 (CEST)
+Date:   Fri, 3 Jul 2020 21:21:03 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Pavel Machek <pavel@denx.de>, Sasha Levin <sashal@kernel.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Tom Zanussi <zanussi@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [PATCH 4.19 119/131] tracing: Fix event trigger to accept
+ redundant spaces
+Message-ID: <20200703192102.GA31738@amd>
+References: <20200629153502.2494656-1-sashal@kernel.org>
+ <20200629153502.2494656-120-sashal@kernel.org>
+ <20200702211728.GD5787@amd>
+ <20200703060439.GB6344@kroah.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="mYCpIKhGyMATD0i+"
+Content-Disposition: inline
+In-Reply-To: <20200703060439.GB6344@kroah.com>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch titled
-     Subject: mm/shmem: fix freeing new_attr in shmem_initxattrs()
-has been added to the -mm tree.  Its filename is
-     mm-shmem-fix-freeing-new_attr-in-shmem_initxattrs.patch
+--mYCpIKhGyMATD0i+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/mm-shmem-fix-freeing-new_attr-in-shmem_initxattrs.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/mm-shmem-fix-freeing-new_attr-in-shmem_initxattrs.patch
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+> > > commit 6784beada631800f2c5afd567e5628c843362cee upstream.
+> > >=20
+> > > Fix the event trigger to accept redundant spaces in
+> > > the trigger input.
+> > >=20
+> > > For example, these return -EINVAL
+> > >=20
+> > > echo " traceon" > events/ftrace/print/trigger
+> > > echo "traceon  if common_pid =3D=3D 0" > events/ftrace/print/trigger
+> > > echo "disable_event:kmem:kmalloc " > events/ftrace/print/trigger
+> > >=20
+> > > But these are hard to find what is wrong.
+> > >=20
+> > > To fix this issue, use skip_spaces() to remove spaces
+> > > in front of actual tokens, and set NULL if there is no
+> > > token.
+> >=20
+> > For the record, I'm not fan of this one. It is ABI change, not a
+> > bugfix.
+> >=20
+> > Yes, it makes kernel interface "easier to use". It also changes
+> > interface in the middle of stable series, and if people start relying
+> > on new interface and start putting extra spaces, they'll get nasty
+> > surprise when they move code to the older kernel.
+>=20
+> If an interface changes anywhere that breaks userspace, it needs to be
+> not done, stable kernels are not an issue here or not.
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+I'm not saying it is a regression; I'd scream way more if that was the
+case. I'm saying it is nowhere near a fix.
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+We really don't want userspace doing:
 
-------------------------------------------------------
-From: Chengguang Xu <cgxu519@mykernel.net>
-Subject: mm/shmem: fix freeing new_attr in shmem_initxattrs()
+> > > echo " traceon" > events/ftrace/print/trigger
 
-new_attr is allocated with kvmalloc() so should be freed
-with kvfree().
+Because it does not work on older kernels. It will work on 4.19.131
+and break on 5.6.19.
 
-Link: http://lkml.kernel.org/r/20200703065636.20897-1-cgxu519@mykernel.net
-Signed-off-by: Chengguang Xu <cgxu519@mykernel.net>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
+Best regards,
+								Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
- mm/shmem.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+--mYCpIKhGyMATD0i+
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
---- a/mm/shmem.c~mm-shmem-fix-freeing-new_attr-in-shmem_initxattrs
-+++ a/mm/shmem.c
-@@ -3178,7 +3178,7 @@ static int shmem_initxattrs(struct inode
- 		new_xattr->name = kmalloc(XATTR_SECURITY_PREFIX_LEN + len,
- 					  GFP_KERNEL);
- 		if (!new_xattr->name) {
--			kfree(new_xattr);
-+			kvfree(new_xattr);
- 			return -ENOMEM;
- 		}
- 
-_
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-Patches currently in -mm which might be from cgxu519@mykernel.net are
+iEYEARECAAYFAl7/hR4ACgkQMOfwapXb+vKmYwCghKkPCwuF8Pk0V5QFUxPxyy/5
+CWEAnj9xFfErmFoPgeAdx9X9x2gN3LFG
+=UJ3w
+-----END PGP SIGNATURE-----
 
-mm-shmem-fix-freeing-new_attr-in-shmem_initxattrs.patch
-
+--mYCpIKhGyMATD0i+--
