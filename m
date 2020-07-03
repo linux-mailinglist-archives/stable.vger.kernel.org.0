@@ -2,82 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61142213DEE
-	for <lists+stable@lfdr.de>; Fri,  3 Jul 2020 19:04:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF6A1213F04
+	for <lists+stable@lfdr.de>; Fri,  3 Jul 2020 20:01:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726874AbgGCRDg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jul 2020 13:03:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33144 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726747AbgGCRDg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 3 Jul 2020 13:03:36 -0400
-Received: from localhost (fw-tnat.cambridge.arm.com [217.140.96.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726502AbgGCSBA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jul 2020 14:01:00 -0400
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:42258 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726035AbgGCSA7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jul 2020 14:00:59 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1593799257;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=W7hX68Id9MrI9Dp1ohSoP6+dFWqqds4yeexuPF5eVaQ=;
+        b=bc3R3Of9LSV6hUMkPN0UjfF37knQ68K2UmQKzrvuFpvS5/16VH3xpPkzblhqm2bMs3aCkR
+        fhGRKnEQs8exGtBsCjXYVWJ5+/cotV3VB33wUGgsS+fC7ycFlLd5iVJTIZ8M0sci12jSbj
+        1Eio+jlWOl3Fwt3iX7Wo4M4pXKtOXEU=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-262-F_NqQgogODmQd7163_VhmA-1; Fri, 03 Jul 2020 14:00:54 -0400
+X-MC-Unique: F_NqQgogODmQd7163_VhmA-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7396820870;
-        Fri,  3 Jul 2020 17:03:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593795816;
-        bh=WgkvmGtlUl6Eo7CF4+ocruAMNgDPflJpM8Ax/aFh0l0=;
-        h=Date:From:To:Cc:In-Reply-To:References:Subject:From;
-        b=uxD548lJoPyX2Qis0noGWhZOcW53hnPY1DW1Vw423r8hl6OD1VXTB4gA9TnrgqyZ4
-         /LQyGHmBMwkjp+r+IJUESWr1GI/5zcnMCia9lf/ebSpoNpKZWS0e2YIxn/TyW5t7u3
-         dhROD7HSMUVRYGcRxnZHcUHK1Ztpjt7iwUItC0qg=
-Date:   Fri, 03 Jul 2020 18:03:33 +0100
-From:   Mark Brown <broonie@kernel.org>
-To:     Liam Girdwood <liam.r.girdwood@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Oder Chiou <oder_chiou@realtek.com>,
-        Jie Yang <yang.jie@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Cc:     alsa-devel@alsa-project.org, stable@vger.kernel.org
-In-Reply-To: <20200628155231.71089-2-hdegoede@redhat.com>
-References: <20200628155231.71089-1-hdegoede@redhat.com> <20200628155231.71089-2-hdegoede@redhat.com>
-Subject: Re: [PATCH 1/6] ASoC: Intel: cht_bsw_rt5672: Change bus format to I2S 2 channel
-Message-Id: <159379581380.55795.15728838678765550745.b4-ty@kernel.org>
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id F415B800C64;
+        Fri,  3 Jul 2020 18:00:52 +0000 (UTC)
+Received: from localhost (ovpn-116-12.gru2.redhat.com [10.97.116.12])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 8C28C19D9E;
+        Fri,  3 Jul 2020 18:00:52 +0000 (UTC)
+From:   Bruno Meneguele <bmeneg@redhat.com>
+To:     linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     zohar@linux.ibm.com, erichte@linux.ibm.com, nayna@linux.ibm.com,
+        Bruno Meneguele <bmeneg@redhat.com>, stable@vger.kernel.org
+Subject: [PATCH v4] ima: move APPRAISE_BOOTPARAM dependency on ARCH_POLICY to runtime
+Date:   Fri,  3 Jul 2020 15:00:49 -0300
+Message-Id: <20200703180049.15608-1-bmeneg@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, 28 Jun 2020 17:52:26 +0200, Hans de Goede wrote:
-> The default mode for SSP configuration is TDM 4 slot and so far we were
-> using this for the bus format on cht-bsw-rt56732 boards.
-> 
-> One board, the Lenovo Miix 2 10 uses not 1 but 2 codecs connected to SSP2.
-> The second piggy-backed, output-only codec is inside the keyboard-dock
-> (which has extra speakers). Unlike the main rt5672 codec, we cannot
-> configure this codec, it is hard coded to use 2 channel 24 bit I2S.
-> 
-> [...]
+APPRAISE_BOOTPARAM has been marked as dependent on !ARCH_POLICY in compile
+time, enforcing the appraisal whenever the kernel had the arch policy option
+enabled.
 
-Applied to
+However it breaks systems where the option is set but the system wasn't
+booted in a "secure boot" platform. In this scenario, anytime an appraisal
+policy (i.e. ima_policy=appraisal_tcb) is used it will be forced, giving no
+chance to the user set the 'fix' state (ima_appraise=fix) to actually
+measure system's files.
 
-   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/sound.git for-next
+Considering the ARCH_POLICY is only effective when secure boot is actually
+enabled this patch remove the compile time dependency and move it to a
+runtime decision, based on the secure boot state of that platform.
 
-Thanks!
+Cc: stable@vger.kernel.org
+Fixes: d958083a8f64 ("x86/ima: define arch_get_ima_policy() for x86")
+Signed-off-by: Bruno Meneguele <bmeneg@redhat.com>
+---
+Changelog:
+	v4:
+	  - instead of change arch_policy loading code, check secure boot state
+		at "ima_appraise=" parameter handler (Mimi)
+	v3:
+	  - extend secure boot arch checker to also consider trusted boot
+	  - enforce IMA appraisal when secure boot is effectively enabled (Nayna)
+	  - fix ima_appraise flag assignment by or'ing it (Mimi)
+	v2:
+	  - pr_info() message prefix correction
 
-[1/2] ASoC: rt5670: Remove struct rt5670_platform_data
-      commit: c14f61a89c1335f95d9b37624ee157fb1fd424ee
-[2/2] ASoC: rt5670: Rename dev_gpio to gpio1_is_irq
-      commit: 883330c11fa6dca55e30f8612398b3e0abc51dc5
+ security/integrity/ima/Kconfig        |  2 +-
+ security/integrity/ima/ima_appraise.c | 18 ++++++++++--------
+ 2 files changed, 11 insertions(+), 9 deletions(-)
 
-All being well this means that it will be integrated into the linux-next
-tree (usually sometime in the next 24 hours) and sent to Linus during
-the next merge window (or sooner if it is a bug fix), however if
-problems are discovered then the patch may be dropped or reverted.
+diff --git a/security/integrity/ima/Kconfig b/security/integrity/ima/Kconfig
+index edde88dbe576..62dc11a5af01 100644
+--- a/security/integrity/ima/Kconfig
++++ b/security/integrity/ima/Kconfig
+@@ -232,7 +232,7 @@ config IMA_APPRAISE_REQUIRE_POLICY_SIGS
+ 
+ config IMA_APPRAISE_BOOTPARAM
+ 	bool "ima_appraise boot parameter"
+-	depends on IMA_APPRAISE && !IMA_ARCH_POLICY
++	depends on IMA_APPRAISE
+ 	default y
+ 	help
+ 	  This option enables the different "ima_appraise=" modes
+diff --git a/security/integrity/ima/ima_appraise.c b/security/integrity/ima/ima_appraise.c
+index a9649b04b9f1..4fc83b3fbd5c 100644
+--- a/security/integrity/ima/ima_appraise.c
++++ b/security/integrity/ima/ima_appraise.c
+@@ -18,14 +18,16 @@
+ 
+ static int __init default_appraise_setup(char *str)
+ {
+-#ifdef CONFIG_IMA_APPRAISE_BOOTPARAM
+-	if (strncmp(str, "off", 3) == 0)
+-		ima_appraise = 0;
+-	else if (strncmp(str, "log", 3) == 0)
+-		ima_appraise = IMA_APPRAISE_LOG;
+-	else if (strncmp(str, "fix", 3) == 0)
+-		ima_appraise = IMA_APPRAISE_FIX;
+-#endif
++	if (IS_ENABLED(CONFIG_IMA_APPRAISE_BOOTPARAM) &&
++	    !arch_ima_get_secureboot()) {
++		if (strncmp(str, "off", 3) == 0)
++			ima_appraise = 0;
++		else if (strncmp(str, "log", 3) == 0)
++			ima_appraise = IMA_APPRAISE_LOG;
++		else if (strncmp(str, "fix", 3) == 0)
++			ima_appraise = IMA_APPRAISE_FIX;
++	}
++
+ 	return 1;
+ }
+ 
+-- 
+2.26.2
 
-You may get further e-mails resulting from automated or manual testing
-and review of the tree, please engage with people reporting problems and
-send followup patches addressing any issues that are reported if needed.
-
-If any updates are required or you are submitting further changes they
-should be sent as incremental updates against current git, existing
-patches will not be replaced.
-
-Please add any relevant lists and maintainers to the CCs when replying
-to this mail.
-
-Thanks,
-Mark
