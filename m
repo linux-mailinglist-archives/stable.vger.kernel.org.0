@@ -2,78 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D68A52141C9
-	for <lists+stable@lfdr.de>; Sat,  4 Jul 2020 00:46:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5376A2141D0
+	for <lists+stable@lfdr.de>; Sat,  4 Jul 2020 00:51:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726474AbgGCWqQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jul 2020 18:46:16 -0400
-Received: from sonic311-24.consmr.mail.ne1.yahoo.com ([66.163.188.205]:40963
-        "EHLO sonic311-24.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726379AbgGCWqQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jul 2020 18:46:16 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1593816375; bh=TYgdp/zNeW9P5rVjVpFopjba7a+Fm8hxyemx2bQVZd8=; h=Date:From:Reply-To:Subject:References:From:Subject; b=A2ABv4b7nXLWj79bXDCj75YLydnL28lLD7xuZqyui0/2j9JrhJ51rdwRQgxsHo0Rzf5gkwV6yvsaxwBQlfINchzNCedjT8qs6qpUPkJF25sW4+JE2AS4w7QtWpb9mVckJxcPIngTkL9JySFxpuzLL0C8fs1C8YI8DYnVIvCcD5ykiSMz0SrM88KlfUzdH1V/8HuF0h48ljA5xl1ps6jqV4DsOqYMh+NZQ4WqUVHEq1Jx36SYOhQ7oDszeI2Ja8Zbp5zgR9kOPP+4om3It5G6GPBNPTwoE0U0C4mhjK/SMz9byEgJVPvqJsjcf9DGfkXKA8/0u98Bg42kf62Sxu20WA==
-X-YMail-OSG: jBCdV8AVM1k_N9ZGdRFr_fXIHq8kxTLTEfPyf1oL6W2AZJKJrhuX2Af145lgQJo
- 9dTTl5ylYRv_j8d86ygPtRhLn_RSeYrTg1ki.ZBU8IEpitzSYFZj7TvL1Qwu17YARX5pnQgz_lFo
- TMFq.QG2FEuUPaDpvhrSMd.c3CO5zx7lLLcc2lGV6uxDcrpp9q3nqAqbdKOteJi8AsO7vA6YCLDT
- Lp56oTxx.R3KXGTGKvMcxptUV3CRAPAKTXJujTEXYJaB7HgSL7OSICAmYm6K1aeISmlOMTVycxr_
- IqdygD4bnnftZ0amv958gGA7CUGpOwbvFXnhqvvZx58lUOEnoC3jn9iPb4YgWkmdrpDwn43J4qiu
- YkQoXXObkcaYuPNqHP.BbWDizSUjCsU_MNlWEUV3qBe9YDwA.dvYS.EvRHpBKN8DNBlLnzqcwJAq
- M2qivgl5lqI52EkD46visdnktC4ToA6zxP3X.AwwTHHrwqdlRKuX.YbK3q7wlxhbpdn2YPHK6.0c
- 6jHmDfpobYEfZS2JWl0jUl0QQ4b7LO0eyH12dvygHrthc4cJ.6PoK.EnP79cYWLxeQmUwhpXaARO
- kbXdbRwJwKUKDsi16CHy_3nJVkci5nEdgED.Wqv3ZXehsrVcdow.zEH3mtRkvTkQbEhcQF0aNejs
- jLmiLbMpxKIKiZFaAui117vkbK7CJ38LFDbE0Igp58KSjlvctm6QzNFHEuZBstAtcoYZqH5K3_dG
- Rq0Oh_OlU.MY0B0i5lBRzJS7mW0loZJu7c0wwyKLg3J0qFV0efmy2PsoM.2Vz0e0JoKqmttWLuY4
- somdnnuIOIQdnszxECRXx_aHjDeuTsOG6gaQf.6TGvEPXp1Azmu0TG2NNGGj7fenzjtO5AdiMf52
- IPOqAwRxn4oxCEw8OKaNG5ZSlhV0Ck6Gv9POnVo9MvVjE2brCiTIoIkxLfwf.3yer7LDT.ENQcQO
- biBz.HKnM_4AKRt1hIEvp_uCLr83__VobTIULsKZShRtQD7U6TAXj8um01B.4MbFuY3ze3zW3ZSD
- oA6728C8qzPJxYI1.u9ykGMYxN6U5kz9OQ.c_BSFf.4bp064PrUdLQYSePZV8K_9PDyqnIkilbhj
- WsmAJEZnq.GfiiXWsbuO8qpIRtufDr35nM2B.JsLEmaRN7w01.vp_M4UeS.epukjPR8PYgZE7axu
- gX4RyDkf_cA.VfVlBs0rM91HAyoOSi9srZ16Um7ifsqJcG3rP4jmjUSksw0y5d_TW8jwWw7aTk3V
- T3tmH6MLKPD3Ka_u9FfBXPMRPwzOntcULifckiUXNjJtukaVEUWAIM0xLZUq4yYqeIIyMAeWY
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.ne1.yahoo.com with HTTP; Fri, 3 Jul 2020 22:46:15 +0000
-Date:   Fri, 3 Jul 2020 22:46:14 +0000 (UTC)
-From:   "Mrs.mcompola" <mrs.muminwanta448@gmail.com>
-Reply-To: mcompola444@gmail.com
-Message-ID: <1223136631.2270469.1593816374450@mail.yahoo.com>
-Subject: Dear Friend, My present internet connection is very slow in case
- you
+        id S1726639AbgGCWvD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jul 2020 18:51:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35726 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726317AbgGCWvD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Jul 2020 18:51:03 -0400
+Received: from mail-ed1-x544.google.com (mail-ed1-x544.google.com [IPv6:2a00:1450:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F231C061794;
+        Fri,  3 Jul 2020 15:51:03 -0700 (PDT)
+Received: by mail-ed1-x544.google.com with SMTP id d16so22417379edz.12;
+        Fri, 03 Jul 2020 15:51:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=HoJnjAdizKBcZS/TwdGFdcCHABPJEEKDcGriqvJQXl8=;
+        b=Aiyn4tkw+Jk2iDxJZDgHIBFvm9nZgBHvWtXlIUf9vqGwapr6RkAV3nJJskM7upei6H
+         V5qqqpyT33351Iiuer3bl4rf1DwooFpyugOWE8idDf5lgT8JqUUh0gaU0voAiFM6BJs5
+         Nxgyl6jmvNUejqWCQ2gYSWLQBfPR0AatS5MhiyhXA+tHVoNztHf31QL2Njn+TeW0zM6n
+         noHEoDYP266+Ds2VpCDzJiAnf/p/mKwoz1q4mzR0ZV26P0O7uDdYJrwHUARVKap0UZwk
+         zxxQExzAGCVKv56hc7Jbxx7AT4Al4J9HfvMg4eNadGN6Sk6Jyt/gdaebsu/lrh/9OXlA
+         6jng==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=HoJnjAdizKBcZS/TwdGFdcCHABPJEEKDcGriqvJQXl8=;
+        b=j0u5W56Br2Ey5btpQRCvcAHoaKqAHIoGSDYWSQZ2STNA4W2na5N6Aq0S66H7pNVvJu
+         rPW5BWZdqY/iupKQgEZ6DLZ/aJuzpmZWK1ZPJF7kLioyIAJxwDH3SitwaZPFqiAZasws
+         0RBIFsxd0Sipy6zRN4dgW1GQe+xBA6eCuirwPO+Tz4R/2iJleViuWAEROCaIx6sOCy9E
+         OAoIejxxA2ISSxPhSOICM4eS5kV1ZES2tdTdC5QNIfIX2zpMhi/0gpDxtu7nQk7SlRSk
+         OxT76n3W+osXAV49SomAmqQfDBxZOvX/osJz7uQ04OvycDFsUrCq6yTCJnT6LmHF6Qd/
+         687Q==
+X-Gm-Message-State: AOAM530AliTeFH9LfLboLeddmAGT2AvePcInC6eQYmWCte3H4RSYW4j5
+        cPqhz6uYQXptrN9vtUuDiD8AbMqW
+X-Google-Smtp-Source: ABdhPJwzOg7dxuPJBFeLCeyTj/hsz8BnW4Iwx8qroFdpbIfmXqPMr62Dvp/Am75GDKR2JIvVscEi+Q==
+X-Received: by 2002:aa7:d3ca:: with SMTP id o10mr44560137edr.138.1593816661803;
+        Fri, 03 Jul 2020 15:51:01 -0700 (PDT)
+Received: from localhost.localdomain (p200300f1372b7a00428d5cfffeb99db8.dip0.t-ipconnect.de. [2003:f1:372b:7a00:428d:5cff:feb9:9db8])
+        by smtp.googlemail.com with ESMTPSA id q25sm10440839ejz.97.2020.07.03.15.51.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 03 Jul 2020 15:51:00 -0700 (PDT)
+From:   Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+To:     hminas@synopsys.com, gregkh@linuxfoundation.org,
+        linux-usb@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, marex@denx.de,
+        stable@vger.kernel.org,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Subject: [PATCH for-5.8 v2] usb: dwc2: Add missing cleanups when usb_add_gadget_udc() fails
+Date:   Sat,  4 Jul 2020 00:50:43 +0200
+Message-Id: <20200703225043.387769-1-martin.blumenstingl@googlemail.com>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-References: <1223136631.2270469.1593816374450.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.16197 YMailNodin Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36
-To:     unlisted-recipients:; (no To-header on input)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Call dwc2_debugfs_exit() and dwc2_hcd_remove() (if the HCD was enabled
+earlier) when usb_add_gadget_udc() has failed. This ensures that the
+debugfs entries created by dwc2_debugfs_init() as well as the HCD are
+cleaned up in the error path.
+
+Fixes: 207324a321a866 ("usb: dwc2: Postponed gadget registration to the udc class driver")
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+---
+Changes since v1 at [0]
+- also cleanup the HCD as suggested by Minas (thank you!)
+- updated the subject accordingly
 
 
-Dear Friend, My present internet connection is very slow in case you
-received my email in your spam
+[0] https://patchwork.kernel.org/patch/11631381/
 
-How are you today?.With due respect to your person and much sincerity
-of purpose,Well it is a pleasure to contact you on this regard and i
-pray that this will turn out to be everlasting relationship for both
-of us. However it's just my urgent need for a Foreign partner that
-made me to contact you for this Transaction,I got your contact from
-internet, while searching for a reliable someone that I can go into
-partnership with. I am Mrs.mcompola, from BURKINA FASO, West
-Africa .Presently i work in the Bank as bill and exchange manager.
 
-I have the opportunity of transferring the left over fund $5.4 Million
-us dollars of one of my Bank clients who died in the collapsing of the
-world trade center on september 11th 2001.I have placed this fund to
-and escrow account without name of beneficiary.i will use my position
-here in the bank to effect a hitch free transfer of the fund to your
-bank account and there will be no trace.
+ drivers/usb/dwc2/platform.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-I agree that 40% of this money will be for you as my foriegn
-partner,50% for me while 10% will be for the expenses that will occur
-in this transaction .If you are really interested in my proposal
-further details of the Transfer will be forwarded unto you as soon as
-I receive your willingness mail for successful transfer.
+diff --git a/drivers/usb/dwc2/platform.c b/drivers/usb/dwc2/platform.c
+index c347d93eae64..9febae441069 100644
+--- a/drivers/usb/dwc2/platform.c
++++ b/drivers/usb/dwc2/platform.c
+@@ -582,12 +582,16 @@ static int dwc2_driver_probe(struct platform_device *dev)
+ 		retval = usb_add_gadget_udc(hsotg->dev, &hsotg->gadget);
+ 		if (retval) {
+ 			dwc2_hsotg_remove(hsotg);
+-			goto error_init;
++			goto error_debugfs;
+ 		}
+ 	}
+ #endif /* CONFIG_USB_DWC2_PERIPHERAL || CONFIG_USB_DWC2_DUAL_ROLE */
+ 	return 0;
+ 
++error_debugfs:
++	dwc2_debugfs_exit(hsotg);
++	if (hsotg->hcd_enabled)
++		dwc2_hcd_remove(hsotg);
+ error_init:
+ 	if (hsotg->params.activate_stm_id_vb_detection)
+ 		regulator_disable(hsotg->usb33d);
+-- 
+2.27.0
 
-Yours Faithfully,
-Mrs.mcompola444@gmail.com
