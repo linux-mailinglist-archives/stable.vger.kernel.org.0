@@ -2,112 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EFF0C21365F
-	for <lists+stable@lfdr.de>; Fri,  3 Jul 2020 10:28:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F377213697
+	for <lists+stable@lfdr.de>; Fri,  3 Jul 2020 10:40:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725779AbgGCI2X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Jul 2020 04:28:23 -0400
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:44890 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725648AbgGCI2W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Jul 2020 04:28:22 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1593764901;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=kcuCW971MtT9fDm0+vC/HbFyI8kTsXqRTn3WmXdz9Pc=;
-        b=DJdl31mR/1INaw7VLtfRK89cUAImIENHCLvULd6hvncN17YYNfWYaI+dnLAmeXs/1dIRnJ
-        h2e1Yfs3HbJXZuIT0WUIeM+MsME51RdkkdPnP0Q/7EMilLxeUUXPVDtHf3FfVMZ6BUdoGK
-        wBH/20j+6WF7B76TMb6eUXny6KH9BF4=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-468-9w3pzun2NjCrlWOKgl5k-A-1; Fri, 03 Jul 2020 04:28:19 -0400
-X-MC-Unique: 9w3pzun2NjCrlWOKgl5k-A-1
-Received: by mail-ed1-f70.google.com with SMTP id w19so33938078edx.0
-        for <stable@vger.kernel.org>; Fri, 03 Jul 2020 01:28:19 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=kcuCW971MtT9fDm0+vC/HbFyI8kTsXqRTn3WmXdz9Pc=;
-        b=MIUFpM8OPqV1NnEOl+VfSk2qICtl+Tacu9wbZeovib4mPcR4CTaNpgwRTwGsz8BeYf
-         V1TFccfzfdQ011v0i7xv3gU8jciBTA3zSVRNMNGLF6y0dNOdP9i8/572TENsMk1TEEgC
-         sLcdr9lgChn5LSI+iozwJqDCVZrftk+ezrd2tFn8twBV8MvBl0+7Wk2ZthdOETeWRPBj
-         6GJO2dvVkjhOVgdu44ifDKKqBat6bBoEArjFUCtIOFW+6nOrZWhayHQ6QtZzUeTYj1fL
-         u+GDpzUwSHWE24yu4jKRNMWCUIlh4jGm7c4jikXpkMl2KtRRMp3k3T98I9z1xQ9E4XZb
-         cjTA==
-X-Gm-Message-State: AOAM531qF6uTFm75gIfdwhU89yHKKr2NHPQEEN6uEbWNBeQE2rOP+U7t
-        evQaVFeTtGgu9qQ4rrjMF7hTN4HSSXf3jHiQMxtDstrGvPTZmXypriAoludatO+VtahWyJVCNQ9
-        XVO1HrDBaAljZWcf3
-X-Received: by 2002:a17:907:1050:: with SMTP id oy16mr32546074ejb.353.1593764898395;
-        Fri, 03 Jul 2020 01:28:18 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJy5F25xNxrjdxmltQqMgp5D7YcIJS+ItkF/2SWSVv0IqXEEONzaxbYjkXzEpAG6b+ZhoOEjkg==
-X-Received: by 2002:a17:907:1050:: with SMTP id oy16mr32546063ejb.353.1593764898226;
-        Fri, 03 Jul 2020 01:28:18 -0700 (PDT)
-Received: from x1.localdomain (2001-1c00-0c0c-fe00-d2ea-f29d-118b-24dc.cable.dynamic.v6.ziggo.nl. [2001:1c00:c0c:fe00:d2ea:f29d:118b:24dc])
-        by smtp.gmail.com with ESMTPSA id d26sm11356201edz.93.2020.07.03.01.28.17
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 03 Jul 2020 01:28:17 -0700 (PDT)
-Subject: Re: [PATCH 1/6] ASoC: Intel: cht_bsw_rt5672: Change bus format to I2S
- 2 channel
-To:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Cezary Rojewski <cezary.rojewski@intel.com>
-Cc:     alsa-devel@alsa-project.org, stable@vger.kernel.org
-References: <20200628155231.71089-2-hdegoede@redhat.com>
- <20200701193320.C948B20870@mail.kernel.org>
- <869046c6-030c-9243-784d-ecabdb774fa7@linux.intel.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-Message-ID: <24708afa-bf28-3c5b-84ef-a6e7fb455bf0@redhat.com>
-Date:   Fri, 3 Jul 2020 10:28:17 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.9.0
+        id S1726236AbgGCIkg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Jul 2020 04:40:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54156 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725648AbgGCIkg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 3 Jul 2020 04:40:36 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9C51B206DF;
+        Fri,  3 Jul 2020 08:40:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1593765636;
+        bh=243PRYAOPo4i4MFtzoY/gzIgRaerq9i5wrYyn7O6l4I=;
+        h=Subject:To:From:Date:From;
+        b=y2kFin/qcrSsVoqwvDaHOjKOcbTaGVw00AQNzKFSMaKwg99/uK4hB9yvdqIab5/mt
+         Ai/2X17dQtp2lBRh43O+BGsycN6OGMl/P1H786Fr2H9JaVECT6V1QUM+UMJ8+k+EdE
+         owqDsy3JSo3N91OSATTLFDo4qyIIAKr6+1j5EGkM=
+Subject: patch "serial: sh-sci: Initialize spinlock for uart console" added to tty-linus
+To:     prabhakar.mahadev-lad.rj@bp.renesas.com,
+        biju.das.jz@bp.renesas.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 03 Jul 2020 10:40:40 +0200
+Message-ID: <1593765640253201@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <869046c6-030c-9243-784d-ecabdb774fa7@linux.intel.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
 
-On 7/1/20 9:46 PM, Pierre-Louis Bossart wrote:
-> 
-> 
-> On 7/1/20 2:33 PM, Sasha Levin wrote:
->> Hi
->>
->> [This is an automated email]
->>
->> This commit has been processed because it contains a -stable tag.
->> The stable tag indicates that it's relevant for the following trees: all
->>
->> The bot has tested the following trees: v5.7.6, v5.4.49, v4.19.130, v4.14.186, v4.9.228, v4.4.228.
->>
->> v5.7.6: Build OK!
->> v5.4.49: Failed to apply! Possible dependencies:
->>      0d1571c197a92 ("ASoC: intel: use asoc_rtd_to_cpu() / asoc_rtd_to_codec() macro for DAI pointer")
-> 
-> This patch is probably the missing dependency, but it's quite large and invasive.
-> 
-> if we wanted to apply this patch to stable versions < 5.7, we should replace all occurrences of
-> 
-> asoc_rtd_to_cpu(rtd, 0) by rtd->cpu_dai
-> 
-> and
-> 
-> asoc_rtd_to_codec(rtd, 0) by rtd->codec_dai
+This is a note to let you know that I've just added the patch titled
 
-This fix affects only 1 model tablet, so I think it is fine to just add it to 5.7
-and skip it for older kernels.
+    serial: sh-sci: Initialize spinlock for uart console
 
-Regards,
+to my tty git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
+in the tty-linus branch.
 
-Hans
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From f38278e9b810b06aff2981d505267be984423ba3 Mon Sep 17 00:00:00 2001
+From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Date: Wed, 1 Jul 2020 16:41:40 +0100
+Subject: serial: sh-sci: Initialize spinlock for uart console
+
+serial core expects the spinlock to be initialized by the controller
+driver for serial console, this patch makes sure the spinlock is
+initialized, fixing the below issue:
+
+[    0.865928] BUG: spinlock bad magic on CPU#0, swapper/0/1
+[    0.865945]  lock: sci_ports+0x0/0x4c80, .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
+[    0.865955] CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.8.0-rc1+ #112
+[    0.865961] Hardware name: HopeRun HiHope RZ/G2H with sub board (DT)
+[    0.865968] Call trace:
+[    0.865979]  dump_backtrace+0x0/0x1d8
+[    0.865985]  show_stack+0x14/0x20
+[    0.865996]  dump_stack+0xe8/0x130
+[    0.866006]  spin_dump+0x6c/0x88
+[    0.866012]  do_raw_spin_lock+0xb0/0xf8
+[    0.866023]  _raw_spin_lock_irqsave+0x80/0xa0
+[    0.866032]  uart_add_one_port+0x3a4/0x4e0
+[    0.866039]  sci_probe+0x504/0x7c8
+[    0.866048]  platform_drv_probe+0x50/0xa0
+[    0.866059]  really_probe+0xdc/0x330
+[    0.866066]  driver_probe_device+0x58/0xb8
+[    0.866072]  device_driver_attach+0x6c/0x90
+[    0.866078]  __driver_attach+0x88/0xd0
+[    0.866085]  bus_for_each_dev+0x74/0xc8
+[    0.866091]  driver_attach+0x20/0x28
+[    0.866098]  bus_add_driver+0x14c/0x1f8
+[    0.866104]  driver_register+0x60/0x110
+[    0.866109]  __platform_driver_register+0x40/0x48
+[    0.866119]  sci_init+0x2c/0x34
+[    0.866127]  do_one_initcall+0x88/0x428
+[    0.866137]  kernel_init_freeable+0x2c0/0x328
+[    0.866143]  kernel_init+0x10/0x108
+[    0.866150]  ret_from_fork+0x10/0x18
+
+Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Reviewed-by: Biju Das <biju.das.jz@bp.renesas.com>
+Fixes: a3cb39d258ef ("serial: core: Allow detach and attach serial device for console")
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1593618100-2151-1-git-send-email-prabhakar.mahadev-lad.rj@bp.renesas.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/tty/serial/sh-sci.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/tty/serial/sh-sci.c b/drivers/tty/serial/sh-sci.c
+index e1179e74a2b8..204bb68ce3ca 100644
+--- a/drivers/tty/serial/sh-sci.c
++++ b/drivers/tty/serial/sh-sci.c
+@@ -3301,6 +3301,9 @@ static int sci_probe_single(struct platform_device *dev,
+ 		sciport->port.flags |= UPF_HARD_FLOW;
+ 	}
+ 
++	if (sci_uart_driver.cons->index == sciport->port.line)
++		spin_lock_init(&sciport->port.lock);
++
+ 	ret = uart_add_one_port(&sci_uart_driver, &sciport->port);
+ 	if (ret) {
+ 		sci_cleanup_single(sciport);
+-- 
+2.27.0
+
 
