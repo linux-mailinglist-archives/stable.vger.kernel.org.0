@@ -2,143 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02F5D2146E8
-	for <lists+stable@lfdr.de>; Sat,  4 Jul 2020 17:33:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FBF321485E
+	for <lists+stable@lfdr.de>; Sat,  4 Jul 2020 21:27:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726501AbgGDPdf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 4 Jul 2020 11:33:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48170 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726405AbgGDPdf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 4 Jul 2020 11:33:35 -0400
-Received: from archlinux (cpc149474-cmbg20-2-0-cust94.5-4.cable.virginm.net [82.4.196.95])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3F26D20747;
-        Sat,  4 Jul 2020 15:33:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593876814;
-        bh=Cf8jYvmEMjlkd5Kh2lEDejZXr1RcS80lVl4jJtD+NU8=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=TFKWC4yz+ixS0dy03DWb5vFl2OYdhXbpaAxlI8r/e1EcrUy/7J2mX6Lo2iMjAIuF5
-         umqiQwDc5HWU7ppHbY+OlHe7VqtpzQKuQvUpMJ0gizUmJBWUxzw+2F5j7ozccLqyUF
-         PjubUYNwMVADJRtg5GZdsF6sfX7N1lUbgLWUQLrI=
-Date:   Sat, 4 Jul 2020 16:33:30 +0100
-From:   Jonathan Cameron <jic23@kernel.org>
-To:     Krzysztof Kozlowski <krzk@kernel.org>
-Cc:     Hartmut Knaack <knaack.h@gmx.de>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-        Rob Herring <robh+dt@kernel.org>, linux-iio@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] dt-bindings: iio: bmc150_magn: Document missing
- compatibles
-Message-ID: <20200704163330.5d5973b1@archlinux>
-In-Reply-To: <20200629064925.GA5879@kozik-lap>
-References: <20200617101259.12525-1-krzk@kernel.org>
-        <20200620164049.5aa91365@archlinux>
-        <20200622051940.GA4021@kozik-lap>
-        <20200627155714.15478f60@archlinux>
-        <20200629064925.GA5879@kozik-lap>
-X-Mailer: Claws Mail 3.17.5 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        id S1727084AbgGDT1i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 4 Jul 2020 15:27:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55754 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726643AbgGDT1h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 4 Jul 2020 15:27:37 -0400
+Received: from mail-qt1-x841.google.com (mail-qt1-x841.google.com [IPv6:2607:f8b0:4864:20::841])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E697C061794
+        for <stable@vger.kernel.org>; Sat,  4 Jul 2020 12:27:37 -0700 (PDT)
+Received: by mail-qt1-x841.google.com with SMTP id x62so26203635qtd.3
+        for <stable@vger.kernel.org>; Sat, 04 Jul 2020 12:27:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=tGw7y2+ozvfaI5O0ckPyJEES122wpdGaQULo47ym37A=;
+        b=dqJWZhCqeM77pJ+REF/rvsYARlh2VShazLJUiBIzm0viTIaIYwLcRhCu2NuCJ1EJwt
+         RwhJr5rp9M3bUrZXTekO7JT0z+5KGiCx7r74p9r9/VBK91zlIRfNCrbrk2Y81HBU4gFr
+         X+r9D3mlvJKkummKjjNMtasZiVGVs0yaawePNk48MWSC1B/4Mu+CLz8yh43gSdonp+MA
+         vmnwlNB65gq6Mc8XgwUrLrA9lm0VPzbbS4A3o/w7WpR0JukVkb2WsSYXrEUYL85nF01T
+         mTQEFG+0pMno0g7Y1RjOApjs1BDCJpZy0wyCqRJToYYh/Ry11OOtx5u2EMrodmUtC71s
+         PPBw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=tGw7y2+ozvfaI5O0ckPyJEES122wpdGaQULo47ym37A=;
+        b=d0rh6yvbfOxQ29t6SXC/uUV/47Lc5nGkJbf1N0V+Pp+3nSrPWRPnUWbqjPPBrsqPP0
+         ZegEnef1dtbzKvfJgVTdIxo5S8RD+ijyuR+6D5hvy0OGeSr4zpwaBz9iOwSMVtAjMbG5
+         /3Okb1egJ5dK07jw4fO7cH3xr/9ZEMSxqqUyQhp1uaKFUhxCF4fVhd6zxr0rWZlg6Sg0
+         rgEgsqy6uDN7Mm+lwA0sZZh5mNy54QjbePDjWXVsCZkF4WJkXfUWFUV289zXu3+1FyFG
+         cXzTZbtLvNJqtXoOEpUvtNfE7BTlxy+5sZy/4auv28untjGPbjzeqgSnltA8RCIEOEZT
+         2fPQ==
+X-Gm-Message-State: AOAM5320ra8AnYBal9cDGJ2sBSK+rNVEIGIEPqtLfoZfZrBW8zwrwCak
+        PakiMyPfH+kzVlga8cInU0ou32v7dGRFi/AUE50=
+X-Google-Smtp-Source: ABdhPJw8Cf/IzNuymfS7zBJwvfWsGxl47LQdLvcGn+0BYlfDaQRMOgg9IjokvIxDvHtvttTyjaPU9CHfc4/cq2m6r8g=
+X-Received: by 2002:ac8:4588:: with SMTP id l8mr42854646qtn.189.1593890856953;
+ Sat, 04 Jul 2020 12:27:36 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+Received: by 2002:ac8:698b:0:0:0:0:0 with HTTP; Sat, 4 Jul 2020 12:27:36 -0700 (PDT)
+Reply-To: johndav37@aol.com
+From:   "Barrister Ms. Linda B. Bammann, UN-Attorney at Law Court-Benin" 
+        <westernunion.benin982@gmail.com>
+Date:   Sat, 4 Jul 2020 21:27:36 +0200
+Message-ID: <CAP=nHB+F4-mxDV7_0dmOmAefRU7yq200G=OMkbbdOZewAKLr4w@mail.gmail.com>
+Subject: Contact Diplomatic Agent, Mr. JOHN DAV to receive your ATM Card
+ AMOUNT $12,850.000Million USD today.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 29 Jun 2020 08:49:25 +0200
-Krzysztof Kozlowski <krzk@kernel.org> wrote:
-
-> On Sat, Jun 27, 2020 at 03:57:14PM +0100, Jonathan Cameron wrote:
-> > On Mon, 22 Jun 2020 07:19:40 +0200
-> > Krzysztof Kozlowski <krzk@kernel.org> wrote:
-> >  =20
-> > > On Sat, Jun 20, 2020 at 04:40:49PM +0100, Jonathan Cameron wrote: =20
-> > > > On Wed, 17 Jun 2020 12:12:59 +0200
-> > > > Krzysztof Kozlowski <krzk@kernel.org> wrote:
-> > > >    =20
-> > > > > The driver supports also BMC156B and BMM150B so document the comp=
-atibles
-> > > > > for these devices.
-> > > > >=20
-> > > > > Fixes: 9d75db36df14 ("iio: magn: Add support for BMM150 magnetome=
-ter")
-> > > > > Cc: <stable@vger.kernel.org>
-> > > > > Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-> > > > >=20
-> > > > > ---
-> > > > >=20
-> > > > > The fixes tag is not accurate but at least offer some backporting=
-.   =20
-> > > >=20
-> > > > I'm not sure we generally bother backporting a missing section of b=
-inding
-> > > > documentation. Particularly as this doc isn't in yaml yet so it's n=
-ot
-> > > > as though any automated checking is likely to be occurring.
-> > > >=20
-> > > > Rob, any views on backporting this sort of missing id addition?
-> > > >=20
-> > > > One side comment here is that the devices that are magnetometers on=
-ly
-> > > > should never have had the _magn prefix in their compatibles. We only
-> > > > do that for devices in incorporating several sensors in one package
-> > > > (like the bmc150) where we have multiple drivers for the different
-> > > > sensors incorporated. We are too late to fix that now though.  It
-> > > > may make sense to mark the _magn variants deprecated though and
-> > > > add the ones without the _magn postfix.   =20
-> > >=20
-> > > I can add proper compatibles and mark these as deprecated but actually
-> > > the driver should not have additional compatibles in first place - all
-> > > devices are just compatible with bosch,bmc150. =20
-> >=20
-> > Why not?  Whilst the devices may be compatible in theory, it's not unus=
-ual
-> > for subtle differences to emerge later.   As such we tend to at least
-> > support the most specific compatible possible for a part - though we
-> > can use fallback compatibles. =20
->=20
-> It does not strictly harm but have in mind that adding is always
-> possible (when you spot the difference between devices). But it is
-> entirely different with removal - it takes time to deprecate one and to
-> remove it.
->=20
-> There is just no benefit for adding new compatibles for really
-> compatible devices. The module device table just grows. It makes sense
-> however to document in bindings that given compatible serves family of
-> devices.
->=20
-> Somehow driver developers got impression that they need to make a commit
-> like "Add support for xyz123 device" adding only compatible, to bring
-> support for new device. But the support was already there so just
-> document that xyz001 is compatible with xyz123.
-
-Whilst I agree the compatible is not really necessary, it is often
-non trivial to establish two parts are actual compatible. Manufacturers
-have an annoying habit of not actually saying so on their datasheets.
-So it is useful to add documentation for the support so that a grep
-will identify the driver supports it.
-
-I don't have a problem with people adding the ID particularly as they
-are often not entirely sure the parts are compatible.  I'm not fussed
-if they don't do so of course.
-
-Ideal in my view is to list multiple compatibles in the dts files
-in this case to allow us to support any differences if any turn up
-in the future.=20
-
-=46rom a purely practical basis, if I'm writing a DTS I'd much rather
-it matched up with my BOM rather than having to 'know' that two parts
-are compatible.
-
-Jonathan
-
->=20
-> Best regards,
-> Krzysztof
->=20
-
+Attn Dear,Atm Card Beneficiary.
+Contact Diplomatic Agent, Mr. JOHN DAV to receive your ATM Card AMOUNT
+$12,850.000Million USD today.
+His contact address:
+AGENT NAME: Mr. JOHN DAV
+Email: johndav37@aol.com
+We required you to re-confirm your mailing address to Him where the
+ATM Card will get posted to you, because the court has approved your
+delivery this morning.
+your mailing address is required as listed below.
+YOUR FULL-----------------------
+HOME ADDRESS--------------------------------
+COUNTRY------------------------------
+AGE-------------------------------
+SEX-------------------------
+OCCUPATION---------------------------
+COPY OF YOUR VAILID ID CARD---------------------
+Thanks for your full Understanding.
+Send your ATM Card delivery fee $15.00 only to Mr. JOHN DAV.
+Barrister Ms. Linda B. Bammann, UN-Attorney at Law Court-Benin
+Email ID lindabammann42@yahoo.com
