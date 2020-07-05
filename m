@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2190214B42
-	for <lists+stable@lfdr.de>; Sun,  5 Jul 2020 11:07:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E14A214B43
+	for <lists+stable@lfdr.de>; Sun,  5 Jul 2020 11:09:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726434AbgGEJHH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Jul 2020 05:07:07 -0400
-Received: from alexa-out-sd-02.qualcomm.com ([199.106.114.39]:62535 "EHLO
-        alexa-out-sd-02.qualcomm.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725901AbgGEJHG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Jul 2020 05:07:06 -0400
-Received: from unknown (HELO ironmsg02-sd.qualcomm.com) ([10.53.140.142])
-  by alexa-out-sd-02.qualcomm.com with ESMTP; 05 Jul 2020 02:07:05 -0700
+        id S1726491AbgGEJJJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Jul 2020 05:09:09 -0400
+Received: from alexa-out-sd-01.qualcomm.com ([199.106.114.38]:16273 "EHLO
+        alexa-out-sd-01.qualcomm.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725901AbgGEJJJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Jul 2020 05:09:09 -0400
+Received: from unknown (HELO ironmsg-SD-alpha.qualcomm.com) ([10.53.140.30])
+  by alexa-out-sd-01.qualcomm.com with ESMTP; 05 Jul 2020 02:09:08 -0700
 Received: from sivaprak-linux.qualcomm.com ([10.201.3.202])
-  by ironmsg02-sd.qualcomm.com with ESMTP; 05 Jul 2020 02:07:04 -0700
+  by ironmsg-SD-alpha.qualcomm.com with ESMTP; 05 Jul 2020 02:09:07 -0700
 Received: by sivaprak-linux.qualcomm.com (Postfix, from userid 459349)
-        id 08370213BD; Sun,  5 Jul 2020 14:37:02 +0530 (IST)
+        id 9A60A213C8; Sun,  5 Jul 2020 14:39:03 +0530 (IST)
 From:   Sivaprakash Murugesan <sivaprak@codeaurora.org>
 To:     sivaprak@codeaurora.org
 Cc:     stable@vger.kernel.org,
         Selvam Sathappan Periakaruppan <speriaka@codeaurora.org>
 Subject: [PATCH 5/9] phy: qcom-qmp: use correct values for ipq8074 gen2 pcie phy init
-Date:   Sun,  5 Jul 2020 14:36:55 +0530
-Message-Id: <1593940019-28346-5-git-send-email-sivaprak@codeaurora.org>
+Date:   Sun,  5 Jul 2020 14:38:57 +0530
+Message-Id: <1593940141-28516-6-git-send-email-sivaprak@codeaurora.org>
 X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1593940019-28346-1-git-send-email-sivaprak@codeaurora.org>
-References: <1593940019-28346-1-git-send-email-sivaprak@codeaurora.org>
+In-Reply-To: <1593940141-28516-1-git-send-email-sivaprak@codeaurora.org>
+References: <1593940141-28516-1-git-send-email-sivaprak@codeaurora.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
