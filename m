@@ -2,86 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E31DC214CED
-	for <lists+stable@lfdr.de>; Sun,  5 Jul 2020 16:08:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D353D214DDF
+	for <lists+stable@lfdr.de>; Sun,  5 Jul 2020 17:58:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726747AbgGEOIb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Jul 2020 10:08:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33456 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726538AbgGEOIb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 5 Jul 2020 10:08:31 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C0AE120724;
-        Sun,  5 Jul 2020 14:08:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1593958111;
-        bh=hURgd86nZ++VXTvq90RC/EanMIWQDFFVZQFfdrVmnAg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=XQ6ReEkExPIqQ7PuTsLcUq2rV9CF7qzDV5yMmobHAO5WiFtb4uBacPtqZPEh/yzFy
-         u0JQ2RQ/RFkJC7wSMGYFJb6rs2Bwq7oj+NAf1X1hsfDP4iu5rRuGzsTSiTsO6QZHCA
-         qvKimCrfTFaViTxDYaqRY/ZhyMbOHpPommi1kKZA=
-Date:   Sun, 5 Jul 2020 16:08:33 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     axboe@kernel.dk, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] io_uring: use signal based task_work
- running" failed to apply to 5.7-stable tree
-Message-ID: <20200705140833.GA1299492@kroah.com>
-References: <15939484161622@kroah.com>
- <20200705134910.GJ2722994@sasha-vm>
+        id S1727907AbgGEP6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Jul 2020 11:58:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46402 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727843AbgGEP6Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Jul 2020 11:58:25 -0400
+Received: from smtp.domeneshop.no (smtp.domeneshop.no [IPv6:2a01:5b40:0:3005::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5931CC061794
+        for <stable@vger.kernel.org>; Sun,  5 Jul 2020 08:58:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=tronnes.org
+        ; s=ds201912; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:
+        MIME-Version:Date:Message-ID:References:Cc:To:Subject:From:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=NHevZJPUkjg54LOPyXWTmOALzTwaDHaAfPBRFrHmVf0=; b=Y03bGvTD32hKlEebGxu9pVvp6F
+        iQoIsYXOXAZSnnVj4UC9eAfVZQ26XN1QU5cVgOioREGDSq/yf9i4ZzYBufEK/s4JC27DI0ECfy0zA
+        ms7+t+aMqa49Q6rJmfuvbe7CAf31WyZstwJHY3l7zaoVhD3lpZhQaEhQwwP1EtZgesWzA8SG+vdll
+        sksnG7f8NKyqqidBc0v9svMibBJ9G3MUg3l+MbDDe7d9o6VIqfVzKAsRlQKbCz1qyvolt5e/omWEU
+        U2YuvN9PBA+6RQsZJrOuFfX+OSrlz8uhJoHmz11ORT5u2joutANDReIJl8xR0PNQDSC33g45Wx5rv
+        OAdfSMVA==;
+Received: from 211.81-166-168.customer.lyse.net ([81.166.168.211]:55281 helo=[192.168.10.61])
+        by smtp.domeneshop.no with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.92)
+        (envelope-from <noralf@tronnes.org>)
+        id 1js724-0003uP-St; Sun, 05 Jul 2020 17:58:20 +0200
+From:   =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>
+Subject: Re: [PATCH] drm/dbi: Fix SPI Type 1 (9-bit) transfer
+To:     Paul Cercueil <paul@crapouillou.net>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>
+Cc:     dri-devel@lists.freedesktop.org, Sam Ravnborg <sam@ravnborg.org>,
+        stable@vger.kernel.org
+References: <20200703141341.1266263-1-paul@crapouillou.net>
+Message-ID: <0dda6b3f-ea8c-6a7e-5c7c-f26874b825c8@tronnes.org>
+Date:   Sun, 5 Jul 2020 17:58:18 +0200
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200705134910.GJ2722994@sasha-vm>
+In-Reply-To: <20200703141341.1266263-1-paul@crapouillou.net>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Jul 05, 2020 at 09:49:10AM -0400, Sasha Levin wrote:
-> On Sun, Jul 05, 2020 at 01:26:56PM +0200, gregkh@linuxfoundation.org wrote:
-> > 
-> > The patch below does not apply to the 5.7-stable tree.
-> > If someone wants it applied there, or to any other stable or longterm
-> > tree, then please email the backport, including the original git commit
-> > id to <stable@vger.kernel.org>.
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> > 
-> > ------------------ original commit in Linus's tree ------------------
-> > 
-> > > From ce593a6c480a22acba08795be313c0c6d49dd35d Mon Sep 17 00:00:00 2001
-> > From: Jens Axboe <axboe@kernel.dk>
-> > Date: Tue, 30 Jun 2020 12:39:05 -0600
-> > Subject: [PATCH] io_uring: use signal based task_work running
-> > 
-> > Since 5.7, we've been using task_work to trigger async running of
-> > requests in the context of the original task. This generally works
-> > great, but there's a case where if the task is currently blocked
-> > in the kernel waiting on a condition to become true, it won't process
-> > task_work. Even though the task is woken, it just checks whatever
-> > condition it's waiting on, and goes back to sleep if it's still false.
-> > 
-> > This is a problem if that very condition only becomes true when that
-> > task_work is run. An example of that is the task registering an eventfd
-> > with io_uring, and it's now blocked waiting on an eventfd read. That
-> > read could depend on a completion event, and that completion event
-> > won't get trigged until task_work has been run.
-> > 
-> > Use the TWA_SIGNAL notification for task_work, so that we ensure that
-> > the task always runs the work when queued.
-> > 
-> > Cc: stable@vger.kernel.org # v5.7
-> > Signed-off-by: Jens Axboe <axboe@kernel.dk>
+
+
+Den 03.07.2020 16.13, skrev Paul Cercueil:
+> The function mipi_dbi_spi1_transfer() will transfer its payload as 9-bit
+> data, the 9th (MSB) bit being the data/command bit. In order to do that,
+> it unpacks the 8-bit values into 16-bit values, then sets the 9th bit if
+> the byte corresponds to data, clears it otherwise. The 7 MSB are
+> padding. The array of now 16-bit values is then passed to the SPI core
+> for transfer.
 > 
-> This patch depends on e91b48162332 ("task_work: teach task_work_add() to
-> do signal_wake_up()"), I've queued both for 5.7.
+> This function was broken since its introduction, as the length of the
+> SPI transfer was set to the payload size before its conversion, but the
+> payload doubled in size due to the 8-bit -> 16-bit conversion.
+> 
+> Fixes: 02dd95fe3169 ("drm/tinydrm: Add MIPI DBI support")
+> Cc: <stable@vger.kernel.org> # 4.10
 
-Great, thanks for adding that.
+The code was moved to drm_mipi_dbi.c in 5.4 so this patch won't apply
+before that.
 
-greg k-h
+> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+> ---
+
+Thanks for fixing this, clearly I didn't test this. Probably because the
+aux spi ip block on the Raspberry Pi that can do 9 bit didn't have a
+driver at the time. Did you actually test this or was it spotted reading
+the code?
+
+Reviewed-by: Noralf Trønnes <noralf@tronnes.org>
+
+>  drivers/gpu/drm/drm_mipi_dbi.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/gpu/drm/drm_mipi_dbi.c b/drivers/gpu/drm/drm_mipi_dbi.c
+> index bb27c82757f1..bf7888ad9ad4 100644
+> --- a/drivers/gpu/drm/drm_mipi_dbi.c
+> +++ b/drivers/gpu/drm/drm_mipi_dbi.c
+> @@ -923,7 +923,7 @@ static int mipi_dbi_spi1_transfer(struct mipi_dbi *dbi, int dc,
+>  			}
+>  		}
+>  
+> -		tr.len = chunk;
+> +		tr.len = chunk * 2;
+>  		len -= chunk;
+>  
+>  		ret = spi_sync(spi, &m);
+> 
