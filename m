@@ -2,140 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58B0A214B4E
-	for <lists+stable@lfdr.de>; Sun,  5 Jul 2020 11:18:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D30A9214BA1
+	for <lists+stable@lfdr.de>; Sun,  5 Jul 2020 11:49:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726833AbgGEJSc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Jul 2020 05:18:32 -0400
-Received: from alexa-out-sd-02.qualcomm.com ([199.106.114.39]:22208 "EHLO
-        alexa-out-sd-02.qualcomm.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726809AbgGEJS2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Jul 2020 05:18:28 -0400
-Received: from unknown (HELO ironmsg04-sd.qualcomm.com) ([10.53.140.144])
-  by alexa-out-sd-02.qualcomm.com with ESMTP; 05 Jul 2020 02:18:26 -0700
-Received: from sivaprak-linux.qualcomm.com ([10.201.3.202])
-  by ironmsg04-sd.qualcomm.com with ESMTP; 05 Jul 2020 02:18:17 -0700
-Received: by sivaprak-linux.qualcomm.com (Postfix, from userid 459349)
-        id B9B15213BD; Sun,  5 Jul 2020 14:48:09 +0530 (IST)
-From:   Sivaprakash Murugesan <sivaprak@codeaurora.org>
-To:     agross@kernel.org, bjorn.andersson@linaro.org, bhelgaas@google.com,
-        robh+dt@kernel.org, kishon@ti.com, vkoul@kernel.org,
-        mturquette@baylibre.com, sboyd@kernel.org, svarbanov@mm-sol.com,
-        lorenzo.pieralisi@arm.com, p.zabel@pengutronix.de,
-        sivaprak@codeaurora.org, mgautam@codeaurora.org,
-        smuthayy@codeaurora.org, varada@codeaurora.org,
-        linux-arm-msm@vger.kernel.org, linux-pci@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-clk@vger.kernel.org
-Cc:     stable@vger.kernel.org,
-        Selvam Sathappan Periakaruppan <speriaka@codeaurora.org>
-Subject: [PATCH 5/9] phy: qcom-qmp: use correct values for ipq8074 gen2 pcie phy init
-Date:   Sun,  5 Jul 2020 14:47:56 +0530
-Message-Id: <1593940680-2363-6-git-send-email-sivaprak@codeaurora.org>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1593940680-2363-1-git-send-email-sivaprak@codeaurora.org>
-References: <1593940680-2363-1-git-send-email-sivaprak@codeaurora.org>
+        id S1726572AbgGEJtk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Jul 2020 05:49:40 -0400
+Received: from elvis.franken.de ([193.175.24.41]:49393 "EHLO elvis.franken.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726558AbgGEJtk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 5 Jul 2020 05:49:40 -0400
+Received: from uucp (helo=alpha)
+        by elvis.franken.de with local-bsmtp (Exim 3.36 #1)
+        id 1js1HF-0002u8-00; Sun, 05 Jul 2020 11:49:37 +0200
+Received: by alpha.franken.de (Postfix, from userid 1000)
+        id 3A04CC0770; Sun,  5 Jul 2020 11:46:12 +0200 (CEST)
+Date:   Sun, 5 Jul 2020 11:46:12 +0200
+From:   Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+To:     Hauke Mehrtens <hauke@hauke-m.de>
+Cc:     linux-mips@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] MIPS: Add missing EHB in mtc0 -> mfc0 sequence for DSPen
+Message-ID: <20200705094612.GA4064@alpha.franken.de>
+References: <20200702225334.32414-1-hauke@hauke-m.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200702225334.32414-1-hauke@hauke-m.de>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-There were some problem in ipq8074 gen2 pcie phy init sequence, fix
-these to make gen2 pcie port on ipq8074 to work.
+On Fri, Jul 03, 2020 at 12:53:34AM +0200, Hauke Mehrtens wrote:
+> This resolves the hazard between the mtc0 in the change_c0_status() and
+> the mfc0 in configure_exception_vector(). Without resolving this hazard
+> configure_exception_vector() could read an old value and would restore
+> this old value again. This would revert the changes change_c0_status()
+> did. I checked this by printing out the read_c0_status() at the end of
+> per_cpu_trap_init() and the ST0_MX is not set without this patch.
+> 
+> The hazard is documented in the MIPS Architecture Reference Manual Vol.
+> III: MIPS32/microMIPS32 Privileged Resource Architecture (MD00088), rev
+> 6.03 table 8.1 which includes:
+> 
+>    Producer | Consumer | Hazard
+>   ----------|----------|----------------------------
+>    mtc0     | mfc0     | any coprocessor 0 register
+> 
+> I saw this hazard on an Atheros AR9344 rev 2 SoC with a MIPS 74Kc CPU.
+> There the change_c0_status() function would activate the DSPen by
+> setting ST0_MX in the c0_status register. This was reverted and then the
+> system got a DSP exception when the DSP registers were saved in
+> save_dsp() in the first process switch. The crash looks like this:
+> 
+> [    0.089999] Mount-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
+> [    0.097796] Mountpoint-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
+> [    0.107070] Kernel panic - not syncing: Unexpected DSP exception
+> [    0.113470] Rebooting in 1 seconds..
+> 
+> We saw this problem in OpenWrt only on the MIPS 74Kc based Atheros SoCs,
+> not on the 24Kc based SoCs. We only saw it with kernel 5.4 not with
+> kernel 4.19, in addition we had to use GCC 8.4 or 9.X, with GCC 8.3 it
+> did not happen.
+> 
+> In the kernel I bisected this problem to commit 9012d011660e ("compiler:
+> allow all arches to enable CONFIG_OPTIMIZE_INLINING"), but when this was
+> reverted it also happened after commit 172dcd935c34b ("MIPS: Always
+> allocate exception vector for MIPSr2+").
+> 
+> Commit 0b24cae4d535 ("MIPS: Add missing EHB in mtc0 -> mfc0 sequence.")
+> does similar changes to a different file. I am not sure if there are
+> more places affected by this problem.
+> 
+> Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
+> Cc: <stable@vger.kernel.org>
+> ---
+>  arch/mips/kernel/traps.c | 1 +
+>  1 file changed, 1 insertion(+)
 
-Fixes: eef243d04b2b6 ("phy: qcom-qmp: Add support for IPQ8074")
+applied to mips-fixes.
 
-Cc: stable@vger.kernel.org
-Co-developed-by: Selvam Sathappan Periakaruppan <speriaka@codeaurora.org>
-Signed-off-by: Selvam Sathappan Periakaruppan <speriaka@codeaurora.org>
-Signed-off-by: Sivaprakash Murugesan <sivaprak@codeaurora.org>
----
- drivers/phy/qualcomm/phy-qcom-qmp.c | 16 +++++++++-------
- drivers/phy/qualcomm/phy-qcom-qmp.h |  2 ++
- 2 files changed, 11 insertions(+), 7 deletions(-)
+Thomas.
 
-diff --git a/drivers/phy/qualcomm/phy-qcom-qmp.c b/drivers/phy/qualcomm/phy-qcom-qmp.c
-index e91040af3394..ba277136f52b 100644
---- a/drivers/phy/qualcomm/phy-qcom-qmp.c
-+++ b/drivers/phy/qualcomm/phy-qcom-qmp.c
-@@ -504,8 +504,8 @@ static const struct qmp_phy_init_tbl ipq8074_pcie_serdes_tbl[] = {
- 	QMP_PHY_INIT_CFG(QSERDES_COM_BG_TRIM, 0xf),
- 	QMP_PHY_INIT_CFG(QSERDES_COM_LOCK_CMP_EN, 0x1),
- 	QMP_PHY_INIT_CFG(QSERDES_COM_VCO_TUNE_MAP, 0x0),
--	QMP_PHY_INIT_CFG(QSERDES_COM_VCO_TUNE_TIMER1, 0x1f),
--	QMP_PHY_INIT_CFG(QSERDES_COM_VCO_TUNE_TIMER2, 0x3f),
-+	QMP_PHY_INIT_CFG(QSERDES_COM_VCO_TUNE_TIMER1, 0xff),
-+	QMP_PHY_INIT_CFG(QSERDES_COM_VCO_TUNE_TIMER2, 0x1f),
- 	QMP_PHY_INIT_CFG(QSERDES_COM_CMN_CONFIG, 0x6),
- 	QMP_PHY_INIT_CFG(QSERDES_COM_PLL_IVCO, 0xf),
- 	QMP_PHY_INIT_CFG(QSERDES_COM_HSCLK_SEL, 0x0),
-@@ -531,7 +531,6 @@ static const struct qmp_phy_init_tbl ipq8074_pcie_serdes_tbl[] = {
- 	QMP_PHY_INIT_CFG(QSERDES_COM_INTEGLOOP_GAIN1_MODE0, 0x0),
- 	QMP_PHY_INIT_CFG(QSERDES_COM_INTEGLOOP_GAIN0_MODE0, 0x80),
- 	QMP_PHY_INIT_CFG(QSERDES_COM_BIAS_EN_CTRL_BY_PSM, 0x1),
--	QMP_PHY_INIT_CFG(QSERDES_COM_VCO_TUNE_CTRL, 0xa),
- 	QMP_PHY_INIT_CFG(QSERDES_COM_SSC_EN_CENTER, 0x1),
- 	QMP_PHY_INIT_CFG(QSERDES_COM_SSC_PER1, 0x31),
- 	QMP_PHY_INIT_CFG(QSERDES_COM_SSC_PER2, 0x1),
-@@ -540,7 +539,6 @@ static const struct qmp_phy_init_tbl ipq8074_pcie_serdes_tbl[] = {
- 	QMP_PHY_INIT_CFG(QSERDES_COM_SSC_STEP_SIZE1, 0x2f),
- 	QMP_PHY_INIT_CFG(QSERDES_COM_SSC_STEP_SIZE2, 0x19),
- 	QMP_PHY_INIT_CFG(QSERDES_COM_CLK_EP_DIV, 0x19),
--	QMP_PHY_INIT_CFG(QSERDES_RX_SIGDET_CNTRL, 0x7),
- };
- 
- static const struct qmp_phy_init_tbl ipq8074_pcie_tx_tbl[] = {
-@@ -548,6 +546,8 @@ static const struct qmp_phy_init_tbl ipq8074_pcie_tx_tbl[] = {
- 	QMP_PHY_INIT_CFG(QSERDES_TX_LANE_MODE, 0x6),
- 	QMP_PHY_INIT_CFG(QSERDES_TX_RES_CODE_LANE_OFFSET, 0x2),
- 	QMP_PHY_INIT_CFG(QSERDES_TX_RCV_DETECT_LVL_2, 0x12),
-+	QMP_PHY_INIT_CFG(QSERDES_TX_EMP_POST1_LVL, 0x36),
-+	QMP_PHY_INIT_CFG(QSERDES_TX_SLEW_CNTL, 0x0a),
- };
- 
- static const struct qmp_phy_init_tbl ipq8074_pcie_rx_tbl[] = {
-@@ -558,7 +558,6 @@ static const struct qmp_phy_init_tbl ipq8074_pcie_rx_tbl[] = {
- 	QMP_PHY_INIT_CFG(QSERDES_RX_RX_EQU_ADAPTOR_CNTRL4, 0xdb),
- 	QMP_PHY_INIT_CFG(QSERDES_RX_UCDR_SO_SATURATION_AND_ENABLE, 0x4b),
- 	QMP_PHY_INIT_CFG(QSERDES_RX_UCDR_SO_GAIN, 0x4),
--	QMP_PHY_INIT_CFG(QSERDES_RX_UCDR_SO_GAIN_HALF, 0x4),
- };
- 
- static const struct qmp_phy_init_tbl ipq8074_pcie_pcs_tbl[] = {
-@@ -1673,6 +1672,9 @@ static const struct qmp_phy_cfg msm8996_usb3phy_cfg = {
- 	.pwrdn_ctrl		= SW_PWRDN,
- };
- 
-+static const char * const ipq8074_pciephy_clk_l[] = {
-+	"aux", "cfg_ahb",
-+};
- /* list of resets */
- static const char * const ipq8074_pciephy_reset_l[] = {
- 	"phy", "common",
-@@ -1690,8 +1692,8 @@ static const struct qmp_phy_cfg ipq8074_pciephy_cfg = {
- 	.rx_tbl_num		= ARRAY_SIZE(ipq8074_pcie_rx_tbl),
- 	.pcs_tbl		= ipq8074_pcie_pcs_tbl,
- 	.pcs_tbl_num		= ARRAY_SIZE(ipq8074_pcie_pcs_tbl),
--	.clk_list		= NULL,
--	.num_clks		= 0,
-+	.clk_list		= ipq8074_pciephy_clk_l,
-+	.num_clks		= ARRAY_SIZE(ipq8074_pciephy_clk_l),
- 	.reset_list		= ipq8074_pciephy_reset_l,
- 	.num_resets		= ARRAY_SIZE(ipq8074_pciephy_reset_l),
- 	.vreg_list		= NULL,
-diff --git a/drivers/phy/qualcomm/phy-qcom-qmp.h b/drivers/phy/qualcomm/phy-qcom-qmp.h
-index 6d017a0c0c8d..832b3d098403 100644
---- a/drivers/phy/qualcomm/phy-qcom-qmp.h
-+++ b/drivers/phy/qualcomm/phy-qcom-qmp.h
-@@ -77,6 +77,8 @@
- #define QSERDES_COM_CORECLK_DIV_MODE1			0x1bc
- 
- /* Only for QMP V2 PHY - TX registers */
-+#define QSERDES_TX_EMP_POST1_LVL			0x018
-+#define QSERDES_TX_SLEW_CNTL				0x040
- #define QSERDES_TX_RES_CODE_LANE_OFFSET			0x054
- #define QSERDES_TX_DEBUG_BUS_SEL			0x064
- #define QSERDES_TX_HIGHZ_TRANSCEIVEREN_BIAS_DRVR_EN	0x068
 -- 
-2.7.4
-
+Crap can work. Given enough thrust pigs will fly, but it's not necessarily a
+good idea.                                                [ RFC1925, 2.3 ]
