@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B595214E1A
-	for <lists+stable@lfdr.de>; Sun,  5 Jul 2020 19:06:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3119214EDC
+	for <lists+stable@lfdr.de>; Sun,  5 Jul 2020 21:26:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727795AbgGERGG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Jul 2020 13:06:06 -0400
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:33557 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726956AbgGERGG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Jul 2020 13:06:06 -0400
+        id S1727875AbgGET0D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Jul 2020 15:26:03 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:38013 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727845AbgGET0D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Jul 2020 15:26:03 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1593968763;
+        s=mimecast20190719; t=1593977160;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding;
-        bh=2ifMbZEH1WVCFMSqXxmxzMfuSwuqVGBbxaD7Jv+wowE=;
-        b=Q3t6DDgYXSf1k17Vvu6c1vuA0wY8dZXcEtsj8oq4p9+svv7YmxUMjB8i3USaqYtc1PqHYG
-        /d032wA0GgQ27xBw6/+J+KVPkZtcsfeK+yckcfiMxx1TFzMjBEL+aZPLqxFugUrBEk+eh3
-        NuGDSht8NM/GgzB0zFxhj8SN+kpuhGU=
+        bh=nCzPtJucPHRYci8uP9fQKBWPuI0lrTatmMLdGWhTbZw=;
+        b=eysPNvyZp6wlkbMTY+X00J8FEPNKOhh2wQE4rbWYIyPG7wZwNtg5YNYTeBtufuFXt34E4Y
+        vpZtpe3FxP+h/W9OI0UWN6NSHWgF158L4+mDo0g1CBYMLriy7iEO1V294P6gGZ+QC6noHG
+        LHyQXxJX+OSwt2oBsIZ8Al5oK3+ur68=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-134-KK3khweuPVO6Z-6fB4wL3w-1; Sun, 05 Jul 2020 13:05:59 -0400
-X-MC-Unique: KK3khweuPVO6Z-6fB4wL3w-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+ us-mta-510-KC1-GcFsPnuBZFUfyV0Xjg-1; Sun, 05 Jul 2020 15:25:57 -0400
+X-MC-Unique: KC1-GcFsPnuBZFUfyV0Xjg-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 16E6B80183C
-        for <stable@vger.kernel.org>; Sun,  5 Jul 2020 17:05:59 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 426F7188360D
+        for <stable@vger.kernel.org>; Sun,  5 Jul 2020 19:25:56 +0000 (UTC)
 Received: from [10.131.9.106] (unknown [10.0.117.154])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 2F6CA60BF3;
-        Sun,  5 Jul 2020 17:05:56 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 6DCBD5C1B2;
+        Sun,  5 Jul 2020 19:25:53 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 From:   CKI Project <cki-project@redhat.com>
 To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.7.7-b7a4c2b.cki
+Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.7.7-bfa3cce.cki
  (stable-queue)
-Date:   Sun, 05 Jul 2020 17:05:55 -0000
-Message-ID: <cki.65F147CF79.26YT9NR7QJ@redhat.com>
-X-Gitlab-Pipeline-ID: 609581
+Date:   Sun, 05 Jul 2020 19:25:53 -0000
+Message-ID: <cki.3E923808DC.VYVAZWQGOF@redhat.com>
+X-Gitlab-Pipeline-ID: 609582
 X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com/
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/609581
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/609582
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -57,8 +57,8 @@ We ran automated tests on a recent commit from this kernel tree:
 
        Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
 nux-stable-rc.git
-            Commit: b7a4c2b7e41b - crypto: af_alg - fix use-after-free in af_=
-alg_accept() due to bh_lock_sock()
+            Commit: bfa3cce75649 - io_uring: use signal based task_work runni=
+ng
 
 The results of these automated tests are provided below.
 
@@ -70,7 +70,7 @@ The results of these automated tests are provided below.
 All kernel binaries, config files, and logs are available for download here:
 
   https://cki-artifacts.s3.us-east-2.amazonaws.com/index.html?prefix=3Ddatawa=
-rehouse/2020/07/05/609581
+rehouse/2020/07/05/609582
 
 Please reply to this email if you have any questions about the tests that we
 ran or if you have any suggestions on how to make future tests more effective.
@@ -152,7 +152,6 @@ We booted each kernel and ran the following tests:
        =E2=9C=85 xfstests - xfs
        =E2=9C=85 selinux-policy: serge-testsuite
        =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 stress: stress-ng
        =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
        =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
        =F0=9F=9A=A7 =E2=9C=85 Storage blktests
@@ -160,15 +159,15 @@ We booted each kernel and ran the following tests:
   ppc64le:
     Host 1:
        =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
 
     Host 2:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
        =E2=9C=85 Boot test
        =E2=9C=85 Podman system integration test - as root
        =E2=9C=85 Podman system integration test - as user
@@ -193,21 +192,22 @@ We booted each kernel and ran the following tests:
        =E2=9C=85 pciutils: update pci ids test
        =E2=9C=85 ALSA PCM loopback test
        =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 jvm - DaCapo Benchmark Suite
-       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
-       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
-       =F0=9F=9A=A7 =E2=9C=85 Networking firewall: basic netfilter test
-       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
-       =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
-
-    Host 3:
-       =E2=9C=85 Boot test
-       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm - DaCapo Benchmark Suite
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking firewall: basic ne=
+tfilter test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
 
   s390x:
     Host 1:
+       =E2=9C=85 Boot test
+       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
+
+    Host 2:
        =E2=9C=85 Boot test
        =E2=9C=85 Podman system integration test - as root
        =E2=9C=85 Podman system integration test - as user
@@ -238,20 +238,27 @@ We booted each kernel and ran the following tests:
        =F0=9F=9A=A7 =E2=9C=85 trace: ftrace/tracer
        =F0=9F=9A=A7 =E2=9C=85 kdump - kexec_boot
 
-    Host 2:
+    Host 3:
        =E2=9C=85 Boot test
        =E2=9C=85 selinux-policy: serge-testsuite
        =E2=9C=85 stress: stress-ng
        =F0=9F=9A=A7 =E2=9C=85 Storage blktests
 
-    Host 3:
-       =E2=9C=85 Boot test
-       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
-
   x86_64:
     Host 1:
        =E2=9C=85 Boot test
-       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =E2=9C=85 stress: stress-ng
+       =F0=9F=9A=A7 =E2=9C=85 CPU: Frequency Driver Test
+       =F0=9F=9A=A7 =E2=9C=85 CPU: Idle Test
+       =F0=9F=9A=A7 =E2=9C=85 IOMMU boot test
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 power-management: cpupower/sanity test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
 
     Host 2:
        =E2=9C=85 Boot test
@@ -295,18 +302,7 @@ We booted each kernel and ran the following tests:
 
     Host 3:
        =E2=9C=85 Boot test
-       =E2=9C=85 xfstests - ext4
-       =E2=9C=85 xfstests - xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 CPU: Frequency Driver Test
-       =F0=9F=9A=A7 =E2=9C=85 CPU: Idle Test
-       =F0=9F=9A=A7 =E2=9C=85 IOMMU boot test
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 power-management: cpupower/sanity test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 kdump - sysrq-c
 
   Test sources: https://gitlab.com/cki-project/kernel-tests
     =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
