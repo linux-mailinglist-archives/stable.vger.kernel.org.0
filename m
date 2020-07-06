@@ -2,76 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 995C92155FA
-	for <lists+stable@lfdr.de>; Mon,  6 Jul 2020 12:58:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A171215614
+	for <lists+stable@lfdr.de>; Mon,  6 Jul 2020 13:05:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728529AbgGFK6p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jul 2020 06:58:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56738 "EHLO mail.kernel.org"
+        id S1728881AbgGFLFg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jul 2020 07:05:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728264AbgGFK6o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 Jul 2020 06:58:44 -0400
-Received: from mail-lf1-f42.google.com (mail-lf1-f42.google.com [209.85.167.42])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1728852AbgGFLFg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 Jul 2020 07:05:36 -0400
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2EEC720772;
-        Mon,  6 Jul 2020 10:58:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 585DA2074F;
+        Mon,  6 Jul 2020 11:05:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594033124;
-        bh=DHaVeBdGgGfIr0NZuIeBEu3g1835paZKX72HGKXym7k=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=W62RhsPgIs5vdUGg8yamWJ4gQjU8Gs/x5guVzStRvWlRIA5hV6H0uJfc3w8rN0Eqe
-         v8mtf62fR8C0TiY06zV5tjLLv9L0B7UAyqQO/H/vNoG/XqmOEWC56gWm76kJblPJh2
-         v4ht/bYvW9A4TD+5fwiyZrSY95NI/OPmAGVSJj2E=
-Received: by mail-lf1-f42.google.com with SMTP id g2so22310128lfb.0;
-        Mon, 06 Jul 2020 03:58:44 -0700 (PDT)
-X-Gm-Message-State: AOAM5327vmVjoH9plaPkvUPlqsorpQ1G43Q/UWCQOH4KfgKrqoEeCW3g
-        Wpi+jonapzsDhkn9gfbHPT/tAqIiE6RSC+Sp/gw=
-X-Google-Smtp-Source: ABdhPJxrG3emgV5/gynjNvHC6XzEE9+FwI2aJYvVhkhtZMptOkiTLEEzndluBtzjC+DdQqeNM6+brzzYWk9YzccWoks=
-X-Received: by 2002:ac2:5593:: with SMTP id v19mr29352799lfg.43.1594033122519;
- Mon, 06 Jul 2020 03:58:42 -0700 (PDT)
+        s=default; t=1594033535;
+        bh=ne2J8vyCp/Y6iHEupXhOGaq1tyGoUY8NAoyklBzAMhM=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=gPPxbLScSuxO7A2wjgyIbzKcQNeXJSz7yTshFMQ9vlr6Z6nZzYOYKk+BJg9PfjFGm
+         eOnJqfq5bxQjvKclByrRhsPRDJ2UvQE9+AuWGEYUTVE07SJJrf57N57oSDAl9ObR4/
+         1DSaK4Nes8BjHR4r6ocF1k4OZp62TXVD7JNMevso=
+Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.lan)
+        by disco-boy.misterjones.org with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <maz@kernel.org>)
+        id 1jsOwH-009Qgb-Pg; Mon, 06 Jul 2020 12:05:34 +0100
+From:   Marc Zyngier <maz@kernel.org>
+To:     Paolo Bonzini <pbonzini@redhat.com>
+Cc:     Andrew Scull <ascull@google.com>,
+        Andrew Murray <amurray@thegoodpenguin.co.uk>,
+        James Morse <james.morse@arm.com>,
+        Julien Thierry <julien.thierry.kdev@gmail.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        kvm@vger.kernel.org, kvmarm@lists.cs.columbia.edu,
+        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org
+Subject: [PATCH 2/2] KVM: arm64: Stop clobbering x0 for HVC_SOFT_RESTART
+Date:   Mon,  6 Jul 2020 12:05:21 +0100
+Message-Id: <20200706110521.1615794-3-maz@kernel.org>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20200706110521.1615794-1-maz@kernel.org>
+References: <20200706110521.1615794-1-maz@kernel.org>
 MIME-Version: 1.0
-References: <CA+G9fYsrGXd5survaX27kkfam1ZcJdMnzowvGdfy1xT4bGcfcA@mail.gmail.com>
-In-Reply-To: <CA+G9fYsrGXd5survaX27kkfam1ZcJdMnzowvGdfy1xT4bGcfcA@mail.gmail.com>
-From:   Krzysztof Kozlowski <krzk@kernel.org>
-Date:   Mon, 6 Jul 2020 12:58:31 +0200
-X-Gmail-Original-Message-ID: <CAJKOXPe1Y4JAj-OaF52UuZNkwf1Ug2VTB5kyui+GvqXsVJWsTw@mail.gmail.com>
-Message-ID: <CAJKOXPe1Y4JAj-OaF52UuZNkwf1Ug2VTB5kyui+GvqXsVJWsTw@mail.gmail.com>
-Subject: Re: WARNING: at kernel/kthread.c:819 kthread_queue_work - spi_start_queue
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     linux-spi@vger.kernel.org,
-        open list <linux-kernel@vger.kernel.org>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Wolfram Sang <wsa@kernel.org>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        linux- stable <stable@vger.kernel.org>,
-        Mark Brown <broonie@kernel.org>, Peng Ma <peng.ma@nxp.com>,
-        lkft-triage@lists.linaro.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 62.31.163.78
+X-SA-Exim-Rcpt-To: pbonzini@redhat.com, ascull@google.com, amurray@thegoodpenguin.co.uk, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, kvm@vger.kernel.org, kvmarm@lists.cs.columbia.edu, linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 6 Jul 2020 at 12:55, Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
->
-> While booting arm64 device dragonboard 410c the following kernel
-> warning noticed on
-> Linux version 5.8.0-rc3-next-20200706.
->
-> metadata:
->   git branch: master
->   git repo: https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git
->   git commit: 5680d14d59bddc8bcbc5badf00dbbd4374858497
->   git describe: next-20200706
->   kernel-config:
-> https://builds.tuxbuild.com/Glr-Ql1wbp3qN3cnHogyNA/kernel.config
->
-> Crash log while booting,
+From: Andrew Scull <ascull@google.com>
 
-Hi,
+HVC_SOFT_RESTART is given values for x0-2 that it should installed
+before exiting to the new address so should not set x0 to stub HVC
+success or failure code.
 
-Thanks for the report. Did bisect pointed to any specific commit?
+Fixes: af42f20480bf1 ("arm64: hyp-stub: Zero x0 on successful stub handling")
+Cc: stable@vger.kernel.org
+Signed-off-by: Andrew Scull <ascull@google.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20200706095259.1338221-1-ascull@google.com
+---
+ arch/arm64/kvm/hyp-init.S | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-Best regards,
-Krzysztof
+diff --git a/arch/arm64/kvm/hyp-init.S b/arch/arm64/kvm/hyp-init.S
+index 6e6ed5581eed..e76c0e89d48e 100644
+--- a/arch/arm64/kvm/hyp-init.S
++++ b/arch/arm64/kvm/hyp-init.S
+@@ -136,11 +136,15 @@ SYM_CODE_START(__kvm_handle_stub_hvc)
+ 
+ 1:	cmp	x0, #HVC_RESET_VECTORS
+ 	b.ne	1f
+-reset:
++
+ 	/*
+-	 * Reset kvm back to the hyp stub. Do not clobber x0-x4 in
+-	 * case we coming via HVC_SOFT_RESTART.
++	 * Set the HVC_RESET_VECTORS return code before entering the common
++	 * path so that we do not clobber x0-x2 in case we are coming via
++	 * HVC_SOFT_RESTART.
+ 	 */
++	mov	x0, xzr
++reset:
++	/* Reset kvm back to the hyp stub. */
+ 	mrs	x5, sctlr_el2
+ 	mov_q	x6, SCTLR_ELx_FLAGS
+ 	bic	x5, x5, x6		// Clear SCTL_M and etc
+@@ -151,7 +155,6 @@ reset:
+ 	/* Install stub vectors */
+ 	adr_l	x5, __hyp_stub_vectors
+ 	msr	vbar_el2, x5
+-	mov	x0, xzr
+ 	eret
+ 
+ 1:	/* Bad stub call */
+-- 
+2.27.0
+
