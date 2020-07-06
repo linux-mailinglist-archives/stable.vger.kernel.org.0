@@ -2,98 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 735D0214FAC
-	for <lists+stable@lfdr.de>; Sun,  5 Jul 2020 22:57:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D05BB215250
+	for <lists+stable@lfdr.de>; Mon,  6 Jul 2020 08:03:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728297AbgGEU5N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Jul 2020 16:57:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35726 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728038AbgGEU5N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Jul 2020 16:57:13 -0400
-Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9268FC061794
-        for <stable@vger.kernel.org>; Sun,  5 Jul 2020 13:57:13 -0700 (PDT)
-Received: by mail-pj1-x1042.google.com with SMTP id k71so12411260pje.0
-        for <stable@vger.kernel.org>; Sun, 05 Jul 2020 13:57:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=LQra+OzF4k64KbPTjvj5MK+1o4iBbOUYG7MJ3KGBIng=;
-        b=P3JgcdHAYTyabBbu2O0GH6+2VBPpaYSGY+a9DX6fsejEXaIqUwxU9gpB1P8vMNQBjp
-         F2JrPbMf2YfJAvc+F5GuG/X88dQM8xx8oCoFyy29Fc3FaT2TKVKBq0ySxPP/B6qlqEK6
-         NReQMNsvCnGeAw7FJsLzYA12NUtrazbtLl1k4iHvUvly2HGMsCiBvEv8FYmQb3PX0dm/
-         P8VUabgnz7daqtMG+DhEFrwHhjVw1rDHnvit92LA8d+75FCGa5Hyiq+qs0Ncq3S6SQlv
-         gC3DTeVmvbtwT5Sgmr451gw3TszW66Wd7+NeqIpufm6kieKqCeEuyI6qQCNaythcpjUm
-         kPsA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=LQra+OzF4k64KbPTjvj5MK+1o4iBbOUYG7MJ3KGBIng=;
-        b=XRD7JoJksQwSmTq1FMctWcWypORsgtyLEixa6Pf5zMtPyEwbQXDqD+7UlcWxg55BBE
-         aeyKuSA+dcWlpoyyzKZl9RnvCJIJKaOd3kz3qrhWAA1L1e2VtTmI5c7ISvdd7BmvZ4ly
-         7psyHKi3V2zs3wQFcU7Gt2hq5HwmPXyO182Ku7Bljv0mjaf4EOEtJd8CZdesFcvLBgX3
-         00+yPWF+CaoqwT1Y9o4DdYo2NyPuOU/ozwFVXpn+mzRQIpeGygZrWEDFaIncBLJHwG4t
-         5E+t9620ZvWAK9yCcITTPbf1NNVfmzBhDUvMNvdBCP4m6cHTqLQ0Dor02aDo7f/t8RL8
-         eJEw==
-X-Gm-Message-State: AOAM5300magc81+Tg7TaBng/ZleObPrxqSv7SQ6V66wJnMaZpWfh4zOM
-        ur1QX9Zof3mGH4H7kDyS5oPXoqMFA7Smlw==
-X-Google-Smtp-Source: ABdhPJyx9wsqKh6O9dhjCdxNPx9KSxzLVEs3plgQJNQuoeCbTZKjMBzMKcg+htI4hlPgIZ6zTdUF4w==
-X-Received: by 2002:a17:90a:b63:: with SMTP id 90mr3427483pjq.47.1593982632802;
-        Sun, 05 Jul 2020 13:57:12 -0700 (PDT)
-Received: from [192.168.1.182] ([66.219.217.173])
-        by smtp.gmail.com with ESMTPSA id k7sm17512907pgh.46.2020.07.05.13.57.11
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 05 Jul 2020 13:57:12 -0700 (PDT)
-Subject: Re: Patch "io_uring: use signal based task_work running" has been
- added to the 5.7-stable tree
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     stable@vger.kernel.org
-References: <20200705134847.6A6AF20747@mail.kernel.org>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <3aa74884-9e39-b018-05b0-ab2575c0681a@kernel.dk>
-Date:   Sun, 5 Jul 2020 14:57:11 -0600
+        id S1728818AbgGFGDA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jul 2020 02:03:00 -0400
+Received: from fllv0015.ext.ti.com ([198.47.19.141]:40476 "EHLO
+        fllv0015.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728794AbgGFGDA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jul 2020 02:03:00 -0400
+Received: from lelv0266.itg.ti.com ([10.180.67.225])
+        by fllv0015.ext.ti.com (8.15.2/8.15.2) with ESMTP id 06662lNM055242;
+        Mon, 6 Jul 2020 01:02:47 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+        s=ti-com-17Q1; t=1594015367;
+        bh=KjZlw1a/nmq4Ty3eASb8JP7sn5EXruzwzsBkpSaPwlA=;
+        h=Subject:To:CC:References:From:Date:In-Reply-To;
+        b=lzkYPfA2BlXCMLdKkajDaZaQOHaW1L4TEMzcjeFuh5jLE+LVVJAKtfRRzx5JBobFJ
+         hQDznclQillFZwhtKJQt8F6UW1/890lKHLRCgPjc//GVKs5UX0vvu7MUzG+plS8HAK
+         g363haOP5I08lS4FEaxB7Yxx1WWaqI8pLmSjmpXw=
+Received: from DLEE112.ent.ti.com (dlee112.ent.ti.com [157.170.170.23])
+        by lelv0266.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 06662lV9094314
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Mon, 6 Jul 2020 01:02:47 -0500
+Received: from DLEE102.ent.ti.com (157.170.170.32) by DLEE112.ent.ti.com
+ (157.170.170.23) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1979.3; Mon, 6 Jul
+ 2020 01:02:47 -0500
+Received: from lelv0326.itg.ti.com (10.180.67.84) by DLEE102.ent.ti.com
+ (157.170.170.32) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1979.3 via
+ Frontend Transport; Mon, 6 Jul 2020 01:02:47 -0500
+Received: from [10.250.217.39] (ileax41-snat.itg.ti.com [10.172.224.153])
+        by lelv0326.itg.ti.com (8.15.2/8.15.2) with ESMTP id 06662i1W034768;
+        Mon, 6 Jul 2020 01:02:45 -0500
+Subject: Re: [PATCH] omapfb: dss: Fix max fclk divider for omap36xx
+To:     Sam Ravnborg <sam@ravnborg.org>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+CC:     Adam Ford <aford173@gmail.com>, <linux-fbdev@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <dri-devel@lists.freedesktop.org>,
+        <stable@vger.kernel.org>, <linux-omap@vger.kernel.org>
+References: <20200630182636.439015-1-aford173@gmail.com>
+ <b9052a12-af5a-c1b9-5b86-907eac470cf8@ti.com>
+ <20200703193648.GA373653@ravnborg.org>
+From:   Tomi Valkeinen <tomi.valkeinen@ti.com>
+Message-ID: <bda1606f-b12c-3356-15ce-489fc2441737@ti.com>
+Date:   Mon, 6 Jul 2020 09:02:44 +0300
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.8.0
 MIME-Version: 1.0
-In-Reply-To: <20200705134847.6A6AF20747@mail.kernel.org>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20200703193648.GA373653@ravnborg.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/5/20 7:48 AM, Sasha Levin wrote:
-> This is a note to let you know that I've just added the patch titled
-> 
->     io_uring: use signal based task_work running
-> 
-> to the 5.7-stable tree which can be found at:
->     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
-> 
-> The filename of the patch is:
->      io_uring-use-signal-based-task_work-running.patch
-> and it can be found in the queue-5.7 subdirectory.
-> 
-> If you, or anyone else, feels it should not be added to the stable tree,
-> please let <stable@vger.kernel.org> know about it.
+Hi,
 
-Thanks for queueing this up, can you also add the fix for it? It's in
-Linus's tree:
+On 03/07/2020 22:36, Sam Ravnborg wrote:
+> Hi Tomi.
+> 
+> On Fri, Jul 03, 2020 at 10:17:29AM +0300, Tomi Valkeinen wrote:
+>> On 30/06/2020 21:26, Adam Ford wrote:
+>>> The drm/omap driver was fixed to correct an issue where using a
+>>> divider of 32 breaks the DSS despite the TRM stating 32 is a valid
+>>> number.  Through experimentation, it appears that 31 works, and
+>>> it is consistent with the value used by the drm/omap driver.
+>>>
+>>> This patch fixes the divider for fbdev driver instead of the drm.
+>>>
+>>> Fixes: f76ee892a99e ("omapfb: copy omapdss & displays for omapfb")
+>>>
+>>> Cc: <stable@vger.kernel.org> #4.9+
+>>> Signed-off-by: Adam Ford <aford173@gmail.com>
+>>> ---
+>>> Linux 4.4 will need a similar patch, but it doesn't apply cleanly.
+>>>
+>>> The DRM version of this same fix is:
+>>> e2c4ed148cf3 ("drm/omap: fix max fclk divider for omap36xx")
+>>>
+>>>
+>>> diff --git a/drivers/video/fbdev/omap2/omapfb/dss/dss.c b/drivers/video/fbdev/omap2/omapfb/dss/dss.c
+>>> index 7252d22dd117..bfc5c4c5a26a 100644
+>>> --- a/drivers/video/fbdev/omap2/omapfb/dss/dss.c
+>>> +++ b/drivers/video/fbdev/omap2/omapfb/dss/dss.c
+>>> @@ -833,7 +833,7 @@ static const struct dss_features omap34xx_dss_feats = {
+>>>    };
+>>>    static const struct dss_features omap3630_dss_feats = {
+>>> -	.fck_div_max		=	32,
+>>> +	.fck_div_max		=	31,
+>>>    	.dss_fck_multiplier	=	1,
+>>>    	.parent_clk_name	=	"dpll4_ck",
+>>>    	.dpi_select_source	=	&dss_dpi_select_source_omap2_omap3,
+>>>
+>>
+>> Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+> Will you apply to drm-misc?
 
-commit b7db41c9e03b5189bc94993bd50e4506ac9e34c1 (tag: io_uring-5.8-2020-07-05, origin/io_uring-5.8, io_uring-5.8)
-Author: Jens Axboe <axboe@kernel.dk>
-Date:   Sat Jul 4 08:55:50 2020 -0600
+This is for fbdev, so I presume Bartlomiej will pick this one.
 
-    io_uring: fix regression with always ignoring signals in io_cqring_wait()
+> Note  following output from "dim fixes":
+> $ dim fixes f76ee892a99e
+> Fixes: f76ee892a99e ("omapfb: copy omapdss & displays for omapfb")
+> Cc: Tomi Valkeinen <tomi.valkeinen@ti.com>
+> Cc: Dave Airlie <airlied@gmail.com>
+> Cc: Rob Clark <robdclark@gmail.com>
+> Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+> Cc: Sam Ravnborg <sam@ravnborg.org>
+> Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+> Cc: Jason Yan <yanaijie@huawei.com>
+> Cc: "Andrew F. Davis" <afd@ti.com>
+> Cc: YueHaibing <yuehaibing@huawei.com>
+> Cc: <stable@vger.kernel.org> # v4.5+
+> 
+> Here it says the fix is valid from v4.5 onwards.
 
-Thanks!
+Hmm... Adam, you marked the fix to apply to v4.9+, and then you said 
+v4.4 needs a new patch (that's before the big copy/rename). Did you 
+check the versions between 4.4 and 4.9? I would guess this one applies 
+to v4.5+.
+
+  Tomi
 
 -- 
-Jens Axboe
-
+Texas Instruments Finland Oy, Porkkalankatu 22, 00180 Helsinki.
+Y-tunnus/Business ID: 0615521-4. Kotipaikka/Domicile: Helsinki
