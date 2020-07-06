@@ -2,114 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60241216287
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 01:50:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1C90216288
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 01:50:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726729AbgGFXuN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jul 2020 19:50:13 -0400
-Received: from crapouillou.net ([89.234.176.41]:53578 "EHLO crapouillou.net"
+        id S1726799AbgGFXuZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jul 2020 19:50:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726280AbgGFXuN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 Jul 2020 19:50:13 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
-        s=mail; t=1594079410; h=from:from:sender:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=NboD0HuCCOCTz3ZvzoSX9hS0Fzn/G2ArNDsjnk2M+qY=;
-        b=gEAErzWQGyz4moVpKPHo4splZgegEadql6JwC2qaisrd0+qP+TPB2uI3F+nrFS7tqOgfAR
-        MtIT8xWuXZn+f7qSfOMDFerYQy0QG8yZv9gR8Pf+u1KyyrmsfVEQS6PQh+vQvoioabP88Q
-        RNGME1GfxlfaYnyFzs/iaQfnFYjzESg=
-Date:   Tue, 07 Jul 2020 01:49:59 +0200
-From:   Paul Cercueil <paul@crapouillou.net>
-Subject: Re: [PATCH] drm/dbi: Fix SPI Type 1 (9-bit) transfer
-To:     Noralf =?iso-8859-1?q?Tr=F8nnes?= <noralf@tronnes.org>
-Cc:     Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        dri-devel@lists.freedesktop.org, Sam Ravnborg <sam@ravnborg.org>,
-        stable@vger.kernel.org
-Message-Id: <BJN2DQ.10EODF78DAWA@crapouillou.net>
-In-Reply-To: <0dda6b3f-ea8c-6a7e-5c7c-f26874b825c8@tronnes.org>
-References: <20200703141341.1266263-1-paul@crapouillou.net>
-        <0dda6b3f-ea8c-6a7e-5c7c-f26874b825c8@tronnes.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: quoted-printable
+        id S1726280AbgGFXuZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 Jul 2020 19:50:25 -0400
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB6F220672;
+        Mon,  6 Jul 2020 23:50:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1594079423;
+        bh=35tFHxUMsPBj1njpE1TzvKWJoVywGxAPuxa0fX8yVzI=;
+        h=Date:From:To:Subject:In-Reply-To:From;
+        b=n+H0O/vki869e6gRCXEY5UCbkH6+52TAXg5Llx7D5EjHb1Trne9HIKVYUSrh5ljdJ
+         whHCMPY/B+JOqLdwmaql6pdMFp29XEhgQoePrwayEEZf+9NDaamY2TRfuV4E0ou8lg
+         b+D9tJk0ErCahOpYArhjiobMEt/akRANZoiDQ3s8=
+Date:   Mon, 06 Jul 2020 16:50:22 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     adilger@dilger.ca, cgxu519@mykernel.net, chris@chrisdown.name,
+        dxu@dxuuu.xyz, gregkh@linuxfoundation.org, hughd@google.com,
+        mm-commits@vger.kernel.org, stable@vger.kernel.org, tj@kernel.org,
+        viro@zeniv.linux.org.uk
+Subject:  +
+ vfs-xattr-mm-shmem-kernfs-release-simple-xattr-entry-in-a-right-way.patch
+ added to -mm tree
+Message-ID: <20200706235022.Xujoc1zol%akpm@linux-foundation.org>
+In-Reply-To: <20200703151445.b6a0cfee402c7c5c4651f1b1@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Noralf,
 
-Le dim. 5 juil. 2020 =E0 17:58, Noralf Tr=F8nnes <noralf@tronnes.org> a=20
-=E9crit :
->=20
->=20
-> Den 03.07.2020 16.13, skrev Paul Cercueil:
->>  The function mipi_dbi_spi1_transfer() will transfer its payload as=20
->> 9-bit
->>  data, the 9th (MSB) bit being the data/command bit. In order to do=20
->> that,
->>  it unpacks the 8-bit values into 16-bit values, then sets the 9th=20
->> bit if
->>  the byte corresponds to data, clears it otherwise. The 7 MSB are
->>  padding. The array of now 16-bit values is then passed to the SPI=20
->> core
->>  for transfer.
->>=20
->>  This function was broken since its introduction, as the length of=20
->> the
->>  SPI transfer was set to the payload size before its conversion, but=20
->> the
->>  payload doubled in size due to the 8-bit -> 16-bit conversion.
->>=20
->>  Fixes: 02dd95fe3169 ("drm/tinydrm: Add MIPI DBI support")
->>  Cc: <stable@vger.kernel.org> # 4.10
->=20
-> The code was moved to drm_mipi_dbi.c in 5.4 so this patch won't apply
-> before that.
+The patch titled
+     Subject: vfs/xattr: mm/shmem: kernfs: release simple xattr entry in a right way
+has been added to the -mm tree.  Its filename is
+     vfs-xattr-mm-shmem-kernfs-release-simple-xattr-entry-in-a-right-way.patch
 
-I believe I can submit a patch for pre-5.4 too.
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/vfs-xattr-mm-shmem-kernfs-release-simple-xattr-entry-in-a-right-way.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/vfs-xattr-mm-shmem-kernfs-release-simple-xattr-entry-in-a-right-way.patch
 
->>  Signed-off-by: Paul Cercueil <paul@crapouillou.net>
->>  ---
->=20
-> Thanks for fixing this, clearly I didn't test this. Probably because=20
-> the
-> aux spi ip block on the Raspberry Pi that can do 9 bit didn't have a
-> driver at the time. Did you actually test this or was it spotted=20
-> reading
-> the code?
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-I did test it on hardware, yes - that's how I spotted the bug.
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
--Paul
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
-> Reviewed-by: Noralf Tr=F8nnes <noralf@tronnes.org>
->=20
->>   drivers/gpu/drm/drm_mipi_dbi.c | 2 +-
->>   1 file changed, 1 insertion(+), 1 deletion(-)
->>=20
->>  diff --git a/drivers/gpu/drm/drm_mipi_dbi.c=20
->> b/drivers/gpu/drm/drm_mipi_dbi.c
->>  index bb27c82757f1..bf7888ad9ad4 100644
->>  --- a/drivers/gpu/drm/drm_mipi_dbi.c
->>  +++ b/drivers/gpu/drm/drm_mipi_dbi.c
->>  @@ -923,7 +923,7 @@ static int mipi_dbi_spi1_transfer(struct=20
->> mipi_dbi *dbi, int dc,
->>   			}
->>   		}
->>=20
->>  -		tr.len =3D chunk;
->>  +		tr.len =3D chunk * 2;
->>   		len -=3D chunk;
->>=20
->>   		ret =3D spi_sync(spi, &m);
->>=20
+------------------------------------------------------
+From: Chengguang Xu <cgxu519@mykernel.net>
+Subject: vfs/xattr: mm/shmem: kernfs: release simple xattr entry in a right way
 
+After commit fdc85222d58e ("kernfs: kvmalloc xattr value instead of
+kmalloc"), simple xattr entry is allocated with kvmalloc() instead of
+kmalloc(), so we should release it with kvfree() instead of kfree().
+
+Link: http://lkml.kernel.org/r/20200704051608.15043-1-cgxu519@mykernel.net
+Fixes: fdc85222d58e ("kernfs: kvmalloc xattr value instead of kmalloc")
+Signed-off-by: Chengguang Xu <cgxu519@mykernel.net>
+Acked-by: Hugh Dickins <hughd@google.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Cc: Daniel Xu <dxu@dxuuu.xyz>
+Cc: Chris Down <chris@chrisdown.name>
+Cc: Andreas Dilger <adilger@dilger.ca>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: <stable@vger.kernel.org>	[5.7]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ include/linux/xattr.h |    3 ++-
+ mm/shmem.c            |    2 +-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
+
+--- a/include/linux/xattr.h~vfs-xattr-mm-shmem-kernfs-release-simple-xattr-entry-in-a-right-way
++++ a/include/linux/xattr.h
+@@ -15,6 +15,7 @@
+ #include <linux/slab.h>
+ #include <linux/types.h>
+ #include <linux/spinlock.h>
++#include <linux/mm.h>
+ #include <uapi/linux/xattr.h>
+ 
+ struct inode;
+@@ -94,7 +95,7 @@ static inline void simple_xattrs_free(st
+ 
+ 	list_for_each_entry_safe(xattr, node, &xattrs->head, list) {
+ 		kfree(xattr->name);
+-		kfree(xattr);
++		kvfree(xattr);
+ 	}
+ }
+ 
+--- a/mm/shmem.c~vfs-xattr-mm-shmem-kernfs-release-simple-xattr-entry-in-a-right-way
++++ a/mm/shmem.c
+@@ -3178,7 +3178,7 @@ static int shmem_initxattrs(struct inode
+ 		new_xattr->name = kmalloc(XATTR_SECURITY_PREFIX_LEN + len,
+ 					  GFP_KERNEL);
+ 		if (!new_xattr->name) {
+-			kfree(new_xattr);
++			kvfree(new_xattr);
+ 			return -ENOMEM;
+ 		}
+ 
+_
+
+Patches currently in -mm which might be from cgxu519@mykernel.net are
+
+vfs-xattr-mm-shmem-kernfs-release-simple-xattr-entry-in-a-right-way.patch
+mm-shmem-fix-freeing-new_attr-in-shmem_initxattrs.patch
 
