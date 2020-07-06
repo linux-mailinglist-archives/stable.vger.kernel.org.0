@@ -2,149 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 81C15215C3A
-	for <lists+stable@lfdr.de>; Mon,  6 Jul 2020 18:51:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 586D0215C57
+	for <lists+stable@lfdr.de>; Mon,  6 Jul 2020 18:55:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729509AbgGFQv3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jul 2020 12:51:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49788 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729494AbgGFQv3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jul 2020 12:51:29 -0400
-Received: from mail-il1-x142.google.com (mail-il1-x142.google.com [IPv6:2607:f8b0:4864:20::142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B886C061755
-        for <stable@vger.kernel.org>; Mon,  6 Jul 2020 09:51:29 -0700 (PDT)
-Received: by mail-il1-x142.google.com with SMTP id a6so16755865ilq.13
-        for <stable@vger.kernel.org>; Mon, 06 Jul 2020 09:51:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=29F319nrIBHttIGsOBAGjLt8RaL0BtnN8/ZcPROrQ7A=;
-        b=V54sf6h9s05XfF0LDKXng1pvcYb6G1z+/kaSG0Db6wsabFWdPTmokCcTcT0feftGrJ
-         mkWDC3SzTdE9hSn8fSwyrcpaDCxHSNDS4IujLka9y79z3m39mKU10TFybt6ezHDXZD25
-         FlxmV3HEAVh0rIv5PYVo3m3N4QNrY5Omm3/hDVI/7gZ/GfLi2dCfm8zwAgARtNXpbcQD
-         A9rxtBQWuDX7Tg4vkJDdrU5w19xT4RvhGygoK5z1HUTbz+NbfYes6Qx4XHnbpvobMSN1
-         7GWOvAZpa5WDUI1AK20c+s0f0+ezjsTORqWZ2+k57S/dKW+GXewtONAyUk+Us01SBTeN
-         xKoQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=29F319nrIBHttIGsOBAGjLt8RaL0BtnN8/ZcPROrQ7A=;
-        b=nbT9rfcbBd8fbjPNN/ddv2iIX7bWIl1EOvCoAO7t2sxmnQsa02XKSjZ+pFezS/3u0U
-         S6r0kMs6X8OuR6HnMPrXksUN7oAKSJ7TKbyTE/dpRZ8eZo/Wnz0Fvn7yWT4NkKaZzj7i
-         KmR1HXwCYqLkckPhy/ggylZgIFHJhaTlodMAhe9+ZTew9MqAzhPxXrrMTOd5kvOsDWG7
-         0SIA21ciO0Q+ffdt9FZI85uybL+L9uznOxvCHc7+6JiXLHBToi/IQLSHN+KenxJpwZo4
-         elRlrEAYqRwPIuyPoT3Mj2E5jxtQ+v+rVHwXf7toMi/1FgHIPyujJtP/Yp7GEUX9pCsg
-         xyiQ==
-X-Gm-Message-State: AOAM532mBuLuOc8MoilGWkIZds7hE5/mqxVdKcPW6yIU2pK9g/2FRtxi
-        8qrsfne0ZweUvoOuJLLidAZ00VP+Un6lJ0d77MkF3Q==
-X-Google-Smtp-Source: ABdhPJxIzmUWrDyxO5bXmP/f7wDlvof2nYE+fSuYzsvlGhQh2zKbffa5E4RZxH5geb32WbV3b15DyAEXTQXbAHvsHAI=
-X-Received: by 2002:a92:a197:: with SMTP id b23mr30126457ill.58.1594054288334;
- Mon, 06 Jul 2020 09:51:28 -0700 (PDT)
+        id S1729550AbgGFQz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jul 2020 12:55:57 -0400
+Received: from foss.arm.com ([217.140.110.172]:56062 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729495AbgGFQz5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 Jul 2020 12:55:57 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 6AAC41FB;
+        Mon,  6 Jul 2020 09:55:56 -0700 (PDT)
+Received: from C02TD0UTHF1T.local (unknown [10.57.13.106])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 2529F3F68F;
+        Mon,  6 Jul 2020 09:55:53 -0700 (PDT)
+Date:   Mon, 6 Jul 2020 17:55:44 +0100
+From:   Mark Rutland <mark.rutland@arm.com>
+To:     Marc Zyngier <maz@kernel.org>
+Cc:     Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        kernel-team@android.com, stable@vger.kernel.org
+Subject: Re: [PATCH v2 2/4] arm64: arch_timer: Allow an workaround descriptor
+ to disable compat vdso
+Message-ID: <20200706165534.GA61340@C02TD0UTHF1T.local>
+References: <20200706163802.1836732-1-maz@kernel.org>
+ <20200706163802.1836732-3-maz@kernel.org>
 MIME-Version: 1.0
-References: <20200701231701.91029-1-suzuki.poulose@arm.com>
-In-Reply-To: <20200701231701.91029-1-suzuki.poulose@arm.com>
-From:   Mathieu Poirier <mathieu.poirier@linaro.org>
-Date:   Mon, 6 Jul 2020 10:51:17 -0600
-Message-ID: <CANLsYkzSRkYD+f22V02yEA3R-MYGmjveKDkFAgAnDzgDhfbEkQ@mail.gmail.com>
-Subject: Re: [PATCH] coresight: etm4x: Fix save/restore during cpu idle
-To:     Suzuki K Poulose <suzuki.poulose@arm.com>
-Cc:     linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        "# 4 . 7" <stable@vger.kernel.org>,
-        Coresight ML <coresight@lists.linaro.org>,
-        Mike Leach <mike.leach@linaro.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200706163802.1836732-3-maz@kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 1 Jul 2020 at 17:17, Suzuki K Poulose <suzuki.poulose@arm.com> wrote:
->
-> The ETM state save/restore incorrectly reads/writes some of the 64bit
-> registers (e.g, address comparators, vmid/cid comparators etc.) using
-> 32bit accesses. Ensure we use the appropriate width accessors for
-> the registers.
->
-> Fixes: f188b5e76aae ("coresight: etm4x: Save/restore state across CPU low power states")
-> Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-> Cc: Mike Leach <mike.leach@linaro.org>
-> Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+On Mon, Jul 06, 2020 at 05:38:00PM +0100, Marc Zyngier wrote:
+> As we are about to disable the vdso for compat tasks in some circumstances,
+> let's allow a workaround descriptor to express exactly that.
+> 
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Marc Zyngier <maz@kernel.org>
+
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+
+Mark.
+
 > ---
->  drivers/hwtracing/coresight/coresight-etm4x.c | 16 ++++++++--------
->  drivers/hwtracing/coresight/coresight-etm4x.h |  2 +-
->  2 files changed, 9 insertions(+), 9 deletions(-)
-
-Applied - thanks.
-Mathieu
-
->
-> diff --git a/drivers/hwtracing/coresight/coresight-etm4x.c b/drivers/hwtracing/coresight/coresight-etm4x.c
-> index 82fc2fab072a..be990457a8ea 100644
-> --- a/drivers/hwtracing/coresight/coresight-etm4x.c
-> +++ b/drivers/hwtracing/coresight/coresight-etm4x.c
-> @@ -1206,8 +1206,8 @@ static int etm4_cpu_save(struct etmv4_drvdata *drvdata)
->         }
->
->         for (i = 0; i < drvdata->nr_addr_cmp * 2; i++) {
-> -               state->trcacvr[i] = readl(drvdata->base + TRCACVRn(i));
-> -               state->trcacatr[i] = readl(drvdata->base + TRCACATRn(i));
-> +               state->trcacvr[i] = readq(drvdata->base + TRCACVRn(i));
-> +               state->trcacatr[i] = readq(drvdata->base + TRCACATRn(i));
->         }
->
->         /*
-> @@ -1218,10 +1218,10 @@ static int etm4_cpu_save(struct etmv4_drvdata *drvdata)
->          */
->
->         for (i = 0; i < drvdata->numcidc; i++)
-> -               state->trccidcvr[i] = readl(drvdata->base + TRCCIDCVRn(i));
-> +               state->trccidcvr[i] = readq(drvdata->base + TRCCIDCVRn(i));
->
->         for (i = 0; i < drvdata->numvmidc; i++)
-> -               state->trcvmidcvr[i] = readl(drvdata->base + TRCVMIDCVRn(i));
-> +               state->trcvmidcvr[i] = readq(drvdata->base + TRCVMIDCVRn(i));
->
->         state->trccidcctlr0 = readl(drvdata->base + TRCCIDCCTLR0);
->         state->trccidcctlr1 = readl(drvdata->base + TRCCIDCCTLR1);
-> @@ -1319,18 +1319,18 @@ static void etm4_cpu_restore(struct etmv4_drvdata *drvdata)
->         }
->
->         for (i = 0; i < drvdata->nr_addr_cmp * 2; i++) {
-> -               writel_relaxed(state->trcacvr[i],
-> +               writeq_relaxed(state->trcacvr[i],
->                                drvdata->base + TRCACVRn(i));
-> -               writel_relaxed(state->trcacatr[i],
-> +               writeq_relaxed(state->trcacatr[i],
->                                drvdata->base + TRCACATRn(i));
->         }
->
->         for (i = 0; i < drvdata->numcidc; i++)
-> -               writel_relaxed(state->trccidcvr[i],
-> +               writeq_relaxed(state->trccidcvr[i],
->                                drvdata->base + TRCCIDCVRn(i));
->
->         for (i = 0; i < drvdata->numvmidc; i++)
-> -               writel_relaxed(state->trcvmidcvr[i],
-> +               writeq_relaxed(state->trcvmidcvr[i],
->                                drvdata->base + TRCVMIDCVRn(i));
->
->         writel_relaxed(state->trccidcctlr0, drvdata->base + TRCCIDCCTLR0);
-> diff --git a/drivers/hwtracing/coresight/coresight-etm4x.h b/drivers/hwtracing/coresight/coresight-etm4x.h
-> index 7da022e87218..b8283e1d6d88 100644
-> --- a/drivers/hwtracing/coresight/coresight-etm4x.h
-> +++ b/drivers/hwtracing/coresight/coresight-etm4x.h
-> @@ -334,7 +334,7 @@ struct etmv4_save_state {
->         u64     trcacvr[ETM_MAX_SINGLE_ADDR_CMP];
->         u64     trcacatr[ETM_MAX_SINGLE_ADDR_CMP];
->         u64     trccidcvr[ETMv4_MAX_CTXID_CMP];
-> -       u32     trcvmidcvr[ETM_MAX_VMID_CMP];
-> +       u64     trcvmidcvr[ETM_MAX_VMID_CMP];
->         u32     trccidcctlr0;
->         u32     trccidcctlr1;
->         u32     trcvmidcctlr0;
-> --
-> 2.24.1
->
+>  arch/arm64/include/asm/arch_timer.h  | 1 +
+>  drivers/clocksource/arm_arch_timer.c | 3 +++
+>  2 files changed, 4 insertions(+)
+> 
+> diff --git a/arch/arm64/include/asm/arch_timer.h b/arch/arm64/include/asm/arch_timer.h
+> index 7ae54d7d333a..9f0ec21d6327 100644
+> --- a/arch/arm64/include/asm/arch_timer.h
+> +++ b/arch/arm64/include/asm/arch_timer.h
+> @@ -58,6 +58,7 @@ struct arch_timer_erratum_workaround {
+>  	u64 (*read_cntvct_el0)(void);
+>  	int (*set_next_event_phys)(unsigned long, struct clock_event_device *);
+>  	int (*set_next_event_virt)(unsigned long, struct clock_event_device *);
+> +	bool disable_compat_vdso;
+>  };
+>  
+>  DECLARE_PER_CPU(const struct arch_timer_erratum_workaround *,
+> diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
+> index ecf7b7db2d05..a8e4fb429f52 100644
+> --- a/drivers/clocksource/arm_arch_timer.c
+> +++ b/drivers/clocksource/arm_arch_timer.c
+> @@ -566,6 +566,9 @@ void arch_timer_enable_workaround(const struct arch_timer_erratum_workaround *wa
+>  	if (wa->read_cntvct_el0) {
+>  		clocksource_counter.vdso_clock_mode = VDSO_CLOCKMODE_NONE;
+>  		vdso_default = VDSO_CLOCKMODE_NONE;
+> +	} else if (wa->disable_compat_vdso && vdso_default != VDSO_CLOCKMODE_NONE) {
+> +		vdso_default = VDSO_CLOCKMODE_ARCHTIMER_NOCOMPAT;
+> +		clocksource_counter.vdso_clock_mode = vdso_default;
+>  	}
+>  }
+>  
+> -- 
+> 2.27.0
+> 
