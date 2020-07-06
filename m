@@ -2,143 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B91A521608A
-	for <lists+stable@lfdr.de>; Mon,  6 Jul 2020 22:50:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5923A2161C2
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 01:01:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726924AbgGFUto (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jul 2020 16:49:44 -0400
-Received: from mail.efficios.com ([167.114.26.124]:56976 "EHLO
-        mail.efficios.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725860AbgGFUto (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jul 2020 16:49:44 -0400
-Received: from localhost (localhost [127.0.0.1])
-        by mail.efficios.com (Postfix) with ESMTP id D62442DC9D7;
-        Mon,  6 Jul 2020 16:49:42 -0400 (EDT)
-Received: from mail.efficios.com ([127.0.0.1])
-        by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id N1qno2Dkpjte; Mon,  6 Jul 2020 16:49:42 -0400 (EDT)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.efficios.com (Postfix) with ESMTP id 683412DCE21;
-        Mon,  6 Jul 2020 16:49:42 -0400 (EDT)
-DKIM-Filter: OpenDKIM Filter v2.10.3 mail.efficios.com 683412DCE21
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=efficios.com;
-        s=default; t=1594068582;
-        bh=60oamRalyK4rKdeEnnnf7iJkqPhAmdQusJlFI420q5k=;
-        h=From:To:Date:Message-Id;
-        b=H42dMuI5Nu/42J0bhGwrdNKkl/BwhzMsRr7OMCof2YOn/ozdaaEj8d8zub60PFxxy
-         rejoJYMu3dy+5MUMT7l9AqtpLdv/36KYGIR5RSUnV0FIJCu1GXbq/H9iSWw5Khigpk
-         sfCbjmRYMyuaI845IwKEXcTbhWevMkj0i26TcDhTLgr4HTe4g41cxcqVgRFGh1jXL2
-         9ka6ugCXOgLXblzQ0rsar4RxAKkKjqJU7Frchk2t1e6HCJtx66sDg4zEMOyQZpS1Zs
-         BWVe6FUw22uqU/PHV9Jn8NjePdFQGljsuN8Bg6iYjm8Uo9eWwov7g4rnzq4M7A6J9s
-         VePDhtDoIDrpg==
-X-Virus-Scanned: amavisd-new at efficios.com
-Received: from mail.efficios.com ([127.0.0.1])
-        by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id EBR4AzEQUwCz; Mon,  6 Jul 2020 16:49:42 -0400 (EDT)
-Received: from localhost.localdomain (192-222-181-218.qc.cable.ebox.net [192.222.181.218])
-        by mail.efficios.com (Postfix) with ESMTPSA id 1C5D52DCDA4;
-        Mon,  6 Jul 2020 16:49:41 -0400 (EDT)
-From:   Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-To:     Thomas Gleixner <tglx@linutronix.de>
-Cc:     linux-kernel@vger.kernel.org,
-        Peter Zijlstra <peterz@infradead.org>,
-        "Paul E . McKenney" <paulmck@linux.ibm.com>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        "H . Peter Anvin" <hpa@zytor.com>, Paul Turner <pjt@google.com>,
-        linux-api@vger.kernel.org, Florian Weimer <fw@deneb.enyo.de>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Neel Natu <neelnatu@google.com>, stable@vger.kernel.org
-Subject: [RFC PATCH for 5.8 1/4] sched: Fix unreliable rseq cpu_id for new tasks
-Date:   Mon,  6 Jul 2020 16:49:10 -0400
-Message-Id: <20200706204913.20347-2-mathieu.desnoyers@efficios.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200706204913.20347-1-mathieu.desnoyers@efficios.com>
-References: <20200706204913.20347-1-mathieu.desnoyers@efficios.com>
+        id S1726540AbgGFXBZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jul 2020 19:01:25 -0400
+Received: from mga17.intel.com ([192.55.52.151]:53616 "EHLO mga17.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725942AbgGFXBZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 Jul 2020 19:01:25 -0400
+IronPort-SDR: NVYg6qBEjCMl/9AnksD1WTDgWxGdYj2ogD+sWTgQhKZmYvAH4IVdr1fqZRZ9OzYJbQQ4IvOv5A
+ /WNRTjh8DBSw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9674"; a="127600056"
+X-IronPort-AV: E=Sophos;i="5.75,321,1589266800"; 
+   d="scan'208";a="127600056"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jul 2020 16:01:24 -0700
+IronPort-SDR: Ca1lz0TL9DHZXw722DiMo0c1ceiUVKLD/0Jer/zbaAVMGxWB4YsJ2l9NU9t+liKZtHykPUZr6r
+ GyQteUtUapWA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.75,321,1589266800"; 
+   d="scan'208";a="283192674"
+Received: from hartmaxe-mobl1.ger.corp.intel.com (HELO localhost) ([10.252.53.13])
+  by orsmga006.jf.intel.com with ESMTP; 06 Jul 2020 16:01:18 -0700
+Date:   Tue, 7 Jul 2020 02:01:16 +0300
+From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+To:     Stefan Berger <stefanb@linux.ibm.com>
+Cc:     linux-integrity@vger.kernel.org, stable@vger.kernel.org,
+        Peter Huewe <peterhuewe@gmx.de>,
+        Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sumit Garg <sumit.garg@linaro.org>,
+        Alexey Klimov <aklimov@redhat.com>,
+        James Bottomley <James.Bottomley@hansenpartnership.com>,
+        open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] tpm: Define TPM2_SPACE_BUFFER_SIZE to replace the use of
+ PAGE_SIZE
+Message-ID: <20200706230104.GA20770@linux.intel.com>
+References: <20200702225603.293122-1-jarkko.sakkinen@linux.intel.com>
+ <20200702235544.4o7dbgvlq3br2x7e@cantor>
+ <20200704035615.GA157149@linux.intel.com>
+ <4f93bca3-e5c2-1074-f273-628ed603c139@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4f93bca3-e5c2-1074-f273-628ed603c139@linux.ibm.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-While integrating rseq into glibc and replacing glibc's sched_getcpu
-implementation with rseq, glibc's tests discovered an issue with
-incorrect __rseq_abi.cpu_id field value right after the first time
-a newly created process issues sched_setaffinity.
+On Mon, Jul 06, 2020 at 02:06:09PM -0400, Stefan Berger wrote:
+> On 7/3/20 11:56 PM, Jarkko Sakkinen wrote:
+> > On Thu, Jul 02, 2020 at 04:55:44PM -0700, Jerry Snitselaar wrote:
+> > > On Fri Jul 03 20, Jarkko Sakkinen wrote:
+> > > > The size of the buffers for storing context's and sessions can vary from
+> > > > arch to arch as PAGE_SIZE can be anything between 4 kB and 256 kB (the
+> > > > maximum for PPC64). Define a fixed buffer size set to 16 kB. This should be
+> > > > enough for most use with three handles (that is how many we allow at the
+> > > > moment). Parametrize the buffer size while doing this, so that it is easier
+> > > > to revisit this later on if required.
+> > > > 
+> > > > Reported-by: Stefan Berger <stefanb@linux.ibm.com>
+> > > > Cc: stable@vger.kernel.org
+> > > > Fixes: 745b361e989a ("tpm: infrastructure for TPM spaces")
+> > > > Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+> > > Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
+> > Thank you.
+> > 
+> > Now only needs tested-by from Stefan.
+> 
+> 
+> Tested-by: Stefan Berger <stefanb@linux.ibm.com>
 
-For the records, it triggers after building glibc and running tests, and
-then issuing:
+Thanks. I'll put this eventually to the v5.9 PR.
 
-  for x in {1..2000} ; do posix/tst-affinity-static  & done
-
-and shows up as:
-
-error: Unexpected CPU 2, expected 0
-error: Unexpected CPU 2, expected 0
-error: Unexpected CPU 2, expected 0
-error: Unexpected CPU 2, expected 0
-error: Unexpected CPU 138, expected 0
-error: Unexpected CPU 138, expected 0
-error: Unexpected CPU 138, expected 0
-error: Unexpected CPU 138, expected 0
-
-This is caused by the scheduler invoking __set_task_cpu() directly from
-sched_fork() and wake_up_new_task(), thus bypassing rseq_migrate() which
-is done by set_task_cpu().
-
-Add the missing rseq_migrate() to both functions. The only other direct
-use of __set_task_cpu() is done by init_idle(), which does not involve a
-user-space task.
-
-Based on my testing with the glibc test-case, just adding rseq_migrate()
-to wake_up_new_task() is sufficient to fix the observed issue. Also add
-it to sched_fork() to keep things consistent.
-
-The reason why this never triggered so far with the rseq/basic_test
-selftest is unclear.
-
-The current use of sched_getcpu(3) does not typically require it to be
-always accurate. However, use of the __rseq_abi.cpu_id field within rseq
-critical sections requires it to be accurate. If it is not accurate, it
-can cause corruption in the per-cpu data targeted by rseq critical
-sections in user-space.
-
-Link: https://sourceware.org/pipermail/libc-alpha/2020-July/115816.html
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Florian Weimer <fw@deneb.enyo.de>
-Cc: "Paul E. McKenney" <paulmck@linux.ibm.com>
-Cc: Boqun Feng <boqun.feng@gmail.com>
-Cc: "H . Peter Anvin" <hpa@zytor.com>
-Cc: Paul Turner <pjt@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Neel Natu <neelnatu@google.com>
-Cc: linux-api@vger.kernel.org
-Cc: stable@vger.kernel.org # v4.18+
----
- kernel/sched/core.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index ca5db40392d4..86a855bd4d90 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -2962,6 +2962,7 @@ int sched_fork(unsigned long clone_flags, struct task_struct *p)
- 	 * Silence PROVE_RCU.
- 	 */
- 	raw_spin_lock_irqsave(&p->pi_lock, flags);
-+	rseq_migrate(p);
- 	/*
- 	 * We're setting the CPU for the first time, we don't migrate,
- 	 * so use __set_task_cpu().
-@@ -3026,6 +3027,7 @@ void wake_up_new_task(struct task_struct *p)
- 	 * as we're not fully set-up yet.
- 	 */
- 	p->recent_used_cpu = task_cpu(p);
-+	rseq_migrate(p);
- 	__set_task_cpu(p, select_task_rq(p, task_cpu(p), SD_BALANCE_FORK, 0));
- #endif
- 	rq = __task_rq_lock(p, &rf);
--- 
-2.17.1
-
+/Jarkko
