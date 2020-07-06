@@ -2,133 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7A23215B9E
-	for <lists+stable@lfdr.de>; Mon,  6 Jul 2020 18:14:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89DC8215BFB
+	for <lists+stable@lfdr.de>; Mon,  6 Jul 2020 18:38:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729623AbgGFQOC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jul 2020 12:14:02 -0400
-Received: from mga14.intel.com ([192.55.52.115]:10083 "EHLO mga14.intel.com"
+        id S1729629AbgGFQie (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jul 2020 12:38:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729622AbgGFQOB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 Jul 2020 12:14:01 -0400
-IronPort-SDR: Wdu7eipMWV7oDG9Jje/YzHbmk0YUenmcvpXmSdh4EeCK6B8pVkc8EYVyFh91fVmaQqkGQbnQag
- XwUYvg7dIBTg==
-X-IronPort-AV: E=McAfee;i="6000,8403,9673"; a="146520699"
-X-IronPort-AV: E=Sophos;i="5.75,320,1589266800"; 
-   d="scan'208";a="146520699"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jul 2020 09:14:00 -0700
-IronPort-SDR: Gi2DSiWSBprNalKK8D8dvN91O3X8x7pqiJcnPXfUIMauFhkmGjSkTOZaGBU6uXf9fhpgvjP4XC
- dD1airDlK0KQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.75,320,1589266800"; 
-   d="scan'208";a="283084224"
-Received: from black.fi.intel.com (HELO black.fi.intel.com.) ([10.237.72.28])
-  by orsmga006.jf.intel.com with ESMTP; 06 Jul 2020 09:13:58 -0700
-From:   Alexander Shishkin <alexander.shishkin@linux.intel.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Ammy Yi <ammy.yi@intel.com>, stable@vger.kernel.org
-Subject: [PATCH 4/4] intel_th: Fix a NULL dereference when hub driver is not loaded
-Date:   Mon,  6 Jul 2020 19:13:39 +0300
-Message-Id: <20200706161339.55468-5-alexander.shishkin@linux.intel.com>
+        id S1729572AbgGFQiX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 Jul 2020 12:38:23 -0400
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31844206DF;
+        Mon,  6 Jul 2020 16:38:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1594053502;
+        bh=/KPd09KdZKob2qkTyjIJHMXWlEwZQK9UHtQEP0K6TzY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=algBxFbzt+IhTO6TY2upG/5ICNR7V0vVp5KgDNkWwGtyEXQoMMN4r/I89rXtG4fuJ
+         S43jo+ERsY1zVo7Ic2QzHwhBLgyPgB+KYC8+JQnpg6eNvj+hcQDJQ+7TmyfBl7p1Lt
+         xhzdnWnQ1Uupdil4uqFlLdqR4WeC7/U2TiWSjbv0=
+Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.lan)
+        by disco-boy.misterjones.org with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <maz@kernel.org>)
+        id 1jsU8K-009VkI-MG; Mon, 06 Jul 2020 17:38:20 +0100
+From:   Marc Zyngier <maz@kernel.org>
+To:     Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Cc:     Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        kernel-team@android.com, stable@vger.kernel.org,
+        Mark Rutland <mark.rutland@arm.com>
+Subject: [PATCH v2 1/4] arm64: Introduce a way to disable the 32bit vdso
+Date:   Mon,  6 Jul 2020 17:37:59 +0100
+Message-Id: <20200706163802.1836732-2-maz@kernel.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200706161339.55468-1-alexander.shishkin@linux.intel.com>
-References: <20200706161339.55468-1-alexander.shishkin@linux.intel.com>
+In-Reply-To: <20200706163802.1836732-1-maz@kernel.org>
+References: <20200706163802.1836732-1-maz@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 62.31.163.78
+X-SA-Exim-Rcpt-To: will@kernel.org, catalin.marinas@arm.com, daniel.lezcano@linaro.org, vincenzo.frascino@arm.com, tglx@linutronix.de, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, kernel-team@android.com, stable@vger.kernel.org, mark.rutland@arm.com
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Connecting master to an output port when GTH driver module is not loaded
-triggers a NULL dereference:
+We have a class of errata (grouped under the ARM64_WORKAROUND_1418040
+banner) that force the trapping of counter access from 32bit EL0.
 
-> RIP: 0010:intel_th_set_output+0x35/0x70 [intel_th]
-> Call Trace:
->  ? sth_stm_link+0x12/0x20 [intel_th_sth]
->  stm_source_link_store+0x164/0x270 [stm_core]
->  dev_attr_store+0x17/0x30
->  sysfs_kf_write+0x3e/0x50
->  kernfs_fop_write+0xda/0x1b0
->  __vfs_write+0x1b/0x40
->  vfs_write+0xb9/0x1a0
->  ksys_write+0x67/0xe0
->  __x64_sys_write+0x1a/0x20
->  do_syscall_64+0x57/0x1d0
->  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+We would normally disable the whole vdso for such defect, except that
+it would disable it for 64bit userspace as well, which is a shame.
 
-Make sure the module in question is loaded and return an error if not.
+Instead, add a new vdso_clock_mode, which signals that the vdso
+isn't usable for compat tasks.  This gets checked in the new
+vdso_clocksource_ok() helper, now provided for the 32bit vdso.
 
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Fixes: 39f4034693b7c ("intel_th: Add driver infrastructure for Intel(R) Trace Hub devices")
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reported-by: Ammy Yi <ammy.yi@intel.com>
-Tested-by: Ammy Yi <ammy.yi@intel.com>
-Cc: stable@vger.kernel.org # v4.4
+Cc: stable@vger.kernel.org
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
 ---
- drivers/hwtracing/intel_th/core.c | 21 ++++++++++++++++++---
- drivers/hwtracing/intel_th/sth.c  |  4 +---
- 2 files changed, 19 insertions(+), 6 deletions(-)
+ arch/arm64/include/asm/vdso/clocksource.h         | 7 +++++--
+ arch/arm64/include/asm/vdso/compat_gettimeofday.h | 8 +++++++-
+ 2 files changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hwtracing/intel_th/core.c b/drivers/hwtracing/intel_th/core.c
-index ca232ec565e8..c9ac3dc65113 100644
---- a/drivers/hwtracing/intel_th/core.c
-+++ b/drivers/hwtracing/intel_th/core.c
-@@ -1021,15 +1021,30 @@ int intel_th_set_output(struct intel_th_device *thdev,
- {
- 	struct intel_th_device *hub = to_intel_th_hub(thdev);
- 	struct intel_th_driver *hubdrv = to_intel_th_driver(hub->dev.driver);
-+	int ret;
+diff --git a/arch/arm64/include/asm/vdso/clocksource.h b/arch/arm64/include/asm/vdso/clocksource.h
+index df6ea65c1dec..b054d9febfb5 100644
+--- a/arch/arm64/include/asm/vdso/clocksource.h
++++ b/arch/arm64/include/asm/vdso/clocksource.h
+@@ -2,7 +2,10 @@
+ #ifndef __ASM_VDSOCLOCKSOURCE_H
+ #define __ASM_VDSOCLOCKSOURCE_H
  
- 	/* In host mode, this is up to the external debugger, do nothing. */
- 	if (hub->host_mode)
+-#define VDSO_ARCH_CLOCKMODES	\
+-	VDSO_CLOCKMODE_ARCHTIMER
++#define VDSO_ARCH_CLOCKMODES					\
++	/* vdso clocksource for both 32 and 64bit tasks */	\
++	VDSO_CLOCKMODE_ARCHTIMER,				\
++	/* vdso clocksource for 64bit tasks only */		\
++	VDSO_CLOCKMODE_ARCHTIMER_NOCOMPAT
+ 
+ #endif
+diff --git a/arch/arm64/include/asm/vdso/compat_gettimeofday.h b/arch/arm64/include/asm/vdso/compat_gettimeofday.h
+index b6907ae78e53..9a625e8947ff 100644
+--- a/arch/arm64/include/asm/vdso/compat_gettimeofday.h
++++ b/arch/arm64/include/asm/vdso/compat_gettimeofday.h
+@@ -111,7 +111,7 @@ static __always_inline u64 __arch_get_hw_counter(s32 clock_mode)
+ 	 * update. Return something. Core will do another round and then
+ 	 * see the mode change and fallback to the syscall.
+ 	 */
+-	if (clock_mode == VDSO_CLOCKMODE_NONE)
++	if (clock_mode != VDSO_CLOCKMODE_ARCHTIMER)
  		return 0;
  
--	if (!hubdrv->set_output)
--		return -ENOTSUPP;
-+	/*
-+	 * hub is instantiated together with the source device that
-+	 * calls here, so guaranteed to be present.
-+	 */
-+	hubdrv = to_intel_th_driver(hub->dev.driver);
-+	if (!hubdrv || !try_module_get(hubdrv->driver.owner))
-+		return -EINVAL;
-+
-+	if (!hubdrv->set_output) {
-+		ret = -ENOTSUPP;
-+		goto out;
-+	}
-+
-+	ret = hubdrv->set_output(hub, master);
- 
--	return hubdrv->set_output(hub, master);
-+out:
-+	module_put(hubdrv->driver.owner);
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(intel_th_set_output);
- 
-diff --git a/drivers/hwtracing/intel_th/sth.c b/drivers/hwtracing/intel_th/sth.c
-index 3a1f4e650378..a1529f571491 100644
---- a/drivers/hwtracing/intel_th/sth.c
-+++ b/drivers/hwtracing/intel_th/sth.c
-@@ -161,9 +161,7 @@ static int sth_stm_link(struct stm_data *stm_data, unsigned int master,
- {
- 	struct sth_device *sth = container_of(stm_data, struct sth_device, stm);
- 
--	intel_th_set_output(to_intel_th_device(sth->dev), master);
--
--	return 0;
-+	return intel_th_set_output(to_intel_th_device(sth->dev), master);
+ 	/*
+@@ -152,6 +152,12 @@ static __always_inline const struct vdso_data *__arch_get_vdso_data(void)
+ 	return ret;
  }
  
- static int intel_th_sw_init(struct sth_device *sth)
++static inline bool vdso_clocksource_ok(const struct vdso_data *vd)
++{
++	return vd->clock_mode == VDSO_CLOCKMODE_ARCHTIMER;
++}
++#define vdso_clocksource_ok	vdso_clocksource_ok
++
+ #endif /* !__ASSEMBLY__ */
+ 
+ #endif /* __ASM_VDSO_GETTIMEOFDAY_H */
 -- 
 2.27.0
 
