@@ -2,132 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D05BB215250
-	for <lists+stable@lfdr.de>; Mon,  6 Jul 2020 08:03:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C994B2152E5
+	for <lists+stable@lfdr.de>; Mon,  6 Jul 2020 09:12:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728818AbgGFGDA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jul 2020 02:03:00 -0400
-Received: from fllv0015.ext.ti.com ([198.47.19.141]:40476 "EHLO
-        fllv0015.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728794AbgGFGDA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jul 2020 02:03:00 -0400
-Received: from lelv0266.itg.ti.com ([10.180.67.225])
-        by fllv0015.ext.ti.com (8.15.2/8.15.2) with ESMTP id 06662lNM055242;
-        Mon, 6 Jul 2020 01:02:47 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
-        s=ti-com-17Q1; t=1594015367;
-        bh=KjZlw1a/nmq4Ty3eASb8JP7sn5EXruzwzsBkpSaPwlA=;
-        h=Subject:To:CC:References:From:Date:In-Reply-To;
-        b=lzkYPfA2BlXCMLdKkajDaZaQOHaW1L4TEMzcjeFuh5jLE+LVVJAKtfRRzx5JBobFJ
-         hQDznclQillFZwhtKJQt8F6UW1/890lKHLRCgPjc//GVKs5UX0vvu7MUzG+plS8HAK
-         g363haOP5I08lS4FEaxB7Yxx1WWaqI8pLmSjmpXw=
-Received: from DLEE112.ent.ti.com (dlee112.ent.ti.com [157.170.170.23])
-        by lelv0266.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 06662lV9094314
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Mon, 6 Jul 2020 01:02:47 -0500
-Received: from DLEE102.ent.ti.com (157.170.170.32) by DLEE112.ent.ti.com
- (157.170.170.23) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1979.3; Mon, 6 Jul
- 2020 01:02:47 -0500
-Received: from lelv0326.itg.ti.com (10.180.67.84) by DLEE102.ent.ti.com
- (157.170.170.32) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1979.3 via
- Frontend Transport; Mon, 6 Jul 2020 01:02:47 -0500
-Received: from [10.250.217.39] (ileax41-snat.itg.ti.com [10.172.224.153])
-        by lelv0326.itg.ti.com (8.15.2/8.15.2) with ESMTP id 06662i1W034768;
-        Mon, 6 Jul 2020 01:02:45 -0500
-Subject: Re: [PATCH] omapfb: dss: Fix max fclk divider for omap36xx
-To:     Sam Ravnborg <sam@ravnborg.org>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-CC:     Adam Ford <aford173@gmail.com>, <linux-fbdev@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <dri-devel@lists.freedesktop.org>,
-        <stable@vger.kernel.org>, <linux-omap@vger.kernel.org>
-References: <20200630182636.439015-1-aford173@gmail.com>
- <b9052a12-af5a-c1b9-5b86-907eac470cf8@ti.com>
- <20200703193648.GA373653@ravnborg.org>
-From:   Tomi Valkeinen <tomi.valkeinen@ti.com>
-Message-ID: <bda1606f-b12c-3356-15ce-489fc2441737@ti.com>
-Date:   Mon, 6 Jul 2020 09:02:44 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
+        id S1727089AbgGFHM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jul 2020 03:12:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44872 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728306AbgGFHM6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jul 2020 03:12:58 -0400
+Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FDB8C08C5DF
+        for <stable@vger.kernel.org>; Mon,  6 Jul 2020 00:12:57 -0700 (PDT)
+Received: by mail-wr1-x442.google.com with SMTP id z13so39612873wrw.5
+        for <stable@vger.kernel.org>; Mon, 06 Jul 2020 00:12:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=FoSjIG3VRw8M9fOU/dfLMuLezeTkp5UAh0BxNMHAjSU=;
+        b=if9HBlA9VQz/DooWA8KmSxJ1gwN0Z/+q/abPRsudszDLAPA5Sax63WJuxR/o0W7YRW
+         pY3+BOTmv9n1glV/nSTkzluey/r9TND8/Um1sbKlF7gaOJyxNkt3qpbkSHwhnPt2fgvA
+         PrhvSA8l2QPunnrnOJDw73eRQ+4iGvqYbzEDWJziNcpx3AH93pN474NFD5hNkR34Avfq
+         L4BIuECug2LTD7En9WA6bmt9HuCDKrCzb2FwCrCAH3wEUGUiENhaLPGCX2fuvKxC0OD9
+         s5DsLrUA93+Of8tTSSH4UjB1bRwCruHx5RgHBrpx2bvmK3cJDhrrequ1c+JCNU6MxS2u
+         EJuw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=FoSjIG3VRw8M9fOU/dfLMuLezeTkp5UAh0BxNMHAjSU=;
+        b=o1gAalzRp7RibVrOE7aShMjPSCi3LdKRJfN/r2y/r4MmmeyZDuiOUhs4ZOv/7x52Tu
+         dVT1SyAoaWJtI1qZyT1mwMjOmfDVROOzVRN8iCKAM9UnJrtvu4guiqvvUpJywly7kJgD
+         gCITSzSz2+fxpxoZFyDjo+FV0tSRBNqBjk8U3jsnYwUACpHmrHJvccFcl3dpAnidGEU+
+         3ioCjgAsK75I2Tbzj+ePaHFh6N4eUZJlkel3u6H++LgpaosnHoNIciUuZDcGRFLmJ7tz
+         W202pPLCD9yKwp4wPPPyMtUpo/zF4MK3mpsty+XSsd3rjE0CT2MJ2NpZiuxO4Vs5ffmb
+         ThLg==
+X-Gm-Message-State: AOAM533fU7/aOXGdYYeHdkHcT20VXd6jX648e0TnbTpm6e6Zg19yatNQ
+        GtprxF4BTOl9MpR3NKLt5Sjitg==
+X-Google-Smtp-Source: ABdhPJwLhBlFAKN26FXGsrKJ2/3ld4/TUj5IudfdjzM/ZuZS/dr7xAKMChCzQ/pTpQ6ikPiMmParcw==
+X-Received: by 2002:a5d:610a:: with SMTP id v10mr46895795wrt.108.1594019576099;
+        Mon, 06 Jul 2020 00:12:56 -0700 (PDT)
+Received: from dell ([2.27.35.206])
+        by smtp.gmail.com with ESMTPSA id 65sm22090235wmd.20.2020.07.06.00.12.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 06 Jul 2020 00:12:55 -0700 (PDT)
+Date:   Mon, 6 Jul 2020 08:12:53 +0100
+From:   Lee Jones <lee.jones@linaro.org>
+To:     Daniel Thompson <daniel.thompson@linaro.org>
+Cc:     jingoohan1@gmail.com, dri-devel@lists.freedesktop.org,
+        linux-fbdev@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Software Engineering <sbabic@denx.de>
+Subject: Re: [PATCH 3/8] backlight: ili922x: Add missing kerneldoc
+ descriptions for CHECK_FREQ_REG() args
+Message-ID: <20200706071253.GA2821869@dell>
+References: <20200624145721.2590327-1-lee.jones@linaro.org>
+ <20200624145721.2590327-4-lee.jones@linaro.org>
+ <20200625094051.u4hanl3rycczlwiy@holly.lan>
 MIME-Version: 1.0
-In-Reply-To: <20200703193648.GA373653@ravnborg.org>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200625094051.u4hanl3rycczlwiy@holly.lan>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Thu, 25 Jun 2020, Daniel Thompson wrote:
 
-On 03/07/2020 22:36, Sam Ravnborg wrote:
-> Hi Tomi.
+> On Wed, Jun 24, 2020 at 03:57:16PM +0100, Lee Jones wrote:
+> > Kerneldoc syntax is used, but not complete.  Descriptions required.
+> > 
+> > Prevents warnings like:
+> > 
+> >  drivers/video/backlight/ili922x.c:116: warning: Function parameter or member 's' not described in 'CHECK_FREQ_REG'
+> >  drivers/video/backlight/ili922x.c:116: warning: Function parameter or member 'x' not described in 'CHECK_FREQ_REG'
+> > 
+> > Cc: <stable@vger.kernel.org>
+> > Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+> > Cc: Software Engineering <sbabic@denx.de>
+> > Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> > ---
+> >  drivers/video/backlight/ili922x.c | 2 ++
+> >  1 file changed, 2 insertions(+)
+> > 
+> > diff --git a/drivers/video/backlight/ili922x.c b/drivers/video/backlight/ili922x.c
+> > index 9c5aa3fbb2842..8cb4b9d3c3bba 100644
+> > --- a/drivers/video/backlight/ili922x.c
+> > +++ b/drivers/video/backlight/ili922x.c
+> > @@ -107,6 +107,8 @@
+> >   *	lower frequency when the registers are read/written.
+> >   *	The macro sets the frequency in the spi_transfer structure if
+> >   *	the frequency exceeds the maximum value.
+> > + * @s: pointer to controller side proxy for an SPI slave device
 > 
-> On Fri, Jul 03, 2020 at 10:17:29AM +0300, Tomi Valkeinen wrote:
->> On 30/06/2020 21:26, Adam Ford wrote:
->>> The drm/omap driver was fixed to correct an issue where using a
->>> divider of 32 breaks the DSS despite the TRM stating 32 is a valid
->>> number.  Through experimentation, it appears that 31 works, and
->>> it is consistent with the value used by the drm/omap driver.
->>>
->>> This patch fixes the divider for fbdev driver instead of the drm.
->>>
->>> Fixes: f76ee892a99e ("omapfb: copy omapdss & displays for omapfb")
->>>
->>> Cc: <stable@vger.kernel.org> #4.9+
->>> Signed-off-by: Adam Ford <aford173@gmail.com>
->>> ---
->>> Linux 4.4 will need a similar patch, but it doesn't apply cleanly.
->>>
->>> The DRM version of this same fix is:
->>> e2c4ed148cf3 ("drm/omap: fix max fclk divider for omap36xx")
->>>
->>>
->>> diff --git a/drivers/video/fbdev/omap2/omapfb/dss/dss.c b/drivers/video/fbdev/omap2/omapfb/dss/dss.c
->>> index 7252d22dd117..bfc5c4c5a26a 100644
->>> --- a/drivers/video/fbdev/omap2/omapfb/dss/dss.c
->>> +++ b/drivers/video/fbdev/omap2/omapfb/dss/dss.c
->>> @@ -833,7 +833,7 @@ static const struct dss_features omap34xx_dss_feats = {
->>>    };
->>>    static const struct dss_features omap3630_dss_feats = {
->>> -	.fck_div_max		=	32,
->>> +	.fck_div_max		=	31,
->>>    	.dss_fck_multiplier	=	1,
->>>    	.parent_clk_name	=	"dpll4_ck",
->>>    	.dpi_select_source	=	&dss_dpi_select_source_omap2_omap3,
->>>
->>
->> Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-> Will you apply to drm-misc?
+> What's wrong with "a pointer to an SPI device"?
 
-This is for fbdev, so I presume Bartlomiej will pick this one.
-
-> Note  following output from "dim fixes":
-> $ dim fixes f76ee892a99e
-> Fixes: f76ee892a99e ("omapfb: copy omapdss & displays for omapfb")
-> Cc: Tomi Valkeinen <tomi.valkeinen@ti.com>
-> Cc: Dave Airlie <airlied@gmail.com>
-> Cc: Rob Clark <robdclark@gmail.com>
-> Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-> Cc: Sam Ravnborg <sam@ravnborg.org>
-> Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-> Cc: Jason Yan <yanaijie@huawei.com>
-> Cc: "Andrew F. Davis" <afd@ti.com>
-> Cc: YueHaibing <yuehaibing@huawei.com>
-> Cc: <stable@vger.kernel.org> # v4.5+
-> 
-> Here it says the fix is valid from v4.5 onwards.
-
-Hmm... Adam, you marked the fix to apply to v4.9+, and then you said 
-v4.4 needs a new patch (that's before the big copy/rename). Did you 
-check the versions between 4.4 and 4.9? I would guess this one applies 
-to v4.5+.
-
-  Tomi
+I've fixed this and applied the patch.
 
 -- 
-Texas Instruments Finland Oy, Porkkalankatu 22, 00180 Helsinki.
-Y-tunnus/Business ID: 0615521-4. Kotipaikka/Domicile: Helsinki
+Lee Jones [李琼斯]
+Senior Technical Lead - Developer Services
+Linaro.org │ Open source software for Arm SoCs
+Follow Linaro: Facebook | Twitter | Blog
