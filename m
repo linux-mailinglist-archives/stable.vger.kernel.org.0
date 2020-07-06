@@ -2,83 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B5A0215C60
-	for <lists+stable@lfdr.de>; Mon,  6 Jul 2020 18:57:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6394A215C78
+	for <lists+stable@lfdr.de>; Mon,  6 Jul 2020 19:00:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729503AbgGFQ5T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jul 2020 12:57:19 -0400
-Received: from foss.arm.com ([217.140.110.172]:56196 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729651AbgGFQ5S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 Jul 2020 12:57:18 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 0D43B1FB;
-        Mon,  6 Jul 2020 09:57:18 -0700 (PDT)
-Received: from C02TD0UTHF1T.local (unknown [10.57.13.106])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id D41DA3F68F;
-        Mon,  6 Jul 2020 09:57:15 -0700 (PDT)
-Date:   Mon, 6 Jul 2020 17:57:12 +0100
-From:   Mark Rutland <mark.rutland@arm.com>
-To:     Marc Zyngier <maz@kernel.org>
-Cc:     Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        kernel-team@android.com, stable@vger.kernel.org
-Subject: Re: [PATCH v2 3/4] arm64: arch_timer: Disable the compat vdso for
- cores affected by ARM64_WORKAROUND_1418040
-Message-ID: <20200706165712.GB61340@C02TD0UTHF1T.local>
-References: <20200706163802.1836732-1-maz@kernel.org>
- <20200706163802.1836732-4-maz@kernel.org>
+        id S1729495AbgGFRA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jul 2020 13:00:26 -0400
+Received: from mail.fireflyinternet.com ([109.228.58.192]:59925 "EHLO
+        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1729640AbgGFRA0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jul 2020 13:00:26 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from build.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 21731734-1500050 
+        for multiple; Mon, 06 Jul 2020 18:00:23 +0100
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] drm/i915/gt: Pin the rings before marking active
+Date:   Mon,  6 Jul 2020 18:00:21 +0100
+Message-Id: <20200706170021.8832-1-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200706163802.1836732-4-maz@kernel.org>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 06, 2020 at 05:38:01PM +0100, Marc Zyngier wrote:
-> ARM64_WORKAROUND_1418040 requires that AArch32 EL0 accesses to
-> the virtual counter register are trapped and emulated by the kernel.
-> This makes the vdso pretty pointless, and in some cases livelock
-> prone.
-> 
-> Provide a workaround entry that limits the vdso to 64bit tasks.
-> 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Marc Zyngier <maz@kernel.org>
+On eviction, we acquire the vm->mutex and then wait on the vma->active.
+Thereore when binding and pinning the vma, we must follow the same
+sequennce, lock/pin the vma then mark it active. Otherwise, we mark the
+vma as active, then wait for the vm->mutex, and meanwhile the evictor
+waits upon us.
 
-Acked-by: Mark Rutland <mark.rutland@arm.com>
+Fixes: 8ccfc20a7d56 ("drm/i915/gt: Mark ring->vma as active while pinned")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Cc: <stable@vger.kernel.org> # v5.6+
+---
+ drivers/gpu/drm/i915/gt/intel_context.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-Mark.
+diff --git a/drivers/gpu/drm/i915/gt/intel_context.c b/drivers/gpu/drm/i915/gt/intel_context.c
+index e4aece20bc80..52db2bde44a3 100644
+--- a/drivers/gpu/drm/i915/gt/intel_context.c
++++ b/drivers/gpu/drm/i915/gt/intel_context.c
+@@ -204,25 +204,25 @@ static int __ring_active(struct intel_ring *ring)
+ {
+ 	int err;
+ 
+-	err = i915_active_acquire(&ring->vma->active);
++	err = intel_ring_pin(ring);
+ 	if (err)
+ 		return err;
+ 
+-	err = intel_ring_pin(ring);
++	err = i915_active_acquire(&ring->vma->active);
+ 	if (err)
+-		goto err_active;
++		goto err_pin;
+ 
+ 	return 0;
+ 
+-err_active:
+-	i915_active_release(&ring->vma->active);
++err_pin:
++	intel_ring_unpin(ring);
+ 	return err;
+ }
+ 
+ static void __ring_retire(struct intel_ring *ring)
+ {
+-	intel_ring_unpin(ring);
+ 	i915_active_release(&ring->vma->active);
++	intel_ring_unpin(ring);
+ }
+ 
+ __i915_active_call
+-- 
+2.20.1
 
-> ---
->  drivers/clocksource/arm_arch_timer.c | 8 ++++++++
->  1 file changed, 8 insertions(+)
-> 
-> diff --git a/drivers/clocksource/arm_arch_timer.c b/drivers/clocksource/arm_arch_timer.c
-> index a8e4fb429f52..6c3e84180146 100644
-> --- a/drivers/clocksource/arm_arch_timer.c
-> +++ b/drivers/clocksource/arm_arch_timer.c
-> @@ -480,6 +480,14 @@ static const struct arch_timer_erratum_workaround ool_workarounds[] = {
->  		.set_next_event_virt = erratum_set_next_event_tval_virt,
->  	},
->  #endif
-> +#ifdef CONFIG_ARM64_ERRATUM_1418040
-> +	{
-> +		.match_type = ate_match_local_cap_id,
-> +		.id = (void *)ARM64_WORKAROUND_1418040,
-> +		.desc = "ARM erratum 1418040",
-> +		.disable_compat_vdso = true,
-> +	},
-> +#endif
->  };
->  
->  typedef bool (*ate_match_fn_t)(const struct arch_timer_erratum_workaround *,
-> -- 
-> 2.27.0
-> 
