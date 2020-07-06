@@ -2,123 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C0E7216258
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 01:32:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60241216287
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 01:50:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727827AbgGFXcq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jul 2020 19:32:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55326 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726906AbgGFXcp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jul 2020 19:32:45 -0400
-Received: from mail-pg1-x549.google.com (mail-pg1-x549.google.com [IPv6:2607:f8b0:4864:20::549])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98B3AC08C5DF
-        for <stable@vger.kernel.org>; Mon,  6 Jul 2020 16:32:45 -0700 (PDT)
-Received: by mail-pg1-x549.google.com with SMTP id h2so22327568pgc.19
-        for <stable@vger.kernel.org>; Mon, 06 Jul 2020 16:32:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:message-id:mime-version:subject:from:to:cc;
-        bh=4fIH4GN6n6dAxulY3f2rwIOekdlU8y7grvtSAmvPzI8=;
-        b=J9lTuX6BUejRFhEHNFaUM+EGnZQ/75bZdLy4iNsT5Hfg9e9Vp2ZjxgzbX6pUw+Lcpn
-         tg1r43Kv4uTk2BFurA1fcOtde1w2S5Je2ywaJQQJWmwP1e8BwNtQBgUHZQNR3MaXk813
-         KuuesbqVFVvSo/GTlZp2ModcBzp2zvzYYFI+7B3gCdZbgJX8NyUO1ctAA8jzvSYvoZ2S
-         XjPbtdKmePRNKr5bdqJi4L7kLsiJO1NYgKJn8l9OGXLA+HENv1Ai/LM+1uZFkp7+mArP
-         Lt24vuKQtog0Wr1766hzamg6DKROwdRAxNd37B1qvIDbC2ELunnN1EbkQ2Lt4eBKXH6n
-         Gyyg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=4fIH4GN6n6dAxulY3f2rwIOekdlU8y7grvtSAmvPzI8=;
-        b=MPDP8h1/7xBIcfnSSbgDqRnBTPTSKriZw0mxgDvpuOAPZh/JJLNi/QOa8jLBNNiGAm
-         ixSw5p13xp9LY5MvdJB5BROcP5yrC9PWZOZC/5vUbxpBGph9ppLZ4boq28fJnJ9OB4Tt
-         bSYcFk8NuK4WdyAibvzaBei3kppjAecf4ZMDZY8rjsLxZrqIxh78SdOV893SxejGuUmf
-         pGmWMW0ZCusnck55x8TWqJo00h5BshA+bD72ksyXp4WEVOzTMThEvdoRrFkkU6NK/JMo
-         B9XuHD4DTpPSB8VXOwU4bM/ra3Ni6sYbyRXaWoItZdQMFIK/xemLk4kxdrY0qeuu4LMa
-         2JCg==
-X-Gm-Message-State: AOAM5331QcNMzgfdUZ3a0RPi8w9Hi+3qsUT/UbPp/a5npJSXLMVb4rKY
-        9xCdD0hAp3bgDKv8dKlOOzP49xN2aDu3
-X-Google-Smtp-Source: ABdhPJyzU+Syk8Z8h9GVkTKPHXiJJGlAsi/qdcYnGS/wnQmGjay+JpyjugMliaODOoNeHqqjGG/4eRSGb/8V
-X-Received: by 2002:a17:902:8c8a:: with SMTP id t10mr40175484plo.153.1594078364821;
- Mon, 06 Jul 2020 16:32:44 -0700 (PDT)
-Date:   Mon,  6 Jul 2020 16:32:40 -0700
-Message-Id: <20200706233240.3245512-1-rajatja@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.27.0.212.ge8ba1cc988-goog
-Subject: [PATCH RESEND v2] PCI: Add device even if driver attach failed
-From:   Rajat Jain <rajatja@google.com>
-To:     David Woodhouse <dwmw2@infradead.org>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Len Brown <lenb@kernel.org>, iommu@lists.linux-foundation.org,
-        linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org,
-        linux-acpi@vger.kernel.org, Raj Ashok <ashok.raj@intel.com>,
-        lalithambika.krishnakumar@intel.com,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Jean-Philippe Brucker <jean-philippe@linaro.org>,
-        Prashant Malani <pmalani@google.com>,
-        Benson Leung <bleung@google.com>,
-        Todd Broch <tbroch@google.com>,
-        Alex Levin <levinale@google.com>,
-        Mattias Nissler <mnissler@google.com>,
-        Rajat Jain <rajatxjain@gmail.com>,
-        Bernie Keany <bernie.keany@intel.com>,
-        Aaron Durbin <adurbin@google.com>,
-        Diego Rivas <diegorivas@google.com>,
-        Duncan Laurie <dlaurie@google.com>,
-        Furquan Shaikh <furquan@google.com>,
-        Jesse Barnes <jsbarnes@google.com>,
-        Christian Kellner <christian@kellner.me>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        oohall@gmail.com, Saravana Kannan <saravanak@google.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        id S1726729AbgGFXuN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jul 2020 19:50:13 -0400
+Received: from crapouillou.net ([89.234.176.41]:53578 "EHLO crapouillou.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726280AbgGFXuN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 Jul 2020 19:50:13 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
+        s=mail; t=1594079410; h=from:from:sender:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=NboD0HuCCOCTz3ZvzoSX9hS0Fzn/G2ArNDsjnk2M+qY=;
+        b=gEAErzWQGyz4moVpKPHo4splZgegEadql6JwC2qaisrd0+qP+TPB2uI3F+nrFS7tqOgfAR
+        MtIT8xWuXZn+f7qSfOMDFerYQy0QG8yZv9gR8Pf+u1KyyrmsfVEQS6PQh+vQvoioabP88Q
+        RNGME1GfxlfaYnyFzs/iaQfnFYjzESg=
+Date:   Tue, 07 Jul 2020 01:49:59 +0200
+From:   Paul Cercueil <paul@crapouillou.net>
+Subject: Re: [PATCH] drm/dbi: Fix SPI Type 1 (9-bit) transfer
+To:     Noralf =?iso-8859-1?q?Tr=F8nnes?= <noralf@tronnes.org>
+Cc:     Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        dri-devel@lists.freedesktop.org, Sam Ravnborg <sam@ravnborg.org>,
         stable@vger.kernel.org
-Cc:     Rajat Jain <rajatja@google.com>
-Content-Type: text/plain; charset="UTF-8"
+Message-Id: <BJN2DQ.10EODF78DAWA@crapouillou.net>
+In-Reply-To: <0dda6b3f-ea8c-6a7e-5c7c-f26874b825c8@tronnes.org>
+References: <20200703141341.1266263-1-paul@crapouillou.net>
+        <0dda6b3f-ea8c-6a7e-5c7c-f26874b825c8@tronnes.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-device_attach() returning failure indicates a driver error while trying to
-probe the device. In such a scenario, the PCI device should still be added
-in the system and be visible to the user.
+Hi Noralf,
 
-This patch partially reverts:
-commit ab1a187bba5c ("PCI: Check device_attach() return value always")
+Le dim. 5 juil. 2020 =E0 17:58, Noralf Tr=F8nnes <noralf@tronnes.org> a=20
+=E9crit :
+>=20
+>=20
+> Den 03.07.2020 16.13, skrev Paul Cercueil:
+>>  The function mipi_dbi_spi1_transfer() will transfer its payload as=20
+>> 9-bit
+>>  data, the 9th (MSB) bit being the data/command bit. In order to do=20
+>> that,
+>>  it unpacks the 8-bit values into 16-bit values, then sets the 9th=20
+>> bit if
+>>  the byte corresponds to data, clears it otherwise. The 7 MSB are
+>>  padding. The array of now 16-bit values is then passed to the SPI=20
+>> core
+>>  for transfer.
+>>=20
+>>  This function was broken since its introduction, as the length of=20
+>> the
+>>  SPI transfer was set to the payload size before its conversion, but=20
+>> the
+>>  payload doubled in size due to the 8-bit -> 16-bit conversion.
+>>=20
+>>  Fixes: 02dd95fe3169 ("drm/tinydrm: Add MIPI DBI support")
+>>  Cc: <stable@vger.kernel.org> # 4.10
+>=20
+> The code was moved to drm_mipi_dbi.c in 5.4 so this patch won't apply
+> before that.
 
-Signed-off-by: Rajat Jain <rajatja@google.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
-Resending to stable, independent from other patches per Greg's suggestion
-v2: Add Greg's reviewed by, fix commit log
+I believe I can submit a patch for pre-5.4 too.
 
- drivers/pci/bus.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+>>  Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+>>  ---
+>=20
+> Thanks for fixing this, clearly I didn't test this. Probably because=20
+> the
+> aux spi ip block on the Raspberry Pi that can do 9 bit didn't have a
+> driver at the time. Did you actually test this or was it spotted=20
+> reading
+> the code?
 
-diff --git a/drivers/pci/bus.c b/drivers/pci/bus.c
-index 8e40b3e6da77d..3cef835b375fd 100644
---- a/drivers/pci/bus.c
-+++ b/drivers/pci/bus.c
-@@ -322,12 +322,8 @@ void pci_bus_add_device(struct pci_dev *dev)
- 
- 	dev->match_driver = true;
- 	retval = device_attach(&dev->dev);
--	if (retval < 0 && retval != -EPROBE_DEFER) {
-+	if (retval < 0 && retval != -EPROBE_DEFER)
- 		pci_warn(dev, "device attach failed (%d)\n", retval);
--		pci_proc_detach_device(dev);
--		pci_remove_sysfs_dev_files(dev);
--		return;
--	}
- 
- 	pci_dev_assign_added(dev, true);
- }
--- 
-2.27.0.212.ge8ba1cc988-goog
+I did test it on hardware, yes - that's how I spotted the bug.
+
+-Paul
+
+> Reviewed-by: Noralf Tr=F8nnes <noralf@tronnes.org>
+>=20
+>>   drivers/gpu/drm/drm_mipi_dbi.c | 2 +-
+>>   1 file changed, 1 insertion(+), 1 deletion(-)
+>>=20
+>>  diff --git a/drivers/gpu/drm/drm_mipi_dbi.c=20
+>> b/drivers/gpu/drm/drm_mipi_dbi.c
+>>  index bb27c82757f1..bf7888ad9ad4 100644
+>>  --- a/drivers/gpu/drm/drm_mipi_dbi.c
+>>  +++ b/drivers/gpu/drm/drm_mipi_dbi.c
+>>  @@ -923,7 +923,7 @@ static int mipi_dbi_spi1_transfer(struct=20
+>> mipi_dbi *dbi, int dc,
+>>   			}
+>>   		}
+>>=20
+>>  -		tr.len =3D chunk;
+>>  +		tr.len =3D chunk * 2;
+>>   		len -=3D chunk;
+>>=20
+>>   		ret =3D spi_sync(spi, &m);
+>>=20
+
 
