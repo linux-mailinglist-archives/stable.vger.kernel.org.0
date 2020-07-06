@@ -2,181 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 131992155E2
-	for <lists+stable@lfdr.de>; Mon,  6 Jul 2020 12:55:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60D0B2155EC
+	for <lists+stable@lfdr.de>; Mon,  6 Jul 2020 12:56:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728646AbgGFKzA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jul 2020 06:55:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50710 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728529AbgGFKy7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Jul 2020 06:54:59 -0400
-Received: from mail-lj1-x241.google.com (mail-lj1-x241.google.com [IPv6:2a00:1450:4864:20::241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27907C061794
-        for <stable@vger.kernel.org>; Mon,  6 Jul 2020 03:54:59 -0700 (PDT)
-Received: by mail-lj1-x241.google.com with SMTP id e4so44748978ljn.4
-        for <stable@vger.kernel.org>; Mon, 06 Jul 2020 03:54:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=zX6V4Sju87ElYyPYAneZhyxDZsItYI/pSUWLHM5qsf0=;
-        b=LehTXMZxIobef2KvJEW6RKLlUYhqCkaJ34566TZ0a3hutg6wBe5Og6Y41N8jsFNxfq
-         WRFPS0XZS4IJeFjye19fx+vDVlpTwOQE0Kv00rPO2Ne4L1ITqhRKmgzlYmpS6ZT6IO+7
-         gSHg2WOxp9ZKnPUC8nm4A573QAeauhtpVzAV3T7PxDTX6pNzZG0npQF0WbREd+OXBIyl
-         MxAtWwcSXHBR5/MXKsb1nCjdRjs6mZVYQYZpgL4YB51dkRDSEN5RKCbkGmy6ep1X0h7o
-         6VdoG6/qtNe71FffUAohTg5KC2huSPF40nk6crtMThJZZZDBj/tzzko+JTEKK1WGh1Nd
-         VQag==
+        id S1728806AbgGFKz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jul 2020 06:55:56 -0400
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:38027 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728606AbgGFKzx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Jul 2020 06:55:53 -0400
+Received: by mail-wm1-f66.google.com with SMTP id f18so41433293wml.3;
+        Mon, 06 Jul 2020 03:55:51 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=zX6V4Sju87ElYyPYAneZhyxDZsItYI/pSUWLHM5qsf0=;
-        b=LnVHt86Y23bv/G5RLne4br08QACxSZ0B7c9dqtOKD68RyiC20r+pvnlQ8dkj0vEl2I
-         /pWStrl4cqlC01496l+jt0UO3JF8ndyujN2QBp8vwG1/gwvP6LXmJm6Ax6gyqlILb0gw
-         24P4W4/RO8Ee9lX+cswbWStKftx5H01GnF5QazadvrDXZ8NU50UUtjH8pj91a8gmAE7j
-         oTygYHOs7YP5DQSK3Gyv/KFoklsnVGXiWMPgJgerWNe4irD0/DIMR/94GDPBmMV31Qvm
-         W621hNG3K53CAkc73+I8musfFAr+FTE6CuC38dDd4I2HT2Iy62wYaU94dVg1jEQU2geT
-         2LGw==
-X-Gm-Message-State: AOAM5312vps/+vOSgfiqEdrmrs/yPcvyOL08EEnSU8aksTiyXXrku88O
-        +1fdailHANP/OnRdjw7Ihwa5k+GCkt0uesLbNQhHNA==
-X-Google-Smtp-Source: ABdhPJzNkmxdAUg4NK4lEuXQ7FnCnuSXDBPQzKbUIK3agei3/h3BmRXcqxE5LBnjc40f3eOSq4dlRAMBrsq2i1BaF+A=
-X-Received: by 2002:a2e:7401:: with SMTP id p1mr3536094ljc.366.1594032897325;
- Mon, 06 Jul 2020 03:54:57 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=biFGacWJgPGBoPEjc+gEhsuak0pUoudIvrL6jPqp5rY=;
+        b=QYj6UVyQYvLTFsB1bwGKIXJebSW7oFYH8r2SQ2+/gvLdkISzoTlBzqhLVZqlPiHqI4
+         tGJPrZb3MElQbOAFSIpzWURZbnQdT6MFF9pxd0pKF7uqM+zKsD4kYigqw+oaCVVcenYM
+         bhGL0ciTWiqQGCktIxdG+n6/6Le0YBJHVSvCV2jURX5U0hSgOs1n1yy53H3CXgUpgN65
+         ohTVVfJ6OZr3htooPVrnvtw4jR0gexwnzUlmeSQPrAZ9DPxE6RoGwiVJmunTuhx7B5za
+         63KsFv2hkrE5xeoxXraj7/H8yaatlKfpVpwXpEa8lO/5xsxvVkpmzLlsdLLS3oy5bPsE
+         fjww==
+X-Gm-Message-State: AOAM531m7Fg9uv1a7K5R8CShZCSMHj8Wv73MVlLihKQ0Dem0FYBYYOlq
+        GdCm0n6hiS/VID+xIJo9wDI=
+X-Google-Smtp-Source: ABdhPJxvL4DLGcSfAF1wuY/syeA0ZaxjaTza+5lAGocr9nlRFiFYDsr+n/IOkkgWYU/KED1nKdhRdg==
+X-Received: by 2002:a1c:2109:: with SMTP id h9mr5668923wmh.174.1594032950905;
+        Mon, 06 Jul 2020 03:55:50 -0700 (PDT)
+Received: from liuwe-devbox-debian-v2 ([51.145.34.42])
+        by smtp.gmail.com with ESMTPSA id w13sm23182400wrr.67.2020.07.06.03.55.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 06 Jul 2020 03:55:50 -0700 (PDT)
+Date:   Mon, 6 Jul 2020 10:55:49 +0000
+From:   Wei Liu <wei.liu@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Joseph Salisbury <joseph.salisbury@microsoft.com>,
+        kys@microsoft.com, haiyangz@microsoft.com, sthemmin@microsoft.com,
+        linux-hyperv@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Wei Liu <wei.liu@kernel.org>
+Subject: Re: [PATCH][v2] Drivers: hv: Change flag to write log level in panic
+ msg to false
+Message-ID: <20200706105549.xum3y7hmviatil2w@liuwe-devbox-debian-v2>
+References: <1593210497-114310-1-git-send-email-joseph.salisbury@microsoft.com>
+ <20200701193326.12D69214DB@mail.kernel.org>
 MIME-Version: 1.0
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Mon, 6 Jul 2020 16:24:45 +0530
-Message-ID: <CA+G9fYsrGXd5survaX27kkfam1ZcJdMnzowvGdfy1xT4bGcfcA@mail.gmail.com>
-Subject: WARNING: at kernel/kthread.c:819 kthread_queue_work - spi_start_queue
-To:     linux-spi@vger.kernel.org, open list <linux-kernel@vger.kernel.org>
-Cc:     Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Wolfram Sang <wsa@kernel.org>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        linux- stable <stable@vger.kernel.org>,
-        Mark Brown <broonie@kernel.org>, Peng Ma <peng.ma@nxp.com>,
-        lkft-triage@lists.linaro.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200701193326.12D69214DB@mail.kernel.org>
+User-Agent: NeoMutt/20180716
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-While booting arm64 device dragonboard 410c the following kernel
-warning noticed on
-Linux version 5.8.0-rc3-next-20200706.
+On Wed, Jul 01, 2020 at 07:33:25PM +0000, Sasha Levin wrote:
+> Hi
+> 
+> [This is an automated email]
+> 
+> This commit has been processed because it contains a -stable tag.
+> The stable tag indicates that it's relevant for the following trees: all
+> 
+> The bot has tested the following trees: v5.7.6, v5.4.49, v4.19.130, v4.14.186, v4.9.228, v4.4.228.
+> 
+> v5.7.6: Build OK!
+> v5.4.49: Failed to apply! Possible dependencies:
+>     53edce00ceb74 ("Drivers: hv: vmbus: Remove dependencies on guest page size")
 
-metadata:
-  git branch: master
-  git repo: https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git
-  git commit: 5680d14d59bddc8bcbc5badf00dbbd4374858497
-  git describe: next-20200706
-  kernel-config:
-https://builds.tuxbuild.com/Glr-Ql1wbp3qN3cnHogyNA/kernel.config
+Unrelated, shouldn't be backported.
 
-Crash log while booting,
+> 
+> v4.19.130: Failed to apply! Possible dependencies:
+>     53edce00ceb74 ("Drivers: hv: vmbus: Remove dependencies on guest page size")
+> 
 
-[    1.203300] loop: module loaded
-[    1.204599] megasas: 07.714.04.00-rc1
-[    1.211124] spi_qup 78b7000.spi: IN:block:16, fifo:64, OUT:block:16, fifo:64
-[    1.211509] ------------[ cut here ]------------
-[    1.217238] WARNING: CPU: 0 PID: 1 at kernel/kthread.c:819
-kthread_queue_work+0x90/0xa0
-[    1.221832] Modules linked in:
-[    1.229554] CPU: 0 PID: 1 Comm: swapper/0 Not tainted
-5.8.0-rc3-next-20200706 #1
-[    1.232683] Hardware name: Qualcomm Technologies, Inc. APQ 8016 SBC (DT)
-[    1.240237] pstate: 40000085 (nZcv daIf -PAN -UAO BTYPE=--)
-[    1.246918] pc : kthread_queue_work+0x90/0xa0
-[    1.252211] lr : kthread_queue_work+0x2c/0xa0
-[    1.256722] sp : ffff80001002ba50
-[    1.261061] x29: ffff80001002ba50 x28: ffff00003b868000
-[    1.264363] x27: ffff00003fcf63c0 x26: ffff00003b868680
-[    1.269744] x25: ffff00003b868400 x24: ffff00003d116810
-[    1.275039] x23: ffff800012025304 x22: ffff00003b8683bc
-[    1.280335] x21: 0000000000000000 x20: ffff00003b8683f8
-[    1.285630] x19: ffff00003b8683b8 x18: 0000000000000000
-[    1.290925] x17: 0000000000000000 x16: ffff800011167420
-[    1.296220] x15: ffff00000eb90480 x14: 0000000000000267
-[    1.301515] x13: 0000000000000004 x12: 0000000000000000
-[    1.306810] x11: 0000000000000000 x10: 0000000000000003
-[    1.312105] x9 : ffff00003fcbac10 x8 : ffff00003fcba240
-[    1.317400] x7 : ffff00003bc3c800 x6 : 0000000000000003
-[    1.322696] x5 : 0000000000000000 x4 : 0000000000000000
-[    1.327991] x3 : ffff00003b8683bc x2 : 0000000000000001
-[    1.333285] x1 : 0000000000000000 x0 : 0000000000000000
-[    1.338583] Call trace:
-[    1.343875]  kthread_queue_work+0x90/0xa0
-[    1.346050]  spi_start_queue+0x50/0x78
-[    1.350213]  spi_register_controller+0x458/0x820
-[    1.353860]  devm_spi_register_controller+0x44/0xa0
-[    1.358638]  spi_qup_probe+0x5d8/0x638
-[    1.363235]  platform_drv_probe+0x54/0xa8
-[    1.367053]  really_probe+0xd8/0x320
-[    1.371133]  driver_probe_device+0x58/0xb8
-[    1.374779]  device_driver_attach+0x74/0x80
-[    1.378685]  __driver_attach+0x58/0xe0
-[    1.382766]  bus_for_each_dev+0x70/0xc0
-[    1.386583]  driver_attach+0x24/0x30
-[    1.390317]  bus_add_driver+0x14c/0x1f0
-[    1.394137]  driver_register+0x64/0x120
-[    1.397696]  __platform_driver_register+0x48/0x58
-[    1.401519]  spi_qup_driver_init+0x1c/0x28
-[    1.406378]  do_one_initcall+0x54/0x1a0
-[    1.410372]  kernel_init_freeable+0x1d4/0x254
-[    1.414106]  kernel_init+0x14/0x110
-[    1.418616]  ret_from_fork+0x10/0x34
-[    1.421918] ---[ end trace 4b59f327623c9e10 ]---
-[    1.426526] spi_qup 78b9000.spi: IN:block:16, fifo:64, OUT:block:16, fifo:64
-[    1.430721] ------------[ cut here ]------------
-[    1.437374] WARNING: CPU: 0 PID: 1 at kernel/kthread.c:819
-kthread_queue_work+0x90/0xa0
-[    1.441971] Modules linked in:
-[    1.449694] CPU: 0 PID: 1 Comm: swapper/0 Tainted: G        W
-  5.8.0-rc3-next-20200706 #1
-[    1.452823] Hardware name: Qualcomm Technologies, Inc. APQ 8016 SBC (DT)
-[    1.461765] pstate: 40000085 (nZcv daIf -PAN -UAO BTYPE=--)
-[    1.468444] pc : kthread_queue_work+0x90/0xa0
-[    1.473738] lr : kthread_queue_work+0x2c/0xa0
-[    1.478250] sp : ffff80001002ba50
-[    1.482588] x29: ffff80001002ba50 x28: ffff00003b868800
-[    1.485889] x27: ffff00003fcf7020 x26: ffff00003b868e80
-[    1.491273] x25: ffff00003b868c00 x24: ffff00003d116c10
-[    1.496566] x23: ffff80001202d304 x22: ffff00003b868bbc
-[    1.501862] x21: 0000000000000000 x20: ffff00003b868bf8
-[    1.507157] x19: ffff00003b868bb8 x18: 0000000000000000
-[    1.512452] x17: 0000000000000000 x16: ffff800011167420
-[    1.517748] x15: 00000000b123f581 x14: 0000000000000287
-[    1.523043] x13: 0000000000000004 x12: 0000000000000000
-[    1.528337] x11: 0000000000000000 x10: 0000000000000003
-[    1.533634] x9 : ffff00003fcbac10 x8 : ffff00003fcba240
-[    1.538928] x7 : ffff00003bc3d640 x6 : 0000000000000003
-[    1.544223] x5 : 0000000000000000 x4 : 0000000000000000
-[    1.549519] x3 : ffff00003b868bbc x2 : 0000000000000001
-[    1.554813] x1 : 0000000000000000 x0 : 0000000000000000
-[    1.560109] Call trace:
-[    1.565403]  kthread_queue_work+0x90/0xa0
-[    1.567577]  spi_start_queue+0x50/0x78
-[    1.571742]  spi_register_controller+0x458/0x820
-[    1.575387]  devm_spi_register_controller+0x44/0xa0
-[    1.580165]  spi_qup_probe+0x5d8/0x638
-[    1.584762]  platform_drv_probe+0x54/0xa8
-[    1.588581]  really_probe+0xd8/0x320
-[    1.592660]  driver_probe_device+0x58/0xb8
-[    1.596306]  device_driver_attach+0x74/0x80
-[    1.600212]  __driver_attach+0x58/0xe0
-[    1.604294]  bus_for_each_dev+0x70/0xc0
-[    1.608112]  driver_attach+0x24/0x30
-[    1.611845]  bus_add_driver+0x14c/0x1f0
-[    1.615665]  driver_register+0x64/0x120
-[    1.619224]  __platform_driver_register+0x48/0x58
-[    1.623046]  spi_qup_driver_init+0x1c/0x28
-[    1.627905]  do_one_initcall+0x54/0x1a0
-[    1.631899]  kernel_init_freeable+0x1d4/0x254
-[    1.635632]  kernel_init+0x14/0x110
-[    1.640144]  ret_from_fork+0x10/0x34
-[    1.643442] ---[ end trace 4b59f327623c9e11 ]---
+Unrelated, shouldn't be backported.
 
-https://lkft.validation.linaro.org/scheduler/job/1542222#L3733
+> v4.14.186: Failed to apply! Possible dependencies:
+>     4a5f3cde4d51c ("Drivers: hv: vmbus: Remove x86-isms from arch independent drivers")
+>     53edce00ceb74 ("Drivers: hv: vmbus: Remove dependencies on guest page size")
+>     7ed4325a44ea5 ("Drivers: hv: vmbus: Make panic reporting to be more useful")
+>     81b18bce48af3 ("Drivers: HV: Send one page worth of kmsg dump over Hyper-V during panic")
+>     8afc06dd75c06 ("Drivers: hv: vmbus: Fix the issue with freeing up hv_ctl_table_hdr")
+>     ddcaf3ca4c3c8 ("Drivers: hv: vmus: Fix the check for return value from kmsg get dump buffer")
+> 
+> v4.9.228: Failed to apply! Possible dependencies:
+>     4a5f3cde4d51c ("Drivers: hv: vmbus: Remove x86-isms from arch independent drivers")
+>     6ab42a66d2cc1 ("Drivers: hv: vmbus: Move Hypercall invocation code out of common code")
+>     73638cddaad86 ("Drivers: hv: vmbus: Move the check for hypercall page setup")
+>     76d36ab798204 ("hv: switch to cpuhp state machine for synic init/cleanup")
+>     81b18bce48af3 ("Drivers: HV: Send one page worth of kmsg dump over Hyper-V during panic")
+>     8730046c1498e ("Drivers: hv vmbus: Move Hypercall page setup out of common code")
+>     d058fa7e98ff0 ("Drivers: hv: vmbus: Move the crash notification function")
+> 
+> v4.4.228: Failed to apply! Possible dependencies:
+>     4a5f3cde4d51c ("Drivers: hv: vmbus: Remove x86-isms from arch independent drivers")
+>     619848bd07434 ("drivers:hv: Export a function that maps Linux CPU num onto Hyper-V proc num")
+>     6ab42a66d2cc1 ("Drivers: hv: vmbus: Move Hypercall invocation code out of common code")
+>     73638cddaad86 ("Drivers: hv: vmbus: Move the check for hypercall page setup")
+>     75ff3a8a9168d ("Drivers: hv: vmbus: avoid wait_for_completion() on crash")
+>     76d36ab798204 ("hv: switch to cpuhp state machine for synic init/cleanup")
+>     81b18bce48af3 ("Drivers: HV: Send one page worth of kmsg dump over Hyper-V during panic")
+>     8730046c1498e ("Drivers: hv vmbus: Move Hypercall page setup out of common code")
+>     a108393dbf764 ("drivers:hv: Export the API to invoke a hypercall on Hyper-V")
+>     d058fa7e98ff0 ("Drivers: hv: vmbus: Move the crash notification function")
 
--- 
-Linaro LKFT
-https://lkft.linaro.org
+Just from reading the subject lines it seems to me a lot of the possible
+dependencies aren't really related to this patch functionally. It could
+be that they are touching the same area of code which create some
+contextual dependencies. Some of the listed dependencies should
+definitively _not_ be backported.
+
+Michael and Joseph, how far do you want this to be backported? It may be
+easier for us to provide bespoke versions of this patch to the stable
+trees we care about?
+
+Wei.
+
+> 
+> NOTE: The patch will not be queued to stable trees until it is upstream.
+> 
+> How should we proceed with this patch?
+> 
+> -- 
+> Thanks
+> Sasha
