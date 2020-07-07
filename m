@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72250217270
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:44:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B5DA217240
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:44:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728758AbgGGPdP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:33:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32888 "EHLO mail.kernel.org"
+        id S1729124AbgGGPap (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:30:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729609AbgGGPUx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:20:53 -0400
+        id S1728799AbgGGPX6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:23:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8A8A3206E2;
-        Tue,  7 Jul 2020 15:20:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 251F52082F;
+        Tue,  7 Jul 2020 15:23:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135253;
-        bh=2b7zMVe6mmI61iDQvqn+sLJjzEjTT4Vn1x0St9mH+Pk=;
+        s=default; t=1594135437;
+        bh=69SI/+M+EsrYPGUsjvNrScM3WRasXNkolneBXj8DZOk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EcWrcutZWRK1y0Cfc4JnMqDD6915iioeD6ZtnirJ4y71NvLQ8knBRj2PjZVwnESBB
-         Px0dzbieH6RtW+FwdmJA1ni2za78zXD0bd7Q4AjF06FZE14QGstp5C2cmFanGVwvoi
-         GHZyhbD6arYUe7Xplbw2nVR2oHoZOPmzvPD37rgo=
+        b=ocPc7N5dSK6V6EHsGschyl3xU0LGyVbSaYwdf9+7mH0QyxQCiVIkHlZ7Fwz3hNOiw
+         2ZxmQ9ugNKL7AeI/D5DwscGrNIDd9RYlF2EwVy613tm76YOlIXFVF+Xj1/xj6/5cE2
+         07Mc0DDx6pJBP8VrREmIF736wRslSIjLYZ0XwrLE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 05/65] sched/debug: Make sd->flags sysctl read-only
-Date:   Tue,  7 Jul 2020 17:16:44 +0200
-Message-Id: <20200707145752.698910547@linuxfoundation.org>
+        stable@vger.kernel.org, Tadeusz Struk <tadeusz.struk@intel.com>,
+        linux-integrity@vger.kernel.org, linux-kselftest@vger.kernel.org,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Shuah Khan <skhan@linuxfoundation.org>
+Subject: [PATCH 5.7 041/112] Revert "tpm: selftest: cleanup after unseal with wrong auth/policy test"
+Date:   Tue,  7 Jul 2020 17:16:46 +0200
+Message-Id: <20200707145802.953085875@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200707145752.417212219@linuxfoundation.org>
-References: <20200707145752.417212219@linuxfoundation.org>
+In-Reply-To: <20200707145800.925304888@linuxfoundation.org>
+References: <20200707145800.925304888@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,48 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentin Schneider <valentin.schneider@arm.com>
+From: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
 
-[ Upstream commit 9818427c6270a9ce8c52c8621026fe9cebae0f92 ]
+commit 5be206eaac9a68992fc3b06fb5dd5634e323de86 upstream.
 
-Writing to the sysctl of a sched_domain->flags directly updates the value of
-the field, and goes nowhere near update_top_cache_domain(). This means that
-the cached domain pointers can end up containing stale data (e.g. the
-domain pointed to doesn't have the relevant flag set anymore).
+The reverted commit illegitly uses tpm2-tools. External dependencies are
+absolutely forbidden from these tests. There is also the problem that
+clearing is not necessarily wanted behavior if the test/target computer is
+not used only solely for testing.
 
-Explicit domain walks that check for flags will be affected by
-the write, but this won't be in sync with the cached pointers which will
-still point to the domains that were cached at the last sched_domain
-build.
+Fixes: a9920d3bad40 ("tpm: selftest: cleanup after unseal with wrong auth/policy test")
+Cc: Tadeusz Struk <tadeusz.struk@intel.com>
+Cc: stable@vger.kernel.org
+Cc: linux-integrity@vger.kernel.org
+Cc: linux-kselftest@vger.kernel.org
+Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-In other words, writing to this interface is playing a dangerous game. It
-could be made to trigger an update of the cached sched_domain pointers when
-written to, but this does not seem to be worth the trouble. Make it
-read-only.
-
-Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20200415210512.805-3-valentin.schneider@arm.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/debug.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/tpm2/test_smoke.sh |    5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/kernel/sched/debug.c b/kernel/sched/debug.c
-index f7e4579e746c5..c4b702fe1d738 100644
---- a/kernel/sched/debug.c
-+++ b/kernel/sched/debug.c
-@@ -258,7 +258,7 @@ sd_alloc_ctl_domain_table(struct sched_domain *sd)
- 	set_table_entry(&table[2], "busy_factor",	  &sd->busy_factor,	    sizeof(int),  0644, proc_dointvec_minmax);
- 	set_table_entry(&table[3], "imbalance_pct",	  &sd->imbalance_pct,	    sizeof(int),  0644, proc_dointvec_minmax);
- 	set_table_entry(&table[4], "cache_nice_tries",	  &sd->cache_nice_tries,    sizeof(int),  0644, proc_dointvec_minmax);
--	set_table_entry(&table[5], "flags",		  &sd->flags,		    sizeof(int),  0644, proc_dointvec_minmax);
-+	set_table_entry(&table[5], "flags",		  &sd->flags,		    sizeof(int),  0444, proc_dointvec_minmax);
- 	set_table_entry(&table[6], "max_newidle_lb_cost", &sd->max_newidle_lb_cost, sizeof(long), 0644, proc_doulongvec_minmax);
- 	set_table_entry(&table[7], "name",		  sd->name,	       CORENAME_MAX_SIZE, 0444, proc_dostring);
- 	/* &table[8] is terminator */
--- 
-2.25.1
-
+--- a/tools/testing/selftests/tpm2/test_smoke.sh
++++ b/tools/testing/selftests/tpm2/test_smoke.sh
+@@ -3,8 +3,3 @@
+ 
+ python -m unittest -v tpm2_tests.SmokeTest
+ python -m unittest -v tpm2_tests.AsyncTest
+-
+-CLEAR_CMD=$(which tpm2_clear)
+-if [ -n $CLEAR_CMD ]; then
+-	tpm2_clear -T device
+-fi
 
 
