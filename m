@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48383217220
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:43:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07D0C217199
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:42:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729105AbgGGP3P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:29:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38942 "EHLO mail.kernel.org"
+        id S1729833AbgGGPWS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:22:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730165AbgGGPZI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:25:08 -0400
+        id S1729832AbgGGPWR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:22:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D783F2083B;
-        Tue,  7 Jul 2020 15:25:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 90F64206E2;
+        Tue,  7 Jul 2020 15:22:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135507;
-        bh=SYFssJ2fYNETHUelv4SR9+zQb3uOZ92wRAwxCOFXqBE=;
+        s=default; t=1594135337;
+        bh=enWQb/tSchN3mf06HJzd5tVwWPwtqvnTPre9qMVaTuU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CYgbedhahGM8m+qtSoqoky909T67A4l+lMiRJm4a+P5Y4HjoRB+ngINX410VengL2
-         XRBgaPntd0Mjnzd/CbhWyOCGusiBfYvKcv1Uy3Nd4hR8rf3qIlQ9y1QPuuyfrhqJWx
-         TVNITh+iSVHYIdGj5DkWwsFwkwVB5LUzqpA1ZNXc=
+        b=YefmlcT6eX6Oi3pUknoclTpqlM8SIEqFEDl7y3FVXW54mftJV9DRKXSZuNvSjM6Xc
+         yg7jh/X/XPHruCRjjtGBLWgIUjalLsEW9hgKckrJYXlS3cWLFL51TND9b1iCIsFsFr
+         ckr8cthpixN+i29gUgyx2nqDT+aNTq0XLCbCOw7c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Van Do <van.do.xw@renesas.com>,
-        Dien Pham <dien.pham.ry@renesas.com>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Niklas Soderlund <niklas.soderlund+renesas@ragnatech.se>,
-        Amit Kucheria <amit.kucheria@linaro.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 069/112] thermal/drivers/rcar_gen3: Fix undefined temperature if negative
-Date:   Tue,  7 Jul 2020 17:17:14 +0200
-Message-Id: <20200707145804.284375172@linuxfoundation.org>
+        stable@vger.kernel.org, "J. Bruce Fields" <bfields@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, Luo Xiaogang <lxgrxd@163.com>
+Subject: [PATCH 5.4 36/65] nfsd4: fix nfsdfs reference count loop
+Date:   Tue,  7 Jul 2020 17:17:15 +0200
+Message-Id: <20200707145754.219024905@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200707145800.925304888@linuxfoundation.org>
-References: <20200707145800.925304888@linuxfoundation.org>
+In-Reply-To: <20200707145752.417212219@linuxfoundation.org>
+References: <20200707145752.417212219@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,53 +43,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dien Pham <dien.pham.ry@renesas.com>
+From: J. Bruce Fields <bfields@redhat.com>
 
-[ Upstream commit 5f8f06425a0dcdad7bedbb77e67f5c65ab4dacfc ]
+[ Upstream commit 681370f4b00af0fcc65bbfb9f82de526ab7ceb0a ]
 
-As description for DIV_ROUND_CLOSEST in file include/linux/kernel.h.
-  "Result is undefined for negative divisors if the dividend variable
-   type is unsigned and for negative dividends if the divisor variable
-   type is unsigned."
+We don't drop the reference on the nfsdfs filesystem with
+mntput(nn->nfsd_mnt) until nfsd_exit_net(), but that won't be called
+until the nfsd module's unloaded, and we can't unload the module as long
+as there's a reference on nfsdfs.  So this prevents module unloading.
 
-In current code, the FIXPT_DIV uses DIV_ROUND_CLOSEST but has not
-checked sign of divisor before using. It makes undefined temperature
-value in case the value is negative.
-
-This patch fixes to satisfy DIV_ROUND_CLOSEST description
-and fix bug too. Note that the variable name "reg" is not good
-because it should be the same type as rcar_gen3_thermal_read().
-However, it's better to rename the "reg" in a further patch as
-cleanup.
-
-Signed-off-by: Van Do <van.do.xw@renesas.com>
-Signed-off-by: Dien Pham <dien.pham.ry@renesas.com>
-[shimoda: minor fixes, add Fixes tag]
-Fixes: 564e73d283af ("thermal: rcar_gen3_thermal: Add R-Car Gen3 thermal driver")
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Reviewed-by: Niklas Soderlund <niklas.soderlund+renesas@ragnatech.se>
-Tested-by: Niklas Soderlund <niklas.soderlund+renesas@ragnatech.se>
-Reviewed-by: Amit Kucheria <amit.kucheria@linaro.org>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/1593085099-2057-1-git-send-email-yoshihiro.shimoda.uh@renesas.com
+Fixes: 2c830dd7209b ("nfsd: persist nfsd filesystem across mounts")
+Reported-and-Tested-by:  Luo Xiaogang <lxgrxd@163.com>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/rcar_gen3_thermal.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfsd/nfs4state.c |  8 +++++++-
+ fs/nfsd/nfsctl.c    | 22 ++++++++++++----------
+ fs/nfsd/nfsd.h      |  3 +++
+ 3 files changed, 22 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/thermal/rcar_gen3_thermal.c b/drivers/thermal/rcar_gen3_thermal.c
-index 58fe7c1ef00b1..c48c5e9b8f203 100644
---- a/drivers/thermal/rcar_gen3_thermal.c
-+++ b/drivers/thermal/rcar_gen3_thermal.c
-@@ -167,7 +167,7 @@ static int rcar_gen3_thermal_get_temp(void *devdata, int *temp)
- {
- 	struct rcar_gen3_thermal_tsc *tsc = devdata;
- 	int mcelsius, val;
--	u32 reg;
-+	int reg;
+diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
+index 1e8f5e281bb53..fa3dcaa82572e 100644
+--- a/fs/nfsd/nfs4state.c
++++ b/fs/nfsd/nfs4state.c
+@@ -7719,9 +7719,14 @@ nfs4_state_start_net(struct net *net)
+ 	struct nfsd_net *nn = net_generic(net, nfsd_net_id);
+ 	int ret;
  
- 	/* Read register and convert to mili Celsius */
- 	reg = rcar_gen3_thermal_read(tsc, REG_GEN3_TEMP) & CTEMP_MASK;
+-	ret = nfs4_state_create_net(net);
++	ret = get_nfsdfs(net);
+ 	if (ret)
+ 		return ret;
++	ret = nfs4_state_create_net(net);
++	if (ret) {
++		mntput(nn->nfsd_mnt);
++		return ret;
++	}
+ 	locks_start_grace(net, &nn->nfsd4_manager);
+ 	nfsd4_client_tracking_init(net);
+ 	if (nn->track_reclaim_completes && nn->reclaim_str_hashtbl_size == 0)
+@@ -7790,6 +7795,7 @@ nfs4_state_shutdown_net(struct net *net)
+ 
+ 	nfsd4_client_tracking_exit(net);
+ 	nfs4_state_destroy_net(net);
++	mntput(nn->nfsd_mnt);
+ }
+ 
+ void
+diff --git a/fs/nfsd/nfsctl.c b/fs/nfsd/nfsctl.c
+index 159feae6af8ba..596ed6a42022d 100644
+--- a/fs/nfsd/nfsctl.c
++++ b/fs/nfsd/nfsctl.c
+@@ -1424,6 +1424,18 @@ static struct file_system_type nfsd_fs_type = {
+ };
+ MODULE_ALIAS_FS("nfsd");
+ 
++int get_nfsdfs(struct net *net)
++{
++	struct nfsd_net *nn = net_generic(net, nfsd_net_id);
++	struct vfsmount *mnt;
++
++	mnt =  vfs_kern_mount(&nfsd_fs_type, SB_KERNMOUNT, "nfsd", NULL);
++	if (IS_ERR(mnt))
++		return PTR_ERR(mnt);
++	nn->nfsd_mnt = mnt;
++	return 0;
++}
++
+ #ifdef CONFIG_PROC_FS
+ static int create_proc_exports_entry(void)
+ {
+@@ -1452,7 +1464,6 @@ unsigned int nfsd_net_id;
+ static __net_init int nfsd_init_net(struct net *net)
+ {
+ 	int retval;
+-	struct vfsmount *mnt;
+ 	struct nfsd_net *nn = net_generic(net, nfsd_net_id);
+ 
+ 	retval = nfsd_export_init(net);
+@@ -1479,16 +1490,8 @@ static __net_init int nfsd_init_net(struct net *net)
+ 	init_waitqueue_head(&nn->ntf_wq);
+ 	seqlock_init(&nn->boot_lock);
+ 
+-	mnt =  vfs_kern_mount(&nfsd_fs_type, SB_KERNMOUNT, "nfsd", NULL);
+-	if (IS_ERR(mnt)) {
+-		retval = PTR_ERR(mnt);
+-		goto out_mount_err;
+-	}
+-	nn->nfsd_mnt = mnt;
+ 	return 0;
+ 
+-out_mount_err:
+-	nfsd_reply_cache_shutdown(nn);
+ out_drc_error:
+ 	nfsd_idmap_shutdown(net);
+ out_idmap_error:
+@@ -1501,7 +1504,6 @@ static __net_exit void nfsd_exit_net(struct net *net)
+ {
+ 	struct nfsd_net *nn = net_generic(net, nfsd_net_id);
+ 
+-	mntput(nn->nfsd_mnt);
+ 	nfsd_reply_cache_shutdown(nn);
+ 	nfsd_idmap_shutdown(net);
+ 	nfsd_export_shutdown(net);
+diff --git a/fs/nfsd/nfsd.h b/fs/nfsd/nfsd.h
+index 7a835fb7d79f7..65097324b42a0 100644
+--- a/fs/nfsd/nfsd.h
++++ b/fs/nfsd/nfsd.h
+@@ -89,6 +89,8 @@ void		nfsd_destroy(struct net *net);
+ 
+ bool		i_am_nfsd(void);
+ 
++int get_nfsdfs(struct net *);
++
+ struct nfsdfs_client {
+ 	struct kref cl_ref;
+ 	void (*cl_release)(struct kref *kref);
+@@ -99,6 +101,7 @@ struct dentry *nfsd_client_mkdir(struct nfsd_net *nn,
+ 		struct nfsdfs_client *ncl, u32 id, const struct tree_descr *);
+ void nfsd_client_rmdir(struct dentry *dentry);
+ 
++
+ #if defined(CONFIG_NFSD_V2_ACL) || defined(CONFIG_NFSD_V3_ACL)
+ #ifdef CONFIG_NFSD_V2_ACL
+ extern const struct svc_version nfsd_acl_version2;
 -- 
 2.25.1
 
