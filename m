@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC97621715F
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:42:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92B8B2171D3
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:43:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728797AbgGGPS0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:18:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57740 "EHLO mail.kernel.org"
+        id S1729924AbgGGP0H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:26:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728414AbgGGPSZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:18:25 -0400
+        id S1728467AbgGGP0G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:26:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7548520738;
-        Tue,  7 Jul 2020 15:18:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D5322065D;
+        Tue,  7 Jul 2020 15:26:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135105;
-        bh=fsPcpWPv1KcnmZ0A+1YF0BjIsP1tJkTQMO0LpTHcD3E=;
+        s=default; t=1594135565;
+        bh=8GNSDHYDMvwSBRWytulC9UqzU2sDvXg/VKTWvHv2yB4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1ro+EgVAnj8motEjlN09kctN4JNcgmpXoJY7N971J76cXUYO3wySXQXjK8dWqXj0w
-         cidiwUNgwDn35s3hNNaccliDTG6j6/qPgaPbUJMevsplRX18MDfAgGkS7hu0+layzt
-         CxYKUNNmB+NFXyil8umb90hJlFZezYKVEsZmRDKs=
+        b=LhmPECyZom5DpP8uFXclr1GpJ5pbYVJVwRYDGAXWMmab3MBvlbKFmaaKL092Rmhe0
+         INDRM8sDsgsCW1PTbyZ/u/EHpJKDZB/Ztp0rMUpSrx0cbp7NnwlVlzrU71V0U7jni2
+         g3aMJsIg+vpICNnk3jPSsnBtWt6HD/ATo4x/JLsE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Moyles <bmoyles@netflix.com>,
-        Mauricio Faria de Oliveira <mfo@canonical.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.19 13/36] crypto: af_alg - fix use-after-free in af_alg_accept() due to bh_lock_sock()
-Date:   Tue,  7 Jul 2020 17:17:05 +0200
-Message-Id: <20200707145749.760045378@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 061/112] cxgb4: use correct type for all-mask IP address comparison
+Date:   Tue,  7 Jul 2020 17:17:06 +0200
+Message-Id: <20200707145803.903081848@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200707145749.130272978@linuxfoundation.org>
-References: <20200707145749.130272978@linuxfoundation.org>
+In-Reply-To: <20200707145800.925304888@linuxfoundation.org>
+References: <20200707145800.925304888@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,191 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
 
-commit 34c86f4c4a7be3b3e35aa48bd18299d4c756064d upstream.
+[ Upstream commit f286dd8eaad5a2758750f407ab079298e0bcc8a5 ]
 
-The locking in af_alg_release_parent is broken as the BH socket
-lock can only be taken if there is a code-path to handle the case
-where the lock is owned by process-context.  Instead of adding
-such handling, we can fix this by changing the ref counts to
-atomic_t.
+Use correct type to check for all-mask exact match IP addresses.
 
-This patch also modifies the main refcnt to include both normal
-and nokey sockets.  This way we don't have to fudge the nokey
-ref count when a socket changes from nokey to normal.
+Fixes following sparse warnings due to big endian value checks
+against 0xffffffff in is_addr_all_mask():
+cxgb4_filter.c:977:25: warning: restricted __be32 degrades to integer
+cxgb4_filter.c:983:37: warning: restricted __be32 degrades to integer
+cxgb4_filter.c:984:37: warning: restricted __be32 degrades to integer
+cxgb4_filter.c:985:37: warning: restricted __be32 degrades to integer
+cxgb4_filter.c:986:37: warning: restricted __be32 degrades to integer
 
-Credits go to Mauricio Faria de Oliveira who diagnosed this bug
-and sent a patch for it:
-
-https://lore.kernel.org/linux-crypto/20200605161657.535043-1-mfo@canonical.com/
-
-Reported-by: Brian Moyles <bmoyles@netflix.com>
-Reported-by: Mauricio Faria de Oliveira <mfo@canonical.com>
-Fixes: 37f96694cf73 ("crypto: af_alg - Use bh_lock_sock in...")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 3eb8b62d5a26 ("cxgb4: add support to create hash-filters via tc-flower offload")
+Signed-off-by: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/af_alg.c         |   26 +++++++++++---------------
- crypto/algif_aead.c     |    9 +++------
- crypto/algif_hash.c     |    9 +++------
- crypto/algif_skcipher.c |    9 +++------
- include/crypto/if_alg.h |    4 ++--
- 5 files changed, 22 insertions(+), 35 deletions(-)
+ drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/crypto/af_alg.c
-+++ b/crypto/af_alg.c
-@@ -133,21 +133,15 @@ EXPORT_SYMBOL_GPL(af_alg_release);
- void af_alg_release_parent(struct sock *sk)
- {
- 	struct alg_sock *ask = alg_sk(sk);
--	unsigned int nokey = ask->nokey_refcnt;
--	bool last = nokey && !ask->refcnt;
-+	unsigned int nokey = atomic_read(&ask->nokey_refcnt);
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
+index c6bf2648fe420..7a7f61a8cdf40 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
+@@ -1112,16 +1112,16 @@ static bool is_addr_all_mask(u8 *ipmask, int family)
+ 		struct in_addr *addr;
  
- 	sk = ask->parent;
- 	ask = alg_sk(sk);
+ 		addr = (struct in_addr *)ipmask;
+-		if (addr->s_addr == 0xffffffff)
++		if (ntohl(addr->s_addr) == 0xffffffff)
+ 			return true;
+ 	} else if (family == AF_INET6) {
+ 		struct in6_addr *addr6;
  
--	local_bh_disable();
--	bh_lock_sock(sk);
--	ask->nokey_refcnt -= nokey;
--	if (!last)
--		last = !--ask->refcnt;
--	bh_unlock_sock(sk);
--	local_bh_enable();
-+	if (nokey)
-+		atomic_dec(&ask->nokey_refcnt);
- 
--	if (last)
-+	if (atomic_dec_and_test(&ask->refcnt))
- 		sock_put(sk);
- }
- EXPORT_SYMBOL_GPL(af_alg_release_parent);
-@@ -192,7 +186,7 @@ static int alg_bind(struct socket *sock,
- 
- 	err = -EBUSY;
- 	lock_sock(sk);
--	if (ask->refcnt | ask->nokey_refcnt)
-+	if (atomic_read(&ask->refcnt))
- 		goto unlock;
- 
- 	swap(ask->type, type);
-@@ -241,7 +235,7 @@ static int alg_setsockopt(struct socket
- 	int err = -EBUSY;
- 
- 	lock_sock(sk);
--	if (ask->refcnt)
-+	if (atomic_read(&ask->refcnt) != atomic_read(&ask->nokey_refcnt))
- 		goto unlock;
- 
- 	type = ask->type;
-@@ -308,12 +302,14 @@ int af_alg_accept(struct sock *sk, struc
- 
- 	sk2->sk_family = PF_ALG;
- 
--	if (nokey || !ask->refcnt++)
-+	if (atomic_inc_return_relaxed(&ask->refcnt) == 1)
- 		sock_hold(sk);
--	ask->nokey_refcnt += nokey;
-+	if (nokey) {
-+		atomic_inc(&ask->nokey_refcnt);
-+		atomic_set(&alg_sk(sk2)->nokey_refcnt, 1);
-+	}
- 	alg_sk(sk2)->parent = sk;
- 	alg_sk(sk2)->type = type;
--	alg_sk(sk2)->nokey_refcnt = nokey;
- 
- 	newsock->ops = type->ops;
- 	newsock->state = SS_CONNECTED;
---- a/crypto/algif_aead.c
-+++ b/crypto/algif_aead.c
-@@ -388,7 +388,7 @@ static int aead_check_key(struct socket
- 	struct alg_sock *ask = alg_sk(sk);
- 
- 	lock_sock(sk);
--	if (ask->refcnt)
-+	if (!atomic_read(&ask->nokey_refcnt))
- 		goto unlock_child;
- 
- 	psk = ask->parent;
-@@ -400,11 +400,8 @@ static int aead_check_key(struct socket
- 	if (crypto_aead_get_flags(tfm->aead) & CRYPTO_TFM_NEED_KEY)
- 		goto unlock;
- 
--	if (!pask->refcnt++)
--		sock_hold(psk);
--
--	ask->refcnt = 1;
--	sock_put(psk);
-+	atomic_dec(&pask->nokey_refcnt);
-+	atomic_set(&ask->nokey_refcnt, 0);
- 
- 	err = 0;
- 
---- a/crypto/algif_hash.c
-+++ b/crypto/algif_hash.c
-@@ -306,7 +306,7 @@ static int hash_check_key(struct socket
- 	struct alg_sock *ask = alg_sk(sk);
- 
- 	lock_sock(sk);
--	if (ask->refcnt)
-+	if (!atomic_read(&ask->nokey_refcnt))
- 		goto unlock_child;
- 
- 	psk = ask->parent;
-@@ -318,11 +318,8 @@ static int hash_check_key(struct socket
- 	if (crypto_ahash_get_flags(tfm) & CRYPTO_TFM_NEED_KEY)
- 		goto unlock;
- 
--	if (!pask->refcnt++)
--		sock_hold(psk);
--
--	ask->refcnt = 1;
--	sock_put(psk);
-+	atomic_dec(&pask->nokey_refcnt);
-+	atomic_set(&ask->nokey_refcnt, 0);
- 
- 	err = 0;
- 
---- a/crypto/algif_skcipher.c
-+++ b/crypto/algif_skcipher.c
-@@ -215,7 +215,7 @@ static int skcipher_check_key(struct soc
- 	struct alg_sock *ask = alg_sk(sk);
- 
- 	lock_sock(sk);
--	if (ask->refcnt)
-+	if (!atomic_read(&ask->nokey_refcnt))
- 		goto unlock_child;
- 
- 	psk = ask->parent;
-@@ -227,11 +227,8 @@ static int skcipher_check_key(struct soc
- 	if (crypto_skcipher_get_flags(tfm) & CRYPTO_TFM_NEED_KEY)
- 		goto unlock;
- 
--	if (!pask->refcnt++)
--		sock_hold(psk);
--
--	ask->refcnt = 1;
--	sock_put(psk);
-+	atomic_dec(&pask->nokey_refcnt);
-+	atomic_set(&ask->nokey_refcnt, 0);
- 
- 	err = 0;
- 
---- a/include/crypto/if_alg.h
-+++ b/include/crypto/if_alg.h
-@@ -34,8 +34,8 @@ struct alg_sock {
- 
- 	struct sock *parent;
- 
--	unsigned int refcnt;
--	unsigned int nokey_refcnt;
-+	atomic_t refcnt;
-+	atomic_t nokey_refcnt;
- 
- 	const struct af_alg_type *type;
- 	void *private;
+ 		addr6 = (struct in6_addr *)ipmask;
+-		if (addr6->s6_addr32[0] == 0xffffffff &&
+-		    addr6->s6_addr32[1] == 0xffffffff &&
+-		    addr6->s6_addr32[2] == 0xffffffff &&
+-		    addr6->s6_addr32[3] == 0xffffffff)
++		if (ntohl(addr6->s6_addr32[0]) == 0xffffffff &&
++		    ntohl(addr6->s6_addr32[1]) == 0xffffffff &&
++		    ntohl(addr6->s6_addr32[2]) == 0xffffffff &&
++		    ntohl(addr6->s6_addr32[3]) == 0xffffffff)
+ 			return true;
+ 	}
+ 	return false;
+-- 
+2.25.1
+
 
 
