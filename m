@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75D7621706B
+	by mail.lfdr.de (Postfix) with ESMTP id E3E1E21706C
 	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:23:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728495AbgGGPRB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:17:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56606 "EHLO mail.kernel.org"
+        id S1728253AbgGGPRE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:17:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728500AbgGGPRA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:17:00 -0400
+        id S1728500AbgGGPRC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:17:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 630622065D;
-        Tue,  7 Jul 2020 15:16:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA13C207C4;
+        Tue,  7 Jul 2020 15:17:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135019;
-        bh=2ERbcQ7cGP/23y0D4cEPHXs1LKTxeDYDYXSpj3NCvDw=;
+        s=default; t=1594135022;
+        bh=PsNR15jicgNTtR5rZ/Yn4vYqsdSUwsq5zF9gBWOM4wc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o2Jgs+wgvUQ7bVcRAL85T10Al4NPySXP4YQxaFoT4DYK/0m3iD4GM6+AZTzi2DRHq
-         Ve31rxz24d6i1K1OhwiHZwHgWBwEX5E5eUa91Pt8e32E8ZQ5/uO4JWpTgfwYCRDvJK
-         1C5PxKr8xuxLE8cIytwkV1ahAWBfs7qHMPSkZpRU=
+        b=imAkXyhDW42jdBkGZv0xegivW4ETqciYSofqSKD5JiriOJu/k2SE9CqbQA+octy64
+         92X5+ICk0xVqWrGe2Hjpr9JdJAjR2uWKmoyvctECfU1FzFaG7nDBgFG9vVbnMQMO4P
+         v8qG0oerW9vy8Ur/vKE5MYWpobFUwMTfW+DaMpH0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Steve French <stfrench@microsoft.com>,
-        Aurelien Aptel <aaptel@suse.com>
-Subject: [PATCH 4.14 23/27] cifs: Fix the target file was deleted when rename failed.
-Date:   Tue,  7 Jul 2020 17:15:50 +0200
-Message-Id: <20200707145750.052596097@linuxfoundation.org>
+        stable@vger.kernel.org, Hauke Mehrtens <hauke@hauke-m.de>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH 4.14 24/27] MIPS: Add missing EHB in mtc0 -> mfc0 sequence for DSPen
+Date:   Tue,  7 Jul 2020 17:15:51 +0200
+Message-Id: <20200707145750.098473606@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200707145748.944863698@linuxfoundation.org>
 References: <20200707145748.944863698@linuxfoundation.org>
@@ -45,56 +43,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Hauke Mehrtens <hauke@hauke-m.de>
 
-commit 9ffad9263b467efd8f8dc7ae1941a0a655a2bab2 upstream.
+commit fcec538ef8cca0ad0b84432235dccd9059c8e6f8 upstream.
 
-When xfstest generic/035, we found the target file was deleted
-if the rename return -EACESS.
+This resolves the hazard between the mtc0 in the change_c0_status() and
+the mfc0 in configure_exception_vector(). Without resolving this hazard
+configure_exception_vector() could read an old value and would restore
+this old value again. This would revert the changes change_c0_status()
+did. I checked this by printing out the read_c0_status() at the end of
+per_cpu_trap_init() and the ST0_MX is not set without this patch.
 
-In cifs_rename2, we unlink the positive target dentry if rename
-failed with EACESS or EEXIST, even if the target dentry is positived
-before rename. Then the existing file was deleted.
+The hazard is documented in the MIPS Architecture Reference Manual Vol.
+III: MIPS32/microMIPS32 Privileged Resource Architecture (MD00088), rev
+6.03 table 8.1 which includes:
 
-We should just delete the target file which created during the
-rename.
+   Producer | Consumer | Hazard
+  ----------|----------|----------------------------
+   mtc0     | mfc0     | any coprocessor 0 register
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Reviewed-by: Aurelien Aptel <aaptel@suse.com>
+I saw this hazard on an Atheros AR9344 rev 2 SoC with a MIPS 74Kc CPU.
+There the change_c0_status() function would activate the DSPen by
+setting ST0_MX in the c0_status register. This was reverted and then the
+system got a DSP exception when the DSP registers were saved in
+save_dsp() in the first process switch. The crash looks like this:
+
+[    0.089999] Mount-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
+[    0.097796] Mountpoint-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
+[    0.107070] Kernel panic - not syncing: Unexpected DSP exception
+[    0.113470] Rebooting in 1 seconds..
+
+We saw this problem in OpenWrt only on the MIPS 74Kc based Atheros SoCs,
+not on the 24Kc based SoCs. We only saw it with kernel 5.4 not with
+kernel 4.19, in addition we had to use GCC 8.4 or 9.X, with GCC 8.3 it
+did not happen.
+
+In the kernel I bisected this problem to commit 9012d011660e ("compiler:
+allow all arches to enable CONFIG_OPTIMIZE_INLINING"), but when this was
+reverted it also happened after commit 172dcd935c34b ("MIPS: Always
+allocate exception vector for MIPSr2+").
+
+Commit 0b24cae4d535 ("MIPS: Add missing EHB in mtc0 -> mfc0 sequence.")
+does similar changes to a different file. I am not sure if there are
+more places affected by this problem.
+
+Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/inode.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ arch/mips/kernel/traps.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/cifs/inode.c
-+++ b/fs/cifs/inode.c
-@@ -1778,6 +1778,7 @@ cifs_rename2(struct inode *source_dir, s
- 	FILE_UNIX_BASIC_INFO *info_buf_target;
- 	unsigned int xid;
- 	int rc, tmprc;
-+	bool new_target = d_really_is_negative(target_dentry);
+--- a/arch/mips/kernel/traps.c
++++ b/arch/mips/kernel/traps.c
+@@ -2135,6 +2135,7 @@ static void configure_status(void)
  
- 	if (flags & ~RENAME_NOREPLACE)
- 		return -EINVAL;
-@@ -1854,8 +1855,13 @@ cifs_rename2(struct inode *source_dir, s
- 	 */
+ 	change_c0_status(ST0_CU|ST0_MX|ST0_RE|ST0_FR|ST0_BEV|ST0_TS|ST0_KX|ST0_SX|ST0_UX,
+ 			 status_set);
++	back_to_back_c0_hazard();
+ }
  
- unlink_target:
--	/* Try unlinking the target dentry if it's not negative */
--	if (d_really_is_positive(target_dentry) && (rc == -EACCES || rc == -EEXIST)) {
-+	/*
-+	 * If the target dentry was created during the rename, try
-+	 * unlinking it if it's not negative
-+	 */
-+	if (new_target &&
-+	    d_really_is_positive(target_dentry) &&
-+	    (rc == -EACCES || rc == -EEXIST)) {
- 		if (d_is_dir(target_dentry))
- 			tmprc = cifs_rmdir(target_dir, target_dentry);
- 		else
+ unsigned int hwrena;
 
 
