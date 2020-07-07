@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66F9521706F
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:24:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F6E021705E
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:23:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729171AbgGGPRK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:17:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56810 "EHLO mail.kernel.org"
+        id S1729084AbgGGPQp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:16:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728335AbgGGPRK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:17:10 -0400
+        id S1729083AbgGGPQp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:16:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 47D762078A;
-        Tue,  7 Jul 2020 15:17:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3415620663;
+        Tue,  7 Jul 2020 15:16:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135029;
-        bh=TFcdCfvYJ7iy0Bl2IrPcojqeLuEsw+SucB4ANliI+PE=;
+        s=default; t=1594135004;
+        bh=idTxtCNKIbSRyntYocSBfWdeqKocdgP1o74vUnpWvY0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tNnQzCPcfqEgMyLEfmIwgWoFmxp6kQ28J+a7PKSQJocSHmp7Wr6SZUCnYwMFJJ6k9
-         b8t0mAy5sRux0W9hliwCmesl1uwbI3M3QKY8tVW/IL/iBpEjYt2pwPx2ipAOuR0Ir8
-         kSHHIWYgXRuehzMqFlw+RFznRTP7BcLvBEUqSmtQ=
+        b=y7NdC5nL1tVjxCtHwC2tytJA3nGIFRWgYjq1T+wriVpsiRflI7vNxIuxMi9YdR31F
+         a7LlzREOiAUvOz+tJir+NvxsY3dWXOonLSQf0wxXt/C6iGeLS0n9DB3t+qxpe6CSfj
+         GhN1P7QMje8uVztzviKPVrEosjCL9Gu5aJiuLaHo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 17/27] virtio-blk: free vblk-vqs in error path of virtblk_probe()
-Date:   Tue,  7 Jul 2020 17:15:44 +0200
-Message-Id: <20200707145749.774950267@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 18/27] i2c: algo-pca: Add 0x78 as SCL stuck low status for PCA9665
+Date:   Tue,  7 Jul 2020 17:15:45 +0200
+Message-Id: <20200707145749.827942938@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200707145748.944863698@linuxfoundation.org>
 References: <20200707145748.944863698@linuxfoundation.org>
@@ -45,34 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hou Tao <houtao1@huawei.com>
+From: Chris Packham <chris.packham@alliedtelesis.co.nz>
 
-[ Upstream commit e7eea44eefbdd5f0345a0a8b80a3ca1c21030d06 ]
+[ Upstream commit cd217f2300793a106b49c7dfcbfb26e348bc7593 ]
 
-Else there will be memory leak if alloc_disk() fails.
+The PCA9665 datasheet says that I2CSTA = 78h indicates that SCL is stuck
+low, this differs to the PCA9564 which uses 90h for this indication.
+Treat either 0x78 or 0x90 as an indication that the SCL line is stuck.
 
-Fixes: 6a27b656fc02 ("block: virtio-blk: support multi virt queues per virtio-blk device")
-Signed-off-by: Hou Tao <houtao1@huawei.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Based on looking through the PCA9564 and PCA9665 datasheets this should
+be safe for both chips. The PCA9564 should not return 0x78 for any valid
+state and the PCA9665 should not return 0x90.
+
+Fixes: eff9ec95efaa ("i2c-algo-pca: Add PCA9665 support")
+Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/virtio_blk.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/i2c/algos/i2c-algo-pca.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 0e18eed62c575..2f15e38fb3f8c 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -879,6 +879,7 @@ static int virtblk_probe(struct virtio_device *vdev)
- 	put_disk(vblk->disk);
- out_free_vq:
- 	vdev->config->del_vqs(vdev);
-+	kfree(vblk->vqs);
- out_free_vblk:
- 	kfree(vblk);
- out_free_index:
+diff --git a/drivers/i2c/algos/i2c-algo-pca.c b/drivers/i2c/algos/i2c-algo-pca.c
+index e370804ec8bc6..3a9db4626cb60 100644
+--- a/drivers/i2c/algos/i2c-algo-pca.c
++++ b/drivers/i2c/algos/i2c-algo-pca.c
+@@ -326,7 +326,8 @@ static int pca_xfer(struct i2c_adapter *i2c_adap,
+ 			DEB2("BUS ERROR - SDA Stuck low\n");
+ 			pca_reset(adap);
+ 			goto out;
+-		case 0x90: /* Bus error - SCL stuck low */
++		case 0x78: /* Bus error - SCL stuck low (PCA9665) */
++		case 0x90: /* Bus error - SCL stuck low (PCA9564) */
+ 			DEB2("BUS ERROR - SCL Stuck low\n");
+ 			pca_reset(adap);
+ 			goto out;
 -- 
 2.25.1
 
