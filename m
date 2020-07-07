@@ -2,189 +2,164 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F45A216FF7
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:14:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10505217026
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:16:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728297AbgGGPOF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:14:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53234 "EHLO mail.kernel.org"
+        id S1728422AbgGGPPH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:15:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726911AbgGGPOF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:14:05 -0400
+        id S1725944AbgGGPPE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:15:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B527B2065D;
-        Tue,  7 Jul 2020 15:14:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 70A7D2065D;
+        Tue,  7 Jul 2020 15:15:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594134844;
-        bh=xJYuqbJhFQb7gAW7m99nnSEgrTj2Tb/a1uYGT1IyZcc=;
-        h=From:To:Cc:Subject:Date:From;
-        b=BsfZJJ6li7Ji0LotBsZwAQJWNPBXXf98y19wQvMh3xx9GxJhbr9SNGEePAJeF3tT7
-         YlBAlLKYsM0dDPTMZ9HfFHmpdYPZEdqUhfOnsycDh/NKmXtpXRi+BssUjpw51bRHXr
-         yin12+IL0ddL0H3YdVRsG02+4zNC3C5NP3TEOHg8=
+        s=default; t=1594134903;
+        bh=UovBvNl176vXXkoshjlCvEe5FE1uU/GFN9ITd37nFdY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=GGN5qIVCQ45zJl1ka2kskibMJQthReFlJNJtljuA/1Up6iwKKo4fQyTtHvOmFmROA
+         oVPcz1Hwl/Jj9hSxZUeX/lbjU/cz4FCpZ+VjP2VnVECIGbbrnRh5w2aoBrS3lxrYYr
+         royQafYI6Zmgm1AP0Y4+60AIHuVMK7JEyJh9gLEg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: [PATCH 4.9 00/24] 4.9.230-rc1 review
-Date:   Tue,  7 Jul 2020 17:13:32 +0200
-Message-Id: <20200707145748.952502272@linuxfoundation.org>
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        Anand Jain <anand.jain@oracle.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 01/24] btrfs: fix a block group ref counter leak after failure to remove block group
+Date:   Tue,  7 Jul 2020 17:13:33 +0200
+Message-Id: <20200707145749.020067363@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-MIME-Version: 1.0
+In-Reply-To: <20200707145748.952502272@linuxfoundation.org>
+References: <20200707145748.952502272@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.230-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.9.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.9.230-rc1
-X-KernelTest-Deadline: 2020-07-09T14:57+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.9.230 release.
-There are 24 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Filipe Manana <fdmanana@suse.com>
 
-Responses should be made by Thu, 09 Jul 2020 14:57:34 +0000.
-Anything received after that time might be too late.
+[ Upstream commit 9fecd13202f520f3f25d5b1c313adb740fe19773 ]
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.230-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
-and the diffstat can be found below.
+When removing a block group, if we fail to delete the block group's item
+from the extent tree, we jump to the 'out' label and end up decrementing
+the block group's reference count once only (by 1), resulting in a counter
+leak because the block group at that point was already removed from the
+block group cache rbtree - so we have to decrement the reference count
+twice, once for the rbtree and once for our lookup at the start of the
+function.
 
-thanks,
+There is a second bug where if removing the free space tree entries (the
+call to remove_block_group_free_space()) fails we end up jumping to the
+'out_put_group' label but end up decrementing the reference count only
+once, when we should have done it twice, since we have already removed
+the block group from the block group cache rbtree. This happens because
+the reference count decrement for the rbtree reference happens after
+attempting to remove the free space tree entries, which is far away from
+the place where we remove the block group from the rbtree.
 
-greg k-h
+To make things less error prone, decrement the reference count for the
+rbtree immediately after removing the block group from it. This also
+eleminates the need for two different exit labels on error, renaming
+'out_put_label' to just 'out' and removing the old 'out'.
 
--------------
-Pseudo-Shortlog of commits:
+Fixes: f6033c5e333238 ("btrfs: fix block group leak when removing fails")
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Reviewed-by: Anand Jain <anand.jain@oracle.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ fs/btrfs/extent-tree.c | 19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.9.230-rc1
+diff --git a/fs/btrfs/extent-tree.c b/fs/btrfs/extent-tree.c
+index a83f353e44188..c0033a0d00787 100644
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -10645,7 +10645,7 @@ int btrfs_remove_block_group(struct btrfs_trans_handle *trans,
+ 	path = btrfs_alloc_path();
+ 	if (!path) {
+ 		ret = -ENOMEM;
+-		goto out_put_group;
++		goto out;
+ 	}
+ 
+ 	/*
+@@ -10684,7 +10684,7 @@ int btrfs_remove_block_group(struct btrfs_trans_handle *trans,
+ 		ret = btrfs_orphan_add(trans, inode);
+ 		if (ret) {
+ 			btrfs_add_delayed_iput(inode);
+-			goto out_put_group;
++			goto out;
+ 		}
+ 		clear_nlink(inode);
+ 		/* One for the block groups ref */
+@@ -10707,13 +10707,13 @@ int btrfs_remove_block_group(struct btrfs_trans_handle *trans,
+ 
+ 	ret = btrfs_search_slot(trans, tree_root, &key, path, -1, 1);
+ 	if (ret < 0)
+-		goto out_put_group;
++		goto out;
+ 	if (ret > 0)
+ 		btrfs_release_path(path);
+ 	if (ret == 0) {
+ 		ret = btrfs_del_item(trans, tree_root, path);
+ 		if (ret)
+-			goto out_put_group;
++			goto out;
+ 		btrfs_release_path(path);
+ 	}
+ 
+@@ -10722,6 +10722,9 @@ int btrfs_remove_block_group(struct btrfs_trans_handle *trans,
+ 		 &root->fs_info->block_group_cache_tree);
+ 	RB_CLEAR_NODE(&block_group->cache_node);
+ 
++	/* Once for the block groups rbtree */
++	btrfs_put_block_group(block_group);
++
+ 	if (root->fs_info->first_logical_byte == block_group->key.objectid)
+ 		root->fs_info->first_logical_byte = (u64)-1;
+ 	spin_unlock(&root->fs_info->block_group_cache_lock);
+@@ -10871,10 +10874,7 @@ int btrfs_remove_block_group(struct btrfs_trans_handle *trans,
+ 
+ 	ret = remove_block_group_free_space(trans, root->fs_info, block_group);
+ 	if (ret)
+-		goto out_put_group;
+-
+-	/* Once for the block groups rbtree */
+-	btrfs_put_block_group(block_group);
++		goto out;
+ 
+ 	ret = btrfs_search_slot(trans, root, &key, path, -1, 1);
+ 	if (ret > 0)
+@@ -10884,10 +10884,9 @@ int btrfs_remove_block_group(struct btrfs_trans_handle *trans,
+ 
+ 	ret = btrfs_del_item(trans, root, path);
+ 
+-out_put_group:
++out:
+ 	/* Once for the lookup reference */
+ 	btrfs_put_block_group(block_group);
+-out:
+ 	btrfs_free_path(path);
+ 	return ret;
+ }
+-- 
+2.25.1
 
-Peter Jones <pjones@redhat.com>
-    efi: Make it possible to disable efivar_ssdt entirely
-
-Vasily Averin <vvs@virtuozzo.com>
-    netfilter: nf_conntrack_h323: lost .data_len definition for Q.931/ipv6
-
-Hauke Mehrtens <hauke@hauke-m.de>
-    MIPS: Add missing EHB in mtc0 -> mfc0 sequence for DSPen
-
-Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-    cifs: Fix the target file was deleted when rename failed.
-
-Paul Aurich <paul@darkrain42.org>
-    SMB3: Honor persistent/resilient handle flags for multiuser mounts
-
-Paul Aurich <paul@darkrain42.org>
-    SMB3: Honor 'seal' flag for multiuser mounts
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Revert "ALSA: usb-audio: Improve frames size computation"
-
-Chris Packham <chris.packham@alliedtelesis.co.nz>
-    i2c: algo-pca: Add 0x78 as SCL stuck low status for PCA9665
-
-Hou Tao <houtao1@huawei.com>
-    virtio-blk: free vblk-vqs in error path of virtblk_probe()
-
-Misono Tomohiro <misono.tomohiro@jp.fujitsu.com>
-    hwmon: (acpi_power_meter) Fix potential memory leak in acpi_power_meter_add()
-
-Chu Lin <linchuyuan@google.com>
-    hwmon: (max6697) Make sure the OVERT mask is set correctly
-
-Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
-    cxgb4: parse TC-U32 key values and masks natively
-
-Shile Zhang <shile.zhang@nokia.com>
-    sched/rt: Show the 'sched_rr_timeslice' SCHED_RR timeslice tuning knob in milliseconds
-
-Herbert Xu <herbert@gondor.apana.org.au>
-    crypto: af_alg - fix use-after-free in af_alg_accept() due to bh_lock_sock()
-
-Douglas Anderson <dianders@chromium.org>
-    kgdb: Avoid suspicious RCU usage warning
-
-Zqiang <qiang.zhang@windriver.com>
-    usb: usbtest: fix missing kfree(dev->buf) in usbtest_disconnect
-
-Qian Cai <cai@lca.pw>
-    mm/slub: fix stack overruns with SLUB_STATS
-
-Dongli Zhang <dongli.zhang@oracle.com>
-    mm/slub.c: fix corrupted freechain in deactivate_slab()
-
-Tuomas Tynkkynen <tuomas.tynkkynen@iki.fi>
-    usbnet: smsc95xx: Fix use-after-free after removal
-
-Borislav Petkov <bp@suse.de>
-    EDAC/amd64: Read back the scrub rate PCI register on F15h
-
-Hugh Dickins <hughd@google.com>
-    mm: fix swap cache node allocation mask
-
-Filipe Manana <fdmanana@suse.com>
-    btrfs: fix data block group relocation failure due to concurrent scrub
-
-Anand Jain <Anand.Jain@oracle.com>
-    btrfs: cow_file_range() num_bytes and disk_num_bytes are same
-
-Filipe Manana <fdmanana@suse.com>
-    btrfs: fix a block group ref counter leak after failure to remove block group
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |   4 +-
- arch/mips/kernel/traps.c                           |   1 +
- crypto/af_alg.c                                    |  26 ++---
- crypto/algif_aead.c                                |   9 +-
- crypto/algif_hash.c                                |   9 +-
- crypto/algif_skcipher.c                            |   9 +-
- drivers/block/virtio_blk.c                         |   1 +
- drivers/edac/amd64_edac.c                          |   2 +
- drivers/firmware/efi/Kconfig                       |  11 ++
- drivers/firmware/efi/efi.c                         |   2 +-
- drivers/hwmon/acpi_power_meter.c                   |   4 +-
- drivers/hwmon/max6697.c                            |   7 +-
- drivers/i2c/algos/i2c-algo-pca.c                   |   3 +-
- drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_u32.c  |  18 +--
- .../ethernet/chelsio/cxgb4/cxgb4_tc_u32_parse.h    | 122 ++++++++++++++-------
- drivers/net/usb/smsc95xx.c                         |   2 +-
- drivers/usb/misc/usbtest.c                         |   1 +
- fs/btrfs/extent-tree.c                             |  19 ++--
- fs/btrfs/inode.c                                   |  36 ++++--
- fs/cifs/connect.c                                  |   3 +
- fs/cifs/inode.c                                    |  10 +-
- include/crypto/if_alg.h                            |   4 +-
- include/linux/sched/sysctl.h                       |   1 +
- kernel/debug/debug_core.c                          |   4 +
- kernel/sched/core.c                                |   5 +-
- kernel/sched/rt.c                                  |   1 +
- kernel/sysctl.c                                    |   2 +-
- mm/slub.c                                          |  30 ++++-
- mm/swap_state.c                                    |   3 +-
- net/netfilter/nf_conntrack_h323_main.c             |   1 +
- sound/usb/card.h                                   |   4 -
- sound/usb/endpoint.c                               |  43 +-------
- sound/usb/endpoint.h                               |   1 -
- sound/usb/pcm.c                                    |   2 -
- 34 files changed, 235 insertions(+), 165 deletions(-)
 
 
