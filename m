@@ -2,39 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7ED3B217114
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:25:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BE732170D2
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:24:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729273AbgGGPX6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:23:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37250 "EHLO mail.kernel.org"
+        id S1729631AbgGGPVC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:21:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730022AbgGGPXz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:23:55 -0400
+        id S1728597AbgGGPU6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:20:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45F1E2078D;
-        Tue,  7 Jul 2020 15:23:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 83E3A206F6;
+        Tue,  7 Jul 2020 15:20:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135434;
-        bh=NZZf369o9CqVagxURHWT3hkOtLKZWAf5ATL3y3fFzPA=;
+        s=default; t=1594135258;
+        bh=mF+NvVN5NAtMW5RZRp6kYqnq2L/xSN0Wo+a1+EVBHcU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RHwgKE9kMcrNdfnAIWy3fZ1WR3iMCQeDXGJaaBnHD8kVPhowFBb0f6rgZjMAe2HGp
-         rEhYDKvugH83Ug1nLD3tlTX8njH7SZ6PMIKIZV8ZdfemB/Z6dgVzxlzCMuZSn53RAz
-         o5EFTwzdDo5cXkIIrcawPtU9wWbzyjrHMk+G4wKY=
+        b=bkyQ2PJL8ix4ldfA0ggE5szoeZOOXSxGnwTxwc9Kt3ttVTQ8BQ6IOJYi2+xMePCgY
+         AxyuSI/b32/dIyFN3CDlwzjF4XfZabcQKwAqhzvDXOpVF5k7BzK3j9rx1ydHiNLKxp
+         Vd1z/wjd/4lI+n7L/9UfQdcy7883NF5gtnhDvtvQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Glauber Costa <glauber@scylladb.com>,
+        Christoph Lameter <cl@linux.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 040/112] kgdb: Avoid suspicious RCU usage warning
-Date:   Tue,  7 Jul 2020 17:16:45 +0200
-Message-Id: <20200707145802.900551198@linuxfoundation.org>
+Subject: [PATCH 5.4 07/65] mm/slub: fix stack overruns with SLUB_STATS
+Date:   Tue,  7 Jul 2020 17:16:46 +0200
+Message-Id: <20200707145752.794100576@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200707145800.925304888@linuxfoundation.org>
-References: <20200707145800.925304888@linuxfoundation.org>
+In-Reply-To: <20200707145752.417212219@linuxfoundation.org>
+References: <20200707145752.417212219@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,107 +50,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit 440ab9e10e2e6e5fd677473ee6f9e3af0f6904d6 ]
+[ Upstream commit a68ee0573991e90af2f1785db309206408bad3e5 ]
 
-At times when I'm using kgdb I see a splat on my console about
-suspicious RCU usage.  I managed to come up with a case that could
-reproduce this that looked like this:
+There is no need to copy SLUB_STATS items from root memcg cache to new
+memcg cache copies.  Doing so could result in stack overruns because the
+store function only accepts 0 to clear the stat and returns an error for
+everything else while the show method would print out the whole stat.
 
-  WARNING: suspicious RCU usage
-  5.7.0-rc4+ #609 Not tainted
-  -----------------------------
-  kernel/pid.c:395 find_task_by_pid_ns() needs rcu_read_lock() protection!
+Then, the mismatch of the lengths returns from show and store methods
+happens in memcg_propagate_slab_attrs():
 
-  other info that might help us debug this:
+	else if (root_cache->max_attr_size < ARRAY_SIZE(mbuf))
+		buf = mbuf;
 
-    rcu_scheduler_active = 2, debug_locks = 1
-  3 locks held by swapper/0/1:
-   #0: ffffff81b6b8e988 (&dev->mutex){....}-{3:3}, at: __device_attach+0x40/0x13c
-   #1: ffffffd01109e9e8 (dbg_master_lock){....}-{2:2}, at: kgdb_cpu_enter+0x20c/0x7ac
-   #2: ffffffd01109ea90 (dbg_slave_lock){....}-{2:2}, at: kgdb_cpu_enter+0x3ec/0x7ac
+max_attr_size is only 2 from slab_attr_store(), then, it uses mbuf[64]
+in show_stat() later where a bounch of sprintf() would overrun the stack
+variable.  Fix it by always allocating a page of buffer to be used in
+show_stat() if SLUB_STATS=y which should only be used for debug purpose.
 
-  stack backtrace:
-  CPU: 7 PID: 1 Comm: swapper/0 Not tainted 5.7.0-rc4+ #609
-  Hardware name: Google Cheza (rev3+) (DT)
-  Call trace:
-   dump_backtrace+0x0/0x1b8
-   show_stack+0x1c/0x24
-   dump_stack+0xd4/0x134
-   lockdep_rcu_suspicious+0xf0/0x100
-   find_task_by_pid_ns+0x5c/0x80
-   getthread+0x8c/0xb0
-   gdb_serial_stub+0x9d4/0xd04
-   kgdb_cpu_enter+0x284/0x7ac
-   kgdb_handle_exception+0x174/0x20c
-   kgdb_brk_fn+0x24/0x30
-   call_break_hook+0x6c/0x7c
-   brk_handler+0x20/0x5c
-   do_debug_exception+0x1c8/0x22c
-   el1_sync_handler+0x3c/0xe4
-   el1_sync+0x7c/0x100
-   rpmh_rsc_probe+0x38/0x420
-   platform_drv_probe+0x94/0xb4
-   really_probe+0x134/0x300
-   driver_probe_device+0x68/0x100
-   __device_attach_driver+0x90/0xa8
-   bus_for_each_drv+0x84/0xcc
-   __device_attach+0xb4/0x13c
-   device_initial_probe+0x18/0x20
-   bus_probe_device+0x38/0x98
-   device_add+0x38c/0x420
+  # echo 1 > /sys/kernel/slab/fs_cache/shrink
+  BUG: KASAN: stack-out-of-bounds in number+0x421/0x6e0
+  Write of size 1 at addr ffffc900256cfde0 by task kworker/76:0/53251
 
-If I understand properly we should just be able to blanket kgdb under
-one big RCU read lock and the problem should go away.  We'll add it to
-the beast-of-a-function known as kgdb_cpu_enter().
+  Hardware name: HPE ProLiant DL385 Gen10/ProLiant DL385 Gen10, BIOS A40 07/10/2019
+  Workqueue: memcg_kmem_cache memcg_kmem_cache_create_func
+  Call Trace:
+    number+0x421/0x6e0
+    vsnprintf+0x451/0x8e0
+    sprintf+0x9e/0xd0
+    show_stat+0x124/0x1d0
+    alloc_slowpath_show+0x13/0x20
+    __kmem_cache_create+0x47a/0x6b0
 
-With this I no longer get any splats and things seem to work fine.
+  addr ffffc900256cfde0 is located in stack of task kworker/76:0/53251 at offset 0 in frame:
+   process_one_work+0x0/0xb90
 
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Link: https://lore.kernel.org/r/20200602154729.v2.1.I70e0d4fd46d5ed2aaf0c98a355e8e1b7a5bb7e4e@changeid
-Signed-off-by: Daniel Thompson <daniel.thompson@linaro.org>
+  this frame has 1 object:
+   [32, 72) 'lockdep_map'
+
+  Memory state around the buggy address:
+   ffffc900256cfc80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+   ffffc900256cfd00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  >ffffc900256cfd80: 00 00 00 00 00 00 00 00 00 00 00 00 f1 f1 f1 f1
+                                                         ^
+   ffffc900256cfe00: 00 00 00 00 00 f2 f2 f2 00 00 00 00 00 00 00 00
+   ffffc900256cfe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  ==================================================================
+  Kernel panic - not syncing: stack-protector: Kernel stack is corrupted in: __kmem_cache_create+0x6ac/0x6b0
+  Workqueue: memcg_kmem_cache memcg_kmem_cache_create_func
+  Call Trace:
+    __kmem_cache_create+0x6ac/0x6b0
+
+Fixes: 107dab5c92d5 ("slub: slub-specific propagation changes")
+Signed-off-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Glauber Costa <glauber@scylladb.com>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Link: http://lkml.kernel.org/r/20200429222356.4322-1-cai@lca.pw
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/debug/debug_core.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ mm/slub.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/debug/debug_core.c b/kernel/debug/debug_core.c
-index d47c7d6656cd3..9be6accf8fe3d 100644
---- a/kernel/debug/debug_core.c
-+++ b/kernel/debug/debug_core.c
-@@ -577,6 +577,7 @@ static int kgdb_cpu_enter(struct kgdb_state *ks, struct pt_regs *regs,
- 		arch_kgdb_ops.disable_hw_break(regs);
- 
- acquirelock:
-+	rcu_read_lock();
- 	/*
- 	 * Interrupts will be restored by the 'trap return' code, except when
- 	 * single stepping.
-@@ -636,6 +637,7 @@ return_normal:
- 			atomic_dec(&slaves_in_kgdb);
- 			dbg_touch_watchdogs();
- 			local_irq_restore(flags);
-+			rcu_read_unlock();
- 			return 0;
- 		}
- 		cpu_relax();
-@@ -654,6 +656,7 @@ return_normal:
- 		raw_spin_unlock(&dbg_master_lock);
- 		dbg_touch_watchdogs();
- 		local_irq_restore(flags);
-+		rcu_read_unlock();
- 
- 		goto acquirelock;
- 	}
-@@ -777,6 +780,7 @@ kgdb_restore:
- 	raw_spin_unlock(&dbg_master_lock);
- 	dbg_touch_watchdogs();
- 	local_irq_restore(flags);
-+	rcu_read_unlock();
- 
- 	return kgdb_info[cpu].ret_state;
- }
+diff --git a/mm/slub.c b/mm/slub.c
+index 5c05a36bb746f..709e31002504c 100644
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -5648,7 +5648,8 @@ static void memcg_propagate_slab_attrs(struct kmem_cache *s)
+ 		 */
+ 		if (buffer)
+ 			buf = buffer;
+-		else if (root_cache->max_attr_size < ARRAY_SIZE(mbuf))
++		else if (root_cache->max_attr_size < ARRAY_SIZE(mbuf) &&
++			 !IS_ENABLED(CONFIG_SLUB_STATS))
+ 			buf = mbuf;
+ 		else {
+ 			buffer = (char *) get_zeroed_page(GFP_KERNEL);
 -- 
 2.25.1
 
