@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B5DA217240
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:44:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C24521717E
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:42:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729124AbgGGPap (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:30:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37314 "EHLO mail.kernel.org"
+        id S1729633AbgGGPVC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:21:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728799AbgGGPX6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:23:58 -0400
+        id S1729616AbgGGPVB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:21:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 251F52082F;
-        Tue,  7 Jul 2020 15:23:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4C273206E2;
+        Tue,  7 Jul 2020 15:21:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135437;
-        bh=69SI/+M+EsrYPGUsjvNrScM3WRasXNkolneBXj8DZOk=;
+        s=default; t=1594135260;
+        bh=hTbUvOF/JFnFT0p2wG5DgDAwt3T4hRgBb5o3JsrfnL8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ocPc7N5dSK6V6EHsGschyl3xU0LGyVbSaYwdf9+7mH0QyxQCiVIkHlZ7Fwz3hNOiw
-         2ZxmQ9ugNKL7AeI/D5DwscGrNIDd9RYlF2EwVy613tm76YOlIXFVF+Xj1/xj6/5cE2
-         07Mc0DDx6pJBP8VrREmIF736wRslSIjLYZ0XwrLE=
+        b=Kiq2fqcxaXJfQ/LwZBmU0/u+bKueKZ/mNy//tZgIiUC5P8QqCyH5NbRKO/d5/62w9
+         LkoQpUxICSAZEwo1FiRzpKDB63dHv7nl/JSHSqMw/z4xyucMM+/WrLYHq7I0+jK07r
+         IDxQR06oDsCiDENgEpiw6K+8WBSJ6AstATCnXTtU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tadeusz Struk <tadeusz.struk@intel.com>,
-        linux-integrity@vger.kernel.org, linux-kselftest@vger.kernel.org,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Shuah Khan <skhan@linuxfoundation.org>
-Subject: [PATCH 5.7 041/112] Revert "tpm: selftest: cleanup after unseal with wrong auth/policy test"
-Date:   Tue,  7 Jul 2020 17:16:46 +0200
-Message-Id: <20200707145802.953085875@linuxfoundation.org>
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 08/65] rxrpc: Fix race between incoming ACK parser and retransmitter
+Date:   Tue,  7 Jul 2020 17:16:47 +0200
+Message-Id: <20200707145752.841736013@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200707145800.925304888@linuxfoundation.org>
-References: <20200707145800.925304888@linuxfoundation.org>
+In-Reply-To: <20200707145752.417212219@linuxfoundation.org>
+References: <20200707145752.417212219@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,38 +44,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+From: David Howells <dhowells@redhat.com>
 
-commit 5be206eaac9a68992fc3b06fb5dd5634e323de86 upstream.
+[ Upstream commit 2ad6691d988c0c611362ddc2aad89e0fb50e3261 ]
 
-The reverted commit illegitly uses tpm2-tools. External dependencies are
-absolutely forbidden from these tests. There is also the problem that
-clearing is not necessarily wanted behavior if the test/target computer is
-not used only solely for testing.
+There's a race between the retransmission code and the received ACK parser.
+The problem is that the retransmission loop has to drop the lock under
+which it is iterating through the transmission buffer in order to transmit
+a packet, but whilst the lock is dropped, the ACK parser can crank the Tx
+window round and discard the packets from the buffer.
 
-Fixes: a9920d3bad40 ("tpm: selftest: cleanup after unseal with wrong auth/policy test")
-Cc: Tadeusz Struk <tadeusz.struk@intel.com>
-Cc: stable@vger.kernel.org
-Cc: linux-integrity@vger.kernel.org
-Cc: linux-kselftest@vger.kernel.org
-Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The retransmission code then updated the annotations for the wrong packet
+and a later retransmission thought it had to retransmit a packet that
+wasn't there, leading to a NULL pointer dereference.
 
+Fix this by:
+
+ (1) Moving the annotation change to before we drop the lock prior to
+     transmission.  This means we can't vary the annotation depending on
+     the outcome of the transmission, but that's fine - we'll retransmit
+     again later if it failed now.
+
+ (2) Skipping the packet if the skb pointer is NULL.
+
+The following oops was seen:
+
+	BUG: kernel NULL pointer dereference, address: 000000000000002d
+	Workqueue: krxrpcd rxrpc_process_call
+	RIP: 0010:rxrpc_get_skb+0x14/0x8a
+	...
+	Call Trace:
+	 rxrpc_resend+0x331/0x41e
+	 ? get_vtime_delta+0x13/0x20
+	 rxrpc_process_call+0x3c0/0x4ac
+	 process_one_work+0x18f/0x27f
+	 worker_thread+0x1a3/0x247
+	 ? create_worker+0x17d/0x17d
+	 kthread+0xe6/0xeb
+	 ? kthread_delayed_work_timer_fn+0x83/0x83
+	 ret_from_fork+0x1f/0x30
+
+Fixes: 248f219cb8bc ("rxrpc: Rewrite the data and ack handling code")
+Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/tpm2/test_smoke.sh |    5 -----
- 1 file changed, 5 deletions(-)
+ net/rxrpc/call_event.c | 29 +++++++++++------------------
+ 1 file changed, 11 insertions(+), 18 deletions(-)
 
---- a/tools/testing/selftests/tpm2/test_smoke.sh
-+++ b/tools/testing/selftests/tpm2/test_smoke.sh
-@@ -3,8 +3,3 @@
+diff --git a/net/rxrpc/call_event.c b/net/rxrpc/call_event.c
+index 2a65ac41055f5..985fb89202d0c 100644
+--- a/net/rxrpc/call_event.c
++++ b/net/rxrpc/call_event.c
+@@ -248,7 +248,18 @@ static void rxrpc_resend(struct rxrpc_call *call, unsigned long now_j)
+ 		if (anno_type != RXRPC_TX_ANNO_RETRANS)
+ 			continue;
  
- python -m unittest -v tpm2_tests.SmokeTest
- python -m unittest -v tpm2_tests.AsyncTest
++		/* We need to reset the retransmission state, but we need to do
++		 * so before we drop the lock as a new ACK/NAK may come in and
++		 * confuse things
++		 */
++		annotation &= ~RXRPC_TX_ANNO_MASK;
++		annotation |= RXRPC_TX_ANNO_RESENT;
++		call->rxtx_annotations[ix] = annotation;
++
+ 		skb = call->rxtx_buffer[ix];
++		if (!skb)
++			continue;
++
+ 		rxrpc_get_skb(skb, rxrpc_skb_got);
+ 		spin_unlock_bh(&call->lock);
+ 
+@@ -262,24 +273,6 @@ static void rxrpc_resend(struct rxrpc_call *call, unsigned long now_j)
+ 
+ 		rxrpc_free_skb(skb, rxrpc_skb_freed);
+ 		spin_lock_bh(&call->lock);
 -
--CLEAR_CMD=$(which tpm2_clear)
--if [ -n $CLEAR_CMD ]; then
--	tpm2_clear -T device
--fi
+-		/* We need to clear the retransmit state, but there are two
+-		 * things we need to be aware of: A new ACK/NAK might have been
+-		 * received and the packet might have been hard-ACK'd (in which
+-		 * case it will no longer be in the buffer).
+-		 */
+-		if (after(seq, call->tx_hard_ack)) {
+-			annotation = call->rxtx_annotations[ix];
+-			anno_type = annotation & RXRPC_TX_ANNO_MASK;
+-			if (anno_type == RXRPC_TX_ANNO_RETRANS ||
+-			    anno_type == RXRPC_TX_ANNO_NAK) {
+-				annotation &= ~RXRPC_TX_ANNO_MASK;
+-				annotation |= RXRPC_TX_ANNO_UNACK;
+-			}
+-			annotation |= RXRPC_TX_ANNO_RESENT;
+-			call->rxtx_annotations[ix] = annotation;
+-		}
+-
+ 		if (after(call->tx_hard_ack, seq))
+ 			seq = call->tx_hard_ack;
+ 	}
+-- 
+2.25.1
+
 
 
