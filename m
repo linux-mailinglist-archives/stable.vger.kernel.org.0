@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70623216CF9
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 14:39:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17CE2216CFD
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 14:40:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727789AbgGGMjf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 08:39:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35286 "EHLO
+        id S1728152AbgGGMkH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 08:40:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725944AbgGGMjf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jul 2020 08:39:35 -0400
-Received: from mail-lj1-x242.google.com (mail-lj1-x242.google.com [IPv6:2a00:1450:4864:20::242])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE287C061755
-        for <stable@vger.kernel.org>; Tue,  7 Jul 2020 05:39:34 -0700 (PDT)
-Received: by mail-lj1-x242.google.com with SMTP id s9so49650306ljm.11
-        for <stable@vger.kernel.org>; Tue, 07 Jul 2020 05:39:34 -0700 (PDT)
+        with ESMTP id S1728094AbgGGMkH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jul 2020 08:40:07 -0400
+Received: from mail-lj1-x243.google.com (mail-lj1-x243.google.com [IPv6:2a00:1450:4864:20::243])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EA8FC061755
+        for <stable@vger.kernel.org>; Tue,  7 Jul 2020 05:40:07 -0700 (PDT)
+Received: by mail-lj1-x243.google.com with SMTP id h19so49726422ljg.13
+        for <stable@vger.kernel.org>; Tue, 07 Jul 2020 05:40:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=PR8nQ43YtQ2kzqu7CAHdusW+BG3WkQqUNKXDoqQv2Bc=;
-        b=wOcMzoL9PKOfCE92T5O5jZORfBcPgPzM0JNaF/FGTlzRWnpNx4/Ts9/TwRH1muW1hG
-         NtSdl2AsV52A1f8vNs8jpCg5Sf08q8JmBH+QSIUFvTTXqj6SDODu3YlIz6LgkR5Mml5d
-         uWyGBXz0agObrxeH3HyQv9iCPdwcXOwztAd5URyZolZuy2Ho3Wc8lRh30jBV8yx+UK/s
-         eQlHYQzaoxf+4UtJh1jgFILwyzXqmKHa6EahoUnz0l+tEO8fIGz/n54Hn9A3hN5nxOjh
-         Poymz4VH+xHPQcQ5Evt8qCUXRKk228OpZRp0a3vyuyhgD4Md+wT9iTxnU1xfEifnAe0+
-         bRQw==
+        bh=gBIdGRLf5Cnr5tv5YyMZkrd+hNTUnC4qnI3yzrVPz4s=;
+        b=zZbgmRNEN+Cc2hDtQX4Dm++WQhE8xQ1v3PBJo3ZQkSoPi1uYxkQ0Y29tM+h5uKGgxk
+         R8up+SY/8shg5vXKAKBYFVvPefxK3DJU2owMhFJAiPknsu5GBf7xv+NAp6iuN1YwAbbx
+         JBrdLrAEF0nsFHEocS3BfUTnMuCiln9uvZrgQ5KcOD8dKfletfW5Zmi66OduL8C1mDfd
+         aeR0RB0IEkQNAiVbxOhPycMRNU10M38wRQ3fSm4M7bBoT0G0Q6UUdE/qvQevtWiL0jWp
+         lsrncyKGCtDTzWPim/17xR0UDZgms1JWq55rkqAn7E74ohJsp382XEzEAd3ELD1v2jrU
+         JtOA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=PR8nQ43YtQ2kzqu7CAHdusW+BG3WkQqUNKXDoqQv2Bc=;
-        b=tBNUZygQ6ajuQfwBYNbfaRrSrLUKBq4RMI8W7ZcGv3I+Qt3LaDSMuZQDHuq/gTtOMn
-         2hacezzcqoqaOd6rjJcSMIVA8WIbKBeSdsvoSQcklLZ5VFK66PaUYjbQ9te9vksgPlAN
-         P2NYpa0jBuq2FuM+3NZSP/ma+hZst+dLEpLuoPF7tBfsXPhC6vYC8S35FpA04KKSOLR4
-         YNO+xwyQmeKuZsIpQmr5TUZznx1XoDSpab6waNDyPVxbYVqu6yjgzpFKu7iljpP0y+k+
-         Gdduj81RaSB/ZgnlMTzRaKjPnXqkxEPmWSDJphQacEoHGXA07yp7CCwlK/n9syGW1K2f
-         d29A==
-X-Gm-Message-State: AOAM531n1VZa/tHEwlJqTdUBnNndyprLNiKG4IPeuR+w2YbWKUX7/WxV
-        YG+73lb7XDqfw4hcZDif6VDsme31JsnpYM3vtdLHjg==
-X-Google-Smtp-Source: ABdhPJzLxIIZvKvs0uuMjas/mWF0QR8HShPsPw1tvxHg6ZOg/jx/Zkt6iaQekUaGKH8RYIPUuoMFtXs1GM/t0jP7rH8=
-X-Received: by 2002:a2e:9c3:: with SMTP id 186mr31275956ljj.293.1594125573245;
- Tue, 07 Jul 2020 05:39:33 -0700 (PDT)
+        bh=gBIdGRLf5Cnr5tv5YyMZkrd+hNTUnC4qnI3yzrVPz4s=;
+        b=FHgBBtPXkVkMr+LRJBg0jDMQuVNpZHSPvATxtefHGu01gZskSCOseZ76ZC/UTfFsuj
+         bW30RsKaY9fVX+1X2LKMHaw1nSkr+mN+w2S44OFUNxLsd4OZC8XMQcj5FN7LN5VMVSQm
+         WZ3DqwznLI8RJRqaB3/47xP6LhcekNFelk7aM9hLpQ4w3JlxQc2BNhFTdv9EWgGRZwgu
+         r748Dzqtexncq6d2uiahQcbsaPoIvydBc7X/gJJU3ocL2Z6+DipLkpo3y3RITZ3CN0iL
+         +aGDtC7LYt9VCv6YRHimrc4I37tqwQgjJEL0082vGcZT1hFxWs7vzrovoLBAE7djWcGA
+         pBRQ==
+X-Gm-Message-State: AOAM533HNI1TE7mBcRIAo35UUDZb6PWQedGZnNZk9rKjkiKJG/dHp0YY
+        U9NqF0yzMFWVLSRsGKd/U8AbN4+gBiULXOoGljTpI0Upcik=
+X-Google-Smtp-Source: ABdhPJxDXru6RgwaBVIBtujonT5DdydJbJILVYEaNJo44eej7MQdGO5rlBUNjRspneYJmwhSKBueSL0fK+zw5ir6UWc=
+X-Received: by 2002:a2e:810a:: with SMTP id d10mr24438178ljg.144.1594125605584;
+ Tue, 07 Jul 2020 05:40:05 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200625064619.2775707-1-lee.jones@linaro.org> <20200625064619.2775707-4-lee.jones@linaro.org>
-In-Reply-To: <20200625064619.2775707-4-lee.jones@linaro.org>
+References: <20200625064619.2775707-1-lee.jones@linaro.org> <20200625064619.2775707-5-lee.jones@linaro.org>
+In-Reply-To: <20200625064619.2775707-5-lee.jones@linaro.org>
 From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Tue, 7 Jul 2020 14:39:22 +0200
-Message-ID: <CACRpkdYTb4MTX9YGAW9_Th1ntcE4Go_N=wGMJ9Po8KpBGehT4w@mail.gmail.com>
-Subject: Re: [PATCH 03/10] mfd: db8500-prcmu: Add description for
- 'reset_reason' in kerneldoc
+Date:   Tue, 7 Jul 2020 14:39:54 +0200
+Message-ID: <CACRpkdYPdO94x2dRLgKXioaSi3NbrG_ieDUA00QbdUyhfrCmvg@mail.gmail.com>
+Subject: Re: [PATCH 04/10] mfd: db8500-prcmu: Remove incorrect function header
+ from .probe() function
 To:     Lee Jones <lee.jones@linaro.org>
 Cc:     Linux ARM <linux-arm-kernel@lists.infradead.org>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
@@ -63,12 +63,8 @@ X-Mailing-List: stable@vger.kernel.org
 
 On Thu, Jun 25, 2020 at 8:46 AM Lee Jones <lee.jones@linaro.org> wrote:
 
-> Each function parameter should be documented in kerneldoc format.
->
-> Squashes the following W=1 warnings:
->
->  drivers/mfd/db8500-prcmu.c:2281: warning: Function parameter or member 'reset_code' not described in 'db8500_prcmu_system_reset'
->  drivers/mfd/db8500-prcmu.c:3012: warning: Function parameter or member 'pdev' not described in 'db8500_prcmu_probe'
+> Not only is the current header incorrect, the isn't actually a
+> need to document the ubiquitous platform probe call.
 >
 > Cc: <stable@vger.kernel.org>
 > Cc: Linus Walleij <linus.walleij@linaro.org>
