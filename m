@@ -2,185 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2747217960
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 22:29:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95DBA217975
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 22:34:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728748AbgGGU3H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 16:29:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52116 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727908AbgGGU3G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jul 2020 16:29:06 -0400
-X-Greylist: delayed 359 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 07 Jul 2020 13:29:06 PDT
-Received: from mout3.freenet.de (mout3.freenet.de [IPv6:2001:748:100:40::2:5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6610C061755
-        for <stable@vger.kernel.org>; Tue,  7 Jul 2020 13:29:06 -0700 (PDT)
-Received: from [195.4.92.165] (helo=mjail2.freenet.de)
-        by mout3.freenet.de with esmtpa (ID viktor.jaegerskuepper@freenet.de) (port 25) (Exim 4.92 #3)
-        id 1jsu7K-0000A1-Nx; Tue, 07 Jul 2020 22:23:02 +0200
-Received: from [::1] (port=52196 helo=mjail2.freenet.de)
-        by mjail2.freenet.de with esmtpa (ID viktor.jaegerskuepper@freenet.de) (Exim 4.92 #3)
-        id 1jsu7K-000585-Jf; Tue, 07 Jul 2020 22:23:02 +0200
-Received: from sub3.freenet.de ([195.4.92.122]:43090)
-        by mjail2.freenet.de with esmtpa (ID viktor.jaegerskuepper@freenet.de) (Exim 4.92 #3)
-        id 1jsu5B-0004K3-Rf; Tue, 07 Jul 2020 22:20:49 +0200
-Received: from p200300e707178b006cb2a2fb62f37f24.dip0.t-ipconnect.de ([2003:e7:717:8b00:6cb2:a2fb:62f3:7f24]:58184 helo=[127.0.0.1])
-        by sub3.freenet.de with esmtpsa (ID viktor.jaegerskuepper@freenet.de) (TLSv1.2:ECDHE-RSA-CHACHA20-POLY1305:256) (port 465) (Exim 4.92 #3)
-        id 1jsu5B-0001wA-Mf; Tue, 07 Jul 2020 22:20:49 +0200
-Subject: Re: ath9k broken [was: Linux 5.7.3]
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Gabriel C <nix.or.die@googlemail.com>
-Cc:     Jiri Slaby <jirislaby@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        stable <stable@vger.kernel.org>, lwn@lwn.net,
-        angrypenguinpoland@gmail.com, Qiujun Huang <hqjagain@gmail.com>,
-        ath9k-devel <ath9k-devel@qca.qualcomm.com>,
-        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>
-References: <1592410366125160@kroah.com>
- <CAEJqkgjV8p6LtBV8YUGbNb0vYzKOQt4-AMAvYw5mzFr3eicyTg@mail.gmail.com>
- <b7993e83-1df7-0c93-f6dd-dba9dc10e27a@kernel.org>
- <CAEJqkggG2ZB8De_zbP2W7Z9eRYve2br8jALaLRhjC33ksLZpTw@mail.gmail.com>
- <CAEJqkgj4LS7M3zYK51Vagt4rWC9A7uunA+7CvX0Qv=57Or3Ngg@mail.gmail.com>
- <CAEJqkghJWGsLCj2Wvt-yhzMewjXwrXhSEDpar6rbDpbSA6R8kQ@mail.gmail.com>
- <20200626133959.GA4024297@kroah.com>
- <CAEJqkgiACMar-iWsWQgJPAViBBURaNpcOD4FKtp6M8Aw_D4FOw@mail.gmail.com>
- <CAEJqkgg4Ka8oNL7ELoJrR0-Abz3=caLns48KyDC=DQcym6SRvA@mail.gmail.com>
- <20200707141100.GE4064836@kroah.com>
-From:   =?UTF-8?B?VmlrdG9yIErDpGdlcnNrw7xwcGVy?= 
-        <viktor_jaegerskuepper@freenet.de>
-Message-ID: <07c8d8fa-8bbc-0b4e-191c-b2635214e8b9@freenet.de>
-Date:   Tue, 7 Jul 2020 22:20:41 +0200
+        id S1728671AbgGGUeE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 16:34:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49580 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728347AbgGGUeE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 16:34:04 -0400
+Received: from gmail.com (unknown [104.132.1.76])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0AA81206E2;
+        Tue,  7 Jul 2020 20:34:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1594154044;
+        bh=22247wNSUaVMbBxUM4HAY4IX0OgMCfGAtnzOBJT9N5c=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=EvIgD2qRQFfglKXfInCCRBKgY2It04EIB3ttX9LKmCYvkuqpUU8rpL4QlEI4QrVAN
+         vXVo0lvxVpllhYrN0bx4ecHr97N1CMSSE0oB/WfEO0gIhFzvUhgKk3epwL52vbrxHa
+         Eq+SwfiLSPFmuF7hrio/XCB2NnIRZXrG7p1vX20c=
+Date:   Tue, 7 Jul 2020 13:34:02 -0700
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     linux-fsdevel@vger.kernel.org,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        linux-kernel@vger.kernel.org, Qiujun Huang <hqjagain@gmail.com>,
+        stable@vger.kernel.org,
+        syzbot+4a88b2b9dc280f47baf4@syzkaller.appspotmail.com
+Subject: Re: [PATCH 1/6] fs/minix: check return value of sb_getblk()
+Message-ID: <20200707203402.GB3426938@gmail.com>
+References: <20200628060846.682158-1-ebiggers@kernel.org>
+ <20200628060846.682158-2-ebiggers@kernel.org>
+ <20200707122612.249699c3f136968dd6782452@linux-foundation.org>
 MIME-Version: 1.0
-In-Reply-To: <20200707141100.GE4064836@kroah.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US-large
-Content-Transfer-Encoding: 7bit
-X-Originated-At: 2003:e7:717:8b00:6cb2:a2fb:62f3:7f24!58184
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200707122612.249699c3f136968dd6782452@linux-foundation.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greg Kroah-Hartman wrote:
-> On Fri, Jun 26, 2020 at 04:40:18PM +0200, Gabriel C wrote:
->> Am Fr., 26. Juni 2020 um 15:51 Uhr schrieb Gabriel C
->> <nix.or.die@googlemail.com>:
->>>
->>> Am Fr., 26. Juni 2020 um 15:40 Uhr schrieb Greg Kroah-Hartman
->>> <gregkh@linuxfoundation.org>:
->>>>
->>>> On Fri, Jun 26, 2020 at 01:48:59PM +0200, Gabriel C wrote:
->>>>> Am Do., 25. Juni 2020 um 12:52 Uhr schrieb Gabriel C
->>>>> <nix.or.die@googlemail.com>:
->>>>>>
->>>>>> Am Do., 25. Juni 2020 um 12:48 Uhr schrieb Gabriel C
->>>>>> <nix.or.die@googlemail.com>:
->>>>>>>
->>>>>>> Am Do., 25. Juni 2020 um 06:57 Uhr schrieb Jiri Slaby <jirislaby@kernel.org>:
->>>>>>>>
->>>>>>>> On 25. 06. 20, 0:05, Gabriel C wrote:
->>>>>>>>> Am Mi., 17. Juni 2020 um 18:13 Uhr schrieb Greg Kroah-Hartman
->>>>>>>>> <gregkh@linuxfoundation.org>:
->>>>>>>>>>
->>>>>>>>>> I'm announcing the release of the 5.7.3 kernel.
->>>>>>>>>>
->>>>>>>>>
->>>>>>>>> Hello Greg,
->>>>>>>>>
->>>>>>>>>> Qiujun Huang (5):
->>>>>>>>>>       ath9k: Fix use-after-free Read in htc_connect_service
->>>>>>>>>>       ath9k: Fix use-after-free Read in ath9k_wmi_ctrl_rx
->>>>>>>>>>       ath9k: Fix use-after-free Write in ath9k_htc_rx_msg
->>>>>>>>>>       ath9x: Fix stack-out-of-bounds Write in ath9k_hif_usb_rx_cb
->>>>>>>>>>       ath9k: Fix general protection fault in ath9k_hif_usb_rx_cb
->>>>>>>>>>
->>>>>>>>>
->>>>>>>>> We got a report on IRC about 5.7.3+ breaking a USB ath9k Wifi Dongle,
->>>>>>>>> while working fine on <5.7.3.
->>>>>>>>>
->>>>>>>>> I don't have myself such HW, and the reported doesn't have any experience
->>>>>>>>> in bisecting the kernel, so we build kernels, each with one of the
->>>>>>>>> above commits reverted,
->>>>>>>>> to find the bad commit.
->>>>>>>>>
->>>>>>>>> The winner is:
->>>>>>>>>
->>>>>>>>> commit 6602f080cb28745259e2fab1a4cf55eeb5894f93
->>>>>>>>> Author: Qiujun Huang <hqjagain@gmail.com>
->>>>>>>>> Date:   Sat Apr 4 12:18:38 2020 +0800
->>>>>>>>>
->>>>>>>>>     ath9k: Fix general protection fault in ath9k_hif_usb_rx_cb
->>>>>>>>>
->>>>>>>>>     commit 2bbcaaee1fcbd83272e29f31e2bb7e70d8c49e05 upstream.
->>>>>>>>> ...
->>>>>>>>>
->>>>>>>>> Reverting this one fixed his problem.
->>>>>>>>
->>>>>>>> Obvious question: is 5.8-rc1 (containing the commit) broken too?
->>>>>>>
->>>>>>> Yes, it does, just checked.
->>>>>>>
->>>>>>> git tag --contains 2bbcaaee1fcbd83272e29f31e2bb7e70d8c49e05
->>>>>>> v5.8-rc1
->>>>>>> v5.8-rc2
->>>>>>>
->>>>>>
->>>>>> Sorry, I read the wrong, I just woke up.
->>>>>>
->>>>>> We didn't test 5.8-rc{1,2} yet but we will today and let you know.
->>>>>>
->>>>>
->>>>> We tested 5.8-rc2 and it is broken too.
->>>>>
->>>>> The exact HW name is:
->>>>>
->>>>> TP-link tl-wn722n (Atheros AR9271 chip)
->>>>
->>>> Great!
->>>>
->>>> Can you work with the developers to fix this in Linus's tree first?
->>>
->>> I'm the man in the middle, but sure we will try patches or any suggestions
->>> from developers to identify and fix the problem.
->>>
->>>>
->>>> I bet they want to see the output of 'lsusb -v' for this device to see
->>>> if the endpoint calculations are correct...
->>>>
->>>
->>> Working on it. As soon the reporter gives me the output, I will post it here.
->>> I've told him to run it on a broken and one working kernel.
->>
->> That is from a good kernel with reverted commit
->> https://gist.github.com/AngryPenguinPL/07c8e2abd3b103eaf8978a39ad8577d1
->>
->> That is from the broken kernel without the commit reverted
->> https://gist.github.com/AngryPenguinPL/5cdc0dd16ce5e59ff3c32c048e2f5111
->>
->> This is from 5.7.5 kernel, I don't have yet a 5.8-rc2 package with the
->> reverted commit.
+On Tue, Jul 07, 2020 at 12:26:12PM -0700, Andrew Morton wrote:
+> On Sat, 27 Jun 2020 23:08:40 -0700 Eric Biggers <ebiggers@kernel.org> wrote:
 > 
-> Did this ever get resolved?
+> > From: Eric Biggers <ebiggers@google.com>
+> > 
+> > sb_getblk() can fail, so check its return value.
+> > 
+> > This fixes a NULL pointer dereference.
+> > 
+> > Reported-by: syzbot+4a88b2b9dc280f47baf4@syzkaller.appspotmail.com
+> > Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+> > Cc: stable@vger.kernel.org
+> > Originally-from: Qiujun Huang <anenbupt@gmail.com>
 > 
-> thanks,
-> 
-> greg k-h
+> Originally-from: isn't really a thing.  Did the original come with a
+> signed-off-by:?
 > 
 
-This bug was also reported on the thread where it had been posted originally:
-https://lore.kernel.org/linux-wireless/20200621020428.6417d6fb@natsu/
+Yes it did.  Qiujun's patch was
+https://lkml.kernel.org/lkml/20200323125700.7512-1-hqjagain@gmail.com
+But I basically started from scratch anyway and my patch ended up different,
+so I didn't leave the original "Author:".  Feel free to adjust the patch.
 
-I am waiting for Kalle Valo to accept my patch (v2) which reverts the above
-mentioned commit and which looks correct according to him. He wrote that he
-would take a closer look at this as soon as he could.
-
-I don't know how busy Kalle is, especially under the current circumstances.
-I will remind him on Thursday (one week after his last e-mail). At the latest
-I want this to be fixed with the 5.8 release. I think that the patch has to land
-in several networking trees before it reaches the mainline kernel, so if I can
-do anything to speed things up, just tell me.
-
-Thanks,
-Viktor
+- Eric
