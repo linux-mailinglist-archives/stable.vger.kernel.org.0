@@ -2,126 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B33F217AB0
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 23:49:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2056B217AED
+	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 00:18:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728786AbgGGVtu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 17:49:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36394 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728357AbgGGVtt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jul 2020 17:49:49 -0400
-Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B85CC061755
-        for <stable@vger.kernel.org>; Tue,  7 Jul 2020 14:49:49 -0700 (PDT)
-Received: by mail-pg1-x544.google.com with SMTP id j19so13759652pgm.11
-        for <stable@vger.kernel.org>; Tue, 07 Jul 2020 14:49:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=Mpd18shi8GLEcLMxPZWWvNdFFRedl4Y7uuQSPmBzhFo=;
-        b=kXnMCEke8ckvQzbnSwGYSKdBvP77PeU0ZTB8dUWQKCYfEmsKqGvVCAIFkLFUqw/J9k
-         zPdyXNQfxd5evbDSecLwG7iNEVK+rkYwTE/Bx5FW1DBAZPW6/pgjeG6j1nk8racRlVeK
-         F7IJi3FYMrPxxpgm8Ao9AgHxdjZ9CjEJAEof2KeYWlkD87KrCWwfRdXFO0+m0TrbZkC7
-         6UZpU3xpfuhO6rrx0MoEquHkD2V6l3GYnCk58rXNBW1yzz4hLvchS44ukh0D6/51blCw
-         sHCPDVqeVgzbrREIxCySaJSN1v/+mtaL19mvi9+2QJVAVsjSUQvbXxr8mjwXoy63tymT
-         YvIw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=Mpd18shi8GLEcLMxPZWWvNdFFRedl4Y7uuQSPmBzhFo=;
-        b=AcYyR7cNp4pm700Y6Gn6Wy8QkGvQJABHfhl0W94Fk3Re+s3cwmwqRh1Ph/+MR8efQu
-         NLV0XmMw98D3/RwrIue9Ro2izcgaGcP3aVWX7JhUkTw4cggwpqVHSv6DbFD7Bwf7K/ON
-         ARRTu6Cfoww8roO1gtmxEoc5qoKZtFEkd5Pc5vu2lGg7I1monBVK9IImj04J4Ck4kT8j
-         DYa4K8PKkcLv5z5iA6AANNl8MB0fbZyJho4JyUvhJYIuNAe640EzsTlCl0/aSMz1rdSA
-         YhBrhXjO7EzCkpCBApJmFlqGCzQZh1tGqfgF2bxknk3JY4awg8fngyL76tdS/7JVODO1
-         pOrw==
-X-Gm-Message-State: AOAM530geg/xotlTgveQeYogNtDA7wlUles4H1QFclQiAdqssfcWXE8V
-        eCA2qhKWDF0Bb9sgWZEClmLf+A==
-X-Google-Smtp-Source: ABdhPJxeP51izVsbYdKGLkHwWWCPzaEWOyEa3CCdyZ/nZhUjxXxfcCCV2AbikppoE4JtYZqnFgHPLg==
-X-Received: by 2002:a62:8489:: with SMTP id k131mr51423400pfd.4.1594158588710;
-        Tue, 07 Jul 2020 14:49:48 -0700 (PDT)
-Received: from google.com ([2620:15c:201:2:f693:9fff:fef4:1b6d])
-        by smtp.gmail.com with ESMTPSA id m16sm24965238pfd.101.2020.07.07.14.49.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Jul 2020 14:49:48 -0700 (PDT)
-Date:   Tue, 7 Jul 2020 14:49:42 -0700
-From:   Sami Tolvanen <samitolvanen@google.com>
-To:     Nick Desaulniers <ndesaulniers@google.com>
-Cc:     "David S . Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>, stable@vger.kernel.org,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
-        Andrii Nakryiko <andriin@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@chromium.org>, Alex Elder <elder@linaro.org>,
-        linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: Re: [PATCH] bitfield.h: don't compile-time validate _val in FIELD_FIT
-Message-ID: <20200707214942.GA1723912@google.com>
-References: <20200707211642.1106946-1-ndesaulniers@google.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200707211642.1106946-1-ndesaulniers@google.com>
+        id S1728400AbgGGWSC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 18:18:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45816 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726946AbgGGWSB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 18:18:01 -0400
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id C95A220720;
+        Tue,  7 Jul 2020 22:18:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1594160281;
+        bh=jh4rhaChCfomJImuGvre4JC3WkoS6/+2DIzxc+A1dtA=;
+        h=Date:From:To:Subject:In-Reply-To:From;
+        b=QNZUKkdwTu8W/R69xfWjNIMO88aL0oE8tcMzHLziCMzj8yH/squ+fLyR3EJ0nKiUN
+         OkBJqq/WnG+GqlJ9fYlWNkY7to8yl+ZXtfDxJFHSHC+Ui4DE2tUrFncStOUotIBVcR
+         WBX5PfTaTKv3QOAP9bMdU3bDHgNJr79T0OV6ZUoc=
+Date:   Tue, 07 Jul 2020 15:18:00 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     alex.shi@linux.alibaba.com, hannes@cmpxchg.org, hughd@google.com,
+        mhocko@suse.com, mm-commits@vger.kernel.org, shakeelb@google.com,
+        stable@vger.kernel.org
+Subject:  +
+ mm-memcg-fix-refcount-error-while-moving-and-swapping.patch added to -mm
+ tree
+Message-ID: <20200707221800.IrLXfMRm9%akpm@linux-foundation.org>
+In-Reply-To: <20200703151445.b6a0cfee402c7c5c4651f1b1@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 07, 2020 at 02:16:41PM -0700, Nick Desaulniers wrote:
-> From: Jakub Kicinski <kuba@kernel.org>
-> 
-> When ur_load_imm_any() is inlined into jeq_imm(), it's possible for the
-> compiler to deduce a case where _val can only have the value of -1 at
-> compile time. Specifically,
-> 
-> /* struct bpf_insn: _s32 imm */
-> u64 imm = insn->imm; /* sign extend */
-> if (imm >> 32) { /* non-zero only if insn->imm is negative */
->   /* inlined from ur_load_imm_any */
->   u32 __imm = imm >> 32; /* therefore, always 0xffffffff */
->   if (__builtin_constant_p(__imm) && __imm > 255)
->     compiletime_assert_XXX()
-> 
-> This can result in tripping a BUILD_BUG_ON() in __BF_FIELD_CHECK() that
-> checks that a given value is representable in one byte (interpreted as
-> unsigned).
-> 
-> FIELD_FIT() should return true or false at runtime for whether a value
-> can fit for not. Don't break the build over a value that's too large for
-> the mask. We'd prefer to keep the inlining and compiler optimizations
-> though we know this case will always return false.
-> 
-> Cc: stable@vger.kernel.org
-> Link: https://lore.kernel.org/kernel-hardening/CAK7LNASvb0UDJ0U5wkYYRzTAdnEs64HjXpEUL7d=V0CXiAXcNw@mail.gmail.com/
-> Reported-by: Masahiro Yamada <masahiroy@kernel.org>
-> Debugged-by: Sami Tolvanen <samitolvanen@google.com>
-> Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-> Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-> ---
->  include/linux/bitfield.h | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/include/linux/bitfield.h b/include/linux/bitfield.h
-> index 48ea093ff04c..4e035aca6f7e 100644
-> --- a/include/linux/bitfield.h
-> +++ b/include/linux/bitfield.h
-> @@ -77,7 +77,7 @@
->   */
->  #define FIELD_FIT(_mask, _val)						\
->  	({								\
-> -		__BF_FIELD_CHECK(_mask, 0ULL, _val, "FIELD_FIT: ");	\
-> +		__BF_FIELD_CHECK(_mask, 0ULL, 0ULL, "FIELD_FIT: ");	\
->  		!((((typeof(_mask))_val) << __bf_shf(_mask)) & ~(_mask)); \
->  	})
->  
 
-I confirmied that this fixes the issue. Thanks for sending the patch!
+The patch titled
+     Subject: mm/memcg: fix refcount error while moving and swapping
+has been added to the -mm tree.  Its filename is
+     mm-memcg-fix-refcount-error-while-moving-and-swapping.patch
 
-Sami
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/mm-memcg-fix-refcount-error-while-moving-and-swapping.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/mm-memcg-fix-refcount-error-while-moving-and-swapping.patch
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Hugh Dickins <hughd@google.com>
+Subject: mm/memcg: fix refcount error while moving and swapping
+
+It was hard to keep a test running, moving tasks between memcgs with
+move_charge_at_immigrate, while swapping: mem_cgroup_id_get_many()'s
+refcount is discovered to be 0 (supposedly impossible), so it is then
+forced to REFCOUNT_SATURATED, and after thousands of warnings in quick
+succession, the test is at last put out of misery by being OOM killed.
+
+This is because of the way moved_swap accounting was saved up until the
+task move gets completed in __mem_cgroup_clear_mc(), deferred from when
+mem_cgroup_move_swap_account() actually exchanged old and new ids. 
+Concurrent activity can free up swap quicker than the task is scanned,
+bringing id refcount down 0 (which should only be possible when
+offlining).
+
+Just skip that optimization: do that part of the accounting immediately.
+
+Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2007071431050.4726@eggly.anvils
+Fixes: 615d66c37c75 ("mm: memcontrol: fix memcg id ref counter on swap charge move")
+Signed-off-by: Hugh Dickins <hughd@google.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Alex Shi <alex.shi@linux.alibaba.com>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/memcontrol.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/mm/memcontrol.c~mm-memcg-fix-refcount-error-while-moving-and-swapping
++++ a/mm/memcontrol.c
+@@ -5669,7 +5669,6 @@ static void __mem_cgroup_clear_mc(void)
+ 		if (!mem_cgroup_is_root(mc.to))
+ 			page_counter_uncharge(&mc.to->memory, mc.moved_swap);
+ 
+-		mem_cgroup_id_get_many(mc.to, mc.moved_swap);
+ 		css_put_many(&mc.to->css, mc.moved_swap);
+ 
+ 		mc.moved_swap = 0;
+@@ -5860,7 +5859,8 @@ put:			/* get_mctgt_type() gets the page
+ 			ent = target.ent;
+ 			if (!mem_cgroup_move_swap_account(ent, mc.from, mc.to)) {
+ 				mc.precharge--;
+-				/* we fixup refcnts and charges later. */
++				mem_cgroup_id_get_many(mc.to, 1);
++				/* we fixup other refcnts and charges later. */
+ 				mc.moved_swap++;
+ 			}
+ 			break;
+_
+
+Patches currently in -mm which might be from hughd@google.com are
+
+mm-memcg-fix-refcount-error-while-moving-and-swapping.patch
+
