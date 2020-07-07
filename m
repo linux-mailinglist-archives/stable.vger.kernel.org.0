@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3A2421703F
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:16:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DCF2217040
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:16:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728494AbgGGPQS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:16:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55604 "EHLO mail.kernel.org"
+        id S1728945AbgGGPQU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:16:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728926AbgGGPQR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:16:17 -0400
+        id S1728936AbgGGPQU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:16:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8724D20663;
-        Tue,  7 Jul 2020 15:16:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 25E1020738;
+        Tue,  7 Jul 2020 15:16:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594134977;
-        bh=q+Vb6PiG6uvgYel3scfgNurMrlq03wxaoOPQh+gW0Fs=;
+        s=default; t=1594134979;
+        bh=7joXzKaGfGR+ibfYWTpBL8FkbeLIOSNRApnPwWP0LS8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BHfjKLcxl8FsYLpiyCaO6I8mv2FXuUn70tt6SBfgRWdrVNRtRPjIzm5UyOTWDOLhL
-         /6gJ4cJOqxe6eJCByO7gvbKM21mkUsEQtnuJCB3snMt/h7MK5GlGwNhtSv4ROzbTG5
-         mHJxlIuKmuzRIJ9K7q62Q71hM9ElApTRlk9oPkZU=
+        b=KRsBFzOTwgB8mUZo7E4a8UMBIjwOal1tALEk1daLi9rRbJBTklOjiw/DUa7TiMXGl
+         VhazApMohWKjlYey0PVfh2Qos7O/dFJ4bTnceuG0ulC4Iu7j1L2Cg7h13F+XnYGsW/
+         HQ9r/r/VXGBNsBO/tnjbEeVRhHVaza1cHpSoNNX4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Misono Tomohiro <misono.tomohiro@jp.fujitsu.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 15/27] hwmon: (acpi_power_meter) Fix potential memory leak in acpi_power_meter_add()
-Date:   Tue,  7 Jul 2020 17:15:42 +0200
-Message-Id: <20200707145749.684144887@linuxfoundation.org>
+Subject: [PATCH 4.14 16/27] drm: sun4i: hdmi: Remove extra HPD polling
+Date:   Tue,  7 Jul 2020 17:15:43 +0200
+Message-Id: <20200707145749.725962737@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200707145748.944863698@linuxfoundation.org>
 References: <20200707145748.944863698@linuxfoundation.org>
@@ -45,44 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Misono Tomohiro <misono.tomohiro@jp.fujitsu.com>
+From: Chen-Yu Tsai <wens@csie.org>
 
-[ Upstream commit 8b97f9922211c44a739c5cbd9502ecbb9f17f6d1 ]
+[ Upstream commit bda8eaa6dee7525f4dac950810a85a88bf6c2ba0 ]
 
-Although it rarely happens, we should call free_capabilities()
-if error happens after read_capabilities() to free allocated strings.
+The HPD sense mechanism in Allwinner's old HDMI encoder hardware is more
+or less an input-only GPIO. Other GPIO-based HPD implementations
+directly return the current state, instead of polling for a specific
+state and returning the other if that times out.
 
-Fixes: de584afa5e188 ("hwmon driver for ACPI 4.0 power meters")
-Signed-off-by: Misono Tomohiro <misono.tomohiro@jp.fujitsu.com>
-Link: https://lore.kernel.org/r/20200625043242.31175-1-misono.tomohiro@jp.fujitsu.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Remove the I/O polling from sun4i_hdmi_connector_detect() and directly
+return a known state based on the current reading. This also gets rid
+of excessive CPU usage by kworker as reported on Stack Exchange [1] and
+Armbian forums [2].
+
+ [1] https://superuser.com/questions/1515001/debian-10-buster-on-cubietruck-with-bug-in-sun4i-drm-hdmi
+ [2] https://forum.armbian.com/topic/14282-headless-systems-and-sun4i_drm_hdmi-a10a20/
+
+Fixes: 9c5681011a0c ("drm/sun4i: Add HDMI support")
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200629060032.24134-1-wens@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/acpi_power_meter.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hwmon/acpi_power_meter.c b/drivers/hwmon/acpi_power_meter.c
-index ba3af4505d8fb..e40d8907853bf 100644
---- a/drivers/hwmon/acpi_power_meter.c
-+++ b/drivers/hwmon/acpi_power_meter.c
-@@ -895,7 +895,7 @@ static int acpi_power_meter_add(struct acpi_device *device)
+diff --git a/drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c b/drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c
+index 298d6a8bab120..82cb939351889 100644
+--- a/drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c
++++ b/drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c
+@@ -214,9 +214,8 @@ sun4i_hdmi_connector_detect(struct drm_connector *connector, bool force)
+ 	struct sun4i_hdmi *hdmi = drm_connector_to_sun4i_hdmi(connector);
+ 	unsigned long reg;
  
- 	res = setup_attrs(resource);
- 	if (res)
--		goto exit_free;
-+		goto exit_free_capability;
- 
- 	resource->hwmon_dev = hwmon_device_register(&device->dev);
- 	if (IS_ERR(resource->hwmon_dev)) {
-@@ -908,6 +908,8 @@ static int acpi_power_meter_add(struct acpi_device *device)
- 
- exit_remove:
- 	remove_attrs(resource);
-+exit_free_capability:
-+	free_capabilities(resource);
- exit_free:
- 	kfree(resource);
- exit:
+-	if (readl_poll_timeout(hdmi->base + SUN4I_HDMI_HPD_REG, reg,
+-			       reg & SUN4I_HDMI_HPD_HIGH,
+-			       0, 500000)) {
++	reg = readl(hdmi->base + SUN4I_HDMI_HPD_REG);
++	if (reg & SUN4I_HDMI_HPD_HIGH) {
+ 		cec_phys_addr_invalidate(hdmi->cec_adap);
+ 		return connector_status_disconnected;
+ 	}
 -- 
 2.25.1
 
