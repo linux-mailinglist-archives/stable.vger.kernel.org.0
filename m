@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A740C21724C
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:44:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF8A92171A6
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:43:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729115AbgGGPbV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:31:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35984 "EHLO mail.kernel.org"
+        id S1728609AbgGGPXU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:23:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728868AbgGGPXE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:23:04 -0400
+        id S1729957AbgGGPXS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:23:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C6EFE2065D;
-        Tue,  7 Jul 2020 15:23:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B6460206F6;
+        Tue,  7 Jul 2020 15:23:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135384;
-        bh=dV0gNCmUrXIR5SUldbObEaG2LXR9tG3iUZCJCixlu5I=;
+        s=default; t=1594135397;
+        bh=uIk4ESIW5Mg7M/v0OCJWVJvllWdahzivRGgMbeGe7dw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aD/nkA8gOTxofOdjuWDuclbTibK5exTa+DFtl+1P/FqpYKfgFKIP+cQ8m7Go59cMV
-         fLmgaP/kBC8YerXKzSDugFO8LnamkeVNHW179/5jsWaCcr6Swk68P5kUpnlpDqR56k
-         To5WYvXvuods0y/b772AaEE0FSjPX1ZFXsD0wZ48=
+        b=tS7alWj3w8W43903DmvzOKviX+0VNQaf0uU8C+8Ur/DKrzzuKvyzOAmDq+P9oTtNB
+         nzJFfcTMUI2zaPFe1ZfcHNCFYMRq8kZ6EBdTFmzjFEnfBesywbvpv854gloGGYWdt/
+         1q4GM5QqWZ+Pj7F+XWQ6KcDYssKbl1lFXDx1rMyU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Markus Elfring <Markus.Elfring@web.de>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Tetsuhiro Kohada <kohada.t2@gmail.com>,
+        Sungjong Seo <sj1557.seo@samsung.com>,
         Namjae Jeon <namjae.jeon@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 002/112] exfat: add missing brelse() calls on error paths
-Date:   Tue,  7 Jul 2020 17:16:07 +0200
-Message-Id: <20200707145801.048188269@linuxfoundation.org>
+Subject: [PATCH 5.7 004/112] exfat: move setting VOL_DIRTY over exfat_remove_entries()
+Date:   Tue,  7 Jul 2020 17:16:09 +0200
+Message-Id: <20200707145801.142772468@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200707145800.925304888@linuxfoundation.org>
 References: <20200707145800.925304888@linuxfoundation.org>
@@ -45,58 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Namjae Jeon <namjae.jeon@samsung.com>
 
-[ Upstream commit e8dd3cda8667118b70d9fe527f61fe22623de04d ]
+[ Upstream commit 3bcfb701099acf96b0e883bf5544f96af473aa1d ]
 
-If the second exfat_get_dentry() call fails then we need to release
-"old_bh" before returning.  There is a similar bug in exfat_move_file().
+Move setting VOL_DIRTY over exfat_remove_entries() to avoid unneeded
+leaving VOL_DIRTY on -ENOTEMPTY.
 
 Fixes: 5f2aa075070c ("exfat: add inode operations")
-Reported-by: Markus Elfring <Markus.Elfring@web.de>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: stable@vger.kernel.org # v5.7
+Reported-by: Tetsuhiro Kohada <kohada.t2@gmail.com>
+Reviewed-by: Sungjong Seo <sj1557.seo@samsung.com>
 Signed-off-by: Namjae Jeon <namjae.jeon@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/exfat/namei.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ fs/exfat/namei.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/fs/exfat/namei.c b/fs/exfat/namei.c
-index a2659a8a68a14..3bf1dbadab691 100644
+index 3bf1dbadab691..2c9c783177213 100644
 --- a/fs/exfat/namei.c
 +++ b/fs/exfat/namei.c
-@@ -1089,10 +1089,14 @@ static int exfat_rename_file(struct inode *inode, struct exfat_chain *p_dir,
+@@ -984,7 +984,6 @@ static int exfat_rmdir(struct inode *dir, struct dentry *dentry)
+ 		goto unlock;
+ 	}
  
- 		epold = exfat_get_dentry(sb, p_dir, oldentry + 1, &old_bh,
- 			&sector_old);
-+		if (!epold)
-+			return -EIO;
- 		epnew = exfat_get_dentry(sb, p_dir, newentry + 1, &new_bh,
- 			&sector_new);
--		if (!epold || !epnew)
-+		if (!epnew) {
-+			brelse(old_bh);
- 			return -EIO;
-+		}
+-	exfat_set_vol_flags(sb, VOL_DIRTY);
+ 	exfat_chain_set(&clu_to_free, ei->start_clu,
+ 		EXFAT_B_TO_CLU_ROUND_UP(i_size_read(inode), sbi), ei->flags);
  
- 		memcpy(epnew, epold, DENTRY_SIZE);
- 		exfat_update_bh(sb, new_bh, sync);
-@@ -1173,10 +1177,14 @@ static int exfat_move_file(struct inode *inode, struct exfat_chain *p_olddir,
+@@ -1012,6 +1011,7 @@ static int exfat_rmdir(struct inode *dir, struct dentry *dentry)
+ 	num_entries++;
+ 	brelse(bh);
  
- 	epmov = exfat_get_dentry(sb, p_olddir, oldentry + 1, &mov_bh,
- 		&sector_mov);
-+	if (!epmov)
-+		return -EIO;
- 	epnew = exfat_get_dentry(sb, p_newdir, newentry + 1, &new_bh,
- 		&sector_new);
--	if (!epmov || !epnew)
-+	if (!epnew) {
-+		brelse(mov_bh);
- 		return -EIO;
-+	}
- 
- 	memcpy(epnew, epmov, DENTRY_SIZE);
- 	exfat_update_bh(sb, new_bh, IS_DIRSYNC(inode));
++	exfat_set_vol_flags(sb, VOL_DIRTY);
+ 	err = exfat_remove_entries(dir, &cdir, entry, 0, num_entries);
+ 	if (err) {
+ 		exfat_msg(sb, KERN_ERR,
 -- 
 2.25.1
 
