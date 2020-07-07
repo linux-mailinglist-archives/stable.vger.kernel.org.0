@@ -2,95 +2,168 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B242216FA9
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:06:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8683216FE8
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:13:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727791AbgGGPGo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:06:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58182 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725944AbgGGPGo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jul 2020 11:06:44 -0400
-Received: from mail-il1-x142.google.com (mail-il1-x142.google.com [IPv6:2607:f8b0:4864:20::142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E04CEC061755
-        for <stable@vger.kernel.org>; Tue,  7 Jul 2020 08:06:43 -0700 (PDT)
-Received: by mail-il1-x142.google.com with SMTP id s21so21116988ilk.5
-        for <stable@vger.kernel.org>; Tue, 07 Jul 2020 08:06:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=2XASVM4AqY31qIAgIY2OK3nO95mUNITex7KrDrl4aN8=;
-        b=wH4DdH9k2N6o7vtGN88zqDC0UyKEVJYh9gKVvKv4QcghZ6gg4gDJWa+K7ziEZMVP5R
-         1ulOADJ0uPAiIKCx+GisYUJhsEXABr6fqoNA1lRFda96CR2yrzJHSPb27ACza0Ssiz9u
-         D75mtMPu3cspl57MIEiiFWX+Nrd5eLdsY3Z6gTtbQbaa/ZmdGGZKVTrIcFa0o7lAaK7g
-         9QmQn9s8DssW5XFizxB3J9bA7nHDleLo9FqY/f/j5cNaq6IJVfiF6irbtGPG+tiGbJ0c
-         ArV3S28t89AoQgARYknI6ZDfkITYD3ntI5oJp/92YOtWt5j2OHn8niGGz3DeuaPt7H5K
-         ZRkA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=2XASVM4AqY31qIAgIY2OK3nO95mUNITex7KrDrl4aN8=;
-        b=eWLGiwpVB/RlEMBCP395nli8kcbHi+GcnYoKyx5Uj7lAm0PsOMDzlJ/UjPqNMGyYm8
-         aqRc3MjqXfbPe/GzawUu8kgBiQOeRVL78HK5dUsQWmdEOEKhbNUz4MqrcVIVQ/uy9xVQ
-         JHwZRYMxA+UL/gvC3/Tviu5p4d+FhmYU3HUDycs5qwCDFIiEZEKL1O6r6mIKiVJ9454P
-         RCqdNMNNhMVcgW9wgfK1J0+koqGJryS+O2Fzy5ilfYT55WwWpnMpJQG2t23tuiTcNsOi
-         QJFBgXBCERz+RmlHb3vu1Ite4HtxEWo5dMYXFrStgrUis07xrcFpWYmrCm3FxSkgNzT+
-         FwnA==
-X-Gm-Message-State: AOAM530GP+mxozBqpSXWDHejJsBC/HmyTeY0Y7v7PjJ2EdveHU8zADWl
-        zzvawBvHeDxQn3TO3ozMClBo0A==
-X-Google-Smtp-Source: ABdhPJzRlJE3eTlzkgRAxz2LN+fUaR3t68qtI+trr22emrpJiqK3il2bLM/g1joJmGIus/cnlN+rMQ==
-X-Received: by 2002:a92:c502:: with SMTP id r2mr37872563ilg.78.1594134403170;
-        Tue, 07 Jul 2020 08:06:43 -0700 (PDT)
-Received: from [192.168.1.58] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id v3sm13314560ili.12.2020.07.07.08.06.42
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 07 Jul 2020 08:06:42 -0700 (PDT)
-Subject: Re: [PATCH] blk-mq: consider non-idle request as "inflight" in
- blk_mq_rq_inflight()
-To:     Mike Snitzer <snitzer@redhat.com>, linux-block@vger.kernel.org
-Cc:     dm-devel@redhat.com, stable@vger.kernel.org,
-        Ming Lei <ming.lei@redhat.com>
-References: <20200707150433.39480-1-snitzer@redhat.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <dc5f15f0-db7f-eb1b-f504-d29ec5ef8a7e@kernel.dk>
-Date:   Tue, 7 Jul 2020 09:06:41 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
+        id S1728678AbgGGPLY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:11:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52264 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728650AbgGGPLR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:11:17 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1AECB20674;
+        Tue,  7 Jul 2020 15:11:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1594134676;
+        bh=tXgPE9b+fNC7S+SMte1ZUgnBKaxiTY7sLpEt0TqW93k=;
+        h=From:To:Cc:Subject:Date:From;
+        b=qfHUdR+anyhdpIhNu2XBKi3EuTZdV/mNO5IaJ7wnkuEBSsgA2CaxHg+FKZ91J3xWK
+         DR/1ZVnysa+JvqzQ1dUN+T9rUVMx2tFwNjoyaHONSfS+Jae8Sc2phga/okxNZK+/Sp
+         Bs+42rEIpzqYhKDYzJ/8TH5VoQO4h9syii5eU9xY=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: [PATCH 4.4 00/19] 4.4.230-rc1 review
+Date:   Tue,  7 Jul 2020 17:10:03 +0200
+Message-Id: <20200707145747.493710555@linuxfoundation.org>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-In-Reply-To: <20200707150433.39480-1-snitzer@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.230-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.4.230-rc1
+X-KernelTest-Deadline: 2020-07-09T14:57+00:00
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/7/20 9:04 AM, Mike Snitzer wrote:
-> From: Ming Lei <ming.lei@redhat.com>
-> 
-> dm-multipath is the only user of blk_mq_queue_inflight().  When
-> dm-multipath calls blk_mq_queue_inflight() to check if it has
-> outstanding IO it can get a false negative.  The reason for this is
-> blk_mq_rq_inflight() doesn't consider requests that are no longer
-> MQ_RQ_IN_FLIGHT but that are now MQ_RQ_COMPLETE (->complete isn't
-> called or finished yet) as "inflight".
-> 
-> This causes request-based dm-multipath's dm_wait_for_completion() to
-> return before all outstanding dm-multipath requests have actually
-> completed.  This breaks DM multipath's suspend functionality because
-> blk-mq requests complete after DM's suspend has finished -- which
-> shouldn't happen.
-> 
-> Fix this by considering any request not in the MQ_RQ_IDLE state
-> (so either MQ_RQ_COMPLETE or MQ_RQ_IN_FLIGHT) as "inflight" in
-> blk_mq_rq_inflight().
+This is the start of the stable review cycle for the 4.4.230 release.
+There are 19 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-Applied, thanks.
+Responses should be made by Thu, 09 Jul 2020 14:57:34 +0000.
+Anything received after that time might be too late.
 
--- 
-Jens Axboe
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.230-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+and the diffstat can be found below.
+
+thanks,
+
+greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.4.230-rc1
+
+Vasily Averin <vvs@virtuozzo.com>
+    netfilter: nf_conntrack_h323: lost .data_len definition for Q.931/ipv6
+
+Hauke Mehrtens <hauke@hauke-m.de>
+    MIPS: Add missing EHB in mtc0 -> mfc0 sequence for DSPen
+
+Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+    cifs: Fix the target file was deleted when rename failed.
+
+Paul Aurich <paul@darkrain42.org>
+    SMB3: Honor persistent/resilient handle flags for multiuser mounts
+
+Paul Aurich <paul@darkrain42.org>
+    SMB3: Honor 'seal' flag for multiuser mounts
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Revert "ALSA: usb-audio: Improve frames size computation"
+
+Chris Packham <chris.packham@alliedtelesis.co.nz>
+    i2c: algo-pca: Add 0x78 as SCL stuck low status for PCA9665
+
+Hou Tao <houtao1@huawei.com>
+    virtio-blk: free vblk-vqs in error path of virtblk_probe()
+
+Misono Tomohiro <misono.tomohiro@jp.fujitsu.com>
+    hwmon: (acpi_power_meter) Fix potential memory leak in acpi_power_meter_add()
+
+Chu Lin <linchuyuan@google.com>
+    hwmon: (max6697) Make sure the OVERT mask is set correctly
+
+Shile Zhang <shile.zhang@nokia.com>
+    sched/rt: Show the 'sched_rr_timeslice' SCHED_RR timeslice tuning knob in milliseconds
+
+Herbert Xu <herbert@gondor.apana.org.au>
+    crypto: af_alg - fix use-after-free in af_alg_accept() due to bh_lock_sock()
+
+Douglas Anderson <dianders@chromium.org>
+    kgdb: Avoid suspicious RCU usage warning
+
+Zqiang <qiang.zhang@windriver.com>
+    usb: usbtest: fix missing kfree(dev->buf) in usbtest_disconnect
+
+Qian Cai <cai@lca.pw>
+    mm/slub: fix stack overruns with SLUB_STATS
+
+Borislav Petkov <bp@suse.de>
+    EDAC/amd64: Read back the scrub rate PCI register on F15h
+
+Hugh Dickins <hughd@google.com>
+    mm: fix swap cache node allocation mask
+
+Filipe Manana <fdmanana@suse.com>
+    btrfs: fix data block group relocation failure due to concurrent scrub
+
+Anand Jain <Anand.Jain@oracle.com>
+    btrfs: cow_file_range() num_bytes and disk_num_bytes are same
+
+
+-------------
+
+Diffstat:
+
+ Makefile                               |  4 ++--
+ arch/mips/kernel/traps.c               |  1 +
+ crypto/af_alg.c                        | 26 +++++++++-----------
+ crypto/algif_aead.c                    |  9 +++----
+ crypto/algif_hash.c                    |  9 +++----
+ crypto/algif_skcipher.c                |  9 +++----
+ drivers/block/virtio_blk.c             |  1 +
+ drivers/edac/amd64_edac.c              |  2 ++
+ drivers/hwmon/acpi_power_meter.c       |  4 +++-
+ drivers/hwmon/max6697.c                |  7 +++---
+ drivers/i2c/algos/i2c-algo-pca.c       |  3 ++-
+ drivers/usb/misc/usbtest.c             |  1 +
+ fs/btrfs/inode.c                       | 36 ++++++++++++++++++++--------
+ fs/cifs/connect.c                      |  3 +++
+ fs/cifs/inode.c                        | 10 ++++++--
+ include/crypto/if_alg.h                |  4 ++--
+ include/linux/sched/sysctl.h           |  1 +
+ kernel/debug/debug_core.c              |  4 ++++
+ kernel/sched/core.c                    |  5 ++--
+ kernel/sched/rt.c                      |  1 +
+ kernel/sysctl.c                        |  2 +-
+ mm/slub.c                              |  3 ++-
+ mm/swap_state.c                        |  3 ++-
+ net/netfilter/nf_conntrack_h323_main.c |  1 +
+ sound/usb/card.h                       |  4 ----
+ sound/usb/endpoint.c                   | 43 ++++------------------------------
+ sound/usb/endpoint.h                   |  1 -
+ sound/usb/pcm.c                        |  2 --
+ 28 files changed, 95 insertions(+), 104 deletions(-)
+
 
