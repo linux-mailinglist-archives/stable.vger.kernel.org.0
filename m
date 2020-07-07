@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62ADA217059
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:23:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EFE621705B
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:23:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728988AbgGGPQh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:16:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55996 "EHLO mail.kernel.org"
+        id S1728996AbgGGPQk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:16:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728996AbgGGPQf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:16:35 -0400
+        id S1729048AbgGGPQi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:16:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A84920674;
-        Tue,  7 Jul 2020 15:16:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 667D820663;
+        Tue,  7 Jul 2020 15:16:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594134994;
-        bh=DYTtz0AJqjOTxhsSgTwzu2wTfGAn/INv3TcuS10RgMY=;
+        s=default; t=1594134997;
+        bh=U+B+7RFkci1f7yxGdvHrTpuTzMDQAB/yfQC6i3ElCu8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I6LU5TPS2a8Q9Kppgkf8fF8iITKVHik1G+gNHus/DQpXogu1YqWRE5Qo11YKq33DH
-         DguogyxkLTjBuMrAavuqOSLoBc2uQY66/unZNnGPjyqViMYdNjO/rErBkJhc/GIzvS
-         jFvS7jhUbsapYSt5nrZu+0Kx3auFgWBfFcXmg0HQ=
+        b=opRmXq9N9zdjCzP3wJfF3ieFGbSx0FxRxJKZioUZwvSOQORX8l5KftfyVVPyyuZvH
+         vlhtaKSwrfN8HBF3lwi1iYwki+CfHSG+MjqdVku6zqWqt/Q6owXNlqdhq/hKC+OQKH
+         R61W2QmfHwe4Ej32p3P6939rfGRpim3ilKWHde74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dongli Zhang <dongli.zhang@oracle.com>,
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Joe Jin <joe.jin@oracle.com>, Christoph Lameter <cl@linux.com>,
+        Glauber Costa <glauber@scylladb.com>,
+        Christoph Lameter <cl@linux.com>,
         Pekka Enberg <penberg@kernel.org>,
         David Rientjes <rientjes@google.com>,
         Joonsoo Kim <iamjoonsoo.kim@lge.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 07/27] mm/slub.c: fix corrupted freechain in deactivate_slab()
-Date:   Tue,  7 Jul 2020 17:15:34 +0200
-Message-Id: <20200707145749.311991335@linuxfoundation.org>
+Subject: [PATCH 4.14 08/27] mm/slub: fix stack overruns with SLUB_STATS
+Date:   Tue,  7 Jul 2020 17:15:35 +0200
+Message-Id: <20200707145749.371039874@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200707145748.944863698@linuxfoundation.org>
 References: <20200707145748.944863698@linuxfoundation.org>
@@ -49,113 +50,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongli Zhang <dongli.zhang@oracle.com>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit 52f23478081ae0dcdb95d1650ea1e7d52d586829 ]
+[ Upstream commit a68ee0573991e90af2f1785db309206408bad3e5 ]
 
-The slub_debug is able to fix the corrupted slab freelist/page.
-However, alloc_debug_processing() only checks the validity of current
-and next freepointer during allocation path.  As a result, once some
-objects have their freepointers corrupted, deactivate_slab() may lead to
-page fault.
+There is no need to copy SLUB_STATS items from root memcg cache to new
+memcg cache copies.  Doing so could result in stack overruns because the
+store function only accepts 0 to clear the stat and returns an error for
+everything else while the show method would print out the whole stat.
 
-Below is from a test kernel module when 'slub_debug=PUF,kmalloc-128
-slub_nomerge'.  The test kernel corrupts the freepointer of one free
-object on purpose.  Unfortunately, deactivate_slab() does not detect it
-when iterating the freechain.
+Then, the mismatch of the lengths returns from show and store methods
+happens in memcg_propagate_slab_attrs():
 
-  BUG: unable to handle page fault for address: 00000000123456f8
-  #PF: supervisor read access in kernel mode
-  #PF: error_code(0x0000) - not-present page
-  PGD 0 P4D 0
-  Oops: 0000 [#1] SMP PTI
-  ... ...
-  RIP: 0010:deactivate_slab.isra.92+0xed/0x490
-  ... ...
+	else if (root_cache->max_attr_size < ARRAY_SIZE(mbuf))
+		buf = mbuf;
+
+max_attr_size is only 2 from slab_attr_store(), then, it uses mbuf[64]
+in show_stat() later where a bounch of sprintf() would overrun the stack
+variable.  Fix it by always allocating a page of buffer to be used in
+show_stat() if SLUB_STATS=y which should only be used for debug purpose.
+
+  # echo 1 > /sys/kernel/slab/fs_cache/shrink
+  BUG: KASAN: stack-out-of-bounds in number+0x421/0x6e0
+  Write of size 1 at addr ffffc900256cfde0 by task kworker/76:0/53251
+
+  Hardware name: HPE ProLiant DL385 Gen10/ProLiant DL385 Gen10, BIOS A40 07/10/2019
+  Workqueue: memcg_kmem_cache memcg_kmem_cache_create_func
   Call Trace:
-   ___slab_alloc+0x536/0x570
-   __slab_alloc+0x17/0x30
-   __kmalloc+0x1d9/0x200
-   ext4_htree_store_dirent+0x30/0xf0
-   htree_dirblock_to_tree+0xcb/0x1c0
-   ext4_htree_fill_tree+0x1bc/0x2d0
-   ext4_readdir+0x54f/0x920
-   iterate_dir+0x88/0x190
-   __x64_sys_getdents+0xa6/0x140
-   do_syscall_64+0x49/0x170
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+    number+0x421/0x6e0
+    vsnprintf+0x451/0x8e0
+    sprintf+0x9e/0xd0
+    show_stat+0x124/0x1d0
+    alloc_slowpath_show+0x13/0x20
+    __kmem_cache_create+0x47a/0x6b0
 
-Therefore, this patch adds extra consistency check in deactivate_slab().
-Once an object's freepointer is corrupted, all following objects
-starting at this object are isolated.
+  addr ffffc900256cfde0 is located in stack of task kworker/76:0/53251 at offset 0 in frame:
+   process_one_work+0x0/0xb90
 
-[akpm@linux-foundation.org: fix build with CONFIG_SLAB_DEBUG=n]
-Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
+  this frame has 1 object:
+   [32, 72) 'lockdep_map'
+
+  Memory state around the buggy address:
+   ffffc900256cfc80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+   ffffc900256cfd00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  >ffffc900256cfd80: 00 00 00 00 00 00 00 00 00 00 00 00 f1 f1 f1 f1
+                                                         ^
+   ffffc900256cfe00: 00 00 00 00 00 f2 f2 f2 00 00 00 00 00 00 00 00
+   ffffc900256cfe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  ==================================================================
+  Kernel panic - not syncing: stack-protector: Kernel stack is corrupted in: __kmem_cache_create+0x6ac/0x6b0
+  Workqueue: memcg_kmem_cache memcg_kmem_cache_create_func
+  Call Trace:
+    __kmem_cache_create+0x6ac/0x6b0
+
+Fixes: 107dab5c92d5 ("slub: slub-specific propagation changes")
+Signed-off-by: Qian Cai <cai@lca.pw>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Joe Jin <joe.jin@oracle.com>
+Cc: Glauber Costa <glauber@scylladb.com>
 Cc: Christoph Lameter <cl@linux.com>
 Cc: Pekka Enberg <penberg@kernel.org>
 Cc: David Rientjes <rientjes@google.com>
 Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Link: http://lkml.kernel.org/r/20200331031450.12182-1-dongli.zhang@oracle.com
+Link: http://lkml.kernel.org/r/20200429222356.4322-1-cai@lca.pw
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/slub.c | 27 +++++++++++++++++++++++++++
- 1 file changed, 27 insertions(+)
+ mm/slub.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/mm/slub.c b/mm/slub.c
-index 8807a0c98a675..66b7987129337 100644
+index 66b7987129337..09d4cc4391bb2 100644
 --- a/mm/slub.c
 +++ b/mm/slub.c
-@@ -658,6 +658,20 @@ static void slab_fix(struct kmem_cache *s, char *fmt, ...)
- 	va_end(args);
- }
- 
-+static bool freelist_corrupted(struct kmem_cache *s, struct page *page,
-+			       void *freelist, void *nextfree)
-+{
-+	if ((s->flags & SLAB_CONSISTENCY_CHECKS) &&
-+	    !check_valid_pointer(s, page, nextfree)) {
-+		object_err(s, page, freelist, "Freechain corrupt");
-+		freelist = NULL;
-+		slab_fix(s, "Isolate corrupted freechain");
-+		return true;
-+	}
-+
-+	return false;
-+}
-+
- static void print_trailer(struct kmem_cache *s, struct page *page, u8 *p)
- {
- 	unsigned int off;	/* Offset of last byte */
-@@ -1339,6 +1353,11 @@ static inline void inc_slabs_node(struct kmem_cache *s, int node,
- static inline void dec_slabs_node(struct kmem_cache *s, int node,
- 							int objects) {}
- 
-+static bool freelist_corrupted(struct kmem_cache *s, struct page *page,
-+			       void *freelist, void *nextfree)
-+{
-+	return false;
-+}
- #endif /* CONFIG_SLUB_DEBUG */
- 
- /*
-@@ -2029,6 +2048,14 @@ static void deactivate_slab(struct kmem_cache *s, struct page *page,
- 		void *prior;
- 		unsigned long counters;
- 
-+		/*
-+		 * If 'nextfree' is invalid, it is possible that the object at
-+		 * 'freelist' is already corrupted.  So isolate all objects
-+		 * starting at 'freelist'.
-+		 */
-+		if (freelist_corrupted(s, page, freelist, nextfree))
-+			break;
-+
- 		do {
- 			prior = page->freelist;
- 			counters = page->counters;
+@@ -5601,7 +5601,8 @@ static void memcg_propagate_slab_attrs(struct kmem_cache *s)
+ 		 */
+ 		if (buffer)
+ 			buf = buffer;
+-		else if (root_cache->max_attr_size < ARRAY_SIZE(mbuf))
++		else if (root_cache->max_attr_size < ARRAY_SIZE(mbuf) &&
++			 !IS_ENABLED(CONFIG_SLUB_STATS))
+ 			buf = mbuf;
+ 		else {
+ 			buffer = (char *) get_zeroed_page(GFP_KERNEL);
 -- 
 2.25.1
 
