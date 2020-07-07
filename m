@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E1C2217192
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:42:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60E442171F9
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:43:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729776AbgGGPWF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:22:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34380 "EHLO mail.kernel.org"
+        id S1729051AbgGGP1P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:27:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729788AbgGGPWC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:22:02 -0400
+        id S1730350AbgGGP1N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:27:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B655E20663;
-        Tue,  7 Jul 2020 15:22:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8CB9C2083B;
+        Tue,  7 Jul 2020 15:27:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135322;
-        bh=8AF14UblYs3ptHNxNzaQdjEKUMpZrRcDcrOJjLDL8Is=;
+        s=default; t=1594135633;
+        bh=OPqoMn+/06zTJ/IhQ4HFgXBDX7x8RWNi3teDAPSeLTI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fVBmU6435HkOiWF0yN652aHaKNZ4cpLVYSVSOXODCVpEEGYvf7W4FtN4gNux3gLnu
-         PsYYgS054QUEm/9rZ7paN9aaHD4t1fg2aPwiY/gKH1YLzKzstcBD8QL8hPJ710htiC
-         o/Nxtb194wjPMbOEWrKKKSnaIT/IyuFFd1krjsm4=
+        b=trQR4ks0uSSRNm3b9n3zGFpmcgGUjM1CQHosT2wbCsRgAnzTyJ3K4dGOlYKuXzoYp
+         WZZw6M9gM9CtfLdEEwEaOMpAn+8kZZJWe/0LQy8SlkJFUoLuH+uH51b+LLNlFp0IOa
+         y7cq3oOEXVeLM9bQw0TkE0X8ejUH7iqHShNvexHE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.4 60/65] irqchip/gic: Atomically update affinity
-Date:   Tue,  7 Jul 2020 17:17:39 +0200
-Message-Id: <20200707145755.366625112@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jan=20Kundr=C3=A1t?= <jan.kundrat@cesnet.cz>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 5.7 095/112] hwmon: (pmbus) Fix page vs. register when accessing fans
+Date:   Tue,  7 Jul 2020 17:17:40 +0200
+Message-Id: <20200707145805.496172289@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200707145752.417212219@linuxfoundation.org>
-References: <20200707145752.417212219@linuxfoundation.org>
+In-Reply-To: <20200707145800.925304888@linuxfoundation.org>
+References: <20200707145800.925304888@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,61 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Jan Kundrát <jan.kundrat@cesnet.cz>
 
-commit 005c34ae4b44f085120d7f371121ec7ded677761 upstream.
+commit b4c8af4c2a226fc9c25e1decbd26fdab1b0993ee upstream.
 
-The GIC driver uses a RMW sequence to update the affinity, and
-relies on the gic_lock_irqsave/gic_unlock_irqrestore sequences
-to update it atomically.
+Commit 16358542f32f ("hwmon: (pmbus) Implement multi-phase support")
+added support for multi-phase pmbus devices. However, when calling
+pmbus_add_sensor() for fans, the patch swapped the `page` and `reg`
+attributes. As a result, the fan speeds were reported as 0 RPM on my device.
 
-But these sequences only expand into anything meaningful if
-the BL_SWITCHER option is selected, which almost never happens.
-
-It also turns out that using a RMW and locks is just as silly,
-as the GIC distributor supports byte accesses for the GICD_TARGETRn
-registers, which when used make the update atomic by definition.
-
-Drop the terminally broken code and replace it by a byte write.
-
-Fixes: 04c8b0f82c7d ("irqchip/gic: Make locking a BL_SWITCHER only feature")
-Cc: stable@vger.kernel.org
-Signed-off-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Jan Kundrát <jan.kundrat@cesnet.cz>
+Fixes: 16358542f32f ("hwmon: (pmbus) Implement multi-phase support")
+Cc: stable@vger.kernel.org # v5.7+
+Link: https://lore.kernel.org/r/449bc9e6c0e4305581e45905ce9d043b356a9932.1592904387.git.jan.kundrat@cesnet.cz
+[groeck: Fixed references to offending commit]
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/irqchip/irq-gic.c |   14 +++-----------
- 1 file changed, 3 insertions(+), 11 deletions(-)
+ drivers/hwmon/pmbus/pmbus_core.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/irqchip/irq-gic.c
-+++ b/drivers/irqchip/irq-gic.c
-@@ -329,10 +329,8 @@ static int gic_irq_set_vcpu_affinity(str
- static int gic_set_affinity(struct irq_data *d, const struct cpumask *mask_val,
- 			    bool force)
- {
--	void __iomem *reg = gic_dist_base(d) + GIC_DIST_TARGET + (gic_irq(d) & ~3);
--	unsigned int cpu, shift = (gic_irq(d) % 4) * 8;
--	u32 val, mask, bit;
--	unsigned long flags;
-+	void __iomem *reg = gic_dist_base(d) + GIC_DIST_TARGET + gic_irq(d);
-+	unsigned int cpu;
+--- a/drivers/hwmon/pmbus/pmbus_core.c
++++ b/drivers/hwmon/pmbus/pmbus_core.c
+@@ -1869,7 +1869,7 @@ static int pmbus_add_fan_ctrl(struct i2c
+ 	struct pmbus_sensor *sensor;
  
- 	if (!force)
- 		cpu = cpumask_any_and(mask_val, cpu_online_mask);
-@@ -342,13 +340,7 @@ static int gic_set_affinity(struct irq_d
- 	if (cpu >= NR_GIC_CPU_IF || cpu >= nr_cpu_ids)
- 		return -EINVAL;
+ 	sensor = pmbus_add_sensor(data, "fan", "target", index, page,
+-				  PMBUS_VIRT_FAN_TARGET_1 + id, 0xff, PSC_FAN,
++				  0xff, PMBUS_VIRT_FAN_TARGET_1 + id, PSC_FAN,
+ 				  false, false, true);
  
--	gic_lock_irqsave(flags);
--	mask = 0xff << shift;
--	bit = gic_cpu_map[cpu] << shift;
--	val = readl_relaxed(reg) & ~mask;
--	writel_relaxed(val | bit, reg);
--	gic_unlock_irqrestore(flags);
--
-+	writeb_relaxed(gic_cpu_map[cpu], reg);
- 	irq_data_update_effective_affinity(d, cpumask_of(cpu));
+ 	if (!sensor)
+@@ -1880,14 +1880,14 @@ static int pmbus_add_fan_ctrl(struct i2c
+ 		return 0;
  
- 	return IRQ_SET_MASK_OK_DONE;
+ 	sensor = pmbus_add_sensor(data, "pwm", NULL, index, page,
+-				  PMBUS_VIRT_PWM_1 + id, 0xff, PSC_PWM,
++				  0xff, PMBUS_VIRT_PWM_1 + id, PSC_PWM,
+ 				  false, false, true);
+ 
+ 	if (!sensor)
+ 		return -ENOMEM;
+ 
+ 	sensor = pmbus_add_sensor(data, "pwm", "enable", index, page,
+-				  PMBUS_VIRT_PWM_ENABLE_1 + id, 0xff, PSC_PWM,
++				  0xff, PMBUS_VIRT_PWM_ENABLE_1 + id, PSC_PWM,
+ 				  true, false, false);
+ 
+ 	if (!sensor)
+@@ -1929,7 +1929,7 @@ static int pmbus_add_fan_attributes(stru
+ 				continue;
+ 
+ 			if (pmbus_add_sensor(data, "fan", "input", index,
+-					     page, pmbus_fan_registers[f], 0xff,
++					     page, 0xff, pmbus_fan_registers[f],
+ 					     PSC_FAN, true, true, true) == NULL)
+ 				return -ENOMEM;
+ 
 
 
