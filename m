@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D52B8217178
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:42:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3496E21727F
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:44:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729509AbgGGPU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:20:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60528 "EHLO mail.kernel.org"
+        id S1728335AbgGGPeW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:34:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728724AbgGGPUZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:20:25 -0400
+        id S1728562AbgGGPTF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:19:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BCB6A20663;
-        Tue,  7 Jul 2020 15:20:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E3C12065D;
+        Tue,  7 Jul 2020 15:19:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135225;
-        bh=aeTibctQUtwyRVzBygrSOoljHRa45dwzMs7gCQgfONA=;
+        s=default; t=1594135145;
+        bh=lgdF+Vr6Tm668xiX0c10KvvsPSRsQV1zh/UWjozhaRQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V5OhS8pcczrXa+NCEPKDS54ka7Ak/jue9QjAkF96Tnv1B9ncz0Bsm3VySTBJ67HgT
-         mGTquXeM+8V8vGPbXb3hndxMfNN0ZpEQfBk5ypw7nYxIZ1dkCj7KT9ddYZa0ks0UwR
-         c+MrF20Rv00oAExnGFmG/SXuX56U4UKS0NBhDJKk=
+        b=il5kGz3+RDLIFZs4ekxDRF5OTFbDTdZC/TpQGLioHNvSoqRgoYluE78VE03xXf6zt
+         TcMBQar/7OtZdY9BWsGbdUmo1IOOmeDF4UpoDMcMvhofbFuEK7riri+nFKKUWsmIKD
+         YWgz5tKfF4qrDXnGRlORxz3IpTHNIPiVkD9kDB5k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen Tao <chentao107@huawei.com>,
-        Rob Clark <robdclark@chromium.org>,
+        stable@vger.kernel.org, Keith Busch <kbusch@kernel.org>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 22/65] drm/msm/dpu: fix error return code in dpu_encoder_init
+Subject: [PATCH 4.19 09/36] nvme-multipath: set bdi capabilities once
 Date:   Tue,  7 Jul 2020 17:17:01 +0200
-Message-Id: <20200707145753.557090037@linuxfoundation.org>
+Message-Id: <20200707145749.588807254@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200707145752.417212219@linuxfoundation.org>
-References: <20200707145752.417212219@linuxfoundation.org>
+In-Reply-To: <20200707145749.130272978@linuxfoundation.org>
+References: <20200707145749.130272978@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Tao <chentao107@huawei.com>
+From: Keith Busch <kbusch@kernel.org>
 
-[ Upstream commit aa472721c8dbe1713cf510f56ffbc56ae9e14247 ]
+[ Upstream commit b2ce4d90690bd29ce5b554e203cd03682dd59697 ]
 
-Fix to return negative error code -ENOMEM with the use of
-ERR_PTR from dpu_encoder_init.
+The queues' backing device info capabilities don't change with each
+namespace revalidation. Set it only when each path's request_queue
+is initially added to a multipath queue.
 
-Fixes: 25fdd5933e4c ("drm/msm: Add SDM845 DPU support")
-Signed-off-by: Chen Tao <chentao107@huawei.com>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvme/host/multipath.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c
-index d82ea994063fa..edf7989d7a8ee 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c
-@@ -2232,7 +2232,7 @@ struct drm_encoder *dpu_encoder_init(struct drm_device *dev,
+diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
+index 588864beabd80..6f584a9515f42 100644
+--- a/drivers/nvme/host/multipath.c
++++ b/drivers/nvme/host/multipath.c
+@@ -11,6 +11,7 @@
+  * more details.
+  */
  
- 	dpu_enc = devm_kzalloc(dev->dev, sizeof(*dpu_enc), GFP_KERNEL);
- 	if (!dpu_enc)
--		return ERR_PTR(ENOMEM);
-+		return ERR_PTR(-ENOMEM);
++#include <linux/backing-dev.h>
+ #include <linux/moduleparam.h>
+ #include <trace/events/block.h>
+ #include "nvme.h"
+@@ -521,6 +522,13 @@ void nvme_mpath_add_disk(struct nvme_ns *ns, struct nvme_id_ns *id)
+ 		nvme_mpath_set_live(ns);
+ 		mutex_unlock(&ns->head->lock);
+ 	}
++
++	if (bdi_cap_stable_pages_required(ns->queue->backing_dev_info)) {
++		struct backing_dev_info *info =
++					ns->head->disk->queue->backing_dev_info;
++
++		info->capabilities |= BDI_CAP_STABLE_WRITES;
++	}
+ }
  
- 	rc = drm_encoder_init(dev, &dpu_enc->base, &dpu_encoder_funcs,
- 			drm_enc_mode, NULL);
+ void nvme_mpath_remove_disk(struct nvme_ns_head *head)
 -- 
 2.25.1
 
