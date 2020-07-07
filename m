@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16D1A216DD6
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 15:36:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F19CE216DD9
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 15:36:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728190AbgGGNg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 09:36:29 -0400
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:59241 "EHLO
+        id S1726839AbgGGNgg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 09:36:36 -0400
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:54799 "EHLO
         forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727936AbgGGNg3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jul 2020 09:36:29 -0400
+        by vger.kernel.org with ESMTP id S1728197AbgGGNgf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jul 2020 09:36:35 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id C3A831942974;
-        Tue,  7 Jul 2020 09:36:27 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id BF8DD194290E;
+        Tue,  7 Jul 2020 09:36:34 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Tue, 07 Jul 2020 09:36:27 -0400
+  by compute1.internal (MEProxy); Tue, 07 Jul 2020 09:36:34 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=GWu+a1
-        ozUVBEY2MOIpqd94u7UyOaznyW7JZYFXQUoNU=; b=DOXYDSIaaruBJg7WWva6Hh
-        mZ0Efwm53wO10Iu7Qs+1TGItixnO3U85U6kPRmO8XVZAVaqKroT3woODXXmd+Kr8
-        rCBYW5HkOwvaJdabHWk47NRMPnjrM7F3M82DlPlkdj1XwhZDm0iAORNvmosxmFTo
-        pxJaN3eKWk4+r02YV8DlAX6fuRO0PPIyZMgiaJjNM0RbN1TB1WE7vFberBeLd9S/
-        D6D/d2qthFaJJzotNTEacBV2hgcqOyA4L8F1/fZTHAHt6/t2OFsOtdMnyaRSSP0G
-        1/R0L4083d7nhlrMeTvNT/5UUs0xl1cSmjcOQ2U/SgKWjJYti3e+QyMg0E5K4n4w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=ASDbrP
+        qu2ul+yTXWoMIDPWferwsGmlDApPBEyB8FEQg=; b=TBauE2NNM2pb+jv5GfzJhO
+        qB10aonVlkGlzJFEmVxzf+frLFzzJ8YaJFj75WMypYJ9mwLlAzhMK1reQyUIHXYz
+        uEZOZw+adgTafekGWpfOfeXaWCTfoUnkYLmXo+S6/6m6jh63Sk0H3Daun0IkkO9s
+        5h+Kbpspz3k7UWqvFKSLh770clWY1uSNsQHWHPrzGb7Q4eiBM4k1tHkZLeT9tdyw
+        CJDfkIfb3ROQBWo5A1bQwUGQkAm1NgLwVQhOIteLxje+j/fGSOa4UFAkx0Gb1NHp
+        PubzV5RdaVic8li3G+RpWk0CVIcUhOC6sNhV6o16ShCWNguRhd1/KQWDEV7o09KQ
         ==
-X-ME-Sender: <xms:WnoEX1_c9GNmvtsYZrS22aFefIgKADRDoiDMOipssi1Ttc_FsZpm7Q>
+X-ME-Sender: <xms:YnoEX4HnlaJrpIqbDlzXtz16MENII06UVQuqVkG_asm67QtZhGxseA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudehgdeitdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
     efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
-    fedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    fedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:WnoEX5tKyV6u-8mds7s2c7rzwycBd5cHyXPR65bsnuLNRrd7Jqsyng>
-    <xmx:WnoEXzBeAF2kP064z7POMWmJBDIsnTivAR2q79t8H5fGr750AiAIuQ>
-    <xmx:WnoEX5em6qaLgXhnFL5MAhgXfZaxPT1jmddwbdxhVzLm6SuFQWp32Q>
-    <xmx:W3oEX81N4Tk31G374aecgVsdt43J3mNennwfjUL1ASk6NuRZC7eJgA>
+X-ME-Proxy: <xmx:YnoEXxWUs3hQ4S65HQVb2x9ZXbBhyP0cRA_SDFXpv4dAepREUJFmZQ>
+    <xmx:YnoEXyJDPWzKIJWzGUQDxLdxGfWg-PijTfiwv0JmsW2X-gI21ZQn9g>
+    <xmx:YnoEX6GNocTQkWB65Pz3BXLpKw0SA4BOsVj3BWfqQWxSGTk_BnUWAA>
+    <xmx:YnoEXxdMZkJ4LaQ4JrBn6vmIjWQK_9N0HRklDmwSl9FizdHCDUkgVw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C0AC33060067;
-        Tue,  7 Jul 2020 09:36:25 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] thermal/drivers/cpufreq_cooling: Fix wrong frequency" failed to apply to 5.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 6028330600B2;
+        Tue,  7 Jul 2020 09:36:34 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] thermal/drivers/cpufreq_cooling: Fix wrong frequency" failed to apply to 4.19-stable tree
 To:     finley.xiao@rock-chips.com, amit.kucheria@linaro.org,
         daniel.lezcano@linaro.org, stable@vger.kernel.org,
         viresh.kumar@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 07 Jul 2020 15:36:24 +0200
-Message-ID: <159412898413424@kroah.com>
+Date:   Tue, 07 Jul 2020 15:36:25 +0200
+Message-ID: <1594128985120129@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
