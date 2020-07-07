@@ -2,108 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C381217636
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 20:16:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B95121766D
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 20:18:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728290AbgGGSQo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 14:16:44 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:46696 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728036AbgGGSQn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jul 2020 14:16:43 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 07FA91C0C0F; Tue,  7 Jul 2020 20:16:42 +0200 (CEST)
-Date:   Tue, 7 Jul 2020 20:16:41 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Anton Eidelman <anton@lightbitslabs.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 10/36] nvme: fix possible deadlock when I/O is
- blocked
-Message-ID: <20200707181641.GA6290@amd>
-References: <20200707145749.130272978@linuxfoundation.org>
- <20200707145749.639245963@linuxfoundation.org>
+        id S1728246AbgGGSSJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 14:18:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60026 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728029AbgGGSSE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jul 2020 14:18:04 -0400
+Received: from mail-lf1-x141.google.com (mail-lf1-x141.google.com [IPv6:2a00:1450:4864:20::141])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD7A2C061755
+        for <stable@vger.kernel.org>; Tue,  7 Jul 2020 11:18:03 -0700 (PDT)
+Received: by mail-lf1-x141.google.com with SMTP id t74so25351026lff.2
+        for <stable@vger.kernel.org>; Tue, 07 Jul 2020 11:18:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=BS5oJnyO5K6NCAB/a52k+DpKF9O4k6VgS2Nzs3Rg6YI=;
+        b=ey0CiRFAVZbnWmWODi8Xx4vhHFmJgql/gTkk6J7K1SKAyufCkI5s9HfnX8dQtnx7Ss
+         uz813mi+4nomybriOWWXmy8bLN0RzFivymy2YY4R8mzM8IVwfY83UYEtJdvtHRnIrS8k
+         3eUprbqbJNWX3wIIo+4/Yh8EDHdqm0NshTptsqEidKNb5JZifJyOYMUPYW4oSkXQWleH
+         PkhXyZmhn3DCGC2xjIrSo/qS4okjg+aEyhHWtq25j4ajy90Fb0ejYwzcnHAmYwP+n2qP
+         rTSVVpPPOC01AhL1yTYbsCKjvQmdIJOUxzNy+cnl4TWx/+9eg838aRsHuxVV7qp1h6IY
+         nrQg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=BS5oJnyO5K6NCAB/a52k+DpKF9O4k6VgS2Nzs3Rg6YI=;
+        b=SlGcewxtjfFsGdM55MSEks650299xS1LE7Tms5N/4Pn9YJejT9TXqxbR1oMa/8plmU
+         nwL1ml68w3sR+AFYLLZC46zr2kxFYMuVLLCttmTzh+xu7EsE3Y2Ncy2qGUqiwEHfNqh6
+         kLvVBhXnwArzosK9HwStpuud51AaM1oajbq838VfPNu81TFkI93jHwD3UnZHvfY2H92+
+         klmLqyNkN49l1ubnD6kzrBfWsDDzar/6mdNa6gRk0sXBngCFrz7gDpETWV1APnwNfOC/
+         PH+Ze7UjKWxDYT98V/efyTOfY/XJs756tkzdAQpvXlKD0NfRMpsO4LBYI3ry0XmY0WyG
+         rXhw==
+X-Gm-Message-State: AOAM531xhId+hi6NVT4xQW1SF66WqmkmR+xKEaM+jSnx1h3oHlG1aE27
+        G6A65PGFHRo4NLSza8ELAY6rHXqlv7igLBDRjBs=
+X-Google-Smtp-Source: ABdhPJy93bC3ASladwqXdXhPKCrPOP5AsPWvyqZe8J8HwWOnhjwya9nI/LymqqZJpEniYeng3NvHsQpNlhFSRPLS4Vg=
+X-Received: by 2002:a05:6512:4c6:: with SMTP id w6mr31399501lfq.76.1594145882259;
+ Tue, 07 Jul 2020 11:18:02 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="HcAYCG3uE/tztfnV"
-Content-Disposition: inline
-In-Reply-To: <20200707145749.639245963@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+References: <20200707160012.1299338-1-chris@chris-wilson.co.uk>
+ <CALqoU4y61Yc5ndaLSO3WoGSPxGm1nJJufk3U=uxhZe3sT1Xyzg@mail.gmail.com> <159414243217.17526.6453360763938648186@build.alporthouse.com>
+In-Reply-To: <159414243217.17526.6453360763938648186@build.alporthouse.com>
+From:   lepton <ytht.net@gmail.com>
+Date:   Tue, 7 Jul 2020 11:17:51 -0700
+Message-ID: <CALqoU4ypBqcAo+xH2usVRffKzR6AkgGdJBmQ0vWe9MZ1kTHCqw@mail.gmail.com>
+Subject: Re: [PATCH 1/2] drm/vgem: Do not allocate backing shmemfs file for an
+ import dmabuf object
+To:     Chris Wilson <chris@chris-wilson.co.uk>
+Cc:     dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+        Daniel Vetter <daniel@ffwll.ch>,
+        =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
+        =?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas_os@shipmail.org>,
+        "# v4 . 10+" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
---HcAYCG3uE/tztfnV
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi!
-
-> From: Sagi Grimberg <sagi@grimberg.me>
->=20
-> [ Upstream commit 3b4b19721ec652ad2c4fe51dfbe5124212b5f581 ]
->=20
-> Revert fab7772bfbcf ("nvme-multipath: revalidate nvme_ns_head gendisk
-> in nvme_validate_ns")
->=20
-> When adding a new namespace to the head disk (via nvme_mpath_set_live)
-> we will see partition scan which triggers I/O on the mpath device node.
-> This process will usually be triggered from the scan_work which holds
-> the scan_lock. If I/O blocks (if we got ana change currently have only
-> available paths but none are accessible) this can deadlock on the head
-> disk bd_mutex as both partition scan I/O takes it, and head disk revalida=
-tion
-> takes it to check for resize (also triggered from scan_work on a different
-> path). See trace [1].
->=20
-> The mpath disk revalidation was originally added to detect online disk
-> size change, but this is no longer needed since commit cb224c3af4df
-> ("nvme: Convert to use set_capacity_revalidate_and_notify") which
-> already
-
-AFAICT cb224c3af4df is not applied to 4.19-stable series, so this is
-not safe according to the changelog.
-
-cb224c3af4df is simple enough, but AFAICT
-set_capacity_revalidate_and_notify() is missing in 4.19.132-rc1.
-
-Best regards,
-								Pavel
-
-> diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-> index 0d60f2f8f3eec..5c9326777334f 100644
-> --- a/drivers/nvme/host/core.c
-> +++ b/drivers/nvme/host/core.c
-> @@ -1602,7 +1602,6 @@ static void __nvme_revalidate_disk(struct gendisk *=
-disk, struct nvme_id_ns *id)
->  	if (ns->head->disk) {
->  		nvme_update_disk_info(ns->head->disk, ns, id);
->  		blk_queue_stack_limits(ns->head->disk->queue, ns->queue);
-> -		revalidate_disk(ns->head->disk);
->  	}
->  #endif
->  }
-
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---HcAYCG3uE/tztfnV
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAl8EvAkACgkQMOfwapXb+vJHhACfTcrMsI65LhKNa96+BH3NEXsp
-J80AoI0xlSa4NxGSIETKmktvgmbol1lY
-=TlK9
------END PGP SIGNATURE-----
-
---HcAYCG3uE/tztfnV--
+On Tue, Jul 7, 2020 at 10:20 AM Chris Wilson <chris@chris-wilson.co.uk> wrote:
+>
+> Quoting lepton (2020-07-07 18:05:21)
+> > On Tue, Jul 7, 2020 at 9:00 AM Chris Wilson <chris@chris-wilson.co.uk> wrote:
+> > >
+> > > If we assign obj->filp, we believe that the create vgem bo is native and
+> > > allow direct operations like mmap() assuming it behaves as backed by a
+> > > shmemfs inode. When imported from a dmabuf, the obj->pages are
+> > > not always meaningful and the shmemfs backing store misleading.
+> > >
+> > > Note, that regular mmap access to a vgem bo is via the dumb buffer API,
+> > > and that rejects attempts to mmap an imported dmabuf,
+> > What do you mean by "regular mmap access" here?  It looks like vgem is
+> > using vgem_gem_dumb_map as .dumb_map_offset callback then it doesn't call
+> > drm_gem_dumb_map_offset
+>
+> As I too found out, and so had to correct my story telling.
+>
+> By regular mmap() access I mean mmap on the vgem bo [via the dumb buffer
+> API] as opposed to mmap() via an exported dma-buf fd. I had to look at
+> igt to see how it was being used.
+Now it seems your fix is to disable "regular mmap" on imported dma buf
+for vgem. I am not really a graphic guy, but then the api looks like:
+for a gem handle, user space has to guess to find out the way to mmap
+it. If user space guess wrong, then it will fail to mmap. Is this the
+expected way
+for people to handle gpu buffer?
+> -Chris
