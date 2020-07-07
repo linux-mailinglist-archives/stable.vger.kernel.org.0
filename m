@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25C082171D2
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:43:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BAA1217179
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:42:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728907AbgGGP0E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:26:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40262 "EHLO mail.kernel.org"
+        id S1728863AbgGGPUk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:20:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728204AbgGGP0E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:26:04 -0400
+        id S1729127AbgGGPUg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:20:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 908F6206F6;
-        Tue,  7 Jul 2020 15:26:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1C47B206CD;
+        Tue,  7 Jul 2020 15:20:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135563;
-        bh=wCFNEDP8D51tznNCOFcDtJf8QeDFjuMpaveZjrg5AME=;
+        s=default; t=1594135235;
+        bh=bTu3VkaoueKPz3FtvkXJwHNxe4FnclP3wIxbsKTQdJE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bOLNEJcqp4OG4qTN6FNOpK8HSgjBOTZJ1BS9svvwr5dbRJrAZE9ezKxhkC13/EyTw
-         ty1hKp+MsyzMg4HBMcnS09oCka+GGQLLSg4hXncezBIJnK313MMg1X5CXFp+zferSk
-         KLP3B5XizYVSSbSL1YxnY9nckgSNWL956nYymXiQ=
+        b=RupziH/mfDLjNYZj6HaBZ6J8gtJq1znol+KdfjClbazHWm55KUKbi7QVhVQaKGyaP
+         PiUqPqMfKydJnotF1IpBVAZdEtqactIATlqa1jUkGJ1HBBmJQcoOeL+wMeOXNzTLwK
+         sQWzQqS7rFNI9uh6vWqtjJqry9K8HB/KJpAplYeQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 060/112] cxgb4: fix endian conversions for L4 ports in filters
+Subject: [PATCH 5.4 26/65] cxgb4: parse TC-U32 key values and masks natively
 Date:   Tue,  7 Jul 2020 17:17:05 +0200
-Message-Id: <20200707145803.855733001@linuxfoundation.org>
+Message-Id: <20200707145753.749117165@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200707145800.925304888@linuxfoundation.org>
-References: <20200707145800.925304888@linuxfoundation.org>
+In-Reply-To: <20200707145752.417212219@linuxfoundation.org>
+References: <20200707145752.417212219@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,159 +47,344 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
 
-[ Upstream commit 63b53b0b99cd5f2d9754a21eda2ed8e706646cc9 ]
+[ Upstream commit 27f78cb245abdb86735529c13b0a579f57829e71 ]
 
-The source and destination L4 ports in filter offload need to be
-in CPU endian. They will finally be converted to Big Endian after
-all operations are done and before giving them to hardware. The
-L4 ports for NAT are expected to be passed as a byte stream TCB.
-So, treat them as such.
+TC-U32 passes all keys values and masks in __be32 format. The parser
+already expects this and hence pass the value and masks in __be32
+natively to the parser.
 
 Fixes following sparse warnings in several places:
-cxgb4_tc_flower.c:159:33: warning: cast from restricted __be16
-cxgb4_tc_flower.c:159:33: warning: incorrect type in argument 1 (different
-base types)
-cxgb4_tc_flower.c:159:33:    expected unsigned short [usertype] val
-cxgb4_tc_flower.c:159:33:    got restricted __be16 [usertype] dst
+cxgb4_tc_u32.c:57:21: warning: incorrect type in assignment (different base
+types)
+cxgb4_tc_u32.c:57:21:    expected unsigned int [usertype] val
+cxgb4_tc_u32.c:57:21:    got restricted __be32 [usertype] val
+cxgb4_tc_u32_parse.h:48:24: warning: cast to restricted __be32
 
-Fixes: dca4faeb812f ("cxgb4: Add LE hash collision bug fix path in LLD driver")
-Fixes: 62488e4b53ae ("cxgb4: add basic tc flower offload support")
-Fixes: 557ccbf9dfa8 ("cxgb4: add tc flower support for L3/L4 rewrite")
+Fixes: 2e8aad7bf203 ("cxgb4: add parser to translate u32 filters to internal spec")
 Signed-off-by: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/chelsio/cxgb4/cxgb4_filter.c | 15 +++++++---
- .../net/ethernet/chelsio/cxgb4/cxgb4_main.c   |  2 +-
- .../ethernet/chelsio/cxgb4/cxgb4_tc_flower.c  | 30 +++++++------------
- 3 files changed, 22 insertions(+), 25 deletions(-)
+ .../net/ethernet/chelsio/cxgb4/cxgb4_tc_u32.c |  18 +--
+ .../chelsio/cxgb4/cxgb4_tc_u32_parse.h        | 122 ++++++++++++------
+ 2 files changed, 91 insertions(+), 49 deletions(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
-index 796555255207c..c6bf2648fe420 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
-@@ -165,6 +165,9 @@ static void set_nat_params(struct adapter *adap, struct filter_entry *f,
- 			   unsigned int tid, bool dip, bool sip, bool dp,
- 			   bool sp)
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_u32.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_u32.c
+index 02fc63fa7f256..b3a342561a968 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_u32.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_u32.c
+@@ -47,7 +47,7 @@ static int fill_match_fields(struct adapter *adap,
+ 			     bool next_header)
  {
-+	u8 *nat_lp = (u8 *)&f->fs.nat_lport;
-+	u8 *nat_fp = (u8 *)&f->fs.nat_fport;
-+
- 	if (dip) {
- 		if (f->fs.type) {
- 			set_tcb_field(adap, f, tid, TCB_SND_UNA_RAW_W,
-@@ -236,8 +239,9 @@ static void set_nat_params(struct adapter *adap, struct filter_entry *f,
- 	}
+ 	unsigned int i, j;
+-	u32 val, mask;
++	__be32 val, mask;
+ 	int off, err;
+ 	bool found;
  
- 	set_tcb_field(adap, f, tid, TCB_PDU_HDR_LEN_W, WORD_MASK,
--		      (dp ? f->fs.nat_lport : 0) |
--		      (sp ? f->fs.nat_fport << 16 : 0), 1);
-+		      (dp ? (nat_lp[1] | nat_lp[0] << 8) : 0) |
-+		      (sp ? (nat_fp[1] << 16 | nat_fp[0] << 24) : 0),
-+		      1);
- }
+@@ -216,7 +216,7 @@ int cxgb4_config_knode(struct net_device *dev, struct tc_cls_u32_offload *cls)
+ 		const struct cxgb4_next_header *next;
+ 		bool found = false;
+ 		unsigned int i, j;
+-		u32 val, mask;
++		__be32 val, mask;
+ 		int off;
  
- /* Validate filter spec against configuration done on the card. */
-@@ -909,6 +913,9 @@ int set_filter_wr(struct adapter *adapter, int fidx)
- 	fwr->fpm = htons(f->fs.mask.fport);
+ 		if (t->table[link_uhtid - 1].link_handle) {
+@@ -230,10 +230,10 @@ int cxgb4_config_knode(struct net_device *dev, struct tc_cls_u32_offload *cls)
  
- 	if (adapter->params.filter2_wr_support) {
-+		u8 *nat_lp = (u8 *)&f->fs.nat_lport;
-+		u8 *nat_fp = (u8 *)&f->fs.nat_fport;
-+
- 		fwr->natmode_to_ulp_type =
- 			FW_FILTER2_WR_ULP_TYPE_V(f->fs.nat_mode ?
- 						 ULP_MODE_TCPDDP :
-@@ -916,8 +923,8 @@ int set_filter_wr(struct adapter *adapter, int fidx)
- 			FW_FILTER2_WR_NATMODE_V(f->fs.nat_mode);
- 		memcpy(fwr->newlip, f->fs.nat_lip, sizeof(fwr->newlip));
- 		memcpy(fwr->newfip, f->fs.nat_fip, sizeof(fwr->newfip));
--		fwr->newlport = htons(f->fs.nat_lport);
--		fwr->newfport = htons(f->fs.nat_fport);
-+		fwr->newlport = htons(nat_lp[1] | nat_lp[0] << 8);
-+		fwr->newfport = htons(nat_fp[1] | nat_fp[0] << 8);
- 	}
+ 		/* Try to find matches that allow jumps to next header. */
+ 		for (i = 0; next[i].jump; i++) {
+-			if (next[i].offoff != cls->knode.sel->offoff ||
+-			    next[i].shift != cls->knode.sel->offshift ||
+-			    next[i].mask != cls->knode.sel->offmask ||
+-			    next[i].offset != cls->knode.sel->off)
++			if (next[i].sel.offoff != cls->knode.sel->offoff ||
++			    next[i].sel.offshift != cls->knode.sel->offshift ||
++			    next[i].sel.offmask != cls->knode.sel->offmask ||
++			    next[i].sel.off != cls->knode.sel->off)
+ 				continue;
  
- 	/* Mark the filter as "pending" and ship off the Filter Work Request.
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
-index a70018f067aa8..e8934c48f09b6 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
-@@ -2604,7 +2604,7 @@ int cxgb4_create_server_filter(const struct net_device *dev, unsigned int stid,
+ 			/* Found a possible candidate.  Find a key that
+@@ -245,9 +245,9 @@ int cxgb4_config_knode(struct net_device *dev, struct tc_cls_u32_offload *cls)
+ 				val = cls->knode.sel->keys[j].val;
+ 				mask = cls->knode.sel->keys[j].mask;
  
- 	/* Clear out filter specifications */
- 	memset(&f->fs, 0, sizeof(struct ch_filter_specification));
--	f->fs.val.lport = cpu_to_be16(sport);
-+	f->fs.val.lport = be16_to_cpu(sport);
- 	f->fs.mask.lport  = ~0;
- 	val = (u8 *)&sip;
- 	if ((val[0] | val[1] | val[2] | val[3]) != 0) {
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c
-index 4a5fa9eba0b64..59b65d4db086e 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c
-@@ -58,10 +58,6 @@ static struct ch_tc_pedit_fields pedits[] = {
- 	PEDIT_FIELDS(IP6_, DST_63_32, 4, nat_lip, 4),
- 	PEDIT_FIELDS(IP6_, DST_95_64, 4, nat_lip, 8),
- 	PEDIT_FIELDS(IP6_, DST_127_96, 4, nat_lip, 12),
--	PEDIT_FIELDS(TCP_, SPORT, 2, nat_fport, 0),
--	PEDIT_FIELDS(TCP_, DPORT, 2, nat_lport, 0),
--	PEDIT_FIELDS(UDP_, SPORT, 2, nat_fport, 0),
--	PEDIT_FIELDS(UDP_, DPORT, 2, nat_lport, 0),
+-				if (next[i].match_off == off &&
+-				    next[i].match_val == val &&
+-				    next[i].match_mask == mask) {
++				if (next[i].key.off == off &&
++				    next[i].key.val == val &&
++				    next[i].key.mask == mask) {
+ 					found = true;
+ 					break;
+ 				}
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_u32_parse.h b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_u32_parse.h
+index a4b99edcc3399..141085e159e57 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_u32_parse.h
++++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_u32_parse.h
+@@ -38,12 +38,12 @@
+ struct cxgb4_match_field {
+ 	int off; /* Offset from the beginning of the header to match */
+ 	/* Fill the value/mask pair in the spec if matched */
+-	int (*val)(struct ch_filter_specification *f, u32 val, u32 mask);
++	int (*val)(struct ch_filter_specification *f, __be32 val, __be32 mask);
  };
  
- static struct ch_tc_flower_entry *allocate_flower_entry(void)
-@@ -156,14 +152,14 @@ static void cxgb4_process_flow_match(struct net_device *dev,
- 		struct flow_match_ports match;
+ /* IPv4 match fields */
+ static inline int cxgb4_fill_ipv4_tos(struct ch_filter_specification *f,
+-				      u32 val, u32 mask)
++				      __be32 val, __be32 mask)
+ {
+ 	f->val.tos  = (ntohl(val)  >> 16) & 0x000000FF;
+ 	f->mask.tos = (ntohl(mask) >> 16) & 0x000000FF;
+@@ -52,7 +52,7 @@ static inline int cxgb4_fill_ipv4_tos(struct ch_filter_specification *f,
+ }
  
- 		flow_rule_match_ports(rule, &match);
--		fs->val.lport = cpu_to_be16(match.key->dst);
--		fs->mask.lport = cpu_to_be16(match.mask->dst);
--		fs->val.fport = cpu_to_be16(match.key->src);
--		fs->mask.fport = cpu_to_be16(match.mask->src);
-+		fs->val.lport = be16_to_cpu(match.key->dst);
-+		fs->mask.lport = be16_to_cpu(match.mask->dst);
-+		fs->val.fport = be16_to_cpu(match.key->src);
-+		fs->mask.fport = be16_to_cpu(match.mask->src);
+ static inline int cxgb4_fill_ipv4_frag(struct ch_filter_specification *f,
+-				       u32 val, u32 mask)
++				       __be32 val, __be32 mask)
+ {
+ 	u32 mask_val;
+ 	u8 frag_val;
+@@ -74,7 +74,7 @@ static inline int cxgb4_fill_ipv4_frag(struct ch_filter_specification *f,
+ }
  
- 		/* also initialize nat_lport/fport to same values */
--		fs->nat_lport = cpu_to_be16(match.key->dst);
--		fs->nat_fport = cpu_to_be16(match.key->src);
-+		fs->nat_lport = fs->val.lport;
-+		fs->nat_fport = fs->val.fport;
- 	}
+ static inline int cxgb4_fill_ipv4_proto(struct ch_filter_specification *f,
+-					u32 val, u32 mask)
++					__be32 val, __be32 mask)
+ {
+ 	f->val.proto  = (ntohl(val)  >> 16) & 0x000000FF;
+ 	f->mask.proto = (ntohl(mask) >> 16) & 0x000000FF;
+@@ -83,7 +83,7 @@ static inline int cxgb4_fill_ipv4_proto(struct ch_filter_specification *f,
+ }
  
- 	if (flow_rule_match_key(rule, FLOW_DISSECTOR_KEY_IP)) {
-@@ -354,12 +350,9 @@ static void process_pedit_field(struct ch_filter_specification *fs, u32 val,
- 		switch (offset) {
- 		case PEDIT_TCP_SPORT_DPORT:
- 			if (~mask & PEDIT_TCP_UDP_SPORT_MASK)
--				offload_pedit(fs, cpu_to_be32(val) >> 16,
--					      cpu_to_be32(mask) >> 16,
--					      TCP_SPORT);
-+				fs->nat_fport = val;
- 			else
--				offload_pedit(fs, cpu_to_be32(val),
--					      cpu_to_be32(mask), TCP_DPORT);
-+				fs->nat_lport = val >> 16;
- 		}
- 		fs->nat_mode = NAT_MODE_ALL;
- 		break;
-@@ -367,12 +360,9 @@ static void process_pedit_field(struct ch_filter_specification *fs, u32 val,
- 		switch (offset) {
- 		case PEDIT_UDP_SPORT_DPORT:
- 			if (~mask & PEDIT_TCP_UDP_SPORT_MASK)
--				offload_pedit(fs, cpu_to_be32(val) >> 16,
--					      cpu_to_be32(mask) >> 16,
--					      UDP_SPORT);
-+				fs->nat_fport = val;
- 			else
--				offload_pedit(fs, cpu_to_be32(val),
--					      cpu_to_be32(mask), UDP_DPORT);
-+				fs->nat_lport = val >> 16;
- 		}
- 		fs->nat_mode = NAT_MODE_ALL;
- 	}
+ static inline int cxgb4_fill_ipv4_src_ip(struct ch_filter_specification *f,
+-					 u32 val, u32 mask)
++					 __be32 val, __be32 mask)
+ {
+ 	memcpy(&f->val.fip[0],  &val,  sizeof(u32));
+ 	memcpy(&f->mask.fip[0], &mask, sizeof(u32));
+@@ -92,7 +92,7 @@ static inline int cxgb4_fill_ipv4_src_ip(struct ch_filter_specification *f,
+ }
+ 
+ static inline int cxgb4_fill_ipv4_dst_ip(struct ch_filter_specification *f,
+-					 u32 val, u32 mask)
++					 __be32 val, __be32 mask)
+ {
+ 	memcpy(&f->val.lip[0],  &val,  sizeof(u32));
+ 	memcpy(&f->mask.lip[0], &mask, sizeof(u32));
+@@ -111,7 +111,7 @@ static const struct cxgb4_match_field cxgb4_ipv4_fields[] = {
+ 
+ /* IPv6 match fields */
+ static inline int cxgb4_fill_ipv6_tos(struct ch_filter_specification *f,
+-				      u32 val, u32 mask)
++				      __be32 val, __be32 mask)
+ {
+ 	f->val.tos  = (ntohl(val)  >> 20) & 0x000000FF;
+ 	f->mask.tos = (ntohl(mask) >> 20) & 0x000000FF;
+@@ -120,7 +120,7 @@ static inline int cxgb4_fill_ipv6_tos(struct ch_filter_specification *f,
+ }
+ 
+ static inline int cxgb4_fill_ipv6_proto(struct ch_filter_specification *f,
+-					u32 val, u32 mask)
++					__be32 val, __be32 mask)
+ {
+ 	f->val.proto  = (ntohl(val)  >> 8) & 0x000000FF;
+ 	f->mask.proto = (ntohl(mask) >> 8) & 0x000000FF;
+@@ -129,7 +129,7 @@ static inline int cxgb4_fill_ipv6_proto(struct ch_filter_specification *f,
+ }
+ 
+ static inline int cxgb4_fill_ipv6_src_ip0(struct ch_filter_specification *f,
+-					  u32 val, u32 mask)
++					  __be32 val, __be32 mask)
+ {
+ 	memcpy(&f->val.fip[0],  &val,  sizeof(u32));
+ 	memcpy(&f->mask.fip[0], &mask, sizeof(u32));
+@@ -138,7 +138,7 @@ static inline int cxgb4_fill_ipv6_src_ip0(struct ch_filter_specification *f,
+ }
+ 
+ static inline int cxgb4_fill_ipv6_src_ip1(struct ch_filter_specification *f,
+-					  u32 val, u32 mask)
++					  __be32 val, __be32 mask)
+ {
+ 	memcpy(&f->val.fip[4],  &val,  sizeof(u32));
+ 	memcpy(&f->mask.fip[4], &mask, sizeof(u32));
+@@ -147,7 +147,7 @@ static inline int cxgb4_fill_ipv6_src_ip1(struct ch_filter_specification *f,
+ }
+ 
+ static inline int cxgb4_fill_ipv6_src_ip2(struct ch_filter_specification *f,
+-					  u32 val, u32 mask)
++					  __be32 val, __be32 mask)
+ {
+ 	memcpy(&f->val.fip[8],  &val,  sizeof(u32));
+ 	memcpy(&f->mask.fip[8], &mask, sizeof(u32));
+@@ -156,7 +156,7 @@ static inline int cxgb4_fill_ipv6_src_ip2(struct ch_filter_specification *f,
+ }
+ 
+ static inline int cxgb4_fill_ipv6_src_ip3(struct ch_filter_specification *f,
+-					  u32 val, u32 mask)
++					  __be32 val, __be32 mask)
+ {
+ 	memcpy(&f->val.fip[12],  &val,  sizeof(u32));
+ 	memcpy(&f->mask.fip[12], &mask, sizeof(u32));
+@@ -165,7 +165,7 @@ static inline int cxgb4_fill_ipv6_src_ip3(struct ch_filter_specification *f,
+ }
+ 
+ static inline int cxgb4_fill_ipv6_dst_ip0(struct ch_filter_specification *f,
+-					  u32 val, u32 mask)
++					  __be32 val, __be32 mask)
+ {
+ 	memcpy(&f->val.lip[0],  &val,  sizeof(u32));
+ 	memcpy(&f->mask.lip[0], &mask, sizeof(u32));
+@@ -174,7 +174,7 @@ static inline int cxgb4_fill_ipv6_dst_ip0(struct ch_filter_specification *f,
+ }
+ 
+ static inline int cxgb4_fill_ipv6_dst_ip1(struct ch_filter_specification *f,
+-					  u32 val, u32 mask)
++					  __be32 val, __be32 mask)
+ {
+ 	memcpy(&f->val.lip[4],  &val,  sizeof(u32));
+ 	memcpy(&f->mask.lip[4], &mask, sizeof(u32));
+@@ -183,7 +183,7 @@ static inline int cxgb4_fill_ipv6_dst_ip1(struct ch_filter_specification *f,
+ }
+ 
+ static inline int cxgb4_fill_ipv6_dst_ip2(struct ch_filter_specification *f,
+-					  u32 val, u32 mask)
++					  __be32 val, __be32 mask)
+ {
+ 	memcpy(&f->val.lip[8],  &val,  sizeof(u32));
+ 	memcpy(&f->mask.lip[8], &mask, sizeof(u32));
+@@ -192,7 +192,7 @@ static inline int cxgb4_fill_ipv6_dst_ip2(struct ch_filter_specification *f,
+ }
+ 
+ static inline int cxgb4_fill_ipv6_dst_ip3(struct ch_filter_specification *f,
+-					  u32 val, u32 mask)
++					  __be32 val, __be32 mask)
+ {
+ 	memcpy(&f->val.lip[12],  &val,  sizeof(u32));
+ 	memcpy(&f->mask.lip[12], &mask, sizeof(u32));
+@@ -216,7 +216,7 @@ static const struct cxgb4_match_field cxgb4_ipv6_fields[] = {
+ 
+ /* TCP/UDP match */
+ static inline int cxgb4_fill_l4_ports(struct ch_filter_specification *f,
+-				      u32 val, u32 mask)
++				      __be32 val, __be32 mask)
+ {
+ 	f->val.fport  = ntohl(val)  >> 16;
+ 	f->mask.fport = ntohl(mask) >> 16;
+@@ -237,19 +237,13 @@ static const struct cxgb4_match_field cxgb4_udp_fields[] = {
+ };
+ 
+ struct cxgb4_next_header {
+-	unsigned int offset; /* Offset to next header */
+-	/* offset, shift, and mask added to offset above
++	/* Offset, shift, and mask added to beginning of the header
+ 	 * to get to next header.  Useful when using a header
+ 	 * field's value to jump to next header such as IHL field
+ 	 * in IPv4 header.
+ 	 */
+-	unsigned int offoff;
+-	u32 shift;
+-	u32 mask;
+-	/* match criteria to make this jump */
+-	unsigned int match_off;
+-	u32 match_val;
+-	u32 match_mask;
++	struct tc_u32_sel sel;
++	struct tc_u32_key key;
+ 	/* location of jump to make */
+ 	const struct cxgb4_match_field *jump;
+ };
+@@ -258,26 +252,74 @@ struct cxgb4_next_header {
+  * IPv4 header.
+  */
+ static const struct cxgb4_next_header cxgb4_ipv4_jumps[] = {
+-	{ .offset = 0, .offoff = 0, .shift = 6, .mask = 0xF,
+-	  .match_off = 8, .match_val = 0x600, .match_mask = 0xFF00,
+-	  .jump = cxgb4_tcp_fields },
+-	{ .offset = 0, .offoff = 0, .shift = 6, .mask = 0xF,
+-	  .match_off = 8, .match_val = 0x1100, .match_mask = 0xFF00,
+-	  .jump = cxgb4_udp_fields },
+-	{ .jump = NULL }
++	{
++		/* TCP Jump */
++		.sel = {
++			.off = 0,
++			.offoff = 0,
++			.offshift = 6,
++			.offmask = cpu_to_be16(0x0f00),
++		},
++		.key = {
++			.off = 8,
++			.val = cpu_to_be32(0x00060000),
++			.mask = cpu_to_be32(0x00ff0000),
++		},
++		.jump = cxgb4_tcp_fields,
++	},
++	{
++		/* UDP Jump */
++		.sel = {
++			.off = 0,
++			.offoff = 0,
++			.offshift = 6,
++			.offmask = cpu_to_be16(0x0f00),
++		},
++		.key = {
++			.off = 8,
++			.val = cpu_to_be32(0x00110000),
++			.mask = cpu_to_be32(0x00ff0000),
++		},
++		.jump = cxgb4_udp_fields,
++	},
++	{ .jump = NULL },
+ };
+ 
+ /* Accept a rule with a jump directly past the 40 Bytes of IPv6 fixed header
+  * to get to transport layer header.
+  */
+ static const struct cxgb4_next_header cxgb4_ipv6_jumps[] = {
+-	{ .offset = 0x28, .offoff = 0, .shift = 0, .mask = 0,
+-	  .match_off = 4, .match_val = 0x60000, .match_mask = 0xFF0000,
+-	  .jump = cxgb4_tcp_fields },
+-	{ .offset = 0x28, .offoff = 0, .shift = 0, .mask = 0,
+-	  .match_off = 4, .match_val = 0x110000, .match_mask = 0xFF0000,
+-	  .jump = cxgb4_udp_fields },
+-	{ .jump = NULL }
++	{
++		/* TCP Jump */
++		.sel = {
++			.off = 40,
++			.offoff = 0,
++			.offshift = 0,
++			.offmask = 0,
++		},
++		.key = {
++			.off = 4,
++			.val = cpu_to_be32(0x00000600),
++			.mask = cpu_to_be32(0x0000ff00),
++		},
++		.jump = cxgb4_tcp_fields,
++	},
++	{
++		/* UDP Jump */
++		.sel = {
++			.off = 40,
++			.offoff = 0,
++			.offshift = 0,
++			.offmask = 0,
++		},
++		.key = {
++			.off = 4,
++			.val = cpu_to_be32(0x00001100),
++			.mask = cpu_to_be32(0x0000ff00),
++		},
++		.jump = cxgb4_udp_fields,
++	},
++	{ .jump = NULL },
+ };
+ 
+ struct cxgb4_link {
 -- 
 2.25.1
 
