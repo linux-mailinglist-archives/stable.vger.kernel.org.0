@@ -2,168 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8683216FE8
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:13:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73597216FBE
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:10:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728678AbgGGPLY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:11:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52264 "EHLO mail.kernel.org"
+        id S1728297AbgGGPK2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:10:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728650AbgGGPLR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:11:17 -0400
+        id S1727079AbgGGPK2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:10:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1AECB20674;
-        Tue,  7 Jul 2020 15:11:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B7D0C2065D;
+        Tue,  7 Jul 2020 15:10:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594134676;
-        bh=tXgPE9b+fNC7S+SMte1ZUgnBKaxiTY7sLpEt0TqW93k=;
-        h=From:To:Cc:Subject:Date:From;
-        b=qfHUdR+anyhdpIhNu2XBKi3EuTZdV/mNO5IaJ7wnkuEBSsgA2CaxHg+FKZ91J3xWK
-         DR/1ZVnysa+JvqzQ1dUN+T9rUVMx2tFwNjoyaHONSfS+Jae8Sc2phga/okxNZK+/Sp
-         Bs+42rEIpzqYhKDYzJ/8TH5VoQO4h9syii5eU9xY=
+        s=default; t=1594134627;
+        bh=GL5nhFaRBauCRdVfxtFt481dnkBXq785LVUnOEJ2fbU=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=unekjo5WJ5jtAHmc0BJHYS2nrU9SEqaQ44nQ0lWyzKMbe8YvzAdHc194rKRzcDQzu
+         AiZu8o2Bskcn2T0/UVydiKuzE678WWYLeSJ3/be8cGu5V7Ya3ztZB/Jli2XypnMy4A
+         MKS4302bN6P6VfQRgZUq6BrV0nzq6R+NZi9N0ong=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: [PATCH 4.4 00/19] 4.4.230-rc1 review
-Date:   Tue,  7 Jul 2020 17:10:03 +0200
-Message-Id: <20200707145747.493710555@linuxfoundation.org>
+        stable@vger.kernel.org, Anand Jain <anand.jain@oracle.com>,
+        Nikolay Borisov <nborisov@suse.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 01/19] btrfs: cow_file_range() num_bytes and disk_num_bytes are same
+Date:   Tue,  7 Jul 2020 17:10:04 +0200
+Message-Id: <20200707145747.560292041@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-MIME-Version: 1.0
+In-Reply-To: <20200707145747.493710555@linuxfoundation.org>
+References: <20200707145747.493710555@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.230-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.4.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.4.230-rc1
-X-KernelTest-Deadline: 2020-07-09T14:57+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.4.230 release.
-There are 19 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Anand Jain <Anand.Jain@oracle.com>
 
-Responses should be made by Thu, 09 Jul 2020 14:57:34 +0000.
-Anything received after that time might be too late.
+[ Upstream commit 3752d22fcea160cc2493e34f5e0e41cdd7fdd921 ]
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.230-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
-and the diffstat can be found below.
+This patch deletes local variable disk_num_bytes as its value
+is same as num_bytes in the function cow_file_range().
 
-thanks,
+Signed-off-by: Anand Jain <anand.jain@oracle.com>
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ fs/btrfs/inode.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
-greg k-h
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index 972475eeb2dd0..ef8ed0cd8075a 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -926,7 +926,6 @@ static noinline int cow_file_range(struct inode *inode,
+ 	u64 alloc_hint = 0;
+ 	u64 num_bytes;
+ 	unsigned long ram_size;
+-	u64 disk_num_bytes;
+ 	u64 cur_alloc_size;
+ 	u64 blocksize = root->sectorsize;
+ 	struct btrfs_key ins;
+@@ -942,7 +941,6 @@ static noinline int cow_file_range(struct inode *inode,
+ 
+ 	num_bytes = ALIGN(end - start + 1, blocksize);
+ 	num_bytes = max(blocksize,  num_bytes);
+-	disk_num_bytes = num_bytes;
+ 
+ 	/* if this is a small write inside eof, kick off defrag */
+ 	if (num_bytes < 64 * 1024 &&
+@@ -969,16 +967,15 @@ static noinline int cow_file_range(struct inode *inode,
+ 		}
+ 	}
+ 
+-	BUG_ON(disk_num_bytes >
+-	       btrfs_super_total_bytes(root->fs_info->super_copy));
++	BUG_ON(num_bytes > btrfs_super_total_bytes(root->fs_info->super_copy));
+ 
+ 	alloc_hint = get_extent_allocation_hint(inode, start, num_bytes);
+ 	btrfs_drop_extent_cache(inode, start, start + num_bytes - 1, 0);
+ 
+-	while (disk_num_bytes > 0) {
++	while (num_bytes > 0) {
+ 		unsigned long op;
+ 
+-		cur_alloc_size = disk_num_bytes;
++		cur_alloc_size = num_bytes;
+ 		ret = btrfs_reserve_extent(root, cur_alloc_size,
+ 					   root->sectorsize, 0, alloc_hint,
+ 					   &ins, 1, 1);
+@@ -1033,7 +1030,7 @@ static noinline int cow_file_range(struct inode *inode,
+ 				goto out_drop_extent_cache;
+ 		}
+ 
+-		if (disk_num_bytes < cur_alloc_size)
++		if (num_bytes < cur_alloc_size)
+ 			break;
+ 
+ 		/* we're not doing compressed IO, don't unlock the first
+@@ -1050,8 +1047,10 @@ static noinline int cow_file_range(struct inode *inode,
+ 					     start + ram_size - 1, locked_page,
+ 					     EXTENT_LOCKED | EXTENT_DELALLOC,
+ 					     op);
+-		disk_num_bytes -= cur_alloc_size;
+-		num_bytes -= cur_alloc_size;
++		if (num_bytes < cur_alloc_size)
++			num_bytes = 0;
++		else
++			num_bytes -= cur_alloc_size;
+ 		alloc_hint = ins.objectid + ins.offset;
+ 		start += cur_alloc_size;
+ 	}
+-- 
+2.25.1
 
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.4.230-rc1
-
-Vasily Averin <vvs@virtuozzo.com>
-    netfilter: nf_conntrack_h323: lost .data_len definition for Q.931/ipv6
-
-Hauke Mehrtens <hauke@hauke-m.de>
-    MIPS: Add missing EHB in mtc0 -> mfc0 sequence for DSPen
-
-Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-    cifs: Fix the target file was deleted when rename failed.
-
-Paul Aurich <paul@darkrain42.org>
-    SMB3: Honor persistent/resilient handle flags for multiuser mounts
-
-Paul Aurich <paul@darkrain42.org>
-    SMB3: Honor 'seal' flag for multiuser mounts
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Revert "ALSA: usb-audio: Improve frames size computation"
-
-Chris Packham <chris.packham@alliedtelesis.co.nz>
-    i2c: algo-pca: Add 0x78 as SCL stuck low status for PCA9665
-
-Hou Tao <houtao1@huawei.com>
-    virtio-blk: free vblk-vqs in error path of virtblk_probe()
-
-Misono Tomohiro <misono.tomohiro@jp.fujitsu.com>
-    hwmon: (acpi_power_meter) Fix potential memory leak in acpi_power_meter_add()
-
-Chu Lin <linchuyuan@google.com>
-    hwmon: (max6697) Make sure the OVERT mask is set correctly
-
-Shile Zhang <shile.zhang@nokia.com>
-    sched/rt: Show the 'sched_rr_timeslice' SCHED_RR timeslice tuning knob in milliseconds
-
-Herbert Xu <herbert@gondor.apana.org.au>
-    crypto: af_alg - fix use-after-free in af_alg_accept() due to bh_lock_sock()
-
-Douglas Anderson <dianders@chromium.org>
-    kgdb: Avoid suspicious RCU usage warning
-
-Zqiang <qiang.zhang@windriver.com>
-    usb: usbtest: fix missing kfree(dev->buf) in usbtest_disconnect
-
-Qian Cai <cai@lca.pw>
-    mm/slub: fix stack overruns with SLUB_STATS
-
-Borislav Petkov <bp@suse.de>
-    EDAC/amd64: Read back the scrub rate PCI register on F15h
-
-Hugh Dickins <hughd@google.com>
-    mm: fix swap cache node allocation mask
-
-Filipe Manana <fdmanana@suse.com>
-    btrfs: fix data block group relocation failure due to concurrent scrub
-
-Anand Jain <Anand.Jain@oracle.com>
-    btrfs: cow_file_range() num_bytes and disk_num_bytes are same
-
-
--------------
-
-Diffstat:
-
- Makefile                               |  4 ++--
- arch/mips/kernel/traps.c               |  1 +
- crypto/af_alg.c                        | 26 +++++++++-----------
- crypto/algif_aead.c                    |  9 +++----
- crypto/algif_hash.c                    |  9 +++----
- crypto/algif_skcipher.c                |  9 +++----
- drivers/block/virtio_blk.c             |  1 +
- drivers/edac/amd64_edac.c              |  2 ++
- drivers/hwmon/acpi_power_meter.c       |  4 +++-
- drivers/hwmon/max6697.c                |  7 +++---
- drivers/i2c/algos/i2c-algo-pca.c       |  3 ++-
- drivers/usb/misc/usbtest.c             |  1 +
- fs/btrfs/inode.c                       | 36 ++++++++++++++++++++--------
- fs/cifs/connect.c                      |  3 +++
- fs/cifs/inode.c                        | 10 ++++++--
- include/crypto/if_alg.h                |  4 ++--
- include/linux/sched/sysctl.h           |  1 +
- kernel/debug/debug_core.c              |  4 ++++
- kernel/sched/core.c                    |  5 ++--
- kernel/sched/rt.c                      |  1 +
- kernel/sysctl.c                        |  2 +-
- mm/slub.c                              |  3 ++-
- mm/swap_state.c                        |  3 ++-
- net/netfilter/nf_conntrack_h323_main.c |  1 +
- sound/usb/card.h                       |  4 ----
- sound/usb/endpoint.c                   | 43 ++++------------------------------
- sound/usb/endpoint.h                   |  1 -
- sound/usb/pcm.c                        |  2 --
- 28 files changed, 95 insertions(+), 104 deletions(-)
 
 
