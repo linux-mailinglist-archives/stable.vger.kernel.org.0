@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D137B21721F
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:43:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15DCB217281
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:44:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728453AbgGGP3P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:29:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38758 "EHLO mail.kernel.org"
+        id S1728410AbgGGPeg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:34:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730159AbgGGPZA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:25:00 -0400
+        id S1728422AbgGGPSk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:18:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4BE8E20663;
-        Tue,  7 Jul 2020 15:24:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A2C320663;
+        Tue,  7 Jul 2020 15:18:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135499;
-        bh=D0niqrxLU51N2P7BBDPo54MBfvolpfid5OageeSkLBo=;
+        s=default; t=1594135120;
+        bh=xkymQXiS3eOpuljz4jMxRKZ+J/A6bYNQ4D/KVgyO4Z8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ORc6RjN1gBbGa5ggD1BKw4rvBpT9YRgKAKVSejXIJxZiJF0RZmZwkejkQS66mkP/L
-         /XS0khPGfvuwsAOWGbHB5dmTfkHQsAK7jdVe3KgopMmWZSz4toqa26FZhhejkYvDtF
-         TuGTCeiInDyP5xc0APs2eUOj58AU1cHGGJndn98Q=
+        b=ar7FmcmYcrkQ8UQPPhVGDLohC/EA/lYvw1Ah2kCperHp879ZpjV8gD7JHidG/5xOj
+         VIDy/D6TqnYSdG/dfGJnpJ0zW9m0+4U7pmUcGaO2/BW1QoImRmwTCgFeJukKiObC93
+         6b1drxb5keWsyO55A+Byvy8w8UFK0HijCFzyT12A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Shyam Sundar <ssundar@marvell.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Chu Lin <linchuyuan@google.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 066/112] scsi: qla2xxx: Fix a condition in qla2x00_find_all_fabric_devs()
+Subject: [PATCH 4.19 19/36] hwmon: (max6697) Make sure the OVERT mask is set correctly
 Date:   Tue,  7 Jul 2020 17:17:11 +0200
-Message-Id: <20200707145804.138828412@linuxfoundation.org>
+Message-Id: <20200707145750.053560653@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200707145800.925304888@linuxfoundation.org>
-References: <20200707145800.925304888@linuxfoundation.org>
+In-Reply-To: <20200707145749.130272978@linuxfoundation.org>
+References: <20200707145749.130272978@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,36 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Chu Lin <linchuyuan@google.com>
 
-[ Upstream commit 1fc98aaf7f85fadcca57c4a86ef17e1940cad2d3 ]
+[ Upstream commit 016983d138cbe99a5c0aaae0103ee88f5300beb3 ]
 
-This code doesn't make sense unless the correct "fcport" was found.
+Per the datasheet for max6697, OVERT mask and ALERT mask are different.
+For example, the 7th bit of OVERT is the local channel but for alert
+mask, the 6th bit is the local channel. Therefore, we can't apply the
+same mask for both registers. In addition to that, the max6697 driver
+is supposed to be compatibale with different models. I manually went over
+all the listed chips and made sure all chip types have the same layout.
 
-Link: https://lore.kernel.org/r/20200619143041.GD267142@mwanda
-Fixes: 9dd9686b1419 ("scsi: qla2xxx: Add changes for devloss timeout in driver")
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Reviewed-by: Shyam Sundar <ssundar@marvell.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Testing;
+    mask value of 0x9 should map to 0x44 for ALERT and 0x84 for OVERT.
+    I used iotool to read the reg value back to verify. I only tested this
+    change on max6581.
+
+Reference:
+https://datasheets.maximintegrated.com/en/ds/MAX6581.pdf
+https://datasheets.maximintegrated.com/en/ds/MAX6697.pdf
+https://datasheets.maximintegrated.com/en/ds/MAX6699.pdf
+
+Signed-off-by: Chu Lin <linchuyuan@google.com>
+Fixes: 5372d2d71c46e ("hwmon: Driver for Maxim MAX6697 and compatibles")
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_init.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hwmon/max6697.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
-index caa6b840e4594..cfbb4294fb8bb 100644
---- a/drivers/scsi/qla2xxx/qla_init.c
-+++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -5933,7 +5933,7 @@ qla2x00_find_all_fabric_devs(scsi_qla_host_t *vha)
- 			break;
- 		}
+diff --git a/drivers/hwmon/max6697.c b/drivers/hwmon/max6697.c
+index 221fd14920576..6df28fe0577da 100644
+--- a/drivers/hwmon/max6697.c
++++ b/drivers/hwmon/max6697.c
+@@ -47,8 +47,9 @@ static const u8 MAX6697_REG_CRIT[] = {
+  * Map device tree / platform data register bit map to chip bit map.
+  * Applies to alert register and over-temperature register.
+  */
+-#define MAX6697_MAP_BITS(reg)	((((reg) & 0x7e) >> 1) | \
++#define MAX6697_ALERT_MAP_BITS(reg)	((((reg) & 0x7e) >> 1) | \
+ 				 (((reg) & 0x01) << 6) | ((reg) & 0x80))
++#define MAX6697_OVERT_MAP_BITS(reg) (((reg) >> 1) | (((reg) & 0x01) << 7))
  
--		if (NVME_TARGET(vha->hw, fcport)) {
-+		if (found && NVME_TARGET(vha->hw, fcport)) {
- 			if (fcport->disc_state == DSC_DELETE_PEND) {
- 				qla2x00_set_fcport_disc_state(fcport, DSC_GNL);
- 				vha->fcport_count--;
+ #define MAX6697_REG_STAT(n)		(0x44 + (n))
+ 
+@@ -587,12 +588,12 @@ static int max6697_init_chip(struct max6697_data *data,
+ 		return ret;
+ 
+ 	ret = i2c_smbus_write_byte_data(client, MAX6697_REG_ALERT_MASK,
+-					MAX6697_MAP_BITS(pdata->alert_mask));
++				MAX6697_ALERT_MAP_BITS(pdata->alert_mask));
+ 	if (ret < 0)
+ 		return ret;
+ 
+ 	ret = i2c_smbus_write_byte_data(client, MAX6697_REG_OVERT_MASK,
+-				MAX6697_MAP_BITS(pdata->over_temperature_mask));
++			MAX6697_OVERT_MAP_BITS(pdata->over_temperature_mask));
+ 	if (ret < 0)
+ 		return ret;
+ 
 -- 
 2.25.1
 
