@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A729E217098
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:24:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CBC52170BF
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:24:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728232AbgGGPTC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:19:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58588 "EHLO mail.kernel.org"
+        id S1729168AbgGGPUT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:20:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729286AbgGGPTA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:19:00 -0400
+        id S1729503AbgGGPUS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:20:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9800F20674;
-        Tue,  7 Jul 2020 15:18:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F15E3206CD;
+        Tue,  7 Jul 2020 15:20:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135140;
-        bh=8lDwIAjwoJzdRpd1GRXHOuW1Z9xpybbkr+0s/hLXxP0=;
+        s=default; t=1594135217;
+        bh=TQp5hTbDD5CfDkkOPSDPVU3Tk7aX4S5pNwxMCWt8qv0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zyT/dkzlLnnly51xVLimQTi/agbiHqp+K3LPlcbbzkhPBS65Yx8Yc1vSksZoXBE2w
-         7BKgbq0avSynIcVVCfLiX3YOjb6YKEhoHsvHLBi0OtjgKChtZgmK3NN5WL+k3QkBcT
-         N6sLo8Ce9LFzLsJQy8EeEBgCu5H4q5LX3LDU0VNU=
+        b=JfHWovoPtAHXR1NFOhwmhr+9OQQJLeGkw/ADKM30g4ZORG/I2UspMsQrcVx76Ezz1
+         TWfLt/ywtSFmeKxq6xAJ+qaI2aSEoPkv6X7lxkeBs+nKLcxK+mm8uNKtgvE6oBgE1k
+         rba4lMnJcoQktkal3AtDWEFAOdQCzb5K6+vszuDA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Kyungtae Kim <kt0755@gmail.com>,
-        Zqiang <qiang.zhang@windriver.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 07/36] usb: usbtest: fix missing kfree(dev->buf) in usbtest_disconnect
+        stable@vger.kernel.org,
+        Mario Limonciello <Mario.Limonciello@dell.com>,
+        Alex Guzman <alex@guzman.io>,
+        Jerry Snitselaar <jsnitsel@redhat.com>,
+        James Bottomley <James.Bottomley@HansenPartnership.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Subject: [PATCH 5.4 20/65] tpm: Fix TIS locality timeout problems
 Date:   Tue,  7 Jul 2020 17:16:59 +0200
-Message-Id: <20200707145749.492299182@linuxfoundation.org>
+Message-Id: <20200707145753.460530756@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200707145749.130272978@linuxfoundation.org>
-References: <20200707145749.130272978@linuxfoundation.org>
+In-Reply-To: <20200707145752.417212219@linuxfoundation.org>
+References: <20200707145752.417212219@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,69 +47,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zqiang <qiang.zhang@windriver.com>
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
 
-[ Upstream commit 28ebeb8db77035e058a510ce9bd17c2b9a009dba ]
+commit 7862840219058436b80029a0263fd1ef065fb1b3 upstream.
 
-BUG: memory leak
-unreferenced object 0xffff888055046e00 (size 256):
-  comm "kworker/2:9", pid 2570, jiffies 4294942129 (age 1095.500s)
-  hex dump (first 32 bytes):
-    00 70 04 55 80 88 ff ff 18 bb 5a 81 ff ff ff ff  .p.U......Z.....
-    f5 96 78 81 ff ff ff ff 37 de 8e 81 ff ff ff ff  ..x.....7.......
-  backtrace:
-    [<00000000d121dccf>] kmemleak_alloc_recursive
-include/linux/kmemleak.h:43 [inline]
-    [<00000000d121dccf>] slab_post_alloc_hook mm/slab.h:586 [inline]
-    [<00000000d121dccf>] slab_alloc_node mm/slub.c:2786 [inline]
-    [<00000000d121dccf>] slab_alloc mm/slub.c:2794 [inline]
-    [<00000000d121dccf>] kmem_cache_alloc_trace+0x15e/0x2d0 mm/slub.c:2811
-    [<000000005c3c3381>] kmalloc include/linux/slab.h:555 [inline]
-    [<000000005c3c3381>] usbtest_probe+0x286/0x19d0
-drivers/usb/misc/usbtest.c:2790
-    [<000000001cec6910>] usb_probe_interface+0x2bd/0x870
-drivers/usb/core/driver.c:361
-    [<000000007806c118>] really_probe+0x48d/0x8f0 drivers/base/dd.c:551
-    [<00000000a3308c3e>] driver_probe_device+0xfc/0x2a0 drivers/base/dd.c:724
-    [<000000003ef66004>] __device_attach_driver+0x1b6/0x240
-drivers/base/dd.c:831
-    [<00000000eee53e97>] bus_for_each_drv+0x14e/0x1e0 drivers/base/bus.c:431
-    [<00000000bb0648d0>] __device_attach+0x1f9/0x350 drivers/base/dd.c:897
-    [<00000000838b324a>] device_initial_probe+0x1a/0x20 drivers/base/dd.c:944
-    [<0000000030d501c1>] bus_probe_device+0x1e1/0x280 drivers/base/bus.c:491
-    [<000000005bd7adef>] device_add+0x131d/0x1c40 drivers/base/core.c:2504
-    [<00000000a0937814>] usb_set_configuration+0xe84/0x1ab0
-drivers/usb/core/message.c:2030
-    [<00000000e3934741>] generic_probe+0x6a/0xe0 drivers/usb/core/generic.c:210
-    [<0000000098ade0f1>] usb_probe_device+0x90/0xd0
-drivers/usb/core/driver.c:266
-    [<000000007806c118>] really_probe+0x48d/0x8f0 drivers/base/dd.c:551
-    [<00000000a3308c3e>] driver_probe_device+0xfc/0x2a0 drivers/base/dd.c:724
+It has been reported that some TIS based TPMs are giving unexpected
+errors when using the O_NONBLOCK path of the TPM device. The problem
+is that some TPMs don't like it when you get and then relinquish a
+locality (as the tpm_try_get_ops()/tpm_put_ops() pair does) without
+sending a command.  This currently happens all the time in the
+O_NONBLOCK write path. Fix this by moving the tpm_try_get_ops()
+further down the code to after the O_NONBLOCK determination is made.
+This is safe because the priv->buffer_mutex still protects the priv
+state being modified.
 
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Reported-by: Kyungtae Kim <kt0755@gmail.com>
-Signed-off-by: Zqiang <qiang.zhang@windriver.com>
-Link: https://lore.kernel.org/r/20200612035210.20494-1-qiang.zhang@windriver.com
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=206275
+Fixes: d23d12484307 ("tpm: fix invalid locking in NONBLOCKING mode")
+Reported-by: Mario Limonciello <Mario.Limonciello@dell.com>
+Tested-by: Alex Guzman <alex@guzman.io>
+Cc: stable@vger.kernel.org
+Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
+Signed-off-by: James Bottomley <James.Bottomley@HansenPartnership.com>
+Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+
 ---
- drivers/usb/misc/usbtest.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/char/tpm/tpm-dev-common.c |   19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/usb/misc/usbtest.c b/drivers/usb/misc/usbtest.c
-index c7f82310e73ec..fc3fc9d48a553 100644
---- a/drivers/usb/misc/usbtest.c
-+++ b/drivers/usb/misc/usbtest.c
-@@ -2853,6 +2853,7 @@ static void usbtest_disconnect(struct usb_interface *intf)
+--- a/drivers/char/tpm/tpm-dev-common.c
++++ b/drivers/char/tpm/tpm-dev-common.c
+@@ -189,15 +189,6 @@ ssize_t tpm_common_write(struct file *fi
+ 		goto out;
+ 	}
  
- 	usb_set_intfdata(intf, NULL);
- 	dev_dbg(&intf->dev, "disconnect\n");
-+	kfree(dev->buf);
- 	kfree(dev);
- }
+-	/* atomic tpm command send and result receive. We only hold the ops
+-	 * lock during this period so that the tpm can be unregistered even if
+-	 * the char dev is held open.
+-	 */
+-	if (tpm_try_get_ops(priv->chip)) {
+-		ret = -EPIPE;
+-		goto out;
+-	}
+-
+ 	priv->response_length = 0;
+ 	priv->response_read = false;
+ 	*off = 0;
+@@ -211,11 +202,19 @@ ssize_t tpm_common_write(struct file *fi
+ 	if (file->f_flags & O_NONBLOCK) {
+ 		priv->command_enqueued = true;
+ 		queue_work(tpm_dev_wq, &priv->async_work);
+-		tpm_put_ops(priv->chip);
+ 		mutex_unlock(&priv->buffer_mutex);
+ 		return size;
+ 	}
  
--- 
-2.25.1
-
++	/* atomic tpm command send and result receive. We only hold the ops
++	 * lock during this period so that the tpm can be unregistered even if
++	 * the char dev is held open.
++	 */
++	if (tpm_try_get_ops(priv->chip)) {
++		ret = -EPIPE;
++		goto out;
++	}
++
+ 	ret = tpm_dev_transmit(priv->chip, priv->space, priv->data_buffer,
+ 			       sizeof(priv->data_buffer));
+ 	tpm_put_ops(priv->chip);
 
 
