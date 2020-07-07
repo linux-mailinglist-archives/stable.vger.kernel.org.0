@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33B0B216FE0
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:13:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1938D216FE2
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:13:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728579AbgGGPLN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:11:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52142 "EHLO mail.kernel.org"
+        id S1728647AbgGGPLP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:11:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728626AbgGGPLM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:11:12 -0400
+        id S1728638AbgGGPLP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:11:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E427A2065D;
-        Tue,  7 Jul 2020 15:11:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8870B2078A;
+        Tue,  7 Jul 2020 15:11:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594134671;
-        bh=NDSl2fJtyWjMwyx1tgk5KUtqdBTmmhz/9Mb98EPWzeE=;
+        s=default; t=1594134674;
+        bh=pp7LbVfNg0KlEpeRGoaUoP4Ctzj9GX+/9aexR1AWft8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0t0Wq7RvT9Mj4cBaVnHNBqS4PdpvvEKbPGemmmsaeW09O03Ct325RGe+qrAP1EN+2
-         /FEUB0gydWNcjA8CujiNyPoIwxErJJghat31ZRqZs17i+6fZuQxLEtQzesD26kHF8P
-         7QHVkWBT4BackZHgk5hNDVba4exE8eCO8a8LwAdU=
+        b=o4PpI5CbeGKfz9XcyTe+wV3UjhvLKatIDEsAJRean9GIw5gxwphwAoipUK71WI7Ns
+         xzdTD2niQKeoj2BOGm67xBSaC83MBSYptQz43Mrv7ipe1JJI40dbq6j3Gel+V96W0m
+         1v3obVIPPTpK5FVmMbl36DgWgXTcnyQWUlzXU7sE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Moyles <bmoyles@netflix.com>,
-        Mauricio Faria de Oliveira <mfo@canonical.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.4 08/19] crypto: af_alg - fix use-after-free in af_alg_accept() due to bh_lock_sock()
-Date:   Tue,  7 Jul 2020 17:10:11 +0200
-Message-Id: <20200707145747.922400264@linuxfoundation.org>
+        stable@vger.kernel.org, Shile Zhang <shile.zhang@nokia.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Mike Galbraith <efault@gmx.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 09/19] sched/rt: Show the sched_rr_timeslice SCHED_RR timeslice tuning knob in milliseconds
+Date:   Tue,  7 Jul 2020 17:10:12 +0200
+Message-Id: <20200707145747.972946789@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200707145747.493710555@linuxfoundation.org>
 References: <20200707145747.493710555@linuxfoundation.org>
@@ -44,191 +47,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Shile Zhang <shile.zhang@nokia.com>
 
-commit 34c86f4c4a7be3b3e35aa48bd18299d4c756064d upstream.
+[ Upstream commit 975e155ed8732cb81f55c021c441ae662dd040b5 ]
 
-The locking in af_alg_release_parent is broken as the BH socket
-lock can only be taken if there is a code-path to handle the case
-where the lock is owned by process-context.  Instead of adding
-such handling, we can fix this by changing the ref counts to
-atomic_t.
+We added the 'sched_rr_timeslice_ms' SCHED_RR tuning knob in this commit:
 
-This patch also modifies the main refcnt to include both normal
-and nokey sockets.  This way we don't have to fudge the nokey
-ref count when a socket changes from nokey to normal.
+  ce0dbbbb30ae ("sched/rt: Add a tuning knob to allow changing SCHED_RR timeslice")
 
-Credits go to Mauricio Faria de Oliveira who diagnosed this bug
-and sent a patch for it:
+... which name suggests to users that it's in milliseconds, while in reality
+it's being set in milliseconds but the result is shown in jiffies.
 
-https://lore.kernel.org/linux-crypto/20200605161657.535043-1-mfo@canonical.com/
+This is obviously confusing when HZ is not 1000, it makes it appear like the
+value set failed, such as HZ=100:
 
-Reported-by: Brian Moyles <bmoyles@netflix.com>
-Reported-by: Mauricio Faria de Oliveira <mfo@canonical.com>
-Fixes: 37f96694cf73 ("crypto: af_alg - Use bh_lock_sock in...")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  root# echo 100 > /proc/sys/kernel/sched_rr_timeslice_ms
+  root# cat /proc/sys/kernel/sched_rr_timeslice_ms
+  10
 
+Fix this to be milliseconds all around.
+
+Signed-off-by: Shile Zhang <shile.zhang@nokia.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Mike Galbraith <efault@gmx.de>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: http://lkml.kernel.org/r/1485612049-20923-1-git-send-email-shile.zhang@nokia.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/af_alg.c         |   26 +++++++++++---------------
- crypto/algif_aead.c     |    9 +++------
- crypto/algif_hash.c     |    9 +++------
- crypto/algif_skcipher.c |    9 +++------
- include/crypto/if_alg.h |    4 ++--
- 5 files changed, 22 insertions(+), 35 deletions(-)
+ include/linux/sched/sysctl.h | 1 +
+ kernel/sched/core.c          | 5 +++--
+ kernel/sched/rt.c            | 1 +
+ kernel/sysctl.c              | 2 +-
+ 4 files changed, 6 insertions(+), 3 deletions(-)
 
---- a/crypto/af_alg.c
-+++ b/crypto/af_alg.c
-@@ -130,21 +130,15 @@ EXPORT_SYMBOL_GPL(af_alg_release);
- void af_alg_release_parent(struct sock *sk)
- {
- 	struct alg_sock *ask = alg_sk(sk);
--	unsigned int nokey = ask->nokey_refcnt;
--	bool last = nokey && !ask->refcnt;
-+	unsigned int nokey = atomic_read(&ask->nokey_refcnt);
+diff --git a/include/linux/sched/sysctl.h b/include/linux/sched/sysctl.h
+index c9e4731cf10b8..7fc36ebc5de33 100644
+--- a/include/linux/sched/sysctl.h
++++ b/include/linux/sched/sysctl.h
+@@ -81,6 +81,7 @@ extern unsigned int sysctl_sched_cfs_bandwidth_slice;
+ extern unsigned int sysctl_sched_autogroup_enabled;
+ #endif
  
- 	sk = ask->parent;
- 	ask = alg_sk(sk);
++extern int sysctl_sched_rr_timeslice;
+ extern int sched_rr_timeslice;
  
--	local_bh_disable();
--	bh_lock_sock(sk);
--	ask->nokey_refcnt -= nokey;
--	if (!last)
--		last = !--ask->refcnt;
--	bh_unlock_sock(sk);
--	local_bh_enable();
-+	if (nokey)
-+		atomic_dec(&ask->nokey_refcnt);
+ extern int sched_rr_handler(struct ctl_table *table, int write,
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 14a87c1f3a3ac..4a0a754f24c87 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -8266,8 +8266,9 @@ int sched_rr_handler(struct ctl_table *table, int write,
+ 	/* make sure that internally we keep jiffies */
+ 	/* also, writing zero resets timeslice to default */
+ 	if (!ret && write) {
+-		sched_rr_timeslice = sched_rr_timeslice <= 0 ?
+-			RR_TIMESLICE : msecs_to_jiffies(sched_rr_timeslice);
++		sched_rr_timeslice =
++			sysctl_sched_rr_timeslice <= 0 ? RR_TIMESLICE :
++			msecs_to_jiffies(sysctl_sched_rr_timeslice);
+ 	}
+ 	mutex_unlock(&mutex);
+ 	return ret;
+diff --git a/kernel/sched/rt.c b/kernel/sched/rt.c
+index 801b4ec407023..5ee5740635f36 100644
+--- a/kernel/sched/rt.c
++++ b/kernel/sched/rt.c
+@@ -9,6 +9,7 @@
+ #include <linux/irq_work.h>
  
--	if (last)
-+	if (atomic_dec_and_test(&ask->refcnt))
- 		sock_put(sk);
- }
- EXPORT_SYMBOL_GPL(af_alg_release_parent);
-@@ -189,7 +183,7 @@ static int alg_bind(struct socket *sock,
+ int sched_rr_timeslice = RR_TIMESLICE;
++int sysctl_sched_rr_timeslice = (MSEC_PER_SEC / HZ) * RR_TIMESLICE;
  
- 	err = -EBUSY;
- 	lock_sock(sk);
--	if (ask->refcnt | ask->nokey_refcnt)
-+	if (atomic_read(&ask->refcnt))
- 		goto unlock;
+ static int do_sched_rt_period_timer(struct rt_bandwidth *rt_b, int overrun);
  
- 	swap(ask->type, type);
-@@ -238,7 +232,7 @@ static int alg_setsockopt(struct socket
- 	int err = -EBUSY;
- 
- 	lock_sock(sk);
--	if (ask->refcnt)
-+	if (atomic_read(&ask->refcnt) != atomic_read(&ask->nokey_refcnt))
- 		goto unlock;
- 
- 	type = ask->type;
-@@ -305,12 +299,14 @@ int af_alg_accept(struct sock *sk, struc
- 
- 	sk2->sk_family = PF_ALG;
- 
--	if (nokey || !ask->refcnt++)
-+	if (atomic_inc_return_relaxed(&ask->refcnt) == 1)
- 		sock_hold(sk);
--	ask->nokey_refcnt += nokey;
-+	if (nokey) {
-+		atomic_inc(&ask->nokey_refcnt);
-+		atomic_set(&alg_sk(sk2)->nokey_refcnt, 1);
-+	}
- 	alg_sk(sk2)->parent = sk;
- 	alg_sk(sk2)->type = type;
--	alg_sk(sk2)->nokey_refcnt = nokey;
- 
- 	newsock->ops = type->ops;
- 	newsock->state = SS_CONNECTED;
---- a/crypto/algif_aead.c
-+++ b/crypto/algif_aead.c
-@@ -528,7 +528,7 @@ static int aead_check_key(struct socket
- 	struct alg_sock *ask = alg_sk(sk);
- 
- 	lock_sock(sk);
--	if (ask->refcnt)
-+	if (!atomic_read(&ask->nokey_refcnt))
- 		goto unlock_child;
- 
- 	psk = ask->parent;
-@@ -540,11 +540,8 @@ static int aead_check_key(struct socket
- 	if (!tfm->has_key)
- 		goto unlock;
- 
--	if (!pask->refcnt++)
--		sock_hold(psk);
--
--	ask->refcnt = 1;
--	sock_put(psk);
-+	atomic_dec(&pask->nokey_refcnt);
-+	atomic_set(&ask->nokey_refcnt, 0);
- 
- 	err = 0;
- 
---- a/crypto/algif_hash.c
-+++ b/crypto/algif_hash.c
-@@ -252,7 +252,7 @@ static int hash_check_key(struct socket
- 	struct alg_sock *ask = alg_sk(sk);
- 
- 	lock_sock(sk);
--	if (ask->refcnt)
-+	if (!atomic_read(&ask->nokey_refcnt))
- 		goto unlock_child;
- 
- 	psk = ask->parent;
-@@ -264,11 +264,8 @@ static int hash_check_key(struct socket
- 	if (!tfm->has_key)
- 		goto unlock;
- 
--	if (!pask->refcnt++)
--		sock_hold(psk);
--
--	ask->refcnt = 1;
--	sock_put(psk);
-+	atomic_dec(&pask->nokey_refcnt);
-+	atomic_set(&ask->nokey_refcnt, 0);
- 
- 	err = 0;
- 
---- a/crypto/algif_skcipher.c
-+++ b/crypto/algif_skcipher.c
-@@ -774,7 +774,7 @@ static int skcipher_check_key(struct soc
- 	struct alg_sock *ask = alg_sk(sk);
- 
- 	lock_sock(sk);
--	if (ask->refcnt)
-+	if (!atomic_read(&ask->nokey_refcnt))
- 		goto unlock_child;
- 
- 	psk = ask->parent;
-@@ -786,11 +786,8 @@ static int skcipher_check_key(struct soc
- 	if (!tfm->has_key)
- 		goto unlock;
- 
--	if (!pask->refcnt++)
--		sock_hold(psk);
--
--	ask->refcnt = 1;
--	sock_put(psk);
-+	atomic_dec(&pask->nokey_refcnt);
-+	atomic_set(&ask->nokey_refcnt, 0);
- 
- 	err = 0;
- 
---- a/include/crypto/if_alg.h
-+++ b/include/crypto/if_alg.h
-@@ -30,8 +30,8 @@ struct alg_sock {
- 
- 	struct sock *parent;
- 
--	unsigned int refcnt;
--	unsigned int nokey_refcnt;
-+	atomic_t refcnt;
-+	atomic_t nokey_refcnt;
- 
- 	const struct af_alg_type *type;
- 	void *private;
+diff --git a/kernel/sysctl.c b/kernel/sysctl.c
+index c2dddd335d064..ecbb1b764a82e 100644
+--- a/kernel/sysctl.c
++++ b/kernel/sysctl.c
+@@ -412,7 +412,7 @@ static struct ctl_table kern_table[] = {
+ 	},
+ 	{
+ 		.procname	= "sched_rr_timeslice_ms",
+-		.data		= &sched_rr_timeslice,
++		.data		= &sysctl_sched_rr_timeslice,
+ 		.maxlen		= sizeof(int),
+ 		.mode		= 0644,
+ 		.proc_handler	= sched_rr_handler,
+-- 
+2.25.1
+
 
 
