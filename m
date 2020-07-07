@@ -2,101 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D07C216CB4
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 14:22:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AC1D216CB6
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 14:23:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727895AbgGGMWe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 08:22:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60898 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727834AbgGGMWd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jul 2020 08:22:33 -0400
-Received: from mail-lf1-x143.google.com (mail-lf1-x143.google.com [IPv6:2a00:1450:4864:20::143])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CAB5C08C5E0
-        for <stable@vger.kernel.org>; Tue,  7 Jul 2020 05:22:33 -0700 (PDT)
-Received: by mail-lf1-x143.google.com with SMTP id g139so24584700lfd.10
-        for <stable@vger.kernel.org>; Tue, 07 Jul 2020 05:22:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=8FZ6b+u5hIehEVHEyIzeSnPbhkCZR5qqkr1GS1FN368=;
-        b=e2w+qLHC9gUCkhrQmqzM7pcqL4MQF71oL5qMBHAX5ratJP+59bnK/pgD0OdRSrPwW4
-         7AOOLfsDr8mOOOi93MQ+vsZFEu5FSmXA3X7gbTIqw09NU8BtkIbifam82tZoVsNCsZ3g
-         v/+EhHRjDh0T2V9z4AqrYYUyWORI6uz3ODSOOjD++nnw3LCH1w63npSnX/+atmBAqEbJ
-         1reFAxRm1wH47R+DfUTQnWjdP0UirIikXXNbpKsOmdE5V87NQp4Y0BawMh5zHD6upwnN
-         slGc2HIP4lZgUWLI5a95vK+Ea5VN3Z8jMI91hxy2apPtqQxu2G3OC5XpaeQa7vkNbVKn
-         gr2w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=8FZ6b+u5hIehEVHEyIzeSnPbhkCZR5qqkr1GS1FN368=;
-        b=aoTvynf1n77JbKpBeVMdvaAY7lZFnTXGHNGUibVkPNcD8foswM/vgVn2cBH4lbfUh7
-         q3lYaVquBS9qATxGMio0BL123FGxT9KJKUJ2dImbzIn0mVXfJsvPFPlVcv6iUdk/IKXR
-         DTom3ewB0/nuGlvKK+Le9qsx/ejrXCDDalBqnzr+321HPQrDqJfHjfcMcmFmPFIlsGV0
-         yWoVKquWb9Z9zVW6qLGKk+i9L1xrRkQZdazzoNCjUi0HGJQ6+/J6sEhYk6g1N4PZaWGj
-         DpzDVOm0s7O/1Mq1FW1x3eiED6UnxQArYJjwoGmfqpsUOqa3NrElleifnR5NE/uhVXLQ
-         AZVw==
-X-Gm-Message-State: AOAM533o68nwDM6lKt36X+5aoqYofTizO9irNW9F9RWwFaM6Qek15tP5
-        JEkkH4xAL/doXqNsewd/IsZR4050NvjVxZnaBd83HA==
-X-Google-Smtp-Source: ABdhPJy10kov8+Mkmk61f0WKp6Ld4d65E/TrwXZO1pVb4/ph9AvFTgkedwG7sd7BumQWUfn2llEmg5uClQm94RJryQ0=
-X-Received: by 2002:a19:f20a:: with SMTP id q10mr33221646lfh.89.1594124551643;
- Tue, 07 Jul 2020 05:22:31 -0700 (PDT)
+        id S1726911AbgGGMXP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 08:23:15 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:48437 "EHLO
+        forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726540AbgGGMXP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jul 2020 08:23:15 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.nyi.internal (Postfix) with ESMTP id D9F3B1941FC8;
+        Tue,  7 Jul 2020 08:23:13 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Tue, 07 Jul 2020 08:23:13 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=XjbgAg
+        cNqHNOeS2ZfqbR2EtuCgxLgP4RZ1LN99J3Brk=; b=TrQWcVQMOeHzRorvGl81ie
+        Caj+WnfHvik3m2JKPzNcD74x4PUrYoynDMkYhZqImCTyZh9+U9hMcfEuYcFMRvUT
+        MclxdJhg5zmBnbCHF5g8w8Pg/7/u6KmQKkfA6VxDktEz9ln5TE0wQsR4ypDXIP4M
+        EOv9EbA9jhF6t/R78OVkZzeVoOKctRb7+IYnF7dxku0ohJG7TxHQq+ip8XimtS10
+        0DINBEiNcJmTqOwoW6VheIxzbY5MK3EVzL0oj5/4GI+h/JF4C9lKe9uxUmDIkkKr
+        uQH5uR/Bu9qdnWSEzjO5ablXtGHBN/pa4tiRX4BFyXtp6OyXEj/vKWZrjTZs/zxA
+        ==
+X-ME-Sender: <xms:MWkEX03jTWl6Q0nph0DvCUSApgTVLZABuLD1P5l9syA1aDpvKiFbXQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudehgdegiecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
+    efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
+    fedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:MWkEX_ERU2m7lxAzzQ42gcL9jk5vMsMGQ2GLqElDDY7pRmC79iPRig>
+    <xmx:MWkEX86BCfpgdLeIKGVewQsKr0m3_QSfvqfnEyVd7Hvpn1t6aftllQ>
+    <xmx:MWkEX93EdpPYJDRKa0O39sIjidUAjnrN3WbqDfBvDeeKW8nhcZLuYg>
+    <xmx:MWkEX6PK6_8m9wFT-OoqTeQQghmELq-cI3_QIkQ2emTbSYLwyCBuBw>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 5009530600B7;
+        Tue,  7 Jul 2020 08:23:13 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] spi: spi-fsl-dspi: Fix lockup if device is removed during SPI" failed to apply to 4.19-stable tree
+To:     krzk@kernel.org, broonie@kernel.org, olteanv@gmail.com,
+        stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 07 Jul 2020 14:23:11 +0200
+Message-ID: <159412459112943@kroah.com>
 MIME-Version: 1.0
-References: <20200622214548.265417-1-paul@crapouillou.net>
-In-Reply-To: <20200622214548.265417-1-paul@crapouillou.net>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Tue, 7 Jul 2020 14:22:21 +0200
-Message-ID: <CACRpkdbb3RCuu52kyzWZr+mDaWrcP5_CTfEp4aN+GddOKxDcOA@mail.gmail.com>
-Subject: Re: [PATCH 1/2] pinctrl: ingenic: Enhance support for IRQ_TYPE_EDGE_BOTH
-To:     Paul Cercueil <paul@crapouillou.net>
-Cc:     od@zcrc.me,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        =?UTF-8?Q?Jo=C3=A3o_Henrique?= <johnnyonflame@hotmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 22, 2020 at 11:46 PM Paul Cercueil <paul@crapouillou.net> wrote=
-:
 
-> Ingenic SoCs don't natively support registering an interrupt for both
-> rising and falling edges. This has to be emulated in software.
->
-> Until now, this was emulated by switching back and forth between
-> IRQ_TYPE_EDGE_RISING and IRQ_TYPE_EDGE_FALLING according to the level of
-> the GPIO. While this worked most of the time, when used with GPIOs that
-> need debouncing, some events would be lost. For instance, between the
-> time a falling-edge interrupt happens and the interrupt handler
-> configures the hardware for rising-edge, the level of the pin may have
-> already risen, and the rising-edge event is lost.
->
-> To address that issue, instead of switching back and forth between
-> IRQ_TYPE_EDGE_RISING and IRQ_TYPE_EDGE_FALLING, we now switch back and
-> forth between IRQ_TYPE_LEVEL_LOW and IRQ_TYPE_LEVEL_HIGH. Since we
-> always switch in the interrupt handler, they actually permit to detect
-> level changes. In the example above, if the pin level rises before
-> switching the IRQ type from IRQ_TYPE_LEVEL_LOW to IRQ_TYPE_LEVEL_HIGH,
-> a new interrupt will raise as soon as the handler exits, and the
-> rising-edge event will be properly detected.
->
-> Cc: stable@vger.kernel.org
-> Fixes: e72394e2ea19 ("pinctrl: ingenic: Merge GPIO functionality")
-> Reported-by: Jo=C3=A3o Henrique <johnnyonflame@hotmail.com>
-> Tested-by: Jo=C3=A3o Henrique <johnnyonflame@hotmail.com>
-> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-I have applied these two as non-urgent fixes for v5.9.
+thanks,
 
-Are they urgent?
-Are they causing regressions?
-Tell me if they need to be merged to v5.8-rcs.
+greg k-h
 
-Yours,
-Linus Walleij
+------------------ original commit in Linus's tree ------------------
+
+From 7684580d45bd3d84ed9b453a4cadf7a9a5605a3f Mon Sep 17 00:00:00 2001
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Date: Mon, 22 Jun 2020 13:05:40 +0200
+Subject: [PATCH] spi: spi-fsl-dspi: Fix lockup if device is removed during SPI
+ transfer
+
+During device removal, the driver should unregister the SPI controller
+and stop the hardware.  Otherwise the dspi_transfer_one_message() could
+wait on completion infinitely.
+
+Additionally, calling spi_unregister_controller() first in device
+removal reverse-matches the probe function, where SPI controller is
+registered at the end.
+
+Fixes: 05209f457069 ("spi: fsl-dspi: add missing clk_disable_unprepare() in dspi_remove()")
+Reported-by: Vladimir Oltean <olteanv@gmail.com>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200622110543.5035-1-krzk@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
+
+diff --git a/drivers/spi/spi-fsl-dspi.c b/drivers/spi/spi-fsl-dspi.c
+index 58190c94561f..ec0fd0d366eb 100644
+--- a/drivers/spi/spi-fsl-dspi.c
++++ b/drivers/spi/spi-fsl-dspi.c
+@@ -1434,9 +1434,18 @@ static int dspi_remove(struct platform_device *pdev)
+ 	struct fsl_dspi *dspi = spi_controller_get_devdata(ctlr);
+ 
+ 	/* Disconnect from the SPI framework */
++	spi_unregister_controller(dspi->ctlr);
++
++	/* Disable RX and TX */
++	regmap_update_bits(dspi->regmap, SPI_MCR,
++			   SPI_MCR_DIS_TXF | SPI_MCR_DIS_RXF,
++			   SPI_MCR_DIS_TXF | SPI_MCR_DIS_RXF);
++
++	/* Stop Running */
++	regmap_update_bits(dspi->regmap, SPI_MCR, SPI_MCR_HALT, SPI_MCR_HALT);
++
+ 	dspi_release_dma(dspi);
+ 	clk_disable_unprepare(dspi->clk);
+-	spi_unregister_controller(dspi->ctlr);
+ 
+ 	return 0;
+ }
+
