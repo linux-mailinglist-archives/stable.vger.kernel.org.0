@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FA35217202
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:43:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E1C2217192
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:42:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729604AbgGGP1g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:27:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41594 "EHLO mail.kernel.org"
+        id S1729776AbgGGPWF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:22:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729064AbgGGP1L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:27:11 -0400
+        id S1729788AbgGGPWC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:22:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BABD920663;
-        Tue,  7 Jul 2020 15:27:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B655E20663;
+        Tue,  7 Jul 2020 15:22:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135630;
-        bh=CRpvTakR43SmP2tzl9DQZi6CTXB8+lf/9I6bpYv0GZ4=;
+        s=default; t=1594135322;
+        bh=8AF14UblYs3ptHNxNzaQdjEKUMpZrRcDcrOJjLDL8Is=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uWC8hDqPbapi4l6zYnrxHfrl2kYMaM+heFhgqZpvaWfPsTw7CU+66gJlOwPnblQgq
-         zbOqTuO+ka+7vW9NxhdS6A2af1hYjvXVWoiFqepdsAosZ30fHg6rHjuqYy1qgz86py
-         b2weqyUYM/NWZ0dlohs1mL5B95dS3VRKDSIdDFIE=
+        b=fVBmU6435HkOiWF0yN652aHaKNZ4cpLVYSVSOXODCVpEEGYvf7W4FtN4gNux3gLnu
+         PsYYgS054QUEm/9rZ7paN9aaHD4t1fg2aPwiY/gKH1YLzKzstcBD8QL8hPJ710htiC
+         o/Nxtb194wjPMbOEWrKKKSnaIT/IyuFFd1krjsm4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Joseph Salisbury <joseph.salisbury@microsoft.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>
-Subject: [PATCH 5.7 094/112] Drivers: hv: Change flag to write log level in panic msg to false
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.4 60/65] irqchip/gic: Atomically update affinity
 Date:   Tue,  7 Jul 2020 17:17:39 +0200
-Message-Id: <20200707145805.449065113@linuxfoundation.org>
+Message-Id: <20200707145755.366625112@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200707145800.925304888@linuxfoundation.org>
-References: <20200707145800.925304888@linuxfoundation.org>
+In-Reply-To: <20200707145752.417212219@linuxfoundation.org>
+References: <20200707145752.417212219@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +42,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joseph Salisbury <joseph.salisbury@microsoft.com>
+From: Marc Zyngier <maz@kernel.org>
 
-commit 77b48bea2fee47c15a835f6725dd8df0bc38375a upstream.
+commit 005c34ae4b44f085120d7f371121ec7ded677761 upstream.
 
-When the kernel panics, one page of kmsg data may be collected and sent to
-Hyper-V to aid in diagnosing the failure.  The collected kmsg data typically
- contains 50 to 100 lines, each of which has a log level prefix that isn't
-very useful from a diagnostic standpoint.  So tell kmsg_dump_get_buffer()
-to not include the log level, enabling more information that *is* useful to
-fit in the page.
+The GIC driver uses a RMW sequence to update the affinity, and
+relies on the gic_lock_irqsave/gic_unlock_irqrestore sequences
+to update it atomically.
 
-Requesting in stable kernels, since many kernels running in production are
-stable releases.
+But these sequences only expand into anything meaningful if
+the BL_SWITCHER option is selected, which almost never happens.
 
+It also turns out that using a RMW and locks is just as silly,
+as the GIC distributor supports byte accesses for the GICD_TARGETRn
+registers, which when used make the update atomic by definition.
+
+Drop the terminally broken code and replace it by a byte write.
+
+Fixes: 04c8b0f82c7d ("irqchip/gic: Make locking a BL_SWITCHER only feature")
 Cc: stable@vger.kernel.org
-Signed-off-by: Joseph Salisbury <joseph.salisbury@microsoft.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Link: https://lore.kernel.org/r/1593210497-114310-1-git-send-email-joseph.salisbury@microsoft.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hv/vmbus_drv.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/irqchip/irq-gic.c |   14 +++-----------
+ 1 file changed, 3 insertions(+), 11 deletions(-)
 
---- a/drivers/hv/vmbus_drv.c
-+++ b/drivers/hv/vmbus_drv.c
-@@ -1328,7 +1328,7 @@ static void hv_kmsg_dump(struct kmsg_dum
- 	 * Write dump contents to the page. No need to synchronize; panic should
- 	 * be single-threaded.
- 	 */
--	kmsg_dump_get_buffer(dumper, true, hv_panic_page, HV_HYP_PAGE_SIZE,
-+	kmsg_dump_get_buffer(dumper, false, hv_panic_page, HV_HYP_PAGE_SIZE,
- 			     &bytes_written);
- 	if (bytes_written)
- 		hyperv_report_panic_msg(panic_pa, bytes_written);
+--- a/drivers/irqchip/irq-gic.c
++++ b/drivers/irqchip/irq-gic.c
+@@ -329,10 +329,8 @@ static int gic_irq_set_vcpu_affinity(str
+ static int gic_set_affinity(struct irq_data *d, const struct cpumask *mask_val,
+ 			    bool force)
+ {
+-	void __iomem *reg = gic_dist_base(d) + GIC_DIST_TARGET + (gic_irq(d) & ~3);
+-	unsigned int cpu, shift = (gic_irq(d) % 4) * 8;
+-	u32 val, mask, bit;
+-	unsigned long flags;
++	void __iomem *reg = gic_dist_base(d) + GIC_DIST_TARGET + gic_irq(d);
++	unsigned int cpu;
+ 
+ 	if (!force)
+ 		cpu = cpumask_any_and(mask_val, cpu_online_mask);
+@@ -342,13 +340,7 @@ static int gic_set_affinity(struct irq_d
+ 	if (cpu >= NR_GIC_CPU_IF || cpu >= nr_cpu_ids)
+ 		return -EINVAL;
+ 
+-	gic_lock_irqsave(flags);
+-	mask = 0xff << shift;
+-	bit = gic_cpu_map[cpu] << shift;
+-	val = readl_relaxed(reg) & ~mask;
+-	writel_relaxed(val | bit, reg);
+-	gic_unlock_irqrestore(flags);
+-
++	writeb_relaxed(gic_cpu_map[cpu], reg);
+ 	irq_data_update_effective_affinity(d, cpumask_of(cpu));
+ 
+ 	return IRQ_SET_MASK_OK_DONE;
 
 
