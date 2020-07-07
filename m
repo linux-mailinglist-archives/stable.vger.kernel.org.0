@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 918C921725E
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:44:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C22121716B
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:42:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728294AbgGGPcM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:32:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34900 "EHLO mail.kernel.org"
+        id S1729343AbgGGPTb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:19:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729167AbgGGPWW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:22:22 -0400
+        id S1729341AbgGGPT2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:19:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B9DA8207C4;
-        Tue,  7 Jul 2020 15:22:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B3D4F20771;
+        Tue,  7 Jul 2020 15:19:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135342;
-        bh=qgGbNJG4nd3LubWPiEUpdZ0qQCUI8bbZP2/rBN+YpkY=;
+        s=default; t=1594135168;
+        bh=QHZHaMRGai+vdVgWa6RY1S8eqxxr2yVw5NNDIaD0tBo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ngi27wKPY1FaWC18Ko58gelO/svEdu6sw3SJXVhNAV5IbnHxEZe8HgEKBHUktUoaa
-         IQSlfrwRkLcc3lZwXhU+u67BbTpNUTCZqfFibE2YcIuPNcPXGrQqEVskeC6LNhrMpP
-         r+XWFMRLjTTkk9/g9kq1+TdPIcNlxnlEosUFu3IM=
+        b=k4OEp1g5p1j2xGJ/G5bsqGKLIiolXQdUNX9NQ3FCyCQzSOwmnI2kzYo06dyhlPyoe
+         AeJlkgiN8gEHkpofPQ0cMwJQ/UX7S0zk+tjQyASlSWnUmiEJJEBqvNwae3sIsUMwA7
+         QKp5yDOs5Nx8Au2eY9NxDw1TuuiclDEQJSLhnmUk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 38/65] drm: sun4i: hdmi: Remove extra HPD polling
-Date:   Tue,  7 Jul 2020 17:17:17 +0200
-Message-Id: <20200707145754.304409925@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Michael Shych <michaelsh@mellanox.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 26/36] i2c: mlxcpld: check correct size of maximum RECV_LEN packet
+Date:   Tue,  7 Jul 2020 17:17:18 +0200
+Message-Id: <20200707145750.391213659@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200707145752.417212219@linuxfoundation.org>
-References: <20200707145752.417212219@linuxfoundation.org>
+In-Reply-To: <20200707145749.130272978@linuxfoundation.org>
+References: <20200707145749.130272978@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wens@csie.org>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-[ Upstream commit bda8eaa6dee7525f4dac950810a85a88bf6c2ba0 ]
+[ Upstream commit 597911287fcd13c3a4b4aa3e0a52b33d431e0a8e ]
 
-The HPD sense mechanism in Allwinner's old HDMI encoder hardware is more
-or less an input-only GPIO. Other GPIO-based HPD implementations
-directly return the current state, instead of polling for a specific
-state and returning the other if that times out.
+I2C_SMBUS_BLOCK_MAX defines already the maximum number as defined in the
+SMBus 2.0 specs. I don't see a reason to add 1 here. Also, fix the errno
+to what is suggested for this error.
 
-Remove the I/O polling from sun4i_hdmi_connector_detect() and directly
-return a known state based on the current reading. This also gets rid
-of excessive CPU usage by kworker as reported on Stack Exchange [1] and
-Armbian forums [2].
-
- [1] https://superuser.com/questions/1515001/debian-10-buster-on-cubietruck-with-bug-in-sun4i-drm-hdmi
- [2] https://forum.armbian.com/topic/14282-headless-systems-and-sun4i_drm_hdmi-a10a20/
-
-Fixes: 9c5681011a0c ("drm/sun4i: Add HDMI support")
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200629060032.24134-1-wens@kernel.org
+Fixes: c9bfdc7c16cb ("i2c: mlxcpld: Add support for smbus block read transaction")
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Michael Shych <michaelsh@mellanox.com>
+Tested-by: Michael Shych <michaelsh@mellanox.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-mlxcpld.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c b/drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c
-index 9c3bdfd203373..63b4de81686ac 100644
---- a/drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c
-+++ b/drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c
-@@ -262,9 +262,8 @@ sun4i_hdmi_connector_detect(struct drm_connector *connector, bool force)
- 	struct sun4i_hdmi *hdmi = drm_connector_to_sun4i_hdmi(connector);
- 	unsigned long reg;
- 
--	if (readl_poll_timeout(hdmi->base + SUN4I_HDMI_HPD_REG, reg,
--			       reg & SUN4I_HDMI_HPD_HIGH,
--			       0, 500000)) {
-+	reg = readl(hdmi->base + SUN4I_HDMI_HPD_REG);
-+	if (reg & SUN4I_HDMI_HPD_HIGH) {
- 		cec_phys_addr_invalidate(hdmi->cec_adap);
- 		return connector_status_disconnected;
- 	}
+diff --git a/drivers/i2c/busses/i2c-mlxcpld.c b/drivers/i2c/busses/i2c-mlxcpld.c
+index 2fd717d8dd30e..71d7bae2cbcad 100644
+--- a/drivers/i2c/busses/i2c-mlxcpld.c
++++ b/drivers/i2c/busses/i2c-mlxcpld.c
+@@ -337,9 +337,9 @@ static int mlxcpld_i2c_wait_for_tc(struct mlxcpld_i2c_priv *priv)
+ 		if (priv->smbus_block && (val & MLXCPLD_I2C_SMBUS_BLK_BIT)) {
+ 			mlxcpld_i2c_read_comm(priv, MLXCPLD_LPCI2C_NUM_DAT_REG,
+ 					      &datalen, 1);
+-			if (unlikely(datalen > (I2C_SMBUS_BLOCK_MAX + 1))) {
++			if (unlikely(datalen > I2C_SMBUS_BLOCK_MAX)) {
+ 				dev_err(priv->dev, "Incorrect smbus block read message len\n");
+-				return -E2BIG;
++				return -EPROTO;
+ 			}
+ 		} else {
+ 			datalen = priv->xfer.data_len;
 -- 
 2.25.1
 
