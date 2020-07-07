@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3ED66217052
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:23:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 282D0217054
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:23:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728982AbgGGPQ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:16:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55774 "EHLO mail.kernel.org"
+        id S1729009AbgGGPQc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:16:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728971AbgGGPQZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:16:25 -0400
+        id S1728988AbgGGPQ1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:16:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE67320773;
-        Tue,  7 Jul 2020 15:16:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 685A920674;
+        Tue,  7 Jul 2020 15:16:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594134984;
-        bh=zhsTy1lbGiaGKy6J2G7Ap6M7ZROcaXzYdfAZX/AdP10=;
+        s=default; t=1594134986;
+        bh=ZXTQrDB9v1bComVHYK57hLmN9cu1Yi5ctoJG5b5kb6c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IoVcqRUIyoqYMNW9ajmpVQHtg6FtXF0eJgY3odbufyPcJTEeTv71vgqjCqLXD4IoZ
-         m8/Zh+ARhqCNrfisjRr0crI/AOBHRjaYz98InCCER1Y3Mi3nfd0QxD8W9SYGmbZqJY
-         78ZROklh5tU0ZZHu2Cb2kRCFwwm8z6oC52pRU3y4=
+        b=glPRdnFKGO/L59vd+M9VWnUzfwwft7d9I7/fqdkaupdvVLkHESNdXktygxPVfjnI7
+         vSxmrl0LMX78TYYbOB2KhzN6CimrhlLCYtJDh2NyZOZPvrRGEQSWffOWPpQE26MC0G
+         aaBSxXhhG5b+MAxYNy65oZUFh5VcBeAyCus2FHXk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Hugh Dickins <hughd@google.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Chris Murphy <lists@colorremedies.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 03/27] btrfs: fix data block group relocation failure due to concurrent scrub
-Date:   Tue,  7 Jul 2020 17:15:30 +0200
-Message-Id: <20200707145749.111972296@linuxfoundation.org>
+Subject: [PATCH 4.14 04/27] mm: fix swap cache node allocation mask
+Date:   Tue,  7 Jul 2020 17:15:31 +0200
+Message-Id: <20200707145749.166662517@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200707145748.944863698@linuxfoundation.org>
 References: <20200707145748.944863698@linuxfoundation.org>
@@ -45,196 +48,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Hugh Dickins <hughd@google.com>
 
-[ Upstream commit 432cd2a10f1c10cead91fe706ff5dc52f06d642a ]
+[ Upstream commit 243bce09c91b0145aeaedd5afba799d81841c030 ]
 
-When running relocation of a data block group while scrub is running in
-parallel, it is possible that the relocation will fail and abort the
-current transaction with an -EINVAL error:
+Chris Murphy reports that a slightly overcommitted load, testing swap
+and zram along with i915, splats and keeps on splatting, when it had
+better fail less noisily:
 
-   [134243.988595] BTRFS info (device sdc): found 14 extents, stage: move data extents
-   [134243.999871] ------------[ cut here ]------------
-   [134244.000741] BTRFS: Transaction aborted (error -22)
-   [134244.001692] WARNING: CPU: 0 PID: 26954 at fs/btrfs/ctree.c:1071 __btrfs_cow_block+0x6a7/0x790 [btrfs]
-   [134244.003380] Modules linked in: btrfs blake2b_generic xor raid6_pq (...)
-   [134244.012577] CPU: 0 PID: 26954 Comm: btrfs Tainted: G        W         5.6.0-rc7-btrfs-next-58 #5
-   [134244.014162] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
-   [134244.016184] RIP: 0010:__btrfs_cow_block+0x6a7/0x790 [btrfs]
-   [134244.017151] Code: 48 c7 c7 (...)
-   [134244.020549] RSP: 0018:ffffa41607863888 EFLAGS: 00010286
-   [134244.021515] RAX: 0000000000000000 RBX: ffff9614bdfe09c8 RCX: 0000000000000000
-   [134244.022822] RDX: 0000000000000001 RSI: ffffffffb3d63980 RDI: 0000000000000001
-   [134244.024124] RBP: ffff961589e8c000 R08: 0000000000000000 R09: 0000000000000001
-   [134244.025424] R10: ffffffffc0ae5955 R11: 0000000000000000 R12: ffff9614bd530d08
-   [134244.026725] R13: ffff9614ced41b88 R14: ffff9614bdfe2a48 R15: 0000000000000000
-   [134244.028024] FS:  00007f29b63c08c0(0000) GS:ffff9615ba600000(0000) knlGS:0000000000000000
-   [134244.029491] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-   [134244.030560] CR2: 00007f4eb339b000 CR3: 0000000130d6e006 CR4: 00000000003606f0
-   [134244.031997] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-   [134244.033153] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-   [134244.034484] Call Trace:
-   [134244.034984]  btrfs_cow_block+0x12b/0x2b0 [btrfs]
-   [134244.035859]  do_relocation+0x30b/0x790 [btrfs]
-   [134244.036681]  ? do_raw_spin_unlock+0x49/0xc0
-   [134244.037460]  ? _raw_spin_unlock+0x29/0x40
-   [134244.038235]  relocate_tree_blocks+0x37b/0x730 [btrfs]
-   [134244.039245]  relocate_block_group+0x388/0x770 [btrfs]
-   [134244.040228]  btrfs_relocate_block_group+0x161/0x2e0 [btrfs]
-   [134244.041323]  btrfs_relocate_chunk+0x36/0x110 [btrfs]
-   [134244.041345]  btrfs_balance+0xc06/0x1860 [btrfs]
-   [134244.043382]  ? btrfs_ioctl_balance+0x27c/0x310 [btrfs]
-   [134244.045586]  btrfs_ioctl_balance+0x1ed/0x310 [btrfs]
-   [134244.045611]  btrfs_ioctl+0x1880/0x3760 [btrfs]
-   [134244.049043]  ? do_raw_spin_unlock+0x49/0xc0
-   [134244.049838]  ? _raw_spin_unlock+0x29/0x40
-   [134244.050587]  ? __handle_mm_fault+0x11b3/0x14b0
-   [134244.051417]  ? ksys_ioctl+0x92/0xb0
-   [134244.052070]  ksys_ioctl+0x92/0xb0
-   [134244.052701]  ? trace_hardirqs_off_thunk+0x1a/0x1c
-   [134244.053511]  __x64_sys_ioctl+0x16/0x20
-   [134244.054206]  do_syscall_64+0x5c/0x280
-   [134244.054891]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-   [134244.055819] RIP: 0033:0x7f29b51c9dd7
-   [134244.056491] Code: 00 00 00 (...)
-   [134244.059767] RSP: 002b:00007ffcccc1dd08 EFLAGS: 00000202 ORIG_RAX: 0000000000000010
-   [134244.061168] RAX: ffffffffffffffda RBX: 0000000000000001 RCX: 00007f29b51c9dd7
-   [134244.062474] RDX: 00007ffcccc1dda0 RSI: 00000000c4009420 RDI: 0000000000000003
-   [134244.063771] RBP: 0000000000000003 R08: 00005565cea4b000 R09: 0000000000000000
-   [134244.065032] R10: 0000000000000541 R11: 0000000000000202 R12: 00007ffcccc2060a
-   [134244.066327] R13: 00007ffcccc1dda0 R14: 0000000000000002 R15: 00007ffcccc1dec0
-   [134244.067626] irq event stamp: 0
-   [134244.068202] hardirqs last  enabled at (0): [<0000000000000000>] 0x0
-   [134244.069351] hardirqs last disabled at (0): [<ffffffffb2abdedf>] copy_process+0x74f/0x2020
-   [134244.070909] softirqs last  enabled at (0): [<ffffffffb2abdedf>] copy_process+0x74f/0x2020
-   [134244.072392] softirqs last disabled at (0): [<0000000000000000>] 0x0
-   [134244.073432] ---[ end trace bd7c03622e0b0a99 ]---
+  gnome-shell: page allocation failure: order:0,
+  mode:0x400d0(__GFP_IO|__GFP_FS|__GFP_COMP|__GFP_RECLAIMABLE),
+  nodemask=(null),cpuset=/,mems_allowed=0
+  CPU: 2 PID: 1155 Comm: gnome-shell Not tainted 5.7.0-1.fc33.x86_64 #1
+  Call Trace:
+    dump_stack+0x64/0x88
+    warn_alloc.cold+0x75/0xd9
+    __alloc_pages_slowpath.constprop.0+0xcfa/0xd30
+    __alloc_pages_nodemask+0x2df/0x320
+    alloc_slab_page+0x195/0x310
+    allocate_slab+0x3c5/0x440
+    ___slab_alloc+0x40c/0x5f0
+    __slab_alloc+0x1c/0x30
+    kmem_cache_alloc+0x20e/0x220
+    xas_nomem+0x28/0x70
+    add_to_swap_cache+0x321/0x400
+    __read_swap_cache_async+0x105/0x240
+    swap_cluster_readahead+0x22c/0x2e0
+    shmem_swapin+0x8e/0xc0
+    shmem_swapin_page+0x196/0x740
+    shmem_getpage_gfp+0x3a2/0xa60
+    shmem_read_mapping_page_gfp+0x32/0x60
+    shmem_get_pages+0x155/0x5e0 [i915]
+    __i915_gem_object_get_pages+0x68/0xa0 [i915]
+    i915_vma_pin+0x3fe/0x6c0 [i915]
+    eb_add_vma+0x10b/0x2c0 [i915]
+    i915_gem_do_execbuffer+0x704/0x3430 [i915]
+    i915_gem_execbuffer2_ioctl+0x1ea/0x3e0 [i915]
+    drm_ioctl_kernel+0x86/0xd0 [drm]
+    drm_ioctl+0x206/0x390 [drm]
+    ksys_ioctl+0x82/0xc0
+    __x64_sys_ioctl+0x16/0x20
+    do_syscall_64+0x5b/0xf0
+    entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-The -EINVAL error comes from the following chain of function calls:
+Reported on 5.7, but it goes back really to 3.1: when
+shmem_read_mapping_page_gfp() was implemented for use by i915, and
+allowed for __GFP_NORETRY and __GFP_NOWARN flags in most places, but
+missed swapin's "& GFP_KERNEL" mask for page tree node allocation in
+__read_swap_cache_async() - that was to mask off HIGHUSER_MOVABLE bits
+from what page cache uses, but GFP_RECLAIM_MASK is now what's needed.
 
-  __btrfs_cow_block() <-- aborts the transaction
-    btrfs_reloc_cow_block()
-      replace_file_extents()
-        get_new_location() <-- returns -EINVAL
-
-When relocating a data block group, for each allocated extent of the block
-group, we preallocate another extent (at prealloc_file_extent_cluster()),
-associated with the data relocation inode, and then dirty all its pages.
-These preallocated extents have, and must have, the same size that extents
-from the data block group being relocated have.
-
-Later before we start the relocation stage that updates pointers (bytenr
-field of file extent items) to point to the the new extents, we trigger
-writeback for the data relocation inode. The expectation is that writeback
-will write the pages to the previously preallocated extents, that it
-follows the NOCOW path. That is generally the case, however, if a scrub
-is running it may have turned the block group that contains those extents
-into RO mode, in which case writeback falls back to the COW path.
-
-However in the COW path instead of allocating exactly one extent with the
-expected size, the allocator may end up allocating several smaller extents
-due to free space fragmentation - because we tell it at cow_file_range()
-that the minimum allocation size can match the filesystem's sector size.
-This later breaks the relocation's expectation that an extent associated
-to a file extent item in the data relocation inode has the same size as
-the respective extent pointed by a file extent item in another tree - in
-this case the extent to which the relocation inode poins to is smaller,
-causing relocation.c:get_new_location() to return -EINVAL.
-
-For example, if we are relocating a data block group X that has a logical
-address of X and the block group has an extent allocated at the logical
-address X + 128KiB with a size of 64KiB:
-
-1) At prealloc_file_extent_cluster() we allocate an extent for the data
-   relocation inode with a size of 64KiB and associate it to the file
-   offset 128KiB (X + 128KiB - X) of the data relocation inode. This
-   preallocated extent was allocated at block group Z;
-
-2) A scrub running in parallel turns block group Z into RO mode and
-   starts scrubing its extents;
-
-3) Relocation triggers writeback for the data relocation inode;
-
-4) When running delalloc (btrfs_run_delalloc_range()), we try first the
-   NOCOW path because the data relocation inode has BTRFS_INODE_PREALLOC
-   set in its flags. However, because block group Z is in RO mode, the
-   NOCOW path (run_delalloc_nocow()) falls back into the COW path, by
-   calling cow_file_range();
-
-5) At cow_file_range(), in the first iteration of the while loop we call
-   btrfs_reserve_extent() to allocate a 64KiB extent and pass it a minimum
-   allocation size of 4KiB (fs_info->sectorsize). Due to free space
-   fragmentation, btrfs_reserve_extent() ends up allocating two extents
-   of 32KiB each, each one on a different iteration of that while loop;
-
-6) Writeback of the data relocation inode completes;
-
-7) Relocation proceeds and ends up at relocation.c:replace_file_extents(),
-   with a leaf which has a file extent item that points to the data extent
-   from block group X, that has a logical address (bytenr) of X + 128KiB
-   and a size of 64KiB. Then it calls get_new_location(), which does a
-   lookup in the data relocation tree for a file extent item starting at
-   offset 128KiB (X + 128KiB - X) and belonging to the data relocation
-   inode. It finds a corresponding file extent item, however that item
-   points to an extent that has a size of 32KiB, which doesn't match the
-   expected size of 64KiB, resuling in -EINVAL being returned from this
-   function and propagated up to __btrfs_cow_block(), which aborts the
-   current transaction.
-
-To fix this make sure that at cow_file_range() when we call the allocator
-we pass it a minimum allocation size corresponding the desired extent size
-if the inode belongs to the data relocation tree, otherwise pass it the
-filesystem's sector size as the minimum allocation size.
-
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=208085
+Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2006151330070.11064@eggly.anvils
+Fixes: 68da9f055755 ("tmpfs: pass gfp to shmem_getpage_gfp")
+Signed-off-by: Hugh Dickins <hughd@google.com>
+Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
+Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Reported-by: Chris Murphy <lists@colorremedies.com>
+Analyzed-by: Vlastimil Babka <vbabka@suse.cz>
+Analyzed-by: Matthew Wilcox <willy@infradead.org>
+Tested-by: Chris Murphy <lists@colorremedies.com>
+Cc: <stable@vger.kernel.org>	[3.1+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/inode.c | 19 ++++++++++++++++++-
- 1 file changed, 18 insertions(+), 1 deletion(-)
+ mm/swap_state.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index a8ae9a0704871..57908ee964a20 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -979,6 +979,7 @@ static noinline int cow_file_range(struct inode *inode,
- 	u64 num_bytes;
- 	unsigned long ram_size;
- 	u64 cur_alloc_size = 0;
-+	u64 min_alloc_size;
- 	u64 blocksize = fs_info->sectorsize;
- 	struct btrfs_key ins;
- 	struct extent_map *em;
-@@ -1027,10 +1028,26 @@ static noinline int cow_file_range(struct inode *inode,
- 	btrfs_drop_extent_cache(BTRFS_I(inode), start,
- 			start + num_bytes - 1, 0);
+diff --git a/mm/swap_state.c b/mm/swap_state.c
+index 326439428daff..755be95d52f9c 100644
+--- a/mm/swap_state.c
++++ b/mm/swap_state.c
+@@ -23,6 +23,7 @@
+ #include <linux/huge_mm.h>
  
-+	/*
-+	 * Relocation relies on the relocated extents to have exactly the same
-+	 * size as the original extents. Normally writeback for relocation data
-+	 * extents follows a NOCOW path because relocation preallocates the
-+	 * extents. However, due to an operation such as scrub turning a block
-+	 * group to RO mode, it may fallback to COW mode, so we must make sure
-+	 * an extent allocated during COW has exactly the requested size and can
-+	 * not be split into smaller extents, otherwise relocation breaks and
-+	 * fails during the stage where it updates the bytenr of file extent
-+	 * items.
-+	 */
-+	if (root->root_key.objectid == BTRFS_DATA_RELOC_TREE_OBJECTID)
-+		min_alloc_size = num_bytes;
-+	else
-+		min_alloc_size = fs_info->sectorsize;
-+
- 	while (num_bytes > 0) {
- 		cur_alloc_size = num_bytes;
- 		ret = btrfs_reserve_extent(root, cur_alloc_size, cur_alloc_size,
--					   fs_info->sectorsize, 0, alloc_hint,
-+					   min_alloc_size, 0, alloc_hint,
- 					   &ins, 1, 1);
- 		if (ret < 0)
- 			goto out_unlock;
+ #include <asm/pgtable.h>
++#include "internal.h"
+ 
+ /*
+  * swapper_space is a fiction, retained to simplify the path through
+@@ -403,7 +404,7 @@ struct page *__read_swap_cache_async(swp_entry_t entry, gfp_t gfp_mask,
+ 		/*
+ 		 * call radix_tree_preload() while we can wait.
+ 		 */
+-		err = radix_tree_maybe_preload(gfp_mask & GFP_KERNEL);
++		err = radix_tree_maybe_preload(gfp_mask & GFP_RECLAIM_MASK);
+ 		if (err)
+ 			break;
+ 
 -- 
 2.25.1
 
