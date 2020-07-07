@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC26E216FD0
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:13:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1612B216FD9
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:13:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728349AbgGGPKt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:10:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51568 "EHLO mail.kernel.org"
+        id S1728553AbgGGPLB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:11:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728471AbgGGPKp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:10:45 -0400
+        id S1728321AbgGGPKs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:10:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E2E520773;
-        Tue,  7 Jul 2020 15:10:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB2A320663;
+        Tue,  7 Jul 2020 15:10:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594134645;
-        bh=fsv8QM8PN/qV2fuRTlCXCxViKXQXGi/PJgSr0V0TKIg=;
+        s=default; t=1594134647;
+        bh=hl41CVJG9hoeCRvAAKp5hJ/Z4kaKOFNtDHOfAp+HlH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cb1INGGg1eVkzfH6Up7QS/YsQgIm1R8iTPPJ1XLjW/9HobXr7kB73mdW8iKTDY2k5
-         unw+O+SH6HB4ZXcO7eKcCRZ7gI0voYn/M57QE5rvGEL38dIj5L7aJ+x3L1BfRQx7M6
-         6yK0tLcbyE/1kGL6xmqI1hzmzQ6eeXN+zQElgwOE=
+        b=jXKywTUMDJFAyO83Fevqp5RTHYE3scCO5R6lYC/28Cob2LgMt6TleGHQHHjCJ8Bvi
+         dUy01Wj3DR63H3MK4ygxD6RddvT5VJWZFCwspzqaL5c2VBE+O1HfLj5YvdcAGpMjLJ
+         goSOO6YrJvvkXQ5Z6yI6hh2rYm99ReyeT0IEr5JA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Aurich <paul@darkrain42.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
         Steve French <stfrench@microsoft.com>,
         Aurelien Aptel <aaptel@suse.com>
-Subject: [PATCH 4.4 16/19] SMB3: Honor persistent/resilient handle flags for multiuser mounts
-Date:   Tue,  7 Jul 2020 17:10:19 +0200
-Message-Id: <20200707145748.310362283@linuxfoundation.org>
+Subject: [PATCH 4.4 17/19] cifs: Fix the target file was deleted when rename failed.
+Date:   Tue,  7 Jul 2020 17:10:20 +0200
+Message-Id: <20200707145748.356954737@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200707145747.493710555@linuxfoundation.org>
 References: <20200707145747.493710555@linuxfoundation.org>
@@ -44,36 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Aurich <paul@darkrain42.org>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-commit 00dfbc2f9c61185a2e662f27c45a0bb29b2a134f upstream.
+commit 9ffad9263b467efd8f8dc7ae1941a0a655a2bab2 upstream.
 
-Without this:
+When xfstest generic/035, we found the target file was deleted
+if the rename return -EACESS.
 
-- persistent handles will only be enabled for per-user tcons if the
-  server advertises the 'Continuous Availabity' capability
-- resilient handles would never be enabled for per-user tcons
+In cifs_rename2, we unlink the positive target dentry if rename
+failed with EACESS or EEXIST, even if the target dentry is positived
+before rename. Then the existing file was deleted.
 
-Signed-off-by: Paul Aurich <paul@darkrain42.org>
-CC: Stable <stable@vger.kernel.org>
+We should just delete the target file which created during the
+rename.
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Steve French <stfrench@microsoft.com>
 Reviewed-by: Aurelien Aptel <aaptel@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/connect.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/cifs/inode.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -4203,6 +4203,8 @@ cifs_construct_tcon(struct cifs_sb_info
- 	vol_info->retry = master_tcon->retry;
- 	vol_info->nocase = master_tcon->nocase;
- 	vol_info->local_lease = master_tcon->local_lease;
-+	vol_info->resilient = master_tcon->use_resilient;
-+	vol_info->persistent = master_tcon->use_persistent;
- 	vol_info->no_linux_ext = !master_tcon->unix_ext;
- 	vol_info->sectype = master_tcon->ses->sectype;
- 	vol_info->sign = master_tcon->ses->sign;
+--- a/fs/cifs/inode.c
++++ b/fs/cifs/inode.c
+@@ -1737,6 +1737,7 @@ cifs_rename2(struct inode *source_dir, s
+ 	FILE_UNIX_BASIC_INFO *info_buf_target;
+ 	unsigned int xid;
+ 	int rc, tmprc;
++	bool new_target = d_really_is_negative(target_dentry);
+ 
+ 	if (flags & ~RENAME_NOREPLACE)
+ 		return -EINVAL;
+@@ -1813,8 +1814,13 @@ cifs_rename2(struct inode *source_dir, s
+ 	 */
+ 
+ unlink_target:
+-	/* Try unlinking the target dentry if it's not negative */
+-	if (d_really_is_positive(target_dentry) && (rc == -EACCES || rc == -EEXIST)) {
++	/*
++	 * If the target dentry was created during the rename, try
++	 * unlinking it if it's not negative
++	 */
++	if (new_target &&
++	    d_really_is_positive(target_dentry) &&
++	    (rc == -EACCES || rc == -EEXIST)) {
+ 		if (d_is_dir(target_dentry))
+ 			tmprc = cifs_rmdir(target_dir, target_dentry);
+ 		else
 
 
