@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E5C121701B
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:16:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68AB221701D
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:16:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728718AbgGGPOw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:14:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54310 "EHLO mail.kernel.org"
+        id S1728766AbgGGPOy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:14:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728766AbgGGPOu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:14:50 -0400
+        id S1728572AbgGGPOx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:14:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D41232084C;
-        Tue,  7 Jul 2020 15:14:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 62E8F20771;
+        Tue,  7 Jul 2020 15:14:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594134890;
-        bh=vtSw3xO97ia0vKC4RxF9VceEbRCcZtdHfy9qfJCSPLk=;
+        s=default; t=1594134892;
+        bh=RqvGdwsC7WpcQE/VFzcTuvawrFAHZUGJnnE0l+3j+oU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Adf0UOHdyWqk0CWOfjQLZqAGPo+LjNM/02uef6v4SNLG1Mdc8Dau9QnlW9WczM2AF
-         whn7L13NoJZ4xXRnzBlYpONLttF70rXZo4aOMEh/zYQDRTBsWp83XyNODbRzUJDBKG
-         OubI7kG0ORlk4SavIEqpXJHTeSHtFR/P8IG41W0Q=
+        b=eOGNTprppXVsqpWYKizC7n4/UHibCzRDcEeXWP+tDQMNngKTXySk5fIOoE5ipgNFu
+         glGwDfIPi5xdCERjOaTZ7lHNHwyRJD4PHt6pgoPNM5VaH+xryEHh32KabQ/Sp1kloV
+         /OJxcm30SL6lFWD3nOLRMGawfRTSYj8AlA8tbZfg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+29dc7d4ae19b703ff947@syzkaller.appspotmail.com,
-        Tuomas Tynkkynen <tuomas.tynkkynen@iki.fi>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Dongli Zhang <dongli.zhang@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Joe Jin <joe.jin@oracle.com>, Christoph Lameter <cl@linux.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 06/24] usbnet: smsc95xx: Fix use-after-free after removal
-Date:   Tue,  7 Jul 2020 17:13:38 +0200
-Message-Id: <20200707145749.271208528@linuxfoundation.org>
+Subject: [PATCH 4.9 07/24] mm/slub.c: fix corrupted freechain in deactivate_slab()
+Date:   Tue,  7 Jul 2020 17:13:39 +0200
+Message-Id: <20200707145749.322288706@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200707145748.952502272@linuxfoundation.org>
 References: <20200707145748.952502272@linuxfoundation.org>
@@ -46,47 +49,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tuomas Tynkkynen <tuomas.tynkkynen@iki.fi>
+From: Dongli Zhang <dongli.zhang@oracle.com>
 
-[ Upstream commit b835a71ef64a61383c414d6bf2896d2c0161deca ]
+[ Upstream commit 52f23478081ae0dcdb95d1650ea1e7d52d586829 ]
 
-Syzbot reports an use-after-free in workqueue context:
+The slub_debug is able to fix the corrupted slab freelist/page.
+However, alloc_debug_processing() only checks the validity of current
+and next freepointer during allocation path.  As a result, once some
+objects have their freepointers corrupted, deactivate_slab() may lead to
+page fault.
 
-BUG: KASAN: use-after-free in mutex_unlock+0x19/0x40 kernel/locking/mutex.c:737
- mutex_unlock+0x19/0x40 kernel/locking/mutex.c:737
- __smsc95xx_mdio_read drivers/net/usb/smsc95xx.c:217 [inline]
- smsc95xx_mdio_read+0x583/0x870 drivers/net/usb/smsc95xx.c:278
- check_carrier+0xd1/0x2e0 drivers/net/usb/smsc95xx.c:644
- process_one_work+0x777/0xf90 kernel/workqueue.c:2274
- worker_thread+0xa8f/0x1430 kernel/workqueue.c:2420
- kthread+0x2df/0x300 kernel/kthread.c:255
+Below is from a test kernel module when 'slub_debug=PUF,kmalloc-128
+slub_nomerge'.  The test kernel corrupts the freepointer of one free
+object on purpose.  Unfortunately, deactivate_slab() does not detect it
+when iterating the freechain.
 
-It looks like that smsc95xx_unbind() is freeing the structures that are
-still in use by the concurrently running workqueue callback. Thus switch
-to using cancel_delayed_work_sync() to ensure the work callback really
-is no longer active.
+  BUG: unable to handle page fault for address: 00000000123456f8
+  #PF: supervisor read access in kernel mode
+  #PF: error_code(0x0000) - not-present page
+  PGD 0 P4D 0
+  Oops: 0000 [#1] SMP PTI
+  ... ...
+  RIP: 0010:deactivate_slab.isra.92+0xed/0x490
+  ... ...
+  Call Trace:
+   ___slab_alloc+0x536/0x570
+   __slab_alloc+0x17/0x30
+   __kmalloc+0x1d9/0x200
+   ext4_htree_store_dirent+0x30/0xf0
+   htree_dirblock_to_tree+0xcb/0x1c0
+   ext4_htree_fill_tree+0x1bc/0x2d0
+   ext4_readdir+0x54f/0x920
+   iterate_dir+0x88/0x190
+   __x64_sys_getdents+0xa6/0x140
+   do_syscall_64+0x49/0x170
+   entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Reported-by: syzbot+29dc7d4ae19b703ff947@syzkaller.appspotmail.com
-Signed-off-by: Tuomas Tynkkynen <tuomas.tynkkynen@iki.fi>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Therefore, this patch adds extra consistency check in deactivate_slab().
+Once an object's freepointer is corrupted, all following objects
+starting at this object are isolated.
+
+[akpm@linux-foundation.org: fix build with CONFIG_SLAB_DEBUG=n]
+Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Joe Jin <joe.jin@oracle.com>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Link: http://lkml.kernel.org/r/20200331031450.12182-1-dongli.zhang@oracle.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/smsc95xx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/slub.c | 27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
 
-diff --git a/drivers/net/usb/smsc95xx.c b/drivers/net/usb/smsc95xx.c
-index e719ecd69d01b..6852ebafd4d3b 100644
---- a/drivers/net/usb/smsc95xx.c
-+++ b/drivers/net/usb/smsc95xx.c
-@@ -1327,7 +1327,7 @@ static void smsc95xx_unbind(struct usbnet *dev, struct usb_interface *intf)
- 	struct smsc95xx_priv *pdata = (struct smsc95xx_priv *)(dev->data[0]);
+diff --git a/mm/slub.c b/mm/slub.c
+index 3d45713187a47..c20c87099a99d 100644
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -624,6 +624,20 @@ static void slab_fix(struct kmem_cache *s, char *fmt, ...)
+ 	va_end(args);
+ }
  
- 	if (pdata) {
--		cancel_delayed_work(&pdata->carrier_check);
-+		cancel_delayed_work_sync(&pdata->carrier_check);
- 		netif_dbg(dev, ifdown, dev->net, "free pdata\n");
- 		kfree(pdata);
- 		pdata = NULL;
++static bool freelist_corrupted(struct kmem_cache *s, struct page *page,
++			       void *freelist, void *nextfree)
++{
++	if ((s->flags & SLAB_CONSISTENCY_CHECKS) &&
++	    !check_valid_pointer(s, page, nextfree)) {
++		object_err(s, page, freelist, "Freechain corrupt");
++		freelist = NULL;
++		slab_fix(s, "Isolate corrupted freechain");
++		return true;
++	}
++
++	return false;
++}
++
+ static void print_trailer(struct kmem_cache *s, struct page *page, u8 *p)
+ {
+ 	unsigned int off;	/* Offset of last byte */
+@@ -1305,6 +1319,11 @@ static inline void inc_slabs_node(struct kmem_cache *s, int node,
+ static inline void dec_slabs_node(struct kmem_cache *s, int node,
+ 							int objects) {}
+ 
++static bool freelist_corrupted(struct kmem_cache *s, struct page *page,
++			       void *freelist, void *nextfree)
++{
++	return false;
++}
+ #endif /* CONFIG_SLUB_DEBUG */
+ 
+ /*
+@@ -2016,6 +2035,14 @@ static void deactivate_slab(struct kmem_cache *s, struct page *page,
+ 		void *prior;
+ 		unsigned long counters;
+ 
++		/*
++		 * If 'nextfree' is invalid, it is possible that the object at
++		 * 'freelist' is already corrupted.  So isolate all objects
++		 * starting at 'freelist'.
++		 */
++		if (freelist_corrupted(s, page, freelist, nextfree))
++			break;
++
+ 		do {
+ 			prior = page->freelist;
+ 			counters = page->counters;
 -- 
 2.25.1
 
