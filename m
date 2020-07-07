@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BAA1217179
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:42:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC97621715F
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:42:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728863AbgGGPUk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:20:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60746 "EHLO mail.kernel.org"
+        id S1728797AbgGGPS0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:18:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729127AbgGGPUg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:20:36 -0400
+        id S1728414AbgGGPSZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:18:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C47B206CD;
-        Tue,  7 Jul 2020 15:20:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7548520738;
+        Tue,  7 Jul 2020 15:18:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135235;
-        bh=bTu3VkaoueKPz3FtvkXJwHNxe4FnclP3wIxbsKTQdJE=;
+        s=default; t=1594135105;
+        bh=fsPcpWPv1KcnmZ0A+1YF0BjIsP1tJkTQMO0LpTHcD3E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RupziH/mfDLjNYZj6HaBZ6J8gtJq1znol+KdfjClbazHWm55KUKbi7QVhVQaKGyaP
-         PiUqPqMfKydJnotF1IpBVAZdEtqactIATlqa1jUkGJ1HBBmJQcoOeL+wMeOXNzTLwK
-         sQWzQqS7rFNI9uh6vWqtjJqry9K8HB/KJpAplYeQ=
+        b=1ro+EgVAnj8motEjlN09kctN4JNcgmpXoJY7N971J76cXUYO3wySXQXjK8dWqXj0w
+         cidiwUNgwDn35s3hNNaccliDTG6j6/qPgaPbUJMevsplRX18MDfAgGkS7hu0+layzt
+         CxYKUNNmB+NFXyil8umb90hJlFZezYKVEsZmRDKs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 26/65] cxgb4: parse TC-U32 key values and masks natively
+        stable@vger.kernel.org, Brian Moyles <bmoyles@netflix.com>,
+        Mauricio Faria de Oliveira <mfo@canonical.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.19 13/36] crypto: af_alg - fix use-after-free in af_alg_accept() due to bh_lock_sock()
 Date:   Tue,  7 Jul 2020 17:17:05 +0200
-Message-Id: <20200707145753.749117165@linuxfoundation.org>
+Message-Id: <20200707145749.760045378@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200707145752.417212219@linuxfoundation.org>
-References: <20200707145752.417212219@linuxfoundation.org>
+In-Reply-To: <20200707145749.130272978@linuxfoundation.org>
+References: <20200707145749.130272978@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,348 +44,191 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-[ Upstream commit 27f78cb245abdb86735529c13b0a579f57829e71 ]
+commit 34c86f4c4a7be3b3e35aa48bd18299d4c756064d upstream.
 
-TC-U32 passes all keys values and masks in __be32 format. The parser
-already expects this and hence pass the value and masks in __be32
-natively to the parser.
+The locking in af_alg_release_parent is broken as the BH socket
+lock can only be taken if there is a code-path to handle the case
+where the lock is owned by process-context.  Instead of adding
+such handling, we can fix this by changing the ref counts to
+atomic_t.
 
-Fixes following sparse warnings in several places:
-cxgb4_tc_u32.c:57:21: warning: incorrect type in assignment (different base
-types)
-cxgb4_tc_u32.c:57:21:    expected unsigned int [usertype] val
-cxgb4_tc_u32.c:57:21:    got restricted __be32 [usertype] val
-cxgb4_tc_u32_parse.h:48:24: warning: cast to restricted __be32
+This patch also modifies the main refcnt to include both normal
+and nokey sockets.  This way we don't have to fudge the nokey
+ref count when a socket changes from nokey to normal.
 
-Fixes: 2e8aad7bf203 ("cxgb4: add parser to translate u32 filters to internal spec")
-Signed-off-by: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Credits go to Mauricio Faria de Oliveira who diagnosed this bug
+and sent a patch for it:
+
+https://lore.kernel.org/linux-crypto/20200605161657.535043-1-mfo@canonical.com/
+
+Reported-by: Brian Moyles <bmoyles@netflix.com>
+Reported-by: Mauricio Faria de Oliveira <mfo@canonical.com>
+Fixes: 37f96694cf73 ("crypto: af_alg - Use bh_lock_sock in...")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- .../net/ethernet/chelsio/cxgb4/cxgb4_tc_u32.c |  18 +--
- .../chelsio/cxgb4/cxgb4_tc_u32_parse.h        | 122 ++++++++++++------
- 2 files changed, 91 insertions(+), 49 deletions(-)
+ crypto/af_alg.c         |   26 +++++++++++---------------
+ crypto/algif_aead.c     |    9 +++------
+ crypto/algif_hash.c     |    9 +++------
+ crypto/algif_skcipher.c |    9 +++------
+ include/crypto/if_alg.h |    4 ++--
+ 5 files changed, 22 insertions(+), 35 deletions(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_u32.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_u32.c
-index 02fc63fa7f256..b3a342561a968 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_u32.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_u32.c
-@@ -47,7 +47,7 @@ static int fill_match_fields(struct adapter *adap,
- 			     bool next_header)
+--- a/crypto/af_alg.c
++++ b/crypto/af_alg.c
+@@ -133,21 +133,15 @@ EXPORT_SYMBOL_GPL(af_alg_release);
+ void af_alg_release_parent(struct sock *sk)
  {
- 	unsigned int i, j;
--	u32 val, mask;
-+	__be32 val, mask;
- 	int off, err;
- 	bool found;
+ 	struct alg_sock *ask = alg_sk(sk);
+-	unsigned int nokey = ask->nokey_refcnt;
+-	bool last = nokey && !ask->refcnt;
++	unsigned int nokey = atomic_read(&ask->nokey_refcnt);
  
-@@ -216,7 +216,7 @@ int cxgb4_config_knode(struct net_device *dev, struct tc_cls_u32_offload *cls)
- 		const struct cxgb4_next_header *next;
- 		bool found = false;
- 		unsigned int i, j;
--		u32 val, mask;
-+		__be32 val, mask;
- 		int off;
+ 	sk = ask->parent;
+ 	ask = alg_sk(sk);
  
- 		if (t->table[link_uhtid - 1].link_handle) {
-@@ -230,10 +230,10 @@ int cxgb4_config_knode(struct net_device *dev, struct tc_cls_u32_offload *cls)
+-	local_bh_disable();
+-	bh_lock_sock(sk);
+-	ask->nokey_refcnt -= nokey;
+-	if (!last)
+-		last = !--ask->refcnt;
+-	bh_unlock_sock(sk);
+-	local_bh_enable();
++	if (nokey)
++		atomic_dec(&ask->nokey_refcnt);
  
- 		/* Try to find matches that allow jumps to next header. */
- 		for (i = 0; next[i].jump; i++) {
--			if (next[i].offoff != cls->knode.sel->offoff ||
--			    next[i].shift != cls->knode.sel->offshift ||
--			    next[i].mask != cls->knode.sel->offmask ||
--			    next[i].offset != cls->knode.sel->off)
-+			if (next[i].sel.offoff != cls->knode.sel->offoff ||
-+			    next[i].sel.offshift != cls->knode.sel->offshift ||
-+			    next[i].sel.offmask != cls->knode.sel->offmask ||
-+			    next[i].sel.off != cls->knode.sel->off)
- 				continue;
- 
- 			/* Found a possible candidate.  Find a key that
-@@ -245,9 +245,9 @@ int cxgb4_config_knode(struct net_device *dev, struct tc_cls_u32_offload *cls)
- 				val = cls->knode.sel->keys[j].val;
- 				mask = cls->knode.sel->keys[j].mask;
- 
--				if (next[i].match_off == off &&
--				    next[i].match_val == val &&
--				    next[i].match_mask == mask) {
-+				if (next[i].key.off == off &&
-+				    next[i].key.val == val &&
-+				    next[i].key.mask == mask) {
- 					found = true;
- 					break;
- 				}
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_u32_parse.h b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_u32_parse.h
-index a4b99edcc3399..141085e159e57 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_u32_parse.h
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_u32_parse.h
-@@ -38,12 +38,12 @@
- struct cxgb4_match_field {
- 	int off; /* Offset from the beginning of the header to match */
- 	/* Fill the value/mask pair in the spec if matched */
--	int (*val)(struct ch_filter_specification *f, u32 val, u32 mask);
-+	int (*val)(struct ch_filter_specification *f, __be32 val, __be32 mask);
- };
- 
- /* IPv4 match fields */
- static inline int cxgb4_fill_ipv4_tos(struct ch_filter_specification *f,
--				      u32 val, u32 mask)
-+				      __be32 val, __be32 mask)
- {
- 	f->val.tos  = (ntohl(val)  >> 16) & 0x000000FF;
- 	f->mask.tos = (ntohl(mask) >> 16) & 0x000000FF;
-@@ -52,7 +52,7 @@ static inline int cxgb4_fill_ipv4_tos(struct ch_filter_specification *f,
+-	if (last)
++	if (atomic_dec_and_test(&ask->refcnt))
+ 		sock_put(sk);
  }
+ EXPORT_SYMBOL_GPL(af_alg_release_parent);
+@@ -192,7 +186,7 @@ static int alg_bind(struct socket *sock,
  
- static inline int cxgb4_fill_ipv4_frag(struct ch_filter_specification *f,
--				       u32 val, u32 mask)
-+				       __be32 val, __be32 mask)
- {
- 	u32 mask_val;
- 	u8 frag_val;
-@@ -74,7 +74,7 @@ static inline int cxgb4_fill_ipv4_frag(struct ch_filter_specification *f,
- }
+ 	err = -EBUSY;
+ 	lock_sock(sk);
+-	if (ask->refcnt | ask->nokey_refcnt)
++	if (atomic_read(&ask->refcnt))
+ 		goto unlock;
  
- static inline int cxgb4_fill_ipv4_proto(struct ch_filter_specification *f,
--					u32 val, u32 mask)
-+					__be32 val, __be32 mask)
- {
- 	f->val.proto  = (ntohl(val)  >> 16) & 0x000000FF;
- 	f->mask.proto = (ntohl(mask) >> 16) & 0x000000FF;
-@@ -83,7 +83,7 @@ static inline int cxgb4_fill_ipv4_proto(struct ch_filter_specification *f,
- }
+ 	swap(ask->type, type);
+@@ -241,7 +235,7 @@ static int alg_setsockopt(struct socket
+ 	int err = -EBUSY;
  
- static inline int cxgb4_fill_ipv4_src_ip(struct ch_filter_specification *f,
--					 u32 val, u32 mask)
-+					 __be32 val, __be32 mask)
- {
- 	memcpy(&f->val.fip[0],  &val,  sizeof(u32));
- 	memcpy(&f->mask.fip[0], &mask, sizeof(u32));
-@@ -92,7 +92,7 @@ static inline int cxgb4_fill_ipv4_src_ip(struct ch_filter_specification *f,
- }
+ 	lock_sock(sk);
+-	if (ask->refcnt)
++	if (atomic_read(&ask->refcnt) != atomic_read(&ask->nokey_refcnt))
+ 		goto unlock;
  
- static inline int cxgb4_fill_ipv4_dst_ip(struct ch_filter_specification *f,
--					 u32 val, u32 mask)
-+					 __be32 val, __be32 mask)
- {
- 	memcpy(&f->val.lip[0],  &val,  sizeof(u32));
- 	memcpy(&f->mask.lip[0], &mask, sizeof(u32));
-@@ -111,7 +111,7 @@ static const struct cxgb4_match_field cxgb4_ipv4_fields[] = {
+ 	type = ask->type;
+@@ -308,12 +302,14 @@ int af_alg_accept(struct sock *sk, struc
  
- /* IPv6 match fields */
- static inline int cxgb4_fill_ipv6_tos(struct ch_filter_specification *f,
--				      u32 val, u32 mask)
-+				      __be32 val, __be32 mask)
- {
- 	f->val.tos  = (ntohl(val)  >> 20) & 0x000000FF;
- 	f->mask.tos = (ntohl(mask) >> 20) & 0x000000FF;
-@@ -120,7 +120,7 @@ static inline int cxgb4_fill_ipv6_tos(struct ch_filter_specification *f,
- }
+ 	sk2->sk_family = PF_ALG;
  
- static inline int cxgb4_fill_ipv6_proto(struct ch_filter_specification *f,
--					u32 val, u32 mask)
-+					__be32 val, __be32 mask)
- {
- 	f->val.proto  = (ntohl(val)  >> 8) & 0x000000FF;
- 	f->mask.proto = (ntohl(mask) >> 8) & 0x000000FF;
-@@ -129,7 +129,7 @@ static inline int cxgb4_fill_ipv6_proto(struct ch_filter_specification *f,
- }
+-	if (nokey || !ask->refcnt++)
++	if (atomic_inc_return_relaxed(&ask->refcnt) == 1)
+ 		sock_hold(sk);
+-	ask->nokey_refcnt += nokey;
++	if (nokey) {
++		atomic_inc(&ask->nokey_refcnt);
++		atomic_set(&alg_sk(sk2)->nokey_refcnt, 1);
++	}
+ 	alg_sk(sk2)->parent = sk;
+ 	alg_sk(sk2)->type = type;
+-	alg_sk(sk2)->nokey_refcnt = nokey;
  
- static inline int cxgb4_fill_ipv6_src_ip0(struct ch_filter_specification *f,
--					  u32 val, u32 mask)
-+					  __be32 val, __be32 mask)
- {
- 	memcpy(&f->val.fip[0],  &val,  sizeof(u32));
- 	memcpy(&f->mask.fip[0], &mask, sizeof(u32));
-@@ -138,7 +138,7 @@ static inline int cxgb4_fill_ipv6_src_ip0(struct ch_filter_specification *f,
- }
+ 	newsock->ops = type->ops;
+ 	newsock->state = SS_CONNECTED;
+--- a/crypto/algif_aead.c
++++ b/crypto/algif_aead.c
+@@ -388,7 +388,7 @@ static int aead_check_key(struct socket
+ 	struct alg_sock *ask = alg_sk(sk);
  
- static inline int cxgb4_fill_ipv6_src_ip1(struct ch_filter_specification *f,
--					  u32 val, u32 mask)
-+					  __be32 val, __be32 mask)
- {
- 	memcpy(&f->val.fip[4],  &val,  sizeof(u32));
- 	memcpy(&f->mask.fip[4], &mask, sizeof(u32));
-@@ -147,7 +147,7 @@ static inline int cxgb4_fill_ipv6_src_ip1(struct ch_filter_specification *f,
- }
+ 	lock_sock(sk);
+-	if (ask->refcnt)
++	if (!atomic_read(&ask->nokey_refcnt))
+ 		goto unlock_child;
  
- static inline int cxgb4_fill_ipv6_src_ip2(struct ch_filter_specification *f,
--					  u32 val, u32 mask)
-+					  __be32 val, __be32 mask)
- {
- 	memcpy(&f->val.fip[8],  &val,  sizeof(u32));
- 	memcpy(&f->mask.fip[8], &mask, sizeof(u32));
-@@ -156,7 +156,7 @@ static inline int cxgb4_fill_ipv6_src_ip2(struct ch_filter_specification *f,
- }
+ 	psk = ask->parent;
+@@ -400,11 +400,8 @@ static int aead_check_key(struct socket
+ 	if (crypto_aead_get_flags(tfm->aead) & CRYPTO_TFM_NEED_KEY)
+ 		goto unlock;
  
- static inline int cxgb4_fill_ipv6_src_ip3(struct ch_filter_specification *f,
--					  u32 val, u32 mask)
-+					  __be32 val, __be32 mask)
- {
- 	memcpy(&f->val.fip[12],  &val,  sizeof(u32));
- 	memcpy(&f->mask.fip[12], &mask, sizeof(u32));
-@@ -165,7 +165,7 @@ static inline int cxgb4_fill_ipv6_src_ip3(struct ch_filter_specification *f,
- }
+-	if (!pask->refcnt++)
+-		sock_hold(psk);
+-
+-	ask->refcnt = 1;
+-	sock_put(psk);
++	atomic_dec(&pask->nokey_refcnt);
++	atomic_set(&ask->nokey_refcnt, 0);
  
- static inline int cxgb4_fill_ipv6_dst_ip0(struct ch_filter_specification *f,
--					  u32 val, u32 mask)
-+					  __be32 val, __be32 mask)
- {
- 	memcpy(&f->val.lip[0],  &val,  sizeof(u32));
- 	memcpy(&f->mask.lip[0], &mask, sizeof(u32));
-@@ -174,7 +174,7 @@ static inline int cxgb4_fill_ipv6_dst_ip0(struct ch_filter_specification *f,
- }
+ 	err = 0;
  
- static inline int cxgb4_fill_ipv6_dst_ip1(struct ch_filter_specification *f,
--					  u32 val, u32 mask)
-+					  __be32 val, __be32 mask)
- {
- 	memcpy(&f->val.lip[4],  &val,  sizeof(u32));
- 	memcpy(&f->mask.lip[4], &mask, sizeof(u32));
-@@ -183,7 +183,7 @@ static inline int cxgb4_fill_ipv6_dst_ip1(struct ch_filter_specification *f,
- }
+--- a/crypto/algif_hash.c
++++ b/crypto/algif_hash.c
+@@ -306,7 +306,7 @@ static int hash_check_key(struct socket
+ 	struct alg_sock *ask = alg_sk(sk);
  
- static inline int cxgb4_fill_ipv6_dst_ip2(struct ch_filter_specification *f,
--					  u32 val, u32 mask)
-+					  __be32 val, __be32 mask)
- {
- 	memcpy(&f->val.lip[8],  &val,  sizeof(u32));
- 	memcpy(&f->mask.lip[8], &mask, sizeof(u32));
-@@ -192,7 +192,7 @@ static inline int cxgb4_fill_ipv6_dst_ip2(struct ch_filter_specification *f,
- }
+ 	lock_sock(sk);
+-	if (ask->refcnt)
++	if (!atomic_read(&ask->nokey_refcnt))
+ 		goto unlock_child;
  
- static inline int cxgb4_fill_ipv6_dst_ip3(struct ch_filter_specification *f,
--					  u32 val, u32 mask)
-+					  __be32 val, __be32 mask)
- {
- 	memcpy(&f->val.lip[12],  &val,  sizeof(u32));
- 	memcpy(&f->mask.lip[12], &mask, sizeof(u32));
-@@ -216,7 +216,7 @@ static const struct cxgb4_match_field cxgb4_ipv6_fields[] = {
+ 	psk = ask->parent;
+@@ -318,11 +318,8 @@ static int hash_check_key(struct socket
+ 	if (crypto_ahash_get_flags(tfm) & CRYPTO_TFM_NEED_KEY)
+ 		goto unlock;
  
- /* TCP/UDP match */
- static inline int cxgb4_fill_l4_ports(struct ch_filter_specification *f,
--				      u32 val, u32 mask)
-+				      __be32 val, __be32 mask)
- {
- 	f->val.fport  = ntohl(val)  >> 16;
- 	f->mask.fport = ntohl(mask) >> 16;
-@@ -237,19 +237,13 @@ static const struct cxgb4_match_field cxgb4_udp_fields[] = {
- };
+-	if (!pask->refcnt++)
+-		sock_hold(psk);
+-
+-	ask->refcnt = 1;
+-	sock_put(psk);
++	atomic_dec(&pask->nokey_refcnt);
++	atomic_set(&ask->nokey_refcnt, 0);
  
- struct cxgb4_next_header {
--	unsigned int offset; /* Offset to next header */
--	/* offset, shift, and mask added to offset above
-+	/* Offset, shift, and mask added to beginning of the header
- 	 * to get to next header.  Useful when using a header
- 	 * field's value to jump to next header such as IHL field
- 	 * in IPv4 header.
- 	 */
--	unsigned int offoff;
--	u32 shift;
--	u32 mask;
--	/* match criteria to make this jump */
--	unsigned int match_off;
--	u32 match_val;
--	u32 match_mask;
-+	struct tc_u32_sel sel;
-+	struct tc_u32_key key;
- 	/* location of jump to make */
- 	const struct cxgb4_match_field *jump;
- };
-@@ -258,26 +252,74 @@ struct cxgb4_next_header {
-  * IPv4 header.
-  */
- static const struct cxgb4_next_header cxgb4_ipv4_jumps[] = {
--	{ .offset = 0, .offoff = 0, .shift = 6, .mask = 0xF,
--	  .match_off = 8, .match_val = 0x600, .match_mask = 0xFF00,
--	  .jump = cxgb4_tcp_fields },
--	{ .offset = 0, .offoff = 0, .shift = 6, .mask = 0xF,
--	  .match_off = 8, .match_val = 0x1100, .match_mask = 0xFF00,
--	  .jump = cxgb4_udp_fields },
--	{ .jump = NULL }
-+	{
-+		/* TCP Jump */
-+		.sel = {
-+			.off = 0,
-+			.offoff = 0,
-+			.offshift = 6,
-+			.offmask = cpu_to_be16(0x0f00),
-+		},
-+		.key = {
-+			.off = 8,
-+			.val = cpu_to_be32(0x00060000),
-+			.mask = cpu_to_be32(0x00ff0000),
-+		},
-+		.jump = cxgb4_tcp_fields,
-+	},
-+	{
-+		/* UDP Jump */
-+		.sel = {
-+			.off = 0,
-+			.offoff = 0,
-+			.offshift = 6,
-+			.offmask = cpu_to_be16(0x0f00),
-+		},
-+		.key = {
-+			.off = 8,
-+			.val = cpu_to_be32(0x00110000),
-+			.mask = cpu_to_be32(0x00ff0000),
-+		},
-+		.jump = cxgb4_udp_fields,
-+	},
-+	{ .jump = NULL },
- };
+ 	err = 0;
  
- /* Accept a rule with a jump directly past the 40 Bytes of IPv6 fixed header
-  * to get to transport layer header.
-  */
- static const struct cxgb4_next_header cxgb4_ipv6_jumps[] = {
--	{ .offset = 0x28, .offoff = 0, .shift = 0, .mask = 0,
--	  .match_off = 4, .match_val = 0x60000, .match_mask = 0xFF0000,
--	  .jump = cxgb4_tcp_fields },
--	{ .offset = 0x28, .offoff = 0, .shift = 0, .mask = 0,
--	  .match_off = 4, .match_val = 0x110000, .match_mask = 0xFF0000,
--	  .jump = cxgb4_udp_fields },
--	{ .jump = NULL }
-+	{
-+		/* TCP Jump */
-+		.sel = {
-+			.off = 40,
-+			.offoff = 0,
-+			.offshift = 0,
-+			.offmask = 0,
-+		},
-+		.key = {
-+			.off = 4,
-+			.val = cpu_to_be32(0x00000600),
-+			.mask = cpu_to_be32(0x0000ff00),
-+		},
-+		.jump = cxgb4_tcp_fields,
-+	},
-+	{
-+		/* UDP Jump */
-+		.sel = {
-+			.off = 40,
-+			.offoff = 0,
-+			.offshift = 0,
-+			.offmask = 0,
-+		},
-+		.key = {
-+			.off = 4,
-+			.val = cpu_to_be32(0x00001100),
-+			.mask = cpu_to_be32(0x0000ff00),
-+		},
-+		.jump = cxgb4_udp_fields,
-+	},
-+	{ .jump = NULL },
- };
+--- a/crypto/algif_skcipher.c
++++ b/crypto/algif_skcipher.c
+@@ -215,7 +215,7 @@ static int skcipher_check_key(struct soc
+ 	struct alg_sock *ask = alg_sk(sk);
  
- struct cxgb4_link {
--- 
-2.25.1
-
+ 	lock_sock(sk);
+-	if (ask->refcnt)
++	if (!atomic_read(&ask->nokey_refcnt))
+ 		goto unlock_child;
+ 
+ 	psk = ask->parent;
+@@ -227,11 +227,8 @@ static int skcipher_check_key(struct soc
+ 	if (crypto_skcipher_get_flags(tfm) & CRYPTO_TFM_NEED_KEY)
+ 		goto unlock;
+ 
+-	if (!pask->refcnt++)
+-		sock_hold(psk);
+-
+-	ask->refcnt = 1;
+-	sock_put(psk);
++	atomic_dec(&pask->nokey_refcnt);
++	atomic_set(&ask->nokey_refcnt, 0);
+ 
+ 	err = 0;
+ 
+--- a/include/crypto/if_alg.h
++++ b/include/crypto/if_alg.h
+@@ -34,8 +34,8 @@ struct alg_sock {
+ 
+ 	struct sock *parent;
+ 
+-	unsigned int refcnt;
+-	unsigned int nokey_refcnt;
++	atomic_t refcnt;
++	atomic_t nokey_refcnt;
+ 
+ 	const struct af_alg_type *type;
+ 	void *private;
 
 
