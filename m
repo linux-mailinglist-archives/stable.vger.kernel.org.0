@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E6922171BF
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:43:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6AEA21716C
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:42:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728185AbgGGPZV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:25:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39342 "EHLO mail.kernel.org"
+        id S1729035AbgGGPTc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:19:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730204AbgGGPZU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:25:20 -0400
+        id S1729342AbgGGPTb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:19:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7F4952065D;
-        Tue,  7 Jul 2020 15:25:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2FAEF2065D;
+        Tue,  7 Jul 2020 15:19:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135520;
-        bh=e+BUuIn73IG1vXJkZKD/lrkch6JfVg2iQ/uW9gKnfeQ=;
+        s=default; t=1594135170;
+        bh=Nw05yyms+dL37Vxoz1oy/1BvjPadV0/lGa/L8xOJlUs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r81AqlV3zYJ73TiYjmfYChNs8X1JbYmY9NC7g2DE/l7UIiO78M0uoLxOfm/E9QeWX
-         yVsCfU7pt2k4IWd1U6ADJqYhZzzt1A7UiOLc5xGAOaneaxdM9NYlMlwU9HxIMr+7FS
-         3lfsIbPpa22zbEWGVBcMphf/7L1RGTXw5OZtDTK0=
+        b=SahrpoJlWbwaYZXmucI+51bKwfsxhP5GpL41/dKXSmV6olBByB1tBvg2uPqkvkXYB
+         6u7EUBNWdORw8bHZm8AteCnmH71b4ku7Gpt7HRDQ+S3hnyzWmCQqc1nlTqANVBfFvj
+         wLfdcF3nw+tu+KC0s0346WK28LXjR4hajIiI2wF4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 074/112] drm: sun4i: hdmi: Remove extra HPD polling
+        stable@vger.kernel.org, Elliott Mitchell <ehem+debian@m5p.com>,
+        Salvatore Bonaccorso <carnil@debian.org>,
+        "J. Bruce Fields" <bfields@redhat.com>
+Subject: [PATCH 4.19 27/36] nfsd: apply umask on fs without ACL support
 Date:   Tue,  7 Jul 2020 17:17:19 +0200
-Message-Id: <20200707145804.519886471@linuxfoundation.org>
+Message-Id: <20200707145750.449013671@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200707145800.925304888@linuxfoundation.org>
-References: <20200707145800.925304888@linuxfoundation.org>
+In-Reply-To: <20200707145749.130272978@linuxfoundation.org>
+References: <20200707145749.130272978@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wens@csie.org>
+From: J. Bruce Fields <bfields@redhat.com>
 
-[ Upstream commit bda8eaa6dee7525f4dac950810a85a88bf6c2ba0 ]
+commit 22cf8419f1319ff87ec759d0ebdff4cbafaee832 upstream.
 
-The HPD sense mechanism in Allwinner's old HDMI encoder hardware is more
-or less an input-only GPIO. Other GPIO-based HPD implementations
-directly return the current state, instead of polling for a specific
-state and returning the other if that times out.
+The server is failing to apply the umask when creating new objects on
+filesystems without ACL support.
 
-Remove the I/O polling from sun4i_hdmi_connector_detect() and directly
-return a known state based on the current reading. This also gets rid
-of excessive CPU usage by kworker as reported on Stack Exchange [1] and
-Armbian forums [2].
+To reproduce this, you need to use NFSv4.2 and a client and server
+recent enough to support umask, and you need to export a filesystem that
+lacks ACL support (for example, ext4 with the "noacl" mount option).
 
- [1] https://superuser.com/questions/1515001/debian-10-buster-on-cubietruck-with-bug-in-sun4i-drm-hdmi
- [2] https://forum.armbian.com/topic/14282-headless-systems-and-sun4i_drm_hdmi-a10a20/
+Filesystems with ACL support are expected to take care of the umask
+themselves (usually by calling posix_acl_create).
 
-Fixes: 9c5681011a0c ("drm/sun4i: Add HDMI support")
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200629060032.24134-1-wens@kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+For filesystems without ACL support, this is up to the caller of
+vfs_create(), vfs_mknod(), or vfs_mkdir().
+
+Reported-by: Elliott Mitchell <ehem+debian@m5p.com>
+Reported-by: Salvatore Bonaccorso <carnil@debian.org>
+Tested-by: Salvatore Bonaccorso <carnil@debian.org>
+Fixes: 47057abde515 ("nfsd: add support for the umask attribute")
+Cc: stable@vger.kernel.org
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ fs/nfsd/vfs.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c b/drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c
-index 68d4644ac2dcc..f07e0c32b93a2 100644
---- a/drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c
-+++ b/drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c
-@@ -262,9 +262,8 @@ sun4i_hdmi_connector_detect(struct drm_connector *connector, bool force)
- 	struct sun4i_hdmi *hdmi = drm_connector_to_sun4i_hdmi(connector);
- 	unsigned long reg;
+--- a/fs/nfsd/vfs.c
++++ b/fs/nfsd/vfs.c
+@@ -1206,6 +1206,9 @@ nfsd_create_locked(struct svc_rqst *rqst
+ 		iap->ia_mode = 0;
+ 	iap->ia_mode = (iap->ia_mode & S_IALLUGO) | type;
  
--	if (readl_poll_timeout(hdmi->base + SUN4I_HDMI_HPD_REG, reg,
--			       reg & SUN4I_HDMI_HPD_HIGH,
--			       0, 500000)) {
-+	reg = readl(hdmi->base + SUN4I_HDMI_HPD_REG);
-+	if (reg & SUN4I_HDMI_HPD_HIGH) {
- 		cec_phys_addr_invalidate(hdmi->cec_adap);
- 		return connector_status_disconnected;
++	if (!IS_POSIXACL(dirp))
++		iap->ia_mode &= ~current_umask();
++
+ 	err = 0;
+ 	host_err = 0;
+ 	switch (type) {
+@@ -1439,6 +1442,9 @@ do_nfsd_create(struct svc_rqst *rqstp, s
+ 		goto out;
  	}
--- 
-2.25.1
-
+ 
++	if (!IS_POSIXACL(dirp))
++		iap->ia_mode &= ~current_umask();
++
+ 	host_err = vfs_create(dirp, dchild, iap->ia_mode, true);
+ 	if (host_err < 0) {
+ 		fh_drop_write(fhp);
 
 
