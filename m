@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7728217214
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:43:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC5BB217268
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:44:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728760AbgGGP2j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:28:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40124 "EHLO mail.kernel.org"
+        id S1729145AbgGGPcp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:32:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729891AbgGGPZz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:25:55 -0400
+        id S1728655AbgGGPVo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:21:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A655207D0;
-        Tue,  7 Jul 2020 15:25:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D6CB20663;
+        Tue,  7 Jul 2020 15:21:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135555;
-        bh=1Z+7no7gf04ZuYcu1e6IVYtdl7iOtPRL5GHl8583tg8=;
+        s=default; t=1594135304;
+        bh=0qalr7sIiMTBZq9KLn36jOZE90c4K1KFip6Z3LVqhJ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2kcvzb+eCjtjCg6Fefg701r351dOvz8R9FTV7vZ5NRBCu6QfShKg1fboLHapT9tL5
-         G1Rz7n4iIbPJ4iApBYfR+qRrtnFqels9FWoOEzevHBFj9kIXWivpvNWx2Or2DjZccp
-         kbVkNn6Z10h/W0hwhDqYSecGjSaBwA/SqKKbDY/A=
+        b=wbzf1eMNwIMdzKJtgh6Zq5U0hUifGAWsWT9OWtgYGWW6j/Gk69N8rbfof3T+7cX1O
+         E1KE29hyHAEeljdOXXnye3KuwIeMawbJqnncsZjYQ5CezlbOsYkYt7a+DnRE2EUxHT
+         92wy0MO1uGNuTZADgc1ynLz1oRYo5LbiXwPFs10Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Elliott Mitchell <ehem+debian@m5p.com>,
-        Salvatore Bonaccorso <carnil@debian.org>,
-        "J. Bruce Fields" <bfields@redhat.com>
-Subject: [PATCH 5.7 086/112] nfsd: apply umask on fs without ACL support
-Date:   Tue,  7 Jul 2020 17:17:31 +0200
-Message-Id: <20200707145805.073625596@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Steve French <stfrench@microsoft.com>,
+        Aurelien Aptel <aaptel@suse.com>
+Subject: [PATCH 5.4 53/65] cifs: Fix the target file was deleted when rename failed.
+Date:   Tue,  7 Jul 2020 17:17:32 +0200
+Message-Id: <20200707145755.031759759@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200707145800.925304888@linuxfoundation.org>
-References: <20200707145800.925304888@linuxfoundation.org>
+In-Reply-To: <20200707145752.417212219@linuxfoundation.org>
+References: <20200707145752.417212219@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,56 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: J. Bruce Fields <bfields@redhat.com>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-commit 22cf8419f1319ff87ec759d0ebdff4cbafaee832 upstream.
+commit 9ffad9263b467efd8f8dc7ae1941a0a655a2bab2 upstream.
 
-The server is failing to apply the umask when creating new objects on
-filesystems without ACL support.
+When xfstest generic/035, we found the target file was deleted
+if the rename return -EACESS.
 
-To reproduce this, you need to use NFSv4.2 and a client and server
-recent enough to support umask, and you need to export a filesystem that
-lacks ACL support (for example, ext4 with the "noacl" mount option).
+In cifs_rename2, we unlink the positive target dentry if rename
+failed with EACESS or EEXIST, even if the target dentry is positived
+before rename. Then the existing file was deleted.
 
-Filesystems with ACL support are expected to take care of the umask
-themselves (usually by calling posix_acl_create).
+We should just delete the target file which created during the
+rename.
 
-For filesystems without ACL support, this is up to the caller of
-vfs_create(), vfs_mknod(), or vfs_mkdir().
-
-Reported-by: Elliott Mitchell <ehem+debian@m5p.com>
-Reported-by: Salvatore Bonaccorso <carnil@debian.org>
-Tested-by: Salvatore Bonaccorso <carnil@debian.org>
-Fixes: 47057abde515 ("nfsd: add support for the umask attribute")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Reviewed-by: Aurelien Aptel <aaptel@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfsd/vfs.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/cifs/inode.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/fs/nfsd/vfs.c
-+++ b/fs/nfsd/vfs.c
-@@ -1225,6 +1225,9 @@ nfsd_create_locked(struct svc_rqst *rqst
- 		iap->ia_mode = 0;
- 	iap->ia_mode = (iap->ia_mode & S_IALLUGO) | type;
+--- a/fs/cifs/inode.c
++++ b/fs/cifs/inode.c
+@@ -1791,6 +1791,7 @@ cifs_rename2(struct inode *source_dir, s
+ 	FILE_UNIX_BASIC_INFO *info_buf_target;
+ 	unsigned int xid;
+ 	int rc, tmprc;
++	bool new_target = d_really_is_negative(target_dentry);
  
-+	if (!IS_POSIXACL(dirp))
-+		iap->ia_mode &= ~current_umask();
-+
- 	err = 0;
- 	host_err = 0;
- 	switch (type) {
-@@ -1457,6 +1460,9 @@ do_nfsd_create(struct svc_rqst *rqstp, s
- 		goto out;
- 	}
+ 	if (flags & ~RENAME_NOREPLACE)
+ 		return -EINVAL;
+@@ -1867,8 +1868,13 @@ cifs_rename2(struct inode *source_dir, s
+ 	 */
  
-+	if (!IS_POSIXACL(dirp))
-+		iap->ia_mode &= ~current_umask();
-+
- 	host_err = vfs_create(dirp, dchild, iap->ia_mode, true);
- 	if (host_err < 0) {
- 		fh_drop_write(fhp);
+ unlink_target:
+-	/* Try unlinking the target dentry if it's not negative */
+-	if (d_really_is_positive(target_dentry) && (rc == -EACCES || rc == -EEXIST)) {
++	/*
++	 * If the target dentry was created during the rename, try
++	 * unlinking it if it's not negative
++	 */
++	if (new_target &&
++	    d_really_is_positive(target_dentry) &&
++	    (rc == -EACCES || rc == -EEXIST)) {
+ 		if (d_is_dir(target_dentry))
+ 			tmprc = cifs_rmdir(target_dir, target_dentry);
+ 		else
 
 
