@@ -2,55 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11B57216DDB
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 15:36:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D0C0216DF9
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 15:44:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727987AbgGGNgh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 09:36:37 -0400
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:41465 "EHLO
-        forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728197AbgGGNgh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jul 2020 09:36:37 -0400
+        id S1726839AbgGGNoE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 09:44:04 -0400
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:53837 "EHLO
+        forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726805AbgGGNoE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jul 2020 09:44:04 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 9B30F194296A;
-        Tue,  7 Jul 2020 09:36:36 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Tue, 07 Jul 2020 09:36:36 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id 4B0581941498;
+        Tue,  7 Jul 2020 09:44:03 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Tue, 07 Jul 2020 09:44:03 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=cJWg/7
-        PsDvKnL0q+A6F2fDCEXjsnh6QQCpDVEU5Jxnk=; b=cpfvcc0qXM8IxFKmUGO08D
-        FtKLLj9+GDcwduDWVPl3xfNla7pdyG6o2KN0fOxFK69+W1R+MiuUaJTE+EEMS+0t
-        NX5hb1QAqMWQs2v7Rl7Ahc7Ce5wQSnon3hTfv5VflB8K1i4wLgxS+JtM++DgJSLQ
-        ThiM9CoRh38K7P3zPnZ/ebEu3bTTeHbtyoWC+OZRei+XdOWau125WEBW0sEiAn6g
-        Vkah56pmnGqRPF7gt5rrd6DRM3fw9PSdSeT8wX3KQRnSwl2+w36d5ru+2/Rms7dP
-        ILbNQfVWxn6OfQpfl0BX7Hc2L5TkGwJIGV4yWUlD+lNyASQZAEObhTF/CJuCYxsg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=aGra8q
+        EPsEIsfc3LPwbKsH2tdN5+4xBfbVWz3a2sB/I=; b=bydzL8qAWxBRTpBuBAL0go
+        ki83/xKZ0AlRY811RnorEYcF9qp//fkQnhW8SBFYmNZFQGnHKo1gVfSUVKOp7r6J
+        ZR6K7OKmxGbCgEqxm9iOIKiEfLbJTOqjAoOBIKAJ8h7pJVQNqPJ7PC3dV8wOlZyW
+        Y8dDmbYk48bWRlNto605Z8/qickfPUK5BeA9lIagNRe6xUaXsEaSTLYhdjUW++4C
+        XMykBX219UxXqwbXPwDZ5RO2ztQXowrvgptDbz0BSsnqJTw3CB5WJX9rNLMmnAY9
+        lGRK4Xz0egfVIMT73iIt3fw9HWNAhndDZjYq1M6n2e0wjFWDt6eCK8Om755LTOtg
         ==
-X-ME-Sender: <xms:ZHoEX7anlL1P7PejI2KF3FUVuUWm2ul3dPPQbr7XfEA65Y_2swAoFg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudehgdeitdcutefuodetggdotefrodftvf
+X-ME-Sender: <xms:InwEX0RMHV4yqyn7tsoZ0TZeES3wmOEao5t6YVCpqoUDEZ1bIDGeIg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudehgdeivdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
-    efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
-    fedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:ZHoEX6YIt_4FvK40f0NYQRPQny4mT-pPCfc-f4OSTeJSuRsiJA1s7w>
-    <xmx:ZHoEX98qHMqAsiQ55vKaIrV9qzGpUBA-MhPUu9Azs9HB-QjwBZXaMA>
-    <xmx:ZHoEXxoH-ohAH575hNty-KGMLfVc2nJOXgNkfculNfAkdK-M9OmKvA>
-    <xmx:ZHoEX7AbvTqpVu2q7kUI9PXn0zYktt-p5awtiQC2xTqGf3R3mP18PA>
+    qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
+    evueevledujeejgfetheenucfkphepkeefrdekiedrkeelrddutdejnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:I3wEXxytpPMjNUCBmDn4vS2JxJIaQBMkwRkCos89HSHO-N9L3d3apA>
+    <xmx:I3wEXx011YX_EsjiBvU90d_7FTQ6E1T5FFnoX_rNh-haYZRRppHfPQ>
+    <xmx:I3wEX4AXH-tFzunqKhCxpHEKYtGJ9b79UlcvjOJ336Bfqj_7aVixFA>
+    <xmx:I3wEX4t7SSLyqQbuY0JJ-huE_uRXnwSAt3h9llBCjyj0Tjfq6ABKfw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 209E2328005E;
-        Tue,  7 Jul 2020 09:36:36 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] thermal/drivers/cpufreq_cooling: Fix wrong frequency" failed to apply to 4.14-stable tree
-To:     finley.xiao@rock-chips.com, amit.kucheria@linaro.org,
-        daniel.lezcano@linaro.org, stable@vger.kernel.org,
-        viresh.kumar@linaro.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 922AA30600A6;
+        Tue,  7 Jul 2020 09:44:02 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] irqchip/gic: Atomically update affinity" failed to apply to 4.9-stable tree
+To:     maz@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 07 Jul 2020 15:36:26 +0200
-Message-ID: <1594128986175103@kroah.com>
+Date:   Tue, 07 Jul 2020 15:44:01 +0200
+Message-ID: <159412944191184@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,51 +69,58 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 371a3bc79c11b707d7a1b7a2c938dc3cc042fffb Mon Sep 17 00:00:00 2001
-From: Finley Xiao <finley.xiao@rock-chips.com>
-Date: Fri, 19 Jun 2020 17:08:25 +0800
-Subject: [PATCH] thermal/drivers/cpufreq_cooling: Fix wrong frequency
- converted from power
+From 005c34ae4b44f085120d7f371121ec7ded677761 Mon Sep 17 00:00:00 2001
+From: Marc Zyngier <maz@kernel.org>
+Date: Sun, 21 Jun 2020 14:43:15 +0100
+Subject: [PATCH] irqchip/gic: Atomically update affinity
 
-The function cpu_power_to_freq is used to find a frequency and set the
-cooling device to consume at most the power to be converted. For example,
-if the power to be converted is 80mW, and the em table is as follow.
-struct em_cap_state table[] = {
-	/* KHz     mW */
-	{ 1008000, 36, 0 },
-	{ 1200000, 49, 0 },
-	{ 1296000, 59, 0 },
-	{ 1416000, 72, 0 },
-	{ 1512000, 86, 0 },
-};
-The target frequency should be 1416000KHz, not 1512000KHz.
+The GIC driver uses a RMW sequence to update the affinity, and
+relies on the gic_lock_irqsave/gic_unlock_irqrestore sequences
+to update it atomically.
 
-Fixes: 349d39dc5739 ("thermal: cpu_cooling: merge frequency and power tables")
-Cc: <stable@vger.kernel.org> # v4.13+
-Signed-off-by: Finley Xiao <finley.xiao@rock-chips.com>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Reviewed-by: Amit Kucheria <amit.kucheria@linaro.org>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20200619090825.32747-1-finley.xiao@rock-chips.com
+But these sequences only expand into anything meaningful if
+the BL_SWITCHER option is selected, which almost never happens.
 
-diff --git a/drivers/thermal/cpufreq_cooling.c b/drivers/thermal/cpufreq_cooling.c
-index 9e124020519f..6c0e1b053126 100644
---- a/drivers/thermal/cpufreq_cooling.c
-+++ b/drivers/thermal/cpufreq_cooling.c
-@@ -123,12 +123,12 @@ static u32 cpu_power_to_freq(struct cpufreq_cooling_device *cpufreq_cdev,
+It also turns out that using a RMW and locks is just as silly,
+as the GIC distributor supports byte accesses for the GICD_TARGETRn
+registers, which when used make the update atomic by definition.
+
+Drop the terminally broken code and replace it by a byte write.
+
+Fixes: 04c8b0f82c7d ("irqchip/gic: Make locking a BL_SWITCHER only feature")
+Cc: stable@vger.kernel.org
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+
+diff --git a/drivers/irqchip/irq-gic.c b/drivers/irqchip/irq-gic.c
+index 00de05abd3c3..c17fabd6741e 100644
+--- a/drivers/irqchip/irq-gic.c
++++ b/drivers/irqchip/irq-gic.c
+@@ -329,10 +329,8 @@ static int gic_irq_set_vcpu_affinity(struct irq_data *d, void *vcpu)
+ static int gic_set_affinity(struct irq_data *d, const struct cpumask *mask_val,
+ 			    bool force)
  {
- 	int i;
+-	void __iomem *reg = gic_dist_base(d) + GIC_DIST_TARGET + (gic_irq(d) & ~3);
+-	unsigned int cpu, shift = (gic_irq(d) % 4) * 8;
+-	u32 val, mask, bit;
+-	unsigned long flags;
++	void __iomem *reg = gic_dist_base(d) + GIC_DIST_TARGET + gic_irq(d);
++	unsigned int cpu;
  
--	for (i = cpufreq_cdev->max_level - 1; i >= 0; i--) {
--		if (power > cpufreq_cdev->em->table[i].power)
-+	for (i = cpufreq_cdev->max_level; i >= 0; i--) {
-+		if (power >= cpufreq_cdev->em->table[i].power)
- 			break;
- 	}
+ 	if (!force)
+ 		cpu = cpumask_any_and(mask_val, cpu_online_mask);
+@@ -342,13 +340,7 @@ static int gic_set_affinity(struct irq_data *d, const struct cpumask *mask_val,
+ 	if (cpu >= NR_GIC_CPU_IF || cpu >= nr_cpu_ids)
+ 		return -EINVAL;
  
--	return cpufreq_cdev->em->table[i + 1].frequency;
-+	return cpufreq_cdev->em->table[i].frequency;
- }
+-	gic_lock_irqsave(flags);
+-	mask = 0xff << shift;
+-	bit = gic_cpu_map[cpu] << shift;
+-	val = readl_relaxed(reg) & ~mask;
+-	writel_relaxed(val | bit, reg);
+-	gic_unlock_irqrestore(flags);
+-
++	writeb_relaxed(gic_cpu_map[cpu], reg);
+ 	irq_data_update_effective_affinity(d, cpumask_of(cpu));
  
- /**
+ 	return IRQ_SET_MASK_OK_DONE;
 
