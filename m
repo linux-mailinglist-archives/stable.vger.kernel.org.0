@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4EAB2170F9
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:25:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D8642170FA
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:25:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728733AbgGGPW4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:22:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35738 "EHLO mail.kernel.org"
+        id S1729928AbgGGPW6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:22:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729107AbgGGPWz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:22:55 -0400
+        id S1729923AbgGGPW5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:22:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3DAEC2083B;
-        Tue,  7 Jul 2020 15:22:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8AE37206F6;
+        Tue,  7 Jul 2020 15:22:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135374;
-        bh=hPzkjZjMApxwTrtP6K2Gm6DKSoqJzspS+kNbuPHIfK4=;
+        s=default; t=1594135377;
+        bh=eHe6y0CVgk2X4XbqPeMFpPp2xFnQjmkyetTp9z/A3j8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jSIMOR2wtUA2DUL0bOwt3NrMpjmgii9JEBzJWMWYpusaTDouerQ7MWhLrhhSFsnED
-         xTsGlcJIm/IPull1z5D1pCdAQgn2nQN7JkwkrPjnFYAsJMm1lxX8IJQ/p+F6W0cdFy
-         70LBhIG5Ncxnql72c43VqS2lB6SW+7p60pKXBZWY=
+        b=PEHB1opDPipUrn2jRe1nnLMVuCHXEARISVdXPG+Q7cLK5EskEbncGdWY/pzcJZ5iL
+         BSCTW4GRKXRmHXb0LY4LY3tvWlX2zeuw5Ph3EuSZgshDhCLJrP02K96J2BWYL576XA
+         CUZWBPQ49npNulFvK8tXCUV7nQjNL3NLnnXHzrSU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Matthew Auld <matthew.auld@intel.com>,
+        stable@vger.kernel.org, Hawking Zhang <Hawking.Zhang@amd.com>,
+        John Clements <john.clements@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 016/112] drm/i915/gt: Mark timeline->cacheline as destroyed after rcu grace period
-Date:   Tue,  7 Jul 2020 17:16:21 +0200
-Message-Id: <20200707145801.768673782@linuxfoundation.org>
+Subject: [PATCH 5.7 017/112] drm/amdgpu: disable ras query and iject during gpu reset
+Date:   Tue,  7 Jul 2020 17:16:22 +0200
+Message-Id: <20200707145801.815558286@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200707145800.925304888@linuxfoundation.org>
 References: <20200707145800.925304888@linuxfoundation.org>
@@ -44,83 +45,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: John Clements <john.clements@amd.com>
 
-[ Upstream commit 8e87e0139aff59c5961347ab1ef06814f092c439 ]
+[ Upstream commit 61380faa4b4cc577df8a7ff5db5859bac6b351f7 ]
 
-Since we take advantage of RCU for some i915_active objects, like the
-intel_timeline_cacheline, we need to delay the i915_active_fini until
-after the RCU grace period and we perform the kfree -- that is until
-after all RCU protected readers.
+added flag to ras context to indicate if ras query functionality is ready
 
-<3> [108.204873] ODEBUG: assert_init not available (active state 0) object type: i915_active hint: __cacheline_active+0x0/0x80 [i915]
-<4> [108.207377] WARNING: CPU: 3 PID: 2342 at lib/debugobjects.c:488 debug_print_object+0x67/0x90
-<4> [108.207400] Modules linked in: vgem snd_hda_codec_hdmi x86_pkg_temp_thermal coretemp crct10dif_pclmul crc32_pclmul snd_hda_intel ghash_clmulni_intel snd_intel_dspcfg snd_hda_codec ax88179_178a snd_hwdep usbnet btusb snd_hda_core btrtl mii btbcm btintel snd_pcm bluetooth ecdh_generic ecc i915 i2c_hid pinctrl_sunrisepoint pinctrl_intel intel_lpss_pci prime_numbers
-<4> [108.207587] CPU: 3 PID: 2342 Comm: gem_exec_parall Tainted: G     U            5.6.0-rc6-CI-Patchwork_17047+ #1
-<4> [108.207609] Hardware name: Google Soraka/Soraka, BIOS MrChromebox-4.10 08/25/2019
-<4> [108.207639] RIP: 0010:debug_print_object+0x67/0x90
-<4> [108.207668] Code: 83 c2 01 8b 4b 14 4c 8b 45 00 89 15 87 d2 8a 02 8b 53 10 4c 89 e6 48 c7 c7 38 2b 32 82 48 8b 14 d5 80 2f 07 82 e8 49 d5 b7 ff <0f> 0b 5b 83 05 c3 f6 22 01 01 5d 41 5c c3 83 05 b8 f6 22 01 01 c3
-<4> [108.207692] RSP: 0018:ffffc90000e7f890 EFLAGS: 00010282
-<4> [108.207723] RAX: 0000000000000000 RBX: ffffc90000e7f8b0 RCX: 0000000000000001
-<4> [108.207747] RDX: 0000000080000001 RSI: ffff88817ada8cb8 RDI: 00000000ffffffff
-<4> [108.207770] RBP: ffffffffa0341cc0 R08: ffff88816b5a8948 R09: 0000000000000000
-<4> [108.207792] R10: 0000000000000000 R11: 0000000000000000 R12: ffffffff82322d54
-<4> [108.207814] R13: ffffffffa0341cc0 R14: ffffffff83df9568 R15: ffff88816064f400
-<4> [108.207839] FS:  00007f437d753700(0000) GS:ffff88817ad80000(0000) knlGS:0000000000000000
-<4> [108.207863] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-<4> [108.207887] CR2: 00007f2ad1fb5000 CR3: 00000001725d8004 CR4: 00000000003606e0
-<4> [108.207907] Call Trace:
-<4> [108.207959]  debug_object_assert_init+0x15c/0x180
-<4> [108.208475]  ? i915_active_acquire_if_busy+0x10/0x50 [i915]
-<4> [108.208513]  ? rcu_read_lock_held+0x4d/0x60
-<4> [108.208970]  i915_active_acquire_if_busy+0x10/0x50 [i915]
-<4> [108.209380]  intel_timeline_read_hwsp+0x81/0x540 [i915]
-<4> [108.210262]  __emit_semaphore_wait+0x45/0x1b0 [i915]
-<4> [108.210726]  ? i915_request_await_dma_fence+0x143/0x560 [i915]
-<4> [108.211156]  i915_request_await_dma_fence+0x28a/0x560 [i915]
-<4> [108.211633]  i915_request_await_object+0x24a/0x3f0 [i915]
-<4> [108.212102]  eb_submit.isra.47+0x58f/0x920 [i915]
-<4> [108.212622]  i915_gem_do_execbuffer+0x1706/0x2c70 [i915]
-<4> [108.213071]  ? i915_gem_execbuffer2_ioctl+0xc0/0x470 [i915]
-
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Reviewed-by: Matthew Auld <matthew.auld@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200323092841.22240-1-chris@chris-wilson.co.uk
+Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Signed-off-by: John Clements <john.clements@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gt/intel_timeline.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_device.c |  3 +++
+ drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c    | 24 +++++++++++++++++++---
+ drivers/gpu/drm/amd/amdgpu/amdgpu_ras.h    |  4 ++++
+ 3 files changed, 28 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_timeline.c b/drivers/gpu/drm/i915/gt/intel_timeline.c
-index 08b56d7ab4f45..92da746f01c1e 100644
---- a/drivers/gpu/drm/i915/gt/intel_timeline.c
-+++ b/drivers/gpu/drm/i915/gt/intel_timeline.c
-@@ -119,6 +119,15 @@ static void __idle_hwsp_free(struct intel_timeline_hwsp *hwsp, int cacheline)
- 	spin_unlock_irqrestore(&gt->hwsp_lock, flags);
- }
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+index affde2de2a0db..59288653412db 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+@@ -4091,6 +4091,8 @@ int amdgpu_device_gpu_recover(struct amdgpu_device *adev,
+ 	need_full_reset = job_signaled = false;
+ 	INIT_LIST_HEAD(&device_list);
  
-+static void __rcu_cacheline_free(struct rcu_head *rcu)
-+{
-+	struct intel_timeline_cacheline *cl =
-+		container_of(rcu, typeof(*cl), rcu);
++	amdgpu_ras_set_error_query_ready(adev, false);
 +
-+	i915_active_fini(&cl->active);
-+	kfree(cl);
+ 	dev_info(adev->dev, "GPU %s begin!\n",
+ 		(in_ras_intr && !use_baco) ? "jobs stop":"reset");
+ 
+@@ -4147,6 +4149,7 @@ int amdgpu_device_gpu_recover(struct amdgpu_device *adev,
+ 	/* block all schedulers and reset given job's ring */
+ 	list_for_each_entry(tmp_adev, device_list_handle, gmc.xgmi.head) {
+ 		if (tmp_adev != adev) {
++			amdgpu_ras_set_error_query_ready(tmp_adev, false);
+ 			amdgpu_device_lock_adev(tmp_adev, false);
+ 			if (!amdgpu_sriov_vf(tmp_adev))
+ 			                amdgpu_amdkfd_pre_reset(tmp_adev);
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c
+index ab379b44679cc..aa6148d12d5a4 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c
+@@ -80,6 +80,20 @@ atomic_t amdgpu_ras_in_intr = ATOMIC_INIT(0);
+ static bool amdgpu_ras_check_bad_page(struct amdgpu_device *adev,
+ 				uint64_t addr);
+ 
++void amdgpu_ras_set_error_query_ready(struct amdgpu_device *adev, bool ready)
++{
++	if (adev)
++		amdgpu_ras_get_context(adev)->error_query_ready = ready;
 +}
 +
- static void __idle_cacheline_free(struct intel_timeline_cacheline *cl)
++bool amdgpu_ras_get_error_query_ready(struct amdgpu_device *adev)
++{
++	if (adev)
++		return amdgpu_ras_get_context(adev)->error_query_ready;
++
++	return false;
++}
++
+ static ssize_t amdgpu_ras_debugfs_read(struct file *f, char __user *buf,
+ 					size_t size, loff_t *pos)
  {
- 	GEM_BUG_ON(!i915_active_is_idle(&cl->active));
-@@ -127,8 +136,7 @@ static void __idle_cacheline_free(struct intel_timeline_cacheline *cl)
- 	i915_vma_put(cl->hwsp->vma);
- 	__idle_hwsp_free(cl->hwsp, ptr_unmask_bits(cl->vaddr, CACHELINE_BITS));
+@@ -281,7 +295,7 @@ static ssize_t amdgpu_ras_debugfs_ctrl_write(struct file *f, const char __user *
+ 	struct ras_debug_if data;
+ 	int ret = 0;
  
--	i915_active_fini(&cl->active);
--	kfree_rcu(cl, rcu);
-+	call_rcu(&cl->rcu, __rcu_cacheline_free);
- }
+-	if (amdgpu_ras_intr_triggered()) {
++	if (!amdgpu_ras_get_error_query_ready(adev)) {
+ 		DRM_WARN("RAS WARN: error injection currently inaccessible\n");
+ 		return size;
+ 	}
+@@ -399,7 +413,7 @@ static ssize_t amdgpu_ras_sysfs_read(struct device *dev,
+ 		.head = obj->head,
+ 	};
  
- __i915_active_call
+-	if (amdgpu_ras_intr_triggered())
++	if (!amdgpu_ras_get_error_query_ready(obj->adev))
+ 		return snprintf(buf, PAGE_SIZE,
+ 				"Query currently inaccessible\n");
+ 
+@@ -1896,8 +1910,10 @@ int amdgpu_ras_late_init(struct amdgpu_device *adev,
+ 	}
+ 
+ 	/* in resume phase, no need to create ras fs node */
+-	if (adev->in_suspend || adev->in_gpu_reset)
++	if (adev->in_suspend || adev->in_gpu_reset) {
++		amdgpu_ras_set_error_query_ready(adev, true);
+ 		return 0;
++	}
+ 
+ 	if (ih_info->cb) {
+ 		r = amdgpu_ras_interrupt_add_handler(adev, ih_info);
+@@ -1909,6 +1925,8 @@ int amdgpu_ras_late_init(struct amdgpu_device *adev,
+ 	if (r)
+ 		goto sysfs;
+ 
++	amdgpu_ras_set_error_query_ready(adev, true);
++
+ 	return 0;
+ cleanup:
+ 	amdgpu_ras_sysfs_remove(adev, ras_block);
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.h
+index 55c3eceb390d4..e7df5d8429f82 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.h
+@@ -334,6 +334,8 @@ struct amdgpu_ras {
+ 	uint32_t flags;
+ 	bool reboot;
+ 	struct amdgpu_ras_eeprom_control eeprom_control;
++
++	bool error_query_ready;
+ };
+ 
+ struct ras_fs_data {
+@@ -629,4 +631,6 @@ static inline void amdgpu_ras_intr_cleared(void)
+ 
+ void amdgpu_ras_global_ras_isr(struct amdgpu_device *adev);
+ 
++void amdgpu_ras_set_error_query_ready(struct amdgpu_device *adev, bool ready);
++
+ #endif
 -- 
 2.25.1
 
