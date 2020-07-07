@@ -2,37 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CFBC21722A
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:44:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58602217227
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:44:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729597AbgGGP3o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:29:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38346 "EHLO mail.kernel.org"
+        id S1728672AbgGGP3i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:29:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730119AbgGGPYm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:24:42 -0400
+        id S1730127AbgGGPYp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:24:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 247ED2065D;
-        Tue,  7 Jul 2020 15:24:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8958F2065D;
+        Tue,  7 Jul 2020 15:24:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135482;
-        bh=lWL7UQC9ozt0/QZx+J+2+syn9yzi1khDLGN/pX0tpOQ=;
+        s=default; t=1594135485;
+        bh=rRXiU78KDvuBb/JrO05R2ZW8iH0rjwIBTr1mfcTJFfg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nS2FIXXKrJZHsy0gX8a6N4WFsrczZa4vDNvcYKdixv2DA50ws1qvoFQmZWgQHd+Em
-         oqBNiYxz/ZDlvUZOONYIp6p1QHjw+iopUwwNOwBRjZCNX6e5+sGYTT3cplorE/TcQw
-         mPVPs3SDxZdoJh1ZG0GF8EKX9tgEvo7fZhbhymyM=
+        b=ALwou+oNpruTVCDkziMukj/5VQjipMeBhSh3GfGEdD51njlwmM1jJcgw/1D6KRf5d
+         l/q6bHr2prBw1uVcOLOfx9dD7zvIXKL8nFNAUPW4jGCcsmGopns45qHByKSiUg+pGN
+         jzlZKOcj7PGZMSo4dY2ruOUUfPUkt/dpyI+vVgy4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Kyungtae Kim <kt0755@gmail.com>,
-        Zqiang <qiang.zhang@windriver.com>,
+        stable@vger.kernel.org,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Jaewon Lim <jaewon31.kim@samsung.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Kees Kook <keescook@chromium.org>, linux-mm@kvack.org,
+        linux-trace-devel@vger.kernel.org,
+        Namhyung Kim <namhyung@kernel.org>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 029/112] usb: usbtest: fix missing kfree(dev->buf) in usbtest_disconnect
-Date:   Tue,  7 Jul 2020 17:16:34 +0200
-Message-Id: <20200707145802.371383696@linuxfoundation.org>
+Subject: [PATCH 5.7 030/112] tools lib traceevent: Add append() function helper for appending strings
+Date:   Tue,  7 Jul 2020 17:16:35 +0200
+Message-Id: <20200707145802.418650708@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200707145800.925304888@linuxfoundation.org>
 References: <20200707145800.925304888@linuxfoundation.org>
@@ -45,67 +52,240 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zqiang <qiang.zhang@windriver.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-[ Upstream commit 28ebeb8db77035e058a510ce9bd17c2b9a009dba ]
+[ Upstream commit 27d4d336f2872193e90ee5450559e1699fae0f6d ]
 
-BUG: memory leak
-unreferenced object 0xffff888055046e00 (size 256):
-  comm "kworker/2:9", pid 2570, jiffies 4294942129 (age 1095.500s)
-  hex dump (first 32 bytes):
-    00 70 04 55 80 88 ff ff 18 bb 5a 81 ff ff ff ff  .p.U......Z.....
-    f5 96 78 81 ff ff ff ff 37 de 8e 81 ff ff ff ff  ..x.....7.......
-  backtrace:
-    [<00000000d121dccf>] kmemleak_alloc_recursive
-include/linux/kmemleak.h:43 [inline]
-    [<00000000d121dccf>] slab_post_alloc_hook mm/slab.h:586 [inline]
-    [<00000000d121dccf>] slab_alloc_node mm/slub.c:2786 [inline]
-    [<00000000d121dccf>] slab_alloc mm/slub.c:2794 [inline]
-    [<00000000d121dccf>] kmem_cache_alloc_trace+0x15e/0x2d0 mm/slub.c:2811
-    [<000000005c3c3381>] kmalloc include/linux/slab.h:555 [inline]
-    [<000000005c3c3381>] usbtest_probe+0x286/0x19d0
-drivers/usb/misc/usbtest.c:2790
-    [<000000001cec6910>] usb_probe_interface+0x2bd/0x870
-drivers/usb/core/driver.c:361
-    [<000000007806c118>] really_probe+0x48d/0x8f0 drivers/base/dd.c:551
-    [<00000000a3308c3e>] driver_probe_device+0xfc/0x2a0 drivers/base/dd.c:724
-    [<000000003ef66004>] __device_attach_driver+0x1b6/0x240
-drivers/base/dd.c:831
-    [<00000000eee53e97>] bus_for_each_drv+0x14e/0x1e0 drivers/base/bus.c:431
-    [<00000000bb0648d0>] __device_attach+0x1f9/0x350 drivers/base/dd.c:897
-    [<00000000838b324a>] device_initial_probe+0x1a/0x20 drivers/base/dd.c:944
-    [<0000000030d501c1>] bus_probe_device+0x1e1/0x280 drivers/base/bus.c:491
-    [<000000005bd7adef>] device_add+0x131d/0x1c40 drivers/base/core.c:2504
-    [<00000000a0937814>] usb_set_configuration+0xe84/0x1ab0
-drivers/usb/core/message.c:2030
-    [<00000000e3934741>] generic_probe+0x6a/0xe0 drivers/usb/core/generic.c:210
-    [<0000000098ade0f1>] usb_probe_device+0x90/0xd0
-drivers/usb/core/driver.c:266
-    [<000000007806c118>] really_probe+0x48d/0x8f0 drivers/base/dd.c:551
-    [<00000000a3308c3e>] driver_probe_device+0xfc/0x2a0 drivers/base/dd.c:724
+There's several locations that open code realloc and strcat() to append
+text to strings. Add an append() function that takes a delimiter and a
+string to append to another string.
 
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Reported-by: Kyungtae Kim <kt0755@gmail.com>
-Signed-off-by: Zqiang <qiang.zhang@windriver.com>
-Link: https://lore.kernel.org/r/20200612035210.20494-1-qiang.zhang@windriver.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Jaewon Lim <jaewon31.kim@samsung.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Kees Kook <keescook@chromium.org>
+Cc: linux-mm@kvack.org
+Cc: linux-trace-devel@vger.kernel.org
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Link: http://lore.kernel.org/lkml/20200324200956.515118403@goodmis.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/misc/usbtest.c | 1 +
- 1 file changed, 1 insertion(+)
+ tools/lib/traceevent/event-parse.c | 98 ++++++++++++------------------
+ 1 file changed, 40 insertions(+), 58 deletions(-)
 
-diff --git a/drivers/usb/misc/usbtest.c b/drivers/usb/misc/usbtest.c
-index 98ada1a3425c6..bae88893ee8e3 100644
---- a/drivers/usb/misc/usbtest.c
-+++ b/drivers/usb/misc/usbtest.c
-@@ -2873,6 +2873,7 @@ static void usbtest_disconnect(struct usb_interface *intf)
- 
- 	usb_set_intfdata(intf, NULL);
- 	dev_dbg(&intf->dev, "disconnect\n");
-+	kfree(dev->buf);
- 	kfree(dev);
+diff --git a/tools/lib/traceevent/event-parse.c b/tools/lib/traceevent/event-parse.c
+index e1bd2a93c6db8..eec96c31ea9e5 100644
+--- a/tools/lib/traceevent/event-parse.c
++++ b/tools/lib/traceevent/event-parse.c
+@@ -1425,6 +1425,19 @@ static unsigned int type_size(const char *name)
+ 	return 0;
  }
  
++static int append(char **buf, const char *delim, const char *str)
++{
++	char *new_buf;
++
++	new_buf = realloc(*buf, strlen(*buf) + strlen(delim) + strlen(str) + 1);
++	if (!new_buf)
++		return -1;
++	strcat(new_buf, delim);
++	strcat(new_buf, str);
++	*buf = new_buf;
++	return 0;
++}
++
+ static int event_read_fields(struct tep_event *event, struct tep_format_field **fields)
+ {
+ 	struct tep_format_field *field = NULL;
+@@ -1432,6 +1445,7 @@ static int event_read_fields(struct tep_event *event, struct tep_format_field **
+ 	char *token;
+ 	char *last_token;
+ 	int count = 0;
++	int ret;
+ 
+ 	do {
+ 		unsigned int size_dynamic = 0;
+@@ -1490,24 +1504,15 @@ static int event_read_fields(struct tep_event *event, struct tep_format_field **
+ 					field->flags |= TEP_FIELD_IS_POINTER;
+ 
+ 				if (field->type) {
+-					char *new_type;
+-					new_type = realloc(field->type,
+-							   strlen(field->type) +
+-							   strlen(last_token) + 2);
+-					if (!new_type) {
+-						free(last_token);
+-						goto fail;
+-					}
+-					field->type = new_type;
+-					strcat(field->type, " ");
+-					strcat(field->type, last_token);
++					ret = append(&field->type, " ", last_token);
+ 					free(last_token);
++					if (ret < 0)
++						goto fail;
+ 				} else
+ 					field->type = last_token;
+ 				last_token = token;
+ 				continue;
+ 			}
+-
+ 			break;
+ 		}
+ 
+@@ -1523,8 +1528,6 @@ static int event_read_fields(struct tep_event *event, struct tep_format_field **
+ 		if (strcmp(token, "[") == 0) {
+ 			enum tep_event_type last_type = type;
+ 			char *brackets = token;
+-			char *new_brackets;
+-			int len;
+ 
+ 			field->flags |= TEP_FIELD_IS_ARRAY;
+ 
+@@ -1536,29 +1539,27 @@ static int event_read_fields(struct tep_event *event, struct tep_format_field **
+ 				field->arraylen = 0;
+ 
+ 		        while (strcmp(token, "]") != 0) {
++				const char *delim;
++
+ 				if (last_type == TEP_EVENT_ITEM &&
+ 				    type == TEP_EVENT_ITEM)
+-					len = 2;
++					delim = " ";
+ 				else
+-					len = 1;
++					delim = "";
++
+ 				last_type = type;
+ 
+-				new_brackets = realloc(brackets,
+-						       strlen(brackets) +
+-						       strlen(token) + len);
+-				if (!new_brackets) {
++				ret = append(&brackets, delim, token);
++				if (ret < 0) {
+ 					free(brackets);
+ 					goto fail;
+ 				}
+-				brackets = new_brackets;
+-				if (len == 2)
+-					strcat(brackets, " ");
+-				strcat(brackets, token);
+ 				/* We only care about the last token */
+ 				field->arraylen = strtoul(token, NULL, 0);
+ 				free_token(token);
+ 				type = read_token(&token);
+ 				if (type == TEP_EVENT_NONE) {
++					free(brackets);
+ 					do_warning_event(event, "failed to find token");
+ 					goto fail;
+ 				}
+@@ -1566,13 +1567,11 @@ static int event_read_fields(struct tep_event *event, struct tep_format_field **
+ 
+ 			free_token(token);
+ 
+-			new_brackets = realloc(brackets, strlen(brackets) + 2);
+-			if (!new_brackets) {
++			ret = append(&brackets, "", "]");
++			if (ret < 0) {
+ 				free(brackets);
+ 				goto fail;
+ 			}
+-			brackets = new_brackets;
+-			strcat(brackets, "]");
+ 
+ 			/* add brackets to type */
+ 
+@@ -1582,34 +1581,23 @@ static int event_read_fields(struct tep_event *event, struct tep_format_field **
+ 			 * the format: type [] item;
+ 			 */
+ 			if (type == TEP_EVENT_ITEM) {
+-				char *new_type;
+-				new_type = realloc(field->type,
+-						   strlen(field->type) +
+-						   strlen(field->name) +
+-						   strlen(brackets) + 2);
+-				if (!new_type) {
++				ret = append(&field->type, " ", field->name);
++				if (ret < 0) {
+ 					free(brackets);
+ 					goto fail;
+ 				}
+-				field->type = new_type;
+-				strcat(field->type, " ");
+-				strcat(field->type, field->name);
++				ret = append(&field->type, "", brackets);
++
+ 				size_dynamic = type_size(field->name);
+ 				free_token(field->name);
+-				strcat(field->type, brackets);
+ 				field->name = field->alias = token;
+ 				type = read_token(&token);
+ 			} else {
+-				char *new_type;
+-				new_type = realloc(field->type,
+-						   strlen(field->type) +
+-						   strlen(brackets) + 1);
+-				if (!new_type) {
++				ret = append(&field->type, "", brackets);
++				if (ret < 0) {
+ 					free(brackets);
+ 					goto fail;
+ 				}
+-				field->type = new_type;
+-				strcat(field->type, brackets);
+ 			}
+ 			free(brackets);
+ 		}
+@@ -2046,19 +2034,16 @@ process_op(struct tep_event *event, struct tep_print_arg *arg, char **tok)
+ 		/* could just be a type pointer */
+ 		if ((strcmp(arg->op.op, "*") == 0) &&
+ 		    type == TEP_EVENT_DELIM && (strcmp(token, ")") == 0)) {
+-			char *new_atom;
++			int ret;
+ 
+ 			if (left->type != TEP_PRINT_ATOM) {
+ 				do_warning_event(event, "bad pointer type");
+ 				goto out_free;
+ 			}
+-			new_atom = realloc(left->atom.atom,
+-					    strlen(left->atom.atom) + 3);
+-			if (!new_atom)
++			ret = append(&left->atom.atom, " ", "*");
++			if (ret < 0)
+ 				goto out_warn_free;
+ 
+-			left->atom.atom = new_atom;
+-			strcat(left->atom.atom, " *");
+ 			free(arg->op.op);
+ 			*arg = *left;
+ 			free(left);
+@@ -3151,18 +3136,15 @@ process_arg_token(struct tep_event *event, struct tep_print_arg *arg,
+ 		}
+ 		/* atoms can be more than one token long */
+ 		while (type == TEP_EVENT_ITEM) {
+-			char *new_atom;
+-			new_atom = realloc(atom,
+-					   strlen(atom) + strlen(token) + 2);
+-			if (!new_atom) {
++			int ret;
++
++			ret = append(&atom, " ", token);
++			if (ret < 0) {
+ 				free(atom);
+ 				*tok = NULL;
+ 				free_token(token);
+ 				return TEP_EVENT_ERROR;
+ 			}
+-			atom = new_atom;
+-			strcat(atom, " ");
+-			strcat(atom, token);
+ 			free_token(token);
+ 			type = read_token_item(&token);
+ 		}
 -- 
 2.25.1
 
