@@ -2,38 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11B25217113
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:25:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C92D72170CF
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:24:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729231AbgGGPXx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:23:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37172 "EHLO mail.kernel.org"
+        id S1729622AbgGGPU5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:20:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728799AbgGGPXw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:23:52 -0400
+        id S1729616AbgGGPU4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:20:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 705902083B;
-        Tue,  7 Jul 2020 15:23:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1426A206E2;
+        Tue,  7 Jul 2020 15:20:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135431;
-        bh=i4XSvbvtC7Ca7fy5r1SeCxDj3Kj1bHrfkY3BraejvUM=;
+        s=default; t=1594135255;
+        bh=7wbAdIn4JuRf/Fw3R/IB7vTcBSqfwrL9uQG7lZ47rYA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sVUYJYcHNDlyK3K58iJGH2YYP2wWKAbUa5N1AczNEwC+2ewH6diork8VMvmXHgQA0
-         Nuqb6m7g0SSl9QL6svkgBdbaVPPDf9WiumR/pd+tk0yTVcwmBIgHEz2ClJBMMMqRv8
-         CRMcX/Si/djKSdrYVd/h/MuoqQ8skPdzVRKwvLUQ=
+        b=KQbHQcZK1+bS4bAqHSD7PQ01sX63KGGyn8h3qSLeBBdPzcB2vScOop63h6Cmad5QL
+         RPYhUprOBIMAKkF0vkvW8djPvOjeErH2zi2bGh2PaVMhVgAW1h1QlpDx9DCoGSlEjt
+         N1SHqFp78BML8NpEJpz/WVWbt4ZIo4zEMn34Rv9A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 039/112] io_uring: fix current->mm NULL dereference on exit
-Date:   Tue,  7 Jul 2020 17:16:44 +0200
-Message-Id: <20200707145802.851894457@linuxfoundation.org>
+        stable@vger.kernel.org, Dongli Zhang <dongli.zhang@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Joe Jin <joe.jin@oracle.com>, Christoph Lameter <cl@linux.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 06/65] mm/slub.c: fix corrupted freechain in deactivate_slab()
+Date:   Tue,  7 Jul 2020 17:16:45 +0200
+Message-Id: <20200707145752.746214698@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200707145800.925304888@linuxfoundation.org>
-References: <20200707145800.925304888@linuxfoundation.org>
+In-Reply-To: <20200707145752.417212219@linuxfoundation.org>
+References: <20200707145752.417212219@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,78 +49,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Dongli Zhang <dongli.zhang@oracle.com>
 
-[ Upstream commit d60b5fbc1ce8210759b568da49d149b868e7c6d3 ]
+[ Upstream commit 52f23478081ae0dcdb95d1650ea1e7d52d586829 ]
 
-Don't reissue requests from io_iopoll_reap_events(), the task may not
-have mm, which ends up with NULL. It's better to kill everything off on
-exit anyway.
+The slub_debug is able to fix the corrupted slab freelist/page.
+However, alloc_debug_processing() only checks the validity of current
+and next freepointer during allocation path.  As a result, once some
+objects have their freepointers corrupted, deactivate_slab() may lead to
+page fault.
 
-[  677.734670] RIP: 0010:io_iopoll_complete+0x27e/0x630
-...
-[  677.734679] Call Trace:
-[  677.734695]  ? __send_signal+0x1f2/0x420
-[  677.734698]  ? _raw_spin_unlock_irqrestore+0x24/0x40
-[  677.734699]  ? send_signal+0xf5/0x140
-[  677.734700]  io_iopoll_getevents+0x12f/0x1a0
-[  677.734702]  io_iopoll_reap_events.part.0+0x5e/0xa0
-[  677.734703]  io_ring_ctx_wait_and_kill+0x132/0x1c0
-[  677.734704]  io_uring_release+0x20/0x30
-[  677.734706]  __fput+0xcd/0x230
-[  677.734707]  ____fput+0xe/0x10
-[  677.734709]  task_work_run+0x67/0xa0
-[  677.734710]  do_exit+0x35d/0xb70
-[  677.734712]  do_group_exit+0x43/0xa0
-[  677.734713]  get_signal+0x140/0x900
-[  677.734715]  do_signal+0x37/0x780
-[  677.734717]  ? enqueue_hrtimer+0x41/0xb0
-[  677.734718]  ? recalibrate_cpu_khz+0x10/0x10
-[  677.734720]  ? ktime_get+0x3e/0xa0
-[  677.734721]  ? lapic_next_deadline+0x26/0x30
-[  677.734723]  ? tick_program_event+0x4d/0x90
-[  677.734724]  ? __hrtimer_get_next_event+0x4d/0x80
-[  677.734726]  __prepare_exit_to_usermode+0x126/0x1c0
-[  677.734741]  prepare_exit_to_usermode+0x9/0x40
-[  677.734742]  idtentry_exit_cond_rcu+0x4c/0x60
-[  677.734743]  sysvec_reschedule_ipi+0x92/0x160
-[  677.734744]  ? asm_sysvec_reschedule_ipi+0xa/0x20
-[  677.734745]  asm_sysvec_reschedule_ipi+0x12/0x20
+Below is from a test kernel module when 'slub_debug=PUF,kmalloc-128
+slub_nomerge'.  The test kernel corrupts the freepointer of one free
+object on purpose.  Unfortunately, deactivate_slab() does not detect it
+when iterating the freechain.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+  BUG: unable to handle page fault for address: 00000000123456f8
+  #PF: supervisor read access in kernel mode
+  #PF: error_code(0x0000) - not-present page
+  PGD 0 P4D 0
+  Oops: 0000 [#1] SMP PTI
+  ... ...
+  RIP: 0010:deactivate_slab.isra.92+0xed/0x490
+  ... ...
+  Call Trace:
+   ___slab_alloc+0x536/0x570
+   __slab_alloc+0x17/0x30
+   __kmalloc+0x1d9/0x200
+   ext4_htree_store_dirent+0x30/0xf0
+   htree_dirblock_to_tree+0xcb/0x1c0
+   ext4_htree_fill_tree+0x1bc/0x2d0
+   ext4_readdir+0x54f/0x920
+   iterate_dir+0x88/0x190
+   __x64_sys_getdents+0xa6/0x140
+   do_syscall_64+0x49/0x170
+   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Therefore, this patch adds extra consistency check in deactivate_slab().
+Once an object's freepointer is corrupted, all following objects
+starting at this object are isolated.
+
+[akpm@linux-foundation.org: fix build with CONFIG_SLAB_DEBUG=n]
+Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Joe Jin <joe.jin@oracle.com>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Link: http://lkml.kernel.org/r/20200331031450.12182-1-dongli.zhang@oracle.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ mm/slub.c | 27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 63a456921903e..71d281f68ed83 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -858,6 +858,7 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
- 				 struct io_uring_files_update *ip,
- 				 unsigned nr_args);
- static int io_grab_files(struct io_kiocb *req);
-+static void io_complete_rw_common(struct kiocb *kiocb, long res);
- static void io_cleanup_req(struct io_kiocb *req);
- static int io_file_get(struct io_submit_state *state, struct io_kiocb *req,
- 		       int fd, struct file **out_file, bool fixed);
-@@ -1697,6 +1698,14 @@ static void io_iopoll_queue(struct list_head *again)
- 	do {
- 		req = list_first_entry(again, struct io_kiocb, list);
- 		list_del(&req->list);
+diff --git a/mm/slub.c b/mm/slub.c
+index fca33abd6c428..5c05a36bb746f 100644
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -644,6 +644,20 @@ static void slab_fix(struct kmem_cache *s, char *fmt, ...)
+ 	va_end(args);
+ }
+ 
++static bool freelist_corrupted(struct kmem_cache *s, struct page *page,
++			       void *freelist, void *nextfree)
++{
++	if ((s->flags & SLAB_CONSISTENCY_CHECKS) &&
++	    !check_valid_pointer(s, page, nextfree)) {
++		object_err(s, page, freelist, "Freechain corrupt");
++		freelist = NULL;
++		slab_fix(s, "Isolate corrupted freechain");
++		return true;
++	}
 +
-+		/* shouldn't happen unless io_uring is dying, cancel reqs */
-+		if (unlikely(!current->mm)) {
-+			io_complete_rw_common(&req->rw.kiocb, -EAGAIN);
-+			io_put_req(req);
-+			continue;
-+		}
++	return false;
++}
 +
- 		refcount_inc(&req->refs);
- 		io_queue_async_work(req);
- 	} while (!list_empty(again));
+ static void print_trailer(struct kmem_cache *s, struct page *page, u8 *p)
+ {
+ 	unsigned int off;	/* Offset of last byte */
+@@ -1379,6 +1393,11 @@ static inline void inc_slabs_node(struct kmem_cache *s, int node,
+ static inline void dec_slabs_node(struct kmem_cache *s, int node,
+ 							int objects) {}
+ 
++static bool freelist_corrupted(struct kmem_cache *s, struct page *page,
++			       void *freelist, void *nextfree)
++{
++	return false;
++}
+ #endif /* CONFIG_SLUB_DEBUG */
+ 
+ /*
+@@ -2062,6 +2081,14 @@ static void deactivate_slab(struct kmem_cache *s, struct page *page,
+ 		void *prior;
+ 		unsigned long counters;
+ 
++		/*
++		 * If 'nextfree' is invalid, it is possible that the object at
++		 * 'freelist' is already corrupted.  So isolate all objects
++		 * starting at 'freelist'.
++		 */
++		if (freelist_corrupted(s, page, freelist, nextfree))
++			break;
++
+ 		do {
+ 			prior = page->freelist;
+ 			counters = page->counters;
 -- 
 2.25.1
 
