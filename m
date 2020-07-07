@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A0172171E7
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:43:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F21AB2171E6
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:43:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729694AbgGGP0o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729055AbgGGP0o (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 7 Jul 2020 11:26:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40968 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:41004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730293AbgGGP0k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:26:40 -0400
+        id S1730290AbgGGP0n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:26:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8815120663;
-        Tue,  7 Jul 2020 15:26:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A27D2082E;
+        Tue,  7 Jul 2020 15:26:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135600;
-        bh=Fn40Bh6XmR023pbItA4RzWAlYFqihqakYIkoCXfnP6o=;
+        s=default; t=1594135602;
+        bh=F9AAXq3WyiyVkmMDHTVrKFjPsKwV51hexrXei98OIMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Os3miBK/My1s6L7QZLQ2T6xx2OIv7HfgznVS+mRlwDsDlOinod3S3e0lytg9jqTJ0
-         rUdCrwrx/0yLwgIVDXVh+oPLfqeA+Wn1bTtNzkPptnPrULzRq+OkyyFZDvhn16YECO
-         djsFpn93MZ61C6G/ZEm7wNU9/i1jgzqCULKYbizE=
+        b=abSAiYD2I0gXhq/RBVfQ3YYAQ1iIH1EoMwNitkfOhIV2GfqpWPzn5Z0KvC5lsJ7+b
+         eMtPIgyK6EKXr06obMCvndIK1RvhlEBgwsHErJLkz10iHgJB+SRH3VCpkRFBOzaY/4
+         VgDX/xrS9+kCk91o9ZqU3LB9lSTasPetwmZSa+Uc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nirmoy Das <nirmoy.das@amd.com>,
+        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.7 105/112] drm/amdgpu: use %u rather than %d for sclk/mclk
-Date:   Tue,  7 Jul 2020 17:17:50 +0200
-Message-Id: <20200707145805.967772049@linuxfoundation.org>
+Subject: [PATCH 5.7 106/112] drm/amdgpu/atomfirmware: fix vram_info fetching for renoir
+Date:   Tue,  7 Jul 2020 17:17:51 +0200
+Message-Id: <20200707145806.013939258@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200707145800.925304888@linuxfoundation.org>
 References: <20200707145800.925304888@linuxfoundation.org>
@@ -45,40 +45,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alex Deucher <alexander.deucher@amd.com>
 
-commit beaf10efca64ac824240838ab1f054dfbefab5e6 upstream.
+commit d7a6634a4cfba073ff6a526cb4265d6e58ece234 upstream.
 
-Large clock values may overflow and show up as negative.
+Renoir uses integrated_system_info table v12.  The table
+has the same layout as v11 with respect to this data.  Just
+reuse the existing code for v12 for stable.
 
-Reported by prOMiNd on IRC.
+Fixes incorrectly reported vram info in the driver output.
 
-Acked-by: Nirmoy Das <nirmoy.das@amd.com>
+Acked-by: Evan Quan <evan.quan@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_atomfirmware.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c
-@@ -2590,7 +2590,7 @@ static ssize_t amdgpu_hwmon_show_sclk(st
- 	if (r)
- 		return r;
- 
--	return snprintf(buf, PAGE_SIZE, "%d\n", sclk * 10 * 1000);
-+	return snprintf(buf, PAGE_SIZE, "%u\n", sclk * 10 * 1000);
- }
- 
- static ssize_t amdgpu_hwmon_show_sclk_label(struct device *dev,
-@@ -2622,7 +2622,7 @@ static ssize_t amdgpu_hwmon_show_mclk(st
- 	if (r)
- 		return r;
- 
--	return snprintf(buf, PAGE_SIZE, "%d\n", mclk * 10 * 1000);
-+	return snprintf(buf, PAGE_SIZE, "%u\n", mclk * 10 * 1000);
- }
- 
- static ssize_t amdgpu_hwmon_show_mclk_label(struct device *dev,
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_atomfirmware.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_atomfirmware.c
+@@ -204,6 +204,7 @@ amdgpu_atomfirmware_get_vram_info(struct
+ 				(mode_info->atom_context->bios + data_offset);
+ 			switch (crev) {
+ 			case 11:
++			case 12:
+ 				mem_channel_number = igp_info->v11.umachannelnumber;
+ 				/* channel width is 64 */
+ 				if (vram_width)
 
 
