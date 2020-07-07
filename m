@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 137F72170B1
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:24:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11B25217113
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:25:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728753AbgGGPTy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:19:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59698 "EHLO mail.kernel.org"
+        id S1729231AbgGGPXx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:23:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729424AbgGGPTw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:19:52 -0400
+        id S1728799AbgGGPXw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:23:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7FFAE206F6;
-        Tue,  7 Jul 2020 15:19:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 705902083B;
+        Tue,  7 Jul 2020 15:23:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135192;
-        bh=0ihtoY0lf8Gu8Y6kDwo47g0YVSfPA2q6Eiq3pKZeAKg=;
+        s=default; t=1594135431;
+        bh=i4XSvbvtC7Ca7fy5r1SeCxDj3Kj1bHrfkY3BraejvUM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m3pNjcE/jquuyozmN6GcuoxTARZLeo4tSGULnQ5tb1AkBjiRamH0oFFFFwymGnCbM
-         UUJNWMkPlhLzs0+wQfAceiukpkoNl5Uide0XTaZZanjJU/mlhfteowTU4Ev3D/xSah
-         Cqsaq8qqK57Mfcvzlth0aEIqd1vThAaP61HkGnGg=
+        b=sVUYJYcHNDlyK3K58iJGH2YYP2wWKAbUa5N1AczNEwC+2ewH6diork8VMvmXHgQA0
+         Nuqb6m7g0SSl9QL6svkgBdbaVPPDf9WiumR/pd+tk0yTVcwmBIgHEz2ClJBMMMqRv8
+         CRMcX/Si/djKSdrYVd/h/MuoqQ8skPdzVRKwvLUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hugh Dickins <hughd@google.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Chris Murphy <lists@colorremedies.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 02/65] mm: fix swap cache node allocation mask
-Date:   Tue,  7 Jul 2020 17:16:41 +0200
-Message-Id: <20200707145752.546103241@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 039/112] io_uring: fix current->mm NULL dereference on exit
+Date:   Tue,  7 Jul 2020 17:16:44 +0200
+Message-Id: <20200707145802.851894457@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200707145752.417212219@linuxfoundation.org>
-References: <20200707145752.417212219@linuxfoundation.org>
+In-Reply-To: <20200707145800.925304888@linuxfoundation.org>
+References: <20200707145800.925304888@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,96 +43,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hugh Dickins <hughd@google.com>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit 243bce09c91b0145aeaedd5afba799d81841c030 ]
+[ Upstream commit d60b5fbc1ce8210759b568da49d149b868e7c6d3 ]
 
-Chris Murphy reports that a slightly overcommitted load, testing swap
-and zram along with i915, splats and keeps on splatting, when it had
-better fail less noisily:
+Don't reissue requests from io_iopoll_reap_events(), the task may not
+have mm, which ends up with NULL. It's better to kill everything off on
+exit anyway.
 
-  gnome-shell: page allocation failure: order:0,
-  mode:0x400d0(__GFP_IO|__GFP_FS|__GFP_COMP|__GFP_RECLAIMABLE),
-  nodemask=(null),cpuset=/,mems_allowed=0
-  CPU: 2 PID: 1155 Comm: gnome-shell Not tainted 5.7.0-1.fc33.x86_64 #1
-  Call Trace:
-    dump_stack+0x64/0x88
-    warn_alloc.cold+0x75/0xd9
-    __alloc_pages_slowpath.constprop.0+0xcfa/0xd30
-    __alloc_pages_nodemask+0x2df/0x320
-    alloc_slab_page+0x195/0x310
-    allocate_slab+0x3c5/0x440
-    ___slab_alloc+0x40c/0x5f0
-    __slab_alloc+0x1c/0x30
-    kmem_cache_alloc+0x20e/0x220
-    xas_nomem+0x28/0x70
-    add_to_swap_cache+0x321/0x400
-    __read_swap_cache_async+0x105/0x240
-    swap_cluster_readahead+0x22c/0x2e0
-    shmem_swapin+0x8e/0xc0
-    shmem_swapin_page+0x196/0x740
-    shmem_getpage_gfp+0x3a2/0xa60
-    shmem_read_mapping_page_gfp+0x32/0x60
-    shmem_get_pages+0x155/0x5e0 [i915]
-    __i915_gem_object_get_pages+0x68/0xa0 [i915]
-    i915_vma_pin+0x3fe/0x6c0 [i915]
-    eb_add_vma+0x10b/0x2c0 [i915]
-    i915_gem_do_execbuffer+0x704/0x3430 [i915]
-    i915_gem_execbuffer2_ioctl+0x1ea/0x3e0 [i915]
-    drm_ioctl_kernel+0x86/0xd0 [drm]
-    drm_ioctl+0x206/0x390 [drm]
-    ksys_ioctl+0x82/0xc0
-    __x64_sys_ioctl+0x16/0x20
-    do_syscall_64+0x5b/0xf0
-    entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[  677.734670] RIP: 0010:io_iopoll_complete+0x27e/0x630
+...
+[  677.734679] Call Trace:
+[  677.734695]  ? __send_signal+0x1f2/0x420
+[  677.734698]  ? _raw_spin_unlock_irqrestore+0x24/0x40
+[  677.734699]  ? send_signal+0xf5/0x140
+[  677.734700]  io_iopoll_getevents+0x12f/0x1a0
+[  677.734702]  io_iopoll_reap_events.part.0+0x5e/0xa0
+[  677.734703]  io_ring_ctx_wait_and_kill+0x132/0x1c0
+[  677.734704]  io_uring_release+0x20/0x30
+[  677.734706]  __fput+0xcd/0x230
+[  677.734707]  ____fput+0xe/0x10
+[  677.734709]  task_work_run+0x67/0xa0
+[  677.734710]  do_exit+0x35d/0xb70
+[  677.734712]  do_group_exit+0x43/0xa0
+[  677.734713]  get_signal+0x140/0x900
+[  677.734715]  do_signal+0x37/0x780
+[  677.734717]  ? enqueue_hrtimer+0x41/0xb0
+[  677.734718]  ? recalibrate_cpu_khz+0x10/0x10
+[  677.734720]  ? ktime_get+0x3e/0xa0
+[  677.734721]  ? lapic_next_deadline+0x26/0x30
+[  677.734723]  ? tick_program_event+0x4d/0x90
+[  677.734724]  ? __hrtimer_get_next_event+0x4d/0x80
+[  677.734726]  __prepare_exit_to_usermode+0x126/0x1c0
+[  677.734741]  prepare_exit_to_usermode+0x9/0x40
+[  677.734742]  idtentry_exit_cond_rcu+0x4c/0x60
+[  677.734743]  sysvec_reschedule_ipi+0x92/0x160
+[  677.734744]  ? asm_sysvec_reschedule_ipi+0xa/0x20
+[  677.734745]  asm_sysvec_reschedule_ipi+0x12/0x20
 
-Reported on 5.7, but it goes back really to 3.1: when
-shmem_read_mapping_page_gfp() was implemented for use by i915, and
-allowed for __GFP_NORETRY and __GFP_NOWARN flags in most places, but
-missed swapin's "& GFP_KERNEL" mask for page tree node allocation in
-__read_swap_cache_async() - that was to mask off HIGHUSER_MOVABLE bits
-from what page cache uses, but GFP_RECLAIM_MASK is now what's needed.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=208085
-Link: http://lkml.kernel.org/r/alpine.LSU.2.11.2006151330070.11064@eggly.anvils
-Fixes: 68da9f055755 ("tmpfs: pass gfp to shmem_getpage_gfp")
-Signed-off-by: Hugh Dickins <hughd@google.com>
-Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
-Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Reported-by: Chris Murphy <lists@colorremedies.com>
-Analyzed-by: Vlastimil Babka <vbabka@suse.cz>
-Analyzed-by: Matthew Wilcox <willy@infradead.org>
-Tested-by: Chris Murphy <lists@colorremedies.com>
-Cc: <stable@vger.kernel.org>	[3.1+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/swap_state.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/io_uring.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/mm/swap_state.c b/mm/swap_state.c
-index 8e7ce9a9bc5eb..4ce014dc4571a 100644
---- a/mm/swap_state.c
-+++ b/mm/swap_state.c
-@@ -23,6 +23,7 @@
- #include <linux/huge_mm.h>
- 
- #include <asm/pgtable.h>
-+#include "internal.h"
- 
- /*
-  * swapper_space is a fiction, retained to simplify the path through
-@@ -418,7 +419,8 @@ struct page *__read_swap_cache_async(swp_entry_t entry, gfp_t gfp_mask,
- 		/* May fail (-ENOMEM) if XArray node allocation failed. */
- 		__SetPageLocked(new_page);
- 		__SetPageSwapBacked(new_page);
--		err = add_to_swap_cache(new_page, entry, gfp_mask & GFP_KERNEL);
-+		err = add_to_swap_cache(new_page, entry,
-+					gfp_mask & GFP_RECLAIM_MASK);
- 		if (likely(!err)) {
- 			/* Initiate read into locked page */
- 			SetPageWorkingset(new_page);
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 63a456921903e..71d281f68ed83 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -858,6 +858,7 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
+ 				 struct io_uring_files_update *ip,
+ 				 unsigned nr_args);
+ static int io_grab_files(struct io_kiocb *req);
++static void io_complete_rw_common(struct kiocb *kiocb, long res);
+ static void io_cleanup_req(struct io_kiocb *req);
+ static int io_file_get(struct io_submit_state *state, struct io_kiocb *req,
+ 		       int fd, struct file **out_file, bool fixed);
+@@ -1697,6 +1698,14 @@ static void io_iopoll_queue(struct list_head *again)
+ 	do {
+ 		req = list_first_entry(again, struct io_kiocb, list);
+ 		list_del(&req->list);
++
++		/* shouldn't happen unless io_uring is dying, cancel reqs */
++		if (unlikely(!current->mm)) {
++			io_complete_rw_common(&req->rw.kiocb, -EAGAIN);
++			io_put_req(req);
++			continue;
++		}
++
+ 		refcount_inc(&req->refs);
+ 		io_queue_async_work(req);
+ 	} while (!list_empty(again));
 -- 
 2.25.1
 
