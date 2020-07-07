@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DE03217215
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:43:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81D4321715E
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:42:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728466AbgGGP2j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:28:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40206 "EHLO mail.kernel.org"
+        id S1728816AbgGGPS0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:18:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729586AbgGGP0B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:26:01 -0400
+        id S1728029AbgGGPSX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:18:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E292A2082F;
-        Tue,  7 Jul 2020 15:25:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3B99520738;
+        Tue,  7 Jul 2020 15:18:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135560;
-        bh=pIrYhNhOIbV7GXkWdXf2eALo3Mmav0+oG7s4Y503agA=;
+        s=default; t=1594135102;
+        bh=9OmlKNqJ+4/nPvflKJ4ptgswRxfkQ/UEjIiDkbTSzw4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p9QwioGC/XgO2JfG1z1H6JJA9PGhdZxSK/4c/Q2RwmuNr6DMTKwUP5g95NraSTMA/
-         qYddhyjz/LCZWE5MLcAbPyLFfMLuER0dpxSHrJ61M3f9VoD/ySbtNdvZVr4rz52MuN
-         tr3MwWxXaLETmqb2iik7IfZwLtuQhjaz4+Ag2bJE=
+        b=hv5ClVg4EGbPSvXvoftKjTzocf2+8WOH1tubpsyMTCpZ7T55sx3/Da7frh/Ejg4fP
+         Lb5Jq/1EtMcvq9lgh8TdezQcMfLOkMxCGwPxbrgQZ7+KEY2jlqYwshxme+eSkFxC9n
+         csYtOTLDbTiNxbatO2/kpC9fSS5wEJFPDAwOQRuA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 059/112] cxgb4: parse TC-U32 key values and masks natively
+Subject: [PATCH 4.19 12/36] kgdb: Avoid suspicious RCU usage warning
 Date:   Tue,  7 Jul 2020 17:17:04 +0200
-Message-Id: <20200707145803.808313576@linuxfoundation.org>
+Message-Id: <20200707145749.725908319@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200707145800.925304888@linuxfoundation.org>
-References: <20200707145800.925304888@linuxfoundation.org>
+In-Reply-To: <20200707145749.130272978@linuxfoundation.org>
+References: <20200707145749.130272978@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,346 +44,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
+From: Douglas Anderson <dianders@chromium.org>
 
-[ Upstream commit 27f78cb245abdb86735529c13b0a579f57829e71 ]
+[ Upstream commit 440ab9e10e2e6e5fd677473ee6f9e3af0f6904d6 ]
 
-TC-U32 passes all keys values and masks in __be32 format. The parser
-already expects this and hence pass the value and masks in __be32
-natively to the parser.
+At times when I'm using kgdb I see a splat on my console about
+suspicious RCU usage.  I managed to come up with a case that could
+reproduce this that looked like this:
 
-Fixes following sparse warnings in several places:
-cxgb4_tc_u32.c:57:21: warning: incorrect type in assignment (different base
-types)
-cxgb4_tc_u32.c:57:21:    expected unsigned int [usertype] val
-cxgb4_tc_u32.c:57:21:    got restricted __be32 [usertype] val
-cxgb4_tc_u32_parse.h:48:24: warning: cast to restricted __be32
+  WARNING: suspicious RCU usage
+  5.7.0-rc4+ #609 Not tainted
+  -----------------------------
+  kernel/pid.c:395 find_task_by_pid_ns() needs rcu_read_lock() protection!
 
-Fixes: 2e8aad7bf203 ("cxgb4: add parser to translate u32 filters to internal spec")
-Signed-off-by: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+  other info that might help us debug this:
+
+    rcu_scheduler_active = 2, debug_locks = 1
+  3 locks held by swapper/0/1:
+   #0: ffffff81b6b8e988 (&dev->mutex){....}-{3:3}, at: __device_attach+0x40/0x13c
+   #1: ffffffd01109e9e8 (dbg_master_lock){....}-{2:2}, at: kgdb_cpu_enter+0x20c/0x7ac
+   #2: ffffffd01109ea90 (dbg_slave_lock){....}-{2:2}, at: kgdb_cpu_enter+0x3ec/0x7ac
+
+  stack backtrace:
+  CPU: 7 PID: 1 Comm: swapper/0 Not tainted 5.7.0-rc4+ #609
+  Hardware name: Google Cheza (rev3+) (DT)
+  Call trace:
+   dump_backtrace+0x0/0x1b8
+   show_stack+0x1c/0x24
+   dump_stack+0xd4/0x134
+   lockdep_rcu_suspicious+0xf0/0x100
+   find_task_by_pid_ns+0x5c/0x80
+   getthread+0x8c/0xb0
+   gdb_serial_stub+0x9d4/0xd04
+   kgdb_cpu_enter+0x284/0x7ac
+   kgdb_handle_exception+0x174/0x20c
+   kgdb_brk_fn+0x24/0x30
+   call_break_hook+0x6c/0x7c
+   brk_handler+0x20/0x5c
+   do_debug_exception+0x1c8/0x22c
+   el1_sync_handler+0x3c/0xe4
+   el1_sync+0x7c/0x100
+   rpmh_rsc_probe+0x38/0x420
+   platform_drv_probe+0x94/0xb4
+   really_probe+0x134/0x300
+   driver_probe_device+0x68/0x100
+   __device_attach_driver+0x90/0xa8
+   bus_for_each_drv+0x84/0xcc
+   __device_attach+0xb4/0x13c
+   device_initial_probe+0x18/0x20
+   bus_probe_device+0x38/0x98
+   device_add+0x38c/0x420
+
+If I understand properly we should just be able to blanket kgdb under
+one big RCU read lock and the problem should go away.  We'll add it to
+the beast-of-a-function known as kgdb_cpu_enter().
+
+With this I no longer get any splats and things seem to work fine.
+
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Link: https://lore.kernel.org/r/20200602154729.v2.1.I70e0d4fd46d5ed2aaf0c98a355e8e1b7a5bb7e4e@changeid
+Signed-off-by: Daniel Thompson <daniel.thompson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/chelsio/cxgb4/cxgb4_tc_u32.c |  18 +--
- .../chelsio/cxgb4/cxgb4_tc_u32_parse.h        | 122 ++++++++++++------
- 2 files changed, 91 insertions(+), 49 deletions(-)
+ kernel/debug/debug_core.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_u32.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_u32.c
-index 3f3c11e54d970..dede02505ceb5 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_u32.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_u32.c
-@@ -48,7 +48,7 @@ static int fill_match_fields(struct adapter *adap,
- 			     bool next_header)
- {
- 	unsigned int i, j;
--	u32 val, mask;
-+	__be32 val, mask;
- 	int off, err;
- 	bool found;
+diff --git a/kernel/debug/debug_core.c b/kernel/debug/debug_core.c
+index 6a1dc2613bb92..fbb1bfdd2fa53 100644
+--- a/kernel/debug/debug_core.c
++++ b/kernel/debug/debug_core.c
+@@ -489,6 +489,7 @@ static int kgdb_cpu_enter(struct kgdb_state *ks, struct pt_regs *regs,
+ 		arch_kgdb_ops.disable_hw_break(regs);
  
-@@ -228,7 +228,7 @@ int cxgb4_config_knode(struct net_device *dev, struct tc_cls_u32_offload *cls)
- 		const struct cxgb4_next_header *next;
- 		bool found = false;
- 		unsigned int i, j;
--		u32 val, mask;
-+		__be32 val, mask;
- 		int off;
+ acquirelock:
++	rcu_read_lock();
+ 	/*
+ 	 * Interrupts will be restored by the 'trap return' code, except when
+ 	 * single stepping.
+@@ -545,6 +546,7 @@ return_normal:
+ 			atomic_dec(&slaves_in_kgdb);
+ 			dbg_touch_watchdogs();
+ 			local_irq_restore(flags);
++			rcu_read_unlock();
+ 			return 0;
+ 		}
+ 		cpu_relax();
+@@ -563,6 +565,7 @@ return_normal:
+ 		raw_spin_unlock(&dbg_master_lock);
+ 		dbg_touch_watchdogs();
+ 		local_irq_restore(flags);
++		rcu_read_unlock();
  
- 		if (t->table[link_uhtid - 1].link_handle) {
-@@ -242,10 +242,10 @@ int cxgb4_config_knode(struct net_device *dev, struct tc_cls_u32_offload *cls)
+ 		goto acquirelock;
+ 	}
+@@ -686,6 +689,7 @@ kgdb_restore:
+ 	raw_spin_unlock(&dbg_master_lock);
+ 	dbg_touch_watchdogs();
+ 	local_irq_restore(flags);
++	rcu_read_unlock();
  
- 		/* Try to find matches that allow jumps to next header. */
- 		for (i = 0; next[i].jump; i++) {
--			if (next[i].offoff != cls->knode.sel->offoff ||
--			    next[i].shift != cls->knode.sel->offshift ||
--			    next[i].mask != cls->knode.sel->offmask ||
--			    next[i].offset != cls->knode.sel->off)
-+			if (next[i].sel.offoff != cls->knode.sel->offoff ||
-+			    next[i].sel.offshift != cls->knode.sel->offshift ||
-+			    next[i].sel.offmask != cls->knode.sel->offmask ||
-+			    next[i].sel.off != cls->knode.sel->off)
- 				continue;
- 
- 			/* Found a possible candidate.  Find a key that
-@@ -257,9 +257,9 @@ int cxgb4_config_knode(struct net_device *dev, struct tc_cls_u32_offload *cls)
- 				val = cls->knode.sel->keys[j].val;
- 				mask = cls->knode.sel->keys[j].mask;
- 
--				if (next[i].match_off == off &&
--				    next[i].match_val == val &&
--				    next[i].match_mask == mask) {
-+				if (next[i].key.off == off &&
-+				    next[i].key.val == val &&
-+				    next[i].key.mask == mask) {
- 					found = true;
- 					break;
- 				}
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_u32_parse.h b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_u32_parse.h
-index 125868c6770a2..f59dd4b2ae6f9 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_u32_parse.h
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_u32_parse.h
-@@ -38,12 +38,12 @@
- struct cxgb4_match_field {
- 	int off; /* Offset from the beginning of the header to match */
- 	/* Fill the value/mask pair in the spec if matched */
--	int (*val)(struct ch_filter_specification *f, u32 val, u32 mask);
-+	int (*val)(struct ch_filter_specification *f, __be32 val, __be32 mask);
- };
- 
- /* IPv4 match fields */
- static inline int cxgb4_fill_ipv4_tos(struct ch_filter_specification *f,
--				      u32 val, u32 mask)
-+				      __be32 val, __be32 mask)
- {
- 	f->val.tos  = (ntohl(val)  >> 16) & 0x000000FF;
- 	f->mask.tos = (ntohl(mask) >> 16) & 0x000000FF;
-@@ -52,7 +52,7 @@ static inline int cxgb4_fill_ipv4_tos(struct ch_filter_specification *f,
+ 	return kgdb_info[cpu].ret_state;
  }
- 
- static inline int cxgb4_fill_ipv4_frag(struct ch_filter_specification *f,
--				       u32 val, u32 mask)
-+				       __be32 val, __be32 mask)
- {
- 	u32 mask_val;
- 	u8 frag_val;
-@@ -74,7 +74,7 @@ static inline int cxgb4_fill_ipv4_frag(struct ch_filter_specification *f,
- }
- 
- static inline int cxgb4_fill_ipv4_proto(struct ch_filter_specification *f,
--					u32 val, u32 mask)
-+					__be32 val, __be32 mask)
- {
- 	f->val.proto  = (ntohl(val)  >> 16) & 0x000000FF;
- 	f->mask.proto = (ntohl(mask) >> 16) & 0x000000FF;
-@@ -83,7 +83,7 @@ static inline int cxgb4_fill_ipv4_proto(struct ch_filter_specification *f,
- }
- 
- static inline int cxgb4_fill_ipv4_src_ip(struct ch_filter_specification *f,
--					 u32 val, u32 mask)
-+					 __be32 val, __be32 mask)
- {
- 	memcpy(&f->val.fip[0],  &val,  sizeof(u32));
- 	memcpy(&f->mask.fip[0], &mask, sizeof(u32));
-@@ -92,7 +92,7 @@ static inline int cxgb4_fill_ipv4_src_ip(struct ch_filter_specification *f,
- }
- 
- static inline int cxgb4_fill_ipv4_dst_ip(struct ch_filter_specification *f,
--					 u32 val, u32 mask)
-+					 __be32 val, __be32 mask)
- {
- 	memcpy(&f->val.lip[0],  &val,  sizeof(u32));
- 	memcpy(&f->mask.lip[0], &mask, sizeof(u32));
-@@ -111,7 +111,7 @@ static const struct cxgb4_match_field cxgb4_ipv4_fields[] = {
- 
- /* IPv6 match fields */
- static inline int cxgb4_fill_ipv6_tos(struct ch_filter_specification *f,
--				      u32 val, u32 mask)
-+				      __be32 val, __be32 mask)
- {
- 	f->val.tos  = (ntohl(val)  >> 20) & 0x000000FF;
- 	f->mask.tos = (ntohl(mask) >> 20) & 0x000000FF;
-@@ -120,7 +120,7 @@ static inline int cxgb4_fill_ipv6_tos(struct ch_filter_specification *f,
- }
- 
- static inline int cxgb4_fill_ipv6_proto(struct ch_filter_specification *f,
--					u32 val, u32 mask)
-+					__be32 val, __be32 mask)
- {
- 	f->val.proto  = (ntohl(val)  >> 8) & 0x000000FF;
- 	f->mask.proto = (ntohl(mask) >> 8) & 0x000000FF;
-@@ -129,7 +129,7 @@ static inline int cxgb4_fill_ipv6_proto(struct ch_filter_specification *f,
- }
- 
- static inline int cxgb4_fill_ipv6_src_ip0(struct ch_filter_specification *f,
--					  u32 val, u32 mask)
-+					  __be32 val, __be32 mask)
- {
- 	memcpy(&f->val.fip[0],  &val,  sizeof(u32));
- 	memcpy(&f->mask.fip[0], &mask, sizeof(u32));
-@@ -138,7 +138,7 @@ static inline int cxgb4_fill_ipv6_src_ip0(struct ch_filter_specification *f,
- }
- 
- static inline int cxgb4_fill_ipv6_src_ip1(struct ch_filter_specification *f,
--					  u32 val, u32 mask)
-+					  __be32 val, __be32 mask)
- {
- 	memcpy(&f->val.fip[4],  &val,  sizeof(u32));
- 	memcpy(&f->mask.fip[4], &mask, sizeof(u32));
-@@ -147,7 +147,7 @@ static inline int cxgb4_fill_ipv6_src_ip1(struct ch_filter_specification *f,
- }
- 
- static inline int cxgb4_fill_ipv6_src_ip2(struct ch_filter_specification *f,
--					  u32 val, u32 mask)
-+					  __be32 val, __be32 mask)
- {
- 	memcpy(&f->val.fip[8],  &val,  sizeof(u32));
- 	memcpy(&f->mask.fip[8], &mask, sizeof(u32));
-@@ -156,7 +156,7 @@ static inline int cxgb4_fill_ipv6_src_ip2(struct ch_filter_specification *f,
- }
- 
- static inline int cxgb4_fill_ipv6_src_ip3(struct ch_filter_specification *f,
--					  u32 val, u32 mask)
-+					  __be32 val, __be32 mask)
- {
- 	memcpy(&f->val.fip[12],  &val,  sizeof(u32));
- 	memcpy(&f->mask.fip[12], &mask, sizeof(u32));
-@@ -165,7 +165,7 @@ static inline int cxgb4_fill_ipv6_src_ip3(struct ch_filter_specification *f,
- }
- 
- static inline int cxgb4_fill_ipv6_dst_ip0(struct ch_filter_specification *f,
--					  u32 val, u32 mask)
-+					  __be32 val, __be32 mask)
- {
- 	memcpy(&f->val.lip[0],  &val,  sizeof(u32));
- 	memcpy(&f->mask.lip[0], &mask, sizeof(u32));
-@@ -174,7 +174,7 @@ static inline int cxgb4_fill_ipv6_dst_ip0(struct ch_filter_specification *f,
- }
- 
- static inline int cxgb4_fill_ipv6_dst_ip1(struct ch_filter_specification *f,
--					  u32 val, u32 mask)
-+					  __be32 val, __be32 mask)
- {
- 	memcpy(&f->val.lip[4],  &val,  sizeof(u32));
- 	memcpy(&f->mask.lip[4], &mask, sizeof(u32));
-@@ -183,7 +183,7 @@ static inline int cxgb4_fill_ipv6_dst_ip1(struct ch_filter_specification *f,
- }
- 
- static inline int cxgb4_fill_ipv6_dst_ip2(struct ch_filter_specification *f,
--					  u32 val, u32 mask)
-+					  __be32 val, __be32 mask)
- {
- 	memcpy(&f->val.lip[8],  &val,  sizeof(u32));
- 	memcpy(&f->mask.lip[8], &mask, sizeof(u32));
-@@ -192,7 +192,7 @@ static inline int cxgb4_fill_ipv6_dst_ip2(struct ch_filter_specification *f,
- }
- 
- static inline int cxgb4_fill_ipv6_dst_ip3(struct ch_filter_specification *f,
--					  u32 val, u32 mask)
-+					  __be32 val, __be32 mask)
- {
- 	memcpy(&f->val.lip[12],  &val,  sizeof(u32));
- 	memcpy(&f->mask.lip[12], &mask, sizeof(u32));
-@@ -216,7 +216,7 @@ static const struct cxgb4_match_field cxgb4_ipv6_fields[] = {
- 
- /* TCP/UDP match */
- static inline int cxgb4_fill_l4_ports(struct ch_filter_specification *f,
--				      u32 val, u32 mask)
-+				      __be32 val, __be32 mask)
- {
- 	f->val.fport  = ntohl(val)  >> 16;
- 	f->mask.fport = ntohl(mask) >> 16;
-@@ -237,19 +237,13 @@ static const struct cxgb4_match_field cxgb4_udp_fields[] = {
- };
- 
- struct cxgb4_next_header {
--	unsigned int offset; /* Offset to next header */
--	/* offset, shift, and mask added to offset above
-+	/* Offset, shift, and mask added to beginning of the header
- 	 * to get to next header.  Useful when using a header
- 	 * field's value to jump to next header such as IHL field
- 	 * in IPv4 header.
- 	 */
--	unsigned int offoff;
--	u32 shift;
--	u32 mask;
--	/* match criteria to make this jump */
--	unsigned int match_off;
--	u32 match_val;
--	u32 match_mask;
-+	struct tc_u32_sel sel;
-+	struct tc_u32_key key;
- 	/* location of jump to make */
- 	const struct cxgb4_match_field *jump;
- };
-@@ -258,26 +252,74 @@ struct cxgb4_next_header {
-  * IPv4 header.
-  */
- static const struct cxgb4_next_header cxgb4_ipv4_jumps[] = {
--	{ .offset = 0, .offoff = 0, .shift = 6, .mask = 0xF,
--	  .match_off = 8, .match_val = 0x600, .match_mask = 0xFF00,
--	  .jump = cxgb4_tcp_fields },
--	{ .offset = 0, .offoff = 0, .shift = 6, .mask = 0xF,
--	  .match_off = 8, .match_val = 0x1100, .match_mask = 0xFF00,
--	  .jump = cxgb4_udp_fields },
--	{ .jump = NULL }
-+	{
-+		/* TCP Jump */
-+		.sel = {
-+			.off = 0,
-+			.offoff = 0,
-+			.offshift = 6,
-+			.offmask = cpu_to_be16(0x0f00),
-+		},
-+		.key = {
-+			.off = 8,
-+			.val = cpu_to_be32(0x00060000),
-+			.mask = cpu_to_be32(0x00ff0000),
-+		},
-+		.jump = cxgb4_tcp_fields,
-+	},
-+	{
-+		/* UDP Jump */
-+		.sel = {
-+			.off = 0,
-+			.offoff = 0,
-+			.offshift = 6,
-+			.offmask = cpu_to_be16(0x0f00),
-+		},
-+		.key = {
-+			.off = 8,
-+			.val = cpu_to_be32(0x00110000),
-+			.mask = cpu_to_be32(0x00ff0000),
-+		},
-+		.jump = cxgb4_udp_fields,
-+	},
-+	{ .jump = NULL },
- };
- 
- /* Accept a rule with a jump directly past the 40 Bytes of IPv6 fixed header
-  * to get to transport layer header.
-  */
- static const struct cxgb4_next_header cxgb4_ipv6_jumps[] = {
--	{ .offset = 0x28, .offoff = 0, .shift = 0, .mask = 0,
--	  .match_off = 4, .match_val = 0x60000, .match_mask = 0xFF0000,
--	  .jump = cxgb4_tcp_fields },
--	{ .offset = 0x28, .offoff = 0, .shift = 0, .mask = 0,
--	  .match_off = 4, .match_val = 0x110000, .match_mask = 0xFF0000,
--	  .jump = cxgb4_udp_fields },
--	{ .jump = NULL }
-+	{
-+		/* TCP Jump */
-+		.sel = {
-+			.off = 40,
-+			.offoff = 0,
-+			.offshift = 0,
-+			.offmask = 0,
-+		},
-+		.key = {
-+			.off = 4,
-+			.val = cpu_to_be32(0x00000600),
-+			.mask = cpu_to_be32(0x0000ff00),
-+		},
-+		.jump = cxgb4_tcp_fields,
-+	},
-+	{
-+		/* UDP Jump */
-+		.sel = {
-+			.off = 40,
-+			.offoff = 0,
-+			.offshift = 0,
-+			.offmask = 0,
-+		},
-+		.key = {
-+			.off = 4,
-+			.val = cpu_to_be32(0x00001100),
-+			.mask = cpu_to_be32(0x0000ff00),
-+		},
-+		.jump = cxgb4_udp_fields,
-+	},
-+	{ .jump = NULL },
- };
- 
- struct cxgb4_link {
 -- 
 2.25.1
 
