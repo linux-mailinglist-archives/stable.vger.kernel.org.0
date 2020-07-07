@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14D6921723D
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:44:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FFD42171B1
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:43:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729821AbgGGPag (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:30:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37572 "EHLO mail.kernel.org"
+        id S1730049AbgGGPYM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:24:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730038AbgGGPYI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:24:08 -0400
+        id S1730042AbgGGPYL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:24:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1ED472078D;
-        Tue,  7 Jul 2020 15:24:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8387C20874;
+        Tue,  7 Jul 2020 15:24:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135447;
-        bh=RZK6OgLGKENjivE3qrlys/hBYBSghPiahkCU9YnUvLE=;
+        s=default; t=1594135450;
+        bh=aTGjenq/tu0G7rMwGC06gN5xtWY1BhX/OfIMCVEvxSQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xJG1k2ZmIXDufgKpEKAIE/+wgGpvO8WQ/Sm5fjKCuETaZyPl/KgP/C+6IrgV33bXR
-         jDhVInPUTVd+EGlORzj9McotdVXkPBMhbwJ1VSZGhqU/ZQfh7lsBdDECo6Q9kJfK6I
-         D+witQ7THriXEbWmqfxH9sI64Sxj8QSPhnUOXf98=
+        b=pWyHLBRrmxDDSMX2+0Z581Ta12s4vMO7BhpkZT1WLi2S+Hmty6zpYcOBZfzLPcWv1
+         /+9EYgcRTKVj3gWjmhSAQECi4a1ufOO2ghe/X/a9SLZQen3lPVFDaIlWDTRYBjZgb/
+         4b90e9kX5QOkq1MDebbMGCblXvcDn/2/Xxc5INeg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Moyles <bmoyles@netflix.com>,
-        Mauricio Faria de Oliveira <mfo@canonical.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.7 044/112] crypto: af_alg - fix use-after-free in af_alg_accept() due to bh_lock_sock()
-Date:   Tue,  7 Jul 2020 17:16:49 +0200
-Message-Id: <20200707145803.096926345@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Oleg Nesterov <oleg@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 045/112] task_work: teach task_work_add() to do signal_wake_up()
+Date:   Tue,  7 Jul 2020 17:16:50 +0200
+Message-Id: <20200707145803.144105968@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200707145800.925304888@linuxfoundation.org>
 References: <20200707145800.925304888@linuxfoundation.org>
@@ -44,191 +45,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Oleg Nesterov <oleg@redhat.com>
 
-commit 34c86f4c4a7be3b3e35aa48bd18299d4c756064d upstream.
+[ Upstream commit e91b48162332480f5840902268108bb7fb7a44c7 ]
 
-The locking in af_alg_release_parent is broken as the BH socket
-lock can only be taken if there is a code-path to handle the case
-where the lock is owned by process-context.  Instead of adding
-such handling, we can fix this by changing the ref counts to
-atomic_t.
+So that the target task will exit the wait_event_interruptible-like
+loop and call task_work_run() asap.
 
-This patch also modifies the main refcnt to include both normal
-and nokey sockets.  This way we don't have to fudge the nokey
-ref count when a socket changes from nokey to normal.
+The patch turns "bool notify" into 0,TWA_RESUME,TWA_SIGNAL enum, the
+new TWA_SIGNAL flag implies signal_wake_up().  However, it needs to
+avoid the race with recalc_sigpending(), so the patch also adds the
+new JOBCTL_TASK_WORK bit included in JOBCTL_PENDING_MASK.
 
-Credits go to Mauricio Faria de Oliveira who diagnosed this bug
-and sent a patch for it:
+TODO: once this patch is merged we need to change all current users
+of task_work_add(notify = true) to use TWA_RESUME.
 
-https://lore.kernel.org/linux-crypto/20200605161657.535043-1-mfo@canonical.com/
-
-Reported-by: Brian Moyles <bmoyles@netflix.com>
-Reported-by: Mauricio Faria de Oliveira <mfo@canonical.com>
-Fixes: 37f96694cf73 ("crypto: af_alg - Use bh_lock_sock in...")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Cc: stable@vger.kernel.org # v5.7
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Oleg Nesterov <oleg@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/af_alg.c         |   26 +++++++++++---------------
- crypto/algif_aead.c     |    9 +++------
- crypto/algif_hash.c     |    9 +++------
- crypto/algif_skcipher.c |    9 +++------
- include/crypto/if_alg.h |    4 ++--
- 5 files changed, 22 insertions(+), 35 deletions(-)
+ include/linux/sched/jobctl.h |  4 +++-
+ include/linux/task_work.h    |  5 ++++-
+ kernel/signal.c              | 10 +++++++---
+ kernel/task_work.c           | 16 ++++++++++++++--
+ 4 files changed, 28 insertions(+), 7 deletions(-)
 
---- a/crypto/af_alg.c
-+++ b/crypto/af_alg.c
-@@ -128,21 +128,15 @@ EXPORT_SYMBOL_GPL(af_alg_release);
- void af_alg_release_parent(struct sock *sk)
- {
- 	struct alg_sock *ask = alg_sk(sk);
--	unsigned int nokey = ask->nokey_refcnt;
--	bool last = nokey && !ask->refcnt;
-+	unsigned int nokey = atomic_read(&ask->nokey_refcnt);
+diff --git a/include/linux/sched/jobctl.h b/include/linux/sched/jobctl.h
+index fa067de9f1a94..d2b4204ba4d34 100644
+--- a/include/linux/sched/jobctl.h
++++ b/include/linux/sched/jobctl.h
+@@ -19,6 +19,7 @@ struct task_struct;
+ #define JOBCTL_TRAPPING_BIT	21	/* switching to TRACED */
+ #define JOBCTL_LISTENING_BIT	22	/* ptracer is listening for events */
+ #define JOBCTL_TRAP_FREEZE_BIT	23	/* trap for cgroup freezer */
++#define JOBCTL_TASK_WORK_BIT	24	/* set by TWA_SIGNAL */
  
- 	sk = ask->parent;
- 	ask = alg_sk(sk);
+ #define JOBCTL_STOP_DEQUEUED	(1UL << JOBCTL_STOP_DEQUEUED_BIT)
+ #define JOBCTL_STOP_PENDING	(1UL << JOBCTL_STOP_PENDING_BIT)
+@@ -28,9 +29,10 @@ struct task_struct;
+ #define JOBCTL_TRAPPING		(1UL << JOBCTL_TRAPPING_BIT)
+ #define JOBCTL_LISTENING	(1UL << JOBCTL_LISTENING_BIT)
+ #define JOBCTL_TRAP_FREEZE	(1UL << JOBCTL_TRAP_FREEZE_BIT)
++#define JOBCTL_TASK_WORK	(1UL << JOBCTL_TASK_WORK_BIT)
  
--	local_bh_disable();
--	bh_lock_sock(sk);
--	ask->nokey_refcnt -= nokey;
--	if (!last)
--		last = !--ask->refcnt;
--	bh_unlock_sock(sk);
--	local_bh_enable();
-+	if (nokey)
-+		atomic_dec(&ask->nokey_refcnt);
+ #define JOBCTL_TRAP_MASK	(JOBCTL_TRAP_STOP | JOBCTL_TRAP_NOTIFY)
+-#define JOBCTL_PENDING_MASK	(JOBCTL_STOP_PENDING | JOBCTL_TRAP_MASK)
++#define JOBCTL_PENDING_MASK	(JOBCTL_STOP_PENDING | JOBCTL_TRAP_MASK | JOBCTL_TASK_WORK)
  
--	if (last)
-+	if (atomic_dec_and_test(&ask->refcnt))
- 		sock_put(sk);
+ extern bool task_set_jobctl_pending(struct task_struct *task, unsigned long mask);
+ extern void task_clear_jobctl_trapping(struct task_struct *task);
+diff --git a/include/linux/task_work.h b/include/linux/task_work.h
+index bd9a6a91c097e..0fb93aafa4785 100644
+--- a/include/linux/task_work.h
++++ b/include/linux/task_work.h
+@@ -13,7 +13,10 @@ init_task_work(struct callback_head *twork, task_work_func_t func)
+ 	twork->func = func;
  }
- EXPORT_SYMBOL_GPL(af_alg_release_parent);
-@@ -187,7 +181,7 @@ static int alg_bind(struct socket *sock,
  
- 	err = -EBUSY;
- 	lock_sock(sk);
--	if (ask->refcnt | ask->nokey_refcnt)
-+	if (atomic_read(&ask->refcnt))
- 		goto unlock;
+-int task_work_add(struct task_struct *task, struct callback_head *twork, bool);
++#define TWA_RESUME	1
++#define TWA_SIGNAL	2
++int task_work_add(struct task_struct *task, struct callback_head *twork, int);
++
+ struct callback_head *task_work_cancel(struct task_struct *, task_work_func_t);
+ void task_work_run(void);
  
- 	swap(ask->type, type);
-@@ -236,7 +230,7 @@ static int alg_setsockopt(struct socket
- 	int err = -EBUSY;
+diff --git a/kernel/signal.c b/kernel/signal.c
+index 284fc1600063b..d5feb34b5e158 100644
+--- a/kernel/signal.c
++++ b/kernel/signal.c
+@@ -2529,9 +2529,6 @@ bool get_signal(struct ksignal *ksig)
+ 	struct signal_struct *signal = current->signal;
+ 	int signr;
  
- 	lock_sock(sk);
--	if (ask->refcnt)
-+	if (atomic_read(&ask->refcnt) != atomic_read(&ask->nokey_refcnt))
- 		goto unlock;
+-	if (unlikely(current->task_works))
+-		task_work_run();
+-
+ 	if (unlikely(uprobe_deny_signal()))
+ 		return false;
  
- 	type = ask->type;
-@@ -301,12 +295,14 @@ int af_alg_accept(struct sock *sk, struc
- 	if (err)
- 		goto unlock;
+@@ -2544,6 +2541,13 @@ bool get_signal(struct ksignal *ksig)
  
--	if (nokey || !ask->refcnt++)
-+	if (atomic_inc_return_relaxed(&ask->refcnt) == 1)
- 		sock_hold(sk);
--	ask->nokey_refcnt += nokey;
-+	if (nokey) {
-+		atomic_inc(&ask->nokey_refcnt);
-+		atomic_set(&alg_sk(sk2)->nokey_refcnt, 1);
+ relock:
+ 	spin_lock_irq(&sighand->siglock);
++	current->jobctl &= ~JOBCTL_TASK_WORK;
++	if (unlikely(current->task_works)) {
++		spin_unlock_irq(&sighand->siglock);
++		task_work_run();
++		goto relock;
 +	}
- 	alg_sk(sk2)->parent = sk;
- 	alg_sk(sk2)->type = type;
--	alg_sk(sk2)->nokey_refcnt = nokey;
++
+ 	/*
+ 	 * Every stopped thread goes here after wakeup. Check to see if
+ 	 * we should notify the parent, prepare_signal(SIGCONT) encodes
+diff --git a/kernel/task_work.c b/kernel/task_work.c
+index 825f28259a19a..5c0848ca1287d 100644
+--- a/kernel/task_work.c
++++ b/kernel/task_work.c
+@@ -25,9 +25,10 @@ static struct callback_head work_exited; /* all we need is ->next == NULL */
+  * 0 if succeeds or -ESRCH.
+  */
+ int
+-task_work_add(struct task_struct *task, struct callback_head *work, bool notify)
++task_work_add(struct task_struct *task, struct callback_head *work, int notify)
+ {
+ 	struct callback_head *head;
++	unsigned long flags;
  
- 	newsock->ops = type->ops;
- 	newsock->state = SS_CONNECTED;
---- a/crypto/algif_aead.c
-+++ b/crypto/algif_aead.c
-@@ -384,7 +384,7 @@ static int aead_check_key(struct socket
- 	struct alg_sock *ask = alg_sk(sk);
+ 	do {
+ 		head = READ_ONCE(task->task_works);
+@@ -36,8 +37,19 @@ task_work_add(struct task_struct *task, struct callback_head *work, bool notify)
+ 		work->next = head;
+ 	} while (cmpxchg(&task->task_works, head, work) != head);
  
- 	lock_sock(sk);
--	if (ask->refcnt)
-+	if (!atomic_read(&ask->nokey_refcnt))
- 		goto unlock_child;
+-	if (notify)
++	switch (notify) {
++	case TWA_RESUME:
+ 		set_notify_resume(task);
++		break;
++	case TWA_SIGNAL:
++		if (lock_task_sighand(task, &flags)) {
++			task->jobctl |= JOBCTL_TASK_WORK;
++			signal_wake_up(task, 0);
++			unlock_task_sighand(task, &flags);
++		}
++		break;
++	}
++
+ 	return 0;
+ }
  
- 	psk = ask->parent;
-@@ -396,11 +396,8 @@ static int aead_check_key(struct socket
- 	if (crypto_aead_get_flags(tfm->aead) & CRYPTO_TFM_NEED_KEY)
- 		goto unlock;
- 
--	if (!pask->refcnt++)
--		sock_hold(psk);
--
--	ask->refcnt = 1;
--	sock_put(psk);
-+	atomic_dec(&pask->nokey_refcnt);
-+	atomic_set(&ask->nokey_refcnt, 0);
- 
- 	err = 0;
- 
---- a/crypto/algif_hash.c
-+++ b/crypto/algif_hash.c
-@@ -301,7 +301,7 @@ static int hash_check_key(struct socket
- 	struct alg_sock *ask = alg_sk(sk);
- 
- 	lock_sock(sk);
--	if (ask->refcnt)
-+	if (!atomic_read(&ask->nokey_refcnt))
- 		goto unlock_child;
- 
- 	psk = ask->parent;
-@@ -313,11 +313,8 @@ static int hash_check_key(struct socket
- 	if (crypto_ahash_get_flags(tfm) & CRYPTO_TFM_NEED_KEY)
- 		goto unlock;
- 
--	if (!pask->refcnt++)
--		sock_hold(psk);
--
--	ask->refcnt = 1;
--	sock_put(psk);
-+	atomic_dec(&pask->nokey_refcnt);
-+	atomic_set(&ask->nokey_refcnt, 0);
- 
- 	err = 0;
- 
---- a/crypto/algif_skcipher.c
-+++ b/crypto/algif_skcipher.c
-@@ -211,7 +211,7 @@ static int skcipher_check_key(struct soc
- 	struct alg_sock *ask = alg_sk(sk);
- 
- 	lock_sock(sk);
--	if (ask->refcnt)
-+	if (!atomic_read(&ask->nokey_refcnt))
- 		goto unlock_child;
- 
- 	psk = ask->parent;
-@@ -223,11 +223,8 @@ static int skcipher_check_key(struct soc
- 	if (crypto_skcipher_get_flags(tfm) & CRYPTO_TFM_NEED_KEY)
- 		goto unlock;
- 
--	if (!pask->refcnt++)
--		sock_hold(psk);
--
--	ask->refcnt = 1;
--	sock_put(psk);
-+	atomic_dec(&pask->nokey_refcnt);
-+	atomic_set(&ask->nokey_refcnt, 0);
- 
- 	err = 0;
- 
---- a/include/crypto/if_alg.h
-+++ b/include/crypto/if_alg.h
-@@ -29,8 +29,8 @@ struct alg_sock {
- 
- 	struct sock *parent;
- 
--	unsigned int refcnt;
--	unsigned int nokey_refcnt;
-+	atomic_t refcnt;
-+	atomic_t nokey_refcnt;
- 
- 	const struct af_alg_type *type;
- 	void *private;
+-- 
+2.25.1
+
 
 
