@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 499D22171AB
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:43:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6CDC217243
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:44:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730004AbgGGPXp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:23:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37000 "EHLO mail.kernel.org"
+        id S1728943AbgGGPav (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:30:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729231AbgGGPXp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:23:45 -0400
+        id S1730006AbgGGPXr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:23:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A10D820663;
-        Tue,  7 Jul 2020 15:23:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A6442084C;
+        Tue,  7 Jul 2020 15:23:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135424;
-        bh=8NeVvOOFeq3pFZ5ep9RRhP0iSBWjjq3+f1Qo8BlJLKs=;
+        s=default; t=1594135426;
+        bh=3hWHspX37AzT5nJB2ou9YS6LXgzkVdN09nZlqnESwZc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eihmh2DylG1B45wkXyXniJTJB4/qg3jwjn76J6h7ezSmiHbiCHx4nKctCs7pk/7cT
-         mDQh4KUUWON9XEl7TbGXigK7tQSVdUJJAGEBfktKiWtSbqOa0HFDX1YgkYIzcgp27+
-         HEku+GkqYk6EGIim8heonp/GB0ll7KLUQkQLSLLE=
+        b=xRC6QPs2lWNvo+pFhCnav14EkF/G6IvqJzDDVQ2z8iju3K97kl0o3LaMnjQgJwOSp
+         rjvcLf8gREy1qfVm3oSRKNj6C4lK7LTgGZzgqfFhEd3UCn2xuqQLYqqNli6act/I83
+         SBt35N+CG3ILCzzt/KGqoodGVpJ/pfxcxHI2hprQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Anton Eidelman <anton@lightbitslabs.com>,
         Sagi Grimberg <sagi@grimberg.me>,
         Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 036/112] nvme-multipath: fix deadlock between ana_work and scan_work
-Date:   Tue,  7 Jul 2020 17:16:41 +0200
-Message-Id: <20200707145802.707380220@linuxfoundation.org>
+Subject: [PATCH 5.7 037/112] nvme-multipath: fix deadlock due to head->lock
+Date:   Tue,  7 Jul 2020 17:16:42 +0200
+Message-Id: <20200707145802.754736487@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200707145800.925304888@linuxfoundation.org>
 References: <20200707145800.925304888@linuxfoundation.org>
@@ -46,26 +46,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Anton Eidelman <anton@lightbitslabs.com>
 
-[ Upstream commit 489dd102a2c7c94d783a35f9412eb085b8da1aa4 ]
+[ Upstream commit d8a22f85609fadb46ba699e0136cc3ebdeebff79 ]
+
+In the following scenario scan_work and ana_work will deadlock:
 
 When scan_work calls nvme_mpath_add_disk() this holds ana_lock
 and invokes nvme_parse_ana_log(), which may issue IO
 in device_add_disk() and hang waiting for an accessible path.
+
 While nvme_mpath_set_live() only called when nvme_state_is_live(),
 a transition may cause NVME_SC_ANA_TRANSITION and requeue the IO.
 
-In order to recover and complete the IO ana_work on the same ctrl
-should be able to update the path state and remove NVME_NS_ANA_PENDING.
-
-The deadlock occurs because scan_work keeps holding ana_lock,
-so ana_work hangs [1].
+Since nvme_mpath_set_live() holds ns->head->lock, an ana_work on
+ANY ctrl will not be able to complete nvme_mpath_set_live()
+on the same ns->head, which is required in order to update
+the new accessible path and remove NVME_NS_ANA_PENDING..
+Therefore IO never completes: deadlock [1].
 
 Fix:
-Now nvme_mpath_add_disk() uses nvme_parse_ana_log() to obtain a copy
-of the ANA group desc, and then calls nvme_update_ns_ana_state() without
-holding ana_lock.
+Move device_add_disk out of the head->lock and protect it with an
+atomic test_and_set for a new NVME_NS_HEAD_HAS_DISK bit.
 
 [1]:
+kernel: INFO: task kworker/u8:2:160 blocked for more than 120 seconds.
+kernel:       Tainted: G           OE     5.3.5-050305-generic #201910071830
+kernel: "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+kernel: kworker/u8:2    D    0   160      2 0x80004000
+kernel: Workqueue: nvme-wq nvme_ana_work [nvme_core]
+kernel: Call Trace:
+kernel:  __schedule+0x2b9/0x6c0
+kernel:  schedule+0x42/0xb0
+kernel:  schedule_preempt_disabled+0xe/0x10
+kernel:  __mutex_lock.isra.0+0x182/0x4f0
+kernel:  __mutex_lock_slowpath+0x13/0x20
+kernel:  mutex_lock+0x2e/0x40
+kernel:  nvme_update_ns_ana_state+0x22/0x60 [nvme_core]
+kernel:  nvme_update_ana_state+0xca/0xe0 [nvme_core]
+kernel:  nvme_parse_ana_log+0xa1/0x180 [nvme_core]
+kernel:  nvme_read_ana_log+0x76/0x100 [nvme_core]
+kernel:  nvme_ana_work+0x15/0x20 [nvme_core]
+kernel:  process_one_work+0x1db/0x380
+kernel:  worker_thread+0x4d/0x400
+kernel:  kthread+0x104/0x140
+kernel:  ret_from_fork+0x35/0x40
+kernel: INFO: task kworker/u8:4:439 blocked for more than 120 seconds.
+kernel:       Tainted: G           OE     5.3.5-050305-generic #201910071830
+kernel: "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+kernel: kworker/u8:4    D    0   439      2 0x80004000
 kernel: Workqueue: nvme-wq nvme_scan_work [nvme_core]
 kernel: Call Trace:
 kernel:  __schedule+0x2b9/0x6c0
@@ -84,34 +111,12 @@ kernel:  __device_add_disk+0x388/0x480
 kernel:  device_add_disk+0x13/0x20
 kernel:  nvme_mpath_set_live+0x119/0x140 [nvme_core]
 kernel:  nvme_update_ns_ana_state+0x5c/0x60 [nvme_core]
-kernel:  nvme_set_ns_ana_state+0x1e/0x30 [nvme_core]
-kernel:  nvme_parse_ana_log+0xa1/0x180 [nvme_core]
-kernel:  nvme_mpath_add_disk+0x47/0x90 [nvme_core]
+kernel:  nvme_mpath_add_disk+0xbe/0x100 [nvme_core]
 kernel:  nvme_validate_ns+0x396/0x940 [nvme_core]
-kernel:  nvme_scan_work+0x24f/0x380 [nvme_core]
-kernel:  process_one_work+0x1db/0x380
-kernel:  worker_thread+0x249/0x400
-kernel:  kthread+0x104/0x140
-
-kernel: Workqueue: nvme-wq nvme_ana_work [nvme_core]
-kernel: Call Trace:
-kernel:  __schedule+0x2b9/0x6c0
-kernel:  schedule+0x42/0xb0
-kernel:  schedule_preempt_disabled+0xe/0x10
-kernel:  __mutex_lock.isra.0+0x182/0x4f0
-kernel:  ? __switch_to_asm+0x34/0x70
-kernel:  ? select_task_rq_fair+0x1aa/0x5c0
-kernel:  ? kvm_sched_clock_read+0x11/0x20
-kernel:  ? sched_clock+0x9/0x10
-kernel:  __mutex_lock_slowpath+0x13/0x20
-kernel:  mutex_lock+0x2e/0x40
-kernel:  nvme_read_ana_log+0x3a/0x100 [nvme_core]
-kernel:  nvme_ana_work+0x15/0x20 [nvme_core]
+kernel:  nvme_scan_work+0x256/0x390 [nvme_core]
 kernel:  process_one_work+0x1db/0x380
 kernel:  worker_thread+0x4d/0x400
 kernel:  kthread+0x104/0x140
-kernel:  ? process_one_work+0x380/0x380
-kernel:  ? kthread_park+0x80/0x80
 kernel:  ret_from_fork+0x35/0x40
 
 Fixes: 0d0b660f214d ("nvme: add ANA support")
@@ -120,56 +125,41 @@ Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/multipath.c | 24 ++++++++++++++++--------
- 1 file changed, 16 insertions(+), 8 deletions(-)
+ drivers/nvme/host/multipath.c | 4 ++--
+ drivers/nvme/host/nvme.h      | 2 ++
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
-index 91a8b1ce5a3a2..f4287d8550a9f 100644
+index f4287d8550a9f..d1cb65698288b 100644
 --- a/drivers/nvme/host/multipath.c
 +++ b/drivers/nvme/host/multipath.c
-@@ -639,26 +639,34 @@ static ssize_t ana_state_show(struct device *dev, struct device_attribute *attr,
- }
- DEVICE_ATTR_RO(ana_state);
+@@ -413,11 +413,11 @@ static void nvme_mpath_set_live(struct nvme_ns *ns)
+ 	if (!head->disk)
+ 		return;
  
--static int nvme_set_ns_ana_state(struct nvme_ctrl *ctrl,
-+static int nvme_lookup_ana_group_desc(struct nvme_ctrl *ctrl,
- 		struct nvme_ana_group_desc *desc, void *data)
- {
--	struct nvme_ns *ns = data;
-+	struct nvme_ana_group_desc *dst = data;
+-	mutex_lock(&head->lock);
+-	if (!(head->disk->flags & GENHD_FL_UP))
++	if (!test_and_set_bit(NVME_NSHEAD_DISK_LIVE, &head->flags))
+ 		device_add_disk(&head->subsys->dev, head->disk,
+ 				nvme_ns_id_attr_groups);
  
--	if (ns->ana_grpid == le32_to_cpu(desc->grpid)) {
--		nvme_update_ns_ana_state(desc, ns);
--		return -ENXIO; /* just break out of the loop */
--	}
-+	if (desc->grpid != dst->grpid)
-+		return 0;
++	mutex_lock(&head->lock);
+ 	if (nvme_path_is_optimized(ns)) {
+ 		int node, srcu_idx;
  
--	return 0;
-+	*dst = *desc;
-+	return -ENXIO; /* just break out of the loop */
- }
- 
- void nvme_mpath_add_disk(struct nvme_ns *ns, struct nvme_id_ns *id)
- {
- 	if (nvme_ctrl_use_ana(ns->ctrl)) {
-+		struct nvme_ana_group_desc desc = {
-+			.grpid = id->anagrpid,
-+			.state = 0,
-+		};
-+
- 		mutex_lock(&ns->ctrl->ana_lock);
- 		ns->ana_grpid = le32_to_cpu(id->anagrpid);
--		nvme_parse_ana_log(ns->ctrl, ns, nvme_set_ns_ana_state);
-+		nvme_parse_ana_log(ns->ctrl, &desc, nvme_lookup_ana_group_desc);
- 		mutex_unlock(&ns->ctrl->ana_lock);
-+		if (desc.state) {
-+			/* found the group desc: update */
-+			nvme_update_ns_ana_state(&desc, ns);
-+		}
- 	} else {
- 		ns->ana_state = NVME_ANA_OPTIMIZED; 
- 		nvme_mpath_set_live(ns);
+diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
+index 2e04a36296d95..719342600be62 100644
+--- a/drivers/nvme/host/nvme.h
++++ b/drivers/nvme/host/nvme.h
+@@ -359,6 +359,8 @@ struct nvme_ns_head {
+ 	spinlock_t		requeue_lock;
+ 	struct work_struct	requeue_work;
+ 	struct mutex		lock;
++	unsigned long		flags;
++#define NVME_NSHEAD_DISK_LIVE	0
+ 	struct nvme_ns __rcu	*current_path[];
+ #endif
+ };
 -- 
 2.25.1
 
