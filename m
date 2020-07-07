@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77803217013
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:16:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D679217015
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:16:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728699AbgGGPOm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:14:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54074 "EHLO mail.kernel.org"
+        id S1728723AbgGGPOo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:14:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728723AbgGGPOk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:14:40 -0400
+        id S1728732AbgGGPOn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:14:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 07D9F207C4;
-        Tue,  7 Jul 2020 15:14:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 45BB5207CD;
+        Tue,  7 Jul 2020 15:14:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594134880;
-        bh=gD03nvGzSUO+Oo71OUhqcW4bS147QATjZu1+N0L9dtw=;
+        s=default; t=1594134882;
+        bh=QHDXzivtkwC3kforEMyWKXWhN8/o4mt0nziV458Ra/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OrIKRkeyvc6o5+EHMa1dhd+1KcySyPH79iaTDTixjpVZ4xW/aAUZzTQYfa3JjvpU+
-         WlYE/S7biE5U92ITONyKhKsoPDC+lyVNPSJF8d6Bz93SYMHH/rGG056J3p3fGlSq2n
-         Sqn+hfIkXWCSWgrK3LibOAPEq1KtprcnqZ5aUqrk=
+        b=Nhz3GtDw0Ykf0aEM1yZ/L5gid2N87YhhNPURNgO8lhE7AQa7vkbuHHSR57+6Qjh7U
+         qRFpSN6uD6hKrdNlF2bfSUOFyu1W955iH1+qJ8gx4Au+vuIotyOu0SEMTq9ZkyMLYw
+         x31uIfMRRDUI1qhB2f+PabOvF6nKtG1YkUvN1q7M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Vasily Averin <vvs@virtuozzo.com>
-Subject: [PATCH 4.9 23/24] netfilter: nf_conntrack_h323: lost .data_len definition for Q.931/ipv6
-Date:   Tue,  7 Jul 2020 17:13:55 +0200
-Message-Id: <20200707145750.096259233@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Jones <pjones@redhat.com>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 4.9 24/24] efi: Make it possible to disable efivar_ssdt entirely
+Date:   Tue,  7 Jul 2020 17:13:56 +0200
+Message-Id: <20200707145750.141120398@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200707145748.952502272@linuxfoundation.org>
 References: <20200707145748.952502272@linuxfoundation.org>
@@ -43,39 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Peter Jones <pjones@redhat.com>
 
-Could you please push this patch into stable@?
-it fixes memory corruption in kernels  v3.5 .. v4.10
+commit 435d1a471598752446a72ad1201b3c980526d869 upstream.
 
-Lost .data_len definition leads to write beyond end of
-struct nf_ct_h323_master. Usually it corrupts following
-struct nf_conn_nat, however if nat is not loaded it corrupts
-following slab object.
+In most cases, such as CONFIG_ACPI_CUSTOM_DSDT and
+CONFIG_ACPI_TABLE_UPGRADE, boot-time modifications to firmware tables
+are tied to specific Kconfig options.  Currently this is not the case
+for modifying the ACPI SSDT via the efivar_ssdt kernel command line
+option and associated EFI variable.
 
-In mainline this problem went away in v4.11,
-after commit 9f0f3ebeda47 ("netfilter: helpers: remove data_len usage
-for inkernel helpers") however many stable kernels are still affected.
+This patch adds CONFIG_EFI_CUSTOM_SSDT_OVERLAYS, which defaults
+disabled, in order to allow enabling or disabling that feature during
+the build.
 
-Fixes: 1afc56794e03 ("netfilter: nf_ct_helper: implement variable length helper private data") # v3.5
-cc: stable@vger.kernel.org
-Reviewed-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Peter Jones <pjones@redhat.com>
+Link: https://lore.kernel.org/r/20200615202408.2242614-1-pjones@redhat.com
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/netfilter/nf_conntrack_h323_main.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/firmware/efi/Kconfig |   11 +++++++++++
+ drivers/firmware/efi/efi.c   |    2 +-
+ 2 files changed, 12 insertions(+), 1 deletion(-)
 
---- a/net/netfilter/nf_conntrack_h323_main.c
-+++ b/net/netfilter/nf_conntrack_h323_main.c
-@@ -1225,6 +1225,7 @@ static struct nf_conntrack_helper nf_con
- 	{
- 		.name			= "Q.931",
- 		.me			= THIS_MODULE,
-+		.data_len		= sizeof(struct nf_ct_h323_master),
- 		.tuple.src.l3num	= AF_INET6,
- 		.tuple.src.u.tcp.port	= cpu_to_be16(Q931_PORT),
- 		.tuple.dst.protonum	= IPPROTO_TCP,
+--- a/drivers/firmware/efi/Kconfig
++++ b/drivers/firmware/efi/Kconfig
+@@ -129,6 +129,17 @@ config EFI_TEST
+ 	  Say Y here to enable the runtime services support via /dev/efi_test.
+ 	  If unsure, say N.
+ 
++config EFI_CUSTOM_SSDT_OVERLAYS
++	bool "Load custom ACPI SSDT overlay from an EFI variable"
++	depends on EFI_VARS && ACPI
++	default ACPI_TABLE_UPGRADE
++	help
++	  Allow loading of an ACPI SSDT overlay from an EFI variable specified
++	  by a kernel command line option.
++
++	  See Documentation/admin-guide/acpi/ssdt-overlays.rst for more
++	  information.
++
+ endmenu
+ 
+ config UEFI_CPER
+--- a/drivers/firmware/efi/efi.c
++++ b/drivers/firmware/efi/efi.c
+@@ -198,7 +198,7 @@ static void generic_ops_unregister(void)
+ 	efivars_unregister(&generic_efivars);
+ }
+ 
+-#if IS_ENABLED(CONFIG_ACPI)
++#ifdef CONFIG_EFI_CUSTOM_SSDT_OVERLAYS
+ #define EFIVAR_SSDT_NAME_MAX	16
+ static char efivar_ssdt[EFIVAR_SSDT_NAME_MAX] __initdata;
+ static int __init efivar_ssdt_setup(char *str)
 
 
