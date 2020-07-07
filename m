@@ -2,95 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EAA321681A
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 10:17:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A744216828
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 10:19:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726478AbgGGIRE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 04:17:04 -0400
-Received: from sonic306-19.consmr.mail.ir2.yahoo.com ([77.238.176.205]:45888
-        "EHLO sonic306-19.consmr.mail.ir2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725825AbgGGIRE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jul 2020 04:17:04 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1594109821; bh=DPYuw2gUpgtMJzJhlH/AVmRGu2wSKCY1C+f8nOCoxu0=; h=Date:From:Reply-To:Subject:References:From:Subject; b=UoIl8oW++MtgYV10YvmBv3k0nz+LC9C4Je5jlcMM3UzQ7/tVefy6p04tZfYSRrUFkoJUv+NoEtADxgCTNgDcZUyHppdI7q1n1jV/unQzL570aJbl8lhiLYQ2kIifTl2GDaxptFCQev6gk2lOFdVHrTL8URG5auOShQwHwuyBBF530jQD92m3EOCw27JeU+RjyPmvlCpGeTo6KnHTWhCZlDRYnrqTHN917RIvYtjOicrFaZkv/4hsK7jtlDGxzS2fbRlfaEE87mjCkNKx/hSdlP+/6jkAK5A+tzjuul4GIMIIwpn9R/8F2Tc/W0XonKmCFnBEm/XnYjRobN40Xzcm6w==
-X-YMail-OSG: DdGeNrgVM1mvwn77fuVw1Qizg8NbONlT1yuf.DHheAjS320oMnCVLstHGDNxKXF
- tqLb9hMOowv65ua7hmUNqQt8WbZa5SvOR7r0KE8Z0VW7FYsfJqMxgFY6r_.PXson2hsT0lL1dhui
- OSBrf.7.xEEYjCERMKTtGJROx4kkBjHPSYS07yMrg.wbtbGyyBSjix2tnYBtq5pvBMCbuRV5y9V_
- eBG34T6ZAndH5RTFEC00O_YGBst0ImdYP0lZwABhVHJnaOpd.CPLOPoCN43pIz8YBK_jWKAzRuIA
- pDU4Fizq80jmEc2hPdHpCTkmoPkiaXLtzWSpGaJqKdJrP_2mBryAV8vMwcbPSqJGj0csotag_QPx
- cO3LKvWrH3HT1cI1BP2ZP54Nh6FLKs.cMBJjMcPT0H9Yo8xHkfW3ViD8hKw5Xg6DysO71wbEkm8o
- oo2qnVRCNjgP5d0ns285H1_oyZD2PA5InY7Og2z1MY3ML6KmJJ5iLiLi0y.rzFj6ecxPoddnJIuC
- uL421NtKQsxYrOaRqrGQb5T6O9O0CkmeXb.q31rwkjszLuh5UthqEvnt_As88I8MR.9R3giJKWTk
- QM_u10xcEcwoq3uURdgbWdUMilxri2ZaGERDieBW93Lt7yv9ewp8R7ZlW1OmZlP4UYIpEpeQnmXb
- ddp7s8KpSrZdkYzcGXeArQhrdpvJynfLth25siBeZ7ma.fcfoH3Qx0l9R8a82F6r8NBAErp0ltRz
- 0c8h4GQgdGRKFUR8cDDxd74Z2sRH6R1ygTPLSyDQ6pKjxGauPMCLQBNfRu_T8K91ycS7ElsewO4O
- TsLwXUId1ZbQiUJZaI8RVhjQcIcZ2n_BKStzPVOao5ZuSnDPDgg2CRlMzXNT6MBkOkLslcqEpMK8
- 10y9TlSGuwrrattTZLihdxFAWcCJ1SoWX0hijkdSl8wUNLNiIGgsTQ3Zvr.wybEc9Aj2Iv0UT7jy
- pjXWip26TNNTL4hu6GdDjeOpxim.vsCKRp..7BPfyOf9Q3Qlu.JRZcRXjiKB9YVIvw_ACtLqq0O7
- YBuIOPl0nKDwHatYni5ZkZiI23UeB8.W4zwVwd9ElquqmyBk09KhcvBYE3_.3NILQF0p8ja8AaiQ
- GfyxhfPBmtGxx.GChKCSYOpRVyNQueHQ7JXKcZxVSta8a_dvJqaICqM_0Eb40ozbdOE6LCwegZsT
- vqJvaCVcLBfq5dBb0n007ud9J_ZR_B8_Ge_U7qULUlmf.iIzaZkvxwJhpfRI5FJCHV9O6SJQYXEW
- O2IZ3zX5c043gs8b3oZpC7U5n4M5TCBc8TJbwdRSNvV7BMxSDAIRceCWys64KMKckIE5n2.rpchp
- .
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic306.consmr.mail.ir2.yahoo.com with HTTP; Tue, 7 Jul 2020 08:17:01 +0000
-Date:   Tue, 7 Jul 2020 08:16:57 +0000 (UTC)
-From:   " Mrs. Mina A. Brunel" <mrsminaabrunel2334@gmail.com>
-Reply-To: mrsminaabrunel57044@gmail.com
-Message-ID: <627593231.6247983.1594109817817@mail.yahoo.com>
-Subject: My Dear in the lord
+        id S1728172AbgGGITi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 04:19:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51508 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728155AbgGGITd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jul 2020 04:19:33 -0400
+Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCC89C08C5E1
+        for <stable@vger.kernel.org>; Tue,  7 Jul 2020 01:19:33 -0700 (PDT)
+Received: by mail-pf1-x442.google.com with SMTP id u5so18117367pfn.7
+        for <stable@vger.kernel.org>; Tue, 07 Jul 2020 01:19:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=8LzHvhyH79XNraI64aGNs932IW1tYhCTGhfJh2lEVIw=;
+        b=d2fuJhBs1yWbjePYoqvJWYZe1SRSJgbjp553u56FFd31yWYbHWdQauk74RXaM6QK5Z
+         6wtktQwojSEogkmCtIrko7hYiDkU9vh+r9y+G9YbC23l+ldCh74l7x4YprTb5e1AAhlW
+         wDajPTrKHOXyHe/oURDusoQV86iqeDJZ91LRk=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=8LzHvhyH79XNraI64aGNs932IW1tYhCTGhfJh2lEVIw=;
+        b=Q6Guo5uojyoa0aQ8o5DTCq4jolOlrN7NdUEm95Yjrkm5KTwdXgr+vpMaozbs/tqSZj
+         eRmbnO6MD2s1tI1fHgCX5RGfcbV+V83+lzKRIx3J/4pebecSJ0SnEGPhO5wbfQpKaB62
+         gKY87w3xYScfSuYPZiHZLuKamuRFR70VlyrioAPUDmHUNrktmt1ronWCth2aTGU0i/fP
+         PGbux0AR4NHB68FrqwnyTGAzcc/gdEKQb3hmRU9CRWE0UOV9LCdr4k6wX9EN8YDpgjlH
+         NQkf/4KmVFxhVjxlxIxaEgx+NpAq/cdl4z2SoHCio7WdDHt7aR1P77hkzSn0zABWi/UW
+         djVA==
+X-Gm-Message-State: AOAM533zGAkXIAoRc0TVNh+XycB3iUTUZh/hzlvx5dzDy0nRrNdhuDsP
+        rKa52NyC2KfV+Lp+rHYA6ydgeQ==
+X-Google-Smtp-Source: ABdhPJwlmQnAhT5yC6LPH3rR/m0Ap5gtjZUGRRbIWoOIwPOnnsVXMjkjdE7a5NAxP236CA/vqMmsAw==
+X-Received: by 2002:a63:2b93:: with SMTP id r141mr43550710pgr.171.1594109973034;
+        Tue, 07 Jul 2020 01:19:33 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id s10sm1821622pjl.41.2020.07.07.01.19.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Jul 2020 01:19:30 -0700 (PDT)
+From:   Kees Cook <keescook@chromium.org>
+To:     James Morris <jmorris@namei.org>
+Cc:     Kees Cook <keescook@chromium.org>, stable@vger.kernel.org,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Scott Branden <scott.branden@broadcom.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Jessica Yu <jeyu@kernel.org>,
+        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Matthew Garrett <matthewgarrett@google.com>,
+        David Howells <dhowells@redhat.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        KP Singh <kpsingh@google.com>, Dave Olsthoorn <dave@bewaar.me>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Peter Jones <pjones@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Stephen Boyd <stephen.boyd@linaro.org>,
+        Paul Moore <paul@paul-moore.com>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org
+Subject: [PATCH 1/4] firmware_loader: EFI firmware loader must handle pre-allocated buffer
+Date:   Tue,  7 Jul 2020 01:19:23 -0700
+Message-Id: <20200707081926.3688096-2-keescook@chromium.org>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20200707081926.3688096-1-keescook@chromium.org>
+References: <20200707081926.3688096-1-keescook@chromium.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-References: <627593231.6247983.1594109817817.ref@mail.yahoo.com>
-X-Mailer: WebService/1.1.16197 YMailNodin Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36
-To:     unlisted-recipients:; (no To-header on input)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The EFI platform firmware fallback would clobber any pre-allocated
+buffers. Instead, correctly refuse to reallocate when too small (as
+already done in the sysfs fallback), or perform allocation normally
+when needed.
 
+Fixes: e4c2c0ff00ec ("firmware: Add new platform fallback mechanism and firm ware_request_platform()")
+Cc: stable@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+---
+ drivers/base/firmware_loader/fallback_platform.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-My Dear in the lord
+diff --git a/drivers/base/firmware_loader/fallback_platform.c b/drivers/base/firmware_loader/fallback_platform.c
+index cdd2c9a9f38a..685edb7dd05a 100644
+--- a/drivers/base/firmware_loader/fallback_platform.c
++++ b/drivers/base/firmware_loader/fallback_platform.c
+@@ -25,7 +25,10 @@ int firmware_fallback_platform(struct fw_priv *fw_priv, u32 opt_flags)
+ 	if (rc)
+ 		return rc; /* rc == -ENOENT when the fw was not found */
+ 
+-	fw_priv->data = vmalloc(size);
++	if (fw_priv->data && size > fw_priv->allocated_size)
++		return -ENOMEM;
++	if (!fw_priv->data)
++		fw_priv->data = vmalloc(size);
+ 	if (!fw_priv->data)
+ 		return -ENOMEM;
+ 
+-- 
+2.25.1
 
-
-My name is Mrs. Mina A. Brunel I am a Norway Citizen who is living in Burki=
-na Faso, I am married to Mr. Brunel Patrice, a politicians who owns a small=
- gold company in Burkina Faso; He died of Leprosy and Radesyge, in year Feb=
-ruary 2010, During his lifetime he deposited the sum of =E2=82=AC 8.5 Milli=
-on Euro) Eight million, Five hundred thousand Euros in a bank in Ouagadougo=
-u the capital city of of Burkina in West Africa. The money was from the sal=
-e of his company and death benefits payment and entitlements of my deceased=
- husband by his company.
-
-I am sending you this message with heavy tears in my eyes and great sorrow =
-in my heart, and also praying that it will reach you in good health because=
- I am not in good health, I sleep every night without knowing if I may be a=
-live to see the next day. I am suffering from long time cancer and presentl=
-y I am partially suffering from Leprosy, which has become difficult for me =
-to move around. I was married to my late husband for more than 6 years with=
-out having a child and my doctor confided that I have less chance to live, =
-having to know when the cup of death will come, I decided to contact you to=
- claim the fund since I don't have any relation I grew up from an orphanage=
- home.
-
-I have decided to donate this money for the support of helping Motherless b=
-abies/Less privileged/Widows and churches also to build the house of God be=
-cause I am dying and diagnosed with cancer for about 3 years ago. I have de=
-cided to donate from what I have inherited from my late husband to you for =
-the good work of Almighty God; I will be going in for an operation surgery =
-soon.
-
-Now I want you to stand as my next of kin to claim the funds for charity pu=
-rposes. Because of this money remains unclaimed after my death, the bank ex=
-ecutives or the government will take the money as unclaimed fund and maybe =
-use it for selfishness and worthless ventures, I need a very honest person =
-who can claim this money and use it for Charity works, for orphanages, wido=
-ws and also build schools and churches for less privilege that will be name=
-d after my late husband and my name.
-
-I need your urgent answer to know if you will be able to execute this proje=
-ct, and I will give you more information on how the fund will be transferre=
-d to your bank account or online banking.
-
-Thanks
-Mrs. Mina A. Brunel
