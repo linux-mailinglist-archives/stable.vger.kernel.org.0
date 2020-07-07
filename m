@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B991021718C
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:42:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC56E2171FC
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:43:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729752AbgGGPVs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:21:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34050 "EHLO mail.kernel.org"
+        id S1729783AbgGGP1V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:27:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729197AbgGGPVr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:21:47 -0400
+        id S1730350AbgGGP1V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:27:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2CD792065D;
-        Tue,  7 Jul 2020 15:21:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3527206F6;
+        Tue,  7 Jul 2020 15:27:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135306;
-        bh=wZ6hWFVHebHKlu0oRvqogBMKz/TtomOnDbtYE2fN/oU=;
+        s=default; t=1594135640;
+        bh=FHtrfojDjWvO9f6DayfxB+2Dkz7ankW9QigDjj4aI4Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ox5KZa2mgE4u56fou4tuP7GSiUe2E7MBpImaXyhkzTZhSZCKl9E+yavPsfnvlPZj8
-         ChPtSx5J04/speN/QXGa5gReIF4l90uGUCVKp5yzcBy20BJT/evW+7VLVOLxzd8wNT
-         bqAdoqk3pKI7sZelQ7jpV2OD1v45cJTAxNUomXhE=
+        b=E4pvfV16rQqtL+ZhRqwNY2N6gZruDMcIL+UpBC0Vvb5K71+FGFj1SP3wMo0jJn3Vg
+         p2fM/VbgN0bJK/v7LBG/y0GCO6wx5+UOyBoITPTgj1loBk/RuWvZC+/WKDYINOE5TQ
+         vEJAPiLDCkxZ555appCuOgXQZ4TtvFHhQLlJ658o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Hauke Mehrtens <hauke@hauke-m.de>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: [PATCH 5.4 54/65] MIPS: lantiq: xway: sysctrl: fix the GPHY clock alias names
+        stable@vger.kernel.org, Daniel Jordan <daniel.m.jordan@oracle.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.7 088/112] padata: upgrade smp_mb__after_atomic to smp_mb in padata_do_serial
 Date:   Tue,  7 Jul 2020 17:17:33 +0200
-Message-Id: <20200707145755.074049343@linuxfoundation.org>
+Message-Id: <20200707145805.166669818@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200707145752.417212219@linuxfoundation.org>
-References: <20200707145752.417212219@linuxfoundation.org>
+In-Reply-To: <20200707145800.925304888@linuxfoundation.org>
+References: <20200707145800.925304888@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,48 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+From: Daniel Jordan <daniel.m.jordan@oracle.com>
 
-commit 03e62fd67d3ab33f39573fc8787d89dc9b4d7255 upstream.
+commit e04ec0de61c1eb9693179093e83ab8ca68a30d08 upstream.
 
-The dt-bindings for the GSWIP describe that the node should be named
-"switch". Use the same name in sysctrl.c so the GSWIP driver can
-actually find the "gphy0" and "gphy1" clocks.
+A 5.7 kernel hangs during a tcrypt test of padata that waits for an AEAD
+request to finish.  This is only seen on large machines running many
+concurrent requests.
 
-Fixes: 14fceff4771e51 ("net: dsa: Add Lantiq / Intel DSA driver for vrx200")
-Cc: stable@vger.kernel.org
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Acked-by: Hauke Mehrtens <hauke@hauke-m.de>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+The issue is that padata never serializes the request.  The removal of
+the reorder_objects atomic missed that the memory barrier in
+padata_do_serial() depends on it.
+
+Upgrade the barrier from smp_mb__after_atomic to smp_mb to get correct
+ordering again.
+
+Fixes: 3facced7aeed1 ("padata: remove reorder_objects")
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Cc: Steffen Klassert <steffen.klassert@secunet.com>
+Cc: linux-kernel@vger.kernel.org
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/mips/lantiq/xway/sysctrl.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ kernel/padata.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/mips/lantiq/xway/sysctrl.c
-+++ b/arch/mips/lantiq/xway/sysctrl.c
-@@ -514,8 +514,8 @@ void __init ltq_soc_init(void)
- 		clkdev_add_pmu("1e10b308.eth", NULL, 0, 0, PMU_SWITCH |
- 			       PMU_PPE_DP | PMU_PPE_TC);
- 		clkdev_add_pmu("1da00000.usif", "NULL", 1, 0, PMU_USIF);
--		clkdev_add_pmu("1e108000.gswip", "gphy0", 0, 0, PMU_GPHY);
--		clkdev_add_pmu("1e108000.gswip", "gphy1", 0, 0, PMU_GPHY);
-+		clkdev_add_pmu("1e108000.switch", "gphy0", 0, 0, PMU_GPHY);
-+		clkdev_add_pmu("1e108000.switch", "gphy1", 0, 0, PMU_GPHY);
- 		clkdev_add_pmu("1e103100.deu", NULL, 1, 0, PMU_DEU);
- 		clkdev_add_pmu("1e116000.mei", "afe", 1, 2, PMU_ANALOG_DSL_AFE);
- 		clkdev_add_pmu("1e116000.mei", "dfe", 1, 0, PMU_DFE);
-@@ -538,8 +538,8 @@ void __init ltq_soc_init(void)
- 				PMU_SWITCH | PMU_PPE_DPLUS | PMU_PPE_DPLUM |
- 				PMU_PPE_EMA | PMU_PPE_TC | PMU_PPE_SLL01 |
- 				PMU_PPE_QSB | PMU_PPE_TOP);
--		clkdev_add_pmu("1e108000.gswip", "gphy0", 0, 0, PMU_GPHY);
--		clkdev_add_pmu("1e108000.gswip", "gphy1", 0, 0, PMU_GPHY);
-+		clkdev_add_pmu("1e108000.switch", "gphy0", 0, 0, PMU_GPHY);
-+		clkdev_add_pmu("1e108000.switch", "gphy1", 0, 0, PMU_GPHY);
- 		clkdev_add_pmu("1e103000.sdio", NULL, 1, 0, PMU_SDIO);
- 		clkdev_add_pmu("1e103100.deu", NULL, 1, 0, PMU_DEU);
- 		clkdev_add_pmu("1e116000.mei", "dfe", 1, 0, PMU_DFE);
+--- a/kernel/padata.c
++++ b/kernel/padata.c
+@@ -260,7 +260,7 @@ static void padata_reorder(struct parall
+ 	 *
+ 	 * Ensure reorder queue is read after pd->lock is dropped so we see
+ 	 * new objects from another task in padata_do_serial.  Pairs with
+-	 * smp_mb__after_atomic in padata_do_serial.
++	 * smp_mb in padata_do_serial.
+ 	 */
+ 	smp_mb();
+ 
+@@ -342,7 +342,7 @@ void padata_do_serial(struct padata_priv
+ 	 * with the trylock of pd->lock in padata_reorder.  Pairs with smp_mb
+ 	 * in padata_reorder.
+ 	 */
+-	smp_mb__after_atomic();
++	smp_mb();
+ 
+ 	padata_reorder(pd);
+ }
 
 
