@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AAA8E217185
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:42:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1361A217168
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:42:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728471AbgGGPVW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:21:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33542 "EHLO mail.kernel.org"
+        id S1728714AbgGGPTR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:19:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729698AbgGGPVU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:21:20 -0400
+        id S1729307AbgGGPTQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:19:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C9392078A;
-        Tue,  7 Jul 2020 15:21:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB45B20771;
+        Tue,  7 Jul 2020 15:19:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135279;
-        bh=QHZHaMRGai+vdVgWa6RY1S8eqxxr2yVw5NNDIaD0tBo=;
+        s=default; t=1594135155;
+        bh=FKfxQsRyT7kjS0tQFt9nWm9CYWhxBmsTbmgijqJj0yg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cvc//UVNQKgM4+TW3evs/kWeIJZkvHWvlk1SipwCetqt/If9MTCiXRrobDjy1U36T
-         dSSrEN7Jzy0tuKLjJLmj0UlKZtwj4otaaXFTgdCmiaJYgWsmgCU8IfnTmXtGH7JuK4
-         aqFKH3BEWc1a/o0GjeZan4Ef7cduGMmKiHEQPyaM=
+        b=r1UfDzO+PuGxdNosiujkEoE0gXA/hQJz4J3qW8zFE2M2yf7X2Lssg2U5sRUXqUzax
+         eFxqEjtgA8amj0X2h8oXJZWbCwuVBltvn0IVkZ8kQhF2xwhCrivj+3SjQNPKVALT8/
+         iSVNy87pbyj2K3/HeseRCzxvYBYU3NRmcGZmJcnE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Michael Shych <michaelsh@mellanox.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 45/65] i2c: mlxcpld: check correct size of maximum RECV_LEN packet
-Date:   Tue,  7 Jul 2020 17:17:24 +0200
-Message-Id: <20200707145754.642012872@linuxfoundation.org>
+        stable@vger.kernel.org, Hauke Mehrtens <hauke@hauke-m.de>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH 4.19 33/36] MIPS: Add missing EHB in mtc0 -> mfc0 sequence for DSPen
+Date:   Tue,  7 Jul 2020 17:17:25 +0200
+Message-Id: <20200707145750.738867355@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200707145752.417212219@linuxfoundation.org>
-References: <20200707145752.417212219@linuxfoundation.org>
+In-Reply-To: <20200707145749.130272978@linuxfoundation.org>
+References: <20200707145749.130272978@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +43,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Hauke Mehrtens <hauke@hauke-m.de>
 
-[ Upstream commit 597911287fcd13c3a4b4aa3e0a52b33d431e0a8e ]
+commit fcec538ef8cca0ad0b84432235dccd9059c8e6f8 upstream.
 
-I2C_SMBUS_BLOCK_MAX defines already the maximum number as defined in the
-SMBus 2.0 specs. I don't see a reason to add 1 here. Also, fix the errno
-to what is suggested for this error.
+This resolves the hazard between the mtc0 in the change_c0_status() and
+the mfc0 in configure_exception_vector(). Without resolving this hazard
+configure_exception_vector() could read an old value and would restore
+this old value again. This would revert the changes change_c0_status()
+did. I checked this by printing out the read_c0_status() at the end of
+per_cpu_trap_init() and the ST0_MX is not set without this patch.
 
-Fixes: c9bfdc7c16cb ("i2c: mlxcpld: Add support for smbus block read transaction")
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Michael Shych <michaelsh@mellanox.com>
-Tested-by: Michael Shych <michaelsh@mellanox.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The hazard is documented in the MIPS Architecture Reference Manual Vol.
+III: MIPS32/microMIPS32 Privileged Resource Architecture (MD00088), rev
+6.03 table 8.1 which includes:
+
+   Producer | Consumer | Hazard
+  ----------|----------|----------------------------
+   mtc0     | mfc0     | any coprocessor 0 register
+
+I saw this hazard on an Atheros AR9344 rev 2 SoC with a MIPS 74Kc CPU.
+There the change_c0_status() function would activate the DSPen by
+setting ST0_MX in the c0_status register. This was reverted and then the
+system got a DSP exception when the DSP registers were saved in
+save_dsp() in the first process switch. The crash looks like this:
+
+[    0.089999] Mount-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
+[    0.097796] Mountpoint-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
+[    0.107070] Kernel panic - not syncing: Unexpected DSP exception
+[    0.113470] Rebooting in 1 seconds..
+
+We saw this problem in OpenWrt only on the MIPS 74Kc based Atheros SoCs,
+not on the 24Kc based SoCs. We only saw it with kernel 5.4 not with
+kernel 4.19, in addition we had to use GCC 8.4 or 9.X, with GCC 8.3 it
+did not happen.
+
+In the kernel I bisected this problem to commit 9012d011660e ("compiler:
+allow all arches to enable CONFIG_OPTIMIZE_INLINING"), but when this was
+reverted it also happened after commit 172dcd935c34b ("MIPS: Always
+allocate exception vector for MIPSr2+").
+
+Commit 0b24cae4d535 ("MIPS: Add missing EHB in mtc0 -> mfc0 sequence.")
+does similar changes to a different file. I am not sure if there are
+more places affected by this problem.
+
+Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/i2c/busses/i2c-mlxcpld.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/mips/kernel/traps.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/i2c/busses/i2c-mlxcpld.c b/drivers/i2c/busses/i2c-mlxcpld.c
-index 2fd717d8dd30e..71d7bae2cbcad 100644
---- a/drivers/i2c/busses/i2c-mlxcpld.c
-+++ b/drivers/i2c/busses/i2c-mlxcpld.c
-@@ -337,9 +337,9 @@ static int mlxcpld_i2c_wait_for_tc(struct mlxcpld_i2c_priv *priv)
- 		if (priv->smbus_block && (val & MLXCPLD_I2C_SMBUS_BLK_BIT)) {
- 			mlxcpld_i2c_read_comm(priv, MLXCPLD_LPCI2C_NUM_DAT_REG,
- 					      &datalen, 1);
--			if (unlikely(datalen > (I2C_SMBUS_BLOCK_MAX + 1))) {
-+			if (unlikely(datalen > I2C_SMBUS_BLOCK_MAX)) {
- 				dev_err(priv->dev, "Incorrect smbus block read message len\n");
--				return -E2BIG;
-+				return -EPROTO;
- 			}
- 		} else {
- 			datalen = priv->xfer.data_len;
--- 
-2.25.1
-
+--- a/arch/mips/kernel/traps.c
++++ b/arch/mips/kernel/traps.c
+@@ -2096,6 +2096,7 @@ static void configure_status(void)
+ 
+ 	change_c0_status(ST0_CU|ST0_MX|ST0_RE|ST0_FR|ST0_BEV|ST0_TS|ST0_KX|ST0_SX|ST0_UX,
+ 			 status_set);
++	back_to_back_c0_hazard();
+ }
+ 
+ unsigned int hwrena;
 
 
