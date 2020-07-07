@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DCF2217040
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:16:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66F9521706F
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:24:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728945AbgGGPQU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:16:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55670 "EHLO mail.kernel.org"
+        id S1729171AbgGGPRK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:17:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728936AbgGGPQU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:16:20 -0400
+        id S1728335AbgGGPRK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:17:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25E1020738;
-        Tue,  7 Jul 2020 15:16:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 47D762078A;
+        Tue,  7 Jul 2020 15:17:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594134979;
-        bh=7joXzKaGfGR+ibfYWTpBL8FkbeLIOSNRApnPwWP0LS8=;
+        s=default; t=1594135029;
+        bh=TFcdCfvYJ7iy0Bl2IrPcojqeLuEsw+SucB4ANliI+PE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KRsBFzOTwgB8mUZo7E4a8UMBIjwOal1tALEk1daLi9rRbJBTklOjiw/DUa7TiMXGl
-         VhazApMohWKjlYey0PVfh2Qos7O/dFJ4bTnceuG0ulC4Iu7j1L2Cg7h13F+XnYGsW/
-         HQ9r/r/VXGBNsBO/tnjbEeVRhHVaza1cHpSoNNX4=
+        b=tNnQzCPcfqEgMyLEfmIwgWoFmxp6kQ28J+a7PKSQJocSHmp7Wr6SZUCnYwMFJJ6k9
+         b8t0mAy5sRux0W9hliwCmesl1uwbI3M3QKY8tVW/IL/iBpEjYt2pwPx2ipAOuR0Ir8
+         kSHHIWYgXRuehzMqFlw+RFznRTP7BcLvBEUqSmtQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
-        Maxime Ripard <maxime@cerno.tech>,
+        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 16/27] drm: sun4i: hdmi: Remove extra HPD polling
-Date:   Tue,  7 Jul 2020 17:15:43 +0200
-Message-Id: <20200707145749.725962737@linuxfoundation.org>
+Subject: [PATCH 4.14 17/27] virtio-blk: free vblk-vqs in error path of virtblk_probe()
+Date:   Tue,  7 Jul 2020 17:15:44 +0200
+Message-Id: <20200707145749.774950267@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200707145748.944863698@linuxfoundation.org>
 References: <20200707145748.944863698@linuxfoundation.org>
@@ -44,48 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wens@csie.org>
+From: Hou Tao <houtao1@huawei.com>
 
-[ Upstream commit bda8eaa6dee7525f4dac950810a85a88bf6c2ba0 ]
+[ Upstream commit e7eea44eefbdd5f0345a0a8b80a3ca1c21030d06 ]
 
-The HPD sense mechanism in Allwinner's old HDMI encoder hardware is more
-or less an input-only GPIO. Other GPIO-based HPD implementations
-directly return the current state, instead of polling for a specific
-state and returning the other if that times out.
+Else there will be memory leak if alloc_disk() fails.
 
-Remove the I/O polling from sun4i_hdmi_connector_detect() and directly
-return a known state based on the current reading. This also gets rid
-of excessive CPU usage by kworker as reported on Stack Exchange [1] and
-Armbian forums [2].
-
- [1] https://superuser.com/questions/1515001/debian-10-buster-on-cubietruck-with-bug-in-sun4i-drm-hdmi
- [2] https://forum.armbian.com/topic/14282-headless-systems-and-sun4i_drm_hdmi-a10a20/
-
-Fixes: 9c5681011a0c ("drm/sun4i: Add HDMI support")
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200629060032.24134-1-wens@kernel.org
+Fixes: 6a27b656fc02 ("block: virtio-blk: support multi virt queues per virtio-blk device")
+Signed-off-by: Hou Tao <houtao1@huawei.com>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/block/virtio_blk.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c b/drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c
-index 298d6a8bab120..82cb939351889 100644
---- a/drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c
-+++ b/drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c
-@@ -214,9 +214,8 @@ sun4i_hdmi_connector_detect(struct drm_connector *connector, bool force)
- 	struct sun4i_hdmi *hdmi = drm_connector_to_sun4i_hdmi(connector);
- 	unsigned long reg;
- 
--	if (readl_poll_timeout(hdmi->base + SUN4I_HDMI_HPD_REG, reg,
--			       reg & SUN4I_HDMI_HPD_HIGH,
--			       0, 500000)) {
-+	reg = readl(hdmi->base + SUN4I_HDMI_HPD_REG);
-+	if (reg & SUN4I_HDMI_HPD_HIGH) {
- 		cec_phys_addr_invalidate(hdmi->cec_adap);
- 		return connector_status_disconnected;
- 	}
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 0e18eed62c575..2f15e38fb3f8c 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -879,6 +879,7 @@ static int virtblk_probe(struct virtio_device *vdev)
+ 	put_disk(vblk->disk);
+ out_free_vq:
+ 	vdev->config->del_vqs(vdev);
++	kfree(vblk->vqs);
+ out_free_vblk:
+ 	kfree(vblk);
+ out_free_index:
 -- 
 2.25.1
 
