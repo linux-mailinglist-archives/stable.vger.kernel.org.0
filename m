@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DDD8921719B
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:42:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E6922171BF
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:43:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729855AbgGGPW2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:22:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35050 "EHLO mail.kernel.org"
+        id S1728185AbgGGPZV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:25:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729853AbgGGPW1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:22:27 -0400
+        id S1730204AbgGGPZU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:25:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0953F20663;
-        Tue,  7 Jul 2020 15:22:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7F4952065D;
+        Tue,  7 Jul 2020 15:25:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135347;
-        bh=Jz4gFQK5q46RmtPj1m4NWM1unA7WG2z/dnwJHV6seIo=;
+        s=default; t=1594135520;
+        bh=e+BUuIn73IG1vXJkZKD/lrkch6JfVg2iQ/uW9gKnfeQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XpnHjXqbr5ajA/jPxFHXC2lG77stvvxPwkWVcVshu21IoIIraF+wY3U1BZoaokZvj
-         3WE1tym/3cZF5q/OmYEdciBUOdvXJKFRIt7/zaz+24dMP7k6NPpcJwb6BSlomRp3sJ
-         osZu9yvUF/XOzUdUQVJWHxlwtthOc48zyBoTkus8=
+        b=r81AqlV3zYJ73TiYjmfYChNs8X1JbYmY9NC7g2DE/l7UIiO78M0uoLxOfm/E9QeWX
+         yVsCfU7pt2k4IWd1U6ADJqYhZzzt1A7UiOLc5xGAOaneaxdM9NYlMlwU9HxIMr+7FS
+         3lfsIbPpa22zbEWGVBcMphf/7L1RGTXw5OZtDTK0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Aurich <paul@darkrain42.org>,
-        Steve French <stfrench@microsoft.com>,
-        Aurelien Aptel <aaptel@suse.com>,
+        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 40/65] SMB3: Honor posix flag for multiuser mounts
+Subject: [PATCH 5.7 074/112] drm: sun4i: hdmi: Remove extra HPD polling
 Date:   Tue,  7 Jul 2020 17:17:19 +0200
-Message-Id: <20200707145754.396140663@linuxfoundation.org>
+Message-Id: <20200707145804.519886471@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200707145752.417212219@linuxfoundation.org>
-References: <20200707145752.417212219@linuxfoundation.org>
+In-Reply-To: <20200707145800.925304888@linuxfoundation.org>
+References: <20200707145800.925304888@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,49 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Aurich <paul@darkrain42.org>
+From: Chen-Yu Tsai <wens@csie.org>
 
-[ Upstream commit 5391b8e1b7b7e5cfa2dd4ffdc4b8c6b64dfd1866 ]
+[ Upstream commit bda8eaa6dee7525f4dac950810a85a88bf6c2ba0 ]
 
-The flag from the primary tcon needs to be copied into the volume info
-so that cifs_get_tcon will try to enable extensions on the per-user
-tcon. At that point, since posix extensions must have already been
-enabled on the superblock, don't try to needlessly adjust the mount
-flags.
+The HPD sense mechanism in Allwinner's old HDMI encoder hardware is more
+or less an input-only GPIO. Other GPIO-based HPD implementations
+directly return the current state, instead of polling for a specific
+state and returning the other if that times out.
 
-Fixes: ce558b0e17f8 ("smb3: Add posix create context for smb3.11 posix mounts")
-Fixes: b326614ea215 ("smb3: allow "posix" mount option to enable new SMB311 protocol extensions")
-Signed-off-by: Paul Aurich <paul@darkrain42.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Reviewed-by: Aurelien Aptel <aaptel@suse.com>
+Remove the I/O polling from sun4i_hdmi_connector_detect() and directly
+return a known state based on the current reading. This also gets rid
+of excessive CPU usage by kworker as reported on Stack Exchange [1] and
+Armbian forums [2].
+
+ [1] https://superuser.com/questions/1515001/debian-10-buster-on-cubietruck-with-bug-in-sun4i-drm-hdmi
+ [2] https://forum.armbian.com/topic/14282-headless-systems-and-sun4i_drm_hdmi-a10a20/
+
+Fixes: 9c5681011a0c ("drm/sun4i: Add HDMI support")
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200629060032.24134-1-wens@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/connect.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index 947c4aad5d6a4..134a90dc72322 100644
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -5282,6 +5282,7 @@ cifs_construct_tcon(struct cifs_sb_info *cifs_sb, kuid_t fsuid)
- 	vol_info->nohandlecache = master_tcon->nohandlecache;
- 	vol_info->local_lease = master_tcon->local_lease;
- 	vol_info->no_linux_ext = !master_tcon->unix_ext;
-+	vol_info->linux_ext = master_tcon->posix_extensions;
- 	vol_info->sectype = master_tcon->ses->sectype;
- 	vol_info->sign = master_tcon->ses->sign;
+diff --git a/drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c b/drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c
+index 68d4644ac2dcc..f07e0c32b93a2 100644
+--- a/drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c
++++ b/drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c
+@@ -262,9 +262,8 @@ sun4i_hdmi_connector_detect(struct drm_connector *connector, bool force)
+ 	struct sun4i_hdmi *hdmi = drm_connector_to_sun4i_hdmi(connector);
+ 	unsigned long reg;
  
-@@ -5309,10 +5310,6 @@ cifs_construct_tcon(struct cifs_sb_info *cifs_sb, kuid_t fsuid)
- 		goto out;
+-	if (readl_poll_timeout(hdmi->base + SUN4I_HDMI_HPD_REG, reg,
+-			       reg & SUN4I_HDMI_HPD_HIGH,
+-			       0, 500000)) {
++	reg = readl(hdmi->base + SUN4I_HDMI_HPD_REG);
++	if (reg & SUN4I_HDMI_HPD_HIGH) {
+ 		cec_phys_addr_invalidate(hdmi->cec_adap);
+ 		return connector_status_disconnected;
  	}
- 
--	/* if new SMB3.11 POSIX extensions are supported do not remap / and \ */
--	if (tcon->posix_extensions)
--		cifs_sb->mnt_cifs_flags |= CIFS_MOUNT_POSIX_PATHS;
--
- 	if (cap_unix(ses))
- 		reset_cifs_unix_caps(0, tcon, NULL, vol_info);
- 
 -- 
 2.25.1
 
