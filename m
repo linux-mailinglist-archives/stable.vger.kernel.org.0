@@ -2,97 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 413D3216561
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 06:29:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFB00216619
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 08:00:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726918AbgGGE3o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 00:29:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44410 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726911AbgGGE3o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jul 2020 00:29:44 -0400
-Received: from mail-qt1-x841.google.com (mail-qt1-x841.google.com [IPv6:2607:f8b0:4864:20::841])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EABC0C061755
-        for <stable@vger.kernel.org>; Mon,  6 Jul 2020 21:29:43 -0700 (PDT)
-Received: by mail-qt1-x841.google.com with SMTP id u12so30763815qth.12
-        for <stable@vger.kernel.org>; Mon, 06 Jul 2020 21:29:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=zdxUWMWXTEs/zs0LJh1bxLoOHpDg1k5nkLimqXptzik=;
-        b=CEISVm0HMfsn9bg46341WZg5+BU6SR0DV4uEw36w3MkBzCnF950fz1f8EPmWbEuGRn
-         ZTe/j332aMp/LDLjmFHiNaAzx1SG3xoIP5eYutGZyvfsWfc26fOYrdBVJ8xpt6cFrdyB
-         r1hjovSQKqq9FQIUktaZUrHOfUHiHwse22eZuHbibKRisxSosk9lFYwB7cOFFgRv64Wy
-         gx0X3cAu0CjhFalZZnD6Ld3jvloUWEPfMOdME630qESxX2f0nHd3o2SXEw/ZWvO4QvoX
-         gDt30qg67QtLrJXvh+GzMCwJ2cbADZqKNKuviVujNN/xzjcbbCnMEWfuFxiOXf4KDYCE
-         TNSg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=zdxUWMWXTEs/zs0LJh1bxLoOHpDg1k5nkLimqXptzik=;
-        b=VYQbdbtNgYe/Z3AdRIhzar7KFIh753RYC9Gx5+MECW7qVa4FCJ6czLxC4pZHEDRJSo
-         oWxaSUlEiE0+PHolDT3uVu/YINsF7ZxVqcftkofXG0Z9vLjmsGCxk+7KH8vAf0rnagvi
-         r6Z21DPPqDjxkmR19+Q38TKGY01UYAWK1ljX2x2XPlfxYTncf9VparhO4UdFF+iUIIfM
-         Duv9B7AauW+K4gwjdcKNFxHGI98/3OVJIuzuxbM424vs4RlRN5/rAYQ0+m8jbr1tVPZo
-         i9+H0jF3f57fVkWybIEznIeyShzAobJlj1wUpHVjnSKYIN1Hfdah5jYgZYuu7nJFNTPV
-         OTMw==
-X-Gm-Message-State: AOAM532DllFtzbamG84bPcGt4J45HM+2QiKb06nrJM2d2f8zQqsEzjUy
-        +jlM5hVBe3YKxhWVt2lvUGGBrknn6J5XCOs9TnE=
-X-Google-Smtp-Source: ABdhPJxcPez1uAyTcJQzZSnfZ5KY2nwNfgu9ptDBPW5yq9h9g/GCI8rSP0EoroWyZT3iAb5DVnx4CN9ogA0+nt9g8hw=
-X-Received: by 2002:ac8:40da:: with SMTP id f26mr54336218qtm.9.1594096183062;
- Mon, 06 Jul 2020 21:29:43 -0700 (PDT)
-MIME-Version: 1.0
-Received: by 2002:a0c:f044:0:0:0:0:0 with HTTP; Mon, 6 Jul 2020 21:29:42 -0700 (PDT)
-Reply-To: ayishagddafio@mail.ru
-From:   AISHA GADDAFI <aisha20110016@gmail.com>
-Date:   Mon, 6 Jul 2020 21:29:42 -0700
-Message-ID: <CAESqvJqezFs-ALWEZwTSzveBbSxjSHR-LXMraxYyRYDapr9xjg@mail.gmail.com>
-Subject: Lieber Freund (Assalamu Alaikum),?
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        id S1728179AbgGGF7s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 01:59:48 -0400
+Received: from foss.arm.com ([217.140.110.172]:50000 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727827AbgGGF7s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 01:59:48 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id CF5EF1045;
+        Mon,  6 Jul 2020 22:59:47 -0700 (PDT)
+Received: from localhost.localdomain (entos-thunderx2-02.shanghai.arm.com [10.169.212.213])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id E28C53F68F;
+        Mon,  6 Jul 2020 22:59:42 -0700 (PDT)
+From:   Jia He <justin.he@arm.com>
+To:     Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>
+Cc:     Michal Hocko <mhocko@suse.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Baoquan He <bhe@redhat.com>,
+        Chuhong Yuan <hslester96@gmail.com>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, linux-nvdimm@lists.01.org,
+        Kaly Xin <Kaly.Xin@arm.com>, Jia He <justin.he@arm.com>,
+        stable@vger.kernel.org
+Subject: [PATCH v2 3/3] mm/memory_hotplug: fix unpaired mem_hotplug_begin/done
+Date:   Tue,  7 Jul 2020 13:59:17 +0800
+Message-Id: <20200707055917.143653-4-justin.he@arm.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200707055917.143653-1-justin.he@arm.com>
+References: <20200707055917.143653-1-justin.he@arm.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=20
-Lieber Freund (Assalamu Alaikum),
+When check_memblock_offlined_cb() returns failed rc(e.g. the memblock is
+online at that time), mem_hotplug_begin/done is unpaired in such case.
 
-Ich bin vor einer privaten Suche auf Ihren E-Mail-Kontakt gesto=C3=9Fen
-Ihre Hilfe. Mein Name ist Aisha Al-Qaddafi, eine alleinerziehende
-Mutter und eine Witwe
-mit drei Kindern. Ich bin die einzige leibliche Tochter des Sp=C3=A4tlibysc=
-hen
-Pr=C3=A4sident (verstorbener Oberst Muammar Gaddafi).
+Therefore a warning:
+ Call Trace:
+  percpu_up_write+0x33/0x40
+  try_remove_memory+0x66/0x120
+  ? _cond_resched+0x19/0x30
+  remove_memory+0x2b/0x40
+  dev_dax_kmem_remove+0x36/0x72 [kmem]
+  device_release_driver_internal+0xf0/0x1c0
+  device_release_driver+0x12/0x20
+  bus_remove_device+0xe1/0x150
+  device_del+0x17b/0x3e0
+  unregister_dev_dax+0x29/0x60
+  devm_action_release+0x15/0x20
+  release_nodes+0x19a/0x1e0
+  devres_release_all+0x3f/0x50
+  device_release_driver_internal+0x100/0x1c0
+  driver_detach+0x4c/0x8f
+  bus_remove_driver+0x5c/0xd0
+  driver_unregister+0x31/0x50
+  dax_pmem_exit+0x10/0xfe0 [dax_pmem]
 
-Ich habe Investmentfonds im Wert von siebenundzwanzig Millionen
-f=C3=BCnfhunderttausend
-United State Dollar ($ 27.500.000.00) und ich brauche eine
-vertrauensw=C3=BCrdige Investition
-Manager / Partner aufgrund meines aktuellen Fl=C3=BCchtlingsstatus bin ich =
-jedoch
-M=C3=B6glicherweise interessieren Sie sich f=C3=BCr die Unterst=C3=BCtzung =
-von
-Investitionsprojekten in Ihrem Land
-Von dort aus k=C3=B6nnen wir in naher Zukunft Gesch=C3=A4ftsbeziehungen auf=
-bauen.
+Fixes: f1037ec0cc8a ("mm/memory_hotplug: fix remove_memory() lockdep splat")
+Cc: stable@vger.kernel.org # v5.6+
+Signed-off-by: Jia He <justin.he@arm.com>
+---
+ mm/memory_hotplug.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-Ich bin bereit, mit Ihnen =C3=BCber das Verh=C3=A4ltnis zwischen Investitio=
-n und
-Unternehmensgewinn zu verhandeln
-Basis f=C3=BCr die zuk=C3=BCnftige Investition Gewinne zu erzielen.
+diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+index da374cd3d45b..76c75a599da3 100644
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -1742,7 +1742,7 @@ static int __ref try_remove_memory(int nid, u64 start, u64 size)
+ 	 */
+ 	rc = walk_memory_blocks(start, size, NULL, check_memblock_offlined_cb);
+ 	if (rc)
+-		goto done;
++		return rc;
+ 
+ 	/* remove memmap entry */
+ 	firmware_map_remove(start, start + size, "System RAM");
+@@ -1766,9 +1766,8 @@ static int __ref try_remove_memory(int nid, u64 start, u64 size)
+ 
+ 	try_offline_node(nid);
+ 
+-done:
+ 	mem_hotplug_done();
+-	return rc;
++	return 0;
+ }
+ 
+ /**
+-- 
+2.17.1
 
-Wenn Sie bereit sind, dieses Projekt in meinem Namen zu bearbeiten,
-antworten Sie bitte dringend
-Damit ich Ihnen mehr Informationen =C3=BCber die Investmentfonds geben kann=
-.
-
-Ihre dringende Antwort wird gesch=C3=A4tzt. schreibe mir an diese email adr=
-esse (
-ayishagddafio@mail.ru ) zur weiteren Diskussion.
-
-Freundliche Gr=C3=BC=C3=9Fe
-Frau Aisha Al-Qaddafi
