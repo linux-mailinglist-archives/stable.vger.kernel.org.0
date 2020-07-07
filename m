@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D117921708A
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:24:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B92B2170F0
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:25:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729222AbgGGPSi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:18:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58012 "EHLO mail.kernel.org"
+        id S1729876AbgGGPWe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:22:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729216AbgGGPSi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:18:38 -0400
+        id S1729868AbgGGPWd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:22:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B5892065D;
-        Tue,  7 Jul 2020 15:18:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F46920773;
+        Tue,  7 Jul 2020 15:22:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135117;
-        bh=zixSc3b/IaBLaB9+Nhpr8wMit1YkgopGuFIq1Rk5x0k=;
+        s=default; t=1594135352;
+        bh=4IZmwLBc4b1k4DcYWXQa0y3dm3kYmW1EZ2wcvtA/LKM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DB4Bn85/u0+VViMT6sR77ovGaBANSqVziacvhKWjiCgPslh1dy4JhaoP2ehBUb6Dm
-         ptfP5BRs3nnTzrHRMvdYgLHZGZXJACK6kzS3dRiiFEPD3HHmrbdjklqzU0+IsQ8y0o
-         cRZvLpenXsPArrZ+mjkEVlaQ+PgIvVT86g+W9rNI=
+        b=uS2oHvf5SZRPIfLJS/ldsYXww5eZNVVliQCj6S1N9YI8yhb0LRH6J9G1wY/fRQGbS
+         4nkPvzMXF+iI00Uc4ISfHslQ/78PGSkG4U12WJ4OjiqcuVICmNV1AUiSwb/nAemrHX
+         H4l/Gk0q0mCN0vVkWOvTSUG28dnYoqj3kHQ2d0FY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Michael Kao <michael.kao@mediatek.com>,
+        Hsin-Yi Wang <hsinyi@chromium.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 18/36] cxgb4: fix SGE queue dump destination buffer context
-Date:   Tue,  7 Jul 2020 17:17:10 +0200
-Message-Id: <20200707145750.005172102@linuxfoundation.org>
+Subject: [PATCH 5.4 32/65] thermal/drivers/mediatek: Fix bank number settings on mt8183
+Date:   Tue,  7 Jul 2020 17:17:11 +0200
+Message-Id: <20200707145754.017890334@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200707145749.130272978@linuxfoundation.org>
-References: <20200707145749.130272978@linuxfoundation.org>
+In-Reply-To: <20200707145752.417212219@linuxfoundation.org>
+References: <20200707145752.417212219@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,52 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
+From: Michael Kao <michael.kao@mediatek.com>
 
-[ Upstream commit 1992ded5d111997877a9a25205976d8d03c46814 ]
+[ Upstream commit 14533a5a6c12e8d7de79d309d4085bf186058fe1 ]
 
-The data in destination buffer is expected to be be parsed in big
-endian. So, use the right context.
+MT8183_NUM_ZONES should be set to 1
+because MT8183 doesn't have multiple banks.
 
-Fixes following sparse warning:
-cudbg_lib.c:2041:44: warning: incorrect type in assignment (different
-base types)
-cudbg_lib.c:2041:44:    expected unsigned long long [usertype]
-cudbg_lib.c:2041:44:    got restricted __be64 [usertype]
-
-Fixes: 736c3b94474e ("cxgb4: collect egress and ingress SGE queue contexts")
-Signed-off-by: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: a4ffe6b52d27 ("thermal: mediatek: add support for MT8183")
+Signed-off-by: Michael Kao <michael.kao@mediatek.com>
+Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20200323121537.22697-6-michael.kao@mediatek.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/thermal/mtk_thermal.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c b/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
-index 5bc58429bb1c4..c91e155c147ca 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cudbg_lib.c
-@@ -1987,7 +1987,6 @@ int cudbg_collect_dump_context(struct cudbg_init *pdbg_init,
- 	u8 mem_type[CTXT_INGRESS + 1] = { 0 };
- 	struct cudbg_buffer temp_buff = { 0 };
- 	struct cudbg_ch_cntxt *buff;
--	u64 *dst_off, *src_off;
- 	u8 *ctx_buf;
- 	u8 i, k;
- 	int rc;
-@@ -2056,8 +2055,11 @@ int cudbg_collect_dump_context(struct cudbg_init *pdbg_init,
- 		}
+diff --git a/drivers/thermal/mtk_thermal.c b/drivers/thermal/mtk_thermal.c
+index acf4854cbb8b8..d6fabd0a7da69 100644
+--- a/drivers/thermal/mtk_thermal.c
++++ b/drivers/thermal/mtk_thermal.c
+@@ -211,6 +211,9 @@ enum {
+ /* The total number of temperature sensors in the MT8183 */
+ #define MT8183_NUM_SENSORS	6
  
- 		for (j = 0; j < max_ctx_qid; j++) {
-+			__be64 *dst_off;
-+			u64 *src_off;
++/* The number of banks in the MT8183 */
++#define MT8183_NUM_ZONES               1
 +
- 			src_off = (u64 *)(ctx_buf + j * SGE_CTXT_SIZE);
--			dst_off = (u64 *)buff->data;
-+			dst_off = (__be64 *)buff->data;
+ /* The number of sensing points per bank */
+ #define MT8183_NUM_SENSORS_PER_ZONE	 6
  
- 			/* The data is stored in 64-bit cpu order.  Convert it
- 			 * to big endian before parsing.
+@@ -498,7 +501,7 @@ static const struct mtk_thermal_data mt7622_thermal_data = {
+ 
+ static const struct mtk_thermal_data mt8183_thermal_data = {
+ 	.auxadc_channel = MT8183_TEMP_AUXADC_CHANNEL,
+-	.num_banks = MT8183_NUM_SENSORS_PER_ZONE,
++	.num_banks = MT8183_NUM_ZONES,
+ 	.num_sensors = MT8183_NUM_SENSORS,
+ 	.vts_index = mt8183_vts_index,
+ 	.cali_val = MT8183_CALIBRATION,
 -- 
 2.25.1
 
