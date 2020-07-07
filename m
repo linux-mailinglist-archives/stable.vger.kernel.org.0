@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A1AB21711F
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:25:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF2902170B7
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:24:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728430AbgGGPYZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:24:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37886 "EHLO mail.kernel.org"
+        id S1729469AbgGGPUF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:20:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728878AbgGGPYU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:24:20 -0400
+        id S1729086AbgGGPUF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:20:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 41D3A2078D;
-        Tue,  7 Jul 2020 15:24:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F141A20773;
+        Tue,  7 Jul 2020 15:20:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135459;
-        bh=8HfJxiaBhyuUcN47TRW9Cdd12Anjqh3d9fdQtGgxGGE=;
+        s=default; t=1594135204;
+        bh=Q1eotnea0vt85xAFAB4A7x6GFSgzVSoSnC1Rq1oBMqM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GcgiBGkYGz8pQLlc18S6xrZRTND6CpFgF4KHYj06QaavvCOxNZr5LCcIlzxartLu2
-         2mJVqNbBRKZVypWgfZ+egi7RLwwlnUIc0mk/lgm0HRc0BpB+iWnw+mX1hAGJmNH1Nz
-         Ap2h9JZ994tE7hTPRbUERppGu0smPyXEmu4PrvyA=
+        b=lJjBLxhSFRrw8Hrhr0WGGxHa5eAKs1zHhwP3nQXWoajaavMdxvraKxp0oGxezzuSM
+         e/MZO/4c2tehl6WyxphHitAGdiv+YjJ6tB+Yjd0sPregdcPf8E6wnhjdCphIqE69NH
+         fbnkFg7L9oN80RinmgjFZJhEp+qs22YfGjgmf2H4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 049/112] rxrpc: Fix afs large storage transmission performance drop
+        stable@vger.kernel.org, Anton Eidelman <anton@lightbitslabs.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 15/65] nvme-multipath: fix deadlock between ana_work and scan_work
 Date:   Tue,  7 Jul 2020 17:16:54 +0200
-Message-Id: <20200707145803.337562856@linuxfoundation.org>
+Message-Id: <20200707145753.192373916@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200707145800.925304888@linuxfoundation.org>
-References: <20200707145800.925304888@linuxfoundation.org>
+In-Reply-To: <20200707145752.417212219@linuxfoundation.org>
+References: <20200707145752.417212219@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,44 +44,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Anton Eidelman <anton@lightbitslabs.com>
 
-[ Upstream commit 02c28dffb13abbaaedece1e4a6493b48ad3f913a ]
+[ Upstream commit 489dd102a2c7c94d783a35f9412eb085b8da1aa4 ]
 
-Commit 2ad6691d988c, which moved the modification of the status annotation
-for a packet in the Tx buffer prior to the retransmission moved the state
-clearance, but managed to lose the bit that set it to UNACK.
+When scan_work calls nvme_mpath_add_disk() this holds ana_lock
+and invokes nvme_parse_ana_log(), which may issue IO
+in device_add_disk() and hang waiting for an accessible path.
+While nvme_mpath_set_live() only called when nvme_state_is_live(),
+a transition may cause NVME_SC_ANA_TRANSITION and requeue the IO.
 
-Consequently, if a retransmission occurs, the packet is accidentally
-changed to the ACK state (ie. 0) by masking it off, which means that the
-packet isn't counted towards the tally of newly-ACK'd packets if it gets
-hard-ACK'd.  This then prevents the congestion control algorithm from
-recovering properly.
+In order to recover and complete the IO ana_work on the same ctrl
+should be able to update the path state and remove NVME_NS_ANA_PENDING.
 
-Fix by reinstating the change of state to UNACK.
+The deadlock occurs because scan_work keeps holding ana_lock,
+so ana_work hangs [1].
 
-Spotted by the generic/460 xfstest.
+Fix:
+Now nvme_mpath_add_disk() uses nvme_parse_ana_log() to obtain a copy
+of the ANA group desc, and then calls nvme_update_ns_ana_state() without
+holding ana_lock.
 
-Fixes: 2ad6691d988c ("rxrpc: Fix race between incoming ACK parser and retransmitter")
-Signed-off-by: David Howells <dhowells@redhat.com>
+[1]:
+kernel: Workqueue: nvme-wq nvme_scan_work [nvme_core]
+kernel: Call Trace:
+kernel:  __schedule+0x2b9/0x6c0
+kernel:  schedule+0x42/0xb0
+kernel:  io_schedule+0x16/0x40
+kernel:  do_read_cache_page+0x438/0x830
+kernel:  read_cache_page+0x12/0x20
+kernel:  read_dev_sector+0x27/0xc0
+kernel:  read_lba+0xc1/0x220
+kernel:  efi_partition+0x1e6/0x708
+kernel:  check_partition+0x154/0x244
+kernel:  rescan_partitions+0xae/0x280
+kernel:  __blkdev_get+0x40f/0x560
+kernel:  blkdev_get+0x3d/0x140
+kernel:  __device_add_disk+0x388/0x480
+kernel:  device_add_disk+0x13/0x20
+kernel:  nvme_mpath_set_live+0x119/0x140 [nvme_core]
+kernel:  nvme_update_ns_ana_state+0x5c/0x60 [nvme_core]
+kernel:  nvme_set_ns_ana_state+0x1e/0x30 [nvme_core]
+kernel:  nvme_parse_ana_log+0xa1/0x180 [nvme_core]
+kernel:  nvme_mpath_add_disk+0x47/0x90 [nvme_core]
+kernel:  nvme_validate_ns+0x396/0x940 [nvme_core]
+kernel:  nvme_scan_work+0x24f/0x380 [nvme_core]
+kernel:  process_one_work+0x1db/0x380
+kernel:  worker_thread+0x249/0x400
+kernel:  kthread+0x104/0x140
+
+kernel: Workqueue: nvme-wq nvme_ana_work [nvme_core]
+kernel: Call Trace:
+kernel:  __schedule+0x2b9/0x6c0
+kernel:  schedule+0x42/0xb0
+kernel:  schedule_preempt_disabled+0xe/0x10
+kernel:  __mutex_lock.isra.0+0x182/0x4f0
+kernel:  ? __switch_to_asm+0x34/0x70
+kernel:  ? select_task_rq_fair+0x1aa/0x5c0
+kernel:  ? kvm_sched_clock_read+0x11/0x20
+kernel:  ? sched_clock+0x9/0x10
+kernel:  __mutex_lock_slowpath+0x13/0x20
+kernel:  mutex_lock+0x2e/0x40
+kernel:  nvme_read_ana_log+0x3a/0x100 [nvme_core]
+kernel:  nvme_ana_work+0x15/0x20 [nvme_core]
+kernel:  process_one_work+0x1db/0x380
+kernel:  worker_thread+0x4d/0x400
+kernel:  kthread+0x104/0x140
+kernel:  ? process_one_work+0x380/0x380
+kernel:  ? kthread_park+0x80/0x80
+kernel:  ret_from_fork+0x35/0x40
+
+Fixes: 0d0b660f214d ("nvme: add ANA support")
+Signed-off-by: Anton Eidelman <anton@lightbitslabs.com>
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rxrpc/call_event.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvme/host/multipath.c | 24 ++++++++++++++++--------
+ 1 file changed, 16 insertions(+), 8 deletions(-)
 
-diff --git a/net/rxrpc/call_event.c b/net/rxrpc/call_event.c
-index 985fb89202d0c..9ff85ee8337cd 100644
---- a/net/rxrpc/call_event.c
-+++ b/net/rxrpc/call_event.c
-@@ -253,7 +253,7 @@ static void rxrpc_resend(struct rxrpc_call *call, unsigned long now_j)
- 		 * confuse things
- 		 */
- 		annotation &= ~RXRPC_TX_ANNO_MASK;
--		annotation |= RXRPC_TX_ANNO_RESENT;
-+		annotation |= RXRPC_TX_ANNO_UNACK | RXRPC_TX_ANNO_RESENT;
- 		call->rxtx_annotations[ix] = annotation;
+diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
+index 7cc0ec180d555..18f0a05c74b56 100644
+--- a/drivers/nvme/host/multipath.c
++++ b/drivers/nvme/host/multipath.c
+@@ -639,26 +639,34 @@ static ssize_t ana_state_show(struct device *dev, struct device_attribute *attr,
+ }
+ DEVICE_ATTR_RO(ana_state);
  
- 		skb = call->rxtx_buffer[ix];
+-static int nvme_set_ns_ana_state(struct nvme_ctrl *ctrl,
++static int nvme_lookup_ana_group_desc(struct nvme_ctrl *ctrl,
+ 		struct nvme_ana_group_desc *desc, void *data)
+ {
+-	struct nvme_ns *ns = data;
++	struct nvme_ana_group_desc *dst = data;
+ 
+-	if (ns->ana_grpid == le32_to_cpu(desc->grpid)) {
+-		nvme_update_ns_ana_state(desc, ns);
+-		return -ENXIO; /* just break out of the loop */
+-	}
++	if (desc->grpid != dst->grpid)
++		return 0;
+ 
+-	return 0;
++	*dst = *desc;
++	return -ENXIO; /* just break out of the loop */
+ }
+ 
+ void nvme_mpath_add_disk(struct nvme_ns *ns, struct nvme_id_ns *id)
+ {
+ 	if (nvme_ctrl_use_ana(ns->ctrl)) {
++		struct nvme_ana_group_desc desc = {
++			.grpid = id->anagrpid,
++			.state = 0,
++		};
++
+ 		mutex_lock(&ns->ctrl->ana_lock);
+ 		ns->ana_grpid = le32_to_cpu(id->anagrpid);
+-		nvme_parse_ana_log(ns->ctrl, ns, nvme_set_ns_ana_state);
++		nvme_parse_ana_log(ns->ctrl, &desc, nvme_lookup_ana_group_desc);
+ 		mutex_unlock(&ns->ctrl->ana_lock);
++		if (desc.state) {
++			/* found the group desc: update */
++			nvme_update_ns_ana_state(&desc, ns);
++		}
+ 	} else {
+ 		ns->ana_state = NVME_ANA_OPTIMIZED; 
+ 		nvme_mpath_set_live(ns);
 -- 
 2.25.1
 
