@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88200217172
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:42:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 301BB217166
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:42:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729441AbgGGPUD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:20:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59926 "EHLO mail.kernel.org"
+        id S1728633AbgGGPTM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:19:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729456AbgGGPUC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:20:02 -0400
+        id S1728637AbgGGPTL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:19:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8194820771;
-        Tue,  7 Jul 2020 15:20:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF61C2065D;
+        Tue,  7 Jul 2020 15:19:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135202;
-        bh=dwI23tYRJr8NZdszrh7dwuA5rCvVT6FR0p9deqTAc1c=;
+        s=default; t=1594135150;
+        bh=QLLF+NDIYjSNs/rlbGMtRHIO/uGipim8t2oji63YRdE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lUuOdGNPCp1Cs8lGezQqeeWoq+VXclQDhF1kuaoLxN8Gok2UEm0CBRf5daRFydN5N
-         DNtmnNF+77yEfduoLnVPaSZuYla89ObfVALEXALx323M5EdrF1Z/UUlTmi89bN2qTm
-         LfQj+i1xE1Ba4RKm6y0zHHpHwzCNyKohEiZ272/Y=
+        b=cwCNevBBHPdbpA7K1VpvMh6M1otV2JgMANMhcjzNCU2TEzwvJ1s99xRGryLa1HTjd
+         VBZ9dD1DojZBHxiwGheh8oVH775+bJ+j5gl4o9OZNwbyisoRPaMK4e1a/2jhDoe3jW
+         UndAjB2pf/Itm8qp5oBRCkw3EPdlUQ8q5YkFyass=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anton Eidelman <anton@lightbitslabs.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 14/65] nvme: fix possible deadlock when I/O is blocked
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        Anand Jain <anand.jain@oracle.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 01/36] btrfs: fix a block group ref counter leak after failure to remove block group
 Date:   Tue,  7 Jul 2020 17:16:53 +0200
-Message-Id: <20200707145753.145545420@linuxfoundation.org>
+Message-Id: <20200707145749.204764338@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200707145752.417212219@linuxfoundation.org>
-References: <20200707145752.417212219@linuxfoundation.org>
+In-Reply-To: <20200707145749.130272978@linuxfoundation.org>
+References: <20200707145749.130272978@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,121 +48,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit 3b4b19721ec652ad2c4fe51dfbe5124212b5f581 ]
+[ Upstream commit 9fecd13202f520f3f25d5b1c313adb740fe19773 ]
 
-Revert fab7772bfbcf ("nvme-multipath: revalidate nvme_ns_head gendisk
-in nvme_validate_ns")
+When removing a block group, if we fail to delete the block group's item
+from the extent tree, we jump to the 'out' label and end up decrementing
+the block group's reference count once only (by 1), resulting in a counter
+leak because the block group at that point was already removed from the
+block group cache rbtree - so we have to decrement the reference count
+twice, once for the rbtree and once for our lookup at the start of the
+function.
 
-When adding a new namespace to the head disk (via nvme_mpath_set_live)
-we will see partition scan which triggers I/O on the mpath device node.
-This process will usually be triggered from the scan_work which holds
-the scan_lock. If I/O blocks (if we got ana change currently have only
-available paths but none are accessible) this can deadlock on the head
-disk bd_mutex as both partition scan I/O takes it, and head disk revalidation
-takes it to check for resize (also triggered from scan_work on a different
-path). See trace [1].
+There is a second bug where if removing the free space tree entries (the
+call to remove_block_group_free_space()) fails we end up jumping to the
+'out_put_group' label but end up decrementing the reference count only
+once, when we should have done it twice, since we have already removed
+the block group from the block group cache rbtree. This happens because
+the reference count decrement for the rbtree reference happens after
+attempting to remove the free space tree entries, which is far away from
+the place where we remove the block group from the rbtree.
 
-The mpath disk revalidation was originally added to detect online disk
-size change, but this is no longer needed since commit cb224c3af4df
-("nvme: Convert to use set_capacity_revalidate_and_notify") which already
-updates resize info without unnecessarily revalidating the disk (the
-mpath disk doesn't even implement .revalidate_disk fop).
+To make things less error prone, decrement the reference count for the
+rbtree immediately after removing the block group from it. This also
+eleminates the need for two different exit labels on error, renaming
+'out_put_label' to just 'out' and removing the old 'out'.
 
-[1]:
---
-kernel: INFO: task kworker/u65:9:494 blocked for more than 241 seconds.
-kernel:       Tainted: G           OE     5.3.5-050305-generic #201910071830
-kernel: "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-kernel: kworker/u65:9   D    0   494      2 0x80004000
-kernel: Workqueue: nvme-wq nvme_scan_work [nvme_core]
-kernel: Call Trace:
-kernel:  __schedule+0x2b9/0x6c0
-kernel:  schedule+0x42/0xb0
-kernel:  schedule_preempt_disabled+0xe/0x10
-kernel:  __mutex_lock.isra.0+0x182/0x4f0
-kernel:  __mutex_lock_slowpath+0x13/0x20
-kernel:  mutex_lock+0x2e/0x40
-kernel:  revalidate_disk+0x63/0xa0
-kernel:  __nvme_revalidate_disk+0xfe/0x110 [nvme_core]
-kernel:  nvme_revalidate_disk+0xa4/0x160 [nvme_core]
-kernel:  ? evict+0x14c/0x1b0
-kernel:  revalidate_disk+0x2b/0xa0
-kernel:  nvme_validate_ns+0x49/0x940 [nvme_core]
-kernel:  ? blk_mq_free_request+0xd2/0x100
-kernel:  ? __nvme_submit_sync_cmd+0xbe/0x1e0 [nvme_core]
-kernel:  nvme_scan_work+0x24f/0x380 [nvme_core]
-kernel:  process_one_work+0x1db/0x380
-kernel:  worker_thread+0x249/0x400
-kernel:  kthread+0x104/0x140
-kernel:  ? process_one_work+0x380/0x380
-kernel:  ? kthread_park+0x80/0x80
-kernel:  ret_from_fork+0x1f/0x40
-...
-kernel: INFO: task kworker/u65:1:2630 blocked for more than 241 seconds.
-kernel:       Tainted: G           OE     5.3.5-050305-generic #201910071830
-kernel: "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-kernel: kworker/u65:1   D    0  2630      2 0x80004000
-kernel: Workqueue: nvme-wq nvme_scan_work [nvme_core]
-kernel: Call Trace:
-kernel:  __schedule+0x2b9/0x6c0
-kernel:  schedule+0x42/0xb0
-kernel:  io_schedule+0x16/0x40
-kernel:  do_read_cache_page+0x438/0x830
-kernel:  ? __switch_to_asm+0x34/0x70
-kernel:  ? file_fdatawait_range+0x30/0x30
-kernel:  read_cache_page+0x12/0x20
-kernel:  read_dev_sector+0x27/0xc0
-kernel:  read_lba+0xc1/0x220
-kernel:  ? kmem_cache_alloc_trace+0x19c/0x230
-kernel:  efi_partition+0x1e6/0x708
-kernel:  ? vsnprintf+0x39e/0x4e0
-kernel:  ? snprintf+0x49/0x60
-kernel:  check_partition+0x154/0x244
-kernel:  rescan_partitions+0xae/0x280
-kernel:  __blkdev_get+0x40f/0x560
-kernel:  blkdev_get+0x3d/0x140
-kernel:  __device_add_disk+0x388/0x480
-kernel:  device_add_disk+0x13/0x20
-kernel:  nvme_mpath_set_live+0x119/0x140 [nvme_core]
-kernel:  nvme_update_ns_ana_state+0x5c/0x60 [nvme_core]
-kernel:  nvme_set_ns_ana_state+0x1e/0x30 [nvme_core]
-kernel:  nvme_parse_ana_log+0xa1/0x180 [nvme_core]
-kernel:  ? nvme_update_ns_ana_state+0x60/0x60 [nvme_core]
-kernel:  nvme_mpath_add_disk+0x47/0x90 [nvme_core]
-kernel:  nvme_validate_ns+0x396/0x940 [nvme_core]
-kernel:  ? blk_mq_free_request+0xd2/0x100
-kernel:  nvme_scan_work+0x24f/0x380 [nvme_core]
-kernel:  process_one_work+0x1db/0x380
-kernel:  worker_thread+0x249/0x400
-kernel:  kthread+0x104/0x140
-kernel:  ? process_one_work+0x380/0x380
-kernel:  ? kthread_park+0x80/0x80
-kernel:  ret_from_fork+0x1f/0x40
---
-
-Fixes: fab7772bfbcf ("nvme-multipath: revalidate nvme_ns_head gendisk
-in nvme_validate_ns")
-Signed-off-by: Anton Eidelman <anton@lightbitslabs.com>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: f6033c5e333238 ("btrfs: fix block group leak when removing fails")
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Reviewed-by: Anand Jain <anand.jain@oracle.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 1 -
- 1 file changed, 1 deletion(-)
+ fs/btrfs/extent-tree.c | 19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index d4b388793f40d..c44c00b9e1d85 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -1870,7 +1870,6 @@ static void __nvme_revalidate_disk(struct gendisk *disk, struct nvme_id_ns *id)
- 	if (ns->head->disk) {
- 		nvme_update_disk_info(ns->head->disk, ns, id);
- 		blk_queue_stack_limits(ns->head->disk->queue, ns->queue);
--		revalidate_disk(ns->head->disk);
+diff --git a/fs/btrfs/extent-tree.c b/fs/btrfs/extent-tree.c
+index 271e70c45d5bd..ec3aa76d19b7f 100644
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -10286,7 +10286,7 @@ int btrfs_remove_block_group(struct btrfs_trans_handle *trans,
+ 	path = btrfs_alloc_path();
+ 	if (!path) {
+ 		ret = -ENOMEM;
+-		goto out_put_group;
++		goto out;
  	}
- #endif
+ 
+ 	/*
+@@ -10323,7 +10323,7 @@ int btrfs_remove_block_group(struct btrfs_trans_handle *trans,
+ 		ret = btrfs_orphan_add(trans, BTRFS_I(inode));
+ 		if (ret) {
+ 			btrfs_add_delayed_iput(inode);
+-			goto out_put_group;
++			goto out;
+ 		}
+ 		clear_nlink(inode);
+ 		/* One for the block groups ref */
+@@ -10346,13 +10346,13 @@ int btrfs_remove_block_group(struct btrfs_trans_handle *trans,
+ 
+ 	ret = btrfs_search_slot(trans, tree_root, &key, path, -1, 1);
+ 	if (ret < 0)
+-		goto out_put_group;
++		goto out;
+ 	if (ret > 0)
+ 		btrfs_release_path(path);
+ 	if (ret == 0) {
+ 		ret = btrfs_del_item(trans, tree_root, path);
+ 		if (ret)
+-			goto out_put_group;
++			goto out;
+ 		btrfs_release_path(path);
+ 	}
+ 
+@@ -10361,6 +10361,9 @@ int btrfs_remove_block_group(struct btrfs_trans_handle *trans,
+ 		 &fs_info->block_group_cache_tree);
+ 	RB_CLEAR_NODE(&block_group->cache_node);
+ 
++	/* Once for the block groups rbtree */
++	btrfs_put_block_group(block_group);
++
+ 	if (fs_info->first_logical_byte == block_group->key.objectid)
+ 		fs_info->first_logical_byte = (u64)-1;
+ 	spin_unlock(&fs_info->block_group_cache_lock);
+@@ -10494,10 +10497,7 @@ int btrfs_remove_block_group(struct btrfs_trans_handle *trans,
+ 
+ 	ret = remove_block_group_free_space(trans, block_group);
+ 	if (ret)
+-		goto out_put_group;
+-
+-	/* Once for the block groups rbtree */
+-	btrfs_put_block_group(block_group);
++		goto out;
+ 
+ 	ret = btrfs_search_slot(trans, root, &key, path, -1, 1);
+ 	if (ret > 0)
+@@ -10525,10 +10525,9 @@ int btrfs_remove_block_group(struct btrfs_trans_handle *trans,
+ 		free_extent_map(em);
+ 	}
+ 
+-out_put_group:
++out:
+ 	/* Once for the lookup reference */
+ 	btrfs_put_block_group(block_group);
+-out:
+ 	btrfs_free_path(path);
+ 	return ret;
  }
 -- 
 2.25.1
