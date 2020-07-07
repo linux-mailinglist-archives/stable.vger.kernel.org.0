@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CBC52170BF
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:24:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D2D82170C1
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:24:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729168AbgGGPUT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:20:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60304 "EHLO mail.kernel.org"
+        id S1729482AbgGGPUY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:20:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729503AbgGGPUS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:20:18 -0400
+        id S1728919AbgGGPUX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:20:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F15E3206CD;
-        Tue,  7 Jul 2020 15:20:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 19E232065D;
+        Tue,  7 Jul 2020 15:20:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135217;
-        bh=TQp5hTbDD5CfDkkOPSDPVU3Tk7aX4S5pNwxMCWt8qv0=;
+        s=default; t=1594135222;
+        bh=RZK6OgLGKENjivE3qrlys/hBYBSghPiahkCU9YnUvLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JfHWovoPtAHXR1NFOhwmhr+9OQQJLeGkw/ADKM30g4ZORG/I2UspMsQrcVx76Ezz1
-         TWfLt/ywtSFmeKxq6xAJ+qaI2aSEoPkv6X7lxkeBs+nKLcxK+mm8uNKtgvE6oBgE1k
-         rba4lMnJcoQktkal3AtDWEFAOdQCzb5K6+vszuDA=
+        b=Snge/iAFsjKMatmAQH+SrDORgKQePfMDDJQPoaL7PF6GTU98iAyTWPk6aKsp5BH8P
+         9GgyqRThgqHleUGFGBQebPzcBDkqFF0/i2M2Ucq8i8sYtIRchCbGkfgY6jyNS90HZa
+         rPWkUoUgvwLY1MD8z6KIZR47+GkJ/7iphwZZ5Bac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mario Limonciello <Mario.Limonciello@dell.com>,
-        Alex Guzman <alex@guzman.io>,
-        Jerry Snitselaar <jsnitsel@redhat.com>,
-        James Bottomley <James.Bottomley@HansenPartnership.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Subject: [PATCH 5.4 20/65] tpm: Fix TIS locality timeout problems
-Date:   Tue,  7 Jul 2020 17:16:59 +0200
-Message-Id: <20200707145753.460530756@linuxfoundation.org>
+        stable@vger.kernel.org, Brian Moyles <bmoyles@netflix.com>,
+        Mauricio Faria de Oliveira <mfo@canonical.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.4 21/65] crypto: af_alg - fix use-after-free in af_alg_accept() due to bh_lock_sock()
+Date:   Tue,  7 Jul 2020 17:17:00 +0200
+Message-Id: <20200707145753.509727110@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200707145752.417212219@linuxfoundation.org>
 References: <20200707145752.417212219@linuxfoundation.org>
@@ -47,73 +44,191 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-commit 7862840219058436b80029a0263fd1ef065fb1b3 upstream.
+commit 34c86f4c4a7be3b3e35aa48bd18299d4c756064d upstream.
 
-It has been reported that some TIS based TPMs are giving unexpected
-errors when using the O_NONBLOCK path of the TPM device. The problem
-is that some TPMs don't like it when you get and then relinquish a
-locality (as the tpm_try_get_ops()/tpm_put_ops() pair does) without
-sending a command.  This currently happens all the time in the
-O_NONBLOCK write path. Fix this by moving the tpm_try_get_ops()
-further down the code to after the O_NONBLOCK determination is made.
-This is safe because the priv->buffer_mutex still protects the priv
-state being modified.
+The locking in af_alg_release_parent is broken as the BH socket
+lock can only be taken if there is a code-path to handle the case
+where the lock is owned by process-context.  Instead of adding
+such handling, we can fix this by changing the ref counts to
+atomic_t.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=206275
-Fixes: d23d12484307 ("tpm: fix invalid locking in NONBLOCKING mode")
-Reported-by: Mario Limonciello <Mario.Limonciello@dell.com>
-Tested-by: Alex Guzman <alex@guzman.io>
-Cc: stable@vger.kernel.org
-Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
-Signed-off-by: James Bottomley <James.Bottomley@HansenPartnership.com>
-Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+This patch also modifies the main refcnt to include both normal
+and nokey sockets.  This way we don't have to fudge the nokey
+ref count when a socket changes from nokey to normal.
+
+Credits go to Mauricio Faria de Oliveira who diagnosed this bug
+and sent a patch for it:
+
+https://lore.kernel.org/linux-crypto/20200605161657.535043-1-mfo@canonical.com/
+
+Reported-by: Brian Moyles <bmoyles@netflix.com>
+Reported-by: Mauricio Faria de Oliveira <mfo@canonical.com>
+Fixes: 37f96694cf73 ("crypto: af_alg - Use bh_lock_sock in...")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/char/tpm/tpm-dev-common.c |   19 +++++++++----------
- 1 file changed, 9 insertions(+), 10 deletions(-)
+ crypto/af_alg.c         |   26 +++++++++++---------------
+ crypto/algif_aead.c     |    9 +++------
+ crypto/algif_hash.c     |    9 +++------
+ crypto/algif_skcipher.c |    9 +++------
+ include/crypto/if_alg.h |    4 ++--
+ 5 files changed, 22 insertions(+), 35 deletions(-)
 
---- a/drivers/char/tpm/tpm-dev-common.c
-+++ b/drivers/char/tpm/tpm-dev-common.c
-@@ -189,15 +189,6 @@ ssize_t tpm_common_write(struct file *fi
- 		goto out;
- 	}
+--- a/crypto/af_alg.c
++++ b/crypto/af_alg.c
+@@ -128,21 +128,15 @@ EXPORT_SYMBOL_GPL(af_alg_release);
+ void af_alg_release_parent(struct sock *sk)
+ {
+ 	struct alg_sock *ask = alg_sk(sk);
+-	unsigned int nokey = ask->nokey_refcnt;
+-	bool last = nokey && !ask->refcnt;
++	unsigned int nokey = atomic_read(&ask->nokey_refcnt);
  
--	/* atomic tpm command send and result receive. We only hold the ops
--	 * lock during this period so that the tpm can be unregistered even if
--	 * the char dev is held open.
--	 */
--	if (tpm_try_get_ops(priv->chip)) {
--		ret = -EPIPE;
--		goto out;
--	}
--
- 	priv->response_length = 0;
- 	priv->response_read = false;
- 	*off = 0;
-@@ -211,11 +202,19 @@ ssize_t tpm_common_write(struct file *fi
- 	if (file->f_flags & O_NONBLOCK) {
- 		priv->command_enqueued = true;
- 		queue_work(tpm_dev_wq, &priv->async_work);
--		tpm_put_ops(priv->chip);
- 		mutex_unlock(&priv->buffer_mutex);
- 		return size;
- 	}
+ 	sk = ask->parent;
+ 	ask = alg_sk(sk);
  
-+	/* atomic tpm command send and result receive. We only hold the ops
-+	 * lock during this period so that the tpm can be unregistered even if
-+	 * the char dev is held open.
-+	 */
-+	if (tpm_try_get_ops(priv->chip)) {
-+		ret = -EPIPE;
-+		goto out;
+-	local_bh_disable();
+-	bh_lock_sock(sk);
+-	ask->nokey_refcnt -= nokey;
+-	if (!last)
+-		last = !--ask->refcnt;
+-	bh_unlock_sock(sk);
+-	local_bh_enable();
++	if (nokey)
++		atomic_dec(&ask->nokey_refcnt);
+ 
+-	if (last)
++	if (atomic_dec_and_test(&ask->refcnt))
+ 		sock_put(sk);
+ }
+ EXPORT_SYMBOL_GPL(af_alg_release_parent);
+@@ -187,7 +181,7 @@ static int alg_bind(struct socket *sock,
+ 
+ 	err = -EBUSY;
+ 	lock_sock(sk);
+-	if (ask->refcnt | ask->nokey_refcnt)
++	if (atomic_read(&ask->refcnt))
+ 		goto unlock;
+ 
+ 	swap(ask->type, type);
+@@ -236,7 +230,7 @@ static int alg_setsockopt(struct socket
+ 	int err = -EBUSY;
+ 
+ 	lock_sock(sk);
+-	if (ask->refcnt)
++	if (atomic_read(&ask->refcnt) != atomic_read(&ask->nokey_refcnt))
+ 		goto unlock;
+ 
+ 	type = ask->type;
+@@ -301,12 +295,14 @@ int af_alg_accept(struct sock *sk, struc
+ 	if (err)
+ 		goto unlock;
+ 
+-	if (nokey || !ask->refcnt++)
++	if (atomic_inc_return_relaxed(&ask->refcnt) == 1)
+ 		sock_hold(sk);
+-	ask->nokey_refcnt += nokey;
++	if (nokey) {
++		atomic_inc(&ask->nokey_refcnt);
++		atomic_set(&alg_sk(sk2)->nokey_refcnt, 1);
 +	}
-+
- 	ret = tpm_dev_transmit(priv->chip, priv->space, priv->data_buffer,
- 			       sizeof(priv->data_buffer));
- 	tpm_put_ops(priv->chip);
+ 	alg_sk(sk2)->parent = sk;
+ 	alg_sk(sk2)->type = type;
+-	alg_sk(sk2)->nokey_refcnt = nokey;
+ 
+ 	newsock->ops = type->ops;
+ 	newsock->state = SS_CONNECTED;
+--- a/crypto/algif_aead.c
++++ b/crypto/algif_aead.c
+@@ -384,7 +384,7 @@ static int aead_check_key(struct socket
+ 	struct alg_sock *ask = alg_sk(sk);
+ 
+ 	lock_sock(sk);
+-	if (ask->refcnt)
++	if (!atomic_read(&ask->nokey_refcnt))
+ 		goto unlock_child;
+ 
+ 	psk = ask->parent;
+@@ -396,11 +396,8 @@ static int aead_check_key(struct socket
+ 	if (crypto_aead_get_flags(tfm->aead) & CRYPTO_TFM_NEED_KEY)
+ 		goto unlock;
+ 
+-	if (!pask->refcnt++)
+-		sock_hold(psk);
+-
+-	ask->refcnt = 1;
+-	sock_put(psk);
++	atomic_dec(&pask->nokey_refcnt);
++	atomic_set(&ask->nokey_refcnt, 0);
+ 
+ 	err = 0;
+ 
+--- a/crypto/algif_hash.c
++++ b/crypto/algif_hash.c
+@@ -301,7 +301,7 @@ static int hash_check_key(struct socket
+ 	struct alg_sock *ask = alg_sk(sk);
+ 
+ 	lock_sock(sk);
+-	if (ask->refcnt)
++	if (!atomic_read(&ask->nokey_refcnt))
+ 		goto unlock_child;
+ 
+ 	psk = ask->parent;
+@@ -313,11 +313,8 @@ static int hash_check_key(struct socket
+ 	if (crypto_ahash_get_flags(tfm) & CRYPTO_TFM_NEED_KEY)
+ 		goto unlock;
+ 
+-	if (!pask->refcnt++)
+-		sock_hold(psk);
+-
+-	ask->refcnt = 1;
+-	sock_put(psk);
++	atomic_dec(&pask->nokey_refcnt);
++	atomic_set(&ask->nokey_refcnt, 0);
+ 
+ 	err = 0;
+ 
+--- a/crypto/algif_skcipher.c
++++ b/crypto/algif_skcipher.c
+@@ -211,7 +211,7 @@ static int skcipher_check_key(struct soc
+ 	struct alg_sock *ask = alg_sk(sk);
+ 
+ 	lock_sock(sk);
+-	if (ask->refcnt)
++	if (!atomic_read(&ask->nokey_refcnt))
+ 		goto unlock_child;
+ 
+ 	psk = ask->parent;
+@@ -223,11 +223,8 @@ static int skcipher_check_key(struct soc
+ 	if (crypto_skcipher_get_flags(tfm) & CRYPTO_TFM_NEED_KEY)
+ 		goto unlock;
+ 
+-	if (!pask->refcnt++)
+-		sock_hold(psk);
+-
+-	ask->refcnt = 1;
+-	sock_put(psk);
++	atomic_dec(&pask->nokey_refcnt);
++	atomic_set(&ask->nokey_refcnt, 0);
+ 
+ 	err = 0;
+ 
+--- a/include/crypto/if_alg.h
++++ b/include/crypto/if_alg.h
+@@ -29,8 +29,8 @@ struct alg_sock {
+ 
+ 	struct sock *parent;
+ 
+-	unsigned int refcnt;
+-	unsigned int nokey_refcnt;
++	atomic_t refcnt;
++	atomic_t nokey_refcnt;
+ 
+ 	const struct af_alg_type *type;
+ 	void *private;
 
 
