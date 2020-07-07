@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D4C321720D
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:43:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9844D217245
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:44:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729908AbgGGP2E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:28:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42592 "EHLO mail.kernel.org"
+        id S1728197AbgGGPbB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:31:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729176AbgGGP2D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:28:03 -0400
+        id S1728243AbgGGPXm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:23:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F16F320663;
-        Tue,  7 Jul 2020 15:28:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 29D332065D;
+        Tue,  7 Jul 2020 15:23:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135682;
-        bh=BLq+7ekXzyO3NbF70Wi6NnkYVRG+s2BoLo1H7UPaafU=;
+        s=default; t=1594135421;
+        bh=aFWwdnGldu6yeDfiCL6H150vG7Qv0GY55c5ccTuSQE0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bCGrX1ck6tOVZsA9/g1ojtqRTYcrXsOipcsu1jmWEJOZxvJIVomPNyToCKfhyoz24
-         Y/bHc5vQheGoKehncqOXT+6kqYbiDKj5dH0JVIy+qYJ1Xra472nS9pDuGa8bIGzjHR
-         w1rNraIzg4Bs0OKucSXN8f+gUMc/KVqP7sB8dDi8=
+        b=tCX+izjotAONhSwY1inmTxBlbijy0l8KZbrCVx3cNnP2Gvi0ydNIqEV5LCKzNZTjc
+         +BUZgHE4jzZhx9+28IkMPRkC2Q8ny4jjgKO8ek1MZiIAnuVy8WvHV20rDzXYhcGQOB
+         5tZZXCDyRII8K7uAiRTrKvXHJC0c/XpKl32JxnpQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Agarwal, Anchal" <anchalag@amazon.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 01/65] io_uring: make sure async workqueue is canceled on exit
+        stable@vger.kernel.org, Anton Eidelman <anton@lightbitslabs.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 035/112] nvme: fix possible deadlock when I/O is blocked
 Date:   Tue,  7 Jul 2020 17:16:40 +0200
-Message-Id: <20200707145752.491283624@linuxfoundation.org>
+Message-Id: <20200707145802.659256200@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200707145752.417212219@linuxfoundation.org>
-References: <20200707145752.417212219@linuxfoundation.org>
+In-Reply-To: <20200707145800.925304888@linuxfoundation.org>
+References: <20200707145800.925304888@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,191 +44,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Sagi Grimberg <sagi@grimberg.me>
 
-Track async work items that we queue, so we can safely cancel them
-if the ring is closed or the process exits. Newer kernels handle
-this automatically with io-wq, but the old workqueue based setup needs
-a bit of special help to get there.
+[ Upstream commit 3b4b19721ec652ad2c4fe51dfbe5124212b5f581 ]
 
-There's no upstream variant of this, as that would require backporting
-all the io-wq changes from 5.5 and on. Hence I made a one-off that
-ensures that we don't leak memory if we have async work items that
-need active cancelation (like socket IO).
+Revert fab7772bfbcf ("nvme-multipath: revalidate nvme_ns_head gendisk
+in nvme_validate_ns")
 
-Reported-by: Agarwal, Anchal <anchalag@amazon.com>
-Tested-by: Agarwal, Anchal <anchalag@amazon.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+When adding a new namespace to the head disk (via nvme_mpath_set_live)
+we will see partition scan which triggers I/O on the mpath device node.
+This process will usually be triggered from the scan_work which holds
+the scan_lock. If I/O blocks (if we got ana change currently have only
+available paths but none are accessible) this can deadlock on the head
+disk bd_mutex as both partition scan I/O takes it, and head disk revalidation
+takes it to check for resize (also triggered from scan_work on a different
+path). See trace [1].
+
+The mpath disk revalidation was originally added to detect online disk
+size change, but this is no longer needed since commit cb224c3af4df
+("nvme: Convert to use set_capacity_revalidate_and_notify") which already
+updates resize info without unnecessarily revalidating the disk (the
+mpath disk doesn't even implement .revalidate_disk fop).
+
+[1]:
+--
+kernel: INFO: task kworker/u65:9:494 blocked for more than 241 seconds.
+kernel:       Tainted: G           OE     5.3.5-050305-generic #201910071830
+kernel: "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+kernel: kworker/u65:9   D    0   494      2 0x80004000
+kernel: Workqueue: nvme-wq nvme_scan_work [nvme_core]
+kernel: Call Trace:
+kernel:  __schedule+0x2b9/0x6c0
+kernel:  schedule+0x42/0xb0
+kernel:  schedule_preempt_disabled+0xe/0x10
+kernel:  __mutex_lock.isra.0+0x182/0x4f0
+kernel:  __mutex_lock_slowpath+0x13/0x20
+kernel:  mutex_lock+0x2e/0x40
+kernel:  revalidate_disk+0x63/0xa0
+kernel:  __nvme_revalidate_disk+0xfe/0x110 [nvme_core]
+kernel:  nvme_revalidate_disk+0xa4/0x160 [nvme_core]
+kernel:  ? evict+0x14c/0x1b0
+kernel:  revalidate_disk+0x2b/0xa0
+kernel:  nvme_validate_ns+0x49/0x940 [nvme_core]
+kernel:  ? blk_mq_free_request+0xd2/0x100
+kernel:  ? __nvme_submit_sync_cmd+0xbe/0x1e0 [nvme_core]
+kernel:  nvme_scan_work+0x24f/0x380 [nvme_core]
+kernel:  process_one_work+0x1db/0x380
+kernel:  worker_thread+0x249/0x400
+kernel:  kthread+0x104/0x140
+kernel:  ? process_one_work+0x380/0x380
+kernel:  ? kthread_park+0x80/0x80
+kernel:  ret_from_fork+0x1f/0x40
+...
+kernel: INFO: task kworker/u65:1:2630 blocked for more than 241 seconds.
+kernel:       Tainted: G           OE     5.3.5-050305-generic #201910071830
+kernel: "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+kernel: kworker/u65:1   D    0  2630      2 0x80004000
+kernel: Workqueue: nvme-wq nvme_scan_work [nvme_core]
+kernel: Call Trace:
+kernel:  __schedule+0x2b9/0x6c0
+kernel:  schedule+0x42/0xb0
+kernel:  io_schedule+0x16/0x40
+kernel:  do_read_cache_page+0x438/0x830
+kernel:  ? __switch_to_asm+0x34/0x70
+kernel:  ? file_fdatawait_range+0x30/0x30
+kernel:  read_cache_page+0x12/0x20
+kernel:  read_dev_sector+0x27/0xc0
+kernel:  read_lba+0xc1/0x220
+kernel:  ? kmem_cache_alloc_trace+0x19c/0x230
+kernel:  efi_partition+0x1e6/0x708
+kernel:  ? vsnprintf+0x39e/0x4e0
+kernel:  ? snprintf+0x49/0x60
+kernel:  check_partition+0x154/0x244
+kernel:  rescan_partitions+0xae/0x280
+kernel:  __blkdev_get+0x40f/0x560
+kernel:  blkdev_get+0x3d/0x140
+kernel:  __device_add_disk+0x388/0x480
+kernel:  device_add_disk+0x13/0x20
+kernel:  nvme_mpath_set_live+0x119/0x140 [nvme_core]
+kernel:  nvme_update_ns_ana_state+0x5c/0x60 [nvme_core]
+kernel:  nvme_set_ns_ana_state+0x1e/0x30 [nvme_core]
+kernel:  nvme_parse_ana_log+0xa1/0x180 [nvme_core]
+kernel:  ? nvme_update_ns_ana_state+0x60/0x60 [nvme_core]
+kernel:  nvme_mpath_add_disk+0x47/0x90 [nvme_core]
+kernel:  nvme_validate_ns+0x396/0x940 [nvme_core]
+kernel:  ? blk_mq_free_request+0xd2/0x100
+kernel:  nvme_scan_work+0x24f/0x380 [nvme_core]
+kernel:  process_one_work+0x1db/0x380
+kernel:  worker_thread+0x249/0x400
+kernel:  kthread+0x104/0x140
+kernel:  ? process_one_work+0x380/0x380
+kernel:  ? kthread_park+0x80/0x80
+kernel:  ret_from_fork+0x1f/0x40
+--
+
+Fixes: fab7772bfbcf ("nvme-multipath: revalidate nvme_ns_head gendisk
+in nvme_validate_ns")
+Signed-off-by: Anton Eidelman <anton@lightbitslabs.com>
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 63 +++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 63 insertions(+)
+ drivers/nvme/host/core.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 7fa3cd3fff4d2..e0200406765c3 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -267,6 +267,9 @@ struct io_ring_ctx {
- #if defined(CONFIG_UNIX)
- 	struct socket		*ring_sock;
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 887139f8fa53b..85ce6c682849e 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -1910,7 +1910,6 @@ static void __nvme_revalidate_disk(struct gendisk *disk, struct nvme_id_ns *id)
+ 	if (ns->head->disk) {
+ 		nvme_update_disk_info(ns->head->disk, ns, id);
+ 		blk_queue_stack_limits(ns->head->disk->queue, ns->queue);
+-		revalidate_disk(ns->head->disk);
+ 	}
  #endif
-+
-+	struct list_head	task_list;
-+	spinlock_t		task_lock;
- };
- 
- struct sqe_submit {
-@@ -331,14 +334,18 @@ struct io_kiocb {
- #define REQ_F_ISREG		2048	/* regular file */
- #define REQ_F_MUST_PUNT		4096	/* must be punted even for NONBLOCK */
- #define REQ_F_TIMEOUT_NOSEQ	8192	/* no timeout sequence */
-+#define REQ_F_CANCEL		16384	/* cancel request */
- 	unsigned long		fsize;
- 	u64			user_data;
- 	u32			result;
- 	u32			sequence;
-+	struct task_struct	*task;
- 
- 	struct fs_struct	*fs;
- 
- 	struct work_struct	work;
-+	struct task_struct	*work_task;
-+	struct list_head	task_list;
- };
- 
- #define IO_PLUG_THRESHOLD		2
-@@ -425,6 +432,8 @@ static struct io_ring_ctx *io_ring_ctx_alloc(struct io_uring_params *p)
- 	INIT_LIST_HEAD(&ctx->cancel_list);
- 	INIT_LIST_HEAD(&ctx->defer_list);
- 	INIT_LIST_HEAD(&ctx->timeout_list);
-+	INIT_LIST_HEAD(&ctx->task_list);
-+	spin_lock_init(&ctx->task_lock);
- 	return ctx;
  }
- 
-@@ -492,6 +501,7 @@ static void __io_commit_cqring(struct io_ring_ctx *ctx)
- static inline void io_queue_async_work(struct io_ring_ctx *ctx,
- 				       struct io_kiocb *req)
- {
-+	unsigned long flags;
- 	int rw = 0;
- 
- 	if (req->submit.sqe) {
-@@ -503,6 +513,13 @@ static inline void io_queue_async_work(struct io_ring_ctx *ctx,
- 		}
- 	}
- 
-+	req->task = current;
-+
-+	spin_lock_irqsave(&ctx->task_lock, flags);
-+	list_add(&req->task_list, &ctx->task_list);
-+	req->work_task = NULL;
-+	spin_unlock_irqrestore(&ctx->task_lock, flags);
-+
- 	queue_work(ctx->sqo_wq[rw], &req->work);
- }
- 
-@@ -2201,6 +2218,8 @@ static void io_sq_wq_submit_work(struct work_struct *work)
- 
- 	old_cred = override_creds(ctx->creds);
- 	async_list = io_async_list_from_sqe(ctx, req->submit.sqe);
-+
-+	allow_kernel_signal(SIGINT);
- restart:
- 	do {
- 		struct sqe_submit *s = &req->submit;
-@@ -2232,6 +2251,12 @@ static void io_sq_wq_submit_work(struct work_struct *work)
- 		}
- 
- 		if (!ret) {
-+			req->work_task = current;
-+			if (req->flags & REQ_F_CANCEL) {
-+				ret = -ECANCELED;
-+				goto end_req;
-+			}
-+
- 			s->has_user = cur_mm != NULL;
- 			s->needs_lock = true;
- 			do {
-@@ -2246,6 +2271,12 @@ static void io_sq_wq_submit_work(struct work_struct *work)
- 					break;
- 				cond_resched();
- 			} while (1);
-+end_req:
-+			if (!list_empty(&req->task_list)) {
-+				spin_lock_irq(&ctx->task_lock);
-+				list_del_init(&req->task_list);
-+				spin_unlock_irq(&ctx->task_lock);
-+			}
- 		}
- 
- 		/* drop submission reference */
-@@ -2311,6 +2342,7 @@ static void io_sq_wq_submit_work(struct work_struct *work)
- 	}
- 
- out:
-+	disallow_signal(SIGINT);
- 	if (cur_mm) {
- 		set_fs(old_fs);
- 		unuse_mm(cur_mm);
-@@ -3675,12 +3707,32 @@ static int io_uring_fasync(int fd, struct file *file, int on)
- 	return fasync_helper(fd, file, on, &ctx->cq_fasync);
- }
- 
-+static void io_cancel_async_work(struct io_ring_ctx *ctx,
-+				 struct task_struct *task)
-+{
-+	if (list_empty(&ctx->task_list))
-+		return;
-+
-+	spin_lock_irq(&ctx->task_lock);
-+	while (!list_empty(&ctx->task_list)) {
-+		struct io_kiocb *req;
-+
-+		req = list_first_entry(&ctx->task_list, struct io_kiocb, task_list);
-+		list_del_init(&req->task_list);
-+		req->flags |= REQ_F_CANCEL;
-+		if (req->work_task && (!task || req->task == task))
-+			send_sig(SIGINT, req->work_task, 1);
-+	}
-+	spin_unlock_irq(&ctx->task_lock);
-+}
-+
- static void io_ring_ctx_wait_and_kill(struct io_ring_ctx *ctx)
- {
- 	mutex_lock(&ctx->uring_lock);
- 	percpu_ref_kill(&ctx->refs);
- 	mutex_unlock(&ctx->uring_lock);
- 
-+	io_cancel_async_work(ctx, NULL);
- 	io_kill_timeouts(ctx);
- 	io_poll_remove_all(ctx);
- 	io_iopoll_reap_events(ctx);
-@@ -3688,6 +3740,16 @@ static void io_ring_ctx_wait_and_kill(struct io_ring_ctx *ctx)
- 	io_ring_ctx_free(ctx);
- }
- 
-+static int io_uring_flush(struct file *file, void *data)
-+{
-+	struct io_ring_ctx *ctx = file->private_data;
-+
-+	if (fatal_signal_pending(current) || (current->flags & PF_EXITING))
-+		io_cancel_async_work(ctx, current);
-+
-+	return 0;
-+}
-+
- static int io_uring_release(struct inode *inode, struct file *file)
- {
- 	struct io_ring_ctx *ctx = file->private_data;
-@@ -3792,6 +3854,7 @@ SYSCALL_DEFINE6(io_uring_enter, unsigned int, fd, u32, to_submit,
- 
- static const struct file_operations io_uring_fops = {
- 	.release	= io_uring_release,
-+	.flush		= io_uring_flush,
- 	.mmap		= io_uring_mmap,
- 	.poll		= io_uring_poll,
- 	.fasync		= io_uring_fasync,
 -- 
 2.25.1
 
