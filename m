@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF973217165
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:42:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC48921721D
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:43:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728225AbgGGPTJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:19:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58768 "EHLO mail.kernel.org"
+        id S1728029AbgGGP3C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:29:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728633AbgGGPTI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:19:08 -0400
+        id S1730209AbgGGPZZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:25:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C4EC20674;
-        Tue,  7 Jul 2020 15:19:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2336D2078D;
+        Tue,  7 Jul 2020 15:25:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135147;
-        bh=xisftz+dHBu+QeZH4GbJwDsy8r9mx1+dmOcWCt74LvI=;
+        s=default; t=1594135522;
+        bh=mSyYat7azZr9ywhMMhHRg/NZhnE/y61z4XHgTjr6SZQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VZM1p+LpgfDniopPjZOM8TgEp6muE/GmTxeF454aO1rmF6dwtCyv/ofv+czSop1bW
-         wlbsHEPLvzD11gsJJjlp4+1oJcyfae7MENzCb7qbSqh7tXupROEWaCQWTJAV8WpV/z
-         ga5pfgeQ3bv/7Dn4o9fseHOKSKaXcSYPDrQwFHTg=
+        b=jg55alm4NH/oiSUMtXJBmHDAuUQZzWj3tjn5HCluGh4KgnvhyhJYjHxlah9l6u2CC
+         hkrZcN3vHwrZL+d49ZCesU/fu+HYmRnoMEKknaN4PkWRCWg/lYub+t3KaOvubf//MU
+         +zYyCni1VVg0jtsaFWhETaFxWD3TE5zYa2ZalkBA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anton Eidelman <anton@lightbitslabs.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 10/36] nvme: fix possible deadlock when I/O is blocked
+        stable@vger.kernel.org,
+        syzbot+1d51c8b74efa4c44adeb@syzkaller.appspotmail.com,
+        Taehee Yoo <ap420073@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 057/112] hsr: avoid to create proc file after unregister
 Date:   Tue,  7 Jul 2020 17:17:02 +0200
-Message-Id: <20200707145749.639245963@linuxfoundation.org>
+Message-Id: <20200707145803.713303833@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200707145749.130272978@linuxfoundation.org>
-References: <20200707145749.130272978@linuxfoundation.org>
+In-Reply-To: <20200707145800.925304888@linuxfoundation.org>
+References: <20200707145800.925304888@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,122 +46,226 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit 3b4b19721ec652ad2c4fe51dfbe5124212b5f581 ]
+[ Upstream commit de0083c7ed7dba036d1ed6e012157649d45313c8 ]
 
-Revert fab7772bfbcf ("nvme-multipath: revalidate nvme_ns_head gendisk
-in nvme_validate_ns")
+When an interface is being deleted, "/proc/net/dev_snmp6/<interface name>"
+is deleted.
+The function for this is addrconf_ifdown() in the addrconf_notify() and
+it is called by notification, which is NETDEV_UNREGISTER.
+But, if NETDEV_CHANGEMTU is triggered after NETDEV_UNREGISTER,
+this proc file will be created again.
+This recreated proc file will be deleted by netdev_wati_allrefs().
+Before netdev_wait_allrefs() is called, creating a new HSR interface
+routine can be executed and It tries to create a proc file but it will
+find an un-deleted proc file.
+At this point, it warns about it.
 
-When adding a new namespace to the head disk (via nvme_mpath_set_live)
-we will see partition scan which triggers I/O on the mpath device node.
-This process will usually be triggered from the scan_work which holds
-the scan_lock. If I/O blocks (if we got ana change currently have only
-available paths but none are accessible) this can deadlock on the head
-disk bd_mutex as both partition scan I/O takes it, and head disk revalidation
-takes it to check for resize (also triggered from scan_work on a different
-path). See trace [1].
+To avoid this situation, it can use ->dellink() instead of
+->ndo_uninit() to release resources because ->dellink() is called
+before NETDEV_UNREGISTER.
+So, a proc file will not be recreated.
 
-The mpath disk revalidation was originally added to detect online disk
-size change, but this is no longer needed since commit cb224c3af4df
-("nvme: Convert to use set_capacity_revalidate_and_notify") which already
-updates resize info without unnecessarily revalidating the disk (the
-mpath disk doesn't even implement .revalidate_disk fop).
+Test commands
+    ip link add dummy0 type dummy
+    ip link add dummy1 type dummy
+    ip link set dummy0 mtu 1300
 
-[1]:
---
-kernel: INFO: task kworker/u65:9:494 blocked for more than 241 seconds.
-kernel:       Tainted: G           OE     5.3.5-050305-generic #201910071830
-kernel: "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-kernel: kworker/u65:9   D    0   494      2 0x80004000
-kernel: Workqueue: nvme-wq nvme_scan_work [nvme_core]
-kernel: Call Trace:
-kernel:  __schedule+0x2b9/0x6c0
-kernel:  schedule+0x42/0xb0
-kernel:  schedule_preempt_disabled+0xe/0x10
-kernel:  __mutex_lock.isra.0+0x182/0x4f0
-kernel:  __mutex_lock_slowpath+0x13/0x20
-kernel:  mutex_lock+0x2e/0x40
-kernel:  revalidate_disk+0x63/0xa0
-kernel:  __nvme_revalidate_disk+0xfe/0x110 [nvme_core]
-kernel:  nvme_revalidate_disk+0xa4/0x160 [nvme_core]
-kernel:  ? evict+0x14c/0x1b0
-kernel:  revalidate_disk+0x2b/0xa0
-kernel:  nvme_validate_ns+0x49/0x940 [nvme_core]
-kernel:  ? blk_mq_free_request+0xd2/0x100
-kernel:  ? __nvme_submit_sync_cmd+0xbe/0x1e0 [nvme_core]
-kernel:  nvme_scan_work+0x24f/0x380 [nvme_core]
-kernel:  process_one_work+0x1db/0x380
-kernel:  worker_thread+0x249/0x400
-kernel:  kthread+0x104/0x140
-kernel:  ? process_one_work+0x380/0x380
-kernel:  ? kthread_park+0x80/0x80
-kernel:  ret_from_fork+0x1f/0x40
-...
-kernel: INFO: task kworker/u65:1:2630 blocked for more than 241 seconds.
-kernel:       Tainted: G           OE     5.3.5-050305-generic #201910071830
-kernel: "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-kernel: kworker/u65:1   D    0  2630      2 0x80004000
-kernel: Workqueue: nvme-wq nvme_scan_work [nvme_core]
-kernel: Call Trace:
-kernel:  __schedule+0x2b9/0x6c0
-kernel:  schedule+0x42/0xb0
-kernel:  io_schedule+0x16/0x40
-kernel:  do_read_cache_page+0x438/0x830
-kernel:  ? __switch_to_asm+0x34/0x70
-kernel:  ? file_fdatawait_range+0x30/0x30
-kernel:  read_cache_page+0x12/0x20
-kernel:  read_dev_sector+0x27/0xc0
-kernel:  read_lba+0xc1/0x220
-kernel:  ? kmem_cache_alloc_trace+0x19c/0x230
-kernel:  efi_partition+0x1e6/0x708
-kernel:  ? vsnprintf+0x39e/0x4e0
-kernel:  ? snprintf+0x49/0x60
-kernel:  check_partition+0x154/0x244
-kernel:  rescan_partitions+0xae/0x280
-kernel:  __blkdev_get+0x40f/0x560
-kernel:  blkdev_get+0x3d/0x140
-kernel:  __device_add_disk+0x388/0x480
-kernel:  device_add_disk+0x13/0x20
-kernel:  nvme_mpath_set_live+0x119/0x140 [nvme_core]
-kernel:  nvme_update_ns_ana_state+0x5c/0x60 [nvme_core]
-kernel:  nvme_set_ns_ana_state+0x1e/0x30 [nvme_core]
-kernel:  nvme_parse_ana_log+0xa1/0x180 [nvme_core]
-kernel:  ? nvme_update_ns_ana_state+0x60/0x60 [nvme_core]
-kernel:  nvme_mpath_add_disk+0x47/0x90 [nvme_core]
-kernel:  nvme_validate_ns+0x396/0x940 [nvme_core]
-kernel:  ? blk_mq_free_request+0xd2/0x100
-kernel:  nvme_scan_work+0x24f/0x380 [nvme_core]
-kernel:  process_one_work+0x1db/0x380
-kernel:  worker_thread+0x249/0x400
-kernel:  kthread+0x104/0x140
-kernel:  ? process_one_work+0x380/0x380
-kernel:  ? kthread_park+0x80/0x80
-kernel:  ret_from_fork+0x1f/0x40
---
+    #SHELL1
+    while :
+    do
+        ip link add hsr0 type hsr slave1 dummy0 slave2 dummy1
+    done
 
-Fixes: fab7772bfbcf ("nvme-multipath: revalidate nvme_ns_head gendisk
-in nvme_validate_ns")
-Signed-off-by: Anton Eidelman <anton@lightbitslabs.com>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+    #SHELL2
+    while :
+    do
+        ip link del hsr0
+    done
+
+Splat looks like:
+[ 9888.980852][ T2752] proc_dir_entry 'dev_snmp6/hsr0' already registered
+[ 9888.981797][    C2] WARNING: CPU: 2 PID: 2752 at fs/proc/generic.c:372 proc_register+0x2d5/0x430
+[ 9888.981798][    C2] Modules linked in: hsr dummy veth openvswitch nsh nf_conncount nf_nat nf_conntrack nf_defrag_ipv6x
+[ 9888.981814][    C2] CPU: 2 PID: 2752 Comm: ip Tainted: G        W         5.8.0-rc1+ #616
+[ 9888.981815][    C2] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
+[ 9888.981816][    C2] RIP: 0010:proc_register+0x2d5/0x430
+[ 9888.981818][    C2] Code: fc ff df 48 89 fa 48 c1 ea 03 80 3c 02 00 0f 85 65 01 00 00 49 8b b5 e0 00 00 00 48 89 ea 40
+[ 9888.981819][    C2] RSP: 0018:ffff8880628dedf0 EFLAGS: 00010286
+[ 9888.981821][    C2] RAX: dffffc0000000008 RBX: ffff888028c69170 RCX: ffffffffaae09a62
+[ 9888.981822][    C2] RDX: 0000000000000001 RSI: 0000000000000008 RDI: ffff88806c9f75ac
+[ 9888.981823][    C2] RBP: ffff888028c693f4 R08: ffffed100d9401bd R09: ffffed100d9401bd
+[ 9888.981824][    C2] R10: ffffffffaddf406f R11: 0000000000000001 R12: ffff888028c69308
+[ 9888.981825][    C2] R13: ffff8880663584c8 R14: dffffc0000000000 R15: ffffed100518d27e
+[ 9888.981827][    C2] FS:  00007f3876b3b0c0(0000) GS:ffff88806c800000(0000) knlGS:0000000000000000
+[ 9888.981828][    C2] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 9888.981829][    C2] CR2: 00007f387601a8c0 CR3: 000000004101a002 CR4: 00000000000606e0
+[ 9888.981830][    C2] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[ 9888.981831][    C2] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[ 9888.981832][    C2] Call Trace:
+[ 9888.981833][    C2]  ? snmp6_seq_show+0x180/0x180
+[ 9888.981834][    C2]  proc_create_single_data+0x7c/0xa0
+[ 9888.981835][    C2]  snmp6_register_dev+0xb0/0x130
+[ 9888.981836][    C2]  ipv6_add_dev+0x4b7/0xf60
+[ 9888.981837][    C2]  addrconf_notify+0x684/0x1ca0
+[ 9888.981838][    C2]  ? __mutex_unlock_slowpath+0xd0/0x670
+[ 9888.981839][    C2]  ? kasan_unpoison_shadow+0x30/0x40
+[ 9888.981840][    C2]  ? wait_for_completion+0x250/0x250
+[ 9888.981841][    C2]  ? inet6_ifinfo_notify+0x100/0x100
+[ 9888.981842][    C2]  ? dropmon_net_event+0x227/0x410
+[ 9888.981843][    C2]  ? notifier_call_chain+0x90/0x160
+[ 9888.981844][    C2]  ? inet6_ifinfo_notify+0x100/0x100
+[ 9888.981845][    C2]  notifier_call_chain+0x90/0x160
+[ 9888.981846][    C2]  register_netdevice+0xbe5/0x1070
+[ ... ]
+
+Reported-by: syzbot+1d51c8b74efa4c44adeb@syzkaller.appspotmail.com
+Fixes: e0a4b99773d3 ("hsr: use upper/lower device infrastructure")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 1 -
- 1 file changed, 1 deletion(-)
+ net/hsr/hsr_device.c  | 21 +--------------------
+ net/hsr/hsr_device.h  |  2 +-
+ net/hsr/hsr_main.c    |  9 ++++++---
+ net/hsr/hsr_netlink.c | 17 +++++++++++++++++
+ 4 files changed, 25 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 0d60f2f8f3eec..5c9326777334f 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -1602,7 +1602,6 @@ static void __nvme_revalidate_disk(struct gendisk *disk, struct nvme_id_ns *id)
- 	if (ns->head->disk) {
- 		nvme_update_disk_info(ns->head->disk, ns, id);
- 		blk_queue_stack_limits(ns->head->disk->queue, ns->queue);
--		revalidate_disk(ns->head->disk);
- 	}
- #endif
+diff --git a/net/hsr/hsr_device.c b/net/hsr/hsr_device.c
+index fc7027314ad80..ef100cfd2ac1b 100644
+--- a/net/hsr/hsr_device.c
++++ b/net/hsr/hsr_device.c
+@@ -341,7 +341,7 @@ static void hsr_announce(struct timer_list *t)
+ 	rcu_read_unlock();
  }
+ 
+-static void hsr_del_ports(struct hsr_priv *hsr)
++void hsr_del_ports(struct hsr_priv *hsr)
+ {
+ 	struct hsr_port *port;
+ 
+@@ -358,31 +358,12 @@ static void hsr_del_ports(struct hsr_priv *hsr)
+ 		hsr_del_port(port);
+ }
+ 
+-/* This has to be called after all the readers are gone.
+- * Otherwise we would have to check the return value of
+- * hsr_port_get_hsr().
+- */
+-static void hsr_dev_destroy(struct net_device *hsr_dev)
+-{
+-	struct hsr_priv *hsr = netdev_priv(hsr_dev);
+-
+-	hsr_debugfs_term(hsr);
+-	hsr_del_ports(hsr);
+-
+-	del_timer_sync(&hsr->prune_timer);
+-	del_timer_sync(&hsr->announce_timer);
+-
+-	hsr_del_self_node(hsr);
+-	hsr_del_nodes(&hsr->node_db);
+-}
+-
+ static const struct net_device_ops hsr_device_ops = {
+ 	.ndo_change_mtu = hsr_dev_change_mtu,
+ 	.ndo_open = hsr_dev_open,
+ 	.ndo_stop = hsr_dev_close,
+ 	.ndo_start_xmit = hsr_dev_xmit,
+ 	.ndo_fix_features = hsr_fix_features,
+-	.ndo_uninit = hsr_dev_destroy,
+ };
+ 
+ static struct device_type hsr_type = {
+diff --git a/net/hsr/hsr_device.h b/net/hsr/hsr_device.h
+index a099d7de7e790..b8f9262ed101a 100644
+--- a/net/hsr/hsr_device.h
++++ b/net/hsr/hsr_device.h
+@@ -11,6 +11,7 @@
+ #include <linux/netdevice.h>
+ #include "hsr_main.h"
+ 
++void hsr_del_ports(struct hsr_priv *hsr);
+ void hsr_dev_setup(struct net_device *dev);
+ int hsr_dev_finalize(struct net_device *hsr_dev, struct net_device *slave[2],
+ 		     unsigned char multicast_spec, u8 protocol_version,
+@@ -18,5 +19,4 @@ int hsr_dev_finalize(struct net_device *hsr_dev, struct net_device *slave[2],
+ void hsr_check_carrier_and_operstate(struct hsr_priv *hsr);
+ bool is_hsr_master(struct net_device *dev);
+ int hsr_get_max_mtu(struct hsr_priv *hsr);
+-
+ #endif /* __HSR_DEVICE_H */
+diff --git a/net/hsr/hsr_main.c b/net/hsr/hsr_main.c
+index e2564de676038..144da15f0a817 100644
+--- a/net/hsr/hsr_main.c
++++ b/net/hsr/hsr_main.c
+@@ -6,6 +6,7 @@
+  */
+ 
+ #include <linux/netdevice.h>
++#include <net/rtnetlink.h>
+ #include <linux/rculist.h>
+ #include <linux/timer.h>
+ #include <linux/etherdevice.h>
+@@ -100,8 +101,10 @@ static int hsr_netdev_notify(struct notifier_block *nb, unsigned long event,
+ 			master = hsr_port_get_hsr(port->hsr, HSR_PT_MASTER);
+ 			hsr_del_port(port);
+ 			if (hsr_slave_empty(master->hsr)) {
+-				unregister_netdevice_queue(master->dev,
+-							   &list_kill);
++				const struct rtnl_link_ops *ops;
++
++				ops = master->dev->rtnl_link_ops;
++				ops->dellink(master->dev, &list_kill);
+ 				unregister_netdevice_many(&list_kill);
+ 			}
+ 		}
+@@ -144,9 +147,9 @@ static int __init hsr_init(void)
+ 
+ static void __exit hsr_exit(void)
+ {
+-	unregister_netdevice_notifier(&hsr_nb);
+ 	hsr_netlink_exit();
+ 	hsr_debugfs_remove_root();
++	unregister_netdevice_notifier(&hsr_nb);
+ }
+ 
+ module_init(hsr_init);
+diff --git a/net/hsr/hsr_netlink.c b/net/hsr/hsr_netlink.c
+index 1decb25f6764a..6e14b7d226399 100644
+--- a/net/hsr/hsr_netlink.c
++++ b/net/hsr/hsr_netlink.c
+@@ -83,6 +83,22 @@ static int hsr_newlink(struct net *src_net, struct net_device *dev,
+ 	return hsr_dev_finalize(dev, link, multicast_spec, hsr_version, extack);
+ }
+ 
++static void hsr_dellink(struct net_device *dev, struct list_head *head)
++{
++	struct hsr_priv *hsr = netdev_priv(dev);
++
++	del_timer_sync(&hsr->prune_timer);
++	del_timer_sync(&hsr->announce_timer);
++
++	hsr_debugfs_term(hsr);
++	hsr_del_ports(hsr);
++
++	hsr_del_self_node(hsr);
++	hsr_del_nodes(&hsr->node_db);
++
++	unregister_netdevice_queue(dev, head);
++}
++
+ static int hsr_fill_info(struct sk_buff *skb, const struct net_device *dev)
+ {
+ 	struct hsr_priv *hsr = netdev_priv(dev);
+@@ -118,6 +134,7 @@ static struct rtnl_link_ops hsr_link_ops __read_mostly = {
+ 	.priv_size	= sizeof(struct hsr_priv),
+ 	.setup		= hsr_dev_setup,
+ 	.newlink	= hsr_newlink,
++	.dellink	= hsr_dellink,
+ 	.fill_info	= hsr_fill_info,
+ };
+ 
 -- 
 2.25.1
 
