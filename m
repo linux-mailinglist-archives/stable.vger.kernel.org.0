@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF5AF2170A0
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:24:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EB432170A4
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:24:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728911AbgGGPTV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:19:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58974 "EHLO mail.kernel.org"
+        id S1728920AbgGGPTY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:19:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728249AbgGGPTS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:19:18 -0400
+        id S1729330AbgGGPTX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:19:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5FE692065D;
-        Tue,  7 Jul 2020 15:19:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 969A120771;
+        Tue,  7 Jul 2020 15:19:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135158;
-        bh=jg37BOgnRVux8mq45Jft7hfVe7BKUumcFyBY9H09wFI=;
+        s=default; t=1594135163;
+        bh=Wys15GuzNNx9wWpSsfSm5MDj9YqsVgt4BxPggv/eElk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QmqTIiSeDPcymmUExL8zOrGZ7uVEJPT2fzJITmcE/WmBraBT/wY8fWcZFYs5Yq/zD
-         6qboaInaKeiO4YFk2326tlFIT5dCFKG7/zX7D2U15u2osNyc8u7Ag06Ma/8vwQ1Ldo
-         tLJsqRHAY236wOJN6fUoUY5A8TM43tuAG/Wh95LI=
+        b=VgSg6bVlc/wSoqdbXB1ZUhMBtlOei/qaHpRfHsiO+V3oZjtuQ6kHBaNAS/UUn9YQ4
+         be+xJtPI9sE+7Rhqr6ysXb4/XyWtWbwA6wZ9GzqYFAL4i8PeWaRPP0J9rzysLHfNhK
+         zHuZKmiWi1OkKNA95nnZ7fVgULZzWefuaVdBR4BQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 4.19 34/36] irqchip/gic: Atomically update affinity
-Date:   Tue,  7 Jul 2020 17:17:26 +0200
-Message-Id: <20200707145750.785360792@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Jones <pjones@redhat.com>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 4.19 36/36] efi: Make it possible to disable efivar_ssdt entirely
+Date:   Tue,  7 Jul 2020 17:17:28 +0200
+Message-Id: <20200707145750.881600184@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200707145749.130272978@linuxfoundation.org>
 References: <20200707145749.130272978@linuxfoundation.org>
@@ -42,61 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Peter Jones <pjones@redhat.com>
 
-commit 005c34ae4b44f085120d7f371121ec7ded677761 upstream.
+commit 435d1a471598752446a72ad1201b3c980526d869 upstream.
 
-The GIC driver uses a RMW sequence to update the affinity, and
-relies on the gic_lock_irqsave/gic_unlock_irqrestore sequences
-to update it atomically.
+In most cases, such as CONFIG_ACPI_CUSTOM_DSDT and
+CONFIG_ACPI_TABLE_UPGRADE, boot-time modifications to firmware tables
+are tied to specific Kconfig options.  Currently this is not the case
+for modifying the ACPI SSDT via the efivar_ssdt kernel command line
+option and associated EFI variable.
 
-But these sequences only expand into anything meaningful if
-the BL_SWITCHER option is selected, which almost never happens.
+This patch adds CONFIG_EFI_CUSTOM_SSDT_OVERLAYS, which defaults
+disabled, in order to allow enabling or disabling that feature during
+the build.
 
-It also turns out that using a RMW and locks is just as silly,
-as the GIC distributor supports byte accesses for the GICD_TARGETRn
-registers, which when used make the update atomic by definition.
-
-Drop the terminally broken code and replace it by a byte write.
-
-Fixes: 04c8b0f82c7d ("irqchip/gic: Make locking a BL_SWITCHER only feature")
-Cc: stable@vger.kernel.org
-Signed-off-by: Marc Zyngier <maz@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Peter Jones <pjones@redhat.com>
+Link: https://lore.kernel.org/r/20200615202408.2242614-1-pjones@redhat.com
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/irqchip/irq-gic.c |   14 +++-----------
- 1 file changed, 3 insertions(+), 11 deletions(-)
+ drivers/firmware/efi/Kconfig |   11 +++++++++++
+ drivers/firmware/efi/efi.c   |    2 +-
+ 2 files changed, 12 insertions(+), 1 deletion(-)
 
---- a/drivers/irqchip/irq-gic.c
-+++ b/drivers/irqchip/irq-gic.c
-@@ -324,10 +324,8 @@ static int gic_irq_set_vcpu_affinity(str
- static int gic_set_affinity(struct irq_data *d, const struct cpumask *mask_val,
- 			    bool force)
- {
--	void __iomem *reg = gic_dist_base(d) + GIC_DIST_TARGET + (gic_irq(d) & ~3);
--	unsigned int cpu, shift = (gic_irq(d) % 4) * 8;
--	u32 val, mask, bit;
--	unsigned long flags;
-+	void __iomem *reg = gic_dist_base(d) + GIC_DIST_TARGET + gic_irq(d);
-+	unsigned int cpu;
+--- a/drivers/firmware/efi/Kconfig
++++ b/drivers/firmware/efi/Kconfig
+@@ -179,6 +179,17 @@ config RESET_ATTACK_MITIGATION
+ 	  have been evicted, since otherwise it will trigger even on clean
+ 	  reboots.
  
- 	if (!force)
- 		cpu = cpumask_any_and(mask_val, cpu_online_mask);
-@@ -337,13 +335,7 @@ static int gic_set_affinity(struct irq_d
- 	if (cpu >= NR_GIC_CPU_IF || cpu >= nr_cpu_ids)
- 		return -EINVAL;
++config EFI_CUSTOM_SSDT_OVERLAYS
++	bool "Load custom ACPI SSDT overlay from an EFI variable"
++	depends on EFI_VARS && ACPI
++	default ACPI_TABLE_UPGRADE
++	help
++	  Allow loading of an ACPI SSDT overlay from an EFI variable specified
++	  by a kernel command line option.
++
++	  See Documentation/admin-guide/acpi/ssdt-overlays.rst for more
++	  information.
++
+ endmenu
  
--	gic_lock_irqsave(flags);
--	mask = 0xff << shift;
--	bit = gic_cpu_map[cpu] << shift;
--	val = readl_relaxed(reg) & ~mask;
--	writel_relaxed(val | bit, reg);
--	gic_unlock_irqrestore(flags);
--
-+	writeb_relaxed(gic_cpu_map[cpu], reg);
- 	irq_data_update_effective_affinity(d, cpumask_of(cpu));
+ config UEFI_CPER
+--- a/drivers/firmware/efi/efi.c
++++ b/drivers/firmware/efi/efi.c
+@@ -236,7 +236,7 @@ static void generic_ops_unregister(void)
+ 	efivars_unregister(&generic_efivars);
+ }
  
- 	return IRQ_SET_MASK_OK_DONE;
+-#if IS_ENABLED(CONFIG_ACPI)
++#ifdef CONFIG_EFI_CUSTOM_SSDT_OVERLAYS
+ #define EFIVAR_SSDT_NAME_MAX	16
+ static char efivar_ssdt[EFIVAR_SSDT_NAME_MAX] __initdata;
+ static int __init efivar_ssdt_setup(char *str)
 
 
