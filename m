@@ -2,103 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4AA7216E9F
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 16:21:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33ECB216F9B
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:04:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728243AbgGGOVp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 10:21:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54638 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728190AbgGGOVl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 10:21:41 -0400
-Received: from mail-ot1-f50.google.com (mail-ot1-f50.google.com [209.85.210.50])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 13EDB2075B
-        for <stable@vger.kernel.org>; Tue,  7 Jul 2020 14:21:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594131701;
-        bh=OaGrk5pCXn7tmtFOJstv/7IHbIppokpXZR16N5HhmpU=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=19KU//URys3SRYnGB44fZCXnHhgSLepQF/bMrmJNnMb9oDY98dnZbKOLfVz/TyTBX
-         G3C+nd+7ZpiLvYYm6l1KZ1rppfAB7ySJHLm0ModKiTFqn628rmJmFKAikdcrhhj6bQ
-         ol6ALctbBLUu9RY/57EEVzeGG7iJ2hA0fTmCs5WM=
-Received: by mail-ot1-f50.google.com with SMTP id a21so11136401otq.8
-        for <stable@vger.kernel.org>; Tue, 07 Jul 2020 07:21:41 -0700 (PDT)
-X-Gm-Message-State: AOAM533qog5GR4MNNcC5pQZssy349ac0wyTN6/95ddF9BkYIx/2apkt+
-        u8wOMXUhA54lPLVmOTzfPS6XKhy27Eas4MHftMk=
-X-Google-Smtp-Source: ABdhPJyU1u542jd5NAbQzwKPp92LS4az8DzMU1GOCz8HmjqFSB4RE2KpJO/UlLmK68Qp4sEC1UYShZf4hAbvDDi6IME=
-X-Received: by 2002:a9d:4a8f:: with SMTP id i15mr48783509otf.77.1594131700374;
- Tue, 07 Jul 2020 07:21:40 -0700 (PDT)
-MIME-Version: 1.0
-References: <1593422635243184@kroah.com> <CAMj1kXHfKHuOdx1MYUzN2QncN6SO6CYcPPXTFsGR67_CniWfAw@mail.gmail.com>
- <20200629154844.GA512815@kroah.com> <CAMj1kXFFPO=csSXhxJ5gEpbzKi4r5q2XeLEJvvTfxFh37PhJDQ@mail.gmail.com>
- <20200707141031.GD4064836@kroah.com>
-In-Reply-To: <20200707141031.GD4064836@kroah.com>
-From:   Ard Biesheuvel <ardb@kernel.org>
-Date:   Tue, 7 Jul 2020 17:21:29 +0300
-X-Gmail-Original-Message-ID: <CAMj1kXF8=jQZ_yGVDhhdrEVbF18_UrqOz03pWBUZP4wEJ41ncA@mail.gmail.com>
-Message-ID: <CAMj1kXF8=jQZ_yGVDhhdrEVbF18_UrqOz03pWBUZP4wEJ41ncA@mail.gmail.com>
-Subject: Re: WTF: patch "[PATCH] efi: Make it possible to disable efivar_ssdt
- entirely" was seriously submitted to be applied to the 5.7-stable tree?
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Peter Jones <pjones@redhat.com>, "# 3.4.x" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        id S1727789AbgGGPEh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:04:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57858 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727079AbgGGPEh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jul 2020 11:04:37 -0400
+Received: from mail-qk1-x741.google.com (mail-qk1-x741.google.com [IPv6:2607:f8b0:4864:20::741])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2700C061755;
+        Tue,  7 Jul 2020 08:04:36 -0700 (PDT)
+Received: by mail-qk1-x741.google.com with SMTP id e13so38396157qkg.5;
+        Tue, 07 Jul 2020 08:04:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:from:to:cc:subject:date:message-id;
+        bh=1sdiGbveFaT49tOO4Q9qYVxS3eQWzjAvrAW+jAKSq60=;
+        b=aNd87Dfpm7MRIZqvU6FpIQNEz08V9eSu8+EHB7fC4c6gfOxgXQMBciUM9PdZXj3ygd
+         2tYTooU0sdmGt7gnjvq/dJUcGt84X6k4wxyMj5ZQAfp9QJcxY9YWNELkhRcHwtDTINLJ
+         J2v9aHZ8muayj/fOBTUL36eKV0yl0kaEs/CBCAFuEnssiEk0ZgPI+iHdQxKQEOZJNYmm
+         l69CN2ZrmLpkWQQEzwwS1Cyn2/pGGUHHztBgDM02SxhbTokir3SRKIdkGw4bpie8l98q
+         tXco5Jun+Yw3vMoq9LQSujzZDl/L062s0dtp5vR8kIQ8ju6Kvv74RRBUTH5bzNyHRXnu
+         1fPQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id;
+        bh=1sdiGbveFaT49tOO4Q9qYVxS3eQWzjAvrAW+jAKSq60=;
+        b=Qf17tnMgkyqR8NQRpzULSjY+c10wXCtXwhb4z3fPuvcmOSCiSjCmaexrOPIrqlmA3F
+         dmH0vku2N46jSrdUrdlkuHoigcl3MvPTZTJs8u1fO/HFIvaWepsDN4Tq9G3SXeN1wjPY
+         Th57UM3+D3hcJFiCXC5ucVmxFYpj7xxvGk/Bt9efnsaPjlOCxuUO/nUho0vmz10Isbxq
+         JhTNAXfHoDzWNhxZtxBwrp8uQuEJk7UI2Q8ki0Yo3jZa0WdNWcKj4u7B9JVN2E11b1h2
+         uqZ3yXYT8kRsy+GHdnY+yN4w+ENsdadUs9MQyrCQIW23FWrnlT1QgjGwC/dc3B2J/tdD
+         p98w==
+X-Gm-Message-State: AOAM530ZxpFicSbnMY3WpkS05fyK9X/CxM8E/lkIGX/98WVcLJB5U4A9
+        WrgBE6PVruB5vf+Z9G7f7pcaxOUo
+X-Google-Smtp-Source: ABdhPJzNU09L70s+DnlC72WKlG6/VZXcFKlZJCP+hPgECtW9dK1uhkidNNre7gq/w70u6rXybFaE7g==
+X-Received: by 2002:a37:27c2:: with SMTP id n185mr49499562qkn.459.1594134275629;
+        Tue, 07 Jul 2020 08:04:35 -0700 (PDT)
+Received: from localhost (pool-68-160-176-52.bstnma.fios.verizon.net. [68.160.176.52])
+        by smtp.gmail.com with ESMTPSA id c7sm28538179qta.95.2020.07.07.08.04.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Jul 2020 08:04:34 -0700 (PDT)
+From:   Mike Snitzer <snitzer@redhat.com>
+To:     linux-block@vger.kernel.org, axboe@kernel.dk
+Cc:     dm-devel@redhat.com, stable@vger.kernel.org,
+        Ming Lei <ming.lei@redhat.com>
+Subject: [PATCH] blk-mq: consider non-idle request as "inflight" in blk_mq_rq_inflight()
+Date:   Tue,  7 Jul 2020 11:04:33 -0400
+Message-Id: <20200707150433.39480-1-snitzer@redhat.com>
+X-Mailer: git-send-email 2.15.0
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 7 Jul 2020 at 17:10, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> On Mon, Jun 29, 2020 at 08:30:21PM +0200, Ard Biesheuvel wrote:
-> > On Mon, 29 Jun 2020 at 17:48, Greg Kroah-Hartman
-> > <gregkh@linuxfoundation.org> wrote:
-> > >
-> > > On Mon, Jun 29, 2020 at 05:18:08PM +0200, Ard Biesheuvel wrote:
-> > > > On Mon, 29 Jun 2020 at 11:32, <gregkh@linuxfoundation.org> wrote:
-> > > > >
-> > > > > The patch below was submitted to be applied to the 5.7-stable tree.
-> > > > >
-> > > > > I fail to see how this patch meets the stable kernel rules as found at
-> > > > > Documentation/process/stable-kernel-rules.rst.
-> > > > >
-> > > > > I could be totally wrong, and if so, please respond to
-> > > > > <stable@vger.kernel.org> and let me know why this patch should be
-> > > > > applied.  Otherwise, it is now dropped from my patch queues, never to be
-> > > > > seen again.
-> > > > >
-> > > >
-> > > > Without this patch, there is no way to disable sideloading of SSDTs
-> > > > via EFI variables, which is a security hole. The fact that this is not
-> > > > governed by the existing ACPI_TABLE_UPGRADE Kconfig option was an
-> > > > oversight, and so distros currently have this functionality enabled
-> > > > inadvertently (although most of them have the lockdown check
-> > > > incorporated as well)
-> > > >
-> > > > SSDTs can manipulate any memory (even kernel memory that has been
-> > > > mapped read-only) by using SystemMemory OpRegions in _INI AML methods,
-> > > > and setting an EFI variable once will make this persist across
-> > > > reboots.
-> > >
-> > > All of this was not in the description of the patch at all, how were we
-> > > supposed to know this?
-> > >
-> >
-> > Good point. This patch was the result of same off-list discussion, so
-> > it was obvious to those involved but not for anyone else.
-> >
-> > > And this really looks like a new feature now that you are supporting
-> > > something that we previously could not do.  To know that this is a "fix"
-> > > is not obvious :(
-> > >
-> > > I'll go queue it up, but how far back should it go?
-> > >
-> >
-> > The feature was added in v4.8, so as close as we can get to that please.
->
-> Ok, got it applied back to 4.9 now, thanks.
->
+From: Ming Lei <ming.lei@redhat.com>
 
-Thanks Greg.
+dm-multipath is the only user of blk_mq_queue_inflight().  When
+dm-multipath calls blk_mq_queue_inflight() to check if it has
+outstanding IO it can get a false negative.  The reason for this is
+blk_mq_rq_inflight() doesn't consider requests that are no longer
+MQ_RQ_IN_FLIGHT but that are now MQ_RQ_COMPLETE (->complete isn't
+called or finished yet) as "inflight".
+
+This causes request-based dm-multipath's dm_wait_for_completion() to
+return before all outstanding dm-multipath requests have actually
+completed.  This breaks DM multipath's suspend functionality because
+blk-mq requests complete after DM's suspend has finished -- which
+shouldn't happen.
+
+Fix this by considering any request not in the MQ_RQ_IDLE state
+(so either MQ_RQ_COMPLETE or MQ_RQ_IN_FLIGHT) as "inflight" in
+blk_mq_rq_inflight().
+
+Fixes: 3c94d83cb3526 ("blk-mq: change blk_mq_queue_busy() to blk_mq_queue_inflight()")
+Cc: stable@vger.kernel.org
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+---
+ block/blk-mq.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index 4f57d27bfa73..e6219c27fc65 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -828,10 +828,10 @@ static bool blk_mq_rq_inflight(struct blk_mq_hw_ctx *hctx, struct request *rq,
+ 			       void *priv, bool reserved)
+ {
+ 	/*
+-	 * If we find a request that is inflight and the queue matches,
++	 * If we find a request that isn't idle and the queue matches,
+ 	 * we know the queue is busy. Return false to stop the iteration.
+ 	 */
+-	if (rq->state == MQ_RQ_IN_FLIGHT && rq->q == hctx->queue) {
++	if (blk_mq_request_started(rq) && rq->q == hctx->queue) {
+ 		bool *busy = priv;
+ 
+ 		*busy = true;
+-- 
+2.15.0
+
