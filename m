@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 636BD216CB9
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 14:23:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 570A5216CB8
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 14:23:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727827AbgGGMX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 08:23:26 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:46857 "EHLO
+        id S1727107AbgGGMXY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 08:23:24 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:42769 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726540AbgGGMX0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jul 2020 08:23:26 -0400
+        by vger.kernel.org with ESMTP id S1726540AbgGGMXY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jul 2020 08:23:24 -0400
 Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 477A51942108;
-        Tue,  7 Jul 2020 08:23:25 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Tue, 07 Jul 2020 08:23:25 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id 89AB91942068;
+        Tue,  7 Jul 2020 08:23:23 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Tue, 07 Jul 2020 08:23:23 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=acnGRn
-        5TlGqO7+Y4qf+FrTxsjn/0AzRFgugWFYItLMw=; b=JRetwWULI/e34jnsIGf9Y3
-        gPqipYE6IhZSo26LsHc/9XVbeopDmUKYBDNB7HoDww6nGhVGQmv7clfmoyXafDkk
-        Wikf9p8WH9GYZQDfGj3kdxA92efDh3ZnNiwLE8RscxtAbDB8WVgEItAi+myrifRY
-        W6gmQtJtrhR8rW5ncmObqgbOqBzOQy0VoPCOoYAmiBgzLZWJY4wPd1PupXRJCc5B
-        WKGJuNBTeaQYBlbC8Akvk/1V1MZKFkTuTFi+B/1P1jMKBFXzOnjHbg8tIKcGSQ+T
-        05P2tA0ITbCP7vpqYHDvoDi/m4ma6Cuff4mSjYQ/O0KgRynCKvkz0yffu/ptsH0A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=2j7fax
+        kSp3Y027P0wcbpt4uMP+Lzm8AlJ9UEBXyn4tA=; b=ZoxNBa+43nC6bJuKNRVECB
+        DnXJV7d4Cr/i1+/FV6SCOhD2UqPZ4ZIgvMcJ/U0AgIbrK7p+Bgr5u02XfqitdX0Y
+        jO6wBPOIpH4QktbO7nGX9Cwx/Zn7rlGZTEyKswWEuEEUTQVmOSUuwSq3ziUD6tRT
+        dY5SfRsfzsgt7E/qtQSeFroFbIbNXbWu0OKPVryYCFyksPBJm+cH7d2IPwp+YU+J
+        SUvkoaajSzYEPZ6HajIs9UCyRgvShMDf4vdETMzZxfAqqwbPCUDtYO719dj8ltBt
+        ZDljhJVehp7/DQScMs/8N1fGcOlf6i12EIzzPyTq/XkjCnZIK85CYZFN2iCuz+dw
         ==
-X-ME-Sender: <xms:PWkEX7P5Av-cB2c35wEY9MuoWZGvOft4TNuiEeU48OtixEdFUKvfmw>
+X-ME-Sender: <xms:O2kEXwebcne3FEFU7Dnz7qPtWMNk4o28V1sb0tJcQ0vebhf-0Byung>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudehgdegiecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
@@ -36,20 +36,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudehgdegiecutefuodetggdote
     efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
     fedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:PWkEX18_lfMITk4S3h_1DpXLJaP7e-dAgTcnJFFuc-M3xBPcoq3Vdg>
-    <xmx:PWkEX6Stb5L0iYEWXnwwuPfdWla-W2rUIglY2e-OOxIdSmK-8Ae7lQ>
-    <xmx:PWkEX_uyoT-iAFKJ-LzhJj30DWaCgdGlB9WE1DzNek99MAleIycqCQ>
-    <xmx:PWkEXzlbP1pESEALr9yD2L3P-rBxzlS2mvJKk2VULhJLq4uRBazSKA>
+X-ME-Proxy: <xmx:O2kEXyNofhcgdPzY2U2AJiLzjb8rvDR2aiIBFqD2bj25ezlkyVbFXA>
+    <xmx:O2kEXxghBuRThu4LX0GxrnQ0WkZHZJfgqzU6VdvdBmf1RoMwX_PUFA>
+    <xmx:O2kEX18TWy_hyKy_3fspNOw-wXU5DkE56U-fmJa5CAILoUk2GXJ77Q>
+    <xmx:O2kEXy1JHQxXR6jrir0IhAMFCngnstXbpRkSi7l0iWqQJ098i-Qwlg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C1D2F30600B9;
-        Tue,  7 Jul 2020 08:23:24 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] spi: spi-fsl-dspi: Fix lockup if device is removed during SPI" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id E9874328005D;
+        Tue,  7 Jul 2020 08:23:22 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] spi: spi-fsl-dspi: Fix lockup if device is removed during SPI" failed to apply to 4.4-stable tree
 To:     krzk@kernel.org, broonie@kernel.org, olteanv@gmail.com,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Tue, 07 Jul 2020 14:23:13 +0200
-Message-ID: <1594124593103150@kroah.com>
+Message-ID: <159412459320032@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
