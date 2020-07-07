@@ -2,117 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A744216828
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 10:19:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6631021686C
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 10:35:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728172AbgGGITi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 04:19:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51508 "EHLO
+        id S1727116AbgGGIfU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 04:35:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728155AbgGGITd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jul 2020 04:19:33 -0400
-Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCC89C08C5E1
-        for <stable@vger.kernel.org>; Tue,  7 Jul 2020 01:19:33 -0700 (PDT)
-Received: by mail-pf1-x442.google.com with SMTP id u5so18117367pfn.7
-        for <stable@vger.kernel.org>; Tue, 07 Jul 2020 01:19:33 -0700 (PDT)
+        with ESMTP id S1727079AbgGGIfT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jul 2020 04:35:19 -0400
+Received: from mail-lj1-x243.google.com (mail-lj1-x243.google.com [IPv6:2a00:1450:4864:20::243])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 383BEC08C5DF
+        for <stable@vger.kernel.org>; Tue,  7 Jul 2020 01:35:19 -0700 (PDT)
+Received: by mail-lj1-x243.google.com with SMTP id h22so41757626lji.9
+        for <stable@vger.kernel.org>; Tue, 07 Jul 2020 01:35:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=8LzHvhyH79XNraI64aGNs932IW1tYhCTGhfJh2lEVIw=;
-        b=d2fuJhBs1yWbjePYoqvJWYZe1SRSJgbjp553u56FFd31yWYbHWdQauk74RXaM6QK5Z
-         6wtktQwojSEogkmCtIrko7hYiDkU9vh+r9y+G9YbC23l+ldCh74l7x4YprTb5e1AAhlW
-         wDajPTrKHOXyHe/oURDusoQV86iqeDJZ91LRk=
+        d=cogentembedded-com.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=VSt2gNx7u5TrD0wymr8ZWYE3yS5oRsktvc3jsQJqJl0=;
+        b=MaVN0XDpN+6YXgXhI+/d1XIwktyVJq2MXzZmQphSJQiPKOhqpTZnASup4ownD/YivG
+         0Wowib0FRUT5Wi7NYvSbFiCLeRfSPRu2yaXncXj7GDvA+bHhz3kXWn4UOeps5lqYW6u+
+         7XVUihn894JZD3TC09c3XR3v7f5icLOgjcfSmnEMy/WMTzIAbTWpDB3ZgWuaaWbYVzp6
+         HjNb5Rv19G39IONz2dp7wYJxfdKf6txXu7aLF/hrJJYXmPWcznshP9N9/chaZfeEmrdj
+         81TWlSuoJrAMVyiehInhNEKw6xi6rX5yYfHCsVP191LzBSqCs+MKboOs351cGw7xNfdN
+         PnuA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=8LzHvhyH79XNraI64aGNs932IW1tYhCTGhfJh2lEVIw=;
-        b=Q6Guo5uojyoa0aQ8o5DTCq4jolOlrN7NdUEm95Yjrkm5KTwdXgr+vpMaozbs/tqSZj
-         eRmbnO6MD2s1tI1fHgCX5RGfcbV+V83+lzKRIx3J/4pebecSJ0SnEGPhO5wbfQpKaB62
-         gKY87w3xYScfSuYPZiHZLuKamuRFR70VlyrioAPUDmHUNrktmt1ronWCth2aTGU0i/fP
-         PGbux0AR4NHB68FrqwnyTGAzcc/gdEKQb3hmRU9CRWE0UOV9LCdr4k6wX9EN8YDpgjlH
-         NQkf/4KmVFxhVjxlxIxaEgx+NpAq/cdl4z2SoHCio7WdDHt7aR1P77hkzSn0zABWi/UW
-         djVA==
-X-Gm-Message-State: AOAM533zGAkXIAoRc0TVNh+XycB3iUTUZh/hzlvx5dzDy0nRrNdhuDsP
-        rKa52NyC2KfV+Lp+rHYA6ydgeQ==
-X-Google-Smtp-Source: ABdhPJwlmQnAhT5yC6LPH3rR/m0Ap5gtjZUGRRbIWoOIwPOnnsVXMjkjdE7a5NAxP236CA/vqMmsAw==
-X-Received: by 2002:a63:2b93:: with SMTP id r141mr43550710pgr.171.1594109973034;
-        Tue, 07 Jul 2020 01:19:33 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id s10sm1821622pjl.41.2020.07.07.01.19.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Jul 2020 01:19:30 -0700 (PDT)
-From:   Kees Cook <keescook@chromium.org>
-To:     James Morris <jmorris@namei.org>
-Cc:     Kees Cook <keescook@chromium.org>, stable@vger.kernel.org,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Scott Branden <scott.branden@broadcom.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Jessica Yu <jeyu@kernel.org>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Matthew Garrett <matthewgarrett@google.com>,
-        David Howells <dhowells@redhat.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        KP Singh <kpsingh@google.com>, Dave Olsthoorn <dave@bewaar.me>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Peter Jones <pjones@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Stephen Boyd <stephen.boyd@linaro.org>,
-        Paul Moore <paul@paul-moore.com>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org
-Subject: [PATCH 1/4] firmware_loader: EFI firmware loader must handle pre-allocated buffer
-Date:   Tue,  7 Jul 2020 01:19:23 -0700
-Message-Id: <20200707081926.3688096-2-keescook@chromium.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200707081926.3688096-1-keescook@chromium.org>
-References: <20200707081926.3688096-1-keescook@chromium.org>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=VSt2gNx7u5TrD0wymr8ZWYE3yS5oRsktvc3jsQJqJl0=;
+        b=IjAD9oWEtmSt/YAjW/X4J+H6g2I47V7vYNadAFJtgRBtGuJE6UpCBvML5hJcQi3Io7
+         TFIy/hRiR/n6AsRr/GZGNLITyYRyRa53fqZp+x8zp2y4Gg/Jg/god4epoFlu/InPNqV0
+         yO9HjEcRikb065VGc0G9jHjg13ujA14A0ldTjECnFFnQCXfB3fVo5swTOb3xoWOB0VUT
+         pYerUt2SqF1VlQQZwqfOUpt5e3kMCHUZEynHUsd2OcXJsHENilmZEWOBOQeRlIM/kvt6
+         CCsi94q8us6egIUykG47uxPbtBaGpshFfKYJD0X7u5sEW2VHOqVSfEgYGl1+Y3fcb/vQ
+         IYLQ==
+X-Gm-Message-State: AOAM532lkGNvl5MyiBmHdOiDUvvHEi0ehWfUPkxAsCdN1dA5oN/8BIlY
+        z8q6fOCfbS65uRmiCY+brqs2sFgPRZnpIg==
+X-Google-Smtp-Source: ABdhPJyL8zCRmUmt9EUAMx/qZ2oMUFwZLKzoSi2UGulxyukwEAxXwTu09QNmVeVfBnsbIwB+vB638Q==
+X-Received: by 2002:a2e:4b12:: with SMTP id y18mr26715115lja.117.1594110917491;
+        Tue, 07 Jul 2020 01:35:17 -0700 (PDT)
+Received: from ?IPv6:2a00:1fa0:4609:f5ea:9102:8276:8e24:1626? ([2a00:1fa0:4609:f5ea:9102:8276:8e24:1626])
+        by smtp.gmail.com with ESMTPSA id i2sm9381ljn.109.2020.07.07.01.35.16
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 07 Jul 2020 01:35:16 -0700 (PDT)
+Subject: Re: [PATCH v3] usb: gadget: function: fix missing spinlock in
+ f_uac1_legacy
+To:     qiang.zhang@windriver.com, balbi@kernel.org
+Cc:     colin.king@canonical.com, gregkh@linuxfoundation.org,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20200705124027.30011-1-qiang.zhang@windriver.com>
+From:   Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Message-ID: <09b2225a-d9c8-c40f-1e73-e18ece80e3bb@cogentembedded.com>
+Date:   Tue, 7 Jul 2020 11:35:12 +0300
+User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200705124027.30011-1-qiang.zhang@windriver.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The EFI platform firmware fallback would clobber any pre-allocated
-buffers. Instead, correctly refuse to reallocate when too small (as
-already done in the sysfs fallback), or perform allocation normally
-when needed.
+On 05.07.2020 15:40, qiang.zhang@windriver.com wrote:
 
-Fixes: e4c2c0ff00ec ("firmware: Add new platform fallback mechanism and firm ware_request_platform()")
-Cc: stable@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
----
- drivers/base/firmware_loader/fallback_platform.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+> From: Zhang Qiang <qiang.zhang@windriver.com>
+> 
+> Add a missing spinlock protection for play_queue, because
+> the play_queue may be destroyed when the "playback_work"
+> work func and "f_audio_out_ep_complete" callback func
+> operate this paly_queue at the same time.
 
-diff --git a/drivers/base/firmware_loader/fallback_platform.c b/drivers/base/firmware_loader/fallback_platform.c
-index cdd2c9a9f38a..685edb7dd05a 100644
---- a/drivers/base/firmware_loader/fallback_platform.c
-+++ b/drivers/base/firmware_loader/fallback_platform.c
-@@ -25,7 +25,10 @@ int firmware_fallback_platform(struct fw_priv *fw_priv, u32 opt_flags)
- 	if (rc)
- 		return rc; /* rc == -ENOENT when the fw was not found */
- 
--	fw_priv->data = vmalloc(size);
-+	if (fw_priv->data && size > fw_priv->allocated_size)
-+		return -ENOMEM;
-+	if (!fw_priv->data)
-+		fw_priv->data = vmalloc(size);
- 	if (!fw_priv->data)
- 		return -ENOMEM;
- 
--- 
-2.25.1
+    It's play_queue. :-)
 
+> Cc: stable <stable@vger.kernel.org>
+> Signed-off-by: Zhang Qiang <qiang.zhang@windriver.com>
+[...]
+
+MBR, Sergei
