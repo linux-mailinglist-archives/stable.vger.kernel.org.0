@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2C13217221
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:43:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D137B21721F
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:43:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729267AbgGGP3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:29:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38684 "EHLO mail.kernel.org"
+        id S1728453AbgGGP3P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:29:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728266AbgGGPY5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:24:57 -0400
+        id S1730159AbgGGPZA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:25:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CF7EE2082E;
-        Tue,  7 Jul 2020 15:24:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4BE8E20663;
+        Tue,  7 Jul 2020 15:24:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135497;
-        bh=/xjjT+s96wlfNil8hnKvalJ9n/2rmxOGa+riN1pjP/s=;
+        s=default; t=1594135499;
+        bh=D0niqrxLU51N2P7BBDPo54MBfvolpfid5OageeSkLBo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fL4ysjwzbDFw7/53G1qh7G7QJk79K2gYUN9HwUd9RUGx1z3ip/QHQpnL/GpqhYBku
-         dkgnAD4WeJ0xiGgV2Tt9Rp8FqoBaSZQTUtPeducKXdpUJhDGvVHbKJUcCpO4r4HVnH
-         iLS4VzXmDOUcAKuAKE2NmC6TMm/ioOF94ChBHls0=
+        b=ORc6RjN1gBbGa5ggD1BKw4rvBpT9YRgKAKVSejXIJxZiJF0RZmZwkejkQS66mkP/L
+         /XS0khPGfvuwsAOWGbHB5dmTfkHQsAK7jdVe3KgopMmWZSz4toqa26FZhhejkYvDtF
+         TuGTCeiInDyP5xc0APs2eUOj58AU1cHGGJndn98Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Misono Tomohiro <misono.tomohiro@jp.fujitsu.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Shyam Sundar <ssundar@marvell.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 065/112] hwmon: (acpi_power_meter) Fix potential memory leak in acpi_power_meter_add()
-Date:   Tue,  7 Jul 2020 17:17:10 +0200
-Message-Id: <20200707145804.091912038@linuxfoundation.org>
+Subject: [PATCH 5.7 066/112] scsi: qla2xxx: Fix a condition in qla2x00_find_all_fabric_devs()
+Date:   Tue,  7 Jul 2020 17:17:11 +0200
+Message-Id: <20200707145804.138828412@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200707145800.925304888@linuxfoundation.org>
 References: <20200707145800.925304888@linuxfoundation.org>
@@ -45,44 +47,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Misono Tomohiro <misono.tomohiro@jp.fujitsu.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 8b97f9922211c44a739c5cbd9502ecbb9f17f6d1 ]
+[ Upstream commit 1fc98aaf7f85fadcca57c4a86ef17e1940cad2d3 ]
 
-Although it rarely happens, we should call free_capabilities()
-if error happens after read_capabilities() to free allocated strings.
+This code doesn't make sense unless the correct "fcport" was found.
 
-Fixes: de584afa5e188 ("hwmon driver for ACPI 4.0 power meters")
-Signed-off-by: Misono Tomohiro <misono.tomohiro@jp.fujitsu.com>
-Link: https://lore.kernel.org/r/20200625043242.31175-1-misono.tomohiro@jp.fujitsu.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20200619143041.GD267142@mwanda
+Fixes: 9dd9686b1419 ("scsi: qla2xxx: Add changes for devloss timeout in driver")
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Reviewed-by: Shyam Sundar <ssundar@marvell.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/acpi_power_meter.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_init.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/acpi_power_meter.c b/drivers/hwmon/acpi_power_meter.c
-index 0db8ef4fd6e18..a270b975e90bb 100644
---- a/drivers/hwmon/acpi_power_meter.c
-+++ b/drivers/hwmon/acpi_power_meter.c
-@@ -883,7 +883,7 @@ static int acpi_power_meter_add(struct acpi_device *device)
+diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
+index caa6b840e4594..cfbb4294fb8bb 100644
+--- a/drivers/scsi/qla2xxx/qla_init.c
++++ b/drivers/scsi/qla2xxx/qla_init.c
+@@ -5933,7 +5933,7 @@ qla2x00_find_all_fabric_devs(scsi_qla_host_t *vha)
+ 			break;
+ 		}
  
- 	res = setup_attrs(resource);
- 	if (res)
--		goto exit_free;
-+		goto exit_free_capability;
- 
- 	resource->hwmon_dev = hwmon_device_register(&device->dev);
- 	if (IS_ERR(resource->hwmon_dev)) {
-@@ -896,6 +896,8 @@ static int acpi_power_meter_add(struct acpi_device *device)
- 
- exit_remove:
- 	remove_attrs(resource);
-+exit_free_capability:
-+	free_capabilities(resource);
- exit_free:
- 	kfree(resource);
- exit:
+-		if (NVME_TARGET(vha->hw, fcport)) {
++		if (found && NVME_TARGET(vha->hw, fcport)) {
+ 			if (fcport->disc_state == DSC_DELETE_PEND) {
+ 				qla2x00_set_fcport_disc_state(fcport, DSC_GNL);
+ 				vha->fcport_count--;
 -- 
 2.25.1
 
