@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1361A217168
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:42:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2138C217186
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:42:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728714AbgGGPTR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:19:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58918 "EHLO mail.kernel.org"
+        id S1728991AbgGGPVY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:21:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729307AbgGGPTQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:19:16 -0400
+        id S1728653AbgGGPVX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:21:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB45B20771;
-        Tue,  7 Jul 2020 15:19:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1EA2E20771;
+        Tue,  7 Jul 2020 15:21:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135155;
-        bh=FKfxQsRyT7kjS0tQFt9nWm9CYWhxBmsTbmgijqJj0yg=;
+        s=default; t=1594135282;
+        bh=r0JF99QEAtEw+I92VoXVLZ4LdURu9+ZSm+HVxctuxSA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r1UfDzO+PuGxdNosiujkEoE0gXA/hQJz4J3qW8zFE2M2yf7X2Lssg2U5sRUXqUzax
-         eFxqEjtgA8amj0X2h8oXJZWbCwuVBltvn0IVkZ8kQhF2xwhCrivj+3SjQNPKVALT8/
-         iSVNy87pbyj2K3/HeseRCzxvYBYU3NRmcGZmJcnE=
+        b=OcUd4Z/r5oyQzd4PN7Xe/4Hy99A+nA27+jxhPeGfW9CgSXEnL4vaOmg4WNq4CmxjM
+         63Fsb35Jab/0mrK5TRPXfnuoTdeNF8IclZMGLVqAA1YD8q945NfbOU5nBYtqZw6r0/
+         hjI1meuxJy8CPBJT0RMJJe7lvGFSAxUS46xWG0WU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hauke Mehrtens <hauke@hauke-m.de>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: [PATCH 4.19 33/36] MIPS: Add missing EHB in mtc0 -> mfc0 sequence for DSPen
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.4 46/65] spi: spi-fsl-dspi: Fix external abort on interrupt in resume or exit paths
 Date:   Tue,  7 Jul 2020 17:17:25 +0200
-Message-Id: <20200707145750.738867355@linuxfoundation.org>
+Message-Id: <20200707145754.689637140@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200707145749.130272978@linuxfoundation.org>
-References: <20200707145749.130272978@linuxfoundation.org>
+In-Reply-To: <20200707145752.417212219@linuxfoundation.org>
+References: <20200707145752.417212219@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,68 +44,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hauke Mehrtens <hauke@hauke-m.de>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-commit fcec538ef8cca0ad0b84432235dccd9059c8e6f8 upstream.
+commit 3d87b613d6a3c6f0980e877ab0895785a2dde581 upstream.
 
-This resolves the hazard between the mtc0 in the change_c0_status() and
-the mfc0 in configure_exception_vector(). Without resolving this hazard
-configure_exception_vector() could read an old value and would restore
-this old value again. This would revert the changes change_c0_status()
-did. I checked this by printing out the read_c0_status() at the end of
-per_cpu_trap_init() and the ST0_MX is not set without this patch.
+If shared interrupt comes late, during probe error path or device remove
+(could be triggered with CONFIG_DEBUG_SHIRQ), the interrupt handler
+dspi_interrupt() will access registers with the clock being disabled.
+This leads to external abort on non-linefetch on Toradex Colibri VF50
+module (with Vybrid VF5xx):
 
-The hazard is documented in the MIPS Architecture Reference Manual Vol.
-III: MIPS32/microMIPS32 Privileged Resource Architecture (MD00088), rev
-6.03 table 8.1 which includes:
+    $ echo 4002d000.spi > /sys/devices/platform/soc/40000000.bus/4002d000.spi/driver/unbind
 
-   Producer | Consumer | Hazard
-  ----------|----------|----------------------------
-   mtc0     | mfc0     | any coprocessor 0 register
+    Unhandled fault: external abort on non-linefetch (0x1008) at 0x8887f02c
+    Internal error: : 1008 [#1] ARM
+    Hardware name: Freescale Vybrid VF5xx/VF6xx (Device Tree)
+    Backtrace:
+      (regmap_mmio_read32le)
+      (regmap_mmio_read)
+      (_regmap_bus_reg_read)
+      (_regmap_read)
+      (regmap_read)
+      (dspi_interrupt)
+      (free_irq)
+      (devm_irq_release)
+      (release_nodes)
+      (devres_release_all)
+      (device_release_driver_internal)
 
-I saw this hazard on an Atheros AR9344 rev 2 SoC with a MIPS 74Kc CPU.
-There the change_c0_status() function would activate the DSPen by
-setting ST0_MX in the c0_status register. This was reverted and then the
-system got a DSP exception when the DSP registers were saved in
-save_dsp() in the first process switch. The crash looks like this:
+The resource-managed framework should not be used for shared interrupt
+handling, because the interrupt handler might be called after releasing
+other resources and disabling clocks.
 
-[    0.089999] Mount-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
-[    0.097796] Mountpoint-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
-[    0.107070] Kernel panic - not syncing: Unexpected DSP exception
-[    0.113470] Rebooting in 1 seconds..
+Similar bug could happen during suspend - the shared interrupt handler
+could be invoked after suspending the device.  Each device sharing this
+interrupt line should disable the IRQ during suspend so handler will be
+invoked only in following cases:
+1. None suspended,
+2. All devices resumed.
 
-We saw this problem in OpenWrt only on the MIPS 74Kc based Atheros SoCs,
-not on the 24Kc based SoCs. We only saw it with kernel 5.4 not with
-kernel 4.19, in addition we had to use GCC 8.4 or 9.X, with GCC 8.3 it
-did not happen.
-
-In the kernel I bisected this problem to commit 9012d011660e ("compiler:
-allow all arches to enable CONFIG_OPTIMIZE_INLINING"), but when this was
-reverted it also happened after commit 172dcd935c34b ("MIPS: Always
-allocate exception vector for MIPSr2+").
-
-Commit 0b24cae4d535 ("MIPS: Add missing EHB in mtc0 -> mfc0 sequence.")
-does similar changes to a different file. I am not sure if there are
-more places affected by this problem.
-
-Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
+Fixes: 349ad66c0ab0 ("spi:Add Freescale DSPI driver for Vybrid VF610 platform")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Tested-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Link: https://lore.kernel.org/r/20200622110543.5035-3-krzk@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/mips/kernel/traps.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/spi/spi-fsl-dspi.c |   17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
---- a/arch/mips/kernel/traps.c
-+++ b/arch/mips/kernel/traps.c
-@@ -2096,6 +2096,7 @@ static void configure_status(void)
+--- a/drivers/spi/spi-fsl-dspi.c
++++ b/drivers/spi/spi-fsl-dspi.c
+@@ -901,6 +901,8 @@ static int dspi_suspend(struct device *d
+ 	struct spi_controller *ctlr = dev_get_drvdata(dev);
+ 	struct fsl_dspi *dspi = spi_controller_get_devdata(ctlr);
  
- 	change_c0_status(ST0_CU|ST0_MX|ST0_RE|ST0_FR|ST0_BEV|ST0_TS|ST0_KX|ST0_SX|ST0_UX,
- 			 status_set);
-+	back_to_back_c0_hazard();
++	if (dspi->irq)
++		disable_irq(dspi->irq);
+ 	spi_controller_suspend(ctlr);
+ 	clk_disable_unprepare(dspi->clk);
+ 
+@@ -921,6 +923,8 @@ static int dspi_resume(struct device *de
+ 	if (ret)
+ 		return ret;
+ 	spi_controller_resume(ctlr);
++	if (dspi->irq)
++		enable_irq(dspi->irq);
+ 
+ 	return 0;
  }
+@@ -1108,8 +1112,8 @@ static int dspi_probe(struct platform_de
+ 		goto poll_mode;
+ 	}
  
- unsigned int hwrena;
+-	ret = devm_request_irq(&pdev->dev, dspi->irq, dspi_interrupt,
+-			       IRQF_SHARED, pdev->name, dspi);
++	ret = request_threaded_irq(dspi->irq, dspi_interrupt, NULL,
++				   IRQF_SHARED, pdev->name, dspi);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "Unable to attach DSPI interrupt\n");
+ 		goto out_clk_put;
+@@ -1122,7 +1126,7 @@ poll_mode:
+ 		ret = dspi_request_dma(dspi, res->start);
+ 		if (ret < 0) {
+ 			dev_err(&pdev->dev, "can't get dma channels\n");
+-			goto out_clk_put;
++			goto out_free_irq;
+ 		}
+ 	}
+ 
+@@ -1134,11 +1138,14 @@ poll_mode:
+ 	ret = spi_register_controller(ctlr);
+ 	if (ret != 0) {
+ 		dev_err(&pdev->dev, "Problem registering DSPI ctlr\n");
+-		goto out_clk_put;
++		goto out_free_irq;
+ 	}
+ 
+ 	return ret;
+ 
++out_free_irq:
++	if (dspi->irq)
++		free_irq(dspi->irq, dspi);
+ out_clk_put:
+ 	clk_disable_unprepare(dspi->clk);
+ out_ctlr_put:
+@@ -1154,6 +1161,8 @@ static int dspi_remove(struct platform_d
+ 
+ 	/* Disconnect from the SPI framework */
+ 	dspi_release_dma(dspi);
++	if (dspi->irq)
++		free_irq(dspi->irq, dspi);
+ 	clk_disable_unprepare(dspi->clk);
+ 	spi_unregister_controller(dspi->ctlr);
+ 
 
 
