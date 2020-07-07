@@ -2,117 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A1CC217A1D
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 23:16:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1990217A4C
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 23:26:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728874AbgGGVQy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 17:16:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59526 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728184AbgGGVQx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jul 2020 17:16:53 -0400
-Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A738C08C5DC
-        for <stable@vger.kernel.org>; Tue,  7 Jul 2020 14:16:53 -0700 (PDT)
-Received: by mail-yb1-xb4a.google.com with SMTP id t7so34142652ybk.2
-        for <stable@vger.kernel.org>; Tue, 07 Jul 2020 14:16:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:message-id:mime-version:subject:from:to:cc;
-        bh=LK+EBRynEXsucfX04gFvi+gNnB4EOZ/bB2WzuaaMYIc=;
-        b=Rug8tm+xa2icYOqvro5VOiB7Xb1MvWVSdcHzdKmC5ojZ1nEeGXG4Z7+A9IpOHkU3id
-         vZ14aeY8oW8KS5Ms4Y6CcnEvMMZQEwc+KXXJzM7uvknJPWiNLF4FHQh+MLvz5eK9+1WK
-         2UAS1N5Te+mjL/j3pUa9f+zrdmJxEb2wWf12T6FvlND+IIRhzsmnIW4/SZQ2hGc6GYjy
-         RDRASgQOSHIrzI+59CFyx7vDoXfZ9OoDQObliOx+xsar02qBSpqWD4G4IvCWoOm0jg+U
-         GR+s9JWZ9b2WkUIUCDq6tdDhQ7aR9zUNdO5VOjyfHmebj6JwnfZIBbmQFBZ7md/5ZlTg
-         FdsA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=LK+EBRynEXsucfX04gFvi+gNnB4EOZ/bB2WzuaaMYIc=;
-        b=V4+t/1xHX13aG8jKtUTdo0+S+J/qkxbb7S9P6qM9/kTKq5vgkOcL4lQeDXn1lOquBr
-         kM9KjuNVeXLafICdcvSoE4zhl69cqtacIT++qh6oKi3VBTUsQKzi9aAAAAxJeTDSWQ9A
-         jekj5Q0xArWsqxqbMrrKsv0Kj9vMfrOqfHUWHXWJfUKlHfs2MH4fBU2aGhDGam36qc6g
-         J8UjWLamPiwEPMNICMWitzDr08jZ8H+yarv8+HKkm/j5QBUkG5R6emfrBQGgwOZsS5av
-         6wcWAauW/5auY8neD+2OqCdA0MntwEBEXQD+CCd/LPVw2sOc/nOAEDTBVx1fzxQGq+an
-         GnEg==
-X-Gm-Message-State: AOAM530QbJB3m/ryHEVCOqzz5YLx2meGHOfKT1WHqoD/ZCilKx/PfdLc
-        rhrfXxKiXZcNFURooWd7cpZumZ3LBtR7MHoD7f0=
-X-Google-Smtp-Source: ABdhPJzn9lxSCriqI2ToiXXIRoLSzrjmr41xe5HIRNGl0I0vjbYHXb13MWkUw/9ODphxfJt2wWrtcsLV1Vf1u8OuiVg=
-X-Received: by 2002:a25:21c5:: with SMTP id h188mr36451509ybh.468.1594156612336;
- Tue, 07 Jul 2020 14:16:52 -0700 (PDT)
-Date:   Tue,  7 Jul 2020 14:16:41 -0700
-Message-Id: <20200707211642.1106946-1-ndesaulniers@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.27.0.383.g050319c2ae-goog
-Subject: [PATCH] bitfield.h: don't compile-time validate _val in FIELD_FIT
-From:   Nick Desaulniers <ndesaulniers@google.com>
-To:     "David S . Miller" <davem@davemloft.net>
-Cc:     Jakub Kicinski <kuba@kernel.org>, stable@vger.kernel.org,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
-        Andrii Nakryiko <andriin@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@chromium.org>, Alex Elder <elder@linaro.org>,
-        linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        id S1728943AbgGGVZe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 17:25:34 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:34420 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728790AbgGGVZd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jul 2020 17:25:33 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 82A871C0C10; Tue,  7 Jul 2020 23:25:31 +0200 (CEST)
+Date:   Tue, 7 Jul 2020 23:25:31 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Brian Moyles <bmoyles@netflix.com>,
+        Mauricio Faria de Oliveira <mfo@canonical.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [PATCH 4.19 13/36] crypto: af_alg - fix use-after-free in
+ af_alg_accept() due to bh_lock_sock()
+Message-ID: <20200707212530.GA11158@amd>
+References: <20200707145749.130272978@linuxfoundation.org>
+ <20200707145749.760045378@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="sm4nu43k4a2Rpi4c"
+Content-Disposition: inline
+In-Reply-To: <20200707145749.760045378@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
 
-When ur_load_imm_any() is inlined into jeq_imm(), it's possible for the
-compiler to deduce a case where _val can only have the value of -1 at
-compile time. Specifically,
+--sm4nu43k4a2Rpi4c
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-/* struct bpf_insn: _s32 imm */
-u64 imm = insn->imm; /* sign extend */
-if (imm >> 32) { /* non-zero only if insn->imm is negative */
-  /* inlined from ur_load_imm_any */
-  u32 __imm = imm >> 32; /* therefore, always 0xffffffff */
-  if (__builtin_constant_p(__imm) && __imm > 255)
-    compiletime_assert_XXX()
+Hi!
 
-This can result in tripping a BUILD_BUG_ON() in __BF_FIELD_CHECK() that
-checks that a given value is representable in one byte (interpreted as
-unsigned).
+> This patch also modifies the main refcnt to include both normal
+> and nokey sockets.  This way we don't have to fudge the nokey
+> ref count when a socket changes from nokey to normal.
+>=20
+> Credits go to Mauricio Faria de Oliveira who diagnosed this bug
+> and sent a patch for it:
 
-FIELD_FIT() should return true or false at runtime for whether a value
-can fit for not. Don't break the build over a value that's too large for
-the mask. We'd prefer to keep the inlining and compiler optimizations
-though we know this case will always return false.
 
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/kernel-hardening/CAK7LNASvb0UDJ0U5wkYYRzTAdnEs64HjXpEUL7d=V0CXiAXcNw@mail.gmail.com/
-Reported-by: Masahiro Yamada <masahiroy@kernel.org>
-Debugged-by: Sami Tolvanen <samitolvanen@google.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
----
- include/linux/bitfield.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> @@ -308,12 +302,14 @@ int af_alg_accept(struct sock *sk, struc
+> =20
+>  	sk2->sk_family =3D PF_ALG;
+> =20
+> -	if (nokey || !ask->refcnt++)
+> +	if (atomic_inc_return_relaxed(&ask->refcnt) =3D=3D 1)
+>  		sock_hold(sk);
+> -	ask->nokey_refcnt +=3D nokey;
+> +	if (nokey) {
+> +		atomic_inc(&ask->nokey_refcnt);
+> +		atomic_set(&alg_sk(sk2)->nokey_refcnt, 1);
+> +	}
 
-diff --git a/include/linux/bitfield.h b/include/linux/bitfield.h
-index 48ea093ff04c..4e035aca6f7e 100644
---- a/include/linux/bitfield.h
-+++ b/include/linux/bitfield.h
-@@ -77,7 +77,7 @@
-  */
- #define FIELD_FIT(_mask, _val)						\
- 	({								\
--		__BF_FIELD_CHECK(_mask, 0ULL, _val, "FIELD_FIT: ");	\
-+		__BF_FIELD_CHECK(_mask, 0ULL, 0ULL, "FIELD_FIT: ");	\
- 		!((((typeof(_mask))_val) << __bf_shf(_mask)) & ~(_mask)); \
- 	})
- 
--- 
-2.27.0.383.g050319c2ae-goog
+Should we set the nokey_refcnt to 0 using atomic_set, too?
+Aternatively, should the nokey_refcnt be initialized using
+ATOMIC_INIT()?
 
+Best regards,
+								Pavel
+
+
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--sm4nu43k4a2Rpi4c
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAl8E6EoACgkQMOfwapXb+vIzPQCfUWlLGyhpkXge1oeg0coA6HJH
+KfsAmgJKYu3lRraU1nqAFtOB1TkosHaF
+=raSn
+-----END PGP SIGNATURE-----
+
+--sm4nu43k4a2Rpi4c--
