@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7A2621718A
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:42:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54589217262
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:44:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729094AbgGGPVk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:21:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33876 "EHLO mail.kernel.org"
+        id S1728110AbgGGPc1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:32:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728100AbgGGPVj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:21:39 -0400
+        id S1728575AbgGGPWI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:22:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 631B92065D;
-        Tue,  7 Jul 2020 15:21:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A16BA20663;
+        Tue,  7 Jul 2020 15:22:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135298;
-        bh=XTimTEqhE29dFUv3QdkSkPZe+dBL0kqNKWi0Km7x8j8=;
+        s=default; t=1594135327;
+        bh=SlcQ3CLVq0OHfMVLc4x9rNOY2A1HJDTfvari2YNnBvw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sDEiCxN8PQPcgEcidX1TDCvaFDy70+KcKc3kvCpV593AP4MpJmF/DCfkqGUgttbJv
-         1ugy7GloSC0IlOlFjdZNl6d1DiSDBZM847+HMmGcGNCUPS7H7EMwNL9Cqmq1kFfOzj
-         CUk65A5u46g35fOTEq3AaveSfY0mBisiB6OCCe4A=
+        b=cyKIJ82pA2pHdXwLkI0fA8hmRd/Kba9CZMMcc5LZxipBow2Ubt4pVMH8qHZtLZ64S
+         rPTdTtsNnV91Z3rhev0w6DYwSuDUnwf5feY8tmgvyN54rw80SZMRKBfOuCfnxBuGHR
+         Dzu/QDdvaDwr6+r/I7RS7aIeOQKsk4B4FesXp4C0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, "J. Bruce Fields" <bfields@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, Tejun Heo <tj@kernel.org>
-Subject: [PATCH 5.4 34/65] kthread: save thread function
-Date:   Tue,  7 Jul 2020 17:17:13 +0200
-Message-Id: <20200707145754.124544082@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 35/65] nfsd: clients dont need to break their own delegations
+Date:   Tue,  7 Jul 2020 17:17:14 +0200
+Message-Id: <20200707145754.171869800@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200707145752.417212219@linuxfoundation.org>
 References: <20200707145752.417212219@linuxfoundation.org>
@@ -45,85 +45,183 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: J. Bruce Fields <bfields@redhat.com>
 
-[ Upstream commit 52782c92ac85c4e393eb4a903a62e6c24afa633f ]
+[ Upstream commit 28df3d1539de5090f7916f6fff03891b67f366f4 ]
 
-It's handy to keep the kthread_fn just as a unique cookie to identify
-classes of kthreads.  E.g. if you can verify that a given task is
-running your thread_fn, then you may know what sort of type kthread_data
-points to.
+We currently revoke read delegations on any write open or any operation
+that modifies file data or metadata (including rename, link, and
+unlink).  But if the delegation in question is the only read delegation
+and is held by the client performing the operation, that's not really
+necessary.
 
-We'll use this in nfsd to pass some information into the vfs.  Note it
-will need kthread_data() exported too.
+It's not always possible to prevent this in the NFSv4.0 case, because
+there's not always a way to determine which client an NFSv4.0 delegation
+came from.  (In theory we could try to guess this from the transport
+layer, e.g., by assuming all traffic on a given TCP connection comes
+from the same client.  But that's not really correct.)
 
-Original-patch-by: Tejun Heo <tj@kernel.org>
+In the NFSv4.1 case the session layer always tells us the client.
+
+This patch should remove such self-conflicts in all cases where we can
+reliably determine the client from the compound.
+
+To do that we need to track "who" is performing a given (possibly
+lease-breaking) file operation.  We're doing that by storing the
+information in the svc_rqst and using kthread_data() to map the current
+task back to a svc_rqst.
+
 Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/kthread.h |  1 +
- kernel/kthread.c        | 17 +++++++++++++++++
- 2 files changed, 18 insertions(+)
+ Documentation/filesystems/locking.rst |  2 ++
+ fs/locks.c                            |  3 +++
+ fs/nfsd/nfs4proc.c                    |  2 ++
+ fs/nfsd/nfs4state.c                   | 14 ++++++++++++++
+ fs/nfsd/nfsd.h                        |  2 ++
+ fs/nfsd/nfssvc.c                      |  6 ++++++
+ include/linux/fs.h                    |  1 +
+ include/linux/sunrpc/svc.h            |  1 +
+ 8 files changed, 31 insertions(+)
 
-diff --git a/include/linux/kthread.h b/include/linux/kthread.h
-index 0f9da966934e2..59bbc63ff8637 100644
---- a/include/linux/kthread.h
-+++ b/include/linux/kthread.h
-@@ -57,6 +57,7 @@ bool kthread_should_stop(void);
- bool kthread_should_park(void);
- bool __kthread_should_park(struct task_struct *k);
- bool kthread_freezable_should_stop(bool *was_frozen);
-+void *kthread_func(struct task_struct *k);
- void *kthread_data(struct task_struct *k);
- void *kthread_probe_data(struct task_struct *k);
- int kthread_park(struct task_struct *k);
-diff --git a/kernel/kthread.c b/kernel/kthread.c
-index b262f47046ca4..543dff6b576c7 100644
---- a/kernel/kthread.c
-+++ b/kernel/kthread.c
-@@ -46,6 +46,7 @@ struct kthread_create_info
- struct kthread {
- 	unsigned long flags;
- 	unsigned int cpu;
-+	int (*threadfn)(void *);
- 	void *data;
- 	struct completion parked;
- 	struct completion exited;
-@@ -152,6 +153,20 @@ bool kthread_freezable_should_stop(bool *was_frozen)
- }
- EXPORT_SYMBOL_GPL(kthread_freezable_should_stop);
+diff --git a/Documentation/filesystems/locking.rst b/Documentation/filesystems/locking.rst
+index fc3a0704553cf..b5f8d15a30fb7 100644
+--- a/Documentation/filesystems/locking.rst
++++ b/Documentation/filesystems/locking.rst
+@@ -425,6 +425,7 @@ prototypes::
+ 	int (*lm_grant)(struct file_lock *, struct file_lock *, int);
+ 	void (*lm_break)(struct file_lock *); /* break_lease callback */
+ 	int (*lm_change)(struct file_lock **, int);
++	bool (*lm_breaker_owns_lease)(struct file_lock *);
  
-+/**
-+ * kthread_func - return the function specified on kthread creation
-+ * @task: kthread task in question
-+ *
-+ * Returns NULL if the task is not a kthread.
-+ */
-+void *kthread_func(struct task_struct *task)
-+{
-+	if (task->flags & PF_KTHREAD)
-+		return to_kthread(task)->threadfn;
-+	return NULL;
-+}
-+EXPORT_SYMBOL_GPL(kthread_func);
-+
- /**
-  * kthread_data - return data value specified on kthread creation
-  * @task: kthread task in question
-@@ -164,6 +179,7 @@ void *kthread_data(struct task_struct *task)
+ locking rules:
+ 
+@@ -435,6 +436,7 @@ lm_notify:		yes		yes			no
+ lm_grant:		no		no			no
+ lm_break:		yes		no			no
+ lm_change		yes		no			no
++lm_breaker_owns_lease:	no		no			no
+ ==========		=============	=================	=========
+ 
+ buffer_head
+diff --git a/fs/locks.c b/fs/locks.c
+index b8a31c1c4fff3..a3f186846e93e 100644
+--- a/fs/locks.c
++++ b/fs/locks.c
+@@ -1557,6 +1557,9 @@ static bool leases_conflict(struct file_lock *lease, struct file_lock *breaker)
  {
- 	return to_kthread(task)->data;
- }
-+EXPORT_SYMBOL_GPL(kthread_data);
+ 	bool rc;
  
- /**
-  * kthread_probe_data - speculative version of kthread_data()
-@@ -237,6 +253,7 @@ static int kthread(void *_create)
- 		do_exit(-ENOMEM);
++	if (lease->fl_lmops->lm_breaker_owns_lease
++			&& lease->fl_lmops->lm_breaker_owns_lease(lease))
++		return false;
+ 	if ((breaker->fl_flags & FL_LAYOUT) != (lease->fl_flags & FL_LAYOUT)) {
+ 		rc = false;
+ 		goto trace;
+diff --git a/fs/nfsd/nfs4proc.c b/fs/nfsd/nfs4proc.c
+index 4798667af647c..96fa2837d3cfb 100644
+--- a/fs/nfsd/nfs4proc.c
++++ b/fs/nfsd/nfs4proc.c
+@@ -1961,6 +1961,8 @@ nfsd4_proc_compound(struct svc_rqst *rqstp)
+ 		goto encode_op;
  	}
  
-+	self->threadfn = threadfn;
- 	self->data = data;
- 	init_completion(&self->exited);
- 	init_completion(&self->parked);
++	rqstp->rq_lease_breaker = (void **)&cstate->clp;
++
+ 	trace_nfsd_compound(rqstp, args->opcnt);
+ 	while (!status && resp->opcnt < args->opcnt) {
+ 		op = &args->ops[resp->opcnt++];
+diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
+index 8650a97e2ba96..1e8f5e281bb53 100644
+--- a/fs/nfsd/nfs4state.c
++++ b/fs/nfsd/nfs4state.c
+@@ -4464,6 +4464,19 @@ nfsd_break_deleg_cb(struct file_lock *fl)
+ 	return ret;
+ }
+ 
++static bool nfsd_breaker_owns_lease(struct file_lock *fl)
++{
++	struct nfs4_delegation *dl = fl->fl_owner;
++	struct svc_rqst *rqst;
++	struct nfs4_client *clp;
++
++	if (!i_am_nfsd())
++		return NULL;
++	rqst = kthread_data(current);
++	clp = *(rqst->rq_lease_breaker);
++	return dl->dl_stid.sc_client == clp;
++}
++
+ static int
+ nfsd_change_deleg_cb(struct file_lock *onlist, int arg,
+ 		     struct list_head *dispose)
+@@ -4475,6 +4488,7 @@ nfsd_change_deleg_cb(struct file_lock *onlist, int arg,
+ }
+ 
+ static const struct lock_manager_operations nfsd_lease_mng_ops = {
++	.lm_breaker_owns_lease = nfsd_breaker_owns_lease,
+ 	.lm_break = nfsd_break_deleg_cb,
+ 	.lm_change = nfsd_change_deleg_cb,
+ };
+diff --git a/fs/nfsd/nfsd.h b/fs/nfsd/nfsd.h
+index af2947551e9ce..7a835fb7d79f7 100644
+--- a/fs/nfsd/nfsd.h
++++ b/fs/nfsd/nfsd.h
+@@ -87,6 +87,8 @@ int		nfsd_pool_stats_release(struct inode *, struct file *);
+ 
+ void		nfsd_destroy(struct net *net);
+ 
++bool		i_am_nfsd(void);
++
+ struct nfsdfs_client {
+ 	struct kref cl_ref;
+ 	void (*cl_release)(struct kref *kref);
+diff --git a/fs/nfsd/nfssvc.c b/fs/nfsd/nfssvc.c
+index e8bee8ff30c59..cb7f0aa9a3b05 100644
+--- a/fs/nfsd/nfssvc.c
++++ b/fs/nfsd/nfssvc.c
+@@ -590,6 +590,11 @@ static const struct svc_serv_ops nfsd_thread_sv_ops = {
+ 	.svo_module		= THIS_MODULE,
+ };
+ 
++bool i_am_nfsd()
++{
++	return kthread_func(current) == nfsd;
++}
++
+ int nfsd_create_serv(struct net *net)
+ {
+ 	int error;
+@@ -997,6 +1002,7 @@ nfsd_dispatch(struct svc_rqst *rqstp, __be32 *statp)
+ 		*statp = rpc_garbage_args;
+ 		return 1;
+ 	}
++	rqstp->rq_lease_breaker = NULL;
+ 	/*
+ 	 * Give the xdr decoder a chance to change this if it wants
+ 	 * (necessary in the NFSv4.0 compound case)
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index 5bd384dbdca58..4b5b7667405d8 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -1040,6 +1040,7 @@ struct lock_manager_operations {
+ 	bool (*lm_break)(struct file_lock *);
+ 	int (*lm_change)(struct file_lock *, int, struct list_head *);
+ 	void (*lm_setup)(struct file_lock *, void **);
++	bool (*lm_breaker_owns_lease)(struct file_lock *);
+ };
+ 
+ struct lock_manager {
+diff --git a/include/linux/sunrpc/svc.h b/include/linux/sunrpc/svc.h
+index 1afe38eb33f7e..ab6e12d9fcf61 100644
+--- a/include/linux/sunrpc/svc.h
++++ b/include/linux/sunrpc/svc.h
+@@ -299,6 +299,7 @@ struct svc_rqst {
+ 	struct net		*rq_bc_net;	/* pointer to backchannel's
+ 						 * net namespace
+ 						 */
++	void **			rq_lease_breaker; /* The v4 client breaking a lease */
+ };
+ 
+ #define SVC_NET(rqst) (rqst->rq_xprt ? rqst->rq_xprt->xpt_net : rqst->rq_bc_net)
 -- 
 2.25.1
 
