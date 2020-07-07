@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DEC6C217063
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:23:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 481D1217103
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:25:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728294AbgGGPQw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:16:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56306 "EHLO mail.kernel.org"
+        id S1729407AbgGGPXU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:23:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729081AbgGGPQr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:16:47 -0400
+        id S1729954AbgGGPXP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:23:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A0AF120674;
-        Tue,  7 Jul 2020 15:16:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2DFB52065D;
+        Tue,  7 Jul 2020 15:23:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135007;
-        bh=msfuEiO+x7aXjVRFosgMz+O+NJtzAGraiNCQX6X1ZSE=;
+        s=default; t=1594135394;
+        bh=fBu0ClO0KQXec2oBjKGmKPAybI4/hbfUxR6w24vd01g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mO7zS46FCur4h7cm+zoIVE1y/QDadI2ye6VlXGNqiQAtIiMsTmuznKGGDRYpLlY4l
-         lSG31KwY1jIetIzVEGSGy+V/Sf31GW4CuFDEsnlvWSthu6HswpimDcy4DZWBxy3CBt
-         piBiX+Mg81Al5Nejs/bAm0ZJvewKVhLiFJnNKyFE=
+        b=oIXdiFjUTjDIkYxdP1rFuAcrXIqygCZ4l3B0/LLxWa5oA8UAkE1dLb+gSNwX4S62M
+         cfDv0pw2vhmJhjJl7o3Tyo3umTqvVYHPHR+6i0mieV3+bQX6b4wP/ohkODuWaG8LFv
+         XNc2FxRLdlk/LJeeJoXwr25oKLQvicSrNRpQ8JKc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Jones <pjones@redhat.com>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 4.14 27/27] efi: Make it possible to disable efivar_ssdt entirely
-Date:   Tue,  7 Jul 2020 17:15:54 +0200
-Message-Id: <20200707145750.239540292@linuxfoundation.org>
+        stable@vger.kernel.org, Hyunchul Lee <hyc.lee@gmail.com>,
+        Sungjong Seo <sj1557.seo@samsung.com>,
+        Namjae Jeon <namjae.jeon@samsung.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 003/112] exfat: call sync_filesystem for read-only remount
+Date:   Tue,  7 Jul 2020 17:16:08 +0200
+Message-Id: <20200707145801.096068829@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200707145748.944863698@linuxfoundation.org>
-References: <20200707145748.944863698@linuxfoundation.org>
+In-Reply-To: <20200707145800.925304888@linuxfoundation.org>
+References: <20200707145800.925304888@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,61 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Jones <pjones@redhat.com>
+From: Hyunchul Lee <hyc.lee@gmail.com>
 
-commit 435d1a471598752446a72ad1201b3c980526d869 upstream.
+[ Upstream commit a0271a15cf2cf907ea5b0f2ba611123f1b7935ec ]
 
-In most cases, such as CONFIG_ACPI_CUSTOM_DSDT and
-CONFIG_ACPI_TABLE_UPGRADE, boot-time modifications to firmware tables
-are tied to specific Kconfig options.  Currently this is not the case
-for modifying the ACPI SSDT via the efivar_ssdt kernel command line
-option and associated EFI variable.
+We need to commit dirty metadata and pages to disk
+before remounting exfat as read-only.
 
-This patch adds CONFIG_EFI_CUSTOM_SSDT_OVERLAYS, which defaults
-disabled, in order to allow enabling or disabling that feature during
-the build.
+This fixes a failure in xfstests generic/452
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Peter Jones <pjones@redhat.com>
-Link: https://lore.kernel.org/r/20200615202408.2242614-1-pjones@redhat.com
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+generic/452 does the following:
+cp something <exfat>/
+mount -o remount,ro <exfat>
 
+the <exfat>/something is corrupted. because while
+exfat is remounted as read-only, exfat doesn't
+have a chance to commit metadata and
+vfs invalidates page caches in a block device.
+
+Signed-off-by: Hyunchul Lee <hyc.lee@gmail.com>
+Acked-by: Sungjong Seo <sj1557.seo@samsung.com>
+Signed-off-by: Namjae Jeon <namjae.jeon@samsung.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/efi/Kconfig |   11 +++++++++++
- drivers/firmware/efi/efi.c   |    2 +-
- 2 files changed, 12 insertions(+), 1 deletion(-)
+ fs/exfat/super.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/drivers/firmware/efi/Kconfig
-+++ b/drivers/firmware/efi/Kconfig
-@@ -164,6 +164,17 @@ config RESET_ATTACK_MITIGATION
- 	  have been evicted, since otherwise it will trigger even on clean
- 	  reboots.
- 
-+config EFI_CUSTOM_SSDT_OVERLAYS
-+	bool "Load custom ACPI SSDT overlay from an EFI variable"
-+	depends on EFI_VARS && ACPI
-+	default ACPI_TABLE_UPGRADE
-+	help
-+	  Allow loading of an ACPI SSDT overlay from an EFI variable specified
-+	  by a kernel command line option.
-+
-+	  See Documentation/admin-guide/acpi/ssdt-overlays.rst for more
-+	  information.endmenu
-+
- endmenu
- 
- config UEFI_CPER
---- a/drivers/firmware/efi/efi.c
-+++ b/drivers/firmware/efi/efi.c
-@@ -221,7 +221,7 @@ static void generic_ops_unregister(void)
- 	efivars_unregister(&generic_efivars);
+diff --git a/fs/exfat/super.c b/fs/exfat/super.c
+index c1b1ed306a485..e879801533980 100644
+--- a/fs/exfat/super.c
++++ b/fs/exfat/super.c
+@@ -637,10 +637,20 @@ static void exfat_free(struct fs_context *fc)
+ 	}
  }
  
--#if IS_ENABLED(CONFIG_ACPI)
-+#ifdef CONFIG_EFI_CUSTOM_SSDT_OVERLAYS
- #define EFIVAR_SSDT_NAME_MAX	16
- static char efivar_ssdt[EFIVAR_SSDT_NAME_MAX] __initdata;
- static int __init efivar_ssdt_setup(char *str)
++static int exfat_reconfigure(struct fs_context *fc)
++{
++	fc->sb_flags |= SB_NODIRATIME;
++
++	/* volume flag will be updated in exfat_sync_fs */
++	sync_filesystem(fc->root->d_sb);
++	return 0;
++}
++
+ static const struct fs_context_operations exfat_context_ops = {
+ 	.parse_param	= exfat_parse_param,
+ 	.get_tree	= exfat_get_tree,
+ 	.free		= exfat_free,
++	.reconfigure	= exfat_reconfigure,
+ };
+ 
+ static int exfat_init_fs_context(struct fs_context *fc)
+-- 
+2.25.1
+
 
 
