@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3ECC216FCC
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:13:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E39CA216FCE
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:13:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728447AbgGGPKm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:10:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51436 "EHLO mail.kernel.org"
+        id S1728392AbgGGPKp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:10:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728392AbgGGPKk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:10:40 -0400
+        id S1728449AbgGGPKm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:10:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8735D20773;
-        Tue,  7 Jul 2020 15:10:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E5CDC20674;
+        Tue,  7 Jul 2020 15:10:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594134640;
-        bh=cxJiWOM42gPyU4doFVuWlDU6KkXL+OmhT3JzMljynJs=;
+        s=default; t=1594134642;
+        bh=o6oqzbWykaCvSyO5x3PsxFUX8tWn7wsUwpk/xakbM3I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KxaDbjFfgZqkgvZrL9Q5DHYXPJvee+kbbMocRXRfc94jfRSQHFa6hEmii1E0xvsph
-         3b1YOv7Se/A9djKOH+pPvuG/GMd1UKqqQ7tZVrEvAPWp9jRFBzN7pQWW95e7Zy9qvS
-         xiY4YOVHHxXqmkq7ZH+d+BFOGU/urpr4dTjlL0/s=
+        b=vx0mv+YswWi0tPrXrRbZd6oU3tbsWDz34Op7I9DrWOVji4TYtOQKO+XWWghh20MPV
+         LrQdXTk2g0FD6AWVlkxuCRDWRqS5cwxf7t4jdqrjK74dq5r76ynw1F1HzPlS4hJEsY
+         0Jr+1xVphYBJCMZ4aLfS4eSi3hQNMd3o2DlXEaqU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Tsoy <alexander@tsoy.me>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        Hans de Goede <jwrdegoede@fedoraproject.org>
-Subject: [PATCH 4.4 14/19] Revert "ALSA: usb-audio: Improve frames size computation"
-Date:   Tue,  7 Jul 2020 17:10:17 +0200
-Message-Id: <20200707145748.216607526@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Aurich <paul@darkrain42.org>,
+        Steve French <stfrench@microsoft.com>,
+        Aurelien Aptel <aaptel@suse.com>
+Subject: [PATCH 4.4 15/19] SMB3: Honor seal flag for multiuser mounts
+Date:   Tue,  7 Jul 2020 17:10:18 +0200
+Message-Id: <20200707145748.264215044@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200707145747.493710555@linuxfoundation.org>
 References: <20200707145747.493710555@linuxfoundation.org>
@@ -44,144 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Paul Aurich <paul@darkrain42.org>
 
-This reverts commit 02c56650f3c118d3752122996d96173d26bb13aa which is
-commit f0bd62b64016508938df9babe47f65c2c727d25c upstream.
+commit cc15461c73d7d044d56c47e869a215e49bd429c8 upstream.
 
-It causes a number of reported issues and a fix for it has not hit
-Linus's tree yet.  Revert this to resolve those problems.
+Ensure multiuser SMB3 mounts use encryption for all users' tcons if the
+mount options are configured to require encryption. Without this, only
+the primary tcon and IPC tcons are guaranteed to be encrypted. Per-user
+tcons would only be encrypted if the server was configured to require
+encryption.
 
-Cc: Alexander Tsoy <alexander@tsoy.me>
-Cc: Takashi Iwai <tiwai@suse.de>
-Cc: Sasha Levin <sashal@kernel.org>
-Cc: Hans de Goede <jwrdegoede@fedoraproject.org>
+Signed-off-by: Paul Aurich <paul@darkrain42.org>
+CC: Stable <stable@vger.kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Reviewed-by: Aurelien Aptel <aaptel@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- sound/usb/card.h     |    4 ----
- sound/usb/endpoint.c |   43 +++++--------------------------------------
- sound/usb/endpoint.h |    1 -
- sound/usb/pcm.c      |    2 --
- 4 files changed, 5 insertions(+), 45 deletions(-)
 
---- a/sound/usb/card.h
-+++ b/sound/usb/card.h
-@@ -80,10 +80,6 @@ struct snd_usb_endpoint {
- 	dma_addr_t sync_dma;		/* DMA address of syncbuf */
+---
+ fs/cifs/connect.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -4206,6 +4206,7 @@ cifs_construct_tcon(struct cifs_sb_info
+ 	vol_info->no_linux_ext = !master_tcon->unix_ext;
+ 	vol_info->sectype = master_tcon->ses->sectype;
+ 	vol_info->sign = master_tcon->ses->sign;
++	vol_info->seal = master_tcon->seal;
  
- 	unsigned int pipe;		/* the data i/o pipe */
--	unsigned int framesize[2];	/* small/large frame sizes in samples */
--	unsigned int sample_rem;	/* remainder from division fs/fps */
--	unsigned int sample_accum;	/* sample accumulator */
--	unsigned int fps;		/* frames per second */
- 	unsigned int freqn;		/* nominal sampling rate in fs/fps in Q16.16 format */
- 	unsigned int freqm;		/* momentary sampling rate in fs/fps in Q16.16 format */
- 	int	   freqshift;		/* how much to shift the feedback value to get Q16.16 */
---- a/sound/usb/endpoint.c
-+++ b/sound/usb/endpoint.c
-@@ -137,12 +137,12 @@ int snd_usb_endpoint_implicit_feedback_s
- 
- /*
-  * For streaming based on information derived from sync endpoints,
-- * prepare_outbound_urb_sizes() will call slave_next_packet_size() to
-+ * prepare_outbound_urb_sizes() will call next_packet_size() to
-  * determine the number of samples to be sent in the next packet.
-  *
-- * For implicit feedback, slave_next_packet_size() is unused.
-+ * For implicit feedback, next_packet_size() is unused.
-  */
--int snd_usb_endpoint_slave_next_packet_size(struct snd_usb_endpoint *ep)
-+int snd_usb_endpoint_next_packet_size(struct snd_usb_endpoint *ep)
- {
- 	unsigned long flags;
- 	int ret;
-@@ -159,29 +159,6 @@ int snd_usb_endpoint_slave_next_packet_s
- 	return ret;
- }
- 
--/*
-- * For adaptive and synchronous endpoints, prepare_outbound_urb_sizes()
-- * will call next_packet_size() to determine the number of samples to be
-- * sent in the next packet.
-- */
--int snd_usb_endpoint_next_packet_size(struct snd_usb_endpoint *ep)
--{
--	int ret;
--
--	if (ep->fill_max)
--		return ep->maxframesize;
--
--	ep->sample_accum += ep->sample_rem;
--	if (ep->sample_accum >= ep->fps) {
--		ep->sample_accum -= ep->fps;
--		ret = ep->framesize[1];
--	} else {
--		ret = ep->framesize[0];
--	}
--
--	return ret;
--}
--
- static void retire_outbound_urb(struct snd_usb_endpoint *ep,
- 				struct snd_urb_ctx *urb_ctx)
- {
-@@ -226,8 +203,6 @@ static void prepare_silent_urb(struct sn
- 
- 		if (ctx->packet_size[i])
- 			counts = ctx->packet_size[i];
--		else if (ep->sync_master)
--			counts = snd_usb_endpoint_slave_next_packet_size(ep);
- 		else
- 			counts = snd_usb_endpoint_next_packet_size(ep);
- 
-@@ -904,17 +879,10 @@ int snd_usb_endpoint_set_params(struct s
- 	ep->maxpacksize = fmt->maxpacksize;
- 	ep->fill_max = !!(fmt->attributes & UAC_EP_CS_ATTR_FILL_MAX);
- 
--	if (snd_usb_get_speed(ep->chip->dev) == USB_SPEED_FULL) {
-+	if (snd_usb_get_speed(ep->chip->dev) == USB_SPEED_FULL)
- 		ep->freqn = get_usb_full_speed_rate(rate);
--		ep->fps = 1000;
--	} else {
-+	else
- 		ep->freqn = get_usb_high_speed_rate(rate);
--		ep->fps = 8000;
--	}
--
--	ep->sample_rem = rate % ep->fps;
--	ep->framesize[0] = rate / ep->fps;
--	ep->framesize[1] = (rate + (ep->fps - 1)) / ep->fps;
- 
- 	/* calculate the frequency in 16.16 format */
- 	ep->freqm = ep->freqn;
-@@ -973,7 +941,6 @@ int snd_usb_endpoint_start(struct snd_us
- 	ep->active_mask = 0;
- 	ep->unlink_mask = 0;
- 	ep->phase = 0;
--	ep->sample_accum = 0;
- 
- 	snd_usb_endpoint_start_quirk(ep);
- 
---- a/sound/usb/endpoint.h
-+++ b/sound/usb/endpoint.h
-@@ -27,7 +27,6 @@ void snd_usb_endpoint_release(struct snd
- void snd_usb_endpoint_free(struct snd_usb_endpoint *ep);
- 
- int snd_usb_endpoint_implicit_feedback_sink(struct snd_usb_endpoint *ep);
--int snd_usb_endpoint_slave_next_packet_size(struct snd_usb_endpoint *ep);
- int snd_usb_endpoint_next_packet_size(struct snd_usb_endpoint *ep);
- 
- void snd_usb_handle_sync_urb(struct snd_usb_endpoint *ep,
---- a/sound/usb/pcm.c
-+++ b/sound/usb/pcm.c
-@@ -1473,8 +1473,6 @@ static void prepare_playback_urb(struct
- 	for (i = 0; i < ctx->packets; i++) {
- 		if (ctx->packet_size[i])
- 			counts = ctx->packet_size[i];
--		else if (ep->sync_master)
--			counts = snd_usb_endpoint_slave_next_packet_size(ep);
- 		else
- 			counts = snd_usb_endpoint_next_packet_size(ep);
- 
+ 	rc = cifs_set_vol_auth(vol_info, master_tcon->ses);
+ 	if (rc) {
 
 
