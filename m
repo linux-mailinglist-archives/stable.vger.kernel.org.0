@@ -2,102 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EFB00216619
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 08:00:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4664921662F
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 08:06:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728179AbgGGF7s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 01:59:48 -0400
-Received: from foss.arm.com ([217.140.110.172]:50000 "EHLO foss.arm.com"
+        id S1725974AbgGGGGS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 02:06:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727827AbgGGF7s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 01:59:48 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id CF5EF1045;
-        Mon,  6 Jul 2020 22:59:47 -0700 (PDT)
-Received: from localhost.localdomain (entos-thunderx2-02.shanghai.arm.com [10.169.212.213])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id E28C53F68F;
-        Mon,  6 Jul 2020 22:59:42 -0700 (PDT)
-From:   Jia He <justin.he@arm.com>
-To:     Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>
-Cc:     Michal Hocko <mhocko@suse.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Baoquan He <bhe@redhat.com>,
-        Chuhong Yuan <hslester96@gmail.com>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, linux-nvdimm@lists.01.org,
-        Kaly Xin <Kaly.Xin@arm.com>, Jia He <justin.he@arm.com>,
+        id S1725874AbgGGGGR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 02:06:17 -0400
+Received: from localhost.localdomain (unknown [222.67.222.179])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E5BE20771;
+        Tue,  7 Jul 2020 06:06:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1594101977;
+        bh=iaUBPSiNhXhrCz/hJLU62IegeXbcIEx+RGFPFono3gc=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=TvLl/xxLjxIZMeK9hrV3VPstzjzS5HLck03WwH9apg81n8uRNadlisdYvL+3SOQRl
+         1M0Ktk8KBmEkBrJ0nUYN/SS++k5RoykVaWjB8qGtj0Bkof2B0xfC7IFNIHeLoSmtI8
+         PPoC0OPwblT1bTuxz0DSaBzccCGu6EcPDeWzMHuA=
+From:   Peter Chen <peter.chen@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     linux-usb@vger.kernel.org, Peter Chen <peter.chen@nxp.com>,
         stable@vger.kernel.org
-Subject: [PATCH v2 3/3] mm/memory_hotplug: fix unpaired mem_hotplug_begin/done
-Date:   Tue,  7 Jul 2020 13:59:17 +0800
-Message-Id: <20200707055917.143653-4-justin.he@arm.com>
+Subject: [PATCH 1/1] usb: chipidea: core: add wakeup support for extcon
+Date:   Tue,  7 Jul 2020 14:06:01 +0800
+Message-Id: <20200707060601.31907-2-peter.chen@kernel.org>
 X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200707055917.143653-1-justin.he@arm.com>
-References: <20200707055917.143653-1-justin.he@arm.com>
+In-Reply-To: <20200707060601.31907-1-peter.chen@kernel.org>
+References: <20200707060601.31907-1-peter.chen@kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When check_memblock_offlined_cb() returns failed rc(e.g. the memblock is
-online at that time), mem_hotplug_begin/done is unpaired in such case.
+From: Peter Chen <peter.chen@nxp.com>
 
-Therefore a warning:
- Call Trace:
-  percpu_up_write+0x33/0x40
-  try_remove_memory+0x66/0x120
-  ? _cond_resched+0x19/0x30
-  remove_memory+0x2b/0x40
-  dev_dax_kmem_remove+0x36/0x72 [kmem]
-  device_release_driver_internal+0xf0/0x1c0
-  device_release_driver+0x12/0x20
-  bus_remove_device+0xe1/0x150
-  device_del+0x17b/0x3e0
-  unregister_dev_dax+0x29/0x60
-  devm_action_release+0x15/0x20
-  release_nodes+0x19a/0x1e0
-  devres_release_all+0x3f/0x50
-  device_release_driver_internal+0x100/0x1c0
-  driver_detach+0x4c/0x8f
-  bus_remove_driver+0x5c/0xd0
-  driver_unregister+0x31/0x50
-  dax_pmem_exit+0x10/0xfe0 [dax_pmem]
+If wakeup event occurred by extcon event, it needs to call
+ci_irq again since the first ci_irq calling at extcon notifier
+only wakes up controller, but do noop for event handling,
+it causes the extcon use case can't work well from low power mode.
 
-Fixes: f1037ec0cc8a ("mm/memory_hotplug: fix remove_memory() lockdep splat")
-Cc: stable@vger.kernel.org # v5.6+
-Signed-off-by: Jia He <justin.he@arm.com>
+Cc: <stable@vger.kernel.org>
+Fixes: 3ecb3e09b042 ("usb: chipidea: Use extcon framework for VBUS and ID detect")
+Reported-by: Philippe Schenker <philippe.schenker@toradex.com>
+Tested-by: Philippe Schenker <philippe.schenker@toradex.com>
+Signed-off-by: Peter Chen <peter.chen@nxp.com>
 ---
- mm/memory_hotplug.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/usb/chipidea/core.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index da374cd3d45b..76c75a599da3 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -1742,7 +1742,7 @@ static int __ref try_remove_memory(int nid, u64 start, u64 size)
- 	 */
- 	rc = walk_memory_blocks(start, size, NULL, check_memblock_offlined_cb);
- 	if (rc)
--		goto done;
-+		return rc;
- 
- 	/* remove memmap entry */
- 	firmware_map_remove(start, start + size, "System RAM");
-@@ -1766,9 +1766,8 @@ static int __ref try_remove_memory(int nid, u64 start, u64 size)
- 
- 	try_offline_node(nid);
- 
--done:
- 	mem_hotplug_done();
--	return rc;
-+	return 0;
+diff --git a/drivers/usb/chipidea/core.c b/drivers/usb/chipidea/core.c
+index 9a7c53d09ab4..bb133245beed 100644
+--- a/drivers/usb/chipidea/core.c
++++ b/drivers/usb/chipidea/core.c
+@@ -1243,6 +1243,29 @@ static void ci_controller_suspend(struct ci_hdrc *ci)
+ 	enable_irq(ci->irq);
  }
  
- /**
++/*
++ * Handle the wakeup interrupt triggered by extcon connector
++ * We need to call ci_irq again for extcon since the first
++ * interrupt (wakeup int) only let the controller be out of
++ * low power mode, but not handle any interrupts.
++ */
++static void ci_extcon_wakeup_int(struct ci_hdrc *ci)
++{
++	struct ci_hdrc_cable *cable_id, *cable_vbus;
++	u32 otgsc = hw_read_otgsc(ci, ~0);
++
++	cable_id = &ci->platdata->id_extcon;
++	cable_vbus = &ci->platdata->vbus_extcon;
++
++	if (!IS_ERR(cable_id->edev) && ci->is_otg &&
++		(otgsc & OTGSC_IDIE) && (otgsc & OTGSC_IDIS))
++		ci_irq(ci->irq, ci);
++
++	if (!IS_ERR(cable_vbus->edev) && ci->is_otg &&
++		(otgsc & OTGSC_BSVIE) && (otgsc & OTGSC_BSVIS))
++		ci_irq(ci->irq, ci);
++}
++
+ static int ci_controller_resume(struct device *dev)
+ {
+ 	struct ci_hdrc *ci = dev_get_drvdata(dev);
+@@ -1275,6 +1298,7 @@ static int ci_controller_resume(struct device *dev)
+ 		enable_irq(ci->irq);
+ 		if (ci_otg_is_fsm_mode(ci))
+ 			ci_otg_fsm_wakeup_by_srp(ci);
++		ci_extcon_wakeup_int(ci);
+ 	}
+ 
+ 	return 0;
 -- 
 2.17.1
 
