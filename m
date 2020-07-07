@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0671D217120
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:25:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAF672170BB
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:24:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727791AbgGGPY0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:24:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38010 "EHLO mail.kernel.org"
+        id S1728650AbgGGPUO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:20:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729085AbgGGPYZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:24:25 -0400
+        id S1728665AbgGGPUN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:20:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 38DB1207D0;
-        Tue,  7 Jul 2020 15:24:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B8FF1207BB;
+        Tue,  7 Jul 2020 15:20:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135464;
-        bh=G+rAMT6LhkOWlncqszbebKQ70fqYSaj8mZENtE+BSoE=;
+        s=default; t=1594135212;
+        bh=miJHj+Pb0feMSTpT/2VYBOZJEP5ZBQoJplkSCDqOLfE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XRB6qZ0Wf+uK1Zs/uppBtoHqvG21VYQD0qRtW7wE7/vvIg8WjMDkP8mk40Hnazneg
-         Lc6fJ36iky+UL08ouDKHkCje6swb9EZcf1lkuVixTsUzWRRIkbWzWmGebtbm1JIHd7
-         mx1StRSw0p/WMGRWTLc95JGM4C9qazDVZfbTJcZc=
+        b=We4Fxx8Kt62OI4Yl860dyDFfdQzYfF4DvBygBIZBoXnJWVOeMl70HIUro9kM6Fw1S
+         CZSGKoCwc81NTydtiVrbc/DKQ2QuUK023ocwTwVIlubtaqBA4s+ldqcqvP8vtVJhVz
+         9wGYTuL7si6dNd+zEarQ0jgUjXvUyuYAt+gAYd6Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Po Liu <Po.Liu@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 051/112] net: enetc: add hw tc hw offload features for PSPF capability
-Date:   Tue,  7 Jul 2020 17:16:56 +0200
-Message-Id: <20200707145803.429515727@linuxfoundation.org>
+Subject: [PATCH 5.4 18/65] kgdb: Avoid suspicious RCU usage warning
+Date:   Tue,  7 Jul 2020 17:16:57 +0200
+Message-Id: <20200707145753.341011958@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200707145800.925304888@linuxfoundation.org>
-References: <20200707145800.925304888@linuxfoundation.org>
+In-Reply-To: <20200707145752.417212219@linuxfoundation.org>
+References: <20200707145752.417212219@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,221 +44,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Po Liu <Po.Liu@nxp.com>
+From: Douglas Anderson <dianders@chromium.org>
 
-[ Upstream commit 79e499829f3ff5b8f70c87baf1b03ebb3401a3e4 ]
+[ Upstream commit 440ab9e10e2e6e5fd677473ee6f9e3af0f6904d6 ]
 
-This patch is to let ethtool enable/disable the tc flower offload
-features. Hardware ENETC has the feature of PSFP which is for per-stream
-policing. When enable the tc hw offloading feature, driver would enable
-the IEEE 802.1Qci feature. It is only set the register enable bit for
-this feature not enable for any entry of per stream filtering and stream
-gate or stream identify but get how much capabilities for each feature.
+At times when I'm using kgdb I see a splat on my console about
+suspicious RCU usage.  I managed to come up with a case that could
+reproduce this that looked like this:
 
-Signed-off-by: Po Liu <Po.Liu@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+  WARNING: suspicious RCU usage
+  5.7.0-rc4+ #609 Not tainted
+  -----------------------------
+  kernel/pid.c:395 find_task_by_pid_ns() needs rcu_read_lock() protection!
+
+  other info that might help us debug this:
+
+    rcu_scheduler_active = 2, debug_locks = 1
+  3 locks held by swapper/0/1:
+   #0: ffffff81b6b8e988 (&dev->mutex){....}-{3:3}, at: __device_attach+0x40/0x13c
+   #1: ffffffd01109e9e8 (dbg_master_lock){....}-{2:2}, at: kgdb_cpu_enter+0x20c/0x7ac
+   #2: ffffffd01109ea90 (dbg_slave_lock){....}-{2:2}, at: kgdb_cpu_enter+0x3ec/0x7ac
+
+  stack backtrace:
+  CPU: 7 PID: 1 Comm: swapper/0 Not tainted 5.7.0-rc4+ #609
+  Hardware name: Google Cheza (rev3+) (DT)
+  Call trace:
+   dump_backtrace+0x0/0x1b8
+   show_stack+0x1c/0x24
+   dump_stack+0xd4/0x134
+   lockdep_rcu_suspicious+0xf0/0x100
+   find_task_by_pid_ns+0x5c/0x80
+   getthread+0x8c/0xb0
+   gdb_serial_stub+0x9d4/0xd04
+   kgdb_cpu_enter+0x284/0x7ac
+   kgdb_handle_exception+0x174/0x20c
+   kgdb_brk_fn+0x24/0x30
+   call_break_hook+0x6c/0x7c
+   brk_handler+0x20/0x5c
+   do_debug_exception+0x1c8/0x22c
+   el1_sync_handler+0x3c/0xe4
+   el1_sync+0x7c/0x100
+   rpmh_rsc_probe+0x38/0x420
+   platform_drv_probe+0x94/0xb4
+   really_probe+0x134/0x300
+   driver_probe_device+0x68/0x100
+   __device_attach_driver+0x90/0xa8
+   bus_for_each_drv+0x84/0xcc
+   __device_attach+0xb4/0x13c
+   device_initial_probe+0x18/0x20
+   bus_probe_device+0x38/0x98
+   device_add+0x38c/0x420
+
+If I understand properly we should just be able to blanket kgdb under
+one big RCU read lock and the problem should go away.  We'll add it to
+the beast-of-a-function known as kgdb_cpu_enter().
+
+With this I no longer get any splats and things seem to work fine.
+
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Link: https://lore.kernel.org/r/20200602154729.v2.1.I70e0d4fd46d5ed2aaf0c98a355e8e1b7a5bb7e4e@changeid
+Signed-off-by: Daniel Thompson <daniel.thompson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/enetc/enetc.c  | 23 +++++++++
- drivers/net/ethernet/freescale/enetc/enetc.h  | 48 +++++++++++++++++++
- .../net/ethernet/freescale/enetc/enetc_hw.h   | 17 +++++++
- .../net/ethernet/freescale/enetc/enetc_pf.c   |  8 ++++
- 4 files changed, 96 insertions(+)
+ kernel/debug/debug_core.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/ethernet/freescale/enetc/enetc.c b/drivers/net/ethernet/freescale/enetc/enetc.c
-index 4486a0db8ef0c..9ac5cccfe0204 100644
---- a/drivers/net/ethernet/freescale/enetc/enetc.c
-+++ b/drivers/net/ethernet/freescale/enetc/enetc.c
-@@ -756,6 +756,9 @@ void enetc_get_si_caps(struct enetc_si *si)
+diff --git a/kernel/debug/debug_core.c b/kernel/debug/debug_core.c
+index 7d54c7c280544..2222f3225e53d 100644
+--- a/kernel/debug/debug_core.c
++++ b/kernel/debug/debug_core.c
+@@ -546,6 +546,7 @@ static int kgdb_cpu_enter(struct kgdb_state *ks, struct pt_regs *regs,
+ 		arch_kgdb_ops.disable_hw_break(regs);
  
- 	if (val & ENETC_SIPCAPR0_QBV)
- 		si->hw_features |= ENETC_SI_F_QBV;
-+
-+	if (val & ENETC_SIPCAPR0_PSFP)
-+		si->hw_features |= ENETC_SI_F_PSFP;
- }
+ acquirelock:
++	rcu_read_lock();
+ 	/*
+ 	 * Interrupts will be restored by the 'trap return' code, except when
+ 	 * single stepping.
+@@ -602,6 +603,7 @@ return_normal:
+ 			atomic_dec(&slaves_in_kgdb);
+ 			dbg_touch_watchdogs();
+ 			local_irq_restore(flags);
++			rcu_read_unlock();
+ 			return 0;
+ 		}
+ 		cpu_relax();
+@@ -620,6 +622,7 @@ return_normal:
+ 		raw_spin_unlock(&dbg_master_lock);
+ 		dbg_touch_watchdogs();
+ 		local_irq_restore(flags);
++		rcu_read_unlock();
  
- static int enetc_dma_alloc_bdr(struct enetc_bdr *r, size_t bd_size)
-@@ -1567,6 +1570,23 @@ static int enetc_set_rss(struct net_device *ndev, int en)
- 	return 0;
- }
+ 		goto acquirelock;
+ 	}
+@@ -743,6 +746,7 @@ kgdb_restore:
+ 	raw_spin_unlock(&dbg_master_lock);
+ 	dbg_touch_watchdogs();
+ 	local_irq_restore(flags);
++	rcu_read_unlock();
  
-+static int enetc_set_psfp(struct net_device *ndev, int en)
-+{
-+	struct enetc_ndev_priv *priv = netdev_priv(ndev);
-+
-+	if (en) {
-+		priv->active_offloads |= ENETC_F_QCI;
-+		enetc_get_max_cap(priv);
-+		enetc_psfp_enable(&priv->si->hw);
-+	} else {
-+		priv->active_offloads &= ~ENETC_F_QCI;
-+		memset(&priv->psfp_cap, 0, sizeof(struct psfp_cap));
-+		enetc_psfp_disable(&priv->si->hw);
-+	}
-+
-+	return 0;
-+}
-+
- int enetc_set_features(struct net_device *ndev,
- 		       netdev_features_t features)
- {
-@@ -1575,6 +1595,9 @@ int enetc_set_features(struct net_device *ndev,
- 	if (changed & NETIF_F_RXHASH)
- 		enetc_set_rss(ndev, !!(features & NETIF_F_RXHASH));
- 
-+	if (changed & NETIF_F_HW_TC)
-+		enetc_set_psfp(ndev, !!(features & NETIF_F_HW_TC));
-+
- 	return 0;
- }
- 
-diff --git a/drivers/net/ethernet/freescale/enetc/enetc.h b/drivers/net/ethernet/freescale/enetc/enetc.h
-index 56c43f35b633b..2cfe877c37786 100644
---- a/drivers/net/ethernet/freescale/enetc/enetc.h
-+++ b/drivers/net/ethernet/freescale/enetc/enetc.h
-@@ -151,6 +151,7 @@ enum enetc_errata {
- };
- 
- #define ENETC_SI_F_QBV BIT(0)
-+#define ENETC_SI_F_PSFP BIT(1)
- 
- /* PCI IEP device data */
- struct enetc_si {
-@@ -203,12 +204,20 @@ struct enetc_cls_rule {
- };
- 
- #define ENETC_MAX_BDR_INT	2 /* fixed to max # of available cpus */
-+struct psfp_cap {
-+	u32 max_streamid;
-+	u32 max_psfp_filter;
-+	u32 max_psfp_gate;
-+	u32 max_psfp_gatelist;
-+	u32 max_psfp_meter;
-+};
- 
- /* TODO: more hardware offloads */
- enum enetc_active_offloads {
- 	ENETC_F_RX_TSTAMP	= BIT(0),
- 	ENETC_F_TX_TSTAMP	= BIT(1),
- 	ENETC_F_QBV             = BIT(2),
-+	ENETC_F_QCI		= BIT(3),
- };
- 
- struct enetc_ndev_priv {
-@@ -231,6 +240,8 @@ struct enetc_ndev_priv {
- 
- 	struct enetc_cls_rule *cls_rules;
- 
-+	struct psfp_cap psfp_cap;
-+
- 	struct device_node *phy_node;
- 	phy_interface_t if_mode;
- };
-@@ -289,9 +300,46 @@ int enetc_setup_tc_taprio(struct net_device *ndev, void *type_data);
- void enetc_sched_speed_set(struct net_device *ndev);
- int enetc_setup_tc_cbs(struct net_device *ndev, void *type_data);
- int enetc_setup_tc_txtime(struct net_device *ndev, void *type_data);
-+
-+static inline void enetc_get_max_cap(struct enetc_ndev_priv *priv)
-+{
-+	u32 reg;
-+
-+	reg = enetc_port_rd(&priv->si->hw, ENETC_PSIDCAPR);
-+	priv->psfp_cap.max_streamid = reg & ENETC_PSIDCAPR_MSK;
-+	/* Port stream filter capability */
-+	reg = enetc_port_rd(&priv->si->hw, ENETC_PSFCAPR);
-+	priv->psfp_cap.max_psfp_filter = reg & ENETC_PSFCAPR_MSK;
-+	/* Port stream gate capability */
-+	reg = enetc_port_rd(&priv->si->hw, ENETC_PSGCAPR);
-+	priv->psfp_cap.max_psfp_gate = (reg & ENETC_PSGCAPR_SGIT_MSK);
-+	priv->psfp_cap.max_psfp_gatelist = (reg & ENETC_PSGCAPR_GCL_MSK) >> 16;
-+	/* Port flow meter capability */
-+	reg = enetc_port_rd(&priv->si->hw, ENETC_PFMCAPR);
-+	priv->psfp_cap.max_psfp_meter = reg & ENETC_PFMCAPR_MSK;
-+}
-+
-+static inline void enetc_psfp_enable(struct enetc_hw *hw)
-+{
-+	enetc_wr(hw, ENETC_PPSFPMR, enetc_rd(hw, ENETC_PPSFPMR) |
-+		 ENETC_PPSFPMR_PSFPEN | ENETC_PPSFPMR_VS |
-+		 ENETC_PPSFPMR_PVC | ENETC_PPSFPMR_PVZC);
-+}
-+
-+static inline void enetc_psfp_disable(struct enetc_hw *hw)
-+{
-+	enetc_wr(hw, ENETC_PPSFPMR, enetc_rd(hw, ENETC_PPSFPMR) &
-+		 ~ENETC_PPSFPMR_PSFPEN & ~ENETC_PPSFPMR_VS &
-+		 ~ENETC_PPSFPMR_PVC & ~ENETC_PPSFPMR_PVZC);
-+}
- #else
- #define enetc_setup_tc_taprio(ndev, type_data) -EOPNOTSUPP
- #define enetc_sched_speed_set(ndev) (void)0
- #define enetc_setup_tc_cbs(ndev, type_data) -EOPNOTSUPP
- #define enetc_setup_tc_txtime(ndev, type_data) -EOPNOTSUPP
-+#define enetc_get_max_cap(p)		\
-+	memset(&((p)->psfp_cap), 0, sizeof(struct psfp_cap))
-+
-+#define enetc_psfp_enable(hw) (void)0
-+#define enetc_psfp_disable(hw) (void)0
- #endif
-diff --git a/drivers/net/ethernet/freescale/enetc/enetc_hw.h b/drivers/net/ethernet/freescale/enetc/enetc_hw.h
-index 2a6523136947d..587974862f488 100644
---- a/drivers/net/ethernet/freescale/enetc/enetc_hw.h
-+++ b/drivers/net/ethernet/freescale/enetc/enetc_hw.h
-@@ -19,6 +19,7 @@
- #define ENETC_SICTR1	0x1c
- #define ENETC_SIPCAPR0	0x20
- #define ENETC_SIPCAPR0_QBV	BIT(4)
-+#define ENETC_SIPCAPR0_PSFP	BIT(9)
- #define ENETC_SIPCAPR0_RSS	BIT(8)
- #define ENETC_SIPCAPR1	0x24
- #define ENETC_SITGTGR	0x30
-@@ -228,6 +229,15 @@ enum enetc_bdr_type {TX, RX};
- #define ENETC_PM0_IFM_RLP	(BIT(5) | BIT(11))
- #define ENETC_PM0_IFM_RGAUTO	(BIT(15) | ENETC_PMO_IFM_RG | BIT(1))
- #define ENETC_PM0_IFM_XGMII	BIT(12)
-+#define ENETC_PSIDCAPR		0x1b08
-+#define ENETC_PSIDCAPR_MSK	GENMASK(15, 0)
-+#define ENETC_PSFCAPR		0x1b18
-+#define ENETC_PSFCAPR_MSK	GENMASK(15, 0)
-+#define ENETC_PSGCAPR		0x1b28
-+#define ENETC_PSGCAPR_GCL_MSK	GENMASK(18, 16)
-+#define ENETC_PSGCAPR_SGIT_MSK	GENMASK(15, 0)
-+#define ENETC_PFMCAPR		0x1b38
-+#define ENETC_PFMCAPR_MSK	GENMASK(15, 0)
- 
- /* MAC counters */
- #define ENETC_PM0_REOCT		0x8100
-@@ -621,3 +631,10 @@ struct enetc_cbd {
- /* Port time specific departure */
- #define ENETC_PTCTSDR(n)	(0x1210 + 4 * (n))
- #define ENETC_TSDE		BIT(31)
-+
-+/* PSFP setting */
-+#define ENETC_PPSFPMR 0x11b00
-+#define ENETC_PPSFPMR_PSFPEN BIT(0)
-+#define ENETC_PPSFPMR_VS BIT(1)
-+#define ENETC_PPSFPMR_PVC BIT(2)
-+#define ENETC_PPSFPMR_PVZC BIT(3)
-diff --git a/drivers/net/ethernet/freescale/enetc/enetc_pf.c b/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-index 85e2b741df414..eacd597b55f22 100644
---- a/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-+++ b/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-@@ -739,6 +739,14 @@ static void enetc_pf_netdev_setup(struct enetc_si *si, struct net_device *ndev,
- 	if (si->hw_features & ENETC_SI_F_QBV)
- 		priv->active_offloads |= ENETC_F_QBV;
- 
-+	if (si->hw_features & ENETC_SI_F_PSFP) {
-+		priv->active_offloads |= ENETC_F_QCI;
-+		ndev->features |= NETIF_F_HW_TC;
-+		ndev->hw_features |= NETIF_F_HW_TC;
-+		enetc_get_max_cap(priv);
-+		enetc_psfp_enable(&si->hw);
-+	}
-+
- 	/* pick up primary MAC address from SI */
- 	enetc_get_primary_mac_addr(&si->hw, ndev->dev_addr);
+ 	return kgdb_info[cpu].ret_state;
  }
 -- 
 2.25.1
