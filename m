@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BAB5821717C
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:42:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72250217270
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:44:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729589AbgGGPUt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:20:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32776 "EHLO mail.kernel.org"
+        id S1728758AbgGGPdP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:33:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729582AbgGGPUs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:20:48 -0400
+        id S1729609AbgGGPUx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:20:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6E26E20773;
-        Tue,  7 Jul 2020 15:20:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A8A3206E2;
+        Tue,  7 Jul 2020 15:20:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135248;
-        bh=j+luVCOiuymvrU9XJJwT00XGVyNwYxhXbV+YSqKKWww=;
+        s=default; t=1594135253;
+        bh=2b7zMVe6mmI61iDQvqn+sLJjzEjTT4Vn1x0St9mH+Pk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h7wPimwZXrdTaunEtEmISR+yMtEc++8tvOuLMDSo/5fwMAl5WbiCg4GrKT3vGt353
-         fjZpHYyJIaYaRR6usW6qb8oNK4qmHL/6n1QcbZ+Hf3M7qF8MKhHtD8pWVLTWLC16e1
-         iy86InFJIWXXZ8aOr83O1cfFUkdQM6HxsNPoLJy4=
+        b=EcWrcutZWRK1y0Cfc4JnMqDD6915iioeD6ZtnirJ4y71NvLQ8knBRj2PjZVwnESBB
+         Px0dzbieH6RtW+FwdmJA1ni2za78zXD0bd7Q4AjF06FZE14QGstp5C2cmFanGVwvoi
+         GHZyhbD6arYUe7Xplbw2nVR2oHoZOPmzvPD37rgo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+29dc7d4ae19b703ff947@syzkaller.appspotmail.com,
-        Tuomas Tynkkynen <tuomas.tynkkynen@iki.fi>,
-        "David S. Miller" <davem@davemloft.net>,
+        Valentin Schneider <valentin.schneider@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 04/65] usbnet: smsc95xx: Fix use-after-free after removal
-Date:   Tue,  7 Jul 2020 17:16:43 +0200
-Message-Id: <20200707145752.639594398@linuxfoundation.org>
+Subject: [PATCH 5.4 05/65] sched/debug: Make sd->flags sysctl read-only
+Date:   Tue,  7 Jul 2020 17:16:44 +0200
+Message-Id: <20200707145752.698910547@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200707145752.417212219@linuxfoundation.org>
 References: <20200707145752.417212219@linuxfoundation.org>
@@ -46,47 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tuomas Tynkkynen <tuomas.tynkkynen@iki.fi>
+From: Valentin Schneider <valentin.schneider@arm.com>
 
-[ Upstream commit b835a71ef64a61383c414d6bf2896d2c0161deca ]
+[ Upstream commit 9818427c6270a9ce8c52c8621026fe9cebae0f92 ]
 
-Syzbot reports an use-after-free in workqueue context:
+Writing to the sysctl of a sched_domain->flags directly updates the value of
+the field, and goes nowhere near update_top_cache_domain(). This means that
+the cached domain pointers can end up containing stale data (e.g. the
+domain pointed to doesn't have the relevant flag set anymore).
 
-BUG: KASAN: use-after-free in mutex_unlock+0x19/0x40 kernel/locking/mutex.c:737
- mutex_unlock+0x19/0x40 kernel/locking/mutex.c:737
- __smsc95xx_mdio_read drivers/net/usb/smsc95xx.c:217 [inline]
- smsc95xx_mdio_read+0x583/0x870 drivers/net/usb/smsc95xx.c:278
- check_carrier+0xd1/0x2e0 drivers/net/usb/smsc95xx.c:644
- process_one_work+0x777/0xf90 kernel/workqueue.c:2274
- worker_thread+0xa8f/0x1430 kernel/workqueue.c:2420
- kthread+0x2df/0x300 kernel/kthread.c:255
+Explicit domain walks that check for flags will be affected by
+the write, but this won't be in sync with the cached pointers which will
+still point to the domains that were cached at the last sched_domain
+build.
 
-It looks like that smsc95xx_unbind() is freeing the structures that are
-still in use by the concurrently running workqueue callback. Thus switch
-to using cancel_delayed_work_sync() to ensure the work callback really
-is no longer active.
+In other words, writing to this interface is playing a dangerous game. It
+could be made to trigger an update of the cached sched_domain pointers when
+written to, but this does not seem to be worth the trouble. Make it
+read-only.
 
-Reported-by: syzbot+29dc7d4ae19b703ff947@syzkaller.appspotmail.com
-Signed-off-by: Tuomas Tynkkynen <tuomas.tynkkynen@iki.fi>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20200415210512.805-3-valentin.schneider@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/smsc95xx.c | 2 +-
+ kernel/sched/debug.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/usb/smsc95xx.c b/drivers/net/usb/smsc95xx.c
-index 355be77f42418..3cf4dc3433f91 100644
---- a/drivers/net/usb/smsc95xx.c
-+++ b/drivers/net/usb/smsc95xx.c
-@@ -1324,7 +1324,7 @@ static void smsc95xx_unbind(struct usbnet *dev, struct usb_interface *intf)
- 	struct smsc95xx_priv *pdata = (struct smsc95xx_priv *)(dev->data[0]);
- 
- 	if (pdata) {
--		cancel_delayed_work(&pdata->carrier_check);
-+		cancel_delayed_work_sync(&pdata->carrier_check);
- 		netif_dbg(dev, ifdown, dev->net, "free pdata\n");
- 		kfree(pdata);
- 		pdata = NULL;
+diff --git a/kernel/sched/debug.c b/kernel/sched/debug.c
+index f7e4579e746c5..c4b702fe1d738 100644
+--- a/kernel/sched/debug.c
++++ b/kernel/sched/debug.c
+@@ -258,7 +258,7 @@ sd_alloc_ctl_domain_table(struct sched_domain *sd)
+ 	set_table_entry(&table[2], "busy_factor",	  &sd->busy_factor,	    sizeof(int),  0644, proc_dointvec_minmax);
+ 	set_table_entry(&table[3], "imbalance_pct",	  &sd->imbalance_pct,	    sizeof(int),  0644, proc_dointvec_minmax);
+ 	set_table_entry(&table[4], "cache_nice_tries",	  &sd->cache_nice_tries,    sizeof(int),  0644, proc_dointvec_minmax);
+-	set_table_entry(&table[5], "flags",		  &sd->flags,		    sizeof(int),  0644, proc_dointvec_minmax);
++	set_table_entry(&table[5], "flags",		  &sd->flags,		    sizeof(int),  0444, proc_dointvec_minmax);
+ 	set_table_entry(&table[6], "max_newidle_lb_cost", &sd->max_newidle_lb_cost, sizeof(long), 0644, proc_doulongvec_minmax);
+ 	set_table_entry(&table[7], "name",		  sd->name,	       CORENAME_MAX_SIZE, 0444, proc_dostring);
+ 	/* &table[8] is terminator */
 -- 
 2.25.1
 
