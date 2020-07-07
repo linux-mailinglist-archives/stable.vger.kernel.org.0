@@ -2,34 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C74B2171EB
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:43:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8788F217207
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:43:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730312AbgGGP0w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:26:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41178 "EHLO mail.kernel.org"
+        id S1728715AbgGGP1x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:27:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730293AbgGGP0v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:26:51 -0400
+        id S1729613AbgGGP0x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:26:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6C482083B;
-        Tue,  7 Jul 2020 15:26:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 76A6D2078D;
+        Tue,  7 Jul 2020 15:26:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135610;
-        bh=8AF14UblYs3ptHNxNzaQdjEKUMpZrRcDcrOJjLDL8Is=;
+        s=default; t=1594135612;
+        bh=0y18ZHgiz26Tm4pcX6CTElfyBW51TPaISFDBGKZ4z9g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fEUICqB4agQQTC2M9DMJHLaGWYjObKncJiRjlgyujlT2MVerzGloXqlV1co2McN/+
-         slYSIcYQ6T74KeUMtiZcowXIHfclzQFUIw6LfecqNFSv0nwN6Ty8IUzOhP3VtS2nYt
-         tjtmZucdMWj9H/KAQu5b9qdef5ULL6jsPViXhrsI=
+        b=XDMOxePUAogxwVfTc51jg3b5Ry6zFbo3H0t2NjJqRemCFvDRDJLY3npRCWtntp1Cm
+         GVByeUGAE6xZYMxpGR4Yt80ahdtvLB9pDF8uq98XXEc+/K9+4yx0QR5yZybFTIgLcH
+         2dHKUGFiBzrqzsAFLo6LjhSmc2WlVhSW4NgeQVVQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.7 108/112] irqchip/gic: Atomically update affinity
-Date:   Tue,  7 Jul 2020 17:17:53 +0200
-Message-Id: <20200707145806.109095757@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Michal Hocko <mhocko@kernel.org>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.7 109/112] mm/hugetlb.c: fix pages per hugetlb calculation
+Date:   Tue,  7 Jul 2020 17:17:54 +0200
+Message-Id: <20200707145806.156348388@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200707145800.925304888@linuxfoundation.org>
 References: <20200707145800.925304888@linuxfoundation.org>
@@ -42,61 +48,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Mike Kravetz <mike.kravetz@oracle.com>
 
-commit 005c34ae4b44f085120d7f371121ec7ded677761 upstream.
+commit 1139d336fff425f9a20374945cdd28eb44d09fa8 upstream.
 
-The GIC driver uses a RMW sequence to update the affinity, and
-relies on the gic_lock_irqsave/gic_unlock_irqrestore sequences
-to update it atomically.
+The routine hpage_nr_pages() was incorrectly used to calculate the number
+of base pages in a hugetlb page.  hpage_nr_pages is designed to be called
+for THP pages and will return HPAGE_PMD_NR for hugetlb pages of any size.
 
-But these sequences only expand into anything meaningful if
-the BL_SWITCHER option is selected, which almost never happens.
+Due to the context in which hpage_nr_pages was called, it is unlikely to
+produce a user visible error.  The routine with the incorrect call is only
+exercised in the case of hugetlb memory error or migration.  In addition,
+this would need to be on an architecture which supports huge page sizes
+less than PMD_SIZE.  And, the vma containing the huge page would also need
+to smaller than PMD_SIZE.
 
-It also turns out that using a RMW and locks is just as silly,
-as the GIC distributor supports byte accesses for the GICD_TARGETRn
-registers, which when used make the update atomic by definition.
-
-Drop the terminally broken code and replace it by a byte write.
-
-Fixes: 04c8b0f82c7d ("irqchip/gic: Make locking a BL_SWITCHER only feature")
-Cc: stable@vger.kernel.org
-Signed-off-by: Marc Zyngier <maz@kernel.org>
+Fixes: c0d0381ade79 ("hugetlbfs: use i_mmap_rwsem for more pmd sharing synchronization")
+Reported-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20200629185003.97202-1-mike.kravetz@oracle.com
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/irqchip/irq-gic.c |   14 +++-----------
- 1 file changed, 3 insertions(+), 11 deletions(-)
+ mm/hugetlb.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/irqchip/irq-gic.c
-+++ b/drivers/irqchip/irq-gic.c
-@@ -329,10 +329,8 @@ static int gic_irq_set_vcpu_affinity(str
- static int gic_set_affinity(struct irq_data *d, const struct cpumask *mask_val,
- 			    bool force)
- {
--	void __iomem *reg = gic_dist_base(d) + GIC_DIST_TARGET + (gic_irq(d) & ~3);
--	unsigned int cpu, shift = (gic_irq(d) % 4) * 8;
--	u32 val, mask, bit;
--	unsigned long flags;
-+	void __iomem *reg = gic_dist_base(d) + GIC_DIST_TARGET + gic_irq(d);
-+	unsigned int cpu;
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -1594,7 +1594,7 @@ static struct address_space *_get_hugetl
  
- 	if (!force)
- 		cpu = cpumask_any_and(mask_val, cpu_online_mask);
-@@ -342,13 +340,7 @@ static int gic_set_affinity(struct irq_d
- 	if (cpu >= NR_GIC_CPU_IF || cpu >= nr_cpu_ids)
- 		return -EINVAL;
- 
--	gic_lock_irqsave(flags);
--	mask = 0xff << shift;
--	bit = gic_cpu_map[cpu] << shift;
--	val = readl_relaxed(reg) & ~mask;
--	writel_relaxed(val | bit, reg);
--	gic_unlock_irqrestore(flags);
--
-+	writeb_relaxed(gic_cpu_map[cpu], reg);
- 	irq_data_update_effective_affinity(d, cpumask_of(cpu));
- 
- 	return IRQ_SET_MASK_OK_DONE;
+ 	/* Use first found vma */
+ 	pgoff_start = page_to_pgoff(hpage);
+-	pgoff_end = pgoff_start + hpage_nr_pages(hpage) - 1;
++	pgoff_end = pgoff_start + pages_per_huge_page(page_hstate(hpage)) - 1;
+ 	anon_vma_interval_tree_foreach(avc, &anon_vma->rb_root,
+ 					pgoff_start, pgoff_end) {
+ 		struct vm_area_struct *vma = avc->vma;
 
 
