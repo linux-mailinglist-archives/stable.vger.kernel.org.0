@@ -2,41 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A2E4217123
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:25:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C07C1217126
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:25:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729303AbgGGPYd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:24:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38118 "EHLO mail.kernel.org"
+        id S1730113AbgGGPYk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:24:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730102AbgGGPYa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:24:30 -0400
+        id S1729674AbgGGPYi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:24:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 959042065D;
-        Tue,  7 Jul 2020 15:24:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF7A420663;
+        Tue,  7 Jul 2020 15:24:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135470;
-        bh=ZTajoMUUDkmpT/Bv3inm+yHdJpBzFV9d/bxptjUwfsw=;
+        s=default; t=1594135477;
+        bh=djgJv5sPGtFSvjLrP1dLw1yMBUcbSp0t7Xs692s/lq0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XxyYi7EQWm1+5mVnSzoLjFji/NDr6wfQTRJsKexLCnXIuPT5RVv6HKGzwIz1O7bY4
-         d8kznXjqBYLhtNPrCaUL6YTYGdvDcNt/SMc6E071r3/XPJQN86QsIg/XqwgCLVN42z
-         kNUiF77KokAwkNKYwG3r4uu5+OkK00c/hKJmAcw8=
+        b=ZagKn0gGBfTMyxashLJd6+P2Xf6vmj4SckOJb6vmmGMU+ClDgmOQiXziDsoAv84EX
+         O18pevPw4EYZUlbDGAX9YOETuMemLidxy0xmThXw/wqpBOfODlY+2IbPShldLKk07L
+         XCu3FfmtGrvtNjw7PEVWAkKojbds+3rgJYHQUud4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Tesarik <ptesarik@suse.cz>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 026/112] mm, dump_page(): do not crash with invalid mapping pointer
-Date:   Tue,  7 Jul 2020 17:16:31 +0200
-Message-Id: <20200707145802.233484930@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.7 027/112] io_uring: fix {SQ,IO}POLL with unsupported opcodes
+Date:   Tue,  7 Jul 2020 17:16:32 +0200
+Message-Id: <20200707145802.280728361@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200707145800.925304888@linuxfoundation.org>
 References: <20200707145800.925304888@linuxfoundation.org>
@@ -49,166 +43,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vlastimil Babka <vbabka@suse.cz>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit 002ae7057069538aa3afd500f6f60a429cb948b2 ]
+[ Upstream commit 3232dd02af65f2d01be641120d2a710176b0c7a7 ]
 
-We have seen a following problem on a RPi4 with 1G RAM:
+IORING_SETUP_IOPOLL is defined only for read/write, other opcodes should
+be disallowed, otherwise it'll get an error as below. Also refuse
+open/close with SQPOLL, as the polling thread wouldn't know which file
+table to use.
 
-    BUG: Bad page state in process systemd-hwdb  pfn:35601
-    page:ffff7e0000d58040 refcount:15 mapcount:131221 mapping:efd8fe765bc80080 index:0x1 compound_mapcount: -32767
-    Unable to handle kernel paging request at virtual address efd8fe765bc80080
-    Mem abort info:
-      ESR = 0x96000004
-      Exception class = DABT (current EL), IL = 32 bits
-      SET = 0, FnV = 0
-      EA = 0, S1PTW = 0
-    Data abort info:
-      ISV = 0, ISS = 0x00000004
-      CM = 0, WnR = 0
-    [efd8fe765bc80080] address between user and kernel address ranges
-    Internal error: Oops: 96000004 [#1] SMP
-    Modules linked in: btrfs libcrc32c xor xor_neon zlib_deflate raid6_pq mmc_block xhci_pci xhci_hcd usbcore sdhci_iproc sdhci_pltfm sdhci mmc_core clk_raspberrypi gpio_raspberrypi_exp pcie_brcmstb bcm2835_dma gpio_regulator phy_generic fixed sg scsi_mod efivarfs
-    Supported: No, Unreleased kernel
-    CPU: 3 PID: 408 Comm: systemd-hwdb Not tainted 5.3.18-8-default #1 SLE15-SP2 (unreleased)
-    Hardware name: raspberrypi rpi/rpi, BIOS 2020.01 02/21/2020
-    pstate: 40000085 (nZcv daIf -PAN -UAO)
-    pc : __dump_page+0x268/0x368
-    lr : __dump_page+0xc4/0x368
-    sp : ffff000012563860
-    x29: ffff000012563860 x28: ffff80003ddc4300
-    x27: 0000000000000010 x26: 000000000000003f
-    x25: ffff7e0000d58040 x24: 000000000000000f
-    x23: efd8fe765bc80080 x22: 0000000000020095
-    x21: efd8fe765bc80080 x20: ffff000010ede8b0
-    x19: ffff7e0000d58040 x18: ffffffffffffffff
-    x17: 0000000000000001 x16: 0000000000000007
-    x15: ffff000011689708 x14: 3030386362353637
-    x13: 6566386466653a67 x12: 6e697070616d2031
-    x11: 32323133313a746e x10: 756f6370616d2035
-    x9 : ffff00001168a840 x8 : ffff00001077a670
-    x7 : 000000000000013d x6 : ffff0000118a43b5
-    x5 : 0000000000000001 x4 : ffff80003dd9e2c8
-    x3 : ffff80003dd9e2c8 x2 : 911c8d7c2f483500
-    x1 : dead000000000100 x0 : efd8fe765bc80080
-    Call trace:
-     __dump_page+0x268/0x368
-     bad_page+0xd4/0x168
-     check_new_page_bad+0x80/0xb8
-     rmqueue_bulk.constprop.26+0x4d8/0x788
-     get_page_from_freelist+0x4d4/0x1228
-     __alloc_pages_nodemask+0x134/0xe48
-     alloc_pages_vma+0x198/0x1c0
-     do_anonymous_page+0x1a4/0x4d8
-     __handle_mm_fault+0x4e8/0x560
-     handle_mm_fault+0x104/0x1e0
-     do_page_fault+0x1e8/0x4c0
-     do_translation_fault+0xb0/0xc0
-     do_mem_abort+0x50/0xb0
-     el0_da+0x24/0x28
-    Code: f9401025 8b8018a0 9a851005 17ffffca (f94002a0)
+RIP: 0010:io_iopoll_getevents+0x111/0x5a0
+Call Trace:
+ ? _raw_spin_unlock_irqrestore+0x24/0x40
+ ? do_send_sig_info+0x64/0x90
+ io_iopoll_reap_events.part.0+0x5e/0xa0
+ io_ring_ctx_wait_and_kill+0x132/0x1c0
+ io_uring_release+0x20/0x30
+ __fput+0xcd/0x230
+ ____fput+0xe/0x10
+ task_work_run+0x67/0xa0
+ do_exit+0x353/0xb10
+ ? handle_mm_fault+0xd4/0x200
+ ? syscall_trace_enter+0x18c/0x2c0
+ do_group_exit+0x43/0xa0
+ __x64_sys_exit_group+0x18/0x20
+ do_syscall_64+0x60/0x1e0
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Besides the underlying issue with page->mapping containing a bogus value
-for some reason, we can see that __dump_page() crashed by trying to read
-the pointer at mapping->host, turning a recoverable warning into full
-Oops.
-
-It can be expected that when page is reported as bad state for some
-reason, the pointers there should not be trusted blindly.
-
-So this patch treats all data in __dump_page() that depends on
-page->mapping as lava, using probe_kernel_read_strict().  Ideally this
-would include the dentry->d_parent recursively, but that would mean
-changing printk handler for %pd.  Chances of reaching the dentry
-printing part with an initially bogus mapping pointer should be rather
-low, though.
-
-Also prefix printing mapping->a_ops with a description of what is being
-printed.  In case the value is bogus, %ps will print raw value instead
-of the symbol name and then it's not obvious at all that it's printing
-a_ops.
-
-Reported-by: Petr Tesarik <ptesarik@suse.cz>
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Link: http://lkml.kernel.org/r/20200331165454.12263-1-vbabka@suse.cz
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+[axboe: allow provide/remove buffers and files update]
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/debug.c | 56 ++++++++++++++++++++++++++++++++++++++++++++++++------
- 1 file changed, 50 insertions(+), 6 deletions(-)
+ fs/io_uring.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/mm/debug.c b/mm/debug.c
-index 2189357f09871..f2ede2df585a9 100644
---- a/mm/debug.c
-+++ b/mm/debug.c
-@@ -110,13 +110,57 @@ void __dump_page(struct page *page, const char *reason)
- 	else if (PageAnon(page))
- 		type = "anon ";
- 	else if (mapping) {
--		if (mapping->host && mapping->host->i_dentry.first) {
--			struct dentry *dentry;
--			dentry = container_of(mapping->host->i_dentry.first, struct dentry, d_u.d_alias);
--			pr_warn("%ps name:\"%pd\"\n", mapping->a_ops, dentry);
--		} else
--			pr_warn("%ps\n", mapping->a_ops);
-+		const struct inode *host;
-+		const struct address_space_operations *a_ops;
-+		const struct hlist_node *dentry_first;
-+		const struct dentry *dentry_ptr;
-+		struct dentry dentry;
-+
-+		/*
-+		 * mapping can be invalid pointer and we don't want to crash
-+		 * accessing it, so probe everything depending on it carefully
-+		 */
-+		if (probe_kernel_read_strict(&host, &mapping->host,
-+						sizeof(struct inode *)) ||
-+		    probe_kernel_read_strict(&a_ops, &mapping->a_ops,
-+				sizeof(struct address_space_operations *))) {
-+			pr_warn("failed to read mapping->host or a_ops, mapping not a valid kernel address?\n");
-+			goto out_mapping;
-+		}
-+
-+		if (!host) {
-+			pr_warn("mapping->a_ops:%ps\n", a_ops);
-+			goto out_mapping;
-+		}
-+
-+		if (probe_kernel_read_strict(&dentry_first,
-+			&host->i_dentry.first, sizeof(struct hlist_node *))) {
-+			pr_warn("mapping->a_ops:%ps with invalid mapping->host inode address %px\n",
-+				a_ops, host);
-+			goto out_mapping;
-+		}
-+
-+		if (!dentry_first) {
-+			pr_warn("mapping->a_ops:%ps\n", a_ops);
-+			goto out_mapping;
-+		}
-+
-+		dentry_ptr = container_of(dentry_first, struct dentry, d_u.d_alias);
-+		if (probe_kernel_read_strict(&dentry, dentry_ptr,
-+							sizeof(struct dentry))) {
-+			pr_warn("mapping->aops:%ps with invalid mapping->host->i_dentry.first %px\n",
-+				a_ops, dentry_ptr);
-+		} else {
-+			/*
-+			 * if dentry is corrupted, the %pd handler may still
-+			 * crash, but it's unlikely that we reach here with a
-+			 * corrupted struct page
-+			 */
-+			pr_warn("mapping->aops:%ps dentry name:\"%pd\"\n",
-+								a_ops, &dentry);
-+		}
- 	}
-+out_mapping:
- 	BUILD_BUG_ON(ARRAY_SIZE(pageflag_names) != __NR_PAGEFLAGS + 1);
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 4ab1728de247c..bb74e45941af2 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -2748,6 +2748,8 @@ static int io_splice_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
  
- 	pr_warn("%sflags: %#lx(%pGp)%s\n", type, page->flags, &page->flags,
+ 	if (req->flags & REQ_F_NEED_CLEANUP)
+ 		return 0;
++	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
++		return -EINVAL;
+ 
+ 	sp->file_in = NULL;
+ 	sp->off_in = READ_ONCE(sqe->splice_off_in);
+@@ -2910,6 +2912,8 @@ static int io_fallocate_prep(struct io_kiocb *req,
+ {
+ 	if (sqe->ioprio || sqe->buf_index || sqe->rw_flags)
+ 		return -EINVAL;
++	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
++		return -EINVAL;
+ 
+ 	req->sync.off = READ_ONCE(sqe->off);
+ 	req->sync.len = READ_ONCE(sqe->addr);
+@@ -2935,6 +2939,8 @@ static int io_openat_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 	const char __user *fname;
+ 	int ret;
+ 
++	if (unlikely(req->ctx->flags & (IORING_SETUP_IOPOLL|IORING_SETUP_SQPOLL)))
++		return -EINVAL;
+ 	if (sqe->ioprio || sqe->buf_index)
+ 		return -EINVAL;
+ 	if (req->flags & REQ_F_FIXED_FILE)
+@@ -2968,6 +2974,8 @@ static int io_openat2_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 	size_t len;
+ 	int ret;
+ 
++	if (unlikely(req->ctx->flags & (IORING_SETUP_IOPOLL|IORING_SETUP_SQPOLL)))
++		return -EINVAL;
+ 	if (sqe->ioprio || sqe->buf_index)
+ 		return -EINVAL;
+ 	if (req->flags & REQ_F_FIXED_FILE)
+@@ -3207,6 +3215,8 @@ static int io_epoll_ctl_prep(struct io_kiocb *req,
+ #if defined(CONFIG_EPOLL)
+ 	if (sqe->ioprio || sqe->buf_index)
+ 		return -EINVAL;
++	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
++		return -EINVAL;
+ 
+ 	req->epoll.epfd = READ_ONCE(sqe->fd);
+ 	req->epoll.op = READ_ONCE(sqe->len);
+@@ -3251,6 +3261,8 @@ static int io_madvise_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ #if defined(CONFIG_ADVISE_SYSCALLS) && defined(CONFIG_MMU)
+ 	if (sqe->ioprio || sqe->buf_index || sqe->off)
+ 		return -EINVAL;
++	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
++		return -EINVAL;
+ 
+ 	req->madvise.addr = READ_ONCE(sqe->addr);
+ 	req->madvise.len = READ_ONCE(sqe->len);
+@@ -3285,6 +3297,8 @@ static int io_fadvise_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ {
+ 	if (sqe->ioprio || sqe->buf_index || sqe->addr)
+ 		return -EINVAL;
++	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
++		return -EINVAL;
+ 
+ 	req->fadvise.offset = READ_ONCE(sqe->off);
+ 	req->fadvise.len = READ_ONCE(sqe->len);
+@@ -3322,6 +3336,8 @@ static int io_statx_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 	unsigned lookup_flags;
+ 	int ret;
+ 
++	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
++		return -EINVAL;
+ 	if (sqe->ioprio || sqe->buf_index)
+ 		return -EINVAL;
+ 	if (req->flags & REQ_F_FIXED_FILE)
+@@ -3402,6 +3418,8 @@ static int io_close_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 	 */
+ 	req->work.flags |= IO_WQ_WORK_NO_CANCEL;
+ 
++	if (unlikely(req->ctx->flags & (IORING_SETUP_IOPOLL|IORING_SETUP_SQPOLL)))
++		return -EINVAL;
+ 	if (sqe->ioprio || sqe->off || sqe->addr || sqe->len ||
+ 	    sqe->rw_flags || sqe->buf_index)
+ 		return -EINVAL;
 -- 
 2.25.1
 
