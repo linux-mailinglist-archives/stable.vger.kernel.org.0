@@ -2,40 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12FC021717F
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:42:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7A2621718A
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:42:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729667AbgGGPVL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:21:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33320 "EHLO mail.kernel.org"
+        id S1729094AbgGGPVk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:21:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729658AbgGGPVK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:21:10 -0400
+        id S1728100AbgGGPVj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:21:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 58C8A206E2;
-        Tue,  7 Jul 2020 15:21:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 631B92065D;
+        Tue,  7 Jul 2020 15:21:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135269;
-        bh=Yb/kN+Ykzu3y1QxV3gSKWsc82uPftmNrmA3t8MPJMyU=;
+        s=default; t=1594135298;
+        bh=XTimTEqhE29dFUv3QdkSkPZe+dBL0kqNKWi0Km7x8j8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TTjyLkOSdkpwkwYk5BDzu4L1QzK0DeDjczK9ClNCjRuG8T8PCIEhtUxxD3FhFUHzq
-         gkqEGmo65kXgXgKjIAsxO1cEPfFawVDI7PBX6LKmVuceOP4kRRnDIiBQXMlqC8ZGGa
-         5RJGaOLbrxaz7/0mwvzc1lN91dsdSJyzPmSiTPfk=
+        b=sDEiCxN8PQPcgEcidX1TDCvaFDy70+KcKc3kvCpV593AP4MpJmF/DCfkqGUgttbJv
+         1ugy7GloSC0IlOlFjdZNl6d1DiSDBZM847+HMmGcGNCUPS7H7EMwNL9Cqmq1kFfOzj
+         CUk65A5u46g35fOTEq3AaveSfY0mBisiB6OCCe4A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Van Do <van.do.xw@renesas.com>,
-        Dien Pham <dien.pham.ry@renesas.com>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Niklas Soderlund <niklas.soderlund+renesas@ragnatech.se>,
-        Amit Kucheria <amit.kucheria@linaro.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 33/65] thermal/drivers/rcar_gen3: Fix undefined temperature if negative
-Date:   Tue,  7 Jul 2020 17:17:12 +0200
-Message-Id: <20200707145754.075806633@linuxfoundation.org>
+        stable@vger.kernel.org, "J. Bruce Fields" <bfields@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, Tejun Heo <tj@kernel.org>
+Subject: [PATCH 5.4 34/65] kthread: save thread function
+Date:   Tue,  7 Jul 2020 17:17:13 +0200
+Message-Id: <20200707145754.124544082@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200707145752.417212219@linuxfoundation.org>
 References: <20200707145752.417212219@linuxfoundation.org>
@@ -48,53 +43,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dien Pham <dien.pham.ry@renesas.com>
+From: J. Bruce Fields <bfields@redhat.com>
 
-[ Upstream commit 5f8f06425a0dcdad7bedbb77e67f5c65ab4dacfc ]
+[ Upstream commit 52782c92ac85c4e393eb4a903a62e6c24afa633f ]
 
-As description for DIV_ROUND_CLOSEST in file include/linux/kernel.h.
-  "Result is undefined for negative divisors if the dividend variable
-   type is unsigned and for negative dividends if the divisor variable
-   type is unsigned."
+It's handy to keep the kthread_fn just as a unique cookie to identify
+classes of kthreads.  E.g. if you can verify that a given task is
+running your thread_fn, then you may know what sort of type kthread_data
+points to.
 
-In current code, the FIXPT_DIV uses DIV_ROUND_CLOSEST but has not
-checked sign of divisor before using. It makes undefined temperature
-value in case the value is negative.
+We'll use this in nfsd to pass some information into the vfs.  Note it
+will need kthread_data() exported too.
 
-This patch fixes to satisfy DIV_ROUND_CLOSEST description
-and fix bug too. Note that the variable name "reg" is not good
-because it should be the same type as rcar_gen3_thermal_read().
-However, it's better to rename the "reg" in a further patch as
-cleanup.
-
-Signed-off-by: Van Do <van.do.xw@renesas.com>
-Signed-off-by: Dien Pham <dien.pham.ry@renesas.com>
-[shimoda: minor fixes, add Fixes tag]
-Fixes: 564e73d283af ("thermal: rcar_gen3_thermal: Add R-Car Gen3 thermal driver")
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Reviewed-by: Niklas Soderlund <niklas.soderlund+renesas@ragnatech.se>
-Tested-by: Niklas Soderlund <niklas.soderlund+renesas@ragnatech.se>
-Reviewed-by: Amit Kucheria <amit.kucheria@linaro.org>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/1593085099-2057-1-git-send-email-yoshihiro.shimoda.uh@renesas.com
+Original-patch-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/rcar_gen3_thermal.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/kthread.h |  1 +
+ kernel/kthread.c        | 17 +++++++++++++++++
+ 2 files changed, 18 insertions(+)
 
-diff --git a/drivers/thermal/rcar_gen3_thermal.c b/drivers/thermal/rcar_gen3_thermal.c
-index 755d2b5bd2c2b..1ab2ffff4e7c7 100644
---- a/drivers/thermal/rcar_gen3_thermal.c
-+++ b/drivers/thermal/rcar_gen3_thermal.c
-@@ -169,7 +169,7 @@ static int rcar_gen3_thermal_get_temp(void *devdata, int *temp)
- {
- 	struct rcar_gen3_thermal_tsc *tsc = devdata;
- 	int mcelsius, val;
--	u32 reg;
-+	int reg;
+diff --git a/include/linux/kthread.h b/include/linux/kthread.h
+index 0f9da966934e2..59bbc63ff8637 100644
+--- a/include/linux/kthread.h
++++ b/include/linux/kthread.h
+@@ -57,6 +57,7 @@ bool kthread_should_stop(void);
+ bool kthread_should_park(void);
+ bool __kthread_should_park(struct task_struct *k);
+ bool kthread_freezable_should_stop(bool *was_frozen);
++void *kthread_func(struct task_struct *k);
+ void *kthread_data(struct task_struct *k);
+ void *kthread_probe_data(struct task_struct *k);
+ int kthread_park(struct task_struct *k);
+diff --git a/kernel/kthread.c b/kernel/kthread.c
+index b262f47046ca4..543dff6b576c7 100644
+--- a/kernel/kthread.c
++++ b/kernel/kthread.c
+@@ -46,6 +46,7 @@ struct kthread_create_info
+ struct kthread {
+ 	unsigned long flags;
+ 	unsigned int cpu;
++	int (*threadfn)(void *);
+ 	void *data;
+ 	struct completion parked;
+ 	struct completion exited;
+@@ -152,6 +153,20 @@ bool kthread_freezable_should_stop(bool *was_frozen)
+ }
+ EXPORT_SYMBOL_GPL(kthread_freezable_should_stop);
  
- 	/* Read register and convert to mili Celsius */
- 	reg = rcar_gen3_thermal_read(tsc, REG_GEN3_TEMP) & CTEMP_MASK;
++/**
++ * kthread_func - return the function specified on kthread creation
++ * @task: kthread task in question
++ *
++ * Returns NULL if the task is not a kthread.
++ */
++void *kthread_func(struct task_struct *task)
++{
++	if (task->flags & PF_KTHREAD)
++		return to_kthread(task)->threadfn;
++	return NULL;
++}
++EXPORT_SYMBOL_GPL(kthread_func);
++
+ /**
+  * kthread_data - return data value specified on kthread creation
+  * @task: kthread task in question
+@@ -164,6 +179,7 @@ void *kthread_data(struct task_struct *task)
+ {
+ 	return to_kthread(task)->data;
+ }
++EXPORT_SYMBOL_GPL(kthread_data);
+ 
+ /**
+  * kthread_probe_data - speculative version of kthread_data()
+@@ -237,6 +253,7 @@ static int kthread(void *_create)
+ 		do_exit(-ENOMEM);
+ 	}
+ 
++	self->threadfn = threadfn;
+ 	self->data = data;
+ 	init_completion(&self->exited);
+ 	init_completion(&self->parked);
 -- 
 2.25.1
 
