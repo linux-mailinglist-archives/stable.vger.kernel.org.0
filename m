@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B4212171C9
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:43:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7EAF2171CC
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:43:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730239AbgGGPZu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:25:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39968 "EHLO mail.kernel.org"
+        id S1728675AbgGGPZy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:25:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729881AbgGGPZs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:25:48 -0400
+        id S1730253AbgGGPZx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:25:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D3BE92065D;
-        Tue,  7 Jul 2020 15:25:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF6712065D;
+        Tue,  7 Jul 2020 15:25:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135547;
-        bh=0FKU8CzWdHgKgcmcyG4su7ho8QOKuw0YpyhgYdqI3TM=;
+        s=default; t=1594135552;
+        bh=3NwqFezCmPe9nPgiAGgAMOp5zWQ+zCs/N3fpTYnnuxA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wmXodH2BvQnicCDshTOZN/fhFwHOTQ+Xu4CG+/6AxfrCMa213pCkLjZxzzLiPTuUa
-         207DCxl+kEYJcPe5icfdUz7fcVK53MVtqW779pBHu4iXcPMQ/va21ZJWRHLj6HXTTr
-         ZaJFq0YEYyFSd09CnxBGijcZsm7963UIvMuD3F8U=
+        b=AtI8umdkxx5xLjIIwG8nJEN32QBfcCUm/Z4d1OgZIkxk5f8v1C6/Hi1in3xm0rz5E
+         8W+KH7YugdLswg0kwgS93s700d1jp6BZe2qyjVAlTc9oPa2qXRymCfekLX6ylKZqAn
+         a9NQDxlcj8o+bt/4U08dfWoHw5l867Qt40nl/aLU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andres Freund <andres@anarazel.de>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 084/112] io_uring: fix regression with always ignoring signals in io_cqring_wait()
-Date:   Tue,  7 Jul 2020 17:17:29 +0200
-Message-Id: <20200707145804.978657030@linuxfoundation.org>
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.7 085/112] spi: spi-fsl-dspi: Fix external abort on interrupt in resume or exit paths
+Date:   Tue,  7 Jul 2020 17:17:30 +0200
+Message-Id: <20200707145805.025735817@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200707145800.925304888@linuxfoundation.org>
 References: <20200707145800.925304888@linuxfoundation.org>
@@ -43,100 +44,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit b7db41c9e03b5189bc94993bd50e4506ac9e34c1 ]
+commit 3d87b613d6a3c6f0980e877ab0895785a2dde581 upstream.
 
-When switching to TWA_SIGNAL for task_work notifications, we also made
-any signal based condition in io_cqring_wait() return -ERESTARTSYS.
-This breaks applications that rely on using signals to abort someone
-waiting for events.
+If shared interrupt comes late, during probe error path or device remove
+(could be triggered with CONFIG_DEBUG_SHIRQ), the interrupt handler
+dspi_interrupt() will access registers with the clock being disabled.
+This leads to external abort on non-linefetch on Toradex Colibri VF50
+module (with Vybrid VF5xx):
 
-Check if we have a signal pending because of queued task_work, and
-repeat the signal check once we've run the task_work. This provides a
-reliable way of telling the two apart.
+    $ echo 4002d000.spi > /sys/devices/platform/soc/40000000.bus/4002d000.spi/driver/unbind
 
-Additionally, only use TWA_SIGNAL if we are using an eventfd. If not,
-we don't have the dependency situation described in the original commit,
-and we can get by with just using TWA_RESUME like we previously did.
+    Unhandled fault: external abort on non-linefetch (0x1008) at 0x8887f02c
+    Internal error: : 1008 [#1] ARM
+    Hardware name: Freescale Vybrid VF5xx/VF6xx (Device Tree)
+    Backtrace:
+      (regmap_mmio_read32le)
+      (regmap_mmio_read)
+      (_regmap_bus_reg_read)
+      (_regmap_read)
+      (regmap_read)
+      (dspi_interrupt)
+      (free_irq)
+      (devm_irq_release)
+      (release_nodes)
+      (devres_release_all)
+      (device_release_driver_internal)
 
-Fixes: ce593a6c480a ("io_uring: use signal based task_work running")
-Cc: stable@vger.kernel.org # v5.7
-Reported-by: Andres Freund <andres@anarazel.de>
-Tested-by: Andres Freund <andres@anarazel.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The resource-managed framework should not be used for shared interrupt
+handling, because the interrupt handler might be called after releasing
+other resources and disabling clocks.
+
+Similar bug could happen during suspend - the shared interrupt handler
+could be invoked after suspending the device.  Each device sharing this
+interrupt line should disable the IRQ during suspend so handler will be
+invoked only in following cases:
+1. None suspended,
+2. All devices resumed.
+
+Fixes: 349ad66c0ab0 ("spi:Add Freescale DSPI driver for Vybrid VF610 platform")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Tested-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20200622110543.5035-3-krzk@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/io_uring.c | 29 ++++++++++++++++++++++-------
- 1 file changed, 22 insertions(+), 7 deletions(-)
+ drivers/spi/spi-fsl-dspi.c |   17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 51362a619fd50..2be6ea0103405 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -4136,14 +4136,22 @@ struct io_poll_table {
- 	int error;
- };
+--- a/drivers/spi/spi-fsl-dspi.c
++++ b/drivers/spi/spi-fsl-dspi.c
+@@ -1105,6 +1105,8 @@ static int dspi_suspend(struct device *d
+ 	struct spi_controller *ctlr = dev_get_drvdata(dev);
+ 	struct fsl_dspi *dspi = spi_controller_get_devdata(ctlr);
  
--static int io_req_task_work_add(struct io_kiocb *req, struct callback_head *cb,
--				int notify)
-+static int io_req_task_work_add(struct io_kiocb *req, struct callback_head *cb)
- {
- 	struct task_struct *tsk = req->task;
--	int ret;
-+	struct io_ring_ctx *ctx = req->ctx;
-+	int ret, notify = TWA_RESUME;
++	if (dspi->irq)
++		disable_irq(dspi->irq);
+ 	spi_controller_suspend(ctlr);
+ 	clk_disable_unprepare(dspi->clk);
  
--	if (req->ctx->flags & IORING_SETUP_SQPOLL)
-+	/*
-+	 * SQPOLL kernel thread doesn't need notification, just a wakeup.
-+	 * If we're not using an eventfd, then TWA_RESUME is always fine,
-+	 * as we won't have dependencies between request completions for
-+	 * other kernel wait conditions.
-+	 */
-+	if (ctx->flags & IORING_SETUP_SQPOLL)
- 		notify = 0;
-+	else if (ctx->cq_ev_fd)
-+		notify = TWA_SIGNAL;
+@@ -1125,6 +1127,8 @@ static int dspi_resume(struct device *de
+ 	if (ret)
+ 		return ret;
+ 	spi_controller_resume(ctlr);
++	if (dspi->irq)
++		enable_irq(dspi->irq);
  
- 	ret = task_work_add(tsk, cb, notify);
- 	if (!ret)
-@@ -4174,7 +4182,7 @@ static int __io_async_wake(struct io_kiocb *req, struct io_poll_iocb *poll,
- 	 * of executing it. We can't safely execute it anyway, as we may not
- 	 * have the needed state needed for it anyway.
- 	 */
--	ret = io_req_task_work_add(req, &req->task_work, TWA_SIGNAL);
-+	ret = io_req_task_work_add(req, &req->task_work);
- 	if (unlikely(ret)) {
- 		WRITE_ONCE(poll->canceled, true);
- 		tsk = io_wq_get_task(req->ctx->io_wq);
-@@ -6279,7 +6287,14 @@ static int io_cqring_wait(struct io_ring_ctx *ctx, int min_events,
- 		if (current->task_works)
- 			task_work_run();
- 		if (signal_pending(current)) {
--			ret = -ERESTARTSYS;
-+			if (current->jobctl & JOBCTL_TASK_WORK) {
-+				spin_lock_irq(&current->sighand->siglock);
-+				current->jobctl &= ~JOBCTL_TASK_WORK;
-+				recalc_sigpending();
-+				spin_unlock_irq(&current->sighand->siglock);
-+				continue;
-+			}
-+			ret = -EINTR;
- 			break;
- 		}
- 		if (io_should_wake(&iowq, false))
-@@ -6288,7 +6303,7 @@ static int io_cqring_wait(struct io_ring_ctx *ctx, int min_events,
- 	} while (1);
- 	finish_wait(&ctx->wait, &iowq.wq);
- 
--	restore_saved_sigmask_unless(ret == -ERESTARTSYS);
-+	restore_saved_sigmask_unless(ret == -EINTR);
- 
- 	return READ_ONCE(rings->cq.head) == READ_ONCE(rings->cq.tail) ? ret : 0;
+ 	return 0;
  }
--- 
-2.25.1
-
+@@ -1381,8 +1385,8 @@ static int dspi_probe(struct platform_de
+ 		goto poll_mode;
+ 	}
+ 
+-	ret = devm_request_irq(&pdev->dev, dspi->irq, dspi_interrupt,
+-			       IRQF_SHARED, pdev->name, dspi);
++	ret = request_threaded_irq(dspi->irq, dspi_interrupt, NULL,
++				   IRQF_SHARED, pdev->name, dspi);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "Unable to attach DSPI interrupt\n");
+ 		goto out_clk_put;
+@@ -1396,7 +1400,7 @@ poll_mode:
+ 		ret = dspi_request_dma(dspi, res->start);
+ 		if (ret < 0) {
+ 			dev_err(&pdev->dev, "can't get dma channels\n");
+-			goto out_clk_put;
++			goto out_free_irq;
+ 		}
+ 	}
+ 
+@@ -1411,11 +1415,14 @@ poll_mode:
+ 	ret = spi_register_controller(ctlr);
+ 	if (ret != 0) {
+ 		dev_err(&pdev->dev, "Problem registering DSPI ctlr\n");
+-		goto out_clk_put;
++		goto out_free_irq;
+ 	}
+ 
+ 	return ret;
+ 
++out_free_irq:
++	if (dspi->irq)
++		free_irq(dspi->irq, dspi);
+ out_clk_put:
+ 	clk_disable_unprepare(dspi->clk);
+ out_ctlr_put:
+@@ -1431,6 +1438,8 @@ static int dspi_remove(struct platform_d
+ 
+ 	/* Disconnect from the SPI framework */
+ 	dspi_release_dma(dspi);
++	if (dspi->irq)
++		free_irq(dspi->irq, dspi);
+ 	clk_disable_unprepare(dspi->clk);
+ 	spi_unregister_controller(dspi->ctlr);
+ 
 
 
