@@ -2,93 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F95F216E53
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 16:03:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E32A216E55
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 16:04:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726911AbgGGODY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 10:03:24 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:57471 "EHLO
-        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726900AbgGGODX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jul 2020 10:03:23 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id DE4245C0256;
-        Tue,  7 Jul 2020 10:03:22 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Tue, 07 Jul 2020 10:03:22 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=u5rnb+jxQXfXVkt90qBC8av3Y/q
-        g6Z3+WFIOWQDIuH8=; b=LRCv8jnIW2Rto88kdS1r1CoZfYWZChZ1e0Q8IMRl+6h
-        HA1Jnpdoqhh8qccVgsQi06emcJYKmGeoJuJt0mi5RHMJ5xXy1gV77WNuSNZ9VYQ4
-        jzhPcYFWEsB7lJFaP3eZ2PGvwRY0+QDbBoem400Gmrg5pr+XLLAEJwHFXv0EVZMU
-        fFN4dU9n/63xkz17XuC0jmMTjwTAgio/USNfJrGEv/v3H8wQF1aNDtDLoQlEw9P/
-        rOpuisqMdoGWVeI96ffzKl65eSIcpAns0A2YASwdLYhynIQCT3MAUtVqHA0EHPs9
-        iuqn3J5KvApz8qBEKVEeQd0i5mhaXXcWxsb2y1Zk1hg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=u5rnb+
-        jxQXfXVkt90qBC8av3Y/qg6Z3+WFIOWQDIuH8=; b=LnJciwxqxMpgk6/6VpvGMy
-        qVFlMssWIYngv9Jf9W7v2UtJGH8L/xI37q3GW3bFdyGS4fdUqqMFDi2Bus11fePZ
-        bQNecptoMP+68KZ4iOaT3gYK2svQx9a4vQG8QDAfqVcmknZ0TP9vg+de/aDmvmNz
-        HhEUJcuPLOGvS8vzliklju0OwEXag+60QzIMOyJC4JNIn3KQAxa65Pk62dvttntC
-        ZS+YaD5SG40XOwKaKXM3PVXsKeM6x97420Oel4ftoSTo/tpVRRaQpK5qWQ8Arl9q
-        Fm/DVSfaS+SJJ8Bqx76mgGc4Ibw7o7HnFgnrwJz1ReHhGKVtHFQDLfxG/uekrHOA
-        ==
-X-ME-Sender: <xms:qoAEXxtV6Ca0IjdEKKofKsrx8gD9EDp8Hky5y8OrJYl2UyFneOhdXA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudehgdeiiecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
-    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuheejgf
-    ffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecukfhppeekfedr
-    keeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrih
-    hlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:qoAEX6eaPHTxJ2HCx8bH92Z4Rb1GaTsFozH6tqhF_XgwKzFpil5n1Q>
-    <xmx:qoAEX0w7FEzYmIimUwMnBVhBRHDjC154aac_ejQdjUUVAODI1x1jww>
-    <xmx:qoAEX4Pz1mj4yW7_tugtzHgUi_oBuZlewLi226WJXhwvGxyEf800HA>
-    <xmx:qoAEXznMOa_VK937hs9u0oeyH06Q1_tmGEh12gRakvneKY6O6ebgwA>
+        id S1726900AbgGGOEx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 10:04:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43252 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726805AbgGGOEx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 10:04:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id A6A613060067;
-        Tue,  7 Jul 2020 10:03:21 -0400 (EDT)
-Date:   Tue, 7 Jul 2020 16:03:20 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Pablo Neira Ayuso <pablo@netfilter.org>
-Cc:     Vasily Averin <vvs@virtuozzo.com>, netfilter-devel@vger.kernel.org,
-        Florian Westphal <fw@strlen.de>, stable@vger.kernel.org
-Subject: Re: [PATCH v4.10] netfilter: nf_conntrack_h323: lost .data_len
- definition for Q.931/ipv6
-Message-ID: <20200707140320.GA4064836@kroah.com>
-References: <c2385b5c-309c-cc64-2e10-a0ef62897502@virtuozzo.com>
- <20200624121232.GA28150@salvia>
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 398AE20738;
+        Tue,  7 Jul 2020 14:04:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1594130692;
+        bh=aI7fADWXYx23GnKpPWN2X5XgChmWqQZyJqYKmMDSAQo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=SoeLmtx77p+kv58rEoMdD32iQGKtENB4JdzIcrm0MMUfuY/CTUKXKrVkpIz3Owf1R
+         HadstbQ2cSVV898JPYqRGaA55VuzX9tBpxvSTtkb8iFpJgxF7GgpWo+p9HpTGwVR5o
+         2YAAJijAXWscKIGdY/F4xTheKIY36IL1I5K1nsPo=
+Date:   Tue, 7 Jul 2020 16:04:50 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Babu Moger <babu.moger@amd.com>
+Cc:     fenghua.yu@intel.com, stable@vger.kernel.org, mingo@redhat.com,
+        bp@alien8.de, hpa@zytor.com, tglx@linutronix.de,
+        reinette.chatre@intel.com, x86@kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86/resctrl: Fix memory bandwidth counter width for AMD
+Message-ID: <20200707140450.GB4064836@kroah.com>
+References: <159364160826.31030.7457664122034606608.stgit@bmoger-ubuntu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20200624121232.GA28150@salvia>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <159364160826.31030.7457664122034606608.stgit@bmoger-ubuntu>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 24, 2020 at 02:12:32PM +0200, Pablo Neira Ayuso wrote:
-> CC'ing stable@vger.kernel.org
+On Wed, Jul 01, 2020 at 05:13:45PM -0500, Babu Moger wrote:
+> [ Upstream commit 2c18bd525c47f882f033b0a813ecd09c93e1ecdf ]
 > 
-> On Tue, Jun 09, 2020 at 10:53:22AM +0300, Vasily Averin wrote:
-> > Could you please push this patch into stable@?
-> > it fixes memory corruption in kernels  v3.5 .. v4.10
-> > 
-> > Lost .data_len definition leads to write beyond end of
-> > struct nf_ct_h323_master. Usually it corrupts following
-> > struct nf_conn_nat, however if nat is not loaded it corrupts
-> > following slab object.
-> > 
-> > In mainline this problem went away in v4.11,
-> > after commit 9f0f3ebeda47 ("netfilter: helpers: remove data_len usage
-> > for inkernel helpers") however many stable kernels are still affected.
+> Memory bandwidth is calculated reading the monitoring counter
+> at two intervals and calculating the delta. It is the software’s
+> responsibility to read the count often enough to avoid having
+> the count roll over _twice_ between reads.
 > 
-> -stable maintainers of: 3.16, 4.4 and 4.9.
+> The current code hardcodes the bandwidth monitoring counter's width
+> to 24 bits for AMD. This is due to default base counter width which
+> is 24. Currently, AMD does not implement the CPUID 0xF.[ECX=1]:EAX
+> to adjust the counter width. But, the AMD hardware supports much
+> wider bandwidth counter with the default width of 44 bits.
+> 
+> Kernel reads these monitoring counters every 1 second and adjusts the
+> counter value for overflow. With 24 bits and scale value of 64 for AMD,
+> it can only measure up to 1GB/s without overflowing. For the rates
+> above 1GB/s this will fail to measure the bandwidth.
+> 
+> Fix the issue setting the default width to 44 bits by adjusting the
+> offset.
+> 
+> AMD future products will implement CPUID 0xF.[ECX=1]:EAX.
+> 
+>  [ bp: Let the line stick out and drop {}-brackets around a single
+>    statement. ]
+> 
+> Fixes: 4d05bf71f157 ("x86/resctrl: Introduce AMD QOS feature")
+> Signed-off-by: Babu Moger <babu.moger@amd.com>
+> Signed-off-by: Borislav Petkov <bp@suse.de>
+> Link: https://lkml.kernel.org/r/159129975546.62538.5656031125604254041.stgit@naples-babu.amd.com
+> ---
+> 
+> Note:
+>  This commit is already queued for 5.7 stable kernel.
+>  Backporting it t 5.6 stable and older kernels now.
 
-Now queued up to 4.4 and 4.9, thanks.  3.16 is end-of-life.
+Now queued up to 5.4.y, thanks.
 
 greg k-h
