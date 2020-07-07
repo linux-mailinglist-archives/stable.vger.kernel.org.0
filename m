@@ -2,117 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B3EB216D98
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 15:21:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39923216D99
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 15:22:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727090AbgGGNVi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 09:21:38 -0400
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:46125 "EHLO
-        forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726900AbgGGNVi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Jul 2020 09:21:38 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id CE065194164D;
-        Tue,  7 Jul 2020 09:21:36 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Tue, 07 Jul 2020 09:21:36 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=3ZqMmh
-        0C69fxRy4HziV70+qxkP4GGkmsqttNmqh4TZk=; b=GANoxFYQfB8I9rpAVMDqwa
-        PjZi6AfvthcZ4xVtFYlBeyY4PlxcZ1t67XWuP0W1eS+GbqV2J3lLd0bp1wrdsxvF
-        kaVHMsqCjG9OQ3e6/z6X6CYMkgcTG1KARk8hlm8pZw7b24UhGT+93+icnKRhFIZM
-        zMagdHwNbrakJjgsj8LrQcMBrmAmA5W8URvpBUeuSpot6wIQSjliQ78p5NgfY7f2
-        cBTl0/J5PfV03+1iLwZliCL7bOaiRSfxXwKfFlL3TB+5DzNo3Cl2tIniWh0RWVvw
-        SyUTInaUE5q9NB0xjh1B6xmq9Xjyj+bypMzCMDeBySVoX/mp+F/nvIA81rExP1Og
-        ==
-X-ME-Sender: <xms:4HYEX0DWVe_LS1puJrrmECSXhw0-uwkHCo58f-U5t84Q6Q8RkK9MNA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduiedrudehgdehjecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
-    efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
-    fedrkeeirdekledruddtjeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:4HYEX2jV_1BYUd3YOTMROG-cZU2U_yXg90h1XTGcTURrUuAeXrJJfg>
-    <xmx:4HYEX3ml6TkK91pyfUuDSCBU4e2Zyk_aLOUyTDEB-FcRlx4EmFdNZg>
-    <xmx:4HYEX6yWlVHnZBsqmhZ80EqBAbuFuQPdu3HEbr-G5Tm3IKv42-yUfA>
-    <xmx:4HYEX66Yrs59DvJqQHE1WHWmrPMCoGS4IiIRXLWVdwAQIK2D2nDEcQ>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 5302A30600B7;
-        Tue,  7 Jul 2020 09:21:36 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] spi: spi-fsl-dspi: Fix lockup if device is removed during SPI" failed to apply to 5.4-stable tree
-To:     krzk@kernel.org, broonie@kernel.org, olteanv@gmail.com,
-        stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 07 Jul 2020 15:21:27 +0200
-Message-ID: <1594128087138244@kroah.com>
+        id S1727044AbgGGNWW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 09:22:22 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:59248 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726900AbgGGNWW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Jul 2020 09:22:22 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1594128141;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=9ue6YYwk32A9nIg6/1Spz15c47zqLAbofPO02wmWeik=;
+        b=OjpnN0vtnQ+Vjpj2F1zlBLSksolsD4GKopT1h2h0hO8E21zApU5sZ9QXjWuV1ZN998vBF+
+        HVaWKM4nvC36QeSW1p2xOqSaXLSmDEtz5SL6lpIUt/rvxb+hW5+6gzwQx0DtUAddVB3uML
+        PWDoceFPcXOpa7GbLqw2s8R3BJ3f3oA=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-366-6CHOsRkHPJaB4yhjr2Zvjw-1; Tue, 07 Jul 2020 09:22:19 -0400
+X-MC-Unique: 6CHOsRkHPJaB4yhjr2Zvjw-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 5CF96EE00
+        for <stable@vger.kernel.org>; Tue,  7 Jul 2020 13:22:18 +0000 (UTC)
+Received: from colo-mx.corp.redhat.com (colo-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.20])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 27DB273FE0
+        for <stable@vger.kernel.org>; Tue,  7 Jul 2020 13:22:18 +0000 (UTC)
+Received: from zmail19.collab.prod.int.phx2.redhat.com (zmail19.collab.prod.int.phx2.redhat.com [10.5.83.22])
+        by colo-mx.corp.redhat.com (Postfix) with ESMTP id 1B2DC1809542;
+        Tue,  7 Jul 2020 13:22:18 +0000 (UTC)
+Date:   Tue, 7 Jul 2020 09:22:18 -0400 (EDT)
+From:   Veronika Kabatova <vkabatov@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Cc:     CKI Project <cki-project@redhat.com>
+Message-ID: <797274823.1395373.1594128138075.JavaMail.zimbra@redhat.com>
+In-Reply-To: <cki.F7C2FD0653.HR5I5NSB1Z@redhat.com>
+References: <cki.F7C2FD0653.HR5I5NSB1Z@redhat.com>
+Subject: =?utf-8?Q?Re:_=E2=9D=8C_FAIL:_Test_report_for_kerne?=
+ =?utf-8?Q?l_5.7.7-3df5764.cki_(stable-queue)?=
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Originating-IP: [10.40.193.99, 10.4.195.18]
+Thread-Topic: =?utf-8?B?4p2MIEZBSUw6?= Test report for kernel 5.7.7-3df5764.cki (stable-queue)
+Thread-Index: WaGJgMwE5uxvqdhG+A5uBm5P9d3V0w==
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
 
-thanks,
+----- Original Message -----
+> From: "CKI Project" <cki-project@redhat.com>
+> To: "Linux Stable maillist" <stable@vger.kernel.org>
+> Sent: Tuesday, July 7, 2020 3:20:30 PM
+> Subject: =E2=9D=8C FAIL: Test report for kernel 5.7.7-3df5764.cki (stable=
+-queue)
+>=20
+>=20
+> Hello,
+>=20
+> We ran automated tests on a recent commit from this kernel tree:
+>=20
+>        Kernel repo:
+>        https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+>             Commit: 3df5764655da - Revert "ALSA: usb-audio: Improve frame=
+s
+>             size computation"
+>=20
+> The results of these automated tests are provided below.
+>=20
+>     Overall result: FAILED (see details below)
+>              Merge: OK
+>            Compile: FAILED
+>=20
+> All kernel binaries, config files, and logs are available for download he=
+re:
+>=20
+>   https://cki-artifacts.s3.us-east-2.amazonaws.com/index.html?prefix=3Dda=
+tawarehouse/2020/07/07/609686
+>=20
+> We attempted to compile the kernel for multiple architectures, but the
+> compile
+> failed on one or more architectures:
+>=20
+>            aarch64: FAILED (see build-aarch64.log.xz attachment)
+>=20
 
-greg k-h
+Hi,
 
------------------- original commit in Linus's tree ------------------
+this seems to be caused by
 
-From 7684580d45bd3d84ed9b453a4cadf7a9a5605a3f Mon Sep 17 00:00:00 2001
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Date: Mon, 22 Jun 2020 13:05:40 +0200
-Subject: [PATCH] spi: spi-fsl-dspi: Fix lockup if device is removed during SPI
- transfer
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/=
+commit/?h=3Dqueue/5.7&id=3D4773ae0e5c3738779b50e7cb73bf3443b3c84343
 
-During device removal, the driver should unregister the SPI controller
-and stop the hardware.  Otherwise the dspi_transfer_one_message() could
-wait on completion infinitely.
 
-Additionally, calling spi_unregister_controller() first in device
-removal reverse-matches the probe function, where SPI controller is
-registered at the end.
+Veronika
 
-Fixes: 05209f457069 ("spi: fsl-dspi: add missing clk_disable_unprepare() in dspi_remove()")
-Reported-by: Vladimir Oltean <olteanv@gmail.com>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20200622110543.5035-1-krzk@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
 
-diff --git a/drivers/spi/spi-fsl-dspi.c b/drivers/spi/spi-fsl-dspi.c
-index 58190c94561f..ec0fd0d366eb 100644
---- a/drivers/spi/spi-fsl-dspi.c
-+++ b/drivers/spi/spi-fsl-dspi.c
-@@ -1434,9 +1434,18 @@ static int dspi_remove(struct platform_device *pdev)
- 	struct fsl_dspi *dspi = spi_controller_get_devdata(ctlr);
- 
- 	/* Disconnect from the SPI framework */
-+	spi_unregister_controller(dspi->ctlr);
-+
-+	/* Disable RX and TX */
-+	regmap_update_bits(dspi->regmap, SPI_MCR,
-+			   SPI_MCR_DIS_TXF | SPI_MCR_DIS_RXF,
-+			   SPI_MCR_DIS_TXF | SPI_MCR_DIS_RXF);
-+
-+	/* Stop Running */
-+	regmap_update_bits(dspi->regmap, SPI_MCR, SPI_MCR_HALT, SPI_MCR_HALT);
-+
- 	dspi_release_dma(dspi);
- 	clk_disable_unprepare(dspi->clk);
--	spi_unregister_controller(dspi->ctlr);
- 
- 	return 0;
- }
+> We hope that these logs can help you find the problem quickly. For the fu=
+ll
+> detail on our testing procedures, please scroll to the bottom of this
+> message.
+>=20
+> Please reply to this email if you have any questions about the tests that=
+ we
+> ran or if you have any suggestions on how to make future tests more
+> effective.
+>=20
+>         ,-.   ,-.
+>        ( C ) ( K )  Continuous
+>         `-',-.`-'   Kernel
+>           ( I )     Integration
+>            `-'
+> _________________________________________________________________________=
+_____
+>=20
+> Compile testing
+> ---------------
+>=20
+> We compiled the kernel for 4 architectures:
+>=20
+>     aarch64:
+>       make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+>=20
+>     ppc64le:
+>       make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+>=20
+>     s390x:
+>       make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+>=20
+>     x86_64:
+>       make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+>=20
+>=20
+>=20
 
