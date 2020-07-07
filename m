@@ -2,216 +2,157 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A73342162F5
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 02:23:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 365AB21637B
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 03:48:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726903AbgGGAXs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Jul 2020 20:23:48 -0400
-Received: from mga17.intel.com ([192.55.52.151]:60906 "EHLO mga17.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725987AbgGGAXq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 Jul 2020 20:23:46 -0400
-IronPort-SDR: jAME3sbT+EsNp8Fm3A7xlAQ+GFxui8vNYucUhyZTiZkNDpLu3xMcX9QtSk1l1bzijme+amN4+d
- to5PQ0UdzWNQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9674"; a="127606767"
-X-IronPort-AV: E=Sophos;i="5.75,321,1589266800"; 
-   d="scan'208";a="127606767"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jul 2020 17:23:45 -0700
-IronPort-SDR: BDW8/34TOP6tt2FLP+jS0OG2l7KjsVblPEXnCw3279SZVukCArSSajQZm/gWHzrsXtMg1arG5c
- bNWRbyIeCwYw==
-X-IronPort-AV: E=Sophos;i="5.75,321,1589266800"; 
-   d="scan'208";a="322512263"
-Received: from dwillia2-desk3.jf.intel.com (HELO dwillia2-desk3.amr.corp.intel.com) ([10.54.39.16])
-  by fmsmga003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jul 2020 17:23:44 -0700
-Subject: [PATCH v7 2/2] x86/copy_mc: Introduce copy_mc_generic()
-From:   Dan Williams <dan.j.williams@intel.com>
-To:     tglx@linutronix.de, mingo@redhat.com, bp@alien8.de
-Cc:     x86@kernel.org, stable@vger.kernel.org,
-        Vivek Goyal <vgoyal@redhat.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Tony Luck <tony.luck@intel.com>,
-        Erwin Tsaur <erwin.tsaur@intel.com>,
-        Erwin Tsaur <erwin.tsaur@intel.com>, linux-nvdimm@lists.01.org,
-        linux-kernel@vger.kernel.org
-Date:   Mon, 06 Jul 2020 17:07:29 -0700
-Message-ID: <159408044893.2272533.10383893661682423843.stgit@dwillia2-desk3.amr.corp.intel.com>
-In-Reply-To: <159408043801.2272533.17485467640602344900.stgit@dwillia2-desk3.amr.corp.intel.com>
-References: <159408043801.2272533.17485467640602344900.stgit@dwillia2-desk3.amr.corp.intel.com>
-User-Agent: StGit/0.18-3-g996c
-MIME-Version: 1.0
+        id S1727116AbgGGBsY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Jul 2020 21:48:24 -0400
+Received: from mail-eopbgr50058.outbound.protection.outlook.com ([40.107.5.58]:31974
+        "EHLO EUR03-VE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727097AbgGGBsX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 Jul 2020 21:48:23 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=MHFU8mbQfiQlnWRGAfaqubxVsSfFvhp8vvQWJJs8ll/5HG97+8RklJLMDCuFcXslsQEJIJ7pQS2SwVABpYUlkopXhTLpbxHKSttxg1NkZkdNKAqmV2AOL/3AMizNOYl/9mcqfiNDxTvOpUPP2vUe9YPlDmzlMSFdcchUb22r8yfSo9JQUzqYusBwaBUWez3wXF4UKoyrkM9xudAZKCnK41zMaAoimv6WzWjFuGYEqq+QThUUFG4rT7CvevroJgRSSdMKZnimYzcYuQSrBEo6dCAw3YNXgCcqzb20cGMpwZRaLQgPYnCft7LJ0b5bPJHZJoNzP5RBrb8wCPO3hMohig==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=htoyR3RnNmHCqhs7aoPywtEJO8pw6YKvndEVw5xfhdI=;
+ b=IMo42xQbpz7/91YSCjsPfBs9jWqFvy64rcocL4ZYNLVOrQBSjdxtJubVyusz6HomLcwmGUt7Radu4M6fDAt8ffDrviFeDVrLTIpc30OQcRkEjSIVNnsh38bAV+QP87U6u651vXKmebmcB/2uCKxDWBbCkdoEq3DRAkPhDRZSlBGSbQmyckqbLjPWpNM4MINpjpMY13JzuH3D6tg8lQToVv4PFaoC4d1tCiTnRTVfUSjqCyvvSmULKsavwi2sjiR9wtKQ+zPX8ovJmwqebH4cKv3ddYfikTfRaq7mWfZFiOI8pmkVbshzlo7jUV7oNrjyPDuQCR2QTWm04cyQn6PX9A==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
+ header.d=nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=htoyR3RnNmHCqhs7aoPywtEJO8pw6YKvndEVw5xfhdI=;
+ b=Mu1hsetdKcHFg4yO+XbHPuVlPkuKwp+i9Ozb+JFUMjpwUUj3ofGS6jYmLIruyM65OAWdSt9I/JLJeGJJKSB4UWBGq8khuR856Yy20IwqI4hS2q033bazUr4oUf4032ncB5pf91pVqbxtUg+uNPFB4PowywpbkUQGR2kqOAKr28U=
+Received: from VI1PR04MB5294.eurprd04.prod.outlook.com (2603:10a6:803:5a::22)
+ by VI1PR0402MB3615.eurprd04.prod.outlook.com (2603:10a6:803:9::28) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3153.20; Tue, 7 Jul
+ 2020 01:48:18 +0000
+Received: from VI1PR04MB5294.eurprd04.prod.outlook.com
+ ([fe80::7545:cf5d:b8b0:4ab0]) by VI1PR04MB5294.eurprd04.prod.outlook.com
+ ([fe80::7545:cf5d:b8b0:4ab0%5]) with mapi id 15.20.3153.029; Tue, 7 Jul 2020
+ 01:48:18 +0000
+From:   BOUGH CHEN <haibo.chen@nxp.com>
+To:     Ulf Hansson <ulf.hansson@linaro.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+CC:     Adrian Hunter <adrian.hunter@intel.com>,
+        "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>,
+        =?utf-8?B?UGFsaSBSb2jDoXI=?= <pali@kernel.org>,
+        dl-linux-imx <linux-imx@nxp.com>,
+        Andy Duan <fugang.duan@nxp.com>,
+        Doug Anderson <dianders@chromium.org>,
+        "huyue2@yulong.com" <huyue2@yulong.com>,
+        Matthias Kaehlcke <mka@chromium.org>
+Subject: RE: [PATCH] mmc: sdio: fix clock rate setting for SDR12/SDR25 mode
+Thread-Topic: [PATCH] mmc: sdio: fix clock rate setting for SDR12/SDR25 mode
+Thread-Index: AQHWSG9zIVpO28pXb0uRXZeXAQnnLKj6uFAAgAC2rQA=
+Date:   Tue, 7 Jul 2020 01:48:18 +0000
+Message-ID: <VI1PR04MB5294D51A326E7B010D10DE1490660@VI1PR04MB5294.eurprd04.prod.outlook.com>
+References: <1592813959-5914-1-git-send-email-haibo.chen@nxp.com>
+ <CAPDyKFphkPAgcOEd=j8EUoFyAz7Oj8DEXbgK=k7R15rizWWcTw@mail.gmail.com>
+In-Reply-To: <CAPDyKFphkPAgcOEd=j8EUoFyAz7Oj8DEXbgK=k7R15rizWWcTw@mail.gmail.com>
+Accept-Language: zh-CN, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: linaro.org; dkim=none (message not signed)
+ header.d=none;linaro.org; dmarc=none action=none header.from=nxp.com;
+x-originating-ip: [119.31.174.71]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-ht: Tenant
+x-ms-office365-filtering-correlation-id: 30a65119-0908-4df7-f34c-08d82217d278
+x-ms-traffictypediagnostic: VI1PR0402MB3615:
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <VI1PR0402MB3615CCF5013F8468D9ADFC2C90660@VI1PR0402MB3615.eurprd04.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:7691;
+x-forefront-prvs: 0457F11EAF
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: qAVopbGC8crpegzOKrO6WcP/UM3BTTDgUMMaWJ3E4JKmx+tHHlfNLtJVbUlI6lXbl+TpKqK+0nKzowsGTy+KZo5N747E5oosUU33yDc3LsoZgyn4zY/wOG8e9nyfhVtrjYEiXHiNzlg3+F6ljeuaKhBEj3inFS1j9ZefHTldAmcizevvVYuiXMtCCAyQzxdtfh3u+ke+iPNgZs4s90iElyWDZD0bAAy230rASMtT49QLuF7rLinqkRCsJKqykWXPZuX+mT+ygWi4+B4VxPLK3KlkqjMsPZSpnOMfl2XZ3nYM509ZC1+uLOZWUSVWy1y0CmjZmcDgjryyXGtpQwp/VA==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VI1PR04MB5294.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(4636009)(396003)(136003)(376002)(366004)(346002)(39860400002)(110136005)(66476007)(66946007)(66446008)(64756008)(66556008)(316002)(55016002)(54906003)(2906002)(9686003)(71200400001)(7696005)(33656002)(4326008)(8936002)(83380400001)(8676002)(478600001)(76116006)(86362001)(26005)(186003)(5660300002)(52536014)(6506007)(53546011);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata: E/6xjj/m7RmvpJON5SYtn8bFNKK6Dc6HubQWZviOhF+VYoTwH6J6BXcqbMb6Z02mJS0ziSUxYDg4/EYbOiZxyhJjXzCmj3fjBD/1LNCug5uXnFOVMNp52hNytOvryzpokNij/iMoNsbnnNjKWcfmb/93V+t6czggb9Lo812CzMlfu3TXy5NutRn5c5iLea7rowpLdVnkIkEOsG0MMTUQfdqNoNBQZrva05flzc66SDz9g50zKLAK7yaqNJEit3mrCd9WbMdQ5t6tXYuwbEEV2awTy81m7M53wRD1L0E3polbcKg0dAZADqb+JWnCNmYh7GNIlRMOoy9XIfumwiwcV53tBTJrN3qmjMuXJBeOLd1zdb4+3cMbIWgnjhPESLL/s3Aj+otjQSGbSjVE+kikygUHuMxXWEOTe40AN6onRudbL3U9uQL5ryFnXXl6O0Bq6jY8pQjKi4jskgvBhv1Dd0TrvU9WEwvMfwUpZvZ68Yg=
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+X-OriginatorOrg: nxp.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: VI1PR04MB5294.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 30a65119-0908-4df7-f34c-08d82217d278
+X-MS-Exchange-CrossTenant-originalarrivaltime: 07 Jul 2020 01:48:18.2220
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: OTsNyM0DrR7Vn/CRL5abJMUAcJOIvu5OYAJ4Ttb0y+11zavviDkFmd5z26BX5veaYmv5AtpDe2o+Ynft1aO3ZQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR0402MB3615
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The original copy_mc_fragile() implementation had negative performance
-implications since it did not use the fast-string instruction sequence
-to perform copies. For this reason copy_mc_to_kernel() fell back to
-plain memcpy() to preserve performance on platform that did not indicate
-the capability to recover from machine check exceptions. However, that
-capability detection was not architectural and now that some platforms
-can recover from fast-string consumption of memory errors the memcpy()
-fallback now causes these more capable platforms to fail.
-
-Introduce copy_mc_generic() as the fast default implementation of
-copy_mc_to_kernel() and finalize the transition of copy_mc_fragile() to
-be a platform quirk to indicate 'fragility'. With this in place
-copy_mc_to_kernel() is fast and recovery-ready by default regardless of
-hardware capability.
-
-Thanks to Vivek for identifying that copy_user_generic() is not suitable
-as the copy_mc_to_user() backend since the #MC handler explicitly checks
-ex_has_fault_handler().
-
-Cc: x86@kernel.org
-Cc: <stable@vger.kernel.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Vivek Goyal <vgoyal@redhat.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
-Reported-by: Erwin Tsaur <erwin.tsaur@intel.com>
-Tested-by: Erwin Tsaur <erwin.tsaur@intel.com>
-Fixes: 92b0729c34ca ("x86/mm, x86/mce: Add memcpy_mcsafe()")
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
----
- arch/x86/include/asm/uaccess.h |    3 +++
- arch/x86/lib/copy_mc.c         |   12 +++++-------
- arch/x86/lib/copy_mc_64.S      |   40 ++++++++++++++++++++++++++++++++++++++++
- tools/objtool/check.c          |    1 +
- 4 files changed, 49 insertions(+), 7 deletions(-)
-
-diff --git a/arch/x86/include/asm/uaccess.h b/arch/x86/include/asm/uaccess.h
-index 4b2082b61e3e..b038eda58958 100644
---- a/arch/x86/include/asm/uaccess.h
-+++ b/arch/x86/include/asm/uaccess.h
-@@ -464,6 +464,9 @@ copy_mc_to_user(void *to, const void *from, unsigned len);
- 
- unsigned long __must_check
- copy_mc_fragile(void *dst, const void *src, unsigned cnt);
-+
-+unsigned long __must_check
-+copy_mc_generic(void *dst, const void *src, unsigned cnt);
- #else
- static inline void enable_copy_mc_fragile(void)
- {
-diff --git a/arch/x86/lib/copy_mc.c b/arch/x86/lib/copy_mc.c
-index cdb8f5dc403d..9e6fac1ab72e 100644
---- a/arch/x86/lib/copy_mc.c
-+++ b/arch/x86/lib/copy_mc.c
-@@ -23,7 +23,7 @@ void enable_copy_mc_fragile(void)
-  *
-  * Call into the 'fragile' version on systems that have trouble
-  * actually do machine check recovery. Everyone else can just
-- * use memcpy().
-+ * use copy_mc_generic().
-  *
-  * Return 0 for success, or number of bytes not copied if there was an
-  * exception.
-@@ -33,8 +33,7 @@ copy_mc_to_kernel(void *dst, const void *src, unsigned cnt)
- {
- 	if (static_branch_unlikely(&copy_mc_fragile_key))
- 		return copy_mc_fragile(dst, src, cnt);
--	memcpy(dst, src, cnt);
--	return 0;
-+	return copy_mc_generic(dst, src, cnt);
- }
- EXPORT_SYMBOL_GPL(copy_mc_to_kernel);
- 
-@@ -56,11 +55,10 @@ copy_mc_to_user(void *to, const void *from, unsigned len)
- {
- 	unsigned long ret;
- 
--	if (!static_branch_unlikely(&copy_mc_fragile_key))
--		return copy_user_generic(to, from, len);
--
- 	__uaccess_begin();
--	ret = copy_mc_fragile(to, from, len);
-+	if (static_branch_unlikely(&copy_mc_fragile_key))
-+		ret = copy_mc_fragile(to, from, len);
-+	ret = copy_mc_generic(to, from, len);
- 	__uaccess_end();
- 	return ret;
- }
-diff --git a/arch/x86/lib/copy_mc_64.S b/arch/x86/lib/copy_mc_64.S
-index 35a67c50890b..a08e7a4d9e28 100644
---- a/arch/x86/lib/copy_mc_64.S
-+++ b/arch/x86/lib/copy_mc_64.S
-@@ -2,7 +2,9 @@
- /* Copyright(c) 2016-2020 Intel Corporation. All rights reserved. */
- 
- #include <linux/linkage.h>
-+#include <asm/alternative-asm.h>
- #include <asm/copy_mc_test.h>
-+#include <asm/cpufeatures.h>
- #include <asm/export.h>
- #include <asm/asm.h>
- 
-@@ -122,4 +124,42 @@ EXPORT_SYMBOL_GPL(copy_mc_fragile)
- 	_ASM_EXTABLE(.L_write_leading_bytes, .E_leading_bytes)
- 	_ASM_EXTABLE(.L_write_words, .E_write_words)
- 	_ASM_EXTABLE(.L_write_trailing_bytes, .E_trailing_bytes)
-+
-+/*
-+ * copy_mc_generic - memory copy with exception handling
-+ *
-+ * Fast string copy + fault / exception handling. If the CPU does
-+ * support machine check exception recovery, but does not support
-+ * recovering from fast-string exceptions then this CPU needs to be
-+ * added to the copy_mc_fragile_key set of quirks. Otherwise, absent any
-+ * machine check recovery support this version should be no slower than
-+ * standard memcpy.
-+ */
-+SYM_FUNC_START(copy_mc_generic)
-+	ALTERNATIVE "jmp copy_mc_fragile", "", X86_FEATURE_ERMS
-+	movq %rdi, %rax
-+	movq %rdx, %rcx
-+.L_copy:
-+	rep movsb
-+	/* Copy successful. Return zero */
-+	xorl %eax, %eax
-+	ret
-+SYM_FUNC_END(copy_mc_generic)
-+EXPORT_SYMBOL_GPL(copy_mc_generic)
-+
-+	.section .fixup, "ax"
-+.E_copy:
-+	/*
-+	 * On fault %rcx is updated such that the copy instruction could
-+	 * optionally be restarted at the fault position, i.e. it
-+	 * contains 'bytes remaining'. A non-zero return indicates error
-+	 * to copy_mc_generic() users, or indicate short transfers to
-+	 * user-copy routines.
-+	 */
-+	movq %rcx, %rax
-+	ret
-+
-+	.previous
-+
-+	_ASM_EXTABLE_FAULT(.L_copy, .E_copy)
- #endif
-diff --git a/tools/objtool/check.c b/tools/objtool/check.c
-index 17cb0933bf42..d2e1f01df10b 100644
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -548,6 +548,7 @@ static const char *uaccess_safe_builtin[] = {
- 	"__ubsan_handle_shift_out_of_bounds",
- 	/* misc */
- 	"csum_partial_copy_generic",
-+	"copy_mc_generic",
- 	"copy_mc_fragile",
- 	"copy_mc_fragile_handle_tail",
- 	"ftrace_likely_update", /* CONFIG_TRACE_BRANCH_PROFILING */
-
+PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBVbGYgSGFuc3NvbiBbbWFpbHRv
+OnVsZi5oYW5zc29uQGxpbmFyby5vcmddDQo+IFNlbnQ6IDIwMjDlubQ35pyINuaXpSAyMjo0OQ0K
+PiBUbzogQk9VR0ggQ0hFTiA8aGFpYm8uY2hlbkBueHAuY29tPg0KPiBDYzogQWRyaWFuIEh1bnRl
+ciA8YWRyaWFuLmh1bnRlckBpbnRlbC5jb20+OyBsaW51eC1tbWNAdmdlci5rZXJuZWwub3JnOw0K
+PiBQYWxpIFJvaMOhciA8cGFsaUBrZXJuZWwub3JnPjsgZGwtbGludXgtaW14IDxsaW51eC1pbXhA
+bnhwLmNvbT47IEFuZHkgRHVhbg0KPiA8ZnVnYW5nLmR1YW5AbnhwLmNvbT47IERvdWcgQW5kZXJz
+b24gPGRpYW5kZXJzQGNocm9taXVtLm9yZz47DQo+IGh1eXVlMkB5dWxvbmcuY29tOyBNYXR0aGlh
+cyBLYWVobGNrZSA8bWthQGNocm9taXVtLm9yZz4NCj4gU3ViamVjdDogUmU6IFtQQVRDSF0gbW1j
+OiBzZGlvOiBmaXggY2xvY2sgcmF0ZSBzZXR0aW5nIGZvciBTRFIxMi9TRFIyNSBtb2RlDQo+IA0K
+PiBPbiBNb24sIDIyIEp1biAyMDIwIGF0IDEwOjMwLCA8aGFpYm8uY2hlbkBueHAuY29tPiB3cm90
+ZToNCj4gPg0KPiA+IEZyb206IEhhaWJvIENoZW4gPGhhaWJvLmNoZW5AbnhwLmNvbT4NCj4gPg0K
+PiA+IEluIGN1cnJlbnQgY29kZSBsb2dpYywgd2hlbiB3b3JrIGluIFNEUjEyL1NEUjI1IG1vZGUs
+IHRoZSBmaW5hbCBjbG9jaw0KPiA+IHJhdGUgaXMgaW5jb3JyZWN0LCBqdXN0IHRoZSBsZWdhbmN5
+IDQwMEtIeiwgYmVjYXVzZSB0aGUNCj4gPiBjYXJkLT5zd19jYXBzLnNkM19idXNfbW9kZSBkbyBu
+b3QgaGFzIHRoZSBmbGFnIFNEX01PREVfVUhTX1NEUjEyIG9yDQo+ID4gU0RfTU9ERV9VSFNfU0RS
+MjUuIEJlc2lkZXMsIFNESU9fU1BFRURfU0RSMTIgaXMgYWN0dWFsbHkgdmFsdWUgMCwgYW5kDQo+
+ID4gZXZlcnkgbW9kZSBuZWVkIHRvIGNvbmZpZyB0aGUgdGltaW5nIGFuZCBjbG9jayByYXRlLCBz
+byByZW1vdmUgdGhlDQo+ID4g4oCYaWbigJkgb3BlcmF0b3IuDQo+ID4NCj4gPiBTaWduZWQtb2Zm
+LWJ5OiBIYWlibyBDaGVuIDxoYWliby5jaGVuQG54cC5jb20+DQo+IA0KPiBUaGlzIGxvb2tzIGxp
+a2UgYSByYXRoZXIgc2VyaW91cyBlcnJvciwgc2hvdWxkIHdlIHRhZyB0aGlzIGZvciBzdGFibGU/
+DQoNClllcywgbmVlZCB0byBkbyB0aGF0Lg0KDQpDYzogPHN0YWJsZUB2Z2VyLmtlcm5lbC5vcmc+
+DQoNCkJlc3QgUmVnYXJkcw0KSGFpYm8gQ2hlbg0KPiANCj4gSW4gdGhlIG1lYW50aW1lLCBJIGhh
+dmUgYXBwbGllZCB0aGlzIGZvciBuZXh0IHRvIGdldCBpdCB0ZXN0ZWQsIHRoYW5rcyENCj4gDQo+
+IEtpbmQgcmVnYXJkcw0KPiBVZmZlDQo+IA0KPiANCj4gDQo+ID4gLS0tDQo+ID4gIGRyaXZlcnMv
+bW1jL2NvcmUvc2Rpby5jIHwgMTUgKysrKysrKystLS0tLS0tDQo+ID4gIDEgZmlsZSBjaGFuZ2Vk
+LCA4IGluc2VydGlvbnMoKyksIDcgZGVsZXRpb25zKC0pDQo+ID4NCj4gPiBkaWZmIC0tZ2l0IGEv
+ZHJpdmVycy9tbWMvY29yZS9zZGlvLmMgYi9kcml2ZXJzL21tYy9jb3JlL3NkaW8uYyBpbmRleA0K
+PiA+IDBlMzJjYTdiOTQ4OC4uN2I0MDU1M2QzOTM0IDEwMDY0NA0KPiA+IC0tLSBhL2RyaXZlcnMv
+bW1jL2NvcmUvc2Rpby5jDQo+ID4gKysrIGIvZHJpdmVycy9tbWMvY29yZS9zZGlvLmMNCj4gPiBA
+QCAtMTc2LDE1ICsxNzYsMTggQEAgc3RhdGljIGludCBzZGlvX3JlYWRfY2NjcihzdHJ1Y3QgbW1j
+X2NhcmQgKmNhcmQsDQo+IHUzMiBvY3IpDQo+ID4gICAgICAgICAgICAgICAgICAgICAgICAgaWYg
+KG1tY19ob3N0X3VocyhjYXJkLT5ob3N0KSkgew0KPiA+ICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgaWYgKGRhdGEgJiBTRElPX1VIU19ERFI1MCkNCj4gPg0KPiBjYXJkLT5zd19jYXBz
+LnNkM19idXNfbW9kZQ0KPiA+IC0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgIHw9DQo+IFNEX01PREVfVUhTX0REUjUwOw0KPiA+ICsgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHw9DQo+IFNEX01PREVfVUhTX0REUjUwIHwg
+U0RfTU9ERV9VSFNfU0RSNTANCj4gPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgIHwNCj4gPiArIFNEX01PREVfVUhTX1NEUjI1IHwgU0RfTU9E
+RV9VSFNfU0RSMTI7DQo+ID4NCj4gPiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGlm
+IChkYXRhICYgU0RJT19VSFNfU0RSNTApDQo+ID4NCj4gY2FyZC0+c3dfY2Fwcy5zZDNfYnVzX21v
+ZGUNCj4gPiAtICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8
+PQ0KPiBTRF9NT0RFX1VIU19TRFI1MDsNCj4gPiArICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICB8PQ0KPiBTRF9NT0RFX1VIU19TRFI1MCB8IFNEX01PREVfVUhT
+X1NEUjI1DQo+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICB8DQo+ID4gKyBTRF9NT0RFX1VIU19TRFIxMjsNCj4gPg0KPiA+ICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgaWYgKGRhdGEgJiBTRElPX1VIU19TRFIxMDQpDQo+ID4N
+Cj4gY2FyZC0+c3dfY2Fwcy5zZDNfYnVzX21vZGUNCj4gPiAtICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICB8PQ0KPiBTRF9NT0RFX1VIU19TRFIxMDQ7DQo+ID4g
+KyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfD0NCj4gU0Rf
+TU9ERV9VSFNfU0RSMTA0IHwgU0RfTU9ERV9VSFNfU0RSNTANCj4gPiArICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwNCj4gPiArIFNEX01PREVf
+VUhTX1NEUjI1IHwgU0RfTU9ERV9VSFNfU0RSMTI7DQo+ID4gICAgICAgICAgICAgICAgICAgICAg
+ICAgfQ0KPiA+DQo+ID4gICAgICAgICAgICAgICAgICAgICAgICAgcmV0ID0gbW1jX2lvX3J3X2Rp
+cmVjdChjYXJkLCAwLCAwLCBAQA0KPiAtNTM3LDEwDQo+ID4gKzU0MCw4IEBAIHN0YXRpYyBpbnQg
+c2Rpb19zZXRfYnVzX3NwZWVkX21vZGUoc3RydWN0IG1tY19jYXJkICpjYXJkKQ0KPiA+ICAgICAg
+ICAgbWF4X3JhdGUgPSBtaW5fbm90X3plcm8oY2FyZC0+cXVpcmtfbWF4X3JhdGUsDQo+ID4gICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjYXJkLT5zd19jYXBzLnVoc19tYXhfZHRyKTsN
+Cj4gPg0KPiA+IC0gICAgICAgaWYgKGJ1c19zcGVlZCkgew0KPiA+IC0gICAgICAgICAgICAgICBt
+bWNfc2V0X3RpbWluZyhjYXJkLT5ob3N0LCB0aW1pbmcpOw0KPiA+IC0gICAgICAgICAgICAgICBt
+bWNfc2V0X2Nsb2NrKGNhcmQtPmhvc3QsIG1heF9yYXRlKTsNCj4gPiAtICAgICAgIH0NCj4gPiAr
+ICAgICAgIG1tY19zZXRfdGltaW5nKGNhcmQtPmhvc3QsIHRpbWluZyk7DQo+ID4gKyAgICAgICBt
+bWNfc2V0X2Nsb2NrKGNhcmQtPmhvc3QsIG1heF9yYXRlKTsNCj4gPg0KPiA+ICAgICAgICAgcmV0
+dXJuIDA7DQo+ID4gIH0NCj4gPiAtLQ0KPiA+IDIuMTcuMQ0KPiA+DQo=
