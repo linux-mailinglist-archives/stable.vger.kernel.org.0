@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14D53216FC6
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:13:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D383216FC8
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:13:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728354AbgGGPKd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:10:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51262 "EHLO mail.kernel.org"
+        id S1728207AbgGGPKh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:10:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727079AbgGGPKd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:10:33 -0400
+        id S1727079AbgGGPKf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:10:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 132AB2065D;
-        Tue,  7 Jul 2020 15:10:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B782920663;
+        Tue,  7 Jul 2020 15:10:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594134632;
-        bh=nDHHUj4tN2fihv82K94trrpOrL8ziYi2I+QD6CQeNWU=;
+        s=default; t=1594134635;
+        bh=PYh1fCQG7WWfJwewoYwDkRwfFV62qVto3c/0VQwHKQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fL/1svPvMMf6wckM3CIxwPVbATgAOTisAGN9b6asOUu9UQP+wQa5bV1z9ZOmFd+QI
-         A+IOk6CVUJbXNzBVrNZnxUsHnPN1Pqr78UYB5NioqsgAQwDg/siXkbxMYFXw/M5LUA
-         hYzG8OHwXJwtxPNXO9F9udmEBSFDhAoKqDott8+w=
+        b=Su6f7jq7fZDMtzdkxDp8n8XD7N974asHei64Y2TXk3nDZJ8xiPyAHk9923MV92d2U
+         udhK+qPcNtVy6qaFbnF3v+KNwHWrWMzGf+7aL/qv7IvFtggwVcqKd/mdgnFK4m8OfW
+         vyzLzSh6I3CLugGzyzbKt5bxpDq//wiLzkDXwDbs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Misono Tomohiro <misono.tomohiro@jp.fujitsu.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 11/19] hwmon: (acpi_power_meter) Fix potential memory leak in acpi_power_meter_add()
-Date:   Tue,  7 Jul 2020 17:10:14 +0200
-Message-Id: <20200707145748.067857457@linuxfoundation.org>
+Subject: [PATCH 4.4 12/19] virtio-blk: free vblk-vqs in error path of virtblk_probe()
+Date:   Tue,  7 Jul 2020 17:10:15 +0200
+Message-Id: <20200707145748.120342745@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200707145747.493710555@linuxfoundation.org>
 References: <20200707145747.493710555@linuxfoundation.org>
@@ -45,44 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Misono Tomohiro <misono.tomohiro@jp.fujitsu.com>
+From: Hou Tao <houtao1@huawei.com>
 
-[ Upstream commit 8b97f9922211c44a739c5cbd9502ecbb9f17f6d1 ]
+[ Upstream commit e7eea44eefbdd5f0345a0a8b80a3ca1c21030d06 ]
 
-Although it rarely happens, we should call free_capabilities()
-if error happens after read_capabilities() to free allocated strings.
+Else there will be memory leak if alloc_disk() fails.
 
-Fixes: de584afa5e188 ("hwmon driver for ACPI 4.0 power meters")
-Signed-off-by: Misono Tomohiro <misono.tomohiro@jp.fujitsu.com>
-Link: https://lore.kernel.org/r/20200625043242.31175-1-misono.tomohiro@jp.fujitsu.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: 6a27b656fc02 ("block: virtio-blk: support multi virt queues per virtio-blk device")
+Signed-off-by: Hou Tao <houtao1@huawei.com>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/acpi_power_meter.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/block/virtio_blk.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hwmon/acpi_power_meter.c b/drivers/hwmon/acpi_power_meter.c
-index e27f7e12c05bb..9b4ad6c74041e 100644
---- a/drivers/hwmon/acpi_power_meter.c
-+++ b/drivers/hwmon/acpi_power_meter.c
-@@ -895,7 +895,7 @@ static int acpi_power_meter_add(struct acpi_device *device)
- 
- 	res = setup_attrs(resource);
- 	if (res)
--		goto exit_free;
-+		goto exit_free_capability;
- 
- 	resource->hwmon_dev = hwmon_device_register(&device->dev);
- 	if (IS_ERR(resource->hwmon_dev)) {
-@@ -908,6 +908,8 @@ static int acpi_power_meter_add(struct acpi_device *device)
- 
- exit_remove:
- 	remove_attrs(resource);
-+exit_free_capability:
-+	free_capabilities(resource);
- exit_free:
- 	kfree(resource);
- exit:
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 1e5cd39d0cc2f..bdc3efacd0d25 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -757,6 +757,7 @@ static int virtblk_probe(struct virtio_device *vdev)
+ 	put_disk(vblk->disk);
+ out_free_vq:
+ 	vdev->config->del_vqs(vdev);
++	kfree(vblk->vqs);
+ out_free_vblk:
+ 	kfree(vblk);
+ out_free_index:
 -- 
 2.25.1
 
