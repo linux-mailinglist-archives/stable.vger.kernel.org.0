@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 891572171DC
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:43:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A76D2171A0
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:43:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730273AbgGGP0X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:26:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40636 "EHLO mail.kernel.org"
+        id S1729136AbgGGPWh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:22:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730270AbgGGP0W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:26:22 -0400
+        id S1729879AbgGGPWf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:22:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 500C02078D;
-        Tue,  7 Jul 2020 15:26:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A274C20663;
+        Tue,  7 Jul 2020 15:22:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135581;
-        bh=ISNzpa7ny7l40jBlFAU0uG+mNebx2zp/Zz4x0X73iKQ=;
+        s=default; t=1594135355;
+        bh=6WYzOr5brSnp6lfzxUmBTYt5J6ZgXM+oJW8YrfO0Y9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s6swsNK9Y8CVrBSl90XS0UkOjyRK435JKytFrFML0u4LirvlMZjCO1WmEjW9jTkkQ
-         Zy1c2wZdZEktLsJQzuYQ+n8YoCXTIeqrv2t/XkNFLadFPuwKxCyxMZwihCmYl46qj4
-         0sQIP6YulB0YhXxcO6wuv22nRM9Txy9sJjm5tt0Q=
+        b=XAZXtn9sFkAhj3FAT+gyu4mlZEbUhR45kJZvNNtOWkFgsaoR5J/FnMn1+RFttWjos
+         n8PJ4oLLwAdWkox1o/JmS0F7K/tgV3XN4c7HeGs+LOJ6Af0oAxITlp7pqyAneP0zh0
+         rhE4NvQefBQSyPhSfdGVI2R7EJprUWmYa5ovoO0s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>
-Subject: [PATCH 5.7 098/112] gfs2: fix trans slab error when withdraw occurs inside log_flush
-Date:   Tue,  7 Jul 2020 17:17:43 +0200
-Message-Id: <20200707145805.638478632@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Jones <pjones@redhat.com>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 5.4 65/65] efi: Make it possible to disable efivar_ssdt entirely
+Date:   Tue,  7 Jul 2020 17:17:44 +0200
+Message-Id: <20200707145755.613464447@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200707145800.925304888@linuxfoundation.org>
-References: <20200707145800.925304888@linuxfoundation.org>
+In-Reply-To: <20200707145752.417212219@linuxfoundation.org>
+References: <20200707145752.417212219@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,48 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Peter Jones <pjones@redhat.com>
 
-commit 58e08e8d83ab03a1ca25d53420bd0b87f2dfe458 upstream.
+commit 435d1a471598752446a72ad1201b3c980526d869 upstream.
 
-Log flush operations (gfs2_log_flush()) can target a specific transaction.
-But if the function encounters errors (e.g. io errors) and withdraws,
-the transaction was only freed it if was queued to one of the ail lists.
-If the withdraw occurred before the transaction was queued to the ail1
-list, function ail_drain never freed it. The result was:
+In most cases, such as CONFIG_ACPI_CUSTOM_DSDT and
+CONFIG_ACPI_TABLE_UPGRADE, boot-time modifications to firmware tables
+are tied to specific Kconfig options.  Currently this is not the case
+for modifying the ACPI SSDT via the efivar_ssdt kernel command line
+option and associated EFI variable.
 
-BUG gfs2_trans: Objects remaining in gfs2_trans on __kmem_cache_shutdown()
+This patch adds CONFIG_EFI_CUSTOM_SSDT_OVERLAYS, which defaults
+disabled, in order to allow enabling or disabling that feature during
+the build.
 
-This patch makes log_flush() add the targeted transaction to the ail1
-list so that function ail_drain() will find and free it properly.
-
-Cc: stable@vger.kernel.org # v5.7+
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Peter Jones <pjones@redhat.com>
+Link: https://lore.kernel.org/r/20200615202408.2242614-1-pjones@redhat.com
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/gfs2/log.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/firmware/efi/Kconfig |   11 +++++++++++
+ drivers/firmware/efi/efi.c   |    2 +-
+ 2 files changed, 12 insertions(+), 1 deletion(-)
 
---- a/fs/gfs2/log.c
-+++ b/fs/gfs2/log.c
-@@ -987,6 +987,16 @@ void gfs2_log_flush(struct gfs2_sbd *sdp
+--- a/drivers/firmware/efi/Kconfig
++++ b/drivers/firmware/efi/Kconfig
+@@ -219,3 +219,14 @@ config EFI_EARLYCON
+ 	depends on SERIAL_EARLYCON && !ARM && !IA64
+ 	select FONT_SUPPORT
+ 	select ARCH_USE_MEMREMAP_PROT
++
++config EFI_CUSTOM_SSDT_OVERLAYS
++	bool "Load custom ACPI SSDT overlay from an EFI variable"
++	depends on EFI_VARS && ACPI
++	default ACPI_TABLE_UPGRADE
++	help
++	  Allow loading of an ACPI SSDT overlay from an EFI variable specified
++	  by a kernel command line option.
++
++	  See Documentation/admin-guide/acpi/ssdt-overlays.rst for more
++	  information.
+--- a/drivers/firmware/efi/efi.c
++++ b/drivers/firmware/efi/efi.c
+@@ -217,7 +217,7 @@ static void generic_ops_unregister(void)
+ 	efivars_unregister(&generic_efivars);
+ }
  
- out:
- 	if (gfs2_withdrawn(sdp)) {
-+		/**
-+		 * If the tr_list is empty, we're withdrawing during a log
-+		 * flush that targets a transaction, but the transaction was
-+		 * never queued onto any of the ail lists. Here we add it to
-+		 * ail1 just so that ail_drain() will find and free it.
-+		 */
-+		spin_lock(&sdp->sd_ail_lock);
-+		if (tr && list_empty(&tr->tr_list))
-+			list_add(&tr->tr_list, &sdp->sd_ail1_list);
-+		spin_unlock(&sdp->sd_ail_lock);
- 		ail_drain(sdp); /* frees all transactions */
- 		tr = NULL;
- 	}
+-#if IS_ENABLED(CONFIG_ACPI)
++#ifdef CONFIG_EFI_CUSTOM_SSDT_OVERLAYS
+ #define EFIVAR_SSDT_NAME_MAX	16
+ static char efivar_ssdt[EFIVAR_SSDT_NAME_MAX] __initdata;
+ static int __init efivar_ssdt_setup(char *str)
 
 
