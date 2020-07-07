@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D8C12170AB
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:24:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF5AF2170A0
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:24:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729389AbgGGPTm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:19:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59452 "EHLO mail.kernel.org"
+        id S1728911AbgGGPTV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:19:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728442AbgGGPTl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:19:41 -0400
+        id S1728249AbgGGPTS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:19:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C0AC220663;
-        Tue,  7 Jul 2020 15:19:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5FE692065D;
+        Tue,  7 Jul 2020 15:19:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135181;
-        bh=Btfjam2wLgFNouJPmbBUN1e7q5RQh6MsXcHYqdw3HQo=;
+        s=default; t=1594135158;
+        bh=jg37BOgnRVux8mq45Jft7hfVe7BKUumcFyBY9H09wFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YLe4jaiBPNtK7OMT8g6iqDZyPOZCZ3PMhpZQPnZ4ilF8CofJ4Y24yqwoqbitVs8bZ
-         6G1dBelPVhTU6MbUEz3JNvwjrlUK44E6hjr6wwS+NXBOsgI3ZHEVZBtoE3Dsu1B91B
-         d/IO8nvBA7CR0u44C8auirR+FQgi0X3O5+2GppJk=
+        b=QmqTIiSeDPcymmUExL8zOrGZ7uVEJPT2fzJITmcE/WmBraBT/wY8fWcZFYs5Yq/zD
+         6qboaInaKeiO4YFk2326tlFIT5dCFKG7/zX7D2U15u2osNyc8u7Ag06Ma/8vwQ1Ldo
+         tLJsqRHAY236wOJN6fUoUY5A8TM43tuAG/Wh95LI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Aurich <paul@darkrain42.org>,
-        Steve French <stfrench@microsoft.com>,
-        Aurelien Aptel <aaptel@suse.com>
-Subject: [PATCH 4.19 31/36] SMB3: Honor lease disabling for multiuser mounts
-Date:   Tue,  7 Jul 2020 17:17:23 +0200
-Message-Id: <20200707145750.649697828@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 4.19 34/36] irqchip/gic: Atomically update affinity
+Date:   Tue,  7 Jul 2020 17:17:26 +0200
+Message-Id: <20200707145750.785360792@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200707145749.130272978@linuxfoundation.org>
 References: <20200707145749.130272978@linuxfoundation.org>
@@ -44,30 +42,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Aurich <paul@darkrain42.org>
+From: Marc Zyngier <maz@kernel.org>
 
-commit ad35f169db6cd5a4c5c0a5a42fb0cad3efeccb83 upstream.
+commit 005c34ae4b44f085120d7f371121ec7ded677761 upstream.
 
-Fixes: 3e7a02d47872 ("smb3: allow disabling requesting leases")
-Signed-off-by: Paul Aurich <paul@darkrain42.org>
-CC: Stable <stable@vger.kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Reviewed-by: Aurelien Aptel <aaptel@suse.com>
+The GIC driver uses a RMW sequence to update the affinity, and
+relies on the gic_lock_irqsave/gic_unlock_irqrestore sequences
+to update it atomically.
+
+But these sequences only expand into anything meaningful if
+the BL_SWITCHER option is selected, which almost never happens.
+
+It also turns out that using a RMW and locks is just as silly,
+as the GIC distributor supports byte accesses for the GICD_TARGETRn
+registers, which when used make the update atomic by definition.
+
+Drop the terminally broken code and replace it by a byte write.
+
+Fixes: 04c8b0f82c7d ("irqchip/gic: Make locking a BL_SWITCHER only feature")
+Cc: stable@vger.kernel.org
+Signed-off-by: Marc Zyngier <maz@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/connect.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/irqchip/irq-gic.c |   14 +++-----------
+ 1 file changed, 3 insertions(+), 11 deletions(-)
 
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -4601,6 +4601,7 @@ cifs_construct_tcon(struct cifs_sb_info
- 	vol_info->nocase = master_tcon->nocase;
- 	vol_info->nohandlecache = master_tcon->nohandlecache;
- 	vol_info->local_lease = master_tcon->local_lease;
-+	vol_info->no_lease = master_tcon->no_lease;
- 	vol_info->resilient = master_tcon->use_resilient;
- 	vol_info->persistent = master_tcon->use_persistent;
- 	vol_info->no_linux_ext = !master_tcon->unix_ext;
+--- a/drivers/irqchip/irq-gic.c
++++ b/drivers/irqchip/irq-gic.c
+@@ -324,10 +324,8 @@ static int gic_irq_set_vcpu_affinity(str
+ static int gic_set_affinity(struct irq_data *d, const struct cpumask *mask_val,
+ 			    bool force)
+ {
+-	void __iomem *reg = gic_dist_base(d) + GIC_DIST_TARGET + (gic_irq(d) & ~3);
+-	unsigned int cpu, shift = (gic_irq(d) % 4) * 8;
+-	u32 val, mask, bit;
+-	unsigned long flags;
++	void __iomem *reg = gic_dist_base(d) + GIC_DIST_TARGET + gic_irq(d);
++	unsigned int cpu;
+ 
+ 	if (!force)
+ 		cpu = cpumask_any_and(mask_val, cpu_online_mask);
+@@ -337,13 +335,7 @@ static int gic_set_affinity(struct irq_d
+ 	if (cpu >= NR_GIC_CPU_IF || cpu >= nr_cpu_ids)
+ 		return -EINVAL;
+ 
+-	gic_lock_irqsave(flags);
+-	mask = 0xff << shift;
+-	bit = gic_cpu_map[cpu] << shift;
+-	val = readl_relaxed(reg) & ~mask;
+-	writel_relaxed(val | bit, reg);
+-	gic_unlock_irqrestore(flags);
+-
++	writeb_relaxed(gic_cpu_map[cpu], reg);
+ 	irq_data_update_effective_affinity(d, cpumask_of(cpu));
+ 
+ 	return IRQ_SET_MASK_OK_DONE;
 
 
