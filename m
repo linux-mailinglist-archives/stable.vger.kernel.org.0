@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBD8E2171A4
-	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:43:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 997752171B0
+	for <lists+stable@lfdr.de>; Tue,  7 Jul 2020 17:43:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729946AbgGGPXI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Jul 2020 11:23:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36060 "EHLO mail.kernel.org"
+        id S1730030AbgGGPYE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Jul 2020 11:24:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729941AbgGGPXH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Jul 2020 11:23:07 -0400
+        id S1728784AbgGGPYD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Jul 2020 11:24:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 435A5206F6;
-        Tue,  7 Jul 2020 15:23:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 23B772078D;
+        Tue,  7 Jul 2020 15:24:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594135386;
-        bh=gd92U56RmoV99eATKd4qvxZYYmO56fFyB+M5e7f5O3c=;
+        s=default; t=1594135442;
+        bh=ARQn63/cA+sXajjk2N9qQFRbaVwFQixHf4gcjaprjcM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q3YBIg9VLYuXYEmaeU3uozl2TJozPSU8j9kqwfiHj/CU8OqiwkWIeckETrsn5rj5X
-         6GHvYgsHeoWPhZ8M+OAh+Gft9FmGUrqVZbvxmHf5q279BR+Hyuof7VKhObAWNa5/1C
-         0Wo7uhJ4PFZ+tcROSB+6g7irxFdJSZNkRVP6DCu0=
+        b=QmQefiMoWvw1P3MYmBIHiBOdvzMjIFw1yOBpYARR+O4AMZ7NwdRx0P/awzaniYVST
+         74RSnrFZoEvQGmin4r2s0dzvFxVfSk4HTqLV3gw/Fp+YuUrkSex2XR9jmYaZ3xxD8Q
+         o8OMYOS827n1d59ocbwwBNnNrk7xD8vtmGI2SuBI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Glauber Costa <glauber@scylladb.com>,
+        Christoph Lameter <cl@linux.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.7 020/112] sched/debug: Make sd->flags sysctl read-only
-Date:   Tue,  7 Jul 2020 17:16:25 +0200
-Message-Id: <20200707145801.948953381@linuxfoundation.org>
+Subject: [PATCH 5.7 025/112] mm/slub: fix stack overruns with SLUB_STATS
+Date:   Tue,  7 Jul 2020 17:16:30 +0200
+Message-Id: <20200707145802.186777620@linuxfoundation.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200707145800.925304888@linuxfoundation.org>
 References: <20200707145800.925304888@linuxfoundation.org>
@@ -45,46 +50,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentin Schneider <valentin.schneider@arm.com>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit 9818427c6270a9ce8c52c8621026fe9cebae0f92 ]
+[ Upstream commit a68ee0573991e90af2f1785db309206408bad3e5 ]
 
-Writing to the sysctl of a sched_domain->flags directly updates the value of
-the field, and goes nowhere near update_top_cache_domain(). This means that
-the cached domain pointers can end up containing stale data (e.g. the
-domain pointed to doesn't have the relevant flag set anymore).
+There is no need to copy SLUB_STATS items from root memcg cache to new
+memcg cache copies.  Doing so could result in stack overruns because the
+store function only accepts 0 to clear the stat and returns an error for
+everything else while the show method would print out the whole stat.
 
-Explicit domain walks that check for flags will be affected by
-the write, but this won't be in sync with the cached pointers which will
-still point to the domains that were cached at the last sched_domain
-build.
+Then, the mismatch of the lengths returns from show and store methods
+happens in memcg_propagate_slab_attrs():
 
-In other words, writing to this interface is playing a dangerous game. It
-could be made to trigger an update of the cached sched_domain pointers when
-written to, but this does not seem to be worth the trouble. Make it
-read-only.
+	else if (root_cache->max_attr_size < ARRAY_SIZE(mbuf))
+		buf = mbuf;
 
-Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20200415210512.805-3-valentin.schneider@arm.com
+max_attr_size is only 2 from slab_attr_store(), then, it uses mbuf[64]
+in show_stat() later where a bounch of sprintf() would overrun the stack
+variable.  Fix it by always allocating a page of buffer to be used in
+show_stat() if SLUB_STATS=y which should only be used for debug purpose.
+
+  # echo 1 > /sys/kernel/slab/fs_cache/shrink
+  BUG: KASAN: stack-out-of-bounds in number+0x421/0x6e0
+  Write of size 1 at addr ffffc900256cfde0 by task kworker/76:0/53251
+
+  Hardware name: HPE ProLiant DL385 Gen10/ProLiant DL385 Gen10, BIOS A40 07/10/2019
+  Workqueue: memcg_kmem_cache memcg_kmem_cache_create_func
+  Call Trace:
+    number+0x421/0x6e0
+    vsnprintf+0x451/0x8e0
+    sprintf+0x9e/0xd0
+    show_stat+0x124/0x1d0
+    alloc_slowpath_show+0x13/0x20
+    __kmem_cache_create+0x47a/0x6b0
+
+  addr ffffc900256cfde0 is located in stack of task kworker/76:0/53251 at offset 0 in frame:
+   process_one_work+0x0/0xb90
+
+  this frame has 1 object:
+   [32, 72) 'lockdep_map'
+
+  Memory state around the buggy address:
+   ffffc900256cfc80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+   ffffc900256cfd00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  >ffffc900256cfd80: 00 00 00 00 00 00 00 00 00 00 00 00 f1 f1 f1 f1
+                                                         ^
+   ffffc900256cfe00: 00 00 00 00 00 f2 f2 f2 00 00 00 00 00 00 00 00
+   ffffc900256cfe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  ==================================================================
+  Kernel panic - not syncing: stack-protector: Kernel stack is corrupted in: __kmem_cache_create+0x6ac/0x6b0
+  Workqueue: memcg_kmem_cache memcg_kmem_cache_create_func
+  Call Trace:
+    __kmem_cache_create+0x6ac/0x6b0
+
+Fixes: 107dab5c92d5 ("slub: slub-specific propagation changes")
+Signed-off-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Glauber Costa <glauber@scylladb.com>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Link: http://lkml.kernel.org/r/20200429222356.4322-1-cai@lca.pw
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/debug.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/slub.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/sched/debug.c b/kernel/sched/debug.c
-index 239970b991c03..0f4aaad236a9d 100644
---- a/kernel/sched/debug.c
-+++ b/kernel/sched/debug.c
-@@ -258,7 +258,7 @@ sd_alloc_ctl_domain_table(struct sched_domain *sd)
- 	set_table_entry(&table[2], "busy_factor",	  &sd->busy_factor,	    sizeof(int),  0644, proc_dointvec_minmax);
- 	set_table_entry(&table[3], "imbalance_pct",	  &sd->imbalance_pct,	    sizeof(int),  0644, proc_dointvec_minmax);
- 	set_table_entry(&table[4], "cache_nice_tries",	  &sd->cache_nice_tries,    sizeof(int),  0644, proc_dointvec_minmax);
--	set_table_entry(&table[5], "flags",		  &sd->flags,		    sizeof(int),  0644, proc_dointvec_minmax);
-+	set_table_entry(&table[5], "flags",		  &sd->flags,		    sizeof(int),  0444, proc_dointvec_minmax);
- 	set_table_entry(&table[6], "max_newidle_lb_cost", &sd->max_newidle_lb_cost, sizeof(long), 0644, proc_doulongvec_minmax);
- 	set_table_entry(&table[7], "name",		  sd->name,	       CORENAME_MAX_SIZE, 0444, proc_dostring);
- 	/* &table[8] is terminator */
+diff --git a/mm/slub.c b/mm/slub.c
+index 63f372366ec59..660f4324c0972 100644
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -5681,7 +5681,8 @@ static void memcg_propagate_slab_attrs(struct kmem_cache *s)
+ 		 */
+ 		if (buffer)
+ 			buf = buffer;
+-		else if (root_cache->max_attr_size < ARRAY_SIZE(mbuf))
++		else if (root_cache->max_attr_size < ARRAY_SIZE(mbuf) &&
++			 !IS_ENABLED(CONFIG_SLUB_STATS))
+ 			buf = mbuf;
+ 		else {
+ 			buffer = (char *) get_zeroed_page(GFP_KERNEL);
 -- 
 2.25.1
 
