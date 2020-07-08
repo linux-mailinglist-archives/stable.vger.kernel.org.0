@@ -2,132 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7491D218F5A
-	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 19:57:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D956218F5E
+	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 19:59:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726124AbgGHR44 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jul 2020 13:56:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54162 "EHLO
+        id S1725879AbgGHR7g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jul 2020 13:59:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725978AbgGHR44 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Jul 2020 13:56:56 -0400
-Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29EF9C08C5C1
-        for <stable@vger.kernel.org>; Wed,  8 Jul 2020 10:56:56 -0700 (PDT)
-Received: by mail-pf1-x433.google.com with SMTP id i14so3807121pfu.13
-        for <stable@vger.kernel.org>; Wed, 08 Jul 2020 10:56:56 -0700 (PDT)
+        with ESMTP id S1726139AbgGHR7f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Jul 2020 13:59:35 -0400
+Received: from mail-vk1-xa44.google.com (mail-vk1-xa44.google.com [IPv6:2607:f8b0:4864:20::a44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 799EFC08C5C1
+        for <stable@vger.kernel.org>; Wed,  8 Jul 2020 10:59:35 -0700 (PDT)
+Received: by mail-vk1-xa44.google.com with SMTP id n137so10459611vkf.7
+        for <stable@vger.kernel.org>; Wed, 08 Jul 2020 10:59:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
+        d=chromium.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=KFZpY681inDypA2LYvEVNVJEszHTfc/UjNXbYEWopm4=;
-        b=tL5rdDIIvL7NgwMR9ubYdHDjODQac7uQ2v8GBeHDf2Tn9kJcIAsydShvdY+g6dcg9h
-         d4z1KbV5x1NdZZSf8QcDtE/99f/9J/4JCfIpTve2g2MO9/sMc26j0Kb7UXQ4EEuVqgQw
-         Od4S2hpQgi1/Q+UbShoxbdPVJsSYYTXmAi1pnAv11Lyftvq6ejJv8YSCa0U9a0ACFQmg
-         hSIqWu7TuuHBQneUxcaYCRZIiTiMz2mEbGygdeMFQbuEY6/KKGG3U4Chw91Ef1W9umk+
-         qZgbOU2KWawJbNFtYNUodoErqMOL+BUCNxZ4xBOkXbItFzwgHfGeg9udZZo4FHGqGSY8
-         zraw==
+        bh=hiompu44sJmWIX0VHQ2p43N5hGspvrVdRKwV2/c7PTg=;
+        b=P9+4sBCXeroD/gl9lFaX0m06xjtx10agKSYwDQ+/NbcOaSqY89NkXRbgqBPgQRcOVj
+         2sE/15k5UksYrS6NLHG1qzC0R1PFVEXJFB/IoQuFPz8kRo7ozYT8rfPO1xJegBPdj20k
+         dgvGQbI7VTNxqtWycqUuFvVewZCIYxRbrTVJY=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=KFZpY681inDypA2LYvEVNVJEszHTfc/UjNXbYEWopm4=;
-        b=Fue7k53KNdgWe9vcfy/Haz2pBM0c5KXI2DJBCblUpATEY7NNwqNHPltFUnUL4lBTo+
-         43zzTU5SkUL1B1lpt8+8vBDj7D2Gk7hk2mDmB6SC8iAKhKcclwpu1D72L3OYHHOrvStn
-         W5uYU2myOwAjKdehKwWsLXoKRu8yBSW1kWuqILzkeyg1kBXW16zV7207d8YYmZrDMzg/
-         1nIJPXQuaTXi71rxCFIJSby0iabjK5tDlSSG/b89uxY0ibwBgVf/4sbpqIzQVDyhlkO3
-         VW8oHBINxCiFZOXzTrKBUN3wz9Mqb0fpLZdLB8t22cE/9K6QfLWuwjPGrrglXHto6zJR
-         ekig==
-X-Gm-Message-State: AOAM5302adravSXS1MngKi3B4epsYbfk91HkkxqjPIVKrBkoR/SwacYQ
-        1YktEkcs6BcXvEi04PzMIgB9NDx1cdYcO6Mymt28rw==
-X-Google-Smtp-Source: ABdhPJz3qZ0R9CdScEvi6luqWSPLgualQyiV/WOJObuwgv4BQwFpHN2jFXYiBWikVExNO/FQ07vGF30QykV0INt/TrA=
-X-Received: by 2002:a62:86cc:: with SMTP id x195mr47595529pfd.39.1594231015327;
- Wed, 08 Jul 2020 10:56:55 -0700 (PDT)
+        bh=hiompu44sJmWIX0VHQ2p43N5hGspvrVdRKwV2/c7PTg=;
+        b=Ixo6yLrxZnCQGC3PGGmiIqgr6BoAjU6Bp9l/b8q8pFrfOvsBbik/lEnMfUW4lANvG6
+         krf71Z7Z71M4WcljNaWGXQsV33KEsDTUjXph6bHS92b5vYIPEHm9zMAt2J284w6UeJOv
+         Ehs1lOiXi0ZEgy5stE/pEyMd/GzyfW6iLqK7BtIsFajuGYGMkoesjjShbx2VsGBvVE5e
+         KizD/pKsziL/zoN4R5q/mudd4xbbKr2FF+emRyqsnQTP0jOKNVXh9Ym+ug0amr4HkB/z
+         k5UAnlsq+5HOhoziNY/1dy6S6YEzPINw+Plhxs1FSjjdtVCf72wEb0AoF3pPshIR5pcv
+         lPhw==
+X-Gm-Message-State: AOAM532lUJFeueV8orpW+mJ4cxX1givKiFXOxKpzMRQElBPd6Hl/2fa9
+        4iy+JkqOtghAMf+EF1pdDQU1Y57e7Ck=
+X-Google-Smtp-Source: ABdhPJw1edB8OQBYGe+MeKLz3KlK/53TNjYXnh0/NUG8sAMcTRwQNl7wIMiCks3qKkoNsKSBplcoxQ==
+X-Received: by 2002:a1f:b20a:: with SMTP id b10mr44307756vkf.58.1594231174507;
+        Wed, 08 Jul 2020 10:59:34 -0700 (PDT)
+Received: from mail-vk1-f179.google.com (mail-vk1-f179.google.com. [209.85.221.179])
+        by smtp.gmail.com with ESMTPSA id t2sm83968vka.28.2020.07.08.10.59.32
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 08 Jul 2020 10:59:32 -0700 (PDT)
+Received: by mail-vk1-f179.google.com with SMTP id q85so583656vke.4
+        for <stable@vger.kernel.org>; Wed, 08 Jul 2020 10:59:32 -0700 (PDT)
+X-Received: by 2002:a1f:3f05:: with SMTP id m5mr18475983vka.92.1594231171733;
+ Wed, 08 Jul 2020 10:59:31 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200707211642.1106946-1-ndesaulniers@google.com>
- <bca8cff8-3ffe-e5ab-07a5-2ab29d5e394a@linaro.org> <CAKwvOdmtv2EdNQz+c_DZm_47EEibkaXfDW8dGPwNPA3OrcoC9g@mail.gmail.com>
- <20997cd9-91e5-ca83-218d-4fd5af128893@linaro.org>
-In-Reply-To: <20997cd9-91e5-ca83-218d-4fd5af128893@linaro.org>
-From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Wed, 8 Jul 2020 10:56:43 -0700
-Message-ID: <CAKwvOd=PrNG9WqBc4P43-XK7pOD4rQg4FA8Gd27OdUYb2qMDdw@mail.gmail.com>
-Subject: Re: [PATCH] bitfield.h: don't compile-time validate _val in FIELD_FIT
-To:     Alex Elder <elder@linaro.org>, Jakub Kicinski <kuba@kernel.org>,
-        "David S . Miller" <davem@davemloft.net>
-Cc:     "# 3.4.x" <stable@vger.kernel.org>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
-        Andrii Nakryiko <andriin@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@chromium.org>,
+References: <20200630081938.8131-1-sibis@codeaurora.org>
+In-Reply-To: <20200630081938.8131-1-sibis@codeaurora.org>
+From:   Doug Anderson <dianders@chromium.org>
+Date:   Wed, 8 Jul 2020 10:59:20 -0700
+X-Gmail-Original-Message-ID: <CAD=FV=V2JyYaNBjkFgiKEuWpvNSyt+GP_kAbAtOkNizt136EFA@mail.gmail.com>
+Message-ID: <CAD=FV=V2JyYaNBjkFgiKEuWpvNSyt+GP_kAbAtOkNizt136EFA@mail.gmail.com>
+Subject: Re: [PATCH] arm64: dts: qcom: sc7180: Drop the unused non-MSA SID
+To:     Sibi Sankar <sibis@codeaurora.org>
+Cc:     Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Andy Gross <agross@kernel.org>,
+        linux-arm-msm <linux-arm-msm@vger.kernel.org>,
         LKML <linux-kernel@vger.kernel.org>,
-        Network Development <netdev@vger.kernel.org>,
-        bpf <bpf@vger.kernel.org>
+        Will Deacon <will@kernel.org>,
+        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Evan Green <evgreen@chromium.org>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>, "# 4.0+" <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 8, 2020 at 10:34 AM Alex Elder <elder@linaro.org> wrote:
+Hi,
+
+On Tue, Jun 30, 2020 at 1:20 AM Sibi Sankar <sibis@codeaurora.org> wrote:
 >
-> I understand why something needs to be done to handle that case.
-> There's fancy macro gymnastics in "bitfield.h" to add convenient
-> build-time checks for usage problems; I just thought there might
-> be something we could do to preserve the checking--even in this
-> case.  But figuring that out takes more time than I was willing
-> to spend on it yesterday...
-
-I also find the use of 0U in FIELD_GET sticks out from the use of 0ULL
-or (0ull) in these macros (hard to notice, but I changed it in my diff
-to 0ULL).  Are there implicit promotion+conversion bugs here?  I don't
-know, but I'd rather not think about it by just using types of the
-same width and signedness.
-
-> >> A second comment about this is that it might be nice to break
-> >> __BF_FIELD_CHECK() into the parts that verify the mask (which
-> >> could be used by FIELD_FIT() here) and the parts that verify
-> >> other things.
-> >
-> > Like so? Jakub, WDYT? Or do you prefer v1+Alex's suggestion about
-> > using `(typeof(_mask))0` in place of 0ULL?
+> Having a non-MSA (Modem Self-Authentication) SID bypassed breaks modem
+> sandboxing i.e if a transaction were to originate from it, the hardware
+> memory protections units (XPUs) would fail to flag them (any transaction
+> originating from modem are historically termed as an MSA transaction).
+> Drop the unused non-MSA modem SID on SC7180 SoCs and cheza so that SMMU
+> continues to block them.
 >
-> Yes, very much like that!  But you could do that as a follow-on
-> instead, so as not to delay or confuse things.
+> Fixes: bec71ba243e95 ("arm64: dts: qcom: sc7180: Update Q6V5 MSS node")
+> Fixes: 68aee4af5f620 ("arm64: dts: qcom: sdm845-cheza: Add iommus property")
+> Cc: stable@vger.kernel.org
+> Reported-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+> Signed-off-by: Sibi Sankar <sibis@codeaurora.org>
+> ---
+>  arch/arm64/boot/dts/qcom/sc7180-idp.dts    | 2 +-
+>  arch/arm64/boot/dts/qcom/sdm845-cheza.dtsi | 2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
 
-No rush; let's get it right.
+I'm not sure if my review is worth all that much since it's not my
+area of expertise, but as far as I can tell this is good / ready to go
+in.  I've confirmed that a similar on my sc7180 board doesn't seem to
+break anything for me so restricting things like this seems sane.
 
-So I can think of splitting this into maybe 3 patches, based on feedback:
-1. there's a bug in compile time validating _val in FIELD_FIT, since
-we want to be able to call it at runtime with "bad" values.
-2. the FIELD_* macros use constants (0ull, 0ULL, 0U) that don't match
-typeof(_mask).
-3. It might be nice to break up __BF_FIELD_CHECK.
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Tested-by: Douglas Anderson <dianders@chromium.org>
 
-I don't think anyone's raised an objection to 1.
-
-Assuming Jakub is ok with 3, fixing 3 will actually also address 2.
-So then we don't need 3 patches; only 2.  But if we don't do 3 first,
-then I have to resend a v2 of 1 anyways to address 2 (which was Alex's
-original feedback).
-
-My above diff was all three in one go, but I don't think it would be
-unreasonable to break it up into 3 then 1.
-
-If we prefer not to do 3, then I can send a v2 of 1 that addresses the
-inconsistent use of types, as one or two patches.
-
-Jakub, what is your preference?
-
-(Also, noting that I'm sending to David, assuming he'll pick up the
-patches once we have everyone's buy in? Or is there someone else more
-appropriate to accept changes to this header? I guess Jakub and David
-are the listed maintainers for
-drivers/net/ethernet/netronome/nfp/nfpcore/nfp_nsp_eth.c)
--- 
-Thanks,
-~Nick Desaulniers
+-Doug
