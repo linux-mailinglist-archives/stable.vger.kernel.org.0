@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8662218BDB
-	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 17:43:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A59D218BBA
+	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 17:42:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730299AbgGHPml (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jul 2020 11:42:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49532 "EHLO mail.kernel.org"
+        id S1730682AbgGHPmP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jul 2020 11:42:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730666AbgGHPmL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 8 Jul 2020 11:42:11 -0400
+        id S1730671AbgGHPmM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 Jul 2020 11:42:12 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B6DA206DF;
-        Wed,  8 Jul 2020 15:42:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ECBB120720;
+        Wed,  8 Jul 2020 15:42:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594222930;
-        bh=C7+GofNjhe+jY5AW/vb6dlbgYoHYz4aFI8DtT5Jram4=;
-        h=From:To:Cc:Subject:Date:From;
-        b=BylySD7m3MvBf+poLlkpRVqv5mEvRX2ElL1U2lllVMcm2QOOyUj5aJwTlUyFVFB0s
-         RyMgIt3ebV6d5olXV7UM/BF6b6yU0F5Lynsv2Gjdp4//M1hxi+SV4bKhLDShqGRzEI
-         B3KWzGluvhhhlw+87rLVIMgW5q8n2EZgksi4MME0=
+        s=default; t=1594222932;
+        bh=4+SJGv96MYFvYFb3UxSt396NCljZyKXMQrodKaOrMuY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=ZurEs3UhO2CM94cckMYdICY407V+OW1nIu8EMAQ+ocMYfKDn99R8W6Z+E9euU4fjE
+         gADW0rruYGJ1JixGMlL62k8geFiqD0KRUuLPKMjFJ4HT1RBcw+v9vgf6ZlEP72CF1P
+         ZujZzYgH7dQ1amXKEGzeDQZwoEJRzuGuL382TPm0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Navid Emamdoost <navid.emamdoost@gmail.com>,
-        Inki Dae <inki.dae@samsung.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 1/5] drm/exynos: fix ref count leak in mic_pre_enable
-Date:   Wed,  8 Jul 2020 11:42:04 -0400
-Message-Id: <20200708154208.3200232-1-sashal@kernel.org>
+Cc:     Ard Biesheuvel <ardb@kernel.org>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        James Morse <james.morse@arm.com>,
+        Andre Przywara <andre.przywara@arm.com>,
+        Dave P Martin <dave.martin@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.14 2/5] arm64/alternatives: use subsections for replacement sequences
+Date:   Wed,  8 Jul 2020 11:42:05 -0400
+Message-Id: <20200708154208.3200232-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20200708154208.3200232-1-sashal@kernel.org>
+References: <20200708154208.3200232-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,37 +47,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit d4f5a095daf0d25f0b385e1ef26338608433a4c5 ]
+[ Upstream commit f7b93d42945cc71e1346dd5ae07c59061d56745e ]
 
-in mic_pre_enable, pm_runtime_get_sync is called which
-increments the counter even in case of failure, leading to incorrect
-ref count. In case of failure, decrement the ref count before returning.
+When building very large kernels, the logic that emits replacement
+sequences for alternatives fails when relative branches are present
+in the code that is emitted into the .altinstr_replacement section
+and patched in at the original site and fixed up. The reason is that
+the linker will insert veneers if relative branches go out of range,
+and due to the relative distance of the .altinstr_replacement from
+the .text section where its branch targets usually live, veneers
+may be emitted at the end of the .altinstr_replacement section, with
+the relative branches in the sequence pointed at the veneers instead
+of the actual target.
 
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Signed-off-by: Inki Dae <inki.dae@samsung.com>
+The alternatives patching logic will attempt to fix up the branch to
+point to its original target, which will be the veneer in this case,
+but given that the patch site is likely to be far away as well, it
+will be out of range and so patching will fail. There are other cases
+where these veneers are problematic, e.g., when the target of the
+branch is in .text while the patch site is in .init.text, in which
+case putting the replacement sequence inside .text may not help either.
+
+So let's use subsections to emit the replacement code as closely as
+possible to the patch site, to ensure that veneers are only likely to
+be emitted if they are required at the patch site as well, in which
+case they will be in range for the replacement sequence both before
+and after it is transported to the patch site.
+
+This will prevent alternative sequences in non-init code from being
+released from memory after boot, but this is tolerable given that the
+entire section is only 512 KB on an allyesconfig build (which weighs in
+at 500+ MB for the entire Image). Also, note that modules today carry
+the replacement sequences in non-init sections as well, and any of
+those that target init code will be emitted into init sections after
+this change.
+
+This fixes an early crash when booting an allyesconfig kernel on a
+system where any of the alternatives sequences containing relative
+branches are activated at boot (e.g., ARM64_HAS_PAN on TX2)
+
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Cc: Suzuki K Poulose <suzuki.poulose@arm.com>
+Cc: James Morse <james.morse@arm.com>
+Cc: Andre Przywara <andre.przywara@arm.com>
+Cc: Dave P Martin <dave.martin@arm.com>
+Link: https://lore.kernel.org/r/20200630081921.13443-1-ardb@kernel.org
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/exynos/exynos_drm_mic.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm64/include/asm/alternative.h | 16 ++++++++--------
+ arch/arm64/kernel/vmlinux.lds.S      |  3 ---
+ 2 files changed, 8 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/gpu/drm/exynos/exynos_drm_mic.c b/drivers/gpu/drm/exynos/exynos_drm_mic.c
-index ba4a32b132baa..59ce068b152f5 100644
---- a/drivers/gpu/drm/exynos/exynos_drm_mic.c
-+++ b/drivers/gpu/drm/exynos/exynos_drm_mic.c
-@@ -267,8 +267,10 @@ static void mic_pre_enable(struct drm_bridge *bridge)
- 		goto unlock;
+diff --git a/arch/arm64/include/asm/alternative.h b/arch/arm64/include/asm/alternative.h
+index 4ed869845a23b..1824768fb1ee9 100644
+--- a/arch/arm64/include/asm/alternative.h
++++ b/arch/arm64/include/asm/alternative.h
+@@ -68,11 +68,11 @@ void apply_alternatives(void *start, size_t length);
+ 	".pushsection .altinstructions,\"a\"\n"				\
+ 	ALTINSTR_ENTRY(feature)						\
+ 	".popsection\n"							\
+-	".pushsection .altinstr_replacement, \"a\"\n"			\
++	".subsection 1\n"						\
+ 	"663:\n\t"							\
+ 	newinstr "\n"							\
+ 	"664:\n\t"							\
+-	".popsection\n\t"						\
++	".previous\n\t"							\
+ 	".org	. - (664b-663b) + (662b-661b)\n\t"			\
+ 	".org	. - (662b-661b) + (664b-663b)\n"			\
+ 	".endif\n"
+@@ -112,9 +112,9 @@ void apply_alternatives(void *start, size_t length);
+ 662:	.pushsection .altinstructions, "a"
+ 	altinstruction_entry 661b, 663f, \cap, 662b-661b, 664f-663f
+ 	.popsection
+-	.pushsection .altinstr_replacement, "ax"
++	.subsection 1
+ 663:	\insn2
+-664:	.popsection
++664:	.previous
+ 	.org	. - (664b-663b) + (662b-661b)
+ 	.org	. - (662b-661b) + (664b-663b)
+ 	.endif
+@@ -155,7 +155,7 @@ void apply_alternatives(void *start, size_t length);
+ 	.pushsection .altinstructions, "a"
+ 	altinstruction_entry 663f, 661f, \cap, 664f-663f, 662f-661f
+ 	.popsection
+-	.pushsection .altinstr_replacement, "ax"
++	.subsection 1
+ 	.align 2	/* So GAS knows label 661 is suitably aligned */
+ 661:
+ .endm
+@@ -174,9 +174,9 @@ void apply_alternatives(void *start, size_t length);
+ .macro alternative_else
+ 662:
+ 	.if .Lasm_alt_mode==0
+-	.pushsection .altinstr_replacement, "ax"
++	.subsection 1
+ 	.else
+-	.popsection
++	.previous
+ 	.endif
+ 663:
+ .endm
+@@ -187,7 +187,7 @@ void apply_alternatives(void *start, size_t length);
+ .macro alternative_endif
+ 664:
+ 	.if .Lasm_alt_mode==0
+-	.popsection
++	.previous
+ 	.endif
+ 	.org	. - (664b-663b) + (662b-661b)
+ 	.org	. - (662b-661b) + (664b-663b)
+diff --git a/arch/arm64/kernel/vmlinux.lds.S b/arch/arm64/kernel/vmlinux.lds.S
+index 6edfdf5b061d6..c4e55176f4b6d 100644
+--- a/arch/arm64/kernel/vmlinux.lds.S
++++ b/arch/arm64/kernel/vmlinux.lds.S
+@@ -154,9 +154,6 @@ SECTIONS
+ 		*(.altinstructions)
+ 		__alt_instructions_end = .;
+ 	}
+-	.altinstr_replacement : {
+-		*(.altinstr_replacement)
+-	}
  
- 	ret = pm_runtime_get_sync(mic->dev);
--	if (ret < 0)
-+	if (ret < 0) {
-+		pm_runtime_put_noidle(mic->dev);
- 		goto unlock;
-+	}
- 
- 	mic_set_path(mic, 1);
- 
+ 	. = ALIGN(PAGE_SIZE);
+ 	__inittext_end = .;
 -- 
 2.25.1
 
