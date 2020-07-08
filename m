@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 340AF218C0D
-	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 17:44:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E019F218C08
+	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 17:44:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730436AbgGHPl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jul 2020 11:41:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48000 "EHLO mail.kernel.org"
+        id S1730447AbgGHPla (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jul 2020 11:41:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730428AbgGHPl3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 8 Jul 2020 11:41:29 -0400
+        id S1730442AbgGHPla (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 Jul 2020 11:41:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2AF472080D;
-        Wed,  8 Jul 2020 15:41:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6686A20836;
+        Wed,  8 Jul 2020 15:41:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594222888;
-        bh=jXwzaznj6HnmZcyrThYwe2ObKGTHQE4RcAMYcZSIg7w=;
+        s=default; t=1594222890;
+        bh=oQm2Jqtg4xH78lirey/DSRUlvvhxX/QamPy7sFyu/tE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f9XBuGanihJXIBncmdLzS8p1kJBXykiwoUN2nCSsXqUsRIe+nmHDyUrwEbK5cnItI
-         pIjKSb9DZIHwI79Um88HLjXNHKyXoi77rSltowOhOa1QD4Z3fteth/+wiC8o3bgz2e
-         zgOCydIdcz/RB6/M1zXTu7s+V17ssrWJiXaUqNM8=
+        b=qxVPRiXyUpqy8XWpybm9Uk4tUnusNEL/h/YUYM9F8mh+fG/2By0s4//YWPkmk83uh
+         WRER9olIDLn+ufi0tU63BJfppSSYMS+80L69CSsVMU9SOxoEIQajmUEPcWsWTdsX3I
+         0S9ivGEF8NuRtlnFIdrzqEbsXrk7KLj68d2ieEYI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anson Huang <Anson.Huang@nxp.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.7 09/30] thermal/drivers: imx: Fix missing of_node_put() at probe time
-Date:   Wed,  8 Jul 2020 11:40:55 -0400
-Message-Id: <20200708154116.3199728-9-sashal@kernel.org>
+Cc:     Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.7 10/30] ACPI: DPTF: Add battery participant for TigerLake
+Date:   Wed,  8 Jul 2020 11:40:56 -0400
+Message-Id: <20200708154116.3199728-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200708154116.3199728-1-sashal@kernel.org>
 References: <20200708154116.3199728-1-sashal@kernel.org>
@@ -44,49 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anson Huang <Anson.Huang@nxp.com>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-[ Upstream commit b45fd13be340e4ed0a2a9673ba299eb2a71ba829 ]
+[ Upstream commit 1e05daca83bb42cde569f75f3bd7c8828b1ef30f ]
 
-After finishing using cpu node got from of_get_cpu_node(), of_node_put()
-needs to be called.
+Add DPTF battery participant ACPI ID for platforms based on the Intel
+TigerLake SoC.
 
-Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/1585232945-23368-1-git-send-email-Anson.Huang@nxp.com
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+[ rjw: Changelog ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/imx_thermal.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/acpi/dptf/dptf_power.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/thermal/imx_thermal.c b/drivers/thermal/imx_thermal.c
-index e761c9b422179..1b84ea674edb7 100644
---- a/drivers/thermal/imx_thermal.c
-+++ b/drivers/thermal/imx_thermal.c
-@@ -649,7 +649,7 @@ MODULE_DEVICE_TABLE(of, of_imx_thermal_match);
- static int imx_thermal_register_legacy_cooling(struct imx_thermal_data *data)
- {
- 	struct device_node *np;
--	int ret;
-+	int ret = 0;
- 
- 	data->policy = cpufreq_cpu_get(0);
- 	if (!data->policy) {
-@@ -664,11 +664,12 @@ static int imx_thermal_register_legacy_cooling(struct imx_thermal_data *data)
- 		if (IS_ERR(data->cdev)) {
- 			ret = PTR_ERR(data->cdev);
- 			cpufreq_cpu_put(data->policy);
--			return ret;
- 		}
- 	}
- 
--	return 0;
-+	of_node_put(np);
-+
-+	return ret;
- }
- 
- static void imx_thermal_unregister_legacy_cooling(struct imx_thermal_data *data)
+diff --git a/drivers/acpi/dptf/dptf_power.c b/drivers/acpi/dptf/dptf_power.c
+index e4e8b75d39f09..8b42f529047e9 100644
+--- a/drivers/acpi/dptf/dptf_power.c
++++ b/drivers/acpi/dptf/dptf_power.c
+@@ -99,6 +99,7 @@ static int dptf_power_remove(struct platform_device *pdev)
+ static const struct acpi_device_id int3407_device_ids[] = {
+ 	{"INT3407", 0},
+ 	{"INTC1047", 0},
++	{"INTC1050", 0},
+ 	{"", 0},
+ };
+ MODULE_DEVICE_TABLE(acpi, int3407_device_ids);
 -- 
 2.25.1
 
