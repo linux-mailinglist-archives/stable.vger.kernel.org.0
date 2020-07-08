@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDA452180FE
+	by mail.lfdr.de (Postfix) with ESMTP id 76F7F2180FD
 	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 09:22:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729938AbgGHHVm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jul 2020 03:21:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45726 "EHLO mail.kernel.org"
+        id S1730361AbgGHHVj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jul 2020 03:21:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729340AbgGHHVk (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Wed, 8 Jul 2020 03:21:40 -0400
+        id S1729340AbgGHHVi (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Wed, 8 Jul 2020 03:21:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF2A02078A;
-        Wed,  8 Jul 2020 07:21:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D02E20771;
+        Wed,  8 Jul 2020 07:21:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594192900;
-        bh=Db4nm7RPLgyGmG6IDruRbckPfNypP5RcCC2G2PaoCpM=;
+        s=default; t=1594192897;
+        bh=3NDrdZYqbDQ/kaKl3I74qf0//5RmFQS6/1yA93z4ctQ=;
         h=Subject:To:From:Date:From;
-        b=TRrvxomjaWsREbAhCFyd4x5s7XM2x+GKJ7BTdEvgNps7Bhj2NHE3SB+C5BT5+iH7P
-         qPl89ooE99ek4jyO02tgghKMisd89YhK9MoZm4qHeaNCc7gr4JAFixU/I5gy4bVmHD
-         1c9uuwx2H9mJPQm97a1hGyUeHGPhoEq8VxkFrVzs=
-Subject: patch "iio: magnetometer: ak8974: Fix runtime PM imbalance on error" added to staging-linus
-To:     dinghao.liu@zju.edu.cn, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, linus.walleij@linaro.org
+        b=WXGUMmIAu8ivslqbHewVKnoccWHBHW7sn/uhzlwQE2EEHzTh7Cz227WOHs8xJe3UF
+         2OmMa+pgzNjsk6ePbXWwa7cD3RF9+12qVKlun5YRYEctigbYxvMhJVVTpz5Auf5xep
+         Z5AcrIrjGFMMJv87NObS5QO4MFeSRLph7w+mNx1w=
+Subject: patch "iio: core: add missing IIO_MOD_H2/ETHANOL string identifiers" added to staging-linus
+To:     matt.ranostay@konsulko.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Wed, 08 Jul 2020 09:21:28 +0200
-Message-ID: <159419288818153@kroah.com>
+Message-ID: <1594192888138156@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: magnetometer: ak8974: Fix runtime PM imbalance on error
+    iio: core: add missing IIO_MOD_H2/ETHANOL string identifiers
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -55,92 +55,35 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 0187294d227dfc42889e1da8f8ce1e44fc25f147 Mon Sep 17 00:00:00 2001
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Date: Tue, 26 May 2020 18:47:17 +0800
-Subject: iio: magnetometer: ak8974: Fix runtime PM imbalance on error
+From 25f02d3242ab4d16d0cee2dec0d89cedb3747fa9 Mon Sep 17 00:00:00 2001
+From: Matt Ranostay <matt.ranostay@konsulko.com>
+Date: Tue, 9 Jun 2020 06:01:16 +0300
+Subject: iio: core: add missing IIO_MOD_H2/ETHANOL string identifiers
 
-When devm_regmap_init_i2c() returns an error code, a pairing
-runtime PM usage counter decrement is needed to keep the
-counter balanced. For error paths after ak8974_set_power(),
-ak8974_detect() and ak8974_reset(), things are the same.
+Add missing strings to iio_modifier_names[] for proper modification
+of channels.
 
-However, When iio_triggered_buffer_setup() returns an error
-code, there will be two PM usgae counter decrements.
-
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Fixes: 7c94a8b2ee8c ("iio: magn: add a driver for AK8974")
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: b170f7d48443d (iio: Add modifiers for ethanol and H2 gases)
+Signed-off-by: Matt Ranostay <matt.ranostay@konsulko.com>
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/magnetometer/ak8974.c | 19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ drivers/iio/industrialio-core.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/iio/magnetometer/ak8974.c b/drivers/iio/magnetometer/ak8974.c
-index 810fdfd37c88..041c9007bfbe 100644
---- a/drivers/iio/magnetometer/ak8974.c
-+++ b/drivers/iio/magnetometer/ak8974.c
-@@ -862,19 +862,21 @@ static int ak8974_probe(struct i2c_client *i2c,
- 	ak8974->map = devm_regmap_init_i2c(i2c, &ak8974_regmap_config);
- 	if (IS_ERR(ak8974->map)) {
- 		dev_err(&i2c->dev, "failed to allocate register map\n");
-+		pm_runtime_put_noidle(&i2c->dev);
-+		pm_runtime_disable(&i2c->dev);
- 		return PTR_ERR(ak8974->map);
- 	}
+diff --git a/drivers/iio/industrialio-core.c b/drivers/iio/industrialio-core.c
+index 1527f01a44f1..352533342702 100644
+--- a/drivers/iio/industrialio-core.c
++++ b/drivers/iio/industrialio-core.c
+@@ -130,6 +130,8 @@ static const char * const iio_modifier_names[] = {
+ 	[IIO_MOD_PM2P5] = "pm2p5",
+ 	[IIO_MOD_PM4] = "pm4",
+ 	[IIO_MOD_PM10] = "pm10",
++	[IIO_MOD_ETHANOL] = "ethanol",
++	[IIO_MOD_H2] = "h2",
+ };
  
- 	ret = ak8974_set_power(ak8974, AK8974_PWR_ON);
- 	if (ret) {
- 		dev_err(&i2c->dev, "could not power on\n");
--		goto power_off;
-+		goto disable_pm;
- 	}
- 
- 	ret = ak8974_detect(ak8974);
- 	if (ret) {
- 		dev_err(&i2c->dev, "neither AK8974 nor AMI30x found\n");
--		goto power_off;
-+		goto disable_pm;
- 	}
- 
- 	ret = ak8974_selftest(ak8974);
-@@ -884,14 +886,9 @@ static int ak8974_probe(struct i2c_client *i2c,
- 	ret = ak8974_reset(ak8974);
- 	if (ret) {
- 		dev_err(&i2c->dev, "AK8974 reset failed\n");
--		goto power_off;
-+		goto disable_pm;
- 	}
- 
--	pm_runtime_set_autosuspend_delay(&i2c->dev,
--					 AK8974_AUTOSUSPEND_DELAY);
--	pm_runtime_use_autosuspend(&i2c->dev);
--	pm_runtime_put(&i2c->dev);
--
- 	indio_dev->dev.parent = &i2c->dev;
- 	switch (ak8974->variant) {
- 	case AK8974_WHOAMI_VALUE_AMI306:
-@@ -957,6 +954,11 @@ static int ak8974_probe(struct i2c_client *i2c,
- 		goto cleanup_buffer;
- 	}
- 
-+	pm_runtime_set_autosuspend_delay(&i2c->dev,
-+					 AK8974_AUTOSUSPEND_DELAY);
-+	pm_runtime_use_autosuspend(&i2c->dev);
-+	pm_runtime_put(&i2c->dev);
-+
- 	return 0;
- 
- cleanup_buffer:
-@@ -965,7 +967,6 @@ static int ak8974_probe(struct i2c_client *i2c,
- 	pm_runtime_put_noidle(&i2c->dev);
- 	pm_runtime_disable(&i2c->dev);
- 	ak8974_set_power(ak8974, AK8974_PWR_OFF);
--power_off:
- 	regulator_bulk_disable(ARRAY_SIZE(ak8974->regs), ak8974->regs);
- 
- 	return ret;
+ /* relies on pairs of these shared then separate */
 -- 
 2.27.0
 
