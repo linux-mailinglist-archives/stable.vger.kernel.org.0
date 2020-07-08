@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D58A5218C0A
-	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 17:44:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A12D2218C03
+	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 17:44:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730461AbgGHPoC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jul 2020 11:44:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48130 "EHLO mail.kernel.org"
+        id S1730465AbgGHPlh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jul 2020 11:41:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730451AbgGHPlb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 8 Jul 2020 11:41:31 -0400
+        id S1730460AbgGHPld (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 Jul 2020 11:41:33 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9CE8F206DF;
-        Wed,  8 Jul 2020 15:41:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC8A620870;
+        Wed,  8 Jul 2020 15:41:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594222891;
-        bh=cV5vFB3/El2GAgoC0rrFO8na4il1gFH8qOCX0BK2jQY=;
+        s=default; t=1594222892;
+        bh=45jm8z0oH/KPMCdl/hxMxI2KDUiB/6BgrBctVihFt0Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aKF1q4/w8zFkztZWy4s7QagTgPrcdHMXi3g5Apl601cSdoX2mrHES2kNh97IykUCc
-         20QU0pJJwcANZzJE6h3xoXvFIthbXGzcVHwUfhMtM97ATQUq0rFbpEJ06tvm1KqK1g
-         coPjCrCQL3zyqKsy16niBDr8D27+fH+sh2tvt2ug=
+        b=xuvixON59YIyX/y2eEEdXZpF5upnYeOOiEYdwz4ee2JMOOyhLgj/DNAE3E0Mv4flG
+         5sdFe1oXwntGj83UG659QCqAvUK3zQ5cci8eA3mAya8/bSmI0bXRZ1yJgYf6YzwGm7
+         cCJJ7NJWr5mAgj7zul7JC0zESwk2lGFskjq/5Q04=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hou Tao <houtao1@huawei.com>, Bart Van Assche <bvanassche@acm.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 11/30] blk-mq-debugfs: update blk_queue_flag_name[] accordingly for new flags
-Date:   Wed,  8 Jul 2020 11:40:57 -0400
-Message-Id: <20200708154116.3199728-11-sashal@kernel.org>
+Cc:     Mike Rapoport <rppt@linux.ibm.com>,
+        Greg Ungerer <gerg@linux-m68k.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-m68k@lists.linux-m68k.org
+Subject: [PATCH AUTOSEL 5.7 12/30] m68k: nommu: register start of the memory with memblock
+Date:   Wed,  8 Jul 2020 11:40:58 -0400
+Message-Id: <20200708154116.3199728-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200708154116.3199728-1-sashal@kernel.org>
 References: <20200708154116.3199728-1-sashal@kernel.org>
@@ -43,47 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hou Tao <houtao1@huawei.com>
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-[ Upstream commit bfe373f608cf81b7626dfeb904001b0e867c5110 ]
+[ Upstream commit d63bd8c81d8ab64db506ffde569cc8ff197516e2 ]
 
-Else there may be magic numbers in /sys/kernel/debug/block/*/state.
+The m68k nommu setup code didn't register the beginning of the physical
+memory with memblock because it was anyway occupied by the kernel. However,
+commit fa3354e4ea39 ("mm: free_area_init: use maximal zone PFNs rather than
+zone sizes") changed zones initialization to use memblock.memory to detect
+the zone extents and this caused inconsistency between zone PFNs and the
+actual PFNs:
 
-Signed-off-by: Hou Tao <houtao1@huawei.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+BUG: Bad page state in process swapper  pfn:20165
+page:41fe0ca0 refcount:0 mapcount:1 mapping:00000000 index:0x0 flags: 0x0()
+raw: 00000000 00000100 00000122 00000000 00000000 00000000 00000000 00000000
+page dumped because: nonzero mapcount
+CPU: 0 PID: 1 Comm: swapper Not tainted 5.8.0-rc1-00001-g3a38f8a60c65-dirty #1
+Stack from 404c9ebc:
+        404c9ebc 4029ab28 4029ab28 40088470 41fe0ca0 40299e21 40299df1 404ba2a4
+        00020165 00000000 41fd2c10 402c7ba0 41fd2c04 40088504 41fe0ca0 40299e21
+        00000000 40088a12 41fe0ca0 41fe0ca4 0000020a 00000000 00000001 402ca000
+        00000000 41fe0ca0 41fd2c10 41fd2c10 00000000 00000000 402b2388 00000001
+        400a0934 40091056 404c9f44 404c9f44 40088db4 402c7ba0 00000001 41fd2c04
+        41fe0ca0 41fd2000 41fe0ca0 40089e02 4026ecf4 40089e4e 41fe0ca0 ffffffff
+Call Trace:
+        [<40088470>] 0x40088470
+ [<40088504>] 0x40088504
+ [<40088a12>] 0x40088a12
+ [<402ca000>] 0x402ca000
+ [<400a0934>] 0x400a0934
+
+Adjust the memory registration with memblock to include the beginning of
+the physical memory and make sure that the area occupied by the kernel is
+marked as reserved.
+
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq-debugfs.c | 3 +++
- include/linux/blkdev.h | 1 +
- 2 files changed, 4 insertions(+)
+ arch/m68k/kernel/setup_no.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/block/blk-mq-debugfs.c b/block/blk-mq-debugfs.c
-index b3f2ba483992d..121f4c1e0697b 100644
---- a/block/blk-mq-debugfs.c
-+++ b/block/blk-mq-debugfs.c
-@@ -125,6 +125,9 @@ static const char *const blk_queue_flag_name[] = {
- 	QUEUE_FLAG_NAME(REGISTERED),
- 	QUEUE_FLAG_NAME(SCSI_PASSTHROUGH),
- 	QUEUE_FLAG_NAME(QUIESCED),
-+	QUEUE_FLAG_NAME(PCI_P2PDMA),
-+	QUEUE_FLAG_NAME(ZONE_RESETALL),
-+	QUEUE_FLAG_NAME(RQ_ALLOC_TIME),
- };
- #undef QUEUE_FLAG_NAME
+diff --git a/arch/m68k/kernel/setup_no.c b/arch/m68k/kernel/setup_no.c
+index a63483de7a422..5dacba392c74e 100644
+--- a/arch/m68k/kernel/setup_no.c
++++ b/arch/m68k/kernel/setup_no.c
+@@ -139,7 +139,8 @@ void __init setup_arch(char **cmdline_p)
+ 	pr_debug("MEMORY -> ROMFS=0x%p-0x%06lx MEM=0x%06lx-0x%06lx\n ",
+ 		 __bss_stop, memory_start, memory_start, memory_end);
  
-diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
-index 32868fbedc9e9..02809e4dd661e 100644
---- a/include/linux/blkdev.h
-+++ b/include/linux/blkdev.h
-@@ -585,6 +585,7 @@ struct request_queue {
- 	u64			write_hints[BLK_MAX_WRITE_HINTS];
- };
+-	memblock_add(memory_start, memory_end - memory_start);
++	memblock_add(_rambase, memory_end - _rambase);
++	memblock_reserve(_rambase, memory_start - _rambase);
  
-+/* Keep blk_queue_flag_name[] in sync with the definitions below */
- #define QUEUE_FLAG_STOPPED	0	/* queue is stopped */
- #define QUEUE_FLAG_DYING	1	/* queue being torn down */
- #define QUEUE_FLAG_NOMERGES     3	/* disable merge attempts */
+ 	/* Keep a copy of command line */
+ 	*cmdline_p = &command_line[0];
 -- 
 2.25.1
 
