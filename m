@@ -2,104 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75596218AC4
-	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 17:05:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05353218AD3
+	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 17:09:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729625AbgGHPFe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jul 2020 11:05:34 -0400
-Received: from mail.fireflyinternet.com ([77.68.26.236]:64621 "EHLO
-        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1729921AbgGHPFd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Jul 2020 11:05:33 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from haswell.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 21753971-1500050 
-        for multiple; Wed, 08 Jul 2020 16:05:30 +0100
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     dri-devel@lists.freedesktop.org
-Cc:     intel-gfx@lists.freedesktop.org,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>, stable@vger.kernel.org
-Subject: [PATCH v2] drm/vgem: Replace opencoded version of drm_gem_dumb_map_offset()
-Date:   Wed,  8 Jul 2020 16:05:27 +0100
-Message-Id: <20200708150527.1302305-1-chris@chris-wilson.co.uk>
-X-Mailer: git-send-email 2.27.0
+        id S1729954AbgGHPJ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jul 2020 11:09:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56566 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729815AbgGHPJ5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Jul 2020 11:09:57 -0400
+Received: from mail-oo1-xc43.google.com (mail-oo1-xc43.google.com [IPv6:2607:f8b0:4864:20::c43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4F88C08C5CE
+        for <stable@vger.kernel.org>; Wed,  8 Jul 2020 08:09:57 -0700 (PDT)
+Received: by mail-oo1-xc43.google.com with SMTP id y9so310721oot.9
+        for <stable@vger.kernel.org>; Wed, 08 Jul 2020 08:09:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=RWj01bK2pV6BNLG1xOO+3qo5uJchifSrRn1MyFV208k=;
+        b=JL7Ptq9v8mdFU10Yb7O/YO4CxQYZcvDVSnB+qXTzB4NbiDvIYQ0ewjqUt0qeaYw5nW
+         ltt/+5vEYCEg9hkpJudDux2YWtqB85ZRfe6NBuEf3fks9jniYOxoLPG/39GKaTWaNgoA
+         URbZJFP9ISJ6I2eGSUq/DSy13hrJZdBbOk68M=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=RWj01bK2pV6BNLG1xOO+3qo5uJchifSrRn1MyFV208k=;
+        b=JLL82ozg8BBIgebLKCnUs5bwprGAc4MQG5PikMyO2tp9++a2epkKrT5eC6obw6k5v/
+         wU7054PWxeG2etEuKfpveqxLMYu//gveDdKYrAfWgIjbNHKFEsZPE9HKuo97aWMo0hlR
+         EKKqrA+maRV0KqRl6YbXojnAZvNftEXdv/d/mPFjlWll5Qoan1umnUXfVZKuHuMtnWS+
+         q7G/z70qq/WvFkOkJiKsVZjP9OJZziG35H4QRdooKexEdmuLHy01s1hPgpn0g4Iq7G+d
+         FmkPzKKFHBGLQnPdcpCUZnQInhW26mxyzWfaOcGxCR+0vP1EpyMzJs7+PobjOkfRTm2m
+         CYBQ==
+X-Gm-Message-State: AOAM533x5y4zcnVAvZ/hYDgTRUMomDOuxY/c5qwbgUc4VMQw+OJgIkKq
+        LWf73j7AVNp1iGtI92sgwkRZqQ==
+X-Google-Smtp-Source: ABdhPJzeDU0yQw5v+TRW2Xctx5qi7v/jAIXc8qXyGs0qRRPjjtgTkEOTV2OBsQa0qz3NFmOmj3jwrA==
+X-Received: by 2002:a4a:9552:: with SMTP id n18mr10303586ooi.1.1594220997010;
+        Wed, 08 Jul 2020 08:09:57 -0700 (PDT)
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
+        by smtp.gmail.com with ESMTPSA id y1sm5770oto.1.2020.07.08.08.09.55
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 08 Jul 2020 08:09:56 -0700 (PDT)
+Subject: Re: [PATCH 4.14 00/27] 4.14.188-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org, skhan@linuxfoundation.org
+References: <20200707145748.944863698@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <f11dada6-53ad-0e0c-dfb8-53bad936a253@linuxfoundation.org>
+Date:   Wed, 8 Jul 2020 09:09:55 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200707145748.944863698@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-drm_gem_dumb_map_offset() now exists and does everything
-vgem_gem_dump_map does and *ought* to do.
+On 7/7/20 9:15 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.14.188 release.
+> There are 27 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 09 Jul 2020 14:57:34 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.188-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-In particular, vgem_gem_dumb_map() was trying to reject mmapping an
-imported dmabuf by checking the existence of obj->filp. Unfortunately,
-we always allocated an obj->filp, even if unused for an imported dmabuf.
-Instead, the drm_gem_dumb_map_offset(), since 90378e589192 ("drm/gem:
-drm_gem_dumb_map_offset(): reject dma-buf"), uses the obj->import_attach
-to reject such invalid mmaps.
+Compiled and booted on my test system. No dmesg regressions.
 
-This prevents vgem from allowing userspace mmapping the dumb handle and
-attempting to incorrectly fault in remote pages belonging to another
-device, where there may not even be a struct page.
-
-v2: Use the default drm_gem_dumb_map_offset() callback
-
-Fixes: af33a9190d02 ("drm/vgem: Enable dmabuf import interfaces")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: <stable@vger.kernel.org> # v4.13+
----
- drivers/gpu/drm/vgem/vgem_drv.c | 27 ---------------------------
- 1 file changed, 27 deletions(-)
-
-diff --git a/drivers/gpu/drm/vgem/vgem_drv.c b/drivers/gpu/drm/vgem/vgem_drv.c
-index 909eba43664a..204d1df5a21d 100644
---- a/drivers/gpu/drm/vgem/vgem_drv.c
-+++ b/drivers/gpu/drm/vgem/vgem_drv.c
-@@ -229,32 +229,6 @@ static int vgem_gem_dumb_create(struct drm_file *file, struct drm_device *dev,
- 	return 0;
- }
- 
--static int vgem_gem_dumb_map(struct drm_file *file, struct drm_device *dev,
--			     uint32_t handle, uint64_t *offset)
--{
--	struct drm_gem_object *obj;
--	int ret;
--
--	obj = drm_gem_object_lookup(file, handle);
--	if (!obj)
--		return -ENOENT;
--
--	if (!obj->filp) {
--		ret = -EINVAL;
--		goto unref;
--	}
--
--	ret = drm_gem_create_mmap_offset(obj);
--	if (ret)
--		goto unref;
--
--	*offset = drm_vma_node_offset_addr(&obj->vma_node);
--unref:
--	drm_gem_object_put_unlocked(obj);
--
--	return ret;
--}
--
- static struct drm_ioctl_desc vgem_ioctls[] = {
- 	DRM_IOCTL_DEF_DRV(VGEM_FENCE_ATTACH, vgem_fence_attach_ioctl, DRM_RENDER_ALLOW),
- 	DRM_IOCTL_DEF_DRV(VGEM_FENCE_SIGNAL, vgem_fence_signal_ioctl, DRM_RENDER_ALLOW),
-@@ -448,7 +422,6 @@ static struct drm_driver vgem_driver = {
- 	.fops				= &vgem_driver_fops,
- 
- 	.dumb_create			= vgem_gem_dumb_create,
--	.dumb_map_offset		= vgem_gem_dumb_map,
- 
- 	.prime_handle_to_fd = drm_gem_prime_handle_to_fd,
- 	.prime_fd_to_handle = drm_gem_prime_fd_to_handle,
--- 
-2.27.0
-
+thanks,
+-- Shuah
