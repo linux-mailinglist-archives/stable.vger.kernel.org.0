@@ -2,106 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9102218C39
-	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 17:49:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 053CE218C9D
+	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 18:11:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730384AbgGHPtQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jul 2020 11:49:16 -0400
-Received: from mail.fireflyinternet.com ([77.68.26.236]:49198 "EHLO
-        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1730114AbgGHPtQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Jul 2020 11:49:16 -0400
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from build.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 21754493-1500050 
-        for multiple; Wed, 08 Jul 2020 16:49:14 +0100
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     dri-devel@lists.freedesktop.org
-Cc:     intel-gfx@lists.freedesktop.org,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>, stable@vger.kernel.org
-Subject: [PATCH] drm/vgem: Replace opencoded version of drm_gem_dumb_map_offset()
-Date:   Wed,  8 Jul 2020 16:49:11 +0100
-Message-Id: <20200708154911.21236-1-chris@chris-wilson.co.uk>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200708150527.1302305-1-chris@chris-wilson.co.uk>
-References: <20200708150527.1302305-1-chris@chris-wilson.co.uk>
+        id S1730570AbgGHQLB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jul 2020 12:11:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40222 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730093AbgGHQLB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 Jul 2020 12:11:01 -0400
+Received: from linux-8ccs.fritz.box (p57a23121.dip0.t-ipconnect.de [87.162.49.33])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 562EB2067D;
+        Wed,  8 Jul 2020 16:10:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1594224660;
+        bh=n3F3bcX2Vci1bakFZU/eICyLnnE7X851ZV5TuN+qGqk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Qwr4w1GhLORsHNOTadWKjxr/+KY5sGtD9V/DyZUDtdD+u5cE9FDlC92dZV2DHGD4d
+         inc0O+LwJL1lPNpljIww0uV07+QfktCd23Johh5BjrBE0zyU/VjscdMbX/vVE9qUVy
+         tG/e+qToIXaQHmyIMQOtfV1ISiBh6i/qbbnSrIHI=
+Date:   Wed, 8 Jul 2020 18:10:52 +0200
+From:   Jessica Yu <jeyu@kernel.org>
+To:     Kees Cook <keescook@chromium.org>
+Cc:     Dominik Czarnota <dominik.czarnota@trailofbits.com>,
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
+        Andrii Nakryiko <andriin@fb.com>,
+        KP Singh <kpsingh@chromium.org>,
+        "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>,
+        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Dmitry Safonov <0x7f454c46@gmail.com>,
+        Will Deacon <will@kernel.org>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Matteo Croce <mcroce@redhat.com>,
+        Edward Cree <ecree@solarflare.com>,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        Alexander Lobakin <alobakin@dlink.ru>,
+        Thomas Richter <tmricht@linux.ibm.com>,
+        Ingo Molnar <mingo@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/5] module: Refactor section attr into bin attribute
+Message-ID: <20200708161049.GA5609@linux-8ccs.fritz.box>
+References: <20200702232638.2946421-1-keescook@chromium.org>
+ <20200702232638.2946421-3-keescook@chromium.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20200702232638.2946421-3-keescook@chromium.org>
+X-OS:   Linux linux-8ccs 4.12.14-lp150.12.61-default x86_64
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-drm_gem_dumb_map_offset() now exists and does everything
-vgem_gem_dump_map does and *ought* to do.
++++ Kees Cook [02/07/20 16:26 -0700]:
+>In order to gain access to the open file's f_cred for kallsym visibility
+>permission checks, refactor the module section attributes to use the
+>bin_attribute instead of attribute interface. Additionally removes the
+>redundant "name" struct member.
+>
+>Cc: stable@vger.kernel.org
+>Signed-off-by: Kees Cook <keescook@chromium.org>
 
-In particular, vgem_gem_dumb_map() was trying to reject mmapping an
-imported dmabuf by checking the existence of obj->filp. Unfortunately,
-we always allocated an obj->filp, even if unused for an imported dmabuf.
-Instead, the drm_gem_dumb_map_offset(), since 90378e589192 ("drm/gem:
-drm_gem_dumb_map_offset(): reject dma-buf"), uses the obj->import_attach
-to reject such invalid mmaps.
+Hi Kees,
 
-This prevents vgem from allowing userspace mmapping the dumb handle and
-attempting to incorrectly fault in remote pages belonging to another
-device, where there may not even be a struct page.
+This looks good to me:
 
-v2: Use the default drm_gem_dumb_map_offset() callback
+Tested-by: Jessica Yu <jeyu@kernel.org>
+Acked-by: Jessica Yu <jeyu@kernel.org>
 
-Fixes: af33a9190d02 ("drm/vgem: Enable dmabuf import interfaces")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: <stable@vger.kernel.org> # v4.13+
----
- drivers/gpu/drm/vgem/vgem_drv.c | 27 ---------------------------
- 1 file changed, 27 deletions(-)
-
-diff --git a/drivers/gpu/drm/vgem/vgem_drv.c b/drivers/gpu/drm/vgem/vgem_drv.c
-index e4dc7b267a0b..a775feda1cc7 100644
---- a/drivers/gpu/drm/vgem/vgem_drv.c
-+++ b/drivers/gpu/drm/vgem/vgem_drv.c
-@@ -230,32 +230,6 @@ static int vgem_gem_dumb_create(struct drm_file *file, struct drm_device *dev,
- 	return 0;
- }
- 
--static int vgem_gem_dumb_map(struct drm_file *file, struct drm_device *dev,
--			     uint32_t handle, uint64_t *offset)
--{
--	struct drm_gem_object *obj;
--	int ret;
--
--	obj = drm_gem_object_lookup(file, handle);
--	if (!obj)
--		return -ENOENT;
--
--	if (!obj->filp) {
--		ret = -EINVAL;
--		goto unref;
--	}
--
--	ret = drm_gem_create_mmap_offset(obj);
--	if (ret)
--		goto unref;
--
--	*offset = drm_vma_node_offset_addr(&obj->vma_node);
--unref:
--	drm_gem_object_put(obj);
--
--	return ret;
--}
--
- static struct drm_ioctl_desc vgem_ioctls[] = {
- 	DRM_IOCTL_DEF_DRV(VGEM_FENCE_ATTACH, vgem_fence_attach_ioctl, DRM_RENDER_ALLOW),
- 	DRM_IOCTL_DEF_DRV(VGEM_FENCE_SIGNAL, vgem_fence_signal_ioctl, DRM_RENDER_ALLOW),
-@@ -446,7 +420,6 @@ static struct drm_driver vgem_driver = {
- 	.fops				= &vgem_driver_fops,
- 
- 	.dumb_create			= vgem_gem_dumb_create,
--	.dumb_map_offset		= vgem_gem_dumb_map,
- 
- 	.prime_handle_to_fd = drm_gem_prime_handle_to_fd,
- 	.prime_fd_to_handle = drm_gem_prime_fd_to_handle,
--- 
-2.20.1
-
+Thanks!
