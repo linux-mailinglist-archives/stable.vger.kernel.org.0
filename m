@@ -2,106 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBE272183F7
-	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 11:37:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFA3821841E
+	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 11:46:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728148AbgGHJhp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jul 2020 05:37:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60936 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727889AbgGHJhp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Jul 2020 05:37:45 -0400
-Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3CB8C08C5DC
-        for <stable@vger.kernel.org>; Wed,  8 Jul 2020 02:37:44 -0700 (PDT)
-Received: by mail-pl1-x642.google.com with SMTP id d10so5918778pll.3
-        for <stable@vger.kernel.org>; Wed, 08 Jul 2020 02:37:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:sender:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=t0TLC5mt6zw20J38nO6UV1Kz+5E95WBtIXeRkoxQ4a0=;
-        b=IBcF1JjMdlGzezjElr46dV/77NL4lsPqIUVq5zpbojr0SmzR2yZqyQ7yjP1jqTwD9h
-         FOWFWFAi4m+KRs/OwWzU/+Bc5S0qa7km9usbQhYida2bR5fmWhp7yF6LzSheICUkGIck
-         UiV/4S8hT3HQymXd4zI/iZIPhBUIxhu/ofIp+um23wENC9k2+KeVpIBa3uVDuhs0WDp1
-         MLZTs8znr2p7IqJVnO/KPWY5QH3kJfdVS18gWLWJPJU93Z6JcerD44a4il2jXmddEQi+
-         yFHtXcG+sjOotYCdqGOf1sbjAutF1F01eU7DK2/S4O/BpWx5+MXP6ZFYJ7lKumOR2cyZ
-         Bu2g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:sender:from:date
-         :message-id:subject:to:content-transfer-encoding;
-        bh=t0TLC5mt6zw20J38nO6UV1Kz+5E95WBtIXeRkoxQ4a0=;
-        b=Xl25YADsqXqFWa4d4+KrUCHss3KSkNxVeZh1RWvxtAY06uJiFDTlVN/LlQI6hCTdsx
-         vqyodRfP1WjqBmiJJ10mYwxvernzuxXg70xuN38dfWGPSC3YR2ZDCfYmpRu5JEkM01Nn
-         9q8FHUpBfuRx8dbO7zYAwCGxaxlwXFuDbHn5JCbZ8iTTd6Nm/TEsRkySIn65Zf3tgyCP
-         Zd9dOWJkMIwim3OlYdRRTbL25BxJvG6cNnLaaLill525ytk0g9PjygygztEp+y6izI+g
-         Aw5BYYPRrwP+9M9Gy57Pr4xbe3L/DnPSEOZRcKdqwAU30umfgNLD5owgkYu8AE2vTBMl
-         Mqog==
-X-Gm-Message-State: AOAM5314lf7ivR++ZRZnNaZ27t8uiozkyvpVdm6NOm/+A30Sx/ldZ449
-        IYPYV+5AAZ1psO3aBz0EFHOt8K/p4Z0SAqX+kfo=
-X-Google-Smtp-Source: ABdhPJyGYpjWpTDh4tqsVeJLLy99xuPVkmFUhjEbScvoICD7b9Ia671+Y6ryIOeUsE6y1YBmnyg0XnShcjaHgGnlIOY=
-X-Received: by 2002:a17:90b:283:: with SMTP id az3mr8642387pjb.38.1594201064509;
- Wed, 08 Jul 2020 02:37:44 -0700 (PDT)
+        id S1728447AbgGHJqQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jul 2020 05:46:16 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:47792 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726445AbgGHJqP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Jul 2020 05:46:15 -0400
+Date:   Wed, 08 Jul 2020 09:46:11 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1594201572;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=diJYgjtaYO5ivE+OT0+Yz2/Iul+eRtIpp4mpsKVZrP0=;
+        b=0EzvjxA0TpIf9NJ5cXcn86b7Y2TPeWuyLeA0Ds3uuNe8dwQ/UmakyCs6nANy7AUw9hQ6nc
+        Rux//gREIPcoma7zOnziAT/O19vkqgpnMZ5EY/FMjojGrZIi5d7XQbVQ+WOLZebOYHXSie
+        VWsiccuw3Y8qp3jbOmLNmoFlI3u459K6sfTFRkfhYNSw+ruyCCdSg7F1QgG7RuUCjtPpsf
+        qSiRfIE8cssVg5BD12ouiQWcZSU6TP5kq4Ym3yD6HQDTZo/5SJZknuhNZ7rNnVILcXU5AG
+        N6gowdy4aDnCz2yZEWjny/OyQuK9InD+RznJ0+/wCBl7Gc0e4yS64qgMohQVCg==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1594201572;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=diJYgjtaYO5ivE+OT0+Yz2/Iul+eRtIpp4mpsKVZrP0=;
+        b=kpN1+7l8MgriG9q+5yc3MU46xjR/5inqZxVuDbkhMB9s4S0fFAE+sApU2Iheuh6/6NFaVB
+        5Q+R6UpEqyLN5BCQ==
+From:   "tip-bot2 for Mathieu Desnoyers" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: sched/urgent] sched: Fix unreliable rseq cpu_id for new tasks
+Cc:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, #@tip-bot2.tec.linutronix.de,
+        v4.18+@tip-bot2.tec.linutronix.de, x86 <x86@kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20200707201505.2632-1-mathieu.desnoyers@efficios.com>
+References: <20200707201505.2632-1-mathieu.desnoyers@efficios.com>
 MIME-Version: 1.0
-Reply-To: mrsanna.h.bruun119@gmail.com
-Received: by 2002:a17:90a:20e9:0:0:0:0 with HTTP; Wed, 8 Jul 2020 02:37:43
- -0700 (PDT)
-From:   "Mrs. Anna H. Bruun" <mrsanna.h.bruun119@gmail.com>
-Date:   Wed, 8 Jul 2020 02:37:43 -0700
-X-Google-Sender-Auth: inlYisVGspksmaCdojEfiAoszUk
-Message-ID: <CAAebY0=SwMPNvKUMb79cZ+yNHNB=7xoUr9Vfo8nZz-R+ktMkcQ@mail.gmail.com>
-Subject: My Greetings
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Message-ID: <159420157146.4006.2039144692145212660.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-My Dear
+The following commit has been merged into the sched/urgent branch of tip:
 
-My Name is Mrs. Anna H. Bruun, from Norway. I know that this message
-will be a surprise to you. Firstly, I am married to Mr. Patrick Bruun,
-A gold merchant who owns a small gold Mine in Burkina Faso; He died of
-Cardiovascular Disease in mid-March 2011. During his life time he
-deposited the sum of =E2=82=AC 8.5 Million Euro) Eight million, Five hundre=
-d
-thousand Euros in a bank in Ouagadougou the capital city of Burkina
-Faso. The deposited money was from the sale of the shares, death
-benefits payment and entitlements of my deceased husband by his
-company.
+Commit-ID:     ce3614daabea8a2d01c1dd17ae41d1ec5e5ae7db
+Gitweb:        https://git.kernel.org/tip/ce3614daabea8a2d01c1dd17ae41d1ec5e5ae7db
+Author:        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+AuthorDate:    Mon, 06 Jul 2020 16:49:10 -04:00
+Committer:     Peter Zijlstra <peterz@infradead.org>
+CommitterDate: Wed, 08 Jul 2020 11:38:50 +02:00
 
-I am sending this message to you praying that it will reach you in
-good health, since I am not in good health condition in which I sleep
-every night without knowing if I may be alive to see the next day. I
-am suffering from long time cancer and presently i am partially
-suffering from a stroke illness which has become almost impossible for
-me to move around. I am married to my late husband for over 4 years
-before he died and is unfortunately that we don't have a child, my
-doctor confided in me that i have less chance to live. Having known my
-health condition, I decided to contact you to claim the fund since I
-don't have any relation I grew up from the orphanage home,
+sched: Fix unreliable rseq cpu_id for new tasks
 
-I have decided to donate what I have to you for the support of helping
-Motherless babies/Less privileged/Widows' because I am dying and
-diagnosed of cancer for about 2 years ago. I have been touched by God
-Almighty to donate from what I have inherited from my late husband to
-you for good work of God Almighty. I have asked Almighty God to
-forgive me and believe he has, because He is a Merciful God I will be
-going in for an operation surgery soon
+While integrating rseq into glibc and replacing glibc's sched_getcpu
+implementation with rseq, glibc's tests discovered an issue with
+incorrect __rseq_abi.cpu_id field value right after the first time
+a newly created process issues sched_setaffinity.
 
-This is the reason i need your services to stand as my next of kin or
-an executor to claim the funds for charity purposes. If this money
-remains unclaimed after my death, the bank executives or the
-government will take the money as unclaimed fund and maybe use it for
-selfish and worthless ventures, I need a very honest person who can
-claim this money and use it for Charity works, for orphanages, widows
-and also build schools for less privilege that will be named after my
-late husband and my name; I need your urgent answer to know if you
-will be able to execute this project, and I will give you more
-Information on how the fund will be transferred to your bank account.
+For the records, it triggers after building glibc and running tests, and
+then issuing:
 
-Thanks
-Mrs. Anna H.
+  for x in {1..2000} ; do posix/tst-affinity-static  & done
+
+and shows up as:
+
+error: Unexpected CPU 2, expected 0
+error: Unexpected CPU 2, expected 0
+error: Unexpected CPU 2, expected 0
+error: Unexpected CPU 2, expected 0
+error: Unexpected CPU 138, expected 0
+error: Unexpected CPU 138, expected 0
+error: Unexpected CPU 138, expected 0
+error: Unexpected CPU 138, expected 0
+
+This is caused by the scheduler invoking __set_task_cpu() directly from
+sched_fork() and wake_up_new_task(), thus bypassing rseq_migrate() which
+is done by set_task_cpu().
+
+Add the missing rseq_migrate() to both functions. The only other direct
+use of __set_task_cpu() is done by init_idle(), which does not involve a
+user-space task.
+
+Based on my testing with the glibc test-case, just adding rseq_migrate()
+to wake_up_new_task() is sufficient to fix the observed issue. Also add
+it to sched_fork() to keep things consistent.
+
+The reason why this never triggered so far with the rseq/basic_test
+selftest is unclear.
+
+The current use of sched_getcpu(3) does not typically require it to be
+always accurate. However, use of the __rseq_abi.cpu_id field within rseq
+critical sections requires it to be accurate. If it is not accurate, it
+can cause corruption in the per-cpu data targeted by rseq critical
+sections in user-space.
+
+Reported-By: Florian Weimer <fweimer@redhat.com>
+Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Tested-By: Florian Weimer <fweimer@redhat.com>
+Cc: stable@vger.kernel.org # v4.18+
+Link: https://lkml.kernel.org/r/20200707201505.2632-1-mathieu.desnoyers@efficios.com
+---
+ kernel/sched/core.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 950ac45..e15543c 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -2965,6 +2965,7 @@ int sched_fork(unsigned long clone_flags, struct task_struct *p)
+ 	 * Silence PROVE_RCU.
+ 	 */
+ 	raw_spin_lock_irqsave(&p->pi_lock, flags);
++	rseq_migrate(p);
+ 	/*
+ 	 * We're setting the CPU for the first time, we don't migrate,
+ 	 * so use __set_task_cpu().
+@@ -3029,6 +3030,7 @@ void wake_up_new_task(struct task_struct *p)
+ 	 * as we're not fully set-up yet.
+ 	 */
+ 	p->recent_used_cpu = task_cpu(p);
++	rseq_migrate(p);
+ 	__set_task_cpu(p, select_task_rq(p, task_cpu(p), SD_BALANCE_FORK, 0));
+ #endif
+ 	rq = __task_rq_lock(p, &rf);
