@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E613218C18
-	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 17:44:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 340AF218C0D
+	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 17:44:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730116AbgGHPoL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jul 2020 11:44:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47946 "EHLO mail.kernel.org"
+        id S1730436AbgGHPl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jul 2020 11:41:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730395AbgGHPl2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 8 Jul 2020 11:41:28 -0400
+        id S1730428AbgGHPl3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 Jul 2020 11:41:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E608020786;
-        Wed,  8 Jul 2020 15:41:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2AF472080D;
+        Wed,  8 Jul 2020 15:41:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594222887;
-        bh=fBu0ClO0KQXec2oBjKGmKPAybI4/hbfUxR6w24vd01g=;
+        s=default; t=1594222888;
+        bh=jXwzaznj6HnmZcyrThYwe2ObKGTHQE4RcAMYcZSIg7w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZjWSZ4vQazQU3XfWD6nsDbiET9RVvRWR5hJ0Q6Xt3ibXsAICKWoIoxym8WKroCF+2
-         ypv9lYHC6GeuqckuZ8uiJzuxwCZl/7yuE2KkiDl7EL05lHPHUq+Ct36KCHdg/D237w
-         86tqEmQFePW7KSl9AFVq363+iDMtC2ZHO98H/MiE=
+        b=f9XBuGanihJXIBncmdLzS8p1kJBXykiwoUN2nCSsXqUsRIe+nmHDyUrwEbK5cnItI
+         pIjKSb9DZIHwI79Um88HLjXNHKyXoi77rSltowOhOa1QD4Z3fteth/+wiC8o3bgz2e
+         zgOCydIdcz/RB6/M1zXTu7s+V17ssrWJiXaUqNM8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hyunchul Lee <hyc.lee@gmail.com>,
-        Sungjong Seo <sj1557.seo@samsung.com>,
-        Namjae Jeon <namjae.jeon@samsung.com>,
-        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 08/30] exfat: call sync_filesystem for read-only remount
-Date:   Wed,  8 Jul 2020 11:40:54 -0400
-Message-Id: <20200708154116.3199728-8-sashal@kernel.org>
+Cc:     Anson Huang <Anson.Huang@nxp.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.7 09/30] thermal/drivers: imx: Fix missing of_node_put() at probe time
+Date:   Wed,  8 Jul 2020 11:40:55 -0400
+Message-Id: <20200708154116.3199728-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200708154116.3199728-1-sashal@kernel.org>
 References: <20200708154116.3199728-1-sashal@kernel.org>
@@ -44,57 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hyunchul Lee <hyc.lee@gmail.com>
+From: Anson Huang <Anson.Huang@nxp.com>
 
-[ Upstream commit a0271a15cf2cf907ea5b0f2ba611123f1b7935ec ]
+[ Upstream commit b45fd13be340e4ed0a2a9673ba299eb2a71ba829 ]
 
-We need to commit dirty metadata and pages to disk
-before remounting exfat as read-only.
+After finishing using cpu node got from of_get_cpu_node(), of_node_put()
+needs to be called.
 
-This fixes a failure in xfstests generic/452
-
-generic/452 does the following:
-cp something <exfat>/
-mount -o remount,ro <exfat>
-
-the <exfat>/something is corrupted. because while
-exfat is remounted as read-only, exfat doesn't
-have a chance to commit metadata and
-vfs invalidates page caches in a block device.
-
-Signed-off-by: Hyunchul Lee <hyc.lee@gmail.com>
-Acked-by: Sungjong Seo <sj1557.seo@samsung.com>
-Signed-off-by: Namjae Jeon <namjae.jeon@samsung.com>
+Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/1585232945-23368-1-git-send-email-Anson.Huang@nxp.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/exfat/super.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/thermal/imx_thermal.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/fs/exfat/super.c b/fs/exfat/super.c
-index c1b1ed306a485..e879801533980 100644
---- a/fs/exfat/super.c
-+++ b/fs/exfat/super.c
-@@ -637,10 +637,20 @@ static void exfat_free(struct fs_context *fc)
+diff --git a/drivers/thermal/imx_thermal.c b/drivers/thermal/imx_thermal.c
+index e761c9b422179..1b84ea674edb7 100644
+--- a/drivers/thermal/imx_thermal.c
++++ b/drivers/thermal/imx_thermal.c
+@@ -649,7 +649,7 @@ MODULE_DEVICE_TABLE(of, of_imx_thermal_match);
+ static int imx_thermal_register_legacy_cooling(struct imx_thermal_data *data)
+ {
+ 	struct device_node *np;
+-	int ret;
++	int ret = 0;
+ 
+ 	data->policy = cpufreq_cpu_get(0);
+ 	if (!data->policy) {
+@@ -664,11 +664,12 @@ static int imx_thermal_register_legacy_cooling(struct imx_thermal_data *data)
+ 		if (IS_ERR(data->cdev)) {
+ 			ret = PTR_ERR(data->cdev);
+ 			cpufreq_cpu_put(data->policy);
+-			return ret;
+ 		}
  	}
+ 
+-	return 0;
++	of_node_put(np);
++
++	return ret;
  }
  
-+static int exfat_reconfigure(struct fs_context *fc)
-+{
-+	fc->sb_flags |= SB_NODIRATIME;
-+
-+	/* volume flag will be updated in exfat_sync_fs */
-+	sync_filesystem(fc->root->d_sb);
-+	return 0;
-+}
-+
- static const struct fs_context_operations exfat_context_ops = {
- 	.parse_param	= exfat_parse_param,
- 	.get_tree	= exfat_get_tree,
- 	.free		= exfat_free,
-+	.reconfigure	= exfat_reconfigure,
- };
- 
- static int exfat_init_fs_context(struct fs_context *fc)
+ static void imx_thermal_unregister_legacy_cooling(struct imx_thermal_data *data)
 -- 
 2.25.1
 
