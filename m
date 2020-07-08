@@ -2,79 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 069DC218B4A
-	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 17:33:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76713218B8E
+	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 17:41:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730212AbgGHPdl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jul 2020 11:33:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60220 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729858AbgGHPdk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Jul 2020 11:33:40 -0400
-Received: from mail-io1-xd42.google.com (mail-io1-xd42.google.com [IPv6:2607:f8b0:4864:20::d42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1186C061A0B;
-        Wed,  8 Jul 2020 08:33:40 -0700 (PDT)
-Received: by mail-io1-xd42.google.com with SMTP id o5so47340826iow.8;
-        Wed, 08 Jul 2020 08:33:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=dyLb8SlKlhyAzCJgpUsncV6Hsfp2hFD6rZCRWfST+rQ=;
-        b=OZNmqy6dMexDFVudZkHsNZW7fvX1gWcxLKoITuw/yDAZpr4dcBEr872L7PfpuPv3U5
-         DUoalvVEOKA3yu4m7CFT9Um7UW9ikom7grPoop9+TDpLwXla258d+PoWTOf4iTYsWQea
-         BHr7i76yr4Y5M8TLrMZJ+0XzO26dvrBmHrV9aOq1BXkXs75kL/TFwVsmYO/LM7Fv2SCJ
-         O9eRHij+R/egclYARy4XHW6ZrunNICDVqSHeq1CRP68DcurXEkIE7mUpO0FlUlgxd1Ha
-         g924rp11Ec/hjFQyk4nLj/qpEE3XapSmULAJMABENntKbx7IvX7P8ctnzfao3Q0PSj4w
-         80RQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=dyLb8SlKlhyAzCJgpUsncV6Hsfp2hFD6rZCRWfST+rQ=;
-        b=tMVtDtS1YK94huE/MP8rE6SdAPQyHrZzXO5cTRfREdEUHOdgxygXoj5AbHkqGiprF0
-         LQoNnfY0Y62H5QEqeztDcvfuAQMFpwP2H1KrvcfPHzhJ8EnG0jwkRvPCkHOg/6H4mrGb
-         N+rVmV+rd6RGIN68HGGepfbTEQoYnGjezRwOiI/T5yVEAyoPgMgwmaMqt2aP6gmsJAEs
-         vvJP+czjwjn7WwqvVsvUM6n+SLkP21gE2Sbn9BhmI2QgB1Vuq+HDXvfHyxxTuruwf/AY
-         3kf789dCfmdvPfiizznZ19rdVxIRIZg7cqJxCnhuWvi15HLbyeEaEUdWI5xZ98+KpyA/
-         AZvQ==
-X-Gm-Message-State: AOAM531tw5aS7FZO01TicoMBbmKg+cRVvn1B+47fbNUu11kGy3dlTTVl
-        IOLVESImHdXvFTjdShg9KmwztJ4iGZp5cIXsVUk=
-X-Google-Smtp-Source: ABdhPJxmN6/ftSrdoJHD0FKGFingv6a4BF2CW23oA1LiWvGaeFrBISVVc9u+FQhR1y3WW4ip6PUKKwEnDzHBTPh5fNM=
-X-Received: by 2002:a05:6602:2c8f:: with SMTP id i15mr37850434iow.45.1594222419991;
- Wed, 08 Jul 2020 08:33:39 -0700 (PDT)
+        id S1730349AbgGHPlT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jul 2020 11:41:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47628 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729858AbgGHPlT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 Jul 2020 11:41:19 -0400
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF399206DF;
+        Wed,  8 Jul 2020 15:41:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1594222878;
+        bh=jWTJMZSpFMXv1eN4iBy7F5NdaPw4rqs4cZcmn3E18Tk=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ywlgMjIZIfbK8x6qVWUDDKaSMLzbqJX32SB0BeBhYW7KwLntTVbbsIgftAB9/Elrn
+         88oq14MhXs7HeuPNHZcpTkZco4hpYWGOglNfzSFm/dYx7kn+IOYLJd2cM2f3NyoBdG
+         X92c60LOpMW/IQfF7B9ANvOjjwkqHzf7deITdjhE=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Bernard Zhao <bernard@vivo.com>,
+        Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.7 01/30] drm/msm: fix potential memleak in error branch
+Date:   Wed,  8 Jul 2020 11:40:47 -0400
+Message-Id: <20200708154116.3199728-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-References: <20200707145800.925304888@linuxfoundation.org>
-In-Reply-To: <20200707145800.925304888@linuxfoundation.org>
-From:   Puranjay Mohan <puranjay12@gmail.com>
-Date:   Wed, 8 Jul 2020 21:03:29 +0530
-Message-ID: <CANk7y0iK9ziBq4wmpzeM6sh2hd8Nw6kN3b=OE7s243L7ZfpFUw@mail.gmail.com>
-Subject: Re: [PATCH 5.7 000/112] 5.7.8-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 7, 2020 at 9:01 PM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.7.8 release.
-> There are 112 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 09 Jul 2020 14:57:34 +0000.
-> Anything received after that time might be too late.
->
-Compiled and booted on my computer running x86_64,
-No dmesg Regressions found.
+From: Bernard Zhao <bernard@vivo.com>
 
-thanks,
---Puranjay
+[ Upstream commit 177d3819633cd520e3f95df541a04644aab4c657 ]
+
+In function msm_submitqueue_create, the queue is a local
+variable, in return -EINVAL branch, queue didn`t add to ctx`s
+list yet, and also didn`t kfree, this maybe bring in potential
+memleak.
+
+Signed-off-by: Bernard Zhao <bernard@vivo.com>
+[trivial commit msg fixup]
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/gpu/drm/msm/msm_submitqueue.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/msm/msm_submitqueue.c b/drivers/gpu/drm/msm/msm_submitqueue.c
+index 001fbf537440a..a1d94be7883a0 100644
+--- a/drivers/gpu/drm/msm/msm_submitqueue.c
++++ b/drivers/gpu/drm/msm/msm_submitqueue.c
+@@ -71,8 +71,10 @@ int msm_submitqueue_create(struct drm_device *drm, struct msm_file_private *ctx,
+ 	queue->flags = flags;
+ 
+ 	if (priv->gpu) {
+-		if (prio >= priv->gpu->nr_rings)
++		if (prio >= priv->gpu->nr_rings) {
++			kfree(queue);
+ 			return -EINVAL;
++		}
+ 
+ 		queue->prio = prio;
+ 	}
+-- 
+2.25.1
+
