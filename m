@@ -2,120 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71767218DAD
-	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 18:58:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B506C218DB6
+	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 18:59:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730634AbgGHQ6c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jul 2020 12:58:32 -0400
-Received: from hqnvemgate26.nvidia.com ([216.228.121.65]:11547 "EHLO
-        hqnvemgate26.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725989AbgGHQ6c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Jul 2020 12:58:32 -0400
-Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate26.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5f05fb2b0001>; Wed, 08 Jul 2020 09:58:19 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate102.nvidia.com (PGP Universal service);
-  Wed, 08 Jul 2020 09:58:31 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate102.nvidia.com on Wed, 08 Jul 2020 09:58:31 -0700
-Received: from [10.26.73.185] (10.124.1.5) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 8 Jul
- 2020 16:58:29 +0000
-Subject: Re: [PATCH 5.4 00/65] 5.4.51-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     <linux-kernel@vger.kernel.org>, <torvalds@linux-foundation.org>,
-        <akpm@linux-foundation.org>, <linux@roeck-us.net>,
-        <shuah@kernel.org>, <patches@kernelci.org>,
-        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
-        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
-References: <20200707145752.417212219@linuxfoundation.org>
- <6fbcdd30-68d3-e8c5-d762-7b8a8c48d112@nvidia.com>
- <20200708151500.GA710412@kroah.com>
-From:   Jon Hunter <jonathanh@nvidia.com>
-Message-ID: <14d23282-c871-3f9d-372c-06da693666e1@nvidia.com>
-Date:   Wed, 8 Jul 2020 17:58:27 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
+        id S1726194AbgGHQ7b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jul 2020 12:59:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36000 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725989AbgGHQ7b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 Jul 2020 12:59:31 -0400
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id EFD11206F6;
+        Wed,  8 Jul 2020 16:59:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1594227571;
+        bh=uh4+uFjSS8z4pzDfvQDdc+cDo68c1srgnsXeCX9tkrM=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=LPOU23/WvkxwZI/Js3Zh7GK/6l9f479mhy5NmU59FlaNEvxCW0kiCAXv03Cq25GdU
+         0Q7cNxfNnZ5pAnPqAswpQedsrGbgbH250JStUEa1C+5lH13PgW38dBl/PbI4olK495
+         wprTQbPlJqgZVFFbs3QBnEqdjTdZ60UZMHgeHm4A=
+Received: from disco-boy.misterjones.org ([51.254.78.96] helo=www.loen.fr)
+        by disco-boy.misterjones.org with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.92)
+        (envelope-from <maz@kernel.org>)
+        id 1jtDPt-00A9GR-GX; Wed, 08 Jul 2020 17:59:29 +0100
 MIME-Version: 1.0
-In-Reply-To: <20200708151500.GA710412@kroah.com>
-X-Originating-IP: [10.124.1.5]
-X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
- HQMAIL107.nvidia.com (172.20.187.13)
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
 Content-Transfer-Encoding: 7bit
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1594227499; bh=IpJAqj0DH00PflI4I9sW5sqaACjectpvaylAIhAVG7s=;
-        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
-         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
-         X-ClientProxiedBy:Content-Type:Content-Language:
-         Content-Transfer-Encoding;
-        b=Q7a53iOPmLs8d9iWm3U6etK1KpSylQuik5UXcVEb2kjWnROGQ2BgNLYHVq8Fz+Yi5
-         Tk7DF0YZyanIm2OdmZ/z4eIrYT/g30WWNQaZXpMsfzGbjwcrvCCEZJddbNMpy3H388
-         DFhnPIu0idJnIzsjC96EghxTyoKki7YCDdGQ25j7pb8xoKNtVU12mJLw7qI0OXek7k
-         leSqzHmUHFxBRalMx/S3tLQjrceSq/NSTJR0WwyJ7ygB8fe6wYA+0uJ5YxlZ97vLcb
-         af+LFRqQAuVcHTWetT7DdmbedQnjX4HTIGhxpimtkUK8Bpsr41CkifXx5bFhSo0/Vs
-         naQ1GJJXmbwaw==
+Date:   Wed, 08 Jul 2020 17:59:29 +0100
+From:   Marc Zyngier <maz@kernel.org>
+To:     Will Deacon <will@kernel.org>
+Cc:     linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu,
+        kernel-team@android.com, Catalin Marinas <catalin.marinas@arm.com>,
+        James Morse <james.morse@arm.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] KVM: arm64: Fix definition of PAGE_HYP_DEVICE
+In-Reply-To: <20200708162546.26176-1-will@kernel.org>
+References: <20200708162546.26176-1-will@kernel.org>
+User-Agent: Roundcube Webmail/1.4.5
+Message-ID: <aa1d1bc3bbef499a909ca6367d1bc77b@kernel.org>
+X-Sender: maz@kernel.org
+X-SA-Exim-Connect-IP: 51.254.78.96
+X-SA-Exim-Rcpt-To: will@kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, kernel-team@android.com, catalin.marinas@arm.com, james.morse@arm.com, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-On 08/07/2020 16:15, Greg Kroah-Hartman wrote:
-> On Wed, Jul 08, 2020 at 09:41:33AM +0100, Jon Hunter wrote:
->>
->> On 07/07/2020 16:16, Greg Kroah-Hartman wrote:
->>> This is the start of the stable review cycle for the 5.4.51 release.
->>> There are 65 patches in this series, all will be posted as a response
->>> to this one.  If anyone has any issues with these being applied, please
->>> let me know.
->>>
->>> Responses should be made by Thu, 09 Jul 2020 14:57:34 +0000.
->>> Anything received after that time might be too late.
->>>
->>> The whole patch series can be found in one patch at:
->>> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.51-rc1.gz
->>> or in the git tree and branch at:
->>> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
->>> and the diffstat can be found below.
->>>
->>> thanks,
->>>
->>> greg k-h
->>
->> All tests are passing for Tegra ...
->>
->> Test results for stable-v5.4:
->>     11 builds:	11 pass, 0 fail
->>     26 boots:	26 pass, 0 fail
->>     56 tests:	56 pass, 0 fail
->>
->> Linux version:	5.4.51-rc1-g47d410b54275
->> Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
->>                 tegra194-p2972-0000, tegra20-ventana,
->>                 tegra210-p2371-2180, tegra210-p3450-0000,
->>                 tegra30-cardhu-a04
+On 2020-07-08 17:25, Will Deacon wrote:
+> PAGE_HYP_DEVICE is intended to encode attribute bits for an EL2 stage-1
+> pte mapping a device. Unfortunately, it includes PROT_DEVICE_nGnRE 
+> which
+> encodes attributes for EL1 stage-1 mappings such as UXN and nG, which 
+> are
+> RES0 for EL2, and DBM which is meaningless as TCR_EL2.HD is not set.
 > 
-> Thanks for testing all of these and letting me know.
+> Fix the definition of PAGE_HYP_DEVICE so that it doesn't set RES0 bits
+> at EL2.
+> 
+> Cc: Marc Zyngier <maz@kernel.org>
+> Cc: Catalin Marinas <catalin.marinas@arm.com>
+> Cc: James Morse <james.morse@arm.com>
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Will Deacon <will@kernel.org>
+> ---
+> Marc -- I'm happy to take this as a fix via arm64 with your Ack.
+> Please just let me know.
+> 
+>  arch/arm64/include/asm/pgtable-prot.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-No problem. For some reason the v5.7 review email never made it to my
-inbox AFAICT. Who knows if it will show up tomorrow, but anyway it all
-looks good to Tegra ...
+Acked-by: Marc Zyngier <maz@kernel.org>
 
-Test results for stable-v5.7:
-    11 builds:	11 pass, 0 fail
-    26 boots:	26 pass, 0 fail
-    56 tests:	56 pass, 0 fail
+Thanks for fixing this!
 
-Linux version:	5.7.8-rc1-gb371afd12a48
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra20-ventana,
-                tegra210-p2371-2180, tegra210-p3450-0000,
-                tegra30-cardhu-a04
-
-Cheers
-Jon
-
+         M.
 -- 
-nvpublic
+Jazz is not dead. It just smells funny...
