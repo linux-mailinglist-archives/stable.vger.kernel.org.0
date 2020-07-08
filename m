@@ -2,72 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3919218BBD
-	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 17:42:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9102218C39
+	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 17:49:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730705AbgGHPmV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jul 2020 11:42:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49806 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730702AbgGHPmU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 8 Jul 2020 11:42:20 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C48DD20720;
-        Wed,  8 Jul 2020 15:42:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594222940;
-        bh=e7KyK4OB1UzHIXGzVDNoI0t/F1VqIxgJuv1jCIwbcOI=;
-        h=From:To:Cc:Subject:Date:From;
-        b=vIWwOKpoCSnw3mJpRBiFSqq5G5GnMJS10E2l8HuWBHzB51GpW7GHRWLsMT2umfWuW
-         mY2012M5EbY4op9eaaA3mX3TPKJtPE6D2p35DGuFQm0gfSE76QI4gfyOlcyln4MyKj
-         XVJZmWop5ts8j90GM5VrhjaCNAihAUzsVIhWfxxY=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4] i2c: eg20t: Load module automatically if ID matches
-Date:   Wed,  8 Jul 2020 11:42:18 -0400
-Message-Id: <20200708154218.3200382-1-sashal@kernel.org>
-X-Mailer: git-send-email 2.25.1
+        id S1730384AbgGHPtQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jul 2020 11:49:16 -0400
+Received: from mail.fireflyinternet.com ([77.68.26.236]:49198 "EHLO
+        fireflyinternet.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1730114AbgGHPtQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Jul 2020 11:49:16 -0400
+X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
+Received: from build.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 21754493-1500050 
+        for multiple; Wed, 08 Jul 2020 16:49:14 +0100
+From:   Chris Wilson <chris@chris-wilson.co.uk>
+To:     dri-devel@lists.freedesktop.org
+Cc:     intel-gfx@lists.freedesktop.org,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>, stable@vger.kernel.org
+Subject: [PATCH] drm/vgem: Replace opencoded version of drm_gem_dumb_map_offset()
+Date:   Wed,  8 Jul 2020 16:49:11 +0100
+Message-Id: <20200708154911.21236-1-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20200708150527.1302305-1-chris@chris-wilson.co.uk>
+References: <20200708150527.1302305-1-chris@chris-wilson.co.uk>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+drm_gem_dumb_map_offset() now exists and does everything
+vgem_gem_dump_map does and *ought* to do.
 
-[ Upstream commit 5f90786b31fb7d1e199a8999d46c4e3aea672e11 ]
+In particular, vgem_gem_dumb_map() was trying to reject mmapping an
+imported dmabuf by checking the existence of obj->filp. Unfortunately,
+we always allocated an obj->filp, even if unused for an imported dmabuf.
+Instead, the drm_gem_dumb_map_offset(), since 90378e589192 ("drm/gem:
+drm_gem_dumb_map_offset(): reject dma-buf"), uses the obj->import_attach
+to reject such invalid mmaps.
 
-The driver can't be loaded automatically because it misses
-module alias to be provided. Add corresponding MODULE_DEVICE_TABLE()
-call to the driver.
+This prevents vgem from allowing userspace mmapping the dumb handle and
+attempting to incorrectly fault in remote pages belonging to another
+device, where there may not even be a struct page.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+v2: Use the default drm_gem_dumb_map_offset() callback
+
+Fixes: af33a9190d02 ("drm/vgem: Enable dmabuf import interfaces")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: <stable@vger.kernel.org> # v4.13+
 ---
- drivers/i2c/busses/i2c-eg20t.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/vgem/vgem_drv.c | 27 ---------------------------
+ 1 file changed, 27 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
-index eef3aa6007f10..ffd8f9772096c 100644
---- a/drivers/i2c/busses/i2c-eg20t.c
-+++ b/drivers/i2c/busses/i2c-eg20t.c
-@@ -189,6 +189,7 @@ static const struct pci_device_id pch_pcidev_id[] = {
- 	{ PCI_VDEVICE(ROHM, PCI_DEVICE_ID_ML7831_I2C), 1, },
- 	{0,}
- };
-+MODULE_DEVICE_TABLE(pci, pch_pcidev_id);
+diff --git a/drivers/gpu/drm/vgem/vgem_drv.c b/drivers/gpu/drm/vgem/vgem_drv.c
+index e4dc7b267a0b..a775feda1cc7 100644
+--- a/drivers/gpu/drm/vgem/vgem_drv.c
++++ b/drivers/gpu/drm/vgem/vgem_drv.c
+@@ -230,32 +230,6 @@ static int vgem_gem_dumb_create(struct drm_file *file, struct drm_device *dev,
+ 	return 0;
+ }
  
- static irqreturn_t pch_i2c_handler(int irq, void *pData);
+-static int vgem_gem_dumb_map(struct drm_file *file, struct drm_device *dev,
+-			     uint32_t handle, uint64_t *offset)
+-{
+-	struct drm_gem_object *obj;
+-	int ret;
+-
+-	obj = drm_gem_object_lookup(file, handle);
+-	if (!obj)
+-		return -ENOENT;
+-
+-	if (!obj->filp) {
+-		ret = -EINVAL;
+-		goto unref;
+-	}
+-
+-	ret = drm_gem_create_mmap_offset(obj);
+-	if (ret)
+-		goto unref;
+-
+-	*offset = drm_vma_node_offset_addr(&obj->vma_node);
+-unref:
+-	drm_gem_object_put(obj);
+-
+-	return ret;
+-}
+-
+ static struct drm_ioctl_desc vgem_ioctls[] = {
+ 	DRM_IOCTL_DEF_DRV(VGEM_FENCE_ATTACH, vgem_fence_attach_ioctl, DRM_RENDER_ALLOW),
+ 	DRM_IOCTL_DEF_DRV(VGEM_FENCE_SIGNAL, vgem_fence_signal_ioctl, DRM_RENDER_ALLOW),
+@@ -446,7 +420,6 @@ static struct drm_driver vgem_driver = {
+ 	.fops				= &vgem_driver_fops,
  
+ 	.dumb_create			= vgem_gem_dumb_create,
+-	.dumb_map_offset		= vgem_gem_dumb_map,
+ 
+ 	.prime_handle_to_fd = drm_gem_prime_handle_to_fd,
+ 	.prime_fd_to_handle = drm_gem_prime_fd_to_handle,
 -- 
-2.25.1
+2.20.1
 
