@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91207218BD3
-	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 17:43:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D688A218BB3
+	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 17:42:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730616AbgGHPl7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jul 2020 11:41:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49174 "EHLO mail.kernel.org"
+        id S1730621AbgGHPmB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jul 2020 11:42:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730610AbgGHPl7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 8 Jul 2020 11:41:59 -0400
+        id S1730620AbgGHPmA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 Jul 2020 11:42:00 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1802F208B6;
-        Wed,  8 Jul 2020 15:41:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 668E4206DF;
+        Wed,  8 Jul 2020 15:41:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594222918;
-        bh=IGi0Xef7jbHhMsYfOprqPDNw4VFPWt/swz7U6H8LxOg=;
-        h=From:To:Cc:Subject:Date:From;
-        b=azY+tD3Lw19sM10hAtYzHfv0jwN8m83cZjemnKnBkuvvujKX39w2Mxc9FLI/F03Sr
-         php+yLZ64zrX+/B3Dy4HM1KauAMqmYTI6kn02jjUgFYYj0cmp8e5g6oGwhQRaJLPAC
-         K0xGj2BV/dtK0xhjKNu8FsF3Ro0lO5e1W4RS8a/4=
+        s=default; t=1594222920;
+        bh=e6MJ1jDkNLcWDBG1X6jjVt05hEmPTtGNPap9XM5tuuc=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=FO3sQ50kPt51+hCGPWyPEH4dADSAa6Akjl+tyGhYL6X79uRbrsCP1hujklXTCZ/Vk
+         sTGL6Sd8D3OLovWfEgOBPjQGvHqbybw+kKAq9z4fiJyp/AeK+kg4ne/QE6xve2w5PD
+         pZBioUijgl2iV7TRx9BdmrzbSo6GEUb4AMM5P22Y=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bernard Zhao <bernard@vivo.com>,
-        Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 1/8] drm/msm: fix potential memleak in error branch
-Date:   Wed,  8 Jul 2020 11:41:49 -0400
-Message-Id: <20200708154157.3200116-1-sashal@kernel.org>
+Cc:     Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Inki Dae <inki.dae@samsung.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 2/8] drm/exynos: fix ref count leak in mic_pre_enable
+Date:   Wed,  8 Jul 2020 11:41:50 -0400
+Message-Id: <20200708154157.3200116-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20200708154157.3200116-1-sashal@kernel.org>
+References: <20200708154157.3200116-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,39 +46,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bernard Zhao <bernard@vivo.com>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit 177d3819633cd520e3f95df541a04644aab4c657 ]
+[ Upstream commit d4f5a095daf0d25f0b385e1ef26338608433a4c5 ]
 
-In function msm_submitqueue_create, the queue is a local
-variable, in return -EINVAL branch, queue didn`t add to ctx`s
-list yet, and also didn`t kfree, this maybe bring in potential
-memleak.
+in mic_pre_enable, pm_runtime_get_sync is called which
+increments the counter even in case of failure, leading to incorrect
+ref count. In case of failure, decrement the ref count before returning.
 
-Signed-off-by: Bernard Zhao <bernard@vivo.com>
-[trivial commit msg fixup]
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Signed-off-by: Inki Dae <inki.dae@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/msm_submitqueue.c | 4 +++-
+ drivers/gpu/drm/exynos/exynos_drm_mic.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/msm_submitqueue.c b/drivers/gpu/drm/msm/msm_submitqueue.c
-index 5115f75b5b7f3..325da440264a3 100644
---- a/drivers/gpu/drm/msm/msm_submitqueue.c
-+++ b/drivers/gpu/drm/msm/msm_submitqueue.c
-@@ -78,8 +78,10 @@ int msm_submitqueue_create(struct drm_device *drm, struct msm_file_private *ctx,
- 	queue->flags = flags;
+diff --git a/drivers/gpu/drm/exynos/exynos_drm_mic.c b/drivers/gpu/drm/exynos/exynos_drm_mic.c
+index 2fd299a58297e..cd5530bbfe2e6 100644
+--- a/drivers/gpu/drm/exynos/exynos_drm_mic.c
++++ b/drivers/gpu/drm/exynos/exynos_drm_mic.c
+@@ -267,8 +267,10 @@ static void mic_pre_enable(struct drm_bridge *bridge)
+ 		goto unlock;
  
- 	if (priv->gpu) {
--		if (prio >= priv->gpu->nr_rings)
-+		if (prio >= priv->gpu->nr_rings) {
-+			kfree(queue);
- 			return -EINVAL;
-+		}
+ 	ret = pm_runtime_get_sync(mic->dev);
+-	if (ret < 0)
++	if (ret < 0) {
++		pm_runtime_put_noidle(mic->dev);
+ 		goto unlock;
++	}
  
- 		queue->prio = prio;
- 	}
+ 	mic_set_path(mic, 1);
+ 
 -- 
 2.25.1
 
