@@ -2,124 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9236218323
-	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 11:08:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4117521836A
+	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 11:22:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726772AbgGHJIm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jul 2020 05:08:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56452 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726121AbgGHJIm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Jul 2020 05:08:42 -0400
-Received: from mail-ot1-x344.google.com (mail-ot1-x344.google.com [IPv6:2607:f8b0:4864:20::344])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C685C08C5DC;
-        Wed,  8 Jul 2020 02:08:42 -0700 (PDT)
-Received: by mail-ot1-x344.google.com with SMTP id 18so36383568otv.6;
-        Wed, 08 Jul 2020 02:08:42 -0700 (PDT)
+        id S1726184AbgGHJWL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jul 2020 05:22:11 -0400
+Received: from mail-mw2nam12on2042.outbound.protection.outlook.com ([40.107.244.42]:31610
+        "EHLO NAM12-MW2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726144AbgGHJWL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 Jul 2020 05:22:11 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=ZfN1GBFfMwkPqDjj1lX1IYvau8iDpx7PzJbAczqYJKuEzRW5Mz2KyrWCNOM/68+VX4URnLVhSEpNIxEbSZJ4P1KLacfdQ7zwJirLDrbcyfxqg3w/jFcqNBgT6y/L6v7Tm952ZdQLo48NEfbzwCisN7fXRtWgYru2epEE3Pb8EQ6fnUmhyl//eKFC58ycwWugiarao3UqHgDvH9TL039GWgas6hQbonzIrveKiZ7cpVqiXIvzfjg3dtHxtHcm1cnN7fZXyhMDd0q8vkGqN4vJ+c+I1czB5owpRq+0mjGrD/8rF4m9wpSp5nqP21WGEnFsagMTtF2800DvT2BbPEoLeQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ECjDcugffsXkqOI1Vt93s/6be0nCSsCPkuXALqODjWo=;
+ b=ZWziv2MniWMwoJ7ki18fSirh//ZF6Iht4yEmM12l/EmN0+Saeaed835l8JlM8Hl5xLYJyUdHulW5QVtWPHTBoo1Lo9bDLe8sbBb8p+zDjcWfIMDfrEtbd2BUYWyHobQr4r7cerEYChrmXTnqLHGDWEtr5HKgzjoOQSFae5WanpItvKyVGY+5wklHk/c5XQ4heHZb5p+r7MZRv2h4MZbNI7ZbYinSNQY/meTgKcck4a0rhnMnwuZhWeeBube/XGWyfZ/OM4lUqw9xZPJaFXhIgPQbO3s2pHg8om2g4pj0j9Zk33NL7Dq8GYxAK7koTU9S1RHe3hXT/j1w3+FPwGiegA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=/pO1lbFCUd8JVwU/a/C5IVsUOfyRnCXcTbnllnxeuBc=;
-        b=ghPAhjY89wPTtIb5w/erbhv+0Fu4o6P535grpb4/02l9c5Ecua3V4upA6wSmM9SMx0
-         xtWAAaSRAjVWDWKsxP32g8hKqpQBeku2BlDUNd13Co4gN0YNetcGkuKRwBg8ctlxkJFo
-         CKAbwXQpXIVLXiYlbWcMgia41QD2185eniFbgyffkSDlej7W96qNLpUtpbdmx0fRmi6k
-         OmIyCZ7PiNSYxyOWFHVkgnYI3YuTzx0M4PwOYnYoRGwmkQyN5VfT2Jw0EfqdKCs8qrBC
-         IZrHUpN6YnhJ7cjEbifPgF3IjB8lZqbAbbiCbKKGbEYe67AlNYAYOPDkwSFDKvx91gWA
-         efRg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=/pO1lbFCUd8JVwU/a/C5IVsUOfyRnCXcTbnllnxeuBc=;
-        b=dHAxM8h+Lw3OaBOoovG9gDkVU7igPuDm0CbgWSncrx/dH9V7baU9arFO2Cgatn0ybQ
-         UdEWVSQZsYwwMNOC/e+6XixRLfqj/zvvyzH9WbOuEaAHl2tKAbtosrEozl5ckXUNHHdn
-         L1OyOW1UANpfmsJP0LqfEONsx9XJxf1L7cAkJXLGQrDx40XYLY8OwDdX145CU8XaXAOK
-         FkdclDCNCCv3E3/g01aoDlrAkWvH07l/FATFuWR4ykGYIgcUlGmeBu+6LnK7MLxmL/7P
-         iZB9rc/iLv4rsNfbDPZIDGeS6jM8IFZ/izZEJABnejoB5OAhZUAA8+LYMYi10YQxpV5S
-         zOcA==
-X-Gm-Message-State: AOAM533p1rGTH++S2YusA1PehNiPyZHJGDAfUsDXEBBgBmzJ5GDRk4rA
-        pw7nLEf2W4rmqZ8JeNttcHSsa4wYhknER4INztlrkg==
-X-Google-Smtp-Source: ABdhPJzG8uWjy+Qg3xQqO7+HHpcnCYMSI0FRT+Xb0hwMEVHj2JqTVkb2Sl5Z6vYWYiJAD/qPNTNH98MTyENK31IFEss=
-X-Received: by 2002:a9d:6f0d:: with SMTP id n13mr36728254otq.254.1594199321840;
- Wed, 08 Jul 2020 02:08:41 -0700 (PDT)
+ d=amdcloud.onmicrosoft.com; s=selector2-amdcloud-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ECjDcugffsXkqOI1Vt93s/6be0nCSsCPkuXALqODjWo=;
+ b=w2lcFkzTLm2oZdaNbitiaSxr4P0cO5HvBulYB9QyXhPqpINWP87Mym6Clg2W3wxKLz2e/JP8jlTEhu+N+UvaItURhqvnFXp3kXj9rjSLJK/ZCw3+NW12jhVH2cDq9KsdkA/creljB2zOo3FvIVxdtiwt+OJRGad5E3OLxszS1Dc=
+Authentication-Results: vger.kernel.org; dkim=none (message not signed)
+ header.d=none;vger.kernel.org; dmarc=none action=none header.from=amd.com;
+Received: from MN2PR12MB3775.namprd12.prod.outlook.com (2603:10b6:208:159::19)
+ by MN2PR12MB4110.namprd12.prod.outlook.com (2603:10b6:208:1dd::18) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3153.24; Wed, 8 Jul
+ 2020 09:22:08 +0000
+Received: from MN2PR12MB3775.namprd12.prod.outlook.com
+ ([fe80::a16e:8812:b4c0:918d]) by MN2PR12MB3775.namprd12.prod.outlook.com
+ ([fe80::a16e:8812:b4c0:918d%6]) with mapi id 15.20.3174.021; Wed, 8 Jul 2020
+ 09:22:08 +0000
+Subject: Re: [PATCH 1/2] drm/vgem: Do not allocate backing shmemfs file for an
+ import dmabuf object
+To:     Chris Wilson <chris@chris-wilson.co.uk>,
+        lepton <ytht.net@gmail.com>
+Cc:     dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+        Daniel Vetter <daniel@ffwll.ch>,
+        =?UTF-8?Q?Thomas_Hellstr=c3=b6m?= <thomas_os@shipmail.org>,
+        "# v4.10+" <stable@vger.kernel.org>
+References: <20200707160012.1299338-1-chris@chris-wilson.co.uk>
+ <CALqoU4y61Yc5ndaLSO3WoGSPxGm1nJJufk3U=uxhZe3sT1Xyzg@mail.gmail.com>
+ <159414243217.17526.6453360763938648186@build.alporthouse.com>
+ <CALqoU4ypBqcAo+xH2usVRffKzR6AkgGdJBmQ0vWe9MZ1kTHCqw@mail.gmail.com>
+ <159414692385.17526.10068675168880429917@build.alporthouse.com>
+From:   =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>
+Message-ID: <b8e6d844-f096-8efc-1252-ef430069d080@amd.com>
+Date:   Wed, 8 Jul 2020 11:22:00 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
+In-Reply-To: <159414692385.17526.10068675168880429917@build.alporthouse.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-ClientProxiedBy: AM4PR0701CA0040.eurprd07.prod.outlook.com
+ (2603:10a6:200:42::50) To MN2PR12MB3775.namprd12.prod.outlook.com
+ (2603:10b6:208:159::19)
 MIME-Version: 1.0
-References: <20200417163843.71624-1-pbonzini@redhat.com> <20200417163843.71624-2-pbonzini@redhat.com>
- <CANRm+CyWKbSU9FZkGoPx2nff-Se3Qcfn1TXXw8exy-6nuZrirg@mail.gmail.com> <57a405b3-6836-83f0-ed97-79f637f7b456@redhat.com>
-In-Reply-To: <57a405b3-6836-83f0-ed97-79f637f7b456@redhat.com>
-From:   Wanpeng Li <kernellwp@gmail.com>
-Date:   Wed, 8 Jul 2020 17:08:31 +0800
-Message-ID: <CANRm+CzpFt5SwnQzJjRGp3T_Q=Ws3OWBx4FPmMK79qOx1v3NBQ@mail.gmail.com>
-Subject: Re: [PATCH 1/2] KVM: SVM: avoid infinite loop on NPF from bad address
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     LKML <linux-kernel@vger.kernel.org>, kvm <kvm@vger.kernel.org>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        "# v3 . 10+" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from [IPv6:2a02:908:1252:fb60:be8a:bd56:1f94:86e7] (2a02:908:1252:fb60:be8a:bd56:1f94:86e7) by AM4PR0701CA0040.eurprd07.prod.outlook.com (2603:10a6:200:42::50) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3174.8 via Frontend Transport; Wed, 8 Jul 2020 09:22:06 +0000
+X-Originating-IP: [2a02:908:1252:fb60:be8a:bd56:1f94:86e7]
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-HT: Tenant
+X-MS-Office365-Filtering-Correlation-Id: cabc73d7-de41-4139-a5b7-08d8232062e1
+X-MS-TrafficTypeDiagnostic: MN2PR12MB4110:
+X-Microsoft-Antispam-PRVS: <MN2PR12MB4110396FDDDB330D72C71C2283670@MN2PR12MB4110.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:3044;
+X-Forefront-PRVS: 04583CED1A
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 0w+9RGuC5YTmqd2+qV+yoJbEcWiQ5lXsN5q9yIHHz0Tq0bhjo8i1DkJVcLGveFMlEGK906XKDltVKDVf/p7HIufdC73TLVp/Z3pRyeTYNtCOZHbgMc+Tr7+11AzMvmFeA3+uANIYYsqDRh1HOgVdhd8sdGRUprrjuec1gSFI4qxgKFOjqMJg+y54N/SP7Bvvwi6wpHTLCRgDrKUHUlMgdhBzENsuKx8HGo+UG2vWPKpiu6Z6vDoCRydniJUw9a6TzV5/ws4p3CgimOMHYiafixY7gIbtIQnylNHNYh4y1k6PeIBI9QjEbceI8CFZmIoLFAYsIi+D5nf8kLsE99eexaKq3QdgEYaBxR3vTZHCkQxybcupJMU+cgHDiJoUj6DD
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR12MB3775.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(4636009)(396003)(346002)(136003)(376002)(366004)(39860400002)(52116002)(31686004)(8676002)(8936002)(2616005)(83380400001)(66946007)(66556008)(53546011)(2906002)(66476007)(110136005)(36756003)(5660300002)(316002)(4326008)(54906003)(6666004)(478600001)(6486002)(16526019)(186003)(31696002)(86362001)(43740500002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData: pyolc4F6Sonltk2vDTp637iLEY3hjmUFf4A48be3geTgaQeMptSAYLmpoMsdM0eovPT850/bOp3tN2MzyNTOFzeinX9Pp/zYVEDiPYEbZEoeTicTVU8jjaCchMjy9v0RfL1+y1OpxxBOYddJnPJaUN76ZA7IkQoQmMNSYzw/fMp7KXjp7+Ci4f5BJpAWJGOzWt3iYV4XOvJ6HbFWDAH8i2n/A2rhSrR5kMMrK+fqA6HF6l2hEYTFgi7dlxa1quqrNcnJ8y6vO/8+aCvro/1Tl5mDdhsjFRolDsf6lyUsab4bnrMMnVjH5qE1XObxKnHULQuonkbBD+VxSCVzwVVATY91gD0EZ3YV0uvlYf37bWZgU87pnJH+XaTpezHqAAv3aAomAYluyABBBt8r/6lNnTn0IsffZt1qjM/uej9rf1Vss/AejbI0mpzP9paJ/sWPCG0MPg2y709S+RcrdD86z413VgEBRZMqRgmNK/6SpTm0EELrrqXwRosx4jw/K5alpnnA+CBGzKwFqseDvvSCLqRaN91g8k+7nQBC2nY6S+mQKoKfwb7vO+0kmz6dOJnM
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: cabc73d7-de41-4139-a5b7-08d8232062e1
+X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB3775.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Jul 2020 09:22:08.2243
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: B4DbIhJID+XaOldL67sw03ckJvzhnJXJCGzRh5Z325AAUGmNmZ7rj4Nbk4W83ULE
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB4110
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 8 Jul 2020 at 16:38, Paolo Bonzini <pbonzini@redhat.com> wrote:
+Am 07.07.20 um 20:35 schrieb Chris Wilson:
+> Quoting lepton (2020-07-07 19:17:51)
+>> On Tue, Jul 7, 2020 at 10:20 AM Chris Wilson <chris@chris-wilson.co.uk> wrote:
+>>> Quoting lepton (2020-07-07 18:05:21)
+>>>> On Tue, Jul 7, 2020 at 9:00 AM Chris Wilson <chris@chris-wilson.co.uk> wrote:
+>>>>> If we assign obj->filp, we believe that the create vgem bo is native and
+>>>>> allow direct operations like mmap() assuming it behaves as backed by a
+>>>>> shmemfs inode. When imported from a dmabuf, the obj->pages are
+>>>>> not always meaningful and the shmemfs backing store misleading.
+>>>>>
+>>>>> Note, that regular mmap access to a vgem bo is via the dumb buffer API,
+>>>>> and that rejects attempts to mmap an imported dmabuf,
+>>>> What do you mean by "regular mmap access" here?  It looks like vgem is
+>>>> using vgem_gem_dumb_map as .dumb_map_offset callback then it doesn't call
+>>>> drm_gem_dumb_map_offset
+>>> As I too found out, and so had to correct my story telling.
+>>>
+>>> By regular mmap() access I mean mmap on the vgem bo [via the dumb buffer
+>>> API] as opposed to mmap() via an exported dma-buf fd. I had to look at
+>>> igt to see how it was being used.
+>> Now it seems your fix is to disable "regular mmap" on imported dma buf
+>> for vgem. I am not really a graphic guy, but then the api looks like:
+>> for a gem handle, user space has to guess to find out the way to mmap
+>> it. If user space guess wrong, then it will fail to mmap. Is this the
+>> expected way
+>> for people to handle gpu buffer?
+> You either have a dumb buffer handle, or a dma-buf fd. If you have the
+> handle, you have to use the dumb buffer API, there's no other way to
+> mmap it. If you have the dma-buf fd, you should mmap it directly. Those
+> two are clear.
 >
-> On 08/07/20 10:17, Wanpeng Li wrote:
-> > On Sat, 18 Apr 2020 at 00:39, Paolo Bonzini <pbonzini@redhat.com> wrote:
-> >> When a nested page fault is taken from an address that does not have
-> >> a memslot associated to it, kvm_mmu_do_page_fault returns RET_PF_EMULATE
-> >> (via mmu_set_spte) and kvm_mmu_page_fault then invokes svm_need_emulation_on_page_fault.
-> >>
-> >> The default answer there is to return false, but in this case this just
-> >> causes the page fault to be retried ad libitum.  Since this is not a
-> >> fast path, and the only other case where it is taken is an erratum,
-> >> just stick a kvm_vcpu_gfn_to_memslot check in there to detect the
-> >> common case where the erratum is not happening.
-> >>
-> >> This fixes an infinite loop in the new set_memory_region_test.
-> >>
-> >> Fixes: 05d5a4863525 ("KVM: SVM: Workaround errata#1096 (insn_len maybe zero on SMAP violation)")
-> >> Cc: stable@vger.kernel.org
-> >> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-> >> ---
-> >>  arch/x86/kvm/svm/svm.c | 7 +++++++
-> >>  virt/kvm/kvm_main.c    | 1 +
-> >>  2 files changed, 8 insertions(+)
-> >>
-> >> diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
-> >> index a91e397d6750..c86f7278509b 100644
-> >> --- a/arch/x86/kvm/svm/svm.c
-> >> +++ b/arch/x86/kvm/svm/svm.c
-> >> @@ -3837,6 +3837,13 @@ static bool svm_need_emulation_on_page_fault(struct kvm_vcpu *vcpu)
-> >>         bool smap = cr4 & X86_CR4_SMAP;
-> >>         bool is_user = svm_get_cpl(vcpu) == 3;
-> >>
-> >> +       /*
-> >> +        * If RIP is invalid, go ahead with emulation which will cause an
-> >> +        * internal error exit.
-> >> +        */
-> >> +       if (!kvm_vcpu_gfn_to_memslot(vcpu, kvm_rip_read(vcpu) >> PAGE_SHIFT))
-> >> +               return true;
-> >> +
-> >>         /*
-> >>          * Detect and workaround Errata 1096 Fam_17h_00_0Fh.
-> >>          *
-> >> diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-> >> index e2f60e313c87..e7436d054305 100644
-> >> --- a/virt/kvm/kvm_main.c
-> >> +++ b/virt/kvm/kvm_main.c
-> >> @@ -1602,6 +1602,7 @@ struct kvm_memory_slot *kvm_vcpu_gfn_to_memslot(struct kvm_vcpu *vcpu, gfn_t gfn
-> >>  {
-> >>         return __gfn_to_memslot(kvm_vcpu_memslots(vcpu), gfn);
-> >>  }
-> >> +EXPORT_SYMBOL_GPL(kvm_vcpu_gfn_to_memslot);
-> >
-> > This commit incurs the linux guest fails to boot once add --overcommit
-> > cpu-pm=on or not intercept hlt instruction, any thoughts?
+> It's when you import the dma-buf into vgem and create a handle out of
+> it, that's when the handle is no longer first class and certain uAPI
+> [the dumb buffer API in particular] fail.
 >
-> Can you write a selftest?
+> It's not brilliant, as you say, it requires the user to remember the
+> difference between the handles, but at the same time it does prevent
+> them falling into coherency traps by forcing them to use the right
+> driver to handle the object, and have to consider the additional ioctls
+> that go along with that access.
 
-Actually I don't know what's happening here(why not intercept hlt
-instruction has associated with this commit), otherwise, it has
-already been fixed. :)
+Yes, Chris is right. Mapping DMA-buf through the mmap() APIs of an 
+importer is illegal.
 
-    Wanpeng
+What we could maybe try to do is to redirect this mmap() API call on the 
+importer to the exporter, but I'm pretty sure that the fs layer wouldn't 
+like that without changes.
+
+Regards,
+Christian.
+
+
+> -Chris
+
