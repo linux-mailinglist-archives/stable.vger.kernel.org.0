@@ -2,106 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D956218F5E
-	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 19:59:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C253921914C
+	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 22:18:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725879AbgGHR7g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jul 2020 13:59:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54586 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726139AbgGHR7f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Jul 2020 13:59:35 -0400
-Received: from mail-vk1-xa44.google.com (mail-vk1-xa44.google.com [IPv6:2607:f8b0:4864:20::a44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 799EFC08C5C1
-        for <stable@vger.kernel.org>; Wed,  8 Jul 2020 10:59:35 -0700 (PDT)
-Received: by mail-vk1-xa44.google.com with SMTP id n137so10459611vkf.7
-        for <stable@vger.kernel.org>; Wed, 08 Jul 2020 10:59:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=hiompu44sJmWIX0VHQ2p43N5hGspvrVdRKwV2/c7PTg=;
-        b=P9+4sBCXeroD/gl9lFaX0m06xjtx10agKSYwDQ+/NbcOaSqY89NkXRbgqBPgQRcOVj
-         2sE/15k5UksYrS6NLHG1qzC0R1PFVEXJFB/IoQuFPz8kRo7ozYT8rfPO1xJegBPdj20k
-         dgvGQbI7VTNxqtWycqUuFvVewZCIYxRbrTVJY=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=hiompu44sJmWIX0VHQ2p43N5hGspvrVdRKwV2/c7PTg=;
-        b=Ixo6yLrxZnCQGC3PGGmiIqgr6BoAjU6Bp9l/b8q8pFrfOvsBbik/lEnMfUW4lANvG6
-         krf71Z7Z71M4WcljNaWGXQsV33KEsDTUjXph6bHS92b5vYIPEHm9zMAt2J284w6UeJOv
-         Ehs1lOiXi0ZEgy5stE/pEyMd/GzyfW6iLqK7BtIsFajuGYGMkoesjjShbx2VsGBvVE5e
-         KizD/pKsziL/zoN4R5q/mudd4xbbKr2FF+emRyqsnQTP0jOKNVXh9Ym+ug0amr4HkB/z
-         k5UAnlsq+5HOhoziNY/1dy6S6YEzPINw+Plhxs1FSjjdtVCf72wEb0AoF3pPshIR5pcv
-         lPhw==
-X-Gm-Message-State: AOAM532lUJFeueV8orpW+mJ4cxX1givKiFXOxKpzMRQElBPd6Hl/2fa9
-        4iy+JkqOtghAMf+EF1pdDQU1Y57e7Ck=
-X-Google-Smtp-Source: ABdhPJw1edB8OQBYGe+MeKLz3KlK/53TNjYXnh0/NUG8sAMcTRwQNl7wIMiCks3qKkoNsKSBplcoxQ==
-X-Received: by 2002:a1f:b20a:: with SMTP id b10mr44307756vkf.58.1594231174507;
-        Wed, 08 Jul 2020 10:59:34 -0700 (PDT)
-Received: from mail-vk1-f179.google.com (mail-vk1-f179.google.com. [209.85.221.179])
-        by smtp.gmail.com with ESMTPSA id t2sm83968vka.28.2020.07.08.10.59.32
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 08 Jul 2020 10:59:32 -0700 (PDT)
-Received: by mail-vk1-f179.google.com with SMTP id q85so583656vke.4
-        for <stable@vger.kernel.org>; Wed, 08 Jul 2020 10:59:32 -0700 (PDT)
-X-Received: by 2002:a1f:3f05:: with SMTP id m5mr18475983vka.92.1594231171733;
- Wed, 08 Jul 2020 10:59:31 -0700 (PDT)
+        id S1725972AbgGHUSE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jul 2020 16:18:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35392 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725964AbgGHUSE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 Jul 2020 16:18:04 -0400
+Received: from sol.hsd1.ca.comcast.net (c-107-3-166-239.hsd1.ca.comcast.net [107.3.166.239])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B8C820672;
+        Wed,  8 Jul 2020 20:18:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1594239483;
+        bh=K5Lg+VMXda9w1UJGY2IYhWtxKTo+Uepce6z7xUkDdpo=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=vqi2sw4jvjVXqJNUckduzP/bJGnZLr0IpJ8RS18LE8x4iSXUc6sPS/bF9Chpy4svu
+         2wpfLl28X3KkiZOxjrragrPUpUnTRSVbf0zqBlYmFCr9tFtMyBSODjD9DUkwbW0sIq
+         /mfMIbEfZBj2f5fvzvKHGuqxptv+gp/Ne7VWX0oA=
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     linux-security-module@vger.kernel.org,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E . Hallyn" <serge@hallyn.com>
+Cc:     syzkaller-bugs@googlegroups.com, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org,
+        syzbot+e6416dabb497a650da40@syzkaller.appspotmail.com
+Subject: [PATCH] Smack: fix use-after-free in smk_write_relabel_self()
+Date:   Wed,  8 Jul 2020 13:15:20 -0700
+Message-Id: <20200708201520.140376-1-ebiggers@kernel.org>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <0000000000000279c705a799ae31@google.com>
+References: <0000000000000279c705a799ae31@google.com>
 MIME-Version: 1.0
-References: <20200630081938.8131-1-sibis@codeaurora.org>
-In-Reply-To: <20200630081938.8131-1-sibis@codeaurora.org>
-From:   Doug Anderson <dianders@chromium.org>
-Date:   Wed, 8 Jul 2020 10:59:20 -0700
-X-Gmail-Original-Message-ID: <CAD=FV=V2JyYaNBjkFgiKEuWpvNSyt+GP_kAbAtOkNizt136EFA@mail.gmail.com>
-Message-ID: <CAD=FV=V2JyYaNBjkFgiKEuWpvNSyt+GP_kAbAtOkNizt136EFA@mail.gmail.com>
-Subject: Re: [PATCH] arm64: dts: qcom: sc7180: Drop the unused non-MSA SID
-To:     Sibi Sankar <sibis@codeaurora.org>
-Cc:     Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Andy Gross <agross@kernel.org>,
-        linux-arm-msm <linux-arm-msm@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Will Deacon <will@kernel.org>,
-        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Evan Green <evgreen@chromium.org>,
-        Matthias Kaehlcke <mka@chromium.org>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>, "# 4.0+" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+From: Eric Biggers <ebiggers@google.com>
 
-On Tue, Jun 30, 2020 at 1:20 AM Sibi Sankar <sibis@codeaurora.org> wrote:
->
-> Having a non-MSA (Modem Self-Authentication) SID bypassed breaks modem
-> sandboxing i.e if a transaction were to originate from it, the hardware
-> memory protections units (XPUs) would fail to flag them (any transaction
-> originating from modem are historically termed as an MSA transaction).
-> Drop the unused non-MSA modem SID on SC7180 SoCs and cheza so that SMMU
-> continues to block them.
->
-> Fixes: bec71ba243e95 ("arm64: dts: qcom: sc7180: Update Q6V5 MSS node")
-> Fixes: 68aee4af5f620 ("arm64: dts: qcom: sdm845-cheza: Add iommus property")
-> Cc: stable@vger.kernel.org
-> Reported-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
-> Signed-off-by: Sibi Sankar <sibis@codeaurora.org>
-> ---
->  arch/arm64/boot/dts/qcom/sc7180-idp.dts    | 2 +-
->  arch/arm64/boot/dts/qcom/sdm845-cheza.dtsi | 2 +-
->  2 files changed, 2 insertions(+), 2 deletions(-)
+smk_write_relabel_self() frees memory from the task's credentials with
+no locking, which can easily cause a use-after-free because multiple
+tasks can share the same credentials structure.
 
-I'm not sure if my review is worth all that much since it's not my
-area of expertise, but as far as I can tell this is good / ready to go
-in.  I've confirmed that a similar on my sc7180 board doesn't seem to
-break anything for me so restricting things like this seems sane.
+Fix this by using prepare_creds() and commit_creds() to correctly modify
+the task's credentials.
 
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Tested-by: Douglas Anderson <dianders@chromium.org>
+Reproducer for "BUG: KASAN: use-after-free in smk_write_relabel_self":
 
--Doug
+	#include <fcntl.h>
+	#include <pthread.h>
+	#include <unistd.h>
+
+	static void *thrproc(void *arg)
+	{
+		int fd = open("/sys/fs/smackfs/relabel-self", O_WRONLY);
+		for (;;) write(fd, "foo", 3);
+	}
+
+	int main()
+	{
+		pthread_t t;
+		pthread_create(&t, NULL, thrproc, NULL);
+		thrproc(NULL);
+	}
+
+Reported-by: syzbot+e6416dabb497a650da40@syzkaller.appspotmail.com
+Fixes: 38416e53936e ("Smack: limited capability for changing process label")
+Cc: <stable@vger.kernel.org> # v4.4+
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+---
+ security/smack/smackfs.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
+index c21b656b3263..840a192e9337 100644
+--- a/security/smack/smackfs.c
++++ b/security/smack/smackfs.c
+@@ -2720,7 +2720,6 @@ static int smk_open_relabel_self(struct inode *inode, struct file *file)
+ static ssize_t smk_write_relabel_self(struct file *file, const char __user *buf,
+ 				size_t count, loff_t *ppos)
+ {
+-	struct task_smack *tsp = smack_cred(current_cred());
+ 	char *data;
+ 	int rc;
+ 	LIST_HEAD(list_tmp);
+@@ -2745,11 +2744,21 @@ static ssize_t smk_write_relabel_self(struct file *file, const char __user *buf,
+ 	kfree(data);
+ 
+ 	if (!rc || (rc == -EINVAL && list_empty(&list_tmp))) {
++		struct cred *new;
++		struct task_smack *tsp;
++
++		new = prepare_creds();
++		if (!new) {
++			rc = -ENOMEM;
++			goto out;
++		}
++		tsp = smack_cred(new);
+ 		smk_destroy_label_list(&tsp->smk_relabel);
+ 		list_splice(&list_tmp, &tsp->smk_relabel);
++		commit_creds(new);
+ 		return count;
+ 	}
+-
++out:
+ 	smk_destroy_label_list(&list_tmp);
+ 	return rc;
+ }
+-- 
+2.27.0
+
