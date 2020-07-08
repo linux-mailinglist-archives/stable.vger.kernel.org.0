@@ -2,77 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC53F218CED
-	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 18:25:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3252C218CF5
+	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 18:29:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730093AbgGHQZ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jul 2020 12:25:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48596 "EHLO mail.kernel.org"
+        id S1730351AbgGHQ2x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jul 2020 12:28:53 -0400
+Received: from mx2.suse.de ([195.135.220.15]:49802 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730325AbgGHQZ6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 8 Jul 2020 12:25:58 -0400
-Received: from localhost.localdomain (236.31.169.217.in-addr.arpa [217.169.31.236])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 695AF206C3;
-        Wed,  8 Jul 2020 16:25:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594225557;
-        bh=A63ZF9isoOHcAShHjxSg07aPaeYvVWE8/8tCJ3b/Ns8=;
-        h=From:To:Cc:Subject:Date:From;
-        b=C9c/I/sAa4L/WqgOPd2tZXYcVS9aLHG0xS6eCZv7VC1V7CIM9bYjHAxR2sGsr4mRW
-         rJSRlECV+snc1WW5/PO0wt9dXbbvk6njwNcACV4nJJYYK8H2zRyUNdUaiHYJjqAX9E
-         JwDEut0zdat/4rTCnamwuOWF5ld5tyfDL17Wk0rA=
-From:   Will Deacon <will@kernel.org>
-To:     linux-arm-kernel@lists.infradead.org
-Cc:     kvmarm@lists.cs.columbia.edu, kernel-team@android.com,
-        Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        James Morse <james.morse@arm.com>, stable@vger.kernel.org
-Subject: [PATCH] KVM: arm64: Fix definition of PAGE_HYP_DEVICE
-Date:   Wed,  8 Jul 2020 17:25:46 +0100
-Message-Id: <20200708162546.26176-1-will@kernel.org>
-X-Mailer: git-send-email 2.20.1
+        id S1730141AbgGHQ2x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 Jul 2020 12:28:53 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id A7AC2ACC6;
+        Wed,  8 Jul 2020 16:28:51 +0000 (UTC)
+Received: by ds.suse.cz (Postfix, from userid 10065)
+        id D50CADA818; Wed,  8 Jul 2020 18:28:31 +0200 (CEST)
+Date:   Wed, 8 Jul 2020 18:28:31 +0200
+From:   David Sterba <dsterba@suse.cz>
+To:     Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Cc:     David Sterba <dsterba@suse.cz>, linux-btrfs@vger.kernel.org,
+        Hans van Kranenburg <hans@knorrie.org>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v5] btrfs: pass checksum type via BTRFS_IOC_FS_INFO ioctl
+Message-ID: <20200708162831.GC28832@twin.jikos.cz>
+Reply-To: dsterba@suse.cz
+Mail-Followup-To: dsterba@suse.cz,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        linux-btrfs@vger.kernel.org, Hans van Kranenburg <hans@knorrie.org>,
+        stable@vger.kernel.org
+References: <20200706150924.40218-1-johannes.thumshirn@wdc.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200706150924.40218-1-johannes.thumshirn@wdc.com>
+User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-PAGE_HYP_DEVICE is intended to encode attribute bits for an EL2 stage-1
-pte mapping a device. Unfortunately, it includes PROT_DEVICE_nGnRE which
-encodes attributes for EL1 stage-1 mappings such as UXN and nG, which are
-RES0 for EL2, and DBM which is meaningless as TCR_EL2.HD is not set.
+On Tue, Jul 07, 2020 at 12:09:24AM +0900, Johannes Thumshirn wrote:
+> With the recent addition of filesystem checksum types other than CRC32c,
+> it is not anymore hard-coded which checksum type a btrfs filesystem uses.
+> 
+> Up to now there is no good way to read the filesystem checksum, apart from
+> reading the filesystem UUID and then query sysfs for the checksum type.
+> 
+> Add a new csum_type and csum_size fields to the BTRFS_IOC_FS_INFO ioctl
+> command which usually is used to query filesystem features. Also add a
+> flags member indicating that the kernel responded with a set csum_type and
+> csum_size field.
+> 
+> For compatibility reasons, only return the csum_type and csum_size if the
+> BTRFS_FS_INFO_FLAG_CSUM_TYPE_SIZE flag was passed to the kernel. Also
+> clear any unknown flags so we don't pass false positives to user-space
+> newer than the kernel.
+> 
+> To simplify further additions to the ioctl, also switch the padding to a
+> u8 array. Pahole was used to verify the result of this switch:
+> 
+> pahole -C btrfs_ioctl_fs_info_args fs/btrfs/btrfs.ko
+> struct btrfs_ioctl_fs_info_args {
+>         __u64                      max_id;               /*     0     8 */
+>         __u64                      num_devices;          /*     8     8 */
+>         __u8                       fsid[16];             /*    16    16 */
+>         __u32                      nodesize;             /*    32     4 */
+>         __u32                      sectorsize;           /*    36     4 */
+>         __u32                      clone_alignment;      /*    40     4 */
+>         __u32                      flags;                /*    44     4 */
+>         __u16                      csum_type;            /*    48     2 */
+>         __u16                      csum_size;            /*    50     2 */
+>         __u8                       reserved[972];        /*    52   972 */
+> 
+>         /* size: 1024, cachelines: 16, members: 10 */
+> };
+> 
+> Fixes: 3951e7f050ac ("btrfs: add xxhash64 to checksumming algorithms")
+> Fixes: 3831bf0094ab ("btrfs: add sha256 to checksumming algorithm")
+> CC: stable@vger.kernel.org # 5.5+
+> Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+> ---
+> Changes to v4:
+> * zero all data passed in from user-space
+>   (I've chosen this variant as I think it is the most complete)
 
-Fix the definition of PAGE_HYP_DEVICE so that it doesn't set RES0 bits
-at EL2.
-
-Cc: Marc Zyngier <maz@kernel.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: James Morse <james.morse@arm.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Will Deacon <will@kernel.org>
----
-Marc -- I'm happy to take this as a fix via arm64 with your Ack.
-Please just let me know.
-
- arch/arm64/include/asm/pgtable-prot.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/arm64/include/asm/pgtable-prot.h b/arch/arm64/include/asm/pgtable-prot.h
-index 2e7e0f452301..4d867c6446c4 100644
---- a/arch/arm64/include/asm/pgtable-prot.h
-+++ b/arch/arm64/include/asm/pgtable-prot.h
-@@ -67,7 +67,7 @@ extern bool arm64_use_ng_mappings;
- #define PAGE_HYP		__pgprot(_HYP_PAGE_DEFAULT | PTE_HYP | PTE_HYP_XN)
- #define PAGE_HYP_EXEC		__pgprot(_HYP_PAGE_DEFAULT | PTE_HYP | PTE_RDONLY)
- #define PAGE_HYP_RO		__pgprot(_HYP_PAGE_DEFAULT | PTE_HYP | PTE_RDONLY | PTE_HYP_XN)
--#define PAGE_HYP_DEVICE		__pgprot(PROT_DEVICE_nGnRE | PTE_HYP)
-+#define PAGE_HYP_DEVICE		__pgprot(_PROT_DEFAULT | PTE_ATTRINDX(MT_DEVICE_nGnRE) | PTE_HYP | PTE_HYP_XN)
- 
- #define PAGE_S2_MEMATTR(attr)						\
- 	({								\
--- 
-2.27.0.383.g050319c2ae-goog
-
+I'll have to refresh the whole evolution since v1 but the memset sounds
+reasonable to me.
