@@ -2,89 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3252C218CF5
-	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 18:29:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38D5A218D84
+	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 18:50:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730351AbgGHQ2x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jul 2020 12:28:53 -0400
-Received: from mx2.suse.de ([195.135.220.15]:49802 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730141AbgGHQ2x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 8 Jul 2020 12:28:53 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id A7AC2ACC6;
-        Wed,  8 Jul 2020 16:28:51 +0000 (UTC)
-Received: by ds.suse.cz (Postfix, from userid 10065)
-        id D50CADA818; Wed,  8 Jul 2020 18:28:31 +0200 (CEST)
-Date:   Wed, 8 Jul 2020 18:28:31 +0200
-From:   David Sterba <dsterba@suse.cz>
-To:     Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Cc:     David Sterba <dsterba@suse.cz>, linux-btrfs@vger.kernel.org,
-        Hans van Kranenburg <hans@knorrie.org>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v5] btrfs: pass checksum type via BTRFS_IOC_FS_INFO ioctl
-Message-ID: <20200708162831.GC28832@twin.jikos.cz>
-Reply-To: dsterba@suse.cz
-Mail-Followup-To: dsterba@suse.cz,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        linux-btrfs@vger.kernel.org, Hans van Kranenburg <hans@knorrie.org>,
-        stable@vger.kernel.org
-References: <20200706150924.40218-1-johannes.thumshirn@wdc.com>
+        id S1730299AbgGHQuZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jul 2020 12:50:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43876 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728148AbgGHQuZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Jul 2020 12:50:25 -0400
+Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DDB8C061A0B
+        for <stable@vger.kernel.org>; Wed,  8 Jul 2020 09:50:25 -0700 (PDT)
+Received: by mail-wr1-x441.google.com with SMTP id a6so49739410wrm.4
+        for <stable@vger.kernel.org>; Wed, 08 Jul 2020 09:50:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=kWB1mUaKU3pXOtA5XG8ARcu0Ncp67yejF2/TJ3E6Wt8=;
+        b=tq5xbAwfxBKkWZYb6P9awuKh3f2HZ4jRHqAsxvPS0b3XnvEeSU/C629zaOHV/00TAm
+         jhP4r21DxkdCxdh/S0ugEERTKoa7ymizMSTmISUzwXQGEBzgdM3Aso0SFfh3B/t07FAD
+         BDc5NGB9C820iovlla8RRHl3uxeXkrLtkDoMWSqpRYuRX6Pe6O6gJ9nVn/t+RwROT2QG
+         l0MBXKmqH0y9XDf2naAoxOu/tXJpZ4E57SNf22lUEeOy57Oen1p+W9tVwUT/vFjo0a6k
+         xPNhKf3usElOLT8Pa+SUl3oQme8rhB0ELEzne8CttFjfPxHhpRz7XEmoupPSVGc1Y2yw
+         Jcbg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=kWB1mUaKU3pXOtA5XG8ARcu0Ncp67yejF2/TJ3E6Wt8=;
+        b=VuKTrnF2Xlpb7iVCvPBtgVa316P6viJzFYoIV1NeosSd+xY2u2Znqfa3DhETCk3lyS
+         dZiccPYK/sCUgxzrC/vg/7ryx3wBgz6LMQruWokUTQ5476apZH18roJxGeZsUBDJi4Nc
+         iAcp0IFE9UUpYGYoMUSwKE1OgfpqpxkukunUknVuExjErnXPgK5rEx3E4KECa2ZFYDFG
+         vUGWo7YE4T5g/Xx7DGGzpb1tdn4TUcC9Z6zZz3QhU7ea1d1Wr9XL45rfF4ge+1roWvh5
+         OUnBNRa+TEe67Wbef/djUPVL7orIBQew+SPEIgS2U4kP2C+HLji+KpgQNN2rundKlOpM
+         VKBg==
+X-Gm-Message-State: AOAM532kgCOaBbYcswBza3O7JlhDaN/8qIwDkVECenyHUK8u2byURtmz
+        OFm9ArBMmg1CyBhaXA8rx5KGLWGeSir/9ht5uV4=
+X-Google-Smtp-Source: ABdhPJygAErEApJJDSh1MOX9lmMqypWjyi9vMkpDNMkp+YyjlcPSW1mZ57YHLE4mryd5wweHARK/wb+VDXzykYCKq6g=
+X-Received: by 2002:a05:6000:100c:: with SMTP id a12mr64616661wrx.81.1594227024218;
+ Wed, 08 Jul 2020 09:50:24 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200706150924.40218-1-johannes.thumshirn@wdc.com>
-User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
+Received: by 2002:a5d:42c4:0:0:0:0:0 with HTTP; Wed, 8 Jul 2020 09:50:23 -0700 (PDT)
+Reply-To: bektery@outlook.com
+From:   YAVUZ BEKTER <bariskamx@gmail.com>
+Date:   Wed, 8 Jul 2020 09:50:23 -0700
+Message-ID: <CABZeqGfbXwM_ydkHe8v_ek_gromgbta_BggOR+q2n0a57jSqbA@mail.gmail.com>
+Subject: Hello.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 07, 2020 at 12:09:24AM +0900, Johannes Thumshirn wrote:
-> With the recent addition of filesystem checksum types other than CRC32c,
-> it is not anymore hard-coded which checksum type a btrfs filesystem uses.
-> 
-> Up to now there is no good way to read the filesystem checksum, apart from
-> reading the filesystem UUID and then query sysfs for the checksum type.
-> 
-> Add a new csum_type and csum_size fields to the BTRFS_IOC_FS_INFO ioctl
-> command which usually is used to query filesystem features. Also add a
-> flags member indicating that the kernel responded with a set csum_type and
-> csum_size field.
-> 
-> For compatibility reasons, only return the csum_type and csum_size if the
-> BTRFS_FS_INFO_FLAG_CSUM_TYPE_SIZE flag was passed to the kernel. Also
-> clear any unknown flags so we don't pass false positives to user-space
-> newer than the kernel.
-> 
-> To simplify further additions to the ioctl, also switch the padding to a
-> u8 array. Pahole was used to verify the result of this switch:
-> 
-> pahole -C btrfs_ioctl_fs_info_args fs/btrfs/btrfs.ko
-> struct btrfs_ioctl_fs_info_args {
->         __u64                      max_id;               /*     0     8 */
->         __u64                      num_devices;          /*     8     8 */
->         __u8                       fsid[16];             /*    16    16 */
->         __u32                      nodesize;             /*    32     4 */
->         __u32                      sectorsize;           /*    36     4 */
->         __u32                      clone_alignment;      /*    40     4 */
->         __u32                      flags;                /*    44     4 */
->         __u16                      csum_type;            /*    48     2 */
->         __u16                      csum_size;            /*    50     2 */
->         __u8                       reserved[972];        /*    52   972 */
-> 
->         /* size: 1024, cachelines: 16, members: 10 */
-> };
-> 
-> Fixes: 3951e7f050ac ("btrfs: add xxhash64 to checksumming algorithms")
-> Fixes: 3831bf0094ab ("btrfs: add sha256 to checksumming algorithm")
-> CC: stable@vger.kernel.org # 5.5+
-> Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-> ---
-> Changes to v4:
-> * zero all data passed in from user-space
->   (I've chosen this variant as I think it is the most complete)
-
-I'll have to refresh the whole evolution since v1 but the memset sounds
-reasonable to me.
+I am the foreign operations director of Bank of Turkey.
+My name is Mr, Yavuz. I have a sensitive investment project to discuss
+with you, please reply now.
+________________________
+Jsem =C5=99editelem zahrani=C4=8Dn=C3=ADch operac=C3=AD Bank of Turkey.
+Jmenuji se pan Yavuz. Mus=C3=ADm diskutovat o citliv=C3=A9m investi=C4=8Dn=
+=C3=ADm projektu
+s v=C3=A1mi, odpov=C4=9Bzte nyn=C3=AD.
