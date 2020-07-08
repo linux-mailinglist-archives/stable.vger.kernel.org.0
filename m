@@ -2,70 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F5DD218B31
-	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 17:28:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 069DC218B4A
+	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 17:33:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729950AbgGHP2F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jul 2020 11:28:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42548 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729910AbgGHP2F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 8 Jul 2020 11:28:05 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8574C20786;
-        Wed,  8 Jul 2020 15:28:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594222085;
-        bh=q6H2MgomFwB1RePMLnNiDwgJsDS/PcygRl+huPQQ0x8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=dC6UhLb1AbGooN9jirdPGALczpea5Ixd0NZpTeVsXEp+e/nWOUycm2jtjJPgDH89d
-         wI75Z1xAFStAHh7V2F4eBfSBsCwPJU2uBONQTtU4NwO2dT8kHpHCvIwcWBgeCXiCS3
-         N6rTEZSxdu3uBdHH3YWFCdZzNnou4lzL0fT4UFDM=
-Date:   Wed, 8 Jul 2020 17:28:00 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Shuah Khan <skhan@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org
-Subject: Re: [PATCH 5.7 000/112] 5.7.8-rc1 review
-Message-ID: <20200708152800.GA714318@kroah.com>
-References: <20200707145800.925304888@linuxfoundation.org>
- <552f9118-eac9-56cc-c321-dd9b97eff09e@linuxfoundation.org>
+        id S1730212AbgGHPdl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jul 2020 11:33:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60220 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729858AbgGHPdk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Jul 2020 11:33:40 -0400
+Received: from mail-io1-xd42.google.com (mail-io1-xd42.google.com [IPv6:2607:f8b0:4864:20::d42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1186C061A0B;
+        Wed,  8 Jul 2020 08:33:40 -0700 (PDT)
+Received: by mail-io1-xd42.google.com with SMTP id o5so47340826iow.8;
+        Wed, 08 Jul 2020 08:33:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=dyLb8SlKlhyAzCJgpUsncV6Hsfp2hFD6rZCRWfST+rQ=;
+        b=OZNmqy6dMexDFVudZkHsNZW7fvX1gWcxLKoITuw/yDAZpr4dcBEr872L7PfpuPv3U5
+         DUoalvVEOKA3yu4m7CFT9Um7UW9ikom7grPoop9+TDpLwXla258d+PoWTOf4iTYsWQea
+         BHr7i76yr4Y5M8TLrMZJ+0XzO26dvrBmHrV9aOq1BXkXs75kL/TFwVsmYO/LM7Fv2SCJ
+         O9eRHij+R/egclYARy4XHW6ZrunNICDVqSHeq1CRP68DcurXEkIE7mUpO0FlUlgxd1Ha
+         g924rp11Ec/hjFQyk4nLj/qpEE3XapSmULAJMABENntKbx7IvX7P8ctnzfao3Q0PSj4w
+         80RQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=dyLb8SlKlhyAzCJgpUsncV6Hsfp2hFD6rZCRWfST+rQ=;
+        b=tMVtDtS1YK94huE/MP8rE6SdAPQyHrZzXO5cTRfREdEUHOdgxygXoj5AbHkqGiprF0
+         LQoNnfY0Y62H5QEqeztDcvfuAQMFpwP2H1KrvcfPHzhJ8EnG0jwkRvPCkHOg/6H4mrGb
+         N+rVmV+rd6RGIN68HGGepfbTEQoYnGjezRwOiI/T5yVEAyoPgMgwmaMqt2aP6gmsJAEs
+         vvJP+czjwjn7WwqvVsvUM6n+SLkP21gE2Sbn9BhmI2QgB1Vuq+HDXvfHyxxTuruwf/AY
+         3kf789dCfmdvPfiizznZ19rdVxIRIZg7cqJxCnhuWvi15HLbyeEaEUdWI5xZ98+KpyA/
+         AZvQ==
+X-Gm-Message-State: AOAM531tw5aS7FZO01TicoMBbmKg+cRVvn1B+47fbNUu11kGy3dlTTVl
+        IOLVESImHdXvFTjdShg9KmwztJ4iGZp5cIXsVUk=
+X-Google-Smtp-Source: ABdhPJxmN6/ftSrdoJHD0FKGFingv6a4BF2CW23oA1LiWvGaeFrBISVVc9u+FQhR1y3WW4ip6PUKKwEnDzHBTPh5fNM=
+X-Received: by 2002:a05:6602:2c8f:: with SMTP id i15mr37850434iow.45.1594222419991;
+ Wed, 08 Jul 2020 08:33:39 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <552f9118-eac9-56cc-c321-dd9b97eff09e@linuxfoundation.org>
+References: <20200707145800.925304888@linuxfoundation.org>
+In-Reply-To: <20200707145800.925304888@linuxfoundation.org>
+From:   Puranjay Mohan <puranjay12@gmail.com>
+Date:   Wed, 8 Jul 2020 21:03:29 +0530
+Message-ID: <CANk7y0iK9ziBq4wmpzeM6sh2hd8Nw6kN3b=OE7s243L7ZfpFUw@mail.gmail.com>
+Subject: Re: [PATCH 5.7 000/112] 5.7.8-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 08, 2020 at 07:05:12AM -0600, Shuah Khan wrote:
-> On 7/7/20 9:16 AM, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.7.8 release.
-> > There are 112 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Thu, 09 Jul 2020 14:57:34 +0000.
-> > Anything received after that time might be too late.
-> > 
-> > The whole patch series can be found in one patch at:
-> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.7.8-rc1.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.7.y
-> > and the diffstat can be found below.
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> > 
-> 
-> Compiled and booted on my test system. No dmesg regressions.
+On Tue, Jul 7, 2020 at 9:01 PM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.7.8 release.
+> There are 112 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Thu, 09 Jul 2020 14:57:34 +0000.
+> Anything received after that time might be too late.
+>
+Compiled and booted on my computer running x86_64,
+No dmesg Regressions found.
 
-Thanks for testing all of these and letting me know.
-
-greg k-h
+thanks,
+--Puranjay
