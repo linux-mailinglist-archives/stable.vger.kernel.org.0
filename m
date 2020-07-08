@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC86E218BB6
-	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 17:42:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE560218BE7
+	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 17:44:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730637AbgGHPmD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jul 2020 11:42:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49314 "EHLO mail.kernel.org"
+        id S1730780AbgGHPm6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jul 2020 11:42:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730635AbgGHPmC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 8 Jul 2020 11:42:02 -0400
+        id S1730638AbgGHPmE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 Jul 2020 11:42:04 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BFCDE20720;
-        Wed,  8 Jul 2020 15:42:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0140B207DF;
+        Wed,  8 Jul 2020 15:42:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594222922;
-        bh=wxgYB4Ga8dIT1hCDuystHs20ZPtwGYzVHZ80NqcdTa4=;
+        s=default; t=1594222924;
+        bh=9KhHqBXkWZhpapyyubANsiVW5kyAcqwcwaYiq9rGRD4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gyQUTHGHvK61UozvqdxOl00QcHs3tts3PHCepXtQkNBf7jEQh8wr1BAYhzLh9sXbl
-         oV890aUmCcWPeEVtQ8vJ54/x959cxKTpJyojbdXcyKAzgvlatdmgla6PvXtl3+/8la
-         0rOv1h268FRhzsrWshevxEZJy0KbYEmDFahWAXH8=
+        b=yhRjAK39M/3K0LoS96RvTVdepmVKluCOiKrAFBJKBg5+zEHJa6qcQBZExZBWAnbai
+         V4brsQnKF4u2JnaP3YvwZhK9quc8noaMFjYKg34WTQxJSA3xSAEiPsNthmg9zONx+z
+         PzaYGjwuNOrr4KyenTcGHbYnIqOdf1K+VF7NZF9Y=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Angelo Dureghello <angelo.dureghello@timesys.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-m68k@lists.linux-m68k.org
-Subject: [PATCH AUTOSEL 4.19 4/8] m68k: mm: fix node memblock init
-Date:   Wed,  8 Jul 2020 11:41:52 -0400
-Message-Id: <20200708154157.3200116-4-sashal@kernel.org>
+Cc:     Ard Biesheuvel <ardb@kernel.org>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        James Morse <james.morse@arm.com>,
+        Andre Przywara <andre.przywara@arm.com>,
+        Dave P Martin <dave.martin@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 5/8] arm64/alternatives: use subsections for replacement sequences
+Date:   Wed,  8 Jul 2020 11:41:53 -0400
+Message-Id: <20200708154157.3200116-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200708154157.3200116-1-sashal@kernel.org>
 References: <20200708154157.3200116-1-sashal@kernel.org>
@@ -45,37 +47,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Angelo Dureghello <angelo.dureghello@timesys.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit c43e55796dd4d13f4855971a4d7970ce2cd94db4 ]
+[ Upstream commit f7b93d42945cc71e1346dd5ae07c59061d56745e ]
 
-After pulling 5.7.0 (linux-next merge), mcf5441x mmu boot was
-hanging silently.
+When building very large kernels, the logic that emits replacement
+sequences for alternatives fails when relative branches are present
+in the code that is emitted into the .altinstr_replacement section
+and patched in at the original site and fixed up. The reason is that
+the linker will insert veneers if relative branches go out of range,
+and due to the relative distance of the .altinstr_replacement from
+the .text section where its branch targets usually live, veneers
+may be emitted at the end of the .altinstr_replacement section, with
+the relative branches in the sequence pointed at the veneers instead
+of the actual target.
 
-memblock_add() seems not appropriate, since using MAX_NUMNODES
-as node id, while memblock_add_node() sets up memory for node id 0.
+The alternatives patching logic will attempt to fix up the branch to
+point to its original target, which will be the veneer in this case,
+but given that the patch site is likely to be far away as well, it
+will be out of range and so patching will fail. There are other cases
+where these veneers are problematic, e.g., when the target of the
+branch is in .text while the patch site is in .init.text, in which
+case putting the replacement sequence inside .text may not help either.
 
-Signed-off-by: Angelo Dureghello <angelo.dureghello@timesys.com>
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
+So let's use subsections to emit the replacement code as closely as
+possible to the patch site, to ensure that veneers are only likely to
+be emitted if they are required at the patch site as well, in which
+case they will be in range for the replacement sequence both before
+and after it is transported to the patch site.
+
+This will prevent alternative sequences in non-init code from being
+released from memory after boot, but this is tolerable given that the
+entire section is only 512 KB on an allyesconfig build (which weighs in
+at 500+ MB for the entire Image). Also, note that modules today carry
+the replacement sequences in non-init sections as well, and any of
+those that target init code will be emitted into init sections after
+this change.
+
+This fixes an early crash when booting an allyesconfig kernel on a
+system where any of the alternatives sequences containing relative
+branches are activated at boot (e.g., ARM64_HAS_PAN on TX2)
+
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Cc: Suzuki K Poulose <suzuki.poulose@arm.com>
+Cc: James Morse <james.morse@arm.com>
+Cc: Andre Przywara <andre.przywara@arm.com>
+Cc: Dave P Martin <dave.martin@arm.com>
+Link: https://lore.kernel.org/r/20200630081921.13443-1-ardb@kernel.org
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/mm/mcfmmu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/include/asm/alternative.h | 16 ++++++++--------
+ arch/arm64/kernel/vmlinux.lds.S      |  3 ---
+ 2 files changed, 8 insertions(+), 11 deletions(-)
 
-diff --git a/arch/m68k/mm/mcfmmu.c b/arch/m68k/mm/mcfmmu.c
-index f5453d944ff5e..c5e26222979ad 100644
---- a/arch/m68k/mm/mcfmmu.c
-+++ b/arch/m68k/mm/mcfmmu.c
-@@ -160,7 +160,7 @@ void __init cf_bootmem_alloc(void)
- 	m68k_memory[0].addr = _rambase;
- 	m68k_memory[0].size = _ramend - _rambase;
+diff --git a/arch/arm64/include/asm/alternative.h b/arch/arm64/include/asm/alternative.h
+index 1a7ba3de70793..849d891c60a81 100644
+--- a/arch/arm64/include/asm/alternative.h
++++ b/arch/arm64/include/asm/alternative.h
+@@ -73,11 +73,11 @@ static inline void apply_alternatives_module(void *start, size_t length) { }
+ 	".pushsection .altinstructions,\"a\"\n"				\
+ 	ALTINSTR_ENTRY(feature)						\
+ 	".popsection\n"							\
+-	".pushsection .altinstr_replacement, \"a\"\n"			\
++	".subsection 1\n"						\
+ 	"663:\n\t"							\
+ 	newinstr "\n"							\
+ 	"664:\n\t"							\
+-	".popsection\n\t"						\
++	".previous\n\t"							\
+ 	".org	. - (664b-663b) + (662b-661b)\n\t"			\
+ 	".org	. - (662b-661b) + (664b-663b)\n"			\
+ 	".endif\n"
+@@ -117,9 +117,9 @@ static inline void apply_alternatives_module(void *start, size_t length) { }
+ 662:	.pushsection .altinstructions, "a"
+ 	altinstruction_entry 661b, 663f, \cap, 662b-661b, 664f-663f
+ 	.popsection
+-	.pushsection .altinstr_replacement, "ax"
++	.subsection 1
+ 663:	\insn2
+-664:	.popsection
++664:	.previous
+ 	.org	. - (664b-663b) + (662b-661b)
+ 	.org	. - (662b-661b) + (664b-663b)
+ 	.endif
+@@ -160,7 +160,7 @@ static inline void apply_alternatives_module(void *start, size_t length) { }
+ 	.pushsection .altinstructions, "a"
+ 	altinstruction_entry 663f, 661f, \cap, 664f-663f, 662f-661f
+ 	.popsection
+-	.pushsection .altinstr_replacement, "ax"
++	.subsection 1
+ 	.align 2	/* So GAS knows label 661 is suitably aligned */
+ 661:
+ .endm
+@@ -179,9 +179,9 @@ static inline void apply_alternatives_module(void *start, size_t length) { }
+ .macro alternative_else
+ 662:
+ 	.if .Lasm_alt_mode==0
+-	.pushsection .altinstr_replacement, "ax"
++	.subsection 1
+ 	.else
+-	.popsection
++	.previous
+ 	.endif
+ 663:
+ .endm
+@@ -192,7 +192,7 @@ static inline void apply_alternatives_module(void *start, size_t length) { }
+ .macro alternative_endif
+ 664:
+ 	.if .Lasm_alt_mode==0
+-	.popsection
++	.previous
+ 	.endif
+ 	.org	. - (664b-663b) + (662b-661b)
+ 	.org	. - (662b-661b) + (664b-663b)
+diff --git a/arch/arm64/kernel/vmlinux.lds.S b/arch/arm64/kernel/vmlinux.lds.S
+index 74e469f8a8507..d6050c6e65bc1 100644
+--- a/arch/arm64/kernel/vmlinux.lds.S
++++ b/arch/arm64/kernel/vmlinux.lds.S
+@@ -154,9 +154,6 @@ SECTIONS
+ 		*(.altinstructions)
+ 		__alt_instructions_end = .;
+ 	}
+-	.altinstr_replacement : {
+-		*(.altinstr_replacement)
+-	}
  
--	memblock_add(m68k_memory[0].addr, m68k_memory[0].size);
-+	memblock_add_node(m68k_memory[0].addr, m68k_memory[0].size, 0);
- 
- 	/* compute total pages in system */
- 	num_pages = PFN_DOWN(_ramend - _rambase);
+ 	. = ALIGN(PAGE_SIZE);
+ 	__inittext_end = .;
 -- 
 2.25.1
 
