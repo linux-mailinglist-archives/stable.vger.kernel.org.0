@@ -2,119 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C253921914C
-	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 22:18:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F206219192
+	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 22:34:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725972AbgGHUSE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jul 2020 16:18:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35392 "EHLO mail.kernel.org"
+        id S1725982AbgGHUeM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jul 2020 16:34:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725964AbgGHUSE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 8 Jul 2020 16:18:04 -0400
-Received: from sol.hsd1.ca.comcast.net (c-107-3-166-239.hsd1.ca.comcast.net [107.3.166.239])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1725848AbgGHUeM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 Jul 2020 16:34:12 -0400
+Received: from kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com (unknown [163.114.132.5])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4B8C820672;
-        Wed,  8 Jul 2020 20:18:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1C08620739;
+        Wed,  8 Jul 2020 20:34:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594239483;
-        bh=K5Lg+VMXda9w1UJGY2IYhWtxKTo+Uepce6z7xUkDdpo=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vqi2sw4jvjVXqJNUckduzP/bJGnZLr0IpJ8RS18LE8x4iSXUc6sPS/bF9Chpy4svu
-         2wpfLl28X3KkiZOxjrragrPUpUnTRSVbf0zqBlYmFCr9tFtMyBSODjD9DUkwbW0sIq
-         /mfMIbEfZBj2f5fvzvKHGuqxptv+gp/Ne7VWX0oA=
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     linux-security-module@vger.kernel.org,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E . Hallyn" <serge@hallyn.com>
-Cc:     syzkaller-bugs@googlegroups.com, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org,
-        syzbot+e6416dabb497a650da40@syzkaller.appspotmail.com
-Subject: [PATCH] Smack: fix use-after-free in smk_write_relabel_self()
-Date:   Wed,  8 Jul 2020 13:15:20 -0700
-Message-Id: <20200708201520.140376-1-ebiggers@kernel.org>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <0000000000000279c705a799ae31@google.com>
-References: <0000000000000279c705a799ae31@google.com>
+        s=default; t=1594240451;
+        bh=zDK5NXXZRSdLUVKIgw4PNxUgvgIS7unDdJHqM90eKH8=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=zwFjDrTOyFTMMCbXLVvpwCsAWdyt8k2oQYfhW7sf9rTaJ5slRw+zUWaMZKwda7pNB
+         UHuaDeq7ISwU/NUhtK9hIzqSKb3fLqfIpydeaS3yCbrovgNzjDtF5JTmsoR0O8JJjH
+         fJsKLwclEhtcvO13tweH5wWCMPCeSNSLZMwcKy6E=
+Date:   Wed, 8 Jul 2020 13:34:09 -0700
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     Nick Desaulniers <ndesaulniers@google.com>,
+        "David S . Miller" <davem@davemloft.net>
+Cc:     Alex Elder <elder@linaro.org>, "# 3.4.x" <stable@vger.kernel.org>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
+        Andrii Nakryiko <andriin@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@chromium.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Network Development <netdev@vger.kernel.org>,
+        bpf <bpf@vger.kernel.org>
+Subject: Re: [PATCH] bitfield.h: don't compile-time validate _val in
+ FIELD_FIT
+Message-ID: <20200708133409.72c037bd@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <CAKwvOd=PrNG9WqBc4P43-XK7pOD4rQg4FA8Gd27OdUYb2qMDdw@mail.gmail.com>
+References: <20200707211642.1106946-1-ndesaulniers@google.com>
+        <bca8cff8-3ffe-e5ab-07a5-2ab29d5e394a@linaro.org>
+        <CAKwvOdmtv2EdNQz+c_DZm_47EEibkaXfDW8dGPwNPA3OrcoC9g@mail.gmail.com>
+        <20997cd9-91e5-ca83-218d-4fd5af128893@linaro.org>
+        <CAKwvOd=PrNG9WqBc4P43-XK7pOD4rQg4FA8Gd27OdUYb2qMDdw@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+On Wed, 8 Jul 2020 10:56:43 -0700 Nick Desaulniers wrote:
+> On Wed, Jul 8, 2020 at 10:34 AM Alex Elder <elder@linaro.org> wrote:
+> >
+> > I understand why something needs to be done to handle that case.
+> > There's fancy macro gymnastics in "bitfield.h" to add convenient
+> > build-time checks for usage problems; I just thought there might
+> > be something we could do to preserve the checking--even in this
+> > case.  But figuring that out takes more time than I was willing
+> > to spend on it yesterday...  
+> 
+> I also find the use of 0U in FIELD_GET sticks out from the use of 0ULL
+> or (0ull) in these macros (hard to notice, but I changed it in my diff
+> to 0ULL).  Are there implicit promotion+conversion bugs here?  I don't
+> know, but I'd rather not think about it by just using types of the
+> same width and signedness.
 
-smk_write_relabel_self() frees memory from the task's credentials with
-no locking, which can easily cause a use-after-free because multiple
-tasks can share the same credentials structure.
+TBH I just copied the type from other arguments. It doesn't matter
+in practice now in this case. I have no preference.
 
-Fix this by using prepare_creds() and commit_creds() to correctly modify
-the task's credentials.
+> > >> A second comment about this is that it might be nice to break
+> > >> __BF_FIELD_CHECK() into the parts that verify the mask (which
+> > >> could be used by FIELD_FIT() here) and the parts that verify
+> > >> other things.  
+> > >
+> > > Like so? Jakub, WDYT? Or do you prefer v1+Alex's suggestion about
+> > > using `(typeof(_mask))0` in place of 0ULL?  
+> >
+> > Yes, very much like that!  But you could do that as a follow-on
+> > instead, so as not to delay or confuse things.  
+> 
+> No rush; let's get it right.
+> 
+> So I can think of splitting this into maybe 3 patches, based on feedback:
+> 1. there's a bug in compile time validating _val in FIELD_FIT, since
+> we want to be able to call it at runtime with "bad" values.
+> 2. the FIELD_* macros use constants (0ull, 0ULL, 0U) that don't match
+> typeof(_mask).
+> 3. It might be nice to break up __BF_FIELD_CHECK.
+>
+> I don't think anyone's raised an objection to 1.
+> 
+> Assuming Jakub is ok with 3, fixing 3 will actually also address 2.
+> So then we don't need 3 patches; only 2.  But if we don't do 3 first,
+> then I have to resend a v2 of 1 anyways to address 2 (which was Alex's
+> original feedback).
+> 
+> My above diff was all three in one go, but I don't think it would be
+> unreasonable to break it up into 3 then 1.
+> 
+> If we prefer not to do 3, then I can send a v2 of 1 that addresses the
+> inconsistent use of types, as one or two patches.
+> 
+> Jakub, what is your preference?
 
-Reproducer for "BUG: KASAN: use-after-free in smk_write_relabel_self":
+I don't see much point in breaking up the checking macro. But even less
+in arguing either way :)
 
-	#include <fcntl.h>
-	#include <pthread.h>
-	#include <unistd.h>
+> (Also, noting that I'm sending to David, assuming he'll pick up the
+> patches once we have everyone's buy in? Or is there someone else more
+> appropriate to accept changes to this header? I guess Jakub and David
+> are the listed maintainers for
+> drivers/net/ethernet/netronome/nfp/nfpcore/nfp_nsp_eth.c)
 
-	static void *thrproc(void *arg)
-	{
-		int fd = open("/sys/fs/smackfs/relabel-self", O_WRONLY);
-		for (;;) write(fd, "foo", 3);
-	}
-
-	int main()
-	{
-		pthread_t t;
-		pthread_create(&t, NULL, thrproc, NULL);
-		thrproc(NULL);
-	}
-
-Reported-by: syzbot+e6416dabb497a650da40@syzkaller.appspotmail.com
-Fixes: 38416e53936e ("Smack: limited capability for changing process label")
-Cc: <stable@vger.kernel.org> # v4.4+
-Signed-off-by: Eric Biggers <ebiggers@google.com>
----
- security/smack/smackfs.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
-
-diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
-index c21b656b3263..840a192e9337 100644
---- a/security/smack/smackfs.c
-+++ b/security/smack/smackfs.c
-@@ -2720,7 +2720,6 @@ static int smk_open_relabel_self(struct inode *inode, struct file *file)
- static ssize_t smk_write_relabel_self(struct file *file, const char __user *buf,
- 				size_t count, loff_t *ppos)
- {
--	struct task_smack *tsp = smack_cred(current_cred());
- 	char *data;
- 	int rc;
- 	LIST_HEAD(list_tmp);
-@@ -2745,11 +2744,21 @@ static ssize_t smk_write_relabel_self(struct file *file, const char __user *buf,
- 	kfree(data);
- 
- 	if (!rc || (rc == -EINVAL && list_empty(&list_tmp))) {
-+		struct cred *new;
-+		struct task_smack *tsp;
-+
-+		new = prepare_creds();
-+		if (!new) {
-+			rc = -ENOMEM;
-+			goto out;
-+		}
-+		tsp = smack_cred(new);
- 		smk_destroy_label_list(&tsp->smk_relabel);
- 		list_splice(&list_tmp, &tsp->smk_relabel);
-+		commit_creds(new);
- 		return count;
- 	}
--
-+out:
- 	smk_destroy_label_list(&list_tmp);
- 	return rc;
- }
--- 
-2.27.0
-
+Seems reasonable, put [PATCH net] in the subject to make that explicit.
