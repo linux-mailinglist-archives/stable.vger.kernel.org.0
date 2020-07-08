@@ -2,90 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CD082185A4
-	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 13:10:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45F0621864A
+	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 13:38:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728826AbgGHLKI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jul 2020 07:10:08 -0400
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:38098 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728620AbgGHLKI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Jul 2020 07:10:08 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1594206607;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=14f1mTpd7HVDpOyXYxD6GElv4scdvE+XkzizMQMoy8M=;
-        b=JBWuSHlDHc6tlqTDU9X4CaPApIaLAIzczwe7ZqgY0DTzN6hwDHD1nkOVuPcLi+BNNSO5j3
-        A9dhUlM5EECF61MS3AXqDzBEvAAKa2Rx5k6lMe4KNLVIws5HzHsrTGqls/AxPx26Y4ygbO
-        npScT5N33loz6wqxDRdblYF7+AeUtmA=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-153-EZAncx8mMm6uPqF5pCEM9Q-1; Wed, 08 Jul 2020 07:10:05 -0400
-X-MC-Unique: EZAncx8mMm6uPqF5pCEM9Q-1
-Received: by mail-wr1-f69.google.com with SMTP id c6so32442007wru.7
-        for <stable@vger.kernel.org>; Wed, 08 Jul 2020 04:10:05 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=14f1mTpd7HVDpOyXYxD6GElv4scdvE+XkzizMQMoy8M=;
-        b=no963VV8ydOEptzcI+UVa9/wrKS68QJhuaMt8Z7OGe07cPKq1qs2d8c9tByFi4TaTK
-         qKJDu+HSDW6aBnbar6bLzdJhbJmARrzWzTDMjHTgc0ZLi8oqimmROcGTLVmtaIJ3jhQ+
-         sfQub6ezgl/D99muI1bQb73NwNfJfZcCCTaRfzqWF2KO9f3bSl26M0L7A7SHwX6yuXpR
-         XS0XqaRLTjowdEFfbb3bopl7ha2r2ZdEDlotYC+Ors6KvPlZnxlhJRc42u9prY+H1rNT
-         VdlRjbeqdSFlbF7TfVsSqAjzlBNtSRRiCBoQipYpBV6afjG/pvgkrb9irMeX/wivbla0
-         cMzw==
-X-Gm-Message-State: AOAM533MgGVRGM70Hq8N/LEJPehHKb/+6Idzt250blJneKum/nTjWIzX
-        LMjxsvB9WIbo1egr7U5WNNyowXKW2Bq/3AHcYJvLlT7Q11oTZJg2mCEQlPiSXx0TOJ6nP1XOnCM
-        k6xmz1DWwRkrjA0GW
-X-Received: by 2002:a05:6000:10c4:: with SMTP id b4mr54529519wrx.50.1594206604360;
-        Wed, 08 Jul 2020 04:10:04 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyS9IXWXY8AsLX9C3rrryHKZ4q/47XveQNN7O/2+yEMRnuw24+Agts1i9nEHB/Ycwubh37ATw==
-X-Received: by 2002:a05:6000:10c4:: with SMTP id b4mr54529504wrx.50.1594206604189;
-        Wed, 08 Jul 2020 04:10:04 -0700 (PDT)
-Received: from ?IPv6:2001:b07:6468:f312:9541:9439:cb0f:89c? ([2001:b07:6468:f312:9541:9439:cb0f:89c])
-        by smtp.gmail.com with ESMTPSA id j6sm5766924wma.25.2020.07.08.04.10.03
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 08 Jul 2020 04:10:03 -0700 (PDT)
-Subject: Re: [PATCH 1/2] KVM: SVM: avoid infinite loop on NPF from bad address
-To:     Wanpeng Li <kernellwp@gmail.com>
-Cc:     LKML <linux-kernel@vger.kernel.org>, kvm <kvm@vger.kernel.org>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        "# v3 . 10+" <stable@vger.kernel.org>
-References: <20200417163843.71624-1-pbonzini@redhat.com>
- <20200417163843.71624-2-pbonzini@redhat.com>
- <CANRm+CyWKbSU9FZkGoPx2nff-Se3Qcfn1TXXw8exy-6nuZrirg@mail.gmail.com>
- <57a405b3-6836-83f0-ed97-79f637f7b456@redhat.com>
- <CANRm+CzpFt5SwnQzJjRGp3T_Q=Ws3OWBx4FPmMK79qOx1v3NBQ@mail.gmail.com>
-From:   Paolo Bonzini <pbonzini@redhat.com>
-Message-ID: <7507de6a-799e-4f71-012d-ddaa39178284@redhat.com>
-Date:   Wed, 8 Jul 2020 13:10:03 +0200
+        id S1728598AbgGHLi5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jul 2020 07:38:57 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:40978 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728592AbgGHLi4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Jul 2020 07:38:56 -0400
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 068BVr9O177902;
+        Wed, 8 Jul 2020 07:38:55 -0400
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3259yx6k3k-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Jul 2020 07:38:55 -0400
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 068BFDdL009682;
+        Wed, 8 Jul 2020 11:33:53 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma05fra.de.ibm.com with ESMTP id 3251w8ga9e-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 08 Jul 2020 11:33:53 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 068BXojT38273066
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 8 Jul 2020 11:33:50 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 420B1AE04D;
+        Wed,  8 Jul 2020 11:33:50 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E8825AE045;
+        Wed,  8 Jul 2020 11:33:49 +0000 (GMT)
+Received: from oc7455500831.ibm.com (unknown [9.145.16.21])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed,  8 Jul 2020 11:33:49 +0000 (GMT)
+Subject: "KVM: s390: reduce number of IO pins to 1" for stable
+References: <20200706171523.12441-1-pbonzini@redhat.com>
+To:     stable@vger.kernel.org
+Cc:     kvm list <kvm@vger.kernel.org>,
+        Janosch Frank <frankja@linux.ibm.com>
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+Autocrypt: addr=borntraeger@de.ibm.com; prefer-encrypt=mutual; keydata=
+ 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
+ nS4h0HDFPrrp1C2EMVYIQrMokWvlFZbCpsdYbBI=
+X-Forwarded-Message-Id: <20200706171523.12441-1-pbonzini@redhat.com>
+Message-ID: <41c4e9e5-441f-3777-e399-70c82a2633e5@de.ibm.com>
+Date:   Wed, 8 Jul 2020 13:33:49 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.9.0
 MIME-Version: 1.0
-In-Reply-To: <CANRm+CzpFt5SwnQzJjRGp3T_Q=Ws3OWBx4FPmMK79qOx1v3NBQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20200706171523.12441-1-pbonzini@redhat.com>
+Content-Type: text/plain; charset=windows-1252
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
+ definitions=2020-07-08_08:2020-07-08,2020-07-08 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ adultscore=0 impostorscore=0 clxscore=1011 phishscore=0 mlxlogscore=485
+ bulkscore=0 spamscore=0 priorityscore=1501 mlxscore=0 cotscore=-2147483648
+ malwarescore=0 suspectscore=13 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2004280000 definitions=main-2007080080
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 08/07/20 11:08, Wanpeng Li wrote:
->>>> +EXPORT_SYMBOL_GPL(kvm_vcpu_gfn_to_memslot);
->>> This commit incurs the linux guest fails to boot once add --overcommit
->>> cpu-pm=on or not intercept hlt instruction, any thoughts?
->> Can you write a selftest?
-> Actually I don't know what's happening here(why not intercept hlt
-> instruction has associated with this commit), otherwise, it has
-> already been fixed. :)
+stable team,
 
-I don't understand, what has been fixed and where?
 
-Paolo
+Please consider commit 774911290c58 ("KVM: s390: reduce number of IO pins to 1")
+for stable. This can avoid OOM killer activity on highly fragmented memory
+even when swap and memory is available. 
+
+We decided too late that this is stable material, so sorry for not marking it
+correctly. 
+
+Christian
 
