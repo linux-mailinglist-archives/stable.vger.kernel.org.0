@@ -2,99 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53571218802
-	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 14:50:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37EC521886E
+	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 15:05:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728965AbgGHMuR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jul 2020 08:50:17 -0400
-Received: from stargate.chelsio.com ([12.32.117.8]:53652 "EHLO
-        stargate.chelsio.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728803AbgGHMuR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Jul 2020 08:50:17 -0400
-Received: from localhost (scalar.blr.asicdesigners.com [10.193.185.94])
-        by stargate.chelsio.com (8.13.8/8.13.8) with ESMTP id 068Cnn5v011537;
-        Wed, 8 Jul 2020 05:49:54 -0700
-Date:   Wed, 8 Jul 2020 18:06:57 +0530
-From:   Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, nirranjan@chelsio.com
-Subject: Re: [PATCH 4.19 17/36] cxgb4: use correct type for all-mask IP
- address comparison
-Message-ID: <20200708123656.GA13635@chelsio.com>
-References: <20200707145749.130272978@linuxfoundation.org>
- <20200707145749.959174058@linuxfoundation.org>
- <20200707213326.GB11158@amd>
+        id S1729240AbgGHNFP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jul 2020 09:05:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37124 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729115AbgGHNFP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Jul 2020 09:05:15 -0400
+Received: from mail-oi1-x243.google.com (mail-oi1-x243.google.com [IPv6:2607:f8b0:4864:20::243])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A9B7C08E6DC
+        for <stable@vger.kernel.org>; Wed,  8 Jul 2020 06:05:15 -0700 (PDT)
+Received: by mail-oi1-x243.google.com with SMTP id k6so33832430oij.11
+        for <stable@vger.kernel.org>; Wed, 08 Jul 2020 06:05:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=jnHU4ybCuZZYlQELmFh57D27dj28RTyWDhd9i79ajHo=;
+        b=h48cBOjNmtf7x5yXbFeHtd7Hx6qMVw16CwUKWbcQBhZat4JXVBdU3ZFLvNDytpPmK/
+         XaRllPX4CdmkYUl+xZH64SKTUBrlnKou81mggbJTAUbKpi7luTAocDYu39RfD28XRC1d
+         p3wSfmN2FvA1eqljY1ttGqqKW8sywgW//bhQg=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=jnHU4ybCuZZYlQELmFh57D27dj28RTyWDhd9i79ajHo=;
+        b=FvKQG7+5PjTBEz3G78ijBHHGYnRBCC6u/kJUldKb8wvSy/AmwE7jIk0iNw95+292hi
+         mrSkrAQqo7IM4CWe1kBIVDv2acvwqEoX3RQ8IutyczPbOJoLqy0GCM2bsLnxVbnaRcmP
+         6vXW6LQWbsgaRFNL538vVkvh8vaL6MXSvbaQzjqjusWXBjfYIzaVm/GYaFf+0zoSrkFI
+         pv1Gkpc/P/PYPl+2v20JZ5FupEFOhdWroxbNW5cn44RbjCeiPmchFTgyBl/Ccs41T1Me
+         9FUJ4gbNeNIYqM/uGZtyWynnWQcc+nciNQFQhTiaetq7WnrVbCUzyDelX7117GfKn98Y
+         8IZQ==
+X-Gm-Message-State: AOAM530fsIX94L4mwj6gugbwRPZcT6M6GelVxUGK3QxmkxlpWVSClHo9
+        9/d+0ik0Jp7tHyG3NjocVRPuQw==
+X-Google-Smtp-Source: ABdhPJw+gH7No5NB7zvrPYHmMGTVrSWNZb+xYGOe+4Tdm9UIvka5yC+w0QdExTvjpvhDxpAU9Zd8Hw==
+X-Received: by 2002:aca:53cc:: with SMTP id h195mr820451oib.49.1594213514603;
+        Wed, 08 Jul 2020 06:05:14 -0700 (PDT)
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
+        by smtp.gmail.com with ESMTPSA id i4sm761460ook.30.2020.07.08.06.05.13
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 08 Jul 2020 06:05:13 -0700 (PDT)
+Subject: Re: [PATCH 5.7 000/112] 5.7.8-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>
+References: <20200707145800.925304888@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <552f9118-eac9-56cc-c321-dd9b97eff09e@linuxfoundation.org>
+Date:   Wed, 8 Jul 2020 07:05:12 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200707213326.GB11158@amd>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+In-Reply-To: <20200707145800.925304888@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tuesday, July 07/07/20, 2020 at 23:33:26 +0200, Pavel Machek wrote:
-> Hi!
+On 7/7/20 9:16 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.7.8 release.
+> There are 112 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> > From: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
-> > 
-> > [ Upstream commit f286dd8eaad5a2758750f407ab079298e0bcc8a5 ]
-> > 
-> > Use correct type to check for all-mask exact match IP addresses.
-> > 
-> > Fixes following sparse warnings due to big endian value checks
-> > against 0xffffffff in is_addr_all_mask():
-> > cxgb4_filter.c:977:25: warning: restricted __be32 degrades to integer
-> > cxgb4_filter.c:983:37: warning: restricted __be32 degrades to integer
-> > cxgb4_filter.c:984:37: warning: restricted __be32 degrades to integer
-> > cxgb4_filter.c:985:37: warning: restricted __be32 degrades to integer
-> > cxgb4_filter.c:986:37: warning: restricted __be32 degrades to integer
+> Responses should be made by Thu, 09 Jul 2020 14:57:34 +0000.
+> Anything received after that time might be too late.
 > 
-> > diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
-> > index 7dddb9e748b81..86745f33a252d 100644
-> > --- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
-> > +++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
-> > @@ -810,16 +810,16 @@ static bool is_addr_all_mask(u8 *ipmask, int family)
-> >  		struct in_addr *addr;
-> >  
-> >  		addr = (struct in_addr *)ipmask;
-> > -		if (addr->s_addr == 0xffffffff)
-> > +		if (ntohl(addr->s_addr) == 0xffffffff)
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.7.8-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.7.y
+> and the diffstat can be found below.
 > 
-> Endianity does not really matter for ~0, but can compiler figure it
-> out?
+> thanks,
 > 
-> would it be better to do these tests as 
-> 
->       if (foo == htonl(0xffffffff))
-> 
-> to make it clear to the compiler?
+> greg k-h
 > 
 
-Sure, I'll update all checks to follow above approach. Will send a
-patch.
+Compiled and booted on my test system. No dmesg regressions.
 
-> 
-> >  	} else if (family == AF_INET6) {
-> >  		struct in6_addr *addr6;
-> >  
-> >  		addr6 = (struct in6_addr *)ipmask;
-> > -		if (addr6->s6_addr32[0] == 0xffffffff &&
-> > -		    addr6->s6_addr32[1] == 0xffffffff &&
-> > -		    addr6->s6_addr32[2] == 0xffffffff &&
-> > -		    addr6->s6_addr32[3] == 0xffffffff)
-> > +		if (ntohl(addr6->s6_addr32[0]) == 0xffffffff &&
-> > +		    ntohl(addr6->s6_addr32[1]) == 0xffffffff &&
-> > +		    ntohl(addr6->s6_addr32[2]) == 0xffffffff &&
-> > +		    ntohl(addr6->s6_addr32[3]) == 0xffffffff)
-> >  			return true;
-> >  	}
-> >  	return false;
-> 
-
-Thanks,
-Rahul
+thanks,
+-- Shuah
