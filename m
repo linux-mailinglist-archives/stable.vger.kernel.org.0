@@ -2,230 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9C66218026
-	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 09:00:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CB362180FA
+	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 09:22:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730034AbgGHHAl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jul 2020 03:00:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36448 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726194AbgGHHAl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Jul 2020 03:00:41 -0400
-Received: from mail-lf1-x142.google.com (mail-lf1-x142.google.com [IPv6:2a00:1450:4864:20::142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD11CC061755
-        for <stable@vger.kernel.org>; Wed,  8 Jul 2020 00:00:40 -0700 (PDT)
-Received: by mail-lf1-x142.google.com with SMTP id d21so26224004lfb.6
-        for <stable@vger.kernel.org>; Wed, 08 Jul 2020 00:00:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=dN7kD7Q1Rq4KZPUzBGzJoKUeTvUT8h427/XLCP0siXE=;
-        b=zXDRP/bICz7BJrvShRWcIw26GN2IeV4EJhuSvEnjTAy8fGHDJV8KtACwYmk6uwEe4r
-         BuCbZShWgCurUdUrAVg0yBebe49q5YgB0ZYlfIEibkTOqyc+fkkU1XdYvhO+j6p4/YDR
-         0O6Pc9OXUo7jXq6D/ezE6ViR0X6dnhWxIwVEqGaApFkYmqiqQIvgzhPF/e2HH1NvUMGq
-         bOL+ZDXnu5M3oMq5CgS2iy4YhR8H+x7cPW0GeObiUWz/5KP2Di4voisye95EOPRWGk5g
-         az5CF/AEiyRTz10mf5WlWOSAj5GNZVpR78xmEaqEQolsfJzEl6QW3uznM2Q1UUGvCXXH
-         SxcA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=dN7kD7Q1Rq4KZPUzBGzJoKUeTvUT8h427/XLCP0siXE=;
-        b=qw1LlFDrM7j9bfR5k0dF/LmKw4n0zemoMFr7TbJ6MfOtY0H+QnCYIONTf6TjAicGPD
-         nVuVp1JFgXTFTwqnQoLhtzCAYLUvV0y+etmTjh1yqnS8PJD480zHsY91DFYEXdCNZDmn
-         u0Zt2xMzcLEQwRVthFGihpWDebW4xuq/1cZ0qk2ltM/u6m4iU6s1SfBt2FpkeqkG2Is+
-         NkwD0IPfg0iPPXL3CXKvIw8sbGKBJ0lC1ejxzW9U2o6ojy3VA4OmqS0mXWt9btyKDkOS
-         zUAhpSrjtmcifDSeyLx6MpCp82aHUs5LSWBqcoWNADk1aGV2Je3GdFE2RFYfKzwv5G5i
-         qn5Q==
-X-Gm-Message-State: AOAM5318JT25ctauX1gl8AhmlC68Hm3ZOj84vC58qkJ/6KSwX4fvKtFH
-        Id+/3AYcJuUAkpHhWEHc0qZZ78JfgsLCy749Qj7dIw==
-X-Google-Smtp-Source: ABdhPJxuzf3IPe0k9fpHN75463rwiENlmj8qvoP+ZRpXWAU/gSJBP7lw6ZSMGOHpzAYVc8u9zL18+uCcbANt1lK8rCI=
-X-Received: by 2002:a19:c78d:: with SMTP id x135mr35232317lff.82.1594191639066;
- Wed, 08 Jul 2020 00:00:39 -0700 (PDT)
+        id S1730049AbgGHHVa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jul 2020 03:21:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45480 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729340AbgGHHVa (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Wed, 8 Jul 2020 03:21:30 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 77EFD206E2;
+        Wed,  8 Jul 2020 07:21:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1594192890;
+        bh=ZJukO1xQ7tQO3w5sN4dpFvqDoCTnZ8YNDB767EkqG5g=;
+        h=Subject:To:From:Date:From;
+        b=pjcogBGIE/B8z+ozeszhAvqwNlJfNYwxC25kaUNXh4srHh5nnP/voBRX9I/sc+lbC
+         us4dKZ3b19urFBpn8yUMsllS+gZ1tN2G7U5QAGinbpTp3eU2W9PzTpp6B2R/O51mPO
+         b3uWMqc7TnNTzxN2iD6q5CZkm2hNiwAkWKnhh6Bk=
+Subject: patch "iio:health:afe4403 Fix timestamp alignment and prevent data leak." added to staging-linus
+To:     Jonathan.Cameron@huawei.com, Stable@vger.kernel.org, afd@ti.com,
+        lars@metafoo.de
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 08 Jul 2020 09:21:26 +0200
+Message-ID: <1594192886179106@kroah.com>
 MIME-Version: 1.0
-References: <20200707145747.493710555@linuxfoundation.org>
-In-Reply-To: <20200707145747.493710555@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 8 Jul 2020 12:30:27 +0530
-Message-ID: <CA+G9fYsewvEeJF60ANjuz5VqMgR1-PQLn44HVSHjkAh2NL9xxA@mail.gmail.com>
-Subject: Re: [PATCH 4.4 00/19] 4.4.230-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 7 Jul 2020 at 20:41, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.4.230 release.
-> There are 19 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 09 Jul 2020 14:57:34 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.4.230-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+This is a note to let you know that I've just added the patch titled
 
-Summary
-------------------------------------------------------------------------
+    iio:health:afe4403 Fix timestamp alignment and prevent data leak.
 
-kernel: 4.4.230-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.4.y
-git commit: c19eba6b34341e17e0a49be45b010f483dd95de7
-git describe: v4.4.229-20-gc19eba6b3434
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.4-oe/bui=
-ld/v4.4.229-20-gc19eba6b3434
+to my staging git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+in the staging-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
 
 
-No regressions (compared to build v4.4.228-155-gc19eba6b3434)
+From 3f9c6d38797e9903937b007a341dad0c251765d6 Mon Sep 17 00:00:00 2001
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Date: Sun, 17 May 2020 18:29:56 +0100
+Subject: iio:health:afe4403 Fix timestamp alignment and prevent data leak.
 
-No fixes (compared to build v4.4.228-155-gc19eba6b3434)
+One of a class of bugs pointed out by Lars in a recent review.
+iio_push_to_buffers_with_timestamp assumes the buffer used is aligned
+to the size of the timestamp (8 bytes).  This is not guaranteed in
+this driver which uses a 32 byte array of smaller elements on the stack.
+As Lars also noted this anti pattern can involve a leak of data to
+userspace and that indeed can happen here.  We close both issues by
+moving to a suitable structure in the iio_priv() data with alignment
+explicitly requested.  This data is allocated with kzalloc so no
+data can leak appart from previous readings.
 
-Ran 17904 total tests in the following environments and test suites.
+Fixes: eec96d1e2d31 ("iio: health: Add driver for the TI AFE4403 heart monitor")
+Reported-by: Lars-Peter Clausen <lars@metafoo.de>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Acked-by: Andrew F. Davis <afd@ti.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+---
+ drivers/iio/health/afe4403.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-Environments
---------------
-- i386
-- juno-r2 - arm64
-- juno-r2-compat
-- juno-r2-kasan
-- x15 - arm
-- x86_64
-- x86-kasan
-
-Test Suites
------------
-* build
-* kselftest
-* kselftest/drivers
-* kselftest/filesystems
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* network-basic-tests
-* perf
-* v4l2-compliance
-* kvm-unit-tests
-* install-android-platform-tools-r2600
-* install-android-platform-tools-r2800
-* kselftest/net
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-native/drivers
-* kselftest-vsyscall-mode-native/filesystems
-* kselftest-vsyscall-mode-none
-* kselftest-vsyscall-mode-none/drivers
-* kselftest-vsyscall-mode-none/filesystems
-
-
-Summary
-------------------------------------------------------------------------
-
-kernel: 4.4.230-rc1
-git repo: https://git.linaro.org/lkft/arm64-stable-rc.git
-git branch: 4.4.230-rc1-hikey-20200707-761
-git commit: 1e4ecd8e5eab1c328ff83cd29d52021eb6035bc8
-git describe: 4.4.230-rc1-hikey-20200707-761
-Test details: https://qa-reports.linaro.org/lkft/linaro-hikey-stable-rc-4.4=
--oe/build/4.4.230-rc1-hikey-20200707-761
-
-
-No regressions (compared to build 4.4.229-rc1-hikey-20200629-759)
+diff --git a/drivers/iio/health/afe4403.c b/drivers/iio/health/afe4403.c
+index e9f87e42ff4f..a3507624b30f 100644
+--- a/drivers/iio/health/afe4403.c
++++ b/drivers/iio/health/afe4403.c
+@@ -65,6 +65,7 @@ static const struct reg_field afe4403_reg_fields[] = {
+  * @regulator: Pointer to the regulator for the IC
+  * @trig: IIO trigger for this device
+  * @irq: ADC_RDY line interrupt number
++ * @buffer: Used to construct data layout to push into IIO buffer.
+  */
+ struct afe4403_data {
+ 	struct device *dev;
+@@ -74,6 +75,8 @@ struct afe4403_data {
+ 	struct regulator *regulator;
+ 	struct iio_trigger *trig;
+ 	int irq;
++	/* Ensure suitable alignment for timestamp */
++	s32 buffer[8] __aligned(8);
+ };
+ 
+ enum afe4403_chan_id {
+@@ -309,7 +312,6 @@ static irqreturn_t afe4403_trigger_handler(int irq, void *private)
+ 	struct iio_dev *indio_dev = pf->indio_dev;
+ 	struct afe4403_data *afe = iio_priv(indio_dev);
+ 	int ret, bit, i = 0;
+-	s32 buffer[8];
+ 	u8 tx[4] = {AFE440X_CONTROL0, 0x0, 0x0, AFE440X_CONTROL0_READ};
+ 	u8 rx[3];
+ 
+@@ -326,7 +328,7 @@ static irqreturn_t afe4403_trigger_handler(int irq, void *private)
+ 		if (ret)
+ 			goto err;
+ 
+-		buffer[i++] = get_unaligned_be24(&rx[0]);
++		afe->buffer[i++] = get_unaligned_be24(&rx[0]);
+ 	}
+ 
+ 	/* Disable reading from the device */
+@@ -335,7 +337,8 @@ static irqreturn_t afe4403_trigger_handler(int irq, void *private)
+ 	if (ret)
+ 		goto err;
+ 
+-	iio_push_to_buffers_with_timestamp(indio_dev, buffer, pf->timestamp);
++	iio_push_to_buffers_with_timestamp(indio_dev, afe->buffer,
++					   pf->timestamp);
+ err:
+ 	iio_trigger_notify_done(indio_dev->trig);
+ 
+-- 
+2.27.0
 
 
-No fixes (compared to build 4.4.229-rc1-hikey-20200629-759)
-
-Ran 1861 total tests in the following environments and test suites.
-
-Environments
---------------
-- hi6220-hikey - arm64
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* kselftest/drivers
-* kselftest/filesystems
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
