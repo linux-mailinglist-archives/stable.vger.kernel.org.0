@@ -2,94 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 810C1218226
-	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 10:24:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 855122182D4
+	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 10:49:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726121AbgGHIYQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jul 2020 04:24:16 -0400
-Received: from kernel.crashing.org ([76.164.61.194]:60620 "EHLO
-        kernel.crashing.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726081AbgGHIYP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Jul 2020 04:24:15 -0400
-Received: from localhost (gate.crashing.org [63.228.1.57])
-        (authenticated bits=0)
-        by kernel.crashing.org (8.14.7/8.14.7) with ESMTP id 0688NCdH001794
-        (version=TLSv1/SSLv3 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO);
-        Wed, 8 Jul 2020 03:23:18 -0500
-Message-ID: <39fe1480891453839e257cd85e1070cde05866f0.camel@kernel.crashing.org>
-Subject: Re: [PATCH 5/6] drm/ast: Initialize DRAM type before posting GPU
-From:   Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To:     Thomas Zimmermann <tzimmermann@suse.de>, airlied@redhat.com,
-        daniel@ffwll.ch, sam@ravnborg.org, noralf@tronnes.org,
-        emil.l.velikov@gmail.com, yc_chen@aspeedtech.com
-Cc:     dri-devel@lists.freedesktop.org, Joel Stanley <joel@jms.id.au>,
-        Gerd Hoffmann <kraxel@redhat.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>, stable@vger.kernel.org
-Date:   Wed, 08 Jul 2020 18:23:11 +1000
-In-Reply-To: <20200708074912.25422-6-tzimmermann@suse.de>
-References: <20200708074912.25422-1-tzimmermann@suse.de>
-         <20200708074912.25422-6-tzimmermann@suse.de>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5-0ubuntu0.18.04.2 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+        id S1728277AbgGHItL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jul 2020 04:49:11 -0400
+Received: from mail.elsol.com.pe ([170.231.82.35]:44239 "EHLO
+        mail.elsol.com.pe" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728258AbgGHItL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Jul 2020 04:49:11 -0400
+X-Greylist: delayed 5984 seconds by postgrey-1.27 at vger.kernel.org; Wed, 08 Jul 2020 04:49:10 EDT
+Received: from localhost (localhost.localdomain [127.0.0.1])
+        by mail.elsol.com.pe (Postfix) with ESMTP id 301206073F5;
+        Wed,  8 Jul 2020 02:04:21 -0500 (-05)
+Received: from mail.elsol.com.pe ([127.0.0.1])
+        by localhost (mail.elsol.com.pe [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id DDQlSohM0QPU; Wed,  8 Jul 2020 02:04:21 -0500 (-05)
+Received: from localhost (localhost.localdomain [127.0.0.1])
+        by mail.elsol.com.pe (Postfix) with ESMTP id 25920607065;
+        Wed,  8 Jul 2020 02:04:05 -0500 (-05)
+DKIM-Filter: OpenDKIM Filter v2.10.3 mail.elsol.com.pe 25920607065
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=elsol.com.pe;
+        s=17F39D2A-FFD0-11E7-BCBF-081969246B0E; t=1594191845;
+        bh=7Y6RtNhSVAIVHdJEU2gHHWYvaP8LRgEAhMNj0EoKaAA=;
+        h=MIME-Version:To:From:Date:Message-Id;
+        b=K077aUlmi+iQIQ2RDthaOPHft4WwAOdsR3qdhLO25UGHCTmIwn6g8N8gPjA6FUJBn
+         5lqPA6EOY9Go+9SBCc9a7SwKvmOQGjC5X0cs4zgzsW4BuaJs+sUllZVsRC3GEJV6PX
+         FLfVDAjScKuB6E53xNmsuh5/RDtzOnpMB1wfP37TmH4xai1Ps/07Z23IqYg/hLVCni
+         sl6Rv3yjnBCmJobLpdM+OLcyMT4sg8IfUvKcpnBikS7ZBOepXqfpHoLIXFZI51GYLM
+         nRWvK5FgsRlExkQwE31P2MfLn/8PB+I0ZmvQr68tHPlbSc6rSm6dFWgyLgdt2YpUc+
+         AjRs+eEKbh1wg==
+X-Virus-Scanned: amavisd-new at elsol.com.pe
+Received: from mail.elsol.com.pe ([127.0.0.1])
+        by localhost (mail.elsol.com.pe [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id QZZAUdDMZqH9; Wed,  8 Jul 2020 02:04:05 -0500 (-05)
+Received: from [10.86.65.172] (unknown [105.8.7.225])
+        by mail.elsol.com.pe (Postfix) with ESMTPSA id 830B9607187;
+        Wed,  8 Jul 2020 02:03:47 -0500 (-05)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Description: Mail message body
+Subject: =?utf-8?q?Covid_19_Wohlt=C3=A4tigkeitsfonds?=
+To:     Recipients <dreyes@elsol.com.pe>
+From:   ''Tayeb Souami'' <dreyes@elsol.com.pe>
+Date:   Wed, 08 Jul 2020 09:00:00 +0200
+Reply-To: Tayebsouam.spende@gmail.com
+Message-Id: <20200708070347.830B9607187@mail.elsol.com.pe>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 2020-07-08 at 09:49 +0200, Thomas Zimmermann wrote:
-> Posting the GPU requires the correct DRAM type to be stored in
-> struct ast_private. Therefore first initialize the DRAM info and
-> then post the GPU. This restores the original order of instructions
-> in this function.
+Lieber Freund,
 
-I no longer have access to the relevant test POWER systems,
-however the patch looks good to me.
+Ich bin Herr Tayeb Souami, New Jersey, Vereinigte Staaten von Amerika, der =
+Mega-Gewinner von $ 315million In Mega Millions Jackpot, spende ich an 5 zu=
+f=C3=A4llige Personen, wenn Sie diese E-Mail erhalten, dann wurde Ihre E-Ma=
+il nach einem Spinball ausgew=C3=A4hlt.Ich habe den gr=C3=B6=C3=9Ften Teil =
+meines Verm=C3=B6gens auf eine Reihe von Wohlt=C3=A4tigkeitsorganisationen =
+und Organisationen verteilt.Ich habe mich freiwillig dazu entschieden, die =
+Summe von =E2=82=AC 2.000.000,00 an Sie als eine der ausgew=C3=A4hlten 5 zu=
+ spenden, um meine Gewinne zu =C3=BCberpr=C3=BCfen, sehen Sie bitte meine Y=
+ou Tube Seite unten.
 
-> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-> Fixes: bad09da6deab ("drm/ast: Fixed vram size incorrect issue on
-> POWER")
-> Cc: Joel Stanley <joel@jms.id.au>
-> Cc: Y.C. Chen <yc_chen@aspeedtech.com>
+UHR MICH HIER: https://www.youtube.com/watch?v=3DZ6ui8ZDQ6Ks
 
-Acked-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-> Cc: Dave Airlie <airlied@redhat.com>
-> Cc: Thomas Zimmermann <tzimmermann@suse.de>
-> Cc: Gerd Hoffmann <kraxel@redhat.com>
-> Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-> Cc: Sam Ravnborg <sam@ravnborg.org>
-> Cc: Emil Velikov <emil.l.velikov@gmail.com>
-> Cc: "Y.C. Chen" <yc_chen@aspeedtech.com>
-> Cc: <stable@vger.kernel.org> # v4.11+
-> ---
->  drivers/gpu/drm/ast/ast_main.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/ast/ast_main.c
-> b/drivers/gpu/drm/ast/ast_main.c
-> index b162cc82204d..87e5baded2a7 100644
-> --- a/drivers/gpu/drm/ast/ast_main.c
-> +++ b/drivers/gpu/drm/ast/ast_main.c
-> @@ -418,15 +418,15 @@ int ast_driver_load(struct drm_device *dev,
-> unsigned long flags)
->  
->  	ast_detect_chip(dev, &need_post);
->  
-> -	if (need_post)
-> -		ast_post_gpu(dev);
-> -
->  	ret = ast_get_dram_info(dev);
->  	if (ret)
->  		goto out_free;
->  	drm_info(dev, "dram MCLK=%u Mhz type=%d bus_width=%d\n",
->  		 ast->mclk, ast->dram_type, ast->dram_bus_width);
->  
-> +	if (need_post)
-> +		ast_post_gpu(dev);
-> +
->  	ret = ast_mm_init(ast);
->  	if (ret)
->  		goto out_free;
 
+Das ist dein Spendencode: [TS530342018]
+
+
+
+Antworten Sie mit dem SPENDE-CODE an diese
+
+E-Mail:Tayebsouam.spende@gmail.com
+
+
+Ich hoffe, Sie und Ihre Familie gl=C3=BCcklich zu machen.
+
+Gr=C3=BC=C3=9Fe
+Herr Tayeb Souami
