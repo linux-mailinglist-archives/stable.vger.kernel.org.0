@@ -2,67 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38D5A218D84
-	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 18:50:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71767218DAD
+	for <lists+stable@lfdr.de>; Wed,  8 Jul 2020 18:58:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730299AbgGHQuZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Jul 2020 12:50:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43876 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728148AbgGHQuZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Jul 2020 12:50:25 -0400
-Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DDB8C061A0B
-        for <stable@vger.kernel.org>; Wed,  8 Jul 2020 09:50:25 -0700 (PDT)
-Received: by mail-wr1-x441.google.com with SMTP id a6so49739410wrm.4
-        for <stable@vger.kernel.org>; Wed, 08 Jul 2020 09:50:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=kWB1mUaKU3pXOtA5XG8ARcu0Ncp67yejF2/TJ3E6Wt8=;
-        b=tq5xbAwfxBKkWZYb6P9awuKh3f2HZ4jRHqAsxvPS0b3XnvEeSU/C629zaOHV/00TAm
-         jhP4r21DxkdCxdh/S0ugEERTKoa7ymizMSTmISUzwXQGEBzgdM3Aso0SFfh3B/t07FAD
-         BDc5NGB9C820iovlla8RRHl3uxeXkrLtkDoMWSqpRYuRX6Pe6O6gJ9nVn/t+RwROT2QG
-         l0MBXKmqH0y9XDf2naAoxOu/tXJpZ4E57SNf22lUEeOy57Oen1p+W9tVwUT/vFjo0a6k
-         xPNhKf3usElOLT8Pa+SUl3oQme8rhB0ELEzne8CttFjfPxHhpRz7XEmoupPSVGc1Y2yw
-         Jcbg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=kWB1mUaKU3pXOtA5XG8ARcu0Ncp67yejF2/TJ3E6Wt8=;
-        b=VuKTrnF2Xlpb7iVCvPBtgVa316P6viJzFYoIV1NeosSd+xY2u2Znqfa3DhETCk3lyS
-         dZiccPYK/sCUgxzrC/vg/7ryx3wBgz6LMQruWokUTQ5476apZH18roJxGeZsUBDJi4Nc
-         iAcp0IFE9UUpYGYoMUSwKE1OgfpqpxkukunUknVuExjErnXPgK5rEx3E4KECa2ZFYDFG
-         vUGWo7YE4T5g/Xx7DGGzpb1tdn4TUcC9Z6zZz3QhU7ea1d1Wr9XL45rfF4ge+1roWvh5
-         OUnBNRa+TEe67Wbef/djUPVL7orIBQew+SPEIgS2U4kP2C+HLji+KpgQNN2rundKlOpM
-         VKBg==
-X-Gm-Message-State: AOAM532kgCOaBbYcswBza3O7JlhDaN/8qIwDkVECenyHUK8u2byURtmz
-        OFm9ArBMmg1CyBhaXA8rx5KGLWGeSir/9ht5uV4=
-X-Google-Smtp-Source: ABdhPJygAErEApJJDSh1MOX9lmMqypWjyi9vMkpDNMkp+YyjlcPSW1mZ57YHLE4mryd5wweHARK/wb+VDXzykYCKq6g=
-X-Received: by 2002:a05:6000:100c:: with SMTP id a12mr64616661wrx.81.1594227024218;
- Wed, 08 Jul 2020 09:50:24 -0700 (PDT)
+        id S1730634AbgGHQ6c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Jul 2020 12:58:32 -0400
+Received: from hqnvemgate26.nvidia.com ([216.228.121.65]:11547 "EHLO
+        hqnvemgate26.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725989AbgGHQ6c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Jul 2020 12:58:32 -0400
+Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqnvemgate26.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5f05fb2b0001>; Wed, 08 Jul 2020 09:58:19 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate102.nvidia.com (PGP Universal service);
+  Wed, 08 Jul 2020 09:58:31 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate102.nvidia.com on Wed, 08 Jul 2020 09:58:31 -0700
+Received: from [10.26.73.185] (10.124.1.5) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Wed, 8 Jul
+ 2020 16:58:29 +0000
+Subject: Re: [PATCH 5.4 00/65] 5.4.51-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     <linux-kernel@vger.kernel.org>, <torvalds@linux-foundation.org>,
+        <akpm@linux-foundation.org>, <linux@roeck-us.net>,
+        <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
+References: <20200707145752.417212219@linuxfoundation.org>
+ <6fbcdd30-68d3-e8c5-d762-7b8a8c48d112@nvidia.com>
+ <20200708151500.GA710412@kroah.com>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <14d23282-c871-3f9d-372c-06da693666e1@nvidia.com>
+Date:   Wed, 8 Jul 2020 17:58:27 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.0
 MIME-Version: 1.0
-Received: by 2002:a5d:42c4:0:0:0:0:0 with HTTP; Wed, 8 Jul 2020 09:50:23 -0700 (PDT)
-Reply-To: bektery@outlook.com
-From:   YAVUZ BEKTER <bariskamx@gmail.com>
-Date:   Wed, 8 Jul 2020 09:50:23 -0700
-Message-ID: <CABZeqGfbXwM_ydkHe8v_ek_gromgbta_BggOR+q2n0a57jSqbA@mail.gmail.com>
-Subject: Hello.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20200708151500.GA710412@kroah.com>
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1594227499; bh=IpJAqj0DH00PflI4I9sW5sqaACjectpvaylAIhAVG7s=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=Q7a53iOPmLs8d9iWm3U6etK1KpSylQuik5UXcVEb2kjWnROGQ2BgNLYHVq8Fz+Yi5
+         Tk7DF0YZyanIm2OdmZ/z4eIrYT/g30WWNQaZXpMsfzGbjwcrvCCEZJddbNMpy3H388
+         DFhnPIu0idJnIzsjC96EghxTyoKki7YCDdGQ25j7pb8xoKNtVU12mJLw7qI0OXek7k
+         leSqzHmUHFxBRalMx/S3tLQjrceSq/NSTJR0WwyJ7ygB8fe6wYA+0uJ5YxlZ97vLcb
+         af+LFRqQAuVcHTWetT7DdmbedQnjX4HTIGhxpimtkUK8Bpsr41CkifXx5bFhSo0/Vs
+         naQ1GJJXmbwaw==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I am the foreign operations director of Bank of Turkey.
-My name is Mr, Yavuz. I have a sensitive investment project to discuss
-with you, please reply now.
-________________________
-Jsem =C5=99editelem zahrani=C4=8Dn=C3=ADch operac=C3=AD Bank of Turkey.
-Jmenuji se pan Yavuz. Mus=C3=ADm diskutovat o citliv=C3=A9m investi=C4=8Dn=
-=C3=ADm projektu
-s v=C3=A1mi, odpov=C4=9Bzte nyn=C3=AD.
+
+On 08/07/2020 16:15, Greg Kroah-Hartman wrote:
+> On Wed, Jul 08, 2020 at 09:41:33AM +0100, Jon Hunter wrote:
+>>
+>> On 07/07/2020 16:16, Greg Kroah-Hartman wrote:
+>>> This is the start of the stable review cycle for the 5.4.51 release.
+>>> There are 65 patches in this series, all will be posted as a response
+>>> to this one.  If anyone has any issues with these being applied, please
+>>> let me know.
+>>>
+>>> Responses should be made by Thu, 09 Jul 2020 14:57:34 +0000.
+>>> Anything received after that time might be too late.
+>>>
+>>> The whole patch series can be found in one patch at:
+>>> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.51-rc1.gz
+>>> or in the git tree and branch at:
+>>> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+>>> and the diffstat can be found below.
+>>>
+>>> thanks,
+>>>
+>>> greg k-h
+>>
+>> All tests are passing for Tegra ...
+>>
+>> Test results for stable-v5.4:
+>>     11 builds:	11 pass, 0 fail
+>>     26 boots:	26 pass, 0 fail
+>>     56 tests:	56 pass, 0 fail
+>>
+>> Linux version:	5.4.51-rc1-g47d410b54275
+>> Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+>>                 tegra194-p2972-0000, tegra20-ventana,
+>>                 tegra210-p2371-2180, tegra210-p3450-0000,
+>>                 tegra30-cardhu-a04
+> 
+> Thanks for testing all of these and letting me know.
+
+No problem. For some reason the v5.7 review email never made it to my
+inbox AFAICT. Who knows if it will show up tomorrow, but anyway it all
+looks good to Tegra ...
+
+Test results for stable-v5.7:
+    11 builds:	11 pass, 0 fail
+    26 boots:	26 pass, 0 fail
+    56 tests:	56 pass, 0 fail
+
+Linux version:	5.7.8-rc1-gb371afd12a48
+Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+                tegra194-p2972-0000, tegra20-ventana,
+                tegra210-p2371-2180, tegra210-p3450-0000,
+                tegra30-cardhu-a04
+
+Cheers
+Jon
+
+-- 
+nvpublic
